@@ -27,8 +27,8 @@ table 10000 "PAC Web Service"
         {
             Caption = 'Certificate Thumbprint';
             ObsoleteReason = 'Using Local Certificate store is deprecated. Use Certificate field instead that are linked to certificate table.';
-            ObsoleteState = Pending;
-            ObsoleteTag = '15.0';
+            ObsoleteState = Removed;
+            ObsoleteTag = '25.0';
         }
         field(23; Certificate; Code[20])
         {

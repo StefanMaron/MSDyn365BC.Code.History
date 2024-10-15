@@ -224,7 +224,9 @@ table 1523 "Workflow Step Argument"
     end;
 
     var
+#pragma warning disable AA0470
         NoNegValuesErr: Label '%1 must be a positive value.';
+#pragma warning restore AA0470
         SenderTok: Label '<Sender>';
 
     procedure Clone(): Guid

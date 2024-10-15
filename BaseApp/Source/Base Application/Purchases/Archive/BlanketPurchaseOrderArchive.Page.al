@@ -231,6 +231,11 @@ page 6623 "Blanket Purchase Order Archive"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the city of the address that the items are shipped to.';
                 }
+                field("Ship-to Phone No."; Rec."Ship-to Phone No.")
+                {
+                    ApplicationArea = Suite;
+                    ToolTip = 'Specifies the telephone number of the company''s shipping address.';
+                }
                 field("Ship-to Contact"; Rec."Ship-to Contact")
                 {
                     ApplicationArea = Suite;

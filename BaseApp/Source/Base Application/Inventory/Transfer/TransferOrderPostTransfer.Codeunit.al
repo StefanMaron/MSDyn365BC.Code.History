@@ -108,7 +108,7 @@ codeunit 5856 "TransferOrder-Post Transfer"
 
         if InventorySetup."Automatic Cost Posting" then begin
             GLEntry.LockTable();
-            if GLEntry.FindLast() then;
+            GLEntry.GetLastEntryNo();
         end;
 
         InsertDirectTransHeader(TransHeader, DirectTransHeader);
@@ -200,6 +200,7 @@ codeunit 5856 "TransferOrder-Post Transfer"
         DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
         ReserveTransLine: Codeunit "Transfer Line-Reserve";
         WhsePostShipment: Codeunit "Whse.-Post Shipment";
+        WhseJnlRegisterLine: Codeunit "Whse. Jnl.-Register Line";
         SourceCode: Code[10];
         HideValidationDialog: Boolean;
         InvtPickPutaway: Boolean;
@@ -341,11 +342,8 @@ codeunit 5856 "TransferOrder-Post Transfer"
                 WhseShptLine.SetRange("Source Type", DATABASE::"Transfer Line");
                 WhseShptLine.SetRange("Source No.", TransLine."Document No.");
                 WhseShptLine.SetRange("Source Line No.", TransLine."Line No.");
-                if WhseShptLine.FindFirst() then begin
-                    WhseShptLine.TestField("Qty. to Ship", TransLine.Quantity);
-                    WhsePostShipment.CreatePostedShptLine(
-                        WhseShptLine, PostedWhseShptHeader, PostedWhseShptLine, TempWhseSplitSpecification);
-                end;
+                if WhseShptLine.FindFirst() then
+                    CreatePostedShptLineFromWhseShptLine(TransLine);
             end;
             if WhsePosting then
                 PostWhseJnlLine(ItemJnlLine, OriginalQuantity, OriginalQuantityBase, TempHandlingSpecification, 0);
@@ -357,6 +355,20 @@ codeunit 5856 "TransferOrder-Post Transfer"
         if not IsHandled then
             DirectTransLine.Insert();
         OnAfterInsertDirectTransLine(DirectTransLine, DirectTransHeader, TransLine)
+    end;
+
+    local procedure CreatePostedShptLineFromWhseShptLine(var TransferLine: Record "Transfer Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCreatePostedShptLineFromWhseShptLine(TransferLine, WhseShptLine, PostedWhseShptHeader, PostedWhseShptLine, TempWhseSplitSpecification, IsHandled, WhseJnlRegisterLine, WhsePostShipment);
+        if IsHandled then
+            exit;
+
+        WhseShptLine.TestField("Qty. to Ship", TransferLine.Quantity);
+        WhsePostShipment.CreatePostedShptLine(
+          WhseShptLine, PostedWhseShptHeader, PostedWhseShptLine, TempWhseSplitSpecification);
     end;
 
     local procedure CheckItemVariantNotBlocked(var ItemVariant: Record "Item Variant")
@@ -521,7 +533,6 @@ codeunit 5856 "TransferOrder-Post Transfer"
         TempWhseJnlLine2: Record "Warehouse Journal Line" temporary;
         ItemTrackingMgt: Codeunit "Item Tracking Management";
         WMSMgmt: Codeunit "WMS Management";
-        WhseJnlPostLine: Codeunit "Whse. Jnl.-Register Line";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -547,7 +558,7 @@ codeunit 5856 "TransferOrder-Post Transfer"
                 if TempWhseJnlLine2.Find('-') then
                     repeat
                         WMSMgmt.CheckWhseJnlLine(TempWhseJnlLine2, 1, 0, Direction = 1);
-                        WhseJnlPostLine.Run(TempWhseJnlLine2);
+                        WhseJnlRegisterLine.Run(TempWhseJnlLine2);
                     until TempWhseJnlLine2.Next() = 0;
             end;
     end;
@@ -668,6 +679,11 @@ codeunit 5856 "TransferOrder-Post Transfer"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePostItemJnlLine(var DirectTransHeader: Record "Direct Trans. Header"; var TransferLine: Record "Transfer Line"; DirectTransLine: Record "Direct Trans. Line"; WhseShptHeader: Record "Warehouse Shipment Header"; var ItemJnlPostLine: Codeunit "Item Jnl.-Post Line"; WhseShip: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreatePostedShptLineFromWhseShptLine(var TransferLine: Record "Transfer Line"; var WarehouseShipmentLine: Record "Warehouse Shipment Line"; var PostedWhseShipmentHeader: Record "Posted Whse. Shipment Header"; var PostedWhseShipmentLine: Record "Posted Whse. Shipment Line"; var TempWhseSplitTrackingSpecification: Record "Tracking Specification" temporary; var IsHandled: Boolean; var WhseJnlRegisterLine: Codeunit "Whse. Jnl.-Register Line"; var WhsePostShipment: Codeunit "Whse.-Post Shipment")
     begin
     end;
 

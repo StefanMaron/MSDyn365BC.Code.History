@@ -35,10 +35,8 @@ report 10084 "Void/Transmit Elec. Payments"
                 if FirstTime then begin
                     case UsageType of
                         UsageType::Void:
-                            begin
-                                if "Check Transmitted" then
-                                    Error(Text001);
-                            end;
+                            if "Check Transmitted" then
+                                Error(Text001);
                         UsageType::Transmit:
                             begin
                                 if not RTCConfirmTransmit() then

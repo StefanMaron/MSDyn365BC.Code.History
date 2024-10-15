@@ -547,18 +547,17 @@ page 9553 "Document Service Setup"
         CurrPage.Close();
     end;
 
-    [NonDebuggable]
     local procedure TestConnection()
     var
         AzureAdMgt: Codeunit "Azure AD Mgt.";
         DocumentServiceManagement: Codeunit "Document Service Management";
-        AccessToken: Text;
+        AccessToken: SecretText;
     begin
         if OneDriveUrl = '' then
             Error(SpecifyOneDriveUrlErr);
 
-        AccessToken := AzureAdMgt.GetAccessToken(OneDriveUrl, OneDriveUrl, true);
-        if AccessToken = '' then
+        AccessToken := AzureAdMgt.GetAccessTokenAsSecretText(OneDriveUrl, OneDriveUrl, true);
+        if AccessToken.IsEmpty()  then
             Error(FailedToGetTokenErr);
 
         if not DocumentServiceManagement.TestLocationResolves(OneDriveUrl, AccessToken) then
@@ -577,6 +576,7 @@ page 9553 "Document Service Setup"
 
     local procedure ShowIntroStep()
     var
+        [SecurityFiltering(SecurityFilter::Ignored)]
         DocumentServiceScenario: Record "Document Service Scenario";
     begin
         IntroStepVisible := true;

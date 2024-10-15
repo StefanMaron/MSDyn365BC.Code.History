@@ -29,10 +29,6 @@ using Microsoft.Sales.FinanceCharge;
 using Microsoft.Sales.History;
 using Microsoft.Sales.Receivables;
 using Microsoft.Sales.Reminder;
-using Microsoft.Service.Contract;
-using Microsoft.Service.Document;
-using Microsoft.Service.History;
-using Microsoft.Service.Ledger;
 using Microsoft.Warehouse.Ledger;
 using System.Automation;
 using System.Environment;
@@ -97,20 +93,21 @@ codeunit 483 "Change Global Dimensions"
                   TableData "Ins. Coverage Ledger Entry" = rm,
                   TableData "Value Entry" = rm,
                   TableData "Capacity Ledger Entry" = rm,
-                  TableData "Service Header" = rm,
-                  TableData "Service Item Line" = rm,
-                  TableData "Service Line" = rm,
-                  TableData "Service Ledger Entry" = rm,
-                  TableData "Service Contract Header" = rm,
-                  TableData "Service Contract Line" = rm,
-                  TableData "Service Invoice Line" = rm,
-                  tabledata "Service Cr.Memo Header" = rm,
-                  tabledata "Service Cr.Memo Line" = rm,
-                  tabledata "Service Invoice Header" = rm,
-                  tabledata "Service Shipment Header" = rm,
-                  tabledata "Service Shipment Line" = rm,
-                  TableData "Warehouse Entry" = rm,
-                  TableData "Filed Service Contract Header" = rm,
+#if not CLEAN25
+                  TableData Microsoft.Service.Document."Service Header" = rm,
+                  TableData Microsoft.Service.Document."Service Item Line" = rm,
+                  TableData Microsoft.Service.Document."Service Line" = rm,
+                  TableData Microsoft.Service.Ledger."Service Ledger Entry" = rm,
+                  TableData Microsoft.Service.Contract."Service Contract Header" = rm,
+                  TableData Microsoft.Service.Contract."Service Contract Line" = rm,
+                  TableData Microsoft.Service.History."Service Invoice Line" = rm,
+                  tabledata Microsoft.Service.History."Service Cr.Memo Header" = rm,
+                  tabledata Microsoft.Service.History."Service Cr.Memo Line" = rm,
+                  tabledata Microsoft.Service.History."Service Invoice Header" = rm,
+                  tabledata Microsoft.Service.History."Service Shipment Header" = rm,
+                  tabledata Microsoft.Service.History."Service Shipment Line" = rm,
+                  TableData Microsoft.Service.Contract."Filed Service Contract Header" = rm,
+#endif
                   TableData "Phys. Invt. Order Header" = rm,
                   TableData "Phys. Invt. Order Line" = rm,
                   TableData "Pstd. Phys. Invt. Order Hdr" = rm,
@@ -119,6 +116,7 @@ codeunit 483 "Change Global Dimensions"
                   TableData "Return Shipment Line" = rm,
                   TableData "Return Receipt Header" = rm,
                   TableData "Return Receipt Line" = rm,
+                  TableData "Warehouse Entry" = rm,
                   TableData "Posted Bank Rec. Line" = rm,
                   TableData "Posted Deposit Header" = rm,
                   TableData "Posted Deposit Line" = rm;

@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Service.Document;
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Service.Document;
 
 using Microsoft.CRM.Contact;
 using Microsoft.Finance.Currency;
@@ -507,6 +511,12 @@ page 5935 "Service Credit Memo"
                             IsShipToCountyVisible := FormatAddress.UseCounty(Rec."Ship-to Country/Region Code");
                         end;
                     }
+                    field("Ship-to Phone"; Rec."Ship-to Phone")
+                    {
+                        ApplicationArea = Service;
+                        Caption = 'Phone No.';
+                        ToolTip = 'Specifies the telephone number of the company''s shipping address.';
+                    }
                     field("Ship-to Contact"; Rec."Ship-to Contact")
                     {
                         ApplicationArea = Service;
@@ -579,10 +589,24 @@ page 5935 "Service Credit Memo"
                 SubPageLink = "No." = field("No."),
                               "Document Type" = field("Document Type");
             }
+#if not CLEAN25
             part("Attached Documents"; "Document Attachment Factbox")
             {
+                ObsoleteTag = '25.0';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
                 ApplicationArea = Service;
                 Caption = 'Attachments';
+                SubPageLink = "Table ID" = const(Database::"Service Header"),
+                              "No." = field("No."),
+                              "Document Type" = field("Document Type");
+            }
+#endif
+            part("Attached Documents List"; "Doc. Attachment List Factbox")
+            {
+                ApplicationArea = Service;
+                Caption = 'Documents';
+                UpdatePropagation = Both;
                 SubPageLink = "Table ID" = const(Database::"Service Header"),
                               "No." = field("No."),
                               "Document Type" = field("Document Type");
@@ -815,9 +839,9 @@ page 5935 "Service Credit Memo"
 
                     trigger OnAction()
                     var
-                        TestReportPrint: Codeunit "Test Report-Print";
+                        ServTestReportPrint: Codeunit "Serv. Test Report Print";
                     begin
-                        TestReportPrint.PrintServiceHeader(Rec);
+                        ServTestReportPrint.PrintServiceHeader(Rec);
                     end;
                 }
                 action(Post)
@@ -1064,10 +1088,10 @@ page 5935 "Service Credit Memo"
 
     local procedure SetDocNoVisible()
     var
-        DocumentNoVisibility: Codeunit DocumentNoVisibility;
+        ServDocumentNoVisibility: Codeunit "Serv. Document No. Visibility";
         DocType: Option Quote,"Order",Invoice,"Credit Memo",Contract;
     begin
-        DocNoVisible := DocumentNoVisibility.ServiceDocumentNoIsVisible(DocType::"Credit Memo", Rec."No.");
+        DocNoVisible := ServDocumentNoVisibility.ServiceDocumentNoIsVisible(DocType::"Credit Memo", Rec."No.");
     end;
 
     local procedure SetControlAppearance()

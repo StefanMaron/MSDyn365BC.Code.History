@@ -904,8 +904,12 @@ report 117 Reminder
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'Total %1';
         Text001: Label 'Total %1 Incl. VAT';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         PrimaryContact: Record Contact;
         Customer: Record Customer;
         CustEntry: Record "Cust. Ledger Entry";
@@ -929,9 +933,13 @@ report 117 Reminder
         VALSpecLCYHeader: Text[80];
         VALExchRate: Text[50];
         CurrFactor: Decimal;
+#pragma warning disable AA0074
         Text011: Label 'VAT Amount Specification in ';
         Text012: Label 'Local Currency';
+#pragma warning disable AA0470
         Text013: Label 'Exchange rate: %1/%2';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         AddFeeInclVAT: Decimal;
         AddFeePerLineInclVAT: Decimal;
         TotalVATAmount: Decimal;
@@ -963,7 +971,7 @@ report 117 Reminder
         VATPercentageCaptionLbl: Label 'VAT %';
         VATAmtSpecificationCaptionLbl: Label 'VAT Amount Specification';
         TotalCaptionLbl: Label 'Total';
-                ContactPhoneNoLbl: Label 'Contact Phone No.';
+        ContactPhoneNoLbl: Label 'Contact Phone No.';
         ContactMobilePhoneNoLbl: Label 'Contact Mobile Phone No.';
         ContactEmailLbl: Label 'Contact E-Mail';
         AmtDueTxt: Text;

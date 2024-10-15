@@ -86,6 +86,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
         TempVATEntry: Record "VAT Entry" temporary;
         TempVendorLedgerEntry: Record "Vendor Ledger Entry" temporary;
         TempCustLedgEntry: Record "Cust. Ledger Entry" temporary;
+        SourceCodeSetup: Record "Source Code Setup";
         GenJnlCheckLine: Codeunit "Gen. Jnl.-Check Line";
         PaymentToleranceMgt: Codeunit "Payment Tolerance Management";
         DeferralUtilities: Codeunit "Deferral Utilities";
@@ -132,6 +133,8 @@ codeunit 12 "Gen. Jnl.-Post Line"
         PreviewMode: Boolean;
         GLEntryInconsistent: Boolean;
         MultiplePostingGroups: Boolean;
+        SourceCodeSetupRead: Boolean;
+        IsGLRegInserted: Boolean;
 
         NeedsRoundingErr: Label '%1 needs to be rounded', Comment = '%1 - amount';
         PurchaseAlreadyExistsErr: Label 'Purchase %1 %2 already exists for this vendor.', Comment = '%1 = Document Type; %2 = Document No.';
@@ -145,13 +148,22 @@ codeunit 12 "Gen. Jnl.-Post Line"
         NoDeferralScheduleErr: Label 'You must create a deferral schedule if a deferral template is selected. Line: %1, Deferral Template: %2.', Comment = '%1=The line number of the general ledger transaction, %2=The Deferral Template Code';
         ZeroDeferralAmtErr: Label 'Deferral amounts cannot be 0. Line: %1, Deferral Template: %2.', Comment = '%1=The line number of the general ledger transaction, %2=The Deferral Template Code';
         CannotUnapplyEmptySrcCurrErr: Label 'Cannot unapply an entry when %1 is not equal to zero, and %2 is empty. Please try to unapply from an opposite entry.', Comment = '%1 - Realized Amount caption, %2 - Source Currency Code caption';
-        IsGLRegInserted: Boolean;
 
+    /// <summary>
+    /// Returns the G/L Register that has been created during the posting process.
+    /// </summary>
+    /// <param name="NewGLReg">Retun value: G/L Register that has been created during the posting process.</param>
     procedure GetGLReg(var NewGLReg: Record "G/L Register")
     begin
         NewGLReg := GLReg;
     end;
 
+    /// <summary>
+    /// Wrapper for the main procedure which checks and posts the journal line.
+    /// As a result G/L Entries and Register are created along with other related ledger entries.
+    /// </summary>
+    /// <param name="GenJnlLine2">Return value: General Journal Line that is being be posted.</param>
+    /// <returns>No. of the last General Ledger Entry that has been created.</returns>
     procedure RunWithCheck(var GenJnlLine2: Record "Gen. Journal Line"): Integer
     var
         GenJnlLine: Record "Gen. Journal Line";
@@ -165,6 +177,12 @@ codeunit 12 "Gen. Jnl.-Post Line"
         exit(GLEntryNo);
     end;
 
+    /// <summary>
+    /// Wrapper for the main procedure posts the journal line without checking it.
+    /// As a result G/L Entries and Register are created along with other related ledger entries.
+    /// </summary>
+    /// <param name="GenJnlLine2">Return value: General Journal Line that is being be posted.</param>
+    /// <returns>No. of the last General Ledger Entry that has been created.</returns>
     procedure RunWithoutCheck(var GenJnlLine2: Record "Gen. Journal Line"): Integer
     var
         GenJnlLine: Record "Gen. Journal Line";
@@ -268,11 +286,18 @@ codeunit 12 "Gen. Jnl.-Post Line"
         GLEntryInconsistent := not IsTransactionConsistent;
     end;
 
+    /// <summary>
+    /// Specifies if the General Ledger Entries that have been created during the posting process are inconsistent.
+    /// </summary>
+    /// <returns>True if the G/L Entry is inconsistent, false otherwise.</returns>
     procedure IsGLEntryInconsistent(): Boolean
     begin
         exit(GLEntryInconsistent);
     end;
 
+    /// <summary>
+    /// Shows a list of all inconsistent G/L Entries that has been produced during the posting.
+    /// </summary>
     procedure ShowInconsistentEntries()
     var
         IsHandled: Boolean;
@@ -368,6 +393,10 @@ codeunit 12 "Gen. Jnl.-Post Line"
         exit(Currency."Amount Rounding Precision");
     end;
 
+    /// <summary>
+    /// Assignes information (Document Type, Document No., Posting Date) fron Gen. Journal Line to the global variables.
+    /// </summary>
+    /// <param name="GenJnlLine">General Journal Line from which information is taken.</param>
     procedure InitLastDocDate(GenJnlLine: Record "Gen. Journal Line")
     begin
         LastDocType := GenJnlLine."Document Type";
@@ -393,6 +422,12 @@ codeunit 12 "Gen. Jnl.-Post Line"
         OnAfterInitNextEntryNo(GLEntry, NextEntryNo, NextTransactionNo);
     end;
 
+    /// <summary>
+    /// Initializes the G/L Entry for posting VAT depending on the VAT Posting of the Gen. Journal Line.
+    /// </summary>
+    /// <param name="GenJnlLine">Gen. Journal Line that is being posted.</param>
+    /// <param name="GLEntry">Return value: G/L Entry initialized with information for VAT.</param>
+    /// <param name="VATPostingSetup">Return value: VAT Posting Setup applicable to Gen. Journal Line that is being posted. Record is retrieved in this procedure and returned.</param>
     procedure InitVAT(var GenJnlLine: Record "Gen. Journal Line"; var GLEntry: Record "G/L Entry"; var VATPostingSetup: Record "VAT Posting Setup")
     var
         LCYCurrency: Record Currency;
@@ -570,6 +605,13 @@ codeunit 12 "Gen. Jnl.-Post Line"
         OnAfterInitVAT(GenJnlLine, GLEntry, VATPostingSetup, AddCurrGLEntryVATAmt);
     end;
 
+    /// <summary>
+    /// Creates and inserts VAT Entries for the Gen. Journal Line that is being posted.
+    /// If Gen. Journal Line requires Sales Tax, VAT Entries are created and inserted for each Tax Line that is needed.
+    /// </summary>
+    /// <param name="GenJnlLine">Gen. Journal Line that is being posted.</param>
+    /// <param name="GLEntry">G/L Entry for which VAT Entry should be created.</param>
+    /// <param name="VATPostingSetup">VAT Posting Setup applicable to Gen. Journal Line that is being posted.</param>
     procedure PostVAT(GenJnlLine: Record "Gen. Journal Line"; var GLEntry: Record "G/L Entry"; VATPostingSetup: Record "VAT Posting Setup")
     var
         TaxDetail2: Record "Tax Detail";
@@ -645,22 +687,20 @@ codeunit 12 "Gen. Jnl.-Post Line"
                             InsertSummarizedVAT(GenJnlLine);
                         end;
                     GenJnlLine."VAT Posting"::"Manual VAT Entry":
-                        begin
-                            if GenJnlLine."Gen. Posting Type" = GenJnlLine."Gen. Posting Type"::Settlement then begin
-                                SalesTaxBaseAmount := GenJnlLine."VAT Base Amount (LCY)";
-                                TaxDetail."Tax Jurisdiction Code" := GenJnlLine."Tax Area Code";
-                                GenJnlLine."Tax Area Code" := '';
-                                InsertVAT(
-                                  GenJnlLine, VATPostingSetup,
-                                  GLEntry.Amount, GLEntry."VAT Amount", GenJnlLine."VAT Base Amount (LCY)", GenJnlLine."Source Currency Code",
-                                  GenJnlLine."Source Curr. VAT Base Amount", GenJnlLine."Source Curr. VAT Amount", GenJnlLine."Source Curr. VAT Base Amount");
-                            end else begin
-                                InsertVAT(
-                                  GenJnlLine, VATPostingSetup,
-                                  GenJnlLine."VAT Amount (LCY)", GenJnlLine."VAT Amount (LCY)", GenJnlLine."VAT Base Amount (LCY)", GenJnlLine."Source Currency Code",
-                                  GenJnlLine."Source Curr. VAT Amount", GenJnlLine."Source Curr. VAT Amount", GenJnlLine."Source Curr. VAT Base Amount");
-                                InsertSummarizedVAT(GenJnlLine);
-                            end;
+                        if GenJnlLine."Gen. Posting Type" = GenJnlLine."Gen. Posting Type"::Settlement then begin
+                            SalesTaxBaseAmount := GenJnlLine."VAT Base Amount (LCY)";
+                            TaxDetail."Tax Jurisdiction Code" := GenJnlLine."Tax Area Code";
+                            GenJnlLine."Tax Area Code" := '';
+                            InsertVAT(
+                                GenJnlLine, VATPostingSetup,
+                                GLEntry.Amount, GLEntry."VAT Amount", GenJnlLine."VAT Base Amount (LCY)", GenJnlLine."Source Currency Code",
+                                GenJnlLine."Source Curr. VAT Base Amount", GenJnlLine."Source Curr. VAT Amount", GenJnlLine."Source Curr. VAT Base Amount");
+                        end else begin
+                            InsertVAT(
+                                GenJnlLine, VATPostingSetup,
+                                GenJnlLine."VAT Amount (LCY)", GenJnlLine."VAT Amount (LCY)", GenJnlLine."VAT Base Amount (LCY)", GenJnlLine."Source Currency Code",
+                                GenJnlLine."Source Curr. VAT Amount", GenJnlLine."Source Curr. VAT Amount", GenJnlLine."Source Curr. VAT Base Amount");
+                            InsertSummarizedVAT(GenJnlLine);
                         end;
                 end;
         end;
@@ -668,6 +708,20 @@ codeunit 12 "Gen. Jnl.-Post Line"
         OnAfterPostVAT(GenJnlLine, GLEntry, VATPostingSetup, TaxDetail, NextConnectionNo, AddCurrGLEntryVATAmt, AddCurrencyCode, UseCurrFactorOnly);
     end;
 
+    /// <summary>
+    /// Creates and inserts VAT Entry for the Gen. Journal Line that is being posted. 
+    /// If Calculation Type is Sales Tax, VAT Entries are filled with Tax related information.
+    /// VAT Posting Parameter is created to be used for the VAT Entry.
+    /// </summary>
+    /// <param name="GenJnlLine">Gen. Journal Line that is being posted.</param>
+    /// <param name="VATPostingSetup">VAT Posting Setup applicable to Gen. Journal Line that is being posted.</param>
+    /// <param name="GLEntryAmount">Amount that is used for the new VAT Entry Amount if Gen. Posting Type is Settlement.</param>
+    /// <param name="GLEntryVATAmount">Amount that is used for the new VAT Entry Amount if Gen. Posting Type is not Settlement.</param>
+    /// <param name="GLEntryBaseAmount">Amount that is used for the new VAT Entry Base.</param>
+    /// <param name="SrcCurrCode">Currency Code that has been used for the posting transaction (empty if local currency).</param>
+    /// <param name="SrcCurrGLEntryAmt">Determines new VAT Entry amount after exhange to foreign currency.</param>
+    /// <param name="SrcCurrGLEntryVATAmt">The VAT Amount to be used for additional currency.</param>
+    /// <param name="SrcCurrGLEntryBaseAmt">The VAT base to be used for additional currency.</param>
     procedure InsertVAT(GenJnlLine: Record "Gen. Journal Line"; VATPostingSetup: Record "VAT Posting Setup"; GLEntryAmount: Decimal; GLEntryVATAmount: Decimal; GLEntryBaseAmount: Decimal; SrcCurrCode: Code[10]; SrcCurrGLEntryAmt: Decimal; SrcCurrGLEntryVATAmt: Decimal; SrcCurrGLEntryBaseAmt: Decimal)
     var
         TaxJurisdiction: Record "Tax Jurisdiction";
@@ -723,7 +777,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
                         CurrExchRate.ExchangeAmtFCYToLCY(
                           GenJnlLine."Posting Date", SrcCurrCode, GenJnlLine."VAT Difference",
                           CurrExchRate.ExchangeRate(GenJnlLine."Posting Date", SrcCurrCode)));
-        end else begin
+        end else
             if GenJnlLine."VAT Difference" = 0 then
                 VATDifferenceLCY := 0
             else
@@ -735,7 +789,6 @@ codeunit 12 "Gen. Jnl.-Post Line"
                         CurrExchRate.ExchangeAmtFCYToLCY(
                           GenJnlLine."Posting Date", GenJnlLine."Currency Code", GenJnlLine."VAT Difference",
                           CurrExchRate.ExchangeRate(GenJnlLine."Posting Date", GenJnlLine."Currency Code")));
-        end;
 
         OnInsertVATOnAfterCalcVATDifferenceLCY(GenJnlLine, VATEntry, VATDifferenceLCY, CurrExchRate);
 
@@ -919,10 +972,9 @@ codeunit 12 "Gen. Jnl.-Post Line"
                                         InitGLEntryVAT(GenJnlLine, TaxJurisdiction."Reverse Charge (Purchases)", '',
                                           -VATPostingParameters."Full VAT Amount", -VATPostingParameters."Full VAT Amount ACY", true);
                                     end;
-                                end else begin
+                                end else
                                     InitGLEntryVAT(GenJnlLine, TaxJurisdiction.GetPurchAccount(VATPostingParameters."Unrealized VAT"), '',
                                       VATPostingParameters."Full VAT Amount", VATPostingParameters."Full VAT Amount ACY", true);
-                                end;
                             end else
                                 InitGLEntryVAT(
                                   GenJnlLine, GenJnlLine."Account No.", '', VATPostingParameters."Full VAT Amount", VATPostingParameters."Full VAT Amount ACY", true);
@@ -1042,6 +1094,12 @@ codeunit 12 "Gen. Jnl.-Post Line"
         end;
     end;
 
+    /// <summary>
+    /// Creates G/L Entries for VAT. If summarization is needed, before creating new entry existing ones in TempGLEntryVAT.
+    /// buffer are checked. If entry in the buffer for the same G/L Account and Bal. Account already exists, just the amount is increased.
+    /// </summary>
+    /// <param name="SummarizeGLEntries">Flag if entries should be summarized.</param>
+    /// <param name="GLEntry">G/L Entry for which VAT G/L Entry should be created or adjusted.</param>
     procedure SummarizeVAT(SummarizeGLEntries: Boolean; GLEntry: Record "G/L Entry")
     var
         InsertedTempVAT: Boolean;
@@ -1069,6 +1127,14 @@ codeunit 12 "Gen. Jnl.-Post Line"
         end;
     end;
 
+    /// <summary>
+    /// Inserts summarized VAT G/L Entries for the Gen. Journal Line that is being posted.
+    /// Summarized entries are taken from TempGLEntryVAT buffer.
+    /// </summary>
+    /// <remarks>
+    /// Global G/L Entry buffer for VAT is cleared at the end of procedure.
+    /// </remarks>
+    /// <param name="GenJnlLine">Gen. Journal Line that is being posted.</param>
     procedure InsertSummarizedVAT(GenJnlLine: Record "Gen. Journal Line")
     begin
         if TempGLEntryVAT.FindSet() then begin
@@ -1254,7 +1320,6 @@ codeunit 12 "Gen. Jnl.-Post Line"
 #if not CLEAN25
             OnAfterCustLedgEntryInsertInclPreviewMode(CustLedgEntry, GenJournalLine, DtldLedgEntryInserted, PreviewMode);
 #endif
-
             // Post Reminder Terms - Note About Line Fee on Report
             LineFeeNoteOnReportHist.Save(CustLedgEntry);
 
@@ -1701,6 +1766,14 @@ codeunit 12 "Gen. Jnl.-Post Line"
         OnMoveGenJournalLine(GenJnlLine, GLEntry.RecordId);
     end;
 
+    /// <summary>
+    /// Wrapper procedure for external call of PostFixedAssetPostFixedAsset, which is used for posting a Gen. Journal Line with Account Type Fixed Asset.
+    /// G/L Entries, VAT Entries and FA Ledger Entries are created.
+    /// </summary>
+    /// <remarks>
+    /// In the procedure there is no check if Account Type is Fixed Asset.
+    /// </remarks>
+    /// <param name="GenJnlLine">General Journal Line that is being posted.</param>
     procedure RunPostFixedAsset(GenJnlLine: Record "Gen. Journal Line")
     begin
         // Wrapper procedure for exetrrnal call of PostFixedAsset
@@ -1742,6 +1815,16 @@ codeunit 12 "Gen. Jnl.-Post Line"
         OnAfterFindJobLineSign(GenJnlLine, JobLine);
     end;
 
+    /// <summary>
+    /// Wrapper procedure for external call of PostJob, which is used for posting a gen. journal line with account type job.
+    /// G/l entries, job entries, usage related ledger entries (resourse or item and value), possibly warehouse entries are created.
+    /// </summary>
+    /// <remarks>
+    /// Procedure should not be called externally.
+    /// Global variable determining if the gen. journal line is related to the job is set in the procedure.
+    /// </remarks>
+    /// <param name="GenJnlLine">Gen. journal line that is being posted.</param>
+    /// <param name="GLEntry">G/l entry created for the gen. journal line.</param>
     procedure PostJob(GenJnlLine: Record "Gen. Journal Line"; GLEntry: Record "G/L Entry")
     var
         JobPostLine: Codeunit "Job Post-Line";
@@ -1758,6 +1841,10 @@ codeunit 12 "Gen. Jnl.-Post Line"
         end;
     end;
 
+    /// <summary>
+    /// Initialize global variables and G/L Register for new posting batch, locks needed tables.
+    /// </summary>
+    /// <param name="GenJnlLine">Gen. Journal Line that is being posted.</param>
     procedure StartPosting(GenJnlLine: Record "Gen. Journal Line")
     var
         GenJnlTemplate: Record "Gen. Journal Template";
@@ -1818,6 +1905,11 @@ codeunit 12 "Gen. Jnl.-Post Line"
         OnAfterStartPosting(GenJnlLine);
     end;
 
+    /// <summary>
+    /// If new transaction needs to be started, Unrealized VAT is check and posted, global values initialized for the new transaction. 
+    /// Currency is updated for the new Gen. Journal Line that is being posted, current Balance of the posting is updated.
+    /// </summary>
+    /// <param name="GenJnlLine">Gen. Journal Line that is being posted.</param>
     procedure ContinuePosting(GenJnlLine: Record "Gen. Journal Line")
     var
         IsHandled: Boolean;
@@ -1859,6 +1951,13 @@ codeunit 12 "Gen. Jnl.-Post Line"
         exit(NewTransaction);
     end;
 
+    /// <summary>
+    /// Checks if transaction is balanced for both local and additional currencies, inserts all G/L Entries that were created for the Gen. Journal Line. 
+    /// If posting is performed for application purpose, original Customer and Vendor Ledger Entries are updated to reflect that.
+    /// Cost journal line is posted if cost accounting setup is setup for this purpose.
+    /// </summary>
+    /// <param name="GenJournalLine">Gen. Journal Line that is being posted.</param>
+    /// <returns>True if balance of the transaction is balanced for both local and additional currencies.</returns>
     procedure FinishPosting(GenJournalLine: Record "Gen. Journal Line") IsTransactionConsistent: Boolean
     var
         CostAccountingSetup: Record "Cost Accounting Setup";
@@ -1881,8 +1980,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
         LastSourceCurrencyVATAmount := 0;
         if TempGLEntryBuf.FindSet() then begin
             repeat
-                if TempGLEntryBuf."Source Currency Code" <> '' then
-                    UpdateSourceCurrencyAmounts(TempGLEntryBuf, LastSourceCurrencyVATAmount);
+                UpdateSourceCurrencyAmounts(TempGLEntryBuf, LastSourceCurrencyVATAmount);
                 TempGLEntryPreview := TempGLEntryBuf;
                 TempGLEntryPreview.Insert();
                 GlobalGLEntry := TempGLEntryBuf;
@@ -1975,6 +2073,25 @@ codeunit 12 "Gen. Jnl.-Post Line"
         if GenJnlLine."Source Currency Code" = '' then
             exit;
 
+        GetGLSetup();
+        GetSourceCodeSetup();
+        if (GenJnlLine."Source Code" = SourceCodeSetup."Inventory Post Cost") and (AddCurrencyCode <> '') then
+            exit;
+
+        if (GenJnlLine."Source Code" = SourceCodeSetup."Exchange Rate Adjmt.") or
+            (GenJnlLine."Source Code" = SourceCodeSetup."General Deferral") or
+            (GenJnlLine."Source Code" = SourceCodeSetup."Purchase Deferral") or
+            (GenJnlLine."Source Code" = SourceCodeSetup."Sales Deferral") or
+            (GenJnlLine."Source Code" = SourceCodeSetup."Exchange Rate Adjmt.") or
+            (GenJnlLine."Source Code" = SourceCodeSetup."Sales Entry Application") or
+            (GenJnlLine."Source Code" = SourceCodeSetup."Purchase Entry Application") or
+            (GenJnlLine."Source Code" = SourceCodeSetup."Employee Entry Application") or
+            (GenJnlLine."Source Code" = SourceCodeSetup."Unapplied Sales Entry Appln.") or
+            (GenJnlLine."Source Code" = SourceCodeSetup."Unapplied Purch. Entry Appln.") or
+            (GenJnlLine."Source Code" = SourceCodeSetup."Unapplied Empl. Entry Appln.")
+        then
+            exit;
+
         GLEntry."Source Currency Code" := GenJnlLine."Source Currency Code";
         case GenJnlLine."VAT Calculation Type" of
             GenJnlLine."VAT Calculation Type"::"Sales Tax":
@@ -2037,6 +2154,20 @@ codeunit 12 "Gen. Jnl.-Post Line"
             PostUnrealizedVAT(GenJnlLine)
     end;
 
+    /// <summary>
+    /// Initializes g/l entry from gen. journal line.
+    /// </summary>
+    /// <remarks>
+    /// If g/l account used for posting has restricted dimensions, error is raised.
+    /// If g/l account selected for the gen. journal line is blocked or have different posting type.
+    /// </remarks>
+    /// <param name="GenJnlLine">general journal line that is being posted.</param>
+    /// <param name="GLEntry">Return value: g/l entry that is being created.</param>
+    /// <param name="GLAccNo">G/l account that will be used to create e/l entry.</param>
+    /// <param name="Amount">Amount that will be used for g/l entry (in local currency).</param>
+    /// <param name="AmountAddCurr">Amount that will be used for g/l entry (in additional currency).</param>
+    /// <param name="UseAmountAddCurr">Determines if amount in the field "Additional-Currency Amount" should be used for the new g/l entry or should it be caculated.</param>
+    /// <param name="SystemCreatedEntry">Determines if g/l entry is created by the system.</param>
     procedure InitGLEntry(GenJnlLine: Record "Gen. Journal Line"; var GLEntry: Record "G/L Entry"; GLAccNo: Code[20]; Amount: Decimal; AmountAddCurr: Decimal; UseAmountAddCurr: Boolean; SystemCreatedEntry: Boolean)
     var
         GLAcc: Record "G/L Account";
@@ -2074,16 +2205,25 @@ codeunit 12 "Gen. Jnl.-Post Line"
             GLEntry."G/L Account No." := GLAccNo;
             GLEntry."System-Created Entry" := SystemCreatedEntry;
             GLEntry.Amount := Amount;
-            GLEntry."GST/HST" := GenJnlLine."GST/HST";
-            GLEntry."STE Transaction ID" := GenJnlLine."STE Transaction ID";
             GLEntry."Additional-Currency Amount" :=
                 GLCalcAddCurrency(Amount, AmountAddCurr, GLEntry."Additional-Currency Amount", UseAmountAddCurr, GenJnlLine);
             UpdateGLEntrySourceCurrencyFields(GLEntry, GenJnlLine);
+            GLEntry."GST/HST" := GenJnlLine."GST/HST";
+            GLEntry."STE Transaction ID" := GenJnlLine."STE Transaction ID";
         end;
 
         OnAfterInitGLEntry(GLEntry, GenJnlLine, Amount, AmountAddCurr, UseAmountAddCurr, CurrencyFactor, GLReg);
     end;
 
+    /// <summary>
+    /// Initializes g/l entry from gen. journal line and summarizes VAT g/l entries.
+    /// </summary>
+    /// <param name="GenJnlLine">General journal line that is being posted.</param>
+    /// <param name="AccNo">G/l account that will be used for new g/l entry.</param>
+    /// <param name="BalAccNo">Account that will be used for new g/l entry as the balancing account.</param>
+    /// <param name="Amount">Amount that will be used for g/l entry (in local currency).</param>
+    /// <param name="AmountAddCurr">Amount that will be used for g/l entry (in additional currency).</param>
+    /// <param name="UseAmtAddCurr">Determines if amount in the field "Additional-Currency Amount" should be used for the new g/l entry or should it be caculated.</param>
     procedure InitGLEntryVAT(GenJnlLine: Record "Gen. Journal Line"; AccNo: Code[20]; BalAccNo: Code[20]; Amount: Decimal; AmountAddCurr: Decimal; UseAmtAddCurr: Boolean)
     var
         GLEntry: Record "G/L Entry";
@@ -2127,6 +2267,15 @@ codeunit 12 "Gen. Jnl.-Post Line"
         exit(GLEntry."Entry No.");
     end;
 
+    /// <summary>
+    /// Updates the amounts of the g/l entry and adds it to the TempGLEntryBuffer to be inserted.
+    /// </summary>
+    /// <remarks>
+    /// If g/l entry amount is not properly rounded, error is raised.
+    /// </remarks>
+    /// <param name="GenJnlLine">General journal line that is being posted.</param>
+    /// <param name="GLEntry">G/l entry that needs to be inserted.</param>
+    /// <param name="CalcAddCurrResiduals">Determined if residual rounding amount should be posted as a separate g/l entry.</param>
     procedure InsertGLEntry(GenJnlLine: Record "Gen. Journal Line"; GLEntry: Record "G/L Entry"; CalcAddCurrResiduals: Boolean)
     var
         IsHandled: Boolean;
@@ -2171,6 +2320,14 @@ codeunit 12 "Gen. Jnl.-Post Line"
         OnAfterInsertGLEntry(GLEntry, GenJnlLine, TempGLEntryBuf, CalcAddCurrResiduals);
     end;
 
+    /// <summary>
+    /// Initializes the g/l entry from the general journal line and adds it to the TempGLEntryBuffer to be inserted.
+    /// </summary>
+    /// <param name="GenJnlLine">General journal line that is being posted.</param>
+    /// <param name="AccNo">G/l account that will be used for new g/l entry.</param>
+    /// <param name="Amount">Amount that will be used for g/l entry (in local currency).</param>
+    /// <param name="AmountAddCurr">Amount that will be used for g/l entry (in additional currency).</param>
+    /// <param name="UseAmtAddCurr">Determines if amount in the field "Additional-Currency Amount" should be used for the new g/l entry or should it be caculated.</param>
     procedure CreateGLEntry(GenJnlLine: Record "Gen. Journal Line"; AccNo: Code[20]; Amount: Decimal; AmountAddCurr: Decimal; UseAmountAddCurr: Boolean)
     var
         GLEntry: Record "G/L Entry";
@@ -2186,6 +2343,15 @@ codeunit 12 "Gen. Jnl.-Post Line"
         OnAfterCreateGLEntry(GenJnlLine, GLEntry, NextEntryNo);
     end;
 
+    /// <summary>
+    /// Initializes the g/l entry from the general journal line. Fills balance account information and adds it to the TempGLEntryBuffer to be inserted.
+    /// </summary>
+    /// <param name="GenJnlLine">General journal line that is being posted.</param>
+    /// <param name="AccNo">G/l account that will be used for new g/l entry.</param>
+    /// <param name="Amount">Amount that will be used for g/l entry (in local currency).</param>
+    /// <param name="AmountAddCurr">Amount that will be used for g/l entry (in additional currency).</param>
+    /// <param name="BalAccType">Balance account type to be used for the g/l entry.</param>
+    /// <param name="BalAccNo">Balance account no. to be used for the g/l entry.</param>
     procedure CreateGLEntryBalAcc(GenJnlLine: Record "Gen. Journal Line"; AccNo: Code[20]; Amount: Decimal; AmountAddCurr: Decimal; BalAccType: Enum "Gen. Journal Account Type"; BalAccNo: Code[20])
     var
         GLEntry: Record "G/L Entry";
@@ -2208,6 +2374,16 @@ codeunit 12 "Gen. Jnl.-Post Line"
         InsertGLEntry(GenJnlLine, GLEntry, true);
     end;
 
+    /// <summary>
+    /// Initializes the g/l entry from the general journal line and detailed cv. ledger entry buffer, adds the g/l entry to the TempGLEntryBuffer to be inserted.
+    /// Inserts vat entries.
+    /// </summary>
+    /// <param name="GenJnlLine">General journal line that is being posted.</param>
+    /// <param name="AccNo">G/l account that will be used for new g/l entry.</param>
+    /// <param name="Amount">Amount that will be used for g/l entry (in local currency).</param>
+    /// <param name="AmountAddCurr">Amount that will be used for g/l entry (in additional currency).</param>
+    /// <param name="VATAmount">Vat amount that will be used for g/l entry.</param>
+    /// <param name="DtldCVLedgEntryBuf">DtldCVLedgerEntry Buffer that holds the information about posting groups and tax information that will be used for g/l entry creation.</param>
     procedure CreateGLEntryVAT(GenJnlLine: Record "Gen. Journal Line"; AccNo: Code[20]; Amount: Decimal; AmountAddCurr: Decimal; VATAmount: Decimal; DtldCVLedgEntryBuf: Record "Detailed CV Ledg. Entry Buffer")
     var
         GLEntry: Record "G/L Entry";
@@ -2221,6 +2397,17 @@ codeunit 12 "Gen. Jnl.-Post Line"
         InsertVATEntriesFromTemp(DtldCVLedgEntryBuf, GLEntry);
     end;
 
+    /// <summary>
+    /// Initializes the g/l entry from the general journal line and detailed cv. ledger entry buffer, adds the g/l entry to the TempGLEntryBuffer to be inserted.
+    /// Collects needed adjustments, inserts vat entries.
+    /// </summary>
+    /// <param name="GenJnlLine">General journal line that is being posted.</param>
+    /// <param name="AccNo">G/l account that will be used for new g/l entry.</param>
+    /// <param name="Amount">Amount that will be used for g/l entry (in local currency).</param>
+    /// <param name="AmountAddCurr">Amount that will be used for g/l entry (in additional currency).</param>
+    /// <param name="VATAmount">Vat amount that will be used for g/l entry.</param>
+    /// <param name="DtldCVLedgEntryBuf">DtldCVLedgerEntry Buffer that holds the information about posting groups and tax information that will be used for g/l entry creation.</param>
+    /// <param name="AdjAmount">Return value: the adjustment amount for the g/l entry.</param>
     procedure CreateGLEntryVATCollectAdj(GenJnlLine: Record "Gen. Journal Line"; AccNo: Code[20]; Amount: Decimal; AmountAddCurr: Decimal; VATAmount: Decimal; DtldCVLedgEntryBuf: Record "Detailed CV Ledg. Entry Buffer"; var AdjAmount: array[4] of Decimal)
     var
         GLEntry: Record "G/L Entry";
@@ -3085,6 +3272,14 @@ codeunit 12 "Gen. Jnl.-Post Line"
           AppliedAmountLCY, OldAppliedAmount, AmountRoundingPrecision, VATEntry);
     end;
 
+    /// <summary>
+    /// Calculates unrealized gains and losses, if there are any then detailed CV ledger entries are created.
+    /// </summary>
+    /// <param name="CVLedgEntryBuf">Return value: CV ledger entry buffer that detailed entries are created for. In the procedure amounts are modified to reflect the application.</param>
+    /// <param name="TempDtldCVLedgEntryBuf">Return value: Buffer where created CV ledger entries should be inserted to.</param>
+    /// <param name="GenJnlLine">Gen. journal line that is being posted.</param>
+    /// <param name="AppliedAmount">Amount that is being applied.</param>
+    /// <param name="RemainingAmountBeforeAppln">Remaining amount on the ledger entry that the application is performed to.</param>
     procedure CalcCurrencyUnrealizedGainLoss(var CVLedgEntryBuf: Record "CV Ledger Entry Buffer"; var TempDtldCVLedgEntryBuf: Record "Detailed CV Ledg. Entry Buffer" temporary; GenJnlLine: Record "Gen. Journal Line"; AppliedAmount: Decimal; RemainingAmountBeforeAppln: Decimal)
     var
         DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
@@ -3216,6 +3411,13 @@ codeunit 12 "Gen. Jnl.-Post Line"
         OnAfterCalcApplication(GenJnlLine, DtldCVLedgEntryBuf);
     end;
 
+    /// <summary>
+    /// Calculates the difference in local currency between the actual remaining amount of the c/v ledger entry and the remaining amount based on the adjusted currency factor. 
+    /// If there is a difference then detailed CV ledger entries are created and posted to equate the difference.
+    /// </summary>
+    /// <param name="CVLedgEntryBuf">Cv ledger entry that the adjustment should be calculated for.</param>
+    /// <param name="DtldCVLedgEntryBuf">Buffer table for detailed vendor ledger entries to be posted.</param>
+    /// <param name="GenJnlLine">Gen. journal line that is being posted.</param>
     procedure CalcAmtLCYAdjustment(var CVLedgEntryBuf: Record "CV Ledger Entry Buffer"; var DtldCVLedgEntryBuf: Record "Detailed CV Ledg. Entry Buffer"; GenJnlLine: Record "Gen. Journal Line")
     var
         AdjustedAmountLCY: Decimal;
@@ -3365,6 +3567,17 @@ codeunit 12 "Gen. Jnl.-Post Line"
         DtldEmplLedgEntry.Insert(true);
     end;
 
+    /// <summary>
+    /// Prepares and posts customer ledger entries needed for the application. Detailed customer ledger entries are created and posted for both
+    /// the old and the new customer ledger entry.
+    /// </summary>
+    /// <remarks>
+    /// If the gen. journal line does not allow application or customer/gen. journal line is not setup for application, application is not performed.
+    /// </remarks>
+    /// <param name="NewCVLedgEntryBuf">Return value: Buffer to collect customer ledger entries that has been created for the application.</param>
+    /// <param name="DtldCVLedgEntryBuf">Return value: Buffer to collect detailed customer ledger entries that has been created for the application.</param>
+    /// <param name="GenJnlLine">Gen. journal line that is being posted.</param>
+    /// <param name="Cust">Customer that the customer ledger entries are created for.</param>
     procedure ApplyCustLedgEntry(var NewCVLedgEntryBuf: Record "CV Ledger Entry Buffer"; var DtldCVLedgEntryBuf: Record "Detailed CV Ledg. Entry Buffer"; GenJnlLine: Record "Gen. Journal Line"; Cust: Record Customer)
     var
         OldCustLedgEntry: Record "Cust. Ledger Entry";
@@ -3538,6 +3751,12 @@ codeunit 12 "Gen. Jnl.-Post Line"
                     Completed := true;
     end;
 
+    /// <summary>
+    /// Stand-alone procedure to post (from check to finish) application gen. journal line for the customer ledger entries.
+    /// G/l entries, vat entries, customer ledger entries and detailed customer ledger entries are created and posted.
+    /// </summary>
+    /// <param name="GenJnlLinePostApply">Gen. journal line that should be posted for application purpose.</param>
+    /// <param name="CustLedgEntryPostApply">Customer ledger entry that the new application should be applied to.</param>
     procedure CustPostApplyCustLedgEntry(var GenJnlLinePostApply: Record "Gen. Journal Line"; var CustLedgEntryPostApply: Record "Cust. Ledger Entry")
     var
         Cust: Record Customer;
@@ -3718,6 +3937,17 @@ codeunit 12 "Gen. Jnl.-Post Line"
         exit(true);
     end;
 
+    /// <summary>
+    /// Posts all detailed customer ledger entries that are stored in DtldCVLedgEntryBuf. Creates g/l entry for the total amounts.
+    /// </summary>
+    /// <remarks>
+    /// DtldCVLedgEntryBuf is cleared after the procedure is finished.
+    /// </remarks>
+    /// <param name="GenJnlLine">Gen. journal line that is being posted.</param>
+    /// <param name="DtldCVLedgEntryBuf">Detailed customer ledger entries to be inserted and posted.</param>
+    /// <param name="CustPostingGr">Customer posting group to be used for detailed cust. ledger entries.</param>
+    /// <param name="LedgEntryInserted">Flag if customer ledger entries have already been created in the same transaction.</param>
+    /// <returns>True if any detailed customer ledger entries has been created.</returns>
     procedure PostDtldCustLedgEntries(GenJnlLine: Record "Gen. Journal Line"; var DtldCVLedgEntryBuf: Record "Detailed CV Ledg. Entry Buffer"; CustPostingGr: Record "Customer Posting Group"; LedgEntryInserted: Boolean) DtldLedgEntryInserted: Boolean
     var
         TempDimPostingBuffer: Record "Dimension Posting Buffer" temporary;
@@ -4077,18 +4307,16 @@ codeunit 12 "Gen. Jnl.-Post Line"
                         Currency.Get(CustLedgEntry2."Currency Code");
                         case CustLedgEntry2."Document Type" of
                             CustLedgEntry2."Document Type"::"Credit Memo":
-                                begin
-                                    if GainLossLCY > 0 then begin
-                                        Currency.TestField("Realized Losses Acc.");
-                                        InitGLEntry(GenJnlLine, GLEntry,
-                                          Currency."Realized Losses Acc.", -RealizedVATAmount, 0, false, true);
-                                        GLEntry."Additional-Currency Amount" := -RealizedVATAmountAddCurr;
-                                    end else begin
-                                        Currency.TestField("Realized Gains Acc.");
-                                        InitGLEntry(GenJnlLine, GLEntry,
-                                          Currency."Realized Gains Acc.", -RealizedVATAmount, 0, false, true);
-                                        GLEntry."Additional-Currency Amount" := -RealizedVATAmountAddCurr;
-                                    end;
+                                if GainLossLCY > 0 then begin
+                                    Currency.TestField("Realized Losses Acc.");
+                                    InitGLEntry(GenJnlLine, GLEntry,
+                                        Currency."Realized Losses Acc.", -RealizedVATAmount, 0, false, true);
+                                    GLEntry."Additional-Currency Amount" := -RealizedVATAmountAddCurr;
+                                end else begin
+                                    Currency.TestField("Realized Gains Acc.");
+                                    InitGLEntry(GenJnlLine, GLEntry,
+                                        Currency."Realized Gains Acc.", -RealizedVATAmount, 0, false, true);
+                                    GLEntry."Additional-Currency Amount" := -RealizedVATAmountAddCurr;
                                 end;
                             else
                                 if GainLossLCY < 0 then begin
@@ -4118,6 +4346,14 @@ codeunit 12 "Gen. Jnl.-Post Line"
         end;
     end;
 
+    /// <summary>
+    /// Prepares and posts vendor ledger entries needed for the application. Detailed vendor ledger entries are created and posted for both
+    /// the old and the new vendor ledger entry.
+    /// </summary>
+    /// <param name="NewCVLedgEntryBuf">Return value: Buffer to collect vendor ledger entries that has been created for the application.</param>
+    /// <param name="DtldCVLedgEntryBuf">Return value: Buffer to collect detailed vendor ledger entries that has been created for the application.</param>
+    /// <param name="GenJnlLine">Gen. journal line that is being posted.</param>
+    /// <param name="Vend">Vendor that the vendor ledger entries are created for.</param>
     procedure ApplyVendLedgEntry(var NewCVLedgEntryBuf: Record "CV Ledger Entry Buffer"; var DtldCVLedgEntryBuf: Record "Detailed CV Ledg. Entry Buffer"; GenJnlLine: Record "Gen. Journal Line"; Vend: Record Vendor)
     var
         OldVendLedgEntry: Record "Vendor Ledger Entry";
@@ -4203,7 +4439,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
                 then
                     if IsNotPayment(TempOldVendLedgEntry."Document Type") then begin
                         TempOldVendLedgEntry.RecalculateAmounts(
-                           NewCVLedgEntryBuf."Currency Code", TempOldVendLedgEntry."Currency Code", NewCVLedgEntryBuf."Posting Date");
+                          NewCVLedgEntryBuf."Currency Code", TempOldVendLedgEntry."Currency Code", NewCVLedgEntryBuf."Posting Date");
                         OnApplyVendLedgEntryOnAfterRecalculateAmounts(TempOldVendLedgEntry, OldVendLedgEntry, NewCVLedgEntryBuf, GenJnlLine);
                         VendUnrealizedVAT(
                           GenJnlLine,
@@ -4280,6 +4516,14 @@ codeunit 12 "Gen. Jnl.-Post Line"
                     Completed := true;
     end;
 
+    /// <summary>
+    /// Prepares and posts employee ledger entries needed for the application. Detailed employee ledger entries are created and posted for both
+    /// the old and the new employee ledger entry.
+    /// </summary>
+    /// <param name="NewCVLedgEntryBuf">Return value: Buffer to collect employee ledger entries that has been created for the application.</param>
+    /// <param name="DtldCVLedgEntryBuf">Return value: Buffer to collect detailed employee ledger entries that has been created for the application.</param>
+    /// <param name="GenJnlLine">Gen. journal line that is being posted.</param>
+    /// <param name="Employee">Employee that the employee ledger entries are created for.</param>
     procedure ApplyEmplLedgEntry(var NewCVLedgEntryBuf: Record "CV Ledger Entry Buffer"; var DtldCVLedgEntryBuf: Record "Detailed CV Ledg. Entry Buffer"; GenJnlLine: Record "Gen. Journal Line"; Employee: Record Employee)
     var
         OldEmplLedgEntry: Record "Employee Ledger Entry";
@@ -4386,6 +4630,12 @@ codeunit 12 "Gen. Jnl.-Post Line"
                     Completed := true;
     end;
 
+    /// <summary>
+    /// Stand-alone procedure to post (from check to finish) application gen. journal line for the vendor ledger entries.
+    /// G/l entries, vat entries, vendor ledger entries and detailed vendor ledger entries are created and posted.
+    /// </summary>
+    /// <param name="GenJnlLinePostApply">Gen. journal line that should be posted for application purpose.</param>
+    /// <param name="VendLedgEntryPostApply">Vendor ledger entry that the new application should be applied to.</param>
     procedure VendPostApplyVendLedgEntry(var GenJnlLinePostApply: Record "Gen. Journal Line"; var VendLedgEntryPostApply: Record "Vendor Ledger Entry")
     var
         Vend: Record Vendor;
@@ -4460,6 +4710,12 @@ codeunit 12 "Gen. Jnl.-Post Line"
         OnAfterVendPostApplyVendLedgEntry(GenJnlLine, GLReg);
     end;
 
+    /// <summary>
+    /// Stand-alone procedure to post (from check to finish) application gen. journal line for the employee ledger entries.
+    /// G/l entries, vat entries, employee ledger entries and detailed employee ledger entries are created and posted.
+    /// </summary>
+    /// <param name="GenJnlLinePostApply">Gen. journal line that should be posted for application purpose.</param>
+    /// <param name="EmplLedgEntryPostApply">Employee ledger entry that the new application should be applied to.</param>
     procedure EmplPostApplyEmplLedgEntry(var GenJnlLinePostApply: Record "Gen. Journal Line"; var EmplLedgEntryPostApply: Record "Employee Ledger Entry")
     var
         Empl: Record Employee;
@@ -4693,6 +4949,17 @@ codeunit 12 "Gen. Jnl.-Post Line"
         exit(true);
     end;
 
+    /// <summary>
+    /// Posts all detailed vendor ledger entries that are stored in DtldCVLedgEntryBuf. Creates g/l entry for the total amounts.
+    /// </summary>
+    /// <remarks>
+    /// DtldCVLedgEntryBuf is cleared after the procedure is finished.
+    /// </remarks>
+    /// <param name="GenJournalLine">Gen. journal line that is being posted.</param>
+    /// <param name="DetailedCVLedgEntryBuffer">Detailed vendor ledger entries to be inserted and posted.</param>
+    /// <param name="VendPostingGr">Vendor posting group to be used for detailed vendor ledger entries.</param>
+    /// <param name="LedgEntryInserted">Flag if vendor ledger entries have already been created in the same transaction.</param>
+    /// <returns>True if any detailed vendor ledger entries has been created.</returns>
     procedure PostDtldVendLedgEntries(GenJournalLine: Record "Gen. Journal Line"; var DetailedCVLedgEntryBuffer: Record "Detailed CV Ledg. Entry Buffer"; VendPostingGr: Record "Vendor Posting Group"; LedgEntryInserted: Boolean) DtldLedgEntryInserted: Boolean
     var
         TempDimensionPostingBuffer: Record "Dimension Posting Buffer" temporary;
@@ -4949,6 +5216,17 @@ codeunit 12 "Gen. Jnl.-Post Line"
         exit(GetVendorPayablesAccount(GenJournalLine, VendorPostingGroup));
     end;
 
+    /// <summary>
+    /// Posts all detailed employee ledger entries that are stored in DtldCVLedgEntryBuf. Creates g/l entry for the total amounts.
+    /// </summary>
+    /// <remarks>
+    /// DtldCVLedgEntryBuf is cleared after the procedure is finished.
+    /// </remarks>
+    /// <param name="GenJournalLine">Gen. journal line that is being posted.</param>
+    /// <param name="DetailedCVLedgEntryBuffer">Detailed employee ledger entries to be inserted and posted.</param>
+    /// <param name="EmplPostingGr">Employee posting group to be used for detailed employee ledger entries.</param>
+    /// <param name="LedgEntryInserted">Flag if employee ledger entries have already been created in the same transaction.</param>
+    /// <returns>True if any detailed employee ledger entries has been created.</returns>
     procedure PostDtldEmplLedgEntries(GenJnlLine: Record "Gen. Journal Line"; var DtldCVLedgEntryBuf: Record "Detailed CV Ledg. Entry Buffer"; EmplPostingGr: Record "Employee Posting Group"; LedgEntryInserted: Boolean) DtldLedgEntryInserted: Boolean
     var
         TempDimPostingBuffer: Record "Dimension Posting Buffer" temporary;
@@ -5000,6 +5278,15 @@ codeunit 12 "Gen. Jnl.-Post Line"
         DtldCVLedgEntryBuf.DeleteAll();
     end;
 
+    /// <summary>
+    /// Depending on the detailed customer/vendor ledger entry type, creates g/l entry and other entries for the detailed customer/vendor ledger entry.
+    /// If general journal line is created not for the unapplication purpose, adjustments can be collected.
+    /// </summary>
+    /// <param name="GenJournalLine">Gen. journal line that is being posted.</param>
+    /// <param name="DetailedCVLedgEntryBuffer">Detailed customer/vendor ledger entry to post.</param>
+    /// <param name="AccNo">G/l account to be used for g/l entry.</param>
+    /// <param name="AdjAmount">Return value: array for adjustments.</param>
+    /// <param name="Unapply">Flag if the posting is for unapplication.</param>
     procedure PostDtldCVLedgEntry(GenJournalLine: Record "Gen. Journal Line"; DetailedCVLedgEntryBuffer: Record "Detailed CV Ledg. Entry Buffer"; AccNo: Code[20]; var AdjAmount: array[4] of Decimal; Unapply: Boolean)
     var
         IsHandled: Boolean;
@@ -5261,7 +5548,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
                         VATBase := VATEntry2."Remaining Unrealized Base";
                         VATAmountAddCurr := VATEntry2."Add.-Curr. Rem. Unreal. Amount";
                         VATBaseAddCurr := VATEntry2."Add.-Curr. Rem. Unreal. Base";
-                    end else begin
+                    end else
                         if (VATPostingSetup."Unrealized VAT Type" <> VATPostingSetup."Unrealized VAT Type"::"Cash Basis") then begin
                             VATAmount := Round(VATEntry2."Remaining Unrealized Amount" * VATPart, GLSetup."Amount Rounding Precision");
                             VATBase := Round(VATEntry2."Remaining Unrealized Base" * VATPart, GLSetup."Amount Rounding Precision");
@@ -5285,7 +5572,6 @@ codeunit 12 "Gen. Jnl.-Post Line"
                                 VATEntry2."Add.-Currency Unrealized Base" * VATPart,
                                 AddCurrency."Amount Rounding Precision");
                         end;
-                    end;
 
                     // what is LCY value of VAT and VAT Base at posting date (cash basis)
                     if (VATPostingSetup."Unrealized VAT Type" = VATPostingSetup."Unrealized VAT Type"::"Cash Basis") and
@@ -5359,18 +5645,16 @@ codeunit 12 "Gen. Jnl.-Post Line"
                         Currency.Get(VendLedgEntry2."Currency Code");
                         case VendLedgEntry2."Document Type" of
                             VendLedgEntry2."Document Type"::"Credit Memo":
-                                begin
-                                    if GainLossLCY > 0 then begin
-                                        Currency.TestField("Realized Losses Acc.");
-                                        InitGLEntry(GenJnlLine, GLEntry,
-                                          Currency."Realized Losses Acc.", -RealizedVATAmount, 0, false, true);
-                                        GLEntry."Additional-Currency Amount" := -RealizedVATAmountAddCurr;
-                                    end else begin
-                                        Currency.TestField("Realized Gains Acc.");
-                                        InitGLEntry(GenJnlLine, GLEntry,
-                                          Currency."Realized Gains Acc.", -RealizedVATAmount, 0, false, true);
-                                        GLEntry."Additional-Currency Amount" := -RealizedVATAmountAddCurr;
-                                    end;
+                                if GainLossLCY > 0 then begin
+                                    Currency.TestField("Realized Losses Acc.");
+                                    InitGLEntry(GenJnlLine, GLEntry,
+                                        Currency."Realized Losses Acc.", -RealizedVATAmount, 0, false, true);
+                                    GLEntry."Additional-Currency Amount" := -RealizedVATAmountAddCurr;
+                                end else begin
+                                    Currency.TestField("Realized Gains Acc.");
+                                    InitGLEntry(GenJnlLine, GLEntry,
+                                        Currency."Realized Gains Acc.", -RealizedVATAmount, 0, false, true);
+                                    GLEntry."Additional-Currency Amount" := -RealizedVATAmountAddCurr;
                                 end;
                             else
                                 if GainLossLCY < 0 then begin
@@ -5492,6 +5776,19 @@ codeunit 12 "Gen. Jnl.-Post Line"
         OnAfterPostUnrealVATEntry(GenJnlLine, VATEntry2, VATAmount, VATBase);
     end;
 
+    /// <summary>
+    /// Posts application entry to and applies it to the already existing customer/vendor/employee ledger entry.
+    /// In the process g/l entries and detailed entries are created, existing customer/vendor/employee ledger entries are updated.
+    /// </summary>
+    /// <param name="GenJnlLine">Gen. journal line that is being posted.</param>
+    /// <param name="DtldCVLedgEntryBuf">Detailed ledger entries that has to be created to perform the application.</param>
+    /// <param name="OldCVLedgEntryBuf">Customer/vendor/employee ledger entrie that the application is made to.</param>
+    /// <param name="NewCVLedgEntryBuf">New customer/vendor/employee ledger entry that might have been adjusted through events.</param>
+    /// <param name="NewCVLedgEntryBuf2">Original new customer/vendor/employee ledger entry.</param>
+    /// <param name="BlockPaymentTolerance">Flag is payment tolerance should be checked.</param>
+    /// <param name="AllApplied">Flag that determines if more applications can be made.</param>
+    /// <param name="AppliedAmount">Amount that should be used for the application.</param>
+    /// <param name="PmtTolAmtToBeApplied">Payment tolerance amount to be applied.</param>
     procedure PostApply(var GenJnlLine: Record "Gen. Journal Line"; var DtldCVLedgEntryBuf: Record "Detailed CV Ledg. Entry Buffer"; var OldCVLedgEntryBuf: Record "CV Ledger Entry Buffer"; var NewCVLedgEntryBuf: Record "CV Ledger Entry Buffer"; var NewCVLedgEntryBuf2: Record "CV Ledger Entry Buffer"; BlockPaymentTolerance: Boolean; AllApplied: Boolean; var AppliedAmount: Decimal; var PmtTolAmtToBeApplied: Decimal; var VATRealizedGainLossLCY: Decimal)
     var
         OldCVLedgEntryBuf2: Record "CV Ledger Entry Buffer";
@@ -5572,6 +5869,17 @@ codeunit 12 "Gen. Jnl.-Post Line"
         OnAfterPostApply(GenJnlLine, DtldCVLedgEntryBuf, OldCVLedgEntryBuf, NewCVLedgEntryBuf, NewCVLedgEntryBuf2);
     end;
 
+    /// <summary>
+    /// Creates and posts un-applying entry for currently applied detailed customer ledger entry.
+    /// G/l entry with unapplied amount is created as part of the process
+    /// Related customer ledger entry is being updated as part of the process
+    /// Unrealized vat is posted
+    /// </summary>
+    /// <remarks>
+    /// Customer, detailed customer ledger and vat entries are being locked
+    /// </remarks>
+    /// <param name="GenJournalLine">Gen. journal line being posted.</param>
+    /// <param name="DetailedCustLedgEntry">Detailed ledger entry that is currently applied</param>
     procedure UnapplyCustLedgEntry(GenJournalLine: Record "Gen. Journal Line"; DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry")
     var
         Customer: Record Customer;
@@ -5755,6 +6063,17 @@ codeunit 12 "Gen. Jnl.-Post Line"
         end;
     end;
 
+    /// <summary>
+    /// Creates and posts un-applying entry for currently applied detailed vendor ledger entry.
+    /// G/l entry with unapplied amount is created as part of the process
+    /// Related vendor ledger entry is being updated as part of the process
+    /// Unrealized vat is posted
+    /// </summary>
+    /// <remarks>
+    /// Vendor, detailed vendor ledger and vat entries are being locked
+    /// </remarks>
+    /// <param name="GenJournalLine">Gen. journal line being posted.</param>
+    /// <param name="DetailedVendorLedgEntry">Detailed ledger entry that is currently applied</param>
     procedure UnapplyVendLedgEntry(GenJournalLine: Record "Gen. Journal Line"; DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry")
     var
         Vendor: Record Vendor;
@@ -5929,6 +6248,16 @@ codeunit 12 "Gen. Jnl.-Post Line"
         end;
     end;
 
+    /// <summary>
+    /// Creates and posts un-applying entry for currently applied detailed employee ledger entry.
+    /// G/l entry with unapplied amount is created as part of the process
+    /// Related employee ledger entry is being updated as part of the process
+    /// </summary>
+    /// <remarks>
+    /// Employee and detailed employee ledger entries are being locked
+    /// </remarks>
+    /// <param name="GenJournalLine">Gen. journal line being posted.</param>
+    /// <param name="DetailedEmployeeLedgerEntry">Detailed Employee Ledger Entry that is currently applied</param>
     procedure UnapplyEmplLedgEntry(GenJournalLine: Record "Gen. Journal Line"; DetailedEmployeeLedgerEntry: Record "Detailed Employee Ledger Entry")
     var
         Employee: Record Employee;
@@ -6616,6 +6945,14 @@ codeunit 12 "Gen. Jnl.-Post Line"
         OnAfterHandleAddCurrResidualGLEntry(GenJnlLine, GLEntry2);
     end;
 
+    /// <summary>
+    /// Converts amount to additional reporting currency
+    /// </summary>
+    /// <remarks>
+    /// If additional reporting currency is not set, conversion is not performed.
+    /// </remarks>
+    /// <param name="AmountLCY">Amount in local currency</param>
+    /// <returns>Amount in additional reporting currency</returns>
     procedure CalcLCYToAddCurr(AmountLCY: Decimal): Decimal
     begin
         if AddCurrencyCode = '' then
@@ -6665,6 +7002,11 @@ codeunit 12 "Gen. Jnl.-Post Line"
         OnAfterGetCurrencyExchRate(GenJnlLine, NewCurrencyDate, CurrencyDate, UseCurrFactorOnly, CurrencyFactor);
     end;
 
+    /// <summary>
+    /// Converts amount from local to foreign currency.
+    /// </summary>
+    /// <param name="Amount">Amount to be converted</param>
+    /// <returns>Amount in foreign currency</returns>
     procedure ExchangeAmtLCYToFCY2(Amount: Decimal): Decimal
     begin
         if UseCurrFactorOnly then
@@ -6679,6 +7021,11 @@ codeunit 12 "Gen. Jnl.-Post Line"
             AddCurrency."Amount Rounding Precision"));
     end;
 
+    /// <summary>
+    /// Checks and returns if the currency code is different than additional reporting currency
+    /// </summary>
+    /// <param name="CurrencyCode">Currency Code to be checked</param>
+    /// <returns>True if Currency Code passed as a parameter is different than additional reporting currency</returns>
     procedure CheckNonAddCurrCodeOccurred(CurrencyCode: Code[10]): Boolean
     begin
         NonAddCurrCodeOccured :=
@@ -6698,6 +7045,13 @@ codeunit 12 "Gen. Jnl.-Post Line"
         exit(TotalVATAmount);
     end;
 
+    /// <summary>
+    /// Sets parameter ReverseGLReg to the same value as global variable GLReg with reversed set to true.
+    /// </summary>
+    /// <remarks>
+    /// Global variable GLReg stores information of the g/l register that being created
+    /// </remarks>
+    /// <param name="ReverseGLReg">Return Value: General ledger register to be reversed</param>
     procedure SetGLRegReverse(var ReverseGLReg: Record "G/L Register")
     begin
         GLReg.Reversed := true;
@@ -6752,6 +7106,12 @@ codeunit 12 "Gen. Jnl.-Post Line"
         TempVATEntry.DeleteAll();
     end;
 
+    /// <summary>
+    /// Returns smaller value of the two parameters passed to the procedure.
+    /// </summary>
+    /// <param name="Decimal1">Value to compare</param>
+    /// <param name="Decimal2">Value to compare</param>
+    /// <returns>Smaller of the two passed parameters</returns>
     procedure ABSMin(Decimal1: Decimal; Decimal2: Decimal): Decimal
     begin
         if Abs(Decimal1) < Abs(Decimal2) then
@@ -6774,6 +7134,10 @@ codeunit 12 "Gen. Jnl.-Post Line"
         exit(GLSetup."Appln. Rounding Precision");
     end;
 
+    /// <summary>
+    /// Retrieves general ledger setup if it wasn't retrieved before.
+    /// Global variable to store additional reporting currency is set from general ledger setup.
+    /// </summary>
     procedure GetGLSetup()
     begin
         if GLSetupRead then
@@ -6789,6 +7153,15 @@ codeunit 12 "Gen. Jnl.-Post Line"
     local procedure ReadGLSetup(var NewGLSetup: Record "General Ledger Setup")
     begin
         NewGLSetup := GLSetup;
+    end;
+
+    procedure GetSourceCodeSetup()
+    begin
+        if SourceCodeSetupRead then
+            exit;
+
+        SourceCodeSetup.Get();
+        SourceCodeSetupRead := true;
     end;
 
     local procedure CheckSalesExtDocNo(GenJnlLine: Record "Gen. Journal Line")
@@ -6842,6 +7215,15 @@ codeunit 12 "Gen. Jnl.-Post Line"
               GenJnlLine."Document Type", GenJnlLine."External Document No.");
     end;
 
+    /// <summary>
+    /// Check dimension restrictions on gen. journal line that relates to g/l account.
+    /// </summary>
+    /// <remarks>
+    /// Only gen. journal lines that have amount are checked
+    /// FA Posting Type must be equal to disposal on gen. journal line
+    /// </remarks>
+    /// <param name="GenJnlLine">gen. journal line being posted</param>
+    /// <param name="GLAccNo">g/l account no. to be checked</param>
     procedure CheckDimValueForDisposal(GenJnlLine: Record "Gen. Journal Line"; AccountNo: Code[20])
     var
         DimMgt: Codeunit DimensionManagement;
@@ -6864,16 +7246,34 @@ codeunit 12 "Gen. Jnl.-Post Line"
         end;
     end;
 
+    /// <summary>
+    /// Sets the global variable OverrideDimErr for the current instance of the codeunit.
+    /// If OverrideDimErr is not set dimension check is performed before posting gen. journal line 
+    /// </summary>
     procedure SetOverDimErr()
     begin
         OverrideDimErr := true;
     end;
 
+    /// <summary>
+    /// Sets the Preview Mode for the current instance of the codeunit.
+    /// Preview Mode ensures no transactions are committed to the database.
+    /// </summary>
+    /// <param name="NewPreviewMode">The new value for the Preview Mode.</param>
     procedure SetPreviewMode(NewPreviewMode: Boolean)
     begin
         PreviewMode := NewPreviewMode;
     end;
 
+    /// <summary>
+    /// Check dimension restrictions on gen. journal line that relates to g/l account.
+    /// </summary>
+    /// <remarks>
+    /// Only gen. journal lines that have amount and currency are checked
+    /// g/l account must be same as specified on currency realized/unrealized gain/loss
+    /// </remarks>
+    /// <param name="GenJnlLine">gen. journal line being posted</param>
+    /// <param name="GLAccNo">g/l account no. to be checked</param>
     procedure CheckGLAccDimError(GenJnlLine: Record "Gen. Journal Line"; GLAccNo: Code[20])
     var
         DimMgt: Codeunit DimensionManagement;
@@ -6954,6 +7354,11 @@ codeunit 12 "Gen. Jnl.-Post Line"
             CurrentBalance += AmountLCY + VATAmount;
     end;
 
+    /// <summary>
+    /// Retrieves currency record based on the currency code.
+    /// </summary>
+    /// <param name="Currency">Return Value: Currency record</param>
+    /// <param name="CurrencyCode">Currency code for record to be retrieved</param>
     procedure GetCurrency(var Currency: Record Currency; CurrencyCode: Code[10])
     begin
         if Currency.Code <> CurrencyCode then
@@ -6963,6 +7368,16 @@ codeunit 12 "Gen. Jnl.-Post Line"
                 Currency.Get(CurrencyCode);
     end;
 
+    /// <summary>
+    /// Populates the array AdjAmount with gen. journal lines value amount and additional currency amount.
+    /// </summary>
+    /// <remarks>
+    /// If amount and additional currency amount values are positive array elements 1 (one) and 2 (two) are populated.
+    /// For negative values array elements 3 (three) and 4 (four) are populated
+    /// </remarks>
+    /// <param name="AdjAmount">Return Value: array of adjustment amounts</param>
+    /// <param name="Amount">Gen. journal line amount</param>
+    /// <param name="AmountAddCurr">Gen. journal line amount in additional currency</param>
     procedure CollectAdjustment(var AdjAmount: array[4] of Decimal; Amount: Decimal; AmountAddCurr: Decimal)
     var
         Offset: Integer;
@@ -7013,6 +7428,13 @@ codeunit 12 "Gen. Jnl.-Post Line"
         exit(false);
     end;
 
+    /// <summary>
+    /// Returns offset of adjustment amount.
+    /// If amount positive and amount in additional currency is greater than 0 (zero) return value will be 1. If not - return value will be 3.
+    /// </summary>
+    /// <param name="Amount">gen. journal line amount</param>
+    /// <param name="AmountACY">gen. journal amount (in additional currency)</param>
+    /// <returns>Adjustment amount offset</returns>
     procedure GetAdjAmountOffset(Amount: Decimal; AmountACY: Decimal): Integer
     begin
         if (Amount > 0) or (Amount = 0) and (AmountACY > 0) then
@@ -7020,26 +7442,50 @@ codeunit 12 "Gen. Jnl.-Post Line"
         exit(3);
     end;
 
+    /// <summary>
+    /// Returns next entry no. that should be used when creating ledger (i.e. general, customer, vendor, etc.) entries.
+    /// </summary>
+    /// <returns>Returns next entry no. to be used for posting</returns>
     procedure GetNextEntryNo(): Integer
     begin
         exit(NextEntryNo);
     end;
 
+    /// <summary>
+    /// Returns next transaction no. that should be used when creating ledger (i.e. general, customer, vendor, etc.) entries.
+    /// </summary>
+    /// <returns>Returns next transaction no. to be used for posting</returns>
     procedure GetNextTransactionNo(): Integer
     begin
         exit(NextTransactionNo);
     end;
 
+    /// <summary>
+    /// Return next vat entry no. that should be used when creating next vat entry.
+    /// </summary>
+    /// <returns>Next vat entry no. to be used for posting</returns>
     procedure GetNextVATEntryNo(): Integer
     begin
         exit(NextVATEntryNo);
     end;
 
+    /// <summary>
+    /// Increases global variable NextVATEntryNo by 1 (one).
+    /// </summary>
+    /// <remarks>
+    /// Variable NextVATEntryNo is used as entry no. when creating vat entries
+    /// </remarks>
     procedure IncrNextVATEntryNo()
     begin
         NextVATEntryNo := NextVATEntryNo + 1;
     end;
 
+    /// <summary>
+    /// Increases global variable NextEntryNo by 1 (one).
+    /// </summary>
+    /// <remarks>
+    /// Variable NextEntryNo is used as entry no. when creating ledger entries
+    /// </remarks>
     procedure IncrNextEntryNo()
     begin
         NextEntryNo := NextEntryNo + 1;
@@ -7055,6 +7501,10 @@ codeunit 12 "Gen. Jnl.-Post Line"
         OnAfterIsNotPayment(DocumentType, Result);
     end;
 
+    /// <summary>
+    /// Procedure to check if global temporary/buffer table TempGLEntryBuf is empty.
+    /// </summary>
+    /// <returns>True if global temporary/buffer table TempGLEntryBuf is empty</returns>
     procedure IsTempGLEntryBufEmpty(): Boolean
     begin
         exit(TempGLEntryBuf.IsEmpty);
@@ -7104,6 +7554,15 @@ codeunit 12 "Gen. Jnl.-Post Line"
             TotalUnrealVATAmountFirst := TotalUnrealVATAmountFirst - RemainingUnrealizedAmount;
     end;
 
+    /// <summary>
+    /// Parameter GLEntryNo is updated with value of parameter SavedEntryNo.
+    /// Global variable NextEntryNo is decreased by 1 (one).
+    /// </summary>
+    /// <remarks>
+    /// Variable NextEntryNo is used as entry no. when creating ledger entries
+    /// </remarks>
+    /// <param name="GLEntryNo">Existing value for g/l entry no.</param>
+    /// <param name="SavedEntryNo">New value for g/l entry no.</param>
     procedure UpdateGLEntryNo(var GLEntryNo: Integer; var SavedEntryNo: Integer)
     begin
         if SavedEntryNo <> 0 then begin
@@ -7113,6 +7572,13 @@ codeunit 12 "Gen. Jnl.-Post Line"
         end;
     end;
 
+    /// <summary>
+    /// Creates/updates temporary/buffer table TempDimPostingBuffer with amount and amount in additional currency based on dimension set id.
+    /// The procedure should be used to aggregate amounts by dimensions.
+    /// </summary>
+    /// <param name="TempDimPostingBuffer">Return Value: temporary buffer table to store amounts based on dimension set id.</param>
+    /// <param name="DimSetID">Dimension set id of the transaction</param>
+    /// <param name="DtldCVLedgEntryBuf">Buffer table for detailed customer/vendor ledger entries to be posted.</param>
     procedure UpdateTotalAmounts(var TempDimPostingBuffer: Record "Dimension Posting Buffer" temporary; DimSetID: Integer; DtldCVLedgEntryBuf: Record "Detailed CV Ledg. Entry Buffer")
     var
         IsHandled: Boolean;
@@ -7213,6 +7679,13 @@ codeunit 12 "Gen. Jnl.-Post Line"
         InsertGLEntry(GenJnlLine, GLEntry, true);
     end;
 
+    /// <summary>
+    /// Updates additional-currency amount on buffer table DtldCVLedgEntryBuf when un-application of customer/vendor ledger entries is posted.
+    /// </summary>
+    /// <remarks>
+    /// Amount is only updated for buffer table entry with type other than application, unrealized/realized gain/loss or correction of remaining amount
+    /// </remarks>
+    /// <param name="DtldCVLedgEntryBuf">Buffer table for detailed customer/vendor ledger entries to be posted.</param>
     procedure SetAddCurrForUnapplication(var DtldCVLedgEntryBuf: Record "Detailed CV Ledg. Entry Buffer")
     begin
         if not (DtldCVLedgEntryBuf."Entry Type" in
@@ -7228,6 +7701,14 @@ codeunit 12 "Gen. Jnl.-Post Line"
                 DtldCVLedgEntryBuf."Additional-Currency Amount" := CalcAddCurrForUnapplication(DtldCVLedgEntryBuf."Posting Date", DtldCVLedgEntryBuf."Amount (LCY)");
     end;
 
+    /// <summary>
+    /// Checks if multiple customer posting groups exists on customer ledger entries that relate to detailed entries being created.
+    /// </summary>
+    /// <remarks>
+    /// The check is only performed when customer ledger entries are being applied.
+    /// </remarks>
+    /// <param name="DetailedCVLedgEntryBuffer">Buffer table for detailed customer ledger entries to be posted.</param>
+    /// <returns>Returns true if multiple customer posting groups exists for customer ledger entries being applied</returns>
     procedure CheckCustMultiplePostingGroups(var DetailedCVLedgEntryBuffer: Record "Detailed CV Ledg. Entry Buffer"): Boolean
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
@@ -7251,6 +7732,14 @@ codeunit 12 "Gen. Jnl.-Post Line"
         exit(false);
     end;
 
+    /// <summary>
+    /// Checks if multiple vendor posting groups exists on vendor ledger entries that relate to detailed entries being created.
+    /// </summary>
+    /// <remarks>
+    /// The check is only performed when vendor ledger entries are being applied.
+    /// </remarks>
+    /// <param name="DetailedCVLedgEntryBuffer">Buffer table for detailed vendor ledger entries to be posted.</param>
+    /// <returns>Returns true if multiple vendor posting groups exists for vendor ledger entries being applied</returns>
     procedure CheckVendMultiplePostingGroups(var DetailedCVLedgEntryBuffer: Record "Detailed CV Ledg. Entry Buffer"): Boolean
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
@@ -7502,8 +7991,8 @@ codeunit 12 "Gen. Jnl.-Post Line"
             DeferralPostingBuffer.SetRange("Document No.", GenJournalLine."Document No.");
             DeferralPostingBuffer.SetRange("Deferral Line No.", GenJournalLine."Deferral Line No.");
             OnPostDeferralPostBufferOnAfterSetFilters(DeferralPostingBuffer, GenJournalLine, GLReg."No.", NextTransactionNo);
-            VATPostingSetup.Get(GenJournalLine."VAT Bus. Posting Group", GenJournalLine."VAT Prod. Posting Group");
-            NonDeductibleVATPct := NonDeductibleVAT.GetNonDeductibleVATPct(GenJournalLine."VAT Bus. Posting Group", GenJournalLine."VAT Prod. Posting Group", DeferralDocType);
+            if VATPostingSetup.Get(GenJournalLine."VAT Bus. Posting Group", GenJournalLine."VAT Prod. Posting Group") then
+                NonDeductibleVATPct := NonDeductibleVAT.GetNonDeductibleVATPct(GenJournalLine."VAT Bus. Posting Group", GenJournalLine."VAT Prod. Posting Group", DeferralDocType);
             if DeferralPostingBuffer.FindSet() then begin
                 DeferralTemplate.Get(DeferralPostingBuffer."Deferral Code");
                 repeat
@@ -7550,6 +8039,13 @@ codeunit 12 "Gen. Jnl.-Post Line"
         OnAfterPostDeferralPostBuffer(GenJournalLine);
     end;
 
+    /// <summary>
+    /// Removes deferral header and line associated with gen. journal line.
+    /// </summary>
+    /// <remarks>
+    /// Deferrals are only removed if line no. on gen. journal line is specified (not 0).
+    /// </remarks>
+    /// <param name="GenJournalLine">General journal line that is being be posted.</param>
     procedure RemoveDeferralSchedule(GenJournalLine: Record "Gen. Journal Line")
     var
         DeferralUtilities: Codeunit "Deferral Utilities";
@@ -7617,10 +8113,8 @@ codeunit 12 "Gen. Jnl.-Post Line"
     end;
 
     local procedure GetJournalsSourceCode()
-    var
-        SourceCodeSetup: Record "Source Code Setup";
     begin
-        SourceCodeSetup.Get();
+        GetSourceCodeSetup();
         JournalsSourceCodesList.Add(SourceCodeSetup."General Journal");
         JournalsSourceCodesList.Add(SourceCodeSetup."Purchase Journal");
         JournalsSourceCodesList.Add(SourceCodeSetup."Sales Journal");
@@ -7629,30 +8123,24 @@ codeunit 12 "Gen. Jnl.-Post Line"
     end;
 
     local procedure GetGeneralDeferralSourceCode(): Code[10]
-    var
-        SourceCodeSetupLoc: Record "Source Code Setup";
     begin
-        SourceCodeSetupLoc.Get();
-        SourceCodeSetupLoc.TestField("General Deferral");
-        exit(SourceCodeSetupLoc."General Deferral");
+        GetSourceCodeSetup();
+        SourceCodeSetup.TestField("General Deferral");
+        exit(SourceCodeSetup."General Deferral");
     end;
 
     local procedure GetSalesDeferralSourceCode(): Code[10]
-    var
-        SourceCodeSetupLoc: Record "Source Code Setup";
     begin
-        SourceCodeSetupLoc.Get();
-        SourceCodeSetupLoc.TestField("Sales Deferral");
-        exit(SourceCodeSetupLoc."Sales Deferral");
+        GetSourceCodeSetup();
+        SourceCodeSetup.TestField("Sales Deferral");
+        exit(SourceCodeSetup."Sales Deferral");
     end;
 
     local procedure GetPurchaseDeferralSourceCode(): Code[10]
-    var
-        SourceCodeSetupLoc: Record "Source Code Setup";
     begin
-        SourceCodeSetupLoc.Get();
-        SourceCodeSetupLoc.TestField("Purchase Deferral");
-        exit(SourceCodeSetupLoc."Purchase Deferral");
+        GetSourceCodeSetup();
+        SourceCodeSetup.TestField("Purchase Deferral");
+        exit(SourceCodeSetup."Purchase Deferral");
     end;
 
     procedure DeferralPosting(DeferralCode: Code[10]; SourceCode: Code[10]; AccountNo: Code[20]; var GenJournalLine: Record "Gen. Journal Line"; Balancing: Boolean)
@@ -7886,11 +8374,25 @@ codeunit 12 "Gen. Jnl.-Post Line"
             GenJnlLine.TestField("Check Transmitted");
     end;
 
+    /// <summary>
+    /// Sets the new value for global variable FADimAlreadyChecked.
+    /// </summary>
+    /// <remarks>
+    /// If this value is not set (false) the dimensions are checked for restrictions when initializing new g/l entry
+    /// </remarks>
+    /// <param name="NewFADimAlreadyChecked">New value for global variable FADimAlreadyChecked</param>
     procedure SetFADimAlreadyChecked(NewFADimAlreadyChecked: Boolean)
     begin
         FADimAlreadyChecked := NewFADimAlreadyChecked;
     end;
 
+    /// <summary>
+    /// Sets entry no. of the global temporary/buffer table TempGLEntryBuf.
+    /// </summary>
+    /// <remarks>
+    /// TempGLEntryBuf is a global temporary/buffer table used to accumulate all the g/l entries that will be posted
+    /// </remarks>
+    /// <param name="NewTempGLEntryBufEntryNo">New entry no.</param>
     procedure SetTempGLEntryBufEntryNo(NewTempGLEntryBufEntryNo: Integer)
     begin
         TempGLEntryBuf."Entry No." := NewTempGLEntryBufEntryNo;
@@ -8013,6 +8515,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
     begin
     end;
 #endif
+
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertVATOnAfterCalcVATDifferenceLCY(GenJournalLine: Record "Gen. Journal Line"; VATEntry: Record "VAT Entry"; var VATDifferenceLCY: Decimal; var CurrExchRate: Record "Currency Exchange Rate")

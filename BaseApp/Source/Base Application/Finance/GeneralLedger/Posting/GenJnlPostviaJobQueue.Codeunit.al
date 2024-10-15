@@ -49,11 +49,13 @@ codeunit 250 "Gen. Jnl.-Post via Job Queue"
     end;
 
     var
+#pragma warning disable AA0074
         PostDescription: Label 'Post journal lines for journal template %1, journal batch %2, document no. %3.', Comment = '%1 = template name, %2 = batch name, %3 = document no. Example: Post journal lines for journal template GENERAL, journal batch DEFAULT, document no. G00123.';
         PostAndPrintDescription: Label 'Post and print journal lines for journal template %1, journal batch %2, document no. %3.', Comment = '%1 = template name, %2 = batch name, %3 = document no. Example: Post and print journal lines for journal template GENERAL, journal batch DEFAULT, document no. G00123.';
         Confirmation: Label 'Journal lines have been scheduled for posting.';
         WrongJobQueueStatus: Label 'Journal lines cannot be posted because they have already been scheduled for posting. Choose the Remove from Job Queue action to reset the job queue status and then post again.';
         PostingDateError: Label 'is not within your range of allowed posting dates';
+#pragma warning restore AA0074
 
     local procedure SetJobQueueStatus(var GenJrnlLine: Record "Gen. Journal Line"; NewStatus: Enum "Document Job Queue Status")
     begin

@@ -3,6 +3,7 @@ namespace Microsoft.Finance.GeneralLedger.Ledger;
 using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Finance.GeneralLedger.Preview;
+using Microsoft.Finance.GeneralLedger.Setup;
 using System.Security.User;
 
 page 122 "G/L Entries Preview"
@@ -102,18 +103,19 @@ page 122 "G/L Entries Preview"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the Amount of the entry.';
+                    Visible = AmountVisible;
                 }
                 field("Debit Amount"; Rec."Debit Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the total of the ledger entries that represent debits.';
-                    Visible = false;
+                    Visible = DebitCreditVisible;
                 }
                 field("Credit Amount"; Rec."Credit Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the total of the ledger entries that represent credits.';
-                    Visible = false;
+                    Visible = DebitCreditVisible;
                 }
                 field("Source Currency Code"; Rec."Source Currency Code")
                 {
@@ -141,7 +143,7 @@ page 122 "G/L Entries Preview"
                 }
                 field("VAT Amount"; Rec."VAT Amount")
                 {
-                    ApplicationArea = Basic, Suite;
+                    ApplicationArea = VAT;
                     ToolTip = 'Specifies the amount of VAT that is included in the total amount.';
                     Visible = false;
                 }
@@ -330,8 +332,14 @@ page 122 "G/L Entries Preview"
         }
     }
 
+    trigger OnInit()
+    begin
+        AmountVisible := true;
+    end;
+
     trigger OnOpenPage()
     var
+        GLSetup: Record "General Ledger Setup";
 #if not CLEAN24
         FeatureKeyManagement: Codeunit System.Environment.Configuration."Feature Key Management";
 #endif
@@ -340,6 +348,9 @@ page 122 "G/L Entries Preview"
 #if not CLEAN24
         SourceCurrencyVisible := FeatureKeyManagement.IsGLCurrencyRevaluationEnabled();
 #endif
+        GLSetup.Get();
+        AmountVisible := not (GLSetup."Show Amounts" = GLSetup."Show Amounts"::"Debit/Credit Only");
+        DebitCreditVisible := not (GLSetup."Show Amounts" = GLSetup."Show Amounts"::"Amount Only");
     end;
 
     var
@@ -359,6 +370,7 @@ page 122 "G/L Entries Preview"
         Dim6Visible: Boolean;
         Dim7Visible: Boolean;
         Dim8Visible: Boolean;
+        AmountVisible, DebitCreditVisible : Boolean;
 
     local procedure SetDimVisibility()
     var

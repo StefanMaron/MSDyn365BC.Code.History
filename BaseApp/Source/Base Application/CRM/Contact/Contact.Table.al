@@ -1,4 +1,4 @@
-﻿namespace Microsoft.CRM.Contact;
+namespace Microsoft.CRM.Contact;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.CRM.BusinessRelation;
@@ -69,6 +69,7 @@ table 5050 Contact
         field(1; "No."; Code[20])
         {
             Caption = 'No.';
+            OptimizeForTextSearch = true;
 
             trigger OnValidate()
             var
@@ -89,6 +90,7 @@ table 5050 Contact
         field(2; Name; Text[100])
         {
             Caption = 'Name';
+            OptimizeForTextSearch = true;
 
             trigger OnValidate()
             begin
@@ -103,18 +105,22 @@ table 5050 Contact
         field(4; "Name 2"; Text[50])
         {
             Caption = 'Name 2';
+            OptimizeForTextSearch = true;
         }
         field(5; Address; Text[100])
         {
             Caption = 'Address';
+            OptimizeForTextSearch = true;
         }
         field(6; "Address 2"; Text[50])
         {
             Caption = 'Address 2';
+            OptimizeForTextSearch = true;
         }
         field(7; City; Text[30])
         {
             Caption = 'City';
+            OptimizeForTextSearch = true;
             TableRelation = if ("Country/Region Code" = const('')) "Post Code".City
             else
             if ("Country/Region Code" = filter(<> '')) "Post Code".City where("Country/Region Code" = field("Country/Region Code"));
@@ -144,6 +150,7 @@ table 5050 Contact
         field(9; "Phone No."; Text[30])
         {
             Caption = 'Phone No.';
+            OptimizeForTextSearch = true;
             ExtendedDatatype = PhoneNo;
 
             trigger OnValidate()
@@ -159,6 +166,7 @@ table 5050 Contact
         field(10; "Telex No."; Text[20])
         {
             Caption = 'Telex No.';
+            OptimizeForTextSearch = true;
         }
         field(15; "Territory Code"; Code[10])
         {
@@ -183,6 +191,7 @@ table 5050 Contact
         field(25; "Registration Number"; Text[50])
         {
             Caption = 'Registration No.';
+            OptimizeForTextSearch = true;
 
             trigger OnValidate()
             var
@@ -231,6 +240,7 @@ table 5050 Contact
         field(48; "Format Region"; Text[80])
         {
             Caption = 'Format Region';
+            OptimizeForTextSearch = true;
             TableRelation = "Language Selection"."Language Tag";
         }
         field(54; "Last Date Modified"; Date)
@@ -241,14 +251,17 @@ table 5050 Contact
         field(84; "Fax No."; Text[30])
         {
             Caption = 'Fax No.';
+            OptimizeForTextSearch = true;
         }
         field(85; "Telex Answer Back"; Text[20])
         {
             Caption = 'Telex Answer Back';
+            OptimizeForTextSearch = true;
         }
         field(86; "VAT Registration No."; Text[20])
         {
             Caption = 'VAT Registration No.';
+            OptimizeForTextSearch = true;
 
             trigger OnValidate()
             var
@@ -305,10 +318,12 @@ table 5050 Contact
         {
             CaptionClass = '5,1,' + "Country/Region Code";
             Caption = 'County';
+            OptimizeForTextSearch = true;
         }
         field(102; "E-Mail"; Text[80])
         {
             Caption = 'Email';
+            OptimizeForTextSearch = true;
             ExtendedDatatype = EMail;
 
             trigger OnValidate()
@@ -333,6 +348,7 @@ table 5050 Contact
         field(103; "Home Page"; Text[80])
         {
             Caption = 'Home Page';
+            OptimizeForTextSearch = true;
             ExtendedDatatype = URL;
             ObsoleteReason = 'Field length will be increased to 255.';
             ObsoleteState = Pending;
@@ -343,6 +359,7 @@ table 5050 Contact
         field(103; "Home Page"; Text[255])
         {
             Caption = 'Home Page';
+            OptimizeForTextSearch = true;
             ExtendedDatatype = URL;
         }
 #pragma warning restore AS0086
@@ -448,6 +465,7 @@ table 5050 Contact
         field(5052; "Company Name"; Text[100])
         {
             Caption = 'Company Name';
+            OptimizeForTextSearch = true;
             TableRelation = Contact.Name where(Type = const(Company));
             ValidateTableRelation = false;
 
@@ -470,6 +488,7 @@ table 5050 Contact
         field(5054; "First Name"; Text[30])
         {
             Caption = 'First Name';
+            OptimizeForTextSearch = true;
 
             trigger OnValidate()
             begin
@@ -480,6 +499,7 @@ table 5050 Contact
         field(5055; "Middle Name"; Text[30])
         {
             Caption = 'Middle Name';
+            OptimizeForTextSearch = true;
 
             trigger OnValidate()
             begin
@@ -490,6 +510,7 @@ table 5050 Contact
         field(5056; Surname; Text[30])
         {
             Caption = 'Surname';
+            OptimizeForTextSearch = true;
 
             trigger OnValidate()
             begin
@@ -500,18 +521,22 @@ table 5050 Contact
         field(5058; "Job Title"; Text[30])
         {
             Caption = 'Job Title';
+            OptimizeForTextSearch = true;
         }
         field(5059; Initials; Text[30])
         {
             Caption = 'Initials';
+            OptimizeForTextSearch = true;
         }
         field(5060; "Extension No."; Text[30])
         {
             Caption = 'Extension No.';
+            OptimizeForTextSearch = true;
         }
         field(5061; "Mobile Phone No."; Text[30])
         {
             Caption = 'Mobile Phone No.';
+            OptimizeForTextSearch = true;
             ExtendedDatatype = PhoneNo;
 
             trigger OnValidate()
@@ -527,6 +552,7 @@ table 5050 Contact
         field(5062; Pager; Text[30])
         {
             Caption = 'Pager';
+            OptimizeForTextSearch = true;
         }
         field(5063; "Organizational Level Code"; Code[10])
         {
@@ -618,6 +644,7 @@ table 5050 Contact
         field(5075; "Business Relation"; Text[50])
         {
             Caption = 'Business Relation';
+            OptimizeForTextSearch = true;
             Editable = false;
             ObsoleteState = Removed;
             ObsoleteReason = 'Replaced by the Contact Business Relation field.';
@@ -839,6 +866,7 @@ table 5050 Contact
         field(5105; "E-Mail 2"; Text[80])
         {
             Caption = 'Email 2';
+            OptimizeForTextSearch = true;
             ExtendedDatatype = EMail;
 
             trigger OnValidate()
@@ -949,9 +977,6 @@ table 5050 Contact
         Opp: Record Opportunity;
         Cont: Record Contact;
         ContBusRel: Record "Contact Business Relation";
-#if not CLEAN22
-        IntrastatSetup: Record "Intrastat Setup";
-#endif
         Customer: Record Customer;
         Vendor: Record Vendor;
         CampaignTargetGrMgt: Codeunit "Campaign Target Group Mgt";
@@ -1085,9 +1110,6 @@ table 5050 Contact
             ContAltAddrDateRange.DeleteAll();
 
         VATRegistrationLogMgt.DeleteContactLog(Rec);
-#if not CLEAN22
-        IntrastatSetup.CheckDeleteIntrastatContact(IntrastatSetup."Intrastat Contact Type"::Contact, "No.");
-#endif
         Customer.SetRange("Primary Contact No.", "No.");
         Customer.ModifyAll(Contact, '');
         Customer.ModifyAll("Primary Contact No.", '');
@@ -1191,13 +1213,23 @@ table 5050 Contact
 
     var
         CannotDeleteWithOpenTasksErr: Label 'You cannot delete contact %1 because there are one or more tasks open.', Comment = '%1 = Contact No.';
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'You cannot delete the %2 record of the %1 because the contact is assigned one or more unlogged segments.';
         Text002: Label 'You cannot delete the %2 record of the %1 because one or more opportunities are in not started or progress.';
         Text003: Label '%1 cannot be changed because one or more interaction log entries are linked to the contact.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         CannotChangeWithOpenTasksErr: Label '%1 cannot be changed because one or more tasks are linked to the contact.', Comment = '%1 = Contact No.';
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text006: Label '%1 cannot be changed because one or more opportunities are linked to the contact.';
         Text007: Label '%1 cannot be changed because there are one or more related people linked to the contact.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0470
         RelatedRecordIsCreatedMsg: Label 'The %1 record has been created.', Comment = 'The Customer record has been created.';
+#pragma warning restore AA0470
         RMSetup: Record "Marketing Setup";
         Salesperson: Record "Salesperson/Purchaser";
         PostCode: Record "Post Code";
@@ -1207,11 +1239,17 @@ table 5050 Contact
         CampaignMgt: Codeunit "Campaign Target Group Mgt";
         SelectedBusRelationCodes: Text;
         ContChanged: Boolean;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text012: Label 'You cannot change %1 because one or more unlogged segments are assigned to the contact.';
         Text019: Label 'The %2 record of the %1 already has the %3 with %4 %5.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         CreateCustomerFromContactQst: Label 'Do you want to create a contact as a customer using a customer template?';
+#pragma warning disable AA0074
         Text021: Label 'You have to set up the salutation formula of the type %1 in %2 language for the %3 contact.', Comment = '%1 - salutation type, %2 - language code, %3 - contact number.';
         Text022: Label 'The creation of the customer has been aborted.';
+#pragma warning restore AA0074
         SelectContactErr: Label 'You must select an existing contact.';
         AlreadyExistErr: Label '%1 %2 already has a %3 with %4 %5.', Comment = '%1=Contact table caption;%2=Contact number;%3=Contact Business Relation table caption;%4=Contact Business Relation Link to Table value;%5=Contact Business Relation number';
         PrivacyBlockedPostErr: Label 'You cannot post this type of document because contact %1 is blocked due to privacy.', Comment = '%1=contact no.';
@@ -2952,7 +2990,12 @@ table 5050 Contact
     procedure TouchContact(ContactNo: Code[20])
     var
         Cont: Record Contact;
+        IsHandled: Boolean;
     begin
+        OnBeforeTouchContact(ContactNo, IsHandled);
+        if IsHandled then
+            exit;
+
         Cont.LockTable();
         if Cont.Get(ContactNo) then begin
             Cont.SetLastDateTimeModified();
@@ -3880,6 +3923,11 @@ table 5050 Contact
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateBankAccountLink(var Contact: Record Contact; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTouchContact(ContactNo: Code[20]; var IsHandled: Boolean)
     begin
     end;
 

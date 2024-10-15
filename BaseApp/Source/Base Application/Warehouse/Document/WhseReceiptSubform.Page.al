@@ -4,6 +4,7 @@ using Microsoft.Inventory.Availability;
 using Microsoft.Inventory.Location;
 using Microsoft.Purchases.Document;
 using Microsoft.Warehouse.CrossDock;
+using Microsoft.Warehouse.Availability;
 using Microsoft.Warehouse.Journal;
 using Microsoft.Warehouse.Structure;
 
@@ -267,7 +268,7 @@ page 5769 "Whse. Receipt Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailability(ItemAvailFormsMgt.ByEvent());
+                            ItemAvailability("Item Availability Type"::"Event");
                         end;
                     }
                     action(Period)
@@ -279,7 +280,7 @@ page 5769 "Whse. Receipt Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailability(ItemAvailFormsMgt.ByPeriod());
+                            ItemAvailability("Item Availability Type"::Period);
                         end;
                     }
                     action(Variant)
@@ -291,7 +292,7 @@ page 5769 "Whse. Receipt Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailability(ItemAvailFormsMgt.ByVariant());
+                            ItemAvailability("Item Availability Type"::Variant);
                         end;
                     }
                     action(Location)
@@ -304,7 +305,7 @@ page 5769 "Whse. Receipt Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailability(ItemAvailFormsMgt.ByLocation());
+                            ItemAvailability("Item Availability Type"::Location);
                         end;
                     }
                     action(Lot)
@@ -325,7 +326,7 @@ page 5769 "Whse. Receipt Subform"
                     Caption = 'Item &Tracking Lines';
                     Image = ItemTrackingLines;
                     ShortCutKey = 'Ctrl+Alt+I';
-                    ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
+                    ToolTip = 'View or edit serial, lot and package numbers that are assigned to the item on the document or journal line.';
 
                     trigger OnAction()
                     begin
@@ -337,8 +338,12 @@ page 5769 "Whse. Receipt Subform"
     }
 
     var
-        ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
+        WarehouseAvailabilityMgt: Codeunit "Warehouse Availability Mgt.";
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'Cross-docking has been disabled for item %1 or location %2.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         HideBinFields: Boolean;
 
     protected var
@@ -378,9 +383,9 @@ page 5769 "Whse. Receipt Subform"
         BinContent.ShowBinContents(Rec."Location Code", Rec."Item No.", Rec."Variant Code", Rec."Bin Code");
     end;
 
-    local procedure ItemAvailability(AvailabilityType: Option Date,Variant,Location,Bin,"Event",BOM)
+    local procedure ItemAvailability(AvailabilityType: Enum "Item Availability Type")
     begin
-        ItemAvailFormsMgt.ShowItemAvailFromWhseRcptLine(Rec, AvailabilityType);
+        WarehouseAvailabilityMgt.ShowItemAvailFromWhseRcptLine(Rec, AvailabilityType);
     end;
 
     procedure WhsePostRcptYesNo()

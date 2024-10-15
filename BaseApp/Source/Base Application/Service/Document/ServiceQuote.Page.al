@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Service.Document;
 
 using Microsoft.Finance.Currency;
@@ -6,6 +10,7 @@ using Microsoft.Foundation.Address;
 using Microsoft.Foundation.Attachment;
 using Microsoft.Foundation.Reporting;
 using Microsoft.Sales.Customer;
+using Microsoft.Service.Archive;
 using Microsoft.Service.Comment;
 using Microsoft.Utilities;
 using System.Security.User;
@@ -115,6 +120,8 @@ page 5964 "Service Quote"
                         ToolTip = 'Specifies the country/region of the address.';
 
                         trigger OnValidate()
+                        var
+                            FormatAddress: Codeunit "Format Address";
                         begin
                             IsSellToCountyVisible := FormatAddress.UseCounty(Rec."Country/Region Code");
                         end;
@@ -123,6 +130,25 @@ page 5964 "Service Quote"
                     {
                         ApplicationArea = Service;
                         ToolTip = 'Specifies the name of the contact who will receive the service.';
+                    }
+                    field("No. of Archived Versions"; Rec."No. of Archived Versions")
+                    {
+                        ApplicationArea = Service;
+                        Importance = Additional;
+                        ToolTip = 'Specifies the number of archived versions for this document.';
+
+                        trigger OnDrillDown()
+                        var
+                            ServiceHeaderArchive: Record "Service Header Archive";
+                        begin
+                            CurrPage.SaveRecord();
+                            Commit();
+                            ServiceHeaderArchive.SetRange("Document Type", Rec."Document Type"::Quote);
+                            ServiceHeaderArchive.SetRange("No.", Rec."No.");
+                            ServiceHeaderArchive.SetRange("Doc. No. Occurrence", Rec."Doc. No. Occurrence");
+                            Page.RunModal(Page::"Service List Archive", ServiceHeaderArchive);
+                            CurrPage.Update(false);
+                        end;
                     }
                 }
                 field("Phone No."; Rec."Phone No.")
@@ -278,6 +304,8 @@ page 5964 "Service Quote"
                         ToolTip = 'Specifies the country/region in the customer''s address.';
 
                         trigger OnValidate()
+                        var
+                            FormatAddress: Codeunit "Format Address";
                         begin
                             IsBillToCountyVisible := FormatAddress.UseCounty(Rec."Bill-to Country/Region Code");
                         end;
@@ -444,6 +472,8 @@ page 5964 "Service Quote"
                         ToolTip = 'Specifies the country/region in the customer''s address.';
 
                         trigger OnValidate()
+                        var
+                            FormatAddress: Codeunit "Format Address";
                         begin
                             IsShipToCountyVisible := FormatAddress.UseCounty(Rec."Ship-to Country/Region Code");
                         end;
@@ -624,10 +654,24 @@ page 5964 "Service Quote"
         }
         area(factboxes)
         {
+#if not CLEAN25
             part("Attached Documents"; "Document Attachment Factbox")
             {
+                ObsoleteTag = '25.0';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
                 ApplicationArea = Service;
                 Caption = 'Attachments';
+                SubPageLink = "Table ID" = const(Database::"Service Header"),
+                              "No." = field("No."),
+                              "Document Type" = field("Document Type");
+            }
+#endif
+            part("Attached Documents List"; "Doc. Attachment List Factbox")
+            {
+                ApplicationArea = Service;
+                Caption = 'Documents';
+                UpdatePropagation = Both;
                 SubPageLink = "Table ID" = const(Database::"Service Header"),
                               "No." = field("No."),
                               "Document Type" = field("Document Type");
@@ -789,10 +833,26 @@ page 5964 "Service Quote"
                     ToolTip = 'Create a new customer card for the customer on the service document.';
 
                     trigger OnAction()
+                    var
+                        ServOrderMgt: Codeunit ServOrderManagement;
                     begin
-                        Clear(ServOrderMgt);
                         ServOrderMgt.CreateNewCustomer(Rec);
                         CurrPage.Update(true);
+                    end;
+                }
+                action("Archive Document")
+                {
+                    ApplicationArea = Service;
+                    Caption = 'Archi&ve Document';
+                    Image = Archive;
+                    ToolTip = 'Send the document to the archive, for example because it is too soon to delete it. Later, you delete or reprocess the archived document.';
+
+                    trigger OnAction()
+                    var
+                        ServiceDocumentArchiveMgmt: Codeunit "Service Document Archive Mgmt.";
+                    begin
+                        ServiceDocumentArchiveMgmt.ArchiveServiceDocument(Rec);
+                        CurrPage.Update(false);
                     end;
                 }
             }
@@ -820,10 +880,10 @@ page 5964 "Service Quote"
 
                 trigger OnAction()
                 var
-                    DocumentPrint: Codeunit "Document-Print";
+                    ServDocumentPrint: Codeunit "Serv. Document Print";
                 begin
                     CurrPage.Update(true);
-                    DocumentPrint.PrintServiceHeader(Rec);
+                    ServDocumentPrint.PrintServiceHeader(Rec);
                 end;
             }
             action(AttachAsPDF)
@@ -837,11 +897,11 @@ page 5964 "Service Quote"
                 trigger OnAction()
                 var
                     ServiceHeader: Record "Service Header";
-                    DocumentPrint: Codeunit "Document-Print";
+                    ServDocumentPrint: Codeunit "Serv. Document Print";
                 begin
                     ServiceHeader := Rec;
                     ServiceHeader.SetRecFilter();
-                    DocumentPrint.PrintServiceHeaderToDocumentAttachment(ServiceHeader);
+                    ServDocumentPrint.PrintServiceHeaderToDocumentAttachment(ServiceHeader);
                 end;
             }
         }
@@ -866,6 +926,9 @@ page 5964 "Service Quote"
                     }
                 }
                 actionref("&Create Customer_Promoted"; "&Create Customer")
+                {
+                }
+                actionref("Archive Document_Promoted"; "Archive Document")
                 {
                 }
             }
@@ -916,6 +979,8 @@ page 5964 "Service Quote"
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
+    var
+        UserMgt: Codeunit "User Setup Management";
     begin
         Rec."Document Type" := Rec."Document Type"::Quote;
         Rec."Responsibility Center" := UserMgt.GetServiceFilter();
@@ -932,9 +997,6 @@ page 5964 "Service Quote"
     end;
 
     var
-        ServOrderMgt: Codeunit ServOrderManagement;
-        UserMgt: Codeunit "User Setup Management";
-        FormatAddress: Codeunit "Format Address";
         ChangeExchangeRate: Page "Change Exchange Rate";
         IsBillToCountyVisible: Boolean;
         IsSellToCountyVisible: Boolean;
@@ -943,6 +1005,8 @@ page 5964 "Service Quote"
         DocNoVisible: Boolean;
 
     local procedure ActivateFields()
+    var
+        FormatAddress: Codeunit "Format Address";
     begin
         IsSellToCountyVisible := FormatAddress.UseCounty(Rec."Country/Region Code");
         IsBillToCountyVisible := FormatAddress.UseCounty(Rec."Bill-to Country/Region Code");
@@ -952,10 +1016,10 @@ page 5964 "Service Quote"
 
     local procedure SetDocNoVisible()
     var
-        DocumentNoVisibility: Codeunit DocumentNoVisibility;
+        ServDocumentNoVisibility: Codeunit "Serv. Document No. Visibility";
         DocType: Option Quote,"Order",Invoice,"Credit Memo",Contract;
     begin
-        DocNoVisible := DocumentNoVisibility.ServiceDocumentNoIsVisible(DocType::Quote, Rec."No.");
+        DocNoVisible := ServDocumentNoVisibility.ServiceDocumentNoIsVisible(DocType::Quote, Rec."No.");
     end;
 
     local procedure CustomerNoOnAfterValidate()

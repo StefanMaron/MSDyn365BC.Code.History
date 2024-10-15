@@ -2149,11 +2149,10 @@ codeunit 134932 "ERM Gen. Jnl. Error Handling"
     begin
         CreateGenJournalTemplateBatch(GenJournalTemplate, GenJournalBatch);
 
-        for i := 1 to LibraryRandom.RandIntInRange(5, 10) do begin
+        for i := 1 to LibraryRandom.RandIntInRange(5, 10) do
             LibraryERM.CreateGeneralJnlLine2WithBalAcc(GenJournalLine, GenJournalBatch."Journal Template Name",
               GenJournalBatch.Name, GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::"G/L Account",
               LibraryERM.CreateGLAccountNoWithDirectPosting(), GenJournalLine."Bal. Account Type"::"G/L Account", '', 0);
-        end;
     end;
 
     local procedure CrateJournalLineWithBalanceAccount(GenJournalBatch: Record "Gen. Journal Batch"; var GenJournalLine: Record "Gen. Journal Line")

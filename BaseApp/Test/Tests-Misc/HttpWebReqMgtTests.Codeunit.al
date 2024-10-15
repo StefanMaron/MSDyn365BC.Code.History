@@ -76,6 +76,7 @@ codeunit 134297 "Http Web Req. Mgt. Tests"
     procedure TestSetBasicAuth()
     var
         HttpWebRequestMgt: Codeunit "Http Web Request Mgt.";
+        DummyPassword: Text;
     begin
         // [GIVEN] Everything set up for new request on prem.
         Initialize();
@@ -83,7 +84,8 @@ codeunit 134297 "Http Web Req. Mgt. Tests"
 
         // [WHEN] We initialize Http Web Request Management with a new Url and set basic authentication
         HttpWebRequestMgt.Initialize(UrlTok);
-        HttpWebRequestMgt.AddBasicAuthentication('SomeUser', 'SomePassword');
+        DummyPassword := 'SomePassword';
+        HttpWebRequestMgt.AddBasicAuthentication('SomeUser', DummyPassword);
 
         // [THEN]
         // No validation - other than the function passes

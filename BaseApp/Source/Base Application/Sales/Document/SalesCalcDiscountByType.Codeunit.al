@@ -206,7 +206,7 @@ codeunit 56 "Sales - Calc Discount By Type"
         OnAfterResetRecalculateInvoiceDisc(SalesHeader);
     end;
 
-    local procedure CustInvDiscRecExists(InvDiscCode: Code[20]): Boolean
+    procedure CustInvDiscRecExists(InvDiscCode: Code[20]): Boolean
     var
         CustInvDisc: Record "Cust. Invoice Disc.";
     begin

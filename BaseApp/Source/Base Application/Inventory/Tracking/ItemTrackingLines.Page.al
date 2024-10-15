@@ -1,7 +1,8 @@
-﻿namespace Microsoft.Inventory.Tracking;
+namespace Microsoft.Inventory.Tracking;
 
 using Microsoft.Assembly.Document;
 using Microsoft.Assembly.History;
+using System.Telemetry;
 using Microsoft.Foundation.NoSeries;
 using Microsoft.Inventory.Document;
 using Microsoft.Inventory.Item;
@@ -15,7 +16,6 @@ using Microsoft.Manufacturing.Document;
 using Microsoft.Projects.Project.Journal;
 using Microsoft.Purchases.Document;
 using Microsoft.Sales.Document;
-using Microsoft.Service.Document;
 using Microsoft.Warehouse.Activity;
 using Microsoft.Warehouse.Document;
 using Microsoft.Warehouse.Journal;
@@ -48,10 +48,13 @@ page 6510 "Item Tracking Lines"
                 end;
 
                 trigger BarcodeAvailable(Barcode: Text; Format: Text)
+                var
+                    FeatureTelemetry: Codeunit "Feature Telemetry";
                 begin
                     if not CameraContinuousScanningMode then
                         exit;
 
+                    FeatureTelemetry.LogUsage('0000MZR', FeatureTelemetryNameLbl, ScannedBarcodeAvailableLbl);
                     if CheckItemTrackingLineIsInBoundForBarcodeScanning() then
                         case ItemTrackingEntryType of
                             "Item Tracking Entry Type"::"Serial No.":
@@ -502,13 +505,13 @@ page 6510 "Item Tracking Lines"
                 field("Quantity Handled (Base)"; Rec."Quantity Handled (Base)")
                 {
                     ApplicationArea = ItemTracking;
-                    ToolTip = 'Specifies the quantity of serial/lot numbers shipped or received for the associated document line, expressed in base units of measure.';
+                    ToolTip = 'Specifies the quantity of serial, lot or package numbers shipped or received for the associated document line, expressed in base units of measure.';
                     Visible = false;
                 }
                 field("Quantity Invoiced (Base)"; Rec."Quantity Invoiced (Base)")
                 {
                     ApplicationArea = ItemTracking;
-                    ToolTip = 'Specifies the quantity of serial/lot numbers that are invoiced with the associated document line, expressed in base units of measure.';
+                    ToolTip = 'Specifies the quantity of serial, lot or package numbers that are invoiced with the associated document line, expressed in base units of measure.';
                     Visible = false;
                 }
                 field("Appl.-to Item Entry"; Rec."Appl.-to Item Entry")
@@ -836,7 +839,7 @@ page 6510 "Item Tracking Lines"
                     Caption = 'Select &Entries';
                     Visible = FunctionsDemandVisible;
                     Image = SelectEntries;
-                    ToolTip = 'Select from existing, available serial or lot numbers.';
+                    ToolTip = 'Select from existing, available serial, lot or package numbers.';
 
                     trigger OnAction()
                     begin
@@ -1138,25 +1141,36 @@ page 6510 "Item Tracking Lines"
         ReservEngineMgt: Codeunit "Reservation Engine Mgt.";
         ItemTrackingEntryType: Enum "Item Tracking Entry Type";
         CurrentEntryStatus: Enum "Reservation Status";
-        QtyRoundingPerBase: Decimal;
         QtyToAddAsBlank: Decimal;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text002: Label 'Quantity must be %1.';
+#pragma warning restore AA0470
         Text003: Label 'negative';
         Text004: Label 'positive';
+#pragma warning restore AA0074
         SecondSourceID: Integer;
         IsAssembleToOrder: Boolean;
         ExpectedReceiptDate: Date;
         ShipmentDate: Date;
+#pragma warning disable AA0074
         Text005: Label 'Error when writing to database.';
         Text006: Label 'The corrections cannot be saved as excess quantity has been defined.\Close the form anyway?';
         Text007: Label 'Another user has modified the item tracking data since it was retrieved from the database.\Start again.';
         Text008: Label 'The quantity to create must be an integer.';
         Text009: Label 'The quantity to create must be positive.';
         Text011: Label 'Tracking specification with Serial No. %1 and Lot No. %2 and Package %3 already exists.', Comment = '%1 - serial no, %2 - lot no, %3 - package no.';
+#pragma warning disable AA0470
         Text012: Label 'Tracking specification with Serial No. %1 already exists.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         DeleteIsBlocked: Boolean;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text014: Label 'The total item tracking quantity %1 exceeds the %2 quantity %3.\The changes cannot be saved to the database.';
         Text015: Label 'Do you want to synchronize item tracking on the line with item tracking on the related drop shipment %1?';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         BlockCommit: Boolean;
         IsCorrection: Boolean;
         CurrentPageIsOpen: Boolean;
@@ -1164,16 +1178,20 @@ page 6510 "Item Tracking Lines"
         CurrentSourceCaption: Text[255];
         CurrentSourceRowID: Text[250];
         SecondSourceRowID: Text[250];
+#pragma warning disable AA0074
         Text016: Label 'purchase order line';
         Text017: Label 'sales order line';
         Text018: Label 'Saving item tracking line changes';
+#pragma warning restore AA0074
         AvailabilityWarningsQst: Label 'You do not have enough inventory to meet the demand for items in one or more lines.\This is indicated by No in the Availability fields.\Do you want to continue?';
+#pragma warning disable AA0074
         Text020: Label 'Placeholder';
+#pragma warning restore AA0074
         ExcludePostedEntries: Boolean;
         ProdOrderLineHandling: Boolean;
         UnincrementableStringErr: Label 'The value in the %1 field must have a number so that we can assign the next number in the series.', Comment = '%1 = serial number';
         ItemTrackingManagedByWhse: Boolean;
-        ItemTrkgManagedByWhseMsg: Label 'You cannot assign a lot or serial number because item tracking for this document line is done through a warehouse activity.';
+        ItemTrkgManagedByWhseMsg: Label 'You cannot assign a serial, lot or package number because item tracking for this document line is done through a warehouse activity.';
         ConfirmWhenExitingMsg: Label 'One or more lines have tracking specified, but Quantity (Base) is zero. If you continue, data on these lines will be lost. Do you want to close the page?';
         ScanQtyReachedMaximumMsg: Label 'Item tracking is successfully defined for quantity %1.', Comment = '%1= maximum value of the item tracking lines';
         ItemTrackingSubTypeErr: Label 'The SubType of Item Tracking Specification is incorrect!';
@@ -1183,6 +1201,8 @@ page 6510 "Item Tracking Lines"
         BarcodeScannerIsNotContinuousScanningMode: Boolean;
         CameraBarcodeScannerAvailable: Boolean;
         BarcodeFailureErr: Label 'Barcode Failure with code %1', Comment = '%1 = failure reason code';
+        FeatureTelemetryNameLbl: Label 'Barcode Scanning', Locked = true;
+        ScannedBarcodeAvailableLbl: Label 'Scanned barcode from camera available for processing.', Locked = true;
 
     protected var
         Item: Record Item;
@@ -1202,6 +1222,7 @@ page 6510 "Item Tracking Lines"
         IsDirectTransfer: Boolean;
         LastEntryNo: Integer;
         QtyPerUOM: Decimal;
+        QtyRoundingPerBase: Decimal;
         UndefinedQtyArray: array[3] of Decimal;
         SourceQuantityArray: array[5] of Decimal;
         CurrentSourceType: Integer;
@@ -1989,7 +2010,7 @@ page 6510 "Item Tracking Lines"
         end;
     end;
 
-    local procedure GetItem(ItemNo: Code[20])
+    protected procedure GetItem(ItemNo: Code[20])
     begin
         if Item."No." <> ItemNo then begin
             Item.Get(ItemNo);
@@ -3704,8 +3725,7 @@ page 6510 "Item Tracking Lines"
                                                     Database::"Job Journal Line",
                                                     Database::"Requisition Line"]) or
            ((TrackingSpecification."Source Type" in [Database::"Sales Line",
-                                                    Database::"Purchase Line",
-                                                    Database::"Service Line"]) and
+                                                    Database::"Purchase Line"]) and
            (TrackingSpecification."Source Subtype" in [0, 2, 3])) or
           ((TrackingSpecification."Source Type" = Database::"Assembly Line") and (TrackingSpecification."Source Subtype" = 0));
         OnAfterGetHandleSource(TrackingSpecification, QtyToHandleColumnIsHidden);
@@ -3727,8 +3747,7 @@ page 6510 "Item Tracking Lines"
                                                      Database::"Prod. Order Line",
                                                      Database::"Prod. Order Component"]) or
             ((TrackingSpecification."Source Type" in [Database::"Sales Line",
-                                                      Database::"Purchase Line",
-                                                      Database::"Service Line"]) and
+                                                      Database::"Purchase Line"]) and
             (TrackingSpecification."Source Subtype" in [0, 2, 3, 4]));
 
         OnAfterGetInvoiceSource(TrackingSpecification, QtyToInvoiceColumnIsHidden);

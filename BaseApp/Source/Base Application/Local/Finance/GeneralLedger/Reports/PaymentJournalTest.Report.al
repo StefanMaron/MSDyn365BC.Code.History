@@ -341,10 +341,9 @@ report 10089 "Payment Journal - Test"
                                         begin
                                             if ("Gen. Bus. Posting Group" <> '') or ("Gen. Prod. Posting Group" <> '') or
                                                ("VAT Bus. Posting Group" <> '') or ("VAT Prod. Posting Group" <> '')
-                                            then begin
+                                            then
                                                 if "Gen. Posting Type" = "Gen. Posting Type"::" " then
                                                     AddError(StrSubstNo(Text002, FieldCaption("Gen. Posting Type")));
-                                            end;
                                             if ("Gen. Posting Type" <> "Gen. Posting Type"::" ") and
                                                ("VAT Posting" = "VAT Posting"::"Automatic VAT Entry")
                                             then begin
@@ -379,7 +378,7 @@ report 10089 "Payment Journal - Test"
                                                     FieldCaption("VAT Bus. Posting Group"), FieldCaption("VAT Prod. Posting Group"),
                                                     FieldCaption("Account Type"), "Account Type"));
 
-                                            if "Document Type" <> "Document Type"::" " then begin
+                                            if "Document Type" <> "Document Type"::" " then
                                                 if "Account Type" = "Account Type"::Customer then
                                                     case "Document Type" of
                                                         "Document Type"::"Credit Memo":
@@ -411,8 +410,7 @@ report 10089 "Payment Journal - Test"
                                                             WarningIfPositiveAmt("Gen. Journal Line");
                                                         else
                                                             WarningIfPositiveAmt("Gen. Journal Line");
-                                                    end
-                                            end;
+                                                    end;
 
                                             if Amount * "Sales/Purch. (LCY)" < 0 then
                                                 AddError(
@@ -457,10 +455,9 @@ report 10089 "Payment Journal - Test"
                                         begin
                                             if ("Bal. Gen. Bus. Posting Group" <> '') or ("Bal. Gen. Prod. Posting Group" <> '') or
                                                ("Bal. VAT Bus. Posting Group" <> '') or ("Bal. VAT Prod. Posting Group" <> '')
-                                            then begin
+                                            then
                                                 if "Bal. Gen. Posting Type" = "Bal. Gen. Posting Type"::" " then
                                                     AddError(StrSubstNo(Text002, FieldCaption("Bal. Gen. Posting Type")));
-                                            end;
                                             if ("Bal. Gen. Posting Type" <> "Bal. Gen. Posting Type"::" ") and
                                                ("VAT Posting" = "VAT Posting"::"Automatic VAT Entry")
                                             then begin
@@ -495,14 +492,13 @@ report 10089 "Payment Journal - Test"
                                                     FieldCaption("Bal. VAT Bus. Posting Group"), FieldCaption("Bal. VAT Prod. Posting Group"),
                                                     FieldCaption("Bal. Account Type"), "Bal. Account Type"));
 
-                                            if "Document Type" <> "Document Type"::" " then begin
+                                            if "Document Type" <> "Document Type"::" " then
                                                 if ("Bal. Account Type" = "Bal. Account Type"::Customer) =
                                                    ("Document Type" in ["Document Type"::Payment, "Document Type"::"Credit Memo"])
                                                 then
                                                     WarningIfNegativeAmt("Gen. Journal Line")
                                                 else
-                                                    WarningIfPositiveAmt("Gen. Journal Line")
-                                            end;
+                                                    WarningIfPositiveAmt("Gen. Journal Line");
                                             if Amount * "Sales/Purch. (LCY)" > 0 then
                                                 AddError(
                                                   StrSubstNo(
@@ -1971,44 +1967,6 @@ report 10089 "Payment Journal - Test"
         ICGLAccount: Record "IC G/L Account";
         ICBankAccount: Record "IC Bank Account";
     begin
-#if not CLEAN22
-        if (CurrentICPartner <> '') and ("Gen. Journal Line"."IC Direction" = "Gen. Journal Line"."IC Direction"::Outgoing) then begin
-            if ("Gen. Journal Line"."Account Type" in ["Gen. Journal Line"."Account Type"::"G/L Account", "Gen. Journal Line"."Account Type"::"Bank Account"]) and
-               ("Gen. Journal Line"."Bal. Account Type" in ["Gen. Journal Line"."Bal. Account Type"::"G/L Account", "Gen. Journal Line"."Account Type"::"Bank Account"]) and
-               ("Gen. Journal Line"."Account No." <> '') and
-               ("Gen. Journal Line"."Bal. Account No." <> '')
-            then
-                AddError(StrSubstNo(Text066, "Gen. Journal Line".FieldCaption("Account No."), "Gen. Journal Line".FieldCaption("Bal. Account No.")))
-            else
-                if (("Gen. Journal Line"."Account Type" in ["Gen. Journal Line"."Account Type"::"G/L Account", "Gen. Journal Line"."Account Type"::"Bank Account"]) and ("Gen. Journal Line"."Account No." <> '')) xor
-                   (("Gen. Journal Line"."Bal. Account Type" in ["Gen. Journal Line"."Bal. Account Type"::"G/L Account", "Gen. Journal Line"."Account Type"::"Bank Account"]) and
-                    ("Gen. Journal Line"."Bal. Account No." <> ''))
-                then begin
-                    if "Gen. Journal Line"."IC Partner G/L Acc. No." = '' then
-                        AddError(StrSubstNo(Text002, "Gen. Journal Line".FieldCaption("IC Partner G/L Acc. No.")))
-                    else begin
-                        if ICGLAccount.Get("Gen. Journal Line"."IC Partner G/L Acc. No.") then
-                            if ICGLAccount.Blocked then
-                                AddError(StrSubstNo(Text032, ICGLAccount.FieldCaption(Blocked), false,
-                                    "Gen. Journal Line".FieldCaption("IC Partner G/L Acc. No."), "Gen. Journal Line"."IC Partner G/L Acc. No."));
-
-                        if "Gen. Journal Line"."IC Account Type" = "IC Journal Account Type"::"Bank Account" then
-                            if ICBankAccount.Get("Gen. Journal Line"."IC Account No.", CurrentICPartner) then
-                                if ICBankAccount.Blocked then
-                                    AddError(StrSubstNo(Text032, ICGLAccount.FieldCaption(Blocked), false,
-                                        "Gen. Journal Line".FieldCaption("IC Account No."), "Gen. Journal Line"."IC Account No."));
-                    end;
-                end else
-                    if "Gen. Journal Line"."IC Partner G/L Acc. No." <> '' then
-                        AddError(StrSubstNo(Text009, "Gen. Journal Line".FieldCaption("IC Partner G/L Acc. No.")));
-        end else
-            if "Gen. Journal Line"."IC Partner G/L Acc. No." <> '' then begin
-                if "Gen. Journal Line"."IC Direction" = "Gen. Journal Line"."IC Direction"::Incoming then
-                    AddError(StrSubstNo(Text069, "Gen. Journal Line".FieldCaption("IC Partner G/L Acc. No."), "Gen. Journal Line".FieldCaption("IC Direction"), Format("Gen. Journal Line"."IC Direction")));
-                if CurrentICPartner = '' then
-                    AddError(StrSubstNo(Text070, "Gen. Journal Line".FieldCaption("IC Partner G/L Acc. No.")));
-            end;
-#else
         if (CurrentICPartner <> '') and ("Gen. Journal Line"."IC Direction" = "Gen. Journal Line"."IC Direction"::Outgoing) then begin
             if ("Gen. Journal Line"."Account Type" in ["Gen. Journal Line"."Account Type"::"G/L Account", "Gen. Journal Line"."Account Type"::"Bank Account"]) and
                ("Gen. Journal Line"."Bal. Account Type" in ["Gen. Journal Line"."Bal. Account Type"::"G/L Account", "Gen. Journal Line"."Account Type"::"Bank Account"]) and
@@ -2046,7 +2004,6 @@ report 10089 "Payment Journal - Test"
                 if CurrentICPartner = '' then
                     AddError(StrSubstNo(Text070, "Gen. Journal Line".FieldCaption("IC Account No.")));
             end;
-#endif
     end;
 }
 

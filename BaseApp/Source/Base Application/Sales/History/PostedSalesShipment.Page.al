@@ -287,6 +287,13 @@ page 130 "Posted Sales Shipment"
                     Editable = false;
                     ToolTip = 'Specifies the customer''s country/region.';
                 }
+                field("Ship-to Phone No."; Rec."Ship-to Phone No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Phone No.';
+                    Editable = false;
+                    ToolTip = 'Specifies the telephone number of the company''s shipping address.';
+                }
                 field("Ship-to Contact"; Rec."Ship-to Contact")
                 {
                     ApplicationArea = Basic, Suite;

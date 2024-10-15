@@ -38,9 +38,6 @@ using Microsoft.FixedAssets.Setup;
 using Microsoft.Foundation.NoSeries;
 using Microsoft.Foundation.Period;
 using Microsoft.Inventory.Costing;
-#if not CLEAN22
-using Microsoft.Inventory.Intrastat;
-#endif
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Reports;
 using Microsoft.Purchases.Document;
@@ -82,6 +79,10 @@ page 9001 "Accounting Manager Role Center"
                     ApplicationArea = Basic, Suite;
                 }
                 part("User Tasks Activities"; "User Tasks Activities")
+                {
+                    ApplicationArea = Suite;
+                }
+                part("Job Queue Tasks Activities"; "Job Queue Tasks Activities")
                 {
                     ApplicationArea = Suite;
                 }
@@ -412,37 +413,6 @@ page 9001 "Accounting Manager Role Center"
             separator(Action60)
             {
             }
-#if not CLEAN22
-            action("&Intrastat - Checklist")
-            {
-                ApplicationArea = BasicEU;
-                Caption = '&Intrastat - Checklist';
-                Image = "Report";
-                RunObject = Report "Intrastat - Checklist";
-                ToolTip = 'View a checklist that you can use to find possible errors before printing and also as documentation for what is printed. You can use the report to check the Intrastat journal before you use the Intrastat - Make Disk Tax Auth batch job.';
-                ObsoleteState = Pending;
-                ObsoleteTag = '22.0';
-                ObsoleteReason = 'Intrastat related functionalities are moved to Intrastat extensions.';
-            }
-            action("Intrastat - For&m")
-            {
-                ApplicationArea = BasicEU;
-                Caption = 'Intrastat - For&m';
-                Image = "Report";
-                RunObject = Report "Intrastat - Form";
-                ToolTip = 'View all the information that must be transferred to the printed Intrastat form.';
-                ObsoleteState = Pending;
-                ObsoleteTag = '22.0';
-                ObsoleteReason = 'Intrastat related functionalities are moved to Intrastat extensions.';
-            }
-
-            separator(Action4)
-            {
-                ObsoleteState = Pending;
-                ObsoleteTag = '22.0';
-                ObsoleteReason = 'Action4 will be removed as part of the effort of moving Intrastat, use another anchor instead.';
-            }
-#endif
             action("Cost Accounting P/L Statement")
             {
                 ApplicationArea = CostAccounting;
@@ -691,19 +661,6 @@ page 9001 "Accounting Manager Role Center"
                                         Recurring = const(false));
                     ToolTip = 'Post financial transactions directly to general ledger accounts and other accounts, such as bank, customer, vendor, and employee accounts. Posting with a general journal always creates entries on general ledger accounts. This is true even when, for example, you post a journal line to a customer account, because an entry is posted to a general ledger receivables account through a posting group.';
                 }
-#if not CLEAN22
-                action("Intrastat Journals")
-                {
-                    ApplicationArea = BasicEU;
-                    Caption = 'Intrastat Journals';
-                    Image = "Report";
-                    RunObject = Page "Intrastat Jnl. Batches";
-                    ToolTip = 'Summarize the value of your purchases and sales with business partners in the EU for statistical purposes and prepare to send it to the relevant authority.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '22.0';
-                    ObsoleteReason = 'Intrastat related functionalities are moved to Intrastat extensions.';
-                }
-#endif
             }
             group("Fixed Assets")
             {
@@ -1166,18 +1123,6 @@ page 9001 "Accounting Manager Role Center"
                 RunObject = Page "Analysis View List";
                 ToolTip = 'Analyze amounts in your general ledger by their dimensions using analysis views that you have set up.';
             }
-            action("Analysis by &Dimensions")
-            {
-                ApplicationArea = Dimensions;
-                Caption = 'Analysis by &Dimensions';
-                Image = AnalysisViewDimension;
-                RunObject = Page "Analysis by Dimensions";
-                ToolTip = 'Analyze activities using dimensions information.';
-                Visible = false;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'This functionality runs correctly from the Analysis View List page';
-                ObsoleteTag = '18.0';
-            }
             action("Calculate Deprec&iation")
             {
                 ApplicationArea = Basic, Suite;
@@ -1254,19 +1199,6 @@ page 9001 "Accounting Manager Role Center"
             separator(Action73)
             {
             }
-#if not CLEAN22
-            action("Intrastat &Journal")
-            {
-                ApplicationArea = BasicEU;
-                Caption = 'Intrastat &Journal';
-                Image = Journal;
-                RunObject = Page "Intrastat Jnl. Batches";
-                ToolTip = 'Report your trade with other EU countries/regions for Intrastat reporting.';
-                ObsoleteState = Pending;
-                ObsoleteTag = '22.0';
-                ObsoleteReason = 'Intrastat related functionalities are moved to Intrastat extensions.';
-            }
-#endif
             action("Calc. and Pos&t VAT Settlement")
             {
                 ApplicationArea = Basic, Suite;

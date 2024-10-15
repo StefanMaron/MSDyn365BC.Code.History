@@ -216,7 +216,7 @@ report 10083 "Export Electronic Payments"
                     {
                         DataItemLink = "Applies-to ID" = field("Applies-to ID");
                         DataItemLinkReference = "Gen. Journal Line";
-                        DataItemTableView = sorting("Customer No.", Open, Positive, "Due Date", "Currency Code") ORDER(Descending) where(Open = const(true));
+                        DataItemTableView = sorting("Customer No.", Open, Positive, "Due Date", "Currency Code") order(descending) where(Open = const(true));
                         column(Cust__Ledger_Entry__Document_Type_; "Document Type")
                         {
                         }
@@ -282,7 +282,7 @@ report 10083 "Export Electronic Payments"
                     {
                         DataItemLink = "Applies-to ID" = field("Applies-to ID");
                         DataItemLinkReference = "Gen. Journal Line";
-                        DataItemTableView = sorting("Vendor No.", Open, Positive, "Due Date", "Currency Code") ORDER(Descending) where(Open = const(true));
+                        DataItemTableView = sorting("Vendor No.", Open, Positive, "Due Date", "Currency Code") order(descending) where(Open = const(true));
                         column(Vendor_Ledger_Entry__Document_Type_; "Document Type")
                         {
                         }

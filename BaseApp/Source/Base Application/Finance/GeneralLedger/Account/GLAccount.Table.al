@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Finance.GeneralLedger.Account;
+namespace Microsoft.Finance.GeneralLedger.Account;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.CostAccounting.Account;
@@ -39,11 +39,13 @@ table 15 "G/L Account"
         field(1; "No."; Code[20])
         {
             Caption = 'No.';
+            OptimizeForTextSearch = true;
             NotBlank = true;
         }
         field(2; Name; Text[100])
         {
             Caption = 'Name';
+            OptimizeForTextSearch = true;
 
             trigger OnValidate()
             begin
@@ -332,8 +334,6 @@ table 15 "G/L Account"
         field(34; Totaling; Text[250])
         {
             Caption = 'Totaling';
-            //The property 'ValidateTableRelation' can only be set if the property 'TableRelation' is set
-            //ValidateTableRelation = false;
 
             trigger OnValidate()
             begin
@@ -944,9 +944,13 @@ table 15 "G/L Account"
         CostAccMgt: Codeunit "Cost Account Mgt";
         GLSetupRead: Boolean;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'You cannot change %1 because there are one or more ledger entries associated with this account.';
         Text001: Label 'You cannot change %1 because this account is part of one or more budgets.';
         Text002: Label 'There is another %1: %2; which refers to the same %3, but with a different %4: %5.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         NoAccountCategoryMatchErr: Label 'There is no subcategory description for %1 that matches ''%2''.', Comment = '%1=account category value, %2=the user input.';
         GenProdPostingGroupErr: Label '%1 is not set for the %2 G/L account with no. %3.', Comment = '%1 - caption Gen. Prod. Posting Group; %2 - G/L Account Description; %3 - G/L Account No.';
         CannotChangeSetupOnPrepmtAccErr: Label 'You cannot change %2 on account %3 while %1 is pending prepayment.', Comment = '%2 - field caption, %3 - account number, %1 - recordId - "Sales Header: Order, 1001".';

@@ -3312,25 +3312,21 @@ codeunit 137501 "SCM Available to Pick UT"
     var
         Item: Record Item;
     begin
-        with Item do begin
-            Init();
-            "No." := LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::Item);
-            Insert();
-            exit("No.");
-        end;
+        Item.Init();
+        Item."No." := LibraryUtility.GenerateRandomCode(Item.FieldNo("No."), DATABASE::Item);
+        Item.Insert();
+        exit(Item."No.");
     end;
 
     local procedure MockItemVariantCode(ItemNo: Code[20]): Code[10]
     var
         ItemVariant: Record "Item Variant";
     begin
-        with ItemVariant do begin
-            Init();
-            "Item No." := ItemNo;
-            Code := LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"Item Variant");
-            Insert();
-            exit(Code);
-        end;
+        ItemVariant.Init();
+        ItemVariant."Item No." := ItemNo;
+        ItemVariant.Code := LibraryUtility.GenerateRandomCode(ItemVariant.FieldNo(Code), DATABASE::"Item Variant");
+        ItemVariant.Insert();
+        exit(ItemVariant.Code);
     end;
 
     local procedure MockPositiveILE(ItemVariant: Record "Item Variant"; ILEQty: Decimal)
@@ -3338,27 +3334,23 @@ codeunit 137501 "SCM Available to Pick UT"
         ItemLedgerEntry: Record "Item Ledger Entry";
         LastEntryNo: Integer;
     begin
-        with ItemLedgerEntry do begin
-            FindLast();
-            LastEntryNo := "Entry No.";
-            Init();
-            "Entry No." := LastEntryNo + 1;
-            "Item No." := ItemVariant."Item No.";
-            "Variant Code" := ItemVariant.Code;
-            Quantity := ILEQty;
-            Insert();
-        end;
+        ItemLedgerEntry.FindLast();
+        LastEntryNo := ItemLedgerEntry."Entry No.";
+        ItemLedgerEntry.Init();
+        ItemLedgerEntry."Entry No." := LastEntryNo + 1;
+        ItemLedgerEntry."Item No." := ItemVariant."Item No.";
+        ItemLedgerEntry."Variant Code" := ItemVariant.Code;
+        ItemLedgerEntry.Quantity := ILEQty;
+        ItemLedgerEntry.Insert();
     end;
 
     local procedure MockSalesHeader(var SalesHeader: Record "Sales Header")
     begin
-        with SalesHeader do begin
-            Init();
-            "Document Type" := "Document Type"::Order;
-            "No." := LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::"Sales Header");
-            "Shipping Advice" := "Shipping Advice"::Complete;
-            Insert();
-        end;
+        SalesHeader.Init();
+        SalesHeader."Document Type" := SalesHeader."Document Type"::Order;
+        SalesHeader."No." := LibraryUtility.GenerateRandomCode(SalesHeader.FieldNo("No."), DATABASE::"Sales Header");
+        SalesHeader."Shipping Advice" := SalesHeader."Shipping Advice"::Complete;
+        SalesHeader.Insert();
     end;
 
     local procedure MockSalesLine(SalesHeader: Record "Sales Header"; ItemVariant: Record "Item Variant"): Decimal
@@ -3366,33 +3358,29 @@ codeunit 137501 "SCM Available to Pick UT"
         SalesLine: Record "Sales Line";
         LastLineNo: Integer;
     begin
-        with SalesLine do begin
-            LastLineNo := 0;
-            SetRange("Document Type", SalesHeader."Document Type");
-            SetRange("Document No.", SalesHeader."No.");
-            if FindLast() then
-                LastLineNo := "Line No.";
-            Init();
-            "Document Type" := SalesHeader."Document Type";
-            "Document No." := SalesHeader."No.";
-            "Line No." := LastLineNo + 10000;
-            Type := Type::Item;
-            "No." := ItemVariant."Item No.";
-            "Variant Code" := ItemVariant.Code;
-            "Outstanding Qty. (Base)" := LibraryRandom.RandDec(100, 2);
-            Insert();
-            exit("Outstanding Qty. (Base)");
-        end;
+        LastLineNo := 0;
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        if SalesLine.FindLast() then
+            LastLineNo := SalesLine."Line No.";
+        SalesLine.Init();
+        SalesLine."Document Type" := SalesHeader."Document Type";
+        SalesLine."Document No." := SalesHeader."No.";
+        SalesLine."Line No." := LastLineNo + 10000;
+        SalesLine.Type := SalesLine.Type::Item;
+        SalesLine."No." := ItemVariant."Item No.";
+        SalesLine."Variant Code" := ItemVariant.Code;
+        SalesLine."Outstanding Qty. (Base)" := LibraryRandom.RandDec(100, 2);
+        SalesLine.Insert();
+        exit(SalesLine."Outstanding Qty. (Base)");
     end;
 
     local procedure MockTransferHeader(var TransferHeader: Record "Transfer Header")
     begin
-        with TransferHeader do begin
-            Init();
-            "No." := LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::"Transfer Header");
-            "Shipping Advice" := "Shipping Advice"::Complete;
-            Insert();
-        end;
+        TransferHeader.Init();
+        TransferHeader."No." := LibraryUtility.GenerateRandomCode(TransferHeader.FieldNo("No."), DATABASE::"Transfer Header");
+        TransferHeader."Shipping Advice" := TransferHeader."Shipping Advice"::Complete;
+        TransferHeader.Insert();
     end;
 
     local procedure MockTransferLine(ItemVariant: Record "Item Variant"; TransferHeaderNo: Code[20]): Decimal
@@ -3400,20 +3388,18 @@ codeunit 137501 "SCM Available to Pick UT"
         TransferLine: Record "Transfer Line";
         LastLineNo: Integer;
     begin
-        with TransferLine do begin
-            LastLineNo := 0;
-            SetRange("Document No.", TransferHeaderNo);
-            if FindLast() then
-                LastLineNo := "Line No.";
-            Init();
-            "Document No." := TransferHeaderNo;
-            "Line No." := LastLineNo + 10000;
-            "Item No." := ItemVariant."Item No.";
-            "Variant Code" := ItemVariant.Code;
-            "Outstanding Qty. (Base)" := LibraryRandom.RandDec(100, 2);
-            Insert();
-            exit("Outstanding Qty. (Base)");
-        end;
+        LastLineNo := 0;
+        TransferLine.SetRange("Document No.", TransferHeaderNo);
+        if TransferLine.FindLast() then
+            LastLineNo := TransferLine."Line No.";
+        TransferLine.Init();
+        TransferLine."Document No." := TransferHeaderNo;
+        TransferLine."Line No." := LastLineNo + 10000;
+        TransferLine."Item No." := ItemVariant."Item No.";
+        TransferLine."Variant Code" := ItemVariant.Code;
+        TransferLine."Outstanding Qty. (Base)" := LibraryRandom.RandDec(100, 2);
+        TransferLine.Insert();
+        exit(TransferLine."Outstanding Qty. (Base)");
     end;
 
     local procedure SetEmptyBinCodeList(var BinCodeList: List of [Code[20]]; Count: Integer)

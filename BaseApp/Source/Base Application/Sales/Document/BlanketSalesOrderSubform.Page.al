@@ -79,12 +79,14 @@ page 508 "Blanket Sales Order Subform"
                         InsertExtendedText(false);
                         DeltaUpdateTotals();
                         OnCrossReferenceNoOnLookup(Rec);
+                        CurrPage.Update();
                     end;
 
                     trigger OnValidate()
                     begin
                         InsertExtendedText(false);
                         DeltaUpdateTotals();
+                        CurrPage.Update();
                     end;
                 }
                 field("Variant Code"; Rec."Variant Code")
@@ -607,7 +609,7 @@ page 508 "Blanket Sales Order Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromSalesLine(Rec, ItemAvailFormsMgt.ByEvent())
+                            SalesAvailabilityMgt.ShowItemAvailabilityFromSalesLine(Rec, "Item Availability Type"::"Event");
                         end;
                     }
                     action(Period)
@@ -619,7 +621,7 @@ page 508 "Blanket Sales Order Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromSalesLine(Rec, ItemAvailFormsMgt.ByPeriod())
+                            SalesAvailabilityMgt.ShowItemAvailabilityFromSalesLine(Rec, "Item Availability Type"::Period);
                         end;
                     }
                     action(Variant)
@@ -631,7 +633,7 @@ page 508 "Blanket Sales Order Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromSalesLine(Rec, ItemAvailFormsMgt.ByVariant())
+                            SalesAvailabilityMgt.ShowItemAvailabilityFromSalesLine(Rec, "Item Availability Type"::Variant);
                         end;
                     }
                     action(Location)
@@ -644,7 +646,7 @@ page 508 "Blanket Sales Order Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromSalesLine(Rec, ItemAvailFormsMgt.ByLocation())
+                            SalesAvailabilityMgt.ShowItemAvailabilityFromSalesLine(Rec, "Item Availability Type"::Location);
                         end;
                     }
                     action(Lot)
@@ -667,7 +669,7 @@ page 508 "Blanket Sales Order Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromSalesLine(Rec, ItemAvailFormsMgt.ByBOM())
+                            SalesAvailabilityMgt.ShowItemAvailabilityFromSalesLine(Rec, "Item Availability Type"::BOM);
                         end;
                     }
                 }
@@ -884,7 +886,7 @@ page 508 "Blanket Sales Order Subform"
             {
                 Caption = 'F&unctions';
                 Image = "Action";
-#if not CLEAN23
+#if not CLEAN25
                 action("Get &Price")
                 {
                     AccessByPermission = TableData "Sales Price" = R;
@@ -1055,7 +1057,7 @@ page 508 "Blanket Sales Order Subform"
         Currency: Record Currency;
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
         TransferExtendedText: Codeunit "Transfer Extended Text";
-        ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
+        SalesAvailabilityMgt: Codeunit Microsoft.Sales.Document."Sales Availability Mgt.";
         SalesCalcDiscountByType: Codeunit "Sales - Calc Discount By Type";
         DocumentTotals: Codeunit "Document Totals";
         AmountWithDiscountAllowed: Decimal;

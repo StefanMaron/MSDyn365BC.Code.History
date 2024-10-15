@@ -3,7 +3,6 @@ namespace Microsoft.Inventory.Location;
 using Microsoft.Finance.Dimension;
 using Microsoft.Inventory.Reports;
 using Microsoft.Inventory.Transfer;
-using Microsoft.Service.Resources;
 using Microsoft.Warehouse.Structure;
 using System.Text;
 using Microsoft.Finance.SalesTax;
@@ -61,15 +60,6 @@ page 15 "Location List"
             {
                 Caption = '&Location';
                 Image = Warehouse;
-                action("&Resource Locations")
-                {
-                    ApplicationArea = Location;
-                    Caption = '&Resource Locations';
-                    Image = Resource;
-                    RunObject = Page "Resource Locations";
-                    RunPageLink = "Location Code" = field(Code);
-                    ToolTip = 'View or edit information about where resources are located. In this window, you can assign resources to locations.';
-                }
                 action("&Zones")
                 {
                     ApplicationArea = Warehouse;
@@ -215,16 +205,6 @@ page 15 "Location List"
             group(Category_New)
             {
                 Caption = 'New', Comment = 'Generated from the PromotedActionCategories property index 0.';
-
-#if not CLEAN22
-                actionref("Transfer Order_Promoted"; "Transfer Order")
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
-                    ObsoleteTag = '22.0';
-                }
-#endif
             }
             group(Category_Process)
             {
@@ -252,9 +232,6 @@ page 15 "Location List"
                     actionref(DimensionsSingle_Promoted; DimensionsSingle)
                     {
                     }
-                }
-                actionref("&Resource Locations_Promoted"; "&Resource Locations")
-                {
                 }
                 actionref("&Zones_Promoted"; "&Zones")
                 {

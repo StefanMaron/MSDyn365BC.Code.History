@@ -574,16 +574,14 @@ codeunit 134927 "ERM Budget UI"
     var
         GLBudgetEntry: Record "G/L Budget Entry";
     begin
-        with GLBudgetEntry do begin
-            Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(GLBudgetEntry, FieldNo("Entry No."));
-            "G/L Account No." := GLAccNo;
-            Date := PostingDate;
-            "Global Dimension 1 Code" := GlobalDimension1Code;
-            Amount := EntryAmount;
-            "Budget Name" := BudgetName;
-            Insert();
-        end;
+        GLBudgetEntry.Init();
+        GLBudgetEntry."Entry No." := LibraryUtility.GetNewRecNo(GLBudgetEntry, GLBudgetEntry.FieldNo("Entry No."));
+        GLBudgetEntry."G/L Account No." := GLAccNo;
+        GLBudgetEntry.Date := PostingDate;
+        GLBudgetEntry."Global Dimension 1 Code" := GlobalDimension1Code;
+        GLBudgetEntry.Amount := EntryAmount;
+        GLBudgetEntry."Budget Name" := BudgetName;
+        GLBudgetEntry.Insert();
     end;
 }
 

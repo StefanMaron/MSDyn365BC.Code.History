@@ -8,7 +8,6 @@ using Microsoft.Bank.Check;
 using Microsoft.CRM.Duplicates;
 using Microsoft.CRM.Contact;
 using Microsoft.CRM.BusinessRelation;
-using Microsoft.Service.Contract;
 using Microsoft.Finance.Currency;
 using Microsoft.Sales.Receivables;
 using Microsoft.Purchases.Payables;
@@ -32,17 +31,19 @@ using Microsoft.Warehouse.Activity.History;
 using Microsoft.Purchases.Remittance;
 using Microsoft.Projects.Resources.Resource;
 using Microsoft.Sales.History;
-using Microsoft.Service.Item;
 using Microsoft.Sales.Customer;
 using Microsoft.Purchases.Document;
 using Microsoft.CRM.Task;
 using Microsoft.Warehouse.Activity;
 using Microsoft.Warehouse.Request;
 using Microsoft.Warehouse.Document;
-using Microsoft.Service.Ledger;
 using Microsoft.Warehouse.Worksheet;
 using Microsoft.Manufacturing.WorkCenter;
 using Microsoft.Finance.Analysis;
+
+using Microsoft.Service.Contract;
+using Microsoft.Service.Item;
+using Microsoft.Service.Ledger;
 
 permissionset 9921 "D365 VENDOR, EDIT"
 {
@@ -57,7 +58,6 @@ permissionset 9921 "D365 VENDOR, EDIT"
                   tabledata Contact = RIM,
                   tabledata "Contact Business Relation" = RImD,
                   tabledata "Contact Duplicate" = R,
-                  tabledata "Contract Gain/Loss Entry" = rm,
                   tabledata "Company Size" = rimd,
                   tabledata Currency = RM,
                   tabledata "Cust. Ledger Entry" = r,
@@ -65,7 +65,6 @@ permissionset 9921 "D365 VENDOR, EDIT"
                   tabledata "Dtld. Price Calculation Setup" = RIMD,
                   tabledata "Duplicate Price Line" = RIMD,
                   tabledata "Duplicate Search String Setup" = R,
-                  tabledata "Filed Contract Line" = rm,
                   tabledata "G/L Entry - VAT Entry Link" = rm,
                   tabledata "G/L Entry" = rm,
                   tabledata "Interaction Log Entry" = R,
@@ -94,7 +93,7 @@ permissionset 9921 "D365 VENDOR, EDIT"
                   tabledata "Purch. Rcpt. Line" = rm,
                   tabledata "Purchase Discount Access" = RIMD,
                   tabledata "Purchase Header Archive" = r,
-#if not CLEAN23
+#if not CLEAN25
                   tabledata "Purchase Line Discount" = RIMD,
                   tabledata "Purchase Price" = RIMD,
 #endif
@@ -107,7 +106,6 @@ permissionset 9921 "D365 VENDOR, EDIT"
                   tabledata "Return Receipt Line" = rm,
                   tabledata "Return Shipment Header" = Rm,
                   tabledata "Return Shipment Line" = rm,
-                  tabledata "Service Item" = r,
                   tabledata "Ship-to Address" = RIMD,
                   tabledata "Standard Purchase Code" = RIMD,
                   tabledata "Standard Purchase Line" = RIMD,
@@ -129,7 +127,12 @@ permissionset 9921 "D365 VENDOR, EDIT"
                   tabledata "Warehouse Reason Code" = r,
                   tabledata "Warehouse Request" = rm,
                   tabledata "Warehouse Shipment Line" = rm,
-                  tabledata "Warranty Ledger Entry" = rm,
                   tabledata "Whse. Worksheet Line" = r,
-                  tabledata "Work Center" = r;
+                  tabledata "Work Center" = r,
+
+                  // Service
+                  tabledata "Contract Gain/Loss Entry" = rm,
+                  tabledata "Filed Contract Line" = rm,
+                  tabledata "Service Item" = r,
+                  tabledata "Warranty Ledger Entry" = rm;
 }

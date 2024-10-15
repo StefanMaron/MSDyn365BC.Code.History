@@ -18,7 +18,7 @@ codeunit 134408 "Incom. Doc. Attach. FactBox"
         LibraryPlainTextFile: Codeunit "Library - Plain Text File";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryPurchase: Codeunit "Library - Purchase";
-        UnexpecteFileNameNoErr: Label 'Unexpected number of stored file names.';
+        UnexpectedFileNameNoErr: Label 'Unexpected number of stored file names.';
 
     [Test]
     [Scope('OnPrem')]
@@ -33,12 +33,14 @@ codeunit 134408 "Incom. Doc. Attach. FactBox"
 
         // Stan opens empty journal.
         // Stan specifies "Account Type" = "G/L Account" and newly "Account No." = "G/L Account" => new line "Line[1]" saved to DB
-        // Stan clicks "Attach" on Incoming Document Attachment Factbox
-        // Stan attachs File "A" to the "Line[1]"
+        // Stan clicks "UploadMainAttachment" on Incoming Document Attachment Factbox
+        // Stan attaches File "A" to the "Line[1]"
+        // Stan finds "UploadMainAttachment" is disabled because main attachment is already uploaded, and "SupportAttachments" is enabled. 
         // Stan moves to the second line.
         // Stan specifies "Account Type" = "G/L Account" and newly "Account No." = "G/L Account" => new line "Line[2]" saved to DB
-        // Stan clicks "Attach" on Incoming Document Attachment Factbox
-        // Stan attachs File "B" to the "Line[2]"
+        // Stan clicks "UploadMainAttachment" on Incoming Document Attachment Factbox
+        // Stan attaches File "B" to the "Line[2]"
+        // Stan finds "UploadMainAttachment" is disabled because main attachment is already uploaded, and "SupportAttachments" is enabled. 
 
         CreateGeneralJournalBatch(GenJournalLine, GenJournalTemplate.Type::General);
 
@@ -49,22 +51,28 @@ codeunit 134408 "Incom. Doc. Attach. FactBox"
         GeneralJournalTestPage."Account Type".SetValue(GenJournalLine."Account Type"::"G/L Account");
         GeneralJournalTestPage."Account No.".SetValue(LibraryERM.CreateGLAccountNoWithDirectPosting());
         PrepareAttachmentRecordForGenJournalLine(GenJournalLine);
-        GeneralJournalTestPage.IncomingDocAttachFactBox.ImportNew.Invoke();
+        GeneralJournalTestPage.IncomingDocAttachFactBox.UploadMainAttachment.Invoke();
         GeneralJournalTestPage.New();
         GeneralJournalTestPage."Account Type".SetValue(GenJournalLine."Account Type"::"G/L Account");
         GeneralJournalTestPage."Account No.".SetValue(LibraryERM.CreateGLAccountNoWithDirectPosting());
         PrepareAttachmentRecordForGenJournalLine(GenJournalLine);
-        GeneralJournalTestPage.IncomingDocAttachFactBox.ImportNew.Invoke();
+        GeneralJournalTestPage.IncomingDocAttachFactBox.UploadMainAttachment.Invoke();
 
         // We saved attached file names in Library - Variable Storage.
         Assert.RecordCount(GenJournalLine, LibraryVariableStorage.Length());
-        Assert.AreEqual(2, LibraryVariableStorage.Length(), UnexpecteFileNameNoErr);
+        Assert.AreEqual(2, LibraryVariableStorage.Length(), UnexpectedFileNameNoErr);
 
         // We return to first line and check the correct file is shown in "Incoming Document Attachment Factbox" (File "A")
         GeneralJournalTestPage.Previous();
+        Assert.IsFalse(GeneralJournalTestPage.IncomingDocAttachFactBox.UploadMainAttachment.Enabled(), 'UploadMainAttachment should be disabled because main attachment is already uploaded.');
+        // [TODO] For now the testability of the "fileuploaded" is not possible. Add it back when it is possible.
+        // Assert.IsTrue(GeneralJournalTestPage.IncomingDocAttachFactBox.UploadSupportAttachments.Enabled(), 'SupportAttachments should be enabled because main attachment is already uploaded.');
         GeneralJournalTestPage.IncomingDocAttachFactBox.Name.AssertEquals(LibraryVariableStorage.DequeueText());
         // We move to second line and check the correct file is shown in "Incoming Document Attachment Factbox" (File "B")
         GeneralJournalTestPage.Next();
+        Assert.IsFalse(GeneralJournalTestPage.IncomingDocAttachFactBox.UploadMainAttachment.Enabled(), 'UploadMainAttachment should be disabled because main attachment is already uploaded.');
+        // [TODO] For now the testability of the "fileuploaded" is not possible. Add it back when it is possible.
+        // Assert.IsTrue(GeneralJournalTestPage.IncomingDocAttachFactBox.UploadSupportAttachments.Enabled(), 'SupportAttachments should be enabled because main attachment is already uploaded.');
         GeneralJournalTestPage.IncomingDocAttachFactBox.Name.AssertEquals(LibraryVariableStorage.DequeueText());
         GeneralJournalTestPage.Next();
         GeneralJournalTestPage."Account No.".AssertEquals('');
@@ -85,12 +93,14 @@ codeunit 134408 "Incom. Doc. Attach. FactBox"
 
         // Stan opens empty journal.
         // Stan specifies "Account Type" = "G/L Account" and newly "Account No." = "G/L Account" => new line "Line[1]" saved to DB
-        // Stan clicks "Attach" on Incoming Document Attachment Factbox
-        // Stan attachs File "A" to the "Line[1]"
+        // Stan clicks "UploadMainAttachment" on Incoming Document Attachment Factbox
+        // Stan attaches File "A" to the "Line[1]"
+        // Stan finds "UploadMainAttachment" is disabled because main attachment is already uploaded, and "SupportAttachments" is enabled. 
         // Stan moves to the second line.
         // Stan specifies "Account Type" = "G/L Account" and newly "Account No." = "G/L Account" => new line "Line[2]" saved to DB
-        // Stan clicks "Attach" on Incoming Document Attachment Factbox
-        // Stan attachs File "B" to the "Line[2]"
+        // Stan clicks "UploadMainAttachment" on Incoming Document Attachment Factbox
+        // Stan attaches File "B" to the "Line[2]"
+        // Stan finds "UploadMainAttachment" is disabled because main attachment is already uploaded, and "SupportAttachments" is enabled. 
 
         CreateGeneralJournalBatch(GenJournalLine, GenJournalTemplate.Type::Payments);
 
@@ -101,23 +111,30 @@ codeunit 134408 "Incom. Doc. Attach. FactBox"
         PaymentJournalTestPage."Account Type".SetValue(GenJournalLine."Account Type"::"G/L Account");
         PaymentJournalTestPage."Account No.".SetValue(LibraryERM.CreateGLAccountNoWithDirectPosting());
         PrepareAttachmentRecordForGenJournalLine(GenJournalLine);
-        PaymentJournalTestPage.IncomingDocAttachFactBox.ImportNew.Invoke();
+        PaymentJournalTestPage.IncomingDocAttachFactBox.UploadMainAttachment.Invoke();
+
         PaymentJournalTestPage.New();
         PaymentJournalTestPage."Account Type".SetValue(GenJournalLine."Account Type"::"G/L Account");
         PaymentJournalTestPage."Account No.".SetValue(LibraryERM.CreateGLAccountNoWithDirectPosting());
         PrepareAttachmentRecordForGenJournalLine(GenJournalLine);
-        PaymentJournalTestPage.IncomingDocAttachFactBox.ImportNew.Invoke();
+        PaymentJournalTestPage.IncomingDocAttachFactBox.UploadMainAttachment.Invoke();
 
         // We saved attached file names in Library - Variable Storage.
         Assert.RecordCount(GenJournalLine, LibraryVariableStorage.Length());
-        Assert.AreEqual(2, LibraryVariableStorage.Length(), UnexpecteFileNameNoErr);
+        Assert.AreEqual(2, LibraryVariableStorage.Length(), UnexpectedFileNameNoErr);
 
         // We return to first line and check the correct file is shown in "Incoming Document Attachment Factbox" (File "A")
         PaymentJournalTestPage.Previous();
         PaymentJournalTestPage.IncomingDocAttachFactBox.Name.AssertEquals(LibraryVariableStorage.DequeueText());
+        Assert.IsFalse(PaymentJournalTestPage.IncomingDocAttachFactBox.UploadMainAttachment.Enabled(), 'UploadMainAttachment should be disabled because main attachment is already uploaded.');
+        // [TODO] For now the testability of the "fileuploaded" is not possible. Add it back when it is possible.
+        // Assert.IsTrue(PaymentJournalTestPage.IncomingDocAttachFactBox.UploadSupportAttachments.Enabled(), 'SupportAttachments should be enabled because main attachment is already uploaded.');
         // We move to second line and check the correct file is shown in "Incoming Document Attachment Factbox" (File "B")
         PaymentJournalTestPage.Next();
         PaymentJournalTestPage.IncomingDocAttachFactBox.Name.AssertEquals(LibraryVariableStorage.DequeueText());
+        Assert.IsFalse(PaymentJournalTestPage.IncomingDocAttachFactBox.UploadMainAttachment.Enabled(), 'UploadMainAttachment should be disabled because main attachment is already uploaded.');
+        // [TODO] For now the testability of the "fileuploaded" is not possible. Add it back when it is possible.
+        // Assert.IsTrue(PaymentJournalTestPage.IncomingDocAttachFactBox.UploadSupportAttachments.Enabled(), 'SupportAttachments should be enabled because main attachment is already uploaded.');
         PaymentJournalTestPage.Next();
         PaymentJournalTestPage."Account No.".AssertEquals('');
 
@@ -137,12 +154,14 @@ codeunit 134408 "Incom. Doc. Attach. FactBox"
 
         // Stan opens empty journal.
         // Stan specifies "Account Type" = "G/L Account" and newly "Account No." = "G/L Account" => new line "Line[1]" saved to DB
-        // Stan clicks "Attach" on Incoming Document Attachment Factbox
-        // Stan attachs File "A" to the "Line[1]"
+        // Stan clicks "UploadMainAttachment" on Incoming Document Attachment Factbox
+        // Stan attaches File "A" to the "Line[1]"
+        // Stan finds "UploadMainAttachment" is disabled because main attachment is already uploaded, and "SupportAttachments" is enabled. 
         // Stan moves to the second line.
         // Stan specifies "Account Type" = "G/L Account" and newly "Account No." = "G/L Account" => new line "Line[2]" saved to DB
-        // Stan clicks "Attach" on Incoming Document Attachment Factbox
-        // Stan attachs File "B" to the "Line[2]"
+        // Stan clicks "UploadMainAttachment" on Incoming Document Attachment Factbox
+        // Stan attaches File "B" to the "Line[2]"
+        // Stan finds "UploadMainAttachment" is disabled because main attachment is already uploaded, and "SupportAttachments" is enabled. 
 
         CreateGeneralJournalBatch(GenJournalLine, GenJournalTemplate.Type::Purchases);
 
@@ -153,24 +172,32 @@ codeunit 134408 "Incom. Doc. Attach. FactBox"
         PurchaseJournalTestPage."Account Type".SetValue(GenJournalLine."Account Type"::"G/L Account");
         PurchaseJournalTestPage."Account No.".SetValue(LibraryERM.CreateGLAccountNoWithDirectPosting());
         PrepareAttachmentRecordForGenJournalLine(GenJournalLine);
-        PurchaseJournalTestPage.IncomingDocAttachFactBox.ImportNew.Invoke();
+        PurchaseJournalTestPage.IncomingDocAttachFactBox.UploadMainAttachment.Invoke();
+
         PurchaseJournalTestPage.New();
         PurchaseJournalTestPage."Account Type".SetValue(GenJournalLine."Account Type"::"G/L Account");
         PurchaseJournalTestPage."Account No.".SetValue(LibraryERM.CreateGLAccountNoWithDirectPosting());
         PrepareAttachmentRecordForGenJournalLine(GenJournalLine);
-        PurchaseJournalTestPage.IncomingDocAttachFactBox.ImportNew.Invoke();
+        PurchaseJournalTestPage.IncomingDocAttachFactBox.UploadMainAttachment.Invoke();
+
 
         // We saved attached file names in Library - Variable Storage.
         Assert.RecordCount(GenJournalLine, LibraryVariableStorage.Length());
-        Assert.AreEqual(2, LibraryVariableStorage.Length(), UnexpecteFileNameNoErr);
+        Assert.AreEqual(2, LibraryVariableStorage.Length(), UnexpectedFileNameNoErr);
 
         // We return to first line and check the correct file is shown in "Incoming Document Attachment Factbox" (File "A")
         PurchaseJournalTestPage.Previous();
         PurchaseJournalTestPage.IncomingDocAttachFactBox.Name.AssertEquals(LibraryVariableStorage.DequeueText());
+        Assert.IsFalse(PurchaseJournalTestPage.IncomingDocAttachFactBox.UploadMainAttachment.Enabled(), 'UploadMainAttachment should be disabled because main attachment is already uploaded.');
+        // [TODO] For now the testability of the "fileuploaded" is not possible. Add it back when it is possible.
+        // Assert.IsTrue(PurchaseJournalTestPage.IncomingDocAttachFactBox.UploadSupportAttachments.Enabled(), 'SupportAttachments should be enabled because main attachment is already uploaded.');
         // We move to second line and check the correct file is shown in "Incoming Document Attachment Factbox" (File "B")
         PurchaseJournalTestPage.Next();
         PurchaseJournalTestPage.IncomingDocAttachFactBox.Name.AssertEquals(LibraryVariableStorage.DequeueText());
         PurchaseJournalTestPage.Next();
+        Assert.IsFalse(PurchaseJournalTestPage.IncomingDocAttachFactBox.UploadMainAttachment.Enabled(), 'UploadMainAttachment should be disabled because main attachment is already uploaded.');
+        // [TODO] For now the testability of the "fileuploaded" is not possible. Add it back when it is possible.
+        // Assert.IsTrue(PurchaseJournalTestPage.IncomingDocAttachFactBox.UploadSupportAttachments.Enabled(), 'SupportAttachments should be enabled because main attachment is already uploaded.');
         PurchaseJournalTestPage."Account No.".AssertEquals('');
 
         LibraryVariableStorage.AssertEmpty();
@@ -189,12 +216,14 @@ codeunit 134408 "Incom. Doc. Attach. FactBox"
 
         // Stan opens empty journal.
         // Stan specifies "Account Type" = "G/L Account" and newly "Account No." = "G/L Account" => new line "Line[1]" saved to DB
-        // Stan clicks "Attach" on Incoming Document Attachment Factbox
-        // Stan attachs File "A" to the "Line[1]"
+        // Stan clicks "UploadMainAttachment" on Incoming Document Attachment Factbox
+        // Stan attaches File "A" to the "Line[1]"
+        // Stan finds "UploadMainAttachment" is disabled because main attachment is already uploaded, and "SupportAttachments" is enabled. 
         // Stan moves to the second line.
         // Stan specifies "Account Type" = "G/L Account" and newly "Account No." = "G/L Account" => new line "Line[2]" saved to DB
-        // Stan clicks "Attach" on Incoming Document Attachment Factbox
-        // Stan attachs File "B" to the "Line[2]"
+        // Stan clicks "UploadMainAttachment" on Incoming Document Attachment Factbox
+        // Stan attaches File "B" to the "Line[2]"
+        // Stan finds "UploadMainAttachment" is disabled because main attachment is already uploaded, and "SupportAttachments" is enabled. 
 
         CreateGeneralJournalBatch(GenJournalLine, GenJournalTemplate.Type::Sales);
 
@@ -205,23 +234,30 @@ codeunit 134408 "Incom. Doc. Attach. FactBox"
         SalesJournalTestPage."Account Type".SetValue(GenJournalLine."Account Type"::"G/L Account");
         SalesJournalTestPage."Account No.".SetValue(LibraryERM.CreateGLAccountNoWithDirectPosting());
         PrepareAttachmentRecordForGenJournalLine(GenJournalLine);
-        SalesJournalTestPage.IncomingDocAttachFactBox.ImportNew.Invoke();
+        SalesJournalTestPage.IncomingDocAttachFactBox.UploadMainAttachment.Invoke();
+
         SalesJournalTestPage.New();
         SalesJournalTestPage."Account Type".SetValue(GenJournalLine."Account Type"::"G/L Account");
         SalesJournalTestPage."Account No.".SetValue(LibraryERM.CreateGLAccountNoWithDirectPosting());
         PrepareAttachmentRecordForGenJournalLine(GenJournalLine);
-        SalesJournalTestPage.IncomingDocAttachFactBox.ImportNew.Invoke();
+        SalesJournalTestPage.IncomingDocAttachFactBox.UploadMainAttachment.Invoke();
 
         // We saved attached file names in Library - Variable Storage.
         Assert.RecordCount(GenJournalLine, LibraryVariableStorage.Length());
-        Assert.AreEqual(2, LibraryVariableStorage.Length(), UnexpecteFileNameNoErr);
+        Assert.AreEqual(2, LibraryVariableStorage.Length(), UnexpectedFileNameNoErr);
 
         // We return to first line and check the correct file is shown in "Incoming Document Attachment Factbox" (File "A")
         SalesJournalTestPage.Previous();
         SalesJournalTestPage.IncomingDocAttachFactBox.Name.AssertEquals(LibraryVariableStorage.DequeueText());
+        Assert.IsFalse(SalesJournalTestPage.IncomingDocAttachFactBox.UploadMainAttachment.Enabled(), 'UploadMainAttachment should be disabled because main attachment is already uploaded.');
+        // [TODO] For now the testability of the "fileuploaded" is not possible. Add it back when it is possible.
+        // Assert.IsTrue(SalesJournalTestPage.IncomingDocAttachFactBox.UploadSupportAttachments.Enabled(), 'SupportAttachments should be enabled because main attachment is already uploaded.');
         // We move to second line and check the correct file is shown in "Incoming Document Attachment Factbox" (File "B")
         SalesJournalTestPage.Next();
         SalesJournalTestPage.IncomingDocAttachFactBox.Name.AssertEquals(LibraryVariableStorage.DequeueText());
+        Assert.IsFalse(SalesJournalTestPage.IncomingDocAttachFactBox.UploadMainAttachment.Enabled(), 'UploadMainAttachment should be disabled because main attachment is already uploaded.');
+        // [TODO] For now the testability of the "fileuploaded" is not possible. Add it back when it is possible.
+        // Assert.IsTrue(SalesJournalTestPage.IncomingDocAttachFactBox.UploadSupportAttachments.Enabled(), 'SupportAttachments should be enabled because main attachment is already uploaded.');
         SalesJournalTestPage.Next();
         SalesJournalTestPage."Account No.".AssertEquals('');
 
@@ -241,12 +277,14 @@ codeunit 134408 "Incom. Doc. Attach. FactBox"
 
         // Stan opens empty journal.
         // Stan specifies "Account Type" = "G/L Account" and newly "Account No." = "G/L Account" => new line "Line[1]" saved to DB
-        // Stan clicks "Attach" on Incoming Document Attachment Factbox
-        // Stan attachs File "A" to the "Line[1]"
+        // Stan clicks "UploadMainAttachment" on Incoming Document Attachment Factbox
+        // Stan attaches File "A" to the "Line[1]"
+        // Stan finds "UploadMainAttachment" is disabled because main attachment is already uploaded, and "SupportAttachments" is enabled. 
         // Stan moves to the second line.
         // Stan specifies "Account Type" = "G/L Account" and newly "Account No." = "G/L Account" => new line "Line[2]" saved to DB
-        // Stan clicks "Attach" on Incoming Document Attachment Factbox
-        // Stan attachs File "B" to the "Line[2]"
+        // Stan clicks "UploadMainAttachment" on Incoming Document Attachment Factbox
+        // Stan attaches File "B" to the "Line[2]"
+        // Stan finds "UploadMainAttachment" is disabled because main attachment is already uploaded, and "SupportAttachments" is enabled. 
 
         CreateGeneralJournalBatch(GenJournalLine, GenJournalTemplate.Type::"Cash Receipts");
 
@@ -257,23 +295,30 @@ codeunit 134408 "Incom. Doc. Attach. FactBox"
         CashReceiptJournalTestPage."Account Type".SetValue(GenJournalLine."Account Type"::"G/L Account");
         CashReceiptJournalTestPage."Account No.".SetValue(LibraryERM.CreateGLAccountNoWithDirectPosting());
         PrepareAttachmentRecordForGenJournalLine(GenJournalLine);
-        CashReceiptJournalTestPage.IncomingDocAttachFactBox.ImportNew.Invoke();
+        CashReceiptJournalTestPage.IncomingDocAttachFactBox.UploadMainAttachment.Invoke();
+
         CashReceiptJournalTestPage.New();
         CashReceiptJournalTestPage."Account Type".SetValue(GenJournalLine."Account Type"::"G/L Account");
         CashReceiptJournalTestPage."Account No.".SetValue(LibraryERM.CreateGLAccountNoWithDirectPosting());
         PrepareAttachmentRecordForGenJournalLine(GenJournalLine);
-        CashReceiptJournalTestPage.IncomingDocAttachFactBox.ImportNew.Invoke();
+        CashReceiptJournalTestPage.IncomingDocAttachFactBox.UploadMainAttachment.Invoke();
 
         // We saved attached file names in Library - Variable Storage.
         Assert.RecordCount(GenJournalLine, LibraryVariableStorage.Length());
-        Assert.AreEqual(2, LibraryVariableStorage.Length(), UnexpecteFileNameNoErr);
+        Assert.AreEqual(2, LibraryVariableStorage.Length(), UnexpectedFileNameNoErr);
 
         // We return to first line and check the correct file is shown in "Incoming Document Attachment Factbox" (File "A")
         CashReceiptJournalTestPage.Previous();
         CashReceiptJournalTestPage.IncomingDocAttachFactBox.Name.AssertEquals(LibraryVariableStorage.DequeueText());
+        Assert.IsFalse(CashReceiptJournalTestPage.IncomingDocAttachFactBox.UploadMainAttachment.Enabled(), 'UploadMainAttachment should be disabled because main attachment is already uploaded.');
+        // [TODO] For now the testability of the "fileuploaded" is not possible. Add it back when it is possible.
+        // Assert.IsTrue(CashReceiptJournalTestPage.IncomingDocAttachFactBox.UploadSupportAttachments.Enabled(), 'SupportAttachments should be enabled because main attachment is already uploaded.');
         // We move to second line and check the correct file is shown in "Incoming Document Attachment Factbox" (File "B")
         CashReceiptJournalTestPage.Next();
         CashReceiptJournalTestPage.IncomingDocAttachFactBox.Name.AssertEquals(LibraryVariableStorage.DequeueText());
+        Assert.IsFalse(CashReceiptJournalTestPage.IncomingDocAttachFactBox.UploadMainAttachment.Enabled(), 'UploadMainAttachment should be disabled because main attachment is already uploaded.');
+        // [TODO] For now the testability of the "fileuploaded" is not possible. Add it back when it is possible.
+        // Assert.IsTrue(CashReceiptJournalTestPage.IncomingDocAttachFactBox.UploadSupportAttachments.Enabled(), 'SupportAttachments should be enabled because main attachment is already uploaded.');
         CashReceiptJournalTestPage.Next();
         CashReceiptJournalTestPage."Account No.".AssertEquals('');
 
@@ -329,7 +374,8 @@ codeunit 134408 "Incom. Doc. Attach. FactBox"
         Commit();
 
         // [VERIFY] Verify no error is thrown when run Import New action from Incoming Doc Attach FactBox.
-        PurchaseInvoice.IncomingDocAttachFactBox.ImportNew.Invoke();
+        PurchaseInvoice.IncomingDocAttachFactBox.UploadMainAttachment.Invoke();
+
         PurchaseInvoice.Close();
     end;
 

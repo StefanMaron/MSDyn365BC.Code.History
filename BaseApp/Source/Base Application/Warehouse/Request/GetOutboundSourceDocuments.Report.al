@@ -270,7 +270,9 @@ report 7304 "Get Outbound Source Documents"
         LineCreated: Boolean;
         HideDialog: Boolean;
 
+#pragma warning disable AA0074
         Text000: Label 'There are no Warehouse Worksheet Lines created.';
+#pragma warning restore AA0074
 
     procedure SetHideDialog(NewHideDialog: Boolean)
     begin

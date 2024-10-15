@@ -203,10 +203,9 @@ report 10044 "Customer Labels NA"
                     for i := ColumnNo + 1 to NoOfColumns do
                         Clear(Addr[i]);
                     ColumnNo := 0;
-                end else begin
+                end else
                     if ColumnNo = NoOfColumns then
                         ColumnNo := 0;
-                end;
 
                 NumOfBlanks := NumOfBlanksInput - 8;
             end;

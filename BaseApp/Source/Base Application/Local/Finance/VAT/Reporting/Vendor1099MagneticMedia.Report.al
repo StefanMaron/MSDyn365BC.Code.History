@@ -1430,7 +1430,7 @@ report 10115 "Vendor 1099 Magnetic Media"
     local procedure GetFullCode(Prefix: Text; Number: Integer) FullCode: Code[10]
     begin
         FullCode += Prefix;
-        If Number < 10 then
+        if Number < 10 then
             FullCode += Format(0);
         exit(FullCode + Format(Number));
     end;

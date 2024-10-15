@@ -64,7 +64,6 @@ codeunit 137051 "SCM Warehouse - III"
         EditableError: Label 'Can Be Edited.';
         EnabledError: Label 'Field is Enabled.';
         WantToContinueMessage: Label 'Are you sure that you want to continue?';
-        BinErrorOnMachineCenter: Label '%1 must be equal to %2';
         UseAsInTransitEditableErr: Label 'Field ''Use As In-Transit'' in Location Card Page should be editable when creating new Location';
         FieldMustNotBeEmptyErr: Label 'Field %1 in table %2 must not be empty.';
         WrongNoOfWhseActivityLinesErr: Label '%1 warehouse activity lines must be created for lot %2';
@@ -79,6 +78,7 @@ codeunit 137051 "SCM Warehouse - III"
         ExpirationDateCalcFormula: Label '<CY-1Y>';
         ExpirationDateMustNotBeEmptyErr: Label 'Expiration Date must not be empty.';
         QtyToHandleErr: Label '%1 must be %2 in %3', Comment = '%1 = Qty. to Handle, %2 = QtyToHandle, %3 = Warehouse Activity Line';
+        DoNotFillQtyToHandleMustBeFalseErr: Label 'Do Not Fill Qty. to Handle must be false in Warehouse Activity Header';
 
     [Test]
     [HandlerFunctions('ItemTrackingPageHandler,QuantityToCreatePageHandler,ConfirmHandler,PickActivitiesMessageHandler')]
@@ -1694,7 +1694,7 @@ codeunit 137051 "SCM Warehouse - III"
         asserterror UpdateLocationOnWorkCenter(WorkCenter, LocationOrange.Code);
 
         // Verify: Bin error on rejectng the Change Location Confirm Handler.
-        Assert.ExpectedError(StrSubstNo(BinErrorOnMachineCenter, MachineCenter.FieldCaption("To-Production Bin Code"), ''));
+        Assert.ExpectedTestFieldError(MachineCenter.FieldCaption("To-Production Bin Code"), '''');
     end;
 
     [Test]
@@ -1927,11 +1927,9 @@ codeunit 137051 "SCM Warehouse - III"
         // [GIVEN] Create Sales Order "SO2" for Item with two lines: first line Quantity = 50, second line Quantity = 100.
         CreateSalesOrder(SalesHeader, SalesLine, Item."No.", LocationSilver3.Code, PartQty);
         SalesHeaderNo[2] := SalesHeader."No.";
-        with SalesLine do begin
-            LibrarySales.CreateSalesLine(SalesLine, SalesHeader, Type::Item, Item."No.", 2 * PartQty);
-            Validate("Location Code", LocationSilver3.Code);
-            Modify(true);
-        end;
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 2 * PartQty);
+        SalesLine.Validate("Location Code", LocationSilver3.Code);
+        SalesLine.Modify(true);
         LibrarySales.ReleaseSalesDocument(SalesHeader);
 
         // [GIVEN] Create Warehouse Shipment and Pick.
@@ -1939,40 +1937,35 @@ codeunit 137051 "SCM Warehouse - III"
         FindWarehouseShipmentHeader(WarehouseShipmentHeader, SalesHeaderNo[2]);
         LibraryWarehouse.ReleaseWarehouseShipment(WarehouseShipmentHeader);
         CreatePick(WarehouseShipmentHeader, WarehouseShipmentHeader."No.");
-
         // [GIVEN] Open  Pick for "SO1", set "Qty. to Handle" to 100, register Pick.
-        with WarehouseActivityLine do begin
-            FindWhseActivityLine(
-              WarehouseActivityLine, "Activity Type"::Pick, LocationSilver3.Code, SalesHeaderNo[1], "Action Type"::Take);
-            Validate("Qty. to Handle", 2 * PartQty);
-            Modify(true);
-            FindWhseActivityLine(
-              WarehouseActivityLine, "Activity Type"::Pick, LocationSilver3.Code, SalesHeaderNo[1], "Action Type"::Place);
-            Validate("Qty. to Handle", 2 * PartQty);
-            Modify(true);
-            RegisterWarehouseActivity(SalesHeaderNo[1], "Activity Type"::Pick);
-        end;
+        FindWhseActivityLine(
+          WarehouseActivityLine, WarehouseActivityLine."Activity Type"::Pick, LocationSilver3.Code, SalesHeaderNo[1], WarehouseActivityLine."Action Type"::Take);
+        WarehouseActivityLine.Validate("Qty. to Handle", 2 * PartQty);
+        WarehouseActivityLine.Modify(true);
+        FindWhseActivityLine(
+          WarehouseActivityLine, WarehouseActivityLine."Activity Type"::Pick, LocationSilver3.Code, SalesHeaderNo[1], WarehouseActivityLine."Action Type"::Place);
+        WarehouseActivityLine.Validate("Qty. to Handle", 2 * PartQty);
+        WarehouseActivityLine.Modify(true);
+        RegisterWarehouseActivity(SalesHeaderNo[1], WarehouseActivityLine."Activity Type"::Pick);
 
         // [GIVEN] Open Pick for "SO2", set first line "Qty. to Handle" to 10, set second line "Qty. to Handle" to 0, register Pick.
         Clear(WarehouseActivityLine);
-        with WarehouseActivityLine do begin
-            SmallQty := LibraryRandom.RandIntInRange(5, 10);
-            FindWhseActivityLine(
-              WarehouseActivityLine, "Activity Type"::Pick, LocationSilver3.Code, SalesHeaderNo[2], "Action Type"::Take);
-            Validate("Qty. to Handle", SmallQty);
-            Modify(true);
-            Next();
-            Validate("Qty. to Handle", 0);
-            Modify(true);
-            FindWhseActivityLine(
-              WarehouseActivityLine, "Activity Type"::Pick, LocationSilver3.Code, SalesHeaderNo[2], "Action Type"::Place);
-            Validate("Qty. to Handle", SmallQty);
-            Modify(true);
-            Next();
-            Validate("Qty. to Handle", 0);
-            Modify(true);
-            RegisterWarehouseActivity(SalesHeaderNo[2], "Activity Type"::Pick);
-        end;
+        SmallQty := LibraryRandom.RandIntInRange(5, 10);
+        FindWhseActivityLine(
+          WarehouseActivityLine, WarehouseActivityLine."Activity Type"::Pick, LocationSilver3.Code, SalesHeaderNo[2], WarehouseActivityLine."Action Type"::Take);
+        WarehouseActivityLine.Validate("Qty. to Handle", SmallQty);
+        WarehouseActivityLine.Modify(true);
+        WarehouseActivityLine.Next();
+        WarehouseActivityLine.Validate("Qty. to Handle", 0);
+        WarehouseActivityLine.Modify(true);
+        FindWhseActivityLine(
+          WarehouseActivityLine, WarehouseActivityLine."Activity Type"::Pick, LocationSilver3.Code, SalesHeaderNo[2], WarehouseActivityLine."Action Type"::Place);
+        WarehouseActivityLine.Validate("Qty. to Handle", SmallQty);
+        WarehouseActivityLine.Modify(true);
+        WarehouseActivityLine.Next();
+        WarehouseActivityLine.Validate("Qty. to Handle", 0);
+        WarehouseActivityLine.Modify(true);
+        RegisterWarehouseActivity(SalesHeaderNo[2], WarehouseActivityLine."Activity Type"::Pick);
 
         // [GIVEN] Delete Pick for "SO2".
         DeleteWarehouseActivity(WarehouseActivityLine);
@@ -1983,13 +1976,11 @@ codeunit 137051 "SCM Warehouse - III"
 
         // [THEN] Created Pick contains Lot "L" of Quantity 100 for second Sales Order Line.
         Clear(WarehouseActivityLine);
-        with WarehouseActivityLine do begin
-            FindWhseActivityLine(
-              WarehouseActivityLine, "Activity Type"::Pick, LocationSilver3.Code, SalesHeaderNo[2], "Action Type"::Take);
-            Next();
-            TestField(Quantity, 2 * PartQty);
-            TestField("Lot No.", LotNo);
-        end;
+        FindWhseActivityLine(
+          WarehouseActivityLine, WarehouseActivityLine."Activity Type"::Pick, LocationSilver3.Code, SalesHeaderNo[2], WarehouseActivityLine."Action Type"::Take);
+        WarehouseActivityLine.Next();
+        WarehouseActivityLine.TestField(Quantity, 2 * PartQty);
+        WarehouseActivityLine.TestField("Lot No.", LotNo);
     end;
 
     [Test]
@@ -2030,15 +2021,12 @@ codeunit 137051 "SCM Warehouse - III"
         FindWarehouseShipmentHeader(WarehouseShipmentHeader, SalesHeaderNo);
         LibraryWarehouse.ReleaseWarehouseShipment(WarehouseShipmentHeader);
         CreatePick(WarehouseShipmentHeader, WarehouseShipmentHeader."No.");
-
         // [GIVEN] Open  Pick for "SO", set "Qty. to Handle" to 100, register Pick, ship from Warehouse Shipment, then delete Pick.
-        with WarehouseActivityLine do begin
-            UpdateQuantityToHandleOnActivityLine(
-              WarehouseActivityLine, "Action Type"::Take, LocationSilver3.Code, SalesHeaderNo, PartQty);
-            UpdateQuantityToHandleOnActivityLine(
-              WarehouseActivityLine, "Action Type"::Place, LocationSilver3.Code, SalesHeaderNo, PartQty);
-            RegisterWarehouseActivity(SalesHeaderNo, "Activity Type"::Pick);
-        end;
+        UpdateQuantityToHandleOnActivityLine(
+          WarehouseActivityLine, WarehouseActivityLine."Action Type"::Take, LocationSilver3.Code, SalesHeaderNo, PartQty);
+        UpdateQuantityToHandleOnActivityLine(
+          WarehouseActivityLine, WarehouseActivityLine."Action Type"::Place, LocationSilver3.Code, SalesHeaderNo, PartQty);
+        RegisterWarehouseActivity(SalesHeaderNo, WarehouseActivityLine."Activity Type"::Pick);
         LibraryWarehouse.PostWhseShipment(WarehouseShipmentHeader, false);
         DeleteWarehouseActivity(WarehouseActivityLine);
 
@@ -2047,13 +2035,11 @@ codeunit 137051 "SCM Warehouse - III"
 
         // [THEN] Created Pick contains Lot "L" of Quantity 100.
         Clear(WarehouseActivityLine);
-        with WarehouseActivityLine do begin
-            FindWhseActivityLine(
-              WarehouseActivityLine, "Activity Type"::Pick, LocationSilver3.Code, SalesHeaderNo, "Action Type"::Take);
-            Next();
-            TestField(Quantity, PartQty);
-            TestField("Lot No.", LotNo);
-        end;
+        FindWhseActivityLine(
+          WarehouseActivityLine, WarehouseActivityLine."Activity Type"::Pick, LocationSilver3.Code, SalesHeaderNo, WarehouseActivityLine."Action Type"::Take);
+        WarehouseActivityLine.Next();
+        WarehouseActivityLine.TestField(Quantity, PartQty);
+        WarehouseActivityLine.TestField("Lot No.", LotNo);
     end;
 
     [Test]
@@ -2095,28 +2081,20 @@ codeunit 137051 "SCM Warehouse - III"
           InternalMovementHeader, LocationSilver.Code, StrSubstNo('%1|%2', Item."No.", Item2."No."), Bin.Code);
         LibraryWarehouse.CreateInvtMvmtFromInternalMvmt(InternalMovementHeader);
 
-        with WarehouseActivityLine do begin
-            SetRange("Activity Type", "Activity Type"::"Invt. Movement");
-            SetRange("Location Code", LocationSilver.Code);
-            SetFilter("Item No.", '%1|%2', Item."No.", Item2."No.");
-            AutofillQtyToHandle(WarehouseActivityLine);
-        end;
-
+        WarehouseActivityLine.SetRange("Activity Type", WarehouseActivityLine."Activity Type"::"Invt. Movement");
+        WarehouseActivityLine.SetRange("Location Code", LocationSilver.Code);
+        WarehouseActivityLine.SetFilter("Item No.", '%1|%2', Item."No.", Item2."No.");
+        WarehouseActivityLine.AutofillQtyToHandle(WarehouseActivityLine);
         // [WHEN] Register Inventory Movement
-        with WarehouseActivityHeader do begin
-            SetRange(Type, Type::"Invt. Movement");
-            SetRange("No.", WarehouseActivityLine."No.");
-            FindFirst();
-            LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
-        end;
-
+        WarehouseActivityHeader.SetRange(Type, WarehouseActivityHeader.Type::"Invt. Movement");
+        WarehouseActivityHeader.SetRange("No.", WarehouseActivityLine."No.");
+        WarehouseActivityHeader.FindFirst();
+        LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
         // [THEN] Registered successfully
-        with RegisteredInvtMovementLine do begin
-            SetRange("Location Code", LocationSilver.Code);
-            SetRange("Item No.", Item."No.");
-            FindFirst();
-            TestField(Quantity, Qty);
-        end;
+        RegisteredInvtMovementLine.SetRange("Location Code", LocationSilver.Code);
+        RegisteredInvtMovementLine.SetRange("Item No.", Item."No.");
+        RegisteredInvtMovementLine.FindFirst();
+        RegisteredInvtMovementLine.TestField(Quantity, Qty);
     end;
 
     [Test]
@@ -2271,19 +2249,16 @@ codeunit 137051 "SCM Warehouse - III"
 
         // [WHEN] Create Pick for the Shipment.
         LibraryWarehouse.CreatePick(WarehouseShipmentHeader);
-
         // [THEN] Pick does not contain Lot "L1".
         // [THEN] Pick contains purchased quantity of Lots "L2" and "L3" in Bins "B1", "B2", "B3".
-        with WarehouseActivityLine do begin
-            FilterWarehouseActivityLine(
-              WarehouseActivityLine, ItemNo, LocationCode, "Activity Type"::Pick, "Action Type"::Take, LotNos[1], '');
-            Assert.RecordIsEmpty(WarehouseActivityLine);
+        FilterWarehouseActivityLine(
+          WarehouseActivityLine, ItemNo, LocationCode, WarehouseActivityLine."Activity Type"::Pick, WarehouseActivityLine."Action Type"::Take, LotNos[1], '');
+        Assert.RecordIsEmpty(WarehouseActivityLine);
 
-            FilterWarehouseActivityLine(
-              WarehouseActivityLine, ItemNo, LocationCode, "Activity Type"::Pick, "Action Type"::Take, StrSubstNo('<>%1', LotNos[1]), '');
-            CalcSums(Quantity);
-            Assert.AreEqual((ArrayLen(LotNos) - 1) * NoOfBins * QuantityPerLotPerBin, Quantity, QtyInPickErr); // two lots in three bins
-        end;
+        FilterWarehouseActivityLine(
+          WarehouseActivityLine, ItemNo, LocationCode, WarehouseActivityLine."Activity Type"::Pick, WarehouseActivityLine."Action Type"::Take, StrSubstNo('<>%1', LotNos[1]), '');
+        WarehouseActivityLine.CalcSums(Quantity);
+        Assert.AreEqual((ArrayLen(LotNos) - 1) * NoOfBins * QuantityPerLotPerBin, WarehouseActivityLine.Quantity, QtyInPickErr); // two lots in three bins
     end;
 
     [Test]
@@ -2322,19 +2297,16 @@ codeunit 137051 "SCM Warehouse - III"
 
         // [WHEN] Create Pick for the Shipment.
         LibraryWarehouse.CreatePick(WarehouseShipmentHeader);
-
         // [THEN] Pick contains neither Lot "L1" nor Bin "B1".
         // [THEN] Pick contains purchased quantity of Lots "L2" and "L3" in Bins "B2" and "B3".
-        with WarehouseActivityLine do begin
-            FilterWarehouseActivityLine(
-              WarehouseActivityLine, ItemNo, LocationCode, "Activity Type"::Pick, "Action Type"::Take, '', BinCode);
-            Assert.RecordIsEmpty(WarehouseActivityLine);
+        FilterWarehouseActivityLine(
+          WarehouseActivityLine, ItemNo, LocationCode, WarehouseActivityLine."Activity Type"::Pick, WarehouseActivityLine."Action Type"::Take, '', BinCode);
+        Assert.RecordIsEmpty(WarehouseActivityLine);
 
-            FilterWarehouseActivityLine(
-              WarehouseActivityLine, ItemNo, LocationCode, "Activity Type"::Pick, "Action Type"::Take, '', StrSubstNo('<>%1', BinCode));
-            CalcSums(Quantity);
-            Assert.AreEqual((ArrayLen(LotNos) - 1) * (NoOfBins - 1) * QuantityPerLotPerBin, Quantity, QtyInPickErr); // two lots in two bins
-        end;
+        FilterWarehouseActivityLine(
+          WarehouseActivityLine, ItemNo, LocationCode, WarehouseActivityLine."Activity Type"::Pick, WarehouseActivityLine."Action Type"::Take, '', StrSubstNo('<>%1', BinCode));
+        WarehouseActivityLine.CalcSums(Quantity);
+        Assert.AreEqual((ArrayLen(LotNos) - 1) * (NoOfBins - 1) * QuantityPerLotPerBin, WarehouseActivityLine.Quantity, QtyInPickErr); // two lots in two bins
     end;
 
     [Test]
@@ -2373,24 +2345,21 @@ codeunit 137051 "SCM Warehouse - III"
 
         // [WHEN] Create Pick for the Shipment.
         LibraryWarehouse.CreatePick(WarehouseShipmentHeader);
-
         // [THEN] Pick contains neither Bin "B1" nor Lot "L1".
         // [THEN] Pick contains purchased quantity of Lots "L2" and "L3" in Bins "B2" and "B3".
-        with WarehouseActivityLine do begin
-            FilterWarehouseActivityLine(
-              WarehouseActivityLine, ItemNo, LocationCode, "Activity Type"::Pick, "Action Type"::Take, '', BinCode);
-            Assert.RecordIsEmpty(WarehouseActivityLine);
+        FilterWarehouseActivityLine(
+          WarehouseActivityLine, ItemNo, LocationCode, WarehouseActivityLine."Activity Type"::Pick, WarehouseActivityLine."Action Type"::Take, '', BinCode);
+        Assert.RecordIsEmpty(WarehouseActivityLine);
 
-            FilterWarehouseActivityLine(
-              WarehouseActivityLine, ItemNo, LocationCode, "Activity Type"::Pick, "Action Type"::Take, LotNos[1], '');
-            Assert.RecordIsEmpty(WarehouseActivityLine);
+        FilterWarehouseActivityLine(
+          WarehouseActivityLine, ItemNo, LocationCode, WarehouseActivityLine."Activity Type"::Pick, WarehouseActivityLine."Action Type"::Take, LotNos[1], '');
+        Assert.RecordIsEmpty(WarehouseActivityLine);
 
-            FilterWarehouseActivityLine(
-              WarehouseActivityLine, ItemNo, LocationCode, "Activity Type"::Pick, "Action Type"::Take,
-              StrSubstNo('<>%1', LotNos[1]), StrSubstNo('<>%1', BinCode));
-            CalcSums(Quantity);
-            Assert.AreEqual((ArrayLen(LotNos) - 1) * (NoOfBins - 1) * QuantityPerLotPerBin, Quantity, QtyInPickErr); // two lots in two bins
-        end;
+        FilterWarehouseActivityLine(
+          WarehouseActivityLine, ItemNo, LocationCode, WarehouseActivityLine."Activity Type"::Pick, WarehouseActivityLine."Action Type"::Take,
+          StrSubstNo('<>%1', LotNos[1]), StrSubstNo('<>%1', BinCode));
+        WarehouseActivityLine.CalcSums(Quantity);
+        Assert.AreEqual((ArrayLen(LotNos) - 1) * (NoOfBins - 1) * QuantityPerLotPerBin, WarehouseActivityLine.Quantity, QtyInPickErr); // two lots in two bins
     end;
 
     [Test]
@@ -2432,28 +2401,25 @@ codeunit 137051 "SCM Warehouse - III"
 
         // [WHEN] Create Pick for the Shipment.
         LibraryWarehouse.CreatePick(WarehouseShipmentHeader);
-
         // [THEN] Pick contain neither Lot "L1" nor Lot "L2" nor Bin "B1".
         // [THEN] Pick contains purchased quantity of Lot "L3" in Bins "B2" and "B3".
-        with WarehouseActivityLine do begin
-            FilterWarehouseActivityLine(
-              WarehouseActivityLine, ItemNo, LocationCode, "Activity Type"::Pick, "Action Type"::Take, LotNos[1], '');
-            Assert.RecordIsEmpty(WarehouseActivityLine);
+        FilterWarehouseActivityLine(
+          WarehouseActivityLine, ItemNo, LocationCode, WarehouseActivityLine."Activity Type"::Pick, WarehouseActivityLine."Action Type"::Take, LotNos[1], '');
+        Assert.RecordIsEmpty(WarehouseActivityLine);
 
-            FilterWarehouseActivityLine(
-              WarehouseActivityLine, ItemNo, LocationCode, "Activity Type"::Pick, "Action Type"::Take, LotNos[2], '');
-            Assert.RecordIsEmpty(WarehouseActivityLine);
+        FilterWarehouseActivityLine(
+          WarehouseActivityLine, ItemNo, LocationCode, WarehouseActivityLine."Activity Type"::Pick, WarehouseActivityLine."Action Type"::Take, LotNos[2], '');
+        Assert.RecordIsEmpty(WarehouseActivityLine);
 
-            FilterWarehouseActivityLine(
-              WarehouseActivityLine, ItemNo, LocationCode, "Activity Type"::Pick, "Action Type"::Take, '', BinCode);
-            Assert.RecordIsEmpty(WarehouseActivityLine);
+        FilterWarehouseActivityLine(
+          WarehouseActivityLine, ItemNo, LocationCode, WarehouseActivityLine."Activity Type"::Pick, WarehouseActivityLine."Action Type"::Take, '', BinCode);
+        Assert.RecordIsEmpty(WarehouseActivityLine);
 
-            FilterWarehouseActivityLine(
-              WarehouseActivityLine, ItemNo, LocationCode, "Activity Type"::Pick, "Action Type"::Take,
-              StrSubstNo('<>%1&<>%2', LotNos[1], LotNos[2]), StrSubstNo('<>%1', BinCode));
-            CalcSums(Quantity);
-            Assert.AreEqual((ArrayLen(LotNos) - 2) * (NoOfBins - 1) * QuantityPerLotPerBin, Quantity, QtyInPickErr); // one lot in two bins
-        end;
+        FilterWarehouseActivityLine(
+          WarehouseActivityLine, ItemNo, LocationCode, WarehouseActivityLine."Activity Type"::Pick, WarehouseActivityLine."Action Type"::Take,
+          StrSubstNo('<>%1&<>%2', LotNos[1], LotNos[2]), StrSubstNo('<>%1', BinCode));
+        WarehouseActivityLine.CalcSums(Quantity);
+        Assert.AreEqual((ArrayLen(LotNos) - 2) * (NoOfBins - 1) * QuantityPerLotPerBin, WarehouseActivityLine.Quantity, QtyInPickErr); // one lot in two bins
     end;
 
     [Test]
@@ -2493,14 +2459,11 @@ codeunit 137051 "SCM Warehouse - III"
 
         // [WHEN] Create Pick for the Shipment of Sales Order "SO1".
         LibraryWarehouse.CreatePick(WarehouseShipmentHeader);
-
         // [THEN] Available quantity to pick = 4Q (9Q total - 3Q in blocked bin - 2Q reserved).
-        with WarehouseActivityLine do begin
-            FilterWarehouseActivityLine(
-              WarehouseActivityLine, ItemNo, LocationCode, "Activity Type"::Pick, "Action Type"::Take, '', '');
-            CalcSums(Quantity);
-            Assert.AreEqual(4 * QuantityPerLotPerBin, Quantity, QtyInPickErr);
-        end;
+        FilterWarehouseActivityLine(
+          WarehouseActivityLine, ItemNo, LocationCode, WarehouseActivityLine."Activity Type"::Pick, WarehouseActivityLine."Action Type"::Take, '', '');
+        WarehouseActivityLine.CalcSums(Quantity);
+        Assert.AreEqual(4 * QuantityPerLotPerBin, WarehouseActivityLine.Quantity, QtyInPickErr);
     end;
 
     [Test]
@@ -2541,14 +2504,11 @@ codeunit 137051 "SCM Warehouse - III"
 
         // [WHEN] Create Pick for the Shipment of Sales Order "SO1".
         LibraryWarehouse.CreatePick(WarehouseShipmentHeader);
-
         // [THEN] Available quantity to pick = 2Q (9Q total - 6Q in blocked bins - 1Q reserved from not blocked bin).
-        with WarehouseActivityLine do begin
-            FilterWarehouseActivityLine(
-              WarehouseActivityLine, ItemNo, LocationCode, "Activity Type"::Pick, "Action Type"::Take, '', '');
-            CalcSums(Quantity);
-            Assert.AreEqual(2 * QuantityPerLotPerBin, Quantity, QtyInPickErr);
-        end;
+        FilterWarehouseActivityLine(
+          WarehouseActivityLine, ItemNo, LocationCode, WarehouseActivityLine."Activity Type"::Pick, WarehouseActivityLine."Action Type"::Take, '', '');
+        WarehouseActivityLine.CalcSums(Quantity);
+        Assert.AreEqual(2 * QuantityPerLotPerBin, WarehouseActivityLine.Quantity, QtyInPickErr);
     end;
 
     [Test]
@@ -2587,14 +2547,11 @@ codeunit 137051 "SCM Warehouse - III"
 
         // [WHEN] Create Pick for the Shipment of Sales Order "SO1".
         LibraryWarehouse.CreatePick(WarehouseShipmentHeader);
-
         // [THEN] Available quantity to pick = 3Q (9Q total - 3Q in blocked lot - 3Q reserved).
-        with WarehouseActivityLine do begin
-            FilterWarehouseActivityLine(
-              WarehouseActivityLine, ItemNo, LocationCode, "Activity Type"::Pick, "Action Type"::Take, '', '');
-            CalcSums(Quantity);
-            Assert.AreEqual(3 * QuantityPerLotPerBin, Quantity, QtyInPickErr);
-        end;
+        FilterWarehouseActivityLine(
+          WarehouseActivityLine, ItemNo, LocationCode, WarehouseActivityLine."Activity Type"::Pick, WarehouseActivityLine."Action Type"::Take, '', '');
+        WarehouseActivityLine.CalcSums(Quantity);
+        Assert.AreEqual(3 * QuantityPerLotPerBin, WarehouseActivityLine.Quantity, QtyInPickErr);
     end;
 
     [Test]
@@ -2637,14 +2594,11 @@ codeunit 137051 "SCM Warehouse - III"
 
         // [WHEN] Create Pick.
         LibraryWarehouse.CreatePick(WarehouseShipmentHeader);
-
         // [THEN] Available quantity to pick = 6Q (9Q total - 3Q in blocked bin).
-        with WarehouseActivityLine do begin
-            FilterWarehouseActivityLine(
-              WarehouseActivityLine, ItemNo, LocationCode, "Activity Type"::Pick, "Action Type"::Take, '', '');
-            CalcSums(Quantity);
-            Assert.AreEqual(6 * QuantityPerLotPerBin, Quantity, QtyInPickErr);
-        end;
+        FilterWarehouseActivityLine(
+          WarehouseActivityLine, ItemNo, LocationCode, WarehouseActivityLine."Activity Type"::Pick, WarehouseActivityLine."Action Type"::Take, '', '');
+        WarehouseActivityLine.CalcSums(Quantity);
+        Assert.AreEqual(6 * QuantityPerLotPerBin, WarehouseActivityLine.Quantity, QtyInPickErr);
     end;
 
     [Test]
@@ -2686,14 +2640,11 @@ codeunit 137051 "SCM Warehouse - III"
 
         // [WHEN] Create Pick.
         LibraryWarehouse.CreatePick(WarehouseShipmentHeader);
-
         // [THEN] Available quantity to pick = 6Q (9Q total - 3Q in blocked lot).
-        with WarehouseActivityLine do begin
-            FilterWarehouseActivityLine(
-              WarehouseActivityLine, ItemNo, LocationCode, "Activity Type"::Pick, "Action Type"::Take, '', '');
-            CalcSums(Quantity);
-            Assert.AreEqual(6 * QuantityPerLotPerBin, Quantity, QtyInPickErr);
-        end;
+        FilterWarehouseActivityLine(
+          WarehouseActivityLine, ItemNo, LocationCode, WarehouseActivityLine."Activity Type"::Pick, WarehouseActivityLine."Action Type"::Take, '', '');
+        WarehouseActivityLine.CalcSums(Quantity);
+        Assert.AreEqual(6 * QuantityPerLotPerBin, WarehouseActivityLine.Quantity, QtyInPickErr);
     end;
 
     [Test]
@@ -3298,14 +3249,11 @@ codeunit 137051 "SCM Warehouse - III"
         // [WHEN] Create inventory movement from the sales line in order to transfer the item from "B1" to "B2".
         LibraryWarehouse.CreateInvtPutPickMovement(
           WarehouseActivityLine."Source Document"::"Sales Order", SalesHeader."No.", false, false, true);
-
         // [THEN] The program suggests to move lot "L2", which is expired earlier than "L1".
-        with WarehouseActivityLine do begin
-            FindWhseActivityLine(
-              WarehouseActivityLine, "Activity Type"::"Invt. Movement", LocationSilver.Code, SalesHeader."No.", "Action Type"::Take);
-            TestField("Lot No.", LotNos[2]);
-            Assert.RecordCount(WarehouseActivityLine, 1);
-        end;
+        FindWhseActivityLine(
+          WarehouseActivityLine, WarehouseActivityLine."Activity Type"::"Invt. Movement", LocationSilver.Code, SalesHeader."No.", WarehouseActivityLine."Action Type"::Take);
+        WarehouseActivityLine.TestField("Lot No.", LotNos[2]);
+        Assert.RecordCount(WarehouseActivityLine, 1);
 
         LibraryVariableStorage.AssertEmpty();
     end;
@@ -3353,13 +3301,10 @@ codeunit 137051 "SCM Warehouse - III"
 
         // [WHEN] Create inventory movement from the internal movement.
         LibraryWarehouse.CreateInvtMvmtFromInternalMvmt(InternalMovementHeader);
-
         // [THEN] The program suggests to move lot "L2", which has an earlier expiration date than lot "L1".
-        with WarehouseActivityLine do begin
-            FindWhseActivityLine(WarehouseActivityLine, "Activity Type"::"Invt. Movement", LocationSilver.Code, '', "Action Type"::Take);
-            TestField("Lot No.", LotNos[2]);
-            Assert.RecordCount(WarehouseActivityLine, 1);
-        end;
+        FindWhseActivityLine(WarehouseActivityLine, WarehouseActivityLine."Activity Type"::"Invt. Movement", LocationSilver.Code, '', WarehouseActivityLine."Action Type"::Take);
+        WarehouseActivityLine.TestField("Lot No.", LotNos[2]);
+        Assert.RecordCount(WarehouseActivityLine, 1);
 
         LibraryVariableStorage.AssertEmpty();
     end;
@@ -3510,9 +3455,8 @@ codeunit 137051 "SCM Warehouse - III"
         WarehouseShipmentLine.CreatePickDoc(WarehouseShipmentLine, WarehouseShipmentHeader);
 
         // [THEN] Warehouse pick is created.
-        with WarehouseActivityLine do
-            FilterWarehouseActivityLine(
-              WarehouseActivityLine, Item."No.", Location.Code, "Activity Type"::Pick, "Action Type"::Take, '', '');
+        FilterWarehouseActivityLine(
+              WarehouseActivityLine, Item."No.", Location.Code, WarehouseActivityLine."Activity Type"::Pick, WarehouseActivityLine."Action Type"::Take, '', '');
         Assert.RecordIsNotEmpty(WarehouseActivityLine);
 
         // [THEN] The resulting message does not have a warning about excluded expired lots.
@@ -3568,9 +3512,8 @@ codeunit 137051 "SCM Warehouse - III"
         WarehouseShipmentLine.CreatePickDoc(WarehouseShipmentLine, WarehouseShipmentHeader);
 
         // [THEN] Warehouse pick is created.
-        with WarehouseActivityLine do
-            FilterWarehouseActivityLine(
-              WarehouseActivityLine, Item."No.", Location.Code, "Activity Type"::Pick, "Action Type"::Take, '', '');
+        FilterWarehouseActivityLine(
+              WarehouseActivityLine, Item."No.", Location.Code, WarehouseActivityLine."Activity Type"::Pick, WarehouseActivityLine."Action Type"::Take, '', '');
         Assert.RecordIsNotEmpty(WarehouseActivityLine);
 
         // [THEN] The resulting message does not have a warning about excluded expired lots.
@@ -3621,9 +3564,8 @@ codeunit 137051 "SCM Warehouse - III"
         WarehouseShipmentLine.CreatePickDoc(WarehouseShipmentLine, WarehouseShipmentHeader);
 
         // [THEN] Warehouse pick is created.
-        with WarehouseActivityLine do
-            FilterWarehouseActivityLine(
-              WarehouseActivityLine, Item."No.", Location.Code, "Activity Type"::Pick, "Action Type"::Take, '', '');
+        FilterWarehouseActivityLine(
+              WarehouseActivityLine, Item."No.", Location.Code, WarehouseActivityLine."Activity Type"::Pick, WarehouseActivityLine."Action Type"::Take, '', '');
         Assert.RecordIsNotEmpty(WarehouseActivityLine);
 
         // [THEN] The resulting message has a warning that some of the lots are expired and not included in the pick.
@@ -5936,6 +5878,145 @@ codeunit 137051 "SCM Warehouse - III"
         // [THEN] Qty. to Handle (Base) is equal to Quantity in ItemTrackingPageHandler.
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('WarehouseShipmentCreatePickRequestPageHandler')]
+    procedure QtyToHandleInWhseActLineIsNotAutoFilledIfDoNotFillQtyToHandleIsTrueInWhseActHdr()
+    var
+        Bin: Record Bin;
+        BinType: Record "Bin Type";
+        Zone: Record Zone;
+        Item: array[3] of Record Item;
+        Location: Record Location;
+        WarehouseShipmentLine: Record "Warehouse Shipment Line";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivitLine: Record "Warehouse Activity Line";
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: array[3] of Record "Sales Line";
+    begin
+        // [SCENARIO 540363] When Stan partially Register Warehouse Pick then Qty. to Handle in Warehouse Activity Lines 
+        // Is not auto filled if "Do Not Fill Qty. to Handle" is true in Warehouse Activity Header.
+        Initialize();
+
+        // [GIVEN] Create three Items.
+        LibraryInventory.CreateItem(Item[1]);
+        LibraryInventory.CreateItem(Item[2]);
+        LibraryInventory.CreateItem(Item[3]);
+
+        // [GIVEN] Create a Location.
+        LibraryWarehouse.CreateFullWMSLocation(Location, 1);
+
+        // [GIVEN] Create a Bin Type.
+        CreateBinType(BinType);
+
+        // [GIVEN] Create a Zone.
+        LibraryWarehouse.CreateZone(Zone, Zone.Code, Location.Code, BinType.Code, '', '', 0, false);
+
+        // [GIVEN] Create a Bin.
+        LibraryWarehouse.CreateBin(Bin, Location.Code, Bin.Code, Zone.Code, BinType.Code);
+
+        // [GIVEN] Create and Post Warehouse Journal Lines.
+        CreateAndPostWhseJournalLines(Item[1], Item[2], Item[3], Location, Zone, Bin);
+
+        // [GIVEN] Run Calc. Warehouse Adjustment and Post Item Journal for three items.
+        CalcWhseAdjustmentAndPostItemJournal(Item[1]);
+        CalcWhseAdjustmentAndPostItemJournal(Item[2]);
+        CalcWhseAdjustmentAndPostItemJournal(Item[3]);
+
+        // [GIVEN] Create a Customer.
+        LibrarySales.CreateCustomer(Customer);
+
+        // [GIVEN] Create a Sales Header and Validate Location Code.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+        SalesHeader.Validate("Location Code", Location.Code);
+        SalesHeader.Modify(true);
+
+        // [GIVEN] Create three Sales Lines.
+        LibrarySales.CreateSalesLine(SalesLine[1], SalesHeader, SalesLine[1].Type::Item, Item[1]."No.", LibraryRandom.RandIntInRange(5, 5));
+        LibrarySales.CreateSalesLine(SalesLine[2], SalesHeader, SalesLine[2].Type::Item, Item[2]."No.", LibraryRandom.RandIntInRange(5, 5));
+        LibrarySales.CreateSalesLine(SalesLine[3], SalesHeader, SalesLine[3].Type::Item, Item[3]."No.", LibraryRandom.RandIntInRange(5, 5));
+
+        // [GIVEN] Release Sales Order.
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+
+        // [GIVEN] Create Warehouse Shipment from Sales Order.
+        LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
+
+        // [GIVEN] Find Warehouse Shipment Header.
+        WarehouseShipmentHeader.SetRange("Location Code", Location.Code);
+        WarehouseShipmentHeader.FindFirst();
+
+        // [GIVEN] Release Warehouse Shipment.
+        LibraryWarehouse.ReleaseWarehouseShipment(WarehouseShipmentHeader);
+
+        // [GIVEN] Find Warehouse Shipment Line.
+        WarehouseShipmentLine.SetRange("No.", WarehouseActivityHeader."No.");
+        WarehouseActivitLine.FindFirst();
+
+        // [GIVEN] Create Pick from Warehouse Shipment Line.
+        CreatePickFromWhseShipimentLine(WarehouseShipmentHeader);
+
+        // [GIVEN] Find Warehouse Activity Lines of Item[1] and Validate Qty. to Handle.
+        FindAndValidateQtyToHandleInWhseActivityLine(Item[1]);
+
+        // [GIVEN] Find Acitivity Header.
+        WarehouseActivityHeader.SetRange("Location Code", Location.Code);
+        WarehouseActivityHeader.FindFirst();
+
+        // [GIVEN] Register Warehouse Activity.
+        LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
+
+        // [WHEN] Find Warehouse Activity Line of Item[2].
+        WarehouseActivitLine.SetRange("Item No.", Item[2]."No.");
+        WarehouseActivitLine.FindFirst();
+
+        // [THEN] Qty. to Handle in Warehouse Activity Line is 0.
+        Assert.AreEqual(
+            0,
+            WarehouseActivitLine."Qty. to Handle",
+            StrSubstNo(
+                QtyToHandleErr,
+                WarehouseActivitLine.FieldCaption("Qty. to Handle"),
+                0,
+                WarehouseActivitLine.TableCaption()));
+
+        // [WHEN] Find Warehouse Activity Line of Item[3].
+        WarehouseActivitLine.SetRange("Item No.", Item[3]."No.");
+        WarehouseActivitLine.FindFirst();
+
+        // [THEN] Qty. to Handle in Warehouse Activity Line is 0.
+        Assert.AreEqual(
+            0,
+            WarehouseActivitLine."Qty. to Handle",
+            StrSubstNo(
+                QtyToHandleErr,
+                WarehouseActivitLine.FieldCaption("Qty. to Handle"),
+                0,
+                WarehouseActivitLine.TableCaption()));
+
+        // [WHEN] Run Autofill Qty. to Handle.
+        WarehouseActivitLine.AutofillQtyToHandle(WarehouseActivitLine);
+
+        // [THEN] Qty. to Handle in Warehouse Activity Line is equal to Quantity of Warehouse Activity Line.
+        Assert.AreEqual(
+            WarehouseActivitLine.Quantity,
+            WarehouseActivitLine."Qty. to Handle",
+            StrSubstNo(
+                QtyToHandleErr,
+                WarehouseActivitLine.FieldCaption("Qty. to Handle"),
+                WarehouseActivitLine.Quantity,
+                WarehouseActivitLine.TableCaption()));
+
+        // [WHEN] Find Acitivity Header.
+        WarehouseActivityHeader.SetRange("Location Code", Location.Code);
+        WarehouseActivityHeader.FindFirst();
+
+        // [THEN] Do Not Fill Qty. to Handle in Warehouse Activity Header is false.
+        Assert.IsFalse(WarehouseActivityHeader."Do Not Fill Qty. to Handle", DoNotFillQtyToHandleMustBeFalseErr);
+    end;
+    
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -6053,16 +6134,14 @@ codeunit 137051 "SCM Warehouse - III"
     begin
         PrepareSalesOrderWithWhseShipment(SalesHeader, WarehouseShipmentHeader, ItemNo, LocationCode, Qty);
         CreatePick(WarehouseShipmentHeader, WarehouseShipmentHeader."No.");
-        with WarehouseActivityLine do begin
-            FindWhseActivityLine(
-              WarehouseActivityLine, "Activity Type"::Pick, LocationCode, SalesHeader."No.", "Action Type"::Take);
-            Validate("Qty. to Handle", Qty);
-            Modify(true);
-            FindWhseActivityLine(
-              WarehouseActivityLine, "Activity Type"::Pick, LocationCode, SalesHeader."No.", "Action Type"::Place);
-            Validate("Qty. to Handle", Qty);
-            Modify(true);
-        end;
+        FindWhseActivityLine(
+          WarehouseActivityLine, WarehouseActivityLine."Activity Type"::Pick, LocationCode, SalesHeader."No.", WarehouseActivityLine."Action Type"::Take);
+        WarehouseActivityLine.Validate("Qty. to Handle", Qty);
+        WarehouseActivityLine.Modify(true);
+        FindWhseActivityLine(
+          WarehouseActivityLine, WarehouseActivityLine."Activity Type"::Pick, LocationCode, SalesHeader."No.", WarehouseActivityLine."Action Type"::Place);
+        WarehouseActivityLine.Validate("Qty. to Handle", Qty);
+        WarehouseActivityLine.Modify(true);
         exit(SalesHeader."No.");
     end;
 
@@ -6086,12 +6165,10 @@ codeunit 137051 "SCM Warehouse - III"
         ItemJournalLine.OpenItemTrackingLines(false);
         LibraryVariableStorage.AssertEmpty();
 
-        with ReservationEntry do begin
-            SetRange("Item No.", ItemNo);
-            SetRange("Lot No.", LotNo);
-            SetRange("Expiration Date", 0D);
-            ModifyAll("Expiration Date", ExpirationDate, true);
-        end;
+        ReservationEntry.SetRange("Item No.", ItemNo);
+        ReservationEntry.SetRange("Lot No.", LotNo);
+        ReservationEntry.SetRange("Expiration Date", 0D);
+        ReservationEntry.ModifyAll("Expiration Date", ExpirationDate, true);
 
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
     end;
@@ -6358,11 +6435,9 @@ codeunit 137051 "SCM Warehouse - III"
         LibraryVariableStorage.Enqueue(TrackingAction::LotNo);
         ItemJournal.ItemTrackingLines.Invoke();
 
-        with ReservationEntry do begin
-            SetRange("Item No.", ItemNo);
-            SetRange("Expiration Date", 0D);
-            ModifyAll("Expiration Date", ExpirationDate, true);
-        end;
+        ReservationEntry.SetRange("Item No.", ItemNo);
+        ReservationEntry.SetRange("Expiration Date", 0D);
+        ReservationEntry.ModifyAll("Expiration Date", ExpirationDate, true);
 
         ItemJournal.Post.Invoke();
     end;
@@ -6802,13 +6877,11 @@ codeunit 137051 "SCM Warehouse - III"
     var
         PostedWhseReceiptLine: Record "Posted Whse. Receipt Line";
     begin
-        with PostedWhseReceiptLine do begin
-            SetRange("Item No.", ItemNo);
-            FindFirst();
-            SetRange("No.", "No.");
-            SetHideValidationDialog(true);
-            CreatePutAwayDoc(PostedWhseReceiptLine, '');
-        end;
+        PostedWhseReceiptLine.SetRange("Item No.", ItemNo);
+        PostedWhseReceiptLine.FindFirst();
+        PostedWhseReceiptLine.SetRange("No.", PostedWhseReceiptLine."No.");
+        PostedWhseReceiptLine.SetHideValidationDialog(true);
+        PostedWhseReceiptLine.CreatePutAwayDoc(PostedWhseReceiptLine, '');
     end;
 
     local procedure CreateRefreshedProductionOrderAndInbndWhseRequest(var ProductionOrder: Record "Production Order"; LocationCode: Code[10])
@@ -6906,33 +6979,27 @@ codeunit 137051 "SCM Warehouse - III"
 
     local procedure FindPlaceActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; WarehouseActivityNo: Code[20]; LotNo: Code[50])
     begin
-        with WarehouseActivityLine do begin
-            Reset();
-            SetRange("Action Type", "Action Type"::Place);
-            SetRange("No.", WarehouseActivityNo);
-            SetRange("Lot No.", LotNo);
-            FindLast();
-        end;
+        WarehouseActivityLine.Reset();
+        WarehouseActivityLine.SetRange("Action Type", WarehouseActivityLine."Action Type"::Place);
+        WarehouseActivityLine.SetRange("No.", WarehouseActivityNo);
+        WarehouseActivityLine.SetRange("Lot No.", LotNo);
+        WarehouseActivityLine.FindLast();
     end;
 
     local procedure SplitActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; QtyToHandle: Decimal)
     begin
-        with WarehouseActivityLine do begin
-            Validate("Qty. to Handle", QtyToHandle);
-            Modify(true);
-            SplitLine(WarehouseActivityLine);
-        end;
+        WarehouseActivityLine.Validate("Qty. to Handle", QtyToHandle);
+        WarehouseActivityLine.Modify(true);
+        WarehouseActivityLine.SplitLine(WarehouseActivityLine);
     end;
 
     local procedure GetLotNoFromItemEntry(ItemNo: Code[20]): Code[20]
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
-        with ItemLedgerEntry do begin
-            SetRange("Item No.", ItemNo);
-            FindLast();
-            exit("Lot No.");
-        end;
+        ItemLedgerEntry.SetRange("Item No.", ItemNo);
+        ItemLedgerEntry.FindLast();
+        exit(ItemLedgerEntry."Lot No.");
     end;
 
     local procedure GetFirstProdOrderLineNo(ProductionOrder: Record "Production Order"): Integer
@@ -7082,18 +7149,16 @@ codeunit 137051 "SCM Warehouse - III"
 
     local procedure FilterWarehouseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; ItemNo: Code[20]; LocationCode: Code[10]; ActivityType: Enum "Warehouse Activity Type"; ActionType: Enum "Warehouse Action Type"; LotNoFilter: Text; BinCodeFilter: Text)
     begin
-        with WarehouseActivityLine do begin
-            Reset();
-            SetCurrentKey(
-              "Item No.", "Bin Code", "Location Code", "Action Type", "Variant Code", "Unit of Measure Code", "Breakbulk No.",
-              "Activity Type", "Lot No.");
-            SetRange("Item No.", ItemNo);
-            SetRange("Location Code", LocationCode);
-            SetRange("Activity Type", ActivityType);
-            SetRange("Action Type", ActionType);
-            SetFilter("Lot No.", LotNoFilter);
-            SetFilter("Bin Code", BinCodeFilter);
-        end;
+        WarehouseActivityLine.Reset();
+        WarehouseActivityLine.SetCurrentKey(
+          "Item No.", "Bin Code", "Location Code", "Action Type", "Variant Code", "Unit of Measure Code", "Breakbulk No.",
+          "Activity Type", "Lot No.");
+        WarehouseActivityLine.SetRange("Item No.", ItemNo);
+        WarehouseActivityLine.SetRange("Location Code", LocationCode);
+        WarehouseActivityLine.SetRange("Activity Type", ActivityType);
+        WarehouseActivityLine.SetRange("Action Type", ActionType);
+        WarehouseActivityLine.SetFilter("Lot No.", LotNoFilter);
+        WarehouseActivityLine.SetFilter("Bin Code", BinCodeFilter);
     end;
 
     local procedure FilterWhseItemTracking(var WhseItemTrackingLine: Record "Whse. Item Tracking Line"; SourceType: Integer; SourceSubtype: Option; SourceID: Code[20]; SourceRefNo: Integer)
@@ -7428,13 +7493,11 @@ codeunit 137051 "SCM Warehouse - III"
     var
         WarehouseShipmentLine: Record "Warehouse Shipment Line";
     begin
-        with WarehouseShipmentLine do begin
-            SetRange("Source Document", "Source Document"::"Sales Order");
-            SetRange("Source No.", SourceNo);
-            FindFirst();
-            Validate("Bin Code", BinCode);
-            Modify(true);
-        end;
+        WarehouseShipmentLine.SetRange("Source Document", WarehouseShipmentLine."Source Document"::"Sales Order");
+        WarehouseShipmentLine.SetRange("Source No.", SourceNo);
+        WarehouseShipmentLine.FindFirst();
+        WarehouseShipmentLine.Validate("Bin Code", BinCode);
+        WarehouseShipmentLine.Modify(true);
     end;
 
     local procedure UpdateQuantityToHandleAndBinOnActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; ActionType: Enum "Warehouse Action Type"; SourceNo: Code[20]; QtyToHandle: Decimal; ActivityType: Enum "Warehouse Activity Type"; BinCode: Code[20])
@@ -7664,14 +7727,12 @@ codeunit 137051 "SCM Warehouse - III"
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
-        with WarehouseActivityLine do begin
-            FindWhseActivityLine(WarehouseActivityLine, "Activity Type"::Pick, LocationCode, SourceNo, "Action Type"::Take);
-            TestField(Quantity, Qty);
-            TestField("Lot No.", LotNo);
-            FindWhseActivityLine(WarehouseActivityLine, "Activity Type"::Pick, LocationCode, SourceNo, "Action Type"::Place);
-            TestField(Quantity, Qty);
-            TestField("Lot No.", LotNo);
-        end;
+        FindWhseActivityLine(WarehouseActivityLine, WarehouseActivityLine."Activity Type"::Pick, LocationCode, SourceNo, WarehouseActivityLine."Action Type"::Take);
+        WarehouseActivityLine.TestField(Quantity, Qty);
+        WarehouseActivityLine.TestField("Lot No.", LotNo);
+        FindWhseActivityLine(WarehouseActivityLine, WarehouseActivityLine."Activity Type"::Pick, LocationCode, SourceNo, WarehouseActivityLine."Action Type"::Place);
+        WarehouseActivityLine.TestField(Quantity, Qty);
+        WarehouseActivityLine.TestField("Lot No.", LotNo);
     end;
 
     local procedure VerifyRegisteredWhseActivityLine(WarehouseActivityLine: Record "Warehouse Activity Line"; ExpectedQuantity: Decimal)
@@ -7759,29 +7820,25 @@ codeunit 137051 "SCM Warehouse - III"
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
-        with WarehouseActivityLine do begin
-            SetRange("Source Type", DATABASE::"Sales Line");
-            SetRange("Source Subtype", DocumentType);
-            SetRange("Source No.", DocumentNo);
-            FindSet();
-            repeat
-                Assert.AreNotEqual('', "Lot No.", StrSubstNo(FieldMustNotBeEmptyErr, FieldCaption("Lot No."), TableCaption));
-                Assert.AreNotEqual(0D, "Expiration Date", StrSubstNo(FieldMustNotBeEmptyErr, FieldCaption("Expiration Date"), TableCaption))
-            until Next() = 0;
-        end;
+        WarehouseActivityLine.SetRange("Source Type", DATABASE::"Sales Line");
+        WarehouseActivityLine.SetRange("Source Subtype", DocumentType);
+        WarehouseActivityLine.SetRange("Source No.", DocumentNo);
+        WarehouseActivityLine.FindSet();
+        repeat
+            Assert.AreNotEqual('', WarehouseActivityLine."Lot No.", StrSubstNo(FieldMustNotBeEmptyErr, WarehouseActivityLine.FieldCaption("Lot No."), WarehouseActivityLine.TableCaption));
+            Assert.AreNotEqual(0D, WarehouseActivityLine."Expiration Date", StrSubstNo(FieldMustNotBeEmptyErr, WarehouseActivityLine.FieldCaption("Expiration Date"), WarehouseActivityLine.TableCaption))
+        until WarehouseActivityLine.Next() = 0;
     end;
 
     local procedure VerifyWhseActivityLotNo(LocationCode: Code[10]; ItemNo: Code[20]; ExpectedQuantity: Decimal; ExpectedLotNo: Code[50])
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
-        with WarehouseActivityLine do begin
-            SetRange("Location Code", LocationCode);
-            SetRange("Item No.", ItemNo);
-            FindFirst();
-            TestField(Quantity, ExpectedQuantity);
-            TestField("Lot No.", ExpectedLotNo);
-        end;
+        WarehouseActivityLine.SetRange("Location Code", LocationCode);
+        WarehouseActivityLine.SetRange("Item No.", ItemNo);
+        WarehouseActivityLine.FindFirst();
+        WarehouseActivityLine.TestField(Quantity, ExpectedQuantity);
+        WarehouseActivityLine.TestField("Lot No.", ExpectedLotNo);
     end;
 
     local procedure CreateLocation(var Location: Record Location): Code[10]
@@ -8006,6 +8063,94 @@ codeunit 137051 "SCM Warehouse - III"
         ProdOrderLine.SetRange(Status, ProductionOrder.Status);
         ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
         ProdOrderLine.FindFirst();
+    end;
+
+    local procedure FindAndValidateQtyToHandleInWhseActivityLine(Item: Record Item)
+    var
+        WarehouseActivitLine: Record "Warehouse Activity Line";
+    begin
+        WarehouseActivitLine.SetRange("Item No.", Item."No.");
+        WarehouseActivitLine.FindFirst();
+        WarehouseActivitLine.Validate("Qty. to Handle", WarehouseActivitLine.Quantity);
+        WarehouseActivitLine.Modify(true);
+
+        WarehouseActivitLine.SetRange("Item No.", Item."No.");
+        WarehouseActivitLine.FindLast();
+        WarehouseActivitLine.Validate("Qty. to Handle", WarehouseActivitLine.Quantity);
+        WarehouseActivitLine.Modify(true);
+    end;
+
+    local procedure CreateAndPostWhseJournalLines(
+        Item: Record Item;
+        Item2: Record Item;
+        Item3: Record Item;
+        Location: Record Location;
+        Zone: Record Zone;
+        Bin: Record Bin)
+    var
+        WhseJournalTemplate: Record "Warehouse Journal Template";
+        WhseJournalBatch: Record "Warehouse Journal Batch";
+        WhseJournalLine: array[3] of Record "Warehouse Journal Line";
+    begin
+        LibraryWarehouse.SelectWhseJournalTemplateName(WhseJournalTemplate, WhseJournalTemplate.Type::Item);
+        LibraryWarehouse.CreateWhseJournalBatch(WhseJournalBatch, WhseJournalTemplate.Name, Location.Code);
+
+        LibraryWarehouse.CreateWhseJournalLine(
+            WhseJournalLine[1],
+            WhseJournalTemplate.Name,
+            WhseJournalBatch.Name,
+            Location.Code,
+            Zone.Code,
+            Bin.Code,
+            WhseJournalLine[1]."Entry Type"::"Positive Adjmt.",
+            Item."No.",
+            LibraryRandom.RandIntInRange(5, 5));
+
+        LibraryWarehouse.CreateWhseJournalLine(
+            WhseJournalLine[2],
+            WhseJournalTemplate.Name,
+            WhseJournalBatch.Name,
+            Location.Code,
+            Zone.Code,
+            Bin.Code,
+            WhseJournalLine[2]."Entry Type"::"Positive Adjmt.",
+            Item2."No.",
+            LibraryRandom.RandIntInRange(5, 5));
+
+        LibraryWarehouse.CreateWhseJournalLine(
+            WhseJournalLine[3],
+            WhseJournalTemplate.Name,
+            WhseJournalBatch.Name,
+            Location.Code,
+            Zone.Code,
+            Bin.Code,
+            WhseJournalLine[3]."Entry Type"::"Positive Adjmt.",
+            Item3."No.",
+            LibraryRandom.RandIntInRange(5, 5));
+
+        LibraryWarehouse.PostWhseJournalLine(WhseJournalTemplate.Name, WhseJournalBatch.Name, Location.Code);
+    end;
+
+    local procedure CreateBinType(var BinType: Record "Bin Type")
+    begin
+        BinType.SetRange("Put Away", true);
+        BinType.SetRange(Pick, true);
+        if not BinType.FindFirst() then
+            LibraryWarehouse.CreateBinType(BinType, false, false, true, true);
+    end;
+
+    local procedure CreatePickFromWhseShipimentLine(WhseShptHeader: Record "Warehouse Shipment Header")
+    var
+        WhseShptLine: Record "Warehouse Shipment Line";
+        WhseShptCreatePick: Report "Whse.-Shipment - Create Pick";
+    begin
+        WhseShptLine.SetRange("No.", WhseShptHeader."No.");
+        WhseShptLine.FindFirst();
+
+        WhseShptCreatePick.SetWhseShipmentLine(WhseShptLine, WhseShptHeader);
+        WhseShptCreatePick.SetHideValidationDialog(true);
+        WhseShptCreatePick.UseRequestPage(true);
+        WhseShptCreatePick.RunModal();
     end;
 
     [ModalPageHandler]
@@ -8271,6 +8416,14 @@ codeunit 137051 "SCM Warehouse - III"
     [Scope('OnPrem')]
     procedure WhseShipmentCreatePickPageRequestHandler(var WhseShipmentCreatePick: TestRequestPage "Whse.-Shipment - Create Pick")
     begin
+        WhseShipmentCreatePick.OK().Invoke();
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure WarehouseShipmentCreatePickRequestPageHandler(var WhseShipmentCreatePick: TestRequestPage "Whse.-Shipment - Create Pick")
+    begin
+        WhseShipmentCreatePick.DoNotFillQtytoHandle.SetValue(true);
         WhseShipmentCreatePick.OK().Invoke();
     end;
 

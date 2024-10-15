@@ -209,13 +209,11 @@ table 313 "Inventory Setup"
                     UpdateAvgCostItemSettings(FieldCaption("Average Cost Calc. Type"), Format("Average Cost Calc. Type"));
             end;
         }
-        field(5805; "Average Cost Period"; Option)
+        field(5805; "Average Cost Period"; Enum "Average Cost Period Type")
         {
             Caption = 'Average Cost Period';
             InitValue = Day;
             NotBlank = true;
-            OptionCaption = ' ,Day,Week,Month,Quarter,Year,Accounting Period';
-            OptionMembers = " ",Day,Week,Month,Quarter,Year,"Accounting Period";
 
             trigger OnValidate()
             begin
@@ -364,9 +362,13 @@ table 313 "Inventory Setup"
         ObjTransl: Record "Object Translation";
         RecordHasBeenRead: Boolean;
 
+#pragma warning disable AA0074
         Text000: Label 'Some unadjusted value entries will not be covered with the new setting. You must run the Adjust Cost - Item Entries batch job once to adjust these.';
         Text004: Label 'The program has cancelled the change that would have caused an adjustment of all items.';
+#pragma warning disable AA0470
         Text005: Label '%1 has been changed to %2. You should now run %3.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         ItemEntriesAdjustQst: Label 'If you change the %1, the program must adjust all item entries.The adjustment of all entries can take several hours.\Do you really want to change the %1?', Comment = '%1 - field caption';
 
     procedure GetRecordOnce()

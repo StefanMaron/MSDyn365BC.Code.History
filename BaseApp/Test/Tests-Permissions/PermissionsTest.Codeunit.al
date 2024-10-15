@@ -10,39 +10,18 @@ codeunit 139400 "Permissions Test"
 
     var
         LibraryUtility: Codeunit "Library - Utility";
-#if not CLEAN22
-        LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
-#endif
         LibraryPermissions: Codeunit "Library - Permissions";
-#if not CLEAN22
-        LibraryPermissionsVerify: Codeunit "Library - Permissions Verify";
-#endif
         AzureADPlanTestLibrary: Codeunit "Azure AD Plan Test Library";
         LibraryTextFileValidation: Codeunit "Library - Text File Validation";
         LibraryPlainTextFile: Codeunit "Library - Plain Text File";
         Assert: Codeunit Assert;
         BaseAppID: Codeunit "BaseApp ID";
-#if not CLEAN22
-        PermissionSetBasicTxt: Label 'D365 BASIC';
-        PermissionSetJournalsEditTxt: Label 'D365 JOURNALS, EDIT';
-        PermissionSetJournalsPostTxt: Label 'D365 JOURNALS, POST';
-#endif
         PermissionSetNonExistentTxt: Label 'Non-existent';
         PlanSmallBusinessTxt: Label 'Plan-SmallB-Test';
         PlanOffice365Txt: Label 'Plan-Office365-Test';
         PlanOffice365ExtraTxt: Label 'Plan-Office365Ext-Test';
-#if not CLEAN22
-        QueryNameTok: Label 'Users In User Group';
-
-#endif
         UserCassieTxt: Label 'User-Cassie-Test';
         UserDebraTxt: Label 'User-Debra-Test';
-#if not CLEAN22
-        UserGroupAccountantPostingTxt: Label 'UserGroup-AccP-Test';
-        UserGroupAccountantTxt: Label 'UserGroup-Acc-Test';
-        UserGroupAuditorTxt: Label 'UserGroup-Aud-Test';
-        UserGroupFinanceTxt: Label 'UserGroup-Finance';
-#endif
         ImportEmptyFileErr: Label 'Cannot import the specified XML document because the file is empty.';
         ResolvePermissionNotificationIdTxt: Label '3301a843-3a72-4777-83a2-a1eeb2041efa', Locked = true;
         NullGuid: Guid;
@@ -135,135 +114,6 @@ codeunit 139400 "Permissions Test"
         TearDown();
     end;
 
-#if not CLEAN22
-    [Test]
-    [Scope('OnPrem')]
-    procedure UserGroupAddedToPlan()
-    var
-        AggregatePermissionSet: Record "Aggregate Permission Set";
-        PlanID: Guid;
-    begin
-        // [SCENARIO] User Group added to Plan, sunshine
-
-        // [GIVEN] Plan Office365
-        PlanID := AzureADPlanTestLibrary.CreatePlan(PlanOffice365Txt);
-
-        // [GIVEN] User Group Finance, containing permission sets Journals-Edit, Journals-Post
-        LibraryPermissions.CreateUserGroupWithCode(UserGroupFinanceTxt);
-        AggregatePermissionSet.Get(AggregatePermissionSet.Scope::System, BaseAppID.Get(), PermissionSetJournalsEditTxt);
-        LibraryPermissions.AddPermissionSetToUserGroup(AggregatePermissionSet, UserGroupFinanceTxt);
-        AggregatePermissionSet.Get(AggregatePermissionSet.Scope::System, BaseAppID.Get(), PermissionSetJournalsPostTxt);
-        LibraryPermissions.AddPermissionSetToUserGroup(AggregatePermissionSet, UserGroupFinanceTxt);
-
-        // [WHEN] Accountant is added to Office365
-        LibraryPermissions.AddUserGroupToPlan(UserGroupFinanceTxt, PlanID);
-
-        // [THEN] It succeeds (the permission sets are enough)
-        LibraryPermissionsVerify.UserGroupIsInPlan(UserGroupFinanceTxt, PlanID);
-        TearDown();
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure UserGroupDeleted()
-    var
-        AggregatePermissionSet: Record "Aggregate Permission Set";
-        PlanIDDummy: Guid;
-        PlanIDOffice365: Guid;
-    begin
-        // [SCENARIO] When a User Group is deleted, the related data is cleaned-up
-        // [GIVEN] Permission sets: Basic, JournalsEdit
-        // [GIVEN] Plans: Dummy, Office365
-        PlanIDDummy := AzureADPlanTestLibrary.CreatePlan(PlanSmallBusinessTxt);
-        PlanIDOffice365 := AzureADPlanTestLibrary.CreatePlan(PlanOffice365Txt);
-
-        // [GIVEN] User groups: Accountant, Finance
-        LibraryPermissions.CreateUserGroupWithCode(UserGroupAccountantTxt);
-        AggregatePermissionSet.Get(AggregatePermissionSet.Scope::System, BaseAppID.Get(), PermissionSetBasicTxt);
-        LibraryPermissions.AddPermissionSetToUserGroup(AggregatePermissionSet, UserGroupAccountantTxt);
-        LibraryPermissions.CreateUserGroupWithCode(UserGroupFinanceTxt);
-        AggregatePermissionSet.Get(AggregatePermissionSet.Scope::System, BaseAppID.Get(), PermissionSetBasicTxt);
-        LibraryPermissions.AddPermissionSetToUserGroup(AggregatePermissionSet, UserGroupFinanceTxt);
-        AggregatePermissionSet.Get(AggregatePermissionSet.Scope::System, BaseAppID.Get(), PermissionSetJournalsEditTxt);
-        LibraryPermissions.AddPermissionSetToUserGroup(AggregatePermissionSet, UserGroupFinanceTxt);
-        // [GIVEN] Accountant in plan Dummy
-        LibraryPermissions.AddUserGroupToPlan(UserGroupAccountantTxt, PlanIDDummy);
-        // [GIVEN] Finance in Office365
-        LibraryPermissions.AddUserGroupToPlan(UserGroupFinanceTxt, PlanIDOffice365);
-
-        // [WHEN] Accountant user group is deleted
-        LibraryPermissions.RemoveUserGroup(UserGroupAccountantTxt);
-
-        // [THEN] Related User Group Member records are removed
-        LibraryPermissionsVerify.UserGroupMembersDoNotExist(UserGroupAccountantTxt);
-        // [THEN] Related User Group Permission Set records are removed
-        LibraryPermissionsVerify.UserGroupPermissionSetsDoNotExist(UserGroupAccountantTxt);
-        // [THEN] Related User Group Plan records are removed
-        LibraryPermissionsVerify.UserGroupPlansDoNotExist(UserGroupAccountantTxt);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure UsersInUserGroupQuery()
-    var
-        Cassie: Guid;
-        Debra: Guid;
-    begin
-        // [SCENARIO] Query UserByUserGroup is returning correct values when user groups and users exist
-        // [GIVEN] Cassie and Debra, two users
-        Cassie := LibraryPermissions.CreateUserWithName(UserCassieTxt);
-        Debra := LibraryPermissions.CreateUserWithName(UserDebraTxt);
-        // [GIVEN] User Group Accountant, containing both Cassie and Debra
-        LibraryPermissions.CreateUserGroupWithCode(UserGroupAccountantTxt);
-        LibraryPermissions.AddUserToUserGroupByCode(Cassie, UserGroupAccountantTxt);
-        LibraryPermissions.AddUserToUserGroupByCode(Debra, UserGroupAccountantTxt);
-        // [GIVEN] User Group Auditor, containing Cassie
-        LibraryPermissions.CreateUserGroupWithCode(UserGroupAuditorTxt);
-        LibraryPermissions.AddUserToUserGroupByCode(Cassie, UserGroupAuditorTxt);
-        // [GIVEN] User Group Finance, containing nobody
-        LibraryPermissions.CreateUserGroupWithCode(UserGroupFinanceTxt);
-
-        // [WHEN] The query is run
-
-        // [THEN] User Group Accountant has two users
-        RunAndValidateUsersInUserGroupQuery(UserGroupAccountantTxt, 2);
-        // [THEN] User Group Auditor has one user
-        RunAndValidateUsersInUserGroupQuery(UserGroupAuditorTxt, 1);
-        // [THEN] User Group Finance has zero users
-        RunAndValidateUsersInUserGroupQuery(UserGroupFinanceTxt, 0);
-        TearDown();
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure UserIsAssignedNewUserGroup()
-    var
-        DummyPlanID: Guid;
-        PlanID: Guid;
-        UserID: Guid;
-    begin
-        // [SCENARIO] User is assigned a new role (user group), sunshine scenario
-
-        // [GIVEN] Unused plan (to test multiple selection when searching for users in plans)
-        DummyPlanID := AzureADPlanTestLibrary.CreatePlan(PlanSmallBusinessTxt);
-        // [GIVEN] Plan A
-        PlanID := AzureADPlanTestLibrary.CreatePlan(PlanOffice365Txt);
-        // [GIVEN] User Groups Accountant, part of both plans
-        LibraryPermissions.CreateUserGroupInPlan(UserGroupAccountantTxt, DummyPlanID);
-        LibraryPermissions.AddUserGroupToPlan(UserGroupAccountantTxt, PlanID);
-        // [GIVEN] User Cassie, which is not assigned any user group
-        UserID := LibraryPermissions.CreateUserInPlan(UserCassieTxt, PlanID);
-        LibraryPermissions.RemoveUserFromAllUserGroups(UserID);
-
-        // [WHEN] User group Accountant is assigned to Cassie
-        LibraryPermissions.AddUserToUserGroupByCode(UserID, UserGroupAccountantTxt);
-
-        // [THEN] No error is thrown. The operation succeeds because the user is in Plan A, and has sufficient permissions
-        LibraryPermissionsVerify.UserIsInUserGroup(UserID, UserGroupAccountantTxt);
-        TearDown();
-    end;
-#endif
-
     [Test]
     [Scope('OnPrem')]
     procedure VisibilityOfControlsOnUserCardSaaS()
@@ -352,34 +202,6 @@ codeunit 139400 "Permissions Test"
           'Navigation to azure plan assignment should not be visible');
         Assert.IsFalse(UserSecurityStatusList."Belongs To Subscription Plan".Visible(), 'Plan related information should not be visible');
     end;
-
-#if not CLEAN22
-    [Test]
-    [Scope('OnPrem')]
-    procedure D365BusFullAccessShouldNotHaveDirectPermissionsOnUserGroupMember()
-    var
-        UserGroupMember: Record "User Group Member";
-        EnvironmentInfoTestLibrary: Codeunit "Environment Info Test Library";
-        Cassie: Guid;
-    begin
-        // [SCENARIO] D365 Bus Full Access should not have direct on User Group Member
-        // [GIVEN] SaaS
-        EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
-        // [GIVEN] D365 Full Bus Permission Set
-        // [GIVEN] Some permission sets, some users
-        Cassie := LibraryPermissions.CreateUserWithName(UserCassieTxt);
-        LibraryPermissions.CreateUserGroupWithCode(UserGroupFinanceTxt);
-        // [WHEN] Attempting insert/delete on User Group Member
-        LibraryLowerPermissions.SetO365BusFull();
-        UserGroupMember.Init();
-        UserGroupMember."User Security ID" := Cassie;
-        UserGroupMember."User Group Code" := UserGroupFinanceTxt;
-        asserterror UserGroupMember.Insert();
-
-        LibraryLowerPermissions.SetOutsideO365Scope();
-        TearDown();
-    end;
-#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -752,35 +574,9 @@ codeunit 139400 "Permissions Test"
         AzureADPlanTestLibrary.DeletePlan(PlanOffice365Txt);
         DeleteUser(UserCassieTxt);
         DeleteUser(UserDebraTxt);
-#if not CLEAN22
-        DeleteTestUserGroupAndPermissionSet(UserGroupAccountantTxt);
-        DeleteTestUserGroupAndPermissionSet(UserGroupAccountantPostingTxt);
-        DeleteTestUserGroupAndPermissionSet(UserGroupAuditorTxt);
-        DeleteTestUserGroupAndPermissionSet(UserGroupFinanceTxt);
-#endif
         UserSecurityStatus.LoadUsers();
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
     end;
-
-#if not CLEAN22
-    local procedure DeleteTestUserGroupAndPermissionSet(UserGroupCode: Code[20])
-    var
-        UserGroup: Record "User Group";
-        UserGroupMember: Record "User Group Member";
-        UserGroupPlan: Record "User Group Plan";
-    begin
-        UserGroupMember.SetRange("User Group Code", UserGroupCode);
-        if UserGroupMember.FindFirst() then
-            UserGroupMember.DeleteAll();
-
-        UserGroupPlan.SetRange("User Group Code", UserGroupCode);
-        UserGroupPlan.DeleteAll(true);
-
-        UserGroup.SetRange(Code, UserGroupCode);
-        if UserGroup.FindFirst() then
-            UserGroup.DeleteAll(true); // it will delete the associated UserGroupPermissionSet records too
-    end;
-#endif
 
     local procedure DeleteUser(UserName: Code[50])
     var
@@ -794,27 +590,6 @@ codeunit 139400 "Permissions Test"
             User.Delete();
         end;
     end;
-
-#if not CLEAN22
-    local procedure RunAndValidateUsersInUserGroupQuery(UserGroupCode: Text; ExpectedNumberOfUsers: Integer)
-    var
-        UsersInUserGroups: Query "Users in User Groups";
-    begin
-        UsersInUserGroups.SetRange(UserGroupCode, UserGroupCode);
-        Assert.IsTrue(UsersInUserGroups.Open(), StrSubstNo('Cannot open query %1', QueryNameTok));
-        if ExpectedNumberOfUsers = 0 then
-            Assert.IsFalse(
-              UsersInUserGroups.Read(),
-              StrSubstNo('The query %1 should return zero users for user group %2', QueryNameTok, UserGroupCode))
-        else begin
-            Assert.IsTrue(
-              UsersInUserGroups.Read(), StrSubstNo('The query %1 for user group %2 is empty', QueryNameTok, UserGroupCode));
-            Assert.AreEqual(
-              ExpectedNumberOfUsers, UsersInUserGroups.NumberOfUsers, StrSubstNo('Unexpected number of users in user group %1', UserGroupCode));
-        end;
-        UsersInUserGroups.Close();
-    end;
-#endif
 
     [MessageHandler]
     [Scope('OnPrem')]

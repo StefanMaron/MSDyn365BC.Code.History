@@ -185,7 +185,7 @@ page 6774 "Invt. Document Lines"
                     Caption = 'Item &Tracking Lines';
                     ShortCutKey = 'Ctrl+Alt+I';
                     Image = ItemTrackingLines;
-                    ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
+                    ToolTip = 'View or edit serial, lot and package numbers that are assigned to the item on the document or journal line.';
 
                     trigger OnAction()
                     begin

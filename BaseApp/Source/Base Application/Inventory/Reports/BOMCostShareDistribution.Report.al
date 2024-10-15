@@ -202,7 +202,11 @@ report 5872 "BOM Cost Share Distribution"
         SubcontrdCost: Decimal;
         CapOvhdCost: Decimal;
         MfgOvhdCost: Decimal;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label '%1 cost shares only';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         CurrReport_PAGENOCaptionLbl: Label 'Page';
         ShowCostShareAsTxt: Label 'Single-level,Rolled-up';
 

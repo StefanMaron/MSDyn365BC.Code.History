@@ -53,7 +53,7 @@ codeunit 5987 "Serv-Posting Journals Mgt."
         ItemJnlPostLine: Codeunit "Item Jnl.-Post Line";
         ResJnlPostLine: Codeunit "Res. Jnl.-Post Line";
         ServLedgEntryPostSale: Codeunit "ServLedgEntries-Post";
-        TimeSheetMgt: Codeunit "Time Sheet Management";
+        ServTimeSheetMgt: Codeunit "Serv. Time Sheet Mgt.";
         WhseJnlRegisterLine: Codeunit "Whse. Jnl.-Register Line";
         GenJnlLineDocNo: Code[20];
         GenJnlLineExtDocNo: Code[35];
@@ -111,7 +111,7 @@ codeunit 5987 "Serv-Posting Journals Mgt."
         WarehouseShipmentLine.SetRange("Source Subtype", 1);
         WarehouseShipmentLine.SetRange("Source No.", ServiceLine."Document No.");
         WarehouseShipmentLine.SetRange("Source Line No.", ServiceLine."Line No.");
-        exit(not WarehouseShipmentLine.IsEmpty);
+        exit(not WarehouseShipmentLine.IsEmpty());
     end;
 
     local procedure GetLocation(LocationCode: Code[10]; var Location: Record Location)
@@ -141,9 +141,8 @@ codeunit 5987 "Serv-Posting Journals Mgt."
         end;
 
         ItemJnlLine.Init();
-        ItemJnlLine.CopyFromServHeader(ServiceHeader);
-        ItemJnlLine.CopyFromServLine(ServiceLine);
-
+        ServiceHeader.CopyToItemJnlLine(ItemJnlLine);
+        ServiceLine.CopyToItemJnlLine(ItemJnlLine);
         ItemJnlLine.CopyTrackingFromSpec(TrackingSpecification);
 
         if GenJnlLineExtDocNo = '' then
@@ -512,7 +511,7 @@ codeunit 5987 "Serv-Posting Journals Mgt."
             exit;
 
         if ServiceLine."Time Sheet No." <> '' then
-            TimeSheetMgt.CheckServiceLine(ServiceLine);
+            ServTimeSheetMgt.CheckServiceLine(ServiceLine);
 
         PostResJnlLine(
           ServiceHeader, ServiceLine,
@@ -520,7 +519,7 @@ codeunit 5987 "Serv-Posting Journals Mgt."
           ResJnlLine."Entry Type"::Usage, -ServiceLine."Qty. to Ship",
           ServiceLine.Amount / ServiceLine."Qty. to Ship", -ServiceLine.Amount);
 
-        TimeSheetMgt.CreateTSLineFromServiceLine(ServiceLine, GenJnlLineDocNo, true);
+        ServTimeSheetMgt.CreateTSLineFromServiceLine(ServiceLine, GenJnlLineDocNo, true);
     end;
 
     procedure PostResJnlLineUndoUsage(var ServiceLine: Record "Service Line"; DocNo: Code[20]; ExtDocNo: Code[35])
@@ -555,14 +554,14 @@ codeunit 5987 "Serv-Posting Journals Mgt."
             exit;
 
         if ServiceLine."Time Sheet No." <> '' then
-            TimeSheetMgt.CheckServiceLine(ServiceLine);
+            ServTimeSheetMgt.CheckServiceLine(ServiceLine);
 
         PostResJnlLine(
           ServiceHeader, ServiceLine,
           ServShptHeader."No.", '', SrcCode, ServShptHeader."No. Series",
           ResJnlLine."Entry Type"::Usage, -ServiceLine."Qty. to Consume", 0, 0);
 
-        TimeSheetMgt.CreateTSLineFromServiceLine(ServiceLine, GenJnlLineDocNo, false);
+        ServTimeSheetMgt.CreateTSLineFromServiceLine(ServiceLine, GenJnlLineDocNo, false);
     end;
 
     local procedure PostResJnlLine(ServiceHeader: Record "Service Header"; ServiceLine: Record "Service Line"; DocNo: Code[20]; ExtDocNo: Code[35]; SrcCode: Code[10]; PostingNoSeries: Code[20]; EntryType: Enum "Res. Journal Line Entry Type"; Qty: Decimal; UnitPrice: Decimal; TotalPrice: Decimal)
@@ -572,8 +571,8 @@ codeunit 5987 "Serv-Posting Journals Mgt."
         ResJnlLine.Init();
         OnPostResJnlLineOnAfterResJnlLineInit(ResJnlLine, EntryType, Qty);
         ResJnlLine.CopyDocumentFields(DocNo, ExtDocNo, SrcCode, PostingNoSeries);
-        ResJnlLine.CopyFromServHeader(ServiceHeader);
-        ResJnlLine.CopyFromServLine(ServiceLine);
+        ServiceHeader.CopyToResJournalLine(ResJnlLine);
+        ServiceLine.CopyToResJournalLine(ResJnlLine);
 
         ResJnlLine."Entry Type" := EntryType;
         ResJnlLine.Quantity := Qty;
@@ -849,14 +848,13 @@ codeunit 5987 "Serv-Posting Journals Mgt."
                             RemSalesTaxSrcAmt := 0;
                         end;
                     end;
-                    if ServiceHeader."Currency Code" <> '' then begin
+                    if ServiceHeader."Currency Code" <> '' then
                         if (ServiceHeader."Document Type" in [ServiceHeader."Document Type"::Quote]) and
                            (ServiceHeader."Posting Date" = 0D)
                         then
                             UseDate := WorkDate()
                         else
                             UseDate := ServiceHeader."Posting Date";
-                    end;
                     if TaxJurisdiction."Unrealized VAT Type" > 0 then begin
                         TaxJurisdiction.TestField("Unreal. Tax Acc. (Sales)");
                         GenJnlLine."Account No." := TaxJurisdiction."Unreal. Tax Acc. (Sales)";

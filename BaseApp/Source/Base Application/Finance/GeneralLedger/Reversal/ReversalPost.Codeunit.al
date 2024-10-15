@@ -81,6 +81,7 @@ codeunit 179 "Reversal-Post"
         PrintRegister: Boolean;
         HideDialog: Boolean;
 
+#pragma warning disable AA0074
         Text002: Label 'Do you want to reverse the entries?';
         Text003: Label 'The entries were successfully reversed.';
         Text004: Label 'To reverse these entries, correcting entries will be posted.';
@@ -88,6 +89,7 @@ codeunit 179 "Reversal-Post"
         Text006: Label 'There is nothing to reverse.';
         Text007: Label '\There are one or more FA Ledger Entries. You should consider using the fixed asset function Cancel Entries.';
         Text008: Label 'Changes have been made to posted entries after the window was opened.\Close and reopen the window to continue.';
+#pragma warning restore AA0074
 
     procedure SetPrint(NewPrintRegister: Boolean)
     begin

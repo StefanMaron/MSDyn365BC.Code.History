@@ -276,6 +276,8 @@ report 99000788 "Prod. Order - Shortage List"
 
     requestpage
     {
+        AboutTitle = 'About Prod. Order - Shortage List';
+        AboutText = 'Details out your component requirements and whether there will be any stock shortages at the time of consumption. Use it to review potential stock shortages & plan accordingly to prevent any delays in production.';
 
         layout
         {

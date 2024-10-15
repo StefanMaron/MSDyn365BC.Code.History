@@ -418,15 +418,12 @@ codeunit 137611 "SCM Costing Rollup Sev 1"
           OldInventorySetup, false,
           OldInventorySetup."Automatic Cost Posting",
           OldInventorySetup."Expected Cost Posting to G/L", OldInventorySetup."Automatic Cost Adjustment");
-
         // restore dimension setup
-        with DefaultDimension do begin
-            Init();
-            Validate("Table ID", DATABASE::"G/L Account");
-            Validate("No.", AccountNo);
-            Validate("Dimension Code", Dimension.Code);
-            Delete();
-        end;
+        DefaultDimension.Init();
+        DefaultDimension.Validate("Table ID", DATABASE::"G/L Account");
+        DefaultDimension.Validate("No.", AccountNo);
+        DefaultDimension.Validate("Dimension Code", Dimension.Code);
+        DefaultDimension.Delete();
     end;
 
     [Test]
@@ -457,22 +454,17 @@ codeunit 137611 "SCM Costing Rollup Sev 1"
 
         // insert entry for 0 cost value entry
         ValueEntry.FindLast();
-        with PostValueEntryToGL do begin
-            "Value Entry No." := ValueEntry."Entry No." - 1;
-            "Item No." := ValueEntry."Item No.";
-            "Posting Date" := ValueEntry."Posting Date";
-            Insert();
-        end;
-
+        PostValueEntryToGL."Value Entry No." := ValueEntry."Entry No." - 1;
+        PostValueEntryToGL."Item No." := ValueEntry."Item No.";
+        PostValueEntryToGL."Posting Date" := ValueEntry."Posting Date";
+        PostValueEntryToGL.Insert();
         // post cost to G/L
-        with PostInventoryCostToGL do begin
-            Clear(PostInventoryCostToGL);
-            PostValueEntryToGL.SetRange("Item No.", Item."No.");
-            SetTableView(PostValueEntryToGL);
-            UseRequestPage := false;
-            InitializeRequest(1, '', true);
-            SaveAsPdf(FileMgt.ServerTempFileName(''));
-        end;
+        Clear(PostInventoryCostToGL);
+        PostValueEntryToGL.SetRange("Item No.", Item."No.");
+        PostInventoryCostToGL.SetTableView(PostValueEntryToGL);
+        PostInventoryCostToGL.UseRequestPage := false;
+        PostInventoryCostToGL.InitializeRequest(1, '', true);
+        PostInventoryCostToGL.SaveAsPdf(FileMgt.ServerTempFileName(''));
 
         // validation
         ValueEntry.SetRange("Item No.", Item."No.");
@@ -620,24 +612,22 @@ codeunit 137611 "SCM Costing Rollup Sev 1"
     var
         SavedInventorySetup: Record "Inventory Setup";
     begin
-        with InventorySetup do begin
-            if NewSetup then begin
-                "Average Cost Calc. Type" := "Average Cost Calc. Type"::"Item & Location & Variant";
-                "Average Cost Period" := "Average Cost Period"::Day;
-                "Automatic Cost Posting" := AutomaticCostPosting;
-                "Expected Cost Posting to G/L" := ExpectedCostPosting;
-                "Automatic Cost Adjustment" := AutomaticCostAdjustment;
-            end else begin
-                SavedInventorySetup.Get();
-                SavedInventorySetup."Average Cost Calc. Type" := "Average Cost Calc. Type";
-                SavedInventorySetup."Average Cost Period" := "Average Cost Period";
-                SavedInventorySetup."Automatic Cost Posting" := AutomaticCostPosting;
-                SavedInventorySetup."Expected Cost Posting to G/L" := ExpectedCostPosting;
-                SavedInventorySetup."Automatic Cost Adjustment" := AutomaticCostAdjustment;
-                InventorySetup := SavedInventorySetup;
-            end;
-            Modify();
+        if NewSetup then begin
+            InventorySetup."Average Cost Calc. Type" := InventorySetup."Average Cost Calc. Type"::"Item & Location & Variant";
+            InventorySetup."Average Cost Period" := InventorySetup."Average Cost Period"::Day;
+            InventorySetup."Automatic Cost Posting" := AutomaticCostPosting;
+            InventorySetup."Expected Cost Posting to G/L" := ExpectedCostPosting;
+            InventorySetup."Automatic Cost Adjustment" := AutomaticCostAdjustment;
+        end else begin
+            SavedInventorySetup.Get();
+            SavedInventorySetup."Average Cost Calc. Type" := InventorySetup."Average Cost Calc. Type";
+            SavedInventorySetup."Average Cost Period" := InventorySetup."Average Cost Period";
+            SavedInventorySetup."Automatic Cost Posting" := AutomaticCostPosting;
+            SavedInventorySetup."Expected Cost Posting to G/L" := ExpectedCostPosting;
+            SavedInventorySetup."Automatic Cost Adjustment" := AutomaticCostAdjustment;
+            InventorySetup := SavedInventorySetup;
         end;
+        InventorySetup.Modify();
         CODEUNIT.Run(CODEUNIT::"Change Average Cost Setting", InventorySetup);
     end;
 
@@ -722,10 +712,8 @@ codeunit 137611 "SCM Costing Rollup Sev 1"
 
     local procedure SetSalesSetup(var SalesReceivablesSetup: Record "Sales & Receivables Setup"; NewSetup: Boolean)
     begin
-        with SalesReceivablesSetup do begin
-            "Exact Cost Reversing Mandatory" := NewSetup;
-            Modify();
-        end;
+        SalesReceivablesSetup."Exact Cost Reversing Mandatory" := NewSetup;
+        SalesReceivablesSetup.Modify();
     end;
 
     local procedure SetVATPostingGroupInItem(var Item: Record Item; var Customer: Record Customer)
@@ -782,11 +770,9 @@ codeunit 137611 "SCM Costing Rollup Sev 1"
 
     local procedure SetPurchaseSetup(var PurchasePayablesSetup: Record "Purchases & Payables Setup"; NewSetup: Boolean)
     begin
-        with PurchasePayablesSetup do begin
-            Get();
-            "Exact Cost Reversing Mandatory" := NewSetup;
-            Modify();
-        end;
+        PurchasePayablesSetup.Get();
+        PurchasePayablesSetup."Exact Cost Reversing Mandatory" := NewSetup;
+        PurchasePayablesSetup.Modify();
     end;
 
     local procedure CreateAndReceivePurchOrderWith2Items(var PurchaseHeader: Record "Purchase Header"; var ItemOne: Record Item; var ItemTwo: Record Item; var Location: Record Location; QtyOne: Decimal; CostOne: Decimal; QtyTwo: Decimal; CostTwo: Decimal)

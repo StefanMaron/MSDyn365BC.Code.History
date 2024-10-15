@@ -11,9 +11,6 @@ using Microsoft.Finance.ReceivablesPayables;
 using Microsoft.Finance.VAT.Reporting;
 using Microsoft.Finance.VAT.Setup;
 using Microsoft.Foundation.Period;
-#if not CLEAN22
-using Microsoft.Inventory.Intrastat;
-#endif
 using System.Telemetry;
 using System.Security.User;
 using System.Utilities;
@@ -803,19 +800,6 @@ page 118 "General Ledger Setup"
                     RunObject = Page "VAT Statement Templates";
                     ToolTip = 'Set up the reports that you use to settle VAT and report to the customs and tax authorities.';
                 }
-#if not CLEAN22
-                action("Intrastat Templates")
-                {
-                    ApplicationArea = BasicEU;
-                    Caption = 'Intrastat Templates';
-                    Image = Template;
-                    RunObject = Page "Intrastat Journal Templates";
-                    ToolTip = 'Define how you want to set up and keep track of journals to report Intrastat.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '22.0';
-                    ObsoleteReason = 'Intrastat related functionalities are moved to Intrastat extensions.';
-                }
-#endif
             }
         }
         area(Promoted)
@@ -900,14 +884,6 @@ page 118 "General Ledger Setup"
                 actionref("General Journal Templates_Promoted"; "General Journal Templates")
                 {
                 }
-#if not CLEAN22
-                actionref("Intrastat Templates_Promoted"; "Intrastat Templates")
-                {
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '22.0';
-                    ObsoleteReason = 'Intrastat related functionalities are moved to Intrastat extensions.';
-                }
-#endif
             }
             group(Category_Report)
             {
@@ -950,9 +926,11 @@ page 118 "General Ledger Setup"
         MXInvoiceTok: Label 'MX Electronic Invoice', Locked = true;
         IsJournalTemplatesVisible: Boolean;
 
+#pragma warning disable AA0074
         Text001: Label 'Do you want to change all open entries for every customer and vendor that are not blocked?';
         Text002: Label 'If you delete the additional reporting currency, future general ledger entries are posted in LCY only. Deleting the additional reporting currency does not affect already posted general ledger entries.\\Are you sure that you want to delete the additional reporting currency?';
         Text003: Label 'If you change the additional reporting currency, future general ledger entries are posted in the new reporting currency and in LCY. To enable the additional reporting currency, a batch job opens, and running the batch job recalculates already posted general ledger entries in the new additional reporting currency.\Entries will be deleted in the Analysis View if it is unblocked, and an update will be necessary.\\Are you sure that you want to change the additional reporting currency?';
+#pragma warning restore AA0074
 
     local procedure IsShortcutDimensionModified(): Boolean
     begin

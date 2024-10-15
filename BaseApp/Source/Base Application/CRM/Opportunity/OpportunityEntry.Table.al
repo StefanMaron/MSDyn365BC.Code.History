@@ -272,19 +272,31 @@ table 5093 "Opportunity Entry"
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'You can not create a Customer from contact %1 before you assign a Contact Company No. to the contact.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         OppEntry: Record "Opportunity Entry";
         SalesCycleStage: Record "Sales Cycle Stage";
         PreviousDateOfChange: Date;
         EntryExists: Boolean;
+#pragma warning disable AA0074
         Text005: Label 'You cannot go to this stage before you have assigned a sales quote.';
+#pragma warning disable AA0470
         Text006: Label 'There are no stages in sales cycle %1.';
+#pragma warning restore AA0470
         Text007: Label 'The Date of Change has to be after last Date of change.';
+#pragma warning disable AA0470
         Text008: Label '%1 must be greater than 0.';
+#pragma warning restore AA0470
         Text009: Label 'The Estimated closing date has to be later than this change.';
         Text011: Label 'You must select either Won or Lost.';
         Text012: Label 'Sales (LCY) must be greater than 0.';
+#pragma warning disable AA0470
         Text013: Label 'You must fill in the %1 field.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     protected var
         TempSalesCycleStageFirst: Record "Sales Cycle Stage" temporary;

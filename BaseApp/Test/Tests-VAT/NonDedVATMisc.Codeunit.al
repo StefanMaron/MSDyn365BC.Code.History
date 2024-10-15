@@ -1288,13 +1288,11 @@ codeunit 134284 "Non Ded. VAT Misc."
     var
         GLEntry: Record "G/L Entry";
     begin
-        with GLEntry do begin
-            SetCurrentKey("Transaction No.", "G/L Account No.", "Document No.", "Source Type", "Source No.");
-            SetRange("Document No.", DocumentNo);
-            SetRange("G/L Account No.", GLAccNo);
-            CalcSums(Amount);
-            Assert.AreEqual(ExpectedGLAccBalance, Amount, IncorrectGLEntryAmtErr);
-        end;
+        GLEntry.SetCurrentKey("Transaction No.", "G/L Account No.", "Document No.", "Source Type", "Source No.");
+        GLEntry.SetRange("Document No.", DocumentNo);
+        GLEntry.SetRange("G/L Account No.", GLAccNo);
+        GLEntry.CalcSums(Amount);
+        Assert.AreEqual(ExpectedGLAccBalance, GLEntry.Amount, IncorrectGLEntryAmtErr);
     end;
 
     local procedure VerifyVATEntry(DocumentNo: Code[20]; NonDeductibleBase: Decimal; NonDeductibleAmount: Decimal)

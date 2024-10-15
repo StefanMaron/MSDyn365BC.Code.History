@@ -539,7 +539,7 @@ report 10074 "Sales Invoice NA"
                     }
                     dataitem(LineFee; "Integer")
                     {
-                        DataItemTableView = sorting(Number) ORDER(Ascending) where(Number = filter(1 ..));
+                        DataItemTableView = sorting(Number) order(ascending) where(Number = filter(1 ..));
                         column(LineFeeCaptionLbl; TempLineFeeNoteOnReportHist.ReportText)
                         {
                         }
@@ -634,7 +634,7 @@ report 10074 "Sales Invoice NA"
                 GetLineFeeNoteOnReportHist("No.");
 
                 if LogInteraction then
-                    if not CurrReport.Preview then begin
+                    if not CurrReport.Preview then
                         if "Bill-to Contact No." <> '' then
                             SegManagement.LogDocument(
                               4, "No.", 0, 0, DATABASE::Contact, "Bill-to Contact No.", "Salesperson Code",
@@ -643,7 +643,6 @@ report 10074 "Sales Invoice NA"
                             SegManagement.LogDocument(
                               4, "No.", 0, 0, DATABASE::Customer, "Bill-to Customer No.", "Salesperson Code",
                               "Campaign No.", "Posting Description", '');
-                    end;
 
                 Clear(BreakdownTitle);
                 Clear(BreakdownLabel);
@@ -683,12 +682,11 @@ report 10074 "Sales Invoice NA"
                                (TempSalesTaxAmtLine."Tax %" <> PrevTaxPercent)
                             then begin
                                 BrkIdx := BrkIdx + 1;
-                                if BrkIdx > 1 then begin
+                                if BrkIdx > 1 then
                                     if TaxArea."Country/Region" = TaxArea."Country/Region"::CA then
                                         BreakdownTitle := Text006
                                     else
                                         BreakdownTitle := Text003;
-                                end;
                                 if BrkIdx > ArrayLen(BreakdownAmt) then begin
                                     BrkIdx := BrkIdx - 1;
                                     BreakdownLabel[BrkIdx] := Text004;
@@ -1008,13 +1006,13 @@ report 10074 "Sales Invoice NA"
 
         LineFeeNoteOnReportHist.SetRange("Cust. Ledger Entry No", CustLedgerEntry."Entry No.");
         LineFeeNoteOnReportHist.SetRange("Language Code", Customer."Language Code");
-        if LineFeeNoteOnReportHist.FindSet() then begin
+        if LineFeeNoteOnReportHist.FindSet() then
             repeat
                 TempLineFeeNoteOnReportHist.Init();
                 TempLineFeeNoteOnReportHist.Copy(LineFeeNoteOnReportHist);
                 TempLineFeeNoteOnReportHist.Insert();
-            until LineFeeNoteOnReportHist.Next() = 0;
-        end else begin
+            until LineFeeNoteOnReportHist.Next() = 0
+        else begin
             LineFeeNoteOnReportHist.SetRange("Language Code", LanguageMgt.GetUserLanguageCode());
             if LineFeeNoteOnReportHist.FindSet() then
                 repeat

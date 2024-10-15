@@ -1,22 +1,27 @@
-﻿namespace Microsoft.Service.Document;
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Service.Document;
 
 using Microsoft.CRM.Contact;
+using Microsoft.EServices.EDocument;
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.Dimension;
-using Microsoft.Service.Setup;
 using Microsoft.Finance.VAT.Calculation;
 using Microsoft.Foundation.Address;
 using Microsoft.Foundation.Attachment;
 using Microsoft.Foundation.Reporting;
-using Microsoft.EServices.EDocument;
 using Microsoft.Inventory.Availability;
 using Microsoft.Projects.Project.Ledger;
 using Microsoft.Sales.Customer;
+using Microsoft.Service.Archive;
 using Microsoft.Service.Comment;
 using Microsoft.Service.Email;
 using Microsoft.Service.History;
 using Microsoft.Service.Ledger;
 using Microsoft.Service.Posting;
+using Microsoft.Service.Setup;
 using Microsoft.Utilities;
 using Microsoft.Warehouse.Activity;
 using Microsoft.Warehouse.Document;
@@ -140,6 +145,8 @@ page 5900 "Service Order"
                         ToolTip = 'Specifies the country/region of the address.';
 
                         trigger OnValidate()
+                        var
+                            FormatAddress: Codeunit "Format Address";
                         begin
                             IsSellToCountyVisible := FormatAddress.UseCounty(Rec."Country/Region Code");
                         end;
@@ -191,6 +198,25 @@ page 5900 "Service Order"
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the contract associated with the order.';
+                }
+                field("No. of Archived Versions"; Rec."No. of Archived Versions")
+                {
+                    ApplicationArea = Service;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the number of archived versions for this document.';
+
+                    trigger OnDrillDown()
+                    var
+                        ServiceHeaderArchive: Record "Service Header Archive";
+                    begin
+                        CurrPage.SaveRecord();
+                        Commit();
+                        ServiceHeaderArchive.SetRange("Document Type", Rec."Document Type"::Order);
+                        ServiceHeaderArchive.SetRange("No.", Rec."No.");
+                        ServiceHeaderArchive.SetRange("Doc. No. Occurrence", Rec."Doc. No. Occurrence");
+                        Page.RunModal(Page::"Service List Archive", ServiceHeaderArchive);
+                        CurrPage.Update(false);
+                    end;
                 }
                 field("Response Date"; Rec."Response Date")
                 {
@@ -339,6 +365,8 @@ page 5900 "Service Order"
                         ToolTip = 'Specifies the customer''s country/region.';
 
                         trigger OnValidate()
+                        var
+                            FormatAddress: Codeunit "Format Address";
                         begin
                             IsBillToCountyVisible := FormatAddress.UseCounty(Rec."Bill-to Country/Region Code");
                         end;
@@ -592,6 +620,8 @@ page 5900 "Service Order"
                         ToolTip = 'Specifies the customer''s country/region.';
 
                         trigger OnValidate()
+                        var
+                            FormatAddress: Codeunit "Format Address";
                         begin
                             IsShipToCountyVisible := FormatAddress.UseCounty(Rec."Ship-to Country/Region Code");
                         end;
@@ -813,10 +843,24 @@ page 5900 "Service Order"
                 SubPageLink = "No." = field("No."),
                               "Document Type" = field("Document Type");
             }
+#if not CLEAN25
             part("Attached Documents"; "Document Attachment Factbox")
             {
+                ObsoleteTag = '25.0';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
                 ApplicationArea = Service;
                 Caption = 'Attachments';
+                SubPageLink = "Table ID" = const(Database::"Service Header"),
+                              "No." = field("No."),
+                              "Document Type" = field("Document Type");
+            }
+#endif
+            part("Attached Documents List"; "Doc. Attachment List Factbox")
+            {
+                ApplicationArea = Service;
+                Caption = 'Documents';
+                UpdatePropagation = Both;
                 SubPageLink = "Table ID" = const(Database::"Service Header"),
                               "No." = field("No."),
                               "Document Type" = field("Document Type");
@@ -897,7 +941,7 @@ page 5900 "Service Order"
                         DemandOverview: Page "Demand Overview";
                     begin
                         DemandOverview.SetCalculationParameter(true);
-                        DemandOverview.Initialize(0D, 4, Rec."No.", '', '');
+                        DemandOverview.SetParameters(0D, Microsoft.Inventory.Requisition."Demand Order Source Type"::"Service Demand", Rec."No.", '', '');
                         DemandOverview.RunModal();
                     end;
                 }
@@ -1148,10 +1192,26 @@ page 5900 "Service Order"
                     ToolTip = 'Create a new customer card for the customer on the service document.';
 
                     trigger OnAction()
+                    var
+                        ServOrderMgt: Codeunit ServOrderManagement;
                     begin
-                        Clear(ServOrderMgt);
                         ServOrderMgt.CreateNewCustomer(Rec);
                         CurrPage.Update(true);
+                    end;
+                }
+                action("Archive Document")
+                {
+                    ApplicationArea = Service;
+                    Caption = 'Archi&ve Document';
+                    Image = Archive;
+                    ToolTip = 'Send the document to the archive, for example because it is too soon to delete it. Later, you delete or reprocess the archived document.';
+
+                    trigger OnAction()
+                    var
+                        ServiceDocumentArchiveMgmt: Codeunit "Service Document Archive Mgmt.";
+                    begin
+                        ServiceDocumentArchiveMgmt.ArchiveServiceDocument(Rec);
+                        CurrPage.Update(false);
                     end;
                 }
             }
@@ -1196,10 +1256,10 @@ page 5900 "Service Order"
 
                     trigger OnAction()
                     var
-                        GetSourceDocOutbound: Codeunit "Get Source Doc. Outbound";
+                        ServGetSourceDocOutbound: Codeunit "Serv. Get Source Doc. Outbound";
                     begin
                         Rec.PerformManualRelease();
-                        GetSourceDocOutbound.CreateFromServiceOrder(Rec);
+                        ServGetSourceDocOutbound.CreateFromServiceOrder(Rec);
                         if not Rec.Find('=><') then
                             Rec.Init();
                     end;
@@ -1219,9 +1279,9 @@ page 5900 "Service Order"
 
                     trigger OnAction()
                     var
-                        ReportPrint: Codeunit "Test Report-Print";
+                        ServTestReportPrint: Codeunit "Serv. Test Report Print";
                     begin
-                        ReportPrint.PrintServiceHeader(Rec);
+                        ServTestReportPrint.PrintServiceHeader(Rec);
                     end;
                 }
                 action(Post)
@@ -1302,10 +1362,10 @@ page 5900 "Service Order"
 
                 trigger OnAction()
                 var
-                    DocumentPrint: Codeunit "Document-Print";
+                    ServDocumentPrint: Codeunit "Serv. Document Print";
                 begin
                     CurrPage.Update(true);
-                    DocumentPrint.PrintServiceHeader(Rec);
+                    ServDocumentPrint.PrintServiceHeader(Rec);
                 end;
             }
             action(AttachAsPDF)
@@ -1319,11 +1379,11 @@ page 5900 "Service Order"
                 trigger OnAction()
                 var
                     ServiceHeader: Record "Service Header";
-                    DocumentPrint: Codeunit "Document-Print";
+                    ServDocumentPrint: Codeunit "Serv. Document Print";
                 begin
                     ServiceHeader := Rec;
                     ServiceHeader.SetRecFilter();
-                    DocumentPrint.PrintServiceHeaderToDocumentAttachment(ServiceHeader);
+                    ServDocumentPrint.PrintServiceHeaderToDocumentAttachment(ServiceHeader);
                 end;
             }
         }
@@ -1350,6 +1410,9 @@ page 5900 "Service Order"
                     actionref(PostBatch_Promoted; PostBatch)
                     {
                     }
+                }
+                actionref("Archive Document_Promoted"; "Archive Document")
+                {
                 }
                 group(Category_Category6)
                 {
@@ -1438,6 +1501,8 @@ page 5900 "Service Order"
     end;
 
     trigger OnDeleteRecord(): Boolean
+    var
+        ServLogMgt: Codeunit ServLogManagement;
     begin
         CurrPage.SaveRecord();
         Clear(ServLogMgt);
@@ -1446,6 +1511,8 @@ page 5900 "Service Order"
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
+    var
+        UserMgt: Codeunit "User Setup Management";
     begin
         Rec."Document Type" := Rec."Document Type"::Order;
         Rec."Responsibility Center" := UserMgt.GetServiceFilter();
@@ -1495,11 +1562,6 @@ page 5900 "Service Order"
         BillToContact: Record Contact;
         SellToContact: Record Contact;
         ServiceMgtSetup: Record "Service Mgt. Setup";
-        ServOrderMgt: Codeunit ServOrderManagement;
-        ServLogMgt: Codeunit ServLogManagement;
-        UserMgt: Codeunit "User Setup Management";
-        DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
-        FormatAddress: Codeunit "Format Address";
         ChangeExchangeRate: Page "Change Exchange Rate";
         DocumentIsPosted: Boolean;
         OpenPostedServiceOrderQst: Label 'The order is posted as number %1 and moved to the Posted Service Invoices window.\\Do you want to open the posted invoice?', Comment = '%1 = posted document number';
@@ -1514,6 +1576,9 @@ page 5900 "Service Order"
         DocNoVisible: Boolean;
 
     local procedure ActivateFields()
+    var
+        FormatAddress: Codeunit "Format Address";
+        DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
     begin
         IsBillToCountyVisible := FormatAddress.UseCounty(Rec."Bill-to Country/Region Code");
         IsSellToCountyVisible := FormatAddress.UseCounty(Rec."Country/Region Code");
@@ -1526,10 +1591,10 @@ page 5900 "Service Order"
 
     local procedure SetDocNoVisible()
     var
-        DocumentNoVisibility: Codeunit DocumentNoVisibility;
+        ServDocumentNoVisibility: Codeunit "Serv. Document No. Visibility";
         DocType: Option Quote,"Order",Invoice,"Credit Memo",Contract;
     begin
-        DocNoVisible := DocumentNoVisibility.ServiceDocumentNoIsVisible(DocType::"Order", Rec."No.");
+        DocNoVisible := ServDocumentNoVisibility.ServiceDocumentNoIsVisible(DocType::"Order", Rec."No.");
     end;
 
     local procedure SetControlAppearance()
@@ -1543,6 +1608,8 @@ page 5900 "Service Order"
     end;
 
     local procedure CheckShowBackgrValidationNotification()
+    var
+        DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
     begin
         if DocumentErrorsMgt.CheckShowEnableBackgrValidationNotification() then
             ActivateFields();

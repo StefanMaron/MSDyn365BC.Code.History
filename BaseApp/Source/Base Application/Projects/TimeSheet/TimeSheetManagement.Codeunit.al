@@ -14,8 +14,6 @@ using Microsoft.Projects.Resources.Journal;
 using Microsoft.Projects.Resources.Resource;
 using Microsoft.HumanResources.Absence;
 using Microsoft.Projects.Resources.Setup;
-using Microsoft.Service.Document;
-using Microsoft.Service.History;
 using System.Security.User;
 using System.Utilities;
 
@@ -30,34 +28,23 @@ codeunit 950 "Time Sheet Management"
     end;
 
     var
+#if not CLEAN25
+        ServTimeSheetMgt: Codeunit "Serv. Time Sheet Mgt.";
+#endif
+#pragma warning disable AA0074
         Text001: Label 'Mon,Tue,Wed,Thu,Fri,Sat,Sun';
+#pragma warning disable AA0470
         Text002: Label '%1 is already defined as Time Sheet Owner User ID for Resource No. %2 with type %3.', Comment = 'User1 is already defined as Resources for Resource No. LIFT with type Machine.';
         Text003: Label 'Time Sheet Header %1 is not found.', Comment = 'Time Sheet Header Archive 10 is not found.';
-        Text004: Label 'cannot be greater than %1 %2.', Comment = '%1 - Quantity, %2 - Unit of measure. Example: Quantity cannot be greater than 8 HOUR.';
         Text005: Label 'Time Sheet Header Archive %1 is not found.', Comment = 'Time Sheet Header Archive 10 is not found.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+        CannotBeGreaterErr: Label 'cannot be greater than %1 %2.', Comment = '%1 - Quantity, %2 - Unit of measure. Example: Quantity cannot be greater than 8 HOUR.';
         NoLinesToCopyErr: Label 'There are no time sheet lines to copy.';
         CopyLinesQst: Label 'Do you want to copy lines from the previous time sheet (%1)?', Comment = '%1 - number';
         JobPlanningLinesNotFoundErr: Label 'Could not find project planning lines.';
         CreateLinesQst: Label 'Do you want to create lines from project planning (%1)?', Comment = '%1 - number';
         PageDataCaptionTxt: Label '%1 (%2)', Comment = '%1 - start date, %2 - Description,';
-
-#if not CLEAN22
-    [Obsolete('Remove old time sheet experience.', '22.0')]
-    procedure TimeSheetV2Enabled() Result: Boolean
-    var
-        ResourcesSetup: Record "Resources Setup";
-    begin
-        if ResourcesSetup.Get() then
-            Result := ResourcesSetup."Use New Time Sheet Experience";
-
-        OnAfterTimeSheetV2Enabled(Result);
-    end;
-
-    internal procedure GetTimeSheetV2FeatureKey(): Text[50]
-    begin
-        exit('NewTimeSheetExperience');
-    end;
-#endif
 
     procedure IsUserTimeSheetAdmin(UserId: Text): Boolean
     var
@@ -233,12 +220,19 @@ codeunit 950 "Time Sheet Management"
 
     procedure CalcActSchedFactBoxData(TimeSheetHeader: Record "Time Sheet Header"; var DateDescription: array[7] of Text[30]; var DateQuantity: array[7] of Text[30]; var TotalQtyText: Text[30]; var TotalPresenceQty: Decimal; var AbsenceQty: Decimal)
     var
+        TotalScheduledQty: Decimal;
+    begin
+        CalcActSchedFactBoxData(TimeSheetHeader, DateDescription, DateQuantity, TotalQtyText, TotalPresenceQty, AbsenceQty, TotalScheduledQty);
+    end;
+
+    procedure CalcActSchedFactBoxData(TimeSheetHeader: Record "Time Sheet Header"; var DateDescription: array[7] of Text[30]; var DateQuantity: array[7] of Text[30]; var TotalQtyText: Text[30]; var TotalPresenceQty: Decimal; var AbsenceQty: Decimal; var TotalScheduledQty: Decimal)
+    var
         Resource: Record Resource;
         Calendar: Record Date;
-        TotalSchedQty: Decimal;
         i: Integer;
     begin
         TotalPresenceQty := 0;
+        TotalScheduledQty := 0;
         if Resource.Get(TimeSheetHeader."Resource No.") then begin
             Calendar.SetRange("Period Type", Calendar."Period Type"::Date);
             Calendar.SetRange("Period Start", TimeSheetHeader."Starting Date", TimeSheetHeader."Ending Date");
@@ -255,9 +249,9 @@ codeunit 950 "Time Sheet Management"
                     Resource.CalcFields(Capacity);
                     DateQuantity[i] := FormatActualSched(TimeSheetHeader.Quantity, Resource.Capacity);
                     TotalPresenceQty += TimeSheetHeader.Quantity;
-                    TotalSchedQty += Resource.Capacity;
+                    TotalScheduledQty += Resource.Capacity;
                 until Calendar.Next() = 0;
-            TotalQtyText := FormatActualSched(TotalPresenceQty, TotalSchedQty);
+            TotalQtyText := FormatActualSched(TotalPresenceQty, TotalScheduledQty);
             TimeSheetHeader.SetRange("Type Filter", TimeSheetHeader."Type Filter"::Absence);
             TimeSheetHeader.SetRange("Date Filter", TimeSheetHeader."Starting Date", TimeSheetHeader."Ending Date");
             TimeSheetHeader.CalcFields(Quantity);
@@ -425,16 +419,16 @@ codeunit 950 "Time Sheet Management"
     procedure CheckTimeSheetLineFieldsVisible(var WorkTypeCodeVisible: Boolean; var JobFieldsVisible: Boolean; var ChargeableVisible: Boolean; var ServiceOrderNoVisible: Boolean; var AbsenceCauseVisible: Boolean; var AssemblyOrderNoVisible: Boolean)
     var
         Resource: Record Resource;
-        ServiceHeader: Record "Service Header";
         CauseOfAbsence: Record "Cause of Absence";
         Job: Record Job;
     begin
+        OnBeforeCheckTimeSheetLineFieldsVisible(ServiceOrderNoVisible);
+
         AssemblyOrderNoVisible := false;  //not in use for now.
-        ServiceOrderNoVisible := not ServiceHeader.IsEmpty; //set with ApplicationArea
         JobFieldsVisible := not Job.IsEmpty;
         AbsenceCauseVisible := not CauseOfAbsence.IsEmpty;
         ChargeableVisible := JobFieldsVisible or ServiceOrderNoVisible;
-        WorkTypeCodeVisible := not Resource.IsEmpty or JobFieldsVisible or not ServiceHeader.IsEmpty;
+        WorkTypeCodeVisible := not Resource.IsEmpty or JobFieldsVisible or ServiceOrderNoVisible;
 
         OnAfterCheckTimeSheetLineFieldsVisible(WorkTypeCodeVisible, JobFieldsVisible, ChargeableVisible, ServiceOrderNoVisible, AbsenceCauseVisible, AssemblyOrderNoVisible);
     end;
@@ -502,7 +496,7 @@ codeunit 950 "Time Sheet Management"
     begin
         ContinueProcessing := true;
         TimeSheetLine.SetRange("Time Sheet No.", TempTimeSheetLine."Time Sheet No.");
-        TimeSheetLine.SetFilter(Type, '<>%1&<>%2', TimeSheetLine.Type::Service, TimeSheetLine.Type::"Assembly Order");
+        TimeSheetLine.SetExclusionTypeFilter();
         TimeSheetLineCount := TimeSheetLine.Count;
         if TimeSheetLineCount > 1 then begin
             TimeSheetLine.FindLast();
@@ -534,7 +528,7 @@ codeunit 950 "Time Sheet Management"
     begin
         ContinueProcessing := true;
         TimeSheetLineArchive.SetRange("Time Sheet No.", TempTimeSheetLine."Time Sheet No.");
-        TimeSheetLineArchive.SetFilter(Type, '<>%1&<>%2', TimeSheetLineArchive.Type::Service, TimeSheetLineArchive.Type::"Assembly Order");
+        TimeSheetLineArchive.SetExclusionTypeFilter();
         TimeSheetLineCount := TimeSheetLineArchive.Count;
         if TimeSheetLineCount > 1 then begin
             TimeSheetLineArchive.FindLast();
@@ -593,7 +587,7 @@ codeunit 950 "Time Sheet Management"
         FromTimeSheetHeader.SetRange("Resource No.", ToTimeSheetHeader."Resource No.");
         if FromTimeSheetHeader.Next(-1) <> 0 then begin
             FromTimeSheetLine.SetRange("Time Sheet No.", FromTimeSheetHeader."No.");
-            FromTimeSheetLine.SetFilter(Type, '<>%1&<>%2', FromTimeSheetLine.Type::Service, FromTimeSheetLine.Type::"Assembly Order");
+            FromTimeSheetLine.SetExclusionTypeFilter();
             if FromTimeSheetLine.FindSet() then
                 repeat
                     IsHandled := false;
@@ -636,9 +630,6 @@ codeunit 950 "Time Sheet Management"
             OnBeforeToTimeSheetLineInsert(ToTimeSheetLine, FromTimeSheetLine);
             ToTimeSheetLine.Insert();
 
-#if not CLEAN22
-            if TimeSheetV2Enabled() then
-#endif
             CopyTimeSheetLineDetails(ToTimeSheetLine, FromTimeSheetLine);
 
             if CopyComments then
@@ -773,7 +764,7 @@ codeunit 950 "Time Sheet Management"
         TimeSheetHeader.SetRange("Resource No.", ToTimeSheetHeader."Resource No.");
         if TimeSheetHeader.Next(-1) <> 0 then begin
             TimeSheetLine.SetRange("Time Sheet No.", TimeSheetHeader."No.");
-            TimeSheetLine.SetFilter(Type, '<>%1&<>%2', TimeSheetLine.Type::Service, TimeSheetLine.Type::"Assembly Order");
+            TimeSheetLine.SetExclusionTypeFilter();
             LinesQty := TimeSheetLine.Count();
         end;
     end;
@@ -930,59 +921,41 @@ codeunit 950 "Time Sheet Management"
         DateFilter := StrSubstNo('%1..%2', StartingDate, EndingDate);
     end;
 
-    procedure CreateServDocLinesFromTS(ServiceHeader: Record "Service Header")
+#if not CLEAN25
+    [Obsolete('Moved to codeunit ServTimeSheetMgt', '25.0')]
+    procedure CreateServDocLinesFromTS(ServiceHeader: Record Microsoft.Service.Document."Service Header")
     var
         TimeSheetLine: Record "Time Sheet Line";
     begin
-        CreateServLinesFromTS(ServiceHeader, TimeSheetLine, false);
+        ServTimeSheetMgt.CreateServLinesFromTS(ServiceHeader, TimeSheetLine, false);
     end;
+#endif
 
-    procedure CreateServDocLinesFromTSLine(ServiceHeader: Record "Service Header"; var TimeSheetLine: Record "Time Sheet Line")
+#if not CLEAN25
+    [Obsolete('Moved to codeunit ServTimeSheetMgt', '25.0')]
+    procedure CreateServDocLinesFromTSLine(ServiceHeader: Record Microsoft.Service.Document."Service Header"; var TimeSheetLine: Record "Time Sheet Line")
     begin
-        CreateServLinesFromTS(ServiceHeader, TimeSheetLine, true);
+        ServTimeSheetMgt.CreateServLinesFromTS(ServiceHeader, TimeSheetLine, true);
     end;
+#endif
 
-    local procedure GetFirstServiceItemNo(ServiceHeader: Record "Service Header"): Code[20]
-    var
-        ServiceItemLine: Record "Service Item Line";
+#if not CLEAN25
+    [Obsolete('Moved to codeunit ServTimeSheetMgt', '25.0')]
+    procedure CreateTSLineFromServiceLine(ServiceLine: Record Microsoft.Service.Document."Service Line"; DocumentNo: Code[20]; Chargeable: Boolean)
     begin
-        ServiceItemLine.SetRange("Document Type", ServiceHeader."Document Type");
-        ServiceItemLine.SetRange("Document No.", ServiceHeader."No.");
-        ServiceItemLine.FindFirst();
-        exit(ServiceItemLine."Service Item No.");
+        ServTimeSheetMgt.CreateTSLineFromServiceLine(ServiceLine, DocumentNo, false);
     end;
+#endif
 
-    procedure CreateTSLineFromServiceLine(ServiceLine: Record "Service Line"; DocumentNo: Code[20]; Chargeable: Boolean)
-    var
-        IsHandled: Boolean;
+#if not CLEAN25
+    [Obsolete('Moved to codeunit ServTimeSheetMgt', '25.0')]
+    procedure CreateTSLineFromServiceShptLine(ServiceShipmentLine: Record Microsoft.Service.History."Service Shipment Line")
     begin
-        IsHandled := false;
-        OnBeforeCreateTSLineFromServiceLine(ServiceLine, IsHandled);
-        if IsHandled then
-            exit;
-
-        if ServiceLine."Time Sheet No." = '' then
-            CreateTSLineFromDocLine(
-              DATABASE::"Service Line", ServiceLine."No.", ServiceLine."Posting Date", DocumentNo, ServiceLine."Document No.", ServiceLine."Line No.",
-              ServiceLine."Work Type Code", Chargeable, ServiceLine.Description, -ServiceLine."Qty. to Ship");
+        ServTimeSheetMgt.CreateTSLineFromServiceShptLine(ServiceShipmentLine);
     end;
+#endif
 
-    procedure CreateTSLineFromServiceShptLine(ServiceShipmentLine: Record "Service Shipment Line")
-    var
-        IsHandled: Boolean;
-    begin
-        IsHandled := false;
-        OnBeforeCreateTSLineFromServiceShptLine(ServiceShipmentLine, IsHandled);
-        if IsHandled then
-            exit;
-
-        if ServiceShipmentLine."Time Sheet No." = '' then
-            CreateTSLineFromDocLine(
-              DATABASE::"Service Shipment Line", ServiceShipmentLine."No.", ServiceShipmentLine."Posting Date", ServiceShipmentLine."Document No.", ServiceShipmentLine."Order No.", ServiceShipmentLine."Order Line No.",
-              ServiceShipmentLine."Work Type Code", true, ServiceShipmentLine.Description, -ServiceShipmentLine."Qty. Shipped Not Invoiced");
-    end;
-
-    local procedure CreateTSLineFromDocLine(TableID: Integer; ResourceNo: Code[20]; PostingDate: Date; DocumentNo: Code[20]; OrderNo: Code[20]; OrderLineNo: Integer; WorkTypeCode: Code[10]; Chargbl: Boolean; Desc: Text[100]; Quantity: Decimal)
+    procedure CreateTSLineFromDocLine(TableID: Integer; ResourceNo: Code[20]; PostingDate: Date; DocumentNo: Code[20]; OrderNo: Code[20]; OrderLineNo: Integer; WorkTypeCode: Code[10]; Chargbl: Boolean; Desc: Text[100]; Quantity: Decimal)
     var
         Resource: Record Resource;
         TimeSheetHeader: Record "Time Sheet Header";
@@ -1008,13 +981,6 @@ codeunit 950 "Time Sheet Management"
         TimeSheetLine."Line No." := LineNo;
         TimeSheetLine."Time Sheet Starting Date" := TimeSheetHeader."Starting Date";
         case TableID of
-            DATABASE::"Service Line",
-            DATABASE::"Service Shipment Line":
-                begin
-                    TimeSheetLine.Type := TimeSheetLine.Type::Service;
-                    TimeSheetLine."Service Order No." := OrderNo;
-                    TimeSheetLine."Service Order Line No." := OrderLineNo;
-                end;
             DATABASE::"Assembly Line":
                 begin
                     TimeSheetLine.Type := TimeSheetLine.Type::"Assembly Order";
@@ -1030,6 +996,7 @@ codeunit 950 "Time Sheet Management"
         TimeSheetLine."Approval Date" := Today();
         TimeSheetLine.Status := TimeSheetLine.Status::Approved;
         TimeSheetLine.Posted := true;
+        OnCreateTSLineFromDocLineOnBeforeTimeSheetLineInsert(TimeSheetLine, TableID, OrderNo, OrderLineNo);
         TimeSheetLine.Insert();
 
         TimeSheetDetail.Init();
@@ -1077,7 +1044,7 @@ codeunit 950 "Time Sheet Management"
         OnAfterCreateTSPostingEntry(TimeSheetDetail, TimeSheetPostingEntry);
     end;
 
-    local procedure CheckTSLineDetailPosting(TimeSheetNo: Code[20]; TimeSheetLineNo: Integer; TimeSheetDate: Date; QtyToPost: Decimal; QtyPerUnitOfMeasure: Decimal; var MaxAvailableQty: Decimal): Boolean
+    procedure CheckTSLineDetailPosting(TimeSheetNo: Code[20]; TimeSheetLineNo: Integer; TimeSheetDate: Date; QtyToPost: Decimal; QtyPerUnitOfMeasure: Decimal; var MaxAvailableQty: Decimal): Boolean
     var
         TimeSheetDetail: Record "Time Sheet Detail";
         MaxAvailableQtyBase: Decimal;
@@ -1110,7 +1077,7 @@ codeunit 950 "Time Sheet Management"
              ResJnlLine."Qty. per Unit of Measure",
              MaxAvailableQty)
         then
-            ResJnlLine.FieldError(Quantity, StrSubstNo(Text004, MaxAvailableQty, ResJnlLine."Unit of Measure Code"));
+            ResJnlLine.FieldError(Quantity, StrSubstNo(CannotBeGreaterErr, MaxAvailableQty, ResJnlLine."Unit of Measure Code"));
     end;
 
     procedure CheckJobJnlLine(JobJnlLine: Record "Job Journal Line")
@@ -1132,24 +1099,16 @@ codeunit 950 "Time Sheet Management"
              JobJnlLine."Qty. per Unit of Measure",
              MaxAvailableQty)
         then
-            JobJnlLine.FieldError(Quantity, StrSubstNo(Text004, MaxAvailableQty, JobJnlLine."Unit of Measure Code"));
+            JobJnlLine.FieldError(Quantity, StrSubstNo(CannotBeGreaterErr, MaxAvailableQty, JobJnlLine."Unit of Measure Code"));
     end;
 
-    procedure CheckServiceLine(ServiceLine: Record "Service Line")
-    var
-        MaxAvailableQty: Decimal;
+#if not CLEAN25
+    [Obsolete('Moved to codeunit ServTimeSheetMgt', '25.0')]
+    procedure CheckServiceLine(ServiceLine: Record Microsoft.Service.Document."Service Line")
     begin
-        ServiceLine.TestField("Qty. per Unit of Measure");
-        if not CheckTSLineDetailPosting(
-             ServiceLine."Time Sheet No.",
-             ServiceLine."Time Sheet Line No.",
-             ServiceLine."Time Sheet Date",
-             ServiceLine."Qty. to Ship",
-             ServiceLine."Qty. per Unit of Measure",
-             MaxAvailableQty)
-        then
-            ServiceLine.FieldError(Quantity, StrSubstNo(Text004, MaxAvailableQty, ServiceLine."Unit of Measure Code"));
+        ServTimeSheetMgt.CheckServiceLine(ServiceLine);
     end;
+#endif
 
     procedure CopyFilteredTimeSheetLinesToBuffer(var TimeSheetLineFrom: Record "Time Sheet Line"; var TimeSheetLineTo: Record "Time Sheet Line")
     begin
@@ -1214,11 +1173,6 @@ codeunit 950 "Time Sheet Management"
                     ActivityCaption := CopyStr(TimeSheetLine.FieldCaption("Assembly Order No."), 1, 30);
                     ActivityID := TimeSheetLine."Assembly Order No.";
                 end;
-            TimeSheetLine.Type::Service:
-                begin
-                    ActivityCaption := CopyStr(TimeSheetLine.FieldCaption("Service Order No."), 1, 30);
-                    ActivityID := TimeSheetLine."Service Order No.";
-                end;
             else
                 OnGetActivityInfoCaseTypeElse(TimeSheetLine, ActivitySubCaption, ActivitySubID, ActivityCaption, ActivityID);
         end;
@@ -1251,92 +1205,6 @@ codeunit 950 "Time Sheet Management"
         exit(CalcDate(StrSubstNo('<WD%1>', ResourcesSetup."Time Sheet First Weekday" + 1), Date));
     end;
 
-    local procedure CreateServLinesFromTS(ServiceHeader: Record "Service Header"; var TimeSheetLine: Record "Time Sheet Line"; AddBySelectedTimesheetLine: Boolean)
-    var
-        TimeSheetDetail: Record "Time Sheet Detail";
-        TempTimeSheetDetail: Record "Time Sheet Detail" temporary;
-        ServiceLine: Record "Service Line";
-        LineNo: Integer;
-    begin
-        ServiceLine.SetRange("Document Type", ServiceHeader."Document Type");
-        ServiceLine.SetRange("Document No.", ServiceHeader."No.");
-        if ServiceLine.FindLast() then;
-        LineNo := ServiceLine."Line No." + 10000;
-
-        ServiceLine.SetFilter("Time Sheet No.", '<>%1', '');
-        if ServiceLine.FindSet() then
-            repeat
-                if not TempTimeSheetDetail.Get(
-                     ServiceLine."Time Sheet No.",
-                     ServiceLine."Time Sheet Line No.",
-                     ServiceLine."Time Sheet Date")
-                then
-                    if TimeSheetDetail.Get(
-                         ServiceLine."Time Sheet No.",
-                         ServiceLine."Time Sheet Line No.",
-                         ServiceLine."Time Sheet Date")
-                    then begin
-                        TempTimeSheetDetail := TimeSheetDetail;
-                        TempTimeSheetDetail.Insert();
-                    end;
-            until ServiceLine.Next() = 0;
-
-        TimeSheetDetail.SetRange("Service Order No.", ServiceHeader."No.");
-        TimeSheetDetail.SetRange(Status, TimeSheetDetail.Status::Approved);
-        if AddBySelectedTimesheetLine = true then begin
-            TimeSheetDetail.SetRange("Time Sheet No.", TimeSheetLine."Time Sheet No.");
-            TimeSheetDetail.SetRange("Time Sheet Line No.", TimeSheetLine."Line No.");
-        end;
-        TimeSheetDetail.SetRange(Posted, false);
-        if TimeSheetDetail.FindSet() then
-            repeat
-                if not TempTimeSheetDetail.Get(
-                     TimeSheetDetail."Time Sheet No.",
-                     TimeSheetDetail."Time Sheet Line No.",
-                     TimeSheetDetail.Date)
-                then begin
-                    AddServLinesFromTSDetail(ServiceHeader, TimeSheetDetail, LineNo);
-                    LineNo := LineNo + 10000;
-                end;
-            until TimeSheetDetail.Next() = 0;
-    end;
-
-    local procedure AddServLinesFromTSDetail(ServiceHeader: Record "Service Header"; var TimeSheetDetail: Record "Time Sheet Detail"; LineNo: Integer)
-    var
-        TimeSheetHeader: Record "Time Sheet Header";
-        TimeSheetLine: Record "Time Sheet Line";
-        ServiceLine: Record "Service Line";
-        QtyToPost: Decimal;
-        IsHandled: Boolean;
-    begin
-        OnBeforeAddServLinesFromTSDetail(ServiceHeader, TimeSheetDetail, LineNo, IsHandled);
-        if IsHandled then
-            exit;
-
-        QtyToPost := TimeSheetDetail.GetMaxQtyToPost();
-        if QtyToPost <> 0 then begin
-            ServiceLine.Init();
-            ServiceLine."Document Type" := ServiceHeader."Document Type";
-            ServiceLine."Document No." := ServiceHeader."No.";
-            ServiceLine."Line No." := LineNo;
-            ServiceLine.Validate("Service Item No.", GetFirstServiceItemNo(ServiceHeader));
-            ServiceLine."Time Sheet No." := TimeSheetDetail."Time Sheet No.";
-            ServiceLine."Time Sheet Line No." := TimeSheetDetail."Time Sheet Line No.";
-            ServiceLine."Time Sheet Date" := TimeSheetDetail.Date;
-            ServiceLine.Type := ServiceLine.Type::Resource;
-            TimeSheetHeader.Get(TimeSheetDetail."Time Sheet No.");
-            ServiceLine.Validate("No.", TimeSheetHeader."Resource No.");
-            ServiceLine.Validate(Quantity, TimeSheetDetail.Quantity);
-            TimeSheetLine.Get(TimeSheetDetail."Time Sheet No.", TimeSheetDetail."Time Sheet Line No.");
-            if not TimeSheetLine.Chargeable then
-                ServiceLine.Validate("Qty. to Consume", QtyToPost);
-            ServiceLine."Planned Delivery Date" := TimeSheetDetail.Date;
-            ServiceLine.Validate("Work Type Code", TimeSheetLine."Work Type Code");
-            OnAddServLinesFromTSDetailOnBeforeInsertServiceLine(ServiceLine, LineNo, ServiceHeader, TimeSheetDetail);
-            ServiceLine.Insert();
-        end;
-    end;
-
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalcActSchedFactBoxData(var TimeSheetHeader: Record "Time Sheet Header"; var TotalQtyText: Text; var TotalPresenceQty: Decimal; var AbsenceQty: Decimal);
     begin
@@ -1356,14 +1224,6 @@ codeunit 950 "Time Sheet Management"
     local procedure OnAfterFilterAllLines(var TimeSheetLine: Record "Time Sheet Line"; ActionType: Option Submit,ReopenSubmitted,Approve,ReopenApproved,Reject)
     begin
     end;
-
-#if not CLEAN22
-    [Obsolete('Remove old time sheet experience.', '22.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterTimeSheetV2Enabled(var Result: Boolean)
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcStatusFactBoxDataOnAfterTimeSheetHeaderSetFilters(var TimeSheetHeader: Record "Time Sheet Header")
@@ -1400,15 +1260,31 @@ codeunit 950 "Time Sheet Management"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreateTSLineFromServiceLine(var ServiceLine: Record "Service Line"; var IsHandled: Boolean)
+#if not CLEAN25
+    internal procedure RunOnBeforeCreateTSLineFromServiceLine(var ServiceLine: Record Microsoft.Service.Document."Service Line"; var IsHandled: Boolean)
     begin
+        OnBeforeCreateTSLineFromServiceLine(ServiceLine, IsHandled);
     end;
 
+    [Obsolete('Moved to codeunit ServTimesheetMgt', '25.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreateTSLineFromServiceShptLine(var ServiceShipmentLine: Record "Service Shipment Line"; var IsHandled: Boolean)
+    local procedure OnBeforeCreateTSLineFromServiceLine(var ServiceLine: Record Microsoft.Service.Document."Service Line"; var IsHandled: Boolean)
     begin
     end;
+#endif
+
+#if not CLEAN25
+    internal procedure RunOnBeforeCreateTSLineFromServiceShptLine(var ServiceShipmentLine: Record Microsoft.Service.History."Service Shipment Line"; var IsHandled: Boolean)
+    begin
+        OnBeforeCreateTSLineFromServiceShptLine(ServiceShipmentLine, IsHandled);
+    end;
+
+    [Obsolete('Moved to codeunit ServTimesheetMgt', '25.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateTSLineFromServiceShptLine(var ServiceShipmentLine: Record Microsoft.Service.History."Service Shipment Line"; var IsHandled: Boolean)
+    begin
+    end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeFillJobPlanningBuffer(var JobPlanningLine: Record "Job Planning Line"; var JobPlanningLineBuffer: Record "Job Planning Line"; TimeSheetHeader: Record "Time Sheet Header"; var IsHandled: Boolean);
@@ -1450,10 +1326,29 @@ codeunit 950 "Time Sheet Management"
     begin
     end;
 
+#if not CLEAN25
+    internal procedure RunOnBeforeAddServLinesFromTSDetail(ServiceHeader: Record Microsoft.Service.Document."Service Header"; var TimeSheetDetail: Record "Time Sheet Detail"; LineNo: Integer; var IsHandled: Boolean)
+    begin
+        OnBeforeAddServLinesFromTSDetail(ServiceHeader, TimeSheetDetail, LineNo, IsHandled);
+    end;
+
+    [Obsolete('Moved to codeunit ServTimesheetMgt', '25.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeAddServLinesFromTSDetail(ServiceHeader: Record "Service Header"; var TimeSheetDetail: Record "Time Sheet Detail"; LineNo: Integer; var IsHandled: Boolean)
+    local procedure OnBeforeAddServLinesFromTSDetail(ServiceHeader: Record Microsoft.Service.Document."Service Header"; var TimeSheetDetail: Record "Time Sheet Detail"; LineNo: Integer; var IsHandled: Boolean)
     begin
     end;
+
+    internal procedure RunOnAddServLinesFromTSDetailOnBeforeInsertServiceLine(var ServiceLine: Record Microsoft.Service.Document."Service Line"; var LineNo: Integer; ServiceHeader: Record Microsoft.Service.Document."Service Header"; TimeSheetDetail: Record "Time Sheet Detail")
+    begin
+        OnAddServLinesFromTSDetailOnBeforeInsertServiceLine(ServiceLine, LineNo, ServiceHeader, TimeSheetDetail);
+    end;
+
+    [Obsolete('Moved to codeunit ServTimesheetMgt', '25.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnAddServLinesFromTSDetailOnBeforeInsertServiceLine(var ServiceLine: Record Microsoft.Service.Document."Service Line"; var LineNo: Integer; ServiceHeader: Record Microsoft.Service.Document."Service Header"; TimeSheetDetail: Record "Time Sheet Detail")
+    begin
+    end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcActSchedFactBoxDataOnAfterSetDateDescription(TimeSheetHeader: Record "Time Sheet Header"; Calendar: Record Date; var DateDescriptionForSpecificDate: Text[30]);
@@ -1496,7 +1391,12 @@ codeunit 950 "Time Sheet Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAddServLinesFromTSDetailOnBeforeInsertServiceLine(var ServiceLine: Record Microsoft.Service.Document."Service Line"; var LineNo: Integer; ServiceHeader: Record Microsoft.Service.Document."Service Header"; TimeSheetDetail: Record "Time Sheet Detail")
+    local procedure OnBeforeCheckTimeSheetLineFieldsVisible(var ServiceOrderNoVisible: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateTSLineFromDocLineOnBeforeTimeSheetLineInsert(var TimeSheetLine: Record "Time Sheet Line"; TableID: Integer; OrderNo: Code[20]; OrderLineNo: Integer)
     begin
     end;
 

@@ -40,7 +40,7 @@ report 10071 "Customer Stmt. (Pre-Printed)"
             }
             dataitem(HeaderFooter; "Integer")
             {
-                DataItemTableView = sorting(Number) WHERE(Number = const(1));
+                DataItemTableView = sorting(Number) where(Number = const(1));
                 column(CompanyAddress1; CompanyAddress[1])
                 {
                 }
@@ -168,7 +168,7 @@ report 10071 "Customer Stmt. (Pre-Printed)"
                 {
                     DataItemLink = "Customer No." = field("No."), "Global Dimension 1 Code" = field("Global Dimension 1 Filter"), "Global Dimension 2 Code" = field("Global Dimension 2 Filter");
                     DataItemLinkReference = Customer;
-                    DataItemTableView = sorting("Customer No.", Open) WHERE(Open = const(true));
+                    DataItemTableView = sorting("Customer No.", Open) where(Open = const(true));
 
                     trigger OnAfterGetRecord()
                     begin
@@ -215,7 +215,7 @@ report 10071 "Customer Stmt. (Pre-Printed)"
                 }
                 dataitem("Balance Forward"; "Integer")
                 {
-                    DataItemTableView = sorting(Number) WHERE(Number = const(1));
+                    DataItemTableView = sorting(Number) where(Number = const(1));
                     column(FromDate1; FromDate - 1)
                     {
                     }
@@ -383,7 +383,7 @@ report 10071 "Customer Stmt. (Pre-Printed)"
                 }
                 dataitem(EndOfCustomer; "Integer")
                 {
-                    DataItemTableView = sorting(Number) WHERE(Number = const(1));
+                    DataItemTableView = sorting(Number) where(Number = const(1));
                     column(StatementComplete; StatementComplete)
                     {
                     }

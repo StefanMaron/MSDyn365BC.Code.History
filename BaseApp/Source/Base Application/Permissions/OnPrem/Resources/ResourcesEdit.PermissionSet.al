@@ -17,17 +17,11 @@ using Microsoft.Purchases.Document;
 using Microsoft.Projects.Resources.Resource;
 using Microsoft.Projects.Resources.Journal;
 using Microsoft.Projects.Resources.Ledger;
-#if not CLEAN23
+#if not CLEAN25
 using Microsoft.Projects.Resources.Pricing;
 #endif
-using Microsoft.Service.Resources;
 using Microsoft.Sales.History;
 using Microsoft.Sales.Document;
-using Microsoft.Service.Pricing;
-using Microsoft.Service.History;
-using Microsoft.Service.Item;
-using Microsoft.Service.Ledger;
-using Microsoft.Service.Document;
 using Microsoft.Finance.SalesTax;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Projects.Project.Job;
@@ -74,27 +68,19 @@ permissionset 6427 "Resources - Edit"
                   tabledata "Res. Journal Line" = Rm,
                   tabledata "Res. Ledger Entry" = Rm,
                   tabledata Resource = RIMD,
-#if not CLEAN23
+#if not CLEAN25
                   tabledata "Resource Cost" = RIMD,
 #endif
                   tabledata "Resource Group" = RIMD,
-                  tabledata "Resource Location" = RIMD,
-#if not CLEAN23
+#if not CLEAN25
                   tabledata "Resource Price" = RIMD,
 #endif
-                  tabledata "Resource Service Zone" = Rid,
-                  tabledata "Resource Skill" = Rid,
                   tabledata "Resource Unit of Measure" = RID,
                   tabledata "Return Receipt Line" = r,
                   tabledata "Sales Cr.Memo Line" = r,
                   tabledata "Sales Invoice Line" = rm,
                   tabledata "Sales Line" = R,
                   tabledata "Sales Shipment Line" = rm,
-                  tabledata "Serv. Price Adjustment Detail" = r,
-                  tabledata "Service Invoice Line" = RM,
-                  tabledata "Service Item" = r,
-                  tabledata "Service Ledger Entry" = r,
-                  tabledata "Service Order Allocation" = r,
                   tabledata "Standard Purchase Line" = r,
                   tabledata "Standard Sales Line" = r,
                   tabledata "Tax Group" = R,
@@ -106,6 +92,5 @@ permissionset 6427 "Resources - Edit"
                   tabledata "VAT Product Posting Group" = R,
                   tabledata "VAT Rate Change Conversion" = R,
                   tabledata Vendor = R,
-                  tabledata "Vendor Bank Account" = R,
-                  tabledata "Warranty Ledger Entry" = r;
+                  tabledata "Vendor Bank Account" = R;
 }

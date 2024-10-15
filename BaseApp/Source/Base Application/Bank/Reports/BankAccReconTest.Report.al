@@ -498,7 +498,7 @@ report 1408 "Bank Acc. Recon. - Test"
                         BankAcc.TableCaption(), "Bank Account No."));
                     HeaderError2 := StrSubstNo(TableValueMissingErr, BankAcc.TableCaption(), "Bank Account No.");
                 end;
-                if "Statement Type" = "Statement Type"::"Payment Application" then begin
+                if "Statement Type" = "Statement Type"::"Payment Application" then
                     // Bank Reconciliations done from the Payment Reconciliation Journal page, have no Statement Ending Date defined (unless set elsewhere by code e.g. tests)
                     // We take it as the last date of the entries
                     if "Statement Date" = 0D then begin
@@ -509,7 +509,6 @@ report 1408 "Bank Acc. Recon. - Test"
                         if BankAccReconciliationLine.FindFirst() then
                             "Statement Date" := BankAccReconciliationLine."Transaction Date";
                     end;
-                end;
                 if "Statement Date" = 0D then
                     AddError(StrSubstNo(StatementDateErr, FieldCaption("Statement Date")));
                 if BankAccPostingGroup.Get(BankAcc."Bank Acc. Posting Group") then begin

@@ -399,14 +399,22 @@ table 7332 "Whse. Internal Put-away Line"
         Item: Record Item;
         ItemUnitOfMeasure: Record "Item Unit of Measure";
         UOMMgt: Codeunit "Unit of Measure Management";
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'must not be the %1 of the %2';
         Text001: Label 'must be greater than %1';
         Text002: Label 'must not be greater than %1 units';
         Text003: Label 'You cannot rename a %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         LastLineNo: Integer;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text004: Label '%1 = %2 is less than the %3 = %4.\Do you really want to delete the %5?';
+#pragma warning restore AA0470
         Text005: Label 'Cancelled.';
         Text006: Label 'Nothing to handle.';
+#pragma warning restore AA0074
 
     protected var
         HideValidationDialog: Boolean;

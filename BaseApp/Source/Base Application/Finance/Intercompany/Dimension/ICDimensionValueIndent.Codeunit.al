@@ -16,7 +16,9 @@ codeunit 429 "IC Dimension Value-Indent"
         ICDimesionValue: Record "IC Dimension Value";
         Window: Dialog;
 
+#pragma warning disable AA0074
         Text004: Label 'Indenting IC Dimension Values @1@@@@@@@@@@@@@@@@@@';
+#pragma warning restore AA0074
         EndTotalWithOutBeginTotalErr: Label 'End-Total %1 is missing a matching Begin-Total.', Comment = '%1 = IC Dim Value code';
         ICDimValueIndentQst: Label 'This function updates the indentation of all the IC dimension values for IC dimension %1. All IC dimension values between a Begin-Total and the matching End-Total are indented by one level. The Totaling field for each End-Total is also updated.\\Do you want to indent the IC dimension values?', Comment = '%1 - field value';
 

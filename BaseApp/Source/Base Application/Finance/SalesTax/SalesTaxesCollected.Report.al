@@ -397,10 +397,12 @@ report 24 "Sales Taxes Collected"
         IncludeSales: Boolean;
         IncludePurchases: Boolean;
 
+#pragma warning disable AA0074
         Text000: Label 'Sales Taxes Collected, Summary';
         Text001: Label 'Sales Taxes Collected';
         Text002: Label 'Sales Taxes Collected, Detail';
         Text003: Label 'Unknown Jurisdiction';
+#pragma warning disable AA0470
         Text004: Label 'Total Sales Taxes Collected for %1: %2';
         Text005: Label 'Total for %1: %2';
         PageCaptionLbl: Label 'Page';

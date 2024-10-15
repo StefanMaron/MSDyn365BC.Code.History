@@ -56,7 +56,9 @@ table 750 "Standard General Journal"
         Window: Dialog;
         WindowUpdateDateTime: DateTime;
         NoOfJournalsToBeCreated: Integer;
+#pragma warning disable AA0074
         Text000: Label 'Getting Standard General Journal Lines @1@@@@@@@';
+#pragma warning restore AA0074
         NoOfJournalsCreated: Integer;
 
     procedure CreateGenJnlFromStdJnl(StdGenJnl: Record "Standard General Journal"; JnlBatchName: Code[10])

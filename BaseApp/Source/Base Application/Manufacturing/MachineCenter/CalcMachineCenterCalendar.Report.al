@@ -94,10 +94,14 @@ report 99001045 "Calc. Machine Center Calendar"
         StartingDate: Date;
         EndingDate: Date;
 
+#pragma warning disable AA0074
         Text000: Label 'Calculating Machine Center...\\';
+#pragma warning disable AA0470
         Text001: Label 'No.            #1##########';
+#pragma warning restore AA0470
         Text004: Label 'You must enter the Starting Date.';
         Text005: Label 'You must enter the Ending Date.';
+#pragma warning restore AA0074
 
     procedure InitializeRequest(NewStartingDate: Date; NewEndingDate: Date)
     begin

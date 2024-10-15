@@ -179,7 +179,11 @@ table 99000760 "Calendar Absence Entry"
         Machinecenter: Record "Machine Center";
         CalAbsenceMgt: Codeunit "Calendar Absence Management";
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label '%1 must be higher than %2.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure Caption(): Text
     begin

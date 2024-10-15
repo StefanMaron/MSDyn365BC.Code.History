@@ -119,8 +119,12 @@ codeunit 436 "Acc. Sched. BarChart DrillDown"
         AccSchedName: Record "Acc. Schedule Name";
         AccSchedManagement: Codeunit AccSchedManagement;
         ChartofAccAnalysisView: Page "Chart of Accs. (Analysis View)";
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text002: Label 'Column formula: %1';
         Text003: Label 'Row formula: %1';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         s: Text[50];
 
     [IntegrationEvent(false, false)]

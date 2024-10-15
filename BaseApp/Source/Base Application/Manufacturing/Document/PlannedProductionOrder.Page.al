@@ -271,7 +271,7 @@ page 99000813 "Planned Production Order"
                     var
                         OrderPlanning: Page "Order Planning";
                     begin
-                        OrderPlanning.SetProdOrder(Rec);
+                        OrderPlanning.SetProdOrderDemand(Rec.Status.AsInteger(), Rec."No.");
                         OrderPlanning.RunModal();
                     end;
                 }

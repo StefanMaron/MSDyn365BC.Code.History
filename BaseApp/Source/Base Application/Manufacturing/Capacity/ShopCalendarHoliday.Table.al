@@ -92,7 +92,11 @@ table 99000753 "Shop Calendar Holiday"
     }
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label '%1 must be higher than %2.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     local procedure UpdateDatetime()
     begin

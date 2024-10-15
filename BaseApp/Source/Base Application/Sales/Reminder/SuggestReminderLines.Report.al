@@ -150,9 +150,11 @@ report 189 "Suggest Reminder Lines"
         NewDateTime: DateTime;
         OldDateTime: DateTime;
 
+#pragma warning disable AA0074
         Text000: Label 'Suggesting lines...';
         Text001: Label 'Suggesting lines @1@@@@@@@@@@@@@';
         Text002: Label 'It was not possible to process some of the selected reminders.\Do you want to see these reminders?';
+#pragma warning restore AA0074
 
     protected var
         OverdueEntriesOnly: Boolean;

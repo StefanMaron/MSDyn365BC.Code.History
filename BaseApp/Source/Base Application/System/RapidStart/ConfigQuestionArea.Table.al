@@ -123,9 +123,13 @@ table 8611 "Config. Question Area"
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'Delete questions for question area %1 to change the table relationship.';
         Text001: Label 'A question area already exists for table %1.';
+#pragma warning restore AA0470
         Text002: Label 'The first character cannot be a numeric value.';
         Text003: Label 'You cannot rename a question area.';
+#pragma warning restore AA0074
 }
 

@@ -802,11 +802,15 @@ report 122 "Reminder - Test"
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label '%1 must be specified.';
         Text003: Label '%1 %2 does not exist.';
         Text005: Label 'Total %1';
         Text006: Label 'Total %1 Incl. VAT';
         Text008: Label 'Reminder: %1';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         PrimaryContact: Record Contact;
         GLSetup: Record "General Ledger Setup";
         Cust: Record Customer;
@@ -831,14 +835,22 @@ report 122 "Reminder - Test"
         ShowDim: Boolean;
         TableID: array[10] of Integer;
         No: array[10] of Code[20];
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text010: Label '%1 must not be %2 for %3 %4.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         VALVATBaseLCY: Decimal;
         VALVATAmountLCY: Decimal;
         VALSpecLCYHeader: Text[80];
         VALExchRate: Text[50];
+#pragma warning disable AA0074
         Text011: Label 'VAT Amount Specification in ';
         Text012: Label 'Local Currency';
+#pragma warning disable AA0470
         Text013: Label 'Exchange rate: %1/%2';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         CurrFactor: Decimal;
         TotalVATAmount: Decimal;
         AddFeeInclVAT: Decimal;

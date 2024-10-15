@@ -910,6 +910,7 @@ report 27 "Dimensions - Total"
         CashFlowForecastNo: Code[10];
         CashFlowEditable: Boolean;
 
+#pragma warning disable AA0074
         Text000: Label 'Enter an analysis view code.';
         Text001: Label 'Enter a column layout name.';
         Text002: Label 'Enter a date filter.';
@@ -918,8 +919,11 @@ report 27 "Dimensions - Total"
         Text005: Label 'Not updated';
         Text006: Label '(Thousands)';
         Text007: Label '(Millions)';
+#pragma warning disable AA0470
         Text008: Label 'All amounts are in %1.';
+#pragma warning restore AA0470
         Text009: Label '(no business unit)';
+#pragma warning restore AA0074
         ColumnLayoutNameCaptionLbl: Label 'Column Layout';
         DateFilterCaptionLbl: Label 'Period';
         Analysis_View_CodeCaptionLbl: Label 'Analysis View';

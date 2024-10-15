@@ -205,10 +205,7 @@ page 9199 "Profile Import Wizard"
             ActionStyleExpr := '';
         end;
 
-        if IsNullGuid(Rec."App ID") and (Action = Action::Add) then
-            Clear(ApplicationName)
-        else
-            ApplicationName := ExtensionManagement.GetAppName(Rec."App ID");
+        ApplicationName := ExtensionManagement.GetAppName(Rec."App ID");
     end;
 
     local procedure CreatePackageUploadDiagnosticsMessage(var DesignerDiagnostic: Record "Designer Diagnostic"): Text

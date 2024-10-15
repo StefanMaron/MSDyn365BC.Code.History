@@ -860,12 +860,10 @@
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        with SalesReceivablesSetup do begin
-            Get();
-            OldStockoutWarning := "Stockout Warning";
-            Validate("Stockout Warning", false);
-            Modify();
-        end;
+        SalesReceivablesSetup.Get();
+        OldStockoutWarning := SalesReceivablesSetup."Stockout Warning";
+        SalesReceivablesSetup.Validate("Stockout Warning", false);
+        SalesReceivablesSetup.Modify();
     end;
 
     local procedure PrepareSOPostPrepmtAndShip(var SalesOrderHeader: Record "Sales Header")
@@ -953,13 +951,11 @@
             CustomerNo := CreateCustomerWithVATBusPostGr(VATBusPostingGroupCode)
         else
             CustomerNo := SalesHeader."Sell-to Customer No.";
-        with SalesHeader do begin
-            LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
-            Validate("Currency Code", CurrencyCode);
-            Validate("Prices Including VAT", PricesInclVAT);
-            Validate("Compress Prepayment", CompressPrepmt);
-            Modify();
-        end;
+        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
+        SalesHeader.Validate("Currency Code", CurrencyCode);
+        SalesHeader.Validate("Prices Including VAT", PricesInclVAT);
+        SalesHeader.Validate("Compress Prepayment", CompressPrepmt);
+        SalesHeader.Modify();
     end;
 
     local procedure CreateCustomerWithVATBusPostGr(VATBusPostingGroupCode: Code[20]): Code[20]
@@ -967,12 +963,10 @@
         Customer: Record Customer;
     begin
         LibrarySales.CreateCustomer(Customer);
-        with Customer do begin
-            Validate("VAT Bus. Posting Group", VATBusPostingGroupCode);
-            Modify(true);
-            UpdateCustomerInvoiceRoundingAccount("Customer Posting Group", "VAT Bus. Posting Group");
-            exit("No.");
-        end;
+        Customer.Validate("VAT Bus. Posting Group", VATBusPostingGroupCode);
+        Customer.Modify(true);
+        UpdateCustomerInvoiceRoundingAccount(Customer."Customer Posting Group", Customer."VAT Bus. Posting Group");
+        exit(Customer."No.");
     end;
 
     local procedure CreateCurrencyCodeWithRandomExchRate(): Code[10]
@@ -1031,13 +1025,11 @@
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
     begin
-        with SalesInvoiceHeader do begin
-            SetRange("Sell-to Customer No.", CustomerNo);
-            SetRange("Prepayment Invoice", true);
-            SetRange("Prepayment Order No.", OrderNo);
-            FindFirst();
-            exit("No.");
-        end;
+        SalesInvoiceHeader.SetRange("Sell-to Customer No.", CustomerNo);
+        SalesInvoiceHeader.SetRange("Prepayment Invoice", true);
+        SalesInvoiceHeader.SetRange("Prepayment Order No.", OrderNo);
+        SalesInvoiceHeader.FindFirst();
+        exit(SalesInvoiceHeader."No.");
     end;
 
     local procedure GetQtyToShipTFS332246(PositiveDiff: Boolean): Decimal
@@ -1106,21 +1098,17 @@
 
     local procedure UpdateSalesLine(var SalesLine: Record "Sales Line"; NewUnitPrice: Decimal; NewDiscountPct: Decimal; NewPrepmtPct: Decimal)
     begin
-        with SalesLine do begin
-            Validate("Unit Price", NewUnitPrice);
-            Validate("Line Discount %", NewDiscountPct);
-            Validate("Prepayment %", NewPrepmtPct);
-            Modify(true);
-        end;
+        SalesLine.Validate("Unit Price", NewUnitPrice);
+        SalesLine.Validate("Line Discount %", NewDiscountPct);
+        SalesLine.Validate("Prepayment %", NewPrepmtPct);
+        SalesLine.Modify(true);
     end;
 
     local procedure UpdateVATPostingSetupAccounts(var VATPostingSetup: Record "VAT Posting Setup")
     begin
-        with VATPostingSetup do begin
-            Validate("Sales VAT Account", LibraryERM.CreateGLAccountWithSalesSetup());
-            Validate("Purchase VAT Account", LibraryERM.CreateGLAccountWithPurchSetup());
-            Modify(true);
-        end;
+        VATPostingSetup.Validate("Sales VAT Account", LibraryERM.CreateGLAccountWithSalesSetup());
+        VATPostingSetup.Validate("Purchase VAT Account", LibraryERM.CreateGLAccountWithPurchSetup());
+        VATPostingSetup.Modify(true);
     end;
 
     local procedure UpdateGenPostingSetupPrepmtAccounts(var SalesLine: Record "Sales Line"; PrepmtAccVATProdPostingGroup: Code[20])
@@ -1170,12 +1158,10 @@
     var
         Currency: Record Currency;
     begin
-        with Currency do begin
-            Get(CurrencyCode);
-            Validate("Invoice Rounding Precision", 0.01);
-            Modify(true);
-            exit(Code);
-        end;
+        Currency.Get(CurrencyCode);
+        Currency.Validate("Invoice Rounding Precision", 0.01);
+        Currency.Modify(true);
+        exit(Currency.Code);
     end;
 
     local procedure OpenSalesInvoicePage(var SalesInvoice: TestPage "Sales Invoice"; SalesInvoiceHeader: Record "Sales Header")
@@ -1206,11 +1192,9 @@
     var
         CustLedgEntry: Record "Cust. Ledger Entry";
     begin
-        with CustLedgEntry do begin
-            FindLast();
-            CalcFields(Amount);
-            Assert.AreEqual(0, Amount, 'Expected zero Customer Ledger Entry due to 100% prepayment.');
-        end;
+        CustLedgEntry.FindLast();
+        CustLedgEntry.CalcFields(Amount);
+        Assert.AreEqual(0, CustLedgEntry.Amount, 'Expected zero Customer Ledger Entry due to 100% prepayment.');
     end;
 
     local procedure VerifyZeroPostedInvoiceAmounts(DocumentNo: Code[20])
@@ -1236,13 +1220,11 @@
     var
         GLEntry: Record "G/L Entry";
     begin
-        with GLEntry do begin
-            SetRange("Document No.", DocumentNo);
-            SetRange("G/L Account No.", GLAccountNo);
-            FindFirst();
-            Assert.AreEqual(ExpectedAmount, Amount, FieldCaption(Amount));
-            Assert.AreEqual(ExpectedVATAmount, "VAT Amount", FieldCaption("VAT Amount"));
-        end;
+        GLEntry.SetRange("Document No.", DocumentNo);
+        GLEntry.SetRange("G/L Account No.", GLAccountNo);
+        GLEntry.FindFirst();
+        Assert.AreEqual(ExpectedAmount, GLEntry.Amount, GLEntry.FieldCaption(Amount));
+        Assert.AreEqual(ExpectedVATAmount, GLEntry."VAT Amount", GLEntry.FieldCaption("VAT Amount"));
     end;
 
     local procedure VerifyGLEntryCount(DocumentNo: Code[20]; ExpectedCount: Integer)
@@ -1266,25 +1248,21 @@
     var
         GLEntry: Record "G/L Entry";
     begin
-        with GLEntry do begin
-            SetRange("Document No.", DocumentNo);
-            CalcSums(Amount, "VAT Amount");
-            Assert.AreEqual(ExpectedAmountBalance, Amount, FieldCaption(Amount));
-            Assert.AreEqual(ExpectedVATAmountBalance, "VAT Amount", FieldCaption("VAT Amount"));
-        end;
+        GLEntry.SetRange("Document No.", DocumentNo);
+        GLEntry.CalcSums(Amount, "VAT Amount");
+        Assert.AreEqual(ExpectedAmountBalance, GLEntry.Amount, GLEntry.FieldCaption(Amount));
+        Assert.AreEqual(ExpectedVATAmountBalance, GLEntry."VAT Amount", GLEntry.FieldCaption("VAT Amount"));
     end;
 
     local procedure VerifyGLEntryAccountBalance(DocumentNo: Code[20]; GLAccountNo: Code[20]; ExpectedAmountBalance: Decimal; ExpectedVATAmountBalance: Decimal)
     var
         GLEntry: Record "G/L Entry";
     begin
-        with GLEntry do begin
-            SetRange("Document No.", DocumentNo);
-            SetRange("G/L Account No.", GLAccountNo);
-            CalcSums(Amount, "VAT Amount");
-            Assert.AreEqual(ExpectedAmountBalance, Amount, FieldCaption(Amount));
-            Assert.AreEqual(ExpectedVATAmountBalance, "VAT Amount", FieldCaption("VAT Amount"));
-        end;
+        GLEntry.SetRange("Document No.", DocumentNo);
+        GLEntry.SetRange("G/L Account No.", GLAccountNo);
+        GLEntry.CalcSums(Amount, "VAT Amount");
+        Assert.AreEqual(ExpectedAmountBalance, GLEntry.Amount, GLEntry.FieldCaption(Amount));
+        Assert.AreEqual(ExpectedVATAmountBalance, GLEntry."VAT Amount", GLEntry.FieldCaption("VAT Amount"));
     end;
 
     local procedure VerifyVATEntryCount(DocumentNo: Code[20]; ExpectedCount: Integer)
@@ -1299,12 +1277,10 @@
     var
         VATEntry: Record "VAT Entry";
     begin
-        with VATEntry do begin
-            SetRange("Document No.", DocumentNo);
-            CalcSums(Base, Amount);
-            Assert.AreEqual(ExpectedBaseBalance, Base, FieldCaption(Base));
-            Assert.AreEqual(ExpectedAmountBalance, Amount, FieldCaption(Amount));
-        end;
+        VATEntry.SetRange("Document No.", DocumentNo);
+        VATEntry.CalcSums(Base, Amount);
+        Assert.AreEqual(ExpectedBaseBalance, VATEntry.Base, VATEntry.FieldCaption(Base));
+        Assert.AreEqual(ExpectedAmountBalance, VATEntry.Amount, VATEntry.FieldCaption(Amount));
     end;
 }
 

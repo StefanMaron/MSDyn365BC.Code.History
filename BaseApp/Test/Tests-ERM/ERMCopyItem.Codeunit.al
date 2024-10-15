@@ -11,7 +11,7 @@ codeunit 134462 "ERM Copy Item"
 
     var
         Assert: Codeunit Assert;
-#if not CLEAN23
+#if not CLEAN25
         LibraryCosting: Codeunit "Library - Costing";
 #endif
         LibraryDimension: Codeunit "Library - Dimension";
@@ -26,6 +26,7 @@ codeunit 134462 "ERM Copy Item"
         LibraryService: Codeunit "Library - Service";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryUtility: Codeunit "Library - Utility";
+        LibraryNoSeries: Codeunit "Library - No. Series";
         LibraryRandom: Codeunit "Library - Random";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
@@ -403,7 +404,7 @@ codeunit 134462 "ERM Copy Item"
         NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Test]
     [HandlerFunctions('CopyItemPageHandler')]
     [Scope('OnPrem')]
@@ -1394,7 +1395,7 @@ codeunit 134462 "ERM Copy Item"
         // [GIVEN] New no. series "ITEM-X" with next number "X-00001" and "Default Nos." = TRUE.
         LibraryUtility.CreateNoSeries(NoSeries, true, true, false);
         LibraryUtility.CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, LibraryUtility.GenerateGUID(), LibraryUtility.GenerateGUID());
-        LibraryUtility.CreateNoSeriesRelationship(InventorySetup."Item Nos.", NoSeries.Code);
+        LibraryNoSeries.CreateNoSeriesRelationship(InventorySetup."Item Nos.", NoSeries.Code);
         NoSeriesCode := NoSeries.Code;
         TargetItemNo := NoSeriesCodeunit.PeekNextNo(NoSeriesCode);
 
@@ -1730,14 +1731,12 @@ codeunit 134462 "ERM Copy Item"
     var
         ItemTranslation: Record "Item Translation";
     begin
-        with ItemTranslation do begin
-            Init();
-            Validate("Item No.", ItemNo);
-            Validate("Language Code", LanguageCode);
-            Validate(Description, ItemNo + LanguageCode);
-            Insert(true);
-            exit(Description);
-        end;
+        ItemTranslation.Init();
+        ItemTranslation.Validate("Item No.", ItemNo);
+        ItemTranslation.Validate("Language Code", LanguageCode);
+        ItemTranslation.Validate(Description, ItemNo + LanguageCode);
+        ItemTranslation.Insert(true);
+        exit(ItemTranslation.Description);
     end;
 
     local procedure CreateItemWithCommentLine(var Item: Record Item) Comment: Text[80]
@@ -1763,7 +1762,7 @@ codeunit 134462 "ERM Copy Item"
         LibraryResource.CreateResourceSkill(ResourceSkill, ResourceSkill.Type::Item, ItemNo, SkillCode.Code);
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     local procedure CreatePurchasePriceWithLineDiscount(var PurchasePrice: Record "Purchase Price"; var PurchaseLineDiscount: Record "Purchase Line Discount"; Item: Record Item)
     begin
         LibraryCosting.CreatePurchasePrice(
@@ -1816,7 +1815,7 @@ codeunit 134462 "ERM Copy Item"
         LibraryUtility.CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, NumberBase + '00001', NumberBase + '99999');
 
         InventorySetup.Get();
-        LibraryUtility.CreateNoSeriesRelationship(InventorySetup."Item Nos.", NoSeries.Code);
+        LibraryNoSeries.CreateNoSeriesRelationship(InventorySetup."Item Nos.", NoSeries.Code);
         exit(NoSeries.Code);
     end;
 

@@ -237,10 +237,10 @@ page 5804 "Applied Item Entries"
 
                     trigger OnAction()
                     var
-                        TrackingForm: Page "Order Tracking";
+                        OrderTracking: Page "Order Tracking";
                     begin
-                        TrackingForm.SetItemLedgEntry(Rec);
-                        TrackingForm.RunModal();
+                        OrderTracking.SetItemLedgEntry(Rec);
+                        OrderTracking.RunModal();
                     end;
                 }
             }

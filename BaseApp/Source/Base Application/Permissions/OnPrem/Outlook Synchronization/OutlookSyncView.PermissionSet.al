@@ -17,5 +17,6 @@ permissionset 6098 "Outlook Sync. - View"
                   tabledata "Change Log Setup" = R,
                   tabledata "Job Queue Category" = Rimd,
                   tabledata "Job Queue Entry" = RImd,
-                  tabledata "Job Queue Log Entry" = Ri;
+                  tabledata "Job Queue Log Entry" = Ri,
+                  tabledata "Job Queue Role Center Cue" = RImd;
 }

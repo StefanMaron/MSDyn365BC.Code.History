@@ -396,7 +396,9 @@ table 273 "Bank Acc. Reconciliation"
         NoBankAccountsMsg: Label 'You have not set up a bank account.\To use the payments import process, set up a bank account.';
         NoBankAccWithFileFormatMsg: Label 'No bank account exists that is ready for import of bank statement files.\Fill the Bank Statement Import Format field on the card of the bank account that you want to use.';
         PostHighConfidentLinesQst: Label 'All imported bank statement lines were applied with high confidence level.\Do you want to post the payment applications?';
+#pragma warning disable AA0470
         MustHaveValueQst: Label 'The bank account must have a value in %1. Do you want to open the bank account card?';
+#pragma warning restore AA0470
         NoTransactionsImportedMsg: Label 'No bank transactions were imported. For example, because the transactions were imported in other bank account reconciliations, or because they are already applied to bank account ledger entries. You can view the applied transactions on the Bank Account Statement List page and on the Posted Payment Reconciliations page.';
         BankReconciliationFeatureNameTelemetryTxt: Label 'Bank reconciliation', Locked = true;
         PaymentRecJournalFeatureNameTelemetryTxt: Label 'Payment Reconciliation', Locked = true;
@@ -471,7 +473,10 @@ table 273 "Bank Acc. Reconciliation"
         CreateBankAccountReconcillation();
         if BankAccountCouldBeUsedForImport() then begin
             DataExch.Init();
+            BindSubscription(ProcessBankAccRecLines);
+            ProcessBankAccRecLines.SetBankAccountNo(Rec."Bank Account No.");
             ProcessBankAccRecLines.ImportBankStatement(Rec, DataExch);
+            UnBindSubscription(ProcessBankAccRecLines);
         end;
     end;
 

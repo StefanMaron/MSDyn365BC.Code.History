@@ -1578,8 +1578,8 @@ codeunit 134994 "ERM Account Schedule II"
     [Scope('OnPrem')]
     procedure AccountScheduleResetColumnLayoutOnAccountScheduleChange()
     var
-        AccScheduleName: Array[2] of Record "Acc. Schedule Name";
-        FinancialReport: Array[2] of Record "Financial Report";
+        AccScheduleName: array[2] of Record "Acc. Schedule Name";
+        FinancialReport: array[2] of Record "Financial Report";
         ColumnLayoutName: Record "Column Layout Name";
         ColumnHeader: Text[30];
         FinancialReports: Testpage "Financial Reports";
@@ -1694,7 +1694,7 @@ codeunit 134994 "ERM Account Schedule II"
     procedure AccountScheduleResetColumnLayoutOnAccountScheduleChangeAccScheduleOverviewPage()
     var
         AccScheduleName: array[2] of Record "Acc. Schedule Name";
-        FinancialReport: Array[2] of Record "Financial Report";
+        FinancialReport: array[2] of Record "Financial Report";
         ColumnLayoutName: Record "Column Layout Name";
         AccScheduleOverview: TestPage "Acc. Schedule Overview";
         FinancialReports: TestPage "Financial Reports";
@@ -1917,6 +1917,7 @@ codeunit 134994 "ERM Account Schedule II"
         LibraryVariableStorage.Enqueue(ColumnLayout."Column Layout Name");
         LibraryVariableStorage.Enqueue(false); // Use additional currency amounts
         RunAccountScheduleReportAndLoad(AccScheduleName);
+
         // [THEN] The report prints "18" without currency symbol
         LibraryReportDataset.AssertElementWithValueExists(
             'ColumnValuesAsText', Format(Round(Amount * 0.18)));
@@ -1963,8 +1964,6 @@ codeunit 134994 "ERM Account Schedule II"
         AccountSchedule.CurrentSchedName.AssertEquals(FinancialReports."Financial Report Row Group".Value());
         AccountSchedule.Close();
     end;
-
-
 
     local procedure Initialize()
     var
@@ -2013,10 +2012,8 @@ codeunit 134994 "ERM Account Schedule II"
     local procedure CreateAccScheduleLineWithGLAcc(var AccScheduleLine: Record "Acc. Schedule Line"; AccScheduleName: Code[10]; GLAccountNo: Code[20]; ShowValue: Enum "Acc. Schedule Line Show")
     begin
         CreateAccScheduleLine(AccScheduleLine, AccScheduleName, AccScheduleLine."Totaling Type"::"Posting Accounts", GLAccountNo);
-        with AccScheduleLine do begin
-            Validate(Show, ShowValue);
-            Modify(true);
-        end;
+        AccScheduleLine.Validate(Show, ShowValue);
+        AccScheduleLine.Modify(true);
     end;
 
     local procedure CreateAccScheduleNameWithViewAndDimensions(var AccScheduleName: Record "Acc. Schedule Name"; DimensionValue: array[4] of Record "Dimension Value")
@@ -2037,13 +2034,11 @@ codeunit 134994 "ERM Account Schedule II"
     local procedure CreateAccScheduleLine(var AccScheduleLine: Record "Acc. Schedule Line"; AccScheduleName: Code[10]; NewTotalingTypeValue: Enum "Acc. Schedule Line Totaling Type"; NewTotalingValue: Text[250])
     begin
         LibraryERM.CreateAccScheduleLine(AccScheduleLine, AccScheduleName);
-        with AccScheduleLine do begin
-            Validate("Row No.", LibraryUtility.GenerateGUID());
-            Validate(Description, LibraryUtility.GenerateGUID());
-            Validate("Totaling Type", NewTotalingTypeValue);
-            Validate(Totaling, NewTotalingValue);
-            Modify(true);
-        end;
+        AccScheduleLine.Validate("Row No.", LibraryUtility.GenerateGUID());
+        AccScheduleLine.Validate(Description, LibraryUtility.GenerateGUID());
+        AccScheduleLine.Validate("Totaling Type", NewTotalingTypeValue);
+        AccScheduleLine.Validate(Totaling, NewTotalingValue);
+        AccScheduleLine.Modify(true);
     end;
 
     local procedure CreateColumnLayout(var ColumnLayout: Record "Column Layout")
@@ -2057,13 +2052,11 @@ codeunit 134994 "ERM Account Schedule II"
     local procedure CreateColumnLayoutLine(var ColumnLayout: Record "Column Layout"; ColumnLayoutName: Code[10]; NewColumnTypeValue: Enum "Column Layout Type"; NewFormulaValue: Code[80])
     begin
         LibraryERM.CreateColumnLayout(ColumnLayout, ColumnLayoutName);
-        with ColumnLayout do begin
-            Validate("Column No.", LibraryUtility.GenerateGUID());
-            Validate("Column Header", LibraryUtility.GenerateGUID());
-            Validate("Column Type", NewColumnTypeValue);
-            Validate(Formula, NewFormulaValue);
-            Modify(true);
-        end;
+        ColumnLayout.Validate("Column No.", LibraryUtility.GenerateGUID());
+        ColumnLayout.Validate("Column Header", LibraryUtility.GenerateGUID());
+        ColumnLayout.Validate("Column Type", NewColumnTypeValue);
+        ColumnLayout.Validate(Formula, NewFormulaValue);
+        ColumnLayout.Modify(true);
     end;
 
     local procedure CreateColumns(ColumnLayoutName: Record "Column Layout Name"; Formula: Code[80]; NumberOfColumns: Integer)
@@ -2078,12 +2071,10 @@ codeunit 134994 "ERM Account Schedule II"
     local procedure CreateSimpleColumnLayout(var ColumnLayout: Record "Column Layout"; ColumnLayoutName: Code[10])
     begin
         LibraryERM.CreateColumnLayout(ColumnLayout, ColumnLayoutName);
-        with ColumnLayout do begin
-            Validate("Column No.", LibraryUtility.GenerateGUID());
-            Validate("Column Header", LibraryUtility.GenerateGUID());
-            Validate("Column Type", "Column Layout Type"::"Net Change");
-            Modify(true);
-        end;
+        ColumnLayout.Validate("Column No.", LibraryUtility.GenerateGUID());
+        ColumnLayout.Validate("Column Header", LibraryUtility.GenerateGUID());
+        ColumnLayout.Validate("Column Type", "Column Layout Type"::"Net Change");
+        ColumnLayout.Modify(true);
     end;
 
     local procedure CreateLines(AccScheduleName: Record "Acc. Schedule Name"; Totaling: Text[250]; TotalingType: Enum "Acc. Schedule Line Totaling Type"; NumberOfRows: Integer)
@@ -2100,9 +2091,8 @@ codeunit 134994 "ERM Account Schedule II"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         GLAccountNo := LibraryERM.CreateGLAccountNo();
-        with GenJournalLine do
-            LibraryJournals.CreateGenJournalLineWithBatch(
-              GenJournalLine, "Document Type"::" ", "Account Type"::"G/L Account", GLAccountNo, NetChange);
+        LibraryJournals.CreateGenJournalLineWithBatch(
+              GenJournalLine, GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::"G/L Account", GLAccountNo, NetChange);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 

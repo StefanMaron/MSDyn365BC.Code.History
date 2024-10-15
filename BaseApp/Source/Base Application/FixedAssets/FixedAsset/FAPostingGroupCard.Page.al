@@ -6,6 +6,8 @@ page 5612 "FA Posting Group Card"
     PageType = Card;
     RefreshOnActivate = true;
     SourceTable = "FA Posting Group";
+    AboutTitle = 'About FA Posting Group Card';
+    AboutText = 'With the **FA Posting Group Card**, you manage information about an FA posting group and specify the G/L accounts for different transactions with fixed assets, such as Acquisition Cost Account, Accumulated Depreciation Account, Depreciation Expense Account, Gain and Loss Account on disposal.';
 
     layout
     {
@@ -14,6 +16,8 @@ page 5612 "FA Posting Group Card"
             group(General)
             {
                 Caption = 'General';
+                AboutTitle = 'Manage FA Posting Group G/L Accounts';
+                AboutText = 'Specify the G/L accounts which will update when you post the fixed assets transactions such as Acquisition Cost, Accumulated Depreciation, Write Down, Appreciation, Disposal and Disposal Gain/Loss accounts.';
                 field("Code"; Rec.Code)
                 {
                     ApplicationArea = FixedAssets;
@@ -98,6 +102,8 @@ page 5612 "FA Posting Group Card"
             group("Balancing Account")
             {
                 Caption = 'Balancing Account';
+                AboutTitle = 'Manage FA Posting Group Balancing Account';
+                AboutText = 'Specify the balancing G/L accounts which will update when you post the fixed assets transactions such as Acquisition, Depreciation, Appreciation, Write down, Sales and Maintenance.';
                 field("Acquisition Cost Bal. Acc."; Rec."Acquisition Cost Bal. Acc.")
                 {
                     ApplicationArea = FixedAssets;
@@ -162,6 +168,8 @@ page 5612 "FA Posting Group Card"
             group("Gross Disposal")
             {
                 Caption = 'Gross Disposal';
+                AboutTitle = 'Manage FA Posting Group Gross Disposal Account';
+                AboutText = 'Specify the Gain and Loss G/L accounts which will update at the time for fixed asset disposal as per Sales and Book value.';
                 group("Sales Acc. on Disposal")
                 {
                     Caption = 'Sales Acc. on Disposal';
@@ -391,7 +399,9 @@ page 5612 "FA Posting Group Card"
     }
 
     var
+#pragma warning disable AA0074
         Text19064976: Label 'Allocated %';
         Text19080001: Label 'Allocated %';
+#pragma warning restore AA0074
 }
 

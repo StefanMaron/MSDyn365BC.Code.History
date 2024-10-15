@@ -349,7 +349,7 @@ page 10052 "Service Order Stats."
                     Editable = false;
                     ToolTip = 'Specifies the cost adjustment amount, in local currency.';
 
-                    trigger OnLookup(var Text: Text): Boolean
+                    trigger OnDrillDown()
                     begin
                         Rec.LookupAdjmtValueEntries(1);
                     end;
@@ -438,7 +438,7 @@ page 10052 "Service Order Stats."
                     Editable = false;
                     ToolTip = 'Specifies the profit, expressed as an amount in local currency, which was associated with the service order, when it was originally posted.';
 
-                    trigger OnLookup(var Text: Text): Boolean
+                    trigger OnDrillDown()
                     begin
                         Rec.LookupAdjmtValueEntries(1);
                     end;
@@ -539,7 +539,7 @@ page 10052 "Service Order Stats."
                     Editable = false;
                     ToolTip = 'Specifies the adjusted cost of the service order, in local currency.';
 
-                    trigger OnLookup(var Text: Text): Boolean
+                    trigger OnDrillDown()
                     begin
                         Rec.LookupAdjmtValueEntries(1);
                     end;
@@ -968,10 +968,10 @@ page 10052 "Service Order Stats."
         TotalAmount1[IndexNo] :=
           TotalServLine[IndexNo]."Line Amount" - TotalServLine[IndexNo]."Inv. Discount Amount";
         VATAmount[IndexNo] := SalesTaxAmountLine.GetTotalTaxAmountFCY();
-        if Rec."Prices Including VAT" then begin
+        if Rec."Prices Including VAT" then
             TotalServLine[IndexNo]."Line Amount" :=
-              TotalAmount1[IndexNo] + TotalServLine[IndexNo]."Inv. Discount Amount";
-        end else
+              TotalAmount1[IndexNo] + TotalServLine[IndexNo]."Inv. Discount Amount"
+        else
             TotalAmount2[IndexNo] := TotalAmount1[IndexNo] + VATAmount[IndexNo];
 
         if Rec."Prices Including VAT" then
@@ -1079,10 +1079,10 @@ page 10052 "Service Order Stats."
 
         for i := 1 to MaxIndexNo do begin
             if (i = 1) or not PartialInvoicing then
-                if IndexNo[i] = 1 then begin
+                if IndexNo[i] = 1 then
                     TempSalesTaxLine1.SetInvoiceDiscountAmount(
-                      TotalServLine[IndexNo[i]]."Inv. Discount Amount", TotalServLine[IndexNo[i]]."Currency Code", Rec."Prices Including VAT", Rec."VAT Base Discount %");
-                end else
+                      TotalServLine[IndexNo[i]]."Inv. Discount Amount", TotalServLine[IndexNo[i]]."Currency Code", Rec."Prices Including VAT", Rec."VAT Base Discount %")
+                else
                     TempSalesTaxLine2.SetInvoiceDiscountAmount(
                       TotalServLine[IndexNo[i]]."Inv. Discount Amount", TotalServLine[IndexNo[i]]."Currency Code", Rec."Prices Including VAT", Rec."VAT Base Discount %");
 

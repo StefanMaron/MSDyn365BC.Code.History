@@ -148,7 +148,9 @@ report 5908 "Service Order - Response Time"
     end;
 
     var
+#pragma warning disable AA0074
         Text000: Label 'Average Response Time Per ';
+#pragma warning restore AA0074
         ServShipmentHeaderFilter: Text;
         TotalTime: Decimal;
         TotalCalls: Integer;

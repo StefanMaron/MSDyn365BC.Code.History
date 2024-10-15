@@ -1502,11 +1502,9 @@ codeunit 142061 "ERM Misc. Report II"
         GenJournalTemplate: Record "Gen. Journal Template";
     begin
         LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
-        with GenJournalTemplate do begin
-            LibraryERM.CreateGenJournalBatch(GenJournalBatch, Name);
-            Validate(Type, Type::Payments);
-            Modify(true);
-        end;
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
+        GenJournalTemplate.Validate(Type, GenJournalTemplate.Type::Payments);
+        GenJournalTemplate.Modify(true);
     end;
 
     local procedure CreatePaymentGeneralBatch(var GenJournalBatch: Record "Gen. Journal Batch")
@@ -1644,15 +1642,13 @@ codeunit 142061 "ERM Misc. Report II"
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
-        with CustLedgerEntry do begin
-            Reset();
-            SetRange("Customer No.", CustomerNo);
-            FindLast();
-            CalcFields("Remaining Amount");
-            Validate("Applies-to ID", ApplyTo);
-            Validate("Amount to Apply", "Remaining Amount");
-            Modify(true);
-        end;
+        CustLedgerEntry.Reset();
+        CustLedgerEntry.SetRange("Customer No.", CustomerNo);
+        CustLedgerEntry.FindLast();
+        CustLedgerEntry.CalcFields("Remaining Amount");
+        CustLedgerEntry.Validate("Applies-to ID", ApplyTo);
+        CustLedgerEntry.Validate("Amount to Apply", CustLedgerEntry."Remaining Amount");
+        CustLedgerEntry.Modify(true);
     end;
 
     [Normal]
@@ -1660,15 +1656,13 @@ codeunit 142061 "ERM Misc. Report II"
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
-        with VendorLedgerEntry do begin
-            Reset();
-            SetRange("Vendor No.", VendorNo);
-            FindLast();
-            CalcFields("Remaining Amount");
-            Validate("Applies-to ID", ApplyTo);
-            Validate("Amount to Apply", "Remaining Amount");
-            Modify(true);
-        end;
+        VendorLedgerEntry.Reset();
+        VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
+        VendorLedgerEntry.FindLast();
+        VendorLedgerEntry.CalcFields("Remaining Amount");
+        VendorLedgerEntry.Validate("Applies-to ID", ApplyTo);
+        VendorLedgerEntry.Validate("Amount to Apply", VendorLedgerEntry."Remaining Amount");
+        VendorLedgerEntry.Modify(true);
     end;
 
     local procedure EnqueueValuesForCustAccountDetailReport(No: Text[50]; PrintAmtInCustCurrency: Boolean; NewPagePerAccount: Boolean; AccWithBalanceOnly: Boolean)

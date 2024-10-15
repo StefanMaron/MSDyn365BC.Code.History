@@ -18,8 +18,10 @@ codeunit 7319 "Bin Content Create"
         BinContent: Record "Bin Content";
         Location: Record Location;
 
+#pragma warning disable AA0074
         Text000: Label 'Do you want to create the bin content?';
         Text001: Label 'There is nothing to create.';
+#pragma warning restore AA0074
 
     local procedure "Code"()
     begin

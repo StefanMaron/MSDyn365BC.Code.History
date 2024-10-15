@@ -117,15 +117,13 @@
         // [SCENARIO] There is one "Sales Tax" posting setup entry with "Tax Category" = 'E'
         Initialize();
 
-        with VATPostingSetup do begin
-            Assert.RecordCount(VATPostingSetup, 1);
-            FindFirst();
-            TestField("VAT Bus. Posting Group", '');
-            TestField("VAT Prod. Posting Group", '');
-            TestField("VAT Calculation Type", "VAT Calculation Type"::"Sales Tax");
-            TestField("VAT %", 0);
-            TestField("Tax Category", 'E');
-        end;
+        Assert.RecordCount(VATPostingSetup, 1);
+        VATPostingSetup.FindFirst();
+        VATPostingSetup.TestField("VAT Bus. Posting Group", '');
+        VATPostingSetup.TestField("VAT Prod. Posting Group", '');
+        VATPostingSetup.TestField("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Sales Tax");
+        VATPostingSetup.TestField("VAT %", 0);
+        VATPostingSetup.TestField("Tax Category", 'E');
     end;
 
     [Test]

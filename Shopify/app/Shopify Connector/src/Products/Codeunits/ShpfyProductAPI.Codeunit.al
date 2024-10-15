@@ -26,9 +26,8 @@ codeunit 30176 "Shpfy Product API"
     internal procedure CreateProduct(var ShopifyProduct: Record "Shpfy Product"; var ShopifyVariant: Record "Shpfy Variant"; var ShopifyTag: Record "Shpfy Tag"): BigInteger
     var
         NewShopifyProduct: Record "Shpfy Product";
-        ShopLocation: Record "Shpfy Shop Location";
         NewShopifyVariant: Record "Shpfy Variant";
-        IStockAvailable: Interface "Shpfy IStock Available";
+        EmptyShopifyVariant: Record "Shpfy Variant";
         JArray: JsonArray;
         JResponse: JsonToken;
         JToken: JsonToken;
@@ -40,17 +39,17 @@ codeunit 30176 "Shpfy Product API"
         ProductEvents.OnBeforeSendCreateShopifyProduct(Shop, ShopifyProduct, ShopifyVariant, ShopifyTag);
         GraphQuery.Append('{"query":"mutation {productCreate(input: {');
         GraphQuery.Append('title: \"');
-        GraphQuery.Append(CommunicationMgt.EscapeGrapQLData(ShopifyProduct.Title));
+        GraphQuery.Append(CommunicationMgt.EscapeGraphQLData(ShopifyProduct.Title));
         GraphQuery.Append('\"');
         Data := ShopifyProduct.GetDescriptionHtml();
         if Data <> '' then begin
             GraphQuery.Append(', descriptionHtml: \"');
-            GraphQuery.Append(CommunicationMgt.EscapeGrapQLData(Data));
+            GraphQuery.Append(CommunicationMgt.EscapeGraphQLData(Data));
             GraphQuery.Append('\"');
         end;
         if ShopifyProduct."Product Type" <> '' then begin
             GraphQuery.Append(', productType: \"');
-            GraphQuery.Append(CommunicationMgt.EscapeGrapQLData(ShopifyProduct."Product Type"));
+            GraphQuery.Append(CommunicationMgt.EscapeGraphQLData(ShopifyProduct."Product Type"));
             GraphQuery.Append('\"');
         end;
         GraphQuery.Append(', status: ');
@@ -63,87 +62,10 @@ codeunit 30176 "Shpfy Product API"
         end;
         if ShopifyProduct.Vendor <> '' then begin
             GraphQuery.Append(', vendor: \"');
-            GraphQuery.Append(CommunicationMgt.EscapeGrapQLData(ShopifyProduct.Vendor));
+            GraphQuery.Append(CommunicationMgt.EscapeGraphQLData(ShopifyProduct.Vendor));
             GraphQuery.Append('\"');
         end;
-        if ShopifyProduct."Has Variants" or (ShopifyVariant."UoM Option Id" > 0) then begin
-            GraphQuery.Append(', options: [\"');
-            GraphQuery.Append(CommunicationMgt.EscapeGrapQLData(ShopifyVariant."Option 1 Name"));
-            if ShopifyVariant."Option 2 Name" <> '' then begin
-                GraphQuery.Append('\", \"');
-                GraphQuery.Append(CommunicationMgt.EscapeGrapQLData(ShopifyVariant."Option 2 Name"));
-            end;
-            GraphQuery.Append('\"]');
-        end;
-        GraphQuery.Append(', published: true');
-        GraphQuery.Append(', variants: {inventoryPolicy: ');
-        GraphQuery.Append(ShopifyVariant."Inventory Policy".Names.Get(ShopifyVariant."Inventory Policy".Ordinals.IndexOf(ShopifyVariant."Inventory Policy".AsInteger())));
-        if ShopifyVariant.Barcode <> '' then begin
-            GraphQuery.Append(', barcode: \"');
-            GraphQuery.Append(CommunicationMgt.EscapeGrapQLData(ShopifyVariant.Barcode));
-            GraphQuery.Append('\"');
-        end;
-        if ShopifyVariant.SKU <> '' then begin
-            GraphQuery.Append(', sku: \"');
-            GraphQuery.Append(CommunicationMgt.EscapeGrapQLData(ShopifyVariant.SKU));
-            GraphQuery.Append('\"');
-        end;
-        if ShopifyVariant.Taxable then
-            GraphQuery.Append(', taxable: true');
-        if ShopifyVariant."Tax Code" <> '' then begin
-            GraphQuery.Append(', taxCode: \"');
-            GraphQuery.Append(ShopifyVariant."Tax Code");
-            GraphQuery.Append('\"');
-        end;
-        if ShopifyVariant.Weight > 0 then begin
-            GraphQuery.Append(', weight: ');
-            GraphQuery.Append(Format(ShopifyVariant.Weight, 0, 9));
-        end;
-        if ShopifyVariant.Price > 0 then begin
-            GraphQuery.Append(', price: \"');
-            GraphQuery.Append(Format(ShopifyVariant.Price, 0, 9));
-            GraphQuery.Append('\"')
-        end;
-        if ShopifyVariant."Compare at Price" > ShopifyVariant.Price then begin
-            GraphQuery.Append(', compareAtPrice: \"');
-            GraphQuery.Append(Format(ShopifyVariant."Compare at Price", 0, 9));
-            GraphQuery.Append('\"');
-        end;
-        if ShopifyProduct."Has Variants" or (ShopifyVariant."UoM Option Id" > 0) then begin
-            GraphQuery.Append(', options: [\"');
-            GraphQuery.Append(ShopifyVariant."Option 1 Value");
-            if ShopifyVariant."Option 2 Name" <> '' then begin
-                GraphQuery.Append('\", \"');
-                GraphQuery.Append(ShopifyVariant."Option 2 Value");
-            end;
-            GraphQuery.Append('\"]');
-        end;
-        ShopLocation.SetRange("Shop Code", ShopifyProduct."Shop Code");
-        ShopLocation.SetRange(Active, true);
-        ShopLocation.SetRange("Default Product Location", true);
-        if ShopLocation.FindSet(false) then begin
-            GraphQuery.Append(', inventoryQuantities: [');
-            repeat
-                IStockAvailable := ShopLocation."Stock Calculation";
-                GraphQuery.Append('{availableQuantity: 0, locationId: \"gid://shopify/Location/');
-                GraphQuery.Append(Format(ShopLocation.Id));
-                GraphQuery.Append('\"}, ');
-            until ShopLocation.Next() = 0;
-            GraphQuery.Remove(GraphQuery.Length - 1, 2);
-            GraphQuery.Append(']');
-        end;
-        GraphQuery.Append(', inventoryItem: {tracked: ');
-        if Shop."Inventory Tracked" then
-            GraphQuery.Append('true')
-        else
-            GraphQuery.Append('false');
-        if ShopifyVariant."Unit Cost" > 0 then begin
-            GraphQuery.Append(', cost: \"');
-            GraphQuery.Append(Format(ShopifyVariant."Unit Cost", 0, 9));
-            GraphQuery.Append('\"');
-        end;
-        GraphQuery.Append('}}}) ');
-
+        GraphQuery.Append(', published: true}) ');
         GraphQuery.Append('{product {legacyResourceId, onlineStoreUrl, onlineStorePreviewUrl, createdAt, updatedAt, tags, variants(first: 1) {edges {node {legacyResourceId, createdAt, updatedAt}}}}, userErrors {field, message}}');
         GraphQuery.Append('}"}');
 
@@ -169,6 +91,8 @@ codeunit 30176 "Shpfy Product API"
             NewShopifyVariant."Updated At" := JsonHelper.GetValueAsDateTime(JToken, 'edges.node.updatedAt');
             NewShopifyVariant.Insert();
         end;
+
+        VariantApi.UpdateProductVariant(NewShopifyVariant, EmptyShopifyVariant, true, ShopifyProduct."Has Variants");
 
         while ShopifyVariant.Next() > 0 do begin
             ShopifyVariant."Product Id" := NewShopifyProduct.Id;
@@ -326,7 +250,7 @@ codeunit 30176 "Shpfy Product API"
     var
         Data: Dictionary of [BigInteger, Text];
     begin
-        Data.Add(CommunicationMgt.GetIdOfGId(JsonHelper.GetValueAsText(JImageNode, 'node.id')), JsonHelper.GetValueAsText(JImageNode, 'node.transformedSrc'));
+        Data.Add(CommunicationMgt.GetIdOfGId(JsonHelper.GetValueAsText(JImageNode, 'node.id')), JsonHelper.GetValueAsText(JImageNode, 'node.image.url'));
         ImageData := Data;
     end;
 
@@ -415,6 +339,7 @@ codeunit 30176 "Shpfy Product API"
         JItem: JsonToken;
         JResponse: JsonToken;
         Cursor: Text;
+        MediaContentType: Text;
     begin
         Clear(ProductImages);
         GraphQLType := GraphQLType::GetProductImages;
@@ -425,12 +350,16 @@ codeunit 30176 "Shpfy Product API"
                     Cursor := JsonHelper.GetValueAsText(JItem.AsObject(), 'cursor');
                     if JsonHelper.GetJsonObject(JItem.AsObject(), JNode, 'node') then begin
                         Id := JsonHelper.GetValueAsBigInteger(JNode, 'legacyResourceId');
-                        if JsonHelper.GetJsonArray(JNode, JImages, 'images.edges') and (JImages.Count = 1) then begin
-                            foreach JImage in JImages do
-                                GetImageData(JImage, ImageData);
-                            ProductImages.Add(Id, ImageData);
-                        end;
-                    end;
+                        if JsonHelper.GetJsonArray(JNode, JImages, 'media.edges') then
+                            if JImages.Count = 1 then begin
+                                JImages.Get(0, JImage);
+                                MediaContentType := JsonHelper.GetValueAsText(JImage, 'node.mediaContentType');
+                                if MediaContentType = 'IMAGE' then begin
+                                    GetImageData(JImage, ImageData);
+                                    ProductImages.Add(Id, ImageData);
+                                end;
+                            end;
+                    end
                 end;
                 if Parameters.ContainsKey('After') then
                     Parameters.Set('After', Cursor)
@@ -480,18 +409,18 @@ codeunit 30176 "Shpfy Product API"
         GraphQuery.Append('\"');
         if ShopifyProduct.Title <> xShopifyProduct.Title then begin
             GraphQuery.Append(', title: \"');
-            GraphQuery.Append(CommunicationMgt.EscapeGrapQLData(ShopifyProduct.Title));
+            GraphQuery.Append(CommunicationMgt.EscapeGraphQLData(ShopifyProduct.Title));
             GraphQuery.Append('\"');
         end;
         Data := ShopifyProduct.GetDescriptionHtml();
         if Data <> xShopifyProduct.GetDescriptionHtml() then begin
             GraphQuery.Append(', descriptionHtml: \"');
-            GraphQuery.Append(CommunicationMgt.EscapeGrapQLData(Data));
+            GraphQuery.Append(CommunicationMgt.EscapeGraphQLData(Data));
             GraphQuery.Append('\"');
         end;
         if ShopifyProduct."Product Type" <> xShopifyProduct."Product Type" then begin
             GraphQuery.Append(', productType: \"');
-            GraphQuery.Append(CommunicationMgt.EscapeGrapQLData(ShopifyProduct."Product Type"));
+            GraphQuery.Append(CommunicationMgt.EscapeGraphQLData(ShopifyProduct."Product Type"));
             GraphQuery.Append('\"');
         end;
         if ShopifyProduct.Status <> xShopifyProduct.Status then begin
@@ -501,21 +430,21 @@ codeunit 30176 "Shpfy Product API"
         Data := ShopifyProduct.GetCommaSeparatedTags();
         if Data <> '' then begin
             GraphQuery.Append(', tags: \"');
-            GraphQuery.Append(CommunicationMgt.EscapeGrapQLData(Data));
+            GraphQuery.Append(CommunicationMgt.EscapeGraphQLData(Data));
             GraphQuery.Append('\"');
         end;
         if ShopifyProduct.Vendor <> xShopifyProduct.Vendor then begin
             GraphQuery.Append(', vendor: \"');
-            GraphQuery.Append(CommunicationMgt.EscapeGrapQLData(ShopifyProduct.Vendor));
+            GraphQuery.Append(CommunicationMgt.EscapeGraphQLData(ShopifyProduct.Vendor));
             GraphQuery.Append('\"');
         end;
         if (ShopifyProduct."SEO Title" <> xShopifyProduct."SEO Title") or (ShopifyProduct."SEO Description" <> xShopifyProduct."SEO Description") then begin
             GraphQuery.Append(', seo: {');
             GraphQuery.Append('description: \"');
-            GraphQuery.Append(CommunicationMgt.EscapeGrapQLData(ShopifyProduct."SEO Description"));
+            GraphQuery.Append(CommunicationMgt.EscapeGraphQLData(ShopifyProduct."SEO Description"));
             GraphQuery.Append('\", ');
             GraphQuery.Append('title: \"');
-            GraphQuery.Append(CommunicationMgt.EscapeGrapQLData(ShopifyProduct."SEO Title"));
+            GraphQuery.Append(CommunicationMgt.EscapeGraphQLData(ShopifyProduct."SEO Title"));
             GraphQuery.Append('\", ');
             GraphQuery.Remove(GraphQuery.Length - 1, 2);
             GraphQuery.Append('}')
@@ -559,7 +488,9 @@ codeunit 30176 "Shpfy Product API"
     /// <returns>Return variable "Result" of type Boolean.</returns>
     internal procedure UpdateShopifyProductFields(var ShopifyProduct: record "Shpfy Product"; JProduct: JsonObject) Result: Boolean
     var
+        MetafieldAPI: Codeunit "Shpfy Metafield API";
         UpdatedAt: DateTime;
+        JMetafields: JsonArray;
     begin
         UpdatedAt := JsonHelper.GetValueAsDateTime(JProduct, 'updatedAt');
         if UpdatedAt < ShopifyProduct."Updated At" then
@@ -579,7 +510,7 @@ codeunit 30176 "Shpfy Product API"
         ShopifyProduct."Product Type" := JsonHelper.GetValueAsText(JProduct, 'productType', MaxStrLen(ShopifyProduct."Product Type"));
 #pragma warning restore AA0139
         ShopifyProduct.UpdateTags(JsonHelper.GetArrayAsText(JProduct, 'tags'));
-#pragma warning disable AA0139
+#pragma warning disable AA0139        
         ShopifyProduct.Title := JsonHelper.GetValueAsText(JProduct, 'title', MaxStrLen(ShopifyProduct.Title));
         ShopifyProduct.Vendor := JsonHelper.GetValueAsText(JProduct, 'vendor', MaxStrLen(ShopifyProduct.Vendor));
         ShopifyProduct."SEO Description" := JsonHelper.GetValueAsText(JProduct, 'seo.description', MaxStrLen(ShopifyProduct."SEO Description"));
@@ -587,8 +518,10 @@ codeunit 30176 "Shpfy Product API"
 #pragma warning restore AA0139
         ShopifyProduct.Status := ConvertToProductStatus(JsonHelper.GetValueAsText(JProduct, 'status'));
         ShopifyProduct.Modify(false);
-    end;
 
+        if JsonHelper.GetJsonArray(JProduct, JMetafields, 'metafields.edges') then
+            MetafieldAPI.UpdateMetafieldsFromShopify(JMetafields, Database::"Shpfy Product", ShopifyProduct.Id);
+    end;
 
     local procedure ConvertToProductStatus(Value: Text): Enum "Shpfy Product Status"
     begin
@@ -602,5 +535,25 @@ codeunit 30176 "Shpfy Product API"
     local procedure ConvertToProductStatus(Value: Enum "Shpfy Product Status"): Text
     begin
         exit(Value.Names.Get(Value.Ordinals.IndexOf(Value.AsInteger())).ToUpper());
+    end;
+
+    /// <summary>
+    /// Gets all the Product Options for a product.
+    /// </summary>
+    /// <param name="ShopifyProductId">Shopify product ID for which the options are to be retrieved.</param>
+    /// <returns>Dictionary of option IDs and option names.</returns>
+    internal procedure GetProductOptions(ShopifyProductId: BigInteger) Options: Dictionary of [text, Text]
+    var
+        Parameters: Dictionary of [Text, Text];
+        JResponse: JsonToken;
+        JOptions: JsonArray;
+        JOption: JsonToken;
+    begin
+        Parameters.Add('ProductId', Format(ShopifyProductId));
+        JResponse := CommunicationMgt.ExecuteGraphQL(Enum::"Shpfy GraphQL Type"::GetProductOptions, Parameters);
+
+        JsonHelper.GetJsonArray(JResponse, JOptions, 'data.product.options');
+        foreach JOption in JOptions do
+            Options.Add(JsonHelper.GetValueAsText(JOption, 'id'), JsonHelper.GetValueAsText(JOption, 'name'));
     end;
 }

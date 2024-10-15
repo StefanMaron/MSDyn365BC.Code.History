@@ -753,6 +753,9 @@ codeunit 130512 "Library - Purchase"
     var
         NoSeries: Codeunit "No. Series";
         PurchPost: Codeunit "Purch.-Post";
+        RecRef: RecordRef;
+        FieldRef: FieldRef;
+        DocumentFieldNo: Integer;
     begin
         // Post the purchase document.
         // Depending on the document type and posting type return the number of the:
@@ -770,19 +773,19 @@ codeunit 130512 "Library - Purchase"
                 if PurchaseHeader.Invoice and (PurchaseHeader."Posting No. Series" <> '') then begin
                     if (PurchaseHeader."Posting No." = '') then
                         PurchaseHeader."Posting No." := NoSeries.GetNextNo(PurchaseHeader."Posting No. Series", LibraryUtility.GetNextNoSeriesPurchaseDate(PurchaseHeader."Posting No. Series"));
-                    DocumentNo := PurchaseHeader."Posting No.";
+                    DocumentFieldNo := PurchaseHeader.FieldNo("Last Posting No.");
                 end;
             PurchaseHeader."Document Type"::Order:
                 begin
                     if PurchaseHeader.Receive and (PurchaseHeader."Receiving No. Series" <> '') then begin
                         if (PurchaseHeader."Receiving No." = '') then
                             PurchaseHeader."Receiving No." := NoSeries.GetNextNo(PurchaseHeader."Receiving No. Series", LibraryUtility.GetNextNoSeriesPurchaseDate(PurchaseHeader."Receiving No. Series"));
-                        DocumentNo := PurchaseHeader."Receiving No.";
+                        DocumentFieldNo := PurchaseHeader.FieldNo("Last Receiving No.");
                     end;
                     if PurchaseHeader.Invoice and (PurchaseHeader."Posting No. Series" <> '') then begin
                         if (PurchaseHeader."Posting No." = '') then
                             PurchaseHeader."Posting No." := NoSeries.GetNextNo(PurchaseHeader."Posting No. Series", LibraryUtility.GetNextNoSeriesPurchaseDate(PurchaseHeader."Posting No. Series"));
-                        DocumentNo := PurchaseHeader."Posting No.";
+                        DocumentFieldNo := PurchaseHeader.FieldNo("Last Posting No.");
                     end;
                 end;
             PurchaseHeader."Document Type"::"Return Order":
@@ -790,12 +793,12 @@ codeunit 130512 "Library - Purchase"
                     if PurchaseHeader.Ship and (PurchaseHeader."Return Shipment No. Series" <> '') then begin
                         if (PurchaseHeader."Return Shipment No." = '') then
                             PurchaseHeader."Return Shipment No." := NoSeries.GetNextNo(PurchaseHeader."Return Shipment No. Series", LibraryUtility.GetNextNoSeriesPurchaseDate(PurchaseHeader."Return Shipment No. Series"));
-                        DocumentNo := PurchaseHeader."Return Shipment No.";
+                        DocumentFieldNo := PurchaseHeader.FieldNo("Last Return Shipment No.");
                     end;
                     if PurchaseHeader.Invoice and (PurchaseHeader."Posting No. Series" <> '') then begin
                         if (PurchaseHeader."Posting No." = '') then
                             PurchaseHeader."Posting No." := NoSeries.GetNextNo(PurchaseHeader."Posting No. Series", LibraryUtility.GetNextNoSeriesPurchaseDate(PurchaseHeader."Posting No. Series"));
-                        DocumentNo := PurchaseHeader."Posting No.";
+                        DocumentFieldNo := PurchaseHeader.FieldNo("Last Posting No.");
                     end;
                 end;
             else
@@ -803,6 +806,10 @@ codeunit 130512 "Library - Purchase"
         end;
 
         CODEUNIT.Run(CODEUNIT::"Purch.-Post", PurchaseHeader);
+
+        RecRef.GetTable(PurchaseHeader);
+        FieldRef := RecRef.Field(DocumentFieldNo);
+        DocumentNo := FieldRef.Value();
     end;
 
     procedure QuoteMakeOrder(var PurchaseHeader: Record "Purchase Header"): Code[20]

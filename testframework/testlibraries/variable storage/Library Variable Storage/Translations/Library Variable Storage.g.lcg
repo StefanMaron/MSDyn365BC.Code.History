@@ -11,7 +11,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Library - Variable Storage - NamedType AssertEmptyErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestLibraries.Utilities)(LookupHint=Codeunit Library - Variable Storage - NamedType AssertEmptyErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1656420359 - NamedType 2424307856" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -20,7 +20,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Library - Variable Storage - NamedType AssertFullErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestLibraries.Utilities)(LookupHint=Codeunit Library - Variable Storage - NamedType AssertFullErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1656420359 - NamedType 1475155589" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -29,7 +29,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Library - Variable Storage - NamedType OutOfBoundsErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestLibraries.Utilities)(LookupHint=Codeunit Library - Variable Storage - NamedType OutOfBoundsErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1656420359 - NamedType 561567251" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -38,7 +38,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Library - Variable Storage - NamedType OverflowErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestLibraries.Utilities)(LookupHint=Codeunit Library - Variable Storage - NamedType OverflowErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1656420359 - NamedType 3608395537" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -47,7 +47,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Library - Variable Storage - NamedType UnderflowErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestLibraries.Utilities)(LookupHint=Codeunit Library - Variable Storage - NamedType UnderflowErr)]]></Cmt>
     </Cmts>
   </Item>
 </LCX>

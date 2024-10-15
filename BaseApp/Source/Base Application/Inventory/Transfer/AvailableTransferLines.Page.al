@@ -190,10 +190,14 @@ page 99000896 "Available - Transfer Lines"
         TransferDirection: Enum "Transfer Direction";
         DirectionIsSet: Boolean;
 
+#pragma warning disable AA0074
         Text000: Label 'Direction has not been set.';
         Text001: Label 'Fully reserved.';
         Text002: Label 'Do you want to cancel the reservation?';
+#pragma warning disable AA0470
         Text003: Label 'Available Quantity is %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     protected var
         QtyToReserve: Decimal;

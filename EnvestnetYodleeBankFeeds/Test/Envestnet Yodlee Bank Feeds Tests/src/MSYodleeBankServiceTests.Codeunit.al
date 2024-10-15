@@ -1974,6 +1974,7 @@ codeunit 139501 "MS - Yodlee Bank Service Tests"
 
         // Assert
         asserterror MSYodleeBankServiceSetup.GET();
+        Assert.ExpectedErrorCannotFind(Database::"MS - Yodlee Bank Service Setup");
         Assert.ExpectedError('The MS - Yodlee Bank Service Setup does not exist');
     end;
 

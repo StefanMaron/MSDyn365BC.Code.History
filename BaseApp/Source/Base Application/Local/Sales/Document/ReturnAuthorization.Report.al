@@ -395,7 +395,7 @@ report 10081 "Return Authorization"
                 FormatAddress.SalesHeaderShipTo(ShipToAddress, ShipToAddress, "Sales Header");
 
                 if LogInteraction then
-                    if not CurrReport.Preview then begin
+                    if not CurrReport.Preview then
                         if "Bill-to Contact No." <> '' then
                             SegManagement.LogDocument(
                               18, "No.", 0, 0, DATABASE::Contact, "Bill-to Contact No.",
@@ -404,7 +404,6 @@ report 10081 "Return Authorization"
                             SegManagement.LogDocument(
                               18, "No.", 0, 0, DATABASE::Customer, "Bill-to Customer No.",
                               "Salesperson Code", "Campaign No.", "Posting Description", '');
-                    end;
             end;
 
             trigger OnPreDataItem()

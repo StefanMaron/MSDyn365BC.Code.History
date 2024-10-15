@@ -19,7 +19,7 @@ codeunit 134329 "ERM Purchase Return Order"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
-#if not CLEAN23
+#if not CLEAN25
         CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
 #endif
         Assert: Codeunit Assert;
@@ -316,7 +316,7 @@ codeunit 134329 "ERM Purchase Return Order"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeaderRet, true, true);
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Test]
     [HandlerFunctions('ConfirmHandler')]
     [Scope('OnPrem')]
@@ -587,14 +587,12 @@ codeunit 134329 "ERM Purchase Return Order"
         JobQueueEntry.FindFirst();
         LibraryJobQueue.FindAndRunJobQueueEntryByRecordId(PurchaseHeader.RecordId, true);
 
-        // [THEN] Error message contains one record for Purchase Header
+        // [THEN] Error message contains zero record for Purchase Header
         ErrorMessage.SetRange("Context Record ID", PurchaseHeader.RecordId);
-        Assert.RecordCount(ErrorMessage, 1);
-        ErrorMessage.FindFirst();
-        Assert.IsSubstring(ErrorMessage."Message", PurchaseHeader.FieldCaption("Vendor Cr. Memo No."));
-        LibraryVariableStorage.AssertEmpty();
+        Assert.RecordCount(ErrorMessage, 0);
         // [THEN] Purchase Return Order is not posted
         PurchaseHeader.Get(PurchaseHeader."Document Type"::"Return Order", PurchaseHeader."No.");
+        Assert.AreEqual(PurchaseHeader."Job Queue Status", PurchaseHeader."Job Queue Status"::Error, 'Wrong JQ status in purchase header');
     end;
 
     [Test]
@@ -1534,11 +1532,9 @@ codeunit 134329 "ERM Purchase Return Order"
         GLAccount: Record "G/L Account";
     begin
         LibraryERM.CreateGLAccount(GLAccount);
-        with PaymentMethod do begin
-            LibraryERM.CreatePaymentMethod(PaymentMethod);
-            Validate("Bal. Account No.", GLAccount."No.");
-            Modify(true);
-        end;
+        LibraryERM.CreatePaymentMethod(PaymentMethod);
+        PaymentMethod.Validate("Bal. Account No.", GLAccount."No.");
+        PaymentMethod.Modify(true);
     end;
 
     local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; ItemNo: Code[20]; VendorNo: Code[20])
@@ -1664,17 +1660,15 @@ codeunit 134329 "ERM Purchase Return Order"
         CodeCoverage: Record "Code Coverage";
     begin
         CodeCoverageMgt.Refresh();
-        with CodeCoverage do begin
-            SetRange("Line Type", "Line Type"::Code);
-            SetRange("Object Type", ObjectType);
-            SetRange("Object ID", ObjectID);
-            SetFilter("No. of Hits", '>%1', 0);
-            SetFilter(Line, '@*' + CodeLine + '*');
-            if FindSet() then
-                repeat
-                    NoOfHits += "No. of Hits";
-                until Next() = 0;
-        end;
+        CodeCoverage.SetRange("Line Type", CodeCoverage."Line Type"::Code);
+        CodeCoverage.SetRange("Object Type", ObjectType);
+        CodeCoverage.SetRange("Object ID", ObjectID);
+        CodeCoverage.SetFilter("No. of Hits", '>%1', 0);
+        CodeCoverage.SetFilter(Line, '@*' + CodeLine + '*');
+        if CodeCoverage.FindSet() then
+            repeat
+                NoOfHits += CodeCoverage."No. of Hits";
+            until CodeCoverage.Next() = 0;
     end;
 
     local procedure FindPurchaseLine(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header")
@@ -1713,22 +1707,18 @@ codeunit 134329 "ERM Purchase Return Order"
 
     local procedure FindPurchCrMemoLine(var PurchCrMemoLine: Record "Purch. Cr. Memo Line"; PostedCrMemoNo: Code[20])
     begin
-        with PurchCrMemoLine do begin
-            SetRange("Document No.", PostedCrMemoNo);
-            SetRange(Type, Type::Item);
-            FindFirst();
-        end;
+        PurchCrMemoLine.SetRange("Document No.", PostedCrMemoNo);
+        PurchCrMemoLine.SetRange(Type, PurchCrMemoLine.Type::Item);
+        PurchCrMemoLine.FindFirst();
     end;
 
     local procedure FindReturnShipmentLineNo(DocumentNo: Code[20]): Integer
     var
         ReturnShipmentLine: Record "Return Shipment Line";
     begin
-        with ReturnShipmentLine do begin
-            SetRange("Document No.", DocumentNo);
-            FindFirst();
-            exit("Line No.");
-        end;
+        ReturnShipmentLine.SetRange("Document No.", DocumentNo);
+        ReturnShipmentLine.FindFirst();
+        exit(ReturnShipmentLine."Line No.");
     end;
 
     local procedure FindVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup")
@@ -1828,7 +1818,7 @@ codeunit 134329 "ERM Purchase Return Order"
         ModifyPurchaseLine(PurchaseLine, PurchaseHeader);
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     local procedure SetupLineDiscount(var PurchaseLineDiscount: Record "Purchase Line Discount")
     var
         Item: Record Item;
@@ -2112,13 +2102,11 @@ codeunit 134329 "ERM Purchase Return Order"
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
-        with ItemLedgerEntry do begin
-            SetRange("Document No.", DocumentNo);
-            SetRange("Entry Type", "Entry Type"::"Negative Adjmt.");
-            FindFirst();
-            TestField("Item No.", ItemNo);
-            TestField("Document Type", "Document Type"::"Purchase Return Shipment");
-        end;
+        ItemLedgerEntry.SetRange("Document No.", DocumentNo);
+        ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::"Negative Adjmt.");
+        ItemLedgerEntry.FindFirst();
+        ItemLedgerEntry.TestField("Item No.", ItemNo);
+        ItemLedgerEntry.TestField("Document Type", ItemLedgerEntry."Document Type"::"Purchase Return Shipment");
     end;
 
     local procedure VerifyPurchaseReturnOrderLine(PurchaseHeader: Record "Purchase Header")

@@ -254,7 +254,7 @@ page 36629 "Customer List - Collections"
                     Image = CustomerLedger;
                     RunObject = Page "Customer Ledger Entries";
                     RunPageLink = "Customer No." = field("No."),
-                                  "Posting Date" = field(UPPERLIMIT("Date Filter")),
+                                  "Posting Date" = field(upperlimit("Date Filter")),
                                   "Date Filter" = field("Date Filter");
                     RunPageView = sorting("Customer No.");
                     ShortCutKey = 'Ctrl+F7';

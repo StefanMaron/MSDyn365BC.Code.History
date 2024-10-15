@@ -542,14 +542,12 @@
             CustomerNo := CreateCustomerWithTaxArea(TaxAreaCode)
         else
             CustomerNo := SalesHeader."Sell-to Customer No.";
-        with SalesHeader do begin
-            LibrarySales.CreateSalesHeader(SalesHeader, "Document Type"::Order, CustomerNo);
-            Validate("Currency Code", CurrencyCode);
-            Validate("Prices Including VAT", false);
-            Validate("Compress Prepayment", true);
-            Validate("Prepmt. Include Tax", PrepmtInclTax);
-            Modify();
-        end;
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo);
+        SalesHeader.Validate("Currency Code", CurrencyCode);
+        SalesHeader.Validate("Prices Including VAT", false);
+        SalesHeader.Validate("Compress Prepayment", true);
+        SalesHeader.Validate("Prepmt. Include Tax", PrepmtInclTax);
+        SalesHeader.Modify();
     end;
 
     local procedure CreateCustomerWithTaxArea(TaxAreaCode: Code[20]): Code[20]
@@ -617,28 +615,24 @@
 
     local procedure PrepareSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; ItemNo: Code[20])
     begin
-        with SalesLine do begin
-            "Document Type" := SalesHeader."Document Type";
-            "Document No." := SalesHeader."No.";
-            "Line No." := 0;
-            Type := Type::Item;
-            Validate("No.", ItemNo);
+        SalesLine."Document Type" := SalesHeader."Document Type";
+        SalesLine."Document No." := SalesHeader."No.";
+        SalesLine."Line No." := 0;
+        SalesLine.Type := SalesLine.Type::Item;
+        SalesLine.Validate("No.", ItemNo);
 
-            FillPrepmtAcc(SalesLine);
-        end;
+        FillPrepmtAcc(SalesLine);
     end;
 
     local procedure AddSalesOrderLine(var SalesLine: Record "Sales Line"; Qty: Decimal; UnitPrice: Decimal; PrepmtPct: Decimal)
     begin
-        with SalesLine do begin
-            "Line No." += 10000;
-            Validate("No.");
-            Validate(Quantity, Qty);
-            Validate("Unit Price", UnitPrice);
-            Validate("Line Discount %", 0);
-            Validate("Prepayment %", PrepmtPct);
-            Insert(true);
-        end;
+        SalesLine."Line No." += 10000;
+        SalesLine.Validate("No.");
+        SalesLine.Validate(Quantity, Qty);
+        SalesLine.Validate("Unit Price", UnitPrice);
+        SalesLine.Validate("Line Discount %", 0);
+        SalesLine.Validate("Prepayment %", PrepmtPct);
+        SalesLine.Insert(true);
     end;
 
     local procedure AddSalesOrderLine100PctPrepmt(var SalesLine: Record "Sales Line")
@@ -700,16 +694,14 @@
         GenPostingSetup: Record "General Posting Setup";
         GLAccount: Record "G/L Account";
     begin
-        with GenPostingSetup do begin
-            Get(SalesLine."Gen. Bus. Posting Group", SalesLine."Gen. Prod. Posting Group");
-            LibraryERM.CreateGLAccount(GLAccount);
-            GLAccount.Validate("Gen. Posting Type", GLAccount."Gen. Posting Type"::Sale);
-            GLAccount.Validate("Gen. Prod. Posting Group", SalesLine."Gen. Prod. Posting Group");
-            GLAccount.Validate("VAT Prod. Posting Group", SalesLine."VAT Prod. Posting Group");
-            GLAccount.Modify(true);
-            "Sales Prepayments Account" := GLAccount."No.";
-            Modify();
-        end;
+        GenPostingSetup.Get(SalesLine."Gen. Bus. Posting Group", SalesLine."Gen. Prod. Posting Group");
+        LibraryERM.CreateGLAccount(GLAccount);
+        GLAccount.Validate("Gen. Posting Type", GLAccount."Gen. Posting Type"::Sale);
+        GLAccount.Validate("Gen. Prod. Posting Group", SalesLine."Gen. Prod. Posting Group");
+        GLAccount.Validate("VAT Prod. Posting Group", SalesLine."VAT Prod. Posting Group");
+        GLAccount.Modify(true);
+        GenPostingSetup."Sales Prepayments Account" := GLAccount."No.";
+        GenPostingSetup.Modify();
     end;
 
     local procedure SetupLineValues(var Quantity: Decimal; var UnitPrice: Decimal; SetQty: Decimal; SetUnitPrice: Decimal)
@@ -723,28 +715,24 @@
         CustPostingGroup: Record "Customer Posting Group";
         GLEntry: Record "G/L Entry";
     begin
-        with GLEntry do begin
-            SetRange("Source Type", "Source Type"::Customer);
-            SetRange("Source No.", CustNo);
-            FindLast();
-            Reset();
-            SetRange("Transaction No.", "Transaction No.");
-            CustPostingGroup.Get(CustPostingGroupCode);
-            SetRange("G/L Account No.", CustPostingGroup."Invoice Rounding Account");
-            Assert.RecordIsEmpty(GLEntry);
-        end;
+        GLEntry.SetRange("Source Type", GLEntry."Source Type"::Customer);
+        GLEntry.SetRange("Source No.", CustNo);
+        GLEntry.FindLast();
+        GLEntry.Reset();
+        GLEntry.SetRange("Transaction No.", GLEntry."Transaction No.");
+        CustPostingGroup.Get(CustPostingGroupCode);
+        GLEntry.SetRange("G/L Account No.", CustPostingGroup."Invoice Rounding Account");
+        Assert.RecordIsEmpty(GLEntry);
     end;
 
     local procedure VerifyZeroCustomerAccEntry()
     var
         CustLedgEntry: Record "Cust. Ledger Entry";
     begin
-        with CustLedgEntry do begin
-            FindLast();
-            CalcFields(Amount, "Amount (LCY)");
-            Assert.AreEqual(0, Amount, 'Expected zero Customer Ledger Entry due to 100% prepayment.');
-            Assert.AreEqual(0, "Amount (LCY)", 'Expected zero Customer Ledger Entry in LCY due to 100% prepayment.');
-        end;
+        CustLedgEntry.FindLast();
+        CustLedgEntry.CalcFields(Amount, "Amount (LCY)");
+        Assert.AreEqual(0, CustLedgEntry.Amount, 'Expected zero Customer Ledger Entry due to 100% prepayment.');
+        Assert.AreEqual(0, CustLedgEntry."Amount (LCY)", 'Expected zero Customer Ledger Entry in LCY due to 100% prepayment.');
     end;
 
     local procedure VerifyPostedSalesEntries(DocumentNo: Code[20]; GLAccountFilter: Text; ExpVATBase: Decimal; ExpVATAmount: Decimal; ExpSalesInvAmount: Decimal; ExpSalesInvRemAmount: Decimal)

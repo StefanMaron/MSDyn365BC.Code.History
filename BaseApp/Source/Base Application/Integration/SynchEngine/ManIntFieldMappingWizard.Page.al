@@ -102,7 +102,7 @@ page 5383 "Man. Int. Field Mapping Wizard"
 
     internal procedure GetValues(var ManIntFieldMapping: Record "Man. Int. Field Mapping" temporary);
     begin
-        If Rec.FindSet() then
+        if Rec.FindSet() then
             repeat
                 ManIntFieldMapping.Copy(Rec);
                 ManIntFieldMapping.Insert();

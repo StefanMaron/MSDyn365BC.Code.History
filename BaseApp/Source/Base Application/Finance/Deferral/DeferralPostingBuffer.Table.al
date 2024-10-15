@@ -319,6 +319,11 @@ table 1706 "Deferral Posting Buffer"
 #endif
 
     procedure PrepareInitialAmounts(AmountLCY: Decimal; AmountACY: decimal; RemainAmtToDefer: Decimal; RemainAmtToDeferACY: Decimal; GLAccount: Code[20]; DeferralAccount: Code[20])
+    begin
+        PrepareInitialAmounts(AmountLCY, AmountACY, RemainAmtToDefer, RemainAmtToDeferACY, GLAccount, DeferralAccount, 0, 0);
+    end;
+
+    procedure PrepareInitialAmounts(AmountLCY: Decimal; AmountACY: decimal; RemainAmtToDefer: Decimal; RemainAmtToDeferACY: Decimal; GLAccount: Code[20]; DeferralAccount: Code[20]; DiscountAmount: Decimal; DiscountAmountACY: Decimal)
     var
         NewAmountLCY: Decimal;
         NewAmount: Decimal;
@@ -327,8 +332,8 @@ table 1706 "Deferral Posting Buffer"
             NewAmountLCY := RemainAmtToDefer;
             NewAmount := RemainAmtToDeferACY;
         end else begin
-            NewAmountLCY := AmountLCY;
-            NewAmount := AmountACY;
+            NewAmountLCY := AmountLCY - DiscountAmount;
+            NewAmount := AmountACY - DiscountAmountACY;
         end;
         PrepareRemainderAmounts(NewAmountLCY, NewAmount, DeferralAccount, GLAccount);
         "Amount (LCY)" := NewAmountLCY;

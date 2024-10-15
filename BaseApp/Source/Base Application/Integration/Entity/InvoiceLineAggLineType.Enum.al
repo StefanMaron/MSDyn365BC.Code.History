@@ -33,4 +33,8 @@ enum 5478 "Invoice Line Agg. Line Type"
     {
         Caption = 'Charge';
     }
+    value(10; "Allocation Account") 
+    { 
+        Caption = 'Allocation Account'; 
+    }
 }

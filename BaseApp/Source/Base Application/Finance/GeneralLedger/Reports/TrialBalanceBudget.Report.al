@@ -246,7 +246,11 @@ report 9 "Trial Balance/Budget"
         GLAccountTypePosting: Boolean;
         RowNumber: Integer;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'Period: %1';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         Trial_Balance_BudgetCaptionLbl: Label 'Trial Balance/Budget';
         CurrReport_PAGENOCaptionLbl: Label 'Page';
         GLBudgetFilterCaptionLbl: Label 'Budget Filter';

@@ -44,17 +44,13 @@ codeunit 141002 "UT REP Check"
         // [GIVEN] Payment Journal Line to Vendor where Amount = 100
         VendorNo := LibraryPurchase.CreateVendorNo();
         LibraryPurchase.CreateVendorBankAccount(VendorBankAcc, VendorNo);
-
         // [GIVEN] Rounding Precision for Currency used for Payment is 0.01
-        with VendorBankAcc do begin
-            Validate("Currency Code", CreateCurrencyWithRoundingPrecision(0.01));
-            Modify(true);
-        end;
+        VendorBankAcc.Validate("Currency Code", CreateCurrencyWithRoundingPrecision(0.01));
+        VendorBankAcc.Modify(true);
 
-        with GenJournalLine do
-            CreateComputerCheckPmtLine(
-              GenJournalLine, VendorNo, 100, "Document Type"::Payment,
-              "Account Type"::Vendor, VendorBankAcc."Currency Code");
+        CreateComputerCheckPmtLine(
+              GenJournalLine, VendorNo, 100, GenJournalLine."Document Type"::Payment,
+              GenJournalLine."Account Type"::Vendor, VendorBankAcc."Currency Code");
 
         CheckLedgEntry.Init();
         CheckLedgEntry.Amount := GenJournalLine.Amount;
@@ -83,17 +79,13 @@ codeunit 141002 "UT REP Check"
         // [GIVEN] Payment Journal Line to Vendor where Amount = 100
         VendorNo := LibraryPurchase.CreateVendorNo();
         LibraryPurchase.CreateVendorBankAccount(VendorBankAcc, VendorNo);
-
         // [GIVEN] Rounding Precision for Currency used for Payment is 0.1
-        with VendorBankAcc do begin
-            Validate("Currency Code", CreateCurrencyWithRoundingPrecision(0.1));
-            Modify(true);
-        end;
+        VendorBankAcc.Validate("Currency Code", CreateCurrencyWithRoundingPrecision(0.1));
+        VendorBankAcc.Modify(true);
 
-        with GenJournalLine do
-            CreateComputerCheckPmtLine(
-              GenJournalLine, VendorNo, 100, "Document Type"::Payment,
-              "Account Type"::Vendor, VendorBankAcc."Currency Code");
+        CreateComputerCheckPmtLine(
+              GenJournalLine, VendorNo, 100, GenJournalLine."Document Type"::Payment,
+              GenJournalLine."Account Type"::Vendor, VendorBankAcc."Currency Code");
 
         CheckLedgEntry.Init();
         CheckLedgEntry.Amount := GenJournalLine.Amount;
@@ -2406,31 +2398,27 @@ codeunit 141002 "UT REP Check"
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
-        with VendorLedgerEntry do begin
-            "Entry No." := SelectVendorLedgerEntryNo();
-            "Vendor No." := GenJournalLine."Account No.";
-            "Document No." := GenJournalLine."Applies-to Doc. No.";
-            "Applies-to ID" := GenJournalLine."Applies-to ID";
-            Description := GenJournalLine.Description;
-            "Amount to Apply" := -GenJournalLine.Amount;
-            Open := true;
-            Positive := true;
-            Insert();
-            exit("Entry No.");
-        end;
+        VendorLedgerEntry."Entry No." := SelectVendorLedgerEntryNo();
+        VendorLedgerEntry."Vendor No." := GenJournalLine."Account No.";
+        VendorLedgerEntry."Document No." := GenJournalLine."Applies-to Doc. No.";
+        VendorLedgerEntry."Applies-to ID" := GenJournalLine."Applies-to ID";
+        VendorLedgerEntry.Description := GenJournalLine.Description;
+        VendorLedgerEntry."Amount to Apply" := -GenJournalLine.Amount;
+        VendorLedgerEntry.Open := true;
+        VendorLedgerEntry.Positive := true;
+        VendorLedgerEntry.Insert();
+        exit(VendorLedgerEntry."Entry No.");
     end;
 
     local procedure UpdateVendLedgEntryDocTypeAndDisc(EntryNo: Integer; Discount: Decimal)
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
-        with VendorLedgerEntry do begin
-            Get(EntryNo);
-            "Document Type" := "Document Type"::"Credit Memo";
-            "Pmt. Discount Date" := CalcDate('<+1M>', WorkDate());
-            "Remaining Pmt. Disc. Possible" := Discount;
-            Modify(true);
-        end;
+        VendorLedgerEntry.Get(EntryNo);
+        VendorLedgerEntry."Document Type" := VendorLedgerEntry."Document Type"::"Credit Memo";
+        VendorLedgerEntry."Pmt. Discount Date" := CalcDate('<+1M>', WorkDate());
+        VendorLedgerEntry."Remaining Pmt. Disc. Possible" := Discount;
+        VendorLedgerEntry.Modify(true);
     end;
 
     local procedure CreateBankAccount(var BankAccount: Record "Bank Account"; CheckDateFormat: Option; BankCommunication: Option)

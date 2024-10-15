@@ -28,17 +28,12 @@ table 45 "G/L Register"
             Caption = 'To Entry No.';
             TableRelation = "G/L Entry";
         }
+        /// <summary>
+        /// The Creation Date field has been replaced with the SystemCreateAt field but needs to be kept for historical audit purposes.
+        /// </summary>
         field(4; "Creation Date"; Date)
         {
             Caption = 'Creation Date';
-#if not CLEAN24
-            ObsoleteState = Pending;
-            ObsoleteTag = '24.0';
-#else
-            ObsoleteState = Removed;
-            ObsoleteTag = '26.0';
-#endif
-            ObsoleteReason = 'Use the system audit field "System Created at" instead.';
         }
         field(5; "Source Code"; Code[10])
         {
@@ -69,17 +64,12 @@ table 45 "G/L Register"
         {
             Caption = 'Reversed';
         }
+        /// <summary>
+        /// The Creation Time field has been replaced with the SystemCreateAt field but needs to be kept for historical audit purposes.
+        /// </summary>
         field(11; "Creation Time"; Time)
         {
             Caption = 'Creation Time';
-#if not CLEAN24
-            ObsoleteState = Pending;
-            ObsoleteTag = '24.0';
-#else
-            ObsoleteState = Removed;
-            ObsoleteTag = '26.0';
-#endif
-            ObsoleteReason = 'Use the system audit field "System Created at" instead.';
         }
         field(12; "Journal Templ. Name"; Code[10])
         {
@@ -93,28 +83,21 @@ table 45 "G/L Register"
         {
             Clustered = true;
         }
-#if not CLEAN24
         key(Key2; "Creation Date")
         {
-            ObsoleteState = Pending;
-            ObsoleteReason = 'Creation Date is obsoleted';
-            ObsoleteTag = '24.0';
         }
-#endif
-#if not CLEAN24
         key(Key3; "Source Code", "Journal Batch Name", "Creation Date")
         {
         }
-#else
-        key(Key3; "Source Code", "Journal Batch Name")
-        {
-        }
-#endif
         key(key4; "From Entry No.", "To Entry No.")
         {
-#if not CLEAN24
-            IncludedFields = "Creation Date";
-#endif
+            IncludedFields = "Creation Date", SystemCreatedAt;
+        }
+        key(key5; "Source Code", "Journal Batch Name", SystemCreatedAt)
+        {
+        }
+        key(key6; SystemCreatedAt)
+        {
         }
     }
 

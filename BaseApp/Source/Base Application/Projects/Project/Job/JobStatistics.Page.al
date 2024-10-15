@@ -1348,7 +1348,7 @@ page 1025 "Job Statistics"
                     Editable = false;
                     Caption = 'Reserved from stock';
                     ToolTip = 'Specifies what part of the project planning lines is reserved from inventory.';
-                }                
+                }
             }
         }
     }
@@ -1370,7 +1370,9 @@ page 1025 "Job Statistics"
 
     var
         JobCalcStatistics: Codeunit "Job Calculate Statistics";
+#pragma warning disable AA0074
         Text000: Label 'Placeholder';
+#pragma warning restore AA0074
 
     protected var
         CL: array[16] of Decimal;

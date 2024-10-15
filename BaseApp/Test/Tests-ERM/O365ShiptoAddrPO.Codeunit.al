@@ -59,7 +59,8 @@ codeunit 138083 "O365 Ship-to Addr. P.O"
           CompanyInformation."Ship-to City",
           CompanyInformation."Ship-to Contact",
           CompanyInformation."Ship-to Country/Region Code",
-          CompanyInformation."Ship-to Post Code");
+          CompanyInformation."Ship-to Post Code",
+          CompanyInformation."Ship-to Phone No.");
     end;
 
     [Test]
@@ -97,7 +98,8 @@ codeunit 138083 "O365 Ship-to Addr. P.O"
           Location.City,
           Location.Contact,
           Location."Country/Region Code",
-          Location."Post Code");
+          Location."Post Code",
+          Location."Phone No.");
     end;
 
     [Test]
@@ -117,7 +119,7 @@ codeunit 138083 "O365 Ship-to Addr. P.O"
         LibraryPurchase.CreatePurchaseOrder(PurchaseHeader);
 
         // Setup - Create a Customer with an address
-        LibrarySales.CreateCustomerWithAddress(Customer);
+        LibrarySales.CreateCustomerWithAddressAndContactInfo(Customer);
 
         // Exercise - Open the Purchase Order, select ShipToOption to Customer Address and select a Customer
         PurchaseOrder.OpenEdit();
@@ -134,7 +136,8 @@ codeunit 138083 "O365 Ship-to Addr. P.O"
           Customer.City,
           Customer.Contact,
           Customer."Country/Region Code",
-          Customer."Post Code");
+          Customer."Post Code",
+          Customer."Phone No.");
     end;
 
     [Test]
@@ -156,7 +159,7 @@ codeunit 138083 "O365 Ship-to Addr. P.O"
         LibraryPurchase.CreatePurchaseOrder(PurchaseHeader);
 
         // Setup - Create a Customer with an address
-        LibrarySales.CreateCustomerWithAddress(Customer);
+        LibrarySales.CreateCustomerWithAddressAndContactInfo(Customer);
         LibrarySales.CreateShipToAddress(ShipToAddress, Customer."No.");
 
         // Exercise - Open the Purchase Order, select ShipToOption to Customer Address and select a Customer alt. addr.
@@ -175,7 +178,8 @@ codeunit 138083 "O365 Ship-to Addr. P.O"
           ShipToAddress.City,
           ShipToAddress.Contact,
           ShipToAddress."Country/Region Code",
-          ShipToAddress."Post Code");
+          ShipToAddress."Post Code",
+          ShipToAddress."Phone No.");
     end;
 
     [Test]
@@ -699,9 +703,10 @@ codeunit 138083 "O365 Ship-to Addr. P.O"
         Assert.AreEqual(
           ExpectedState, PurchaseOrder."Ship-to Country/Region Code".Editable(), StrSubstNo(WrongEditableStateTxt, ExpectedState));
         Assert.AreEqual(ExpectedState, PurchaseOrder."Ship-to Post Code".Editable(), StrSubstNo(WrongEditableStateTxt, ExpectedState));
+        Assert.AreEqual(ExpectedState, PurchaseOrder."Ship-to Phone No.".Editable(), StrSubstNo(WrongEditableStateTxt, ExpectedState));
     end;
 
-    local procedure VerifyShipToAddressValues(PurchaseOrder: TestPage "Purchase Order"; Name: Text[100]; Address: Text[100]; Address2: Text[50]; City: Text[30]; Contact: Text[100]; Country: Code[10]; PostCode: Code[20])
+    local procedure VerifyShipToAddressValues(PurchaseOrder: TestPage "Purchase Order"; Name: Text[100]; Address: Text[100]; Address2: Text[50]; City: Text[30]; Contact: Text[100]; Country: Code[10]; PostCode: Code[20]; PhoneNo: Text[30])
     begin
         PurchaseOrder."Ship-to Name".AssertEquals(Name);
         PurchaseOrder."Ship-to Address".AssertEquals(Address);
@@ -710,6 +715,7 @@ codeunit 138083 "O365 Ship-to Addr. P.O"
         PurchaseOrder."Ship-to Contact".AssertEquals(Contact);
         PurchaseOrder."Ship-to Country/Region Code".AssertEquals(Country);
         PurchaseOrder."Ship-to Post Code".AssertEquals(PostCode);
+        PurchaseOrder."Ship-to Phone No.".AssertEquals(PhoneNo);
     end;
 
     local procedure VerifyShippingOptionWithoutLocationIsHiddenForLocation(var PurchaseOrder: TestPage "Purchase Order"; ExpectedHideValue: Boolean)

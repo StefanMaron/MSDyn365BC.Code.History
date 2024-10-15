@@ -15,7 +15,9 @@ codeunit 1211 "Payment Export Gen. Jnl Check"
     var
         EmptyPaymentDetailsErr: Label '%1 or %2 must be used for payments.', Comment = '%1=Field;%2=Field';
         SimultaneousPaymentDetailsErr: Label '%1 and %2 cannot be used simultaneously for payments.', Comment = '%1=Field;%2=Field';
+#pragma warning disable AA0470
         WrongBalAccountErr: Label '%1 for the %2 is different from %3 on %4: %5.', Comment = '%1=Field;%1=Table;%3=Value;%4=Table;%5=Value';
+#pragma warning restore AA0470
         MustBeVendorEmployeeOrCustomerErr: Label 'The account must be a vendor, customer or employee account.';
         MustBeVendEmplPmtOrCustRefundErr: Label 'Only vendor and employee payments and customer refunds are allowed.';
         MustBePositiveErr: Label 'The amount must be positive.';

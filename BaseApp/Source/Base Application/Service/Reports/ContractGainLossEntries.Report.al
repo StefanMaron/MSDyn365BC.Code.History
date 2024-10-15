@@ -149,7 +149,9 @@ report 5983 "Contract Gain/Loss Entries"
         ContractLoss: Decimal;
         TotalLbl: Label 'Total';
 
+#pragma warning disable AA0074
         Text000: Label 'Total for Contract ';
+#pragma warning restore AA0074
         ContractGainLossEntriesCaptionLbl: Label 'Contract Gain/Loss Entries';
         CurrReportPageNoCaptionLbl: Label 'Page';
         ShiptoCodeCaptionLbl: Label 'Ship-to Code';

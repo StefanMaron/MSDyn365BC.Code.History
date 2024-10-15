@@ -9,6 +9,8 @@ page 5640 "FA Reclass. Journal Batches"
     RefreshOnActivate = true;
     SourceTable = "FA Reclass. Journal Batch";
     AnalysisModeEnabled = false;
+    AboutTitle = 'About FA Reclass Journal Batches';
+    AboutText = 'With the **FA Reclass Journal Batches** you can setup multiple batches, which are individual journals for each FA ReclassJnl Template.';
 
     layout
     {

@@ -46,11 +46,6 @@ page 1384 "Item Templ. Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies that the item cannot be entered on sales documents, except return orders and credit memos, and journals.';
                 }
-                field("Service Blocked"; Rec."Service Blocked")
-                {
-                    ApplicationArea = Service;
-                    ToolTip = 'Specifies that the item cannot be entered on service items, service contracts and service documents, except credit memos.';
-                }
                 field("Purchasing Blocked"; Rec."Purchasing Blocked")
                 {
                     ApplicationArea = Basic, Suite;
@@ -78,12 +73,6 @@ page 1384 "Item Templ. Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a code for the manufacturer of the catalog item.';
                     Visible = false;
-                }
-                field("Service Item Group"; Rec."Service Item Group")
-                {
-                    ApplicationArea = Service;
-                    Importance = Additional;
-                    ToolTip = 'Specifies the code of the service item group that the item belongs to.';
                 }
                 field("Automatic Ext. Texts"; Rec."Automatic Ext. Texts")
                 {
@@ -363,13 +352,13 @@ page 1384 "Item Templ. Card"
                     field("Routing No."; Rec."Routing No.")
                     {
                         ApplicationArea = Manufacturing;
-                        ToolTip = 'Specifies the number of the production routing that the item is used in.';
+                        ToolTip = 'Specifies the production route that contains the operations needed to manufacture this item.';
                         Visible = false;
                     }
                     field("Production BOM No."; Rec."Production BOM No.")
                     {
                         ApplicationArea = Manufacturing;
-                        ToolTip = 'Specifies the number of the production BOM that the item represents.';
+                        ToolTip = 'Specifies the production BOM that is used to manufacture this item.';
                         Visible = false;
                     }
                     field("Rounding Precision"; Rec."Rounding Precision")
@@ -589,7 +578,7 @@ page 1384 "Item Templ. Card"
                 {
                     ApplicationArea = ItemTracking;
                     Importance = Promoted;
-                    ToolTip = 'Specifies how serial or lot numbers assigned to the item are tracked in the supply chain.';
+                    ToolTip = 'Specifies how serial, lot or package numbers assigned to the item are tracked in the supply chain.';
                 }
                 field("Serial Nos."; Rec."Serial Nos.")
                 {

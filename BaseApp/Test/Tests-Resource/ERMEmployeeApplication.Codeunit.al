@@ -333,34 +333,30 @@ codeunit 134115 "ERM Employee Application"
           GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Employee, EmployeeNo, LibraryRandom.RandDec(100, 2));
         LibraryERM.CreatePaymentMethod(PaymentMethod);
         MsgToRecipient := LibraryUtility.GenerateGUID();
-
         // [GIVEN] Employee Ledger Entries page is opened for the Employee
         // [GIVEN] Only "Payment Method Code" and "Message to Recipient" fields are editable on the page
         // [WHEN] Set Payment Method as "Pmt", Message To Recipient as "Msg"
         // [THEN] "Payment Method Code" and "Message to Recipient" are updated with "Pmt" and "Msg" respectively
+        EmployeeLedgerEntries.OpenEdit();
+        EmployeeLedgerEntries.FILTER.SetFilter("Employee No.", EmployeeNo);
+        Assert.IsFalse(EmployeeLedgerEntries."Posting Date".Editable(), EmployeeLedgerEntry.FieldCaption("Posting Date"));
+        Assert.IsFalse(EmployeeLedgerEntries."Document Type".Editable(), EmployeeLedgerEntry.FieldCaption("Document Type"));
+        Assert.IsFalse(EmployeeLedgerEntries."Document No.".Editable(), EmployeeLedgerEntry.FieldCaption("Document No."));
+        Assert.IsFalse(EmployeeLedgerEntries."Employee No.".Editable(), EmployeeLedgerEntry.FieldCaption("Employee No."));
+        Assert.IsFalse(EmployeeLedgerEntries.Description.Editable(), EmployeeLedgerEntry.FieldCaption(Description));
+        Assert.IsFalse(EmployeeLedgerEntries.Open.Editable(), EmployeeLedgerEntry.FieldCaption(Open));
+        Assert.IsFalse(EmployeeLedgerEntries."Entry No.".Editable(), EmployeeLedgerEntry.FieldCaption("Entry No."));
 
-        with EmployeeLedgerEntries do begin
-            OpenEdit();
-            FILTER.SetFilter("Employee No.", EmployeeNo);
-            Assert.IsFalse("Posting Date".Editable(), EmployeeLedgerEntry.FieldCaption("Posting Date"));
-            Assert.IsFalse("Document Type".Editable(), EmployeeLedgerEntry.FieldCaption("Document Type"));
-            Assert.IsFalse("Document No.".Editable(), EmployeeLedgerEntry.FieldCaption("Document No."));
-            Assert.IsFalse("Employee No.".Editable(), EmployeeLedgerEntry.FieldCaption("Employee No."));
-            Assert.IsFalse(Description.Editable(), EmployeeLedgerEntry.FieldCaption(Description));
-            Assert.IsFalse(Open.Editable(), EmployeeLedgerEntry.FieldCaption(Open));
-            Assert.IsFalse("Entry No.".Editable(), EmployeeLedgerEntry.FieldCaption("Entry No."));
+        Assert.IsFalse(EmployeeLedgerEntries."Original Amount".Editable(), EmployeeLedgerEntry.FieldCaption("Original Amount"));
+        Assert.IsFalse(EmployeeLedgerEntries.Amount.Editable(), EmployeeLedgerEntry.FieldCaption(Amount));
+        Assert.IsFalse(EmployeeLedgerEntries."Remaining Amount".Editable(), EmployeeLedgerEntry.FieldCaption("Remaining Amount"));
+        Assert.IsFalse(EmployeeLedgerEntries."Remaining Amt. (LCY)".Editable(), EmployeeLedgerEntry.FieldCaption("Remaining Amt. (LCY)"));
 
-            Assert.IsFalse("Original Amount".Editable(), EmployeeLedgerEntry.FieldCaption("Original Amount"));
-            Assert.IsFalse(Amount.Editable(), EmployeeLedgerEntry.FieldCaption(Amount));
-            Assert.IsFalse("Remaining Amount".Editable(), EmployeeLedgerEntry.FieldCaption("Remaining Amount"));
-            Assert.IsFalse("Remaining Amt. (LCY)".Editable(), EmployeeLedgerEntry.FieldCaption("Remaining Amt. (LCY)"));
-
-            Assert.IsTrue("Payment Method Code".Editable(), EmployeeLedgerEntry.FieldCaption("Payment Method Code"));
-            Assert.IsTrue("Message to Recipient".Editable(), EmployeeLedgerEntry.FieldCaption("Message to Recipient"));
-            "Payment Method Code".SetValue(PaymentMethod.Code);
-            "Message to Recipient".SetValue(MsgToRecipient);
-            Close();
-        end;
+        Assert.IsTrue(EmployeeLedgerEntries."Payment Method Code".Editable(), EmployeeLedgerEntry.FieldCaption("Payment Method Code"));
+        Assert.IsTrue(EmployeeLedgerEntries."Message to Recipient".Editable(), EmployeeLedgerEntry.FieldCaption("Message to Recipient"));
+        EmployeeLedgerEntries."Payment Method Code".SetValue(PaymentMethod.Code);
+        EmployeeLedgerEntries."Message to Recipient".SetValue(MsgToRecipient);
+        EmployeeLedgerEntries.Close();
 
         EmployeeLedgerEntry.SetRange("Employee No.", EmployeeNo);
         EmployeeLedgerEntry.FindFirst();

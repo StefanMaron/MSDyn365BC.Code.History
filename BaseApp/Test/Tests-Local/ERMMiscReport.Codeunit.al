@@ -2373,19 +2373,18 @@ codeunit 142060 "ERM Misc. Report"
         i: Integer;
     begin
         CreateGenJournalBatchWithTemplate(GenJournalBatch, true);
-        with GenJournalLine do
-            for i := 1 to ArrayLen(AccountNo) do begin
-                if AccountType = "Account Type"::Customer then begin
-                    AccountNo[i] := LibrarySales.CreateCustomerNo();
-                    Sign := 1;
-                end else begin
-                    AccountNo[i] := LibraryPurchase.CreateVendorNo();
-                    Sign := -1;
-                end;
-                LibraryERM.CreateGeneralJnlLine(GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
-                  "Document Type"::Invoice, AccountType, AccountNo[i], Sign * LibraryRandom.RandDecInRange(1000, 2000, 2));
-                DocumentNo[i] := "Document No.";
+        for i := 1 to ArrayLen(AccountNo) do begin
+            if AccountType = GenJournalLine."Account Type"::Customer then begin
+                AccountNo[i] := LibrarySales.CreateCustomerNo();
+                Sign := 1;
+            end else begin
+                AccountNo[i] := LibraryPurchase.CreateVendorNo();
+                Sign := -1;
             end;
+            LibraryERM.CreateGeneralJnlLine(GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
+              GenJournalLine."Document Type"::Invoice, AccountType, AccountNo[i], Sign * LibraryRandom.RandDecInRange(1000, 2000, 2));
+            DocumentNo[i] := GenJournalLine."Document No.";
+        end;
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
@@ -2398,28 +2397,26 @@ codeunit 142060 "ERM Misc. Report"
         BalanceAmount: Decimal;
     begin
         CreateGenJournalBatchWithTemplate(GenJournalBatch, false);
-        with GenJournalLine do begin
-            if AccountType = "Account Type"::Customer then
-                Sign := -1
-            else
-                Sign := 1;
-            for i := 1 to ArrayLen(AccountNo) do begin
-                LibraryERM.CreateGeneralJnlLine(GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
-                  "Document Type"::Payment, AccountType, AccountNo[i], Sign * LibraryRandom.RandDecInRange(1000, 2000, 2));
-                Validate("Applies-to Doc. Type", "Applies-to Doc. Type"::Invoice);
-                Validate("Applies-to Doc. No.", InvoiceDocNo[i]);
-                if i = 1 then
-                    DocumentNo := "Document No."
-                else
-                    Validate("Document No.", DocumentNo);
-                Modify(true);
-                BalanceAmount += Amount;
-            end;
+        if AccountType = GenJournalLine."Account Type"::Customer then
+            Sign := -1
+        else
+            Sign := 1;
+        for i := 1 to ArrayLen(AccountNo) do begin
             LibraryERM.CreateGeneralJnlLine(GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
-              "Document Type"::Payment, "Account Type"::"Bank Account", LibraryERM.CreateBankAccountNo(), -BalanceAmount);
-            Validate("Document No.", DocumentNo);
-            Modify(true);
+              GenJournalLine."Document Type"::Payment, AccountType, AccountNo[i], Sign * LibraryRandom.RandDecInRange(1000, 2000, 2));
+            GenJournalLine.Validate("Applies-to Doc. Type", GenJournalLine."Applies-to Doc. Type"::Invoice);
+            GenJournalLine.Validate("Applies-to Doc. No.", InvoiceDocNo[i]);
+            if i = 1 then
+                DocumentNo := GenJournalLine."Document No."
+            else
+                GenJournalLine.Validate("Document No.", DocumentNo);
+            GenJournalLine.Modify(true);
+            BalanceAmount += GenJournalLine.Amount;
         end;
+        LibraryERM.CreateGeneralJnlLine(GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
+          GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::"Bank Account", LibraryERM.CreateBankAccountNo(), -BalanceAmount);
+        GenJournalLine.Validate("Document No.", DocumentNo);
+        GenJournalLine.Modify(true);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
@@ -2678,12 +2675,10 @@ codeunit 142060 "ERM Misc. Report"
         CustLedgerEntry: Record "Cust. Ledger Entry";
         EntryApplicationManagement: Codeunit "Entry Application Management";
     begin
-        with CustLedgerEntry do begin
-            SetRange("Document Type", "Document Type"::Invoice);
-            SetRange("Document No.", DocumentNo);
-            FindFirst();
-            EntryApplicationManagement.GetAppliedCustEntries(TempCustLedgerEntryApplied, CustLedgerEntry, false);
-        end;
+        CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Invoice);
+        CustLedgerEntry.SetRange("Document No.", DocumentNo);
+        CustLedgerEntry.FindFirst();
+        EntryApplicationManagement.GetAppliedCustEntries(TempCustLedgerEntryApplied, CustLedgerEntry, false);
     end;
 
     local procedure GetAppliedVendorEntries(var TempVendorLedgerEntryApplied: Record "Vendor Ledger Entry" temporary; DocumentNo: Code[20])
@@ -2691,12 +2686,10 @@ codeunit 142060 "ERM Misc. Report"
         VendorLedgerEntry: Record "Vendor Ledger Entry";
         EntryApplicationManagement: Codeunit "Entry Application Management";
     begin
-        with VendorLedgerEntry do begin
-            SetRange("Document Type", "Document Type"::Invoice);
-            SetRange("Document No.", DocumentNo);
-            FindFirst();
-            EntryApplicationManagement.GetAppliedVendEntries(TempVendorLedgerEntryApplied, VendorLedgerEntry, false);
-        end;
+        VendorLedgerEntry.SetRange("Document Type", VendorLedgerEntry."Document Type"::Invoice);
+        VendorLedgerEntry.SetRange("Document No.", DocumentNo);
+        VendorLedgerEntry.FindFirst();
+        EntryApplicationManagement.GetAppliedVendEntries(TempVendorLedgerEntryApplied, VendorLedgerEntry, false);
     end;
 
     local procedure ModifyQtyToShipOnSalesLine(var SalesLine: Record "Sales Line")
@@ -2731,12 +2724,10 @@ codeunit 142060 "ERM Misc. Report"
         LineAmount: Decimal;
     begin
         LineAmount := LibraryRandom.RandDec(100, 2);
-        with GenJournalLine do begin
-            InvoiceNo :=
-              CreateAndPostSimpleGenJournalLine("Document Type"::Invoice, LineAmount, "Account Type"::Customer, CustomerNo);
-            PaymentNo :=
-              CreateAndPostSimpleGenJournalLine("Document Type"::Payment, -LineAmount, "Account Type"::Customer, CustomerNo);
-        end;
+        InvoiceNo :=
+          CreateAndPostSimpleGenJournalLine(GenJournalLine."Document Type"::Invoice, LineAmount, GenJournalLine."Account Type"::Customer, CustomerNo);
+        PaymentNo :=
+          CreateAndPostSimpleGenJournalLine(GenJournalLine."Document Type"::Payment, -LineAmount, GenJournalLine."Account Type"::Customer, CustomerNo);
         ApplyAndPostCustomerEntry(
           InvoiceNo, PaymentNo,
           CustLedgerEntry."Document Type"::Invoice, CustLedgerEntry."Document Type"::Payment);
@@ -2749,12 +2740,10 @@ codeunit 142060 "ERM Misc. Report"
         LineAmount: Decimal;
     begin
         LineAmount := LibraryRandom.RandDec(100, 2);
-        with GenJournalLine do begin
-            InvoiceNo :=
-              CreateAndPostSimpleGenJournalLine("Document Type"::Invoice, -LineAmount, "Account Type"::Vendor, VendorNo);
-            PaymentNo :=
-              CreateAndPostSimpleGenJournalLine("Document Type"::Payment, LineAmount, "Account Type"::Vendor, VendorNo);
-        end;
+        InvoiceNo :=
+          CreateAndPostSimpleGenJournalLine(GenJournalLine."Document Type"::Invoice, -LineAmount, GenJournalLine."Account Type"::Vendor, VendorNo);
+        PaymentNo :=
+          CreateAndPostSimpleGenJournalLine(GenJournalLine."Document Type"::Payment, LineAmount, GenJournalLine."Account Type"::Vendor, VendorNo);
         ApplyAndPostVendorEntry(
           InvoiceNo, PaymentNo, VendorLedgerEntry."Document Type"::Invoice, VendorLedgerEntry."Document Type"::Payment);
     end;
@@ -2882,24 +2871,20 @@ codeunit 142060 "ERM Misc. Report"
 
     local procedure VerifyAppliedCustomerEntries(var TempCustLedgerEntryApplied: Record "Cust. Ledger Entry" temporary; PaymentXNo: Code[20]; ExpectedCustomerNo: Code[20])
     begin
-        with TempCustLedgerEntryApplied do begin
-            SetRange("Document Type", "Document Type"::Payment);
-            Assert.AreEqual(1, Count, IncorrectPaymentCountErr);
-            FindFirst();
-            Assert.AreEqual(PaymentXNo, "Document No.", StrSubstNo(PaymentNotFoundErr, PaymentXNo));
-            Assert.AreEqual(ExpectedCustomerNo, "Customer No.", FieldCaption("Customer No."));
-        end;
+        TempCustLedgerEntryApplied.SetRange("Document Type", TempCustLedgerEntryApplied."Document Type"::Payment);
+        Assert.AreEqual(1, TempCustLedgerEntryApplied.Count, IncorrectPaymentCountErr);
+        TempCustLedgerEntryApplied.FindFirst();
+        Assert.AreEqual(PaymentXNo, TempCustLedgerEntryApplied."Document No.", StrSubstNo(PaymentNotFoundErr, PaymentXNo));
+        Assert.AreEqual(ExpectedCustomerNo, TempCustLedgerEntryApplied."Customer No.", TempCustLedgerEntryApplied.FieldCaption("Customer No."));
     end;
 
     local procedure VerifyAppliedVendorEntries(var TempVendorLedgerEntryApplied: Record "Vendor Ledger Entry" temporary; PaymentXNo: Code[20]; ExpectedVendorNo: Code[20])
     begin
-        with TempVendorLedgerEntryApplied do begin
-            SetRange("Document Type", "Document Type"::Payment);
-            Assert.AreEqual(1, Count, IncorrectPaymentCountErr);
-            FindFirst();
-            Assert.AreEqual(PaymentXNo, "Document No.", StrSubstNo(PaymentNotFoundErr, PaymentXNo));
-            Assert.AreEqual(ExpectedVendorNo, "Vendor No.", FieldCaption("Vendor No."));
-        end;
+        TempVendorLedgerEntryApplied.SetRange("Document Type", TempVendorLedgerEntryApplied."Document Type"::Payment);
+        Assert.AreEqual(1, TempVendorLedgerEntryApplied.Count, IncorrectPaymentCountErr);
+        TempVendorLedgerEntryApplied.FindFirst();
+        Assert.AreEqual(PaymentXNo, TempVendorLedgerEntryApplied."Document No.", StrSubstNo(PaymentNotFoundErr, PaymentXNo));
+        Assert.AreEqual(ExpectedVendorNo, TempVendorLedgerEntryApplied."Vendor No.", TempVendorLedgerEntryApplied.FieldCaption("Vendor No."));
     end;
 
     local procedure GetSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header")

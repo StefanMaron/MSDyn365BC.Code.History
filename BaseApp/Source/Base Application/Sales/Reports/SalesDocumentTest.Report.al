@@ -1872,14 +1872,22 @@ report 202 "Sales Document - Test"
     end;
 
     var
+#pragma warning disable AA0074
         Text000: Label 'Ship and Invoice';
         Text001: Label 'Ship';
         Text002: Label 'Invoice';
+#pragma warning disable AA0470
         Text003: Label 'Order Posting: %1';
         Text004: Label 'Total %1';
         Text005: Label 'Total %1 Incl. VAT';
         Text006: Label '%1 must be specified.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0470
         MustBeForErr: Label '%1 must be %2 for %3 %4.';
+#pragma warning restore AA0470
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text008: Label '%1 %2 does not exist.';
         Text009: Label '%1 must not be a closing date.';
         Text010: Label '%1 is not within your allowed range of posting dates.';
@@ -1888,17 +1896,25 @@ report 202 "Sales Document - Test"
         Text015: Label '%1 must be %2.';
         Text016: Label '%1 %2 does not exist on customer entries.';
         Text017: Label '%1 %2 %3 does not exist.';
+#pragma warning restore AA0470
         Text018: Label 'Receive and Credit Memo';
+#pragma warning disable AA0470
         Text019: Label '%1 %2 must be specified.';
         Text020: Label '%1 must be 0 when %2 is 0.';
+#pragma warning restore AA0470
         Text021: Label 'Drop shipments are only possible for items.';
+#pragma warning disable AA0470
         Text022: Label 'You cannot ship sales order line %1 because the line is marked';
+#pragma warning restore AA0470
         Text023: Label 'as a drop shipment and is not yet associated with a purchase order.';
+#pragma warning disable AA0470
         Text024: Label 'The %1 on the shipment is not the same as the %1 on the sales header.';
         Text025: Label 'Line %1 of the return receipt %2, which you are attempting to invoice, has already been invoiced.';
         Text026: Label 'Line %1 of the shipment %2, which you are attempting to invoice, has already been invoiced.';
         Text027: Label '%1 must have the same sign as the shipments.';
+#pragma warning restore AA0470
         Text031: Label 'Receive';
+#pragma warning disable AA0470
         Text032: Label 'Return Order Posting: %1';
         Text033: Label 'Total %1 Excl. VAT';
         Text034: Label 'Enter "Yes" in %1 and/or %2 and/or %3.';
@@ -1907,6 +1923,8 @@ report 202 "Sales Document - Test"
         Text037: Label 'The quantity you are attempting to invoice is greater than the quantity in return receipt %1.';
         Text038: Label 'The %1 on the return receipt is not the same as the %1 on the sales header.';
         Text039: Label '%1 must have the same sign as the return receipt.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         SalesSetup: Record "Sales & Receivables Setup";
         GLSetup: Record "General Ledger Setup";
         Cust: Record Customer;
@@ -1966,14 +1984,24 @@ report 202 "Sales Document - Test"
         ShowDim: Boolean;
         Continue: Boolean;
         ShowCostAssignment: Boolean;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text043: Label '%1 must be zero.';
         Text045: Label '%1 must not be %2 for %3 %4.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         MoreLines: Boolean;
         SalesTax: Boolean;
         ExchangeFactor: Decimal;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text046: Label '%1 must be completely preinvoiced before you can ship or invoice the line.';
+#pragma warning restore AA0470
+#pragma warning disable AA0470
         Text053: Label '%1 can at most be %2.';
         Text054: Label '%1 must be at least %2.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         SumLineAmount: Decimal;
         SumInvDiscountAmount: Decimal;
         TaxText: Text[30];

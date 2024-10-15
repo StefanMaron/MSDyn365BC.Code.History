@@ -43,25 +43,19 @@
         UndoShipmentQst: Label 'Do you really want to undo the selected Shipment lines?';
         UndoServiceShipmentQst: Label 'Do you want to undo the selected shipment line(s)?';
         RecordMustBeDeletedTxt: Label 'Order must be deleted.';
-        CannotUndoReservedQuantityErr: Label 'Reserved Quantity must be equal to ''0''  in Item Ledger Entry';
-        BlockedItemErrorMsg: Label 'Blocked must be equal to ''No''  in Item: No.=%1. Current value is ''Yes''', Comment = '%1 = Item No';
         ExpectedReceiptDateErr: Label 'The change leads to a date conflict with existing reservations.';
-#if not CLEAN23
+#if not CLEAN25
         NegativeValueErr: Label 'The value must be greater than or equal to 0.';
         StartingDateErr: Label 'Starting Date cannot be after Ending Date';
 #endif
         QuantityToInvoiceDoesNotMatchErr: Label 'The quantity to invoice does not match the quantity defined in item tracking.';
         ReturnOrderPostedMsg: Label 'All the documents were posted.';
-        CannotUndoAppliedQuantityErr: Label 'Remaining Quantity must be equal to ''%1''  in Item Ledger Entry', Comment = '%1 = Value';
         RecordCountErr: Label 'No of record must be same.';
         ExpectedCostPostingEnableToGLQst: Label 'If you enable the Expected Cost Posting to G/L, the program must update table Post Value Entry to G/L.';
         ExpectedCostPostingDisableToGLQst: Label 'If you disable the Expected Cost Posting to G/L, the program must update table Post Value Entry to G/L.';
         ExpectedCostPostingToGLMsg: Label 'Expected Cost Posting to G/L has been changed to Yes. You should now run Post Inventory Cost to G/L.';
         ConfirmTextForChangeOfSellToCustomerOrBuyFromVendorQst: Label 'Do you want to change';
         DiscountErr: Label 'The Discount Amount is not correct.';
-        ReservedQtyErr: Label 'Reserved Qty. (Base) must be equal to ''0'' ';
-        ReserveErr: Label 'Reserve must be equal to ''%1''';
-        ReturnQtyErr: Label '%1 must be equal to ''0''  in %2', Comment = '%1 = Field caption; %2 = Table caption';
         ValueEntriesWerePostedTxt: Label 'value entries have been posted to the general ledger.';
         MissingMandatoryLocationTxt: Label 'Location Code must have a value in Requisition Line';
         CannotReserveFromSpecialOrderErr: Label 'You cannot reserve from this item ledger entry because the associated special sales order %1 has not been posted yet.', Comment = '%1: Sales Order No.';
@@ -282,6 +276,7 @@
         Item: Record Item;
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
+        ItemLedgEntry: Record "Item Ledger Entry";
         PostedDocumentNo: Code[20];
         Quantity: Decimal;
     begin
@@ -300,7 +295,7 @@
         asserterror UndoReturnShipmentLine(PostedDocumentNo);
 
         // Verify: Error Message Cannot Undo as Quantity is Already Reserved.
-        Assert.IsTrue(StrPos(GetLastErrorText, CannotUndoReservedQuantityErr) > 0, GetLastErrorText);
+        Assert.ExpectedTestFieldError(ItemLedgEntry.FieldCaption("Reserved Quantity"), Format(0));
     end;
 
     [Test]
@@ -321,7 +316,7 @@
             LibraryRandom.RandDec(10, 2));
 
         // Verify: Verify Blocked Item error message.
-        Assert.ExpectedError(StrSubstNo(BlockedItemErrorMsg, Item."No."));
+        Assert.ExpectedTestFieldError(Item.FieldCaption(Blocked), Format(false));
     end;
 
     [Test]
@@ -416,7 +411,7 @@
         Assert.ExpectedError(ExpectedReceiptDateErr);
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Test]
     [Scope('OnPrem')]
     procedure PurchasePriceNegativeQuantityError()
@@ -1357,7 +1352,7 @@
         asserterror PurchaseLine.Validate("Unit of Measure Code");
 
         // [THEN] Error is thrown: "Return Qty. Shipped must be equal to '0'  in Purchase Line"
-        Assert.ExpectedError(StrSubstNo(ReturnQtyErr, PurchaseLine.FieldCaption("Return Qty. Shipped"), PurchaseLine.TableCaption()));
+        Assert.ExpectedTestFieldError(PurchaseLine.FieldCaption("Return Qty. Shipped"), Format(0));
     end;
 
     [Test]
@@ -1377,7 +1372,7 @@
         asserterror PurchaseLine.Validate("Unit of Measure Code");
 
         // [THEN] Error is thrown: "Return Qty. Shipped (Base) must be equal to '0'  in Purchase Line"
-        Assert.ExpectedError(StrSubstNo(ReturnQtyErr, PurchaseLine.FieldCaption("Return Qty. Shipped (Base)"), PurchaseLine.TableCaption()));
+        Assert.ExpectedTestFieldError(PurchaseLine.FieldCaption("Return Qty. Shipped (Base)"), Format(0));
     end;
 
     [Test]
@@ -3061,7 +3056,7 @@
         Commit();
 
         // [WHEN] Lines on Order promising lines page is set (triggered by SetSalesHeader)
-        asserterror AvailabilityManagement.SetSalesHeader(OrderPromisingLine, SalesHeader);
+        asserterror AvailabilityManagement.SetSourceRecord(OrderPromisingLine, SalesHeader);
 
         // [THEN] Error is thrown indicating the Variant Code is missing
         Assert.ExpectedError(OrderPromisingLine.FieldCaption(OrderPromisingLine."Variant Code"));
@@ -3071,7 +3066,7 @@
         SalesLine.Modify();
 
         // [WHEN] Lines on Order promising lines page is set (triggered by SetSalesHeader)
-        AvailabilityManagement.SetSalesHeader(OrderPromisingLine, SalesHeader);
+        AvailabilityManagement.SetSourceRecord(OrderPromisingLine, SalesHeader);
 
         // [THEN] No error is thrown 
     end;
@@ -3317,7 +3312,7 @@
 
         // Verify: Test an error pops up when changing Reserve from Never to Always
         // when Sales Order is marked to Special Order / Drop Shipment.
-        Assert.ExpectedError(StrSubstNo(ReserveErr, SalesLine.Reserve::Never));
+        Assert.ExpectedTestFieldError(SalesLine.FieldCaption(Reserve), Format(SalesLine.Reserve::Never));
     end;
 
     local procedure CreateFullWarehouseSetup(var Location: Record Location)
@@ -3497,11 +3492,9 @@
         Item: Record Item;
     begin
         CreateItemWithVendorNo(Item);
-        with Item do begin
-            Validate(Reserve, Reserve::Always);
-            Modify(true);
-            exit("No.");
-        end;
+        Item.Validate(Reserve, Item.Reserve::Always);
+        Item.Modify(true);
+        exit(Item."No.");
     end;
 
     local procedure CreateItemWithVendorNo(var Item: Record Item)
@@ -3786,15 +3779,13 @@
     local procedure CreateRequisitionLine(var RequisitionLine: Record "Requisition Line"; ReqWkshTemplate: Record "Req. Wksh. Template"; RequisitionWkshName: Record "Requisition Wksh. Name"; StartingDate: Date; StartingTime: Time; ItemNo: Code[20]; DocumentNo: Code[20])
     begin
         LibraryPlanning.CreateRequisitionLine(RequisitionLine, ReqWkshTemplate.Name, RequisitionWkshName.Name);
-        with RequisitionLine do begin
-            Validate(Type, Type::Item);
-            Validate("Ref. Order No.", DocumentNo);
-            Validate("No.", ItemNo);
-            Validate("Starting Date", StartingDate);
-            Validate("Starting Time", StartingTime);
-            Validate("Ref. Order Status", "Ref. Order Status"::Planned);
-            Modify();
-        end;
+        RequisitionLine.Validate(Type, RequisitionLine.Type::Item);
+        RequisitionLine.Validate("Ref. Order No.", DocumentNo);
+        RequisitionLine.Validate("No.", ItemNo);
+        RequisitionLine.Validate("Starting Date", StartingDate);
+        RequisitionLine.Validate("Starting Time", StartingTime);
+        RequisitionLine.Validate("Ref. Order Status", RequisitionLine."Ref. Order Status"::Planned);
+        RequisitionLine.Modify();
     end;
 
     local procedure CreateReqWkshTemplateName(var ReqWkshTemplate: Record "Req. Wksh. Template"; var RequisitionWkshName: Record "Requisition Wksh. Name")
@@ -3893,7 +3884,7 @@
         SalesLine.Modify(true);
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     local procedure CreateVendorAndOpenPurchaseLineDiscountsPageFromVendorCard(var PurchaseLineDiscounts: TestPage "Purchase Line Discounts")
     var
         Vendor: Record Vendor;
@@ -4030,12 +4021,10 @@
     var
         PurchRcptLine: Record "Purch. Rcpt. Line";
     begin
-        with PurchRcptLine do begin
-            SetRange("Buy-from Vendor No.", VendorNo);
-            SetRange("No.", ItemNo);
-            FindFirst();
-            DocumentNo := "Document No.";
-        end;
+        PurchRcptLine.SetRange("Buy-from Vendor No.", VendorNo);
+        PurchRcptLine.SetRange("No.", ItemNo);
+        PurchRcptLine.FindFirst();
+        DocumentNo := PurchRcptLine."Document No.";
     end;
 
     local procedure FindReturnShipmentLine(var ReturnShipmentLine: Record "Return Shipment Line"; ItemNo: Code[20])
@@ -4127,7 +4116,7 @@
         asserterror CreateAndFillPurchasingCodeOnSalesLine(SalesLine, DropShipment, SpecialOrder);
 
         // Verify: Verify an error pops up when filling Purchasing Code when Reservation Entry exists.
-        Assert.ExpectedError(ReservedQtyErr);
+        Assert.ExpectedTestFieldError(SalesLine.FieldCaption("Reserved Qty. (Base)"), Format(0));
     end;
 
     local procedure GeneralSetupForRegisterPutAway(var PurchaseLine: Record "Purchase Line")
@@ -4521,7 +4510,7 @@
             asserterror UndoReturnShipmentLine(PostedDocumentNo);
 
         // Verify: Error Message Cannot Undo Applied Quantity.
-        Assert.IsTrue(StrPos(GetLastErrorText, StrSubstNo(CannotUndoAppliedQuantityErr, Quantity)) > 0, GetLastErrorText);
+        Assert.ExpectedTestFieldError(ItemLedgerEntry.FieldCaption("Remaining Quantity"), Format(Quantity));
     end;
 
     local procedure UndoSalesShipmentLine(DocumentNo: Code[20])
@@ -4860,14 +4849,12 @@
         GLEntry: Record "G/L Entry";
         TotalAMount: Decimal;
     begin
-        with GLEntry do begin
-            SetRange("Document No.", PostedDocNo);
-            SetFilter("G/L Account No.", '%1|%2', LineDiscAccount, InvDiscAccount);
-            FindSet();
-            repeat
-                TotalAMount += Amount;
-            until Next() = 0;
-        end;
+        GLEntry.SetRange("Document No.", PostedDocNo);
+        GLEntry.SetFilter("G/L Account No.", '%1|%2', LineDiscAccount, InvDiscAccount);
+        GLEntry.FindSet();
+        repeat
+            TotalAMount += GLEntry.Amount;
+        until GLEntry.Next() = 0;
 
         Assert.AreEqual(ExpdTotalDisAmt, TotalAMount, DiscountErr);
     end;

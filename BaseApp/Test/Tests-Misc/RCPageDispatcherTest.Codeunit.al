@@ -9,14 +9,14 @@
     end;
 
     var
-#if not CLEAN23
+#if not CLEAN25
         LibraryPriceCalculation: Codeunit "Library - Price Calculation";
 #endif
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         Assert: Codeunit Assert;
         isInitialized: Boolean;
 
-#if not CLEAN23
+#if not CLEAN25
 #pragma warning disable AS0072
     [Test]
     [Obsolete('Not used.', '23.0')]

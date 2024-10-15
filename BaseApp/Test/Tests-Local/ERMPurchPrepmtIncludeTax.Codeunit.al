@@ -365,16 +365,14 @@
             VendorNo := CreateVendorWithTaxArea(TaxAreaCode)
         else
             VendorNo := PurchHeader."Buy-from Vendor No.";
-        with PurchHeader do begin
-            PrepmtInclTax := "Prepmt. Include Tax";
-            LibraryPurch.CreatePurchHeader(PurchHeader, "Document Type", VendorNo);
-            Validate("Currency Code", CurrencyCode);
-            Validate("Prices Including VAT", false);
-            Validate("Compress Prepayment", true);
-            Validate("Prepmt. Include Tax", PrepmtInclTax);
-            Validate("Tax Area Code", TaxAreaCode);
-            Modify();
-        end;
+        PrepmtInclTax := PurchHeader."Prepmt. Include Tax";
+        LibraryPurch.CreatePurchHeader(PurchHeader, PurchHeader."Document Type", VendorNo);
+        PurchHeader.Validate("Currency Code", CurrencyCode);
+        PurchHeader.Validate("Prices Including VAT", false);
+        PurchHeader.Validate("Compress Prepayment", true);
+        PurchHeader.Validate("Prepmt. Include Tax", PrepmtInclTax);
+        PurchHeader.Validate("Tax Area Code", TaxAreaCode);
+        PurchHeader.Modify();
     end;
 
     local procedure CreateVendorWithTaxArea(TaxAreaCode: Code[20]): Code[20]
@@ -448,15 +446,13 @@
 
     local procedure AddPurchOrderLine(var PurchLine: Record "Purchase Line"; Qty: Decimal; UnitCost: Decimal; PrepmtPct: Decimal)
     begin
-        with PurchLine do begin
-            "Line No." += 10000;
-            Validate("No.");
-            Validate(Quantity, Qty);
-            Validate("Direct Unit Cost", UnitCost);
-            Validate("Line Discount %", 0);
-            Validate("Prepayment %", PrepmtPct);
-            Insert(true);
-        end;
+        PurchLine."Line No." += 10000;
+        PurchLine.Validate("No.");
+        PurchLine.Validate(Quantity, Qty);
+        PurchLine.Validate("Direct Unit Cost", UnitCost);
+        PurchLine.Validate("Line Discount %", 0);
+        PurchLine.Validate("Prepayment %", PrepmtPct);
+        PurchLine.Insert(true);
     end;
 
     local procedure AddPurchOrderLine100PctPrepmt(var PurchLine: Record "Purchase Line")
@@ -549,29 +545,25 @@
         GenPostingSetup: Record "General Posting Setup";
         GLAccount: Record "G/L Account";
     begin
-        with GenPostingSetup do begin
-            Get(PurchLine."Gen. Bus. Posting Group", PurchLine."Gen. Prod. Posting Group");
-            GLAccount.SetRange("Gen. Posting Type", GLAccount."Gen. Posting Type"::Sale);
-            GLAccount.SetRange("Gen. Prod. Posting Group", PurchLine."Gen. Prod. Posting Group");
-            GLAccount.SetRange("VAT Prod. Posting Group", PurchLine."VAT Prod. Posting Group");
-            GLAccount.FindFirst();
-            GLAccount."Tax Group Code" := 'NONTAXABLE';
-            GLAccount.Modify();
-            "Purch. Prepayments Account" := GLAccount."No.";
-            Modify();
-        end;
+        GenPostingSetup.Get(PurchLine."Gen. Bus. Posting Group", PurchLine."Gen. Prod. Posting Group");
+        GLAccount.SetRange("Gen. Posting Type", GLAccount."Gen. Posting Type"::Sale);
+        GLAccount.SetRange("Gen. Prod. Posting Group", PurchLine."Gen. Prod. Posting Group");
+        GLAccount.SetRange("VAT Prod. Posting Group", PurchLine."VAT Prod. Posting Group");
+        GLAccount.FindFirst();
+        GLAccount."Tax Group Code" := 'NONTAXABLE';
+        GLAccount.Modify();
+        GenPostingSetup."Purch. Prepayments Account" := GLAccount."No.";
+        GenPostingSetup.Modify();
     end;
 
     local procedure GetPrepmtAmount(DocumentNo: Code[20]): Decimal
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
-        with VendorLedgerEntry do begin
-            SetRange("Document No.", DocumentNo);
-            FindFirst();
-            CalcFields("Original Amt. (LCY)");
-            exit("Original Amt. (LCY)");
-        end;
+        VendorLedgerEntry.SetRange("Document No.", DocumentNo);
+        VendorLedgerEntry.FindFirst();
+        VendorLedgerEntry.CalcFields("Original Amt. (LCY)");
+        exit(VendorLedgerEntry."Original Amt. (LCY)");
     end;
 
     local procedure VerifyInvRoundingEqualToRoundingPrecision(VendNo: Code[20]; VendPostingGroupCode: Code[20])
@@ -579,43 +571,37 @@
         VendPostingGroup: Record "Vendor Posting Group";
         GLEntry: Record "G/L Entry";
     begin
-        with GLEntry do begin
-            SetRange("Source Type", "Source Type"::Vendor);
-            SetRange("Source No.", VendNo);
-            FindLast();
-            Reset();
-            SetRange("Transaction No.", "Transaction No.");
-            VendPostingGroup.Get(VendPostingGroupCode);
-            SetRange("G/L Account No.", VendPostingGroup."Invoice Rounding Account");
-            FindLast();
-            Assert.AreEqual(
-              Abs(Amount), LibraryERM.GetAmountRoundingPrecision(), IncorrectInvRoundingErr);
-        end;
+        GLEntry.SetRange("Source Type", GLEntry."Source Type"::Vendor);
+        GLEntry.SetRange("Source No.", VendNo);
+        GLEntry.FindLast();
+        GLEntry.Reset();
+        GLEntry.SetRange("Transaction No.", GLEntry."Transaction No.");
+        VendPostingGroup.Get(VendPostingGroupCode);
+        GLEntry.SetRange("G/L Account No.", VendPostingGroup."Invoice Rounding Account");
+        GLEntry.FindLast();
+        Assert.AreEqual(
+          Abs(GLEntry.Amount), LibraryERM.GetAmountRoundingPrecision(), IncorrectInvRoundingErr);
     end;
 
     local procedure VerifyZeroVendorAccEntry()
     var
         VendLedgEntry: Record "Vendor Ledger Entry";
     begin
-        with VendLedgEntry do begin
-            FindLast();
-            CalcFields(Amount, "Amount (LCY)");
-            Assert.AreEqual(0, Amount, 'Expected zero Vendor Ledger Entry due to 100% prepayment.');
-            Assert.AreEqual(0, "Amount (LCY)", 'Expected zero Vendor Ledger Entry in LCY due to 100% prepayment.');
-        end;
+        VendLedgEntry.FindLast();
+        VendLedgEntry.CalcFields(Amount, "Amount (LCY)");
+        Assert.AreEqual(0, VendLedgEntry.Amount, 'Expected zero Vendor Ledger Entry due to 100% prepayment.');
+        Assert.AreEqual(0, VendLedgEntry."Amount (LCY)", 'Expected zero Vendor Ledger Entry in LCY due to 100% prepayment.');
     end;
 
     local procedure VerifyGLEntryAmount(DocumentNo: Code[20]; GLAccNo: Code[20]; ExpectedAmount: Decimal)
     var
         GLEntry: Record "G/L Entry";
     begin
-        with GLEntry do begin
-            SetRange("Document No.", DocumentNo);
-            SetRange("G/L Account No.", GLAccNo);
-            FindFirst();
-            Assert.AreEqual(ExpectedAmount, Amount,
-              StrSubstNo(IncorrectAmountErr, DocumentNo, GLAccNo));
-        end;
+        GLEntry.SetRange("Document No.", DocumentNo);
+        GLEntry.SetRange("G/L Account No.", GLAccNo);
+        GLEntry.FindFirst();
+        Assert.AreEqual(ExpectedAmount, GLEntry.Amount,
+          StrSubstNo(IncorrectAmountErr, DocumentNo, GLAccNo));
     end;
 
     local procedure VerifyPostedVendorEntries(DocumentNo: Code[20]; GLAccountFilter: Text; ExpVATBase: Decimal; ExpVATAmount: Decimal; ExpSalesInvAmount: Decimal; ExpSalesInvRemAmount: Decimal)

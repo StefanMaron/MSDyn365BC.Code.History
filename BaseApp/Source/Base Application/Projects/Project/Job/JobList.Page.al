@@ -1,15 +1,17 @@
 ﻿namespace Microsoft.Projects.Project.Job;
 
+using Microsoft.Assembly.Document;
 using Microsoft.Finance.Dimension;
 using Microsoft.Foundation.Attachment;
 using Microsoft.Foundation.Comment;
+using Microsoft.Inventory.BOM;
 using Microsoft.Pricing.Calculation;
 using Microsoft.Pricing.PriceList;
 using Microsoft.Pricing.Source;
 using Microsoft.Projects.Project.Analysis;
 using Microsoft.Projects.Project.Ledger;
 using Microsoft.Projects.Project.Planning;
-#if not CLEAN23
+#if not CLEAN25
 using Microsoft.Projects.Project.Pricing;
 #endif
 using Microsoft.Projects.Project.Reports;
@@ -19,6 +21,9 @@ using Microsoft.Sales.Customer;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.Pricing;
 using Microsoft.Sales.Reports;
+using Microsoft.Warehouse.Activity;
+using Microsoft.Warehouse.Activity.History;
+using Microsoft.Warehouse.Structure;
 using System.Integration.PowerBI;
 
 page 89 "Job List"
@@ -157,10 +162,23 @@ page 89 "Job List"
                 Caption = 'Project Details';
                 SubPageLink = "No." = field("No.");
             }
+#if not CLEAN25
             part("Attached Documents"; "Document Attachment Factbox")
             {
+                ObsoleteTag = '25.0';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
                 ApplicationArea = All;
                 Caption = 'Attachments';
+                SubPageLink = "Table ID" = const(Database::Job),
+                              "No." = field("No.");
+            }
+#endif
+            part("Attached Documents List"; "Doc. Attachment List Factbox")
+            {
+                ApplicationArea = All;
+                Caption = 'Documents';
+                UpdatePropagation = Both;
                 SubPageLink = "Table ID" = const(Database::Job),
                               "No." = field("No.");
             }
@@ -262,6 +280,21 @@ page 89 "Job List"
                                   "No." = field("No.");
                     ToolTip = 'View or add comments for the record.';
                 }
+                action(AssemblyOrders)
+                {
+                    AccessByPermission = TableData "BOM Component" = R;
+                    ApplicationArea = Assembly;
+                    Caption = 'Assembly Orders';
+                    Image = AssemblyOrder;
+                    ToolTip = 'View ongoing assembly orders related to the project. ';
+
+                    trigger OnAction()
+                    var
+                        AssembleToOrderLink: Record "Assemble-to-Order Link";
+                    begin
+                        AssembleToOrderLink.ShowAsmOrders(Rec, '');
+                    end;
+                }
             }
             group("W&IP")
             {
@@ -289,8 +322,16 @@ page 89 "Job List"
                                   order(descending);
                     ToolTip = 'View the project''s WIP G/L entries.';
                 }
+                action("WIP Cockpit")
+                {
+                    ApplicationArea = Jobs;
+                    Caption = 'Project WIP Cockpit';
+                    Image = WIPLedger;
+                    RunObject = Page "Job WIP Cockpit";
+                    ToolTip = 'View the Project WIP Cockpit.';
+                }
             }
-#if not CLEAN23
+#if not CLEAN25
             group("&Prices")
             {
                 Caption = '&Prices';
@@ -398,7 +439,7 @@ page 89 "Job List"
                         PriceUXManagement.ShowPriceListLines(PriceSource, Enum::"Price Amount Type"::Discount);
                     end;
                 }
-#if not CLEAN23
+#if not CLEAN25
                 action(SalesPriceListsDiscounts)
                 {
                     ApplicationArea = Basic, Suite;
@@ -473,7 +514,7 @@ page 89 "Job List"
                         PriceUXManagement.ShowPriceListLines(PriceSource, Enum::"Price Amount Type"::Discount);
                     end;
                 }
-#if not CLEAN23
+#if not CLEAN25
                 action(PurchasePriceListsDiscounts)
                 {
                     ApplicationArea = Basic, Suite;
@@ -532,6 +573,35 @@ page 89 "Job List"
                                   order(descending);
                     ShortCutKey = 'Ctrl+F7';
                     ToolTip = 'View the history of transactions that have been posted for the selected record.';
+                }
+            }
+            group(Warehouse_Related)
+            {
+                Caption = 'Warehouse';
+                Image = Worksheets;
+                action("Put-away/Pick Lines/Movement Lines")
+                {
+                    ApplicationArea = Warehouse;
+                    Caption = 'Put-away/Pick Lines/Movement Lines';
+                    Image = PutawayLines;
+                    ToolTip = 'View the list of ongoing inventory put-aways, picks, or movements for the project.';
+
+                    trigger OnAction()
+                    begin
+                        OpenWhseActivityLines();
+                    end;
+                }
+                action("Registered P&ick Lines")
+                {
+                    ApplicationArea = Warehouse;
+                    Caption = 'Registered Pick Lines';
+                    Image = RegisteredDocs;
+                    RunObject = Page "Registered Whse. Act.-Lines";
+                    RunPageLink = "Source Type" = filter(167),
+                                  "Source Subtype" = const("0"),
+                                  "Source No." = field("No.");
+                    RunPageView = sorting("Source Type", "Source Subtype", "Source No.", "Source Line No.", "Source Subline No.");
+                    ToolTip = 'View the list of warehouse picks that have been made for the project.';
                 }
             }
         }
@@ -612,6 +682,37 @@ page 89 "Job List"
                         end;
                     }
                 }
+            }
+            group(Warehouse)
+            {
+                Caption = 'Warehouse';
+                Image = Worksheets;
+                action("Create Inventory Pick")
+                {
+                    ApplicationArea = Warehouse;
+                    Caption = 'Create Inventory Pick';
+                    Image = CreateInventoryPick;
+                    ToolTip = 'Create inventory picks for the item on the project planning lines.';
+
+                    trigger OnAction()
+                    begin
+                        Rec.CreateInvtPutAwayPick();
+                    end;
+                }
+                action("Create Warehouse Pick")
+                {
+                    AccessByPermission = TableData "Bin Content" = R;
+                    ApplicationArea = Warehouse;
+                    Caption = 'Create Warehouse Pick';
+                    Image = CreateWarehousePick;
+                    ToolTip = 'Create warehouse pick documents for the project planning lines.';
+
+                    trigger OnAction()
+                    begin
+                        Rec.CreateWarehousePick();
+                    end;
+                }
+
             }
         }
         area(reporting)
@@ -858,7 +959,7 @@ page 89 "Job List"
             {
                 Caption = 'Prices & Discounts', Comment = 'Generated from the PromotedActionCategories property index 5.';
 
-#if not CLEAN23
+#if not CLEAN25
                 actionref("&Resource_Promoted"; "&Resource")
                 {
                     ObsoleteState = Pending;
@@ -866,7 +967,7 @@ page 89 "Job List"
                     ObsoleteTag = '17.0';
                 }
 #endif
-#if not CLEAN23
+#if not CLEAN25
                 actionref("&Item_Promoted"; "&Item")
                 {
                     ObsoleteState = Pending;
@@ -874,7 +975,7 @@ page 89 "Job List"
                     ObsoleteTag = '17.0';
                 }
 #endif
-#if not CLEAN23
+#if not CLEAN25
                 actionref("&G/L Account_Promoted"; "&G/L Account")
                 {
                     ObsoleteState = Pending;
@@ -897,6 +998,9 @@ page 89 "Job List"
                 {
                 }
                 actionref("WIP &G/L Entries_Promoted"; "WIP &G/L Entries")
+                {
+                }
+                actionref("WIP Cockpit_Promoted"; "WIP Cockpit")
                 {
                 }
             }
@@ -922,7 +1026,7 @@ page 89 "Job List"
                 actionref(PurchDiscountLines_Promoted; PurchDiscountLines)
                 {
                 }
-#if not CLEAN23
+#if not CLEAN25
                 actionref(SalesPriceListsDiscounts_Promoted; SalesPriceListsDiscounts)
                 {
                     ObsoleteState = Pending;
@@ -930,7 +1034,7 @@ page 89 "Job List"
                     ObsoleteTag = '18.0';
                 }
 #endif
-#if not CLEAN23
+#if not CLEAN25
                 actionref(PurchasePriceListsDiscounts_Promoted; PurchasePriceListsDiscounts)
                 {
                     ObsoleteState = Pending;
@@ -1003,5 +1107,34 @@ page 89 "Job List"
 
     var
         ExtendedPriceEnabled: Boolean;
+
+    local procedure OpenWhseActivityLines()
+    var
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        TempWarehouseActivityLine: Record "Warehouse Activity Line" temporary;
+    begin
+        WarehouseActivityLine.SetCurrentKey("Whse. Document No.", "Whse. Document Type", "Activity Type");
+        WarehouseActivityLine.SetRange("Whse. Document Type", WarehouseActivityLine."Whse. Document Type"::Job);
+        WarehouseActivityLine.SetRange("Whse. Document No.", Rec."No.");
+        if WarehouseActivityLine.FindSet() then
+            repeat
+                TempWarehouseActivityLine := WarehouseActivityLine;
+                if TempWarehouseActivityLine.Insert() then;
+            until WarehouseActivityLine.Next() = 0;
+
+        WarehouseActivityLine.Reset();
+        WarehouseActivityLine.SetCurrentKey("Source Type", "Source Subtype", "Source No.", "Source Line No.", "Source Subline No.", "Unit of Measure Code", "Action Type", "Breakbulk No.", "Original Breakbulk");
+        WarehouseActivityLine.SetRange("Source Type", Database::Job);
+        WarehouseActivityLine.SetRange("Source Subtype", 0);
+        WarehouseActivityLine.SetRange("Source No.", Rec."No.");
+        if WarehouseActivityLine.FindSet() then
+            repeat
+                TempWarehouseActivityLine := WarehouseActivityLine;
+                if TempWarehouseActivityLine.Insert() then;
+            until WarehouseActivityLine.Next() = 0;
+
+        TempWarehouseActivityLine.Reset();
+        Page.Run(Page::"Warehouse Activity Lines", TempWarehouseActivityLine);
+    end;
 }
 

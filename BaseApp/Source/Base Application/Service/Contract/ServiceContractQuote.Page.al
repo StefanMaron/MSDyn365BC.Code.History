@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Service.Contract;
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Service.Contract;
 
 using Microsoft.CRM.Contact;
 using Microsoft.Finance.Dimension;
@@ -410,6 +414,11 @@ page 6053 "Service Contract Quote"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the country/region code of the address.';
                 }
+                field("Ship-to Phone No."; Rec."Ship-to Phone No.")
+                {
+                    ApplicationArea = Service;
+                    ToolTip = 'Specifies the telephone number of the company''s shipping address.';
+                }
             }
             group(Service)
             {
@@ -595,10 +604,24 @@ page 6053 "Service Contract Quote"
         }
         area(factboxes)
         {
+#if not CLEAN25
             part("Attached Documents"; "Document Attachment Factbox")
             {
+                ObsoleteTag = '25.0';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
                 ApplicationArea = Service;
                 Caption = 'Attachments';
+                SubPageLink = "Table ID" = const(Database::"Service Contract Header"),
+                              "Document Type" = const("Service Contract Quote"),
+                              "No." = field("Contract No.");
+            }
+#endif
+            part("Attached Documents List"; "Doc. Attachment List Factbox")
+            {
+                ApplicationArea = Service;
+                Caption = 'Documents';
+                UpdatePropagation = Both;
                 SubPageLink = "Table ID" = const(Database::"Service Contract Header"),
                               "Document Type" = const("Service Contract Quote"),
                               "No." = field("Contract No.");
@@ -745,10 +768,11 @@ page 6053 "Service Contract Quote"
 
                     trigger OnAction()
                     var
+                        FiledServiceContractHeader: Record "Filed Service Contract Header";
                         ConfirmManagement: Codeunit "Confirm Management";
                     begin
                         if ConfirmManagement.GetResponseOrDefault(Text001, true) then
-                            FiledServContract.FileContract(Rec);
+                            FiledServiceContractHeader.FileContract(Rec);
                     end;
                 }
                 action("Update &Discount % on All Lines")
@@ -838,9 +862,9 @@ page 6053 "Service Contract Quote"
 
                 trigger OnAction()
                 var
-                    DocPrint: Codeunit "Document-Print";
+                    ServDocumentPrint: Codeunit "Serv. Document Print";
                 begin
-                    DocPrint.PrintServiceContract(Rec);
+                    ServDocumentPrint.PrintServiceContract(Rec);
                 end;
             }
             action(AttachAsPDF)
@@ -854,11 +878,11 @@ page 6053 "Service Contract Quote"
                 trigger OnAction()
                 var
                     ServiceContractHeader: Record "Service Contract Header";
-                    DocumentPrint: Codeunit "Document-Print";
+                    ServDocumentPrint: Codeunit "Serv. Document Print";
                 begin
                     ServiceContractHeader := Rec;
                     ServiceContractHeader.SetRecFilter();
-                    DocumentPrint.PrintServiceContractToDocumentAttachment(ServiceContractHeader);
+                    ServDocumentPrint.PrintServiceContractToDocumentAttachment(ServiceContractHeader);
                 end;
             }
         }
@@ -981,17 +1005,24 @@ page 6053 "Service Contract Quote"
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label '%1 must not be blank in %2 %3', Comment = 'Contract No. must not be blank in Service Contract Header SC00004';
+#pragma warning restore AA0470
         Text001: Label 'Do you want to file the contract quote?';
         Text002: Label 'Do you want to update the contract quote using a contract template?';
-        FiledServContract: Record "Filed Service Contract Header";
+#pragma warning restore AA0074
         ServContractLine: Record "Service Contract Line";
         SellToContact: Record Contact;
         BillToContact: Record Contact;
         CopyServDoc: Report "Copy Service Document";
         UserMgt: Codeunit "User Setup Management";
         ServContrQuoteTmplUpd: Codeunit "ServContractQuote-Tmpl. Upd.";
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text003: Label '%1 must not be %2 in %3 %4', Comment = 'Status must not be blank in Signed SC00001';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         LockOpenServContract: Codeunit "Lock-OpenServContract";
         FormatAddress: Codeunit "Format Address";
         PrepaidEnable: Boolean;
@@ -1012,10 +1043,10 @@ page 6053 "Service Contract Quote"
 
     local procedure SetDocNoVisible()
     var
-        DocumentNoVisibility: Codeunit DocumentNoVisibility;
+        ServDocumentNoVisibility: Codeunit "Serv. Document No. Visibility";
         DocType: Option Quote,"Order",Invoice,"Credit Memo",Contract;
     begin
-        DocNoVisible := DocumentNoVisibility.ServiceDocumentNoIsVisible(DocType::Contract, Rec."Contract No.");
+        DocNoVisible := ServDocumentNoVisibility.ServiceDocumentNoIsVisible(DocType::Contract, Rec."Contract No.");
     end;
 
     local procedure CheckRequiredFields()

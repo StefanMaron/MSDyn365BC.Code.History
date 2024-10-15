@@ -1114,13 +1114,11 @@ codeunit 137028 "Purch. Correct Cr. Memo"
     var
         DetailedVendLedgEntry: Record "Detailed Vendor Ledg. Entry";
     begin
-        with DetailedVendLedgEntry do begin
-            Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(DetailedVendLedgEntry, FieldNo("Entry No."));
-            "Vendor Ledger Entry No." := VendLedgEntryNo;
-            "Entry Type" := EntryType;
-            Insert();
-        end;
+        DetailedVendLedgEntry.Init();
+        DetailedVendLedgEntry."Entry No." := LibraryUtility.GetNewRecNo(DetailedVendLedgEntry, DetailedVendLedgEntry.FieldNo("Entry No."));
+        DetailedVendLedgEntry."Vendor Ledger Entry No." := VendLedgEntryNo;
+        DetailedVendLedgEntry."Entry Type" := EntryType;
+        DetailedVendLedgEntry.Insert();
     end;
 
     local procedure BlockVendor(VendNo: Code[20])
@@ -1159,11 +1157,9 @@ codeunit 137028 "Purch. Correct Cr. Memo"
         VendLedgEntry: Record "Vendor Ledger Entry";
         CopyDocMgt: Codeunit "Copy Document Mgt.";
     begin
-        with PurchHeader do begin
-            Init();
-            Validate("Document Type", "Document Type"::Invoice);
-            Insert(true);
-        end;
+        PurchHeader.Init();
+        PurchHeader.Validate("Document Type", PurchHeader."Document Type"::Invoice);
+        PurchHeader.Insert(true);
         CopyDocMgt.SetProperties(true, false, false, false, false, false, false);
         CopyDocMgt.CopyPurchDoc("Purchase Document Type From"::"Posted Credit Memo", PurchCrMemoHdr."No.", PurchHeader);
         PurchHeader."Vendor Invoice No." := PurchHeader."No.";
@@ -1284,13 +1280,11 @@ codeunit 137028 "Purch. Correct Cr. Memo"
     var
         PurchInvLine: Record "Purch. Inv. Line";
     begin
-        with PurchInvLine do begin
-            SetRange("No.", PurchInvHeader."No.");
-            SetRange(Type, Type::"G/L Account");
-            SetRange("No.",
-              LibraryPurchase.GetInvRoundingAccountOfVendPostGroup(PurchInvHeader."Vendor Posting Group"));
-            Assert.IsFalse(IsEmpty, InvRoundingLineDoesNotExistErr);
-        end;
+        PurchInvLine.SetRange("No.", PurchInvHeader."No.");
+        PurchInvLine.SetRange(Type, PurchInvLine.Type::"G/L Account");
+        PurchInvLine.SetRange("No.",
+          LibraryPurchase.GetInvRoundingAccountOfVendPostGroup(PurchInvHeader."Vendor Posting Group"));
+        Assert.IsFalse(PurchInvLine.IsEmpty, InvRoundingLineDoesNotExistErr);
     end;
 
     [ConfirmHandler]

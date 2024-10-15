@@ -316,7 +316,7 @@ page 99000831 "Released Production Order"
                     var
                         OrderPlanning: Page "Order Planning";
                     begin
-                        OrderPlanning.SetProdOrder(Rec);
+                        OrderPlanning.SetProdOrderDemand(Rec.Status.AsInteger(), Rec."No.");
                         OrderPlanning.RunModal();
                     end;
                 }
@@ -675,9 +675,11 @@ page 99000831 "Released Production Order"
     var
         CopyProdOrderDoc: Report "Copy Production Order Document";
         ManuPrintReport: Codeunit "Manu. Print Report";
+#pragma warning disable AA0074
         Text000: Label 'Inbound Whse. Requests are created.';
         Text001: Label 'No Inbound Whse. Request is created.';
         Text002: Label 'Inbound Whse. Requests have already been created.';
+#pragma warning restore AA0074
         VariantCodeMandatory: Boolean;
 
     local procedure ShortcutDimension1CodeOnAfterV()

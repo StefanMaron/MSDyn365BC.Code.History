@@ -538,10 +538,12 @@ table 376 "G/L Account (Analysis View)"
     var
         AnalysisView: Record "Analysis View";
 
+#pragma warning disable AA0074
         Text000: Label '1,6,,Dimension 1 Filter';
         Text001: Label '1,6,,Dimension 2 Filter';
         Text002: Label '1,6,,Dimension 3 Filter';
         Text003: Label '1,6,,Dimension 4 Filter';
+#pragma warning restore AA0074
 
     procedure GetCaptionClass(AnalysisViewDimType: Integer) Result: Text[250]
     var

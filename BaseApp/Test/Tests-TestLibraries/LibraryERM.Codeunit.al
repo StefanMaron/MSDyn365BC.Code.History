@@ -18,10 +18,6 @@
         LibraryERMUnapply: Codeunit "Library - ERM Unapply";
         LibraryRandom: Codeunit "Library - Random";
         LibraryJournals: Codeunit "Library - Journals";
-#if not CLEAN22
-        LibraryPurchase: Codeunit "Library - Purchase";
-        LibraryMarketing: Codeunit "Library - Marketing";
-#endif
         SearchPostingType: Option All,Sales,Purchase;
 
     procedure ApplicationAmountRounding(ApplicationAmount: Decimal; CurrencyCode: Code[10]): Decimal
@@ -90,18 +86,6 @@
         PaymentJournal.PreviewCheck.Invoke();
         exit(CheckPreviewPage.AmountText.Value);
     end;
-
-#if not CLEAN22
-    [Obsolete('Intrastat related functionalities are moved to Intrastat extensions.', '22.0')]
-    procedure ClearIntrastatJnlLines(IntrastatJnlBatch: Record "Intrastat Jnl. Batch")
-    var
-        IntrastatJnlLine: Record "Intrastat Jnl. Line";
-    begin
-        IntrastatJnlLine.SetRange("Journal Template Name", IntrastatJnlBatch."Journal Template Name");
-        IntrastatJnlLine.SetRange("Journal Batch Name", IntrastatJnlBatch.Name);
-        IntrastatJnlLine.DeleteAll(true);
-    end;
-#endif
 
     procedure ClearGenJournalLines(GenJournalBatch: Record "Gen. Journal Batch")
     var
@@ -404,6 +388,14 @@
         CountryRegion.Insert(true);
     end;
 
+    procedure CreateCountryRegion(): Code[10]
+    var
+        CountryRegion: Record "Country/Region";
+    begin
+        CreateCountryRegion(CountryRegion);
+        exit(CountryRegion.Code);
+    end;
+
     procedure CreateCountryRegionTranslation(CountryRegionCode: Code[10]; var CountryRegionTranslation: Record "Country/Region Translation")
     var
         LanguageCode: Code[10];
@@ -509,15 +501,6 @@
         CustomerDiscountGroup.Validate(Description, CustomerDiscountGroup.Code);  // Validating Code as Description because value is not important.
         CustomerDiscountGroup.Insert(true);
     end;
-
-#if not CLEAN22
-    [Obsolete('Intrastat related functionalities are moved to Intrastat extensions.', '22.0')]
-    procedure CreateIntrastatSetup(var IntrastatSetup: Record "Intrastat Setup")
-    begin
-        IntrastatSetup.Init();
-        IntrastatSetup.Insert();
-    end;
-#endif
 
     procedure CreateItemDiscountGroup(var ItemDiscountGroup: Record "Item Discount Group")
     begin
@@ -1003,54 +986,6 @@
         exit(ICPartner.Code);
     end;
 
-#if not CLEAN22
-    [Obsolete('Intrastat related functionalities are moved to Intrastat extensions.', '22.0')]
-    procedure CreateIntrastatJnlBatch(var IntrastatJnlBatch: Record "Intrastat Jnl. Batch"; JournalTemplateName: Code[10])
-    begin
-        IntrastatJnlBatch.Init();
-        IntrastatJnlBatch.Validate("Journal Template Name", JournalTemplateName);
-        IntrastatJnlBatch.Validate(
-          Name, LibraryUtility.GenerateRandomCode(IntrastatJnlBatch.FieldNo(Name), DATABASE::"Intrastat Jnl. Batch"));
-        IntrastatJnlBatch.Validate(Description, IntrastatJnlBatch.Name);
-        IntrastatJnlBatch.Insert(true);
-    end;
-
-    [Obsolete('Intrastat related functionalities are moved to Intrastat extensions.', '22.0')]
-    procedure CreateIntrastatJnlLine(var IntrastatJnlLine: Record "Intrastat Jnl. Line"; JournalTemplateName: Code[10]; JournalBatchName: Code[10])
-    var
-        RecRef: RecordRef;
-    begin
-        IntrastatJnlLine.Init();
-        IntrastatJnlLine.Validate("Journal Template Name", JournalTemplateName);
-        IntrastatJnlLine.Validate("Journal Batch Name", JournalBatchName);
-        RecRef.GetTable(IntrastatJnlLine);
-        IntrastatJnlLine.Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, IntrastatJnlLine.FieldNo("Line No.")));
-        IntrastatJnlLine.Insert(true);
-    end;
-
-    [Obsolete('Intrastat related functionalities are moved to Intrastat extensions.', '22.0')]
-    procedure CreateIntrastatJnlTemplate(var IntrastatJnlTemplate: Record "Intrastat Jnl. Template")
-    begin
-        IntrastatJnlTemplate.Init();
-        IntrastatJnlTemplate.Validate(
-          Name, LibraryUtility.GenerateRandomCode(IntrastatJnlTemplate.FieldNo(Name), DATABASE::"Intrastat Jnl. Template"));
-        IntrastatJnlTemplate.Validate(Description, IntrastatJnlTemplate.Name);
-        IntrastatJnlTemplate.Insert(true);
-    end;
-
-    [Obsolete('Intrastat related functionalities are moved to Intrastat extensions.', '22.0')]
-    procedure CreateIntrastatJnlTemplateAndBatch(var IntrastatJnlBatch: Record "Intrastat Jnl. Batch"; JournalDate: Date)
-    var
-        IntrastatJnlTemplate: Record "Intrastat Jnl. Template";
-        LibraryFiscalYear: Codeunit "Library - Fiscal Year";
-    begin
-        CreateIntrastatJnlTemplate(IntrastatJnlTemplate);
-        CreateIntrastatJnlBatch(IntrastatJnlBatch, IntrastatJnlTemplate.Name);
-        IntrastatJnlBatch.Validate(
-          "Statistics Period", Format(JournalDate, 0, LibraryFiscalYear.GetStatisticsPeriod()));
-        IntrastatJnlBatch.Modify(true);
-    end;
-#endif
     procedure CreateInvDiscForCustomer(var CustInvoiceDisc: Record "Cust. Invoice Disc."; "Code": Code[20]; CurrencyCode: Code[10]; MinimumAmount: Decimal)
     begin
         CustInvoiceDisc.Init();
@@ -1090,7 +1025,7 @@
         exit(Language.Code);
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     procedure CreateLineDiscForCustomer(var SalesLineDiscount: Record "Sales Line Discount"; Type: Enum "Sales Line Discount Type"; "Code": Code[20]; SalesType: Option; SalesCode: Code[20]; StartingDate: Date; CurrencyCode: Code[10]; VariantCode: Code[10]; UnitOfMeasureCode: Code[10]; MinimumQuantity: Decimal)
     begin
         SalesLineDiscount.Init();
@@ -1771,21 +1706,6 @@
         exit(CountryRegion.Code);
     end;
 
-#if not CLEAN22
-    [Obsolete('Intrastat related functionalities are moved to Intrastat extensions.', '22.0')]
-    procedure CreateIntrastatContact(ContactType: Option): Code[20]
-    var
-        IntrastatSetup: Record "Intrastat Setup";
-    begin
-        case ContactType of
-            IntrastatSetup."Intrastat Contact Type"::Contact:
-                exit(LibraryMarketing.CreateIntrastatContact(CreateCountryRegionWithIntrastatCode()));
-            IntrastatSetup."Intrastat Contact Type"::Vendor:
-                exit(LibraryPurchase.CreateIntrastatContact(CreateCountryRegionWithIntrastatCode()));
-        end;
-    end;
-#endif
-
     procedure CreateItemBudgetName(var ItemBudgetName: Record "Item Budget Name"; AnalysisArea: Enum "Analysis Area Type")
     begin
         ItemBudgetName.Init();
@@ -2083,15 +2003,6 @@
         GenProdPostingGroup.Validate("Def. VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
         GenProdPostingGroup.Modify();
     end;
-
-#if not CLEAN22
-    [Obsolete('Intrastat related functionalities are moved to Intrastat extensions.', '22.0')]
-    procedure FindIntrastatSetup(var IntrastatSetup: Record "Intrastat Setup")
-    begin
-        if not IntrastatSetup.Get() then
-            CreateIntrastatSetup(IntrastatSetup);
-    end;
-#endif
 
     procedure FindPaymentMethod(var PaymentMethod: Record "Payment Method")
     begin
@@ -2670,32 +2581,6 @@
         GeneralLedgerSetup.Modify(true);
     end;
 
-#if not CLEAN22
-    [Scope('OnPrem')]
-    [Obsolete('Intrastat related functionalities are moved to Intrastat extensions.', '22.0')]
-    procedure SetDefaultTransactionTypesInIntrastatSetup()
-    var
-        IntrastatSetup: Record "Intrastat Setup";
-    begin
-        IntrastatSetup.Get();
-        IntrastatSetup."Default Trans. - Purchase" := LibraryUtility.CreateCodeRecord(DATABASE::"Transaction Type");
-        IntrastatSetup."Default Trans. - Return" := LibraryUtility.CreateCodeRecord(DATABASE::"Transaction Type");
-        IntrastatSetup.Modify();
-    end;
-
-    [Scope('OnPrem')]
-    [Obsolete('Intrastat related functionalities are moved to Intrastat extensions.', '22.0')]
-    procedure SetDefaultTransactionSpecificationInIntrastatSetup()
-    var
-        IntrastatSetup: Record "Intrastat Setup";
-    begin
-        IntrastatSetup.Get();
-        IntrastatSetup."Default Trans. Spec. Code" := LibraryUtility.CreateCodeRecord(DATABASE::"Transaction Specification");
-        IntrastatSetup."Default Trans. Spec. Ret. Code" := LibraryUtility.CreateCodeRecord(DATABASE::"Transaction Specification");
-        IntrastatSetup.Modify();
-    end;
-#endif
-
     procedure SetAppliestoIdCustomer(var CustLedgerEntry: Record "Cust. Ledger Entry")
     begin
         // Set Applies-to ID.
@@ -2957,26 +2842,6 @@
         GeneralLedgerSetup.Modify(true);
     end;
 
-#if not CLEAN22
-    [Obsolete('Intrastat related functionalities are moved to Intrastat extensions.', '22.0')]
-    procedure SetMandatoryFieldsOnIntrastatJnlLines(IntrastatJnlLine: Record "Intrastat Jnl. Line"; IntrastatJnlBatch: Record "Intrastat Jnl. Batch"; TransportMethod: Code[10]; TransactionType: Code[10]; TransactionSpecification: Code[10]; NetWeight: Decimal)
-    begin
-        IntrastatJnlLine.SetRange("Journal Template Name", IntrastatJnlBatch."Journal Template Name");
-        IntrastatJnlLine.SetRange("Journal Batch Name", IntrastatJnlBatch.Name);
-        IntrastatJnlLine.FindSet();
-        repeat
-            IntrastatJnlLine.Validate("Transport Method", TransportMethod);
-            IntrastatJnlLine.Validate("Transaction Type", TransactionType);
-            IntrastatJnlLine.Validate("Transaction Specification", TransactionSpecification);
-            IntrastatJnlLine.Validate("Net Weight", NetWeight);
-            IntrastatJnlLine.Validate("Internal Ref. No.",
-              CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(IntrastatJnlLine."Internal Ref. No.")),
-                1, MaxStrLen(IntrastatJnlLine."Internal Ref. No.")));
-            IntrastatJnlLine.Modify(true);
-        until IntrastatJnlLine.Next() = 0;
-    end;
-#endif
-
     procedure SetMaxVATDifferenceAllowed(MaxVATDifferenceAllowed: Decimal)
     begin
         GeneralLedgerSetup.Get();
@@ -3075,21 +2940,6 @@
         else
             WorkDate := NormalDate(GLEntry."Posting Date");
     end;
-
-#if not CLEAN22
-#pragma warning disable AS0072
-    [Obsolete('Not used', '22.0')]
-#pragma warning restore AS0072
-    procedure SetIntrastatContact(ContactType: Option; ContactNo: Code[20])
-    var
-        IntrastatSetup: Record "Intrastat Setup";
-    begin
-        IntrastatSetup.Get();
-        IntrastatSetup.Validate("Intrastat Contact Type", ContactType);
-        IntrastatSetup.Validate("Intrastat Contact No.", ContactNo);
-        IntrastatSetup.Modify(true);
-    end;
-#endif
 
     procedure SetupReportSelection(ReportUsage: Enum "Report Selection Usage"; ReportId: Integer)
     var

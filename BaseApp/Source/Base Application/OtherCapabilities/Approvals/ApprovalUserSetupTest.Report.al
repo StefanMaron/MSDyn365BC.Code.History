@@ -1732,17 +1732,30 @@ report 600 "Approval User Setup Test"
         I: Integer;
         Brk: Boolean;
         Status: Text[5];
+#pragma warning disable AA0074
         Text001: Label 'OK';
         Text002: Label 'ERROR';
+#pragma warning restore AA0074
         Stop: Boolean;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text003: Label 'There are problems with the %1 Approval Setup. Re-enter Approval Amounts and make sure that at least one user has unlimited approval rights.';
         Text004: Label '%1 Approval Setup appears to be correct.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         UserCode: Code[50];
         WhatToTest: Option Sales,Purchase,Request,All;
+#pragma warning disable AA0074
         Text005: Label 'You must choose a User ID. ';
+#pragma warning disable AA0470
         Text006: Label 'User has lower %1 than the previous user.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         OK: Boolean;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text007: Label 'The user %1 is either set up as approver in the %2 route, or he is set up as his own approver.';
+#pragma warning restore AA0470
         Text008: Label 'Sales';
         Text009: Label 'Purchase';
         Text010: Label 'Request';
@@ -1751,6 +1764,7 @@ report 600 "Approval User Setup Test"
         Text014: Label 'None';
         Text015: Label 'Purchase Approval';
         Text016: Label 'Request Approval';
+#pragma warning restore AA0074
         Test_Approval_SetupCaptionLbl: Label 'Test Approval Setup';
         CurrReport_PAGENOCaptionLbl: Label 'Page';
         User_IDCaptionLbl: Label 'User ID';

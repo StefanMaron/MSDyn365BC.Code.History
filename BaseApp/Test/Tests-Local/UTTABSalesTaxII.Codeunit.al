@@ -20,7 +20,6 @@ codeunit 142090 "UT TAB Sales Tax II"
         LibraryRandom: Codeunit "Library - Random";
         LibraryPurchase: Codeunit "Library - Purchase";
         ValueMustBeEqualMsg: Label 'Value Must Be Equal.';
-        ExpectedTaxGroupCodeErr: Label 'Tax Group Code must have a value in G/L Account: No.=%1. It cannot be zero or empty.';
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryApplicationArea: Codeunit "Library - Application Area";
         IsInitialized: Boolean;
@@ -574,7 +573,7 @@ codeunit 142090 "UT TAB Sales Tax II"
         // [WHEN] Validate "Non-Prepaid Contract Acc." Service Contract Account Group with X
         // [THEN] Error is shown
         asserterror ServiceContractAccountGroup.Validate("Non-Prepaid Contract Acc.", GLAccount."No.");
-        Assert.ExpectedError(StrSubstNo(ExpectedTaxGroupCodeErr, GLAccount."No."));
+        Assert.ExpectedTestFieldError(GLAccount.FieldCaption("Tax Group Code"), '');
     end;
 
     [Test]
@@ -649,7 +648,7 @@ codeunit 142090 "UT TAB Sales Tax II"
         // [WHEN] Validate "Prepaid Contract Acc." on Service Contract Account Group with X
         // [THEN] Error is shown
         asserterror ServiceContractAccountGroup.Validate("Prepaid Contract Acc.", GLAccount."No.");
-        Assert.ExpectedError(StrSubstNo(ExpectedTaxGroupCodeErr, GLAccount."No."));
+        Assert.ExpectedTestFieldError(GLAccount.FieldCaption("Tax Group Code"), '');
     end;
 
     [Test]

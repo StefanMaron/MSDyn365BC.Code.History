@@ -499,32 +499,28 @@ codeunit 134157 "ERM Posting Rounding"
 #if not CLEAN23
     local procedure MockTempInvoicePostBuffer(var TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary; NewAmount: Decimal; NewAmountACY: Decimal; NewVATAmount: Decimal; NewVATAmountACY: Decimal; NewVATBaseAmount: Decimal; NewVATBaseAmountACY: Decimal)
     begin
-        with TempInvoicePostBuffer do begin
-            Init();
-            Amount := NewAmount;
-            "Amount (ACY)" := NewAmountACY;
-            "VAT Amount" := NewVATAmount;
-            "VAT Amount (ACY)" := NewVATAmountACY;
-            "VAT Base Amount" := NewVATBaseAmount;
-            "VAT Base Amount (ACY)" := NewVATBaseAmountACY;
-            Insert();
-        end;
+        TempInvoicePostBuffer.Init();
+        TempInvoicePostBuffer.Amount := NewAmount;
+        TempInvoicePostBuffer."Amount (ACY)" := NewAmountACY;
+        TempInvoicePostBuffer."VAT Amount" := NewVATAmount;
+        TempInvoicePostBuffer."VAT Amount (ACY)" := NewVATAmountACY;
+        TempInvoicePostBuffer."VAT Base Amount" := NewVATBaseAmount;
+        TempInvoicePostBuffer."VAT Base Amount (ACY)" := NewVATBaseAmountACY;
+        TempInvoicePostBuffer.Insert();
     end;
 #endif
 
     local procedure MockTempInvoicePostingBuffer(var TempInvoicePostingBuffer: Record "Invoice Posting Buffer" temporary; NewAmount: Decimal; NewAmountACY: Decimal; NewVATAmount: Decimal; NewVATAmountACY: Decimal; NewVATBaseAmount: Decimal; NewVATBaseAmountACY: Decimal)
     begin
-        with TempInvoicePostingBuffer do begin
-            Init();
-            Amount := NewAmount;
-            "Amount (ACY)" := NewAmountACY;
-            "VAT Amount" := NewVATAmount;
-            "VAT Amount (ACY)" := NewVATAmountACY;
-            "VAT Base Amount" := NewVATBaseAmount;
-            "VAT Base Amount (ACY)" := NewVATBaseAmountACY;
-            BuildPrimaryKey();
-            Insert();
-        end;
+        TempInvoicePostingBuffer.Init();
+        TempInvoicePostingBuffer.Amount := NewAmount;
+        TempInvoicePostingBuffer."Amount (ACY)" := NewAmountACY;
+        TempInvoicePostingBuffer."VAT Amount" := NewVATAmount;
+        TempInvoicePostingBuffer."VAT Amount (ACY)" := NewVATAmountACY;
+        TempInvoicePostingBuffer."VAT Base Amount" := NewVATBaseAmount;
+        TempInvoicePostingBuffer."VAT Base Amount (ACY)" := NewVATBaseAmountACY;
+        TempInvoicePostingBuffer.BuildPrimaryKey();
+        TempInvoicePostingBuffer.Insert();
     end;
 
     local procedure GetVendorPayablesAccountNo(VendorPostingGroupCode: Code[20]): Code[20]
@@ -547,25 +543,21 @@ codeunit 134157 "ERM Posting Rounding"
     var
         GLEntry: Record "G/L Entry";
     begin
-        with GLEntry do begin
-            SetRange("Document No.", DocumentNo);
-            SetRange("G/L Account No.", GLAccountNo);
-            FindFirst();
-            TestField(Amount, ExpectedAmount);
-        end;
+        GLEntry.SetRange("Document No.", DocumentNo);
+        GLEntry.SetRange("G/L Account No.", GLAccountNo);
+        GLEntry.FindFirst();
+        GLEntry.TestField(Amount, ExpectedAmount);
     end;
 
 #if not CLEAN23
     local procedure VerifyInvoicePostBufferAmounts(InvoicePostBuffer: Record "Invoice Post. Buffer"; ExpAmount: Decimal; ExpAmountACY: Decimal; ExpVATAmount: Decimal; ExpVATAmountACY: Decimal; ExpVATBaseAmount: Decimal; ExpVATBaseAmountACY: Decimal)
     begin
-        with InvoicePostBuffer do begin
-            TestField(Amount, ExpAmount);
-            TestField("Amount (ACY)", ExpAmountACY);
-            TestField("VAT Amount", ExpVATAmount);
-            TestField("VAT Amount (ACY)", ExpVATAmountACY);
-            TestField("VAT Base Amount", ExpVATBaseAmount);
-            TestField("VAT Base Amount (ACY)", ExpVATBaseAmountACY);
-        end;
+        InvoicePostBuffer.TestField(Amount, ExpAmount);
+        InvoicePostBuffer.TestField("Amount (ACY)", ExpAmountACY);
+        InvoicePostBuffer.TestField("VAT Amount", ExpVATAmount);
+        InvoicePostBuffer.TestField("VAT Amount (ACY)", ExpVATAmountACY);
+        InvoicePostBuffer.TestField("VAT Base Amount", ExpVATBaseAmount);
+        InvoicePostBuffer.TestField("VAT Base Amount (ACY)", ExpVATBaseAmountACY);
     end;
 #endif
 
@@ -583,14 +575,12 @@ codeunit 134157 "ERM Posting Rounding"
 
     local procedure VerifyInvoicePostingBufferAmounts(InvoicePostingBuffer: Record "Invoice Posting Buffer"; ExpAmount: Decimal; ExpAmountACY: Decimal; ExpVATAmount: Decimal; ExpVATAmountACY: Decimal; ExpVATBaseAmount: Decimal; ExpVATBaseAmountACY: Decimal)
     begin
-        with InvoicePostingBuffer do begin
-            TestField(Amount, ExpAmount);
-            TestField("Amount (ACY)", ExpAmountACY);
-            TestField("VAT Amount", ExpVATAmount);
-            TestField("VAT Amount (ACY)", ExpVATAmountACY);
-            TestField("VAT Base Amount", ExpVATBaseAmount);
-            TestField("VAT Base Amount (ACY)", ExpVATBaseAmountACY);
-        end;
+        InvoicePostingBuffer.TestField(Amount, ExpAmount);
+        InvoicePostingBuffer.TestField("Amount (ACY)", ExpAmountACY);
+        InvoicePostingBuffer.TestField("VAT Amount", ExpVATAmount);
+        InvoicePostingBuffer.TestField("VAT Amount (ACY)", ExpVATAmountACY);
+        InvoicePostingBuffer.TestField("VAT Base Amount", ExpVATBaseAmount);
+        InvoicePostingBuffer.TestField("VAT Base Amount (ACY)", ExpVATBaseAmountACY);
     end;
 }
 

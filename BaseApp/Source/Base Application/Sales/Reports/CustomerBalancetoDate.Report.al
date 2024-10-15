@@ -362,15 +362,17 @@ report 121 "Customer - Balance to Date"
     end;
 
     var
-        TempCurrencyTotalBuffer: Record "Currency Total Buffer" temporary;
-        TempCurrencyTotalBuffer2: Record "Currency Total Buffer" temporary;
         AutoFormat: Codeunit "Auto Format";
         Counter1: Integer;
         DtldCustLedgEntryNum: Integer;
         OK: Boolean;
         DateFilterTxt: Text;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'Balance on %1';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         CustBalancetoDateCaptionLbl: Label 'Customer - Balance to Date';
         CurrReportPageNoCaptionLbl: Label 'Page';
         AllamtsareinLCYCaptionLbl: Label 'All amounts are in LCY.';
@@ -380,6 +382,8 @@ report 121 "Customer - Balance to Date"
         BlankMaxDateErr: Label 'Ending Date must have a value.';
 
     protected var
+        TempCurrencyTotalBuffer: Record "Currency Total Buffer" temporary;
+        TempCurrencyTotalBuffer2: Record "Currency Total Buffer" temporary;
         CurrencyCode: Code[10];
         MaxDate: Date;
         PrintAmountInLCY: Boolean;

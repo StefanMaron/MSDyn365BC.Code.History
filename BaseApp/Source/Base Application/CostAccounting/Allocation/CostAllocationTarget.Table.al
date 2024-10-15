@@ -302,8 +302,12 @@ table 1107 "Cost Allocation Target"
     end;
 
     var
+#pragma warning disable AA0074
         Text000: Label 'You cannot define both cost center and cost object.';
+#pragma warning disable AA0470
         Text001: Label '%1 can only be used with static allocations.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     local procedure CalcPercent()
     var

@@ -335,12 +335,11 @@ report 10119 "Purchase Blanket Order"
                                                (TempSalesTaxAmtLine."Tax %" <> PrevTaxPercent)
                                             then begin
                                                 BrkIdx := BrkIdx + 1;
-                                                if BrkIdx > 1 then begin
+                                                if BrkIdx > 1 then
                                                     if TaxArea."Country/Region" = TaxArea."Country/Region"::CA then
                                                         BreakdownTitle := Text006
                                                     else
                                                         BreakdownTitle := Text003;
-                                                end;
                                                 if BrkIdx > ArrayLen(BreakdownAmt) then begin
                                                     BrkIdx := BrkIdx - 1;
                                                     BreakdownLabel[BrkIdx] := Text004;

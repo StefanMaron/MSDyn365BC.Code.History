@@ -11,8 +11,6 @@ codeunit 138300 "RS Pack Content - Standard"
     var
         Assert: Codeunit Assert;
         LibraryDemoData: Codeunit "Library - Demo Data";
-        NoPurchHeaderErr: Label 'There is no Purchase Header within the filter.';
-        NoSalesHeaderErr: Label 'There is no Sales Header within the filter.';
         PostingAfterWDIsOnErr: Label 'Posting After Working Date option is on';
         XOUTGOINGTxt: Label 'OUTGOING';
         NonStockNoSeriesTok: Label 'NS-ITEM';
@@ -95,31 +93,11 @@ codeunit 138300 "RS Pack Content - Standard"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO] There are 0 Sales Invoices and 0 documents of other types
-        with SalesHeader do begin
-            SetRange("Document Type", "Document Type"::Invoice);
-            Assert.RecordCount(SalesHeader, 0);
+        SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Invoice);
+        Assert.RecordCount(SalesHeader, 0);
 
-            SetFilter("Document Type", '<>%1', "Document Type"::Invoice);
-            Assert.RecordCount(SalesHeader, 0);
-        end;
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure PostSalesInvoices()
-    var
-        SalesHeader: Record "Sales Header";
-    begin
-        // [FEATURE] [Sales]
-        // [SCENARIO] There are no Sales Invoices to post
-        with SalesHeader do begin
-            // [WHEN] Post all Invoices
-            Reset();
-            SetRange("Document Type", "Document Type"::Invoice);
-            asserterror FindFirst();
-            // [THEN] Error: 'There is no Sales Header within the filter.'
-            Assert.ExpectedError(NoSalesHeaderErr);
-        end;
+        SalesHeader.SetFilter("Document Type", '<>%1', SalesHeader."Document Type"::Invoice);
+        Assert.RecordCount(SalesHeader, 0);
     end;
 
     [Test]
@@ -130,31 +108,11 @@ codeunit 138300 "RS Pack Content - Standard"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO] There are 0 Purchase Invoices and 0 documents of other types
-        with PurchHeader do begin
-            SetRange("Document Type", "Document Type"::Invoice);
-            Assert.RecordCount(PurchHeader, 0);
+        PurchHeader.SetRange("Document Type", PurchHeader."Document Type"::Invoice);
+        Assert.RecordCount(PurchHeader, 0);
 
-            SetFilter("Document Type", '<>%1', "Document Type"::Invoice);
-            Assert.RecordCount(PurchHeader, 0);
-        end;
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure PostPurchInvoices()
-    var
-        PurchHeader: Record "Purchase Header";
-    begin
-        // [FEATURE] [Purchase]
-        // [SCENARIO] There are no Purchase Invoices to post
-        with PurchHeader do begin
-            // [WHEN] Post all Invoices
-            Reset();
-            SetRange("Document Type", "Document Type"::Invoice);
-            asserterror FindFirst();
-            // [THEN] Error: 'There is no Purchase Header within the filter.'
-            Assert.ExpectedError(NoPurchHeaderErr);
-        end;
+        PurchHeader.SetFilter("Document Type", '<>%1', PurchHeader."Document Type"::Invoice);
+        Assert.RecordCount(PurchHeader, 0);
     end;
 
     [Test]

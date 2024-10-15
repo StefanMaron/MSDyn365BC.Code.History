@@ -49,6 +49,8 @@ codeunit 444 "Purchase-Post Prepayments"
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text002: Label 'Posting Prepayment Lines   #2######\';
         Text003: Label '%1 %2 -> Invoice %3';
         Text004: Label 'Posting purchases and VAT  #3######\';
@@ -56,6 +58,8 @@ codeunit 444 "Purchase-Post Prepayments"
         Text006: Label 'Posting to bal. account    #5######';
         Text011: Label '%1 %2 -> Credit Memo %3';
         Text012: Label 'Prepayment %1, %2 %3.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         PostingDateNotAllowedErr: Label '%1 is not within your range of allowed posting dates.', Comment = '%1 - Posting Date field caption';
         SpecifyInvNoSerieTok: Label 'Specify the code for the number series that will be used to assign numbers to posted purchase prepayment invoices.';
         SpecifyCrNoSerieTok: Label 'Specify the code for the number series that will be used to assign numbers to posted purchase prepayment invoices.';
@@ -72,13 +76,21 @@ codeunit 444 "Purchase-Post Prepayments"
 #if not CLEAN25
         TotalAmount1099: Decimal;
 #endif
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text013: Label 'It is not possible to assign a prepayment amount of %1 to the purchase lines.';
+#pragma warning restore AA0470
         Text014: Label 'VAT Amount';
+#pragma warning disable AA0470
         Text015: Label '%1% VAT';
         Text016: Label 'The new prepayment amount must be between %1 and %2.';
         Text017: Label 'At least one line must have %1 > 0 to distribute prepayment amount.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         PrepaymentPurchaseTok: Label 'Prepayment Purchase', Locked = true;
+#pragma warning disable AA0074
         text019: Label 'Invoice,Credit Memo';
+#pragma warning restore AA0074
         SuppressCommit: Boolean;
         PrepmtDocumentType: Option ,,Invoice,"Credit Memo";
         PreviewMode: Boolean;

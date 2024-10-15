@@ -562,6 +562,14 @@ page 49 "Purchase Quote"
                                     IsShipToCountyVisible := FormatAddress.UseCounty(Rec."Ship-to Country/Region Code");
                                 end;
                             }
+                            field("Ship-to Phone No."; Rec."Ship-to Phone No.")
+                            {
+                                ApplicationArea = Basic, Suite;
+                                Caption = 'Phone No.';
+                                Editable = ShipToOptions = ShipToOptions::"Custom Address";
+                                Importance = Additional;
+                                ToolTip = 'Specifies the telephone number of the company''s shipping address.';
+                            }
                             field("Ship-to Contact"; Rec."Ship-to Contact")
                             {
                                 ApplicationArea = Basic, Suite;
@@ -755,10 +763,24 @@ page 49 "Purchase Quote"
         }
         area(factboxes)
         {
+#if not CLEAN25
             part("Attached Documents"; "Document Attachment Factbox")
             {
+                ObsoleteTag = '25.0';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
                 ApplicationArea = All;
                 Caption = 'Attachments';
+                SubPageLink = "Table ID" = const(Database::"Purchase Header"),
+                              "No." = field("No."),
+                              "Document Type" = field("Document Type");
+            }
+#endif
+            part("Attached Documents List"; "Doc. Attachment List Factbox")
+            {
+                ApplicationArea = All;
+                Caption = 'Documents';
+                UpdatePropagation = Both;
                 SubPageLink = "Table ID" = const(Database::"Purchase Header"),
                               "No." = field("No."),
                               "Document Type" = field("Document Type");
@@ -1063,6 +1085,7 @@ page 49 "Purchase Quote"
                 {
                     ApplicationArea = Suite;
                     Caption = 'Re&lease';
+                    Enabled = Rec.Status <> Rec.Status::Released;
                     Image = ReleaseDoc;
                     ShortCutKey = 'Ctrl+F9';
                     ToolTip = 'Release the document to the next stage of processing. You must reopen the document before you can make changes to it.';
@@ -1279,11 +1302,7 @@ page 49 "Purchase Quote"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Create approval flow';
                     ToolTip = 'Create a new flow in Power Automate from a list of relevant flow templates.';
-#if not CLEAN22
-                    Visible = IsSaaS and PowerAutomateTemplatesEnabled and IsPowerAutomatePrivacyNoticeApproved;
-#else
                     Visible = IsSaaS and IsPowerAutomatePrivacyNoticeApproved;
-#endif
                     CustomActionType = FlowTemplateGallery;
                     FlowTemplateCategoryName = 'd365bc_approval_purchaseQuote';
                 }
@@ -1497,9 +1516,6 @@ page 49 "Purchase Quote"
         ShowShippingOptionsWithLocation := ApplicationAreaMgmtFacade.IsLocationEnabled() or ApplicationAreaMgmtFacade.IsAllDisabled();
         IsSaaS := EnvironmentInformation.IsSaaS();
         IsPowerAutomatePrivacyNoticeApproved := PrivacyNotice.GetPrivacyNoticeApprovalState(PrivacyNoticeRegistrations.GetPowerAutomatePrivacyNoticeId()) = "Privacy Notice Approval State"::Agreed;
-#if not CLEAN22
-        InitPowerAutomateTemplateVisibility();
-#endif
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
@@ -1582,22 +1598,6 @@ page 49 "Purchase Quote"
 
         OnAfterActivateFields();
     end;
-
-#if not CLEAN22
-    var
-        PowerAutomateTemplatesEnabled: Boolean;
-        PowerAutomateTemplatesFeatureLbl: Label 'PowerAutomateTemplates', Locked = true;
-
-    local procedure InitPowerAutomateTemplateVisibility()
-    var
-        FeatureKey: Record "Feature Key";
-    begin
-        PowerAutomateTemplatesEnabled := true;
-        if FeatureKey.Get(PowerAutomateTemplatesFeatureLbl) then
-            if FeatureKey.Enabled <> FeatureKey.Enabled::"All Users" then
-                PowerAutomateTemplatesEnabled := false;
-    end;
-#endif
 
     local procedure ApproveCalcInvDisc()
     begin

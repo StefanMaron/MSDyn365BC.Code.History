@@ -66,12 +66,10 @@ codeunit 144020 "SCM Misc."
         CarryOutRequisitionPlan(RequisitionWkshName);
 
         // [THEN] One Purchase order is created per Items Vendor
-        with PurchHeader do begin
-            SetRange("Document Type", "Document Type"::Order);
-            for Counter := 1 to ProdOrderCount do begin
-                SetRange("Buy-from Vendor No.", LibraryVariableStorage.DequeueText());
-                Assert.IsFalse(IsEmpty, StrSubstNo(PurchHeaderNotFoundErr, GetRangeMin("Buy-from Vendor No.")));
-            end;
+        PurchHeader.SetRange("Document Type", PurchHeader."Document Type"::Order);
+        for Counter := 1 to ProdOrderCount do begin
+            PurchHeader.SetRange("Buy-from Vendor No.", LibraryVariableStorage.DequeueText());
+            Assert.IsFalse(PurchHeader.IsEmpty, StrSubstNo(PurchHeaderNotFoundErr, PurchHeader.GetRangeMin("Buy-from Vendor No.")));
         end;
 
         // Teardown.
@@ -582,12 +580,10 @@ codeunit 144020 "SCM Misc."
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
-        with PurchasesPayablesSetup do begin
-            Get();
-            PrevValue := "Use Vendor's Tax Area Code";
-            Validate("Use Vendor's Tax Area Code", NewValue);
-            Modify(true);
-        end;
+        PurchasesPayablesSetup.Get();
+        PrevValue := PurchasesPayablesSetup."Use Vendor's Tax Area Code";
+        PurchasesPayablesSetup.Validate("Use Vendor's Tax Area Code", NewValue);
+        PurchasesPayablesSetup.Modify(true);
     end;
 }
 

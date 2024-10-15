@@ -1121,12 +1121,10 @@ codeunit 134600 "Report Layout Test"
     var
         CustomReportLayout: Record "Custom Report Layout";
     begin
-        with CustomReportLayout do begin
-            Init();
-            "Report ID" := REPORT::"Standard Sales - Order Conf.";
-            Insert(true);
-            exit(Code);
-        end;
+        CustomReportLayout.Init();
+        CustomReportLayout."Report ID" := REPORT::"Standard Sales - Order Conf.";
+        CustomReportLayout.Insert(true);
+        exit(CustomReportLayout.Code);
     end;
 
     local procedure AddOrderConfirmationToCustomerDocumentLayout(CustomerNo: Code[20])
@@ -1142,16 +1140,14 @@ codeunit 134600 "Report Layout Test"
     var
         CustomReportSelection: Record "Custom Report Selection";
     begin
-        with CustomReportSelection do begin
-            Init();
-            "Source Type" := DATABASE::Customer;
-            "Source No." := CustomerNo;
-            Usage := NewUsage;
-            Sequence := 1;
-            "Report ID" := ReportID;
-            "Custom Report Layout Code" := CustomReportLayoutCode;
-            Insert(true);
-        end;
+        CustomReportSelection.Init();
+        CustomReportSelection."Source Type" := DATABASE::Customer;
+        CustomReportSelection."Source No." := CustomerNo;
+        CustomReportSelection.Usage := NewUsage;
+        CustomReportSelection.Sequence := 1;
+        CustomReportSelection."Report ID" := ReportID;
+        CustomReportSelection."Custom Report Layout Code" := CustomReportLayoutCode;
+        CustomReportSelection.Insert(true);
     end;
 
     local procedure CreateSalesLineWithJobTaskNo(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")

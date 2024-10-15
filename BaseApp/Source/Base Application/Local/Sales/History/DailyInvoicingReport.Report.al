@@ -301,12 +301,11 @@ report 10050 "Daily Invoicing Report"
 
             trigger OnAfterGetRecord()
             begin
-                if UseCurrency then begin
+                if UseCurrency then
                     if Number = 1 then
                         TempCurrency.Find('-')
                     else
                         TempCurrency.Next();
-                end;
 
                 TotalAmtExclTax := 0.0;
                 TotalSalesTax := 0.0;

@@ -149,23 +149,6 @@ page 380 "Bank Acc. Reconciliation Lines"
                               "Line No." = field("Data Exch. Line No.");
                 ToolTip = 'View additional information about the document on the selected line and link to the related card.';
             }
-#if not CLEAN22
-            action(ApplyEntries)
-            {
-                ApplicationArea = Basic, Suite;
-                Caption = '&Apply Entries...';
-                Image = ApplyEntries;
-                ToolTip = 'Select one or more ledger entries that you want to apply this record to so that the related posted documents are closed as paid or refunded.';
-                Visible = false;
-                ObsoleteReason = 'This page was used to apply entries with Checks associated. Users can do this directly with the Match actions in this page';
-                ObsoleteState = Pending;
-                ObsoleteTag = '22.0';
-
-                trigger OnAction()
-                begin
-                end;
-            }
-#endif
         }
     }
 

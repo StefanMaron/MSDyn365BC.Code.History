@@ -233,8 +233,10 @@ codeunit 5346 "CRM Sales Document Posting Mgt"
     local procedure CreateCRMPostBufferEntry(RecId: RecordID; ChangeType: Option)
     var
         CRMPostBuffer: Record "CRM Post Buffer";
+        [SecurityFiltering(SecurityFilter::Ignored)]
+        CRMPostBuffer2: Record "CRM Post Buffer";
     begin
-        if not CRMPostBuffer.WritePermission() then
+        if not CRMPostBuffer2.WritePermission() then
             exit;
 
         CRMPostBuffer.ID := CreateGuid();
@@ -248,8 +250,10 @@ codeunit 5346 "CRM Sales Document Posting Mgt"
     local procedure CreateCRMPostBufferEntry(RecId: RecordID; TableId: Integer; ChangeType: Option; Message: Text)
     var
         CRMPostBuffer: Record "CRM Post Buffer";
+        [SecurityFiltering(SecurityFilter::Ignored)]
+        CRMPostBuffer2: Record "CRM Post Buffer";
     begin
-        if not CRMPostBuffer.WritePermission() then
+        if not CRMPostBuffer2.WritePermission() then
             exit;
 
         CRMPostBuffer.ID := CreateGuid();

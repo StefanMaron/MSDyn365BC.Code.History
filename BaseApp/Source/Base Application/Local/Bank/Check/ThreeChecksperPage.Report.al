@@ -635,12 +635,11 @@ report 10413 "Three Checks per Page"
                         CheckAmountText := CopyStr(CheckAmountText, 1, 20) + DollarSignBefore + DollarSignAfter;
                         Index := 0;
                         if CheckAmountText = Text024Lbl then
-                            if StrLen(CheckAmountText) < (ControlLen - 12) then begin
+                            if StrLen(CheckAmountText) < (ControlLen - 12) then
                                 repeat
                                     Index := Index + 1;
                                     CheckAmountText := InsStr(CheckAmountText, '*', StrLen(CheckAmountText) + 1);
-                                until (Index = ControlLen) or (StrLen(CheckAmountText) >= (ControlLen - 12))
-                            end;
+                                until (Index = ControlLen) or (StrLen(CheckAmountText) >= (ControlLen - 12));
                         if CheckAmountText <> Text024Lbl then
                             if StrLen(CheckAmountText) < (ControlLen - 11) then
                                 repeat

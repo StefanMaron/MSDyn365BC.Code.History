@@ -9,10 +9,11 @@ controladdin PowerBIManagement
 {
     RequestedHeight = 320;
     MinimumHeight = 180;
-    RequestedWidth = 300;
-    MinimumWidth = 200;
     VerticalStretch = true;
     VerticalShrink = true;
+
+    RequestedWidth = 300;
+    MinimumWidth = 200;
     HorizontalStretch = true;
     HorizontalShrink = true;
 

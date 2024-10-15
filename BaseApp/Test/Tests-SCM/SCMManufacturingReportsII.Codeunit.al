@@ -1110,10 +1110,10 @@ codeunit 137310 "SCM Manufacturing Reports -II"
         LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('No_ProdOrder', ProductionOrderNo);
 
-        Item.CalcFields(Inventory, "Scheduled Need (Qty.)");
+        Item.CalcFields(Inventory, "Qty. on Component Lines");
         if Status <> ProdOrderComponent.Status::Finished then begin
-            LibraryReportDataset.AssertCurrentRowValueEquals('CompItemSchdldNeedQty', Item."Scheduled Need (Qty.)");
-            LibraryReportDataset.AssertCurrentRowValueEquals('NeededQuantity', Item."Scheduled Need (Qty.)" - Item.Inventory);
+            LibraryReportDataset.AssertCurrentRowValueEquals('CompItemSchdldNeedQty', Item."Qty. on Component Lines");
+            LibraryReportDataset.AssertCurrentRowValueEquals('NeededQuantity', Item."Qty. on Component Lines" - Item.Inventory);
         end else begin
             LibraryReportDataset.AssertCurrentRowValueEquals('CompItemSchdldNeedQty', ProdOrderComponent."Remaining Quantity");
             LibraryReportDataset.AssertCurrentRowValueEquals('NeededQuantity', ProdOrderComponent."Remaining Quantity" - Item.Inventory);

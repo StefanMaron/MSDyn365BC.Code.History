@@ -46,10 +46,14 @@ codeunit 5632 "FA Jnl.-Post Line"
         ErrorEntryNo: Integer;
         ResultOnDisposal: Integer;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label '%2 must not be %3 in %4 %5 = %6 for %1.';
         Text001: Label '%2 = %3 must be canceled first for %1.';
         Text002: Label '%1 is not a %2.';
         Text003: Label '%1 = %2 already exists for %5 (%3 = %4).';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure FAJnlPostLine(FAJnlLine: Record "FA Journal Line"; CheckLine: Boolean)
     var
@@ -487,7 +491,6 @@ codeunit 5632 "FA Jnl.-Post Line"
         FAPostingGr: Record "FA Posting Group";
         IsHandled: Boolean;
     begin
-        IsHandled := false;
         OnBeforePostAllocation(FALedgEntry, IsHandled);
         if IsHandled then
             exit;

@@ -136,7 +136,7 @@ table 5381 "Man. Integration Field Mapping"
     begin
         TableRelationsMetadata.SetRange("Table ID", FieldRec.TableNo);
         TableRelationsMetadata.SetRange("Field No.", FieldRec."No.");
-        If not TableRelationsMetadata.IsEmpty() then
+        if not TableRelationsMetadata.IsEmpty() then
             Error(FieldRelationExistsErr, FieldRec."Field Caption");
     end;
 

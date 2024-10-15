@@ -372,13 +372,13 @@ codeunit 7017 "Price List Management"
     end;
 
     procedure DefineDefaultPriceList(PriceType: Enum "Price Type"; SourceGroup: Enum "Price Source Group") DefaultPriceListCode: Code[20];
-#if not CLEAN23
+#if not CLEAN25
     var
         FeatureTelemetry: Codeunit "Feature Telemetry";
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
 #endif
     begin
-#if not CLEAN23
+#if not CLEAN25
         FeatureTelemetry.LogUptake('0000LLR', PriceCalculationMgt.GetFeatureTelemetryName(), Enum::"Feature Uptake Status"::"Set up");
 #endif
         case SourceGroup of

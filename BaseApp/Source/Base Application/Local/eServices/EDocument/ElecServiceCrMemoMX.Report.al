@@ -980,13 +980,13 @@ report 10478 "Elec. Service Cr Memo MX"
                     TotalInclVATText := StrSubstNo(Text002, "Currency Code");
                     TotalExclVATText := StrSubstNo(Text007, "Currency Code");
                 end;
-                FormatAddr.ServiceCrMemoBillTo(CustAddr, "Service Cr.Memo Header");
+                ServiceFormatAddress.ServiceCrMemoBillTo(CustAddr, "Service Cr.Memo Header");
                 if "Applies-to Doc. No." = '' then
                     AppliedToText := ''
                 else
                     AppliedToText := StrSubstNo(Text003, "Applies-to Doc. Type", "Applies-to Doc. No.");
 
-                ShowShippingAddr := FormatAddr.ServiceCrMemoShipTo(ShipToAddr, CustAddr, "Service Cr.Memo Header");
+                ShowShippingAddr := ServiceFormatAddress.ServiceCrMemoShipTo(ShipToAddr, CustAddr, "Service Cr.Memo Header");
 
                 if not Cust.Get("Bill-to Customer No.") then
                     Clear(Cust);
@@ -1102,6 +1102,7 @@ report 10478 "Elec. Service Cr Memo MX"
         LanguageMgt: Codeunit Language;
         ServiceCrMemoCountPrinted: Codeunit "Service Cr. Memo-Printed";
         FormatAddr: Codeunit "Format Address";
+        ServiceFormatAddress: Codeunit "Service Format Address";
         CustAddr: array[8] of Text[100];
         ShipToAddr: array[8] of Text[100];
         CompanyAddr: array[8] of Text[100];

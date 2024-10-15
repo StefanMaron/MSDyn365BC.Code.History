@@ -1218,38 +1218,34 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
 
     local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; TaxAreaCode: Code[20])
     begin
-        with SalesHeader do begin
-            "Document Type" := DocumentType;
-            "No." := LibraryUTUtility.GetNewCode();
-            "Tax Area Code" := TaxAreaCode;
-            Status := Status::Released;
-            Insert();
-        end;
+        SalesHeader."Document Type" := DocumentType;
+        SalesHeader."No." := LibraryUTUtility.GetNewCode();
+        SalesHeader."Tax Area Code" := TaxAreaCode;
+        SalesHeader.Status := SalesHeader.Status::Released;
+        SalesHeader.Insert();
     end;
 
     local procedure CreateSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; LineType: Enum "Sales Line Type"; No: Code[20]; Qty: Decimal; TaxGroupCode: Code[20]; TaxAreaCode: Code[20]; TaxLiable: Boolean; VATPct: Decimal; UnitPrice: Decimal; LineAmount: Decimal)
     begin
-        with SalesLine do begin
-            SetRange("Document Type", SalesHeader."Document Type");
-            SetRange("Document No.", SalesHeader."No.");
-            if FindLast() then;
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        if SalesLine.FindLast() then;
 
-            "Document Type" := SalesHeader."Document Type";
-            "Document No." := SalesHeader."No.";
-            "Line No." += 10000;
-            Type := LineType;
-            "No." := No;
-            Quantity := Qty;
-            "Qty. to Invoice" := Qty;
-            "Tax Group Code" := TaxGroupCode;
-            "Tax Area Code" := TaxAreaCode;
-            "Tax Liable" := TaxLiable;
-            "VAT %" := VATPct;
-            "Unit Price" := UnitPrice;
-            "Line Amount" := LineAmount;
-            Amount := LineAmount;
-            Insert();
-        end;
+        SalesLine."Document Type" := SalesHeader."Document Type";
+        SalesLine."Document No." := SalesHeader."No.";
+        SalesLine."Line No." += 10000;
+        SalesLine.Type := LineType;
+        SalesLine."No." := No;
+        SalesLine.Quantity := Qty;
+        SalesLine."Qty. to Invoice" := Qty;
+        SalesLine."Tax Group Code" := TaxGroupCode;
+        SalesLine."Tax Area Code" := TaxAreaCode;
+        SalesLine."Tax Liable" := TaxLiable;
+        SalesLine."VAT %" := VATPct;
+        SalesLine."Unit Price" := UnitPrice;
+        SalesLine."Line Amount" := LineAmount;
+        SalesLine.Amount := LineAmount;
+        SalesLine.Insert();
     end;
 
     local procedure CreatePurchaseDocument(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; TaxAreaCode: Code[20]; TaxGroupCode: Code[20]; TaxLiable: Boolean)

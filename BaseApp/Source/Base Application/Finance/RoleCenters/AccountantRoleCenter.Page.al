@@ -40,9 +40,6 @@ using Microsoft.Intercompany;
 using Microsoft.Intercompany.Dimension;
 using Microsoft.Intercompany.GLAccount;
 using Microsoft.Intercompany.Partner;
-#if not CLEAN22
-using Microsoft.Inventory.Intrastat;
-#endif
 using Microsoft.Inventory.Reports;
 using Microsoft.Purchases.Document;
 using Microsoft.Purchases.History;
@@ -87,6 +84,10 @@ page 9027 "Accountant Role Center"
                 ApplicationArea = Intercompany;
             }
             part("User Tasks Activities"; "User Tasks Activities")
+            {
+                ApplicationArea = Suite;
+            }
+            part("Job Queue Tasks Activities"; "Job Queue Tasks Activities")
             {
                 ApplicationArea = Suite;
             }
@@ -436,18 +437,6 @@ page 9027 "Accountant Role Center"
                     RunObject = Page "VAT Statement Names";
                     ToolTip = 'View a statement of posted VAT amounts, calculate your VAT settlement amount for a certain period, such as a quarter, and prepare to send the settlement to the tax authorities.';
                 }
-#if not CLEAN22
-                action("Intrastat Journals")
-                {
-                    ApplicationArea = BasicEU;
-                    Caption = 'Intrastat Journals';
-                    RunObject = Page "Intrastat Jnl. Batches";
-                    ToolTip = 'Summarize the value of your purchases and sales with business partners in the EU for statistical purposes and prepare to send it to the relevant authority.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '22.0';
-                    ObsoleteReason = 'Intrastat related functionalities are moved to Intrastat extensions.';
-                }
-#endif
                 action("Analysis Views")
                 {
                     ApplicationArea = Basic, Suite;
@@ -1129,28 +1118,6 @@ page 9027 "Accountant Role Center"
                     ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
                 }
             }
-#if not CLEAN22
-            group(Flow)
-            {
-                Caption = 'Flow';
-                Visible = false;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'This funcionality has been moved to Power Automate menu';
-                ObsoleteTag = '22.0';
-                action("Manage Flows")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Manage Flows';
-                    Image = Flow;
-                    RunObject = Page "Flow Selector";
-                    ToolTip = 'Set up events and responses to connect users or tasks in workflows. ';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'This funcionality has been moved to Power Automate menu';
-                    ObsoleteTag = '22.0';
-                }
-            }
-#endif
         }
     }
 }

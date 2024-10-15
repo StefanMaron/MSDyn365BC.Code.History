@@ -4428,17 +4428,15 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     begin
         LibraryERM.CreatePostCode(PostCode);
         LibrarySales.CreateCustomer(Customer);
-        with Customer do begin
-            Validate("VAT Bus. Posting Group", '');
-            Validate("Tax Liable", true);
-            Validate("Tax Area Code", TaxAreaCode);
-            Validate("Tax Identification Type", "Tax Identification Type"::"Legal Entity");
-            "RFC No." := LibraryUtility.GenerateGUID();
-            "CURP No." := LibraryUtility.GenerateGUID();
-            Validate("Post Code", PostCode.Code);
-            Modify(true);
-            exit("No.");
-        end;
+        Customer.Validate("VAT Bus. Posting Group", '');
+        Customer.Validate("Tax Liable", true);
+        Customer.Validate("Tax Area Code", TaxAreaCode);
+        Customer.Validate("Tax Identification Type", Customer."Tax Identification Type"::"Legal Entity");
+        Customer."RFC No." := LibraryUtility.GenerateGUID();
+        Customer."CURP No." := LibraryUtility.GenerateGUID();
+        Customer.Validate("Post Code", PostCode.Code);
+        Customer.Modify(true);
+        exit(Customer."No.");
     end;
 
     local procedure CreateCurrencyWithCustomExchRate(StartingDate: Date; ExchRate: Decimal): Code[10]
@@ -4456,11 +4454,9 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     local procedure CreateItemCharge(var ItemCharge: Record "Item Charge"; VATProdPostingGroupCode: Code[20]; TaxGroupCode: Code[20])
     begin
         LibraryInventory.CreateItemCharge(ItemCharge);
-        with ItemCharge do begin
-            Validate("VAT Prod. Posting Group", VATProdPostingGroupCode);
-            Validate("Tax Group Code", TaxGroupCode);
-            Modify(true);
-        end;
+        ItemCharge.Validate("VAT Prod. Posting Group", VATProdPostingGroupCode);
+        ItemCharge.Validate("Tax Group Code", TaxGroupCode);
+        ItemCharge.Modify(true);
     end;
 
     local procedure CreateItemChargePurchaseLine(var PurchaseHeader: Record "Purchase Header"; AppliesToPurchLine: Record "Purchase Line")
@@ -4484,14 +4480,12 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
 
     local procedure CreatePurchaseHeaderWithTaxArea(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; CurrencyCode: Code[10]; TaxAreaCode: Code[20])
     begin
-        with PurchaseHeader do begin
-            LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, CreateVendor(''));
-            Validate("Ship-to Address", LibraryUtility.GenerateGUID());
-            Validate("Currency Code", CurrencyCode);
-            Validate("Tax Liable", true);
-            Validate("Tax Area Code", TaxAreaCode);
-            Modify(true);
-        end;
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, CreateVendor(''));
+        PurchaseHeader.Validate("Ship-to Address", LibraryUtility.GenerateGUID());
+        PurchaseHeader.Validate("Currency Code", CurrencyCode);
+        PurchaseHeader.Validate("Tax Liable", true);
+        PurchaseHeader.Validate("Tax Area Code", TaxAreaCode);
+        PurchaseHeader.Modify(true);
     end;
 
     local procedure CreatePurchaseDocumentWithCurrency(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"): Decimal
@@ -4523,24 +4517,20 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     var
         PurchaseLine: Record "Purchase Line";
     begin
-        with PurchaseLine do begin
-            LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, Type::"G/L Account", GLAccountNo, 1);
-            Validate("Direct Unit Cost", DirectUnitCost);
-            Validate("Tax Group Code", TaxGroupCode);
-            Modify(true);
-        end;
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", GLAccountNo, 1);
+        PurchaseLine.Validate("Direct Unit Cost", DirectUnitCost);
+        PurchaseLine.Validate("Tax Group Code", TaxGroupCode);
+        PurchaseLine.Modify(true);
     end;
 
     local procedure CreateSalesHeaderWithTaxArea(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; CurrencyCode: Code[10]; TaxAreaCode: Code[20])
     begin
-        with SalesHeader do begin
-            LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CreateCustomer(''));
-            Validate("Bill-to Address", LibraryUtility.GenerateGUID());
-            Validate("Currency Code", CurrencyCode);
-            Validate("Tax Liable", true);
-            Validate("Tax Area Code", TaxAreaCode);
-            Modify(true);
-        end;
+        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CreateCustomer(''));
+        SalesHeader.Validate("Bill-to Address", LibraryUtility.GenerateGUID());
+        SalesHeader.Validate("Currency Code", CurrencyCode);
+        SalesHeader.Validate("Tax Liable", true);
+        SalesHeader.Validate("Tax Area Code", TaxAreaCode);
+        SalesHeader.Modify(true);
     end;
 
     local procedure CreateSalesDocumentWithCurrency(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; TaxCountry: Option): Decimal
@@ -4570,12 +4560,10 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     var
         SalesLine: Record "Sales Line";
     begin
-        with SalesLine do begin
-            LibrarySales.CreateSalesLine(SalesLine, SalesHeader, Type::"G/L Account", GLAccountNo, 1);
-            Validate("Unit Price", UnitPrice);
-            Validate("Tax Group Code", TaxGroupCode);
-            Modify(true);
-        end;
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"G/L Account", GLAccountNo, 1);
+        SalesLine.Validate("Unit Price", UnitPrice);
+        SalesLine.Validate("Tax Group Code", TaxGroupCode);
+        SalesLine.Modify(true);
     end;
 
     local procedure CreateServiceDocumentWithCurrency(var ServiceHeader: Record "Service Header"; DocumentType: Enum "Service Document Type"): Decimal
@@ -4702,10 +4690,8 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         TaxAreaLine: Record "Tax Area Line";
     begin
         LibraryERM.CreateTaxAreaLine(TaxAreaLine, TaxAreaCode, TaxJurisdictionCode);
-        with TaxAreaLine do begin
-            Validate("Calculation Order", CalculationOrder);
-            Modify(true);
-        end;
+        TaxAreaLine.Validate("Calculation Order", CalculationOrder);
+        TaxAreaLine.Modify(true);
     end;
 
     local procedure CreateGLAccNoWithTaxSetup(TaxAreaCode: Code[20]; TaxGroupCode: Code[20]; TaxLiable: Boolean): Code[20]
@@ -4713,13 +4699,11 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         GLAccount: Record "G/L Account";
     begin
         LibraryERM.CreateGLAccount(GLAccount);
-        with GLAccount do begin
-            Validate("Tax Area Code", TaxAreaCode);
-            Validate("Tax Liable", TaxLiable);
-            Validate("Tax Group Code", TaxGroupCode);
-            Modify(true);
-            exit("No.");
-        end;
+        GLAccount.Validate("Tax Area Code", TaxAreaCode);
+        GLAccount.Validate("Tax Liable", TaxLiable);
+        GLAccount.Validate("Tax Group Code", TaxGroupCode);
+        GLAccount.Modify(true);
+        exit(GLAccount."No.");
     end;
 
     local procedure PrepareLineValues_TFS212811(var UnitPrice: array[13] of Decimal)
@@ -4741,12 +4725,10 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
 
     local procedure FindPurchaseLine(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; DocumentNo: Code[20]; LineType: Enum "Purchase Line Type")
     begin
-        with PurchaseLine do begin
-            SetRange("Document Type", DocumentType);
-            SetRange("Document No.", DocumentNo);
-            SetRange(Type, LineType);
-            FindFirst();
-        end;
+        PurchaseLine.SetRange("Document Type", DocumentType);
+        PurchaseLine.SetRange("Document No.", DocumentNo);
+        PurchaseLine.SetRange(Type, LineType);
+        PurchaseLine.FindFirst();
     end;
 
     local procedure FindServiceLine(var ServiceLine: Record "Service Line"; DocumentNo: Code[20])
@@ -4867,15 +4849,14 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
           CreateItem(VATPostingSetup."VAT Prod. Posting Group", TaxGroupCode),
           LibraryRandom.RandInt(10));
         CreateItemCharge(ItemCharge, VATPostingSetup."VAT Prod. Posting Group", TaxGroupCode);
-        with PurchaseLine do begin
-            LibraryPurchase.CreatePurchaseLine(
-              PurchaseLine, PurchaseHeader,
-              Type::"Charge (Item)", ItemCharge."No.", LibraryRandom.RandInt(10));
-            Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(100, 200));
-            Modify(true);
-            ShowItemChargeAssgnt(); // Assign value equally in Handler
-            exit("Direct Unit Cost" * Quantity);
-        end;
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine, PurchaseHeader,
+          PurchaseLine.Type::"Charge (Item)", ItemCharge."No.", LibraryRandom.RandInt(10));
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(100, 200));
+        PurchaseLine.Modify(true);
+        PurchaseLine.ShowItemChargeAssgnt();
+        // Assign value equally in Handler
+        exit(PurchaseLine."Direct Unit Cost" * PurchaseLine.Quantity);
     end;
 
     local procedure CreateSalesDocument(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; TaxAreaCode: Code[20]; TaxGroupCode: Code[20])
@@ -5032,11 +5013,9 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         PurchaseHeader: Record "Purchase Header";
     begin
         CreatePurchaseDocument(PurchaseLine, DocumentType, Type, No, VendorNo);
-        with PurchaseHeader do begin
-            Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
-            Validate("Tax Area Code", TaxAreaCode);
-            Modify(true);
-        end;
+        PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
+        PurchaseHeader.Validate("Tax Area Code", TaxAreaCode);
+        PurchaseHeader.Modify(true);
     end;
 
     local procedure CreatePurchaseOrderWithTaxArea(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line")
@@ -5079,18 +5058,14 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     var
         PurchaseLine: Record "Purchase Line";
     begin
-        with PurchaseHeader do begin
-            CreatePurchaseHeaderWithTaxArea(PurchaseHeader, "Document Type"::Invoice, CurrencyCode, TaxAreaCode);
-            Validate("Provincial Tax Area Code", ProvincialTaxAreaCode);
-            Modify(true);
-        end;
+        CreatePurchaseHeaderWithTaxArea(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, CurrencyCode, TaxAreaCode);
+        PurchaseHeader.Validate("Provincial Tax Area Code", ProvincialTaxAreaCode);
+        PurchaseHeader.Modify(true);
 
-        with PurchaseLine do begin
-            LibraryPurchase.CreatePurchaseLine(
-              PurchaseLine, PurchaseHeader, Type::"G/L Account", GLAccountNo, 1);
-            Validate("Direct Unit Cost", DirectUnitCost);
-            Modify(true);
-        end;
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", GLAccountNo, 1);
+        PurchaseLine.Validate("Direct Unit Cost", DirectUnitCost);
+        PurchaseLine.Modify(true);
     end;
 
     local procedure CreatePurchLineWithUseTax(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; VATProdPostingGroup: Code[20]; TaxGroupCode: Code[20]; UseTax: Boolean)
@@ -5123,11 +5098,9 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         TaxJurisdiction: Record "Tax Jurisdiction";
     begin
         TaxJurisdiction.Get(LibraryERMTax.CreateTaxJurisdictionWithCountryRegion(CountryRegion));
-        with TaxJurisdiction do begin
-            Validate("Calculate Tax on Tax", CalculateTaxOnTax);
-            Modify(true);
-            exit(Code);
-        end;
+        TaxJurisdiction.Validate("Calculate Tax on Tax", CalculateTaxOnTax);
+        TaxJurisdiction.Modify(true);
+        exit(TaxJurisdiction.Code);
     end;
 
     local procedure CreateSalesTaxJurisdictionWithReportTo(CountryRegion: Option; ReportToJurisdictionCode: Code[10]): Code[10]
@@ -5135,11 +5108,9 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         TaxJurisdiction: Record "Tax Jurisdiction";
     begin
         TaxJurisdiction.Get(LibraryERMTax.CreateTaxJurisdictionWithCountryRegion(CountryRegion));
-        with TaxJurisdiction do begin
-            Validate("Report-to Jurisdiction", ReportToJurisdictionCode);
-            Modify(true);
-            exit(Code);
-        end;
+        TaxJurisdiction.Validate("Report-to Jurisdiction", ReportToJurisdictionCode);
+        TaxJurisdiction.Modify(true);
+        exit(TaxJurisdiction.Code);
     end;
 
     local procedure CreateSalesTaxDetail(var TaxDetail: Record "Tax Detail")
@@ -5229,26 +5200,23 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         CreateSalesTaxSetup(TaxAreaCode, TaxGroupCode, GLAccountArray, SalesTaxPct);
         VATPostingSetup.Get('', '');
 
-        with GLAccount do begin
-            Get(CreateGLAccount(VATPostingSetup."VAT Prod. Posting Group", TaxGroupCode));
-            Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
-            Modify(true);
-        end;
+        GLAccount.Get(CreateGLAccount(VATPostingSetup."VAT Prod. Posting Group", TaxGroupCode));
+        GLAccount.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        GLAccount.Modify(true);
 
         CreatePurchaseHeaderWithTaxArea(
           PurchaseHeader, PurchaseHeader."Document Type"::Invoice, CreateCurrencyWithRandomExchRate(), TaxAreaCode);
         DirectUnitCost := LibraryRandom.RandDecInRange(100, 1000, 2);
         SalesTaxAmount := DirectUnitCost / 100 * SalesTaxPct;
 
-        with PurchaseLine do
-            for I := 1 to PurchaseLineCount do begin
-                LibraryPurchase.CreatePurchaseLine(
-                  PurchaseLine, PurchaseHeader, Type::"G/L Account",
-                  GLAccount."No.", 1);
-                Validate("Direct Unit Cost", DirectUnitCost);
-                Validate("Use Tax", DoesLineUseTax(UseTaxLineNo, I));
-                Modify(true);
-            end;
+        for I := 1 to PurchaseLineCount do begin
+            LibraryPurchase.CreatePurchaseLine(
+              PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account",
+              GLAccount."No.", 1);
+            PurchaseLine.Validate("Direct Unit Cost", DirectUnitCost);
+            PurchaseLine.Validate("Use Tax", DoesLineUseTax(UseTaxLineNo, I));
+            PurchaseLine.Modify(true);
+        end;
 
         GetExpectedAmounts(
           ExpectedAmountArray, DirectUnitCost, SalesTaxAmount,
@@ -5303,20 +5271,16 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         CreateSalesTaxSetupExciseTax(TaxAreaCode, TaxGroupCode, ExciseTaxPct);
         VATPostingSetup.Get('', '');
 
-        with GLAccount do begin
-            Get(CreateGLAccount(VATPostingSetup."VAT Prod. Posting Group", TaxGroupCode));
-            Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
-            Modify(true);
-        end;
+        GLAccount.Get(CreateGLAccount(VATPostingSetup."VAT Prod. Posting Group", TaxGroupCode));
+        GLAccount.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        GLAccount.Modify(true);
 
         CreatePurchaseHeaderWithTaxArea(PurchaseHeader, PurchaseHeader."Document Type"::Order, '', TaxAreaCode);
 
-        with PurchaseLine do begin
-            LibraryPurchase.CreatePurchaseLine(
-              PurchaseLine, PurchaseHeader, Type::"G/L Account", GLAccount."No.", 1);
-            Validate("Direct Unit Cost", LibraryRandom.RandInt(1000));
-            Modify(true);
-        end;
+        LibraryPurchase.CreatePurchaseLine(
+  PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", GLAccount."No.", 1);
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandInt(1000));
+        PurchaseLine.Modify(true);
         // Excise tax amount = "Tax Detail"."Tax Below Maximum"
         TaxAmount := ExciseTaxPct;
     end;
@@ -5334,26 +5298,21 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         CreateSalesTaxSetupExciseTax(TaxAreaCode, TaxGroupCode, ExciseTaxPct);
         VATPostingSetup.Get('', '');
 
-        with GLAccount do begin
-            Get(CreateGLAccount(VATPostingSetup."VAT Prod. Posting Group", TaxGroupCode));
-            Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
-            Modify(true);
-        end;
+        GLAccount.Get(CreateGLAccount(VATPostingSetup."VAT Prod. Posting Group", TaxGroupCode));
+        GLAccount.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        GLAccount.Modify(true);
 
-        with PurchaseHeader do begin
-            CreatePurchaseHeaderWithTaxArea(PurchaseHeader, DocumentType, '', TaxAreaCode);
-            if "Document Type" = "Document Type"::"Credit Memo" then
-                Validate("Vendor Cr. Memo No.", "No.");
-            Modify(true);
-        end;
-        with PurchaseLine do begin
-            LibraryPurchase.CreatePurchaseLine(
-              PurchaseLine, PurchaseHeader, Type::"G/L Account", GLAccount."No.", 1);
-            Validate("Direct Unit Cost", LibraryRandom.RandInt(1000));
-            Validate("Qty. per Unit of Measure", LibraryRandom.RandIntInRange(10, 20));
-            Validate(Quantity); // update "Quantity (Base)"
-            Modify(true);
-        end;
+        CreatePurchaseHeaderWithTaxArea(PurchaseHeader, DocumentType, '', TaxAreaCode);
+        if PurchaseHeader."Document Type" = PurchaseHeader."Document Type"::"Credit Memo" then
+            PurchaseHeader.Validate("Vendor Cr. Memo No.", PurchaseHeader."No.");
+        PurchaseHeader.Modify(true);
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", GLAccount."No.", 1);
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandInt(1000));
+        PurchaseLine.Validate("Qty. per Unit of Measure", LibraryRandom.RandIntInRange(10, 20));
+        PurchaseLine.Validate(Quantity);
+        // update "Quantity (Base)"
+        PurchaseLine.Modify(true);
         // Excise tax amount = "Tax Detail"."Tax Below Maximum" * "Quantity (Base)"
         TaxAmount := ExciseTaxPct * PurchaseLine."Qty. per Unit of Measure";
         PostingDate := PurchaseHeader."Posting Date";
@@ -5373,21 +5332,18 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         CreateSalesTaxSetupExciseTax(TaxAreaCode, TaxGroupCode, ExciseTaxPct);
         VATPostingSetup.Get('', '');
 
-        with GLAccount do begin
-            Get(CreateGLAccount(VATPostingSetup."VAT Prod. Posting Group", TaxGroupCode));
-            Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
-            Modify(true);
-        end;
+        GLAccount.Get(CreateGLAccount(VATPostingSetup."VAT Prod. Posting Group", TaxGroupCode));
+        GLAccount.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        GLAccount.Modify(true);
 
         CreateSalesHeaderWithTaxArea(SalesHeader, DocumentType, '', TaxAreaCode);
-        with SalesLine do begin
-            LibrarySales.CreateSalesLine(
-              SalesLine, SalesHeader, Type::"G/L Account", GLAccount."No.", 1);
-            Validate("Unit Price", LibraryRandom.RandInt(1000));
-            Validate("Qty. per Unit of Measure", LibraryRandom.RandIntInRange(10, 20));
-            Validate(Quantity); // update "Quantity (Base)"
-            Modify(true);
-        end;
+        LibrarySales.CreateSalesLine(
+          SalesLine, SalesHeader, SalesLine.Type::"G/L Account", GLAccount."No.", 1);
+        SalesLine.Validate("Unit Price", LibraryRandom.RandInt(1000));
+        SalesLine.Validate("Qty. per Unit of Measure", LibraryRandom.RandIntInRange(10, 20));
+        SalesLine.Validate(Quantity);
+        // update "Quantity (Base)"
+        SalesLine.Modify(true);
         // Excise tax amount = "Tax Detail"."Tax Below Maximum" * "Quantity (Base)"
         TaxAmount := ExciseTaxPct * SalesLine."Qty. per Unit of Measure";
         PostingDate := SalesHeader."Posting Date";
@@ -5490,11 +5446,9 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         Currency: Record Currency;
     begin
         LibraryERM.CreateCurrency(Currency);
-        with Currency do begin
-            Validate("Amount Rounding Precision", 0.01);
-            Validate("Invoice Rounding Precision", 0.01);
-            Modify(true);
-        end;
+        Currency.Validate("Amount Rounding Precision", 0.01);
+        Currency.Validate("Invoice Rounding Precision", 0.01);
+        Currency.Modify(true);
         LibraryERM.CreateExchangeRate(
           Currency.Code, WorkDate(), LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(10, 2));
         exit(Currency.Code);
@@ -5522,12 +5476,10 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
 
     local procedure InsertSalesTaxLineWithFixedValues(var SalesTaxAmountLine: Record "Sales Tax Amount Line"; TaxBaseAmountFCY: Decimal; TaxPct: Decimal)
     begin
-        with SalesTaxAmountLine do begin
-            "Tax Area Code for Key" := LibraryERMTax.CreateTaxArea_US();
-            "Tax Base Amount FCY" := TaxBaseAmountFCY;
-            "Tax %" := TaxPct;
-            Insert();
-        end;
+        SalesTaxAmountLine."Tax Area Code for Key" := LibraryERMTax.CreateTaxArea_US();
+        SalesTaxAmountLine."Tax Base Amount FCY" := TaxBaseAmountFCY;
+        SalesTaxAmountLine."Tax %" := TaxPct;
+        SalesTaxAmountLine.Insert();
     end;
 
     local procedure ModifyPurchaseLineDepreciationBook(PurchaseLine: Record "Purchase Line"; DepreciationBookCode: Code[10])
@@ -5566,14 +5518,12 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
 
     local procedure ModifyPurchLineWithJobTask(var PurchaseLine: Record "Purchase Line"; JobTask: Record "Job Task")
     begin
-        with PurchaseLine do begin
-            Validate("Direct Unit Cost", LibraryRandom.RandDec(1000, 2));
-            Validate("Job No.", JobTask."Job No.");
-            Validate("Job Task No.", JobTask."Job Task No.");
-            Validate("Job Line Type", "Job Line Type"::"Both Budget and Billable");
-            Validate("Job Unit Price", LibraryRandom.RandInt(100));
-            Modify(true);
-        end;
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(1000, 2));
+        PurchaseLine.Validate("Job No.", JobTask."Job No.");
+        PurchaseLine.Validate("Job Task No.", JobTask."Job Task No.");
+        PurchaseLine.Validate("Job Line Type", PurchaseLine."Job Line Type"::"Both Budget and Billable");
+        PurchaseLine.Validate("Job Unit Price", LibraryRandom.RandInt(100));
+        PurchaseLine.Modify(true);
     end;
 
     local procedure MockSalesTaxCalc(var SalesTaxAmountLine: Record "Sales Tax Amount Line"; DocumentNo: Code[20]; PostingDate: Date; TableID: Integer)
@@ -5636,17 +5586,15 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         if QtyToInvoice <> 0 then
             UpdateVendorInvoiceNo(PurchaseHeader);
 
-        with PurchaseLine do begin
-            FindPurchaseLine(PurchaseLine, PurchaseHeader."Document Type", PurchaseHeader."No.", LineType);
-            UpdateQtyToReceiveAndInvoice(PurchaseLine, QtyToReceive, QtyToInvoice);
+        FindPurchaseLine(PurchaseLine, PurchaseHeader."Document Type", PurchaseHeader."No.", LineType);
+        UpdateQtyToReceiveAndInvoice(PurchaseLine, QtyToReceive, QtyToInvoice);
 
-            SetFilter("Line No.", '<>%1', "Line No.");
-            SetRange(Type);
-            if FindSet() then
-                repeat
-                    UpdateQtyToReceiveAndInvoice(PurchaseLine, 0, 0);
-                until Next() = 0;
-        end;
+        PurchaseLine.SetFilter("Line No.", '<>%1', PurchaseLine."Line No.");
+        PurchaseLine.SetRange(Type);
+        if PurchaseLine.FindSet() then
+            repeat
+                UpdateQtyToReceiveAndInvoice(PurchaseLine, 0, 0);
+            until PurchaseLine.Next() = 0;
 
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, QtyToReceive <> 0, QtyToInvoice <> 0);
     end;
@@ -5687,15 +5635,13 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     var
         ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)";
     begin
-        with ItemChargeAssignmentPurch do begin
-            SetRange("Document Type", PurchaseLine."Document Type");
-            SetRange("Document No.", PurchaseLine."Document No.");
-            SetRange("Document Line No.", PurchaseLine."Line No.");
-            FindFirst();
+        ItemChargeAssignmentPurch.SetRange("Document Type", PurchaseLine."Document Type");
+        ItemChargeAssignmentPurch.SetRange("Document No.", PurchaseLine."Document No.");
+        ItemChargeAssignmentPurch.SetRange("Document Line No.", PurchaseLine."Line No.");
+        ItemChargeAssignmentPurch.FindFirst();
 
-            Validate("Qty. to Assign", NewQtyToAssign);
-            Modify(true);
-        end;
+        ItemChargeAssignmentPurch.Validate("Qty. to Assign", NewQtyToAssign);
+        ItemChargeAssignmentPurch.Modify(true);
     end;
 
     local procedure UpdateTaxAreaCodeCompanyInformation(TaxAreaCode: Code[20])
@@ -5751,11 +5697,9 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     var
         TaxDetail: Record "Tax Detail";
     begin
-        with TaxDetail do begin
-            Get(TaxJurisdictionCode, TaxGroupCode, TaxType, WorkDate());
-            Validate("Expense/Capitalize", NewValue);
-            Modify(true);
-        end;
+        TaxDetail.Get(TaxJurisdictionCode, TaxGroupCode, TaxType, WorkDate());
+        TaxDetail.Validate("Expense/Capitalize", NewValue);
+        TaxDetail.Modify(true);
     end;
 
     local procedure UpdateReportLayoutSelection(ReportID: Integer; NewType: Option)
@@ -6140,24 +6084,20 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     var
         JobLedgerEntry: Record "Job Ledger Entry";
     begin
-        with JobLedgerEntry do begin
-            SetRange("Job No.", JobNo);
-            SetRange("Document No.", DocumentNo);
-            FindFirst();
-            Assert.AreEqual(ExpectedAmount, "Total Cost", '');
-        end;
+        JobLedgerEntry.SetRange("Job No.", JobNo);
+        JobLedgerEntry.SetRange("Document No.", DocumentNo);
+        JobLedgerEntry.FindFirst();
+        Assert.AreEqual(ExpectedAmount, JobLedgerEntry."Total Cost", '');
     end;
 
     local procedure VerifyValueEntriesCostAmount(DocumentNo: Code[20]; ExpectedAmount: Decimal)
     var
         ValueEntry: Record "Value Entry";
     begin
-        with ValueEntry do begin
-            SetRange("Document Type", "Document Type"::"Purchase Invoice");
-            SetRange("Document No.", DocumentNo);
-            CalcSums("Cost Amount (Actual)");
-            Assert.AreEqual(ExpectedAmount, "Cost Amount (Actual)", WrongValueEntryAmountErr);
-        end;
+        ValueEntry.SetRange("Document Type", ValueEntry."Document Type"::"Purchase Invoice");
+        ValueEntry.SetRange("Document No.", DocumentNo);
+        ValueEntry.CalcSums("Cost Amount (Actual)");
+        Assert.AreEqual(ExpectedAmount, ValueEntry."Cost Amount (Actual)", WrongValueEntryAmountErr);
     end;
 
     local procedure VerifyUnitCostWithTaxInJobLedgEntry(PurchLine: Record "Purchase Line"; DocNo: Code[20])
@@ -6165,17 +6105,15 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         JobLedgerEntry: Record "Job Ledger Entry";
         GLSetup: Record "General Ledger Setup";
     begin
-        with JobLedgerEntry do begin
-            SetRange("Job No.", PurchLine."Job No.");
-            SetRange("Document No.", DocNo);
-            FindFirst();
-            GLSetup.Get();
-            Assert.AreEqual(
-              Round(
-                PurchLine."Unit Cost (LCY)" + PurchLine."Tax To Be Expensed" / PurchLine.Quantity,
-                GLSetup."Unit-Amount Rounding Precision"),
-              "Unit Cost (LCY)", StrSubstNo(WrongUnitCostErr, "Entry No."));
-        end;
+        JobLedgerEntry.SetRange("Job No.", PurchLine."Job No.");
+        JobLedgerEntry.SetRange("Document No.", DocNo);
+        JobLedgerEntry.FindFirst();
+        GLSetup.Get();
+        Assert.AreEqual(
+          Round(
+            PurchLine."Unit Cost (LCY)" + PurchLine."Tax To Be Expensed" / PurchLine.Quantity,
+            GLSetup."Unit-Amount Rounding Precision"),
+          JobLedgerEntry."Unit Cost (LCY)", StrSubstNo(WrongUnitCostErr, JobLedgerEntry."Entry No."));
     end;
 
     local procedure CreatePurchaseDocumentWithSpecificAmountAndTaxArea(var PurchaseHeader: Record "Purchase Header"; TaxAreaCode: Code[20]; TaxGroupCode: Code[20]; DirectUnitCost: Decimal)
@@ -6279,32 +6217,26 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     var
         GLEntry: Record "G/L Entry";
     begin
-        with GLEntry do begin
-            SetRange("Document No.", DocumentNo);
-            SetRange("G/L Account No.", TaxAccountNo);
-            CalcSums(Amount);
-            Assert.AreEqual(ExpectedAmount, Amount, TaxAmountErr)
-        end;
+        GLEntry.SetRange("Document No.", DocumentNo);
+        GLEntry.SetRange("G/L Account No.", TaxAccountNo);
+        GLEntry.CalcSums(Amount);
+        Assert.AreEqual(ExpectedAmount, GLEntry.Amount, TaxAmountErr)
     end;
 
     local procedure VerifyGLEntryAmountNearlyEqual(var GLEntry: Record "G/L Entry"; TaxAccountNo: Code[20]; ExpectedAmount: Decimal)
     begin
-        with GLEntry do begin
-            SetRange("G/L Account No.", TaxAccountNo);
-            FindFirst();
-            Assert.AreNearlyEqual(ExpectedAmount, Amount, LibraryERM.GetAmountRoundingPrecision(), GLEntryAmountErr);
-        end;
+        GLEntry.SetRange("G/L Account No.", TaxAccountNo);
+        GLEntry.FindFirst();
+        Assert.AreNearlyEqual(ExpectedAmount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision(), GLEntryAmountErr);
     end;
 
     local procedure VerifyItemChargeIsPosted(ItemNo: Code[20])
     var
         ValueEntry: Record "Value Entry";
     begin
-        with ValueEntry do begin
-            SetRange("Item No.", ItemNo);
-            SetFilter("Item Charge No.", '<>%1', '');
-            Assert.IsFalse(IsEmpty, StrSubstNo(ItemChargeVENotPostedErr, ItemNo));
-        end;
+        ValueEntry.SetRange("Item No.", ItemNo);
+        ValueEntry.SetFilter("Item Charge No.", '<>%1', '');
+        Assert.IsFalse(ValueEntry.IsEmpty, StrSubstNo(ItemChargeVENotPostedErr, ItemNo));
     end;
 
     local procedure VerifyGLEntryCustomAmount(DocNo: Code[20])
@@ -6320,26 +6252,22 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
-        with CustLedgerEntry do begin
-            SetRange("Document No.", DocumentNo);
-            SetRange("Customer No.", CustomerNo);
-            FindFirst();
-            CalcFields(Amount);
-            TestField(Amount, ExpectedAmount);
-        end;
+        CustLedgerEntry.SetRange("Document No.", DocumentNo);
+        CustLedgerEntry.SetRange("Customer No.", CustomerNo);
+        CustLedgerEntry.FindFirst();
+        CustLedgerEntry.CalcFields(Amount);
+        CustLedgerEntry.TestField(Amount, ExpectedAmount);
     end;
 
     local procedure VerifyVLEAmount(DocumentNo: Code[20]; VendorNo: Code[20]; ExpectedAmount: Decimal)
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
-        with VendorLedgerEntry do begin
-            SetRange("Document No.", DocumentNo);
-            SetRange("Vendor No.", VendorNo);
-            FindFirst();
-            CalcFields(Amount);
-            TestField(Amount, ExpectedAmount);
-        end;
+        VendorLedgerEntry.SetRange("Document No.", DocumentNo);
+        VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
+        VendorLedgerEntry.FindFirst();
+        VendorLedgerEntry.CalcFields(Amount);
+        VendorLedgerEntry.TestField(Amount, ExpectedAmount);
     end;
 
     local procedure VerifyGLEntriesCount(DocumentNo: Code[20]; ExpectedCount: Integer)

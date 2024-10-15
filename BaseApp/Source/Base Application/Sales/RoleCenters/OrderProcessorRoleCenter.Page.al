@@ -64,6 +64,10 @@ page 9006 "Order Processor Role Center"
             {
                 ApplicationArea = Suite;
             }
+            part("Job Queue Tasks Activities"; "Job Queue Tasks Activities")
+            {
+                ApplicationArea = Suite;
+            }
             part("Emails"; "Email Activities")
             {
                 ApplicationArea = Basic, Suite;
@@ -452,7 +456,7 @@ page 9006 "Order Processor Role Center"
                     ApplicationArea = ItemTracking;
                     Caption = 'Item Tracking';
                     RunObject = Page "Avail. - Item Tracking Lines";
-                    ToolTip = 'Assign serial numbers and lot numbers to any outbound or inbound document for quality assurance, recall actions, and to control expiration dates and warranties. Use the Item Tracing window to trace items with serial or lot numbers backwards and forward in their supply chain';
+                    ToolTip = 'Assign serial, lot and package numbers to any outbound or inbound document for quality assurance, recall actions, and to control expiration dates and warranties. Use the Item Tracing window to trace items with serial, lot or package numbers backwards and forward in their supply chain';
                 }
                 action("Item Reclassification Journals")
                 {
@@ -461,7 +465,7 @@ page 9006 "Order Processor Role Center"
                     RunObject = Page "Item Journal Batches";
                     RunPageView = where("Template Type" = const(Transfer),
                                         Recurring = const(false));
-                    ToolTip = 'Change information on item ledger entries, such as dimensions, location codes, bin codes, and serial or lot numbers.';
+                    ToolTip = 'Change information on item ledger entries, such as dimensions, location codes, bin codes, and serial, lot or package numbers.';
                 }
                 action("Phys. Inventory Journals")
                 {

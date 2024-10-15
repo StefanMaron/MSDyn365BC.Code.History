@@ -242,16 +242,13 @@ codeunit 134590 "Mandatory Fields Tests"
         LibraryApplicationArea.EnableSalesTaxSetup();
         // [GIVEN] "VAT in Use" is 'No'
         SetVATInUse(false);
-
-        with ItemCard do begin
-            // [WHEN] Open Item Card
-            OpenNew();
-            // [THEN] "VAT Prod. Posting Group" is invisible
-            Assert.IsFalse("VAT Prod. Posting Group".Visible(), UnexpectedVisibleValueTxt);
-            // [THEN] "Tax Group Code" is not marked as mandatory
-            Assert.IsFalse("Tax Group Code".ShowMandatory(), UnexpectedShowMandatoryValueTxt);
-            Close();
-        end;
+        // [WHEN] Open Item Card
+        ItemCard.OpenNew();
+        // [THEN] "VAT Prod. Posting Group" is invisible
+        Assert.IsFalse(ItemCard."VAT Prod. Posting Group".Visible(), UnexpectedVisibleValueTxt);
+        // [THEN] "Tax Group Code" is not marked as mandatory
+        Assert.IsFalse(ItemCard."Tax Group Code".ShowMandatory(), UnexpectedShowMandatoryValueTxt);
+        ItemCard.Close();
     end;
 
     [Test]
@@ -265,15 +262,12 @@ codeunit 134590 "Mandatory Fields Tests"
         DeleteAllTemplates();
         // [GIVEN] "VAT in Use" is 'Yes'
         SetVATInUse(true);
-
-        with ItemCard do begin
-            // [WHEN] Open Item Card
-            OpenNew();
-            // [THEN] "VAT Prod. Posting Group" is visible and marked as mandatory
-            Assert.IsTrue("VAT Prod. Posting Group".Visible(), UnexpectedVisibleValueTxt);
-            Assert.IsTrue("VAT Prod. Posting Group".ShowMandatory(), UnexpectedShowMandatoryValueTxt);
-            Close();
-        end;
+        // [WHEN] Open Item Card
+        ItemCard.OpenNew();
+        // [THEN] "VAT Prod. Posting Group" is visible and marked as mandatory
+        Assert.IsTrue(ItemCard."VAT Prod. Posting Group".Visible(), UnexpectedVisibleValueTxt);
+        Assert.IsTrue(ItemCard."VAT Prod. Posting Group".ShowMandatory(), UnexpectedShowMandatoryValueTxt);
+        ItemCard.Close();
     end;
 
     [Test]
@@ -289,18 +283,15 @@ codeunit 134590 "Mandatory Fields Tests"
         LibraryApplicationArea.EnableSalesTaxSetup();
         // [GIVEN] "VAT in Use" is 'No'
         SetVATInUse(false);
-
-        with CustomerCard do begin
-            // [WHEN] Open Customer Card
-            OpenNew();
-            // [THEN] "VAT Bus. Posting Group" is invisible
-            Assert.IsFalse("VAT Bus. Posting Group".Visible(), UnexpectedVisibleValueTxt);
-            // [THEN] "Tax Area Code" is marked as mandatory
-            Assert.IsTrue("Tax Area Code".ShowMandatory(), UnexpectedShowMandatoryValueTxt);
-            // [THEN] "Tax Liable" is visible
-            Assert.IsTrue("Tax Liable".Visible(), UnexpectedVisibleValueTxt);
-            Close();
-        end;
+        // [WHEN] Open Customer Card
+        CustomerCard.OpenNew();
+        // [THEN] "VAT Bus. Posting Group" is invisible
+        Assert.IsFalse(CustomerCard."VAT Bus. Posting Group".Visible(), UnexpectedVisibleValueTxt);
+        // [THEN] "Tax Area Code" is marked as mandatory
+        Assert.IsTrue(CustomerCard."Tax Area Code".ShowMandatory(), UnexpectedShowMandatoryValueTxt);
+        // [THEN] "Tax Liable" is visible
+        Assert.IsTrue(CustomerCard."Tax Liable".Visible(), UnexpectedVisibleValueTxt);
+        CustomerCard.Close();
     end;
 
     [Test]
@@ -314,15 +305,12 @@ codeunit 134590 "Mandatory Fields Tests"
         DeleteAllTemplates();
         // [GIVEN] "VAT in Use" is 'Yes'
         SetVATInUse(true);
-
-        with CustomerCard do begin
-            // [WHEN] Open Customer Card
-            OpenNew();
-            // [THEN] "VAT Bus. Posting Group" is visible and not marked as mandatory
-            Assert.IsTrue("VAT Bus. Posting Group".Visible(), UnexpectedVisibleValueTxt);
-            Assert.IsFalse("VAT Bus. Posting Group".ShowMandatory(), UnexpectedShowMandatoryValueTxt);
-            Close();
-        end;
+        // [WHEN] Open Customer Card
+        CustomerCard.OpenNew();
+        // [THEN] "VAT Bus. Posting Group" is visible and not marked as mandatory
+        Assert.IsTrue(CustomerCard."VAT Bus. Posting Group".Visible(), UnexpectedVisibleValueTxt);
+        Assert.IsFalse(CustomerCard."VAT Bus. Posting Group".ShowMandatory(), UnexpectedShowMandatoryValueTxt);
+        CustomerCard.Close();
     end;
 
     [Test]
@@ -338,18 +326,15 @@ codeunit 134590 "Mandatory Fields Tests"
         LibraryApplicationArea.EnableSalesTaxSetup();
         // [GIVEN] "VAT in Use" is 'No'
         SetVATInUse(false);
-
-        with VendorCard do begin
-            // [WHEN] Open Vendor Card
-            OpenNew();
-            // [THEN] "VAT Bus. Posting Group" is invisible
-            Assert.IsFalse("VAT Bus. Posting Group".Visible(), UnexpectedVisibleValueTxt);
-            // [THEN] "Tax Area Code" is marked as mandatory
-            Assert.IsTrue("Tax Area Code".ShowMandatory(), UnexpectedShowMandatoryValueTxt);
-            // [THEN] "Tax Liable" is visible
-            Assert.IsTrue("Tax Liable".Visible(), UnexpectedVisibleValueTxt);
-            Close();
-        end;
+        // [WHEN] Open Vendor Card
+        VendorCard.OpenNew();
+        // [THEN] "VAT Bus. Posting Group" is invisible
+        Assert.IsFalse(VendorCard."VAT Bus. Posting Group".Visible(), UnexpectedVisibleValueTxt);
+        // [THEN] "Tax Area Code" is marked as mandatory
+        Assert.IsTrue(VendorCard."Tax Area Code".ShowMandatory(), UnexpectedShowMandatoryValueTxt);
+        // [THEN] "Tax Liable" is visible
+        Assert.IsTrue(VendorCard."Tax Liable".Visible(), UnexpectedVisibleValueTxt);
+        VendorCard.Close();
     end;
 
     [Test]
@@ -363,15 +348,12 @@ codeunit 134590 "Mandatory Fields Tests"
         DeleteAllTemplates();
         // [GIVEN] "VAT in Use" is 'Yes'
         SetVATInUse(true);
-
-        with VendorCard do begin
-            // [WHEN] Open Vendor Card
-            OpenNew();
-            // [THEN] "VAT Bus. Posting Group" is visible and not marked as mandatory
-            Assert.IsTrue("VAT Bus. Posting Group".Visible(), UnexpectedVisibleValueTxt);
-            Assert.IsFalse("VAT Bus. Posting Group".ShowMandatory(), UnexpectedShowMandatoryValueTxt);
-            Close();
-        end;
+        // [WHEN] Open Vendor Card
+        VendorCard.OpenNew();
+        // [THEN] "VAT Bus. Posting Group" is visible and not marked as mandatory
+        Assert.IsTrue(VendorCard."VAT Bus. Posting Group".Visible(), UnexpectedVisibleValueTxt);
+        Assert.IsFalse(VendorCard."VAT Bus. Posting Group".ShowMandatory(), UnexpectedShowMandatoryValueTxt);
+        VendorCard.Close();
     end;
 
     local procedure VerifyMandatoryFieldsOnSalesInvoice(Customer: Record Customer)

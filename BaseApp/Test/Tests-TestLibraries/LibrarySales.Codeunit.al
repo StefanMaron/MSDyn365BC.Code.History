@@ -92,6 +92,22 @@ codeunit 130509 "Library - Sales"
         OnAfterCreateCustomer(Customer);
     end;
 
+    procedure CreateCustomerWithCountryCodeAndVATRegNo(var Customer: Record Customer)
+    begin
+        CreateCustomer(Customer);
+        Customer.Validate("Country/Region Code", LibraryERM.CreateCountryRegion());
+        Customer."VAT Registration No." := LibraryERM.GenerateVATRegistrationNo(Customer."Country/Region Code");
+        Customer.Modify(true);
+    end;
+
+    procedure CreateCustomerWithCountryCodeAndVATRegNo(): Code[20]
+    var
+        Customer: Record Customer;
+    begin
+        CreateCustomerWithCountryCodeAndVATRegNo(Customer);
+        exit(Customer."No.");
+    end;
+
     procedure CreateCustomerWithAddress(var Customer: Record Customer)
     begin
         CreateCustomer(Customer);
@@ -111,6 +127,21 @@ codeunit 130509 "Library - Sales"
         Customer.Validate(City, PostCode.City);
         Customer.Validate(County, PostCode.County);
         Customer.Validate("Post Code", PostCode.Code);
+        Customer.Modify(true);
+        CustContUpdate.OnModify(Customer);
+    end;
+
+    procedure CreateCustomerWithAddressAndContactInfo(var Customer: Record Customer)
+    begin
+        CreateCustomerWithAddress(Customer);
+        CreateCustomerContactInfo(Customer);
+    end;
+
+    procedure CreateCustomerContactInfo(var Customer: Record Customer)
+    var
+        CustContUpdate: Codeunit "CustCont-Update";
+    begin
+        Customer.Validate("Phone No.", LibraryUtility.GenerateRandomPhoneNo());
         Customer.Modify(true);
         CustContUpdate.OnModify(Customer);
     end;
@@ -549,7 +580,7 @@ codeunit 130509 "Library - Sales"
         SalesCommentLine.Modify(true);
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     procedure CreateSalesPrice(var SalesPrice: Record "Sales Price"; ItemNo: Code[20]; SalesType: Enum "Sales Price Type"; SalesCode: Code[20]; StartingDate: Date; CurrencyCode: Code[10]; VariantCode: Code[10]; UOMCode: Code[10]; MinQty: Decimal; UnitPrice: Decimal)
     begin
         Clear(SalesPrice);
@@ -579,6 +610,20 @@ codeunit 130509 "Library - Sales"
             1,
             LibraryUtility.GetFieldLength(DATABASE::"Ship-to Address", ShipToAddress.FieldNo(Code))));
         ShipToAddress.Insert(true);
+    end;
+
+    procedure CreateShipToAddressWithRandomCountryCode(var ShipToAddress: Record "Ship-to Address"; CustomerNo: Code[20])
+    begin
+        CreateShipToAddress(ShipToAddress, CustomerNo);
+        ShipToAddress.Validate("Country/Region Code", LibraryERM.CreateCountryRegion());
+        ShipToAddress.Modify(true);
+    end;
+
+    procedure CreateShipToAddressWithCountryCode(var ShipToAddress: Record "Ship-to Address"; CustomerNo: Code[20]; CountryCode: Code[10])
+    begin
+        CreateShipToAddress(ShipToAddress, CustomerNo);
+        ShipToAddress.Validate("Country/Region Code", CountryCode);
+        ShipToAddress.Modify(true);
     end;
 
     procedure CreateStandardSalesCode(var StandardSalesCode: Record "Standard Sales Code")
@@ -827,6 +872,9 @@ codeunit 130509 "Library - Sales"
         SalesPostPrint: Codeunit "Sales-Post + Print";
         Assert: Codeunit Assert;
         NoSeries: Codeunit "No. Series";
+        RecRef: RecordRef;
+        FieldRef: FieldRef;
+        DocumentFieldNo: Integer;
     begin
         OnBeforePostSalesDocument(SalesHeader, NewShipReceive, NewInvoice, AfterPostSalesDocumentSendAsEmail);
 
@@ -847,19 +895,19 @@ codeunit 130509 "Library - Sales"
                 if SalesHeader.Invoice and (SalesHeader."Posting No. Series" <> '') then begin
                     if (SalesHeader."Posting No." = '') then
                         SalesHeader."Posting No." := NoSeries.GetNextNo(SalesHeader."Posting No. Series", LibraryUtility.GetNextNoSeriesSalesDate(SalesHeader."Posting No. Series"));
-                    DocumentNo := SalesHeader."Posting No.";
+                    DocumentFieldNo := SalesHeader.FieldNo("Last Posting No.");
                 end;
             SalesHeader."Document Type"::Order:
                 begin
                     if SalesHeader.Ship and (SalesHeader."Shipping No. Series" <> '') then begin
                         if (SalesHeader."Shipping No." = '') then
                             SalesHeader."Shipping No." := NoSeries.GetNextNo(SalesHeader."Shipping No. Series", LibraryUtility.GetNextNoSeriesSalesDate(SalesHeader."Shipping No. Series"));
-                        DocumentNo := SalesHeader."Shipping No.";
+                        DocumentFieldNo := SalesHeader.FieldNo("Last Shipping No.");
                     end;
                     if SalesHeader.Invoice and (SalesHeader."Posting No. Series" <> '') then begin
                         if (SalesHeader."Posting No." = '') then
                             SalesHeader."Posting No." := NoSeries.GetNextNo(SalesHeader."Posting No. Series", LibraryUtility.GetNextNoSeriesSalesDate(SalesHeader."Posting No. Series"));
-                        DocumentNo := SalesHeader."Posting No.";
+                        DocumentFieldNo := SalesHeader.FieldNo("Last Posting No.");
                     end;
                 end;
             SalesHeader."Document Type"::"Return Order":
@@ -867,12 +915,12 @@ codeunit 130509 "Library - Sales"
                     if SalesHeader.Receive and (SalesHeader."Return Receipt No. Series" <> '') then begin
                         if (SalesHeader."Return Receipt No." = '') then
                             SalesHeader."Return Receipt No." := NoSeries.GetNextNo(SalesHeader."Return Receipt No. Series", LibraryUtility.GetNextNoSeriesSalesDate(SalesHeader."Return Receipt No. Series"));
-                        DocumentNo := SalesHeader."Return Receipt No.";
+                        DocumentFieldNo := SalesHeader.FieldNo("Last Return Receipt No.");
                     end;
                     if SalesHeader.Invoice and (SalesHeader."Posting No. Series" <> '') then begin
                         if (SalesHeader."Posting No." = '') then
                             SalesHeader."Posting No." := NoSeries.GetNextNo(SalesHeader."Posting No. Series", LibraryUtility.GetNextNoSeriesSalesDate(SalesHeader."Posting No. Series"));
-                        DocumentNo := SalesHeader."Posting No.";
+                        DocumentFieldNo := SalesHeader.FieldNo("Last Posting No.");
                     end;
                 end;
             else
@@ -884,6 +932,10 @@ codeunit 130509 "Library - Sales"
             SalesPostPrint.PostAndEmail(SalesHeader)
         else
             SalesPost.Run(SalesHeader);
+
+        RecRef.GetTable(SalesHeader);
+        FieldRef := RecRef.Field(DocumentFieldNo);
+        DocumentNo := FieldRef.Value();
     end;
 
     procedure PostSalesPrepaymentCrMemo(var SalesHeader: Record "Sales Header")
@@ -1142,6 +1194,32 @@ codeunit 130509 "Library - Sales"
         SalesReceivablesSetup.Modify(true);
     end;
 
+    procedure ModifySalesInvoiceHeader(var SalesInvoiceHeader: Record "Sales Invoice Header")
+    var
+        BankAccount: Record "Bank Account";
+        PaymentMethod: Record "Payment Method";
+        ShippingAgent: Record "Shipping Agent";
+    begin
+        LibraryERM.CreatePaymentMethod(PaymentMethod);
+        LibraryInventory.CreateShippingAgent(ShippingAgent);
+        LibraryERM.CreateBankAccount(BankAccount);
+        BankAccount."Currency Code" := SalesInvoiceHeader."Currency Code";
+        BankAccount.Modify();
+
+        SalesInvoiceHeader."Payment Method Code" := PaymentMethod.Code;
+        SalesInvoiceHeader."Payment Reference" := LibraryRandom.RandText(MaxStrLen(SalesInvoiceHeader."Payment Reference")).ToUpper();
+        SalesInvoiceHeader."Company Bank Account Code" := BankAccount."No.";
+        SalesInvoiceHeader."Posting Description" := LibraryRandom.RandText(MaxStrLen(SalesInvoiceHeader."Posting Description"));
+        SalesInvoiceHeader."Shipping Agent Code" := ShippingAgent.Code;
+        SalesInvoiceHeader."Package Tracking No." := LibraryRandom.RandText(MaxStrLen(SalesInvoiceHeader."Package Tracking No."));
+        SalesInvoiceHeader."Shipping Agent Service Code" := LibraryRandom.RandText(MaxStrLen(SalesInvoiceHeader."Shipping Agent Service Code")).ToUpper();
+    end;
+
+    procedure UpdateSalesInvoiceHeader(SalesInvoiceHeaderEdit: Record "Sales Invoice Header")
+    begin
+        Codeunit.Run(Codeunit::"Sales Inv. Header - Edit", SalesInvoiceHeaderEdit);
+    end;
+
     procedure UndoSalesShipmentLine(var SalesShipmentLine: Record "Sales Shipment Line")
     begin
         CODEUNIT.Run(CODEUNIT::"Undo Sales Shipment Line", SalesShipmentLine);
@@ -1328,7 +1406,7 @@ codeunit 130509 "Library - Sales"
     begin
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateSalesPrice(var SalesPrice: Record "Sales Price"; ItemNo: Code[20]; SalesType: Option; SalesCode: Code[20]; StartingDate: Date; CurrencyCode: Code[10]; VariantCode: Code[10]; UOMCode: Code[10]; MinQty: Decimal; UnitPrice: Decimal)
     begin

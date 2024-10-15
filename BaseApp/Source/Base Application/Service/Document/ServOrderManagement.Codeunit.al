@@ -26,9 +26,13 @@ codeunit 5900 ServOrderManagement
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'You cannot create a %1, because the %2 field is not empty.';
         Text001: Label 'You must specify %1, %2 and %3 in %4 %5, before you create new %6.';
+#pragma warning restore AA0470
         Text004: Label 'There are no Customer Templates.';
+#pragma warning disable AA0470
         Text005: Label 'Posting cannot be completed successfully. The %1 field on the service invoice lines should contain 1 because %2 %3 was replaced.';
         Text006: Label 'The %1 %2 is already assigned to %3 %4.';
         Text007: Label '%1 %2 was created.';
@@ -36,6 +40,8 @@ codeunit 5900 ServOrderManagement
         Text009: Label 'Travel fee in the %1 table with %2 %3 cannot be found.';
         Text011: Label 'There is no %1 for %2 %3.';
         Text012: Label 'You can not post %1 %2.\\%3 %4 in %5 line %6 is preventing it.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         NewCustomerQst: Label 'This customer already exists.\\Do you want create a new %1 instead of using the existing one?', Comment = '%1 - Table caption';
 
     procedure ServHeaderLookup(DocumentType: Integer; var DocumentNo: Code[20]): Boolean

@@ -1,4 +1,4 @@
-codeunit 142096 "Export Electr. Accounting Test"
+﻿codeunit 142096 "Export Electr. Accounting Test"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -843,55 +843,51 @@ codeunit 142096 "Export Electr. Accounting Test"
         GLEntryLast.FindLast();
         SourceCodeSetup.Get();
 
-        with GLEntry do begin
-            Init();
-            "Entry No." := GLEntryLast."Entry No." + 1;
-            "Transaction No." := GLEntryLast."Transaction No." + 1;
-            "Document No." := Format(LibraryRandom.RandInt(10000));
-            "Posting Date" := CurrentWorkDate;
-            Description := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Description)), 1, MaxStrLen(Description));
+        GLEntry.Init();
+        GLEntry."Entry No." := GLEntryLast."Entry No." + 1;
+        GLEntry."Transaction No." := GLEntryLast."Transaction No." + 1;
+        GLEntry."Document No." := Format(LibraryRandom.RandInt(10000));
+        GLEntry."Posting Date" := CurrentWorkDate;
+        GLEntry.Description := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(GLEntry.Description)), 1, MaxStrLen(GLEntry.Description));
 
-            "G/L Account No." := GLAccount."No.";
+        GLEntry."G/L Account No." := GLAccount."No.";
 
-            case BankAccountType of
-                BankAccountType::Customer:
-                    begin
-                        "Source Code" := SourceCodeSetup.Sales;
-                        "Debit Amount" := LibraryRandom.RandDec(1000, 2);
-                        Amount := "Debit Amount";
-                        "Bal. Account Type" := "Bal. Account Type"::Customer;
-                    end;
-                BankAccountType::Vendor:
-                    begin
-                        "Source Code" := SourceCodeSetup.Purchases;
-                        "Credit Amount" := LibraryRandom.RandDec(1000, 2);
-                        Amount := -"Credit Amount";
-                        "Bal. Account Type" := "Bal. Account Type"::Vendor;
-                        "Document Type" := "Document Type"::Payment;
-                    end;
-                BankAccountType::Company:
-                    begin
-                        "Source Code" := SourceCodeSetup."General Journal";
-                        "Credit Amount" := LibraryRandom.RandDec(1000, 2);
-                        Amount := -"Credit Amount";
-                        "Bal. Account Type" := "Bal. Account Type"::"Bank Account";
-                        CreateBankAccount(RecipientBankAccount, "G/L Account No.");
-                        "Bal. Account No." := RecipientBankAccount."No.";
-                    end;
-            end;
-            Insert();
+        case BankAccountType of
+            BankAccountType::Customer:
+                begin
+                    GLEntry."Source Code" := SourceCodeSetup.Sales;
+                    GLEntry."Debit Amount" := LibraryRandom.RandDec(1000, 2);
+                    GLEntry.Amount := GLEntry."Debit Amount";
+                    GLEntry."Bal. Account Type" := GLEntry."Bal. Account Type"::Customer;
+                end;
+            BankAccountType::Vendor:
+                begin
+                    GLEntry."Source Code" := SourceCodeSetup.Purchases;
+                    GLEntry."Credit Amount" := LibraryRandom.RandDec(1000, 2);
+                    GLEntry.Amount := -GLEntry."Credit Amount";
+                    GLEntry."Bal. Account Type" := GLEntry."Bal. Account Type"::Vendor;
+                    GLEntry."Document Type" := GLEntry."Document Type"::Payment;
+                end;
+            BankAccountType::Company:
+                begin
+                    GLEntry."Source Code" := SourceCodeSetup."General Journal";
+                    GLEntry."Credit Amount" := LibraryRandom.RandDec(1000, 2);
+                    GLEntry.Amount := -GLEntry."Credit Amount";
+                    GLEntry."Bal. Account Type" := GLEntry."Bal. Account Type"::"Bank Account";
+                    CreateBankAccount(RecipientBankAccount, GLEntry."G/L Account No.");
+                    GLEntry."Bal. Account No." := RecipientBankAccount."No.";
+                end;
         end;
+        GLEntry.Insert();
     end;
 
     local procedure CreateGLAccount(var GLAccount: Record "G/L Account")
     begin
         LibraryERM.CreateGLAccount(GLAccount);
-        with GLAccount do begin
-            "Account Type" := "Account Type"::Posting;
-            "Debit/Credit" := LibraryRandom.RandIntInRange(1, 2);
-            "SAT Account Code" := '100';
-            Modify();
-        end;
+        GLAccount."Account Type" := GLAccount."Account Type"::Posting;
+        GLAccount."Debit/Credit" := LibraryRandom.RandIntInRange(1, 2);
+        GLAccount."SAT Account Code" := '100';
+        GLAccount.Modify();
     end;
 
     local procedure CreateBankAccount(var BankAccount: Record "Bank Account"; GLBankAccountNo: Code[20])
@@ -915,18 +911,16 @@ codeunit 142096 "Export Electr. Accounting Test"
 
     local procedure CreateCheckLedgerEntry(var CheckLedgerEntry: Record "Check Ledger Entry"; BankAccountLedgerEntry: Record "Bank Account Ledger Entry"; VendorNo: Code[20])
     begin
-        with CheckLedgerEntry do begin
-            Init();
-            "Bank Account No." := BankAccountLedgerEntry."Bank Account No.";
-            "Entry No." := BankAccountLedgerEntry."Entry No.";
-            "Bank Account Ledger Entry No." := BankAccountLedgerEntry."Entry No.";
-            "Check No." := LibraryUtility.GenerateRandomCode(FieldNo("Check No."), DATABASE::"Check Ledger Entry");
-            "Check Date" := CurrentWorkDate;
-            Amount := BankAccountLedgerEntry."Credit Amount";
-            "Bal. Account Type" := "Bal. Account Type"::Vendor;
-            "Bal. Account No." := VendorNo;
-            Insert();
-        end;
+        CheckLedgerEntry.Init();
+        CheckLedgerEntry."Bank Account No." := BankAccountLedgerEntry."Bank Account No.";
+        CheckLedgerEntry."Entry No." := BankAccountLedgerEntry."Entry No.";
+        CheckLedgerEntry."Bank Account Ledger Entry No." := BankAccountLedgerEntry."Entry No.";
+        CheckLedgerEntry."Check No." := LibraryUtility.GenerateRandomCode(CheckLedgerEntry.FieldNo("Check No."), DATABASE::"Check Ledger Entry");
+        CheckLedgerEntry."Check Date" := CurrentWorkDate;
+        CheckLedgerEntry.Amount := BankAccountLedgerEntry."Credit Amount";
+        CheckLedgerEntry."Bal. Account Type" := CheckLedgerEntry."Bal. Account Type"::Vendor;
+        CheckLedgerEntry."Bal. Account No." := VendorNo;
+        CheckLedgerEntry.Insert();
     end;
 
     local procedure CreateBankAccountLedgerEntry(var BankAccountLedgerEntry: Record "Bank Account Ledger Entry"; GLEntry: Record "G/L Entry")
@@ -935,19 +929,17 @@ codeunit 142096 "Export Electr. Accounting Test"
     begin
         CreateBankAccount(BankAccount, GLEntry."G/L Account No.");
 
-        with BankAccountLedgerEntry do begin
-            Init();
-            "Entry No." := GLEntry."Entry No.";
-            "Transaction No." := GLEntry."Transaction No.";
-            "Posting Date" := CurrentWorkDate;
-            "Bank Acc. Posting Group" := BankAccount."Bank Acc. Posting Group";
-            "Bal. Account Type" := GLEntry."Bal. Account Type";
-            "Bal. Account No." := GLEntry."Bal. Account No.";
-            "Bank Account No." := BankAccount."No.";
-            "Document Date" := CurrentWorkDate;
-            "Credit Amount" := -GLEntry.Amount;
-            Insert();
-        end;
+        BankAccountLedgerEntry.Init();
+        BankAccountLedgerEntry."Entry No." := GLEntry."Entry No.";
+        BankAccountLedgerEntry."Transaction No." := GLEntry."Transaction No.";
+        BankAccountLedgerEntry."Posting Date" := CurrentWorkDate;
+        BankAccountLedgerEntry."Bank Acc. Posting Group" := BankAccount."Bank Acc. Posting Group";
+        BankAccountLedgerEntry."Bal. Account Type" := GLEntry."Bal. Account Type";
+        BankAccountLedgerEntry."Bal. Account No." := GLEntry."Bal. Account No.";
+        BankAccountLedgerEntry."Bank Account No." := BankAccount."No.";
+        BankAccountLedgerEntry."Document Date" := CurrentWorkDate;
+        BankAccountLedgerEntry."Credit Amount" := -GLEntry.Amount;
+        BankAccountLedgerEntry.Insert();
     end;
 
     local procedure CreateVendLedgEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; GLEntry: Record "G/L Entry"; IsNational: Boolean)
@@ -957,20 +949,18 @@ codeunit 142096 "Export Electr. Accounting Test"
     begin
         CreateVendorWithBankAccount(Vendor, VendorBankAccount, GLEntry."G/L Account No.", IsNational);
 
-        with VendorLedgerEntry do begin
-            FindLast();
-            CreateDetailedVendorLedgerEntry("Entry No." + 1);
-            Init();
-            "Entry No." += 1;
-            "Vendor No." := Vendor."No.";
-            "Posting Date" := CurrentWorkDate;
-            "Vendor Posting Group" := Vendor."Vendor Posting Group";
-            "Recipient Bank Account" := VendorBankAccount.Code;
-            "Document No." := Format(LibraryRandom.RandInt(10000));
-            "Transaction No." := GLEntry."Transaction No.";
-            "Payment Method Code" := CreatePaymentMethod();
-            Insert();
-        end;
+        VendorLedgerEntry.FindLast();
+        CreateDetailedVendorLedgerEntry(VendorLedgerEntry."Entry No." + 1);
+        VendorLedgerEntry.Init();
+        VendorLedgerEntry."Entry No." += 1;
+        VendorLedgerEntry."Vendor No." := Vendor."No.";
+        VendorLedgerEntry."Posting Date" := CurrentWorkDate;
+        VendorLedgerEntry."Vendor Posting Group" := Vendor."Vendor Posting Group";
+        VendorLedgerEntry."Recipient Bank Account" := VendorBankAccount.Code;
+        VendorLedgerEntry."Document No." := Format(LibraryRandom.RandInt(10000));
+        VendorLedgerEntry."Transaction No." := GLEntry."Transaction No.";
+        VendorLedgerEntry."Payment Method Code" := CreatePaymentMethod();
+        VendorLedgerEntry.Insert();
     end;
 
     local procedure CreateCustLedgEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; GLEntry: Record "G/L Entry"; IsNational: Boolean)
@@ -980,53 +970,47 @@ codeunit 142096 "Export Electr. Accounting Test"
     begin
         CreateCustomerWithBankAccount(Customer, GLEntry."G/L Account No.", CustomerBankAccount, IsNational);
 
-        with CustLedgerEntry do begin
-            FindLast();
-            CreateDetailedCustLedgerEntry("Entry No." + 1);
-            Init();
-            "Entry No." += 1;
-            "Customer No." := Customer."No.";
-            "Posting Date" := CurrentWorkDate;
-            "Customer Posting Group" := Customer."Customer Posting Group";
-            "Recipient Bank Account" := CustomerBankAccount.Code;
-            "Document No." := Format(LibraryRandom.RandInt(10000));
-            "Transaction No." := GLEntry."Transaction No.";
-            Insert();
-        end;
+        CustLedgerEntry.FindLast();
+        CreateDetailedCustLedgerEntry(CustLedgerEntry."Entry No." + 1);
+        CustLedgerEntry.Init();
+        CustLedgerEntry."Entry No." += 1;
+        CustLedgerEntry."Customer No." := Customer."No.";
+        CustLedgerEntry."Posting Date" := CurrentWorkDate;
+        CustLedgerEntry."Customer Posting Group" := Customer."Customer Posting Group";
+        CustLedgerEntry."Recipient Bank Account" := CustomerBankAccount.Code;
+        CustLedgerEntry."Document No." := Format(LibraryRandom.RandInt(10000));
+        CustLedgerEntry."Transaction No." := GLEntry."Transaction No.";
+        CustLedgerEntry.Insert();
     end;
 
     local procedure CreateDetailedCustLedgerEntry(CustLedgerEntryNo: Integer)
     var
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin
-        with DetailedCustLedgEntry do begin
-            FindLast();
-            Init();
-            "Entry No." += 1;
-            "Cust. Ledger Entry No." := CustLedgerEntryNo;
-            "Entry Type" := "Entry Type"::"Initial Entry";
-            "Posting Date" := CurrentWorkDate;
-            Amount := LibraryRandom.RandDec(1000, 2);
-            "Ledger Entry Amount" := true;
-            Insert();
-        end;
+        DetailedCustLedgEntry.FindLast();
+        DetailedCustLedgEntry.Init();
+        DetailedCustLedgEntry."Entry No." += 1;
+        DetailedCustLedgEntry."Cust. Ledger Entry No." := CustLedgerEntryNo;
+        DetailedCustLedgEntry."Entry Type" := DetailedCustLedgEntry."Entry Type"::"Initial Entry";
+        DetailedCustLedgEntry."Posting Date" := CurrentWorkDate;
+        DetailedCustLedgEntry.Amount := LibraryRandom.RandDec(1000, 2);
+        DetailedCustLedgEntry."Ledger Entry Amount" := true;
+        DetailedCustLedgEntry.Insert();
     end;
 
     local procedure CreateDetailedVendorLedgerEntry(VendorLedgerEntryNo: Integer)
     var
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
     begin
-        with DetailedVendorLedgEntry do begin
-            FindLast();
-            Init();
-            "Entry No." += 1;
-            "Vendor Ledger Entry No." := VendorLedgerEntryNo;
-            "Entry Type" := "Entry Type"::"Initial Entry";
-            "Posting Date" := CurrentWorkDate;
-            Amount := LibraryRandom.RandDec(1000, 2);
-            "Ledger Entry Amount" := true;
-            Insert();
-        end;
+        DetailedVendorLedgEntry.FindLast();
+        DetailedVendorLedgEntry.Init();
+        DetailedVendorLedgEntry."Entry No." += 1;
+        DetailedVendorLedgEntry."Vendor Ledger Entry No." := VendorLedgerEntryNo;
+        DetailedVendorLedgEntry."Entry Type" := DetailedVendorLedgEntry."Entry Type"::"Initial Entry";
+        DetailedVendorLedgEntry."Posting Date" := CurrentWorkDate;
+        DetailedVendorLedgEntry.Amount := LibraryRandom.RandDec(1000, 2);
+        DetailedVendorLedgEntry."Ledger Entry Amount" := true;
+        DetailedVendorLedgEntry.Insert();
     end;
 
     local procedure CreateVendorWithBankAccount(var Vendor: Record Vendor; var VendorBankAccount: Record "Vendor Bank Account"; PayablesAccount: Code[20]; IsNational: Boolean)
@@ -1096,52 +1080,43 @@ codeunit 142096 "Export Electr. Accounting Test"
     var
         SourceCodeSetup: Record "Source Code Setup";
     begin
-        with SalesInvoiceHeader do begin
-            Init();
-            "No." := LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::"Sales Invoice Header");
-            "Fiscal Invoice Number PAC" := DelChr(Format(CreateGuid()), '=', '{}');
-            Insert();
-        end;
+        SalesInvoiceHeader.Init();
+        SalesInvoiceHeader."No." := LibraryUtility.GenerateRandomCode(SalesInvoiceHeader.FieldNo("No."), DATABASE::"Sales Invoice Header");
+        SalesInvoiceHeader."Fiscal Invoice Number PAC" := DelChr(Format(CreateGuid()), '=', '{}');
+        SalesInvoiceHeader.Insert();
 
         SourceCodeSetup.Get();
-        with CustLedgerEntry do begin
-            "Document Type" := "Document Type"::Invoice;
-            "Document No." := SalesInvoiceHeader."No.";
-            "Source Code" := SourceCodeSetup.Sales;
-            Modify();
-        end
+        CustLedgerEntry."Document Type" := CustLedgerEntry."Document Type"::Invoice;
+        CustLedgerEntry."Document No." := SalesInvoiceHeader."No.";
+        CustLedgerEntry."Source Code" := SourceCodeSetup.Sales;
+        CustLedgerEntry.Modify();
     end;
 
     local procedure FixChartOfAccounts()
     var
         GLAccount: Record "G/L Account";
     begin
-        with GLAccount do begin
-            if FindSet() then
-                repeat
-                    CalcFields("Debit Amount", "Credit Amount");
-                    if "Debit/Credit" = "Debit/Credit"::Both then begin
-                        if "Debit Amount" <> 0 then
-                            "Debit/Credit" := "Debit/Credit"::Debit
-                        else
-                            "Debit/Credit" := "Debit/Credit"::Credit
-                    end;
-
-                    "SAT Account Code" := '100';
-                    Modify();
-                until Next() = 0;
-        end;
+        if GLAccount.FindSet() then
+            repeat
+                GLAccount.CalcFields("Debit Amount", "Credit Amount");
+                if GLAccount."Debit/Credit" = GLAccount."Debit/Credit"::Both then
+                    if GLAccount."Debit Amount" <> 0 then
+                        GLAccount."Debit/Credit" := GLAccount."Debit/Credit"::Debit
+                    else
+                        GLAccount."Debit/Credit" := GLAccount."Debit/Credit"::Credit;
+                GLAccount."SAT Account Code" := '100';
+                GLAccount.Modify();
+            until GLAccount.Next() = 0;
     end;
 
     local procedure SetupCompanyInfo()
     var
         CompanyInformation: Record "Company Information";
     begin
-        with CompanyInformation do begin
-            Get();
-            "RFC Number" := 'SWC920404DA3';  // Set number, otherwise will run into all kind of errors
-            Modify(true);
-        end;
+        CompanyInformation.Get();
+        CompanyInformation."RFC Number" := 'SWC920404DA3';
+        // Set number, otherwise will run into all kind of errors
+        CompanyInformation.Modify(true);
     end;
 
     local procedure FindNodeByAttributeInXML(var Node: DotNet XmlNode; ParentNodeName: Text; NodeName: Text; AttributeName: Text; AttributeValue: Text)

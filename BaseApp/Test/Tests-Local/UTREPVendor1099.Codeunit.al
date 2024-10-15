@@ -1973,18 +1973,16 @@ codeunit 142055 "UT REP Vendor 1099"
         RecRef: RecordRef;
     begin
         RecRef.GetTable(DetailedVendorLedgEntry);
-        with DetailedVendorLedgEntry do begin
-            "Entry No." := LibraryUtility.GetNewLineNo(RecRef, FieldNo("Entry No."));
-            "Vendor Ledger Entry No." := VendorLedgerEntryNo;
-            "Ledger Entry Amount" := LedgerEntryAmount;
-            "Applied Vend. Ledger Entry No." := AppliedVendLedgerEntryNo;
-            "Entry Type" := EntryType;
-            "Vendor No." := VendorNo;
-            Amount := NewAmount;
-            "Amount (LCY)" := NewAmount;
-            "Transaction No." := TransactionNo;
-            Insert();
-        end;
+        DetailedVendorLedgEntry."Entry No." := LibraryUtility.GetNewLineNo(RecRef, DetailedVendorLedgEntry.FieldNo("Entry No."));
+        DetailedVendorLedgEntry."Vendor Ledger Entry No." := VendorLedgerEntryNo;
+        DetailedVendorLedgEntry."Ledger Entry Amount" := LedgerEntryAmount;
+        DetailedVendorLedgEntry."Applied Vend. Ledger Entry No." := AppliedVendLedgerEntryNo;
+        DetailedVendorLedgEntry."Entry Type" := EntryType;
+        DetailedVendorLedgEntry."Vendor No." := VendorNo;
+        DetailedVendorLedgEntry.Amount := NewAmount;
+        DetailedVendorLedgEntry."Amount (LCY)" := NewAmount;
+        DetailedVendorLedgEntry."Transaction No." := TransactionNo;
+        DetailedVendorLedgEntry.Insert();
     end;
 
     local procedure CalcSumOfDocs(DocAmount: array[2, 3] of Decimal; VendorIndex: Integer) Result: Decimal

@@ -13,30 +13,6 @@ codeunit 132214 "Library - Permissions"
         PlanConfiguration.AddDefaultPermissionSetToPlan(PlanID, PermissionSetCode, NullGuid, Scope::Tenant);
     end;
 
-#if not CLEAN22
-#pragma warning disable AS0072
-    [Obsolete('Not used', '22.0')]
-#pragma warning restore AS0072
-    procedure AddPermissionSetToUserGroup(AggregatePermissionSet: Record "Aggregate Permission Set"; UserGroupCode: Code[20])
-    var
-        UserGroupPermissionSet: Record "User Group Permission Set";
-    begin
-        UserGroupPermissionSet.SetRange("Role ID", AggregatePermissionSet."Role ID");
-        UserGroupPermissionSet.SetRange(Scope, AggregatePermissionSet.Scope);
-        UserGroupPermissionSet.SetRange("App ID", AggregatePermissionSet."App ID");
-        UserGroupPermissionSet.SetRange("User Group Code", UserGroupCode);
-        if UserGroupPermissionSet.FindFirst() then
-            exit;
-        UserGroupPermissionSet.Init();
-        UserGroupPermissionSet."User Group Code" := UserGroupCode;
-        UserGroupPermissionSet."User Group Name" := UserGroupCode;
-        UserGroupPermissionSet."Role ID" := AggregatePermissionSet."Role ID";
-        UserGroupPermissionSet.Scope := AggregatePermissionSet.Scope;
-        UserGroupPermissionSet."App ID" := AggregatePermissionSet."App ID";
-        UserGroupPermissionSet.Insert(true);
-    end;
-#endif
-
     procedure AddPermissionSetToUser(var User: Record User; var PermissionSet: Record "Permission Set"; CompanyName: Text[30])
     begin
         AddPermissionSetNameToUser(User."User Security ID", PermissionSet."Role ID", CompanyName);
@@ -104,26 +80,8 @@ codeunit 132214 "Library - Permissions"
         TenantPermission.Insert(true);
     end;
 
-#if not CLEAN22
-#pragma warning disable AS0072
-    [Obsolete('Not used', '22.0')]
-#pragma warning restore AS0072
-    procedure AddUserGroupToPlan(UserGroupCode: Code[20]; PlanID: Guid)
-    var
-        UserGroupPlan: Record "User Group Plan";
-    begin
-        UserGroupPlan.Init();
-        UserGroupPlan."Plan ID" := PlanID;
-        UserGroupPlan."User Group Code" := UserGroupCode;
-        UserGroupPlan.Insert(true);
-    end;
-#endif
-
     procedure AddUserToPlan(UserID: Guid; PlanID: Guid)
     var
-#if not CLEAN22
-        UserGroupPlan: Record "User Group Plan";
-#endif
         AzureADPlan: Codeunit "Azure AD Plan";
         AzureADPlanTestLibrary: Codeunit "Azure AD Plan Test Library";
     begin
@@ -131,61 +89,7 @@ codeunit 132214 "Library - Permissions"
             exit;
 
         AzureADPlanTestLibrary.AssignUserToPlan(UserID, PlanID);
-
-#if not CLEAN22
-        UserGroupPlan.SetRange("Plan ID", PlanID);
-        if UserGroupPlan.FindSet() then
-            repeat
-                AddUserToUserGroupByCode(UserID, UserGroupPlan."User Group Code");
-            until UserGroupPlan.Next() = 0;
-#endif
     end;
-
-#if not CLEAN22
-#pragma warning disable AS0072
-    [Obsolete('Not used', '22.0')]
-#pragma warning restore AS0072
-    procedure AddUserToUserGroup(var UserGroup: Record "User Group"; var User: Record User; NewCompanyName: Text[30])
-    var
-        UserGroupMember: Record "User Group Member";
-    begin
-        UserGroupMember.Init();
-        UserGroupMember."User Group Code" := UserGroup.Code;
-        UserGroupMember."User Security ID" := User."User Security ID";
-        UserGroupMember."Company Name" := NewCompanyName;
-        UserGroupMember.Insert(true);
-    end;
-
-#pragma warning disable AS0072
-    [Obsolete('Not used', '22.0')]
-#pragma warning restore AS0072
-    procedure AddUserToUserGroupByCode(UserID: Guid; UserGroupCode: Code[20])
-    var
-        UserGroupMember: Record "User Group Member";
-    begin
-        if UserGroupMember.Get(UserGroupCode, UserID, CompanyName) then
-            exit;
-        UserGroupMember.Init();
-        UserGroupMember."User Group Code" := UserGroupCode;
-        UserGroupMember."User Security ID" := UserID;
-        UserGroupMember."Company Name" := CompanyName;
-        UserGroupMember.Insert(true);
-    end;
-
-#pragma warning disable AS0072
-    [Obsolete('Not used', '22.0')]
-#pragma warning restore AS0072
-    procedure ChangeUserGroupOfUser(UserID: Guid; OldUserGroupCode: Code[20]; NewUserGroupCode: Code[20])
-    var
-        UserGroupMember: Record "User Group Member";
-    begin
-        if not UserGroupMember.Get(OldUserGroupCode, UserID, CompanyName) then
-            exit;
-        UserGroupMember.Delete(true);
-        UserGroupMember.Validate("User Group Code", NewUserGroupCode);
-        UserGroupMember.Insert(true);
-    end;
-#endif
 
     procedure CreateUser(var User: Record User; NewUserName: Text[50]; IsWindowsUser: Boolean)
     begin
@@ -252,57 +156,6 @@ codeunit 132214 "Library - Permissions"
         exit(User."User Security ID");
     end;
 
-#if not CLEAN22
-#pragma warning disable AS0072
-    [Obsolete('Not used', '22.0')]
-#pragma warning restore AS0072
-    procedure CreateUserGroup(var UserGroup: Record "User Group"; NewCode: Code[20])
-    begin
-        if UserGroup.Get(NewCode) then
-            exit;
-        UserGroup.Init();
-        if NewCode = '' then
-            UserGroup.Code := CopyStr(GetGuidString(), 1, MaxStrLen(UserGroup.Code))
-        else
-            UserGroup.Code := NewCode;
-        UserGroup.Name := UserGroup.Code;
-        UserGroup.Insert(true);
-    end;
-
-#pragma warning disable AS0072
-    [Obsolete('Not used', '22.0')]
-#pragma warning restore AS0072
-    procedure CreateUserGroupInPlan(UserGroupCode: Code[20]; PlanID: Guid)
-    begin
-        CreateUserGroupWithCode(UserGroupCode);
-        AddUserGroupToPlan(UserGroupCode, PlanID);
-    end;
-
-#pragma warning disable AS0072
-    [Obsolete('Not used', '22.0')]
-#pragma warning restore AS0072
-    procedure CreateUserGroupWithCode("Code": Code[20])
-    var
-        UserGroup: Record "User Group";
-    begin
-        CreateUserGroup(UserGroup, Code);
-    end;
-
-#pragma warning disable AS0072
-    [Obsolete('Not used', '22.0')]
-#pragma warning restore AS0072
-    procedure CreateUserGroupMember(var UserGroup: Record "User Group"; var UserGroupMember: Record "User Group Member")
-    var
-        User: Record User;
-    begin
-        GetMyUser(User);
-        UserGroupMember.Init();
-        UserGroupMember."User Group Code" := UserGroup.Code;
-        UserGroupMember."User Security ID" := User."User Security ID";
-        if UserGroupMember.Insert() then;
-    end;
-#endif
-
     procedure GetNonExistingUserID(): Text[65]
     var
         User: Record User;
@@ -352,39 +205,6 @@ codeunit 132214 "Library - Permissions"
         TenantPermissionSet.Insert(true);
     end;
 
-#if not CLEAN22
-#pragma warning disable AS0072
-    [Obsolete('Not used', '22.0')]
-#pragma warning restore AS0072
-    procedure CreateUsersUserGroupsPermissionSets()
-    var
-        User: Record User;
-        UserGroup: Record "User Group";
-        TenantPermissionSet: Record "Tenant Permission Set";
-        i: Integer;
-        NewCode: Text[20];
-    begin
-        // Creates a batch of test data, using other functions in this library
-        UserGroup.SetFilter(Code, 'TEST*');
-        UserGroup.DeleteAll(true);
-        UserGroup.SetRange(Code);
-        TenantPermissionSet.SetFilter("Role ID", 'TEST*');
-        TenantPermissionSet.DeleteAll(true);
-        Initialize();
-        for i := 1 to 15 do begin
-            NewCode := StrSubstNo('TEST%1', i);
-            User.SetRange("User Name", NewCode);
-            if User.IsEmpty() then
-                CreateUser(User, NewCode, false);
-            if not UserGroup.Get(NewCode) then
-                CreateUserGroup(UserGroup, NewCode);
-            TenantPermissionSet."App ID" := CreateGuid();
-            if not TenantPermissionSet.Get(TenantPermissionSet."App ID", NewCode) then
-                CreateTenantPermissionSet(TenantPermissionSet, NewCode, TenantPermissionSet."App ID");
-        end;
-    end;
-#endif
-
     local procedure GetGuidString(): Text
     begin
         exit(DelChr(Format(CreateGuid()), '=', '{-}'));
@@ -397,63 +217,6 @@ codeunit 132214 "Library - Permissions"
         User.FindFirst();
         User.SetRange("User Name");
     end;
-
-#if not CLEAN22
-#pragma warning disable AS0072
-    [Obsolete('Not used', '22.0')]
-#pragma warning restore AS0072
-    procedure RemoveUserFromAllUserGroups(UserID: Guid)
-    var
-        UserGroupMember: Record "User Group Member";
-    begin
-        UserGroupMember.SetRange("User Security ID", UserID);
-        UserGroupMember.SetRange("Company Name", CompanyName);
-        if UserGroupMember.FindFirst() then
-            UserGroupMember.DeleteAll(true);
-    end;
-
-#pragma warning disable AS0072
-    [Obsolete('Not used', '22.0')]
-#pragma warning restore AS0072
-    procedure RemoveUserFromUserGroup(UserID: Guid; UserGroupCode: Code[20])
-    var
-        UserGroupMember: Record "User Group Member";
-    begin
-        if UserGroupMember.Get(UserGroupCode, UserID, CompanyName) then
-            UserGroupMember.Delete(true);
-    end;
-
-#pragma warning disable AS0072
-    [Obsolete('Not used', '22.0')]
-#pragma warning restore AS0072
-    procedure RemoveUserGroup(UserGroupCode: Code[20])
-    var
-        UserGroup: Record "User Group";
-        UserGroupPermissionSet: Record "User Group Permission Set";
-        UserGroupPlan: Record "User Group Plan";
-    begin
-        if UserGroup.Get(UserGroupCode) then begin
-            UserGroupPermissionSet.SetRange("User Group Code", UserGroup.Code);
-            UserGroupPermissionSet.DeleteAll(true);
-            UserGroupPlan.SetRange("User Group Code", UserGroup.Code);
-            UserGroupPlan.DeleteAll(true);
-            UserGroup.Delete(true);
-        end;
-    end;
-
-#pragma warning disable AS0072
-    [Obsolete('Not used', '22.0')]
-#pragma warning restore AS0072
-    procedure RemovePermissionSetFromUserGroup(PermissionSetRoleID: Code[20]; UserGroupCode: Code[20])
-    var
-        UserGroupPermissionSet: Record "User Group Permission Set";
-    begin
-        UserGroupPermissionSet.SetRange("User Group Code", UserGroupCode);
-        UserGroupPermissionSet.SetRange("Role ID", PermissionSetRoleID);
-        if UserGroupPermissionSet.FindFirst() then
-            UserGroupPermissionSet.DeleteAll(true);
-    end;
-#endif
 
     local procedure Initialize()
     begin

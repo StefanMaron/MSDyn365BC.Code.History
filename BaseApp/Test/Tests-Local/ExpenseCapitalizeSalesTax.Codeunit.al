@@ -84,12 +84,10 @@
         SetQuantityToReceive(PurchaseLine, 1);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
 
-        with PurchaseLine do begin
-            Find();
-            Assert.AreNearlyEqual(
-              UnitAmount, "A. Rcd. Not Inv. Ex. VAT (LCY)", 0.01,
-              StrSubstNo(WrongAmountErr, FieldName("A. Rcd. Not Inv. Ex. VAT (LCY)"), TableName));
-        end;
+        PurchaseLine.Find();
+        Assert.AreNearlyEqual(
+          UnitAmount, PurchaseLine."A. Rcd. Not Inv. Ex. VAT (LCY)", 0.01,
+          StrSubstNo(WrongAmountErr, PurchaseLine.FieldName("A. Rcd. Not Inv. Ex. VAT (LCY)"), PurchaseLine.TableName));
     end;
 
     [Test]
@@ -870,13 +868,11 @@
         LibraryERM.CreateGLAccount(GLAccount);
         LibraryERM.FindGeneralPostingSetup(GenPostingSetup);
 
-        with GLAccount do begin
-            Validate("Gen. Bus. Posting Group", GenPostingSetup."Gen. Bus. Posting Group");
-            Validate("Gen. Prod. Posting Group", GenPostingSetup."Gen. Prod. Posting Group");
-            Validate("VAT Prod. Posting Group", VATProdPostingGroup);
-            Validate("Tax Group Code", TaxGroupCode);
-            Modify(true);
-        end;
+        GLAccount.Validate("Gen. Bus. Posting Group", GenPostingSetup."Gen. Bus. Posting Group");
+        GLAccount.Validate("Gen. Prod. Posting Group", GenPostingSetup."Gen. Prod. Posting Group");
+        GLAccount.Validate("VAT Prod. Posting Group", VATProdPostingGroup);
+        GLAccount.Validate("Tax Group Code", TaxGroupCode);
+        GLAccount.Modify(true);
     end;
 
     local procedure CreateGLAccountNo(VATProdPostingGroup: Code[20]; TaxGroupCode: Code[20]): Code[20]
@@ -969,14 +965,12 @@
         CreateJobAndTask(Job, JobTask, CurrencyCode);
 
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", GLAccount."No.", Quantity);
-        with PurchaseLine do begin
-            Validate("Direct Unit Cost", UnitCost);
-            Validate("Job No.", Job."No.");
-            Validate("Job Task No.", JobTask."Job Task No.");
-            Validate("Job Line Type", "Job Line Type"::"Both Budget and Billable");
-            Validate("Job Unit Price", UnitCost + LibraryRandom.RandDec(Round(UnitCost, 1), 2));
-            Modify(true);
-        end;
+        PurchaseLine.Validate("Direct Unit Cost", UnitCost);
+        PurchaseLine.Validate("Job No.", Job."No.");
+        PurchaseLine.Validate("Job Task No.", JobTask."Job Task No.");
+        PurchaseLine.Validate("Job Line Type", PurchaseLine."Job Line Type"::"Both Budget and Billable");
+        PurchaseLine.Validate("Job Unit Price", UnitCost + LibraryRandom.RandDec(Round(UnitCost, 1), 2));
+        PurchaseLine.Modify(true);
     end;
 
     local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; TaxAreaCode: Code[20]; TaxGroupCode: Code[20]; DirectUnitCost: Decimal)
@@ -1066,12 +1060,10 @@
     begin
         LibraryPurchase.CreateVendor(Vendor);
 
-        with Vendor do begin
-            Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
-            Validate("Tax Liable", true);
-            Validate("Tax Area Code", TaxAreaCode);
-            Modify(true);
-        end;
+        Vendor.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        Vendor.Validate("Tax Liable", true);
+        Vendor.Validate("Tax Area Code", TaxAreaCode);
+        Vendor.Modify(true);
     end;
 
     local procedure CreateSalesInvoice(var SalesHeader: Record "Sales Header"; TaxAreaCode: Code[20]; TaxGroupCode: Code[20])
@@ -1161,12 +1153,10 @@
         PurchaseSetup: Record "Purchases & Payables Setup";
         OldUseVendorTaxAreaCode: Boolean;
     begin
-        with PurchaseSetup do begin
-            Get();
-            OldUseVendorTaxAreaCode := "Use Vendor's Tax Area Code";
-            Validate("Use Vendor's Tax Area Code", NewUseVendorTaxAreaCode);
-            Modify(true);
-        end;
+        PurchaseSetup.Get();
+        OldUseVendorTaxAreaCode := PurchaseSetup."Use Vendor's Tax Area Code";
+        PurchaseSetup.Validate("Use Vendor's Tax Area Code", NewUseVendorTaxAreaCode);
+        PurchaseSetup.Modify(true);
 
         exit(OldUseVendorTaxAreaCode);
     end;
@@ -1182,23 +1172,21 @@
         JobLedgerEntry: Record "Job Ledger Entry";
         JobCurrFactor: Decimal;
     begin
-        with JobLedgerEntry do begin
-            SetRange("Job No.", PurchaseLine."Job No.");
-            SetRange("Job Task No.", PurchaseLine."Job Task No.");
-            SetRange(Type, Type::"G/L Account");
-            SetRange("No.", PurchaseLine."No.");
-            FindFirst();
+        JobLedgerEntry.SetRange("Job No.", PurchaseLine."Job No.");
+        JobLedgerEntry.SetRange("Job Task No.", PurchaseLine."Job Task No.");
+        JobLedgerEntry.SetRange(Type, JobLedgerEntry.Type::"G/L Account");
+        JobLedgerEntry.SetRange("No.", PurchaseLine."No.");
+        JobLedgerEntry.FindFirst();
 
-            if PurchaseLine."Job Currency Code" <> '' then
-                JobCurrFactor := PurchaseLine."Job Currency Factor"
-            else
-                JobCurrFactor := 1;
+        if PurchaseLine."Job Currency Code" <> '' then
+            JobCurrFactor := PurchaseLine."Job Currency Factor"
+        else
+            JobCurrFactor := 1;
 
-            Assert.AreNearlyEqual(
-              PurchaseLine."Amount Including VAT" * JobCurrFactor, "Total Cost", 0.01, StrSubstNo(WrongAmountErr, FieldName("Total Cost"), TableName));
-            Assert.AreEqual(
-              PurchaseLine."Amount Including VAT", "Total Cost (LCY)", StrSubstNo(WrongAmountErr, FieldName("Total Cost (LCY)"), TableName));
-        end;
+        Assert.AreNearlyEqual(
+          PurchaseLine."Amount Including VAT" * JobCurrFactor, JobLedgerEntry."Total Cost", 0.01, StrSubstNo(WrongAmountErr, JobLedgerEntry.FieldName("Total Cost"), JobLedgerEntry.TableName));
+        Assert.AreEqual(
+          PurchaseLine."Amount Including VAT", JobLedgerEntry."Total Cost (LCY)", StrSubstNo(WrongAmountErr, JobLedgerEntry.FieldName("Total Cost (LCY)"), JobLedgerEntry.TableName));
     end;
 
     local procedure VerifyUnitCostOnJobLedgerEntry(var PurchaseLine: Record "Purchase Line"; ExpectedUnitCost: Decimal; ExpectedUnitCostLCY: Decimal)
@@ -1224,10 +1212,8 @@
         TaxDetail.SetRange("Tax Group Code", TaxGroupCode);
         TaxDetail.FindFirst();
 
-        with SalesHeader do begin
-            CalcFields(Amount, "Amount Including VAT");
-            TestField("Amount Including VAT", Round(Amount * (1 + TaxDetail."Tax Below Maximum" / 100)));
-        end;
+        SalesHeader.CalcFields(Amount, "Amount Including VAT");
+        SalesHeader.TestField("Amount Including VAT", Round(SalesHeader.Amount * (1 + TaxDetail."Tax Below Maximum" / 100)));
     end;
 
     local procedure VerifyPurchaseHeaderAmountInclVAT(PurchaseHeader: Record "Purchase Header"; TaxGroupCode: Code[20])
@@ -1237,10 +1223,8 @@
         TaxDetail.SetRange("Tax Group Code", TaxGroupCode);
         TaxDetail.FindFirst();
 
-        with PurchaseHeader do begin
-            CalcFields(Amount, "Amount Including VAT");
-            TestField("Amount Including VAT", Round(Amount * (1 + TaxDetail."Tax Below Maximum" / 100)));
-        end;
+        PurchaseHeader.CalcFields(Amount, "Amount Including VAT");
+        PurchaseHeader.TestField("Amount Including VAT", Round(PurchaseHeader.Amount * (1 + TaxDetail."Tax Below Maximum" / 100)));
     end;
 
     local procedure VerifyGLEntry(DocumentNo: Code[20]; GLAccountNo: Code[20]; ExpectedAmount: Decimal)
@@ -1276,10 +1260,8 @@
         TaxDetail.SetRange("Tax Group Code", TaxGroupCode);
         TaxDetail.FindFirst();
 
-        with PurchaseHeader do begin
-            CalcFields(Amount, "Amount Including VAT");
-            VerifyValuesOnReport(TaxAmountLbl, "Amount Including VAT" - Amount);
-        end;
+        PurchaseHeader.CalcFields(Amount, "Amount Including VAT");
+        VerifyValuesOnReport(TaxAmountLbl, PurchaseHeader."Amount Including VAT" - PurchaseHeader.Amount);
     end;
 
     local procedure VerifyValuesOnReport(ValueCaption: Text[100]; Value: Variant)

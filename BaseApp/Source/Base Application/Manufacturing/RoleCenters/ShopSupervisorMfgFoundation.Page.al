@@ -83,6 +83,10 @@ page 9011 "Shop Supervisor Mfg Foundation"
             {
                 ApplicationArea = Suite;
             }
+            part("Job Queue Tasks Activities"; "Job Queue Tasks Activities")
+            {
+                ApplicationArea = Suite;
+            }
             part(Control1905989608; "My Items")
             {
                 ApplicationArea = Manufacturing;
@@ -527,7 +531,7 @@ page 9011 "Shop Supervisor Mfg Foundation"
                 Caption = 'Item &Tracing';
                 Image = ItemTracing;
                 RunObject = Page "Item Tracing";
-                ToolTip = 'Trace where a lot or serial number assigned to the item was used, for example, to find which lot a defective component came from or to find all the customers that have received items containing the defective component.';
+                ToolTip = 'Trace where a serial, lot or package number assigned to the item was used, for example, to find which lot a defective component came from or to find all the customers that have received items containing the defective component.';
             }
             action("Navi&gate")
             {

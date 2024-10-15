@@ -30,15 +30,11 @@ using Microsoft.Pricing.PriceList;
 using Microsoft.Pricing.Reports;
 using Microsoft.Purchases.Document;
 using Microsoft.Purchases.Pricing;
-#if not CLEAN23
+#if not CLEAN25
 using Microsoft.RoleCenters;
 #endif
 using Microsoft.Sales.Document;
 using Microsoft.Sales.Pricing;
-using Microsoft.Service.Document;
-using Microsoft.Service.Item;
-using Microsoft.Service.Maintenance;
-using Microsoft.Service.Resources;
 using Microsoft.Warehouse.ADCS;
 using Microsoft.Warehouse.Ledger;
 using Microsoft.Warehouse.Setup;
@@ -130,12 +126,12 @@ page 31 "Item List"
                 field("Production BOM No."; Rec."Production BOM No.")
                 {
                     ApplicationArea = Manufacturing;
-                    ToolTip = 'Specifies the number of the production BOM that the item represents.';
+                    ToolTip = 'Specifies the production BOM that is used to manufacture this item.';
                 }
                 field("Routing No."; Rec."Routing No.")
                 {
                     ApplicationArea = Manufacturing;
-                    ToolTip = 'Specifies the number of the production routing that the item is used in.';
+                    ToolTip = 'Specifies the production route that contains the operations needed to manufacture this item.';
                 }
                 field("Base Unit of Measure"; Rec."Base Unit of Measure")
                 {
@@ -415,10 +411,22 @@ page 31 "Item List"
                               "Serial No. Filter" = field("Serial No. Filter");
                 Visible = false;
             }
+#if not CLEAN25
             part("Attached Documents"; "Document Attachment Factbox")
             {
+                ObsoleteTag = '25.0';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
                 ApplicationArea = All;
                 Caption = 'Attachments';
+                SubPageLink = "Table ID" = const(Database::Item), "No." = field("No.");
+            }
+#endif
+            part("Attached Documents List"; "Doc. Attachment List Factbox")
+            {
+                ApplicationArea = All;
+                Caption = 'Documents';
+                UpdatePropagation = Both;
                 SubPageLink = "Table ID" = const(Database::Item), "No." = field("No.");
             }
             part(ItemAttributesFactBox; "Item Attributes Factbox")
@@ -440,23 +448,6 @@ page 31 "Item List"
     {
         area(processing)
         {
-#if not CLEAN22
-            group(Item)
-            {
-                Caption = 'Item';
-                Image = DataEntry;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'The contents of this group has been moved to the Navigation->Item and Processing (root).';
-                ObsoleteTag = '22.0';
-                group(Action145)
-                {
-                    Visible = IsFoundationEnabled;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The contents of this group has been moved to the Navigation->Item and Processing (root).';
-                    ObsoleteTag = '22.0';
-                }
-            }
-#endif
             group(History)
             {
                 Caption = 'History';
@@ -519,7 +510,7 @@ page 31 "Item List"
                         ApplicationArea = ItemTracking;
                         Caption = 'Item &Tracking Entries';
                         Image = ItemTrackingLedger;
-                        ToolTip = 'View serial or lot numbers that are assigned to items.';
+                        ToolTip = 'View serial, lot or package numbers that are assigned to items.';
 
                         trigger OnAction()
                         var
@@ -543,7 +534,7 @@ page 31 "Item List"
             group(PricesandDiscounts)
             {
                 Caption = 'Sales Prices & Discounts';
-#if not CLEAN23
+#if not CLEAN25
                 action(Prices_Prices)
                 {
                     ApplicationArea = Basic, Suite;
@@ -651,7 +642,7 @@ page 31 "Item List"
             group(PurchPricesandDiscounts)
             {
                 Caption = 'Purchase Prices & Discounts';
-#if not CLEAN23
+#if not CLEAN25
                 action("Set Special Prices")
                 {
                     ApplicationArea = Suite;
@@ -1020,7 +1011,7 @@ page 31 "Item List"
                 Caption = 'Item Reclassification Journal';
                 Image = Journals;
                 RunObject = Page "Item Reclass. Journal";
-                ToolTip = 'Change information on item ledger entries, such as dimensions, location codes, bin codes, and serial or lot numbers.';
+                ToolTip = 'Change information on item ledger entries, such as dimensions, location codes, bin codes, and serial, lot or package numbers.';
             }
             action("Item Tracing")
             {
@@ -1028,7 +1019,7 @@ page 31 "Item List"
                 Caption = 'Item Tracing';
                 Image = ItemTracing;
                 RunObject = Page "Item Tracing";
-                ToolTip = 'Trace where a lot or serial number assigned to the item was used, for example, to find which lot a defective component came from or to find all the customers that have received items containing the defective component.';
+                ToolTip = 'Trace where a serial, lot or package number assigned to the item was used, for example, to find which lot a defective component came from or to find all the customers that have received items containing the defective component.';
             }
             action("Adjust Item Cost/Price")
             {
@@ -1201,14 +1192,14 @@ page 31 "Item List"
                     RunObject = Report "Item Substitutions";
                     ToolTip = 'View or edit any substitute items that are set up to be traded instead of the item in case it is not available.';
                 }
-#if not CLEAN23
+#if not CLEAN25
                 action("Price List")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Price List';
                     Image = "Report";
                     Visible = not ExtendedPriceEnabled;
-#if not CLEAN23
+#if not CLEAN25
                     RunPageView = where("Object Type" = const(Report), "Object ID" = const(10148)); // "List Price Sheet"
                     RunObject = Page "Role Center Page Dispatcher";
 #else
@@ -1662,7 +1653,7 @@ page 31 "Item List"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromItem(Rec, ItemAvailFormsMgt.ByEvent());
+                            ItemAvailFormsMgt.ShowItemAvailabilityFromItem(Rec, "Item Availability Type"::"Event");
                         end;
                     }
                     action(Period)
@@ -1725,7 +1716,7 @@ page 31 "Item List"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromItem(Rec, ItemAvailFormsMgt.ByBOM());
+                            ItemAvailFormsMgt.ShowItemAvailabilityFromItem(Rec, "Item Availability Type"::BOM);
                         end;
                     }
                     action("Unit of Measure")
@@ -2056,7 +2047,7 @@ page 31 "Item List"
             {
                 Caption = 'S&ales';
                 Image = Sales;
-#if not CLEAN23
+#if not CLEAN25
                 action(Sales_Prices)
                 {
                     ApplicationArea = Suite;
@@ -2136,7 +2127,7 @@ page 31 "Item List"
                     RunPageView = sorting("Item No.");
                     ToolTip = 'View the list of vendors who can supply the item, and at which lead time.';
                 }
-#if not CLEAN23
+#if not CLEAN25
                 action(Prices)
                 {
                     ApplicationArea = Advanced;
@@ -2229,78 +2220,6 @@ page 31 "Item List"
                     RunPageLink = "Item No." = field("No.");
                     RunPageView = sorting("Item No.");
                     ToolTip = 'Open the item''s SKUs to view or edit instances of the item at different locations or with different variants. ';
-                }
-            }
-            group(Service)
-            {
-                Caption = 'Service';
-                Image = ServiceItem;
-                action("Ser&vice Items")
-                {
-                    ApplicationArea = Service;
-                    Caption = 'Ser&vice Items';
-                    Image = ServiceItem;
-                    RunObject = Page "Service Items";
-                    RunPageLink = "Item No." = field("No.");
-                    RunPageView = sorting("Item No.");
-                    ToolTip = 'View instances of the item as service items, such as machines that you maintain or repair for customers through service orders. ';
-                }
-                action(Troubleshooting)
-                {
-                    AccessByPermission = TableData "Service Header" = R;
-                    ApplicationArea = Service;
-                    Caption = 'Troubleshooting';
-                    Image = Troubleshoot;
-                    ToolTip = 'View or edit information about technical problems with a service item.';
-
-                    trigger OnAction()
-                    var
-                        TroubleshootingHeader: Record "Troubleshooting Header";
-                    begin
-                        TroubleshootingHeader.ShowForItem(Rec);
-                    end;
-                }
-                action("Troubleshooting Setup")
-                {
-                    ApplicationArea = Service;
-                    Caption = 'Troubleshooting Setup';
-                    Image = Troubleshoot;
-                    RunObject = Page "Troubleshooting Setup";
-                    RunPageLink = Type = const(Item),
-                                  "No." = field("No.");
-                    ToolTip = 'View or edit your settings for troubleshooting service items.';
-                }
-            }
-            group(Resources)
-            {
-                Caption = 'Resources';
-                Image = Resource;
-                action("Resource &Skills")
-                {
-                    ApplicationArea = Service;
-                    Caption = 'Resource &Skills';
-                    Image = ResourceSkills;
-                    RunObject = Page "Resource Skills";
-                    RunPageLink = Type = const(Item),
-                                  "No." = field("No.");
-                    ToolTip = 'View the assignment of skills to resources, items, service item groups, and service items. You can use skill codes to allocate skilled resources to service items or items that need special skills for servicing.';
-                }
-                action("Skilled R&esources")
-                {
-                    AccessByPermission = TableData "Service Header" = R;
-                    ApplicationArea = Service;
-                    Caption = 'Skilled R&esources';
-                    Image = ResourceSkills;
-                    ToolTip = 'View a list of all registered resources with information about whether they have the skills required to service the particular service item group, item, or service item.';
-
-                    trigger OnAction()
-                    var
-                        ResourceSkill: Record "Resource Skill";
-                    begin
-                        Clear(SkilledResourceList);
-                        SkilledResourceList.Initialize(ResourceSkill.Type::Item, Rec."No.", Rec.Description);
-                        SkilledResourceList.RunModal();
-                    end;
                 }
             }
         }
@@ -2405,7 +2324,7 @@ page 31 "Item List"
             {
                 Caption = 'Prices & Discounts', Comment = 'Generated from the PromotedActionCategories property index 5.';
 
-#if not CLEAN23
+#if not CLEAN25
                 actionref(Prices_Prices_Promoted; Prices_Prices)
                 {
                     ObsoleteState = Pending;
@@ -2419,7 +2338,7 @@ page 31 "Item List"
                 actionref(PurchPriceLists_Promoted; PurchPriceLists)
                 {
                 }
-#if not CLEAN23
+#if not CLEAN25
                 actionref(PricesDiscountsOverview_Promoted; PricesDiscountsOverview)
                 {
                     ObsoleteState = Pending;
@@ -2427,7 +2346,7 @@ page 31 "Item List"
                     ObsoleteTag = '17.0';
                 }
 #endif
-#if not CLEAN23
+#if not CLEAN25
                 actionref(Prices_LineDiscounts_Promoted; Prices_LineDiscounts)
                 {
                     ObsoleteState = Pending;
@@ -2435,7 +2354,7 @@ page 31 "Item List"
                     ObsoleteTag = '17.0';
                 }
 #endif
-#if not CLEAN23
+#if not CLEAN25
                 actionref(PurchPricesDiscountsOverview_Promoted; PurchPricesDiscountsOverview)
                 {
                     ObsoleteState = Pending;
@@ -2449,7 +2368,7 @@ page 31 "Item List"
                 actionref(PurchPriceListsDiscounts_Promoted; PurchPriceListsDiscounts)
                 {
                 }
-#if not CLEAN23
+#if not CLEAN25
                 actionref("Set Special Prices_Promoted"; "Set Special Prices")
                 {
                     ObsoleteState = Pending;
@@ -2457,7 +2376,7 @@ page 31 "Item List"
                     ObsoleteTag = '17.0';
                 }
 #endif
-#if not CLEAN23
+#if not CLEAN25
                 actionref("Sales Price Worksheet_Promoted"; "Sales Price Worksheet")
                 {
                     Visible = false;
@@ -2466,7 +2385,7 @@ page 31 "Item List"
                     ObsoleteTag = '17.0';
                 }
 #endif
-#if not CLEAN23
+#if not CLEAN25
                 actionref("Set Special Discounts_Promoted"; "Set Special Discounts")
                 {
                     ObsoleteState = Pending;
@@ -2501,7 +2420,7 @@ page 31 "Item List"
             group(Category_Report)
             {
                 Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
-#if not CLEAN23
+#if not CLEAN25
                 actionref("Price List_Promoted"; "Price List")
                 {
                     ObsoleteState = Pending;
@@ -2582,7 +2501,13 @@ page 31 "Item List"
     trigger OnFindRecord(Which: Text): Boolean
     var
         Found: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeFindRecord(Rec, Which, CrossColumnSearchFilter, Found, IsHandled);
+        if IsHandled then
+            exit(Found);
+
         if RunOnTempRec then begin
             TempItemFilteredFromAttributes.Copy(Rec);
             Found := TempItemFilteredFromAttributes.Find(Which);
@@ -2641,7 +2566,6 @@ page 31 "Item List"
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
         ClientTypeManagement: Codeunit "Client Type Management";
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
-        SkilledResourceList: Page "Skilled Resource List";
         IsInventoryAdjmtAllowed: Boolean;
 
     protected var
@@ -2657,6 +2581,7 @@ page 31 "Item List"
         IsOnPhone: Boolean;
         RunOnTempRec: Boolean;
         EventFilter: Text;
+        CrossColumnSearchFilter: Text;
         CanRequestApprovalForFlow: Boolean;
         CanCancelApprovalForFlow: Boolean;
         RunOnPickItem: Boolean;
@@ -2789,7 +2714,7 @@ page 31 "Item List"
             until TempItemFilteredFromPickItem.Next() = 0;
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Obsolete('Replaced by the new implementation (V16) of price calculation.', '17.0')]
     local procedure ShowLineDiscounts()
     var
@@ -2814,6 +2739,11 @@ page 31 "Item List"
 
     [IntegrationEvent(false, false)]
     local procedure OnSelectActiveItemsForTransferAfterSetFilters(var Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFindRecord(var Rec: Record Item; Which: Text; var CrossColumnSearchFilter: Text; var Found: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

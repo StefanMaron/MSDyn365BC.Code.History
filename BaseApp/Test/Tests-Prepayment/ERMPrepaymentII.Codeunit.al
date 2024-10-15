@@ -2077,14 +2077,12 @@ codeunit 134101 "ERM Prepayment II"
     var
         ItemCharge: Record "Item Charge";
     begin
-        with ItemCharge do begin
-            Init();
-            "No." := LibraryUtility.GenerateGUID();
-            "Gen. Prod. Posting Group" := LineGLAccount."Gen. Prod. Posting Group";
-            "VAT Prod. Posting Group" := LineGLAccount."VAT Prod. Posting Group";
-            Insert(true);
-            exit("No.");
-        end;
+        ItemCharge.Init();
+        ItemCharge."No." := LibraryUtility.GenerateGUID();
+        ItemCharge."Gen. Prod. Posting Group" := LineGLAccount."Gen. Prod. Posting Group";
+        ItemCharge."VAT Prod. Posting Group" := LineGLAccount."VAT Prod. Posting Group";
+        ItemCharge.Insert(true);
+        exit(ItemCharge."No.");
     end;
 
     local procedure CreateJobTask(var JobTask: Record "Job Task")
@@ -2569,24 +2567,20 @@ codeunit 134101 "ERM Prepayment II"
     var
         PurchInvLine: Record "Purch. Inv. Line";
     begin
-        with PurchInvLine do begin
-            SetRange("Document No.", DocumentNo);
-            FindFirst();
-            Assert.AreEqual(JobNo, "Job No.", FieldCaption("Job No."));
-            Assert.AreEqual(JobTaskNo, "Job Task No.", FieldCaption("Job Task No."));
-        end;
+        PurchInvLine.SetRange("Document No.", DocumentNo);
+        PurchInvLine.FindFirst();
+        Assert.AreEqual(JobNo, PurchInvLine."Job No.", PurchInvLine.FieldCaption("Job No."));
+        Assert.AreEqual(JobTaskNo, PurchInvLine."Job Task No.", PurchInvLine.FieldCaption("Job Task No."));
     end;
 
     local procedure VerifyPurchCrMemoLineJobNoJobTaskNo(DocumentNo: Code[20]; JobNo: Code[20]; JobTaskNo: Code[20])
     var
         PurchCrMemoLine: Record "Purch. Cr. Memo Line";
     begin
-        with PurchCrMemoLine do begin
-            SetRange("Document No.", DocumentNo);
-            FindFirst();
-            Assert.AreEqual(JobNo, "Job No.", FieldCaption("Job No."));
-            Assert.AreEqual(JobTaskNo, "Job Task No.", FieldCaption("Job Task No."));
-        end;
+        PurchCrMemoLine.SetRange("Document No.", DocumentNo);
+        PurchCrMemoLine.FindFirst();
+        Assert.AreEqual(JobNo, PurchCrMemoLine."Job No.", PurchCrMemoLine.FieldCaption("Job No."));
+        Assert.AreEqual(JobTaskNo, PurchCrMemoLine."Job Task No.", PurchCrMemoLine.FieldCaption("Job Task No."));
     end;
 
     local procedure VerifySalesInvoiceLine(DocumentNo: Code[20]; Type: Enum "Sales Line Type"; No: Code[20]; Quantity: Decimal; LineAmount: Decimal)
@@ -2668,14 +2662,12 @@ codeunit 134101 "ERM Prepayment II"
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
         GeneralLedgerSetup.Get();
-        with PurchLine do begin
-            Get("Document Type", "Document No.", "Line No.");
-            Validate("Qty. to Invoice", QtyToReceive);
-            Modify(true);
-            LibraryVariableStorage.Enqueue(QtyToReceive);
-            ShowItemChargeAssgnt();
-            exit(Round("Direct Unit Cost" * "Qty. to Invoice", GeneralLedgerSetup."Amount Rounding Precision"));
-        end;
+        PurchLine.Get(PurchLine."Document Type", PurchLine."Document No.", PurchLine."Line No.");
+        PurchLine.Validate("Qty. to Invoice", QtyToReceive);
+        PurchLine.Modify(true);
+        LibraryVariableStorage.Enqueue(QtyToReceive);
+        PurchLine.ShowItemChargeAssgnt();
+        exit(Round(PurchLine."Direct Unit Cost" * PurchLine."Qty. to Invoice", GeneralLedgerSetup."Amount Rounding Precision"));
     end;
 
     local procedure VerifyGLEntryAmountForPurch(DocumentNo: Code[20]; AccountNo: Code[20]; ExpectedAmount: Decimal)

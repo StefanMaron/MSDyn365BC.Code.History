@@ -111,7 +111,9 @@ table 204 "Unit of Measure"
     }
 
     var
+#pragma warning disable AA0074
         UoMIsStillUsedError: Label 'You cannot delete the unit of measure because it is assigned to one or more records.';
+#pragma warning restore AA0074
 
     trigger OnDelete()
     var

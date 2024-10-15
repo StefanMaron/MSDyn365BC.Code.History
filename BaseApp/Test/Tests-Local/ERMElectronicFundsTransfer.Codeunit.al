@@ -45,7 +45,6 @@
         MandatoryDimErr: Label 'Select a %1 for the %2 %3 for %4 %5.';
         RemitAdvFileNotFoundTxt: Label 'Remittance Advice file has not been found';
         ForceDocBalanceFalseQst: Label 'Warning:  Transactions cannot be financially voided when Force Doc. Balance is set to No';
-        CheckTransmittedErr: Label '%1 must have a value in %2: %3=%4, %5=%6, %7=%8. It cannot be zero or empty', Locked = true;
         CheckExportedErr: Label 'Check Exported must be true.';
         DocumentNoBlankErr: Label 'Document No. must be blank.';
         IsInitialized: Boolean;
@@ -186,6 +185,7 @@
     procedure ErrorOnVoidCheckWithExportedEntryStatus()
     var
         GenJournalLine: Record "Gen. Journal Line";
+        CheckLedgEntry: Record "Check Ledger Entry";
         ERMElectronicFundsTransfer: Codeunit "ERM Electronic Funds Transfer";
         TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
         PaymentJournal: TestPage "Payment Journal";
@@ -208,6 +208,7 @@
         // [THEN] Verify Void Check error and verify Entry Status is Exported.
         GenJournalLine.Find();
         GenJournalLine.TestField("Exported to Payment File", true);
+        Assert.ExpectedTestFieldError(CheckLedgEntry.FieldCaption("Entry Status"), Format(CheckLedgEntry."Entry Status"::Posted));
         Assert.ExpectedError(EntryStatusErr);
     end;
 
@@ -2006,15 +2007,13 @@
         // [THEN] Error is thrown with Error Code "TestWrapped:Dialog" and 
         // [THEN] text "A dimension used in Gen. Journal Line has caused an error. Select a Dimension Value Code for the Dimension Code for Vendor.".
         Assert.ExpectedErrorCode('TestWrapped:Dialog');
-        with DefaultDimension do
-            ErrorText :=
+        ErrorText :=
                 StrSubstNo(
-                    MandatoryDimErr, FieldCaption("Dimension Value Code"), FieldCaption("Dimension Code"),
-                    "Dimension Code", ObjectTranslation.TranslateTable("Table ID"), "No.");
-        with GenJournalLine do
-            ErrorText :=
+                    MandatoryDimErr, DefaultDimension.FieldCaption("Dimension Value Code"), DefaultDimension.FieldCaption("Dimension Code"),
+                    DefaultDimension."Dimension Code", ObjectTranslation.TranslateTable(DefaultDimension."Table ID"), DefaultDimension."No.");
+        ErrorText :=
                 StrSubstNo(
-                    EFTExportGenJnlLineErr, TableCaption(), "Journal Template Name", "Journal Batch Name", "Line No.", ErrorText);
+                    EFTExportGenJnlLineErr, GenJournalLine.TableCaption(), GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name", GenJournalLine."Line No.", ErrorText);
         Assert.ExpectedError(ErrorText);
     end;
 
@@ -2572,7 +2571,6 @@
         PaymentJournal: TestPage "Payment Journal";
         TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
         ERMElectronicFundsTransfer: Codeunit "ERM Electronic Funds Transfer";
-        ExpectedErrMsg: Text;
     begin
         // [SCENARIO 435431] To check if system is throwing an error if a journal is getting posted without generating EFT file where sequence no. is non zero
         // [GIVEN] Create and Export Electronic Payment Journal.
@@ -2594,19 +2592,7 @@
         asserterror LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // [THEN] Then System should throw an error that "Check transmitted" should be true if journal line has "EFT Export Sequence No." as non zero
-        ExpectedErrMsg := StrSubstNo(
-            CheckTransmittedErr,
-            GenJournalLine.FieldCaption("Check Transmitted"),
-            GenJournalLine.TableCaption(),
-            GenJournalLine.FieldCaption("Journal Template Name"),
-            GenJournalLine."Journal Template Name",
-            GenJournalLine.FieldCaption("Journal Batch Name"),
-            GenJournalLine."Journal Batch Name",
-            GenJournalLine.FieldCaption("Line No."),
-            GenJournalLine."Line No.");
-
-        Assert.ExpectedError(ExpectedErrMsg);
-        Assert.ExpectedErrorCode('TestField');
+        Assert.ExpectedTestFieldError(GenJournalLine.FieldCaption("Check Transmitted"), '');
     end;
 
     [Test]
@@ -4809,14 +4795,12 @@
     var
         PaymentJnlExportErrorText: Record "Payment Jnl. Export Error Text";
     begin
-        with PaymentJnlExportErrorText do begin
-            SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
-            SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
-            SetRange("Document No.", GenJournalLine."Document No.");
-            SetRange("Journal Line No.", GenJournalLine."Line No.");
-            FindFirst();
-            TestField("Error Text", CopyStr(PaymentFileErrorTxt, 1, MaxStrLen("Error Text")));
-        end;
+        PaymentJnlExportErrorText.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
+        PaymentJnlExportErrorText.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
+        PaymentJnlExportErrorText.SetRange("Document No.", GenJournalLine."Document No.");
+        PaymentJnlExportErrorText.SetRange("Journal Line No.", GenJournalLine."Line No.");
+        PaymentJnlExportErrorText.FindFirst();
+        PaymentJnlExportErrorText.TestField("Error Text", CopyStr(PaymentFileErrorTxt, 1, MaxStrLen(PaymentJnlExportErrorText."Error Text")));
     end;
 
     local procedure VerifyGLEntry(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; GLAccountNo: Code[20]; Amount: Decimal)

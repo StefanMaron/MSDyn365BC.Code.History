@@ -4,7 +4,7 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.RoleCenters;
 
-#if not CLEAN23
+#if not CLEAN25
 using Microsoft.Pricing.Calculation;
 using Microsoft.Pricing.Reports;
 using Microsoft.Pricing.Worksheet;
@@ -49,7 +49,7 @@ page 9079 "Role Center Page Dispatcher"
     local procedure GetPageReplacement(var AllObjWithCaption: Record AllObjWithCaption)
     begin
         case AllObjWithCaption."Object ID" of
-#if not CLEAN23
+#if not CLEAN25
             Page::"Purchase Prices",
             Page::"Purchase Line Discounts":
                 if IsExtendedPriceCalculationEnabled() then
@@ -77,7 +77,7 @@ page 9079 "Role Center Page Dispatcher"
     local procedure GetReportReplacement(var AllObjWithCaption: Record AllObjWithCaption)
     begin
         case AllObjWithCaption."Object ID" of
-#if not CLEAN23
+#if not CLEAN25
             Report::"Resource - Price List":
                 if IsExtendedPriceCalculationEnabled() then
                     AllObjWithCaption."Object ID" := Report::"Res. Price List";
@@ -98,7 +98,7 @@ page 9079 "Role Center Page Dispatcher"
         end;
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     local procedure IsExtendedPriceCalculationEnabled(): Boolean;
     var
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";

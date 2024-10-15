@@ -352,10 +352,23 @@ page 143 "Posted Sales Invoices"
         }
         area(factboxes)
         {
+#if not CLEAN25
             part("Attached Documents"; "Document Attachment Factbox")
             {
+                ObsoleteTag = '25.0';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
                 ApplicationArea = All;
                 Caption = 'Attachments';
+                SubPageLink = "Table ID" = const(Database::"Sales Invoice Header"),
+                              "No." = field("No.");
+            }
+#endif
+            part("Attached Documents List"; "Doc. Attachment List Factbox")
+            {
+                ApplicationArea = All;
+                Caption = 'Documents';
+                UpdatePropagation = Both;
                 SubPageLink = "Table ID" = const(Database::"Sales Invoice Header"),
                               "No." = field("No.");
             }
@@ -523,12 +536,11 @@ page 143 "Posted Sales Invoices"
                     begin
                         CurrPage.SetSelectionFilter(SalesInvoiceHeader);
                         ProgressWindow.Open(ProcessingInvoiceMsg);
-                        if SalesInvoiceHeader.FindSet() then begin
+                        if SalesInvoiceHeader.FindSet() then
                             repeat
                                 SalesInvoiceHeader.RequestStampEDocument();
                                 ProgressWindow.Update(1, SalesInvoiceHeader."No.");
                             until SalesInvoiceHeader.Next() = 0;
-                        end;
                         ProgressWindow.Close();
                     end;
                 }
@@ -570,12 +582,11 @@ page 143 "Posted Sales Invoices"
                     begin
                         CurrPage.SetSelectionFilter(SalesInvoiceHeader);
                         ProgressWindow.Open(ProcessingInvoiceMsg);
-                        if SalesInvoiceHeader.FindSet() then begin
+                        if SalesInvoiceHeader.FindSet() then
                             repeat
                                 SalesInvoiceHeader.CancelEDocument();
                                 ProgressWindow.Update(1, SalesInvoiceHeader."No.");
                             until SalesInvoiceHeader.Next() = 0;
-                        end;
                         ProgressWindow.Close();
                     end;
                 }

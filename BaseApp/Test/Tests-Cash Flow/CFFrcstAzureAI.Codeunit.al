@@ -1108,23 +1108,21 @@ codeunit 135203 "CF Frcst. Azure AI"
         DateFormula: DateFormula;
         ApiKey: Text;
     begin
-        with CashFlowSetup do begin
-            DeleteAll();
-            Init();
-            Insert(true);
-            Validate("Azure AI Enabled", true);
-            Validate("API URL", '');
-            ApiKey := '';
-            SaveUserDefinedAPIKey(ApiKey);
-            Validate("Period Type", "Period Type"::Month);
-            Validate("Taxable Period", "Taxable Period"::Monthly);
-            Evaluate(DateFormula, '<10D>');
-            Validate("Tax Payment Window", DateFormula);
-            Validate("Variance %", LibraryRandom.RandInt(99));
-            Validate(Horizon, LibraryRandom.RandInt(10));
-            Validate("Historical Periods", LibraryRandom.RandInt(10));
-            Modify(true);
-        end;
+        CashFlowSetup.DeleteAll();
+        CashFlowSetup.Init();
+        CashFlowSetup.Insert(true);
+        CashFlowSetup.Validate("Azure AI Enabled", true);
+        CashFlowSetup.Validate("API URL", '');
+        ApiKey := '';
+        CashFlowSetup.SaveUserDefinedAPIKey(ApiKey);
+        CashFlowSetup.Validate("Period Type", CashFlowSetup."Period Type"::Month);
+        CashFlowSetup.Validate("Taxable Period", CashFlowSetup."Taxable Period"::Monthly);
+        Evaluate(DateFormula, '<10D>');
+        CashFlowSetup.Validate("Tax Payment Window", DateFormula);
+        CashFlowSetup.Validate("Variance %", LibraryRandom.RandInt(99));
+        CashFlowSetup.Validate(Horizon, LibraryRandom.RandInt(10));
+        CashFlowSetup.Validate("Historical Periods", LibraryRandom.RandInt(10));
+        CashFlowSetup.Modify(true);
     end;
 
     local procedure CreateSalesOrder(var SalesHeader: Record "Sales Header"; DueDate: Date; AmountValue: Decimal; VAT: Integer)
@@ -1205,16 +1203,14 @@ codeunit 135203 "CF Frcst. Azure AI"
         CashFlowSetup: Record "Cash Flow Setup";
     begin
         CashFlowSetup.Get();
-        with TempTimeSeriesForecast do begin
-            Init();
-            "Group ID" := GroupID;
-            "Period No." := "Period No." + 1;
-            "Period Start Date" := GetDateWithoutLedgerEntries();
-            Value := Amount;
-            Delta := LibraryRandom.RandDec(100, 2);
-            "Delta %" := CashFlowSetup."Variance %" - 1;// by default Delta % is smaller
-            Insert();
-        end;
+        TempTimeSeriesForecast.Init();
+        TempTimeSeriesForecast."Group ID" := GroupID;
+        TempTimeSeriesForecast."Period No." := TempTimeSeriesForecast."Period No." + 1;
+        TempTimeSeriesForecast."Period Start Date" := GetDateWithoutLedgerEntries();
+        TempTimeSeriesForecast.Value := Amount;
+        TempTimeSeriesForecast.Delta := LibraryRandom.RandDec(100, 2);
+        TempTimeSeriesForecast."Delta %" := CashFlowSetup."Variance %" - 1;// by default Delta % is smaller
+        TempTimeSeriesForecast.Insert();
     end;
 
     local procedure InsertVendorLedgerEntry(DueDate: Date; AmountValue: Decimal)
@@ -1222,19 +1218,17 @@ codeunit 135203 "CF Frcst. Azure AI"
         VendorLedgerEntry: Record "Vendor Ledger Entry";
         LastEntryNo: Integer;
     begin
-        with VendorLedgerEntry do begin
-            if FindLast() then;
-            LastEntryNo := "Entry No.";
-            InsertDetailedVendorLedgerEntry(LastEntryNo + 1, AmountValue);
-            Init();
-            "Entry No." := LastEntryNo + 1;
-            "Posting Date" := WorkDate();
-            "Due Date" := DueDate;
-            "Vendor No." := LibraryPurchase.CreateVendorNo();
-            "Document No." := CopyStr(CreateGuid(), 1, 20);
-            "Amount (LCY)" := AmountValue;
-            Insert();
-        end;
+        if VendorLedgerEntry.FindLast() then;
+        LastEntryNo := VendorLedgerEntry."Entry No.";
+        InsertDetailedVendorLedgerEntry(LastEntryNo + 1, AmountValue);
+        VendorLedgerEntry.Init();
+        VendorLedgerEntry."Entry No." := LastEntryNo + 1;
+        VendorLedgerEntry."Posting Date" := WorkDate();
+        VendorLedgerEntry."Due Date" := DueDate;
+        VendorLedgerEntry."Vendor No." := LibraryPurchase.CreateVendorNo();
+        VendorLedgerEntry."Document No." := CopyStr(CreateGuid(), 1, 20);
+        VendorLedgerEntry."Amount (LCY)" := AmountValue;
+        VendorLedgerEntry.Insert();
     end;
 
     local procedure InsertCustLedgerEntry(DueDate: Date; AmountValue: Decimal)
@@ -1242,19 +1236,17 @@ codeunit 135203 "CF Frcst. Azure AI"
         CustLedgerEntry: Record "Cust. Ledger Entry";
         LastEntryNo: Integer;
     begin
-        with CustLedgerEntry do begin
-            if FindLast() then;
-            LastEntryNo := "Entry No.";
-            InsertDetailedCustLedgerEntry(LastEntryNo + 1, AmountValue);
-            Init();
-            "Entry No." := LastEntryNo + 1;
-            "Posting Date" := WorkDate();
-            "Due Date" := DueDate;
-            "Customer No." := LibrarySales.CreateCustomerNo();
-            "Document No." := CopyStr(CreateGuid(), 1, 20);
-            "Amount (LCY)" := AmountValue;
-            Insert();
-        end;
+        if CustLedgerEntry.FindLast() then;
+        LastEntryNo := CustLedgerEntry."Entry No.";
+        InsertDetailedCustLedgerEntry(LastEntryNo + 1, AmountValue);
+        CustLedgerEntry.Init();
+        CustLedgerEntry."Entry No." := LastEntryNo + 1;
+        CustLedgerEntry."Posting Date" := WorkDate();
+        CustLedgerEntry."Due Date" := DueDate;
+        CustLedgerEntry."Customer No." := LibrarySales.CreateCustomerNo();
+        CustLedgerEntry."Document No." := CopyStr(CreateGuid(), 1, 20);
+        CustLedgerEntry."Amount (LCY)" := AmountValue;
+        CustLedgerEntry.Insert();
     end;
 
     local procedure InsertVATLedgerEntry(DocumentDate: Date; AmountValue: Decimal; IsSales: Boolean)
@@ -1262,20 +1254,18 @@ codeunit 135203 "CF Frcst. Azure AI"
         VATEntry: Record "VAT Entry";
         LastEntryNo: Integer;
     begin
-        with VATEntry do begin
-            if FindLast() then;
-            LastEntryNo := "Entry No.";
-            Init();
-            "Entry No." := LastEntryNo + 1;
-            "Document Date" := DocumentDate;
-            if IsSales then
-                Type := Type::Sale
-            else
-                Type := Type::Purchase;
-            "Document No." := CopyStr(CreateGuid(), 1, 20);
-            Amount := AmountValue;
-            Insert();
-        end;
+        if VATEntry.FindLast() then;
+        LastEntryNo := VATEntry."Entry No.";
+        VATEntry.Init();
+        VATEntry."Entry No." := LastEntryNo + 1;
+        VATEntry."Document Date" := DocumentDate;
+        if IsSales then
+            VATEntry.Type := VATEntry.Type::Sale
+        else
+            VATEntry.Type := VATEntry.Type::Purchase;
+        VATEntry."Document No." := CopyStr(CreateGuid(), 1, 20);
+        VATEntry.Amount := AmountValue;
+        VATEntry.Insert();
     end;
 
     local procedure InsertDetailedCustLedgerEntry(CustLedgerEntryNo: Integer; AmountValue: Decimal)
@@ -1283,18 +1273,16 @@ codeunit 135203 "CF Frcst. Azure AI"
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
         LastEntryNo: Integer;
     begin
-        with DetailedCustLedgEntry do begin
-            if FindLast() then;
-            LastEntryNo := "Entry No.";
-            Init();
-            "Entry No." := LastEntryNo + 1;
-            "Cust. Ledger Entry No." := CustLedgerEntryNo;
-            Amount := AmountValue;
-            "Amount (LCY)" := AmountValue;
-            "Ledger Entry Amount" := true;
-            "Posting Date" := WorkDate();
-            Insert();
-        end;
+        if DetailedCustLedgEntry.FindLast() then;
+        LastEntryNo := DetailedCustLedgEntry."Entry No.";
+        DetailedCustLedgEntry.Init();
+        DetailedCustLedgEntry."Entry No." := LastEntryNo + 1;
+        DetailedCustLedgEntry."Cust. Ledger Entry No." := CustLedgerEntryNo;
+        DetailedCustLedgEntry.Amount := AmountValue;
+        DetailedCustLedgEntry."Amount (LCY)" := AmountValue;
+        DetailedCustLedgEntry."Ledger Entry Amount" := true;
+        DetailedCustLedgEntry."Posting Date" := WorkDate();
+        DetailedCustLedgEntry.Insert();
     end;
 
     local procedure InsertDetailedVendorLedgerEntry(VendorLedgerEntryNo: Integer; AmountValue: Decimal)
@@ -1302,18 +1290,16 @@ codeunit 135203 "CF Frcst. Azure AI"
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
         LastEntryNo: Integer;
     begin
-        with DetailedVendorLedgEntry do begin
-            if FindLast() then;
-            LastEntryNo := "Entry No.";
-            Init();
-            "Entry No." := LastEntryNo + 1;
-            "Vendor Ledger Entry No." := VendorLedgerEntryNo;
-            Amount := AmountValue;
-            "Amount (LCY)" := AmountValue;
-            "Ledger Entry Amount" := true;
-            "Posting Date" := WorkDate();
-            Insert();
-        end;
+        if DetailedVendorLedgEntry.FindLast() then;
+        LastEntryNo := DetailedVendorLedgEntry."Entry No.";
+        DetailedVendorLedgEntry.Init();
+        DetailedVendorLedgEntry."Entry No." := LastEntryNo + 1;
+        DetailedVendorLedgEntry."Vendor Ledger Entry No." := VendorLedgerEntryNo;
+        DetailedVendorLedgEntry.Amount := AmountValue;
+        DetailedVendorLedgEntry."Amount (LCY)" := AmountValue;
+        DetailedVendorLedgEntry."Ledger Entry Amount" := true;
+        DetailedVendorLedgEntry."Posting Date" := WorkDate();
+        DetailedVendorLedgEntry.Insert();
     end;
 
     local procedure ClearTax()

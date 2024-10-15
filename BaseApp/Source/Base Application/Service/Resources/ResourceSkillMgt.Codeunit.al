@@ -12,9 +12,12 @@ codeunit 5931 "Resource Skill Mgt."
     end;
 
     var
+#pragma warning disable AA0074
         Text000: Label 'Do you want to update the skill code on the related items and service items?';
         Text001: Label 'Do you want to update the skill code on the related service items?';
+#pragma warning disable AA0470
         Text002: Label 'Do you want to assign the skill codes of %1 %2 to %3 %4?';
+#pragma warning restore AA0470
         Text003: Label 'Do you want to delete skill codes on the related items and service items?';
         Text004: Label 'Do you want to delete skill codes on the related service items?';
         Text005: Label 'You have changed the skill code on the item.';
@@ -40,11 +43,14 @@ codeunit 5931 "Resource Skill Mgt."
         Text027: Label 'You have changed Item No. on this service item.';
         Text028: Label 'Do you want to assign the skill codes of the item and its service item group to service item?';
         Text029: Label 'How do you want to update the resource skill codes assigned from Service Item Group?';
+#pragma warning restore AA0074
         SkipValidationDialog: Boolean;
         Update2: Boolean;
         AssignCodesWithUpdate: Boolean;
+#pragma warning disable AA0074
         Text030: Label '%1,%2', Comment = 'Delete all the related skill codes. Leave all the related skill codes.', Locked = true;
         Text031: Label '%1\\%2', Comment = 'You have deleted the skill code(s) on the item.\\How do you want to update the resource skill codes on the related service items?  ', Locked = true;
+#pragma warning restore AA0074
 
     procedure AddResSkill(var ResSkill: Record "Resource Skill")
     var

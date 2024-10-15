@@ -884,6 +884,8 @@ report 2 "General Journal - Test"
         Continue: Boolean;
         CurrentICPartner: Code[20];
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label '%1 cannot be filtered when you post recurring journals.';
         Text001: Label '%1 or %2 must be specified.';
         Text002: Label '%1 must be specified.';
@@ -898,15 +900,21 @@ report 2 "General Journal - Test"
         Text011: Label '%1 + %2 must be -%3.';
         Text012: Label '%1 must have a different sign than %2.';
         Text013: Label '%1 must only be a closing date for G/L entries.';
+#pragma warning restore AA0470
         Text015: Label 'The lines are not listed according to Posting Date because they were not entered in that order.';
         Text016: Label 'There is a gap in the number series.';
+#pragma warning disable AA0470
         Text017: Label '%1 or %2 must be G/L Account or Bank Account.';
         Text018: Label '%1 must be 0.';
         Text019: Label '%1 cannot be specified when using recurring journals.';
         Text020: Label '%1 must not be %2 when %3 = %4.';
+#pragma warning restore AA0470
         Text021: Label 'Allocations can only be used with recurring journals.';
+#pragma warning disable AA0470
         Text022: Label 'Specify %1 in the %2 allocation lines.';
+#pragma warning restore AA0470
         Text024: Label '%1 %2 posted on %3, must be separated by an empty line.', Comment = '%1 - document type, %2 - document number, %3 - posting date';
+#pragma warning disable AA0470
         Text025: Label '%1 %2 is out of balance by %3.';
         Text026: Label 'The reversing entries for %1 %2 are out of balance by %3.';
         Text027: Label 'As of %1, the lines are out of balance by %2.';
@@ -937,9 +945,11 @@ report 2 "General Journal - Test"
         Text056: Label 'When G/L integration is not activated, %1 must not be posted in the general journal.';
         Text057: Label 'When G/L integration is not activated, %1 must not be specified in the general journal.';
         Text058: Label '%1 must not be specified.';
+#pragma warning restore AA0470
         Text059: Label 'The combination of Customer and Gen. Posting Type Purchase is not allowed.';
         Text060: Label 'The combination of Vendor and Gen. Posting Type Sales is not allowed.';
         Text061: Label 'The Balance and Reversing Balance recurring methods can be used only with Allocations.';
+#pragma warning disable AA0470
         Text062: Label '%1 must not be 0.';
         Text064: Label '%1 %2 is already used in line %3 (%4 %5).';
         Text065: Label '%1 must not be blocked with type %2 when %3 is %4.';
@@ -951,6 +961,7 @@ report 2 "General Journal - Test"
         Text072: Label '%1 must not be %2 for %3 %4.';
         Text073: Label '%1 %2 already exists.';
         USText001: Label 'Warning:  Checks cannot be financially voided when Force Doc. Balance is set to No in the Journal Template.';
+#pragma warning restore AA0470
         GeneralJnlTestCap: Label 'General Journal - Test';
         PageNoCap: Label 'Page';
         JnlBatchNameCap: Label 'Journal Batch';
@@ -969,6 +980,7 @@ report 2 "General Journal - Test"
         NetChangeinJnlCap: Label 'Net Change in Jnl.';
         BalafterPostingCap: Label 'Balance after Posting';
         DimensionAllocationsCap: Label 'Allocation Dimensions';
+#pragma warning restore AA0074
 
     protected var
         TempGLAccNetChange: Record "G/L Account Net Change" temporary;
@@ -2122,44 +2134,6 @@ report 2 "General Journal - Test"
         ICGLAccount: Record "IC G/L Account";
         ICBankAccount: Record "IC Bank Account";
     begin
-#if not CLEAN22
-        if (CurrentICPartner <> '') and ("Gen. Journal Line"."IC Direction" = "Gen. Journal Line"."IC Direction"::Outgoing) then begin
-            if ("Gen. Journal Line"."Account Type" in ["Gen. Journal Line"."Account Type"::"G/L Account", "Gen. Journal Line"."Account Type"::"Bank Account"]) and
-               ("Gen. Journal Line"."Bal. Account Type" in ["Gen. Journal Line"."Bal. Account Type"::"G/L Account", "Gen. Journal Line"."Account Type"::"Bank Account"]) and
-               ("Gen. Journal Line"."Account No." <> '') and
-               ("Gen. Journal Line"."Bal. Account No." <> '')
-            then
-                AddError(StrSubstNo(Text066, "Gen. Journal Line".FieldCaption("Account No."), "Gen. Journal Line".FieldCaption("Bal. Account No.")))
-            else
-                if (("Gen. Journal Line"."Account Type" in ["Gen. Journal Line"."Account Type"::"G/L Account", "Gen. Journal Line"."Account Type"::"Bank Account"]) and ("Gen. Journal Line"."Account No." <> '')) xor
-                   (("Gen. Journal Line"."Bal. Account Type" in ["Gen. Journal Line"."Bal. Account Type"::"G/L Account", "Gen. Journal Line"."Account Type"::"Bank Account"]) and
-                    ("Gen. Journal Line"."Bal. Account No." <> ''))
-                then
-                    if "Gen. Journal Line"."IC Partner G/L Acc. No." = '' then
-                        AddError(StrSubstNo(Text002, "Gen. Journal Line".FieldCaption("IC Partner G/L Acc. No.")))
-                    else begin
-                        if ICGLAccount.Get("Gen. Journal Line"."IC Partner G/L Acc. No.") then
-                            if ICGLAccount.Blocked then
-                                AddError(StrSubstNo(Text032, ICGLAccount.FieldCaption(Blocked), false,
-                                    "Gen. Journal Line".FieldCaption("IC Partner G/L Acc. No."), "Gen. Journal Line"."IC Partner G/L Acc. No."));
-
-                        if "Gen. Journal Line"."IC Account Type" = "Gen. Journal Line"."IC Account Type"::"Bank Account" then
-                            if ICBankAccount.Get("Gen. Journal Line"."IC Account No.", CurrentICPartner) then
-                                if ICBankAccount.Blocked then
-                                    AddError(StrSubstNo(Text032, ICGLAccount.FieldCaption(Blocked), false,
-                                        "Gen. Journal Line".FieldCaption("IC Account No."), "Gen. Journal Line"."IC Account No."));
-                    end
-                else
-                    if "Gen. Journal Line"."IC Partner G/L Acc. No." <> '' then
-                        AddError(StrSubstNo(Text009, "Gen. Journal Line".FieldCaption("IC Partner G/L Acc. No.")));
-        end else
-            if "Gen. Journal Line"."IC Partner G/L Acc. No." <> '' then begin
-                if "Gen. Journal Line"."IC Direction" = "Gen. Journal Line"."IC Direction"::Incoming then
-                    AddError(StrSubstNo(Text069, "Gen. Journal Line".FieldCaption("IC Partner G/L Acc. No."), "Gen. Journal Line".FieldCaption("IC Direction"), Format("Gen. Journal Line"."IC Direction")));
-                if CurrentICPartner = '' then
-                    AddError(StrSubstNo(Text070, "Gen. Journal Line".FieldCaption("IC Partner G/L Acc. No.")));
-            end;
-#else
         if (CurrentICPartner <> '') and ("Gen. Journal Line"."IC Direction" = "Gen. Journal Line"."IC Direction"::Outgoing) then begin
             if ("Gen. Journal Line"."Account Type" in ["Gen. Journal Line"."Account Type"::"G/L Account", "Gen. Journal Line"."Account Type"::"Bank Account"]) and
                ("Gen. Journal Line"."Bal. Account Type" in ["Gen. Journal Line"."Bal. Account Type"::"G/L Account", "Gen. Journal Line"."Account Type"::"Bank Account"]) and
@@ -2197,7 +2171,6 @@ report 2 "General Journal - Test"
                 if CurrentICPartner = '' then
                     AddError(StrSubstNo(Text070, "Gen. Journal Line".FieldCaption("IC Account No.")));
             end;
-#endif
     end;
 
     [IntegrationEvent(false, false)]

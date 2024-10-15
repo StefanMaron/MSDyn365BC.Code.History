@@ -1353,13 +1353,11 @@ codeunit 137308 "SCM Planning Reports"
     begin
         CreateItem(Item, '', '', Item."Reordering Policy"::Order, Item."Replenishment System"::Purchase);
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
-        with Item do begin
-            LibraryInventory.CreateStockkeepingUnitForLocationAndVariant(SKU, Location.Code, "No.", '');
-            SKU.Validate("Reordering Policy", SKU."Reordering Policy"::Order);
-            SKU.Modify(true);
-            SetRange("No.", "No.");
-            SetRange("Location Filter", Location.Code);
-        end;
+        LibraryInventory.CreateStockkeepingUnitForLocationAndVariant(SKU, Location.Code, Item."No.", '');
+        SKU.Validate("Reordering Policy", SKU."Reordering Policy"::Order);
+        SKU.Modify(true);
+        Item.SetRange("No.", Item."No.");
+        Item.SetRange("Location Filter", Location.Code);
     end;
 
     [Normal]
@@ -1582,12 +1580,10 @@ codeunit 137308 "SCM Planning Reports"
 
     local procedure CreateAndRefreshProdOrderWithLocation(var ProductionOrder: Record "Production Order"; ProductionOrderStatus: Enum "Production Order Status"; ItemNo: Code[20]; LocationCode: Code[10])
     begin
-        with ProductionOrder do begin
-            LibraryManufacturing.CreateProductionOrder(
-              ProductionOrder, ProductionOrderStatus, "Source Type"::Item, ItemNo, LibraryRandom.RandDec(5, 2));
-            Validate("Location Code", LocationCode);
-            Modify(true);
-        end;
+        LibraryManufacturing.CreateProductionOrder(
+          ProductionOrder, ProductionOrderStatus, ProductionOrder."Source Type"::Item, ItemNo, LibraryRandom.RandDec(5, 2));
+        ProductionOrder.Validate("Location Code", LocationCode);
+        ProductionOrder.Modify(true);
         LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
     end;
 
@@ -1798,12 +1794,10 @@ codeunit 137308 "SCM Planning Reports"
         ReservationEntry: Record "Reservation Entry";
     begin
         SelectPurchaseLine(PurchaseLine, ItemNo);
-        with PurchaseLine do begin
-            Validate("Qty. to Receive", Quantity / 2);
-            Modify();
-            PurchaseHeader.Get("Document Type", "Document No.");
-            LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
-        end;
+        PurchaseLine.Validate("Qty. to Receive", PurchaseLine.Quantity / 2);
+        PurchaseLine.Modify();
+        PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
 
         FindReservEntry(ReservationEntry, PurchaseLine);
         ReservationEngineMgt.CancelReservation(ReservationEntry);
@@ -1933,12 +1927,10 @@ codeunit 137308 "SCM Planning Reports"
     var
         RequisitionLine: Record "Requisition Line";
     begin
-        with RequisitionLine do begin
-            SetRange(Type, Type::Item);
-            SetRange("No.", ItemNo);
-            Assert.AreEqual(IsEmpty, RecordShould = RecordShould::"Not Exist",
-              StrSubstNo(RecordExistenceErr, TableCaption(), RecordShould));
-        end;
+        RequisitionLine.SetRange(Type, RequisitionLine.Type::Item);
+        RequisitionLine.SetRange("No.", ItemNo);
+        Assert.AreEqual(RequisitionLine.IsEmpty, RecordShould = RecordShould::"Not Exist",
+          StrSubstNo(RecordExistenceErr, RequisitionLine.TableCaption(), RecordShould));
     end;
 
     [ConfirmHandler]

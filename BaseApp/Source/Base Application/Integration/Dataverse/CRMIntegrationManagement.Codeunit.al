@@ -150,9 +150,6 @@ codeunit 5330 "CRM Integration Management"
         DeletionConflictHandledRemoveCouplingTxt: Label 'Deletion conflict handled by removing the coupling to the deleted record.', Locked = true;
         DeletionConflictHandledRestoreRecordTxt: Label 'Deletion conflict handled by restoring the deleted record.', Locked = true;
         ResetAllCustomIntegrationTableMappingsLbl: Label 'One or more of the selected integration table mappings is custom.\\Restoring the default table mapping for a custom table mapping will restore all custom table mappings to their default.\\Do you want to continue?';
-#if not CLEAN22
-        OptionMappingDocumentantionUrlTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2139110';
-#endif
         DeletedRecordWithZeroTableIdTxt: Label 'CRM Integration Record with zero Table ID has been deleted. Integration ID: %1, CRM ID: %2', Locked = true;
         AllRecordsMarkedAsSkippedTxt: Label 'All of selected %1 records are marked as skipped.', Comment = '%1 = table caption';
         RecordMarkedAsSkippedTxt: Label 'The %1 record is marked as skipped.', Comment = '%1 = table caption';
@@ -169,10 +166,6 @@ codeunit 5330 "CRM Integration Management"
         BrokenCouplingsFoundAndMarkedAsSkippedForMappingTxt: Label 'Broken couplings were found and marked as skipped. Mapping: %1 - %2. Direction: %3. Count: %4.', Locked = true;
         BrokenCouplingsFoundAndMarkedAsSkippedTotalTxt: Label 'Broken couplings were found and marked as skipped. Total count: %1.', Locked = true;
         NoBrokenCouplingsFoundTxt: Label 'No broken couplings were found.', Locked = true;
-#if not CLEAN22
-        CurrencySymbolMappingFeatureIdTok: Label 'CurrencySymbolMapping', Locked = true;
-        OptionMappingFeatureIdTok: Label 'OptionMapping', Locked = true;
-#endif
 #if not CLEAN23
         SuccessfullyScheduledMarkingOfInvoiceAsCoupledTxt: Label 'Successfully scheduled marking of invoice %1 as coupled to Dynamics 365 Sales invoice.', Locked = true;
         UnableToMarkRecordAsCoupledTableID0Txt: Label 'Unable to mark record as coupled, Table ID is 0 on CRM Integration Record %1.', Locked = true;
@@ -1743,7 +1736,7 @@ codeunit 5330 "CRM Integration Management"
         end;
     end;
 
-    local procedure EnqueueSyncJob(IntegrationTableMapping: Record "Integration Table Mapping"; RecordID: RecordID; CRMID: Guid; Direction: Integer): Boolean
+    procedure EnqueueSyncJob(IntegrationTableMapping: Record "Integration Table Mapping"; RecordID: RecordID; CRMID: Guid; Direction: Integer): Boolean
     var
         CRMSetupDefaults: Codeunit "CRM Setup Defaults";
         IntegrationRecordSynch: Codeunit "Integration Record Synch.";
@@ -1758,7 +1751,6 @@ codeunit 5330 "CRM Integration Management"
         exit(CRMSetupDefaults.CreateJobQueueEntry(IntegrationTableMapping));
     end;
 
-    [Scope('OnPrem')]
     procedure EnqueueSyncJob(IntegrationTableMapping: Record "Integration Table Mapping"; SystemIds: List of [Guid]; CRMIDs: List of [Guid]; Direction: Integer; SynchronizeOnlyCoupledRecords: Boolean): Boolean
     var
         CRMSetupDefaults: Codeunit "CRM Setup Defaults";
@@ -1801,13 +1793,11 @@ codeunit 5330 "CRM Integration Management"
         exit(CDSSetupDefaults.CreateCoupleJobQueueEntry(IntegrationTableMapping));
     end;
 
-    [Scope('OnPrem')]
     procedure AddIntegrationTableMapping(var IntegrationTableMapping: Record "Integration Table Mapping")
     begin
         AddIntegrationTableMapping(IntegrationTableMapping, false);
     end;
 
-    [Scope('OnPrem')]
     procedure AddIntegrationTableMapping(var IntegrationTableMapping: Record "Integration Table Mapping"; SynchOnlyCoupledRecords: Boolean)
     var
         SourceIntegrationTableMapping: Record "Integration Table Mapping";
@@ -2370,7 +2360,7 @@ codeunit 5330 "CRM Integration Management"
                     Database::Resource:
                         if IntegrationTableMapping."Integration Table ID" = Database::"CRM Product" then
                             CRMSetupDefaults.ResetResourceProductMapping(IntegrationTableMapping.Name, EnqueueJobQueEntries);
-#if not CLEAN23
+#if not CLEAN25
                     Database::"Customer Price Group":
                         CRMSetupDefaults.ResetCustomerPriceGroupPricelevelMapping(IntegrationTableMapping.Name, EnqueueJobQueEntries);
 #endif
@@ -2393,7 +2383,7 @@ codeunit 5330 "CRM Integration Management"
                     Database::"Sales Line":
                         CRMSetupDefaults.ResetBidirectionalSalesOrderLineMapping(IntegrationTableMapping.Name);
                     else begin
-                        OnBeforeHandleCustomIntegrationTableMapping(IsHandled, IntegrationTableMapping.Name);
+                        OnBeforeHandleCustomIntegrationTableMapping(IsHandled, IntegrationTableMapping.Name, IntegrationTableMapping, EnqueueJobQueEntries);
                         if not IsHandled then begin
                             if Confirm(ResetAllCustomIntegrationTableMappingsLbl) then begin
                                 if CDSConnectionSetup.Get() then
@@ -2756,9 +2746,8 @@ codeunit 5330 "CRM Integration Management"
                     end;
 
                     if IntegrationTableMapping."Table ID" = Database::"Sales Line" then
-                        if CRMConnectionSetup.IsBidirectionalSalesOrderIntEnabled() then begin
+                        if CRMConnectionSetup.IsBidirectionalSalesOrderIntEnabled() then
                             if SourceRecordRef.Delete() then;
-                        end;
 
                     if DeletionConflictHandled then
                         Session.LogMessage('0000CUE', DeletionConflictHandledRemoveCouplingTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
@@ -2854,10 +2843,23 @@ codeunit 5330 "CRM Integration Management"
         exit(GetLastErrorText);
     end;
 
+#if not CLEAN25
+    [Obsolete('Replaced by ImportCRMSolution procedure with SolutionImportFailed argument and SecretText parameters for AdminUserPassword and AccessToken.', '25.0')]
     [TryFunction]
     [Scope('OnPrem')]
     [NonDebuggable]
     procedure ImportCRMSolution(ServerAddress: Text; IntegrationUserEmail: Text; AdminUserEmail: Text; AdminUserPassword: Text; AccessToken: Text; AdminADDomain: Text; ProxyVersion: Integer; ForceRedeploy: Boolean)
+    var
+        SolutionImportFailed: Boolean;
+        SecretAdminUserPassword, SecretAccessToken : SecretText;
+    begin
+        ImportCRMSolution(ServerAddress, IntegrationUserEmail, AdminUserEmail, SecretAdminUserPassword, SecretAccessToken, AdminADDomain, ProxyVersion, ForceRedeploy, SolutionImportFailed);
+    end;
+#endif
+
+    [TryFunction]
+    [Scope('OnPrem')]
+    procedure ImportCRMSolution(ServerAddress: Text; IntegrationUserEmail: Text; AdminUserEmail: Text; AdminUserPassword: SecretText; AccessToken: SecretText; AdminADDomain: Text; ProxyVersion: Integer; ForceRedeploy: Boolean; var SolutionImportFailed: Boolean)
     var
         CDSConnectionSetup: Record "CDS Connection Setup";
         CRMRole: Record "CRM Role";
@@ -2870,26 +2872,33 @@ codeunit 5330 "CRM Integration Management"
         SalesProIntegrationRoleGUID: Guid;
         EmptyGuid: Guid;
         DefaultOwningTeamGUID: Guid;
-        TempConnectionString: Text;
+        TempConnectionString: SecretText;
+        TempConnectionStringWithPlaceholders: Text;
         SolutionInstalled: Boolean;
         SolutionOutdated: Boolean;
         ImportSolution: Boolean;
     begin
         CheckConnectRequiredFields(ServerAddress, IntegrationUserEmail);
         CDSConnectionSetup.Get();
-        if AccessToken <> '' then
-            TempConnectionString :=
-                StrSubstNo(OAuthConnectionStringFormatTok, ServerAddress, AccessToken, ProxyVersion, CDSIntegrationImpl.GetAuthenticationTypeToken(CDSConnectionSetup))
+        if not AccessToken.IsEmpty() then begin
+            TempConnectionStringWithPlaceholders :=
+                StrSubstNo(OAuthConnectionStringFormatTok, ServerAddress, '%1', ProxyVersion, CDSIntegrationImpl.GetAuthenticationTypeToken(CDSConnectionSetup));
+            TempConnectionString := SecretStrSubstNo(TempConnectionStringWithPlaceholders, AccessToken);
+        end
         else
-            if AdminADDomain <> '' then
-                TempConnectionString := StrSubstNo(
-                    ConnectionStringFormatTok, ServerAddress, AdminUserEmail, AdminUserPassword, ProxyVersion, CDSIntegrationImpl.GetAuthenticationTypeToken(CDSConnectionSetup, AdminADDomain))
-            else
-                TempConnectionString := StrSubstNo(
-                    ConnectionStringFormatTok, ServerAddress, AdminUserEmail, AdminUserPassword, ProxyVersion, CDSIntegrationImpl.GetAuthenticationTypeToken(CDSConnectionSetup));
+            if AdminADDomain <> '' then begin
+                TempConnectionStringWithPlaceholders := StrSubstNo(
+                    ConnectionStringFormatTok, ServerAddress, AdminUserEmail, '%1', ProxyVersion, CDSIntegrationImpl.GetAuthenticationTypeToken(CDSConnectionSetup, AdminADDomain));
+                TempConnectionString := SecretStrSubstNo(TempConnectionStringWithPlaceholders, AdminUserPassword);
+            end
+            else begin
+                TempConnectionStringWithPlaceholders := StrSubstNo(
+                    ConnectionStringFormatTok, ServerAddress, AdminUserEmail, '%1', ProxyVersion, CDSIntegrationImpl.GetAuthenticationTypeToken(CDSConnectionSetup));
+                TempConnectionString := SecretStrSubstNo(TempConnectionStringWithPlaceholders, AdminUserPassword)
+            end;
 
         if CDSConnectionSetup."Authentication Type" = CDSConnectionSetup."Authentication Type"::OAuth then
-            TempConnectionString := CDSIntegrationImpl.ReplaceUserNamePasswordInConnectionstring(CDSConnectionSetup, AdminUserEmail, AdminUserPassword);
+            TempConnectionString := CDSIntegrationImpl.ReplaceUserNamePasswordInConnectionString(CDSConnectionSetup, AdminUserEmail, AdminUserPassword);
 
         if not InitializeCRMConnection(CRMHelper, TempConnectionString) then
             ProcessConnectionFailures();
@@ -2900,7 +2909,7 @@ codeunit 5330 "CRM Integration Management"
 
         SolutionInstalled := CRMHelper.CheckSolutionPresence(MicrosoftDynamicsNavIntegrationTxt);
         if SolutionInstalled then
-            SolutionOutdated := IsSolutionOutdated(TempConnectionString);
+            SolutionOutdated := IsSolutionOutdated(TempConnectionStringWithPlaceholders);
 
         if ForceRedeploy then
             ImportSolution := (not SolutionInstalled) or SolutionOutdated
@@ -2908,13 +2917,16 @@ codeunit 5330 "CRM Integration Management"
             ImportSolution := not SolutionInstalled;
 
         if ImportSolution then begin
-            if not ImportDefaultCRMSolution(CRMHelper) then
+            if not ImportDefaultCRMSolution(CRMHelper) then begin
+                SolutionImportFailed := true;
                 ProcessConnectionFailures();
+            end;
 
             if CrmHelper.GetPrivilegeId(SalesProDefaultSettingsPrivilegeNameTxt) <> EmptyGuid then
-                if not ImportDefaultSalesProSolution(CRMHelper) then
-                    ProcessConnectionFailures()
-                else
+                if not ImportDefaultSalesProSolution(CRMHelper) then begin
+                    SolutionImportFailed := true;
+                    ProcessConnectionFailures();
+                end else
                     Session.LogMessage('0000JFP', SalesProIntegrationSolutionImportedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
         end;
 
@@ -2974,9 +2986,19 @@ codeunit 5330 "CRM Integration Management"
     end;
 
 #if not CLEAN25
+    [Obsolete('Replaced by ImportFSSolution procedure with SolutionImportFailed argument.', '25.0')]
     [TryFunction]
     [NonDebuggable]
     internal procedure ImportFSSolution(ServerAddress: Text; IntegrationUserEmail: Text; AdminUserEmail: Text; AdminUserPassword: Text; AccessToken: Text; AdminADDomain: Text; ProxyVersion: Integer; ForceRedeploy: Boolean)
+    var
+        ImportSolutionFailed: Boolean;
+    begin
+        ImportFSSolution(ServerAddress, IntegrationUserEmail, AdminUserEmail, AdminUserPassword, AccessToken, AdminADDomain, ProxyVersion, ForceRedeploy, ImportSolutionFailed);
+    end;
+
+    [TryFunction]
+    [NonDebuggable]
+    internal procedure ImportFSSolution(ServerAddress: Text; IntegrationUserEmail: Text; AdminUserEmail: Text; AdminUserPassword: SecretText; AccessToken: SecretText; AdminADDomain: Text; ProxyVersion: Integer; ForceRedeploy: Boolean; ImportSolutionFailed: Boolean)
     var
         CDSConnectionSetup: Record "CDS Connection Setup";
         CRMRole: Record "CRM Role";
@@ -2987,23 +3009,30 @@ codeunit 5330 "CRM Integration Management"
         IntegrationRoleGUID: Guid;
         FieldSecurityProfileGUID: Guid;
         DefaultOwningTeamGUID: Guid;
-        TempConnectionString: Text;
+        TempConnectionStringWithPlaceholders: Text;
+        TempConnectionString: SecretText;
         SolutionInstalled: Boolean;
         SolutionOutdated: Boolean;
         ImportSolution: Boolean;
     begin
         CheckConnectRequiredFields(ServerAddress, IntegrationUserEmail);
         CDSConnectionSetup.Get();
-        if AccessToken <> '' then
-            TempConnectionString :=
-                StrSubstNo(OAuthConnectionStringFormatTok, ServerAddress, AccessToken, ProxyVersion, CDSIntegrationImpl.GetAuthenticationTypeToken(CDSConnectionSetup))
+        if not AccessToken.IsEmpty() then begin
+            TempConnectionStringWithPlaceholders :=
+                StrSubstNo(OAuthConnectionStringFormatTok, ServerAddress, '%1', ProxyVersion, CDSIntegrationImpl.GetAuthenticationTypeToken(CDSConnectionSetup));
+            TempConnectionString := SecretStrSubstNo(TempConnectionStringWithPlaceholders, AccessToken);
+        end
         else
-            if AdminADDomain <> '' then
-                TempConnectionString := StrSubstNo(
-                    ConnectionStringFormatTok, ServerAddress, AdminUserEmail, AdminUserPassword, ProxyVersion, CDSIntegrationImpl.GetAuthenticationTypeToken(CDSConnectionSetup, AdminADDomain))
-            else
-                TempConnectionString := StrSubstNo(
-                    ConnectionStringFormatTok, ServerAddress, AdminUserEmail, AdminUserPassword, ProxyVersion, CDSIntegrationImpl.GetAuthenticationTypeToken(CDSConnectionSetup));
+            if AdminADDomain <> '' then begin
+                TempConnectionStringWithPlaceholders := StrSubstNo(
+                    ConnectionStringFormatTok, ServerAddress, AdminUserEmail, '%1', ProxyVersion, CDSIntegrationImpl.GetAuthenticationTypeToken(CDSConnectionSetup, AdminADDomain));
+                TempConnectionString := SecretStrSubstNo(TempConnectionStringWithPlaceholders, AdminUserPassword);
+            end
+            else begin
+                TempConnectionStringWithPlaceholders := StrSubstNo(
+                    ConnectionStringFormatTok, ServerAddress, AdminUserEmail, '%1', ProxyVersion, CDSIntegrationImpl.GetAuthenticationTypeToken(CDSConnectionSetup));
+                TempConnectionString := SecretStrSubstNo(TempConnectionStringWithPlaceholders, AdminUserPassword);
+            end;
 
         if CDSConnectionSetup."Authentication Type" = CDSConnectionSetup."Authentication Type"::OAuth then
             TempConnectionString := CDSIntegrationImpl.ReplaceUserNamePasswordInConnectionstring(CDSConnectionSetup, AdminUserEmail, AdminUserPassword);
@@ -3017,7 +3046,7 @@ codeunit 5330 "CRM Integration Management"
 
         SolutionInstalled := CRMHelper.CheckSolutionPresence(MicrosoftDynamicsFSIntegrationTxt);
         if SolutionInstalled then
-            SolutionOutdated := IsSolutionOutdated(TempConnectionString, MicrosoftDynamicsFSIntegrationTxt);
+            SolutionOutdated := IsSolutionOutdated(TempConnectionStringWithPlaceholders, MicrosoftDynamicsFSIntegrationTxt);
 
         if ForceRedeploy then
             ImportSolution := (not SolutionInstalled) or SolutionOutdated
@@ -3025,8 +3054,10 @@ codeunit 5330 "CRM Integration Management"
             ImportSolution := not SolutionInstalled;
 
         if ImportSolution then
-            if not ImportDefaultFSSolution(CRMHelper) then
+            if not ImportDefaultFSSolution(CRMHelper) then begin
+                ImportSolutionFailed := true;
                 ProcessConnectionFailures();
+            end;
 
         IntegrationRoleGUID := CRMHelper.GetRoleId(GetFieldServiceIntegrationRoleID());
         if not CRMHelper.CheckRoleAssignedToUser(UserGUID, IntegrationRoleGUID) then
@@ -3212,15 +3243,15 @@ codeunit 5330 "CRM Integration Management"
 
     [TryFunction]
     [NonDebuggable]
-    local procedure InitializeCRMConnection(var CRMHelper: DotNet CrmHelper; ConnectionString: Text)
+    local procedure InitializeCRMConnection(var CRMHelper: DotNet CrmHelper; ConnectionString: SecretText)
     var
         CRMConnectionSetup: Record "CRM Connection Setup";
     begin
-        if ConnectionString = '' then begin
+        if ConnectionString.IsEmpty() then begin
             CRMConnectionSetup.Get();
-            CRMHelper := CRMHelper.CrmHelper(CRMConnectionSetup.GetConnectionStringWithCredentials());
+            CRMHelper := CRMHelper.CrmHelper(CRMConnectionSetup.GetSecretConnectionStringWithCredentials().Unwrap());
         end else
-            CRMHelper := CRMHelper.CrmHelper(ConnectionString);
+            CRMHelper := CRMHelper.CrmHelper(ConnectionString.Unwrap());
         if not TestCRMConnection(CRMHelper) then
             ProcessConnectionFailures();
     end;
@@ -3228,15 +3259,15 @@ codeunit 5330 "CRM Integration Management"
 #if not CLEAN25
     [TryFunction]
     [NonDebuggable]
-    local procedure InitializeFSConnection(var CRMHelper: DotNet CrmHelper; ConnectionString: Text)
+    local procedure InitializeFSConnection(var CRMHelper: DotNet CrmHelper; ConnectionString: SecretText)
     var
         FSConnectionSetup: Record "FS Connection Setup";
     begin
-        if ConnectionString = '' then begin
+        if ConnectionString.IsEmpty() then begin
             FSConnectionSetup.Get();
-            CRMHelper := CRMHelper.CrmHelper(FSConnectionSetup.GetConnectionStringWithCredentials());
+            CRMHelper := CRMHelper.CrmHelper(FSConnectionSetup.GetConnectionStringWithCredentials().Unwrap());
         end else
-            CRMHelper := CRMHelper.CrmHelper(ConnectionString);
+            CRMHelper := CRMHelper.CrmHelper(ConnectionString.Unwrap());
         if not TestCRMConnection(CRMHelper) then
             ProcessConnectionFailures();
     end;
@@ -3484,14 +3515,6 @@ codeunit 5330 "CRM Integration Management"
         SyncNotification.Send();
         exit(true);
     end;
-
-#if not CLEAN22
-    [Obsolete('Unused method.', '22.0')]
-    procedure LinkMissingOptionDoc(SkippedSyncNotification: Notification)
-    begin
-        Hyperlink(OptionMappingDocumentantionUrlTxt);
-    end;
-#endif
 
     local procedure SendSyncNotification(RecordCounter: array[4] of Integer): Boolean
     begin
@@ -3883,7 +3906,7 @@ codeunit 5330 "CRM Integration Management"
 
         IntegrationTableMapping.ReadIsolation := IsolationLevel::ReadUncommitted;
         IntegrationTableMapping.SetRange(Type, IntegrationTableMapping.Type::Dataverse);
-        exit(IntegrationTableMapping.FindMappingForTable(TableID));
+        exit(IntegrationTableMapping.DoesExistForTable(TableID));
     end;
 
     [Scope('OnPrem')]
@@ -3989,6 +4012,9 @@ codeunit 5330 "CRM Integration Management"
         JobQueueEntry.ReadIsolation := IsolationLevel::ReadUncommitted;
         JobQueueEntry.Reset();
         JobQueueEntry.SetFilter(Status, Format(JobQueueEntry.Status::Ready) + '|' + Format(JobQueueEntry.Status::"On Hold with Inactivity Timeout"));
+        JobQueueEntry.SetRange("Object Type to Run", JobQueueEntry."Object Type to Run"::Codeunit);
+        JobQueueEntry.SetFilter("Object ID to Run", '%1|%2|%3|%4|%5', Codeunit::"Integration Synch. Job Runner", Codeunit::"CRM Statistics Job", Codeunit::"Int. Coupling Job Runner",
+                                                            Codeunit::"Int. Uncouple Job Runner", Codeunit::"CRM Archived Sales Orders Job");
         JobQueueEntry.SetRange("Recurring Job", true);
         if JobQueueEntry.IsEmpty() then
             exit;
@@ -4194,29 +4220,6 @@ codeunit 5330 "CRM Integration Management"
         exit(true);
     end;
 
-#if not CLEAN22
-    [Obsolete('Feature CurrencySymbolMapping will be enabled by default in version 22.0.', '22.0')]
-    procedure IsCurrencySymbolMappingEnabled() FeatureEnabled: Boolean;
-    var
-        FeatureManagementFacade: Codeunit "Feature Management Facade";
-    begin
-        FeatureEnabled := FeatureManagementFacade.IsEnabled(CurrencySymbolMappingFeatureIdTok);
-        OnIsCurrencySymbolMappingEnabled(FeatureEnabled);
-    end;
-
-    [Obsolete('Feature CurrencySymbolMapping will be enabled by default in version 22.0.', '22.0')]
-    procedure GetCurrencySymbolMappingFeatureKey(): Text[50]
-    begin
-        exit(CurrencySymbolMappingFeatureIdTok);
-    end;
-
-    [Obsolete('Feature CurrencySymbolMapping will be enabled by default in version 22.0.', '22.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnIsCurrencySymbolMappingEnabled(var FeatureEnabled: Boolean)
-    begin
-    end;
-#endif
-
     procedure EnableUnitGroupMapping(): Guid
     var
         JobQueueEntry: Record "Job Queue Entry";
@@ -4371,23 +4374,6 @@ codeunit 5330 "CRM Integration Management"
         HyperLink(MultipleCompanyLinkLbl);
     end;
 
-#if not CLEAN22
-    [Obsolete('Feature OptionMapping will be enabled by default in version 22.0.', '22.0')]
-    procedure IsOptionMappingEnabled() FeatureEnabled: Boolean;
-    var
-        FeatureManagementFacade: Codeunit "Feature Management Facade";
-    begin
-        FeatureEnabled := FeatureManagementFacade.IsEnabled(OptionMappingFeatureIdTok);
-        OnIsOptionMappingEnabled(FeatureEnabled);
-    end;
-
-    [Obsolete('Feature OptionMapping will be enabled by default in version 22.0.', '22.0')]
-    procedure GetOptionMappingFeatureKey(): Text[50]
-    begin
-        exit(OptionMappingFeatureIdTok);
-    end;
-#endif
-
     procedure IsIntegrationRecordChild(TableID: Integer) ReturnValue: Boolean
     var
         Handled: Boolean;
@@ -4407,14 +4393,6 @@ codeunit 5330 "CRM Integration Management"
            Database::"Rlshp. Mgt. Comment Line",
            Database::"Vendor Bank Account"]);
     end;
-
-#if not CLEAN22
-    [Obsolete('Feature OptionMapping will be enabled by default in version 22.0.', '22.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnIsOptionMappingEnabled(var FeatureEnabled: Boolean)
-    begin
-    end;
-#endif    
 
     local procedure GetOptionIdFieldRef(RecRef: RecordRef): FieldRef
     var
@@ -4470,7 +4448,7 @@ codeunit 5330 "CRM Integration Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeHandleCustomIntegrationTableMapping(var IsHandled: Boolean; IntegrationTableMappingName: Code[20])
+    local procedure OnBeforeHandleCustomIntegrationTableMapping(var IsHandled: Boolean; IntegrationTableMappingName: Code[20]; var IntegrationTableMapping: Record "Integration Table Mapping"; EnqueueJobQueEntries: Boolean)
     begin
     end;
 

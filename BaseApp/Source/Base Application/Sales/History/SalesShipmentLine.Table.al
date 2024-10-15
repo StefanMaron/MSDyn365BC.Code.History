@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Sales.History;
+namespace Microsoft.Sales.History;
 
 using Microsoft.Assembly.History;
 using Microsoft.Finance.Currency;
@@ -30,7 +30,6 @@ using Microsoft.Sales.Comment;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.Pricing;
-using Microsoft.Service.Item;
 using Microsoft.Utilities;
 using Microsoft.Warehouse.Structure;
 using System.IO;
@@ -654,21 +653,8 @@ table 111 "Sales Shipment Line"
 
     trigger OnDelete()
     var
-        ServItem: Record "Service Item";
         SalesDocLineComments: Record "Sales Comment Line";
     begin
-        ServItem.Reset();
-        ServItem.SetCurrentKey("Sales/Serv. Shpt. Document No.", "Sales/Serv. Shpt. Line No.");
-        ServItem.SetRange("Sales/Serv. Shpt. Document No.", "Document No.");
-        ServItem.SetRange("Sales/Serv. Shpt. Line No.", "Line No.");
-        ServItem.SetRange("Shipment Type", ServItem."Shipment Type"::Sales);
-        if ServItem.Find('-') then
-            repeat
-                ServItem.Validate("Sales/Serv. Shpt. Document No.", '');
-                ServItem.Validate("Sales/Serv. Shpt. Line No.", 0);
-                ServItem.Modify(true);
-            until ServItem.Next() = 0;
-
         SalesDocLineComments.SetRange("Document Type", SalesDocLineComments."Document Type"::Shipment);
         SalesDocLineComments.SetRange("No.", "Document No.");
         SalesDocLineComments.SetRange("Document Line No.", "Line No.");
@@ -686,8 +672,12 @@ table 111 "Sales Shipment Line"
         UOMMgt: Codeunit "Unit of Measure Management";
         CurrencyRead: Boolean;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'Shipment No. %1:';
+#pragma warning restore AA0470
         Text001: Label 'The program cannot find this Sales line.';
+#pragma warning restore AA0074
 
     procedure GetCurrencyCode(): Code[10]
     begin
@@ -899,12 +889,11 @@ table 111 "Sales Shipment Line"
         IsHandled := false;
         OnInsertInvLineFromShptLineOnAfterInsertAllLines(Rec, SalesLine, IsHandled);
         if not IsHandled then
-            if SalesOrderHeader.Get(SalesOrderHeader."Document Type"::Order, "Order No.") then begin
+            if SalesOrderHeader.Get(SalesOrderHeader."Document Type"::Order, "Order No.") then
                 if not SalesOrderHeader."Get Shipment Used" then begin
                     SalesOrderHeader."Get Shipment Used" := true;
                     SalesOrderHeader.Modify();
                 end;
-            end;
     end;
 
     procedure GetSalesInvLines(var TempSalesInvLine: Record "Sales Invoice Line" temporary)

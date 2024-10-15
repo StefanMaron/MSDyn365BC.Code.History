@@ -719,7 +719,7 @@ table 270 "Bank Account"
             Caption = 'Positive Pay Export Code';
             TableRelation = "Bank Export/Import Setup".Code where(Direction = const("Export-Positive Pay"));
         }
-        field(1280; "Check Transmitted"; boolean)
+        field(1280; "Check Transmitted"; Boolean)
         {
             Caption = 'Check Transmitted';
             ToolTip = 'Specifies to check transmitted before posting the Payment Journal';
@@ -952,10 +952,13 @@ table 270 "Bank Account"
         BankContUpdate: Codeunit "BankCont-Update";
         DimMgt: Codeunit DimensionManagement;
         InsertFromContact: Boolean;
-
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000Err: Label 'You cannot change %1 because there are one or more open ledger entries for this bank account.', Comment = '%1=currency code';
         Text003Qst: Label 'Do you wish to create a contact for %1 %2?', Comment = '%1=bank account,%2=number';
         BankAccIdentifierIsEmptyErr: Label 'You must specify either a %1 or an %2.', Comment = '%1=bank account no,%2 is field caption of IBAN field';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         InvalidPercentageValueErr: Label 'If %1 is %2, then the value must be between 0 and 99.', Comment = '%1 is "field caption and %2 is "Percentage"';
         InvalidValueErr: Label 'The value must be positive.';
         AutoGenerateStmtNoQst: Label 'The %1 on %2 number %3 is not specified. Do you want to use an auto-generated value?', Comment = '%1=FieldCaption,%2=TableCaption,%3=FieldValue';

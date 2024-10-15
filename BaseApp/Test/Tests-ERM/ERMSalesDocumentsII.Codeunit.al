@@ -14,7 +14,7 @@ codeunit 134386 "ERM Sales Documents II"
         Assert: Codeunit Assert;
         DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
-#if not CLEAN23
+#if not CLEAN25
         LibraryCosting: Codeunit "Library - Costing";
 #endif
         LibraryERM: Codeunit "Library - ERM";
@@ -31,7 +31,7 @@ codeunit 134386 "ERM Sales Documents II"
         LibraryResource: Codeunit "Library - Resource";
         LibraryFixedAsset: Codeunit "Library - Fixed Asset";
         LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
-#if not CLEAN23
+#if not CLEAN25
         CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
 #endif
         LibraryTemplates: Codeunit "Library - Templates";
@@ -48,13 +48,13 @@ codeunit 134386 "ERM Sales Documents II"
         BlankSellToCustomerFieldErr: Label 'Sell-to Customer No. field must be empty.';
         RecurrentDocumentDateErr: Label 'Document Date must be the same as in Create Recurring Sales Inv. report.';
         RecurrentExpiredDateErr: Label 'No sales invoice must be created for expired Valid To Date in Standard Customer Sales Code.';
-#if not CLEAN23
+#if not CLEAN25
         IncorrectSalesTypeToCopyPricesErr: Label 'To copy sales prices, The Sales Type Filter field must contain Customer.';
         MultipleCustomersSelectedErr: Label 'More than one customer uses these sales prices. To copy prices, the Sales Code Filter field must contain one customer only.';
 #endif
         NotExistingFreightGLAccNoErr: Label 'The field %1 of table Sales & Receivables Setup contains a value (%2) that cannot be found in the related table', Comment = '%1 - caption of "Freight G/L Acc. No.", %2 - G/L Account No.';
         ShipToAdressTestValueTxt: Label 'ShipToAdressTestValue';
-#if not CLEAN23
+#if not CLEAN25
         EmptyStartingDateRecIsNotFoundErr: Label 'The record with empty starting date field is not found.';
         WorkStartingDateRecIsNotFoundErr: Label 'The record with specified starting date (%1) is not found.';
         EmptyStartingDateIsFoundErr: Label 'The record''s starting date (%1) is not equal to date within filter field (%2).';
@@ -521,7 +521,7 @@ codeunit 134386 "ERM Sales Documents II"
         VerifySalesInvoice(GetSalesInvoiceHeaderNoOrder(SalesHeader."No."), SalesLine);
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Test]
     [Scope('OnPrem')]
     procedure SalesInvoiceWithItemSalesPrices()
@@ -790,7 +790,7 @@ codeunit 134386 "ERM Sales Documents II"
         VerifyVATEntry(PostedDocumentNo, SalesInvoiceHeader.Amount);
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Test]
     [Scope('OnPrem')]
     procedure SalesUnitPriceAndLineDiscount()
@@ -1460,14 +1460,12 @@ codeunit 134386 "ERM Sales Documents II"
         CreateSalesOrderWithSalesCode(SalesHeader, StandardSalesLine, Item."No.", '', '');
 
         // [THEN] Assemly Order is created, where Quantity is "X"
-        with AssemblyHeader do begin
-            SetRange("Item No.", Item."No.");
-            FindFirst();
-            TestField(Quantity, StandardSalesLine.Quantity);
-        end;
+        AssemblyHeader.SetRange("Item No.", Item."No.");
+        AssemblyHeader.FindFirst();
+        AssemblyHeader.TestField(Quantity, StandardSalesLine.Quantity);
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Test]
     [Scope('OnPrem')]
     procedure UT_DeleteCustomerPriceGroupWithSalesPrice()
@@ -2115,7 +2113,7 @@ codeunit 134386 "ERM Sales Documents II"
         NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Test]
     [Scope('OnPrem')]
     procedure SalesPriceMinimumQuantityWithMaxValue()
@@ -2764,7 +2762,7 @@ codeunit 134386 "ERM Sales Documents II"
         asserterror SalesReceivablesSetup.Validate("Freight G/L Acc. No.", GLAccount."No.");
 
         // [THEN] "Account Type must be equal to 'Posting'" error appears
-        Assert.ExpectedError('Account Type must be equal to ''' + Format(GLAccount."Account Type"::Posting) + '''');
+        Assert.ExpectedTestFieldError(GLAccount.FieldCaption("Account Type"), Format(GLAccount."Account Type"::Posting));
     end;
 
     [Test]
@@ -2789,10 +2787,10 @@ codeunit 134386 "ERM Sales Documents II"
         asserterror SalesReceivablesSetup.Validate("Freight G/L Acc. No.", GLAccount."No.");
 
         // [THEN] "Blocked must be equal to 'No'" error appears
-        Assert.ExpectedError('Blocked must be equal to ''No''');
+        Assert.ExpectedTestFieldError(GLAccount.FieldCaption(Blocked), Format(false));
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Test]
     [Scope('OnPrem')]
     procedure UI_CannotCopyPricesWhenSalesTypeFilterNotCustomer()
@@ -3455,7 +3453,7 @@ codeunit 134386 "ERM Sales Documents II"
         VerifyShipToOptionWithContactOnSalesDocument(SalesHeader, ContactNew);
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Test]
     [Scope('OnPrem')]
     procedure AllowInvoiceDiscIsFalseOnOverviewPageWhenFalseInSalesPrice()
@@ -3747,7 +3745,7 @@ codeunit 134386 "ERM Sales Documents II"
         SalesHeaderArchive.TestField("Sell-to E-Mail", SalesHeader."Sell-to E-Mail");
     end;
 
-#if not CLEAN23
+#if not CLEAN25
 #pragma warning disable AS0072
     [Test]
     [Obsolete('Not Used.', '23.0')]
@@ -4063,9 +4061,9 @@ codeunit 134386 "ERM Sales Documents II"
 
         // [WHEN] User set "Sell-to Contact No." = "C2" by Look-Up on "Contact No." field
         LibraryVariableStorage.Enqueue(Contact2."No.");
-        LibraryVariableStorage.Enqueue(True);  // true for "Do you want to change Sell-to Contact No.?"
+        LibraryVariableStorage.Enqueue(true);  // true for "Do you want to change Sell-to Contact No.?"
         LibraryVariableStorage.Enqueue(0);     // init value for count of confirmation handlers
-        LibraryVariableStorage.Enqueue(False); // false for "Do you want to change Bill-to Contact No.?"
+        LibraryVariableStorage.Enqueue(false); // false for "Do you want to change Bill-to Contact No.?"
         SalesOrder."Sell-to Contact No.".Lookup();
 
         // [THEN] "Sales Order"."Phone No." = "333333333"
@@ -4758,12 +4756,10 @@ codeunit 134386 "ERM Sales Documents II"
     var
         Customer: Record Customer;
     begin
-        with Customer do begin
-            LibrarySales.CreateCustomer(Customer);
-            Validate("Credit Limit (LCY)", CreditLimitAmt);
-            Modify(true);
-            exit("No.");
-        end;
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Credit Limit (LCY)", CreditLimitAmt);
+        Customer.Modify(true);
+        exit(Customer."No.");
     end;
 
     local procedure CreateCustomerWithBillToCustomer(var Customer: Record Customer; var CustomerBillTo: Record Customer)
@@ -4799,14 +4795,12 @@ codeunit 134386 "ERM Sales Documents II"
 
     local procedure CreateAssembledItem(var Item: Record Item)
     begin
-        with Item do begin
-            LibraryAssembly.SetupAssemblyItem(
-              Item, "Costing Method"::Standard, "Costing Method"::Standard, "Replenishment System"::Assembly,
-              '', false, LibraryRandom.RandInt(5), LibraryRandom.RandInt(5),
-              LibraryRandom.RandInt(5), LibraryRandom.RandInt(5));
-            Validate("Assembly Policy", "Assembly Policy"::"Assemble-to-Order");
-            Modify(true);
-        end;
+        LibraryAssembly.SetupAssemblyItem(
+            Item, Item."Costing Method"::Standard, Item."Costing Method"::Standard, Item."Replenishment System"::Assembly,
+            '', false, LibraryRandom.RandInt(5), LibraryRandom.RandInt(5),
+        LibraryRandom.RandInt(5), LibraryRandom.RandInt(5));
+        Item.Validate("Assembly Policy", Item."Assembly Policy"::"Assemble-to-Order");
+        Item.Modify(true);
     end;
 
     local procedure CreateItemWithItemTrackingCode(): Code[20]
@@ -4898,12 +4892,11 @@ codeunit 134386 "ERM Sales Documents II"
         SalesLine: Record "Sales Line";
         i: Integer;
     begin
-        with SalesLine do
-            for i := 1 to LibraryRandom.RandInt(5) do begin
-                LibrarySales.CreateSalesLine(SalesLine, SalesHeader, "Sales Line Type"::" ", '', 0);
-                Validate(Description, LibraryUtility.GenerateGUID());
-                Modify(true);
-            end;
+        for i := 1 to LibraryRandom.RandInt(5) do begin
+            LibrarySales.CreateSalesLine(SalesLine, SalesHeader, "Sales Line Type"::" ", '', 0);
+            SalesLine.Validate(Description, LibraryUtility.GenerateGUID());
+            SalesLine.Modify(true);
+        end;
     end;
 
     local procedure CreateSalesLineWithExtendedText(SalesHeader: Record "Sales Header"; ItemNo: Code[20])
@@ -5020,32 +5013,28 @@ codeunit 134386 "ERM Sales Documents II"
     var
         SalesLine: Record "Sales Line";
     begin
-        with SalesHeader do begin
-            LibrarySales.CreateSalesHeader(SalesHeader, "Document Type"::Order, LibrarySales.CreateCustomerNo());
-            Validate("Prices Including VAT", PricesInclVAT);
-            Modify(true);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
+        SalesHeader.Validate("Prices Including VAT", PricesInclVAT);
+        SalesHeader.Modify(true);
 
-            LibrarySales.CreateSalesLine(
-              SalesLine, SalesHeader, SalesLine.Type::Item,
-              LibraryInventory.CreateItemNo(), LibraryRandom.RandIntInRange(100, 1000));
-            VATPercent := SalesLine."VAT %";
-            SalesLine.Validate("Line Discount Amount", LineDiscAmt);
-            SalesLine.Modify(true);
-            LibrarySales.PostSalesDocument(SalesHeader, true, false);
-        end;
+        LibrarySales.CreateSalesLine(
+          SalesLine, SalesHeader, SalesLine.Type::Item,
+          LibraryInventory.CreateItemNo(), LibraryRandom.RandIntInRange(100, 1000));
+        VATPercent := SalesLine."VAT %";
+        SalesLine.Validate("Line Discount Amount", LineDiscAmt);
+        SalesLine.Modify(true);
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
     end;
 
     local procedure CreateSalesInvWithPricesInclVAT(var SalesLine: Record "Sales Line"; CustNo: Code[20]; PricesInclVAT: Boolean)
     var
         SalesHeader: Record "Sales Header";
     begin
-        with SalesHeader do begin
-            LibrarySales.CreateSalesHeader(SalesHeader, "Document Type"::Invoice, CustNo);
-            Validate("Prices Including VAT", PricesInclVAT);
-            Modify(true);
-            SalesLine.Validate("Document Type", "Document Type");
-            SalesLine.Validate("Document No.", "No.");
-        end;
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustNo);
+        SalesHeader.Validate("Prices Including VAT", PricesInclVAT);
+        SalesHeader.Modify(true);
+        SalesLine.Validate("Document Type", SalesHeader."Document Type");
+        SalesLine.Validate("Document No.", SalesHeader."No.");
     end;
 
     local procedure CreateSalesOrderWithOverdueCust(var SalesHeader: Record "Sales Header"; var OverdueAmount: Decimal; NormalEntryDueDate: Date; OverdueEntryDueDate: Date)
@@ -5077,7 +5066,7 @@ codeunit 134386 "ERM Sales Documents II"
         LibrarySales.CreateCustomerSalesCode(StandardCustomerSalesCode, Customer."No.", StandardSalesCode.Code);
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     local procedure CreateSalesPriceWithUnitPrice(var SalesPrice: Record "Sales Price"; CustomerNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal; UnitPriceAmount: Decimal)
     begin
         LibraryCosting.CreateSalesPrice(SalesPrice, SalesPrice."Sales Type"::Customer, CustomerNo, ItemNo, WorkDate(), '', '', '', Quantity);
@@ -5095,6 +5084,7 @@ codeunit 134386 "ERM Sales Documents II"
         SalesPrice.Modify(true);
     end;
 #endif
+
     local procedure CreateAndModifySalesOrder(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CreateCustomerInvDiscount(0));
@@ -5127,7 +5117,7 @@ codeunit 134386 "ERM Sales Documents II"
         PostCode.FindLast();
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     local procedure CreateSalesLineDiscount(var SalesLineDiscount: Record "Sales Line Discount"; SalesPrice: Record "Sales Price")
     begin
         LibraryERM.CreateLineDiscForCustomer(
@@ -5207,6 +5197,7 @@ codeunit 134386 "ERM Sales Documents II"
           WorkDate());
     end;
 #endif
+
     local procedure CreateCustomer(): Code[20]
     var
         Customer: Record Customer;
@@ -5288,38 +5279,34 @@ codeunit 134386 "ERM Sales Documents II"
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
-        with CustLedgerEntry do begin
-            Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(CustLedgerEntry, FieldNo("Entry No."));
-            "Customer No." := CustNo;
-            "Posting Date" := DueDate;
-            "Due Date" := DueDate;
-            Open := true;
-            Insert();
-            exit(MockDtldCustLedgEntry("Entry No.", "Customer No.", "Due Date"));
-        end;
+        CustLedgerEntry.Init();
+        CustLedgerEntry."Entry No." := LibraryUtility.GetNewRecNo(CustLedgerEntry, CustLedgerEntry.FieldNo("Entry No."));
+        CustLedgerEntry."Customer No." := CustNo;
+        CustLedgerEntry."Posting Date" := DueDate;
+        CustLedgerEntry."Due Date" := DueDate;
+        CustLedgerEntry.Open := true;
+        CustLedgerEntry.Insert();
+        exit(MockDtldCustLedgEntry(CustLedgerEntry."Entry No.", CustLedgerEntry."Customer No.", CustLedgerEntry."Due Date"));
     end;
 
     local procedure MockDtldCustLedgEntry(CustLedgEntryNo: Integer; CustNo: Code[20]; DueDate: Date): Decimal
     var
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin
-        with DetailedCustLedgEntry do begin
-            Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(DetailedCustLedgEntry, FieldNo("Entry No."));
-            "Cust. Ledger Entry No." := CustLedgEntryNo;
-            "Customer No." := CustNo;
-            "Posting Date" := DueDate;
-            "Initial Entry Due Date" := DueDate;
-            Amount := LibraryRandom.RandDecInRange(100, 500, 2);
-            "Amount (LCY)" := Amount;
-            "Ledger Entry Amount" := true;
-            Insert();
-            exit("Amount (LCY)");
-        end;
+        DetailedCustLedgEntry.Init();
+        DetailedCustLedgEntry."Entry No." := LibraryUtility.GetNewRecNo(DetailedCustLedgEntry, DetailedCustLedgEntry.FieldNo("Entry No."));
+        DetailedCustLedgEntry."Cust. Ledger Entry No." := CustLedgEntryNo;
+        DetailedCustLedgEntry."Customer No." := CustNo;
+        DetailedCustLedgEntry."Posting Date" := DueDate;
+        DetailedCustLedgEntry."Initial Entry Due Date" := DueDate;
+        DetailedCustLedgEntry.Amount := LibraryRandom.RandDecInRange(100, 500, 2);
+        DetailedCustLedgEntry."Amount (LCY)" := DetailedCustLedgEntry.Amount;
+        DetailedCustLedgEntry."Ledger Entry Amount" := true;
+        DetailedCustLedgEntry.Insert();
+        exit(DetailedCustLedgEntry."Amount (LCY)");
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     local procedure CopyPricesScenarioOnSalesPricePage(var SalesPrice: Record "Sales Price"; var CopyToCustomerNo: Code[20]; var SalesPrices: TestPage "Sales Prices")
     var
         CopyFromCustomerNo: Code[20];
@@ -5334,6 +5321,7 @@ codeunit 134386 "ERM Sales Documents II"
         LibraryVariableStorage.Enqueue(CopyFromCustomerNo);
     end;
 #endif
+
     local procedure RunReccuringSalesIvoice(DocumentDate: Date; StandardSalesLine: Record "Standard Sales Line"): Code[20]
     var
         SalesLine: Record "Sales Line";
@@ -5425,12 +5413,10 @@ codeunit 134386 "ERM Sales Documents II"
 
     local procedure FindSalesLine(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20])
     begin
-        with SalesLine do begin
-            SetRange("Document Type", DocumentType);
-            SetRange("Document No.", DocumentNo);
-            SetFilter(Type, '<>%1', Type::" ");
-            FindSet();
-        end;
+        SalesLine.SetRange("Document Type", DocumentType);
+        SalesLine.SetRange("Document No.", DocumentNo);
+        SalesLine.SetFilter(Type, '<>%1', SalesLine.Type::" ");
+        SalesLine.FindSet();
     end;
 
     local procedure FindICGLAccount(): Code[20]
@@ -5453,11 +5439,9 @@ codeunit 134386 "ERM Sales Documents II"
 
     local procedure FindSalesHeaderArchive(var SalesHeaderArchive: Record "Sales Header Archive"; SalesHeader: Record "Sales Header")
     begin
-        with SalesHeaderArchive do begin
-            SetRange("Document Type", SalesHeader."Document Type");
-            SetRange("No.", SalesHeader."No.");
-            FindFirst();
-        end;
+        SalesHeaderArchive.SetRange("Document Type", SalesHeader."Document Type");
+        SalesHeaderArchive.SetRange("No.", SalesHeader."No.");
+        SalesHeaderArchive.FindFirst();
     end;
 
     local procedure GenerateCustomerNo(): Code[20]
@@ -5539,12 +5523,10 @@ codeunit 134386 "ERM Sales Documents II"
     var
         SalesLine: Record "Sales Line";
     begin
-        with SalesLine do begin
-            SetRange("Document Type", DocType);
-            SetRange("Document No.", DocNo);
-            CalcSums("Amount Including VAT");
-            exit("Amount Including VAT");
-        end;
+        SalesLine.SetRange("Document Type", DocType);
+        SalesLine.SetRange("Document No.", DocNo);
+        SalesLine.CalcSums("Amount Including VAT");
+        exit(SalesLine."Amount Including VAT");
     end;
 
     local procedure MockSalesLine(var SalesLine: Record "Sales Line"; CustomerNo: Code[20]; LineType: Enum "Sales Line Type"; No: Code[20])
@@ -5779,11 +5761,9 @@ codeunit 134386 "ERM Sales Documents II"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        with SalesReceivablesSetup do begin
-            Get();
-            Validate("Logo Position on Documents", "Logo Position on Documents"::"No Logo");
-            Modify(true);
-        end;
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup.Validate("Logo Position on Documents", SalesReceivablesSetup."Logo Position on Documents"::"No Logo");
+        SalesReceivablesSetup.Modify(true);
     end;
 
     local procedure UpdateNoSeriesOnSalesSetup(ManualNos: Boolean)
@@ -6132,7 +6112,7 @@ codeunit 134386 "ERM Sales Documents II"
         Assert.RecordIsEmpty(SalesHeader);
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     local procedure VerifyCopiedSalesPrice(CopiedFromSalesPrice: Record "Sales Price"; CustNo: Code[20])
     var
         SalesPrice: Record "Sales Price";
@@ -6152,6 +6132,7 @@ codeunit 134386 "ERM Sales Documents II"
         Assert.RecordCount(SalesPrice, 1);
     end;
 #endif
+
     local procedure VerifyAmountInclVATOfCreditLimitDetails(ExpectedAmount: Decimal)
     begin
         Assert.AreEqual(
@@ -6182,7 +6163,7 @@ codeunit 134386 "ERM Sales Documents II"
         Assert.AreEqual(Format(ShipToOptions::"Default (Sell-to Address)"), Format(ShipToOptions), '');
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     local procedure VerifySalesPriceAndLineDiscBuff(var TempSalesPriceAndLineDiscBuff: Record "Sales Price and Line Disc Buff" temporary; ItemNo: Code[20]; AllowInvoiceDisc: Boolean; AllowLineDisc: Boolean)
     begin
         TempSalesPriceAndLineDiscBuff.SetRange("Sales Type", TempSalesPriceAndLineDiscBuff."Sales Type"::Customer);
@@ -6192,6 +6173,7 @@ codeunit 134386 "ERM Sales Documents II"
         TempSalesPriceAndLineDiscBuff.TestField("Allow Line Disc.", AllowLineDisc);
     end;
 #endif
+
     local procedure GetAmountTotalIncVAT(SalesHeader: Record "Sales Header"): Decimal
     var
         TotalSalesLine: Record "Sales Line";
@@ -6459,7 +6441,7 @@ codeunit 134386 "ERM Sales Documents II"
         Assert.IsFalse(CustomerLedgerEntries.Next(), 'There is more than one entry in Customer Ledger Entries page');
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure SalesPricesSelectPriceOfCustomerModalPageHandler(var SalesPrices: TestPage "Sales Prices")
@@ -6475,6 +6457,7 @@ codeunit 134386 "ERM Sales Documents II"
         SalesPrices.Cancel().Invoke();
     end;
 #endif
+
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ContactListPageHandler(var ContactList: TestPage "Contact List")
@@ -6491,3 +6474,4 @@ codeunit 134386 "ERM Sales Documents II"
         CustomerLookup.OK().Invoke();
     end;
 }
+

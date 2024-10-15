@@ -55,7 +55,11 @@ report 5187 "Generate Dupl. Search String"
         DuplMgt: Codeunit DuplicateManagement;
         Window: Dialog;
 
+#pragma warning disable AA0074
         Text000: Label 'Processing contacts...\\';
+#pragma warning disable AA0470
         Text001: Label 'Contact No.     #1##########';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 }
 

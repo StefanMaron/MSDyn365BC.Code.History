@@ -296,12 +296,10 @@ codeunit 141037 "Electronic Payment"
 
     local procedure UpdateGenJnlBatch(var GenJnlBatch: Record "Gen. Journal Batch"; BankAccountNo: Code[20]; NoSeriesCode: Code[20])
     begin
-        with GenJnlBatch do begin
-            Validate("Bal. Account Type", "Bal. Account Type"::"Bank Account");
-            Validate("Bal. Account No.", BankAccountNo);
-            Validate("No. Series", NoSeriesCode);
-            Modify(true);
-        end;
+        GenJnlBatch.Validate("Bal. Account Type", GenJnlBatch."Bal. Account Type"::"Bank Account");
+        GenJnlBatch.Validate("Bal. Account No.", BankAccountNo);
+        GenJnlBatch.Validate("No. Series", NoSeriesCode);
+        GenJnlBatch.Modify(true);
     end;
 
     local procedure EmulateCheckPrinting(var GenJnlLine: Record "Gen. Journal Line"; var BankAccount: Record "Bank Account") CheckNo: Code[20]
@@ -311,27 +309,23 @@ codeunit 141037 "Electronic Payment"
     begin
         CheckNo := Format(LibraryRandom.RandInt(10));
 
-        with CheckLedgerEntry do begin
-            Init();
-            "Bank Account No." := BankAccount."No.";
-            "Posting Date" := GenJnlLine."Posting Date";
-            "Document No." := CheckNo;
-            "Bank Payment Type" := "Bank Payment Type"::"Computer Check";
-            "Entry Status" := "Entry Status"::"Test Print";
-            "Check Date" := "Posting Date";
-            "Check No." := CheckNo;
-            CheckMgt.InsertCheck(CheckLedgerEntry, GenJnlLine.RecordId);
-        end;
+        CheckLedgerEntry.Init();
+        CheckLedgerEntry."Bank Account No." := BankAccount."No.";
+        CheckLedgerEntry."Posting Date" := GenJnlLine."Posting Date";
+        CheckLedgerEntry."Document No." := CheckNo;
+        CheckLedgerEntry."Bank Payment Type" := CheckLedgerEntry."Bank Payment Type"::"Computer Check";
+        CheckLedgerEntry."Entry Status" := CheckLedgerEntry."Entry Status"::"Test Print";
+        CheckLedgerEntry."Check Date" := CheckLedgerEntry."Posting Date";
+        CheckLedgerEntry."Check No." := CheckNo;
+        CheckMgt.InsertCheck(CheckLedgerEntry, GenJnlLine.RecordId);
 
         BankAccount."Last Check No." := CheckNo;
         BankAccount.Modify();
 
-        with GenJnlLine do begin
-            "Document No." := CheckNo;
-            "Bank Payment Type" := "Bank Payment Type"::"Computer Check";
-            "Check Printed" := true;
-            Modify();
-        end;
+        GenJnlLine."Document No." := CheckNo;
+        GenJnlLine."Bank Payment Type" := GenJnlLine."Bank Payment Type"::"Computer Check";
+        GenJnlLine."Check Printed" := true;
+        GenJnlLine.Modify();
     end;
 
     local procedure VerifyGLEntryAmount(GenJournalLine: Record "Gen. Journal Line")

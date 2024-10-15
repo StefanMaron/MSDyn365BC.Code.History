@@ -218,10 +218,14 @@ report 188 "Create Reminders"
         OldDateTime: DateTime;
         OpenReminderListAfter: Boolean;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label '%1 must be specified.';
+#pragma warning restore AA0470
         Text001: Label 'Making reminders...';
         Text002: Label 'Making reminders @1@@@@@@@@@@@@@';
         Text003: Label 'It was not possible to create reminders for some of the selected customers.\Do you want to see these customers?';
+#pragma warning restore AA0074
         TelemetryCategoryTxt: Label 'Report', Locked = true;
         CreateRemindersReportGeneratedTxt: Label 'Create Reminders report generated.', Locked = true;
 

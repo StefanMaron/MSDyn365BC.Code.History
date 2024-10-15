@@ -3444,28 +3444,24 @@ codeunit 142050 "ERM Sales/Purchase Tax"
     var
         DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin
-        with DtldCustLedgEntry do begin
-            SetRange("Entry Type", "Entry Type"::Application);
-            SetRange("Document Type", DocType);
-            SetRange("Document No.", DocNo);
-            SetRange(Unapplied, true);
-            FindLast();
-            exit("Transaction No.");
-        end;
+        DtldCustLedgEntry.SetRange("Entry Type", DtldCustLedgEntry."Entry Type"::Application);
+        DtldCustLedgEntry.SetRange("Document Type", DocType);
+        DtldCustLedgEntry.SetRange("Document No.", DocNo);
+        DtldCustLedgEntry.SetRange(Unapplied, true);
+        DtldCustLedgEntry.FindLast();
+        exit(DtldCustLedgEntry."Transaction No.");
     end;
 
     local procedure FindVendUnapplicationTransactionNo(DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]): Integer
     var
         DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry";
     begin
-        with DtldVendLedgEntry do begin
-            SetRange("Entry Type", "Entry Type"::Application);
-            SetRange("Document Type", DocType);
-            SetRange("Document No.", DocNo);
-            SetRange(Unapplied, true);
-            FindLast();
-            exit("Transaction No.");
-        end;
+        DtldVendLedgEntry.SetRange("Entry Type", DtldVendLedgEntry."Entry Type"::Application);
+        DtldVendLedgEntry.SetRange("Document Type", DocType);
+        DtldVendLedgEntry.SetRange("Document No.", DocNo);
+        DtldVendLedgEntry.SetRange(Unapplied, true);
+        DtldVendLedgEntry.FindLast();
+        exit(DtldVendLedgEntry."Transaction No.");
     end;
 
     local procedure GetPaymentDocType(DocumentType: Enum "Gen. Journal Document Type"): Enum "Gen. Journal Document Type"
@@ -3494,24 +3490,20 @@ codeunit 142050 "ERM Sales/Purchase Tax"
     var
         VATEntry: Record "VAT Entry";
     begin
-        with VATEntry do begin
-            SetRange("Document Type", "Document Type"::Invoice);
-            SetRange("Document No.", DocumentNo);
-            CalcSums(Amount);
-            exit(Amount);
-        end;
+        VATEntry.SetRange("Document Type", VATEntry."Document Type"::Invoice);
+        VATEntry.SetRange("Document No.", DocumentNo);
+        VATEntry.CalcSums(Amount);
+        exit(VATEntry.Amount);
     end;
 
     local procedure GetVATEntryRemainingUnrealAmount(DocumentNo: Code[20]): Decimal
     var
         VATEntry: Record "VAT Entry";
     begin
-        with VATEntry do begin
-            SetRange("Document Type", "Document Type"::Invoice);
-            SetRange("Document No.", DocumentNo);
-            FindFirst();
-            exit("Remaining Unrealized Amount");
-        end;
+        VATEntry.SetRange("Document Type", VATEntry."Document Type"::Invoice);
+        VATEntry.SetRange("Document No.", DocumentNo);
+        VATEntry.FindFirst();
+        exit(VATEntry."Remaining Unrealized Amount");
     end;
 
     local procedure ModifyInventorySetup()

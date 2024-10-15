@@ -406,22 +406,20 @@ report 10145 "Item Sales by Customer"
             SalesText := ''
         else
             SalesText := StrSubstNo(Text002, MinSales);
-        if MaxSales <> 0 then begin
+        if MaxSales <> 0 then
             if SalesText = '' then
                 SalesText := StrSubstNo(Text003, MaxSales)
             else
                 SalesText := SalesText + StrSubstNo(Text004, MaxSales);
-        end;
         if MinQty = 0 then
             QtyText := ''
         else
             QtyText := StrSubstNo(Text005, MinQty);
-        if MaxQty <> 0 then begin
+        if MaxQty <> 0 then
             if QtyText = '' then
                 QtyText := StrSubstNo(Text006, MaxQty)
             else
                 QtyText := QtyText + StrSubstNo(Text007, MaxQty);
-        end;
 
         if PrintToExcel then
             MakeExcelInfo();

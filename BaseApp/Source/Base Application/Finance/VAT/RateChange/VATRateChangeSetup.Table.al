@@ -10,7 +10,6 @@ using Microsoft.Projects.Project.Job;
 using Microsoft.Projects.Resources.Resource;
 using Microsoft.Purchases.Document;
 using Microsoft.Sales.Document;
-using Microsoft.Service.Document;
 
 table 550 "VAT Rate Change Setup"
 {
@@ -123,22 +122,6 @@ table 550 "VAT Rate Change Setup"
             OptionCaption = ',Gen. Prod. Posting Group,,No';
             OptionMembers = ,"Gen. Prod. Posting Group",,No;
         }
-        field(41; "Update Service Docs."; Option)
-        {
-            AccessByPermission = TableData "Service Header" = R;
-            Caption = 'Update Service Docs.';
-            InitValue = Both;
-            OptionCaption = 'VAT Prod. Posting Group,Gen. Prod. Posting Group,Both,No';
-            OptionMembers = "VAT Prod. Posting Group","Gen. Prod. Posting Group",Both,No;
-        }
-        field(43; "Update Serv. Price Adj. Detail"; Option)
-        {
-            AccessByPermission = TableData "Service Header" = R;
-            Caption = 'Update Serv. Price Adj. Detail';
-            InitValue = "Gen. Prod. Posting Group";
-            OptionCaption = ',Gen. Prod. Posting Group,,No';
-            OptionMembers = ,"Gen. Prod. Posting Group",,No;
-        }
         field(50; "Update Sales Documents"; Option)
         {
             AccessByPermission = TableData "Sales Header" = R;
@@ -230,11 +213,6 @@ table 550 "VAT Rate Change Setup"
             Caption = 'Resource Filter';
             //The property 'ValidateTableRelation' can only be set if the property 'TableRelation' is set
             //ValidateTableRelation = false;
-        }
-        field(103; "Ignore Status on Service Docs."; Boolean)
-        {
-            Caption = 'Ignore Status on Service Docs.';
-            InitValue = true;
         }
         field(110; "Update Unit Price For G/L Acc."; Boolean)
         {

@@ -9,6 +9,7 @@ using Microsoft.Inventory.Tracking;
 using Microsoft.Purchases.Document;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.History;
+using Microsoft.Service.Contract;
 using Microsoft.Service.Document;
 using Microsoft.Service.Resources;
 using Microsoft.Service.Setup;
@@ -37,12 +38,17 @@ codeunit 5920 ServItemManagement
         NextLineNo: Integer;
         Index: Integer;
 
-        Text000: Label 'Do you want to create a %1?';
+#pragma warning disable AA0074
+#pragma warning disable AA0470
+        Text000: Label 'Do you want to create a service item?';
         Text001: Label 'Service item %1 was created. This service item does not belong to any service contract.';
         Text002: Label 'You have inserted a %1 on the selected %2.\Would you like to copy this information into the %1 field for the newly created %3?';
         Text003: Label 'Posting cannot be completed successfully. %1 %2  belongs to the %3 that requires creating service items. Check if the %4 field contains a whole number.';
         Text004: Label 'Posting cannot be completed successfully. For the items that are used to replace or create service item components, the %1 field on the %2 must contain a whole number.';
         Text005: Label 'The service item that is linked to the order has been deleted.';
+        CannotDeleteErr: Label 'You cannot delete item variant %1 because there is at least one %2 that includes this Variant Code.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure AddOrReplaceSIComponent(var ServLine: Record "Service Line"; ServHeader: Record "Service Header"; ServShptDocNo: Code[20]; ServShptLineNo: Integer; var TempTrackingSpecification: Record "Tracking Specification" temporary)
     var
@@ -427,7 +433,7 @@ codeunit 5920 ServItemManagement
         ServItemLine.TestField("Service Item No.", '');
         ServItemLine.TestField("Document No.");
         ServItemLine.TestField(Description);
-        if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(Text000, LowerCase(ServItem.TableCaption())), true) then
+        if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(Text000), true) then
             exit;
 
         Clear(ServItem);
@@ -861,5 +867,37 @@ codeunit 5920 ServItemManagement
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCopyReservationEntryLineAfterCheckSalesLineNeedsServiceItemCreation(var SalesLine: Record "Sales Line"; var SalesLineNeedServiceItemCreation: Boolean)
     begin
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Item Variant", 'OnAfterOnDelete', '', false, false)]
+    local procedure ItemVariantOnAfterOnDelete(ItemVariant: Record "Item Variant")
+    var
+        ServiceLine: Record "Service Line";
+        ServiceContractLine: Record "Service Contract Line";
+        ServiceItem: Record "Service Item";
+        ServiceItemComponent: Record "Service Item Component";
+    begin
+        ServiceItem.SetCurrentKey("Item No.", "Serial No.");
+        ServiceItem.SetRange("Item No.", ItemVariant."Item No.");
+        ServiceItem.SetRange("Variant Code", ItemVariant.Code);
+        if not ServiceItem.IsEmpty() then
+            Error(CannotDeleteErr, ItemVariant.Code, ServiceItem.TableCaption());
+
+        ServiceLine.SetCurrentKey(Type, "No.");
+        ServiceLine.SetRange(Type, ServiceLine.Type::Item);
+        ServiceLine.SetRange("No.", ItemVariant."Item No.");
+        ServiceLine.SetRange("Variant Code", ItemVariant.Code);
+        if not ServiceLine.IsEmpty() then
+            Error(CannotDeleteErr, ItemVariant.Code, ServiceLine.TableCaption());
+
+        ServiceContractLine.SetRange("Item No.", ItemVariant."Item No.");
+        ServiceContractLine.SetRange("Variant Code", ItemVariant.Code);
+        if not ServiceContractLine.IsEmpty() then
+            Error(CannotDeleteErr, ItemVariant.Code, ServiceContractLine.TableCaption());
+
+        ServiceItemComponent.SetRange(Type, ServiceItemComponent.Type::Item);
+        ServiceItemComponent.SetRange("No.", ItemVariant."Item No.");
+        ServiceItemComponent.SetRange("Variant Code", ItemVariant.Code);
+        ServiceItemComponent.ModifyAll("Variant Code", '');
     end;
 }

@@ -37,13 +37,11 @@ codeunit 137102 "SCM Kitting ATO in Whse"
         ToBinCode: Code[20];
         AsmShipBinCode: Code[20];
         ConfirmStatusChangeCount: Integer;
-        ERR_BIN_CODE_CHANGE: Label 'Assemble to Order must be equal to ''No''  in Assembly Header:';
         CHANGE_LOC_CONFIRM: Label 'Do you want to update the Location Code on the lines?';
         ERR_QTY_BASE: Label ' units are not available';
         ERR_ATO_QTY_TO_ASM: Label 'Quantity to Assemble cannot be lower than %1 or higher than %2.';
         ERR_ATS_QTY_TO_ASM: Label 'Quantity to Assemble cannot be higher than the Remaining Quantity, which is %1.';
         TXT_EXPCTD_ACTUAL: Label 'Expected: %1, Actual: %2.';
-        ERR_QTY_BASE_MUST_BE_0: Label 'Qty. to Asm. to Order (Base) must be equal to ''0''  in Sales Line: Document Type=Order, Document No.=';
         MSG_STATUS_WILL_BE_CHANGED: Label 'The status of the linked assembly order will be changed to ';
         ERR_UPDATE_INTERRUPTED: Label 'The update has been interrupted to respect the warning.';
 
@@ -836,7 +834,7 @@ codeunit 137102 "SCM Kitting ATO in Whse"
         Assert.IsTrue(SalesLine1.AsmToOrderExists(AssemblyHeader1), 'There is no asm order');
 
         asserterror AssemblyHeader1.Validate("Bin Code", AdditionalBinCode1);
-        Assert.IsTrue(StrPos(GetLastErrorText, ERR_BIN_CODE_CHANGE) > 0, PadStr('Actual:' + GetLastErrorText + ';Expected:' + ERR_BIN_CODE_CHANGE, 1024));
+        Assert.ExpectedTestFieldError(AssemblyHeader1.FieldCaption("Assemble to Order"), Format(false));
     end;
 
     [Test]
@@ -860,7 +858,7 @@ codeunit 137102 "SCM Kitting ATO in Whse"
         Assert.IsTrue(SalesLine1.AsmToOrderExists(AssemblyHeader1), 'There is no asm order');
 
         asserterror AssemblyHeader1.Validate("Location Code", NewLocation.Code);
-        Assert.IsTrue(StrPos(GetLastErrorText, ERR_BIN_CODE_CHANGE) > 0, PadStr('Actual:' + GetLastErrorText + ';Expected:' + ERR_BIN_CODE_CHANGE, 1024));
+        Assert.ExpectedTestFieldError(AssemblyHeader1.FieldCaption("Assemble to Order"), Format(false));
     end;
 
     [Test]
@@ -1492,7 +1490,7 @@ codeunit 137102 "SCM Kitting ATO in Whse"
             Commit();
             SalesLine.Validate("Drop Shipment", true);
         end;
-        Assert.IsTrue(StrPos(GetLastErrorText, ERR_QTY_BASE_MUST_BE_0) > 0, PadStr('Actual: ' + GetLastErrorText + ';Expected: ' + ERR_QTY_BASE_MUST_BE_0, 1024));
+        Assert.ExpectedTestFieldError(SalesLine.FieldCaption("Qty. to Asm. to Order (Base)"), Format(0));
 
         SalesLine.Validate("Qty. to Assemble to Order", 0);
         SalesLine.Modify(true);

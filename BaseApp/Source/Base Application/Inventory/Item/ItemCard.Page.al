@@ -35,10 +35,6 @@ using Microsoft.Purchases.Pricing;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.Pricing;
 using Microsoft.Sales.Setup;
-using Microsoft.Service.Document;
-using Microsoft.Service.Item;
-using Microsoft.Service.Maintenance;
-using Microsoft.Service.Resources;
 using Microsoft.Utilities;
 using Microsoft.Warehouse.ADCS;
 using Microsoft.Warehouse.Ledger;
@@ -158,12 +154,6 @@ page 30 "Item Card"
                     ToolTip = 'Specifies a code for the manufacturer of the catalog item.';
                     Visible = false;
                 }
-                field("Service Item Group"; Rec."Service Item Group")
-                {
-                    ApplicationArea = Service;
-                    Importance = Additional;
-                    ToolTip = 'Specifies the code of the service item group that the item belongs to.';
-                }
                 field("Automatic Ext. Texts"; Rec."Automatic Ext. Texts")
                 {
                     ApplicationArea = Basic, Suite;
@@ -277,12 +267,6 @@ page 30 "Item Card"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies how many units of the item are allocated to sales orders, meaning listed on outstanding sales orders lines.';
-                }
-                field("Qty. on Service Order"; Rec."Qty. on Service Order")
-                {
-                    ApplicationArea = Service;
-                    Importance = Additional;
-                    ToolTip = 'Specifies how many units of the item are allocated to service orders, meaning listed on outstanding service order lines.';
                 }
                 field("Qty. on Job Order"; Rec."Qty. on Job Order")
                 {
@@ -509,7 +493,7 @@ page 30 "Item Card"
                             UpdateSpecialPriceListsTxt(PriceType::Purchase);
                         end;
                     }
-#if not CLEAN23
+#if not CLEAN25
                     field(SpecialPurchPricesAndDiscountsTxt; SpecialPurchPricesAndDiscountsTxt)
                     {
                         ApplicationArea = Suite;
@@ -676,7 +660,7 @@ page 30 "Item Card"
                         UpdateSpecialPriceListsTxt(PriceType::Sale);
                     end;
                 }
-#if not CLEAN23
+#if not CLEAN25
                 field(SpecialPricesAndDiscountsTxt; SpecialPricesAndDiscountsTxt)
                 {
                     ApplicationArea = Basic, Suite;
@@ -815,12 +799,12 @@ page 30 "Item Card"
                     field("Routing No."; Rec."Routing No.")
                     {
                         ApplicationArea = Manufacturing;
-                        ToolTip = 'Specifies the number of the production routing that the item is used in.';
+                        ToolTip = 'Specifies the production route that contains the operations needed to manufacture this item.';
                     }
                     field("Production BOM No."; Rec."Production BOM No.")
                     {
                         ApplicationArea = Manufacturing;
-                        ToolTip = 'Specifies the number of the production BOM that the item represents.';
+                        ToolTip = 'Specifies the production BOM that is used to manufacture this item.';
                     }
                     field("Rounding Precision"; Rec."Rounding Precision")
                     {
@@ -1042,7 +1026,7 @@ page 30 "Item Card"
                 {
                     ApplicationArea = ItemTracking;
                     Importance = Promoted;
-                    ToolTip = 'Specifies how serial or lot numbers assigned to the item are tracked in the supply chain.';
+                    ToolTip = 'Specifies how serial, lot or package numbers assigned to the item are tracked in the supply chain.';
 
                     trigger OnValidate()
                     begin
@@ -1145,10 +1129,23 @@ page 30 "Item Card"
                 Caption = 'Picture';
                 SubPageLink = "No." = field("No.");
             }
+#if not CLEAN25
             part("Attached Documents"; "Document Attachment Factbox")
             {
+                ObsoleteTag = '25.0';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
                 ApplicationArea = All;
                 Caption = 'Attachments';
+                SubPageLink = "Table ID" = const(Database::Item),
+                              "No." = field("No.");
+            }
+#endif
+            part("Attached Documents List"; "Doc. Attachment List Factbox")
+            {
+                ApplicationArea = All;
+                Caption = 'Documents';
+                UpdatePropagation = Both;
                 SubPageLink = "Table ID" = const(Database::Item),
                               "No." = field("No.");
             }
@@ -1185,20 +1182,10 @@ page 30 "Item Card"
     {
         area(processing)
         {
-#if not CLEAN22
-            group(ItemActionGroup)
-            {
-                Caption = 'Item';
-                Image = DataEntry;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Moved actions to Navigation->Item';
-                ObsoleteTag = '22.0';
-            }
-#endif
             group(PricesandDiscounts)
             {
                 Caption = 'Sales Prices & Discounts';
-#if not CLEAN23
+#if not CLEAN25
                 action("Set Special Prices")
                 {
                     ApplicationArea = Basic, Suite;
@@ -1300,7 +1287,7 @@ page 30 "Item Card"
             group(PurchPricesandDiscounts)
             {
                 Caption = 'Purchase Prices & Discounts';
-#if not CLEAN23
+#if not CLEAN25
                 action(Action86)
                 {
                     ApplicationArea = Suite;
@@ -1496,37 +1483,10 @@ page 30 "Item Card"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Create approval flow';
                         ToolTip = 'Create a new flow in Power Automate from a list of relevant flow templates.';
-#if not CLEAN22
-                        Visible = IsSaaS and PowerAutomateTemplatesEnabled and IsPowerAutomatePrivacyNoticeApproved;
-#else
                         Visible = IsSaaS and IsPowerAutomatePrivacyNoticeApproved;
-#endif
                         CustomActionType = FlowTemplateGallery;
                         FlowTemplateCategoryName = 'd365bc_approval_item';
                     }
-#if not CLEAN22
-                    action(CreateFlow)
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Create a Power Automate approval flow';
-                        Image = Flow;
-                        ToolTip = 'Create a new flow in Power Automate from a list of relevant flow templates.';
-                        Visible = IsSaaS and not PowerAutomateTemplatesEnabled and IsPowerAutomatePrivacyNoticeApproved;
-                        ObsoleteReason = 'This action will be handled by platform as part of the CreateFlowFromTemplate customaction';
-                        ObsoleteState = Pending;
-                        ObsoleteTag = '22.0';
-
-                        trigger OnAction()
-                        var
-                            FlowServiceManagement: Codeunit "Flow Service Management";
-                            FlowTemplateSelector: Page "Flow Template Selector";
-                        begin
-                            // Opens page 6400 where the user can use filtered templates to create new Flows.
-                            FlowTemplateSelector.SetSearchText(FlowServiceManagement.GetItemTemplateFilter());
-                            FlowTemplateSelector.Run();
-                        end;
-                    }
-#endif
                 }
             }
             group(Workflow)
@@ -1700,7 +1660,7 @@ page 30 "Item Card"
                 Caption = 'Item Reclassification Journal';
                 Image = Journals;
                 RunObject = Page "Item Reclass. Journal";
-                ToolTip = 'Change information on item ledger entries, such as dimensions, location codes, bin codes, and serial or lot numbers.';
+                ToolTip = 'Change information on item ledger entries, such as dimensions, location codes, bin codes, and serial, lot or package numbers.';
             }
             action("Item Tracing")
             {
@@ -1708,7 +1668,7 @@ page 30 "Item Card"
                 Caption = 'Item Tracing';
                 Image = ItemTracing;
                 RunObject = Page "Item Tracing";
-                ToolTip = 'Trace where a lot or serial number assigned to the item was used, for example, to find which lot a defective component came from or to find all the customers that have received items containing the defective component.';
+                ToolTip = 'Trace where a serial, lot or package number assigned to the item was used, for example, to find which lot a defective component came from or to find all the customers that have received items containing the defective component.';
             }
         }
         area(reporting)
@@ -1889,7 +1849,7 @@ page 30 "Item Card"
                         ApplicationArea = ItemTracking;
                         Caption = 'Item &Tracking Entries';
                         Image = ItemTrackingLedger;
-                        ToolTip = 'View serial or lot numbers that are assigned to items.';
+                        ToolTip = 'View serial, lot or package numbers that are assigned to items.';
 
                         trigger OnAction()
                         var
@@ -2231,7 +2191,7 @@ page 30 "Item Card"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromItem(Rec, ItemAvailFormsMgt.ByEvent());
+                            ItemAvailFormsMgt.ShowItemAvailabilityFromItem(Rec, "Item Availability Type"::"Event");
                         end;
                     }
                     action(Period)
@@ -2297,7 +2257,7 @@ page 30 "Item Card"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromItem(Rec, ItemAvailFormsMgt.ByBOM());
+                            ItemAvailFormsMgt.ShowItemAvailabilityFromItem(Rec, "Item Availability Type"::BOM);
                         end;
                     }
                     action("Unit of Measure")
@@ -2607,79 +2567,6 @@ page 30 "Item Card"
                     ToolTip = 'Open the item''s SKUs to view or edit instances of the item at different locations or with different variants. ';
                 }
             }
-            group(Service)
-            {
-                Caption = 'Service';
-                Image = ServiceItem;
-                action("Ser&vice Items")
-                {
-                    ApplicationArea = Service;
-                    Caption = 'Ser&vice Items';
-                    Image = ServiceItem;
-                    RunObject = Page "Service Items";
-                    RunPageLink = "Item No." = field("No.");
-                    RunPageView = sorting("Item No.");
-                    ToolTip = 'View instances of the item as service items, such as machines that you maintain or repair for customers through service orders. ';
-                }
-                action(Troubleshooting)
-                {
-                    AccessByPermission = TableData "Service Header" = R;
-                    ApplicationArea = Service;
-                    Caption = 'Troubleshooting';
-                    Image = Troubleshoot;
-                    ToolTip = 'View or edit information about technical problems with a service item.';
-
-                    trigger OnAction()
-                    var
-                        TroubleshootingHeader: Record "Troubleshooting Header";
-                    begin
-                        TroubleshootingHeader.ShowForItem(Rec);
-                    end;
-                }
-                action("Troubleshooting Setup")
-                {
-                    ApplicationArea = Service;
-                    Caption = 'Troubleshooting Setup';
-                    Image = Troubleshoot;
-                    RunObject = Page "Troubleshooting Setup";
-                    RunPageLink = Type = const(Item),
-                                  "No." = field("No.");
-                    ToolTip = 'View or edit your settings for troubleshooting service items.';
-                }
-            }
-            group(Resources)
-            {
-                Caption = 'Resources';
-                Image = Resource;
-                action("Resource Skills")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Resource Skills';
-                    Image = ResourceSkills;
-                    RunObject = Page "Resource Skills";
-                    RunPageLink = Type = const(Item),
-                                  "No." = field("No.");
-                    ToolTip = 'View the assignment of skills to resources, items, service item groups, and service items. You can use skill codes to allocate skilled resources to service items or items that need special skills for servicing.';
-                }
-                action("Skilled Resources")
-                {
-                    AccessByPermission = TableData "Service Header" = R;
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Skilled Resources';
-                    Image = ResourceSkills;
-                    ToolTip = 'View a list of all registered resources with information about whether they have the skills required to service the particular service item group, item, or service item.';
-
-                    trigger OnAction()
-                    var
-                        ResourceSkill: Record "Resource Skill";
-                    begin
-                        Clear(SkilledResourceList);
-                        SkilledResourceList.Initialize(ResourceSkill.Type::Item, Rec."No.", Rec.Description);
-                        SkilledResourceList.RunModal();
-                    end;
-                }
-            }
-
         }
         area(Promoted)
         {
@@ -2796,29 +2683,6 @@ page 30 "Item Card"
                 actionref("Cost Shares_Promoted"; "Cost Shares")
                 {
                 }
-#if not CLEAN22
-                actionref("&Units of Measure_Promoted"; "&Units of Measure")
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Demoted: The page can be accessed from the FactBox.';
-                    ObsoleteTag = '22.0';
-                }
-                actionref("E&xtended Texts_Promoted"; "E&xtended Texts")
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Demoted: The page can be accessed from the FactBox.';
-                    ObsoleteTag = '22.0';
-                }
-                actionref("Substituti&ons_Promoted"; "Substituti&ons")
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Demoted: The page can be accessed from the FactBox.';
-                    ObsoleteTag = '22.0';
-                }
-#endif
             }
             group(Category_Category5)
             {
@@ -2828,7 +2692,7 @@ page 30 "Item Card"
             {
                 Caption = 'Prices & Discounts', Comment = 'Generated from the PromotedActionCategories property index 5.';
 
-#if not CLEAN23
+#if not CLEAN25
                 actionref("Set Special Prices_Promoted"; "Set Special Prices")
                 {
                     ObsoleteState = Pending;
@@ -2842,7 +2706,7 @@ page 30 "Item Card"
                 actionref(PurchPriceLists_Promoted; PurchPriceLists)
                 {
                 }
-#if not CLEAN23
+#if not CLEAN25
                 actionref(PricesDiscountsOverview_Promoted; PricesDiscountsOverview)
                 {
                     ObsoleteState = Pending;
@@ -2850,7 +2714,7 @@ page 30 "Item Card"
                     ObsoleteTag = '17.0';
                 }
 #endif
-#if not CLEAN23
+#if not CLEAN25
                 actionref("Set Special Discounts_Promoted"; "Set Special Discounts")
                 {
                     ObsoleteState = Pending;
@@ -2858,7 +2722,7 @@ page 30 "Item Card"
                     ObsoleteTag = '17.0';
                 }
 #endif
-#if not CLEAN23
+#if not CLEAN25
                 actionref(PurchPricesDiscountsOverview_Promoted; PurchPricesDiscountsOverview)
                 {
                     ObsoleteState = Pending;
@@ -2872,7 +2736,7 @@ page 30 "Item Card"
                 actionref(PurchPriceListsDiscounts_Promoted; PurchPriceListsDiscounts)
                 {
                 }
-#if not CLEAN23
+#if not CLEAN25
                 actionref(Action86_Promoted; Action86)
                 {
                     ObsoleteState = Pending;
@@ -2880,7 +2744,7 @@ page 30 "Item Card"
                     ObsoleteTag = '17.0';
                 }
 #endif
-#if not CLEAN23
+#if not CLEAN25
                 actionref(Action85_Promoted; Action85)
                 {
                     ObsoleteState = Pending;
@@ -2983,9 +2847,6 @@ page 30 "Item Card"
         EnabledApprovalWorkflowsExist := WorkflowManagement.EnabledWorkflowExist(DATABASE::Item, EventFilter);
 
         IsPowerAutomatePrivacyNoticeApproved := PrivacyNotice.GetPrivacyNoticeApprovalState(PrivacyNoticeRegistrations.GetPowerAutomatePrivacyNoticeId()) = "Privacy Notice Approval State"::Agreed;
-#if not CLEAN22
-        InitPowerAutomateTemplateVisibility();
-#endif
     end;
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
@@ -3043,7 +2904,6 @@ page 30 "Item Card"
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
         PrivacyNotice: Codeunit "Privacy Notice";
         PrivacyNoticeRegistrations: Codeunit "Privacy Notice Registrations";
-        SkilledResourceList: Page "Skilled Resource List";
         IsInventoryAdjmtAllowed: Boolean;
         ShowStockoutWarningDefaultYes: Boolean;
         ShowStockoutWarningDefaultNo: Boolean;
@@ -3065,7 +2925,7 @@ page 30 "Item Card"
         MarketingTextPlaceholderTxt: Label '[Create draft]() based on this item''s attributes.', Comment = 'Text contained in [here]() will be clickable to invoke the generate action';
         ViewExistingTxt: Label 'View Existing Prices and Discounts...';
         ShowVariantMandatoryDefaultYes: Boolean;
-#if not CLEAN23
+#if not CLEAN25
         SpecialPricesAndDiscountsTxt: Text;
         CreateNewSpecialPriceTxt: Label 'Create New Special Price...';
         CreateNewSpecialDiscountTxt: Label 'Create New Special Discount...';
@@ -3127,7 +2987,7 @@ page 30 "Item Card"
         EnablePlanningControls();
         EnableCostingControls();
 
-#if not CLEAN23
+#if not CLEAN25
         if not ExtendedPriceEnabled then
             UpdateSpecialPricesAndDiscountsTxt();
 #endif
@@ -3251,7 +3111,7 @@ page 30 "Item Card"
         OnAfterInitControls();
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Obsolete('Replaced by the new implementation (V16) of price calculation.', '17.0')]
     local procedure UpdateSpecialPricesAndDiscountsTxt()
     var
@@ -3371,22 +3231,6 @@ page 30 "Item Card"
         end;
         exit(PurchPriceListsText);
     end;
-
-#if not CLEAN22
-    var
-        PowerAutomateTemplatesEnabled: Boolean;
-        PowerAutomateTemplatesFeatureLbl: Label 'PowerAutomateTemplates', Locked = true;
-
-    local procedure InitPowerAutomateTemplateVisibility()
-    var
-        FeatureKey: Record "Feature Key";
-    begin
-        PowerAutomateTemplatesEnabled := true;
-        if FeatureKey.Get(PowerAutomateTemplatesFeatureLbl) then
-            if FeatureKey.Enabled <> FeatureKey.Enabled::"All Users" then
-                PowerAutomateTemplatesEnabled := false;
-    end;
-#endif
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterInitControls()

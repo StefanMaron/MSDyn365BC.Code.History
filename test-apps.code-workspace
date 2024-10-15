@@ -39,7 +39,10 @@
       "path": "./FieldServiceIntegration/Test/Field Service Integration Test"
     },
     {
-      "path": "./SalesLinesSuggestions/Test/Sales Lines Suggestions Tests"
+      "path": "./SalesLinesSuggestions/Test/Sales Lines Suggestions Tests/AI Tests"
+    },
+    {
+      "path": "./SalesLinesSuggestions/Test/Sales Lines Suggestions Tests/AttachmentHandlerPromptTests"
     },
     {
       "path": "./BusinessFoundation/Test/Business Foundation Test Libraries"
@@ -58,6 +61,9 @@
     },
     {
       "path": "./BankAccRecWithAI/Test/Bank Account Reconciliation With AI Tests"
+    },
+    {
+      "path": "./SubscriptionBilling/Test/Subscription & Recurring Billing Tests"
     },
     {
       "path": "./QuickbooksPayrollFileImport/Test/Quickbooks Payroll File Import Tests"
@@ -81,6 +87,15 @@
       "path": "./testframework/TestRunner/Test Runner"
     },
     {
+      "path": "./testframework/TestRunner/Test Runner/src/DataDrivenTest"
+    },
+    {
+      "path": "./testframework/aitesttoolkit/AI Test Toolkit"
+    },
+    {
+      "path": "./testframework/aitesttoolkit/AI Test Toolkit/src/TestSuite"
+    },
+    {
       "path": "./testframework/performancetoolkit/Performance Toolkit Tests"
     },
     {
@@ -94,6 +109,9 @@
     },
     {
       "path": "./PayPalPaymentsStandard/Test/PayPal Payments Standard Tests"
+    },
+    {
+      "path": "./Intrastat/Test/Intrastat Core Tests"
     },
     {
       "path": "./ReportLayouts/Test/Report Layouts Tests"
@@ -198,6 +216,9 @@
       "path": "./BaseApp/Test/Tests-SCM"
     },
     {
+      "path": "./BaseApp/Test/Tests-Service"
+    },
+    {
       "path": "./BaseApp/Test/Tests-SINGLESERVER"
     },
     {
@@ -246,6 +267,9 @@
       "path": "./Email - SMTP Connector/Test/Email - SMTP Connector Tests"
     },
     {
+      "path": "./ExcelReports/Test/Dynamics BC Excel Reports Tests"
+    },
+    {
       "path": "./Email - SMTP API/Test Library/Email - SMTP API Test Library"
     },
     {
@@ -262,6 +286,9 @@
     },
     {
       "path": "./RecommendedApps/Test/Recommended Apps Tests"
+    },
+    {
+      "path": "./PowerBIReports/Test/PowerBI Reports Tests"
     },
     {
       "path": "./PaymentPractices/Test/Payment Practices Tests"

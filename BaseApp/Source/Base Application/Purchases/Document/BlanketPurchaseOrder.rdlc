@@ -4198,6 +4198,9 @@ End Function</Code>
         <Field Name="PaytoVendorNo_PurchaseHdr">
           <DataField>PaytoVendorNo_PurchaseHdr</DataField>
         </Field>
+        <Field Name="CompanyPicture">
+          <DataField>CompanyPicture</DataField>
+        </Field>
         <Field Name="DocDate_PurchaseHdr">
           <DataField>DocDate_PurchaseHdr</DataField>
         </Field>
@@ -4374,6 +4377,9 @@ End Function</Code>
         </Field>
         <Field Name="SelltoCustNo_PurchaseHdrCaption">
           <DataField>SelltoCustNo_PurchaseHdrCaption</DataField>
+        </Field>
+        <Field Name="ShipToPhoneNo">
+          <DataField>ShipToPhoneNo</DataField>
         </Field>
       </Fields>
       <Query>

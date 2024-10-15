@@ -61,7 +61,6 @@ using Microsoft.Sales.History;
 using Microsoft.Sales.Receivables;
 using Microsoft.Sales.Reminder;
 using Microsoft.Sales.Setup;
-using Microsoft.Service.Document;
 using System.Automation;
 using System.IO;
 using System.DateTime;
@@ -114,9 +113,6 @@ table 81 "Gen. Journal Line"
                 OnValidateAccountTypeOnBeforeCheckKeepDescription(Rec, xRec, CurrFieldNo);
                 if not "Keep Description" then
                     Validate(Description, '');
-#if not CLEAN22
-                Validate("IC Partner G/L Acc. No.", '');
-#endif
                 Validate("IC Account No.", '');
                 if "Account Type" in ["Account Type"::Customer, "Account Type"::Vendor, "Account Type"::"Bank Account", "Account Type"::Employee] then begin
                     Validate("Gen. Posting Type", "Gen. Posting Type"::" ");
@@ -227,9 +223,6 @@ table 81 "Gen. Journal Line"
 
                 CreateDimFromDefaultDim(FieldNo("Account No."));
 
-#if not CLEAN22
-                Validate("IC Partner G/L Acc. No.", GetDefaultICPartnerGLAccNo());
-#endif
                 if (Rec."IC Account Type" = Rec."IC Account Type"::"G/L Account") then
                     Validate("IC Account No.", GetDefaultICPartnerGLAccNo());
                 ValidateApplyRequirements(Rec);
@@ -481,9 +474,6 @@ table 81 "Gen. Journal Line"
                 UpdateSource();
                 CreateDimFromDefaultDim(FieldNo("Bal. Account No."));
                 UpdateBalanceAccountId();
-#if not CLEAN22
-                Validate("IC Partner G/L Acc. No.", GetDefaultICPartnerGLAccNo());
-#endif
                 if (Rec."IC Account Type" = Rec."IC Account Type"::"G/L Account") then
                     Validate("IC Account No.", GetDefaultICPartnerGLAccNo());
                 ValidateApplyRequirements(Rec);
@@ -1262,9 +1252,6 @@ table 81 "Gen. Journal Line"
                 OnValidateBalAccountTypeOnBeforeSetBalAccountNo(Rec, xRec);
 
                 Validate("Bal. Account No.", '');
-#if not CLEAN22
-                Validate("IC Partner G/L Acc. No.", '');
-#endif
                 Validate("IC Account No.", '');
                 if "Bal. Account Type" in
                    ["Bal. Account Type"::Customer, "Bal. Account Type"::Vendor, "Bal. Account Type"::"Bank Account", "Bal. Account Type"::Employee]
@@ -2038,33 +2025,9 @@ table 81 "Gen. Journal Line"
         {
             Caption = 'IC Partner G/L Acc. No.';
             TableRelation = "IC G/L Account";
-#if not CLEAN22
-            ObsoleteReason = 'This field will be replaced by IC Account No.';
-            ObsoleteState = Pending;
-            ObsoleteTag = '22.0';
-#else
             ObsoleteReason = 'Replaced by IC Account No.';
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
-#endif
-
-#if not CLEAN22
-            trigger OnValidate()
-            var
-                ICGLAccount: Record "IC G/L Account";
-            begin
-                if "Journal Template Name" <> '' then
-                    if "IC Partner G/L Acc. No." <> '' then begin
-                        GetTemplate();
-                        GenJnlTemplate.TestField(Type, GenJnlTemplate.Type::Intercompany);
-                        if ICGLAccount.Get("IC Partner G/L Acc. No.") then
-                            ICGLAccount.TestField(Blocked, false);
-                    end;
-
-                Rec."IC Account Type" := Rec."IC Account Type"::"G/L Account";
-                Rec."IC Account No." := Rec."IC Partner G/L Acc. No.";
-            end;
-#endif
         }
         field(117; "IC Partner Transaction No."; Integer)
         {
@@ -2174,14 +2137,6 @@ table 81 "Gen. Journal Line"
             if ("Bal. Account Type" = const(Vendor), "IC Account Type" = const("Bank Account")) "IC Bank Account" where("IC Partner Code" = field("IC Partner Code"), Blocked = const(false))
             else
             if ("Bal. Account Type" = const("IC Partner"), "IC Account Type" = const("Bank Account")) "IC Bank Account" where("IC Partner Code" = field("Bal. Account No."), Blocked = const(false));
-
-#if not CLEAN22
-            trigger OnValidate()
-            begin
-                if Rec."IC Account Type" = Rec."IC Account Type"::"G/L Account" then
-                    Rec."IC Partner G/L Acc. No." := Rec."IC Account No.";
-            end;
-#endif
         }
         field(160; "Job Queue Status"; Enum "Document Job Queue Status")
         {
@@ -2601,10 +2556,9 @@ table 81 "Gen. Journal Line"
                     if JobPlanningLine.Quantity >= 0 then begin
                         if "Job Remaining Qty." < 0 then
                             "Job Remaining Qty." := 0;
-                    end else begin
+                    end else
                         if "Job Remaining Qty." > 0 then
                             "Job Remaining Qty." := 0;
-                    end;
                 end;
             end;
         }
@@ -3407,19 +3361,31 @@ table 81 "Gen. Journal Line"
     end;
 
     var
+#pragma warning disable AA0074
         Text000: Label '%1 or %2 must be a G/L Account or Bank Account.', Comment = '%1=Account Type,%2=Balance Account Type';
+#pragma warning disable AA0470
         Text001: Label 'You must not specify %1 when %2 is %3.';
         Text002: Label 'cannot be specified without %1';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         ChangeCurrencyQst: Label 'The Currency Code in the Gen. Journal Line will be changed from %1 to %2.\\Do you want to continue?', Comment = '%1=FromCurrencyCode, %2=ToCurrencyCode';
         UpdateInterruptedErr: Label 'The update has been interrupted to respect the warning.';
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text006: Label 'The %1 option can only be used internally in the system.';
+#pragma warning restore AA0470
         Text007: Label '%1 or %2 must be a bank account.', Comment = '%1=Account Type,%2=Balance Account Type';
+#pragma warning disable AA0470
         Text008: Label ' must be 0 when %1 is %2.';
+#pragma warning restore AA0470
         Text009: Label 'LCY';
+#pragma warning disable AA0470
         Text011: Label '%1 must be negative.';
         Text012: Label '%1 must be positive.';
         Text013: Label 'The %1 must not be more than %2.';
+#pragma warning restore AA0470
         WrongJobQueueStatus: Label 'Journal line cannot be modified because it has been scheduled for posting.';
+#pragma warning restore AA0074
         RenumberDocNoQst: Label 'If you have many documents it can take time to sort them, and %1 might perform slowly during the process. In those cases we suggest that you sort them during non-working hours. Do you want to continue?', Comment = '%1= Business Central';
         [SecurityFiltering(SecurityFilter::Filtered)]
         GenJnlTemplate: Record "Gen. Journal Template";
@@ -3457,20 +3423,32 @@ table 81 "Gen. Journal Line"
         Window: Dialog;
         DeferralDocType: Enum "Deferral Document Type";
         CurrencyCode: Code[10];
+#pragma warning disable AA0074
         Text014: Label 'The %1 %2 has a %3 %4.\\Do you still want to use %1 %2 in this journal line?', Comment = '%1=Caption of Table Customer, %2=Customer No, %3=Caption of field Bill-to Customer No, %4=Value of Bill-to customer no.';
+#pragma warning restore AA0074
         TemplateFound: Boolean;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text015: Label 'You are not allowed to apply and post an entry to an entry with an earlier posting date.\\Instead, post %1 %2 and then apply it to %3 %4.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         CurrencyDate: Date;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text016: Label '%1 must be G/L Account or Bank Account.';
         Text018: Label '%1 can only be set when %2 is set.';
         Text019: Label '%1 cannot be changed when %2 is set.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         GLSetupRead: Boolean;
         ExportAgainQst: Label 'One or more of the selected lines have already been exported. Do you want to export them again?';
         NothingToExportErr: Label 'There is nothing to export.';
         NotExistErr: Label 'Document number %1 does not exist or is already closed.', Comment = '%1=Document number';
         DocNoFilterErr: Label 'The document numbers cannot be renumbered while there is an active filter on the Document No. field.';
         DueDateMsg: Label 'This posting date will cause an overdue payment.';
+#pragma warning disable AA0470
         CalcPostDateMsg: Label 'Processing payment journal lines #1##########';
+#pragma warning restore AA0470
         NoEntriesToVoidErr: Label 'There are no entries to void.';
         SuppressCommit: Boolean;
         AccTypeNotSupportedErr: Label 'You cannot specify a deferral code for this type of account.';
@@ -3496,6 +3474,11 @@ table 81 "Gen. Journal Line"
         HideValidationDialog: Boolean;
         SkipTaxCalculation: Boolean;
 
+    /// <summary>
+    /// Determines if the general journal line is empty. It is considered empty if
+    /// account number, amount, and balance account number (if not system created entry) are blank.
+    /// </summary>
+    /// <returns>True if empty, otherwise false.</returns>
     procedure EmptyLine() Result: Boolean
     var
         IsHandled: Boolean;
@@ -3526,24 +3509,36 @@ table 81 "Gen. Journal Line"
         Validate("Job No.", '');
     end;
 
-#if not CLEAN22
-    [Obsolete('Renaming the global procedure to GetSkipTaxCalculation():Boolean', '22.0')]
-    procedure CanCalculateTax(): Boolean
-    begin
-        exit(SkipTaxCalculation);
-    end;
-#endif
-
+    /// <summary>
+    /// Returns the value of the global flag SkipTaxCalculation.
+    /// </summary>
+    /// <remarks>
+    /// Currently SkipTaxCalculation in general journal line is used only in variable set and get procedures.
+    /// </remarks>
+    /// <returns>The value of the global flag SkipTaxCalculation.</returns>
     procedure GetSkipTaxCalculation(): Boolean
     begin
         exit(SkipTaxCalculation);
     end;
 
+    /// <summary>
+    /// Sets the value of the global variable SkipTaxCalculation.
+    /// </summary>
+    /// <remarks>
+    /// Currently SkipTaxCalculation in general journal line is used only in variable set and get procedures.
+    /// </remarks>
+    /// <param name="Skip">The new value to set.</param>
     procedure SetSkipTaxCalulation(Skip: Boolean)
     begin
         SkipTaxCalculation := Skip;
     end;
 
+    /// <summary>
+    /// Updates the debit amout, credit amount, balnce and amount fields of a general journal line.
+    /// </summary>
+    /// <remarks>
+    /// Also, updates the allocations for the line and validates the deferral code field if necessary.
+    /// </remarks>
     procedure UpdateLineBalance()
     begin
         "Debit Amount" := 0;
@@ -3580,6 +3575,12 @@ table 81 "Gen. Journal Line"
             Validate("Deferral Code");
     end;
 
+    /// <summary>
+    /// Initializes a new general journal line with values from the previous general journal line.
+    /// </summary>
+    /// <param name="LastGenJnlLine">Previous general journal line.</param>
+    /// <param name="Balance">Genaral journal line balance.</param>
+    /// <param name="BottomLine">Indicates whether the current line is the last line in a batch of general journal lines.</param>
     procedure SetUpNewLine(LastGenJnlLine: Record "Gen. Journal Line"; Balance: Decimal; BottomLine: Boolean)
     var
         NoSeries: Codeunit "No. Series";
@@ -3650,6 +3651,17 @@ table 81 "Gen. Journal Line"
         OnAfterSetupNewLine(Rec, GenJnlTemplate, GenJnlBatch, LastGenJnlLine, Balance, BottomLine);
     end;
 
+    /// <summary>
+    /// Initializes a new general journal line.
+    /// </summary>
+    /// <param name="PostingDate">Posting date to set.</param>
+    /// <param name="DocumentDate">Document date to set.</param>
+    /// <param name="VATDate">VAT date to set.</param>
+    /// <param name="PostingDescription">Posting description to set.</param>
+    /// <param name="ShortcutDim1Code">Shortcut dimension 1 code to set.</param>
+    /// <param name="ShortcutDim2Code">Shortcut dimension 2 code to set.</param>
+    /// <param name="DimSetID">Dimension set ID to set.</param>
+    /// <param name="ReasonCode">Reason code to set.</param>
     procedure InitNewLine(PostingDate: Date; DocumentDate: Date; VATDate: Date; PostingDescription: Text[100]; ShortcutDim1Code: Code[20]; ShortcutDim2Code: Code[20]; DimSetID: Integer; ReasonCode: Code[10])
     begin
         Init();
@@ -3679,6 +3691,10 @@ table 81 "Gen. Journal Line"
         TestField("Account Type", "Account Type"::"G/L Account");
     end;
 
+    /// <summary>
+    /// Checks the document numbers on general journal lines to ensure correct sequence
+    /// by the number series in the general journal batch.
+    /// </summary>
     procedure CheckDocNoOnLines()
     var
         GenJnlBatchLocal: Record "Gen. Journal Batch";
@@ -3760,6 +3776,11 @@ table 81 "Gen. Journal Line"
     end;
 #pragma warning restore AL0432
 #endif
+
+    /// <summary>
+    /// Updates the document numbers on general journal lines to ensure correct sequence
+    /// by the number series in the general journal batch.
+    /// </summary>
     procedure RenumberDocumentNo()
     var
         GenJnlLine2: Record "Gen. Journal Line";
@@ -3886,6 +3907,12 @@ table 81 "Gen. Journal Line"
         exit('RENUMBERED-000000001');
     end;
 
+    /// <summary>
+    /// Updates the applies to ID in general journal line and related ledger entries.
+    /// </summary>
+    /// <param name="GenJnlLine2">General journal line where applies to ID has to be replaced.</param>
+    /// <param name="OriginalAppliesToID">Applies to ID which needs to be replaced.</param>
+    /// <param name="NewAppliesToID">New applies to ID.</param>
     procedure RenumberAppliesToID(GenJnlLine2: Record "Gen. Journal Line"; OriginalAppliesToID: Code[50]; NewAppliesToID: Code[50])
     var
         CustLedgEntry: Record "Cust. Ledger Entry";
@@ -3931,6 +3958,14 @@ table 81 "Gen. Journal Line"
         OnAfterRenumberAppliesToID(GenJnlLine2, OriginalAppliesToID, NewAppliesToID, AccType, AccNo);
     end;
 
+    /// <summary>
+    /// Updates the applies to document number in general journal lines.
+    /// </summary>
+    /// <param name="GenJnlLine2">
+    /// General journal line is used to find lines that need to be modified.
+    /// </param>
+    /// <param name="OriginalAppliesToID">Applies to document number which needs to be replaced.</param>
+    /// <param name="NewAppliesToID">New applies-to document number.</param>
     procedure RenumberAppliesToDocNo(GenJnlLine2: Record "Gen. Journal Line"; OriginalAppliesToDocNo: Code[20]; NewAppliesToDocNo: Code[20])
     begin
         GenJnlLine2.Reset();
@@ -3968,6 +4003,16 @@ table 81 "Gen. Journal Line"
         end;
     end;
 
+    /// <summary>
+    /// Sets the currency code from related bank account.
+    /// </summary>
+    /// <param name="AccType2">
+    /// Current general journal account type.
+    /// This parameter is used to determine if the account type is bank account. 
+    /// If it is not bank account the currency code will not be updated.
+    /// </param>
+    /// <param name="AccNo2">Current general journal account number. Used to retrieve bank account.</param>
+    /// <returns>True if the currency code is set, otherwise false.</returns>
     protected procedure SetCurrencyCode(AccType2: Enum "Gen. Journal Account Type"; AccNo2: Code[20]) Result: Boolean
     var
         BankAcc: Record "Bank Account";
@@ -3986,6 +4031,14 @@ table 81 "Gen. Journal Line"
         exit("Currency Code" <> '');
     end;
 
+    /// <summary>
+    /// Sets the currency code and currency factor.
+    /// </summary>
+    /// <remarks>
+    /// If provided currency code is blank then the currency factor is set to 1.
+    /// </remarks>
+    /// <param name="CurrencyCode">Currency code to set.</param>
+    /// <param name="CurrencyFactor">Currency factor to set.</param>
     procedure SetCurrencyFactor(CurrencyCode: Code[10]; CurrencyFactor: Decimal)
     begin
         "Currency Code" := CurrencyCode;
@@ -3995,6 +4048,13 @@ table 81 "Gen. Journal Line"
             "Currency Factor" := CurrencyFactor;
     end;
 
+    /// <summary>
+    /// Sets the global Currency and CurrencyCode variables based on currency information in general journal line.
+    /// </summary>
+    /// <remarks>
+    /// If additional currency posting is set to 'additional-currency amount only' the CurrencyCode is set from general ledger setup.
+    /// An error will be raised if retrieved currency does not have amount rounding precision set.
+    /// </remarks>
     protected procedure GetCurrency()
     begin
         if "Additional-Currency Posting" =
@@ -4017,6 +4077,10 @@ table 81 "Gen. Journal Line"
             end;
     end;
 
+    /// <summary>
+    /// Updates general journal line source type and source number from account
+    /// or balancing account.
+    /// </summary>
     procedure UpdateSource()
     var
         SourceExists1: Boolean;
@@ -5082,12 +5146,11 @@ table 81 "Gen. Journal Line"
                 TmpJobJnlOverallCurrencyFactor := 1
             else
                 TmpJobJnlOverallCurrencyFactor := "Job Currency Factor";
-        end else begin
+        end else
             if "Job Currency Factor" = 0 then
                 TmpJobJnlOverallCurrencyFactor := 1 / "Currency Factor"
             else
-                TmpJobJnlOverallCurrencyFactor := "Job Currency Factor" / "Currency Factor"
-        end;
+                TmpJobJnlOverallCurrencyFactor := "Job Currency Factor" / "Currency Factor";
 
         UpdateAmountsOnTempJobJnlLine(TmpJobJnlOverallCurrencyFactor);
 
@@ -6628,49 +6691,29 @@ table 81 "Gen. Journal Line"
         OnAfterCopyGenJnlLineFromSalesHeaderPayment(SalesHeader, Rec);
     end;
 
-    procedure CopyFromServiceHeader(ServiceHeader: Record "Service Header")
+#if not CLEAN25
+    [Obsolete('Replaced by procedure CopyToGenJournalLine() in table Service Header', '25.0')]
+    procedure CopyFromServiceHeader(ServiceHeader: Record Microsoft.Service.Document."Service Header")
     begin
-        "Source Currency Code" := ServiceHeader."Currency Code";
-        Correction := ServiceHeader.Correction;
-        "VAT Base Discount %" := ServiceHeader."VAT Base Discount %";
-        "Sell-to/Buy-from No." := ServiceHeader."Customer No.";
-        "Bill-to/Pay-to No." := ServiceHeader."Bill-to Customer No.";
-        "Country/Region Code" := ServiceHeader."VAT Country/Region Code";
-        "VAT Registration No." := ServiceHeader."VAT Registration No.";
-        "Source Type" := "Source Type"::Customer;
-        "Source No." := ServiceHeader."Bill-to Customer No.";
-        "Posting No. Series" := ServiceHeader."Posting No. Series";
-        "Ship-to/Order Address Code" := ServiceHeader."Ship-to Code";
-        "EU 3-Party Trade" := ServiceHeader."EU 3-Party Trade";
-        "Salespers./Purch. Code" := ServiceHeader."Salesperson Code";
-        ReadGLSetup();
-        if GLSetup."Journal Templ. Name Mandatory" then
-            "Journal Template Name" := ServiceHeader."Journal Templ. Name";
-
-        OnAfterCopyGenJnlLineFromServHeader(ServiceHeader, Rec);
+        ServiceHeader.CopyToGenJournalLine(Rec);
     end;
+#endif
 
-    procedure CopyFromServiceHeaderApplyTo(ServiceHeader: Record "Service Header")
+#if not CLEAN25
+    [Obsolete('Replaced by procedure CopyToGenJournalLineApplyTo() in table Service Header', '25.0')]
+    procedure CopyFromServiceHeaderApplyTo(ServiceHeader: Record Microsoft.Service.Document."Service Header")
     begin
-        "Applies-to Doc. Type" := ServiceHeader."Applies-to Doc. Type";
-        "Applies-to Doc. No." := ServiceHeader."Applies-to Doc. No.";
-        "Applies-to ID" := ServiceHeader."Applies-to ID";
-        "Allow Application" := ServiceHeader."Bal. Account No." = '';
-
-        OnAfterCopyGenJnlLineFromServHeaderApplyTo(ServiceHeader, Rec);
+        ServiceHeader.CopyToGenJournalLineApplyTo(Rec);
     end;
+#endif
 
-    procedure CopyFromServiceHeaderPayment(ServiceHeader: Record "Service Header")
+#if not CLEAN25
+    [Obsolete('Replaced by procedure CopyToGenJournalLinePayment() in table Service Header', '25.0')]
+    procedure CopyFromServiceHeaderPayment(ServiceHeader: Record Microsoft.Service.Document."Service Header")
     begin
-        "Due Date" := ServiceHeader."Due Date";
-        "Payment Terms Code" := ServiceHeader."Payment Terms Code";
-        "Payment Method Code" := ServiceHeader."Payment Method Code";
-        "Pmt. Discount Date" := ServiceHeader."Pmt. Discount Date";
-        "Payment Discount %" := ServiceHeader."Payment Discount %";
-        "Direct Debit Mandate ID" := ServiceHeader."Direct Debit Mandate ID";
-
-        OnAfterCopyGenJnlLineFromServHeaderPayment(ServiceHeader, Rec);
+        ServiceHeader.CopyToGenJournalLinePayment(Rec);
     end;
+#endif
 
     procedure CopyFromPaymentCustLedgEntry(CustLedgEntry: Record "Cust. Ledger Entry")
     begin
@@ -6922,6 +6965,7 @@ table 81 "Gen. Journal Line"
         LastDocNumber := NoSeriesBatch.SimulateGetNextNo(LocGenJnlBatch."No. Series", Rec."Posting Date", LastDocNumber);
     end;
 #endif
+
     procedure NeedCheckZeroAmount(): Boolean
     begin
         exit(
@@ -7507,6 +7551,9 @@ table 81 "Gen. Journal Line"
                 exit(GetRangeMax("Account No."));
     end;
 
+    /// <summary>
+    /// Sets the account number of the current general journal line based on the existing account number filter.
+    /// </summary>
     procedure SetAccountNoFromFilter()
     var
         AccountNo: Code[20];
@@ -7521,6 +7568,12 @@ table 81 "Gen. Journal Line"
             "Account No." := AccountNo;
     end;
 
+    /// <summary>
+    /// Returns the next unused journal line number for a template and batch.
+    /// </summary>
+    /// <param name="TemplateName">Template name to filter general journal line with.</param>
+    /// <param name="BatchName">Batch name to filter general journal line with.</param>
+    /// <returns>Next unused line number.</returns>
     procedure GetNewLineNo(TemplateName: Code[10]; BatchName: Code[10]): Integer
     var
         [SecurityFiltering(SecurityFilter::Filtered)]
@@ -7535,6 +7588,12 @@ table 81 "Gen. Journal Line"
         exit(10000);
     end;
 
+    /// <summary>
+    /// Runs a report that voids electronic payments associated with a general journal line. 
+    /// </summary>
+    /// <remarks>
+    /// The report voids or transmits electronic payments, ensuring accurate and efficient payment processing.
+    /// </remarks>
     procedure VoidPaymentFile()
     var
         TempGenJnlLine: Record "Gen. Journal Line" temporary;
@@ -7565,6 +7624,12 @@ table 81 "Gen. Journal Line"
         VoidTransmitElecPmnts.RunModal();
     end;
 
+    /// <summary>
+    /// Runs the report which transmits electronic payments associated with the general journal line.
+    /// </summary>
+    /// <remarks>
+    /// The report voids or transmits electronic payments, ensuring accurate and efficient payment processing.
+    /// </remarks>
     procedure TransmitPaymentFile()
     var
         TempGenJnlLine: Record "Gen. Journal Line" temporary;
@@ -7595,6 +7660,11 @@ table 81 "Gen. Journal Line"
                     SalesperPuchCodeToAssign := SalesperPurchCodeToCheck;
     end;
 
+    /// <summary>
+    /// Tests if the salesperson/purchaser privacy is not blocked of the provided general journal line. 
+    /// If privacy is blocked, an error is raised.
+    /// </summary>
+    /// <param name="GenJournalLine2">General journal line to check.</param>
     procedure ValidateSalesPersonPurchaserCode(GenJournalLine2: Record "Gen. Journal Line")
     begin
         if GenJournalLine2."Salespers./Purch. Code" <> '' then
@@ -7603,13 +7673,16 @@ table 81 "Gen. Journal Line"
                     Error(SalespersonPurchPrivacyBlockErr, GenJournalLine2."Salespers./Purch. Code");
     end;
 
+    /// <summary>
+    /// Checks if the privacy is blocked for the accounts associated with the general journal line.
+    /// </summary>
     procedure CheckIfPrivacyBlocked()
     var
         Customer: Record Customer;
         Vendor: Record Vendor;
         Employee: Record Employee;
     begin
-        if FindSet() then begin
+        if FindSet() then
             repeat
                 case "Account Type" of
                     "Account Type"::Customer:
@@ -7638,7 +7711,6 @@ table 81 "Gen. Journal Line"
                         OnCheckIfPrivacyBlockedCaseElse(Rec);
                 end;
             until Next() = 0;
-        end;
     end;
 
     local procedure CheckIfPostingDateIsEarlier(GenJournalLine: Record "Gen. Journal Line"; ApplyPostingDate: Date; ApplyDocType: Enum "Gen. Journal Document Type"; ApplyDocNo: Code[20];
@@ -7862,20 +7934,44 @@ table 81 "Gen. Journal Line"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterCopyGenJnlLineFromServHeader(ServiceHeader: Record "Service Header"; var GenJournalLine: Record "Gen. Journal Line")
+#if not CLEAN25
+    internal procedure RunOnAfterCopyGenJnlLineFromServHeader(ServiceHeader: Record Microsoft.Service.Document."Service Header"; var GenJournalLine: Record "Gen. Journal Line")
     begin
+        OnAfterCopyGenJnlLineFromServHeader(ServiceHeader, GenJournalLine);
     end;
 
+    [Obsolete('Replaced by event OnAfterCopyToGenJnlLine in table Service Header', '25.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCopyGenJnlLineFromServHeaderApplyTo(ServiceHeader: Record "Service Header"; var GenJournalLine: Record "Gen. Journal Line")
+    local procedure OnAfterCopyGenJnlLineFromServHeader(ServiceHeader: Record Microsoft.Service.Document."Service Header"; var GenJournalLine: Record "Gen. Journal Line")
     begin
+    end;
+#endif
+
+#if not CLEAN25
+    internal procedure RunOnAfterCopyGenJnlLineFromServHeaderApplyTo(ServiceHeader: Record Microsoft.Service.Document."Service Header"; var GenJournalLine: Record "Gen. Journal Line")
+    begin
+        OnAfterCopyGenJnlLineFromServHeaderApplyTo(ServiceHeader, GenJournalLine);
     end;
 
+    [Obsolete('Replaced by event OnAfterCopyToGenJnlLineApplyTo in table Service Header', '25.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCopyGenJnlLineFromServHeaderPayment(ServiceHeader: Record "Service Header"; var GenJournalLine: Record "Gen. Journal Line")
+    local procedure OnAfterCopyGenJnlLineFromServHeaderApplyTo(ServiceHeader: Record Microsoft.Service.Document."Service Header"; var GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
+#endif
+
+#if not CLEAN25
+    internal procedure RunOnAfterCopyGenJnlLineFromServHeaderPayment(ServiceHeader: Record Microsoft.Service.Document."Service Header"; var GenJournalLine: Record "Gen. Journal Line")
+    begin
+        OnAfterCopyGenJnlLineFromServHeaderPayment(ServiceHeader, GenJournalLine);
+    end;
+
+    [Obsolete('Replaced by event OnAfterCopyToGenJnlLinePayment in table Service Header', '25.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyGenJnlLineFromServHeaderPayment(ServiceHeader: Record Microsoft.Service.Document."Service Header"; var GenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyGenJnlLineFromPrepmtInvBuffer(PrepmtInvLineBuffer: Record "Prepayment Inv. Line Buffer"; var GenJournalLine: Record "Gen. Journal Line")
@@ -8687,6 +8783,12 @@ table 81 "Gen. Journal Line"
         end;
     end;
 
+    /// <summary>
+    /// Updates the account ID with the system ID of the related G/L account.
+    /// </summary>
+    /// <remarks>
+    /// If account number is empty, account Id is cleared.
+    /// </remarks>
     procedure UpdateAccountID()
     var
         GLAccount: Record "G/L Account";
@@ -8763,6 +8865,12 @@ table 81 "Gen. Journal Line"
         end;
     end;
 
+    /// <summary>
+    /// Updates the account ID with the system ID of the related bank account.
+    /// </summary>
+    /// <remarks>
+    /// If account number is empty, account Id is cleared.
+    /// </remarks>
     procedure UpdateBankAccountID()
     var
         BankAccount: Record "Bank Account";
@@ -8781,6 +8889,12 @@ table 81 "Gen. Journal Line"
         "Account Id" := BankAccount.SystemId;
     end;
 
+    /// <summary>
+    /// Updates the customer ID with the system ID of the related customer.
+    /// </summary>
+    /// <remarks>
+    /// If account number is empty, customer ID is cleared.
+    /// </remarks>
     procedure UpdateCustomerID()
     var
         Customer: Record Customer;
@@ -8799,6 +8913,12 @@ table 81 "Gen. Journal Line"
         "Customer Id" := Customer.SystemId;
     end;
 
+    /// <summary>
+    /// Updates the vendor ID with the system ID of the related vendor.
+    /// </summary>
+    /// <remarks>
+    /// If account number is empty, vendor ID is cleared.
+    /// </remarks>
     procedure UpdateVendorID()
     var
         Vendor: Record Vendor;
@@ -8843,6 +8963,12 @@ table 81 "Gen. Journal Line"
         "Account No." := Vendor."No.";
     end;
 
+    /// <summary>
+    /// Updates the applies-to invoice ID with the system ID of the related sales or purchase invoice header.
+    /// </summary>
+    /// <remarks>
+    /// If applies-to document number is empty, applies-to invoice ID is cleared.
+    /// </remarks>
     procedure UpdateAppliesToInvoiceID()
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
@@ -8951,6 +9077,13 @@ table 81 "Gen. Journal Line"
         end;
     end;
 
+    /// <summary>
+    /// Updates the journal batch ID with the system ID of the related general journal batch.
+    /// </summary>
+    /// <remarks>
+    /// If the journal template name and journal batch name do not correspond to a general journal batch record, 
+    /// the procedure is not executed.
+    /// </remarks>
     procedure UpdateJournalBatchID()
     var
         GenJournalBatch: Record "Gen. Journal Batch";
@@ -8971,6 +9104,9 @@ table 81 "Gen. Journal Line"
         "Journal Batch Name" := GenJournalBatch.Name;
     end;
 
+    /// <summary>
+    /// Updates the payment method ID with the system ID of the related payment method.
+    /// </summary>
     procedure UpdatePaymentMethodId()
     var
         PaymentMethod: Record "Payment Method";
@@ -9013,6 +9149,13 @@ table 81 "Gen. Journal Line"
     begin
     end;
 
+    /// <summary>
+    /// Opens a page with deferral schedule for the general journal line.
+    /// </summary>
+    /// <remarks>
+    /// Deferral schedule cannot be specified for a fixed asset account type.
+    /// If the deferral schedule doesn't exist yet, a new one is created and commited before the page is opened.
+    /// </remarks>
     procedure ShowDeferralSchedule()
     begin
         if "Account Type" = "Account Type"::"Fixed Asset" then
@@ -9021,6 +9164,12 @@ table 81 "Gen. Journal Line"
         ShowDeferrals("Posting Date", "Currency Code");
     end;
 
+    /// <summary>
+    /// Opens the general journal dimension filters page for the current general journal line.
+    /// </summary>
+    /// <remarks>
+    /// Used to filter and analyze data based on specific properties or dimensions.
+    /// </remarks>
     procedure ShowRecurringDimFilter()
     var
         GenJnlDimFilters: Page "Gen. Jnl. Dim. Filters";
@@ -9044,6 +9193,10 @@ table 81 "Gen. Journal Line"
         exit("Dimension Set ID" <> 0);
     end;
 
+    /// <summary>
+    /// Checks if the shortcut dimension code is valid for the recurring method on general journal line.
+    /// </summary>
+    /// <param name="ShortcutDimCode">Shortcut dimension code to check.</param>
     procedure CheckShortcutDimCodeRecurringMethod(ShortcutDimCode: Code[20])
     begin
         if ShortcutDimCode <> '' then
@@ -9082,6 +9235,10 @@ table 81 "Gen. Journal Line"
         NotificationLifecycleMgt.SendNotification(SetDimFiltersNotification, RecordId);
     end;
 
+    /// <summary>
+    /// Sends a general journal line to a specified posting codeunit for processing,
+    /// </summary>
+    /// <param name="PostingCodeunitID">Posting codeunit ID to use.</param>
     procedure SendToPosting(PostingCodeunitID: Integer)
     var
         BatchProcessingMgt: Codeunit "Batch Processing Mgt.";
@@ -9146,6 +9303,10 @@ table 81 "Gen. Journal Line"
         exit(VATAmountLCY);
     end;
 
+    /// <summary>
+    /// Initializes the dimensions for the general journal line.
+    /// </summary>
+    /// <param name="FromFieldNo">The field number for which to initialize the dimensions.</param>
     procedure CreateDimFromDefaultDim(FromFieldNo: Integer)
     var
         DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
@@ -9165,6 +9326,10 @@ table 81 "Gen. Journal Line"
         OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource, FromFieldNo);
     end;
 
+    /// <summary>
+    /// Determines whether the fixed asset posting type of the current general journal line is set to the acquisition cost.
+    /// </summary>
+    /// <returns>True if fixed asset posting type is set to the acquisition cost, otherwise false.</returns>
     procedure IsAcquisitionCost(): Boolean
     var
         AcquisitionCost: Boolean;

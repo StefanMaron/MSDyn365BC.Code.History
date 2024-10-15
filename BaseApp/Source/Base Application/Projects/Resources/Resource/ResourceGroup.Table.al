@@ -7,7 +7,6 @@ using Microsoft.Pricing.Asset;
 using Microsoft.Pricing.PriceList;
 using Microsoft.Projects.Project.Planning;
 using Microsoft.Projects.Resources.Ledger;
-using Microsoft.Service.Document;
 
 table 152 "Resource Group"
 {
@@ -174,16 +173,6 @@ table 152 "Resource Group"
             CalcFormula = count(Resource where("Resource Group No." = field("No.")));
             Caption = 'No. of Resources Assigned';
             Editable = false;
-            FieldClass = FlowField;
-        }
-        field(5900; "Qty. on Service Order"; Decimal)
-        {
-            CalcFormula = sum("Service Order Allocation"."Allocated Hours" where(Posted = const(false),
-                                                                                  "Resource Group No." = field("No."),
-                                                                                  "Allocation Date" = field("Date Filter"),
-                                                                                  Status = const(Active)));
-            Caption = 'Qty. on Service Order';
-            DecimalPlaces = 0 : 5;
             FieldClass = FlowField;
         }
     }

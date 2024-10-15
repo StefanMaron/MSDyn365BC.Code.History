@@ -318,8 +318,7 @@ codeunit 137045 "SCM Bugfixes"
 
         // [THEN] Order tracking quantity on the planning line is now 50.
         // [THEN] Item tracking quantity on the planning line is still 5.
-        with ReqLine do
-            VerifyReservationEntryQuantity("No.", "Worksheet Template Name", Quantity, TrackedQty);
+        VerifyReservationEntryQuantity(ReqLine."No.", ReqLine."Worksheet Template Name", ReqLine.Quantity, TrackedQty);
     end;
 
     [Test]
@@ -402,8 +401,7 @@ codeunit 137045 "SCM Bugfixes"
 
         // [THEN] Order tracking quantity on the planning line is now 50.
         // [THEN] No item tracking exists on the planning line.
-        with ReqLine do
-            VerifyReservationEntryQuantity("No.", "Worksheet Template Name", Quantity, 0);
+        VerifyReservationEntryQuantity(ReqLine."No.", ReqLine."Worksheet Template Name", ReqLine.Quantity, 0);
     end;
 
     [Test]
@@ -475,8 +473,7 @@ codeunit 137045 "SCM Bugfixes"
 
         // [THEN] Order tracking quantity on the planning line is now 1.
         // [THEN] No item tracking exists on the planning line.
-        with ReqLine do
-            VerifyReservationEntryQuantity("No.", "Worksheet Template Name", Quantity, 0);
+        VerifyReservationEntryQuantity(ReqLine."No.", ReqLine."Worksheet Template Name", ReqLine.Quantity, 0);
     end;
 
     [Test]
@@ -513,8 +510,7 @@ codeunit 137045 "SCM Bugfixes"
         LibraryPlanning.CarryOutReqWksh(RequisitionLine, 0D, WorkDate(), WorkDate(), WorkDate(), '');
 
         // Verify: Quantity in purchase line is updated correctly
-        with TempRequisitionLine do
-            VerifyPurchaseLineQuantity("Ref. Order No.", "Ref. Line No.", Quantity);
+        VerifyPurchaseLineQuantity(TempRequisitionLine."Ref. Order No.", TempRequisitionLine."Ref. Line No.", TempRequisitionLine.Quantity);
     end;
 
     [Test]
@@ -526,12 +522,10 @@ codeunit 137045 "SCM Bugfixes"
     begin
         CreateRequisitionLineChangeQuantity(RequisitionLine);
 
-        with RequisitionLine do begin
-            Validate("Due Date", CalcDate('<+1D>', "Due Date"));
-            // New qty. must not exceed original quanity.
-            Validate(Quantity, Quantity + 1);
-            Modify(true);
-        end;
+        RequisitionLine.Validate("Due Date", CalcDate('<+1D>', RequisitionLine."Due Date"));
+        // New qty. must not exceed original quanity.
+        RequisitionLine.Validate(Quantity, RequisitionLine.Quantity + 1);
+        RequisitionLine.Modify(true);
 
         TempRequisitionLine := RequisitionLine;
 
@@ -539,8 +533,7 @@ codeunit 137045 "SCM Bugfixes"
         LibraryPlanning.CarryOutReqWksh(RequisitionLine, 0D, WorkDate(), WorkDate(), WorkDate(), '');
 
         // Verify: Quantity in purchase line is updated correctly
-        with TempRequisitionLine do
-            VerifyPurchaseLineQuantity("Ref. Order No.", "Ref. Line No.", Quantity);
+        VerifyPurchaseLineQuantity(TempRequisitionLine."Ref. Order No.", TempRequisitionLine."Ref. Line No.", TempRequisitionLine.Quantity);
     end;
 
     [Test]
@@ -1010,23 +1003,19 @@ codeunit 137045 "SCM Bugfixes"
     begin
         LibraryInventory.CreateItem(Item);
 
-        with Item do begin
-            Validate(Critical, true);
-            Validate("Replenishment System", ReplenishmentSystem);
-            Validate("Manufacturing Policy", "Manufacturing Policy"::"Make-to-Order");
-            Modify(true);
-        end;
+        Item.Validate(Critical, true);
+        Item.Validate("Replenishment System", ReplenishmentSystem);
+        Item.Validate("Manufacturing Policy", Item."Manufacturing Policy"::"Make-to-Order");
+        Item.Modify(true);
     end;
 
     local procedure CreateItemTrackingCodeWithLotSpecTracking(var ItemTrackingCode: Record "Item Tracking Code")
     begin
-        with ItemTrackingCode do begin
-            LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, false, false);
-            Validate("Lot Purchase Inbound Tracking", true);
-            Validate("Lot Sales Outbound Tracking", true);
-            Validate("Lot Specific Tracking", true);
-            Modify(true);
-        end;
+        LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, false, false);
+        ItemTrackingCode.Validate("Lot Purchase Inbound Tracking", true);
+        ItemTrackingCode.Validate("Lot Sales Outbound Tracking", true);
+        ItemTrackingCode.Validate("Lot Specific Tracking", true);
+        ItemTrackingCode.Modify(true);
     end;
 
     local procedure CreateProdBOMStructureOfCriticalItems(var Item: array[3] of Record Item; LowerCompStartingDate: Date; LowerCompReplenishmentSystem: Enum "Replenishment System")
@@ -1064,12 +1053,9 @@ codeunit 137045 "SCM Bugfixes"
     local procedure CreateRequisitionLineChangeQuantity(var RequisitionLine: Record "Requisition Line")
     begin
         CreateOrdersAndRequisitionPlan(RequisitionLine);
-
-        with RequisitionLine do begin
-            // Change requisition line quantity. New quantity must be greater than sales line qty., but less than purch. line
-            Validate(Quantity, Quantity + LibraryRandom.RandIntInRange(1, "Original Quantity" - Quantity - 1));
-            Modify(true);
-        end;
+        // Change requisition line quantity. New quantity must be greater than sales line qty., but less than purch. line
+        RequisitionLine.Validate(Quantity, RequisitionLine.Quantity + LibraryRandom.RandIntInRange(1, RequisitionLine."Original Quantity" - RequisitionLine.Quantity - 1));
+        RequisitionLine.Modify(true);
     end;
 
     local procedure CreateTrackedItem(var Item: Record Item)
@@ -1079,11 +1065,9 @@ codeunit 137045 "SCM Bugfixes"
         CreateItemTrackingCodeWithLotSpecTracking(ItemTrackingCode);
         LibraryInventory.CreateTrackedItem(Item, LibraryUtility.GetGlobalNoSeriesCode(), '', ItemTrackingCode.Code);
 
-        with Item do begin
-            Validate("Replenishment System", "Replenishment System"::Purchase);
-            Validate("Reordering Policy", "Reordering Policy"::"Lot-for-Lot");
-            Modify(true);
-        end;
+        Item.Validate("Replenishment System", Item."Replenishment System"::Purchase);
+        Item.Validate("Reordering Policy", Item."Reordering Policy"::"Lot-for-Lot");
+        Item.Modify(true);
     end;
 
     local procedure CreateUpdateLocations()
@@ -1162,21 +1146,17 @@ codeunit 137045 "SCM Bugfixes"
 
     local procedure FindPurchaseLine(var PurchLine: Record "Purchase Line"; PurchDocNo: Code[20])
     begin
-        with PurchLine do begin
-            SetRange("Document Type", "Document Type"::Order);
-            SetRange("Document No.", PurchDocNo);
-            FindFirst();
-        end;
+        PurchLine.SetRange("Document Type", PurchLine."Document Type"::Order);
+        PurchLine.SetRange("Document No.", PurchDocNo);
+        PurchLine.FindFirst();
     end;
 
     local procedure FindRequisitionLine(var RequisitionLine: Record "Requisition Line"; RequisitionWkshName: Record "Requisition Wksh. Name"; ActionMessage: Enum "Action Message Type")
     begin
-        with RequisitionLine do begin
-            SetRange("Worksheet Template Name", RequisitionWkshName."Worksheet Template Name");
-            SetRange("Journal Batch Name", RequisitionWkshName.Name);
-            SetRange("Action Message", ActionMessage);
-            FindFirst();
-        end;
+        RequisitionLine.SetRange("Worksheet Template Name", RequisitionWkshName."Worksheet Template Name");
+        RequisitionLine.SetRange("Journal Batch Name", RequisitionWkshName.Name);
+        RequisitionLine.SetRange("Action Message", ActionMessage);
+        RequisitionLine.FindFirst();
     end;
 
     local procedure UpdateProductionBOMNoOnItem(var Item: Record Item; ProdBOMNo: Code[20])
@@ -1238,7 +1218,7 @@ codeunit 137045 "SCM Bugfixes"
         OrderPromisingLine: Record "Order Promising Line";
         AvailabilityMgt: Codeunit AvailabilityManagement;
     begin
-        AvailabilityMgt.SetSalesHeader(OrderPromisingLine, SalesHeader);
+        AvailabilityMgt.SetSourceRecord(OrderPromisingLine, SalesHeader);
         AvailabilityMgt.CalcCapableToPromise(OrderPromisingLine, SalesHeader."No.");
         OrderPromisingLine.FindFirst();
         AvailabilityMgt.UpdateSource(OrderPromisingLine);
@@ -1362,12 +1342,10 @@ codeunit 137045 "SCM Bugfixes"
 
     local procedure CreateItemWithReorderValues(var Item: Record Item)
     begin
-        with Item do begin
-            CreateItem(Item, "Reordering Policy"::"Fixed Reorder Qty.", "Replenishment System"::Purchase, true);
-            Validate("Reorder Point", LibraryRandom.RandDec(10, 2));
-            Validate("Reorder Quantity", LibraryRandom.RandDec(10, 2));
-            Modify(true);
-        end;
+        CreateItem(Item, Item."Reordering Policy"::"Fixed Reorder Qty.", Item."Replenishment System"::Purchase, true);
+        Item.Validate("Reorder Point", LibraryRandom.RandDec(10, 2));
+        Item.Validate("Reorder Quantity", LibraryRandom.RandDec(10, 2));
+        Item.Modify(true);
     end;
 
     local procedure OpenOrderTrackingFromPlanWorkSheet(ItemNo: Code[20])
@@ -1393,13 +1371,11 @@ codeunit 137045 "SCM Bugfixes"
     var
         PurchLine: Record "Purchase Line";
     begin
-        with PurchLine do begin
-            SetRange("Document Type", "Document Type"::Order);
-            SetRange("Document No.", RefOrderNo);
-            SetRange("Line No.", RefLineNo);
-            FindFirst();
-            Assert.AreEqual(ExpectedQuantity, Quantity, WrongPurchLineQtyErr);
-        end;
+        PurchLine.SetRange("Document Type", PurchLine."Document Type"::Order);
+        PurchLine.SetRange("Document No.", RefOrderNo);
+        PurchLine.SetRange("Line No.", RefLineNo);
+        PurchLine.FindFirst();
+        Assert.AreEqual(ExpectedQuantity, PurchLine.Quantity, WrongPurchLineQtyErr);
     end;
 
     local procedure VerifyRequisitionLineCount(ItemNo: Code[20]; ExpectedCount: Integer)
@@ -1417,14 +1393,12 @@ codeunit 137045 "SCM Bugfixes"
         RefOrderNo: Code[20];
         i: Integer;
     begin
-        with RequisitionLine do begin
-            FindRequsitionLine(RequisitionLine, Item[3]."No.");
-            RefOrderNo := "Ref. Order No.";
+        FindRequsitionLine(RequisitionLine, Item[3]."No.");
+        RefOrderNo := RequisitionLine."Ref. Order No.";
 
-            for i := 1 to 2 do begin
-                FindRequsitionLine(RequisitionLine, Item[i]."No.");
-                TestField("Ref. Order No.", RefOrderNo);
-            end;
+        for i := 1 to 2 do begin
+            FindRequsitionLine(RequisitionLine, Item[i]."No.");
+            RequisitionLine.TestField("Ref. Order No.", RefOrderNo);
         end;
     end;
 
@@ -1432,16 +1406,14 @@ codeunit 137045 "SCM Bugfixes"
     var
         ReservEntry: Record "Reservation Entry";
     begin
-        with ReservEntry do begin
-            SetRange("Item No.", ItemNo);
-            SetRange("Source ID", SourceID);
-            CalcSums(Quantity);
-            TestField(Quantity, ExpectedQuantity);
+        ReservEntry.SetRange("Item No.", ItemNo);
+        ReservEntry.SetRange("Source ID", SourceID);
+        ReservEntry.CalcSums(Quantity);
+        ReservEntry.TestField(Quantity, ExpectedQuantity);
 
-            SetFilter("Item Tracking", '<>%1', "Item Tracking"::None);
-            CalcSums(Quantity);
-            TestField(Quantity, TrackedQuantity);
-        end;
+        ReservEntry.SetFilter("Item Tracking", '<>%1', ReservEntry."Item Tracking"::None);
+        ReservEntry.CalcSums(Quantity);
+        ReservEntry.TestField(Quantity, TrackedQuantity);
     end;
 
     [ModalPageHandler]
