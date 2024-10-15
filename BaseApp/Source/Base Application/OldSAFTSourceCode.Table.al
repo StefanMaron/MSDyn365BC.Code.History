@@ -3,6 +3,7 @@ table 10631 "SAFT Source Code"
     Caption = 'SAF-T Source Code';
     ObsoleteReason = 'Moved to extension';
     ObsoleteState = Removed;
+    ObsoleteTag = '15.0';
 
     fields
     {

@@ -34,6 +34,7 @@ table 204 "Unit of Measure"
             Caption = 'Id';
             ObsoleteState = Pending;
             ObsoleteReason = 'This functionality will be replaced by the systemID field';
+            ObsoleteTag = '15.0';
         }
     }
 

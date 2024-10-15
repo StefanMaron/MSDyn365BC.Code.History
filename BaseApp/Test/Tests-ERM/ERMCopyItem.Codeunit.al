@@ -25,6 +25,7 @@ codeunit 134462 "ERM Copy Item"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryRandom: Codeunit "Library - Random";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
         IsInitialized: Boolean;
         TargetItemNoErr: Label 'Target item number %1 already exists.';
@@ -41,7 +42,7 @@ codeunit 134462 "ERM Copy Item"
     begin
         // [FEATURE] [Comments]
         // [SCENARIO] Copy item with comment lines
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "I" with Comment Line
         Comment := CreateItemWithCommentLine(Item);
@@ -70,7 +71,7 @@ codeunit 134462 "ERM Copy Item"
     begin
         // [FEATURE] [Comments]
         // [SCENARIO] Copy item with comment lines and item translation
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "I" with Comment Line and Item Translation
         Comment := CreateItemWithCommentLine(Item);
@@ -101,7 +102,7 @@ codeunit 134462 "ERM Copy Item"
     begin
         // [FEATURE] [Comments] [Default Dimension]
         // [SCENARIO] Copy item with comment lines and default dimension
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "I" with Comment Line and default dimension
         Comment := CreateItemWithCommentLine(Item);
@@ -130,7 +131,7 @@ codeunit 134462 "ERM Copy Item"
     begin
         // [FEATURE] [Copy Item]
         // [SCENARIO] Item cannot be copeid if item with target item number already exists
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create items "I1" and "I2"
         LibraryInventory.CreateItem(Item);
@@ -155,7 +156,7 @@ codeunit 134462 "ERM Copy Item"
     begin
         // [FEATURE] [Comments]
         // [SCENARIO] Item cannot be copeid with same target item number twice
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create item "I1", copy it to item "I2"
         CreateItemWithCommentLine(Item);
@@ -186,7 +187,7 @@ codeunit 134462 "ERM Copy Item"
     begin
         // [FEATURE] [Comments]
         // [SCENARIO] Copy item with comment lines and Item Variant
-        Initialize;
+        Initialize();
         // [GIVEN] Create item with comment and item variant
         Comment := CreateItemWithCommentLine(Item);
         LibraryInventory.CreateItemVariant(ItemVariant, Item."No.");
@@ -214,7 +215,7 @@ codeunit 134462 "ERM Copy Item"
     begin
         // [FEATURE] [Copy Item]
         // [SCENARIO] Copy item with Unit of Measure
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create item with Unit of Measure
         LibraryInventory.CreateItem(Item);
@@ -242,7 +243,7 @@ codeunit 134462 "ERM Copy Item"
     begin
         // [FEATURE] [Comments] [Extended Text]
         // [SCENARIO] Copy item with comment lines and Extended Text
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create item with comment and Extended Text
         Comment := CreateItemWithCommentLine(Item);
@@ -273,7 +274,7 @@ codeunit 134462 "ERM Copy Item"
     begin
         // [FEATURE] [Comments]
         // [SCENARIO] Copy item with comment lines and BOM Component
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create item with comment and BOM Component
         QuantityPer := LibraryRandom.RandDec(10, 2);
@@ -307,7 +308,7 @@ codeunit 134462 "ERM Copy Item"
     begin
         // [FEATURE] [Copy Item]
         // [SCENARIO] Copy item with Troubleshooting Setup and resource skill
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create item with Troubleshooting Setup
         LibraryInventory.CreateItem(Item);
@@ -338,7 +339,7 @@ codeunit 134462 "ERM Copy Item"
     begin
         // [FEATURE] [Copy Item]
         // [SCENARIO] Copy item with Sales Price and Sales Line Discount
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create item with Sales Price and Sales Line Discount
         LibraryInventory.CreateItem(Item);
@@ -368,7 +369,7 @@ codeunit 134462 "ERM Copy Item"
     begin
         // [FEATURE] [Copy Item]
         // [SCENARIO] Copy item with Purchase Price and Purchase Line Discount
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create item with Purchase Price and Purchase Line Discount
         LibraryInventory.CreateItem(Item);
@@ -457,7 +458,7 @@ codeunit 134462 "ERM Copy Item"
     begin
         // [FEATURE] [Comments]
         // [SCENARIO 279990] Several comment lines are copied from the source item to a destination item.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Source item "S" with several comment lines, destination item "D".
         CreateItemWithSeveralCommentLines(Item, Comments);
@@ -492,7 +493,7 @@ codeunit 134462 "ERM Copy Item"
     begin
         // [FEATURE] [Default Dimension]
         // [SCENARIO 280964] Several default dimensions are copied from the source item to a destination item.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Source item "S" with several default dimensions, destination item "D".
         LibraryInventory.CreateItem(Item);
@@ -529,7 +530,7 @@ codeunit 134462 "ERM Copy Item"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 224152] Target Item Card opens after copying item
-        Initialize;
+        Initialize();
 
         // [GIVEN] Source Item
         LibraryInventory.CreateItem(Item);
@@ -560,7 +561,7 @@ codeunit 134462 "ERM Copy Item"
     begin
         // [FEATURE] [Item Attribute]
         // [SCENARIO 264720] Item attributes are copied by the "Item Copy" job when the corresponding option is selected
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "SRC" with 3 attributes
         LibraryInventory.CreateItem(Item);
@@ -593,7 +594,7 @@ codeunit 134462 "ERM Copy Item"
     begin
         // [FEATURE] [Item Attribute]
         // [SCENARIO 264720] Item attributes are not copied by the "Item Copy" job when the corresponding option is disabled
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "SRC" with attribute
         LibraryInventory.CreateItem(Item);
@@ -625,7 +626,7 @@ codeunit 134462 "ERM Copy Item"
     begin
         // [FEATURE] [Item Unit of Measure]
         // [SCENARIO 273790] Report "Copy Item" resets values of item's alternative units of measure if the option "Units of measure" is not selected
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item with alternative units of measure in the card: "Sales Unit of Measure", "Purch. Unit of Measure" and "Put-away Unit of Measure"
         LibraryInventory.CreateItem(Item);
@@ -664,7 +665,7 @@ codeunit 134462 "ERM Copy Item"
     begin
         // [FEATURE] [Item Unit of Measure]
         // [SCENARIO 273790] Report "Copy Item" copies item's alternative units of measure if the option "Units of measure" is selected
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item with alternative units of measure in the card.
         // [GIVEN] "Purch. Unit of Measure" = "U1", "Sales Unit of Measure" = "U2", "Put-away Unit of Measure" = "U3"
@@ -702,7 +703,7 @@ codeunit 134462 "ERM Copy Item"
         InventorySetup: Record "Inventory Setup";
     begin
         // [SCENARIO 296337] Report Copy Item has default "Target Item Nos." = InventorySetup."Item Nos."
-        Initialize;
+        Initialize();
 
         // [GIVEN] Inventory Setup with "Item Nos." = "INOS"
         InventorySetup.Get;
@@ -726,7 +727,7 @@ codeunit 134462 "ERM Copy Item"
         NumberOfCopies: Integer;
     begin
         // [SCENARIO 296337] Target Item No must be incrementable when Number of Copies > 1
-        Initialize;
+        Initialize();
 
         // [GIVEN]
         LibraryInventory.CreateItem(Item);
@@ -753,7 +754,7 @@ codeunit 134462 "ERM Copy Item"
         NoSeriesCode: Code[10];
     begin
         // [SCENARIO 296337] Report Copy Item creates new item using "Target No. Series" parameter
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "I"
         LibraryInventory.CreateItem(Item);
@@ -785,7 +786,7 @@ codeunit 134462 "ERM Copy Item"
         i: Integer;
     begin
         // [SCENARIO 296337] User is able to create serveral item copies with parameter Number Of Copies and number series
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "I"
         LibraryInventory.CreateItem(Item);
@@ -818,7 +819,7 @@ codeunit 134462 "ERM Copy Item"
         i: Integer;
     begin
         // [SCENARIO 296337] User is able to create serveral item copies with parameter Number Of Copies and manual Target Item No.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "I"
         LibraryInventory.CreateItem(Item);
@@ -853,7 +854,7 @@ codeunit 134462 "ERM Copy Item"
         i: Integer;
     begin
         // [SCENARIO 296337] Report "Copy Item" opens item list with filtered created items
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "I"
         LibraryInventory.CreateItem(Item);
@@ -891,7 +892,7 @@ codeunit 134462 "ERM Copy Item"
         TargetItemNo: Code[20];
     begin
         // [SCENARIO 296337] User should not be able to use target item number if InventorySetup."Item Nos." has Manual Nos. = No
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "I"
         LibraryInventory.CreateItem(Item);
@@ -926,7 +927,7 @@ codeunit 134462 "ERM Copy Item"
     begin
         // [FEATURE] [Recurring Sales Lines] [Item translation]
         // [SCENARIO 319744] ApplyStdCodesToSalesLines function in table 'Standard Customer Sales Code' uses Item Translation
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "I1" with Description = "D1"
         // [GIVEN] Customer "C1" with Standard Sales Line defned for "I1" and 'Landuage Code' = "X"
@@ -961,7 +962,7 @@ codeunit 134462 "ERM Copy Item"
     begin
         // [FEATURE] [Recurring Purchase Lines] [Item translation]
         // [SCENARIO 319744] ApplyStdCodesToPurchaseLines function in table 'Standard Vendor Purchase Code' uses Item Translation
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "I1" with Description = "D1"
         // [GIVEN] Vendor "V1" with Standard Purchase Line defned for "I1" and 'Landuage Code' = "X"
@@ -996,7 +997,7 @@ codeunit 134462 "ERM Copy Item"
     begin
         // [FEATURE] [Recurring Sales Lines]
         // [SCENARIO 337249] ApplyStdCodesToSalesLines function in table 'Standard Customer Sales Code' uses Set Standard Item Description
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "I1" with Description = "D1"
         // [GIVEN] Customer "C1" with Standard Sales Line defned for "I1" and 'Description' = "D2"
@@ -1028,7 +1029,7 @@ codeunit 134462 "ERM Copy Item"
     begin
         // [FEATURE] [Recurring Purchase Lines]
         // [SCENARIO 337249] ApplyStdCodesToPurchaseLines function in table 'Standard Vendor Purchase Code' uses SetStandard Item Description
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "I1" with Description = "D1"
         // [GIVEN] Vendor "V1" with Standard Purchase Line defned for "I1" and 'Description' = "D2"
@@ -1061,7 +1062,7 @@ codeunit 134462 "ERM Copy Item"
     begin
         // [FEATURE] [Recurring Sales Lines]
         // [SCENARIO 337249] ApplyStdCodesToSalesLines function in table 'Standard Customer Sales Code' uses Default Item Description when Standard Description = ''
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "I1" with Description = "D1"
         // [GIVEN] Customer "C1" with Standard Sales Line defned for "I1" and 'Description' = ''
@@ -1093,7 +1094,7 @@ codeunit 134462 "ERM Copy Item"
     begin
         // [FEATURE] [Recurring Purchase Lines]
         // [SCENARIO 337249] ApplyStdCodesToPurchaseLines function in table 'Standard Vendor Purchase Code' uses Default Item Description when Standard Description = ''
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "I1" with Description = "D1"
         // [GIVEN] Vendor "V1" with Standard Purchase Line defned for "I1" and 'Description' = ''
@@ -1116,16 +1117,22 @@ codeunit 134462 "ERM Copy Item"
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"ERM Copy Item");
+
         LibraryVariableStorage.Clear;
         LibrarySetupStorage.Restore;
         if IsInitialized then
             exit;
+
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"ERM Copy Item");
 
         IsInitialized := true;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         Commit;
 
         LibrarySetupStorage.Save(DATABASE::"Inventory Setup");
+
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"ERM Copy Item");
     end;
 
     local procedure CreateBOMComponent(Item: Record Item; ParentItemNo: Code[20]; QuantityPer: Decimal)

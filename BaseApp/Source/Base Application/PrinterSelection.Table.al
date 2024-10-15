@@ -47,6 +47,7 @@ table 78 "Printer Selection"
             ObsoleteState = Removed;
             OptionCaption = ' ,Upper or Only One Feed,Lower Feed,Middle Feed,Manual Feed,Envelope Feed,Envelope Manual Feed,Automatic Feed,Tractor Feed,Small-format Feed,Large-format Feed,Large-capacity Feed,,,Cassette Feed,Automatically Select,Printer Specific Feed 1,Printer Specific Feed 2,Printer Specific Feed 3,Printer Specific Feed 4,Printer Specific Feed 5,Printer Specific Feed 6,Printer Specific Feed 7,Printer Specific Feed 8';
             OptionMembers = " ","Upper or Only One Feed","Lower Feed","Middle Feed","Manual Feed","Envelope Feed","Envelope Manual Feed","Automatic Feed","Tractor Feed","Small-format Feed","Large-format Feed","Large-capacity Feed",,,"Cassette Feed","Automatically Select","Printer Specific Feed 1","Printer Specific Feed 2","Printer Specific Feed 3","Printer Specific Feed 4","Printer Specific Feed 5","Printer Specific Feed 6","Printer Specific Feed 7","Printer Specific Feed 8";
+            ObsoleteTag = '15.0';
         }
         field(10601; "First Page - Tray Number"; Integer)
         {
@@ -54,6 +55,7 @@ table 78 "Printer Selection"
             Caption = 'First Page - Tray Number';
             ObsoleteReason = 'Not needed after refactoring';
             ObsoleteState = Removed;
+            ObsoleteTag = '15.0';
         }
         field(10602; "Other Pages - Paper Source"; Option)
         {
@@ -62,6 +64,7 @@ table 78 "Printer Selection"
             ObsoleteState = Removed;
             OptionCaption = ' ,Upper or Only One Feed,Lower Feed,Middle Feed,Manual Feed,Envelope Feed,Envelope Manual Feed,Automatic Feed,Tractor Feed,Small-format Feed,Large-format Feed,Large-capacity Feed,,,Cassette Feed,Automatically Select,Printer Specific Feed 1,Printer Specific Feed 2,Printer Specific Feed 3,Printer Specific Feed 4,Printer Specific Feed 5,Printer Specific Feed 6,Printer Specific Feed 7,Printer Specific Feed 8';
             OptionMembers = " ","Upper or Only One Feed","Lower Feed","Middle Feed","Manual Feed","Envelope Feed","Envelope Manual Feed","Automatic Feed","Tractor Feed","Small-format Feed","Large-format Feed","Large-capacity Feed",,,"Cassette Feed","Automatically Select","Printer Specific Feed 1","Printer Specific Feed 2","Printer Specific Feed 3","Printer Specific Feed 4","Printer Specific Feed 5","Printer Specific Feed 6","Printer Specific Feed 7","Printer Specific Feed 8";
+            ObsoleteTag = '15.0';
         }
         field(10603; "Other Pages - Tray Number"; Integer)
         {
@@ -69,6 +72,7 @@ table 78 "Printer Selection"
             Caption = 'Other Pages - Tray Number';
             ObsoleteReason = 'Not needed after refactoring';
             ObsoleteState = Removed;
+            ObsoleteTag = '15.0';
         }
         field(10604; "Giro Page - Paper Source"; Option)
         {
@@ -77,6 +81,7 @@ table 78 "Printer Selection"
             ObsoleteState = Removed;
             OptionCaption = ' ,Upper or Only One Feed,Lower Feed,Middle Feed,Manual Feed,Envelope Feed,Envelope Manual Feed,Automatic Feed,Tractor Feed,Small-format Feed,Large-format Feed,Large-capacity Feed,,,Cassette Feed,Automatically Select,Printer Specific Feed 1,Printer Specific Feed 2,Printer Specific Feed 3,Printer Specific Feed 4,Printer Specific Feed 5,Printer Specific Feed 6,Printer Specific Feed 7,Printer Specific Feed 8';
             OptionMembers = " ","Upper or Only One Feed","Lower Feed","Middle Feed","Manual Feed","Envelope Feed","Envelope Manual Feed","Automatic Feed","Tractor Feed","Small-format Feed","Large-format Feed","Large-capacity Feed",,,"Cassette Feed","Automatically Select","Printer Specific Feed 1","Printer Specific Feed 2","Printer Specific Feed 3","Printer Specific Feed 4","Printer Specific Feed 5","Printer Specific Feed 6","Printer Specific Feed 7","Printer Specific Feed 8";
+            ObsoleteTag = '15.0';
         }
         field(10605; "Giro Page - Tray Number"; Integer)
         {
@@ -84,6 +89,7 @@ table 78 "Printer Selection"
             Caption = 'Giro Page - Tray Number';
             ObsoleteReason = 'Not needed after refactoring';
             ObsoleteState = Removed;
+            ObsoleteTag = '15.0';
         }
     }
 

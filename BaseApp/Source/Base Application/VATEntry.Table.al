@@ -412,12 +412,14 @@ table 254 "VAT Entry"
             Caption = 'Add.-Curr. Inv.tax Amount';
             ObsoleteReason = 'Redesign';
             ObsoleteState = Removed;
+            ObsoleteTag = '15.0';
         }
         field(10604; "Add.-Curr. Inv.tax Base"; Decimal)
         {
             Caption = 'Add.-Curr. Inv.tax Base';
             ObsoleteReason = 'Redesign';
             ObsoleteState = Removed;
+            ObsoleteTag = '15.0';
         }
         field(10606; "Base Amount Type"; Option)
         {

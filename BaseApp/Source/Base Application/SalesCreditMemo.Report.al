@@ -8,6 +8,7 @@ report 207 "Sales - Credit Memo"
     UsageCategory = ReportsAndAnalysis;
     ObsoleteReason = 'Replaced with report 1307 Standard Sales - Credit Memo';
     ObsoleteState = Pending;
+    ObsoleteTag = '15.2';
 
     dataset
     {

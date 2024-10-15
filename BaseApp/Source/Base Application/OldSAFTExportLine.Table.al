@@ -3,6 +3,7 @@ table 10633 "SAFT Export Line"
     Caption = 'SAF-T Export Line';
     ObsoleteReason = 'Moved to extension';
     ObsoleteState = Removed;
+    ObsoleteTag = '15.0';
 
     fields
     {

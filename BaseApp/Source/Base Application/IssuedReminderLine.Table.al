@@ -206,6 +206,7 @@ table 298 "Issued Reminder Line"
             Caption = 'Multiple Interest Rates Entry';
             ObsoleteReason = 'Merged to W1';
             ObsoleteState = Removed;
+            ObsoleteTag = '15.0';
         }
     }
 

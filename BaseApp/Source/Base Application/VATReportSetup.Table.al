@@ -39,6 +39,7 @@ table 743 "VAT Report Setup"
             MinValue = 0;
             ObsoleteReason = 'Redesigned to a new field "Period Reminder Calculation"';
             ObsoleteState = Pending;
+            ObsoleteTag = '15.0';
         }
         field(23; "Update Period Job Frequency"; Option)
         {

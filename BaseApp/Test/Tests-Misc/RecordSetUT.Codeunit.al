@@ -26,7 +26,7 @@ codeunit 134235 "Record Set UT"
         TypeHelper: Codeunit "Type Helper";
         "Key": Text;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         // Execute
@@ -45,7 +45,7 @@ codeunit 134235 "Record Set UT"
         "Key": Text;
         ExpectedKey: Text;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         // Execute
@@ -66,7 +66,7 @@ codeunit 134235 "Record Set UT"
         RecordSetDefinition: Record "Record Set Definition";
         TypeHelper: Codeunit "Type Helper";
     begin
-        Initialize;
+        Initialize();
 
         // Execute and verify
         asserterror TypeHelper.GetKeyAsString(RecordSetDefinition, 1000);
@@ -81,7 +81,7 @@ codeunit 134235 "Record Set UT"
         RecRef: RecordRef;
         "Key": Text;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateTestCustomers(TempCustomer, NoOfRecordsPerSet);
@@ -92,7 +92,7 @@ codeunit 134235 "Record Set UT"
         TypeHelper.SortRecordRef(RecRef, Key, true);
 
         // Verify
-        TempCustomer.FindFirst;
+        TempCustomer.FindFirst();
         Assert.AreEqual(TempCustomer.RecordId, RecRef.RecordId, 'Record was not sorted ascending');
     end;
 
@@ -105,7 +105,7 @@ codeunit 134235 "Record Set UT"
         RecRef: RecordRef;
         "Key": Text;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateTestCustomers(TempCustomer, NoOfRecordsPerSet);
@@ -129,7 +129,7 @@ codeunit 134235 "Record Set UT"
         RecRef: RecordRef;
         "Key": Text;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         TempCustomer.Init;
@@ -152,7 +152,7 @@ codeunit 134235 "Record Set UT"
         TypeHelper: Codeunit "Type Helper";
         RecRef: RecordRef;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateTestCustomers(TempCustomer, NoOfRecordsPerSet);
@@ -171,7 +171,7 @@ codeunit 134235 "Record Set UT"
         RecordSetManagement: Codeunit "Record Set Management";
         SetID: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateTestCustomers(TempCustomer, 1);
@@ -191,7 +191,7 @@ codeunit 134235 "Record Set UT"
         RecordSetManagement: Codeunit "Record Set Management";
         SetID: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateTestCustomers(TempCustomer, NoOfRecordsPerSet);
@@ -213,7 +213,7 @@ codeunit 134235 "Record Set UT"
         SetID: Integer;
         ItemSetID: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateTestCustomers(TempCustomer, 1);
@@ -238,7 +238,7 @@ codeunit 134235 "Record Set UT"
         SetID: Integer;
         ItemSetID: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateTestCustomers(TempCustomer, NoOfRecordsPerSet);
@@ -261,7 +261,7 @@ codeunit 134235 "Record Set UT"
         RecordSetManagement: Codeunit "Record Set Management";
         SetID: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateMixedTablesTestItems(TempRecordSetBuffer, 1, 1);
@@ -281,7 +281,7 @@ codeunit 134235 "Record Set UT"
         RecordSetManagement: Codeunit "Record Set Management";
         SetID: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateMixedTablesTestItems(TempRecordSetBuffer, NoOfRecordsPerSet, NoOfRecordsPerSet / 2);
@@ -302,7 +302,7 @@ codeunit 134235 "Record Set UT"
         SetID: Integer;
         NewSetID: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateTestCustomers(TempCustomer, NoOfRecordsPerSet);
@@ -327,7 +327,7 @@ codeunit 134235 "Record Set UT"
         NewSetID: Integer;
         SecondSetID: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateTestCustomers(TempCustomer, NoOfRecordsPerSet);
@@ -358,7 +358,7 @@ codeunit 134235 "Record Set UT"
         SetID: Integer;
         NewSetID: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateMixedTablesTestItems(TempRecordSetBuffer, NoOfRecordsPerSet, NoOfRecordsPerSet - 2);
@@ -385,7 +385,7 @@ codeunit 134235 "Record Set UT"
         SecondSetDefinitionCount: Integer;
         TotalSetTreeCount: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateTestCustomers(TempCustomer, NoOfRecordsPerSet);
@@ -393,8 +393,8 @@ codeunit 134235 "Record Set UT"
         DuplicateCustomerSet(TempCustomer, TempNewCustomer);
 
         // Execute
-        TempNewCustomer.FindFirst;
-        TempNewCustomer.Delete;
+        TempNewCustomer.FindFirst();
+        TempNewCustomer.Delete();
         CreateSetAndCountEntries(TempNewCustomer, SecondSetID, SecondSetDefinitionCount, TotalSetTreeCount);
 
         // Verify
@@ -418,7 +418,7 @@ codeunit 134235 "Record Set UT"
         SecondSetDefinitionCount: Integer;
         TotalSetTreeCount: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateTestCustomers(TempCustomer, NoOfRecordsPerSet);
@@ -452,7 +452,7 @@ codeunit 134235 "Record Set UT"
         SecondSetDefinitionCount: Integer;
         TotalSetTreeCount: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateTestCustomers(TempCustomer, NoOfRecordsPerSet);
@@ -486,7 +486,7 @@ codeunit 134235 "Record Set UT"
         SecondSetDefinitionCount: Integer;
         TotalSetTreeCount: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateTestCustomers(TempCustomer, NoOfRecordsPerSet);
@@ -494,7 +494,7 @@ codeunit 134235 "Record Set UT"
         DuplicateCustomerSet(TempCustomer, TempNewCustomer);
 
         // Execute
-        TempNewCustomer.FindFirst;
+        TempNewCustomer.FindFirst();
         TempNewCustomer.Next;
         TempNewCustomer.Next;
         TempNewCustomer.Delete;
@@ -526,7 +526,7 @@ codeunit 134235 "Record Set UT"
         ItemSetRecordTreeCount: Integer;
         ItemSetID: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateTestCustomers(TempCustomer, NoOfRecordsPerSet);
@@ -537,8 +537,8 @@ codeunit 134235 "Record Set UT"
         DuplicateCustomerSet(TempCustomer, TempNewCustomer);
 
         // Execute
-        TempNewCustomer.FindFirst;
-        TempNewCustomer.Delete;
+        TempNewCustomer.FindFirst();
+        TempNewCustomer.Delete();
         CreateSetAndCountEntries(TempNewCustomer, SecondSetID, SecondSetDefinitionCount, TotalSetTreeCount);
 
         // Verify
@@ -569,7 +569,7 @@ codeunit 134235 "Record Set UT"
         ItemSetRecordTreeCount: Integer;
         ItemSetID: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateTestCustomers(TempCustomer, NoOfRecordsPerSet);
@@ -614,7 +614,7 @@ codeunit 134235 "Record Set UT"
         ItemSetRecordTreeCount: Integer;
         ItemSetID: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateTestCustomers(TempCustomer, NoOfRecordsPerSet);
@@ -626,7 +626,7 @@ codeunit 134235 "Record Set UT"
         FirstSetRecordTreeCount := TotalSetTreeCount - ItemSetRecordTreeCount;
 
         // Execute
-        TempNewCustomer.FindFirst;
+        TempNewCustomer.FindFirst();
         TempNewCustomer.Next(2);
         TempNewCustomer.Delete;
         CreateSetAndCountEntries(TempNewCustomer, SecondSetID, SecondSetDefinitionCount, TotalSetTreeCount);
@@ -654,7 +654,7 @@ codeunit 134235 "Record Set UT"
         SecondSetDefinitionCount: Integer;
         TotalSetTreeCount: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateMixedTablesTestItems(TempRecordSetBuffer, NoOfRecordsPerSet, NoOfRecordsPerSet / 2);
@@ -664,8 +664,8 @@ codeunit 134235 "Record Set UT"
 
         // Execute
         SortAscending(TempNewRecordSetBuffer);
-        TempNewRecordSetBuffer.FindFirst;
-        TempNewRecordSetBuffer.Delete;
+        TempNewRecordSetBuffer.FindFirst();
+        TempNewRecordSetBuffer.Delete();
         CreateSetAndCountEntries(TempNewRecordSetBuffer, SecondSetID, SecondSetDefinitionCount, TotalSetTreeCount);
 
         // Verify
@@ -689,7 +689,7 @@ codeunit 134235 "Record Set UT"
         SecondSetDefinitionCount: Integer;
         TotalSetTreeCount: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateMixedTablesTestItems(TempRecordSetBuffer, NoOfRecordsPerSet / 2, NoOfRecordsPerSet);
@@ -725,7 +725,7 @@ codeunit 134235 "Record Set UT"
         SecondSetDefinitionCount: Integer;
         TotalSetTreeCount: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateMixedTablesTestItems(TempRecordSetBuffer, NoOfRecordsPerSet, NoOfRecordsPerSet);
@@ -735,7 +735,7 @@ codeunit 134235 "Record Set UT"
 
         // Execute
         SortAscending(TempNewRecordSetBuffer);
-        TempNewRecordSetBuffer.FindFirst;
+        TempNewRecordSetBuffer.FindFirst();
         TempNewRecordSetBuffer.Next(2);
         TempNewRecordSetBuffer.Delete;
         CreateSetAndCountEntries(TempNewRecordSetBuffer, SecondSetID, SecondSetDefinitionCount, TotalSetTreeCount);
@@ -761,14 +761,14 @@ codeunit 134235 "Record Set UT"
         SecondSetDefinitionCount: Integer;
         TotalSetTreeCount: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateTestCustomers(TempCustomer, NoOfRecordsPerSet);
         DuplicateCustomerSet(TempCustomer, TempNewCustomer);
 
-        TempNewCustomer.FindFirst;
-        TempNewCustomer.Delete;
+        TempNewCustomer.FindFirst();
+        TempNewCustomer.Delete();
         CreateSetAndCountEntries(TempNewCustomer, FirstSetID, FirstSetRecordDefinitionCount, FirstSetRecordTreeCount);
 
         // Execute
@@ -795,13 +795,13 @@ codeunit 134235 "Record Set UT"
         SecondSetDefinitionCount: Integer;
         TotalSetTreeCount: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateTestCustomers(TempCustomer, NoOfRecordsPerSet);
         DuplicateCustomerSet(TempCustomer, TempNewCustomer);
 
-        TempNewCustomer.FindFirst;
+        TempNewCustomer.FindFirst();
         TempNewCustomer.Next(2);
         TempNewCustomer.Delete;
         CreateSetAndCountEntries(TempNewCustomer, FirstSetID, FirstSetRecordDefinitionCount, FirstSetRecordTreeCount);
@@ -830,7 +830,7 @@ codeunit 134235 "Record Set UT"
         SecondSetDefinitionCount: Integer;
         TotalSetTreeCount: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateTestCustomers(TempCustomer, NoOfRecordsPerSet);
@@ -869,7 +869,7 @@ codeunit 134235 "Record Set UT"
         ItemDefinitionCount: Integer;
         ItemSetRecordTreeCount: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateTestCustomers(TempCustomer, NoOfRecordsPerSet);
@@ -877,8 +877,8 @@ codeunit 134235 "Record Set UT"
         CreateSetAndCountEntries(TempItem, ItemSetID, ItemDefinitionCount, ItemSetRecordTreeCount);
         DuplicateCustomerSet(TempCustomer, TempNewCustomer);
 
-        TempNewCustomer.FindFirst;
-        TempNewCustomer.Delete;
+        TempNewCustomer.FindFirst();
+        TempNewCustomer.Delete();
         CreateSetAndCountEntries(TempNewCustomer, FirstSetID, FirstSetRecordDefinitionCount, TotalSetTreeCount);
         FirstSetRecordTreeCount := TotalSetTreeCount - ItemSetRecordTreeCount;
 
@@ -914,7 +914,7 @@ codeunit 134235 "Record Set UT"
         ItemDefinitionCount: Integer;
         ItemSetRecordTreeCount: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateTestCustomers(TempCustomer, NoOfRecordsPerSet);
@@ -922,7 +922,7 @@ codeunit 134235 "Record Set UT"
         CreateSetAndCountEntries(TempItem, ItemSetID, ItemDefinitionCount, ItemSetRecordTreeCount);
         DuplicateCustomerSet(TempCustomer, TempNewCustomer);
 
-        TempNewCustomer.FindFirst;
+        TempNewCustomer.FindFirst();
         TempNewCustomer.Next;
         TempNewCustomer.Next;
         TempNewCustomer.Delete;
@@ -959,7 +959,7 @@ codeunit 134235 "Record Set UT"
         SecondSetDefinitionCount: Integer;
         TotalSetTreeCount: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateTestCustomers(TempCustomer, NoOfRecordsPerSet);
@@ -996,15 +996,15 @@ codeunit 134235 "Record Set UT"
         SecondSetDefinitionCount: Integer;
         TotalSetTreeCount: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateMixedTablesTestItems(TempRecordSetBuffer, NoOfRecordsPerSet, NoOfRecordsPerSet);
         DuplicateServiceConnectionSet(TempRecordSetBuffer, TempNewRecordSetBuffer);
 
         SortAscending(TempNewRecordSetBuffer);
-        TempNewRecordSetBuffer.FindFirst;
-        TempNewRecordSetBuffer.Delete;
+        TempNewRecordSetBuffer.FindFirst();
+        TempNewRecordSetBuffer.Delete();
         CreateSetAndCountEntries(TempNewRecordSetBuffer, FirstSetID, FirstSetRecordDefinitionCount, FirstSetRecordTreeCount);
 
         // Execute
@@ -1031,14 +1031,14 @@ codeunit 134235 "Record Set UT"
         SecondSetDefinitionCount: Integer;
         TotalSetTreeCount: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateMixedTablesTestItems(TempRecordSetBuffer, NoOfRecordsPerSet, NoOfRecordsPerSet);
         DuplicateServiceConnectionSet(TempRecordSetBuffer, TempNewRecordSetBuffer);
 
         SortAscending(TempNewRecordSetBuffer);
-        TempNewRecordSetBuffer.FindFirst;
+        TempNewRecordSetBuffer.FindFirst();
         TempNewRecordSetBuffer.Next(2);
         TempNewRecordSetBuffer.Delete;
         CreateSetAndCountEntries(TempNewRecordSetBuffer, FirstSetID, FirstSetRecordDefinitionCount, FirstSetRecordTreeCount);
@@ -1067,7 +1067,7 @@ codeunit 134235 "Record Set UT"
         SecondSetDefinitionCount: Integer;
         TotalSetTreeCount: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateMixedTablesTestItems(TempRecordSetBuffer, NoOfRecordsPerSet, NoOfRecordsPerSet);
@@ -1098,7 +1098,7 @@ codeunit 134235 "Record Set UT"
         RecordSetManagement: Codeunit "Record Set Management";
         NonExistingSetID: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         RecordSetDefinition.SetRange("Table No.", DATABASE::Customer);
@@ -1122,7 +1122,7 @@ codeunit 134235 "Record Set UT"
         RecordSetManagement: Codeunit "Record Set Management";
         NonExistingSetID: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         RecordSetDefinition.SetRange("Table No.", DATABASE::"Service Connection");
@@ -1148,7 +1148,7 @@ codeunit 134235 "Record Set UT"
         SetID: Integer;
         NumberOfCustomers: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateTestCustomers(TempCustomer, NoOfRecordsPerSet);
@@ -1179,7 +1179,7 @@ codeunit 134235 "Record Set UT"
         NumberOfItems: Integer;
         ItemSetID: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateTestCustomers(TempCustomer, NoOfRecordsPerSet);
@@ -1214,7 +1214,7 @@ codeunit 134235 "Record Set UT"
         NumberOfCustomers: Integer;
         NumberOfItems: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateMixedTablesTestItems(TempRecordSetBuffer, NoOfRecordsPerSet, NoOfRecordsPerSet);
@@ -1244,7 +1244,7 @@ codeunit 134235 "Record Set UT"
         SetID: Integer;
         NumberOfCustomers: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateTestCustomers(TempCustomer, NoOfRecordsPerSet);
@@ -1272,7 +1272,7 @@ codeunit 134235 "Record Set UT"
         SetID: Integer;
         NumberOfCustomers: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateTestCustomers(TempCustomer, NoOfRecordsPerSet);
@@ -1300,7 +1300,7 @@ codeunit 134235 "Record Set UT"
         SetID: Integer;
         NumberOfCustomers: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateTestCustomers(TempCustomer, NoOfRecordsPerSet);
@@ -1328,7 +1328,7 @@ codeunit 134235 "Record Set UT"
         SetID: Integer;
         NumberOfCustomers: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateTestCustomers(TempCustomer, NoOfRecordsPerSet);
@@ -1359,7 +1359,7 @@ codeunit 134235 "Record Set UT"
         SetID: Integer;
         NumberOfCustomers: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateMixedTablesTestItems(TempRecordSetBuffer, NoOfRecordsPerSet, NoOfRecordsPerSet);
@@ -1390,7 +1390,7 @@ codeunit 134235 "Record Set UT"
         SetID: Integer;
         NumberOfCustomers: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateMixedTablesTestItems(TempRecordSetBuffer, NoOfRecordsPerSet, NoOfRecordsPerSet);
@@ -1422,7 +1422,7 @@ codeunit 134235 "Record Set UT"
         SetID: Integer;
         NumberOfItems: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateMixedTablesTestItems(TempRecordSetBuffer, NoOfRecordsPerSet, NoOfRecordsPerSet);
@@ -1454,7 +1454,7 @@ codeunit 134235 "Record Set UT"
         SetID: Integer;
         NumberOfCustomers: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateMixedTablesTestItems(TempRecordSetBuffer, NoOfRecordsPerSet, NoOfRecordsPerSet);
@@ -1462,7 +1462,7 @@ codeunit 134235 "Record Set UT"
         NumberOfCustomers := Customer.Count;
 
         SortAscending(TempRecordSetBuffer);
-        TempRecordSetBuffer.FindFirst;
+        TempRecordSetBuffer.FindFirst();
         Customer.Get(TempRecordSetBuffer."Value RecordID");
         Customer.Delete;
         TempRecordSetBuffer.Delete;
@@ -1497,7 +1497,7 @@ codeunit 134235 "Record Set UT"
         SetID: Integer;
         NumberOfCustomers: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateTestCustomers(TempCustomer, 1);
@@ -1529,7 +1529,7 @@ codeunit 134235 "Record Set UT"
         ItemSetID: Integer;
         NumberOfCustomers: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateTestCustomers(TempCustomer, NoOfRecordsPerSet);
@@ -1538,7 +1538,7 @@ codeunit 134235 "Record Set UT"
         ItemSetID := RecordSetManagement.SaveSetSingleTable(TempItem);
         NumberOfCustomers := Customer.Count;
 
-        TempCustomer.FindFirst;
+        TempCustomer.FindFirst();
         RenameCustomer(TempCustomer, xRecRef, RecRef);
 
         // Execute
@@ -1565,7 +1565,7 @@ codeunit 134235 "Record Set UT"
         SetID: Integer;
         NumberOfCustomers: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateTestCustomers(TempCustomer, NoOfRecordsPerSet);
@@ -1598,7 +1598,7 @@ codeunit 134235 "Record Set UT"
         SetID: Integer;
         NumberOfCustomers: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateMixedTablesTestItems(TempRecordSetBuffer, NoOfRecordsPerSet, NoOfRecordsPerSet);
@@ -1606,7 +1606,7 @@ codeunit 134235 "Record Set UT"
         SetID := RecordSetManagement.SaveSet(TempRecordSetBuffer);
         NumberOfCustomers := Customer.Count;
 
-        TempRecordSetBuffer.FindFirst;
+        TempRecordSetBuffer.FindFirst();
         TempRecordSetBuffer.Next;
         Customer.Get(TempRecordSetBuffer."Value RecordID");
         TempCustomer.Copy(Customer);
@@ -1637,14 +1637,14 @@ codeunit 134235 "Record Set UT"
         SetID: Integer;
         NumberOfCustomers: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateTestCustomers(TempCustomer, NoOfRecordsPerSet);
         SetID := RecordSetManagement.SaveSetSingleTable(TempCustomer);
         NumberOfCustomers := Customer.Count;
 
-        TempCustomer.FindFirst;
+        TempCustomer.FindFirst();
         TempCustomer.Next;
         TempCustomer.Next;
         RenameCustomer(TempCustomer, xRecRef, RecRef);
@@ -1677,7 +1677,7 @@ codeunit 134235 "Record Set UT"
         NumberOfCustomers: Integer;
         ExistingNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateTestCustomers(TempCustomer, NoOfRecordsPerSet);
@@ -1686,7 +1686,7 @@ codeunit 134235 "Record Set UT"
 
         DuplicateCustomerSet(TempCustomer, TempOldCustomer);
 
-        TempCustomer.FindFirst;
+        TempCustomer.FindFirst();
         ExistingNo := TempCustomer."No.";
         RenameCustomer(TempCustomer, xRecRef, RecRef);
         RecordSetManagement.RenameRecord(RecRef, xRecRef);
@@ -1716,7 +1716,7 @@ codeunit 134235 "Record Set UT"
         SetID: Integer;
         NumberOfCustomers: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateTestCustomers(TempCustomer, NoOfRecordsPerSet);
@@ -1747,7 +1747,7 @@ codeunit 134235 "Record Set UT"
         RecRef: RecordRef;
         NumberOfCustomers: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateTestCustomers(TempCustomer, NoOfRecordsPerSet);
@@ -2061,7 +2061,7 @@ codeunit 134235 "Record Set UT"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 234103] COD 703 "Find Record Management".FindNoFromTypedValue finds Item."No." = "A1" with SearchString = "A" for Item."No." field.
-        Initialize;
+        Initialize();
 
         Type := Type::Item;
 
@@ -2089,7 +2089,7 @@ codeunit 134235 "Record Set UT"
     begin
         // [FEATURE] [UT]
         // [SCENARIO] Length of "Business Unit"."Code" must be equal to length of "Dimension Code Buffer"."Code"
-        Initialize;
+        Initialize();
 
         LibraryTablesUT.CompareFieldTypeAndLength(
           BusinessUnit, BusinessUnit.FieldNo(Code),
@@ -2105,7 +2105,7 @@ codeunit 134235 "Record Set UT"
     begin
         // [FEATURE] [UT]
         // [SCENARIO] Length of "Business Unit"."Name" must be equal to length of "Dimension Code Buffer"."Name"
-        Initialize;
+        Initialize();
 
         LibraryTablesUT.CompareFieldTypeAndLength(
           BusinessUnit, BusinessUnit.FieldNo(Name),
@@ -2121,7 +2121,7 @@ codeunit 134235 "Record Set UT"
     begin
         // [FEATURE] [UT]
         // [SCENARIO] Length of "G/L Account"."Business Unit Filter" must be equal to length of "Business Unit"."Code"
-        Initialize;
+        Initialize();
 
         LibraryTablesUT.CompareFieldTypeAndLength(
           BusinessUnit, BusinessUnit.FieldNo(Code),
@@ -2137,7 +2137,7 @@ codeunit 134235 "Record Set UT"
     begin
         // [FEATURE] [UT]
         // [SCENARIO] Length of "G/L Entry"."Business Unit Code" must be equal to length of "Business Unit"."Code"
-        Initialize;
+        Initialize();
 
         LibraryTablesUT.CompareFieldTypeAndLength(
           BusinessUnit, BusinessUnit.FieldNo(Code),
@@ -2153,7 +2153,7 @@ codeunit 134235 "Record Set UT"
     begin
         // [FEATURE] [UT]
         // [SCENARIO] Length of "Cust. Ledger Entry"."Customer Posting Group" must be equal to length of "Business Unit"."Code"
-        Initialize;
+        Initialize();
 
         LibraryTablesUT.CompareFieldTypeAndLength(
           BusinessUnit, BusinessUnit.FieldNo(Code),
@@ -2169,7 +2169,7 @@ codeunit 134235 "Record Set UT"
     begin
         // [FEATURE] [UT]
         // [SCENARIO] Length of "Vendor Ledger Entry"."Vendor Posting Group" must be equal to length of "Business Unit"."Code"
-        Initialize;
+        Initialize();
 
         LibraryTablesUT.CompareFieldTypeAndLength(
           BusinessUnit, BusinessUnit.FieldNo(Code),
@@ -2185,7 +2185,7 @@ codeunit 134235 "Record Set UT"
     begin
         // [FEATURE] [UT]
         // [SCENARIO] Length of "Analysis View Entry"."Business Unit Code" must be equal to length of "Business Unit"."Code"
-        Initialize;
+        Initialize();
 
         LibraryTablesUT.CompareFieldTypeAndLength(
           BusinessUnit, BusinessUnit.FieldNo(Code),
@@ -2201,7 +2201,7 @@ codeunit 134235 "Record Set UT"
     begin
         // [FEATURE] [UT]
         // [SCENARIO] Length of "Analysis View Budget Entry"."Business Unit Code" must be equal to length of "Business Unit"."Code"
-        Initialize;
+        Initialize();
 
         LibraryTablesUT.CompareFieldTypeAndLength(
           BusinessUnit, BusinessUnit.FieldNo(Code),
@@ -2217,7 +2217,7 @@ codeunit 134235 "Record Set UT"
     begin
         // [FEATURE] [UT]
         // [SCENARIO] Length of "G/L Account (Analysis View)"."Business Unit Filter" must be equal to length of "Business Unit"."Code"
-        Initialize;
+        Initialize();
 
         LibraryTablesUT.CompareFieldTypeAndLength(
           BusinessUnit, BusinessUnit.FieldNo(Code),
@@ -2233,7 +2233,7 @@ codeunit 134235 "Record Set UT"
     begin
         // [FEATURE] [UT]
         // [SCENARIO] Length of "CV Ledger Entry Buffer"."CV Posting Group" must be equal to length of "Business Unit"."Code"
-        Initialize;
+        Initialize();
 
         LibraryTablesUT.CompareFieldTypeAndLength(
           BusinessUnit, BusinessUnit.FieldNo(Code),
@@ -2249,7 +2249,7 @@ codeunit 134235 "Record Set UT"
     begin
         // [FEATURE] [UT]
         // [SCENARIO] Length of "Entry No. Amount Buffer"."Business Unit Code" must be equal to length of "Business Unit"."Code"
-        Initialize;
+        Initialize();
 
         LibraryTablesUT.CompareFieldTypeAndLength(
           BusinessUnit, BusinessUnit.FieldNo(Code),
@@ -2265,7 +2265,7 @@ codeunit 134235 "Record Set UT"
     begin
         // [FEATURE] [UT]
         // [SCENARIO] Length of "FA Ledger Entry"."FA Posting Group" must be equal to length of "Business Unit"."Code"
-        Initialize;
+        Initialize();
 
         LibraryTablesUT.CompareFieldTypeAndLength(
           BusinessUnit, BusinessUnit.FieldNo(Code),
@@ -2281,7 +2281,7 @@ codeunit 134235 "Record Set UT"
     begin
         // [FEATURE] [UT]
         // [SCENARIO] Length of "FA Journal Line"."FA Posting Group" must be equal to length of "Business Unit"."Code"
-        Initialize;
+        Initialize();
 
         LibraryTablesUT.CompareFieldTypeAndLength(
           BusinessUnit, BusinessUnit.FieldNo(Code),
@@ -2297,7 +2297,7 @@ codeunit 134235 "Record Set UT"
     begin
         // [FEATURE] [UT]
         // [SCENARIO] Length of "Maintenance Ledger Entry"."FA Posting Group" must be equal to length of "Business Unit"."Code"
-        Initialize;
+        Initialize();
 
         LibraryTablesUT.CompareFieldTypeAndLength(
           BusinessUnit, BusinessUnit.FieldNo(Code),
@@ -2313,7 +2313,7 @@ codeunit 134235 "Record Set UT"
     begin
         // [FEATURE] [UT]
         // [SCENARIO] Length of "Standard General Journal Line"."Business Unit Code" must be equal to length of "Business Unit"."Code"
-        Initialize;
+        Initialize();
 
         LibraryTablesUT.CompareFieldTypeAndLength(
           BusinessUnit, BusinessUnit.FieldNo(Code),
@@ -2329,7 +2329,7 @@ codeunit 134235 "Record Set UT"
     begin
         // [FEATURE] [UT]
         // [SCENARIO] Length of "Gen. Journal Line"."Posting Group" must be equal to length of "Business Unit"."Code"
-        Initialize;
+        Initialize();
 
         LibraryTablesUT.CompareFieldTypeAndLength(
           BusinessUnit, BusinessUnit.FieldNo(Code),
@@ -2345,7 +2345,7 @@ codeunit 134235 "Record Set UT"
     begin
         // [FEATURE] [UT]
         // [SCENARIO] Length of "Acc. Schedule Line"."Code" must be equal to length of "Business Unit"."Code"
-        Initialize;
+        Initialize();
 
         LibraryTablesUT.CompareFieldTypeAndLength(
           BusinessUnit, BusinessUnit.FieldNo(Code),
@@ -2361,7 +2361,7 @@ codeunit 134235 "Record Set UT"
     begin
         // [FEATURE] [UT]
         // [SCENARIO] Length of "G/L Budget Entry"."Business Unit Code" must be equal to length of "Business Unit"."Code"
-        Initialize;
+        Initialize();
 
         LibraryTablesUT.CompareFieldTypeAndLength(
           BusinessUnit, BusinessUnit.FieldNo(Code),
@@ -2446,7 +2446,7 @@ codeunit 134235 "Record Set UT"
         NewTempCustomer.Reset;
         NewTempCustomer.DeleteAll;
 
-        TempCustomer.FindFirst;
+        TempCustomer.FindFirst();
         repeat
             NewTempCustomer := TempCustomer;
             NewTempCustomer.Insert;
@@ -2459,7 +2459,7 @@ codeunit 134235 "Record Set UT"
         TempNewRecordSetBuffer.Reset;
         TempNewRecordSetBuffer.DeleteAll;
 
-        TempRecordSetBuffer.FindFirst;
+        TempRecordSetBuffer.FindFirst();
         repeat
             TempNewRecordSetBuffer := TempRecordSetBuffer;
             TempNewRecordSetBuffer.Insert;
@@ -2471,8 +2471,8 @@ codeunit 134235 "Record Set UT"
         Customer: Record Customer;
         LastNo: Integer;
     begin
-        TempCustomer.Reset;
-        TempCustomer.FindFirst;
+        TempCustomer.Reset();
+        TempCustomer.FindFirst();
         if DeleteIndex > 1 then
             TempCustomer.Next(DeleteIndex - 1);
 
@@ -2520,7 +2520,7 @@ codeunit 134235 "Record Set UT"
         RecRef: RecordRef;
     begin
         ConvertToRecordSetBuffer(TempRecordSetBuffer, RecordVariant);
-        TempRecordSetBuffer.FindFirst;
+        TempRecordSetBuffer.FindFirst();
         SetID := RecordSetManagement.SaveSet(TempRecordSetBuffer);
 
         DataTypeManagement.GetRecordRef(RecordVariant, RecRef);
@@ -2676,8 +2676,8 @@ codeunit 134235 "Record Set UT"
 
         Assert.AreEqual(TempActualRecordSetBuffer.Count, TempExpectedRecordSetBuffer.Count, 'Wrong number of rows found');
 
-        TempActualRecordSetBuffer.FindFirst;
-        TempExpectedRecordSetBuffer.FindFirst;
+        TempActualRecordSetBuffer.FindFirst();
+        TempExpectedRecordSetBuffer.FindFirst();
 
         repeat
             Assert.AreEqual(

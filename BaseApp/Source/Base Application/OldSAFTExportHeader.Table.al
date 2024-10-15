@@ -3,6 +3,7 @@ table 10632 "SAFT Export Header"
     Caption = 'SAF-T Export Header';
     ObsoleteReason = 'Moved to extension';
     ObsoleteState = Removed;
+    ObsoleteTag = '15.0';
 
     fields
     {

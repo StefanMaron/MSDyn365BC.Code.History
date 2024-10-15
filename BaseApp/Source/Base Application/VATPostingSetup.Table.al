@@ -218,6 +218,7 @@ table 325 "VAT Posting Setup"
             Editable = false;
             ObsoleteReason = 'Moved to extension';
             ObsoleteState = Removed;
+            ObsoleteTag = '15.0';
         }
         field(10621; "Purchase SAFT Tax Code"; Integer)
         {
@@ -225,6 +226,7 @@ table 325 "VAT Posting Setup"
             Editable = false;
             ObsoleteReason = 'Moved to extension';
             ObsoleteState = Removed;
+            ObsoleteTag = '15.0';
         }
         field(10622; "Sales SAFT Standard Tax Code"; Code[10])
         {
@@ -232,6 +234,7 @@ table 325 "VAT Posting Setup"
             ObsoleteReason = 'Moved to extension';
             ObsoleteState = Removed;
             TableRelation = "VAT Code";
+            ObsoleteTag = '15.0';
         }
         field(10623; "Purch. SAFT Standard Tax Code"; Code[10])
         {
@@ -239,6 +242,7 @@ table 325 "VAT Posting Setup"
             ObsoleteReason = 'Moved to extension';
             ObsoleteState = Removed;
             TableRelation = "VAT Code";
+            ObsoleteTag = '15.0';
         }
     }
 

@@ -13,10 +13,12 @@ codeunit 134461 "ERM Item Cross Reference Purch"
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryUtility: Codeunit "Library - Utility";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         Assert: Codeunit Assert;
         DistIntegration: Codeunit "Dist. Integration";
         CrossRefNotExistsErr: Label 'There are no items with cross reference %1.';
         DialogCodeErr: Label 'Dialog';
+        isInitialized: Boolean;
 
     [Test]
     [HandlerFunctions('CrossReferenceListModalPageHandler')]
@@ -35,7 +37,7 @@ codeunit 134461 "ERM Item Cross Reference Purch"
         // [SCENARIO 289240] Vendors: A,B, Items: X,Y,Z, Vendor Cross References: AX, AY, BX, BY and Bar Code Cross Reference PZ
         // [SCENARIO 289240] ICRLookupPurchaseItem for Vendor A and ShowDialog is Yes
         // [SCENARIO 289240] Page Cross Reference List shows only Cross References for Vendor A and Bar Code (AX, AY and PZ)
-        Initialize;
+        Initialize();
         for ItemIndex := 1 to ArrayLen(ItemNo) do begin
             ItemNo[ItemIndex] := LibraryInventory.CreateItemNo;
             VendorNo[ItemIndex] := LibraryPurchase.CreateVendorNo;
@@ -94,7 +96,7 @@ codeunit 134461 "ERM Item Cross Reference Purch"
         // [SCENARIO 289240] Vendors: A,B, Items: X,Y, Cross References: AX, AY, BX, BY
         // [SCENARIO 289240] ICRLookupPurchaseItem for Vendor A and ShowDialog is Yes
         // [SCENARIO 289240] Page Cross Reference List shows only Cross References for Vendor A (AX and AY)
-        Initialize;
+        Initialize();
         for ItemIndex := 1 to ArrayLen(ItemNo) do begin
             ItemNo[ItemIndex] := LibraryInventory.CreateItemNo;
             VendorNo[ItemIndex] := LibraryPurchase.CreateVendorNo;
@@ -144,7 +146,7 @@ codeunit 134461 "ERM Item Cross Reference Purch"
         // [SCENARIO 289240] Vendor A, Items: X,Y Vendor Cross Reference AX and Bar Code Cross Reference PY
         // [SCENARIO 289240] ICRLookupPurchaseItem for Vendor A and ShowDialog is Yes
         // [SCENARIO 289240] Page Cross Reference List shows both Cross References (AX and PY)
-        Initialize;
+        Initialize();
         VendorNo := LibraryPurchase.CreateVendorNo;
         CrossRefNo :=
           LibraryUtility.GenerateRandomCode(ItemCrossReference[1].FieldNo("Cross-Reference No."), DATABASE::"Item Cross Reference");
@@ -192,7 +194,7 @@ codeunit 134461 "ERM Item Cross Reference Purch"
         // [SCENARIO 289240] Vendor A, Items: X,Y Vendor Cross Reference AX and <blank> Type Cross Reference TY
         // [SCENARIO 289240] ICRLookupPurchaseItem for Vendor A and ShowDialog is Yes
         // [SCENARIO 289240] Page Cross Reference List shows both Cross References (AX and TY)
-        Initialize;
+        Initialize();
         VendorNo := LibraryPurchase.CreateVendorNo;
         CrossRefNo :=
           LibraryUtility.GenerateRandomCode(ItemCrossReference[1].FieldNo("Cross-Reference No."), DATABASE::"Item Cross Reference");
@@ -241,7 +243,7 @@ codeunit 134461 "ERM Item Cross Reference Purch"
         // [SCENARIO 289240] Vendor A, Items: X,Y Cross References AX and AY
         // [SCENARIO 289240] ICRLookupPurchaseItem for Vendor A and ShowDialog is Yes
         // [SCENARIO 289240] Page Cross Reference List shows both Cross References (AX and AY)
-        Initialize;
+        Initialize();
         VendorNo := LibraryPurchase.CreateVendorNo;
         CrossRefNo :=
           LibraryUtility.GenerateRandomCode(ItemCrossReference[1].FieldNo("Cross-Reference No."), DATABASE::"Item Cross Reference");
@@ -286,7 +288,7 @@ codeunit 134461 "ERM Item Cross Reference Purch"
         // [SCENARIO 289240] Items: X,Y, Bar Code Cross References: PX,PY
         // [SCENARIO 289240] ICRLookupPurchaseItem for Vendor and ShowDialog is Yes
         // [SCENARIO 289240] Page Cross Reference List shows both Cross References (PX and PY)
-        Initialize;
+        Initialize();
         CrossRefNo :=
           LibraryUtility.GenerateRandomCode(ItemCrossReference[1].FieldNo("Cross-Reference No."), DATABASE::"Item Cross Reference");
         LibraryVariableStorage.Enqueue(CrossRefNo);
@@ -329,7 +331,7 @@ codeunit 134461 "ERM Item Cross Reference Purch"
         // [SCENARIO 289240] Vendor A, Item X, Vendor Cross Reference AX, Bar Code Cross Reference PX
         // [SCENARIO 289240] ICRLookupPurchaseItem for Vendor A and ShowDialog is Yes
         // [SCENARIO 289240] Page Cross Reference List is not shown, ICRLookupPurchaseItem returns Cross Reference for Vendor A (AX)
-        Initialize;
+        Initialize();
         VendorNo := LibraryPurchase.CreateVendorNo;
         CrossRefNo :=
           LibraryUtility.GenerateRandomCode(ItemCrossReference[1].FieldNo("Cross-Reference No."), DATABASE::"Item Cross Reference");
@@ -365,7 +367,7 @@ codeunit 134461 "ERM Item Cross Reference Purch"
         // [SCENARIO 289240] Vendor A, Item X, Vendor Cross Reference AX, <blank> Type Cross Reference TX
         // [SCENARIO 289240] ICRLookupPurchaseItem for Vendor A and ShowDialog is Yes
         // [SCENARIO 289240] Page Cross Reference List is not shown, ICRLookupPurchaseItem returns Cross Reference for Vendor A (AX)
-        Initialize;
+        Initialize();
         VendorNo := LibraryPurchase.CreateVendorNo;
         CrossRefNo :=
           LibraryUtility.GenerateRandomCode(ItemCrossReference[1].FieldNo("Cross-Reference No."), DATABASE::"Item Cross Reference");
@@ -402,7 +404,7 @@ codeunit 134461 "ERM Item Cross Reference Purch"
         // [SCENARIO 289240] Item X, Bar Code Cross References: PX,TX
         // [SCENARIO 289240] ICRLookupPurchaseItem for Vendor and ShowDialog is Yes
         // [SCENARIO 289240] Page Cross Reference List is not shown, ICRLookupPurchaseItem returns Cross Reference PX
-        Initialize;
+        Initialize();
         ItemNo := LibraryInventory.CreateItemNo;
         CrossRefNo :=
           LibraryUtility.GenerateRandomCode(ItemCrossReference[1].FieldNo("Cross-Reference No."), DATABASE::"Item Cross Reference");
@@ -436,7 +438,7 @@ codeunit 134461 "ERM Item Cross Reference Purch"
         // [SCENARIO 289240] Vendors: A,B, Item X, Cross References AX and BX
         // [SCENARIO 289240] ICRLookupPurchaseItem for Vendor A and ShowDialog is Yes
         // [SCENARIO 289240] Page Cross Reference List is not shown, ICRLookupPurchaseItem returns Cross Reference for Vendor A (AX)
-        Initialize;
+        Initialize();
         ItemNo := LibraryInventory.CreateItemNo;
         CrossRefNo :=
           LibraryUtility.GenerateRandomCode(ItemCrossReference[1].FieldNo("Cross-Reference No."), DATABASE::"Item Cross Reference");
@@ -470,7 +472,7 @@ codeunit 134461 "ERM Item Cross Reference Purch"
         // [SCENARIO 289240] Vendors: A,B, Items X,Y, Cross References AX and BY
         // [SCENARIO 289240] ICRLookupPurchaseItem for Vendor A and ShowDialog is Yes
         // [SCENARIO 289240] Page Cross Reference List is not shown, ICRLookupPurchaseItem returns Cross Reference for Vendor A (AX)
-        Initialize;
+        Initialize();
         CrossRefNo :=
           LibraryUtility.GenerateRandomCode(ItemCrossReference[1].FieldNo("Cross-Reference No."), DATABASE::"Item Cross Reference");
 
@@ -504,7 +506,7 @@ codeunit 134461 "ERM Item Cross Reference Purch"
         // [SCENARIO 289240] Vendor B, Items X,Y Vendor Cross Reference BX, Bar Code Cross Reference PY
         // [SCENARIO 289240] ICRLookupPurchaseItem for Vendor A and ShowDialog is Yes
         // [SCENARIO 289240] Page Cross Reference List is not shown, ICRLookupPurchaseItem returns Cross Reference PY
-        Initialize;
+        Initialize();
         CrossRefNo :=
           LibraryUtility.GenerateRandomCode(ItemCrossReference[1].FieldNo("Cross-Reference No."), DATABASE::"Item Cross Reference");
 
@@ -537,7 +539,7 @@ codeunit 134461 "ERM Item Cross Reference Purch"
         // [SCENARIO 289240] Vendor B, Cross Reference BX
         // [SCENARIO 289240] ICRLookupPurchaseItem for Vendor A and ShowDialog is Yes
         // [SCENARIO 289240] ICRLookupPurchaseItem throws error
-        Initialize;
+        Initialize();
         CrossRefNo :=
           LibraryUtility.GenerateRandomCode(ItemCrossReference.FieldNo("Cross-Reference No."), DATABASE::"Item Cross Reference");
 
@@ -567,7 +569,7 @@ codeunit 134461 "ERM Item Cross Reference Purch"
         // [SCENARIO 289240] Vendors: B,C Cross References BX,CY
         // [SCENARIO 289240] ICRLookupPurchaseItem for Vendor A and ShowDialog is Yes
         // [SCENARIO 289240] ICRLookupPurchaseItem throws error
-        Initialize;
+        Initialize();
         CrossRefNo :=
           LibraryUtility.GenerateRandomCode(ItemCrossReference.FieldNo("Cross-Reference No."), DATABASE::"Item Cross Reference");
 
@@ -600,7 +602,7 @@ codeunit 134461 "ERM Item Cross Reference Purch"
         // [SCENARIO 289240] Vendor A, Cross Reference AX
         // [SCENARIO 289240] ICRLookupPurchaseItem for Vendor A and ShowDialog is Yes
         // [SCENARIO 289240] ICRLookupPurchaseItem Returns Cross Reference AX
-        Initialize;
+        Initialize();
         ItemNo := LibraryInventory.CreateItemNo;
         CrossRefNo :=
           LibraryUtility.GenerateRandomCode(ItemCrossReference.FieldNo("Cross-Reference No."), DATABASE::"Item Cross Reference");
@@ -632,7 +634,7 @@ codeunit 134461 "ERM Item Cross Reference Purch"
         // [SCENARIO 289240] No Cross References with No = 1234
         // [SCENARIO 289240] ICRLookupPurchaseItem for Vendor A with Cross Reference No = 1234 and ShowDialog is Yes
         // [SCENARIO 289240] ICRLookupPurchaseItem Returns Cross Reference AX
-        Initialize;
+        Initialize();
         CrossRefNo :=
           LibraryUtility.GenerateRandomCode(DummyItemCrossReference.FieldNo("Cross-Reference No."), DATABASE::"Item Cross Reference");
 
@@ -663,7 +665,7 @@ codeunit 134461 "ERM Item Cross Reference Purch"
         // [SCENARIO 289240] Vendors: A,B, Items: X,Y,Z, Vendor Cross References: AX, AY, BX, BY and Bar Code Cross Reference PZ
         // [SCENARIO 289240] ICRLookupPurchaseItem for Vendor A and ShowDialog is No
         // [SCENARIO 289240] ICRLookupPurchaseItem returns Cross Reference for Vendor A and Item X (AX)
-        Initialize;
+        Initialize();
         for ItemIndex := 1 to ArrayLen(ItemNo) do begin
             ItemNo[ItemIndex] := LibraryInventory.CreateItemNo;
             VendorNo[ItemIndex] := LibraryPurchase.CreateVendorNo;
@@ -710,7 +712,7 @@ codeunit 134461 "ERM Item Cross Reference Purch"
         // [SCENARIO 289240] Vendors: A,B, Items: X,Y, Cross References: AX, AY, BX, BY
         // [SCENARIO 289240] ICRLookupPurchaseItem for Vendor A and ShowDialog is No
         // [SCENARIO 289240] ICRLookupPurchaseItem returns Cross Reference for Vendor A and Item X (AX)
-        Initialize;
+        Initialize();
         for ItemIndex := 1 to ArrayLen(ItemNo) do begin
             ItemNo[ItemIndex] := LibraryInventory.CreateItemNo;
             VendorNo[ItemIndex] := LibraryPurchase.CreateVendorNo;
@@ -749,7 +751,7 @@ codeunit 134461 "ERM Item Cross Reference Purch"
         // [SCENARIO 289240] Vendor A, Items: X,Y Vendor Cross Reference AX and Bar Code Cross Reference PY
         // [SCENARIO 289240] ICRLookupPurchaseItem for Vendor A and ShowDialog is No
         // [SCENARIO 289240] ICRLookupPurchaseItem returns Cross Reference for Vendor A and Item X (AX)
-        Initialize;
+        Initialize();
         VendorNo := LibraryPurchase.CreateVendorNo;
         CrossRefNo :=
           LibraryUtility.GenerateRandomCode(ItemCrossReference[1].FieldNo("Cross-Reference No."), DATABASE::"Item Cross Reference");
@@ -785,7 +787,7 @@ codeunit 134461 "ERM Item Cross Reference Purch"
         // [SCENARIO 289240] Vendor A, Items: X,Y Vendor Cross Reference AX and <blank> Type Cross Reference TY
         // [SCENARIO 289240] ICRLookupPurchaseItem for Vendor A and ShowDialog is No
         // [SCENARIO 289240] ICRLookupPurchaseItem returns Cross Reference for Vendor A and Item X (AX)
-        Initialize;
+        Initialize();
         VendorNo := LibraryPurchase.CreateVendorNo;
         CrossRefNo :=
           LibraryUtility.GenerateRandomCode(ItemCrossReference[1].FieldNo("Cross-Reference No."), DATABASE::"Item Cross Reference");
@@ -822,7 +824,7 @@ codeunit 134461 "ERM Item Cross Reference Purch"
         // [SCENARIO 289240] Vendor A, Items: X,Y Cross References AX and AY
         // [SCENARIO 289240] ICRLookupPurchaseItem for Vendor A and ShowDialog is No
         // [SCENARIO 289240] ICRLookupPurchaseItem returns Cross Reference for Vendor A and Item X (AX)
-        Initialize;
+        Initialize();
         VendorNo := LibraryPurchase.CreateVendorNo;
         CrossRefNo :=
           LibraryUtility.GenerateRandomCode(ItemCrossReference[1].FieldNo("Cross-Reference No."), DATABASE::"Item Cross Reference");
@@ -855,7 +857,7 @@ codeunit 134461 "ERM Item Cross Reference Purch"
         // [SCENARIO 289240] Items: X,Y, Bar Code Cross References: PX,PY
         // [SCENARIO 289240] ICRLookupPurchaseItem for Vendor and ShowDialog is No
         // [SCENARIO 289240] ICRLookupPurchaseItem returns Cross Reference PX
-        Initialize;
+        Initialize();
         CrossRefNo :=
           LibraryUtility.GenerateRandomCode(ItemCrossReference[1].FieldNo("Cross-Reference No."), DATABASE::"Item Cross Reference");
 
@@ -887,7 +889,7 @@ codeunit 134461 "ERM Item Cross Reference Purch"
         // [SCENARIO 289240] Vendor A, Item X, Vendor Cross Reference AX, Bar Code Cross Reference PX
         // [SCENARIO 289240] ICRLookupPurchaseItem for Vendor A and ShowDialog is No
         // [SCENARIO 289240] ICRLookupPurchaseItem returns Cross Reference for Vendor A (AX)
-        Initialize;
+        Initialize();
         VendorNo := LibraryPurchase.CreateVendorNo;
         CrossRefNo :=
           LibraryUtility.GenerateRandomCode(ItemCrossReference[1].FieldNo("Cross-Reference No."), DATABASE::"Item Cross Reference");
@@ -923,7 +925,7 @@ codeunit 134461 "ERM Item Cross Reference Purch"
         // [SCENARIO 289240] Vendor A, Item X, Vendor Cross Reference AX, <blank> Type Cross Reference TX
         // [SCENARIO 289240] ICRLookupPurchaseItem for Vendor A and ShowDialog is No
         // [SCENARIO 289240] Page Cross Reference List is not shown, ICRLookupPurchaseItem returns Cross Reference for Vendor A (AX)
-        Initialize;
+        Initialize();
         VendorNo := LibraryPurchase.CreateVendorNo;
         CrossRefNo :=
           LibraryUtility.GenerateRandomCode(ItemCrossReference[1].FieldNo("Cross-Reference No."), DATABASE::"Item Cross Reference");
@@ -960,7 +962,7 @@ codeunit 134461 "ERM Item Cross Reference Purch"
         // [SCENARIO 289240] Item X, Bar Code Cross References: PX,TX
         // [SCENARIO 289240] ICRLookupPurchaseItem for Vendor and ShowDialog is No
         // [SCENARIO 289240] ICRLookupPurchaseItem returns Cross Reference PX
-        Initialize;
+        Initialize();
         ItemNo := LibraryInventory.CreateItemNo;
         CrossRefNo :=
           LibraryUtility.GenerateRandomCode(ItemCrossReference[1].FieldNo("Cross-Reference No."), DATABASE::"Item Cross Reference");
@@ -995,7 +997,7 @@ codeunit 134461 "ERM Item Cross Reference Purch"
         // [SCENARIO 289240] Vendors: A,B, Item X, Cross References AX and BX
         // [SCENARIO 289240] ICRLookupPurchaseItem for Vendor A and ShowDialog is No
         // [SCENARIO 289240] ICRLookupPurchaseItem returns Cross Reference for Vendor A (AX)
-        Initialize;
+        Initialize();
         ItemNo := LibraryInventory.CreateItemNo;
         CrossRefNo :=
           LibraryUtility.GenerateRandomCode(ItemCrossReference[1].FieldNo("Cross-Reference No."), DATABASE::"Item Cross Reference");
@@ -1030,7 +1032,7 @@ codeunit 134461 "ERM Item Cross Reference Purch"
         // [SCENARIO 289240] Vendors: A,B, Items X,Y, Cross References AX and BY
         // [SCENARIO 289240] ICRLookupPurchaseItem for Vendor A and ShowDialog is No
         // [SCENARIO 289240] ICRLookupPurchaseItem returns Cross Reference for Vendor A (AX)
-        Initialize;
+        Initialize();
         CrossRefNo :=
           LibraryUtility.GenerateRandomCode(ItemCrossReference[1].FieldNo("Cross-Reference No."), DATABASE::"Item Cross Reference");
 
@@ -1064,7 +1066,7 @@ codeunit 134461 "ERM Item Cross Reference Purch"
         // [SCENARIO 289240] Vendor B, Items X,Y Vendor Cross Reference BX, Bar Code Cross Reference PY
         // [SCENARIO 289240] ICRLookupPurchaseItem for Vendor A and ShowDialog is No
         // [SCENARIO 289240] ICRLookupPurchaseItem returns Cross Reference PY
-        Initialize;
+        Initialize();
         CrossRefNo :=
           LibraryUtility.GenerateRandomCode(ItemCrossReference[1].FieldNo("Cross-Reference No."), DATABASE::"Item Cross Reference");
 
@@ -1098,7 +1100,7 @@ codeunit 134461 "ERM Item Cross Reference Purch"
         // [SCENARIO 289240] Vendor B, Cross Reference BX
         // [SCENARIO 289240] ICRLookupPurchaseItem for Vendor A and ShowDialog is No
         // [SCENARIO 289240] ICRLookupPurchaseItem throws error
-        Initialize;
+        Initialize();
         CrossRefNo :=
           LibraryUtility.GenerateRandomCode(ItemCrossReference.FieldNo("Cross-Reference No."), DATABASE::"Item Cross Reference");
 
@@ -1129,7 +1131,7 @@ codeunit 134461 "ERM Item Cross Reference Purch"
         // [SCENARIO 289240] Vendors: B,C Cross References BX,CY
         // [SCENARIO 289240] ICRLookupPurchaseItem for Vendor A and ShowDialog is No
         // [SCENARIO 289240] ICRLookupPurchaseItem throws error
-        Initialize;
+        Initialize();
         CrossRefNo :=
           LibraryUtility.GenerateRandomCode(ItemCrossReference.FieldNo("Cross-Reference No."), DATABASE::"Item Cross Reference");
 
@@ -1163,7 +1165,7 @@ codeunit 134461 "ERM Item Cross Reference Purch"
         // [SCENARIO 289240] Vendor A, Cross Reference AX
         // [SCENARIO 289240] ICRLookupPurchaseItem for Vendor A and ShowDialog is No
         // [SCENARIO 289240] ICRLookupPurchaseItem Returns Cross Reference AX
-        Initialize;
+        Initialize();
         ItemNo := LibraryInventory.CreateItemNo;
         CrossRefNo :=
           LibraryUtility.GenerateRandomCode(ItemCrossReference.FieldNo("Cross-Reference No."), DATABASE::"Item Cross Reference");
@@ -1196,7 +1198,7 @@ codeunit 134461 "ERM Item Cross Reference Purch"
         // [SCENARIO 289240] No Cross References with No = 1234
         // [SCENARIO 289240] ICRLookupPurchaseItem for Vendor A with Cross Reference No = 1234 and ShowDialog is No
         // [SCENARIO 289240] ICRLookupPurchaseItem Returns Cross Reference AX
-        Initialize;
+        Initialize();
         CrossRefNo :=
           LibraryUtility.GenerateRandomCode(DummyItemCrossReference.FieldNo("Cross-Reference No."), DATABASE::"Item Cross Reference");
 
@@ -1229,7 +1231,7 @@ codeunit 134461 "ERM Item Cross Reference Purch"
         // [SCENARIO 289240] ICRLookupPurchaseItem for Vendor A and ShowDialog is Yes
         // [SCENARIO 289240] Page Cross Reference List opened with Cross References
         // [SCENARIO 289240] When Stan pushes cancel on page, then error
-        Initialize;
+        Initialize();
         for ItemIndex := 1 to ArrayLen(ItemNo) do begin
             ItemNo[ItemIndex] := LibraryInventory.CreateItemNo;
             VendorNo[ItemIndex] := LibraryPurchase.CreateVendorNo;
@@ -1276,7 +1278,7 @@ codeunit 134461 "ERM Item Cross Reference Purch"
         SavedItemCrossReferenceDescription: Text[100];
     begin
         // [SCENARIO 292774] Description should not be cleared in item cross refference when updating Lead Time Calculation of related Item Vendor record
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item Cross Reference of "Vendor" type with Item No. "ITEM", Vendor No. "VEND", Variant Code "VARIANT" and description "DESCR"
         LibraryInventory.CreateItem(Item);
@@ -1311,7 +1313,7 @@ codeunit 134461 "ERM Item Cross Reference Purch"
         // [SCENARIO 289240] Vendor A, Items: X,Y Cross References AX and AY
         // [SCENARIO 289240] Stan looks up Cross-Reference No in Purchase Line and selects Cross Reference AY
         // [SCENARIO 289240] Purchase Line has Item Y
-        Initialize;
+        Initialize();
         VendorNo := LibraryPurchase.CreateVendorNo;
         CrossRefNo :=
           LibraryUtility.GenerateRandomCode(ItemCrossReference[1].FieldNo("Cross-Reference No."), DATABASE::"Item Cross Reference");
@@ -1344,7 +1346,18 @@ codeunit 134461 "ERM Item Cross Reference Purch"
 
     local procedure Initialize()
     begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"ERM Item Cross Reference Purch");
+
         LibraryVariableStorage.Clear;
+        if IsInitialized then
+            exit;
+
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"ERM Item Cross Reference Purch");
+
+        Commit();
+        IsInitialized := true;
+
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"ERM Item Cross Reference Purch");
     end;
 
     local procedure CreateItemCrossReference(var ItemCrossReference: Record "Item Cross Reference"; ItemNo: Code[20]; ItemVariantNo: Code[10]; CrossReferenceType: Option; CrossReferenceTypeNo: Code[30])

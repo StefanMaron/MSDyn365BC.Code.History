@@ -3,6 +3,7 @@ table 10622 "SAFT Mapping"
     Caption = 'SAF-T Mapping';
     ObsoleteReason = 'Moved to extension';
     ObsoleteState = Removed;
+    ObsoleteTag = '15.0';
 
     fields
     {

@@ -62,6 +62,7 @@ page 9800 Users
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'Desktop client is not supported in versions 15 and higher.';
+                    ObsoleteTag = '15.3';
                 }
                 field("License Type"; "License Type")
                 {

@@ -10,6 +10,7 @@ report 206 "Sales - Invoice"
     UsageCategory = ReportsAndAnalysis;
     ObsoleteReason = 'Replaced with report 1306 Standard Sales - Invoice';
     ObsoleteState = Pending;
+    ObsoleteTag = '15.2';
 
     dataset
     {

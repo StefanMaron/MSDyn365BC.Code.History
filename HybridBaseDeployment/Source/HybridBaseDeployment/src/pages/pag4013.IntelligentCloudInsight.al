@@ -19,13 +19,11 @@ page 4013 "Intelligent Cloud Insights"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'KPIs';
-                    ToolTip = 'Intelligent Edge KPIs';
                 }
                 part(IntelligentEdgeInsights; "Intelligent Edge Insights")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Insights';
-                    ToolTip = 'Intelligent Edge Insights';
                 }
 
             }
@@ -38,7 +36,6 @@ page 4013 "Intelligent Cloud Insights"
                     Caption = 'Power BI Report';
                     UpdatePropagation = Both;
                     AccessByPermission = tabledata 6304 = I;
-                    ToolTip = 'Power BI Report';
                 }
                 part(PowerBIReportSpinnerPart2; "Power BI Report Spinner Part")
                 {
@@ -46,7 +43,6 @@ page 4013 "Intelligent Cloud Insights"
                     Caption = 'Power BI Report';
                     UpdatePropagation = Both;
                     AccessByPermission = tabledata 6304 = I;
-                    ToolTip = 'Power BI Report';
                 }
             }
             group(MachineLearning)
@@ -58,7 +54,6 @@ page 4013 "Intelligent Cloud Insights"
                     Caption = 'Cash Flow Forecast';
                     UpdatePropagation = Both;
                     AccessByPermission = TableData 110 = R;
-                    ToolTip = 'Cash Flow Forecast';
                 }
             }
         }

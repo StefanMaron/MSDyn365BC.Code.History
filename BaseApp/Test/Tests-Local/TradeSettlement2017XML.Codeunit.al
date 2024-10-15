@@ -1048,7 +1048,7 @@ codeunit 144004 "Trade Settlement 2017 - XML"
         // [THEN] Box 12 (Purchase of intangible services from abroad, VAT 25 %) = 1000 (base) + 250 (amount)
         // [THEN] Box 17 (Deductible import VAT, 25 %) = 50
         // [THEN] Box 19 (Tax to pay) = 250 (box12) - 50 (box17) = 200
-        VerifyBoxesForDeduction(VATBase, VATAmount, VATPostingSetup."Proportional Deduction VAT %");
+        VerifyBoxesForDeduction(VATBase, VATAmount, VATPostingSetup."Proportional Deduction VAT %", 12);
     end;
 
     [Test]
@@ -1081,7 +1081,7 @@ codeunit 144004 "Trade Settlement 2017 - XML"
         // [THEN] Box 12 (Purchase of intangible services from abroad, VAT 25 %) = 200
         // [THEN] Box 17 (Deductible import VAT, 25 %) = 0
         // [THEN] Box 19 (Tax to pay) = 200 (box12) - 0 (box17) = 200
-        VerifyBoxesForPropDeduction(VATBase, VATAmount, 0);
+        VerifyBoxesForPropDeduction(VATBase, VATAmount, 0, 12);
     end;
 
     [Test]
@@ -1114,7 +1114,7 @@ codeunit 144004 "Trade Settlement 2017 - XML"
         // [THEN] Box 12 (Purchase of intangible services from abroad, VAT 25 %) = 200
         // [THEN] Box 17 (Deductible import VAT, 25 %) = 200
         // [THEN] Box 19 (Tax to pay) = 200 (box12) - 200 (box17) = 0
-        VerifyBoxesForDeduction(VATBase, VATAmount, 100);
+        VerifyBoxesForDeduction(VATBase, VATAmount, 100, 12);
     end;
 
     [Test]
@@ -1184,6 +1184,105 @@ codeunit 144004 "Trade Settlement 2017 - XML"
 
         // [THEN] Check BaseWithVat, BaseWithoutVat and BaseOutside for third sales invoice
         VerifyBaseWithVATWithoutVATOutside(SalesVATBase[3], 0, 0, 5);
+    end;
+
+    [Test]
+    [HandlerFunctions('TradeSettlementRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure Box9_PurchServFromAbroad_ReverseChargeVATDeduction()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        VendorNo: Code[20];
+        VATBase: Decimal;
+        VATAmount: Decimal;
+    begin
+        // [FEATURE] [Purchase] [Invoice] [Reverse Charge VAT]
+        // [SCENARIO 340079] VAT Base and Amount when Reverse Charge VAT with Proportional Deduction
+
+        // [GIVEN] Foreign Vendor with "VAT Settlement Rate" = Normal, "VAT %" = 25, "VAT Calculation Type" = "Reverse Charge VAT"
+        VendorNo :=
+          CreateVendorWithRevChrgVAT(VATPostingSetup, VATPostingSetup."VAT Settlement Rate"::Normal, BoxNo::"9", BoxNo::"17");
+
+        // [GIVEN] Deduction 20.0 % was set in VAT Posting Setup
+        ModifyVATPostingSetupPropDeductionVATRate(VATPostingSetup, LibraryRandom.RandDecInRange(10, 20, 2));
+
+        // [GIVEN] Posted purchase invoice with Total Amount Incl. VAT = 1250
+        CreatePostPurchaseInvoice(VATBase, VATAmount, VATPostingSetup, VendorNo);
+
+        // [WHEN] Run REP 10618 "Trade Settlement - 2017"
+        RunTradeSettlement2017ReportForCVNo(VendorNo);
+
+        // [THEN] Box 2 (Total turnover and withdrawal covered by the VAT Act and import) = 1000
+        // [THEN] Box 9 (Import of goods, VAT 25 %) = 1000 (base) + 250 (amount)
+        // [THEN] Box 17 (Deductible import VAT, 25 %) = 50
+        // [THEN] Box 19 (Tax to pay) = 250 (box12) - 50 (box17) = 200
+        VerifyBoxesForDeduction(VATBase, VATAmount, VATPostingSetup."Proportional Deduction VAT %", 9);
+    end;
+
+    [Test]
+    [HandlerFunctions('TradeSettlementRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure Box9_PurchServFromAbroad_ReverseChargeVATPropDeduction0()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        VendorNo: Code[20];
+        VATBase: Decimal;
+        VATAmount: Decimal;
+    begin
+        // [FEATURE] [Purchase] [Invoice] [Reverse Charge VAT]
+        // [SCENARIO 340079] VAT Base and Amount when Reverse Charge VAT when Proportional Deduction VAT = 0%
+
+        // [GIVEN] Foreign Vendor with "VAT Settlement Rate" = Normal, "VAT %" = 25, "VAT Calculation Type" = "Reverse Charge VAT"
+        VendorNo :=
+          CreateVendorWithRevChrgVAT(VATPostingSetup, VATPostingSetup."VAT Settlement Rate"::Normal, BoxNo::"9", BoxNo::"17");
+
+        // [GIVEN] Proportional Deduction VAT = 0 % in VAT Posting Setup
+        ModifyVATPostingSetupPropDeductionVATRate(VATPostingSetup, 0);
+
+        // [GIVEN] Posted purchase invoice with Total Amount Incl. VAT = 800
+        CreatePostPurchaseInvoice(VATBase, VATAmount, VATPostingSetup, VendorNo);
+
+        // [WHEN] Run REP 10618 "Trade Settlement - 2017"
+        RunTradeSettlement2017ReportForCVNo(VendorNo);
+
+        // [THEN] Box 2 (Total turnover and withdrawal covered by the VAT Act and import) = 800
+        // [THEN] Box 9 (Import of goods, VAT 25 %) = 200
+        // [THEN] Box 17 (Deductible import VAT, 25 %) = 0
+        // [THEN] Box 19 (Tax to pay) = 200 (box12) - 0 (box17) = 200
+        VerifyBoxesForPropDeduction(VATBase, VATAmount, 0, 9);
+    end;
+
+    [Test]
+    [HandlerFunctions('TradeSettlementRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure Box9_PurchServFromAbroad_ReverseChargeVATPropDeduction100()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        VendorNo: Code[20];
+        VATBase: Decimal;
+        VATAmount: Decimal;
+    begin
+        // [FEATURE] [Purchase] [Invoice] [Reverse Charge VAT]
+        // [SCENARIO 340079] VAT Base and Amount when Reverse Charge VAT when Proportional Deduction VAT = 100%
+
+        // [GIVEN] Foreign Vendor with "VAT Settlement Rate" = Normal, "VAT %" = 25, "VAT Calculation Type" = "Reverse Charge VAT"
+        VendorNo :=
+          CreateVendorWithRevChrgVAT(VATPostingSetup, VATPostingSetup."VAT Settlement Rate"::Normal, BoxNo::"9", BoxNo::"17");
+
+        // [GIVEN] Proportional Deduction VAT = 1000 % in VAT Posting Setup
+        ModifyVATPostingSetupPropDeductionVATRate(VATPostingSetup, 100);
+
+        // [GIVEN] Posted purchase invoice with Total Amount Incl. VAT = 800
+        CreatePostPurchaseInvoice(VATBase, VATAmount, VATPostingSetup, VendorNo);
+
+        // [WHEN] Run REP 10618 "Trade Settlement - 2017"
+        RunTradeSettlement2017ReportForCVNo(VendorNo);
+
+        // [THEN] Box 2 (Total turnover and withdrawal covered by the VAT Act and import) = 800
+        // [THEN] Box 9 (Import of goods, VAT 25 %) = 200
+        // [THEN] Box 17 (Deductible import VAT, 25 %) = 200
+        // [THEN] Box 19 (Tax to pay) = 200 (box12) - 200 (box17) = 0
+        VerifyBoxesForDeduction(VATBase, VATAmount, 100, 9);
     end;
 
     local procedure UpdateCompanyInformation()
@@ -1450,7 +1549,7 @@ codeunit 144004 "Trade Settlement 2017 - XML"
     var
         CompanyInformation: Record "Company Information";
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         LibraryXMLRead.VerifyNodeValueInSubtree('skattepliktig', 'organisasjonsnavn', CompanyInformation.Name);
         LibraryXMLRead.VerifyNodeValueInSubtree('skattepliktig', 'iban', CompanyInformation.IBAN);
         LibraryXMLRead.VerifyNodeValueInSubtree('skattepliktig', 'swiftBic', CompanyInformation."SWIFT Code");
@@ -1467,7 +1566,7 @@ codeunit 144004 "Trade Settlement 2017 - XML"
         LibraryXMLRead.VerifyNodeValueInSubtree('meldingsopplysning', 'aar', Date2DMY(WorkDate, 3));
     end;
 
-    local procedure VerifyBoxesForDeduction(VATBase: Decimal; VATAmount: Decimal; DeductionRate: Decimal)
+    local procedure VerifyBoxesForDeduction(VATBase: Decimal; VATAmount: Decimal; DeductionRate: Decimal; VATBaseAndAmountBoxNo: Integer)
     var
         FullBase: Decimal;
         FullAmount: Decimal;
@@ -1476,13 +1575,13 @@ codeunit 144004 "Trade Settlement 2017 - XML"
         FullBase := Round(Round(VATBase * DeductionRate / 100) * 100 / DeductionRate);
         FullAmount := Round(Round(VATAmount * DeductionRate / 100) * 100 / DeductionRate);
         DeductedAmount := Round(VATAmount * DeductionRate / 100);
-        VerifyBoxesForPropDeduction(FullBase, FullAmount, DeductedAmount);
+        VerifyBoxesForPropDeduction(FullBase, FullAmount, DeductedAmount, VATBaseAndAmountBoxNo);
     end;
 
-    local procedure VerifyBoxesForPropDeduction(FullBase: Decimal; FullAmount: Decimal; DeductedAmount: Decimal)
+    local procedure VerifyBoxesForPropDeduction(FullBase: Decimal; FullAmount: Decimal; DeductedAmount: Decimal; VATBaseAndAmountBoxNo: Integer)
     begin
         VerifyBoxVATBase(2, FullBase);
-        VerifyBoxVATBaseAndAmount(12, FullBase, FullAmount);
+        VerifyBoxVATBaseAndAmount(VATBaseAndAmountBoxNo, FullBase, FullAmount);
         VerifyBoxVATAmount(17, DeductedAmount);
         VerifyBoxVATAmount(19, FullAmount - DeductedAmount);
     end;

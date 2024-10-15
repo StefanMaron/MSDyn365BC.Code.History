@@ -50,4 +50,13 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Payroll Integration Test - NamedType AssertMsg)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 4153178391 - NamedType 3105828973" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[contains a value (%1) that cannot be found in the related table (Dimension Value)]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Payroll Integration Test - NamedType DimCodeDoesNotExistErr)]]></Cmt>
+    </Cmts>
+  </Item>
 </LCX>

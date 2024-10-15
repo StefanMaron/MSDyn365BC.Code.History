@@ -1,4 +1,4 @@
-report 15000050 "Remittance - export (bank)"
+report 15000050 "Remittance - export (Bank)"
 {
     Caption = 'Remittance - export (bank)';
     Permissions = TableData "Vendor Ledger Entry" = rimd;
@@ -13,7 +13,7 @@ report 15000050 "Remittance - export (bank)"
 
             trigger OnPreDataItem()
             var
-                StoreJournalRec: Record "Gen. Journal Line";
+                StoreGenJournalLine: Record "Gen. Journal Line";
                 RemPmtOrderExport: Report "Rem. Payment Order  - Export";
                 RemittJournalCheckLine: Codeunit "Remitt. journal - Check line";
                 InvoiceCounter: Integer;
@@ -27,7 +27,9 @@ report 15000050 "Remittance - export (bank)"
                 UnstructuredPaym: Boolean;
                 CountUnstPaym: Integer;
             begin
-                RemAgreement.LockTable; // To ensure the update of sequence numbers
+                OnBeforeOnPreDataItemGenJournalLine(CurrentGenJournalLine, "Gen. Journal Line");
+
+                RemAgreement.LockTable(); // To ensure the update of sequence numbers
 
                 PurchSetup.Get;
 
@@ -43,17 +45,17 @@ report 15000050 "Remittance - export (bank)"
                 RemAgreement.Get(RemAgreementCode); // Make sure the specified code is valid
 
                 // Select lines from current journals
-                JournalRec.Reset; // Make sure primary keys are active and all filters deleted.
-                JournalRec.SetCurrentKey(
+                GenJournalLineRec.Reset(); // Make sure primary keys are active and all filters deleted.
+                GenJournalLineRec.SetCurrentKey(
                   "Journal Template Name", "Journal Batch Name", "Remittance Agreement Code", "Remittance Type", "Remittance Account Code");
-                JournalRec.SetRange("Journal Template Name", CurrentJournalLine."Journal Template Name");
-                JournalRec.SetRange("Journal Batch Name", CurrentJournalLine."Journal Batch Name");
-                JournalRec.SetRange("Remittance Agreement Code", RemAgreementCode); // Only one contract at the time is processed.
+                GenJournalLineRec.SetRange("Journal Template Name", CurrentGenJournalLine."Journal Template Name");
+                GenJournalLineRec.SetRange("Journal Batch Name", CurrentGenJournalLine."Journal Batch Name");
+                GenJournalLineRec.SetRange("Remittance Agreement Code", RemAgreementCode); // Only one contract at the time is processed.
 
-                if not JournalRec.FindFirst then
+                if not GenJournalLineRec.FindFirst then
                     Error(Text001);
 
-                JournalRec.FindFirst;
+                GenJournalLineRec.FindFirst;
 
                 CreatePaymOrderHead;
 
@@ -65,68 +67,68 @@ report 15000050 "Remittance - export (bank)"
                 //    remaining journal lines is selected and used now. (starts over at 1.)
                 // 5. Stop when all the lines are processed.
 
-                JournalRec.FindFirst;  // Start with the first one, with new key
-                StoreJournalRec.Init;
-                StoreJournalRec."Remittance Type" := -1; // A temporary problem, since the type has to be specified and validated eventually.
+                GenJournalLineRec.FindFirst;  // Start with the first one, with new key
+                StoreGenJournalLine.Init();
+                StoreGenJournalLine."Remittance Type" := -1;
                 FirstTransaction := true;
                 repeat
                     if NextSelection then begin  // Continue with next selection:
                                                  // Select journal lines for current payment transaction
-                        JournalRec.SetRange("Remittance Type", JournalRec."Remittance Type");
-                        JournalRec.SetRange("Remittance Account Code", JournalRec."Remittance Account Code");
-                        JournalRec.SetRange("Posting Date", JournalRec."Posting Date");
-                        JournalRec.SetRange("Account No.", JournalRec."Account No.");
-                        JournalRec.SetRange(Urgent, JournalRec.Urgent);
-                        JournalRec.SetRange("Futures Contract No.", JournalRec."Futures Contract No.");
-                        JournalRec.SetRange("Futures Contract Exch. Rate", JournalRec."Futures Contract Exch. Rate");
-                        JournalRec.SetRange("Currency Code", JournalRec."Currency Code");
-                        JournalRec.SetRange("Currency Factor", JournalRec."Currency Factor");
-                        JournalRec.SetRange("Agreed Exch. Rate", JournalRec."Agreed Exch. Rate");
-                        JournalRec.SetRange("Agreed With", JournalRec."Agreed With");
+                        GenJournalLineRec.SetRange("Remittance Type", GenJournalLineRec."Remittance Type");
+                        GenJournalLineRec.SetRange("Remittance Account Code", GenJournalLineRec."Remittance Account Code");
+                        GenJournalLineRec.SetRange("Posting Date", GenJournalLineRec."Posting Date");
+                        GenJournalLineRec.SetRange("Account No.", GenJournalLineRec."Account No.");
+                        GenJournalLineRec.SetRange(Urgent, GenJournalLineRec.Urgent);
+                        GenJournalLineRec.SetRange("Futures Contract No.", GenJournalLineRec."Futures Contract No.");
+                        GenJournalLineRec.SetRange("Futures Contract Exch. Rate", GenJournalLineRec."Futures Contract Exch. Rate");
+                        GenJournalLineRec.SetRange("Currency Code", GenJournalLineRec."Currency Code");
+                        GenJournalLineRec.SetRange("Currency Factor", GenJournalLineRec."Currency Factor");
+                        GenJournalLineRec.SetRange("Agreed Exch. Rate", GenJournalLineRec."Agreed Exch. Rate");
+                        GenJournalLineRec.SetRange("Agreed With", GenJournalLineRec."Agreed With");
                         UnstructuredPaym := true;
 
                         // Unstructured and structured payments must be grouped separately.
                         // Structured payments: those with either KID or External Doc. No. filled out
                         // Unstructured payments: those with recipient ref. 1-3 filled out
-                        if not JournalRec."Structured Payment" then
-                            if JournalRec."Remittance Type" = JournalRec."Remittance Type"::Domestic then begin
-                                if JournalRec."Recipient Ref. 1" = '' then
-                                    Error(Text006, JournalRec."Line No.");
+                        if not GenJournalLineRec."Structured Payment" then
+                            if GenJournalLineRec."Remittance Type" = GenJournalLineRec."Remittance Type"::Domestic then begin
+                                if GenJournalLineRec."Recipient Ref. 1" = '' then
+                                    Error(Text006, GenJournalLineRec."Line No.");
                             end else begin
-                                if JournalRec."Recipient Ref. Abroad" = '' then
-                                    Error(Text009, JournalRec."Line No.");
+                                if GenJournalLineRec."Recipient Ref. Abroad" = '' then
+                                    Error(Text009, GenJournalLineRec."Line No.");
                             end
                         else
                             UnstructuredPaym := false;
-                        JournalRec.SetRange("Structured Payment", JournalRec."Structured Payment");
+                        GenJournalLineRec.SetRange("Structured Payment", GenJournalLineRec."Structured Payment");
 
-                        JournalRec.FindFirst;  // Start with first one among selected ones.
+                        GenJournalLineRec.FindFirst;  // Start with first one among selected ones.
 
                         // Init data related to the current account/agreement.
                         // All journal lines selected by now are related to the same account
                         StoreRemAccount := RemAccount; // StoreRemAccount is used in ApplHeader.
-                        RemAccount.Get(JournalRec."Remittance Account Code");
+                        RemAccount.Get(GenJournalLineRec."Remittance Account Code");
                         if FirstTransaction then
                             StoreRemAccount := RemAccount;
                         // Check. This should not happen:
                         if RemAccount."Remittance Agreement Code" <> RemAgreement.Code then
                             Error(Text002);
                         if RemAccount.Type = RemAccount.Type::Foreign then
-                            if (JournalRec."Payment Type Code Abroad" = '') and not SkipPaymentTypeCodeAbroad then
+                            if (GenJournalLineRec."Payment Type Code Abroad" = '') and not SkipPaymentTypeCodeAbroad then
                                 SkipPaymentTypeCodeAbroad := ConfirmSkipping(FieldCaption("Payment Type Code Abroad"));
                         RemAccount.TestField("Bank Account No.");
                         if RemAccount.Type = 2 then
                             OwnAccountNo := '00000000000'
                         else
                             OwnAccountNo := RemTools.FormatNumStr(RemAccount."Bank Account No.", 11);
-                        NumberOfInvoices := JournalRec.Count;  // Number of invoices in transaction
+                        NumberOfInvoices := GenJournalLineRec.Count();  // Number of invoices in transaction
                         InvoiceCounter := 0; // Counts number of payments in a payment transaction
                         CountUnstPaym := 0; // Counts number of unstructured payments in a payment transaction - max allowed 8
 
                         // Check if remittance type is changed. If so, create a new PAYFOR99
                         // for previous payment orders (if any) and a new
                         // PAYFOR00 for following payment orders.
-                        if StoreJournalRec."Remittance Type" <> JournalRec."Remittance Type" then begin
+                        if StoreGenJournalLine."Remittance Type" <> GenJournalLineRec."Remittance Type" then begin
                             if not FirstTransaction then begin // Close the last one
                                 CountTrans := CountTrans + 1;  // Count payment transactions
                                 Betfor99(false);
@@ -140,30 +142,30 @@ report 15000050 "Remittance - export (bank)"
                         end;
                     end;
 
-                    JournalRec.TestField("Account Type", JournalRec."Account Type"::Vendor);
-                    JournalRec.TestField("Waiting Journal Reference", 0); // Journal line is a settlement. It can not be exported!
-                    Vendor.Get(JournalRec."Account No.");
+                    GenJournalLineRec.TestField("Account Type", GenJournalLineRec."Account Type"::Vendor);
+                    GenJournalLineRec.TestField("Waiting Journal Reference", 0); // Journal line is a settlement. It can not be exported!
+                    Vendor.Get(GenJournalLineRec."Account No.");
 
                     if RemAccount.Type = RemAccount.Type::Domestic then begin
                         CountTrans := CountTrans + 1;
-                        Betfor21(JournalRec)
+                        Betfor21(GenJournalLineRec)
                     end else begin
                         CountTrans := CountTrans + 3;
                         // Get journal info for the first journal line in vendor transaction
                         // Same values are used for transfer.
                         // This can cause problems, since the following journal lines could have different values.
-                        Betfor01(JournalRec);
-                        Betfor02(JournalRec);
-                        Betfor03(JournalRec);
+                        Betfor01(GenJournalLineRec);
+                        Betfor02(GenJournalLineRec);
+                        Betfor03(GenJournalLineRec);
                     end;
 
                     repeat
                         if RemAccount.Type = RemAccount.Type::Foreign then
-                            if (JournalRec."Specification (Norges Bank)" = '') and (PurchSetup."Amt. Spec limit to Norges Bank" > 0) then begin
-                                if JournalRec."Amount (LCY)" >= PurchSetup."Amt. Spec limit to Norges Bank" then
+                            if (GenJournalLineRec."Specification (Norges Bank)" = '') and (PurchSetup."Amt. Spec limit to Norges Bank" > 0) then begin
+                                if GenJournalLineRec."Amount (LCY)" >= PurchSetup."Amt. Spec limit to Norges Bank" then
                                     Error(
                                       Text008, FieldCaption("Specification (Norges Bank)"), FieldCaption("Amount (LCY)"),
-                                      Format(JournalRec."Line No."), PurchSetup."Amt. Spec limit to Norges Bank");
+                                      Format(GenJournalLineRec."Line No."), PurchSetup."Amt. Spec limit to Norges Bank");
                                 if not SkipSpecification then
                                     SkipSpecification := ConfirmSkipping(FieldCaption("Specification (Norges Bank)"));
                             end;
@@ -176,27 +178,27 @@ report 15000050 "Remittance - export (bank)"
                         if UnstructuredPaym then
                             CountUnstPaym := CountUnstPaym + 1;
 
-                        RemittJournalCheckLine.CheckUntilFirstError(JournalRec, RemAccount);
-                        VendBalance := VendBalance + JournalRec."Amount (LCY)";  // Count vendors balance for later checks
-                                                                                 // Moved to waiting journal by PAYFor23(), since own ref. is used
-                        MoveToWaitingJournal(JournalRec);  // Move journal line to waiting journal.
+                        RemittJournalCheckLine.CheckUntilFirstError(GenJournalLineRec, RemAccount);
+                        VendBalance := VendBalance + GenJournalLineRec."Amount (LCY)";  // Count vendors balance for later checks
+                                                                                        // Moved to waiting journal by PAYFor23(), since own ref. is used
+                        MoveToWaitingJournal(GenJournalLineRec);  // Move journal line to waiting journal.
 
                         CountTrans := CountTrans + 1;
                         if RemAccount.Type = RemAccount.Type::Domestic then
-                            Betfor23(JournalRec)
+                            Betfor23(GenJournalLineRec)
                         else
-                            Betfor04(JournalRec);
+                            Betfor04(GenJournalLineRec);
 
-                        RemTools.MarkEntry(JournalRec, 'REM', PaymOrder.ID);  // Mark the posts waiting for remitt. settlement.
+                        RemTools.MarkEntry(GenJournalLineRec, 'REM', RemittancePaymentOrder.ID);  // Mark the posts waiting for remitt. settlement.
 
                         // Delete journal lines that where just processed:
-                        StoreJournalRec := JournalRec;
-                        JournalRec.Delete(true);
+                        StoreGenJournalLine := GenJournalLineRec;
+                        GenJournalLineRec.Delete(true);
 
                         // Find first of the remaining lines in filter. -
                         // - Stop when all vendor lines are exported, or when 999 lines are exported, for structured payments.
                         // In case of unstrucutred payments, max no. of payments within transaction is 8.
-                        LastLine := not JournalRec.FindFirst;
+                        LastLine := not GenJournalLineRec.FindFirst();
                     until (InvoiceCounter mod MaxPayments = 0) or LastLine or (UnstructuredPaym and ((CountUnstPaym mod 8) = 0));
 
                     // Are all the selected invoices processed?
@@ -208,11 +210,11 @@ report 15000050 "Remittance - export (bank)"
                         // Check balance for processed vendors:
                         if VendBalance < 0 then begin
                             // recognize vendor with and without currency, so the message is formulated correctly
-                            if JournalRec."Currency Code" = '' then
+                            if GenJournalLineRec."Currency Code" = '' then
                                 Error(Text003,
-                                  JournalRec."Posting Date", JournalRec."Account No.", VendBalance);
-                            Error(Text004, JournalRec."Posting Date", JournalRec."Account No.",
-                              VendBalance, JournalRec."Currency Code", JournalRec."Currency Factor");
+                                  GenJournalLineRec."Posting Date", GenJournalLineRec."Account No.", VendBalance);
+                            Error(Text004, GenJournalLineRec."Posting Date", GenJournalLineRec."Account No.",
+                              VendBalance, GenJournalLineRec."Currency Code", GenJournalLineRec."Currency Factor");
                         end;
                         VendBalance := 0;  // Reset for next vendor.
                     end;
@@ -220,22 +222,22 @@ report 15000050 "Remittance - export (bank)"
                         // All selected invoices are processed. Continue with the following selection.
                         // Delete limits for vendor.
                         // Continue with the line following the ones just processed:
-                        JournalRec.SetRange("Remittance Type");
-                        JournalRec.SetRange("Remittance Account Code");
-                        JournalRec.SetRange("Posting Date");
-                        JournalRec.SetRange("Account No.");
-                        JournalRec.SetRange(Urgent);
-                        JournalRec.SetRange("Futures Contract No.");
-                        JournalRec.SetRange("Futures Contract Exch. Rate");
-                        JournalRec.SetRange("Currency Code");
-                        JournalRec.SetRange("Currency Factor");
-                        JournalRec.SetRange("Agreed Exch. Rate");
-                        JournalRec.SetRange("Agreed With");
-                        JournalRec.SetRange(KID);
-                        JournalRec.SetRange("External Document No.");
-                        JournalRec.SetRange("Recipient Ref. 1");
-                        JournalRec.SetRange("Structured Payment");
-                        Done := not JournalRec.FindFirst;  // More journal lines?
+                        GenJournalLineRec.SetRange("Remittance Type");
+                        GenJournalLineRec.SetRange("Remittance Account Code");
+                        GenJournalLineRec.SetRange("Posting Date");
+                        GenJournalLineRec.SetRange("Account No.");
+                        GenJournalLineRec.SetRange(Urgent);
+                        GenJournalLineRec.SetRange("Futures Contract No.");
+                        GenJournalLineRec.SetRange("Futures Contract Exch. Rate");
+                        GenJournalLineRec.SetRange("Currency Code");
+                        GenJournalLineRec.SetRange("Currency Factor");
+                        GenJournalLineRec.SetRange("Agreed Exch. Rate");
+                        GenJournalLineRec.SetRange("Agreed With");
+                        GenJournalLineRec.SetRange(KID);
+                        GenJournalLineRec.SetRange("External Document No.");
+                        GenJournalLineRec.SetRange("Recipient Ref. 1");
+                        GenJournalLineRec.SetRange("Structured Payment");
+                        Done := not GenJournalLineRec.FindFirst;  // More journal lines?
                         NextSelection := true;  // All selected lines are processed. Select next transaction.
                     end else begin  // Not all invoices are processed.
                         Done := false;  // Don't stop. Continue with the next one from the selection.
@@ -247,14 +249,14 @@ report 15000050 "Remittance - export (bank)"
                 Betfor99(true);
 
                 if RemAgreement."Return File Is Not In Use" then
-                    RemTools.SettlePaymOrdWithoutReturnFile(PaymOrder, JournalRec);
+                    RemTools.SettlePaymOrdWithoutReturnFile(RemittancePaymentOrder, GenJournalLineRec);
 
                 // Export  data:
-                RemPmtOrderExport.SetPmtOrder(PaymOrder);
+                RemPmtOrderExport.SetPmtOrder(RemittancePaymentOrder);
                 RemPmtOrderExport.SetFilename(CurrentFilename);
-                LineRec.Reset;
-                LineRec.SetRange("Payment Order No.", PaymOrder.ID);
-                RemPmtOrderExport.SetTableView(LineRec);
+                PaymentOrderData.Reset();
+                PaymentOrderData.SetRange("Payment Order No.", RemittancePaymentOrder.ID);
+                RemPmtOrderExport.SetTableView(PaymentOrderData);
                 RemPmtOrderExport.RunModal;
             end;
         }
@@ -334,7 +336,7 @@ report 15000050 "Remittance - export (bank)"
         trigger OnOpenPage()
         begin
             // Choose the contract specified in the first journal line
-            RemAgreement.Get(CurrentJournalLine."Remittance Agreement Code");
+            RemAgreement.Get(CurrentGenJournalLine."Remittance Agreement Code");
             RemAgreementCode := RemAgreement.Code;
             CurrentOperator := RemAgreement."Operator No.";
             CurrentPassword := RemAgreement.Password;
@@ -354,13 +356,13 @@ report 15000050 "Remittance - export (bank)"
     end;
 
     var
-        JournalRec: Record "Gen. Journal Line";
+        GenJournalLineRec: Record "Gen. Journal Line";
         RemAccount: Record "Remittance Account";
         StoreRemAccount: Record "Remittance Account";
         RemAgreement: Record "Remittance Agreement";
-        PaymOrder: Record "Remittance Payment Order";
-        LineRec: Record "Payment Order Data";
-        CurrentJournalLine: Record "Gen. Journal Line";
+        RemittancePaymentOrder: Record "Remittance Payment Order";
+        PaymentOrderData: Record "Payment Order Data";
+        CurrentGenJournalLine: Record "Gen. Journal Line";
         WaitingJournal: Record "Waiting Journal";
         Vendor: Record Vendor;
         FindSetup: Record "General Ledger Setup";
@@ -406,20 +408,20 @@ report 15000050 "Remittance - export (bank)"
     begin
         // Create a PaymOrder for import.
         // Select ID. Find next:
-        PaymOrder.LockTable;
-        if PaymOrder.FindLast then
-            NextID := PaymOrder.ID + 1
+        RemittancePaymentOrder.LockTable();
+        if RemittancePaymentOrder.FindLast then
+            NextID := RemittancePaymentOrder.ID + 1
         else
             NextID := 1;
 
         // Insert new PaymOrder. Remaining data are processed later:
-        PaymOrder.Init;
-        PaymOrder.ID := NextID;
-        PaymOrder.Date := DateNow;
-        PaymOrder.Time := TimeNow;
-        PaymOrder.Type := PaymOrder.Type::Export;
-        PaymOrder.Comment := CurrentNote;
-        PaymOrder.Insert;
+        RemittancePaymentOrder.Init();
+        RemittancePaymentOrder.ID := NextID;
+        RemittancePaymentOrder.Date := DateNow;
+        RemittancePaymentOrder.Time := TimeNow;
+        RemittancePaymentOrder.Type := RemittancePaymentOrder.Type::Export;
+        RemittancePaymentOrder.Comment := CurrentNote;
+        RemittancePaymentOrder.Insert();
     end;
 
     [Scope('OnPrem')]
@@ -480,19 +482,19 @@ report 15000050 "Remittance - export (bank)"
             Division := PadStr(CurrentDivision, 11, ' ');
 
         // Line 1:
-        InitLine(LineRec);
-        LineRec.Data :=
+        InitLine(PaymentOrderData);
+        PaymentOrderData.Data :=
           ApplHeader + // Application header. 40 char.
           'BETFOR00' + // Transaction code (BETFOR00=identification transaction)
           RemTools.FormatNumStr(RemAgreement."Company/Agreement No.", 11) + // Company no.
           Division + // Division, 11 chars
           RemTools.NextSeqNo(RemAgreement, 1) + // Global sequence no.
           Fill(6);                   // Reserved 6 chars.
-        InsertLine(LineRec);
+        InsertLine(PaymentOrderData);
 
         // Line 2:
-        InitLine(LineRec);
-        LineRec.Data :=
+        InitLine(PaymentOrderData);
+        PaymentOrderData.Data :=
           ProductionDate + // ProductionDate.
           PadStr(RemAgreement.Password, 10, ' ') + // Password.
           'VERSJON002' + // Routine version.
@@ -503,20 +505,20 @@ report 15000050 "Remittance - export (bank)"
           RemTools.FormatNum(0, 20, false) + // Sigill Part-key.  Not in use.
           ' ' + // Seal how.  Not in use.
           Fill(7);                          // Reserved - 7 of total of 143 chars.
-        InsertLine(LineRec);
+        InsertLine(PaymentOrderData);
 
         // Line 3. This line is reserved chars only:
-        InitLine(LineRec);
-        LineRec.Data := Fill(80);               // Reserved - 80  of total of 143 chars.
-        InsertLine(LineRec);
+        InitLine(PaymentOrderData);
+        PaymentOrderData.Data := Fill(80);               // Reserved - 80  of total of 143 chars.
+        InsertLine(PaymentOrderData);
 
         // Line 4:
-        InitLine(LineRec);
-        LineRec.Data :=
+        InitLine(PaymentOrderData);
+        PaymentOrderData.Data :=
           Fill(56) + // Reserved - the last 56 and total of 143 chars.
           Fill(15) + // Own ref. batch, 15 chars
           Fill(9);                          // Reserved 9 chars.
-        InsertLine(LineRec);
+        InsertLine(PaymentOrderData);
     end;
 
     [Scope('OnPrem')]
@@ -541,11 +543,11 @@ report 15000050 "Remittance - export (bank)"
     begin
         // Transfer-transaction abroad. [p22]
 
-        Vendor.Get(JournalRec."Account No.");
+        Vendor.Get(GenJournalLineRec."Account No.");
         // Payment date: Format YYMMDD (with leading 0 if possible):
-        Y := CopyStr(Format(Date2DMY(JournalRec."Posting Date", 3), 4), 3, 2);  // Years only (not centuries)
-        M := Format(Date2DMY(JournalRec."Posting Date", 2), 2);
-        D := Format(Date2DMY(JournalRec."Posting Date", 1), 2);
+        Y := CopyStr(Format(Date2DMY(GenJournalLineRec."Posting Date", 3), 4), 3, 2);  // Years only (not centuries)
+        M := Format(Date2DMY(GenJournalLineRec."Posting Date", 2), 2);
+        D := Format(Date2DMY(GenJournalLineRec."Posting Date", 1), 2);
         DueDate := Y + M + D;
         // Endre f.eks. dato '9612 1' til '961201'.
         DueDate := ConvertStr(DueDate, ' ', '0');
@@ -554,9 +556,9 @@ report 15000050 "Remittance - export (bank)"
         // Get invoice currency from the invoice entry:
 
         // Value date receiving bank: Format YYMMDD (with leading 0 if possible):
-        Y := CopyStr(Format(Date2DMY(JournalRec."Posting Date", 3), 4), 3, 2);  // Years only (not centuries)
-        M := Format(Date2DMY(JournalRec."Posting Date", 2), 2);
-        D := Format(Date2DMY(JournalRec."Posting Date", 1), 2);
+        Y := CopyStr(Format(Date2DMY(GenJournalLineRec."Posting Date", 3), 4), 3, 2);  // Years only (not centuries)
+        M := Format(Date2DMY(GenJournalLineRec."Posting Date", 2), 2);
+        D := Format(Date2DMY(GenJournalLineRec."Posting Date", 1), 2);
         ValueDateRecBank := Y + M + D;
         // Endre f.eks. dato '9612 1' til '961201'.
         ValueDateRecBank := ConvertStr(ValueDateRecBank, ' ', '0');
@@ -565,9 +567,9 @@ report 15000050 "Remittance - export (bank)"
         // Get invoice currency from the invoice entry:
 
         InvoiceEntry.SetCurrentKey("Document No.");
-        InvoiceEntry.SetRange("Document Type", JournalRec."Applies-to Doc. Type");
-        InvoiceEntry.SetRange("Document No.", JournalRec."Applies-to Doc. No.");
-        InvoiceEntry.SetRange("Vendor No.", JournalRec."Account No.");
+        InvoiceEntry.SetRange("Document Type", GenJournalLineRec."Applies-to Doc. Type");
+        InvoiceEntry.SetRange("Document No.", GenJournalLineRec."Applies-to Doc. No.");
+        InvoiceEntry.SetRange("Vendor No.", GenJournalLineRec."Account No.");
         InvoiceEntry.FindFirst;
         if InvoiceEntry.Count <> 1 then // In case the same document no. was used several times.
             Error(Text010, InvoiceEntry.Count);
@@ -580,12 +582,12 @@ report 15000050 "Remittance - export (bank)"
         end;
         // Payment currency. Specified only if <> Invoice currency type.
         // Attention: Fokus Bank requires that this field is filled in. Payment currency must be specified.
-        if JournalRec."Currency Code" = '' then
+        if GenJournalLineRec."Currency Code" = '' then
             PaymentCurrency := PadStr(FindSetup."LCY Code", 3)
         else begin
-            if StrLen(JournalRec."Currency Code") <> 3 then
-                JournalRec.FieldError("Currency Code", Text011);
-            PaymentCurrency := JournalRec."Currency Code";
+            if StrLen(GenJournalLineRec."Currency Code") <> 3 then
+                GenJournalLineRec.FieldError("Currency Code", Text011);
+            PaymentCurrency := GenJournalLineRec."Currency Code";
         end;
 
         // Charges
@@ -620,44 +622,44 @@ report 15000050 "Remittance - export (bank)"
         Warning := PadStr(Warning, 30, ' ');
 
         // UrgencyNotice:
-        if JournalRec.Urgent then
+        if GenJournalLineRec.Urgent then
             UrgencyNotice := 'Y'
         else
             UrgencyNotice := ' ';
 
         // Agreed exchg. rate:
-        AgreedExchRate := RemTools.FormatNum(JournalRec."Agreed Exch. Rate", 8, true);
-        AgreedWith := PadStr(JournalRec."Agreed With", 6);
+        AgreedExchRate := RemTools.FormatNum(GenJournalLineRec."Agreed Exch. Rate", 8, true);
+        AgreedWith := PadStr(GenJournalLineRec."Agreed With", 6);
 
         // Check:
-        case JournalRec.Check of
-            JournalRec.Check::No:
+        case GenJournalLineRec.Check of
+            GenJournalLineRec.Check::No:
                 Check := ' ';
-            JournalRec.Check::"Send to employer":
+            GenJournalLineRec.Check::"Send to employer":
                 Check := '0';
-            JournalRec.Check::"Send to beneficiary":
+            GenJournalLineRec.Check::"Send to beneficiary":
                 Check := '1';
         end;
 
         PriceInfo := Fill(1);
 
         // Line 1:
-        InitLine(LineRec);
-        LineRec.Data :=
+        InitLine(PaymentOrderData);
+        PaymentOrderData.Data :=
           ApplHeader + // Application header. 40 chars.
           'BETFOR01' + // Transaction code, 8 chars
           RemTools.FormatNumStr(RemAgreement."Company/Agreement No.", 11) + // Company no.
           OwnAccountNo + // Account no. (own).
           RemTools.NextSeqNo(RemAgreement, 1) + // Global Sequence no. 4 digits.
           Fill(6);                           // Reference no. Blank for new paym orders.
-        InsertLine(LineRec);
+        InsertLine(PaymentOrderData);
 
         // Line 2:
-        InitLine(LineRec);
-        LineRec.Data :=
+        InitLine(PaymentOrderData);
+        PaymentOrderData.Data :=
           DueDate + // DueDate YYMMDD.
-          PadStr(JournalRec."Account No.", 30) + // Own ref. PaymOrder. Users own ID. Not in use!
-                                                 // Ownref. PAYFOR04 is used.
+          PadStr(GenJournalLineRec."Account No.", 30) + // Own ref. PaymOrder. Users own ID. Not in use!
+                                                        // Ownref. PAYFOR04 is used.
           PaymentCurrency + // Payment currency type. Specified only if <> InvoiceCurrencytype.
           InvoiceCurrency + // Invoice currency type. Specified if paym.Currency is not specified.
           ChargesAbroad + // 3 chars
@@ -665,14 +667,14 @@ report 15000050 "Remittance - export (bank)"
           Warning + // 30 chars
           UrgencyNotice + // ='Y' if urgent. 1 char
           CopyStr(AgreedExchRate, 1, 1);       // First char in this line. The last 7 in next line. 1 char.
-        InsertLine(LineRec);
+        InsertLine(PaymentOrderData);
 
         // Line 3:
-        InitLine(LineRec);
-        LineRec.Data :=
+        InitLine(PaymentOrderData);
+        PaymentOrderData.Data :=
           CopyStr(AgreedExchRate, 2, 7) + // Last 7 chars. 7 chars
-          PadStr(JournalRec."Futures Contract No.", 6) + // 6 chars
-          RemTools.FormatNum(JournalRec."Futures Contract Exch. Rate", 8, true) + // 8 chars
+          PadStr(GenJournalLineRec."Futures Contract No.", 6) + // 6 chars
+          RemTools.FormatNum(GenJournalLineRec."Futures Contract Exch. Rate", 8, true) + // 8 chars
           Check + // Draw a check?. 1 char
           Fill(6) + // Value date receiving bank, 6 chars
           Fill(2) + // Reserved 2 chars.
@@ -680,11 +682,11 @@ report 15000050 "Remittance - export (bank)"
           Fill(12) + // R2, Execution ref. 2, 12 chars
           '0000000000000000' + // R2, Debited amount. 16 chars
           '0000000000';                      // R2, Transfered amount. First 10 chars
-        InsertLine(LineRec);
+        InsertLine(PaymentOrderData);
 
         // Line 4:
-        InitLine(LineRec);
-        LineRec.Data :=
+        InitLine(PaymentOrderData);
+        PaymentOrderData.Data :=
           '000000' + // R2, Transfered amount. Last 6 chars
           Fill(5) + // ClientRef 5 chars
           '000000' + // R2,M Execution ref. 6 chars
@@ -699,7 +701,7 @@ report 15000050 "Remittance - export (bank)"
           PriceInfo + // R2, 1 char
           Fill(10);                          // Reserved 10 chars
 
-        InsertLine(LineRec);
+        InsertLine(PaymentOrderData);
     end;
 
     [Scope('OnPrem')]
@@ -713,8 +715,8 @@ report 15000050 "Remittance - export (bank)"
     begin
         // Bank-link transaction abroad. [p23]
 
-        Vendor.Get(JournalRec."Account No.");
-        RemAccount.Get(JournalRec."Remittance Account Code");
+        Vendor.Get(GenJournalLineRec."Account No.");
+        RemAccount.Get(GenJournalLineRec."Remittance Account Code");
 
         // bank no. for TBIO - used with tbio only
         if RemAccount.Type = 2 then
@@ -752,42 +754,42 @@ report 15000050 "Remittance - export (bank)"
         // the customer will be charged with the fee.
 
         // Line 1:
-        InitLine(LineRec);
-        LineRec.Data :=
+        InitLine(PaymentOrderData);
+        PaymentOrderData.Data :=
           ApplHeader + // Application header. 40 chars.
           'BETFOR02' + // Transaction code
           RemTools.FormatNumStr(RemAgreement."Company/Agreement No.", 11) + // Company no.
           OwnAccountNo + // Account no. (own).
           RemTools.NextSeqNo(RemAgreement, 1) + // Global sequence no. 4 digits.
           Fill(6);                           // Reference no. Blank for new PaymOrders.
-        InsertLine(LineRec);
+        InsertLine(PaymentOrderData);
 
         // Line 2:
-        InitLine(LineRec);
-        LineRec.Data :=
+        InitLine(PaymentOrderData);
+        PaymentOrderData.Data :=
           PadStr(Vendor.SWIFT, 11) + // Swift address for recipients bank. 11 chars
           PadStr(BankName, 35) + // Recipients bank. 35 chars
           CopyStr(BankAdr1, 1, 34);           // First 34 chars. 34 chars
-        InsertLine(LineRec);
+        InsertLine(PaymentOrderData);
 
         // Line 3:
-        InitLine(LineRec);
-        LineRec.Data :=
+        InitLine(PaymentOrderData);
+        PaymentOrderData.Data :=
           CopyStr(BankAdr1, 35, 1) + // Last char. 1 char
           PadStr(Vendor."Bank Address 2", 35) + // Recipients bank. 35 chars
           PadStr(Vendor."Bank Address 3", 35) + // Recipients bank. 35 chars
           CopyStr(SWIFTRemb, 1, 9);            // First 9 chars. 9 chars
-        InsertLine(LineRec);
+        InsertLine(PaymentOrderData);
 
         // Line 4:
-        InitLine(LineRec);
-        LineRec.Data :=
+        InitLine(PaymentOrderData);
+        PaymentOrderData.Data :=
           CopyStr(SWIFTRemb, 10, 2) + // Last 2 chars. 2 chars
           PadStr(Vendor."Rcpt. Bank Country/Region Code", 2) + // Country/Region code 2 chars
           BankCode + // 15 chars
           PadStr(AccNoTBIO, 35) + // Account No. (only used with TBIO)
           Fill(26);                          // Reserved 26 chars
-        InsertLine(LineRec);
+        InsertLine(PaymentOrderData);
     end;
 
     [Scope('OnPrem')]
@@ -799,7 +801,7 @@ report 15000050 "Remittance - export (bank)"
     begin
         // Recipients transaction abroad. [p24]
 
-        Vendor.Get(JournalRec."Account No.");
+        Vendor.Get(GenJournalLineRec."Account No.");
 
         // These fields are to be regarded as a unit. If the first position in one
         // of the fields is not filled in (is blank) the rest of the field will be ignored.
@@ -838,35 +840,35 @@ report 15000050 "Remittance - export (bank)"
         Vendor.TestField("Country/Region Code");
 
         // Line 1:
-        InitLine(LineRec);
-        LineRec.Data :=
+        InitLine(PaymentOrderData);
+        PaymentOrderData.Data :=
           ApplHeader + // Application header. 40 chars.
           'BETFOR03' + // transaction code
           RemTools.FormatNumStr(RemAgreement."Company/Agreement No.", 11) + // Company no.
           OwnAccountNo + // Account no. (own). 11 chars
           RemTools.NextSeqNo(RemAgreement, 1) + // Global sequence no. 4 digits.
           Fill(6);                           // Reference no. Blank for new PaymOrders.
-        InsertLine(LineRec);
+        InsertLine(PaymentOrderData);
 
         // Line 2:
-        InitLine(LineRec);
-        LineRec.Data :=
+        InitLine(PaymentOrderData);
+        PaymentOrderData.Data :=
           PadStr(Vendor."Recipient Bank Account No.", 35) + // 35 chars.
           Recipient[1] + // Recipients name. 35 chars
           CopyStr(Recipient[2], 1, 10);         // Recipients address 1. 35 chars
-        InsertLine(LineRec);
+        InsertLine(PaymentOrderData);
 
         // Line 3:
-        InitLine(LineRec);
-        LineRec.Data :=
+        InitLine(PaymentOrderData);
+        PaymentOrderData.Data :=
           CopyStr(Recipient[2], 11, 25) + // Recipients address 1. Last 25 chars
           Recipient[3] + // Recipients address 2. 35 chars
           CopyStr(Recipient[4], 1, 20);         // Recipients address 3. First 20 chars
-        InsertLine(LineRec);
+        InsertLine(PaymentOrderData);
 
         // Line 4:
-        InitLine(LineRec);
-        LineRec.Data :=
+        InitLine(PaymentOrderData);
+        PaymentOrderData.Data :=
           CopyStr(Recipient[4], 21, 15) + // Recipients address 3. Last 15 chars
           PadStr(Vendor."Country/Region Code", 2) + // Recipients country/region code. 2 chars
           TelexFax + // 1 char
@@ -875,7 +877,7 @@ report 15000050 "Remittance - export (bank)"
           PadStr(Vendor."Recipient Contact", 20) + // Attention: 20 chars
           Fill(22);                           // Reserved 22 chars
         // This shoudln't create problems, regardless of data filled in here.
-        InsertLine(LineRec);
+        InsertLine(PaymentOrderData);
     end;
 
     [Scope('OnPrem')]
@@ -890,7 +892,7 @@ report 15000050 "Remittance - export (bank)"
     begin
         // Invoice transaction abroad. [p25]
 
-        Vendor.Get(JournalRec."Account No.");
+        Vendor.Get(GenJournalLineRec."Account No.");
 
         // Format own ref.:
         // Own ref. comes from Waiting journal it refers to.
@@ -898,24 +900,24 @@ report 15000050 "Remittance - export (bank)"
         OwnRef := PadStr(OwnRef, 35);
 
         // Format invoice amount:
-        InvoiceAmount := RemTools.FormatNum(JournalRec.Amount, 15, true);
+        InvoiceAmount := RemTools.FormatNum(GenJournalLineRec.Amount, 15, true);
 
         // Create debit/credit code:
-        if JournalRec.Amount < 0 then
+        if GenJournalLineRec.Amount < 0 then
             DebitCreditCode := 'K'
         else
             DebitCreditCode := 'D';
 
         // either KID i "recipient ref. (abroad)" + 'K' in "KID (Foreign)" (if KID specified)
         // or invoice no. i "recipient ref. (abroad)" and blank in "KID (Foreign)" otherwise
-        if JournalRec.KID <> '' then begin
-            RecRefAbroad := JournalRec.KID;
+        if GenJournalLineRec.KID <> '' then begin
+            RecRefAbroad := GenJournalLineRec.KID;
             KIDForeign := 'K';
         end else begin
-            if JournalRec."External Document No." <> '' then
-                RecRefAbroad := JournalRec."External Document No."
+            if GenJournalLineRec."External Document No." <> '' then
+                RecRefAbroad := GenJournalLineRec."External Document No."
             else
-                RecRefAbroad := JournalRec."Recipient Ref. Abroad";
+                RecRefAbroad := GenJournalLineRec."Recipient Ref. Abroad";
             KIDForeign := ' ';
         end;
         // To own account:
@@ -925,46 +927,46 @@ report 15000050 "Remittance - export (bank)"
             ToOwnAccount := ' ';
 
         // Line 1:
-        InitLine(LineRec);
-        LineRec.Data :=
+        InitLine(PaymentOrderData);
+        PaymentOrderData.Data :=
           ApplHeader + // Application header. 40 chars.
            'BETFOR04' + // transaction code
           RemTools.FormatNumStr(RemAgreement."Company/Agreement No.", 11) + // Company no.
           OwnAccountNo + // Account no (own).
           RemTools.NextSeqNo(RemAgreement, 1) + // Global sequence no. 4 digits.
           Fill(6);                           // Reference no. Blank for new PaymOrders.
-        InsertLine(LineRec);
+        InsertLine(PaymentOrderData);
 
         // Line 2:
-        InitLine(LineRec);
-        LineRec.Data :=
+        InitLine(PaymentOrderData);
+        PaymentOrderData.Data :=
           PadStr(RecRefAbroad, 35) + // Recipient ref.
           OwnRef + // Own reference. Important!: Identification for return. 35 chars
           CopyStr(InvoiceAmount, 1, 10);        // First 10 chars
-        InsertLine(LineRec);
+        InsertLine(PaymentOrderData);
 
         // Line 3:
-        InitLine(LineRec);
-        LineRec.Data :=
+        InitLine(PaymentOrderData);
+        PaymentOrderData.Data :=
           CopyStr(InvoiceAmount, 11, 5) + // Last 5 chars
           DebitCreditCode + // 1 char
-          PadStr(JournalRec."Payment Type Code Abroad", 6) + // 6 chars
-          PadStr(JournalRec."Specification (Norges Bank)", 60) + // Amount concerned. 60 chars
+          PadStr(GenJournalLineRec."Payment Type Code Abroad", 6) + // 6 chars
+          PadStr(GenJournalLineRec."Specification (Norges Bank)", 60) + // Amount concerned. 60 chars
           ToOwnAccount + // To own account. 1 char
           Fill(1) + // R2, Cancelation cause - 1 char - blank
           '000000';                          // reserved 6 chars
-        InsertLine(LineRec);
+        InsertLine(PaymentOrderData);
 
         // Line 4:
-        InitLine(LineRec);
-        LineRec.Data :=
+        InitLine(PaymentOrderData);
+        PaymentOrderData.Data :=
           ' ' + // Reserved 1 char
           '000000' + // Reserved 6 chars
           Fill(45) + // Reserved 45 chars
           KIDForeign + // 1 char
           '000' + // R1, R2. 3 chars.
           Fill(24);                          // Reserved 24 chars
-        InsertLine(LineRec);
+        InsertLine(PaymentOrderData);
     end;
 
     [Scope('OnPrem')]
@@ -985,7 +987,7 @@ report 15000050 "Remittance - export (bank)"
         // 4. Currency
 
         // Get creditor:
-        Vendor.Get(JournalRec."Account No.");
+        Vendor.Get(GenJournalLineRec."Account No.");
 
         // Convert BOLS text code-optionfield to correct code:
         with JournalRec do begin
@@ -1028,9 +1030,9 @@ report 15000050 "Remittance - export (bank)"
         end;
 
         // Format YYMMDD (with leading 0, if possible):
-        Y := CopyStr(Format(Date2DMY(JournalRec."Posting Date", 3), 4), 3, 2);  // Years only (not centuries)
-        M := Format(Date2DMY(JournalRec."Posting Date", 2), 2);
-        D := Format(Date2DMY(JournalRec."Posting Date", 1), 2);
+        Y := CopyStr(Format(Date2DMY(GenJournalLineRec."Posting Date", 3), 4), 3, 2);  // Years only (not centuries)
+        M := Format(Date2DMY(GenJournalLineRec."Posting Date", 2), 2);
+        D := Format(Date2DMY(GenJournalLineRec."Posting Date", 1), 2);
         DueDate := Y + M + D;
         // Change, for ex., date '9612 1' to '961201'.
         DueDate := ConvertStr(DueDate, ' ', '0');
@@ -1043,37 +1045,37 @@ report 15000050 "Remittance - export (bank)"
             RecipientAccount := CopyStr(RecipientAccount, StrLen(RecipientAccount) - 10);  // 11 last chars.
         end;
 
-        InitLine(LineRec);
-        LineRec.Data :=
+        InitLine(PaymentOrderData);
+        PaymentOrderData.Data :=
           ApplHeader + // Application header. 40 chars.
           'BETFOR21' + // Transaction code (PAYFOR21=Transfer-transaction)
           RemTools.FormatNumStr(RemAgreement."Company/Agreement No.", 11) + // Company no.
           OwnAccountNo + // Account no (own).
           RemTools.NextSeqNo(RemAgreement, 1) + // Global sequence no. 4 digits.
           Fill(6);                           // Referance no. Blank for new PaymOrders.
-        InsertLine(LineRec);
+        InsertLine(PaymentOrderData);
 
-        InitLine(LineRec);
-        LineRec.Data :=
+        InitLine(PaymentOrderData);
+        PaymentOrderData.Data :=
           DueDate + // Payment date YYMMDD.
-          PadStr(JournalRec."Account No.", 30) + // Own ref. PaymOrder. Users own id. Not in use!
-                                                 // - Own ref i PAYFOR23 is used in return.
+          PadStr(GenJournalLineRec."Account No.", 30) + // Own ref. PaymOrder. Users own id. Not in use!
+                                                        // - Own ref i PAYFOR23 is used in return.
           ' ' + // Reserved. 1 char.
           RecipientAccount + // Recipients account.
           PadStr(Vendor.Name, 30) + // Recipients name.
           CopyStr(PadStr(Vendor.Address, 30), 1, 2);  // Adress 1. First 2 chars
-        InsertLine(LineRec);
+        InsertLine(PaymentOrderData);
 
-        InitLine(LineRec);
-        LineRec.Data :=
+        InitLine(PaymentOrderData);
+        PaymentOrderData.Data :=
           CopyStr(PadStr(Vendor.Address, 30), 3) + // Adress 1. Last 28 chars
           PadStr(Vendor."Address 2", 30) + // Adress 2.
           PadStr(Vendor."Post Code", 4) + // Postal code.
           CopyStr(PadStr(Vendor.City, 26), 1, 18); // City
-        InsertLine(LineRec);
+        InsertLine(PaymentOrderData);
 
-        InitLine(LineRec);
-        LineRec.Data :=
+        InitLine(PaymentOrderData);
+        PaymentOrderData.Data :=
           CopyStr(PadStr(Vendor.City, 26), 19) + // city. Remaining 8 chars.
           '000000000000000' + // Amount to own account. 15 chars. NOT SUPPORTED!
           TextCode + // TextCode. BOLS [p40], 3 chars
@@ -1086,7 +1088,7 @@ report 15000050 "Remittance - export (bank)"
           Fill(1) + // R2, cancellation cause, 1 char - blanke
           Fill(9) + // Reserved.
           Fill(10);                          // 10 chars
-        InsertLine(LineRec);
+        InsertLine(PaymentOrderData);
     end;
 
     [Scope('OnPrem')]
@@ -1108,7 +1110,7 @@ report 15000050 "Remittance - export (bank)"
         // Invoice transaction. [p33]
 
         // Create debit/credit code:
-        if JournalRec."Amount (LCY)" < 0 then
+        if GenJournalLineRec."Amount (LCY)" < 0 then
             DebitCreditCode := 'K'
         else
             DebitCreditCode := 'D';
@@ -1127,53 +1129,53 @@ report 15000050 "Remittance - export (bank)"
         InvoiceDate := Fill(8);
 
         // ONLY ONE of the following: KID, External Doc. No., or Recipient ref. 1-3 can be filled out for one payment.
-        if JournalRec.KID = '' then
-            if JournalRec."External Document No." = '' then begin
-                JournalRec.TestField("Recipient Ref. 1");
-                RecRef1 := PadStr(JournalRec."Recipient Ref. 1", 40);
-                RecRef2 := PadStr(JournalRec."Recipient Ref. 2", 40);
-                RecRef3 := PadStr(JournalRec."Recipient Ref. 3", 40);
+        if GenJournalLineRec.KID = '' then
+            if GenJournalLineRec."External Document No." = '' then begin
+                GenJournalLineRec.TestField("Recipient Ref. 1");
+                RecRef1 := PadStr(GenJournalLineRec."Recipient Ref. 1", 40);
+                RecRef2 := PadStr(GenJournalLineRec."Recipient Ref. 2", 40);
+                RecRef3 := PadStr(GenJournalLineRec."Recipient Ref. 3", 40);
             end else begin
-                InvoiceNo := PadStr(JournalRec."External Document No.", 20);
-                Vendor.Get(JournalRec."Account No.");
+                InvoiceNo := PadStr(GenJournalLineRec."External Document No.", 20);
+                Vendor.Get(GenJournalLineRec."Account No.");
                 CustomerNo := PadStr(Vendor."Our Account No.", 15);
-                JournalRec.TestField("Document Date");
+                GenJournalLineRec.TestField("Document Date");
                 // InvoiceDate: Format YYYYMMDD
-                Y := CopyStr(Format(Date2DMY(JournalRec."Document Date", 3), 4), 1, 4);  // Years incl. centuries
-                M := Format(Date2DMY(JournalRec."Document Date", 2), 2);
-                D := Format(Date2DMY(JournalRec."Document Date", 1), 2);
+                Y := CopyStr(Format(Date2DMY(GenJournalLineRec."Document Date", 3), 4), 1, 4);  // Years incl. centuries
+                M := Format(Date2DMY(GenJournalLineRec."Document Date", 2), 2);
+                D := Format(Date2DMY(GenJournalLineRec."Document Date", 1), 2);
                 InvoiceDate := Y + M + D;
                 // Endre f.eks. dato '199612 1' til '19961201'.
                 InvoiceDate := ConvertStr(InvoiceDate, ' ', '0');
             end
         else
-            KID := PadStr(JournalRec.KID, 27);
-        InitLine(LineRec);
-        LineRec.Data :=
+            KID := PadStr(GenJournalLineRec.KID, 27);
+        InitLine(PaymentOrderData);
+        PaymentOrderData.Data :=
           ApplHeader + // Application header. 40 chars.
           'BETFOR23' + // Transaction code (PAYFOR23=Invoice transaction)
           RemTools.FormatNumStr(RemAgreement."Company/Agreement No.", 11) + // Company no.
           OwnAccountNo + // Account no. (own)
           RemTools.NextSeqNo(RemAgreement, 1) + // Global sequence no. 4 digits.
           Fill(6);                           // Reference no. Blank for PaymOrders.
-        InsertLine(LineRec);
+        InsertLine(PaymentOrderData);
 
-        InitLine(LineRec);
-        LineRec.Data :=
+        InitLine(PaymentOrderData);
+        PaymentOrderData.Data :=
           RecRef1 + // Recipient ref. invoice. Can not be used with InvoicNo or KID
           RecRef2;                           // Recipient ref. invoice.
-        InsertLine(LineRec);
+        InsertLine(PaymentOrderData);
 
-        InitLine(LineRec);
-        LineRec.Data :=
+        InitLine(PaymentOrderData);
+        PaymentOrderData.Data :=
           RecRef3 + // Recipient ref. invoice.
           KID + // KID. Can not be used with InvoiceNo or recipient ref.
           CopyStr(OwnRef, 1, 13);             // Own ref. First 13 chars
-        InsertLine(LineRec);
-        InitLine(LineRec);
-        LineRec.Data :=
+        InsertLine(PaymentOrderData);
+        InitLine(PaymentOrderData);
+        PaymentOrderData.Data :=
           CopyStr(OwnRef, 14) + // Own ref. Last 17 chars
-          RemTools.FormatNum(JournalRec."Amount (LCY)", 15, true) + // Invoice amount. 15 chars.
+          RemTools.FormatNum(GenJournalLineRec."Amount (LCY)", 15, true) + // Invoice amount. 15 chars.
           DebitCreditCode + // Debit/credit code.
           InvoiceNo +
           // 20 chars. can not be used with KID or recipient ref., otherwise mandatory together with
@@ -1182,7 +1184,7 @@ report 15000050 "Remittance - export (bank)"
           Fill(1) + // R2, cancellation cause - 1 char - blank
           CustomerNo + // 15 chars  = our account no. , vendor tbl
           InvoiceDate;                       // YYYYMMDD = document date = gen. jnl line
-        InsertLine(LineRec);
+        InsertLine(PaymentOrderData);
     end;
 
     [Scope('OnPrem')]
@@ -1195,31 +1197,31 @@ report 15000050 "Remittance - export (bank)"
         // Application version
         AppVersion := PadStr('Nav ' + ApplicationSystemConstants.ApplicationVersion, 11);
 
-        InitLine(LineRec);
-        LineRec.Data :=
+        InitLine(PaymentOrderData);
+        PaymentOrderData.Data :=
           ApplHeader + // Application header. 40 chars.
           'BETFOR99' + // Transaction code (PAYFOR99=closing transaction)
           RemTools.FormatNumStr(RemAgreement."Company/Agreement No.", 11) + // Company no.
           Fill(11) + // Reserved 11 char.
           RemTools.NextSeqNo(RemAgreement, 1) + // Global sequence no. 4 digits.
           Fill(6);                           // Reserved 6 chars.
-        InsertLine(LineRec);
+        InsertLine(PaymentOrderData);
 
-        InitLine(LineRec);
-        LineRec.Data :=
+        InitLine(PaymentOrderData);
+        PaymentOrderData.Data :=
           ProductionDate + // Production date. 4 chars
           Fill(19) + // Reserved 19 chars.
           RemTools.FormatNum(CountTrans, 5, false) + // Number of transactions - blocks of 320 chars.
           Fill(52);                          // Reserved. First 52 of 163 chars.
-        InsertLine(LineRec);
+        InsertLine(PaymentOrderData);
 
-        InitLine(LineRec);
-        LineRec.Data :=
+        InitLine(PaymentOrderData);
+        PaymentOrderData.Data :=
           Fill(80);                           // Reserved. 80 of remaining 111 chars.
-        InsertLine(LineRec);
+        InsertLine(PaymentOrderData);
 
-        InitLine(LineRec);
-        LineRec.Data :=
+        InitLine(PaymentOrderData);
+        PaymentOrderData.Data :=
           Fill(31) + // Last 31 of 163 characters
           '    ' + // Sigill security. Not in use.
           ' ' + // Sigill language. Not in use.
@@ -1229,14 +1231,14 @@ report 15000050 "Remittance - export (bank)"
           AppVersion + // software version, 16 version
           Fill(5) +
           Fill(8);                           // bank version - blank
-        InsertLine(LineRec);
+        InsertLine(PaymentOrderData);
 
         if LastPayfor99 then  // If DnB Telebank is used, an extra empty line is required.
             if RemAgreement."Payment System" = RemAgreement."Payment System"::"DnB Telebank" then begin
-                InitLine(LineRec);
-                LineRec."Empty Line" := true;
-                LineRec.Data := '';
-                InsertLine(LineRec);
+                InitLine(PaymentOrderData);
+                PaymentOrderData."Empty Line" := true;
+                PaymentOrderData.Data := '';
+                InsertLine(PaymentOrderData);
             end;
     end;
 
@@ -1247,7 +1249,7 @@ report 15000050 "Remittance - export (bank)"
     begin
         WaitingJournal.Init;
         WaitingJournal.TransferFields(JournalLine);
-        WaitingJournal."Payment Order ID - Sent" := PaymOrder.ID;
+        WaitingJournal."Payment Order ID - Sent" := RemittancePaymentOrder.ID;
         WaitingJournal."Remittance Status" := WaitingJournal."Remittance Status"::Sent;
         // Own reference, sent to bank:
         WaitingJournal2.LockTable;
@@ -1295,38 +1297,43 @@ report 15000050 "Remittance - export (bank)"
     end;
 
     [Scope('OnPrem')]
-    procedure InitLine(var LineRec: Record "Payment Order Data")
+    procedure InitLine(var PaymentOrderData: Record "Payment Order Data")
     begin
         // Prepare data-line for use.
-        LineRec.Init;
-        LineRec."Payment Order No." := PaymOrder.ID;
-        LineRec."Line No" := NextLineNo(false);
-        LineRec."Empty Line" := false;
+        PaymentOrderData.Init();
+        PaymentOrderData."Payment Order No." := RemittancePaymentOrder.ID;
+        PaymentOrderData."Line No" := NextLineNo(false);
+        PaymentOrderData."Empty Line" := false;
     end;
 
     [Scope('OnPrem')]
-    procedure InsertLine(LineRec: Record "Payment Order Data")
+    procedure InsertLine(PaymentOrderData: Record "Payment Order Data")
     begin
         // Insert data-Line in a file.
-        Control(LineRec."Line No", LineRec.Data);  // My own control, just in case!
-        LineRec.Data := UpperCase(LineRec.Data);
-        LineRec.Insert;
+        Control(PaymentOrderData."Line No", PaymentOrderData.Data);  // My own control, just in case!
+        PaymentOrderData.Data := UpperCase(PaymentOrderData.Data);
+        PaymentOrderData.Insert();
     end;
 
     [Scope('OnPrem')]
     procedure SetJournalLine(JournalLine: Record "Gen. Journal Line")
     begin
         // Transfer current lines from journal routine (f.ex. journal window):
-        CurrentJournalLine := JournalLine;
+        CurrentGenJournalLine := JournalLine;
     end;
 
     local procedure ConfirmSkipping(FieldCaption: Text): Boolean
     begin
         if not Confirm(StrSubstNo(Text007, FieldCaption,
-               Format(JournalRec."Line No."), PurchSetup."Amt. Spec limit to Norges Bank"))
+               Format(GenJournalLineRec."Line No."), PurchSetup."Amt. Spec limit to Norges Bank"))
         then
             Error('');
         exit(true);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnPreDataItemGenJournalLine(var CurrentGenJournalLine: Record "Gen. Journal Line"; var GenJournalLine: Record "Gen. Journal Line")
+    begin
     end;
 }
 

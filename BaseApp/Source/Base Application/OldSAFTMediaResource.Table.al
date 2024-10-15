@@ -3,6 +3,7 @@ table 10634 "SAFT Media Resource"
     Caption = 'SAF-T Media Resource';
     ObsoleteReason = 'Moved to extension';
     ObsoleteState = Removed;
+    ObsoleteTag = '15.0';
 
     fields
     {

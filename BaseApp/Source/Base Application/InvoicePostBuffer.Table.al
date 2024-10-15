@@ -259,6 +259,7 @@ table 49 "Invoice Post. Buffer"
             ObsoleteReason = 'Not needed after refactoring';
             ObsoleteState = Removed;
             TableRelation = "VAT Code".Code;
+            ObsoleteTag = '15.0';
         }
     }
 

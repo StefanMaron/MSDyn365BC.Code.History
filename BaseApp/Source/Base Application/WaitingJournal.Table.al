@@ -750,6 +750,7 @@ table 15000004 "Waiting Journal"
             Editable = false;
             ObsoleteReason = 'Redesign';
             ObsoleteState = Removed;
+            ObsoleteTag = '15.0';
         }
         field(10607; "Source Curr. Inv.tax Base"; Decimal)
         {
@@ -757,6 +758,7 @@ table 15000004 "Waiting Journal"
             Editable = false;
             ObsoleteReason = 'Redesign';
             ObsoleteState = Removed;
+            ObsoleteTag = '15.0';
         }
         field(10608; "VAT Base Amount Type"; Option)
         {

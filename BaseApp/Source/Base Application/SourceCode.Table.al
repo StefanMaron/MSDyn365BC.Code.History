@@ -19,6 +19,7 @@ table 230 "Source Code"
             Caption = 'SAF-T Source Code';
             ObsoleteReason = 'Moved to extension';
             ObsoleteState = Removed;
+            ObsoleteTag = '15.0';
         }
     }
 

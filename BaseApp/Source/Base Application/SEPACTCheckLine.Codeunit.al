@@ -29,12 +29,17 @@ codeunit 1223 "SEPA CT-Check Line"
         GenJnlLineRegRepCode: Record "Gen. Jnl. Line Reg. Rep. Code";
         DocumentTools: Codeunit DocumentTools;
         IsNorgeExport: Boolean;
+        IsHandled: Boolean;
     begin
-        OnBeforeCheckGenJnlLine(GenJnlLine);
+        IsHandled := false;
+        OnBeforeCheckGenJnlLine(GenJnlLine, IsHandled);
+        if IsHandled then
+            exit;
 
         GLSetup.Get;
         if GenJournalBatch.Get(GenJnlLine."Journal Template Name", GenJnlLine."Journal Batch Name") then
             GenJournalBatch.OnCheckGenJournalLineExportRestrictions;
+
         with GenJnlLine do begin
             if "Bal. Account Type" <> "Bal. Account Type"::"Bank Account" then
                 InsertPaymentFileError(MustBeBankAccErr);
@@ -157,7 +162,7 @@ codeunit 1223 "SEPA CT-Check Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckGenJnlLine(var GenJournalLine: Record "Gen. Journal Line")
+    local procedure OnBeforeCheckGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
     begin
     end;
 }

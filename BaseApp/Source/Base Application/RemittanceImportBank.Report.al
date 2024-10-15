@@ -436,7 +436,7 @@ report 15000062 "Remittance - Import (Bank)"
             end else // This error should not occur.
                 Error(Text15000017, ReturnCode);
 
-        OnAfterProcessBETFOR23and04(GenJournalLine, WaitingJournal, ReturnCode);
+        OnAfterProcessBETFOR23and04(GenJournalLine, WaitingJournal, ReturnCode, BalanceEntryAmountLCY);
     end;
 
     [Scope('OnPrem')]
@@ -823,7 +823,7 @@ report 15000062 "Remittance - Import (Bank)"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterProcessBETFOR23and04(var GenJournalLine: Record "Gen. Journal Line"; var WaitingJournal: Record "Waiting Journal"; ReturnCode: Code[2])
+    local procedure OnAfterProcessBETFOR23and04(var GenJournalLine: Record "Gen. Journal Line"; var WaitingJournal: Record "Waiting Journal"; ReturnCode: Code[2]; var BalanceEntryAmountLCY: Decimal)
     begin
     end;
 

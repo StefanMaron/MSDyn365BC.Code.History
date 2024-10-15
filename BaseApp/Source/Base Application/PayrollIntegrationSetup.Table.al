@@ -3,6 +3,7 @@ table 15000200 "Payroll Integration Setup"
     Caption = 'Payroll Integration Setup';
     ObsoleteReason = 'the feature converted into an extension';
     ObsoleteState = Pending;
+    ObsoleteTag = '15.0';
 
     fields
     {

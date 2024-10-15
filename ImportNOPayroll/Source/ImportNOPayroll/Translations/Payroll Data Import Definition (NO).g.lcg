@@ -95,6 +95,15 @@
       <Cmt Name="Dev"><![CDATA[(ObjectTarget=Page 4050813720)(LookupHint=PageExtension NO General Journal Setup - Control Import Dimension Codes - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";PageExtension 1506921715 - Control 1137597916 - Property 1295455071" ItemType=";PageExtension - Control" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Specifies that field values that consist of zeros only will be treated as blank values. Such field values can occur when importing payroll files, for example.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(ObjectTarget=Page 4050813720)(LookupHint=PageExtension NO General Journal Setup - Control Ignore Zeros-Only Values - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";TableExtension 2095224941 - Field 1270257717 - Property 2879900210" ItemType=";TableExtension - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Import Dimension Codes]]></Val>
@@ -102,6 +111,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(ObjectTarget=Table 4050813720)(LookupHint=TableExtension ImportDimCodes - Field Import Dimension Codes - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";TableExtension 2095224941 - Field 1137597916 - Property 2879900210" ItemType=";TableExtension - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Ignore Zeros-Only Values]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(ObjectTarget=Table 4050813720)(LookupHint=TableExtension ImportDimCodes - Field Ignore Zeros-Only Values - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
 </LCX>

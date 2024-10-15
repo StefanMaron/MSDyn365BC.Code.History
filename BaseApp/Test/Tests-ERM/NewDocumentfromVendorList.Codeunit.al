@@ -11,6 +11,8 @@ codeunit 134773 "New Document from Vendor List"
     var
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryUtility: Codeunit "Library - Utility";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        isInitialized: Boolean;
 
     [Test]
     [Scope('OnPrem')]
@@ -22,6 +24,7 @@ codeunit 134773 "New Document from Vendor List"
         PurchaseInvoice: TestPage "Purchase Invoice";
     begin
         // Setup
+        Initialize();
         LibraryPurchase.CreateVendorWithAddress(Vendor);
 
         // Execute
@@ -64,6 +67,7 @@ codeunit 134773 "New Document from Vendor List"
         PurchaseOrder: TestPage "Purchase Order";
     begin
         // Setup
+        Initialize();
         LibraryPurchase.CreateVendorWithAddress(Vendor);
 
         // Execute
@@ -106,6 +110,7 @@ codeunit 134773 "New Document from Vendor List"
         PurchaseCreditMemo: TestPage "Purchase Credit Memo";
     begin
         // Setup
+        Initialize();
         LibraryPurchase.CreateVendorWithAddress(Vendor);
 
         // Execute
@@ -128,6 +133,21 @@ codeunit 134773 "New Document from Vendor List"
 
         // Verification
         VerifyBillToAddressOnPurchaseCreditMemoIsVendorAddress(PurchaseCreditMemo, Vendor);
+    end;
+
+    local procedure Initialize()
+    begin
+        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"New Document from Vendor List");
+
+        if isInitialized then
+            exit;
+
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"New Document from Vendor List");
+
+        Commit();
+        isInitialized := true;
+
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"New Document from Vendor List");
     end;
 
     local procedure VerifyBillToAddressOnPurchaseCreditMemoIsVendorAddress(PurchaseCreditMemo: TestPage "Purchase Credit Memo"; Vendor: Record Vendor)

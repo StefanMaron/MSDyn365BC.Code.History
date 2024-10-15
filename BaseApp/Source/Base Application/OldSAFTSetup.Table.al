@@ -3,6 +3,7 @@ table 10620 "SAFT Setup"
     Caption = 'SAF-T Setup';
     ObsoleteReason = 'Moved to extension';
     ObsoleteState = Removed;
+    ObsoleteTag = '15.0';
 
     fields
     {

@@ -35,6 +35,7 @@ table 9062 "User Security Status"
             FieldClass = FlowField;
             ObsoleteState = Removed;
             ObsoleteReason = 'Removed because it uses the table "User Plan" (internal table). The logic has been moved to the page where the value is used';
+            ObsoleteTag = '15.0';
         }
         field(15; "Belongs to User Group"; Boolean)
         {
@@ -55,6 +56,7 @@ table 9062 "User Security Status"
             FieldClass = FlowField;
             ObsoleteState = Removed; 
             ObsoleteReason = 'Removed because it refers to the field "Belongs To Subscription Plan" (marked as obsolete). The logic has been moved to the page where the value is used';
+            ObsoleteTag = '15.0';
         }
         field(22; "Users - Not Group Members"; Integer)
         {

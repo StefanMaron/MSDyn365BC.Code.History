@@ -78,6 +78,7 @@ table 348 Dimension
             Caption = 'Id';
             ObsoleteState = Pending;
             ObsoleteReason = 'This functionality will be replaced by the systemID field';
+            ObsoleteTag = '15.0';
         }
         field(8001; "Last Modified Date Time"; DateTime)
         {
@@ -88,6 +89,7 @@ table 348 Dimension
             Caption = 'SAF-T Analysis Type';
             ObsoleteReason = 'Moved to extension';
             ObsoleteState = Removed;
+            ObsoleteTag = '15.0';
         }
         field(10621; "Export to SAFT"; Boolean)
         {
@@ -95,6 +97,7 @@ table 348 Dimension
             InitValue = true;
             ObsoleteReason = 'Moved to extension';
             ObsoleteState = Removed;
+            ObsoleteTag = '15.0';
         }
     }
 

@@ -1,4 +1,4 @@
-report 15000003 "Rem. payment order - import"
+report 15000003 "Rem. payment order - Import"
 {
     Caption = 'Rem. payment order - import';
     ProcessingOnly = true;
@@ -20,39 +20,39 @@ report 15000003 "Rem. payment order - import"
                 // Import all files:
                 ReturnFile.Reset;
                 ReturnFile.SetRange(Import, true);
-                if ReturnFile.FindSet then
+                if ReturnFile.FindSet() then
                     repeat
                         case ReturnFile.Format of
                             ReturnFile.Format::Telepay:
                                 begin
                                     Clear(ImportBankRep);
-                                    ImportBankRep.Initialize(CurrentJournal, ReturnFile."File Name", Note);
-                                    ImportBankRep.RunModal;
+                                    ImportBankRep.Initialize(CurrentGenJournalLine, ReturnFile."File Name", Note);
+                                    ImportBankRep.RunModal();
                                     ImportBankRep.ReadStatus(NumberApproved, NumberRejected, NumberSettled, MoreReturnJournals, PaymOrder);
                                 end;
                             ReturnFile.Format::BBS:
                                 begin
                                     Clear(ImportBBSRep);
-                                    ImportBBSRep.Initialize(CurrentJournal, ReturnFile."File Name", Note);
-                                    ImportBBSRep.RunModal;
+                                    ImportBBSRep.Initialize(CurrentGenJournalLine, ReturnFile."File Name", Note);
+                                    ImportBBSRep.RunModal();
                                     ImportBBSRep.ReadStatus(NumberApproved, NumberRejected, NumberSettled, MoreReturnJournals, PaymOrder);
                                 end;
                             ReturnFile.Format::Pain002:
                                 begin
-                                    ImportPain002.ImportAndHandlePain002File(CurrentJournal, ReturnFile."File Name", Note);
+                                    ImportPain002.ImportAndHandlePain002File(CurrentGenJournalLine, ReturnFile."File Name", Note);
                                     ImportPain002.ReadStatus(NumberApproved, NumberRejected, NumberSettled, MoreReturnJournals, PaymOrder);
                                 end;
                             ReturnFile.Format::CAMT054:
                                 begin
-                                    ImportCAMT054.ImportAndHandleCAMT054File(CurrentJournal, ReturnFile."File Name", Note);
+                                    ImportCAMT054.ImportAndHandleCAMT054File(CurrentGenJournalLine, ReturnFile."File Name", Note);
                                     ImportCAMT054.ReadStatus(NumberApproved, NumberRejected, NumberSettled, MoreReturnJournals, PaymOrder);
                                 end
                         end;
-                    until ReturnFile.Next = 0;
+                    until ReturnFile.Next() = 0;
                 if (NumberSettled > 0) and MoreReturnJournals and not ControlBatch then begin
                     Commit;
                     SettlementStatus.SetPaymOrder(PaymOrder);
-                    SettlementStatus.RunModal;
+                    SettlementStatus.RunModal();
                 end;
             end;
 
@@ -111,8 +111,8 @@ report 15000003 "Rem. payment order - import"
                             ReturnFile.Reset;
                             FileList.SetRecord(ReturnFile);
                             FileList.SetTableView(ReturnFile);
-                            FileList.RunModal;
-                            SetStatusText;
+                            FileList.RunModal();
+                            SetStatusText();
                         end;
                     }
                 }
@@ -133,9 +133,9 @@ report 15000003 "Rem. payment order - import"
                 Error(Text003, RemAgreement.TableCaption);
             repeat
                 FindFiles(ReturnFileSetup);
-            until ReturnFileSetup.Next = 0;
+            until ReturnFileSetup.Next() = 0;
 
-            SetStatusText;
+            SetStatusText();
         end;
     }
 
@@ -149,20 +149,27 @@ report 15000003 "Rem. payment order - import"
     end;
 
     trigger OnPostReport()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOnPostReport(ReturnFile, IsHandled);
+        if IsHandled then
+            exit;
+
         if ControlBatch then
             Error(Text001);
 
-        SaveReturnFiles;
+        SaveReturnFiles();
     end;
 
     trigger OnPreReport()
     begin
         // Make sure the journal is empty:
-        GenJnlLine.SetRange("Journal Template Name", CurrentJournal."Journal Template Name");
-        GenJnlLine.SetRange("Journal Batch Name", CurrentJournal."Journal Batch Name");
+        GenJnlLine.SetRange("Journal Template Name", CurrentGenJournalLine."Journal Template Name");
+        GenJnlLine.SetRange("Journal Batch Name", CurrentGenJournalLine."Journal Batch Name");
         if not GenJnlLine.IsEmpty then
-            Error(Text000, CurrentJournal."Journal Batch Name");
+            Error(Text000, CurrentGenJournalLine."Journal Batch Name");
     end;
 
     var
@@ -177,7 +184,7 @@ report 15000003 "Rem. payment order - import"
         Text013: Label 'AH';
         Text014: Label 'NY';
         RemAgreement: Record "Remittance Agreement";
-        CurrentJournal: Record "Gen. Journal Line";
+        CurrentGenJournalLine: Record "Gen. Journal Line";
         GenJnlLine: Record "Gen. Journal Line";
         ReturnFile: Record "Return File";
         ReturnFileSetup: Record "Return File Setup";
@@ -202,6 +209,7 @@ report 15000003 "Rem. payment order - import"
         FileMgt: Codeunit "File Management";
         FilePath: Text[150];
         FileSize: BigInteger;
+        IsHandled: Boolean;
     begin
         // Two options:
         // 1. Exact filename.
@@ -211,6 +219,11 @@ report 15000003 "Rem. payment order - import"
         // Example: c:\bank\return.*. this includes all files starting with 'ret'. For instance, files
         // ret.001, ret.002 etc. Files with this format are created by Kreditkassen.
         // All existing files are placed in filelist and FileNumber is updates.
+
+        IsHandled := false;
+        OnBeforeFindFiles(ReturnFileSetup, IsHandled);
+        if IsHandled then
+            exit;
 
         if ReturnFileSetup."Return File Name" = '' then
             exit;
@@ -271,7 +284,7 @@ report 15000003 "Rem. payment order - import"
     begin
         // Specify variables used for import
         // Called from external function which imports upon return.
-        CurrentJournal := GenJnlLine;
+        CurrentGenJournalLine := GenJnlLine;
     end;
 
     local procedure SetStatusText()
@@ -359,6 +372,16 @@ report 15000003 "Rem. payment order - import"
                 if RemAgreement."Save Return File" then
                     RemTools.NewFilename(ReturnFile."File Name");
             until ReturnFile.Next = 0;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFindFiles(var ReturnFileSetup: Record "Return File Setup"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnPostReport(var ReturnFile: Record "Return File"; var IsHandled: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

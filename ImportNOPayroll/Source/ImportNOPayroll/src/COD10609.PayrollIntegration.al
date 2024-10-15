@@ -82,19 +82,15 @@ codeunit 10609 "Payroll Integration (NO)"
     [EventSubscriber(ObjectType::Table, 1237, 'OnTransformation', '', false, false)]
     local procedure OnTransformation(TransformationCode: code[20]; InputText: text; var OutputText: text)
     var
-        GeneralLedgerSetup: record "General Ledger Setup";
         TypeHelper: Codeunit "Type Helper";
         Int: Integer;
     begin
         case TransformationCode of
             BlankDimCodeTok:
-                begin
-                    GeneralLedgerSetup.Get();
-                    if GeneralLedgerSetup."Import Dimension Codes" then
-                        OutputText := InputText
-                    else
-                        OutputText := '';
-                end;
+                if KeepTextBlank(InputText) then
+                    OutputText := ''
+                else
+                    OutputText := InputText;
             AmountInCentsTok, EvaluateTextToIntegerTok:
                 if Evaluate(Int, InputText) then
                     case TransformationCode of
@@ -106,6 +102,21 @@ codeunit 10609 "Payroll Integration (NO)"
                 else
                     OutputText := InputText;
         end;
+    end;
+
+    local procedure KeepTextBlank(InputText: Text): Boolean
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        GeneralLedgerSetup.Get();
+        
+        if not GeneralLedgerSetup."Import Dimension Codes" then
+            exit(true);
+
+        If not GeneralLedgerSetup."Ignore Zeros-Only Values" then
+            exit(false);
+
+        exit(StrLen(DelChr(InputText, '<>', '0')) = 0);
     end;
 
 }

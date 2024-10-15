@@ -191,9 +191,12 @@ codeunit 7301 "Whse. Jnl.-Register Line"
                     if (FromBinContent."Positive Adjmt. Qty. (Base)" = 0) and
                        (FromBinContent."Put-away Quantity (Base)" = 0) and
                        (not FromBinContent.Fixed)
-                    then
-                        FromBinContent.Delete;
+                    then begin
+                        OnDeleteFromBinContentOnBeforeFromBinContentDelete(FromBinContent);
+                        FromBinContent.Delete();
+                    end;
             end else begin
+                OnDeleteFromBinContentOnBeforeCheckQuantity(FromBinContent, WhseEntry);
                 FromBinContent.CalcFields(Quantity);
                 if FromBinContent.Quantity + Quantity = 0 then begin
                     "Qty. (Base)" := -FromBinContent."Quantity (Base)";
@@ -247,6 +250,7 @@ codeunit 7301 "Whse. Jnl.-Register Line"
     var
         ItemTrackingCode: Record "Item Tracking Code";
         ExistingExpDate: Date;
+        IsHandled: Boolean;
     begin
         with WhseEntry do begin
             GetItem("Item No.");
@@ -255,9 +259,13 @@ codeunit 7301 "Whse. Jnl.-Register Line"
                    ("Bin Code" <> Location."Adjustment Bin Code") and
                    (Quantity > 0) and
                    ItemTrackingCode."SN Specific Tracking"
-                then
-                    if WMSMgt.SerialNoOnInventory("Location Code", "Item No.", "Variant Code", "Serial No.") then
-                        Error(Text001, "Serial No.");
+                then begin
+                    IsHandled := false;
+                    OnInsertWhseEntryOnBeforeCheckSerialNo(WhseEntry, IsHandled);
+                    if not IsHandled then
+                        if WMSMgt.SerialNoOnInventory("Location Code", "Item No.", "Variant Code", "Serial No.") then
+                            Error(Text001, "Serial No.");
+                end;
 
             if ItemTrackingCode."Man. Expir. Date Entry Reqd." and ("Entry Type" = "Entry Type"::"Positive Adjmt.")
                and (ItemTrackingCode."Lot Warehouse Tracking" or ItemTrackingCode."SN Warehouse Tracking")
@@ -356,7 +364,8 @@ codeunit 7301 "Whse. Jnl.-Register Line"
         if BinContent.FindFirst then
             if BinContent."Bin Code" <> BinCode then begin
                 BinContent.Default := false;
-                BinContent.Modify;
+                OnUpdateDefaultBinContentOnBeforeBinContentModify(BinContent);
+                BinContent.Modify();
             end;
 
         if BinContent."Bin Code" <> BinCode then begin
@@ -460,7 +469,7 @@ codeunit 7301 "Whse. Jnl.-Register Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnInitWhseEntryCopyFromWhseJnlLine(var WarehouseEntry: Record "Warehouse Entry"; WarehouseJournalLine: Record "Warehouse Journal Line"; OnMovement: Boolean; Sign: Integer)
+    local procedure OnInitWhseEntryCopyFromWhseJnlLine(var WarehouseEntry: Record "Warehouse Entry"; var WarehouseJournalLine: Record "Warehouse Journal Line"; OnMovement: Boolean; Sign: Integer)
     begin
     end;
 
@@ -506,6 +515,26 @@ codeunit 7301 "Whse. Jnl.-Register Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnDeleteFromBinContentOnBeforeFieldError(BinContent: Record "Bin Content"; WarehouseEntry: Record "Warehouse Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDeleteFromBinContentOnBeforeFromBinContentDelete(var BinContent: Record "Bin Content")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDeleteFromBinContentOnBeforeCheckQuantity(var BinContent: Record "Bin Content"; WarehouseEntry: Record "Warehouse Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertWhseEntryOnBeforeCheckSerialNo(WarehouseEntry: Record "Warehouse Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateDefaultBinContentOnBeforeBinContentModify(var BinContent: Record "Bin Content")
     begin
     end;
 }

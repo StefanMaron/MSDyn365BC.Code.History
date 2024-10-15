@@ -7,6 +7,7 @@ table 2002 "Azure Machine Learning Usage"
     ObsoleteReason = 'Table 2003 replaces this.';
     ObsoleteState = Removed;
     Permissions = TableData "Azure Machine Learning Usage" = rimd;
+    ObsoleteTag = '15.0';
 
     fields
     {

@@ -42,6 +42,7 @@ table 10602 "VAT Code"
             Caption = 'Compensation';
             ObsoleteReason = 'Moved to extension';
             ObsoleteState = Removed;
+            ObsoleteTag = '15.0';
         }
     }
 

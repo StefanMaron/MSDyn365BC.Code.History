@@ -3,6 +3,7 @@ table 10624 "SAFT G/L Account Mapping"
     Caption = 'SAF-T G/L Account Mapping';
     ObsoleteReason = 'Moved to extension';
     ObsoleteState = Removed;
+    ObsoleteTag = '15.0';
 
     fields
     {

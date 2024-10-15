@@ -378,7 +378,7 @@ codeunit 134 "Import Attachment - Inc. Doc."
     end;
 
     [Scope('OnPrem')]
-    [Obsolete('Replaced with the version accepting a stream.')]
+    [Obsolete('Replaced with the version accepting a stream.','15.3')]
     procedure ProcessAndUploadPicture(PictureFilePath: Text; var IncomingDocumentAttachmentOriginal: Record "Incoming Document Attachment")
     var
         File: File;

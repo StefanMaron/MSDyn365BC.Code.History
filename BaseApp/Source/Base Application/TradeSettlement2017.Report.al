@@ -203,10 +203,7 @@ report 10618 "Trade Settlement 2017"
                                             DomesticRevChrgAmount += Amount;
                                         end;
                                     VATCode."Trade Settlement 2017 Box No."::"9":
-                                        begin
-                                            ImportHighBase += Base;
-                                            ImportHighAmount += Amount;
-                                        end;
+                                        CalculateVATBaseAndAmount(ImportHighBase, ImportHighAmount);
                                     VATCode."Trade Settlement 2017 Box No."::"10":
                                         begin
                                             ImportMedBase += Base;
@@ -821,9 +818,9 @@ report 10618 "Trade Settlement 2017"
     begin
         if VATPostingSetup.FindSet then
             repeat
-                TempVATPostingSetup.Init;
+                TempVATPostingSetup.Init();
                 TempVATPostingSetup := VATPostingSetup;
-                TempVATPostingSetup.Insert;
+                TempVATPostingSetup.Insert();
             until VATPostingSetup.Next = 0;
     end;
 

@@ -21,6 +21,7 @@ codeunit 148000 "Payroll Integration Test"
         BlankDimCodeTok: Label 'BLANK_DIM_CODE', locked = true;
         EvaluateTextToIntegerTok: Label 'EVAL_TXT_TO_INT', locked = true;
         AssertMsg: Label '%1 Field: "%2" different from expected.';
+        DimCodeDoesNotExistErr: Label 'contains a value (%1) that cannot be found in the related table (Dimension Value)';
 
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
@@ -248,6 +249,119 @@ codeunit 148000 "Payroll Integration Test"
         GeneralLedgerSetup.testfield("Import Dimension Codes");
     end;
 
+    [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    procedure IgnoreZeroOnlyValuesIsOnPageGLSetup()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        GeneralLedgerSetupPage: TestPage "General Ledger Setup";
+    begin
+        // [SCENARIO 341476] "Ignore Zeros-Only Values" checkbox is editable on "General Ledger Setup" page.
+
+        // [GIVEN] "Ignore Zeros-Only Values" is 'No' in GLSetup table
+        Initialize();
+
+        // [GIVEN] Open "General Ledger Setup" page under Suite application area
+        GeneralLedgerSetupPage.OpenEdit();
+        // [GIVEN] "Ignore Zeros-Only Values" is 'No', visible and editable on the page.
+        Assert.IsTrue(GeneralLedgerSetupPage."Ignore Zeros-Only Values".Visible(), '"Ignore Zeros-Only Values".Visible');
+        Assert.IsTrue(GeneralLedgerSetupPage."Ignore Zeros-Only Values".Editable(), '"Ignore Zeros-Only Values".Editable');
+        GeneralLedgerSetupPage."Ignore Zeros-Only Values".AssertEquals(Format(false));
+
+        // [WHEN] Set "Ignore Zeros-Only Values" to 'Yes'
+        GeneralLedgerSetupPage."Ignore Zeros-Only Values".SetValue(Format(true));
+        GeneralLedgerSetupPage.Close();
+
+        // [THEN] "Ignore Zeros-Only Values" is 'Yes' in GLSetup table
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup.TestField("Ignore Zeros-Only Values");
+    end;
+
+    [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    procedure ImportPassesWhenIgnoreZerosOnlyValuesEnabled();
+    var
+        GenJnlLineTemplate: Record "Gen. Journal Line";
+        TempExpdGenJnlLine: Record "Gen. Journal Line" temporary;
+        GLAccount: Record "G/L Account";
+        ImportPayrollTransaction: Codeunit "Import Payroll Transaction";
+        TempBlobOEM: Codeunit "Temp Blob";
+        TempBlobANSI: Codeunit "Temp Blob";
+        GeneralLedgerSetupPage: Testpage "General Ledger Setup";
+        OutStream: OutStream;
+        LineNo: Integer;
+        DocNo: Code[20];
+        PostingDate: date;
+        Amount: Decimal;
+    begin
+        // [FEATURE] [Dimension]
+        // [SCENARIO 341476] An import process not fails when zero values exists for dimensions and "Ignore Zeros-Only Values" enabled in General Ledger Setup
+
+        Initialize();
+        // [GIVEN] "Ignore Zeros-Only Values" is "Yes" in General Ledger Setup
+        GeneralLedgerSetupPage.OpenView();
+        GeneralLedgerSetupPage."Payroll Trans. Import Format".SetValue(DataExchNameTok);
+        GeneralLedgerSetupPage."Import Dimension Codes".SetValue(Format(true));
+        GeneralLedgerSetupPage."Ignore Zeros-Only Values".SetValue(Format(true));
+        GeneralLedgerSetupPage.Close();
+
+        // [GIVEN] A sample file with 1 line and 00000000 value for dimension
+        TempBlobOEM.CREATEOUTSTREAM(OutStream);
+        LibraryERM.CreateGLAccount(GLAccount);
+        PostingDate := DMY2Date(20, 1, 2017);
+        Amount := 585.70;
+        WriteLine(OutStream, GLAccount."No." + '; 0;;00000000;00000000;00000000;00000000;00000000;00000000;        ;;20012017;   ;20012017;0000000000;0000000000;-000058570');
+        ConvertOEMToANSI(TempBlobOEM, TempBlobANSI);
+        // [WHEN] Run ImportPayrollDataToGL
+        CreateGenJnlLineTemplateWithFilter(GenJnlLineTemplate);
+        ImportPayrollTransaction.ImportPayrollDataToGL(GenJnlLineTemplate, '', TempBlobANSI, copystr(DataExchNameTok, 1, 20));
+
+        // [THEN] 3 journal lines are created
+        LineNo := GenJnlLineTemplate."Line No.";
+        DocNo := GenJnlLineTemplate."Document No.";
+        CreateTempGenJnlLine(TempExpdGenJnlLine, GenJnlLineTemplate, LineNo * 1, DocNo, GLAccount."No.", PostingDate, GLAccount.Name, 0, -Amount, '', '');
+
+        AssertDataInTable(TempExpdGenJnlLine, GenJnlLineTemplate, '');
+    end;
+
+    [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    procedure ImportFailsWhenIgnoreZerosOnlyValuesDisabled();
+    var
+        GenJnlLineTemplate: Record "Gen. Journal Line";
+        GLAccount: Record "G/L Account";
+        ImportPayrollTransaction: Codeunit "Import Payroll Transaction";
+        TempBlobOEM: Codeunit "Temp Blob";
+        TempBlobANSI: Codeunit "Temp Blob";
+        GeneralLedgerSetupPage: Testpage "General Ledger Setup";
+        OutStream: OutStream;
+        ZeroValue: Text;
+    begin
+        // [FEATURE] [Dimension]
+        // [SCENARIO 341476] An import process fails when zero values exists for dimensions and "Ignore Zeros-Only Values" disabled in General Ledger Setup
+
+        Initialize();
+        // [GIVEN] "Ignore Zeros-Only Values" is "No" in General Ledger Setup
+        GeneralLedgerSetupPage.OpenView();
+        GeneralLedgerSetupPage."Payroll Trans. Import Format".SetValue(DataExchNameTok);
+        GeneralLedgerSetupPage."Import Dimension Codes".SetValue(Format(true));
+        GeneralLedgerSetupPage."Ignore Zeros-Only Values".SetValue(Format(false));
+        GeneralLedgerSetupPage.Close();
+
+        // [GIVEN] A sample file with 1 line and 00000000 value for dimension
+        TempBlobOEM.CREATEOUTSTREAM(OutStream);
+        LibraryERM.CreateGLAccount(GLAccount);
+        ZeroValue := '00000000';
+        WriteLine(OutStream, GLAccount."No." + '; 0;;' + ZeroValue + ';00000000;00000000;00000000;00000000;00000000;        ;;20012017;   ;20012017;0000000000;0000000000;-000058570');
+        ConvertOEMToANSI(TempBlobOEM, TempBlobANSI);
+        // [WHEN] Run ImportPayrollDataToGL
+        CreateGenJnlLineTemplateWithFilter(GenJnlLineTemplate);
+        asserterror ImportPayrollTransaction.ImportPayrollDataToGL(GenJnlLineTemplate, '', TempBlobANSI, copystr(DataExchNameTok, 1, 20));
+
+        // [THEN] Import fails on error "The project code field contains a value (00000000) that does not exist in table Dimension Value."
+        Assert.ExpectedError(StrSubstNo(DimCodeDoesNotExistErr, ZeroValue));
+    end;
+
     local procedure Initialize()
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
@@ -259,6 +373,7 @@ codeunit 148000 "Payroll Integration Test"
         GeneralLedgerSetup.Get();
         GeneralLedgerSetup."Payroll Trans. Import Format" := '';
         GeneralLedgerSetup."Import Dimension Codes" := false;
+        GeneralLedgerSetup."Ignore Zeros-Only Values" := false;
         GeneralLedgerSetup.Modify();
 
         TransformationRule.SetFilter(Code, '%1|%2|%3', AmountInCentsTok, EvaluateTextToIntegerTok, BlankDimCodeTok);
