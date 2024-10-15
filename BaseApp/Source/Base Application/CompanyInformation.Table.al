@@ -629,6 +629,8 @@ table 79 "Company Information"
         Modulus97: Integer;
         I: Integer;
     begin
+        OnBeforeCheckIBAN(IBANCode);
+
         if IBANCode = '' then
             exit;
         OriginalIBANCode := IBANCode;
@@ -981,6 +983,11 @@ table 79 "Company Information"
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeGetVATRegistrationNumberLbl(var Result: Text; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckIBAN(IBANCode: Code[100])
     begin
     end;
 }

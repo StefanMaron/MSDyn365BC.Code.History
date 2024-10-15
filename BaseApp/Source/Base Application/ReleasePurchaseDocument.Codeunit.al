@@ -156,7 +156,10 @@
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
         IsHandled: Boolean;
     begin
-        OnBeforePerformManualCheckAndRelease(PurchHeader, PreviewMode);
+        IsHandled := false;
+        OnBeforePerformManualCheckAndRelease(PurchHeader, PreviewMode, IsHandled);
+        if IsHandled then
+            exit;
 
         with PurchHeader do
             if ("Document Type" = "Document Type"::Order) and PrepaymentMgt.TestPurchasePayment(PurchHeader) then begin
@@ -231,7 +234,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePerformManualCheckAndRelease(var PurchHeader: Record "Purchase Header"; PreviewMode: Boolean)
+    local procedure OnBeforePerformManualCheckAndRelease(var PurchHeader: Record "Purchase Header"; PreviewMode: Boolean; var IsHandled: Boolean)
     begin
     end;
 

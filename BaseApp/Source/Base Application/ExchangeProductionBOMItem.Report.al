@@ -469,6 +469,13 @@ report 99001043 "Exchange Production BOM Item"
         ProdBOMLineCopyTo.Validate(Position, ProdBOMLineCopyFrom.Position);
         ProdBOMLineCopyTo.Validate("Position 2", ProdBOMLineCopyFrom."Position 2");
         ProdBOMLineCopyTo.Validate("Position 3", ProdBOMLineCopyFrom."Position 3");
+
+        OnAfterCopyPositionFields(ProdBOMLineCopyTo, ProdBOMLineCopyFrom);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyPositionFields(var ProdBOMLineCopyTo: Record "Production BOM Line"; ProdBOMLineCopyFrom: Record "Production BOM Line")
+    begin
     end;
 
     [IntegrationEvent(false, false)]

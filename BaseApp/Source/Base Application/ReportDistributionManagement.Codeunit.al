@@ -277,6 +277,8 @@ codeunit 452 "Report Distribution Management"
                     Customer.Get(Job."Bill-to Customer No.");
                 end;
         end;
+
+        OnAfterGetBillToCustomer(Customer, DocumentVariant);
     end;
 
     local procedure GetBuyFromVendor(var Vendor: Record Vendor; DocumentVariant: Variant)
@@ -475,6 +477,11 @@ codeunit 452 "Report Distribution Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeRunDefaultCheckSalesElectronicDocument(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetBillToCustomer(var Customer: Record Customer; DocumentVariant: Variant)
     begin
     end;
 }

@@ -652,9 +652,8 @@ codeunit 99000810 "Calculate Planning Route Line"
 
         repeat
             LotSize := SendAheadLotSize;
-            RemainNeedQty :=
-              LotSize *
-              PlanningRoutingLine.RunTimePer;
+            RemainNeedQty := LotSize * PlanningRoutingLine.RunTimePer();
+            OnCalculateRoutingLineBackOnAfterCalcRemainNeedQtyForLotSize(PlanningRoutingLine, RemainNeedQty);
             RemainNeedQty :=
               Round(
                 RemainNeedQty *
@@ -957,6 +956,7 @@ codeunit 99000810 "Calculate Planning Route Line"
 
             LotSize := SendAheadLotSize;
             RemainNeedQty := LotSize * PlanningRoutingLine.RunTimePer;
+            OnCalculateRoutingLineForwardOnAfterCalcRemainNeedQtyForLotSize(PlanningRoutingLine, RemainNeedQty);
             RemainNeedQty :=
               Round(
                 RemainNeedQty *
@@ -1540,6 +1540,16 @@ codeunit 99000810 "Calculate Planning Route Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreatePlanningCapNeed(var PlanningRoutingLine: Record "Planning Routing Line"; TimeType: Enum "Routing Time Type"; var NeedQty: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateRoutingLineBackOnAfterCalcRemainNeedQtyForLotSize(PlanningRoutingLine: Record "Planning Routing Line"; var RemainNeedQty: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateRoutingLineForwardOnAfterCalcRemainNeedQtyForLotSize(PlanningRoutingLine: Record "Planning Routing Line"; var RemainNeedQty: Decimal)
     begin
     end;
 }

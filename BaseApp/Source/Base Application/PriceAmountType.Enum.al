@@ -14,7 +14,7 @@ enum 7001 "Price Amount Type"
         ObsoleteState = Pending;
         ObsoleteReason = 'AmountType::Cost is replaced by the combination of AmountType::Price with PriceType::Purchase.';
         ObsoleteTag = '17.0';
-        Caption = '';
+        Caption = '', Locked = true;
     }
     value(20; Discount)
     {

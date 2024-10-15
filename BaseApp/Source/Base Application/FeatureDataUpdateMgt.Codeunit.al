@@ -49,6 +49,14 @@ codeunit 2614 "Feature Data Update Mgt."
         JobQueueLogEntry.Insert(true);
     end;
 
+    procedure FeatureKeyMatches(FeatureDataUpdateStatus: Record "Feature Data Update Status"; FeatureToUpdate: Enum "Feature To Update"): Boolean
+    begin
+        if FeatureToUpdate.Names.Contains(FeatureDataUpdateStatus."Feature Key") then
+            exit(FeatureToUpdate.AsInteger() =
+                FeatureToUpdate.Ordinals.Get(FeatureToUpdate.Names.IndexOf(FeatureDataUpdateStatus."Feature Key")));
+        exit(false);
+    end;
+
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Feature Management Facade", 'OnGetImplementation', '', false, false)]
     local procedure OnGetImplementation(FeatureDataUpdateStatus: Record "Feature Data Update Status"; var FeatureDataUpdate: Interface "Feature Data Update"; var ImplementedId: Text[50]);
     var

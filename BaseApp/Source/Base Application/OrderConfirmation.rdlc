@@ -8053,7 +8053,7 @@
                                                       <FontFamily>Segoe UI</FontFamily>
                                                       <FontSize>8pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
-                                                      <Format>=Fields!PrepmtInvBufAmtFormat.Value</Format>
+                                                      <Format>=last(Fields!UnitPrice_SalesLineFormat.Value)</Format>
                                                     </Style>
                                                   </TextRun>
                                                 </TextRuns>
@@ -8586,6 +8586,7 @@
                                                       <FontFamily>Segoe UI</FontFamily>
                                                       <FontSize>8pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
+                                                      <Format>=last(Fields!UnitPrice_SalesLineFormat.Value)</Format>
                                                     </Style>
                                                   </TextRun>
                                                 </TextRuns>
@@ -8920,7 +8921,7 @@
                                                       <FontFamily>Segoe UI</FontFamily>
                                                       <FontSize>8pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
-                                                      <Format>F2</Format>
+                                                      <Format>=last(Fields!UnitPrice_SalesLineFormat.Value)</Format>
                                                     </Style>
                                                   </TextRun>
                                                 </TextRuns>
@@ -9117,6 +9118,7 @@
                                                       <FontFamily>Segoe UI</FontFamily>
                                                       <FontSize>8pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
+                                                      <Format>=last(Fields!UnitPrice_SalesLineFormat.Value)</Format>
                                                     </Style>
                                                   </TextRun>
                                                 </TextRuns>

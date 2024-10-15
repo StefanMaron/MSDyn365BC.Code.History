@@ -16,6 +16,7 @@ codeunit 137263 "SCM Tracking Package Base"
         LibraryItemTracking: Codeunit "Library - Item Tracking";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryUtility: Codeunit "Library - Utility";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryRandom: Codeunit "Library - Random";
         isInitialized: Boolean;
@@ -428,9 +429,11 @@ codeunit 137263 "SCM Tracking Package Base"
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"SCM Tracking Package Base");
         if isInitialized then
             exit;
 
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Tracking Package Base");
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdateVATPostingSetup();
         LibraryERMCountryData.UpdateLocalData();
@@ -440,6 +443,7 @@ codeunit 137263 "SCM Tracking Package Base"
 
         isInitialized := true;
         Commit();
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Tracking Package Base");
     end;
 
     local procedure SetupTransferNosInInvSetup()

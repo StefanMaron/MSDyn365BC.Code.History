@@ -679,6 +679,7 @@ table 6661 "Return Receipt Line"
                     SalesLine.Validate(Quantity, Quantity - "Quantity Invoiced");
 
                 CopySalesLinePriceAndDiscountFromSalesOrderLine(SalesLine, SalesOrderLine);
+                OnOnInsertInvLineFromRetRcptLineOnAfterCopySalesLinePriceAndDiscount(SalesLine, SalesOrderLine, Rec, SalesHeader);
             end;
             SalesLine."Attached to Line No." :=
               TransferOldExtLines.TransferExtendedText(
@@ -883,6 +884,11 @@ table 6661 "Return Receipt Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertInvLineFromRetRcptLine(var ReturnReceiptLine: Record "Return Receipt Line"; var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnOnInsertInvLineFromRetRcptLineOnAfterCopySalesLinePriceAndDiscount(var SalesLine: Record "Sales Line"; SalesOrderLine: Record "Sales Line"; ReturnReceiptLine: Record "Return Receipt Line"; SalesHeader: Record "Sales Header")
     begin
     end;
 }

@@ -108,6 +108,7 @@ permissionset 7862 "D365 ACC. RECEIVABLE"
                   tabledata "Price List Header" = RIMD,
                   tabledata "Price List Line" = RIMD,
                   tabledata "Price Source" = RIMD,
+                  tabledata "Price Worksheet Line" = RIMD,
                   tabledata "Purch. Rcpt. Header" = i,
                   tabledata "Purch. Rcpt. Line" = Ri,
                   tabledata "Purchase Header" = Rimd,

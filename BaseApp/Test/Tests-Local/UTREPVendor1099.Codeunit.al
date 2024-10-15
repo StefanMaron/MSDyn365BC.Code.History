@@ -805,6 +805,122 @@ codeunit 142055 "UT REP Vendor 1099"
         FILE.Erase(FileName);
     end;
 
+    [Test]
+    [HandlerFunctions('Vendor1099Misc2020ChangeCurrYearRPH')]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure ChangeYearInMiscReport()
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        OldWorkDate: Date;
+    begin
+        // [SCENARIO 392599] Stan can change the year on the MISC report's request page to see the actual data
+
+        // [GIVEN] Purchase invoice with MISC-02 code with Date = 01.01.2021
+        Initialize();
+        SetupToCreateLedgerEntriesForVendor(VendorLedgerEntry, IRS1099CodeMisc, LibraryRandom.RandIntInRange(100, 1000));
+
+        // [GIVEN] Work date is "01.01.2022"
+        OldWorkDate := WorkDate();
+        WorkDate := CalcDate('<1Y>', WorkDate());
+
+        // [WHEN] Run Vendor 1099 MISC Report and set year = 2021
+        LibraryVariableStorage.Enqueue(Date2DMY(OldWorkDate, 3));
+        REPORT.Run(REPORT::"Vendor 1099 Misc 2020");
+
+        // [THEN] "MISC-02" value exists in the Report
+        LibraryReportDataset.LoadDataSetFile;
+        VendorLedgerEntry.CalcFields(Amount);
+        LibraryReportDataset.AssertElementWithValueExists(GetAmtMISC02, -VendorLedgerEntry.Amount);
+        LibraryVariableStorage.AssertEmpty();
+
+        // Tear down
+        Workdate := OldWorkDate;
+    end;
+
+    [Test]
+    [HandlerFunctions('Vendor1099DivChangeCurrYearRPH')]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure ChangeYearInDivReport()
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        OldWorkDate: Date;
+    begin
+        // [SCENARIO 392599] Stan can change the year on the DIV report's request page to see the actual data
+
+        // [GIVEN] Purchase invoice with DIV-01 code with Date = 01.01.2021
+        Initialize();
+        SetupToCreateLedgerEntriesForVendor(VendorLedgerEntry, IRS1099CodeDiv, LibraryRandom.RandIntInRange(100, 1000));
+
+        // [GIVEN] Work date is "01.01.2022"
+        OldWorkDate := WorkDate();
+        WorkDate := CalcDate('<1Y>', WorkDate());
+
+        // [WHEN] Run Vendor 1099 DIV Report and set year = 2021
+        LibraryVariableStorage.Enqueue(Date2DMY(OldWorkDate, 3));
+        REPORT.Run(REPORT::"Vendor 1099 Div");
+
+        // [THEN] "DIV-01" value exists in the Report
+        LibraryReportDataset.LoadDataSetFile;
+        VendorLedgerEntry.CalcFields(Amount);
+        LibraryReportDataset.AssertElementWithValueExists(GetAmtCombinedDivCodeAB, -VendorLedgerEntry.Amount);
+        LibraryVariableStorage.AssertEmpty();
+
+        // Tear down
+        Workdate := OldWorkDate;
+    end;
+
+    [Test]
+    [HandlerFunctions('Vendor1099IntChangeCurrYearRPH')]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure ChangeYearInIntReport()
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        OldWorkDate: Date;
+    begin
+        // [SCENARIO 392599] Stan can change the year on the INT report's request page to see the actual data
+
+        // [GIVEN] Purchase invoice with INT-01 code with Date = 01.01.2021
+        Initialize();
+        SetupToCreateLedgerEntriesForVendor(VendorLedgerEntry, IRS1099CodeInt, LibraryRandom.RandIntInRange(100, 1000));
+
+        // [GIVEN] Work date is "01.01.2022"
+        OldWorkDate := WorkDate();
+        WorkDate := CalcDate('<1Y>', WorkDate());
+
+        // [WHEN] Run Vendor 1099 Int Report and set year = 2021
+        LibraryVariableStorage.Enqueue(Date2DMY(OldWorkDate, 3));
+        REPORT.Run(REPORT::"Vendor 1099 Int");
+
+        // [THEN] "DIV-01" value exists in the Report
+        LibraryReportDataset.LoadDataSetFile;
+        VendorLedgerEntry.CalcFields(Amount);
+        LibraryReportDataset.AssertElementWithValueExists(GetAmtINT01, -VendorLedgerEntry.Amount);
+        LibraryVariableStorage.AssertEmpty();
+
+        // Tear down
+        Workdate := OldWorkDate;
+    end;
+
+    [Test]
+    [HandlerFunctions('Vendor1099Misc2020DoNothingRPH')]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure Vendor1099MiscReportRunsFromTheVendorCard()
+    var
+        VendorCardPage: TestPage "Vendor Card";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 395105] Stan can open the Vendor 1099 Misc 2020 report from the vendor card
+
+        Initialize();
+        VendorCardPage.OpenEdit();
+        VendorCardPage.Filter.SetFilter("No.", CreateVendor());
+        VendorCardPage."Vendor 1099 Misc".Invoke();
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear;
@@ -1005,6 +1121,15 @@ codeunit 142055 "UT REP Vendor 1099"
 
     [RequestPageHandler]
     [Scope('OnPrem')]
+    procedure Vendor1099DivChangeCurrYearRPH(var Vendor1099Div: TestRequestPage "Vendor 1099 Div")
+    begin
+        Vendor1099Div.Vendor.SetFilter("No.", LibraryVariableStorage.DequeueText);
+        Vendor1099Div.Year.SetValue(LibraryVariableStorage.DequeueText());
+        Vendor1099Div.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
     procedure Vendor1099InformationRPH(var Vendor1099Information: TestRequestPage "Vendor 1099 Information")
     begin
         Vendor1099Information.Vendor.SetFilter("No.", LibraryVariableStorage.DequeueText);
@@ -1022,10 +1147,35 @@ codeunit 142055 "UT REP Vendor 1099"
 
     [RequestPageHandler]
     [Scope('OnPrem')]
+    procedure Vendor1099IntChangeCurrYearRPH(var Vendor1099Int: TestRequestPage "Vendor 1099 Int")
+    begin
+        Vendor1099Int.Vendor.SetFilter("No.", LibraryVariableStorage.DequeueText);
+        Vendor1099Int.Year.SetValue(LibraryVariableStorage.DequeueText());
+        Vendor1099Int.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
     procedure Vendor1099MiscRPH(var Vendor1099Misc: TestRequestPage "Vendor 1099 Misc")
     begin
         Vendor1099Misc.Vendor.SetFilter("No.", LibraryVariableStorage.DequeueText);
         Vendor1099Misc.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure Vendor1099Misc2020ChangeCurrYearRPH(var Vendor1099Misc2020: TestRequestPage "Vendor 1099 Misc 2020")
+    begin
+        Vendor1099Misc2020.Vendor.SetFilter("No.", LibraryVariableStorage.DequeueText);
+        Vendor1099Misc2020.Year.SetValue(LibraryVariableStorage.DequeueText());
+        Vendor1099Misc2020.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure Vendor1099Misc2020DoNothingRPH(var Vendor1099Misc2020: TestRequestPage "Vendor 1099 Misc 2020")
+    begin
+        Vendor1099Misc2020.Cancel().Invoke();
     end;
 
     [RequestPageHandler]

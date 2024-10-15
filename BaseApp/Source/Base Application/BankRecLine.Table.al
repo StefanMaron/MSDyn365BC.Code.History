@@ -668,6 +668,7 @@ table 10121 "Bank Rec. Line"
     procedure ValidateShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
     begin
         DimMgt.ValidateShortcutDimValues(FieldNumber, ShortcutDimCode, "Dimension Set ID");
+        OnAfterValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode);
     end;
 
     procedure LookupShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
@@ -850,6 +851,11 @@ table 10121 "Bank Rec. Line"
             until TempBankRecSubLine.Next() = 0;
             TempBankRecSubLine.DeleteAll();
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterValidateShortcutDimCode(var BankRecLine: Record "Bank Rec. Line"; xBankRecLine: Record "Bank Rec. Line"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    begin
     end;
 
     [IntegrationEvent(false, false)]

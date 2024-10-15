@@ -5852,9 +5852,6 @@ End Function
         <Field Name="TotalAmountIncludingVAT">
           <DataField>TotalAmountIncludingVAT</DataField>
         </Field>
-        <Field Name="TotalAmountIncludingVATFormat">
-          <DataField>TotalAmountIncludingVATFormat</DataField>
-        </Field>
         <Field Name="TotalVATAmount">
           <DataField>TotalVATAmount</DataField>
         </Field>
