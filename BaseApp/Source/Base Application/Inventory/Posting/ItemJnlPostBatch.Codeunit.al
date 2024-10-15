@@ -293,6 +293,10 @@ codeunit 23 "Item Jnl.-Post Batch"
                 ItemJnlLine.TestField("Document No.", NoSeriesMgt.GetNextNo(ItemJnlBatch."No. Series", ItemJnlLine."Posting Date", false));
             if not ItemJnlLine.EmptyLine() then
                 LastDocNo2 := ItemJnlLine."Document No.";
+
+            if (ItemJnlBatch."Posting No. Series" <> '') and (ItemJnlLine."Value Entry Type" = ItemJnlLine."Value Entry Type"::Revaluation) then
+                ItemJnlLine."Posting No. Series" := ItemJnlBatch."Posting No. Series";
+
             MakeRecurringTexts(ItemJnlLine);
             ConstructPostingNumber(ItemJnlLine);
 

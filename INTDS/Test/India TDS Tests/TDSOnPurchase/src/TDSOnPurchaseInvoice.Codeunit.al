@@ -1679,6 +1679,37 @@ codeunit 18791 "TDS On Purchase Invoice"
         VerifyGLEntryCount(DocumentNo, 4);
     end;
 
+    [Test]
+    [HandlerFunctions('TaxRatePageHandler')]
+    procedure PostFromPurchInvWithGLAccWithMultiplelineWithMultipleTDSSectionCode()
+    var
+        ConcessionalCode: Record "Concessional Code";
+        TDSPostingSetup: Record "TDS Posting Setup";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Vendor: Record Vendor;
+        DocumentNo: Code[20];
+    begin
+        // [SCENARIO] TDS with Multiple Section having issue with threshold Overlook Issue
+        // [GIVEN] Created Setup for AssesseeCode,TDSPostingSetup,TDSSection,ConcessionalCode with Threshold.
+        LibraryTDS.CreateTDSSetupWithMultipleSection(Vendor, TDSPostingSetup, ConcessionalCode);
+        LibraryTDS.UpdateVendorWithPANWithoutConcessional(Vendor, true, true);
+        CreateTaxRateSetup(TDSPostingSetup."TDS Section", Vendor."Assessee Code", '', WorkDate());
+
+        // [WHEN] Created and Posted Purchase Invoice with Multple Line
+        CreatePurchaseDocumentWithPaymentMethodCodeBank(PurchaseHeader,
+             PurchaseHeader."Document Type"::Invoice,
+             Vendor."No.",
+             WorkDate(),
+             PurchaseLine.Type::"G/L Account",
+             false);
+        CreatePurchaseLine(PurchaseHeader, PurchaseLine, PurchaseLine.Type::"G/L Account", false);
+        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [THEN] G/L Entries and TDS Entries Verified
+        VerifyGLEntryCount(DocumentNo, 6);
+    end;
+
     local procedure UpdateTDSSection(PurchaseHeader: Record "Purchase Header")
     var
         PurchaseInvoice: TestPage "Purchase Invoice";

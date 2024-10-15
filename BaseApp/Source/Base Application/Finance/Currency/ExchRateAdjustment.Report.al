@@ -238,7 +238,8 @@ report 596 "Exch. Rate Adjustment"
             Clear(PostingDocNo);
             GenJournalBatch.Get(GenJournalLineReq."Journal Template Name", GenJournalLineReq."Journal Batch Name");
             GenJournalBatch.TestField("No. Series");
-            PostingDocNo := NoSeriesManagement.GetNextNo(GenJournalBatch."No. Series", PostingDate, true);
+            if not PreviewPosting then
+                PostingDocNo := NoSeriesManagement.GetNextNo(GenJournalBatch."No. Series", PostingDate, true);
         end else
             if (PostingDocNo = '') and (not PreviewPosting) then
                 Error(MustBeEnteredErr, GenJournalLineReq.FieldCaption("Document No."));

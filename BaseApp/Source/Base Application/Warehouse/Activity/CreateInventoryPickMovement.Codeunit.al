@@ -978,8 +978,7 @@ codeunit 7322 "Create Inventory Pick/Movement"
                         if ITQtyToPickBase > 0 then begin
                             NewWarehouseActivityLine.CopyTrackingFromSpec(TempTrackingSpecification);
                             if NewWarehouseActivityLine.TrackingExists() then
-                                NewWarehouseActivityLine."Expiration Date" :=
-                                    ItemTrackingManagement.ExistingExpirationDate(NewWarehouseActivityLine, false, EntriesExist);
+                                UpdateExpirationDate(NewWarehouseActivityLine, EntriesExist);
 
                             OnCreatePickOrMoveLineFromHandlingSpec(NewWarehouseActivityLine, TempTrackingSpecification, EntriesExist);
 
@@ -2322,6 +2321,17 @@ codeunit 7322 "Create Inventory Pick/Movement"
                 TempReservationEntry1 := ReservationEntry;
                 TempReservationEntry1.Insert();
             until ReservationEntry.Next() = 0;
+    end;
+
+    local procedure UpdateExpirationDate(var WarehouseActivityLine: Record "Warehouse Activity Line"; var EntriesExist: Boolean)
+    var
+        ItemTrackingMgt: Codeunit "Item Tracking Management";
+        ExpirationDate: Date;
+    begin
+        ExpirationDate := ItemTrackingMgt.ExistingExpirationDate(WarehouseActivityLine, false, EntriesExist);
+
+        if ExpirationDate <> 0D then
+            WarehouseActivityLine."Expiration Date" := ExpirationDate;
     end;
 
     [IntegrationEvent(false, false)]
