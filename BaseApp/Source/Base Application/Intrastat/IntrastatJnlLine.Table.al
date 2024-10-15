@@ -155,8 +155,6 @@ table 263 "Intrastat Jnl. Line"
             TableRelation = Item;
 
             trigger OnValidate()
-            var
-                CompanyInfo: Record "Company Information";
             begin
                 TestField("Source Type", 0);
 
@@ -167,16 +165,12 @@ table 263 "Intrastat Jnl. Line"
 
                 Name := Item.Description;
                 "Tariff No." := Item."Tariff No.";
-                if Type = Type::Receipt then begin
-                    CompanyInfo.Get();
-                    if (Item."Country/Region of Origin Code" = CompanyInfo."Country/Region Code") or
-                       (Item."Country/Region of Origin Code" = '')
-                    then
+                if Type = Type::Receipt then
+                    if Item."Country/Region of Origin Code" = '' then
                         "Country/Region of Origin Code" := "Country/Region Code"
                     else
                         "Country/Region of Origin Code" := Item."Country/Region of Origin Code";
-                end;
-                GetItemDescription;
+                GetItemDescription();
             end;
         }
         field(21; Name; Text[100])

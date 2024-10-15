@@ -1271,6 +1271,8 @@ page 43 "Sales Invoice"
                     begin
                         CopyDocument();
                         if Get("Document Type", "No.") then;
+                        CurrPage.SalesLines.Page.ForceTotalsCalculation();
+                        CurrPage.Update();
                     end;
                 }
                 action("Move Negative Lines")
