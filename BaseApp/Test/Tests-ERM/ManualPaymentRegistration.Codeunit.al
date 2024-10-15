@@ -1575,6 +1575,149 @@ codeunit 134710 "Manual Payment Registration"
         VerifyFullRefundRegistration(Customer."No.", PostedCreditMemoNo, RefundDocNo);
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    [Scope('OnPrem')]
+    procedure PostLumpPaymentTwoInvoicesOneCreditMemo()
+    var
+        TempPaymentRegistrationBuffer: Record "Payment Registration Buffer" temporary;
+        CustomerNo: Code[20];
+        DocumentNo: array[3] of Code[20];
+        SalesDocumentType: Enum "Sales Document Type";
+        Amount: Decimal;
+    begin
+        // [FEATURE] [Lump Payment]
+        // [SCENARIO 416898] 
+        Initialize();
+
+        // [GIVEN] Setup Payment Registration Setup with G/L Account as Balance Account.
+        SetupBalAccountAsGLAccount;
+
+        // [GIVEN] Customer exists
+        CustomerNo := LibrarySales.CreateCustomerNo();
+
+        // [GIVEN] Two posted Sales Invoices "PSI1" and "PSI2" of amount = "X" for Customer.
+        Amount := LibraryRandom.RandDec(100, 2);
+        DocumentNo[1] := CreateAndPostSalesDocumentWithCustomerAndAmount(SalesDocumentType::Invoice, CustomerNo, Amount);
+        DocumentNo[2] := CreateAndPostSalesDocumentWithCustomerAndAmount(SalesDocumentType::Invoice, CustomerNo, Amount);
+
+        // [GIVEN] One posted Credit Memo "PCM1" of amount = "X" for Customer
+        DocumentNo[3] := CreateAndPostSalesDocumentWithCustomerAndAmount(SalesDocumentType::"Credit Memo", CustomerNo, Amount);
+
+        // [GIVEN] Payment Register table is populated and "PSI1", "PSI2" and "PCM1" are marked as paid.
+        TempPaymentRegistrationBuffer.PopulateTable();
+        MarkDocumentAsPaid(TempPaymentRegistrationBuffer, CustomerNo, DocumentNo[1]);
+        MarkDocumentAsPaid(TempPaymentRegistrationBuffer, CustomerNo, DocumentNo[2]);
+        MarkDocumentAsPaid(TempPaymentRegistrationBuffer, CustomerNo, DocumentNo[3]);
+
+        // [WHEN] "Post as Lump Payment" is invoked from Payment Register and then confirmation dialog is confirmed at ConfirmDialogYes.
+        PostLumpPayments(TempPaymentRegistrationBuffer);
+
+        // [THEN] Customer Ledger Entries for "PSI1", "PSI2" and "PCM1" are closed by the posted lump payment.
+        VerifyCustLedgerEntryIsApplied(CustomerNo, DocumentNo[1]);
+        VerifyCustLedgerEntryIsApplied(CustomerNo, DocumentNo[2]);
+        VerifyCustLedgerEntryIsApplied(CustomerNo, DocumentNo[3]);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    [Scope('OnPrem')]
+    procedure PostLumpPaymentOneInvoiceTwoCreditMemos()
+    var
+        TempPaymentRegistrationBuffer: Record "Payment Registration Buffer" temporary;
+        CustomerNo: Code[20];
+        DocumentNo: array[3] of Code[20];
+        SalesDocumentType: Enum "Sales Document Type";
+        Amount: Decimal;
+    begin
+        // [FEATURE] [Lump Payment]
+        // [SCENARIO 416898] 
+        Initialize();
+
+        // [GIVEN] Setup Payment Registration Setup with G/L Account as Balance Account.
+        SetupBalAccountAsGLAccount;
+
+        // [GIVEN] Customer exists
+        CustomerNo := LibrarySales.CreateCustomerNo();
+
+        // [GIVEN] Two posted Credit Memos "PCM1" and "PCM2" of amount = "X" for Customer
+        Amount := LibraryRandom.RandDec(100, 2);
+        DocumentNo[1] := CreateAndPostSalesDocumentWithCustomerAndAmount(SalesDocumentType::"Credit Memo", CustomerNo, Amount);
+        DocumentNo[2] := CreateAndPostSalesDocumentWithCustomerAndAmount(SalesDocumentType::"Credit Memo", CustomerNo, Amount);
+
+        // [GIVEN] One posted Sales Invoice "PSI1" of amount = "X" for Customer.
+        DocumentNo[3] := CreateAndPostSalesDocumentWithCustomerAndAmount(SalesDocumentType::Invoice, CustomerNo, Amount);
+
+        // [GIVEN] Payment Register table is populated and "PSI1", "PCM1" and "PCM2" are marked as paid.
+        TempPaymentRegistrationBuffer.PopulateTable();
+        MarkDocumentAsPaid(TempPaymentRegistrationBuffer, CustomerNo, DocumentNo[1]);
+        MarkDocumentAsPaid(TempPaymentRegistrationBuffer, CustomerNo, DocumentNo[2]);
+        MarkDocumentAsPaid(TempPaymentRegistrationBuffer, CustomerNo, DocumentNo[3]);
+
+        // [WHEN] "Post as Lump Payment" is invoked from Payment Register and then confirmation dialog is confirmed at ConfirmDialogYes.
+        PostLumpPayments(TempPaymentRegistrationBuffer);
+
+        // [THEN] Customer Ledger Entries for "PSI1", "PCM1" and "PCM2" are closed by the posted lump payment.
+        VerifyCustLedgerEntryIsApplied(CustomerNo, DocumentNo[1]);
+        VerifyCustLedgerEntryIsApplied(CustomerNo, DocumentNo[2]);
+        VerifyCustLedgerEntryIsApplied(CustomerNo, DocumentNo[3]);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    [Scope('OnPrem')]
+    procedure PreviewPostLumpPaymentOneInvoiceWithPaymentTolerance()
+    var
+        SalesHeader: Record "Sales Header";
+        TempPaymentRegistrationBuffer: Record "Payment Registration Buffer" temporary;
+        GLEntry: Record "G/L Entry";
+        Customer: Record Customer;
+        CustomerPostingGroup: Record "Customer Posting Group";
+        PaymentRegistrationMgt: Codeunit "Payment Registration Mgt.";
+        GLPostingPreview: TestPage "G/L Posting Preview";
+        PostedDocNo: Code[20];
+        PaymentDocNo: Code[20];
+        TolerancePct: Decimal;
+        AmountChange: Decimal;
+    begin
+        // [SCENARIO 419736] User should be able to post lump payment Register Customer Payments with Payment Tolerance
+        Initialize();
+
+        // [GIVEN] Payment Tolerance with Max. Payment Tolerance Amount = 10
+        SetupBalAccountAsGLAccount;
+        LibraryCashFlowHelper.SetupPmtTolPercentage(0);
+        LibraryCashFlowHelper.SetupPmtTolAmount(10);
+
+        // [GIVEN] Posted Sales Document with Amount = X
+        CreateSalesDocumentWithCustomer(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
+        PostedDocNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+        Customer.Get(SalesHeader."Sell-to Customer No.");
+
+        // [GIVEN] Register Customer Payments, Payment Made = true, Amount Received = X + 5
+        TempPaymentRegistrationBuffer.PopulateTable();
+        MarkDocumentAsPaid(TempPaymentRegistrationBuffer, Customer."No.", PostedDocNo);
+        AmountChange := LibraryRandom.RandDecInDecimalRange(1, 9, 2);
+        UpdateAmountReceived(
+            TempPaymentRegistrationBuffer, Customer."No.", PostedDocNo,
+            TempPaymentRegistrationBuffer."Amount Received" + AmountChange);
+        PaymentDocNo := GetNextPaymentDocNo;
+
+        // [WHEN] Preview Posting Payment as Lump
+        // [THEN] No error messages shown
+        GLPostingPreview.Trap;
+        TempPaymentRegistrationBuffer.SetRange("Payment Made", true);
+        asserterror PaymentRegistrationMgt.Preview(TempPaymentRegistrationBuffer, true);
+        Assert.AreEqual('', GetLastErrorText, 'Expected empty error from Preview function');
+        GLPostingPreview.Close;
+
+        // [WHEN] Post As Lump Payment invoked
+        PostLumpPayments(TempPaymentRegistrationBuffer);
+
+        // [THEN] Payment for Invoice created and posted
+        VerifyFullPaymentRegistration(SalesHeader."Sell-to Customer No.", PostedDocNo, PaymentDocNo);
+        VerifyCustLedgerEntryLumpPayment(SalesHeader."Sell-to Customer No.", PaymentDocNo, TempPaymentRegistrationBuffer."Original Remaining Amount");
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1633,6 +1776,18 @@ codeunit 134710 "Manual Payment Registration"
           SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandDec(10, 2));
         SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
         SalesLine.Modify(true);
+    end;
+
+    local procedure CreateAndPostSalesDocumentWithCustomerAndAmount(DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20]; Amount: Decimal) PostedDocNo: Code[20]
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, 1);
+        SalesLine.Validate("Unit Price", Amount);
+        SalesLine.Modify(true);
+        PostedDocNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
     end;
 
     local procedure CreateGenJnlBatch(JournalTemplateName: Code[10]): Code[10]
@@ -2220,6 +2375,17 @@ codeunit 134710 "Manual Payment Registration"
         CustLedgerEntry.TestField("Bal. Account No.", PaymentRegistrationSetup."Bal. Account No.");
         CustLedgerEntry.TestField("Bal. Account Type", PaymentRegistrationSetup.GetGLBalAccountType);
         CustLedgerEntry.TestField("Journal Batch Name", PaymentRegistrationSetup."Journal Batch Name");
+    end;
+
+    local procedure VerifyGLEntryAmount(DocNo: Code[20]; AccNo: Code[20]; ExpectedAmount: Decimal)
+    var
+        GLEntry: Record "G/L Entry";
+    begin
+        GLEntry.SetRange("Document Type", GLEntry."Document Type"::Payment);
+        GLEntry.SetRange("Document No.", DocNo);
+        GLEntry.SetRange("G/L Account No.", AccNo);
+        GLEntry.FindFirst;
+        GLEntry.TestField(Amount, ExpectedAmount);
     end;
 
     local procedure GetInvoiceAmount(DocNo: Code[20]): Decimal

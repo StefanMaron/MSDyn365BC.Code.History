@@ -17,6 +17,8 @@ codeunit 144001 "MX CFDI"
         LibrarySales: Codeunit "Library - Sales";
         LibraryService: Codeunit "Library - Service";
         LibraryFixedAsset: Codeunit "Library - Fixed Asset";
+        LibraryWarehouse: Codeunit "Library - Warehouse";
+        LibraryReportDataset: Codeunit "Library - Report Dataset";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         Assert: Codeunit Assert;
@@ -2837,7 +2839,7 @@ codeunit 144001 "MX CFDI"
         SalesInvoiceLine."Amount Including VAT" := SalesInvoiceLine.Amount * (1 + SalesInvoiceLine."VAT %" / 100);
         VerifyVATAmountLines(
           OriginalStr, SalesInvoiceLine.Amount, SalesInvoiceLine."Amount Including VAT" - SalesInvoiceLine.Amount,
-          SalesInvoiceLine."VAT %", '003', 0, 0);
+          SalesInvoiceLine."VAT %", GetTaxCodeTraslado(SalesInvoiceLine."VAT %"), 0, 0);
 
         // [THEN] Total VAT Amount is exported as attribute 'cfdi:Impuestos/TotalImpuestosTrasladados' = 10
         // [THEN] XML Document has node 'cfdi:Impuestos/cfdi:Traslados/cfdi:Traslado' with total VAT line
@@ -2845,7 +2847,7 @@ codeunit 144001 "MX CFDI"
         VerifyVATTotalLine(
           OriginalStr,
           SalesInvoiceHeader."Amount Including VAT" - SalesInvoiceHeader.Amount, SalesInvoiceLine."VAT %",
-          '003', 0, 1, 0);
+          GetTaxCodeTraslado(SalesInvoiceLine."VAT %"), 0, 1, 0);
         VerifyTotalImpuestos(
           OriginalStr, 'TotalImpuestosTrasladados', SalesInvoiceHeader."Amount Including VAT" - SalesInvoiceHeader.Amount, 38);
     end;
@@ -3037,19 +3039,19 @@ codeunit 144001 "MX CFDI"
         SalesInvoiceLine.FindFirst();
         VerifyVATAmountLines(
           OriginalStr, SalesInvoiceLine.Amount, SalesInvoiceLine."Amount Including VAT" - SalesInvoiceLine.Amount,
-          SalesInvoiceLine."VAT %", '003', 0, 0);
+          SalesInvoiceLine."VAT %", GetTaxCodeTraslado(SalesInvoiceLine."VAT %"), 0, 0);
         VerifyVATTotalLine(
           OriginalStr,
           SalesInvoiceLine."Amount Including VAT" - SalesInvoiceLine.Amount, SalesInvoiceLine."VAT %",
-          '003', 0, 2, 0);
+          GetTaxCodeTraslado(SalesInvoiceLine."VAT %"), 0, 2, 0);
         SalesInvoiceLine.FindLast;
         VerifyVATAmountLines(
           OriginalStr, SalesInvoiceLine.Amount, SalesInvoiceLine."Amount Including VAT" - SalesInvoiceLine.Amount,
-          SalesInvoiceLine."VAT %", '003', 1, 1);
+          SalesInvoiceLine."VAT %", GetTaxCodeTraslado(SalesInvoiceLine."VAT %"), 1, 1);
         VerifyVATTotalLine(
           OriginalStr,
           SalesInvoiceLine."Amount Including VAT" - SalesInvoiceLine.Amount, SalesInvoiceLine."VAT %",
-          '003', 1, 2, 0);
+          GetTaxCodeTraslado(SalesInvoiceLine."VAT %"), 1, 2, 0);
         VerifyTotalImpuestos(
           OriginalStr, 'TotalImpuestosTrasladados', SalesInvoiceHeader."Amount Including VAT" - SalesInvoiceHeader.Amount, 57);
     end;
@@ -3133,7 +3135,7 @@ codeunit 144001 "MX CFDI"
         VerifyLineAmountsByIndex(
           0, UnitPrice * SalesLine.Quantity, UnitPrice,
           SalesLine."Amount Including VAT" - SalesLine.Amount,
-          UnitPrice * SalesLine.Quantity, 1);
+          SalesLine.Amount, 1);
     end;
 
     [Test]
@@ -3730,12 +3732,14 @@ codeunit 144001 "MX CFDI"
           OriginalStr, SalesLine."Amount Including VAT", 0, 0, '002', 0, 0);
         VerifyRetentionAmountLine(
           OriginalStr,
-          SalesLine."Amount Including VAT", SalesLineRetention."Amount Including VAT", SalesLineRetention."Retention VAT %", '002', 39, 0);
+          SalesLine."Amount Including VAT", SalesLineRetention."Amount Including VAT",
+          SalesLineRetention."Retention VAT %", GetTaxCodeRetention(SalesLineRetention."Retention VAT %"), 39, 0);
 
         // [THEN] 'cfdi:Impuestos/cfdi:Traslados/cfdi:Traslado' has attributes 'Importe' = 0, 'TipoFactor' = 'Tasa', 'Impuesto' = '002'.
         // [THEN] 'cfdi:Impuestos/cfdi:Retenciones/cfdi:Retencion' has attributes 'Importe' = 100, 'Impuesto' = '002'.
         VerifyVATTotalLine(OriginalStr, 0, 0, '002', 0, 1, 8);
-        VerifyRetentionTotalLine(OriginalStr, -SalesLineRetention."Amount Including VAT", '002', 40, 0);
+        VerifyRetentionTotalLine(
+          OriginalStr, -SalesLineRetention."Amount Including VAT", GetTaxCodeRetention(SalesLineRetention."Retention VAT %"), 40, 0);
 
         // [THEN] Total Impuestos:  'cfdi:Impuestos/TotalImpuestosTrasladados' = 0, 'cfdi:Impuestos/TotalImpuestosRetenidos' = 100
         VerifyTotalImpuestos(OriginalStr, 'TotalImpuestosTrasladados', 0, 46);
@@ -3797,12 +3801,14 @@ codeunit 144001 "MX CFDI"
           OriginalStr, SalesLine."Amount Including VAT", 0, 0, '002', 0, 0);
         VerifyRetentionAmountLine(
           OriginalStr,
-          SalesLine."Amount Including VAT", SalesLineRetention."Amount Including VAT", SalesLineRetention."Retention VAT %", '002', 39, 0);
+          SalesLine."Amount Including VAT", SalesLineRetention."Amount Including VAT",
+          SalesLineRetention."Retention VAT %", GetTaxCodeRetention(SalesLineRetention."VAT %"), 39, 0);
 
         // [THEN] 'cfdi:Impuestos/cfdi:Traslados/cfdi:Traslado' has attributes 'Importe' = 0, 'TipoFactor' = 'Tasa', 'Impuesto' = '002'.
         // [THEN] 'cfdi:Impuestos/cfdi:Retenciones/cfdi:Retencion' has attributes 'Importe' = 100, 'Impuesto' = '002'.
         VerifyVATTotalLine(OriginalStr, 0, 0, '002', 0, 1, 8);
-        VerifyRetentionTotalLine(OriginalStr, -SalesLineRetention."Amount Including VAT", '002', 40, 0);
+        VerifyRetentionTotalLine(
+          OriginalStr, -SalesLineRetention."Amount Including VAT", GetTaxCodeRetention(SalesLineRetention."VAT %"), 40, 0);
 
         // [THEN] Total Impuestos:  'cfdi:Impuestos/TotalImpuestosTrasladados' = 0, 'cfdi:Impuestos/TotalImpuestosRetenidos' = 100
         VerifyTotalImpuestos(OriginalStr, 'TotalImpuestosTrasladados', 0, 46);
@@ -3868,27 +3874,267 @@ codeunit 144001 "MX CFDI"
         // [THEN] has attributes 'Importe' = 8319.948, 'TipoFactor' = 'Tasa', 'Impuesto' = '002', 'Base' = 78000.
         VerifyVATAmountLines(
           OriginalStr,
-          SalesLine.Amount, SalesLine."Amount Including VAT" - SalesLine.Amount, SalesLine."VAT %", '002', 0, 0);
+          SalesLine.Amount, SalesLine."Amount Including VAT" - SalesLine.Amount, SalesLine."VAT %",
+          GetTaxCodeTraslado(SalesLine."VAT %"), 0, 0);
         VerifyRetentionAmountLine(
           OriginalStr,
-          SalesLine.Amount, SalesLineRetention1.Amount, SalesLineRetention1."Retention VAT %", '001', 39, 0);
+          SalesLine.Amount, SalesLineRetention1.Amount, SalesLineRetention1."Retention VAT %",
+          GetTaxCodeRetention(SalesLineRetention1."Retention VAT %"), 39, 0);
         VerifyRetentionAmountLine(
           OriginalStr,
           SalesLine.Amount,
-          SalesLineRetention2."Unit Price" * SalesLineRetention2.Quantity, SalesLineRetention2."Retention VAT %", '002', 44, 1);
+          SalesLineRetention2."Unit Price" * SalesLineRetention2.Quantity, SalesLineRetention2."Retention VAT %",
+          GetTaxCodeRetention(SalesLineRetention2."Retention VAT %"), 44, 1);
 
         // [THEN] 'cfdi:Impuestos/cfdi:Traslados/cfdi:Traslado' has attributes 'Importe' = 12480, 'TipoFactor' = 'Tasa', 'Impuesto' = '002'.
         // [THEN] Line 1 of 'cfdi:Impuestos/cfdi:Retenciones/cfdi:Retencion' has attributes 'Importe' = 7800, 'Impuesto' = '001'.
         // [THEN] Line 2 of 'cfdi:Impuestos/cfdi:Retenciones/cfdi:Retencion' has attributes 'Importe' = 8319.95, 'Impuesto' = '002'.
         VerifyVATTotalLine(
-          OriginalStr, SalesLine."Amount Including VAT" - SalesLine.Amount, SalesLine."VAT %", '002', 0, 1, 15);
-        VerifyRetentionTotalLine(OriginalStr, -SalesLineRetention1."Amount Including VAT", '001', 45, 0);
-        VerifyRetentionTotalLine(OriginalStr, -SalesLineRetention2."Amount Including VAT", '002', 47, 1);
+          OriginalStr, SalesLine."Amount Including VAT" - SalesLine.Amount, SalesLine."VAT %",
+          GetTaxCodeTraslado(SalesLine."VAT %"), 0, 1, 15);
+        VerifyRetentionTotalLine(OriginalStr, -SalesLineRetention1."Amount Including VAT",
+          GetTaxCodeRetention(SalesLineRetention1."Retention VAT %"), 45, 0);
+        VerifyRetentionTotalLine(OriginalStr, -SalesLineRetention2."Amount Including VAT",
+          GetTaxCodeRetention(SalesLineRetention2."Retention VAT %"), 47, 1);
 
         // [THEN] Total Impuestos:  'cfdi:Impuestos/TotalImpuestosTrasladados' = 12480, 'cfdi:Impuestos/TotalImpuestosRetenidos' = 16119.95
         VerifyTotalImpuestos(OriginalStr, 'TotalImpuestosTrasladados', SalesLine."Amount Including VAT" - SalesLine.Amount, 54);
         VerifyTotalImpuestos(OriginalStr, 'TotalImpuestosRetenidos',
           SalesLineRetention1.Amount + SalesLineRetention2.Amount, 49);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ErrorWhenRequestStampForSalesShipmentCartaPorte()
+    var
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesShipmentHeader: Record "Sales Shipment Header";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ErrorMessages: TestPage "Error Messages";
+    begin
+        // [FEATURE] [Carta Porte] [Sales]
+        // [SCENARIO 406136] Request Stamp for Sales Shipment Carta Porte complemento
+        Initialize();
+
+        // [GIVEN] Posted Sales Invoice
+        CreateSalesHeaderForCustomer(SalesHeader, SalesHeader."Document Type"::Invoice, CreateCustomer, CreatePaymentMethodForSAT);
+        CreateSalesLineItem(
+          SalesLine, SalesHeader, CreateItem, LibraryRandom.RandIntInRange(100, 200), 0, 0, false, false);
+
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+        SalesShipmentHeader.SetRange("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
+        SalesShipmentHeader.FindFirst();
+
+        // [WHEN] Request Stamp for the Sales Shipment
+        ErrorMessages.Trap;
+        asserterror
+          RequestStamp(
+            DATABASE::"Sales Shipment Header", SalesShipmentHeader."No.", ResponseOption::Success, ActionOption::"Request Stamp");
+
+        // [THEN] Error Messages page is opened with logged errors for "PAC Code", "PAC Environment", "SAT Certificate" fields
+        ErrorMessages.Description.AssertEquals(
+          StrSubstNo(IfEmptyErr, SalesShipmentHeader.FieldCaption("Transit-from Date/Time"), SalesShipmentHeader.RecordId));
+        ErrorMessages.Next;
+        ErrorMessages.Description.AssertEquals(
+          StrSubstNo(IfEmptyErr, SalesShipmentHeader.FieldCaption("Transit Hours"), SalesShipmentHeader.RecordId));
+        ErrorMessages.Next;
+        ErrorMessages.Description.AssertEquals(
+          StrSubstNo(IfEmptyErr, SalesShipmentHeader.FieldCaption("Transit Distance"), SalesShipmentHeader.RecordId));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ErrorWhenRequestStampTransferShipmentCartaPorte()
+    var
+        TransferShipmentHeader: Record "Transfer Shipment Header";
+        LocationFrom: Record Location;
+        LocationTo: Record Location;
+        Item: Record Item;
+        ErrorMessages: TestPage "Error Messages";
+    begin
+        // [FEATURE] [Carta Porte] [Transfer]
+        // [SCENARIO 406136] Request Stamp for Transfer Shipment Carta Porte complemento
+        Initialize();
+
+        // [GIVEN] Posted Transfer Shipment
+        CreateTransferItem(LocationFrom, LocationTo, Item);
+        CreateTransferShipment(TransferShipmentHeader, LocationFrom, LocationTo, Item."No.");
+
+        // [WHEN] Request Stamp for the Transfer Shipment
+        ErrorMessages.Trap;
+        asserterror
+          RequestStamp(
+            DATABASE::"Transfer Shipment Header", TransferShipmentHeader."No.", ResponseOption::Success, ActionOption::"Request Stamp");
+
+        ErrorMessages.Description.AssertEquals(
+          StrSubstNo(IfEmptyErr, TransferShipmentHeader.FieldCaption("Transit-from Date/Time"), TransferShipmentHeader.RecordId));
+        ErrorMessages.Next;
+        ErrorMessages.Description.AssertEquals(
+          StrSubstNo(IfEmptyErr, TransferShipmentHeader.FieldCaption("Transit Hours"), TransferShipmentHeader.RecordId));
+        ErrorMessages.Next;
+        ErrorMessages.Description.AssertEquals(
+          StrSubstNo(IfEmptyErr, TransferShipmentHeader.FieldCaption("Transit Distance"), TransferShipmentHeader.RecordId));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesShipmentCartaPorteRequestStamp()
+    var
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesShipmentHeader: Record "Sales Shipment Header";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        TempBlob: Codeunit "Temp Blob";
+        InStream: InStream;
+        OriginalStr: Text;
+    begin
+        // [FEATURE] [Carta Porte] [Sales]
+        // [SCENARIO 406136] Request Stamp for Sales Shipment Carta Porte complemento
+        Initialize();
+
+        // [GIVEN] Posted Sales Invoice
+        CreateSalesHeaderForCustomer(SalesHeader, SalesHeader."Document Type"::Invoice, CreateCustomer, CreatePaymentMethodForSAT);
+        CreateSalesLineItem(
+          SalesLine, SalesHeader, CreateItem, LibraryRandom.RandIntInRange(100, 200), 0, 0, false, false);
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+        SalesShipmentHeader.SetRange("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
+        SalesShipmentHeader.FindFirst();
+        UpdateSalesShipmentForCartaPorte(SalesShipmentHeader);
+
+        // [WHEN] Request Stamp for the Sales Shipment
+        RequestStamp(
+          DATABASE::"Sales Shipment Header", SalesShipmentHeader."No.", ResponseOption::Success, ActionOption::"Request Stamp");
+        SalesShipmentHeader.Find();
+        SalesShipmentHeader.CalcFields("Original String", "Original Document XML");
+
+        TempBlob.FromRecord(SalesShipmentHeader, SalesShipmentHeader.FieldNo("Original Document XML"));
+        LibraryXPathXMLReader.InitializeWithBlob(TempBlob, '');
+        LibraryXPathXMLReader.SetDefaultNamespaceUsage(false);
+        LibraryXPathXMLReader.AddAdditionalNamespace('cfdi', 'http://www.sat.gob.mx/cfd/3');
+        LibraryXPathXMLReader.AddAdditionalNamespace('cartaporte', 'http://www.sat.gob.mx/CartaPorte20');
+        SalesShipmentHeader."Original String".CreateInStream(InStream);
+        InStream.ReadText(OriginalStr);
+        OriginalStr := ConvertStr(OriginalStr, '|', ',');
+
+        // [THEN] Carta Porte XML is created for the document
+        VerifyCartaPorteXMLValues(OriginalStr, SalesShipmentHeader."Transit Distance");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TransferShipmentCartaPorteRequestStamp()
+    var
+        TransferShipmentHeader: Record "Transfer Shipment Header";
+        LocationFrom: Record Location;
+        LocationTo: Record Location;
+        Item: Record Item;
+        TempBlob: Codeunit "Temp Blob";
+        InStream: InStream;
+        OriginalStr: Text;
+    begin
+        // [FEATURE] [Carta Porte] [Transfer]
+        // [SCENARIO 406136] Request Stamp for Transfer Shipment Carta Porte complemento
+        Initialize();
+
+        // [GIVEN] Posted Transfer Shipment
+        CreateTransferItem(LocationFrom, LocationTo, Item);
+        CreateTransferShipment(TransferShipmentHeader, LocationFrom, LocationTo, Item."No.");
+        UpdateTransferShipmentForCartaPorte(TransferShipmentHeader);
+
+        // [WHEN] Request Stamp for the Transfer Shipment
+        RequestStamp(
+          DATABASE::"Transfer Shipment Header", TransferShipmentHeader."No.", ResponseOption::Success, ActionOption::"Request Stamp");
+        TransferShipmentHeader.Find();
+        TransferShipmentHeader.CalcFields("Original String", "Original Document XML");
+
+        TempBlob.FromRecord(TransferShipmentHeader, TransferShipmentHeader.FieldNo("Original Document XML"));
+        LibraryXPathXMLReader.InitializeWithBlob(TempBlob, '');
+        LibraryXPathXMLReader.SetDefaultNamespaceUsage(false);
+        LibraryXPathXMLReader.AddAdditionalNamespace('cfdi', 'http://www.sat.gob.mx/cfd/3');
+        LibraryXPathXMLReader.AddAdditionalNamespace('cartaporte', 'http://www.sat.gob.mx/CartaPorte20');
+        TransferShipmentHeader."Original String".CreateInStream(InStream);
+        InStream.ReadText(OriginalStr);
+        OriginalStr := ConvertStr(OriginalStr, '|', ',');
+
+        // [THEN] Carta Porte XML is created for the document
+        VerifyCartaPorteXMLValues(OriginalStr, TransferShipmentHeader."Transit Distance");
+    end;
+
+    [Test]
+    [HandlerFunctions('CartaPorteReqPageHandler')]
+    [Scope('OnPrem')]
+    procedure SalesShipmentCartaPortePrint()
+    var
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesShipmentHeader: Record "Sales Shipment Header";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ElectronicCartaPorteMX: Report "Electronic Carta Porte MX";
+    begin
+        // [FEATURE] [Carta Porte] [Sales] [Report]
+        // [SCENARIO 406136] Request Stamp for Sales Shipment Carta Porte complemento
+        Initialize();
+
+        // [GIVEN] Posted Sales Invoice
+        CreateSalesHeaderForCustomer(SalesHeader, SalesHeader."Document Type"::Invoice, CreateCustomer, CreatePaymentMethodForSAT);
+        CreateSalesLineItem(
+          SalesLine, SalesHeader, CreateItem, LibraryRandom.RandIntInRange(100, 200), 0, 0, false, false);
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+        SalesShipmentHeader.SetRange("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
+        SalesShipmentHeader.FindFirst();
+        UpdateSalesShipmentForCartaPorte(SalesShipmentHeader);
+
+        // [GIVEN] Request Stamp for the Sales Shipment
+        RequestStamp(
+          DATABASE::"Sales Shipment Header", SalesShipmentHeader."No.", ResponseOption::Success, ActionOption::"Request Stamp");
+        SalesShipmentHeader.Find();
+        Commit();
+
+        // [WHEN] Print Carta Porte for Sales Shipment
+        ElectronicCartaPorteMX.SetRecord(SalesShipmentHeader);
+        ElectronicCartaPorteMX.Run();
+
+        // [THEN] Report is created with stamped data for the document
+        VerfifyCartaPorteDataset(
+          SalesShipmentHeader."No.",
+          SalesShipmentHeader."Fiscal Invoice Number PAC", SalesShipmentHeader."Date/Time Stamped", SalesLine."No.");
+    end;
+
+    [Test]
+    [HandlerFunctions('CartaPorteReqPageHandler')]
+    [Scope('OnPrem')]
+    procedure TransferShipmentCartaPortePrint()
+    var
+        TransferShipmentHeader: Record "Transfer Shipment Header";
+        LocationFrom: Record Location;
+        LocationTo: Record Location;
+        Item: Record Item;
+        ElectronicCartaPorteMX: Report "Electronic Carta Porte MX";
+    begin
+        // [FEATURE] [Carta Porte] [Transfer] [Report]
+        // [SCENARIO 406136] Request Stamp for Transfer Shipment Carta Porte complemento
+        Initialize();
+
+        // [GIVEN] Posted Transfer Shipment
+        CreateTransferItem(LocationFrom, LocationTo, Item);
+        CreateTransferShipment(TransferShipmentHeader, LocationFrom, LocationTo, Item."No.");
+        UpdateTransferShipmentForCartaPorte(TransferShipmentHeader);
+
+        // [GIVEN] Request Stamp for the Transfer Shipment
+        RequestStamp(
+          DATABASE::"Transfer Shipment Header", TransferShipmentHeader."No.", ResponseOption::Success, ActionOption::"Request Stamp");
+        TransferShipmentHeader.Find();
+        Commit();
+
+        // [WHEN] Print Carta Porte for Sales Shipment
+        ElectronicCartaPorteMX.SetRecord(TransferShipmentHeader);
+        ElectronicCartaPorteMX.Run();
+
+        // [THEN] Report is created with stamped data for the document
+        VerfifyCartaPorteDataset(
+          TransferShipmentHeader."No.",
+          TransferShipmentHeader."Fiscal Invoice Number PAC", TransferShipmentHeader."Date/Time Stamped", Item."No.");
     end;
 
     local procedure Initialize()
@@ -4196,7 +4442,7 @@ codeunit 144001 "MX CFDI"
     local procedure CreateItem(): Code[20]
     begin
         exit(
-          CreateItemWithPrice(LibraryRandom.RandDec(1000, 2)));
+          CreateItemWithPrice(LibraryRandom.RandDec(1000, 2) * 2));
     end;
 
     local procedure CreateItemWithPrice(UnitPrice: Decimal): Code[20]
@@ -4204,17 +4450,64 @@ codeunit 144001 "MX CFDI"
         Item: Record Item;
         UnitOfMeasure: Record "Unit of Measure";
         SATClassification: Record "SAT Classification";
+        SATUnitOfMeasure: Record "SAT Unit of Measure";
     begin
         LibraryInventory.CreateItem(Item);
         Item.Validate("Unit Price", UnitPrice);
+        Item.Validate("Gross Weight", LibraryRandom.RandIntInRange(5, 10));
         Item."SAT Item Classification" := LibraryUtility.GenerateRandomCode(Item.FieldNo("SAT Item Classification"), DATABASE::Item);
         Item.Modify(true);
         SATClassification."SAT Classification" := Item."SAT Item Classification";
         SATClassification.Insert();
         UnitOfMeasure.Get(Item."Base Unit of Measure");
-        UnitOfMeasure."SAT UofM Classification" := UnitOfMeasure.Code;
+        SATUnitOfMeasure.Next(LibraryRandom.RandInt(SATUnitOfMeasure.Count));
+        UnitOfMeasure."SAT UofM Classification" := SATUnitOfMeasure."SAT UofM Code";
         UnitOfMeasure.Modify();
         exit(Item."No.");
+    end;
+
+    local procedure CreateTransferItem(var LocationFrom: Record Location; var LocationTo: Record Location; var Item: Record Item)
+    var
+        ItemLedgerEntry: Record "Item Ledger Entry";
+    begin
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(LocationFrom);
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(LocationTo);
+        Item.Get(CreateItemWithPrice(LibraryRandom.RandIntInRange(10, 20)));
+        ItemLedgerEntry.Init();
+        ItemLedgerEntry."Entry No." := LibraryUtility.GetNewRecNo(ItemLedgerEntry, ItemLedgerEntry.FieldNo("Entry No."));
+        ItemLedgerEntry."Item No." := Item."No.";
+        ItemLedgerEntry."Posting Date" := WorkDate();
+        ItemLedgerEntry."Location Code" := LocationFrom.Code;
+        ItemLedgerEntry.Quantity := LibraryRandom.RandIntInRange(100, 200);
+        ItemLedgerEntry."Remaining Quantity" := ItemLedgerEntry.Quantity;
+        ItemLedgerEntry.Positive := true;
+        ItemLedgerEntry.Open := true;
+        ItemLedgerEntry.Insert();
+        ItemLedgerEntry.Validate("Cost Amount (Actual)", LibraryRandom.RandIntInRange(1000, 2000));
+        ItemLedgerEntry.Modify(true);
+    end;
+
+    local procedure CreateTransferShipment(var TransferShipmentHeader: Record "Transfer Shipment Header"; LocationFrom: Record Location; LocationTo: Record Location; ItemNo: Code[20])
+    var
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+        LocationInTransit: Record Location;
+        InventoryPostingSetup: Record "Inventory Posting Setup";
+    begin
+        LibraryWarehouse.CreateLocation(LocationInTransit);
+        LocationInTransit.Validate("Use As In-Transit", true);
+        LocationInTransit.Modify(true);
+
+        LibraryInventory.CreateTransferHeader(TransferHeader, LocationFrom.Code, LocationTo.Code, LocationInTransit.Code);
+        LibraryInventory.CreateTransferLine(
+          TransferHeader, TransferLine, ItemNo, LibraryRandom.RandIntInRange(1, 10));
+        LibraryInventory.CreateInventoryPostingSetup(
+          InventoryPostingSetup, LocationInTransit.Code, TransferLine."Inventory Posting Group");
+        InventoryPostingSetup.Validate("Inventory Account", LibraryERM.CreateGLAccountNo);
+        InventoryPostingSetup.Modify(true);
+        LibraryInventory.PostTransferHeader(TransferHeader, true, false);
+        TransferShipmentHeader.SetRange("Transfer-from Code", LocationFrom.Code);
+        TransferShipmentHeader.FindFirst();
     end;
 
     local procedure CreateFixedAsset(var FADepreciationBook: Record "FA Depreciation Book")
@@ -4341,6 +4634,51 @@ codeunit 144001 "MX CFDI"
         VATPostingSetup."VAT Identifier" := LibraryUtility.GenerateGUID;
         VATPostingSetup.Modify(true);
         exit(VATProductPostingGroup.Code);
+    end;
+
+    local procedure CreateTransportOperator(TableID: Integer; DocumentNo: Code[20])
+    var
+        CFDITransportOperator: Record "CFDI Transport Operator";
+        Employee: Record Employee;
+    begin
+        Employee.Init();
+        Employee."No." := LibraryUtility.GenerateGUID;
+        Employee.Validate("First Name", LibraryUtility.GenerateGUID);
+        Employee.Validate("RFC No.", 'HEGJ820506M10');
+        Employee.Validate("License No.", LibraryUtility.GenerateGUID);
+        Employee.Insert();
+        CFDITransportOperator.Init();
+        CFDITransportOperator."Document Table ID" := TableID;
+        CFDITransportOperator."Document No." := DocumentNo;
+        CFDITransportOperator."Operator Code" := Employee."No.";
+        CFDITransportOperator.Insert();
+    end;
+
+    local procedure CreateTrailer(): Code[20]
+    var
+        FixedAsset: Record "Fixed Asset";
+        SATTrailerType: Record "SAT Trailer Type";
+    begin
+        LibraryFixedAsset.CreateFixedAsset(FixedAsset);
+        SATTrailerType.Next(LibraryRandom.RandInt(SATTrailerType.Count));
+        FixedAsset."SAT Trailer Type" := SATTrailerType.Code;
+        FixedAsset."Vehicle Licence Plate" := LibraryUtility.GenerateGUID();
+        FixedAsset.Modify();
+        exit(FixedAsset."No.");
+    end;
+
+    local procedure CreateVehicle(): Code[20]
+    var
+        FixedAsset: Record "Fixed Asset";
+        SATFederalMotorTransport: Record "SAT Federal Motor Transport";
+    begin
+        LibraryFixedAsset.CreateFixedAsset(FixedAsset);
+        SATFederalMotorTransport.Next(LibraryRandom.RandInt(SATFederalMotorTransport.Count));
+        FixedAsset."SAT Federal Autotransport" := SATFederalMotorTransport.Code;
+        FixedAsset."Vehicle Licence Plate" := LibraryUtility.GenerateGUID();
+        FixedAsset."Vehicle Year" := LibraryRandom.RandIntInRange(1990, 2010);
+        FixedAsset.Modify();
+        exit(FixedAsset."No.");
     end;
 
     local procedure GenerateString(Length: Integer) String: Text[30]
@@ -4475,6 +4813,8 @@ codeunit 144001 "MX CFDI"
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
         ServiceInvoiceHeader: Record "Service Invoice Header";
         ServiceCrMemoHeader: Record "Service Cr.Memo Header";
+        SalesShipmentHeader: Record "Sales Shipment Header";
+        TransferShipmentHeader: Record "Transfer Shipment Header";
         CustLedgerEntry: Record "Cust. Ledger Entry";
         TempBlob: Codeunit "Temp Blob";
         RecordRef: RecordRef;
@@ -4518,6 +4858,24 @@ codeunit 144001 "MX CFDI"
                     ServiceCrMemoHeader.Modify(true);
                     ServiceCrMemoHeader.RequestStampEDocument;
                 end;
+            DATABASE::"Sales Shipment Header":
+                begin
+                    SalesShipmentHeader.Get(PostedDocumentNo);
+                    RecordRef.GetTable(SalesShipmentHeader);
+                    TempBlob.ToRecordRef(RecordRef, SalesShipmentHeader.FieldNo("Signed Document XML"));
+                    RecordRef.SetTable(SalesShipmentHeader);
+                    SalesShipmentHeader.Modify(true);
+                    SalesShipmentHeader.RequestStampEDocument;
+                end;
+            DATABASE::"Transfer Shipment Header":
+                begin
+                    TransferShipmentHeader.Get(PostedDocumentNo);
+                    RecordRef.GetTable(TransferShipmentHeader);
+                    TempBlob.ToRecordRef(RecordRef, TransferShipmentHeader.FieldNo("Signed Document XML"));
+                    RecordRef.SetTable(TransferShipmentHeader);
+                    TransferShipmentHeader.Modify(true);
+                    TransferShipmentHeader.RequestStampEDocument;
+                end;
             DATABASE::"Cust. Ledger Entry":
                 begin
                     LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Payment, PostedDocumentNo);
@@ -4525,7 +4883,7 @@ codeunit 144001 "MX CFDI"
                     TempBlob.ToRecordRef(RecordRef, CustLedgerEntry.FieldNo("Signed Document XML"));
                     RecordRef.SetTable(CustLedgerEntry);
                     CustLedgerEntry.Modify();
-                    CustLedgerEntry.RequestStampEDocument;
+                    CustLedgerEntry.RequestStampEDocument();
                 end;
         end;
     end;
@@ -4534,6 +4892,7 @@ codeunit 144001 "MX CFDI"
     var
         CompanyInformation: Record "Company Information";
         PostCode: Record "Post Code";
+        SATPermissionType: Record "SAT Permission Type";
     begin
         PostCode.SetFilter(City, '<>%1', '');
         PostCode.SetFilter("Country/Region Code", '<>%1', '');
@@ -4550,6 +4909,9 @@ codeunit 144001 "MX CFDI"
         CompanyInformation."SAT Tax Regime Classification" :=
           LibraryUtility.GenerateRandomCode(
             CompanyInformation.FieldNo("SAT Tax Regime Classification"), DATABASE::"Company Information");
+        CompanyInformation."SCT Permission Number" := LibraryUtility.GenerateGUID();
+        SATPermissionType.Next(LibraryRandom.RandInt(SATPermissionType.Count));
+        CompanyInformation."SCT Permission Type" := SATPermissionType.Code;
         CompanyInformation.Modify(true);
     end;
 
@@ -5203,6 +5565,24 @@ codeunit 144001 "MX CFDI"
         exit('01010101');
     end;
 
+    local procedure GetTaxCodeTraslado(VATPct: Decimal): Text
+    begin
+        if VATPct in [0, 16] then
+            exit('002');
+        exit('003');
+    end;
+
+    local procedure GetTaxCodeRetention(VATPct: Decimal): Text
+    begin
+        if VATPct = 10 then
+            exit('001');
+
+        if VATPct in [10 .. 16] then
+            exit('002');
+
+        exit('001');
+    end;
+
     local procedure OriginalStringMandatoryFields(HeaderTableNo: Integer; LineTableNo: Integer; DocumentNoFieldNo: Integer; CustomerFieldNo: Integer; CFDIPurposeFieldNo: Integer; CFDIRelationFieldNo: Integer; PaymentMethodCodeFieldNo: Integer; PaymentTermsCodeFieldNo: Integer; UnitOfMeasureCodeFieldNo: Integer; RelationIdx: Integer)
     var
         Customer: Record Customer;
@@ -5230,7 +5610,8 @@ codeunit 144001 "MX CFDI"
             GetHeaderFieldValue(HeaderTableNo, DocumentNo, DocumentNoFieldNo, PaymentMethodCodeFieldNo)),
           SATUtilities.GetSATPaymentTerm(
             GetHeaderFieldValue(HeaderTableNo, DocumentNo, DocumentNoFieldNo, PaymentTermsCodeFieldNo)),
-          GetLineFieldValue(LineTableNo, DocumentNo, DocumentNoFieldNo, UnitOfMeasureCodeFieldNo),
+          SATUtilities.GetSATUnitofMeasure(
+            GetLineFieldValue(LineTableNo, DocumentNo, DocumentNoFieldNo, UnitOfMeasureCodeFieldNo)),
           RelationIdx);
     end;
 
@@ -5285,6 +5666,66 @@ codeunit 144001 "MX CFDI"
         CreatePostCode(PostCode, TimeZoneID);
         UpdateDocumentPostCode(
           TableID, FieldNoDocumentNo, DocumentNo, FieldNoCity, FieldNoPostCode, PostCode.City, PostCode.Code);
+    end;
+
+    local procedure UpdateSalesShipmentForCartaPorte(var SalesShipmentHeader: Record "Sales Shipment Header")
+    var
+        Location: Record Location;
+    begin
+        SalesShipmentHeader."Transit-from Date/Time" := CurrentDateTime;
+        SalesShipmentHeader."Transit Hours" := LibraryRandom.RandIntInRange(5, 10);
+        SalesShipmentHeader."Transit Distance" := LibraryRandom.RandIntInRange(5, 10);
+        SalesShipmentHeader."Insurer Name" := LibraryUtility.GenerateGUID();
+        SalesShipmentHeader."Insurer Policy Number" := LibraryUtility.GenerateGUID();
+        SalesShipmentHeader."Vehicle Code" := CreateVehicle();
+        SalesShipmentHeader."Trailer 1" := CreateTrailer();
+        SalesShipmentHeader."SAT Weight Unit Of Measure" := 'XAG';
+        LibraryWarehouse.CreateLocationWithAddress(Location);
+        SalesShipmentHeader."Location Code" := Location.Code;
+        LibraryWarehouse.CreateLocationWithAddress(Location);
+        SalesShipmentHeader."Transit-to Location" := Location.Code;
+        SalesShipmentHeader.Modify();
+        UpdateLocationForCartaPorte(SalesShipmentHeader."Location Code");
+        UpdateLocationForCartaPorte(SalesShipmentHeader."Transit-to Location");
+        CreateTransportOperator(DATABASE::"Sales Shipment Header", SalesShipmentHeader."No.");
+    end;
+
+    local procedure UpdateTransferShipmentForCartaPorte(var TransferShipmentHeader: Record "Transfer Shipment Header")
+    begin
+        TransferShipmentHeader."Transit-from Date/Time" := CurrentDateTime;
+        TransferShipmentHeader."Transit Hours" := LibraryRandom.RandIntInRange(5, 10);
+        TransferShipmentHeader."Transit Distance" := LibraryRandom.RandIntInRange(5, 10);
+        TransferShipmentHeader."Insurer Name" := LibraryUtility.GenerateGUID();
+        TransferShipmentHeader."Insurer Policy Number" := LibraryUtility.GenerateGUID();
+        TransferShipmentHeader."Vehicle Code" := CreateVehicle();
+        TransferShipmentHeader."Trailer 1" := CreateTrailer();
+        TransferShipmentHeader."SAT Weight Unit Of Measure" := 'XAG';
+        TransferShipmentHeader.Modify();
+        UpdateLocationForCartaPorte(TransferShipmentHeader."Transfer-from Code");
+        UpdateLocationForCartaPorte(TransferShipmentHeader."Transfer-to Code");
+        CreateTransportOperator(DATABASE::"Transfer Shipment Header", TransferShipmentHeader."No.");
+    end;
+
+    local procedure UpdateLocationForCartaPorte(LocationCode: Code[20])
+    var
+        Location: Record Location;
+        SATState: Record "SAT State";
+        SATLocality: Record "SAT Locality";
+        SATMunicipality: Record "SAT Municipality";
+        SATSuburb: Record "SAT Suburb";
+    begin
+        Location.Get(LocationCode);
+        SATState.Next(LibraryRandom.RandInt(SATState.Count()));
+        SATMunicipality.Next(LibraryRandom.RandInt(SATMunicipality.Count()));
+        SATLocality.Next(LibraryRandom.RandInt(SATLocality.Count()));
+        SATSuburb.Next(LibraryRandom.RandInt(SATSuburb.Count()));
+        Location."SAT State Code" := SATState.Code;
+        Location."SAT Municipality Code" := SATMunicipality.Code;
+        Location."SAT Locality Code" := SATLocality.Code;
+        Location."SAT Suburb ID" := SATSuburb.ID;
+        Location.Address := LibraryUtility.GenerateGUID();
+        Location."Country/Region Code" := 'TEST';
+        Location.Modify();
     end;
 
     local procedure UpdateGLSetupRounding(Decimals: Text[5])
@@ -5638,6 +6079,71 @@ codeunit 144001 "MX CFDI"
         Assert.AreEqual('.pdf', CopyStr(FilePath, StrLen(FilePath) - 3), '');
     end;
 
+    local procedure VerifyCartaPorteXMLValues(OriginalStr: Text; TransitDistance: Integer)
+    var
+        CompanyInformation: Record "Company Information";
+    begin
+        LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Complemento/cartaporte:CartaPorte', 'Version', '2.0');
+        Assert.AreEqual('2.0', SelectStr(24, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'Version', OriginalStr));
+
+        LibraryXPathXMLReader.VerifyAttributeValue(
+          'cfdi:Complemento/cartaporte:CartaPorte', 'TotalDistRec', FormatDecimal(TransitDistance, 6));
+        Assert.AreEqual(
+          FormatDecimal(TransitDistance, 6), SelectStr(26, OriginalStr),
+          StrSubstNo(IncorrectOriginalStrValueErr, 'TotalDistRec', OriginalStr));
+
+        LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Complemento/cartaporte:CartaPorte', 'TranspInternac', 'No');
+        Assert.AreEqual('No', SelectStr(25, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'TranspInternac', OriginalStr));
+        CompanyInformation.Get;
+        LibraryXPathXMLReader.VerifyAttributeValue(
+          'cfdi:Complemento/cartaporte:CartaPorte/cartaporte:Ubicaciones/cartaporte:Ubicacion',
+          'RFCRemitenteDestinatario', CompanyInformation."RFC No.");
+        Assert.AreEqual(
+          CompanyInformation."RFC No.", SelectStr(28, OriginalStr),
+          StrSubstNo(IncorrectOriginalStrValueErr, 'RFCRemitenteDestinatario', OriginalStr));
+
+        LibraryXPathXMLReader.VerifyAttributeValueByNodeIndex(
+          'cfdi:Complemento/cartaporte:CartaPorte/cartaporte:Ubicaciones/cartaporte:Ubicacion',
+          'DistanciaRecorrida', FormatDecimal(TransitDistance, 6), 1);
+        Assert.AreEqual(
+          FormatDecimal(TransitDistance, 6), SelectStr(26, OriginalStr),
+          StrSubstNo(IncorrectOriginalStrValueErr, 'DistanciaRecorrida', OriginalStr));
+
+        LibraryXPathXMLReader.VerifyAttributeValue(
+          'cfdi:Complemento/cartaporte:CartaPorte/cartaporte:Mercancias', 'NumTotalMercancias', '1');
+        Assert.AreEqual('1', SelectStr(50, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'NumTotalMercancias', OriginalStr));
+        LibraryXPathXMLReader.VerifyAttributeValue(
+          'cfdi:Complemento/cartaporte:CartaPorte/cartaporte:Mercancias', 'UnidadPeso', 'XAG');
+        Assert.AreEqual('XAG', SelectStr(49, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'UnidadPeso', OriginalStr));
+
+        LibraryXPathXMLReader.VerifyAttributeValue(
+          'cfdi:Complemento/cartaporte:CartaPorte/cartaporte:FiguraTransporte/cartaporte:TiposFigura', 'TipoFigura', '01');
+        Assert.AreEqual('01', SelectStr(67, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'TipoFigura', OriginalStr));
+    end;
+
+    local procedure VerfifyCartaPorteDataset(DocumentNo: Code[20]; FiscalInvoiceNumber: Text; DateTimeStamped: Text; ItemNo: Code[20])
+    var
+        RowValue: Variant;
+    begin
+        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.AssertElementWithValueExists('DocumentNo', DocumentNo);
+        LibraryReportDataset.AssertElementWithValueExists('TransferRFCNo', 'XAXX010101000');
+        LibraryReportDataset.AssertElementWithValueExists('FolioText', FiscalInvoiceNumber);
+        LibraryReportDataset.AssertElementWithValueExists('DateTimeStamped', DateTimeStamped);
+        LibraryReportDataset.AssertElementWithValueExists('DocumentLine_No', ItemNo);
+
+        LibraryReportDataset.MoveToRow(1);
+        LibraryReportDataset.GetElementValueInCurrentRow('OriginalStringBase64Text', RowValue);
+        Assert.AreNotEqual('', RowValue, StrSubstNo(IfEmptyErr, 'OriginalStringBase64Text', DocumentNo));
+        LibraryReportDataset.GetElementValueInCurrentRow('DigitalSignatureBase64Text', RowValue);
+        Assert.AreNotEqual('', RowValue, StrSubstNo(IfEmptyErr, 'DigitalSignatureBase64Text', DocumentNo));
+        LibraryReportDataset.GetElementValueInCurrentRow('DigitalSignaturePACBase64Text', RowValue);
+        Assert.AreNotEqual('', RowValue, StrSubstNo(IfEmptyErr, 'DigitalSignaturePACBase64Text', DocumentNo));
+        LibraryReportDataset.MoveToRow(3);
+        LibraryReportDataset.GetElementValueInCurrentRow('QRCode', RowValue);
+        Assert.AreNotEqual('', RowValue, StrSubstNo(IfEmptyErr, 'QRCode', DocumentNo));
+    end;
+
     local procedure CreateBasicSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Option; CustomerNo: Code[20])
     var
         Item: Record Item;
@@ -5734,6 +6240,12 @@ codeunit 144001 "MX CFDI"
     [MessageHandler]
     procedure MessageHandler(Msg: Text[1024])
     begin
+    end;
+
+    [RequestPageHandler]
+    procedure CartaPorteReqPageHandler(var ElectronicCartaPorteMX: TestRequestPage "Electronic Carta Porte MX")
+    begin
+        ElectronicCartaPorteMX.SaveAsXML(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"File Management", 'OnBeforeDownloadHandler', '', false, false)]

@@ -194,6 +194,12 @@
                         Importance = Additional;
                         ToolTip = 'Specifies the SAT postal code where the domicile of the origin or destination of the goods or merchandise that are moved in the different means of transport is located.';
                     }
+                    field("ID Ubicacion"; Rec."ID Ubicacion")
+                    {
+                        ApplicationArea = Location, BasicMX;
+                        Caption = 'ID Ubicacion';
+                        ToolTip = 'Specifies a code for the point of departure or entry of this transport in six numerical digits that are assigned by the taxpayer who issues the voucher for identification.';
+                    }
                 }
             }
             group(Warehouse)

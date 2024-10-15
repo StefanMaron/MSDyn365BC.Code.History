@@ -471,7 +471,7 @@
                 if IsHandled then
                     exit;
 
-                if Type = Type::" " then
+                if not HasTypeToFillMandatoryFields() then
                     exit;
 
                 if "No." <> '' then
@@ -3254,9 +3254,9 @@
         field(10001; "Retention Attached to Line No."; Integer)
         {
             Caption = 'Retention Attached to Line No.';
-            TableRelation = IF (Quantity = FILTER (< 0)) "Sales Line"."Line No." WHERE ("Document Type" = FIELD ("Document Type"),
-                                                                                    "Document No." = FIELD ("Document No."),
-                                                                                    Quantity = FILTER (> 0));
+            TableRelation = IF (Quantity = FILTER(< 0)) "Sales Line"."Line No." WHERE("Document Type" = FIELD("Document Type"),
+                                                                                    "Document No." = FIELD("Document No."),
+                                                                                    Quantity = FILTER(> 0));
 
             trigger OnValidate()
             begin
@@ -3645,15 +3645,18 @@
             if SalesHeader."Prices Including VAT" then
                 AmountInclVAT := "Line Amount" - "Inv. Discount Amount"
             else
-                if "VAT Calculation Type" = "VAT Calculation Type"::"Sales Tax" then
+                if "VAT Calculation Type" = "VAT Calculation Type"::"Sales Tax" then begin
                     AmountInclVAT :=
                       CalcLineAmount +
                       Round(
                         SalesTaxCalculate.CalculateTax(
                           "Tax Area Code", "Tax Group Code", "Tax Liable", SalesHeader."Posting Date",
                           CalcLineAmount, "Quantity (Base)", SalesHeader."Currency Factor"),
-                        Currency."Amount Rounding Precision")
-                else
+                        Currency."Amount Rounding Precision");
+                    AmountInclVAT += SalesTaxCalculate.CalculateExpenseTax(
+                        "Tax Area Code", "Tax Group Code", "Tax Liable", SalesHeader."Posting Date",
+                        CalcLineAmount, "Quantity (Base)", SalesHeader."Currency Factor");
+                end else
                     AmountInclVAT :=
                       Round(
                         CalcLineAmount * (1 + "VAT %" / 100 * (1 - SalesHeader."VAT Base Discount %" / 100)),
@@ -7553,7 +7556,7 @@
             TempSalesLine := Rec;
             TempSalesLine.Insert();
             CalcSalesTaxLines(SalesHeader, TempSalesLine);
-            exit(TempSalesLine."Amount Including VAT");
+            exit(Amount + (TempSalesLine."Amount Including VAT" - "Amount Including VAT"));
         end;
 
         exit(CalcLineAmount);
