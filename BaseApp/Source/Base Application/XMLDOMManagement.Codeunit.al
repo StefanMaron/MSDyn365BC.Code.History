@@ -16,6 +16,7 @@ codeunit 6224 "XML DOM Management"
         EmptyStreamErr: Label 'The stream is empty.';
 
     [Scope('OnPrem')]
+    [NonDebuggable]
     procedure AddElement(var XMLNode: DotNet XmlNode; NodeName: Text; NodeText: Text; NameSpace: Text; var CreatedXMLNode: DotNet XmlNode): Integer
     var
         NewChildNode: DotNet XmlNode;
@@ -74,6 +75,7 @@ codeunit 6224 "XML DOM Management"
         exit(ParentXmlNode.AsXmlElement().Add(CreatedXmlNode));
     end;
 
+    [NonDebuggable]
     local procedure AddElementToNode(var XMLNode: DotNet XmlNode; var NewChildNode: DotNet XmlNode; NodeText: Text; var CreatedXMLNode: DotNet XmlNode) ExitStatus: Integer
     begin
         if IsNull(NewChildNode) then begin

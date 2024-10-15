@@ -232,6 +232,7 @@ permissionset 207 "D365 BASIC"
                   tabledata "Data Exch. Field Grouping" = RIMD,
                   tabledata "Data Exch. FlowField Gr. Buff." = RIMD,
                   tabledata "Data Exchange Type" = R,
+				  tabledata "Data Exch. Table Filter" = Rimd,
                   tabledata "Data Privacy Records" = R,
                   tabledata "DataExch-RapidStart Buffer" = RIMD,
                   tabledata "Date Lookup Buffer" = RIMD,
@@ -516,7 +517,10 @@ permissionset 207 "D365 BASIC"
                   tabledata "Order Address" = Rim,
                   tabledata "Over-Receipt Code" = RIMD,
                   tabledata "Overdue Approval Entry" = Rimd,
+#if not CLEAN22
                   tabledata "Payment Buffer" = RIMD,
+#endif
+                  tabledata "Vendor Payment Buffer" = RIMD,
                   tabledata "Payment Export Data" = Rimd,
                   tabledata "Payment Export Remittance Text" = RIMD,
                   tabledata "Payment Jnl. Export Error Text" = RIMD,

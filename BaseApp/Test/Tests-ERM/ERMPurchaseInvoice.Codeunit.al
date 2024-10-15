@@ -1340,8 +1340,8 @@
     procedure CreatePurchaseInvoiceLineWithJobAndJobTask()
     var
         PurchaseLine: Record "Purchase Line";
-        JobNo: Code[10];
-        JobTaskNo: Code[10];
+        JobNo: Code[20];
+        JobTaskNo: Code[20];
     begin
         // [FEATURE] [Change Global Dimensions] [Job]
         // [SCENARIO 376908] Purchase Line's global dim values are updated after validate Job Task No.
@@ -4133,7 +4133,7 @@
         // VERIFY: In the test method
     end;
 
-    local procedure CreateJobAndJobTaskWithDimensions(var JobNo: Code[10]; var JobTaskNo: Code[10])
+    local procedure CreateJobAndJobTaskWithDimensions(var JobNo: Code[20]; var JobTaskNo: Code[20])
     var
         Job: Record Job;
     begin
@@ -4176,7 +4176,7 @@
         PurchaseLine.Modify(true);
     end;
 
-    local procedure VerifyPurchaseLineDimensions(PurchaseLine: Record "Purchase Line"; JobNo: Code[10]; JobTaskNo: Code[10])
+    local procedure VerifyPurchaseLineDimensions(PurchaseLine: Record "Purchase Line"; JobNo: Code[20]; JobTaskNo: Code[20])
     var
         DimensionSetEntry: Record "Dimension Set Entry";
         JobTaskDimension: Record "Job Task Dimension";
@@ -4216,7 +4216,7 @@
         exit(JobTask."Job Task No.");
     end;
 
-    local procedure FindJobTaskDimension(var JobTaskDimension: Record "Job Task Dimension"; JobNo: Code[10]; JobTaskNo: Code[10])
+    local procedure FindJobTaskDimension(var JobTaskDimension: Record "Job Task Dimension"; JobNo: Code[20]; JobTaskNo: Code[20])
     begin
         JobTaskDimension.SetRange("Job No.", JobNo);
         JobTaskDimension.SetRange("Job Task No.", JobTaskNo);

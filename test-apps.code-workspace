@@ -63,6 +63,9 @@
       "path": "./EssentialBusinessHeadlines/Test/Essential Business Headlines Test"
     },
     {
+      "path": "./Intrastat/Test/Intrastat Core Tests"
+    },
+    {
       "path": "./ReportLayouts/test/Report Layouts Tests"
     },
     {

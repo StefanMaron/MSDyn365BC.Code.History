@@ -2916,7 +2916,7 @@ codeunit 136319 "Job Item Tracking"
     [Test]
     [HandlerFunctions('JobTransferFromJobPlanLineHandler,ItemTrackingLinesPageHandler,AssignSerialNoEnterQtyPageHandler,ItemTrackingSummaryPageHandler,MessageHandler,ConfirmHandlerTrue,WhseSrcCreateDocReqHandler')]
     [Scope('OnPrem')]
-    procedure PartiallyPickSerialNoAssignedOnJobPlanningLines() // Test16
+    procedure CannotTransferPartialTrackedQtyToJobJournal()
     var
         ItemSNAll: Record Item;
         ItemSNWMS: Record Item;
@@ -2929,12 +2929,13 @@ codeunit 136319 "Job Item Tracking"
         JobPlanningLine6: Record "Job Planning Line";
         Job: Record Job;
         JobTask: Record "Job Task";
+        ReservationEntry: Record "Reservation Entry";
         WarehouseActivityLine: Record "Warehouse Activity Line";
         ReservationStatus: Enum "Reservation Status";
         QtyInventory: Integer;
     begin
         // [FEATURE] 427973 [WMS] Support Item Tracking for Inventory Pick and Warehouse Pick scenarios for Job Planning Lines
-        // [SCENARIO] Serial Numbers for SN Warehouse tracking items can be assigned for partially picked Quantity.
+        // [SCENARIO] Cannot transfer to job journal for lower quantity than the SN tracked quantity for a job planning line
 
         // [GIVEN] Job planning line with ItemSNAll Location LocationRequireWhsePick
         // [GIVEN] Job planning line with ItemSNWMS Location LocationRequireWhsePick
@@ -3032,47 +3033,68 @@ codeunit 136319 "Job Item Tracking"
         VerifyReservationEntry(JobPlanningLine5, 2, -1, -2, ReservationStatus::Surplus);
         VerifyReservationEntry(JobPlanningLine6, 2, -1, -2, ReservationStatus::Surplus);
 
-        // [WHEN] Transfer Job Planning Lines to the Job Journal Lines
+        // [WHEN] Transfer Job Planning Lines with SN specific tracking to the Job Journal Lines
         JobPlanningLine1.Find();
         JobPlanningLine1.Validate("Qty. to Transfer to Journal", 1);
         JobPlanningLine1.Modify(true);
-        TransferToJobJournalFromJobPlanningLine(JobPlanningLine1);
+        asserterror TransferToJobJournalFromJobPlanningLine(JobPlanningLine1);
+
+        // [THEN] Error is thrown to adjust the item tracking or reenter the correct quantity
+        Assert.ExpectedError('must adjust the existing item tracking');
 
         JobPlanningLine2.Find();
         JobPlanningLine2.Validate("Qty. to Transfer to Journal", 1);
         JobPlanningLine2.Modify(true);
-        TransferToJobJournalFromJobPlanningLine(JobPlanningLine2);
+        asserterror TransferToJobJournalFromJobPlanningLine(JobPlanningLine2);
 
-        JobPlanningLine3.Find();
-        JobPlanningLine3.Validate("Qty. to Transfer to Journal", 1);
-        JobPlanningLine3.Modify(true);
-        TransferToJobJournalFromJobPlanningLine(JobPlanningLine3);
+        // [THEN] Error is thrown to adjust the item tracking or reenter the correct quantity
+        Assert.ExpectedError('must adjust the existing item tracking');
 
         JobPlanningLine4.Find();
         JobPlanningLine4.Validate("Qty. to Transfer to Journal", 1);
         JobPlanningLine4.Modify(true);
-        TransferToJobJournalFromJobPlanningLine(JobPlanningLine4);
+        asserterror TransferToJobJournalFromJobPlanningLine(JobPlanningLine4);
+
+        // [THEN] Error is thrown to adjust the item tracking or reenter the correct quantity
+        Assert.ExpectedError('must adjust the existing item tracking');
 
         JobPlanningLine5.Find();
         JobPlanningLine5.Validate("Qty. to Transfer to Journal", 1);
         JobPlanningLine5.Modify(true);
-        TransferToJobJournalFromJobPlanningLine(JobPlanningLine5);
+        asserterror TransferToJobJournalFromJobPlanningLine(JobPlanningLine5);
+
+        // [THEN] Error is thrown to adjust the item tracking or reenter the correct quantity
+        Assert.ExpectedError('must adjust the existing item tracking');
+
+        // [WHEN] Transfer Job Planning Lines with Non SN specific tracking to the Job Journal Lines
+        JobPlanningLine3.Find();
+        JobPlanningLine3.Validate("Qty. to Transfer to Journal", 1);
+        JobPlanningLine3.Modify(true);
+        TransferToJobJournalFromJobPlanningLine(JobPlanningLine3);
 
         JobPlanningLine6.Find();
         JobPlanningLine6.Validate("Qty. to Transfer to Journal", 1);
         JobPlanningLine6.Modify(true);
         TransferToJobJournalFromJobPlanningLine(JobPlanningLine6);
 
-        // [WHEN] Job Journal is posted for the job.
-        OpenRelatedJournalAndPost(JobPlanningLine1);
+        // [THEN] 1 Reservation entry per job planning line (total = 2) is copied to Job Journal Line.
+        ReservationEntry.SetRange("Item No.", ItemNegAdj."No.");
+        ReservationEntry.SetRange("Reservation Status", ReservationEntry."Reservation Status"::Prospect);
+        Assert.RecordCount(ReservationEntry, 2);
 
-        // [THEN] No error is thrown and only 1 reservation entry per item per location is consumed.
-        VerifyReservationEntry(JobPlanningLine1, 1, -1, -1, ReservationStatus::Surplus);
-        VerifyReservationEntry(JobPlanningLine2, 1, -1, -1, ReservationStatus::Surplus);
-        VerifyReservationEntry(JobPlanningLine3, 1, -1, -1, ReservationStatus::Surplus);
-        VerifyReservationEntry(JobPlanningLine4, 1, -1, -1, ReservationStatus::Surplus);
-        VerifyReservationEntry(JobPlanningLine5, 1, -1, -1, ReservationStatus::Surplus);
-        VerifyReservationEntry(JobPlanningLine6, 1, -1, -1, ReservationStatus::Surplus);
+        // [WHEN] Job Journal is posted for the job.
+        OpenRelatedJournalAndPost(JobPlanningLine3);
+        OpenRelatedJournalAndPost(JobPlanningLine6);
+
+        // [THEN] Prospect Reservation entries are deleted.
+        ReservationEntry.SetRange("Item No.", ItemNegAdj."No.");
+        ReservationEntry.SetRange("Reservation Status", ReservationEntry."Reservation Status"::Prospect);
+        Assert.RecordCount(ReservationEntry, 0);
+
+        // [THEN] There is one remaining reservation entry for Negative Adj. Item per job planning line (total = 2)
+        ReservationEntry.SetRange("Item No.", ItemNegAdj."No.");
+        ReservationEntry.SetRange("Reservation Status", ReservationEntry."Reservation Status"::Surplus);
+        Assert.RecordCount(ReservationEntry, 2);
     end;
 
     [Test]

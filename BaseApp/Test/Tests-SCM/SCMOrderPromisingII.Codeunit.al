@@ -1,4 +1,4 @@
-codeunit 137157 "SCM Order Promising II"
+﻿codeunit 137157 "SCM Order Promising II"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -20,6 +20,7 @@ codeunit 137157 "SCM Order Promising II"
         LibraryERM: Codeunit "Library - ERM";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryPurchase: Codeunit "Library - Purchase";
+        LibraryPlanning: Codeunit "Library - Planning";
         LibrarySales: Codeunit "Library - Sales";
         LibraryService: Codeunit "Library - Service";
         LibraryJob: Codeunit "Library - Job";
@@ -1154,6 +1155,67 @@ codeunit 137157 "SCM Order Promising II"
         // [THEN] Order Promising Line has Earliest Shipment Date = Requested Shipment Date = 4/2/2021 for the Job Planning Line
         OrderPromisingLine.TestField("Earliest Shipment Date", JobPlanningLine."Requested Delivery Date");
         OrderPromisingLine.TestField("Requested Shipment Date", JobPlanningLine."Requested Delivery Date");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CTPJobDoNotDeleteLinesInRequisitionWorksheet()
+    var
+        Item: Record Item;
+        Job: Record Job;
+        JobPlanningLine: Record "Job Planning Line";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        PurchaseHeader: Record "Purchase Header";
+        OrderPromisingLine: Record "Order Promising Line";
+        RequisitionLine: Record "Requisition Line";
+        AvailabilityManagement: Codeunit AvailabilityManagement;
+        LocationCode: Code[10];
+        BaseQty: Integer;
+    begin
+        // [FEATURE] [Capable to Promise] [Job Planning] [Requisition Worksheet]
+        // [SCENARIO 453491] Requisition Worksheet should not be deleted after running Capable to Promise on Job Planning Line
+        Initialize();
+        LocationCode := CreateLocationCode();
+        BaseQty := LibraryRandom.RandInt(10);
+
+        CreateItemWithReorderPoint(
+          Item, Item."Reordering Policy"::"Maximum Qty.", Item."Replenishment System"::Purchase,
+          LibraryRandom.RandInt(10), LibraryRandom.RandIntInRange(20, 40));
+
+        // [GIVEN] Calculate Requsition Plan for this item
+        Item.SetRange("No.", Item."No.");
+        LibraryPlanning.CalcRequisitionPlanForReqWksh(Item, WorkDate(), WorkDate());
+        RequisitionLine.SetRange("No.", Item."No.");
+        RequisitionLine.FindFirst();
+
+        // [GIVEN] Create Job Planning Line
+        CreateJobWithJobPlanningLine(Job, JobPlanningLine, CalcDate('<1W>', WorkDate()), Item."No.", LocationCode, BaseQty);
+
+        // [WHEN] Calculate Capable to Promise for the Job Planning Line
+        AvailabilityManagement.SetJob(OrderPromisingLine, Job);
+        AvailabilityManagement.CalcCapableToPromise(OrderPromisingLine, Job."No.");
+
+        // [THEN] Check Requsition Line is not deleted
+        RequisitionLine.SetRange("No.", Item."No.");
+        RequisitionLine.FindFirst();
+    end;
+
+    local procedure CreateItem(var Item: Record Item; ReorderingPolicy: Enum "Reordering Policy"; ReplenishmentSystem: Enum "Replenishment System")
+    begin
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Replenishment System", ReplenishmentSystem);
+        Item.Validate("Reordering Policy", ReorderingPolicy);
+        Item.Validate("Vendor No.", LibraryPurchase.CreateVendorNo);
+        Item.Modify(true);
+    end;
+
+    local procedure CreateItemWithReorderPoint(var Item: Record Item; ReorderingPolicy: Enum "Reordering Policy"; ReplenishmentSystem: Enum "Replenishment System"; ReorderPoint: Decimal; MaximumInventory: Decimal)
+    begin
+        CreateItem(Item, ReorderingPolicy, ReplenishmentSystem);
+        Item.Validate("Reorder Point", ReorderPoint);
+        Item.Validate("Maximum Inventory", MaximumInventory);
+        Item.Modify(true);
     end;
 
     [Test]

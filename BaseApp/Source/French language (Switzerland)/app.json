@@ -2,7 +2,7 @@
     "id":  "865bb488-eec0-4d05-b196-258fd1ff8363",
     "name":  "French language (Switzerland)",
     "publisher":  "Microsoft",
-    "version":  "21.1.48363.48638",
+    "version":  "21.2.49946.49990",
     "dependencies":  [
 
                      ],
@@ -15,5 +15,5 @@
     "EULA":  "https://go.microsoft.com/fwlink/?linkid=2009120",
     "help":  "https://go.microsoft.com/fwlink/?linkid=2115116",
     "url":  "https://www.microsoft.com/en-us/dynamics365/contact-us",
-    "application":  "21.1.0.0"
+    "application":  "21.2.0.0"
 }

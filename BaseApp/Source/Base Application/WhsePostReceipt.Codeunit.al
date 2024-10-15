@@ -141,7 +141,7 @@
             Clear(WhseJnlRegisterLine);
         end;
 
-        OnAfterCode(WhseRcptHeader, WhseRcptLine, CounterSourceDocTotal);
+        OnAfterCode(WhseRcptHeader, WhseRcptLine, CounterSourceDocTotal, CounterSourceDocOK);
     end;
 
     local procedure CheckUnitOfMeasureCode(WarehouseReceiptLine: Record "Warehouse Receipt Line")
@@ -448,19 +448,18 @@
     begin
         IsHandled := false;
         OnBeforeClearSalesLineQtyToShipReceive(SalesLine, WhseRcptLine2, ModifyLine, IsHandled);
-        if IsHandled then
-            exit;
-
-        with WhseRcptLine2 do
-            if "Source Document" = "Source Document"::"Sales Order" then begin
-                ModifyLine := SalesLine."Qty. to Ship" <> 0;
-                if ModifyLine then
-                    SalesLine.Validate("Qty. to Ship", 0);
-            end else begin
-                ModifyLine := SalesLine."Return Qty. to Receive" <> 0;
-                if ModifyLine then
-                    SalesLine.Validate("Return Qty. to Receive", 0);
-            end;
+        if not IsHandled then
+            with WhseRcptLine2 do
+                if "Source Document" = "Source Document"::"Sales Order" then begin
+                    ModifyLine := SalesLine."Qty. to Ship" <> 0;
+                    if ModifyLine then
+                        SalesLine.Validate("Qty. to Ship", 0);
+                end else begin
+                    ModifyLine := SalesLine."Return Qty. to Receive" <> 0;
+                    if ModifyLine then
+                        SalesLine.Validate("Return Qty. to Receive", 0);
+                end;
+        OnAfterClearSalesLineQtyToShipReceive(SalesLine, WhseRcptLine2, ModifyLine);
     end;
 
     local procedure ClearPurchLineQtyToShipReceive(var PurchLine: Record "Purchase Line"; WhseRcptLine2: Record "Warehouse Receipt Line"; var ModifyLine: Boolean)
@@ -469,19 +468,18 @@
     begin
         IsHandled := false;
         OnBeforeClearPurchLineQtyToShipReceive(PurchLine, WhseRcptLine2, ModifyLine, IsHandled);
-        if IsHandled then
-            exit;
-
-        with WhseRcptLine2 do
-            if "Source Document" = "Source Document"::"Purchase Order" then begin
-                ModifyLine := PurchLine."Qty. to Receive" <> 0;
-                if ModifyLine then
-                    PurchLine.Validate("Qty. to Receive", 0);
-            end else begin
-                ModifyLine := PurchLine."Return Qty. to Ship" <> 0;
-                if ModifyLine then
-                    PurchLine.Validate("Return Qty. to Ship", 0);
-            end;
+        if not IsHandled then
+            with WhseRcptLine2 do
+                if "Source Document" = "Source Document"::"Purchase Order" then begin
+                    ModifyLine := PurchLine."Qty. to Receive" <> 0;
+                    if ModifyLine then
+                        PurchLine.Validate("Qty. to Receive", 0);
+                end else begin
+                    ModifyLine := PurchLine."Return Qty. to Ship" <> 0;
+                    if ModifyLine then
+                        PurchLine.Validate("Return Qty. to Ship", 0);
+                end;
+        OnAfterClearPurchLineQtyToShipReceive(PurchLine, WhseRcptLine2, ModifyLine);
     end;
 
     local procedure CheckUpdateSalesLineBinCode(var SalesLine: Record "Sales Line"; WhseRcptLine2: Record "Warehouse Receipt Line"; var ModifyLine: Boolean)
@@ -1189,12 +1187,22 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCode(var WarehouseReceiptHeader: Record "Warehouse Receipt Header"; WarehouseReceiptLine: Record "Warehouse Receipt Line"; CounterSourceDocTotal: Integer)
+    local procedure OnAfterCode(var WarehouseReceiptHeader: Record "Warehouse Receipt Header"; WarehouseReceiptLine: Record "Warehouse Receipt Line"; CounterSourceDocTotal: Integer; CounterSourceDocOK: Integer)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCheckWhseRcptLine(var WarehouseReceiptLine: Record "Warehouse Receipt Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterClearPurchLineQtyToShipReceive(var PurchaseLine: Record "Purchase Line"; WarehouseReceiptLine: Record "Warehouse Receipt Line"; var ModifyLine: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterClearSalesLineQtyToShipReceive(var SalesLine: Record "Sales Line"; WarehouseReceiptLine: Record "Warehouse Receipt Line"; var ModifyLine: Boolean)
     begin
     end;
 

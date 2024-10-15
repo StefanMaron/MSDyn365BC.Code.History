@@ -303,7 +303,14 @@ table 5896 "Inventory Adjmt. Entry (Order)"
     end;
 
     procedure SetProdOrderLine(ProdOrderLine: Record "Prod. Order Line")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetProdOrderLine(Rec, ProdOrderLine, IsHandled);
+        if IsHandled then
+            exit;
+
         Init();
         "Order Type" := "Order Type"::Production;
         "Order No." := ProdOrderLine."Prod. Order No.";
@@ -548,6 +555,11 @@ table 5896 "Inventory Adjmt. Entry (Order)"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeAddSingleLvlCapacityCost(var InventoryAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)"; var CostAmtLCY: Decimal; var CostAmtACY: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetProdOrderLine(var InventoryAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)"; var ProdOrderLine: Record "Prod. Order Line"; var IsHandled: Boolean)
     begin
     end;
 

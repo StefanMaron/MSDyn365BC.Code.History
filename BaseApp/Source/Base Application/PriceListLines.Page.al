@@ -427,6 +427,7 @@ page 7001 "Price List Lines"
         else
             Rec.SetFilter("Amount Type", '%1|%2', ViewAmountType, ViewAmountType::Any);
         Rec.FilterGroup(0);
+		UpdateSourceType();
         UpdateColumnVisibility();
         CurrPage.Update(false);
     end;

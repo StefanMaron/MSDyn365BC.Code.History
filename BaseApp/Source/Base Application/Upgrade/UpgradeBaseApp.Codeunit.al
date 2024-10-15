@@ -112,6 +112,7 @@
         UpgradeAccountSchedulesToFinancialReports();
         UpgradeCRMUnitGroupMapping();
         UpgradeCRMSDK90ToCRMSDK91();
+        UpdatePurchaserOnRequisitionLines();
     end;
 
     local procedure ClearTemporaryTables()
@@ -3255,5 +3256,43 @@
             '0000G46', StrSubstNo(NoOfRecordsInTableMsg, TableNo, NoOfRecords),
             Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, 'Category', 'AL SaaS Upgrade');
         exit(NoOfRecords > GetSafeRecordCountForSaaSUpgrade());
+    end;
+
+    local procedure UpdatePurchaserOnRequisitionLines()
+    var
+        RequisitionLine: Record "Requisition Line";
+        Vendor: Record Vendor;
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+        PurchaserCodeToAssign: Code[20];
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetPurchaserOnRequisitionLineUpdateTag()) then
+            exit;
+
+        RequisitionLine.SetFilter("Vendor No.", '<>%1', '');
+        if RequisitionLine.FindSet(true) then
+            repeat
+                if Vendor.Get(RequisitionLine."Vendor No.") and (Vendor."Purchaser Code" <> '') then
+                    if ReturnPurchaserCode(Vendor."Purchaser Code", PurchaserCodeToAssign) then begin
+                        RequisitionLine.Validate("Purchaser Code", PurchaserCodeToAssign);
+                        RequisitionLine.Modify();
+                    end;
+            until RequisitionLine.Next() = 0;
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetPurchaserOnRequisitionLineUpdateTag());
+    end;
+
+    local procedure ReturnPurchaserCode(PurchaserCodeToCheck: Code[20]; var PurchaserCodeToAssign: Code[20]): Boolean
+    var
+        SalespersonPurchaser: Record "Salesperson/Purchaser";
+    begin
+        if SalespersonPurchaser.Get(PurchaserCodeToCheck) then begin
+            if SalespersonPurchaser.VerifySalesPersonPurchaserPrivacyBlocked(SalespersonPurchaser) then
+                PurchaserCodeToAssign := ''
+            else
+                PurchaserCodeToAssign := PurchaserCodeToCheck;
+        end else
+            PurchaserCodeToAssign := '';
+        exit(PurchaserCodeToAssign <> '');
     end;
 }

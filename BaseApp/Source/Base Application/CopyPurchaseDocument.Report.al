@@ -493,7 +493,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeLookupDocNo(var PurchaseHeader: Record "Purchase Header"; FromDocType: Enum "Purchase Document Type From"; var FromDocNo: Code[20])
+    local procedure OnBeforeLookupDocNo(var PurchaseHeader: Record "Purchase Header"; var FromDocType: Enum "Purchase Document Type From"; var FromDocNo: Code[20])
     begin
     end;
 
