@@ -1,3 +1,4 @@
+#if not CLEAN18
 codeunit 135533 "Tax Area Entity E2E Test"
 {
     Subtype = Test;
@@ -283,4 +284,4 @@ codeunit 135533 "Tax Area Entity E2E Test"
         exit(LowerCase(LibraryGraphMgt.StripBrackets(Value)));
     end;
 }
-
+#endif

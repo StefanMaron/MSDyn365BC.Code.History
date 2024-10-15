@@ -1,3 +1,4 @@
+#if not CLEAN19
 codeunit 139023 "OSynch. Filter Tests"
 {
     Subtype = Test;
@@ -394,4 +395,4 @@ codeunit 139023 "OSynch. Filter Tests"
         end;
     end;
 }
-
+#endif

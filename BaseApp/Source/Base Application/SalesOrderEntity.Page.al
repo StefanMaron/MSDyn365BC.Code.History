@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 5495 "Sales Order Entity"
 {
     Caption = 'salesOrders', Locked = true;
@@ -624,4 +625,4 @@ page 5495 "Sales Order Entity"
         Find;
     end;
 }
-
+#endif

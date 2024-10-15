@@ -78,9 +78,6 @@ report 116 Statement
                 column(BankAccNo_CompanyInfo; CompanyInfo."Bank Account No.")
                 {
                 }
-                column(BankBranchNo_CompanyInfo; CompanyInfo."Bank Branch No.")
-                {
-                }
                 column(No1_Cust; Customer."No.")
                 {
                 }
@@ -124,9 +121,6 @@ report 116 Statement
                 {
                 }
                 column(BankAccNo_CompanyInfoCaption; BankAccNo_CompanyInfoCaptionLbl)
-                {
-                }
-                column(BankBranchNo_CompanyInfoCaption; BankBranchNo_CompanyInfoCaptionLbl)
                 {
                 }
                 column(No1_CustCaption; No1_CustCaptionLbl)
@@ -880,7 +874,6 @@ report 116 Statement
         GiroNo_CompanyInfoCaptionLbl: Label 'Giro No.';
         BankName_CompanyInfoCaptionLbl: Label 'Bank';
         BankAccNo_CompanyInfoCaptionLbl: Label 'Account No.';
-        BankBranchNo_CompanyInfoCaptionLbl: Label 'Bank Branch No.';
         No1_CustCaptionLbl: Label 'Customer No.';
         StartDateCaptionLbl: Label 'Starting Date';
         EndDateCaptionLbl: Label 'Ending Date';

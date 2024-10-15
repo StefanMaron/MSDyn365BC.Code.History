@@ -4,34 +4,72 @@ codeunit 450 "Job Queue Error Handler"
 
     trigger OnRun()
     begin
-        if not DoesExistLocked then
+        if not Rec.DoesExistLocked() then
             exit;
-        SetError(GetLastErrorText);
+        Rec.Status := Rec.Status::Error;
         LogError(Rec);
     end;
+
+    var
+        JobQueueContextTxt: Label 'Job Queue', Locked = true;
 
     local procedure LogError(var JobQueueEntry: Record "Job Queue Entry")
     var
         JobQueueLogEntry: Record "Job Queue Log Entry";
+        ErrorMessages: Record "Error Message";
+        ErrorMessageManagement: Codeunit "Error Message Management";
+        ErrorMessageHandler: Codeunit "Error Message Handler";
+        ErrorContextElement: Codeunit "Error Context Element";
+#if not CLEAN19
+        JobQueueDispatcher: Codeunit "Job Queue Dispatcher";
+#endif
     begin
         OnBeforeLogError(JobQueueLogEntry, JobQueueEntry);
 
-        with JobQueueLogEntry do begin
-            SetRange(ID, JobQueueEntry.ID);
-            SetRange(Status, Status::"In Process");
-            if FindFirst then begin
-                "Error Message" := JobQueueEntry."Error Message";
-                SetErrorCallStack(GetLastErrorCallstack);
-                Status := Status::Error;
-                Modify;
-                OnLogErrorOnAfterJobQueueLogEntryModify(JobQueueEntry);
-            end else begin
-                JobQueueEntry.InsertLogEntry(JobQueueLogEntry);
-                JobQueueEntry.FinalizeLogEntry(JobQueueLogEntry);
-                OnLogErrorOnAfterJobQueueLogEntryFinalizeLogEntry(JobQueueEntry);
-            end;
+        if IsNullGuid(JobQueueEntry."Error Message Register Id") then begin
+            ErrorMessageManagement.Activate(ErrorMessageHandler, false);
+            ErrorMessageManagement.PushContext(ErrorContextElement, JobQueueEntry.RecordId(), 0, JobQueueContextTxt);
+            JobQueueEntry."Error Message Register Id" := ErrorMessageHandler.RegisterErrorMessages(false);
+            ErrorMessageManagement.PopContext(ErrorContextElement);
         end;
+
+        ErrorMessages.SetFilter("Register ID", JobQueueEntry."Error Message Register Id");
+        if ErrorMessages.FindFirst() then;
+
+#if not CLEAN19
+        // To keep the same flow as before all the changes.
+        // Going forward in the event of error, subscribe to the event JobQueueErrorHandler.OnAfterLogError instead.
+        JobQueueDispatcher.OnAfterExecuteJob(JobQueueEntry, false);
+#endif
+
+        JobQueueEntry."Error Message" := ErrorMessages.Description;
+        JobQueueEntry.Modify();
+
+#if not CLEAN19
+        // To keep the same flow as before all the changes.
+        // Going forward in the event of error, subscribe to the event JobQueueErrorHandler.OnAfterLogError instead.
+        JobQueueDispatcher.OnAfterHandleRequest(JobQueueEntry, false, 0);
+#endif
+
+        JobQueueLogEntry.SetRange(ID, JobQueueEntry.ID);
+        JobQueueLogEntry.SetRange(Status, JobQueueLogEntry.Status::"In Process");
+        if JobQueueLogEntry.FindFirst() then begin
+            JobQueueLogEntry."Error Message Register Id" := JobQueueEntry."Error Message Register Id";
+            JobQueueLogEntry."Error Message" := JobQueueEntry."Error Message";
+            JobQueueLogEntry.SetErrorCallStack(GetLastErrorCallStack()); // Need to save callstack before deleted above
+            JobQueueLogEntry.Status := JobQueueLogEntry.Status::Error;
+            JobQueueLogEntry.Modify();
+            OnLogErrorOnAfterJobQueueLogEntryModify(JobQueueEntry);
+        end else begin
+            JobQueueEntry.InsertLogEntry(JobQueueLogEntry);
+            JobQueueEntry.FinalizeLogEntry(JobQueueLogEntry, GetLastErrorCallStack());
+            OnLogErrorOnAfterJobQueueLogEntryFinalizeLogEntry(JobQueueEntry);
+        end;
+
         OnAfterLogError(JobQueueEntry);
+
+        JobQueueEntry.FinalizeRun();
+        Commit();
     end;
 
     [IntegrationEvent(false, false)]

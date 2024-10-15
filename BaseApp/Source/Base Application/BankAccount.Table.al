@@ -86,8 +86,7 @@ table 270 "Bank Account"
 
             trigger OnValidate()
             begin
-                if ("Bank Account No." <> '') and (StrLen("Bank Account No.") < 10) then
-                    "Bank Account No." := PadStr('', 10 - StrLen("Bank Account No."), '0') + "Bank Account No.";
+                OnValidateBankAccount(Rec, 'Bank Account No.');
             end;
         }
         field(14; "Transit No."; Text[20])
@@ -434,8 +433,7 @@ table 270 "Bank Account"
 
             trigger OnValidate()
             begin
-                if ("Bank Branch No." <> '') and (StrLen("Bank Branch No.") < 4) then
-                    "Bank Branch No." := PadStr('', 4 - StrLen("Bank Branch No."), '0') + "Bank Branch No.";
+                OnValidateBankAccount(Rec, 'Bank Branch No.');
             end;
         }
         field(102; "E-Mail"; Text[80])
@@ -514,7 +512,7 @@ table 270 "Bank Account"
         field(121; "Bank Stmt. Service Record ID"; RecordID)
         {
             Caption = 'Bank Stmt. Service Record ID';
-            DataClassification = SystemMetadata;
+            DataClassification = CustomerContent;
 
             trigger OnValidate()
             var
@@ -916,11 +914,19 @@ table 270 "Bank Account"
     end;
 
     procedure GetBankAccountNo(): Text
+    var
+        Handled: Boolean;
+        ResultBankAccountNo: Text;
     begin
-        if ("Bank Branch No." = '') or ("Bank Account No." = '') then
+        OnGetBankAccount(Handled, Rec, ResultBankAccountNo);
+
+        if Handled then exit(ResultBankAccountNo);
+
+        if IBAN <> '' then
             exit(DelChr(IBAN, '=<>'));
 
-        exit("Bank Branch No." + "Bank Account No.");
+        if "Bank Account No." <> '' then
+            exit("Bank Account No.");
     end;
 
     procedure IsInLocalCurrency(): Boolean
@@ -1106,6 +1112,8 @@ table 270 "Bank Account"
           CopyStr(StrSubstNo(BankStmtScheduledDownloadDescTxt, Name), 1, MaxStrLen(JobQueueEntry.Description));
         JobQueueEntry."Notify On Success" := false;
         JobQueueEntry."No. of Minutes between Runs" := 121;
+        JobQueueEntry."Maximum No. of Attempts to Run" := 4;
+        JobQueueEntry."Rerun Delay (sec.)" := 25 * 60;
         JobQueueEntry.Modify();
         if Confirm(JobQEntriesCreatedQst) then
             ShowBankStatementDownloadJobQueueEntry;
@@ -1339,6 +1347,16 @@ table 270 "Bank Account"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeRunContactListPage(var Contact: Record Contact; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateBankAccount(var BankAccount: Record "Bank Account"; FieldToValidate: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetBankAccount(var Handled: Boolean; BankAccount: Record "Bank Account"; var ResultBankAccountNo: Text)
     begin
     end;
 }

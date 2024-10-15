@@ -133,6 +133,18 @@ report 5687 "Copy Depreciation Book"
                             Caption = 'Appreciation';
                             ToolTip = 'Specifies if related appreciation entries are included in the batch job .';
                         }
+                        field("CopyChoices[5]"; CopyChoices[5])
+                        {
+                            ApplicationArea = FixedAssets;
+                            Caption = 'Custom 1';
+                            ToolTip = 'Specifies if related custom 1 entries are included in the batch job .';
+                        }
+                        field("CopyChoices[6]"; CopyChoices[6])
+                        {
+                            ApplicationArea = FixedAssets;
+                            Caption = 'Custom 2';
+                            ToolTip = 'Specifies if related custom 2 entries are included in the batch job .';
+                        }
                         field("CopyChoices[9]"; CopyChoices[9])
                         {
                             ApplicationArea = FixedAssets;
@@ -197,7 +209,6 @@ report 5687 "Copy Depreciation Book"
         FALedgEntry: Record "FA Ledger Entry";
         FAJnlSetup: Record "FA Journal Setup";
         DepreciationCalc: Codeunit "Depreciation Calculation";
-        CancelFALedgEntries: Codeunit "Cancel FA Ledger Entries";
         Window: Dialog;
         ExchangeRate: Decimal;
         CopyChoices: array[9] of Boolean;

@@ -1895,7 +1895,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
     var
         Customer: Record Customer;
         BillToCustomer: Record Customer;
-        ConfigTemplateHeader: Record "Config. Template Header";
+        CustomerTempl: Record "Customer Templ.";
         SalesHeader: Record "Sales Header";
         SalesInvoice: TestPage "Sales Invoice";
         BillToCustomerNo: Variant;
@@ -1907,7 +1907,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         ClearTable(DATABASE::"Res. Ledger Entry");
 
         CreateCustomer(Customer);
-        LibrarySmallBusiness.CreateCustomerTemplate(ConfigTemplateHeader);
+        LibraryTemplates.CreateCustomerTemplateWithData(CustomerTempl);
 
         // Exercise.
         BillToCustomerName := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Customer.Name)), 1, MaxStrLen(Customer.Name));
@@ -1921,7 +1921,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         // Verify.
         LibraryVariableStorage.Dequeue(BillToCustomerNo);
         BillToCustomer.Get(BillToCustomerNo);
-        VerifyCustomerAgainstTemplate(BillToCustomer, ConfigTemplateHeader);
+        VerifyCustomerAgainstTemplate(BillToCustomer, CustomerTempl);
         VerifySalesInvoiceAgainstBillToCustomer(SalesInvoice, BillToCustomer);
     end;
 
@@ -1931,7 +1931,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
     procedure NewCustomerDefaultTemplate()
     var
         Customer: Record Customer;
-        ConfigTemplateHeader: Record "Config. Template Header";
+        CustomerTempl: Record "Customer Templ.";
         SalesInvoice: TestPage "Sales Invoice";
         CustomerNo: Variant;
         CustomerName: Text[100];
@@ -1939,7 +1939,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         Initialize;
         ClearTable(DATABASE::"Res. Ledger Entry");
 
-        LibrarySmallBusiness.CreateCustomerTemplate(ConfigTemplateHeader);
+        LibraryTemplates.CreateCustomerTemplateWithData(CustomerTempl);
 
         // Exercise.
         CustomerName := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Customer.Name)), 1, MaxStrLen(Customer.Name));
@@ -1951,7 +1951,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         // Verify.
         LibraryVariableStorage.Dequeue(CustomerNo);
         Customer.Get(CustomerNo);
-        VerifyCustomerAgainstTemplate(Customer, ConfigTemplateHeader);
+        VerifyCustomerAgainstTemplate(Customer, CustomerTempl);
         VerifySalesInvoiceAgainstCustomer(SalesInvoice, Customer);
     end;
 
@@ -1961,7 +1961,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
     procedure NewCustomerDefaultTemplateQuote()
     var
         Customer: Record Customer;
-        ConfigTemplateHeader: Record "Config. Template Header";
+        CustomerTempl: Record "Customer Templ.";
         SalesQuote: TestPage "Sales Quote";
         CustomerNo: Variant;
         CustomerName: Text[100];
@@ -1969,7 +1969,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         Initialize;
         ClearTable(DATABASE::"Res. Ledger Entry");
 
-        LibrarySmallBusiness.CreateCustomerTemplate(ConfigTemplateHeader);
+        LibraryTemplates.CreateCustomerTemplateWithData(CustomerTempl);
 
         // Exercise.
         CustomerName := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Customer.Name)), 1, MaxStrLen(Customer.Name));
@@ -1981,18 +1981,18 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         // Verify.
         LibraryVariableStorage.Dequeue(CustomerNo);
         Customer.Get(CustomerNo);
-        VerifyCustomerAgainstTemplate(Customer, ConfigTemplateHeader);
+        VerifyCustomerAgainstTemplate(Customer, CustomerTempl);
         VerifySalesQuoteAgainstCustomer(SalesQuote, Customer);
     end;
 
     [Test]
-    [HandlerFunctions('StrMenuHandlerOK,TemplateSelectionPageHandler,CustomerCardTemplatePageHandler')]
+    [HandlerFunctions('StrMenuHandlerOK,SelectCustomerTemplListHandler,CustomerCardTemplatePageHandler')]
     [Scope('OnPrem')]
     procedure NewCustomerSelectTemplate()
     var
         Customer: Record Customer;
-        ConfigTemplateHeader: Record "Config. Template Header";
-        ConfigTemplateHeader1: Record "Config. Template Header";
+        CustomerTempl: Record "Customer Templ.";
+        CustomerTempl1: Record "Customer Templ.";
         SalesInvoice: TestPage "Sales Invoice";
         CustomerNo: Variant;
         CustomerName: Text[100];
@@ -2000,12 +2000,12 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         Initialize;
         ClearTable(DATABASE::"Res. Ledger Entry");
 
-        LibrarySmallBusiness.CreateCustomerTemplate(ConfigTemplateHeader);
-        LibrarySmallBusiness.CreateCustomerTemplate(ConfigTemplateHeader1);
+        LibraryTemplates.CreateCustomerTemplateWithData(CustomerTempl);
+        LibraryTemplates.CreateCustomerTemplateWithData(CustomerTempl1);
 
         // Exercise.
         CustomerName := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Customer.Name)), 1, MaxStrLen(Customer.Name));
-        LibraryVariableStorage.Enqueue(ConfigTemplateHeader1.Code); // for the customer card page handler
+        LibraryVariableStorage.Enqueue(CustomerTempl1.Code); // for the customer card page handler
         LibraryVariableStorage.Enqueue(true); // for the new customer confirm handler
 
         SalesInvoice.OpenNew;
@@ -2015,18 +2015,18 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         // Verify.
         LibraryVariableStorage.Dequeue(CustomerNo);
         Customer.Get(CustomerNo);
-        VerifyCustomerAgainstTemplate(Customer, ConfigTemplateHeader1);
+        VerifyCustomerAgainstTemplate(Customer, CustomerTempl1);
         VerifySalesInvoiceAgainstCustomer(SalesInvoice, Customer);
     end;
 
     [Test]
-    [HandlerFunctions('StrMenuHandlerOK,TemplateSelectionPageHandler,CustomerCardTemplatePageHandler')]
+    [HandlerFunctions('StrMenuHandlerOK,SelectCustomerTemplListHandler,CustomerCardTemplatePageHandler')]
     [Scope('OnPrem')]
     procedure NewCustomerSelectTemplateQuote()
     var
         Customer: Record Customer;
-        ConfigTemplateHeader: Record "Config. Template Header";
-        ConfigTemplateHeader1: Record "Config. Template Header";
+        CustomerTempl: Record "Customer Templ.";
+        CustomerTempl1: Record "Customer Templ.";
         SalesQuote: TestPage "Sales Quote";
         CustomerNo: Variant;
         CustomerName: Text[100];
@@ -2034,12 +2034,12 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         Initialize;
         ClearTable(DATABASE::"Res. Ledger Entry");
 
-        LibrarySmallBusiness.CreateCustomerTemplate(ConfigTemplateHeader);
-        LibrarySmallBusiness.CreateCustomerTemplate(ConfigTemplateHeader1);
+        LibraryTemplates.CreateCustomerTemplateWithData(CustomerTempl);
+        LibraryTemplates.CreateCustomerTemplateWithData(CustomerTempl1);
 
         // Exercise.
         CustomerName := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Customer.Name)), 1, MaxStrLen(Customer.Name));
-        LibraryVariableStorage.Enqueue(ConfigTemplateHeader1.Code); // for the customer card page handler
+        LibraryVariableStorage.Enqueue(CustomerTempl1.Code); // for the customer card page handler
         LibraryVariableStorage.Enqueue(true);
 
         SalesQuote.OpenNew;
@@ -2049,7 +2049,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         // Verify.
         LibraryVariableStorage.Dequeue(CustomerNo);
         Customer.Get(CustomerNo);
-        VerifyCustomerAgainstTemplate(Customer, ConfigTemplateHeader1);
+        VerifyCustomerAgainstTemplate(Customer, CustomerTempl1);
         VerifySalesQuoteAgainstCustomer(SalesQuote, Customer);
     end;
 
@@ -2112,14 +2112,14 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
     var
         Vendor: Record Vendor;
         PayToVendor: Record Vendor;
-        ConfigTemplateHeader: Record "Config. Template Header";
+        VendorTempl: Record "Vendor Templ.";
         PurchaseInvoice: TestPage "Purchase Invoice";
         PayToVendorNo: Variant;
         PayToVendorName: Text[100];
     begin
         Initialize;
         CreateVendor(Vendor);
-        LibrarySmallBusiness.CreateVendorTemplate(ConfigTemplateHeader);
+        LibraryTemplates.CreateVendorTemplateWithData(VendorTempl);
 
         // Exercise.
         PayToVendorName := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Vendor.Name)), 1, MaxStrLen(Vendor.Name));
@@ -2133,7 +2133,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         // Verify.
         LibraryVariableStorage.Dequeue(PayToVendorNo);
         PayToVendor.Get(PayToVendorNo);
-        VerifyVendorAgainstTemplate(PayToVendor, ConfigTemplateHeader);
+        VerifyVendorAgainstTemplate(PayToVendor, VendorTempl);
         VerifyPurchaseInvoiceAgainstPayToVendor(PurchaseInvoice, PayToVendor);
     end;
 
@@ -2143,14 +2143,14 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
     procedure NewVendorDefaultTemplate()
     var
         Vendor: Record Vendor;
-        ConfigTemplateHeader: Record "Config. Template Header";
+        VendorTempl: Record "Vendor Templ.";
         PurchaseInvoice: TestPage "Purchase Invoice";
         VendorNo: Variant;
         VendorName: Text[100];
     begin
         Initialize;
 
-        LibrarySmallBusiness.CreateVendorTemplate(ConfigTemplateHeader);
+        LibraryTemplates.CreateVendorTemplateWithData(VendorTempl);
 
         // Exercise.
         VendorName := LibraryUtility.GenerateRandomCode(Vendor.FieldNo(Name), DATABASE::Vendor);
@@ -2162,7 +2162,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         // Verify.
         LibraryVariableStorage.Dequeue(VendorNo);
         Vendor.Get(VendorNo);
-        VerifyVendorAgainstTemplate(Vendor, ConfigTemplateHeader);
+        VerifyVendorAgainstTemplate(Vendor, VendorTempl);
         VerifyPurchaseInvoiceAgainstVendor(PurchaseInvoice, Vendor);
     end;
 
@@ -2217,24 +2217,24 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
     end;
 
     [Test]
-    [HandlerFunctions('StrMenuHandlerOK,TemplateSelectionPageHandler,CustomerCardPageHandler')]
+    [HandlerFunctions('StrMenuHandlerOK,SelectCustomerTemplListHandler,CustomerCardPageHandler')]
     [Scope('OnPrem')]
     procedure NewCustomerCancelSelectTemplate()
     var
         Customer: Record Customer;
-        ConfigTemplateHeader: Record "Config. Template Header";
+        CustomerTempl: Record "Customer Templ.";
         SalesInvoice: TestPage "Sales Invoice";
         CustomerName: Text;
     begin
         Initialize;
 
         // Create 2 template headers and use only the second
-        LibrarySmallBusiness.CreateCustomerTemplate(ConfigTemplateHeader);
-        LibrarySmallBusiness.CreateCustomerTemplate(ConfigTemplateHeader);
+        LibraryTemplates.CreateCustomerTemplateWithData(CustomerTempl);
+        LibraryTemplates.CreateCustomerTemplateWithData(CustomerTempl);
 
         // Exercise.
         CustomerName := LibraryUtility.GenerateRandomText(MaxStrLen(Customer.Name));
-        LibraryVariableStorage.Enqueue(ConfigTemplateHeader.Code);
+        LibraryVariableStorage.Enqueue(CustomerTempl.Code);
         LibraryVariableStorage.Enqueue(false);
         LibraryVariableStorage.Enqueue(CustomerName);
         SalesInvoice.OpenNew;
@@ -2248,24 +2248,24 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
     end;
 
     [Test]
-    [HandlerFunctions('StrMenuHandlerOK,TemplateSelectionPageHandler,CustomerCardPageHandler')]
+    [HandlerFunctions('StrMenuHandlerOK,SelectCustomerTemplListHandler,CustomerCardPageHandler')]
     [Scope('OnPrem')]
     procedure NewCustomerCancelSelectTemplateQuote()
     var
         Customer: Record Customer;
-        ConfigTemplateHeader: Record "Config. Template Header";
+        CustomerTempl: Record "Customer Templ.";
         SalesQuote: TestPage "Sales Quote";
         CustomerName: Text;
     begin
         Initialize;
 
         // Create 2 template headers and use only the second
-        LibrarySmallBusiness.CreateCustomerTemplate(ConfigTemplateHeader);
-        LibrarySmallBusiness.CreateCustomerTemplate(ConfigTemplateHeader);
+        LibraryTemplates.CreateCustomerTemplateWithData(CustomerTempl);
+        LibraryTemplates.CreateCustomerTemplateWithData(CustomerTempl);
 
         // Exercise.
         CustomerName := LibraryUtility.GenerateRandomText(MaxStrLen(Customer.Name));
-        LibraryVariableStorage.Enqueue(ConfigTemplateHeader.Code);
+        LibraryVariableStorage.Enqueue(CustomerTempl.Code);
         LibraryVariableStorage.Enqueue(false);
         LibraryVariableStorage.Enqueue(CustomerName);
         SalesQuote.OpenNew;
@@ -2807,6 +2807,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         ClearTable(DATABASE::"Resource Skill");
         ClearTable(DATABASE::"Item Identifier");
         ClearTable(DATABASE::"Service Item Component");
+        ClearTable(Database::"Item Templ.");
 
         LibraryLowerPermissions.AddItemCreate;
 
@@ -4165,7 +4166,8 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
 
     local procedure Initialize()
     var
-        ConfigTemplateHeader: Record "Config. Template Header";
+        CustomerTempl: Record "Customer Templ.";
+        VendorTempl: Record "Vendor Templ.";
         UserSetup: Record "User Setup";
         ResponsibilityCenter: Record "Responsibility Center";
         MarketingSetup: Record "Marketing Setup";
@@ -4179,7 +4181,8 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"O365 Simplify UI Sales Invoice");
         LibraryVariableStorage.Clear;
-        ConfigTemplateHeader.DeleteAll(true);
+        CustomerTempl.DeleteAll();
+        VendorTempl.DeleteAll();
         LibraryApplicationArea.EnableFoundationSetup;
         LibrarySales.DisableWarningOnCloseUnpostedDoc;
         PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyVendorAddressNotificationId);
@@ -4193,7 +4196,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"O365 Simplify UI Sales Invoice");
 
-        LibraryTemplates.DisableTemplatesFeature();
+        LibraryTemplates.EnableTemplatesFeature();
         ClearTable(DATABASE::Resource);
 
         if not LibraryFiscalYear.AccountingPeriodsExists then
@@ -4242,6 +4245,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         ResourceSkill: Record "Resource Skill";
         ItemIdentifier: Record "Item Identifier";
         ServiceItemComponent: Record "Service Item Component";
+        ItemTempl: Record "Item Templ.";
     begin
         LibraryLowerPermissions.SetOutsideO365Scope;
         case TableID of
@@ -4263,6 +4267,8 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
                 ItemIdentifier.DeleteAll();
             DATABASE::"Service Item Component":
                 ServiceItemComponent.DeleteAll();
+            Database::"Item Templ.":
+                ItemTempl.DeleteAll();
         end;
         LibraryLowerPermissions.SetO365Full;
     end;
@@ -4331,40 +4337,18 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         CommentLine.Modify(true);
     end;
 
-    local procedure VerifyCustomerAgainstTemplate(var Customer: Record Customer; ConfigTemplateHeader: Record "Config. Template Header")
-    var
-        ConfigTemplateLine: Record "Config. Template Line";
-        RecRef: RecordRef;
-        FieldRef: FieldRef;
-        FieldText: Variant;
+    local procedure VerifyCustomerAgainstTemplate(var Customer: Record Customer; CustomerTempl: Record "Customer Templ.")
     begin
-        RecRef.GetTable(Customer);
-        ConfigTemplateLine.SetRange("Data Template Code", ConfigTemplateHeader.Code);
-        if ConfigTemplateLine.FindSet then
-            repeat
-                FieldRef := RecRef.Field(ConfigTemplateLine."Field ID");
-                FieldText := FieldRef.Value;
-                Assert.AreEqual(ConfigTemplateLine."Default Value", FieldText, 'Wrong value for field ' + FieldRef.Name)
-            until ConfigTemplateLine.Next = 0;
-        RecRef.SetTable(Customer);
+        Customer.TestField("Gen. Bus. Posting Group", CustomerTempl."Gen. Bus. Posting Group");
+        Customer.TestField("VAT Bus. Posting Group", CustomerTempl."VAT Bus. Posting Group");
+        Customer.TestField("Customer Posting Group", CustomerTempl."Customer Posting Group");
     end;
 
-    local procedure VerifyVendorAgainstTemplate(var Vendor: Record Vendor; ConfigTemplateHeader: Record "Config. Template Header")
-    var
-        ConfigTemplateLine: Record "Config. Template Line";
-        RecRef: RecordRef;
-        FieldRef: FieldRef;
-        FieldText: Variant;
+    local procedure VerifyVendorAgainstTemplate(var Vendor: Record Vendor; VendorTempl: Record "Vendor Templ.")
     begin
-        RecRef.GetTable(Vendor);
-        ConfigTemplateLine.SetRange("Data Template Code", ConfigTemplateHeader.Code);
-        if ConfigTemplateLine.FindSet then
-            repeat
-                FieldRef := RecRef.Field(ConfigTemplateLine."Field ID");
-                FieldText := FieldRef.Value;
-                Assert.AreEqual(ConfigTemplateLine."Default Value", FieldText, 'Wrong value for field ' + FieldRef.Name)
-            until ConfigTemplateLine.Next = 0;
-        RecRef.SetTable(Vendor);
+        Vendor.TestField("Gen. Bus. Posting Group", VendorTempl."Gen. Bus. Posting Group");
+        Vendor.TestField("VAT Bus. Posting Group", VendorTempl."VAT Bus. Posting Group");
+        Vendor.TestField("Vendor Posting Group", VendorTempl."Vendor Posting Group");
     end;
 
     local procedure VerifySalesInvoiceAgainstCustomer(SalesInvoice: TestPage "Sales Invoice"; Customer: Record Customer)
@@ -5478,16 +5462,16 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure TemplateSelectionPageHandler(var ConfigTemplates: TestPage "Config Templates")
+    procedure SelectCustomerTemplListHandler(var SelectCustomerTemplList: TestPage "Select Customer Templ. List")
     var
-        ConfigTemplateHeader: Record "Config. Template Header";
+        CustomerTempl: Record "Customer Templ.";
     begin
-        ConfigTemplateHeader.Get(LibraryVariableStorage.DequeueText);
-        ConfigTemplates.Filter.SetFilter(Code, ConfigTemplateHeader.Code);
+        CustomerTempl.Get(LibraryVariableStorage.DequeueText);
+        SelectCustomerTemplList.Filter.SetFilter(Code, CustomerTempl.Code);
         if LibraryVariableStorage.DequeueBoolean then
-            ConfigTemplates.OK.Invoke
+            SelectCustomerTemplList.OK.Invoke
         else
-            ConfigTemplates.Cancel.Invoke;
+            SelectCustomerTemplList.Cancel.Invoke;
     end;
 
     local procedure SetCreditWarning(var OldCreditWarning: Option; NewCreditWarning: Option)

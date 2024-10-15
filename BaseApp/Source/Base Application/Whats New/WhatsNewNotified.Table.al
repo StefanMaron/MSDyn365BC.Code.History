@@ -5,9 +5,9 @@ table 897 "What's New Notified"
 {
     Access = Internal;
     DataPerCompany = false;
-    ObsoleteState = Pending;
+    ObsoleteState = Removed;
     ObsoleteReason = 'Temporary solution';
-    ObsoleteTag = '16.0';
+    ObsoleteTag = '19.0';
 
     DataClassification = SystemMetadata;
 

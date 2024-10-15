@@ -1041,9 +1041,7 @@ Cstr(Fields!Desc_CustLedgEntry2Caption.Value) + Chr(177) +
 Cstr(Fields!DueDate_CustLedgEntry2Caption.Value) + Chr(177) + 
 Cstr(Fields!OriginalAmt_CustLedgEntry2Caption.Value) + Chr(177) + 
 Cstr(Fields!RemainAmtCustLedgEntry2Caption.Value) + Chr(177) + 
-Cstr(Fields!CustBalanceCaption.Value) + Chr(177) +
-Cstr(Fields!BankBranchNo_CompanyInfoCaption.Value) + Chr(177) +
-Cstr(Fields!BankBranchNo_CompanyInfo.Value)
+Cstr(Fields!CustBalanceCaption.Value)
 , 1)</Hidden>
                                             </Visibility>
                                             <Style>
@@ -5310,58 +5308,6 @@ Cstr(Fields!BankBranchNo_CompanyInfo.Value)
                 <PaddingBottom>2pt</PaddingBottom>
               </Style>
             </Textbox>
-            <Textbox Name="BankBranchNo_CompanyInfo11">
-              <KeepTogether>true</KeepTogether>
-              <Paragraphs>
-                <Paragraph>
-                  <TextRuns>
-                    <TextRun>
-                      <Value>=Code.GetData(55,1)</Value>
-                      <Style>
-                        <FontFamily>Segoe UI</FontFamily>
-                        <FontSize>8pt</FontSize>
-                      </Style>
-                    </TextRun>
-                  </TextRuns>
-                  <Style>
-                    <TextAlign>Right</TextAlign>
-                  </Style>
-                </Paragraph>
-              </Paragraphs>
-              <Top>3.44667in</Top>
-              <Left>14.75267cm</Left>
-              <Height>11pt</Height>
-              <Width>3.16787cm</Width>
-              <ZIndex>54</ZIndex>
-              <Style>
-                <VerticalAlign>Middle</VerticalAlign>
-              </Style>
-            </Textbox>
-            <Textbox Name="BankBranchNo_CompanyInfoCaption11">
-              <KeepTogether>true</KeepTogether>
-              <Paragraphs>
-                <Paragraph>
-                  <TextRuns>
-                    <TextRun>
-                      <Value>=Code.GetData(54,1)</Value>
-                      <Style>
-                        <FontFamily>Segoe UI</FontFamily>
-                        <FontSize>8pt</FontSize>
-                      </Style>
-                    </TextRun>
-                  </TextRuns>
-                  <Style />
-                </Paragraph>
-              </Paragraphs>
-              <Top>3.44667in</Top>
-              <Left>11.72802cm</Left>
-              <Height>11pt</Height>
-              <Width>3.02467cm</Width>
-              <ZIndex>55</ZIndex>
-              <Style>
-                <VerticalAlign>Middle</VerticalAlign>
-              </Style>
-            </Textbox>
           </ReportItems>
           <Style />
         </PageHeader>
@@ -5544,9 +5490,6 @@ End Function
         <Field Name="BankAccNo_CompanyInfo">
           <DataField>BankAccNo_CompanyInfo</DataField>
         </Field>
-        <Field Name="BankBranchNo_CompanyInfo">
-          <DataField>BankBranchNo_CompanyInfo</DataField>
-        </Field>
         <Field Name="No1_Cust">
           <DataField>No1_Cust</DataField>
         </Field>
@@ -5591,9 +5534,6 @@ End Function
         </Field>
         <Field Name="BankAccNo_CompanyInfoCaption">
           <DataField>BankAccNo_CompanyInfoCaption</DataField>
-        </Field>
-        <Field Name="BankBranchNo_CompanyInfoCaption">
-          <DataField>BankBranchNo_CompanyInfoCaption</DataField>
         </Field>
         <Field Name="No1_CustCaption">
           <DataField>No1_CustCaption</DataField>

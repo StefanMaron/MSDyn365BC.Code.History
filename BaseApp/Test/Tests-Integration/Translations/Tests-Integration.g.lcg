@@ -590,15 +590,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Image Analysis Setup Test - NamedType InvalidApiUriErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1763778515 - NamedType 153976994" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[You can't edit this page in Excel because it's not set up for it. To use the Edit in Excel feature, you must publish the web service called '%1'. Contact your system administrator for help.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 = Web service name]D;]A;(LookupHint=Codeunit ODataUtility Test - NamedType WebServiceHasBeenDisabledErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 704460425 - NamedType 4277620860" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[TestJobNo287178]]></Val>
@@ -813,6 +804,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[%1 = Office host type]D;]A;(LookupHint=Codeunit SMB Office Pages - NamedType AttachAvailableErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1573783294 - NamedType 1789753926" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The access token is empty.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Doc. Exch. Service Setup - NamedType EmptyAccessTokenTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1573783294 - NamedType 3531511414" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

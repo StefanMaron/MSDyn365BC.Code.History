@@ -13,37 +13,37 @@ page 8907 "Sales & Marketing Manager RC"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Customers';
-                    RunObject = Page "Customer List";
+                    RunObject = page "Customer List";
                 }
                 action("Contacts")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Contacts';
-                    RunObject = Page "Contact List";
+                    RunObject = page "Contact List";
                 }
                 action("Salespeople")
                 {
                     ApplicationArea = Suite;
                     Caption = 'Salespeople/Purchasers';
-                    RunObject = Page "Salespersons/Purchasers";
+                    RunObject = page "Salespersons/Purchasers";
                 }
                 action("Teams")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Teams';
-                    RunObject = Page "Teams";
+                    RunObject = page "Teams";
                 }
                 action("Tasks")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Tasks';
-                    RunObject = Page "Tasks";
+                    RunObject = page "Tasks";
                 }
                 action("Opportunities")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Opportunities';
-                    RunObject = Page "Opportunity List";
+                    RunObject = page "Opportunity List";
                 }
                 group("Group1")
                 {
@@ -52,43 +52,43 @@ page 8907 "Sales & Marketing Manager RC"
                     {
                         ApplicationArea = SalesBudget;
                         Caption = 'Sales Budgets';
-                        RunObject = Page "Budget Names Sales";
+                        RunObject = page "Budget Names Sales";
                     }
                     action("Sales Analysis Reports")
                     {
-                        ApplicationArea = Suite;
+                        ApplicationArea = SalesAnalysis;
                         Caption = 'Sales Analysis Reports';
-                        RunObject = Page "Analysis Report Sale";
+                        RunObject = page "Analysis Report Sale";
                     }
                     action("Sales Analysis by Dimensions")
                     {
                         ApplicationArea = Dimensions, SalesAnalysis;
                         Caption = 'Sales Analysis by Dimensions';
-                        RunObject = Page "Analysis View List Sales";
+                        RunObject = page "Analysis View List Sales";
                     }
                     action("Forecast")
                     {
                         ApplicationArea = Manufacturing;
                         Caption = 'Production Forecast';
-                        RunObject = Page "Demand Forecast";
+                        RunObject = page "Demand Forecast";
                     }
                     action("Item Dimensions - Detail")
                     {
                         ApplicationArea = Dimensions;
                         Caption = 'Item Dimensions - Detail';
-                        RunObject = Report "Item Dimensions - Detail";
+                        RunObject = report "Item Dimensions - Detail";
                     }
                     action("Item Dimensions - Total")
                     {
                         ApplicationArea = Dimensions;
                         Caption = 'Item Dimensions - Total';
-                        RunObject = Report "Item Dimensions - Total";
+                        RunObject = report "Item Dimensions - Total";
                     }
                     action("Opportunities Matrix")
                     {
                         ApplicationArea = RelationshipMgmt;
                         Caption = 'Opportunity Analysis';
-                        RunObject = Page "Opportunities";
+                        RunObject = page "Opportunities";
                     }
                 }
                 group("Group2")
@@ -98,7 +98,7 @@ page 8907 "Sales & Marketing Manager RC"
                     {
                         ApplicationArea = Suite;
                         Caption = 'Sales Deferral Summary';
-                        RunObject = Report "Deferral Summary - Sales";
+                        RunObject = report "Deferral Summary - Sales";
                     }
                     group("Group3")
                     {
@@ -107,37 +107,37 @@ page 8907 "Sales & Marketing Manager RC"
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Salesperson Tasks';
-                            RunObject = Report "Salesperson - Tasks";
+                            RunObject = report "Salesperson - Tasks";
                         }
                         action("Salesperson - Commission")
                         {
                             ApplicationArea = Suite;
                             Caption = 'Salesperson Commission';
-                            RunObject = Report "Salesperson - Commission";
+                            RunObject = report "Salesperson - Commission";
                         }
                         action("Salesperson - Opportunities")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Salesperson Opportunities';
-                            RunObject = Report "Salesperson - Opportunities";
+                            RunObject = report "Salesperson - Opportunities";
                         }
                         action("Sales Statistics")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Sales Statistics';
-                            RunObject = Report "Sales Statistics";
+                            RunObject = report "Sales Statistics";
                         }
                         action("Team - Tasks")
                         {
                             ApplicationArea = RelationshipMgmt;
                             Caption = 'Team Tasks';
-                            RunObject = Report "Team - Tasks";
+                            RunObject = report "Team - Tasks";
                         }
                         action("Salesperson - Sales Statistics")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Salesperson Sales Statistics';
-                            RunObject = Report "Salesperson - Sales Statistics";
+                            RunObject = report "Salesperson - Sales Statistics";
                         }
                     }
                     group("Group4")
@@ -147,37 +147,37 @@ page 8907 "Sales & Marketing Manager RC"
                         {
                             ApplicationArea = RelationshipMgmt;
                             Caption = 'Contact Labels';
-                            RunObject = Report "Contact - Labels";
+                            RunObject = report "Contact - Labels";
                         }
                         action("Contact - Company Summary")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Contact - Company Summary';
-                            RunObject = Report "Contact - Company Summary";
+                            RunObject = report "Contact - Company Summary";
                         }
                         action("Questionnaire - Handouts")
                         {
                             ApplicationArea = RelationshipMgmt;
                             Caption = 'Questionnaire - Handouts';
-                            RunObject = Report "Questionnaire - Handouts";
+                            RunObject = report "Questionnaire - Handouts";
                         }
                         action("Contact - List")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Contact List';
-                            RunObject = Report "Contact - List";
+                            RunObject = report "Contact - List";
                         }
                         action("Orgl. Profile Summary")
                         {
                             ApplicationArea = RelationshipMgmt;
                             Caption = 'Contact - Person Summary';
-                            RunObject = Report "Contact - Person Summary";
+                            RunObject = report "Contact - Person Summary";
                         }
                         action("Contact - Cover Sheet")
                         {
                             ApplicationArea = RelationshipMgmt;
                             Caption = 'Contact - Cover Sheet';
-                            RunObject = Report "Contact - Cover Sheet";
+                            RunObject = report "Contact - Cover Sheet";
                         }
                     }
                     group("Group5")
@@ -187,61 +187,61 @@ page 8907 "Sales & Marketing Manager RC"
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Customer - List';
-                            RunObject = Report "Customer - List";
+                            RunObject = report "Customer - List";
                         }
                         action("Customer - Labels")
                         {
                             ApplicationArea = Suite;
                             Caption = 'Customer Labels';
-                            RunObject = Report "Customer - Labels";
+                            RunObject = report "Customer - Labels";
                         }
                         action("Customer - Balance to Date")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Customer - Balance to Date';
-                            RunObject = Report "Customer - Balance to Date";
+                            RunObject = report "Customer - Balance to Date";
                         }
                         action("Customer - Order Summary")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Customer - Order Summary';
-                            RunObject = Report "Customer - Order Summary";
+                            RunObject = report "Customer - Order Summary";
                         }
                         action("Customer/Item Sales")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Customer/Item Sales';
-                            RunObject = Report "Customer/Item Sales";
+                            RunObject = report "Customer/Item Sales";
                         }
                         action("Customer Register")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Customer Register';
-                            RunObject = Report "Customer Register";
+                            RunObject = report "Customer Register";
                         }
                         action("Customer - Order Detail")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Customer - Order Detail';
-                            RunObject = Report "Customer - Order Detail";
+                            RunObject = report "Customer - Order Detail";
                         }
                         action("Customer - Top 10 List")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Customer Top 10 List';
-                            RunObject = Report "Customer - Top 10 List";
+                            RunObject = report "Customer - Top 10 List";
                         }
                         action("Customer - Trial Balance")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Customer Trial Balance';
-                            RunObject = Report "Customer - Trial Balance";
+                            RunObject = report "Customer - Trial Balance";
                         }
                         action("Customer - Sales List")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Customer - Sales List';
-                            RunObject = Report "Customer - Sales List";
+                            RunObject = report "Customer - Sales List";
                         }
                     }
                     group("Group6")
@@ -251,19 +251,19 @@ page 8907 "Sales & Marketing Manager RC"
                         {
                             ApplicationArea = RelationshipMgmt;
                             Caption = 'Opportunity - List';
-                            RunObject = Report "Opportunity - List";
+                            RunObject = report "Opportunity - List";
                         }
                         action("Opportunity - Details")
                         {
                             ApplicationArea = RelationshipMgmt;
                             Caption = 'Opportunity - Details';
-                            RunObject = Report "Opportunity - Details";
+                            RunObject = report "Opportunity - Details";
                         }
                         action("Sales Cycle - Analysis")
                         {
                             ApplicationArea = RelationshipMgmt;
                             Caption = 'Sales Cycle - Analysis';
-                            RunObject = Report "Sales Cycle - Analysis";
+                            RunObject = report "Sales Cycle - Analysis";
                         }
                     }
                 }
@@ -275,73 +275,61 @@ page 8907 "Sales & Marketing Manager RC"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Customers';
-                    RunObject = Page "Customer List";
+                    RunObject = page "Customer List";
                 }
                 action("Contacts1")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Contacts';
-                    RunObject = Page "Contact List";
+                    RunObject = page "Contact List";
                 }
                 action("Quotes")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Sales Quotes';
-                    RunObject = Page "Sales Quotes";
+                    RunObject = page "Sales Quotes";
                 }
                 action("Orders")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Sales Orders';
-                    RunObject = Page "Sales Order List";
+                    RunObject = page "Sales Order List";
                 }
                 action("Blanket Orders")
                 {
                     ApplicationArea = Suite;
                     Caption = 'Blanket Sales Orders';
-                    RunObject = Page "Blanket Sales Orders";
+                    RunObject = page "Blanket Sales Orders";
                 }
                 action("Return Orders")
                 {
                     ApplicationArea = SalesReturnOrder;
                     Caption = 'Sales Return Orders';
-                    RunObject = Page "Sales Return Order List";
+                    RunObject = page "Sales Return Order List";
                 }
                 action("Invoices")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Sales Invoices';
-                    RunObject = Page "Sales Invoice List";
+                    RunObject = page "Sales Invoice List";
                 }
                 action("Credit Memos")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Sales Credit Memos';
-                    RunObject = Page "Sales Credit Memos";
+                    RunObject = page "Sales Credit Memos";
                 }
-                // action("Create Electronic Invoices")
-                // {
-                //     ApplicationArea = Basic, Suite;
-                //     Caption = 'Create Electronic Invoices';
-                //     RunObject = Report 13600;
-                // }
-                // action("Create Electronic Credit Memos")
-                // {
-                //     ApplicationArea = Basic, Suite;
-                //     Caption = 'Create Electronic Credit Memos';
-                //     RunObject = Report 13601;
-                // }
                 action("Certificates of Supply")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Certificates of Supply';
-                    RunObject = Page "Certificates of Supply";
+                    RunObject = page "Certificates of Supply";
                 }
                 action("Order Planning")
                 {
                     ApplicationArea = Planning;
                     Caption = 'Order Planning';
-                    RunObject = Page "Order Planning";
+                    RunObject = page "Order Planning";
                 }
                 group("Group8")
                 {
@@ -350,25 +338,25 @@ page 8907 "Sales & Marketing Manager RC"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Posted Sales Invoices';
-                        RunObject = Page "Posted Sales Invoices";
+                        RunObject = page "Posted Sales Invoices";
                     }
                     action("Posted Sales Shipments")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Posted Sales Shipments';
-                        RunObject = Page "Posted Sales Shipments";
+                        RunObject = page "Posted Sales Shipments";
                     }
                     action("Posted Credit Memos")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Posted Sales Credit Memos';
-                        RunObject = Page "Posted Sales Credit Memos";
+                        RunObject = page "Posted Sales Credit Memos";
                     }
                     action("Posted Return Receipts")
                     {
                         ApplicationArea = SalesReturnOrder;
                         Caption = 'Posted Return Receipts';
-                        RunObject = Page "Posted Return Receipts";
+                        RunObject = page "Posted Return Receipts";
                     }
                 }
                 group("Group9")
@@ -378,49 +366,49 @@ page 8907 "Sales & Marketing Manager RC"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'G/L Registers';
-                        RunObject = Page "G/L Registers";
+                        RunObject = page "G/L Registers";
                     }
                     action("Item Tracing")
                     {
                         ApplicationArea = ItemTracking;
                         Caption = 'Item Tracing';
-                        RunObject = Page "Item Tracing";
+                        RunObject = page "Item Tracing";
                     }
                     action("Sales Quote Archive")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Sales Quote Archives';
-                        RunObject = Page "Sales Quote Archives";
+                        RunObject = page "Sales Quote Archives";
                     }
                     action("Sales Order Archive")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Sales Order Archives';
-                        RunObject = Page "Sales Order Archives";
+                        RunObject = page "Sales Order Archives";
                     }
                     action("Sales Return Order Archives")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Sales Return Order Archives';
-                        RunObject = Page "Sales Return List Archive";
+                        RunObject = page "Sales Return List Archive";
                     }
                     action("Customer Ledger Entries")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Customer Ledger Entries';
-                        RunObject = Page "Customer Ledger Entries";
+                        RunObject = page "Customer Ledger Entries";
                     }
                     action("Detailed Cust. Ledg. Entries")
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'Detailed Customer Ledgerg Entries';
-                        RunObject = Page "Detailed Cust. Ledg. Entries";
+                        Caption = 'Detailed Customer Ledger Entries';
+                        RunObject = page "Detailed Cust. Ledg. Entries";
                     }
                     action("Value Entries")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Value Entries';
-                        RunObject = Page "Value Entries";
+                        RunObject = page "Value Entries";
                     }
                 }
                 group("Group10")
@@ -430,43 +418,43 @@ page 8907 "Sales & Marketing Manager RC"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Customer - Order Detail';
-                        RunObject = Report "Customer - Order Detail";
+                        RunObject = report "Customer - Order Detail";
                     }
                     action("Sales Reservation Avail.")
                     {
                         ApplicationArea = Reservation;
                         Caption = 'Sales Reservation Avail.';
-                        RunObject = Report "Sales Reservation Avail.";
+                        RunObject = report "Sales Reservation Avail.";
                     }
                     action("Sales Statistics1")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Sales Statistics';
-                        RunObject = Report "Sales Statistics";
+                        RunObject = report "Sales Statistics";
                     }
                     action("Customer - Sales List1")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Customer - Sales List';
-                        RunObject = Report "Customer - Sales List";
+                        RunObject = report "Customer - Sales List";
                     }
                     action("EC Sales List")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'EC Sales List';
-                        RunObject = Report "EC Sales List";
+                        RunObject = report "EC Sales List";
                     }
                     action("Customer/Item Sales1")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Customer/Item Sales';
-                        RunObject = Report "Customer/Item Sales";
+                        RunObject = report "Customer/Item Sales";
                     }
                     action("Customer - Order Summary1")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Customer - Order Summary';
-                        RunObject = Report "Customer - Order Summary";
+                        RunObject = report "Customer - Order Summary";
                     }
                 }
             }
@@ -477,43 +465,43 @@ page 8907 "Sales & Marketing Manager RC"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Contacts';
-                    RunObject = Page "Contact List";
+                    RunObject = page "Contact List";
                 }
                 action("Campaigns")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Campaigns';
-                    RunObject = Page "Campaign List";
+                    RunObject = page "Campaign List";
                 }
                 action("Segments")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Segments';
-                    RunObject = Page "Segment List";
+                    RunObject = page "Segment List";
                 }
                 action("Logged Segments")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Logged Segments';
-                    RunObject = Page "Logged Segments";
+                    RunObject = page "Logged Segments";
                 }
                 action("Opportunities1")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Opportunities';
-                    RunObject = Page "Opportunity List";
+                    RunObject = page "Opportunity List";
                 }
                 action("Tasks1")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Tasks';
-                    RunObject = Page "Tasks";
+                    RunObject = page "Tasks";
                 }
                 action("Campaign - Details")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Campaign - Details';
-                    RunObject = Report "Campaign - Details";
+                    RunObject = report "Campaign - Details";
                 }
                 group("Group12")
                 {
@@ -522,19 +510,19 @@ page 8907 "Sales & Marketing Manager RC"
                     {
                         ApplicationArea = RelationshipMgmt;
                         Caption = 'Campaign Entries';
-                        RunObject = Page "Campaign Entries";
+                        RunObject = page "Campaign Entries";
                     }
                     action("Opportunity Entries")
                     {
                         ApplicationArea = RelationshipMgmt;
                         Caption = 'Opportunity Entries';
-                        RunObject = Page "Opportunity Entries";
+                        RunObject = page "Opportunity Entries";
                     }
                     action("Interaction Log Entries")
                     {
                         ApplicationArea = RelationshipMgmt;
                         Caption = 'Interaction Log Entries';
-                        RunObject = Page "Interaction Log Entries";
+                        RunObject = page "Interaction Log Entries";
                     }
                 }
             }
@@ -545,19 +533,19 @@ page 8907 "Sales & Marketing Manager RC"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Items';
-                    RunObject = Page "Item List";
+                    RunObject = page "Item List";
                 }
                 action("Nonstock Items")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Nonstock Items';
-                    RunObject = Page "Catalog Item List";
+                    RunObject = page "Catalog Item List";
                 }
                 action("Item Attributes")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Item Attributes';
-                    RunObject = Page "Item Attributes";
+                    RunObject = page "Item Attributes";
                 }
 #if not CLEAN19
                 action("Sales Price Worksheet")
@@ -581,7 +569,7 @@ page 8907 "Sales & Marketing Manager RC"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Adjust Item Costs/Prices';
-                    RunObject = Report "Adjust Item Costs/Prices";
+                    RunObject = report "Adjust Item Costs/Prices";
                 }
                 group("Group14")
                 {
@@ -590,43 +578,43 @@ page 8907 "Sales & Marketing Manager RC"
                     {
                         ApplicationArea = Suite;
                         Caption = 'Inventory Sales Statistics';
-                        RunObject = Report "Inventory - Sales Statistics";
+                        RunObject = report "Inventory - Sales Statistics";
                     }
                     action("Inventory Cost and Price List")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Inventory Cost and Price List';
-                        RunObject = Report "Inventory Cost and Price List";
+                        RunObject = report "Inventory Cost and Price List";
                     }
                     action("Item Charges - Specification")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Item Charges - Specification';
-                        RunObject = Report "Item Charges - Specification";
+                        RunObject = report "Item Charges - Specification";
                     }
                     action("Inventory - Customer Sales")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Inventory Customer Sales';
-                        RunObject = Report "Inventory - Customer Sales";
+                        RunObject = report "Inventory - Customer Sales";
                     }
                     action("Nonstock Item Sales")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Nonstock Item Sales';
-                        RunObject = Report "Catalog Item Sales";
+                        RunObject = report "Catalog Item Sales";
                     }
                     action("Inventory Availability")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Inventory Availability';
-                        RunObject = Report "Inventory Availability";
+                        RunObject = report "Inventory Availability";
                     }
                     action("Inventory Order Details")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Inventory Order Details';
-                        RunObject = Report "Inventory Order Details";
+                        RunObject = report "Inventory Order Details";
                     }
 #if not CLEAN19
                     action("Price List")
@@ -648,25 +636,25 @@ page 8907 "Sales & Marketing Manager RC"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Inventory - Sales Back Orders';
-                        RunObject = Report "Inventory - Sales Back Orders";
+                        RunObject = report "Inventory - Sales Back Orders";
                     }
                     action("Inventory - Top 10 List")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Inventory Top 10 List';
-                        RunObject = Report "Inventory - Top 10 List";
+                        RunObject = report "Inventory - Top 10 List";
                     }
                     action("Item Substitutions")
                     {
                         ApplicationArea = Suite;
                         Caption = 'Item Substitutions';
-                        RunObject = Report "Item Substitutions";
+                        RunObject = report "Item Substitutions";
                     }
                     action("Assemble to Order - Sales")
                     {
                         ApplicationArea = Assembly;
                         Caption = 'Assemble to Order - Sales';
-                        RunObject = Report "Assemble to Order - Sales";
+                        RunObject = report "Assemble to Order - Sales";
                     }
                 }
             }
@@ -677,55 +665,55 @@ page 8907 "Sales & Marketing Manager RC"
                 {
                     ApplicationArea = Suite;
                     Caption = 'Sales Orders - Dynamics 365 Sales';
-                    RunObject = Page "CRM Sales Order List";
+                    RunObject = page "CRM Sales Order List";
                 }
                 action("Quotes - Dynamics 365 for Sales")
                 {
                     ApplicationArea = Suite;
                     Caption = 'Quotes - Dynamics 365 Sales';
-                    RunObject = Page "CRM Sales Quote List";
+                    RunObject = page "CRM Sales Quote List";
                 }
                 action("Cases - Dynamics 365 for Customer Service")
                 {
                     ApplicationArea = Suite;
                     Caption = 'Cases - Dynamics 365 for Customer Service';
-                    RunObject = Page "CRM Case List";
+                    RunObject = page "CRM Case List";
                 }
                 action("Opportunities - Dynamics 365 for Sales")
                 {
                     ApplicationArea = Suite;
                     Caption = 'Opportunities - Dynamics 365 Sales';
-                    RunObject = Page "CRM Opportunity List";
+                    RunObject = page "CRM Opportunity List";
                 }
                 action("Accounts - Dynamics 365 for Sales")
                 {
                     ApplicationArea = Suite;
                     Caption = 'Accounts - Dynamics 365 Sales';
-                    RunObject = Page "CRM Account List";
+                    RunObject = page "CRM Account List";
                 }
                 action("Transaction Currencies - Dynamics 365 for Sales")
                 {
                     ApplicationArea = Suite;
                     Caption = 'Transaction Currencies - Dynamics 365 Sales';
-                    RunObject = Page "CRM TransactionCurrency List";
+                    RunObject = page "CRM TransactionCurrency List";
                 }
                 action("Unit Groups - Dynamics 365 for Sales")
                 {
                     ApplicationArea = Suite;
                     Caption = 'Unit Groups - Dynamics 365 Sales';
-                    RunObject = Page "CRM UnitGroup List";
+                    RunObject = page "CRM UnitGroup List";
                 }
                 action("Products - Dynamics 365 for Sales")
                 {
                     ApplicationArea = Suite;
                     Caption = 'Products - Dynamics 365 Sales';
-                    RunObject = Page "CRM Product List";
+                    RunObject = page "CRM Product List";
                 }
                 action("Contacts - Dynamics 365 for Sales")
                 {
                     ApplicationArea = Suite;
                     Caption = 'Contacts - Dynamics 365 Sales';
-                    RunObject = Page "CRM Contact List";
+                    RunObject = page "CRM Contact List";
                 }
                 action("Records Skipped For Synchronization")
                 {
@@ -742,15 +730,15 @@ page 8907 "Sales & Marketing Manager RC"
                 {
                     ApplicationArea = OrderPromising;
                     Caption = 'Order Promising Setup';
-                    RunObject = Page "Order Promising Setup";
+                    RunObject = page "Order Promising Setup";
                 }
                 action("Sales & Receivables Setup")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Sales & Receivables Setup';
-                    RunObject = Page "Sales & Receivables Setup";
+                    RunObject = page "Sales & Receivables Setup";
                 }
-                action("Report Selection Sales")
+                action("report Selection Sales")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Report Selections Sales';
@@ -760,43 +748,43 @@ page 8907 "Sales & Marketing Manager RC"
                 {
                     ApplicationArea = Suite;
                     Caption = 'Standard Sales Codes';
-                    RunObject = Page "Standard Sales Codes";
+                    RunObject = page "Standard Sales Codes";
                 }
                 action("Payment Terms")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Payment Terms';
-                    RunObject = Page "Payment Terms";
+                    RunObject = page "Payment Terms";
                 }
                 action("Payment Methods")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Payment Methods';
-                    RunObject = Page "Payment Methods";
+                    RunObject = page "Payment Methods";
                 }
                 action("Item Disc. Groups")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Item Discount Groups';
-                    RunObject = Page "Item Disc. Groups";
+                    RunObject = page "Item Disc. Groups";
                 }
                 action("Shipment Methods")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Shipment Methods';
-                    RunObject = Page "Shipment Methods";
+                    RunObject = page "Shipment Methods";
                 }
                 action("Shipping Agents")
                 {
                     ApplicationArea = Suite;
                     Caption = 'Shipping Agents';
-                    RunObject = Page "Shipping Agents";
+                    RunObject = page "Shipping Agents";
                 }
                 action("Return Reasons")
                 {
                     ApplicationArea = SalesReturnOrder;
                     Caption = 'Return Reasons';
-                    RunObject = Page "Return Reasons";
+                    RunObject = page "Return Reasons";
                 }
 #if not CLEAN18
                 action("Contact Conversion Templates")
@@ -804,7 +792,6 @@ page 8907 "Sales & Marketing Manager RC"
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Contact Conversion Templates';
                     RunObject = page "Customer Template List";
-                    Tooltip = 'Open the Contact Conversion Templates page.';
                     ObsoleteReason = 'Will be removed with other functionality related to "old" templates. Replaced by "Customer Templates".';
                     ObsoleteState = Pending;
                     ObsoleteTag = '18.0';
@@ -815,34 +802,33 @@ page 8907 "Sales & Marketing Manager RC"
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Customer Templates';
                     RunObject = page "Customer Templ. List";
-                    Tooltip = 'Open the Customer Templates page.';
                 }
                 group("Group17")
                 {
                     Caption = 'Sales Analysis';
                     action("Analysis Types")
                     {
-                        ApplicationArea = Suite;
+                        ApplicationArea = SalesAnalysis, PurchaseAnalysis, InventoryAnalysis;
                         Caption = 'Analysis Types';
-                        RunObject = Page "Analysis Types";
+                        RunObject = page "Analysis Types";
                     }
                     action("Sales Analysis by Dimensions1")
                     {
                         ApplicationArea = Dimensions, SalesAnalysis;
                         Caption = 'Sales Analysis by Dimensions';
-                        RunObject = Page "Analysis View List Sales";
+                        RunObject = page "Analysis View List Sales";
                     }
                     action("Analysis Column Templates")
                     {
-                        ApplicationArea = Suite;
+                        ApplicationArea = SalesAnalysis;
                         Caption = 'Sales Analysis Column Templates';
-                        RunObject = Report "Run Sales Analysis Col. Temp.";
+                        RunObject = report "Run Sales Analysis Col. Temp.";
                     }
                     action("Analysis Line Templates")
                     {
-                        ApplicationArea = Suite;
+                        ApplicationArea = SalesAnalysis;
                         Caption = 'Sales Analysis Line Templates';
-                        RunObject = Report "Run Sales Analysis Line Templ.";
+                        RunObject = report "Run Sales Analysis Line Templ.";
                     }
                 }
                 group("Group18")
@@ -852,7 +838,7 @@ page 8907 "Sales & Marketing Manager RC"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Customer Price Groups';
-                        RunObject = Page "Customer Price Groups";
+                        RunObject = page "Customer Price Groups";
                     }
                     action("Customer Disc. Groups")
                     {
@@ -868,19 +854,19 @@ page 8907 "Sales & Marketing Manager RC"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Nonstock Item Setup';
-                        RunObject = Page "Catalog Item Setup";
+                        RunObject = page "Catalog Item Setup";
                     }
                     action("Item Charges")
                     {
                         ApplicationArea = ItemCharges;
                         Caption = 'Item Charges';
-                        RunObject = Page "Item Charges";
+                        RunObject = page "Item Charges";
                     }
                     action("Item Disc. Groups1")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Item Discount Groups';
-                        RunObject = Page "Item Disc. Groups";
+                        RunObject = page "Item Disc. Groups";
                     }
                     action("Inventory Setup")
                     {
@@ -896,97 +882,97 @@ page 8907 "Sales & Marketing Manager RC"
                     {
                         ApplicationArea = Basic, Suite, RelationshipMgmt;
                         Caption = 'Marketing Setup';
-                        RunObject = Page "Marketing Setup";
+                        RunObject = page "Marketing Setup";
                     }
                     action("Interaction Template Setup")
                     {
                         ApplicationArea = RelationshipMgmt;
                         Caption = 'Interaction Template Setup';
-                        RunObject = Page "Interaction Template Setup";
+                        RunObject = page "Interaction Template Setup";
                     }
                     action("Business Relations")
                     {
                         ApplicationArea = RelationshipMgmt;
                         Caption = 'Business Relations';
-                        RunObject = Page "Business Relations";
+                        RunObject = page "Business Relations";
                     }
                     action("Industry Groups")
                     {
                         ApplicationArea = RelationshipMgmt;
                         Caption = 'Industry Groups';
-                        RunObject = Page "Industry Groups";
+                        RunObject = page "Industry Groups";
                     }
                     action("Web Sources")
                     {
                         ApplicationArea = RelationshipMgmt;
                         Caption = 'Web Sources';
-                        RunObject = Page "Web Sources";
+                        RunObject = page "Web Sources";
                     }
                     action("Job Responsibilities")
                     {
                         ApplicationArea = RelationshipMgmt;
                         Caption = 'Job Responsibilities';
-                        RunObject = Page "Job Responsibilities";
+                        RunObject = page "Job Responsibilities";
                     }
                     action("Organizational Levels")
                     {
                         ApplicationArea = RelationshipMgmt;
                         Caption = 'Organizational Levels';
-                        RunObject = Page "Organizational Levels";
+                        RunObject = page "Organizational Levels";
                     }
                     action("Interaction Groups")
                     {
                         ApplicationArea = RelationshipMgmt;
                         Caption = 'Interaction Groups';
-                        RunObject = Page "Interaction Groups";
+                        RunObject = page "Interaction Groups";
                     }
                     action("Interaction Templates")
                     {
                         ApplicationArea = RelationshipMgmt;
                         Caption = 'Interaction Templates';
-                        RunObject = Page "Interaction Templates";
+                        RunObject = page "Interaction Templates";
                     }
                     action("Salutations")
                     {
                         ApplicationArea = RelationshipMgmt;
                         Caption = 'Salutations';
-                        RunObject = Page "Salutations";
+                        RunObject = page "Salutations";
                     }
                     action("Mailing Groups")
                     {
                         ApplicationArea = RelationshipMgmt;
                         Caption = 'Mailing Groups';
-                        RunObject = Page "Mailing Groups";
+                        RunObject = page "Mailing Groups";
                     }
                     action("Status")
                     {
                         ApplicationArea = RelationshipMgmt;
                         Caption = 'Campaign Status';
-                        RunObject = Page "Campaign Status";
+                        RunObject = page "Campaign Status";
                     }
                     action("Sales Cycles")
                     {
                         ApplicationArea = RelationshipMgmt;
                         Caption = 'Sales Cycles';
-                        RunObject = Page "Sales Cycles";
+                        RunObject = page "Sales Cycles";
                     }
                     action("Close Opportunity Codes")
                     {
                         ApplicationArea = RelationshipMgmt;
                         Caption = 'Close Opportunity Codes';
-                        RunObject = Page "Close Opportunity Codes";
+                        RunObject = page "Close Opportunity Codes";
                     }
                     action("Questionnaire Setup")
                     {
                         ApplicationArea = RelationshipMgmt;
                         Caption = 'Questionnaire Setup';
-                        RunObject = Page "Profile Questionnaires";
+                        RunObject = page "Profile Questionnaires";
                     }
                     action("Activities")
                     {
                         ApplicationArea = RelationshipMgmt;
                         Caption = 'Activities';
-                        RunObject = Page "Activity List";
+                        RunObject = page "Activity List";
                     }
                 }
             }

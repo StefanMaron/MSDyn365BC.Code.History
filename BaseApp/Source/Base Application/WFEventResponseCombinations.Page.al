@@ -33,7 +33,7 @@ page 1507 "WF Event/Response Combinations"
 
                 trigger OnAction()
                 begin
-                    SetColumns(SetWanted::Previous);
+                    SetColumns("Matrix Page Step Type"::Previous);
                 end;
             }
             action(NextSet)
@@ -48,7 +48,7 @@ page 1507 "WF Event/Response Combinations"
 
                 trigger OnAction()
                 begin
-                    SetColumns(SetWanted::Next);
+                    SetColumns("Matrix Page Step Type"::Next);
                 end;
             }
         }
@@ -56,26 +56,26 @@ page 1507 "WF Event/Response Combinations"
 
     trigger OnOpenPage()
     begin
-        SetColumns(SetWanted::Initial);
+        SetColumns("Matrix Page Step Type"::Initial);
     end;
 
     var
         MatrixManagement: Codeunit "Matrix Management";
-        SetWanted: Option Initial,Previous,Same,Next,PreviousColumn,NextColumn;
         ColumnSetResponses: Text;
         MATRIX_ColumnCaptions_Responses: array[12] of Text[250];
         PKFirstRecInCurrSetResponses: Text;
         ColumnSetLengthResponses: Integer;
 
-    local procedure SetColumns(SetWanted: Option)
+    local procedure SetColumns(StepType: Enum "Matrix Page Step Type")
     var
         WorkflowResponse: Record "Workflow Response";
         ResponseRecRef: RecordRef;
     begin
         ResponseRecRef.Open(DATABASE::"Workflow Response");
-        MatrixManagement.GenerateMatrixDataExtended(ResponseRecRef, SetWanted, ArrayLen(MATRIX_ColumnCaptions_Responses),
-          WorkflowResponse.FieldNo(Description), PKFirstRecInCurrSetResponses, MATRIX_ColumnCaptions_Responses,
-          ColumnSetResponses, ColumnSetLengthResponses, MaxStrLen(MATRIX_ColumnCaptions_Responses[1]));
+        MatrixManagement.GenerateMatrixDataExtended(
+            ResponseRecRef, StepType.AsInteger(), ArrayLen(MATRIX_ColumnCaptions_Responses),
+            WorkflowResponse.FieldNo(Description), PKFirstRecInCurrSetResponses, MATRIX_ColumnCaptions_Responses,
+            ColumnSetResponses, ColumnSetLengthResponses, MaxStrLen(MATRIX_ColumnCaptions_Responses[1]));
 
         CurrPage.MatrixResponseSubpage.PAGE.SetMatrixColumns(MATRIX_ColumnCaptions_Responses, ColumnSetLengthResponses);
         CurrPage.Update(false);

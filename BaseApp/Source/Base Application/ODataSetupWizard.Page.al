@@ -35,16 +35,33 @@ page 6711 "OData Setup Wizard"
             }
             group(Step1)
             {
-                InstructionalText = '';
                 Visible = CurrentPage = 1;
                 group("Para1.1")
                 {
                     Caption = 'Welcome to Reporting Data Setup';
-                    InstructionalText = '';
                     group("Para1.1.1")
                     {
                         Caption = '';
                         InstructionalText = 'You can create data sets that you can use for building reports in Excel, Power BI or any other reporting tool that works with an OData data source.';
+                        ObsoleteReason = 'For improved rendering, this text is now moved to a label "Para1.1.1_aslabel".';
+                        ObsoleteState = Pending;
+                        Visible = false;
+                        ObsoleteTag = '19.0';
+                    }
+                    label("Para1.1.1_aslabel")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'You can create data sets that you can use for building reports in Excel, Power BI, or any other reporting tool that works with an OData data source.';
+                    }
+                    label("Whitespace1.1.1")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = '';
+                    }
+                    label("Para1.1.2")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'For some tools such as Power BI, selecting columns or setting filters from this assisted setup guide will have no effect. After you complete the assisted setup, use Power BI Desktop to create or modify reports to use the newly created web service, selecting the columns and setting the filters as needed.';
                     }
                 }
                 group("Para1.2")
@@ -54,6 +71,15 @@ page 6711 "OData Setup Wizard"
                     {
                         Caption = '';
                         InstructionalText = 'Choose Next so you can create reporting data sets.';
+                        ObsoleteReason = 'For improved rendering, this text is now moved to a label "Para1.2.1_aslabel".';
+                        ObsoleteState = Pending;
+                        Visible = false;
+                        ObsoleteTag = '19.0';
+                    }
+                    label("Para1.2.1_aslabel")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Choose Next so you can create reporting data sets.';
                     }
                 }
             }
@@ -262,16 +288,23 @@ page 6711 "OData Setup Wizard"
             }
             group(Step5)
             {
-                InstructionalText = '';
                 Visible = CurrentPage = 5;
                 group("Para5.1")
                 {
                     Caption = 'Success!';
-                    InstructionalText = '';
                     group("Para5.1.1")
                     {
                         Caption = '';
                         InstructionalText = 'Your data set has been successfully created!';
+                        ObsoleteReason = 'For improved rendering, this text is now moved to a label "Para5.1.1_aslabel".';
+                        ObsoleteState = Pending;
+                        Visible = false;
+                        ObsoleteTag = '19.0';
+                    }
+                    label("Para5.1.1_aslabel")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Your data set has been successfully created!';
                     }
                     field(ODataUrl; oDataUrl)
                     {
@@ -389,7 +422,7 @@ page 6711 "OData Setup Wizard"
                         Error(PublishWithoutFieldsErr);
                     CopyTempTableToConcreteTable;
                     oDataUrl := DisplayODataUrl;
-                    GuidedExperience.CompleteAssistedSetup(ObjectType::Page, PAGE::"OData Setup Wizard");
+                    GuidedExperience.CompleteAssistedSetup(ObjectType::Page, Page::"OData Setup Wizard");
                     PublishFlag := true;
                     CurrentPage := CurrentPage + 1;
                     CurrPage.Update(false);
@@ -420,12 +453,18 @@ page 6711 "OData Setup Wizard"
 
                 trigger OnAction()
                 var
-                    ODataUtility: Codeunit ODataUtility;
+                    TenantWebService: Record "Tenant Web Service";
+                    EditinExcel: Codeunit "Edit in Excel";
                 begin
-                    if (ActionType = ActionType::"Create a new data set") or (ActionType = ActionType::"Create a copy of an existing data set") then
-                        ODataUtility.GenerateExcelWorkBook(ObjectTypeLookup, ServiceNameEdit, true, '')
-                    else
-                        ODataUtility.GenerateExcelWorkBook(ObjectTypeLookup, ServiceNameLookup, true, '');
+                    if (ActionType = ActionType::"Create a new data set") or (ActionType = ActionType::"Create a copy of an existing data set") then begin
+                        if not TenantWebService.Get(ObjectTypeLookup, ServiceNameEdit) then
+                            Error(ServiceNotFoundErr);
+                        EditinExcel.GenerateExcelWorkBook(TenantWebService, '');
+                    end else begin
+                        if not TenantWebService.Get(ObjectTypeLookup, ServiceNameLookup) then
+                            Error(ServiceNotFoundErr);
+                        EditinExcel.GenerateExcelWorkBook(TenantWebService, '');
+                    end;
                 end;
             }
         }
@@ -482,6 +521,7 @@ page 6711 "OData Setup Wizard"
         NAVNotSetUpQst: Label 'The data set has not been set up.\Are you sure you want to exit?';
         PublishWithoutFieldsErr: Label 'Please select field(s) before publishing the data set.';
         PermissionsErr: Label 'You do not have permissions to run this wizard.';
+        ServiceNotFoundErr: Label 'The web service does not exist.';
         ExcelVisible: Boolean;
 
     local procedure GetFilterText(var TempTenantWebServiceColumns: Record "Tenant Web Service Columns" temporary): Boolean

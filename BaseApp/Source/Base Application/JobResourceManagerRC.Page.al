@@ -1,6 +1,6 @@
 page 9014 "Job Resource Manager RC"
 {
-    Caption = 'Resource Manager', Comment = '{Dependency=Match,"ProfileDescription_RESOURCEMANAGER"}';
+    Caption = 'Resource Manager';
     PageType = RoleCenter;
 
     layout

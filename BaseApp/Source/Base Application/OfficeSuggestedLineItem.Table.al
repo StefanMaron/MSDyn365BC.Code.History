@@ -13,7 +13,7 @@ table 1637 "Office Suggested Line Item"
         {
             Caption = 'Add';
             Description = 'Specifies whether to add this item to the document.';
-            InitValue = true;
+            InitValue = false;
         }
         field(3; "Item No."; Text[30])
         {

@@ -113,9 +113,6 @@ report 117 Reminder
                 column(CompanyInfoGiroNo; CompanyInfo."Giro No.")
                 {
                 }
-                column(CompanyInfoBankBranchNo; CompanyInfo."Bank Branch No.")
-                {
-                }
                 column(CompanyInfoVATRegNo; CompanyInfo.GetVATRegistrationNumber)
                 {
                 }
@@ -186,9 +183,6 @@ report 117 Reminder
                 {
                 }
                 column(GiroNoCaption; GiroNoCaptionLbl)
-                {
-                }
-                column(BankBranchNoCaption; BankBranchNoCaptionLbl)
                 {
                 }
                 column(VATRegNoCaption; "Issued Reminder Header".GetCustomerVATRegistrationNumberLbl)
@@ -880,7 +874,6 @@ report 117 Reminder
         BankAccNoCaptionLbl: Label 'Account No.';
         BankNameCaptionLbl: Label 'Bank';
         GiroNoCaptionLbl: Label 'Giro No.';
-        BankBranchNoCaptionLbl: Label 'Bank Branch No.';
         PhoneNoCaptionLbl: Label 'Phone No.';
         ReminderCaptionLbl: Label 'Reminder';
         HeaderDimensionsCaptionLbl: Label 'Header Dimensions';

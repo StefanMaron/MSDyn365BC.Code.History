@@ -95,6 +95,12 @@ page 5522 "Order Planning"
                     ToolTip = 'Specifies the variant of the item on the line.';
                     Visible = false;
                 }
+                field("Bin Code"; "Bin Code")
+                {
+                    ApplicationArea = Planning;
+                    ToolTip = 'Specifies the bin of the item on the line.';
+                    Visible = false;
+                }
                 field("Location Code"; "Location Code")
                 {
                     ApplicationArea = Location;
@@ -833,7 +839,7 @@ page 5522 "Order Planning"
         SetRecFilters;
     end;
 
-    local procedure FindReqLineForCursor(var ReqLineWithCursor: Record "Requisition Line"; ActualReqLine: Record "Requisition Line")
+    protected procedure FindReqLineForCursor(var ReqLineWithCursor: Record "Requisition Line"; ActualReqLine: Record "Requisition Line")
     begin
         if ProdOrder."No." = '' then
             exit;
@@ -1035,7 +1041,7 @@ page 5522 "Order Planning"
         exit(OrderPlanningMgt.SubstitutionPossible(Rec));
     end;
 
-    local procedure CalcPlan()
+    protected procedure CalcPlan()
     var
         ReqLine: Record "Requisition Line";
     begin

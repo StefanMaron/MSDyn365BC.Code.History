@@ -737,42 +737,6 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
     [Test]
     [HandlerFunctions('MessageHandler,VerifyMatchDetailsOnPaymentApplicationsPage')]
     [Scope('OnPrem')]
-    procedure TestCustMatchOnBankAccountOnly()
-    var
-        BankAccReconciliation: Record "Bank Acc. Reconciliation";
-        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
-        Customer: Record Customer;
-        BankPmtApplRule: Record "Bank Pmt. Appl. Rule";
-        CustomerBankAccount: Record "Customer Bank Account";
-        Amount: Decimal;
-    begin
-        Initialize;
-
-        // Setup
-        CreateCustomer(Customer);
-        Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, Amount);
-
-        CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
-        CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, Amount / 2, '', '');
-        CreateCustomerBankAccount(CustomerBankAccount, Customer."No.", BankAccReconciliation."Bank Account No.");
-        UpdateBankReconciliationLine(BankAccReconciliationLine,
-          CustomerBankAccount."Bank Branch No." + CustomerBankAccount."Bank Account No.", '', '', '');
-
-        // Exercise
-        RunMatch(BankAccReconciliation, true);
-
-        // Verify
-        SetRule(BankPmtApplRule, BankPmtApplRule."Related Party Matched"::Fully,
-          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::No, BankPmtApplRule."Amount Incl. Tolerance Matched"::"No Matches");
-        VerifyReconciliation(BankPmtApplRule, BankAccReconciliationLine."Statement Line No.");
-        VerifyMatchDetailsData(
-          BankAccReconciliation, BankPmtApplRule, BankAccReconciliationLine."Account Type"::Customer, Amount / 2, 0, 0, 1);
-    end;
-
-    [Test]
-    [HandlerFunctions('MessageHandler,VerifyMatchDetailsOnPaymentApplicationsPage')]
-    [Scope('OnPrem')]
     procedure TestCustExactMatchOnRelatedPartyNameSingle()
     var
         BankAccReconciliation: Record "Bank Acc. Reconciliation";
@@ -1329,79 +1293,6 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         PaymentReconciliationJournal.ApplyEntries.Invoke();
 
         // Verify is done in the modal handler
-    end;
-
-    [Test]
-    [HandlerFunctions('MessageHandler,VerifyMatchDetailsOnPaymentApplicationsPage')]
-    [Scope('OnPrem')]
-    procedure TestCustCertainAndMultipleAmountMatch()
-    var
-        BankAccReconciliation: Record "Bank Acc. Reconciliation";
-        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
-        Customer: Record Customer;
-        BankPmtApplRule: Record "Bank Pmt. Appl. Rule";
-        CustomerBankAccount: Record "Customer Bank Account";
-        Amount: Decimal;
-    begin
-        Initialize;
-
-        // Setup
-        CreateCustomer(Customer);
-        Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, Amount);
-        CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, Amount);
-
-        CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
-        CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, Amount, '', '');
-        CreateCustomerBankAccount(CustomerBankAccount, Customer."No.", BankAccReconciliation."Bank Account No.");
-        UpdateBankReconciliationLine(BankAccReconciliationLine,
-          CustomerBankAccount."Bank Branch No." + CustomerBankAccount."Bank Account No.", '', '', '');
-
-        // Exercise
-        RunMatch(BankAccReconciliation, true);
-
-        // Verify
-        SetRule(BankPmtApplRule, BankPmtApplRule."Related Party Matched"::Fully,
-          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::No, BankPmtApplRule."Amount Incl. Tolerance Matched"::"Multiple Matches");
-        VerifyReconciliation(BankPmtApplRule, BankAccReconciliationLine."Statement Line No.");
-        VerifyMatchDetailsData(
-          BankAccReconciliation, BankPmtApplRule, BankAccReconciliationLine."Account Type"::Customer, Amount, 0, 2, 0);
-    end;
-
-    [Test]
-    [HandlerFunctions('MessageHandler,VerifyMatchDetailsOnPaymentApplicationsPage')]
-    [Scope('OnPrem')]
-    procedure TestCustCertainAndSingleAmountMatch()
-    var
-        BankAccReconciliation: Record "Bank Acc. Reconciliation";
-        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
-        Customer: Record Customer;
-        BankPmtApplRule: Record "Bank Pmt. Appl. Rule";
-        CustomerBankAccount: Record "Customer Bank Account";
-        Amount: Decimal;
-    begin
-        Initialize;
-
-        // Setup
-        CreateCustomer(Customer);
-        Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, Amount);
-
-        CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
-        CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, Amount, '', '');
-        CreateCustomerBankAccount(CustomerBankAccount, Customer."No.", BankAccReconciliation."Bank Account No.");
-        UpdateBankReconciliationLine(BankAccReconciliationLine,
-          CustomerBankAccount."Bank Branch No." + CustomerBankAccount."Bank Account No.", '', '', '');
-
-        // Exercise
-        RunMatch(BankAccReconciliation, true);
-
-        // Verify
-        SetRule(BankPmtApplRule, BankPmtApplRule."Related Party Matched"::Fully,
-          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::No, BankPmtApplRule."Amount Incl. Tolerance Matched"::"One Match");
-        VerifyReconciliation(BankPmtApplRule, BankAccReconciliationLine."Statement Line No.");
-        VerifyMatchDetailsData(
-          BankAccReconciliation, BankPmtApplRule, BankAccReconciliationLine."Account Type"::Customer, Amount, 0, 1, 0);
     end;
 
     [Test]
@@ -3548,42 +3439,6 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
     [Test]
     [HandlerFunctions('MessageHandler,VerifyMatchDetailsOnPaymentApplicationsPage')]
     [Scope('OnPrem')]
-    procedure TestVendMatchOnBankAccountOnly()
-    var
-        BankAccReconciliation: Record "Bank Acc. Reconciliation";
-        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
-        Vendor: Record Vendor;
-        BankPmtApplRule: Record "Bank Pmt. Appl. Rule";
-        VendorBankAccount: Record "Vendor Bank Account";
-        Amount: Decimal;
-    begin
-        Initialize;
-
-        // Setup
-        CreateVendor(Vendor);
-        Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo, Amount);
-
-        CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
-        CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, -Amount / 2, '', '');
-        CreateVendorBankAccount(VendorBankAccount, Vendor."No.", BankAccReconciliation."Bank Account No.");
-        UpdateBankReconciliationLine(BankAccReconciliationLine,
-          VendorBankAccount."Bank Branch No." + VendorBankAccount."Bank Account No.", '', '', '');
-
-        // Exercise
-        RunMatch(BankAccReconciliation, true);
-
-        // Verify
-        SetRule(BankPmtApplRule, BankPmtApplRule."Related Party Matched"::Fully,
-          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::No, BankPmtApplRule."Amount Incl. Tolerance Matched"::"No Matches");
-        VerifyReconciliation(BankPmtApplRule, BankAccReconciliationLine."Statement Line No.");
-        VerifyMatchDetailsData(BankAccReconciliation, BankPmtApplRule,
-          BankAccReconciliationLine."Account Type"::Vendor, -Amount / 2, 0, 0, 1);
-    end;
-
-    [Test]
-    [HandlerFunctions('MessageHandler,VerifyMatchDetailsOnPaymentApplicationsPage')]
-    [Scope('OnPrem')]
     procedure TestVendExactMatchOnRelatedPartyNameSingle()
     var
         BankAccReconciliation: Record "Bank Acc. Reconciliation";
@@ -4101,79 +3956,6 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         VerifyReconciliation(BankPmtApplRule, BankAccReconciliationLine."Statement Line No.");
         VerifyMatchDetailsData(
           BankAccReconciliation, BankPmtApplRule, BankAccReconciliationLine."Account Type"::Vendor, -Amount / 2, 0, 0, 1);
-    end;
-
-    [Test]
-    [HandlerFunctions('MessageHandler,VerifyMatchDetailsOnPaymentApplicationsPage')]
-    [Scope('OnPrem')]
-    procedure TestVendCertainAndMultipleAmountMatch()
-    var
-        BankAccReconciliation: Record "Bank Acc. Reconciliation";
-        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
-        Vendor: Record Vendor;
-        BankPmtApplRule: Record "Bank Pmt. Appl. Rule";
-        VendorBankAccount: Record "Vendor Bank Account";
-        Amount: Decimal;
-    begin
-        Initialize;
-
-        // Setup
-        CreateVendor(Vendor);
-        Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo, Amount);
-        CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo, Amount);
-
-        CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
-        CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, -Amount, '', '');
-        CreateVendorBankAccount(VendorBankAccount, Vendor."No.", BankAccReconciliation."Bank Account No.");
-        UpdateBankReconciliationLine(BankAccReconciliationLine,
-          VendorBankAccount."Bank Branch No." + VendorBankAccount."Bank Account No.", '', '', '');
-
-        // Exercise
-        RunMatch(BankAccReconciliation, true);
-
-        // Verify
-        SetRule(BankPmtApplRule, BankPmtApplRule."Related Party Matched"::Fully,
-          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::No, BankPmtApplRule."Amount Incl. Tolerance Matched"::"Multiple Matches");
-        VerifyReconciliation(BankPmtApplRule, BankAccReconciliationLine."Statement Line No.");
-        VerifyMatchDetailsData(BankAccReconciliation, BankPmtApplRule,
-          BankAccReconciliationLine."Account Type"::Vendor, -Amount, 0, 2, 0);
-    end;
-
-    [Test]
-    [HandlerFunctions('MessageHandler,VerifyMatchDetailsOnPaymentApplicationsPage')]
-    [Scope('OnPrem')]
-    procedure TestVendCertainAndSingleAmountMatch()
-    var
-        BankAccReconciliation: Record "Bank Acc. Reconciliation";
-        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
-        Vendor: Record Vendor;
-        BankPmtApplRule: Record "Bank Pmt. Appl. Rule";
-        VendorBankAccount: Record "Vendor Bank Account";
-        Amount: Decimal;
-    begin
-        Initialize;
-
-        // Setup
-        CreateVendor(Vendor);
-        Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo, Amount);
-
-        CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
-        CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, -Amount, '', '');
-        CreateVendorBankAccount(VendorBankAccount, Vendor."No.", BankAccReconciliation."Bank Account No.");
-        UpdateBankReconciliationLine(BankAccReconciliationLine,
-          VendorBankAccount."Bank Branch No." + VendorBankAccount."Bank Account No.", '', '', '');
-
-        // Exercise
-        RunMatch(BankAccReconciliation, true);
-
-        // Verify
-        SetRule(BankPmtApplRule, BankPmtApplRule."Related Party Matched"::Fully,
-          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::No, BankPmtApplRule."Amount Incl. Tolerance Matched"::"One Match");
-        VerifyReconciliation(BankPmtApplRule, BankAccReconciliationLine."Statement Line No.");
-        VerifyMatchDetailsData(BankAccReconciliation, BankPmtApplRule,
-          BankAccReconciliationLine."Account Type"::Vendor, -Amount, 0, 1, 0);
     end;
 
     [Test]

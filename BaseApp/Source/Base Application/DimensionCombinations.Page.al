@@ -54,12 +54,10 @@ page 538 "Dimension Combinations"
                 ToolTip = 'Go to the previous set of data.';
 
                 trigger OnAction()
-                var
-                    Step: Option First,Previous,Same,Next;
                 begin
                     // SetPoints(Direction::Backward);
-                    MATRIX_GenerateColumnCaptions(Step::Previous);
-                    UpdateMatrixSubform;
+                    GenerateColumnCaptions("Matrix Page Step Type"::Previous);
+                    UpdateMatrixSubform();
                 end;
             }
             action("Previous Column")
@@ -74,12 +72,10 @@ page 538 "Dimension Combinations"
                 ToolTip = 'Go to the previous column.';
 
                 trigger OnAction()
-                var
-                    Step: Option First,Previous,Same,Next,PreviousColumn,NextColumn;
                 begin
                     // SetPoints(Direction::Backward);
-                    MATRIX_GenerateColumnCaptions(Step::PreviousColumn);
-                    UpdateMatrixSubform;
+                    GenerateColumnCaptions("Matrix Page Step Type"::PreviousColumn);
+                    UpdateMatrixSubform();
                 end;
             }
             action("Next Column")
@@ -93,12 +89,10 @@ page 538 "Dimension Combinations"
                 ToolTip = 'Go to the next column.';
 
                 trigger OnAction()
-                var
-                    Step: Option First,Previous,Same,Next,PreviousColumn,NextColumn;
                 begin
                     // SetPoints(Direction::Forward);
-                    MATRIX_GenerateColumnCaptions(Step::NextColumn);
-                    UpdateMatrixSubform;
+                    GenerateColumnCaptions("Matrix Page Step Type"::NextColumn);
+                    UpdateMatrixSubform();
                 end;
             }
             action("Next Set")
@@ -112,12 +106,10 @@ page 538 "Dimension Combinations"
                 ToolTip = 'Go to the next set of data.';
 
                 trigger OnAction()
-                var
-                    Step: Option First,Previous,Same,Next;
                 begin
                     // SetPoints(Direction::Forward);
-                    MATRIX_GenerateColumnCaptions(Step::Next);
-                    UpdateMatrixSubform;
+                    GenerateColumnCaptions("Matrix Page Step Type"::Next);
+                    UpdateMatrixSubform();
                 end;
             }
         }
@@ -131,8 +123,8 @@ page 538 "Dimension Combinations"
     trigger OnOpenPage()
     begin
         MaximumNoOfCaptions := ArrayLen(MATRIX_CaptionSet);
-        MATRIX_GenerateColumnCaptions(MATRIX_SetWanted::Initial);
-        UpdateMatrixSubform;
+        GenerateColumnCaptions("Matrix Page Step Type"::Initial);
+        UpdateMatrixSubform();
     end;
 
     var
@@ -147,10 +139,9 @@ page 538 "Dimension Combinations"
         MaximumNoOfCaptions: Integer;
         PrimaryKeyFirstCaptionInCurrSe: Text;
         MATRIX_CurrSetLength: Integer;
-        MATRIX_SetWanted: Option Initial,Previous,Same,Next,PreviousColumn,NextColumn;
         NoDimensionsErr: Label 'No dimensions are available in the database.';
 
-    local procedure MATRIX_GenerateColumnCaptions(SetWanted: Option Initial,Previous,Same,Next,PreviousColumn,NextColumn)
+    local procedure GenerateColumnCaptions(StepType: Enum "Matrix Page Step Type")
     var
         RecRef: RecordRef;
         CurrentMatrixRecordOrdinal: Integer;
@@ -167,7 +158,7 @@ page 538 "Dimension Combinations"
         else
             MATRIX_CaptionFieldNo := 1;
 
-        MatrixMgm.GenerateMatrixData(RecRef, SetWanted, MaximumNoOfCaptions, MATRIX_CaptionFieldNo, PrimaryKeyFirstCaptionInCurrSe,
+        MatrixMgm.GenerateMatrixData(RecRef, StepType.AsInteger(), MaximumNoOfCaptions, MATRIX_CaptionFieldNo, PrimaryKeyFirstCaptionInCurrSe,
           MATRIX_CaptionSet, MATRIX_ColumnSet, MATRIX_CurrSetLength);
 
         Clear(MatrixRecords);
@@ -193,13 +184,13 @@ page 538 "Dimension Combinations"
 
     local procedure ShowColumnNameOnAfterValidate()
     begin
-        UpdateMatrixSubform;
+        UpdateMatrixSubform();
     end;
 
     local procedure ShowColumnNameOnPush()
     begin
-        MATRIX_GenerateColumnCaptions(MATRIX_SetWanted::Same);
-        UpdateMatrixSubform;
+        GenerateColumnCaptions("Matrix Page Step Type"::Same);
+        UpdateMatrixSubform();
     end;
 }
 

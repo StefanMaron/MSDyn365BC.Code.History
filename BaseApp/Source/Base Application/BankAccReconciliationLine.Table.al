@@ -1,4 +1,4 @@
-﻿table 274 "Bank Acc. Reconciliation Line"
+table 274 "Bank Acc. Reconciliation Line"
 {
     Caption = 'Bank Acc. Reconciliation Line';
     Permissions = TableData "Data Exch. Field" = rimd;
@@ -555,12 +555,57 @@
         AppliedPaymentEntry.ModifyAll("Match Confidence", "Match Confidence"::Accepted);
     end;
 
+    procedure FilterManyToOneMatches(var BankAccRecMatchBuffer: Record "Bank Acc. Rec. Match Buffer")
+    begin
+        BankAccRecMatchBuffer.SetRange("Statement No.", Rec."Statement No.");
+        BankAccRecMatchBuffer.SetRange("Bank Account No.", Rec."Bank Account No.");
+        BankAccRecMatchBuffer.SetRange("Statement Line No.", Rec."Statement Line No.");
+    end;
+
     local procedure RemoveApplication(AppliedType: Option)
+    var
+        BankAccRecMatchBuffer: Record "Bank Acc. Rec. Match Buffer";
+        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
+        ManyToOneBLEFound: Boolean;
     begin
         if "Statement Type" = "Statement Type"::"Bank Reconciliation" then
             case AppliedType of
                 Type::"Bank Account Ledger Entry":
                     begin
+                        FilterManyToOneMatches(BankAccRecMatchBuffer);
+                        if BankAccRecMatchBuffer.FindFirst() then begin
+                            BankAccLedgEntry.Reset();
+                            BankAccLedgEntry.SetRange("Entry No.", BankAccRecMatchBuffer."Ledger Entry No.");
+                            BankAccLedgEntry.SetRange(Open, true);
+                            BankAccLedgEntry.SetRange(
+                                "Statement Status", BankAccLedgEntry."Statement Status"::"Bank Acc. Entry Applied");
+                            if BankAccLedgEntry.FindFirst() then begin
+                                ManyToOneBLEFound := true;
+                                BankAccSetStmtNo.RemoveReconNo(BankAccLedgEntry, Rec, false);
+                                BankAccRecMatchBuffer.Delete();
+                            end;
+                        end;
+
+
+                        BankAccRecMatchBuffer.Reset();
+                        BankAccRecMatchBuffer.SetRange("Ledger Entry No.", BankAccLedgEntry."Entry No.");
+                        BankAccRecMatchBuffer.SetRange("Statement No.", Rec."Statement No.");
+                        BankAccRecMatchBuffer.SetRange("Bank Account No.", Rec."Bank Account No.");
+                        if (BankAccRecMatchBuffer.FindSet()) and (ManyToOneBLEFound) then begin
+                            repeat
+                                BankAccReconciliationLine.SetRange("Statement Line No.", BankAccRecMatchBuffer."Statement Line No.");
+                                BankAccReconciliationLine.SetRange("Statement No.", BankAccRecMatchBuffer."Statement No.");
+                                BankAccReconciliationLine.SetRange("Bank Account No.", BankAccRecMatchBuffer."Bank Account No.");
+                                if BankAccReconciliationLine.FindFirst() then begin
+                                    BankAccReconciliationLine."Applied Entries" := 0;
+                                    BankAccReconciliationLine.Validate("Applied Amount", 0);
+                                    BankAccReconciliationLine.Modify();
+                                end;
+                            until BankAccRecMatchBuffer.Next() = 0;
+
+                            BankAccRecMatchBuffer.DeleteAll();
+                        end;
+
                         BankAccLedgEntry.Reset();
                         BankAccLedgEntry.SetCurrentKey("Bank Account No.", Open);
                         BankAccLedgEntry.SetRange("Bank Account No.", "Bank Account No.");

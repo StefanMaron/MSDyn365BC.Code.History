@@ -41,7 +41,6 @@
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
-                    OptionCaption = ',Item,Item & Location & Variant';
                     ToolTip = 'Specifies how costs are calculated for items using the Average costing method. Item: One average cost per item in the company is calculated. Item & Location & Variant: An average cost per item for each location and for each variant of the item in the company is calculated. This means that the average cost of this item depends on where it is stored and which variant, such as color, of the item you have selected.';
                 }
                 field("Average Cost Period"; "Average Cost Period")
@@ -95,6 +94,11 @@
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if you want to allow reservation for inventory receipts and shipments.';
                     Visible = false;
+                }
+                field("Use Item References"; Rec."Use Item References")
+                {
+                    ApplicationArea = Suite, ItemReferences;
+                    ToolTip = 'Specifies if you want to use item references in purchase and sales documents.';
                 }
             }
             group(Location)
@@ -209,32 +213,45 @@
                 field("Phys. Invt. Order Nos."; "Phys. Invt. Order Nos.")
                 {
                     ApplicationArea = Basic, Suite;
+                    Importance = Additional;
                     ToolTip = 'Specifies the number series that will be used to assign numbers to physical inventory orders.';
                 }
                 field("Posted Phys. Invt. Order Nos."; "Posted Phys. Invt. Order Nos.")
                 {
                     ApplicationArea = Basic, Suite;
+                    Importance = Additional;
                     ToolTip = 'Specifies the number series that will be used to assign numbers to physical inventory orders when they are posted.';
                 }
                 field("Invt. Receipt Nos."; Rec."Invt. Receipt Nos.")
                 {
                     ApplicationArea = Basic, Suite;
+                    Importance = Additional;
                     ToolTip = 'Specifies the number series from which numbers are assigned to new records.';
                 }
                 field("Posted Invt. Receipt Nos."; Rec."Posted Invt. Receipt Nos.")
                 {
                     ApplicationArea = Basic, Suite;
+                    Importance = Additional;
                     ToolTip = 'Specifies the number series from which numbers are assigned to new records.';
                 }
                 field("Invt. Shipment Nos."; Rec."Invt. Shipment Nos.")
                 {
                     ApplicationArea = Basic, Suite;
+                    Importance = Additional;
                     ToolTip = 'Specifies the number series from which numbers are assigned to new records.';
                 }
                 field("Posted Invt. Shipment Nos."; Rec."Posted Invt. Shipment Nos.")
                 {
                     ApplicationArea = Basic, Suite;
+                    Importance = Additional;
                     ToolTip = 'Specifies the number series from which numbers are assigned to new records.';
+                }
+                field("Package Nos."; Rec."Package Nos.")
+                {
+                    ApplicationArea = ItemTracking;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the number series that will be used to assign numbers to item tracking packages.';
+                    Visible = PackageVisible;
                 }
             }
         }
@@ -257,6 +274,21 @@
     {
         area(navigation)
         {
+            action("Schedule Cost Adjustment and Posting")
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Schedule Cost Adjustment and Posting';
+                Image = AdjustItemCost;
+                Promoted = true;
+                PromotedCategory = Category4;
+                PromotedIsBig = true;
+                Visible = AdjustCostWizardVisible;
+                ToolTip = 'Get help with creating job queue entries for item entry cost adjustments and posting costs to G/L tasks.';
+                trigger OnAction()
+                begin
+                    Page.RunModal(Page::"Cost Adj. Scheduling Wizard");
+                end;
+            }
             action("Inventory Periods")
             {
                 ApplicationArea = Basic, Suite;
@@ -354,16 +386,27 @@
         end;
 
         SetPackageVisibility();
+        SetAdjustCostWizardActionVisibility();
+
     end;
 
     var
         PackageMgt: Codeunit "Package Management";
+        SchedulingManager: Codeunit "Cost Adj. Scheduling Manager";
         [InDataSet]
         PackageVisible: Boolean;
+        AdjustCostWizardVisible: Boolean;
 
     local procedure SetPackageVisibility()
     begin
         PackageVisible := PackageMgt.IsEnabled();
+    end;
+
+    local procedure SetAdjustCostWizardActionVisibility()
+    begin
+        if (Rec."Automatic Cost Posting" = False) and (not SchedulingManager.PostInvCostToGLJobQueueExists()) or
+           (Rec."Automatic Cost Adjustment" = Rec."Automatic Cost Adjustment"::Never) and (not SchedulingManager.AdjCostJobQueueExists()) then
+            AdjustCostWizardVisible := true;
     end;
 }
 

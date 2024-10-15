@@ -72,6 +72,13 @@ table 5331 "CRM Integration Record"
         {
             Caption = 'Skipped';
             Editable = false;
+
+            trigger OnValidate()
+            begin
+                if not Skipped then
+                    if "Table ID" = Database::Customer then
+                        "Statistics Uploaded" := false;
+            end;
         }
         field(12; "Option Mapping Failure"; Boolean)
         {

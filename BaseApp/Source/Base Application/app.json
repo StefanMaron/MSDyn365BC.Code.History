@@ -3,7 +3,7 @@
     "name":  "Base Application",
     "publisher":  "Microsoft",
     "description":  "Provides business processes that are typical for small and mid-sized companies, such as sales and purchasing, and customer and vendor management, plus complex processes, such as assembly, manufacturing, service, and directed warehouse management. https://docs.microsoft.com/en-us/dynamics365/business-central/across-business-functionality",
-    "version":  "18.5.29545.0",
+    "version":  "19.0.29894.30693",
     "logo":  "ExtensionLogo.png",
     "privacyStatement":  "https://go.microsoft.com/fwlink/?LinkId=724009",
     "EULA":  "https://go.microsoft.com/fwlink/?linkid=2009120",
@@ -14,7 +14,7 @@
                              "id":  "63ca2fa4-4f03-4f2b-a480-172fef340d3f",
                              "name":  "System Application",
                              "publisher":  "Microsoft",
-                             "version":  "18.5.0.0"
+                             "version":  "19.0.0.0"
                          }
                      ],
     "internalsVisibleTo":  [
@@ -62,9 +62,19 @@
                                    "id":  "bd6c6741-7734-4109-bf2d-db58545d482c",
                                    "name":  "Tests-Local",
                                    "publisher":  "Microsoft"
+                               },
+                               {
+                                   "id":  "2a5ff629-58b0-48e8-9414-319055c49e8d",
+                                   "name":  "Tests-MOCKSERVICETESTS-Internal",
+                                   "publisher":  "Microsoft"
+                               },
+                               {
+                                   "id":  "d94a0cee-f211-4941-b609-7c984f85ad03",
+                                   "name":  "Tests-Permissions",
+                                   "publisher":  "Microsoft"
                                }
                            ],
-    "platform":  "18.0.0.0",
+    "platform":  "19.0.0.0",
     "target":  "OnPrem",
     "showMyCode":  true,
     "brief":  "Base Application (DK)"

@@ -123,6 +123,18 @@ report 5684 "Copy FA Entries to G/L Budget"
                             Caption = 'Appreciation';
                             ToolTip = 'Specifies if appreciations are included by the batch job.';
                         }
+                        field("TransferType[5]"; TransferType[5])
+                        {
+                            ApplicationArea = FixedAssets;
+                            Caption = 'Custom 1';
+                            ToolTip = 'Specifies whether custom 1 entries posted to this depreciation book are posted to the general ledger and the FA ledger.';
+                        }
+                        field("TransferType[6]"; TransferType[6])
+                        {
+                            ApplicationArea = FixedAssets;
+                            Caption = 'Custom 2';
+                            ToolTip = 'Specifies whether custom 2 entries posted to this depreciation book are posted to the general ledger and the FA ledger.';
+                        }
                     }
                 }
             }

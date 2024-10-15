@@ -98,8 +98,7 @@ table 288 "Vendor Bank Account"
 
             trigger OnValidate()
             begin
-                if ("Bank Branch No." <> '') and (StrLen("Bank Branch No.") < 4) then
-                    "Bank Branch No." := PadStr('', 4 - StrLen("Bank Branch No."), '0') + "Bank Branch No.";
+                OnValidateBankAccount(Rec, 'Bank Branch No.');
             end;
         }
         field(14; "Bank Account No."; Text[30])
@@ -108,8 +107,7 @@ table 288 "Vendor Bank Account"
 
             trigger OnValidate()
             begin
-                if ("Bank Account No." <> '') and (StrLen("Bank Account No.") < 10) then
-                    "Bank Account No." := PadStr('', 10 - StrLen("Bank Account No."), '0') + "Bank Account No.";
+                OnValidateBankAccount(Rec, 'Bank Account No.');
             end;
         }
         field(15; "Transit No."; Text[20])
@@ -204,6 +202,9 @@ table 288 "Vendor Bank Account"
 
     fieldgroups
     {
+        fieldgroup(DropDown; "Code", Name)
+        {
+        }
         fieldgroup(Brick; "Code", Name, "Phone No.", Contact)
         {
         }
@@ -238,15 +239,33 @@ table 288 "Vendor Bank Account"
     end;
 
     procedure GetBankAccountNo(): Text
+    var
+        Handled: Boolean;
+        ResultBankAccountNo: Text;
     begin
-        if ("Bank Branch No." = '') or ("Bank Account No." = '') then
+        OnGetBankAccount(Handled, Rec, ResultBankAccountNo);
+
+        if Handled then exit(ResultBankAccountNo);
+
+        if IBAN <> '' then
             exit(DelChr(IBAN, '=<>'));
 
-        exit("Bank Branch No." + "Bank Account No.");
+        if "Bank Account No." <> '' then
+            exit("Bank Account No.");
     end;
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeLookupName(xVendorBankAccount: Record "Vendor Bank Account")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateBankAccount(var VendorBankAccount: Record "Vendor Bank Account"; FieldToValidate: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetBankAccount(var Handled: Boolean; VendorBankAccount: Record "Vendor Bank Account"; var ResultBankAccountNo: Text)
     begin
     end;
 }

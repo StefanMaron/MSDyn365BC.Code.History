@@ -1,3 +1,4 @@
+#if not CLEAN18
 codeunit 135538 "Purchase Invoice Line E2E Test"
 {
     Subtype = Test;
@@ -944,4 +945,4 @@ codeunit 135538 "Purchase Invoice Line E2E Test"
         PurchCalcDiscByType.ApplyInvDiscBasedOnAmt(DiscountAmount, PurchaseHeader);
     end;
 }
-
+#endif

@@ -319,6 +319,14 @@ codeunit 9178 "Application Area Mgmt."
     end;
 
     [Scope('OnPrem')]
+    procedure IsItemReferencesEnabled(): Boolean
+    var
+        ApplicationAreaSetup: Record "Application Area Setup";
+    begin
+        exit(IsApplicationAreaEnabled(ApplicationAreaSetup.FieldName("Item References")));
+    end;
+
+    [Scope('OnPrem')]
     procedure IsSalesAnalysisEnabled(): Boolean
     var
         ApplicationAreaSetup: Record "Application Area Setup";
@@ -865,7 +873,6 @@ codeunit 9178 "Application Area Mgmt."
         TempApplicationAreaSetup.Basic := true;
         TempApplicationAreaSetup.VAT := true;
         TempApplicationAreaSetup."Basic EU" := true;
-        TempApplicationAreaSetup."Basic DK" := true;
         TempApplicationAreaSetup."Relationship Mgmt" := true;
         TempApplicationAreaSetup."Record Links" := true;
         TempApplicationAreaSetup.Notes := true;
@@ -884,6 +891,7 @@ codeunit 9178 "Application Area Mgmt."
         TempApplicationAreaSetup.BasicHR := true;
         TempApplicationAreaSetup.Assembly := true;
         TempApplicationAreaSetup."Item Charges" := true;
+        TempApplicationAreaSetup."Item References" := true;
         TempApplicationAreaSetup.Intercompany := true;
         TempApplicationAreaSetup."Sales Return Order" := true;
         TempApplicationAreaSetup."Purch Return Order" := true;

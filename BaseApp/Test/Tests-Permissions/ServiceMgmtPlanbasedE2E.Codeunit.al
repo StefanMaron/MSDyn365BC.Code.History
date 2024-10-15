@@ -15,6 +15,7 @@ codeunit 135413 "Service Mgmt. Plan-based E2E"
         LibraryRandom: Codeunit "Library - Random";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryTemplates: Codeunit "Library - Templates";
         Resource: Code[20];
         GLAccountNo: Code[20];
         IsInitialized: Boolean;
@@ -22,7 +23,7 @@ codeunit 135413 "Service Mgmt. Plan-based E2E"
         TeamMemberErr: Label 'You are logged in as a Team Member role, so you cannot complete this task.';
 
     [Test]
-    [HandlerFunctions('ConfigTemplatesModalPageHandler,ConfirmHandlerYes,PostedSalesInvoicePageHandler,OrderPostActionHandler,ServiceItemWorksheetModalPageHandler,PostedServiceInvoicePageHandler')]
+    [HandlerFunctions('SelectCustomerTemplListModalPageHandler,SelectItemTemplListModalPageHandler,ConfirmHandlerYes,PostedSalesInvoicePageHandler,OrderPostActionHandler,ServiceItemWorksheetModalPageHandler,PostedServiceInvoicePageHandler')]
     [Scope('OnPrem')]
     procedure TestCreateAndPostServiceItemAndServiceOrderAsViralSignup()
     var
@@ -36,6 +37,7 @@ codeunit 135413 "Service Mgmt. Plan-based E2E"
         // then creating and posting a Service Order for the Service Item
 
         Initialize;
+
         // [GIVEN] An item with service item group
         ItemNo := CreateItem(CreateServiceItemGroup);
         // [GIVEN] A customer
@@ -56,7 +58,7 @@ codeunit 135413 "Service Mgmt. Plan-based E2E"
     end;
 
     [Test]
-    [HandlerFunctions('ConfigTemplatesModalPageHandler,ConfirmHandlerYes,PostedSalesInvoicePageHandler,OrderPostActionHandler,ServiceItemWorksheetModalPageHandler,PostedServiceInvoicePageHandler')]
+    [HandlerFunctions('SelectCustomerTemplListModalPageHandler,SelectItemTemplListModalPageHandler,ConfirmHandlerYes,PostedSalesInvoicePageHandler,OrderPostActionHandler,ServiceItemWorksheetModalPageHandler,PostedServiceInvoicePageHandler')]
     [Scope('OnPrem')]
     procedure TestCreateAndPostServiceItemAndServiceOrderAsPremiumUser()
     var
@@ -90,7 +92,7 @@ codeunit 135413 "Service Mgmt. Plan-based E2E"
     end;
 
     [Test]
-    [HandlerFunctions('ConfigTemplatesModalPageHandler,ConfirmHandlerYes,PostedSalesInvoicePageHandler,OrderPostActionHandler,ServiceItemWorksheetModalPageHandler,PostedServiceInvoicePageHandler')]
+    [HandlerFunctions('SelectCustomerTemplListModalPageHandler,SelectItemTemplListModalPageHandler,ConfirmHandlerYes,PostedSalesInvoicePageHandler,OrderPostActionHandler,ServiceItemWorksheetModalPageHandler,PostedServiceInvoicePageHandler')]
     [Scope('OnPrem')]
     procedure TestCreateAndPostServiceItemAndServiceOrderAsBusinessManager()
     var
@@ -143,7 +145,7 @@ codeunit 135413 "Service Mgmt. Plan-based E2E"
     end;
 
     [Test]
-    [HandlerFunctions('ConfigTemplatesModalPageHandler,ConfirmHandlerYes,PostedSalesInvoicePageHandler,OrderPostActionHandler,ServiceItemWorksheetModalPageHandler,PostedServiceInvoicePageHandler')]
+    [HandlerFunctions('SelectCustomerTemplListModalPageHandler,SelectItemTemplListModalPageHandler,ConfirmHandlerYes,PostedSalesInvoicePageHandler,OrderPostActionHandler,ServiceItemWorksheetModalPageHandler,PostedServiceInvoicePageHandler')]
     [Scope('OnPrem')]
     procedure TestCreateAndPostServiceItemAndServiceOrderAsExternalAccountant()
     var
@@ -189,9 +191,11 @@ codeunit 135413 "Service Mgmt. Plan-based E2E"
 
         LibraryE2EPlanPermissions.SetExternalAccountantPlan;
         // [WHEN] A Service Order is posted
+        ErrorMessagesPage.Trap();
         asserterror PostServiceOrder(ServiceOrderNo);
         // [THEN] A permission error is thrown
-        Assert.ExpectedErrorCode('TestWrapped:Permission');
+        Assert.ExpectedMessage(MissingPermissionsErr, ErrorMessagesPage.Description.Value);
+        ErrorMessagesPage.Close();
         LibraryE2EPlanPermissions.SetPremiumUserPlan;
         PostedServiceOrderNo := PostServiceOrder(ServiceOrderNo);
 
@@ -200,7 +204,7 @@ codeunit 135413 "Service Mgmt. Plan-based E2E"
     end;
 
     [Test]
-    [HandlerFunctions('ConfigTemplatesModalPageHandler,ConfirmHandlerYes,PostedSalesInvoicePageHandler,OrderPostActionHandler,ServiceItemWorksheetModalPageHandler')]
+    [HandlerFunctions('SelectCustomerTemplListModalPageHandler,SelectItemTemplListModalPageHandler,ConfirmHandlerYes,PostedSalesInvoicePageHandler,OrderPostActionHandler,ServiceItemWorksheetModalPageHandler')]
     [Scope('OnPrem')]
     procedure TestCreateAndPostServiceItemAndServiceOrderAsTeamMember()
     var
@@ -254,15 +258,17 @@ codeunit 135413 "Service Mgmt. Plan-based E2E"
 
         LibraryE2EPlanPermissions.SetTeamMemberPlan;
         // [WHEN] A Service Order is posted
+        ErrorMessagesPage.Trap();
         asserterror PostServiceOrder(ServiceOrderNo);
         // [THEN] A permission error is thrown
-        Assert.ExpectedErrorCode('TestWrapped:Permission');
+        Assert.ExpectedMessage(MissingPermissionsErr, ErrorMessagesPage.Description.Value);
+        ErrorMessagesPage.Close();
 
         // [THEN] There are no GL Entries to be verified
     end;
 
     [Test]
-    [HandlerFunctions('ConfigTemplatesModalPageHandler,ConfirmHandlerYes,PostedSalesInvoicePageHandler,OrderPostActionHandler,ServiceItemWorksheetModalPageHandler,PostedServiceInvoicePageHandler')]
+    [HandlerFunctions('SelectCustomerTemplListModalPageHandler,SelectItemTemplListModalPageHandler,ConfirmHandlerYes,PostedSalesInvoicePageHandler,OrderPostActionHandler,ServiceItemWorksheetModalPageHandler,PostedServiceInvoicePageHandler')]
     [Scope('OnPrem')]
     procedure TestCreateAndPostServiceItemAndServiceOrderAsPremiumISVEmbUser()
     var
@@ -296,7 +302,7 @@ codeunit 135413 "Service Mgmt. Plan-based E2E"
     end;
 
     [Test]
-    [HandlerFunctions('ConfigTemplatesModalPageHandler,ConfirmHandlerYes,PostedSalesInvoicePageHandler,OrderPostActionHandler,ServiceItemWorksheetModalPageHandler,PostedServiceInvoicePageHandler')]
+    [HandlerFunctions('SelectCustomerTemplListModalPageHandler,SelectItemTemplListModalPageHandler,ConfirmHandlerYes,PostedSalesInvoicePageHandler,OrderPostActionHandler,ServiceItemWorksheetModalPageHandler,PostedServiceInvoicePageHandler')]
     [Scope('OnPrem')]
     procedure TestCreateAndPostServiceItemAndServiceOrderAsEssentialISVEmbUser()
     var
@@ -352,7 +358,7 @@ codeunit 135413 "Service Mgmt. Plan-based E2E"
     end;
 
     [Test]
-    [HandlerFunctions('ConfigTemplatesModalPageHandler,ConfirmHandlerYes,PostedSalesInvoicePageHandler,OrderPostActionHandler,ServiceItemWorksheetModalPageHandler')]
+    [HandlerFunctions('SelectCustomerTemplListModalPageHandler,SelectItemTemplListModalPageHandler,ConfirmHandlerYes,PostedSalesInvoicePageHandler,OrderPostActionHandler,ServiceItemWorksheetModalPageHandler')]
     [Scope('OnPrem')]
     procedure TestCreateAndPostServiceItemAndServiceOrderAsTeamMemberISVEmb()
     var
@@ -408,15 +414,17 @@ codeunit 135413 "Service Mgmt. Plan-based E2E"
 
         LibraryE2EPlanPermissions.SetTeamMemberISVEmbPlan;
         // [WHEN] A Service Order is posted
+        ErrorMessagesPage.Trap();
         asserterror PostServiceOrder(ServiceOrderNo);
         // [THEN] A permission error is thrown
-        Assert.ExpectedErrorCode('TestWrapped:Permission');
+        Assert.ExpectedMessage(MissingPermissionsErr, ErrorMessagesPage.Description.Value);
+        ErrorMessagesPage.Close();
 
         // [THEN] There are no GL Entries to be verified
     end;
 
     [Test]
-    [HandlerFunctions('ConfigTemplatesModalPageHandler,ConfirmHandlerYes,PostedSalesInvoicePageHandler,OrderPostActionHandler,ServiceItemWorksheetModalPageHandler,PostedServiceInvoicePageHandler')]
+    [HandlerFunctions('SelectCustomerTemplListModalPageHandler,SelectItemTemplListModalPageHandler,ConfirmHandlerYes,PostedSalesInvoicePageHandler,OrderPostActionHandler,ServiceItemWorksheetModalPageHandler,PostedServiceInvoicePageHandler')]
     [Scope('OnPrem')]
     procedure TestCreateAndPostServiceItemAndServiceOrderAsDeviceISVEmbUser()
     var
@@ -472,7 +480,7 @@ codeunit 135413 "Service Mgmt. Plan-based E2E"
     end;
 
     [Test]
-    [HandlerFunctions('ConfigTemplatesModalPageHandler,ConfirmHandlerYes,PostedSalesInvoicePageHandler,OrderPostActionHandler,ServiceContractSignMessageHandler')]
+    [HandlerFunctions('SelectCustomerTemplListModalPageHandler,SelectItemTemplListModalPageHandler,ConfirmHandlerYes,PostedSalesInvoicePageHandler,OrderPostActionHandler,ServiceContractSignMessageHandler')]
     [Scope('OnPrem')]
     procedure TestSignAndCreateServiceContractAsViralSignup()
     var
@@ -506,7 +514,7 @@ codeunit 135413 "Service Mgmt. Plan-based E2E"
     end;
 
     [Test]
-    [HandlerFunctions('ConfigTemplatesModalPageHandler,ConfirmHandlerYes,PostedSalesInvoicePageHandler,OrderPostActionHandler,ServiceContractSignMessageHandler')]
+    [HandlerFunctions('SelectCustomerTemplListModalPageHandler,SelectItemTemplListModalPageHandler,ConfirmHandlerYes,PostedSalesInvoicePageHandler,OrderPostActionHandler,ServiceContractSignMessageHandler')]
     [Scope('OnPrem')]
     procedure TestSignAndCreateServiceContractAsBusinessManager()
     var
@@ -551,7 +559,7 @@ codeunit 135413 "Service Mgmt. Plan-based E2E"
     end;
 
     [Test]
-    [HandlerFunctions('ConfigTemplatesModalPageHandler,ConfirmHandlerYes,PostedSalesInvoicePageHandler,OrderPostActionHandler,ServiceContractSignMessageHandler')]
+    [HandlerFunctions('SelectCustomerTemplListModalPageHandler,SelectItemTemplListModalPageHandler,ConfirmHandlerYes,PostedSalesInvoicePageHandler,OrderPostActionHandler,ServiceContractSignMessageHandler')]
     [Scope('OnPrem')]
     procedure TestSignAndCreateServiceContractAsExternalAccountant()
     var
@@ -600,7 +608,7 @@ codeunit 135413 "Service Mgmt. Plan-based E2E"
     end;
 
     [Test]
-    [HandlerFunctions('ConfigTemplatesModalPageHandler,ConfirmHandlerYes,PostedSalesInvoicePageHandler,OrderPostActionHandler,ServiceContractSignMessageHandler')]
+    [HandlerFunctions('SelectCustomerTemplListModalPageHandler,SelectItemTemplListModalPageHandler,ConfirmHandlerYes,PostedSalesInvoicePageHandler,OrderPostActionHandler,ServiceContractSignMessageHandler')]
     [Scope('OnPrem')]
     procedure TestSignAndCreateServiceContractAsTeamMember()
     var
@@ -638,7 +646,7 @@ codeunit 135413 "Service Mgmt. Plan-based E2E"
     end;
 
     [Test]
-    [HandlerFunctions('ConfigTemplatesModalPageHandler,ConfirmHandlerYes,PostedSalesInvoicePageHandler,OrderPostActionHandler,ServiceContractSignMessageHandler')]
+    [HandlerFunctions('SelectCustomerTemplListModalPageHandler,SelectItemTemplListModalPageHandler,ConfirmHandlerYes,PostedSalesInvoicePageHandler,OrderPostActionHandler,ServiceContractSignMessageHandler')]
     [Scope('OnPrem')]
     procedure TestSignAndCreateServiceContractAsEssentialISVEmb()
     var
@@ -685,7 +693,7 @@ codeunit 135413 "Service Mgmt. Plan-based E2E"
     end;
 
     [Test]
-    [HandlerFunctions('ConfigTemplatesModalPageHandler,ConfirmHandlerYes,PostedSalesInvoicePageHandler,OrderPostActionHandler,ServiceContractSignMessageHandler')]
+    [HandlerFunctions('SelectCustomerTemplListModalPageHandler,SelectItemTemplListModalPageHandler,ConfirmHandlerYes,PostedSalesInvoicePageHandler,OrderPostActionHandler,ServiceContractSignMessageHandler')]
     [Scope('OnPrem')]
     procedure TestSignAndCreateServiceContractAsTeamMemberISVEmb()
     var
@@ -725,7 +733,7 @@ codeunit 135413 "Service Mgmt. Plan-based E2E"
     end;
 
     [Test]
-    [HandlerFunctions('ConfigTemplatesModalPageHandler,ConfirmHandlerYes,PostedSalesInvoicePageHandler,OrderPostActionHandler,ServiceContractSignMessageHandler')]
+    [HandlerFunctions('SelectCustomerTemplListModalPageHandler,SelectItemTemplListModalPageHandler,ConfirmHandlerYes,PostedSalesInvoicePageHandler,OrderPostActionHandler,ServiceContractSignMessageHandler')]
     [Scope('OnPrem')]
     procedure TestSignAndCreateServiceContractAsDeviceISVEmb()
     var
@@ -800,6 +808,7 @@ codeunit 135413 "Service Mgmt. Plan-based E2E"
         LibrarySales.SetCreditWarningsToNoWarnings;
         LibrarySales.SetStockoutWarning(false);
         LibrarySales.DisableWarningOnCloseUnpostedDoc;
+        LibraryTemplates.EnableTemplatesFeature();
 
         LibraryERMCountryData.CreateVATData;
         GLAccountNo := LibraryERM.CreateGLAccountWithSalesSetup;
@@ -1049,6 +1058,22 @@ codeunit 135413 "Service Mgmt. Plan-based E2E"
     begin
         ConfigTemplates.First;
         ConfigTemplates.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure SelectCustomerTemplListModalPageHandler(var SelectCustomerTemplList: TestPage "Select Customer Templ. List")
+    begin
+        SelectCustomerTemplList.First();
+        SelectCustomerTemplList.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure SelectItemTemplListModalPageHandler(var SelectItemTemplList: TestPage "Select Item Templ. List")
+    begin
+        SelectItemTemplList.First();
+        SelectItemTemplList.OK().Invoke();
     end;
 
     [ModalPageHandler]

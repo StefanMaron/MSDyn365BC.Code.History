@@ -6,6 +6,9 @@ page 26 "Vendor Card"
     RefreshOnActivate = true;
     SourceTable = Vendor;
 
+    AboutTitle = 'About vendors';
+    AboutText = 'With the Vendor Card you manage information about a vendor. Including the agreed terms of business for your trade with this vendor, such as payment terms, prices and discounts.';
+
     layout
     {
         area(content)
@@ -249,6 +252,9 @@ page 26 "Vendor Card"
             group(Invoicing)
             {
                 Caption = 'Invoicing';
+                AboutTitle = 'Manage invoicing from the vendor';
+                AboutText = 'Choose tax and other settings for the invoices you receive from this vendor. Assign posting groups to control how transactions with this vendor are grouped and posted, based on type of trade or market.';
+
                 field("VAT Registration No."; "VAT Registration No.")
                 {
                     ApplicationArea = VAT;
@@ -265,6 +271,7 @@ page 26 "Vendor Card"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the Economic Operators Registration and Identification number that is used when you exchange information with the customs authorities due to trade into or out of the European Union.';
+                    Visible = false;
                 }
                 field(GLN; GLN)
                 {
@@ -345,6 +352,9 @@ page 26 "Vendor Card"
             group(Payments)
             {
                 Caption = 'Payments';
+                AboutTitle = 'Manage payments to the vendor';
+                AboutText = 'Choose the payments terms, payment method, priority, and other settings used when processing and suggesting payments to this vendor.';
+
                 field("Prepayment %"; "Prepayment %")
                 {
                     ApplicationArea = Prepayments;
@@ -638,7 +648,7 @@ page 26 "Vendor Card"
 #if not CLEAN18
                 action("Cross References")
                 {
-                    ApplicationArea = Basic, Suite;
+                    ApplicationArea = Advanced;
                     Caption = 'Cross References';
                     Image = Change;
                     ObsoleteState = Pending;
@@ -651,11 +661,12 @@ page 26 "Vendor Card"
                                   "Cross-Reference Type No." = FIELD("No.");
                     RunPageView = SORTING("Cross-Reference Type", "Cross-Reference Type No.");
                     ToolTip = 'Set up a customer''s or vendor''s own identification of the selected item. Cross-references to the customer''s item number means that the item number is automatically shown on sales documents instead of the number that you use.';
+                    Visible = false;
                 }
 #endif
                 action("Item References")
                 {
-                    ApplicationArea = Basic, Suite;
+                    ApplicationArea = Suite, ItemReferences;
                     Caption = 'Item References';
                     Image = Change;
                     Visible = ItemReferenceVisible;
@@ -685,15 +696,19 @@ page 26 "Vendor Card"
                         PAGE.RunModal(PAGE::"Vendor Report Selections", CustomReportSelection);
                     end;
                 }
+#if not CLEAN19
                 action(SentEmails)
                 {
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Action SentEmails moved under history';
+                    ObsoleteTag = '19.0';
                     ApplicationArea = Basic, Suite;
                     Caption = 'Sent Emails';
                     Image = ShowList;
                     Promoted = true;
                     PromotedCategory = Category7;
                     ToolTip = 'View a list of emails that you have sent to this vendor.';
-                    Visible = EmailImprovementFeatureEnabled;
+                    Visible = false;
 
                     trigger OnAction()
                     var
@@ -702,13 +717,12 @@ page 26 "Vendor Card"
                         Email.OpenSentEmails(Database::Vendor, Rec.SystemId);
                     end;
                 }
+#endif
                 action(Attachments)
                 {
                     ApplicationArea = All;
                     Caption = 'Attachments';
                     Image = Attach;
-                    Promoted = true;
-                    PromotedCategory = Category9;
                     ToolTip = 'Add a file as an attachment. You can attach images as well as documents.';
 
                     trigger OnAction()
@@ -1022,6 +1036,23 @@ page 26 "Vendor Card"
                         ItemTrackingDocMgt: Codeunit "Item Tracking Doc. Management";
                     begin
                         ItemTrackingDocMgt.ShowItemTrackingForEntity(2, "No.", '', '', '');
+                    end;
+                }
+                action("Sent Emails")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Sent Emails';
+                    Image = ShowList;
+                    Promoted = true;
+                    PromotedCategory = Category7;
+                    ToolTip = 'View a list of emails that you have sent to this vendor.';
+                    Visible = EmailImprovementFeatureEnabled;
+
+                    trigger OnAction()
+                    var
+                        Email: Codeunit Email;
+                    begin
+                        Email.OpenSentEmails(Database::Vendor, Rec.SystemId);
                     end;
                 }
             }
@@ -1419,15 +1450,8 @@ page 26 "Vendor Card"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Apply Template';
-                    Ellipsis = true;
                     Image = ApplyTemplate;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ToolTip = 'Apply a template to update the entity with your standard settings for a certain type of entity.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'This functionality will be replaced by other templates.';
-                    ObsoleteTag = '16.0';
 
                     trigger OnAction()
                     var
@@ -1440,12 +1464,8 @@ page 26 "Vendor Card"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Save as Template';
-                    Ellipsis = true;
                     Image = Save;
                     ToolTip = 'Save the vendor card as a template that can be reused to create new vendor cards. Vendor templates contain preset information to help you fill fields on vendor cards.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'This functionality will be replaced by other templates.';
-                    ObsoleteTag = '16.0';
 
                     trigger OnAction()
                     var
@@ -1508,7 +1528,7 @@ page 26 "Vendor Card"
             action(WordTemplate)
             {
                 ApplicationArea = All;
-                Caption = 'Word Template';
+                Caption = 'Apply Word Template';
                 ToolTIp = 'Apply a Word template on the vendor.';
                 Image = Word;
 
@@ -1528,13 +1548,17 @@ page 26 "Vendor Card"
                 Caption = 'Send Email';
                 Image = Email;
                 ToolTip = 'Send an email to this vendor.';
+                Promoted = true;
+                PromotedCategory = Process;
 
                 trigger OnAction()
                 var
-                    EmailMgt: Codeunit "Mail Management";
+                    TempEmailItem: Record "Email Item" temporary;
+                    EmailScenario: Enum "Email Scenario";
                 begin
-                    EmailMgt.AddSource(Database::Vendor, Rec.SystemId);
-                    EmailMgt.Run();
+                    TempEmailItem.AddSourceDocument(Database::Vendor, Rec.SystemId);
+                    TempEmailitem."Send to" := Rec."E-Mail";
+                    TempEmailItem.Send(false, EmailScenario::Default);
                 end;
             }
             group("Incoming Documents")
@@ -1741,21 +1765,28 @@ page 26 "Vendor Card"
         BlockedFilterApplied: Boolean;
         ExtendedPriceEnabled: Boolean;
         OverReceiptAllowed: Boolean;
-        EmailImprovementFeatureEnabled: Boolean;
         [InDataSet]
         ItemReferenceVisible: Boolean;
+        EmailImprovementFeatureEnabled: Boolean;
 
     local procedure ActivateFields()
+    var
+        IsHandled: Boolean;
     begin
-        ContactEditable := "Primary Contact No." = '';
-        IsCountyVisible := FormatAddress.UseCounty("Country/Region Code");
-        if OfficeMgt.IsAvailable then
-            ActivateIncomingDocumentsFields;
+        IsHandled := false;
+        OnBeforeActivateFields(IsCountyVisible, FormatAddress, IsHandled);
+        if IsHandled then
+            exit;
+
+        ContactEditable := Rec."Primary Contact No." = '';
+        IsCountyVisible := FormatAddress.UseCounty(Rec."Country/Region Code");
+        if OfficeMgt.IsAvailable() then
+            ActivateIncomingDocumentsFields();
     end;
 
     local procedure ContactOnAfterValidate()
     begin
-        ActivateFields;
+        ActivateFields();
     end;
 
     procedure RunReport(ReportNumber: Integer)
@@ -1848,6 +1879,11 @@ page 26 "Vendor Card"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateVendorFromTemplate(var NewMode: Boolean; var Vendor: Record Vendor)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeActivateFields(var IsCountyVisible: Boolean; var FormatAddress: Codeunit "Format Address"; var IsHandled: Boolean)
     begin
     end;
 }

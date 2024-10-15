@@ -62,7 +62,7 @@ page 5229 "Confidential Info. Overview"
 
                 trigger OnAction()
                 begin
-                    MATRIX_GenerateColumnCaptions(MATRIX_SetWanted::Previous);
+                    GenerateColumnCaptions("Matrix Page Step Type"::Previous);
                 end;
             }
             action("Next Set")
@@ -77,7 +77,7 @@ page 5229 "Confidential Info. Overview"
 
                 trigger OnAction()
                 begin
-                    MATRIX_GenerateColumnCaptions(MATRIX_SetWanted::Next);
+                    GenerateColumnCaptions("Matrix Page Step Type"::Next);
                 end;
             }
         }
@@ -85,7 +85,7 @@ page 5229 "Confidential Info. Overview"
 
     trigger OnOpenPage()
     begin
-        MATRIX_GenerateColumnCaptions(MATRIX_SetWanted::Initial);
+        GenerateColumnCaptions("Matrix Page Step Type"::Initial);
     end;
 
     var
@@ -93,11 +93,10 @@ page 5229 "Confidential Info. Overview"
         MatrixRecords: array[32] of Record Confidential;
         MATRIX_CaptionSet: array[32] of Text[80];
         MATRIX_CaptionRange: Text;
-        MATRIX_SetWanted: Option Initial,Previous,Same,Next;
         MATRIX_PKFirstRecInCurrSet: Text;
         MATRIX_CurrSetLength: Integer;
 
-    local procedure MATRIX_GenerateColumnCaptions(SetWanted: Option Initial,Previous,Same,Next)
+    local procedure GenerateColumnCaptions(StepType: Enum "Matrix Page Step Type")
     var
         MatrixMgt: Codeunit "Matrix Management";
         RecRef: RecordRef;
@@ -109,8 +108,9 @@ page 5229 "Confidential Info. Overview"
 
         RecRef.GetTable(MATRIX_MatrixRecord);
         RecRef.SetTable(MATRIX_MatrixRecord);
-        MatrixMgt.GenerateMatrixData(RecRef, SetWanted, ArrayLen(MatrixRecords), 1, MATRIX_PKFirstRecInCurrSet, MATRIX_CaptionSet,
-          MATRIX_CaptionRange, MATRIX_CurrSetLength);
+        MatrixMgt.GenerateMatrixData(
+            RecRef, StepType.AsInteger(), ArrayLen(MatrixRecords), 1, MATRIX_PKFirstRecInCurrSet, MATRIX_CaptionSet,
+            MATRIX_CaptionRange, MATRIX_CurrSetLength);
 
         MATRIX_MatrixRecord.SetPosition(MATRIX_PKFirstRecInCurrSet);
 

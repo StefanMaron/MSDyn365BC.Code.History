@@ -1312,7 +1312,7 @@ codeunit 135000 "Error Message Tests"
         JobQueueEntry.DeleteAll();
         SalesPostViaJobQueue.EnqueueSalesDoc(SalesHeader);
         JobQueueEntry.FindFirst();
-        LibraryJobQueue.FindAndRunJobQueueEntryByRecordId(SalesHeader.RecordId);
+        LibraryJobQueue.FindAndRunJobQueueEntryByRecordId(SalesHeader.RecordId, true);
 
         // [THEN] Job queue log entry has Status = "Eror"
         // [THEN] Job queue log entry has non-empty "Error Call Stack"

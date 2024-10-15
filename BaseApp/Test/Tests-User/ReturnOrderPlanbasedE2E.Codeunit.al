@@ -18,7 +18,7 @@ codeunit 135408 "Return Order Plan-based E2E"
         isInitialized: Boolean;
 
     [Test]
-    [HandlerFunctions('StrMenuHandler,SelectPostedSalesDocumentLinesPageHandler,ConfigTemplatesModalPageHandler,ConfirmHandlerYes,PostedSalesCreditMemoPageHandler,PostedSalesInvoicePageHandler')]
+    [HandlerFunctions('StrMenuHandler,SelectPostedSalesDocumentLinesPageHandler,SelectCustomerTemplListModalPageHandler,SelectItemTemplListModalPageHandler,ConfirmHandlerYes,PostedSalesCreditMemoPageHandler,PostedSalesInvoicePageHandler')]
     [Scope('OnPrem')]
     procedure CreateSalesReturnOrderAsBusinessManager()
     var
@@ -44,7 +44,7 @@ codeunit 135408 "Return Order Plan-based E2E"
     end;
 
     [Test]
-    [HandlerFunctions('StrMenuHandler,SelectPostedSalesDocumentLinesPageHandler,ConfigTemplatesModalPageHandler,ConfirmHandlerYes,PostedSalesCreditMemoPageHandler,PostedSalesInvoicePageHandler')]
+    [HandlerFunctions('StrMenuHandler,SelectPostedSalesDocumentLinesPageHandler,SelectCustomerTemplListModalPageHandler,SelectItemTemplListModalPageHandler,ConfirmHandlerYes,PostedSalesCreditMemoPageHandler,PostedSalesInvoicePageHandler')]
     [Scope('OnPrem')]
     procedure CreateSalesReturnOrderAsExternalAccountant()
     var
@@ -70,7 +70,7 @@ codeunit 135408 "Return Order Plan-based E2E"
     end;
 
     [Test]
-    [HandlerFunctions('ConfigTemplatesModalPageHandler,ConfirmHandlerYes,PostedSalesInvoicePageHandler')]
+    [HandlerFunctions('SelectItemTemplListModalPageHandler,ConfirmHandlerYes,PostedSalesInvoicePageHandler')]
     [Scope('OnPrem')]
     procedure CreateSalesReturnOrderAsTeamMember()
     var
@@ -109,7 +109,7 @@ codeunit 135408 "Return Order Plan-based E2E"
     end;
 
     [Test]
-    [HandlerFunctions('StrMenuHandler,SelectPostedSalesDocumentLinesPageHandler,ConfigTemplatesModalPageHandler,ConfirmHandlerYes,PostedSalesCreditMemoPageHandler,PostedSalesInvoicePageHandler')]
+    [HandlerFunctions('StrMenuHandler,SelectPostedSalesDocumentLinesPageHandler,SelectCustomerTemplListModalPageHandler,SelectItemTemplListModalPageHandler,ConfirmHandlerYes,PostedSalesCreditMemoPageHandler,PostedSalesInvoicePageHandler')]
     [Scope('OnPrem')]
     procedure CreateSalesReturnOrderAsEssentialISVEmbUser()
     var
@@ -135,7 +135,7 @@ codeunit 135408 "Return Order Plan-based E2E"
     end;
 
     [Test]
-    [HandlerFunctions('ConfigTemplatesModalPageHandler,ConfirmHandlerYes,PostedSalesInvoicePageHandler')]
+    [HandlerFunctions('SelectItemTemplListModalPageHandler,ConfirmHandlerYes,PostedSalesInvoicePageHandler')]
     [Scope('OnPrem')]
     procedure CreateSalesReturnOrderAsTeamMemberISVEmb()
     var
@@ -176,7 +176,7 @@ codeunit 135408 "Return Order Plan-based E2E"
     end;
 
     [Test]
-    [HandlerFunctions('StrMenuHandler,SelectPostedSalesDocumentLinesPageHandler,ConfigTemplatesModalPageHandler,ConfirmHandlerYes,PostedSalesCreditMemoPageHandler,PostedSalesInvoicePageHandler')]
+    [HandlerFunctions('StrMenuHandler,SelectPostedSalesDocumentLinesPageHandler,SelectCustomerTemplListModalPageHandler,SelectItemTemplListModalPageHandler,ConfirmHandlerYes,PostedSalesCreditMemoPageHandler,PostedSalesInvoicePageHandler')]
     [Scope('OnPrem')]
     procedure CreateSalesReturnOrderAsDeviceISVEmbUser()
     var
@@ -202,7 +202,7 @@ codeunit 135408 "Return Order Plan-based E2E"
     end;
 
     [Test]
-    [HandlerFunctions('StrMenuHandler,SelectPostedPurchaseDocumentLinesPageHandler,ConfigTemplatesModalPageHandler,ConfirmHandlerYes,PostedPurchaseCreditMemoPageHandler,PostedPurchaseInvoicePageHandler')]
+    [HandlerFunctions('StrMenuHandler,SelectPostedPurchaseDocumentLinesPageHandler,SelectVendorTemplListModalPageHandler,SelectItemTemplListModalPageHandler,ConfirmHandlerYes,PostedPurchaseCreditMemoPageHandler,PostedPurchaseInvoicePageHandler')]
     [Scope('OnPrem')]
     procedure CreatePurchaseReturnOrderAsBusinessManager()
     var
@@ -228,7 +228,7 @@ codeunit 135408 "Return Order Plan-based E2E"
     end;
 
     [Test]
-    [HandlerFunctions('StrMenuHandler,SelectPostedPurchaseDocumentLinesPageHandler,ConfigTemplatesModalPageHandler,ConfirmHandlerYes,PostedPurchaseCreditMemoPageHandler,PostedPurchaseInvoicePageHandler')]
+    [HandlerFunctions('StrMenuHandler,SelectPostedPurchaseDocumentLinesPageHandler,SelectVendorTemplListModalPageHandler,SelectItemTemplListModalPageHandler,ConfirmHandlerYes,PostedPurchaseCreditMemoPageHandler,PostedPurchaseInvoicePageHandler')]
     [Scope('OnPrem')]
     procedure CreatePurchaseReturnOrderAsExternalAccountant()
     var
@@ -254,7 +254,7 @@ codeunit 135408 "Return Order Plan-based E2E"
     end;
 
     [Test]
-    [HandlerFunctions('ConfigTemplatesModalPageHandler,ConfirmHandlerYes,PostedPurchaseInvoicePageHandler')]
+    [HandlerFunctions('SelectItemTemplListModalPageHandler,ConfirmHandlerYes,PostedPurchaseInvoicePageHandler')]
     [Scope('OnPrem')]
     procedure CreatePurchaseReturnOrderAsTeamMember()
     var
@@ -294,7 +294,7 @@ codeunit 135408 "Return Order Plan-based E2E"
     end;
 
     [Test]
-    [HandlerFunctions('StrMenuHandler,SelectPostedPurchaseDocumentLinesPageHandler,ConfigTemplatesModalPageHandler,ConfirmHandlerYes,PostedPurchaseCreditMemoPageHandler,PostedPurchaseInvoicePageHandler')]
+    [HandlerFunctions('StrMenuHandler,SelectPostedPurchaseDocumentLinesPageHandler,SelectVendorTemplListModalPageHandler,SelectItemTemplListModalPageHandler,ConfirmHandlerYes,PostedPurchaseCreditMemoPageHandler,PostedPurchaseInvoicePageHandler')]
     [Scope('OnPrem')]
     procedure CreatePurchaseReturnOrderAsEssentialISVEmbUser()
     var
@@ -320,7 +320,7 @@ codeunit 135408 "Return Order Plan-based E2E"
     end;
 
     [Test]
-    [HandlerFunctions('ConfigTemplatesModalPageHandler,ConfirmHandlerYes,PostedPurchaseInvoicePageHandler')]
+    [HandlerFunctions('SelectItemTemplListModalPageHandler,ConfirmHandlerYes,PostedPurchaseInvoicePageHandler')]
     [Scope('OnPrem')]
     procedure CreatePurchaseReturnOrderAsTeamMemberISVEmb()
     var
@@ -362,7 +362,7 @@ codeunit 135408 "Return Order Plan-based E2E"
     end;
 
     [Test]
-    [HandlerFunctions('StrMenuHandler,SelectPostedPurchaseDocumentLinesPageHandler,ConfigTemplatesModalPageHandler,ConfirmHandlerYes,PostedPurchaseCreditMemoPageHandler,PostedPurchaseInvoicePageHandler')]
+    [HandlerFunctions('StrMenuHandler,SelectPostedPurchaseDocumentLinesPageHandler,SelectVendorTemplListModalPageHandler,SelectItemTemplListModalPageHandler,ConfirmHandlerYes,PostedPurchaseCreditMemoPageHandler,PostedPurchaseInvoicePageHandler')]
     [Scope('OnPrem')]
     procedure CreatePurchaseReturnOrderAsDeviceISVEmbUser()
     var
@@ -405,7 +405,7 @@ codeunit 135408 "Return Order Plan-based E2E"
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Return Order Plan-based E2E");
 
-        LibraryTemplates.DisableTemplatesFeature();
+        LibraryTemplates.EnableTemplatesFeature();
         ApplicationAreaMgmtFacade.SaveExperienceTierCurrentCompany(ExperienceTierSetup.FieldCaption(Essential));
 
         LibrarySales.SetCreditWarningsToNoWarnings;
@@ -419,6 +419,7 @@ codeunit 135408 "Return Order Plan-based E2E"
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
         LibraryERMCountryData.UpdateGeneralLedgerSetup;
         LibraryERMCountryData.RemoveBlankGenJournalTemplate;
+        LibraryTemplates.UpdateTemplatesVATGroups();
 
         isInitialized := true;
         Commit();
@@ -622,10 +623,26 @@ codeunit 135408 "Return Order Plan-based E2E"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure ConfigTemplatesModalPageHandler(var ConfigTemplates: TestPage "Config Templates")
+    procedure SelectCustomerTemplListModalPageHandler(var SelectCustomerTemplList: TestPage "Select Customer Templ. List")
     begin
-        ConfigTemplates.First;
-        ConfigTemplates.OK.Invoke;
+        SelectCustomerTemplList.First();
+        SelectCustomerTemplList.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure SelectVendorTemplListModalPageHandler(var SelectVendorTemplList: TestPage "Select Vendor Templ. List")
+    begin
+        SelectVendorTemplList.First();
+        SelectVendorTemplList.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure SelectItemTemplListModalPageHandler(var SelectItemTemplList: TestPage "Select Item Templ. List")
+    begin
+        SelectItemTemplList.First();
+        SelectItemTemplList.OK().Invoke();
     end;
 
     [ConfirmHandler]

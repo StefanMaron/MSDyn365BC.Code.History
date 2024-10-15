@@ -1,4 +1,4 @@
-﻿table 296 "Reminder Line"
+table 296 "Reminder Line"
 {
     Caption = 'Reminder Line';
 

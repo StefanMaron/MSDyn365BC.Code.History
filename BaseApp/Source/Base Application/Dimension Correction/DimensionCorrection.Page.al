@@ -157,6 +157,7 @@ page 2588 "Dimension Correction"
                 ApplicationArea = All;
                 Promoted = true;
                 PromotedCategory = Process;
+                Enabled = UndoAndValidateAreEnabled;
                 PromotedIsBig = true;
                 PromotedOnly = true;
                 Image = Undo;
@@ -211,6 +212,7 @@ page 2588 "Dimension Correction"
                 ApplicationArea = All;
                 Caption = 'Validate Undo Dimension Correction';
                 Image = TestReport;
+                Enabled = UndoAndValidateAreEnabled;
                 Promoted = true;
                 PromotedCategory = Process;
                 ToolTip = 'Validates the dimension changes.';
@@ -322,6 +324,7 @@ page 2588 "Dimension Correction"
         ValidationStatusVisible := (ValidationStatusTxt <> '') and (not (Rec.Status in [Rec.Status::Failed, Rec.Status::"Undo Completed"]));
         IsErrorActionEnabled := ValidationStatusVisible and (not IsNullGuid(Rec."Validation Errors Register ID"));
         UpdateUserDisplayName();
+        UndoAndValidateAreEnabled := Rec.Status <> Rec.Status::"Undo Completed";
     end;
 
     local procedure UpdateUserDisplayName()
@@ -347,6 +350,7 @@ page 2588 "Dimension Correction"
         ValidationStatusTxt: Text;
         IsErrorActionEnabled: Boolean;
         ValidationStatusVisible: Boolean;
+        UndoAndValidateAreEnabled: Boolean;
         UndoDimCorrectionValidationJobSuccessfullyScheduledMsg: Label 'The Job for validating the undo of dimension correction is scheduled.';
         OpenCopiedEntryQst: Label 'A draft of the dimension correction has been created. Would you like to open the draft entry now?';
         CanOnlyUndoCompletedCorrectionsErr: Label 'You can only undo dimension corrections that are completed.';

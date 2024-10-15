@@ -8,7 +8,7 @@ Page 1 "Company Information"
     PageType = Card;
     PromotedActionCategories = 'New,Process,Report,Application Settings,System Settings,Currencies,Codes,Regional Settings';
     SourceTable = "Company Information";
-    UsageCategory = Tasks;
+    UsageCategory = Administration;
 
     layout
     {
@@ -95,6 +95,7 @@ Page 1 "Company Information"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the Economic Operators Registration and Identification number that is used when you exchange information with the customs authorities due to trade into or out of the European Union.';
+                    Visible = false;
                 }
                 field("Industrial Classification"; "Industrial Classification")
                 {

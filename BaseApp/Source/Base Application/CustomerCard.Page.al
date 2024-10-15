@@ -6,6 +6,9 @@ page 21 "Customer Card"
     RefreshOnActivate = true;
     SourceTable = Customer;
 
+    AboutTitle = 'About customer details';
+    AboutText = 'With the Customer Card you manage information about a customer and specify the terms of business, such as payment terms, prices and discounts. From here you can also drill down on past and ongoing sales activity.';
+
     layout
     {
         area(content)
@@ -298,6 +301,9 @@ page 21 "Customer Card"
             group(Invoicing)
             {
                 Caption = 'Invoicing';
+                AboutTitle = 'Manage the customer’s invoicing';
+                AboutText = 'Specify tax settings and choose how invoicing takes place for the customer. Assign posting groups to control how the customer’s transactions are grouped and posted, based on type of trade or market.';
+
                 field("Bill-to Customer No."; "Bill-to Customer No.")
                 {
                     ApplicationArea = Basic, Suite;
@@ -347,16 +353,6 @@ page 21 "Customer Card"
                 {
                     ApplicationArea = SalesTax;
                     ToolTip = 'Specifies the tax area that is used to calculate and post sales tax.';
-                }
-                field("Invoice Copies"; "Invoice Copies")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Importance = Additional;
-                    Visible = false;
-                    ToolTip = 'Specifies how many copies of an invoice for the customer will be printed at a time.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Functionality was used by reports 204-207 that are now obsolete';
-                    ObsoleteTag = '16.0';
                 }
                 group(PostingDetails)
                 {
@@ -434,6 +430,9 @@ page 21 "Customer Card"
             group(Payments)
             {
                 Caption = 'Payments';
+                AboutTitle = 'Manage the customer’s payment';
+                AboutText = 'Specify the customer’s default payment terms and settings for how payments from the customer is processed.';
+
                 field("Prepayment %"; "Prepayment %")
                 {
                     ApplicationArea = Prepayments;
@@ -760,17 +759,6 @@ page 21 "Customer Card"
                     SubPageLink = "No." = FIELD("No.");
                 }
             }
-            part(PriceAndLineDisc; "Sales Pr. & Line Disc. Part")
-            {
-                ApplicationArea = All;
-                Caption = 'Special Prices & Discounts';
-                Visible = FoundationOnly and (not LoadOnDemand) and (not ExtendedPriceEnabled);
-                SubPageLink = "Sales Code" = FIELD("No."),
-                              "Sales Type" = CONST(Customer);
-                ObsoleteState = Pending;
-                ObsoleteReason = 'This part impairs performance.';
-                ObsoleteTag = '16.0';
-            }
         }
         area(factboxes)
         {
@@ -971,12 +959,15 @@ page 21 "Customer Card"
                         ShowContact;
                     end;
                 }
-#if not CLEAN16
+#if not CLEAN19
                 action("Cross Re&ferences")
                 {
-                    ApplicationArea = Basic, Suite;
+                    ApplicationArea = Advanced;
                     Caption = 'Cross Re&ferences';
                     Image = Change;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Item Reference feature.';
+                    ObsoleteTag = '19.0';
                     Promoted = true;
                     PromotedCategory = Category9;
                     RunObject = Page "Cross References";
@@ -984,11 +975,12 @@ page 21 "Customer Card"
                                   "Cross-Reference Type No." = FIELD("No.");
                     RunPageView = SORTING("Cross-Reference Type", "Cross-Reference Type No.");
                     ToolTip = 'Set up the customer''s own identification of items that you sell to the customer. Cross-references to the customer''s item number means that the item number is automatically shown on sales documents instead of the number that you use.';
+                    Visible = false;
                 }
 #endif                
                 action("Item References")
                 {
-                    ApplicationArea = Basic, Suite;
+                    ApplicationArea = Suite, ItemReferences;
                     Caption = 'Item References';
                     Visible = ItemReferenceVisible;
                     Image = Change;
@@ -1064,15 +1056,19 @@ page 21 "Customer Card"
                         PAGE.RunModal(PAGE::"Customer Report Selections", CustomReportSelection);
                     end;
                 }
+#if not CLEAN19
                 action(SentEmails)
                 {
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Action SentEmails moved under history';
+                    ObsoleteTag = '19.0';
                     ApplicationArea = Basic, Suite;
                     Caption = 'Sent Emails';
                     Image = ShowList;
                     Promoted = true;
                     PromotedCategory = Category8;
                     ToolTip = 'View a list of emails that you have sent to this customer.';
-                    Visible = EmailImprovementFeatureEnabled;
+                    Visible = false;
 
                     trigger OnAction()
                     var
@@ -1081,6 +1077,7 @@ page 21 "Customer Card"
                         Email.OpenSentEmails(Database::Customer, Rec.SystemId);
                     end;
                 }
+#endif
             }
             group(ActionGroupCRM)
             {
@@ -1277,6 +1274,21 @@ page 21 "Customer Card"
                         ItemTrackingDocMgt: Codeunit "Item Tracking Doc. Management";
                     begin
                         ItemTrackingDocMgt.ShowItemTrackingForEntity(1, "No.", '', '', '');
+                    end;
+                }
+                action("Sent Emails")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Sent Emails';
+                    Image = ShowList;
+                    ToolTip = 'View a list of emails that you have sent to this customer.';
+                    Visible = EmailImprovementFeatureEnabled;
+
+                    trigger OnAction()
+                    var
+                        Email: Codeunit Email;
+                    begin
+                        Email.OpenSentEmails(Database::Customer, Rec.SystemId);
                     end;
                 }
                 separator(Action140)
@@ -2065,14 +2077,8 @@ page 21 "Customer Card"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Apply Template';
-                    Ellipsis = true;
                     Image = ApplyTemplate;
-                    //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
-                    //PromotedCategory = Process;
                     ToolTip = 'Apply a template to update the entity with your standard settings for a certain type of entity.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'This functionality will be replaced by other templates.';
-                    ObsoleteTag = '16.0';
 
                     trigger OnAction()
                     var
@@ -2085,16 +2091,8 @@ page 21 "Customer Card"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Save as Template';
-                    Ellipsis = true;
                     Image = Save;
-                    //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
-                    //PromotedCategory = Process;
-                    //The property 'PromotedIsBig' can only be set if the property 'Promoted' is set to 'true'
-                    //PromotedIsBig = true;
                     ToolTip = 'Save the customer card as a template that can be reused to create new customer cards. Customer templates contain preset information to help you fill fields on customer cards.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'This functionality will be replaced by other templates.';
-                    ObsoleteTag = '16.0';
 
                     trigger OnAction()
                     var
@@ -2155,7 +2153,7 @@ page 21 "Customer Card"
             action(WordTemplate)
             {
                 ApplicationArea = All;
-                Caption = 'Word Template';
+                Caption = 'Apply Word Template';
                 ToolTip = 'Apply a Word template on the selected records.';
                 Image = Word;
 
@@ -2178,10 +2176,12 @@ page 21 "Customer Card"
 
                 trigger OnAction()
                 var
-                    EmailMgt: Codeunit "Mail Management";
+                    TempEmailItem: Record "Email Item" temporary;
+                    EmailScenario: Enum "Email Scenario";
                 begin
-                    EmailMgt.AddSource(Database::Customer, Rec.SystemId);
-                    EmailMgt.Run();
+                    TempEmailItem.AddSourceDocument(Database::Customer, Rec.SystemId);
+                    TempEmailitem."Send to" := Rec."E-Mail";
+                    TempEmailItem.Send(false, EmailScenario::Default);
                 end;
             }
         }
@@ -2497,7 +2497,6 @@ page 21 "Customer Card"
         StyleTxt: Text;
         [InDataSet]
         ContactEditable: Boolean;
-        EmailImprovementFeatureEnabled: Boolean;
         CRMIntegrationEnabled: Boolean;
         CDSIntegrationEnabled: Boolean;
         BlockedFilterApplied: Boolean;
@@ -2509,11 +2508,6 @@ page 21 "Customer Card"
         NoFieldVisible: Boolean;
         BalanceExhausted: Boolean;
         AttentionToPaidDay: Boolean;
-        IsOfficeAddin: Boolean;
-        NoPostedInvoices: Integer;
-        NoPostedCrMemos: Integer;
-        NoOutstandingInvoices: Integer;
-        NoOutstandingCrMemos: Integer;
         Totals: Decimal;
         AmountOnPostedInvoices: Decimal;
         AmountOnPostedCrMemos: Decimal;
@@ -2557,6 +2551,14 @@ page 21 "Customer Card"
         LoadOnDemand: Boolean;
         PrevCountryCode: Code[10];
         BackgroundTaskId: Integer;
+        EmailImprovementFeatureEnabled: Boolean;
+
+    protected var
+        IsOfficeAddin: Boolean;
+        NoPostedInvoices: Integer;
+        NoPostedCrMemos: Integer;
+        NoOutstandingInvoices: Integer;
+        NoOutstandingCrMemos: Integer;
 
     [TryFunction]
     local procedure TryGetDictionaryValueFromKey(var DictionaryToLookIn: Dictionary of [Text, Text]; KeyToSearchFor: Text; var ReturnValue: Text)

@@ -1,4 +1,4 @@
-﻿table 23 Vendor
+table 23 Vendor
 {
     Caption = 'Vendor';
     DataCaptionFields = "No.", Name;
@@ -8,10 +8,12 @@
                   TableData "Service Item" = rm,
                   TableData "Price List Header" = rd,
                   TableData "Price List Line" = rd,
-                  TableData "Purchase Price Access" = rd,
-                  TableData "Purchase Discount Access" = rd,
+#if not CLEAN19
                   TableData "Purchase Price" = rd,
-                  TableData "Purchase Line Discount" = rd;
+                  TableData "Purchase Line Discount" = rd,
+#endif
+                  TableData "Purchase Price Access" = rd,
+                  TableData "Purchase Discount Access" = rd;
 
     fields
     {
@@ -256,7 +258,7 @@
                 PostCode.CheckClearPostCodeCityCounty(City, "Post Code", County, "Country/Region Code", xRec."Country/Region Code");
 
                 if "Country/Region Code" <> xRec."Country/Region Code" then
-                    VATRegistrationValidation;
+                    VATRegistrationValidation();
             end;
         }
         field(38; Comment; Boolean)
@@ -1051,6 +1053,11 @@
             Caption = 'Preferred Bank Account Code';
             TableRelation = "Vendor Bank Account".Code WHERE("Vendor No." = FIELD("No."));
         }
+        field(720; "Coupled to CRM"; Boolean)
+        {
+            Caption = 'Coupled to Dataverse';
+            Editable = false;
+        }
         field(840; "Cash Flow Payment Terms Code"; Code[10])
         {
             Caption = 'Cash Flow Payment Terms Code';
@@ -1441,6 +1448,9 @@
         {
         }
         key(Key15; SystemModifiedAt)
+        {
+        }
+        key(Key16; "Coupled to CRM")
         {
         }
     }
@@ -2195,7 +2205,7 @@
         Contact := VendorContact;
     end;
 
-    local procedure SetDefaultPurchaser()
+    protected procedure SetDefaultPurchaser()
     var
         UserSetup: Record "User Setup";
         IsHandled: Boolean;
@@ -2226,7 +2236,7 @@
         PriceSource.Validate("Source No.", "No.");
     end;
 
-    local procedure VATRegistrationValidation()
+    procedure VATRegistrationValidation()
     var
         VATRegistrationLog: Record "VAT Registration Log";
         VATRegistrationNoFormat: Record "VAT Registration No. Format";
@@ -2344,12 +2354,12 @@
         if IsTemporary then
             exit;
 
-        if not GraphMgtGeneralTools.IsApiEnabled then
+        if not GraphMgtGeneralTools.IsApiEnabled() then
             exit;
 
-        UpdateCurrencyId;
-        UpdatePaymentTermsId;
-        UpdatePaymentMethodId;
+        UpdateCurrencyId();
+        UpdatePaymentTermsId();
+        UpdatePaymentMethodId();
     end;
 
     procedure GetReferencedIds(var TempField: Record "Field" temporary)
@@ -2524,6 +2534,7 @@
     begin
     end;
 
+#if not CLEAN19
     [Obsolete('Replaced by the new implementation (V16) of price calculation.', '16.0')]
     [Scope('OnPrem')]
     procedure ValidatePricesIncludingVATOnAfterGetVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup")
@@ -2536,5 +2547,6 @@
     local procedure OnValidatePricesIncludingVATOnAfterGetVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup")
     begin
     end;
+#endif
 }
 

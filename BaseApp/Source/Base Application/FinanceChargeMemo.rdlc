@@ -106,9 +106,7 @@ Cstr(Fields!DoctDateCaption.Value) + Chr(177) +
 Cstr(Fields!HomePageCaption.Value) + Chr(177) + 
 Cstr(Fields!CompanyInfoHomePage.Value) + Chr(177) + 
 Cstr(Fields!EMailCaption.Value) + Chr(177) + 
-Cstr(Fields!CompanyInfoEMail.Value) + Chr(177) +
-Cstr(Fields!BankBranchNoCaption.Value) + Chr(177) +
-Cstr(Fields!CompanyInfoBankBranchNo.Value)
+Cstr(Fields!CompanyInfoEMail.Value)
 , 1)</Hidden>
                                             </Visibility>
                                             <Style>
@@ -7252,68 +7250,6 @@ Cstr(Fields!CompanyInfoBankBranchNo.Value)
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
             </Textbox>
-            <Textbox Name="CompanyInfoBankBranchNoCaption">
-              <KeepTogether>true</KeepTogether>
-              <Paragraphs>
-                <Paragraph>
-                  <TextRuns>
-                    <TextRun>
-                      <Value>=Code.GetData(45,1)</Value>
-                      <Style>
-                        <FontFamily>Segoe UI</FontFamily>
-                        <FontSize>8pt</FontSize>
-                      </Style>
-                    </TextRun>
-                  </TextRuns>
-                  <Style>
-                    <FontFamily>Segoe UI</FontFamily>
-                    <FontSize>8pt</FontSize>
-                    <TextAlign>Left</TextAlign>
-                  </Style>
-                </Paragraph>
-              </Paragraphs>
-              <Top>8.69812cm</Top>
-              <Left>11.16518cm</Left>
-              <Height>11pt</Height>
-              <Width>3.11257cm</Width>
-              <ZIndex>55</ZIndex>
-              <Style>
-                <FontFamily>Segoe UI</FontFamily>
-                <FontSize>8pt</FontSize>
-                <VerticalAlign>Middle</VerticalAlign>
-              </Style>
-            </Textbox>
-            <Textbox Name="CompanyInfoBankBranchNo">
-              <KeepTogether>true</KeepTogether>
-              <Paragraphs>
-                <Paragraph>
-                  <TextRuns>
-                    <TextRun>
-                      <Value>=Code.GetData(46,1)</Value>
-                      <Style>
-                        <FontFamily>Segoe UI</FontFamily>
-                        <FontSize>8pt</FontSize>
-                      </Style>
-                    </TextRun>
-                  </TextRuns>
-                  <Style>
-                    <FontFamily>Segoe UI</FontFamily>
-                    <FontSize>8pt</FontSize>
-                    <TextAlign>Right</TextAlign>
-                  </Style>
-                </Paragraph>
-              </Paragraphs>
-              <Top>8.69812cm</Top>
-              <Left>14.33066cm</Left>
-              <Height>11pt</Height>
-              <Width>4.28642cm</Width>
-              <ZIndex>56</ZIndex>
-              <Style>
-                <FontFamily>Segoe UI</FontFamily>
-                <FontSize>8pt</FontSize>
-                <VerticalAlign>Middle</VerticalAlign>
-              </Style>
-            </Textbox>
             <Textbox Name="VATNoText">
               <KeepTogether>true</KeepTogether>
               <Paragraphs>
@@ -7489,7 +7425,7 @@ Cstr(Fields!CompanyInfoBankBranchNo.Value)
               <Top>8.69812cm</Top>
               <Left>4.18695cm</Left>
               <Height>11pt</Height>
-              <Width>6.97626cm</Width>
+              <Width>14.43013cm</Width>
               <ZIndex>35</ZIndex>
               <Style>
                 <FontFamily>Segoe UI</FontFamily>
@@ -8001,9 +7937,6 @@ End Function
         <Field Name="CompanyInfoBankAccNo">
           <DataField>CompanyInfoBankAccNo</DataField>
         </Field>
-        <Field Name="CompanyInfoBankBranchNo">
-          <DataField>CompanyInfoBankBranchNo</DataField>
-        </Field>
         <Field Name="CustNo_IssuFinChrgMemoHr">
           <DataField>CustNo_IssuFinChrgMemoHr</DataField>
         </Field>
@@ -8081,9 +8014,6 @@ End Function
         </Field>
         <Field Name="BankAccNoCaption">
           <DataField>BankAccNoCaption</DataField>
-        </Field>
-        <Field Name="BankBranchNoCaption">
-          <DataField>BankBranchNoCaption</DataField>
         </Field>
         <Field Name="BankNameCaption">
           <DataField>BankNameCaption</DataField>

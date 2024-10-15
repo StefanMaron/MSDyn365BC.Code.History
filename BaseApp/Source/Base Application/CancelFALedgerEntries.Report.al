@@ -135,6 +135,18 @@ report 5688 "Cancel FA Ledger Entries"
                             Caption = 'Appreciation';
                             ToolTip = 'Specifies if related appreciation entries are included in the batch job .';
                         }
+                        field("CancelChoices[5]"; CancelChoices[5])
+                        {
+                            ApplicationArea = FixedAssets;
+                            Caption = 'Custom 1';
+                            ToolTip = 'Specifies if related custom 1 entries are included in the batch job .';
+                        }
+                        field("CancelChoices[6]"; CancelChoices[6])
+                        {
+                            ApplicationArea = FixedAssets;
+                            Caption = 'Custom 2';
+                            ToolTip = 'Specifies if related custom 2 entries are included in the batch job .';
+                        }
                         field("CancelChoices[9]"; CancelChoices[9])
                         {
                             ApplicationArea = FixedAssets;

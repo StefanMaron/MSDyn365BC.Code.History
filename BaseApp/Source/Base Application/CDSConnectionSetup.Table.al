@@ -53,11 +53,12 @@ table 7200 "CDS Connection Setup"
 
             trigger OnValidate()
             var
-                CRMIntegrationManagement: Codeunit "CRM Integration Management";
+                CRMConnectionSetup: Record "CRM Connection Setup";
             begin
                 if not "Is Enabled" then begin
-                    if CRMIntegrationManagement.IsCRMIntegrationEnabled() then
-                        Error(CannotDisableCDSErr);
+                    if CRMConnectionSetup.Get() then
+                        if CRMConnectionSetup."Is Enabled" then
+                            Error(CannotDisableCDSErr);
                     Session.LogMessage('0000CDG', CDSConnDisabledTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
                     exit;
                 end;

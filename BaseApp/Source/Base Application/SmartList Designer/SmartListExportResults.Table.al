@@ -3,6 +3,15 @@ table 9888 "SmartList Export Results"
     DataClassification = SystemMetadata;
     Extensible = false;
     Scope = OnPrem;
+    Access = Public;
+#if not CLEAN19
+    ObsoleteState = Pending;
+    ObsoleteTag = '19.0';
+#else
+    ObsoleteState = Removed;
+    ObsoleteTag = '22.0';
+#endif
+    ObsoleteReason = 'The SmartList Designer is not supported in Business Central.';
 
     fields
     {

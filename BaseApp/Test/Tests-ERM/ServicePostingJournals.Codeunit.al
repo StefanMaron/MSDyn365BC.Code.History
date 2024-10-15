@@ -265,12 +265,13 @@ codeunit 136125 "Service Posting Journals"
         LibraryService.PostServiceOrder(ServiceHeader, true, true, false);
 
         // Verify: Verify Service Order was posted successfully and it generated 3 Consume Service Ledger Entries.
-        VerifyServiceLedgerEntryNumber(ServiceLedgerEntry."Entry Type"::Consume, ServiceHeader."No.", 3);
+        VerifyServiceLedgerEntryNumber("Service Ledger Entry Entry Type"::Consume, ServiceHeader."No.", 3);
 
         // Tear down.
         UpdateAutomaticCostPosting(OldAutomaticCostPosting);
     end;
 
+#if not CLEAN19
     [Test]
     [Scope('OnPrem')]
     procedure ServiceOrderWithJob_Customer_PriceInclVAT()
@@ -335,7 +336,7 @@ codeunit 136125 "Service Posting Journals"
 
         VerifyPricesOnJobLedgerEntry(Item, ExpectedUnitPrice, ExpectedTotalPrice);
     end;
-
+#endif
     local procedure CopyServiceLines(var FromServiceLine: Record "Service Line"; var ToTempServiceLine: Record "Service Line" temporary)
     begin
         if FromServiceLine.FindSet then
@@ -666,7 +667,7 @@ codeunit 136125 "Service Posting Journals"
         until TempServiceLine.Next = 0;
     end;
 
-    local procedure VerifyServiceLedgerEntryForBin(ServiceLine: Record "Service Line"; DocumentNo: Code[20]; DocumentType: Enum "Service Ledger Entry Document Type"; EntryType: Option)
+    local procedure VerifyServiceLedgerEntryForBin(ServiceLine: Record "Service Line"; DocumentNo: Code[20]; DocumentType: Enum "Service Ledger Entry Document Type"; EntryType: Enum "Service Ledger Entry Entry Type")
     var
         ServiceLedgerEntry: Record "Service Ledger Entry";
     begin
@@ -750,7 +751,7 @@ codeunit 136125 "Service Posting Journals"
         ValueEntry.TestField("Valued Quantity", -TempServiceLine.Quantity);
     end;
 
-    local procedure VerifyServiceLedgerEntryNumber(EntryType: Option; ServiceOrderNo: Code[20]; "Count": Integer)
+    local procedure VerifyServiceLedgerEntryNumber(EntryType: Enum "Service Ledger Entry Entry Type"; ServiceOrderNo: Code[20]; "Count": Integer)
     var
         ServiceLedgerEntry: Record "Service Ledger Entry";
     begin

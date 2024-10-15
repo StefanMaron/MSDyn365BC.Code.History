@@ -123,7 +123,7 @@
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
-                                          <Textbox Name="Textbox5">
+                                          <Textbox Name="Textbox112">
                                             <CanGrow>true</CanGrow>
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
@@ -140,7 +140,7 @@
                                                 <Style />
                                               </Paragraph>
                                             </Paragraphs>
-                                            <rd:DefaultName>Textbox5</rd:DefaultName>
+                                            <rd:DefaultName>Textbox112</rd:DefaultName>
                                             <Style>
                                               <Border />
                                               <VerticalAlign>Bottom</VerticalAlign>
@@ -3655,7 +3655,7 @@
                                   </FilterValues>
                                 </Filter>
                               </Filters>
-                              <Left>0.01537cm</Left>
+                              <Left>0.01658cm</Left>
                               <Height>4.58608cm</Height>
                               <Width>17.95724cm</Width>
                               <Style>
@@ -6855,7 +6855,7 @@
                               </TablixRowHierarchy>
                               <DataSetName>DataSet_Result</DataSetName>
                               <Top>4.67079cm</Top>
-                              <Left>0.01537cm</Left>
+                              <Left>0.01658cm</Left>
                               <Height>2.78694cm</Height>
                               <Width>17.94201cm</Width>
                               <ZIndex>1</ZIndex>
@@ -9263,7 +9263,7 @@
                               </TablixRowHierarchy>
                               <DataSetName>DataSet_Result</DataSetName>
                               <Top>7.49097cm</Top>
-                              <Left>0.01537cm</Left>
+                              <Left>0.01658cm</Left>
                               <Height>3.17498cm</Height>
                               <Width>17.94205cm</Width>
                               <ZIndex>2</ZIndex>
@@ -9473,8 +9473,7 @@
                                 </TablixMembers>
                               </TablixRowHierarchy>
                               <KeepTogether>true</KeepTogether>
-                              <Top>10.96149cm</Top>
-                              <Left>0.01537cm</Left>
+                              <Top>10.98345cm</Top>
                               <Height>0.35278cm</Height>
                               <Width>17.94177cm</Width>
                               <ZIndex>3</ZIndex>
@@ -9561,9 +9560,7 @@ Cstr(Fields!DocDateCaption.Value) + Chr(177) +
 Cstr(Fields!HomePageCaption.Value) + Chr(177) + 
 Cstr(Fields!EMailCaption.Value) + Chr(177) + 
 Cstr(Fields!CompanyInfoHomePage.Value) + Chr(177) + 
-Cstr(Fields!CompanyInfoEMail.Value) + Chr(177) +
-Cstr(Fields!BankBranchNoCaption.Value) + Chr(177) +
-Cstr(Fields!CompanyInfoBankBranchNo.Value)
+Cstr(Fields!CompanyInfoEMail.Value)
 , 1)</Hidden>
                                             </Visibility>
                                             <Style>
@@ -9619,7 +9616,7 @@ Cstr(Fields!CompanyInfoBankBranchNo.Value)
                                 </TablixMembers>
                               </TablixRowHierarchy>
                               <Top>0.02116cm</Top>
-                              <Left>0.11274cm</Left>
+                              <Left>0.11395cm</Left>
                               <Height>0.25603cm</Height>
                               <Width>3.31571cm</Width>
                               <ZIndex>4</ZIndex>
@@ -9784,6 +9781,7 @@ Cstr(Fields!CompanyInfoBankBranchNo.Value)
                                 </TablixMembers>
                               </TablixRowHierarchy>
                               <Top>13.23972cm</Top>
+                              <Left>0.00121cm</Left>
                               <Height>0.70556cm</Height>
                               <Width>17.95724cm</Width>
                               <ZIndex>5</ZIndex>
@@ -10383,6 +10381,7 @@ Cstr(Fields!CompanyInfoBankBranchNo.Value)
                                 </Filter>
                               </Filters>
                               <Top>10.82233cm</Top>
+                              <Left>0.00121cm</Left>
                               <Height>2.11666cm</Height>
                               <Width>17.94189cm</Width>
                               <ZIndex>6</ZIndex>
@@ -11280,9 +11279,9 @@ Cstr(Fields!CompanyInfoBankBranchNo.Value)
                 </Paragraph>
               </Paragraphs>
               <Top>223.89999pt</Top>
-              <Left>2.85622cm</Left>
+              <Left>3.35cm</Left>
               <Height>11pt</Height>
-              <Width>8.1556cm</Width>
+              <Width>7.6cm</Width>
               <ZIndex>26</ZIndex>
               <Style>
                 <FontFamily>Segoe UI</FontFamily>
@@ -11312,7 +11311,7 @@ Cstr(Fields!CompanyInfoBankBranchNo.Value)
               </Paragraphs>
               <Top>203pt</Top>
               <Height>11pt</Height>
-              <Width>2.67983cm</Width>
+              <Width>3.3cm</Width>
               <ZIndex>27</ZIndex>
               <Style>
                 <Border />
@@ -11342,9 +11341,9 @@ Cstr(Fields!CompanyInfoBankBranchNo.Value)
                 </Paragraph>
               </Paragraphs>
               <Top>203pt</Top>
-              <Left>2.85622cm</Left>
+              <Left>3.35cm</Left>
               <Height>11pt</Height>
-              <Width>8.1556cm</Width>
+              <Width>7.6cm</Width>
               <ZIndex>28</ZIndex>
               <Style>
                 <FontFamily>Segoe UI</FontFamily>
@@ -11374,7 +11373,7 @@ Cstr(Fields!CompanyInfoBankBranchNo.Value)
               </Paragraphs>
               <Top>213.89999pt</Top>
               <Height>11pt</Height>
-              <Width>2.67983cm</Width>
+              <Width>3.3cm</Width>
               <ZIndex>29</ZIndex>
               <Style>
                 <Border />
@@ -11406,9 +11405,9 @@ Cstr(Fields!CompanyInfoBankBranchNo.Value)
                 </Paragraph>
               </Paragraphs>
               <Top>213.89999pt</Top>
-              <Left>2.85622cm</Left>
+              <Left>3.35cm</Left>
               <Height>11pt</Height>
-              <Width>8.1556cm</Width>
+              <Width>7.6cm</Width>
               <ZIndex>30</ZIndex>
               <Style>
                 <FontFamily>Segoe UI</FontFamily>
@@ -11438,7 +11437,7 @@ Cstr(Fields!CompanyInfoBankBranchNo.Value)
               </Paragraphs>
               <Top>235.69998pt</Top>
               <Height>11pt</Height>
-              <Width>2.67983cm</Width>
+              <Width>3.3cm</Width>
               <ZIndex>31</ZIndex>
               <Style>
                 <Border />
@@ -11469,10 +11468,10 @@ Cstr(Fields!CompanyInfoBankBranchNo.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>234.79999pt</Top>
-              <Left>2.85622cm</Left>
+              <Top>234.89999pt</Top>
+              <Left>3.37056cm</Left>
               <Height>11pt</Height>
-              <Width>15.08568cm</Width>
+              <Width>14.57cm</Width>
               <ZIndex>32</ZIndex>
               <Style>
                 <FontFamily>Segoe UI</FontFamily>
@@ -11502,7 +11501,7 @@ Cstr(Fields!CompanyInfoBankBranchNo.Value)
               </Paragraphs>
               <Top>170.30003pt</Top>
               <Height>11pt</Height>
-              <Width>2.67983cm</Width>
+              <Width>3.3cm</Width>
               <ZIndex>33</ZIndex>
               <Style>
                 <FontFamily>Segoe UI</FontFamily>
@@ -11531,9 +11530,9 @@ Cstr(Fields!CompanyInfoBankBranchNo.Value)
                 </Paragraph>
               </Paragraphs>
               <Top>170.30003pt</Top>
-              <Left>2.85622cm</Left>
+              <Left>3.35cm</Left>
               <Height>11pt</Height>
-              <Width>8.1556cm</Width>
+              <Width>7.6cm</Width>
               <ZIndex>34</ZIndex>
               <Style>
                 <FontFamily>Segoe UI</FontFamily>
@@ -11562,7 +11561,7 @@ Cstr(Fields!CompanyInfoBankBranchNo.Value)
               </Paragraphs>
               <Top>192.80002pt</Top>
               <Height>11pt</Height>
-              <Width>2.67983cm</Width>
+              <Width>3.3cm</Width>
               <ZIndex>35</ZIndex>
               <Style>
                 <FontFamily>Segoe UI</FontFamily>
@@ -11590,9 +11589,9 @@ Cstr(Fields!CompanyInfoBankBranchNo.Value)
                 </Paragraph>
               </Paragraphs>
               <Top>192.80002pt</Top>
-              <Left>2.85622cm</Left>
+              <Left>3.35cm</Left>
               <Height>11pt</Height>
-              <Width>8.1556cm</Width>
+              <Width>7.6cm</Width>
               <ZIndex>36</ZIndex>
               <Style>
                 <FontFamily>Segoe UI</FontFamily>
@@ -11621,7 +11620,7 @@ Cstr(Fields!CompanyInfoBankBranchNo.Value)
               </Paragraphs>
               <Top>182.10002pt</Top>
               <Height>11pt</Height>
-              <Width>2.67983cm</Width>
+              <Width>3.3cm</Width>
               <ZIndex>37</ZIndex>
               <Style>
                 <FontFamily>Segoe UI</FontFamily>
@@ -11649,9 +11648,9 @@ Cstr(Fields!CompanyInfoBankBranchNo.Value)
                 </Paragraph>
               </Paragraphs>
               <Top>182.10002pt</Top>
-              <Left>2.85622cm</Left>
+              <Left>3.35cm</Left>
               <Height>11pt</Height>
-              <Width>8.1556cm</Width>
+              <Width>7.6cm</Width>
               <ZIndex>38</ZIndex>
               <Style>
                 <FontFamily>Segoe UI</FontFamily>
@@ -11679,7 +11678,7 @@ Cstr(Fields!CompanyInfoBankBranchNo.Value)
               <rd:DefaultName>Textbox2</rd:DefaultName>
               <Top>224.8pt</Top>
               <Height>11pt</Height>
-              <Width>2.67983cm</Width>
+              <Width>3.3cm</Width>
               <ZIndex>39</ZIndex>
               <Style>
                 <Border>
@@ -11868,70 +11867,6 @@ Cstr(Fields!CompanyInfoBankBranchNo.Value)
                 </Border>
               </Style>
             </Image>
-            <Textbox Name="CompanyInfoBankBranchNoCapt">
-              <CanGrow>true</CanGrow>
-              <KeepTogether>true</KeepTogether>
-              <Paragraphs>
-                <Paragraph>
-                  <TextRuns>
-                    <TextRun>
-                      <Value>=(Code.GetData(45,1))</Value>
-                      <Style>
-                        <FontFamily>Segoe UI</FontFamily>
-                        <FontSize>8pt</FontSize>
-                      </Style>
-                    </TextRun>
-                  </TextRuns>
-                  <Style>
-                    <FontFamily>Segoe UI</FontFamily>
-                    <FontSize>8pt</FontSize>
-                  </Style>
-                </Paragraph>
-              </Paragraphs>
-              <Top>233.60016pt</Top>
-              <Left>11.01182cm</Left>
-              <Height>11pt</Height>
-              <Width>2.90319cm</Width>
-              <ZIndex>47</ZIndex>
-              <Style>
-                <Border />
-                <FontFamily>Segoe UI</FontFamily>
-                <FontSize>8pt</FontSize>
-                <VerticalAlign>Middle</VerticalAlign>
-              </Style>
-            </Textbox>
-            <Textbox Name="CompanyInfoBankBranchNo">
-              <KeepTogether>true</KeepTogether>
-              <Paragraphs>
-                <Paragraph>
-                  <TextRuns>
-                    <TextRun>
-                      <Value>=Code.GetData(46,1)</Value>
-                      <Style>
-                        <FontFamily>Segoe UI</FontFamily>
-                        <FontSize>8pt</FontSize>
-                      </Style>
-                    </TextRun>
-                  </TextRuns>
-                  <Style>
-                    <FontFamily>Segoe UI</FontFamily>
-                    <FontSize>8pt</FontSize>
-                    <TextAlign>Right</TextAlign>
-                  </Style>
-                </Paragraph>
-              </Paragraphs>
-              <Top>233.60016pt</Top>
-              <Left>14.17959cm</Left>
-              <Height>11pt</Height>
-              <Width>3.77765cm</Width>
-              <ZIndex>48</ZIndex>
-              <Style>
-                <Border />
-                <FontFamily>Segoe UI</FontFamily>
-                <FontSize>8pt</FontSize>
-                <VerticalAlign>Middle</VerticalAlign>
-              </Style>
-            </Textbox>
           </ReportItems>
           <Style>
             <FontFamily>Segoe UI</FontFamily>
@@ -12164,9 +12099,6 @@ End Function
         <Field Name="CompanyInfoGiroNo">
           <DataField>CompanyInfoGiroNo</DataField>
         </Field>
-        <Field Name="CompanyInfoBankBranchNo">
-          <DataField>CompanyInfoBankBranchNo</DataField>
-        </Field>
         <Field Name="CompanyInfoVATRegNo">
           <DataField>CompanyInfoVATRegNo</DataField>
         </Field>
@@ -12238,9 +12170,6 @@ End Function
         </Field>
         <Field Name="GiroNoCaption">
           <DataField>GiroNoCaption</DataField>
-        </Field>
-        <Field Name="BankBranchNoCaption">
-          <DataField>BankBranchNoCaption</DataField>
         </Field>
         <Field Name="VATRegNoCaption">
           <DataField>VATRegNoCaption</DataField>

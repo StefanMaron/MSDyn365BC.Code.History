@@ -1,4 +1,4 @@
-﻿codeunit 5845 "Get Inventory Report"
+codeunit 5845 "Get Inventory Report"
 {
     TableNo = "Inventory Report Entry";
 

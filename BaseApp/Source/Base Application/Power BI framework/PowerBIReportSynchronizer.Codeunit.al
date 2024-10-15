@@ -29,7 +29,7 @@ codeunit 6325 "Power BI Report Synchronizer"
 #else
         DeleteMarkedDefaultReports();
         RetryPartialUploadBatch();
-        UploadDefaultOobReports();
+        UploadDefaultOobReport();
         UploadCustomerReports();
 #endif
 
@@ -352,6 +352,7 @@ codeunit 6325 "Power BI Report Synchronizer"
     local procedure UploadFromApiRequestList(ApiRequestList: DotNet ImportReportRequestList; EnvName: Text)
     var
         UrlHelper: Codeunit "Url Helper";
+        PowerBIUrlMgt: Codeunit "Power BI Url Mgt";
         PbiServiceWrapper: DotNet ServiceWrapper;
         ApiResponseList: DotNet ImportReportResponseList;
         ApiResponse: DotNet ImportReportResponse;
@@ -371,7 +372,7 @@ codeunit 6325 "Power BI Report Synchronizer"
                     exit;
                 end;
 
-                PbiServiceWrapper := PbiServiceWrapper.ServiceWrapper(AzureAccessToken, UrlHelper.GetPowerBIApiUrl());
+                PbiServiceWrapper := PbiServiceWrapper.ServiceWrapper(AzureAccessToken, PowerBIUrlMgt.GetPowerBIApiUrl());
 
                 BusinessCentralAccessToken := AzureAdMgt.GetAccessToken(UrlHelper.GetFixedEndpointWebServiceUrl(), '', false);
 
@@ -412,6 +413,7 @@ codeunit 6325 "Power BI Report Synchronizer"
     local procedure RetryPartialUploadBatch()
     var
         PowerBIReportUploads: Record "Power BI Report Uploads";
+        PowerBIUrlMgt: Codeunit "Power BI Url Mgt";
         UrlHelper: Codeunit "Url Helper";
         PbiServiceWrapper: DotNet ServiceWrapper;
         ImportIdList: DotNet ImportedReportRequestList;
@@ -442,7 +444,7 @@ codeunit 6325 "Power BI Report Synchronizer"
             if PowerBIServiceMgt.CanHandleServiceCalls() then begin
                 AzureAccessToken := AzureAdMgt.GetAccessToken(PowerBIServiceMgt.GetPowerBIResourceUrl(), PowerBIServiceMgt.GetPowerBiResourceName(), false);
 
-                PbiServiceWrapper := PbiServiceWrapper.ServiceWrapper(AzureAccessToken, UrlHelper.GetPowerBIApiUrl());
+                PbiServiceWrapper := PbiServiceWrapper.ServiceWrapper(AzureAccessToken, PowerBIUrlMgt.GetPowerBIApiUrl());
                 BusinessCentralAccessToken := AzureAdMgt.GetAccessToken(UrlHelper.GetFixedEndpointWebServiceUrl(), '', false);
 
                 if BusinessCentralAccessToken <> '' then

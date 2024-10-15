@@ -150,6 +150,18 @@ report 5690 "Index Fixed Assets"
                             Caption = 'Appreciation';
                             ToolTip = 'Specifies if appreciations are included by the batch job.';
                         }
+                        field("IndexChoices[5]"; IndexChoices[5])
+                        {
+                            ApplicationArea = FixedAssets;
+                            Caption = 'Custom 1';
+                            ToolTip = 'Specifies if you want to index for fixed assets of transaction a custom type in the batch job.';
+                        }
+                        field("IndexChoices[6]"; IndexChoices[6])
+                        {
+                            ApplicationArea = FixedAssets;
+                            Caption = 'Custom 2';
+                            ToolTip = 'Specifies if you want to index for fixed assets of transaction a custom type in the batch job.';
+                        }
                         field("IndexChoices[9]"; IndexChoices[9])
                         {
                             ApplicationArea = FixedAssets;
