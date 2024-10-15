@@ -449,6 +449,7 @@ page 6303 "Power BI Report Spinner Part"
         NoReportsAvailableErr: Label 'There are no reports available from Power BI.';
         ResetReportsQst: Label 'This action will remove all Power BI reports in the database for all users. Reports in your Power BI workspace need to be removed manually. Continue?';
         PowerBiOptInTxt: Label 'User has opted in to enable Power BI services', Locked = true;
+        PowerBIReportLoadTelemetryMsg: Label 'Loading Power BI report for user', Locked = true;
         PowerBiOptInImageNameLbl: Label 'PowerBi-OptIn-480px.png', Locked = true;
         NoOptInImageTxt: Label 'There is no Power BI Opt-in image in the Database with ID: %1', Locked = true;
         GettingStartedTxt: Label 'Get started with Power BI';
@@ -501,6 +502,9 @@ page 6303 "Power BI Report Spinner Part"
             // update last loaded report
             SetLastOpenedReportID(TempPowerBiReportBuffer.ReportID);
             // Hides both filters and tabs for embedding in small spaces where navigation is unnecessary.
+
+            SendTraceTag('0000C35', PowerBiServiceMgt.GetPowerBiTelemetryCategory(), Verbosity::Normal,
+                PowerBIReportLoadTelemetryMsg, DataClassification::SystemMetadata);
             exit(TempPowerBiReportBuffer.ReportEmbedUrl + '&filterPaneEnabled=false&navContentPaneEnabled=false');
         end;
     end;

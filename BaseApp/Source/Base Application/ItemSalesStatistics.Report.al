@@ -299,13 +299,13 @@ report 10135 "Item Sales Statistics"
 
                 trigger OnPreDataItem()
                 begin
-                    Clear(Profit);
-                    Clear(QuantityReturned);
                     if not BreakdownByVariant then
                         CurrReport.Break();
                     if not AnyVariants then
                         CurrReport.Break();
 
+                    Clear(Profit);
+                    Clear(QuantityReturned);
                     BlankVariant := true;
                 end;
             }

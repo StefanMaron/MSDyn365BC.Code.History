@@ -1600,10 +1600,9 @@ codeunit 134480 "ERM Dimension General Part 2"
         LibraryDimension.CreateDimensionValue(DimensionValue2, AnalysisView."Dimension 1 Code");
 
         // [GIVEN] Dimension Value with type End-Total and Totaling = "D1".."D2"
-        LibraryDimension.CreateDimensionValue(DimensionValueTotal, AnalysisView."Dimension 1 Code");
-        DimensionValueTotal.Validate("Dimension Value Type", DimensionValueTotal."Dimension Value Type"::"End-Total");
-        DimensionValueTotal.Validate(Totaling, StrSubstNo('%1..%2', DimensionValue1.Code, DimensionValue2.Code));
-        DimensionValueTotal.Modify(true);
+        CreateDimensionValueWithRangeTotaling(
+            DimensionValueTotal, AnalysisView."Dimension 1 Code", DimensionValueTotal."Dimension Value Type"::"End-Total", 
+            DimensionValue1.Code, DimensionValue2.Code);
 
         // [GIVEN] Posted Entries for G/L Account = "G" with Amounts = "X1" for "D1" dimension, "X2" for "D2" dimension
         TotalAmount :=
@@ -2293,6 +2292,93 @@ codeunit 134480 "ERM Dimension General Part 2"
         ICDimensionValue.TestField("Map-to Dimension Value Code", DimVal);
     end;
 
+    [Test]
+    [HandlerFunctions('AnalysisByDimensionMatrixPageHandler')]
+    [Scope('OnPrem')]
+    procedure AnalysisByDimensionMatrixFilterMultipleDimTotaling()
+    var
+        AnalysisView: Record "Analysis View";
+        DimensionValue: array[3] of Record "Dimension Value";
+        DimensionValueTotal: Record "Dimension Value";
+        GLAccountNo: Code[20];
+        TotalAmount: Decimal;
+        i: Integer;
+    begin
+        // [FEATURE] [Analysis by Dimensions] [UI]
+        // [SCENARIO 351505] Filter Dimension Value with filter using "|" and dimensions with Totaling in the Analysis by Dimension Matrix page
+        Initialize();
+
+        // [GIVEN] Analysis View for G/L Account = "G" and "Dimension 1 Code" = new Dimension "Dim"
+        GLAccountNo := LibraryERM.CreateGLAccountNo();
+        AnalysisView.Get(
+          CreateAnalysisViewWithCertainDimension(GLAccountNo, DimensionCategory::"Dimension 1"));
+
+        // [GIVEN] Dimension Values "D1", "D2", "D3" Dimension "Dim"
+        // [GIVEN] Posted Entries for G/L Account = "G" with Amounts = "X1" for "D1" dimension, "X2" for "D2" dimension, "X3" for "D3" dimension
+        for i := 1 to ArrayLen(DimensionValue) do begin
+            LibraryDimension.CreateDimensionValue(DimensionValue[i], AnalysisView."Dimension 1 Code");
+            TotalAmount += CreateAndPostJournalLineWithDimension(DimensionValue[i], GLAccountNo, WorkDate);
+        end;
+        LibraryVariableStorage.Enqueue(TotalAmount);
+
+        // [GIVEN] Dimension Value "DT" with type Total and Totaling = "D1".."D2"
+        CreateDimensionValueWithRangeTotaling(
+            DimensionValueTotal, AnalysisView."Dimension 1 Code", DimensionValueTotal."Dimension Value Type"::Total, 
+            DimensionValue[1].Code, DimensionValue[2].Code);
+
+        // [WHEN] Open Analysis by Dimension Matrix page using dimension filter "DT|D3"
+        OpenAnalysisByDimensionMatrixWithLineDimCode(
+          AnalysisView.Code, false, false, RoundingFactorOption, Format(LineDimOptionRef::"G/L Account"),
+          ClosingDateOptions::Include, ShowAmounts::"Actual Amounts", StrSubstNo('%1|%2', DimensionValueTotal.Code, DimensionValue[3].Code));
+
+        // [THEN] Analysis By Dimension Matrix Amount = Total Amount = "X1" + "X2" + "X3"
+        // Verification is done in AnalysisByDimensionMatrixPageHandler
+    end;
+
+    [Test]
+    [HandlerFunctions('GLBalancebyDimMatrixPageHandler')]
+    [Scope('OnPrem')]
+    procedure OpenGLBalancebyDimMatrixFilterMultipleDimTotaling()
+    var
+        DimensionValue: array[3] of Record "Dimension Value";
+        DimensionValueTotal: Record "Dimension Value";
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        GLAccountCard: TestPage "G/L Account Card";
+        GLBalancebyDimension: TestPage "G/L Balance by Dimension";
+        GlobalDim1Code: Code[20];
+        GLAccountNo: Code[20];
+        TotalAmount: Decimal;
+        i: Integer;
+    begin
+        // [FEATURE] [GL Balance By Dimension] [UI]
+        // [SCENARIO 351505] Filter Dimension Value with filter using "|" and dimensions with Totaling in the Balance by Dim. Matrix page
+        Initialize();
+
+        // [GIVEN] G/L Account
+        GLAccountNo := LibraryERM.CreateGLAccountNo();
+
+        // [GIVEN] Dimension Values "D1", "D2", "D3" Dimension "Dim"
+        // [GIVEN] Posted Entries for G/L Account with Amounts = "X1" for "D1" dimension, "X2" for "D2" dimension, "X3" for "D3" dimension
+        GeneralLedgerSetup.Get();
+        GlobalDim1Code := GeneralLedgerSetup."Global Dimension 1 Code";
+        for i := 1 to ArrayLen(DimensionValue) do begin
+            LibraryDimension.CreateDimensionValue(DimensionValue[i], GlobalDim1Code);
+            TotalAmount += CreateAndPostJournalLineWithDimension(DimensionValue[i], GLAccountNo, WorkDate);
+        end;
+        LibraryVariableStorage.Enqueue(TotalAmount);
+
+        // [GIVEN] Dimension Value "DT" with type Total and Totaling = "D1".."D2"
+        CreateDimensionValueWithRangeTotaling(
+            DimensionValueTotal, GlobalDim1Code, DimensionValueTotal."Dimension Value Type"::Total, 
+            DimensionValue[1].Code, DimensionValue[2].Code);
+
+        // [WHEN] Open Balance by Dim. Matrix page using dimension filter "DT|D3"
+        OpenGLBalancebyDimMatrix(GLAccountNo, GlobalDim1Code, StrSubstNo('%1|%2', DimensionValueTotal.Code, DimensionValue[3].Code));
+
+        // [THEN] Open Balance by Dim. Matrix Amount = Total Amount = "X1" + "X2" + "X3"
+        // Verification is done in GLBalancebyDimMatrixPageHandler
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2311,6 +2397,14 @@ codeunit 134480 "ERM Dimension General Part 2"
 
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Dimension General Part 2");
+    end;
+
+    local procedure CreateDimensionValueWithRangeTotaling(var DimValTotal: Record "Dimension Value"; DimCode: Code[20]; DimValType: Option; DimValFirstCode: Code[20]; DimValLastCode: Code[20])
+    begin
+        LibraryDimension.CreateDimensionValue(DimValTotal, DimCode);
+        DimValTotal.Validate("Dimension Value Type", DimValType);
+        DimValTotal.Validate(Totaling, StrSubstNo('%1..%2', DimValFirstCode, DimValLastCode));
+        DimValTotal.Modify(true);
     end;
 
     local procedure CreateDimensionWithValue(var DimensionCode: Code[20]; var DimensionValueCode: Code[20])
@@ -2893,6 +2987,24 @@ codeunit 134480 "ERM Dimension General Part 2"
         AnalysisViewListPurchase.OpenEdit;
         AnalysisViewListPurchase.FILTER.SetFilter(Code, AnalysisViewCode);
         AnalysisViewListPurchase.EditAnalysisView.Invoke;
+    end;
+
+    local procedure OpenGLBalancebyDimMatrix(GLAccountNo: Code[20]; ColumnDimCode: Code[20]; Dim1FilterText: Text)
+    var
+        GLAccountCard: TestPage "G/L Account Card";
+        GLBalancebyDimension: TestPage "G/L Balance by Dimension";
+    begin
+        GLAccountCard.OpenView();
+        GLAccountCard.FILTER.SetFilter("No.", GLAccountNo);
+        GLBalancebyDimension.Trap();
+        GLAccountCard."G/L Balance by &Dimension".Invoke();
+        GLBalancebyDimension.LineDimCode.SetValue('G/L Account');
+        GLBalancebyDimension.AmountField.SetValue('Amount');
+        GLBalancebyDimension.GLAccFilter.SetValue(GLAccountNo);
+        GLBalancebyDimension.ColumnDimCode.SetValue(ColumnDimCode);
+        GLBalancebyDimension.DateFilter.SetValue('');
+        GLBalancebyDimension.Dim1Filter.SetValue(Dim1FilterText);
+        GLBalancebyDimension.ShowMatrix.Invoke();
     end;
 
     local procedure SelectGenJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch")

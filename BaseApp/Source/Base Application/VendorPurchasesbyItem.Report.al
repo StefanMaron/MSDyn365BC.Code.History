@@ -2,6 +2,7 @@ report 10163 "Vendor Purchases by Item"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './VendorPurchasesbyItem.rdlc';
+    ApplicationArea = Basic, Suite;
     Caption = 'Vendor Purchases by Item';
     UsageCategory = ReportsAndAnalysis;
 

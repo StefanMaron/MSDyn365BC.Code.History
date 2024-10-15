@@ -1,4 +1,4 @@
-page 256 "Payment Journal"
+﻿page 256 "Payment Journal"
 {
     AdditionalSearchTerms = 'print check,payment file export,electronic payment';
     ApplicationArea = Basic, Suite;
@@ -67,6 +67,7 @@ page 256 "Payment Journal"
                     Style = Attention;
                     StyleExpr = HasPmtFileErr;
                     ToolTip = 'Specifies a document number for the journal line.';
+                    ShowMandatory = true;
                 }
                 field("Incoming Document Entry No."; "Incoming Document Entry No.")
                 {
@@ -908,7 +909,6 @@ page 256 "Payment Journal"
                             CompanyInformation: Record "Company Information";
                             GenJournalBatch: Record "Gen. Journal Batch";
                             BulkVendorRemitReporting: Codeunit "Bulk Vendor Remit Reporting";
-                            PaymentExportGenJnlCheck: Codeunit "Payment Export Gen. Jnl Check";
                             GenJnlLineRecordRef: RecordRef;
                             Window: Dialog;
                             ExportNewLines: Boolean;
@@ -932,27 +932,9 @@ page 256 "Payment Journal"
                                 GenJnlLine.SetRange("Journal Template Name", "Journal Template Name");
                                 GenJnlLine.SetRange("Journal Batch Name", "Journal Batch Name");
 
-                                if GenJnlLine.FindFirst then begin
+                                if GenJnlLine.FindSet then begin
                                     repeat
-                                        GenJnlLine.DeletePaymentFileErrors;
-                                        if GenJnlLine."Currency Code" <> BankAccount."Currency Code" then
-                                            GenJnlLine.InsertPaymentFileError(NoExportDiffCurrencyErr);
-                                        if ((GenJnlLine."Account Type" = GenJnlLine."Account Type"::"Bank Account") or
-                                            (GenJnlLine."Bal. Account Type" = GenJnlLine."Bal. Account Type"::"Bank Account")) and
-                                           ((GenJnlLine."Bank Payment Type" <> GenJnlLine."Bank Payment Type"::"Electronic Payment") and
-                                            (GenJnlLine."Bank Payment Type" <> GenJnlLine."Bank Payment Type"::"Electronic Payment-IAT"))
-                                        then
-                                            GenJnlLine.InsertPaymentFileError(StrSubstNo(WrongBankPaymentTypeErr, FieldCaption("Bank Payment Type"),
-                                                "Bank Payment Type"::"Electronic Payment", "Bank Payment Type"::"Electronic Payment-IAT"));
-                                        if not GenJournalBatch."Allow Payment Export" then
-                                            PaymentExportGenJnlCheck.AddBatchEmptyError(GenJnlLine, GenJournalBatch.FieldCaption("Allow Payment Export"), '');
-                                        if GenJnlLine.Amount < 0 then
-                                            GenJnlLine.InsertPaymentFileError(NoExportNegativeErr);
-                                        if GenJnlLine."Recipient Bank Account" = '' then
-                                            GenJnlLine.InsertPaymentFileError(RecipientBankAccountEmptyErr)
-                                        else
-                                            if not UseForElecPaymentChecked(GenJnlLine) then
-                                                GenJnlLine.InsertPaymentFileError(UseForElecPaymentCheckedErr);
+                                        CheckPaymentLineBeforeExport(GenJnlLine, GenJournalBatch, BankAccount);
                                     until GenJnlLine.Next = 0;
                                 end;
 
@@ -1923,6 +1905,33 @@ page 256 "Payment Journal"
         Clear(DimMgt);
     end;
 
+    local procedure CheckPaymentLineBeforeExport(var GenJnlLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; BankAccount: Record "Bank Account")
+    var
+        PaymentExportGenJnlCheck: Codeunit "Payment Export Gen. Jnl Check";
+    begin
+        GenJnlLine.DeletePaymentFileErrors;
+        if GenJnlLine."Currency Code" <> BankAccount."Currency Code" then
+            GenJnlLine.InsertPaymentFileError(NoExportDiffCurrencyErr);
+        if ((GenJnlLine."Account Type" = GenJnlLine."Account Type"::"Bank Account") or
+            (GenJnlLine."Bal. Account Type" = GenJnlLine."Bal. Account Type"::"Bank Account")) and
+           ((GenJnlLine."Bank Payment Type" <> GenJnlLine."Bank Payment Type"::"Electronic Payment") and
+            (GenJnlLine."Bank Payment Type" <> GenJnlLine."Bank Payment Type"::"Electronic Payment-IAT"))
+        then
+            GenJnlLine.InsertPaymentFileError(StrSubstNo(WrongBankPaymentTypeErr, FieldCaption("Bank Payment Type"),
+                "Bank Payment Type"::"Electronic Payment", "Bank Payment Type"::"Electronic Payment-IAT"));
+        if not GenJournalBatch."Allow Payment Export" then
+            PaymentExportGenJnlCheck.AddBatchEmptyError(GenJnlLine, GenJournalBatch.FieldCaption("Allow Payment Export"), '');
+        if GenJnlLine.Amount < 0 then
+            GenJnlLine.InsertPaymentFileError(NoExportNegativeErr);
+        if GenJnlLine."Recipient Bank Account" = '' then
+            GenJnlLine.InsertPaymentFileError(RecipientBankAccountEmptyErr)
+        else
+            if not UseForElecPaymentChecked(GenJnlLine) then
+                GenJnlLine.InsertPaymentFileError(UseForElecPaymentCheckedErr);
+
+        OnAfterCheckPaymentLineBeforeExport(GenJnlLine);
+    end;
+
     local procedure SetAMCAppearance()
     var
         BankAccount: Record "Bank Account";
@@ -1990,6 +1999,11 @@ page 256 "Payment Journal"
     begin
         JobQueueVisible := "Job Queue Status" = "Job Queue Status"::"Scheduled for Posting";
         JobQueuesUsed := GeneralLedgerSetup.JobQueueActive;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckPaymentLineBeforeExport(var GenJournalLine: Record "Gen. Journal Line")
+    begin
     end;
 
     [IntegrationEvent(false, false)]

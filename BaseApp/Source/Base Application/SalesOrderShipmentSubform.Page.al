@@ -311,7 +311,8 @@ page 10027 "Sales Order Shipment Subform"
                 action("Item Charge &Assignment")
                 {
                     Caption = 'Item Charge &Assignment';
-                    ToolTip = 'Assign additional direct costs, for example for freight, to the item on the line.';
+					Enabled = Type = Type::"Charge (Item)";
+                    ToolTip = 'Record additional direct costs, for example for freight. This action is available only for Charge (Item) line types.';
 
                     trigger OnAction()
                     begin
@@ -322,7 +323,8 @@ page 10027 "Sales Order Shipment Subform"
                 {
                     Caption = 'Item &Tracking Lines';
                     Image = ItemTrackingLines;
-                    ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
+					Enabled = Type = Type::Item;
+                    ToolTip = 'View or edit serial and lot numbers for the selected item. This action is available only for lines that contain an item.';
 
                     trigger OnAction()
                     begin

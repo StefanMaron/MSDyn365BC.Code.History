@@ -14,6 +14,7 @@ codeunit 10145 "E-Invoice Mgt."
         SourceCodeSetup: Record "Source Code Setup";
         TypeHelper: Codeunit "Type Helper";
         DocNameSpace: Text;
+        DocType: Text;
         Text000: Label 'Dear customer, please find invoice number %1 in the attachment.';
         PaymentAttachmentMsg: Label 'Dear customer, please find payment number %1 in the attachment.', Comment = '%1=The payment number.';
         Text001: Label 'E-Document %1 has been sent.';
@@ -53,6 +54,25 @@ codeunit 10145 "E-Invoice Mgt."
         WrongFieldValueErr: Label 'Wrong value %1 in field %2 of table %3.', Comment = '%1 - field value, %2 - field caption, %3 - table caption.';
         WrongSATCatalogErr: Label 'Catalog %1 contains incorrect data.', Comment = '%1 - table name.';
         CombinationCannotBeUsedErr: Label '%1 %2 cannot be used with %3 %4.', Comment = '%1 - field 1, %2 - value of field 1, %3 - field 2, %4 - value of field 2.';
+        // fault model labels
+        MXElectronicInvoicingTok: Label 'MXElectronicInvoicingTelemetryCategoryTok', Locked = true;
+        SATCertificateNotValidErr: Label 'The SAT certificate is not valid', Locked = true;
+        StampReqMsg: Label 'Sending stamp request for document: %1', Locked = true;
+        StampReqSuccessMsg: Label 'Stamp request successful for document: %1', Locked = true;
+        InvokeMethodMsg: Label 'Sending request for action: %1', Locked = true;
+        InvokeMethodSuccessMsg: Label 'Successful request for action: %1', Locked = true;
+        NullParameterErr: Label 'The %1 cannot be empty', Locked = true;
+        ProcessResponseErr: Label 'Cannot process response for document %1. %2', Locked = true;
+        SendDocMsg: Label 'Sending document: %1', Locked = true;
+        SendDocSuccessMsg: Label 'Document %1 successfully sent', Locked = true;
+        SendEmailErr: Label 'Cannot send email. %1', Locked = true;
+        CancelDocMsg: Label 'Cancelling document: %1', Locked = true;
+        CancelDocSuccessMsg: Label 'Document %1 canceled successfully', Locked = true;
+        PaymentStampReqMsg: Label 'Sending payment stamp request', Locked = true;
+        PaymentStampReqSuccessMsg: Label 'Payment stamp request successful', Locked = true;
+        ProcessPaymentErr: Label 'Cannot process payment %2', Locked = true;
+        SendPaymentMsg: Label 'Sending payment', Locked = true;
+        SendPaymentSuccessMsg: Label 'Payment successfully sent', Locked = true;
 
     procedure RequestStampDocument(var RecRef: RecordRef; Prepayment: Boolean)
     var
@@ -208,6 +228,8 @@ codeunit 10145 "E-Invoice Mgt."
         case DocumentHeaderRecordRef.Number of
             DATABASE::"Sales Invoice Header":
                 begin
+                    DocType := 'Sales Invoice';
+
                     DocumentHeaderRecordRef.SetTable(SalesInvoiceHeader);
                     if not Reverse then // If reverse, AdvanceSettle must be false else you fall into an infinite loop
                         AdvanceSettle := IsInvoicePrepaymentSettle(SalesInvoiceHeader."No.", AdvanceAmount);
@@ -226,6 +248,8 @@ codeunit 10145 "E-Invoice Mgt."
                 end;
             DATABASE::"Sales Cr.Memo Header":
                 begin
+                    DocType := 'Sales Cr.Memo';
+
                     DocumentHeaderRecordRef.SetTable(SalesCrMemoHeader);
                     CreateAbstractDocument(SalesCrMemoHeader, TempDocumentHeader, TempDocumentLine, false);
                     GetRelationDocumentsSalesCreditMemo(TempCFDIRelationDocument, SalesCrMemoHeader, TempDocumentHeader);
@@ -238,6 +262,8 @@ codeunit 10145 "E-Invoice Mgt."
                 end;
             DATABASE::"Service Invoice Header":
                 begin
+                    DocType := 'Service Invoice';
+
                     DocumentHeaderRecordRef.SetTable(ServiceInvoiceHeader);
                     CreateAbstractDocument(ServiceInvoiceHeader, TempDocumentHeader, TempDocumentLine, false);
                     if not Reverse and not AdvanceSettle then
@@ -252,6 +278,8 @@ codeunit 10145 "E-Invoice Mgt."
                 end;
             DATABASE::"Service Cr.Memo Header":
                 begin
+                    DocType := 'Service Cr.Memo';
+
                     DocumentHeaderRecordRef.SetTable(ServiceCrMemoHeader);
                     CreateAbstractDocument(ServiceCrMemoHeader, TempDocumentHeader, TempDocumentLine, false);
                     GetRelationDocumentsServiceCreditMemo(TempCFDIRelationDocument, ServiceCrMemoHeader, TempDocumentHeader);
@@ -264,6 +292,8 @@ codeunit 10145 "E-Invoice Mgt."
                     AmountInclVAT := ServiceCrMemoHeader."Amount Including VAT";
                 end;
         end;
+
+        SendTraceTag('0000C72', MXElectronicInvoicingTok, VERBOSITY::Normal, StrSubstNo(StampReqMsg, DocType), DATACLASSIFICATION::SystemMetadata);
 
         GetCustomer(TempDocumentHeader."Bill-to/Pay-To No.");
         CurrencyDecimalPlaces := GetCurrencyDecimalPlaces(TempDocumentHeader."Currency Code");
@@ -433,6 +463,8 @@ codeunit 10145 "E-Invoice Mgt."
                 end;
         end;
 
+        SendTraceTag('0000C73', MXElectronicInvoicingTok, VERBOSITY::Normal, StrSubstNo(StampReqSuccessMsg, DocType), DATACLASSIFICATION::SystemMetadata);
+
         // If Advance Settle, and everything went well, then need to create CFDI document for Advance reverse.
         if AdvanceSettle then begin
             if SalesInvoiceHeader."Electronic Document Status" = SalesInvoiceHeader."Electronic Document Status"::"Stamp Received" then
@@ -499,6 +531,9 @@ codeunit 10145 "E-Invoice Mgt."
                 if not Confirm(PaymentsAlreadySentQst) then
                     Error('');
 
+        DocType := 'Sales Invoice';
+        SendTraceTag('0000C74', MXElectronicInvoicingTok, VERBOSITY::Normal, StrSubstNo(SendDocMsg, DocType), DATACLASSIFICATION::SystemMetadata);
+
         // Export XML
         if not Reverse then begin
             SalesInvHeader.CalcFields("Signed Document XML");
@@ -551,7 +586,9 @@ codeunit 10145 "E-Invoice Mgt."
               FormatDateTime(ConvertCurrentDateTimeToTimeZone(GetTimeZoneFromDocument(SalesInvHeader)));
             CFDIDocumentsLoc.Modify();
         end;
+
         Message(Text001, SalesInvHeader."No.");
+        SendTraceTag('0000C75', MXElectronicInvoicingTok, VERBOSITY::Normal, StrSubstNo(SendDocSuccessMsg, DocType), DATACLASSIFICATION::SystemMetadata);
     end;
 
     local procedure SendESalesCrMemo(var SalesCrMemoHeader: Record "Sales Cr.Memo Header")
@@ -568,6 +605,9 @@ codeunit 10145 "E-Invoice Mgt."
         if SalesCrMemoHeader."No. of E-Documents Sent" <> 0 then
             if not Confirm(Text002) then
                 Error('');
+
+        DocType := 'Sales Cr.Memo';
+        SendTraceTag('0000C74', MXElectronicInvoicingTok, VERBOSITY::Normal, StrSubstNo(SendDocMsg, DocType), DATACLASSIFICATION::SystemMetadata);
 
         // Export XML
         SalesCrMemoHeader.CalcFields("Signed Document XML");
@@ -599,6 +639,7 @@ codeunit 10145 "E-Invoice Mgt."
         SalesCrMemoHeaderLoc.Modify();
 
         Message(Text001, SalesCrMemoHeader."No.");
+        SendTraceTag('0000C75', MXElectronicInvoicingTok, VERBOSITY::Normal, StrSubstNo(SendDocSuccessMsg, DocType), DATACLASSIFICATION::SystemMetadata);
     end;
 
     local procedure SendEServiceInvoice(var ServiceInvoiceHeader: Record "Service Invoice Header")
@@ -615,6 +656,10 @@ codeunit 10145 "E-Invoice Mgt."
         if ServiceInvoiceHeader."No. of E-Documents Sent" <> 0 then
             if not Confirm(Text002) then
                 Error('');
+
+        DocType := 'Service Invoice';
+        SendTraceTag('0000C74', MXElectronicInvoicingTok, VERBOSITY::Normal, StrSubstNo(SendDocMsg, DocType), DATACLASSIFICATION::SystemMetadata);
+
         // Export XML
         ServiceInvoiceHeader.CalcFields("Signed Document XML");
         ServiceInvoiceHeader."Signed Document XML".CreateInStream(XMLInstream);
@@ -645,6 +690,7 @@ codeunit 10145 "E-Invoice Mgt."
         ServiceInvoiceHeaderLoc.Modify();
 
         Message(Text001, ServiceInvoiceHeader."No.");
+        SendTraceTag('0000C75', MXElectronicInvoicingTok, VERBOSITY::Normal, StrSubstNo(SendDocSuccessMsg, DocType), DATACLASSIFICATION::SystemMetadata);
     end;
 
     local procedure SendEServiceCrMemo(var ServiceCrMemoHeader: Record "Service Cr.Memo Header")
@@ -661,6 +707,10 @@ codeunit 10145 "E-Invoice Mgt."
         if ServiceCrMemoHeader."No. of E-Documents Sent" <> 0 then
             if not Confirm(Text002) then
                 Error('');
+
+        DocType := 'Service Cr.Memo';
+        SendTraceTag('0000C74', MXElectronicInvoicingTok, VERBOSITY::Normal, StrSubstNo(SendDocMsg, DocType), DATACLASSIFICATION::SystemMetadata);
+
         // Export XML
         ServiceCrMemoHeader.CalcFields("Signed Document XML");
         ServiceCrMemoHeader."Signed Document XML".CreateInStream(XMLInstream);
@@ -691,6 +741,7 @@ codeunit 10145 "E-Invoice Mgt."
         ServiceCrMemoHeaderLoc.Modify();
 
         Message(Text001, ServiceCrMemoHeader."No.");
+        SendTraceTag('0000C75', MXElectronicInvoicingTok, VERBOSITY::Normal, StrSubstNo(SendDocSuccessMsg, DocType), DATACLASSIFICATION::SystemMetadata);
     end;
 
     local procedure CancelESalesInvoice(var SalesInvHeader: Record "Sales Invoice Header")
@@ -705,6 +756,9 @@ codeunit 10145 "E-Invoice Mgt."
     begin
         if SalesInvHeader."Source Code" = SourceCodeSetup."Deleted Document" then
             Error(Text007);
+
+        DocType := 'Sales Invoice';
+        SendTraceTag('0000C7C', MXElectronicInvoicingTok, VERBOSITY::Normal, StrSubstNo(CancelDocMsg, DocType), DATACLASSIFICATION::SystemMetadata);
 
         // Create instance
         if IsNull(XMLDoc) then
@@ -741,6 +795,8 @@ codeunit 10145 "E-Invoice Mgt."
         SalesInvHeader.Modify();
         ProcessResponseESalesInvoice(SalesInvHeader, EDocAction::Cancel, false);
         SalesInvHeader.Modify();
+
+        SendTraceTag('0000C7D', MXElectronicInvoicingTok, VERBOSITY::Normal, StrSubstNo(CancelDocSuccessMsg, DocType), DATACLASSIFICATION::SystemMetadata);
     end;
 
     local procedure CancelESalesCrMemo(var SalesCrMemoHeader: Record "Sales Cr.Memo Header")
@@ -755,6 +811,9 @@ codeunit 10145 "E-Invoice Mgt."
     begin
         if SalesCrMemoHeader."Source Code" = SourceCodeSetup."Deleted Document" then
             Error(Text007);
+
+        DocType := 'Sales Cr.Memo';
+        SendTraceTag('0000C7C', MXElectronicInvoicingTok, VERBOSITY::Normal, StrSubstNo(CancelDocMsg, DocType), DATACLASSIFICATION::SystemMetadata);
 
         // Create instance
         if IsNull(XMLDoc) then
@@ -791,6 +850,8 @@ codeunit 10145 "E-Invoice Mgt."
         SalesCrMemoHeader.Modify();
         ProcessResponseESalesCrMemo(SalesCrMemoHeader, EDocAction::Cancel);
         SalesCrMemoHeader.Modify();
+
+        SendTraceTag('0000C7D', MXElectronicInvoicingTok, VERBOSITY::Normal, StrSubstNo(CancelDocSuccessMsg, DocType), DATACLASSIFICATION::SystemMetadata);
     end;
 
     local procedure CancelEServiceInvoice(var ServiceInvHeader: Record "Service Invoice Header")
@@ -805,6 +866,9 @@ codeunit 10145 "E-Invoice Mgt."
     begin
         if ServiceInvHeader."Source Code" = SourceCodeSetup."Deleted Document" then
             Error(Text007);
+
+        DocType := 'Service Invoice';
+        SendTraceTag('0000C7C', MXElectronicInvoicingTok, VERBOSITY::Normal, StrSubstNo(CancelDocMsg, DocType), DATACLASSIFICATION::SystemMetadata);
 
         // Create instance
         if IsNull(XMLDoc) then
@@ -841,6 +905,8 @@ codeunit 10145 "E-Invoice Mgt."
         ServiceInvHeader.Modify();
         ProcessResponseEServiceInvoice(ServiceInvHeader, EDocAction::Cancel, 0);
         ServiceInvHeader.Modify();
+
+        SendTraceTag('0000C7D', MXElectronicInvoicingTok, VERBOSITY::Normal, StrSubstNo(CancelDocSuccessMsg, DocType), DATACLASSIFICATION::SystemMetadata);
     end;
 
     local procedure CancelEServiceCrMemo(var ServiceCrMemoHeader: Record "Service Cr.Memo Header")
@@ -855,6 +921,9 @@ codeunit 10145 "E-Invoice Mgt."
     begin
         if ServiceCrMemoHeader."Source Code" = SourceCodeSetup."Deleted Document" then
             Error(Text007);
+
+        DocType := 'Service Cr.Memo';
+        SendTraceTag('0000C7C', MXElectronicInvoicingTok, VERBOSITY::Normal, StrSubstNo(CancelDocMsg, DocType), DATACLASSIFICATION::SystemMetadata);
 
         // Create instance
         if IsNull(XMLDoc) then
@@ -891,6 +960,8 @@ codeunit 10145 "E-Invoice Mgt."
         ServiceCrMemoHeader.Modify();
         ProcessResponseEServiceCrMemo(ServiceCrMemoHeader, EDocAction::Cancel, 0);
         ServiceCrMemoHeader.Modify();
+
+        SendTraceTag('0000C7D', MXElectronicInvoicingTok, VERBOSITY::Normal, StrSubstNo(CancelDocSuccessMsg, DocType), DATACLASSIFICATION::SystemMetadata);
     end;
 
     local procedure CancelEPayment(var CustLedgerEntry: Record "Cust. Ledger Entry")
@@ -903,6 +974,9 @@ codeunit 10145 "E-Invoice Mgt."
         Response: Text;
         CancelDateTime: Text[50];
     begin
+        DocType := 'payment';
+        SendTraceTag('0000C7C', MXElectronicInvoicingTok, VERBOSITY::Normal, StrSubstNo(CancelDocMsg, DocType), DATACLASSIFICATION::SystemMetadata);
+
         // Create instance
         if IsNull(XMLDoc) then
             XMLDoc := XMLDoc.XmlDocument;
@@ -938,6 +1012,8 @@ codeunit 10145 "E-Invoice Mgt."
         CustLedgerEntry.Modify();
         ProcessResponseEPayment(CustLedgerEntry, EDocAction::Cancel);
         CustLedgerEntry.Modify();
+
+        SendTraceTag('0000C7D', MXElectronicInvoicingTok, VERBOSITY::Normal, StrSubstNo(CancelDocSuccessMsg, DocType), DATACLASSIFICATION::SystemMetadata);
     end;
 
     local procedure ProcessResponseESalesInvoice(var SalesInvoiceHeader: Record "Sales Invoice Header"; "Action": Option; Reverse: Boolean)
@@ -959,6 +1035,7 @@ codeunit 10145 "E-Invoice Mgt."
         Counter: Integer;
         QRCodeInput: Text[95];
         ErrorDescription: Text;
+        TelemetryError: Text;
     begin
         GetGLSetup;
         GetCompanyInfo;
@@ -1001,6 +1078,7 @@ codeunit 10145 "E-Invoice Mgt."
                 XMLCurrNode := XMLDOMNamedNodeMap.GetNamedItem('Detalle');
                 if not IsNull(XMLCurrNode) then
                     ErrorDescription := ErrorDescription + ': ' + XMLCurrNode.Value;
+                TelemetryError := ErrorDescription;
                 if StrLen(ErrorDescription) > 250 then
                     ErrorDescription := CopyStr(ErrorDescription, 1, 247) + '...';
                 SalesInvoiceHeader."Error Description" := CopyStr(ErrorDescription, 1, 250);
@@ -1022,6 +1100,7 @@ codeunit 10145 "E-Invoice Mgt."
                 XMLCurrNode := XMLDOMNamedNodeMap.GetNamedItem('Detalle');
                 if not IsNull(XMLCurrNode) then
                     ErrorDescription := ErrorDescription + ': ' + XMLCurrNode.Value;
+                TelemetryError := ErrorDescription;
                 if StrLen(ErrorDescription) > 250 then
                     ErrorDescription := CopyStr(ErrorDescription, 1, 247) + '...';
                 CFDIDocuments."Error Description" := CopyStr(ErrorDescription, 1, 250);
@@ -1031,6 +1110,9 @@ codeunit 10145 "E-Invoice Mgt."
                 end;
                 CFDIDocuments.Modify();
             end;
+
+            SendTraceTag('0000C7M', MXElectronicInvoicingTok, VERBOSITY::Error, StrSubstNo(ProcessResponseErr, 'Sales Invoice', TelemetryError), DATACLASSIFICATION::SystemMetadata);
+
             exit;
         end;
 
@@ -1141,6 +1223,7 @@ codeunit 10145 "E-Invoice Mgt."
         Counter: Integer;
         QRCodeInput: Text[95];
         ErrorDescription: Text;
+        TelemetryError: Text;
     begin
         GetGLSetup;
         GetCompanyInfo;
@@ -1169,6 +1252,7 @@ codeunit 10145 "E-Invoice Mgt."
             XMLCurrNode := XMLDOMNamedNodeMap.GetNamedItem('Detalle');
             if not IsNull(XMLCurrNode) then
                 ErrorDescription := ErrorDescription + ': ' + XMLCurrNode.Value;
+            TelemetryError := ErrorDescription;
             if StrLen(ErrorDescription) > 250 then
                 ErrorDescription := CopyStr(ErrorDescription, 1, 247) + '...';
             SalesCrMemoHeader."Error Description" := CopyStr(ErrorDescription, 1, 250);
@@ -1182,6 +1266,9 @@ codeunit 10145 "E-Invoice Mgt."
                         SalesCrMemoHeader."Date/Time Canceled" := '';
                     end;
             end;
+
+            SendTraceTag('0000C7M', MXElectronicInvoicingTok, VERBOSITY::Error, StrSubstNo(ProcessResponseErr, 'Sales Cr.Memo', TelemetryError), DATACLASSIFICATION::SystemMetadata);
+
             exit;
         end;
 
@@ -1255,6 +1342,7 @@ codeunit 10145 "E-Invoice Mgt."
         Counter: Integer;
         QRCodeInput: Text[95];
         ErrorDescription: Text;
+        TelemetryError: Text;
     begin
         GetGLSetup;
         GetCompanyInfo;
@@ -1283,6 +1371,7 @@ codeunit 10145 "E-Invoice Mgt."
             XMLCurrNode := XMLDOMNamedNodeMap.GetNamedItem('Detalle');
             if not IsNull(XMLCurrNode) then
                 ErrorDescription := ErrorDescription + ': ' + XMLCurrNode.Value;
+            TelemetryError := ErrorDescription;
             if StrLen(ErrorDescription) > 250 then
                 ErrorDescription := CopyStr(ErrorDescription, 1, 247) + '...';
             ServInvoiceHeader."Error Description" := CopyStr(ErrorDescription, 1, 250);
@@ -1296,6 +1385,9 @@ codeunit 10145 "E-Invoice Mgt."
                         ServInvoiceHeader."Date/Time Canceled" := '';
                     end;
             end;
+
+            SendTraceTag('0000C7M', MXElectronicInvoicingTok, VERBOSITY::Error, StrSubstNo(ProcessResponseErr, 'Service Invoice', TelemetryError), DATACLASSIFICATION::SystemMetadata);
+
             exit;
         end;
 
@@ -1368,6 +1460,7 @@ codeunit 10145 "E-Invoice Mgt."
         Counter: Integer;
         QRCodeInput: Text[95];
         ErrorDescription: Text;
+        TelemetryError: Text;
     begin
         GetGLSetup;
         GetCompanyInfo;
@@ -1396,6 +1489,7 @@ codeunit 10145 "E-Invoice Mgt."
             XMLCurrNode := XMLDOMNamedNodeMap.GetNamedItem('Detalle');
             if not IsNull(XMLCurrNode) then
                 ErrorDescription := ErrorDescription + ': ' + XMLCurrNode.Value;
+            TelemetryError := ErrorDescription;
             if StrLen(ErrorDescription) > 250 then
                 ErrorDescription := CopyStr(ErrorDescription, 1, 247) + '...';
             ServCrMemoHeader."Error Description" := CopyStr(ErrorDescription, 1, 250);
@@ -1409,6 +1503,9 @@ codeunit 10145 "E-Invoice Mgt."
                         ServCrMemoHeader."Date/Time Canceled" := '';
                     end;
             end;
+
+            SendTraceTag('0000C7M', MXElectronicInvoicingTok, VERBOSITY::Error, StrSubstNo(ProcessResponseErr, 'Service Cr.Memo', TelemetryError), DATACLASSIFICATION::SystemMetadata);
+
             exit;
         end;
 
@@ -2451,8 +2548,10 @@ codeunit 10145 "E-Invoice Mgt."
 
             if not SignDataWithCert(DotNet_ISignatureProvider, SignedString,
                  OriginalString, CertificateManagement.GetCertAsBase64String(IsolatedCertificate), DotNet_SecureString)
-            then
+            then begin
+                SendTraceTag('0000C7Q', MXElectronicInvoicingTok, VERBOSITY::Error, SATCertificateNotValidErr, DATACLASSIFICATION::SystemMetadata);
                 Error(SATNotValidErr);
+            end;
 
             CertificateString := DotNet_ISignatureProvider.LastUsedCertificate;
             SerialNoOfCertificateUsed := CopyStr(DotNet_ISignatureProvider.LastUsedCertificateSerialNo, 1,
@@ -2533,8 +2632,10 @@ codeunit 10145 "E-Invoice Mgt."
         if SendPDF then
             DeleteServerFile(PDFFilePath);
 
-        if not SendOK then
-            Error(Text016, SMTPMail.GetLastSendMailErrorText);
+        if not SendOK then begin
+            SendTraceTag('0000C7R', MXElectronicInvoicingTok, VERBOSITY::Error, StrSubstNo(SendEmailErr, SMTPMail.GetLastSendMailErrorText()), DATACLASSIFICATION::SystemMetadata);
+            Error(Text016, SMTPMail.GetLastSendMailErrorText());
+        end;
     end;
 
     procedure ImportElectronicInvoice(var PurchaseHeader: Record "Purchase Header")
@@ -2853,6 +2954,7 @@ codeunit 10145 "E-Invoice Mgt."
         DotNet_SecureString: Codeunit DotNet_SecureString;
         IWebServiceInvoker: DotNet IWebServiceInvoker;
         SecureStringPassword: DotNet SecureString;
+        Response: Text;
     begin
         GetGLSetup;
         if GLSetup."Sim. Request Stamp" then
@@ -2895,8 +2997,19 @@ codeunit 10145 "E-Invoice Mgt."
         CertificateManagement.GetPasswordAsSecureString(DotNet_SecureString, IsolatedCertificate);
         DotNet_SecureString.GetSecureString(SecureStringPassword);
 
-        exit(IWebServiceInvoker.InvokeMethodWithCertificate(PACWebServiceDetail.Address,
-            PACWebServiceDetail."Method Name", CertificateManagement.GetCertAsBase64String(IsolatedCertificate), SecureStringPassword));
+        if PACWebServiceDetail.Address = '' then
+            SendTraceTag('0000C7S', MXElectronicInvoicingTok, VERBOSITY::Error, StrSubstNo(NullParameterErr, 'address'), DATACLASSIFICATION::SystemMetadata);
+        if PACWebServiceDetail."Method Name" = '' then
+            SendTraceTag('0000C7S', MXElectronicInvoicingTok, VERBOSITY::Error, StrSubstNo(NullParameterErr, 'method name'), DATACLASSIFICATION::SystemMetadata);
+        if CertificateManagement.GetCertAsBase64String(IsolatedCertificate) = '' then
+            SendTraceTag('0000C7S', MXElectronicInvoicingTok, VERBOSITY::Error, StrSubstNo(NullParameterErr, 'certificate isentifier'), DATACLASSIFICATION::SystemMetadata);
+
+        SendTraceTag('0000C7V', MXElectronicInvoicingTok, VERBOSITY::Normal, StrSubstNo(InvokeMethodMsg, MethodType), DATACLASSIFICATION::SystemMetadata);
+        Response := IWebServiceInvoker.InvokeMethodWithCertificate(PACWebServiceDetail.Address,
+            PACWebServiceDetail."Method Name", CertificateManagement.GetCertAsBase64String(IsolatedCertificate), SecureStringPassword);
+        SendTraceTag('0000C7W', MXElectronicInvoicingTok, VERBOSITY::Normal, StrSubstNo(InvokeMethodSuccessMsg, MethodType), DATACLASSIFICATION::SystemMetadata);
+
+        exit(Response)
     end;
 
     local procedure CreateQRCodeInput(IssuerRFC: Text; CustomerRFC: Text; Amount: Decimal; UUID: Text) QRCodeInput: Text[95]
@@ -3163,8 +3276,10 @@ codeunit 10145 "E-Invoice Mgt."
 
             CertificateManagement.GetPasswordAsSecureString(DotNet_SecureString, IsolatedCertificate);
             if not SignDataWithCert(DotNet_ISignatureProvider, SignedString, 'DummyString', CertificateString, DotNet_SecureString)
-            then
+            then begin
+                SendTraceTag('0000C7Q', MXElectronicInvoicingTok, VERBOSITY::Error, SATCertificateNotValidErr, DATACLASSIFICATION::SystemMetadata);
                 Error(SATNotValidErr);
+            end;
 
             SerialNo := DotNet_ISignatureProvider.LastUsedCertificateSerialNo;
             exit(SerialNo);
@@ -3260,6 +3375,8 @@ codeunit 10145 "E-Invoice Mgt."
         if not CheckPaymentStamp(CustLedgerEntry) then
             Error(UnableToStampErr);
 
+        SendTraceTag('0000C7Y', MXElectronicInvoicingTok, VERBOSITY::Normal, PaymentStampReqMsg, DATACLASSIFICATION::SystemMetadata);
+
         DetailedCustLedgEntry.SetRange("Applied Cust. Ledger Entry No.", CustLedgerEntry."Entry No.");
         DetailedCustLedgEntry.SetFilter("Initial Document Type", '=%1|=%2',
           DetailedCustLedgEntry."Initial Document Type"::Invoice,
@@ -3314,6 +3431,8 @@ codeunit 10145 "E-Invoice Mgt."
 
         ProcessResponseEPayment(CustLedgerEntry, EDocAction::"Request Stamp");
         CustLedgerEntry.Modify();
+
+        SendTraceTag('0000C7Z', MXElectronicInvoicingTok, VERBOSITY::Normal, PaymentStampReqSuccessMsg, DATACLASSIFICATION::SystemMetadata);
     end;
 
     local procedure CheckPaymentStamp(CustLedgerEntry: Record "Cust. Ledger Entry"): Boolean
@@ -3406,6 +3525,8 @@ codeunit 10145 "E-Invoice Mgt."
             if not Confirm(PaymentsAlreadySentQst) then
                 Error('');
 
+        SendTraceTag('0000C80', MXElectronicInvoicingTok, VERBOSITY::Normal, SendPaymentMsg, DATACLASSIFICATION::SystemMetadata);
+
         // Export XML
         CustLedgerEntry.CalcFields("Signed Document XML");
         TempBlob.FromRecord(CustLedgerEntry, CustLedgerEntry.FieldNo("Signed Document XML"));
@@ -3430,6 +3551,8 @@ codeunit 10145 "E-Invoice Mgt."
         CustLedgerEntryLoc.Modify();
 
         Message(Text001, CustLedgerEntry."Document No.");
+
+        SendTraceTag('0000C81', MXElectronicInvoicingTok, VERBOSITY::Normal, SendPaymentSuccessMsg, DATACLASSIFICATION::SystemMetadata);
     end;
 
     local procedure ProcessResponseEPayment(var CustLedgerEntry: Record "Cust. Ledger Entry"; "Action": Option)
@@ -3449,7 +3572,8 @@ codeunit 10145 "E-Invoice Mgt."
         NodeCount: Integer;
         Counter: Integer;
         QRCodeInput: Text[95];
-        ErrorDescription: Text[250];
+        ErrorDescription: Text;
+        TelemetryError: Text;
     begin
         GetGLSetup;
         GetCheckCompanyInfo;
@@ -3479,9 +3603,10 @@ codeunit 10145 "E-Invoice Mgt."
             XMLCurrNode := XMLDOMNamedNodeMap.GetNamedItem('Detalle');
             if not IsNull(XMLCurrNode) then
                 ErrorDescription := ErrorDescription + ': ' + XMLCurrNode.Value;
+            TelemetryError := ErrorDescription;
             if StrLen(ErrorDescription) > 250 then
                 ErrorDescription := CopyStr(ErrorDescription, 1, 247) + '...';
-            CustLedgerEntry."Error Description" := ErrorDescription;
+            CustLedgerEntry."Error Description" := CopyStr(ErrorDescription, 1, 250);
             case Action of
                 EDocAction::"Request Stamp":
                     CustLedgerEntry."Electronic Document Status" := CustLedgerEntry."Electronic Document Status"::"Stamp Request Error";
@@ -3491,6 +3616,9 @@ codeunit 10145 "E-Invoice Mgt."
                         CustLedgerEntry."Date/Time Canceled" := '';
                     end;
             end;
+
+            SendTraceTag('0000C82', MXElectronicInvoicingTok, VERBOSITY::Error, StrSubstNo(ProcessPaymentErr, TelemetryError), DATACLASSIFICATION::SystemMetadata);
+
             exit;
         end;
 

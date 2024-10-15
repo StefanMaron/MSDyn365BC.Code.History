@@ -1338,7 +1338,7 @@
                     <TextRun>
                       <Value>=Choose(21,Split(Cstr(ReportItems!CompanyAddresses.Value),Chr(177)))</Value>
                       <Style>
-                        <FontFamily>IDAutomationCMC7</FontFamily>
+                        <FontFamily>IDAutomationMICR</FontFamily>
                         <FontWeight>Normal</FontWeight>
                       </Style>
                     </TextRun>
@@ -1371,7 +1371,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value>=Choose(7,Split(Cstr(ReportItems!CompanyAddresses.Value),Chr(177)))</Value>
+                      <Value>="[" + Choose(7,Split(Cstr(ReportItems!CompanyAddresses.Value),Chr(177))) + "]"</Value>
                       <Style>
                         <FontFamily>IDAutomationSec1B</FontFamily>
                         <FontWeight>Normal</FontWeight>
@@ -1492,9 +1492,9 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value>=First(Fields!BankTransitNo.Value, "DataSet_Result")</Value>
+                      <Value>="A" + First(Fields!BankTransitNo.Value, "DataSet_Result") + "A"</Value>
                       <Style>
-                        <FontFamily>IDAutomationCMC7</FontFamily>
+                        <FontFamily>IDAutomationMICR</FontFamily>
                         <FontWeight>Normal</FontWeight>
                       </Style>
                     </TextRun>
@@ -1647,7 +1647,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value>=Choose(14,Split(Cstr(ReportItems!CompanyAddresses.Value),Chr(177)))</Value>
+                      <Value>="[" + Choose(14,Split(Cstr(ReportItems!CompanyAddresses.Value),Chr(177))) + "]"</Value>
                       <Style>
                         <FontFamily>IDAutomationSec1B</FontFamily>
                         <FontWeight>Normal</FontWeight>
@@ -1682,7 +1682,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value>=Choose(15,Split(Cstr(ReportItems!CompanyAddresses.Value),Chr(177)))</Value>
+                      <Value>="[" + Choose(15,Split(Cstr(ReportItems!CompanyAddresses.Value),Chr(177))) + "]"</Value>
                       <Style>
                         <FontFamily>IDAutomationSec1B</FontFamily>
                         <FontWeight>Normal</FontWeight>
@@ -1902,9 +1902,9 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value>=First(Fields!BankAccountNo.Value, "DataSet_Result")</Value>
+                      <Value>=First(Fields!BankAccountNo.Value, "DataSet_Result") + "C"</Value>
                       <Style>
-                        <FontFamily>IDAutomationCMC7</FontFamily>
+                        <FontFamily>IDAutomationMICR</FontFamily>
                         <FontWeight>Normal</FontWeight>
                       </Style>
                     </TextRun>

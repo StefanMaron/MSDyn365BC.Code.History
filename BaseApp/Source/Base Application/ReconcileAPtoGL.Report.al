@@ -2,6 +2,7 @@ report 10101 "Reconcile AP to GL"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './ReconcileAPtoGL.rdlc';
+    ApplicationArea = Basic, Suite;
     Caption = 'Reconcile AP to GL';
     UsageCategory = ReportsAndAnalysis;
 

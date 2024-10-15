@@ -633,9 +633,9 @@ report 10069 "Sales Blanket Order"
         Text007: Label 'Total Tax:';
         Text008: Label 'Tax:';
         TaxRegNo: Text[30];
-        TaxRegLabel: Text[30];
-        TotalTaxLabel: Text[30];
-        BreakdownTitle: Text[30];
+        TaxRegLabel: Text;
+        TotalTaxLabel: Text;
+        BreakdownTitle: Text;
         BreakdownLabel: array[4] of Text[30];
         BreakdownAmt: array[4] of Decimal;
         BrkIdx: Integer;

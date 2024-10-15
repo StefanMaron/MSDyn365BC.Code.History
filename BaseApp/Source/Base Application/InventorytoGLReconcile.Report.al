@@ -2,6 +2,7 @@ report 10138 "Inventory to G/L Reconcile"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './InventorytoGLReconcile.rdlc';
+    ApplicationArea = Basic, Suite;
     Caption = 'Inventory to G/L Reconcile';
     UsageCategory = ReportsAndAnalysis;
 

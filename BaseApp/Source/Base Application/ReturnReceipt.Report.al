@@ -480,7 +480,7 @@ report 10082 "Return Receipt"
         Text000: Label 'COPY';
         LogInteraction: Boolean;
         TaxRegNo: Text[30];
-        TaxRegLabel: Text[30];
+        TaxRegLabel: Text;
         CurrentCopiesNo: Integer;
         [InDataSet]
         LogInteractionEnable: Boolean;

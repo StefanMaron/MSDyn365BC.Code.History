@@ -334,6 +334,8 @@ codeunit 5988 "Serv-Documents Mgt."
                           TempVATAmountLine, TempVATAmountLineRemainder, TempServiceLineForSalesTax);
                     end;
 
+                    OnPostDocumentLinesOnBeforeRoundAmount(ServLine);
+
                     ServAmountsMgt.RoundAmount("Qty. to Invoice", ServHeader, ServLine,
                       TempServiceLine, TotalServiceLine, TotalServiceLineLCY, ServiceLineACY);
 
@@ -2499,6 +2501,11 @@ codeunit 5988 "Serv-Documents Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnPrepareDocumentOnBeforePassedServLineFind(var PassedServLine: Record "Service Line"; ServiceHeader: Record "Service Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostDocumentLinesOnBeforeRoundAmount(var ServiceLine: Record "Service Line")
     begin
     end;
 

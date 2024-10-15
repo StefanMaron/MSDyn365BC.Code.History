@@ -942,7 +942,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value>=Cstr(Choose(80,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
+                      <Value>="[" + Cstr(Choose(80,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177)))) + "]"</Value>
                       <Style>
                         <FontFamily>IDAutomationSec1B</FontFamily>
                         <FontWeight>Normal</FontWeight>
@@ -972,7 +972,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value>=Cstr(Choose(81,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
+                      <Value>="[" + Cstr(Choose(81,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177)))) + "]"</Value>
                       <Style>
                         <FontFamily>IDAutomationSec1B</FontFamily>
                         <FontWeight>Normal</FontWeight>
@@ -1028,7 +1028,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value>=Cstr(Choose(97,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
+                      <Value>="[" + Cstr(Choose(97,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177)))) + "]"</Value>
                       <Style>
                         <FontFamily>IDAutomationSec1B</FontFamily>
                         <FontWeight>Normal</FontWeight>

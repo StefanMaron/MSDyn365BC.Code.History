@@ -950,9 +950,8 @@ codeunit 134060 "ERM VAT Reg. No Validity Check"
     end;
 
     [Test]
-    [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
-    procedure ThrowErrorWhenVATRegistrationLogIsEmpty()
+    procedure ThrowErrorWhenVATRegNoIsNotSet()
     var
         VATRegistrationLog: Record "VAT Registration Log";
         VATRegNoSrvConfig: Record "VAT Reg. No. Srv Config";

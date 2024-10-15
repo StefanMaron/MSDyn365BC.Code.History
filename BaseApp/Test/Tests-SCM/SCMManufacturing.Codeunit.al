@@ -73,7 +73,7 @@ codeunit 137404 "SCM Manufacturing"
         StartingDateTimeErr: Label 'Starting Date-Time is incorrect';
         EndingDateTimeErr: Label 'Ending Date-Time is incorrect';
         EntryOfTypeNotFoundErr: Label 'Not found Item Ledger Entry of type %1', Comment = '%1 = Item Ledger Entry Type';
-        InsufficientQuantityErr: Label 'You have insufficient quantity';
+        CannotUnapplyItemLedgEntryErr: Label 'You cannot proceed with the posting as it will result in negative inventory';
         WrongNumberOfMessagesErr: Label 'Only one warning should be raised.';
         CannotDeleteItemIfProdBOMVersionExistsErr: Label 'You cannot delete %1 %2 because there are one or more certified production BOM version that include this item.', Comment = '%1 - Tablecaption, %2 - No.';
         WrongProdOrderLinesCountErr: Label 'Wrong number of production order lines created';
@@ -2463,7 +2463,7 @@ codeunit 137404 "SCM Manufacturing"
 
         // [GIVEN] 'Reapply All' gives an error, due to negative Consumption entry.
         asserterror ApplicationWorksheet.Reapply.Invoke; // Reapply All
-        Assert.ExpectedError(InsufficientQuantityErr);
+        Assert.ExpectedError(CannotUnapplyItemLedgEntryErr);
 
         // [WHEN] 'Undo Manual Changes' invoked.
         ApplicationWorksheet.UndoApplications.Invoke;

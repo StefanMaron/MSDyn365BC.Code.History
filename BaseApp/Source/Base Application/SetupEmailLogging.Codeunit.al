@@ -7,16 +7,15 @@ codeunit 1641 "Setup Email Logging"
 
     var
         TempOfficeAdminCredentials: Record "Office Admin. Credentials" temporary;
-        ExchangeWebServicesClient: Codeunit "Exchange Web Services Client";
         ExchangePowerShellRunner: Codeunit "Exchange PowerShell Runner";
-        PublicFoldersCreationProgressMsg: Label 'Public folder creation  @1@@@@@@@@@@@@@@@@@@';
         IsolatedStorageManagement: Codeunit "Isolated Storage Management";
+        PublicFoldersCreationProgressMsg: Label 'Public folder creation  @1@@@@@@@@@@@@@@@@@@';
         Initialized: Boolean;
         AdminCredentialsRequiredErr: Label 'Could not create a public Exchange folder. Check if the credentials of the Exchange administrator are entered correctly.';
         EmailLoggingTelemetryCategoryTxt: Label 'AL Email Logging', Locked = true;
         CloseConnectionTxt: Label 'Close connection to Exchange.', Locked = true;
         InitializeConnectionTxt: Label 'Initialize connection to Exchange.', Locked = true;
-        ConnectionNotInitializedTxt: Label 'Connection to Exchange is not initialized..', Locked = true;
+        ConnectionNotInitializedTxt: Label 'Connection to Exchange is not initialized.', Locked = true;
         ConnectionAlreadyInitializedTxt: Label 'Connection to Exchange has already been initialized.', Locked = true;
         CreatePublicFoldersTxt: Label 'Create Exchange public folders.', Locked = true;
         PublicFoldersCreatedTxt: Label 'Exchange public folders are created.', Locked = true;
@@ -27,6 +26,7 @@ codeunit 1641 "Setup Email Logging"
         ClearEmailLoggingSetupTxt: Label 'Clear email logging setup.', Locked = true;
         SetDeployCredentialsTxt: Label 'Set deploy credentials.', Locked = true;
         CreateEmailLoggingJobTxt: Label 'Create email logging job.', Locked = true;
+        DeleteEmailLoggingJobTxt: Label 'Delete email logging job.', Locked = true;
         SetupEmailLoggingTxt: Label 'Setup email logging.', Locked = true;
         CannotFindMarketingSetupTxt: Label 'Cannot find marketing setup record.', Locked = true;
         EnableOrganizationCustomizationTxt: Label 'Enabling organization customization to be able to add new role group.', Locked = true;
@@ -40,28 +40,49 @@ codeunit 1641 "Setup Email Logging"
         CreateStoragePublicFolderTxt: Label 'Creation of new storage public folder.', Locked = true;
         CreatePublicFolderEmailSettingsTxt: Label 'Creation of queue public folder email settings.', Locked = true;
         AddPublicFolderClientPermissionTxt: Label 'Add public folder client permission.', Locked = true;
+        MissingClientIdOrSecretErr: Label 'The client ID or client secret have not been initialized.';
+        MissingClientIdTelemetryTxt: Label 'The client ID has not been initialized.', Locked = true;
+        MissingClientSecretTelemetryTxt: Label 'The client secret has not been initialized.', Locked = true;
+        InitializedClientIdTelemetryTxt: Label 'The client ID has been initialized.', Locked = true;
+        InitializedClientSecretTelemetryTxt: Label 'The client secret has been initialized.', Locked = true;
+        EmailLoggingClientIdAKVSecretNameLbl: Label 'emaillogging-clientid', Locked = true;
+        EmailLoggingClientSecretAKVSecretNameLbl: Label 'emaillogging-clientsecret', Locked = true;
+        TenantOAuthAuthorityUrlLbl: Label 'https://login.microsoftonline.com/%1/oauth2', Locked = true;
+        CommonOAuthAuthorityUrlLbl: Label 'https://login.microsoftonline.com/common/oauth2', Locked = true;
+        ResourceUrlLbl: Label 'https://outlook.office.com', Locked = true;
+        ClientCredentialsAccessTokenErr: Label 'No client credentials access token received', Locked = true;
+        AccessTokenErrMsg: Label 'Failed to acquire an access token.';
+        AuthTokenOrCodeNotReceivedErr: Label 'No access token or authorization error code received.', Locked = true;
+        IgnoredClientCredentialsTxt: Label 'Ignored client credentials.', Locked = true;
+        InvalidClientCredentialsTxt: Label 'Invalid client credentials.', Locked = true;
+        EmptyRedirectUrlTxt: Label 'Redirect URL is empty, the default URL will be used.', Locked = true;
+        RootFolderPathTemplateTxt: Label '\%1\', Locked = true;
+        PublicFolderPathTemplateTxt: Label '\%1\%2\', Locked = true;
+        FolderDoesNotExistErr: Label 'The specified Exchange folder does not exist.';
+        SetupConnectionTxt: Label 'Set up email logging';
 
     [TryFunction]
     [Scope('OnPrem')]
     procedure InitializeExchangePSConnection()
     var
+        ExchangeWebServicesClient: Codeunit "Exchange Web Services Client";
         NetworkCredential: DotNet NetworkCredential;
     begin
         if not Initialized then begin
             SendTraceTag('0000BY5', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, InitializeConnectionTxt, DataClassification::SystemMetadata);
 
-            if not ExchangePowerShellRunner.PromptForCredentials then begin
+            if not ExchangePowerShellRunner.PromptForCredentials() then begin
                 SendTraceTag('0000BY6', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, ConnectionNotInitializedTxt, DataClassification::SystemMetadata);
                 Error(GetLastErrorText);
             end;
             ExchangePowerShellRunner.GetCredentials(TempOfficeAdminCredentials);
-            ExchangePowerShellRunner.InitializePSRunner;
+            ExchangePowerShellRunner.InitializePSRunner();
 
             NetworkCredential := NetworkCredential.NetworkCredential(TempOfficeAdminCredentials.Email,
-                TempOfficeAdminCredentials.GetPassword);
+                TempOfficeAdminCredentials.GetPassword());
             ExchangeWebServicesClient.InitializeOnServer(
               TempOfficeAdminCredentials.Email, GetDomainFromEmail(TempOfficeAdminCredentials.Email), NetworkCredential);
-            ExchangeWebServicesClient.ValidateCredentialsOnServer;
+            ExchangeWebServicesClient.ValidateCredentialsOnServer();
         end else
             SendTraceTag('0000BY7', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, ConnectionAlreadyInitializedTxt, DataClassification::SystemMetadata);
 
@@ -131,7 +152,7 @@ codeunit 1641 "Setup Email Logging"
             SendTraceTag('0000BY9', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, CheckIfFolderAlreadyExistsTxt, DataClassification::SystemMetadata);
             ExchangePowerShellRunner.ClearLog;
             ExchangePowerShellRunner.AddCommand('Get-PublicFolder', true);
-            ExchangePowerShellRunner.AddParameter('Identity', StrSubstNo('\%1\', RootFolderName));
+            ExchangePowerShellRunner.AddParameter('Identity', StrSubstNo(RootFolderPathTemplateTxt, RootFolderName));
             ExchangePowerShellRunner.Invoke;
             ExchangePowerShellRunner.AwaitCompletion;
 
@@ -149,7 +170,7 @@ codeunit 1641 "Setup Email Logging"
         Window.Update(1, 6000);
         ExchangePowerShellRunner.AddCommand('New-PublicFolder', true);
         ExchangePowerShellRunner.AddParameter('Name', QueueFolderName);
-        ExchangePowerShellRunner.AddParameter('Path', StrSubstNo('\%1\', RootFolderName));
+        ExchangePowerShellRunner.AddParameter('Path', StrSubstNo(RootFolderPathTemplateTxt, RootFolderName));
         ExchangePowerShellRunner.AddParameter('Mailbox', PublicMailBoxName);
         ExchangePowerShellRunner.Invoke;
         ExchangePowerShellRunner.AwaitCompletion;
@@ -159,7 +180,7 @@ codeunit 1641 "Setup Email Logging"
         Window.Update(1, 7000);
         ExchangePowerShellRunner.AddCommand('New-PublicFolder', true);
         ExchangePowerShellRunner.AddParameter('Name', StorageFolderName);
-        ExchangePowerShellRunner.AddParameter('Path', StrSubstNo('\%1\', RootFolderName));
+        ExchangePowerShellRunner.AddParameter('Path', StrSubstNo(RootFolderPathTemplateTxt, RootFolderName));
         ExchangePowerShellRunner.AddParameter('Mailbox', PublicMailBoxName);
         ExchangePowerShellRunner.Invoke;
         ExchangePowerShellRunner.AwaitCompletion;
@@ -167,8 +188,8 @@ codeunit 1641 "Setup Email Logging"
         // Grant Queue public folder Mail Settings (email address)
         SendTraceTag('0000BY9', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, CreatePublicFolderEmailSettingsTxt, DataClassification::SystemMetadata);
         Window.Update(1, 8000);
-        QueueFolderPath := StrSubstNo('\%1\%2\', RootFolderName, QueueFolderName);
-        StorageFolderPath := StrSubstNo('\%1\%2\', RootFolderName, StorageFolderName);
+        QueueFolderPath := StrSubstNo(PublicFolderPathTemplateTxt, RootFolderName, QueueFolderName);
+        StorageFolderPath := StrSubstNo(PublicFolderPathTemplateTxt, RootFolderName, StorageFolderName);
         ExchangePowerShellRunner.AddCommand('Enable-MailPublicFolder', true);
         ExchangePowerShellRunner.AddParameter('Identity', QueueFolderPath);
         ExchangePowerShellRunner.Invoke;
@@ -266,12 +287,14 @@ codeunit 1641 "Setup Email Logging"
     end;
 
     [Scope('OnPrem')]
+    [NonDebuggable]
     procedure SetupEmailLoggingFolderMarketingSetup(RootFolderName: Text; QueueFolderName: Text; StorageFolderName: Text)
     var
         MarketingSetup: Record "Marketing Setup";
         TempExchangeFolder: Record "Exchange Folder" temporary;
-        TempOfficeAdminCredentials: Record "Office Admin. Credentials" temporary;
-        NetworkCredential: DotNet NetworkCredential;
+        ExchangeWebServicesClient: Codeunit "Exchange Web Services Client";
+        OAuthCredentials: DotNet OAuthCredentials;
+        Token: Text;
     begin
         SendTraceTag('0000BYH', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, SetupEmailLoggingTxt, DataClassification::SystemMetadata);
 
@@ -280,22 +303,36 @@ codeunit 1641 "Setup Email Logging"
             exit;
         end;
 
-        ExchangePowerShellRunner.GetCredentials(TempOfficeAdminCredentials);
-        NetworkCredential := NetworkCredential.NetworkCredential(TempOfficeAdminCredentials.Email,
-            TempOfficeAdminCredentials.GetPassword);
-        ExchangeWebServicesClient.InitializeOnServer(
-          TempOfficeAdminCredentials.Email, GetDomainFromEmail(TempOfficeAdminCredentials.Email),
-          NetworkCredential);
-        ExchangeWebServicesClient.ValidateCredentialsOnServer;
+        GetClientCredentialsAccessToken(MarketingSetup.GetExchangeTenantId(), Token);
+        OAuthCredentials := OAuthCredentials.OAuthCredentials(Token);
+        ExchangeWebServicesClient.InitializeOnServerWithImpersonation(
+          TempOfficeAdminCredentials.Email, GetDomainFromEmail(TempOfficeAdminCredentials.Email), OAuthCredentials);
+        ExchangeWebServicesClient.ValidateCredentialsOnServer();
         ExchangeWebServicesClient.GetPublicFolders(TempExchangeFolder);
-        TempExchangeFolder.Get(StrSubstNo('\%1\', RootFolderName));
+        TempExchangeFolder.Get(StrSubstNo(RootFolderPathTemplateTxt, RootFolderName));
         ExchangeWebServicesClient.GetPublicFolders(TempExchangeFolder);
-        TempExchangeFolder.Get(StrSubstNo('\%1\%2\', RootFolderName, QueueFolderName));
+        TempExchangeFolder.Get(StrSubstNo(PublicFolderPathTemplateTxt, RootFolderName, QueueFolderName));
         TempExchangeFolder.CalcFields("Unique ID");
         MarketingSetup.SetQueueFolder(TempExchangeFolder);
-        TempExchangeFolder.Get(StrSubstNo('\%1\%2\', RootFolderName, StorageFolderName));
+        TempExchangeFolder.Get(StrSubstNo(PublicFolderPathTemplateTxt, RootFolderName, StorageFolderName));
         TempExchangeFolder.CalcFields("Unique ID");
         MarketingSetup.SetStorageFolder(TempExchangeFolder);
+    end;
+
+    [Scope('OnPrem')]
+    procedure GetExchangeFolder(var ExchangeWebServicesClient: Codeunit "Exchange Web Services Client"; var ExchangeFolder: Record "Exchange Folder"; FoldersCaption: Text): Boolean
+    var
+        ExchangeFoldersPage: Page "Exchange Folders";
+    begin
+        ExchangeFoldersPage.Initialize(ExchangeWebServicesClient, FoldersCaption);
+        ExchangeFoldersPage.LookupMode(true);
+        if Action::LookupOK = ExchangeFoldersPage.RunModal() then begin
+            ExchangeFoldersPage.GetRecord(ExchangeFolder);
+            if not ExchangeWebServicesClient.FolderExists(ExchangeFolder.ReadUniqueID()) then
+                Error(FolderDoesNotExistErr);
+            exit(true);
+        end;
+        exit(false);
     end;
 
     procedure GetDomainFromEmail(Email: Text): Text
@@ -315,6 +352,11 @@ codeunit 1641 "Setup Email Logging"
         WorkflowSetup: Codeunit "Workflow Setup";
     begin
         SendTraceTag('0000BYK', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, CreateEmailLoggingJobTxt, DataClassification::SystemMetadata);
+
+        JobQueueEntry.SetRange("Object Type to Run", JobQueueEntry."Object Type to Run"::Codeunit);
+        JobQueueEntry.SetRange("Object ID to Run", Codeunit::"Email Logging Context Adapter");
+        JobQueueEntry.DeleteTasks();
+
         WorkflowSetup.CreateJobQueueEntry(
           JobQueueEntry."Object Type to Run"::Codeunit,
           CODEUNIT::"Email Logging Context Adapter",
@@ -324,12 +366,267 @@ codeunit 1641 "Setup Email Logging"
     end;
 
     [Scope('OnPrem')]
+    procedure DeleteEmailLoggingJobQueueSetup()
+    var
+        JobQueueEntry: Record "Job Queue Entry";
+    begin
+        SendTraceTag('0000CIO', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, DeleteEmailLoggingJobTxt, DataClassification::SystemMetadata);
+        JobQueueEntry.SetRange("Object Type to Run", JobQueueEntry."Object Type to Run"::Codeunit);
+        JobQueueEntry.SetRange("Object ID to Run", Codeunit::"Email Logging Context Adapter");
+        JobQueueEntry.DeleteTasks();
+    end;
+
+    [Scope('OnPrem')]
     procedure ClosePSConnection()
     begin
         SendTraceTag('0000BYL', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, CloseConnectionTxt, DataClassification::SystemMetadata);
         if Initialized then
             ExchangePowerShellRunner.RemoveRemoteConnectionInformation;
         Initialized := false;
+    end;
+
+    [Scope('OnPrem')]
+    procedure PromptClientCredentials(var ClientId: Text[250]; var ClientSecret: Text[250]; var RedirectURL: Text[2048]): Boolean
+    var
+        TempNameValueBuffer: Record "Name/Value Buffer" temporary;
+        AzureADMgt: Codeunit "Azure AD Mgt.";
+    begin
+        TempNameValueBuffer.ID := 1;
+        TempNameValueBuffer.Name := ClientId;
+        TempNameValueBuffer.Value := ClientSecret;
+        if RedirectURL = '' then
+            TempNameValueBuffer."Value Long" := AzureADMgt.GetDefaultRedirectUrl()
+        else
+            TempNameValueBuffer."Value Long" := RedirectURL;
+        TempNameValueBuffer.Insert();
+        Commit();
+        if Page.RunModal(Page::"Exchange Client Credentials", TempNameValueBuffer) <> Action::LookupOK then begin
+            SendTraceTag('0000CIH', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, IgnoredClientCredentialsTxt, DataClassification::SystemMetadata);
+            exit(false);
+        end;
+        if (TempNameValueBuffer.Name = '') or (TempNameValueBuffer.Value = '') then begin
+            SendTraceTag('0000CII', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, InvalidClientCredentialsTxt, DataClassification::SystemMetadata);
+            exit(false);
+        end;
+        if TempNameValueBuffer."Value Long" = '' then
+            SendTraceTag('0000CL6', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, EmptyRedirectUrlTxt, DataClassification::SystemMetadata);
+
+        ClientId := TempNameValueBuffer.Name;
+        ClientSecret := TempNameValueBuffer.Value;
+        RedirectURL := TempNameValueBuffer."Value Long";
+        exit(true);
+    end;
+
+    [Scope('OnPrem')]
+    [NonDebuggable]
+    procedure PromptAdminConsent(var AccessToken: Text)
+    begin
+        PromptAdminConsent('', '', '', AccessToken);
+    end;
+
+    [Scope('OnPrem')]
+    [NonDebuggable]
+    procedure PromptAdminConsent(ClientId: Text; ClientSecret: Text; RedirectURL: Text; var AccessToken: Text)
+    var
+        OAuth2: Codeunit OAuth2;
+        PromptInteraction: Enum "Prompt Interaction";
+        AuthError: Text;
+    begin
+        if (ClientId = '') or (ClientSecret = '') then begin
+            ClientId := GetClientId();
+            ClientSecret := GetClientSecret();
+        end;
+        if RedirectURL = '' then
+            RedirectURL := GetRedirectURL();
+
+        OAuth2.AcquireTokenByAuthorizationCode(
+                    ClientId,
+                    ClientSecret,
+                    CommonOAuthAuthorityUrlLbl,
+                    RedirectURL,
+                    ResourceUrlLbl,
+                    PromptInteraction::Consent, AccessToken, AuthError
+                );
+        if AccessToken = '' then begin
+            if AuthError <> '' then
+                SendTraceTag('0000CFA', EmailLoggingTelemetryCategoryTxt, Verbosity::Error, AuthError, DataClassification::SystemMetadata)
+            else
+                SendTraceTag('0000CFB', EmailLoggingTelemetryCategoryTxt, Verbosity::Error, AuthTokenOrCodeNotReceivedErr, DataClassification::SystemMetadata);
+            Error(AccessTokenErrMsg);
+        end;
+    end;
+
+    [Scope('OnPrem')]
+    [NonDebuggable]
+    procedure GetClientCredentialsAccessToken(TenantId: Text; var AccessToken: Text)
+    begin
+        GetClientCredentialsAccessToken('', '', '', TenantId, AccessToken);
+    end;
+
+    [Scope('OnPrem')]
+    [NonDebuggable]
+    procedure GetClientCredentialsAccessToken(ClientId: Text; ClientSecret: Text; RedirectURL: Text; TenantId: Text; var AccessToken: Text)
+    var
+        OAuth2: Codeunit OAuth2;
+    begin
+        if (ClientId = '') or (ClientSecret = '') then begin
+            ClientId := GetClientId();
+            ClientSecret := GetClientSecret();
+        end;
+        if RedirectURL = '' then
+            RedirectURL := GetRedirectURL();
+
+        OAuth2.AcquireTokenWithClientCredentials(
+                    ClientId,
+                    ClientSecret,
+                    StrSubstNo(TenantOAuthAuthorityUrlLbl, TenantId),
+                    RedirectURL,
+                    ResourceUrlLbl,
+                    AccessToken
+                );
+        if AccessToken = '' then begin
+            SendTraceTag('0000CFC', EmailLoggingTelemetryCategoryTxt, Verbosity::Error, ClientCredentialsAccessTokenErr, DataClassification::SystemMetadata);
+            Error(AccessTokenErrMsg);
+        end;
+    end;
+
+    [Scope('OnPrem')]
+    [NonDebuggable]
+    procedure ExtractTenantIdFromAccessToken(var TenantId: Text; AccessToken: Text)
+    var
+        JSONManagement: Codeunit "JSON Management";
+        Base64Convert: Codeunit "Base64 Convert";
+        JsonObject: DotNet JObject;
+    begin
+        if AccessToken = '' then
+            exit;
+        JSONManagement.InitializeFromString(Base64Convert.FromBase64(AccessToken.Split('.').Get(2) + 'g'));
+        JSONManagement.GetJSONObject(JsonObject);
+        JSONManagement.GetStringPropertyValueFromJObjectByName(JsonObject, 'tid', TenantId);
+    end;
+
+    [Scope('OnPrem')]
+    [NonDebuggable]
+    procedure GetClientId(): Text
+    var
+        MarketingSetup: Record "Marketing Setup";
+        AzureKeyVault: Codeunit "Azure Key Vault";
+        EnvironmentInformation: Codeunit "Environment Information";
+        ClientId: Text;
+    begin
+        if EnvironmentInformation.IsSaaS() then
+            if not AzureKeyVault.GetAzureKeyVaultSecret(EmailLoggingClientIdAKVSecretNameLbl, ClientId) then
+                SendTraceTag('0000CFD', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, MissingClientIdTelemetryTxt, DataClassification::SystemMetadata)
+            else begin
+                SendTraceTag('0000CMD', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, InitializedClientIdTelemetryTxt, DataClassification::SystemMetadata);
+                exit(ClientId);
+            end;
+
+        if MarketingSetup.Get() then begin
+            ClientId := MarketingSetup."Exchange Client Id";
+            if ClientId <> '' then begin
+                SendTraceTag('0000CME', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, InitializedClientIdTelemetryTxt, DataClassification::SystemMetadata);
+                exit(ClientId);
+            end;
+        end;
+
+        OnGetEmailLoggingClientId(ClientId);
+        if ClientId <> '' then begin
+            SendTraceTag('0000CMF', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, InitializedClientIdTelemetryTxt, DataClassification::SystemMetadata);
+            exit(ClientId);
+        end;
+
+        Error(MissingClientIdOrSecretErr);
+    end;
+
+    [Scope('OnPrem')]
+    [NonDebuggable]
+    procedure GetClientSecret(): Text
+    var
+        MarketingSetup: Record "Marketing Setup";
+        AzureKeyVault: Codeunit "Azure Key Vault";
+        EnvironmentInformation: Codeunit "Environment Information";
+        ClientSecret: Text;
+    begin
+        if EnvironmentInformation.IsSaaS() then
+            if not AzureKeyVault.GetAzureKeyVaultSecret(EmailLoggingClientSecretAKVSecretNameLbl, ClientSecret) then
+                SendTraceTag('0000CFE', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, MissingClientSecretTelemetryTxt, DataClassification::SystemMetadata)
+            else begin
+                SendTraceTag('0000CMG', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, InitializedClientSecretTelemetryTxt, DataClassification::SystemMetadata);
+                exit(ClientSecret);
+            end;
+
+        if MarketingSetup.Get() then begin
+            ClientSecret := MarketingSetup.GetExchangeClientSecret();
+            if ClientSecret <> '' then begin
+                SendTraceTag('0000CMH', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, InitializedClientSecretTelemetryTxt, DataClassification::SystemMetadata);
+                exit(ClientSecret);
+            end;
+        end;
+
+        OnGetEmailLoggingClientSecret(ClientSecret);
+        if ClientSecret <> '' then begin
+            SendTraceTag('0000CMI', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, InitializedClientSecretTelemetryTxt, DataClassification::SystemMetadata);
+            exit(ClientSecret);
+        end;
+
+        Error(MissingClientIdorSecretErr);
+    end;
+
+    [Scope('OnPrem')]
+    procedure RegisterAssistedSetup()
+    var
+        AssistedSetup: Codeunit "Assisted Setup";
+        Info: ModuleInfo;
+        AssistedSetupGroup: Enum "Assisted Setup Group";
+    begin
+        NavApp.GetCurrentModuleInfo(Info);
+        if not AssistedSetup.Exists(Page::"Setup Email Logging") then
+            AssistedSetup.Add(Info.Id(), Page::"Setup Email Logging", SetupConnectionTxt, AssistedSetupGroup::Customize);
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Assisted Setup", 'OnRegister', '', true, true)]
+    local procedure HandleAssistedSetupOnRegister()
+    var
+        EnvironmentInformation: Codeunit "Environment Information";
+    begin
+        if EnvironmentInformation.IsSaaS() then
+            RegisterAssistedSetup();
+    end;
+
+    [Scope('OnPrem')]
+    [NonDebuggable]
+    procedure GetRedirectURL(): Text
+    var
+        MarketingSetup: Record "Marketing Setup";
+        EnvironmentInformation: Codeunit "Environment Information";
+        RedirectURL: Text;
+    begin
+        if EnvironmentInformation.IsSaaS() then
+            exit(RedirectURL);
+
+        if MarketingSetup.Get() then
+            RedirectURL := MarketingSetup."Exchange Redirect URL";
+
+        if RedirectURL = '' then
+            OnGetEmailLoggingRedirectURL(RedirectURL);
+
+        exit(RedirectURL);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetEmailLoggingClientId(var ClientId: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetEmailLoggingClientSecret(var ClientSecret: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetEmailLoggingRedirectURL(var RedirectURL: Text)
+    begin
     end;
 }
 

@@ -839,7 +839,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value>=Cstr(Choose(80,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
+                      <Value>="[" + Cstr(Choose(80,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177)))) + "]"</Value>
                       <Style>
                         <FontFamily>IDAutomationSec1B</FontFamily>
                         <FontWeight>Normal</FontWeight>
@@ -869,7 +869,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value>=Cstr(Choose(81,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
+                      <Value>="[" + Cstr(Choose(81,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177)))) + "]"</Value>
                       <Style>
                         <FontFamily>IDAutomationSec1B</FontFamily>
                         <FontWeight>Normal</FontWeight>
@@ -925,7 +925,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value>=Cstr(Choose(97,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
+                      <Value>="[" + Cstr(Choose(97,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177)))) + "]"</Value>
                       <Style>
                         <FontFamily>IDAutomationSec1B</FontFamily>
                         <FontWeight>Normal</FontWeight>
@@ -1346,7 +1346,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value>=First(Fields!BankAccountNo.Value, "DataSet_Result")</Value>
+                      <Value>=First(Fields!BankAccountNo.Value, "DataSet_Result") + "C"</Value>
                       <Style>
                         <FontFamily>IDAutomationMICR</FontFamily>
                         <FontWeight>Normal</FontWeight>
@@ -1378,7 +1378,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value>=First(Fields!BankTransitNo.Value, "DataSet_Result")</Value>
+                      <Value>="A" + First(Fields!BankTransitNo.Value, "DataSet_Result") + "A"</Value>
                       <Style>
                         <FontFamily>IDAutomationMICR</FontFamily>
                         <FontWeight>Normal</FontWeight>

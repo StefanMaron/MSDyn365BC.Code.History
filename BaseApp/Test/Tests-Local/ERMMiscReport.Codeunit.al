@@ -2128,6 +2128,38 @@ codeunit 142060 "ERM Misc. Report"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('ItemSalesStatisticsRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure ItemSalesStatisticsQtyReturnedWithoutItemVariants()
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        // [FEATURE] [Item Statistics] [Return]
+        // [SCENARIO 353708] "Quantity Returned" and "Profit" are shown on "Item Sales Statistics" report without breakdown by Item Variants
+        Initialize;
+
+        // [GIVEN] Posted Sales Return Order for Item "I01" with Quantity = 10 and "Unit Price" = 300
+        CreateAndModifySalesDocument(
+          SalesLine, SalesLine."Document Type"::"Return Order", LibraryInventory.CreateItemNo,
+          '', WorkDate, '', '', LibrarySales.CreateCustomerNo);
+        PostSalesDocument(SalesLine);
+
+        // [WHEN] Run Report "Item Sales Statistics" with "Breakdown By Variants" disabled
+        LibraryVariableStorage.Enqueue(SalesLine."No.");
+        LibraryVariableStorage.Enqueue(false);
+        LibraryVariableStorage.Enqueue(false);
+        REPORT.Run(REPORT::"Item Sales Statistics");
+
+        // [THEN] "Quantity Returned" = 10 for Item "I01"
+        // [THEN] "Profit" = -3000 for Item "I01"
+        LibraryReportDataset.LoadDataSetFile;
+        VerifyValuesOnReport(SalesLine."No.", ItemNoCapLbl, 'QuantityReturned', SalesLine.Quantity);
+        VerifyValuesOnReport(SalesLine."No.", ItemNoCapLbl, 'Profit', -SalesLine.Quantity * SalesLine."Unit Price");
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         InventorySetup: Record "Inventory Setup";

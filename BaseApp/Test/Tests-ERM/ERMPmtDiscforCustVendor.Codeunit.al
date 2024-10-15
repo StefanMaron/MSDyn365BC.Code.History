@@ -949,7 +949,7 @@ codeunit 134088 "ERM Pmt Disc for Cust/Vendor"
         // [GIVEN] "Pmt. Discount Date" = January 6th in invoice
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
 
-        ExpectedPmtDiscDate := CalcDate(PaymentTerms."Discount Date Calculation", SalesHeader."Posting Date");
+        ExpectedPmtDiscDate := CalcDate(PaymentTerms."Discount Date Calculation", WorkDate());
         SalesHeader.Validate("Payment Terms Code", PaymentTerms.Code);
         SalesHeader.TestField("Pmt. Discount Date", ExpectedPmtDiscDate);
 
@@ -1006,7 +1006,7 @@ codeunit 134088 "ERM Pmt Disc for Cust/Vendor"
         // [GIVEN] "Pmt. Discount Date" = January 6th in invoice
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
 
-        ExpectedPmtDiscDate := CalcDate(PaymentTerms."Discount Date Calculation", PurchaseHeader."Posting Date");
+        ExpectedPmtDiscDate := CalcDate(PaymentTerms."Discount Date Calculation", WorkDate());
         PurchaseHeader.Validate("Payment Terms Code", PaymentTerms.Code);
         PurchaseHeader.TestField("Pmt. Discount Date", ExpectedPmtDiscDate);
 
@@ -1032,6 +1032,116 @@ codeunit 134088 "ERM Pmt Disc for Cust/Vendor"
         LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, DocumentNo);
         VendorLedgerEntry.TestField("Original Pmt. Disc. Possible", -ExpectedDiscountAmount);
         VendorLedgerEntry.TestField("Remaining Pmt. Disc. Possible", -ExpectedDiscountAmount);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesPmtDiscountDateWithGracePeriodPostingDateExceedsPeriod()
+    var
+        PaymentTerms: Record "Payment Terms";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        GracePeriod: DateFormula;
+        ExpectedPmtDiscDate: Date;
+        DocumentDate: Date;
+        PostingDate: Date;
+        DocumentNo: Code[20];
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 351131] "Original Pmt. Disc. Possible" is not calculated in Customer Ledger Entry when "Posting Date" exceeds "Payment Discount Period" + "Grace Period"
+        Initialize();
+
+        // [GIVEN] Payment Terms "X" with "Discount %" = 10, "Due Date Calculation" = 10 days, "Pmt. Discount Date Calculation" = 5 days
+        LibraryERM.CreatePaymentTermsDiscount(PaymentTerms, false);
+
+        // [GIVEN] "Payment Discount Grace Period" = 3D in General Ledger Setup
+        Evaluate(GracePeriod, '<' + Format(LibraryRandom.RandIntInRange(3, 10)) + 'D>');
+        LibraryPmtDiscSetup.SetPmtDiscGracePeriod(GracePeriod);
+
+        // [GIVEN] Sales Invoice with "Document Date" = January 1st and "Posting Date" = January 12th
+        // [GIVEN] Payment Terms "X" specified in invoice
+        // [GIVEN] "Pmt. Discount Date" = January 6th in invoice
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
+
+        ExpectedPmtDiscDate := CalcDate(PaymentTerms."Discount Date Calculation", WorkDate());
+        SalesHeader.Validate("Payment Terms Code", PaymentTerms.Code);
+        SalesHeader.TestField("Pmt. Discount Date", ExpectedPmtDiscDate);
+
+        DocumentDate := WorkDate();
+        PostingDate := CalcDate(PaymentTerms."Discount Date Calculation", DocumentDate);
+        PostingDate := CalcDate(GracePeriod, PostingDate) + 1;
+        SalesHeader.Validate("Posting Date", PostingDate);
+        SalesHeader.Validate("Document Date", DocumentDate);
+        SalesHeader.Modify(true);
+
+        // [GIVEN] Amount = 1000 in invoice
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), 1);
+        SalesLine.Validate("Unit Price", LibraryRandom.RandIntInRange(100, 200));
+        SalesLine.Modify(true);
+
+        // [WHEN] Post invoice
+        DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [THEN] "Original Pmt. Disc. Possible" = 0 and "Remaining Pmt. Disc. Possible" = 0 in posted Customer Ledger Entry as the discount period is exceeded.
+        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, DocumentNo);
+        CustLedgerEntry.TestField("Original Pmt. Disc. Possible", 0);
+        CustLedgerEntry.TestField("Remaining Pmt. Disc. Possible", 0);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchPmtDiscountDateWithGracePeriodPostingDateExceedsPeriod()
+    var
+        PaymentTerms: Record "Payment Terms";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        GracePeriod: DateFormula;
+        ExpectedPmtDiscDate: Date;
+        DocumentDate: Date;
+        PostingDate: Date;
+        DocumentNo: Code[20];
+    begin
+        // [FEATURE] [Purchase]
+        // [SCENARIO 351131] "Original Pmt. Disc. Possible" is not calculated in Vendor Ledger Entry when "Posting Date" exceeds "Payment Discount Period" + "Grace Period"
+        Initialize();
+
+        // [GIVEN] Payment Terms "X" with "Discount %" = 10, "Due Date Calculation" = 10 days, "Pmt. Discount Date Calculation" = 5 days
+        LibraryERM.CreatePaymentTermsDiscount(PaymentTerms, false);
+        // [GIVEN] "Payment Discount Grace Period" = 3D in General Ledger Setup
+        Evaluate(GracePeriod, '<' + Format(LibraryRandom.RandIntInRange(3, 10)) + 'D>');
+        LibraryPmtDiscSetup.SetPmtDiscGracePeriod(GracePeriod);
+
+        // [GIVEN] Sales Invoice with "Document Date" = January 1st and "Posting Date" = January 12th
+        // [GIVEN] Payment Terms "X" specified in invoice
+        // [GIVEN] "Pmt. Discount Date" = January 6th in invoice
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
+
+        ExpectedPmtDiscDate := CalcDate(PaymentTerms."Discount Date Calculation", WorkDate());
+        PurchaseHeader.Validate("Payment Terms Code", PaymentTerms.Code);
+        PurchaseHeader.TestField("Pmt. Discount Date", ExpectedPmtDiscDate);
+
+        DocumentDate := WorkDate();
+        PostingDate := CalcDate(PaymentTerms."Discount Date Calculation", DocumentDate);
+        PostingDate := CalcDate(GracePeriod, PostingDate) + 1;
+        PurchaseHeader.Validate("Posting Date", PostingDate);
+        PurchaseHeader.Validate("Document Date", DocumentDate);
+        PurchaseHeader.Modify(true);
+
+        // [GIVEN] Amount = 1000 in invoice
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup(), 1);
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(100, 200));
+        PurchaseLine.Modify(true);
+
+        // [WHEN] Post invoice
+        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [THEN] "Original Pmt. Disc. Possible" = 0 and "Remaining Pmt. Disc. Possible" = 0 in posted Vendor Ledger Entry as the discount period is exceeded.
+        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, DocumentNo);
+        VendorLedgerEntry.TestField("Original Pmt. Disc. Possible", 0);
+        VendorLedgerEntry.TestField("Remaining Pmt. Disc. Possible", 0);
     end;
 
     local procedure Initialize()
@@ -1116,7 +1226,7 @@ codeunit 134088 "ERM Pmt Disc for Cust/Vendor"
         CrMemoNo: Code[20];
         Amount: Decimal;
     begin
-        CustomerNo := CreateCustomerWithPaymentTerms;
+        CustomerNo := CreateCustomerWithPaymentTerms();
         Amount := LibraryRandom.RandDec(100, 2);
 
         CreatePostPairedInvoiceAndCrMemo(GenJnlLine."Account Type"::Customer, CustomerNo, Amount, InvNo, CrMemoNo);
@@ -1141,7 +1251,7 @@ codeunit 134088 "ERM Pmt Disc for Cust/Vendor"
         CrMemoNo: Code[20];
         Amount: Decimal;
     begin
-        VendorNo := CreateVendorWithPaymentTerms;
+        VendorNo := CreateVendorWithPaymentTerms();
         Amount := LibraryRandom.RandDec(100, 2);
 
         CreatePostPairedInvoiceAndCrMemo(GenJnlLine."Account Type"::Vendor, VendorNo, -Amount, InvNo, CrMemoNo);

@@ -880,7 +880,13 @@
         HandledICInboxPurchHeader: Record "Handled IC Inbox Purch. Header";
         HandledICInboxPurchLine: Record "Handled IC Inbox Purch. Line";
         DimensionSetIDArr: array[10] of Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCreatePurchDocument(ICInboxPurchHeader, ReplacePostingDate, PostingDate, IsHandled);
+        if IsHandled then
+            exit;
+
         with ICInboxPurchHeader do begin
             PurchHeader.Init();
             PurchHeader."No." := '';
@@ -1913,7 +1919,7 @@
                 ICPartner.Get(ICInboxTrans."IC Partner Code");
             end;
         if ICPartner."Customer No." = '' then
-            Error(Text001, ICPartner.TableCaption, ICPartner.Code, Customer.TableCaption);
+            Error(Text001, ICPartner.TableCaption, ICPartner.Code, Customer.TableCaption, ICOutboxPurchHeader."IC Partner Code");
 
         with ICInboxSalesHeader do begin
             "IC Transaction No." := ICInboxTrans."Transaction No.";
@@ -2746,6 +2752,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterICOutBoxSalesHeaderTransferFields(var ICOutboxSalesHeader: Record "IC Outbox Sales Header"; SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreatePurchDocument(ICInboxPurchaseHeader: Record "IC Inbox Purchase Header"; ReplacePostingDate: Boolean; PostingDate: Date; var IsHandled: Boolean)
     begin
     end;
 
