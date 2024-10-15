@@ -412,6 +412,7 @@ Page 1 "Company Information"
                 field("Registration No."; "Registration No.")
                 {
                     ApplicationArea = Basic, Suite;
+                    Importance = Additional;
                     ToolTip = 'Specifies the company''s registration number. You can enter a maximum of 20 characters, both numbers and letters.';
                 }
                 field("Registered Name"; "Registered Name")
