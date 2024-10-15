@@ -1820,6 +1820,8 @@ codeunit 134167 "Copy Price Data Test"
         FeaturePriceCalculation.UpdateData(FeatureDataUpdateStatus);
 
         // [THEN] Price List Header #1, where "Starting Date" is '010121', not coupled
+        PriceListHeader[1].SetRange("Source Type", "Price Source Type"::"Customer Price Group");
+        PriceListHeader[1].SetRange("Source No.", CustomerPriceGroup.Code);
         PriceListHeader[1].SetRange("Starting Date", SalesPrice[1]."Starting Date");
         Assert.RecordCount(PriceListHeader[1], 1);
         PriceListHeader[1].FindFirst();
@@ -1831,6 +1833,8 @@ codeunit 134167 "Copy Price Data Test"
         Assert.IsFalse(CRMIntegrationRecord.FindIDFromRecordID(PriceListLine[1].RecordId, CRMId), 'PL Line#1 is coupled');
 
         // [THEN] Price List Header #2, where "Starting Date" is '020121', not coupled
+        PriceListHeader[2].SetRange("Source Type", "Price Source Type"::"Customer Price Group");
+        PriceListHeader[2].SetRange("Source No.", CustomerPriceGroup.Code);
         PriceListHeader[2].SetRange("Starting Date", SalesPrice[2]."Starting Date");
         Assert.RecordCount(PriceListHeader[2], 1);
         PriceListHeader[2].FindFirst();

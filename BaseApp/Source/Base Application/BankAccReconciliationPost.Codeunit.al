@@ -446,6 +446,7 @@
         BankAccStmt: Record "Bank Account Statement";
         BankAccStmtLine: Record "Bank Account Statement Line";
         BankAccReconLine: Record "Bank Acc. Reconciliation Line";
+        PreviousStatementEndingBalance: Decimal;
         BankAccStmtExists: Boolean;
         IsHandled: Boolean;
     begin
@@ -453,6 +454,10 @@
         OnBeforeTransferToBankStmt(BankAccRecon, IsHandled);
         if IsHandled then
             exit;
+
+        BankAccStmt.SetRange("Bank Account No.", BankAccRecon."Bank Account No.");
+        if BankAccStmt.FindLast() then
+            PreviousStatementEndingBalance := BankAccStmt."Statement Ending Balance";
 
         BankAccStmtExists := BankAccStmt.Get(BankAccRecon."Bank Account No.", BankAccRecon."Statement No.");
         BankAccStmt.Init();
@@ -466,6 +471,12 @@
                 BankAccStmtLine.Insert();
                 BankAccReconLine.ClearDataExchEntries;
             until BankAccReconLine.Next = 0;
+
+        BankAccStmtLine.SetRange("Bank Account No.", BankAccStmt."Bank Account No.");
+        BankAccStmtLine.SetRange("Statement No.", BankAccStmt."Statement No.");
+        BankAccStmtLine.CalcSums("Statement Amount");
+        BankAccStmt."Balance Last Statement" := PreviousStatementEndingBalance;
+        BankAccStmt."Statement Ending Balance" := PreviousStatementEndingBalance + BankAccStmtLine."Statement Amount";
 
         OnBeforeBankAccStmtInsert(BankAccStmt, BankAccRecon);
         BankAccStmt.Insert();

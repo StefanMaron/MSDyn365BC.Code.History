@@ -527,6 +527,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Prepayment V - NamedType CannotChangePrepmtAmtDiffVAtPctErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2731302931 - NamedType 3683325401" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 is not set for the %2 G/L account with no. %3.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 - caption Gen. Prod. Posting Group; %2 - G/L Account Description; %3 - G/L Account No.]D;]A;(LookupHint=Codeunit ERM Prepayment V - NamedType GenProdPostingGroupErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3369365645 - NamedType 3608802112" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Prepayment VAT Amount balance should be zero.]]></Val>
