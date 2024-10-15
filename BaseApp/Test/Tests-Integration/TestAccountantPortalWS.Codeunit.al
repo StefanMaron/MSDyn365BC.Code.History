@@ -29,6 +29,8 @@ codeunit 134765 TestAccountantPortalWS
         AccountantPortalFinanceCues: TestPage "Accountant Portal Finance Cues";
         MasterStyle: enum "Cues And KPIs Style";
         isInitialized: Boolean;
+        RequestsToApproveErr: Label 'Expected Request to approve count are not equal';
+        RequestsSentForApprovalErr: Label 'Expected Requests Sent For Approval count are not equal';
 
     [Test]
     [Scope('OnPrem')]
@@ -189,6 +191,58 @@ codeunit 134765 TestAccountantPortalWS
           ActivitiesCue.GetAmountFormat,
           'Modified local currency not displaying correctly.');
     end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestFinanceCuesRequestToApprove()
+    var
+        ApprovalEntry: Record "Approval Entry";
+    begin
+        // [SCENARIO 470975] “Request Sent for Approval” and “Request to Approve” fields do not get updated as expected in the Company Hub.
+        Initialize();
+
+        // [GIVEN] Delete All Approval Entry
+        ApprovalEntry.DeleteAll;
+
+        // [GIVEN] Create three approval entry 
+        CreateApprovalEntry(17, UserId, "Approval Status"::Open);
+        CreateApprovalEntryForRequestSentForApprove(18, 'ABC', "Approval Status"::Open);
+        CreateApprovalEntryForRequestSentForApprove(19, 'ABC', "Approval Status"::Open);
+
+        // [WHEN] The Page is ran.
+        AccountantPortalFinanceCues.OpenView;
+
+        // [VERIFY] Verify Request to Approve and Request  Sent for Approval has same count 
+        Assert.AreEqual('                             1', Format(AccountantPortalFinanceCues.RequestsToApproveAmount.Value), RequestsToApproveErr);
+        Assert.AreEqual('                             2', Format(AccountantPortalFinanceCues.RequestsSentForApprovalAmount.Value), RequestsSentForApprovalErr);
+
+        // [THEN] Close the page
+        AccountantPortalFinanceCues.Close();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestActivitiesCuesRequestToApprove()
+    begin
+        // [SCENARIO 470975] “Request Sent for Approval” and “Request to Approve” fields do not get updated as expected in the Company Hub.
+        Initialize();
+
+        // [GIVEN] Delete All Approval Entry
+        ApprovalEntry.DeleteAll;
+
+        // [GIVEN] Create one approval entry 
+        CreateApprovalEntry(21, UserId, "Approval Status"::Open);
+
+        // [WHEN] The Page is ran.
+        AccountantPortalActivityCues.OpenView;
+
+        // [THEN] Request to Approve  field are validated.
+        Assert.AreEqual('                             1', Format(AccountantPortalActivityCues.RequeststoApproveAmount.Value), RequestsToApproveErr);
+
+        // [THEN] Close the page
+        AccountantPortalActivityCues.Close();
+    end;
+
 
     local procedure Initialize()
     begin
@@ -684,6 +738,17 @@ codeunit 134765 TestAccountantPortalWS
 
         // Sales Cr. Memo - Pending Doc Exch
         CreateSalesCrMemoHeader('17', 3);
+    end;
+
+    [Normal]
+    local procedure CreateApprovalEntryForRequestSentForApprove(EntryNo: Integer; ApproverID: Text[50]; Status: Enum "Approval Status")
+    begin
+        ApprovalEntry.Init();
+        ApprovalEntry."Entry No." := EntryNo;
+        ApprovalEntry."Approver ID" := ApproverID;
+        ApprovalEntry."Sender ID" := UserId;
+        ApprovalEntry.Status := Status;
+        ApprovalEntry.Insert();
     end;
 }
 

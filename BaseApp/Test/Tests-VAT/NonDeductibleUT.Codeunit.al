@@ -136,7 +136,7 @@ codeunit 134282 "Non-Deductible UT"
         VATPostingSetup: Record "VAT Posting Setup";
         VATPostingSetupCopy: Record "VAT Posting Setup";
     begin
-        // [SCENARIO 474024] Stan cannot create VAT Posting Setup with the different Non-Deductible VAT percenst and same VAT identifiers
+        // [SCENARIO 474024] Stan cannot create VAT Posting Setup with the different Non-Deductible VAT percents and same VAT identifiers
 
         Initialize();
         // [GIVEN] VAT Posting Setup "V1" with "VAT Identifier" = "X", "Allow Non-Deductible VAT" is enabled and "Non-Deductible VAT %" = 10
@@ -148,6 +148,35 @@ codeunit 134282 "Non-Deductible UT"
         asserterror VATPostingSetup.Validate("VAT Identifier", VATPostingSetupCopy."VAT Identifier");
         // [THEN] An error message thrown that it is not possible and the same setup exists for "V1"
         Assert.ExpectedError(StrSubstNo(DifferentNonDedVATRatesSameVATIdentifierErr, VATPostingSetupCopy."VAT Bus. Posting Group", VATPostingSetupCopy."VAT Prod. Posting Group"));
+    end;
+
+    [Test]
+    procedure CannotSetDiffNonDedVATPercentInPurchaseLineWithSameVATIdentifiers()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        // [SCENARIO 475903] Stan cannot set different Non-Deductible VAT percents for the same VAT identifiers in purchase line
+
+        Initialize();
+        // [GIVEN] VAT Posting Setup with "VAT Identifier" = "X", "Allow Non-Deductible VAT" is enabled and "Non-Deductible VAT %" = 10
+        LibraryNonDeductibleVAT.CreateNonDeductibleNormalVATPostingSetup(VATPostingSetup);
+        // [GIVEN] Purchase invoice with two lines, each with VAT Posting Setup with Non-Deductible VAT
+        LibraryPurchase.CreatePurchHeader(
+            PurchaseHeader, PurchaseHeader."Document Type"::Invoice,
+            LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item,
+            LibraryInventory.CreateItemWithVATProdPostingGroup(VATPostingSetup."VAT Prod. Posting Group"), LibraryRandom.RandInt(100));
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item,
+            LibraryInventory.CreateItemWithVATProdPostingGroup(VATPostingSetup."VAT Prod. Posting Group"), LibraryRandom.RandInt(100));
+
+        // [WHEN] Change "Non-Deductible VAT %" to 15 in the second purchase line
+        asserterror PurchaseLine.Validate("Non-Deductible VAT %", VATPostingSetup."Non-Deductible VAT %" + 1);
+        // [THEN] An error message thrown that it is not possible to set different Non-Deductible VAT percents for the same VAT identifiers
+        Assert.ExpectedError(StrSubstNo(DifferentNonDedVATRatesSameVATIdentifierErr, VATPostingSetup."VAT Bus. Posting Group", VATPostingSetup."VAT Prod. Posting Group"));
     end;
 
     local procedure Initialize()
