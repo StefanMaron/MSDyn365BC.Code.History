@@ -302,7 +302,7 @@ codeunit 139160 "CRM Setup Test"
         // [WHEN] Enter details in the setup page and enable the connection
         CRMConnectionSetupPage.OpenEdit;
         CRMConnectionSetupPage."Server Address".SetValue('@@test@@');
-        CRMConnectionSetupPage."Authentication Type".SetValue('Office365');
+        CRMConnectionSetupPage."Authentication Type".SetValue('OAuth 2.0');
         CRMConnectionSetupPage."User Name".SetValue('tester@domain.net');
         CRMConnectionSetupPage.Password.SetValue('T3sting!');
         CRMConnectionSetupPage."Is User Mapping Required".SetValue(false);
