@@ -1171,7 +1171,13 @@
         PurchCrMemoLine: Record "Purch. Cr. Memo Line";
         TransferExtText: Codeunit "Transfer Extended Text";
         NextLineNo: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeInsertExtendedText(TabNo, DocNo, GLAccNo, DocDate, LanguageCode, PrevLineNo, IsHandled);
+        if IsHandled then
+            exit;
+
         TransferExtText.PrepmtGetAnyExtText(GLAccNo, TabNo, DocDate, LanguageCode, TempExtTextLine);
         if TempExtTextLine.Find('-') then begin
             NextLineNo := PrevLineNo + 10000;
@@ -1978,6 +1984,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateCrMemoDocNos(var PurchaseHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertExtendedText(TabNo: Integer; DocNo: Code[20]; GLAccNo: Code[20]; DocDate: Date; LanguageCode: Code[10]; var PrevLineNo: Integer; var IsHandled: Boolean)
     begin
     end;
 }

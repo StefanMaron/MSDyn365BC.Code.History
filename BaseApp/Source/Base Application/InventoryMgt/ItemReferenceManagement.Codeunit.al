@@ -481,7 +481,7 @@
                         ItemReference2.SetCurrentKey("Reference Type", "Reference Type No.");
                         ItemReference2.SetFilter("Reference Type", '%1|%2', ItemReference2."Reference Type"::Customer, ItemReference2."Reference Type"::" ");
                         ItemReference2.SetFilter("Reference Type No.", '%1|%2', SalesHeader."Sell-to Customer No.", '');
-                        OnSalesReferenceNoLookupOnAfterSetFilters(ItemReference2, SalesLine);
+                        OnSalesReferenceNoLookupOnAfterSetFilters(ItemReference2, SalesLine, SalesHeader);
                         if PAGE.RunModal(PAGE::"Item Reference List", ItemReference2) = ACTION::LookupOK then begin
                             SalesLine."Item Reference No." := ItemReference2."Reference No.";
                             ValidateSalesReferenceNo(SalesLine, SalesHeader, ItemReference2, false, 0);
@@ -875,7 +875,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnSalesReferenceNoLookupOnAfterSetFilters(var ItemReference: Record "Item Reference"; SalesLine: Record "Sales Line");
+    local procedure OnSalesReferenceNoLookupOnAfterSetFilters(var ItemReference: Record "Item Reference"; SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header");
     begin
     end;
 

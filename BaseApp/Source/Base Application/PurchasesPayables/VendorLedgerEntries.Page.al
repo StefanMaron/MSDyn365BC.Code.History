@@ -409,7 +409,6 @@ page 29 "Vendor Ledger Entries"
             {
                 ApplicationArea = Basic, Suite;
                 ShowFilter = false;
-                SubPageLink = "Posting Date" = field("Posting Date"), "Document No." = field("Document No.");
             }
             systempart(Control1900383207; Links)
             {
@@ -742,6 +741,8 @@ page 29 "Vendor Ledger Entries"
     begin
         HasIncomingDocument := IncomingDocument.PostedDocExists("Document No.", "Posting Date");
         HasDocumentAttachment := HasPostedDocAttachment();
+        if GuiAllowed() then
+            CurrPage.IncomingDocAttachFactBox.PAGE.LoadDataFromRecord(Rec);
     end;
 
     trigger OnAfterGetRecord()

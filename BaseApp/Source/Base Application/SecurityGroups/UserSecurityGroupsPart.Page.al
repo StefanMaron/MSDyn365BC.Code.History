@@ -40,14 +40,20 @@ page 9848 "User Security Groups Part"
 
     trigger OnOpenPage()
     begin
-        Refresh();
+        if Rec.IsEmpty() then
+            Refresh();
     end;
 
-    internal procedure Refresh()
+    local procedure Refresh()
     var
         SecurityGroup: Codeunit "Security Group";
     begin
         SecurityGroup.GetMembers(Rec);
+    end;
+
+    internal procedure Refresh(var SecurityGroupMemberBuffer: Record "Security Group Member Buffer")
+    begin
+        Rec.Copy(SecurityGroupMemberBuffer, true);
     end;
 }
 
