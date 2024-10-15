@@ -288,6 +288,12 @@ table 7501 "Item Attribute Value"
                 end
             end;
 
+        if ItemAttribute.Type = ItemAttribute.Type::Date then
+            if FilterText <> '' then begin
+                SetFilter("Date Value", FilterText);
+                exit;
+            end;
+
         SetFilter(Value, FilterText);
     end;
 
