@@ -1,4 +1,4 @@
-codeunit 134337 "ERM Purch. Batch Posting"
+﻿codeunit 134337 "ERM Purch. Batch Posting"
 {
     Permissions = TableData "Batch Processing Parameter" = rimd,
                   TableData "Batch Processing Session Map" = rimd;
@@ -1027,9 +1027,9 @@ codeunit 134337 "ERM Purch. Batch Posting"
         ErrorMessage.SetRange("Register ID", JobQueueLogEntry."Error Message Register Id");
         Assert.RecordCount(ErrorMessage, 2);
         ErrorMessage.FindFirst();
-        Assert.IsTrue(StrPos(ErrorMessage.Description, 'Posting Date must have a value') > 0, 'Error message register contains wrong error');
+        Assert.IsTrue(StrPos(ErrorMessage."Message", 'Posting Date must have a value') > 0, 'Error message register contains wrong error');
         ErrorMessage.Next();
-        Assert.AreEqual(ErrorMessage.Description, '1 purchase documents out of 2 have errors during posting.', 'Error message register contains wrong error');
+        Assert.AreEqual(ErrorMessage."Message", '1 purchase documents out of 2 have errors during posting.', 'Error message register contains wrong error');
     end;
 
     [Test]

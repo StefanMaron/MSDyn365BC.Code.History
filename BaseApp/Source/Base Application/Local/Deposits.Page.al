@@ -168,12 +168,10 @@ page 36646 Deposits
                     exit;
             end;
             OpenDepositsPage.Run();
-            Error(OpenAnotherPageErr);
+            Error('');
         end;
-    end;
-
-    var
-        OpenAnotherPageErr: Label 'Opening Bank Deposits page instead.';
+        BankDepositFeatureMgt.LaunchDeprecationNotification();
+   end;
 }
 
 #endif

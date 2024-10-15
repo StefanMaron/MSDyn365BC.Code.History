@@ -54,7 +54,13 @@
             trigger OnValidate()
             var
                 FASubclass: Record "FA Subclass";
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeOnValidateFAClassCode(Rec, xRec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if "FA Subclass Code" = '' then
                     exit;
 
@@ -71,7 +77,13 @@
             trigger OnValidate()
             var
                 FASubclass: Record "FA Subclass";
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeOnValidateFASubclassCode(Rec, xRec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if "FA Subclass Code" = '' then begin
                     Validate("FA Posting Group", '');
                     exit;
@@ -231,7 +243,13 @@
             trigger OnValidate()
             var
                 FALedgerEntry: Record "FA Ledger Entry";
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateFAPostingGroup(Rec, xRec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if "FA Posting Group" <> xRec."FA Posting Group" then begin
                     FALedgerEntry.SetRange("FA No.", "No.");
                     if not FALedgerEntry.IsEmpty() then
@@ -469,15 +487,18 @@
     end;
 
     procedure ValidateShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    var
+        IsHandled: Boolean;
     begin
-        OnBeforeValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode);
-
-        DimMgt.ValidateDimValueCode(FieldNumber, ShortcutDimCode);
-        if not IsTemporary then begin
-            DimMgt.SaveDefaultDim(DATABASE::"Fixed Asset", "No.", FieldNumber, ShortcutDimCode);
-            Modify(true);
+        IsHandled := false;
+        OnBeforeValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode, IsHandled);
+        if not IsHandled then begin
+            DimMgt.ValidateDimValueCode(FieldNumber, ShortcutDimCode);
+            if not IsTemporary then begin
+                DimMgt.SaveDefaultDim(DATABASE::"Fixed Asset", "No.", FieldNumber, ShortcutDimCode);
+                Modify(true);
+            end;
         end;
-
         OnAfterValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode);
     end;
 
@@ -560,7 +581,22 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeValidateShortcutDimCode(var FixedAsset: Record "Fixed Asset"; var xFixedAsset: Record "Fixed Asset"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    local procedure OnBeforeValidateShortcutDimCode(var FixedAsset: Record "Fixed Asset"; var xFixedAsset: Record "Fixed Asset"; FieldNumber: Integer; var ShortcutDimCode: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnValidateFASubclassCode(var FixedAsset: Record "Fixed Asset"; var xFixedAsset: Record "Fixed Asset"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnValidateFAClassCode(var FixedAsset: Record "Fixed Asset"; var xFixedAsset: Record "Fixed Asset"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateFAPostingGroup(var FixedAsset: Record "Fixed Asset"; var xFixedAsset: Record "Fixed Asset"; var IsHandled: Boolean)
     begin
     end;
 }

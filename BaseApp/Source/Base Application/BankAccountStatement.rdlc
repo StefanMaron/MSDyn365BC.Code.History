@@ -8737,13 +8737,6 @@
                       <Group Name="Table1_Details_Group">
                         <DataElementName>Detail</DataElementName>
                       </Group>
-                      <TablixMembers>
-                        <TablixMember>
-                          <Visibility>
-                            <Hidden>= IIF(Fields!TrnsctnDte_BnkAcStmtLin.Value = "",True,False)</Hidden>
-                          </Visibility>
-                        </TablixMember>
-                      </TablixMembers>
                       <DataElementName>Detail_Collection</DataElementName>
                       <DataElementOutput>Output</DataElementOutput>
                       <KeepTogether>true</KeepTogether>

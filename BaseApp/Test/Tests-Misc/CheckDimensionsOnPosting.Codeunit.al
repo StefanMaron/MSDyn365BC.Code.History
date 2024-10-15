@@ -836,12 +836,12 @@ codeunit 134486 "Check Dimensions On Posting"
             Assert.RecordCount(ErrorMessage, 2);
 
             ErrorMessage.FindFirst();
-            Assert.ExpectedMessage(ErrorMessage.Description, ExpectedErrorMessage[1]);
+            Assert.ExpectedMessage(ErrorMessage."Message", ExpectedErrorMessage[1]);
             Assert.AreEqual(ErrorMessage."Record ID", SourceDimRecID[1], 'Wrong Dimension Record Id');
             Assert.AreEqual(ErrorMessage."Field Number", SourceFieldNo[1], 'Wrong Dimension Field Id');
 
             ErrorMessage.Next();
-            Assert.ExpectedMessage(ErrorMessage.Description, ExpectedErrorMessage[2]);
+            Assert.ExpectedMessage(ErrorMessage."Message", ExpectedErrorMessage[2]);
             Assert.AreEqual(ErrorMessage."Record ID", SourceDimRecID[2], 'Wrong Dimension Record Id');
             Assert.AreEqual(ErrorMessage."Field Number", SourceFieldNo[2], 'Wrong Dimension Field Id');
         end;
@@ -853,7 +853,7 @@ codeunit 134486 "Check Dimensions On Posting"
         TempErrorMessage.FindSet();
         repeat
             i += 1;
-            Assert.ExpectedMessage(ExpectedErrorMessage[i], TempErrorMessage.Description);
+            Assert.ExpectedMessage(ExpectedErrorMessage[i], TempErrorMessage."Message");
             Assert.AreEqual(RecID[i], TempErrorMessage."Context Record ID", 'Context Record ID' + Format(i));
             Assert.AreEqual(SourceDimRecID[i], TempErrorMessage."Record ID", 'Record ID' + Format(i));
             Assert.AreEqual(SourceFieldNo[i], TempErrorMessage."Field Number", 'Field Number' + Format(i));
@@ -1754,12 +1754,12 @@ codeunit 134486 "Check Dimensions On Posting"
             Assert.RecordCount(ErrorMessage, 2);
 
             ErrorMessage.FindFirst();
-            Assert.ExpectedMessage(ErrorMessage.Description, ExpectedErrorMessage[1]);
+            Assert.ExpectedMessage(ErrorMessage."Message", ExpectedErrorMessage[1]);
             Assert.AreEqual(ErrorMessage."Record ID", SourceDimRecID[1], 'Wrong Dimension Record Id');
             Assert.AreEqual(ErrorMessage."Field Number", SourceFieldNo[1], 'Wrong Dimension Field Id');
 
             ErrorMessage.Next();
-            Assert.ExpectedMessage(ErrorMessage.Description, ExpectedErrorMessage[2]);
+            Assert.ExpectedMessage(ErrorMessage."Message", ExpectedErrorMessage[2]);
             Assert.AreEqual(ErrorMessage."Record ID", SourceDimRecID[2], 'Wrong Dimension Record Id');
             Assert.AreEqual(ErrorMessage."Field Number", SourceFieldNo[2], 'Wrong Dimension Field Id');
         end;
@@ -3028,7 +3028,7 @@ codeunit 134486 "Check Dimensions On Posting"
         TempErrorMessage.FindSet();
         repeat
             i += 1;
-            Assert.ExpectedMessage(ExpectedErrorMessage[i], TempErrorMessage.Description);
+            Assert.ExpectedMessage(ExpectedErrorMessage[i], TempErrorMessage."Message");
         until TempErrorMessage.Next() = 0;
     end;
 
@@ -3040,14 +3040,14 @@ codeunit 134486 "Check Dimensions On Posting"
         Assert.RecordCount(TempErrorMessage, 2);
         TempErrorMessage.FindFirst();
         TempErrorMessage.TestField("Message Type", TempErrorMessage."Message Type"::Error);
-        TempErrorMessage.TestField(Description, ExpectedErrorMessage[1]);
+        TempErrorMessage.TestField("Message", ExpectedErrorMessage[1]);
         TempErrorMessage.TestField("Context Record ID", ContextRecID);
         TempErrorMessage.TestField("Record ID", SourceRecID);
         TempErrorMessage.TestField("Field Number", SourceFieldNo);
         TempErrorMessage.TestField("Support Url", ExpectedSupportURL);
         // the last error is "There is nothing to post."
         TempErrorMessage.FindLast();
-        TempErrorMessage.TestField(Description, DocumentErrorsMgt.GetNothingToPostErrorMsg());
+        TempErrorMessage.TestField("Message", DocumentErrorsMgt.GetNothingToPostErrorMsg());
     end;
 
     local procedure VerifyHeaderDimErrors(RecID: array[10] of RecordID; ErrorCount: Integer; ExpectedErrorMessage: array[10] of Text; SourceDimRecID: array[10] of RecordID; SourceFieldNo: array[10] of Integer)
@@ -3061,7 +3061,7 @@ codeunit 134486 "Check Dimensions On Posting"
         TempErrorMessage.FindSet();
         repeat
             i += 1;
-            Assert.ExpectedMessage(ExpectedErrorMessage[i], TempErrorMessage.Description);
+            Assert.ExpectedMessage(ExpectedErrorMessage[i], TempErrorMessage."Message");
             Assert.AreEqual(RecID[i], TempErrorMessage."Context Record ID", 'Context Record ID' + Format(i));
             Assert.AreEqual(SourceDimRecID[i], TempErrorMessage."Record ID", 'Record ID' + Format(i));
             Assert.AreEqual(SourceFieldNo[i], TempErrorMessage."Field Number", 'Field Number' + Format(i));
@@ -3080,7 +3080,7 @@ codeunit 134486 "Check Dimensions On Posting"
         repeat
             i += 1;
             Assert.ExpectedMessage(ExpectedCallStack[i], TempErrorMessage.GetErrorCallStack());
-            Assert.ExpectedMessage(ExpectedErrorMessage[i], TempErrorMessage.Description);
+            Assert.ExpectedMessage(ExpectedErrorMessage[i], TempErrorMessage."Message");
             Assert.AreEqual(LineRecID[i], TempErrorMessage."Context Record ID", 'Context Record ID' + Format(i));
             Assert.AreEqual(SourceDimRecID[i], TempErrorMessage."Record ID", 'Record ID' + Format(i));
         until (TempErrorMessage.Next() = 0) or (i = ErrorCount);

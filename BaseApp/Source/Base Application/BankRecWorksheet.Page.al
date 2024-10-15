@@ -499,10 +499,16 @@ page 10120 "Bank Rec. Worksheet"
     begin
         RefreshSharedTempTable();
         BankRecWkshNotification.ShowBankRecWorksheetUIImprovementNotification();
+#if not CLEAN21
+        BankDepositFeatureMgt.LaunchDeprecationNotification();
+#endif
     end;
 
     var
         TempBankAccReconciliationDataset: Record "Bank Acc. Reconciliation" temporary;
+#if not CLEAN21
+        BankDepositFeatureMgt: Codeunit "Bank Deposit Feature Mgt.";
+#endif
         ReportPrint: Codeunit "Test Report-Print";
         BankRecWkshNotification: Codeunit "Bank Rec. Wksh. Notification";
         Text001: Label 'Do you want to recalculate the G/L Balance from the General Ledger?';

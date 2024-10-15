@@ -1499,6 +1499,15 @@
       <Cmt Name="Dev"><![CDATA[%1 = a service name such as Microsoft Teams]D;]A;(LookupHint=Codeunit Privacy Notice Test - NamedType AdminDisabledIntegrationMsg)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 611553341 - Method 2233746782 - NamedType 668814160" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Internal server error. Please contact your system administrator.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Record Link Mgt. Test - Method RemoveRecordLinksErrorOnNotRecordArgument - NamedType NotARecordErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1174414513 - NamedType 2736976260" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The expiration date for this retention policy must be equal to or before %1.]]></Val>

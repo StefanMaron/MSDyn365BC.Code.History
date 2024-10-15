@@ -41,6 +41,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         LessErrorsOnErrorMessagesPageErr: Label '%1 contains less errors than expected.';
         RequestParametersErr: Label 'Request parameters for the Standard Statement report have not been set up.';
         EscapeTok: Label '''%1''';
+        StatementCountErr: Label 'Customer Statement are not Sent.';
 
     [Test]
     [HandlerFunctions('StandardStatementOKRequestPageHandler')]
@@ -2565,6 +2566,59 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         Customer[2].TestField("Last Statement No.", 1);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('StandardStatementOKRequestPageHandler')]
+    procedure SendEmailFromCustomerWhenEmailIsBlankInCustomReportSelection()
+    var
+        CustomReportLayout: Record "Custom Report Layout";
+        CustomReportSelection: Record "Custom Report Selection";
+        Customer: Record Customer;
+        ReportSelections: Record "Report Selections";
+        SalesHeader: Record "Sales Header";
+        "Custom Layout Reporting": Codeunit "Custom Layout Reporting";
+        LibraryTempNVBufferHandler: Codeunit "Library - TempNVBufferHandler";
+        LibrarySMTPMailHandler: Codeunit "Library - SMTP Mail Handler";
+        ErrorMsgHandlerPage: TestPage "Error Messages";
+    begin
+        // [SCENARIO 458928] The report should pick up the email address from the Customer Card  if Email on Document Layout is blank.
+        Initialize();
+
+        // [GIVEN] Create customer and assign email.
+        CreateCustomer(Customer);
+        Customer.Validate("E-Mail", CustomerEmailTxt);
+        Customer.Modify(true);
+
+        // [GIVEN] Create and Post sales invoice.
+        CreateSalesInvoice(SalesHeader, Customer);
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [GIVEN] Create Report ID in Report Selection table.
+        InsertReportSelections(
+        ReportSelections, GetStandardStatementReportID, false, false, '', ReportSelections.Usage::"C.Statement");
+
+        // [GIVEN] Set Sendingdisable On SMTPMailHandler
+        BindSubscription(LibraryTempNVBufferHandler);
+        LibrarySMTPMailHandler.SetDisableSending(true);
+        BindSubscription(LibrarySMTPMailHandler);
+
+        // [GIVEN] Insert Document Layout from Customer without Email
+        InsertCustomReportSelectionCustomer(
+          CustomReportSelection, Customer."No.", Report::"Standard Statement", false, false,
+          '', '', CustomReportSelection.Usage::"C.Statement");
+
+        // [THEN] Run Standard Statement report from Customer card.
+        RunReportFromCard(Customer, StandardStatementReportOutputType::Email, false);
+
+        // [VERIFY] Customer name exist on the NVBufferHandlerTable and Mail Queue is Empty
+        LibraryTempNVBufferHandler.AssertEntry(Customer.Name);
+        LibraryTempNVBufferHandler.AssertQueueEmpty;
+
+        // [VERIFY] Email sent successfully by checking Customer statement Count increase to 1
+        Customer.Find();
+        Assert.AreEqual(Customer."Last Statement No.", 1, StatementCountErr);
+    end;
+
     local procedure Initialize()
     var
         ReportSelections: Record "Report Selections";
@@ -2922,7 +2976,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         ActivityLog.SetRange("User ID", UserId);
         ActivityLog.FindSet();
         repeat
-            Assert.ExpectedMessage(TempErrorMessage.Description, LibraryUtility.ConvertCRLFToBackSlash(ActivityLog.Description));
+            Assert.ExpectedMessage(TempErrorMessage."Message", LibraryUtility.ConvertCRLFToBackSlash(ActivityLog.Description));
             ActivityLog.TestField(Status, ActivityLog.Status::Failed);
             ActivityLog.Next();
         until TempErrorMessage.Next() = 0;
@@ -2936,7 +2990,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
     begin
         TempErrorMessage.FindSet();
         repeat
-            Assert.ExpectedMessage(TempErrorMessage.Description, ErrorMessages.Description.Value);
+            Assert.ExpectedMessage(TempErrorMessage."Message", ErrorMessages.Description.Value);
             ErrorMessages."Message Type".AssertEquals(TempErrorMessage."Message Type");
             Stop := TempErrorMessage.Next() = 0;
             if not Stop then

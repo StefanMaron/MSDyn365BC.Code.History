@@ -8,6 +8,53 @@ codeunit 18 "Financial Report Mgt."
         TwoPosTxt: Label '%1%2', Locked = true;
         PackageNameTxt: Label 'Financial Report - %1', MaxLength = 40, Comment = '%1 - financial report name';
         PackageImportErr: Label 'The financial report could not be imported.';
+        RowsEditWarningNotificationMsg: Label 'Changes to this row definition will affect all financial reports using it.';
+        RowsNotificationIdTok: Label 'e6374e6b-dba0-43a0-9099-0ae20ee77f4b', Locked = True;
+        ColumnsEditWarningNotificationMsg: Label 'Changes to this column definition will affect all financial reports using it.';
+        ColumnsNotificationIdTok: Label '883e213e-08bd-4154-b929-87f689848f10', Locked = True;
+        DontShowAgainMsg: Label 'Don''t show again';
+
+    internal procedure LaunchEditRowsWarningNotification()
+    var
+        MyNotifications: Record "My Notifications";
+        EditWarningNotification: Notification;
+    begin
+        if not MyNotifications.IsEnabled(RowsNotificationIdTok) then
+            exit;
+        EditWarningNotification.AddAction(DontShowAgainMsg, Codeunit::"Financial Report Mgt.", 'DisableRowsDefinitionNotification');
+        EditWarningNotification.Message := RowsEditWarningNotificationMsg;
+        EditWarningNotification.Scope := NotificationScope::LocalScope;
+        EditWarningNotification.Send();
+    end;
+
+    internal procedure LaunchEditColumnsWarningNotification()
+    var
+        MyNotifications: Record "My Notifications";
+        EditWarningNotification: Notification;
+    begin
+        if not MyNotifications.IsEnabled(ColumnsNotificationIdTok) then
+            exit;
+        EditWarningNotification.AddAction(DontShowAgainMsg, Codeunit::"Financial Report Mgt.", 'DisableColumnsDefinitionNotification');
+        EditWarningNotification.Message := ColumnsEditWarningNotificationMsg;
+        EditWarningNotification.Scope := NotificationScope::LocalScope;
+        EditWarningNotification.Send();
+    end;
+
+    internal procedure DisableColumnsDefinitionNotification(WarningNotification: Notification)
+    var
+        MyNotifications: Record "My Notifications";
+    begin
+        if not MyNotifications.Disable(ColumnsNotificationIdTok) then
+            MyNotifications.InsertDefault(ColumnsNotificationIdTok, ColumnsEditWarningNotificationMsg, '', false);
+    end;
+
+    internal procedure DisableRowsDefinitionNotification(WarningNotification: Notification)
+    var
+        MyNotifications: Record "My Notifications";
+    begin
+        if not MyNotifications.Disable(RowsNotificationIdTok) then
+            MyNotifications.InsertDefault(RowsNotificationIdTok, RowsEditWarningNotificationMsg, '', false);
+    end;
 
     procedure XMLExchangeExport(FinancialReport: Record "Financial Report")
     var

@@ -100,7 +100,7 @@ codeunit 9072 "Check Sales Doc. Backgr."
         TempLineErrorMessage."Context Record ID" := ContextRecordId;
         TempLineErrorMessage."Context Field Number" := ContextFieldNo;
         TempLineErrorMessage."Context Table Number" := Database::"Sales Header";
-        TempLineErrorMessage.Description := CopyStr(Description, 1, MaxStrLen(TempLineErrorMessage.Description));
+        TempLineErrorMessage."Message" := CopyStr(Description, 1, MaxStrLen(TempLineErrorMessage."Message"));
         TempLineErrorMessage.Duplicate := Duplicate;
         TempLineErrorMessage.Insert();
     end;

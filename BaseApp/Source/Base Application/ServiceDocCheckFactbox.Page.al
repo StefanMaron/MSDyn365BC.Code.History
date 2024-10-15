@@ -125,7 +125,7 @@ page 9117 "Service Doc. Check Factbox"
         Clear(ErrorText);
         NumberOfErrors := TempErrorMessage.Count();
         if TempErrorMessage.FindFirst() then
-            ErrorText[1] := TempErrorMessage.Description
+            ErrorText[1] := TempErrorMessage."Message"
         else
             ErrorText[1] := NoIssuesFoundTxt;
 
@@ -133,7 +133,7 @@ page 9117 "Service Doc. Check Factbox"
             ErrorText[2] := StrSubstNo(OtherIssuesTxt, NumberOfErrors - 1)
         else
             if TempErrorMessage.Next() <> 0 then
-                ErrorText[2] := TempErrorMessage.Description;
+                ErrorText[2] := TempErrorMessage."Message";
 
         TotalErrorsStyleTxt := GetTotalErrorsStyle();
         CurrentLineStyleTxt := GetCurrentLineStyle();

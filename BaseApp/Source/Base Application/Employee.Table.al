@@ -217,10 +217,13 @@
             Caption = 'Status';
 
             trigger OnValidate()
+            var
+                Employe: Record Employee;
             begin
                 EmployeeQualification.SetRange("Employee No.", "No.");
                 EmployeeQualification.ModifyAll("Employee Status", Status);
-                Modify();
+                if Employe.Get(Rec."No.") then
+                    Rec.Modify();
             end;
         }
         field(32; "Inactive Date"; Date)
@@ -559,8 +562,12 @@
     begin
         "Last Modified Date Time" := CurrentDateTime;
         "Last Date Modified" := Today;
-        if Res.ReadPermission then
-            EmployeeResUpdate.HumanResToRes(xRec, Rec);
+
+        IsHandled := false;
+        OnModifyOnBeforeEmployeeResourceUpdate(Rec, xRec, IsHandled);
+        if not IsHandled then
+            if Res.ReadPermission then
+                EmployeeResUpdate.HumanResToRes(xRec, Rec);
 
         IsHandled := false;
         OnModifyOnBeforeEmployeeSalespersonUpdate(Rec, xRec, IsHandled);
@@ -750,6 +757,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnModifyOnBeforeEmployeeSalespersonUpdate(var Employee: Record "Employee"; xEmployee: Record "Employee"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnModifyOnBeforeEmployeeResourceUpdate(var Employee: Record "Employee"; xEmployee: Record "Employee"; var IsHandled: Boolean)
     begin
     end;
 }

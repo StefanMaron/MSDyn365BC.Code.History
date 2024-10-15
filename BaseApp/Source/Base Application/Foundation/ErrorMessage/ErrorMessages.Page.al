@@ -23,7 +23,7 @@ page 700 "Error Messages"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the message is an error, a warning, or information.';
                 }
-                field(Description; Rec.Description)
+                field(Description; Rec."Message")
                 {
                     ApplicationArea = Invoicing, Basic, Suite;
                     DrillDown = true;

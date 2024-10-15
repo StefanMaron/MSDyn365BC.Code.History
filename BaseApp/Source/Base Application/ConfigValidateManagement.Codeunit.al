@@ -304,8 +304,8 @@ codeunit 8617 "Config. Validate Management"
         Decimal: Decimal;
     begin
         ZeroDate := 0D;
-        if not Evaluate(Decimal, Value) or not (Evaluate(Date, Format(DT2Date(OADateToDateTime(Decimal)))) and (Date <> ZeroDate)) then
-            if not Evaluate(Date, Value) and not Evaluate(Date, Value, XMLFormat()) then
+        if not Evaluate(Date, Value) and not Evaluate(Date, Value, XMLFormat()) then
+            if not Evaluate(Decimal, Value) or not (Evaluate(Date, Format(DT2Date(OADateToDateTime(Decimal)))) and (Date <> ZeroDate)) then
                 exit(StrSubstNo(Text003Msg, Value, Format(FieldType::Date)));
 
         if Validate then

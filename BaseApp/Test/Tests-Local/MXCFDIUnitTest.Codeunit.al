@@ -448,7 +448,7 @@
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandler')]
+    [HandlerFunctions('ConfirmHandler,CancelRequestMenuHandler')]
     [Scope('OnPrem')]
     procedure CancelSalesInvoiceNoReason()
     var
@@ -466,7 +466,7 @@
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandler')]
+    [HandlerFunctions('ConfirmHandler,CancelRequestMenuHandler')]
     [Scope('OnPrem')]
     procedure CancelSalesCrMemoNoReason()
     var
@@ -484,7 +484,7 @@
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandler')]
+    [HandlerFunctions('ConfirmHandler,CancelRequestMenuHandler')]
     [Scope('OnPrem')]
     procedure CancelServiceInvoiceNoReason()
     var
@@ -502,7 +502,7 @@
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandler')]
+    [HandlerFunctions('ConfirmHandler,CancelRequestMenuHandler')]
     [Scope('OnPrem')]
     procedure CancelServiceCrMemoNoReason()
     var
@@ -520,7 +520,7 @@
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandler')]
+    [HandlerFunctions('ConfirmHandler,CancelRequestMenuHandler')]
     [Scope('OnPrem')]
     procedure CancelSalesShipmentNoReason()
     var
@@ -538,7 +538,7 @@
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandler')]
+    [HandlerFunctions('ConfirmHandler,CancelRequestMenuHandler')]
     [Scope('OnPrem')]
     procedure CancelTransferShipmentNoReason()
     var
@@ -556,7 +556,7 @@
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandler')]
+    [HandlerFunctions('ConfirmHandler,CancelRequestMenuHandler')]
     [Scope('OnPrem')]
     procedure CancelCustomerLedgerEntryNoReason()
     var
@@ -574,7 +574,7 @@
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandler')]
+    [HandlerFunctions('ConfirmHandler,CancelRequestMenuHandler')]
     [Scope('OnPrem')]
     procedure CancelSalesInvoiceNoSubstitution()
     var
@@ -592,7 +592,7 @@
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandler')]
+    [HandlerFunctions('ConfirmHandler,CancelRequestMenuHandler')]
     [Scope('OnPrem')]
     procedure CancelSalesCrMemoNoSubstitution()
     var
@@ -610,7 +610,7 @@
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandler')]
+    [HandlerFunctions('ConfirmHandler,CancelRequestMenuHandler')]
     [Scope('OnPrem')]
     procedure CancelServiceInvoiceNoSubstitution()
     var
@@ -628,7 +628,7 @@
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandler')]
+    [HandlerFunctions('ConfirmHandler,CancelRequestMenuHandler')]
     [Scope('OnPrem')]
     procedure CancelServiceCrMemoNoSubstitution()
     var
@@ -646,7 +646,7 @@
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandler')]
+    [HandlerFunctions('ConfirmHandler,CancelRequestMenuHandler')]
     [Scope('OnPrem')]
     procedure CancelSalesShipmentNoSubstitution()
     var
@@ -664,7 +664,7 @@
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandler')]
+    [HandlerFunctions('ConfirmHandler,CancelRequestMenuHandler')]
     [Scope('OnPrem')]
     procedure CancelTransferShipmentNoSubstitution()
     var
@@ -682,7 +682,7 @@
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandler')]
+    [HandlerFunctions('ConfirmHandler,CancelRequestMenuHandler')]
     [Scope('OnPrem')]
     procedure CancelCustomerLedgerEntryNoSubstitution()
     var
@@ -2298,6 +2298,58 @@
         CFDIExportCode.Delete();
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure CompanyInformationRFCNumber12()
+    var
+        CompanyInformation: Record "Company Information";
+        CompanyInformationPage: TestPage "Company Information";
+        RFCNumber: Text[30];
+    begin
+        // [FEATURE] [UT] [UI]
+        // [SCENARIO 459664] Set RFC Number with length 12 on Company Information page
+        RFCNumber := LibraryUtility.GenerateRandomText(12);
+        CompanyInformationPage.OpenEdit();
+        CompanyInformationPage."RFC Number".SetValue(RFCNumber);
+        CompanyInformationPage.Close();
+        CompanyInformation.Get();
+        CompanyInformation.TestField("RFC Number", RFCNumber);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CompanyInformationRFCNumber13()
+    var
+        CompanyInformation: Record "Company Information";
+        CompanyInformationPage: TestPage "Company Information";
+        RFCNumber: Text[30];
+    begin
+        // [FEATURE] [UT] [UI]
+        // [SCENARIO 459664] Set RFC Number with length 13 on Company Information page
+        RFCNumber := LibraryUtility.GenerateRandomText(13);
+        CompanyInformationPage.OpenEdit();
+        CompanyInformationPage."RFC Number".SetValue(RFCNumber);
+        CompanyInformationPage.Close();
+        CompanyInformation.Get();
+        CompanyInformation.TestField("RFC Number", RFCNumber);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CompanyInformationRFCNumberNotAllowedLength()
+    var
+        CompanyInformationPage: TestPage "Company Information";
+        RFCNumber: Text[30];
+    begin
+        // [FEATURE] [UT] [UI]
+        // [SCENARIO 459664] Set RFC Number with length less than 12 on Company Information page
+        RFCNumber := LibraryUtility.GenerateRandomText(LibraryRandom.RandIntInRange(1, 11));
+        CompanyInformationPage.OpenEdit();
+        asserterror CompanyInformationPage."RFC Number".SetValue(RFCNumber);
+        Assert.ExpectedErrorCode('TestValidation');
+        Assert.ExpectedError(StrSubstNo('%1 is not a valid RFC No.', RFCNumber));
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore();
@@ -2611,7 +2663,7 @@
         with CompanyInformation do begin
             Get();
             Name := LibraryUtility.GenerateGUID();
-            "RFC No." := LibraryUtility.GenerateGUID();
+            "RFC Number" := LibraryUtility.GenerateGUID();
             Address := LibraryUtility.GenerateGUID();
             City := LibraryUtility.GenerateGUID();
             "Post Code" := LibraryUtility.GenerateGUID();
@@ -2826,6 +2878,13 @@
     [StrMenuHandler]
     [Scope('OnPrem')]
     procedure RequestStampMenuHandler(Options: Text[1024]; var Choice: Integer; Instructions: Text[1024])
+    begin
+        Choice := 1;
+    end;
+
+    [StrMenuHandler]
+    [Scope('OnPrem')]
+    procedure CancelRequestMenuHandler(Options: Text[1024]; var Choice: Integer; Instructions: Text[1024])
     begin
         Choice := 1;
     end;

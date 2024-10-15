@@ -4694,6 +4694,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UT REP Vendor 1099 - NamedType GetAmtCombinedDivCodeAB)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3749231957 - NamedType 3332299330" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[GetAmtDIV03]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UT REP Vendor 1099 - NamedType GetAmtDIV03Tok)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3749231957 - NamedType 3876101833" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[GetAmtDIV13]]></Val>
