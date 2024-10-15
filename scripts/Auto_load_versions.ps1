@@ -86,8 +86,7 @@ $Versions | Sort-Object -Property Country, Version | % {
         & "scripts/UpdateALRepo.ps1" -SourcePath $TargetPathOfVersion -RepoPath (Split-Path $PSScriptRoot -Parent) -Version $version -Localization $country
         & "scripts/BuildTestsWorkSpace.ps1"
         
-        # Get-ChildItem -Recurse -Filter "*.xlf" | Remove-Item
-        git lfs track "**/*.xlf"
+        Get-ChildItem -Recurse -Filter "*.xlf" | Remove-Item
 
         "$($country)-$($version.ToString())" > version.txt
 
