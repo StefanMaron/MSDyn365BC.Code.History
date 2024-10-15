@@ -4416,6 +4416,7 @@
     var
         SalesLine: Record "Sales Line";
         SalesInvoiceLine: Record "Sales Line";
+        TempSalesLineShipmentBuffer: Record "Sales Line" temporary;
         DeductionFactor: Decimal;
         PrepmtVATPart: Decimal;
         PrepmtVATAmtRemainder: Decimal;
@@ -4423,6 +4424,7 @@
         TotalPrepmtAmount: array[2] of Decimal;
         FinalInvoice: Boolean;
         PricesInclVATRoundingAmount: array[2] of Decimal;
+        CurrentLineFinalInvoice: Boolean;
     begin
         if PrepmtSalesLine."Prepayment Line" then begin
             PrepmtVATPart :=
@@ -4432,15 +4434,31 @@
                 Reset;
                 SetRange("Attached to Line No.", PrepmtSalesLine."Line No.");
                 if FindSet(true) then begin
-                    FinalInvoice := IsFinalInvoice;
+                    FinalInvoice := true;
                     repeat
                         SalesLine := TempPrepmtDeductLCYSalesLine;
                         SalesLine.Find();
+
                         if "Document Type" = "Document Type"::Invoice then begin
                             SalesInvoiceLine := SalesLine;
                             GetSalesOrderLine(SalesLine, SalesInvoiceLine);
                             SalesLine."Qty. to Invoice" := SalesInvoiceLine."Qty. to Invoice";
+
+                            TempSalesLineShipmentBuffer := SalesLine;
+                            if TempSalesLineShipmentBuffer.Find() then begin
+                                TempSalesLineShipmentBuffer."Qty. to Invoice" += "Qty. to Invoice";
+                                TempSalesLineShipmentBuffer.Modify();
+                            end else begin
+                                TempSalesLineShipmentBuffer.Quantity := Quantity;
+                                TempSalesLineShipmentBuffer."Qty. to Invoice" := "Qty. to Invoice";
+                                TempSalesLineShipmentBuffer.Insert();
+                            end;
+                            CurrentLineFinalInvoice := TempSalesLineShipmentBuffer.IsFinalInvoice();
+                        end else begin
+                            CurrentLineFinalInvoice := IsFinalInvoice();
+                            FinalInvoice := FinalInvoice and CurrentLineFinalInvoice;
                         end;
+
                         if SalesLine."Qty. to Invoice" <> "Qty. to Invoice" then
                             SalesLine."Prepmt Amt to Deduct" := CalcPrepmtAmtToDeduct(SalesLine, SalesHeader.Ship);
                         DeductionFactor :=
@@ -4449,12 +4467,12 @@
 
                         "Prepmt. VAT Amount Inv. (LCY)" :=
                           CalcRoundedAmount(SalesLine."Prepmt Amt to Deduct" * PrepmtVATPart, PrepmtVATAmtRemainder);
-                        if ("Prepayment %" <> 100) or IsFinalInvoice or ("Currency Code" <> '') then
+                        if ("Prepayment %" <> 100) or CurrentLineFinalInvoice or ("Currency Code" <> '') then
                             CalcPrepmtRoundingAmounts(TempPrepmtDeductLCYSalesLine, SalesLine, DeductionFactor, TotalRoundingAmount);
                         Modify;
 
                         if SalesHeader."Prices Including VAT" then
-                            if (("Prepayment %" <> 100) or IsFinalInvoice) and (DeductionFactor = 1) then begin
+                            if (("Prepayment %" <> 100) or CurrentLineFinalInvoice) and (DeductionFactor = 1) then begin
                                 PricesInclVATRoundingAmount[1] := TotalRoundingAmount[1];
                                 PricesInclVATRoundingAmount[2] := TotalRoundingAmount[2];
                             end;
@@ -4462,10 +4480,16 @@
                         if "VAT Calculation Type" <> "VAT Calculation Type"::"Full VAT" then
                             TotalPrepmtAmount[1] += "Prepmt. Amount Inv. (LCY)";
                         TotalPrepmtAmount[2] += "Prepmt. VAT Amount Inv. (LCY)";
-                        FinalInvoice := FinalInvoice and IsFinalInvoice;
                     until Next() = 0;
                 end;
             end;
+
+            if FinalInvoice then
+                if TempSalesLineShipmentBuffer.FindSet() then
+                    repeat
+                        if not TempSalesLineShipmentBuffer.IsFinalInvoice() then
+                            FinalInvoice := false;
+                    until not FinalInvoice or (TempSalesLineShipmentBuffer.Next() = 0);
 
             UpdatePrepmtSalesLineWithRounding(
               PrepmtSalesLine, TotalRoundingAmount, TotalPrepmtAmount,

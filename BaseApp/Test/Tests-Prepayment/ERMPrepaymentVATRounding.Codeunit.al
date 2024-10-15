@@ -1,4 +1,4 @@
-codeunit 134104 "ERM Prepayment - VAT Rounding"
+﻿codeunit 134104 "ERM Prepayment - VAT Rounding"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -17,6 +17,7 @@ codeunit 134104 "ERM Prepayment - VAT Rounding"
         LibraryPurchase: Codeunit "Library - Purchase";
         LibrarySales: Codeunit "Library - Sales";
         LibraryUtility: Codeunit "Library - Utility";
+        LibraryDimension: Codeunit "Library - Dimension";
         isInitialized: Boolean;
         WrongPrepmtVATAmountBalance: Label 'Prepayment VAT Amount balance should be zero.';
         UnbalancedAccountErr: Label 'Balance is wrong for G/L Account: %1 filterd on document no.: %2.';
@@ -895,6 +896,106 @@ codeunit 134104 "ERM Prepayment - VAT Rounding"
         VerifyPostedPurchaseInvoiceAmounts(FinalInvoiceNo, 0, 0);
     end;
 
+    [Test]
+    procedure SalesOrder100PctPrepmtDimsTwoPartialShipAndOneFinalInvoice()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        SalesHeader: Record "Sales Header";
+        DimensionValue: array[4] of Record "Dimension Value";
+        CustomerNo: Code[20];
+        GLAccountNo: Code[20];
+        InvoiceNo: Code[20];
+        ShipmentNo: array[2] of Code[20];
+        GeneralPostingType: Enum "General Posting Type";
+    begin
+        // [FEATURE] [Sales] [Prices Incl. VAT] [Dimensions] [Compress Prepayment]
+        // [SCENARIO 389323] Sales order with 100% prepayment, prices including VAT, compress prepayment, several custom lines,
+        // [SCENARIO 389323] different dimensions and one full final invoice from get shipment lines after 2 partial shipments
+        Initialize();
+
+        // [GIVEN] Sales order with 100% prepayment, prices including VAT, compress prepayment, several custom lines and different dimensions
+        CreateVATPostingSetupWithVATPct(VATPostingSetup, 10);
+        CustomerNo := LibrarySales.CreateCustomerWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group");
+        GLAccountNo := LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GeneralPostingType::Sale);
+        CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo, '', true, true, 100);
+        CreateFourDimensionValues(DimensionValue);
+        UpdateSalesPrepmtAccountForGLLine(SalesHeader, VATPostingSetup, GLAccountNo);
+        CreateSalesLineGLWithDim(SalesHeader, GLAccountNo, DimensionValue[1], 1, 1, 502.99997);
+        CreateSalesLineGLWithDim(SalesHeader, GLAccountNo, DimensionValue[2], 1, 1, 303.99998);
+        CreateSalesLineGLWithDim(SalesHeader, GLAccountNo, DimensionValue[3], 1, 1, 668.00028);
+        CreateSalesLineGLWithDim(SalesHeader, GLAccountNo, DimensionValue[4], 2, 1, 17.99875);
+        CreateSalesLineGLWithDim(SalesHeader, GLAccountNo, DimensionValue[2], 1, 0, 569.99997);
+        CreateSalesLineGLWithDim(SalesHeader, GLAccountNo, DimensionValue[4], 1, 1, 42.9913);
+        VerifySalesHeaderTotals(SalesHeader, 1930.9, 2123.99, 0, 2123.99);
+
+        // [GIVEN] Post prepayment invoice
+        VerifyPostedSalesInvoiceAmounts(LibrarySales.PostSalesPrepaymentInvoice(SalesHeader), 1930.9, 2123.99);
+
+        // [GIVEN] Post partial shipment
+        ShipmentNo[1] := ShipSalesOrder(SalesHeader);
+        // [GIVEN] Post partial (final) shipment
+        ShipmentNo[2] := ShipSalesOrder(SalesHeader);
+
+        // [GIVEN] Invoke get shipment lines from a new sales invoice and select two posted shipments
+        // [WHEN] Post the invoice
+        InvoiceNo := PostSalesInvoiceForOrder(SalesHeader, ShipmentNo[1] + '|' + ShipmentNo[2]);
+
+        // [THEN] Final invoice has been posted with zero "Amount" and "Amount Including VAT"
+        VerifyPostedSalesInvoiceAmounts(InvoiceNo, 0, 0);
+        // [THEN] VAT Entry for the final invoice has zero balance by "Amount" value and by "Base" value
+        VerifyVATEntryBalance(InvoiceNo, 0, 0);
+    end;
+
+    [Test]
+    procedure PurchaseOrder100PctPrepmtDimsTwoPartialReceiptAndOneFinalInvoice()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        PurchaseHeader: Record "Purchase Header";
+        DimensionValue: array[4] of Record "Dimension Value";
+        VendorNo: Code[20];
+        GLAccountNo: Code[20];
+        InvoiceNo: Code[20];
+        ReceiptNo: array[2] of Code[20];
+        GeneralPostingType: Enum "General Posting Type";
+    begin
+        // [FEATURE] [Purchase] [Prices Incl. VAT] [Dimensions] [Compress Prepayment]
+        // [SCENARIO 389323] Purchase order with 100% prepayment, prices including VAT, compress prepayment, several custom lines,
+        // [SCENARIO 389323] different dimensions and one full final invoice from get receipt lines after 2 partial receipts
+        Initialize();
+
+        // [GIVEN] Purchase order with 100% prepayment, prices including VAT, compress prepayment, several custom lines and different dimensions
+        CreateVATPostingSetupWithVATPct(VATPostingSetup, 10);
+        VendorNo := LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group");
+        GLAccountNo := LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GeneralPostingType::Purchase);
+        CreatePurchaseHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, VendorNo, '', true, true, 100);
+        CreateFourDimensionValues(DimensionValue);
+        UpdatePurchasePrepmtAccountForGLLine(PurchaseHeader, VATPostingSetup, GLAccountNo);
+        CreatePurchaseLineGLWithDim(PurchaseHeader, GLAccountNo, DimensionValue[1], 1, 1, 502.99997);
+        CreatePurchaseLineGLWithDim(PurchaseHeader, GLAccountNo, DimensionValue[2], 1, 1, 303.99998);
+        CreatePurchaseLineGLWithDim(PurchaseHeader, GLAccountNo, DimensionValue[3], 1, 1, 668.00028);
+        CreatePurchaseLineGLWithDim(PurchaseHeader, GLAccountNo, DimensionValue[4], 2, 1, 17.99875);
+        CreatePurchaseLineGLWithDim(PurchaseHeader, GLAccountNo, DimensionValue[2], 1, 0, 569.99997);
+        CreatePurchaseLineGLWithDim(PurchaseHeader, GLAccountNo, DimensionValue[4], 1, 1, 42.9913);
+        VerifyPurchaseHeaderTotals(PurchaseHeader, 1930.9, 2123.99, 0, 2123.99);
+
+        // [GIVEN] Post prepayment invoice
+        VerifyPostedPurchaseInvoiceAmounts(LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader), 1930.9, 2123.99);
+
+        // [GIVEN] Post partial receipt
+        ReceiptNo[1] := ReceivePurchOrder(PurchaseHeader);
+        // [GIVEN] Post partial (final) receipt
+        ReceiptNo[2] := ReceivePurchOrder(PurchaseHeader);
+
+        // [GIVEN] Invoke get receipt lines from a new purchase invoice and select two posted receipts
+        // [WHEN] Post the invoice
+        InvoiceNo := PostPurchInvoiceForOrder(PurchaseHeader, ReceiptNo[1] + '|' + ReceiptNo[2]);
+
+        // [THEN] Final invoice has been posted with zero "Amount" and "Amount Including VAT"
+        VerifyPostedPurchaseInvoiceAmounts(InvoiceNo, 0, 0);
+        // [THEN] VAT Entry for the final invoice has zero balance by "Amount" value and by "Base" value
+        VerifyVATEntryBalance(InvoiceNo, 0, 0);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -908,6 +1009,7 @@ codeunit 134104 "ERM Prepayment - VAT Rounding"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.UpdateGeneralLedgerSetup;
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
         isInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Prepayment - VAT Rounding");
@@ -1098,7 +1200,11 @@ codeunit 134104 "ERM Prepayment - VAT Rounding"
           SalesHeader, SalesHeader."Document Type"::Order, CustomerNo, CurrencyCode, PricesInclVAT, CompressPrepmt, 0);
     end;
 
-    local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20]; CurrencyCode: Code[10]; PricesIncludingVAT: Boolean; CompressPrepmt: Boolean; PrepmtPct: Decimal)
+    local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20];
+                                                                                                CurrencyCode: Code[10];
+                                                                                                PricesIncludingVAT: Boolean;
+                                                                                                CompressPrepmt: Boolean;
+                                                                                                PrepmtPct: Decimal)
     begin
         with SalesHeader do begin
             LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
@@ -1165,6 +1271,19 @@ codeunit 134104 "ERM Prepayment - VAT Rounding"
             Validate("Line Discount %", LineDiscount);
             Modify(true);
         end;
+    end;
+
+    local procedure CreateSalesLineGLWithDim(SalesHeader: Record "Sales Header"; GLAccountNo: Code[20]; DimensionValue: Record "Dimension Value"; Quantity: Decimal; QtyToShip: Decimal; UnitPrice: Decimal)
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"G/L Account", GLAccountNo, Quantity);
+        SalesLine.Validate("Unit Price", UnitPrice);
+        SalesLine.Validate(
+          "Dimension Set ID",
+          LibraryDimension.CreateDimSet(SalesLine."Dimension Set ID", DimensionValue."Dimension Code", DimensionValue.Code));
+        SalesLine.Validate("Qty. to Ship", QtyToShip);
+        SalesLine.Modify(true);
     end;
 
     local procedure CreateSalesOrder_TFS229419_ExclVAT(var SalesHeader: Record "Sales Header"; DiscountPct: Decimal; PrepaymentPct: Decimal)
@@ -1288,6 +1407,19 @@ codeunit 134104 "ERM Prepayment - VAT Rounding"
         end;
     end;
 
+    local procedure CreatePurchaseLineGLWithDim(PurchaseHeader: Record "Purchase Header"; GLAccountNo: Code[20]; DimensionValue: Record "Dimension Value"; Quantity: Decimal; QtyToReceive: Decimal; DirectUnitCost: Decimal)
+    var
+        PurchaseLine: Record "Purchase Line";
+    begin
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", GLAccountNo, Quantity);
+        PurchaseLine.Validate("Direct Unit Cost", DirectUnitCost);
+        PurchaseLine.Validate(
+          "Dimension Set ID",
+          LibraryDimension.CreateDimSet(PurchaseLine."Dimension Set ID", DimensionValue."Dimension Code", DimensionValue.Code));
+        PurchaseLine.Validate("Qty. to Receive", QtyToReceive);
+        PurchaseLine.Modify(true);
+    end;
+
     local procedure CreatePurchaseOrder_TFS229419_ExclVAT(var PurchaseHeader: Record "Purchase Header"; DiscountPct: Decimal; PrepaymentPct: Decimal)
     var
         ItemNo: array[3] of Code[20];
@@ -1352,7 +1484,10 @@ codeunit 134104 "ERM Prepayment - VAT Rounding"
         end;
     end;
 
-    local procedure CreateAndApplyPaymentToInvoice(AccountType: Enum "Gen. Journal Account Type"; CVNo: Code[20]; AppliestoDocNo: Code[20]; CurrencyCode: Code[10]; PaymentAmount: Decimal)
+    local procedure CreateAndApplyPaymentToInvoice(AccountType: Enum "Gen. Journal Account Type"; CVNo: Code[20];
+                                                                    AppliestoDocNo: Code[20];
+                                                                    CurrencyCode: Code[10];
+                                                                    PaymentAmount: Decimal)
     var
         GenJournalLine: Record "Gen. Journal Line";
         GenJournalBatch: Record "Gen. Journal Batch";
@@ -1458,7 +1593,7 @@ codeunit 134104 "ERM Prepayment - VAT Rounding"
         exit(Item."No.");
     end;
 
-    local procedure PostSalesInvoiceForOrder(var SalesOrderHeader: Record "Sales Header"; ShipmentNo: Code[20]): Code[20]
+    local procedure PostSalesInvoiceForOrder(var SalesOrderHeader: Record "Sales Header"; ShipmentNoFilter: Text): Code[20]
     var
         SalesHeader: Record "Sales Header";
     begin
@@ -1466,18 +1601,18 @@ codeunit 134104 "ERM Prepayment - VAT Rounding"
             CreateSalesHeader(
               SalesHeader, "Document Type"::Invoice, SalesOrderHeader."Sell-to Customer No.",
               SalesOrderHeader."Currency Code", SalesOrderHeader."Prices Including VAT", SalesOrderHeader."Compress Prepayment", 0);
-            GetShipmentLines(SalesHeader, ShipmentNo);
+            GetShipmentLines(SalesHeader, ShipmentNoFilter);
             LibrarySales.CalcSalesDiscount(SalesHeader);
             exit(InvoiceSalesOrder(SalesHeader));
         end;
     end;
 
-    local procedure GetShipmentLines(SalesHeader: Record "Sales Header"; ShipmentNo: Code[20])
+    local procedure GetShipmentLines(SalesHeader: Record "Sales Header"; ShipmentNoFilter: Text)
     var
         SalesShipmentLine: Record "Sales Shipment Line";
         SalesGetShipment: Codeunit "Sales-Get Shipment";
     begin
-        SalesShipmentLine.SetFilter("Document No.", ShipmentNo);
+        SalesShipmentLine.SetFilter("Document No.", ShipmentNoFilter);
         SalesGetShipment.SetSalesHeader(SalesHeader);
         SalesGetShipment.CreateInvLines(SalesShipmentLine);
     end;
@@ -1496,7 +1631,11 @@ codeunit 134104 "ERM Prepayment - VAT Rounding"
           PurchHeader, PurchHeader."Document Type"::Order, VendorNo, CurrencyCode, PricesInclVAT, CompressPrepmt, 0);
     end;
 
-    local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20]; CurrencyCode: Code[10]; PricesIncludingVAT: Boolean; CompressPrepmt: Boolean; PrepmtPct: Decimal)
+    local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20];
+                                                                                                         CurrencyCode: Code[10];
+                                                                                                         PricesIncludingVAT: Boolean;
+                                                                                                         CompressPrepmt: Boolean;
+                                                                                                         PrepmtPct: Decimal)
     begin
         with PurchaseHeader do begin
             LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, VendorNo);
@@ -1508,7 +1647,7 @@ codeunit 134104 "ERM Prepayment - VAT Rounding"
         end;
     end;
 
-    local procedure PostPurchInvoiceForOrder(var PurchOrderHeader: Record "Purchase Header"; ReceiptNo: Code[20]): Code[20]
+    local procedure PostPurchInvoiceForOrder(var PurchOrderHeader: Record "Purchase Header"; ReceiptNoFilter: Text): Code[20]
     var
         PurchHeader: Record "Purchase Header";
     begin
@@ -1516,18 +1655,18 @@ codeunit 134104 "ERM Prepayment - VAT Rounding"
             CreatePurchaseHeader(
               PurchHeader, "Document Type"::Invoice, PurchOrderHeader."Buy-from Vendor No.",
               PurchOrderHeader."Currency Code", PurchOrderHeader."Prices Including VAT", PurchOrderHeader."Compress Prepayment", 0);
-            GetReceiptLines(PurchHeader, ReceiptNo);
+            GetReceiptLines(PurchHeader, ReceiptNoFilter);
             LibraryPurchase.CalcPurchaseDiscount(PurchHeader);
             exit(InvoicePurchOrder(PurchHeader));
         end;
     end;
 
-    local procedure GetReceiptLines(PurchHeader: Record "Purchase Header"; ReceiptNo: Code[20])
+    local procedure GetReceiptLines(PurchHeader: Record "Purchase Header"; ReceiptNoFilter: Text)
     var
         PurchRcptLine: Record "Purch. Rcpt. Line";
         PurchGetReceipt: Codeunit "Purch.-Get Receipt";
     begin
-        PurchRcptLine.SetFilter("Document No.", ReceiptNo);
+        PurchRcptLine.SetFilter("Document No.", ReceiptNoFilter);
         PurchGetReceipt.SetPurchHeader(PurchHeader);
         PurchGetReceipt.CreateInvLines(PurchRcptLine);
     end;
@@ -1805,6 +1944,16 @@ codeunit 134104 "ERM Prepayment - VAT Rounding"
         end;
     end;
 
+    local procedure CreateFourDimensionValues(var DimensionValue: array[4] of Record "Dimension Value")
+    var
+        Dimension: Record Dimension;
+        i: Integer;
+    begin
+        LibraryDimension.CreateDimension(Dimension);
+        for i := 1 to ArrayLen(DimensionValue) do
+            LibraryDimension.CreateDimensionValue(DimensionValue[i], Dimension.Code);
+    end;
+
     local procedure UpdateSalesPrepmtAccount(SalesPrepaymentsAccount: Code[20]; GenBusPostingGroup: Code[20]; GenProdPostingGroup: Code[20])
     var
         GeneralPostingSetup: Record "General Posting Setup";
@@ -1834,6 +1983,30 @@ codeunit 134104 "ERM Prepayment - VAT Rounding"
             Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
             Modify(true);
         end;
+    end;
+
+    local procedure UpdateSalesPrepmtAccountForGLLine(SalesHeader: Record "Sales Header"; VATPostingSetup: Record "VAT Posting Setup"; GLAccountNo: Code[20])
+    var
+        GLAccount: Record "G/L Account";
+        SalesLine: Record "Sales Line";
+    begin
+        GLAccount.Get(GLAccountNo);
+        SalesLine."VAT Prod. Posting Group" := VATPostingSetup."VAT Prod. Posting Group";
+        SalesLine."Gen. Bus. Posting Group" := SalesHeader."Gen. Bus. Posting Group";
+        SalesLine."Gen. Prod. Posting Group" := GLAccount."Gen. Prod. Posting Group";
+        SetSalesPrepmtAccount(SalesLine);
+    end;
+
+    local procedure UpdatePurchasePrepmtAccountForGLLine(PurchaseHeader: Record "Purchase Header"; VATPostingSetup: Record "VAT Posting Setup"; GLAccountNo: Code[20])
+    var
+        GLAccount: Record "G/L Account";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        GLAccount.Get(GLAccountNo);
+        PurchaseLine."VAT Prod. Posting Group" := VATPostingSetup."VAT Prod. Posting Group";
+        PurchaseLine."Gen. Bus. Posting Group" := PurchaseHeader."Gen. Bus. Posting Group";
+        PurchaseLine."Gen. Prod. Posting Group" := GLAccount."Gen. Prod. Posting Group";
+        SetPurchPrepmtAccount(PurchaseLine);
     end;
 
     local procedure FindPostedGLEntries(LastGLRegNo: Integer; var GLEntry: Record "G/L Entry")
@@ -1999,6 +2172,16 @@ codeunit 134104 "ERM Prepayment - VAT Rounding"
     begin
         PurchInvHeader.Get(InvoiceDocNo);
         VerifyPostedPurchaseInvoiceTotals(PurchInvHeader, Amount, AmountInclVAT);
+    end;
+
+    local procedure VerifyVATEntryBalance(DocumentNo: Code[20]; ExpectedAmountBalance: Decimal; ExpectedBaseBalance: Decimal)
+    var
+        VATEntry: Record "VAT Entry";
+    begin
+        VATEntry.SetRange("Document No.", DocumentNo);
+        VATEntry.CalcSums(Amount, Base);
+        VATEntry.TestField(Amount, ExpectedAmountBalance);
+        VATEntry.TestField(Base, ExpectedBaseBalance);
     end;
 
     [ConfirmHandler]

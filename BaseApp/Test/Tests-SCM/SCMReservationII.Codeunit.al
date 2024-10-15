@@ -51,7 +51,7 @@ codeunit 137065 "SCM Reservation II"
         JournalLinesPostedMsg: Label 'The journal lines were successfully posted.';
         PickErr: Label 'The Quantity is incorrect.';
         CostAmountActualInILEErr: Label 'Cost Amount (Actual) in Item Ledger Entry is not correct. Maximum is %1, minimum is %2  ';
-        FinishOrderErr: Label 'Pick Qty. (Base) must be equal to ''0''  in Prod. Order Component';
+        FinishOrderErr: Label 'You cannot finish production order no. %1 because there is an outstanding pick for one or more components.';
         ErrorWrongMsg: Label 'Error message must be same';
         NothingAvailableToReserveErr: Label 'There is nothing available to reserve.';
         DateConflictWithExistingReservationsErr: Label 'The change leads to a date conflict with existing reservations.';
@@ -1972,7 +1972,7 @@ codeunit 137065 "SCM Reservation II"
         asserterror LibraryManufacturing.ChangeStatusReleasedToFinished(ProductionOrder."No.");
 
         // [THEN] Verify the warning message through ConfirmHandlerForFinish.
-        Assert.IsTrue(StrPos(GetLastErrorText, FinishOrderErr) > 0, ErrorWrongMsg);
+        Assert.IsTrue(StrPos(GetLastErrorText, StrSubstNo(FinishOrderErr, ProductionOrder."No.")) > 0, ErrorWrongMsg);
 
         // Tear down.
         UpdateManufacturingSetupComponentsAtLocation(ComponentsAtLocation);
