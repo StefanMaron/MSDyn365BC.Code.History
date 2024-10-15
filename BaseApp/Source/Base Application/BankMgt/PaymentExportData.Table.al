@@ -501,6 +501,16 @@
             until TempPaymentExportRemittanceText.Next() = 0;
     end;
 
+    procedure GetOrganizationID(): Text
+    var
+        BankAccount: Record "Bank Account";
+    begin
+        if BankAccount.Get("Sender Bank Account Code") then begin
+            BankAccount.TestField(CUC);
+            exit(BankAccount.CUC);
+        end;
+    end;
+
     procedure AddGenJnlLineErrorText(GenJnlLine: Record "Gen. Journal Line"; NewText: Text)
     begin
         GenJnlLine.InsertPaymentFileError(NewText);

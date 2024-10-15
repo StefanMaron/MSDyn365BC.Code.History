@@ -7550,6 +7550,71 @@
     end;
 
     [Test]
+    [Scope('OnPrem')]
+    procedure CopyAttachedDocumentFromItemToPurchaseOrderWhenCarryOutActionMessage()
+    var
+        Item: Record Item;
+        Vendor: Record Vendor;
+        ReqWkshTemplate: Record "Req. Wksh. Template";
+        RequisitionLine: Record "Requisition Line";
+        RecordRef: RecordRef;
+        ReqWorksheet: TestPage "Req. Worksheet";
+    begin
+        // [SCENARIO: 440130] When Item has attached document and user creates Purchase Order from Requisition Worksheet, then attached document is copied to Purchase Order
+        // [GIVEN] Initialize
+        Initialize();
+
+        // [GIVEN] Create New Item and set replenishment system to Purchase
+        LibraryInventory.CreateItem(Item);
+        Item."Replenishment System" := Item."Replenishment System"::"Purchase";
+        if Item."Vendor No." = '' then begin
+            LibraryPurchase.CreateVendor(Vendor);
+            Item.Validate("Vendor No.", Vendor."No.");
+        end;
+        Item.Modify();
+
+        // [GIVEN] Attach document to Item
+        RecordRef.GetTable(Item);
+        AttachDummyDocumentImageToRecord(RecordRef, true, false);
+
+        // [GIVEN] Create Requisition Worksheet Line with Item
+        SelectRequisitionTemplateAndCreateReqWkshName(ReqWkshTemplate);
+        OpenRequisitionWorksheetPage(ReqWorksheet, FindRequisitionWkshName(ReqWkshTemplate.Type::"Req."));
+        ReqWorksheet.New();
+        ReqWorksheet.Type.SetValue(RequisitionLine.Type::Item);
+        ReqWorksheet."No.".SetValue(Item."No.");
+        ReqWorksheet.Quantity.SetValue(Random(10));
+        ReqWorksheet.Close();
+
+        // [WHEN] Create Purchase Order from Requisition Worksheet
+        RequisitionLine.SetRange("No.", Item."No.");
+        RequisitionLine.FindFirst();
+        ReqWkshCarryOutActionMessage(RequisitionLine);
+
+        // [THEN] Verify Purchase Order Line contains attached document
+        CheckPurchaseOrderLineContainsAttachedDocument(Item);
+    end;
+
+    local procedure CheckPurchaseOrderLineContainsAttachedDocument(Item: Record Item)
+    var
+        PurchaseLine: Record "Purchase Line";
+        DocumentAttachment: Record "Document Attachment";
+    begin
+        PurchaseLine.SetRange(Type, PurchaseLine.Type::Item);
+        PurchaseLine.SetRange("No.", Item."No.");
+        PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Order);
+        PurchaseLine.FindLast();
+
+        DocumentAttachment.SetCurrentKey("Table ID", "No.", "Document Type", "Line No.", ID);
+        DocumentAttachment.SetRange("Table ID", Database::"Purchase Line");
+        DocumentAttachment.SetRange("No.", PurchaseLine."Document No.");
+        DocumentAttachment.SetRange("Document Type", PurchaseLine."Document Type");
+        DocumentAttachment.SetRange("Line No.", PurchaseLine."Line No.");
+
+        Assert.IsTrue(not DocumentAttachment.IsEmpty, 'Attachment is not copied to Purchase Order Line');
+    end;
+
+    [Test]
     procedure VerifyPurchaseOrderCanBeInvoicedOnRenamedResourseWhichExistOnPurchaseLine()
     var
         Purchaseheader: Record "Purchase Header";
@@ -11218,6 +11283,43 @@
         PurchaseLine.Validate("Qty. to Receive", QtyToReceive);
         PurchaseLine.Modify(true);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+    end;
+
+    local procedure AttachDummyDocumentImageToRecord(RecordRef: RecordRef; FlowPurchase: Boolean; FlowSales: Boolean)
+    var
+        DocumentAttachment: Record "Document Attachment";
+        TempBlob: Codeunit "Temp Blob";
+    begin
+        DocumentAttachment.Init();
+        CreateTempBLOBWithImageOfType(TempBlob, 'jpeg');
+        DocumentAttachment.SaveAttachment(RecordRef, 'test.jpeg', TempBlob);
+
+        if FlowPurchase then
+            DocumentAttachment."Document Flow Purchase" := true;
+        if FlowSales then
+            DocumentAttachment."Document Flow Sales" := true;
+        if FlowPurchase or FlowSales then
+            DocumentAttachment.Modify();
+        Clear(DocumentAttachment);
+    end;
+
+    local procedure CreateTempBLOBWithImageOfType(var TempBlob: Codeunit "Temp Blob"; ImageType: Text)
+    var
+        ImageFormat: DotNet ImageFormat;
+        Bitmap: DotNet Bitmap;
+        InStr: InStream;
+    begin
+        TempBlob.CreateInStream(InStr);
+        Bitmap := Bitmap.Bitmap(1, 1);
+        case ImageType of
+            'png':
+                Bitmap.Save(InStr, ImageFormat.Png);
+            'jpeg':
+                Bitmap.Save(InStr, ImageFormat.Jpeg);
+            else
+                Bitmap.Save(InStr, ImageFormat.Bmp);
+        end;
+        Bitmap.Dispose();
     end;
 
 #if not CLEAN21
