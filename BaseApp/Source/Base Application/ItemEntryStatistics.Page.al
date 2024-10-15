@@ -443,7 +443,7 @@ page 304 "Item Entry Statistics"
 
     trigger OnAfterGetRecord()
     begin
-        ClearAll;
+        ClearAll();
 
         ItemLedgEntry2.SetCurrentKey(
           "Item No.", "Entry Type", "Variant Code", "Drop Shipment", "Location Code", "Posting Date");
@@ -484,6 +484,7 @@ page 304 "Item Entry Statistics"
             end;
         end;
 
+        PurchLine2.Reset();
         PurchLine2.SetCurrentKey(
           "Document Type", Type, "No.", "Variant Code",
           "Drop Shipment", "Location Code", "Expected Receipt Date");
@@ -520,6 +521,7 @@ page 304 "Item Entry Statistics"
             until PurchLine2.Next() = 0;
         end;
 
+        SalesLine2.Reset();
         SalesLine2.SetCurrentKey(
           "Document Type", Type, "No.", "Variant Code",
           "Drop Shipment", "Location Code", "Shipment Date");
@@ -571,7 +573,7 @@ page 304 "Item Entry Statistics"
 
     local procedure FindLastItemEntry(k: Integer; LastItemLedgEntry: Record "Item Ledger Entry")
     begin
-        with LastItemLedgEntry do begin
+        with LastItemLedgEntry do
             if ItemLedgEntry2.Find('-') then
                 repeat
                     ItemLedgEntry2.SetRange("Variant Code", ItemLedgEntry2."Variant Code");
@@ -589,12 +591,11 @@ page 304 "Item Entry Statistics"
                     Rec.CopyFilter("Drop Shipment Filter", ItemLedgEntry2."Drop Shipment");
                     Rec.CopyFilter("Location Filter", ItemLedgEntry2."Location Code");
                 until ItemLedgEntry2.Next() = 0;
-        end;
     end;
 
     local procedure FindLastValueEntry(k: Integer; LastValueEntry: Record "Value Entry")
     begin
-        with LastValueEntry do begin
+        with LastValueEntry do
             if ValueEntry2.Find('-') then
                 repeat
                     ValueEntry2.SetRange("Variant Code", ValueEntry2."Variant Code");
@@ -621,7 +622,6 @@ page 304 "Item Entry Statistics"
                     Rec.CopyFilter("Drop Shipment Filter", ValueEntry2."Drop Shipment");
                     Rec.CopyFilter("Location Filter", ValueEntry2."Location Code");
                 until ValueEntry2.Next() = 0;
-        end;
     end;
 }
 

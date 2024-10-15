@@ -422,7 +422,7 @@ codeunit 141081 "ERM Journals"
         PaymentJournal.OpenEdit;
         PaymentJournal.CurrentJnlBatchName.SetValue(CurrentJnlBatchName);
         PaymentJournal.ApplyEntries.Invoke;
-        PaymentJournal.Next;
+        PaymentJournal.Next();
         PaymentJournal.ApplyEntries.Invoke;
         PaymentJournal.OK.Invoke;
     end;

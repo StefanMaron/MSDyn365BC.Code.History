@@ -8,7 +8,7 @@ page 9088 "Service Item Line FactBox"
     {
         area(content)
         {
-            field("Service Item No."; "Service Item No.")
+            field("Service Item No."; Rec."Service Item No.")
             {
                 ApplicationArea = Service;
                 Lookup = false;
@@ -16,7 +16,7 @@ page 9088 "Service Item Line FactBox"
 
                 trigger OnDrillDown()
                 begin
-                    ShowDetails;
+                    ShowDetails();
                 end;
             }
             field(ComponentList; StrSubstNo('%1', ServInfoPaneMgt.CalcNoOfServItemComponents(Rec)))

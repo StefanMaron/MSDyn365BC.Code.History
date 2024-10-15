@@ -2,7 +2,6 @@ page 99000829 "Firm Planned Prod. Order"
 {
     Caption = 'Firm Planned Prod. Order';
     PageType = Document;
-    PromotedActionCategories = 'New,Process,Report,Order';
     SourceTable = "Production Order";
     SourceTableView = WHERE(Status = CONST("Firm Planned"));
 
@@ -13,7 +12,7 @@ page 99000829 "Firm Planned Prod. Order"
             group(General)
             {
                 Caption = 'General';
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Manufacturing;
                     Importance = Promoted;
@@ -32,12 +31,12 @@ page 99000829 "Firm Planned Prod. Order"
                     Importance = Promoted;
                     ToolTip = 'Specifies the description of the production order.';
                 }
-                field("Description 2"; "Description 2")
+                field("Description 2"; Rec."Description 2")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies an additional part of the production order description.';
                 }
-                field("Source Type"; "Source Type")
+                field("Source Type"; Rec."Source Type")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the source type of the production order.';
@@ -48,18 +47,18 @@ page 99000829 "Firm Planned Prod. Order"
                             "Source No." := '';
                     end;
                 }
-                field("Source No."; "Source No.")
+                field("Source No."; Rec."Source No.")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the item number or number of the source document that the entry originates from.';
                 }
-                field("Variant Code"; "Variant Code")
+                field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the variant code for production order item.';
                     Visible = false;
                 }
-                field("Search Description"; "Search Description")
+                field("Search Description"; Rec."Search Description")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the search description.';
@@ -70,7 +69,7 @@ page 99000829 "Firm Planned Prod. Order"
                     Importance = Promoted;
                     ToolTip = 'Specifies how many units of the item or the family to produce (production quantity).';
                 }
-                field("Due Date"; "Due Date")
+                field("Due Date"; Rec."Due Date")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the due date of the production order.';
@@ -80,12 +79,12 @@ page 99000829 "Firm Planned Prod. Order"
                         CurrPage.Update(false);
                     end;
                 }
-                field("Assigned User ID"; "Assigned User ID")
+                field("Assigned User ID"; Rec."Assigned User ID")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the ID of the user who is responsible for the document.';
                 }
-                field("Last Date Modified"; "Last Date Modified")
+                field("Last Date Modified"; Rec."Last Date Modified")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies when the production order card was last modified.';
@@ -156,7 +155,7 @@ page 99000829 "Firm Planned Prod. Order"
                         CurrPage.Update(true);
                     end;
                 }
-                field("Starting Date-Time"; "Starting Date-Time")
+                field("Starting Date-Time"; Rec."Starting Date-Time")
                 {
                     ApplicationArea = Manufacturing;
                     Importance = Promoted;
@@ -167,7 +166,7 @@ page 99000829 "Firm Planned Prod. Order"
                         CurrPage.Update(true);
                     end;
                 }
-                field("Ending Date-Time"; "Ending Date-Time")
+                field("Ending Date-Time"; Rec."Ending Date-Time")
                 {
                     ApplicationArea = Manufacturing;
                     Importance = Promoted;
@@ -182,49 +181,49 @@ page 99000829 "Firm Planned Prod. Order"
             group(Posting)
             {
                 Caption = 'Posting';
-                field("Inventory Posting Group"; "Inventory Posting Group")
+                field("Inventory Posting Group"; Rec."Inventory Posting Group")
                 {
                     ApplicationArea = Manufacturing;
                     Importance = Promoted;
                     ToolTip = 'Specifies links between business transactions made for the item and an inventory account in the general ledger, to group amounts for that item type.';
                 }
-                field("Gen. Prod. Posting Group"; "Gen. Prod. Posting Group")
+                field("Gen. Prod. Posting Group"; Rec."Gen. Prod. Posting Group")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the item''s product type to link transactions made for this item with the appropriate general ledger account according to the general posting setup.';
                 }
-                field("Gen. Bus. Posting Group"; "Gen. Bus. Posting Group")
+                field("Gen. Bus. Posting Group"; Rec."Gen. Bus. Posting Group")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the vendor''s or customer''s trade type to link transactions made for this business partner with the appropriate general ledger account according to the general posting setup.';
                 }
-                field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
+                field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
 
                     trigger OnValidate()
                     begin
-                        ShortcutDimension1CodeOnAfterV;
+                        ShortcutDimension1CodeOnAfterV();
                     end;
                 }
-                field("Shortcut Dimension 2 Code"; "Shortcut Dimension 2 Code")
+                field("Shortcut Dimension 2 Code"; Rec."Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
 
                     trigger OnValidate()
                     begin
-                        ShortcutDimension2CodeOnAfterV;
+                        ShortcutDimension2CodeOnAfterV();
                     end;
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     Importance = Promoted;
                     ToolTip = 'Specifies the location code to which you want to post the finished product from this production order.';
                 }
-                field("Bin Code"; "Bin Code")
+                field("Bin Code"; Rec."Bin Code")
                 {
                     ApplicationArea = Warehouse;
                     Importance = Promoted;
@@ -260,8 +259,6 @@ page 99000829 "Firm Planned Prod. Order"
                     ApplicationArea = Manufacturing;
                     Caption = 'Co&mments';
                     Image = ViewComments;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     RunObject = Page "Prod. Order Comment Sheet";
                     RunPageLink = Status = FIELD(Status),
                                   "Prod. Order No." = FIELD("No.");
@@ -273,16 +270,13 @@ page 99000829 "Firm Planned Prod. Order"
                     ApplicationArea = Dimensions;
                     Caption = 'Dimensions';
                     Image = Dimensions;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
                     ShortCutKey = 'Alt+D';
                     ToolTip = 'View or edit dimensions, such as area, project, or department, that you can assign to sales and purchase documents to distribute costs and analyze transaction history.';
 
                     trigger OnAction()
                     begin
-                        ShowDocDim;
-                        CurrPage.SaveRecord;
+                        ShowDocDim();
+                        CurrPage.SaveRecord();
                     end;
                 }
                 action(Statistics)
@@ -290,9 +284,6 @@ page 99000829 "Firm Planned Prod. Order"
                     ApplicationArea = Manufacturing;
                     Caption = 'Statistics';
                     Image = Statistics;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
                     RunObject = Page "Production Order Statistics";
                     RunPageLink = Status = FIELD(Status),
                                   "No." = FIELD("No."),
@@ -329,8 +320,6 @@ page 99000829 "Firm Planned Prod. Order"
                     Caption = 'Re&fresh Production Order';
                     Ellipsis = true;
                     Image = Refresh;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Calculate changes made to the production order header without involving production BOM levels. The function calculates and initiates the values of the component lines and routing lines based on the master data defined in the assigned production BOM and routing, according to the order quantity and due date on the production order''s header.';
 
                     trigger OnAction()
@@ -348,8 +337,6 @@ page 99000829 "Firm Planned Prod. Order"
                     Caption = 'Re&plan';
                     Ellipsis = true;
                     Image = Replan;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Calculate changes made to components and routings lines including items on lower production BOM levels for which it may generate new production orders.';
 
                     trigger OnAction()
@@ -367,8 +354,6 @@ page 99000829 "Firm Planned Prod. Order"
                     Caption = 'Change &Status';
                     Ellipsis = true;
                     Image = ChangeStatus;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Change the production order to another status, such as Released.';
 
                     trigger OnAction()
@@ -401,8 +386,6 @@ page 99000829 "Firm Planned Prod. Order"
                     Caption = 'C&opy Prod. Order Document';
                     Ellipsis = true;
                     Image = CopyDocument;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Copy information from an existing production order record to a new one. This can be done regardless of the status type of the production order. You can, for example, copy from a released production order to a new planned production order. Note that before you start to copy, you have to create the new record.';
 
                     trigger OnAction()
@@ -423,8 +406,6 @@ page 99000829 "Firm Planned Prod. Order"
                     Caption = 'Job Card';
                     Ellipsis = true;
                     Image = "Report";
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'View a list of the work in progress of a production order. Output, scrapped quantity, and production lead time are shown depending on the operation.';
 
                     trigger OnAction()
@@ -438,8 +419,6 @@ page 99000829 "Firm Planned Prod. Order"
                     Caption = 'Mat. &Requisition';
                     Ellipsis = true;
                     Image = "Report";
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'View a list of material requirements per production order. The report shows you the status of the production order, the quantity of end items and components with the corresponding required quantity. You can view the due date and location code of each component.';
 
                     trigger OnAction()
@@ -469,11 +448,68 @@ page 99000829 "Firm Planned Prod. Order"
                 ApplicationArea = Manufacturing;
                 Caption = 'Subcontractor - Dispatch List';
                 Image = "Report";
-                Promoted = false;
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = "Report";
                 RunObject = Report "Subcontractor - Dispatch List";
                 ToolTip = 'View the list of material to be sent to manufacturing subcontractors.';
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref("Change &Status_Promoted"; "Change &Status")
+                {
+                }
+                actionref("Re&fresh Production Order_Promoted"; "Re&fresh Production Order")
+                {
+                }
+                actionref("Re&plan_Promoted"; "Re&plan")
+                {
+                }
+#if not CLEAN21
+                actionref("C&opy Prod. Order Document_Promoted"; "C&opy Prod. Order Document")
+                {
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
+                    ObsoleteTag = '21.0';
+                }
+#endif
+            }
+            group(Category_Print)
+            {
+                Caption = 'Print';
+
+                actionref("Shortage List_Promoted"; "Shortage List")
+                {
+                }
+                actionref("Job Card_Promoted"; "Job Card")
+                {
+                }
+                actionref("Mat. &Requisition_Promoted"; "Mat. &Requisition")
+                {
+                }
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Order', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref(Dimensions_Promoted; Dimensions)
+                {
+                }
+                actionref(Statistics_Promoted; Statistics)
+                {
+                }
+                actionref("Co&mments_Promoted"; "Co&mments")
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
             }
         }
     }

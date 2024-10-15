@@ -1,4 +1,4 @@
-﻿report 5880 "Calc. Phys. Invt. Order Lines"
+report 5880 "Calc. Phys. Invt. Order Lines"
 {
     Caption = 'Calc. Phys. Invt. Order Lines';
     ProcessingOnly = true;
@@ -25,7 +25,7 @@
             trigger OnPostDataItem()
             begin
                 if not HideValidationDialog then begin
-                    Window.Close;
+                    Window.Close();
                     if ItemsBlocked then
                         Message(BlockedItemMsg);
                     Message(
@@ -108,6 +108,8 @@
         ItemNoMsg: Label 'Item No.  #1##################', Comment = '%1 = Item No.';
         LinesCreatedMsg: Label '%1 new lines have been created.', Comment = '%1 = counter';
         BlockedItemMsg: Label 'There is at least one blocked item that was skipped.';
+
+    protected var
         PhysInvtOrderHeader: Record "Phys. Invt. Order Header";
         PhysInvtOrderLine: Record "Phys. Invt. Order Line";
         ItemLedgEntry: Record "Item Ledger Entry";
@@ -123,12 +125,10 @@
         LastItemLedgEntryNo: Integer;
         NextLineNo: Integer;
         LineCount: Integer;
-        ZeroQty: Boolean;
-        CalcQtyExpected: Boolean;
         ItemsBlocked: Boolean;
-
-    protected var
+        CalcQtyExpected: Boolean;
         HideValidationDialog: Boolean;
+        ZeroQty: Boolean;
 
     procedure SetPhysInvtOrderHeader(NewPhysInvtOrderHeader: Record "Phys. Invt. Order Header")
     begin
@@ -193,7 +193,7 @@
                                               ErrorText,
                                               PhysInvtOrderLine) = 0)
                                         then
-                                            CreateNewPhysInvtOrderLine;
+                                            CreateNewPhysInvtOrderLine();
                                     end;
                                 end;
                             until WhseEntry.Next() = 0;
@@ -205,7 +205,7 @@
                              PhysInvtOrderLine) = 0
                         then begin
                             WhseEntry.Init();
-                            CreateNewPhysInvtOrderLine;
+                            CreateNewPhysInvtOrderLine();
                         end;
                     end;
                 end;
@@ -269,7 +269,7 @@
             PhysInvtOrderLine.Insert(true);
             PhysInvtOrderLine.CreateDimFromDefaultDim();
             if CalcQtyExpected then
-                PhysInvtOrderLine.CalcQtyAndTrackLinesExpected;
+                PhysInvtOrderLine.CalcQtyAndTrackLinesExpected();
             OnBeforePhysInvtOrderLineModify(PhysInvtOrderLine, CalcQtyExpected);
             PhysInvtOrderLine.Modify();
             NextLineNo := NextLineNo + 10000;

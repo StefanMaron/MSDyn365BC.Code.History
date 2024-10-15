@@ -18,7 +18,7 @@ codeunit 99000777 "Check Prod. Order Status"
             if CheckProdOrderStatus.SalesLineShowWarning(SalesLine) then begin
                 Item.Get(SalesLine."No.");
                 CheckProdOrderStatus.SetRecord(Item);
-                OK := CheckProdOrderStatus.RunModal = ACTION::Yes;
+                OK := CheckProdOrderStatus.RunModal() = ACTION::Yes;
                 Clear(CheckProdOrderStatus);
                 if not OK then
                     Error(Text000);

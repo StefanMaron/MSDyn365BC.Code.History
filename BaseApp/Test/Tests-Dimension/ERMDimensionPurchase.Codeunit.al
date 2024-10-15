@@ -750,7 +750,7 @@ codeunit 134476 "ERM Dimension Purchase"
         // The reply is inside the handler ConfirmHandlerForPurchaseHeaderDimUpdate
 
         // [THEN] Purchase Line dimension set contains "NewDimValue"
-        PurchaseLine.Find;
+        PurchaseLine.Find();
         VerifyDimensionOnDimSet(PurchaseLine."Dimension Set ID", DimensionValue);
     end;
 
@@ -782,7 +782,7 @@ codeunit 134476 "ERM Dimension Purchase"
         // The reply is inside the handler ConfirmHandlerForPurchaseHeaderDimUpdate
 
         // [THEN] Purchase Line dimension set left "InitialDimSetID"
-        PurchaseLine.Find;
+        PurchaseLine.Find();
         PurchaseLine.TestField("Dimension Set ID", SavedDimSetID);
     end;
 
@@ -817,7 +817,7 @@ codeunit 134476 "ERM Dimension Purchase"
         // The reply is inside the handler ConfirmHandlerForPurchaseHeaderDimUpdate
 
         // [THEN] Purchase Line dimension set contains "NewDimValue"
-        PurchaseLine.Find;
+        PurchaseLine.Find();
         VerifyDimensionOnDimSet(PurchaseLine."Dimension Set ID", DimensionValue);
     end;
 
@@ -854,7 +854,7 @@ codeunit 134476 "ERM Dimension Purchase"
         // The reply is inside the handler ConfirmHandlerForPurchaseHeaderDimUpdate
 
         // [THEN] Purchase Line dimension set left "InitialDimSetID"
-        PurchaseLine.Find;
+        PurchaseLine.Find();
         PurchaseLine.TestField("Dimension Set ID", SavedDimSetID);
     end;
 
@@ -877,7 +877,7 @@ codeunit 134476 "ERM Dimension Purchase"
 
         // [GIVEN] Purchase Line Shortcut Dimension 1 Code is being changed to "NewDimValue"
         LibraryVariableStorage.Enqueue(true); // to reply Yes on second confirmation
-        PurchaseLine.Find;
+        PurchaseLine.Find();
         PurchaseLine.Validate("Shortcut Dimension 1 Code", DimensionValue.Code);
 
         // [WHEN] Answer Yes on shipped line update confirmation
@@ -907,7 +907,7 @@ codeunit 134476 "ERM Dimension Purchase"
 
         // [GIVEN] Purchase Line Shortcut Dimension 1 Code is being changed to "NewDimValue"
         LibraryVariableStorage.Enqueue(false); // to reply No on second confirmation
-        PurchaseLine.Find;
+        PurchaseLine.Find();
         asserterror PurchaseLine.Validate("Shortcut Dimension 1 Code", DimensionValue.Code);
 
         // [WHEN] Answer No on shipped line update confirmation
@@ -945,7 +945,7 @@ codeunit 134476 "ERM Dimension Purchase"
         // [WHEN] Answer Yes on shipped line update confirmation
 
         // [THEN] Purchase Line dimension set contains "NewDimValue"
-        PurchaseLine.Find;
+        PurchaseLine.Find();
         VerifyDimensionOnDimSet(PurchaseLine."Dimension Set ID", DimensionValue);
     end;
 
@@ -980,7 +980,7 @@ codeunit 134476 "ERM Dimension Purchase"
         // [WHEN] Answer No on shipped line update confirmation
 
         // [THEN] Purchase Line dimension set left "InitialDimSetID"
-        PurchaseLine.Find;
+        PurchaseLine.Find();
         PurchaseLine.TestField("Dimension Set ID", SavedDimSetID);
     end;
 
@@ -1625,7 +1625,7 @@ codeunit 134476 "ERM Dimension Purchase"
             VendorLedgerEntry2.CalcFields("Remaining Amount");
             VendorLedgerEntry2.Validate("Amount to Apply", VendorLedgerEntry2."Remaining Amount");
             VendorLedgerEntry2.Modify(true);
-        until VendorLedgerEntry2.Next = 0;
+        until VendorLedgerEntry2.Next() = 0;
 
         LibraryERM.SetAppliestoIdVendor(VendorLedgerEntry2);
         LibraryERM.PostVendLedgerApplication(VendorLedgerEntry);
@@ -1650,7 +1650,7 @@ codeunit 134476 "ERM Dimension Purchase"
         repeat
             TempDimensionSetEntry := DimensionSetEntry;
             TempDimensionSetEntry.Insert();
-        until DimensionSetEntry.Next = 0;
+        until DimensionSetEntry.Next() = 0;
     end;
 
     local procedure CreateCurrencyWithRelationalExchangeRate(RelationalExchangeRate: Decimal): Code[10]
@@ -2267,7 +2267,7 @@ codeunit 134476 "ERM Dimension Purchase"
             DimensionSetEntry.SetRange("Dimension Code", TempDimensionSetEntry."Dimension Code");
             DimensionSetEntry.FindFirst();
             DimensionSetEntry.TestField("Dimension Value Code", TempDimensionSetEntry."Dimension Value Code");
-        until TempDimensionSetEntry.Next = 0;
+        until TempDimensionSetEntry.Next() = 0;
     end;
 
     local procedure VerifyGLEntryDimension(PurchaseLine: Record "Purchase Line"; DocumentNo: Code[20])
@@ -2313,7 +2313,7 @@ codeunit 134476 "ERM Dimension Purchase"
         GLEntry.FindSet();
         repeat
             Assert.IsTrue(DimensionSetEntry.Get(GLEntry."Dimension Set ID", DimensionCode), 'Dimension Set Entry must found');
-        until GLEntry.Next = 0;
+        until GLEntry.Next() = 0;
     end;
 
     local procedure VerifyDimensionOnPurchaseOrderLine(DocumentType: Enum "Purchase Document Type"; DocumentNo: Code[20]; DimensionCode: Code[20])
@@ -2336,7 +2336,7 @@ codeunit 134476 "ERM Dimension Purchase"
         FindPurchaseLine(PurchaseLine, DocumentType, DocumentNo);
         Assert.AreEqual(
           Quantity, PurchaseLine."Quantity Received",
-          StrSubstNo(QuantityReceivedError, PurchaseLine.FieldCaption("Quantity Received"), Quantity, PurchaseLine.TableCaption));
+          StrSubstNo(QuantityReceivedError, PurchaseLine.FieldCaption("Quantity Received"), Quantity, PurchaseLine.TableCaption()));
     end;
 
     local procedure VerifyReceiptLineOnPostedPurchaseReceipt(PurchaseLine: Record "Purchase Line")
@@ -2373,7 +2373,7 @@ codeunit 134476 "ERM Dimension Purchase"
         PurchRcptLine.FindLast();
         Assert.AreEqual(
           Quantity, -PurchRcptLine.Quantity,
-          StrSubstNo(QuantityReceivedError, PurchRcptLine.FieldCaption(Quantity), Quantity, PurchRcptLine.TableCaption));
+          StrSubstNo(QuantityReceivedError, PurchRcptLine.FieldCaption(Quantity), Quantity, PurchRcptLine.TableCaption()));
     end;
 
     local procedure VerifyQuantitytoReceiveOnPurchaseLine(DocumentType: Enum "Purchase Document Type"; DocumentNo: Code[20]; Quantity: Decimal)
@@ -2383,7 +2383,7 @@ codeunit 134476 "ERM Dimension Purchase"
         FindPurchaseLine(PurchaseLine, DocumentType, DocumentNo);
         Assert.AreEqual(
           Quantity, PurchaseLine."Qty. to Receive",
-          StrSubstNo(QuantityReceivedError, PurchaseLine.FieldCaption("Qty. to Receive"), Quantity, PurchaseLine.TableCaption));
+          StrSubstNo(QuantityReceivedError, PurchaseLine.FieldCaption("Qty. to Receive"), Quantity, PurchaseLine.TableCaption()));
     end;
 
     local procedure VerifyVendorLedgerEntryOpen(DocumentNo: Code[20]; Open: Boolean)
@@ -2394,7 +2394,7 @@ codeunit 134476 "ERM Dimension Purchase"
         VendorLedgerEntry.FindSet();
         repeat
             Assert.AreEqual(Open, VendorLedgerEntry.Open, StrSubstNo(VendorLedgerEntryErr, Open, DocumentNo));
-        until VendorLedgerEntry.Next = 0;
+        until VendorLedgerEntry.Next() = 0;
     end;
 
     local procedure VerifyDimensionOnDimSet(DimSetID: Integer; DimensionValue: Record "Dimension Value")

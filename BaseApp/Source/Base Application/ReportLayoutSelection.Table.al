@@ -113,19 +113,20 @@ table 9651 "Report Layout Selection"
 
     procedure GetDefaultType(ReportID: Integer): Integer
     var
-        reportDefaultLayout: DefaultLayout;
+        ReportMetadata: Record "Report Metadata";
     begin
-        reportDefaultLayout := REPORT.DefaultLayout(ReportID);
+        if not ReportMetadata.Get(ReportID) then
+            exit(Type::"RDLC (built-in)");
 
-        case reportDefaultLayout of
-            DEFAULTLAYOUT::Word:
+        case ReportMetadata.DefaultLayout of
+            ReportMetadata.DefaultLayout::Word:
                 exit(Type::"Word (built-in)");
-            DefaultLayout::Excel:
+            ReportMetadata.DefaultLayout::Excel:
                 exit(Type::"Excel Layout");
-            DefaultLayout::RDLC:
+            ReportMetadata.DefaultLayout::RDLC:
                 exit(Type::"RDLC (built-in)");
-            DefaultLayout::None:
-                exit(Type::"RDLC (built-in)");
+            ReportMetadata.DefaultLayout::Custom:
+                exit(Type::"External Layout");
         end;
     end;
 
@@ -175,8 +176,8 @@ table 9651 "Report Layout Selection"
         CustomReportLayout: Record "Custom Report Layout";
     begin
         // Temporarily selected layout for Design-time report execution?
-        if GetTempLayoutSelected <> '' then
-            if CustomReportLayout.Get(GetTempLayoutSelected) then begin
+        if GetTempLayoutSelected() <> '' then
+            if CustomReportLayout.Get(GetTempLayoutSelected()) then begin
                 if CustomReportLayout.Type = CustomReportLayout.Type::RDLC then
                     exit(1);
                 exit(2);
@@ -235,7 +236,7 @@ table 9651 "Report Layout Selection"
     var
         DesignTimeReportSelection: Codeunit "Design-time Report Selection";
     begin
-        exit(DesignTimeReportSelection.GetSelectedCustomLayout);
+        exit(DesignTimeReportSelection.GetSelectedCustomLayout());
     end;
 
     procedure SetTempLayoutSelected(NewTempSelectedLayoutCode: Code[20])

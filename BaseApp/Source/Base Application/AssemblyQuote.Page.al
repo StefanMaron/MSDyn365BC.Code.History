@@ -4,7 +4,6 @@ page 930 "Assembly Quote"
     DeleteAllowed = false;
     InsertAllowed = false;
     PageType = Document;
-    PromotedActionCategories = 'New,Process,Report,Quote,View,Release,Navigate';
     SourceTable = "Assembly Header";
     SourceTableView = SORTING("Document Type", "No.")
                       ORDER(Ascending)
@@ -17,7 +16,7 @@ page 930 "Assembly Quote"
             group(General)
             {
                 Caption = 'General';
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Assembly;
                     AssistEdit = true;
@@ -29,7 +28,7 @@ page 930 "Assembly Quote"
                             CurrPage.Update();
                     end;
                 }
-                field("Item No."; "Item No.")
+                field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = IsAsmToOrderEditable;
@@ -52,44 +51,44 @@ page 930 "Assembly Quote"
                         Importance = Promoted;
                         ToolTip = 'Specifies how many units of the assembly item that you expect to assemble with the assembly order.';
                     }
-                    field("Unit of Measure Code"; "Unit of Measure Code")
+                    field("Unit of Measure Code"; Rec."Unit of Measure Code")
                     {
                         ApplicationArea = Assembly;
                         Editable = IsAsmToOrderEditable;
                         ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
                     }
                 }
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Assembly;
                     Importance = Promoted;
                     ToolTip = 'Specifies the date on which the assembly order is posted.';
                 }
-                field("Due Date"; "Due Date")
+                field("Due Date"; Rec."Due Date")
                 {
                     ApplicationArea = Assembly;
                     Editable = IsAsmToOrderEditable;
                     Importance = Promoted;
                     ToolTip = 'Specifies the date when the assembled item is due to be available for use.';
                 }
-                field("Starting Date"; "Starting Date")
+                field("Starting Date"; Rec."Starting Date")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies the date when the assembly order is expected to start.';
                 }
-                field("Ending Date"; "Ending Date")
+                field("Ending Date"; Rec."Ending Date")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies the date when the assembly order is expected to finish.';
                 }
-                field("Assemble to Order"; "Assemble to Order")
+                field("Assemble to Order"; Rec."Assemble to Order")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies if the assembly order is linked to a sales order, which indicates that the item is assembled to order.';
 
                     trigger OnDrillDown()
                     begin
-                        ShowAsmToOrder;
+                        ShowAsmToOrder();
                     end;
                 }
                 field(Status; Status)
@@ -108,50 +107,50 @@ page 930 "Assembly Quote"
             group(Posting)
             {
                 Caption = 'Posting';
-                field("Variant Code"; "Variant Code")
+                field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
                     Editable = IsAsmToOrderEditable;
                     Importance = Promoted;
                     ToolTip = 'Specifies the variant of the item on the line.';
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     Editable = IsAsmToOrderEditable;
                     Importance = Promoted;
                     ToolTip = 'Specifies the location to which you want to post output of the assembly item.';
                 }
-                field("Bin Code"; "Bin Code")
+                field("Bin Code"; Rec."Bin Code")
                 {
                     ApplicationArea = Warehouse;
                     Editable = IsAsmToOrderEditable;
                     ToolTip = 'Specifies the bin the assembly item is posted to as output and from where it is taken to storage or shipped if it is assembled to a sales order.';
                 }
-                field("Unit Cost"; "Unit Cost")
+                field("Unit Cost"; Rec."Unit Cost")
                 {
                     ApplicationArea = Assembly;
                     Editable = IsUnitCostEditable;
                     ToolTip = 'Specifies the cost of one unit of the item or resource on the line.';
                 }
-                field("Cost Amount"; "Cost Amount")
+                field("Cost Amount"; Rec."Cost Amount")
                 {
                     ApplicationArea = Assembly;
                     Editable = IsUnitCostEditable;
                     ToolTip = 'Specifies the total unit cost of the assembly order.';
                 }
-                field("Assigned User ID"; "Assigned User ID")
+                field("Assigned User ID"; Rec."Assigned User ID")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies the ID of the user who is responsible for the document.';
                     Visible = false;
                 }
-                field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
+                field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                 }
-                field("Shortcut Dimension 2 Code"; "Shortcut Dimension 2 Code")
+                field("Shortcut Dimension 2 Code"; Rec."Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
@@ -203,7 +202,7 @@ page 930 "Assembly Quote"
 
                 trigger OnAction()
                 begin
-                    ShowStatistics;
+                    ShowStatistics();
                 end;
             }
             action(Dimensions)
@@ -229,7 +228,7 @@ page 930 "Assembly Quote"
 
                 trigger OnAction()
                 begin
-                    ShowAssemblyList;
+                    ShowAssemblyList();
                 end;
             }
             action(Comments)
@@ -255,8 +254,6 @@ page 930 "Assembly Quote"
                     ApplicationArea = Assembly;
                     Caption = 'Re&lease';
                     Image = ReleaseDoc;
-                    Promoted = true;
-                    PromotedCategory = Category6;
                     ShortCutKey = 'Ctrl+F9';
                     ToolTip = 'Release the document to the next stage of processing. You must reopen the document before you can make changes to it.';
 
@@ -274,8 +271,6 @@ page 930 "Assembly Quote"
                     ApplicationArea = Assembly;
                     Caption = 'Re&open';
                     Image = ReOpen;
-                    Promoted = true;
-                    PromotedCategory = Category6;
                     ToolTip = 'Reopen the document for additional warehouse activity.';
 
                     trigger OnAction()
@@ -303,7 +298,7 @@ page 930 "Assembly Quote"
 
                     trigger OnAction()
                     begin
-                        UpdateUnitCost;
+                        UpdateUnitCost();
                     end;
                 }
                 action("Refresh Lines")
@@ -315,7 +310,7 @@ page 930 "Assembly Quote"
 
                     trigger OnAction()
                     begin
-                        RefreshBOM;
+                        RefreshBOM();
                         CurrPage.Update();
                     end;
                 }
@@ -328,7 +323,7 @@ page 930 "Assembly Quote"
 
                     trigger OnAction()
                     begin
-                        ShowAvailability;
+                        ShowAvailability();
                     end;
                 }
                 action("Refresh availability warnings")
@@ -344,12 +339,42 @@ page 930 "Assembly Quote"
                 }
             }
         }
+        area(Promoted)
+        {
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Quote', Comment = 'Generated from the PromotedActionCategories property index 3.';
+            }
+            group(Category_Category5)
+            {
+                Caption = 'View', Comment = 'Generated from the PromotedActionCategories property index 4.';
+            }
+            group(Category_Category6)
+            {
+                Caption = 'Release', Comment = 'Generated from the PromotedActionCategories property index 5.';
+
+                actionref(Release_Promoted; Release)
+                {
+                }
+                actionref(Reopen_Promoted; Reopen)
+                {
+                }
+            }
+            group(Category_Category7)
+            {
+                Caption = 'Navigate', Comment = 'Generated from the PromotedActionCategories property index 6.';
+            }
+        }
     }
 
     trigger OnAfterGetRecord()
     begin
-        IsUnitCostEditable := not IsStandardCostItem;
-        IsAsmToOrderEditable := not IsAsmToOrder;
+        IsUnitCostEditable := not IsStandardCostItem();
+        IsAsmToOrderEditable := not IsAsmToOrder();
     end;
 
     trigger OnOpenPage()
@@ -357,7 +382,7 @@ page 930 "Assembly Quote"
         IsUnitCostEditable := true;
         IsAsmToOrderEditable := true;
 
-        UpdateWarningOnLines;
+        UpdateWarningOnLines();
     end;
 
     protected var

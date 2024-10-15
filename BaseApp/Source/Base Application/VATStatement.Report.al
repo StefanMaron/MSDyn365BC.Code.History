@@ -24,7 +24,7 @@
                 column(Heading; Heading)
                 {
                 }
-                column(CompanyName; COMPANYPROPERTY.DisplayName)
+                column(CompanyName; COMPANYPROPERTY.DisplayName())
                 {
                 }
                 column(VATStmtTempName1; "VAT Statement Name"."Statement Template Name")
@@ -34,6 +34,9 @@
                 {
                 }
                 column(Heading2; Heading2)
+                {
+                }
+                column(HeaderText; HeaderText)
                 {
                 }
                 column(GLSetupLCYCode; GLSetup."LCY Code")
@@ -61,7 +64,7 @@
                 }
                 column(TotalAmount; TotalAmount)
                 {
-                    AutoFormatExpression = GetCurrency;
+                    AutoFormatExpression = GetCurrency();
                     AutoFormatType = 1;
                 }
                 column(UseAmtsInAddCurr; UseAmtsInAddCurr)
@@ -141,6 +144,12 @@
                 group(Options)
                 {
                     Caption = 'Options';
+                    field(VATDate; VATDateType)
+                    {
+                        ApplicationArea = VAT;
+                        Caption = 'Period Date Type';
+                        ToolTip = 'Specifies the type of date used for the period for VAT statement lines in the report.';
+                    }
                     group("Statement Period")
                     {
                         Caption = 'Statement Period';
@@ -211,36 +220,30 @@
         else
             Heading := Text004;
         Heading2 := StrSubstNo(Text005, StartDate, EndDateReq);
-        VATStmtLineFilter := VATStmtLine.GetFilters;
+        VATStmtLineFilter := VATStmtLine.GetFilters();
     end;
 
     var
-        Text000: Label 'VAT entries before and within the period';
-        Text003: Label 'Amounts are in %1, rounded without decimals.';
-        Text004: Label 'VAT entries within the period';
-        Text005: Label 'Period: %1..%2';
         GLAcc: Record "G/L Account";
         VATEntry: Record "VAT Entry";
         GLSetup: Record "General Ledger Setup";
         VATStmtLine: Record "VAT Statement Line";
-        Selection: Enum "VAT Statement Report Selection";
-        PeriodSelection: Enum "VAT Statement Report Period Selection";
-        PrintInIntegers: Boolean;
         VATStmtLineFilter: Text;
         Heading: Text[50];
         Base: Decimal;
         Amount: Decimal;
-        TotalAmount: Decimal;
         RowNo: array[6] of Code[10];
         ErrorText: Text[80];
         i: Integer;
         PageGroupNo: Integer;
         NextPageGroupNo: Integer;
-        UseAmtsInAddCurr: Boolean;
-        EndDate: Date;
-        StartDate: Date;
-        EndDateReq: Date;
         Heading2: Text[50];
+        VATDateType: Enum "VAT Date Type";
+
+        Text000: Label 'VAT entries before and within the period';
+        Text003: Label 'Amounts are in %1, rounded without decimals.';
+        Text004: Label 'VAT entries within the period';
+        Text005: Label 'Period: %1..%2';
         AllAmountAreLbl: Label 'All amounts are in';
         VATStatementCaptionLbl: Label 'VAT Statement';
         PageNoCaptionLbl: Label 'Page';
@@ -250,6 +253,17 @@
         AllVATentriesCaptionLbl: Label 'The report includes all VAT entries.';
         ClosedVATEntriesCaptionLbl: Label 'The report includes only closed VAT entries.';
         AmountCaptionLbl: Label 'Amount';
+
+    protected var
+        EndDate: Date;
+        StartDate: Date;
+        EndDateReq: Date;
+        HeaderText: Text[50];
+        PrintInIntegers: Boolean;
+        PeriodSelection: Enum "VAT Statement Report Period Selection";
+        Selection: Enum "VAT Statement Report Selection";
+        TotalAmount: Decimal;
+        UseAmtsInAddCurr: Boolean;
 
     procedure CalcLineTotal(VATStmtLine2: Record "VAT Statement Line"; var TotalAmount: Decimal; Level: Integer): Boolean
     var
@@ -287,23 +301,17 @@
             VATStmtLine2.Type::"VAT Entry Totaling":
                 begin
                     VATEntry.Reset();
-                    if VATEntry.SetCurrentKey(
-                         Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Posting Date")
-                    then begin
-                        VATEntry.SetRange("VAT Bus. Posting Group", VATStmtLine2."VAT Bus. Posting Group");
-                        VATEntry.SetRange("VAT Prod. Posting Group", VATStmtLine2."VAT Prod. Posting Group");
-                    end else begin
-                        VATEntry.SetCurrentKey(
-                          Type, Closed, "Tax Jurisdiction Code", "Use Tax", "Posting Date");
-                        VATEntry.SetRange("Tax Jurisdiction Code", VATStmtLine2."Tax Jurisdiction Code");
-                        VATEntry.SetRange("Use Tax", VATStmtLine2."Use Tax");
+                    Amount := 0;
+                    case VATDateType of
+                        VATDateType::"Document Date":
+                            SetVATEntryKeyAndRangesForDocumentDate(VATStmtLine2);
+                        VATDateType::"Posting Date":
+                            SetVATEntryKeyAndRangesForPostingDate(VATStmtLine2);
+                        VATDateType::"VAT Reporting Date":
+                            SetVATEntryKeyAndRangesForVATDate(VATStmtLine2)
                     end;
                     VATEntry.SetRange(Type, VATStmtLine2."Gen. Posting Type");
-                    if (EndDateReq <> 0D) or (StartDate <> 0D) then
-                        if PeriodSelection = PeriodSelection::"Before and Within Period" then
-                            VATEntry.SetRange("Posting Date", 0D, EndDate)
-                        else
-                            VATEntry.SetRange("Posting Date", StartDate, EndDate);
+                    SetVATDate();
                     case Selection of
                         Selection::Open:
                             VATEntry.SetRange(Closed, false);
@@ -374,6 +382,63 @@
         exit(true);
     end;
 
+    local procedure SetVATEntryKeyAndRangesForDocumentDate(var VATStmtLine: Record "VAT Statement Line")
+    begin
+        if VATEntry.SetCurrentKey(Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Document Date") then begin
+            VATEntry.SetRange("VAT Bus. Posting Group", VATStmtLine."VAT Bus. Posting Group");
+            VATEntry.SetRange("VAT Prod. Posting Group", VATStmtLine."VAT Prod. Posting Group");
+        end else begin
+            VATEntry.SetCurrentKey(Type, Closed, "Tax Jurisdiction Code", "Use Tax", "Document Date");
+            VATEntry.SetRange("Tax Jurisdiction Code", VATStmtLine."Tax Jurisdiction Code");
+            VATEntry.SetRange("Use Tax", VATStmtLine."Use Tax");
+        end;
+    end;
+
+    local procedure SetVATEntryKeyAndRangesForPostingDate(var VATStmtLine: Record "VAT Statement Line")
+    begin
+        if VATEntry.SetCurrentKey(Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Posting Date") then begin
+            VATEntry.SetRange("VAT Bus. Posting Group", VATStmtLine."VAT Bus. Posting Group");
+            VATEntry.SetRange("VAT Prod. Posting Group", VATStmtLine."VAT Prod. Posting Group");
+        end else begin
+            VATEntry.SetCurrentKey(Type, Closed, "Tax Jurisdiction Code", "Use Tax", "Posting Date");
+            VATEntry.SetRange("Tax Jurisdiction Code", VATStmtLine."Tax Jurisdiction Code");
+            VATEntry.SetRange("Use Tax", VATStmtLine."Use Tax");
+        end;
+    end;
+
+    local procedure SetVATEntryKeyAndRangesForVATDate(var VATStmtLine: Record "VAT Statement Line")
+    begin
+        if VATEntry.SetCurrentKey(Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "VAT Reporting Date") then begin
+            VATEntry.SetRange("VAT Bus. Posting Group", VATStmtLine."VAT Bus. Posting Group");
+            VATEntry.SetRange("VAT Prod. Posting Group", VATStmtLine."VAT Prod. Posting Group");
+        end else begin
+            VATEntry.SetCurrentKey(Type, Closed, "Tax Jurisdiction Code", "Use Tax", "VAT Reporting Date");
+            VATEntry.SetRange("Tax Jurisdiction Code", VATStmtLine."Tax Jurisdiction Code");
+            VATEntry.SetRange("Use Tax", VATStmtLine."Use Tax");
+        end;
+    end;
+
+    local procedure SetVATDate()
+    var
+        TempDate: Date;
+    begin
+        if (EndDateReq <> 0D) or (StartDate <> 0D) then begin
+            if PeriodSelection = PeriodSelection::"Before and Within Period" then
+                TempDate := 0D
+            else
+                TempDate := StartDate;
+
+            case VATDateType of
+                VATDateType::"Document Date":
+                    VATEntry.SetRange("Document Date", TempDate, EndDate);
+                VATDateType::"Posting Date":
+                    VATEntry.SetRange("Posting Date", TempDate, EndDate);
+                VATDateType::"VAT Reporting Date":
+                    VATEntry.SetRange("VAT Reporting Date", TempDate, EndDate);
+            end;
+        end;
+    end;
+
     local procedure CalcTotalAmount(VATStmtLine2: Record "VAT Statement Line"; var TotalAmount: Decimal; var TotalBase: Decimal)
     begin
         if VATStmtLine2."Calculate with" = 1 then
@@ -388,7 +453,7 @@
         TotalBase := TotalBase + Base;
     end;
 
-    procedure InitializeRequest(var NewVATStmtName: Record "VAT Statement Name"; var NewVATStatementLine: Record "VAT Statement Line"; NewSelection: Enum "VAT Statement Report Selection"; NewPeriodSelection: Enum "VAT Statement Report Period Selection"; NewPrintInIntegers: Boolean; NewUseAmtsInAddCurr: Boolean)
+    procedure InitializeRequest(var NewVATStmtName: Record "VAT Statement Name"; var NewVATStatementLine: Record "VAT Statement Line"; NewSelection: Enum "VAT Statement Report Selection"; NewPeriodSelection: Enum "VAT Statement Report Period Selection"; NewPrintInIntegers: Boolean; NewUseAmtsInAddCurr: Boolean; NewVATDateType: Enum "VAT Date Type")
     begin
         "VAT Statement Name".Copy(NewVATStmtName);
         "VAT Statement Line".Copy(NewVATStatementLine);
@@ -396,6 +461,8 @@
         PeriodSelection := NewPeriodSelection;
         PrintInIntegers := NewPrintInIntegers;
         UseAmtsInAddCurr := NewUseAmtsInAddCurr;
+        VATDateType := NewVATDateType;
+
         if NewVATStatementLine.GetFilter("Date Filter") <> '' then begin
             StartDate := NewVATStatementLine.GetRangeMin("Date Filter");
             EndDateReq := NewVATStatementLine.GetRangeMax("Date Filter");
@@ -406,6 +473,30 @@
             EndDate := DMY2Date(31, 12, 9999);
         end;
     end;
+
+#if not CLEAN21
+    [Obsolete('Replaced by InitializeRequest(var NewVATStmtName: Record "VAT Statement Name"; var NewVATStatementLine: Record "VAT Statement Line"; NewSelection: Enum "VAT Statement Report Selection"; NewPeriodSelection: Enum "VAT Statement Report Period Selection"; NewPrintInIntegers: Boolean; NewUseAmtsInAddCurr: Boolean; NewVATDateType: Enum "VAT Date Type")', '21.0')]
+    procedure InitializeRequest(var NewVATStmtName: Record "VAT Statement Name"; var NewVATStatementLine: Record "VAT Statement Line"; NewSelection: Enum "VAT Statement Report Selection"; NewPeriodSelection: Enum "VAT Statement Report Period Selection"; NewPrintInIntegers: Boolean; NewUseAmtsInAddCurr: Boolean)
+    begin
+        "VAT Statement Name".Copy(NewVATStmtName);
+        "VAT Statement Line".Copy(NewVATStatementLine);
+        Selection := NewSelection;
+        PeriodSelection := NewPeriodSelection;
+        PrintInIntegers := NewPrintInIntegers;
+        UseAmtsInAddCurr := NewUseAmtsInAddCurr;
+        VATDateType := VATDateType::"Posting Date";
+
+        if NewVATStatementLine.GetFilter("Date Filter") <> '' then begin
+            StartDate := NewVATStatementLine.GetRangeMin("Date Filter");
+            EndDateReq := NewVATStatementLine.GetRangeMax("Date Filter");
+            EndDate := EndDateReq;
+        end else begin
+            StartDate := 0D;
+            EndDateReq := 0D;
+            EndDate := DMY2Date(31, 12, 9999);
+        end;
+    end;
+#endif
 
     local procedure ConditionalAdd(Amount: Decimal; AmountToAdd: Decimal; AddCurrAmountToAdd: Decimal): Decimal
     begin

@@ -18,7 +18,7 @@ page 5236 "Human Res. Units of Measure"
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies one of the unit of measure codes.';
                 }
-                field("Qty. per Unit of Measure"; "Qty. per Unit of Measure")
+                field("Qty. per Unit of Measure"; Rec."Qty. per Unit of Measure")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the quantity, per unit of measure.';

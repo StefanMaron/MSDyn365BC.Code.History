@@ -53,12 +53,10 @@ report 291 "Delete Invd Blnkt Sales Orders"
                                     SalesCommentLine.SetRange("No.", "No.");
                                     SalesCommentLine.DeleteAll();
 
-                                    PostCodeCheck.DeleteAllAddressID(DATABASE::"Sales Header", GetPosition);
-
                                     DeleteApprovalEntries("Sales Header");
 
                                     OnBeforeDeleteSalesHeader("Sales Header");
-                                    Delete;
+                                    Delete();
 
                                     Commit();
                                 end;
@@ -92,13 +90,13 @@ report 291 "Delete Invd Blnkt Sales Orders"
     }
 
     var
-        Text000: Label 'Processing sales orders #1##########';
         SalesLine: Record "Sales Line";
         SalesLine2: Record "Sales Line";
         SalesCommentLine: Record "Sales Comment Line";
         ArchiveManagement: Codeunit ArchiveManagement;
-        PostCodeCheck: Codeunit "Post Code Check";
         Window: Dialog;
+
+        Text000: Label 'Processing sales orders #1##########';
 
     local procedure DeleteApprovalEntries(SalesHeader: Record "Sales Header")
     var

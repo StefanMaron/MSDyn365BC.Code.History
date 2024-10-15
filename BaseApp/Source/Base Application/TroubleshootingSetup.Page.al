@@ -19,18 +19,18 @@ page 5993 "Troubleshooting Setup"
                     ToolTip = 'Specifies the type of troubleshooting issue.';
                     Visible = TypeVisible;
                 }
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                     Visible = NoVisible;
                 }
-                field("Troubleshooting No."; "Troubleshooting No.")
+                field("Troubleshooting No."; Rec."Troubleshooting No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the troubleshooting issue.';
                 }
-                field("Troubleshooting Description"; "Troubleshooting Description")
+                field("Troubleshooting Description"; Rec."Troubleshooting Description")
                 {
                     ApplicationArea = Service;
                     DrillDown = false;

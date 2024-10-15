@@ -19,7 +19,7 @@ page 9104 "Approval Comments FactBox"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the comment. You can enter a maximum of 250 characters, both numbers and letters.';
                 }
-                field("User ID"; "User ID")
+                field("User ID"; Rec."User ID")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the ID of the user who created this approval comment.';
@@ -31,7 +31,7 @@ page 9104 "Approval Comments FactBox"
                         UserMgt.DisplayUserInformation("User ID");
                     end;
                 }
-                field("Date and Time"; "Date and Time")
+                field("Date and Time"; Rec."Date and Time")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the date and time when the comment was made.';

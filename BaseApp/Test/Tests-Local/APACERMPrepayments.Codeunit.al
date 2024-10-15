@@ -124,14 +124,14 @@ codeunit 141056 "APAC ERM Prepayments"
           SalesLine, GeneralPostingSetup."Gen. Bus. Posting Group", LibraryRandom.RandDec(50, 2), false, SalesLine.Type::Item,
           CreateItem(GeneralPostingSetup."Gen. Prod. Posting Group"), LibraryRandom.RandDec(20, 2));  // Random value used for Prepayment % and Line Discount %, False for Prices Including VAT.
         UpdatePrepmtPctOnSalesInvoiceAndPostPrepmt(SalesHeader, SalesLine);
-        SalesLine.Find;
+        SalesLine.Find();
         PrepaymentLineAmount := SalesLine."Prepmt. Line Amount";
 
         // Exercise.
         LibrarySales.PostSalesPrepaymentCrMemo(SalesHeader);
 
         // [THEN] G/L entries of posted Sales Invoice.
-        SalesLine.Find;
+        SalesLine.Find();
         VerifyGLEntriesOfSalesInvoice(
           GetPostedSalesPrepaymentCreditMemoNo(SalesLine."Sell-to Customer No."), GeneralPostingSetup."Sales Prepayments Account",
           PrepaymentLineAmount, SalesLine."Line Amount" * SalesLine."VAT %" / 100);
@@ -472,7 +472,7 @@ codeunit 141056 "APAC ERM Prepayments"
         GLEntry.FindLast();
         Assert.AreNearlyEqual(
           Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision,
-          StrSubstNo(AmountErr, GLEntry.FieldCaption(Amount), Amount, GLEntry.TableCaption));
+          StrSubstNo(AmountErr, GLEntry.FieldCaption(Amount), Amount, GLEntry.TableCaption()));
     end;
 
     local procedure VerifyGLEntriesOfPurchaseInvoice(GeneralPostingSetup: Record "General Posting Setup"; DocumentNo: Code[20]; PrepaymentAmount: Decimal; Amount: Decimal; VATAmount: Decimal)

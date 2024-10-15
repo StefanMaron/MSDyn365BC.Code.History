@@ -100,7 +100,6 @@ table 225 "Post Code"
 
     var
         TimeZoneSelection: Codeunit "Time Zone Selection";
-        PostCodeCheck: Codeunit "Post Code Check";
         CodeCityAlreadyExistsErr: Label '%1 %2 already exists.', Comment = '%1 = Post code ; %2 = City name';
 
     procedure ValidateCity(var CityTxt: Text[30]; var PostCode: Code[20]; var CountyTxt: Text[30]; var CountryCode: Code[10]; UseDialog: Boolean)
@@ -122,7 +121,6 @@ table 225 "Post Code"
             if IsHandled then
                 exit;
 #endif
-            PostCodeCheck.AddressValIsPostCodeCity;
             if CityTxt <> '' then begin
                 SearchCity := CityTxt;
                 PostCodeRec.SetCurrentKey("Search City");
@@ -140,7 +138,7 @@ table 225 "Post Code"
                 end;
 
                 PostCodeRec2.Copy(PostCodeRec);
-                if UseDialog and (PostCodeRec2.Next = 1) then
+                if UseDialog and (PostCodeRec2.Next() = 1) then
                     if PAGE.RunModal(PAGE::"Post Codes", PostCodeRec, PostCodeRec.Code) <> ACTION::LookupOK then
                         Error('');
                 PostCode := PostCodeRec.Code;
@@ -163,7 +161,6 @@ table 225 "Post Code"
         if IsHandled then
             exit;
 
-        PostCodeCheck.AddressValIsPostCodeCity;
         if PostCode <> '' then begin
             if StrPos(PostCode, '*') = StrLen(PostCode) then
                 PostCodeRec.SetFilter(Code, PostCode)
@@ -180,7 +177,7 @@ table 225 "Post Code"
             end;
 
             PostCodeRec2.Copy(PostCodeRec);
-            if UseDialog and (PostCodeRec2.Next = 1) and GuiAllowed then
+            if UseDialog and (PostCodeRec2.Next() = 1) and GuiAllowed then
                 if PAGE.RunModal(PAGE::"Post Codes", PostCodeRec, PostCodeRec.Code) <> ACTION::LookupOK then
                     exit;
             PostCode := PostCodeRec.Code;
@@ -231,15 +228,15 @@ table 225 "Post Code"
                 "Country/Region Code" := NewCountryRegion;
             if NewCounty <> '' then
                 County := NewCounty;
-            Modify;
+            Modify();
         end else begin
-            Init;
+            Init();
 
             Code := NewPostCode;
             City := NewCity;
             "Country/Region Code" := NewCountryRegion;
             County := NewCounty;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -309,7 +306,7 @@ table 225 "Post Code"
             PostCodes.SetRecord(PostCodeRec);
 
         PostCodes.LookupMode := true;
-        if PostCodes.RunModal = ACTION::LookupOK then begin
+        if PostCodes.RunModal() = ACTION::LookupOK then begin
             PostCodes.GetRecord(PostCodeRec);
             PostCode := PostCodeRec.Code;
             CityTxt := PostCodeRec.City;

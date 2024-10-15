@@ -1,3 +1,4 @@
+#if not CLEAN21
 page 2131 "O365 Learn Settings"
 {
     Caption = 'Learn';
@@ -9,6 +10,9 @@ page 2131 "O365 Learn Settings"
     ShowFilter = false;
     SourceTable = "O365 Settings Menu";
     SourceTableTemporary = true;
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     layout
     {
@@ -19,11 +23,11 @@ page 2131 "O365 Learn Settings"
                 ShowCaption = false;
                 field(Title; Title)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                 }
                 field(Description; Description)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies a description of the learn setting.';
                 }
             }
@@ -36,7 +40,7 @@ page 2131 "O365 Learn Settings"
         {
             action(Open)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Open';
                 Image = DocumentEdit;
                 Scope = Repeater;
@@ -45,7 +49,7 @@ page 2131 "O365 Learn Settings"
 
                 trigger OnAction()
                 begin
-                    OpenLink;
+                    OpenLink();
                 end;
             }
         }
@@ -53,7 +57,7 @@ page 2131 "O365 Learn Settings"
 
     trigger OnOpenPage()
     begin
-        InsertMenuItems;
+        InsertMenuItems();
     end;
 
     var
@@ -74,4 +78,4 @@ page 2131 "O365 Learn Settings"
           'https://go.microsoft.com/fwlink/?linkid=831305', PrivacyTitleLbl, PrivacyDescriptionLbl);
     end;
 }
-
+#endif

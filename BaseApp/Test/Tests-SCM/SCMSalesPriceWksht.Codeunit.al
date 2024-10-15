@@ -415,7 +415,7 @@ codeunit 137201 "SCM Sales Price Wksht"
         PriceListLine: Record "Price List Line";
     begin
         LibraryCosting.CreateSalesPrice(
-          SalesPrice, SalesType, SalesCode, Item."No.", WorkDate, '', '', Item."Base Unit of Measure", Quantity);
+          SalesPrice, SalesType, SalesCode, Item."No.", WorkDate(), '', '', Item."Base Unit of Measure", Quantity);
         SalesPrice.Validate("Unit Price", UnitPrice);
         SalesPrice.Modify(true);
         CopyFromToPriceListLine.CopyFrom(SalesPrice, PriceListLine);
@@ -429,7 +429,7 @@ codeunit 137201 "SCM Sales Price Wksht"
         // Random Value for Line Discount percentage is not important.
         LibraryERM.CreateLineDiscForCustomer(
           SalesLineDiscount, SalesLineDiscount.Type::Item, Item."No.",
-          SalesLineDiscount."Sales Type"::Customer, CustomerNo, WorkDate, '', '', Item."Base Unit of Measure", MinimumQty);
+          SalesLineDiscount."Sales Type"::Customer, CustomerNo, WorkDate(), '', '', Item."Base Unit of Measure", MinimumQty);
         SalesLineDiscount.Validate("Line Discount %", LibraryRandom.RandDec(10, 2));
         SalesLineDiscount.Modify(true);
         CopyFromToPriceListLine.CopyFrom(SalesLineDiscount, PriceListLine);
@@ -440,7 +440,7 @@ codeunit 137201 "SCM Sales Price Wksht"
         PriceListLine: Record "Price List Line";
     begin
         LibraryCosting.CreatePurchasePrice(
-          PurchasePrice, VendorNo, Item."No.", WorkDate, '', '', Item."Base Unit of Measure", Quantity);
+          PurchasePrice, VendorNo, Item."No.", WorkDate(), '', '', Item."Base Unit of Measure", Quantity);
         PurchasePrice.Validate("Direct Unit Cost", Item."Unit Cost" - LibraryRandom.RandInt(5));  // Value important for test.
         PurchasePrice.Modify(true);
         CopyFromToPriceListLine.CopyFrom(PurchasePrice, PriceListLine);
@@ -453,7 +453,7 @@ codeunit 137201 "SCM Sales Price Wksht"
     begin
         // Random Value for Line Discount percentage is not important.
         LibraryERM.CreateLineDiscForVendor(
-          PurchaseLineDiscount, Item."No.", VendorNo, WorkDate, '', '', Item."Base Unit of Measure", MinimumQty);
+          PurchaseLineDiscount, Item."No.", VendorNo, WorkDate(), '', '', Item."Base Unit of Measure", MinimumQty);
         PurchaseLineDiscount.Validate("Line Discount %", LibraryRandom.RandDec(10, 2));
         PurchaseLineDiscount.Modify(true);
         CopyFromToPriceListLine.CopyFrom(PurchaseLineDiscount, PriceListLine);
@@ -512,7 +512,7 @@ codeunit 137201 "SCM Sales Price Wksht"
             SalesPriceWorksheet.Modify(true);
             NewUnitPrice[Count] := SalesPriceWorksheet."New Unit Price";
             Quantity[Count] := SalesPriceWorksheet."Minimum Quantity";
-        until SalesPriceWorksheet.Next = 0;
+        until SalesPriceWorksheet.Next() = 0;
     end;
 
     local procedure UpdateCampaignSalesPrices(Item: Record Item; CampaignNo: Code[20]; MinimumQuantity: Decimal)
@@ -524,7 +524,7 @@ codeunit 137201 "SCM Sales Price Wksht"
         SalesPrice.FindFirst();
         SalesPriceWorksheet.FindFirst();
         SalesPriceWorksheet.Rename(
-          WorkDate, WorkDate, "Sales Price Type"::Campaign, CampaignNo, '', Item."No.", '', Item."Base Unit of Measure", MinimumQuantity);
+          WorkDate, WorkDate(), "Sales Price Type"::Campaign, CampaignNo, '', Item."No.", '', Item."Base Unit of Measure", MinimumQuantity);
     end;
 #endif
 

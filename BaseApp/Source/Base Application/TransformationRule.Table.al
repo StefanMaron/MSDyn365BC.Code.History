@@ -15,11 +15,9 @@ table 1237 "Transformation Rule"
         {
             Caption = 'Description';
         }
-        field(3; "Transformation Type"; Option)
+        field(3; "Transformation Type"; Enum "Transformation Rule Type")
         {
             Caption = 'Transformation Type';
-            OptionCaption = 'Uppercase,Lowercase,Title Case,Trim,Substring,Replace,Regular Expression - Replace,Remove Non-Alphanumeric Characters,Date Formatting,Decimal Formatting,Regular Expression - Match,Custom,Date and Time Formatting';
-            OptionMembers = Uppercase,Lowercase,"Title Case",Trim,Substring,Replace,"Regular Expression - Replace","Remove Non-Alphanumeric Characters","Date Formatting","Decimal Formatting","Regular Expression - Match",Custom,"Date and Time Formatting";
 
             trigger OnValidate()
             begin
@@ -36,7 +34,7 @@ table 1237 "Transformation Rule"
                     "Ending Text" := '';
                     "Starting Text" := '';
                 end;
-                if not IsDataFormatUpdateAllowed then begin
+                if not IsDataFormatUpdateAllowed() then begin
                     "Data Format" := '';
                     "Data Formatting Culture" := '';
                 end;
@@ -129,7 +127,7 @@ table 1237 "Transformation Rule"
 
             trigger OnValidate()
             begin
-                if not IsDataFormatUpdateAllowed then
+                if not IsDataFormatUpdateAllowed() then
                     TestField("Data Format", '');
             end;
         }
@@ -139,7 +137,7 @@ table 1237 "Transformation Rule"
 
             trigger OnValidate()
             begin
-                if not IsDataFormatUpdateAllowed then
+                if not IsDataFormatUpdateAllowed() then
                     TestField("Data Formatting Culture", '');
             end;
         }
@@ -147,6 +145,84 @@ table 1237 "Transformation Rule"
         {
             Caption = 'Next Transformation Rule';
             TableRelation = "Transformation Rule".Code;
+        }
+        field(50; "Table ID"; Integer)
+        {
+            Caption = 'Table ID';
+            trigger OnLookup()
+            var
+                ConfigValidateMgt: Codeunit "Config. Validate Management";
+            begin
+                ConfigValidateMgt.LookupTable("Table ID");
+                if "Table ID" <> 0 then
+                    Validate("Table ID");
+            end;
+
+            trigger OnValidate()
+            begin
+                CalcFields("Table Caption");
+            end;
+        }
+        field(51; "Table Caption"; Text[250])
+        {
+            Caption = 'Table ID';
+            CalcFormula = Lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Table),
+                                                                           "Object ID" = field("Table ID")));
+            Editable = false;
+            FieldClass = FlowField;
+        }
+        field(52; "Source Field ID"; Integer)
+        {
+            Caption = 'Source Field ID';
+            TableRelation = Field."No." where(TableNo = field("Table ID"));
+
+            trigger OnValidate()
+            begin
+                if ("Source Field ID" <> 0) and ("Target Field ID" = "Source Field ID") then
+                    FieldError("Source Field ID");
+                CalcFields("Source Field Caption");
+            end;
+        }
+        field(53; "Source Field Caption"; Text[250])
+        {
+            Caption = 'Source Field Caption';
+            CalcFormula = Lookup(Field."Field Caption" where(TableNo = field("Table ID"),
+                                                              "No." = field("Source Field ID")));
+            Editable = false;
+            FieldClass = FlowField;
+        }
+        field(54; "Target Field ID"; Integer)
+        {
+            Caption = 'Target Field ID';
+            TableRelation = Field."No." where(TableNo = field("Table ID"));
+
+            trigger OnValidate()
+            begin
+                if ("Target Field ID" <> 0) and ("Target Field ID" = "Source Field ID") then
+                    FieldError("Target Field ID");
+                CalcFields("Target Field Caption");
+            end;
+        }
+        field(55; "Target Field Caption"; Text[250])
+        {
+            Caption = 'Target Field Caption';
+            CalcFormula = Lookup(Field."Field Caption" where(TableNo = field("Table ID"),
+                                                              "No." = field("Target Field ID")));
+            Editable = false;
+            FieldClass = FlowField;
+        }
+        field(56; "Field Lookup Rule"; Option)
+        {
+            Caption = 'Field Lookup Rule';
+            OptionMembers = Target,"Original If Target Is Blank";
+        }
+        field(57; Precision; Decimal)
+        {
+            Caption = 'Precision';
+        }
+        field(58; Direction; Text[1])
+        {
+            Caption = 'Direction';
         }
     }
 
@@ -164,12 +240,12 @@ table 1237 "Transformation Rule"
 
     trigger OnInsert()
     begin
-        CheckMandatoryFields;
+        CheckMandatoryFields();
     end;
 
     trigger OnModify()
     begin
-        CheckMandatoryFields;
+        CheckMandatoryFields();
     end;
 
     var
@@ -323,6 +399,10 @@ table 1237 "Transformation Rule"
                 NewValue := DateTimeFormatting(OldValue);
             "Transformation Type"::"Decimal Formatting":
                 NewValue := DecimalFormatting(OldValue);
+            "Transformation Type"::"Field Lookup":
+                NewValue := FieldLookup(OldValue);
+            "Transformation Type"::Round:
+                NewValue := RoundValue(OldValue);
             "Transformation Type"::Custom:
                 OnTransformation(Code, OldValue, NewValue);
         end;
@@ -384,13 +464,12 @@ table 1237 "Transformation Rule"
 
         WholeExpressionGroup := true;
         foreach Match in MatchCollection do
-            foreach Group in Match.Groups do begin
+            foreach Group in Match.Groups do
                 if WholeExpressionGroup then
                     WholeExpressionGroup := false
                 else
                     foreach Capture in Group.Captures do
                         NewString += Capture.Value;
-            end;
 
         exit(NewString);
     end;
@@ -447,7 +526,7 @@ table 1237 "Transformation Rule"
     begin
         DateTimeValue := GetDateTime(OldValue, false);
         if DateTimeValue <> 0DT then
-            NewValue := Format(DateTimeValue, 0, XmlFormat)
+            NewValue := Format(DateTimeValue, 0, XmlFormat())
         else
             NewValue := OldValue;
         exit(NewValue);
@@ -462,7 +541,7 @@ table 1237 "Transformation Rule"
         DateTimeValue := GetDateTime(OldValue, true);
         DateValue := DT2Date(DateTimeValue);
         if DateValue <> 0D then
-            NewValue := Format(DateValue, 0, XmlFormat)
+            NewValue := Format(DateValue, 0, XmlFormat())
         else
             NewValue := OldValue;
         exit(NewValue);
@@ -476,11 +555,48 @@ table 1237 "Transformation Rule"
         DummyDecimal: Decimal;
     begin
         NewValue := OldValue;
+        DummyDecimal := 0;
         NewDecimalVariant := DummyDecimal;
         TypeHelper.Evaluate(NewDecimalVariant, OldValue, '', "Data Formatting Culture");
 
-        NewValue := Format(NewDecimalVariant, 0, XmlFormat);
+        NewValue := Format(NewDecimalVariant, 0, XmlFormat());
         exit(NewValue);
+    end;
+
+    local procedure FieldLookup(OldValue: Text): Text
+    var
+        RecRef: RecordRef;
+        FieldRef: FieldRef;
+    begin
+        TestField("Table ID");
+        TestField("Source Field ID");
+        TestField("Target Field ID");
+        RecRef.Open("Table ID");
+        FieldRef := RecRef.Field("Source Field ID");
+        FieldRef.SetRange(OldValue);
+        if RecRef.FindFirst then begin
+            FieldRef := RecRef.Field("Target Field ID");
+            case "Field Lookup Rule" of
+                "Field Lookup Rule"::Target:
+                    exit(FieldRef.Value);
+                "Field Lookup Rule"::"Original If Target Is Blank":
+                    begin
+                        if Format(FieldRef.Value) = '' then
+                            exit(OldValue);
+                        exit(FieldRef.Value);
+                    end;
+            end;
+        end;
+    end;
+
+    local procedure RoundValue(OldValue: Text): Text
+    var
+        DecVar: Decimal;
+    begin
+        Evaluate(DecVar, OldValue);
+        TestField(Precision);
+        TestField(Direction);
+        exit(Format(Round(DecVar, Precision, Direction)));
     end;
 
     local procedure Substring(OldValue: Text): Text
@@ -658,4 +774,3 @@ table 1237 "Transformation Rule"
         exit(9);
     end;
 }
-

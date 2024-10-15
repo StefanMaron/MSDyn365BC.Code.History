@@ -14,7 +14,7 @@
             trigger OnValidate()
             begin
                 if "No." <> xRec."No." then begin
-                    NoSeriesMgt.TestManual(GetNoSeriesCode);
+                    NoSeriesMgt.TestManual(GetNoSeriesCode());
                     "No. Series" := '';
                 end;
                 "Posting Description" := StrSubstNo(Text000, "No.");
@@ -30,7 +30,7 @@
                 Cont: Record Contact;
             begin
                 if CurrFieldNo = FieldNo("Customer No.") then
-                    if Undo then begin
+                    if Undo() then begin
                         "Customer No." := xRec."Customer No.";
                         CreateDimFromDefaultDim();
                         exit;
@@ -56,9 +56,6 @@
                 County := Cust.County;
                 Contact := Cust.Contact;
                 "Country/Region Code" := Cust."Country/Region Code";
-                PostCodeCheck.CopyAddressID(
-                  DATABASE::Customer, Cust.GetPosition, 0,
-                  DATABASE::"Reminder Header", Rec.GetPosition, 0);
                 "Language Code" := Cust."Language Code";
                 "Currency Code" := Cust."Currency Code";
                 "Shortcut Dimension 1 Code" := Cust."Global Dimension 1 Code";
@@ -89,24 +86,10 @@
         field(5; Address; Text[100])
         {
             Caption = 'Address';
-
-            trigger OnValidate()
-            begin
-                PostCodeCheck.ValidateAddress(
-                  CurrFieldNo, DATABASE::"Reminder Header", Rec.GetPosition, 0,
-                  Name, "Name 2", Contact, Address, "Address 2", City, "Post Code", County, "Country/Region Code");
-            end;
         }
         field(6; "Address 2"; Text[50])
         {
             Caption = 'Address 2';
-
-            trigger OnValidate()
-            begin
-                PostCodeCheck.ValidateAddress(
-                  CurrFieldNo, DATABASE::"Reminder Header", Rec.GetPosition, 0,
-                  Name, "Name 2", Contact, Address, "Address 2", City, "Post Code", County, "Country/Region Code");
-            end;
         }
         field(7; "Post Code"; Code[20])
         {
@@ -124,10 +107,13 @@
             end;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
-                PostCodeCheck.ValidatePostCode(
-                  CurrFieldNo, DATABASE::"Reminder Header", Rec.GetPosition, 0,
-                  Name, "Name 2", Contact, Address, "Address 2", City, "Post Code", County, "Country/Region Code");
+                IsHandled := false;
+                OnBeforeValidatePostCode(Rec, PostCode, CurrFieldNo, IsHandled);
+                if not IsHandled then
+                    PostCode.ValidatePostCode(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
             end;
         }
         field(8; City; Text[30])
@@ -146,10 +132,13 @@
             end;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
-                PostCodeCheck.ValidateCity(
-                  CurrFieldNo, DATABASE::"Reminder Header", Rec.GetPosition, 0,
-                  Name, "Name 2", Contact, Address, "Address 2", City, "Post Code", County, "Country/Region Code");
+                IsHandled := false;
+                OnBeforeValidateCity(Rec, PostCode, CurrFieldNo, IsHandled);
+                if not IsHandled then
+                    PostCode.ValidateCity(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
             end;
         }
         field(9; County; Text[30])
@@ -180,7 +169,7 @@
             trigger OnValidate()
             begin
                 if CurrFieldNo = FieldNo("Currency Code") then
-                    if Undo then begin
+                    if Undo() then begin
                         "Currency Code" := xRec."Currency Code";
                         exit;
                     end;
@@ -250,6 +239,13 @@
         field(21; "Posting Date"; Date)
         {
             Caption = 'Posting Date';
+
+            trigger OnValidate()
+            begin
+                GLSetup.Get();
+                GLSetup.UpdateVATDate("Posting Date", Enum::"VAT Reporting Date"::"Posting Date", "VAT Reporting Date");
+                Validate("VAT Reporting Date");
+            end;
         }
         field(22; "Document Date"; Date)
         {
@@ -258,11 +254,15 @@
             trigger OnValidate()
             begin
                 if CurrFieldNo = FieldNo("Document Date") then
-                    if Undo then begin
+                    if Undo() then begin
                         "Document Date" := xRec."Document Date";
                         exit;
                     end;
                 Validate("Reminder Level");
+
+                GLSetup.Get();
+                GLSetup.UpdateVATDate("Document Date", Enum::"VAT Reporting Date"::"Document Date", "VAT Reporting Date");
+                Validate("VAT Reporting Date");
             end;
         }
         field(23; "Due Date"; Date)
@@ -277,7 +277,7 @@
             trigger OnValidate()
             begin
                 if CurrFieldNo = FieldNo("Reminder Terms Code") then
-                    if Undo then begin
+                    if Undo() then begin
                         "Reminder Terms Code" := xRec."Reminder Terms Code";
                         exit;
                     end;
@@ -299,7 +299,7 @@
             trigger OnValidate()
             begin
                 if CurrFieldNo = FieldNo("Fin. Charge Terms Code") then
-                    if Undo then begin
+                    if Undo() then begin
                         "Fin. Charge Terms Code" := xRec."Fin. Charge Terms Code";
                         exit;
                     end;
@@ -324,7 +324,7 @@
                     ReminderTerms.Get("Reminder Terms Code");
                     ReminderLevel.SetRange("Reminder Terms Code", "Reminder Terms Code");
                     ReminderLevel.SetRange("No.", 1, "Reminder Level");
-                    if ReminderLevel.FindLast and ("Document Date" <> 0D) then
+                    if ReminderLevel.FindLast() and ("Document Date" <> 0D) then
                         "Due Date" := CalcDate(ReminderLevel."Due Date Calculation", "Document Date");
 
                     OnAfterValidateReminderLevel(Rec, ReminderLevel);
@@ -404,8 +404,8 @@
             begin
                 with ReminderHeader do begin
                     ReminderHeader := Rec;
-                    TestNoSeries;
-                    if NoSeriesMgt.LookupSeries(GetIssuingNoSeriesCode, "Issuing No. Series") then
+                    TestNoSeries();
+                    if NoSeriesMgt.LookupSeries(GetIssuingNoSeriesCode(), "Issuing No. Series") then
                         Validate("Issuing No. Series");
                     Rec := ReminderHeader;
                 end;
@@ -414,8 +414,8 @@
             trigger OnValidate()
             begin
                 if "Issuing No. Series" <> '' then begin
-                    TestNoSeries;
-                    NoSeriesMgt.TestSeries(GetIssuingNoSeriesCode, "Issuing No. Series");
+                    TestNoSeries();
+                    NoSeriesMgt.TestSeries(GetIssuingNoSeriesCode(), "Issuing No. Series");
                 end;
                 TestField("Issuing No.", '');
             end;
@@ -455,6 +455,17 @@
         {
             Caption = 'Post Add. Fee per Line';
         }
+        field(47; "VAT Reporting Date"; Date)
+        {
+            Caption = 'VAT Date';
+            Editable = false;
+
+            trigger OnValidate()
+            begin
+                if "VAT Reporting Date" = 0D then
+                    InitVATDate();
+            end;
+        }
         field(163; "Company Bank Account Code"; Code[20])
         {
             Caption = 'Company Bank Account Code';
@@ -468,7 +479,7 @@
 
             trigger OnLookup()
             begin
-                ShowDocDim;
+                ShowDocDim();
             end;
 
             trigger OnValidate()
@@ -514,8 +525,6 @@
         ReminderCommentLine.DeleteAll();
 
         PrintIssuedReminders();
-
-        PostCodeCheck.DeleteAllAddressID(DATABASE::"Reminder Header", Rec.GetPosition);
     end;
 
     trigger OnInsert()
@@ -531,20 +540,15 @@
             NoSeriesMgt.SetDefaultSeries("Issuing No. Series", GetIssuingNoSeriesCode());
 
         if "Posting Date" = 0D then
-            "Posting Date" := WorkDate;
-        "Document Date" := WorkDate;
-        "Due Date" := WorkDate;
+            "Posting Date" := WorkDate();
+        "Document Date" := WorkDate();
+        "Due Date" := WorkDate();
+
+        InitVATDate();
 
         if GetFilter("Customer No.") <> '' then
             if GetRangeMin("Customer No.") = GetRangeMax("Customer No.") then
                 Validate("Customer No.", GetRangeMin("Customer No."));
-    end;
-
-    trigger OnRename()
-    begin
-        PostCodeCheck.MoveAllAddressID(
-          DATABASE::"Reminder Header", xRec.GetPosition,
-          DATABASE::"Reminder Header", Rec.GetPosition);
     end;
 
     var
@@ -569,12 +573,12 @@
         PostCode: Record "Post Code";
         IssuedReminderHeader: Record "Issued Reminder Header";
         GenBusPostingGrp: Record "Gen. Business Posting Group";
+        GLSetup: Record "General Ledger Setup";
         AutoFormat: Codeunit "Auto Format";
         NoSeriesMgt: Codeunit NoSeriesManagement;
         TransferExtendedText: Codeunit "Transfer Extended Text";
         ReminderIssue: Codeunit "Reminder-Issue";
         DimMgt: Codeunit DimensionManagement;
-        PostCodeCheck: Codeunit "Post Code Check";
         NextLineNo: Integer;
         LineSpacing: Integer;
         ReminderTotal: Decimal;
@@ -584,9 +588,9 @@
     begin
         with ReminderHeader do begin
             ReminderHeader := Rec;
-            TestNoSeries;
+            TestNoSeries();
             if NoSeriesMgt.SelectSeries(SalesSetup."Reminder Nos.", OldReminderHeader."No. Series", "No. Series") then begin
-                TestNoSeries;
+                TestNoSeries();
                 NoSeriesMgt.SetSeries("No.");
                 Rec := ReminderHeader;
                 exit(true);
@@ -626,6 +630,11 @@
         exit(NoSeriesMgt.GetNoSeriesWithCheck(NoSeriesCode, SelectNoSeriesAllowed, "No. Series"));
     end;
 
+    local procedure InitVATDate()
+    begin
+        "VAT Reporting Date" := GLSetup.GetVATDate("Posting Date", "Document Date");
+    end;
+
     local procedure GetIssuingNoSeriesCode() IssuingNos: Code[20]
     var
         IsHandled: Boolean;
@@ -662,7 +671,7 @@
             then
                 exit(true);
             ReminderLine.DeleteAll();
-            Modify
+            Modify();
         end;
     end;
 
@@ -695,9 +704,9 @@
                 ReminderLine2 := ReminderLine;
                 ReminderLine2.CopyFilters(ReminderLine);
                 ReminderLine2.SetFilter("Line Type", '<>%1', ReminderLine2."Line Type"::"Line Fee");
-                if ReminderLine2.Next <> 0 then begin
-                    LineSpacing := (ReminderLine2."Line No." - ReminderLine."Line No.") div 3;
-                end else
+                if ReminderLine2.Next() <> 0 then
+                    LineSpacing := (ReminderLine2."Line No." - ReminderLine."Line No.") div 3
+                else
                     LineSpacing := 10000;
                 InsertBlankLine(ReminderLine."Line Type"::"Additional Fee");
 
@@ -707,7 +716,7 @@
                 ReminderLine.Type := ReminderLine.Type::"G/L Account";
                 TestField("Customer Posting Group");
                 CustPostingGr.Get("Customer Posting Group");
-                ReminderLine.Validate("No.", CustPostingGr.GetAdditionalFeeAccount);
+                ReminderLine.Validate("No.", CustPostingGr.GetAdditionalFeeAccount());
                 ReminderLine.Description :=
                   CopyStr(
                     TranslationHelper.GetTranslatedFieldCaption(
@@ -729,7 +738,7 @@
         ReminderRounding(Rec);
         InsertBeginTexts(Rec);
         InsertEndTexts(Rec);
-        Modify;
+        Modify();
 
         OnAfterInsertLines(Rec);
     end;
@@ -751,7 +760,7 @@
             ReminderLine.SetRange("Reminder No.", ReminderHeader."No.");
             ReminderLine.SetRange("Line Type", ReminderLine."Line Type"::"Additional Fee");
             ReminderLine.DeleteAll();
-            InsertLines;
+            InsertLines();
         end else begin
             InsertBeginTexts(ReminderHeader);
             InsertEndTexts(ReminderHeader);
@@ -829,7 +838,7 @@
             ReminderLine2 := ReminderLine;
             ReminderLine2.CopyFilters(ReminderLine);
             ReminderLine2.SetFilter("Line Type", '<>%1', ReminderLine2."Line Type"::"Line Fee");
-            if ReminderLine2.Next <> 0 then begin
+            if ReminderLine2.Next() <> 0 then begin
                 LineSpacing :=
                   (ReminderLine2."Line No." - ReminderLine."Line No.") div
                   (ReminderText.Count + 2);
@@ -934,7 +943,7 @@
         with ReminderHeader do begin
             Copy(Rec);
             FindFirst();
-            SetRecFilter;
+            SetRecFilter();
             ReportSelection.PrintForCust(ReportSelection.Usage::"Rem.Test", ReminderHeader, FieldNo("Customer No."));
         end;
     end;
@@ -1035,7 +1044,7 @@
             exit(0);
 
         CalcFields(
-            "Remaining Amount","Interest Amount","Additional Fee","VAT Amount","Add. Fee per Line");
+            "Remaining Amount", "Interest Amount", "Additional Fee", "VAT Amount", "Add. Fee per Line");
         TotalAmountInclVAT :=
             "Remaining Amount" + "Interest Amount" + "Additional Fee" +
             "Add. Fee per Line" + "VAT Amount";
@@ -1046,7 +1055,7 @@
                 Round(
                     TotalAmountInclVAT,
                     Currency."Invoice Rounding Precision",
-                    Currency.InvoiceRoundingDirection),
+                    Currency.InvoiceRoundingDirection()),
                 Currency."Amount Rounding Precision"));
     end;
 
@@ -1064,12 +1073,12 @@
         if ReminderRoundingAmount <> 0 then begin
             CustPostingGr.Get(ReminderHeader."Customer Posting Group");
             with ReminderLine do begin
-                Init;
+                Init();
                 Validate("Line No.", GetNextLineNo(ReminderHeader."No."));
                 Validate("Reminder No.", ReminderHeader."No.");
                 Validate(Type, Type::"G/L Account");
                 "System-Created Entry" := true;
-                Validate("No.", CustPostingGr.GetInvRoundingAccount);
+                Validate("No.", CustPostingGr.GetInvRoundingAccount());
                 Validate(
                   Amount,
                   Round(
@@ -1077,7 +1086,7 @@
                     Currency."Amount Rounding Precision"));
                 "VAT Amount" := ReminderRoundingAmount - Amount;
                 "Line Type" := "Line Type"::Rounding;
-                Insert;
+                Insert();
             end;
         end;
     end;
@@ -1085,7 +1094,7 @@
     local procedure GetCurrency()
     begin
         if "Currency Code" = '' then
-            Currency.InitRoundingPrecision
+            Currency.InitRoundingPrecision()
         else begin
             Currency.Get("Currency Code");
             Currency.TestField("Amount Rounding Precision");
@@ -1107,7 +1116,7 @@
         if ReminderLine.FindLast() then begin
             OldLineNo := ReminderLine."Line No.";
             ReminderLine.SetRange(Type);
-            if ReminderLine.Next <> 0 then
+            if ReminderLine.Next() <> 0 then
                 ReminderLine."Line No." := OldLineNo + ((ReminderLine."Line No." - OldLineNo) div 2)
             else
                 ReminderLine."Line No." := OldLineNo + 10000;
@@ -1121,7 +1130,7 @@
     begin
         "Dimension Set ID" :=
           DimMgt.EditDimensionSet(
-            Rec, "Dimension Set ID", StrSubstNo('%1 %2', TableCaption, "No."),
+            Rec, "Dimension Set ID", StrSubstNo('%1 %2', TableCaption(), "No."),
             "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
 
         OnAfterShowDocDim(Rec);
@@ -1162,8 +1171,8 @@
 
     procedure SetCustomerFromFilter()
     begin
-        if GetFilterCustNo <> '' then
-            Validate("Customer No.", GetFilterCustNo);
+        if GetFilterCustNo() <> '' then
+            Validate("Customer No.", GetFilterCustNo());
     end;
 
     [Scope('OnPrem')]
@@ -1171,7 +1180,7 @@
     begin
         if "No." = '' then begin
             TestNoSeries();
-            NoSeriesMgt.InitSeries(GetNoSeriesCode, xRec."No. Series", "Posting Date", "No.", "No. Series");
+            NoSeriesMgt.InitSeries(GetNoSeriesCode(), xRec."No. Series", "Posting Date", "No.", "No. Series");
         end;
     end;
 
@@ -1473,6 +1482,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateCustomerNoOnAfterAssignCustomerValues(var ReminderHeader: Record "Reminder Header"; Customer: Record Customer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateCity(var ReminderHeader: Record "Reminder Header"; var PostCode: Record "Post Code"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidatePostCode(var ReminderHeader: Record "Reminder Header"; var PostCode: Record "Post Code"; CurrentFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 }

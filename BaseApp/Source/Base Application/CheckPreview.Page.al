@@ -1,4 +1,4 @@
-page 404 "Check Preview"
+﻿page 404 "Check Preview"
 {
     Caption = 'Check Preview';
     DataCaptionExpression = "Document No." + ' ' + CheckToAddr[1];
@@ -38,7 +38,7 @@ page 404 "Check Preview"
                     Caption = 'Company Post Code/City';
                     ToolTip = 'Specifies the company post code and city that will appear on the check.';
                 }
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a document number for the journal line.';
@@ -109,7 +109,7 @@ page 404 "Check Preview"
                     group(Date)
                     {
                         Caption = 'Date';
-                        field("Posting Date"; "Posting Date")
+                        field("Posting Date"; Rec."Posting Date")
                         {
                             ApplicationArea = Basic, Suite;
                             ToolTip = 'Specifies the posting date for the entry.';
@@ -214,7 +214,7 @@ page 404 "Check Preview"
 
     trigger OnAfterGetRecord()
     begin
-        CalcCheck;
+        CalcCheck();
     end;
 
     trigger OnOpenPage()
@@ -224,8 +224,6 @@ page 404 "Check Preview"
     end;
 
     var
-        Text000: Label 'Printed Check';
-        Text001: Label 'Not Printed Check';
         GenJnlLine: Record "Gen. Journal Line";
         Cust: Record Customer;
         Vend: Record Vendor;
@@ -241,6 +239,9 @@ page 404 "Check Preview"
         CheckStatusText: Text[30];
         CheckAmount: Decimal;
         WHTAmount: Decimal;
+
+        Text000: Label 'Printed Check';
+        Text001: Label 'Not Printed Check';
         Text002: Label 'Placeholder';
 
     local procedure CalcCheck()
@@ -302,6 +303,7 @@ page 404 "Check Preview"
 
     local procedure FormatTextFieldsForCheck()
     var
+        RemitAddress: Record "Remit Address";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -309,7 +311,7 @@ page 404 "Check Preview"
         if IsHandled then
             exit;
 
-        CheckReport.InitTextVariable;
+        CheckReport.InitTextVariable();
         CheckReport.FormatNoText(NumberText, CheckAmount, GenJnlLine."Currency Code");
 
         case GenJnlLine."Account Type" of
@@ -324,12 +326,21 @@ page 404 "Check Preview"
                     Cust.Contact := '';
                     FormatAddr.Customer(CheckToAddr, Cust);
                 end;
+#pragma warning disable AA0005
             GenJnlLine."Account Type"::Vendor:
                 begin
-                    Vend.Get(GenJnlLine."Account No.");
-                    Vend.Contact := '';
-                    FormatAddr.Vendor(CheckToAddr, Vend);
+                    if GenJnlLine."Remit-to Code" = '' then begin
+                        Vend.Get(GenJnlLine."Account No.");
+                        Vend.Contact := '';
+                        FormatAddr.Vendor(CheckToAddr, Vend);
+                    end
+                    else begin
+                        Vend.Get(GenJnlLine."Account No.");
+                        RemitAddress.Get(GenJnlLine."Remit-to Code", GenJnlLine."Account No.");
+                        FormatAddr.VendorRemitToAddress(CheckToAddr, RemitAddress);
+                    end;
                 end;
+#pragma warning restore AA0005
             GenJnlLine."Account Type"::"Bank Account":
                 begin
                     BankAcc.Get(GenJnlLine."Account No.");

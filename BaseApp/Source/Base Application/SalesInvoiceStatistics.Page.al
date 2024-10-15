@@ -147,7 +147,7 @@ page 397 "Sales Invoice Statistics"
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        LookupAdjmtValueEntries;
+                        LookupAdjmtValueEntries();
                     end;
                 }
             }
@@ -184,19 +184,19 @@ page 397 "Sales Invoice Statistics"
             group(WHT)
             {
                 Caption = 'WHT';
-                field("Rem. WHT Prepaid Amount (LCY)"; "Rem. WHT Prepaid Amount (LCY)")
+                field("Rem. WHT Prepaid Amount (LCY)"; Rec."Rem. WHT Prepaid Amount (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Rem. WHT Amount (LCY)';
                     ToolTip = 'Specifies the remaining WHT Amount, which is to be realized (deducted) for this invoice.';
                 }
-                field("Paid WHT Prepaid Amount (LCY)"; "Paid WHT Prepaid Amount (LCY)")
+                field("Paid WHT Prepaid Amount (LCY)"; Rec."Paid WHT Prepaid Amount (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Paid WHT Amount (LCY)';
                     ToolTip = 'Specifies the paid (realized) WHT amount for this invoice.';
                 }
-                field("Total WHT Prepaid Amount (LCY)"; "Total WHT Prepaid Amount (LCY)")
+                field("Total WHT Prepaid Amount (LCY)"; Rec."Total WHT Prepaid Amount (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Total WHT Amount (LCY)';
@@ -214,7 +214,7 @@ page 397 "Sales Invoice Statistics"
     var
         CustLedgEntry: Record "Cust. Ledger Entry";
     begin
-        ClearAll;
+        ClearAll();
 
         Currency.Initialize("Currency Code");
 
@@ -233,7 +233,7 @@ page 397 "Sales Invoice Statistics"
         else
             AmountLCY :=
               CurrExchRate.ExchangeAmtFCYToLCY(
-                WorkDate, "Currency Code", CustAmount, "Currency Factor");
+                WorkDate(), "Currency Code", CustAmount, "Currency Factor");
 
         CustLedgEntry.SetCurrentKey("Document No.");
         CustLedgEntry.SetRange("Document No.", "No.");
@@ -275,15 +275,12 @@ page 397 "Sales Invoice Statistics"
     end;
 
     var
-        Text000: Label 'VAT Amount';
-        Text001: Label '%1% VAT';
         CurrExchRate: Record "Currency Exchange Rate";
         SalesInvLine: Record "Sales Invoice Line";
         Cust: Record Customer;
         TempVATAmountLine: Record "VAT Amount Line" temporary;
         TotalAdjCostLCY: Decimal;
         CustAmount: Decimal;
-        AmountInclVAT: Decimal;
         InvDiscAmount: Decimal;
         VATAmount: Decimal;
         ProfitLCY: Decimal;
@@ -299,8 +296,12 @@ page 397 "Sales Invoice Statistics"
         VATPercentage: Decimal;
         VATAmountText: Text[30];
 
+        Text000: Label 'VAT Amount';
+        Text001: Label '%1% VAT';
+
     protected var
         Currency: Record Currency;
+        AmountInclVAT: Decimal;
         AmountLCY: Decimal;
         CostLCY: Decimal;
 

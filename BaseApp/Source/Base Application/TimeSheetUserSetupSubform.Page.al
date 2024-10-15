@@ -11,18 +11,18 @@ page 1825 "Time Sheet User Setup Subform"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("User ID"; "User ID")
+                field("User ID"; Rec."User ID")
                 {
                     ApplicationArea = Basic, Suite;
                     LookupPageID = "User Lookup";
                     ToolTip = 'Specifies the ID of the user who posted the entry, to be used, for example, in the change log.';
                 }
-                field("Register Time"; "Register Time")
+                field("Register Time"; Rec."Register Time")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if you want to register time for this user. This is based on the time spent from when the user logs in to when the user logs out.';
                 }
-                field("Time Sheet Admin."; "Time Sheet Admin.")
+                field("Time Sheet Admin."; Rec."Time Sheet Admin.")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Time Sheet Administrator';
@@ -38,7 +38,7 @@ page 1825 "Time Sheet User Setup Subform"
 
     trigger OnOpenPage()
     begin
-        HideExternalUsers;
+        HideExternalUsers();
     end;
 }
 

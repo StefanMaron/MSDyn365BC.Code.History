@@ -132,7 +132,7 @@ codeunit 134140 "ERM Bank Acc Ledger Reversal"
         Currency.Get(CreateCurrency);
         CreateBankAccountAndPostGenJnlLine(GenJournalLine, Currency.Code, true);
         LibraryVariableStorage.Enqueue(GenJournalLine."Bal. Account No.");  // Enqueue values for BankAccountListReqPageHandler.
-        Amount := LibraryERM.ConvertCurrency(GenJournalLine.Amount, Currency.Code, '', WorkDate);
+        Amount := LibraryERM.ConvertCurrency(GenJournalLine.Amount, Currency.Code, '', WorkDate());
 
         // Exercise.
         REPORT.Run(REPORT::"Bank Account - List");
@@ -176,7 +176,7 @@ codeunit 134140 "ERM Bank Acc Ledger Reversal"
         Initialize();
         Currency.Get(CreateCurrency);
         CreateBankAccountAndPostGenJnlLine(GenJournalLine, Currency.Code, true);
-        Amount := LibraryERM.ConvertCurrency(GenJournalLine.Amount, Currency.Code, '', WorkDate);
+        Amount := LibraryERM.ConvertCurrency(GenJournalLine.Amount, Currency.Code, '', WorkDate());
 
         // Exercise.
         REPORT.Run(REPORT::"Bank Account Register");
@@ -326,7 +326,7 @@ codeunit 134140 "ERM Bank Acc Ledger Reversal"
         BankAccountLedgerEntry.FindSet();
         repeat
             BankAccountLedgerEntryAmt += BankAccountLedgerEntry.Amount;
-        until BankAccountLedgerEntry.Next = 0;
+        until BankAccountLedgerEntry.Next() = 0;
         exit(BankAccountLedgerEntryAmt);
     end;
 
@@ -362,18 +362,16 @@ codeunit 134140 "ERM Bank Acc Ledger Reversal"
         LibraryERM.CreatePostCode(PostCode);  // Creation of Post Code is required to avoid special characters in existing ones.
         CountryRegion.FindFirst();
         LibraryERM.CreateBankAccount(BankAccount);
-        BankAccount.Validate(
-          Address,
+        BankAccount.Address :=
           CopyStr(
             LibraryUtility.GenerateRandomCode(BankAccount.FieldNo(Address), DATABASE::"Bank Account"), 1,
-            LibraryUtility.GetFieldLength(DATABASE::"Bank Account", BankAccount.FieldNo(Address))));
-        BankAccount.Validate(
-          "Address 2",
+            LibraryUtility.GetFieldLength(DATABASE::"Bank Account", BankAccount.FieldNo(Address)));
+        BankAccount."Address 2" :=
           CopyStr(
             LibraryUtility.GenerateRandomCode(BankAccount.FieldNo("Address 2"), DATABASE::"Bank Account"), 1,
-            LibraryUtility.GetFieldLength(DATABASE::"Bank Account", BankAccount.FieldNo("Address 2"))));
-        BankAccount.Validate("Country/Region Code", CountryRegion.Code);
-        BankAccount.Validate("Post Code", PostCode.Code);
+            LibraryUtility.GetFieldLength(DATABASE::"Bank Account", BankAccount.FieldNo("Address 2")));
+        BankAccount."Country/Region Code" := CountryRegion.Code;
+        BankAccount."Post Code" := PostCode.Code;
         BankAccount.Modify(true);
     end;
 

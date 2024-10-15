@@ -207,6 +207,11 @@ page 6327 "Power BI Embed Setup Wizard"
                         Visible = IsDeploying;
                         InstructionalText = 'Your demo report is being uploaded, and you will see it in your Power BI workspace shortly.';
                     }
+                    group("Para4.1.4")
+                    {
+                        Caption = '';
+                        InstructionalText = 'Some list pages, such as Items and Customers, allow you to display Power BI reports in the FactBox pane. Personalize the FactBox pane on these pages to show the Power BI Report part. Then, choose the reports you want to display.';
+                    }
                     label(EmptySpace4)
                     {
                         ApplicationArea = Basic, Suite;
@@ -312,7 +317,7 @@ page 6327 "Power BI Embed Setup Wizard"
         WizardOpenedForContextTxt: Label 'Power BI Wizard opened for context: %1.', Locked = true;
         LearnMoreAzureAppTxt: Label 'Learn more about registering an Azure AD application';
         PowerBIHomePageTxt: Label 'Go to Power BI home page';
-        PrivacyStatementTxt: Label 'Your privacy is important to us. To learn more read our Privacy Statement.';
+        PrivacyStatementTxt: Label 'Privacy and cookies';
 
     local procedure SetStep(NewStep: Option)
     begin
@@ -380,7 +385,6 @@ page 6327 "Power BI Embed Setup Wizard"
     local procedure StartAutoDeployment()
     var
         DummyPowerBIUserConfiguration: Record "Power BI User Configuration";
-        SetPowerBIUserConfig: Codeunit "Set Power BI User Config";
     begin
         if ParentPageContext = '' then begin
             IsDeploying := false;
@@ -393,7 +397,7 @@ page 6327 "Power BI Embed Setup Wizard"
         end;
 
         // Ensure user config for context before deployment
-        SetPowerBIUserConfig.CreateOrReadUserConfigEntry(DummyPowerBIUserConfiguration, ParentPageContext);
+        DummyPowerBIUserConfiguration.CreateOrReadForCurrentUser(ParentPageContext);
         if not PowerBIReportSynchronizer.UserNeedsToSynchronize(ParentPageContext) then begin
             IsDeploying := false;
             exit;

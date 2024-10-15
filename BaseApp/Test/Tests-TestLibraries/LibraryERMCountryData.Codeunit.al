@@ -303,7 +303,7 @@ codeunit 131305 "Library - ERM Country Data"
         GLSetup: Record "General Ledger Setup";
     begin
         with GLSetup do begin
-            Get;
+            Get();
             Validate("Full GST on Prepayment", false);
             Modify(true);
         end;

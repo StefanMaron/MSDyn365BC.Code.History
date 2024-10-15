@@ -37,7 +37,6 @@ codeunit 5940 ServContractManagement
         ServLineNo: Integer;
         NextEntry: Integer;
         AppliedEntry: Integer;
-        PostCodeCheck: Codeunit "Post Code Check";
         Text007: Label 'Invoice cannot be created because amount to invoice for this invoice period is zero.';
         Text008: Label 'The combination of dimensions used in %1 %2 is blocked. %3';
         Text009: Label 'The dimensions used in %1 %2 are invalid. %3';
@@ -148,7 +147,7 @@ codeunit 5940 ServContractManagement
 
         ServContractHeader.CalcFields("Calcd. Annual Amount");
         CheckServiceContractHeaderAmts(ServContractHeader);
-        Currency.InitRoundingPrecision;
+        Currency.InitRoundingPrecision();
         ReturnLedgerEntry := NextEntry;
         Clear(ServLedgEntry);
         InitServLedgEntry(ServLedgEntry, ServContractHeader, ServHeader2."No.");
@@ -400,7 +399,7 @@ codeunit 5940 ServContractManagement
             exit;
 
         if PostDate = 0D then
-            PostDate := WorkDate;
+            PostDate := WorkDate();
 
         Clear(ServHeader2);
         ServHeader2.Init();
@@ -425,7 +424,7 @@ codeunit 5940 ServContractManagement
         InsertServiceHeader(ServHeader2, ServContract2);
         ServInvNo := ServHeader2."No.";
 
-        ServHeader2."Order Date" := WorkDate;
+        ServHeader2."Order Date" := WorkDate();
         ServHeader2."Posting Description" :=
           Format(ServHeader2."Document Type") + ' ' + ServHeader2."No.";
         ServHeader2.Validate("Bill-to Customer No.", ServContract2."Bill-to Customer No.");
@@ -437,8 +436,9 @@ codeunit 5940 ServContractManagement
 
         Cust.CheckBlockedCustOnDocs(Cust, ServHeader2."Document Type", false, false);
 
-        if not ApplicationAreaMgmt.IsSalesTaxEnabled then
+        if not ApplicationAreaMgmt.IsSalesTaxEnabled() then
             Cust.TestField("Gen. Bus. Posting Group");
+
         ServHeader2.Name := Cust.Name;
         ServHeader2."Name 2" := Cust."Name 2";
         ServHeader2.Address := Cust.Address;
@@ -453,9 +453,8 @@ codeunit 5940 ServContractManagement
         ServHeader2."Bill-to Contact" := ServContract2."Bill-to Contact";
         ServHeader2."Tax Area Code" := Cust."Tax Area Code";
         ServHeader2."Tax Liable" := Cust."Tax Liable";
-        PostCodeCheck.CopyAddressID(
-          DATABASE::Customer, Cust.GetPosition, 0,
-          DATABASE::"Service Header", ServHeader2.GetPosition, 3);
+
+        OnCreateServHeaderOnAfterCopyFromCustomer(ServHeader2, ServContract2, Cust);
 
         if not ContractExists then
             if ServHeader2."Customer No." = ServContract2."Customer No." then
@@ -665,8 +664,8 @@ codeunit 5940 ServContractManagement
                 if StrLen(TempServLineDescription) > MaxStrLen(ServLine.Description) then
                     Error(
                       Text013,
-                      ServLine.TableCaption, ServLine.FieldCaption(Description),
-                      StdText.TableCaption, StdText.Code, StdText.FieldCaption(Description),
+                      ServLine.TableCaption(), ServLine.FieldCaption(Description),
+                      StdText.TableCaption(), StdText.Code, StdText.FieldCaption(Description),
                       Format(StrLen(TempServLineDescription) - MaxStrLen(ServLine.Description)));
                 ServLine.Description := CopyStr(TempServLineDescription, 1, MaxStrLen(ServLine.Description));
             end else
@@ -721,7 +720,7 @@ codeunit 5940 ServContractManagement
                         ServLine.Insert();
                         if TransferExtendedText.ServCheckIfAnyExtText(ServLine, true) then
                             TransferExtendedText.InsertServExtText(ServLine);
-                        if TransferExtendedText.MakeUpdate then;
+                        if TransferExtendedText.MakeUpdate() then;
                         ServLine."No." := '';
                         OnBeforeLastServLineModify(ServLine);
                         ServLine.Modify();
@@ -804,7 +803,7 @@ codeunit 5940 ServContractManagement
         ServHeader2."Responsibility Center" := ServContract."Responsibility Center";
         Cust.Get(ServHeader2."Customer No.");
         Cust.CheckBlockedCustOnDocs(Cust, ServHeader2."Document Type", false, false);
-        if not ApplicationAreaMgmt.IsSalesTaxEnabled then
+        if not ApplicationAreaMgmt.IsSalesTaxEnabled() then
             Cust.TestField("Gen. Bus. Posting Group");
         ServHeader2.Name := Cust.Name;
         ServHeader2."Name 2" := Cust."Name 2";
@@ -825,7 +824,7 @@ codeunit 5940 ServContractManagement
         if CrMemoDate <> 0D then
             ServHeader2.Validate("Posting Date", CrMemoDate)
         else
-            ServHeader2.Validate("Posting Date", WorkDate);
+            ServHeader2.Validate("Posting Date", WorkDate());
         ServHeader2."Contract No." := ServContract."Contract No.";
         ServHeader2."Currency Code" := ServContract."Currency Code";
         OnCreateOrGetCreditHeaderOnBeforeCalcCurrencyFactor(ServHeader2, CurrExchRate);
@@ -934,7 +933,7 @@ codeunit 5940 ServContractManagement
             ServContractHeader.Get("Contract Type", "Contract No.");
             TestField("Contract Expiration Date");
             TestField("Credit Memo Date");
-            if "Credit Memo Date" > WorkDate then
+            if "Credit Memo Date" > WorkDate() then
                 Error(
                   Text004,
                   FieldCaption("Credit Memo Date"), "Credit Memo Date");
@@ -950,7 +949,7 @@ codeunit 5940 ServContractManagement
             CheckContractGroupAccounts(ServContractHeader);
 
             FillTempServiceLedgerEntries(ServContractHeader);
-            Currency.InitRoundingPrecision;
+            Currency.InitRoundingPrecision();
 
             if "Line Amount" > 0 then begin
                 ServMgtSetup.Get();
@@ -959,9 +958,9 @@ codeunit 5940 ServContractManagement
                     LineDescription := CopyStr(StrSubstNo('%1 %2', StdText.Description, "Service Item No."), 1, 50);
                 end else
                     if "Service Item No." <> '' then
-                        LineDescription := CopyStr(StrSubstNo(Text005, ServItem.TableCaption, "Service Item No."), 1, 50)
+                        LineDescription := CopyStr(StrSubstNo(Text005, ServItem.TableCaption(), "Service Item No."), 1, 50)
                     else
-                        LineDescription := CopyStr(StrSubstNo(Text005, TableCaption, "Line No."), 1, 50);
+                        LineDescription := CopyStr(StrSubstNo(Text005, TableCaption(), "Line No."), 1, 50);
                 if "Invoiced to Date" >= "Contract Expiration Date" then begin
                     if ServContractHeader.Prepaid then begin
                         FirstPrepaidPostingDate := FindFirstPrepaidTransaction("Contract No.");
@@ -989,7 +988,7 @@ codeunit 5940 ServContractManagement
             end;
             if (CreditMemoNo <> '') and not Deleting then begin
                 Credited := true;
-                Modify;
+                Modify();
             end;
         end;
 
@@ -1053,7 +1052,7 @@ codeunit 5940 ServContractManagement
         ServLedgEntryNo: Integer;
     begin
         Days := Date2DMY(ContractLineStartingDate, 1);
-        Currency.InitRoundingPrecision;
+        Currency.InitRoundingPrecision();
         if ServContract.Prepaid then
             InvPeriod := 1
         else
@@ -1232,7 +1231,7 @@ codeunit 5940 ServContractManagement
         if IsHandled then
             exit(AmountCalculated);
 
-        Currency.InitRoundingPrecision;
+        Currency.InitRoundingPrecision();
         AmountCalculated := 0;
 
         if ServContractHeader."Expiration Date" <> 0D then begin
@@ -1438,7 +1437,7 @@ codeunit 5940 ServContractManagement
         KeepToWarrEntryNo: Integer;
     begin
         with ServLedgEntry do begin
-            Reset;
+            Reset();
             LockTable();
             if FindLast() then begin
                 NextEntry := "Entry No." + 1;
@@ -1488,7 +1487,7 @@ codeunit 5940 ServContractManagement
             if LineNo = 0 then
                 Error(
                   Text008,
-                  ServContract."Contract Type", ServContract."Contract No.", DimMgt.GetDimCombErr);
+                  ServContract."Contract Type", ServContract."Contract No.", DimMgt.GetDimCombErr());
     end;
 
     local procedure CheckDimValuePosting(ServContract: Record "Service Contract Header"; LineNo: Integer)
@@ -1508,7 +1507,7 @@ codeunit 5940 ServContractManagement
             if not DimMgt.CheckDimValuePosting(TableIDArr, NumberArr, ServContract."Dimension Set ID") then
                 Error(
                   Text009,
-                  ServContract."Contract Type", ServContract."Contract No.", DimMgt.GetDimValuePostingErr);
+                  ServContract."Contract Type", ServContract."Contract No.", DimMgt.GetDimValuePostingErr());
         end;
     end;
 
@@ -1626,8 +1625,8 @@ codeunit 5940 ServContractManagement
         if TempServContract.Get(ContractTypeToBeChanged, ContractNoToBeChanged) then
             exit;
         ServContract.Get(ContractTypeToBeChanged, ContractNoToBeChanged);
-        if (ServContract.Status = ServContract.Status::Canceled) and
-           (ServContract."Contract Type" = ServContract."Contract Type"::Contract)
+        if (ServContract.Status = "Service Contract Status"::Cancelled) and
+           (ServContract."Contract Type" = "Service Contract Type"::Contract)
         then
             exit;
         TempServContract := ServContract;
@@ -1705,7 +1704,7 @@ codeunit 5940 ServContractManagement
                 else
                     Validate("Bill-to Customer No.", Cust."No.");
                 "Responsibility Center" := UserMgt.GetRespCenter(2, Cust."Responsibility Center");
-                UpdateShiptoCode;
+                UpdateShiptoCode();
                 CalcFields(
                   Name, "Name 2", Address, "Address 2",
                   "Post Code", City, County, "Country/Region Code");
@@ -1714,7 +1713,7 @@ codeunit 5940 ServContractManagement
 
             ProcessShiptoCodeChange(ServContractHeader, NewShipToCode, ContractChangeLog);
 
-            UpdateServZone;
+            UpdateServZone();
             UpdateCont("Customer No.");
             UpdateCust("Contact No.");
             "Salesperson Code" := OldSalespersonCode;
@@ -1815,8 +1814,8 @@ codeunit 5940 ServContractManagement
             StdText.Get(ServMgtSetup."Contract Inv. Line Text Code");
             TempServLineDescription := StrSubstNo('%1 %2', StdText.Description, ServContractHeader."Contract No.");
             if StrLen(TempServLineDescription) > MaxStrLen(ServLine.Description) then
-                Error(Text013, ServLine.TableCaption, ServLine.FieldCaption(Description),
-                  StdText.TableCaption, StdText.Code, StdText.FieldCaption(Description),
+                Error(Text013, ServLine.TableCaption(), ServLine.FieldCaption(Description),
+                  StdText.TableCaption(), StdText.Code, StdText.FieldCaption(Description),
                   Format(StrLen(TempServLineDescription) - MaxStrLen(ServLine.Description)));
             ServLine.Description := CopyStr(TempServLineDescription, 1, MaxStrLen(ServLine.Description));
         end else
@@ -1852,7 +1851,7 @@ codeunit 5940 ServContractManagement
         OnLookupServItemNoOnAfterServItemSetFilters(ServItem, ServiceContractLine);
         ServItemList.SetTableView(ServItem);
         ServItemList.LookupMode(true);
-        if ServItemList.RunModal = ACTION::LookupOK then begin
+        if ServItemList.RunModal() = ACTION::LookupOK then begin
             ServItemList.GetRecord(ServItem);
             ServiceContractLine.Validate("Service Item No.", ServItem."No.");
         end;
@@ -1944,7 +1943,7 @@ codeunit 5940 ServContractManagement
         if ServiceContractHeader."Calcd. Annual Amount" <> ServiceContractHeader."Annual Amount" then
             Error(
               Text000,
-              ServLedgEntry2.TableCaption,
+              ServLedgEntry2.TableCaption(),
               ServiceContractHeader."Contract No.",
               ServiceContractHeader.FieldCaption("Calcd. Annual Amount"),
               ServiceContractHeader.FieldCaption("Annual Amount"));
@@ -1970,8 +1969,8 @@ codeunit 5940 ServContractManagement
 
         ServLineNo := ServLineNo + 10000;
         with ServLine do begin
-            Reset;
-            Init;
+            Reset();
+            Init();
             "Document Type" := ServHeader."Document Type";
             "Document No." := ServHeader."No.";
             "Line No." := ServLineNo;
@@ -1992,7 +1991,7 @@ codeunit 5940 ServContractManagement
                     Error(
                       Text013,
                       TableCaption, FieldCaption(Description),
-                      StdText.TableCaption, StdText.Code, StdText.FieldCaption(Description),
+                      StdText.TableCaption(), StdText.Code, StdText.FieldCaption(Description),
                       Format(StrLen(TempServLineDescription) - MaxStrLen(Description)));
                 Description := CopyStr(TempServLineDescription, 1, MaxStrLen(Description));
             end else
@@ -2028,7 +2027,7 @@ codeunit 5940 ServContractManagement
             if IsHandled then
                 exit;
 
-            Insert;
+            Insert();
             CreateDimFromDefaultDim(0);
         end;
     end;
@@ -2833,6 +2832,11 @@ codeunit 5940 ServContractManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnGetInvoicePeriodTextOnCaseElse(InvoicePeriod: Enum "Service Contract Header Invoice Period"; var InvPeriodText: Text[4])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateServHeaderOnAfterCopyFromCustomer(var ServiceHeader: Record "Service Header"; ServiceContract: Record "Service Contract Header"; Customer: Record Customer)
     begin
     end;
 }

@@ -279,14 +279,14 @@ codeunit 134073 "Check Document No. Unit Test"
         Commit();
 
         GenJournalLine.Init();
-        GenJournalLine."Posting Date" := WorkDate;
+        GenJournalLine."Posting Date" := WorkDate();
         GenJournalLine."Exported to Payment File" := true;
         GenJournalLine."Document No." := NoSeriesManagement.TryGetNextNo(NoSeriesLine."Series Code", GenJournalLine."Posting Date");
 
         GenJournalLine.CheckDocNoBasedOnNoSeries('', NoSeriesLine."Series Code", NoSeriesManagement);
-        NoSeriesManagement.SaveNoSeries;
+        NoSeriesManagement.SaveNoSeries();
 
-        NoSeriesLine.Find;
+        NoSeriesLine.Find();
         NoSeriesLine.TestField("Last No. Used", GenJournalLine."Document No.");
     end;
 
@@ -646,7 +646,7 @@ codeunit 134073 "Check Document No. Unit Test"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure NoSeriesListModalPageHandler(var NoSeriesList: TestPage "No. Series List")
+    procedure NoSeriesListModalPageHandler(var NoSeriesList: TestPage "No. Series")
     begin
         NoSeriesList.FILTER.SetFilter(Code, LibraryVariableStorage.DequeueText);
         NoSeriesList.OK.Invoke();
@@ -654,7 +654,7 @@ codeunit 134073 "Check Document No. Unit Test"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure NoSeriesListSelectNothingModalPageHandler(var NoSeriesList: TestPage "No. Series List")
+    procedure NoSeriesListSelectNothingModalPageHandler(var NoSeriesList: TestPage "No. Series")
     begin
         NoSeriesList.Cancel.Invoke();
     end;

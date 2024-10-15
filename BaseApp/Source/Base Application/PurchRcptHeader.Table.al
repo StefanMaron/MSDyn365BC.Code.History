@@ -34,26 +34,10 @@ table 120 "Purch. Rcpt. Header"
         field(7; "Pay-to Address"; Text[100])
         {
             Caption = 'Pay-to Address';
-
-            trigger OnValidate()
-            begin
-                PostCodeCheck.ValidateAddress(
-                  CurrFieldNo, DATABASE::"Purchase Header", Rec.GetPosition, 4,
-                  "Pay-to Name", "Pay-to Name 2", "Pay-to Contact", "Pay-to Address", "Pay-to Address 2",
-                  "Pay-to City", "Pay-to Post Code", "Pay-to County", "Pay-to Country/Region Code");
-            end;
         }
         field(8; "Pay-to Address 2"; Text[50])
         {
             Caption = 'Pay-to Address 2';
-
-            trigger OnValidate()
-            begin
-                PostCodeCheck.ValidateAddress(
-                  CurrFieldNo, DATABASE::"Purchase Header", Rec.GetPosition, 4,
-                  "Pay-to Name", "Pay-to Name 2", "Pay-to Contact", "Pay-to Address", "Pay-to Address 2",
-                  "Pay-to City", "Pay-to Post Code", "Pay-to County", "Pay-to Country/Region Code");
-            end;
         }
         field(9; "Pay-to City"; Text[30])
         {
@@ -87,26 +71,10 @@ table 120 "Purch. Rcpt. Header"
         field(15; "Ship-to Address"; Text[100])
         {
             Caption = 'Ship-to Address';
-
-            trigger OnValidate()
-            begin
-                PostCodeCheck.ValidateAddress(
-                  CurrFieldNo, DATABASE::"Purchase Header", Rec.GetPosition, 2,
-                  "Ship-to Name", "Ship-to Name 2", "Ship-to Contact", "Ship-to Address", "Ship-to Address 2",
-                  "Ship-to City", "Ship-to Post Code", "Ship-to County", "Ship-to Country/Region Code");
-            end;
         }
         field(16; "Ship-to Address 2"; Text[50])
         {
             Caption = 'Ship-to Address 2';
-
-            trigger OnValidate()
-            begin
-                PostCodeCheck.ValidateAddress(
-                  CurrFieldNo, DATABASE::"Purchase Header", Rec.GetPosition, 2,
-                  "Ship-to Name", "Ship-to Name 2", "Ship-to Contact", "Ship-to Address", "Ship-to Address 2",
-                  "Ship-to City", "Ship-to Post Code", "Ship-to County", "Ship-to Country/Region Code");
-            end;
         }
         field(17; "Ship-to City"; Text[30])
         {
@@ -312,26 +280,10 @@ table 120 "Purch. Rcpt. Header"
         field(81; "Buy-from Address"; Text[100])
         {
             Caption = 'Buy-from Address';
-
-            trigger OnValidate()
-            begin
-                PostCodeCheck.ValidateAddress(
-                  CurrFieldNo, DATABASE::"Purchase Header", Rec.GetPosition, 5,
-                  "Buy-from Vendor Name", "Buy-from Vendor Name 2", "Buy-from Contact", "Buy-from Address", "Buy-from Address 2",
-                  "Buy-from City", "Buy-from Post Code", "Buy-from County", "Buy-from Country/Region Code");
-            end;
         }
         field(82; "Buy-from Address 2"; Text[50])
         {
             Caption = 'Buy-from Address 2';
-
-            trigger OnValidate()
-            begin
-                PostCodeCheck.ValidateAddress(
-                  CurrFieldNo, DATABASE::"Purchase Header", Rec.GetPosition, 5,
-                  "Buy-from Vendor Name", "Buy-from Vendor Name 2", "Buy-from Contact", "Buy-from Address", "Buy-from Address 2",
-                  "Buy-from City", "Buy-from Post Code", "Buy-from County", "Buy-from Country/Region Code");
-            end;
         }
         field(83; "Buy-from City"; Text[30])
         {
@@ -619,14 +571,6 @@ table 120 "Purch. Rcpt. Header"
         PurchCommentLine.SetRange("No.", "No.");
         PurchCommentLine.DeleteAll();
         ApprovalsMgmt.DeletePostedApprovalEntries(RecordId);
-        PostCodeCheck.DeleteAllAddressID(DATABASE::"Purch. Rcpt. Header", Rec.GetPosition);
-    end;
-
-    trigger OnRename()
-    begin
-        PostCodeCheck.MoveAllAddressID(
-          DATABASE::"Purch. Rcpt. Header", Rec.GetPosition,
-          DATABASE::"Purch. Rcpt. Header", xRec.GetPosition);
     end;
 
     var
@@ -635,7 +579,6 @@ table 120 "Purch. Rcpt. Header"
         DimMgt: Codeunit DimensionManagement;
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
         UserSetupMgt: Codeunit "User Setup Management";
-        PostCodeCheck: Codeunit "Post Code Check";
 
     procedure PrintRecords(ShowRequestForm: Boolean)
     var
@@ -665,7 +608,7 @@ table 120 "Purch. Rcpt. Header"
 
     procedure ShowDimensions()
     begin
-        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption, "No."));
+        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption(), "No."));
     end;
 
     procedure SetSecurityFilterOnRespCenter()
@@ -677,9 +620,9 @@ table 120 "Purch. Rcpt. Header"
         if IsHandled then
             exit;
 
-        if UserSetupMgt.GetPurchasesFilter <> '' then begin
+        if UserSetupMgt.GetPurchasesFilter() <> '' then begin
             FilterGroup(2);
-            SetRange("Responsibility Center", UserSetupMgt.GetPurchasesFilter);
+            SetRange("Responsibility Center", UserSetupMgt.GetPurchasesFilter());
             FilterGroup(0);
         end;
     end;

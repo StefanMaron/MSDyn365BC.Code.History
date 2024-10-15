@@ -43,7 +43,7 @@ codeunit 141144 "ERM G/L Account WhereUsed APAC"
 
         // [THEN] G/L Account "G" is shown on "G/L Account Where-Used List"
         ValidateWhereUsedRecord(
-          WHTPostingSetup.TableCaption,
+          WHTPostingSetup.TableCaption(),
           WHTPostingSetup.FieldCaption("Sales WHT Adj. Account No."),
           StrSubstNo(
             '%1=%2, %3=%4',

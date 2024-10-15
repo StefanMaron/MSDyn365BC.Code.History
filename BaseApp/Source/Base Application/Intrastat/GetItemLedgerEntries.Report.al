@@ -47,7 +47,7 @@
                     if (TotalAmt = 0) and SkipZeroAmounts then
                         CurrReport.Skip();
 
-                    InsertItemJnlLine;
+                    InsertItemJnlLine();
                 end;
 
                 trigger OnPreDataItem()
@@ -85,13 +85,13 @@
                 trigger OnAfterGetRecord()
                 begin
                     IntrastatJnlLine2.SetRange("Source Entry No.", "Entry No.");
-                    if IntrastatJnlLine2.FindFirst or (CompanyInfo."Country/Region Code" = "Country/Region Code") then
+                    if IntrastatJnlLine2.FindFirst() or (CompanyInfo."Country/Region Code" = "Country/Region Code") then
                         CurrReport.Skip();
 
                     if IsJobService("Job Ledger Entry") then
                         CurrReport.Skip();
 
-                    InsertJobLedgerLine;
+                    InsertJobLedgerLine();
                 end;
 
                 trigger OnPreDataItem()
@@ -122,7 +122,7 @@
                                 CurrReport.Skip();
                         if not HasCrossedBorder("Item Ledger Entry") then
                             CurrReport.Skip();
-                        InsertValueEntryLine;
+                        InsertValueEntryLine();
                     end;
                 end;
             end;
@@ -204,7 +204,7 @@
         begin
             IntraJnlTemplate.Get(IntrastatJnlLine."Journal Template Name");
             IntrastatJnlBatch.Get(IntrastatJnlLine."Journal Template Name", IntrastatJnlLine."Journal Batch Name");
-            StartDate := IntrastatJnlBatch.GetStatisticsStartDate;
+            StartDate := IntrastatJnlBatch.GetStatisticsStartDate();
             EndDate := CalcDate('<+1M-1D>', StartDate);
         end;
     }
@@ -237,7 +237,6 @@
     end;
 
     var
-        Text000: Label 'Prices including VAT cannot be calculated when %1 is %2.';
         IntraJnlTemplate: Record "Intrastat Jnl. Template";
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
         IntrastatJnlLine2: Record "Intrastat Jnl. Line";
@@ -253,6 +252,8 @@
         AverageCost: Decimal;
         AverageCostACY: Decimal;
         GLSetupRead: Boolean;
+
+        Text000: Label 'Prices including VAT cannot be calculated when %1 is %2.';
 
     protected var
         IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
@@ -275,7 +276,7 @@
     begin
         GetGLSetup();
         with IntrastatJnlLine do begin
-            Init;
+            Init();
             "Line No." := "Line No." + 10000;
             Date := "Item Ledger Entry"."Posting Date";
             "Country/Region Code" := "Item Ledger Entry"."Country/Region Code";
@@ -301,7 +302,7 @@
 
             Validate("Item No.");
             Validate("Source Type", "Source Type"::"Item Entry");
-            Validate(Quantity, Round(Abs(Quantity), UOMMgt.QtyRndPrecision));
+            Validate(Quantity, Round(Abs(Quantity), UOMMgt.QtyRndPrecision()));
             Validate("Cost Regulation %", IndirectCostPctReq);
 
             IsHandled := false;
@@ -316,7 +317,7 @@
         IsHandled: Boolean;
     begin
         with IntrastatJnlLine do begin
-            Init;
+            Init();
             "Line No." := "Line No." + 10000;
 
             Date := "Job Ledger Entry"."Posting Date";
@@ -511,7 +512,7 @@
     begin
         GetGLSetup();
         with IntrastatJnlLine do begin
-            Init;
+            Init();
             "Line No." := "Line No." + 10000;
             Date := "Value Entry"."Posting Date";
             "Country/Region Code" := "Item Ledger Entry"."Country/Region Code";
@@ -778,12 +779,11 @@
                     Type := Type::Receipt
                 else
                     Type := Type::Shipment
-            end else begin
+            end else
                 if ValueEntryDocumentType = "Value Entry"."Document Type"::"Purchase Credit Memo" then
                     Type := Type::Shipment
                 else
                     Type := Type::Receipt;
-            end;
     end;
 
     [IntegrationEvent(false, false)]

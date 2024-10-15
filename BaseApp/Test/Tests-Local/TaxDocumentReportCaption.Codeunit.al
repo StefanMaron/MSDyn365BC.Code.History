@@ -56,7 +56,7 @@ codeunit 144001 "Tax Document Report Caption"
         SalesInvoiceHeader.Get(PostSalesInvoiceLCY(1000));
 
         // [WHEN] Print report "Standard Sales - Invoice"
-        SalesInvoiceHeader.SetRecFilter;
+        SalesInvoiceHeader.SetRecFilter();
         REPORT.Run(REPORT::"Standard Sales - Invoice", true, false, SalesInvoiceHeader);
 
         // [THEN] Report title is 'Invoice'
@@ -79,7 +79,7 @@ codeunit 144001 "Tax Document Report Caption"
         SalesInvoiceHeader.Get(PostSalesInvoiceLCY(1000.01));
 
         // [WHEN] Print report "Standard Sales - Invoice"
-        SalesInvoiceHeader.SetRecFilter;
+        SalesInvoiceHeader.SetRecFilter();
         REPORT.Run(REPORT::"Standard Sales - Invoice", true, false, SalesInvoiceHeader);
 
         // [THEN] Report title is 'Tax Invoice'
@@ -105,7 +105,7 @@ codeunit 144001 "Tax Document Report Caption"
         Commit();
 
         // [WHEN] Print report "Standard Sales - Invoice"
-        SalesInvoiceHeader.SetRecFilter;
+        SalesInvoiceHeader.SetRecFilter();
         REPORT.Run(REPORT::"Standard Sales - Invoice", true, false, SalesInvoiceHeader);
 
         // [THEN] Report title is 'Tax Invoice'
@@ -128,7 +128,7 @@ codeunit 144001 "Tax Document Report Caption"
         SalesInvoiceHeader.Get(PostSalesInvoice(0.5, 500.01));
 
         // [WHEN] Print report "Standard Sales - Invoice"
-        SalesInvoiceHeader.SetRecFilter;
+        SalesInvoiceHeader.SetRecFilter();
         REPORT.Run(REPORT::"Standard Sales - Invoice", true, false, SalesInvoiceHeader);
 
         // [THEN] Report title is 'Tax Invoice'
@@ -151,7 +151,7 @@ codeunit 144001 "Tax Document Report Caption"
         ServiceInvoiceHeader.Get(PostServiceInvoice(1000));
 
         // [WHEN] Print report "Service - Invoice"
-        ServiceInvoiceHeader.SetRecFilter;
+        ServiceInvoiceHeader.SetRecFilter();
         REPORT.Run(REPORT::"Service - Invoice", true, false, ServiceInvoiceHeader);
 
         // [THEN] Report title is 'Service - Invoice'
@@ -174,7 +174,7 @@ codeunit 144001 "Tax Document Report Caption"
         ServiceInvoiceHeader.Get(PostServiceInvoice(1000.01));
 
         // [WHEN] Print report "Service - Invoice"
-        ServiceInvoiceHeader.SetRecFilter;
+        ServiceInvoiceHeader.SetRecFilter();
         REPORT.Run(REPORT::"Service - Invoice", true, false, ServiceInvoiceHeader);
 
         // [THEN] Report title is 'Service - Tax Invoice'
@@ -195,7 +195,7 @@ codeunit 144001 "Tax Document Report Caption"
         SalesHeader.Validate("Prices Including VAT", true);
         if CurrencyFactor <> 1 then
             SalesHeader.Validate(
-              "Currency Code", LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, CurrencyFactor, CurrencyFactor));
+              "Currency Code", LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), CurrencyFactor, CurrencyFactor));
         SalesHeader.Modify();
         LibrarySales.CreateSalesLine(
           SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, 1);

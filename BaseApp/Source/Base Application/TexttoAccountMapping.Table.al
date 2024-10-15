@@ -81,12 +81,12 @@ table 1251 "Text-to-Account Mapping"
 
     trigger OnInsert()
     begin
-        CheckMappingText;
+        CheckMappingText();
     end;
 
     trigger OnModify()
     begin
-        CheckMappingText;
+        CheckMappingText();
     end;
 
     var
@@ -110,7 +110,7 @@ table 1251 "Text-to-Account Mapping"
                 if TextToAccMapping.FindLast() then
                     LastLineNo := TextToAccMapping."Line No.";
 
-                Init;
+                Init();
                 "Line No." := LastLineNo + 10000;
                 Validate("Mapping Text", GenJnlLine.Description);
                 SetBalSourceType(GenJnlLine);
@@ -122,10 +122,10 @@ table 1251 "Text-to-Account Mapping"
                 end;
 
                 if "Mapping Text" <> '' then
-                    Insert;
+                    Insert();
             end;
 
-            Reset;
+            Reset();
         end;
 
         PAGE.Run(PAGE::"Text-to-Account Mapping", Rec);
@@ -145,7 +145,7 @@ table 1251 "Text-to-Account Mapping"
                 if TextToAccMapping.FindLast() then
                     LastLineNo := TextToAccMapping."Line No.";
 
-                Init;
+                Init();
                 "Line No." := LastLineNo + 10000;
                 Validate("Mapping Text", BankAccReconciliationLine."Transaction Text");
 
@@ -162,10 +162,10 @@ table 1251 "Text-to-Account Mapping"
                 end;
 
                 if "Mapping Text" <> '' then
-                    Insert;
+                    Insert();
             end;
 
-            Reset;
+            Reset();
 
             Commit();
         end;
@@ -304,7 +304,7 @@ table 1251 "Text-to-Account Mapping"
         TextToAccountMapping.Reset();
         TextToAccountMapping.SetRange("Vendor No.", VendorNo);
         if not TextToAccountMapping.FindSet() then
-            exit(ResultCount);
+            exit(0);
 
         repeat
             if TextToAccountMapping."Mapping Text" = '' then // Default mapping
@@ -336,7 +336,7 @@ table 1251 "Text-to-Account Mapping"
         TextToAccountMapping.Reset();
         TextToAccountMapping.SetRange("Vendor No.", VendorNo);
         TextToAccountMapping.SetFilter("Mapping Text", '%1', '@' + DelChr(LineDescription, '=', FilterInvalidCharTxt));
-        exit(TextToAccountMapping.FindFirst);
+        exit(TextToAccountMapping.FindFirst());
     end;
 }
 

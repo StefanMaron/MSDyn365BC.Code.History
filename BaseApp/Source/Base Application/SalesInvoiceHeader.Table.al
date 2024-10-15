@@ -34,26 +34,10 @@ table 112 "Sales Invoice Header"
         field(7; "Bill-to Address"; Text[100])
         {
             Caption = 'Bill-to Address';
-
-            trigger OnValidate()
-            begin
-                PostCodeCheck.ValidateAddress(
-                  CurrFieldNo, DATABASE::"Sales Header", Rec.GetPosition, 1,
-                  "Bill-to Name", "Bill-to Name 2", "Bill-to Contact", "Bill-to Address", "Bill-to Address 2",
-                  "Bill-to City", "Bill-to Post Code", "Bill-to County", "Bill-to Country/Region Code");
-            end;
         }
         field(8; "Bill-to Address 2"; Text[50])
         {
             Caption = 'Bill-to Address 2';
-
-            trigger OnValidate()
-            begin
-                PostCodeCheck.ValidateAddress(
-                  CurrFieldNo, DATABASE::"Sales Header", Rec.GetPosition, 1,
-                  "Bill-to Name", "Bill-to Name 2", "Bill-to Contact", "Bill-to Address", "Bill-to Address 2",
-                  "Bill-to City", "Bill-to Post Code", "Bill-to County", "Bill-to Country/Region Code");
-            end;
         }
         field(9; "Bill-to City"; Text[30])
         {
@@ -87,26 +71,10 @@ table 112 "Sales Invoice Header"
         field(15; "Ship-to Address"; Text[100])
         {
             Caption = 'Ship-to Address';
-
-            trigger OnValidate()
-            begin
-                PostCodeCheck.ValidateAddress(
-                  CurrFieldNo, DATABASE::"Sales Header", Rec.GetPosition, 1,
-                  "Ship-to Name", "Ship-to Name 2", "Ship-to Contact", "Ship-to Address", "Ship-to Address 2",
-                  "Ship-to City", "Ship-to Post Code", "Ship-to County", "Ship-to Country/Region Code");
-            end;
         }
         field(16; "Ship-to Address 2"; Text[50])
         {
             Caption = 'Ship-to Address 2';
-
-            trigger OnValidate()
-            begin
-                PostCodeCheck.ValidateAddress(
-                  CurrFieldNo, DATABASE::"Sales Header", Rec.GetPosition, 1,
-                  "Ship-to Name", "Ship-to Name 2", "Ship-to Contact", "Ship-to Address", "Ship-to Address 2",
-                  "Ship-to City", "Ship-to Post Code", "Ship-to County", "Ship-to Country/Region Code");
-            end;
         }
         field(17; "Ship-to City"; Text[30])
         {
@@ -335,26 +303,10 @@ table 112 "Sales Invoice Header"
         field(81; "Sell-to Address"; Text[100])
         {
             Caption = 'Sell-to Address';
-
-            trigger OnValidate()
-            begin
-                PostCodeCheck.ValidateAddress(
-                  CurrFieldNo, DATABASE::"Sales Header", Rec.GetPosition, 1,
-                  "Sell-to Customer Name", "Sell-to Customer Name 2", "Sell-to Contact", "Sell-to Address", "Sell-to Address 2",
-                  "Sell-to City", "Sell-to Post Code", "Sell-to County", "Sell-to Country/Region Code");
-            end;
         }
         field(82; "Sell-to Address 2"; Text[50])
         {
             Caption = 'Sell-to Address 2';
-
-            trigger OnValidate()
-            begin
-                PostCodeCheck.ValidateAddress(
-                  CurrFieldNo, DATABASE::"Sales Header", Rec.GetPosition, 1,
-                  "Sell-to Customer Name", "Sell-to Customer Name 2", "Sell-to Contact", "Sell-to Address", "Sell-to Address 2",
-                  "Sell-to City", "Sell-to Post Code", "Sell-to County", "Sell-to Country/Region Code");
-            end;
         }
         field(83; "Sell-to City"; Text[30])
         {
@@ -563,6 +515,14 @@ table 112 "Sales Invoice Header"
                                                                                       Posted = CONST(true)));
             Caption = 'Last Email Sent Time';
             FieldClass = FlowField;
+            ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+#if CLEAN21
+            ObsoleteState = Removed;
+            ObsoleteTag = '24.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '21.0';
+#endif
         }
         field(167; "Last Email Sent Status"; Option)
         {
@@ -574,6 +534,14 @@ table 112 "Sales Invoice Header"
             FieldClass = FlowField;
             OptionCaption = 'Not Sent,In Process,Finished,Error';
             OptionMembers = "Not Sent","In Process",Finished,Error;
+            ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+#if CLEAN21
+            ObsoleteState = Removed;
+            ObsoleteTag = '24.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '21.0';
+#endif
         }
         field(168; "Sent as Email"; Boolean)
         {
@@ -583,6 +551,14 @@ table 112 "Sales Invoice Header"
                                                                     "Job Last Status" = CONST(Finished)));
             Caption = 'Sent as Email';
             FieldClass = FlowField;
+            ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+#if CLEAN21
+            ObsoleteState = Removed;
+            ObsoleteTag = '24.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '21.0';
+#endif
         }
         field(169; "Last Email Notif Cleared"; Boolean)
         {
@@ -592,6 +568,14 @@ table 112 "Sales Invoice Header"
                                                                                          "Created Date-Time" = FIELD("Last Email Sent Time")));
             Caption = 'Last Email Notif Cleared';
             FieldClass = FlowField;
+            ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+#if CLEAN21
+            ObsoleteState = Removed;
+            ObsoleteTag = '24.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '21.0';
+#endif
         }
         field(171; "Sell-to Phone No."; Text[30])
         {
@@ -627,6 +611,11 @@ table 112 "Sales Invoice Header"
             ObsoleteState = Removed;
             ObsoleteTag = '22.0';
 #endif
+        }
+        field(179; "VAT Reporting Date"; Date)
+        {
+            Caption = 'VAT Date';
+            Editable = false;
         }
         field(180; "Payment Reference"; Code[50])
         {
@@ -931,18 +920,9 @@ table 112 "Sales Invoice Header"
 
         ApprovalsMgmt.DeletePostedApprovalEntries(RecordId);
 
-        PostCodeCheck.DeleteAllAddressID(DATABASE::"Sales Invoice Header", Rec.GetPosition);
-
         PostedDeferralHeader.DeleteForDoc(
             "Deferral Document Type"::Sales.AsInteger(), '', '',
             SalesCommentLine."Document Type"::"Posted Invoice".AsInteger(), "No.");
-    end;
-
-    trigger OnRename()
-    begin
-        PostCodeCheck.MoveAllAddressID(
-          DATABASE::"Sales Invoice Header", Rec.GetPosition,
-          DATABASE::"Sales Invoice Header", xRec.GetPosition);
     end;
 
     var
@@ -951,7 +931,6 @@ table 112 "Sales Invoice Header"
         DimMgt: Codeunit DimensionManagement;
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
         UserSetupMgt: Codeunit "User Setup Management";
-        PostCodeCheck: Codeunit "Post Code Check";
         DocTxt: Label 'Invoice';
         PaymentReference: Text;
         PaymentReferenceLbl: Text;
@@ -1134,7 +1113,7 @@ table 112 "Sales Invoice Header"
     procedure GetLegalStatement(): Text
     begin
         SalesSetup.Get();
-        exit(SalesSetup.GetLegalStatement);
+        exit(SalesSetup.GetLegalStatement());
     end;
 
     procedure GetRemainingAmount(): Decimal
@@ -1155,7 +1134,7 @@ table 112 "Sales Invoice Header"
 
     procedure ShowDimensions()
     begin
-        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption, "No."));
+        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption(), "No."));
     end;
 
     procedure SetSecurityFilterOnRespCenter()
@@ -1219,7 +1198,7 @@ table 112 "Sales Invoice Header"
     begin
         TempBlob.FromRecord(Rec, FieldNo("Work Description"));
         TempBlob.CreateInStream(InStream, TEXTENCODING::UTF8);
-        exit(TypeHelper.ReadAsTextWithSeparator(InStream, TypeHelper.LFSeparator));
+        exit(TypeHelper.ReadAsTextWithSeparator(InStream, TypeHelper.LFSeparator()));
     end;
 
     procedure GetCurrencySymbol(): Text[10]
@@ -1227,12 +1206,12 @@ table 112 "Sales Invoice Header"
         GeneralLedgerSetup: Record "General Ledger Setup";
         Currency: Record Currency;
     begin
-        if GeneralLedgerSetup.Get then
+        if GeneralLedgerSetup.Get() then
             if ("Currency Code" = '') or ("Currency Code" = GeneralLedgerSetup."LCY Code") then
-                exit(GeneralLedgerSetup.GetCurrencySymbol);
+                exit(GeneralLedgerSetup.GetCurrencySymbol());
 
         if Currency.Get("Currency Code") then
-            exit(Currency.GetCurrencySymbol);
+            exit(Currency.GetCurrencySymbol());
 
         exit("Currency Code");
     end;
@@ -1254,9 +1233,9 @@ table 112 "Sales Invoice Header"
         CalcFields(Cancelled, Corrective);
         case true of
             Cancelled:
-                ShowCorrectiveCreditMemo;
+                ShowCorrectiveCreditMemo();
             Corrective:
-                ShowCancelledCreditMemo;
+                ShowCancelledCreditMemo();
         end;
     end;
 

@@ -71,7 +71,7 @@ codeunit 137047 "SCM Warehouse I"
         asserterror LibraryWarehouse.PostWhseShipment(WarehouseShipmentHeader, false);
 
         // Verify: Error Message - Dimensions are invalid.
-        Assert.ExpectedError(StrSubstNo(SelectDimForCVErr, Customer.TableCaption, Customer."No."));
+        Assert.ExpectedError(StrSubstNo(SelectDimForCVErr, Customer.TableCaption(), Customer."No."));
 
         // Verify that correct shipment line has been posted.
         VerifyPostedShipmentLinesSales(WarehouseShipmentHeader."No.", Item."No.", SalesHeader."No.");
@@ -151,7 +151,7 @@ codeunit 137047 "SCM Warehouse I"
         asserterror LibraryWarehouse.PostWhseShipment(WarehouseShipmentHeader, false);
 
         // Verify: Error Message - Dimensions are invalid.
-        Assert.ExpectedError(StrSubstNo(SelectDimForCVErr, Vendor.TableCaption, Vendor."No."));
+        Assert.ExpectedError(StrSubstNo(SelectDimForCVErr, Vendor.TableCaption(), Vendor."No."));
 
         // Verify that correct shipment line has been posted.
         VerifyPostedShipmentLinesPurch(WarehouseShipmentHeader."No.", Item."No.", PurchaseHeader."No.");
@@ -314,7 +314,7 @@ codeunit 137047 "SCM Warehouse I"
         asserterror LibraryWarehouse.PostWhseReceipt(WarehouseReceiptHeader);
 
         // Verify: Error Message - Dimensions are invalid.
-        Assert.ExpectedError(StrSubstNo(SelectDimForCVErr, Customer.TableCaption, Customer."No."));
+        Assert.ExpectedError(StrSubstNo(SelectDimForCVErr, Customer.TableCaption(), Customer."No."));
 
         // Verify that correct receipt line has been posted.
         VerifyPostedReceiptLinesSales(WarehouseReceiptHeader."No.", Item."No.", SalesHeader."No.");
@@ -394,7 +394,7 @@ codeunit 137047 "SCM Warehouse I"
         asserterror LibraryWarehouse.PostWhseReceipt(WarehouseReceiptHeader);
 
         // Verify: Error Message - Dimensions are invalid.
-        Assert.ExpectedError(StrSubstNo(SelectDimForCVErr, Vendor.TableCaption, Vendor."No."));
+        Assert.ExpectedError(StrSubstNo(SelectDimForCVErr, Vendor.TableCaption(), Vendor."No."));
 
         // Verify that correct receipt line has been posted.
         VerifyPostedReceiptLinesPurch(WarehouseReceiptHeader."No.", Item."No.", PurchaseHeader."No.");
@@ -1352,7 +1352,7 @@ codeunit 137047 "SCM Warehouse I"
         // [THEN] Error is thrown
         Assert.ExpectedError(
           StrSubstNo(
-            CannotUseLocationErr, ItemJournalLine.FieldCaption("Bin Code"), LowerCase(Location.TableCaption),
+            CannotUseLocationErr, ItemJournalLine.FieldCaption("Bin Code"), LowerCase(Location.TableCaption()),
             Location.Code, Location.FieldCaption("Directed Put-away and Pick")));
     end;
 
@@ -1384,7 +1384,7 @@ codeunit 137047 "SCM Warehouse I"
         // [THEN] Error is thrown
         Assert.ExpectedError(
           StrSubstNo(
-            CannotUseLocationErr, ItemJournalLine.FieldCaption("New Bin Code"), LowerCase(Location.TableCaption),
+            CannotUseLocationErr, ItemJournalLine.FieldCaption("New Bin Code"), LowerCase(Location.TableCaption()),
             Location.Code, Location.FieldCaption("Directed Put-away and Pick")));
     end;
 
@@ -1589,7 +1589,7 @@ codeunit 137047 "SCM Warehouse I"
 
         // [GIVEN] Delete the partially posted put-away document.
         LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
-        WarehouseActivityHeader.Find;
+        WarehouseActivityHeader.Find();
         WarehouseActivityHeader.Delete(true);
 
         // [GIVEN] Create and put-away another purchase order for 10 pcs of item "I" with the same lot no. "L1"
@@ -1778,14 +1778,14 @@ codeunit 137047 "SCM Warehouse I"
         // [GIVEN] Set item tracking on the requisition lines - lot nos. "L3" and "L4".
         // [GIVEN] Carry out action in order to create a supplying purchase order for the sales order.
         // [GIVEN] An order-to-order binding is now established between the sales and the purchase.
-        LibraryPlanning.CalcRequisitionPlanForReqWkshAndGetLines(RequisitionLine, Item, WorkDate, WorkDate);
+        LibraryPlanning.CalcRequisitionPlanForReqWkshAndGetLines(RequisitionLine, Item, WorkDate(), WorkDate());
         for i := 3 to 4 do begin
             LibraryVariableStorage.Enqueue(LotNo[i]);
             LibraryVariableStorage.Enqueue(RequisitionLine.Quantity);
             RequisitionLine.OpenItemTrackingLines();
-            RequisitionLine.Next;
+            RequisitionLine.Next();
         end;
-        LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate, WorkDate, WorkDate, WorkDate, '');
+        LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate(), WorkDate, WorkDate(), WorkDate, '');
 
         // [WHEN] Register the warehouse pick with earlier defined item tracking.
         for i := 1 to 2 do begin
@@ -1810,7 +1810,7 @@ codeunit 137047 "SCM Warehouse I"
         PurchaseLine.FindSet();
         for i := 3 to 4 do begin
             VerifyPurchaseSurplusReservEntry(PurchaseLine, LotNo[i]);
-            PurchaseLine.Next;
+            PurchaseLine.Next();
         end;
 
         LibraryVariableStorage.AssertEmpty;
@@ -1860,11 +1860,11 @@ codeunit 137047 "SCM Warehouse I"
         // [GIVEN] Set item tracking on the requisition lines - lot no. "L2".
         // [GIVEN] Carry out action in order to create a supplying purchase order for the sales order.
         // [GIVEN] An order-to-order binding is now established between the sales and the purchase.
-        LibraryPlanning.CalcRequisitionPlanForReqWkshAndGetLines(RequisitionLine, Item, WorkDate, WorkDate);
+        LibraryPlanning.CalcRequisitionPlanForReqWkshAndGetLines(RequisitionLine, Item, WorkDate(), WorkDate());
         LibraryVariableStorage.Enqueue(LotNo[2]);
         LibraryVariableStorage.Enqueue(RequisitionLine.Quantity);
         RequisitionLine.OpenItemTrackingLines();
-        LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate, WorkDate, WorkDate, WorkDate, '');
+        LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate(), WorkDate, WorkDate(), WorkDate, '');
 
         // [WHEN] Register the warehouse pick but do not confirm deleting the reservation between the sales and the purchase.
         Commit();
@@ -1988,11 +1988,11 @@ codeunit 137047 "SCM Warehouse I"
         // [GIVEN] Set item tracking on the requisition line.
         // [GIVEN] Carry out action in order to create a supplying purchase order for the sales order.
         // [GIVEN] An order-to-order binding is now established between the sales and the purchase.
-        LibraryPlanning.CalcRequisitionPlanForReqWkshAndGetLines(RequisitionLine, Item, WorkDate, WorkDate);
+        LibraryPlanning.CalcRequisitionPlanForReqWkshAndGetLines(RequisitionLine, Item, WorkDate(), WorkDate());
         LibraryVariableStorage.Enqueue(LibraryUtility.GenerateGUID());
         LibraryVariableStorage.Enqueue(RequisitionLine.Quantity);
         RequisitionLine.OpenItemTrackingLines();
-        LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate, WorkDate, WorkDate, WorkDate, '');
+        LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate(), WorkDate, WorkDate(), WorkDate, '');
 
         // [GIVEN] Post the newly created purchase order.
         PurchaseLine.SetRange(Type, PurchaseLine.Type::Item);
@@ -2728,7 +2728,7 @@ codeunit 137047 "SCM Warehouse I"
         Clear(PurchaseHeader);
         LibraryPurchase.CreatePurchaseDocumentWithItem(
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order,
-          LibraryPurchase.CreateVendorNo, ItemNo, Qty, LocationCode, WorkDate);
+          LibraryPurchase.CreateVendorNo, ItemNo, Qty, LocationCode, WorkDate());
 
         PurchaseLine.OpenItemTrackingLines();
 
@@ -3100,7 +3100,7 @@ codeunit 137047 "SCM Warehouse I"
             FindFirst();
             TestField("Reservation Status", "Reservation Status"::Reservation);
             TestField("Lot No.", LotNo);
-            Reset;
+            Reset();
             SetRange("Entry No.", "Entry No.");
             SetRange(Positive, not Positive);
             FindFirst();
@@ -3133,10 +3133,10 @@ codeunit 137047 "SCM Warehouse I"
             Assert.AreEqual(
               DocCount,
               Count,
-              StrSubstNo(EmptyTableErr, DocCount, TableCaption, GetFilters));
+              StrSubstNo(EmptyTableErr, DocCount, TableCaption(), GetFilters));
             FindSet();
             SortingSequenceNo := "Sorting Sequence No.";
-            while Next <> 0 do begin
+            while Next() <> 0 do begin
                 Assert.IsTrue("Sorting Sequence No." > SortingSequenceNo, StrSubstNo(SortingOrderErr, TableCaption));
                 SortingSequenceNo := "Sorting Sequence No.";
             end;
@@ -3154,10 +3154,10 @@ codeunit 137047 "SCM Warehouse I"
             Assert.AreEqual(
               DocCount,
               Count,
-              StrSubstNo(EmptyTableErr, DocCount, TableCaption, GetFilters));
+              StrSubstNo(EmptyTableErr, DocCount, TableCaption(), GetFilters));
             FindSet();
             SortingSequenceNo := "Sorting Sequence No.";
-            while Next <> 0 do begin
+            while Next() <> 0 do begin
                 Assert.IsTrue("Sorting Sequence No." > SortingSequenceNo, StrSubstNo(SortingOrderErr, TableCaption));
                 SortingSequenceNo := "Sorting Sequence No.";
             end;
@@ -3170,7 +3170,7 @@ codeunit 137047 "SCM Warehouse I"
     begin
         with WhseReceiptLine do begin
             FilterWhseReceiptLines(WhseReceiptLine, DocumentNo, ItemNo);
-            Assert.IsFalse(IsEmpty, StrSubstNo(EmptyTableErr, 1, TableCaption, GetFilter("No.")));
+            Assert.IsFalse(IsEmpty, StrSubstNo(EmptyTableErr, 1, TableCaption(), GetFilter("No.")));
         end;
     end;
 
@@ -3190,7 +3190,7 @@ codeunit 137047 "SCM Warehouse I"
     begin
         with WhseShipmentLine do begin
             FilterWhseShipmentLines(WhseShipmentLine, DocumentNo, ItemNo);
-            Assert.IsFalse(IsEmpty, StrSubstNo(EmptyTableErr, 1, TableCaption, GetFilter("No.")));
+            Assert.IsFalse(IsEmpty, StrSubstNo(EmptyTableErr, 1, TableCaption(), GetFilter("No.")));
         end;
     end;
 

@@ -426,7 +426,7 @@ codeunit 141041 "UT AUNZ Statement Report"
         CustLedgerEntry."Document Type" := DocumentType;
         CustLedgerEntry."Document No." := LibraryUTUtility.GetNewCode;
         CustLedgerEntry."Customer No." := CreateCustomer;
-        CustLedgerEntry."Posting Date" := WorkDate;
+        CustLedgerEntry."Posting Date" := WorkDate();
         CustLedgerEntry.Insert();
         CreateDetailedCustomerLedgerEntry(CustLedgerEntry."Customer No.", CustLedgerEntry."Entry No.");
     end;
@@ -440,7 +440,7 @@ codeunit 141041 "UT AUNZ Statement Report"
         DetailedCustLedgEntry."Entry No." := DetailedCustLedgEntry2."Entry No." + 1;
         DetailedCustLedgEntry."Customer No." := CustomerNo;
         DetailedCustLedgEntry."Cust. Ledger Entry No." := EntryNo;
-        DetailedCustLedgEntry."Posting Date" := WorkDate;
+        DetailedCustLedgEntry."Posting Date" := WorkDate();
         DetailedCustLedgEntry.Amount := LibraryRandom.RandDec(10, 2);
         DetailedCustLedgEntry."Amount (LCY)" := DetailedCustLedgEntry.Amount;
         DetailedCustLedgEntry.Insert(true);
@@ -508,8 +508,8 @@ codeunit 141041 "UT AUNZ Statement Report"
         AUNZStatement.LengthOfAgingPeriods.SetValue(LengthOfAgingPeriods);
         AUNZStatement.Customer.SetFilter("No.", CustomerNo);
         AUNZStatement.Customer.SetFilter(
-          "Date Filter", StrSubstNo(DateFilterTxt, Format(WorkDate),
-            CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate)));  // Random - Value for To Date.
+          "Date Filter", StrSubstNo(DateFilterTxt, Format(WorkDate()),
+            CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate())));  // Random - Value for To Date.
         AUNZStatement.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 

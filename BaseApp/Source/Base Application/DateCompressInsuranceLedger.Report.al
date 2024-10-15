@@ -44,7 +44,7 @@ report 5697 "Date Compress Insurance Ledger"
                       0, false, DimEntryNo);
                     ComprDimEntryNo := DimEntryNo;
                     SummarizeEntry(NewInsCoverageLedgEntry, InsCoverageLedgEntry2);
-                    while Next <> 0 do begin
+                    while Next() <> 0 do begin
                         DimBufMgt.CollectDimEntryNo(
                           TempSelectedDim, "Dimension Set ID", "Entry No.",
                           ComprDimEntryNo, true, DimEntryNo);
@@ -54,7 +54,7 @@ report 5697 "Date Compress Insurance Ledger"
 
                     InsertNewEntry(NewInsCoverageLedgEntry, ComprDimEntryNo);
 
-                    ComprCollectedEntries;
+                    ComprCollectedEntries();
                 end;
 
                 if DateComprReg."No. Records Deleted" >= NoOfDeleted + 10 then begin
@@ -106,7 +106,7 @@ report 5697 "Date Compress Insurance Ledger"
                 SetRange("Entry No.", 0, LastEntryNo);
                 SetRange("Posting Date", EntrdDateComprReg."Starting Date", EntrdDateComprReg."Ending Date");
 
-                InitRegisters;
+                InitRegisters();
 
                 if UseDataArchive then
                     DataArchive.Create(DateComprMgt.GetReportName(Report::"Date Compress Insurance Ledger"));
@@ -257,15 +257,6 @@ report 5697 "Date Compress Insurance Ledger"
     end;
 
     var
-        CompressEntriesQst: Label 'This batch job deletes entries. We recommend that you create a backup of the database before you run the batch job.\\Do you want to continue?';
-        Text003: Label '%1 must be specified.';
-        Text004: Label 'Date compressing insurance ledger entries...\\';
-        Text005: Label 'Insurance No.        #1##########\';
-        Text006: Label 'Date                 #2######\\';
-        Text007: Label 'No. of new entries   #3######\';
-        Text008: Label 'No. of entries del.  #4######';
-        Text009: Label 'Date Compressed';
-        Text010: Label 'Retain Dimensions';
         SourceCodeSetup: Record "Source Code Setup";
         DateComprReg: Record "Date Compr. Register";
         EntrdDateComprReg: Record "Date Compr. Register";
@@ -297,6 +288,16 @@ report 5697 "Date Compress Insurance Ledger"
         UseDataArchive: Boolean;
         [InDataSet]
         DataArchiveProviderExists: Boolean;
+
+        CompressEntriesQst: Label 'This batch job deletes entries. We recommend that you create a backup of the database before you run the batch job.\\Do you want to continue?';
+        Text003: Label '%1 must be specified.';
+        Text004: Label 'Date compressing insurance ledger entries...\\';
+        Text005: Label 'Insurance No.        #1##########\';
+        Text006: Label 'Date                 #2######\\';
+        Text007: Label 'No. of new entries   #3######\';
+        Text008: Label 'No. of entries del.  #4######';
+        Text009: Label 'Date Compressed';
+        Text010: Label 'Retain Dimensions';
         StartDateCompressionTelemetryMsg: Label 'Running date compression report %1 %2.', Locked = true;
         EndDateCompressionTelemetryMsg: Label 'Completed date compression report %1 %2.', Locked = true;
 
@@ -355,7 +356,7 @@ report 5697 "Date Compress Insurance Ledger"
         CurrLastEntryNo := InsCoverageLedgEntry2.GetLastEntryNo();
         if LastEntryNo <> CurrLastEntryNo then begin
             LastEntryNo := CurrLastEntryNo;
-            InitRegisters;
+            InitRegisters();
         end;
     end;
 
@@ -382,7 +383,7 @@ report 5697 "Date Compress Insurance Ledger"
     begin
         with InsCoverageLedgEntry do begin
             NewInsCoverageLedgEntry.Amount := NewInsCoverageLedgEntry.Amount + Amount;
-            Delete;
+            Delete();
             DateComprReg."No. Records Deleted" := DateComprReg."No. Records Deleted" + 1;
             Window.Update(4, DateComprReg."No. Records Deleted");
         end;
@@ -413,7 +414,7 @@ report 5697 "Date Compress Insurance Ledger"
                 OldDimEntryNo := DimEntryNo;
             until not Found;
         end;
-        DimBufMgt.DeleteAllDimEntryNo;
+        DimBufMgt.DeleteAllDimEntryNo();
     end;
 
     procedure InitNewEntry(var NewInsCoverageLedgEntry: Record "Ins. Coverage Ledger Entry")

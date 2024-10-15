@@ -597,7 +597,7 @@ codeunit 132540 "Test Data Exch.Import - CSV"
             Assert.AreEqual(1, DataExchField."Line No.", 'Line no incorrect');
             Assert.AreEqual(i, DataExchField."Column No.", 'Column no incorrect');
             Assert.AreEqual(StrSubstNo('Value Column %1', i), DataExchField.Value, 'Value incorrect');
-        until DataExchField.Next = 0;
+        until DataExchField.Next() = 0;
         Assert.AreEqual(94, i, 'Column count does not match');
     end;
 
@@ -927,7 +927,7 @@ codeunit 132540 "Test Data Exch.Import - CSV"
         repeat
             LineNo += 1;
             AreEqualRecords(ExpectedDataExchField, ActualDataExchField, StrSubstNo(TableErrorMsg, Msg, LineNo));
-        until (ExpectedDataExchField.Next = 0) or (ActualDataExchField.Next = 0);
+        until (ExpectedDataExchField.Next() = 0) or (ActualDataExchField.Next() = 0);
         Assert.AreEqual(ExpectedDataExchField.Count, ActualDataExchField.Count, 'Row count does not match');
     end;
 
@@ -982,7 +982,7 @@ codeunit 132540 "Test Data Exch.Import - CSV"
         while 0 <> InStream.ReadText(EncodedText) do
             Writer.WriteLine(EncodedText);
 
-        Writer.Close;
+        Writer.Close();
     end;
 }
 

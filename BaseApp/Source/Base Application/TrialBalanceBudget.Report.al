@@ -1,4 +1,4 @@
-report 9 "Trial Balance/Budget"
+﻿report 9 "Trial Balance/Budget"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './TrialBalanceBudget.rdlc';
@@ -19,7 +19,7 @@ report 9 "Trial Balance/Budget"
             column(STRSUBSTNO_Text000_PeriodText_; StrSubstNo(Text000, PeriodText))
             {
             }
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(USERID; UserId)
@@ -257,25 +257,27 @@ report 9 "Trial Balance/Budget"
 
     trigger OnPreReport()
     begin
-        GLFilter := "G/L Account".GetFilters;
+        GLFilter := "G/L Account".GetFilters();
         PeriodText := "G/L Account".GetFilter("Date Filter");
         GLBudgetFilter := "G/L Account".GetFilter("Budget Filter");
     end;
 
     var
-        Text000: Label 'Period: %1';
         GLAcc2: Record "G/L Account";
         AccountingPeriod: Record "Accounting Period";
         ReportMgmnt: Codeunit "Report Management APAC";
         RoundingText: Text[50];
         Rounding: Option " ",Tens,Hundreds,Thousands,"Hundred Thousands",Millions;
-        GLFilter: Text;
         GLBudgetFilter: Text[30];
         PeriodText: Text[30];
         EndDate: Date;
         DiffPct: Decimal;
         DiffAtDatePct: Decimal;
+        GLAccountTypePosting: Boolean;
+        RowNumber: Integer;
         RoundingNO: Integer;
+
+        Text000: Label 'Period: %1';
         Text28160Lbl: Label 'This report includes simulation entries';
         Trial_Balance_BudgetCaptionLbl: Label 'Trial Balance/Budget';
         CurrReport_PAGENOCaptionLbl: Label 'Page';
@@ -291,7 +293,8 @@ report 9 "Trial Balance/Budget"
         G_L_Account___Balance_at_Date__Control32CaptionLbl: Label 'Credit';
         DiffAtDatePctCaptionLbl: Label '% of';
         GLAcc2__Budget_at_Date_CaptionLbl: Label 'Budget';
-        GLAccountTypePosting: Boolean;
-        RowNumber: Integer;
+
+    protected var
+        GLFilter: Text;
 }
 

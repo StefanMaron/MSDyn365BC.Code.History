@@ -1,4 +1,4 @@
-report 114 "Salesperson - Sales Statistics"
+﻿report 114 "Salesperson - Sales Statistics"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './SalespersonSalesStatistics.rdlc';
@@ -16,7 +16,7 @@ report 114 "Salesperson - Sales Statistics"
             column(STRSUBSTNO_Text000_PeriodText_; StrSubstNo(Text000, PeriodText))
             {
             }
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(USERID; UserId)
@@ -154,10 +154,9 @@ report 114 "Salesperson - Sales Statistics"
     trigger OnPreReport()
     begin
         "Cust. Ledger Entry".SecurityFiltering(SecurityFilter::Filtered);
-        SalespersonFilter := "Salesperson/Purchaser".GetFilters;
-        CustLedgEntryFilter := "Cust. Ledger Entry".GetFilters;
+        SalespersonFilter := "Salesperson/Purchaser".GetFilters();
+        CustLedgEntryFilter := "Cust. Ledger Entry".GetFilters();
         PeriodText := "Cust. Ledger Entry".GetFilter("Posting Date");
-
         RoundingNO := Rounding;
         RoundingText := ReportMgmnt.RoundDescription(Rounding)
     end;

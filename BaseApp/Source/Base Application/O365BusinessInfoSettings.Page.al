@@ -1,9 +1,13 @@
+#if not CLEAN21
 page 2130 "O365 Business Info Settings"
 {
     Caption = ' ';
     DeleteAllowed = false;
     PageType = CardPart;
     SourceTable = "Company Information";
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     layout
     {
@@ -18,7 +22,7 @@ page 2130 "O365 Business Info Settings"
                     ShowCaption = false;
                     field(Picture; Picture)
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         Caption = 'Your logo';
                         ToolTip = 'Specifies your company''s logo.';
 
@@ -33,7 +37,7 @@ page 2130 "O365 Business Info Settings"
                     ShowCaption = false;
                     field(Name; Name)
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         Caption = 'Company name';
                         Importance = Promoted;
                         NotBlank = true;
@@ -41,7 +45,7 @@ page 2130 "O365 Business Info Settings"
                     }
                     field(BrandColorName; BrandColorName)
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         Caption = 'Brand color';
                         Editable = false;
                         ToolTip = 'Specifies the brand color code.';
@@ -55,7 +59,7 @@ page 2130 "O365 Business Info Settings"
 
                             O365BrandColors.LookupMode := true;
                             O365BrandColors.SetRecord(O365BrandColor);
-                            if O365BrandColors.RunModal = ACTION::LookupOK then begin
+                            if O365BrandColors.RunModal() = ACTION::LookupOK then begin
                                 O365BrandColors.GetRecord(O365BrandColor);
                                 Validate("Brand Color Code", O365BrandColor.Code);
                             end;
@@ -65,7 +69,7 @@ page 2130 "O365 Business Info Settings"
                     }
                     field(FullAddress; FullAddress)
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         Caption = 'Address';
                         Editable = false;
                         QuickEntry = false;
@@ -74,23 +78,23 @@ page 2130 "O365 Business Info Settings"
                         var
                             TempStandardAddress: Record "Standard Address" temporary;
                         begin
-                            CurrPage.SaveRecord;
+                            CurrPage.SaveRecord();
                             Commit();
                             TempStandardAddress.CopyFromCompanyInformation(Rec);
                             if PAGE.RunModal(PAGE::"O365 Address", TempStandardAddress) = ACTION::LookupOK then begin
-                                Get;
-                                FullAddress := TempStandardAddress.ToString;
+                                Get();
+                                FullAddress := TempStandardAddress.ToString();
                             end;
                         end;
                     }
-                    field("VAT Registration No."; "VAT Registration No.")
+                    field("VAT Registration No."; Rec."VAT Registration No.")
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         Caption = 'VAT registration number';
                     }
-                    field("E-Mail"; "E-Mail")
+                    field("E-Mail"; Rec."E-Mail")
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         ExtendedDatatype = EMail;
                         ToolTip = 'Specifies your company''s email address.';
 
@@ -102,21 +106,21 @@ page 2130 "O365 Business Info Settings"
                                 MailManagement.CheckValidEmailAddress("E-Mail");
                         end;
                     }
-                    field("Home Page"; "Home Page")
+                    field("Home Page"; Rec."Home Page")
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         ToolTip = 'Specifies your company''s web site.';
                         Visible = false;
                     }
-                    field("Phone No."; "Phone No.")
+                    field("Phone No."; Rec."Phone No.")
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         Caption = 'Phone number';
                         ToolTip = 'Specifies your company''s phone number.';
                     }
                     field(SocialsLink; SocialsLbl)
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         DrillDown = true;
                         Editable = false;
                         ShowCaption = false;
@@ -124,7 +128,7 @@ page 2130 "O365 Business Info Settings"
 
                         trigger OnDrillDown()
                         begin
-                            CurrPage.SaveRecord;
+                            CurrPage.SaveRecord();
                             Commit();
                             PAGE.RunModal(PAGE::"O365 Social Networks");
                             CurrPage.Update(false);
@@ -144,9 +148,9 @@ page 2130 "O365 Business Info Settings"
         TempStandardAddress: Record "Standard Address" temporary;
     begin
         TempStandardAddress.CopyFromCompanyInformation(Rec);
-        FullAddress := TempStandardAddress.ToString;
+        FullAddress := TempStandardAddress.ToString();
 
-        GetOrSetBrandColor;
+        GetOrSetBrandColor();
     end;
 
     trigger OnInit()
@@ -161,10 +165,10 @@ page 2130 "O365 Business Info Settings"
 
     local procedure Initialize()
     begin
-        Reset;
-        if not Get then begin
-            Init;
-            Insert;
+        Reset();
+        if not Get() then begin
+            Init();
+            Insert();
         end;
     end;
 
@@ -179,4 +183,4 @@ page 2130 "O365 Business Info Settings"
         BrandColorName := O365BrandColor.Name;
     end;
 }
-
+#endif

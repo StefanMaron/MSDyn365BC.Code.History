@@ -24,7 +24,7 @@ page 5636 "FA Reclass. Journal"
 
                 trigger OnLookup(var Text: Text): Boolean
                 begin
-                    CurrPage.SaveRecord;
+                    CurrPage.SaveRecord();
                     FAReclassJnlManagement.LookupName(CurrentJnlBatchName, Rec);
                     CurrPage.Update(false);
                 end;
@@ -32,30 +32,30 @@ page 5636 "FA Reclass. Journal"
                 trigger OnValidate()
                 begin
                     FAReclassJnlManagement.CheckName(CurrentJnlBatchName, Rec);
-                    CurrentJnlBatchNameOnAfterVali;
+                    CurrentJnlBatchNameOnAfterVali();
                 end;
             }
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the same date as the FA Posting Date field when the line is posted.';
                     Visible = false;
                 }
-                field("FA Posting Date"; "FA Posting Date")
+                field("FA Posting Date"; Rec."FA Posting Date")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the posting date of the related fixed asset transaction, such as a depreciation.';
                 }
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies a value depending on how you have set up the number series that is assigned to the current journal batch.';
                     ShowMandatory = true;
                 }
-                field("FA No."; "FA No.")
+                field("FA No."; Rec."FA No.")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the number of the related fixed asset. ';
@@ -65,7 +65,7 @@ page 5636 "FA Reclass. Journal"
                         FAReclassJnlManagement.GetFAS(Rec, FADescription, NewFADescription);
                     end;
                 }
-                field("New FA No."; "New FA No.")
+                field("New FA No."; Rec."New FA No.")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the number of the fixed asset you want to reclassify to.';
@@ -75,7 +75,7 @@ page 5636 "FA Reclass. Journal"
                         FAReclassJnlManagement.GetFAS(Rec, FADescription, NewFADescription);
                     end;
                 }
-                field("Depreciation Book Code"; "Depreciation Book Code")
+                field("Depreciation Book Code"; Rec."Depreciation Book Code")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the code for the depreciation book to which the line will be posted if you have selected Fixed Asset in the Type field for this line.';
@@ -85,63 +85,63 @@ page 5636 "FA Reclass. Journal"
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the description of the asset entered in the FA No field. field.';
                 }
-                field("Reclassify Acq. Cost Amount"; "Reclassify Acq. Cost Amount")
+                field("Reclassify Acq. Cost Amount"; Rec."Reclassify Acq. Cost Amount")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the acquisition amount you want to reclassify.';
                     Visible = false;
                 }
-                field("Reclassify Acq. Cost %"; "Reclassify Acq. Cost %")
+                field("Reclassify Acq. Cost %"; Rec."Reclassify Acq. Cost %")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the percentage of the acquisition cost you want to reclassify.';
                 }
-                field("Reclassify Acquisition Cost"; "Reclassify Acquisition Cost")
+                field("Reclassify Acquisition Cost"; Rec."Reclassify Acquisition Cost")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the reclassification of the acquisition cost for the fixed asset entered in the FA No. field, to the fixed asset entered in the New FA No. field.';
                 }
-                field("Reclassify Depreciation"; "Reclassify Depreciation")
+                field("Reclassify Depreciation"; Rec."Reclassify Depreciation")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the reclassification of the accumulated depreciation for the fixed asset entered in the FA No. field, to the fixed asset entered in the New FA No. field.';
                 }
-                field("Reclassify Write-Down"; "Reclassify Write-Down")
+                field("Reclassify Write-Down"; Rec."Reclassify Write-Down")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the reclassification of all write-down entries for the fixed asset entered in the FA No. field to the fixed asset you have entered in the New FA No. field.';
                     Visible = false;
                 }
-                field("Reclassify Appreciation"; "Reclassify Appreciation")
+                field("Reclassify Appreciation"; Rec."Reclassify Appreciation")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the reclassification of all appreciation entries for the fixed asset entered in the FA No. field to the fixed asset entered in the New FA No. field.';
                     Visible = false;
                 }
-                field("Reclassify Custom 1"; "Reclassify Custom 1")
+                field("Reclassify Custom 1"; Rec."Reclassify Custom 1")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the reclassification of all custom 1 entries for the fixed asset entered in the FA No. field to the fixed asset entered in the New FA No. field.';
                     Visible = false;
                 }
-                field("Reclassify Custom 2"; "Reclassify Custom 2")
+                field("Reclassify Custom 2"; Rec."Reclassify Custom 2")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the reclassification of all custom 2 entries for the fixed asset entered in the FA No. field to the fixed asset entered in the New FA No. field.';
                     Visible = false;
                 }
-                field("Reclassify Salvage Value"; "Reclassify Salvage Value")
+                field("Reclassify Salvage Value"; Rec."Reclassify Salvage Value")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the salvage value for the fixed asset to be reclassified to the fixed asset entered in the New FA No. field.';
                     Visible = false;
                 }
-                field("Insert Bal. Account"; "Insert Bal. Account")
+                field("Insert Bal. Account"; Rec."Insert Bal. Account")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies whether to create one or more balancing entry lines in the FA general ledger journal or FA Journal.';
                 }
-                field("Calc. DB1 Depr. Amount"; "Calc. DB1 Depr. Amount")
+                field("Calc. DB1 Depr. Amount"; Rec."Calc. DB1 Depr. Amount")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies that the Reclassify function fills in the Temp. Ending Date and Temp. Fixed Depr. Amount fields on the FA depreciation book.';
@@ -203,8 +203,6 @@ page 5636 "FA Reclass. Journal"
                 ApplicationArea = FixedAssets;
                 Caption = 'Recl&assify';
                 Image = PostOrder;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Reclassify the fixed asset information on the journal lines.';
 
                 trigger OnAction()
@@ -213,6 +211,17 @@ page 5636 "FA Reclass. Journal"
                     CurrentJnlBatchName := GetRangeMax("Journal Batch Name");
                     CurrPage.Update(false);
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(Reclassify_Promoted; Reclassify)
+                {
+                }
             }
         }
     }
@@ -231,7 +240,7 @@ page 5636 "FA Reclass. Journal"
     var
         JnlSelected: Boolean;
     begin
-        if IsOpenedFromBatch then begin
+        if IsOpenedFromBatch() then begin
             CurrentJnlBatchName := "Journal Batch Name";
             FAReclassJnlManagement.OpenJournal(CurrentJnlBatchName, Rec);
             exit;
@@ -251,7 +260,7 @@ page 5636 "FA Reclass. Journal"
 
     local procedure CurrentJnlBatchNameOnAfterVali()
     begin
-        CurrPage.SaveRecord;
+        CurrPage.SaveRecord();
         FAReclassJnlManagement.SetName(CurrentJnlBatchName, Rec);
         CurrPage.Update(false);
     end;

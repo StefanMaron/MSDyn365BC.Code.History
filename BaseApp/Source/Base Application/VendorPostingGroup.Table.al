@@ -21,7 +21,7 @@ table 93 "Vendor Posting Group"
                     GLAccountCategoryMgt.LookupGLAccountWithoutCategory("Payables Account")
                 else
                     LookupGLAccount(
-                      "Payables Account", GLAccountCategory."Account Category"::Liabilities, GLAccountCategoryMgt.GetCurrentLiabilities);
+                      "Payables Account", GLAccountCategory."Account Category"::Liabilities, GLAccountCategoryMgt.GetCurrentLiabilities());
 
                 Validate("Payables Account");
             end;
@@ -32,7 +32,7 @@ table 93 "Vendor Posting Group"
                     GLAccountCategoryMgt.CheckGLAccountWithoutCategory("Payables Account", false, false)
                 else
                     CheckGLAccount(
-                      FieldNo("Payables Account"), "Payables Account", false, false, GLAccountCategory."Account Category"::Liabilities, GLAccountCategoryMgt.GetCurrentLiabilities);
+                      FieldNo("Payables Account"), "Payables Account", false, false, GLAccountCategory."Account Category"::Liabilities, GLAccountCategoryMgt.GetCurrentLiabilities());
             end;
         }
         field(7; "Service Charge Acc."; Code[20])
@@ -46,7 +46,7 @@ table 93 "Vendor Posting Group"
                     GLAccountCategoryMgt.LookupGLAccountWithoutCategory("Service Charge Acc.")
                 else
                     LookupGLAccount(
-                      "Service Charge Acc.", GLAccountCategory."Account Category"::Liabilities, GLAccountCategoryMgt.GetFeesExpense);
+                      "Service Charge Acc.", GLAccountCategory."Account Category"::Liabilities, GLAccountCategoryMgt.GetFeesExpense());
 
                 Validate("Service Charge Acc.");
             end;
@@ -57,7 +57,7 @@ table 93 "Vendor Posting Group"
                     GLAccountCategoryMgt.CheckGLAccountWithoutCategory("Service Charge Acc.", true, true)
                 else
                     CheckGLAccount(
-                      FieldNo("Service Charge Acc."), "Service Charge Acc.", true, true, GLAccountCategory."Account Category"::Liabilities, GLAccountCategoryMgt.GetFeesExpense);
+                      FieldNo("Service Charge Acc."), "Service Charge Acc.", true, true, GLAccountCategory."Account Category"::Liabilities, GLAccountCategoryMgt.GetFeesExpense());
             end;
         }
         field(8; "Payment Disc. Debit Acc."; Code[20])
@@ -234,7 +234,7 @@ table 93 "Vendor Posting Group"
                     GLAccountCategoryMgt.LookupGLAccountWithoutCategory("Payment Tolerance Debit Acc.")
                 else
                     LookupGLAccount(
-                      "Payment Tolerance Debit Acc.", GLAccountCategory."Account Category"::Income, GLAccountCategoryMgt.GetIncomeInterest);
+                      "Payment Tolerance Debit Acc.", GLAccountCategory."Account Category"::Income, GLAccountCategoryMgt.GetIncomeInterest());
 
                 Validate("Payment Tolerance Debit Acc.");
             end;
@@ -246,7 +246,7 @@ table 93 "Vendor Posting Group"
                 else
                     CheckGLAccount(
                       FieldNo("Payment Tolerance Debit Acc."), "Payment Tolerance Debit Acc.", false, false,
-                      GLAccountCategory."Account Category"::Income, GLAccountCategoryMgt.GetIncomeInterest);
+                      GLAccountCategory."Account Category"::Income, GLAccountCategoryMgt.GetIncomeInterest());
             end;
         }
         field(18; "Payment Tolerance Credit Acc."; Code[20])
@@ -260,7 +260,7 @@ table 93 "Vendor Posting Group"
                     GLAccountCategoryMgt.LookupGLAccountWithoutCategory("Payment Tolerance Credit Acc.")
                 else
                     LookupGLAccount(
-                      "Payment Tolerance Credit Acc.", GLAccountCategory."Account Category"::Income, GLAccountCategoryMgt.GetIncomeInterest);
+                      "Payment Tolerance Credit Acc.", GLAccountCategory."Account Category"::Income, GLAccountCategoryMgt.GetIncomeInterest());
 
                 Validate("Payment Tolerance Credit Acc.");
             end;
@@ -272,7 +272,7 @@ table 93 "Vendor Posting Group"
                 else
                     CheckGLAccount(
                       FieldNo("Payment Tolerance Credit Acc."), "Payment Tolerance Credit Acc.", false, false,
-                      GLAccountCategory."Account Category"::Income, GLAccountCategoryMgt.GetIncomeInterest);
+                      GLAccountCategory."Account Category"::Income, GLAccountCategoryMgt.GetIncomeInterest());
             end;
         }
         field(20; Description; Text[100])
@@ -311,7 +311,7 @@ table 93 "Vendor Posting Group"
 
     trigger OnDelete()
     begin
-        CheckGroupUsage;
+        CheckGroupUsage();
     end;
 
     var
@@ -426,8 +426,8 @@ table 93 "Vendor Posting Group"
         PaymentTerms: Record "Payment Terms";
     begin
         GLSetup.Get();
-        PmtToleranceVisible := GLSetup.GetPmtToleranceVisible;
-        PmtDiscountVisible := PaymentTerms.UsePaymentDiscount;
+        PmtToleranceVisible := GLSetup.GetPmtToleranceVisible();
+        PmtDiscountVisible := PaymentTerms.UsePaymentDiscount();
 
         PurchSetup.Get();
         InvRoundingVisible := PurchSetup."Invoice Rounding";

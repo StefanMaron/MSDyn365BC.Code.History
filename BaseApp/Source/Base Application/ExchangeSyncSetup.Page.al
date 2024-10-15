@@ -5,7 +5,6 @@ page 6700 "Exchange Sync. Setup"
     InsertAllowed = false;
     LinksAllowed = false;
     PageType = Card;
-    PromotedActionCategories = 'New,Process,Report,Navigate';
     SourceTable = "Exchange Sync";
     UsageCategory = Administration;
 
@@ -16,7 +15,7 @@ page 6700 "Exchange Sync. Setup"
             group(General)
             {
                 Caption = 'General';
-                field("User ID"; "User ID")
+                field("User ID"; Rec."User ID")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -63,8 +62,6 @@ page 6700 "Exchange Sync. Setup"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Validate Exchange Connection';
                     Image = ValidateEmailLoggingSetup;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Test that the provided exchange server connection works.';
 
                     trigger OnAction()
@@ -74,11 +71,11 @@ page 6700 "Exchange Sync. Setup"
                         if O365SyncManagement.CreateExchangeConnection(Rec) then
                             Message(ConnectionSuccessMsg)
                         else begin
-                            ProgressWindow.Close;
+                            ProgressWindow.Close();
                             Error(ConnectionFailureErr);
                         end;
 
-                        ProgressWindow.Close;
+                        ProgressWindow.Close();
                     end;
                 }
             }
@@ -90,8 +87,6 @@ page 6700 "Exchange Sync. Setup"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Bookings Sync. Setup';
                     Image = BookingsLogo;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     ToolTip = 'Open the Bookings Sync. Setup page.';
 
                     trigger OnAction()
@@ -107,8 +102,6 @@ page 6700 "Exchange Sync. Setup"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Contact Sync. Setup';
                     Image = ExportSalesPerson;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     ToolTip = 'Open the Contact Sync. Setup page.';
 
                     trigger OnAction()
@@ -121,6 +114,32 @@ page 6700 "Exchange Sync. Setup"
                 }
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref("Validate Exchange Connection_Promoted"; "Validate Exchange Connection")
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Navigate', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref(SetupBookingSync_Promoted; SetupBookingSync)
+                {
+                }
+                actionref(SetupContactSync_Promoted; SetupContactSync)
+                {
+                }
+            }
+        }
     }
 
     trigger OnOpenPage()
@@ -128,7 +147,7 @@ page 6700 "Exchange Sync. Setup"
         User: Record User;
         AzureADMgt: Codeunit "Azure AD Mgt.";
     begin
-        Reset;
+        Reset();
         GetUser(User);
 
         if User."Authentication Email" = '' then
@@ -137,14 +156,14 @@ page 6700 "Exchange Sync. Setup"
         ExchangeAccountUserName := User."Authentication Email";
 
         if not Get(UserId) then begin
-            Init;
-            "User ID" := UserId;
-            "Folder ID" := PRODUCTNAME.Short;
-            Insert;
+            Init();
+            "User ID" := UserId();
+            "Folder ID" := PRODUCTNAME.Short();
+            Insert();
             Commit();
         end;
 
-        PasswordRequired := AzureADMgt.GetAccessToken(AzureADMgt.GetO365Resource, AzureADMgt.GetO365ResourceName, false) = '';
+        PasswordRequired := AzureADMgt.GetAccessToken(AzureADMgt.GetO365Resource(), AzureADMgt.GetO365ResourceName(), false) = '';
 
         if (ExchangeAccountUserName <> '') and (not IsNullGuid("Exchange Account Password Key")) then
             ExchangeAccountPasswordTemp := '**********';

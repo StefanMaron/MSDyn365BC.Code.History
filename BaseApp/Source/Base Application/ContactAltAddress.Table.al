@@ -29,28 +29,10 @@ table 5051 "Contact Alt. Address"
         field(5; Address; Text[100])
         {
             Caption = 'Address';
-
-            trigger OnValidate()
-            var
-                Contact: Text[90];
-            begin
-                PostCodeCheck.ValidateAddress(
-                  CurrFieldNo, DATABASE::"Contact Alt. Address", Rec.GetPosition, 0,
-                  "Company Name", "Company Name 2", Contact, Address, "Address 2", City, "Post Code", County, "Country/Region Code");
-            end;
         }
         field(6; "Address 2"; Text[50])
         {
             Caption = 'Address 2';
-
-            trigger OnValidate()
-            var
-                Contact: Text[90];
-            begin
-                PostCodeCheck.ValidateAddress(
-                  CurrFieldNo, DATABASE::"Contact Alt. Address", Rec.GetPosition, 0,
-                  "Company Name", "Company Name 2", Contact, Address, "Address 2", City, "Post Code", County, "Country/Region Code");
-            end;
         }
         field(7; City; Text[30])
         {
@@ -69,11 +51,12 @@ table 5051 "Contact Alt. Address"
 
             trigger OnValidate()
             var
-                Contact: Text[90];
+                IsHandled: Boolean;
             begin
-                PostCodeCheck.ValidateCity(
-                  CurrFieldNo, DATABASE::"Contact Alt. Address", Rec.GetPosition, 0,
-                  "Company Name", "Company Name 2", Contact, Address, "Address 2", City, "Post Code", County, "Country/Region Code");
+                IsHandled := false;
+                OnBeforeValidateCity(Rec, PostCode, CurrFieldNo, IsHandled);
+                if not IsHandled then
+                    PostCode.ValidateCity(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
             end;
         }
         field(8; "Post Code"; Code[20])
@@ -93,17 +76,15 @@ table 5051 "Contact Alt. Address"
 
             trigger OnValidate()
             var
-                Contact: Text[90];
                 IsHandled: Boolean;
             begin
                 IsHandled := false;
+#if not CLEAN21
                 OnBeforeValidatePostPode(Rec, IsHandled);
-                if IsHandled then
-                    exit;
-
-                PostCodeCheck.ValidatePostCode(
-                  CurrFieldNo, DATABASE::"Contact Alt. Address", Rec.GetPosition, 0,
-                  "Company Name", "Company Name 2", Contact, Address, "Address 2", City, "Post Code", County, "Country/Region Code");
+#endif
+                OnBeforeValidatePostCode(Rec, PostCode, CurrFieldNo, IsHandled);
+                if not IsHandled then
+                    PostCode.ValidatePostCode(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
             end;
         }
         field(9; County; Text[30])
@@ -207,8 +188,6 @@ table 5051 "Contact Alt. Address"
         ContAltAddrDateRange.SetRange("Contact No.", "Contact No.");
         ContAltAddrDateRange.SetRange("Contact Alt. Address Code", Code);
         ContAltAddrDateRange.DeleteAll();
-
-        PostCodeCheck.DeleteAllAddressID(DATABASE::"Contact Alt. Address", Rec.GetPosition);
     end;
 
     trigger OnInsert()
@@ -238,15 +217,10 @@ table 5051 "Contact Alt. Address"
             Contact.TouchContact("Contact No.");
             Contact.TouchContact(xRec."Contact No.");
         end;
-
-        PostCodeCheck.MoveAllAddressID(
-          DATABASE::"Contact Alt. Address", xRec.GetPosition,
-          DATABASE::"Contact Alt. Address", Rec.GetPosition);
     end;
 
     var
         PostCode: Record "Post Code";
-        PostCodeCheck: Codeunit "Post Code Check";
 
     local procedure SetSearchEmail()
     begin
@@ -254,8 +228,21 @@ table 5051 "Contact Alt. Address"
             "Search E-Mail" := "E-Mail";
     end;
 
+#if not CLEAN21
+    [Obsolete('Replaced by event OnBeforeValidatePostCode()','21.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidatePostPode(var ContactAltAddress: Record "Contact Alt. Address"; var IsHandled: Boolean)
+    begin
+    end;
+#endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateCity(var ContactAltAddress: Record "Contact Alt. Address"; var PostCode: Record "Post Code"; CurrentFieldNo: Integer; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidatePostCode(var ContactAltAddress: Record "Contact Alt. Address"; var PostCode: Record "Post Code"; CurrentFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 }

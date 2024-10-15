@@ -1,4 +1,4 @@
-﻿codeunit 64 "Sales-Get Shipment"
+codeunit 64 "Sales-Get Shipment"
 {
     TableNo = "Sales Line";
 
@@ -29,13 +29,14 @@
     end;
 
     var
-        Text001: Label 'The %1 on the %2 %3 and the %4 %5 must be the same.';
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
         SalesShptHeader: Record "Sales Shipment Header";
         SalesShptLine: Record "Sales Shipment Line";
         UOMMgt: Codeunit "Unit of Measure Management";
         GetShipments: Page "Get Shipment Lines";
+
+        Text001: Label 'The %1 on the %2 %3 and the %4 %5 must be the same.';
         Text002: Label 'Creating Sales Invoice Lines\';
         Text003: Label 'Inserted lines             #1######';
 
@@ -69,16 +70,16 @@
                             Message(
                               Text001,
                               SalesHeader.FieldCaption("Currency Code"),
-                              SalesHeader.TableCaption, SalesHeader."No.",
-                              SalesShptHeader.TableCaption, SalesShptHeader."No.");
+                              SalesHeader.TableCaption(), SalesHeader."No.",
+                              SalesShptHeader.TableCaption(), SalesShptHeader."No.");
                             TransferLine := false;
                         end;
                         if SalesShptHeader."Bill-to Customer No." <> SalesHeader."Bill-to Customer No." then begin
                             Message(
                               Text001,
                               SalesHeader.FieldCaption("Bill-to Customer No."),
-                              SalesHeader.TableCaption, SalesHeader."No.",
-                              SalesShptHeader.TableCaption, SalesShptHeader."No.");
+                              SalesHeader.TableCaption(), SalesHeader."No.",
+                              SalesShptHeader.TableCaption(), SalesShptHeader."No.");
                             TransferLine := false;
                         end;
                         OnBeforeTransferLineToSalesDoc(SalesShptHeader, SalesShptLine2, SalesHeader, TransferLine);
@@ -191,7 +192,7 @@
                     if ItemChargeAssgntSales."Qty. to Assign" <> 0 then begin
                         ItemChargeAssgntSales2 := ItemChargeAssgntSales;
                         ItemChargeAssgntSales2."Qty. to Assign" :=
-                          Round(QtyFactor * ItemChargeAssgntSales2."Qty. to Assign", UOMMgt.QtyRndPrecision);
+                          Round(QtyFactor * ItemChargeAssgntSales2."Qty. to Assign", UOMMgt.QtyRndPrecision());
                         SalesLine2.SetRange("Shipment No.", SalesShptLine."Document No.");
                         SalesLine2.SetRange("Shipment Line No.", SalesShptLine."Line No.");
                         if SalesLine2.FindSet() then
@@ -231,7 +232,7 @@
                                         SalesLine2.SetRange("Document Type", "Document Type"::Invoice);
                                         SalesLine2.SetRange("Shipment No.", SalesShptLine2."Document No.");
                                         SalesLine2.SetRange("Shipment Line No.", SalesShptLine2."Line No.");
-                                        if SalesLine2.FindFirst and (SalesLine2.Quantity <> 0) then
+                                        if SalesLine2.FindFirst() and (SalesLine2.Quantity <> 0) then
                                             ItemChargeAssgntSales2."Applies-to Doc. Line No." := SalesLine2."Line No."
                                         else
                                             InsertChargeAssgnt := false;
@@ -292,8 +293,8 @@
            (SalesLine."Document Type" = SalesLine."Document Type"::Invoice)
         then begin
             SalesOrderLine.Get(SalesOrderLine."Document Type"::Order, SalesShptLine."Order No.", SalesShptLine."Order Line No.");
-            Fraction := SalesShptLine."Qty. Shipped Not Invoiced" / SalesOrderLine.Quantity;
-            FractionAmount := Fraction * SalesOrderLine."Prepmt. Amt. Inv.";
+            Fraction := (SalesShptLine.Quantity - SalesShptLine."Quantity Invoiced") / (SalesOrderLine.Quantity - SalesOrderLine."Quantity Invoiced");
+            FractionAmount := Fraction * (SalesOrderLine."Prepmt. Amt. Inv." - SalesOrderLine."Prepmt Amt Deducted");
             RoundingAmount += SalesLine."Prepmt Amt to Deduct" - FractionAmount;
         end;
     end;

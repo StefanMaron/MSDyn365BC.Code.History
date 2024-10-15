@@ -11,7 +11,7 @@ codeunit 3030 DotNet_HybridDeployment
     [Scope('OnPrem')]
     procedure Initialize()
     begin
-        DotNetALHybridDeployManagement := DotNetALHybridDeployManagement.ALHybridDeployManagement;
+        DotNetALHybridDeployManagement := DotNetALHybridDeployManagement.ALHybridDeployManagement();
     end;
 
     [Scope('OnPrem')]
@@ -90,7 +90,7 @@ codeunit 3030 DotNet_HybridDeployment
     [Scope('OnPrem')]
     procedure PrepareTablesForReplication()
     begin
-        DotNetALHybridDeployManagement.PrepareTablesForReplication;
+        DotNetALHybridDeployManagement.PrepareTablesForReplication();
     end;
 
     [Scope('OnPrem')]
@@ -117,6 +117,12 @@ codeunit 3030 DotNet_HybridDeployment
         InstanceId :=
           DotNetALHybridDeployManagement.SetReplicationSchedule(
             SourceProduct, ReplicationFrequency, DaysToRun, CreateDateTime(Today, TimeToRun), Activate);
+    end;
+
+    [Scope('OnPrem')]
+    procedure StartDataUpgrade()
+    begin
+        DotNetALHybridDeployManagement.StartDataUpgrade();
     end;
 }
 

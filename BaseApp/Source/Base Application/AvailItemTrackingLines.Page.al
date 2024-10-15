@@ -194,7 +194,6 @@ page 6503 "Avail. - Item Tracking Lines"
     end;
 
     var
-        CancelReservationQst: Label 'Cancel reservation?';
         ReservEntry: Record "Reservation Entry";
         ReservMgt: Codeunit "Reservation Management";
         ReservEngineMgt: Codeunit "Reservation Engine Mgt.";
@@ -208,6 +207,8 @@ page 6503 "Avail. - Item Tracking Lines"
         FunctionButton2Visible: Boolean;
         [InDataSet]
         PackageTrackingVisible: Boolean;
+
+        CancelReservationQst: Label 'Cancel reservation?';
 
     procedure SetReservSource(CurrentSourceRecRef: RecordRef; CurrentReservEntry: Record "Reservation Entry")
     var

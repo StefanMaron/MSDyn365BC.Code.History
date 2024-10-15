@@ -13,11 +13,11 @@ codeunit 7705 "Miniform Logon"
 
         if ADCSCommunication.GetNodeAttribute(ReturnedNode, 'RunReturn') = '0' then begin
             if Code <> CurrentCode then
-                PrepareData
+                PrepareData()
             else
-                ProcessInput;
+                ProcessInput();
         end else
-            PrepareData;
+            PrepareData();
 
         Clear(DOMxmlin);
     end;
@@ -71,7 +71,7 @@ codeunit 7705 "Miniform Logon"
 
         case FuncGroup.KeyDef of
             FuncGroup.KeyDef::Esc:
-                PrepareData;
+                PrepareData();
             FuncGroup.KeyDef::Input:
                 begin
                     Evaluate(FldNo, ADCSCommunication.GetNodeAttribute(ReturnedNode, 'FieldID'));

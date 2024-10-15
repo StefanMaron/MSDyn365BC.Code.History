@@ -18,12 +18,13 @@ codeunit 141011 "ERM WHT - AU"
         LibraryRandom: Codeunit "Library - Random";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryUtility: Codeunit "Library - Utility";
+        IsInitialized: Boolean;
         ABNTxt: Label '53001003000';
         DiffrentWHTPostingGroupOnLineErr: Label 'You cannot post a transaction using different WHT minimum invoice amounts on lines.';
         ValueMustBeSameMsg: Label 'Value must be same.';
         ValueMustNotExistMsg: Label '%1 must not exist.';
-        LibraryUtility: Codeunit "Library - Utility";
-        IsInitialized: Boolean;
+        OpenBankStatementPageQst: Label 'Do you want to open the bank account statement?';
 
     [Test]
     [Scope('OnPrem')]
@@ -192,7 +193,7 @@ codeunit 141011 "ERM WHT - AU"
         // [THEN] Verify Purchase Invoice Statistics Page and GST Purchase Entry with 0 value.
         VerifyPurchaseInvoiceStatisticsPage(PurchaseInvoiceStatistics, 0, 0);  // Remaining WHT Prepaid Amount and Paid WHT Prepaid Amount - 0.
         VerifyGSTPurchaseEntry(DocumentNo, GSTPurchaseEntry."Document Line Type"::"G/L Account");
-        PostedPurchaseInvoice.Close;
+        PostedPurchaseInvoice.Close();
 
         // Tear Down.
         UpdateGeneralLedgerSetupAndPurchasesSetup(GeneralLedgerSetup, OldGSTProdPostingGroup);
@@ -234,7 +235,7 @@ codeunit 141011 "ERM WHT - AU"
         // [THEN] Verify Purchase Invoice Statistics Page and GST Purchase Entry with 0 value.
         VerifyPurchaseInvoiceStatisticsPage(PurchaseInvoiceStatistics, 0, 0);  // Remaining WHT Prepaid Amount and Paid WHT Prepaid Amount - 0.
         VerifyGSTPurchaseEntry(DocumentNo, GSTPurchaseEntry."Document Line Type"::"G/L Account");
-        PostedPurchaseInvoice.Close;
+        PostedPurchaseInvoice.Close();
 
         // Tear Down.
         UpdateGeneralLedgerSetupAndPurchasesSetup(GeneralLedgerSetup, OldGSTProdPostingGroup);
@@ -486,7 +487,7 @@ codeunit 141011 "ERM WHT - AU"
         VerifyPurchaseInvoiceStatisticsPage(PurchaseInvoiceStatistics, 0, CalculateWHTAmount(DocumentNo, WHTPostingSetup."WHT %"));  // Remaining WHT Prepaid Amount - 0.
         FilterOnWHTEntry(WHTEntry, WHTEntry."Document Type"::Payment, PurchaseLine."Buy-from Vendor No.");
         Assert.AreEqual(2, WHTEntry.Count, ValueMustBeSameMsg);  // WHT Entry count should be 2 for twice partial payment.
-        PostedPurchaseInvoice.Close;
+        PostedPurchaseInvoice.Close();
 
         // Tear Down.
         UpdateGeneralLedgerSetupAndPurchasesSetup(GeneralLedgerSetup, OldGSTProdPostingGroup);
@@ -730,8 +731,8 @@ codeunit 141011 "ERM WHT - AU"
         // [THEN] Verify Purchase Invoice Statistics Page and WHT Entry not exists as Vendor have ABN.
         VerifyPurchaseInvoiceStatisticsPage(PurchaseInvoiceStatistics, 0, 0);  // Remaining WHT Prepaid Amount and Paid WHT Prepaid Amount - 0.
         FilterOnWHTEntry(WHTEntry, WHTEntry."Document Type"::Payment, PurchaseLine."Buy-from Vendor No.");
-        Assert.IsFalse(WHTEntry.FindFirst, StrSubstNo(ValueMustNotExistMsg, WHTEntry.TableCaption));
-        PostedPurchaseInvoice.Close;
+        Assert.IsFalse(WHTEntry.FindFirst, StrSubstNo(ValueMustNotExistMsg, WHTEntry.TableCaption()));
+        PostedPurchaseInvoice.Close();
 
         // Tear Down.
         UpdateGeneralLedgerSetupAndPurchasesSetup(GeneralLedgerSetup, OldGSTProdPostingGroup);
@@ -781,8 +782,8 @@ codeunit 141011 "ERM WHT - AU"
         // [THEN] Verify Purchase Invoice Statistics Page and WHT Entry not created ABN Vendor is used.
         VerifyPurchaseInvoiceStatisticsPage(PurchaseInvoiceStatistics, CalculateWHTAmount(DocumentNo, WHTPostingSetup."WHT %"), 0);  // Paid WHT Prepaid Amount - 0.
         FilterOnWHTEntry(WHTEntry, WHTEntry."Document Type"::Payment, PurchaseLine."Buy-from Vendor No.");
-        Assert.IsFalse(WHTEntry.FindFirst, StrSubstNo(ValueMustNotExistMsg, WHTEntry.TableCaption));
-        PostedPurchaseInvoice.Close;
+        Assert.IsFalse(WHTEntry.FindFirst, StrSubstNo(ValueMustNotExistMsg, WHTEntry.TableCaption()));
+        PostedPurchaseInvoice.Close();
 
         // Tear Down.
         UpdateGeneralLedgerSetupAndPurchasesSetup(GeneralLedgerSetup, OldGSTProdPostingGroup);
@@ -833,7 +834,7 @@ codeunit 141011 "ERM WHT - AU"
         VerifyPurchaseInvoiceStatisticsPage(PurchaseInvoiceStatistics, 0, CalculateWHTAmount(DocumentNo, WHTPostingSetup."WHT %"));  // Remaining WHT Prepaid Amount - 0.
         FilterOnWHTEntry(WHTEntry, WHTEntry."Document Type"::Payment, PurchaseLine."Buy-from Vendor No.");
         Assert.AreEqual(2, WHTEntry.Count, ValueMustBeSameMsg);
-        PostedPurchaseInvoice.Close;
+        PostedPurchaseInvoice.Close();
 
         // Tear Down.
         UpdateGeneralLedgerSetupAndPurchasesSetup(GeneralLedgerSetup, OldGSTProdPostingGroup);
@@ -899,7 +900,7 @@ codeunit 141011 "ERM WHT - AU"
         VerifyPurchaseInvoiceStatisticsPage(PurchaseInvoiceStatistics, 0, WHTAmount);  // Remaining WHT Prepaid Amount and Paid WHT Prepaid Amount - 0.
         VerifyBaseAndAmountOnWHTEntry(PurchaseLine."Buy-from Vendor No.", PurchaseHeader.Amount, WHTAmount);
         VerifyGSTPurchaseEntry(DocumentNo, GSTPurchaseEntry."Document Line Type"::"G/L Account");
-        PostedPurchaseInvoice.Close;
+        PostedPurchaseInvoice.Close();
 
         // Tear Down.
         UpdateGeneralLedgerSetupAndPurchasesSetup(GeneralLedgerSetup, OldGSTProdPostingGroup);
@@ -985,7 +986,7 @@ codeunit 141011 "ERM WHT - AU"
         VerifyPurchaseInvoiceStatisticsPage(PurchaseInvoiceStatistics, 0, WHTAmount);  // Remaining WHT Prepaid Amount - 0.
         VerifyPurchaseInvoiceWHTEntry(PurchaseLine."Document Type"::Invoice, PurchaseLine."Buy-from Vendor No.", 0, WHTAmount);  // Amount - 0.
         VerifyBaseAndAmountOnWHTEntry(PurchaseLine."Buy-from Vendor No.", PurchaseLine."Line Amount", WHTAmount);
-        PostedPurchaseInvoice.Close;
+        PostedPurchaseInvoice.Close();
 
         // Tear Down.
         UpdateGeneralLedgerSetupAndPurchasesSetup(GeneralLedgerSetup, OldGSTProdPostingGroup);
@@ -1936,7 +1937,7 @@ codeunit 141011 "ERM WHT - AU"
             LibraryERM.CreateGeneralJnlLine(
               GenJournalLine, GenJournalTemplate.Name, GenJournalBatch.Name, "Document Type"::Invoice,
               "Account Type"::Vendor, CreateLocalVendor, -10);
-            Validate("Posting Date", WorkDate);
+            Validate("Posting Date", WorkDate());
             Validate("Currency Code", CreateCurrencyWithTwoExchangeRates);
             Validate("Bal. Account Type", "Bal. Account Type"::"G/L Account");
             Validate("Bal. Account No.", LibraryERM.CreateGLAccountNoWithDirectPosting);
@@ -1970,7 +1971,7 @@ codeunit 141011 "ERM WHT - AU"
         Currency: Record Currency;
     begin
         LibraryERM.CreateCurrency(Currency);
-        LibraryERM.CreateExchangeRate(Currency.Code, WorkDate, 80, 80);
+        LibraryERM.CreateExchangeRate(Currency.Code, WorkDate(), 80, 80);
         LibraryERM.CreateExchangeRate(Currency.Code, WorkDate + 10, 100, 100);
         Currency.Validate("Realized Gains Acc.", LibraryERM.CreateGLAccountNo);
         Currency.Validate("Realized Losses Acc.", LibraryERM.CreateGLAccountNo);
@@ -2173,14 +2174,14 @@ codeunit 141011 "ERM WHT - AU"
     begin
         VerifyPurchCreditMemoStatisticsPage(PurchCreditMemoStatistics, RemWHTPrepaidAmount, PaidWHTPrepaidAmount);
         VerifyWHTEntry(DocumentType, BuyFromVendorNo, PaidWHTPrepaidAmount, RemWHTPrepaidAmount);
-        PostedPurchaseCreditMemo.Close;
+        PostedPurchaseCreditMemo.Close();
     end;
 
     local procedure VerifyPurchaseInvoiceStatisticsPageAndWHTEntry(PurchaseInvoiceStatistics: TestPage "Purchase Invoice Statistics"; PostedPurchaseInvoice: TestPage "Posted Purchase Invoice"; DocumentType: Enum "Gen. Journal Document Type"; BuyFromVendorNo: Code[20]; RemWHTPrepaidAmount: Decimal; PaidWHTPrepaidAmount: Decimal; Amount: Decimal; UnrealizedAmount: Decimal)
     begin
         VerifyPurchaseInvoiceStatisticsPage(PurchaseInvoiceStatistics, RemWHTPrepaidAmount, PaidWHTPrepaidAmount);
         VerifyWHTEntry(DocumentType, BuyFromVendorNo, Amount, UnrealizedAmount);
-        PostedPurchaseInvoice.Close;
+        PostedPurchaseInvoice.Close();
     end;
 
     local procedure VerifyPurchaseInvoiceStatisticsPage(PurchaseInvoiceStatistics: TestPage "Purchase Invoice Statistics"; RemWHTPrepaidAmount: Decimal; PaidWHTPrepaidAmount: Decimal)
@@ -2363,7 +2364,10 @@ codeunit 141011 "ERM WHT - AU"
     [ConfirmHandler]
     procedure ConfirmHandlerYes(Question: Text[1024]; var Reply: Boolean)
     begin
-        Reply := true;
+        if (Question.Contains(OpenBankStatementPageQst)) then
+            Reply := false
+        else
+            Reply := true;
     end;
 
     [ModalPageHandler]

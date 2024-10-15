@@ -80,7 +80,7 @@ table 99000850 "Planning Assignment"
                 if (ManufacturingSetup."Components at Location" <> '') or
                    not InvtSetup."Location Mandatory"
                 then
-                    AssignOne(NewItem."No.", '', ManufacturingSetup."Components at Location", WorkDate);
+                    AssignOne(NewItem."No.", '', ManufacturingSetup."Components at Location", WorkDate());
             end;
 
     end;
@@ -104,9 +104,9 @@ table 99000850 "Planning Assignment"
                 SetRange("Item No.", NewSKU."Item No.");
                 SetRange("Variant Code", NewSKU."Variant Code");
                 SetRange("Location Code", NewSKU."Location Code");
-                if Find then begin
+                if Find() then begin
                     "Net Change Planning" := false;
-                    Modify;
+                    Modify();
                 end;
             end else
                 exit
@@ -216,7 +216,7 @@ table 99000850 "Planning Assignment"
                 else
                     AssignThis := true;
                 if AssignThis then
-                    AssignOne(ProdOrderLine."Item No.", ProdOrderLine."Variant Code", ProdOrderLine."Location Code", WorkDate);
+                    AssignOne(ProdOrderLine."Item No.", ProdOrderLine."Variant Code", ProdOrderLine."Location Code", WorkDate());
                 ProdOrderLine.SetRange("Variant Code", ProdOrderLine."Variant Code");
                 ProdOrderLine.SetRange("Location Code", ProdOrderLine."Location Code");
                 ProdOrderLine.FindLast();
@@ -234,7 +234,7 @@ table 99000850 "Planning Assignment"
                 else
                     AssignThis := true;
                 if AssignThis then
-                    AssignOne(ReqLine."No.", ReqLine."Variant Code", ReqLine."Location Code", WorkDate);
+                    AssignOne(ReqLine."No.", ReqLine."Variant Code", ReqLine."Location Code", WorkDate());
                 ReqLine.SetRange("Variant Code", ReqLine."Variant Code");
                 ReqLine.SetRange("Location Code", ReqLine."Location Code");
                 ReqLine.FindLast();
@@ -249,16 +249,16 @@ table 99000850 "Planning Assignment"
         "Item No." := ItemNo;
         "Variant Code" := VariantCode;
         "Location Code" := LocationCode;
-        if Find then begin
+        if Find() then begin
             Validate("Net Change Planning", true);
             if UpdateDate > "Latest Date" then
                 "Latest Date" := UpdateDate;
-            Modify;
+            Modify();
         end else begin
-            Init;
+            Init();
             Validate("Net Change Planning", true);
             "Latest Date" := UpdateDate;
-            Insert;
+            Insert();
         end
     end;
 

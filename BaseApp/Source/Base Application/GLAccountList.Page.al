@@ -5,7 +5,6 @@ page 18 "G/L Account List"
     DataCaptionFields = "Search Name";
     Editable = false;
     PageType = List;
-    PromotedActionCategories = 'New,Process,Report,Account,Prices & Discounts';
     RefreshOnActivate = true;
     SourceTable = "G/L Account";
 
@@ -18,7 +17,7 @@ page 18 "G/L Account List"
                 IndentationColumn = NameIndent;
                 IndentationControls = Name;
                 ShowCaption = false;
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Style = Strong;
@@ -32,69 +31,69 @@ page 18 "G/L Account List"
                     StyleExpr = Emphasize;
                     ToolTip = 'Specifies the name of the general ledger account.';
                 }
-                field("Credit Amount"; "Credit Amount")
+                field("Credit Amount"; Rec."Credit Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the credit amount for the account.';
                 }
-                field("Debit Amount"; "Debit Amount")
+                field("Debit Amount"; Rec."Debit Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the debit amount for the account.';
                 }
-                field("Income/Balance"; "Income/Balance")
+                field("Income/Balance"; Rec."Income/Balance")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether a general ledger account is an income statement account or a balance sheet account.';
                 }
-                field("Account Category"; "Account Category")
+                field("Account Category"; Rec."Account Category")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the category of the G/L account.';
                 }
-                field("Account Type"; "Account Type")
+                field("Account Type"; Rec."Account Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the purpose of the account. Total: Used to total a series of balances on accounts from many different account groupings. To use Total, leave this field blank. Begin-Total: A marker for the beginning of a series of accounts to be totaled that ends with an End-Total account. End-Total: A total of a series of accounts that starts with the preceding Begin-Total account. The total is defined in the Totaling field.';
                 }
-                field("Gen. Posting Type"; "Gen. Posting Type")
+                field("Gen. Posting Type"; Rec."Gen. Posting Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the general posting type to use when posting to this account.';
                 }
-                field("Gen. Bus. Posting Group"; "Gen. Bus. Posting Group")
+                field("Gen. Bus. Posting Group"; Rec."Gen. Bus. Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the vendor''s or customer''s trade type to link transactions made for this business partner with the appropriate general ledger account according to the general posting setup.';
                 }
-                field("Gen. Prod. Posting Group"; "Gen. Prod. Posting Group")
+                field("Gen. Prod. Posting Group"; Rec."Gen. Prod. Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the item''s product type to link transactions made for this item with the appropriate general ledger account according to the general posting setup.';
                 }
-                field("VAT Bus. Posting Group"; "VAT Bus. Posting Group")
+                field("VAT Bus. Posting Group"; Rec."VAT Bus. Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT specification of the involved customer or vendor to link transactions made for this record with the appropriate general ledger account according to the VAT posting setup.';
                     Visible = false;
                 }
-                field("VAT Prod. Posting Group"; "VAT Prod. Posting Group")
+                field("VAT Prod. Posting Group"; Rec."VAT Prod. Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT specification of the involved item or resource to link transactions made for this record with the appropriate general ledger account according to the VAT posting setup.';
                     Visible = false;
                 }
-                field("Direct Posting"; "Direct Posting")
+                field("Direct Posting"; Rec."Direct Posting")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether you will be able to post directly or only indirectly to this general ledger account. To allow Direct Posting to the G/L account, place a check mark in the check box.';
                 }
-                field("Reconciliation Account"; "Reconciliation Account")
+                field("Reconciliation Account"; Rec."Reconciliation Account")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether this general ledger account will be included in the Reconciliation window in the general journal. To have the G/L account included in the window, place a check mark in the check box. You can find the Reconciliation window by clicking Actions, Posting in the General Journal window.';
                 }
-                field("Default Deferral Template Code"; "Default Deferral Template Code")
+                field("Default Deferral Template Code"; Rec."Default Deferral Template Code")
                 {
                     ApplicationArea = Suite;
                     Caption = 'Default Deferral Template';
@@ -137,9 +136,6 @@ page 18 "G/L Account List"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Ledger E&ntries';
                     Image = CustomerLedger;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
                     RunObject = Page "General Ledger Entries";
                     RunPageLink = "G/L Account No." = FIELD("No.");
                     RunPageView = SORTING("G/L Account No.")
@@ -152,8 +148,6 @@ page 18 "G/L Account List"
                     ApplicationArea = Comments;
                     Caption = 'Co&mments';
                     Image = ViewComments;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     RunObject = Page "Comment Sheet";
                     RunPageLink = "Table Name" = CONST("G/L Account"),
                                   "No." = FIELD("No.");
@@ -164,9 +158,6 @@ page 18 "G/L Account List"
                     ApplicationArea = Dimensions;
                     Caption = 'Dimensions';
                     Image = Dimensions;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
                     RunObject = Page "Default Dimensions";
                     RunPageLink = "Table ID" = CONST(15),
                                   "No." = FIELD("No.");
@@ -216,8 +207,6 @@ page 18 "G/L Account List"
                     ApplicationArea = Basic, Suite;
                     Caption = 'G/L &Account Balance';
                     Image = GLAccountBalance;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Page "G/L Account Balance";
                     RunPageLink = "No." = FIELD("No."),
                                   "Global Dimension 1 Filter" = FIELD("Global Dimension 1 Filter"),
@@ -230,8 +219,6 @@ page 18 "G/L Account List"
                     ApplicationArea = Basic, Suite;
                     Caption = 'G/L &Balance';
                     Image = GLBalance;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Page "G/L Balance";
                     RunPageOnRec = true;
                     ToolTip = 'View a summary of the debit and credit balances for all the accounts in the chart of accounts, for the time period that you select.';
@@ -241,8 +228,6 @@ page 18 "G/L Account List"
                     ApplicationArea = Dimensions;
                     Caption = 'G/L Balance by &Dimension';
                     Image = GLBalanceDimension;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Page "G/L Balance by Dimension";
                     ToolTip = 'View a summary of the debit and credit balances by dimensions for the current account.';
                 }
@@ -256,8 +241,6 @@ page 18 "G/L Account List"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Sales Prices';
                     Image = Price;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     Visible = ExtendedPriceEnabled;
                     ToolTip = 'View or edit sales prices for the account.';
 
@@ -274,8 +257,6 @@ page 18 "G/L Account List"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Purchase Prices';
                     Image = Costs;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     Visible = ExtendedPriceEnabled;
                     ToolTip = 'View or edit purchase prices for the account.';
 
@@ -296,8 +277,6 @@ page 18 "G/L Account List"
                 ApplicationArea = Suite;
                 Caption = 'Trial Balance';
                 Image = "Report";
-                Promoted = true;
-                PromotedCategory = "Report";
                 RunObject = Report "Trial Balance";
                 ToolTip = 'View general ledger account balances and activities for all the selected accounts, one transaction per line.';
             }
@@ -306,8 +285,6 @@ page 18 "G/L Account List"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Trial Balance by Period';
                 Image = "Report";
-                Promoted = true;
-                PromotedCategory = "Report";
                 RunObject = Report "Trial Balance by Period";
                 ToolTip = 'View general ledger account balances and activities for all the selected accounts, one transaction per line for a selected period.';
             }
@@ -316,8 +293,6 @@ page 18 "G/L Account List"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Detail Trial Balance';
                 Image = "Report";
-                Promoted = true;
-                PromotedCategory = "Report";
                 RunObject = Report "Detail Trial Balance";
                 ToolTip = 'View detail general ledger account balances and activities for all the selected accounts, one transaction per line.';
             }
@@ -326,7 +301,6 @@ page 18 "G/L Account List"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Transaction Detail Report';
                 Image = "Report";
-                Promoted = false;
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = "Report";
                 RunObject = Report "Transaction Detail Report";
@@ -337,7 +311,6 @@ page 18 "G/L Account List"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Income Statement';
                 Image = "Report";
-                Promoted = false;
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = "Report";
                 RunObject = Report "Income Statement";
@@ -348,7 +321,6 @@ page 18 "G/L Account List"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Balance Sheet';
                 Image = "Report";
-                Promoted = false;
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = "Report";
                 RunObject = Report "Balance Sheet";
@@ -359,11 +331,66 @@ page 18 "G/L Account List"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Financial Analysis Report';
                 Image = "Report";
-                Promoted = false;
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = "Report";
                 RunObject = Report "Financial Analysis Report";
                 ToolTip = 'Open a report that compares the Balance at Date, Balance, Net Change, and Budget from the G/L account with budget entries or previous year entries according to your selection.';
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref("G/L &Account Balance_Promoted"; "G/L &Account Balance")
+                {
+                }
+                actionref("G/L &Balance_Promoted"; "G/L &Balance")
+                {
+                }
+                actionref("G/L Balance by &Dimension_Promoted"; "G/L Balance by &Dimension")
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+
+                actionref("Trial Balance_Promoted"; "Trial Balance")
+                {
+                }
+                actionref("Trial Balance by Period_Promoted"; "Trial Balance by Period")
+                {
+                }
+                actionref("Detail Trial Balance_Promoted"; "Detail Trial Balance")
+                {
+                }
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Account', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref("Ledger E&ntries_Promoted"; "Ledger E&ntries")
+                {
+                }
+                actionref(Dimensions_Promoted; Dimensions)
+                {
+                }
+                actionref("Co&mments_Promoted"; "Co&mments")
+                {
+                }
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Prices & Discounts', Comment = 'Generated from the PromotedActionCategories property index 4.';
+
+                actionref(SalesPriceLists_Promoted; SalesPriceLists)
+                {
+                }
+                actionref(PurchPriceLists_Promoted; PurchPriceLists)
+                {
+                }
             }
         }
     }
@@ -378,7 +405,7 @@ page 18 "G/L Account List"
     trigger OnAfterGetRecord()
     begin
         NameIndent := 0;
-        FormatLine;
+        FormatLine();
     end;
 
     var

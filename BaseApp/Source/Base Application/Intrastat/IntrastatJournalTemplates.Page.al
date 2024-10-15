@@ -23,28 +23,28 @@ page 325 "Intrastat Journal Templates"
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies a description of the Intrastat journal template.';
                 }
-                field("Page ID"; "Page ID")
+                field("Page ID"; Rec."Page ID")
                 {
                     ApplicationArea = BasicEU;
                     LookupPageID = Objects;
                     ToolTip = 'Specifies the number of the page that is used to show the journal or worksheet that uses the template.';
                     Visible = false;
                 }
-                field("Page Caption"; "Page Caption")
+                field("Page Caption"; Rec."Page Caption")
                 {
                     ApplicationArea = BasicEU;
                     DrillDown = false;
                     ToolTip = 'Specifies the displayed name of the journal or worksheet that uses the template.';
                     Visible = false;
                 }
-                field("Checklist Report ID"; "Checklist Report ID")
+                field("Checklist Report ID"; Rec."Checklist Report ID")
                 {
                     ApplicationArea = BasicEU;
                     LookupPageID = Objects;
                     ToolTip = 'Specifies the checklist that can be printed if you click Actions, Print in the Intrastat journal window and then select Checklist Report.';
                     Visible = false;
                 }
-                field("Checklist Report Caption"; "Checklist Report Caption")
+                field("Checklist Report Caption"; Rec."Checklist Report Caption")
                 {
                     ApplicationArea = BasicEU;
                     DrillDown = false;

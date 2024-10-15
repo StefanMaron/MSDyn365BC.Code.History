@@ -18,7 +18,7 @@ page 1799 "Data Migration Overview"
             repeater(Control2)
             {
                 ShowCaption = false;
-                field("Migration Type"; "Migration Type")
+                field("Migration Type"; Rec."Migration Type")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the type of data migration.';
@@ -30,12 +30,12 @@ page 1799 "Data Migration Overview"
                     Caption = 'Table Name';
                     ToolTip = 'Specifies the Table Name';
                 }
-                field("Migrated Number"; "Migrated Number")
+                field("Migrated Number"; Rec."Migrated Number")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the number of records that were migrated.';
                 }
-                field("Total Number"; "Total Number")
+                field("Total Number"; Rec."Total Number")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the total number of records that were migrated.';
@@ -45,7 +45,7 @@ page 1799 "Data Migration Overview"
                         DataMigrationFacade.OnSelectRowFromDashboard(Rec);
                     end;
                 }
-                field("Progress Percent"; "Progress Percent")
+                field("Progress Percent"; Rec."Progress Percent")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the progress of the data migration.';
@@ -66,7 +66,7 @@ page 1799 "Data Migration Overview"
                             PAGE.Run(PAGE::"Job Queue Log Entries", JobQueueLogEntry);
                         end else
                             if Status = Status::"Completed with Errors" then
-                                ShowErrors;
+                                ShowErrors();
                     end;
                 }
                 field("Next Task"; NextTask)
@@ -79,23 +79,23 @@ page 1799 "Data Migration Overview"
                     begin
                         case NextTask of
                             NextTask::"Review and fix errors":
-                                ShowErrors;
+                                ShowErrors();
                             NextTask::"Review and post",
                           NextTask::"Review and Delete":
                                 case "Destination Table ID" of
                                     DATABASE::Vendor:
-                                        GoToGeneralJournalForVendors;
+                                        GoToGeneralJournalForVendors();
                                     DATABASE::Customer:
-                                        GoToGeneralJournalForCustomers;
+                                        GoToGeneralJournalForCustomers();
                                     DATABASE::Item:
-                                        GoToItemJournal;
+                                        GoToItemJournal();
                                     else
-                                        GoToGeneralJournalForAccounts;
+                                        GoToGeneralJournalForAccounts();
                                 end;
                         end;
                     end;
                 }
-                field("Error Count"; "Error Count")
+                field("Error Count"; Rec."Error Count")
                 {
                     ApplicationArea = All;
                     StyleExpr = ErrorStyle;
@@ -105,7 +105,7 @@ page 1799 "Data Migration Overview"
                     begin
                         if "Error Count" = 0 then
                             exit;
-                        ShowErrors;
+                        ShowErrors();
                     end;
                 }
             }
@@ -121,17 +121,13 @@ page 1799 "Data Migration Overview"
                 ApplicationArea = All;
                 Caption = 'Refresh';
                 Image = Refresh;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 //The property 'ToolTip' cannot be empty.
                 //ToolTip = '';
 
                 trigger OnAction()
                 begin
                     CurrPage.Update();
-                    ShowNotifications;
+                    ShowNotifications();
                 end;
             }
             action("Stop Data Migration")
@@ -139,10 +135,6 @@ page 1799 "Data Migration Overview"
                 ApplicationArea = All;
                 Caption = 'Stop All Migrations';
                 Image = Stop;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Stop all data migrations that are in progress or pending.';
 
                 trigger OnAction()
@@ -150,7 +142,7 @@ page 1799 "Data Migration Overview"
                     DataMigrationStatus: Record "Data Migration Status";
                     DataMigrationMgt: Codeunit "Data Migration Mgt.";
                 begin
-                    OnRequestAbort;
+                    OnRequestAbort();
                     DataMigrationStatus.SetFilter(
                       Status, '%1|%2', DataMigrationStatus.Status::"In Progress", DataMigrationStatus.Status::Pending);
                     if DataMigrationStatus.FindFirst() then
@@ -165,16 +157,29 @@ page 1799 "Data Migration Overview"
                 ApplicationArea = All;
                 Caption = 'Show Errors';
                 Image = ErrorLog;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Show the errors that occurred during migration.';
 
                 trigger OnAction()
                 begin
-                    ShowErrors;
+                    ShowErrors();
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(Refresh_Promoted; Refresh)
+                {
+                }
+                actionref("Stop Data Migration_Promoted"; "Stop Data Migration")
+                {
+                }
+                actionref("Show Errors_Promoted"; "Show Errors")
+                {
+                }
             }
         }
     }
@@ -227,7 +232,7 @@ page 1799 "Data Migration Overview"
 
     trigger OnOpenPage()
     begin
-        ShowNotifications;
+        ShowNotifications();
     end;
 
     var
@@ -264,10 +269,10 @@ page 1799 "Data Migration Overview"
 
     local procedure ShowNotifications()
     begin
-        if ShowDashboardEmptyNotification then
+        if ShowDashboardEmptyNotification() then
             exit;
 
-        ShowRefreshNotification;
+        ShowRefreshNotification();
     end;
 
     local procedure ShowDashboardEmptyNotification() NotificationShown: Boolean
@@ -282,7 +287,7 @@ page 1799 "Data Migration Overview"
         DashboardEmptyNotification.AddAction(
           StartDataMigrationMsg, CODEUNIT::"Data Migration Mgt.", 'StartDataMigrationWizardFromNotification');
         DashboardEmptyNotification.AddAction(LearnMoreTxt, CODEUNIT::"Data Migration Mgt.", 'ShowHelpTopicPage');
-        DashboardEmptyNotification.Send;
+        DashboardEmptyNotification.Send();
         NotificationShown := true;
     end;
 
@@ -290,9 +295,9 @@ page 1799 "Data Migration Overview"
     var
         DataMigrationMgt: Codeunit "Data Migration Mgt.";
     begin
-        if not DataMigrationMgt.IsMigrationInProgress then begin
+        if not DataMigrationMgt.IsMigrationInProgress() then begin
             if RefreshNotificationShown then
-                RefreshNotification.Recall;
+                RefreshNotification.Recall();
             exit;
         end;
 
@@ -300,7 +305,7 @@ page 1799 "Data Migration Overview"
             exit;
 
         RefreshNotification.Message(RefreshNotificationMsg);
-        RefreshNotification.Send;
+        RefreshNotification.Send();
         NotificationShown := true;
         RefreshNotificationShown := true;
     end;

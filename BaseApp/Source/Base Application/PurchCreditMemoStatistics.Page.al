@@ -116,19 +116,19 @@ page 401 "Purch. Credit Memo Statistics"
             group(WHT)
             {
                 Caption = 'WHT';
-                field("Rem. WHT Prepaid Amount (LCY)"; "Rem. WHT Prepaid Amount (LCY)")
+                field("Rem. WHT Prepaid Amount (LCY)"; Rec."Rem. WHT Prepaid Amount (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Rem. WHT Amount (LCY)';
                     ToolTip = 'Specifies the remaining WHT Amount, which is to be realized (deducted) for this credit memo.';
                 }
-                field("Paid WHT Prepaid Amount (LCY)"; "Paid WHT Prepaid Amount (LCY)")
+                field("Paid WHT Prepaid Amount (LCY)"; Rec."Paid WHT Prepaid Amount (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Paid WHT Amount (LCY)';
                     ToolTip = 'Specifies the paid (realized) WHT amount for this credit memo.';
                 }
-                field("Total WHT Prepaid Amount (LCY)"; "Total WHT Prepaid Amount (LCY)")
+                field("Total WHT Prepaid Amount (LCY)"; Rec."Total WHT Prepaid Amount (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Total WHT Amount (LCY)';
@@ -146,7 +146,7 @@ page 401 "Purch. Credit Memo Statistics"
     var
         VendLedgEntry: Record "Vendor Ledger Entry";
     begin
-        ClearAll;
+        ClearAll();
 
         Currency.Initialize("Currency Code");
 
@@ -165,7 +165,7 @@ page 401 "Purch. Credit Memo Statistics"
         else
             AmountLCY :=
               CurrExchRate.ExchangeAmtFCYToLCY(
-                WorkDate, "Currency Code", VendAmount, "Currency Factor");
+                WorkDate(), "Currency Code", VendAmount, "Currency Factor");
 
         VendLedgEntry.SetCurrentKey("Document No.");
         VendLedgEntry.SetRange("Document No.", "No.");

@@ -71,7 +71,7 @@ table 763 "Acc. Sched. Chart Setup Line"
                 BusinessChartBuffer: Record "Business Chart Buffer";
                 ActualNumMeasures: Integer;
             begin
-                if ("Chart Type" <> "Chart Type"::" ") and IsMeasure then begin
+                if ("Chart Type" <> "Chart Type"::" ") and IsMeasure() then begin
                     AccountSchedulesChartSetup.Get("User ID", Name);
                     AccountSchedulesChartSetup.SetLinkToMeasureLines(AccSchedChartSetupLine);
                     AccSchedChartSetupLine.SetFilter("Chart Type", '<>%1', AccSchedChartSetupLine."Chart Type"::" ");
@@ -83,8 +83,8 @@ table 763 "Acc. Sched. Chart Setup Line"
                             then
                                 ActualNumMeasures += 1;
                         until AccSchedChartSetupLine.Next() = 0;
-                    if ActualNumMeasures >= BusinessChartBuffer.GetMaxNumberOfMeasures then
-                        BusinessChartBuffer.RaiseErrorMaxNumberOfMeasuresExceeded;
+                    if ActualNumMeasures >= BusinessChartBuffer.GetMaxNumberOfMeasures() then
+                        BusinessChartBuffer.RaiseErrorMaxNumberOfMeasuresExceeded();
                 end;
             end;
         }
@@ -118,14 +118,6 @@ table 763 "Acc. Sched. Chart Setup Line"
                     Result := true;
         end;
     end;
-
-#if not CLEAN18
-    [Obsolete('Replaced by GetDefaultAccSchedChartType()', '18.0')]
-    procedure GetDefaultChartType(): Integer
-    begin
-        exit("Chart Type"::Column.AsInteger());
-    end;
-#endif
 
     procedure GetDefaultAccSchedChartType(): Enum "Account Schedule Chart Type"
     begin

@@ -19,28 +19,10 @@ table 79 "Company Information"
         field(4; Address; Text[100])
         {
             Caption = 'Address';
-
-            trigger OnValidate()
-            var
-                Contact: Text[90];
-            begin
-                PostCodeCheck.ValidateAddress(
-                  CurrFieldNo, DATABASE::"Company Information", GetPosition, 0,
-                  Name, "Name 2", Contact, Address, "Address 2", City, "Post Code", County, "Country/Region Code");
-            end;
         }
         field(5; "Address 2"; Text[50])
         {
             Caption = 'Address 2';
-
-            trigger OnValidate()
-            var
-                Contact: Text[90];
-            begin
-                PostCodeCheck.ValidateAddress(
-                  CurrFieldNo, DATABASE::"Company Information", GetPosition, 0,
-                  Name, "Name 2", Contact, Address, "Address 2", City, "Post Code", County, "Country/Region Code");
-            end;
         }
         field(6; City; Text[30])
         {
@@ -59,11 +41,12 @@ table 79 "Company Information"
 
             trigger OnValidate()
             var
-                Contact: Text[90];
+                IsHandled: Boolean;
             begin
-                PostCodeCheck.ValidateCity(
-                  CurrFieldNo, DATABASE::"Company Information", GetPosition, 0,
-                  Name, "Name 2", Contact, Address, "Address 2", City, "Post Code", County, "Country/Region Code");
+                IsHandled := false;
+                OnBeforeValidateCity(Rec, CurrFieldNo, IsHandled);
+                if not IsHandled then
+                    PostCode.ValidateCity(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
             end;
         }
         field(7; "Phone No."; Text[30])
@@ -131,7 +114,7 @@ table 79 "Company Information"
                     exit;
                 if "Country/Region Code" = '' then
                     exit;
-                if VATRegNoSrvConfig.VATRegNoSrvIsEnabled then begin
+                if VATRegNoSrvConfig.VATRegNoSrvIsEnabled() then begin
                     VATRegistrationLogMgt.ValidateVATRegNoWithVIES(
                         ResultRecordRef, Rec, "Primary Key",
                         VATRegistrationLog."Account Type"::"Company Information".AsInteger(), "Country/Region Code");
@@ -158,26 +141,10 @@ table 79 "Company Information"
         field(24; "Ship-to Address"; Text[50])
         {
             Caption = 'Ship-to Address';
-
-            trigger OnValidate()
-            begin
-                PostCodeCheck.ValidateAddress(
-                  CurrFieldNo, DATABASE::"Company Information", GetPosition, 2,
-                  "Ship-to Name", "Ship-to Name 2", "Ship-to Contact", "Ship-to Address", "Ship-to Address 2",
-                  "Ship-to City", "Ship-to Post Code", "Ship-to County", "Ship-to Country/Region Code");
-            end;
         }
         field(25; "Ship-to Address 2"; Text[50])
         {
             Caption = 'Ship-to Address 2';
-
-            trigger OnValidate()
-            begin
-                PostCodeCheck.ValidateAddress(
-                  CurrFieldNo, DATABASE::"Company Information", GetPosition, 2,
-                  "Ship-to Name", "Ship-to Name 2", "Ship-to Contact", "Ship-to Address", "Ship-to Address 2",
-                  "Ship-to City", "Ship-to Post Code", "Ship-to County", "Ship-to Country/Region Code");
-            end;
         }
         field(26; "Ship-to City"; Text[30])
         {
@@ -195,11 +162,14 @@ table 79 "Company Information"
             end;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
-                PostCodeCheck.ValidateCity(
-                  CurrFieldNo, DATABASE::"Company Information", GetPosition, 2,
-                  "Ship-to Name", "Ship-to Name 2", "Ship-to Contact", "Ship-to Address", "Ship-to Address 2",
-                  "Ship-to City", "Ship-to Post Code", "Ship-to County", "Ship-to Country/Region Code");
+                IsHandled := false;
+                OnBeforeValidateShipToCity(Rec, CurrFieldNo, IsHandled);
+                if not IsHandled then
+                    PostCode.ValidateCity(
+                        "Ship-to City", "Ship-to Post Code", "Ship-to County", "Ship-to Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
             end;
         }
         field(27; "Ship-to Contact"; Text[100])
@@ -238,11 +208,12 @@ table 79 "Company Information"
 
             trigger OnValidate()
             var
-                Contact: Text[90];
+                IsHandled: Boolean;
             begin
-                PostCodeCheck.ValidatePostCode(
-                  CurrFieldNo, DATABASE::"Company Information", GetPosition, 0,
-                  Name, "Name 2", Contact, Address, "Address 2", City, "Post Code", County, "Country/Region Code");
+                IsHandled := false;
+                OnBeforeValidatePostCode(Rec, CurrFieldNo, IsHandled);
+                if not IsHandled then
+                    PostCode.ValidatePostCode(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
             end;
         }
         field(31; County; Text[30])
@@ -266,11 +237,14 @@ table 79 "Company Information"
             end;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
-                PostCodeCheck.ValidatePostCode(
-                  CurrFieldNo, DATABASE::"Company Information", GetPosition, 2,
-                  "Ship-to Name", "Ship-to Name 2", "Ship-to Contact", "Ship-to Address", "Ship-to Address 2",
-                  "Ship-to City", "Ship-to Post Code", "Ship-to County", "Ship-to Country/Region Code");
+                IsHandled := false;
+                OnbeforeValidateShipToPostCode(Rec, CurrFieldNo, IsHandled);
+                if not IsHandled then
+                    PostCode.ValidatePostCode(
+                        "Ship-to City", "Ship-to Post Code", "Ship-to County", "Ship-to Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
             end;
         }
         field(33; "Ship-to County"; Text[30])
@@ -498,7 +472,7 @@ table 79 "Company Information"
 
             trigger OnValidate()
             begin
-                SetBrandColorValue;
+                SetBrandColorValue();
             end;
         }
         field(5700; "Responsibility Center"; Code[10])
@@ -600,11 +574,6 @@ table 79 "Company Information"
     {
     }
 
-    trigger OnDelete()
-    begin
-        PostCodeCheck.DeleteAllAddressID(DATABASE::"Company Information", GetPosition);
-    end;
-
     trigger OnInsert()
     begin
         "Last Modified Date Time" := CurrentDateTime;
@@ -624,7 +593,6 @@ table 79 "Company Information"
         NotValidIBANErr: Label 'The number %1 that you entered may not be a valid International Bank Account Number (IBAN). Do you want to continue?', Comment = '%1 - an actual IBAN';
         Text002: Label 'Before you can use Online Map, you must fill in the Online Map Setup window.\See Setting Up Online Map in Help.';
         ABNManagement: Codeunit "ABN Management";
-        PostCodeCheck: Codeunit "Post Code Check";
         NoPaymentInfoQst: Label 'No payment information is provided in %1. Do you want to update it now?', Comment = '%1 = Company Information';
         NoPaymentInfoMsg: Label 'No payment information is provided in %1. Review the report.';
         GLNCheckDigitErr: Label 'The %1 is not valid.';
@@ -737,8 +705,8 @@ table 79 "Company Information"
         OnlineMapManagement: Codeunit "Online Map Management";
     begin
         OnlineMapSetup.SetRange(Enabled, true);
-        if OnlineMapSetup.FindFirst() then
-            OnlineMapManagement.MakeSelection(DATABASE::"Company Information", GetPosition)
+        if not OnlineMapSetup.IsEmpty() then
+            OnlineMapManagement.MakeSelection(DATABASE::"Company Information", GetPosition())
         else
             Message(Text002);
     end;
@@ -775,7 +743,7 @@ table 79 "Company Information"
         IsHandled: Boolean;
     begin
         if Name = '' then // Is the record loaded?
-            Get;
+            Get();
 
         IsHandled := false;
         OnBeforeGetVATRegistrationNumberLbl(Result, IsHandled);
@@ -812,17 +780,17 @@ table 79 "Company Information"
         ConfirmManagement: Codeunit "Confirm Management";
         CompanyInformationPage: Page "Company Information";
     begin
-        Get;
-        if IsPaymentInfoAvailble then
+        Get();
+        if IsPaymentInfoAvailble() then
             exit;
         if GuiAllowed then begin
             if ConfirmManagement.GetResponseOrDefault(StrSubstNo(NoPaymentInfoQst, TableCaption), true) then begin
                 CompanyInformationPage.SetRecord(Rec);
                 CompanyInformationPage.Editable(true);
-                if CompanyInformationPage.RunModal = ACTION::OK then
+                if CompanyInformationPage.RunModal() = ACTION::OK then
                     CompanyInformationPage.GetRecord(Rec);
             end;
-            if not IsPaymentInfoAvailble then
+            if not IsPaymentInfoAvailble() then
                 Message(NoPaymentInfoMsg, TableCaption);
         end else
             Error(NoPaymentInfoMsg, TableCaption);
@@ -964,6 +932,26 @@ table 79 "Company Information"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckIBAN(IBANCode: Code[100])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateCity(var CompanyInformation: Record "Company Information"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidatePostCode(var CompanyInformation: Record "Company Information"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateShipToCity(var CompanyInformation: Record "Company Information"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateShipToPostCode(var CompanyInformation: Record "Company Information"; CurrentFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 }

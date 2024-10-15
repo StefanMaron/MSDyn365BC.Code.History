@@ -13,7 +13,7 @@ report 33 "Reconcile Cust. and Vend. Accs"
             DataItemTableView = SORTING("No.");
             PrintOnlyIfDetail = true;
             RequestFilterFields = "Date Filter", "G/L Entry Type Filter";
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(GLAccTableCaptGLFilter; "G/L Account".TableCaption + ': ' + GLFilter)
@@ -77,7 +77,7 @@ report 33 "Reconcile Cust. and Vend. Accs"
                 column(AccountType; AccountType)
                 {
                 }
-                column(GetTableName; GetTableName)
+                column(GetTableName; GetTableName())
                 {
                 }
                 column(ReconCustVendBufferPostingGroup; ReconCustVendBuffer."Posting Group")
@@ -104,7 +104,7 @@ report 33 "Reconcile Cust. and Vend. Accs"
                         if Number = 1 then
                             Found := Find('-')
                         else
-                            Found := Next <> 0;
+                            Found := Next() <> 0;
 
                         if not Found then
                             CurrReport.Break();
@@ -137,7 +137,6 @@ report 33 "Reconcile Cust. and Vend. Accs"
                                     Amount :=
                                       CalcCustCreditAmount("Posting Group", DtldCustLedgEntry."Entry Type"::"Payment Tolerance") +
                                       CalcCustCreditAmount("Posting Group", DtldCustLedgEntry."Entry Type"::"Payment Discount Tolerance");
-                                    ;
                                 end;
                             ("Table ID" = DATABASE::"Customer Posting Group") and
                             ("Field No." = CustPostingGr.FieldNo("Payment Tolerance Credit Acc.")):
@@ -177,7 +176,6 @@ report 33 "Reconcile Cust. and Vend. Accs"
                                       CalcCustDebitAmount(
                                         "Posting Group", DtldCustLedgEntry."Entry Type"::"Correction of Remaining Amount");
                                 end;
-
                             ("Table ID" = DATABASE::"Vendor Posting Group") and
                             ("Field No." = VendPostingGr.FieldNo("Payables Account")):
                                 begin
@@ -244,7 +242,6 @@ report 33 "Reconcile Cust. and Vend. Accs"
                                       CalcVendDebitAmount(
                                         "Posting Group", DtldVendLedgEntry."Entry Type"::"Correction of Remaining Amount");
                                 end;
-
                             ("Table ID" = DATABASE::Currency) and
                             ("Field No." = Currency.FieldNo("Unrealized Gains Acc.")):
                                 begin
@@ -279,16 +276,15 @@ report 33 "Reconcile Cust. and Vend. Accs"
 
                 trigger OnPreDataItem()
                 begin
-
                     ReconCustVendBuffer.SetCurrentKey("G/L Account No.");
-                    ReconCustVendBuffer.SetRange(ReconCustVendBuffer."G/L Account No.", "G/L Account"."No.");
+                    ReconCustVendBuffer.SetRange("G/L Account No.", "G/L Account"."No.");
                 end;
             }
 
             trigger OnAfterGetRecord()
             begin
                 AmountTotal := 0;
-                "G/L Account".CalcFields("Net Change")
+                CalcFields("Net Change")
             end;
 
             trigger OnPreDataItem()
@@ -360,7 +356,6 @@ report 33 "Reconcile Cust. and Vend. Accs"
                         ReconCustVendBuffer."G/L Account No." := VendPostingGr."Payment Disc. Credit Acc.";
                         ReconCustVendBuffer.Insert();
 
-
                         ReconCustVendBuffer."Field No." := VendPostingGr.FieldNo("Payment Tolerance Debit Acc.");
                         ReconCustVendBuffer."G/L Account No." := VendPostingGr."Payment Tolerance Debit Acc.";
                         ReconCustVendBuffer.Insert();
@@ -415,10 +410,10 @@ report 33 "Reconcile Cust. and Vend. Accs"
 
                 if ReconCustVendBuffer.Find('-') then begin
                     repeat
-                        "G/L Account"."No." := ReconCustVendBuffer."G/L Account No.";
-                        "G/L Account".Mark(true);
+                        "No." := ReconCustVendBuffer."G/L Account No.";
+                        Mark(true);
                     until ReconCustVendBuffer.Next() = 0;
-                    "G/L Account".MarkedOnly(true);
+                    MarkedOnly(true);
                 end else
                     CurrReport.Break();
             end;
@@ -443,16 +438,11 @@ report 33 "Reconcile Cust. and Vend. Accs"
 
     trigger OnPreReport()
     begin
-
-        GLFilter := "G/L Account".GetFilters;
+        GLFilter := "G/L Account".GetFilters();
     end;
 
     var
-        ReconCustVendBuffer: Record "Reconcile CV Acc Buffer" temporary;
         GLFilter: Text;
-        Amount: Decimal;
-        AmountTotal: Decimal;
-        AccountType: Text[1024];
         SimulationEntriesLbl: Label 'This report includes simulation entries.';
         ReconcileCustomerandVendorAccountsCaptionLbl: Label 'Reconcile Customer and Vendor Accounts';
         CurrReportPageNoCaptionLbl: Label 'Page';
@@ -464,6 +454,12 @@ report 33 "Reconcile Cust. and Vend. Accs"
         GLAccountNameCaptionLbl: Label 'Name';
         GLAccountNoCaptionLbl: Label 'Account No.';
         AmountTotalGLAccountNetChangeCaptionLbl: Label 'Difference';
+
+    protected var
+        ReconCustVendBuffer: Record "Reconcile CV Acc Buffer" temporary;
+        Amount: Decimal;
+        AmountTotal: Decimal;
+        AccountType: Text[1024];
 
     local procedure CalcCustAccAmount(PostingGr: Code[20]): Decimal
     var

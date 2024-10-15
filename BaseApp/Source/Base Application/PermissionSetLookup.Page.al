@@ -18,7 +18,7 @@ page 9841 "Permission Set Lookup"
         {
             repeater(Group)
             {
-                field("Role ID"; "Role ID")
+                field("Role ID"; Rec."Role ID")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a permission set that defines the role.';
@@ -28,7 +28,7 @@ page 9841 "Permission Set Lookup"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the permission set.';
                 }
-                field("App Name"; "App Name")
+                field("App Name"; Rec."App Name")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Extension Name';

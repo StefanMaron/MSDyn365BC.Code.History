@@ -3,7 +3,7 @@ page 5304 "Outlook Synch. Fields"
 {
     AutoSplitKey = true;
     Caption = 'Outlook Synch. Fields';
-    DataCaptionExpression = GetFormCaption;
+    DataCaptionExpression = GetFormCaption();
     DataCaptionFields = "Synch. Entity Code";
     DelayedInsert = true;
     PageType = List;
@@ -27,22 +27,22 @@ page 5304 "Outlook Synch. Fields"
                     trigger OnAssistEdit()
                     begin
                         if IsNullGuid("Record GUID") then
-                            "Record GUID" := CreateGuid;
+                            "Record GUID" := CreateGuid();
 
                         Condition := CopyStr(OSynchSetupMgt.ShowOSynchFiltersForm("Record GUID", "Master Table No.", 0), 1, MaxStrLen(Condition));
                     end;
                 }
-                field("Table No."; "Table No.")
+                field("Table No."; Rec."Table No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the supplementary table, which is used in the synchronization process when more details than those specified in the Master Table No. field are required.';
                 }
-                field("Table Caption"; "Table Caption")
+                field("Table Caption"; Rec."Table Caption")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the Dynamics 365 table to synchronize. The program fills in this field when you specify a table number in the Table No. field.';
                 }
-                field("Table Relation"; "Table Relation")
+                field("Table Relation"; Rec."Table Relation")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a filter expression. It is used to define relation between table specified in the Table No. and Table No.';
@@ -51,46 +51,46 @@ page 5304 "Outlook Synch. Fields"
                     begin
                         if "Table No." <> 0 then begin
                             if IsNullGuid("Record GUID") then
-                                "Record GUID" := CreateGuid;
+                                "Record GUID" := CreateGuid();
                             "Table Relation" :=
                               CopyStr(OSynchSetupMgt.ShowOSynchFiltersForm("Record GUID", "Table No.", "Master Table No."), 1, MaxStrLen("Table Relation"));
                         end;
                     end;
                 }
-                field("Field No."; "Field No.")
+                field("Field No."; Rec."Field No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the field with values that are used in the filter expression. The value in this field is appropriate if you specified the number of the table in the Table No. field. If you do not specify the table number, the program uses the number of the master table.';
                 }
-                field(GetFieldCaption; GetFieldCaption)
+                field(GetFieldCaption; GetFieldCaption())
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Field Name';
                     ToolTip = 'Specifies the name of the field that will be synchronized.';
                 }
-                field("Field Default Value"; "Field Default Value")
+                field("Field Default Value"; Rec."Field Default Value")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a value which is inserted automatically in the field whose number is specified in the Field No. field.';
                 }
-                field("User-Defined"; "User-Defined")
+                field("User-Defined"; Rec."User-Defined")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = UserDefinedEditable;
                     ToolTip = 'Specifies that this field is defined by the user and does not belong to the standard set of fields. This option refers only to Outlook Items properties.';
                 }
-                field("Outlook Property"; "Outlook Property")
+                field("Outlook Property"; Rec."Outlook Property")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the Outlook item property that will be synchronized with the Dynamics 365 table field specified in the Field No. field.';
                 }
-                field("Search Field"; "Search Field")
+                field("Search Field"; Rec."Search Field")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = SearchFieldEditable;
                     ToolTip = 'Specifies that the field will be the key property on which the search in Outlook will be based on.';
                 }
-                field("Read-Only Status"; "Read-Only Status")
+                field("Read-Only Status"; Rec."Read-Only Status")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the synchronization status for the mapped table field. This field has three options:';
@@ -130,7 +130,7 @@ page 5304 "Outlook Synch. Fields"
 
                     trigger OnAction()
                     begin
-                        ShowOOptionCorrelForm;
+                        ShowOOptionCorrelForm();
                     end;
                 }
             }
@@ -163,9 +163,9 @@ page 5304 "Outlook Synch. Fields"
     begin
         if "Element No." = 0 then begin
             OSynchEntity.Get("Synch. Entity Code");
-            exit(StrSubstNo('%1 %2', OSynchEntity.TableCaption, "Synch. Entity Code"));
+            exit(StrSubstNo('%1 %2', OSynchEntity.TableCaption(), "Synch. Entity Code"));
         end;
-        exit(StrSubstNo('%1 %2 %3', OSynchEntityElement.TableCaption, "Synch. Entity Code", "Element No."));
+        exit(StrSubstNo('%1 %2 %3', OSynchEntityElement.TableCaption(), "Synch. Entity Code", "Element No."));
     end;
 }
 #endif

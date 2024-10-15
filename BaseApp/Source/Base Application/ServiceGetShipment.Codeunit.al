@@ -1,4 +1,4 @@
-codeunit 5932 "Service-Get Shipment"
+﻿codeunit 5932 "Service-Get Shipment"
 {
     TableNo = "Service Line";
 
@@ -22,12 +22,13 @@ codeunit 5932 "Service-Get Shipment"
     end;
 
     var
-        Text001: Label 'The %1 on the %2 %3 and the %4 %5 must be the same.';
         ServiceHeader: Record "Service Header";
         ServiceLine: Record "Service Line";
         ServiceShptHeader: Record "Service Shipment Header";
         ServiceShptLine: Record "Service Shipment Line";
         GetServiceShipments: Page "Get Service Shipment Lines";
+
+        Text001: Label 'The %1 on the %2 %3 and the %4 %5 must be the same.';
 
     procedure CreateInvLines(var ServiceShptLine2: Record "Service Shipment Line")
     var
@@ -49,7 +50,7 @@ codeunit 5932 "Service-Get Shipment"
                             Message(
                               Text001,
                               ServiceHeader.FieldCaption("Currency Code"),
-                              ServiceHeader.TableCaption, ServiceHeader."No.",
+                              ServiceHeader.TableCaption(), ServiceHeader."No.",
                               ServiceShptHeader.TableCaption, ServiceShptHeader."No.");
                             TransferLine := false;
                         end;
@@ -57,13 +58,14 @@ codeunit 5932 "Service-Get Shipment"
                             Message(
                               Text001,
                               ServiceHeader.FieldCaption("Bill-to Customer No."),
-                              ServiceHeader.TableCaption, ServiceHeader."No.",
+                              ServiceHeader.TableCaption(), ServiceHeader."No.",
                               ServiceShptHeader.TableCaption, ServiceShptHeader."No.");
                             TransferLine := false;
                         end;
                     end;
                     if TransferLine then begin
                         ServiceShptLine := ServiceShptLine2;
+                        CheckServiceShipmentLineVATBusPostingGroup(ServiceShptLine, ServiceHeader);
                         ServiceShptLine.InsertInvLineFromShptLine(ServiceLine);
                         OnCreateInvLinesOnAfterServiceShptLineInsertInvLineFromShptLine(ServiceShptLine, ServiceShptLine2, ServiceShptHeader, ServiceLine, ServiceHeader);
                     end;
@@ -71,6 +73,18 @@ codeunit 5932 "Service-Get Shipment"
                 OnAfterCreateInvLines(ServiceHeader);
             end;
         end;
+    end;
+
+    local procedure CheckServiceShipmentLineVATBusPostingGroup(ServiceShipmentLine: Record "Service Shipment Line"; ServiceHeader: Record "Service Header")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckServiceShipmentLineVATBusPostingGroup(ServiceShipmentLine, ServiceHeader, IsHandled);
+        if IsHandled then
+            exit;
+
+        ServiceShipmentLine.TestField("VAT Bus. Posting Group", ServiceHeader."VAT Bus. Posting Group");
     end;
 
     procedure SetServiceHeader(var ServiceHeader2: Record "Service Header")
@@ -91,6 +105,11 @@ codeunit 5932 "Service-Get Shipment"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateInvLinesOnAfterServiceShptLineInsertInvLineFromShptLine(var ServiceShptLine: Record "Service Shipment Line"; var ServiceShptLine2: Record "Service Shipment Line"; var ServiceShptHeader: Record "Service Shipment Header"; var ServiceLine: Record "Service Line"; var ServiceHeader: Record "Service Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckServiceShipmentLineVATBusPostingGroup(ServiceShipmentLine: Record "Service Shipment Line"; ServiceHeader: Record "Service Header"; var IsHandled: Boolean)
     begin
     end;
 }

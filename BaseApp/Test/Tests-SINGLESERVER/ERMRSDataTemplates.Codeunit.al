@@ -617,10 +617,10 @@ codeunit 136601 "ERM RS Data Templates"
 
         // 2. Exercise: Create a new Data Template Line. Try to input any wrong default value on the Data Template Line.
         asserterror CreateConfigTemplateLineForField(
-            ConfigTemplateHeader.Code, Customer.FieldNo("Allow Line Disc."), Customer.FieldName("Allow Line Disc."), Customer.TableCaption);
+            ConfigTemplateHeader.Code, Customer.FieldNo("Allow Line Disc."), Customer.FieldName("Allow Line Disc."), Customer.TableCaption());
 
         // 3. Verify: Check that the application generates an error as "Customer is not a valid boolean".
-        Assert.AreEqual(StrSubstNo(InvalidBooleanError, Customer.TableCaption), GetLastErrorText, UnknownError);
+        Assert.AreEqual(StrSubstNo(InvalidBooleanError, Customer.TableCaption()), GetLastErrorText, UnknownError);
     end;
 
     [Test]
@@ -661,7 +661,7 @@ codeunit 136601 "ERM RS Data Templates"
         EvaluateValue(DATABASE::"Change Log Entry", ChangeLogEntry.FieldNo("Entry No."), Format(12345000000000.0));
 
         // GUID
-        EvaluateValue(DATABASE::"Job Queue Entry", JobQueueEntry.FieldNo(ID), Format(CreateGuid));
+        EvaluateValue(DATABASE::"Job Queue Entry", JobQueueEntry.FieldNo(ID), Format(CreateGuid()));
 
         // Code
         EvaluateValue(DATABASE::"General Ledger Setup", GLSetup.FieldNo("Bank Account Nos."), Format(GLSetup."Bank Account Nos."));
@@ -963,12 +963,12 @@ codeunit 136601 "ERM RS Data Templates"
         asserterror
           CreateConfigTemplateLineForField(
             ConfigTemplateHeader.Code, Item.FieldNo("Inventory Posting Group"),
-            Item.FieldName("Inventory Posting Group"), Item.TableCaption);
+            Item.FieldName("Inventory Posting Group"), Item.TableCaption());
 
         Assert.ExpectedError(
           StrSubstNo(
             ValidateRelationError, Item.FieldName("Inventory Posting Group"),
-            UpperCase(Item.TableCaption), InventoryPostingGroup.TableCaption));
+            UpperCase(Item.TableCaption()), InventoryPostingGroup.TableCaption()));
 
         Cleanup('', ConfigTemplateHeader.Code);
     end;
@@ -986,9 +986,9 @@ codeunit 136601 "ERM RS Data Templates"
         InputTableInConfigTemplateHeader(ConfigTemplateHeader, DATABASE::Item);
         LibraryRapidStart.CreateConfigTemplateLine(ConfigTemplateLine, ConfigTemplateHeader.Code);
         InputFieldInConfigTemplateLine(
-          ConfigTemplateLine, Item.FieldNo("Base Unit of Measure"), Item.FieldName("Base Unit of Measure"), Item.TableCaption, true);
+          ConfigTemplateLine, Item.FieldNo("Base Unit of Measure"), Item.FieldName("Base Unit of Measure"), Item.TableCaption(), true);
 
-        Assert.AreEqual(ConfigTemplateLine."Default Value", UpperCase(Item.TableCaption), UnexpectedValueAfterRelationCheck);
+        Assert.AreEqual(ConfigTemplateLine."Default Value", UpperCase(Item.TableCaption()), UnexpectedValueAfterRelationCheck);
 
         Cleanup('', ConfigTemplateHeader.Code);
     end;
@@ -1169,7 +1169,7 @@ codeunit 136601 "ERM RS Data Templates"
 
         // [THEN] No error appears about existing BOM with such items
         ConfigTemplateLine.Insert(true);
-        ConfigTemplateLine.Find;
+        ConfigTemplateLine.Find();
     end;
 
     [Test]
@@ -1198,7 +1198,7 @@ codeunit 136601 "ERM RS Data Templates"
 
         // [THEN] No error appears about existing Purchase Order lines with such items
         ConfigTemplateLine.Insert(true);
-        ConfigTemplateLine.Find;
+        ConfigTemplateLine.Find();
     end;
 
     [Test]
@@ -1227,7 +1227,7 @@ codeunit 136601 "ERM RS Data Templates"
 
         // [THEN] No error appears about existing Sales Order Lines with such items
         ConfigTemplateLine.Insert(true);
-        ConfigTemplateLine.Find;
+        ConfigTemplateLine.Find();
     end;
 
     [Test]
@@ -1253,7 +1253,7 @@ codeunit 136601 "ERM RS Data Templates"
 
         // [THEN] No error appears about existing Production Order Lines with such items
         ConfigTemplateLine.Insert(true);
-        ConfigTemplateLine.Find;
+        ConfigTemplateLine.Find();
     end;
 
     [Test]
@@ -1282,7 +1282,7 @@ codeunit 136601 "ERM RS Data Templates"
 
         // [THEN] No error appears about existing Production Order Components with such items
         ConfigTemplateLine.Insert(true);
-        ConfigTemplateLine.Find;
+        ConfigTemplateLine.Find();
     end;
 
     [Test]
@@ -1314,7 +1314,7 @@ codeunit 136601 "ERM RS Data Templates"
 
         // [THEN] No error appears about existing Planning Components with such items
         ConfigTemplateLine.Insert(true);
-        ConfigTemplateLine.Find;
+        ConfigTemplateLine.Find();
     end;
 
     [Test]
@@ -1347,7 +1347,7 @@ codeunit 136601 "ERM RS Data Templates"
 
         // [THEN] No error appears about existing Transfers with such items
         ConfigTemplateLine.Insert(true);
-        ConfigTemplateLine.Find;
+        ConfigTemplateLine.Find();
     end;
 
     [Test]
@@ -1376,7 +1376,7 @@ codeunit 136601 "ERM RS Data Templates"
 
         // [THEN] No error appears about existing Service Invoices with such items
         ConfigTemplateLine.Insert(true);
-        ConfigTemplateLine.Find;
+        ConfigTemplateLine.Find();
     end;
 
     [Test]
@@ -1404,7 +1404,7 @@ codeunit 136601 "ERM RS Data Templates"
 
         // [THEN] No error appears about existing Production BOMs with such items
         ConfigTemplateLine.Insert(true);
-        ConfigTemplateLine.Find;
+        ConfigTemplateLine.Find();
     end;
 
     [Test]
@@ -1433,7 +1433,7 @@ codeunit 136601 "ERM RS Data Templates"
 
         // [THEN] No error appears about existing Service Contracts with such items
         ConfigTemplateLine.Insert(true);
-        ConfigTemplateLine.Find;
+        ConfigTemplateLine.Find();
     end;
 
     [Test]
@@ -1448,7 +1448,7 @@ codeunit 136601 "ERM RS Data Templates"
         Initialize();
 
         // [GIVEN] Assembly Header with blank "Item No."
-        LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate, LibraryInventory.CreateItemNo, '', 1, '');
+        LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate(), LibraryInventory.CreateItemNo, '', 1, '');
         AssemblyHeader.Validate("Item No.", '');
         AssemblyHeader.Modify(true);
 
@@ -1458,7 +1458,7 @@ codeunit 136601 "ERM RS Data Templates"
 
         // [THEN] No error appears about existing Assembly Headers with such items
         ConfigTemplateLine.Insert(true);
-        ConfigTemplateLine.Find;
+        ConfigTemplateLine.Find();
     end;
 
     [Test]
@@ -1474,7 +1474,7 @@ codeunit 136601 "ERM RS Data Templates"
         Initialize();
 
         // [GIVEN] Assembly Header with line with blank "Item No."
-        LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate, LibraryInventory.CreateItemNo, '', 1, '');
+        LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate(), LibraryInventory.CreateItemNo, '', 1, '');
         AssemblyHeader.Validate("Item No.", '');
         AssemblyHeader.Modify(true);
         LibraryAssembly.CreateAssemblyLine(AssemblyHeader, AssemblyLine, AssemblyLine.Type::Item, '', '', 1, 0, '');
@@ -1485,7 +1485,7 @@ codeunit 136601 "ERM RS Data Templates"
 
         // [THEN] No error appears about existing Assembly lines with such items
         ConfigTemplateLine.Insert(true);
-        ConfigTemplateLine.Find;
+        ConfigTemplateLine.Find();
     end;
 
     [Test]
@@ -1500,7 +1500,7 @@ codeunit 136601 "ERM RS Data Templates"
         Initialize();
 
         // [GIVEN] Job Planning Line with blank "Item No."
-        LibraryTimeSheet.CreateJobPlanningLine(JobPlanningLine, '', '', '', WorkDate);
+        LibraryTimeSheet.CreateJobPlanningLine(JobPlanningLine, '', '', '', WorkDate());
         JobPlanningLine.Validate(Type, JobPlanningLine.Type::Item);
         JobPlanningLine.Modify(true);
 
@@ -1510,7 +1510,7 @@ codeunit 136601 "ERM RS Data Templates"
 
         // [THEN] No error appears about existing Job Planning Lines with such items
         ConfigTemplateLine.Insert(true);
-        ConfigTemplateLine.Find;
+        ConfigTemplateLine.Find();
     end;
 
     [Test]
@@ -2075,10 +2075,10 @@ codeunit 136601 "ERM RS Data Templates"
         ConfigTemplateLine.FindSet();
         ConfigTemplateLine.TestField("Field ID", CustomerPostingGroupFieldID);
 
-        ConfigTemplateLine.Next;
+        ConfigTemplateLine.Next();
         ConfigTemplateLine.TestField("Field ID", CurrencyFieldID);
 
-        ConfigTemplateLine.Next;
+        ConfigTemplateLine.Next();
         ConfigTemplateLine.TestField("Field ID", GenBusinessPostingGroupFieldID);
     end;
 
@@ -2102,7 +2102,7 @@ codeunit 136601 "ERM RS Data Templates"
             ConfigTemplateLine.TestField("Field ID", SourceConfigTemplateLine."Field ID");
             ConfigTemplateLine.TestField("Table ID", SourceConfigTemplateLine."Table ID");
             ConfigTemplateLine.TestField("Default Value", SourceConfigTemplateLine."Default Value");
-        until SourceConfigTemplateLine.Next = 0;
+        until SourceConfigTemplateLine.Next() = 0;
     end;
 
     local procedure VerifyLookupFieldValue(FieldValue: Text)

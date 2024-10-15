@@ -1,11 +1,10 @@
-﻿page 27 "Vendor List"
+page 27 "Vendor List"
 {
     ApplicationArea = Basic, Suite;
     Caption = 'Vendors';
     CardPageID = "Vendor Card";
     Editable = false;
     PageType = List;
-    PromotedActionCategories = 'New,Process,Report,New Document,Vendor,Navigate';
     QueryCategory = 'Vendor List';
     RefreshOnActivate = true;
     SourceTable = Vendor;
@@ -21,56 +20,56 @@
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = All;
-                    ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
+                    ToolTip = 'Specifies the unique number that identifies the vendor. You can assign numbers automatically based on a number series or assign them manually.';
                 }
                 field(Name; Name)
                 {
                     ApplicationArea = All;
-                    ToolTip = 'Specifies the vendor''s name. You can enter a maximum of 30 characters, both numbers and letters.';
+                    ToolTip = 'Specifies the vendor''s name that appears on all related documents. For companies, specify the company''s name here, and then add the relevant people as contacts that you link to this vendor.';
                 }
-                field("Name 2"; "Name 2")
+                field("Name 2"; Rec."Name 2")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies an additional part of the name.';
                     Visible = false;
                 }
-                field("Responsibility Center"; "Responsibility Center")
+                field("Responsibility Center"; Rec."Responsibility Center")
                 {
                     ApplicationArea = Advanced;
                     ToolTip = 'Specifies the code of the responsibility center, such as a distribution hub, that is associated with the involved user, company, customer, or vendor.';
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the warehouse location where items from the vendor must be received by default.';
                 }
-                field("Post Code"; "Post Code")
+                field("Post Code"; Rec."Post Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the postal code.';
                     Visible = false;
                 }
-                field("Country/Region Code"; "Country/Region Code")
+                field("Country/Region Code"; Rec."Country/Region Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the country/region of the address.';
                     Visible = false;
                 }
-                field("Phone No."; "Phone No.")
+                field("Phone No."; Rec."Phone No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the vendor''s telephone number.';
                 }
-                field("Fax No."; "Fax No.")
+                field("Fax No."; Rec."Fax No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the vendor''s fax number.';
                     Visible = false;
                 }
-                field("IC Partner Code"; "IC Partner Code")
+                field("IC Partner Code"; Rec."IC Partner Code")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies the vendor''s intercompany partner code.';
@@ -81,49 +80,49 @@
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the person you regularly contact when you do business with this vendor.';
                 }
-                field("Purchaser Code"; "Purchaser Code")
+                field("Purchaser Code"; Rec."Purchaser Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies which purchaser is assigned to the vendor.';
                     Visible = false;
                 }
-                field("Vendor Posting Group"; "Vendor Posting Group")
+                field("Vendor Posting Group"; Rec."Vendor Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the vendor''s market type to link business transactions made for the vendor with the appropriate account in the general ledger.';
                     Visible = false;
                 }
-                field("Gen. Bus. Posting Group"; "Gen. Bus. Posting Group")
+                field("Gen. Bus. Posting Group"; Rec."Gen. Bus. Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the vendor''s trade type to link transactions made for this vendor with the appropriate general ledger account according to the general posting setup.';
                     Visible = false;
                 }
-                field("VAT Bus. Posting Group"; "VAT Bus. Posting Group")
+                field("VAT Bus. Posting Group"; Rec."VAT Bus. Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT specification of the involved customer or vendor to link transactions made for this record with the appropriate general ledger account according to the VAT posting setup.';
                     Visible = false;
                 }
-                field("Payment Terms Code"; "Payment Terms Code")
+                field("Payment Terms Code"; Rec."Payment Terms Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a formula that calculates the payment due date, payment discount date, and payment discount amount.';
                     Visible = false;
                 }
-                field("Fin. Charge Terms Code"; "Fin. Charge Terms Code")
+                field("Fin. Charge Terms Code"; Rec."Fin. Charge Terms Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the code for the involved finance charges in case of late payment.';
                     Visible = false;
                 }
-                field("Currency Code"; "Currency Code")
+                field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the currency code that is inserted by default when you create purchase documents or journal lines for the vendor.';
                     Visible = false;
                 }
-                field("Language Code"; "Language Code")
+                field("Language Code"; Rec."Language Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the language that is used when translating specified text on documents to foreign business partner, such as an item description on an order confirmation.';
@@ -134,7 +133,7 @@
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the county of the vendor.';
                 }
-                field("Search Name"; "Search Name")
+                field("Search Name"; Rec."Search Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies an alternate name that you can use to search for the record in question when you cannot remember the value in the Name field.';
@@ -145,49 +144,49 @@
                     ToolTip = 'Specifies which transactions with the vendor that cannot be processed, for example a vendor that is declared insolvent.';
                     Visible = false;
                 }
-                field("Privacy Blocked"; "Privacy Blocked")
+                field("Privacy Blocked"; Rec."Privacy Blocked")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether to limit access to data for the data subject during daily operations. This is useful, for example, when protecting data from changes while it is under privacy review.';
                     Visible = false;
                 }
-                field("Last Date Modified"; "Last Date Modified")
+                field("Last Date Modified"; Rec."Last Date Modified")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies when the vendor card was last modified.';
                     Visible = false;
                 }
-                field("Application Method"; "Application Method")
+                field("Application Method"; Rec."Application Method")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies how to apply payments to entries for this vendor.';
                     Visible = false;
                 }
-                field("Location Code2"; "Location Code")
+                field("Location Code2"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the warehouse location where items from the vendor must be received by default.';
                     Visible = false;
                 }
-                field("Shipment Method Code"; "Shipment Method Code")
+                field("Shipment Method Code"; Rec."Shipment Method Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the delivery conditions of the related shipment, such as free on board (FOB).';
                     Visible = false;
                 }
-                field("Lead Time Calculation"; "Lead Time Calculation")
+                field("Lead Time Calculation"; Rec."Lead Time Calculation")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a date formula for the amount of time it takes to replenish the item.';
                     Visible = false;
                 }
-                field("Base Calendar Code"; "Base Calendar Code")
+                field("Base Calendar Code"; Rec."Base Calendar Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a customizable calendar for delivery planning that holds the vendor''s working days and holidays.';
                     Visible = false;
                 }
-                field("Balance (LCY)"; "Balance (LCY)")
+                field("Balance (LCY)"; Rec."Balance (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the total value of your completed purchases from the vendor in the current fiscal year. It is calculated from amounts excluding VAT on all completed purchase invoices and credit memos.';
@@ -197,7 +196,7 @@
                         OpenVendorLedgerEntries(false);
                     end;
                 }
-                field("Balance Due (LCY)"; "Balance Due (LCY)")
+                field("Balance Due (LCY)"; Rec."Balance Due (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the total value of your unpaid purchases from the vendor in the current fiscal year. It is calculated from amounts excluding VAT on all open purchase invoices and credit memos.';
@@ -207,12 +206,12 @@
                         OpenVendorLedgerEntries(true);
                     end;
                 }
-                field("Payments (LCY)"; "Payments (LCY)")
+                field("Payments (LCY)"; Rec."Payments (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the sum of payments paid to the vendor.';
                 }
-                field("Coupled to CRM"; "Coupled to CRM")
+                field("Coupled to CRM"; Rec."Coupled to CRM")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies that the vendor is coupled to an account in Dataverse.';
@@ -222,11 +221,20 @@
         }
         area(factboxes)
         {
+#if not CLEAN21
             part("Power BI Report FactBox"; "Power BI Report FactBox")
             {
                 ApplicationArea = Basic, Suite;
-                Caption = 'Power BI Reports';
-                Visible = PowerBIVisible;
+                Visible = false;
+                ObsoleteReason = 'Use the part PowerBIEmbeddedReportPart instead';
+                ObsoleteState = Pending;
+                ObsoleteTag = '21.0';
+            }
+#endif
+            part(PowerBIEmbeddedReportPart; "Power BI Embedded Report Part")
+            {
+                ApplicationArea = Basic, Suite;
+                Visible = false;
             }
             part(VendorDetailsFactBox; "Vendor Details FactBox")
             {
@@ -294,8 +302,6 @@
                         ApplicationArea = Dimensions;
                         Caption = 'Dimensions-Single';
                         Image = Dimensions;
-                        Promoted = true;
-                        PromotedCategory = Category5;
                         RunObject = Page "Default Dimensions";
                         RunPageLink = "Table ID" = CONST(23),
                                       "No." = FIELD("No.");
@@ -308,8 +314,6 @@
                         ApplicationArea = Dimensions;
                         Caption = 'Dimensions-&Multiple';
                         Image = DimensionSets;
-                        Promoted = true;
-                        PromotedCategory = Category5;
                         ToolTip = 'View or edit dimensions for a group of records. You can assign dimension codes to transactions to distribute costs and analyze historical information.';
 
                         trigger OnAction()
@@ -338,13 +342,11 @@
                     ApplicationArea = Basic, Suite;
                     Caption = 'C&ontact';
                     Image = ContactPerson;
-                    Promoted = true;
-                    PromotedCategory = Category6;
                     ToolTip = 'View or edit detailed information about the contact person at the vendor.';
 
                     trigger OnAction()
                     begin
-                        ShowContact;
+                        ShowContact();
                     end;
                 }
                 separator(Action55)
@@ -364,8 +366,6 @@
                     ApplicationArea = Comments;
                     Caption = 'Co&mments';
                     Image = ViewComments;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     RunObject = Page "Comment Sheet";
                     RunPageLink = "Table Name" = CONST(Vendor),
                                   "No." = FIELD("No.");
@@ -377,8 +377,6 @@
                     ApplicationArea = Suite, ItemReferences;
                     Caption = 'Item Refe&rences';
                     Image = Change;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     RunObject = Page "Item References";
                     RunPageLink = "Reference Type" = CONST(Vendor),
                                   "Reference Type No." = FIELD("No.");
@@ -391,8 +389,6 @@
                     ApplicationArea = Suite;
                     Caption = 'Approvals';
                     Image = Approvals;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     ToolTip = 'View a list of the records that are waiting to be approved. For example, you can see who requested the record to be approved, when it was sent, and when it is due to be approved.';
 
                     trigger OnAction()
@@ -409,8 +405,6 @@
                     ApplicationArea = Basic, Suite;
                     Caption = 'Sent Emails';
                     Image = ShowList;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     ToolTip = 'View a list of emails that you have sent to this vendor.';
                     Visible = false;
 
@@ -451,8 +445,6 @@
                     ApplicationArea = Basic, Suite;
                     Caption = 'Purchase Price Lists';
                     Image = Price;
-                    Promoted = true;
-                    PromotedCategory = Category6;
                     Visible = ExtendedPriceEnabled;
                     ToolTip = 'View or set up purchase price lists for products that you buy from the vendor. An product price is automatically granted on invoice lines when the specified criteria are met, such as vendor, quantity, or ending date.';
 
@@ -470,8 +462,6 @@
                     Caption = 'Purchase Prices';
                     Image = Price;
                     Scope = Repeater;
-                    Promoted = true;
-                    PromotedCategory = Category6;
                     Visible = ExtendedPriceEnabled;
                     ToolTip = 'View or set up purchase price lines for products that you buy from the vendor. A product price is automatically granted on invoice lines when the specified criteria are met, such as vendor, quantity, or ending date.';
 
@@ -491,8 +481,6 @@
                     Caption = 'Purchase Discounts';
                     Image = LineDiscount;
                     Scope = Repeater;
-                    Promoted = true;
-                    PromotedCategory = Category6;
                     Visible = ExtendedPriceEnabled;
                     ToolTip = 'View or set up different discounts for products that you buy from the vendor. A product line discount is automatically granted on invoice lines when the specified criteria are met, such as vendor, quantity, or ending date.';
 
@@ -505,7 +493,7 @@
                         PriceUXManagement.ShowPriceListLines(PriceSource, "Price Amount Type"::Discount);
                     end;
                 }
-#if not CLEAN18
+#if not CLEAN21
                 action(PriceListsDiscounts)
                 {
                     ApplicationArea = Basic, Suite;
@@ -526,14 +514,12 @@
                     end;
                 }
 #endif
-#if not CLEAN19
+#if not CLEAN21
                 action(Prices)
                 {
                     ApplicationArea = Advanced;
                     Caption = 'Prices';
                     Image = Price;
-                    Promoted = true;
-                    PromotedCategory = Category6;
                     Visible = not ExtendedPriceEnabled;
                     RunObject = Page "Purchase Prices";
                     RunPageLink = "Vendor No." = FIELD("No.");
@@ -548,8 +534,6 @@
                     ApplicationArea = Advanced;
                     Caption = 'Line Discounts';
                     Image = LineDiscount;
-                    Promoted = true;
-                    PromotedCategory = Category6;
                     Visible = not ExtendedPriceEnabled;
                     RunObject = Page "Purchase Line Discounts";
                     RunPageLink = "Vendor No." = FIELD("No.");
@@ -598,8 +582,6 @@
                     ApplicationArea = Suite;
                     Caption = 'Quotes';
                     Image = Quote;
-                    Promoted = true;
-                    PromotedCategory = Category6;
                     RunObject = Page "Purchase Quotes";
                     RunPageLink = "Buy-from Vendor No." = FIELD("No.");
                     RunPageView = SORTING("Document Type", "Buy-from Vendor No.");
@@ -610,8 +592,6 @@
                     ApplicationArea = Advanced;
                     Caption = 'Orders';
                     Image = Document;
-                    Promoted = true;
-                    PromotedCategory = Category6;
                     RunObject = Page "Purchase Order List";
                     RunPageLink = "Buy-from Vendor No." = FIELD("No.");
                     RunPageView = SORTING("Document Type", "Buy-from Vendor No.");
@@ -622,8 +602,6 @@
                     ApplicationArea = PurchReturnOrder;
                     Caption = 'Return Orders';
                     Image = ReturnOrder;
-                    Promoted = true;
-                    PromotedCategory = Category6;
                     RunObject = Page "Purchase Return Order List";
                     RunPageLink = "Buy-from Vendor No." = FIELD("No.");
                     RunPageView = SORTING("Document Type", "Buy-from Vendor No.");
@@ -649,9 +627,6 @@
                     ApplicationArea = Suite;
                     Caption = 'Ledger E&ntries';
                     Image = VendorLedger;
-                    Promoted = true;
-                    PromotedCategory = Category5;
-                    PromotedIsBig = true;
                     RunObject = Page "Vendor Ledger Entries";
                     RunPageLink = "Vendor No." = FIELD("No.");
                     RunPageView = SORTING("Vendor No.")
@@ -664,9 +639,6 @@
                     ApplicationArea = Suite;
                     Caption = 'Statistics';
                     Image = Statistics;
-                    Promoted = true;
-                    PromotedCategory = Category5;
-                    PromotedIsBig = true;
                     RunObject = Page "Vendor Statistics";
                     RunPageLink = "No." = FIELD("No."),
                                   "Date Filter" = FIELD("Date Filter"),
@@ -774,7 +746,7 @@
                         VendorRecordRef: RecordRef;
                     begin
                         CurrPage.SetSelectionFilter(Vendor);
-                        Vendor.Next;
+                        Vendor.Next();
 
                         if Vendor.Count = 1 then
                             CRMIntegrationManagement.UpdateOneNow(Vendor.RecordId)
@@ -923,8 +895,6 @@
                 ApplicationArea = Basic, Suite;
                 Caption = 'Purchase Invoice';
                 Image = NewPurchaseInvoice;
-                Promoted = true;
-                PromotedCategory = Category4;
                 RunObject = Page "Purchase Invoice";
                 RunPageLink = "Buy-from Vendor No." = FIELD("No.");
                 RunPageMode = Create;
@@ -935,8 +905,6 @@
                 ApplicationArea = Suite;
                 Caption = 'Purchase Order';
                 Image = Document;
-                Promoted = true;
-                PromotedCategory = Category4;
                 RunObject = Page "Purchase Order";
                 RunPageLink = "Buy-from Vendor No." = FIELD("No.");
                 RunPageMode = Create;
@@ -947,8 +915,6 @@
                 ApplicationArea = Basic, Suite;
                 Caption = 'Purchase Credit Memo';
                 Image = CreditMemo;
-                Promoted = true;
-                PromotedCategory = Category4;
                 RunObject = Page "Purchase Credit Memo";
                 RunPageLink = "Buy-from Vendor No." = FIELD("No.");
                 RunPageMode = Create;
@@ -1011,8 +977,6 @@
                 ApplicationArea = Basic, Suite;
                 Caption = 'Payment Journal';
                 Image = PaymentJournal;
-                Promoted = true;
-                PromotedCategory = Category6;
                 RunObject = Page "Payment Journal";
                 ToolTip = 'View or edit the payment journal where you can register payments to vendors.';
             }
@@ -1021,8 +985,6 @@
                 ApplicationArea = Basic, Suite;
                 Caption = 'Purchase Journal';
                 Image = Journals;
-                Promoted = true;
-                PromotedCategory = Category6;
                 RunObject = Page "Purchase Journal";
                 ToolTip = 'Post any purchase transaction for the vendor. ';
             }
@@ -1047,9 +1009,6 @@
                 ApplicationArea = Basic, Suite;
                 Caption = 'Pay Vendor';
                 Image = SuggestVendorPayments;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 RunObject = Page "Vendor Ledger Entries";
                 RunPageLink = "Vendor No." = FIELD("No."),
                               "Remaining Amount" = FILTER(< 0),
@@ -1080,8 +1039,6 @@
                 Caption = 'Send Email';
                 Image = Email;
                 ToolTip = 'Send an email to this vendor.';
-                Promoted = true;
-                PromotedCategory = Process;
                 Enabled = CanSendEmail;
 
                 trigger OnAction()
@@ -1094,16 +1051,24 @@
                     TempEmailItem.Send(false, EmailScenario::Default);
                 end;
             }
+#if not CLEAN21
             group(Display)
             {
                 Caption = 'Display';
+                Visible = false;
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Use the Personalization mode to hide and show this factbox.';
+                ObsoleteTag = '21.0';
                 action(ReportFactBoxVisibility)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Show/Hide Power BI Reports';
                     Image = "Report";
                     ToolTip = 'Select if the Power BI FactBox is visible or not.';
-
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Use the Personalization mode to hide and show this factbox.';
+                    ObsoleteTag = '21.0';
                     trigger OnAction()
                     begin
                         // save visibility value into the table
@@ -1111,6 +1076,7 @@
                     end;
                 }
             }
+#endif
             group(OCR)
             {
                 Caption = 'OCR';
@@ -1119,8 +1085,6 @@
                     ApplicationArea = Basic, Suite;
                     Caption = 'Resync all Vendors';
                     Image = CopyFromChartOfAccounts;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Synchronize vendors and vendor bank accounts with the OCR service.';
                     Visible = ResyncVisible;
 
@@ -1277,7 +1241,6 @@
                     ApplicationArea = Basic, Suite;
                     Caption = 'Items Received & Not Invoiced';
                     Image = "Report";
-                    Promoted = false;
                     //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                     //PromotedCategory = "Report";
                     RunObject = Report "Items Received & Not Invoiced";
@@ -1288,7 +1251,6 @@
                     ApplicationArea = Basic, Suite;
                     Caption = 'Aged Acc. Pay. (BackDating)';
                     Image = "Report";
-                    Promoted = false;
                     //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                     //PromotedCategory = "Report";
                     RunObject = Report "Aged Acc. Pay. (BackDating)";
@@ -1299,7 +1261,6 @@
                     ApplicationArea = Basic, Suite;
                     Caption = 'Purchase Receipts';
                     Image = "Report";
-                    Promoted = false;
                     //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                     //PromotedCategory = "Report";
                     RunObject = Report "Purchase Receipts";
@@ -1312,6 +1273,189 @@
                     Image = "Report";
                     RunObject = Report "Vendor - Detail Trial Balance";
                     ToolTip = 'View a detail trial balance for selected vendors.';
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref(PayVendor_Promoted; PayVendor)
+                {
+                }
+                actionref(ApplyTemplate_Promoted; ApplyTemplate)
+                {
+                }
+                actionref(Email_Promoted; Email)
+                {
+                }
+                actionref(Resync_Promoted; Resync)
+                {
+                }
+            }
+            group(Category_Category4)
+            {
+                Caption = 'New Document', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref(NewPurchaseInvoice_Promoted; NewPurchaseInvoice)
+                {
+                }
+                actionref(NewPurchaseOrder_Promoted; NewPurchaseOrder)
+                {
+                }
+                actionref(NewPurchaseCrMemo_Promoted; NewPurchaseCrMemo)
+                {
+                }
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Vendor', Comment = 'Generated from the PromotedActionCategories property index 4.';
+
+                actionref("Ledger E&ntries_Promoted"; "Ledger E&ntries")
+                {
+                }
+                actionref(Statistics_Promoted; Statistics)
+                {
+                }
+                group(Category_Dimensions)
+                {
+                    Caption = 'Dimensions';
+                    ShowAs = SplitButton;
+
+                    actionref(DimensionsMultiple_Promoted; DimensionsMultiple)
+                    {
+                    }
+                    actionref(DimensionsSingle_Promoted; DimensionsSingle)
+                    {
+                    }
+                }
+                actionref(ApprovalEntries_Promoted; ApprovalEntries)
+                {
+                }
+#if not CLEAN19
+                actionref(SentEmails_Promoted; SentEmails)
+                {
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Action SentEmails moved under history';
+                    ObsoleteTag = '19.0';
+                }
+#endif
+                actionref("Co&mments_Promoted"; "Co&mments")
+                {
+                }
+
+                separator(Navigate_Separator)
+                {
+                }
+
+                actionref("C&ontact_Promoted"; "C&ontact")
+                {
+                }
+                actionref("Sent Emails_Promoted"; "Sent Emails")
+                {
+                }
+                actionref("Item &Tracking Entries_Promoted"; "Item &Tracking Entries")
+                {
+                }
+                actionref(Orders_Promoted; Orders)
+                {
+                }
+                actionref("Item Refe&rences_Promoted"; "Item Refe&rences")
+                {
+                }
+                actionref(Quotes_Promoted; Quotes)
+                {
+                }
+                actionref("Return Orders_Promoted"; "Return Orders")
+                {
+                }
+#if not CLEAN21
+                actionref("Payment Journal_Promoted"; "Payment Journal")
+                {
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
+                    ObsoleteTag = '21.0';
+                }
+#endif
+#if not CLEAN21
+                actionref("Purchase Journal_Promoted"; "Purchase Journal")
+                {
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
+                    ObsoleteTag = '21.0';
+                }
+#endif
+            }
+            group("Category_Prices & Discounts")
+            {
+                Caption = 'Prices & Discounts';
+
+                actionref(PriceLists_Promoted; PriceLists)
+                {
+                }
+                actionref(PriceLines_Promoted; PriceLines)
+                {
+                }
+                actionref(DiscountLines_Promoted; DiscountLines)
+                {
+                }
+#if not CLEAN21
+                actionref(Prices_Promoted; Prices)
+                {
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                    ObsoleteTag = '17.0';
+                }
+#endif
+#if not CLEAN19
+                actionref("Line Discounts_Promoted"; "Line Discounts")
+                {
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                    ObsoleteTag = '17.0';
+                }
+#endif
+            }
+            group(Category_Category6)
+            {
+                Caption = 'Navigate', Comment = 'Generated from the PromotedActionCategories property index 5.';
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Synchronize)
+            {
+                Caption = 'Synchronize';
+                Visible = CRMIntegrationEnabled or CDSIntegrationEnabled;
+
+                group(Category_Coupling)
+                {
+                    Caption = 'Coupling';
+                    ShowAs = SplitButton;
+
+                    actionref(ManageCDSCoupling_Promoted; ManageCDSCoupling)
+                    {
+                    }
+                    actionref(DeleteCDSCoupling_Promoted; DeleteCDSCoupling)
+                    {
+                    }
+                    actionref(MatchBasedCoupling_Promoted; MatchBasedCoupling)
+                    {
+                    }
+                }
+                actionref(CDSSynchronizeNow_Promoted; CDSSynchronizeNow)
+                {
+                }
+                actionref(CDSGotoAccount_Promoted; CDSGotoAccount)
+                {
+                }
+                actionref(ShowLog_Promoted; ShowLog)
+                {
                 }
             }
         }
@@ -1332,8 +1476,11 @@
         if CRMIsCoupledToRecord then
             CRMIsCoupledToRecord := CRMCouplingManagement.IsRecordCoupledToCRM(RecordId);
 
+#if not CLEAN21
         // Contextual Power BI FactBox: send data to filter the report in the FactBox
         CurrPage."Power BI Report FactBox".PAGE.SetCurrentListSelection("No.", false, PowerBIVisible);
+#endif
+        CurrPage.PowerBIEmbeddedReportPart.PAGE.SetCurrentListSelection("No.");
 
         CurrPage.SetSelectionFilter(Vendor);
         CanSendEmail := Vendor.Count() = 1;
@@ -1341,7 +1488,12 @@
 
     trigger OnInit()
     begin
+#if not CLEAN21
+        PowerBIVisible := false;
         CurrPage."Power BI Report FactBox".PAGE.InitFactBox(CurrPage.ObjectId(false), CurrPage.Caption, PowerBIVisible);
+#endif
+        CurrPage.PowerBIEmbeddedReportPart.PAGE.InitPageRatio(PowerBIServiceMgt.GetFactboxRatio());
+        CurrPage.PowerBIEmbeddedReportPart.PAGE.SetPageContext(CurrPage.ObjectId(false));
     end;
 
     trigger OnOpenPage()
@@ -1364,11 +1516,14 @@
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
         ReadSoftOCRMasterDataSync: Codeunit "ReadSoft OCR Master Data Sync";
         WorkflowWebhookManagement: Codeunit "Workflow Webhook Management";
+        PowerBIServiceMgt: Codeunit "Power BI Service Mgt.";
         [InDataSet]
         CanSendEmail: Boolean;
         OpenApprovalEntriesExist: Boolean;
         CanCancelApprovalForRecord: Boolean;
+#if not CLEAN21
         PowerBIVisible: Boolean;
+#endif
         ResyncVisible: Boolean;
         CanRequestApprovalForFlow: Boolean;
         CanCancelApprovalForFlow: Boolean;

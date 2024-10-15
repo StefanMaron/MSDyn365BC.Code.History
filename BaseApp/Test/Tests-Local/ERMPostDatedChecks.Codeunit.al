@@ -134,7 +134,7 @@ codeunit 141031 "ERM Post Dated Checks"
         SalesOrder."Sell-to Customer Name".SetValue(Customer.Name);
 
         // [THEN] Verify Post Dated Check Lines with Credit Limit on Customer and Credit Warning, verification done by handler SendNotificationHandler.
-        SalesOrder.Close;
+        SalesOrder.Close();
 
         // Tear Down.
         UpdateSalesReceivableSetup(SalesReceivablesSetup."Incl. PDC in Cr. Limit Check", SalesReceivablesSetup."Credit Warnings");
@@ -160,8 +160,8 @@ codeunit 141031 "ERM Post Dated Checks"
 
         // [THEN] Verify Post Dated Check Lines with Date and Customer No. filter on Post Dated Check Page.
         PostDatedChecks."Account No.".AssertEquals(Customer."No.");
-        PostDatedChecks."Check Date".AssertEquals(WorkDate);
-        PostDatedChecks.Close;
+        PostDatedChecks."Check Date".AssertEquals(WorkDate());
+        PostDatedChecks.Close();
     end;
 
     [Test]
@@ -360,8 +360,8 @@ codeunit 141031 "ERM Post Dated Checks"
 
         // [THEN] Verify Post Dated Check Line with Date and Customer No. filter on Post Dated Check Page.
         PostDatedChecksPurchases."Account No.".AssertEquals(Vendor."No.");
-        PostDatedChecksPurchases."Check Date".AssertEquals(WorkDate);
-        PostDatedChecksPurchases.Close;
+        PostDatedChecksPurchases."Check Date".AssertEquals(WorkDate());
+        PostDatedChecksPurchases.Close();
     end;
 
     [Test]
@@ -464,7 +464,7 @@ codeunit 141031 "ERM Post Dated Checks"
         // [THEN] Verify Bank Account No. on Post Dated Check-Purchase page.
         GenJournalBatch.Get(PurchasesPayablesSetup."Post Dated Check Template", PurchasesPayablesSetup."Post Dated Check Batch");
         PostDatedChecksPurchases."Bank Account".AssertEquals(GenJournalBatch."Bal. Account No.");
-        PostDatedChecksPurchases.Close;
+        PostDatedChecksPurchases.Close();
     end;
 
     [Test]
@@ -638,7 +638,7 @@ codeunit 141031 "ERM Post Dated Checks"
         PostDatedChecksPurchases.OpenEdit;
         PostDatedChecksPurchases.FILTER.SetFilter("Account No.", AccountNo);
         PostDatedChecksPurchases.ApplyEntries.Invoke;  // Call ApplyVendorEntriesModalPageHandler.
-        PostDatedChecksPurchases.Close;
+        PostDatedChecksPurchases.Close();
     end;
 
     local procedure CancelPostDatedCheck(CustomerNo: Code[20])
@@ -648,7 +648,7 @@ codeunit 141031 "ERM Post Dated Checks"
         CashReceiptJournal.OpenEdit;
         CashReceiptJournal.FILTER.SetFilter("Account No.", CustomerNo);
         CashReceiptJournal.CancelPostDatedCheck.Invoke;
-        CashReceiptJournal.Close;
+        CashReceiptJournal.Close();
     end;
 
     local procedure CancelPostDatedCheckForVendor(VendorNo: Code[20])
@@ -658,7 +658,7 @@ codeunit 141031 "ERM Post Dated Checks"
         PaymentJournal.OpenEdit;
         PaymentJournal.FILTER.SetFilter("Account No.", VendorNo);
         PaymentJournal.CancelPostDatedCheck.Invoke;
-        PaymentJournal.Close;
+        PaymentJournal.Close();
     end;
 
     local procedure CreateAndPostPurchaseOrder(var PurchaseLine: Record "Purchase Line"; BuyFromVendorNo: Code[20])
@@ -770,7 +770,7 @@ codeunit 141031 "ERM Post Dated Checks"
         PostDatedChecks.OpenEdit;
         PostDatedChecks.FILTER.SetFilter("Account No.", AccountNo);
         PostDatedChecks.CreateCashJournal.Invoke;
-        PostDatedChecks.Close;
+        PostDatedChecks.Close();
     end;
 
     local procedure CreatePaymentJournal(AccountNo: Code[20])
@@ -780,7 +780,7 @@ codeunit 141031 "ERM Post Dated Checks"
         PostDatedChecksPurchases.OpenEdit;
         PostDatedChecksPurchases.FILTER.SetFilter("Account No.", AccountNo);
         PostDatedChecksPurchases.CreatePaymentJournal.Invoke;
-        PostDatedChecksPurchases.Close;
+        PostDatedChecksPurchases.Close();
     end;
 
     local procedure CreatePaymentJournalWithVAT(var PurchaseLine: Record "Purchase Line"; VendorNo: Code[20]; InterestCalExclVAT: Boolean; NoOfInstallmentAndIntRate: Integer)
@@ -799,7 +799,7 @@ codeunit 141031 "ERM Post Dated Checks"
         PostDatedChecksPurchases.FILTER.SetFilter("Account No.", AccountNo);
         LibraryVariableStorage.Enqueue(NoOfInstallmentAndIntRate);  // Enqueue value for CreateCheckInstallmentsRequestPageHandler.
         PostDatedChecksPurchases.CreateCheckInstallments.Invoke;  // Call CreateCheckInstallmentsRequestPageHandler.
-        PostDatedChecksPurchases.Close;
+        PostDatedChecksPurchases.Close();
     end;
 
     local procedure CreatePDCInstallmentAndVerifyPDCLines(VendorNo: Code[20]; Amount: Decimal; NoOfInstallmentAndIntRate: Integer; InterestCalExclVAT: Boolean)
@@ -831,7 +831,7 @@ codeunit 141031 "ERM Post Dated Checks"
           SalesReceivablesSetup."Post Dated Check Template");
         PostDatedCheckLine.Validate(Amount, Amount);
         PostDatedCheckLine.Validate("Document No.", LibraryUtility.GenerateGUID());
-        PostDatedCheckLine.Validate("Check Date", WorkDate);
+        PostDatedCheckLine.Validate("Check Date", WorkDate());
         PostDatedCheckLine.Validate("Check No.", LibraryUtility.GenerateGUID());
         PostDatedCheckLine.Validate("Bank Account", BankAccount);
         PostDatedCheckLine.Modify(true);
@@ -1016,14 +1016,14 @@ codeunit 141031 "ERM Post Dated Checks"
     local procedure PostDatedCheckWithFilter(var PostDatedChecks: TestPage "Post Dated Checks"; CustomerNo: Code[20])
     begin
         PostDatedChecks.OpenEdit;
-        PostDatedChecks.DateFilter.SetValue(WorkDate);
+        PostDatedChecks.DateFilter.SetValue(WorkDate());
         PostDatedChecks.CustomerNo.SetValue(CustomerNo);
     end;
 
     local procedure PurchPostDatedCheckWithFilter(var PostDatedChecksPurchases: TestPage "Post Dated Checks-Purchases"; VendorNo: Code[20])
     begin
         PostDatedChecksPurchases.OpenEdit;
-        PostDatedChecksPurchases.DateFilter.SetValue(WorkDate);
+        PostDatedChecksPurchases.DateFilter.SetValue(WorkDate());
         PostDatedChecksPurchases.VendorNo.SetValue(VendorNo);
     end;
 
@@ -1085,7 +1085,7 @@ codeunit 141031 "ERM Post Dated Checks"
         PostDatedChecks.OpenEdit;
         PostDatedChecks.FILTER.SetFilter("Account No.", CustomerNo);
         PostDatedChecks.SuggestChecksToBank.Invoke;
-        PostDatedChecks.Close;
+        PostDatedChecks.Close();
     end;
 
     local procedure SuggestCheckToBankWithVAT(var PurchaseLine: Record "Purchase Line"; VendorNo: Code[20]; InterestCalExclVAT: Boolean)
@@ -1108,7 +1108,7 @@ codeunit 141031 "ERM Post Dated Checks"
     begin
         PostDatedChecksPurchases.OpenEdit;
         PostDatedChecksPurchases.SuggestVendorPayments.Invoke; // Call SuggestVendorPaymentsRequestPageHandler.
-        PostDatedChecksPurchases.Close;
+        PostDatedChecksPurchases.Close();
     end;
 
     local procedure UpdateGeneralLedgerSetup(InterestCalExclVAT: Boolean)
@@ -1181,7 +1181,7 @@ codeunit 141031 "ERM Post Dated Checks"
     procedure ApplyVendorEntriesModalPageHandler(var ApplyVendorEntries: TestPage "Apply Vendor Entries")
     begin
         ApplyVendorEntries.ActionSetAppliesToID.Invoke;
-        ApplyVendorEntries.Next;
+        ApplyVendorEntries.Next();
         ApplyVendorEntries.ActionSetAppliesToID.Invoke;
         ApplyVendorEntries.OK.Invoke;
     end;
@@ -1230,7 +1230,7 @@ codeunit 141031 "ERM Post Dated Checks"
     begin
         LibraryVariableStorage.Dequeue(No);
         SuggestVendorPayments.Vendor.SetFilter("No.", No);
-        SuggestVendorPayments.LastPaymentDate.SetValue(WorkDate);
+        SuggestVendorPayments.LastPaymentDate.SetValue(WorkDate());
         SuggestVendorPayments.StartingDocumentNo.SetValue(Format(LibraryRandom.RandInt(10)));
         SuggestVendorPayments.OK.Invoke;
     end;
@@ -1242,7 +1242,7 @@ codeunit 141031 "ERM Post Dated Checks"
         VoidTypeVariant: Variant;
     begin
         LibraryVariableStorage.Dequeue(VoidTypeVariant);
-        ConfirmFinancialVoid.InitializeRequest(WorkDate, VoidTypeVariant);
+        ConfirmFinancialVoid.InitializeRequest(WorkDate(), VoidTypeVariant);
         Response := ACTION::Yes
     end;
 

@@ -1,4 +1,4 @@
-table 224 "Order Address"
+﻿table 224 "Order Address"
 {
     Caption = 'Order Address';
     DataCaptionFields = "Vendor No.", Name, "Code";
@@ -25,27 +25,15 @@ table 224 "Order Address"
         {
             Caption = 'Name 2';
         }
+#pragma warning disable AS0086
         field(5; Address; Text[100])
         {
             Caption = 'Address';
-
-            trigger OnValidate()
-            begin
-                PostCodeCheck.ValidateAddress(
-                  CurrFieldNo, DATABASE::"Order Address", Rec.GetPosition, 0,
-                  Name, "Name 2", Contact, Address, "Address 2", City, "Post Code", County, "Country/Region Code");
-            end;
         }
+#pragma warning restore AS0086
         field(6; "Address 2"; Text[50])
         {
             Caption = 'Address 2';
-
-            trigger OnValidate()
-            begin
-                PostCodeCheck.ValidateAddress(
-                  CurrFieldNo, DATABASE::"Order Address", Rec.GetPosition, 0,
-                  Name, "Name 2", Contact, Address, "Address 2", City, "Post Code", County, "Country/Region Code");
-            end;
         }
         field(7; City; Text[30])
         {
@@ -63,10 +51,13 @@ table 224 "Order Address"
             end;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
-                PostCodeCheck.ValidateCity(
-                  CurrFieldNo, DATABASE::"Order Address", Rec.GetPosition, 0,
-                  Name, "Name 2", Contact, Address, "Address 2", City, "Post Code", County, "Country/Region Code");
+                IsHandled := false;
+                OnBeforeValidateCity(Rec, PostCode, CurrFieldNo, IsHandled);
+                if not IsHandled then
+                    PostCode.ValidateCity(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
             end;
         }
         field(8; Contact; Text[100])
@@ -121,10 +112,13 @@ table 224 "Order Address"
             end;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
-                PostCodeCheck.ValidatePostCode(
-                  CurrFieldNo, DATABASE::"Order Address", Rec.GetPosition, 0,
-                  Name, "Name 2", Contact, Address, "Address 2", City, "Post Code", County, "Country/Region Code");
+                IsHandled := false;
+                OnBeforeValidatePostCode(Rec, PostCode, CurrFieldNo, IsHandled);
+                if not IsHandled then
+                    PostCode.ValidatePostCode(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
             end;
         }
         field(92; County; Text[30])
@@ -163,11 +157,6 @@ table 224 "Order Address"
     {
     }
 
-    trigger OnDelete()
-    begin
-        PostCodeCheck.DeleteAllAddressID(DATABASE::"Order Address", Rec.GetPosition);
-    end;
-
     trigger OnInsert()
     begin
         Vend.Get("Vendor No.");
@@ -182,8 +171,6 @@ table 224 "Order Address"
     trigger OnRename()
     begin
         "Last Date Modified" := Today;
-        PostCodeCheck.MoveAllAddressID(
-          DATABASE::"Order Address", xRec.GetPosition, DATABASE::"Order Address", Rec.GetPosition);
     end;
 
     var
@@ -191,7 +178,6 @@ table 224 "Order Address"
         Vend: Record Vendor;
         PostCode: Record "Post Code";
         Text001: Label 'Before you can use Online Map, you must fill in the Online Map Setup window.\See Setting Up Online Map in Help.';
-        PostCodeCheck: Codeunit "Post Code Check";
 
     procedure Caption(): Text
     begin
@@ -208,9 +194,19 @@ table 224 "Order Address"
     begin
         OnlineMapSetup.SetRange(Enabled, true);
         if OnlineMapSetup.FindFirst() then
-            OnlineMapManagement.MakeSelection(DATABASE::"Order Address", GetPosition)
+            OnlineMapManagement.MakeSelection(DATABASE::"Order Address", GetPosition())
         else
             Message(Text001);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateCity(var OrderAddress: Record "Order Address"; var PostCode: Record "Post Code"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidatePostCode(var OrderAddress: Record "Order Address"; var PostCode: Record "Post Code"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
     end;
 }
 

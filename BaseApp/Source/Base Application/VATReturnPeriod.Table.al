@@ -49,12 +49,12 @@ table 737 "VAT Return Period"
 
             trigger OnLookup()
             begin
-                DrillDownVATReturn;
+                DrillDownVATReturn();
             end;
         }
         field(21; "VAT Return Status"; Option)
         {
-            CalcFormula = Lookup ("VAT Report Header".Status WHERE("VAT Report Config. Code" = CONST("VAT Return"),
+            CalcFormula = Lookup("VAT Report Header".Status WHERE("VAT Report Config. Code" = CONST("VAT Return"),
                                                                    "No." = FIELD("VAT Return No.")));
             Caption = 'VAT Return Status';
             Editable = false;
@@ -89,15 +89,16 @@ table 737 "VAT Return Period"
         NoSeriesMgt: Codeunit NoSeriesManagement;
     begin
         if "No." = '' then
-            NoSeriesMgt.InitSeries(GetNoSeriesCode, xRec."No. Series", WorkDate, "No.", "No. Series");
+            NoSeriesMgt.InitSeries(GetNoSeriesCode(), xRec."No. Series", WorkDate(), "No.", "No. Series");
     end;
 
     var
+        VATReportSetup: Record "VAT Report Setup";
+        VATReportSetupGot: Boolean;
+
         DeleteExistingVATRetErr: Label 'You cannot delete a VAT return period that has a linked VAT return.';
         OverdueTxt: Label 'Your VAT return is overdue since %1 (%2 days)', Comment = '%1 - date; %2 - days count';
         OpenTxt: Label 'Your VAT return is due %1 (in %2 days)', Comment = '%1 - date; %2 - days count';
-        VATReportSetup: Record "VAT Report Setup";
-        VATReportSetupGot: Boolean;
 
     local procedure GetNoSeriesCode(): Code[20]
     var
@@ -147,7 +148,7 @@ table 737 "VAT Return Period"
     begin
         VATReturnPeriod.SetRange("Start Date", StartDate);
         VATReturnPeriod.SetRange("End Date", EndDate);
-        exit(VATReturnPeriod.FindFirst);
+        exit(VATReturnPeriod.FindFirst());
     end;
 
     [Scope('OnPrem')]
@@ -181,17 +182,17 @@ table 737 "VAT Return Period"
     [Scope('OnPrem')]
     procedure CheckOpenOrOverdue(): Text
     begin
-        GetVATReportSetup;
+        GetVATReportSetup();
         if (Status = Status::Open) and ("Due Date" <> 0D) then
             case true of
                 // Overdue
-                ("Due Date" < WorkDate):
-                    exit(StrSubstNo(OverdueTxt, "Due Date", WorkDate - "Due Date"));
-                    // Open
-                VATReportSetup.IsPeriodReminderCalculation and
-              ("Due Date" >= WorkDate) and
-              ("Due Date" <= CalcDate(VATReportSetup."Period Reminder Calculation", WorkDate)):
-                    exit(StrSubstNo(OpenTxt, "Due Date", "Due Date" - WorkDate));
+                ("Due Date" < WorkDate()):
+                    exit(StrSubstNo(OverdueTxt, "Due Date", WorkDate() - "Due Date"));
+                // Open
+                VATReportSetup.IsPeriodReminderCalculation() and
+              ("Due Date" >= WorkDate()) and
+              ("Due Date" <= CalcDate(VATReportSetup."Period Reminder Calculation", WorkDate())):
+                    exit(StrSubstNo(OpenTxt, "Due Date", "Due Date" - WorkDate()));
             end;
     end;
 }

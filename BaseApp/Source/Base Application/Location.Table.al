@@ -28,24 +28,10 @@ table 14 Location
         field(5701; Address; Text[100])
         {
             Caption = 'Address';
-
-            trigger OnValidate()
-            begin
-                PostCodeCheck.ValidateAddress(
-                  CurrFieldNo, DATABASE::Location, Rec.GetPosition, 0,
-                  Name, "Name 2", Contact, Address, "Address 2", City, "Post Code", County, "Country/Region Code");
-            end;
         }
         field(5702; "Address 2"; Text[50])
         {
             Caption = 'Address 2';
-
-            trigger OnValidate()
-            begin
-                PostCodeCheck.ValidateAddress(
-                  CurrFieldNo, DATABASE::Location, Rec.GetPosition, 0,
-                  Name, "Name 2", Contact, Address, "Address 2", City, "Post Code", County, "Country/Region Code");
-            end;
         }
         field(5703; City; Text[30])
         {
@@ -63,10 +49,13 @@ table 14 Location
             end;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
-                PostCodeCheck.ValidateCity(
-                  CurrFieldNo, DATABASE::Location, Rec.GetPosition, 0,
-                  Name, "Name 2", Contact, Address, "Address 2", City, "Post Code", County, "Country/Region Code");
+                IsHandled := false;
+                OnBeforeValidateCity(Rec, PostCode, CurrFieldNo, IsHandled);
+                if not IsHandled then
+                    PostCode.ValidateCity(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
             end;
         }
         field(5704; "Phone No."; Text[30])
@@ -107,10 +96,13 @@ table 14 Location
             end;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
-                PostCodeCheck.ValidatePostCode(
-                  CurrFieldNo, DATABASE::Location, Rec.GetPosition, 0,
-                  Name, "Name 2", Contact, Address, "Address 2", City, "Post Code", County, "Country/Region Code");
+                IsHandled := false;
+                OnBeforeValidatePostCode(Rec, PostCode, CurrFieldNo, IsHandled);
+                if not IsHandled then
+                    PostCode.ValidatePostCode(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
             end;
         }
         field(5715; County; Text[30])
@@ -174,18 +166,18 @@ table 14 Location
             begin
                 WhseRcptHeader.SetRange("Location Code", Code);
                 if not WhseRcptHeader.IsEmpty() then
-                    Error(Text008, FieldCaption("Require Put-away"), xRec."Require Put-away", WhseRcptHeader.TableCaption);
+                    Error(Text008, FieldCaption("Require Put-away"), xRec."Require Put-away", WhseRcptHeader.TableCaption());
 
                 if not "Require Put-away" then begin
                     TestField("Directed Put-away and Pick", false);
                     WhseActivHeader.SetRange(Type, WhseActivHeader.Type::"Put-away");
                     WhseActivHeader.SetRange("Location Code", Code);
                     if not WhseActivHeader.IsEmpty() then
-                        Error(Text008, FieldCaption("Require Put-away"), true, WhseActivHeader.TableCaption);
+                        Error(Text008, FieldCaption("Require Put-away"), true, WhseActivHeader.TableCaption());
                     "Use Cross-Docking" := false;
                     "Cross-Dock Bin Code" := '';
                 end else
-                    CreateInboundWhseRequest;
+                    CreateInboundWhseRequest();
             end;
         }
         field(5727; "Require Pick"; Boolean)
@@ -200,14 +192,14 @@ table 14 Location
             begin
                 WhseShptHeader.SetRange("Location Code", Code);
                 if not WhseShptHeader.IsEmpty() then
-                    Error(Text008, FieldCaption("Require Pick"), xRec."Require Pick", WhseShptHeader.TableCaption);
+                    Error(Text008, FieldCaption("Require Pick"), xRec."Require Pick", WhseShptHeader.TableCaption());
 
                 if not "Require Pick" then begin
                     TestField("Directed Put-away and Pick", false);
                     WhseActivHeader.SetRange(Type, WhseActivHeader.Type::Pick);
                     WhseActivHeader.SetRange("Location Code", Code);
                     if not WhseActivHeader.IsEmpty() then
-                        Error(Text008, FieldCaption("Require Pick"), true, WhseActivHeader.TableCaption);
+                        Error(Text008, FieldCaption("Require Pick"), true, WhseActivHeader.TableCaption());
                     "Use Cross-Docking" := false;
                     "Cross-Dock Bin Code" := '';
                     "Pick According to FEFO" := false;
@@ -256,7 +248,7 @@ table 14 Location
                     TestField("Directed Put-away and Pick", false);
                     WhseRcptHeader.SetRange("Location Code", Code);
                     if not WhseRcptHeader.IsEmpty() then
-                        Error(Text008, FieldCaption("Require Receive"), true, WhseRcptHeader.TableCaption);
+                        Error(Text008, FieldCaption("Require Receive"), true, WhseRcptHeader.TableCaption());
                     "Receipt Bin Code" := '';
                     "Use Cross-Docking" := false;
                     "Cross-Dock Bin Code" := '';
@@ -264,9 +256,9 @@ table 14 Location
                     WhseActivHeader.SetRange(Type, WhseActivHeader.Type::"Put-away");
                     WhseActivHeader.SetRange("Location Code", Code);
                     if not WhseActivHeader.IsEmpty() then
-                        Error(Text008, FieldCaption("Require Receive"), false, WhseActivHeader.TableCaption);
+                        Error(Text008, FieldCaption("Require Receive"), false, WhseActivHeader.TableCaption());
 
-                    CreateInboundWhseRequest;
+                    CreateInboundWhseRequest();
                 end;
             end;
         }
@@ -284,7 +276,7 @@ table 14 Location
                     TestField("Directed Put-away and Pick", false);
                     WhseShptHeader.SetRange("Location Code", Code);
                     if not WhseShptHeader.IsEmpty() then
-                        Error(Text008, FieldCaption("Require Shipment"), true, WhseShptHeader.TableCaption);
+                        Error(Text008, FieldCaption("Require Shipment"), true, WhseShptHeader.TableCaption());
                     "Shipment Bin Code" := '';
                     "Use Cross-Docking" := false;
                     "Cross-Dock Bin Code" := '';
@@ -292,7 +284,7 @@ table 14 Location
                     WhseActivHeader.SetRange(Type, WhseActivHeader.Type::Pick);
                     WhseActivHeader.SetRange("Location Code", Code);
                     if not WhseActivHeader.IsEmpty() then
-                        Error(Text008, FieldCaption("Require Shipment"), false, WhseActivHeader.TableCaption);
+                        Error(Text008, FieldCaption("Require Shipment"), false, WhseActivHeader.TableCaption());
                 end;
             end;
         }
@@ -325,17 +317,17 @@ table 14 Location
 
                 WhseActivHeader.SetRange("Location Code", Code);
                 if not WhseActivHeader.IsEmpty() then
-                    Error(Text008, FieldCaption("Bin Mandatory"), xRec."Bin Mandatory", WhseActivHeader.TableCaption);
+                    Error(Text008, FieldCaption("Bin Mandatory"), xRec."Bin Mandatory", WhseActivHeader.TableCaption());
 
                 WhseRcptHeader.SetCurrentKey("Location Code");
                 WhseRcptHeader.SetRange("Location Code", Code);
                 if not WhseRcptHeader.IsEmpty() then
-                    Error(Text008, FieldCaption("Bin Mandatory"), xRec."Bin Mandatory", WhseRcptHeader.TableCaption);
+                    Error(Text008, FieldCaption("Bin Mandatory"), xRec."Bin Mandatory", WhseRcptHeader.TableCaption());
 
                 WhseShptHeader.SetCurrentKey("Location Code");
                 WhseShptHeader.SetRange("Location Code", Code);
                 if not WhseShptHeader.IsEmpty() then
-                    Error(Text008, FieldCaption("Bin Mandatory"), xRec."Bin Mandatory", WhseShptHeader.TableCaption);
+                    Error(Text008, FieldCaption("Bin Mandatory"), xRec."Bin Mandatory", WhseShptHeader.TableCaption());
 
                 if not "Bin Mandatory" and xRec."Bin Mandatory" then begin
                     WhseEntry.SetRange("Location Code", Code);
@@ -373,17 +365,17 @@ table 14 Location
             begin
                 WhseActivHeader.SetRange("Location Code", Code);
                 if not WhseActivHeader.IsEmpty() then
-                    Error(Text014, FieldCaption("Directed Put-away and Pick"), WhseActivHeader.TableCaption);
+                    Error(Text014, FieldCaption("Directed Put-away and Pick"), WhseActivHeader.TableCaption());
 
                 WhseRcptHeader.SetCurrentKey("Location Code");
                 WhseRcptHeader.SetRange("Location Code", Code);
                 if not WhseRcptHeader.IsEmpty() then
-                    Error(Text014, FieldCaption("Directed Put-away and Pick"), WhseRcptHeader.TableCaption);
+                    Error(Text014, FieldCaption("Directed Put-away and Pick"), WhseRcptHeader.TableCaption());
 
                 WhseShptHeader.SetCurrentKey("Location Code");
                 WhseShptHeader.SetRange("Location Code", Code);
                 if not WhseShptHeader.IsEmpty() then
-                    Error(Text014, FieldCaption("Directed Put-away and Pick"), WhseShptHeader.TableCaption);
+                    Error(Text014, FieldCaption("Directed Put-away and Pick"), WhseShptHeader.TableCaption());
 
                 if "Directed Put-away and Pick" then begin
                     TestField("Use As In-Transit", false);
@@ -513,7 +505,7 @@ table 14 Location
                         CheckEmptyBin(
                           Rec.Code, Rec."Adjustment Bin Code", FieldCaption("Adjustment Bin Code"));
 
-                    CheckWhseAdjmtJnl;
+                    CheckWhseAdjmtJnl();
                 end;
             end;
         }
@@ -660,7 +652,7 @@ table 14 Location
         if not StockkeepingUnit.IsEmpty() then
             Error(CannotDeleteLocSKUExistErr, Code);
 
-        WMSCheckWarehouse;
+        WMSCheckWarehouse();
 
         TransferRoute.SetRange("Transfer-from Code", Code);
         TransferRoute.DeleteAll();
@@ -677,7 +669,7 @@ table 14 Location
                 WorkCenter.Validate("Location Code", '');
                 WorkCenter.Modify(true);
             until WorkCenter.Next() = 0;
-        PostCodeCheck.DeleteAddressID(DATABASE::Location, Rec.GetPosition, 0);
+
         CalendarManagement.DeleteCustomizedBaseCalendarData(CustomizedCalendarChange."Source Type"::Location, Code);
         DimensionManagement.DeleteDefaultDim(Database::Location, Rec.Code);
     end;
@@ -686,8 +678,6 @@ table 14 Location
     var
         DimensionManagement: Codeunit DimensionManagement;
     begin
-        PostCodeCheck.MoveAddressID(
-          DATABASE::Location, xRec.GetPosition, 0, DATABASE::Location, Rec.GetPosition, 0);
         CalendarManagement.RenameCustomizedBaseCalendarData(CustomizedCalendarChange."Source Type"::Location, Code, xRec.Code);
         DimensionManagement.RenameDefaultDim(Database::Location, xRec.Code, Rec.Code);
     end;
@@ -714,7 +704,6 @@ table 14 Location
         Text012: Label 'Before you can use Online Map, you must fill in the Online Map Setup window.\See Setting Up Online Map in Help.';
         Text013: Label 'You cannot delete %1 because there are one or more ledger entries on this location.';
         Text014: Label 'You cannot change %1 because one or more %2 exist.';
-        PostCodeCheck: Codeunit "Post Code Check";
         CannotDeleteLocSKUExistErr: Label 'You cannot delete %1 because one or more stockkeeping units exist at this location.', Comment = '%1: Field(Code)';
         CalendarManagement: Codeunit "Calendar Management";
         UnspecifiedLocationLbl: Label '(Unspecified Location)';
@@ -761,7 +750,7 @@ table 14 Location
     begin
         if not Get(LocationCode) then
             with Location2 do begin
-                Init;
+                Init();
                 WhseSetup.Get();
                 InvtSetup.Get();
                 Code := LocationCode;
@@ -814,18 +803,18 @@ table 14 Location
                         Error(Text003)
             end;
         end else
-            Error(Text000, TableCaption, Code);
+            Error(Text000, TableCaption(), Code);
 
         WhseActivLine.SetRange("Location Code", Code);
         WhseActivLine.SetRange("Activity Type", WhseActivLine."Activity Type"::Movement);
         WhseActivLine.SetFilter("Qty. Outstanding", '<>0');
         if not WhseActivLine.IsEmpty() then
-            Error(Text001, TableCaption, Code);
+            Error(Text001, TableCaption(), Code);
 
         WhseJnlLine.SetRange("Location Code", Code);
         WhseJnlLine.SetFilter(Quantity, '<>0');
         if not WhseJnlLine.IsEmpty() then
-            Error(Text001, TableCaption, Code);
+            Error(Text001, TableCaption(), Code);
 
         Zone.SetRange("Location Code", Code);
         Zone.DeleteAll();
@@ -854,7 +843,7 @@ table 14 Location
                     if (BinCode = "Adjustment Bin Code") and (xRec."Adjustment Bin Code" = '') then
                         Error(Text011, CaptionOfField, BinCode);
 
-                    Error(Text006, CaptionOfField, Bin.TableCaption, BinCode);
+                    Error(Text006, CaptionOfField, Bin.TableCaption(), BinCode);
                 end;
 
                 WarehouseEntry.FindLast();
@@ -902,7 +891,7 @@ table 14 Location
     begin
         OnlineMapSetup.SetRange(Enabled, true);
         if OnlineMapSetup.FindFirst() then
-            OnLineMapMgt.MakeSelection(DATABASE::Location, GetPosition)
+            OnLineMapMgt.MakeSelection(DATABASE::Location, GetPosition())
         else
             Message(Text012);
     end;
@@ -956,9 +945,9 @@ table 14 Location
     var
         Location: Record Location;
     begin
-        Init;
+        Init();
         Validate(Name, UnspecifiedLocationLbl);
-        Insert;
+        Insert();
 
         if not IncludeOnlyUnspecifiedLocation then begin
             if ExcludeInTransitLocations then
@@ -966,9 +955,9 @@ table 14 Location
 
             if Location.FindSet() then
                 repeat
-                    Init;
+                    Init();
                     Copy(Location);
-                    Insert;
+                    Insert();
                 until Location.Next() = 0;
         end;
 
@@ -1002,6 +991,17 @@ table 14 Location
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateBinMandatoryOnAfterWhseEntrySetFilters(var Location: Record Location; var WhseEntry: Record "Warehouse Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateCity(var Location: Record Location; var PostCode: Record "Post Code"; CurrentFieldNo: Integer; var IsHandled: Boolean);
+    begin
+    end;
+
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidatePostCode(var Location: Record Location; var PostCode: Record "Post Code"; CurrentFieldNo: Integer; var IsHandled: Boolean);
     begin
     end;
 }

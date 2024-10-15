@@ -138,7 +138,7 @@ codeunit 141074 "UT REP Transaction Detail"
     begin
         // Setup and Exercise.
         Initialize();
-        CreateGLEntryAndRunTransactionDetailReport(GLEntry, WorkDate, SourceType, SourceNo, DocumentType, DocumentNo, true);  // Using True for ShowAmountsInAddReportingCurrency.
+        CreateGLEntryAndRunTransactionDetailReport(GLEntry, WorkDate(), SourceType, SourceNo, DocumentType, DocumentNo, true);  // Using True for ShowAmountsInAddReportingCurrency.
 
         // Verify.
         VerifyAmountsOnTransactionDetailReport(GLEntry.Amount, GLEntry."VAT Amount", GLEntry."Additional-Currency Amount");
@@ -157,7 +157,7 @@ codeunit 141074 "UT REP Transaction Detail"
         // Setup and Exercise.
         Initialize();
         CreateGLEntryAndRunTransactionDetailReport(
-          GLEntry, ClosingDate(WorkDate), GLEntry."Source Type"::Customer, CreateCustomer, GLEntry."Document Type"::Invoice,
+          GLEntry, ClosingDate(WorkDate()), GLEntry."Source Type"::Customer, CreateCustomer, GLEntry."Document Type"::Invoice,
           CreateSalesInvoiceHeader, false);  // Using False for ShowAmountsInAddReportingCurrency.
 
         // Verify.
@@ -177,7 +177,7 @@ codeunit 141074 "UT REP Transaction Detail"
         // Setup and Exercise.
         Initialize();
         CreateGLEntryAndRunTransactionDetailReport(
-          GLEntry, ClosingDate(WorkDate), GLEntry."Source Type"::Customer, CreateCustomer, GLEntry."Document Type"::Invoice,
+          GLEntry, ClosingDate(WorkDate()), GLEntry."Source Type"::Customer, CreateCustomer, GLEntry."Document Type"::Invoice,
           CreateSalesInvoiceHeader, true);  // Using True for ShowAmountsInAddReportingCurrency.
 
         // Verify.
@@ -337,7 +337,7 @@ codeunit 141074 "UT REP Transaction Detail"
         LibraryVariableStorage.Dequeue(ShowAmountsInAddReportingCurrency);
         LibraryVariableStorage.Dequeue(No);
         TransactionDetailReport."G/L Account".SetFilter("No.", No);
-        TransactionDetailReport."G/L Account".SetFilter("Date Filter", StrSubstNo(DateFilterTxt, WorkDate, ClosingDate(WorkDate)));
+        TransactionDetailReport."G/L Account".SetFilter("Date Filter", StrSubstNo(DateFilterTxt, WorkDate(), ClosingDate(WorkDate())));
         TransactionDetailReport.ShowAmountsInAddReportingCurrency.SetValue(ShowAmountsInAddReportingCurrency);
         TransactionDetailReport.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;

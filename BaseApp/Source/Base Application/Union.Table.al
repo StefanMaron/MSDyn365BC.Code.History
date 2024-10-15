@@ -11,22 +11,15 @@ table 5209 Union
             Caption = 'Code';
             NotBlank = true;
         }
-        field(2; Name; Text[50])
+#pragma warning disable AS0086
+        field(2; Name; Text[100])
         {
             Caption = 'Name';
         }
+#pragma warning restore AS0086
         field(3; Address; Text[100])
         {
             Caption = 'Address';
-
-            trigger OnValidate()
-            var
-                Contact: Text[90];
-            begin
-                PostCodeCheck.ValidateAddress(
-                  CurrFieldNo, DATABASE::Union, Rec.GetPosition, 0,
-                  Name, "Name 2", Contact, Address, "Address 2", City, "Post Code", County, "Country/Region Code");
-            end;
         }
         field(4; "Post Code"; Code[20])
         {
@@ -45,11 +38,12 @@ table 5209 Union
 
             trigger OnValidate()
             var
-                Contact: Text[90];
+                IsHandled: Boolean;
             begin
-                PostCodeCheck.ValidatePostCode(
-                  CurrFieldNo, DATABASE::Union, Rec.GetPosition, 0,
-                  Name, "Name 2", Contact, Address, "Address 2", City, "Post Code", County, "Country/Region Code");
+                IsHandled := false;
+                OnBeforeValidatePostCode(Rec, PostCode, CurrFieldNo, IsHandled);
+                if not IsHandled then
+                    PostCode.ValidatePostCode(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
             end;
         }
         field(5; City; Text[30])
@@ -69,11 +63,12 @@ table 5209 Union
 
             trigger OnValidate()
             var
-                Contact: Text[90];
+                IsHandled: Boolean;
             begin
-                PostCodeCheck.ValidateCity(
-                  CurrFieldNo, DATABASE::Union, Rec.GetPosition, 0,
-                  Name, "Name 2", Contact, Address, "Address 2", City, "Post Code", County, "Country/Region Code");
+                IsHandled := false;
+                OnBeforeValidateCity(Rec, PostCode, CurrFieldNo, IsHandled);
+                if not IsHandled then
+                    PostCode.ValidateCity(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
             end;
         }
         field(6; "Phone No."; Text[30])
@@ -83,7 +78,7 @@ table 5209 Union
         }
         field(7; "No. of Members Employed"; Integer)
         {
-            CalcFormula = Count (Employee WHERE(Status = FILTER(<> Terminated),
+            CalcFormula = Count(Employee WHERE(Status = FILTER(<> Terminated),
                                                 "Union Code" = FIELD(Code)));
             Caption = 'No. of Members Employed';
             Editable = false;
@@ -96,15 +91,6 @@ table 5209 Union
         field(9; "Address 2"; Text[50])
         {
             Caption = 'Address 2';
-
-            trigger OnValidate()
-            var
-                Contact: Text[90];
-            begin
-                PostCodeCheck.ValidateAddress(
-                  CurrFieldNo, DATABASE::Union, Rec.GetPosition, 0,
-                  Name, "Name 2", Contact, Address, "Address 2", City, "Post Code", County, "Country/Region Code");
-            end;
         }
         field(10; County; Text[30])
         {
@@ -156,19 +142,17 @@ table 5209 Union
     {
     }
 
-    trigger OnDelete()
-    begin
-        PostCodeCheck.DeleteAllAddressID(DATABASE::Union, Rec.GetPosition);
-    end;
-
-    trigger OnRename()
-    begin
-        PostCodeCheck.MoveAllAddressID(
-          DATABASE::Union, xRec.GetPosition, DATABASE::Union, Rec.GetPosition);
-    end;
-
     var
         PostCode: Record "Post Code";
-        PostCodeCheck: Codeunit "Post Code Check";
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateCity(var Union: Record Union; var PostCode: Record "Post Code"; CurrentFieldNo: Integer; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidatePostCode(var Union: Record Union; var PostCode: Record "Post Code"; CurrentFieldNo: Integer; var IsHandled: Boolean);
+    begin
+    end;
 }
 

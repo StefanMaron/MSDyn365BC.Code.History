@@ -22,13 +22,13 @@ page 7112 "Analysis Line Templates"
                     ApplicationArea = SalesAnalysis, PurchaseAnalysis;
                     ToolTip = 'Specifies a description of the analysis line template.';
                 }
-                field("Default Column Template Name"; "Default Column Template Name")
+                field("Default Column Template Name"; Rec."Default Column Template Name")
                 {
                     ApplicationArea = SalesAnalysis, PurchaseAnalysis;
                     ToolTip = 'Specifies the column template name that you have set up for this analysis report.';
                     Visible = false;
                 }
-                field("Item Analysis View Code"; "Item Analysis View Code")
+                field("Item Analysis View Code"; Rec."Item Analysis View Code")
                 {
                     ApplicationArea = SalesAnalysis, PurchaseAnalysis;
                     ToolTip = 'Specifies the name of the analysis view that the analysis report is based on.';
@@ -74,8 +74,6 @@ page 7112 "Analysis Line Templates"
                 ApplicationArea = SalesAnalysis, PurchaseAnalysis, InventoryAnalysis;
                 Caption = '&Lines';
                 Image = AllLines;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Specifies the lines in the analysis view that shows data.';
 
                 trigger OnAction()
@@ -88,6 +86,17 @@ page 7112 "Analysis Line Templates"
                     AnalysisLine.FilterGroup := 0;
                     AnalysisReportMngt.OpenAnalysisLinesForm(AnalysisLine, Name);
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(Lines_Promoted; Lines)
+                {
+                }
             }
         }
     }

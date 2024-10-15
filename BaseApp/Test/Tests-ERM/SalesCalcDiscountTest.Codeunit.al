@@ -443,7 +443,7 @@ codeunit 132522 "Sales-Calc. Discount Test"
         CurrencyExchangeRate: Record "Currency Exchange Rate";
     begin
         // PATTERN: Test-Utility Function
-        exit(Amount * CurrencyExchangeRate.ExchangeRate(WorkDate, LcyCurrencyCode))
+        exit(Amount * CurrencyExchangeRate.ExchangeRate(WorkDate(), LcyCurrencyCode))
     end;
 
     local procedure RoundCurrency(Amount: Decimal; CurrencyCode: Code[10]): Decimal

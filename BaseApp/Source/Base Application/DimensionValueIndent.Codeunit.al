@@ -18,6 +18,11 @@ codeunit 409 "Dimension Value-Indent"
     end;
 
     var
+        DimVal: Record "Dimension Value";
+        Window: Dialog;
+        DimValCode: array[10] of Code[20];
+        i: Integer;
+
         Text000: Label 'This function updates the indentation of all the dimension values for dimension %1. ';
         Text001: Label 'All dimension values between a Begin-Total and the matching End-Total are indented by one level. ';
         Text002: Label 'The Totaling field for each End-Total is also updated.\\';
@@ -25,10 +30,6 @@ codeunit 409 "Dimension Value-Indent"
         Text004: Label 'Indenting Dimension Values @1@@@@@@@@@@@@@@@@@@';
         Text005: Label 'End-Total %1 is missing a matching Begin-Total.';
         ArrayExceededErr: Label 'You can only indent %1 levels for dimension values of the type Begin-Total.', Comment = '%1 = A number bigger than 1';
-        DimVal: Record "Dimension Value";
-        Window: Dialog;
-        DimValCode: array[10] of Code[20];
-        i: Integer;
 
     procedure RunIndent(DimensionCode: Code[20])
     begin
@@ -62,7 +63,7 @@ codeunit 409 "Dimension Value-Indent"
                     end;
 
                     Indentation := i;
-                    Modify;
+                    Modify();
 
                     if "Dimension Value Type" = "Dimension Value Type"::"Begin-Total" then begin
                         i := i + 1;
@@ -72,7 +73,7 @@ codeunit 409 "Dimension Value-Indent"
                     end;
                 until Next() = 0;
 
-        Window.Close;
+        Window.Close();
     end;
 }
 

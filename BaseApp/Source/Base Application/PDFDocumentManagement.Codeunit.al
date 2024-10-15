@@ -46,13 +46,13 @@ codeunit 5467 "PDF Document Management"
                     begin
                         ReportUsage := "Report Selection Usage"::"S.Invoice Draft";
                         ReportSelections.GetPdfReportForCust(Path, ReportUsage, SalesHeader, SalesHeader."Sell-to Customer No.");
-                        DocumentMailing.GetAttachmentFileName(Name, SalesHeader."No.", SalesHeader.GetDocTypeTxt, ReportUsage.AsInteger());
+                        DocumentMailing.GetAttachmentFileName(Name, SalesHeader."No.", SalesHeader.GetDocTypeTxt(), ReportUsage.AsInteger());
                     end;
                 SalesHeader."Document Type"::Quote:
                     begin
                         ReportUsage := "Report Selection Usage"::"S.Quote";
                         ReportSelections.GetPdfReportForCust(Path, ReportUsage, SalesHeader, SalesHeader."Sell-to Customer No.");
-                        DocumentMailing.GetAttachmentFileName(Name, SalesHeader."No.", SalesHeader.GetDocTypeTxt, ReportUsage.AsInteger());
+                        DocumentMailing.GetAttachmentFileName(Name, SalesHeader."No.", SalesHeader.GetDocTypeTxt(), ReportUsage.AsInteger());
                     end;
                 SalesHeader."Document Type"::"Credit Memo":
                     Error(UnpostedCreditMemoErr, DocumentId);
@@ -67,7 +67,7 @@ codeunit 5467 "PDF Document Management"
                 SalesInvoiceHeader.SetRange("No.", SalesInvoiceHeader."No.");
                 ReportUsage := "Report Selection Usage"::"S.Invoice";
                 ReportSelections.GetPdfReportForCust(Path, ReportUsage, SalesInvoiceHeader, SalesInvoiceHeader."Sell-to Customer No.");
-                DocumentMailing.GetAttachmentFileName(Name, SalesInvoiceHeader."No.", SalesInvoiceHeader.GetDocTypeTxt, ReportUsage.AsInteger());
+                DocumentMailing.GetAttachmentFileName(Name, SalesInvoiceHeader."No.", SalesInvoiceHeader.GetDocTypeTxt(), ReportUsage.AsInteger());
                 DocumentFound := true;
             end;
 
@@ -107,7 +107,7 @@ codeunit 5467 "PDF Document Management"
         TempAttachmentEntityBuffer.Content.CreateOutStream(OutStream);
         File.CreateInStream(InStream);
         CopyStream(OutStream, InStream);
-        File.Close;
+        File.Close();
         if Erase(Path) then;
         TempAttachmentEntityBuffer.Insert(true);
 
@@ -142,17 +142,15 @@ codeunit 5467 "PDF Document Management"
             DocumentType::Journal, DocumentType::"Sales Order", DocumentType::" ":
                 Error(CannotFindDocumentErr, DocumentId);
             DocumentType::"Sales Quote":
-                begin
-                    if SalesHeader.GetBySystemId(DocumentId) then
-                        if SalesHeader."Document Type" = SalesHeader."Document Type"::Quote then begin
-                            SalesHeader.SetRange("No.", SalesHeader."No.");
-                            SalesHeader.SetRange("Document Type", SalesHeader."Document Type");
-                            ReportUsage := "Report Selection Usage"::"S.Quote";
-                            ReportSelections.GetPdfReportForCust(Path, ReportUsage, SalesHeader, SalesHeader."Sell-to Customer No.");
-                            DocumentMailing.GetAttachmentFileName(Name, SalesHeader."No.", SalesHeader.GetDocTypeTxt, ReportUsage.AsInteger());
-                        end else
-                            Error(CannotFindDocumentErr, DocumentId);
-                end;
+                if SalesHeader.GetBySystemId(DocumentId) then
+                    if SalesHeader."Document Type" = SalesHeader."Document Type"::Quote then begin
+                        SalesHeader.SetRange("No.", SalesHeader."No.");
+                        SalesHeader.SetRange("Document Type", SalesHeader."Document Type");
+                        ReportUsage := "Report Selection Usage"::"S.Quote";
+                        ReportSelections.GetPdfReportForCust(Path, ReportUsage, SalesHeader, SalesHeader."Sell-to Customer No.");
+                        DocumentMailing.GetAttachmentFileName(Name, SalesHeader."No.", SalesHeader.GetDocTypeTxt(), ReportUsage.AsInteger());
+                    end else
+                        Error(CannotFindDocumentErr, DocumentId);
             DocumentType::"Sales Invoice":
                 begin
                     if SalesHeader.GetBySystemId(DocumentId) then
@@ -161,13 +159,13 @@ codeunit 5467 "PDF Document Management"
                             SalesHeader.SetRange("Document Type", SalesHeader."Document Type");
                             ReportUsage := "Report Selection Usage"::"S.Invoice Draft";
                             ReportSelections.GetPdfReportForCust(Path, ReportUsage, SalesHeader, SalesHeader."Sell-to Customer No.");
-                            DocumentMailing.GetAttachmentFileName(Name, SalesHeader."No.", SalesHeader.GetDocTypeTxt, ReportUsage.AsInteger());
+                            DocumentMailing.GetAttachmentFileName(Name, SalesHeader."No.", SalesHeader.GetDocTypeTxt(), ReportUsage.AsInteger());
                         end;
                     if SalesInvoiceAggregator.GetSalesInvoiceHeaderFromId(DocumentId, SalesInvoiceHeader) then begin
                         SalesInvoiceHeader.SetRange("No.", SalesInvoiceHeader."No.");
                         ReportUsage := "Report Selection Usage"::"S.Invoice";
                         ReportSelections.GetPdfReportForCust(Path, ReportUsage, SalesInvoiceHeader, SalesInvoiceHeader."Sell-to Customer No.");
-                        DocumentMailing.GetAttachmentFileName(Name, SalesInvoiceHeader."No.", SalesInvoiceHeader.GetDocTypeTxt, ReportUsage.AsInteger());
+                        DocumentMailing.GetAttachmentFileName(Name, SalesInvoiceHeader."No.", SalesInvoiceHeader.GetDocTypeTxt(), ReportUsage.AsInteger());
                     end;
                 end;
             DocumentType::"Sales Credit Memo":
@@ -208,7 +206,7 @@ codeunit 5467 "PDF Document Management"
         TempAttachmentEntityBuffer.Content.CreateOutStream(OutStream);
         File.CreateInStream(InStream);
         CopyStream(OutStream, InStream);
-        File.Close;
+        File.Close();
         if Erase(Path) then;
         TempAttachmentEntityBuffer.Insert(true);
 

@@ -5,7 +5,6 @@ page 5333 "CRM Skipped Records"
     Caption = 'Coupled Data Synchronization Errors';
     Editable = false;
     PageType = List;
-    PromotedActionCategories = 'New,Process,Report,Synchronization,Broken Couplings';
     SourceTable = "CRM Synch. Conflict Buffer";
     SourceTableTemporary = true;
     UsageCategory = Administration;
@@ -16,12 +15,12 @@ page 5333 "CRM Skipped Records"
         {
             repeater(Group)
             {
-                field("Table ID"; "Table ID")
+                field("Table ID"; Rec."Table ID")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the ID of the table that holds the record.';
                 }
-                field("Table Name"; "Table Name")
+                field("Table Name"; Rec."Table Name")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the name of the table that holds the record.';
@@ -36,12 +35,12 @@ page 5333 "CRM Skipped Records"
                         CRMSynchHelper.ShowPage("Record ID");
                     end;
                 }
-                field("Record Exists"; "Record Exists")
+                field("Record Exists"; Rec."Record Exists")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies if the coupled record exists in Business Central.';
                 }
-                field("Int. Description"; "Int. Description")
+                field("Int. Description"; Rec."Int. Description")
                 {
                     ApplicationArea = Suite;
                     Caption = 'Coupled To';
@@ -52,24 +51,24 @@ page 5333 "CRM Skipped Records"
                         CRMSynchHelper.ShowPage("Int. Record ID");
                     end;
                 }
-                field("Int. Record Exists"; "Int. Record Exists")
+                field("Int. Record Exists"; Rec."Int. Record Exists")
                 {
                     ApplicationArea = Suite;
                     Caption = 'Coupled Record Exists';
                     ToolTip = 'Specifies if a coupled entity exists in Dynamics 365 Sales';
                 }
-                field("Error Message"; "Error Message")
+                field("Error Message"; Rec."Error Message")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies why the record was could not be synchronized.';
                 }
-                field("Failed On"; "Failed On")
+                field("Failed On"; Rec."Failed On")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies when the synchronization failed.';
                 }
 #if not CLEAN19                
-                field("Deleted On"; "Deleted On")
+                field("Deleted On"; Rec."Deleted On")
                 {
                     Visible = false;
                     ApplicationArea = Suite;
@@ -94,10 +93,6 @@ page 5333 "CRM Skipped Records"
                 Caption = 'Retry';
                 Enabled = AreRecordsExist AND ShowRetryOrSync;
                 Image = ResetStatus;
-                Promoted = true;
-                PromotedCategory = Category4;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Restore selected records so they can be synchronized.';
 
                 trigger OnAction()
@@ -118,10 +113,6 @@ page 5333 "CRM Skipped Records"
                 Caption = 'Retry All';
                 Enabled = true;
                 Image = RefreshLines;
-                Promoted = true;
-                PromotedCategory = Category4;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Restore all records so they can be synchronized.';
 
                 trigger OnAction()
@@ -143,10 +134,6 @@ page 5333 "CRM Skipped Records"
                 Caption = 'Synchronize';
                 Enabled = AreRecordsExist AND ShowRetryOrSync;
                 Image = Refresh;
-                Promoted = true;
-                PromotedCategory = Category4;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Send or get updated data to or from Dynamics 365 Sales.';
 
                 trigger OnAction()
@@ -171,9 +158,6 @@ page 5333 "CRM Skipped Records"
                 Caption = 'Synchronization Log';
                 Enabled = AreRecordsExist AND "Record Exists";
                 Image = Log;
-                Promoted = true;
-                PromotedCategory = Category4;
-                PromotedOnly = true;
                 ToolTip = 'View integration synchronization jobs for the skipped record.';
 
                 trigger OnAction()
@@ -197,9 +181,6 @@ page 5333 "CRM Skipped Records"
                 Caption = 'Set Up Coupling';
                 Enabled = AreRecordsExist AND "Record Exists";
                 Image = LinkAccount;
-                Promoted = true;
-                PromotedCategory = Category4;
-                PromotedOnly = true;
                 ToolTip = 'Create or modify the coupling to a Dynamics 365 Sales entity.';
 
                 trigger OnAction()
@@ -214,7 +195,7 @@ page 5333 "CRM Skipped Records"
                     CRMIntegrationRecord.FindRecordId(RecId);
                     if CRMIntegrationRecord.FindByRecordID(RecId) then
                         if CRMIntegrationManagement.DefineCoupling(RecId) then begin
-                            CRMIntegrationRecord.SetRecFilter;
+                            CRMIntegrationRecord.SetRecFilter();
                             Refresh(CRMIntegrationRecord, CRMOptionMapping);
                         end;
                 end;
@@ -225,9 +206,6 @@ page 5333 "CRM Skipped Records"
                 Caption = 'Uncoupling Log';
                 Visible = CRMIntegrationEnabled or CDSIntegrationEnabled;
                 Image = Log;
-                Promoted = true;
-                PromotedCategory = Category4;
-                PromotedIsBig = true;
                 ToolTip = 'View the status of jobs for uncoupling records, for example, in integrations with Dynamics 365 Sales or Dataverse. The jobs were run either from the job queue, or manually, in Business Central.';
 
                 trigger OnAction()
@@ -248,9 +226,6 @@ page 5333 "CRM Skipped Records"
                 Caption = 'Delete Couplings';
                 Enabled = AreRecordsExist;
                 Image = UnLinkAccount;
-                Promoted = true;
-                PromotedCategory = Category4;
-                PromotedOnly = true;
                 ToolTip = 'Delete couplings between the selected Business Central records and Dynamics 365 Sales entities.';
 
                 trigger OnAction()
@@ -270,10 +245,6 @@ page 5333 "CRM Skipped Records"
                 Caption = 'Find for Deleted';
                 Enabled = true;
                 Image = RefreshLines;
-                Promoted = true;
-                PromotedCategory = Category5;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Find couplings that were broken when one or more entities were deleted in Business Central. This might take several minutes.';
 
                 trigger OnAction()
@@ -290,10 +261,6 @@ page 5333 "CRM Skipped Records"
                 Caption = 'Restore Records';
                 Enabled = AreRecordsExist AND ShowRestoreOrDelete;
                 Image = CreateMovement;
-                Promoted = true;
-                PromotedCategory = Category5;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Restore the deleted coupled entity in Dynamics 365 Sales. A synchronization job is run to achieve this.';
 
                 trigger OnAction()
@@ -302,7 +269,7 @@ page 5333 "CRM Skipped Records"
                 begin
                     TempCRMSynchConflictBuffer.Copy(Rec, true);
                     CurrPage.SetSelectionFilter(TempCRMSynchConflictBuffer);
-                    TempCRMSynchConflictBuffer.RestoreDeletedRecords;
+                    TempCRMSynchConflictBuffer.RestoreDeletedRecords();
                 end;
             }
             action(DeleteCoupledRec)
@@ -311,10 +278,6 @@ page 5333 "CRM Skipped Records"
                 Caption = 'Delete Records';
                 Enabled = AreRecordsExist AND ShowRestoreOrDelete;
                 Image = CancelLine;
-                Promoted = true;
-                PromotedCategory = Category5;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Delete the coupled entity in Dynamics 365 Sales.';
 
                 trigger OnAction()
@@ -323,7 +286,7 @@ page 5333 "CRM Skipped Records"
                 begin
                     TempCRMSynchConflictBuffer.Copy(Rec, true);
                     CurrPage.SetSelectionFilter(TempCRMSynchConflictBuffer);
-                    TempCRMSynchConflictBuffer.DeleteCoupledRecords;
+                    TempCRMSynchConflictBuffer.DeleteCoupledRecords();
                 end;
             }
             action(LoadMoreErrors)
@@ -331,16 +294,67 @@ page 5333 "CRM Skipped Records"
                 ApplicationArea = Suite;
                 Caption = 'Load More Errors';
                 Image = RefreshLines;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Reload the error list.';
 
                 trigger OnAction()
                 begin
                     Reload();
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref(LoadMoreErrors_Promoted; LoadMoreErrors)
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Synchronization', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref(Restore_Promoted; Restore)
+                {
+                }
+                actionref(RestoreAll_Promoted; RestoreAll)
+                {
+                }
+                actionref(CRMSynchronizeNow_Promoted; CRMSynchronizeNow)
+                {
+                }
+                actionref(ShowUncouplingLog_Promoted; ShowUncouplingLog)
+                {
+                }
+                actionref(ShowLog_Promoted; ShowLog)
+                {
+                }
+                actionref(ManageCRMCoupling_Promoted; ManageCRMCoupling)
+                {
+                }
+                actionref(DeleteCRMCoupling_Promoted; DeleteCRMCoupling)
+                {
+                }
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Broken Couplings', Comment = 'Generated from the PromotedActionCategories property index 4.';
+
+                actionref(FindMore_Promoted; FindMore)
+                {
+                }
+                actionref(RestoreDeletedRec_Promoted; RestoreDeletedRec)
+                {
+                }
+                actionref(DeleteCoupledRec_Promoted; DeleteCoupledRec)
+                {
+                }
             }
         }
     }
@@ -350,8 +364,8 @@ page 5333 "CRM Skipped Records"
         TempCRMSynchConflictBuffer: Record "CRM Synch. Conflict Buffer" temporary;
     begin
         AreRecordsExist := true;
-        IsOneOfRecordsDeleted := IsOneRecordDeleted;
-        DoBothOfRecordsExist := DoBothRecordsExist;
+        IsOneOfRecordsDeleted := IsOneRecordDeleted();
+        DoBothOfRecordsExist := DoBothRecordsExist();
 
         TempCRMSynchConflictBuffer.Copy(Rec, true);
         CurrPage.SetSelectionFilter(TempCRMSynchConflictBuffer);
@@ -392,8 +406,8 @@ page 5333 "CRM Skipped Records"
 
     local procedure LoadData(TableIdFilter: Text);
     begin
-        Reset;
-        CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled;
+        Reset();
+        CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled();
         CDSIntegrationEnabled := CRMIntegrationManagement.IsCDSIntegrationEnabled();
         if not SetOutside and (CRMIntegrationEnabled or CDSIntegrationEnabled) then
             CollectSkippedCRMIntegrationRecords(TableIdFilter);

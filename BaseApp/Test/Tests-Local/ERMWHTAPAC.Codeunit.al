@@ -130,7 +130,7 @@
             PurchaseLine, CreateVendor(VATPostingSetup."VAT Bus. Posting Group", ''), VATPostingSetup."VAT Prod. Posting Group",
             '', '', LibraryRandom.RandDecInRange(1000, 10000, 2));  // Blank - WHT Bus. Posting Group, WHT Prod. Posting Group, Currency, Random - Direct unit cost.
         WHTPostingSetup.Get(PurchaseLine."WHT Business Posting Group", PurchaseLine."WHT Product Posting Group");
-        CreateAndPostGenJournalLine(PurchaseLine."Buy-from Vendor No.", '', DocumentNo, WorkDate, -FindVendorLedgerEntryAmount(DocumentNo));  // Blank Currency Code.
+        CreateAndPostGenJournalLine(PurchaseLine."Buy-from Vendor No.", '', DocumentNo, WorkDate(), -FindVendorLedgerEntryAmount(DocumentNo));  // Blank Currency Code.
         LibraryERM.CreateGLAccount(GLAccount);
         LibraryERM.CreateGLAccount(GLAccount2);
 
@@ -170,7 +170,7 @@
             '', '', LibraryRandom.RandDecInRange(1000, 10000, 2));  // Blank - WHT Bus. Posting Group, WHT Prod. Posting Group, Currency, Random - Direct unit cost.
         WHTPostingSetup.Get(PurchaseLine."WHT Business Posting Group", PurchaseLine."WHT Product Posting Group");
         A1 := FindBASSetup(WHTPostingSetup."Payable WHT Account Code");
-        CreateAndPostGenJournalLine(PurchaseLine."Buy-from Vendor No.", '', DocumentNo, WorkDate, -FindVendorLedgerEntryAmount(DocumentNo));
+        CreateAndPostGenJournalLine(PurchaseLine."Buy-from Vendor No.", '', DocumentNo, WorkDate(), -FindVendorLedgerEntryAmount(DocumentNo));
         WHTAmount := FindVendorLedgerEntryAmount(DocumentNo) * WHTPostingSetup."WHT %" / 100;
 
         // Exercise.
@@ -251,7 +251,7 @@
         DocumentNo := PostPurchaseDocument(PurchaseLine."Document Type"::Order, PurchaseLine."Document No.");
         DocumentNo2 :=
           CreateAndPostGenJournalLine(
-            PurchaseLine."Buy-from Vendor No.", '', DocumentNo, WorkDate, -FindVendorLedgerEntryAmount(DocumentNo));  // Blank as Currency, WORKDATE - Posting Date.
+            PurchaseLine."Buy-from Vendor No.", '', DocumentNo, WorkDate(), -FindVendorLedgerEntryAmount(DocumentNo));  // Blank as Currency, WORKDATE - Posting Date.
         Vendor.Get(PurchaseLine."Buy-from Vendor No.");
         VendorPostingGroup.Get(Vendor."Vendor Posting Group");
         PurchaseInvoiceStatistics.Trap;
@@ -263,7 +263,7 @@
         VerifyPurchaseInvoiceStatisticsPage(PurchaseInvoiceStatistics, 0, WHTAmount);  // Remaining WHT Prepaid Amount - 0.
         VerifyAmountOnGLEntry(DocumentNo, VendorPostingGroup."Payables Account", -PurchaseHeader.Amount);
         VerifyAmountOnGLEntry(DocumentNo2, VendorPostingGroup."Payables Account", PurchaseHeader.Amount);
-        PostedPurchaseInvoice.Close;
+        PostedPurchaseInvoice.Close();
     end;
 
     [Test]
@@ -337,10 +337,10 @@
         Amount := LibraryRandom.RandIntInRange(100, 500);
         CreateAndPostGenJournalLineWithWHT(
           PurchaseLine, GenJournalLine."Document Type"::Payment, DocumentNo, CurrencyCode,
-          CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate), Amount);  // Random - Posting Date more than WORKDATE.
+          CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate()), Amount);  // Random - Posting Date more than WORKDATE.
         CreateAndPostGenJournalLineWithWHT(
           PurchaseLine, GenJournalLine."Document Type"::Payment, DocumentNo, CurrencyCode,
-          CalcDate('<' + Format(LibraryRandom.RandIntInRange(10, 20)) + 'D>', WorkDate),
+          CalcDate('<' + Format(LibraryRandom.RandIntInRange(10, 20)) + 'D>', WorkDate()),
           -(FindVendorLedgerEntryAmount(DocumentNo) + Amount));  // Random - Posting Date more than WORKDATE.
         PurchaseInvoiceStatistics.Trap;
 
@@ -351,7 +351,7 @@
         VerifyPurchaseInvoiceStatisticsPage(PurchaseInvoiceStatistics, 0, Round(WHTAmount, LibraryERM.GetAmountRoundingPrecision));  // Remaining WHT Prepaid Amount - 0.
         FilterOnWHTEntry(WHTEntry, WHTEntry."Document Type"::Payment, PurchaseLine."Buy-from Vendor No.");
         Assert.AreEqual(6, WHTEntry.Count, ValueMustBeSameMsg);  // Six WHT Entry are created in Against of Posted Entries.
-        PostedPurchaseInvoice.Close;
+        PostedPurchaseInvoice.Close();
     end;
 
     [Test]
@@ -391,7 +391,7 @@
           GenJournalLine, GenJournalBatch,
           GenJournalLine."Account Type", GenJournalLine."Account No.", -GenJournalLine.Amount,
           GenJournalLine."Applies-to Doc. Type"::Invoice, GenJournalLine."Document No.",
-          NoSeriesMgt.GetNextNo(GenJournalBatch."No. Series", WorkDate, false));
+          NoSeriesMgt.GetNextNo(GenJournalBatch."No. Series", WorkDate(), false));
         WHTPaymentNo := GenJournalLine."Document No.";
         WHTBalAccountNo := GenJournalLine."Bal. Account No.";
 
@@ -399,7 +399,7 @@
           GenJournalLine, GenJournalBatch,
           NormalGenJournalLine."Account Type", NormalGenJournalLine."Account No.", -NormalGenJournalLine.Amount,
           GenJournalLine."Applies-to Doc. Type"::Invoice, NormalGenJournalLine."Document No.",
-          NoSeriesMgt.GetNextNo(GenJournalBatch."No. Series", WorkDate, false));
+          NoSeriesMgt.GetNextNo(GenJournalBatch."No. Series", WorkDate(), false));
 
         // [WHEN] Post Gen. Journal Lines
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -796,7 +796,7 @@
         BASCalculationSheet.OpenEdit;
         BASCalculationSheet.FILTER.SetFilter(A1, A1);
         BASCalculationSheet.Update.Invoke;  // Invoke handler - BASUpdateRequestPageHandler.
-        BASCalculationSheet.Close;
+        BASCalculationSheet.Close();
     end;
 
     local procedure CreateAndPostGenJournalLine(AccountNo: Code[20]; CurrencyCode: Code[10]; AppliesToDocNo: Code[20]; PostingDate: Date; Amount: Decimal): Code[20]
@@ -864,10 +864,10 @@
         BASCalculationSheet: Record "BAS Calculation Sheet";
     begin
         LibraryAPACLocalization.CreateBASCalculationSheet(BASCalculationSheet);
-        BASCalculationSheet.Validate(A3, WorkDate);
-        BASCalculationSheet.Validate(A4, WorkDate);
-        BASCalculationSheet.Validate(A5, WorkDate);
-        BASCalculationSheet.Validate(A6, WorkDate);
+        BASCalculationSheet.Validate(A3, WorkDate());
+        BASCalculationSheet.Validate(A4, WorkDate());
+        BASCalculationSheet.Validate(A5, WorkDate());
+        BASCalculationSheet.Validate(A6, WorkDate());
         BASCalculationSheet.Validate(Exported, false);
         BASCalculationSheet.Validate("BAS Setup Name", CreateBASSetup(AccountTotaling));
         BASCalculationSheet.Modify(true);
@@ -876,7 +876,7 @@
 
     local procedure CreateGeneralJournalLineWithBalAccountType(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; AccountNo: Code[20]; AppliesToDocNo: Code[20]; CurrencyCode: Code[10]; BalAccountType: Enum "Gen. Journal Account Type"; BalAccountNo: Code[20]; Amount: Decimal)
     begin
-        CreateGeneralJournalLine(GenJournalLine, DocumentType, AccountNo, AppliesToDocNo, CurrencyCode, WorkDate, Amount);
+        CreateGeneralJournalLine(GenJournalLine, DocumentType, AccountNo, AppliesToDocNo, CurrencyCode, WorkDate(), Amount);
         GenJournalLine.Validate("Bal. Account Type", BalAccountType);
         GenJournalLine.Validate("Bal. Account No.", BalAccountNo);
         GenJournalLine.Modify(true);
@@ -909,8 +909,8 @@
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        CreateGeneralJournalLine(GenJournalLine, GenJournalLine."Document Type"::Payment, AccountNo, AppliesToDocNo, '', WorkDate, Amount);  // Currency - Blank.
-        CreateGeneralJournalLine(GenJournalLine, GenJournalLine."Document Type"::Payment, AccountNo, AppliesToDocNo2, '', WorkDate, Amount);  // Currency - Blank.
+        CreateGeneralJournalLine(GenJournalLine, GenJournalLine."Document Type"::Payment, AccountNo, AppliesToDocNo, '', WorkDate(), Amount);  // Currency - Blank.
+        CreateGeneralJournalLine(GenJournalLine, GenJournalLine."Document Type"::Payment, AccountNo, AppliesToDocNo2, '', WorkDate(), Amount);  // Currency - Blank.
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
@@ -1075,10 +1075,10 @@
     local procedure CreateAndPostMultiplePartialPayments(var GenJnlDocNo: array[4] of Code[20]; VendorNo: Code[20]; CurrencyCode: Code[10]; DocumentNo: Code[20]; DocumentNo2: Code[20]; Amount: Decimal; Amount2: Decimal; Amount3: Decimal)
     begin
         // Create and Post multiple Payment Journal for partial payment on variation of Posting Date.
-        GenJnlDocNo[1] := CreateAndPostGenJournalLine(VendorNo, CurrencyCode, DocumentNo, CalcDate('<1M>', WorkDate), -Amount2);
-        GenJnlDocNo[2] := CreateAndPostGenJournalLine(VendorNo, CurrencyCode, DocumentNo2, CalcDate('<2M>', WorkDate), -Amount3);
-        GenJnlDocNo[3] := CreateAndPostGenJournalLine(VendorNo, CurrencyCode, DocumentNo, CalcDate('<3M>', WorkDate), Amount);
-        GenJnlDocNo[4] := CreateAndPostGenJournalLine(VendorNo, CurrencyCode, DocumentNo2, CalcDate('<4M>', WorkDate), Amount);
+        GenJnlDocNo[1] := CreateAndPostGenJournalLine(VendorNo, CurrencyCode, DocumentNo, CalcDate('<1M>', WorkDate()), -Amount2);
+        GenJnlDocNo[2] := CreateAndPostGenJournalLine(VendorNo, CurrencyCode, DocumentNo2, CalcDate('<2M>', WorkDate()), -Amount3);
+        GenJnlDocNo[3] := CreateAndPostGenJournalLine(VendorNo, CurrencyCode, DocumentNo, CalcDate('<3M>', WorkDate()), Amount);
+        GenJnlDocNo[4] := CreateAndPostGenJournalLine(VendorNo, CurrencyCode, DocumentNo2, CalcDate('<4M>', WorkDate()), Amount);
     end;
 
     local procedure CreateAndPostGenJournalLineWithWHT(PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Gen. Journal Document Type"; AppliesToDocNo: Code[20]; CurrencyCode: Code[10]; PostingDate: Date; Amount: Decimal) DocumentNo: Code[20]
@@ -1273,10 +1273,10 @@
         BASSetup.Validate("Account Totaling", AccountTotaling);
         BASSetup.Modify(true);
         BASCalculationSheet.FindFirst();
-        BASCalculationSheet.Validate(A3, WorkDate);
-        BASCalculationSheet.Validate(A4, WorkDate);
-        BASCalculationSheet.Validate(A5, WorkDate);
-        BASCalculationSheet.Validate(A6, WorkDate);
+        BASCalculationSheet.Validate(A3, WorkDate());
+        BASCalculationSheet.Validate(A4, WorkDate());
+        BASCalculationSheet.Validate(A5, WorkDate());
+        BASCalculationSheet.Validate(A6, WorkDate());
         BASCalculationSheet.Validate(Exported, false);
         BASCalculationSheet.Modify(true);
         exit(BASCalculationSheet.A1);
@@ -1503,9 +1503,9 @@
     begin
         LibraryVariableStorage.Dequeue(SettlementAccount);
         LibraryVariableStorage.Dequeue(RoundAccNo);
-        CalcAndPostWHTSettlement.StartingDate.SetValue(WorkDate);
-        CalcAndPostWHTSettlement.EndingDate.SetValue(WorkDate);
-        CalcAndPostWHTSettlement.PostingDate.SetValue(WorkDate);
+        CalcAndPostWHTSettlement.StartingDate.SetValue(WorkDate());
+        CalcAndPostWHTSettlement.EndingDate.SetValue(WorkDate());
+        CalcAndPostWHTSettlement.PostingDate.SetValue(WorkDate());
         CalcAndPostWHTSettlement.DocumentNo.SetValue(SettlementAccount);
         CalcAndPostWHTSettlement.SettlementAccountType.SetValue(SettlementAccountType::"G/L Account");
         CalcAndPostWHTSettlement.SettlementAccount.SetValue(SettlementAccount);

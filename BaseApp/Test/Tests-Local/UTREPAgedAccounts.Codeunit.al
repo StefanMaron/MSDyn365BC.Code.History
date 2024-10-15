@@ -326,7 +326,7 @@ codeunit 141075 "UT REP Aged Accounts"
         CurrencyExchangeRate: Record "Currency Exchange Rate";
     begin
         CurrencyExchangeRate."Currency Code" := CurrencyCode;
-        CurrencyExchangeRate."Starting Date" := WorkDate;
+        CurrencyExchangeRate."Starting Date" := WorkDate();
         CurrencyExchangeRate."Exchange Rate Amount" := LibraryRandom.RandDec(10, 2);
         CurrencyExchangeRate."Relational Exch. Rate Amount" := LibraryRandom.RandDec(10, 2);
         CurrencyExchangeRate.Insert();
@@ -367,7 +367,7 @@ codeunit 141075 "UT REP Aged Accounts"
         CustomerLedgerEntry2.FindLast();
         CustomerLedgerEntry."Entry No." := CustomerLedgerEntry2."Entry No." + 1;
         CustomerLedgerEntry."Customer No." := CreateCustomer(CurrencyCode, Blocked, CreditLimitLCY);
-        CustomerLedgerEntry."Posting Date" := WorkDate;
+        CustomerLedgerEntry."Posting Date" := WorkDate();
         CustomerLedgerEntry.Open := true;
         CustomerLedgerEntry.Insert();
     end;
@@ -436,7 +436,7 @@ codeunit 141075 "UT REP Aged Accounts"
         VendorLedgerEntry2.FindLast();
         VendorLedgerEntry."Entry No." := VendorLedgerEntry2."Entry No." + 1;
         VendorLedgerEntry."Vendor No." := CreateVendor(CurrencyCode, Blocked);
-        VendorLedgerEntry."Posting Date" := WorkDate;
+        VendorLedgerEntry."Posting Date" := WorkDate();
         VendorLedgerEntry.Open := true;
         VendorLedgerEntry.Insert();
     end;
@@ -541,7 +541,7 @@ codeunit 141075 "UT REP Aged Accounts"
         LibraryVariableStorage.Dequeue(UseAgingDate);
         LibraryVariableStorage.Dequeue(UseCurrency);
         AgedAccPayBackDating.Vendor.SetFilter("No.", No);
-        AgedAccPayBackDating.AgedAsOf.SetValue(WorkDate);
+        AgedAccPayBackDating.AgedAsOf.SetValue(WorkDate());
         AgedAccPayBackDating.UseAgingDate.SetValue(UseAgingDate);
         AgedAccPayBackDating.UseCurrency.SetValue(UseCurrency);
         AgedAccPayBackDating.PrintTotalsPerCurrency.SetValue(true);
@@ -564,7 +564,7 @@ codeunit 141075 "UT REP Aged Accounts"
         LibraryVariableStorage.Dequeue(UseAgingDate);
         LibraryVariableStorage.Dequeue(UseCurrency);
         AgedAccRecBackDating.Customer.SetFilter("No.", No);
-        AgedAccRecBackDating.AgedAsOf.SetValue(WorkDate);
+        AgedAccRecBackDating.AgedAsOf.SetValue(WorkDate());
         AgedAccRecBackDating.UseAgingDate.SetValue(UseAgingDate);
         AgedAccRecBackDating.UseCurrency.SetValue(UseCurrency);
         AgedAccRecBackDating.PrintTotalsPerCurrency.SetValue(true);
@@ -587,7 +587,7 @@ codeunit 141075 "UT REP Aged Accounts"
         LibraryVariableStorage.Dequeue(UseAgingDate);
         LibraryVariableStorage.Dequeue(UseCurrency);
         AgedAccRecBackDating.Customer.SetFilter("No.", No);
-        AgedAccRecBackDating.AgedAsOf.SetValue(WorkDate);
+        AgedAccRecBackDating.AgedAsOf.SetValue(WorkDate());
         AgedAccRecBackDating.UseAgingDate.SetValue(UseAgingDate);
         AgedAccRecBackDating.UseCurrency.SetValue(UseCurrency);
         AgedAccRecBackDating.PrintTotalsPerCurrency.SetValue(true);
@@ -610,7 +610,7 @@ codeunit 141075 "UT REP Aged Accounts"
         LibraryVariableStorage.Dequeue(UseAgingDate);
         LibraryVariableStorage.Dequeue(UseCurrency);
         AgedAccPayBackDating.Vendor.SetFilter("No.", No);
-        AgedAccPayBackDating.AgedAsOf.SetValue(WorkDate);
+        AgedAccPayBackDating.AgedAsOf.SetValue(WorkDate());
         AgedAccPayBackDating.UseAgingDate.SetValue(UseAgingDate);
         AgedAccPayBackDating.UseCurrency.SetValue(UseCurrency);
         AgedAccPayBackDating.PrintTotalsPerCurrency.SetValue(true);

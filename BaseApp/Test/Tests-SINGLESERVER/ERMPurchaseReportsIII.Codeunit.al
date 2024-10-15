@@ -298,7 +298,7 @@ codeunit 134988 "ERM Purchase Reports III"
 
         // In Bug 215283,Invoice should be made before the Payment is posted.Hence, taking Random Date before the workdate.
         GenJournalLine.Validate(
-          "Posting Date", CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate));
+          "Posting Date", CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()));
         GenJournalLine.Modify(true);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
@@ -312,7 +312,7 @@ codeunit 134988 "ERM Purchase Reports III"
         Vendor.CalcFields(Balance);
 
         // Exercise: Save Aged Accounts Payable Report.
-        Vendor.SetRecFilter;
+        Vendor.SetRecFilter();
         Evaluate(PeriodLength, '<' + Format(LibraryRandom.RandInt(5)) + 'M>'); // Take Random value for Period length.
         SaveAgedAccountsPayable(Vendor, AgingBy::"Due Date", HeadingType::"Date Interval", PeriodLength, false, false);
 
@@ -465,9 +465,9 @@ codeunit 134988 "ERM Purchase Reports III"
 
         // Setup: Create and Post Three Purchase Order with Due Date. Take difference with 1 Month on Due Date.
         Initialize();
-        PostingDate2 := CalculatePostingDate(WorkDate);
+        PostingDate2 := CalculatePostingDate(WorkDate());
         PostingDate3 := CalculatePostingDate(PostingDate2);
-        InvoiceAmountVendor1 := CreateAndPostPurchaseDocument(PurchaseLine, WorkDate);
+        InvoiceAmountVendor1 := CreateAndPostPurchaseDocument(PurchaseLine, WorkDate());
         VendorNo1 := PurchaseLine."Buy-from Vendor No.";
         InvoiceAmountVendor2 := CreateAndPostPurchaseDocument(PurchaseLine, PostingDate2);
         VendorNo2 := PurchaseLine."Buy-from Vendor No.";
@@ -479,7 +479,7 @@ codeunit 134988 "ERM Purchase Reports III"
         SelectGenJournalBatch(GenJournalBatch);
         PaidAmountVendor2 := Round(InvoiceAmountVendor2 / 2, LibraryERM.GetAmountRoundingPrecision);
         PaidAmountVendor3 := Round(InvoiceAmountVendor3 / 3, LibraryERM.GetAmountRoundingPrecision);
-        CreateAndModifyGeneralLine(GenJournalLine, GenJournalBatch, VendorNo1, WorkDate, InvoiceAmountVendor1);
+        CreateAndModifyGeneralLine(GenJournalLine, GenJournalBatch, VendorNo1, WorkDate(), InvoiceAmountVendor1);
         CreateAndModifyGeneralLine(GenJournalLine, GenJournalBatch, VendorNo2, PostingDate2, PaidAmountVendor2);
         CreateAndModifyGeneralLine(GenJournalLine, GenJournalBatch, VendorNo3, PostingDate3, PaidAmountVendor3);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -813,7 +813,7 @@ codeunit 134988 "ERM Purchase Reports III"
         // Verify: Verify Physical Inventory Ledger Entry Table Name and number of Records on Document Entries Report.
         PhysInventoryLedgerEntry.SetRange("Item No.", ItemJournalLine."Item No.");
         LibraryReportDataset.LoadDataSetFile;
-        VerifyDocumentEntriesReport(PhysInventoryLedgerEntry.TableCaption, PhysInventoryLedgerEntry.Count);
+        VerifyDocumentEntriesReport(PhysInventoryLedgerEntry.TableCaption(), PhysInventoryLedgerEntry.Count);
     end;
 
     [Test]
@@ -838,7 +838,7 @@ codeunit 134988 "ERM Purchase Reports III"
         // Verify: Verify Posted Warehouse Receipt Line Table Name and number of Records on Document Entries Report.
         PostedWhseReceiptLine.SetRange("Posted Source No.", Format(PostedPurchaseReceipt."No."));
         LibraryReportDataset.LoadDataSetFile;
-        VerifyDocumentEntriesReport(PostedWhseReceiptLine.TableCaption, PostedWhseReceiptLine.Count);
+        VerifyDocumentEntriesReport(PostedWhseReceiptLine.TableCaption(), PostedWhseReceiptLine.Count);
     end;
 
     [Test]
@@ -865,7 +865,7 @@ codeunit 134988 "ERM Purchase Reports III"
         // Verify: Verify Posted Warehouse Shipment Line Table Name and number of Records on Document Entries Report.
         PostedWhseShipmentLine.SetRange("Source No.", DocumentNo);
         LibraryReportDataset.LoadDataSetFile;
-        VerifyDocumentEntriesReport(PostedWhseShipmentLine.TableCaption, PostedWhseShipmentLine.Count);
+        VerifyDocumentEntriesReport(PostedWhseShipmentLine.TableCaption(), PostedWhseShipmentLine.Count);
     end;
 
     [Test]
@@ -1060,10 +1060,10 @@ codeunit 134988 "ERM Purchase Reports III"
         Initialize();
 
         LibraryPurchase.CreateVendor(Vendor);
-        Vendor.SetRecFilter;
+        Vendor.SetRecFilter();
         Clear(AgedAccountsPayable);
         AgedAccountsPayable.SetTableView(Vendor);
-        AgedAccountsPayable.InitializeRequest(WorkDate, 0, PeriodLength, false, false, 0, false);
+        AgedAccountsPayable.InitializeRequest(WorkDate(), 0, PeriodLength, false, false, 0, false);
         Commit();
         asserterror AgedAccountsPayable.Run();
         Assert.ExpectedError(EnterDateFormulaErr);
@@ -1084,7 +1084,7 @@ codeunit 134988 "ERM Purchase Reports III"
 
         Clear(PeriodLength);
         LibraryPurchase.CreateVendor(Vendor);
-        Vendor.SetRecFilter;
+        Vendor.SetRecFilter();
 
         Commit();
         SaveAgedAccountsPayable(Vendor, AgingBy::"Due Date", HeadingType::"Date Interval", PeriodLength, false, false);
@@ -1123,7 +1123,7 @@ codeunit 134988 "ERM Purchase Reports III"
         ExpectedTimeStamp := TypeHelper.GetFormattedCurrentDateTimeInUserTimeZone('f');
 
         // [WHEN] Run report "Aged Accounts Payable"
-        Vendor.SetRecFilter;
+        Vendor.SetRecFilter();
         Evaluate(PeriodLength, '<1M>');
         SaveAgedAccountsPayable(Vendor, AgingBy::"Posting Date", HeadingType::"Date Interval", PeriodLength, false, false);
 
@@ -1266,7 +1266,7 @@ codeunit 134988 "ERM Purchase Reports III"
         I: Integer;
     begin
         // [FEATURE] [Performance] [Aged Accounts Payable] [Date-Time] [Time Zone]
-        // [SCENARIO 235531] TypeHelper.GetFormattedCurrentDateTimeInUserTimeZone and COMPANYPROPERTY.DISPLAYNAME are called once for Aged Accounts Payable report when multiple entries are processed
+        // [SCENARIO 235531] TypeHelper.GetFormattedCurrentDateTimeInUserTimeZone and COMPANYPROPERTY.DisplayName() are called once for Aged Accounts Payable report when multiple entries are processed
         Initialize();
 
         // [GIVEN] Post 2 Purchase Invoices
@@ -1280,7 +1280,7 @@ codeunit 134988 "ERM Purchase Reports III"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // [WHEN] Run Aged Accounts Payable
-        Vendor.SetRecFilter;
+        Vendor.SetRecFilter();
         Evaluate(PeriodLength, '<1M>');
         CodeCoverageMgt.StartApplicationCoverage;
         SaveAgedAccountsPayable(Vendor, AgingBy::"Posting Date", HeadingType::"Date Interval", PeriodLength, false, false);
@@ -1289,7 +1289,7 @@ codeunit 134988 "ERM Purchase Reports III"
         // [THEN] TypeHelper.GetFormattedCurrentDateTimeInUserTimeZone is called once
         VerifyAgedAccountsPayableNoOfHitsCodeCoverage('TypeHelper.GetFormattedCurrentDateTimeInUserTimeZone', 1);
 
-        // [THEN] COMPANYPROPERTY.DISPLAYNAME is called once
+        // [THEN] COMPANYPROPERTY.DisplayName() is called once
         VerifyAgedAccountsPayableNoOfHitsCodeCoverage('COMPANYPROPERTY.DISPLAYNAME', 1);
     end;
 
@@ -1465,7 +1465,7 @@ codeunit 134988 "ERM Purchase Reports III"
         LibraryPurchase.CreateVendor(Vendor);
         with GenJournalLine[1] do begin
             CreateGenJournalLine(
-              GenJournalLine[1], WorkDate, Vendor."No.",
+              GenJournalLine[1], WorkDate(), Vendor."No.",
               "Document Type"::Invoice, "Document Type"::" ", '', LibraryRandom.RandIntInRange(-1000, -500));
             LibraryERM.PostGeneralJnlLine(GenJournalLine[1]);
 
@@ -1518,7 +1518,7 @@ codeunit 134988 "ERM Purchase Reports III"
         CreatePostPurchaseInvoiceWithDueDateCalc(Vendor."No.");
 
         // [WHEN] Run report Aged Accounts Payable with "Print Details" = "Yes"
-        RunAgedAccountsPayableWithParameters(Vendor, CalcDate('<2M>', WorkDate), false);
+        RunAgedAccountsPayableWithParameters(Vendor, CalcDate('<2M>', WorkDate()), false);
 
         // [THEN] Vendor "VEND" printed with Not Due amount = "100"
         LibraryReportDataset.LoadDataSetFile;
@@ -1544,7 +1544,7 @@ codeunit 134988 "ERM Purchase Reports III"
         FindPostedInvoiceHeader(PurchInvHeader, Vendor."No.");
 
         // [WHEN] Run report Aged Accounts Payable with "Print Details" = "Yes", "Use External Doc. No." = "Yes"
-        RunAgedAccountsPayableWithParameters(Vendor, CalcDate('<2M>', WorkDate), true);
+        RunAgedAccountsPayableWithParameters(Vendor, CalcDate('<2M>', WorkDate()), true);
 
         // [THEN] Document number label = "External Document No."
         LibraryReportDataset.LoadDataSetFile;
@@ -1571,7 +1571,7 @@ codeunit 134988 "ERM Purchase Reports III"
         FindPostedInvoiceHeader(PurchInvHeader, Vendor."No.");
 
         // [WHEN] Run report Aged Accounts Payable with "Print Details" = "Yes", "Use External Doc. No." = "No"
-        RunAgedAccountsPayableWithParameters(Vendor, CalcDate('<2M>', WorkDate), false);
+        RunAgedAccountsPayableWithParameters(Vendor, CalcDate('<2M>', WorkDate()), false);
 
         LibraryReportDataset.LoadDataSetFile;
         // [THEN] Document number label = "Document No."
@@ -1835,7 +1835,7 @@ codeunit 134988 "ERM Purchase Reports III"
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
         with GeneralLedgerSetup do begin
-            Get;
+            Get();
             "Print VAT specification in LCY" := VATSpecificationInLCY;
             Modify(true);
         end;
@@ -1847,7 +1847,7 @@ codeunit 134988 "ERM Purchase Reports III"
     begin
         Clear(AgedAccountsPayable);
         AgedAccountsPayable.SetTableView(Vendor);
-        AgedAccountsPayable.InitializeRequest(WorkDate, AgingBy, PeriodLength, AmountLCY, PrintDetails, HeadingType, false);
+        AgedAccountsPayable.InitializeRequest(WorkDate(), AgingBy, PeriodLength, AmountLCY, PrintDetails, HeadingType, false);
         AgedAccountsPayable.Run();
     end;
 
@@ -1946,7 +1946,7 @@ codeunit 134988 "ERM Purchase Reports III"
         VATPercent := 10;
 
         // Init setups
-        CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, ExchangeRate, ExchangeRate);
+        CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), ExchangeRate, ExchangeRate);
         LibraryERM.UpdateVATPostingSetup(VATPostingSetup, VATPercent);
 
         // Cteare and post document
@@ -1954,7 +1954,7 @@ codeunit 134988 "ERM Purchase Reports III"
           PurchaseHeader, DocumentType, CreateVendorWithVATPostingSetup(VATPostingSetup));
         with PurchaseHeader do begin
             Validate("Vendor Cr. Memo No.", LibraryUtility.GenerateGUID());
-            Validate("Posting Date", WorkDate);
+            Validate("Posting Date", WorkDate());
             Validate("Currency Code", CurrencyCode);
             Modify(true);
         end;
@@ -2543,7 +2543,7 @@ codeunit 134988 "ERM Purchase Reports III"
         ItemJournalLine.Init();
         ItemJournalLine.Validate("Journal Template Name", ItemJournalBatch."Journal Template Name");
         ItemJournalLine.Validate("Journal Batch Name", ItemJournalBatch.Name);
-        LibraryInventory.CalculateInventoryForSingleItem(ItemJournalLine, ItemNo, WorkDate, true, false);
+        LibraryInventory.CalculateInventoryForSingleItem(ItemJournalLine, ItemNo, WorkDate(), true, false);
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
     end;
 
@@ -2554,7 +2554,7 @@ codeunit 134988 "ERM Purchase Reports III"
     begin
         Clear(VendorSummaryAging);
         Vendor.SetRange("No.", VendorNo);
-        VendorSummaryAging.InitializeRequest(WorkDate, StrSubstNo('<%1M>', LibraryRandom.RandInt(5)), ShowAmountsInLCY);
+        VendorSummaryAging.InitializeRequest(WorkDate(), StrSubstNo('<%1M>', LibraryRandom.RandInt(5)), ShowAmountsInLCY);
         VendorSummaryAging.SetTableView(Vendor);
         VendorSummaryAging.Run();
     end;
@@ -2597,7 +2597,7 @@ codeunit 134988 "ERM Purchase Reports III"
         Vendor.SetRange("Global Dimension 1 Filter", GlobalDimension1Filter);
         Vendor.SetRange("Global Dimension 2 Filter", GlobalDimension2Filter);
         Vendor.SetRange("Currency Filter", CurrencyFilter);
-        Vendor.SetRange("Date Filter", WorkDate);
+        Vendor.SetRange("Date Filter", WorkDate());
         REPORT.Run(REPORT::"Vendor - Balance to Date", true, false, Vendor);
     end;
 
@@ -2624,7 +2624,7 @@ codeunit 134988 "ERM Purchase Reports III"
         LibraryVariableStorage.Enqueue(AgedAsOfDate);
         LibraryVariableStorage.Enqueue(UseExternalDocNo);
 
-        Vendor.SetRecFilter;
+        Vendor.SetRecFilter();
         AgedAccountsPayable.SetTableView(Vendor);
         AgedAccountsPayable.Run();
     end;
@@ -2763,7 +2763,7 @@ codeunit 134988 "ERM Purchase Reports III"
             "Expected Receipt Date" := CalcDate('<+1D>', "Planned Receipt Date");
             "Promised Receipt Date" := CalcDate('<+2D>', "Planned Receipt Date");
             "Requested Receipt Date" := CalcDate('<+3D>', "Planned Receipt Date");
-            Modify;
+            Modify();
         end;
     end;
 
@@ -2822,12 +2822,12 @@ codeunit 134988 "ERM Purchase Reports III"
         Evaluate(PeriodLength, '<' + Format(LibraryRandom.RandInt(5)) + 'M>');
         Vendor.SetFilter("Global Dimension 1 Filter", ShortcutDimension1Code);
         Vendor.SetFilter("Global Dimension 2 Filter", ShortcutDimension2Code);
-        Vendor.SetRecFilter;
+        Vendor.SetRecFilter();
     end;
 
     local procedure VerifyAmountOnDocumentEntryReport(RowCaption: Text[50]; ColumnCaption: Text[50]; Amount: Decimal)
     begin
-        LibraryReportDataset.SetRange(RowCaption, Format(WorkDate));
+        LibraryReportDataset.SetRange(RowCaption, Format(WorkDate()));
         LibraryReportDataset.GetNextRow;
         LibraryReportDataset.AssertCurrentRowValueEquals(ColumnCaption, Amount);
     end;
@@ -2874,7 +2874,7 @@ codeunit 134988 "ERM Purchase Reports III"
         repeat
             LibraryReportDataset.AssertElementWithValueExists('LineNo_PurchCrMemoLine', PurchCrMemoLine."Line No.");
             LibraryReportDataset.AssertElementWithValueExists('No_PurchCrMemoLine', PurchCrMemoLine."No.");
-        until PurchCrMemoLine.Next = 0;
+        until PurchCrMemoLine.Next() = 0;
     end;
 
     local procedure VerifyTotalLCYOnVendorSummaryAgingReport(Vendor: Record Vendor)
@@ -2894,14 +2894,14 @@ codeunit 134988 "ERM Purchase Reports III"
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
     begin
         GLEntry.SetRange("Document No.", DocumentNo);
-        VerifyDocumentEntriesReport(GLEntry.TableCaption, GLEntry.Count);
+        VerifyDocumentEntriesReport(GLEntry.TableCaption(), GLEntry.Count);
         VerifyValueEntry(DocumentNo);
         VATEntry.SetRange("Document No.", DocumentNo);
-        VerifyDocumentEntriesReport(VATEntry.TableCaption, VATEntry.Count);
+        VerifyDocumentEntriesReport(VATEntry.TableCaption(), VATEntry.Count);
         VendorLedgerEntry.SetRange("Document No.", DocumentNo);
-        VerifyDocumentEntriesReport(VendorLedgerEntry.TableCaption, VendorLedgerEntry.Count);
+        VerifyDocumentEntriesReport(VendorLedgerEntry.TableCaption(), VendorLedgerEntry.Count);
         DetailedVendorLedgEntry.SetRange("Document No.", DocumentNo);
-        VerifyDocumentEntriesReport(DetailedVendorLedgEntry.TableCaption, DetailedVendorLedgEntry.Count);
+        VerifyDocumentEntriesReport(DetailedVendorLedgEntry.TableCaption(), DetailedVendorLedgEntry.Count);
     end;
 
     local procedure VerifyValueEntry(DocumentNo: Code[20])
@@ -2909,7 +2909,7 @@ codeunit 134988 "ERM Purchase Reports III"
         ValueEntry: Record "Value Entry";
     begin
         ValueEntry.SetRange("Document No.", DocumentNo);
-        VerifyDocumentEntriesReport(ValueEntry.TableCaption, ValueEntry.Count);
+        VerifyDocumentEntriesReport(ValueEntry.TableCaption(), ValueEntry.Count);
     end;
 
     local procedure VerifyValueEntryItemLedgerEntry(DocumentNo: Code[20])
@@ -2918,7 +2918,7 @@ codeunit 134988 "ERM Purchase Reports III"
     begin
         VerifyValueEntry(DocumentNo);
         ItemLedgerEntry.SetRange("Document No.", DocumentNo);
-        VerifyDocumentEntriesReport(ItemLedgerEntry.TableCaption, ItemLedgerEntry.Count);
+        VerifyDocumentEntriesReport(ItemLedgerEntry.TableCaption(), ItemLedgerEntry.Count);
     end;
 
     local procedure VerifyPurchaseInvoiceReportVATAmountInLCY(DocumentNo: Code[20])
@@ -3023,7 +3023,7 @@ codeunit 134988 "ERM Purchase Reports III"
         VendorLedgerEntry.SetRange("Currency Code", CurrencyCode);
         VendorLedgerEntry.FindFirst();
         VendorLedgerEntry.CalcFields(Amount);
-        LibraryReportDataset.SetRange('PostDt_VendLedgEntry3', Format(WorkDate));
+        LibraryReportDataset.SetRange('PostDt_VendLedgEntry3', Format(WorkDate()));
         LibraryReportDataset.SetRange('DocType_VendLedgEntry3', Format(GenJournalLine."Document Type"::Invoice));
         LibraryReportDataset.GetNextRow;
         LibraryReportDataset.AssertCurrentRowValueEquals('OriginalAmt', Format(VendorLedgerEntry.Amount));
@@ -3561,4 +3561,3 @@ codeunit 134988 "ERM Purchase Reports III"
         VendorBalanceToDate.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 }
-

@@ -15,7 +15,7 @@ report 1133 "Cost Acctg. Statement/Budget"
             column(DateFilterTxt; DateFilterTxt)
             {
             }
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(CcFilterTxt; CCFilterTxt)

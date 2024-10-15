@@ -129,7 +129,7 @@ codeunit 145300 "Post Dated Check Line"
         SalesSetup: Record "Sales & Receivables Setup";
     begin
         with SalesSetup do begin
-            Get;
+            Get();
             Validate("Post Dated Check Template", GenJnlBatch."Journal Template Name");
             Validate("Post Dated Check Batch", GenJnlBatch.Name);
             Modify(true);
@@ -143,10 +143,10 @@ codeunit 145300 "Post Dated Check Line"
         LibrarySales.CreateCustomer(Customer);
 
         with PostDatedCheckLine do begin
-            Init;
+            Init();
             Validate("Account Type", "Account Type"::Customer);
             Validate("Account No.", Customer."No.");
-            "Check Date" := WorkDate;
+            "Check Date" := WorkDate();
             Insert(true);
         end;
     end;

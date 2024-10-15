@@ -71,7 +71,7 @@ report 1093 "Job Create Sales Invoice"
 
         trigger OnOpenPage()
         begin
-            PostingDate := WorkDate;
+            PostingDate := WorkDate();
         end;
     }
 
@@ -86,7 +86,7 @@ report 1093 "Job Create Sales Invoice"
 
     trigger OnPostReport()
     begin
-        OnBeforePostReport;
+        OnBeforePostReport();
 
         JobCalcBatches.EndCreateInvoice(NoOfInvoices);
 
@@ -97,21 +97,23 @@ report 1093 "Job Create Sales Invoice"
     begin
         JobCalcBatches.BatchError(PostingDate, Text000);
         InvoicePerTask := JobChoice = JobChoice::"Job Task";
-        JobCreateInvoice.DeleteSalesInvoiceBuffer;
+        JobCreateInvoice.DeleteSalesInvoiceBuffer();
 
-        OnAfterPreReport;
+        OnAfterPreReport();
     end;
 
     var
         JobCreateInvoice: Codeunit "Job Create-Invoice";
         JobCalcBatches: Codeunit "Job Calculate Batches";
-        PostingDate: Date;
         NoOfInvoices: Integer;
         InvoicePerTask: Boolean;
-        JobChoice: Option Job,"Job Task";
         OldJobNo: Code[20];
         OldJTNo: Code[20];
         Text000: Label 'A', Comment = 'A';
+
+    protected var
+        JobChoice: Option Job,"Job Task";
+        PostingDate: Date;
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterPostReport(NoOfInvoices: Integer)

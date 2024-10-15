@@ -14,12 +14,12 @@ page 9247 "Abs. Overview by Period Matrix"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
-                field("Full Name"; FullName)
+                field("Full Name"; FullName())
                 {
                     ApplicationArea = BasicHR;
                     Caption = 'Full Name';

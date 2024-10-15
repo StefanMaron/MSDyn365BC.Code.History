@@ -56,9 +56,9 @@ codeunit 141077 "UT APAC Miscellaneous Reports"
         // Setup: Create G/L Account. G/L Budget entry and G/L Entry.
         Initialize();
         GLAccountNo := CreateGLAccount(GLAccount."Income/Balance"::"Balance Sheet", false);  // False for New Page.
-        BudgetAmount := CreateGLBudgetEntry('', GLAccountNo, '', '', WorkDate);  // Blank used for Budget Name, Global Dimension 1 Code and Global Dimension 2 Code.
+        BudgetAmount := CreateGLBudgetEntry('', GLAccountNo, '', '', WorkDate());  // Blank used for Budget Name, Global Dimension 1 Code and Global Dimension 2 Code.
         Amount := LibraryRandom.RandDec(100, 2);
-        CreateGLEntry(GLAccountNo, '', '', WorkDate, Amount);  // Blank used for Global Dimension 1 Code and Global Dimension 2 Code.
+        CreateGLEntry(GLAccountNo, '', '', WorkDate(), Amount);  // Blank used for Global Dimension 1 Code and Global Dimension 2 Code.
 
         // Enqueue Values for BalanceSheetRequestPageHandler.
         EnqueueValuesForRequestPageHandler(GLAccountNo, '', '', AmountsInWhole::" ");  // Blank used for Global Dimension 1 Code and Global Dimension 2 Code.
@@ -107,16 +107,16 @@ codeunit 141077 "UT APAC Miscellaneous Reports"
         Initialize();
         BudgetName := LibraryUTUtility.GetNewCode10;
         GLAccountNo := CreateGLAccount(GLAccount."Income/Balance"::"Balance Sheet", true);  // True for New Page.
-        BudgetAmount := CreateGLBudgetEntry(BudgetName, GLAccountNo, GlobalDimensionOneCode, GlobalDimensionTwoCode, WorkDate);
+        BudgetAmount := CreateGLBudgetEntry(BudgetName, GLAccountNo, GlobalDimensionOneCode, GlobalDimensionTwoCode, WorkDate());
         Amount := LibraryRandom.RandDec(100, 2);
-        CreateGLEntry(GLAccountNo, GlobalDimensionOneCode, GlobalDimensionTwoCode, WorkDate, Amount);
+        CreateGLEntry(GLAccountNo, GlobalDimensionOneCode, GlobalDimensionTwoCode, WorkDate(), Amount);
         BudgetAmount2 :=
           CreateGLBudgetEntry(
             BudgetName, GLAccountNo, GlobalDimensionOneCode, GlobalDimensionTwoCode,
-            CalcDate('<' + Format(-LibraryRandom.RandInt(5)) + 'Y>', WorkDate));  // Using a date earlier than WORKDATE as EntryDate.
+            CalcDate('<' + Format(-LibraryRandom.RandInt(5)) + 'Y>', WorkDate()));  // Using a date earlier than WORKDATE as EntryDate.
         CreateGLEntry(
           GLAccountNo, GlobalDimensionOneCode, GlobalDimensionTwoCode,
-          CalcDate('<' + Format(-LibraryRandom.RandInt(5)) + 'Y>', WorkDate), Amount);  // Using a date earlier than WORKDATE as EntryDate.
+          CalcDate('<' + Format(-LibraryRandom.RandInt(5)) + 'Y>', WorkDate()), Amount);  // Using a date earlier than WORKDATE as EntryDate.
 
         // Enqueue Values for BalanceSheetRequestPageHandler.
         EnqueueValuesForRequestPageHandler(GLAccountNo, GlobalDimensionOneCode, GlobalDimensionTwoCode, AmountsInWhole::Tens);
@@ -189,8 +189,8 @@ codeunit 141077 "UT APAC Miscellaneous Reports"
     begin
         // Setup: Create G/L Account and G/L Entries.
         GLAccountNo := CreateGLAccount(GLAccount."Income/Balance"::"Income Statement", NewPage);
-        CreateGLEntry(GLAccountNo, GlobalDimensionOneCode, GlobalDimensionTwoCode, WorkDate, Amount);  // True for New Page.
-        CreateGLEntry(GLAccountNo, GlobalDimensionOneCode, GlobalDimensionTwoCode, CalcDate('<-1Y>', WorkDate), Amount);  // Using 1Y for Last Year as it is explicitly used in Report.
+        CreateGLEntry(GLAccountNo, GlobalDimensionOneCode, GlobalDimensionTwoCode, WorkDate(), Amount);  // True for New Page.
+        CreateGLEntry(GLAccountNo, GlobalDimensionOneCode, GlobalDimensionTwoCode, CalcDate('<-1Y>', WorkDate()), Amount);  // Using 1Y for Last Year as it is explicitly used in Report.
 
         // Enqueue Values for IncomeStatementRequestPageHandler.
         EnqueueValuesForRequestPageHandler(GLAccountNo, GlobalDimensionOneCode, GlobalDimensionTwoCode, AmountsInWhole);
@@ -345,7 +345,7 @@ codeunit 141077 "UT APAC Miscellaneous Reports"
         // [SCENARIO] validate OnPreReport Trigger of Report - 492 with Replace Document Date as True.
         Initialize();
         OnPreReportCopyPurchaseDocumentReport(
-          false, true, CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate), WorkDate);  // False for ReplacePostDate and True for ReplaceDocDate.
+          false, true, CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate()), WorkDate());  // False for ReplacePostDate and True for ReplaceDocDate.
     end;
 
     [Test]
@@ -359,7 +359,7 @@ codeunit 141077 "UT APAC Miscellaneous Reports"
         // [FEATURE] [Copy Purchase Document]
         // [SCENARIO] validate OnPreReport Trigger of Report - 492 with Replace Posting Date as True.
         Initialize();
-        PostingDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate);
+        PostingDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate());
         OnPreReportCopyPurchaseDocumentReport(true, false, PostingDate, PostingDate);  // True for ReplacePostDate and False for ReplaceDocDate.
     end;
 
@@ -393,7 +393,7 @@ codeunit 141077 "UT APAC Miscellaneous Reports"
         // [FEATURE] [Copy Sales Document]
         // [SCENARIO] validate OnPreReport Trigger of Report - 292 with Replace Document Date as True.
         Initialize();
-        OnPreReportCopySalesDocumentReport(false, true, CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate), WorkDate);  // False for ReplacePostDate and True for ReplaceDocDate.
+        OnPreReportCopySalesDocumentReport(false, true, CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate()), WorkDate());  // False for ReplacePostDate and True for ReplaceDocDate.
     end;
 
     [Test]
@@ -407,7 +407,7 @@ codeunit 141077 "UT APAC Miscellaneous Reports"
         // [FEATURE] [Copy Sales Document]
         // [SCENARIO] validate OnPreReport Trigger of Report - 292 with Replace Posting Date as True.
         Initialize();
-        PostingDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate);
+        PostingDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate());
         OnPreReportCopySalesDocumentReport(true, false, PostingDate, PostingDate);  // True for ReplacePostDate and False for ReplaceDocDate.
     end;
 
@@ -448,7 +448,7 @@ codeunit 141077 "UT APAC Miscellaneous Reports"
         // [GIVEN] G/L Account with negative balance in period
         GLAccountNo := CreateGLAccount(GLAccount."Income/Balance"::"Income Statement", true);
         Amount := -LibraryRandom.RandDec(100, 2);
-        CreateGLEntry(GLAccountNo, '', '', WorkDate, Amount);
+        CreateGLEntry(GLAccountNo, '', '', WorkDate(), Amount);
 
         // Enqueue G/L Account No. for IncomeStatementSimpleRequestPageHandler.
         LibraryVariableStorage.Enqueue(GLAccountNo);
@@ -482,7 +482,7 @@ codeunit 141077 "UT APAC Miscellaneous Reports"
         // [GIVEN] G/L Account with positive balance in period was created and posted
         GLAccountNo := CreateGLAccount(GLAccount."Income/Balance"::"Income Statement", true);
         Amount := LibraryRandom.RandDec(100000, 2);
-        CreateGLEntry(GLAccountNo, '', '', WorkDate, Amount);
+        CreateGLEntry(GLAccountNo, '', '', WorkDate(), Amount);
 
         // [GIVEN] Amounts In Whole set up to "Thousands"
         EnqueueValuesForIncomeStatementRequestPageHandler(GLAccountNo, '', '', AmountsInWhole::Thousands, false, false);
@@ -556,7 +556,7 @@ codeunit 141077 "UT APAC Miscellaneous Reports"
         BankAccountLedgerEntry2.FindLast();
         BankAccountLedgerEntry."Entry No." := BankAccountLedgerEntry2."Entry No." + 1;
         BankAccountLedgerEntry."Bank Account No." := BankAccountNo;
-        BankAccountLedgerEntry."Posting Date" := WorkDate;
+        BankAccountLedgerEntry."Posting Date" := WorkDate();
         BankAccountLedgerEntry."Bal. Account Type" := BalAccountType;
         BankAccountLedgerEntry2."Bal. Account No." := LibraryUTUtility.GetNewCode;
         BankAccountLedgerEntry.Amount := Amount;
@@ -590,7 +590,7 @@ codeunit 141077 "UT APAC Miscellaneous Reports"
         GenJournalLine."Journal Batch Name" := GenJournalBatch.Name;
         GenJournalLine."Account Type" := GenJournalLine."Account Type"::Customer;
         GenJournalLine."Account No." := LibraryUTUtility.GetNewCode;
-        GenJournalLine."Posting Date" := WorkDate;
+        GenJournalLine."Posting Date" := WorkDate();
         GenJournalLine."Source Code" := CreateSourceCode;
         GenJournalLine."Document No." := LibraryUTUtility.GetNewCode10;
         GenJournalLine."Credit Amount" := LibraryRandom.RandDec(100, 2);
@@ -649,8 +649,8 @@ codeunit 141077 "UT APAC Miscellaneous Reports"
         PurchaseHeader."Document Type" := PurchaseHeader."Document Type"::Order;
         PurchaseHeader."No." := LibraryUTUtility.GetNewCode;
         PurchaseHeader."Buy-from Vendor No." := LibraryUTUtility.GetNewCode;
-        PurchaseHeader."Posting Date" := WorkDate;
-        PurchaseHeader."Document Date" := WorkDate;
+        PurchaseHeader."Posting Date" := WorkDate();
+        PurchaseHeader."Document Date" := WorkDate();
         PurchaseHeader.Insert();
     end;
 
@@ -660,7 +660,7 @@ codeunit 141077 "UT APAC Miscellaneous Reports"
     begin
         PurchRcptHeader."No." := LibraryUTUtility.GetNewCode;
         PurchRcptHeader."Pay-to Vendor No." := LibraryPurchase.CreateVendorNo();
-        PurchRcptHeader."Posting Date" := WorkDate;
+        PurchRcptHeader."Posting Date" := WorkDate();
         PurchRcptHeader.Insert();
         PurchRcptLine."Document No." := PurchRcptHeader."No.";
         PurchRcptLine."Pay-to Vendor No." := PurchRcptHeader."Pay-to Vendor No.";
@@ -674,8 +674,8 @@ codeunit 141077 "UT APAC Miscellaneous Reports"
         SalesHeader."Document Type" := SalesHeader."Document Type"::Order;
         SalesHeader."No." := LibraryUTUtility.GetNewCode;
         SalesHeader."Sell-to Customer No." := LibraryUTUtility.GetNewCode;
-        SalesHeader."Posting Date" := WorkDate;
-        SalesHeader."Document Date" := WorkDate;
+        SalesHeader."Posting Date" := WorkDate();
+        SalesHeader."Document Date" := WorkDate();
         SalesHeader.Insert();
     end;
 
@@ -772,7 +772,7 @@ codeunit 141077 "UT APAC Miscellaneous Reports"
         LibraryVariableStorage.Dequeue(AmountsInWhole);
         LibraryVariableStorage.Dequeue(BudgetFilter);
         BalanceSheet."G/L Account".SetFilter("No.", No);
-        BalanceSheet."G/L Account".SetFilter("Date Filter", Format(CalcDate('<CY>', WorkDate)));
+        BalanceSheet."G/L Account".SetFilter("Date Filter", Format(CalcDate('<CY>', WorkDate())));
         BalanceSheet."G/L Account".SetFilter("Global Dimension 1 Filter", GlobalDimensionOneFilter);
         BalanceSheet."G/L Account".SetFilter("Global Dimension 2 Filter", GlobalDimensionTwoFilter);
         BalanceSheet."G/L Account".SetFilter("Budget Filter", BudgetFilter);
@@ -789,7 +789,7 @@ codeunit 141077 "UT APAC Miscellaneous Reports"
         LibraryVariableStorage.Dequeue(No);
         BankAccountReconciliation.NewPagePerBankAccount.SetValue(true);
         BankAccountReconciliation."Bank Account".SetFilter("No.", No);
-        BankAccountReconciliation."Bank Account".SetFilter("Date Filter", Format(WorkDate));
+        BankAccountReconciliation."Bank Account".SetFilter("Date Filter", Format(WorkDate()));
         BankAccountReconciliation.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 
@@ -856,7 +856,7 @@ codeunit 141077 "UT APAC Miscellaneous Reports"
         FileName: Text;
     begin
         IncomeStatement."G/L Account".SetFilter("No.", LibraryVariableStorage.DequeueText);
-        IncomeStatement."G/L Account".SetFilter("Date Filter", StrSubstNo(DateFilterTxt, WorkDate, CalcDate('<CY>', WorkDate)));
+        IncomeStatement."G/L Account".SetFilter("Date Filter", StrSubstNo(DateFilterTxt, WorkDate(), CalcDate('<CY>', WorkDate())));
         IncomeStatement."G/L Account".SetFilter("Global Dimension 1 Filter", LibraryVariableStorage.DequeueText);
         IncomeStatement."G/L Account".SetFilter("Global Dimension 2 Filter", LibraryVariableStorage.DequeueText);
         IncomeStatement.AmountsInWhole.SetValue(LibraryVariableStorage.DequeueInteger);
@@ -872,7 +872,7 @@ codeunit 141077 "UT APAC Miscellaneous Reports"
     procedure IncomeStatementSimpleRequestPageHandler(var IncomeStatement: TestRequestPage "Income Statement")
     begin
         IncomeStatement."G/L Account".SetFilter("No.", LibraryVariableStorage.DequeueText);
-        IncomeStatement."G/L Account".SetFilter("Date Filter", StrSubstNo(DateFilterTxt, WorkDate, CalcDate('<CY>', WorkDate)));
+        IncomeStatement."G/L Account".SetFilter("Date Filter", StrSubstNo(DateFilterTxt, WorkDate(), CalcDate('<CY>', WorkDate())));
         IncomeStatement.SaveAsExcel(LibraryReportValidation.GetFileName);
     end;
 
@@ -887,7 +887,7 @@ codeunit 141077 "UT APAC Miscellaneous Reports"
         LibraryVariableStorage.Dequeue(PayToVendorNo2);
         PurchaseReceipts."Purch. Rcpt. Header".SetFilter(
           "Pay-to Vendor No.", StrSubstNo(PayToVendorNoFilter, PayToVendorNo, PayToVendorNo2));
-        PurchaseReceipts."Purch. Rcpt. Header".SetFilter("Posting Date", Format(WorkDate));
+        PurchaseReceipts."Purch. Rcpt. Header".SetFilter("Posting Date", Format(WorkDate()));
         PurchaseReceipts.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 
@@ -895,7 +895,7 @@ codeunit 141077 "UT APAC Miscellaneous Reports"
     [Scope('OnPrem')]
     procedure PurchaseReceiptsRequestPageHandlerSimple(var PurchaseReceipts: TestRequestPage "Purchase Receipts")
     begin
-        PurchaseReceipts."Purch. Rcpt. Header".SetFilter("Posting Date", Format(WorkDate));
+        PurchaseReceipts."Purch. Rcpt. Header".SetFilter("Posting Date", Format(WorkDate()));
         PurchaseReceipts.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 }

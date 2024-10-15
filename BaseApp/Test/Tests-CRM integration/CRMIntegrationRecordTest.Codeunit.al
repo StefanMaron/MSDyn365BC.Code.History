@@ -30,7 +30,7 @@ codeunit 139161 "CRM Integration Record Test"
         Assert.IsFalse(
           CRMIntegrationRecord.FindIDFromRecordID(Customer.RecordId, CRMId),
           'Did not expect a CRM Integration record to be created at this time');
-        CRMId := CreateGuid;
+        CRMId := CreateGuid();
         CRMIntegrationRecord.CoupleCRMIDToRecordID(CRMId, Customer.RecordId);
 
         // Verify Lookup
@@ -55,7 +55,7 @@ codeunit 139161 "CRM Integration Record Test"
 
         LibrarySales.CreateCustomer(Customer);
 
-        CRMId := CreateGuid;
+        CRMId := CreateGuid();
         CRMIntegrationRecord.CoupleCRMIDToRecordID(CRMId, Customer.RecordId);
 
         // Verify Lookup
@@ -85,7 +85,7 @@ codeunit 139161 "CRM Integration Record Test"
         // [THEN] CRM Integration Record is created
         CRMIntegrationRecord.SetFilter("Integration ID", Customer.SystemId);
         Assert.AreEqual(0, CRMIntegrationRecord.Count, 'Did not expect any couplings to CRM');
-        CRMID := CreateGuid;
+        CRMID := CreateGuid();
         CRMIntegrationRecord.Reset();
         CRMIntegrationRecord.CoupleCRMIDToRecordID(CRMID, Customer.RecordId);
         CRMIntegrationRecord.Reset();
@@ -109,12 +109,12 @@ codeunit 139161 "CRM Integration Record Test"
         // [WHEN] Creating a coupling between CRMID and Record
         // [THEN] Error - Already coupled.
         LibraryCRMIntegration.CreateCRMConnectionSetup('', 'testhostname.domain.int', true);
-        CRMID := CreateGuid;
+        CRMID := CreateGuid();
 
         LibrarySales.CreateCustomer(Customer);
         CRMIntegrationRecord.CoupleCRMIDToRecordID(CRMID, Customer.RecordId);
 
-        NewCRMID := CreateGuid;
+        NewCRMID := CreateGuid();
         asserterror CRMIntegrationRecord.CoupleCRMIDToRecordID(NewCRMID, Customer.RecordId);
     end;
 
@@ -157,7 +157,7 @@ codeunit 139161 "CRM Integration Record Test"
         // [GIVEN] A valid CRM Setup
         LibraryCRMIntegration.CreateCRMConnectionSetup('', 'testhostname.domain.int', true);
         LibrarySales.CreateCustomer(Customer);
-        CRMID := CreateGuid;
+        CRMID := CreateGuid();
 
         // [GIVEN] A CRMID
         // [GIVEN] A New Record
@@ -173,7 +173,7 @@ codeunit 139161 "CRM Integration Record Test"
         // [GIVEN] New Cutomer record
         // [WHEN] Creating a coupling between Record and CRMID
         // [THEN] CRM Integration Record is updated with the new Integration ID
-        CRMID := CreateGuid;
+        CRMID := CreateGuid();
         CRMIntegrationRecord.SetFilter("CRM ID", CRMID);
         Assert.AreEqual(0, CRMIntegrationRecord.Count, 'Did not expect any couplings to CRM for the newly created crm id');
 
@@ -205,7 +205,7 @@ codeunit 139161 "CRM Integration Record Test"
         // [THEN] Error - Already coupled.
         LibraryCRMIntegration.CreateCRMConnectionSetup('', 'testhostname.domain.int', true);
         LibrarySales.CreateCustomer(Customer);
-        CRMID := CreateGuid;
+        CRMID := CreateGuid();
         CRMIntegrationRecord.CoupleRecordIdToCRMID(Customer.RecordId, CRMID);
 
         CRMIntegrationRecord.Reset();
@@ -227,7 +227,7 @@ codeunit 139161 "CRM Integration Record Test"
         // [GIVEN] A valid CRM setup
         LibraryCRMIntegration.CreateCRMConnectionSetup('', 'testhostname.domain.int', true);
         LibrarySales.CreateCustomer(Customer);
-        CRMID := CreateGuid;
+        CRMID := CreateGuid();
         CRMIntegrationRecord.CoupleRecordIdToCRMID(Customer.RecordId, CRMID);
 
         // [GIVEN] An existing but 'broken' coupling to a deleted NAV entity
@@ -266,7 +266,7 @@ codeunit 139161 "CRM Integration Record Test"
         // [THEN] Error - Already coupled.
         LibraryCRMIntegration.CreateCRMConnectionSetup('', 'testhostname.domain.int', true);
         LibrarySales.CreateCustomer(Customer);
-        CRMID := CreateGuid;
+        CRMID := CreateGuid();
         CRMIntegrationRecord.CoupleRecordIdToCRMID(Customer.RecordId, CRMID);
 
         LibrarySales.CreateCustomer(NewCustomer);
@@ -294,11 +294,11 @@ codeunit 139161 "CRM Integration Record Test"
         // [THEN] The two CRM Integration Records are replaced by one, coupling CustomerB and CRM AccountA
         LibraryCRMIntegration.CreateCRMConnectionSetup('', 'testhostname.domain.int', true);
         LibrarySales.CreateCustomer(CustomerA);
-        CRMIDA := CreateGuid;
+        CRMIDA := CreateGuid();
         CRMIntegrationRecord.CoupleRecordIdToCRMID(CustomerA.RecordId, CRMIDA);
 
         LibrarySales.CreateCustomer(CustomerB);
-        CRMIDB := CreateGuid;
+        CRMIDB := CreateGuid();
         CRMIntegrationRecord.CoupleRecordIdToCRMID(CustomerB.RecordId, CRMIDB);
 
         CRMIntegrationRecord.FindByCRMID(CRMIDA);
@@ -409,7 +409,7 @@ codeunit 139161 "CRM Integration Record Test"
         // [GIVEN] Sales Order is coupled ot CRMSalesorder
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
         LibrarySales.CreateSalesLineSimple(SalesLine, SalesHeader);
-        CRMSalesorder.SalesOrderId := CreateGuid;
+        CRMSalesorder.SalesOrderId := CreateGuid();
         CRMSalesorder.Insert();
         CRMIntegrationRecord.CoupleCRMIDToRecordID(CRMSalesorder.SalesOrderId, SalesHeader.RecordId);
 

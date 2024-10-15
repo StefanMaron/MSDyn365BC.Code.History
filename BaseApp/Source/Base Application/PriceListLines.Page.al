@@ -245,24 +245,6 @@ page 7001 "Price List Lines"
                     StyleExpr = PriceStyle;
                     ToolTip = 'Specifies the unit cost factor for job-related prices, if you have agreed with your customer that he should pay certain item usage by cost value plus a certain percent value to cover your overhead expenses.';
                 }
-#if not CLEAN18
-                field("Unit Cost"; Rec."Unit Cost")
-                {
-                    Visible = false;
-                    ToolTip = 'Specifies the unit cost of the product.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Purchase price field is in the Purchase Price List Lines page.';
-                    ObsoleteTag = '18.0';
-                }
-                field(DirectUnitCost; Rec."Direct Unit Cost")
-                {
-                    Visible = false;
-                    ToolTip = 'Specifies the direct unit cost of the product.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Purchase price field is in the Purchase Price List Lines page.';
-                    ObsoleteTag = '18.0';
-                }
-#endif
                 field("Allow Line Disc."; Rec."Allow Line Disc.")
                 {
                     ApplicationArea = All;
@@ -340,9 +322,9 @@ page 7001 "Price List Lines"
             if Rec."Currency Code" = '' then
                 Rec."Currency Code" := PriceListHeader."Currency Code";
         end;
+        Rec."Amount Type" := ViewAmountType;
         Rec.Validate("Asset Type", xRec."Asset Type");
         UpdateSourceType();
-        Rec."Amount Type" := ViewAmountType;
     end;
 
     local procedure GetHeader(): Boolean
@@ -513,22 +495,6 @@ page 7001 "Price List Lines"
         SetSourceNoEnabled();
         CurrPage.Update(true);
     end;
-
-#if not CLEAN18
-    [Obsolete('Used to be a workaround for now fixed bug 374742.', '18.0')]
-    procedure RunOnAfterSetSubFormLinkFilter()
-    var
-        SkipActivate: Boolean;
-    begin
-        OnAfterSetSubFormLinkFilter(SkipActivate);
-    end;
-
-    [Obsolete('Used to be a workaround for now fixed bug 374742.', '18.0')]
-    [IntegrationEvent(true, false)]
-    local procedure OnAfterSetSubFormLinkFilter(var SkipActivate: Boolean)
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateSourceTypeOnCaseElse(PriceListHeader: Record "Price List Header"; var SourceType: Enum "Sales Price Source Type"; var IsJobGroup: Boolean)

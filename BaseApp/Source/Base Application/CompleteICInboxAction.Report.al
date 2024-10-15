@@ -26,7 +26,7 @@ report 511 "Complete IC Inbox Action"
                             if AccType = AccType::Vendor then
                                 "Account Type" := "Account Type"::Vendor;
                             Validate("Account No.", AccNo);
-                            Modify;
+                            Modify();
                         end;
                     end;
                     InboxJnlLine2 := "IC Inbox Jnl. Line";
@@ -194,7 +194,7 @@ report 511 "Complete IC Inbox Action"
                     Error(
                       Text001, InboxTransaction2.FieldCaption("Transaction No."),
                       InboxTransaction2."Transaction No.", InboxTransaction2."IC Partner Code",
-                      HandledInboxTransaction2.TableCaption);
+                      HandledInboxTransaction2.TableCaption());
                 InboxTransaction2.Delete();
 
                 ICIOMgt.HandleICComments(ICCommentLine."Table Name"::"IC Inbox Transaction",
@@ -249,14 +249,14 @@ report 511 "Complete IC Inbox Action"
                             begin
                                 if PAGE.RunModal(0, GenJnlTemplate) = ACTION::LookupOK then begin
                                     TempGenJnlLine."Journal Template Name" := GenJnlTemplate.Name;
-                                    ValidateJnl;
+                                    PageValidateJnl();
                                 end;
                             end;
 
                             trigger OnValidate()
                             begin
                                 TempGenJnlLine."Journal Batch Name" := '';
-                                ValidateJnl;
+                                PageValidateJnl();
                             end;
                         }
                         field("TempGenJnlLine.""Journal Batch Name"""; TempGenJnlLine."Journal Batch Name")
@@ -287,7 +287,7 @@ report 511 "Complete IC Inbox Action"
                                     TempGenJnlLine.TestField("Journal Template Name");
                                     GenJnlBatch.Get(TempGenJnlLine."Journal Template Name", TempGenJnlLine."Journal Batch Name");
                                 end;
-                                ValidateJnl;
+                                PageValidateJnl();
                             end;
                         }
                         field("TempGenJnlLine.""Document No."""; TempGenJnlLine."Document No.")
@@ -321,7 +321,7 @@ report 511 "Complete IC Inbox Action"
 
                             trigger OnValidate()
                             begin
-                                ValidateJnl;
+                                PageValidateJnl();
                             end;
                         }
                     }
@@ -336,9 +336,9 @@ report 511 "Complete IC Inbox Action"
 
                             trigger OnValidate()
                             begin
-                                if ReplaceDocPostingDate then begin
+                                if ReplaceDocPostingDate then
                                     DocPostingDateEditable := true
-                                end else begin
+                                else begin
                                     DocPostingDate := 0D;
                                     DocPostingDateEditable := false;
                                 end;
@@ -400,7 +400,7 @@ report 511 "Complete IC Inbox Action"
 
         trigger OnOpenPage()
         begin
-            ValidateJnl;
+            PageValidateJnl();
             if ReplaceDocPostingDate then
                 DocPostingDateEditable := true
             else
@@ -413,7 +413,6 @@ report 511 "Complete IC Inbox Action"
     }
 
     var
-        TempGenJnlLine: Record "Gen. Journal Line" temporary;
         GenJnlTemplate: Record "Gen. Journal Template";
         GenJnlBatch: Record "Gen. Journal Batch";
         GLSetup: Record "General Ledger Setup";
@@ -423,7 +422,6 @@ report 511 "Complete IC Inbox Action"
         ICIOMgt: Codeunit ICInboxOutboxMgt;
         DimMgt: Codeunit DimensionManagement;
         GLSetupFound: Boolean;
-        ReplacePostingDate: Boolean;
         Forward: Boolean;
         Text001: Label '%1 %2 from IC Partner %3 already exists in the %4 window. You have to delete %1 %2 in the %4 window before you complete the line action.';
         AccType: Option "G/L Account",Vendor;
@@ -434,14 +432,10 @@ report 511 "Complete IC Inbox Action"
         PostingDateEditable: Boolean;
 
     protected var
+        TempGenJnlLine: Record "Gen. Journal Line" temporary;
+        ReplacePostingDate: Boolean;
         ReplaceDocPostingDate: Boolean;
         DocPostingDate: Date;
-
-    local procedure ValidateJnl()
-    begin
-        PageValidateJnl;
-        exit;
-    end;
 
     local procedure GetGLSetup()
     begin
@@ -450,7 +444,7 @@ report 511 "Complete IC Inbox Action"
         GLSetupFound := true;
     end;
 
-    local procedure PageValidateJnl()
+    procedure PageValidateJnl()
     var
         GenJnlLine: Record "Gen. Journal Line";
     begin
@@ -475,7 +469,7 @@ report 511 "Complete IC Inbox Action"
     begin
         TempGenJnlLine."Journal Template Name" := JournalTemplateName;
         TempGenJnlLine."Journal Batch Name" := JournalBatchName;
-        ValidateJnl();
+        PageValidateJnl();
     end;
 
     local procedure GetDefaultJnlTemplateAndBatch()
@@ -497,7 +491,7 @@ report 511 "Complete IC Inbox Action"
 
         TempGenJnlLine."Journal Template Name" := ICSetup."Default IC Gen. Jnl. Template";
         TempGenJnlLine."Journal Batch Name" := ICSetup."Default IC Gen. Jnl. Batch";
-        ValidateJnl();
+        PageValidateJnl();
     end;
 
     [IntegrationEvent(false, false)]

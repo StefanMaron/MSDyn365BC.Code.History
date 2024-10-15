@@ -34,26 +34,10 @@ table 6650 "Return Shipment Header"
         field(7; "Pay-to Address"; Text[100])
         {
             Caption = 'Pay-to Address';
-
-            trigger OnValidate()
-            begin
-                PostCodeCheck.ValidateAddress(
-                  CurrFieldNo, DATABASE::"Purchase Header", GetPosition, 4,
-                  "Pay-to Name", "Pay-to Name 2", "Pay-to Contact", "Pay-to Address", "Pay-to Address 2",
-                  "Pay-to City", "Pay-to Post Code", "Pay-to County", "Pay-to Country/Region Code");
-            end;
         }
         field(8; "Pay-to Address 2"; Text[50])
         {
             Caption = 'Pay-to Address 2';
-
-            trigger OnValidate()
-            begin
-                PostCodeCheck.ValidateAddress(
-                  CurrFieldNo, DATABASE::"Purchase Header", GetPosition, 4,
-                  "Pay-to Name", "Pay-to Name 2", "Pay-to Contact", "Pay-to Address", "Pay-to Address 2",
-                  "Pay-to City", "Pay-to Post Code", "Pay-to County", "Pay-to Country/Region Code");
-            end;
         }
         field(9; "Pay-to City"; Text[30])
         {
@@ -64,14 +48,6 @@ table 6650 "Return Shipment Header"
             //This property is currently not supported
             //TestTableRelation = false;
             ValidateTableRelation = false;
-
-            trigger OnValidate()
-            begin
-                PostCodeCheck.ValidateCity(
-                  CurrFieldNo, DATABASE::"Purchase Header", GetPosition, 4,
-                  "Pay-to Name", "Pay-to Name 2", "Pay-to Contact", "Pay-to Address", "Pay-to Address 2",
-                  "Pay-to City", "Pay-to Post Code", "Pay-to County", "Pay-to Country/Region Code");
-            end;
         }
         field(10; "Pay-to Contact"; Text[100])
         {
@@ -97,26 +73,10 @@ table 6650 "Return Shipment Header"
         field(15; "Ship-to Address"; Text[100])
         {
             Caption = 'Ship-to Address';
-
-            trigger OnValidate()
-            begin
-                PostCodeCheck.ValidateAddress(
-                  CurrFieldNo, DATABASE::"Purchase Header", GetPosition, 2,
-                  "Ship-to Name", "Ship-to Name 2", "Ship-to Contact", "Ship-to Address", "Ship-to Address 2",
-                  "Ship-to City", "Ship-to Post Code", "Ship-to County", "Ship-to Country/Region Code");
-            end;
         }
         field(16; "Ship-to Address 2"; Text[50])
         {
             Caption = 'Ship-to Address 2';
-
-            trigger OnValidate()
-            begin
-                PostCodeCheck.ValidateAddress(
-                  CurrFieldNo, DATABASE::"Purchase Header", GetPosition, 2,
-                  "Ship-to Name", "Ship-to Name 2", "Ship-to Contact", "Ship-to Address", "Ship-to Address 2",
-                  "Ship-to City", "Ship-to Post Code", "Ship-to County", "Ship-to Country/Region Code");
-            end;
         }
         field(17; "Ship-to City"; Text[30])
         {
@@ -127,14 +87,6 @@ table 6650 "Return Shipment Header"
             //This property is currently not supported
             //TestTableRelation = false;
             ValidateTableRelation = false;
-
-            trigger OnValidate()
-            begin
-                PostCodeCheck.ValidateCity(
-                  CurrFieldNo, DATABASE::"Purchase Header", GetPosition, 2,
-                  "Ship-to Name", "Ship-to Name 2", "Ship-to Contact", "Ship-to Address", "Ship-to Address 2",
-                  "Ship-to City", "Ship-to Post Code", "Ship-to County", "Ship-to Country/Region Code");
-            end;
         }
         field(18; "Ship-to Contact"; Text[100])
         {
@@ -315,26 +267,10 @@ table 6650 "Return Shipment Header"
         field(81; "Buy-from Address"; Text[100])
         {
             Caption = 'Buy-from Address';
-
-            trigger OnValidate()
-            begin
-                PostCodeCheck.ValidateAddress(
-                  CurrFieldNo, DATABASE::"Purchase Header", GetPosition, 5,
-                  "Buy-from Vendor Name", "Buy-from Vendor Name 2", "Buy-from Contact", "Buy-from Address", "Buy-from Address 2",
-                  "Buy-from City", "Buy-from Post Code", "Buy-from County", "Buy-from Country/Region Code");
-            end;
         }
         field(82; "Buy-from Address 2"; Text[50])
         {
             Caption = 'Buy-from Address 2';
-
-            trigger OnValidate()
-            begin
-                PostCodeCheck.ValidateAddress(
-                  CurrFieldNo, DATABASE::"Purchase Header", GetPosition, 5,
-                  "Buy-from Vendor Name", "Buy-from Vendor Name 2", "Buy-from Contact", "Buy-from Address", "Buy-from Address 2",
-                  "Buy-from City", "Buy-from Post Code", "Buy-from County", "Buy-from Country/Region Code");
-            end;
         }
         field(83; "Buy-from City"; Text[30])
         {
@@ -345,14 +281,6 @@ table 6650 "Return Shipment Header"
             //This property is currently not supported
             //TestTableRelation = false;
             ValidateTableRelation = false;
-
-            trigger OnValidate()
-            begin
-                PostCodeCheck.ValidateCity(
-                  CurrFieldNo, DATABASE::"Purchase Header", GetPosition, 5,
-                  "Buy-from Vendor Name", "Buy-from Vendor Name 2", "Buy-from Contact", "Buy-from Address", "Buy-from Address 2",
-                  "Buy-from City", "Buy-from Post Code", "Buy-from County", "Buy-from Country/Region Code");
-            end;
         }
         field(84; "Buy-from Contact"; Text[100])
         {
@@ -367,14 +295,6 @@ table 6650 "Return Shipment Header"
             //This property is currently not supported
             //TestTableRelation = false;
             ValidateTableRelation = false;
-
-            trigger OnValidate()
-            begin
-                PostCodeCheck.ValidatePostCode(
-                  CurrFieldNo, DATABASE::"Purchase Header", GetPosition, 4,
-                  "Pay-to Name", "Pay-to Name 2", "Pay-to Contact", "Pay-to Address", "Pay-to Address 2",
-                  "Pay-to City", "Pay-to Post Code", "Pay-to County", "Pay-to Country/Region Code");
-            end;
         }
         field(86; "Pay-to County"; Text[30])
         {
@@ -395,14 +315,6 @@ table 6650 "Return Shipment Header"
             //This property is currently not supported
             //TestTableRelation = false;
             ValidateTableRelation = false;
-
-            trigger OnValidate()
-            begin
-                PostCodeCheck.ValidatePostCode(
-                  CurrFieldNo, DATABASE::"Purchase Header", GetPosition, 5,
-                  "Buy-from Vendor Name", "Buy-from Vendor Name 2", "Buy-from Contact", "Buy-from Address", "Buy-from Address 2",
-                  "Buy-from City", "Buy-from Post Code", "Buy-from County", "Buy-from Country/Region Code");
-            end;
         }
         field(89; "Buy-from County"; Text[30])
         {
@@ -423,14 +335,6 @@ table 6650 "Return Shipment Header"
             //This property is currently not supported
             //TestTableRelation = false;
             ValidateTableRelation = false;
-
-            trigger OnValidate()
-            begin
-                PostCodeCheck.ValidatePostCode(
-                  CurrFieldNo, DATABASE::"Purchase Header", GetPosition, 2,
-                  "Ship-to Name", "Ship-to Name 2", "Ship-to Contact", "Ship-to Address", "Ship-to Address 2",
-                  "Ship-to City", "Ship-to Post Code", "Ship-to County", "Ship-to Country/Region Code");
-            end;
         }
         field(92; "Ship-to County"; Text[30])
         {
@@ -625,28 +529,18 @@ table 6650 "Return Shipment Header"
 
         ApprovalsMgmt.DeletePostedApprovalEntries(RecordId);
 
-        PostCodeCheck.DeleteAllAddressID(DATABASE::"Return Shipment Header", GetPosition);
         if CertificateOfSupply.Get(CertificateOfSupply."Document Type"::"Return Shipment", "No.") then
             CertificateOfSupply.Delete(true);
-    end;
-
-    trigger OnRename()
-    begin
-        PostCodeCheck.MoveAllAddressID(
-          DATABASE::"Return Shipment Header", xRec.GetPosition,
-          DATABASE::"Return Shipment Header", GetPosition);
     end;
 
     var
         ReturnShptHeader: Record "Return Shipment Header";
         PurchCommentLine: Record "Purch. Comment Line";
-        PostCode: Record "Post Code";
         PostPurchLinesDelete: Codeunit "PostPurch-Delete";
         DimMgt: Codeunit DimensionManagement;
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
         UserSetupMgt: Codeunit "User Setup Management";
         Text001: Label 'Posted Document Dimensions';
-        PostCodeCheck: Codeunit "Post Code Check";
 
     procedure PrintRecords(ShowRequestForm: Boolean)
     var
@@ -670,7 +564,7 @@ table 6650 "Return Shipment Header"
 
     procedure ShowDimensions()
     begin
-        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1,%2 %3', TableCaption, "No.", Text001));
+        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1,%2 %3', TableCaption(), "No.", Text001));
     end;
 
     procedure SetSecurityFilterOnRespCenter()
@@ -682,9 +576,9 @@ table 6650 "Return Shipment Header"
         if IsHandled then
             exit;
 
-        if UserSetupMgt.GetPurchasesFilter <> '' then begin
+        if UserSetupMgt.GetPurchasesFilter() <> '' then begin
             FilterGroup(2);
-            SetRange("Responsibility Center", UserSetupMgt.GetPurchasesFilter);
+            SetRange("Responsibility Center", UserSetupMgt.GetPurchasesFilter());
             FilterGroup(0);
         end;
     end;

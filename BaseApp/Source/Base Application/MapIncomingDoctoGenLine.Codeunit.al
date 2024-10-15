@@ -6,7 +6,7 @@ codeunit 1224 "Map Incoming Doc to Gen. Line"
     begin
         IncomingDocument := Rec;
         ErrorMessage.SetContext(IncomingDocument);
-        CreateGeneralJournalLineFromIncomingDocument;
+        CreateGeneralJournalLineFromIncomingDocument();
     end;
 
     var
@@ -65,7 +65,7 @@ codeunit 1224 "Map Incoming Doc to Gen. Line"
             if TempGenJournalLineInserted then
                 LastGenJournalLine.Delete();
 
-            GenJournalLine."Document Type" := GetAttachedDocumentType;
+            GenJournalLine."Document Type" := GetAttachedDocumentType();
 
             TextToAccountMapping.SetFilter("Mapping Text", StrSubstNo('@%1', IncomingDocument."Vendor Name"));
             TextToAccountMappingFound := TextToAccountMapping.FindFirst();
@@ -145,7 +145,7 @@ codeunit 1224 "Map Incoming Doc to Gen. Line"
         DataExch.SetRange("Incoming Entry No.", IncomingDocument."Entry No.");
         if not DataExch.FindLast() then
             ErrorMessage.LogMessage(GenJournalLine, GenJournalLine.FieldNo("Document Type"),
-              ErrorMessage."Message Type"::Error, PreMapIncomingPurchDoc.ConstructDocumenttypeUnknownErr);
+              ErrorMessage."Message Type"::Error, PreMapIncomingPurchDoc.ConstructDocumenttypeUnknownErr());
         Value :=
           IntermediateDataImport.GetEntryValue(
             DataExch."Entry No.", DATABASE::"Purchase Header", PurchaseHeader.FieldNo("Document Type"), 0, 1);
@@ -157,7 +157,7 @@ codeunit 1224 "Map Incoming Doc to Gen. Line"
                 exit(GenJournalLine."Document Type"::"Credit Memo");
             else
                 ErrorMessage.LogMessage(GenJournalLine, GenJournalLine.FieldNo("Document Type"),
-                  ErrorMessage."Message Type"::Error, PreMapIncomingPurchDoc.ConstructDocumenttypeUnknownErr);
+                  ErrorMessage."Message Type"::Error, PreMapIncomingPurchDoc.ConstructDocumenttypeUnknownErr());
         end;
         exit("Gen. Journal Document Type"::" ");
     end;

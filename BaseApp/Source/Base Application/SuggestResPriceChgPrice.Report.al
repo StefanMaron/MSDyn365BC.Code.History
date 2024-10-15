@@ -1,4 +1,4 @@
-#if not CLEAN19
+#if not CLEAN21
 report 1192 "Suggest Res. Price Chg.(Price)"
 {
     Caption = 'Suggest Res. Price Chg.(Price)';
@@ -38,20 +38,20 @@ report 1192 "Suggest Res. Price Chg.(Price)"
                     if "Currency Code" <> '' then
                         ResPriceChg."New Unit Price" :=
                           CurrExchRate.ExchangeAmtFCYToLCY(
-                            WorkDate, "Currency Code", ResPriceChg."New Unit Price",
+                            WorkDate(), "Currency Code", ResPriceChg."New Unit Price",
                             CurrExchRate.ExchangeRate(
-                              WorkDate, "Currency Code"));
+                              WorkDate(), "Currency Code"));
                     if ResPriceChg."Currency Code" <> '' then
                         ResPriceChg."New Unit Price" :=
                           CurrExchRate.ExchangeAmtLCYToFCY(
-                            WorkDate, ResPriceChg."Currency Code",
+                            WorkDate(), ResPriceChg."Currency Code",
                             ResPriceChg."New Unit Price",
                             CurrExchRate.ExchangeRate(
-                              WorkDate, ResPriceChg."Currency Code"));
+                              WorkDate(), ResPriceChg."Currency Code"));
                 end;
 
                 if ResPriceChg."Currency Code" = '' then
-                    Currency2.InitRoundingPrecision
+                    Currency2.InitRoundingPrecision()
                 else begin
                     Currency2.Get(ResPriceChg."Currency Code");
                     Currency2.TestField("Unit-Amount Rounding Precision");
@@ -89,7 +89,7 @@ report 1192 "Suggest Res. Price Chg.(Price)"
                 if PriceAlreadyExists or CreateNewPrices then begin
                     ResPriceChg2 := ResPriceChg;
                     if ResPriceChg2.Find('=') then
-                        ResPriceChg.Modify
+                        ResPriceChg.Modify()
                     else
                         ResPriceChg.Insert();
                 end;
@@ -187,13 +187,10 @@ report 1192 "Suggest Res. Price Chg.(Price)"
     begin
         RoundingMethod.SetRange(Code, RoundingMethod.Code);
         if ToCurrency.Code <> '' then
-            ToCurrency.Find;
+            ToCurrency.Find();
     end;
 
     var
-        Text001: Label 'Processing resources...\\';
-        Text002: Label 'Type         #1##########\';
-        Text003: Label 'Code         #2##########\';
         RoundingMethod: Record "Rounding Method";
         ToCurrency: Record Currency;
         CurrExchRate: Record "Currency Exchange Rate";
@@ -207,6 +204,10 @@ report 1192 "Suggest Res. Price Chg.(Price)"
         UnitPricefactor: Decimal;
         PriceLowerLimit: Decimal;
         PriceAlreadyExists: Boolean;
+
+        Text001: Label 'Processing resources...\\';
+        Text002: Label 'Type         #1##########\';
+        Text003: Label 'Code         #2##########\';
 
     procedure InitializeCopyToResPrice(CurrencyCode: Code[10]; WorkTypeCode: Code[10])
     begin

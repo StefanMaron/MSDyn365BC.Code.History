@@ -1,4 +1,4 @@
-﻿codeunit 141021 "ERM Electronic - Banking"
+codeunit 141021 "ERM Electronic - Banking"
 {
     EventSubscriberInstance = Manual;
     Subtype = Test;
@@ -55,7 +55,7 @@
         // [THEN] Verify EFT Payment and EFT Bank Account No on Vendor Card.
         VendorCard."EFT Payment".AssertEquals(true);
         VendorCard."EFT Bank Account No.".AssertEquals(Vendor."EFT Bank Account No.");
-        VendorCard.Close;
+        VendorCard.Close();
     end;
 
     [Test]
@@ -114,7 +114,7 @@
         OldGSTProdPostingGroup := UpdateGLSetupAndPurchasesPayablesSetup(VATPostingSetup);
         CreateMultipleWHTPostingSetup(WHTPostingSetup);
         BankAccountNo :=
-          CreateBankAccount(true, CalcDate('<-' + Format(LibraryRandom.RandIntInRange(1, 5)) + 'D>', WorkDate));  // EFT Payment -TRUE, Last Payment Date before WORKDATE.
+          CreateBankAccount(true, CalcDate('<-' + Format(LibraryRandom.RandIntInRange(1, 5)) + 'D>', WorkDate()));  // EFT Payment -TRUE, Last Payment Date before WORKDATE.
         CreateGenJournalBatch(GenJournalBatch, BankAccountNo);
         VendorFilter :=
           CreateAndPostMultiplePurchaseOrder(
@@ -159,7 +159,7 @@
         GeneralLedgerSetup.Get();
         OldGSTProdPostingGroup := UpdateGLSetupAndPurchasesPayablesSetup(VATPostingSetup);
         BankAccountNo :=
-          CreateBankAccount(true, CalcDate('<-' + Format(LibraryRandom.RandIntInRange(1, 5)) + 'D>', WorkDate));  // EFT Payment -TRUE, Last Payment Date before WORKDATE.
+          CreateBankAccount(true, CalcDate('<-' + Format(LibraryRandom.RandIntInRange(1, 5)) + 'D>', WorkDate()));  // EFT Payment -TRUE, Last Payment Date before WORKDATE.
         CreateGenJournalBatch(GenJournalBatch, BankAccountNo);
         CreateMultipleWHTPostingSetup(WHTPostingSetup);
         VendorFilter :=
@@ -205,7 +205,7 @@
         GeneralLedgerSetup.Get();
         OldGSTProdPostingGroup := UpdateGLSetupAndPurchasesPayablesSetup(VATPostingSetup);
         BankAccountNo :=
-          CreateBankAccount(false, CalcDate('<-' + Format(LibraryRandom.RandIntInRange(1, 5)) + 'D>', WorkDate));  // EFT Payment - FALSE, Last Payment Date before WORKDATE.
+          CreateBankAccount(false, CalcDate('<-' + Format(LibraryRandom.RandIntInRange(1, 5)) + 'D>', WorkDate()));  // EFT Payment - FALSE, Last Payment Date before WORKDATE.
         CreateGenJournalBatch(GenJournalBatch, BankAccountNo);
         FindWHTPostingSetup(WHTPostingSetup);
         CreateVendor(Vendor, WHTPostingSetup."WHT Business Posting Group", VATPostingSetup."VAT Bus. Posting Group");
@@ -269,7 +269,7 @@
         MaxPaymentToleranceAmount := LibraryRandom.RandDec(10, 2);
         UpdateGLSetupPaymentToleranceWarning(PaymentToleranceWarning, MaxPaymentToleranceAmount);
         BankAccountNo :=
-          CreateBankAccount(true, CalcDate('<-' + Format(LibraryRandom.RandIntInRange(1, 5)) + 'D>', WorkDate));  // EFT Payment -TRUE, Last Payment Date before WORKDATE.
+          CreateBankAccount(true, CalcDate('<-' + Format(LibraryRandom.RandIntInRange(1, 5)) + 'D>', WorkDate()));  // EFT Payment -TRUE, Last Payment Date before WORKDATE.
         CreateGenJournalBatch(GenJournalBatch, BankAccountNo);
         FindWHTPostingSetup(WHTPostingSetup);
         CreateVendor(Vendor, WHTPostingSetup."WHT Business Posting Group", VATPostingSetup."VAT Bus. Posting Group");
@@ -321,7 +321,7 @@
         GeneralLedgerSetup.Get();
         OldGSTProdPostingGroup := UpdateGLSetupAndPurchasesPayablesSetup(VATPostingSetup);
         BankAccountNo :=
-          CreateBankAccount(true, CalcDate('<-' + Format(LibraryRandom.RandIntInRange(1, 5)) + 'D>', WorkDate));  // EFT Payment -TRUE, Last Payment Date before WORKDATE.
+          CreateBankAccount(true, CalcDate('<-' + Format(LibraryRandom.RandIntInRange(1, 5)) + 'D>', WorkDate()));  // EFT Payment -TRUE, Last Payment Date before WORKDATE.
         CreateGenJournalBatch(GenJournalBatch, BankAccountNo);
         FindWHTPostingSetup(WHTPostingSetup);
         CreateVendor(Vendor, WHTPostingSetup."WHT Business Posting Group", VATPostingSetup."VAT Bus. Posting Group");
@@ -361,7 +361,7 @@
           StrSubstNo('%1 %2', CompanyInformation.ABN, CompanyInformation."ABN Division Part No."),
           CompanyInformation.GetRegistrationNumber,
           WrongRegNoErr);
-        Assert.AreEqual(CompanyInformation.FieldCaption(ABN), CompanyInformation.GetRegistrationNumberLbl, WrongRegNoLblErr);
+        Assert.AreEqual(CompanyInformation.FieldCaption(ABN), CompanyInformation.GetRegistrationNumberLbl(), WrongRegNoLblErr);
     end;
 
     [Test]
@@ -377,7 +377,7 @@
         CompanyInformation.Validate("ABN Division Part No.", '');
         CompanyInformation.Modify();
         Assert.AreEqual(CompanyInformation.ABN, CompanyInformation.GetRegistrationNumber, WrongRegNoErr);
-        Assert.AreEqual(CompanyInformation.FieldCaption(ABN), CompanyInformation.GetRegistrationNumberLbl, WrongRegNoLblErr);
+        Assert.AreEqual(CompanyInformation.FieldCaption(ABN), CompanyInformation.GetRegistrationNumberLbl(), WrongRegNoLblErr);
     end;
 
     [Test]
@@ -427,7 +427,7 @@
         GeneralLedgerSetup.Get();
         OldGSTProdPostingGroup := UpdateGLSetupAndPurchasesPayablesSetup(VATPostingSetup);
         BankAccountNo :=
-          CreateBankAccount(true, CalcDate('<-' + Format(LibraryRandom.RandIntInRange(1, 5)) + 'D>', WorkDate));  // EFT Payment -TRUE, Last Payment Date before WORKDATE.
+          CreateBankAccount(true, CalcDate('<-' + Format(LibraryRandom.RandIntInRange(1, 5)) + 'D>', WorkDate()));  // EFT Payment -TRUE, Last Payment Date before WORKDATE.
         CreateGenJournalBatch(GenJournalBatch, BankAccountNo);
         FindWHTPostingSetup(WHTPostingSetup);
         CreateVendor(Vendor, WHTPostingSetup."WHT Business Posting Group", VATPostingSetup."VAT Bus. Posting Group");
@@ -657,7 +657,7 @@
 
         // [GIVEN] Create payment lines applied to invoices without balance account
         CreateGenJournalBatchWithBankAccount(GenJournalBatch);
-        PaymentNo := CopyStr(Format(CreateGuid), 1, MaxStrLen(GenJournalLine."Document No."));
+        PaymentNo := CopyStr(Format(CreateGuid()), 1, MaxStrLen(GenJournalLine."Document No."));
         for i := 1 to 3 do
             TotalAmount +=
               CreatePaymentJournalLineAppliedToInvoice(GenJournalBatch, Vendor[i], PaymentNo, InvoiceNo[i]);
@@ -745,7 +745,7 @@
         PaymentJournal.CancelExport.Invoke;
 
         // [THEN] Exported journal line "EFT Register No." = 0
-        GenJournalLine.Find;
+        GenJournalLine.Find();
         GenJournalLine.TestField("EFT Register No.", 0);
     end;
 
@@ -1136,7 +1136,7 @@
             VendBankAcc.Get(GenJournalLine."Account No.", GenJournalLine."Customer/Vendor Bank");
             Assert.AreEqual(GenJournalLine."Bank Branch No.", VendBankAcc."Bank Branch No.", 'Bank Branch No.');
             Assert.AreEqual(GenJournalLine."Bank Account No.", VendBankAcc."Bank Account No.", 'Bank Account No.');
-        until GenJournalLine.Next = 0;
+        until GenJournalLine.Next() = 0;
     end;
 
     [Test]
@@ -1171,7 +1171,7 @@
 
         // [GIVEN] Create payment line applied to invoice without balance account
         CreateGenJournalBatchWithBankAccount(GenJournalBatch);
-        PaymentNo := CopyStr(Format(CreateGuid), 1, MaxStrLen(GenJournalLine."Document No."));
+        PaymentNo := CopyStr(Format(CreateGuid()), 1, MaxStrLen(GenJournalLine."Document No."));
 
         VendorLedgerEntry.SetRange("Document Type", VendorLedgerEntry."Document Type"::Invoice);
         VendorLedgerEntry.SetRange("Document No.", InvoiceNo);
@@ -1230,7 +1230,7 @@
 
         // [GIVEN] Create payment line applied to invoice without balance account
         CreateGenJournalBatchWithBankAccount(GenJournalBatch);
-        PaymentNo := CopyStr(Format(CreateGuid), 1, MaxStrLen(GenJournalLine."Document No."));
+        PaymentNo := CopyStr(Format(CreateGuid()), 1, MaxStrLen(GenJournalLine."Document No."));
 
         VendorLedgerEntry.SetRange("Document Type", VendorLedgerEntry."Document Type"::Invoice);
         VendorLedgerEntry.SetRange("Document No.", InvoiceNo);
@@ -1707,7 +1707,7 @@
 
         // [GIVEN] Create and Post Purchase Order with WHT Posting Setup.
         BankAccountNo :=
-          CreateBankAccount(True, CalcDate('<-' + Format(LibraryRandom.RandIntInRange(1, 5)) + 'D>', WorkDate));  // EFT Payment - FALSE, Last Payment Date before WORKDATE.
+          CreateBankAccount(True, CalcDate('<-' + Format(LibraryRandom.RandIntInRange(1, 5)) + 'D>', WorkDate()));  // EFT Payment - FALSE, Last Payment Date before WORKDATE.
         CreateGenJournalBatch(GenJournalBatch, BankAccountNo);
         FindWHTPostingSetup(WHTPostingSetup);
         CreateVendor(Vendor, WHTPostingSetup."WHT Business Posting Group", VATPostingSetup."VAT Bus. Posting Group");
@@ -2032,7 +2032,7 @@
         PurchaseLine: Record "Purchase Line";
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, VendorNo);
-        PurchaseHeader.Validate("Posting Date", CalcDate('<-' + Format(LibraryRandom.RandIntInRange(5, 10)) + 'D>', WorkDate));
+        PurchaseHeader.Validate("Posting Date", CalcDate('<-' + Format(LibraryRandom.RandIntInRange(5, 10)) + 'D>', WorkDate()));
         PurchaseHeader.Validate("Prices Including VAT", PricesIncludingVAT);
         PurchaseHeader.Validate("Payment Reference", LibraryUtility.GenerateGUID());
         PurchaseHeader.Modify(true);
@@ -2159,7 +2159,7 @@
         with GenJournalBatch do begin
             "Bal. Account Type" := "Bal. Account Type"::"Bank Account";
             "Bal. Account No." := BalAccountNo;
-            Modify;
+            Modify();
         end;
     end;
 
@@ -2168,7 +2168,7 @@
         BankAccountNo: Code[20];
     begin
         BankAccountNo :=
-          CreateBankAccount(true, CalcDate('<-' + Format(LibraryRandom.RandIntInRange(1, 5)) + 'D>', WorkDate));  // EFT Payment -TRUE, Last Payment Date before WORKDATE.
+          CreateBankAccount(true, CalcDate('<-' + Format(LibraryRandom.RandIntInRange(1, 5)) + 'D>', WorkDate()));  // EFT Payment -TRUE, Last Payment Date before WORKDATE.
         CreateGenJournalBatch(GenJournalBatch, BankAccountNo);
     end;
 
@@ -2177,7 +2177,7 @@
         BankAccountNo: Code[20];
     begin
         BankAccountNo :=
-          CreateBankAccount(true, CalcDate('<-' + Format(LibraryRandom.RandIntInRange(1, 5)) + 'D>', WorkDate));  // EFT Payment -TRUE, Last Payment Date before WORKDATE.
+          CreateBankAccount(true, CalcDate('<-' + Format(LibraryRandom.RandIntInRange(1, 5)) + 'D>', WorkDate()));  // EFT Payment -TRUE, Last Payment Date before WORKDATE.
         SetBankAccountEFTBalancingRecordRequired(BankAccountNo, EFTBalancingRecordRequired);
         CreateGenJournalBatch(GenJournalBatch, BankAccountNo);
     end;
@@ -2254,7 +2254,7 @@
         Vendor.Validate("WHT Business Posting Group", WHTBusinessPostingGroup);
         Vendor.Validate("EFT Payment", true);
         Vendor.Validate("EFT Bank Account No.", CreateVendorBankAccount(Vendor."No."));
-        Vendor.Name := CopyStr(Format(CreateGuid), 1, 32); // Vendor name has 32 symbols in the file
+        Vendor.Name := CopyStr(Format(CreateGuid()), 1, 32); // Vendor name has 32 symbols in the file
         Vendor.Modify(true);
     end;
 

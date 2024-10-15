@@ -16,20 +16,20 @@ page 1354 "Pstd. Sales Cr. Memo - Update"
         {
             group(General)
             {
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the posted credit memo number. You cannot change the number because the document has already been posted.';
                 }
-                field("Sell-to Customer Name"; "Sell-to Customer Name")
+                field("Sell-to Customer Name"; Rec."Sell-to Customer Name")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Customer';
                     Editable = false;
                     ToolTip = 'Specifies the name of customer at the sell-to address.';
                 }
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -39,21 +39,21 @@ page 1354 "Pstd. Sales Cr. Memo - Update"
             group(Shipping)
             {
                 Caption = 'Shipping';
-                field("Shipping Agent Code"; "Shipping Agent Code")
+                field("Shipping Agent Code"; Rec."Shipping Agent Code")
                 {
                     ApplicationArea = Suite;
                     Caption = 'Agent';
                     Editable = true;
                     ToolTip = 'Specifies which shipping agent is used to transport the items on the sales document to the customer.';
                 }
-                field("Shipping Agent Service Code"; "Shipping Agent Service Code")
+                field("Shipping Agent Service Code"; Rec."Shipping Agent Service Code")
                 {
                     ApplicationArea = Suite;
                     Caption = 'Agent Service';
                     Editable = true;
                     ToolTip = 'Specifies which shipping agent service is used to transport the items on the sales document to the customer.';
                 }
-                field("Package Tracking No."; "Package Tracking No.")
+                field("Package Tracking No."; Rec."Package Tracking No.")
                 {
                     ApplicationArea = Suite;
                     Editable = true;
@@ -63,7 +63,7 @@ page 1354 "Pstd. Sales Cr. Memo - Update"
             group(Payment)
             {
                 Caption = 'Payment';
-                field("Company Bank Account Code"; "Company Bank Account Code")
+                field("Company Bank Account Code"; Rec."Company Bank Account Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the bank account to use for bank information when the document is printed.';
@@ -72,13 +72,13 @@ page 1354 "Pstd. Sales Cr. Memo - Update"
             group("Adjustment Details")
             {
                 Caption = 'Adjustment Details';
-                field("Adjustment Applies-to"; "Adjustment Applies-to")
+                field("Adjustment Applies-to"; Rec."Adjustment Applies-to")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = true;
                     ToolTip = 'Specifies the document that the adjustment is applied to.';
                 }
-                field("Reason Code"; "Reason Code")
+                field("Reason Code"; Rec."Reason Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = true;

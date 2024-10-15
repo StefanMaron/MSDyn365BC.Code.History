@@ -2,7 +2,6 @@ page 17 "G/L Account Card"
 {
     Caption = 'G/L Account Card';
     PageType = Card;
-    PromotedActionCategories = 'New,Process,Report,Account,Balance,Prices & Discounts';
     RefreshOnActivate = true;
     SourceTable = "G/L Account";
 
@@ -16,7 +15,7 @@ page 17 "G/L Account Card"
             group(General)
             {
                 Caption = 'General';
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Promoted;
@@ -30,20 +29,20 @@ page 17 "G/L Account Card"
                     Importance = Promoted;
                     ToolTip = 'Specifies the name of the general ledger account.';
                 }
-                field("Income/Balance"; "Income/Balance")
+                field("Income/Balance"; Rec."Income/Balance")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Promoted;
                     ToolTip = 'Specifies whether a general ledger account is an income statement account or a balance sheet account.';
                 }
-                field("Account Category"; "Account Category")
+                field("Account Category"; Rec."Account Category")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the category of the G/L account.';
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        UpdateAccountSubcategoryDescription;
+                        UpdateAccountSubcategoryDescription();
                     end;
                 }
                 field(SubCategoryDescription; SubCategoryDescription)
@@ -54,22 +53,22 @@ page 17 "G/L Account Card"
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        LookupAccountSubCategory;
-                        UpdateAccountSubcategoryDescription;
+                        LookupAccountSubCategory();
+                        UpdateAccountSubcategoryDescription();
                     end;
 
                     trigger OnValidate()
                     begin
                         ValidateAccountSubCategory(SubCategoryDescription);
-                        UpdateAccountSubcategoryDescription;
+                        UpdateAccountSubcategoryDescription();
                     end;
                 }
-                field("Debit/Credit"; "Debit/Credit")
+                field("Debit/Credit"; Rec."Debit/Credit")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the type of entries that will normally be posted to this general ledger account.';
                 }
-                field("Account Type"; "Account Type")
+                field("Account Type"; Rec."Account Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the purpose of the account. Total: Used to total a series of balances on accounts from many different account groupings. To use Total, leave this field blank. Begin-Total: A marker for the beginning of a series of accounts to be totaled that ends with an End-Total account. End-Total: A total of a series of accounts that starts with the preceding Begin-Total account. The total is defined in the Totaling field.';
@@ -86,26 +85,26 @@ page 17 "G/L Account Card"
                     begin
                         OldText := Text;
                         GLAccountList.LookupMode(true);
-                        if not (GLAccountList.RunModal = ACTION::LookupOK) then
+                        if not (GLAccountList.RunModal() = ACTION::LookupOK) then
                             exit(false);
 
-                        Text := OldText + GLAccountList.GetSelectionFilter;
+                        Text := OldText + GLAccountList.GetSelectionFilter();
                         exit(true);
                     end;
                 }
-                field("No. of Blank Lines"; "No. of Blank Lines")
+                field("No. of Blank Lines"; Rec."No. of Blank Lines")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies the number of blank lines that you want inserted before this account in the chart of accounts.';
                 }
-                field("New Page"; "New Page")
+                field("New Page"; Rec."New Page")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies whether you want a new page to start immediately after this general ledger account when you print the chart of accounts. Select this field to start a new page after this general ledger account.';
                 }
-                field("Search Name"; "Search Name")
+                field("Search Name"; Rec."Search Name")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
@@ -117,17 +116,17 @@ page 17 "G/L Account Card"
                     Importance = Promoted;
                     ToolTip = 'Specifies the balance on this account.';
                 }
-                field("Reconciliation Account"; "Reconciliation Account")
+                field("Reconciliation Account"; Rec."Reconciliation Account")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether this general ledger account will be included in the Reconciliation window in the general journal. To have the G/L account included in the window, place a check mark in the check box. You can find the Reconciliation window by clicking Actions, Posting in the General Journal window.';
                 }
-                field("Automatic Ext. Texts"; "Automatic Ext. Texts")
+                field("Automatic Ext. Texts"; Rec."Automatic Ext. Texts")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies that an extended text will be added automatically to the account.';
                 }
-                field("Direct Posting"; "Direct Posting")
+                field("Direct Posting"; Rec."Direct Posting")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if you can post directly to this general ledger account. If the field is not selected, then users must use sales documents, for example, and not post directly to the general ledger.';
@@ -139,17 +138,17 @@ page 17 "G/L Account Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies that the related record is blocked from being posted in transactions, for example a customer that is declared insolvent or an item that is placed in quarantine.';
                 }
-                field("Last Date Modified"; "Last Date Modified")
+                field("Last Date Modified"; Rec."Last Date Modified")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies when the G/L account was last modified.';
                 }
-                field("Omit Default Descr. in Jnl."; "Omit Default Descr. in Jnl.")
+                field("Omit Default Descr. in Jnl."; Rec."Omit Default Descr. in Jnl.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the default description is automatically inserted in the Description field on journal lines created for this general ledger account.';
                 }
-                field("No. 2"; "No. 2")
+                field("No. 2"; Rec."No. 2")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies an alternative account number which can be used internally in the company.';
@@ -159,56 +158,56 @@ page 17 "G/L Account Card"
             group(Posting)
             {
                 Caption = 'Posting';
-                field("Gen. Posting Type"; "Gen. Posting Type")
+                field("Gen. Posting Type"; Rec."Gen. Posting Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the general posting type to use when posting to this account.';
                 }
-                field("Gen. Bus. Posting Group"; "Gen. Bus. Posting Group")
+                field("Gen. Bus. Posting Group"; Rec."Gen. Bus. Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Promoted;
                     ToolTip = 'Specifies the vendor''s or customer''s trade type to link transactions made for this business partner with the appropriate general ledger account according to the general posting setup.';
                 }
-                field("Gen. Prod. Posting Group"; "Gen. Prod. Posting Group")
+                field("Gen. Prod. Posting Group"; Rec."Gen. Prod. Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Promoted;
                     ToolTip = 'Specifies the item''s product type to link transactions made for this item with the appropriate general ledger account according to the general posting setup.';
                 }
-                field("VAT Bus. Posting Group"; "VAT Bus. Posting Group")
+                field("VAT Bus. Posting Group"; Rec."VAT Bus. Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Promoted;
                     ToolTip = 'Specifies the VAT specification of the involved customer or vendor to link transactions made for this record with the appropriate general ledger account according to the VAT posting setup.';
                 }
-                field("VAT Prod. Posting Group"; "VAT Prod. Posting Group")
+                field("VAT Prod. Posting Group"; Rec."VAT Prod. Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Promoted;
                     ToolTip = 'Specifies the VAT specification of the involved item or resource to link transactions made for this record with the appropriate general ledger account according to the VAT posting setup.';
                 }
-                field("Tax Group Code"; "Tax Group Code")
+                field("Tax Group Code"; Rec."Tax Group Code")
                 {
                     ApplicationArea = SalesTax;
                     ToolTip = 'Specifies the tax group that is used to calculate and post sales tax.';
                 }
-                field("Default IC Partner G/L Acc. No"; "Default IC Partner G/L Acc. No")
+                field("Default IC Partner G/L Acc. No"; Rec."Default IC Partner G/L Acc. No")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies accounts that you often enter in the Bal. Account No. field on intercompany journal or document lines.';
                 }
-                field("WHT Business Posting Group"; "WHT Business Posting Group")
+                field("WHT Business Posting Group"; Rec."WHT Business Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a WHT business posting group.';
                 }
-                field("WHT Product Posting Group"; "WHT Product Posting Group")
+                field("WHT Product Posting Group"; Rec."WHT Product Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a WHT Product posting group.';
                 }
-                field("Default Deferral Template Code"; "Default Deferral Template Code")
+                field("Default Deferral Template Code"; Rec."Default Deferral Template Code")
                 {
                     ApplicationArea = Suite;
                     Caption = 'Default Deferral Template';
@@ -218,19 +217,19 @@ page 17 "G/L Account Card"
             group(Consolidation)
             {
                 Caption = 'Consolidation';
-                field("Consol. Debit Acc."; "Consol. Debit Acc.")
+                field("Consol. Debit Acc."; Rec."Consol. Debit Acc.")
                 {
                     ApplicationArea = Suite;
                     Importance = Promoted;
                     ToolTip = 'Specifies the number of the account in a consolidated company to which to transfer debit balances on this account.';
                 }
-                field("Consol. Credit Acc."; "Consol. Credit Acc.")
+                field("Consol. Credit Acc."; Rec."Consol. Credit Acc.")
                 {
                     ApplicationArea = Suite;
                     Importance = Promoted;
                     ToolTip = 'Specifies the number of the account in a consolidated company to which to transfer credit balances on this account.';
                 }
-                field("Consol. Translation Method"; "Consol. Translation Method")
+                field("Consol. Translation Method"; Rec."Consol. Translation Method")
                 {
                     ApplicationArea = Suite;
                     Importance = Promoted;
@@ -240,7 +239,7 @@ page 17 "G/L Account Card"
             group(Reporting)
             {
                 Caption = 'Reporting';
-                field("Exchange Rate Adjustment"; "Exchange Rate Adjustment")
+                field("Exchange Rate Adjustment"; Rec."Exchange Rate Adjustment")
                 {
                     ApplicationArea = Suite;
                     Importance = Promoted;
@@ -250,7 +249,7 @@ page 17 "G/L Account Card"
             group("Cost Accounting")
             {
                 Caption = 'Cost Accounting';
-                field("Cost Type No."; "Cost Type No.")
+                field("Cost Type No."; Rec."Cost Type No.")
                 {
                     ApplicationArea = CostAccounting;
                     Importance = Promoted;
@@ -293,9 +292,6 @@ page 17 "G/L Account Card"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Ledger E&ntries';
                     Image = GLRegisters;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedOnly = true;
                     RunObject = Page "General Ledger Entries";
                     RunPageLink = "G/L Account No." = FIELD("No.");
                     RunPageView = SORTING("G/L Account No.")
@@ -308,9 +304,6 @@ page 17 "G/L Account Card"
                     ApplicationArea = Comments;
                     Caption = 'Co&mments';
                     Image = ViewComments;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedOnly = true;
                     RunObject = Page "Comment Sheet";
                     RunPageLink = "Table Name" = CONST("G/L Account"),
                                   "No." = FIELD("No.");
@@ -321,9 +314,6 @@ page 17 "G/L Account Card"
                     ApplicationArea = Dimensions;
                     Caption = 'Dimensions';
                     Image = Dimensions;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedOnly = true;
                     RunObject = Page "Default Dimensions";
                     RunPageLink = "Table ID" = CONST(15),
                                   "No." = FIELD("No.");
@@ -335,9 +325,6 @@ page 17 "G/L Account Card"
                     ApplicationArea = Suite;
                     Caption = 'E&xtended Texts';
                     Image = Text;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedOnly = true;
                     RunObject = Page "Extended Text List";
                     RunPageLink = "Table Name" = CONST("G/L Account"),
                                   "No." = FIELD("No.");
@@ -349,9 +336,6 @@ page 17 "G/L Account Card"
                     ApplicationArea = Suite;
                     Caption = 'Receivables-Payables';
                     Image = ReceivablesPayables;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedOnly = true;
                     RunObject = Page "Receivables-Payables";
                     ToolTip = 'View a summary of the receivables and payables for the account, including customer and vendor balance due amounts.';
                 }
@@ -360,9 +344,6 @@ page 17 "G/L Account Card"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Where-Used List';
                     Image = Track;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedOnly = true;
                     ToolTip = 'View setup tables where a general ledger account is used.';
 
                     trigger OnAction()
@@ -382,9 +363,6 @@ page 17 "G/L Account Card"
                     ApplicationArea = Basic, Suite;
                     Caption = 'G/L &Account Balance';
                     Image = GLAccountBalance;
-                    Promoted = true;
-                    PromotedCategory = Category5;
-                    PromotedOnly = true;
                     RunObject = Page "G/L Account Balance";
                     RunPageLink = "No." = FIELD("No."),
                                   "Global Dimension 1 Filter" = FIELD("Global Dimension 1 Filter"),
@@ -397,9 +375,6 @@ page 17 "G/L Account Card"
                     ApplicationArea = Basic, Suite;
                     Caption = 'G/L &Balance';
                     Image = GLBalance;
-                    Promoted = true;
-                    PromotedCategory = Category5;
-                    PromotedOnly = true;
                     RunObject = Page "G/L Balance";
                     RunPageOnRec = true;
                     ToolTip = 'View a summary of the debit and credit balances for all the accounts in the chart of accounts, for the time period that you select.';
@@ -409,9 +384,6 @@ page 17 "G/L Account Card"
                     ApplicationArea = Dimensions;
                     Caption = 'G/L Balance by &Dimension';
                     Image = GLBalanceDimension;
-                    Promoted = true;
-                    PromotedCategory = Category5;
-                    PromotedOnly = true;
                     RunObject = Page "G/L Balance by Dimension";
                     ToolTip = 'View a summary of the debit and credit balances by dimensions for the current account.';
                 }
@@ -421,9 +393,6 @@ page 17 "G/L Account Card"
                 ApplicationArea = Basic, Suite;
                 Caption = 'General Posting Setup';
                 Image = GeneralPostingSetup;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedOnly = true;
                 RunObject = Page "General Posting Setup";
                 ToolTip = 'View or edit how you want to set up combinations of general business and general product posting groups.';
             }
@@ -432,9 +401,6 @@ page 17 "G/L Account Card"
                 ApplicationArea = Basic, Suite;
                 Caption = 'VAT Posting Setup';
                 Image = VATPostingSetup;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedOnly = true;
                 RunObject = Page "VAT Posting Setup";
                 ToolTip = 'View or edit combinations of Tax business posting groups and Tax product posting groups.';
             }
@@ -443,9 +409,6 @@ page 17 "G/L Account Card"
                 ApplicationArea = Basic, Suite;
                 Caption = 'G/L Register';
                 Image = GLRegisters;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedOnly = true;
                 RunObject = Page "G/L Registers";
                 ToolTip = 'View posted G/L entries.';
             }
@@ -454,8 +417,6 @@ page 17 "G/L Account Card"
                 ApplicationArea = Basic, Suite;
                 Caption = 'WHT Posting Setup';
                 Image = VATPostingSetup;
-                Promoted = true;
-                PromotedCategory = Process;
                 RunObject = Page "WHT Posting Setup";
                 ToolTip = 'View the information posting.';
             }
@@ -464,10 +425,6 @@ page 17 "G/L Account Card"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Posted Documents without Incoming Document';
                 Image = Documents;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Show a list of posted purchase and sales documents under the G/L account that do not have related incoming document records.';
 
                 trigger OnAction()
@@ -532,7 +489,6 @@ page 17 "G/L Account Card"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Transaction Detail Report';
                 Image = "Report";
-                Promoted = false;
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = "Report";
                 RunObject = Report "Transaction Detail Report";
@@ -543,7 +499,6 @@ page 17 "G/L Account Card"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Income Statement';
                 Image = "Report";
-                Promoted = false;
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = "Report";
                 RunObject = Report "Income Statement";
@@ -554,7 +509,6 @@ page 17 "G/L Account Card"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Balance Sheet';
                 Image = "Report";
-                Promoted = false;
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = "Report";
                 RunObject = Report "Balance Sheet";
@@ -565,7 +519,6 @@ page 17 "G/L Account Card"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Financial Analysis Report';
                 Image = "Report";
-                Promoted = false;
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = "Report";
                 RunObject = Report "Financial Analysis Report";
@@ -605,8 +558,6 @@ page 17 "G/L Account Card"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Sales Prices';
                     Image = Price;
-                    Promoted = true;
-                    PromotedCategory = Category6;
                     Visible = ExtendedPriceEnabled;
                     ToolTip = 'View or edit sales prices for the account.';
 
@@ -623,8 +574,6 @@ page 17 "G/L Account Card"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Purchase Prices';
                     Image = Costs;
-                    Promoted = true;
-                    PromotedCategory = Category6;
                     Visible = ExtendedPriceEnabled;
                     ToolTip = 'View or edit purchase prices for the account.';
 
@@ -635,6 +584,81 @@ page 17 "G/L Account Card"
                     begin
                         Rec.ShowPriceListLines(PriceType::Purchase, AmountType::Any);
                     end;
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref(DocsWithoutIC_Promoted; DocsWithoutIC)
+                {
+                }
+                actionref("General Posting Setup_Promoted"; "General Posting Setup")
+                {
+                }
+                actionref("VAT Posting Setup_Promoted"; "VAT Posting Setup")
+                {
+                }
+                actionref("G/L Register_Promoted"; "G/L Register")
+                {
+                }
+                actionref("WHT Posting Setup_Promoted"; "WHT Posting Setup")
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Account', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref("Ledger E&ntries_Promoted"; "Ledger E&ntries")
+                {
+                }
+                actionref("Co&mments_Promoted"; "Co&mments")
+                {
+                }
+                actionref(Dimensions_Promoted; Dimensions)
+                {
+                }
+                actionref("E&xtended Texts_Promoted"; "E&xtended Texts")
+                {
+                }
+                actionref("Receivables-Payables_Promoted"; "Receivables-Payables")
+                {
+                }
+                actionref("Where-Used List_Promoted"; "Where-Used List")
+                {
+                }
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Balance', Comment = 'Generated from the PromotedActionCategories property index 4.';
+
+                actionref("G/L &Account Balance_Promoted"; "G/L &Account Balance")
+                {
+                }
+                actionref("G/L &Balance_Promoted"; "G/L &Balance")
+                {
+                }
+                actionref("G/L Balance by &Dimension_Promoted"; "G/L Balance by &Dimension")
+                {
+                }
+            }
+            group(Category_Category6)
+            {
+                Caption = 'Prices & Discounts', Comment = 'Generated from the PromotedActionCategories property index 5.';
+
+                actionref(SalesPriceLists_Promoted; SalesPriceLists)
+                {
+                }
+                actionref(PurchPriceLists_Promoted; PurchPriceLists)
+                {
                 }
             }
         }
@@ -649,7 +673,7 @@ page 17 "G/L Account Card"
 
     trigger OnAfterGetRecord()
     begin
-        UpdateAccountSubcategoryDescription;
+        UpdateAccountSubcategoryDescription();
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)

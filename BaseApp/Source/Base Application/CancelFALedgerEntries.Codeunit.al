@@ -6,10 +6,6 @@ codeunit 5624 "Cancel FA Ledger Entries"
     end;
 
     var
-        Text001: Label 'must be the same in all canceled ledger entries';
-        Text002: Label '%1 = %2 has already been canceled.';
-        Text003: Label 'The ledger entries have been transferred to the journal.';
-        Text004: Label '%1 = %2 cannot be canceled. Use %3 = %4.';
         FAJnlSetup: Record "FA Journal Setup";
         DeprBook: Record "Depreciation Book";
         GenJnlLine: Record "Gen. Journal Line";
@@ -25,12 +21,17 @@ codeunit 5624 "Cancel FA Ledger Entries"
         GenJnlDocumentNo: Code[20];
         HideValidationDialog: Boolean;
 
+        Text001: Label 'must be the same in all canceled ledger entries';
+        Text002: Label '%1 = %2 has already been canceled.';
+        Text003: Label 'The ledger entries have been transferred to the journal.';
+        Text004: Label '%1 = %2 cannot be canceled. Use %3 = %4.';
+
     procedure TransferLine(var FALedgEntry: Record "FA Ledger Entry"; BalAccount: Boolean; NewPostingDate: Date)
     var
         IsHandled: Boolean;
     begin
-        ClearAll;
-        with FALedgEntry do begin
+        ClearAll();
+        with FALedgEntry do
             if Find('+') then
                 repeat
                     if DeprBookCode = '' then
@@ -50,12 +51,11 @@ codeunit 5624 "Cancel FA Ledger Entries"
                     IsHandled := false;
                     OnTransferLineOnBeforeInsertJnlLine(FALedgEntry, BalAccount, FA."Budgeted Asset", IsHandled);
                     if not IsHandled then
-                        if GLIntegration[ConvertPostingType + 1] and not FA."Budgeted Asset" then
+                        if GLIntegration[ConvertPostingType() + 1] and not FA."Budgeted Asset" then
                             InsertGenJnlLine(FALedgEntry, BalAccount)
                         else
                             InsertFAJnlLine(FALedgEntry);
                 until Next(-1) = 0;
-        end;
 
         if not HideValidationDialog AND GuiAllowed then
             Message(Text003);

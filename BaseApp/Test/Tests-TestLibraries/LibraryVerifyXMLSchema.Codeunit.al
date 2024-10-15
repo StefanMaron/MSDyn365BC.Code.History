@@ -17,7 +17,7 @@ codeunit 131339 "Library - Verify XML Schema"
         ValidationEventHandler: DotNet "System.Xml.Schema.ValidationEventHandler";
         I: Integer;
     begin
-        XmlDoc := XmlDoc.XmlDocument;
+        XmlDoc := XmlDoc.XmlDocument();
         AddSchemaToDoc(XmlDoc, XmlSchemaPath);
         if CountOfAdditionalSchemaPaths > 0 then
             for I := 1 to CountOfAdditionalSchemaPaths do
@@ -33,7 +33,7 @@ codeunit 131339 "Library - Verify XML Schema"
         ValidationEventHandler: DotNet "System.Xml.Schema.ValidationEventHandler";
         I: Integer;
     begin
-        XmlDoc := XmlDoc.XmlDocument;
+        XmlDoc := XmlDoc.XmlDocument();
         AddSchemaToDoc(XmlDoc, XmlSchemaPath);
         IF CountOfAdditionalSchemaPaths > 0 THEN
             FOR I := 1 TO CountOfAdditionalSchemaPaths DO
@@ -97,7 +97,7 @@ codeunit 131339 "Library - Verify XML Schema"
     var
         DotNetExceptionHandler: Codeunit "DotNet Exception Handler";
     begin
-        DotNetExceptionHandler.Collect;
+        DotNetExceptionHandler.Collect();
         exit(DotNetExceptionHandler.GetMessage());
     end;
 }

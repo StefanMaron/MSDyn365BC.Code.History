@@ -109,7 +109,7 @@ codeunit 5923 "Service-Quote to Order"
         ServOrderHeader."No." := '';
         ServOrderHeader."No. Printed" := 0;
         ServOrderHeader.Validate(Status, ServOrderHeader.Status::Pending);
-        ServOrderHeader."Order Date" := WorkDate;
+        ServOrderHeader."Order Date" := WorkDate();
         ServOrderHeader."Order Time" := Time;
         ServOrderHeader."Actual Response Time (Hours)" := 0;
         ServOrderHeader."Service Time (Hours)" := 0;
@@ -119,7 +119,7 @@ codeunit 5923 "Service-Quote to Order"
         ServOrderHeader."Finishing Time" := 0T;
 
         TestNoSeries();
-        NoSeriesMgt.InitSeries(GetNoSeriesCode, '', 0D, ServOrderHeader."No.", ServOrderHeader."No. Series");
+        NoSeriesMgt.InitSeries(GetNoSeriesCode(), '', 0D, ServOrderHeader."No.", ServOrderHeader."No. Series");
 
         ServOrderHeader."Quote No." := ServiceHeader."No.";
         RecordLinkManagement.CopyLinks(ServiceHeader, ServOrderHeader);
@@ -246,7 +246,7 @@ codeunit 5923 "Service-Quote to Order"
                     ServiceOrderLine."Line No." := 0;
                     if GuiAllowed then
                         if ItemCheckAvail.ServiceInvLineCheck(ServiceOrderLine) then
-                            ItemCheckAvail.RaiseUpdateInterruptedError;
+                            ItemCheckAvail.RaiseUpdateInterruptedError();
                 end;
             until ServiceQuoteLine.Next() = 0;
     end;

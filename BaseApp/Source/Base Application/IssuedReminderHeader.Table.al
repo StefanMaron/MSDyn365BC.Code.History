@@ -28,24 +28,10 @@ table 297 "Issued Reminder Header"
         field(5; Address; Text[100])
         {
             Caption = 'Address';
-
-            trigger OnValidate()
-            begin
-                PostCodeCheck.ValidateAddress(
-                  CurrFieldNo, DATABASE::"Reminder Header", Rec.GetPosition, 0,
-                  Name, "Name 2", Contact, Address, "Address 2", City, "Post Code", County, "Country/Region Code");
-            end;
         }
         field(6; "Address 2"; Text[50])
         {
             Caption = 'Address 2';
-
-            trigger OnValidate()
-            begin
-                PostCodeCheck.ValidateAddress(
-                  CurrFieldNo, DATABASE::"Reminder Header", Rec.GetPosition, 0,
-                  Name, "Name 2", Contact, Address, "Address 2", City, "Post Code", County, "Country/Region Code");
-            end;
         }
         field(7; "Post Code"; Code[20])
         {
@@ -266,6 +252,11 @@ table 297 "Issued Reminder Header"
             Caption = 'Add. Fee per Line';
             FieldClass = FlowField;
         }
+        field(47; "VAT Reporting Date"; Date)
+        {
+            Caption = 'VAT Date';
+            Editable = false;
+        }
         field(50; Canceled; Boolean)
         {
             Caption = 'Canceled';
@@ -335,22 +326,12 @@ table 297 "Issued Reminder Header"
         ReminderCommentLine.SetRange(Type, ReminderCommentLine.Type::"Issued Reminder");
         ReminderCommentLine.SetRange("No.", "No.");
         ReminderCommentLine.DeleteAll();
-
-        PostCodeCheck.DeleteAllAddressID(DATABASE::"Issued Reminder Header", Rec.GetPosition);
-    end;
-
-    trigger OnRename()
-    begin
-        PostCodeCheck.MoveAllAddressID(
-          DATABASE::"Issued Reminder Header", Rec.GetPosition,
-          DATABASE::"Issued Reminder Header", xRec.GetPosition);
     end;
 
     var
         ReminderCommentLine: Record "Reminder Comment Line";
         ReminderIssue: Codeunit "Reminder-Issue";
         DimMgt: Codeunit DimensionManagement;
-        PostCodeCheck: Codeunit "Post Code Check";
         SuppresSendDialogQst: Label 'Do you want to suppress send dialog?';
 
     procedure PrintRecords(ShowRequestForm: Boolean; SendAsEmail: Boolean; HideDialog: Boolean)
@@ -375,7 +356,7 @@ table 297 "Issued Reminder Header"
             if IssuedReminderHeader.FindSet() then
                 repeat
                     IssuedReminderHeaderToSend.Copy(IssuedReminderHeader);
-                    IssuedReminderHeaderToSend.SetRecFilter;
+                    IssuedReminderHeaderToSend.SetRecFilter();
                     DocumentSendingProfile.TrySendToEMail(
                       DummyReportSelections.Usage::Reminder.AsInteger(), IssuedReminderHeaderToSend, IssuedReminderHeaderToSend.FieldNo("No."),
                       ReportDistributionMgt.GetFullDocumentTypeText(Rec), IssuedReminderHeaderToSend.FieldNo("Customer No."), not HideDialog)
@@ -404,7 +385,7 @@ table 297 "Issued Reminder Header"
 
     procedure ShowDimensions()
     begin
-        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption, "No."));
+        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption(), "No."));
     end;
 
     procedure GetCustomerVATRegistrationNumber(): Text

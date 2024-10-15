@@ -23,25 +23,25 @@ codeunit 137225 "SCM Test UpdateDateTime"
         with ProductionOrder do begin
             SetNullNull("Starting Date", "Starting Time");
             SetNullNull("Ending Date", "Ending Time");
-            UpdateDatetime;
+            UpdateDatetime();
             TestField("Starting Date-Time", 0DT);
             TestField("Ending Date-Time", 0DT);
 
             SetDateNull("Starting Date", "Starting Time");
             SetDateNull("Ending Date", "Ending Time");
-            UpdateDatetime;
+            UpdateDatetime();
             TestField("Starting Date-Time", 0DT);
             TestField("Ending Date-Time", 0DT);
 
             SetNullTime("Starting Date", "Starting Time");
             SetNullTime("Ending Date", "Ending Time");
-            UpdateDatetime;
+            UpdateDatetime();
             TestField("Starting Date-Time", 0DT);
             TestField("Ending Date-Time", 0DT);
 
             SetDateTime("Starting Date", "Starting Time");
             SetDateTime("Ending Date", "Ending Time");
-            UpdateDatetime;
+            UpdateDatetime();
             TestField("Starting Date-Time");
             TestField("Ending Date-Time");
         end;
@@ -57,19 +57,19 @@ codeunit 137225 "SCM Test UpdateDateTime"
         with ProdOrderLine do begin
             SetNullNull("Starting Date", "Starting Time");
             SetNullNull("Ending Date", "Ending Time");
-            UpdateDatetime;
+            UpdateDatetime();
             TestField("Starting Date-Time", 0DT);
             TestField("Ending Date-Time", 0DT);
 
             SetNullTime("Starting Date", "Starting Time");
             SetNullTime("Ending Date", "Ending Time");
-            UpdateDatetime;
+            UpdateDatetime();
             TestField("Starting Date-Time", 0DT);
             TestField("Ending Date-Time", 0DT);
 
             SetDateTime("Starting Date", "Starting Time");
             SetDateTime("Ending Date", "Ending Time");
-            UpdateDatetime;
+            UpdateDatetime();
             TestField("Starting Date-Time");
             TestField("Ending Date-Time");
         end;
@@ -84,19 +84,19 @@ codeunit 137225 "SCM Test UpdateDateTime"
         Initialize();
         with ProdOrderComponent do begin
             SetNullNull("Due Date", "Due Time");
-            UpdateDatetime;
+            UpdateDatetime();
             TestField("Due Date-Time", 0DT);
 
             SetDateNull("Due Date", "Due Time");
-            UpdateDatetime;
+            UpdateDatetime();
             TestField("Due Date-Time", 0DT);
 
             SetNullTime("Due Date", "Due Time");
-            UpdateDatetime;
+            UpdateDatetime();
             TestField("Due Date-Time", 0DT);
 
             SetDateTime("Due Date", "Due Time");
-            UpdateDatetime;
+            UpdateDatetime();
             TestField("Due Date-Time");
         end;
     end;
@@ -111,25 +111,25 @@ codeunit 137225 "SCM Test UpdateDateTime"
         with ProdOrderRoutingLine do begin
             SetNullNull("Starting Date", "Starting Time");
             SetNullNull("Ending Date", "Ending Time");
-            UpdateDatetime;
+            UpdateDatetime();
             TestField("Starting Date-Time", 0DT);
             TestField("Ending Date-Time", 0DT);
 
             SetDateNull("Starting Date", "Starting Time");
             SetDateNull("Ending Date", "Ending Time");
-            UpdateDatetime;
+            UpdateDatetime();
             TestField("Starting Date-Time", 0DT);
             TestField("Ending Date-Time", 0DT);
 
             SetNullTime("Starting Date", "Starting Time");
             SetNullTime("Ending Date", "Ending Time");
-            UpdateDatetime;
+            UpdateDatetime();
             TestField("Starting Date-Time", 0DT);
             TestField("Ending Date-Time", 0DT);
 
             SetDateTime("Starting Date", "Starting Time");
             SetDateTime("Ending Date", "Ending Time");
-            UpdateDatetime;
+            UpdateDatetime();
             TestField("Starting Date-Time");
             TestField("Ending Date-Time");
         end;
@@ -145,25 +145,25 @@ codeunit 137225 "SCM Test UpdateDateTime"
         with ProdOrderCapNeed do begin
             SetNullNull(Date, "Starting Time");
             SetNullNull(Date, "Ending Time");
-            UpdateDatetime;
+            UpdateDatetime();
             TestField("Starting Date-Time", 0DT);
             TestField("Ending Date-Time", 0DT);
 
             SetDateNull(Date, "Starting Time");
             SetDateNull(Date, "Ending Time");
-            UpdateDatetime;
+            UpdateDatetime();
             TestField("Starting Date-Time", 0DT);
             TestField("Ending Date-Time", 0DT);
 
             SetNullTime(Date, "Starting Time");
             SetNullTime(Date, "Ending Time");
-            UpdateDatetime;
+            UpdateDatetime();
             TestField("Starting Date-Time", 0DT);
             TestField("Ending Date-Time", 0DT);
 
             SetDateTime(Date, "Starting Time");
             SetDateTime(Date, "Ending Time");
-            UpdateDatetime;
+            UpdateDatetime();
             TestField("Starting Date-Time");
             TestField("Ending Date-Time");
         end;
@@ -186,7 +186,7 @@ codeunit 137225 "SCM Test UpdateDateTime"
             // [GIVEN] Prod. order component.
             "Prod. Order No." := ProdOrderLine."Prod. Order No.";
             "Qty. per Unit of Measure" := 1;
-            Insert;
+            Insert();
 
             // [WHEN] Validate "Calculation Formula" on the component to trigger copying due date and time from production order line.
             Validate("Calculation Formula");
@@ -225,11 +225,11 @@ codeunit 137225 "SCM Test UpdateDateTime"
     local procedure MockProdOrderLine(var ProdOrderLine: Record "Prod. Order Line")
     begin
         with ProdOrderLine do begin
-            Init;
+            Init();
             "Prod. Order No." := LibraryUtility.GenerateGUID();
-            "Starting Date" := WorkDate;
+            "Starting Date" := WorkDate();
             "Starting Time" := 120000T;
-            Insert;
+            Insert();
         end;
     end;
 

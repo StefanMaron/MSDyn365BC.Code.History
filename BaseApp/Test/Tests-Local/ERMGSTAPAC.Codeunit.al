@@ -280,14 +280,14 @@ codeunit 141007 "ERM GST APAC"
         // [THEN] Base = -6000, Amount = -1200
         // [THEN] Unrealized Base = 0, Unrealized Amount = 0
         // [THEN] Remaining Unrealized Base = 0, Remaining Unrealized Amount = 0
-        VATEntry.Next;
+        VATEntry.Next();
         VerifyVATEntryAmounts(VATEntry, -CrMemoVATBase, -CrMemoVATAmount, 0, 0, 0, 0);
 
         // [THEN] Unrealized GST (VAT) Entry (3/3) for posted credit memo has:
         // [THEN] Base = 6000, Amount = 1200
         // [THEN] Unrealized Base = 0, Unrealized Amount = 0
         // [THEN] Remaining Unrealized Base = 0, Remaining Unrealized Amount = 0
-        VATEntry.Next;
+        VATEntry.Next();
         VerifyVATEntryAmounts(VATEntry, CrMemoVATBase, CrMemoVATAmount, 0, 0, 0, 0);
 
         // Tear Down.
@@ -643,14 +643,14 @@ codeunit 141007 "ERM GST APAC"
         // [THEN] Base = 6000, Amount = 1200
         // [THEN] Unrealized Base = 0, Unrealized Amount = 0
         // [THEN] Remaining Unrealized Base = 0, Remaining Unrealized Amount = 0
-        VATEntry.Next;
+        VATEntry.Next();
         VerifyVATEntryAmounts(VATEntry, CrMemoVATBase, CrMemoVATAmount, 0, 0, 0, 0);
 
         // [THEN] Unrealized GST (VAT) Entry (3/3) for posted credit memo has:
         // [THEN] Base = -6000, Amount = -1200
         // [THEN] Unrealized Base = 0, Unrealized Amount = 0
         // [THEN] Remaining Unrealized Base = 0, Remaining Unrealized Amount = 0
-        VATEntry.Next;
+        VATEntry.Next();
         VerifyVATEntryAmounts(VATEntry, -CrMemoVATBase, -CrMemoVATAmount, 0, 0, 0, 0);
 
         // Tear Down.
@@ -812,31 +812,31 @@ codeunit 141007 "ERM GST APAC"
         LibrarySales.CreateCustomer(Customer);
 
         with CustLedgerEntry do begin
-            Init;
+            Init();
             "Entry No." := LibraryUtility.GetNewRecNo(CustLedgerEntry, FieldNo("Entry No."));
-            Insert;
+            Insert();
             "Document Type" := "Document Type"::Invoice;
             "Customer No." := Customer."No.";
             Open := true;
             Positive := true;
             "Pmt. Disc. Given (LCY)" := LibraryRandom.RandDec(10, 2);
-            "Due Date" := WorkDate;
-            "Posting Date" := WorkDate;
+            "Due Date" := WorkDate();
+            "Posting Date" := WorkDate();
             "Transaction No." := GLEntry."Transaction No.";
             "Closed by Entry No." := "Entry No.";
-            Modify;
+            Modify();
         end;
     end;
 
     local procedure CreateGLEntry(var GLEntry: Record "G/L Entry")
     begin
         with GLEntry do begin
-            Init;
+            Init();
             "Entry No." := LibraryUtility.GetNewRecNo(GLEntry, FieldNo("Entry No."));
             "G/L Account No." := LibraryUTUtility.GetNewCode;
             "Document No." := LibraryUTUtility.GetNewCode;
             "Transaction No." := LibraryUtility.GetLastTransactionNo + 1;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -880,7 +880,7 @@ codeunit 141007 "ERM GST APAC"
         LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
         LibraryFixedAsset.CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", LibraryFixedAsset.GetDefaultDeprBook);
         FADepreciationBook.Validate("FA Posting Group", FixedAsset."FA Posting Group");
-        FADepreciationBook.Validate("Acquisition Date", WorkDate);
+        FADepreciationBook.Validate("Acquisition Date", WorkDate());
         FADepreciationBook.Modify(true);
         exit(FixedAsset."No.");
     end;
@@ -899,7 +899,7 @@ codeunit 141007 "ERM GST APAC"
     var
         WHTPostingSetup: Record "WHT Posting Setup";
     begin
-        if not WHTPostingSetup.Get then
+        if not WHTPostingSetup.Get() then
             LibraryAPACLocalization.CreateWHTPostingSetup(WHTPostingSetup, '', '');  // Using blank for WHT Business Posting Group, WHT Product Posting Group
         OldRealizedWHTType := WHTPostingSetup."Realized WHT Type";
         WHTPostingSetup.Validate("Realized WHT Type", RealizedWHTType);
@@ -1009,7 +1009,7 @@ codeunit 141007 "ERM GST APAC"
     local procedure CreateSalesCreditMemoForPostedInvoice(var SalesHeader: Record "Sales Header"; CustomerNo: Code[20]; PostedInvoiceNo: Code[20])
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", CustomerNo);
-        SalesHeader.Validate("Posting Date", CalcDate('<1M>', WorkDate));
+        SalesHeader.Validate("Posting Date", CalcDate('<1M>', WorkDate()));
         SalesHeader.Modify(true);
         LibrarySales.CopySalesDocument(SalesHeader, "Sales Document Type From"::"Posted Invoice", PostedInvoiceNo, false, false);
     end;
@@ -1017,7 +1017,7 @@ codeunit 141007 "ERM GST APAC"
     local procedure CreatePurchaseCreditMemoForPostedInvoice(var PurchaseHeader: Record "Purchase Header"; VendorNo: Code[20]; PostedInvoiceNo: Code[20])
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", VendorNo);
-        PurchaseHeader.Validate("Posting Date", CalcDate('<1M>', WorkDate));
+        PurchaseHeader.Validate("Posting Date", CalcDate('<1M>', WorkDate()));
         PurchaseHeader.Modify(true);
         LibraryPurchase.CopyPurchaseDocument(PurchaseHeader, "Purchase Document Type From"::"Posted Invoice", PostedInvoiceNo, false, false);
     end;
@@ -1336,10 +1336,10 @@ codeunit 141007 "ERM GST APAC"
         with GSTSalesEntry do begin
             SetRange("Document Type", "Document Type"::Invoice);
             SetRange("Document No.", DocumentNo);
-            Assert.AreEqual(ExpectedCount, Count, StrSubstNo(WrongValueInGSTEntryErr, TableCaption, LineCountTxt));
+            Assert.AreEqual(ExpectedCount, Count, StrSubstNo(WrongValueInGSTEntryErr, TableCaption(), LineCountTxt));
             CalcSums("GST Base");
             Assert.AreEqual(
-              ExpectedAmount, "GST Base", StrSubstNo(WrongValueInGSTEntryErr, TableCaption, FieldCaption("GST Base")));
+              ExpectedAmount, "GST Base", StrSubstNo(WrongValueInGSTEntryErr, TableCaption(), FieldCaption("GST Base")));
         end;
     end;
 
@@ -1350,10 +1350,10 @@ codeunit 141007 "ERM GST APAC"
         with GSTPurchaseEntry do begin
             SetRange("Document Type", "Document Type"::Invoice);
             SetRange("Document No.", DocumentNo);
-            Assert.AreEqual(ExpectedCount, Count, StrSubstNo(WrongValueInGSTEntryErr, TableCaption, LineCountTxt));
+            Assert.AreEqual(ExpectedCount, Count, StrSubstNo(WrongValueInGSTEntryErr, TableCaption(), LineCountTxt));
             CalcSums("GST Base");
             Assert.AreEqual(
-              ExpectedAmount, "GST Base", StrSubstNo(WrongValueInGSTEntryErr, TableCaption, FieldCaption("GST Base")));
+              ExpectedAmount, "GST Base", StrSubstNo(WrongValueInGSTEntryErr, TableCaption(), FieldCaption("GST Base")));
         end;
     end;
 
@@ -1377,7 +1377,7 @@ codeunit 141007 "ERM GST APAC"
             VATEntry.SetRange(Base, SalesInvLine.Amount);
             Assert.RecordIsNotEmpty(VATEntry);
             Assert.AreEqual(1, VATEntry.Count, UnexpectedErr);
-        until SalesInvLine.Next = 0;
+        until SalesInvLine.Next() = 0;
     end;
 
     local procedure VerifyGSTBASAdj(DocumentNo: Code[20]; ExpectedBASAdjusnment: Boolean)

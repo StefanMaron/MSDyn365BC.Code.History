@@ -45,72 +45,6 @@ codeunit 134050 "ERM VAT Tool - Master"
         Commit();
     end;
 
-#if not CLEAN18
-    [Test]
-    [Scope('OnPrem')]
-    procedure VATToolMasterDataConvFalse()
-    var
-        GLAccount: Record "G/L Account";
-        Item: Record Item;
-        Resource: Record Resource;
-        ItemTemplate: Record "Item Template";
-        ServPriceAdjustmentDetail: Record "Serv. Price Adjustment Detail";
-        VATRateChangeSetup: Record "VAT Rate Change Setup";
-    begin
-        // Run VAT Rate Change with Perform Conversion = FALSE, expect no updates.
-        Initialize();
-
-        // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
-        ERMVATToolHelper.CreatePostingGroups(false);
-
-        // SETUP: Create data with groups to update.
-        CreateGLAccount(GLAccount);
-        ERMVATToolHelper.CreateItem(Item);
-        CreateResource(Resource);
-        CreateItemTemplate(ItemTemplate);
-        CreateServPriceAdjDetail(ServPriceAdjustmentDetail);
-
-        // SETUP: Update VAT Change Tool Setup table.
-        VATRateChangeSetup.Get();
-        VATRateChangeSetup.Validate("Update G/L Accounts", VATRateChangeSetup."Update G/L Accounts"::Both);
-        VATRateChangeSetup.Validate("Update Items", VATRateChangeSetup."Update Items"::Both);
-        VATRateChangeSetup.Validate("Update Resources", VATRateChangeSetup."Update Resources"::Both);
-        VATRateChangeSetup.Validate("Update Item Templates", VATRateChangeSetup."Update Item Templates"::Both);
-        VATRateChangeSetup.Validate(
-          "Update Serv. Price Adj. Detail", VATRateChangeSetup."Update Serv. Price Adj. Detail"::"Gen. Prod. Posting Group");
-        VATRateChangeSetup.Validate("Perform Conversion", false);
-        VATRateChangeSetup.Validate("Account Filter", GLAccount."No.");
-        VATRateChangeSetup.Validate("Item Filter", Item."No.");
-        VATRateChangeSetup.Validate("Resource Filter", Resource."No.");
-        VATRateChangeSetup.Modify(true);
-
-        // Excercise: Run VAT Rate Change Tool.
-        ERMVATToolHelper.RunVATRateChangeTool;
-
-        // Verify: No Records were updated.
-        ERMVATToolHelper.VerifyUpdateConvFalse(DATABASE::"G/L Account");
-        ERMVATToolHelper.VerifyUpdateConvFalse(DATABASE::Item);
-        ERMVATToolHelper.VerifyUpdateConvFalse(DATABASE::Resource);
-        ERMVATToolHelper.VerifyUpdateConvFalse(DATABASE::"Item Template");
-        ERMVATToolHelper.VerifyUpdateConvFalse(DATABASE::"Serv. Price Adjustment Detail");
-
-        // Verify: Log Entries.
-        ERMVATToolHelper.VerifyLogEntriesConvFalse(DATABASE::"G/L Account", false);
-        ERMVATToolHelper.VerifyLogEntriesConvFalse(DATABASE::Item, false);
-        ERMVATToolHelper.VerifyLogEntriesConvFalse(DATABASE::Resource, false);
-        ERMVATToolHelper.VerifyLogEntriesConvFalse(DATABASE::"Item Template", false);
-        ERMVATToolHelper.VerifyLogEntriesConvFalse(DATABASE::"Serv. Price Adjustment Detail", false);
-
-        // Tear Down
-        ERMVATToolHelper.DeleteRecords(DATABASE::"G/L Account");
-        ERMVATToolHelper.DeleteRecords(DATABASE::Item);
-        ERMVATToolHelper.DeleteRecords(DATABASE::Resource);
-        ERMVATToolHelper.DeleteRecords(DATABASE::"Item Template");
-        ERMVATToolHelper.DeleteRecords(DATABASE::"Serv. Price Adjustment Detail");
-        ERMVATToolHelper.DeleteGroups;
-    end;
-#endif
-
     [Test]
     [Scope('OnPrem')]
     procedure VATToolGLAccountVAT()
@@ -172,10 +106,10 @@ codeunit 134050 "ERM VAT Tool - Master"
         ERMVATToolHelper.RunVATRateChangeTool;
 
         // Verify: Check that Converted Date is Equal to WORKDATE.
-        VerifyConvertedDate(WorkDate);
+        VerifyConvertedDate(WorkDate());
 
         // SETUP: Change WORKDATE.
-        OldWorkDate := WorkDate;
+        OldWorkDate := WorkDate();
         WorkDate(CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', OldWorkDate));
 
         // SETUP: Update VAT Change Tool Setup table.
@@ -186,7 +120,7 @@ codeunit 134050 "ERM VAT Tool - Master"
         ERMVATToolHelper.RunVATRateChangeTool;
 
         // Verify: Check that Converted Date is Equal to WORKDATE.
-        VerifyConvertedDate(WorkDate);
+        VerifyConvertedDate(WorkDate());
 
         // Tier Down: Restore WORKDATE.
         WorkDate(OldWorkDate);
@@ -239,36 +173,6 @@ codeunit 134050 "ERM VAT Tool - Master"
         VATToolItem(VATRateChangeSetup2."Update Items"::Both, true, false, 1);
     end;
 
-#if not CLEAN18
-    [Test]
-    [Scope('OnPrem')]
-    procedure VATToolItemTemplateVAT()
-    begin
-        VATToolItemTemplate(VATRateChangeSetup2."Update Item Templates"::"VAT Prod. Posting Group", 1);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure VATToolItemTemplateGen()
-    begin
-        VATToolItemTemplate(VATRateChangeSetup2."Update Item Templates"::"Gen. Prod. Posting Group", 1);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure VATToolItemTemplateBoth()
-    begin
-        VATToolItemTemplate(VATRateChangeSetup2."Update Item Templates"::Both, 1);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure VATToolItemTemplateNo()
-    begin
-        asserterror VATToolItemTemplate(VATRateChangeSetup2."Update Item Templates"::No, 1);
-        Assert.ExpectedError(ERMVATToolHelper.GetConversionErrorNoTables);
-    end;
-#endif
     [Test]
     [Scope('OnPrem')]
     procedure VATToolItemChargeVAT()
@@ -569,37 +473,6 @@ codeunit 134050 "ERM VAT Tool - Master"
         Assert.ExpectedError(ERMVATToolHelper.GetConversionErrorNoTables);
     end;
 
-#if not CLEAN18
-    [Test]
-    [Scope('OnPrem')]
-    procedure ConfigItemTemplate()
-    var
-        ConfigTemplateHeader: Record "Config. Template Header";
-        TempRecRef: RecordRef;
-        "Count": Integer;
-    begin
-        // [FEATURE] [Rapidstart]
-        // [SCENARIO 361083] A configuration item template updates when running VAT Rate Change Tool
-
-        Initialize();
-        ERMVATToolHelper.CreatePostingGroups(false);
-        Count := LibraryRandom.RandIntInRange(3, 5);
-        ConfigTemplateHeader.DeleteAll(true); // remove the existing templates to not affect the test
-        CreateConfigItemTemplates(TempRecRef, Count);
-
-        ERMVATToolHelper.SetupToolOption(
-          VATRateChangeSetup2.FieldNo("Update Item Templates"), VATRateChangeSetup2."Update Item Templates"::Both);
-        ERMVATToolHelper.SetupToolCheckbox(VATRateChangeSetup2.FieldNo("Perform Conversion"), true);
-
-        ERMVATToolHelper.RunVATRateChangeTool();
-        ERMVATToolHelper.VerifyUpdate(TempRecRef, true);
-        ERMVATToolHelper.VerifyRecordsHandled(TempRecRef);
-
-        ERMVATToolHelper.DeleteRecords(TempRecRef.Number);
-        ERMVATToolHelper.DeleteGroups();
-    end;
-#endif
-
     [Test]
     [Scope('OnPrem')]
     procedure UnitPricesInclVATFieldsExistOnTheVATRateChangeToolPage()
@@ -690,43 +563,6 @@ codeunit 134050 "ERM VAT Tool - Master"
         ERMVATToolHelper.DeleteGroups;
     end;
 
-#if not CLEAN18
-    local procedure VATToolItemTemplate(FieldOption: Option; "Count": Integer)
-    var
-        ConfigTemplateHeader: Record "Config. Template Header";
-        TempRecRef: RecordRef;
-    begin
-        Initialize();
-
-        // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
-        ERMVATToolHelper.CreatePostingGroups(false);
-
-        // SETUP: Create and save data to update in a temporary table.
-        CreateItemTemplates(TempRecRef, Count);
-
-        // SETUP: Remove the existing configuration templates to not affect on the results of Item Template test
-        // BUG 361083: Item templates are not update when run the VAT Rate Change tool
-        ConfigTemplateHeader.SetRange("Table ID", DATABASE::Item);
-        ConfigTemplateHeader.DeleteAll(true);
-
-        // SETUP: Update VAT Change Tool Setup table.
-        ERMVATToolHelper.SetupToolOption(VATRateChangeSetup2.FieldNo("Update Item Templates"), FieldOption);
-        ERMVATToolHelper.SetupToolCheckbox(VATRateChangeSetup2.FieldNo("Perform Conversion"), true);
-
-        // Excercise: Run VAT Rate Change Tool.
-        ERMVATToolHelper.RunVATRateChangeTool;
-
-        // Verify: Check if proper data was updated.
-        ERMVATToolHelper.VerifyUpdate(TempRecRef, true);
-
-        // Verify: Log Entries
-        ERMVATToolHelper.VerifyLogEntries(TempRecRef);
-
-        // Tear Down
-        ERMVATToolHelper.DeleteRecords(TempRecRef.Number);
-        ERMVATToolHelper.DeleteGroups;
-    end;
-#endif
     local procedure VATToolItemCharge(FieldOption: Option; "Count": Integer)
     var
         TempRecRef: RecordRef;
@@ -1254,35 +1090,6 @@ codeunit 134050 "ERM VAT Tool - Master"
         end;
     end;
 
-#if not CLEAN18
-    local procedure CreateItemTemplate(var ItemTemplate: Record "Item Template")
-    var
-        VATProdPostingGroup: Code[20];
-        GenProdPostingGroup: Code[20];
-    begin
-        ERMVATToolHelper.GetGroupsBefore(VATProdPostingGroup, GenProdPostingGroup);
-        LibraryInventory.CreateItemTemplate(ItemTemplate);
-        ItemTemplate.Validate("Gen. Prod. Posting Group", GenProdPostingGroup);
-        ItemTemplate.Validate("VAT Prod. Posting Group", VATProdPostingGroup);
-        ItemTemplate.Modify(true);
-    end;
-
-    local procedure CreateItemTemplates(var TempRecRef: RecordRef; "Count": Integer)
-    var
-        ItemTemplate: Record "Item Template";
-        RecRef: RecordRef;
-        I: Integer;
-    begin
-        TempRecRef.Open(DATABASE::"Item Template", true);
-
-        for I := 1 to Count do begin
-            CreateItemTemplate(ItemTemplate);
-            RecRef.GetTable(ItemTemplate);
-            ERMVATToolHelper.CopyRecordRef(RecRef, TempRecRef);
-        end;
-    end;
-#endif
-
     local procedure CreateConfigItemTemplates(var TempRecRef: RecordRef; "Count": Integer)
     var
         Item: Record Item;
@@ -1627,7 +1434,7 @@ codeunit 134050 "ERM VAT Tool - Master"
                 SelectionFilter := SelectionFilter + '|' + GLAccount."No."
             else
                 SelectionFilter := GLAccount."No.";
-        until TempRecRef.Next = 0
+        until TempRecRef.Next() = 0
     end;
 
     local procedure GetItemFilter(TempRecRef: RecordRef) SelectionFilter: Text[250]
@@ -1640,7 +1447,7 @@ codeunit 134050 "ERM VAT Tool - Master"
                 SelectionFilter := SelectionFilter + '|' + Item."No."
             else
                 SelectionFilter := Item."No.";
-        until TempRecRef.Next = 0
+        until TempRecRef.Next() = 0
     end;
 
     local procedure GetResourceFilter(TempRecRef: RecordRef) SelectionFilter: Text[250]
@@ -1653,7 +1460,7 @@ codeunit 134050 "ERM VAT Tool - Master"
                 SelectionFilter := SelectionFilter + '|' + Resource."No."
             else
                 SelectionFilter := Resource."No.";
-        until TempRecRef.Next = 0
+        until TempRecRef.Next() = 0
     end;
 
     local procedure VerifyConvertedDate(ConvertedDate: Date)

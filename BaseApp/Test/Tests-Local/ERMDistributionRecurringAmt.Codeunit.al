@@ -107,7 +107,7 @@ codeunit 141054 "ERM Distribution Recurring Amt"
         RecurringGeneralJournal.OpenEdit;
         RecurringGeneralJournal.CurrentJnlBatchName.SetValue(CurrentJnlBatchName);
         RecurringGeneralJournal.CalculateDistribution.Invoke;  // Invoke AmountDistributionPageHandler;
-        RecurringGeneralJournal.Close;
+        RecurringGeneralJournal.Close();
     end;
 
     local procedure CreateAndPostGeneralJournalLine(): Code[20]
@@ -205,8 +205,8 @@ codeunit 141054 "ERM Distribution Recurring Amt"
         WhatToCalculate: Variant;
     begin
         LibraryVariableStorage.Dequeue(WhatToCalculate);
-        AmountDistribution.FromDate.SetValue(WorkDate);
-        AmountDistribution.ToDate.SetValue(WorkDate);
+        AmountDistribution.FromDate.SetValue(WorkDate());
+        AmountDistribution.ToDate.SetValue(WorkDate());
         AmountDistribution.WhatToCalculate.SetValue(WhatToCalculate);
     end;
 

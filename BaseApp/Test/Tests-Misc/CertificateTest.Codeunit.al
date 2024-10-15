@@ -183,7 +183,7 @@ codeunit 134666 "Certificate Test"
     local procedure InsertCertificate(var IsolatedCertificate: Record "Isolated Certificate")
     begin
         with IsolatedCertificate do begin
-            Init;
+            Init();
             Insert(true);
         end;
     end;
@@ -218,7 +218,7 @@ codeunit 134666 "Certificate Test"
                         "User ID" := Format(UserSecurityId);
                     end;
             end;
-            Modify;
+            Modify();
         end;
     end;
 }

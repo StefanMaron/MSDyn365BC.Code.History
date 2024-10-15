@@ -654,20 +654,20 @@ table 115 "Sales Cr.Memo Line"
 
     procedure GetCurrencyCode(): Code[10]
     begin
-        GetHeader;
+        GetHeader();
         exit(SalesCrMemoHeader."Currency Code");
     end;
 
     procedure ShowDimensions()
     begin
-        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2 %3', TableCaption, "Document No.", "Line No."));
+        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2 %3', TableCaption(), "Document No.", "Line No."));
     end;
 
     procedure ShowItemTrackingLines()
     var
         ItemTrackingDocMgt: Codeunit "Item Tracking Doc. Management";
     begin
-        ItemTrackingDocMgt.ShowItemTrackingForInvoiceLine(RowID1);
+        ItemTrackingDocMgt.ShowItemTrackingForInvoiceLine(RowID1());
     end;
 
     procedure CalcVATAmountLines(SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var TempVATAmountLine: Record "VAT Amount Line" temporary)
@@ -685,13 +685,13 @@ table 115 "Sales Cr.Memo Line"
             repeat
                 TempVATAmountLine.Init();
                 TempVATAmountLine.CopyFromSalesCrMemoLine(Rec);
-                TempVATAmountLine.InsertLine;
+                TempVATAmountLine.InsertLine();
             until Next() = 0;
     end;
 
     procedure GetLineAmountExclVAT(): Decimal
     begin
-        GetHeader;
+        GetHeader();
         if not SalesCrMemoHeader."Prices Including VAT" then
             exit("Line Amount");
 
@@ -700,7 +700,7 @@ table 115 "Sales Cr.Memo Line"
 
     procedure GetLineAmountInclVAT(): Decimal
     begin
-        GetHeader;
+        GetHeader();
         if SalesCrMemoHeader."Prices Including VAT" then
             exit("Line Amount");
 
@@ -715,10 +715,10 @@ table 115 "Sales Cr.Memo Line"
             SalesCrMemoHeader.Init();
 
         if SalesCrMemoHeader."Currency Code" = '' then
-            Currency.InitRoundingPrecision
+            Currency.InitRoundingPrecision()
         else
             if not Currency.Get(SalesCrMemoHeader."Currency Code") then
-                Currency.InitRoundingPrecision;
+                Currency.InitRoundingPrecision();
     end;
 
     local procedure GetFieldCaption(FieldNumber: Integer): Text[100]
@@ -731,7 +731,7 @@ table 115 "Sales Cr.Memo Line"
 
     procedure GetCaptionClass(FieldNumber: Integer): Text[80]
     begin
-        GetHeader;
+        GetHeader();
         case FieldNumber of
             FieldNo("No."):
                 exit(StrSubstNo('3,%1', GetFieldCaption(FieldNumber)));
@@ -839,7 +839,7 @@ table 115 "Sales Cr.Memo Line"
 
     procedure InitFromSalesLine(SalesCrMemoHeader: Record "Sales Cr.Memo Header"; SalesLine: Record "Sales Line")
     begin
-        Init;
+        Init();
         TransferFields(SalesLine);
         if ("No." = '') and HasTypeToFillMandatoryFields() then
             Type := Type::" ";
@@ -855,7 +855,7 @@ table 115 "Sales Cr.Memo Line"
     begin
         DeferralUtilities.OpenLineScheduleView(
             "Deferral Code", "Deferral Document Type"::Sales.AsInteger(), '', '',
-            GetDocumentType, "Document No.", "Line No.");
+            GetDocumentType(), "Document No.", "Line No.");
     end;
 
     procedure GetDocumentType(): Integer
@@ -875,7 +875,7 @@ table 115 "Sales Cr.Memo Line"
         SalesLine: Record "Sales Line";
     begin
         if Type = Type::" " then
-            exit(SalesLine.FormatType);
+            exit(SalesLine.FormatType());
 
         exit(Format(Type));
     end;

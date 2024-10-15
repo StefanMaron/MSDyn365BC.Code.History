@@ -11,7 +11,7 @@ report 1129 "Cost Allocations"
         dataitem("Cost Allocation Source"; "Cost Allocation Source")
         {
             RequestFilterFields = ID, Level, "Valid From", "Valid To", Variant;
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column("Filter"; Text000 + GetFilters)
@@ -133,7 +133,7 @@ report 1129 "Cost Allocations"
                 CostAllocationTarget: Record "Cost Allocation Target";
             begin
                 if PrintOnlyIfDetail then begin
-                    CostAllocationTarget.SetView("Cost Allocation Target".GetView);
+                    CostAllocationTarget.SetView("Cost Allocation Target".GetView());
                     CostAllocationTarget.SetRange(ID, ID);
 
                     if CostAllocationTarget.IsEmpty() then

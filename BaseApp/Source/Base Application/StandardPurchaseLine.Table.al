@@ -24,7 +24,7 @@ table 174 "Standard Purchase Line"
                 OldType: Enum "Purchase Line Type";
             begin
                 OldType := Type;
-                Init;
+                Init();
                 Type := OldType;
             end;
         }
@@ -69,7 +69,7 @@ table 174 "Standard Purchase Line"
                     Type::"G/L Account":
                         begin
                             GLAcc.Get("No.");
-                            GLAcc.CheckGLAcc;
+                            GLAcc.CheckGLAcc();
                             GLAcc.TestField("Direct Posting", true);
                             Description := GLAcc.Name;
                             OnAfterValidateGLAccountNo(Rec, GLAcc);
@@ -129,7 +129,7 @@ table 174 "Standard Purchase Line"
         }
         field(7; "Amount Excl. VAT"; Decimal)
         {
-            AutoFormatExpression = GetCurrency;
+            AutoFormatExpression = GetCurrency();
             AutoFormatType = 2;
             BlankZero = true;
             Caption = 'Amount Excl. VAT';
@@ -254,7 +254,7 @@ table 174 "Standard Purchase Line"
 
     procedure InsertLine(): Boolean
     begin
-        exit((Type = Type::" ") or (not EmptyLine));
+        exit((Type = Type::" ") or (not EmptyLine()));
     end;
 
     local procedure GetCurrency(): Code[10]

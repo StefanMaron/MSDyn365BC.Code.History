@@ -111,7 +111,7 @@ table 7331 "Whse. Internal Put-away Header"
                               "From Bin Code",
                               StrSubstNo(
                                 Text001, Location.FieldCaption("Adjustment Bin Code"),
-                                Location.TableCaption));
+                                Location.TableCaption()));
 
                         Bin.Get("Location Code", "From Bin Code");
                         if Bin."Bin Type Code" <> '' then
@@ -175,7 +175,7 @@ table 7331 "Whse. Internal Put-away Header"
             trigger OnValidate()
             begin
                 if "Sorting Method" <> xRec."Sorting Method" then
-                    SortWhseDoc;
+                    SortWhseDoc();
             end;
         }
         field(13; Status; Option)
@@ -202,7 +202,7 @@ table 7331 "Whse. Internal Put-away Header"
     trigger OnDelete()
     begin
         TestField(Status, Status::Open);
-        DeleteRelatedLines;
+        DeleteRelatedLines();
     end;
 
     trigger OnInsert()

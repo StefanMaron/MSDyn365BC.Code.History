@@ -7,7 +7,6 @@ page 1020 "Job G/L Journal"
     DataCaptionFields = "Journal Batch Name";
     DelayedInsert = true;
     PageType = Worksheet;
-    PromotedActionCategories = 'New,Process,Report,Page,Post/Print,Line,Account';
     SaveValues = true;
     SourceTable = "Gen. Journal Line";
     UsageCategory = Tasks;
@@ -25,8 +24,8 @@ page 1020 "Job G/L Journal"
 
                 trigger OnLookup(var Text: Text): Boolean
                 begin
-                    PreviewGuid := CreateGuid;
-                    CurrPage.SaveRecord;
+                    PreviewGuid := CreateGuid();
+                    CurrPage.SaveRecord();
                     GenJnlManagement.LookupName(CurrentJnlBatchName, Rec);
                     SetControlAppearanceFromBatch();
                     CurrPage.Update(false);
@@ -34,43 +33,43 @@ page 1020 "Job G/L Journal"
 
                 trigger OnValidate()
                 begin
-                    PreviewGuid := CreateGuid;
+                    PreviewGuid := CreateGuid();
                     GenJnlManagement.CheckName(CurrentJnlBatchName, Rec);
-                    CurrentJnlBatchNameOnAfterVali;
+                    CurrentJnlBatchNameOnAfterVali();
                 end;
             }
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the posting date for the entry.';
                 }
-                field("Document Date"; "Document Date")
+                field("Document Date"; Rec."Document Date")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the date when the related document was created.';
                     Visible = false;
                 }
-                field("Document Type"; "Document Type")
+                field("Document Type"; Rec."Document Type")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the type of document that the entry on the journal line is.';
                 }
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies a document number for the journal line.';
                     ShowMandatory = true;
                 }
-                field("External Document No."; "External Document No.")
+                field("External Document No."; Rec."External Document No.")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies a document number that refers to the customer''s or vendor''s numbering system.';
                     Visible = false;
                 }
-                field("Account Type"; "Account Type")
+                field("Account Type"; Rec."Account Type")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the type of account that the entry on the journal line will be posted to.';
@@ -81,7 +80,7 @@ page 1020 "Job G/L Journal"
                         CurrPage.SaveRecord();
                     end;
                 }
-                field("Account No."; "Account No.")
+                field("Account No."; Rec."Account No.")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the account number that the entry on the journal line will be posted to.';
@@ -98,25 +97,25 @@ page 1020 "Job G/L Journal"
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies a description of the entry.';
                 }
-                field("Business Unit Code"; "Business Unit Code")
+                field("Business Unit Code"; Rec."Business Unit Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the code for the business unit that the job entry is linked to.';
                     Visible = false;
                 }
-                field("Salespers./Purch. Code"; "Salespers./Purch. Code")
+                field("Salespers./Purch. Code"; Rec."Salespers./Purch. Code")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the salesperson or purchaser who is linked to the journal line.';
                     Visible = false;
                 }
-                field("Campaign No."; "Campaign No.")
+                field("Campaign No."; Rec."Campaign No.")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the number of the campaign that the journal line is linked to.';
                     Visible = false;
                 }
-                field("Currency Code"; "Currency Code")
+                field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = Jobs;
                     AssistEdit = true;
@@ -126,40 +125,40 @@ page 1020 "Job G/L Journal"
                     trigger OnAssistEdit()
                     begin
                         ChangeExchangeRate.SetParameter("Currency Code", "Currency Factor", "Posting Date");
-                        if ChangeExchangeRate.RunModal = ACTION::OK then
-                            Validate("Currency Factor", ChangeExchangeRate.GetParameter);
+                        if ChangeExchangeRate.RunModal() = ACTION::OK then
+                            Validate("Currency Factor", ChangeExchangeRate.GetParameter());
 
                         Clear(ChangeExchangeRate);
                     end;
                 }
-                field("Gen. Posting Type"; "Gen. Posting Type")
+                field("Gen. Posting Type"; Rec."Gen. Posting Type")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the type of transaction.';
                 }
-                field("Gen. Bus. Posting Group"; "Gen. Bus. Posting Group")
+                field("Gen. Bus. Posting Group"; Rec."Gen. Bus. Posting Group")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the vendor''s or customer''s trade type to link transactions made for this business partner with the appropriate general ledger account according to the general posting setup.';
                 }
-                field("Gen. Prod. Posting Group"; "Gen. Prod. Posting Group")
+                field("Gen. Prod. Posting Group"; Rec."Gen. Prod. Posting Group")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the item''s product type to link transactions made for this item with the appropriate general ledger account according to the general posting setup.';
                 }
-                field("VAT Bus. Posting Group"; "VAT Bus. Posting Group")
+                field("VAT Bus. Posting Group"; Rec."VAT Bus. Posting Group")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the VAT specification of the involved customer or vendor to link transactions made for this record with the appropriate general ledger account according to the VAT posting setup.';
                     Visible = false;
                 }
-                field("VAT Prod. Posting Group"; "VAT Prod. Posting Group")
+                field("VAT Prod. Posting Group"; Rec."VAT Prod. Posting Group")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the VAT specification of the involved item or resource to link transactions made for this record with the appropriate general ledger account according to the VAT posting setup.';
                     Visible = false;
                 }
-                field("VAT %"; "VAT %")
+                field("VAT %"; Rec."VAT %")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the relevant VAT rate for the particular combination of VAT business posting group and VAT product posting group. Do not enter the percent sign, only the number. For example, if the VAT rate is 25 %, enter 25 in this field.';
@@ -171,54 +170,54 @@ page 1020 "Job G/L Journal"
                     ToolTip = 'Specifies the total amount (including VAT) that the journal line consists of.';
                     Visible = AmountVisible;
                 }
-                field("Amount (LCY)"; "Amount (LCY)")
+                field("Amount (LCY)"; Rec."Amount (LCY)")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the total amount in local currency (including VAT) that the journal line consists of.';
                     Visible = AmountVisible;
                 }
-                field("Debit Amount"; "Debit Amount")
+                field("Debit Amount"; Rec."Debit Amount")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the total of the ledger entries that represent debits.';
                     Visible = DebitCreditVisible;
                 }
-                field("Credit Amount"; "Credit Amount")
+                field("Credit Amount"; Rec."Credit Amount")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the total of the ledger entries that represent credits.';
                     Visible = DebitCreditVisible;
                 }
-                field("VAT Amount"; "VAT Amount")
+                field("VAT Amount"; Rec."VAT Amount")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the amount of VAT that is included in the total amount.';
                     Visible = false;
                 }
-                field("VAT Difference"; "VAT Difference")
+                field("VAT Difference"; Rec."VAT Difference")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the difference between the calculated VAT amount and a VAT amount that you have entered manually.';
                     Visible = false;
                 }
-                field("Bal. VAT Amount"; "Bal. VAT Amount")
+                field("Bal. VAT Amount"; Rec."Bal. VAT Amount")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the amount of Bal. VAT included in the total amount.';
                     Visible = false;
                 }
-                field("Bal. VAT Difference"; "Bal. VAT Difference")
+                field("Bal. VAT Difference"; Rec."Bal. VAT Difference")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the difference between the calculate VAT amount and the VAT amount that you have entered manually.';
                     Visible = false;
                 }
-                field("Bal. Account Type"; "Bal. Account Type")
+                field("Bal. Account Type"; Rec."Bal. Account Type")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the type of account that a balancing entry is posted to, such as BANK for a cash account.';
                 }
-                field("Bal. Account No."; "Bal. Account No.")
+                field("Bal. Account No."; Rec."Bal. Account No.")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the number of the general ledger, customer, vendor, or bank account that the balancing entry is posted to, such as a cash account for cash purchases.';
@@ -229,88 +228,88 @@ page 1020 "Job G/L Journal"
                         ShowShortcutDimCode(ShortcutDimCode);
                     end;
                 }
-                field("Bal. Gen. Posting Type"; "Bal. Gen. Posting Type")
+                field("Bal. Gen. Posting Type"; Rec."Bal. Gen. Posting Type")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the general posting type associated with the balancing account that will be used when you post the entry on the journal line.';
                 }
-                field("Bal. Gen. Bus. Posting Group"; "Bal. Gen. Bus. Posting Group")
+                field("Bal. Gen. Bus. Posting Group"; Rec."Bal. Gen. Bus. Posting Group")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the general business posting group code associated with the balancing account that will be used when you post the entry.';
                 }
-                field("Bal. Gen. Prod. Posting Group"; "Bal. Gen. Prod. Posting Group")
+                field("Bal. Gen. Prod. Posting Group"; Rec."Bal. Gen. Prod. Posting Group")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the general product posting group code associated with the balancing account that will be used when you post the entry.';
                 }
-                field("Bal. VAT Bus. Posting Group"; "Bal. VAT Bus. Posting Group")
+                field("Bal. VAT Bus. Posting Group"; Rec."Bal. VAT Bus. Posting Group")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the code of the VAT business posting group that will be used when you post the entry on the journal line.';
                     Visible = false;
                 }
-                field("Bal. VAT Prod. Posting Group"; "Bal. VAT Prod. Posting Group")
+                field("Bal. VAT Prod. Posting Group"; Rec."Bal. VAT Prod. Posting Group")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the code of the VAT product posting group that will be used when you post the entry on the journal line.';
                     Visible = false;
                 }
-                field("Bill-to/Pay-to No."; "Bill-to/Pay-to No.")
+                field("Bill-to/Pay-to No."; Rec."Bill-to/Pay-to No.")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the number of the bill-to customer or pay-to vendor that the entry is linked to.';
                     Visible = false;
                 }
-                field("Ship-to/Order Address Code"; "Ship-to/Order Address Code")
+                field("Ship-to/Order Address Code"; Rec."Ship-to/Order Address Code")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the address code of the ship-to customer or order-from vendor that the entry is linked to.';
                     Visible = false;
                 }
-                field("Payment Terms Code"; "Payment Terms Code")
+                field("Payment Terms Code"; Rec."Payment Terms Code")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies a formula that calculates the payment due date, payment discount date, and payment discount amount.';
                     Visible = false;
                 }
-                field("Applies-to Doc. Type"; "Applies-to Doc. Type")
+                field("Applies-to Doc. Type"; Rec."Applies-to Doc. Type")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the type of the posted document that this document or journal line will be applied to when you post, for example to register payment.';
                     Visible = false;
                 }
-                field("Applies-to Doc. No."; "Applies-to Doc. No.")
+                field("Applies-to Doc. No."; Rec."Applies-to Doc. No.")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the number of the posted document that this document or journal line will be applied to when you post, for example to register payment.';
                     Visible = false;
                 }
-                field("Applies-to ID"; "Applies-to ID")
+                field("Applies-to ID"; Rec."Applies-to ID")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the ID of entries that will be applied to when you choose the Apply Entries action.';
                     Visible = false;
                 }
-                field("On Hold"; "On Hold")
+                field("On Hold"; Rec."On Hold")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies if the journal line has been invoiced, and you execute the payment suggestions batch job, or you create a finance charge memo or reminder.';
                     Visible = false;
                 }
-                field("Bank Payment Type"; "Bank Payment Type")
+                field("Bank Payment Type"; Rec."Bank Payment Type")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the code for the payment type to be used for the entry on the journal line.';
                     Visible = false;
                 }
-                field("Reason Code"; "Reason Code")
+                field("Reason Code"; Rec."Reason Code")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the reason code, a supplementary source code that enables you to trace the entry.';
                     Visible = false;
                 }
-                field("Job No."; "Job No.")
+                field("Job No."; Rec."Job No.")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the number of the related job.';
@@ -320,109 +319,109 @@ page 1020 "Job G/L Journal"
                         ShowShortcutDimCode(ShortcutDimCode);
                     end;
                 }
-                field("Job Task No."; "Job Task No.")
+                field("Job Task No."; Rec."Job Task No.")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the number of the related job task.';
 
                     trigger OnValidate()
                     begin
-                        if JobTaskIsSet then
+                        if JobTaskIsSet() then
                             ShowShortcutDimCode(ShortcutDimCode);
                     end;
                 }
-                field("Job Planning Line No."; "Job Planning Line No.")
+                field("Job Planning Line No."; Rec."Job Planning Line No.")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the job planning line number that the usage should be linked to when the job journal is posted. You can only link to job planning lines that have the Apply Usage Link option enabled.';
                     Visible = false;
                 }
-                field("Job Line Type"; "Job Line Type")
+                field("Job Line Type"; Rec."Job Line Type")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the type of planning line to create when a job ledger entry is posted. If the field is empty, no planning lines are created.';
                 }
-                field("Job Unit Of Measure Code"; "Job Unit Of Measure Code")
+                field("Job Unit Of Measure Code"; Rec."Job Unit Of Measure Code")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the unit of measure code that is used to determine the unit price. This code specifies how the quantity is measured, for example, by the box or by the piece. The application retrieves this code from the corresponding item or resource card.';
                     Visible = false;
                 }
-                field("Job Quantity"; "Job Quantity")
+                field("Job Quantity"; Rec."Job Quantity")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the quantity for the job ledger entry that is derived from posting the journal line. If the Job Quantity is 0, the total amount on the job ledger entry will also be 0.';
                 }
-                field("Job Unit Cost"; "Job Unit Cost")
+                field("Job Unit Cost"; Rec."Job Unit Cost")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the job cost of one unit of the item or resource on the journal line. The value is calculated as follows: Job Total Cost (LCY) / Job Quantity.';
                 }
-                field("Job Unit Cost (LCY)"; "Job Unit Cost (LCY)")
+                field("Job Unit Cost (LCY)"; Rec."Job Unit Cost (LCY)")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the job cost of one unit of the item or resource on the journal line, in the local currency. The value is calculated as follows: Job Total Cost (LCY) / Job Quantity.';
                 }
-                field("Job Total Cost"; "Job Total Cost")
+                field("Job Total Cost"; Rec."Job Total Cost")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies if you have assigned a job number and a job task number to the journal line. It shows the amount excluding VAT divided by the job quantity for the journal line. The amount is shown in the currency specified for the job. The value field is calculated as follows: (Amount - VAT Amount) x (Job Currency Rate/Currency Rate).';
                 }
-                field("Job Total Cost (LCY)"; "Job Total Cost (LCY)")
+                field("Job Total Cost (LCY)"; Rec."Job Total Cost (LCY)")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the job total cost if you have assigned a job number and a job task number to the journal line. It shows the Amount (LCY) excluding VAT Amount (LCY)for the journal line.';
                 }
-                field("Job Unit Price"; "Job Unit Price")
+                field("Job Unit Price"; Rec."Job Unit Price")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the unit price for the selected account type and account number on the journal line.';
                 }
-                field("Job Unit Price (LCY)"; "Job Unit Price (LCY)")
+                field("Job Unit Price (LCY)"; Rec."Job Unit Price (LCY)")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the unit price, in the local currency, for the selected account type and account number on the journal line.';
                     Visible = false;
                 }
-                field("Job Line Amount"; "Job Line Amount")
+                field("Job Line Amount"; Rec."Job Line Amount")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the line amount of the job ledger entry.';
                 }
-                field("Job Line Amount (LCY)"; "Job Line Amount (LCY)")
+                field("Job Line Amount (LCY)"; Rec."Job Line Amount (LCY)")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the line amount of the job ledger entry.';
                 }
-                field("Job Line Discount Amount"; "Job Line Discount Amount")
+                field("Job Line Discount Amount"; Rec."Job Line Discount Amount")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the line discount amount of the job ledger entry.';
                 }
-                field("Job Line Discount %"; "Job Line Discount %")
+                field("Job Line Discount %"; Rec."Job Line Discount %")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the line discount percentage of the job ledger entry that is related to the purchase line.';
                 }
-                field("Job Total Price"; "Job Total Price")
+                field("Job Total Price"; Rec."Job Total Price")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the total price for the journal line. The value is calculated as follows: Quantity x Unit Price (LCY).';
                     Visible = false;
                 }
-                field("Job Total Price (LCY)"; "Job Total Price (LCY)")
+                field("Job Total Price (LCY)"; Rec."Job Total Price (LCY)")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the total price for the journal line, in the local currency. The value is calculated as follows: Quantity x Unit Price (LCY).';
                 }
-                field("Job Remaining Qty."; "Job Remaining Qty.")
+                field("Job Remaining Qty."; Rec."Job Remaining Qty.")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the quantity that remains to complete a job.';
                     Visible = false;
                 }
 
-                field("Job Queue Status"; "Job Queue Status")
+                field("Job Queue Status"; Rec."Job Queue Status")
                 {
                     ApplicationArea = All;
                     Importance = Additional;
@@ -444,13 +443,13 @@ page 1020 "Job G/L Journal"
                     ToolTip = 'Specifies the entry as a corrective entry. You can use the field if you need to post a corrective entry to an account.';
                     Visible = false;
                 }
-                field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
+                field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                     Visible = DimVisible1;
                 }
-                field("Shortcut Dimension 2 Code"; "Shortcut Dimension 2 Code")
+                field("Shortcut Dimension 2 Code"; Rec."Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
@@ -655,15 +654,13 @@ page 1020 "Job G/L Journal"
                     ApplicationArea = Dimensions;
                     Caption = 'Dimensions';
                     Image = Dimensions;
-                    Promoted = true;
-                    PromotedCategory = Category6;
                     ShortCutKey = 'Alt+D';
                     ToolTip = 'View or edit dimensions, such as area, project, or department, that you can assign to sales and purchase documents to distribute costs and analyze transaction history.';
 
                     trigger OnAction()
                     begin
                         ShowDimensions();
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                     end;
                 }
             }
@@ -676,8 +673,6 @@ page 1020 "Job G/L Journal"
                     ApplicationArea = Jobs;
                     Caption = 'Card';
                     Image = EditLines;
-                    Promoted = true;
-                    PromotedCategory = Category7;
                     RunObject = Codeunit "Gen. Jnl.-Show Card";
                     ShortCutKey = 'Shift+F7';
                     ToolTip = 'View or change detailed information about the record on the document or journal line.';
@@ -687,8 +682,6 @@ page 1020 "Job G/L Journal"
                     ApplicationArea = Jobs;
                     Caption = 'Ledger E&ntries';
                     Image = GLRegisters;
-                    Promoted = true;
-                    PromotedCategory = Category7;
                     RunObject = Codeunit "Gen. Jnl.-Show Entries";
                     ShortCutKey = 'Ctrl+F7';
                     ToolTip = 'View the history of transactions that have been posted for the selected record.';
@@ -709,7 +702,7 @@ page 1020 "Job G/L Journal"
 
                     trigger OnAction()
                     begin
-                        RenumberDocumentNo
+                        RenumberDocumentNo();
                     end;
                 }
             }
@@ -722,9 +715,6 @@ page 1020 "Job G/L Journal"
                     ApplicationArea = Jobs;
                     Caption = 'Reconcile';
                     Image = Reconcile;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ShortCutKey = 'Ctrl+F11';
                     ToolTip = 'View what has been reconciled for the job. The window shows the quantity entered on the job journal lines, totaled by unit of measure and by work type.';
 
@@ -752,9 +742,6 @@ page 1020 "Job G/L Journal"
                     ApplicationArea = Jobs;
                     Caption = 'P&ost';
                     Image = PostOrder;
-                    Promoted = true;
-                    PromotedCategory = Category5;
-                    PromotedIsBig = true;
                     ShortCutKey = 'F9';
                     ToolTip = 'Finalize the document or journal by posting the amounts and quantities to the related accounts in your company books.';
 
@@ -772,8 +759,6 @@ page 1020 "Job G/L Journal"
                     ApplicationArea = Jobs;
                     Caption = 'Preview Posting';
                     Image = ViewPostedOrder;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     ShortCutKey = 'Ctrl+Alt+F9';
                     ToolTip = 'Review the different types of entries that will be created when you post the document or journal.';
 
@@ -791,9 +776,6 @@ page 1020 "Job G/L Journal"
                     ApplicationArea = Jobs;
                     Caption = 'Post and &Print';
                     Image = PostPrint;
-                    Promoted = true;
-                    PromotedCategory = Category5;
-                    PromotedIsBig = true;
                     ShortCutKey = 'Shift+F9';
                     ToolTip = 'Finalize and prepare to print the document or journal. The values and quantities are posted to the related accounts. A report request window where you can specify what to include on the print-out.';
 
@@ -811,15 +793,12 @@ page 1020 "Job G/L Journal"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Remove From Job Queue';
                     Image = RemoveLine;
-                    Promoted = true;
-                    PromotedCategory = Category5;
-                    PromotedIsBig = true;
                     ToolTip = 'Remove the scheduled processing of this record from the job queue.';
                     Visible = JobQueueVisible;
 
                     trigger OnAction()
                     begin
-                        CancelBackgroundPosting;
+                        CancelBackgroundPosting();
                         SetJobQueueVisibility();
                         CurrPage.Update(false);
                     end;
@@ -833,10 +812,6 @@ page 1020 "Job G/L Journal"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Edit in Excel';
                     Image = Excel;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
-                    PromotedOnly = true;
                     ToolTip = 'Send the data in the journal to an Excel file for analysis or editing.';
                     Visible = IsSaaSExcelAddinEnabled;
                     AccessByPermission = System "Allow Action Export To Excel" = X;
@@ -858,8 +833,6 @@ page 1020 "Job G/L Journal"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Show Lines with Issues';
                     Image = Error;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     Visible = BackgroundErrorCheck;
                     Enabled = not ShowAllLinesEnabled;
                     ToolTip = 'View a list of journal lines that have issues before you post the journal.';
@@ -874,8 +847,6 @@ page 1020 "Job G/L Journal"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Show All Lines';
                     Image = ExpandAll;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     Visible = BackgroundErrorCheck;
                     Enabled = ShowAllLinesEnabled;
                     ToolTip = 'View all journal lines, including lines with and without issues.';
@@ -887,12 +858,99 @@ page 1020 "Job G/L Journal"
                 }
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                group(Category_Category5)
+                {
+                    Caption = 'Post/Print', Comment = 'Generated from the PromotedActionCategories property index 4.';
+                    ShowAs = SplitButton;
+
+#if not CLEAN21
+                    actionref("Remove From Job Queue_Promoted"; "Remove From Job Queue")
+                    {
+                        Visible = false;
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Action is being demoted based on overall low usage.';
+                        ObsoleteTag = '21.0';
+                    }
+#endif
+                    actionref("P&ost_Promoted"; "P&ost")
+                    {
+                    }
+                    actionref(Preview_Promoted; Preview)
+                    {
+                    }
+                    actionref("Post and &Print_Promoted"; "Post and &Print")
+                    {
+                    }
+                }
+                actionref("Renumber Document Numbers_Promoted"; "Renumber Document Numbers")
+                {
+                }
+                actionref(Reconcile_Promoted; Reconcile)
+                {
+                }
+            }
+            group(Category_Category6)
+            {
+                Caption = 'Line', Comment = 'Generated from the PromotedActionCategories property index 5.';
+
+                actionref(Dimensions_Promoted; Dimensions)
+                {
+                }
+            }
+            group(Category_Category7)
+            {
+                Caption = 'Account', Comment = 'Generated from the PromotedActionCategories property index 6.';
+
+#if not CLEAN21
+                actionref(Card_Promoted; Card)
+                {
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
+                    ObsoleteTag = '21.0';
+                }
+#endif
+#if not CLEAN21
+                actionref("Ledger E&ntries_Promoted"; "Ledger E&ntries")
+                {
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
+                    ObsoleteTag = '21.0';
+                }
+#endif
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Page', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref(EditInExcel_Promoted; EditInExcel)
+                {
+                }
+                actionref(ShowLinesWithErrors_Promoted; ShowLinesWithErrors)
+                {
+                }
+                actionref(ShowAllLines_Promoted; ShowAllLines)
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+        }
     }
 
     trigger OnAfterGetCurrRecord()
     begin
         GenJnlManagement.GetAccounts(Rec, AccName, BalAccName);
-        UpdateBalance;
+        UpdateBalance();
         SetJobQueueVisibility();
     end;
 
@@ -903,7 +961,7 @@ page 1020 "Job G/L Journal"
 
     trigger OnDeleteRecord(): Boolean
     begin
-        PreviewGuid := CreateGuid;
+        PreviewGuid := CreateGuid();
     end;
 
     trigger OnInit()
@@ -918,17 +976,17 @@ page 1020 "Job G/L Journal"
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
     begin
-        PreviewGuid := CreateGuid;
+        PreviewGuid := CreateGuid();
     end;
 
     trigger OnModifyRecord(): Boolean
     begin
-        PreviewGuid := CreateGuid;
+        PreviewGuid := CreateGuid();
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        UpdateBalance;
+        UpdateBalance();
         SetUpNewLine(xRec, Balance, BelowxRec);
         Clear(ShortcutDimCode);
         Clear(AccName);
@@ -939,16 +997,16 @@ page 1020 "Job G/L Journal"
         ServerSetting: Codeunit "Server Setting";
         JnlSelected: Boolean;
     begin
-        PreviewGuid := CreateGuid;
+        PreviewGuid := CreateGuid();
 
         IsSaaSExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
-        if ClientTypeManagement.GetCurrentClientType = CLIENTTYPE::ODataV4 then
+        if ClientTypeManagement.GetCurrentClientType() = CLIENTTYPE::ODataV4 then
             exit;
 
-        SetControlVisibility;
-        SetDimensionsVisibility;
+        SetControlVisibility();
+        SetDimensionsVisibility();
 
-        if IsOpenedFromBatch then begin
+        if IsOpenedFromBatch() then begin
             CurrentJnlBatchName := "Journal Batch Name";
             GenJnlManagement.OpenJnl(CurrentJnlBatchName, Rec);
             SetControlAppearanceFromBatch();
@@ -1010,7 +1068,7 @@ page 1020 "Job G/L Journal"
 
     local procedure CurrentJnlBatchNameOnAfterVali()
     begin
-        CurrPage.SaveRecord;
+        CurrPage.SaveRecord();
         GenJnlManagement.SetName(CurrentJnlBatchName, Rec);
         SetControlAppearanceFromBatch();
         CurrPage.Update(false);
@@ -1059,7 +1117,7 @@ page 1020 "Job G/L Journal"
     local procedure SetJobQueueVisibility()
     begin
         JobQueueVisible := "Job Queue Status" = "Job Queue Status"::"Scheduled for Posting";
-        JobQueuesUsed := GeneralLedgerSetup.JobQueueActive;
+        JobQueuesUsed := GeneralLedgerSetup.JobQueueActive();
     end;
 
     [IntegrationEvent(false, false)]

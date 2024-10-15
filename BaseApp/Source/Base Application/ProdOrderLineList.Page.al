@@ -17,17 +17,17 @@ page 5406 "Prod. Order Line List"
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies a value that is copied from the corresponding field on the production order header.';
                 }
-                field("Prod. Order No."; "Prod. Order No.")
+                field("Prod. Order No."; Rec."Prod. Order No.")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the number of the related production order.';
                 }
-                field("Item No."; "Item No.")
+                field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the number of the item that is to be produced.';
                 }
-                field("Variant Code"; "Variant Code")
+                field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the variant of the item on the line.';
@@ -38,19 +38,19 @@ page 5406 "Prod. Order Line List"
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the value of the Description field on the item card. If you enter a variant code, the variant description is copied to this field instead.';
                 }
-                field("Description 2"; "Description 2")
+                field("Description 2"; Rec."Description 2")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies an additional description.';
                     Visible = false;
                 }
-                field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
+                field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                     Visible = false;
                 }
-                field("Shortcut Dimension 2 Code"; "Shortcut Dimension 2 Code")
+                field("Shortcut Dimension 2 Code"; Rec."Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
@@ -110,7 +110,7 @@ page 5406 "Prod. Order Line List"
                                                                   Blocked = CONST(false));
                     Visible = false;
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the location code, if the produced items should be stored in a specific location.';
@@ -121,23 +121,23 @@ page 5406 "Prod. Order Line List"
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the quantity to be produced if you manually fill in this line.';
                 }
-                field("Finished Quantity"; "Finished Quantity")
+                field("Finished Quantity"; Rec."Finished Quantity")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies how much of the quantity on this line has been produced.';
                 }
-                field("Remaining Quantity"; "Remaining Quantity")
+                field("Remaining Quantity"; Rec."Remaining Quantity")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the difference between the finished and planned quantities, or zero if the finished quantity is greater than the remaining quantity.';
                 }
-                field("Scrap %"; "Scrap %")
+                field("Scrap %"; Rec."Scrap %")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the percentage of the item that you expect to be scrapped in the production process.';
                     Visible = false;
                 }
-                field("Due Date"; "Due Date")
+                field("Due Date"; Rec."Due Date")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the date when the produced item must be available. The date is copied from the header of the production order.';
@@ -170,27 +170,27 @@ page 5406 "Prod. Order Line List"
                     ToolTip = 'Specifies the entry''s ending time, which is retrieved from the production order routing.';
                     Visible = DateAndTimeFieldVisible;
                 }
-                field("Starting Date-Time"; "Starting Date-Time")
+                field("Starting Date-Time"; Rec."Starting Date-Time")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the entry''s starting date and starting time, which is retrieved from the production order routing.';
                 }
-                field("Ending Date-Time"; "Ending Date-Time")
+                field("Ending Date-Time"; Rec."Ending Date-Time")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the entry''s ending date and ending time, which is retrieved from the production order routing.';
                 }
-                field("Production BOM No."; "Production BOM No.")
+                field("Production BOM No."; Rec."Production BOM No.")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the number of the production BOM that is the basis for creating the Prod. Order Component list for this line.';
                 }
-                field("Unit Cost"; "Unit Cost")
+                field("Unit Cost"; Rec."Unit Cost")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the cost of one unit of the item or resource on the line.';
                 }
-                field("Cost Amount"; "Cost Amount")
+                field("Cost Amount"; Rec."Cost Amount")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the total cost on the line by multiplying the unit cost by the quantity.';
@@ -225,8 +225,6 @@ page 5406 "Prod. Order Line List"
                     ApplicationArea = Manufacturing;
                     Caption = 'Show Document';
                     Image = View;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ShortCutKey = 'Shift+F7';
                     ToolTip = 'Open the document that the selected line exists on.';
 
@@ -253,8 +251,6 @@ page 5406 "Prod. Order Line List"
                     ApplicationArea = Reservation;
                     Caption = 'Reservation Entries';
                     Image = ReservationLedger;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'View the entries for every reservation that is made, either manually or automatically.';
 
                     trigger OnAction()
@@ -267,8 +263,6 @@ page 5406 "Prod. Order Line List"
                     ApplicationArea = ItemTracking;
                     Caption = 'Item &Tracking Lines';
                     Image = ItemTrackingLines;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ShortCutKey = 'Ctrl+Alt+I'; 
                     ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
 
@@ -276,6 +270,23 @@ page 5406 "Prod. Order Line List"
                     begin
                         OpenItemTrackingLines();
                     end;
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref(ShowDocument_Promoted; ShowDocument)
+                {
+                }
+                actionref(ShowTrackingLines_Promoted; ShowTrackingLines)
+                {
+                }
+                actionref(ShowReservEntries_Promoted; ShowReservEntries)
+                {
                 }
             }
         }

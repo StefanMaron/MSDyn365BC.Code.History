@@ -183,7 +183,7 @@ codeunit 134074 "ERM Record Link Management"
         ArchiveManagement.RestoreSalesDocument(SalesHeaderArchive);
 
         // [THEN] Restored Sales Order has a note without notification ("Record Link".Notify = FALSE)
-        SalesHeader.Find;
+        SalesHeader.Find();
         VerifyNotificationOnRecordLink(SalesHeader, false);
     end;
 

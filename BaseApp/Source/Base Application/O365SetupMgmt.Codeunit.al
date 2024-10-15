@@ -1,5 +1,9 @@
+#if not CLEAN21
 codeunit 2315 "O365 Setup Mgmt"
 {
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     trigger OnRun()
     begin
@@ -54,17 +58,17 @@ codeunit 2315 "O365 Setup Mgmt"
 
     procedure ShowCreateTestInvoice(): Boolean
     begin
-        exit(not DocumentsExist);
+        exit(not DocumentsExist());
     end;
 
     procedure WizardShouldBeOpenedForInvoicing(): Boolean
     var
         O365GettingStarted: Record "O365 Getting Started";
     begin
-        if not GettingStartedSupportedForInvoicing then
+        if not GettingStartedSupportedForInvoicing() then
             exit(false);
 
-        if O365GettingStarted.Get(UserId, ClientTypeManagement.GetCurrentClientType) then
+        if O365GettingStarted.Get(UserId, ClientTypeManagement.GetCurrentClientType()) then
             exit(false);
 
         exit(true);
@@ -74,13 +78,13 @@ codeunit 2315 "O365 Setup Mgmt"
     var
         EnvInfoProxy: Codeunit "Env. Info Proxy";
     begin
-        if not EnvInfoProxy.IsInvoicing then
+        if not EnvInfoProxy.IsInvoicing() then
             exit(false);
 
-        if not (ClientTypeManagement.GetCurrentClientType = CLIENTTYPE::Web) then
+        if not (ClientTypeManagement.GetCurrentClientType() = CLIENTTYPE::Web) then
             exit(false);
 
-        exit(O365GettingStartedMgt.UserHasPermissionsToRunGettingStarted);
+        exit(O365GettingStartedMgt.UserHasPermissionsToRunGettingStarted());
     end;
 
     [Scope('OnPrem')]
@@ -92,7 +96,7 @@ codeunit 2315 "O365 Setup Mgmt"
     begin
         Company.SetRange("Evaluation Company", true);
         if Company.FindFirst() then begin
-            UserPersonalization.Get(UserSecurityId);
+            UserPersonalization.Get(UserSecurityId());
             UserPersonalization.Validate(Company, Company.Name);
             UserPersonalization.Modify(true);
             Session.LogMessage('00007L4', UserPersonalizationUpdatedTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', InvToBusinessCentralCategoryLbl);
@@ -115,7 +119,7 @@ codeunit 2315 "O365 Setup Mgmt"
         ClientUrl: Text;
         CompanyPart: Text;
     begin
-        ClientUrl := UrlHelper.GetFixedClientEndpointBaseUrl;
+        ClientUrl := UrlHelper.GetFixedClientEndpointBaseUrl();
 
         Company.SetRange("Evaluation Company", true);
         if Company.FindFirst() then begin
@@ -131,7 +135,7 @@ codeunit 2315 "O365 Setup Mgmt"
     [Scope('OnPrem')]
     procedure GetBusinessCentralTrialVisibility(): Boolean
     begin
-        exit(UserHasPermissionsForEvaluationCompany);
+        exit(UserHasPermissionsForEvaluationCompany());
     end;
 
     [Scope('OnPrem')]
@@ -141,10 +145,9 @@ codeunit 2315 "O365 Setup Mgmt"
         Company: Record Company;
     begin
         Company.SetRange("Evaluation Company", true);
-        if Company.FindFirst() then begin
+        if Company.FindFirst() then
             if DummySalesHeader.ChangeCompany(Company.Name) then
                 exit(DummySalesHeader.WritePermission);
-        end;
 
         exit(false);
     end;
@@ -154,10 +157,11 @@ codeunit 2315 "O365 Setup Mgmt"
     var
         EnvInfoProxy: Codeunit "Env. Info Proxy";
     begin
-        if not EnvInfoProxy.IsInvoicing then
+        if not EnvInfoProxy.IsInvoicing() then
             exit;
 
         SupportEmail := SupportContactEmailTxt;
     end;
 }
+#endif
 

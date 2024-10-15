@@ -13,37 +13,37 @@ page 130408 "CAL Test Coverage Map"
         {
             repeater(Group)
             {
-                field("Object Type"; "Object Type")
+                field("Object Type"; Rec."Object Type")
                 {
                     ApplicationArea = All;
                     Visible = ObjectVisible;
                 }
-                field("Object ID"; "Object ID")
+                field("Object ID"; Rec."Object ID")
                 {
                     ApplicationArea = All;
                     Visible = ObjectVisible;
                 }
-                field("Object Name"; "Object Name")
+                field("Object Name"; Rec."Object Name")
                 {
                     ApplicationArea = All;
                     Visible = ObjectVisible;
                 }
-                field("Hit by Test Codeunits"; "Hit by Test Codeunits")
+                field("Hit by Test Codeunits"; Rec."Hit by Test Codeunits")
                 {
                     ApplicationArea = All;
                     Visible = ObjectVisible;
 
                     trigger OnDrillDown()
                     begin
-                        ShowTestCodeunits;
+                        ShowTestCodeunits();
                     end;
                 }
-                field("Test Codeunit ID"; "Test Codeunit ID")
+                field("Test Codeunit ID"; Rec."Test Codeunit ID")
                 {
                     ApplicationArea = All;
                     Visible = TestCodeunitVisible;
                 }
-                field("Test Codeunit Name"; "Test Codeunit Name")
+                field("Test Codeunit Name"; Rec."Test Codeunit Name")
                 {
                     ApplicationArea = All;
                     Visible = TestCodeunitVisible;
@@ -61,14 +61,22 @@ page 130408 "CAL Test Coverage Map"
                 ApplicationArea = All;
                 Caption = 'Import/Export';
                 Image = ImportExport;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
 
                 trigger OnAction()
                 begin
                     XMLPORT.Run(XMLPORT::"CAL Test Coverage Map");
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(ImportExportTestMap_Promoted; ImportExportTestMap)
+                {
+                }
             }
         }
     }

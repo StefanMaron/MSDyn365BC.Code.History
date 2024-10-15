@@ -15,7 +15,7 @@ report 5058 "Salesperson - Opportunities"
             column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
             {
             }
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(Opportunity_TABLECAPTION__________OpportunityFilter; TableCaption + ': ' + OpportunityFilter)
@@ -126,7 +126,7 @@ report 5058 "Salesperson - Opportunities"
 
     trigger OnPreReport()
     begin
-        OpportunityFilter := Opportunity.GetFilters;
+        OpportunityFilter := Opportunity.GetFilters();
     end;
 
     var

@@ -28,24 +28,10 @@ table 222 "Ship-to Address"
         field(5; Address; Text[100])
         {
             Caption = 'Address';
-
-            trigger OnValidate()
-            begin
-                PostCodeCheck.ValidateAddress(
-                  CurrFieldNo, DATABASE::"Ship-to Address", Rec.GetPosition, 0,
-                  Name, "Name 2", Contact, Address, "Address 2", City, "Post Code", County, "Country/Region Code");
-            end;
         }
         field(6; "Address 2"; Text[50])
         {
             Caption = 'Address 2';
-
-            trigger OnValidate()
-            begin
-                PostCodeCheck.ValidateAddress(
-                  CurrFieldNo, DATABASE::"Ship-to Address", Rec.GetPosition, 0,
-                  Name, "Name 2", Contact, Address, "Address 2", City, "Post Code", County, "Country/Region Code");
-            end;
         }
         field(7; City; Text[30])
         {
@@ -67,12 +53,13 @@ table 222 "Ship-to Address"
             end;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
-                OnBeforeValidateCity(Rec, PostCode);
-
-                PostCodeCheck.ValidateCity(
-                  CurrFieldNo, DATABASE::"Ship-to Address", Rec.GetPosition, 0,
-                  Name, "Name 2", Contact, Address, "Address 2", City, "Post Code", County, "Country/Region Code");
+                IsHandled := false;
+                OnBeforeValidateCity(Rec, PostCode, CurrFieldNo, IsHandled);
+                if not IsHandled then
+                    PostCode.ValidateCity(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
             end;
         }
         field(8; Contact; Text[100])
@@ -169,12 +156,13 @@ table 222 "Ship-to Address"
             end;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
-                OnBeforeValidatePostCode(Rec, PostCode);
-
-                PostCodeCheck.ValidatePostCode(
-                  CurrFieldNo, DATABASE::"Ship-to Address", Rec.GetPosition, 0,
-                  Name, "Name 2", Contact, Address, "Address 2", City, "Post Code", County, "Country/Region Code");
+                IsHandled := false;
+                OnBeforeValidatePostCode(Rec, PostCode, CurrFieldNo, IsHandled);
+                if not IsHandled then
+                    PostCode.ValidatePostCode(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
             end;
         }
         field(92; County; Text[30])
@@ -233,11 +221,6 @@ table 222 "Ship-to Address"
         }
     }
 
-    trigger OnDelete()
-    begin
-        PostCodeCheck.DeleteAllAddressID(DATABASE::"Ship-to Address", Rec.GetPosition);
-    end;
-
     trigger OnInsert()
     begin
         Cust.Get("Customer No.");
@@ -252,16 +235,14 @@ table 222 "Ship-to Address"
     trigger OnRename()
     begin
         "Last Date Modified" := Today;
-        PostCodeCheck.MoveAllAddressID(
-          DATABASE::"Ship-to Address", xRec.GetPosition, DATABASE::"Ship-to Address", Rec.GetPosition);
     end;
 
     var
-        Text000: Label 'untitled';
         Cust: Record Customer;
         PostCode: Record "Post Code";
+
+        Text000: Label 'untitled';
         Text001: Label 'Before you can use Online Map, you must fill in the Online Map Setup window.\See Setting Up Online Map in Help.';
-        PostCodeCheck: Codeunit "Post Code Check";
 
     procedure Caption(): Text
     begin
@@ -278,7 +259,7 @@ table 222 "Ship-to Address"
     begin
         OnlineMapSetup.SetRange(Enabled, true);
         if OnlineMapSetup.FindFirst() then
-            OnlineMapManagement.MakeSelection(DATABASE::"Ship-to Address", GetPosition)
+            OnlineMapManagement.MakeSelection(DATABASE::"Ship-to Address", GetPosition())
         else
             Message(Text001);
     end;
@@ -325,7 +306,7 @@ table 222 "Ship-to Address"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeValidateCity(ShipToAddress: Record "Ship-to Address"; var PostCodeRec: Record "Post Code");
+    local procedure OnBeforeValidateCity(var ShipToAddress: Record "Ship-to Address"; var PostCodeRec: Record "Post Code"; CurrentFieldNo: Integer; var IsHandled: Boolean);
     begin
     end;
 
@@ -335,7 +316,7 @@ table 222 "Ship-to Address"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeValidatePostCode(ShipToAddress: Record "Ship-to Address"; var PostCodeRec: Record "Post Code");
+    local procedure OnBeforeValidatePostCode(var ShipToAddress: Record "Ship-to Address"; var PostCodeRec: Record "Post Code"; CurrentFieldNo: Integer; var IsHandled: Boolean);
     begin
     end;
 }

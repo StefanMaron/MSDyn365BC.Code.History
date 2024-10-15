@@ -53,13 +53,10 @@ report 491 "Delete Invd Blnkt Purch Orders"
                                     PurchCommentLine.SetRange("No.", "No.");
                                     PurchCommentLine.DeleteAll();
 
-
-                                    PostCodeCheck.DeleteAllAddressID(DATABASE::"Purchase Header", GetPosition);
-
                                     ApprovalsMgmt.DeleteApprovalEntries(RecordId);
 
                                     OnBeforeDeletePurchaseHeader("Purchase Header");
-                                    Delete;
+                                    Delete();
                                     OnAfterDeletePurchaseHeader("Purchase Header");
 
                                     Commit();
@@ -94,13 +91,13 @@ report 491 "Delete Invd Blnkt Purch Orders"
     }
 
     var
-        Text000: Label 'Processing purch. orders #1##########';
         PurchLine: Record "Purchase Line";
         PurchLine2: Record "Purchase Line";
         PurchCommentLine: Record "Purch. Comment Line";
         ArchiveManagement: Codeunit ArchiveManagement;
-        PostCodeCheck: Codeunit "Post Code Check";
         Window: Dialog;
+
+        Text000: Label 'Processing purch. orders #1##########';
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetPurchLineFilters(var PurchaseLine: Record "Purchase Line")

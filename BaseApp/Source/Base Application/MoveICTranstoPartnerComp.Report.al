@@ -145,7 +145,7 @@ report 513 "Move IC Trans. to Partner Comp"
 
             trigger OnPostDataItem()
             begin
-                TransferToPartner;
+                TransferToPartner();
             end;
 
             trigger OnPreDataItem()
@@ -352,7 +352,7 @@ report 513 "Move IC Trans. to Partner Comp"
                             ICInboxOutboxJnlLineDim.Insert();
                             HandledICInboxOutboxJnlLineDim.Delete();
                         until HandledICInboxOutboxJnlLineDim.Next() = 0;
-                    Delete;
+                    Delete();
                 until Next() = 0;
         end;
 
@@ -382,7 +382,7 @@ report 513 "Move IC Trans. to Partner Comp"
                             HandledICInboxSalesLine.Delete();
                         until HandledICInboxSalesLine.Next() = 0;
                     OnBeforeHandledICInboxSalesHdrDelete(HandledICInboxSalesHdr);
-                    Delete;
+                    Delete();
                 until Next() = 0;
         end;
 
@@ -412,7 +412,7 @@ report 513 "Move IC Trans. to Partner Comp"
                             HandledICInboxPurchLine.Delete();
                         until HandledICInboxPurchLine.Next() = 0;
                     OnBeforeHandledICInboxPurchHdrDelete(HandledICInboxPurchHdr);
-                    Delete;
+                    Delete();
                 until Next() = 0;
         end;
     end;

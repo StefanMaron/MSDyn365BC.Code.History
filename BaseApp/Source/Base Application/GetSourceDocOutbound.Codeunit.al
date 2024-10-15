@@ -1,4 +1,4 @@
-﻿codeunit 5752 "Get Source Doc. Outbound"
+codeunit 5752 "Get Source Doc. Outbound"
 {
 
     trigger OnRun()
@@ -6,11 +6,12 @@
     end;
 
     var
+        GetSourceDocuments: Report "Get Source Documents";
+
         Text001: Label 'If %1 is %2 in %3 no. %4, then all associated lines where type is %5 must use the same location.';
         Text002: Label 'The warehouse shipment was not created because the Shipping Advice field is set to Complete, and item no. %1 is not available in location code %2.\\You can create the warehouse shipment by either changing the Shipping Advice field to Partial in %3 no. %4 or by manually filling in the warehouse shipment document.';
         Text003: Label 'The warehouse shipment was not created because an open warehouse shipment exists for the Sales Header and Shipping Advice is %1.\\You must add the item(s) as new line(s) to the existing warehouse shipment or change Shipping Advice to Partial.';
         Text004: Label 'No %1 was found. The warehouse shipment could not be created.';
-        GetSourceDocuments: Report "Get Source Documents";
 
     local procedure CreateWhseShipmentHeaderFromWhseRequest(var WarehouseRequest: Record "Warehouse Request") Result: Boolean
     var
@@ -42,7 +43,7 @@
         WhseGetSourceFilterRec: Record "Warehouse Source Filter";
         WhseSourceFilterSelection: Page "Filters to Get Source Docs.";
     begin
-        WhseShptHeader.Find;
+        WhseShptHeader.Find();
         WhseSourceFilterSelection.SetOneCreatedShptHeader(WhseShptHeader);
         WhseGetSourceFilterRec.FilterGroup(2);
         WhseGetSourceFilterRec.SetRange(Type, WhseGetSourceFilterRec.Type::Outbound);
@@ -65,7 +66,7 @@
             exit;
 
         Clear(GetSourceDocuments);
-        WhseShptHeader.Find;
+        WhseShptHeader.Find();
 
         WhseRqst.FilterGroup(2);
         WhseRqst.SetRange(Type, WhseRqst.Type::Outbound);
@@ -95,7 +96,7 @@
 
         SourceDocSelection.LookupMode(true);
         SourceDocSelection.SetTableView(WarehouseRequest);
-        if SourceDocSelection.RunModal <> ACTION::LookupOK then
+        if SourceDocSelection.RunModal() <> ACTION::LookupOK then
             exit;
         SourceDocSelection.GetResult(WarehouseRequest);
 
@@ -117,7 +118,7 @@
     var
         WhseRqst: Record "Warehouse Request";
     begin
-        if not SalesHeader.IsApprovedForPosting then
+        if not SalesHeader.IsApprovedForPosting() then
             exit(false);
 
         FindWarehouseRequestForSalesOrder(WhseRqst, SalesHeader);
@@ -189,7 +190,7 @@
 
         WhsePickDocSelection.LookupMode(true);
         WhsePickDocSelection.SetTableView(WhsePickRqst);
-        if WhsePickDocSelection.RunModal <> ACTION::LookupOK then
+        if WhsePickDocSelection.RunModal() <> ACTION::LookupOK then
             exit;
         WhsePickDocSelection.GetResult(WhsePickRqst);
 
@@ -236,7 +237,7 @@
         if IsHandled then
             exit(Result);
 
-        with SalesHeader do begin
+        with SalesHeader do
             if SalesLine.FindSet() then begin
                 LocationCode := SalesLine."Location Code";
                 SetItemVariant(CurrItemVariant, SalesLine."No.", SalesLine."Variant Code");
@@ -279,7 +280,6 @@
                     end;
                 until SalesLine.Next() = 0; // sorted by item
             end;
-        end;
     end;
 
     local procedure CheckSalesHeaderMarkSalesLines(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
@@ -293,7 +293,7 @@
 
         if SalesLine.FindSet() then
             repeat
-                if SalesLine.IsInventoriableItem then
+                if SalesLine.IsInventoriableItem() then
                     SalesLine.Mark(true);
             until SalesLine.Next() = 0;
         SalesLine.MarkedOnly(true);
@@ -347,13 +347,12 @@
                         SetItemVariant(CurrItemVariant, TransferLine."Item No.", TransferLine."Variant Code");
                         QtyOutstandingBase := TransferLine."Outstanding Qty. (Base)";
                     end;
-                    if RecordNo = TotalNoOfRecords then begin // last record
+                    if RecordNo = TotalNoOfRecords then // last record
                         if CheckAvailability(
                              CurrItemVariant, QtyOutstandingBase, TransferLine."Transfer-from Code",
                              TransferOrder.Caption, DATABASE::"Transfer Line", 0, "No.", ShowError)
                         then // outbound
                             exit(true);
-                    end;
                 until TransferLine.Next() = 0; // sorted by item
             end;
         end;
@@ -537,9 +536,9 @@
     local procedure UpdateShipmentHeaderStatus(var WarehouseShipmentHeader: Record "Warehouse Shipment Header")
     begin
         with WarehouseShipmentHeader do begin
-            Find;
+            Find();
             "Document Status" := GetDocumentStatus(0);
-            Modify;
+            Modify();
         end;
     end;
 
@@ -554,10 +553,10 @@
             exit;
 
         if WhseShipmentCreated then begin
-            GetSourceDocuments.ShowShipmentDialog;
-            OpenWarehouseShipmentPage;
+            GetSourceDocuments.ShowShipmentDialog();
+            OpenWarehouseShipmentPage();
         end else
-            Message(Text004, WarehouseRequest.TableCaption);
+            Message(Text004, WarehouseRequest.TableCaption());
     end;
 
     [IntegrationEvent(false, false)]

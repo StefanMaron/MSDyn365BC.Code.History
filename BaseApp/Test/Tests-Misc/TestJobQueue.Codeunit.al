@@ -121,7 +121,7 @@ codeunit 139026 "Test Job Queue"
         Initialize();
 
         JobQueueEntry.LookupRecordToProcess; // Does nothing, just returns.
-        JobQueueEntry.ID := CreateGuid;
+        JobQueueEntry.ID := CreateGuid();
         asserterror JobQueueEntry.LookupRecordToProcess;
         Customer.Init();
         Customer.Insert(true);
@@ -129,7 +129,7 @@ codeunit 139026 "Test Job Queue"
         JobQueueEntry."Record ID to Process" := RecRef.RecordId;
         CustomerLookup.Trap;
         JobQueueEntry.LookupRecordToProcess;
-        CustomerLookup.Close;
+        CustomerLookup.Close();
         Customer.Delete();
         asserterror JobQueueEntry.LookupRecordToProcess;
     end;
@@ -612,7 +612,7 @@ codeunit 139026 "Test Job Queue"
         if JobQueueEntry.FindSet() then begin
             repeat
                 JobQueueEntry.SetStatus(JobQueueEntry.Status::"On Hold");
-            until JobQueueEntry.Next = 0;
+            until JobQueueEntry.Next() = 0;
         end;
         JobQueueEntry.SetRange(Status);
 

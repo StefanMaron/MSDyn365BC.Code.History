@@ -8,11 +8,6 @@ codeunit 5611 "Calculate Normal Depreciation"
     end;
 
     var
-        Text000: Label 'Force No. of Days must only be specified if %1 %2 = %3.';
-        Text001: Label '%2 must not be 100 for %1.';
-        Text002: Label '%2 must be %3 if %4 %5 = %6 for %1.';
-        Text003: Label '%2 must not be later than %3 for %1.';
-        Text004: Label '%1 %2 must not be used together with the Half-Year Convention for %3.';
         FA: Record "Fixed Asset";
         FALedgEntry: Record "FA Ledger Entry";
         DeprBook: Record "Depreciation Book";
@@ -57,11 +52,17 @@ codeunit 5611 "Calculate Normal Depreciation"
         NewYearDate: Date;
         DeprInTwoFiscalYears: Boolean;
         TempDeprAmount: Decimal;
+        Year365Days: Boolean;
+
+        Text000: Label 'Force No. of Days must only be specified if %1 %2 = %3.';
+        Text001: Label '%2 must not be 100 for %1.';
+        Text002: Label '%2 must be %3 if %4 %5 = %6 for %1.';
+        Text003: Label '%2 must not be later than %3 for %1.';
+        Text004: Label '%1 %2 must not be used together with the Half-Year Convention for %3.';
         Text005: Label '%1 must not be used together with the Half-Year Convention for %2.';
         Text006: Label '%1 must be %2 or later for %3.';
         Text007: Label '%1 must not be used together with %2 for %3.';
         Text008: Label '%1 must not be used together with %2 = %3 for %4.';
-        Year365Days: Boolean;
 
     procedure Calculate(var DeprAmount: Decimal; var NumberOfDays4: Integer; FANo: Code[20]; DeprBookCode2: Code[10]; UntilDate2: Date; EntryAmounts2: array[4] of Decimal; DateFromProjection2: Date; DaysInPeriod2: Integer)
     var
@@ -85,6 +86,8 @@ codeunit 5611 "Calculate Normal Depreciation"
         DeprBook.Get(DeprBookCode);
         if not FADeprBook.Get(FANo, DeprBookCode) then
             exit;
+        OnAfterGetDeprBooks(DeprBook, FADeprBook);
+
         UntilDate := UntilDate2;
         for i := 1 to 4 do
             EntryAmounts[i] := EntryAmounts2[i];
@@ -147,7 +150,7 @@ codeunit 5611 "Calculate Normal Depreciation"
                     if SkipOnZero then
                         DeprMethod := DeprMethod::"Below Zero";
 
-                DeprAmount := Sign * CalculateDeprAmount;
+                DeprAmount := Sign * CalculateDeprAmount();
 
                 IsHandled := false;
                 OnAfterCalcFinalDeprAmount(FANo, FADeprBook, DeprBook, Sign, BookValue, DeprAmount, IsHandled);
@@ -245,14 +248,14 @@ codeunit 5611 "Calculate Normal Depreciation"
                 else
                     case DeprMethod of
                         DeprMethod::"Straight-Line":
-                            Amount := CalcSLAmount;
+                            Amount := CalcSLAmount();
                         DeprMethod::"Declining-Balance 1":
-                            Amount := CalcDB1Amount;
+                            Amount := CalcDB1Amount();
                         DeprMethod::"Declining-Balance 2":
-                            Amount := CalcDB2Amount;
+                            Amount := CalcDB2Amount();
                         DeprMethod::"DB1/SL",
                         DeprMethod::"DB2/SL":
-                            Amount := CalcDBSLAmount;
+                            Amount := CalcDBSLAmount();
                         DeprMethod::Manual:
                             Amount := 0;
                         DeprMethod::"User-Defined":
@@ -448,7 +451,7 @@ codeunit 5611 "Calculate Normal Depreciation"
         DBAmount: Decimal;
     begin
         if DeprMethod = DeprMethod::"DB1/SL" then
-            DBAmount := CalcDB1Amount
+            DBAmount := CalcDB1Amount()
         else
             DBAmount := CalcDB2Amount();
         if FADeprBook."Use DB% First Fiscal Year" then
@@ -515,7 +518,7 @@ codeunit 5611 "Calculate Normal Depreciation"
                   GetFAName(),
                   FieldCaption("Depreciation Method"),
                   "Depreciation Method",
-                  DeprBook.TableCaption,
+                  DeprBook.TableCaption(),
                   DeprBook.FieldCaption("Periodic Depr. Date Calc."),
                   DeprBook."Periodic Depr. Date Calc.");
             end;
@@ -686,11 +689,11 @@ codeunit 5611 "Calculate Normal Depreciation"
             BookValue := BookValue + DeprAmount;
             case DeprMethod of
                 DeprMethod::"Straight-Line":
-                    DeprAmount := DeprAmount + CalcSLAmount;
+                    DeprAmount := DeprAmount + CalcSLAmount();
                 DeprMethod::"Declining-Balance 1":
-                    DeprAmount := DeprAmount + CalcDB1Amount;
+                    DeprAmount := DeprAmount + CalcDB1Amount();
                 DeprMethod::"DB1/SL":
-                    DeprAmount := DeprAmount + CalcDBSLAmount;
+                    DeprAmount := DeprAmount + CalcDBSLAmount();
                 DeprMethod::"Country Specific":
                     ; // Reserved for implementation of country specific
             end;
@@ -877,6 +880,10 @@ codeunit 5611 "Calculate Normal Depreciation"
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetDeprBooks(var DepreciationBook: Record "Depreciation Book"; var FADepreciationBook: Record "FA Depreciation Book")
+    begin
+    end;
 #if not CLEAN19
     [Obsolete('Replaced by event OnCalculateOnBeforeTransferValue().', '19.0')]
     [IntegrationEvent(true, true)]

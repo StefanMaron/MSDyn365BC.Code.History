@@ -60,7 +60,7 @@ page 2866 "Native - VAT Setup"
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
     begin
         SaveChanges(xRec);
-        ReloadRecord;
+        ReloadRecord();
 
         exit(false);
     end;
@@ -68,14 +68,14 @@ page 2866 "Native - VAT Setup"
     trigger OnModifyRecord(): Boolean
     begin
         SaveChanges(xRec);
-        ReloadRecord;
+        ReloadRecord();
 
         exit(false);
     end;
 
     trigger OnOpenPage()
     begin
-        LoadSetupRecords;
+        LoadSetupRecords();
 
         if Type = Type::"Sales Tax" then
             DeleteAll();

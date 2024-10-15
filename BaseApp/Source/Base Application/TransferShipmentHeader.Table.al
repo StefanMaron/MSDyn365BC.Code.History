@@ -26,28 +26,10 @@ table 5744 "Transfer Shipment Header"
         field(5; "Transfer-from Address"; Text[100])
         {
             Caption = 'Transfer-from Address';
-
-            trigger OnValidate()
-            begin
-                PostCodeCheck.ValidateAddress(
-                  CurrFieldNo, DATABASE::"Transfer Header", Rec.GetPosition, 6,
-                  "Transfer-from Name", "Transfer-from Name 2", "Transfer-from Contact",
-                  "Transfer-from Address", "Transfer-from Address 2", "Transfer-from City",
-                  "Transfer-from Post Code", "Transfer-from County", "Trsf.-from Country/Region Code");
-            end;
         }
         field(6; "Transfer-from Address 2"; Text[50])
         {
             Caption = 'Transfer-from Address 2';
-
-            trigger OnValidate()
-            begin
-                PostCodeCheck.ValidateAddress(
-                  CurrFieldNo, DATABASE::"Transfer Header", Rec.GetPosition, 6,
-                  "Transfer-from Name", "Transfer-from Name 2", "Transfer-from Contact",
-                  "Transfer-from Address", "Transfer-from Address 2", "Transfer-from City",
-                  "Transfer-from Post Code", "Transfer-from County", "Trsf.-from Country/Region Code");
-            end;
         }
         field(7; "Transfer-from Post Code"; Code[20])
         {
@@ -91,28 +73,10 @@ table 5744 "Transfer Shipment Header"
         field(14; "Transfer-to Address"; Text[100])
         {
             Caption = 'Transfer-to Address';
-
-            trigger OnValidate()
-            begin
-                PostCodeCheck.ValidateAddress(
-                  CurrFieldNo, DATABASE::"Transfer Header", Rec.GetPosition, 7,
-                  "Transfer-to Name", "Transfer-to Name 2", "Transfer-to Contact",
-                  "Transfer-to Address", "Transfer-to Address 2", "Transfer-to City",
-                  "Transfer-to Post Code", "Transfer-to County", "Trsf.-to Country/Region Code");
-            end;
         }
         field(15; "Transfer-to Address 2"; Text[50])
         {
             Caption = 'Transfer-to Address 2';
-
-            trigger OnValidate()
-            begin
-                PostCodeCheck.ValidateAddress(
-                  CurrFieldNo, DATABASE::"Transfer Header", Rec.GetPosition, 7,
-                  "Transfer-to Name", "Transfer-to Name 2", "Transfer-to Contact",
-                  "Transfer-to Address", "Transfer-to Address 2", "Transfer-to City",
-                  "Transfer-to Post Code", "Transfer-to County", "Trsf.-to Country/Region Code");
-            end;
         }
         field(16; "Transfer-to Post Code"; Code[20])
         {
@@ -306,21 +270,11 @@ table 5744 "Transfer Shipment Header"
           DATABASE::"Transfer Shipment Line", 0, "No.", '', 0, 0, true);
 
         MoveEntries.MoveDocRelatedEntries(DATABASE::"Transfer Shipment Header", "No.");
-
-        PostCodeCheck.DeleteAllAddressID(DATABASE::"Transfer Shipment Header", Rec.GetPosition);
-    end;
-
-    trigger OnRename()
-    begin
-        PostCodeCheck.MoveAllAddressID(
-          DATABASE::"Transfer Shipment Header", Rec.GetPosition,
-          DATABASE::"Transfer Shipment Header", xRec.GetPosition);
     end;
 
     var
         DimMgt: Codeunit DimensionManagement;
         ItemTrackingMgt: Codeunit "Item Tracking Management";
-        PostCodeCheck: Codeunit "Post Code Check";
 
     procedure Navigate()
     var
@@ -350,7 +304,7 @@ table 5744 "Transfer Shipment Header"
 
     procedure ShowDimensions()
     begin
-        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption, "No."));
+        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption(), "No."));
     end;
 
     procedure CopyFromTransferHeader(TransHeader: Record "Transfer Header")

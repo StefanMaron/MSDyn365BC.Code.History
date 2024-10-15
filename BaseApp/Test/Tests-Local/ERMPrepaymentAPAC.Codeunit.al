@@ -153,7 +153,7 @@ codeunit 141057 "ERM Prepayment APAC"
         GLEntry.FindSet();
         repeat
             Amount += GLEntry."Credit Amount";
-        until GLEntry.Next = 0;
+        until GLEntry.Next() = 0;
         Assert.AreNearlyEqual(Amount, PurchaseLine."Amount Including VAT", LibraryERM.GetAmountRoundingPrecision, AmountMustBeEqual);
         Assert.AreNearlyEqual(
           -Amount, PurchaseLine2."Amount Including VAT" - (PurchaseLine."Amount Including VAT" + PurchaseLine2."Amount Including VAT"),
@@ -272,7 +272,7 @@ codeunit 141057 "ERM Prepayment APAC"
     var
         NoSeriesManagement: Codeunit NoSeriesManagement;
     begin
-        exit(NoSeriesManagement.GetNextNo(NoSeries, WorkDate, false));
+        exit(NoSeriesManagement.GetNextNo(NoSeries, WorkDate(), false));
     end;
 
     local procedure ModifyPrepaymentPctOnPurchaseHeader(var PurchaseHeader: Record "Purchase Header"; PrepaymentPct: Decimal)

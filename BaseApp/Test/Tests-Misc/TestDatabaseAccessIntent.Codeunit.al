@@ -92,7 +92,7 @@ codeunit 134567 "Test Database Access Intent"
         // Given: "Object Access Intent Override" for report 4 does exist
         if ObjectAccessIntentOverride.Get(ObjectAccessIntentOverride."Object Type"::Report, Report::"Detail Trial Balance") then
             ObjectAccessIntentOverride.Delete;
-        ObjectAccessIntentOverride.Init;
+        ObjectAccessIntentOverride.Init();
         ObjectAccessIntentOverride."Object Type" := ObjectAccessIntentOverride."Object Type"::Report;
         ObjectAccessIntentOverride."Object ID" := Report::"Detail Trial Balance";
         ObjectAccessIntentOverride."Access Intent" := ObjectAccessIntentOverride."Access Intent"::ReadOnly;

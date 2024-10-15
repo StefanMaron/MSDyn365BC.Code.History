@@ -5,13 +5,14 @@ codeunit 5706 "TransferOrder-Post (Yes/No)"
     trigger OnRun()
     begin
         TransHeader.Copy(Rec);
-        Code;
+        Code();
         Rec := TransHeader;
     end;
 
     var
-        Text000: Label '&Ship,&Receive';
         TransHeader: Record "Transfer Header";
+
+        Text000: Label '&Ship,&Receive';
 
     local procedure "Code"()
     var
@@ -30,6 +31,7 @@ codeunit 5706 "TransferOrder-Post (Yes/No)"
 
         InvtSetup.Get();
 
+        DefaultNumber := 0;
         TransLine.SetRange("Document No.", TransHeader."No.");
         if TransLine.Find('-') then
             repeat
@@ -42,7 +44,7 @@ codeunit 5706 "TransferOrder-Post (Yes/No)"
                 then
                     DefaultNumber := 2;
             until (TransLine.Next() = 0) or (DefaultNumber > 0);
-        
+
         IsHandled := false;
         OnCodeOnBeforePostTransferOrder(TransHeader, DefaultNumber, Selection, IsHandled);
         if not IsHandled then

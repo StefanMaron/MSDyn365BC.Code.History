@@ -1,3 +1,4 @@
+#if not CLEAN21
 page 2105 "O365 Monthly Customer Listpart"
 {
     Caption = 'Customers invoiced this month';
@@ -9,6 +10,9 @@ page 2105 "O365 Monthly Customer Listpart"
     RefreshOnActivate = true;
     SourceTable = Customer;
     SourceTableTemporary = true;
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     layout
     {
@@ -17,15 +21,15 @@ page 2105 "O365 Monthly Customer Listpart"
             repeater(Control1)
             {
                 Caption = '';
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                     Visible = false;
                 }
                 field(Name; Name)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies the customer''s name.';
                     Width = 12;
 
@@ -34,14 +38,14 @@ page 2105 "O365 Monthly Customer Listpart"
                         PAGE.RunModal(PAGE::"BC O365 Sales Customer Card", Rec);
                     end;
                 }
-                field("E-Mail"; "E-Mail")
+                field("E-Mail"; Rec."E-Mail")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Width = 12;
                 }
-                field("Balance (LCY)"; "Balance (LCY)")
+                field("Balance (LCY)"; Rec."Balance (LCY)")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     AutoFormatExpression = '1';
                     AutoFormatType = 10;
                     Caption = 'Outstanding';
@@ -51,7 +55,7 @@ page 2105 "O365 Monthly Customer Listpart"
                 }
                 field(OverdueAmount; OverdueAmount)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     AutoFormatExpression = '1';
                     AutoFormatType = 10;
                     BlankZero = true;
@@ -65,7 +69,7 @@ page 2105 "O365 Monthly Customer Listpart"
                 }
                 field(BlockedStatus; BlockedStatus)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Status';
                     Editable = false;
                     ToolTip = 'Specifies if the customer is blocked so that you cannot create new invoices.';
@@ -81,7 +85,7 @@ page 2105 "O365 Monthly Customer Listpart"
         {
             action(ViewInvoices)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'View Invoices';
                 Image = View;
                 ToolTip = 'See this month''s invoices for the customer.';
@@ -101,12 +105,12 @@ page 2105 "O365 Monthly Customer Listpart"
 
     trigger OnAfterGetRecord()
     begin
-        OverdueAmount := CalcOverdueBalance;
+        OverdueAmount := CalcOverdueBalance();
     end;
 
     trigger OnOpenPage()
     begin
-        SetRange("Date Filter", 0D, WorkDate);
+        SetRange("Date Filter", 0D, WorkDate());
     end;
 
     var
@@ -128,7 +132,7 @@ page 2105 "O365 Monthly Customer Listpart"
 
         if not Customer.FindSet() then
             exit;
-        StartOfMonthDate := DMY2Date(1, CurrentMonth, Date2DMY(WorkDate, 3));
+        StartOfMonthDate := DMY2Date(1, CurrentMonth, Date2DMY(WorkDate(), 3));
         Evaluate(CurrentMonthDateFormula, '<CM>');
         EndOfMonthDate := CalcDate(CurrentMonthDateFormula, StartOfMonthDate);
         Customer.SetRange("Date Filter", StartOfMonthDate, EndOfMonthDate);
@@ -145,4 +149,4 @@ page 2105 "O365 Monthly Customer Listpart"
         CurrPage.Update();
     end;
 }
-
+#endif

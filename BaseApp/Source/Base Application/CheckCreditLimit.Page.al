@@ -81,10 +81,10 @@ page 343 "Check Credit Limit"
 
     trigger OnAfterGetRecord()
     begin
-        CalcCreditLimitLCY;
-        CalcOverdueBalanceLCY;
+        CalcCreditLimitLCY();
+        CalcOverdueBalanceLCY();
 
-        SetParametersOnDetails;
+        SetParametersOnDetails();
     end;
 
     trigger OnOpenPage()
@@ -93,7 +93,6 @@ page 343 "Check Credit Limit"
     end;
 
     var
-        Text000: Label '%1 Do you still want to record the amount?';
         CurrExchRate: Record "Currency Exchange Rate";
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
@@ -118,6 +117,8 @@ page 343 "Check Credit Limit"
         ExtensionAmounts: List of [Decimal];
 #endif
         ExtensionAmountsDic: Dictionary of [Guid, Decimal];
+
+        Text000: Label '%1 Do you still want to record the amount?';
 
     protected var
         DeltaAmount: Decimal;
@@ -179,7 +180,7 @@ page 343 "Check Credit Limit"
         then
             NewOrderAmountLCY := NewOrderAmountLCY + SalesLineAmount(SalesHeader."Document Type", SalesHeader."No.");
         OldSalesHeader := SalesHeader;
-        if OldSalesHeader.Find then
+        if OldSalesHeader.Find() then
             // If "Bill-To Customer" is the same and Sales Header exists then do not consider amount in credit limit calculation since it's already included in "Outstanding Amount"
             // If "Bill-To Customer" was changed the consider amount in credit limit calculation since changes was not yet commited and not included in "Outstanding Amount"
             AssignDeltaAmount := OldSalesHeader."Bill-to Customer No." <> SalesHeader."Bill-to Customer No."
@@ -206,7 +207,7 @@ page 343 "Check Credit Limit"
             NewOrderAmountLCY :=
               Round(
                 CurrExchRate.ExchangeAmtFCYToLCY(
-                  WorkDate, SalesHeader."Currency Code",
+                  WorkDate(), SalesHeader."Currency Code",
                   SalesHeader."Amount Including VAT", SalesHeader."Currency Factor"));
     end;
 
@@ -261,7 +262,7 @@ page 343 "Check Credit Limit"
 
         NewOrderAmountLCY := SalesLine."Outstanding Amount (LCY)" + SalesLine."Shipped Not Invoiced (LCY)";
 
-        if SalesLine.Find then
+        if SalesLine.Find() then
             OldOrderAmountLCY := SalesLine."Outstanding Amount (LCY)" + SalesLine."Shipped Not Invoiced (LCY)"
         else
             OldOrderAmountLCY := 0;
@@ -309,14 +310,14 @@ page 343 "Check Credit Limit"
                     NewOrderAmountLCY := NewOrderAmountLCY +
                       Round(
                         CurrExchRate.ExchangeAmtFCYToLCY(
-                          WorkDate, ServHeader."Currency Code",
+                          WorkDate(), ServHeader."Currency Code",
                           ServLine."Amount Including VAT", ServHeader."Currency Factor"));
             until ServLine.Next() = 0;
 
         if ServHeader."Document Type" <> ServHeader."Document Type"::Order then
             NewOrderAmountLCY := NewOrderAmountLCY + ServLineAmount(ServHeader."Document Type", ServHeader."No.", ServLine);
         OldServHeader := ServHeader;
-        if OldServHeader.Find then
+        if OldServHeader.Find() then
             AssignDeltaAmount := OldServHeader."Bill-to Customer No." <> ServHeader."Bill-to Customer No."
         else
             AssignDeltaAmount := true;
@@ -356,7 +357,7 @@ page 343 "Check Credit Limit"
             ServHeader.Get(ServLine."Document Type", ServLine."Document No.");
         NewOrderAmountLCY := ServLine."Outstanding Amount (LCY)" + ServLine."Shipped Not Invoiced (LCY)";
 
-        if ServLine.Find then
+        if ServLine.Find() then
             OldOrderAmountLCY := ServLine."Outstanding Amount (LCY)" + ServLine."Shipped Not Invoiced (LCY)"
         else
             OldOrderAmountLCY := 0;
@@ -451,7 +452,7 @@ page 343 "Check Credit Limit"
              SalesSetup."Credit Warnings"::"Credit Limit"]) and
            CustCheckCrLimit.IsCreditLimitNotificationEnabled(Rec)
         then begin
-            CalcCreditLimitLCY;
+            CalcCreditLimitLCY();
             if (CustCreditAmountLCY > "Credit Limit (LCY)") and ("Credit Limit (LCY)" <> 0) then
                 ExitValue := 1;
             OnShowWarningOnAfterCalcCreditLimitLCYExitValue(Rec, CustCreditAmountLCY, ExitValue);
@@ -462,7 +463,7 @@ page 343 "Check Credit Limit"
              SalesSetup."Credit Warnings"::"Overdue Balance"]) and
            CustCheckCrLimit.IsOverdueBalanceNotificationEnabled(Rec)
         then begin
-            CalcOverdueBalanceLCY;
+            CalcOverdueBalanceLCY();
             if "Balance Due (LCY)" + "Post Dated Checks (LCY)" > 0 then
                 ExitValue := ExitValue + 2;
             OnShowWarningOnAfterCalcDueBalanceExitValue(Rec, ExitValue);
@@ -477,19 +478,19 @@ page 343 "Check Credit Limit"
             case ExitValue of
                 1:
                     begin
-                        Heading := CopyStr(CustCheckCrLimit.GetCreditLimitNotificationMsg, 1, 250);
-                        NotificationId := CustCheckCrLimit.GetCreditLimitNotificationId;
+                        Heading := CopyStr(CustCheckCrLimit.GetCreditLimitNotificationMsg(), 1, 250);
+                        NotificationId := CustCheckCrLimit.GetCreditLimitNotificationId();
                     end;
                 2:
                     begin
-                        Heading := CopyStr(CustCheckCrLimit.GetOverdueBalanceNotificationMsg, 1, 250);
-                        NotificationId := CustCheckCrLimit.GetOverdueBalanceNotificationId;
+                        Heading := CopyStr(CustCheckCrLimit.GetOverdueBalanceNotificationMsg(), 1, 250);
+                        NotificationId := CustCheckCrLimit.GetOverdueBalanceNotificationId();
                     end;
                 3:
                     begin
-                        Heading := CopyStr(CustCheckCrLimit.GetCreditLimitNotificationMsg, 1, 250);
-                        SecondHeading := CopyStr(CustCheckCrLimit.GetOverdueBalanceNotificationMsg, 1, 250);
-                        NotificationId := CustCheckCrLimit.GetBothNotificationsId;
+                        Heading := CopyStr(CustCheckCrLimit.GetCreditLimitNotificationMsg(), 1, 250);
+                        SecondHeading := CopyStr(CustCheckCrLimit.GetOverdueBalanceNotificationMsg(), 1, 250);
+                        NotificationId := CustCheckCrLimit.GetBothNotificationsId();
                     end;
             end;
             exit(true);
@@ -536,7 +537,7 @@ page 343 "Check Credit Limit"
     local procedure CalcOverdueBalanceLCY()
     begin
         if GetFilter("Date Filter") = '' then
-            SetFilter("Date Filter", '..%1', WorkDate);
+            SetFilter("Date Filter", '..%1', WorkDate());
         OnCalcOverdueBalanceLCYAfterSetFilter(Rec);
         CalcFields("Balance Due (LCY)");
         OnAfterCalcOverdueBalanceLCY(Rec);
@@ -609,7 +610,7 @@ page 343 "Check Credit Limit"
     procedure PopulateDataOnNotification(CreditLimitNotification: Notification)
     begin
         CurrPage.CreditLimitDetails.PAGE.SetCustomerNumber("No.");
-        SetParametersOnDetails;
+        SetParametersOnDetails();
         CurrPage.CreditLimitDetails.PAGE.PopulateDataOnNotification(CreditLimitNotification);
     end;
 

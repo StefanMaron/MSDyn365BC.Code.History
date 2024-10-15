@@ -267,15 +267,23 @@ page 9172 "User Personalization Card"
                     ApplicationArea = Basic, Suite;
                     Caption = 'C&lear Personalized Pages';
                     Image = Cancel;
-                    Promoted = true;
-                    PromotedOnly = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Delete all personalizations made by the specified user across display targets.';
 
                     trigger OnAction()
                     begin
                         ConfPersMgt.ClearUserPersonalization(Rec);
                     end;
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("C&lear Personalized Pages_Promoted"; "C&lear Personalized Pages")
+                {
                 }
             }
         }

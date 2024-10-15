@@ -8,16 +8,11 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
     trigger OnRun()
     begin
         WhseJnlLine.Copy(Rec);
-        Code;
+        Code();
         Rec := WhseJnlLine;
     end;
 
     var
-        Text001: Label 'Journal Batch Name    #1##########\\';
-        Text002: Label 'Checking lines        #2######\';
-        Text003: Label 'Registering lines     #3###### @4@@@@@@@@@@@@@';
-        Text004: Label 'A maximum of %1 registering number series can be used in each journal.';
-        Text007: Label 'One or more reservation entries exist for the item with %1 = %2, %3 = %4, %5 = %6 which may be disrupted if you post this negative adjustment. Do you want to continue?', Comment = 'One or more reservation entries exist for the item with Item No. = 1000, Location Code = BLUE, Variant Code = NEW which may be disrupted if you post this negative adjustment. Do you want to continue?';
         WhseJnlTemplate: Record "Warehouse Journal Template";
         WhseJnlBatch: Record "Warehouse Journal Batch";
         WhseJnlLine: Record "Warehouse Journal Line";
@@ -25,7 +20,7 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
         WhseJnlLine3: Record "Warehouse Journal Line";
         WhseReg: Record "Warehouse Register";
         TempBinContentBuffer: Record "Bin Content Buffer" temporary;
-        NoSeries: Record "No. Series" temporary;
+        TempNoSeries: Record "No. Series" temporary;
         NoSeriesMgt: Codeunit NoSeriesManagement;
         NoSeriesMgt2: array[10] of Codeunit NoSeriesManagement;
         WMSMgt: Codeunit "WMS Management";
@@ -42,10 +37,16 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
         LastRegisteredDocNo: Code[20];
         NoOfRegisteringNoSeries: Integer;
         RegisteringNoSeriesNo: Integer;
-        Text005: Label 'Item tracking lines defined for the source line must account for the same quantity as you have entered.';
-        Text006: Label 'Item tracking lines do not match the bin content.';
         SuppressCommit: Boolean;
         PhysInvtCount: Boolean;
+
+        Text001: Label 'Journal Batch Name    #1##########\\';
+        Text002: Label 'Checking lines        #2######\';
+        Text003: Label 'Registering lines     #3###### @4@@@@@@@@@@@@@';
+        Text004: Label 'A maximum of %1 registering number series can be used in each journal.';
+        Text005: Label 'Item tracking lines defined for the source line must account for the same quantity as you have entered.';
+        Text006: Label 'Item tracking lines do not match the bin content.';
+        Text007: Label 'One or more reservation entries exist for the item with %1 = %2, %3 = %4, %5 = %6 which may be disrupted if you post this negative adjustment. Do you want to continue?', Comment = 'One or more reservation entries exist for the item with Item No. = 1000, Location Code = BLUE, Variant Code = NEW which may be disrupted if you post this negative adjustment. Do you want to continue?';
 
     local procedure "Code"()
     var
@@ -90,7 +91,7 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
             CheckLines(TempHandlingSpecification, HideDialog);
 
             // Find next register no.
-            WhseRegNo := FindWhseRegNo;
+            WhseRegNo := FindWhseRegNo();
 
             PhysInvtCount := false;
 
@@ -103,33 +104,34 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
             OnBeforeRegisterLines(WhseJnlLine, TempHandlingSpecification);
 
             repeat
-                if not EmptyLine and
+                if not EmptyLine() and
                    (WhseJnlBatch."No. Series" <> '') and
                    ("Whse. Document No." <> LastDocNo2)
                 then
                     TestField("Whse. Document No.",
                       NoSeriesMgt.GetNextNo(WhseJnlBatch."No. Series", "Registering Date", false));
-                if not EmptyLine then
+                if not EmptyLine() then
                     LastDocNo2 := "Whse. Document No.";
                 if "Registering No. Series" = '' then
                     "Registering No. Series" := WhseJnlBatch."No. Series"
                 else
-                    if not EmptyLine then
+                    if not EmptyLine() then
                         if "Whse. Document No." = LastDocNo then
                             "Whse. Document No." := LastRegisteredDocNo
                         else begin
-                            if not NoSeries.Get("Registering No. Series") then begin
+                            if not TempNoSeries.Get("Registering No. Series") then begin
                                 NoOfRegisteringNoSeries := NoOfRegisteringNoSeries + 1;
                                 if NoOfRegisteringNoSeries > ArrayLen(NoSeriesMgt2) then
                                     Error(
                                       Text004,
                                       ArrayLen(NoSeriesMgt2));
-                                NoSeries.Code := "Registering No. Series";
-                                NoSeries.Description := Format(NoOfRegisteringNoSeries);
-                                NoSeries.Insert();
+                                TempNoSeries.Init();
+                                TempNoSeries.Code := "Registering No. Series";
+                                TempNoSeries.Description := Format(NoOfRegisteringNoSeries);
+                                TempNoSeries.Insert();
                             end;
                             LastDocNo := "Whse. Document No.";
-                            Evaluate(RegisteringNoSeriesNo, NoSeries.Description);
+                            Evaluate(RegisteringNoSeriesNo, TempNoSeries.Description);
                             "Whse. Document No." :=
                               NoSeriesMgt2[RegisteringNoSeriesNo].GetNextNo(
                                 "Registering No. Series", "Registering Date", false);
@@ -157,7 +159,7 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
 
                 if IsPhysInvtCount(WhseJnlTemplate, "Phys Invt Counting Period Code", "Phys Invt Counting Period Type") then begin
                     if not PhysInvtCount then begin
-                        PhysInvtCountMgt.InitTempItemSKUList;
+                        PhysInvtCountMgt.InitTempItemSKUList();
                         PhysInvtCount := true;
                     end;
                     PhysInvtCountMgt.AddToTempItemSKUList("Item No.", "Location Code", "Variant Code", "Phys Invt Counting Period Type");
@@ -165,30 +167,30 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
             until Next() = 0;
 
             // Copy register no. and current journal batch name to Whse journal
-            if not WhseReg.FindLast or (WhseReg."No." <> WhseRegNo) then
+            if not WhseReg.FindLast() or (WhseReg."No." <> WhseRegNo) then
                 WhseRegNo := 0;
 
-            Init;
+            Init();
             "Line No." := WhseRegNo;
 
             // Update/delete lines
             UpdateDeleteLines();
 
             if WhseJnlBatch."No. Series" <> '' then
-                NoSeriesMgt.SaveNoSeries;
-            if NoSeries.Find('-') then
+                NoSeriesMgt.SaveNoSeries();
+            if TempNoSeries.Find('-') then
                 repeat
-                    Evaluate(RegisteringNoSeriesNo, NoSeries.Description);
-                    NoSeriesMgt2[RegisteringNoSeriesNo].SaveNoSeries;
-                until NoSeries.Next() = 0;
+                    Evaluate(RegisteringNoSeriesNo, TempNoSeries.Description);
+                    NoSeriesMgt2[RegisteringNoSeriesNo].SaveNoSeries();
+                until TempNoSeries.Next() = 0;
 
             if PhysInvtCount then
-                PhysInvtCountMgt.UpdateItemSKUListPhysInvtCount;
+                PhysInvtCountMgt.UpdateItemSKUListPhysInvtCount();
 
             OnAfterPostJnlLines(WhseJnlBatch, WhseJnlLine, WhseRegNo, WhseJnlRegisterLine, SuppressCommit);
 
             if not HideDialog then
-                Window.Close;
+                Window.Close();
             if not SuppressCommit then
                 Commit();
             Clear(WhseJnlRegisterLine);
@@ -222,7 +224,7 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
         with WhseJnlLine do begin
             LineCount := 0;
             StartLineNo := "Line No.";
-            ItemTrackingMgt.InitCollectItemTrkgInformation;
+            ItemTrackingMgt.InitCollectItemTrkgInformation();
             repeat
                 LineCount := LineCount + 1;
                 if not HideDialog then
@@ -253,8 +255,8 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
                 if Next() = 0 then
                     Find('-');
             until "Line No." = StartLineNo;
-            ItemTrackingMgt.CheckItemTrkgInfBeforePost;
-            CheckBin;
+            ItemTrackingMgt.CheckItemTrkgInfBeforePost();
+            CheckBin();
             NoOfRecords := LineCount;
         end;
     end;
@@ -592,7 +594,7 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
         WarehouseEntry: Record "Warehouse Entry";
     begin
         with WarehouseEntry do begin
-            Reset;
+            Reset();
             SetCurrentKey("Item No.", "Location Code", "Variant Code", "Bin Type Code", "Unit of Measure Code", "Lot No.", "Serial No.");
             SetRange("Item No.", ItemNo);
             SetRange("Location Code", LocationCode);
@@ -605,11 +607,11 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
     local procedure InsertTempSKU(var TempSKU: Record "Stockkeeping Unit" temporary; WhseJnlLine: Record "Warehouse Journal Line")
     begin
         with TempSKU do begin
-            Init;
+            Init();
             "Location Code" := WhseJnlLine."Location Code";
             "Item No." := WhseJnlLine."Item No.";
             "Variant Code" := WhseJnlLine."Variant Code";
-            Insert;
+            Insert();
         end;
     end;
 
@@ -620,14 +622,14 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
 
     local procedure CalcRequiredQty(TempSKU: Record "Stockkeeping Unit" temporary; var WhseJnlLineFiltered: Record "Warehouse Journal Line"): Decimal
     var
-        WhseJnlLine: Record "Warehouse Journal Line";
+        WhseJnlLine2: Record "Warehouse Journal Line";
     begin
-        WhseJnlLine.CopyFilters(WhseJnlLineFiltered);
-        WhseJnlLine.SetRange("Item No.", TempSKU."Item No.");
-        WhseJnlLine.SetRange("Location Code", TempSKU."Location Code");
-        WhseJnlLine.SetRange("Variant Code", TempSKU."Variant Code");
-        WhseJnlLine.CalcSums("Qty. (Base)");
-        exit(WhseJnlLine."Qty. (Base)");
+        WhseJnlLine2.CopyFilters(WhseJnlLineFiltered);
+        WhseJnlLine2.SetRange("Item No.", TempSKU."Item No.");
+        WhseJnlLine2.SetRange("Location Code", TempSKU."Location Code");
+        WhseJnlLine2.SetRange("Variant Code", TempSKU."Variant Code");
+        WhseJnlLine2.CalcSums("Qty. (Base)");
+        exit(WhseJnlLine2."Qty. (Base)");
     end;
 
     [IntegrationEvent(false, false)]

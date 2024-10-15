@@ -34,26 +34,10 @@ table 122 "Purch. Inv. Header"
         field(7; "Pay-to Address"; Text[100])
         {
             Caption = 'Pay-to Address';
-
-            trigger OnValidate()
-            begin
-                PostCodeCheck.ValidateAddress(
-                  CurrFieldNo, DATABASE::"Purchase Header", GetPosition, 4,
-                  "Pay-to Name", "Pay-to Name 2", "Pay-to Contact", "Pay-to Address", "Pay-to Address 2",
-                  "Pay-to City", "Pay-to Post Code", "Pay-to County", "Pay-to Country/Region Code");
-            end;
         }
         field(8; "Pay-to Address 2"; Text[50])
         {
             Caption = 'Pay-to Address 2';
-
-            trigger OnValidate()
-            begin
-                PostCodeCheck.ValidateAddress(
-                  CurrFieldNo, DATABASE::"Purchase Header", GetPosition, 4,
-                  "Pay-to Name", "Pay-to Name 2", "Pay-to Contact", "Pay-to Address", "Pay-to Address 2",
-                  "Pay-to City", "Pay-to Post Code", "Pay-to County", "Pay-to Country/Region Code");
-            end;
         }
         field(9; "Pay-to City"; Text[30])
         {
@@ -87,26 +71,10 @@ table 122 "Purch. Inv. Header"
         field(15; "Ship-to Address"; Text[100])
         {
             Caption = 'Ship-to Address';
-
-            trigger OnValidate()
-            begin
-                PostCodeCheck.ValidateAddress(
-                  CurrFieldNo, DATABASE::"Purchase Header", GetPosition, 2,
-                  "Ship-to Name", "Ship-to Name 2", "Ship-to Contact", "Ship-to Address", "Ship-to Address 2",
-                  "Ship-to City", "Ship-to Post Code", "Ship-to County", "Ship-to Country/Region Code");
-            end;
         }
         field(16; "Ship-to Address 2"; Text[50])
         {
             Caption = 'Ship-to Address 2';
-
-            trigger OnValidate()
-            begin
-                PostCodeCheck.ValidateAddress(
-                  CurrFieldNo, DATABASE::"Purchase Header", GetPosition, 2,
-                  "Ship-to Name", "Ship-to Name 2", "Ship-to Contact", "Ship-to Address", "Ship-to Address 2",
-                  "Ship-to City", "Ship-to Post Code", "Ship-to County", "Ship-to Country/Region Code");
-            end;
         }
         field(17; "Ship-to City"; Text[30])
         {
@@ -334,26 +302,10 @@ table 122 "Purch. Inv. Header"
         field(81; "Buy-from Address"; Text[100])
         {
             Caption = 'Buy-from Address';
-
-            trigger OnValidate()
-            begin
-                PostCodeCheck.ValidateAddress(
-                  CurrFieldNo, DATABASE::"Purchase Header", GetPosition, 5,
-                  "Buy-from Vendor Name", "Buy-from Vendor Name 2", "Buy-from Contact", "Buy-from Address", "Buy-from Address 2",
-                  "Buy-from City", "Buy-from Post Code", "Buy-from County", "Buy-from Country/Region Code");
-            end;
         }
         field(82; "Buy-from Address 2"; Text[50])
         {
             Caption = 'Buy-from Address 2';
-
-            trigger OnValidate()
-            begin
-                PostCodeCheck.ValidateAddress(
-                  CurrFieldNo, DATABASE::"Purchase Header", GetPosition, 5,
-                  "Buy-from Vendor Name", "Buy-from Vendor Name 2", "Buy-from Contact", "Buy-from Address", "Buy-from Address 2",
-                  "Buy-from City", "Buy-from Post Code", "Buy-from County", "Buy-from Country/Region Code");
-            end;
         }
         field(83; "Buy-from City"; Text[30])
         {
@@ -539,6 +491,11 @@ table 122 "Purch. Inv. Header"
             Caption = 'Payment Reference';
             Numeric = true;
         }
+        field(179; "VAT Reporting Date"; Date)
+        {
+            Caption = 'VAT Date';
+            Editable = false;
+        }
         field(480; "Dimension Set ID"; Integer)
         {
             Caption = 'Dimension Set ID';
@@ -549,6 +506,11 @@ table 122 "Purch. Inv. Header"
             begin
                 ShowDimensions();
             end;
+        }
+        field(1000; "Remit-to Code"; Code[20])
+        {
+            Caption = 'Remit-to Code';
+            Editable = false;
         }
         field(1302; Closed; Boolean)
         {
@@ -764,15 +726,6 @@ table 122 "Purch. Inv. Header"
         PostedDeferralHeader.DeleteForDoc(
             "Deferral Document Type"::Purchase.AsInteger(), '', '',
             PurchCommentLine."Document Type"::"Posted Invoice".AsInteger(), "No.");
-
-        PostCodeCheck.DeleteAllAddressID(DATABASE::"Purch. Inv. Header", GetPosition);
-    end;
-
-    trigger OnRename()
-    begin
-        PostCodeCheck.MoveAllAddressID(
-          DATABASE::"Purch. Inv. Header", GetPosition,
-          DATABASE::"Purch. Inv. Header", xRec.GetPosition);
     end;
 
     var
@@ -781,7 +734,6 @@ table 122 "Purch. Inv. Header"
         DimMgt: Codeunit DimensionManagement;
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
         UserSetupMgt: Codeunit "User Setup Management";
-        PostCodeCheck: Codeunit "Post Code Check";
 
     procedure IsFullyOpen(): Boolean
     begin
@@ -832,7 +784,7 @@ table 122 "Purch. Inv. Header"
 
     procedure ShowDimensions()
     begin
-        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption, "No."));
+        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption(), "No."));
     end;
 
     procedure SetSecurityFilterOnRespCenter()
@@ -844,9 +796,9 @@ table 122 "Purch. Inv. Header"
         if IsHandled then
             exit;
 
-        if UserSetupMgt.GetPurchasesFilter <> '' then begin
+        if UserSetupMgt.GetPurchasesFilter() <> '' then begin
             FilterGroup(2);
-            SetRange("Responsibility Center", UserSetupMgt.GetPurchasesFilter);
+            SetRange("Responsibility Center", UserSetupMgt.GetPurchasesFilter());
             FilterGroup(0);
         end;
     end;
@@ -863,9 +815,9 @@ table 122 "Purch. Inv. Header"
         CalcFields(Cancelled, Corrective);
         case true of
             Cancelled:
-                ShowCorrectiveCreditMemo;
+                ShowCorrectiveCreditMemo();
             Corrective:
-                ShowCancelledCreditMemo;
+                ShowCancelledCreditMemo();
         end;
     end;
 

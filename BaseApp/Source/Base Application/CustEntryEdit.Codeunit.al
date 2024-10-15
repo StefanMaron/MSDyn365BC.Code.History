@@ -15,7 +15,7 @@ codeunit 103 "Cust. Entry-Edit"
 
         CustLedgEntry := Rec;
         CustLedgEntry.LockTable();
-        CustLedgEntry.Find;
+        CustLedgEntry.Find();
         CustLedgEntry."On Hold" := "On Hold";
         if CustLedgEntry.Open then begin
             CustLedgEntry."Due Date" := "Due Date";
@@ -97,7 +97,7 @@ codeunit 103 "Cust. Entry-Edit"
 
             ApplyCustEntries.SetSales(CurrentSalesHeader, CustLedgEntry, FieldNo("Applies-to Doc. No."));
             ApplyCustEntries.LookupMode(true);
-            if ApplyCustEntries.RunModal = ACTION::LookupOK then begin
+            if ApplyCustEntries.RunModal() = ACTION::LookupOK then begin
                 ApplyCustEntries.GetCustLedgEntry(CustLedgEntry);
                 "Adjustment Applies-to" := CustLedgEntry."Document No.";
                 if ("Applies-to Doc. No." <> "Adjustment Applies-to") and

@@ -166,7 +166,7 @@ codeunit 141000 "Report Layout - Local"
         ReportType: Option " ",,"Net Change/Budget","Net Change (This Year/Last Year)","Balance (This Year/Last Year)";
     begin
         FinancialAnalysisReport.ReportType.SetValue(ReportType::"Net Change/Budget");
-        FinancialAnalysisReport."G/L Account".SetFilter("Date Filter", Format(WorkDate));
+        FinancialAnalysisReport."G/L Account".SetFilter("Date Filter", Format(WorkDate()));
         FinancialAnalysisReport.SaveAsPdf(FormatFileName(FinancialAnalysisReport.Caption));
     end;
 
@@ -174,7 +174,7 @@ codeunit 141000 "Report Layout - Local"
     [Scope('OnPrem')]
     procedure RHStockCard(var StockCard: TestRequestPage "Stock Card")
     begin
-        StockCard."Item Ledger Entry".SetFilter("Posting Date", Format(WorkDate));
+        StockCard."Item Ledger Entry".SetFilter("Posting Date", Format(WorkDate()));
         StockCard.SaveAsPdf(FormatFileName(StockCard.Caption));
     end;
 
@@ -183,7 +183,7 @@ codeunit 141000 "Report Layout - Local"
     procedure StockCardRequestPageHandler(var StockCard: TestRequestPage "Stock Card")
     begin
         StockCard."Item Ledger Entry".SetFilter("Item No.", LibraryVariableStorage.DequeueText);
-        StockCard."Item Ledger Entry".SetFilter("Posting Date", Format(WorkDate));
+        StockCard."Item Ledger Entry".SetFilter("Posting Date", Format(WorkDate()));
         StockCard.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 
@@ -193,7 +193,7 @@ codeunit 141000 "Report Layout - Local"
     begin
         AUNZStatement.PrintAllWithEntries.SetValue(true);
         AUNZStatement.PrintCompanyAddress.SetValue(true);
-        AUNZStatement.Customer.SetFilter("Date Filter", Format(WorkDate));
+        AUNZStatement.Customer.SetFilter("Date Filter", Format(WorkDate()));
         AUNZStatement.SaveAsPdf(FormatFileName(AUNZStatement.Caption));
     end;
 
@@ -201,7 +201,7 @@ codeunit 141000 "Report Layout - Local"
     [Scope('OnPrem')]
     procedure RHAnnualInformationReturnWHT(var AnnualInformationReturnWHT: TestRequestPage "Annual Information Return  WHT")
     begin
-        AnnualInformationReturnWHT.ForYear.SetValue(Date2DMY(WorkDate, 3));
+        AnnualInformationReturnWHT.ForYear.SetValue(Date2DMY(WorkDate(), 3));
         AnnualInformationReturnWHT.SaveAsPdf(FormatFileName(AnnualInformationReturnWHT.Caption));
     end;
 
@@ -209,7 +209,7 @@ codeunit 141000 "Report Layout - Local"
     [Scope('OnPrem')]
     procedure RHBalanceSheet(var BalanceSheet: TestRequestPage "Balance Sheet")
     begin
-        BalanceSheet."G/L Account".SetFilter("Date Filter", Format(WorkDate));
+        BalanceSheet."G/L Account".SetFilter("Date Filter", Format(WorkDate()));
         BalanceSheet.SaveAsPdf(FormatFileName(BalanceSheet.Caption));
     end;
 
@@ -217,7 +217,7 @@ codeunit 141000 "Report Layout - Local"
     [Scope('OnPrem')]
     procedure RHIncomeStatement(var IncomeStatement: TestRequestPage "Income Statement")
     begin
-        IncomeStatement."G/L Account".SetFilter("Date Filter", Format(WorkDate));
+        IncomeStatement."G/L Account".SetFilter("Date Filter", Format(WorkDate()));
         IncomeStatement.SaveAsPdf(FormatFileName(IncomeStatement.Caption));
     end;
 
@@ -227,7 +227,7 @@ codeunit 141000 "Report Layout - Local"
     var
         LibraryFiscalYear: Codeunit "Library - Fiscal Year";
     begin
-        GLJournal.Date.SetFilter("Period Start", Format(LibraryFiscalYear.GetAccountingPeriodDate(WorkDate)));
+        GLJournal.Date.SetFilter("Period Start", Format(LibraryFiscalYear.GetAccountingPeriodDate(WorkDate())));
         GLJournal.SaveAsPdf(FormatFileName(GLJournal.Caption));
     end;
 
@@ -240,7 +240,7 @@ codeunit 141000 "Report Layout - Local"
         PeriodType: Option Day,Week,Month,Quarter,year;
     begin
         Journals.Date.SetFilter("Period Type", Format(PeriodType::Month));
-        Journals.Date.SetFilter("Period Start", Format(LibraryFiscalYear.GetAccountingPeriodDate(WorkDate)));
+        Journals.Date.SetFilter("Period Start", Format(LibraryFiscalYear.GetAccountingPeriodDate(WorkDate())));
         Journals.SaveAsPdf(FormatFileName(Journals.Caption));
     end;
 

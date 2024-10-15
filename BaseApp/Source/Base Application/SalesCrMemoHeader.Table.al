@@ -34,26 +34,10 @@ table 114 "Sales Cr.Memo Header"
         field(7; "Bill-to Address"; Text[100])
         {
             Caption = 'Bill-to Address';
-
-            trigger OnValidate()
-            begin
-                PostCodeCheck.ValidateAddress(
-                  CurrFieldNo, DATABASE::"Sales Header", Rec.GetPosition, 1,
-                  "Bill-to Name", "Bill-to Name 2", "Bill-to Contact", "Bill-to Address", "Bill-to Address 2",
-                  "Bill-to City", "Bill-to Post Code", "Bill-to County", "Bill-to Country/Region Code");
-            end;
         }
         field(8; "Bill-to Address 2"; Text[50])
         {
             Caption = 'Bill-to Address 2';
-
-            trigger OnValidate()
-            begin
-                PostCodeCheck.ValidateAddress(
-                  CurrFieldNo, DATABASE::"Sales Header", Rec.GetPosition, 1,
-                  "Bill-to Name", "Bill-to Name 2", "Bill-to Contact", "Bill-to Address", "Bill-to Address 2",
-                  "Bill-to City", "Bill-to Post Code", "Bill-to County", "Bill-to Country/Region Code");
-            end;
         }
         field(9; "Bill-to City"; Text[30])
         {
@@ -87,26 +71,10 @@ table 114 "Sales Cr.Memo Header"
         field(15; "Ship-to Address"; Text[100])
         {
             Caption = 'Ship-to Address';
-
-            trigger OnValidate()
-            begin
-                PostCodeCheck.ValidateAddress(
-                  CurrFieldNo, DATABASE::"Sales Header", Rec.GetPosition, 1,
-                  "Ship-to Name", "Ship-to Name 2", "Ship-to Contact", "Ship-to Address", "Ship-to Address 2",
-                  "Ship-to City", "Ship-to Post Code", "Ship-to County", "Ship-to Country/Region Code");
-            end;
         }
         field(16; "Ship-to Address 2"; Text[50])
         {
             Caption = 'Ship-to Address 2';
-
-            trigger OnValidate()
-            begin
-                PostCodeCheck.ValidateAddress(
-                  CurrFieldNo, DATABASE::"Sales Header", Rec.GetPosition, 1,
-                  "Ship-to Name", "Ship-to Name 2", "Ship-to Contact", "Ship-to Address", "Ship-to Address 2",
-                  "Ship-to City", "Ship-to Post Code", "Ship-to County", "Ship-to Country/Region Code");
-            end;
         }
         field(17; "Ship-to City"; Text[30])
         {
@@ -326,26 +294,10 @@ table 114 "Sales Cr.Memo Header"
         field(81; "Sell-to Address"; Text[100])
         {
             Caption = 'Sell-to Address';
-
-            trigger OnValidate()
-            begin
-                PostCodeCheck.ValidateAddress(
-                  CurrFieldNo, DATABASE::"Sales Header", Rec.GetPosition, 1,
-                  "Sell-to Customer Name", "Sell-to Customer Name 2", "Sell-to Contact", "Sell-to Address", "Sell-to Address 2",
-                  "Sell-to City", "Sell-to Post Code", "Sell-to County", "Sell-to Country/Region Code");
-            end;
         }
         field(82; "Sell-to Address 2"; Text[50])
         {
             Caption = 'Sell-to Address 2';
-
-            trigger OnValidate()
-            begin
-                PostCodeCheck.ValidateAddress(
-                  CurrFieldNo, DATABASE::"Sales Header", Rec.GetPosition, 1,
-                  "Sell-to Customer Name", "Sell-to Customer Name 2", "Sell-to Contact", "Sell-to Address", "Sell-to Address 2",
-                  "Sell-to City", "Sell-to Post Code", "Sell-to County", "Sell-to Country/Region Code");
-            end;
         }
         field(83; "Sell-to City"; Text[30])
         {
@@ -535,6 +487,11 @@ table 114 "Sales Cr.Memo Header"
         {
             Caption = 'Email';
             ExtendedDatatype = EMail;
+        }
+        field(179; "VAT Reporting Date"; Date)
+        {
+            Caption = 'VAT Date';
+            Editable = false;
         }
         field(200; "Work Description"; BLOB)
         {
@@ -820,17 +777,9 @@ table 114 "Sales Cr.Memo Header"
         SalesCommentLine.DeleteAll();
 
         ApprovalsMgmt.DeletePostedApprovalEntries(RecordId);
-        PostCodeCheck.DeleteAllAddressID(DATABASE::"Sales Cr.Memo Header", Rec.GetPosition);
         PostedDeferralHeader.DeleteForDoc(
             "Deferral Document Type"::Sales.AsInteger(), '', '',
             SalesCommentLine."Document Type"::"Posted Credit Memo".AsInteger(), "No.");
-    end;
-
-    trigger OnRename()
-    begin
-        PostCodeCheck.MoveAllAddressID(
-          DATABASE::"Sales Cr.Memo Header", Rec.GetPosition,
-          DATABASE::"Sales Cr.Memo Header", xRec.GetPosition);
     end;
 
     var
@@ -838,7 +787,6 @@ table 114 "Sales Cr.Memo Header"
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
         DimMgt: Codeunit DimensionManagement;
         UserSetupMgt: Codeunit "User Setup Management";
-        PostCodeCheck: Codeunit "Post Code Check";
 
     procedure SendRecords()
     var
@@ -988,12 +936,12 @@ table 114 "Sales Cr.Memo Header"
         SalesSetup: Record "Sales & Receivables Setup";
     begin
         SalesSetup.Get();
-        exit(SalesSetup.GetLegalStatement);
+        exit(SalesSetup.GetLegalStatement());
     end;
 
     procedure ShowDimensions()
     begin
-        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption, "No."));
+        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption(), "No."));
     end;
 
     procedure SetSecurityFilterOnRespCenter()
@@ -1043,9 +991,9 @@ table 114 "Sales Cr.Memo Header"
         CalcFields(Cancelled, Corrective);
         case true of
             Cancelled:
-                ShowCorrectiveInvoice;
+                ShowCorrectiveInvoice();
             Corrective:
-                ShowCancelledInvoice;
+                ShowCancelledInvoice();
         end;
     end;
 
@@ -1086,7 +1034,7 @@ table 114 "Sales Cr.Memo Header"
     begin
         CalcFields("Work Description");
         "Work Description".CreateInStream(InStream, TEXTENCODING::UTF8);
-        exit(TypeHelper.ReadAsTextWithSeparator(InStream, TypeHelper.LFSeparator));
+        exit(TypeHelper.ReadAsTextWithSeparator(InStream, TypeHelper.LFSeparator()));
     end;
 
     [IntegrationEvent(false, false)]

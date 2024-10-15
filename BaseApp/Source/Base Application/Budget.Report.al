@@ -1,4 +1,4 @@
-report 8 Budget
+﻿report 8 Budget
 {
     DefaultLayout = RDLC;
     RDLCLayout = './Budget.rdlc';
@@ -13,7 +13,7 @@ report 8 Budget
         {
             DataItemTableView = SORTING("No.");
             RequestFilterFields = "No.", "Account Type", "Budget Filter", "Global Dimension 1 Filter", "Global Dimension 2 Filter";
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(GLBudgetFilter; GLBudgetFilter)
@@ -285,7 +285,7 @@ report 8 Budget
         trigger OnOpenPage()
         begin
             if PeriodStartDate[1] = 0D then
-                PeriodStartDate[1] := CalcDate('<-CY+1D>', WorkDate);
+                PeriodStartDate[1] := CalcDate('<-CY+1D>', WorkDate());
             if Format(PeriodLength) = '' then
                 Evaluate(PeriodLength, '<1M>');
         end;
@@ -303,10 +303,10 @@ report 8 Budget
 
     trigger OnPreReport()
     begin
-        GLFilter := "G/L Account".GetFilters;
+        GLFilter := "G/L Account".GetFilters();
         GLBudgetFilter := "G/L Account".GetFilter("Budget Filter");
         if PeriodStartDate[1] = 0D then
-            PeriodStartDate[1] := WorkDate;
+            PeriodStartDate[1] := WorkDate();
         for i := 2 to ArrayLen(PeriodStartDate) do
             PeriodStartDate[i] := CalcDate(PeriodLength, PeriodStartDate[i - 1]);
 
@@ -319,29 +319,32 @@ report 8 Budget
     var
         MatrixMgt: Codeunit "Matrix Management";
         ReportMgmnt: Codeunit "Report Management APAC";
+        PeriodLength: DateFormula;
         InThousands: Boolean;
-        RoundingFromPage: Boolean;
-        GLFilter: Text;
         GLBudgetFilter: Text[250];
         BudgetCaptionTxt: Text;
-        PeriodLength: DateFormula;
         GLBudgetedAmount: array[12] of Decimal;
         TotalBudgetAmount: Decimal;
         PeriodStartDate: array[13] of Date;
         i: Integer;
+        RowNumber: Integer;
+        GLAccountTypePosting: Boolean;
+        RndFactor: Enum "Analysis Rounding Factor";
+        StartingDateAsText: Text;
+        RoundingFromPage: Boolean;
         Rounding: Option " ",Tens,Hundreds,Thousands,"Hundred Thousands",Millions;
         RoundingText: Text[50];
         RoundingNO: Integer;
+
         BudgetCaptionTok: Label 'Budget for %1', Comment = '%1 - year';
         PageCaptionLbl: Label 'Page';
         BudgetFilterCaptionLbl: Label 'Budget Filter';
         GLAccNameCaptionLbl: Label 'Name';
-        RowNumber: Integer;
-        GLAccountTypePosting: Boolean;
-        RndFactor: Enum "Analysis Rounding Factor";
         TotalLbl: Label 'Total';
-        StartingDateAsText: Text;
         StartingDateTok: Label 'Starting Date: %1', Comment = '%1 - date';
+
+    protected var
+        GLFilter: Text;
 
     procedure InitializeRequest(NewPeriodStartDate: Date; NewPeriodLength: Text[30]; NewRounding: Option)
     begin
