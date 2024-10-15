@@ -2401,6 +2401,338 @@ codeunit 134385 "ERM Sales Document"
     end;
 
     [Test]
+    procedure S470567_ShipmentMethodAssignmentPriority_CustomerWithoutSM_NoDefaultShipToAddress_ShipToAddressWithoutSM()
+    var
+        Customer: Record Customer;
+        ShipToAddress: Record "Ship-to Address";
+        SalesHeader: Record "Sales Header";
+    begin
+        // [FEATURE] [Customer] [Ship-to Address] [Shipment Method] [Sales Order] [UT]
+        // [SCENARIO 470567] Customer does not have default "Ship-to Address" and "Shipment Method Code" is blank in Customer Card and blank in "Ship-to Address".
+        // [SCENARIO 470567] "Shipment Method Code" must be copied from "Customer Card" if ther is not "Ship-to Address" defined or "Ship-to Address" has blank "Shipment Method Code".
+        Initialize();
+
+        // [GIVEN] Create Customer "C" without "Shipment Method Code" and without default "Ship-to Address".
+        LibrarySales.CreateCustomer(Customer);
+        if Customer."Shipment Method Code" <> '' then begin
+            Customer.Validate("Shipment Method Code", '');
+            Customer.Modify(true);
+        end;
+
+        // [GIVEN] Create Customer Ship-to Address "C_SA" without "Shipment Method Code".
+        LibrarySales.CreateShipToAddress(ShipToAddress, Customer."No.");
+        if ShipToAddress."Shipment Method Code" <> '' then begin
+            ShipToAddress.Validate("Shipment Method Code", '');
+            ShipToAddress.Modify(true);
+        end;
+
+        // [WHEN] Create "Sales Header" for Sales Order and validate "Sell-to Customer No." with "C" after inserting Sales Order Header.
+        SalesHeader.Validate("Document Type", SalesHeader."Document Type"::Order);
+        SalesHeader.Insert(true);
+        SalesHeader.Validate("Sell-to Customer No.", Customer."No.");
+        SalesHeader.Modify(true);
+
+        // [THEN] "Shipment Method Code" in the Sales Order = "Shipment Method Code" from "Customer" (blank).
+        SalesHeader.TestField("Shipment Method Code", '');
+
+        // [WHEN] Set "C_SA" as "Ship-to Code" in Sales Order.
+        SalesHeader.Validate("Ship-to Code", ShipToAddress.Code);
+        SalesHeader.Modify(true);
+
+        // [THEN] "Shipment Method Code" in the Sales Order = "Shipment Method Code" from "Customer" (blank).
+        SalesHeader.TestField("Shipment Method Code", '');
+    end;
+
+    [Test]
+    procedure S470567_ShipmentMethodAssignmentPriority_CustomerWithoutSM_NoDefaultShipToAddress_ShipToAddressWithSM()
+    var
+        Customer: Record Customer;
+        ShipToAddress: Record "Ship-to Address";
+        SalesHeader: Record "Sales Header";
+    begin
+        // [FEATURE] [Customer] [Ship-to Address] [Shipment Method] [Sales Order] [UT]
+        // [SCENARIO 470567] Customer does not have default "Ship-to Address" and "Shipment Method Code" is blank in Customer Card, but is defined for "Ship-to Address".
+        // [SCENARIO 470567] "Shipment Method Code" must be copied from "Customer Card" if ther is not "Ship-to Address" defined or "Ship-to Address" has blank "Shipment Method Code".
+        Initialize();
+
+        // [GIVEN] Create Customer "C" without "Shipment Method Code" and without default "Ship-to Address".
+        LibrarySales.CreateCustomer(Customer);
+        if Customer."Shipment Method Code" <> '' then begin
+            Customer.Validate("Shipment Method Code", '');
+            Customer.Modify(true);
+        end;
+
+        // [GIVEN] Create Customer Ship-to Address "C_SA" with "Shipment Method Code".
+        LibrarySales.CreateShipToAddress(ShipToAddress, Customer."No.");
+        if ShipToAddress."Shipment Method Code" = '' then begin
+            ShipToAddress.Validate("Shipment Method Code", CreateShipmentMethod());
+            ShipToAddress.Modify(true);
+        end;
+
+        // [WHEN] Create "Sales Header" for Sales Order and validate "Sell-to Customer No." with "C" after inserting Sales Order Header.
+        SalesHeader.Validate("Document Type", SalesHeader."Document Type"::Order);
+        SalesHeader.Insert(true);
+        SalesHeader.Validate("Sell-to Customer No.", Customer."No.");
+        SalesHeader.Modify(true);
+
+        // [THEN] "Shipment Method Code" in the Sales Order = "Shipment Method Code" from "Customer" (blank).
+        SalesHeader.TestField("Shipment Method Code", '');
+
+        // [WHEN] Set "C_SA" as "Ship-to Code" in Sales Order.
+        SalesHeader.Validate("Ship-to Code", ShipToAddress.Code);
+        SalesHeader.Modify(true);
+
+        // [THEN] "Shipment Method Code" in the Sales Order = "Shipment Method Code" from "Ship-to Address".
+        SalesHeader.TestField("Shipment Method Code", ShipToAddress."Shipment Method Code");
+    end;
+
+    [Test]
+    procedure S470567_ShipmentMethodAssignmentPriority_CustomerWithSM_NoDefaultShipToAddress_ShipToAddressWithoutSM()
+    var
+        Customer: Record Customer;
+        ShipToAddress: Record "Ship-to Address";
+        SalesHeader: Record "Sales Header";
+    begin
+        // [FEATURE] [Customer] [Ship-to Address] [Shipment Method] [Sales Order] [UT]
+        // [SCENARIO 470567] Customer does not have default "Ship-to Address" and "Shipment Method Code" is defined for Customer Card and blank in "Ship-to Address".
+        // [SCENARIO 470567] "Shipment Method Code" must be copied from "Customer Card" if ther is not "Ship-to Address" defined or "Ship-to Address" has blank "Shipment Method Code".
+        Initialize();
+
+        // [GIVEN] Create Customer "C" with "Shipment Method Code" and without default "Ship-to Address".
+        LibrarySales.CreateCustomer(Customer);
+        if Customer."Shipment Method Code" = '' then begin
+            Customer.Validate("Shipment Method Code", CreateShipmentMethod());
+            Customer.Modify(true);
+        end;
+
+        // [GIVEN] Create Customer Ship-to Address "C_SA" without "Shipment Method Code".
+        LibrarySales.CreateShipToAddress(ShipToAddress, Customer."No.");
+        if ShipToAddress."Shipment Method Code" <> '' then begin
+            ShipToAddress.Validate("Shipment Method Code", '');
+            ShipToAddress.Modify(true);
+        end;
+
+        // [WHEN] Create "Sales Header" for Sales Order and validate "Sell-to Customer No." with "C" after inserting Sales Order Header.
+        SalesHeader.Validate("Document Type", SalesHeader."Document Type"::Order);
+        SalesHeader.Insert(true);
+        SalesHeader.Validate("Sell-to Customer No.", Customer."No.");
+        SalesHeader.Modify(true);
+
+        // [THEN] "Shipment Method Code" in the Sales Order = "Shipment Method Code" from "Customer".
+        SalesHeader.TestField("Shipment Method Code", Customer."Shipment Method Code");
+
+        // [WHEN] Set "C_SA" as "Ship-to Code" in Sales Order.
+        SalesHeader.Validate("Ship-to Code", ShipToAddress.Code);
+        SalesHeader.Modify(true);
+
+        // [THEN] "Shipment Method Code" in the Sales Order = "Shipment Method Code" from "Customer".
+        SalesHeader.TestField("Shipment Method Code", Customer."Shipment Method Code");
+    end;
+
+    [Test]
+    procedure S470567_ShipmentMethodAssignmentPriority_CustomerWithSM_NoDefaultShipToAddress_ShipToAddressWithSM()
+    var
+        Customer: Record Customer;
+        ShipToAddress: Record "Ship-to Address";
+        SalesHeader: Record "Sales Header";
+    begin
+        // [FEATURE] [Customer] [Ship-to Address] [Shipment Method] [Sales Order] [UT]
+        // [SCENARIO 470567] Customer does not have default "Ship-to Address" and "Shipment Method Code" is defined for Customer Card and is defined for "Ship-to Address".
+        // [SCENARIO 470567] "Shipment Method Code" must be copied from "Customer Card" if ther is not "Ship-to Address" defined or "Ship-to Address" has blank "Shipment Method Code".
+        Initialize();
+
+        // [GIVEN] Create Customer "C" with "Shipment Method Code" and without default "Ship-to Address".
+        LibrarySales.CreateCustomer(Customer);
+        if Customer."Shipment Method Code" = '' then begin
+            Customer.Validate("Shipment Method Code", CreateShipmentMethod());
+            Customer.Modify(true);
+        end;
+
+        // [GIVEN] Create Customer Ship-to Address "C_SA" with "Shipment Method Code".
+        LibrarySales.CreateShipToAddress(ShipToAddress, Customer."No.");
+        if ShipToAddress."Shipment Method Code" = '' then begin
+            ShipToAddress.Validate("Shipment Method Code", CreateShipmentMethod());
+            ShipToAddress.Modify(true);
+        end;
+
+        // [WHEN] Create "Sales Header" for Sales Order and validate "Sell-to Customer No." with "C" after inserting Sales Order Header.
+        SalesHeader.Validate("Document Type", SalesHeader."Document Type"::Order);
+        SalesHeader.Insert(true);
+        SalesHeader.Validate("Sell-to Customer No.", Customer."No.");
+        SalesHeader.Modify(true);
+
+        // [THEN] "Shipment Method Code" in the Sales Order = "Shipment Method Code" from "Customer".
+        SalesHeader.TestField("Shipment Method Code", Customer."Shipment Method Code");
+
+        // [WHEN] Set "C_SA" as "Ship-to Code" in Sales Order.
+        SalesHeader.Validate("Ship-to Code", ShipToAddress.Code);
+        SalesHeader.Modify(true);
+
+        // [THEN] "Shipment Method Code" in the Sales Order = "Shipment Method Code" from "Ship-to Address".
+        SalesHeader.TestField("Shipment Method Code", ShipToAddress."Shipment Method Code");
+    end;
+
+    [Test]
+    procedure S470567_ShipmentMethodAssignmentPriority_CustomerWithoutSM_DefaultShipToAddress_ShipToAddressWithoutSM()
+    var
+        Customer: Record Customer;
+        ShipToAddress: Record "Ship-to Address";
+        SalesHeader: Record "Sales Header";
+    begin
+        // [FEATURE] [Customer] [Ship-to Address] [Shipment Method] [Sales Order] [UT]
+        // [SCENARIO 470567] Customer has default "Ship-to Address" and "Shipment Method Code" is blank in Customer Card and blank in "Ship-to Address".
+        // [SCENARIO 470567] "Shipment Method Code" must be copied from "Customer Card" if ther is not "Ship-to Address" defined or "Ship-to Address" has blank "Shipment Method Code".
+        Initialize();
+
+        // [GIVEN] Create Customer "C" without "Shipment Method Code" and without default "Ship-to Address".
+        LibrarySales.CreateCustomer(Customer);
+        if Customer."Shipment Method Code" <> '' then begin
+            Customer.Validate("Shipment Method Code", '');
+            Customer.Modify(true);
+        end;
+
+        // [GIVEN] Create Customer Ship-to Address "C_SA" without "Shipment Method Code".
+        LibrarySales.CreateShipToAddress(ShipToAddress, Customer."No.");
+        if ShipToAddress."Shipment Method Code" <> '' then begin
+            ShipToAddress.Validate("Shipment Method Code", '');
+            ShipToAddress.Modify(true);
+        end;
+
+        // [GIVEN] Set "C_SA" as default "Ship-to Address" for Customer "C".
+        Customer.Validate("Ship-to Code", ShipToAddress.Code);
+        Customer.Modify(true);
+
+        // [WHEN] Create "Sales Header" for Sales Order and validate "Sell-to Customer No." with "C" after inserting Sales Order Header.
+        SalesHeader.Validate("Document Type", SalesHeader."Document Type"::Order);
+        SalesHeader.Insert(true);
+        SalesHeader.Validate("Sell-to Customer No.", Customer."No.");
+        SalesHeader.Modify(true);
+
+        // [THEN] "Shipment Method Code" in the Sales Order = "Shipment Method Code" from "Customer" (blank).
+        SalesHeader.TestField("Shipment Method Code", '');
+    end;
+
+    [Test]
+    procedure S470567_ShipmentMethodAssignmentPriority_CustomerWithoutSM_DefaultShipToAddress_ShipToAddressWithSM()
+    var
+        Customer: Record Customer;
+        ShipToAddress: Record "Ship-to Address";
+        SalesHeader: Record "Sales Header";
+    begin
+        // [FEATURE] [Customer] [Ship-to Address] [Shipment Method] [Sales Order] [UT]
+        // [SCENARIO 470567] Customer has default "Ship-to Address" and "Shipment Method Code" is blank in Customer Card, but is defined for "Ship-to Address".
+        // [SCENARIO 470567] "Shipment Method Code" must be copied from "Customer Card" if ther is not "Ship-to Address" defined or "Ship-to Address" has blank "Shipment Method Code".
+        Initialize();
+
+        // [GIVEN] Create Customer "C" without "Shipment Method Code" and without default "Ship-to Address".
+        LibrarySales.CreateCustomer(Customer);
+        if Customer."Shipment Method Code" <> '' then begin
+            Customer.Validate("Shipment Method Code", '');
+            Customer.Modify(true);
+        end;
+
+        // [GIVEN] Create Customer Ship-to Address "C_SA" with "Shipment Method Code".
+        LibrarySales.CreateShipToAddress(ShipToAddress, Customer."No.");
+        if ShipToAddress."Shipment Method Code" = '' then begin
+            ShipToAddress.Validate("Shipment Method Code", CreateShipmentMethod());
+            ShipToAddress.Modify(true);
+        end;
+
+        // [GIVEN] Set "C_SA" as default "Ship-to Address" for Customer "C".
+        Customer.Validate("Ship-to Code", ShipToAddress.Code);
+        Customer.Modify(true);
+
+        // [WHEN] Create "Sales Header" for Sales Order and validate "Sell-to Customer No." with "C" after inserting Sales Order Header.
+        SalesHeader.Validate("Document Type", SalesHeader."Document Type"::Order);
+        SalesHeader.Insert(true);
+        SalesHeader.Validate("Sell-to Customer No.", Customer."No.");
+        SalesHeader.Modify(true);
+
+        // [THEN] "Shipment Method Code" in the Sales Order = "Shipment Method Code" from "Ship-to Address".
+        SalesHeader.TestField("Shipment Method Code", ShipToAddress."Shipment Method Code");
+    end;
+
+    [Test]
+    procedure S470567_ShipmentMethodAssignmentPriority_CustomerWithSM_DefaultShipToAddress_ShipToAddressWithoutSM()
+    var
+        Customer: Record Customer;
+        ShipToAddress: Record "Ship-to Address";
+        SalesHeader: Record "Sales Header";
+    begin
+        // [FEATURE] [Customer] [Ship-to Address] [Shipment Method] [Sales Order] [UT]
+        // [SCENARIO 470567] Customer has default "Ship-to Address" and "Shipment Method Code" is defined for Customer Card and blank in "Ship-to Address".
+        // [SCENARIO 470567] "Shipment Method Code" must be copied from "Customer Card" if ther is not "Ship-to Address" defined or "Ship-to Address" has blank "Shipment Method Code".
+        Initialize();
+
+        // [GIVEN] Create Customer "C" with "Shipment Method Code" and without default "Ship-to Address".
+        LibrarySales.CreateCustomer(Customer);
+        if Customer."Shipment Method Code" = '' then begin
+            Customer.Validate("Shipment Method Code", CreateShipmentMethod());
+            Customer.Modify(true);
+        end;
+
+        // [GIVEN] Create Customer Ship-to Address "C_SA" without "Shipment Method Code".
+        LibrarySales.CreateShipToAddress(ShipToAddress, Customer."No.");
+        if ShipToAddress."Shipment Method Code" <> '' then begin
+            ShipToAddress.Validate("Shipment Method Code", '');
+            ShipToAddress.Modify(true);
+        end;
+
+        // [GIVEN] Set "C_SA" as default "Ship-to Address" for Customer "C".
+        Customer.Validate("Ship-to Code", ShipToAddress.Code);
+        Customer.Modify(true);
+
+        // [WHEN] Create "Sales Header" for Sales Order and validate "Sell-to Customer No." with "C" after inserting Sales Order Header.
+        SalesHeader.Validate("Document Type", SalesHeader."Document Type"::Order);
+        SalesHeader.Insert(true);
+        SalesHeader.Validate("Sell-to Customer No.", Customer."No.");
+        SalesHeader.Modify(true);
+
+        // [THEN] "Shipment Method Code" in the Sales Order = "Shipment Method Code" from "Customer".
+        SalesHeader.TestField("Shipment Method Code", Customer."Shipment Method Code");
+    end;
+
+    [Test]
+    procedure S470567_ShipmentMethodAssignmentPriority_CustomerWithSM_DefaultShipToAddress_ShipToAddressWithSM()
+    var
+        Customer: Record Customer;
+        ShipToAddress: Record "Ship-to Address";
+        SalesHeader: Record "Sales Header";
+    begin
+        // [FEATURE] [Customer] [Ship-to Address] [Shipment Method] [Sales Order] [UT]
+        // [SCENARIO 470567] Customer has default "Ship-to Address" and "Shipment Method Code" is defined for Customer Card and is defined for "Ship-to Address".
+        // [SCENARIO 470567] "Shipment Method Code" must be copied from "Customer Card" if ther is not "Ship-to Address" defined or "Ship-to Address" has blank "Shipment Method Code".
+        Initialize();
+
+        // [GIVEN] Create Customer "C" with "Shipment Method Code" and without default "Ship-to Address".
+        LibrarySales.CreateCustomer(Customer);
+        if Customer."Shipment Method Code" = '' then begin
+            Customer.Validate("Shipment Method Code", CreateShipmentMethod());
+            Customer.Modify(true);
+        end;
+
+        // [GIVEN] Create Customer Ship-to Address "C_SA" with "Shipment Method Code".
+        LibrarySales.CreateShipToAddress(ShipToAddress, Customer."No.");
+        if ShipToAddress."Shipment Method Code" = '' then begin
+            ShipToAddress.Validate("Shipment Method Code", CreateShipmentMethod());
+            ShipToAddress.Modify(true);
+        end;
+
+        // [GIVEN] Set "C_SA" as default "Ship-to Address" for Customer "C".
+        Customer.Validate("Ship-to Code", ShipToAddress.Code);
+        Customer.Modify(true);
+
+        // [WHEN] Create "Sales Header" for Sales Order and validate "Sell-to Customer No." with "C" after inserting Sales Order Header.
+        SalesHeader.Validate("Document Type", SalesHeader."Document Type"::Order);
+        SalesHeader.Insert(true);
+        SalesHeader.Validate("Sell-to Customer No.", Customer."No.");
+        SalesHeader.Modify(true);
+
+        // [THEN] "Shipment Method Code" in the Sales Order = "Shipment Method Code" from "Ship-to Address".
+        SalesHeader.TestField("Shipment Method Code", ShipToAddress."Shipment Method Code");
+    end;
+
+    [Test]
     [Scope('OnPrem')]
     procedure TestGLSplitByAditionalGroupingIdentifer()
     var
@@ -5154,6 +5486,16 @@ codeunit 134385 "ERM Sales Document"
         CustomerTemplate.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
         CustomerTemplate.Validate("Customer Posting Group", LibrarySales.FindCustomerPostingGroup);
         CustomerTemplate.Modify(true);
+    end;
+
+    local procedure CreateShipmentMethod(): Code[10]
+    var
+        ShipmentMethod: Record "Shipment Method";
+    begin
+        ShipmentMethod.Init();
+        ShipmentMethod.Code := LibraryUtility.GenerateRandomCode(ShipmentMethod.FieldNo(Code), Database::"Shipment Method");
+        ShipmentMethod.Insert();
+        exit(ShipmentMethod.Code);
     end;
 
     [ConfirmHandler]

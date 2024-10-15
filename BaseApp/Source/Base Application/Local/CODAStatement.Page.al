@@ -164,6 +164,7 @@ page 2000040 "CODA Statement"
 
     trigger OnAfterGetRecord()
     begin
+        Rec.CalcFields(Information);
         InformationText := Format(Information);
         InformationTextOnFormat(InformationText);
     end;

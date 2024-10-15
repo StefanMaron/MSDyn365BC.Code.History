@@ -194,7 +194,7 @@ page 461 "Inventory Setup"
                 field("Direct Transfer Posting"; Rec."Direct Transfer Posting")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies if Direct Transfer should be posted separately as Shipment and Receipt or as single Direct Transfer document.';
+                    ToolTip = 'Specifies if Direct Transfer will be posted as Shipment and Receipt or as single Direct Transfer document. There are different restrictions associated with different modes, for example Directed Transfer document does not support partial posting.';
                 }
                 field("Inventory Put-away Nos."; Rec."Inventory Put-away Nos.")
                 {

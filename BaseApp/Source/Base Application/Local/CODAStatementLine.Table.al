@@ -153,11 +153,11 @@ table 2000041 "CODA Statement Line"
         }
         field(31; Information; Integer)
         {
-            BlankNumbers = BlankZeroAndPos;
+            BlankNumbers = BlankZero;
             BlankZero = true;
             CalcFormula = Count("CODA Statement Line" WHERE("Bank Account No." = FIELD("Bank Account No."),
                                                              "Statement No." = FIELD("Statement No."),
-                                                             ID = CONST("Free Message"),
+                                                             ID = CONST(Information),
                                                              "Attached to Line No." = FIELD("Statement Line No.")));
             Caption = 'Information';
             Editable = false;

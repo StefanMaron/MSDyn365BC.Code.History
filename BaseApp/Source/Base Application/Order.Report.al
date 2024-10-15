@@ -954,6 +954,7 @@ report 405 "Order"
                 VATNoText := '';
                 NoText := '';
                 CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
+                FormatAddr.SetLanguageCode("Language Code");
 
                 FormatAddressFields("Purchase Header");
                 FormatDocumentFields("Purchase Header");
