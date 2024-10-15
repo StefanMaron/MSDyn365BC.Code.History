@@ -55,7 +55,7 @@ table 9009 "Permission Set Buffer"
     }
 
     var
-        IsTempErr: Label '%1 should only be used as a temperory record.', Comment = '%1 table caption';
+        IsTempErr: Label '%1 should only be used as a temporary record.', Comment = '%1 table caption';
 
     procedure SetType()
     begin
@@ -77,16 +77,14 @@ table 9009 "Permission Set Buffer"
     procedure FillRecordBuffer()
     var
         AggregatePermissionSet: Record "Aggregate Permission Set";
-        RoleIDFilter: Text;
+        PermissionSetBuffer: Record "Permission Set Buffer";
     begin
         if not IsTemporary then
             Error(IsTempErr, TableCaption);
 
-        RoleIDFilter := GetFilter("Role ID");
-        SetRange("Role ID");
-        DeleteAll;
-        if RoleIDFilter <> '' then
-            SetFilter("Role ID", RoleIDFilter);
+        PermissionSetBuffer.CopyFilters(Rec);
+        Reset();
+        DeleteAll();
 
         if AggregatePermissionSet.FindSet then
             repeat
@@ -102,6 +100,8 @@ table 9009 "Permission Set Buffer"
                     Insert;
                 end;
             until AggregatePermissionSet.Next = 0;
+
+        CopyFilters(PermissionSetBuffer);
     end;
 
     [Scope('OnPrem')]

@@ -9,6 +9,8 @@ codeunit 142036 "UT COD INTRASTAT"
 
     var
         LibraryUTUtility: Codeunit "Library UT Utility";
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
+        isInitialized: Boolean;
 
     [Test]
     [HandlerFunctions('IntrastatFormDERequestHandler')]
@@ -24,6 +26,7 @@ codeunit 142036 "UT COD INTRASTAT"
         DocumentPrint: Codeunit "Document-Print";
     begin
         // Purpose of the test is to validate function - PrintIntrastatForm from Codeunit - DocumentPrint.
+        Initialize();
 
         // Setup: Create DACH Report Selections with Usage Intrastat Form.
         CreateDACHReportSelections(DACHReportSelections.Usage::"Intrastat Form", 11012, 'Intrastat - Form DE');  // Report ID of Intrastat - Form DE.
@@ -50,6 +53,7 @@ codeunit 142036 "UT COD INTRASTAT"
         DocumentPrint: Codeunit "Document-Print";
     begin
         // Purpose of the test is to validate function - PrintIntrastatDisk from Codeunit - DocumentPrint.
+        Initialize();
 
         // Setup: Create DACH Report Selections with Usage Intrastat Disk.
         CreateDACHReportSelections(DACHReportSelections.Usage::"Intrastat Disk", 593, 'Intrastat - Make Disk Tax Auth');  // Report ID of Intrastat - Make Disk Tax Auth'.
@@ -72,12 +76,25 @@ codeunit 142036 "UT COD INTRASTAT"
         DocumentPrint: Codeunit "Document-Print";
     begin
         // Purpose of the test is to validate function - PrintIntrastatDisklabel from Codeunit - DocumentPrint.
+        Initialize();
 
         // Setup: Create DACH Report Selections with Usage Intrastat Disklabel.
         CreateDACHReportSelections(DACHReportSelections.Usage::"Intrastat Disklabel", 11014, 'Intrastat - Disk Tax Auth DE');  // Report ID of Intrastat - Disk Tax Auth DE
 
         // Exercise & verify: Print Intrastat Disk from Codeunit - DocumentPrint. Verification is done in IntrastatDiskTaxAuthDERequestPageHandler.
         DocumentPrint.PrintIntrastatDisklabel;  // Invokes IntrastatDiskTaxAuthDERequestPageHandler.
+    end;
+
+    local procedure Initialize()
+    begin
+        LibrarySetupStorage.Restore();
+
+        if isInitialized then
+            exit;
+        isInitialized := true;
+
+        UpdateReceiptsShipmentsOnIntrastatSetup(true, true);
+        LibrarySetupStorage.Save(Database::"Intrastat Setup");
     end;
 
     local procedure CreateIntrastatJournalLine(var IntrastatJnlLine: Record "Intrastat Jnl. Line"; var Item: Record Item; JournalTemplateName: Code[10]; JournalBatchName: Code[10])
@@ -147,6 +164,16 @@ codeunit 142036 "UT COD INTRASTAT"
     local procedure GetNewCode(): Code[10]
     begin
         exit(CopyStr(LibraryUTUtility.GetNewCode, 11, 20));
+    end;
+
+    local procedure UpdateReceiptsShipmentsOnIntrastatSetup(ReportReceipts: Boolean; ReportShipments: Boolean);
+    VAR
+        IntrastatSetup: Record "Intrastat Setup";
+    begin
+        IntrastatSetup.Get();
+        IntrastatSetup."Report Receipts" := ReportReceipts;
+        IntrastatSetup."Report Shipments" := ReportShipments;
+        IntrastatSetup.Modify();
     end;
 
     [RequestPageHandler]

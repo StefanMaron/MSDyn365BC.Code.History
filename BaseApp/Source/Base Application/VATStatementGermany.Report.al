@@ -379,6 +379,7 @@ report 11005 "VAT Statement Germany"
                         else
                             VATEntry.SetRange(Closed);
                     end;
+                    OnBeforeCalcAmountVATEntryTotaling(VATEntry, VATStmtLine2);
                     case VATStmtLine2."Amount Type" of
                         VATStmtLine2."Amount Type"::Amount:
                             begin
@@ -495,6 +496,11 @@ report 11005 "VAT Statement Germany"
             exit(GLSetup."Additional Reporting Currency");
 
         exit('');
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeCalcAmountVATEntryTotaling(var VATEntry: Record "VAT Entry"; var VATStatementLine: Record "VAT Statement Line")
+    begin
     end;
 }
 

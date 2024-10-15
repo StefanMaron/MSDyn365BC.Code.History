@@ -28,10 +28,11 @@ codeunit 443 "Sales-Post Prepayment (Yes/No)"
 
             PostPrepmtDocument(SalesHeader, "Document Type"::Invoice);
 
-            if Print then
+            if Print then begin
+                Commit;
                 GetReport(SalesHeader, 0);
+            end;
 
-            Commit;
             OnAfterPostPrepmtInvoiceYN(SalesHeader);
 
             SalesHeader2 := SalesHeader;

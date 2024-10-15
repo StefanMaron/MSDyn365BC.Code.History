@@ -214,6 +214,15 @@ table 740 "VAT Report Header"
         {
             Caption = 'Return Period No.';
         }
+        field(30; "Additional Information"; Code[50])
+        {
+            Caption = 'Additional Information';
+        }
+        field(31; "Created Date-Time"; DateTime)
+        {
+            Editable = false;
+            Caption = 'Created Date-Time';
+        }
         field(100; "Amounts in Add. Rep. Currency"; Boolean)
         {
             Caption = 'Amounts in Add. Rep. Currency';

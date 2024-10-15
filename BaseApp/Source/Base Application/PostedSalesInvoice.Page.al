@@ -102,6 +102,12 @@
                     Editable = false;
                     ToolTip = 'Specifies the name of the person to contact when you communicate with the customer who you shipped the items to.';
                 }
+                field("Your Reference"; "Your Reference")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the customer''s reference. The contents will be printed on sales documents.';
+                }
                 field("Document Date"; "Document Date")
                 {
                     ApplicationArea = Basic, Suite;

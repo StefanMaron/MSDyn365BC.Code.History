@@ -5918,6 +5918,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Sales Documents III - NamedType UnitPriceChangedMsg)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2641639841 - NamedType 1740051646" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[One or more document lines with a value in the Item No. field do not have a quantity specified. \Do you want to continue?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Sales Documents III - NamedType ConfirmZeroQuantityPostingMsg)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1819602085 - NamedType 1646674215" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Do you want]]></Val>
@@ -6933,6 +6942,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Test SEPA Credit Transfers - NamedType CdtrAgtTagErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 744599786 - NamedType 743427178" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Only transactions in euro (EUR) are allowed, because the %1 bank account is set up to use the %2 export format.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1= bank account No, %2 export format; Example: Only transactions in euro (EUR) are allowed, because the GIRO bank account is set up to use the SEPACT export format.]D;]A;(LookupHint=Codeunit ERM Test SEPA Credit Transfers - NamedType EuroCurrErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3575323693 - NamedType 376044450" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

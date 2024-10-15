@@ -2,6 +2,8 @@ report 11511 "Item Copy"
 {
     Caption = 'Item Copy';
     ProcessingOnly = true;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by Copy Item page';
 
     dataset
     {

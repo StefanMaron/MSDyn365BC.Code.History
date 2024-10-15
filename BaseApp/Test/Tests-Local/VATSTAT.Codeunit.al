@@ -3,6 +3,7 @@ codeunit 144001 VATSTAT
     // // [FEATURE] [VAT Statement]
 
     Subtype = Test;
+    TestPermissions = Disabled;
 
     trigger OnRun()
     begin

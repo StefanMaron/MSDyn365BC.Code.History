@@ -569,7 +569,7 @@ codeunit 5407 "Prod. Order Status Management"
                         QtyToPost := GetNeededQty(0, false);
 
                     OnAfterCalculateQtyToPost(ProdOrderComp, QtyToPost);
-                    QtyToPost := Round(QtyToPost, Item."Rounding Precision", '>');
+                    QtyToPost := UOMMgt.RoundToItemRndPrecision(QtyToPost, Item."Rounding Precision");
 
                     if QtyToPost <> 0 then begin
                         InitItemJnlLineFromProdOrderComp(ItemJnlLine, ProdOrder, ProdOrderLine, ProdOrderComp, PostingDate, QtyToPost);
@@ -588,6 +588,8 @@ codeunit 5407 "Prod. Order Status Management"
     local procedure InitItemJnlLineFromProdOrderLine(var ItemJnlLine: Record "Item Journal Line"; ProdOrder: Record "Production Order"; ProdOrderLine: Record "Prod. Order Line"; ProdOrderRoutingLine: Record "Prod. Order Routing Line"; PostingDate: Date)
     begin
         ItemJnlLine.Init;
+        OnInitItemJnlLineFromProdOrderLineOnAfterInit(ItemJnlLine);
+
         ItemJnlLine.Validate("Entry Type", ItemJnlLine."Entry Type"::Output);
         ItemJnlLine.Validate("Posting Date", PostingDate);
         ItemJnlLine."Document No." := ProdOrder."No.";
@@ -613,6 +615,8 @@ codeunit 5407 "Prod. Order Status Management"
     local procedure InitItemJnlLineFromProdOrderComp(var ItemJnlLine: Record "Item Journal Line"; ProdOrder: Record "Production Order"; ProdOrderLine: Record "Prod. Order Line"; ProdOrderComp: Record "Prod. Order Component"; PostingDate: Date; QtyToPost: Decimal)
     begin
         ItemJnlLine.Init;
+        OnInitItemJnlLineFromProdOrderCompOnAfterInit(ItemJnlLine);
+
         ItemJnlLine.Validate("Entry Type", ItemJnlLine."Entry Type"::Consumption);
         ItemJnlLine.Validate("Posting Date", PostingDate);
         ItemJnlLine."Order Type" := ItemJnlLine."Order Type"::Production;
@@ -705,6 +709,7 @@ codeunit 5407 "Prod. Order Status Management"
                         ShowWarning := true;
                 until Next = 0;
 
+            OnCheckMissingConsumption(ProdOrder, ProdOrderLine, ProdOrderRtngLine, ShowWarning);
             if ShowWarning then
                 if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(Text006, ProdOrder.TableCaption, ProdOrder."No."), true) then
                     Error(Text005);
@@ -929,6 +934,11 @@ codeunit 5407 "Prod. Order Status Management"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCheckMissingConsumption(var ProductionOrder: Record "Production Order"; var ProdOrderLine: Record "Prod. Order Line"; var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var ShowWarning: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCheckMissingOutput(var ProductionOrder: Record "Production Order"; var ProdOrderLine: Record "Prod. Order Line"; var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var ShowWarning: Boolean)
     begin
     end;
@@ -965,6 +975,16 @@ codeunit 5407 "Prod. Order Status Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnFlushProdOrderOnAfterFindProdOrderRtngLine(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var IsLastOperation: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInitItemJnlLineFromProdOrderCompOnAfterInit(var ItemJournalLine: Record "Item Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInitItemJnlLineFromProdOrderLineOnAfterInit(var ItemJournalLine: Record "Item Journal Line")
     begin
     end;
 

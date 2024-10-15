@@ -161,7 +161,7 @@ table 5895 "Inventory Adjustment Buffer"
                     CostAmtExpected := CostAmtExpected + "Cost Amount (Expected)";
                     CostAmtExpectedACY := CostAmtExpectedACY + "Cost Amount (Expected) (ACY)";
                 end;
-            until Next = 0;
+            until Next() = 0;
 
         "Item Ledger Entry Quantity" := ItemLedgEntryQty;
         "Cost Amount (Actual)" := CostAmtActual;
@@ -181,6 +181,7 @@ table 5895 "Inventory Adjustment Buffer"
         QtyFactor: Decimal;
     begin
         Item.Get(ValueEntry."Item No.");
+        OnSumCostsTillValuationDateGetItem(Item, ValueEntry);
         if Item."Costing Method" = Item."Costing Method"::Average then
             ToDate := ValueEntry.GetAvgToDate(ValueEntry."Valuation Date")
         else
@@ -319,6 +320,11 @@ table 5895 "Inventory Adjustment Buffer"
         if FindLast then
             LastNo := "Entry No.";
         Copy(CopyOfInvtAdjmtBuf);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSumCostsTillValuationDateGetItem(var Item: Record Item; var ValueEntry: Record "Value Entry")
+    begin
     end;
 }
 

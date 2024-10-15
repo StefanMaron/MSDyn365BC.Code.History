@@ -14,9 +14,9 @@ codeunit 9018 "Azure AD Plan Impl."
 
     var
         UserLoginTimeTracker: Codeunit "User Login Time Tracker";
-        GraphDotNet: DotNet GraphQuery;
         AzureADGraph: Codeunit "Azure AD Graph";
         AzureADGraphUser: Codeunit "Azure AD Graph User";
+        BasicPlanExist: Boolean;
         IsTest: Boolean;
         UserSetupCategoryTxt: Label 'User Setup', Locked = true;
         DeviceGroupNameTxt: Label 'Dynamics 365 Business Central Device Users', Locked = true;
@@ -27,10 +27,8 @@ codeunit 9018 "Azure AD Plan Impl."
         ChangesInPlansDetectedMsg: Label 'Changes in users plans were detected. Choose the Refresh all User Groups action in the Users window.';
         UserPlanAssignedMsg: Label 'User %1 is assigned plan %2', Locked = true;
         UserHasNoPlansMsg: Label 'User %1 has no Business Central plans assigned', Locked = true;
-        DeviceUserCannotBeFirstUser: Label 'The device user cannot be the first user to log into the system.';
-        NoMixPlans: array[3] of Guid;
+        DeviceUserCannotBeFirstUserErr: Label 'The device user cannot be the first user to log into the system.';
 
-    [Scope('OnPrem')]
     procedure IsPlanAssigned(PlanGUID: Guid): Boolean
     var
         UsersInPlans: Query "Users in Plans";
@@ -42,15 +40,11 @@ codeunit 9018 "Azure AD Plan Impl."
             exit(UsersInPlans.Read());
     end;
 
-    [Scope('OnPrem')]
     procedure IsPlanAssignedToUser(PlanGUID: Guid): Boolean
-    var
-        UserPlan: Record "User Plan";
     begin
         exit(IsPlanAssignedToUser(PlanGUID, UserSecurityId()));
     end;
 
-    [Scope('OnPrem')]
     procedure IsPlanAssignedToUser(PlanGUID: Guid; UserGUID: Guid): Boolean
     var
         UserPlan: Record "User Plan";
@@ -60,7 +54,6 @@ codeunit 9018 "Azure AD Plan Impl."
         exit(not UserPlan.IsEmpty());
     end;
 
-    [Scope('OnPrem')]
     procedure IsGraphUserEntitledFromServicePlan(var GraphUser: DotNet UserInfo): Boolean
     var
         AssignedPlan: DotNet ServicePlanInfo;
@@ -80,7 +73,6 @@ codeunit 9018 "Azure AD Plan Impl."
         exit(FALSE);
     end;
 
-    [Scope('OnPrem')]
     procedure UpdateUserPlans(UserSecurityId: Guid; var GraphUser: DotNet UserInfo)
     var
         TempO365Plan: Record Plan temporary;
@@ -100,7 +92,6 @@ codeunit 9018 "Azure AD Plan Impl."
         AddNewlyAssignedUserPlans(TempO365Plan, UserSecurityId, HasUserBeenSetupBefore);
     end;
 
-    [Scope('OnPrem')]
     procedure UpdateUserPlans(UserSecurityId: Guid)
     var
         GraphUser: DotNet UserInfo;
@@ -109,7 +100,6 @@ codeunit 9018 "Azure AD Plan Impl."
             UpdateUserPlans(UserSecurityId, GraphUser);
     end;
 
-    [Scope('OnPrem')]
     procedure UpdateUserPlans()
     var
         User: Record User;
@@ -125,7 +115,6 @@ codeunit 9018 "Azure AD Plan Impl."
         until User.Next() = 0;
     end;
 
-    [Scope('OnPrem')]
     procedure RefreshUserPlanAssignments(UserSecurityID: Guid)
     var
         User: Record User;
@@ -146,20 +135,18 @@ codeunit 9018 "Azure AD Plan Impl."
 
         if not UserPlanExists then
             if IsDeviceRole(GraphUser) then
-                Error(DeviceUserCannotBeFirstUser);
+                Error(DeviceUserCannotBeFirstUserErr);
 
         UpdateUserFromAzureGraph(User, GraphUser);
         UpdateUserPlans(User."User Security ID", GraphUser);
     end;
 
     [TryFunction]
-    [Scope('OnPrem')]
     procedure TryGetAzureUserPlanRoleCenterId(var RoleCenterID: Integer; UserSecurityID: Guid)
     begin
         RoleCenterID := GetAzureUserPlanRoleCenterId(UserSecurityID);
     end;
 
-    [Scope('OnPrem')]
     procedure DoPlansExist(): Boolean
     var
         Plan: Record Plan;
@@ -167,7 +154,6 @@ codeunit 9018 "Azure AD Plan Impl."
         exit(not Plan.IsEmpty());
     end;
 
-    [Scope('OnPrem')]
     procedure DoUserPlansExist(): Boolean
     var
         UserPlan: Record "User Plan";
@@ -175,7 +161,6 @@ codeunit 9018 "Azure AD Plan Impl."
         exit(not UserPlan.IsEmpty());
     end;
 
-    [Scope('OnPrem')]
     procedure DoesPlanExist(PlanGUID: Guid): Boolean
     var
         Plan: Record Plan;
@@ -183,7 +168,6 @@ codeunit 9018 "Azure AD Plan Impl."
         exit(Plan.Get(PlanGUID));
     end;
 
-    [Scope('OnPrem')]
     procedure DoesUserHavePlans(UserSecurityId: Guid): Boolean
     var
         UserPlan: Record "User Plan";
@@ -192,7 +176,6 @@ codeunit 9018 "Azure AD Plan Impl."
         exit(not UserPlan.IsEmpty());
     end;
 
-    [Scope('OnPrem')]
     procedure GetAvailablePlansCount(): Integer
     var
         Plan: Record Plan;
@@ -200,7 +183,6 @@ codeunit 9018 "Azure AD Plan Impl."
         exit(Plan.Count());
     end;
 
-    [Scope('OnPrem')]
     procedure SetTestInProgress(EnableTestability: Boolean)
     begin
         IsTest := EnableTestability;
@@ -210,7 +192,6 @@ codeunit 9018 "Azure AD Plan Impl."
 
     procedure CheckMixedPlans()
     var
-        PlanIds: Codeunit "Plan Ids";
         Company: Record Company;
         AzureADPlan: Codeunit "Azure AD Plan";
         EnvironmentInfo: Codeunit "Environment Information";
@@ -237,7 +218,7 @@ codeunit 9018 "Azure AD Plan Impl."
 
         AzureADPlan.OnCanCurrentUserManagePlansAndGroups(CanManage);
         if not CanManage then begin
-            if PlansExist(PlanIds.GetBasicPlanId()) then
+            if BasicPlanExist then
                 Error(MixedSKUsWithBasicErr);
             Error(MixedSKUsWithoutBasicErr);
         end;
@@ -247,15 +228,18 @@ codeunit 9018 "Azure AD Plan Impl."
 
     procedure MixedPlansExist(): Boolean
     var
-        i: Integer;
+        PlanIds: Codeunit "Plan Ids";
+        EssentialsPlanExist: Boolean;
+        PremiumPlanExist: Boolean;
     begin
-        if IsNullGuid(NoMixPlans[1]) then
-            FillNoMixPlans();
+        BasicPlanExist := PlansExist(PlanIds.GetBasicPlanId());
+        EssentialsPlanExist := PlansExist(PlanIds.GetEssentialPlanId());
+        PremiumPlanExist := PlansExist(PlanIds.GetPremiumPlanId());
 
-        for i := 1 to ArrayLen(NoMixPlans) do begin
-            if IsMixedPlan(NoMixPlans[i]) then
-                exit(true);
-        end;
+        if BasicPlanExist then
+            exit(EssentialsPlanExist or PremiumPlanExist)
+        else
+            exit(EssentialsPlanExist and PremiumPlanExist);
     end;
 
     local procedure PlansExist(PlanId: Guid): Boolean
@@ -267,33 +251,6 @@ codeunit 9018 "Azure AD Plan Impl."
 
         if UsersInPlans.Open() then
             exit(UsersInPlans.Read());
-    end;
-
-    local procedure FillNoMixPlans()
-    var
-        PlanIds: Codeunit "Plan Ids";
-    begin
-        NoMixPlans[1] := PlanIds.GetBasicPlanId();
-        NoMixPlans[2] := PlanIds.GetEssentialPlanId();
-        NoMixPlans[3] := PlanIds.GetPremiumPlanId();
-    end;
-
-    local procedure IsMixedPlan(PlanId: Guid): Boolean
-    begin
-        exit(PlansExist(PlanId) and PlansApartFromExist(PlanId));
-    end;
-
-    procedure PlansApartFromExist(PlanId: Guid): Boolean
-    var
-        i: Integer;
-    begin
-        if IsNullGuid(NoMixPlans[1]) then
-            FillNoMixPlans();
-
-        for i := 1 to ArrayLen(NoMixPlans) do begin
-            if (NoMixPlans[i] <> PlanId) and PlansExist(NoMixPlans[i]) then
-                exit(true);
-        end;
     end;
 
     local procedure RemoveUnassignedUserPlans(var TempPlan: Record "Plan" temporary; UserSecurityID: Guid)
@@ -338,14 +295,11 @@ codeunit 9018 "Azure AD Plan Impl."
             until TempNavUserPlan.Next() = 0;
     end;
 
-    [Scope('OnPrem')]
     local procedure GetGraphUserPlans(var TempPlan: Record "Plan" temporary; var GraphUser: DotNet UserInfo; IncludePlansWithoutEntitlement: Boolean)
     var
         AssignedPlan: DotNet ServicePlanInfo;
         DirectoryRole: DotNet RoleInfo;
-        UserRoles: DotNet GenericList1;
         ServicePlanIdValue: Variant;
-        IsSystemRole: Boolean;
         HaveAssignedPlans: Boolean;
         DevicesPlanId: Guid;
         DevicesPlanName: Text;
@@ -368,19 +322,19 @@ codeunit 9018 "Azure AD Plan Impl."
                     end;
                 end;
 
-        // If there are no Azure AD Plans, loop through Azure AD Roles
-        if not HaveAssignedPlans then begin
+        if not HaveAssignedPlans then
             SendTraceTag('00009KZ', UserSetupCategoryTxt, Verbosity::Normal, StrSubstNo(UserHasNoPlansMsg, Format(GraphUser.DisplayName())),
                 DataClassification::CustomerContent);
-            if not IsNull(GraphUser.Roles()) then
-                foreach DirectoryRole in GraphUser.Roles() do
-                    if IncludePlansWithoutEntitlement or IsBCServicePlan(DirectoryRole.RoleTemplateId()) then begin
-                        AddToTempPlan(Format(DirectoryRole.RoleTemplateId()), Format(DirectoryRole.DisplayName()), TempPlan);
-                        SendTraceTag('00009L0', UserSetupCategoryTxt, Verbosity::Normal, StrSubstNo(UserPlanAssignedMsg, Format(GraphUser.DisplayName()), Format(DirectoryRole.RoleTemplateId())),
-                          DataClassification::CustomerContent);
-                        SystemRoleAdded := true;
-                    end;
-        end;
+
+        // Loop through Azure AD Roles
+        if not IsNull(GraphUser.Roles()) then
+            foreach DirectoryRole in GraphUser.Roles() do
+                if IncludePlansWithoutEntitlement or IsBCServicePlan(DirectoryRole.RoleTemplateId()) then begin
+                    AddToTempPlan(Format(DirectoryRole.RoleTemplateId()), Format(DirectoryRole.DisplayName()), TempPlan);
+                    SendTraceTag('00009L0', UserSetupCategoryTxt, Verbosity::Normal, StrSubstNo(UserPlanAssignedMsg, Format(GraphUser.DisplayName()), Format(DirectoryRole.RoleTemplateId())),
+                        DataClassification::CustomerContent);
+                    SystemRoleAdded := true;
+                end;
 
         // If there are no Azure AD Plans and no system roles assigned, then check if its a device user
         if HaveAssignedPlans or SystemRoleAdded then
@@ -452,7 +406,6 @@ codeunit 9018 "Azure AD Plan Impl."
     local procedure IsBCServicePlan(ServicePlanId: Guid): Boolean
     var
         Plan: Record "Plan";
-        PlanIds: Codeunit "Plan Ids";
     begin
         if IsNullGuid(ServicePlanId) then
             exit(false);
@@ -460,7 +413,6 @@ codeunit 9018 "Azure AD Plan Impl."
         exit(Plan.GET(ServicePlanId));
     end;
 
-    [Scope('OnPrem')]
     local procedure GetAzureUserPlanRoleCenterId(UserSecurityID: Guid): Integer
     var
         TempPlan: Record "Plan" temporary;
@@ -516,7 +468,7 @@ codeunit 9018 "Azure AD Plan Impl."
                 if not IsUserAdmin(UserSecurityID) then
                     UserPermissions.RemoveSuperPermissions(UserSecurityID);
             if not IsTest then
-                Commit(); // Finalize the transaction. Else any further error can rollback and create elevation of priviledge
+                Commit(); // Finalize the transaction. Else any further error can rollback and create elevation of privilege
         end;
     end;
 

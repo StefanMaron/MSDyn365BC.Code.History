@@ -17,7 +17,7 @@ report 11014 "Intrastat - Disk Tax Auth DE"
                 trigger OnAfterGetRecord()
                 begin
                     if IsBlankedLine("Intrastat Jnl. Line") then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                     TestField("Tariff No.");
                     TestField("Country/Region Code");
@@ -50,24 +50,26 @@ report 11014 "Intrastat - Disk Tax Auth DE"
                         end;
 
                     "Internal Ref. No." := IntraReferenceNo;
-                    Modify;
+                    Modify();
 
-                    if Type = Type::Shipment then
-                        ShipmentExists := true
-                    else
-                        ReceiptExists := true
+                    case Type of
+                        Type::Receipt:
+                            ReceiptExists := true;
+                        Type::Shipment:
+                            ShipmentExists := true;
+                    end;
                 end;
 
                 trigger OnPostDataItem()
                 begin
                     if (FormatType = FormatType::XML) and (ShipmentExists or ReceiptExists) then
                         IntrastatExportMgtDACH.WriteXMLHeader(
-                          XMLDocument, RootXMLNode, TestSubmission, "Intrastat Jnl. Batch".GetStatisticsStartDate);
+                          XMLDocument, RootXMLNode, TestSubmission, "Intrastat Jnl. Batch".GetStatisticsStartDate());
                 end;
 
                 trigger OnPreDataItem()
                 begin
-                    "Intrastat Jnl. Line".Reset;
+                    "Intrastat Jnl. Line".Reset();
                     "Intrastat Jnl. Line".SetCurrentKey("Journal Template Name", "Journal Batch Name", Type, "Country/Region Code", "Tariff No.",
                       "Transaction Type", "Transport Method", Area, "Transaction Specification",
                       "Country/Region of Origin Code");
@@ -82,13 +84,13 @@ report 11014 "Intrastat - Disk Tax Auth DE"
                 trigger OnAfterGetRecord()
                 begin
                     if IsBlankedLine(IntrastatJnlLine2) then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                     if (ItemIntrastatJnlLine."Internal Ref. No." <> '') and
                        (ItemIntrastatJnlLine."Internal Ref. No." <> "Internal Ref. No.")
                     then begin
-                        WriteReceiptFile;
-                        ItemIntrastatJnlLine.Init;
+                        WriteReceiptFile();
+                        ItemIntrastatJnlLine.Init();
                     end;
 
                     AddIntrastatJnlLine(ItemIntrastatJnlLine, IntrastatJnlLine2);
@@ -97,22 +99,29 @@ report 11014 "Intrastat - Disk Tax Auth DE"
 
                 trigger OnPostDataItem()
                 begin
-                    if ItemIntrastatJnlLine."Internal Ref. No." <> '' then
-                        WriteReceiptFile;
+                    if not ReceiptExists then
+                        CurrReport.Break();
 
-                    if FormatType = FormatType::ASCII then
-                        IntrastatExportMgtDACH.SaveAndCloseFile(ASCIIFileBodyText, XMLDocument, ServerFileReceipts, FormatType)
-                    else
-                        if ReceiptExists then
+                    if ItemIntrastatJnlLine."Internal Ref. No." <> '' then
+                        WriteReceiptFile();
+
+                    case FormatType of
+                        FormatType::ASCII:
+                            IntrastatExportMgtDACH.SaveAndCloseFile(ASCIIFileBodyText, XMLDocument, ServerFileReceipts, FormatType);
+                        FormatType::XML:
                             IntrastatExportMgtDACH.WriteXMLDeclarationTotals(DeclarationXMLNode, DeclarationIntrastatJnlLine);
+                    end;
                 end;
 
                 trigger OnPreDataItem()
                 begin
-                    ItemIntrastatJnlLine.Init;
-                    DeclarationIntrastatJnlLine.Init;
+                    if not ReceiptExists then
+                        CurrReport.Break();
+
+                    ItemIntrastatJnlLine.Init();
+                    DeclarationIntrastatJnlLine.Init();
                     ASCIIFileBodyText := '';
-                    if (FormatType = FormatType::XML) and ReceiptExists then
+                    if FormatType = FormatType::XML then
                         IntrastatExportMgtDACH.WriteXMLDeclaration(
                           RootXMLNode, DeclarationXMLNode, Type::Receipt, "Intrastat Jnl. Batch"."Currency Identifier");
                 end;
@@ -125,13 +134,13 @@ report 11014 "Intrastat - Disk Tax Auth DE"
                 trigger OnAfterGetRecord()
                 begin
                     if IsBlankedLine(IntrastatJnlLine5) then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                     if (ItemIntrastatJnlLine."Internal Ref. No." <> '') and
                        (ItemIntrastatJnlLine."Internal Ref. No." <> "Internal Ref. No.")
                     then begin
-                        WriteShipmentFile;
-                        ItemIntrastatJnlLine.Init;
+                        WriteShipmentFile();
+                        ItemIntrastatJnlLine.Init();
                     end;
 
                     AddIntrastatJnlLine(ItemIntrastatJnlLine, IntrastatJnlLine5);
@@ -140,22 +149,29 @@ report 11014 "Intrastat - Disk Tax Auth DE"
 
                 trigger OnPostDataItem()
                 begin
+                    if not ShipmentExists then
+                        CurrReport.Break();
+
                     if ItemIntrastatJnlLine."Internal Ref. No." <> '' then
-                        WriteShipmentFile;
+                        WriteShipmentFile();
 
-                    if (FormatType = FormatType::XML) and ShipmentExists then
-                        IntrastatExportMgtDACH.WriteXMLDeclarationTotals(DeclarationXMLNode, DeclarationIntrastatJnlLine);
-
-                    if (FormatType = FormatType::ASCII) or (FormatType = FormatType::XML) and (ShipmentExists or ReceiptExists) then
-                        IntrastatExportMgtDACH.SaveAndCloseFile(ASCIIFileBodyText, XMLDocument, ServerFileShipments, FormatType);
+                    case FormatType of
+                        FormatType::ASCII:
+                            IntrastatExportMgtDACH.SaveAndCloseFile(ASCIIFileBodyText, XMLDocument, ServerFileShipments, FormatType);
+                        FormatType::XML:
+                            IntrastatExportMgtDACH.WriteXMLDeclarationTotals(DeclarationXMLNode, DeclarationIntrastatJnlLine);
+                    end;
                 end;
 
                 trigger OnPreDataItem()
                 begin
-                    ItemIntrastatJnlLine.Init;
-                    DeclarationIntrastatJnlLine.Init;
+                    if not ShipmentExists then
+                        CurrReport.Break();
+
+                    ItemIntrastatJnlLine.Init();
+                    DeclarationIntrastatJnlLine.Init();
                     ASCIIFileBodyText := '';
-                    if (FormatType = FormatType::XML) and ShipmentExists then
+                    if FormatType = FormatType::XML then
                         IntrastatExportMgtDACH.WriteXMLDeclaration(
                           RootXMLNode, DeclarationXMLNode, Type::Shipment, "Intrastat Jnl. Batch"."Currency Identifier");
                 end;
@@ -207,6 +223,25 @@ report 11014 "Intrastat - Disk Tax Auth DE"
         actions
         {
         }
+
+        trigger OnOpenPage()
+        var
+            IntrastatSetup: Record "Intrastat Setup";
+        begin
+            if not IntrastatSetup.Get then
+                exit;
+
+            if IntrastatSetup."Report Receipts" and IntrastatSetup."Report Shipments" then
+                exit;
+
+            if IntrastatSetup."Report Receipts" then
+                "Intrastat Jnl. Line".SetRange(Type, "Intrastat Jnl. Line".Type::Receipt)
+            else
+                if IntrastatSetup."Report Shipments" then
+                    "Intrastat Jnl. Line".SetRange(Type, "Intrastat Jnl. Line".Type::Shipment)
+                else
+                    Error(NoValuesErr);
+        end;
     }
 
     labels
@@ -215,21 +250,26 @@ report 11014 "Intrastat - Disk Tax Auth DE"
 
     trigger OnPostReport()
     begin
-        if (FormatType = FormatType::ASCII) or (FormatType = FormatType::XML) and (ShipmentExists or ReceiptExists) then
-            IntrastatExportMgtDACH.DownloadFile(
-              ZipArchiveName, ServerFileReceipts, ServerFileShipments, FormatType, "Intrastat Jnl. Batch"."Statistics Period");
+        if not ShipmentExists and not ReceiptExists then
+            exit;
+
+        if FormatType = FormatType::XML then
+            IntrastatExportMgtDACH.SaveAndCloseFile(ASCIIFileBodyText, XMLDocument, ServerFileShipments, FormatType);
+
+        IntrastatExportMgtDACH.DownloadFile(
+          ZipArchiveName, ServerFileReceipts, ServerFileShipments, FormatType, "Intrastat Jnl. Batch"."Statistics Period");
 
         if not TestSubmission then begin
             "Intrastat Jnl. Batch".Reported := true;
-            "Intrastat Jnl. Batch".Modify;
+            "Intrastat Jnl. Batch".Modify();
         end;
     end;
 
     trigger OnPreReport()
     begin
         IntrastatJnlLine4.CopyFilters("Intrastat Jnl. Line");
-        IntrastatExportMgtDACH.Initialize(CurrentDateTime);
-        CompanyInfo.Get;
+        IntrastatExportMgtDACH.Initialize(CurrentDateTime());
+        CompanyInfo.Get();
     end;
 
     var
@@ -253,6 +293,7 @@ report 11014 "Intrastat - Disk Tax Auth DE"
         ShipmentExists: Boolean;
         ReceiptExists: Boolean;
         TestSubmission: Boolean;
+        NoValuesErr: Label 'You must select the Report Receipts and Report Shipments check boxes on the Intrastat Setup page.';
 
     [Scope('OnPrem')]
     procedure WriteReceiptFile()

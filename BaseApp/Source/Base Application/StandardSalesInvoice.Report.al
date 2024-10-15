@@ -1340,38 +1340,36 @@ report 1306 "Standard Sales - Invoice"
         LogInteraction := SegManagement.FindInteractTmplCode(4) <> '';
     end;
 
-    local procedure InitializeShipmentLine(): Date
+    local procedure InitializeShipmentLine()
     var
         SalesShipmentHeader: Record "Sales Shipment Header";
         SalesShipmentBuffer2: Record "Sales Shipment Buffer";
     begin
+        if Line.Type = Line.Type::" " then
+            exit;
+
         if Line."Shipment No." <> '' then
             if SalesShipmentHeader.Get(Line."Shipment No.") then
-                exit(SalesShipmentHeader."Posting Date");
-
-        if Line.Type = Line.Type::" " then
-            exit(0D);
+                exit;
 
         ShipmentLine.GetLinesForSalesInvoiceLine(Line, Header);
 
         ShipmentLine.Reset;
         ShipmentLine.SetRange("Line No.", Line."Line No.");
-        if ShipmentLine.Find('-') then begin
+        if ShipmentLine.FindFirst then begin
             SalesShipmentBuffer2 := ShipmentLine;
             if not DisplayShipmentInformation then
                 if ShipmentLine.Next = 0 then begin
-                    ShipmentLine.Get(
-                      SalesShipmentBuffer2."Document No.", SalesShipmentBuffer2."Line No.", SalesShipmentBuffer2."Entry No.");
+                    ShipmentLine.Get(SalesShipmentBuffer2."Document No.", SalesShipmentBuffer2."Line No.", SalesShipmentBuffer2."Entry No.");
                     ShipmentLine.Delete;
-                    exit(SalesShipmentBuffer2."Posting Date");
+                    exit;
                 end;
             ShipmentLine.CalcSums(Quantity);
             if ShipmentLine.Quantity <> Line.Quantity then begin
                 ShipmentLine.DeleteAll;
-                exit(Header."Posting Date");
+                exit;
             end;
         end;
-        exit(Header."Posting Date");
     end;
 
     local procedure DocumentCaption(): Text[250]

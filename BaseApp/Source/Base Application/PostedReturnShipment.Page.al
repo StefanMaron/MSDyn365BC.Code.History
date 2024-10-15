@@ -494,6 +494,7 @@
                 trigger OnAction()
                 begin
                     ReturnShptHeader := Rec;
+                    OnBeforePrintRecords(Rec, ReturnShptHeader);
                     CurrPage.SetSelectionFilter(ReturnShptHeader);
                     ReturnShptHeader.PrintRecords(true);
                 end;
@@ -555,6 +556,11 @@
         IsBuyFromCountyVisible := FormatAddress.UseCounty("Buy-from Country/Region Code");
         IsPayFromCountyVisible := FormatAddress.UseCounty("Pay-to Country/Region Code");
         IsShipToCountyVisible := FormatAddress.UseCounty("Ship-to Country/Region Code");
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePrintRecords(var ReturnShipmentHeaderRec: Record "Return Shipment Header"; var ReturnShipmentHeaderToPrint: Record "Return Shipment Header")
+    begin
     end;
 }
 

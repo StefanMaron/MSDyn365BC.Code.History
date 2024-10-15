@@ -1,9 +1,11 @@
 page 9190 "Profile Customization List"
 {
+    ApplicationArea = Basic, Suite;
     Caption = 'Profile Customizations';
     InsertAllowed = false;
     ModifyAllowed = false;
     PageType = List;
+    UsageCategory = Lists;
     SourceTable = "Tenant Profile Page Metadata";
 
     layout

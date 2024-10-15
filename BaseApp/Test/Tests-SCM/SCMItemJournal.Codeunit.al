@@ -30,6 +30,8 @@ codeunit 137033 "SCM Item Journal"
         BlockMovementAllErr: Label 'Block Movement must not be All in Bin';
         UnitCostCannotBeChangedErr: Label 'You cannot change Unit Cost when Costing Method is Standard.';
         FIELDERRORErr: Label '%1 must not be %2 in %3', Comment = '%1 : FIELDCAPTION; %2 : field value; %3 : TABLECAPTION';
+        OneEntryExpectedErr: Label 'Only one Item Ledger Entry is expected.';
+        MultipleEntriesExpectedErr: Label 'Two Item Ledger Entries expected.';
 
     [Test]
     [Scope('OnPrem')]
@@ -1188,6 +1190,7 @@ codeunit 137033 "SCM Item Journal"
     var
         ItemJournalBatch: Record "Item Journal Batch";
         ItemJournalLine: Record "Item Journal Line";
+        ReservationEntry: Record "Reservation Entry";
         SCMItemJournal: Codeunit "SCM Item Journal";
     begin
         // [FEATURE] [UT] [Batch] [Performance]
@@ -1201,7 +1204,7 @@ codeunit 137033 "SCM Item Journal"
           ItemJournalBatch.Name, ItemJournalLine."Entry Type"::"Positive Adjmt.", '', 0);
         ItemJournalLine.SetAutoCalcFields("Reserved Quantity");
         // [GIVEN] Linked "Reservation Entry" record with Quantity = 100
-        MockReservationEntry(ItemJournalLine);
+        MockReservationEntry(ReservationEntry, ItemJournalLine);
         // [GIVEN] Ensure "Item Journal Line"."Reserved Quantity" = 100 after FIND
         ItemJournalLine.Find;
         ItemJournalLine.TestField("Reserved Quantity");
@@ -1212,6 +1215,10 @@ codeunit 137033 "SCM Item Journal"
 
         // [THEN] Auto calc field is reset within COD23: "Reserved Quantity" = 0 after FIND
         // See [EventSubscriber] OnBeforeCode
+
+        // Tear-down
+        UnbindSubscription(SCMItemJournal);
+        ReservationEntry.Delete();
     end;
 
     [Test]
@@ -1253,11 +1260,156 @@ codeunit 137033 "SCM Item Journal"
         Assert.RecordIsEmpty(ItemJournalLine);
     end;
 
+    [Test]
+    [HandlerFunctions('ItemLedgerEntriesLookupMultipleModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure ShowPositiveEntriesOnApplyToEntryLookupWhenItemJournalLineQtyIsZero()
+    var
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        Location: Record Location;
+        Item: Record Item;
+        ItemJournalTemplate: Record "Item Journal Template";
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemLedgerEntryNo: Integer;
+        NextValue: Boolean;
+        DocumentNo: Code[20];
+    begin
+        // [FEATURE] [UT] [UI] [Applies-to Entry]
+        // [SCENARIO 338231] "Applies-to Entry" field lookup shows Item Ledger entries with no filter on "Positive" when Item Reclassification Journal line quantity is = 0
+        Initialize;
+        ItemLedgerEntry.DeleteAll;
+
+        // [GIVEN] Item with inventory stock, e.g. "positive" and Open Item Ledger Entry
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        CreateItemWithInventory(Item, Location.Code, LibraryRandom.RandIntInRange(15, 20));
+
+        // [GIVEN] Item negative adjustment, e.g. "negative" and Open Item Ledger Entry
+        MockNegativeOpenItemLedgerEntry(Item."No.", Location.Code, -LibraryRandom.RandIntInRange(2, 5));
+
+        // [GIVEN] Item Reclassification Journal line populated with Item and Location with Quantity = 0
+        LibraryInventory.CreateItemJournalBatchByType(ItemJournalBatch, ItemJournalTemplate.Type::Transfer);
+        DocumentNo :=
+          CreateItemReclassJournaLine(
+            ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name, Item."No.", Location.Code, Location.Code, '', '', 0);
+
+        // [WHEN] Lookup on "Applies-to Entry" in Item Reclassification Journal line
+        Commit;
+        ItemReclassJournalPageLookupAtAppliesToEntry(ItemJournalBatch.Name, DocumentNo, Item."No.");
+
+        // [THEN] Item Ledger Entries lookup page shows "positive" and "negative" Item Ledger Entries
+        ItemLedgerEntryNo := LibraryVariableStorage.DequeueInteger;
+        VerifyItemLedgerEntryPositive(ItemLedgerEntryNo, false);
+
+        NextValue := LibraryVariableStorage.DequeueBoolean;
+        Assert.IsTrue(NextValue, MultipleEntriesExpectedErr);
+
+        ItemLedgerEntryNo := LibraryVariableStorage.DequeueInteger;
+        VerifyItemLedgerEntryPositive(ItemLedgerEntryNo, true);
+
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemLedgerEntriesLookupSingleModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure ShowPositiveEntriesOnApplyToEntryLookupWhenItemJournaLineQtyIsPositive()
+    var
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        Location: Record Location;
+        Item: Record Item;
+        ItemJournalTemplate: Record "Item Journal Template";
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemLedgerEntryNo: Integer;
+        NextValue: Boolean;
+        DocumentNo: Code[20];
+    begin
+        // [FEATURE] [UT] [UI] [Applies-to Entry]
+        // [SCENARIO 338231] "Applies-to Entry" field lookup shows Item Ledger entries with "Positive" = TRUE value when Item Reclassification Journal line quantity is positive
+        Initialize;
+        ItemLedgerEntry.DeleteAll;
+
+        // [GIVEN] Item with inventory stock, e.g. "positive" and Open Item Ledger Entry
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        CreateItemWithInventory(Item, Location.Code, LibraryRandom.RandIntInRange(15, 20));
+
+        // [GIVEN] Item negative adjustment, e.g. "negative" and Open Item Ledger Entry
+        MockNegativeOpenItemLedgerEntry(Item."No.", Location.Code, -LibraryRandom.RandIntInRange(2, 5));
+
+        // [GIVEN] Item Reclassification Journal line populated with Item and Location with Quantity = 3
+        LibraryInventory.CreateItemJournalBatchByType(ItemJournalBatch, ItemJournalTemplate.Type::Transfer);
+        DocumentNo :=
+          CreateItemReclassJournaLine(
+            ItemJournalBatch."Journal Template Name",
+            ItemJournalBatch.Name, Item."No.",
+            Location.Code, Location.Code, '', '', LibraryRandom.RandIntInRange(2, 3));
+
+        // [WHEN] Lookup on "Applies-to Entry" in Item Reclassification Journal line
+        Commit;
+        ItemReclassJournalPageLookupAtAppliesToEntry(ItemJournalBatch.Name, DocumentNo, Item."No.");
+
+        // [THEN] Item Ledger Entries lookup page shows "positive" Item Ledger Entry only
+        ItemLedgerEntryNo := LibraryVariableStorage.DequeueInteger;
+        VerifyItemLedgerEntryPositive(ItemLedgerEntryNo, true);
+
+        NextValue := LibraryVariableStorage.DequeueBoolean;
+        Assert.IsFalse(NextValue, OneEntryExpectedErr);
+
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemLedgerEntriesLookupSingleModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure ShowPositiveEntriesOnApplyToEntryLookupWhenItemJournaLineQtyIsNegative()
+    var
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        Location: Record Location;
+        Item: Record Item;
+        ItemJournalTemplate: Record "Item Journal Template";
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemLedgerEntryNo: Integer;
+        NextValue: Boolean;
+        DocumentNo: Code[20];
+    begin
+        // [FEATURE] [UT] [UI] [Applies-to Entry]
+        // [SCENARIO 338231] "Applies-to Entry" field lookup shows Item Ledger entries with "Positive" = FALSE value when Item Reclassification Journal line quantity is negative
+        Initialize;
+        ItemLedgerEntry.DeleteAll;
+
+        // [GIVEN] Item with inventory stock, e.g. "positive" and Open Item Ledger Entry
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        CreateItemWithInventory(Item, Location.Code, LibraryRandom.RandIntInRange(15, 20));
+
+        // [GIVEN] Item negative adjustment, e.g. "negative" and Open Item Ledger Entry
+        MockNegativeOpenItemLedgerEntry(Item."No.", Location.Code, -LibraryRandom.RandIntInRange(2, 5));
+
+        // [GIVEN] Item Reclassification Journal line populated with Item and Location with Quantity = -2
+        LibraryInventory.CreateItemJournalBatchByType(ItemJournalBatch, ItemJournalTemplate.Type::Transfer);
+        DocumentNo :=
+          CreateItemReclassJournaLine(
+            ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name,
+            Item."No.", Location.Code, Location.Code, '', '', -LibraryRandom.RandIntInRange(2, 3));
+
+        // [WHEN] Lookup on "Applies-to Entry" in Item Reclassification Journal line
+        Commit;
+        ItemReclassJournalPageLookupAtAppliesToEntry(ItemJournalBatch.Name, DocumentNo, Item."No.");
+
+        // [THEN] Item Ledger Entries lookup page shows "negative" Item Ledger Entry only
+        ItemLedgerEntryNo := LibraryVariableStorage.DequeueInteger;
+        VerifyItemLedgerEntryPositive(ItemLedgerEntryNo, false);
+
+        NextValue := LibraryVariableStorage.DequeueBoolean;
+        Assert.IsFalse(NextValue, OneEntryExpectedErr);
+
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Item Journal");
+
         // Lazy Setup.
         if isInitialized then
             exit;
@@ -1443,9 +1595,7 @@ codeunit 137033 "SCM Item Journal"
             Code := SaveAsStandardJournal(ItemJournalBatch, ItemJournalLine, true, true, '');
     end;
 
-    local procedure MockReservationEntry(ItemJournalLine: Record "Item Journal Line")
-    var
-        ReservationEntry: Record "Reservation Entry";
+    local procedure MockReservationEntry(var ReservationEntry: Record "Reservation Entry"; ItemJournalLine: Record "Item Journal Line")
     begin
         with ReservationEntry do begin
             Init;
@@ -1468,6 +1618,19 @@ codeunit 137033 "SCM Item Journal"
             TempItemJournalLine := ItemJournalLine;
             TempItemJournalLine.Insert;
         until ItemJournalLine.Next = 0;
+    end;
+
+    local procedure ItemReclassJournalPageLookupAtAppliesToEntry(JournalBatchName: Code[10]; DocumentNo: Code[20]; ItemNo: Code[20])
+    var
+        ItemReclassJournal: TestPage "Item Reclass. Journal";
+    begin
+        ItemReclassJournal.OpenEdit;
+        ItemReclassJournal.CurrentJnlBatchName.SetValue(JournalBatchName);
+        ItemReclassJournal.FILTER.SetFilter("Document No.", DocumentNo);
+        ItemReclassJournal.FILTER.SetFilter("Item No.", ItemNo);
+        ItemReclassJournal.First;
+        ItemReclassJournal."Applies-to Entry".Lookup;
+        ItemReclassJournal.Close;
     end;
 
     local procedure SaveAsStandardJournal(var ItemJournalBatch: Record "Item Journal Batch"; var ItemJournalLine: Record "Item Journal Line"; SaveUnitAmount: Boolean; SaveQuantity: Boolean; StandardItemJournalCode: Code[10]) "Code": Code[10]
@@ -1573,6 +1736,25 @@ codeunit 137033 "SCM Item Journal"
         Item.Modify(true);
     end;
 
+    local procedure MockNegativeOpenItemLedgerEntry(ItemNo: Code[20]; LocationCode: Code[10]; Qty: Decimal)
+    var
+        ItemLedgerEntry: Record "Item Ledger Entry";
+    begin
+        ItemLedgerEntry.Init;
+        ItemLedgerEntry."Entry No." := LibraryUtility.GetNewRecNo(ItemLedgerEntry, ItemLedgerEntry.FieldNo("Entry No."));
+        ItemLedgerEntry."Entry Type" := ItemLedgerEntry."Entry Type"::"Negative Adjmt.";
+        ItemLedgerEntry."Document Date" := WorkDate;
+        ItemLedgerEntry."Posting Date" := WorkDate;
+        ItemLedgerEntry."Document No." := LibraryUtility.GenerateGUID;
+        ItemLedgerEntry."Location Code" := LocationCode;
+        ItemLedgerEntry."Item No." := ItemNo;
+        ItemLedgerEntry.Quantity := Qty;
+        ItemLedgerEntry."Remaining Quantity" := Qty;
+        ItemLedgerEntry.Open := true;
+        ItemLedgerEntry.Positive := false;
+        ItemLedgerEntry.Insert;
+    end;
+
     local procedure RecalcUnitAmountItemJnlLine(var ItemJournalLine: Record "Item Journal Line"; ItemJournalBatch: Record "Item Journal Batch")
     begin
         SelectItemJournalLine(ItemJournalLine, ItemJournalBatch);
@@ -1667,6 +1849,14 @@ codeunit 137033 "SCM Item Journal"
         Item.SetFilter("Lot No. Filter", LotNo);
         Item.CalcFields(Inventory);
         Item.TestField(Inventory, Qty);
+    end;
+
+    local procedure VerifyItemLedgerEntryPositive(EntryNo: Integer; ExpectedValue: Boolean)
+    var
+        ItemLedgerEntry: Record "Item Ledger Entry";
+    begin
+        ItemLedgerEntry.Get(EntryNo);
+        ItemLedgerEntry.TestField(Positive, ExpectedValue);
     end;
 
     local procedure CheckNoItemLedgerEntries(DocumentNo: Code[20])
@@ -1825,6 +2015,27 @@ codeunit 137033 "SCM Item Journal"
         ItemJournalLine.TestField("Reserved Quantity");
         ItemJournalLine.Find;
         ItemJournalLine.TestField("Reserved Quantity", 0);
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ItemLedgerEntriesLookupSingleModalPageHandler(var ItemLedgerEntries: TestPage "Item Ledger Entries")
+    begin
+        ItemLedgerEntries.First;
+        LibraryVariableStorage.Enqueue(ItemLedgerEntries."Entry No.".Value);
+        LibraryVariableStorage.Enqueue(ItemLedgerEntries.Next);
+        ItemLedgerEntries.Cancel.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ItemLedgerEntriesLookupMultipleModalPageHandler(var ItemLedgerEntries: TestPage "Item Ledger Entries")
+    begin
+        ItemLedgerEntries.First;
+        LibraryVariableStorage.Enqueue(ItemLedgerEntries."Entry No.".Value);
+        LibraryVariableStorage.Enqueue(ItemLedgerEntries.Next);
+        LibraryVariableStorage.Enqueue(ItemLedgerEntries."Entry No.".Value);
+        ItemLedgerEntries.Cancel.Invoke;
     end;
 }
 

@@ -35,14 +35,14 @@ page 9807 "User Card"
                 field("Full Name"; "Full Name")
                 {
                     ApplicationArea = Basic, Suite;
-                    Editable = NOT SoftwareAsAService;
+                    Editable = not IsSaaS;
                     ToolTip = 'Specifies the full name of the user.';
                 }
                 field("License Type"; "License Type")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the type of license that applies to the user.';
-                    Visible = NOT SoftwareAsAService;
+                    Visible = not IsSaaS;
                 }
                 field(State; State)
                 {
@@ -58,7 +58,7 @@ page 9807 "User Card"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a date past which the user will no longer be authorized to log on to the Windows client.';
-                    Visible = NOT SoftwareAsAService;
+                    Visible = not IsSaaS;
                 }
                 field("Contact Email"; "Contact Email")
                 {
@@ -69,7 +69,7 @@ page 9807 "User Card"
             group("Windows Authentication")
             {
                 Caption = 'Windows Authentication';
-                Visible = (NOT DeployedToAzure) AND (NOT SoftwareAsAService);
+                Visible = (not DeployedToAzure) and (not IsSaaS);
                 field("Windows Security ID"; "Windows Security ID")
                 {
                     ApplicationArea = Basic, Suite;
@@ -83,7 +83,6 @@ page 9807 "User Card"
                     Caption = 'Windows User Name';
                     Importance = Promoted;
                     ToolTip = 'Specifies the name of a valid Active Directory user, using the format domain\username.';
-                    Visible = NOT IsWindowsClient;
 
                     trigger OnValidate()
                     begin
@@ -97,34 +96,15 @@ page 9807 "User Card"
                     Caption = 'Windows User Name';
                     Importance = Promoted;
                     ToolTip = 'Specifies the name of a valid Active Directory user, using the format domain\username.';
-                    Visible = IsWindowsClient;
-
-                    trigger OnAssistEdit()
-                    var
-                        [RunOnClient]
-                        DSOP: DotNet DSObjectPickerWrapper;
-                        result: Text;
-                    begin
-                        DSOP := DSOP.DSObjectPickerWrapper;
-                        result := DSOP.InvokeDialogAndReturnSid;
-                        if result <> '' then begin
-                            "Windows Security ID" := result;
-                            ValidateSid;
-                            WindowsUserName := IdentityManagement.UserName("Windows Security ID");
-                            SetUserName;
-                        end;
-                    end;
-
-                    trigger OnValidate()
-                    begin
-                        ValidateWindowsUserName;
-                    end;
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Desktop client is not supported in versions 15 and higher.';
                 }
             }
             group("ACS Authentication")
             {
                 Caption = 'Access Control Service Authentication';
-                Visible = NOT SoftwareAsAService;
+                Visible = not IsSaaS;
                 field(ACSStatus; ACSStatus)
                 {
                     ApplicationArea = Basic, Suite;
@@ -134,7 +114,7 @@ page 9807 "User Card"
                     Editable = false;
                     Importance = Promoted;
                     ToolTip = 'Specifies the user''s status for ACS authentication. When you start creating a user, the status is Disabled. After you create a user, the status changes to Pending. After the user logs on successfully, the status changes to Enabled.';
-                    Visible = NOT SoftwareAsAService;
+                    Visible = not IsSaaS;
 
                     trigger OnAssistEdit()
                     begin
@@ -145,7 +125,7 @@ page 9807 "User Card"
             group("NAV Password Authentication")
             {
                 Caption = 'Business Central Password Authentication';
-                Visible = NOT SoftwareAsAService;
+                Visible = not IsSaaS;
                 field(Password; Password)
                 {
                     ApplicationArea = Basic, Suite;
@@ -199,7 +179,7 @@ page 9807 "User Card"
                 field("Authentication Email"; "Authentication Email")
                 {
                     ApplicationArea = Basic, Suite;
-                    Editable = NOT SoftwareAsAService;
+                    Editable = not IsSaaS;
                     ToolTip = 'Specifies the Microsoft account that this user signs into Office 365 or SharePoint Online with.';
 
                     trigger OnValidate()
@@ -214,7 +194,7 @@ page 9807 "User Card"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Application ID';
                     ToolTip = 'Specifies the client ID of the Microsoft Azure Active Directory application when authenticating web-service calls. This field is only relevant when the Business Central user is used for web services.';
-                    Visible = NOT SoftwareAsAService;
+                    Visible = not IsSaaS;
 
                     trigger OnValidate()
                     var
@@ -243,18 +223,26 @@ page 9807 "User Card"
                     ToolTip = 'Specifies the user''s status for Office 365 authentication. When you start to create a user, the status is Disabled. After you specify an authentication email address for the user, the status changes to Inactive. After the user logs on successfully, the status changes to Active.';
                 }
             }
+            part(Plans; "User Plans FactBox")
+            {
+                Caption = 'Licenses';
+                ApplicationArea = Basic, Suite;
+                SubPageLink = "User Security ID" = field("User Security ID");
+                Visible = IsSaaS;
+            }
+
             part(UserGroups; "User Groups User SubPage")
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'User Groups';
-                SubPageLink = "User Security ID" = FIELD("User Security ID");
+                SubPageLink = "User Security ID" = field("User Security ID");
                 UpdatePropagation = Both;
             }
             part(Permissions; "User Subform")
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'User Permission Sets';
-                SubPageLink = "User Security ID" = FIELD("User Security ID");
+                SubPageLink = "User Security ID" = field("User Security ID");
             }
         }
         area(factboxes)
@@ -286,7 +274,7 @@ page 9807 "User Card"
                     PromotedCategory = Process;
                     PromotedIsBig = true;
                     ToolTip = 'Set up Access Control Service authentication, such as generating an authentication key that the user can use to connect to Azure.';
-                    Visible = NOT SoftwareAsAService;
+                    Visible = not IsSaaS;
 
                     trigger OnAction()
                     begin
@@ -302,11 +290,29 @@ page 9807 "User Card"
                     PromotedCategory = Process;
                     PromotedIsBig = true;
                     ToolTip = 'Change the user''s password if the user connects using password authentication.';
-                    Visible = NOT SoftwareAsAService;
+                    Visible = not IsSaaS;
 
                     trigger OnAction()
                     begin
                         EditNavPassword;
+                    end;
+                }
+                action(UpdateUserFromAzureGraph)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Update user from Office 365';
+                    Promoted = true;
+                    PromotedCategory = Process;
+                    PromotedIsBig = true;
+                    ToolTip = 'Update user''s name, authentication email address, and contact email address from Office 365.';
+                    Visible = IsSaaS;
+
+                    trigger OnAction()
+                    var
+                        AzureADUserManagement: Codeunit "Azure AD User Management";
+                    begin
+                        AzureADUserManagement.UpdateUserFromGraph(Rec);
+                        Message(InfoUpToDateMsg);
                     end;
                 }
                 action(ChangeWebServiceAccessKey)
@@ -370,8 +376,6 @@ page 9807 "User Card"
     }
 
     trigger OnAfterGetRecord()
-    var
-        EnvironmentInfo: Codeunit "Environment Information";
     begin
         WindowsUserName := IdentityManagement.UserName("Windows Security ID");
 
@@ -388,7 +392,7 @@ page 9807 "User Card"
         if not IsNullGuid("Application ID") then
             ApplicationID := "Application ID";
 
-        if EnvironmentInfo.IsSaaS and (UserId <> "User Name") then begin
+        if IsSaaS and (UserId <> "User Name") then begin
             AllowChangeWebServiceAccessKey := false;
             WebServiceID := '*************************************';
         end else begin
@@ -429,11 +433,9 @@ page 9807 "User Card"
     var
         EnvironmentInfo: Codeunit "Environment Information";
     begin
-        SoftwareAsAService := EnvironmentInfo.IsSaaS;
+        IsSaaS := EnvironmentInfo.IsSaaS;
 
         HideExternalUsers;
-
-        IsWindowsClient := (ClientTypeManagement.GetCurrentClientType = CLIENTTYPE::Windows);
 
         OnPremAskFirstUserToCreateSuper;
     end;
@@ -465,15 +467,13 @@ page 9807 "User Card"
         AuthenticationStatus: Option Disabled,Inactive,Active;
         Confirm004Qst: Label 'The user will not be able to sign in because no authentication data was provided. Are you sure that you want to close the page?';
         ConfirmRemoveExchangeIdentifierQst: Label 'If you delete the Exchange Identifier Mapping, the user will no longer automatically be signed in when they use Exchange applications.\Do you want to continue?';
-        SoftwareAsAService: Boolean;
+        IsSaaS: Boolean;
         ApplicationID: Text;
         CannotManageUsersQst: Label 'You cannot add or delete users on this page. Administrators can manage users in the Office 365 admin center.\\Do you want to go there now?';
         AllowChangeWebServiceAccessKey: Boolean;
-        IsWindowsClient: Boolean;
         InitialState: Option;
         CreateFirstUserQst: Label 'You will be locked out after creating first user. Would you first like to create a SUPER user for %1?', Comment = 'USERID';
-        CreateFirstUserYesMsg: Label 'Yes';
-        CreateFirstUserNoMsg: Label 'No';
+        InfoUpToDateMsg: Label 'The information about this user is up-to-date.';
 
     local procedure ValidateSid()
     var
@@ -536,10 +536,9 @@ page 9807 "User Card"
 
     local procedure EditWebServiceID()
     var
-        EnvironmentInfo: Codeunit "Environment Information";
         SetWebServiceAccessKey: Page "Set Web Service Access Key";
     begin
-        if EnvironmentInfo.IsSaaS and (UserSecurityId <> "User Security ID") then
+        if IsSaaS and (UserSecurityId <> "User Security ID") then
             exit;
 
         TestField("User Name");
@@ -549,7 +548,7 @@ page 9807 "User Card"
             UserSecID.SetRange("User Security ID", "User Security ID", "User Security ID");
             SetWebServiceAccessKey.SetRecord(UserSecID);
             SetWebServiceAccessKey.SetTableView(UserSecID);
-            if SetWebServiceAccessKey.RunModal = ACTION::OK then
+            if SetWebServiceAccessKey.RunModal = Action::OK then
                 CurrPage.Update;
         end;
     end;
@@ -583,16 +582,15 @@ page 9807 "User Card"
         UserSecID.SetRange("User Security ID", "User Security ID", "User Security ID");
         UserACSSetup.SetRecord(UserSecID);
         UserACSSetup.SetTableView(UserSecID);
-        if UserACSSetup.RunModal = ACTION::OK then
+        if UserACSSetup.RunModal = Action::OK then
             CurrPage.Update;
     end;
 
     procedure ManageUsersIsAllowed(): Boolean
     var
-        EnvironmentInfo: Codeunit "Environment Information";
         UrlHelper: Codeunit "Url Helper";
     begin
-        if not EnvironmentInfo.IsSaaS then
+        if not IsSaaS then
             exit(true);
 
         if Confirm(CannotManageUsersQst, true) then
@@ -609,10 +607,9 @@ page 9807 "User Card"
 
     local procedure HideExternalUsers()
     var
-        EnvironmentInfo: Codeunit "Environment Information";
         OriginalFilterGroup: Integer;
     begin
-        if not EnvironmentInfo.IsSaaS then
+        if not IsSaaS then
             exit;
 
         OriginalFilterGroup := FilterGroup;
@@ -642,20 +639,16 @@ page 9807 "User Card"
     local procedure OnPremAskFirstUserToCreateSuper()
     var
         User: Record User;
-        FormatedMessage: Text;
     begin
-        if SoftwareAsAService then
+        if IsSaaS then
             exit;
 
         // Users already exist
         if not User.IsEmpty then
             exit;
 
-        // Copy localized message to a variable to bypass
-        // Bug 195060: Argument size problem in CONFIRM function when using place holders in localized message
-        FormatedMessage := CreateFirstUserQst;
-        if Confirm(FormatedMessage, true, UserId, CreateFirstUserYesMsg, CreateFirstUserNoMsg) then
-            CODEUNIT.Run(CODEUNIT::"Users - Create Super User");
+        if Confirm(CreateFirstUserQst, true, UserId) then
+            Codeunit.Run(Codeunit::"Users - Create Super User");
     end;
 }
 

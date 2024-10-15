@@ -840,7 +840,9 @@ codeunit 142039 "UT REP Intrastat DE"
         if IsInitialized then
             exit;
 
+        UpdateReceiptsShipmentsOnIntrastatSetup(true, true);
         LibrarySetupStorage.Save(DATABASE::"Company Information");
+        LibrarySetupStorage.Save(Database::"Intrastat Setup");
 
         IsInitialized := true;
     end;
@@ -1041,6 +1043,16 @@ codeunit 142039 "UT REP Intrastat DE"
         LibraryERM.SetIntrastatContact(
           IntrastatSetup."Intrastat Contact Type"::Contact,
           LibraryERM.CreateIntrastatContact(IntrastatSetup."Intrastat Contact Type"::Contact));
+    end;
+
+    local procedure UpdateReceiptsShipmentsOnIntrastatSetup(ReportReceipts: Boolean; ReportShipments: Boolean)
+    var
+        IntrastatSetup: Record "Intrastat Setup";
+    begin
+        IntrastatSetup.Get();
+        IntrastatSetup."Report Receipts" := ReportReceipts;
+        IntrastatSetup."Report Shipments" := ReportShipments;
+        IntrastatSetup.Modify();
     end;
 
     local procedure VerifyIntrastatReport(ElementName: Text; ExpectedValue: Variant)

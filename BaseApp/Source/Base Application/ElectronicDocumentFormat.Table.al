@@ -240,6 +240,8 @@ table 61 "Electronic Document Format"
         ServiceHeader: Record "Service Header";
         Job: Record Job;
         DocumentRecordRef: RecordRef;
+        DocumentNo: Code[20];
+        IsHandled: Boolean;
     begin
         if DocumentVariant.IsRecord then
             DocumentRecordRef.GetTable(DocumentVariant)
@@ -283,13 +285,26 @@ table 61 "Electronic Document Format"
                     Job := DocumentVariant;
                     exit(Job."No.");
                 end;
-            else
-                Error(UnSupportedTableTypeErr, DocumentRecordRef.Caption);
+            else begin
+                    IsHandled := false;
+                    OnGetDocumentNoCaseElse(DocumentVariant, DocumentNo, IsHandled);
+                    if IsHandled then
+                        exit(DocumentNo);
+
+                    Error(UnSupportedTableTypeErr, DocumentRecordRef.Caption);
+                end;
         end;
     end;
 
     local procedure GetDocumentUsageForSalesHeader(var DocumentUsage: Option; SalesHeader: Record "Sales Header")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetDocumentUsageForSalesHeader(Rec, SalesHeader, DocumentUsage, IsHandled);
+        if IsHandled then
+            exit;
+
         case SalesHeader."Document Type" of
             SalesHeader."Document Type"::Order:
                 exit;
@@ -303,7 +318,14 @@ table 61 "Electronic Document Format"
     end;
 
     local procedure GetDocumentUsageForServiceHeader(var DocumentUsage: Option; ServiceHeader: Record "Service Header")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetDocumentUsageForServiceHeader(Rec, ServiceHeader, DocumentUsage, IsHandled);
+        if IsHandled then
+            exit;
+
         case ServiceHeader."Document Type" of
             ServiceHeader."Document Type"::Invoice:
                 DocumentUsage := Usage::"Service Invoice";
@@ -330,7 +352,7 @@ table 61 "Electronic Document Format"
             Error(ElectronicFormatErr, ElectronicFormat);
     end;
 
-    local procedure GetDocumentType(DocumentVariant: Variant): Text[50]
+    local procedure GetDocumentType(DocumentVariant: Variant) DocumentTypeText: Text[50]
     var
         DummySalesHeader: Record "Sales Header";
         DummyServiceHeader: Record "Service Header";
@@ -364,6 +386,8 @@ table 61 "Electronic Document Format"
                     if DummySalesHeader."Document Type" = DummySalesHeader."Document Type"::Quote then
                         exit(Format(DummySalesHeader."Document Type"::Quote));
                 end;
+            else
+                OnGetDocumentTypeCaseElse(DocumentVariant, DocumentTypeText);
         end;
     end;
 
@@ -386,6 +410,26 @@ table 61 "Electronic Document Format"
     [IntegrationEvent(false, false)]
     [Scope('OnPrem')]
     procedure OnDiscoverElectronicFormat()
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetDocumentUsageForSalesHeader(ElectronicDocumentFormat: Record "Electronic Document Format"; SalesHeader: Record "Sales Header"; var DocumentUsage: Option; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetDocumentUsageForServiceHeader(ElectronicDocumentFormat: Record "Electronic Document Format"; ServiceHeader: Record "Service Header"; var DocumentUsage: Option; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetDocumentNoCaseElse(DocumentVariant: Variant; var DocumentNo: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetDocumentTypeCaseElse(DocumentVariant: Variant; var DocumentTypeText: Text[50])
     begin
     end;
 }

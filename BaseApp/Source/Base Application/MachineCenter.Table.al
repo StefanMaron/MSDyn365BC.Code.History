@@ -586,11 +586,14 @@ table 99000758 "Machine Center"
         ProdOrderRtngLine: Record "Prod. Order Routing Line";
         StdCostWksh: Record "Standard Cost Worksheet";
         CapLedgEntry: Record "Capacity Ledger Entry";
+        RoutingLine: Record "Routing Line";
     begin
         CapLedgEntry.SetRange(Type, CapLedgEntry.Type::"Machine Center");
         CapLedgEntry.SetRange("No.", "No.");
         if not CapLedgEntry.IsEmpty then
             Error(Text007, TableCaption, "No.", CapLedgEntry.TableCaption);
+
+        RoutingLine.CheckCertifiedRouting(RoutingLine.Type::"Machine Center", "No.");
 
         StdCostWksh.Reset;
         StdCostWksh.SetRange(Type, StdCostWksh.Type::"Machine Center");

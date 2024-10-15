@@ -174,7 +174,7 @@ table 9002 "User Group Access Control"
             SetRange("App ID", AppID);
             ReferenceExists := FindLast;
             if not ReferenceExists then
-                AccessControl.Delete;
+                AccessControl.Delete(true);
             if ReferenceExists and ("User Group Code" = '') then
                 Delete;
         end;

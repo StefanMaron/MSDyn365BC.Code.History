@@ -25,6 +25,7 @@ codeunit 137082 "SCM Manufacturing - Routings"
         WrongNoOfStartProcessesErr: Label 'Actual number of start processes in route %1 is %2', Comment = '%1 = Routing No., %2 = No. of operations';
         NoLineWithinFilterErr: Label 'There is no Routing Line within the filter';
         isInitialized: Boolean;
+        CannotDeleteCertifiedRoutingExistsErr: Label 'You cannot delete %1 %2 because there is at least one certified %3 associated with it.';
 
     [Test]
     [Scope('OnPrem')]
@@ -710,6 +711,126 @@ codeunit 137082 "SCM Manufacturing - Routings"
         LibraryVariableStorage.AssertEmpty;
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure DeleteWorkCenterForCertifiedRouting()
+    var
+        RoutingHeader: Record "Routing Header";
+        RoutingLine: Record "Routing Line";
+        WorkCenter: Record "Work Center";
+    begin
+        // [FEATURE] [UT] [Work Center]
+        // [SCENARIO 336623] Work Center cannot be deleted when it is a part of a certified routing
+
+        // [GIVEN] Work Center "WKC"
+        WorkCenter.Init;
+        WorkCenter."No." := LibraryUtility.GenerateGUID;
+        WorkCenter.Insert;
+
+        // [GIVEN] Certified Routing "ROUT" with Routing Line for Work Center "WKC"
+        MockRoutingHeader(RoutingHeader, RoutingHeader.Status::Certified);
+        MockRoutingLine(RoutingLine, RoutingHeader."No.", '', RoutingLine.Type::"Work Center", WorkCenter."No.");
+
+        // [WHEN] Delete Work Center "WKC"
+        asserterror WorkCenter.Delete(true);
+
+        // [THEN] Error is shown: "You cannot delete Work Center WKC because there is at least one certified routing associated with it"
+        Assert.ExpectedError(StrSubstNo(CannotDeleteCertifiedRoutingExistsErr, RoutingLine.Type, WorkCenter."No.", 'routing'));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure DeleteWorkCenterForCertifiedRoutingVersion()
+    var
+        RoutingHeader: Record "Routing Header";
+        RoutingVersion: Record "Routing Version";
+        RoutingLine: Record "Routing Line";
+        WorkCenter: Record "Work Center";
+    begin
+        // [FEATURE] [UT] [Work Center]
+        // [SCENARIO 336623] Work Center cannot be deleted when it is a part of a certified routing version
+
+        // [GIVEN] Work Center "WKC"
+        WorkCenter.Init;
+        WorkCenter."No." := LibraryUtility.GenerateGUID;
+        WorkCenter.Insert;
+
+        // [GIVEN] Non-certified Routing "ROUT"
+        MockRoutingHeader(RoutingHeader, RoutingHeader.Status::"Under Development");
+
+        // [GIVEN] Certified Routing Version "ROUT","V1" with Routing Line for Work Center "WKC"
+        MockRoutingVersion(RoutingVersion, RoutingHeader."No.", RoutingVersion.Status::Certified);
+        MockRoutingLine(
+          RoutingLine, RoutingVersion."Routing No.", RoutingVersion."Version Code",
+          RoutingLine.Type::"Work Center", WorkCenter."No.");
+
+        // [WHEN] Delete Work Center "WKC"
+        asserterror WorkCenter.Delete(true);
+
+        // [THEN] Error is shown: "You cannot delete Work Center WKC because there is at least one certified routing version associated with it"
+        Assert.ExpectedError(StrSubstNo(CannotDeleteCertifiedRoutingExistsErr, RoutingLine.Type, WorkCenter."No.", 'routing version'));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure DeleteMachineCenterForCertifiedRouting()
+    var
+        RoutingHeader: Record "Routing Header";
+        RoutingLine: Record "Routing Line";
+        MachineCenter: Record "Machine Center";
+    begin
+        // [FEATURE] [UT] [Machine Center]
+        // [SCENARIO 336623] Machine Center cannot be deleted when it is a part of a certified routing
+
+        // [GIVEN] Machine Center "MC"
+        MachineCenter.Init;
+        MachineCenter."No." := LibraryUtility.GenerateGUID;
+        MachineCenter.Insert;
+
+        // [GIVEN] Certified Routing "ROUT" with Routing Line for Machine Center "MC"
+        MockRoutingHeader(RoutingHeader, RoutingHeader.Status::Certified);
+        MockRoutingLine(RoutingLine, RoutingHeader."No.", '', RoutingLine.Type::"Machine Center", MachineCenter."No.");
+
+        // [WHEN] Delete Machine Center "MC"
+        asserterror MachineCenter.Delete(true);
+
+        // [THEN] Error is shown: "You cannot delete Machine Center MC because there is at least one certified routing associated with it"
+        Assert.ExpectedError(StrSubstNo(CannotDeleteCertifiedRoutingExistsErr, RoutingLine.Type, MachineCenter."No.", 'routing'));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure DeleteMachineCenterForCertifiedRoutingVersion()
+    var
+        RoutingHeader: Record "Routing Header";
+        RoutingVersion: Record "Routing Version";
+        RoutingLine: Record "Routing Line";
+        MachineCenter: Record "Machine Center";
+    begin
+        // [FEATURE] [UT] [Machine Center]
+        // [SCENARIO 336623] Machine Center cannot be deleted when it is a part of a certified routing version
+
+        // [GIVEN] Machine Center "MC"
+        MachineCenter.Init;
+        MachineCenter."No." := LibraryUtility.GenerateGUID;
+        MachineCenter.Insert;
+
+        // [GIVEN] Non-certified Routing "ROUT"
+        MockRoutingHeader(RoutingHeader, RoutingHeader.Status::"Under Development");
+
+        // [GIVEN] Certified Routing Version "ROUT","V1" with Routing Line for Machine Center "MC"
+        MockRoutingVersion(RoutingVersion, RoutingHeader."No.", RoutingVersion.Status::Certified);
+        MockRoutingLine(
+          RoutingLine, RoutingVersion."Routing No.", RoutingVersion."Version Code",
+          RoutingLine.Type::"Machine Center", MachineCenter."No.");
+
+        // [WHEN] Delete Machine Center "C"
+        asserterror MachineCenter.Delete(true);
+
+        // [THEN] Error is shown: "You cannot delete Machine Center MC because there is at least one certified routing version associated with it"
+        Assert.ExpectedError(StrSubstNo(CannotDeleteCertifiedRoutingExistsErr, RoutingLine.Type, MachineCenter."No.", 'routing version'));
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Manufacturing - Routings");
@@ -827,6 +948,34 @@ codeunit 137082 "SCM Manufacturing - Routings"
                     NoOfHits += "No. of Hits";
                 until Next = 0;
         end;
+    end;
+
+    local procedure MockRoutingHeader(var RoutingHeader: Record "Routing Header"; Status: Option)
+    begin
+        RoutingHeader.Init;
+        RoutingHeader."No." := LibraryUtility.GenerateGUID;
+        RoutingHeader.Status := Status;
+        RoutingHeader.Insert;
+    end;
+
+    local procedure MockRoutingVersion(var RoutingVersion: Record "Routing Version"; RoutingNo: Code[20]; Status: Option)
+    begin
+        RoutingVersion.Init;
+        RoutingVersion."Routing No." := RoutingNo;
+        RoutingVersion."Version Code" := LibraryUtility.GenerateGUID;
+        RoutingVersion.Status := Status;
+        RoutingVersion.Insert;
+    end;
+
+    local procedure MockRoutingLine(var RoutingLine: Record "Routing Line"; RoutingNo: Code[20]; VersionCode: Code[20]; Type: Option; No: Code[20])
+    begin
+        RoutingLine.Init;
+        RoutingLine."Routing No." := RoutingNo;
+        RoutingLine."Version Code" := VersionCode;
+        RoutingLine."Operation No." := LibraryUtility.GenerateGUID;
+        RoutingLine.Type := Type;
+        RoutingLine."No." := No;
+        RoutingLine.Insert;
     end;
 
     local procedure SetNextOperationNo(var RoutingLine: Record "Routing Line"; NextOperationNo: Code[30])

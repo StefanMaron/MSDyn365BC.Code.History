@@ -1619,6 +1619,144 @@
         DataExportRecordSource.TestField("Export File Name", 'CVLedgerEntryBuffer2.txt');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ExportBusinessDataInsertsANSITagIntoIndexXml()
+    var
+        DataExportRecordDefinition: Record "Data Export Record Definition";
+        ExpectedFileNames: array[5] of Text;
+        FolderName: Text;
+    begin
+        // [FEATURE] [Digital Audit]
+        // [SCENARIO 328510] Report "Export Business Data" is run for Data Export Record Definition with File Encoding "ANSI".
+
+        // [GIVEN] Data Export Record Definiton with two tables and File Encoding set to "ANSI".
+        SetupParentChildTablesForExport(DataExportRecordDefinition, ExpectedFileNames);
+        DataExportRecordDefinition."File Encoding" := DataExportRecordDefinition."File Encoding"::ANSI;
+        DataExportRecordDefinition.Modify;
+
+        // [WHEN] Data exported using report 11015 "Export Business Data".
+        FolderName := ExportBusinessData(DataExportRecordDefinition);
+
+        // [THEN] "ANSI" tag is inserted for each table.
+        VerifyElementCountInIndexXML(FolderName, Format(DataExportRecordDefinition."File Encoding"), 2);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ExportBusinessDataInsertsMacintoshTagIntoIndexXml()
+    var
+        DataExportRecordDefinition: Record "Data Export Record Definition";
+        ExpectedFileNames: array[5] of Text;
+        FolderName: Text;
+    begin
+        // [FEATURE] [Digital Audit]
+        // [SCENARIO 328510] Report "Export Business Data" is run for Data Export Record Definition with File Encoding "Macintosh".
+
+        // [GIVEN] Data Export Record Definiton with two tables and File Encoding set to "Macintosh".
+        SetupParentChildTablesForExport(DataExportRecordDefinition, ExpectedFileNames);
+        DataExportRecordDefinition."File Encoding" := DataExportRecordDefinition."File Encoding"::Macintosh;
+        DataExportRecordDefinition.Modify;
+
+        // [WHEN] Data exported using report 11015 "Export Business Data".
+        FolderName := ExportBusinessData(DataExportRecordDefinition);
+
+        // [THEN] "ANSI" tag is inserted for each table.
+        VerifyElementCountInIndexXML(FolderName, Format(DataExportRecordDefinition."File Encoding"), 2);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ExportBusinessDataInsertsOEMTagIntoIndexXml()
+    var
+        DataExportRecordDefinition: Record "Data Export Record Definition";
+        ExpectedFileNames: array[5] of Text;
+        FolderName: Text;
+    begin
+        // [FEATURE] [Digital Audit]
+        // [SCENARIO 328510] Report "Export Business Data" is run for Data Export Record Definition with File Encoding "OEM".
+
+        // [GIVEN] Data Export Record Definiton with two tables and File Encoding set to "OEM".
+        SetupParentChildTablesForExport(DataExportRecordDefinition, ExpectedFileNames);
+        DataExportRecordDefinition."File Encoding" := DataExportRecordDefinition."File Encoding"::OEM;
+        DataExportRecordDefinition.Modify;
+
+        // [WHEN] Data exported using report 11015 "Export Business Data".
+        FolderName := ExportBusinessData(DataExportRecordDefinition);
+
+        // [THEN] "ANSI" tag is inserted for each table.
+        VerifyElementCountInIndexXML(FolderName, Format(DataExportRecordDefinition."File Encoding"), 2);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ExportBusinessDataInsertsUTF7TagIntoIndexXml()
+    var
+        DataExportRecordDefinition: Record "Data Export Record Definition";
+        ExpectedFileNames: array[5] of Text;
+        FolderName: Text;
+    begin
+        // [FEATURE] [Digital Audit]
+        // [SCENARIO 328510] Report "Export Business Data" is run for Data Export Record Definition with File Encoding "UTF7".
+
+        // [GIVEN] Data Export Record Definiton with two tables and File Encoding set to "UTF7".
+        SetupParentChildTablesForExport(DataExportRecordDefinition, ExpectedFileNames);
+        DataExportRecordDefinition."File Encoding" := DataExportRecordDefinition."File Encoding"::UTF7;
+        DataExportRecordDefinition.Modify;
+
+        // [WHEN] Data exported using report 11015 "Export Business Data".
+        FolderName := ExportBusinessData(DataExportRecordDefinition);
+
+        // [THEN] "ANSI" tag is inserted for each table.
+        VerifyElementCountInIndexXML(FolderName, Format(DataExportRecordDefinition."File Encoding"), 2);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ExportBusinessDataInsertsUTF8TagIntoIndexXml()
+    var
+        DataExportRecordDefinition: Record "Data Export Record Definition";
+        ExpectedFileNames: array[5] of Text;
+        FolderName: Text;
+    begin
+        // [FEATURE] [Digital Audit]
+        // [SCENARIO 328510] Report "Export Business Data" is run for Data Export Record Definition with File Encoding "UTF8".
+
+        // [GIVEN] Data Export Record Definiton with two tables and File Encoding set to "UTF8".
+        SetupParentChildTablesForExport(DataExportRecordDefinition, ExpectedFileNames);
+        DataExportRecordDefinition."File Encoding" := DataExportRecordDefinition."File Encoding"::UTF8;
+        DataExportRecordDefinition.Modify;
+
+        // [WHEN] Data exported using report 11015 "Export Business Data".
+        FolderName := ExportBusinessData(DataExportRecordDefinition);
+
+        // [THEN] "ANSI" tag is inserted for each table.
+        VerifyElementCountInIndexXML(FolderName, Format(DataExportRecordDefinition."File Encoding"), 2);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ExportBusinessDataInsertsUTF16TagIntoIndexXml()
+    var
+        DataExportRecordDefinition: Record "Data Export Record Definition";
+        ExpectedFileNames: array[5] of Text;
+        FolderName: Text;
+    begin
+        // [FEATURE] [Digital Audit]
+        // [SCENARIO 328510] Report "Export Business Data" is run for Data Export Record Definition with File Encoding "UTF16".
+
+        // [GIVEN] Data Export Record Definiton with two tables and File Encoding set to "UTF16".
+        SetupParentChildTablesForExport(DataExportRecordDefinition, ExpectedFileNames);
+        DataExportRecordDefinition."File Encoding" := DataExportRecordDefinition."File Encoding"::UTF16;
+        DataExportRecordDefinition.Modify;
+
+        // [WHEN] Data exported using report 11015 "Export Business Data".
+        FolderName := ExportBusinessData(DataExportRecordDefinition);
+
+        // [THEN] "ANSI" tag is inserted for each table.
+        VerifyElementCountInIndexXML(FolderName, Format(DataExportRecordDefinition."File Encoding"), 2);
+    end;
+
     local procedure GetPKFieldIndex(): Integer
     begin
         exit(1);
@@ -2371,20 +2509,20 @@
 
     local procedure VerifyFileNames(ExportZipPath: Text; ExportedFileName: array[6] of Text)
     var
-      EntryList: List of [Text];
-      ZipFile: File;
-      ZipInStream: InStream;
-      i: Integer;
+        EntryList: List of [Text];
+        ZipFile: File;
+        ZipInStream: InStream;
+        i: Integer;
     begin
-      ZipFile.Open(ExportZipPath);
-      ZipFile.CreateInStream(ZipInStream);
-      DataCompression.OpenZipArchive(ZipInStream, false);
-      DataCompression.GetEntryList(EntryList);
-      DataCompression.CloseZipArchive();
-      ZipFile.Close();
-      for i := 1 to ArrayLen(ExportedFileName) do
-        if ExportedFileName[i] <> '' then
-          Assert.IsTrue(EntryList.Contains(ExportedFileName[i]), StrSubstNo(CannotFindFileErr, ExportedFileName[i]));
+        ZipFile.Open(ExportZipPath);
+        ZipFile.CreateInStream(ZipInStream);
+        DataCompression.OpenZipArchive(ZipInStream, false);
+        DataCompression.GetEntryList(EntryList);
+        DataCompression.CloseZipArchive();
+        ZipFile.Close();
+        for i := 1 to ArrayLen(ExportedFileName) do
+            if ExportedFileName[i] <> '' then
+                Assert.IsTrue(EntryList.Contains(ExportedFileName[i]), StrSubstNo(CannotFindFileErr, ExportedFileName[i]));
     end;
 
     local procedure VerifyEntryNosInDataFile(ZipFilePath: Text; ExportedFileName: Text; var TempEntryNo: Record "Integer" temporary; FirstLineOnly: Boolean)
@@ -2482,8 +2620,8 @@
         ExtractEntryFromZipFile(ZipFilePath, IndexFileTxt, ExtractedFileOutStream, DummyFileLength);
         TempBlob.CreateInStream(ExtractedFileInStream, TEXTENCODING::UTF8);
         while not ExtractedFileInStream.EOS do begin
-          ExtractedFileInStream.READTEXT(DataLine);
-          XmlText += DataLine;
+            ExtractedFileInStream.READTEXT(DataLine);
+            XmlText += DataLine;
         end;
         LibraryXMLRead.InitializeFromXmlText(XmlText);
         Assert.AreEqual(
@@ -2821,9 +2959,9 @@
 
     local procedure VerifyFileExists(ExportPath: Text; ExportedFileName: Text)
     var
-      EntryList: List of [Text];
-      ZipFile : File;
-      ZipInStream : InStream;
+        EntryList: List of [Text];
+        ZipFile: File;
+        ZipInStream: InStream;
     begin
         ZipFile.Open(ExportPath);
         ZipFile.CreateInStream(ZipInStream);
@@ -3252,15 +3390,15 @@
 
     local procedure ExtractEntryFromZipFile(ZipFilePath: Text; EntryName: Text; ExtractedEntryOutStream: OutStream; ExtractedEntryLength: Integer);
     var
-      ZipFile: File;
-      ZipFileInStream: InStream;
+        ZipFile: File;
+        ZipFileInStream: InStream;
     begin
-      ZipFile.Open(ZipFilePath);
-      ZipFile.CreateInStream(ZipFileInStream);
-      DataCompression.OpenZipArchive(ZipFileInStream, false);
-      DataCompression.ExtractEntry(EntryName, ExtractedEntryOutStream, ExtractedEntryLength);
-      DataCompression.CloseZipArchive();
-      ZipFile.Close();
+        ZipFile.Open(ZipFilePath);
+        ZipFile.CreateInStream(ZipFileInStream);
+        DataCompression.OpenZipArchive(ZipFileInStream, false);
+        DataCompression.ExtractEntry(EntryName, ExtractedEntryOutStream, ExtractedEntryLength);
+        DataCompression.CloseZipArchive();
+        ZipFile.Close();
     end;
 }
 
