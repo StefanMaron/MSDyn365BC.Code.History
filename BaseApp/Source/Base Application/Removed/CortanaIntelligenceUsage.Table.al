@@ -106,6 +106,7 @@ table 2003 "Cortana Intelligence Usage"
         EnvironmentInfo: Codeunit "Environment Information";
         ApiUri: Text[250];
         ApiKey: Text[200];
+        ApiKeySecret: SecretText;
         LimitType: Option;
         LimitValue: Decimal;
         LimitValueInt: Integer;
@@ -147,7 +148,7 @@ table 2003 "Cortana Intelligence Usage"
                         end;
                 end;
             Service::"Machine Learning":
-                if MLPredictionManagement.GetMachineLearningCredentials(ApiUri, ApiKey, LimitType, LimitValue) then begin
+                if MLPredictionManagement.GetMachineLearningCredentials(ApiUri, ApiKeySecret, LimitType, LimitValue) then begin
                     "Original Resource Limit" := LimitValue;
                     "Limit Period" := LimitType;
                     CallModify := true;

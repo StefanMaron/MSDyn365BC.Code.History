@@ -5337,6 +5337,27 @@ codeunit 134378 "ERM Sales Order"
         // [THEN] No error is thrown
     end;
 
+    [Test]
+    procedure ReleasingOfSalesOrderHavingSalesLineWithoutUOMGivesError()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        // [SCENARIO 522444] When run Release action from a Sales Order having a Sales Line without 
+        // Unit of Measure Code, then it gives error and the document is not released.
+        Initialize();
+
+        // [GIVEN] Create a Sales Order.
+        CreateSalesOrder(SalesHeader, SalesLine);
+
+        // [WHEN] Validate Unit of Measure Code in Sales Line.
+        SalesLine.Validate("Unit of Measure Code", '');
+        SalesLine.Modify(true);
+
+        // [THEN] Error is shown and the Sales Order is not released.
+        asserterror LibrarySales.ReleaseSalesDocument(SalesHeader);
+    end;
+
     local procedure Initialize()
     var
         SalesHeader: Record "Sales Header";

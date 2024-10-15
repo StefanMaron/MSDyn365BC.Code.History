@@ -968,6 +968,10 @@ codeunit 5760 "Whse.-Post Receipt"
             exit;
         end;
 
+        if WhseRcptHeader."Receiving No." <> '' then
+            if PostedWhseRcptHeader.Get(WhseRcptHeader."Receiving No.") then
+                exit;
+            
         PostedWhseRcptHeader.Init();
         PostedWhseRcptHeader.TransferFields(WhseRcptHeader);
         PostedWhseRcptHeader."No." := WhseRcptHeader."Receiving No.";
