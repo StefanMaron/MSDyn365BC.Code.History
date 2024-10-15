@@ -12,6 +12,7 @@ codeunit 144181 "ERM NO KID Reports"
         LibraryERM: Codeunit "Library - ERM";
         LibraryRandom: Codeunit "Library - Random";
         Assert: Codeunit Assert;
+        LibraryUtility: Codeunit "Library - Utility";
         LibrarySales: Codeunit "Library - Sales";
         TotalTxt: Label 'Total %1';
         AddnlFeeTxt: Label 'Additional Fee';
@@ -196,6 +197,50 @@ codeunit 144181 "ERM NO KID Reports"
         LibraryReportDataset.AssertElementWithValueExists('KundeIDCaption', KundeIDTxt);
         LibraryReportDataset.AssertElementWithValueExists(
           'KundeID', GetKundeID(1, SalesInvoiceHeader."No.", SalesInvoiceHeader."Bill-to Customer No."));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure FillPaymentExportDataGenJnl()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        DataExch: Record "Data Exch.";
+        Vendor: Record "Vendor";
+        BankAccount: Record "Bank Account";
+        BankExportImportSetup: Record "Bank Export/Import Setup";
+        PaymentExportData: Record "Payment Export Data";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 452398] Fill Payment Export Buffer via Exp. Pre-Mapping Gen. Jnl. 
+        DataExch.Init();
+        DataExch.Insert();
+        Vendor.Init();
+        Vendor."No." := LibraryUtility.GenerateGUID();
+        Vendor.Insert();
+        BankExportImportSetup.Init();
+        BankExportImportSetup.Code := LibraryUtility.GenerateGUID();
+        BankExportImportSetup.Insert();
+        BankAccount.Init();
+        BankAccount."No." := LibraryUtility.GenerateGUID();
+        BankAccount."Payment Export Format" := BankExportImportSetup.Code;
+        BankAccount.Insert();
+
+        GenJournalLine.Init();
+        GenJournalLine."Journal Template Name" := LibraryUtility.GenerateGUID();
+        GenJournalLine."Journal Batch Name" := LibraryUtility.GenerateGUID();
+        GenJournalLine."Line No." := 10000;
+        GenJournalLine."Data Exch. Entry No." := DataExch."Entry No.";
+        GenJournalLine."Account Type" := GenJournalLine."Account Type"::Vendor;
+        GenJournalLine."Account No." := Vendor."No.";
+        GenJournalLine."Bal. Account No." := BankAccount."No.";
+        GenJournalLine.KID := LibraryUtility.GenerateGUID();
+        GenJournalLine.Insert();
+
+        CODEUNIT.Run(CODEUNIT::"Exp. Pre-Mapping Gen. Jnl.", DataExch);
+
+        PaymentExportData.SetRange("Data Exch Entry No.", DataExch."Entry No.");
+        PaymentExportData.FindFirst();
+        PaymentExportData.TestField(KID, GenJournalLine.KID);
     end;
 
     local procedure Initialize()

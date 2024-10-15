@@ -3347,6 +3347,46 @@ codeunit 134123 "Price List Line UT"
         Assert.IsTrue(PriceListLine.UseCustomizedLookup(), 'Expected to be false.');
     end;
 
+    [Test]
+    procedure VerifyProductNoIsNotDeletedOnCreatingNewPriceLineFromItemWithVariant()
+    var
+        PriceListHeader: Record "Price List Header";
+        Item, Item2 : Record Item;
+        ItemVariant: Record "Item Variant";
+        SalesPriceList: TestPage "Sales Price List";
+    begin
+        // [SCENARIO: 449112] Verify Product No. is not deleted on creating new price line, if existing line has Item with Variant value
+        // [GIVEN] Initialize
+        Initialize(true);
+
+        // [GIVEN] Create Item with variant and Item without variant
+        CreateItemWithVariant(Item, ItemVariant);
+        LibraryInventory.CreateItem(Item2);
+
+        // [GIVEN] Create Price List Header record
+        LibraryPriceCalculation.CreatePriceHeader(
+            PriceListHeader, PriceListHeader."Price Type"::Sale,
+            PriceListHeader."Source Type"::"All Customers", '');
+
+        // [GIVEN] Open price list page, create new line and add variant
+        SalesPriceList.OpenEdit();
+        SalesPriceList.Filter.SetFilter(Code, PriceListHeader.Code);
+        CreateNewSalesPriceListLine(SalesPriceList, Item."No.", ItemVariant.Code);
+
+        // [WHEN] Create new Price List line with same Item No.
+        CreateNewSalesPriceListLine(SalesPriceList, Item."No.", '');
+
+        // [THEN] Verify Variant Code is automatically inserted in second line
+        SalesPriceList.Lines."Variant Code".AssertEquals(ItemVariant.Code);
+
+        // [WHEN] Create New Price Line from Action                
+        CreateNewSalesPriceListLine(SalesPriceList, Item2."No.", '');
+
+        // [THEN] Verify Product No., and Variant Code is empty
+        SalesPriceList.Lines."Product No.".AssertEquals(Item2."No.");
+        SalesPriceList.Lines."Variant Code".AssertEquals('');
+    end;
+
     local procedure Initialize()
     begin
         Initialize(false);
@@ -3565,6 +3605,20 @@ codeunit 134123 "Price List Line UT"
     begin
         PriceListLine.TestField("Starting Date", StartingDate);
         PriceListLine.TestField("Ending Date", EndingDate);
+    end;
+
+    local procedure CreateItemWithVariant(var Item: Record Item; var ItemVariant: Record "Item Variant")
+    begin
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateItemVariant(ItemVariant, Item."No.");
+    end;
+
+    local procedure CreateNewSalesPriceListLine(var SalesPriceList: TestPage "Sales Price List"; ItemNo: Code[20]; VariantCode: Code[10])
+    begin
+        SalesPriceList.Lines.New();
+        SalesPriceList.Lines."Product No.".SetValue(ItemNo);
+        if VariantCode <> '' then
+            SalesPriceList.Lines."Variant Code".SetValue(VariantCode);
     end;
 
     [ModalPageHandler]
