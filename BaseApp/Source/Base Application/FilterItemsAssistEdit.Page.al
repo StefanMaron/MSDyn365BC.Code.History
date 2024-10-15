@@ -136,7 +136,7 @@ page 7507 "Filter Items - AssistEdit"
             repeat
                 if SelectedItemAttributeValue.Value <> '' then
                     OptionFilter := StrSubstNo('%1|%2', SelectedItemAttributeValue.Value, OptionFilter);
-            until SelectedItemAttributeValue.Next = 0;
+            until SelectedItemAttributeValue.Next() = 0;
             OptionFilter := CopyStr(OptionFilter, 1, StrLen(OptionFilter) - 1);
         end;
 

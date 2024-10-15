@@ -310,7 +310,7 @@ codeunit 1313 "Correct Posted Purch. Invoice"
                     if not DimensionManagement.CheckDimIDComb(PurchInvLine."Dimension Set ID") then
                         ErrorHelperLine(ErrorType::DimCombErr, PurchInvLine);
                 end;
-            until PurchInvLine.Next = 0;
+            until PurchInvLine.Next() = 0;
     end;
 
     local procedure TestGLAccount(AccountNo: Code[20]; PurchInvLine: Record "Purch. Inv. Line")
@@ -521,7 +521,7 @@ codeunit 1313 "Correct Posted Purch. Invoice"
         if FindAppliedInbndEntries(TempItemApplicationEntry, TempItemLedgEntry) then begin
             repeat
                 ItemJnlPostLine.UnApply(TempItemApplicationEntry);
-            until TempItemApplicationEntry.Next = 0;
+            until TempItemApplicationEntry.Next() = 0;
             exit(true);
         end;
     end;
@@ -536,7 +536,7 @@ codeunit 1313 "Correct Posted Purch. Invoice"
             if FindSet then
                 repeat
                     GetItemLedgEntries(ItemLedgEntry, false);
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -553,8 +553,8 @@ codeunit 1313 "Correct Posted Purch. Invoice"
                         TempItemApplicationEntry := ItemApplicationEntry;
                         if not TempItemApplicationEntry.Find then
                             TempItemApplicationEntry.Insert();
-                    until ItemApplicationEntry.Next = 0;
-            until ItemLedgEntry.Next = 0;
+                    until ItemApplicationEntry.Next() = 0;
+            until ItemLedgEntry.Next() = 0;
         exit(TempItemApplicationEntry.FindSet);
     end;
 

@@ -95,8 +95,9 @@ codeunit 12173 "Vendor Bill List - Post"
                     WithholdingSocSec.PostPayments(TempWithholdingSocSec, GenJnlLine, true);
                 end;
 
+                OnBeforeInsertPostedBillLine(VendorBillHeader, VendorBillLine, VendBillWithhTax, VendLedgEntry, BillCode, TaxType, PostedVendorBillHeader, BalanceAmountLCY);
                 InsertPostedBillLine(VendorBillLine, PostedVendorBillHeader."No.", VendorBillLine."Vendor Bill No.");
-            until VendorBillLine.Next = 0;
+            until VendorBillLine.Next() = 0;
 
             PostBalanceAccount(GenJnlLine, VendorBillHeader, VendorBillLine, VendLedgEntry, BillCode);
 
@@ -366,6 +367,11 @@ codeunit 12173 "Vendor Bill List - Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePostWithholdingTax(var GenJnlLine: Record "Gen. Journal Line"; VendorBillHeader: Record "Vendor Bill Header"; VendorBillLine: Record "Vendor Bill Line"; VendLedgEntry: Record "Vendor Ledger Entry"; VendorBillWithholdingTax: Record "Vendor Bill Withholding Tax")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertPostedBillLine(VendorBillHeader: Record "Vendor Bill Header"; VendorBillLine: Record "Vendor Bill Line"; VendBillWithhTax: Record "Vendor Bill Withholding Tax"; VendLedgEntry: Record "Vendor Ledger Entry"; BillCode: Record Bill; TaxType: Option " ",Withhold,"Free Lance",Company; PostedVendorBillHeader: Record "Posted Vendor Bill Header"; BalanceAmountLCY: Decimal)
     begin
     end;
 }

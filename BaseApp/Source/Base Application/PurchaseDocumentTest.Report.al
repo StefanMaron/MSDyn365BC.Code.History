@@ -443,7 +443,7 @@ report 402 "Purchase Document - Test"
                                 Continue := true;
                                 exit;
                             end;
-                        until DimSetEntry1.Next = 0;
+                        until DimSetEntry1.Next() = 0;
                     end;
 
                     trigger OnPreDataItem()
@@ -712,7 +712,7 @@ report 402 "Purchase Document - Test"
                                         Continue := true;
                                         exit;
                                     end;
-                                until DimSetEntry2.Next = 0;
+                                until DimSetEntry2.Next() = 0;
                             end;
 
                             trigger OnPostDataItem()
@@ -948,7 +948,7 @@ report 402 "Purchase Document - Test"
                                 if InclInVATReportErrorLogTemp.FindSet then
                                     repeat
                                         AddError(InclInVATReportErrorLogTemp."Error Message");
-                                    until InclInVATReportErrorLogTemp.Next = 0;
+                                    until InclInVATReportErrorLogTemp.Next() = 0;
                             end;
                         end;
 
@@ -1431,13 +1431,13 @@ report 402 "Purchase Document - Test"
                         Invoice := false;
                         repeat
                             Invoice := PurchLine."Quantity Received" - PurchLine."Quantity Invoiced" <> 0;
-                        until Invoice or (PurchLine.Next = 0);
+                        until Invoice or (PurchLine.Next() = 0);
                     end else
                         if Invoice and (not Ship) and ("Document Type" = "Document Type"::"Return Order") then begin
                             Invoice := false;
                             repeat
                                 Invoice := PurchLine."Return Qty. Shipped" - PurchLine."Quantity Invoiced" <> 0;
-                            until Invoice or (PurchLine.Next = 0);
+                            until Invoice or (PurchLine.Next() = 0);
                         end;
                 end;
 
@@ -1490,7 +1490,7 @@ report 402 "Purchase Document - Test"
                                   StrSubstNo(
                                     Text014,
                                     PurchLine."Sales Order No."));
-                        until PurchLine.Next = 0;
+                        until PurchLine.Next() = 0;
                 end;
 
                 if Invoice then
@@ -1547,7 +1547,7 @@ report 402 "Purchase Document - Test"
                                             Text016,
                                             SalesHeader.FieldCaption("Shipping No. Series")));
                             end;
-                        until PurchLine.Next = 0;
+                        until PurchLine.Next() = 0;
 
                 if Invoice then
                     if "Document Type" in ["Document Type"::Order, "Document Type"::Invoice] then begin
@@ -1590,7 +1590,7 @@ report 402 "Purchase Document - Test"
                     if InclInVATReportErrorLogTemp.FindSet then
                         repeat
                             AddError(InclInVATReportErrorLogTemp."Error Message");
-                        until InclInVATReportErrorLogTemp.Next = 0;
+                        until InclInVATReportErrorLogTemp.Next() = 0;
                 end;
                 PricesInclVATtxt := Format("Prices Including VAT");
 
@@ -2049,7 +2049,7 @@ report 402 "Purchase Document - Test"
                             QtyToBeInvoiced := PurchRcptLine.Quantity - PurchRcptLine."Quantity Invoiced";
                         RemQtyToBeInvoiced := RemQtyToBeInvoiced - QtyToBeInvoiced;
                         PurchRcptLine."Quantity Invoiced" := PurchRcptLine."Quantity Invoiced" + QtyToBeInvoiced;
-                    until (PurchRcptLine.Next = 0) or (Abs(RemQtyToBeInvoiced) <= Abs("Qty. to Receive"))
+                    until (PurchRcptLine.Next() = 0) or (Abs(RemQtyToBeInvoiced) <= Abs("Qty. to Receive"))
                 else
                     AddError(
                       StrSubstNo(
@@ -2140,7 +2140,7 @@ report 402 "Purchase Document - Test"
                             QtyToBeInvoiced := ReturnShptLine.Quantity - ReturnShptLine."Quantity Invoiced";
                         RemQtyToBeInvoiced := RemQtyToBeInvoiced - QtyToBeInvoiced;
                         ReturnShptLine."Quantity Invoiced" := ReturnShptLine."Quantity Invoiced" + QtyToBeInvoiced;
-                    until (ReturnShptLine.Next = 0) or (Abs(RemQtyToBeInvoiced) <= Abs("Return Qty. to Ship"))
+                    until (ReturnShptLine.Next() = 0) or (Abs(RemQtyToBeInvoiced) <= Abs("Return Qty. to Ship"))
                 else
                     AddError(
                       StrSubstNo(
@@ -2202,21 +2202,21 @@ report 402 "Purchase Document - Test"
             PurchLine.SetRange("Document Type", "Document Type");
             PurchLine.SetRange("Document No.", "No.");
             PurchLine.SetFilter(Type, '%1|%2', PurchLine.Type::Item, PurchLine.Type::"Charge (Item)");
-            if PurchLine.IsEmpty then
+            if PurchLine.IsEmpty() then
                 exit(false);
             if Receive then begin
                 PurchLine.SetFilter("Qty. to Receive", '<>%1', 0);
-                if not PurchLine.IsEmpty then
+                if not PurchLine.IsEmpty() then
                     exit(true);
             end;
             if Ship then begin
                 PurchLine.SetFilter("Return Qty. to Ship", '<>%1', 0);
-                if not PurchLine.IsEmpty then
+                if not PurchLine.IsEmpty() then
                     exit(true);
             end;
             if Invoice then begin
                 PurchLine.SetFilter("Qty. to Invoice", '<>%1', 0);
-                if not PurchLine.IsEmpty then
+                if not PurchLine.IsEmpty() then
                     exit(true);
             end;
         end;

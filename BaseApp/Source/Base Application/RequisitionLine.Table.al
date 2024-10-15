@@ -1,4 +1,4 @@
-﻿table 246 "Requisition Line"
+table 246 "Requisition Line"
 {
     Caption = 'Requisition Line';
     DataCaptionFields = "Journal Batch Name", "Line No.";
@@ -24,20 +24,18 @@
         {
             Caption = 'Line No.';
         }
-        field(4; Type; Option)
+        field(4; Type; Enum "Requisition Line Type")
         {
             Caption = 'Type';
-            OptionCaption = ' ,G/L Account,Item';
-            OptionMembers = " ","G/L Account",Item;
 
             trigger OnValidate()
             var
-                NewType: Option;
+                NewType: Enum "Requisition Line Type";
             begin
                 if Type <> xRec.Type then begin
                     NewType := Type;
 
-                    DeleteRelations;
+                    DeleteRelations();
                     "Dimension Set ID" := 0;
                     "No." := '';
                     "Variant Code" := '';
@@ -45,7 +43,7 @@
                     "Prod. Order No." := '';
                     ReserveReqLine.VerifyChange(Rec, xRec);
                     AddOnIntegrMgt.ResetReqLineFields(Rec);
-                    Init;
+                    Init();
                     Type := NewType;
                 end;
             end;
@@ -70,10 +68,8 @@
                 DeleteRelations;
 
                 if "No." = '' then begin
-                    CreateDim(
-                      DimMgt.TypeToTableID3(Type),
-                      "No.", DATABASE::Vendor, "Vendor No.");
-                    Init;
+                    CreateDim(DimMgt.TypeToTableID3(Type.AsInteger()), "No.", DATABASE::Vendor, "Vendor No.");
+                    Init();
                     Type := xRec.Type;
                     exit;
                 end;
@@ -100,9 +96,7 @@
                     else
                         Validate("Unit of Measure Code", Item."Base Unit of Measure");
 
-                CreateDim(
-                  DimMgt.TypeToTableID3(Type),
-                  "No.", DATABASE::Vendor, "Vendor No.");
+                CreateDim(DimMgt.TypeToTableID3(Type.AsInteger()), "No.", DATABASE::Vendor, "Vendor No.");
             end;
         }
         field(6; Description; Text[100])
@@ -223,9 +217,9 @@
                     UpdateDescription;
                     "Price Calculation Method" := Vend.GetPriceCalculationMethod();
                 end;
-                UpdateDescription;
+                UpdateDescription();
 
-                GetLocationCode;
+                GetLocationCode();
                 OnValidateVendorNoOnAfterGetLocationCode(Rec);
 
                 "Order Address Code" := '';
@@ -246,9 +240,9 @@
                 "Supply From" := "Vendor No.";
 
                 if (Type = Type::Item) and ("No." <> '') and ("Prod. Order No." <> '') then
-                    GetSubcontractorPrice;
+                    GetSubcontractorPrice();
 
-                UpdateDim(DATABASE::Vendor, "Vendor No.", DimMgt.TypeToTableID3(Type), "No.");
+                UpdateDim(DATABASE::Vendor, "Vendor No.", DimMgt.TypeToTableID3(Type.AsInteger()), "No.");
             end;
         }
         field(10; "Direct Unit Cost"; Decimal)
@@ -1877,7 +1871,7 @@
             PAGE.Run(PAGE::"Reservation Entries", ReservEntry);
     end;
 
-    local procedure UpdateOrderReceiptDate(LeadTimeCalc: DateFormula)
+    procedure UpdateOrderReceiptDate(LeadTimeCalc: DateFormula)
     var
         IsHandled: Boolean;
     begin
@@ -1895,7 +1889,7 @@
             end;
             CalcEndingDate(Format(LeadTimeCalc));
             CheckEndingDate(ValidateFields);
-            SetDueDate;
+            SetDueDate();
         end else
             if (Format(LeadTimeCalc) = '') or ("Due Date" = 0D) then
                 "Order Date" := 0D
@@ -1907,8 +1901,8 @@
                     CalcStartingDate(Format(LeadTimeCalc));
                 end;
 
-        SetActionMessage;
-        UpdateDatetime;
+        SetActionMessage();
+        UpdateDatetime();
     end;
 
     procedure LookupVendor(var Vend: Record Vendor; PreferItemVendorCatalog: Boolean): Boolean
@@ -1988,9 +1982,13 @@
 
         if "Vendor No." <> '' then
             if ItemReferencemgt.IsEnabled() then
-                UpdateItemReferenceDescription()
-            else
+                UpdateItemReferenceDescription();
+
+#if not CLEAN16
+        if "Vendor No." <> '' then
+            if not ItemReferencemgt.IsEnabled() then
                 UpdateItemCrossRefDescription();
+#endif
     end;
 
     local procedure ValidateItemDescriptionAndQuantity(Vendor: Record Vendor)
@@ -2027,6 +2025,7 @@
         end;
     end;
 
+#if not CLEAN16
     [Obsolete('Replaced by Item Reference feature.', '17.0')]
     local procedure UpdateItemCrossRefDescription()
     var
@@ -2047,6 +2046,7 @@
                 end;
         end;
     end;
+#endif
 
     procedure BlockDynamicTracking(SetBlock: Boolean)
     begin
@@ -2150,12 +2150,12 @@
                 OnDeleteRelationsOnBeforePlanningComponentDelete(Rec, IsHandled);
                 if not IsHandled then
                     PlanningComponent.Delete(true);
-            until PlanningComponent.Next = 0;
+            until PlanningComponent.Next() = 0;
 
         PlanningRtngLine.SetRange("Worksheet Template Name", "Worksheet Template Name");
         PlanningRtngLine.SetRange("Worksheet Batch Name", "Journal Batch Name");
         PlanningRtngLine.SetRange("Worksheet Line No.", "Line No.");
-        if not PlanningRtngLine.IsEmpty then
+        if not PlanningRtngLine.IsEmpty() then
             PlanningRtngLine.DeleteAll();
 
         ProdOrderCapNeed.Reset();
@@ -2163,7 +2163,7 @@
         ProdOrderCapNeed.SetRange("Worksheet Template Name", "Worksheet Template Name");
         ProdOrderCapNeed.SetRange("Worksheet Batch Name", "Journal Batch Name");
         ProdOrderCapNeed.SetRange("Worksheet Line No.", "Line No.");
-        if not ProdOrderCapNeed.IsEmpty then
+        if not ProdOrderCapNeed.IsEmpty() then
             ProdOrderCapNeed.DeleteAll();
 
         ProdOrderCapNeed.Reset();
@@ -2171,13 +2171,13 @@
         ProdOrderCapNeed.SetRange(Status, "Ref. Order Status");
         ProdOrderCapNeed.SetRange("Prod. Order No.", "Ref. Order No.");
         ProdOrderCapNeed.SetRange(Active, false);
-        if not ProdOrderCapNeed.IsEmpty then
+        if not ProdOrderCapNeed.IsEmpty() then
             ProdOrderCapNeed.ModifyAll(Active, true);
 
         UntrackedPlanningElement.SetRange("Worksheet Template Name", "Worksheet Template Name");
         UntrackedPlanningElement.SetRange("Worksheet Batch Name", "Journal Batch Name");
         UntrackedPlanningElement.SetRange("Worksheet Line No.", "Line No.");
-        if not UntrackedPlanningElement.IsEmpty then
+        if not UntrackedPlanningElement.IsEmpty() then
             UntrackedPlanningElement.DeleteAll();
 
         OnAfterDeleteRelations(Rec);
@@ -2203,7 +2203,7 @@
                 ReqLine2.TestField("Reserved Qty. (Base)", 0);
                 ReqLine2.DeleteRelations;
                 ReqLine2.Delete();
-            until ReqLine2.Next = 0;
+            until ReqLine2.Next() = 0;
         OnAfterDeleteMultiLevel(Rec);
     end;
 
@@ -3003,7 +3003,7 @@
         "Action Message" := ReqLine."Action Message"::New;
         "User ID" := UserId;
 
-        UpdateDim(DATABASE::Vendor, "Vendor No.", DimMgt.TypeToTableID3(Type), "No.");
+        UpdateDim(DATABASE::Vendor, "Vendor No.", DimMgt.TypeToTableID3(Type.AsInteger()), "No.");
 
         OnAfterTransferFromUnplannedDemand(Rec, UnplannedDemand);
     end;
@@ -3940,17 +3940,12 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnSetReplenishmentSystemFromProdOrderOnBeforeProcessPlannedOrderNosField(var RequisitionLine: Record "Requisition Line"; var IsHandled: Boolean)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
     local procedure OnBeforeGetLocation(var RequisitionLine: Record "Requisition Line"; var Location: Record Location; LocationCode: Code[10]; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterSetUpNewLine(var RequisitionLine: Record "Requisition Line"; LastReqLine: Record "Requisition Line")
+    local procedure OnSetReplenishmentSystemFromProdOrderOnBeforeProcessPlannedOrderNosField(var RequisitionLine: Record "Requisition Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -3960,12 +3955,22 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnDeleteRelationsOnBeforePlanningComponentDelete(var RequisitionLine: Record "Requisition Line"; var IsHandled: Boolean)
+    local procedure OnAfterSetUpNewLine(var RequisitionLine: Record "Requisition Line"; LastReqLine: Record "Requisition Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnTransferFromUnplannedDemandOnBeforeSetStatus(var RequisitionLine: Record "Requisition Line"; var UnplannedDemand: Record "Unplanned Demand")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDeleteRelationsOnBeforePlanningComponentDelete(var RequisitionLine: Record "Requisition Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetSupplyDates(var RequisitionLine: Record "Requisition Line")
     begin
     end;
 
@@ -3981,11 +3986,6 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetReplenishmentSystemFromProdOrder(var RequisitionLine: Record "Requisition Line")
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterSetSupplyDates(var RequisitionLine: Record "Requisition Line")
     begin
     end;
 

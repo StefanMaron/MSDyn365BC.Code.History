@@ -768,7 +768,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
             repeat
                 if IsInventoriableTypeItem(ValueEntry."Item No.") then
                     exit(false);
-            until ValueEntry.Next = 0;
+            until ValueEntry.Next() = 0;
             exit(true);
         end;
         exit(false);

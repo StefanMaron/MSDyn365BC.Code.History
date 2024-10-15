@@ -73,7 +73,7 @@ xmlport 10 "IC G/L Account Import/Export"
                     Deleted := Deleted + 1;
                     OrgICGLAcc.Get(TempICGLAcc."No.");
                     OrgICGLAcc.Delete();
-                until TempICGLAcc.Next = 0;
+                until TempICGLAcc.Next() = 0;
 
             if Inserted > 0 then
                 if Inserted = 1 then
@@ -115,7 +115,7 @@ xmlport 10 "IC G/L Account Import/Export"
             repeat
                 TempICGLAcc := ICGLAcc;
                 TempICGLAcc.Insert();
-            until ICGLAcc.Next = 0;
+            until ICGLAcc.Next() = 0;
     end;
 
     var

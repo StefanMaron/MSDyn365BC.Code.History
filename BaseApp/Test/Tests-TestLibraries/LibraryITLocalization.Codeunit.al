@@ -462,7 +462,7 @@ codeunit 143000 "Library - IT Localization"
         with CompanyInformation do begin
             Get;
             Validate(IBAN, 'IT60X0542811101000000123456'); // valid IBAN needed
-            Validate("Fiscal Code", '02876990587'); // valid Fiscal Code needed
+            Validate("Fiscal Code", 'VNTRTR89B16Z154M'); // valid Fiscal Code needed
             Validate("Country/Region Code", 'IT');
             Validate("VAT Registration No.", LibraryERM.GenerateVATRegistrationNo("Country/Region Code"));
             Validate("REA No.", LibraryUtility.GenerateRandomText(10));

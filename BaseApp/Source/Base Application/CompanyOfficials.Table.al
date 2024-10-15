@@ -108,6 +108,9 @@
         {
             Caption = 'Picture';
             SubType = Bitmap;
+            ObsoleteReason = 'If you need a picture field, consider adding your own image field of type Media and use an upgrade codeunit to transfer the value.';
+            ObsoleteState = Pending;
+            ObsoleteTag = '18.0';
         }
         field(25; "Country/Region Code"; Code[10])
         {
@@ -159,14 +162,18 @@
                     "Phone No." := Employee."Phone No.";
                     "Mobile Phone No." := Employee."Mobile Phone No.";
                     "E-Mail" := Employee."E-Mail";
-                    Picture := Employee.Picture;
                     "Country/Region Code" := Employee."Country/Region Code";
                     "Last Date Modified" := Employee."Last Date Modified";
                     Extension := Employee.Extension;
                     Pager := Employee.Pager;
                     "Fax No." := Employee."Fax No.";
                     "No. Series" := Employee."No. Series";
-                    Gender := Employee.Gender;
+                    case Employee.Gender of
+                        "Employee Gender"::Female:
+                            Gender := Gender::Female;
+                        "Employee Gender"::Male:
+                            Gender := Gender::Male;
+                    end;
                 end;
             end;
         }

@@ -419,7 +419,7 @@ table 846 "Cash Flow Worksheet Line"
             if "Amount (LCY)" <> 0 then
                 Insert(true);
 
-        until PaymentLines.Next = 0;
+        until PaymentLines.Next() = 0;
 
         MaxPmtTolerance := 0;
     end;

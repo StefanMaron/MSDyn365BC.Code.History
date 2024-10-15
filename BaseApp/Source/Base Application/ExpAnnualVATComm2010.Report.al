@@ -101,7 +101,7 @@ report 12127 "Exp.Annual VAT Comm. - 2010"
                           ColumnValue,
                           0);
                         VATCommAmounts[VATStatementLine."Annual VAT Comm. Field"] := Round(ColumnValue, 1);
-                    until VATStatementLine.Next = 0;
+                    until VATStatementLine.Next() = 0;
 
                 VATCommAmounts[15] :=
                   VATCommAmounts[VATStatementLine."Annual VAT Comm. Field"::"CD4 - Payable VAT"] -

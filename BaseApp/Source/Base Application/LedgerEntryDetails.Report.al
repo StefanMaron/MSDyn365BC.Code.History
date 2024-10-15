@@ -535,7 +535,7 @@ report 12136 "Ledger Entry Details"
                             if ProdOrdRoutingLine.FindSet then
                                 repeat
                                     RoutingAmt += ProdOrdRoutingLine."Expected Operation Cost Amt." + ProdOrdRoutingLine."Expected Capacity Ovhd. Cost";
-                                until ProdOrdRoutingLine.Next = 0;
+                                until ProdOrdRoutingLine.Next() = 0;
                         end;
                         UnitCost := RoutingAmt / Quantity;
                         YearProdOrdOutput := CalcProdOrderOutput("Order No.");
@@ -1243,7 +1243,7 @@ report 12136 "Ledger Entry Details"
                         EndYearInv += ItemLedgEntry.Quantity;
                         if EndYearInv <= 0 then
                             StartDateLIFO := ItemLedgEntry."Posting Date";
-                    until ItemLedgEntry.Next = 0;
+                    until ItemLedgEntry.Next() = 0;
             end;
         }
     }

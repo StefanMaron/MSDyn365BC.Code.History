@@ -1039,7 +1039,7 @@ codeunit 144081 "SCM Subcontracting"
     begin
         LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
 
-        TempRoutingLine.FindSet;
+        TempRoutingLine.FindSet();
         repeat
             LibraryManufacturing.CreateRoutingLine(
               RoutingHeader, RoutingLine, '', TempRoutingLine."Operation No.",
@@ -1321,7 +1321,7 @@ codeunit 144081 "SCM Subcontracting"
         VATBusinessPostingGroup: Record "VAT Business Posting Group";
         VATPostingSetup: Record "VAT Posting Setup";
     begin
-        VATBusinessPostingGroup.FindSet;
+        VATBusinessPostingGroup.FindSet();
         repeat
             if not VATPostingSetup.Get(VATBusinessPostingGroup.Code, '') then
                 LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusinessPostingGroup.Code, '');
@@ -1508,7 +1508,7 @@ codeunit 144081 "SCM Subcontracting"
     begin
         ProductionBOMLine.SetRange("Production BOM No.", ProductionBOMNo);
         ProductionBOMLine.SetRange(Type, ProductionBOMLine.Type::Item);
-        ProductionBOMLine.FindSet;
+        ProductionBOMLine.FindSet();
         repeat
             Item.Get(ProductionBOMLine."No.");
             Item.Validate("Reordering Policy", Item."Reordering Policy"::Order);
@@ -1523,7 +1523,7 @@ codeunit 144081 "SCM Subcontracting"
     begin
         ItemJournalLine.SetRange("Journal Template Name", ItemJournalBatch."Journal Template Name");
         ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
-        ItemJournalLine.FindSet;
+        ItemJournalLine.FindSet();
         repeat
             ItemJournalLine.Validate("Location Code", LocationCode);
             ItemJournalLine.Modify(true);
@@ -1539,7 +1539,7 @@ codeunit 144081 "SCM Subcontracting"
         ItemVendor.SetFilter("Item No.", ItemNo);
         ItemVendor.FindFirst;
         RequisitionLine.SetFilter("Ref. Order Type", RefOrderTypeTxt);  // Required for update child item only.
-        RequisitionLine.FindSet;
+        RequisitionLine.FindSet();
         repeat
             RequisitionLine.Validate("Vendor No.", ItemVendor."Vendor No.");
             RequisitionLine.Modify(true);
@@ -1562,7 +1562,7 @@ codeunit 144081 "SCM Subcontracting"
     begin
         // Update FG and child items.
         RequisitionLine.SetFilter("No.", ItemFilter);
-        RequisitionLine.FindSet;
+        RequisitionLine.FindSet();
         repeat
             RequisitionLine.Validate("Accept Action Message", true);
             RequisitionLine.Modify(true);

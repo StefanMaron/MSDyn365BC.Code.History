@@ -5,11 +5,9 @@ table 7153 "Item Analysis View Filter"
 
     fields
     {
-        field(1; "Analysis Area"; Option)
+        field(1; "Analysis Area"; Enum "Analysis Area Type")
         {
             Caption = 'Analysis Area';
-            OptionCaption = 'Sales,Purchase,Inventory';
-            OptionMembers = Sales,Purchase,Inventory;
         }
         field(2; "Analysis View Code"; Code[10])
         {

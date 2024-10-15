@@ -52,7 +52,7 @@ report 94 "Close Income Statement"
                                     TempDimBuf2."Dimension Value Code" := TempDimBuf."Dimension Value Code";
                                     TempDimBuf2.Insert();
                                 end;
-                            until TempSelectedDim.Next = 0;
+                            until TempSelectedDim.Next() = 0;
 
                         DimensionBufferID := DimBufMgt.GetDimensionId(TempDimBuf2);
 
@@ -127,7 +127,7 @@ report 94 "Close Income Statement"
 
                                 HandleGenJnlLine;
                             end;
-                        until EntryNoAmountBuf.Next = 0;
+                        until EntryNoAmountBuf.Next() = 0;
 
                     EntryNoAmountBuf.DeleteAll();
                 end;
@@ -458,7 +458,7 @@ report 94 "Close Income Statement"
                    (TempSelectedDim."Dimension Code" <> GLSetup."Global Dimension 2 Code")
                 then
                     ClosePerGlobalDimOnly := false;
-            until TempSelectedDim.Next = 0;
+            until TempSelectedDim.Next() = 0;
 
         GenJnlLine.SetRange("Journal Template Name", GenJnlLine."Journal Template Name");
         GenJnlLine.SetRange("Journal Batch Name", GenJnlLine."Journal Batch Name");
@@ -632,7 +632,7 @@ report 94 "Close Income Statement"
                 DimBuf."Dimension Code" := DimSetEntry."Dimension Code";
                 DimBuf."Dimension Value Code" := DimSetEntry."Dimension Value Code";
                 DimBuf.Insert();
-            until DimSetEntry.Next = 0;
+            until DimSetEntry.Next() = 0;
     end;
 
     local procedure CheckDimPostingRules(var SelectedDim: Record "Selected Dimension"): Text[1024]
@@ -666,7 +666,7 @@ report 94 "Close Income Statement"
                     end;
                 end;
                 SelectedDim.SetRange("Dimension Code");
-            until (DefaultDim.Next = 0) or (StrLen(ErrorText) > MaxStrLen(ErrorText) - MaxStrLen(DefaultDim."No.") - StrLen(Text021) - 1);
+            until (DefaultDim.Next() = 0) or (StrLen(ErrorText) > MaxStrLen(ErrorText) - MaxStrLen(DefaultDim."No.") - StrLen(Text021) - 1);
         if ErrorText <> '' then
             ErrorText := CopyStr(ErrorText + Text021 + DimText, 1, MaxStrLen(ErrorText));
         exit(ErrorText);

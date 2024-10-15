@@ -1,4 +1,4 @@
-page 141 "Posted Purch. Cr. Memo Subform"
+﻿page 141 "Posted Purch. Cr. Memo Subform"
 {
     AutoSplitKey = true;
     Caption = 'Lines';
@@ -36,6 +36,7 @@ page 141 "Posted Purch. Cr. Memo Subform"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the ID of the service tariff that is associated with the purchase credit memo.';
                 }
+#if not CLEAN17
                 field("Cross-Reference No."; "Cross-Reference No.")
                 {
                     ApplicationArea = Basic, Suite;
@@ -44,6 +45,7 @@ page 141 "Posted Purch. Cr. Memo Subform"
                     ObsoleteState = Pending;
                     ObsoleteTag = '17.0';
                 }
+#endif
                 field("Item Reference No."; "Item Reference No.")
                 {
                     ApplicationArea = Suite;
@@ -477,7 +479,6 @@ page 141 "Posted Purch. Cr. Memo Subform"
     end;
 
     var
-        TotalPurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
         DocumentTotals: Codeunit "Document Totals";
         VATAmount: Decimal;
         IsFoundation: Boolean;
@@ -485,6 +486,7 @@ page 141 "Posted Purch. Cr. Memo Subform"
         ItemReferenceVisible: Boolean;
 
     protected var
+        TotalPurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
         ShortcutDimCode: array[8] of Code[20];
         DimVisible1: Boolean;
         DimVisible2: Boolean;

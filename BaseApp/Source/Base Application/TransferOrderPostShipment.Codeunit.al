@@ -8,6 +8,7 @@
         Item: Record Item;
         SourceCodeSetup: Record "Source Code Setup";
         InvtSetup: Record "Inventory Setup";
+        InvtCommentLine: Record "Inventory Comment Line";
         UpdateAnalysisView: Codeunit "Update Analysis View";
         UpdateItemAnalysisView: Codeunit "Update Item Analysis View";
         RecordLinkManagement: Codeunit "Record Link Management";
@@ -24,7 +25,7 @@
         OnBeforeTransferOrderPostShipment(TransHeader, SuppressCommit);
 
         with TransHeader do begin
-            CheckBeforePost;
+            CheckBeforePost();
 
             WhseReference := "Posting from Whse. Ref.";
             "Posting from Whse. Ref." := 0;
@@ -33,7 +34,7 @@
                 if not GetShippingAdvice then
                     Error(Text008);
 
-            CheckDim;
+            CheckDim();
             TransLine.Reset();
             TransLine.SetRange("Document No.", "No.");
             TransLine.SetRange("Derived From Line No.", 0);
@@ -79,7 +80,9 @@
             InsertTransShptHeader(TransShptHeader, TransHeader, InvtSetup."Posted Transfer Shpt. Nos.");
 
             if InvtSetup."Copy Comments Order to Shpt." then begin
-                CopyCommentLines(1, 2, "No.", TransShptHeader."No.");
+                InvtCommentLine.CopyCommentLines(
+                    "Inventory Comment Document Type"::"Transfer Order", "No.",
+                    "Inventory Comment Document Type"::"Posted Transfer Shipment", TransShptHeader."No.");
                 RecordLinkManagement.CopyLinks(Rec, TransShptHeader);
             end;
 
@@ -118,7 +121,7 @@
                     OnCheckTransLine(TransLine, TransHeader, Location, WhseShip);
 
                     InsertTransShptLine(TransShptHeader);
-                until TransLine.Next = 0;
+                until TransLine.Next() = 0;
 
             InvtSetup.Get();
             if InvtSetup."Automatic Cost Adjustment" <> InvtSetup."Automatic Cost Adjustment"::Never then begin
@@ -138,7 +141,7 @@
                 repeat
                     TransLine.Validate("WIP Qty. Shipped", TransLine."WIP Qty. Shipped" + TransLine."WIP Qty. To Ship");
                     TransLine.Modify();
-                until TransLine.Next = 0;
+                until TransLine.Next() = 0;
             end;
             TransLine.SetRange("WIP Qty. To Ship");
             TransLine.SetFilter(Quantity, '<>0');
@@ -154,7 +157,7 @@
                     TransLine.UpdateWithWarehouseShipReceive;
                     TransLine.Modify();
                     OnAfterTransLineModify(TransLine);
-                until TransLine.Next = 0;
+                until TransLine.Next() = 0;
             end;
 
             if WhseShip then
@@ -315,22 +318,6 @@
               TransferLine, ItemJnlLine, ItemJnlLine."Quantity (Base)", TransferDirection::Outbound);
     end;
 
-    local procedure CopyCommentLines(FromDocumentType: Integer; ToDocumentType: Integer; FromNumber: Code[20]; ToNumber: Code[20])
-    var
-        InvtCommentLine: Record "Inventory Comment Line";
-        InvtCommentLine2: Record "Inventory Comment Line";
-    begin
-        InvtCommentLine.SetRange("Document Type", FromDocumentType);
-        InvtCommentLine.SetRange("No.", FromNumber);
-        if InvtCommentLine.Find('-') then
-            repeat
-                InvtCommentLine2 := InvtCommentLine;
-                InvtCommentLine2."Document Type" := ToDocumentType;
-                InvtCommentLine2."No." := ToNumber;
-                InvtCommentLine2.Insert();
-            until InvtCommentLine.Next = 0;
-    end;
-
     local procedure CheckDim()
     begin
         TransLine."Line No." := 0;
@@ -445,7 +432,7 @@
                     TempHandlingSpecification."Source Prod. Order Line" := TransShptLine."Line No.";
                     TempHandlingSpecification."Buffer Status" := TempHandlingSpecification."Buffer Status"::MODIFY;
                     TempHandlingSpecification.Insert();
-                until TempHandlingSpecification2.Next = 0;
+                until TempHandlingSpecification2.Next() = 0;
                 OnAfterInsertShptEntryRelation(TransLine, WhseShip, 0, SuppressCommit);
                 exit(0);
             end;
@@ -562,7 +549,7 @@
                 ReserveTransLine.TransferTransferToTransfer(
                   FromTransLine, ToTransLine, -TempHandlingSpecification."Quantity (Base)", TransferDirection::Inbound, TempHandlingSpecification);
                 TransferQty += TempHandlingSpecification."Quantity (Base)";
-            until TempHandlingSpecification.Next = 0;
+            until TempHandlingSpecification.Next() = 0;
             TempHandlingSpecification.DeleteAll();
         end;
 
@@ -636,7 +623,7 @@
                         repeat
                             WMSMgmt.CheckWhseJnlLine(TempWhseJnlLine2, 1, 0, true);
                             WhseJnlRegisterLine.RegisterWhseJnlLine(TempWhseJnlLine2);
-                        until TempWhseJnlLine2.Next = 0;
+                        until TempWhseJnlLine2.Next() = 0;
                 end;
         end;
     end;
@@ -659,7 +646,7 @@
                    TransLine."Qty. to Ship (Base)" + TransLine."Qty. Shipped (Base)"
                 then
                     exit(false);
-            until TransLine.Next = 0;
+            until TransLine.Next() = 0;
         exit(true);
     end;
 
@@ -688,12 +675,12 @@
         TransLine2: Record "Transfer Line";
     begin
         TransLine2.CopyFilters(TransLine);
-        TransLine2.FindSet;
+        TransLine2.FindSet();
         repeat
             CheckItemInInventory(TransLine2);
             if NeedCheckWarehouse then
                 CheckWarehouse(TransLine2);
-        until TransLine2.Next = 0;
+        until TransLine2.Next() = 0;
     end;
 
     local procedure LockTables(AutoCostPosting: Boolean)

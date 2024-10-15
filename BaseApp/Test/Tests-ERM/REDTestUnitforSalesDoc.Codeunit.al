@@ -2990,7 +2990,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
     begin
         FilterGLEntry(GLEntry, DocNo, AccNo, GLEntry."Gen. Posting Type"::" ");
         LibraryERM.GetCombinedPostedDeferralLines(TempPostedDeferralLine, DocNo);
-        TempPostedDeferralLine.FindSet;
+        TempPostedDeferralLine.FindSet();
         repeat
             GLEntry.SetFilter(Amount, '>%1', 0);
             GLEntry.SetRange("Posting Date", TempPostedDeferralLine."Posting Date");

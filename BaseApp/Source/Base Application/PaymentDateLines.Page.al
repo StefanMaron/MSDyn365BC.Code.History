@@ -149,12 +149,12 @@ page 12171 "Payment Date Lines"
                             if ServiceLine.FindSet then
                                 repeat
                                     DocumentAmount := DocumentAmount + ServiceLine."Amount Including VAT";
-                                until ServiceLine.Next = 0;
+                                until ServiceLine.Next() = 0;
                         end;
                 end;
 
                 PaymentLines2.Copy(Rec);
-                LastRec := PaymentLines2.Next = 0;
+                LastRec := PaymentLines2.Next() = 0;
                 if LastRec then
                     Amount := DocumentAmount - ResidualTotal
                 else begin
@@ -162,7 +162,7 @@ page 12171 "Payment Date Lines"
                     ResidualTotal := ResidualTotal + Amount;
                 end;
                 Modify;
-            until Next = 0;
+            until Next() = 0;
     end;
 }
 

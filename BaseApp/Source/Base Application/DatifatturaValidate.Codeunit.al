@@ -56,7 +56,7 @@ codeunit 12183 "Datifattura Validate"
                 ErrorMessage.LogIfEmpty(VATReportLine, VATReportLine.FieldNo("Bill-to/Pay-to No."), ErrorMessage."Message Type"::Error);
                 if VATReportLine.Amount = 0 then
                     ErrorMessage.LogIfEmpty(VATReportLine, VATReportLine.FieldNo("VAT Transaction Nature"), ErrorMessage."Message Type"::Error);
-            until VATReportLine.Next = 0
+            until VATReportLine.Next() = 0
     end;
 
     local procedure CheckCompanyInfo()

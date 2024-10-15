@@ -1613,7 +1613,7 @@ codeunit 137272 "SCM Reservation V"
             SetRange("Lot No.", LotNo);
             SetRange("Source Type", DATABASE::"Purchase Line");
             SetRange("Source Subtype", "Source Subtype"::"5"); // Purchase Return Order
-            FindSet;
+            FindSet();
             repeat
                 TotalQty -= Quantity;
             until Next = 0;

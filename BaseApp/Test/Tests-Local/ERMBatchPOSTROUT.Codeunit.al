@@ -1169,7 +1169,7 @@ codeunit 144066 "ERM Batch POSTROUT"
 
     local procedure VerifyPurchaseErrorNotification()
     var
-        PurchaseHeader: Record 38;
+        PurchaseHeader: Record "Purchase Header";
     begin
         Assert.ExpectedMessage(NotificationBatchPurchHeaderMsg, LibraryVariableStorage.DequeueText);
         LibraryNotificationMgt.RecallNotificationsForRecordID(PurchaseHeader.RecordId);
@@ -1178,7 +1178,7 @@ codeunit 144066 "ERM Batch POSTROUT"
 
     local procedure VerifySalesErrorNotification()
     var
-        SalesHeader: Record 36;
+        SalesHeader: Record "Sales Header";
     begin
         Assert.ExpectedMessage(NotificationBatchSalesHeaderMsg, LibraryVariableStorage.DequeueText);
         LibraryNotificationMgt.RecallNotificationsForRecordID(SalesHeader.RecordId);

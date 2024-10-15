@@ -38,7 +38,7 @@ codeunit 12132 "Withholding Tax Export"
 
         CalculateWithholdingTaxPerVendor(TempWithholdingTax, TempContributions, Year, Year);
 
-        if TempWithholdingTax.IsEmpty then begin
+        if TempWithholdingTax.IsEmpty() then begin
             Message(NothingToReportMsg, Year);
             exit;
         end;
@@ -94,7 +94,7 @@ codeunit 12132 "Withholding Tax Export"
                         TempWithholdingTax."Withholding Tax Amount" += "Withholding Tax Amount";
                         CalculateContributions(WithholdingTax, TempWithholdingTax."Entry No.", TempContributions);
                     end;
-                until Next = 0;
+                until Next() = 0;
                 if TempWithholdingTax."Entry No." <> 0 then
                     TempWithholdingTax.Insert();
             end;
@@ -147,7 +147,7 @@ codeunit 12132 "Withholding Tax Export"
                 repeat
                     TempContributions."Company Amount" += "Company Amount";
                     TempContributions."Free-Lance Amount" += "Free-Lance Amount";
-                until Next = 0;
+                until Next() = 0;
             TempContributions.Modify();
         end;
     end;
@@ -164,7 +164,7 @@ codeunit 12132 "Withholding Tax Export"
                 EntryNumber += 1;
                 CreateRecordD(TempWithholdingTax, EntryNumber);
                 CreateRecordH(TempWithholdingTax, TempWithholdingTaxPrevYears, TempContributions, Year);
-            until TempWithholdingTax.Next = 0;
+            until TempWithholdingTax.Next() = 0;
     end;
 
     local procedure CreateRecordA()

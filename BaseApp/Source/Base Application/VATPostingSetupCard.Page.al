@@ -254,7 +254,7 @@ page 473 "VAT Posting Setup Card"
                     CopyVATPostingSetup.SetVATSetup(Rec);
                     CopyVATPostingSetup.RunModal;
                     Clear(CopyVATPostingSetup);
-                    CurrPage.Update;
+                    CurrPage.Update();
                 end;
             }
         }

@@ -419,7 +419,7 @@ table 12182 "Vendor Bill Line"
             repeat
                 VendorLedgerEntry.CalcFields(Amount);
                 TotalAmountABS += Abs(VendorLedgerEntry.Amount);
-            until VendorLedgerEntry.Next = 0;
+            until VendorLedgerEntry.Next() = 0;
         exit(TotalAmountABS);
     end;
 

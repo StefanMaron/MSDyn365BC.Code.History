@@ -358,7 +358,7 @@ codeunit 137210 "SCM Copy Production BOM"
     begin
         ProductionBOMLine.SetRange("Production BOM No.", ProductionBOMNo);
         ProductionBOMLine.SetRange("Version Code", VersionCode);
-        ProductionBOMLine.FindSet;
+        ProductionBOMLine.FindSet();
     end;
 
     [Normal]

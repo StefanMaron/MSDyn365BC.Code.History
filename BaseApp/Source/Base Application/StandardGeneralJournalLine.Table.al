@@ -1,4 +1,4 @@
-﻿table 751 "Standard General Journal Line"
+table 751 "Standard General Journal Line"
 {
     Caption = 'Standard General Journal Line';
 

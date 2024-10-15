@@ -119,7 +119,7 @@ codeunit 12152 SubcontractingManagement
                         else
                             ProdOrdComponent.Validate("Location Code", SKU."Components at Location");
                     ProdOrdComponent.Modify();
-                until ProdOrdComponent.Next = 0;
+                until ProdOrdComponent.Next() = 0;
 
                 if ShowMsg then
                     Message(SuccessfullyUpdatedMsg);
@@ -152,7 +152,7 @@ codeunit 12152 SubcontractingManagement
                 repeat
                     ProdOrdComponent.Validate("Location Code", SKU."Components at Location");
                     ProdOrdComponent.Modify();
-                until ProdOrdComponent.Next = 0;
+                until ProdOrdComponent.Next() = 0;
 
                 if ShowMsg then
                     Message(SuccessfullyUpdatedMsg);
@@ -192,7 +192,7 @@ codeunit 12152 SubcontractingManagement
                     else
                         ProdOrdComponent.Validate("Location Code", SKU."Components at Location");
                     ProdOrdComponent.Modify();
-                until ProdOrdComponent.Next = 0;
+                until ProdOrdComponent.Next() = 0;
 
                 if ShowMsg then
                     Message(SuccessfullyUpdatedMsg);
@@ -224,7 +224,7 @@ codeunit 12152 SubcontractingManagement
                     TransLine."Units per Parcel" := 1;
                 ParcelUnit := ParcelUnit + Round(TransLine.Quantity * TransLine."Units per Parcel", 1, '>');
                 TotVolume := TotVolume + (TransLine.Quantity * TransLine."Unit Volume");
-            until TransLine.Next = 0;
+            until TransLine.Next() = 0;
 
         GrossWeight := Round(GrossWeight, 0.01);
         NetWeight := Round(NetWeight, 0.01);
@@ -266,7 +266,7 @@ codeunit 12152 SubcontractingManagement
             repeat
                 TempReservEntry := ReservEntry;
                 TempReservEntry.Insert();
-            until ReservEntry.Next = 0;
+            until ReservEntry.Next() = 0;
 
         ReservMgt.SetProdOrderComponent(ProdOrderComponent);
         ReservMgt.SetItemTrackingHandling(1); // allow deletion
@@ -300,7 +300,7 @@ codeunit 12152 SubcontractingManagement
                             ReservMgt.AutoTrack(TotalQty);
                         end;
                 end;
-            until TempReservEntry.Next = 0;
+            until TempReservEntry.Next() = 0;
     end;
 }
 

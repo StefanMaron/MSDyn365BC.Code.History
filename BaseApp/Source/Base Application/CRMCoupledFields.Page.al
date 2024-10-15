@@ -86,7 +86,7 @@ page 5337 "CRM Coupled Fields"
                 Direction := IntegrationFieldMapping.Direction;
                 "Validate Field" := IntegrationFieldMapping."Validate Field";
                 Insert;
-            until IntegrationFieldMapping.Next = 0;
+            until IntegrationFieldMapping.Next() = 0;
     end;
 
     local procedure GetFieldCaption(TableNo: Integer; FieldNo: Integer) FieldCaption: Text[50]

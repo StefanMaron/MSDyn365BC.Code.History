@@ -5,7 +5,7 @@ codeunit 12175 "Vendor Bills Floppy"
     trigger OnRun()
     begin
         VendorBillHeader.SetRange("No.", GetFilter("Document No."));
-        if VendorBillHeader.IsEmpty then
+        if VendorBillHeader.IsEmpty() then
             Error(ExportVendBillHdrErr);
         SEPADDExportMgt.DeleteExportErrors(GetFilter("Document No."), '');
         Commit();

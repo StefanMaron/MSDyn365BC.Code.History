@@ -50,7 +50,7 @@ codeunit 12185 "Export Self-Billing Documents"
                     if StartID = 0 then
                         StartID := RecordExportBuffer.ID;
                     EndID := RecordExportBuffer.ID;
-                until Next = 0;
+                until Next() = 0;
 
             TempErrorMessage.ShowErrorMessages(true);
             if IsMissingServerFile then
@@ -63,12 +63,12 @@ codeunit 12185 "Export Self-Billing Documents"
                 ZipFile.Create(ServerFilePath);
                 ZipFile.CreateOutStream(ZipFileOutStream);
                 DataCompression.CreateZipArchive;
-                RecordExportBuffer.FindSet;
+                RecordExportBuffer.FindSet();
                 repeat
                     FileManagement.BLOBImportFromServerFile(TempBlob, RecordExportBuffer.ServerFilePath);
                     TempBlob.CreateInStream(ServerTempFileInStream);
                     DataCompression.AddEntry(ServerTempFileInStream, RecordExportBuffer.ClientFileName);
-                until RecordExportBuffer.Next = 0;
+                until RecordExportBuffer.Next() = 0;
                 DataCompression.SaveZipArchive(ZipFileOutStream);
                 DataCompression.CloseZipArchive;
                 ZipFile.Close;
@@ -96,18 +96,18 @@ codeunit 12185 "Export Self-Billing Documents"
                 TempVATEntry.Insert();
                 if TempVATEntry."Related Entry No." = 0 then
                     HeaderEntryNo := TempVATEntry."Entry No.";
-            until Next = 0;
+            until Next() = 0;
 
             CopyFilter("Document No.", AllVATEntry."Document No.");
             CopyFilter("Posting Date", AllVATEntry."Posting Date");
             AllVATEntry.SetRange("Related Entry No.", HeaderEntryNo);
-            if not AllVATEntry.IsEmpty then
+            if not AllVATEntry.IsEmpty() then
                 if Confirm(MultipleEntriesQst, false) then begin
-                    AllVATEntry.FindSet;
+                    AllVATEntry.FindSet();
                     repeat
                         TempVATEntry := AllVATEntry;
                         if TempVATEntry.Insert() then;
-                    until AllVATEntry.Next = 0;
+                    until AllVATEntry.Next() = 0;
                 end;
             AllVATEntry.SetRange("Related Entry No.");
 

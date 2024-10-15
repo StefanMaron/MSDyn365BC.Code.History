@@ -47,7 +47,7 @@ xmlport 1010 "SEPA DD pain.008.001.02"
                                 trigger OnBeforePassField()
                                 begin
                                     if CompanyInformation.Address = '' then
-                                        currXMLport.Skip;
+                                        currXMLport.Skip();
                                 end;
                             }
                             fieldelement(PstCd; CompanyInformation."Post Code")
@@ -56,7 +56,7 @@ xmlport 1010 "SEPA DD pain.008.001.02"
                                 trigger OnBeforePassField()
                                 begin
                                     if CompanyInformation."Post Code" = '' then
-                                        currXMLport.Skip;
+                                        currXMLport.Skip();
                                 end;
                             }
                             fieldelement(TwnNm; CompanyInformation.City)
@@ -65,7 +65,7 @@ xmlport 1010 "SEPA DD pain.008.001.02"
                                 trigger OnBeforePassField()
                                 begin
                                     if CompanyInformation.City = '' then
-                                        currXMLport.Skip;
+                                        currXMLport.Skip();
                                 end;
                             }
                             fieldelement(Ctry; CompanyInformation."Country/Region Code")
@@ -74,7 +74,7 @@ xmlport 1010 "SEPA DD pain.008.001.02"
                                 trigger OnBeforePassField()
                                 begin
                                     if CompanyInformation."Country/Region Code" = '' then
-                                        currXMLport.Skip;
+                                        currXMLport.Skip();
                                 end;
                             }
                         }
@@ -154,7 +154,7 @@ xmlport 1010 "SEPA DD pain.008.001.02"
                             trigger OnBeforePassVariable()
                             begin
                                 if PaymentExportDataGroup."Sender Bank BIC" = '' then
-                                    currXMLport.Skip;
+                                    currXMLport.Skip();
                             end;
                         }
                     }
@@ -182,7 +182,7 @@ xmlport 1010 "SEPA DD pain.008.001.02"
                         trigger OnBeforePassVariable()
                         begin
                             if PaymentExportDataGroup."Sender Bank BIC" = '' then
-                                currXMLport.Skip;
+                                currXMLport.Skip();
                         end;
                     }
                     fieldelement(ChrgBr; PaymentExportDataGroup."SEPA Charge Bearer Text")
@@ -258,7 +258,7 @@ xmlport 1010 "SEPA DD pain.008.001.02"
                             trigger OnBeforePassVariable()
                             begin
                                 if PaymentExportData."Recipient Bank BIC" = '' then
-                                    currXMLport.Skip;
+                                    currXMLport.Skip();
                             end;
                         }
                         textelement(Dbtr)
@@ -275,7 +275,7 @@ xmlport 1010 "SEPA DD pain.008.001.02"
                                     trigger OnBeforePassField()
                                     begin
                                         if PaymentExportData."Recipient Address" = '' then
-                                            currXMLport.Skip;
+                                            currXMLport.Skip();
                                     end;
                                 }
                                 fieldelement(PstCd; PaymentExportData."Recipient Post Code")
@@ -284,7 +284,7 @@ xmlport 1010 "SEPA DD pain.008.001.02"
                                     trigger OnBeforePassField()
                                     begin
                                         if PaymentExportData."Recipient Post Code" = '' then
-                                            currXMLport.Skip;
+                                            currXMLport.Skip();
                                     end;
                                 }
                                 fieldelement(TwnNm; PaymentExportData."Recipient City")
@@ -293,7 +293,7 @@ xmlport 1010 "SEPA DD pain.008.001.02"
                                     trigger OnBeforePassField()
                                     begin
                                         if PaymentExportData."Recipient City" = '' then
-                                            currXMLport.Skip;
+                                            currXMLport.Skip();
                                     end;
                                 }
                                 fieldelement(Ctry; PaymentExportData."Recipient Country/Region Code")
@@ -302,7 +302,7 @@ xmlport 1010 "SEPA DD pain.008.001.02"
                                     trigger OnBeforePassField()
                                     begin
                                         if PaymentExportData."Recipient Country/Region Code" = '' then
-                                            currXMLport.Skip;
+                                            currXMLport.Skip();
                                     end;
                                 }
                             }
@@ -320,7 +320,7 @@ xmlport 1010 "SEPA DD pain.008.001.02"
                                 trigger OnBeforePassVariable()
                                 begin
                                     if PaymentExportData."Recipient Bank BIC" = '' then
-                                        currXMLport.Skip;
+                                        currXMLport.Skip();
                                 end;
                             }
                         }
@@ -349,7 +349,7 @@ xmlport 1010 "SEPA DD pain.008.001.02"
                             trigger OnBeforePassVariable()
                             begin
                                 if (PaymentExportData."Message to Recipient 1" = '') and (PaymentExportData."Document No." = '') then
-                                    currXMLport.Skip;
+                                    currXMLport.Skip();
                             end;
                         }
                     }
@@ -418,7 +418,7 @@ xmlport 1010 "SEPA DD pain.008.001.02"
             end;
             PaymentExportDataGroup."Line No." += 1;
             PaymentExportDataGroup.Amount += PaymentExportData.Amount;
-        until PaymentExportData.Next = 0;
+        until PaymentExportData.Next() = 0;
         InsertPmtGroup(PaymentGroupNo);
     end;
 

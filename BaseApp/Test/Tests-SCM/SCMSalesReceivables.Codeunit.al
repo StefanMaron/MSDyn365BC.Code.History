@@ -759,6 +759,7 @@ codeunit 137062 "SCM Sales & Receivables"
         VerifyValueEntriesForSalesOrder(DocumentNo);
     end;
 
+#if not CLEAN16
     [Test]
     [Scope('OnPrem')]
     procedure ItemCrossReferenceOnPurchase()
@@ -810,6 +811,7 @@ codeunit 137062 "SCM Sales & Receivables"
             Assert.ExpectedError(StrSubstNo(ItemCrossRefErr, ItemCrossReference."Cross-Reference No."));
         end;
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -850,6 +852,7 @@ codeunit 137062 "SCM Sales & Receivables"
         // Verify: Check posted entry for Item Reference No.
         VerifyItemRefNoInItemLedgerEntry(DocumentNo, ItemReference."Reference No.");
 
+#if not CLEAN18
         if DiscontinueRefNo then begin
             DiscontinueItemReference(ItemReference);
             CreateSalesDocument(
@@ -861,7 +864,8 @@ codeunit 137062 "SCM Sales & Receivables"
             // Verify: Verify Item Reference No. error.
             // Bug 361020
             // Assert.ExpectedError(StrSubstNo(ItemReferenceErr, ItemReference."Reference No."));
-        end;
+    end;
+#endif
     end;
 
     [Test]
@@ -1384,12 +1388,14 @@ codeunit 137062 "SCM Sales & Receivables"
         ItemCrossReference.Modify(true);
     end;
 
+#if not CLEAN18
     local procedure DiscontinueItemReference(var ItemReference: Record "Item Reference")
     begin
         // Update Item Reference - Discontinue Bar Code as True.
         ItemReference.Validate("Discontinue Bar Code", true);
         ItemReference.Modify(true);
     end;
+#endif
 
     local procedure UpdateCrossRefNoSalesLine(SalesLine: Record "Sales Line"; CrossReferenceNo: Code[20])
     begin
@@ -1458,7 +1464,7 @@ codeunit 137062 "SCM Sales & Receivables"
         Assert.AreEqual(TotalNoOfRecords, ItemBudgetEntry.Count, NoOfRecordsErr);
         if TotalNoOfRecords = 0 then
             exit;
-        ItemBudgetEntry.FindSet;
+        ItemBudgetEntry.FindSet();
         repeat
             i += 1;
             Assert.AreEqual(TrimSpaces(SelectStr(i, DepartmentCodes)), ItemBudgetEntry."Global Dimension 1 Code", DimensionErr);
@@ -1494,7 +1500,7 @@ codeunit 137062 "SCM Sales & Receivables"
         Assert.AreEqual(TotalNoOfRecords, DateComprRegister.Count, NoOfRecordsErr);
         if TotalNoOfRecords = 0 then
             exit;
-        DateComprRegister.FindSet;
+        DateComprRegister.FindSet();
         repeat
             i += 1;
             Assert.AreEqual(
@@ -1536,7 +1542,7 @@ codeunit 137062 "SCM Sales & Receivables"
         Assert.AreEqual(ExpectedCount, ActualCount, ' Wrong number of sales lines ' + Format(ActualCount));
 
         PurchaseLine.SetRange(Type, PurchaseLine.Type::Item);
-        PurchaseLine.FindSet;
+        PurchaseLine.FindSet();
         repeat
             Assert.AreEqual(LineDate, PurchaseLine."Expected Receipt Date",
               ' Wrong Shipment Date of purchase line ' + Format(PurchaseLine."Line No."));
@@ -1554,7 +1560,7 @@ codeunit 137062 "SCM Sales & Receivables"
         Assert.AreEqual(ExpectedCount, ActualCount, ' Wrong number of sales lines ' + Format(ActualCount));
 
         SalesLine.SetRange(Type, SalesLine.Type::Item);
-        SalesLine.FindSet;
+        SalesLine.FindSet();
         repeat
             Assert.AreEqual(LineDate, SalesLine."Shipment Date",
               ' Wrong Shipment Date of sales line ' + Format(SalesLine."Line No."));
@@ -1623,7 +1629,7 @@ codeunit 137062 "SCM Sales & Receivables"
     begin
         SalesLine.SetRange("Document Type", SalesLine."Document Type");
         SalesLine.SetRange("Document No.", SalesLine."Document No.");
-        SalesLine.FindSet;
+        SalesLine.FindSet();
         VerifySalesLineDetails(SalesLine, SalesLine.Type::" ", '', ParentItem."No.", ParentItem.Description);
         SalesLine.Next;
         VerifySalesLineDetails(SalesLine, SalesLine.Type::" ", '', '', ParentItemExtText);

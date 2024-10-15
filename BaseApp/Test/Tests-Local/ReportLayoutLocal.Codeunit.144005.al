@@ -2599,7 +2599,7 @@ codeunit 144005 "Report Layout - Local"
         GenJournalLine.Modify(true);
         VendorLedgerEntry.SetRange("Document Type", ApplyToDocType);
         VendorLedgerEntry.SetRange("Vendor No.", GenJournalLine."Account No.");
-        VendorLedgerEntry.FindSet;
+        VendorLedgerEntry.FindSet();
         VendorLedgerEntry.Validate("Applies-to ID", GenJournalLine."Document No.");
         VendorLedgerEntry.Validate("Amount to Apply", AmountToApply1);
         VendorLedgerEntry.Modify(true);
@@ -2617,7 +2617,7 @@ codeunit 144005 "Report Layout - Local"
         GenJournalLine.Modify(true);
         CustLedgerEntry.SetRange("Document Type", ApplyToDocType);
         CustLedgerEntry.SetRange("Customer No.", GenJournalLine."Account No.");
-        CustLedgerEntry.FindSet;
+        CustLedgerEntry.FindSet();
         CustLedgerEntry.Validate("Applies-to ID", GenJournalLine."Document No.");
         CustLedgerEntry.Validate("Amount to Apply", AmountToApply1);
         CustLedgerEntry.Modify(true);
@@ -3030,7 +3030,7 @@ codeunit 144005 "Report Layout - Local"
     begin
         VendorLedgerEntry.SetRange("Document Type", VendorLedgerEntry."Document Type"::Invoice);
         VendorLedgerEntry.SetRange("Document No.", DocumentNo);
-        VendorLedgerEntry.FindSet;
+        VendorLedgerEntry.FindSet();
         Index := 1;
         repeat
             VendorLedgerEntry.CalcFields("Amount (LCY)");
@@ -3046,7 +3046,7 @@ codeunit 144005 "Report Layout - Local"
     begin
         CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Invoice);
         CustLedgerEntry.SetRange("Document No.", DocumentNo);
-        CustLedgerEntry.FindSet;
+        CustLedgerEntry.FindSet();
         Index := 1;
         repeat
             CustLedgerEntry.CalcFields("Amount (LCY)");

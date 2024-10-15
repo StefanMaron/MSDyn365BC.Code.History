@@ -508,7 +508,7 @@
                                             until (VATType = VATEntry.Type::Settlement) or VATEntry.Find('-');
                                         FindFirstEntry := false;
                                     end else begin
-                                        if VATEntry.Next = 0 then
+                                        if VATEntry.Next() = 0 then
                                             repeat
                                                 VATType := "General Posting Type".FromInteger((VATType.AsInteger() + 1));
                                                 VATEntry.SetRange(Type, VATType);
@@ -530,7 +530,7 @@
                                     end else begin
                                         VATEntry.SetRange("Tax Jurisdiction Code");
                                         VATEntry.SetRange("Use Tax");
-                                        if VATEntry.Next = 0 then
+                                        if VATEntry.Next() = 0 then
                                             repeat
                                                 VATType := "General Posting Type".FromInteger((VATType.AsInteger() + 1));
                                                 VATEntry.SetRange(Type, VATType);
@@ -938,7 +938,7 @@
 
                 PeriodOutputVATYearOutputVATAdvAmt +=
                   PriorPeriodVATEntry."Prior Period Output VAT" + PriorPeriodVATEntry."Prior Year Output VAT";
-            until PriorPeriodVATEntry.Next = 0;
+            until PriorPeriodVATEntry.Next() = 0;
             TotalSaleRounded := FiscalRoundAmount(PeriodOutputVATYearOutputVATAdvAmt + TotalSaleAmount);
             TotalPurchRounded := FiscalRoundAmount(PeriodInputVATYearInputVAT - TotalPurchaseAmount);
         end;

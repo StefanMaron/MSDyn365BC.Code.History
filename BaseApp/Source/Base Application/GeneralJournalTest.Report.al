@@ -1,4 +1,4 @@
-﻿report 2 "General Journal - Test"
+report 2 "General Journal - Test"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './GeneralJournalTest.rdlc';
@@ -655,7 +655,7 @@
                         if InclInVATReportErrorLogTemp.FindSet then
                             repeat
                                 AddError(InclInVATReportErrorLogTemp."Error Message");
-                            until InclInVATReportErrorLogTemp.Next = 0;
+                            until InclInVATReportErrorLogTemp.Next() = 0;
                     end;
 
                     trigger OnPreDataItem()
@@ -1064,7 +1064,7 @@
         NextGenJnlLine.Copy("Gen. Journal Line");
         NextGenJnlLine.SetRange("Journal Template Name", GenJnlLine."Journal Template Name");
         NextGenJnlLine.SetRange("Journal Batch Name", GenJnlLine."Journal Batch Name");
-        if NextGenJnlLine.Next = 0 then;
+        if NextGenJnlLine.Next() = 0 then;
         MakeRecurringTexts(NextGenJnlLine);
         with GenJnlLine do
             if not EmptyLine then begin
@@ -2137,7 +2137,7 @@
             end;
             DimensionText := DimensionText + Separator + DimValue;
             Separator := '; ';
-        until DimSetEntry.Next = 0;
+        until DimSetEntry.Next() = 0;
         exit(DimensionText);
     end;
 

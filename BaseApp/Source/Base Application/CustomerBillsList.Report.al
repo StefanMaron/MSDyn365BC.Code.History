@@ -521,9 +521,9 @@ report 12117 "Customer Bills List"
                                 TempDetailedCustLedgEntry := DetailedCustLedgEntryApplied;
                                 if TempDetailedCustLedgEntry.Insert() then;
                             end;
-                        until DetailedCustLedgEntryApplied.Next = 0;
+                        until DetailedCustLedgEntryApplied.Next() = 0;
                 end;
-            until DetailedCustLedgEntry.Next = 0;
+            until DetailedCustLedgEntry.Next() = 0;
     end;
 
     local procedure IsPaymentDocumentType(CustLedgerEntry: Record "Cust. Ledger Entry"): Boolean

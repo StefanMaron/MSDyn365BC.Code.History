@@ -541,7 +541,7 @@ codeunit 5631 "FA Jnl.-Check Line"
                     if ComponentFADeprBook.Get("FA No.", DeprBookCode) then
                         if ComponentFADeprBook."Disposal Date" = 0D then
                             Error(Text018, FA."No.");
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -566,7 +566,7 @@ codeunit 5631 "FA Jnl.-Check Line"
             end;
             AccPeriod.SetFilter("Starting Date", '>%1&<=%2', AccountingPeriodMgt.FindFiscalYear(StartingDate), GenJnlLine."FA Posting Date");
             AccPeriod.SetRange("New Fiscal Year", true);
-            if not AccPeriod.IsEmpty then
+            if not AccPeriod.IsEmpty() then
                 Error(Text019Err);
         end;
     end;

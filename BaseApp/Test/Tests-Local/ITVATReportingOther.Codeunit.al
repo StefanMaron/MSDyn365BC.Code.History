@@ -688,7 +688,7 @@ codeunit 144011 "IT - VAT Reporting - Other"
         VATReportSetup: Record "VAT Report Setup";
     begin
         // Create VAT Report Setup.
-        if VATReportSetup.IsEmpty then
+        if VATReportSetup.IsEmpty() then
             VATReportSetup.Insert(true);
         VATReportSetup.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
         VATReportSetup.Modify(true);
@@ -779,7 +779,7 @@ codeunit 144011 "IT - VAT Reporting - Other"
     begin
         VATEntry.SetRange("Document Type", DocumentType);
         VATEntry.SetRange("Document No.", DocumentNo);
-        VATEntry.FindSet;
+        VATEntry.FindSet();
     end;
 
     local procedure FindVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; IncludeInVATTransacRep: Boolean): Boolean

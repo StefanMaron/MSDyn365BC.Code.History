@@ -1,4 +1,4 @@
-﻿page 30 "Item Card"
+page 30 "Item Card"
 {
     Caption = 'Item Card';
     PageType = Card;
@@ -23,7 +23,7 @@
                     trigger OnAssistEdit()
                     begin
                         if AssistEdit then
-                            CurrPage.Update;
+                            CurrPage.Update();
                     end;
                 }
                 field(Description; Description)
@@ -698,7 +698,7 @@
                     field("Lot Size"; "Lot Size")
                     {
                         ApplicationArea = Manufacturing;
-                        ToolTip = 'Specifies how many units of the item are processed in one production operation by default.';
+                        ToolTip = 'Specifies the default number of units of the item that are processed in one production operation. This affects standard cost calculations and capacity planning. If the item routing includes fixed costs such as setup time, the value in this field is used to calculate the standard cost and distribute the setup costs. During demand planning, this value is used together with the value in the Default Dampener % field to ignore negligible changes in demand and avoid re-planning. Note that if you leave the field blank, it will be threated as 1.';
                     }
                 }
                 group(Replenishment_Assembly)
@@ -722,7 +722,7 @@
                             Commit();
                             BOMComponent.SetRange("Parent Item No.", "No.");
                             PAGE.Run(PAGE::"Assembly BOM", BOMComponent);
-                            CurrPage.Update;
+                            CurrPage.Update();
                         end;
                     }
                 }
@@ -1477,11 +1477,11 @@
                 }
                 group(Flow)
                 {
-                    Caption = 'Flow';
+                    Caption = 'Power Automate';
                     action(CreateFlow)
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'Create a Flow';
+                        Caption = 'Create a flow';
                         Image = Flow;
                         Promoted = true;
                         PromotedCategory = Category8;
@@ -1502,7 +1502,7 @@
                     action(SeeFlows)
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'See my Flows';
+                        Caption = 'See my flows';
                         Image = Flow;
                         Promoted = true;
                         PromotedCategory = Category8;
@@ -1813,6 +1813,7 @@
                     ShortCutKey = 'Alt+D';
                     ToolTip = 'View or edit dimensions, such as area, project, or department, that you can assign to sales and purchase documents to distribute costs and analyze transaction history.';
                 }
+#if not CLEAN18
                 action("Cross Re&ferences")
                 {
                     ApplicationArea = Basic, Suite;
@@ -1822,10 +1823,14 @@
                     //PromotedCategory = Category4;
                     //The property 'PromotedIsBig' can only be set if the property 'Promoted' is set to 'true'
                     //PromotedIsBig = true;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Item Reference feature.';
+                    ObsoleteTag = '18.0';
                     RunObject = Page "Item Cross Reference Entries";
                     RunPageLink = "Item No." = FIELD("No.");
                     ToolTip = 'Set up a customer''s or vendor''s own identification of the item. Cross-references to the customer''s item number means that the item number is automatically shown on sales documents instead of the number that you use.';
                 }
+#endif
                 action("Item Re&ferences")
                 {
                     ApplicationArea = Basic, Suite;
@@ -1960,7 +1965,7 @@
                     }
                     action(DeleteCRMCoupling)
                     {
-                        AccessByPermission = TableData "CRM Integration Record" = IM;
+                        AccessByPermission = TableData "CRM Integration Record" = D;
                         ApplicationArea = Suite;
                         Caption = 'Delete Coupling';
                         Enabled = CRMIsCoupledToRecord;
@@ -2064,6 +2069,17 @@
                                       "Drop Shipment Filter" = FIELD("Drop Shipment Filter"),
                                       "Variant Filter" = FIELD("Variant Filter");
                         ToolTip = 'View the actual and projected quantity of the item per location.';
+                    }
+                    action(Lot)
+                    {
+                        ApplicationArea = ItemTracking;
+                        Caption = 'Lot';
+                        Image = LotInfo;
+                        RunObject = Page "Item Availability by Lot No.";
+                        RunPageLink = "No." = field("No."),
+                              "Location Filter" = field("Location Filter"),
+                              "Variant Filter" = field("Variant Filter");
+                        ToolTip = 'View the current and projected quantity of the item in each lot.';
                     }
                     action("BOM Level")
                     {
@@ -2284,15 +2300,15 @@
                         RunPageLink = Type = CONST(Item),
                                       "No." = FIELD("No.");
                         RunPageView = SORTING(Type, "No.");
-                        ToolTip = 'View a list of BOMs in which the item is used.';
+                        ToolTip = 'View a list of assembly BOMs in which the item is used.';
                     }
                     action("Calc. Stan&dard Cost")
                     {
                         AccessByPermission = TableData "BOM Component" = R;
                         ApplicationArea = Assembly;
-                        Caption = 'Calc. Stan&dard Cost';
+                        Caption = 'Calc. Assembly Std. Cost';
                         Image = CalculateCost;
-                        ToolTip = 'Calculate the unit cost of the item by rolling up the unit cost of each component and resource in the item''s assembly BOM or production BOM. The unit cost of a parent item must always equals the total of the unit costs of its components, subassemblies, and any resources.';
+                        ToolTip = 'Calculate the unit cost of the item by rolling up the unit cost of each component and resource in the item''s assembly BOM. The unit cost of a parent item must equal the total of the unit costs of its components, subassemblies, and any resources.';
 
                         trigger OnAction()
                         begin
@@ -2334,7 +2350,7 @@
                         ApplicationArea = Manufacturing;
                         Caption = 'Where-Used';
                         Image = "Where-Used";
-                        ToolTip = 'View a list of BOMs in which the item is used.';
+                        ToolTip = 'View a list of production BOMs in which the item is used.';
 
                         trigger OnAction()
                         var
@@ -2348,9 +2364,9 @@
                     {
                         AccessByPermission = TableData "Production BOM Header" = R;
                         ApplicationArea = Manufacturing;
-                        Caption = 'Calc. Stan&dard Cost';
+                        Caption = 'Calc. Production Std. Cost';
                         Image = CalculateCost;
-                        ToolTip = 'Calculate the unit cost of the item by rolling up the unit cost of each component and resource in the item''s assembly BOM or production BOM. The unit cost of a parent item must always equals the total of the unit costs of its components, subassemblies, and any resources.';
+                        ToolTip = 'Calculate the unit cost of the item by rolling up the unit cost of each component and resource in the item''s production BOM. The unit cost of a parent item must equal the total of the unit costs of its components, subassemblies, and any resources.';
 
                         trigger OnAction()
                         begin
@@ -2632,7 +2648,7 @@
         IsService := IsServiceType;
         IsNonInventoriable := IsNonInventoriableType;
         IsInventoriable := IsInventoriableType;
-
+        
         if IsNonInventoriable then
             "Stockout Warning" := "Stockout Warning"::No;
 
@@ -2808,7 +2824,7 @@
     begin
         PriceAssetList.Add(AssetType::Item, Rec."No.");
         PriceUXManagement.SetPriceListLineFilters(PriceListLine, PriceAssetList, PriceType, AmountType::Any);
-        if PriceListLine.IsEmpty then
+        if PriceListLine.IsEmpty() then
             exit(CreateNewTxt);
         exit(ViewExistingTxt);
     end;
@@ -2827,7 +2843,7 @@
 
         if ItemTemplMgt.InsertItemFromTemplate(Item) then begin
             Copy(Item);
-            CurrPage.Update;
+            CurrPage.Update();
             OnCreateItemFromTemplateOnAfterCurrPageUpdate(Rec);
         end else
             if ItemTemplMgt.TemplatesAreNotEmpty() then begin

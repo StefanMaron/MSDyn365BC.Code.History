@@ -20,7 +20,7 @@ page 8903 "Manufacturing Manager RC"
                     ApplicationArea = Manufacturing;
                     Caption = 'Production BOM';
                     RunObject = page "Production BOM List";
-                    AccessByPermission = tabledata 5405 = R;
+                    AccessByPermission = TableData "Production Order" = R;
                 }
                 action("Routings")
                 {
@@ -48,14 +48,14 @@ page 8903 "Manufacturing Manager RC"
                         ApplicationArea = Manufacturing;
                         Caption = 'Quantity Explosion of BOM';
                         RunObject = report "Quantity Explosion of BOM";
-                        AccessByPermission = tabledata 5405 = R;
+                        AccessByPermission = TableData "Production Order" = R;
                     }
                     action("Where-Used (Top Level)")
                     {
                         ApplicationArea = Manufacturing;
                         Caption = 'Where-Used (Top Level)';
                         RunObject = report "Where-Used (Top Level)";
-                        AccessByPermission = tabledata 5405 = R;
+                        AccessByPermission = TableData "Production Order" = R;
                     }
                     action("Routing Sheet")
                     {
@@ -245,13 +245,13 @@ page 8903 "Manufacturing Manager RC"
                     {
                         ApplicationArea = Manufacturing;
                         Caption = 'Subcontracting Orders';
-                        RunObject = page 35490;
+                        RunObject = page "Subcontracting Order List";
                     }
                     action("Subcontracting Transfer Orders")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Subcontracting Transfer Orders';
-                        RunObject = page 35491;
+                        RunObject = page "Subcontracting Transfer List";
                     }
                 }
                 group("Group9")
@@ -427,13 +427,13 @@ page 8903 "Manufacturing Manager RC"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Subcontractor - Dispatch List IT';
-                        RunObject = report 12155;
+                        RunObject = report "Subcontr. Dispatching List";
                     }
                     action("Subcontracting Transfer Shipme")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Subcontracting Transfer Shipment';
-                        RunObject = report 12154;
+                        RunObject = report "Subcontract. Transfer Shipment";
                     }
                     group("Group14")
                     {

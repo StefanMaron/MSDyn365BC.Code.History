@@ -857,7 +857,7 @@ codeunit 137603 "SCM CETAF Costing Revaluation"
         if CostingMethod <> Item."Costing Method"::Average then begin
             ValueEntry.SetRange("Item No.", Item."No.");
             ValueEntry.SetRange("Entry Type", ValueEntry."Entry Type"::Rounding);
-            ValueEntry.FindSet;
+            ValueEntry.FindSet();
 
             TempRefValueEntry."Cost Amount (Expected)" := 0;
             TempRefValueEntry."Cost Amount (Actual)" := -0.01;
@@ -953,7 +953,7 @@ codeunit 137603 "SCM CETAF Costing Revaluation"
 
         ItemLedgerEntry.SetCurrentKey("Item No.");
         ItemLedgerEntry.SetRange("Item No.", Item."No.");
-        ItemLedgerEntry.FindSet;
+        ItemLedgerEntry.FindSet();
         repeat
             TempItemLedgerEntry := ItemLedgerEntry;
             TempItemLedgerEntry.Insert();
@@ -986,7 +986,7 @@ codeunit 137603 "SCM CETAF Costing Revaluation"
 
         ItemLedgerEntry.SetCurrentKey("Item No.");
         ItemLedgerEntry.SetRange("Item No.", Item."No.");
-        ItemLedgerEntry.FindSet;
+        ItemLedgerEntry.FindSet();
         repeat
             TempItemLedgerEntry := ItemLedgerEntry;
             TempItemLedgerEntry.Insert();
@@ -1079,7 +1079,7 @@ codeunit 137603 "SCM CETAF Costing Revaluation"
 
         ItemLedgerEntry.SetCurrentKey("Item No.");
         ItemLedgerEntry.SetRange("Item No.", Item."No.");
-        ItemLedgerEntry.FindSet;
+        ItemLedgerEntry.FindSet();
         repeat
             TempItemLedgerEntry := ItemLedgerEntry;
             TempItemLedgerEntry.Insert();
@@ -1102,7 +1102,7 @@ codeunit 137603 "SCM CETAF Costing Revaluation"
         LibraryInventory.PostItemJournalBatch(ItemJnlBatch);
         ItemLedgerEntry.SetCurrentKey("Item No.");
         ItemLedgerEntry.SetRange("Item No.", Item."No.");
-        ItemLedgerEntry.FindSet;
+        ItemLedgerEntry.FindSet();
         repeat
             TempItemLedgerEntry := ItemLedgerEntry;
             TempItemLedgerEntry.Insert();
@@ -1145,7 +1145,7 @@ codeunit 137603 "SCM CETAF Costing Revaluation"
 
         LibraryPatterns.POSTReclassificationJournalLine(Item, StartDate + 3, LocationCode, '', '', '', '', Qty2);
 
-        ItemLedgerEntry.FindSet;
+        ItemLedgerEntry.FindSet();
 
         repeat
             TempItemLedgerEntry := ItemLedgerEntry;
@@ -1175,7 +1175,7 @@ codeunit 137603 "SCM CETAF Costing Revaluation"
         LibraryInventory.PostItemJournalBatch(ItemJnlBatch);
         ItemLedgerEntry.SetCurrentKey("Item No.");
         ItemLedgerEntry.SetRange("Item No.", Item."No.");
-        ItemLedgerEntry.FindSet;
+        ItemLedgerEntry.FindSet();
         repeat
             TempItemLedgerEntry := ItemLedgerEntry;
             TempItemLedgerEntry.Insert();

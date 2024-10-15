@@ -94,7 +94,7 @@ table 801 "Online Map Parameter Setup"
         OnlineMapMgt: Codeunit "Online Map Management";
         ConfirmManagement: Codeunit "Confirm Management";
     begin
-        if not OnlineMapParameterSetup.IsEmpty then
+        if not OnlineMapParameterSetup.IsEmpty() then
             if not ConfirmManagement.GetResponseOrDefault(Text001, false) then
                 exit;
         OnlineMapMgt.SetupDefault;

@@ -23,7 +23,7 @@ page 6050 "Service Contract"
                     trigger OnAssistEdit()
                     begin
                         if AssistEdit(xRec) then
-                            CurrPage.Update;
+                            CurrPage.Update();
                     end;
                 }
                 field(Description; Description)
@@ -912,7 +912,7 @@ page 6050 "Service Contract"
                         j: Integer;
                         LineFound: Boolean;
                     begin
-                        CurrPage.Update;
+                        CurrPage.Update();
                         TestField(Status, Status::Signed);
                         if "No. of Unposted Credit Memos" <> 0 then
                             if not ConfirmManagement.GetResponseOrDefault(Text009, true) then
@@ -943,7 +943,7 @@ page 6050 "Service Contract"
                                 CreditNoteNo := ServContractMgt.CreateContractLineCreditMemo(ServContractLine1, false);
                                 j := j + 1;
                                 W1.Update(1, Round(j / i * 10000, 1));
-                            until ServContractLine.Next = 0;
+                            until ServContractLine.Next() = 0;
                             ServContractMgt.FinishCodeunit;
                             W1.Close;
                             CurrPage.Update(false);
@@ -971,7 +971,7 @@ page 6050 "Service Contract"
                     var
                         ConfirmManagement: Codeunit "Confirm Management";
                     begin
-                        CurrPage.Update;
+                        CurrPage.Update();
                         TestField(Status, Status::Signed);
                         TestField("Change Status", "Change Status"::Locked);
 
@@ -1025,9 +1025,9 @@ page 6050 "Service Contract"
                     var
                         LockOpenServContract: Codeunit "Lock-OpenServContract";
                     begin
-                        CurrPage.Update;
+                        CurrPage.Update();
                         LockOpenServContract.LockServContract(Rec);
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 action(OpenContract)
@@ -1041,9 +1041,9 @@ page 6050 "Service Contract"
                     var
                         LockOpenServContract: Codeunit "Lock-OpenServContract";
                     begin
-                        CurrPage.Update;
+                        CurrPage.Update();
                         LockOpenServContract.OpenServContract(Rec);
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
             }
@@ -1077,7 +1077,7 @@ page 6050 "Service Contract"
                         ServContractLine.SetRange("Contract Type", "Contract Type");
                         ServContractLine.SetRange("Contract No.", "Contract No.");
                         REPORT.RunModal(REPORT::"Remove Lines from Contract", true, true, ServContractLine);
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 action(SignContract)
@@ -1093,9 +1093,9 @@ page 6050 "Service Contract"
                     var
                         SignServContractDoc: Codeunit SignServContractDoc;
                     begin
-                        CurrPage.Update;
+                        CurrPage.Update();
                         SignServContractDoc.SignContract(Rec);
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 action("C&hange Customer")
@@ -1301,7 +1301,7 @@ page 6050 "Service Contract"
                     TempServShptHeader.Copy(ServShptHeader);
                     if TempServShptHeader.Insert() then;
                 end;
-            until ServShptLine.Next = 0;
+            until ServShptLine.Next() = 0;
     end;
 
     local procedure ActivateFields()
@@ -1342,27 +1342,27 @@ page 6050 "Service Contract"
 
     local procedure StartingDateOnAfterValidate()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure StatusOnAfterValidate()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure CustomerNoOnAfterValidate()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure BilltoCustomerNoOnAfterValidat()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure ShiptoCodeOnAfterValidate()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure ResponseTimeHoursOnAfterValida()
@@ -1372,12 +1372,12 @@ page 6050 "Service Contract"
 
     local procedure ServicePeriodOnAfterValidate()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure AnnualAmountOnAfterValidate()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure InvoiceafterServiceOnAfterVali()
@@ -1387,7 +1387,7 @@ page 6050 "Service Contract"
 
     local procedure AllowUnbalancedAmountsOnAfterV()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure PrepaidOnAfterValidate()
@@ -1397,12 +1397,12 @@ page 6050 "Service Contract"
 
     local procedure ExpirationDateOnAfterValidate()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure FirstServiceDateOnAfterValidat()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 }
 

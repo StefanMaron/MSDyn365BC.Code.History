@@ -724,7 +724,7 @@ report 12193 "Export VAT Transactions"
                 then // to pass first record(s) with empty VAT Group Id
                     DistinctCount := DistinctCount + 1;
                 VATReportLinePrev := FAInvoices;
-            until FAInvoices.Next = 0;
+            until FAInvoices.Next() = 0;
             if DistinctCount = 0 then
                 DistinctCount += 1;
         end;
@@ -753,7 +753,7 @@ report 12193 "Export VAT Transactions"
                 then
                     DistinctCount := DistinctCount + 1;
                 VATReportLinePrev := BLTransactions;
-            until BLTransactions.Next = 0;
+            until BLTransactions.Next() = 0;
         BLTransactions.Reset();
 
         exit(DistinctCount);

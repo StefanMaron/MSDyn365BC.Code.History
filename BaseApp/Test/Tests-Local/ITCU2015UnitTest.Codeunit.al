@@ -1079,7 +1079,7 @@ codeunit 144021 "IT - CU 2015 Unit Test"
             SetRange("Vendor No.", VendorNo);
             SetRange(Reason, WithholdingTaxReason);
             SetRange("Non-Taxable Income Type", NonTaxableIncomeType);
-            FindSet;
+            FindSet();
             repeat
                 TempWithholdingTax."Total Amount" += "Total Amount";
                 TempWithholdingTax."Non Taxable Amount By Treaty" += "Non Taxable Amount By Treaty";

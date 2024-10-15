@@ -167,7 +167,7 @@ report 99000754 "Rolled-up Cost Shares"
 
                 trigger OnAfterGetRecord()
                 begin
-                    while ProdBOMLine[Index].Next = 0 do begin
+                    while ProdBOMLine[Index].Next() = 0 do begin
                         if NoListType[Index] = NoListType[Index] ::Item then
                             Level := Level - 1;
                         Index := Index - 1;

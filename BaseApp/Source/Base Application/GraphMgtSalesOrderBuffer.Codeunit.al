@@ -212,13 +212,13 @@ codeunit 5496 "Graph Mgt - Sales Order Buffer"
         if SalesHeader.FindSet then
             repeat
                 InsertOrModifyFromSalesHeader(SalesHeader);
-            until SalesHeader.Next = 0;
+            until SalesHeader.Next() = 0;
 
         if SalesOrderEntityBuffer.FindSet(true, false) then
             repeat
                 if not SalesHeader.Get(SalesHeader."Document Type"::Order, SalesOrderEntityBuffer."No.") then
                     SalesOrderEntityBuffer.Delete(true);
-            until SalesOrderEntityBuffer.Next = 0;
+            until SalesOrderEntityBuffer.Next() = 0;
     end;
 
     local procedure InsertOrModifyFromSalesHeader(var SalesHeader: Record "Sales Header")
@@ -405,7 +405,7 @@ codeunit 5496 "Graph Mgt - Sales Order Buffer"
             repeat
                 TransferFromSalesLine(SalesInvoiceLineAggregate, SalesOrderEntityBuffer, SalesLine);
                 SalesInvoiceLineAggregate.Insert(true);
-            until SalesLine.Next = 0;
+            until SalesLine.Next() = 0;
     end;
 
     local procedure TransferFromSalesLine(var SalesInvoiceLineAggregate: Record "Sales Invoice Line Aggregate"; var SalesOrderEntityBuffer: Record "Sales Order Entity Buffer"; var SalesLine: Record "Sales Line")

@@ -372,7 +372,7 @@ codeunit 12151 "VAT Pmt. Comm. Data Lookup"
                 VATEntry.SetRange("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
                 VATEntry.CalcSums(Base);
                 TotalSales -= VATEntry.Base;
-            until VATPostingSetup.Next = 0;
+            until VATPostingSetup.Next() = 0;
             VATEntry.SetRange("VAT Bus. Posting Group");
             VATEntry.SetRange("VAT Prod. Posting Group");
             VATEntry.SetRange(Type);
@@ -394,7 +394,7 @@ codeunit 12151 "VAT Pmt. Comm. Data Lookup"
                 VATEntry.SetRange("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
                 VATEntry.CalcSums(Base, "Nondeductible Base");
                 TotalPurchases += VATEntry.Base + VATEntry."Nondeductible Base";
-            until VATPostingSetup.Next = 0;
+            until VATPostingSetup.Next() = 0;
             VATEntry.SetRange("VAT Bus. Posting Group");
             VATEntry.SetRange("VAT Prod. Posting Group");
             VATEntry.SetRange("VAT Calculation Type");

@@ -512,6 +512,7 @@ codeunit 144200 "FatturaPA Test"
         // [GIVEN] Company information is cleared
         // [GIVEN] No Fattura PA Nos is clear in Sales & Receivables Setup
         // [GIVEN] A clean Tax Representative and transmission intermediary
+        // TFS 388373: Fiscal code of length 16 is allowed
         CreateCleanCustomer(Customer);
         ClearCompanyInformation;
         ClearFatturaPANoSeries;
@@ -555,6 +556,7 @@ codeunit 144200 "FatturaPA Test"
         // [GIVEN] Company information is cleared
         // [GIVEN] No Fattura PA Nos is clear in Sales & Receivables Setup
         // [GIVEN] A clean Tax Representative and transmission intermediary
+        // TFS 388373: Fiscal code of length 16 is allowed
         CreateCleanCustomer(Customer);
         ClearCompanyInformation;
         ClearFatturaPANoSeries;
@@ -598,6 +600,7 @@ codeunit 144200 "FatturaPA Test"
         // [GIVEN] Company information is cleared
         // [GIVEN] No Fattura PA Nos is clear in Sales & Receivables Setup
         // [GIVEN] A clean Tax Representative and transmission intermediary
+        // TFS 388373: Fiscal code of length 16 is allowed
         CreateCleanCustomer(Customer);
         ClearCompanyInformation;
         ClearFatturaPANoSeries;
@@ -640,6 +643,7 @@ codeunit 144200 "FatturaPA Test"
         // [GIVEN] Company information is cleared
         // [GIVEN] No Fattura PA Nos is clear in Sales & Receivables Setup
         // [GIVEN] A clean Tax Representative and transmission intermediary
+        // TFS 388373: Fiscal code of length 16 is allowed
         CreateCleanCustomer(Customer);
         ClearCompanyInformation;
         ClearFatturaPANoSeries;
@@ -1828,7 +1832,7 @@ codeunit 144200 "FatturaPA Test"
             // 2.2 DatiBeniServizi - Goods/Services data
             DocumentNo := GetDocumentNo(HeaderRecRef);
             GetLineRecord(LineRecRef, DocumentNo, DocumentType, ExportFromType);
-            LineRecRef.FindSet;
+            LineRecRef.FindSet();
             IsSplitPayment := ContainsSplitPayment(LineRecRef);
             // fill in General, Order Data
             repeat
@@ -2422,7 +2426,7 @@ codeunit 144200 "FatturaPA Test"
 
     local procedure VerifyXSDSchemaForStream(XmlInStream: InStream)
     VAR
-        LibraryVerifyXMLSchema: Codeunit 131339;
+        LibraryVerifyXMLSchema: Codeunit "Library - Verify XML Schema";
         Message: Text;
         SignatureXsdPath: Text;
         XsdPath: Text;
@@ -2631,7 +2635,7 @@ codeunit 144200 "FatturaPA Test"
     begin
         CompanyInformation.Get();
         ErrorMessage.LogIfLengthExceeded(
-          CompanyInformation, CompanyInformation.FieldNo("Fiscal Code"), ErrorMessage."Message Type"::Error, 11); // Fiscal Code Length = 11
+          CompanyInformation, CompanyInformation.FieldNo("Fiscal Code"), ErrorMessage."Message Type"::Error, 16);
         LibraryErrorMessage.AssertLogIfMessageExists(
           CompanyInformation, CompanyInformation.FieldNo("Country/Region Code"), ErrorMessage."Message Type"::Error);
         LibraryErrorMessage.AssertLogIfMessageExists(

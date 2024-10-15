@@ -1,4 +1,4 @@
-page 139 "Posted Purch. Invoice Subform"
+﻿page 139 "Posted Purch. Invoice Subform"
 {
     AutoSplitKey = true;
     Caption = 'Lines';
@@ -41,6 +41,7 @@ page 139 "Posted Purch. Invoice Subform"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if you want to include the entry in the VAT transaction report.';
                 }
+#if not CLEAN17
                 field("Cross-Reference No."; "Cross-Reference No.")
                 {
                     ApplicationArea = Basic, Suite;
@@ -50,6 +51,7 @@ page 139 "Posted Purch. Invoice Subform"
                     ObsoleteState = Pending;
                     ObsoleteTag = '17.0';
                 }
+#endif
                 field("Item Reference No."; "Item Reference No.")
                 {
                     ApplicationArea = Suite;
@@ -485,7 +487,6 @@ page 139 "Posted Purch. Invoice Subform"
     end;
 
     var
-        TotalPurchInvHeader: Record "Purch. Inv. Header";
         DocumentTotals: Codeunit "Document Totals";
         IsFoundation: Boolean;
         VATAmount: Decimal;
@@ -493,6 +494,7 @@ page 139 "Posted Purch. Invoice Subform"
         ItemReferenceVisible: Boolean;
 
     protected var
+        TotalPurchInvHeader: Record "Purch. Inv. Header";
         ShortcutDimCode: array[8] of Code[20];
         DimVisible1: Boolean;
         DimVisible2: Boolean;

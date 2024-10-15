@@ -174,6 +174,9 @@ table 12144 "GL Book Entry"
         key(Key6; "Progressive No.")
         {
         }
+        key(Key7; "G/L Account No.", "Posting Date")
+        {
+        }
     }
 
     fieldgroups

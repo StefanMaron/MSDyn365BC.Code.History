@@ -498,7 +498,7 @@ table 1226 "Payment Export Data"
             repeat
                 PaymentExportRemittanceText := TempPaymentExportRemittanceText;
                 PaymentExportRemittanceText.Insert();
-            until TempPaymentExportRemittanceText.Next = 0;
+            until TempPaymentExportRemittanceText.Next() = 0;
     end;
 
     procedure AddGenJnlLineErrorText(GenJnlLine: Record "Gen. Journal Line"; NewText: Text)

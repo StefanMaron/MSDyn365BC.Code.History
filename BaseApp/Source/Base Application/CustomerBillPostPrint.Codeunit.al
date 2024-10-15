@@ -110,7 +110,7 @@ codeunit 12172 "Customer Bill - Post + Print"
                         BRNumber := NoSeriesMgt.GetNextNo(BillCode."Final Bill No.", "List Date", true);
 
                     OldCustBillLine := CustomerBillLine;
-                until CustomerBillLine.Next = 0;
+                until CustomerBillLine.Next() = 0;
                 PostBalanceAccount(CustomerBillHeader, CustLedgEntry, BillPostingGroup, BalanceAmount);
 
                 CustomerBillLine.DeleteAll(true);

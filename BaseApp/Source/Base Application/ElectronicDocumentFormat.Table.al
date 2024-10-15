@@ -119,7 +119,7 @@ table 61 "Electronic Document Format"
                 if StartID = 0 then
                     StartID := RecordExportBuffer.ID;
                 EndID := RecordExportBuffer.ID;
-            until RecRef.Next = 0;
+            until RecRef.Next() = 0;
 
         RecordExportBuffer.SetRange(ID, StartID, EndID);
         if RecordExportBuffer.FindSet then
@@ -134,7 +134,7 @@ table 61 "Electronic Document Format"
 
                 if RecordExportBuffer.ServerFilePath = '' then
                     IsMissingServerFile := true;
-            until RecordExportBuffer.Next = 0;
+            until RecordExportBuffer.Next() = 0;
 
         // Display errors in case anything went wrong.
         TempErrorMessage.ShowErrorMessages(true);
@@ -147,12 +147,12 @@ table 61 "Electronic Document Format"
             ZipFile.CreateOutStream(ZipFileOutStream);
             DataCompression.CreateZipArchive;
             ClientFileName := CopyStr(RecordExportBuffer.ZipFileName, 1, 250);
-            RecordExportBuffer.FindSet;
+            RecordExportBuffer.FindSet();
             repeat
                 FileManagement.BLOBImportFromServerFile(EntryTempBlob, RecordExportBuffer.ServerFilePath);
                 EntryTempBlob.CreateInStream(EntryFileInStream);
                 DataCompression.AddEntry(EntryFileInStream, RecordExportBuffer.ClientFileName);
-            until RecordExportBuffer.Next = 0;
+            until RecordExportBuffer.Next() = 0;
             DataCompression.SaveZipArchive(ZipFileOutStream);
             DataCompression.CloseZipArchive;
             ZipFile.Close;
@@ -353,7 +353,7 @@ table 61 "Electronic Document Format"
         ElectronicDocumentFormat: Record "Electronic Document Format";
     begin
         ElectronicDocumentFormat.SetRange(Code, ElectronicFormat);
-        if ElectronicDocumentFormat.IsEmpty then
+        if ElectronicDocumentFormat.IsEmpty() then
             Error(ElectronicFormatErr, ElectronicFormat);
     end;
 

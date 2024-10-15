@@ -212,10 +212,10 @@ table 12170 "Payment Lines"
         PaymentTerms.CalcFields("Payment Nos.");
         if PaymentTerms."Payment Nos." = 1 then begin
             Vendor.SetRange("Prepmt. Payment Terms Code", Code);
-            if not Vendor.IsEmpty then
+            if not Vendor.IsEmpty() then
                 Error(OnlyOnePaymLineAllowedVendorErr, Code);
             PurchaseHeader.SetRange("Prepmt. Payment Terms Code", Code);
-            if not PurchaseHeader.IsEmpty then
+            if not PurchaseHeader.IsEmpty() then
                 Error(OnlyOnePaymLineAllowedPurchDocErr, Code);
         end;
     end;
@@ -324,7 +324,7 @@ table 12170 "Payment Lines"
                 if PaymentLines."Pmt. Discount Date" < SalesHeader."Document Date" then
                     PaymentLines."Pmt. Discount Date" := SalesHeader."Document Date";
                 PaymentLines.Insert();
-            until PaymentLinesTerms.Next = 0;
+            until PaymentLinesTerms.Next() = 0;
         end;
     end;
 
@@ -418,7 +418,7 @@ table 12170 "Payment Lines"
                     PaymentLines."Pmt. Discount Date" := PurchaseHeader."Document Date";
 
                 PaymentLines.Insert();
-            until PaymentLinesTerms.Next = 0;
+            until PaymentLinesTerms.Next() = 0;
         end;
     end;
 
@@ -523,7 +523,7 @@ table 12170 "Payment Lines"
                 if PaymentLines."Pmt. Discount Date" < ServiceHeader."Document Date" then
                     PaymentLines."Pmt. Discount Date" := ServiceHeader."Document Date";
                 PaymentLines.Insert();
-            until PaymentLinesTerms.Next = 0;
+            until PaymentLinesTerms.Next() = 0;
         end;
     end;
 
@@ -584,7 +584,7 @@ table 12170 "Payment Lines"
             PaymentLines.SetRange(Type, PaymentLines.Type::"Blanket Order");
 
         PaymentLines.SetRange(Code, DocumentNo);
-        if not PaymentLines.IsEmpty then
+        if not PaymentLines.IsEmpty() then
             PaymentLines.DeleteAll();
     end;
 }

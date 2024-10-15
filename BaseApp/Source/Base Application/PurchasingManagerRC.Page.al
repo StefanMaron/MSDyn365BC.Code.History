@@ -49,7 +49,7 @@ page 8905 "Purchasing Manager Role Center"
                 {
                     ApplicationArea = Manufacturing;
                     Caption = 'Subcontracting Orders';
-                    RunObject = page 35490;
+                    RunObject = page "Subcontracting Order List";
                 }
                 action("Transfer Orders")
                 {
@@ -61,7 +61,7 @@ page 8905 "Purchasing Manager Role Center"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Subcontracting Transfer Orders';
-                    RunObject = page 35491;
+                    RunObject = page "Subcontracting Transfer List";
                 }
                 action("Invoices")
                 {
@@ -323,7 +323,7 @@ page 8905 "Purchasing Manager Role Center"
                 {
                     ApplicationArea = Manufacturing;
                     Caption = 'Subcontracting Orders';
-                    RunObject = page 35490;
+                    RunObject = page "Subcontracting Order List";
                 }
                 action("Blanket Orders1")
                 {
@@ -371,7 +371,7 @@ page 8905 "Purchasing Manager Role Center"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Subcontracting Transfer Orders';
-                    RunObject = page 35491;
+                    RunObject = page "Subcontracting Transfer List";
                 }
                 action("Requisition Worksheets")
                 {

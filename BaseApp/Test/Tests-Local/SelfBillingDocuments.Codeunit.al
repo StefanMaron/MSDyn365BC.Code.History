@@ -570,7 +570,7 @@ codeunit 144206 "Self-Billing Documents"
         VATEntry.SetRange(Type, VATEntry.Type::Sale);
         VATEntry.SetRange("Document No.");
         VATEntry.SetRange("Transaction No.", VATEntry."Transaction No.");
-        VATEntry.FindSet;
+        VATEntry.FindSet();
     end;
 
     local procedure CopyVATEntryToTemp(var TempVATEntry: Record "VAT Entry" temporary; VATEntry: Record "VAT Entry")
@@ -665,7 +665,7 @@ codeunit 144206 "Self-Billing Documents"
         TempVATEntry.SetCurrentKey(
           "Document No.", Type, "VAT Bus. Posting Group", "VAT Prod. Posting Group",
           "VAT %", "Deductible %", "VAT Identifier", "Transaction No.", "Unrealized VAT Entry No.");
-        TempVATEntry.FindSet;
+        TempVATEntry.FindSet();
         repeat
             i += 1;
             VerifyDocLine(TempXMLBuffer, TempVATEntry, i);
@@ -698,7 +698,7 @@ codeunit 144206 "Self-Billing Documents"
         DataCompression.ExtractEntry(EntryList.Get(1), FirstFileOutStream, Length);
         TempBlob.CreateInStream(FirstFileInStream);
         TempVATEntry.Reset();
-        TempVATEntry.FindSet;
+        TempVATEntry.FindSet();
         VerifySingleSelfBillingDocumentFromStream(FirstFileInStream, ProgressiveNo[1], TempVATEntry);
 
         // verify second file

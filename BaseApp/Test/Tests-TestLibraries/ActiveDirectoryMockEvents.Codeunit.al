@@ -25,7 +25,7 @@ codeunit 131033 "Active Directory Mock Events"
         IsEnabled := false;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 397, 'OnGetEmailAddressFromActiveDirectory', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Mail", 'OnGetEmailAddressFromActiveDirectory', '', false, false)]
     local procedure OnGetEmailAddressFromActiveDirectory(var Email: Text; var Handled: Boolean)
     begin
         if not IsEnabled then

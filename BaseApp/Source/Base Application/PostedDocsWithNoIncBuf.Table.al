@@ -26,7 +26,7 @@ table 134 "Posted Docs. With No Inc. Buf."
         }
         field(5; "Incoming Document No."; Integer)
         {
-            CalcFormula = Lookup ("Incoming Document"."Entry No." WHERE("Document No." = FIELD("Document No."),
+            CalcFormula = Lookup("Incoming Document"."Entry No." WHERE("Document No." = FIELD("Document No."),
                                                                         "Posting Date" = FIELD("Posting Date")));
             Caption = 'Incoming Document No.';
             FieldClass = FlowField;
@@ -132,7 +132,7 @@ table 134 "Posted Docs. With No Inc. Buf."
             CheckIfAssignedToUnpostedDoc(IncomingDocument."Entry No.");
             CODEUNIT.Run(CODEUNIT::"Release Incoming Document", IncomingDocument);
             IncomingDocument.SetPostedDocFields("Posting Date", "Document No.");
-            IncomingDocument."Document Type" := IncomingDocument.GetPostedDocType("Posting Date", "Document No.", IsPosted);
+            IncomingDocument."Document Type" := IncomingDocument.GetRelatedDocType("Posting Date", "Document No.", IsPosted);
         end;
         Rec := PostedDocsWithNoIncBuf;
         if Find('=<>') then;

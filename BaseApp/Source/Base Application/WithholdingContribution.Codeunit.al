@@ -12,7 +12,6 @@
         ContributionBracketLinesNotSpecifiedErr: Label 'You have not specified any contribution bracket lines for code %1.';
         MultiApplyErr: Label 'To calculate taxes correctly, the payment must be applied to only one document.';
 
-    [Scope('OnPrem')]
     procedure PostPayments(var TempWithholdingSocSec: Record "Tmp Withholding Contribution"; GenJnlLine: Record "Gen. Journal Line"; CalledFromVendBillLine: Boolean)
     var
         WithholdCode: Record "Withhold Code";
@@ -298,7 +297,7 @@
         if PurchLine.FindSet then
             repeat
                 TotalAmount := TotalAmount + PurchLine."VAT Base Amount";
-            until PurchLine.Next = 0;
+            until PurchLine.Next() = 0;
 
         if PurchWithSoc.Get(PurchHeader."Document Type", PurchHeader."No.") then
             if (PurchWithSoc."Total Amount" = 0) or
@@ -474,7 +473,6 @@
         PAGE.RunModal(PAGE::"Show Computed Withh. Contrib.", TmpWithholdingSocSec);
     end;
 
-    [Scope('OnPrem')]
     procedure WithholdLineFilter(var WithholdCodeLine: Record "Withhold Code Line"; WithholdCode: Code[20]; ValidityDate: Date)
     begin
         if ValidityDate = 0D then
@@ -529,7 +527,6 @@
         SetSocSecBracketFilters(SocSecBracketLine, SocialSecurityBracketCode, ContributionType, Code);
     end;
 
-    [Scope('OnPrem')]
     procedure GetRemainingWithhTaxAmount(ComputedWithholdingTax: Record "Computed Withholding Tax"; AppliestoOccurrenceNo: Integer): Decimal
     var
         CreateVendLedgEntry: Record "Vendor Ledger Entry";
@@ -574,14 +571,14 @@
                                     if FindFirst then
                                         Mark(true);
                                 end;
-                            until DtldVendLedgEntry2.Next = 0;
+                            until DtldVendLedgEntry2.Next() = 0;
                     end else begin
                         SetCurrentKey("Entry No.");
                         SetRange("Entry No.", DtldVendLedgEntry1."Applied Vend. Ledger Entry No.");
                         if FindFirst then
                             Mark(true);
                     end;
-                until DtldVendLedgEntry1.Next = 0;
+                until DtldVendLedgEntry1.Next() = 0;
 
             SetCurrentKey("Entry No.");
             SetRange("Entry No.");
@@ -596,7 +593,7 @@
             if FindSet then
                 repeat
                     Mark(true);
-                until Next = 0;
+                until Next() = 0;
 
             SetCurrentKey("Entry No.");
             SetRange("Closed by Entry No.");
@@ -610,14 +607,13 @@
                     ComputedWithholdingTax1.SetRange("Document No.", "Document No.");
                     if ComputedWithholdingTax1.FindFirst then
                         RemainingWithhTaxAmount -= ComputedWithholdingTax1."Remaining Amount";
-                until Next = 0
+                until Next() = 0
             end;
 
             exit(RemainingWithhTaxAmount);
         end;
     end;
 
-    [Scope('OnPrem')]
     procedure WithholdApplicable(TempWithholdingSocSec: Record "Tmp Withholding Contribution"; CalledFromVendBillLine: Boolean): Boolean
     begin
         if TempWithholdingSocSec."Withholding Tax Code" = '' then
@@ -629,7 +625,6 @@
         exit(TempWithholdingSocSec."Withholding Tax Amount" <> 0);
     end;
 
-    [Scope('OnPrem')]
     procedure SocialSecurityApplicable(TempWithholdingSocSec: Record "Tmp Withholding Contribution"; CalledFromVendBillLine: Boolean): Boolean
     begin
         with TempWithholdingSocSec do begin
@@ -670,7 +665,7 @@
                 repeat
                     CalcFields(Amount);
                     TotalPaymentAmt := TotalPaymentAmt + Abs(Amount);
-                until Next = 0;
+                until Next() = 0;
             if TotalPaymentAmt = 0 then
                 exit(0);
             SetRange("Document Occurrence", AppliestoOccurrenceNo);
@@ -705,7 +700,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCalculateWithholdingTaxOnRecalculate(var PurchWithhContribution: Record "Purch. Withh. Contribution"; PurchaseHeader: Record "Purchase Header"; var TotAmount : Decimal)
+    local procedure OnCalculateWithholdingTaxOnRecalculate(var PurchWithhContribution: Record "Purch. Withh. Contribution"; PurchaseHeader: Record "Purchase Header"; var TotAmount: Decimal)
     begin
     end;
 }

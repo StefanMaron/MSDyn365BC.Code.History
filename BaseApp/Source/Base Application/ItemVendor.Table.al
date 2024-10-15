@@ -35,11 +35,6 @@
         field(7; "Vendor Item No."; Text[50])
         {
             Caption = 'Vendor Item No.';
-
-            trigger OnValidate()
-            begin
-                UpdateItemCrossReference();
-            end;
         }
         field(5700; "Variant Code"; Code[10])
         {
@@ -77,33 +72,41 @@
     trigger OnDelete()
     begin
         if ItemReferenceMgt.IsEnabled() then
-            DeleteItemReference()
-        else
+            DeleteItemReference();
+#if not CLEAN16
+        if not ItemReferenceMgt.IsEnabled() then
             DeleteItemCrossReference();
+#endif
     end;
 
     trigger OnInsert()
     begin
         if ItemReferenceMgt.IsEnabled() then
-            InsertItemReference()
-        else
+            InsertItemReference();
+#if not CLEAN16
+        if not ItemReferenceMgt.IsEnabled() then
             InsertItemCrossReference();
+#endif
     end;
 
     trigger OnModify()
     begin
         if ItemReferenceMgt.IsEnabled() then
-            UpdateItemReference()
-        else
+            UpdateItemReference();
+#if not CLEAN16
+        if not ItemReferenceMgt.IsEnabled() then
             UpdateItemCrossReference();
+#endif
     end;
 
     trigger OnRename()
     begin
         if ItemReferenceMgt.IsEnabled() then
-            UpdateItemReference()
-        else
+            UpdateItemReference();
+#if not CLEAN16
+        if not ItemReferenceMgt.IsEnabled() then
             UpdateItemCrossReference();
+#endif
     end;
 
     var
@@ -141,6 +144,7 @@
                     ItemReferenceMgt.UpdateItemReference(Rec, xRec);
     end;
 
+#if not CLEAN16
     local procedure InsertItemCrossReference()
     var
         ItemCrossReference: Record "Item Cross Reference";
@@ -150,7 +154,9 @@
             if ("Vendor No." <> '') and ("Item No." <> '') then
                 DistIntegration.InsertItemCrossReference(Rec);
     end;
+#endif
 
+#if not CLEAN16
     local procedure DeleteItemCrossReference()
     var
         ItemCrossReference: Record "Item Cross Reference";
@@ -160,7 +166,9 @@
             if ("Vendor No." <> '') and ("Item No." <> '') then
                 DistIntegration.DeleteItemCrossReference(Rec);
     end;
+#endif
 
+#if not CLEAN16
     local procedure UpdateItemCrossReference()
     var
         ItemCrossReference: Record "Item Cross Reference";
@@ -179,6 +187,7 @@
                 then
                     DistIntegration.UpdateItemCrossReference(Rec, xRec);
     end;
+#endif
 
     local procedure ToPriceAsset(var PriceAsset: Record "Price Asset")
     begin
@@ -231,9 +240,12 @@
     begin
     end;
 
+#if not CLEAN18
+    [Obsolete('Replaced by event fron Item Reference Management codeunit.', '18.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateItemCrossReference(var ItemVendor: Record "Item Vendor"; var IsHandled: Boolean; var xItemVendor: Record "Item Vendor")
     begin
     end;
+#endif
 }
 

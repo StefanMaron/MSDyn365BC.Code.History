@@ -149,7 +149,7 @@ codeunit 2315 "O365 Setup Mgmt"
         exit(false);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 9165, 'OnBeforeGetSupportInformation', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Help & Support Management", 'OnBeforeGetSupportInformation', '', false, false)]
     local procedure PopulateSupportInformation(var SupportName: Text; var SupportEmail: Text; var SupportUrl: Text)
     var
         EnvInfoProxy: Codeunit "Env. Info Proxy";

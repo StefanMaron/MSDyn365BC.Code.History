@@ -798,7 +798,7 @@ codeunit 144172 "ERM Prepayment IT"
             TotalAmount := 0;
             SetRange("Document No.", PurchHeader."No.");
             SetRange("Document Type", PurchHeader."Document Type");
-            FindSet;
+            FindSet();
             repeat
                 LineAmount := "Outstanding Amount (LCY)";
                 TotalAmount += LineAmount;
@@ -818,7 +818,7 @@ codeunit 144172 "ERM Prepayment IT"
             SetRange("Document No.", PurchHeader."No.");
             SetRange("Document Type", PurchHeader."Document Type");
             SetRange("Prepmt. Amt. Inv.", 0);
-            FindSet;
+            FindSet();
 
             PrepmtVATPct := "Prepayment VAT %";
             PrepmtTotalAmount := 0;
@@ -904,7 +904,7 @@ codeunit 144172 "ERM Prepayment IT"
         with VATEntry do begin
             SetRange("Document Type", DocumentType);
             SetRange("Document No.", DocumentNo);
-            FindSet;
+            FindSet();
         end;
     end;
 

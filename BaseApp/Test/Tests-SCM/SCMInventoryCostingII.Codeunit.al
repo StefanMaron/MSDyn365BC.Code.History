@@ -2092,7 +2092,7 @@ codeunit 137287 "SCM Inventory Costing II"
             SetRange("Document No.", "Document No.");
             QtyToReceiveCoeff := QtyToReceive / Quantity;
             QtyToInvoiceCoeff := QtyToInvoice / Quantity;
-            FindSet;
+            FindSet();
             repeat
                 Validate("Qty. to Receive", Quantity * QtyToReceiveCoeff);
                 Validate("Qty. to Invoice", Quantity * QtyToInvoiceCoeff);
@@ -2111,7 +2111,7 @@ codeunit 137287 "SCM Inventory Costing II"
             SetRange("Document No.", "Document No.");
             QtyToShipCoeff := QtyToShip / Quantity;
             QtyToInvoiceCoeff := QtyToInvoice / Quantity;
-            FindSet;
+            FindSet();
             repeat
                 Validate("Qty. to Ship", Quantity * QtyToShipCoeff);
                 Validate("Qty. to Invoice", Quantity * QtyToInvoiceCoeff);
@@ -2868,7 +2868,7 @@ codeunit 137287 "SCM Inventory Costing II"
             end;
     end;
 
-    local procedure MockResourceLedgerEntry(var ResLedgerEntry: Record "Res. Ledger Entry"; EntryType: Option; CustomerNo: Code[20])
+    local procedure MockResourceLedgerEntry(var ResLedgerEntry: Record "Res. Ledger Entry"; EntryType: Enum "Res. Journal Line Entry Type"; CustomerNo: Code[20])
     begin
         with ResLedgerEntry do begin
             Init;
@@ -2881,7 +2881,7 @@ codeunit 137287 "SCM Inventory Costing II"
         end;
     end;
 
-    local procedure MockValueEntries(ItemLedgerEntryNo: Integer; SourceType: Option; SourceNo: Code[20]; DimValue1: Code[20]; DimValue2: Code[20]) ExpectedResult: Decimal
+    local procedure MockValueEntries(ItemLedgerEntryNo: Integer; SourceType: Enum "Analysis Source Type"; SourceNo: Code[20]; DimValue1: Code[20]; DimValue2: Code[20]) ExpectedResult: Decimal
     var
         ValueEntry: Record "Value Entry";
         RecRef: RecordRef;

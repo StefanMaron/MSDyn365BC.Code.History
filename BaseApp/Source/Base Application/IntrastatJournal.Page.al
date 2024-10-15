@@ -334,7 +334,7 @@
                         IntrastatJnlLine.CopyFilters(Rec);
                         IntrastatJnlLine.SetRange("Journal Template Name", "Journal Template Name");
                         IntrastatJnlLine.SetRange("Journal Batch Name", "Journal Batch Name");
-                        REPORT.Run(12161, true, false, IntrastatJnlLine);
+                        REPORT.Run(Report::"Intrastat - Quarterly Report", true, false, IntrastatJnlLine);
                     end;
                 }
                 action("&Monthly Report")
@@ -350,7 +350,7 @@
                         IntrastatJnlLine.CopyFilters(Rec);
                         IntrastatJnlLine.SetRange("Journal Template Name", "Journal Template Name");
                         IntrastatJnlLine.SetRange("Journal Batch Name", "Journal Batch Name");
-                        REPORT.Run(12160, true, false, IntrastatJnlLine);
+                        REPORT.Run(Report::"Intrastat - Monthly Report", true, false, IntrastatJnlLine);
                     end;
                 }
                 action(CreateFile)

@@ -1,4 +1,4 @@
-report 12160 "Intrastat - Monthly Report"
+﻿report 12160 "Intrastat - Monthly Report"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './IntrastatMonthlyReport.rdlc';

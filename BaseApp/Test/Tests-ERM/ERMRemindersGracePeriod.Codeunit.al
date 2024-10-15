@@ -331,7 +331,7 @@ codeunit 134376 "ERM Reminders - Grace Period"
 
         // Exercise: Create Level One Reminder for the Customer and issue it. Use Reminder Date just after First Grace Period End.
         ReminderLevel.SetRange("Reminder Terms Code", Customer."Reminder Terms Code");
-        ReminderLevel.FindSet;
+        ReminderLevel.FindSet();
         ReminderDate := CalculateReminderDate(Customer."Reminder Terms Code", PostedInvoiceNo, '<1D>');
         CreateAndIssueReminder(Customer."No.", ReminderDate, true);
 
@@ -642,7 +642,7 @@ codeunit 134376 "ERM Reminders - Grace Period"
     begin
         // Update Random Due Date Calculation on First Grace Period of Reminder Level.
         ReminderLevel.SetRange("Reminder Terms Code", ReminderTermsCode);
-        ReminderLevel.FindSet;
+        ReminderLevel.FindSet();
         repeat
             Evaluate(ReminderLevel."Due Date Calculation", '<' + Format(LibraryRandom.RandInt(5)) + 'D>');
         until ReminderLevel.Next = 0;
@@ -668,7 +668,7 @@ codeunit 134376 "ERM Reminders - Grace Period"
 
         // Find Reminder Level, Create Level 1 and Level 2 Reminders for Customer and Issue them.
         ReminderLevel.SetRange("Reminder Terms Code", Customer."Reminder Terms Code");
-        ReminderLevel.FindSet;
+        ReminderLevel.FindSet();
         ReminderDate := CalculateReminderDate(Customer."Reminder Terms Code", PostedInvoiceNo, '<1D>');
         CreateAndIssueReminder(Customer."No.", ReminderDate, false);
     end;
@@ -978,11 +978,11 @@ codeunit 134376 "ERM Reminders - Grace Period"
         ReminderLine.SetRange("Line Type", ReminderLine."Line Type"::"Reminder Line");
         ReminderLine.SetRange("Document Type", ReminderLine."Document Type"::Invoice);
         ReminderLine.SetRange(Type, ReminderLine.Type::"Customer Ledger Entry");
-        ReminderLine.FindSet;
+        ReminderLine.FindSet();
 
         CustLedgerEntry.SetRange("Customer No.", CustomerNo);
         CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Invoice);
-        CustLedgerEntry.FindSet;
+        CustLedgerEntry.FindSet();
         repeat
             CustLedgerEntry.CalcFields("Original Amount");
             Assert.AreNearlyEqual(

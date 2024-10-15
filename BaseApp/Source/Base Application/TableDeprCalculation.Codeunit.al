@@ -29,6 +29,8 @@ codeunit 5618 "Table Depr. Calculation"
         DeprType: Option Normal,Custom1,Custom2;
 
     procedure GetTablePercent(DeprBookCode: Code[10]; DeprTableCode: Code[10]; FirstUserDefinedDeprDate: Date; StartingDate: Date; EndingDate: Date; DeprType2: Option Normal,Custom1,Custom2): Decimal
+    var
+        IsHandled: Boolean;
     begin
         ClearAll;
         DeprTableBufferTmp.DeleteAll();
@@ -43,20 +45,23 @@ codeunit 5618 "Table Depr. Calculation"
             DaysInFiscalYear := 360;
         DeprTableHeader.Get(DeprTableCode);
         Year365Days := DeprBook."Fiscal Year 365 Days";
-        if Year365Days then begin
-            if (DeprTableHeader."Period Length" = DeprTableHeader."Period Length"::Month) or
-               (DeprTableHeader."Period Length" = DeprTableHeader."Period Length"::Quarter)
-            then
-                DeprTableHeader.FieldError(
-                  "Period Length",
-                  StrSubstNo(
-                    Text005,
-                    DeprTableHeader."Period Length",
-                    DeprBook.FieldCaption("Fiscal Year 365 Days"),
-                    DeprBook."Fiscal Year 365 Days",
-                    DeprBook.TableCaption, DeprBook.Code));
-            DaysInFiscalYear := 365;
-        end;
+        IsHandled := false;
+        OnBeforeValidateYear365Days(DeprBook, IsHandled);
+        if not IsHandled then
+            if Year365Days then begin
+                if (DeprTableHeader."Period Length" = DeprTableHeader."Period Length"::Month) or
+                   (DeprTableHeader."Period Length" = DeprTableHeader."Period Length"::Quarter)
+                then
+                    DeprTableHeader.FieldError(
+                      "Period Length",
+                      StrSubstNo(
+                        Text005,
+                        DeprTableHeader."Period Length",
+                        DeprBook.FieldCaption("Fiscal Year 365 Days"),
+                        DeprBook."Fiscal Year 365 Days",
+                        DeprBook.TableCaption, DeprBook.Code));
+                DaysInFiscalYear := 365;
+            end;
         StartingLimit := DepreciationCalc.DeprDays(FirstUserDefinedDeprDate, StartingDate, Year365Days);
         EndingLimit := DepreciationCalc.DeprDays(FirstUserDefinedDeprDate, EndingDate, Year365Days);
         if not Year365Days then begin
@@ -91,7 +96,7 @@ codeunit 5618 "Table Depr. Calculation"
                   Percentage + DeprTableBufferTmp."Period Depreciation %" * NumberOfDays /
                   DeprTableBufferTmp."No. of Days in Period";
             end;
-        until DeprTableBufferTmp.Next = 0;
+        until DeprTableBufferTmp.Next() = 0;
         exit(Percentage / 100);
     end;
 
@@ -111,7 +116,7 @@ codeunit 5618 "Table Depr. Calculation"
               DeprTableHeader.TableCaption, DeprTableHeader.FieldCaption(Code), DeprTableHeader.Code);
 
         if DeprTableHeader."Period Length" = DeprTableHeader."Period Length"::Period then
-            if AccountingPeriod.IsEmpty then
+            if AccountingPeriod.IsEmpty() then
                 AccountingPeriodMgt.InitDefaultAccountingPeriod(AccountingPeriod, FirstUserDefinedDeprDate)
             else begin
                 AccountingPeriod.SetFilter("Starting Date", '>=%1', FirstUserDefinedDeprDate);
@@ -152,7 +157,7 @@ codeunit 5618 "Table Depr. Calculation"
                       Text004);
             end;
             InsertTableBuffer(DeprTableLine, TotalNoOfDays, DaysInPeriod, PeriodNo);
-        until (DeprTableLine.Next = 0) or (TotalNoOfDays > EndingLimit);
+        until (DeprTableLine.Next() = 0) or (TotalNoOfDays > EndingLimit);
 
         if DeprType <> DeprType::Normal then
             DeprTableBufferTmp."Period Depreciation %" := 0;
@@ -183,6 +188,11 @@ codeunit 5618 "Table Depr. Calculation"
                 DeprTableBufferTmp."Period Depreciation %" := DeprTableLine."Period Depreciation %";
         end;
         DeprTableBufferTmp.Insert();
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateYear365Days(DepreBook: Record "Depreciation Book"; var IsHandled: Boolean)
+    begin
     end;
 }
 

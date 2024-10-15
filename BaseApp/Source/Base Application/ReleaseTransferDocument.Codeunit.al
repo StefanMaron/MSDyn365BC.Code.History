@@ -8,54 +8,63 @@ codeunit 5708 "Release Transfer Document"
         TransLine: Record "Transfer Line";
         IsHandled: Boolean;
     begin
-        if Status = Status::Released then
+        if Rec.Status = Rec.Status::Released then
             exit;
 
         OnBeforeReleaseTransferDoc(Rec);
-        TestField("Transfer-from Code");
-        TestField("Transfer-to Code");
+
+        Rec.TestField("Transfer-from Code");
+        Rec.TestField("Transfer-to Code");
+
         IsHandled := false;
         OnBeforeCheckTransferCode(Rec, IsHandled);
         if not IsHandled then
-            if "Transfer-from Code" = "Transfer-to Code" then
-                Error(Text001, "No.", FieldCaption("Transfer-from Code"), FieldCaption("Transfer-to Code"));
-        if not "Direct Transfer" then
-            TestField("In-Transit Code")
-        else begin
-            VerifyNoOutboundWhseHandlingOnLocation("Transfer-from Code");
-            VerifyNoInboundWhseHandlingOnLocation("Transfer-to Code");
-        end;
+            if Rec."Transfer-from Code" = Rec."Transfer-to Code" then
+                Error(Text001, Rec."No.", Rec.FieldCaption("Transfer-from Code"), Rec.FieldCaption("Transfer-to Code"));
 
-        TestField(Status, Status::Open);
+        InvtSetup.Get();
+        if not Rec."Direct Transfer" then
+            Rec.TestField("In-Transit Code")
+        else
+            if InvtSetup."Direct Transfer Posting" = InvtSetup."Direct Transfer Posting"::"Receipt and Shipment" then begin
+                Rec.VerifyNoOutboundWhseHandlingOnLocation(Rec."Transfer-from Code");
+                Rec.VerifyNoInboundWhseHandlingOnLocation(Rec."Transfer-to Code");
+            end;
+
+        Rec.TestField(Status, Rec.Status::Open);
 
         CheckTransLines(TransLine, Rec);
 
         OnRunOnBeforeSetStatusReleased(Rec);
-        Validate(Status, Status::Released);
-        Modify;
+        Rec.Validate(Status, Rec.Status::Released);
+        Rec.Modify();
 
-        WhseTransferRelease.SetCallFromTransferOrder(true);
+        if not (
+            Rec."Direct Transfer" and
+            (InvtSetup."Direct Transfer Posting" = InvtSetup."Direct Transfer Posting"::"Direct Transfer"))
+        then
+            WhseTransferRelease.SetCallFromTransferOrder(true);
+
         WhseTransferRelease.Release(Rec);
 
         OnAfterReleaseTransferDoc(Rec);
     end;
 
     var
-        Text001: Label 'The transfer order %1 cannot be released because %2 and %3 are the same.';
-        Text002: Label 'There is nothing to release for transfer order %1.';
+        InvtSetup: Record "Inventory Setup";
         WhseTransferRelease: Codeunit "Whse.-Transfer Release";
+        Text001: Label 'The transfer order %1 cannot be released because %2 and %3 are the same.';
+        NothingToReleaseErr: Label 'There is nothing to release for transfer order %1.';
 
     procedure Reopen(var TransHeader: Record "Transfer Header")
     begin
-        with TransHeader do begin
-            if Status = Status::Open then
-                exit;
+        if TransHeader.Status = TransHeader.Status::Open then
+            exit;
 
-            OnBeforeReopenTransferDoc(TransHeader);
-            WhseTransferRelease.Reopen(TransHeader);
-            Validate(Status, Status::Open);
-            Modify;
-        end;
+        OnBeforeReopenTransferDoc(TransHeader);
+        WhseTransferRelease.Reopen(TransHeader);
+        TransHeader.Validate(Status, TransHeader.Status::Open);
+        TransHeader.Modify();
 
         OnAfterReopenTransferDoc(TransHeader);
     end;
@@ -74,15 +83,15 @@ codeunit 5708 "Release Transfer Document"
         TransHeader.CalcFields("Subcontracting Order");
         case TransHeader."Subcontracting Order" of
             true:
-                if not TransLine.FindFirst then begin
+                if not TransLine.FindFirst() then begin
                     TransLine.SetRange(Quantity);
                     TransLine.SetFilter("WIP Quantity", '<>0');
-                    if TransLine.IsEmpty then
-                        Error(Text002, TransHeader."No.");
+                    if TransLine.IsEmpty() then
+                        Error(NothingToReleaseErr, TransHeader."No.");
                 end;
             false:
-                if TransLine.IsEmpty then
-                    Error(Text002, TransHeader."No.");
+                if TransLine.IsEmpty() then
+                    Error(NothingToReleaseErr, TransHeader."No.");
         end;
     end;
 

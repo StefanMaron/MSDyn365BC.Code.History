@@ -1,4 +1,4 @@
-﻿table 5965 "Service Contract Header"
+table 5965 "Service Contract Header"
 {
     Caption = 'Service Contract Header';
     DataCaptionFields = "Contract No.", Description;
@@ -110,7 +110,7 @@
                                                     AnyServItemInOtherContract := true;
                                                     ServContractLine.Mark(true);
                                                 end;
-                                            until ServContractLine.Next = 0;
+                                            until ServContractLine.Next() = 0;
 
                                         "Change Status" := "Change Status"::Open;
 
@@ -544,7 +544,7 @@
                     if "Last Invoice Date" > "Next Invoice Date" then begin
                         ServLedgEntry.SetRange(Type, ServLedgEntry.Type::"Service Contract");
                         ServLedgEntry.SetRange("No.", "Contract No.");
-                        if not ServLedgEntry.IsEmpty then
+                        if not ServLedgEntry.IsEmpty() then
                             Error(Text023, FieldCaption("Next Invoice Date"), FieldCaption("Last Invoice Date"));
                         "Last Invoice Date" := 0D;
                     end;
@@ -627,7 +627,7 @@
                             ServContractLine."Starting Date" := 0D;
                             ServContractLine."Next Planned Service Date" := 0D;
                             ServContractLine.Modify();
-                        until ServContractLine.Next = 0;
+                        until ServContractLine.Next() = 0;
                         Modify(true);
                     end;
                 end else begin
@@ -643,7 +643,7 @@
                             ServContractLine."Starting Date" := "Starting Date";
                             ServContractLine."Next Planned Service Date" := "First Service Date";
                             ServContractLine.Modify();
-                        until ServContractLine.Next = 0;
+                        until ServContractLine.Next() = 0;
                         Modify(true);
                     end;
                     if "Next Price Update Date" = 0D then
@@ -701,7 +701,7 @@
                                 ServContractLine."Contract Expiration Date" := "Expiration Date";
                                 ServContractLine."Credit Memo Date" := "Expiration Date";
                                 ServContractLine.Modify();
-                            until ServContractLine.Next = 0;
+                            until ServContractLine.Next() = 0;
                             Modify(true);
                         end;
                     end;
@@ -791,7 +791,7 @@
                     if "Contract Type" = "Contract Type"::Contract then begin
                         ServLedgEntry.SetCurrentKey("Service Contract No.");
                         ServLedgEntry.SetRange("Service Contract No.", "Contract No.");
-                        if not ServLedgEntry.IsEmpty then
+                        if not ServLedgEntry.IsEmpty() then
                             Error(
                               Text032,
                               FieldCaption(Prepaid), TableCaption, "Contract No.");
@@ -935,7 +935,7 @@
                                     ServContractLine."Service Period" := "Service Period";
                                     ServContractLine.Modify();
                                 end;
-                            until ServContractLine.Next = 0;
+                            until ServContractLine.Next() = 0;
                     end;
                 end;
             end;
@@ -1574,7 +1574,7 @@
             ServLedgEntry.SetRange("No.", "Contract No.");
             ServLedgEntry.SetRange(Prepaid, false);
             ServLedgEntry.SetRange(Open, true);
-            if not ServLedgEntry.IsEmpty then
+            if not ServLedgEntry.IsEmpty() then
                 if not ConfirmManagement.GetResponseOrDefault(
                      StrSubstNo(Text052, ServLedgEntry.FieldCaption(Open)), true)
                 then
@@ -2370,7 +2370,7 @@
                 ServContractLine2.Modify();
                 if ServMgtSetup."Register Contract Changes" then
                     ServContractLine2.LogContractLineChanges(OldServContractLine);
-            until ServContractLine2.Next = 0;
+            until ServContractLine2.Next() = 0;
     end;
 
     local procedure ProfitBasedDistribution(var ServContractLine2: Record "Service Contract Line")
@@ -2396,7 +2396,7 @@
                 ServContractLine2.Modify();
                 if ServMgtSetup."Register Contract Changes" then
                     ServContractLine2.LogContractLineChanges(OldServContractLine);
-            until ServContractLine2.Next = 0;
+            until ServContractLine2.Next() = 0;
     end;
 
     local procedure AmountBasedDistribution(var ServContractLine2: Record "Service Contract Line")
@@ -2420,7 +2420,7 @@
                 ServContractLine2.Modify();
                 if ServMgtSetup."Register Contract Changes" then
                     ServContractLine2.LogContractLineChanges(OldServContractLine);
-            until ServContractLine2.Next = 0;
+            until ServContractLine2.Next() = 0;
     end;
 
     local procedure DistributeAmounts()

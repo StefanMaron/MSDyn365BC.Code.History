@@ -575,6 +575,7 @@
         // [THEN] One more RiferimentoTesto has value of "Y1"
         // [THEN] item's "AltriDatiGestionali"."TipoDato" = "TXTITEM012" (10 chars length) (TFS 296782)
         // [THEN] standard text's "AltriDatiGestionali"."TipoDato" = "STDTEXT012" (10 chars length) (TFS 296782)
+        // TFS 387861: Each RiferimentoTesto tag should be under the AltriDatiGestionali tag
         VerifyAltriDatiGestionaliByExtTexts(ServerFileName, ItemNo, StandardText);
     end;
 
@@ -610,6 +611,7 @@
 
         // [THEN] Each extended texts separated by length 60 and 40 with results in 2 RiferimentoTesto nodes, total 6 nodes for 3 extended texts
         // [THEN] One more RiferimentoTesto has value of "Y1"
+        // TFS 387861: Each RiferimentoTesto tag should be under the AltriDatiGestionali tag
         VerifyAltriDatiGestionaliByExtTexts(ServerFileName, ItemNo, StandardText);
     end;
 
@@ -645,6 +647,7 @@
 
         // [THEN] Each extended texts separated by length 60 and 40 with results in 2 RiferimentoTesto nodes, total 6 nodes for 3 extended texts
         // [THEN] One more RiferimentoTesto has value of "Y1"
+        // TFS 387861: Each RiferimentoTesto tag should be under the AltriDatiGestionali tag
         VerifyAltriDatiGestionaliByExtTexts(ServerFileName, ItemNo, StandardText);
     end;
 
@@ -680,6 +683,7 @@
 
         // [THEN] Each extended texts separated by length 60 and 40 with results in 2 RiferimentoTesto nodes, total 6 nodes for 3 extended texts
         // [THEN] One more RiferimentoTesto has value of "Y1"
+        // TFS 387861: Each RiferimentoTesto tag should be under the AltriDatiGestionali tag
         VerifyAltriDatiGestionaliByExtTexts(ServerFileName, ItemNo, StandardText);
     end;
 
@@ -1231,6 +1235,7 @@
         SalesInvoiceHeader: Record "Sales Invoice Header";
         ElectronicDocumentFormat: Record "Electronic Document Format";
         StandardText: Record "Standard Text";
+        TempXMLBuffer: Record "XML Buffer" temporary;
         ItemNo: Code[20];
         DocumentNo: Code[20];
         ServerFileName: Text[250];
@@ -1259,7 +1264,9 @@
           ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] Euro special character replaced with 'EUR' text
-        VerifyAltriDatiGestionaliByExtTexts(ServerFileName, ItemNo, StandardText);
+        // TFS 387861: Each RiferimentoTesto tag should be under the AltriDatiGestionali tag
+        VerifyAltriDatiGestionaliByExtTextLines(TempXMLBuffer, ServerFileName, ItemNo);
+        VerifyAltriDatiGestionaliShortText(TempXMLBuffer, StandardText.Code, StandardText.Description);
         DeleteServerFile(ServerFileName);
     end;
 
@@ -2351,11 +2358,16 @@
         VATEntry.SetRange("Document Type", VATEntry."Document Type"::Invoice);
         VATEntry.SetRange("Document No.", DocNo);
         VATEntry.SetRange("Posting Date", PostingDate);
-        VATEntry.FindSet;
+        VATEntry.FindSet();
         repeat
             i += 1;
             AmountArray[i] := -VATEntry.Amount;
         until VATEntry.Next = 0;
+    end;
+
+    local procedure GetMaxRiferimentoTestoLength(): Integer
+    begin
+        exit(60);
     end;
 
     local procedure SetCheckInVATBusPostingGroupExemption(VATBusPostingGroupCode: Code[20])
@@ -2402,7 +2414,7 @@
         SalesInvoiceLine.SetRange("Document No.", InvNo);
         SalesInvoiceLine.SetRange(Type, SalesInvoiceLine.Type::Item);
         SalesInvoiceLine.SetFilter("Shipment No.", '<>%1', '');
-        SalesInvoiceLine.FindSet;
+        SalesInvoiceLine.FindSet();
         Assert.RecordCount(TempXMLBuffer, SalesInvoiceLine.Count);
         VerifyDatiDDTData(
           TempXMLBuffer, SalesInvoiceLine."Shipment No.", SalesInvoiceLine."Shipment Date", SalesInvoiceLine."Line No." / 10000);
@@ -2424,7 +2436,7 @@
         ServiceInvoiceLine.SetRange("Document No.", InvNo);
         ServiceInvoiceLine.SetRange(Type, ServiceInvoiceLine.Type::Item);
         ServiceInvoiceLine.SetFilter("Shipment No.", '<>%1', '');
-        ServiceInvoiceLine.FindSet;
+        ServiceInvoiceLine.FindSet();
         VerifyDatiDDTData(
           TempXMLBuffer, ServiceInvoiceLine."Shipment No.", ServiceInvoiceLine."Posting Date", ServiceInvoiceLine."Line No." / 10000);
         while ServiceInvoiceLine.Next <> 0 do begin
@@ -2444,7 +2456,7 @@
         TempXMLBuffer.Load(ServerFileName);
         TempXMLBuffer.FindNodesByXPath(TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaBody/DatiGenerali/DatiDDT');
         SalesShipmentLine.SetRange("Sell-to Customer No.", CustomerNo);
-        SalesShipmentLine.FindSet;
+        SalesShipmentLine.FindSet();
         i := 1;
         VerifyDatiDDTData(TempXMLBuffer, SalesShipmentLine."Document No.", SalesShipmentLine."Shipment Date", i);
         while SalesShipmentLine.Next <> 0 do begin
@@ -2464,7 +2476,7 @@
         TempXMLBuffer.Load(ServerFileName);
         TempXMLBuffer.FindNodesByXPath(TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaBody/DatiGenerali/DatiDDT');
         ServiceShipmentLine.SetRange("Customer No.", CustomerNo);
-        ServiceShipmentLine.FindSet;
+        ServiceShipmentLine.FindSet();
         i := 1;
         VerifyDatiDDTData(TempXMLBuffer, ServiceShipmentLine."Document No.", ServiceShipmentLine."Posting Date", i);
         while ServiceShipmentLine.Next <> 0 do begin
@@ -2485,7 +2497,7 @@
         SalesShipmentLine.SetRange("Sell-to Customer No.", CustomerNo);
         SalesShipmentLine.FindFirst;
         SalesShipmentLine.SetRange("Document No.", SalesShipmentLine."Document No.");
-        SalesShipmentLine.FindSet;
+        SalesShipmentLine.FindSet();
         repeat
             AssertElementValue(TempXMLBuffer, 'RiferimentoNumeroLinea', Format(SalesShipmentLine."Order Line No." / 10000));
         until SalesShipmentLine.Next = 0;
@@ -2502,7 +2514,7 @@
         ServiceShipmentLine.SetRange("Customer No.", CustomerNo);
         ServiceShipmentLine.FindFirst;
         ServiceShipmentLine.SetRange("Document No.", ServiceShipmentLine."Document No.");
-        ServiceShipmentLine.FindSet;
+        ServiceShipmentLine.FindSet();
         VerifyDatiDDTData(
           TempXMLBuffer, ServiceShipmentLine."Document No.", ServiceShipmentLine."Posting Date",
           ServiceShipmentLine."Order Line No." / 10000);
@@ -2566,7 +2578,7 @@
         PaymentMethod.Get(SalesInvoiceHeader."Payment Method Code");
         CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Invoice);
         CustLedgerEntry.SetRange("Document No.", DocNo);
-        CustLedgerEntry.FindSet;
+        CustLedgerEntry.FindSet();
         VerifyDettaglioPagamentoData(TempXMLBuffer, PaymentMethod."Fattura PA Payment Method", CustLedgerEntry);
         while CustLedgerEntry.Next <> 0 do begin
             FindNextElement(TempXMLBuffer);
@@ -2657,42 +2669,61 @@
 
     local procedure VerifyAltriDatiGestionaliByExtTexts(ServerFileName: Text[250]; ItemNo: Code[20]; StandardText: Record "Standard Text")
     var
+        TempXMLBuffer: Record "XML Buffer" temporary;
+    begin
+        VerifyAltriDatiGestionaliByExtTextLines(TempXMLBuffer, ServerFileName, ItemNo);
+        VerifyAltriDatiGestionaliLongText(TempXMLBuffer, StandardText.Code, StandardText.Description);
+        DeleteServerFile(ServerFileName);
+    end;
+
+    local procedure VerifyAltriDatiGestionaliByExtTextLines(var TempXMLBuffer: Record "XML Buffer" temporary; ServerFileName: Text[250]; ItemNo: Code[20])
+    var
         ExtendedTextHeader: Record "Extended Text Header";
         ExtendedTextLine: Record "Extended Text Line";
-        TempXMLBuffer: Record "XML Buffer" temporary;
         XPath: Text;
     begin
         TempXMLBuffer.Load(ServerFileName);
-        XPath := '/p:FatturaElettronica/FatturaElettronicaBody/DatiBeniServizi/DettaglioLinee/AltriDatiGestionali/TipoDato';
-        TempXMLBuffer.FindNodesByXPath(TempXMLBuffer, XPath);
+        XPath := '/p:FatturaElettronica/FatturaElettronicaBody/DatiBeniServizi/DettaglioLinee/AltriDatiGestionali';
+        Assert.IsTrue(TempXMLBuffer.FindNodesByXPath(TempXMLBuffer, XPath), '');
 
         ExtendedTextLine.SetRange("Table Name", ExtendedTextLine."Table Name"::Item);
         ExtendedTextLine.SetRange("No.", ItemNo);
-        ExtendedTextLine.FindSet;
+        ExtendedTextLine.FindSet();
         ExtendedTextHeader.Get(ExtendedTextLine."Table Name", ExtendedTextLine."No.", '', 1);
 
         repeat
             TempXMLBuffer.SetRange(Path);
-            VerifyAltriDatiGestionali(TempXMLBuffer, StrSubstNo(TxtTok, ExtendedTextLine."No."), ExtendedTextLine.Text);
+            VerifyAltriDatiGestionaliLongText(TempXMLBuffer, StrSubstNo(TxtTok, ExtendedTextLine."No."), ExtendedTextLine.Text);
             TempXMLBuffer.SetFilter(Path, '*' + XPath);
             FindNextElement(TempXMLBuffer);
         until ExtendedTextLine.Next = 0;
         TempXMLBuffer.SetRange(Path);
-        VerifyAltriDatiGestionali(TempXMLBuffer, StandardText.Code, StandardText.Description);
-        DeleteServerFile(ServerFileName);
     end;
 
-    local procedure VerifyAltriDatiGestionali(var TempXMLBuffer: Record "XML Buffer" temporary; ExtendedItemNo: Text[100]; ExtendedText: Text[100])
+    local procedure VerifyAltriDatiGestionaliLongText(var TempXMLBuffer: Record "XML Buffer" temporary; ExtendedItemNo: Text[100]; ExtendedText: Text[100])
     var
         XMLFieldLength: Integer;
     begin
+        VerifyAltriDatiGestionaliShortText(TempXMLBuffer, ExtendedItemNo, ExtendedText);
+
+        FindNextElement(TempXMLBuffer); // next AltriDatiGestionali
+        FindNextElement(TempXMLBuffer);
         AssertCurrentElementValue(TempXMLBuffer, CopyStr(ExtendedItemNo, 1, 10));
         FindNextElement(TempXMLBuffer);
-        XMLFieldLength := 60;
+        XMLFieldLength := GetMaxRiferimentoTestoLength;
+        AssertCurrentElementValue(TempXMLBuffer, CopyStr(ExtendedText, XMLFieldLength + 1, MaxStrLen(ExtendedText) - XMLFieldLength));
+    end;
+
+    local procedure VerifyAltriDatiGestionaliShortText(var TempXMLBuffer: Record "XML Buffer" temporary; ExtendedItemNo: Text[100]; ExtendedText: Text[100])
+    var
+        XMLFieldLength: Integer;
+    begin
+        FindNextElement(TempXMLBuffer); // go to TipoDato
+        AssertCurrentElementValue(TempXMLBuffer, CopyStr(ExtendedItemNo, 1, 10));
+        FindNextElement(TempXMLBuffer);
+        XMLFieldLength := GetMaxRiferimentoTestoLength;
         NormalizeText(ExtendedText);
         AssertCurrentElementValue(TempXMLBuffer, CopyStr(ExtendedText, 1, XMLFieldLength));
-        FindNextElement(TempXMLBuffer);
-        AssertCurrentElementValue(TempXMLBuffer, CopyStr(ExtendedText, XMLFieldLength + 1, MaxStrLen(ExtendedText) - XMLFieldLength));
     end;
 
     local procedure VerifyNoAltriDatiGestionaliNode(ServerFileName: Text[250])

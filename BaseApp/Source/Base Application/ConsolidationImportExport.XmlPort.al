@@ -271,7 +271,7 @@ xmlport 1 "Consolidation Import/Export"
             repeat
                 "G/L Account" := TempGLAccount;
                 "G/L Account".Insert();
-            until TempGLAccount.Next = 0;
+            until TempGLAccount.Next() = 0;
     end;
 
     procedure GetGLAccount(var TempGLAccount: Record "G/L Account")
@@ -283,7 +283,7 @@ xmlport 1 "Consolidation Import/Export"
             repeat
                 TempGLAccount := "G/L Account";
                 TempGLAccount.Insert();
-            until "G/L Account".Next = 0;
+            until "G/L Account".Next() = 0;
     end;
 
     procedure SetGLEntry(var TempGLEntry: Record "G/L Entry")
@@ -294,7 +294,7 @@ xmlport 1 "Consolidation Import/Export"
             repeat
                 "G/L Entry" := TempGLEntry;
                 "G/L Entry".Insert();
-            until TempGLEntry.Next = 0;
+            until TempGLEntry.Next() = 0;
     end;
 
     procedure GetGLEntry(var TempGLEntry: Record "G/L Entry")
@@ -306,7 +306,7 @@ xmlport 1 "Consolidation Import/Export"
             repeat
                 TempGLEntry := "G/L Entry";
                 TempGLEntry.Insert();
-            until "G/L Entry".Next = 0;
+            until "G/L Entry".Next() = 0;
     end;
 
     procedure SetEntryDim(var TempDimBuf: Record "Dimension Buffer" temporary)
@@ -317,7 +317,7 @@ xmlport 1 "Consolidation Import/Export"
             repeat
                 "Dimension Buffer" := TempDimBuf;
                 "Dimension Buffer".Insert();
-            until TempDimBuf.Next = 0;
+            until TempDimBuf.Next() = 0;
     end;
 
     procedure GetEntryDim(var TempDimBuf: Record "Dimension Buffer" temporary)
@@ -329,7 +329,7 @@ xmlport 1 "Consolidation Import/Export"
             repeat
                 TempDimBuf := "Dimension Buffer";
                 TempDimBuf.Insert();
-            until "Dimension Buffer".Next = 0;
+            until "Dimension Buffer".Next() = 0;
     end;
 
     procedure SetExchRate(var TempExchRate: Record "Currency Exchange Rate")
@@ -340,7 +340,7 @@ xmlport 1 "Consolidation Import/Export"
             repeat
                 "Currency Exchange Rate" := TempExchRate;
                 "Currency Exchange Rate".Insert();
-            until TempExchRate.Next = 0;
+            until TempExchRate.Next() = 0;
     end;
 
     procedure GetExchRate(var TempExchRate: Record "Currency Exchange Rate")
@@ -352,7 +352,7 @@ xmlport 1 "Consolidation Import/Export"
             repeat
                 TempExchRate := "Currency Exchange Rate";
                 TempExchRate.Insert();
-            until "Currency Exchange Rate".Next = 0;
+            until "Currency Exchange Rate".Next() = 0;
     end;
 
     local procedure DateToXMLText(Date: Date) XMLText: Text[30]

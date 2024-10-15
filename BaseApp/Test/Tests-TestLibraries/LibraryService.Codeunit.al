@@ -180,7 +180,7 @@ codeunit 131902 "Library - Service"
         ResponsibilityCenter.Insert(true);
     end;
 
-    procedure CreateServiceCommentLine(var ServiceCommentLine: Record "Service Comment Line"; TableName: Option; TableSubtype: Option; No: Code[20]; Type: Option; TableLineNo: Integer)
+    procedure CreateServiceCommentLine(var ServiceCommentLine: Record "Service Comment Line"; TableName: Enum "Service Comment Table Name"; TableSubtype: Option; No: Code[20]; Type: Enum "Service Comment Line Type"; TableLineNo: Integer)
     var
         RecRef: RecordRef;
     begin
@@ -200,14 +200,14 @@ codeunit 131902 "Library - Service"
         ServiceCommentLine.Modify(true);
     end;
 
-    procedure CreateCommentLineForServHeader(var ServiceCommentLine: Record "Service Comment Line"; ServiceItemLine: Record "Service Item Line"; Type: Option)
+    procedure CreateCommentLineForServHeader(var ServiceCommentLine: Record "Service Comment Line"; ServiceItemLine: Record "Service Item Line"; Type: Enum "Service Comment Line Type")
     begin
         CreateServiceCommentLine(
           ServiceCommentLine, ServiceCommentLine."Table Name"::"Service Header", ServiceItemLine."Document Type".AsInteger(),
           ServiceItemLine."Document No.", Type, ServiceItemLine."Line No.");
     end;
 
-    procedure CreateCommentLineForServCntrct(var ServiceCommentLine: Record "Service Comment Line"; ServiceContractLine: Record "Service Contract Line"; Type: Option)
+    procedure CreateCommentLineForServCntrct(var ServiceCommentLine: Record "Service Comment Line"; ServiceContractLine: Record "Service Contract Line"; Type: Enum "Service Comment Line Type")
     begin
         CreateServiceCommentLine(
           ServiceCommentLine, ServiceCommentLine."Table Name"::"Service Contract", ServiceContractLine."Contract Type",
@@ -454,7 +454,7 @@ codeunit 131902 "Library - Service"
         ServiceItemLine.Modify(true);
     end;
 
-    procedure CreateServiceLineWithQuantity(var ServiceLine: Record "Service Line"; ServiceHeader: Record "Service Header"; Type: Enum "Service Line Type"; No: Code[20]; Quantity: Integer)
+    procedure CreateServiceLineWithQuantity(var ServiceLine: Record "Service Line"; ServiceHeader: Record "Service Header"; Type: Enum "Service Line Type"; No: Code[20]; Quantity: Decimal)
     begin
         CreateServiceLine(ServiceLine, ServiceHeader, Type, No);
         ServiceLine.Validate(Quantity, Quantity);
@@ -655,7 +655,7 @@ codeunit 131902 "Library - Service"
         ServiceContractAccountGroup.SetFilter("Non-Prepaid Contract Acc.", '<>''''');
         ServiceContractAccountGroup.SetFilter("Prepaid Contract Acc.", '<>''''');
 
-        ServiceContractAccountGroup.FindSet;
+        ServiceContractAccountGroup.FindSet();
     end;
 
     procedure FindServiceCost(var ServiceCost: Record "Service Cost")
@@ -664,22 +664,22 @@ codeunit 131902 "Library - Service"
         ServiceCost.SetFilter("Account No.", '<>''''');
         ServiceCost.SetRange("Service Zone Code", '');
 
-        ServiceCost.FindSet;
+        ServiceCost.FindSet();
     end;
 
     procedure FindServiceItemGroup(var ServiceItemGroup: Record "Service Item Group")
     begin
-        ServiceItemGroup.FindSet;
+        ServiceItemGroup.FindSet();
     end;
 
     procedure FindResolutionCode(var ResolutionCode: Record "Resolution Code")
     begin
-        ResolutionCode.FindSet;
+        ResolutionCode.FindSet();
     end;
 
     procedure FindFaultReasonCode(var FaultReasonCode: Record "Fault Reason Code")
     begin
-        FaultReasonCode.FindSet;
+        FaultReasonCode.FindSet();
     end;
 
     procedure FindServiceContractLine(var ServiceContractLine: Record "Service Contract Line"; ContractType: Option; ContractNo: Code[20])

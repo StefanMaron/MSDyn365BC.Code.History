@@ -270,7 +270,7 @@ table 288 "Vendor Bank Account"
         VendorLedgerEntry.SetRange("Vendor No.", "Vendor No.");
         VendorLedgerEntry.SetRange("Recipient Bank Account", Code);
         VendorLedgerEntry.SetRange(Open, true);
-        if not VendorLedgerEntry.IsEmpty then
+        if not VendorLedgerEntry.IsEmpty() then
             Error(BankAccDeleteErr);
         if Vendor.Get("Vendor No.") and (Vendor."Preferred Bank Account Code" = Code) then begin
             Vendor."Preferred Bank Account Code" := '';

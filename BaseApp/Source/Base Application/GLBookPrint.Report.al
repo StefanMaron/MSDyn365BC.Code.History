@@ -315,7 +315,7 @@ report 12121 "G/L Book - Print"
                             GLBookEntry2.Get(TempGLBookEntry."Entry No.");
                             GLBookEntry2."Progressive No." := TempGLBookEntry."Progressive No.";
                             GLBookEntry2.Modify();
-                        until TempGLBookEntry.Next = 0;
+                        until TempGLBookEntry.Next() = 0;
                 end;
             end;
 
@@ -352,7 +352,7 @@ report 12121 "G/L Book - Print"
                             GLBookEntry2.CalcFields("Debit Amount", "Credit Amount");
                             StartDebit := StartDebit + GLBookEntry2."Debit Amount";
                             StartCredit := StartCredit + GLBookEntry2."Credit Amount";
-                        until GLBookEntry2.Next = 0;
+                        until GLBookEntry2.Next() = 0;
                     SetCurrentKey("Progressive No.");
                 end;
 

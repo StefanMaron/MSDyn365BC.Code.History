@@ -567,7 +567,7 @@ report 12119 "Depreciation Book"
                     CurrReport.Skip();
                 FixedAsset.Copy("Fixed Asset");
                 if SkipRecord then begin
-                    if FixedAsset.Next = 0 then
+                    if FixedAsset.Next() = 0 then
                         CreateTotals;
                     CurrReport.Skip();
                 end;
@@ -632,7 +632,7 @@ report 12119 "Depreciation Book"
                 CalcTotals(false, TotalClass);
                 UpdateTotals;
                 CreateGroupTotals;
-                if FixedAsset.Next = 0 then
+                if FixedAsset.Next() = 0 then
                     CreateTotals;
             end;
 
@@ -962,7 +962,7 @@ report 12119 "Depreciation Book"
             if TempFALedgEntry.FindSet then
                 repeat
                     TotalAmount[Type] := TotalAmount[Type] + TempFALedgEntry.Amount;
-                until TempFALedgEntry.Next = 0;
+                until TempFALedgEntry.Next() = 0;
             if Type in [1 .. 4] then
                 TotalAmount[Type] += ReclassAmount[Type];
         end;

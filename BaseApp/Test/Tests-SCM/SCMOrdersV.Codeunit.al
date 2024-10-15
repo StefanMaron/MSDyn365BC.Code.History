@@ -47,9 +47,9 @@ codeunit 137158 "SCM Orders V"
         FieldShouldBeEditableErr: Label 'Field should be editable.';
         ChangeBillToCustomerNoConfirmQst: Label 'Do you want to change';
         QuantityToAssembleErr: Label 'Quantity to Assemble cannot be higher than the Remaining Quantity, which is %1.', Comment = '%1 = Quantity Value';
-        AvailabilityWarningsConfirmMsg: Label 'There are availability warnings on one or more lines.';
+        AvailabilityWarningsConfirmMsg: Label 'You do not have enough inventory to meet the demand for items in one or more lines';
         ExternalDocumentMustNotEmptyErr: Label 'External Document No. must have a value in Sales Header: Document Type=Order, No.=%1. It cannot be zero or empty.', Comment = '%1 = Order No.';
-        OrderDateOnSalesHeaderMsg: Label 'You have changed Order Date on the sales header';
+        OrderDateOnSalesHeaderMsg: Label 'You have changed the Order Date on the sales order, which might affect the prices and discounts on the sales order lines. You should review the lines and manually update prices and discounts if needed.';
         NoGLEntryWithinFilterErr: Label 'There is no G/L Entry within the filter';
         DropShipmentMustBeEqualToNoErr: Label 'Drop Shipment must be equal to ''No''  in Purchase Line: Document Type=Order, Document No.=%1', Comment = '%1 = Document No.';
         SpecialOrderMustBeEqualToNoErr: Label 'Special Order must be equal to ''No''  in Purchase Line: Document Type=Order, Document No.=%1', Comment = '%1 = Document No.';
@@ -427,7 +427,7 @@ codeunit 137158 "SCM Orders V"
 
         if PostPurchaseReturnOrder then begin
             // Exercise: Post Purchase Return Order with Get Posted Document Lines to Reserve.
-            PostedDocumentNo3 := CreateAndPostPurchaseReturnOrderWithGetPostedDocumentLinesToRevere(PurchaseHeader."Buy-from Vendor No.");
+            PostedDocumentNo3 := CreateAndPostPurchaseReturnOrderWithGetPostedDocumentLinesToReverse(PurchaseHeader."Buy-from Vendor No.");
 
             // Verify: Verify Item Ledger Entry.
             VerifyItemLedgerEntryForPostedDocument(
@@ -1311,7 +1311,7 @@ codeunit 137158 "SCM Orders V"
         // [WHEN] Open posted item tracking lines
         // [THEN] Item tracking line with lot no. = "L" is displayed
         // Verified in PostedITLPageHandler
-        SalesHeader.GetPstdDocLinesToRevere;
+        SalesHeader.GetPstdDocLinesToReverse();
     end;
 
     [Test]
@@ -1336,7 +1336,7 @@ codeunit 137158 "SCM Orders V"
 
         // [GIVEN] Create sales credit memo for customer "C" and run "Get Posted Document Lines to Reverse"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", Customer."No.");
-        SalesHeader.GetPstdDocLinesToRevere;
+        SalesHeader.GetPstdDocLinesToReverse();
 
         // [WHEN] Open posted item tracking lines
         // [THEN] 2 sales shipments are in the list: "S1" and "S2"
@@ -3712,12 +3712,12 @@ codeunit 137158 "SCM Orders V"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);  // Post as Receive.
     end;
 
-    local procedure CreateAndPostPurchaseReturnOrderWithGetPostedDocumentLinesToRevere(VendorNo: Code[20]) PostedDocumentNo: Code[20]
+    local procedure CreateAndPostPurchaseReturnOrderWithGetPostedDocumentLinesToReverse(VendorNo: Code[20]) PostedDocumentNo: Code[20]
     var
         PurchaseHeader: Record "Purchase Header";
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Return Order", VendorNo);
-        PurchaseHeader.GetPstdDocLinesToRevere;
+        PurchaseHeader.GetPstdDocLinesToReverse();
         PostedDocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);  // Receive as TRUE.
     end;
 
@@ -3738,7 +3738,7 @@ codeunit 137158 "SCM Orders V"
     begin
         LibraryVariableStorage.Enqueue(PostedSalesDocType::"Posted Return Receipts");  // Enqueue for PostedSalesDocumentLinesPageHandler.
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", CustomerNo);
-        SalesHeader.GetPstdDocLinesToRevere;
+        SalesHeader.GetPstdDocLinesToReverse();
         UpdateUnitPriceOnSalesCreditMemoLine(SalesLine, ItemNo, SalesHeader."No.");
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));  // Post as SHIP and INVOICE.
     end;
@@ -3774,7 +3774,7 @@ codeunit 137158 "SCM Orders V"
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Return Order", CustomerNo);
         LibraryVariableStorage.Enqueue(PostedSalesDocType::"Posted Shipments");  // Enqueue for PostedSalesDocumentLinesPageHandler.
-        SalesHeader.GetPstdDocLinesToRevere;
+        SalesHeader.GetPstdDocLinesToReverse();
         PostedDocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, false);  // Post as Receive.
     end;
 
@@ -4249,7 +4249,7 @@ codeunit 137158 "SCM Orders V"
           PurchaseHeader, PurchaseHeader."Document Type"::"Return Order", PurchaseHeader."Buy-from Vendor No.");
         PurchaseHeader.Validate("Vendor Cr. Memo No.", PurchaseHeader."No.");
         PurchaseHeader.Modify(true);
-        PurchaseHeader.GetPstdDocLinesToRevere;
+        PurchaseHeader.GetPstdDocLinesToReverse();
     end;
 
     local procedure CreatePurchasingCode(SpecialOrder: Boolean; DropShipment: Boolean): Code[10]
@@ -4512,7 +4512,7 @@ codeunit 137158 "SCM Orders V"
     begin
         ReturnShipmentLine.SetRange("Return Order No.", OrderNo);
         ReturnShipmentLine.SetFilter("No.", '%1|%2', ItemNo, ItemNo2);
-        ReturnShipmentLine.FindSet;
+        ReturnShipmentLine.FindSet();
     end;
 
     local procedure FindReturnShipmentLine(var ReturnShipmentLine: Record "Return Shipment Line"; OrderNo: Code[20]; ItemNo: Code[20])
@@ -4526,7 +4526,7 @@ codeunit 137158 "SCM Orders V"
     begin
         ItemLedgerEntry.SetRange("Entry Type", EntryType);
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
-        ItemLedgerEntry.FindSet;
+        ItemLedgerEntry.FindSet();
     end;
 
     local procedure FindItemLedgerEntryWithDocumentNo(var ItemLedgerEntry: Record "Item Ledger Entry"; EntryType: Enum "Item Ledger Document Type"; DocumentNo: Code[20]; ItemNo: Code[20])
@@ -4545,13 +4545,13 @@ codeunit 137158 "SCM Orders V"
     begin
         PurchLine.SetRange("Document Type", PurchHeader."Document Type");
         PurchLine.SetRange("Document No.", PurchHeader."No.");
-        PurchLine.FindSet;
+        PurchLine.FindSet();
     end;
 
     local procedure FindReceiptLine(var PurchRcptLine: Record "Purch. Rcpt. Line"; OrderNo: Code[20]; ItemNo: Code[20]; ItemNo2: Code[20])
     begin
         FilterPurchRcptLine(PurchRcptLine, OrderNo, ItemNo, ItemNo2);
-        PurchRcptLine.FindSet;
+        PurchRcptLine.FindSet();
     end;
 
     local procedure FindSalesLine(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20])
@@ -4670,7 +4670,7 @@ codeunit 137158 "SCM Orders V"
         TransferHeader: Record "Transfer Header";
     begin
         TransferHeader.SetRange("In-Transit Code", LocationInTransit.Code);
-        TransferHeader.FindSet;
+        TransferHeader.FindSet();
         repeat
             LibraryWarehouse.PostTransferOrder(TransferHeader, true, true);  // Post as SHIP and RECEIVE.
         until TransferHeader.Next = 0;
@@ -5079,7 +5079,7 @@ codeunit 137158 "SCM Orders V"
         Task: Record "To-do";
     begin
         Task.SetRange("Contact No.", ContactNo);
-        Task.FindSet;
+        Task.FindSet();
         Task.TestField(Description, Description);
         Task.Next;
         Task.TestField(Description, Description);
@@ -5186,7 +5186,7 @@ codeunit 137158 "SCM Orders V"
         PurchRcptLine: Record "Purch. Rcpt. Line";
     begin
         FilterPurchRcptLine(PurchRcptLine, OrderNo, ItemNo, ItemNo2);
-        PurchRcptLine.FindSet;
+        PurchRcptLine.FindSet();
         Assert.AreEqual(Quantity, PurchRcptLine.Quantity, QuantityMustBeSameErr);
         PurchRcptLine.Next;
         Assert.AreEqual(-Quantity, PurchRcptLine.Quantity, QuantityMustBeSameErr);
@@ -5237,7 +5237,7 @@ codeunit 137158 "SCM Orders V"
         with SalesLine do begin
             SetRange("Document Type", DocumentType);
             SetRange("Document No.", DocumentNo);
-            FindSet;
+            FindSet();
             Next;
             TestField("No.", CompItemNo);
             Next;
@@ -5332,7 +5332,7 @@ codeunit 137158 "SCM Orders V"
         with PurchaseLine do begin
             SetRange("Document Type", DocumentType);
             SetRange("Document No.", DocumentNo);
-            FindSet;
+            FindSet();
             Next;
             TestField("No.", CompItemNo);
             Next;

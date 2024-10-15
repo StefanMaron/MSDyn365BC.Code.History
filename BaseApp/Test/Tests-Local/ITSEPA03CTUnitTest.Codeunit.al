@@ -547,7 +547,7 @@ codeunit 144016 "IT - SEPA.03 CT Unit Test"
     [Normal]
     local procedure VerifyPaymentExportData(var TempVendorBillLine: Record "Vendor Bill Line" temporary; PaymentExportData: Record "Payment Export Data"; VendorBillHeader: Record "Vendor Bill Header")
     begin
-        TempVendorBillLine.FindSet;
+        TempVendorBillLine.FindSet();
         repeat
             VerifyPaymentLine(PaymentExportData, TempVendorBillLine, VendorBillHeader, TempVendorBillLine."Amount to Pay");
         until TempVendorBillLine.Next = 0;
@@ -612,7 +612,7 @@ codeunit 144016 "IT - SEPA.03 CT Unit Test"
         Reply := true;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 419, 'OnBeforeDownloadHandler', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"File Management", 'OnBeforeDownloadHandler', '', false, false)]
     local procedure SetFileNameOnBeforeDownloadHandler(var ToFolder: Text; ToFileName: Text; FromFileName: Text; var IsHandled: Boolean)
     begin
         LibraryVariableStorage.Enqueue(FromFileName);

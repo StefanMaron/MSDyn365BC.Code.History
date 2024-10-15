@@ -1264,7 +1264,7 @@ codeunit 144007 "IT - VAT Reporting - Sales"
         VATReportSetup: Record "VAT Report Setup";
     begin
         // Create VAT Report Setup.
-        if VATReportSetup.IsEmpty then
+        if VATReportSetup.IsEmpty() then
             VATReportSetup.Insert(true);
         VATReportSetup.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
         VATReportSetup.Modify(true);
@@ -1372,7 +1372,7 @@ codeunit 144007 "IT - VAT Reporting - Sales"
     begin
         VATEntry.SetRange("Document Type", DocumentType);
         VATEntry.SetRange("Document No.", DocumentNo);
-        VATEntry.FindSet;
+        VATEntry.FindSet();
     end;
 
     local procedure FindVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; IncludeInVATTransacRep: Boolean): Boolean
@@ -1441,7 +1441,7 @@ codeunit 144007 "IT - VAT Reporting - Sales"
         VATEntry.SetRange("Document Type", DocumentType);
         VATEntry.SetRange("Document No.", DocumentNo);
         VATEntry.SetRange(Base, Base);
-        VATEntry.FindSet;
+        VATEntry.FindSet();
         repeat
             VATEntry.TestField("Contract No.", ContractNo);
         until VATEntry.Next = 0;

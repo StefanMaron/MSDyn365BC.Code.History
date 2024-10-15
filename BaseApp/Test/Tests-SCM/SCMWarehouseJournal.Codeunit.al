@@ -2349,25 +2349,68 @@ codeunit 137153 "SCM Warehouse - Journal"
     [Scope('OnPrem')]
     procedure WhseJournalNotOpenedIfWhseEmployeeLocationIsNotDirectPutAwayAndPickup()
     var
-        Location: Record Location;
+        Location: array[3] of Record Location;
         LocalWarehouseEmployee: Record "Warehouse Employee";
         WarehouseJournalTemplate: Record "Warehouse Journal Template";
         WarehouseJournalLine: Record "Warehouse Journal Line";
     begin
         // [FEATURE] [Warehouse Employee] [UT]
         // [SCENARIO 223342] Warehouse Journal cannot be opened if location within warehouse employee is not directed put-away and pick.
-        Initialize;
-        ResetDefaultWhseLocation;
+        Initialize();
+        LocalWarehouseEmployee.SetRange("User ID", UserId);
+        LocalWarehouseEmployee.DeleteAll(true); //Remove all the unwanted warehouse employee locations for this test.
+        Commit();
 
-        // [GIVEN] Warehouse Location "L" with "Bin Mandatory" = true and "Direct Put-away and Pick" = false.
-        // [GIVEN] Warehouse Employee "E" with default location "L".
-        SetupWarehouseJournalBatchEnvironmentNoBatch(Location, LocalWarehouseEmployee, WarehouseJournalTemplate, FALSE);
+        // [GIVEN] 3 Locations -  "Blue", "Silver" and "White" without directed put-away and pick.
+        // [GIVEN] Current user is set as warehouse employee at "Blue" (default), 'silver" and "White".
+        LibraryWarehouse.CreateLocation(Location[1]);
+        LibraryWarehouse.CreateLocation(Location[2]);
+        LibraryWarehouse.CreateLocation(Location[3]);
+        LibraryWarehouse.CreateWarehouseEmployee(LocalWarehouseEmployee, Location[1].Code, true);
+        LibraryWarehouse.CreateWarehouseEmployee(LocalWarehouseEmployee, Location[2].Code, false);
+        LibraryWarehouse.CreateWarehouseEmployee(LocalWarehouseEmployee, Location[3].Code, false);
+
+        // [WHEN] Open Warehouse Journal when all the locations for warehouse employee are not directed put-away and pick.
+        LibraryWarehouse.CreateWhseJournalTemplate(WarehouseJournalTemplate, WarehouseJournalTemplate.Type::Item);
+        WarehouseJournalLine.SetRange("Journal Template Name", WarehouseJournalTemplate.Name);
 
         // [WHEN] Open Warehouse Journal Line with empty batch and location.
         ASSERTERROR InvokeOpenWarehouseJournal(WarehouseJournalLine, WarehouseJournalTemplate.Name, '', '');
 
         // [THEN] Error is thrown.
         Assert.ExpectedError(STRSUBSTNO(DefaultLocationNotDirectedPutawayPickErr, USERID));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure WhseJournalOpenedIfWhseEmpAnyLocationIsDirectPutAwayAndPickup()
+    var
+        Location: array[3] of Record Location;
+        WhseEmployee: Record "Warehouse Employee";
+        WarehouseJournalTemplate: Record "Warehouse Journal Template";
+        WarehouseJournalBatch: Record "Warehouse Journal Batch";
+        WarehouseJournalLine: Record "Warehouse Journal Line";
+    begin
+        // [FEATURE] [Warehouse Employee] [UT]
+        // [SCENARIO 386386] Warehouse Journal can be opened even if one of the locations for warehouse employee is directed put-away and pick.
+        Initialize();
+
+        // [GIVEN] 3 Locations -  basic "Blue", "Silver" with mandatory bin, "White" with directed put-away and pick.
+        // [GIVEN] Current user is set as warehouse employee at "Blue" (default) and "White".
+        CreateLocationsArray(Location);
+        LibraryWarehouse.CreateWarehouseEmployee(WhseEmployee, Location[1].Code, true);
+        LibraryWarehouse.CreateWarehouseEmployee(WhseEmployee, Location[3].Code, false);
+
+        // [WHEN] Open Warehouse Journal when default location for warehouse employee is not directed put-away and pick.
+        LibraryWarehouse.CreateWhseJournalTemplate(WarehouseJournalTemplate, WarehouseJournalTemplate.Type::Item);
+        WarehouseJournalLine.SetRange("Journal Template Name", WarehouseJournalTemplate.Name);
+        WarehouseJournalLine.OpenJnl(WarehouseJournalBatch.Name, Location[1].Code, WarehouseJournalLine);
+
+        // [THEN] Warehouse Journal at location "White" is shown because the default location is not directed put-away and pick.
+        WarehouseJournalLine.FilterGroup(2);
+        Assert.AreEqual(Location[3].Code, WarehouseJournalLine.GetFilter("Location Code"), WrongWhseJournalBatchOpenedErr);
+
+        WarehouseJournalTemplate.Delete();
     end;
 
     [Test]
@@ -2854,7 +2897,7 @@ codeunit 137153 "SCM Warehouse - Journal"
         // Warehouse Item Journal Line with -10 PCS: Lot "L1" with 6 PCS and "L2" with 4 PCS register and Calculate Whse Adjustment
         // Warehouse Item Journal Line with -11 PCS: Lot "L1" with 5 PCS and "L2" with 6 PCS register and Calculate Whse Adjustment
         // Warehouse Item Journal Line with 9 PCS: Lot "L1" with 4 PCS and "L2" with 5 PCS register and Calculate Whse Adjustment
-        TempTrackingSpecification.FindSet;
+        TempTrackingSpecification.FindSet();
         repeat
             Index += 1;
             RegisterWhseItemJournalLineWithTwoLots(WarehouseJournalBatch, TempTrackingSpecification, WhseItemJnlEntryType[Index]);
@@ -2866,7 +2909,7 @@ codeunit 137153 "SCM Warehouse - Journal"
         // [THEN] Negative Adjustment with 10 PCS with Reservation Entries having -6 PCS on Lot "L1" and -4 PCS on Lot "L2"
         // [THEN] Negative Adjustment with 11 PCS with Reservation Entries having -5 PCS on Lot "L1" and -6 PCS on Lot "L2"
         // [THEN] Positive Adjustment with 9 PCS with Reservation Entries having 4 PCS on Lot "L1" and 5 PCS on Lot "L2"
-        TempTrackingSpecification.FindSet;
+        TempTrackingSpecification.FindSet();
         Clear(Index);
         repeat
             Index += 1;
@@ -2916,7 +2959,7 @@ codeunit 137153 "SCM Warehouse - Journal"
         // [GIVEN] Registered Warehouse Item Journal Line with -10 PCS: Lot "L1" with 6 PCS and "L2" with 4 PCS
         // [GIVEN] Registered Warehouse Item Journal Line with -11 PCS: Lot "L1" with 5 PCS and "L2" with 6 PCS
         // [GIVEN] Registered Warehouse Item Journal Line with 9 PCS: Lot "L1" with 4 PCS and "L2" with 5 PCS
-        TempTrackingSpecification.FindSet;
+        TempTrackingSpecification.FindSet();
         repeat
             Index += 1;
             RegisterWhseItemJournalLineWithTwoLots(WarehouseJournalBatch, TempTrackingSpecification, WhseItemJnlEntryType[Index]);
@@ -2975,7 +3018,7 @@ codeunit 137153 "SCM Warehouse - Journal"
         // [GIVEN] Registered Warehouse Item Journal Line with -106 PCS: Lot "L1" with 6 PCS and "L2" with 100 PCS
         // [GIVEN] Registered Warehouse Item Journal Line with -11 PCS: Lot "L1" with 5 PCS and "L2" with 6 PCS
         // [GIVEN] Registered Warehouse Item Journal Line with 9 PCS: Lot "L1" with 4 PCS and "L2" with 5 PCS
-        TempTrackingSpecification.FindSet;
+        TempTrackingSpecification.FindSet();
         repeat
             Index += 1;
             RegisterWhseItemJournalLineWithTwoLots(WarehouseJournalBatch, TempTrackingSpecification, WhseItemJnlEntryType[Index]);
@@ -5638,7 +5681,7 @@ codeunit 137153 "SCM Warehouse - Journal"
     begin
         WarehouseEntry.SetRange("Source No.", PurchaseLine."Document No.");
         WarehouseEntry.SetRange("Item No.", PurchaseLine."No.");
-        WarehouseEntry.FindSet;
+        WarehouseEntry.FindSet();
         WarehouseEntry.TestField(Quantity, PurchaseLine."Qty. to Receive" / 2);  // Verify Partial Quantity.
         WarehouseEntry.Next;
         WarehouseEntry.TestField(Quantity, PurchaseLine."Qty. to Receive" / 2);  // Verify Partial Quantity.
@@ -5671,7 +5714,7 @@ codeunit 137153 "SCM Warehouse - Journal"
         TrackingQuantity: Decimal;
     begin
         FIlterWarehouseEntries(WarehouseEntry, EntryType, WarehouseJournalLine."Item No.", WarehouseJournalLine."Location Code");
-        WarehouseEntry.FindSet;
+        WarehouseEntry.FindSet();
         TrackingQuantity := WarehouseJournalLine.Quantity;
         repeat
             WarehouseEntry.TestField("Serial No.", Format(TrackingQuantity));
@@ -5693,7 +5736,7 @@ codeunit 137153 "SCM Warehouse - Journal"
           RegisteredWhseActivityLine."Location Code");
         WarehouseEntry.SetRange("Whse. Document Type", WarehouseEntry."Whse. Document Type"::"Whse. Journal");
         WarehouseEntry.SetRange("Lot No.", LotNo);
-        WarehouseEntry.FindSet;
+        WarehouseEntry.FindSet();
         WarehouseEntry.TestField(Quantity, -Quantity);
         if NextLine then begin
             WarehouseEntry.Next;

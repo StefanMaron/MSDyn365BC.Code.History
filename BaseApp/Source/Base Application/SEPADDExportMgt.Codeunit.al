@@ -13,7 +13,7 @@ codeunit 12177 "SEPA - DD Export Mgt."
         DirectDebitCollectionEntry: Record "Direct Debit Collection Entry";
     begin
         BankAccount.Get(BankAccountNo);
-        DirectDebitCollection.CreateNew(CustomerBillNo, BankAccountNo, PartnerType);
+        DirectDebitCollection.CreateRecord(CustomerBillNo, BankAccountNo, PartnerType);
         DirectDebitCollection."Source Table ID" := SourceTableID;
         DirectDebitCollection.Modify();
         DirectDebitCollectionEntry.SetRange("Direct Debit Collection No.", DirectDebitCollection."No.");

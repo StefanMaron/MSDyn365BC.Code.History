@@ -2937,7 +2937,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
         CountryRegion: Record "Country/Region";
         ForeignCountry: Code[10];
     begin
-        CountryRegion.FindSet;
+        CountryRegion.FindSet();
         CountryRegion.Next(LibraryRandom.RandInt(CountryRegion.Count));
         ForeignCountry := CountryRegion.Code;
 

@@ -756,7 +756,7 @@ codeunit 134005 "ERM Payment Tolerance Customer"
         VerifyGLEntry(Amount2, DocumentNo);
     end;
 
-    local procedure ToleranceDiscountEntry(DocumentType: Enum "Gen. Journal Document Type"; EntryType: Option; DocumentNo: Code[20]; CurrencyCode: Code[10]; Amount: Decimal; Amount2: Decimal)
+    local procedure ToleranceDiscountEntry(DocumentType: Enum "Gen. Journal Document Type"; EntryType: Enum "Detailed CV Ledger Entry Type"; DocumentNo: Code[20]; CurrencyCode: Code[10]; Amount: Decimal; Amount2: Decimal)
     begin
         // Exercise: Apply Payment/Refund Amount on Invoice/Credit Memo.
         ApplyAndPostCustomerEntry(DocumentType, DocumentNo);
@@ -983,7 +983,7 @@ codeunit 134005 "ERM Payment Tolerance Customer"
         PostApplication.OK.Invoke;
     end;
 
-    local procedure VerifyPaymentDiscountTolAmount(DocumentNo: Code[20]; Amount: Decimal; CurrencyCode: Code[10]; EntryType: Option)
+    local procedure VerifyPaymentDiscountTolAmount(DocumentNo: Code[20]; Amount: Decimal; CurrencyCode: Code[10]; EntryType: Enum "Detailed CV Ledger Entry Type")
     var
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
         Currency: Record Currency;

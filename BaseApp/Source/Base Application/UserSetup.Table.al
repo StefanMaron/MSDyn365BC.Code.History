@@ -221,7 +221,7 @@ table 91 "User Setup"
 
                 if "Approval Administrator" then begin
                     UserSetup.SetRange("Approval Administrator", true);
-                    if not UserSetup.IsEmpty then
+                    if not UserSetup.IsEmpty() then
                         FieldError("Approval Administrator");
                 end;
             end;

@@ -1,4 +1,4 @@
-﻿codeunit 224 "EmplEntry-Apply Posted Entries"
+codeunit 224 "EmplEntry-Apply Posted Entries"
 {
     EventSubscriberInstance = Manual;
     Permissions = TableData "Employee Ledger Entry" = rimd,
@@ -70,7 +70,7 @@
             repeat
                 if ApplyToEmplLedgEntry."Posting Date" > ApplicationDate then
                     ApplicationDate := ApplyToEmplLedgEntry."Posting Date";
-            until ApplyToEmplLedgEntry.Next = 0;
+            until ApplyToEmplLedgEntry.Next() = 0;
         end;
     end;
 
@@ -152,7 +152,7 @@
                 repeat
                     if "Entry No." > ApplicationEntryNo then
                         ApplicationEntryNo := "Entry No.";
-                until Next = 0;
+                until Next() = 0;
         end;
         exit(ApplicationEntryNo);
     end;
@@ -171,7 +171,7 @@
                 repeat
                     if LastTransactionNo < "Transaction No." then
                         LastTransactionNo := "Transaction No.";
-                until Next = 0;
+                until Next() = 0;
         end;
         exit(LastTransactionNo);
     end;
@@ -267,7 +267,7 @@
                     if (LastTransactionNo <> 0) and (LastTransactionNo <> DtldEmplLedgEntry."Transaction No.") then
                         Error(LatestEntryMustBeApplicationErr, DtldEmplLedgEntry."Employee Ledger Entry No.");
                 end;
-            until DtldEmplLedgEntry.Next = 0;
+            until DtldEmplLedgEntry.Next() = 0;
 
         DateComprReg.CheckMaxDateCompressed(MaxPostingDate, 0);
         OnPostUnApplyEmployeeOnAfterCheckMaxDateCompressed(DtldEmplLedgEntry2);
@@ -410,7 +410,7 @@
             repeat
                 if (DtldEmplLedgEntry."Transaction No." > LastTransactionNo) and not DtldEmplLedgEntry.Unapplied then
                     LastTransactionNo := DtldEmplLedgEntry."Transaction No.";
-            until DtldEmplLedgEntry.Next = 0;
+            until DtldEmplLedgEntry.Next() = 0;
         exit(LastTransactionNo);
     end;
 
@@ -450,7 +450,7 @@
         RunOptionPreviewContext := RunOptionPreview::Unapply;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 19, 'OnRunPreview', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Gen. Jnl.-Post Preview", 'OnRunPreview', '', false, false)]
     local procedure OnRunPreview(var Result: Boolean; Subscriber: Variant; RecVar: Variant)
     var
         EmplEntryApplyPostedEntries: Codeunit "EmplEntry-Apply Posted Entries";

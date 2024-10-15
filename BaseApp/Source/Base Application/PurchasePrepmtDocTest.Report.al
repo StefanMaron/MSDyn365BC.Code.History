@@ -315,7 +315,7 @@ report 412 "Purchase Prepmt. Doc. - Test"
                             Continue := MergeText(DimSetEntry);
                             if Continue then
                                 exit;
-                        until DimSetEntry.Next = 0;
+                        until DimSetEntry.Next() = 0;
                     end;
 
                     trigger OnPreDataItem()
@@ -442,7 +442,7 @@ report 412 "Purchase Prepmt. Doc. - Test"
                                 if not TempPurchLine.Find('-') then
                                     CurrReport.Break();
                             end else
-                                if TempPurchLine.Next = 0 then
+                                if TempPurchLine.Next() = 0 then
                                     CurrReport.Break();
                             "Purchase Line" := TempPurchLine;
                             CurrentErrorCount := ErrorCounter;
@@ -492,7 +492,7 @@ report 412 "Purchase Prepmt. Doc. - Test"
                         PurchPostPrepmt.GetPurchLines("Purchase Header", DocumentType, TempPurchLine);
                         if DocumentType = DocumentType::Invoice then begin
                             PurchPostPrepmt.GetPurchLinesToDeduct("Purchase Header", TempPurchLineToDeduct);
-                            if not TempPurchLineToDeduct.IsEmpty then
+                            if not TempPurchLineToDeduct.IsEmpty() then
                                 PurchPostPrepmt.CalcVATAmountLines(
                                   "Purchase Header", TempPurchLineToDeduct, TempVATAmountLineDeduct, DocumentType::"Credit Memo");
                         end;
@@ -633,7 +633,7 @@ report 412 "Purchase Prepmt. Doc. - Test"
                                 Continue := MergeText(LineDimSetEntry);
                                 if Continue then
                                     exit;
-                            until LineDimSetEntry.Next = 0;
+                            until LineDimSetEntry.Next() = 0;
                         end;
 
                         trigger OnPreDataItem()
@@ -672,7 +672,7 @@ report 412 "Purchase Prepmt. Doc. - Test"
                             if not TempPrepmtInvLineBuf.Find('-') then
                                 CurrReport.Break();
                         end else
-                            if TempPrepmtInvLineBuf.Next = 0 then
+                            if TempPrepmtInvLineBuf.Next() = 0 then
                                 CurrReport.Break();
 
                         LineDimSetEntry.SetRange("Dimension Set ID", TempPrepmtInvLineBuf."Dimension Set ID");

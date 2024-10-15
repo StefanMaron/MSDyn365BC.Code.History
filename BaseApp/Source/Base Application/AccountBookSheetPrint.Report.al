@@ -398,7 +398,7 @@ report 12109 "Account Book Sheet - Print"
                 GLBookEntry.SetRange("G/L Account No.", "No.");
                 GLBookEntry.SetFilter("Posting Date", Format("Date Filter"));
                 GLBookEntry.SetFilter(Amount, '<>0');
-                if (StartOnHand = 0) and GLBookEntry.IsEmpty then
+                if (StartOnHand = 0) and GLBookEntry.IsEmpty() then
                     CurrReport.Skip();
                 NextRec := true;
             end;

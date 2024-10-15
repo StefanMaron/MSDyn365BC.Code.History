@@ -252,7 +252,7 @@ page 456 "No. Series"
                     NoSeriesLine.SetRange("Starting Date");
                     NoSeriesLine.SetRange(Open);
                     PAGE.RunModal(0, NoSeriesLine);
-                    CurrPage.Update;
+                    CurrPage.Update();
                 end;
             "No. Series Type"::Sales:
                 begin
@@ -261,7 +261,7 @@ page 456 "No. Series"
                     NoSeriesLineSales.SetRange("Starting Date");
                     NoSeriesLineSales.SetRange(Open);
                     PAGE.RunModal(0, NoSeriesLineSales);
-                    CurrPage.Update;
+                    CurrPage.Update();
                 end;
             "No. Series Type"::Purchase:
                 begin
@@ -270,7 +270,7 @@ page 456 "No. Series"
                     NoSeriesLinePurchase.SetRange("Starting Date");
                     NoSeriesLinePurchase.SetRange(Open);
                     PAGE.RunModal(0, NoSeriesLinePurchase);
-                    CurrPage.Update;
+                    CurrPage.Update();
                 end;
         end;
     end;

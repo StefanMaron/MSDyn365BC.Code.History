@@ -194,7 +194,7 @@ page 12190 "Vendor Bill List Sent Card"
                 trigger OnAction()
                 begin
                     VendBillListChangeStatus.FromSentToOpen(Rec);
-                    CurrPage.Update;
+                    CurrPage.Update();
                 end;
             }
             action(Print)

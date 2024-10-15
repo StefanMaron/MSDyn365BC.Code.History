@@ -19,8 +19,8 @@ codeunit 6309 "PBI Sales Pipeline Chart Calc."
                 if TempSalesCycleStage.FindSet then
                     repeat
                         InsertToBuffer(TempPowerBIChartBuffer, TempSalesCycleStage);
-                    until TempSalesCycleStage.Next = 0;
-            until SalesCycle.Next = 0;
+                    until TempSalesCycleStage.Next() = 0;
+            until SalesCycle.Next() = 0;
         end;
     end;
 

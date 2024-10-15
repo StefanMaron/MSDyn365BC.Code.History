@@ -75,7 +75,7 @@ codeunit 134377 "ERM Sales Blanket Order"
 
         // Verify: Verify VAT Amount on Sales Blanket Order.
         GeneralLedgerSetup.Get();
-        SalesLine.FindSet;
+        SalesLine.FindSet();
         repeat
             BaseAmount += SalesLine."Line Amount";
         until SalesLine.Next = 0;

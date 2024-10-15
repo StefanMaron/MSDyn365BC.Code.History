@@ -255,11 +255,9 @@ table 5746 "Transfer Receipt Header"
         {
             Caption = 'Transport Reason Code';
         }
-        field(12181; "Source Type"; Option)
+        field(12181; "Source Type"; Enum "Analysis Source Type")
         {
             Caption = 'Source Type';
-            OptionCaption = ' ,Customer,Vendor,Item';
-            OptionMembers = " ",Customer,Vendor,Item;
         }
         field(12182; "Source No."; Code[20])
         {
@@ -318,7 +316,7 @@ table 5746 "Transfer Receipt Header"
         if TransRcptLine.Find('-') then
             repeat
                 TransRcptLine.Delete();
-            until TransRcptLine.Next = 0;
+            until TransRcptLine.Next() = 0;
 
         InvtCommentLine.SetRange("Document Type", InvtCommentLine."Document Type"::"Posted Transfer Receipt");
         InvtCommentLine.SetRange("No.", "No.");

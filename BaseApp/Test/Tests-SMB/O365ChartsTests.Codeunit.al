@@ -452,7 +452,7 @@ codeunit 138022 "O365 Charts Tests"
         NewCustPostGroup1: Record "Customer Posting Group";
         NewCustPostGroup2: Record "Customer Posting Group";
     begin
-        CustPostGroup.FindSet;
+        CustPostGroup.FindSet();
         NewCustPostGroup1 := CustPostGroup;
         CustPostGroup.Next(-1);
         NewCustPostGroup2 := CustPostGroup;

@@ -167,7 +167,7 @@ report 12115 "Calculate End Year Costs"
                                 LIFOBand2."Closed by Entry No." := 0;
                             LIFOBand2.Modify();
                         end;
-                until Next = 0;
+                until Next() = 0;
 
             Reset;
             SetRange(Definitive, false);
@@ -257,7 +257,7 @@ report 12115 "Calculate End Year Costs"
                 EndYearInv += ItemLedgEntry.Quantity;
                 if EndYearInv <= 0 then
                     StartDateLIFO := ItemLedgEntry."Posting Date";
-            until ItemLedgEntry.Next = 0;
+            until ItemLedgEntry.Next() = 0;
         exit(EndYearInv);
     end;
 
@@ -271,7 +271,7 @@ report 12115 "Calculate End Year Costs"
                 ItemLedgEntry.CalcFields("Purchase Amount (Expected)", "Purchase Amount (Actual)");
                 ItemCostHistory."Purchase Amount" += ItemLedgEntry."Purchase Amount (Actual)" + ItemLedgEntry."Purchase Amount (Expected)";
                 ItemCostHistory."Purchase Quantity" += ItemLedgEntry.Quantity;
-            until ItemLedgEntry.Next = 0;
+            until ItemLedgEntry.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -299,7 +299,7 @@ report 12115 "Calculate End Year Costs"
                       false, EndYearInv, FIFOCost, BefStartItemCost."Purchase Quantity",
                       BefStartItemCost."Purchase Amount");
                     UpdateExpCostExist(BefStartItemCost."Starting Date", StartingDate);
-                until (BefStartItemCost.Next = 0) or (EndYearInv <= 0);
+                until (BefStartItemCost.Next() = 0) or (EndYearInv <= 0);
         end;
         if EndYearInv > 0 then
             if ItemCostHistPrevYear.Get(Item."No.", CalcDate('<-1Y>', ReferenceDate)) then
@@ -345,7 +345,7 @@ report 12115 "Calculate End Year Costs"
                       false, EndYearInv, LIFOCost, BefStartItemCost."Purchase Quantity",
                       BefStartItemCost."Purchase Amount");
                     UpdateExpCostExist(BefStartItemCost."Starting Date", StartingDate);
-                until (BefStartItemCost.Next = 0) or (EndYearInv <= 0);
+                until (BefStartItemCost.Next() = 0) or (EndYearInv <= 0);
 
         if EndYearInv > 0 then begin
             SetItemLedgerEntryFilters(ItemLedgEntry, StartDate, ReferenceDate, '%1', ItemLedgEntry."Entry Type"::Purchase);
@@ -353,7 +353,7 @@ report 12115 "Calculate End Year Costs"
                 repeat
                     PurchAmt := GetPurchAmt(ItemLedgEntry);
                     CalcCosts(true, EndYearInv, LIFOCost, ItemLedgEntry.Quantity, PurchAmt);
-                until (EndYearInv <= 0) or (ItemLedgEntry.Next = 0);
+                until (EndYearInv <= 0) or (ItemLedgEntry.Next() = 0);
         end;
         if ItemCostHistory."End Year Inventory" <> 0 then
             LIFOCost := LIFOCost / ItemCostHistory."End Year Inventory";
@@ -387,7 +387,7 @@ report 12115 "Calculate End Year Costs"
                     CalcCosts(
                       false, EndYearInv, FIFOCost, BefStartItemCost."Production Quantity",
                       BefStartItemCost."Production Amount");
-                until (BefStartItemCost.Next = 0) or (EndYearInv <= 0);
+                until (BefStartItemCost.Next() = 0) or (EndYearInv <= 0);
         end;
         if EndYearInv > 0 then
             if ItemCostHistPrevYear.Get(Item."No.", CalcDate('<-1Y>', ReferenceDate)) then
@@ -435,7 +435,7 @@ report 12115 "Calculate End Year Costs"
                       false, EndYearInv, LIFOCost, BefStartItemCost."Production Quantity",
                       BefStartItemCost."Production Amount");
                     UpdateExpCostExist(BefStartItemCost."Starting Date", StartingDate);
-                until (BefStartItemCost.Next = 0) or (EndYearInv <= 0);
+                until (BefStartItemCost.Next() = 0) or (EndYearInv <= 0);
 
         if EndYearInv > 0 then begin
             SetItemLedgerEntryFilters(ItemLedgEntry, StartDate, ReferenceDate, '%1', ItemLedgEntry."Entry Type"::Output);
@@ -443,7 +443,7 @@ report 12115 "Calculate End Year Costs"
                 repeat
                     ProdAmt := GetProdAmt(ItemLedgEntry, true);
                     CalcCosts(true, EndYearInv, LIFOCost, ItemLedgEntry.Quantity, ProdAmt);
-                until (EndYearInv <= 0) or (ItemLedgEntry.Next = 0);
+                until (EndYearInv <= 0) or (ItemLedgEntry.Next() = 0);
         end;
         if ItemCostHistory."End Year Inventory" <> 0 then
             LIFOCost := LIFOCost / ItemCostHistory."End Year Inventory";
@@ -476,7 +476,7 @@ report 12115 "Calculate End Year Costs"
                     ItemCompCost +=
                       Abs(ProdOrderComp."Expected Quantity") *
                       ItemCostHistory2.GetCompCost(ItemCostingSetup."Components Valuation");
-            until ProdOrderComp.Next = 0;
+            until ProdOrderComp.Next() = 0;
         TotCompAmt := ItemCompCost * ProdOrderLine."Finished Quantity" / ProdOrderLine.Quantity;
         if not ItemLedgEntry."Completely Invoiced" then
             NotInvAmtForEstWIP += TotCompAmt;
@@ -496,7 +496,7 @@ report 12115 "Calculate End Year Costs"
                     OverheadRtgAmt += ProdOrdRoutingLine."Expected Capacity Ovhd. Cost";
                 end else
                     SubconAmt += ProdOrdRoutingLine."Expected Operation Cost Amt." + ProdOrdRoutingLine."Expected Capacity Ovhd. Cost";
-            until ProdOrdRoutingLine.Next = 0;
+            until ProdOrdRoutingLine.Next() = 0;
         if UpdateItemCostHistory then begin
             ItemCostHistory."Direct Components Amount" += ItemCompCost * ProdOrderLine."Finished Quantity" / ProdOrderLine.Quantity;
             ItemCostHistory."Direct Routing Amount" += (DirectRtgAmt * ProdOrderLine."Finished Quantity") / ProdOrderLine.Quantity;
@@ -561,7 +561,7 @@ report 12115 "Calculate End Year Costs"
                     if ValueEntry.FindSet then
                         repeat
                             InvoicedAmount := InvoicedAmount + ValueEntry."Cost Amount (Actual)";
-                        until ValueEntry.Next = 0;
+                        until ValueEntry.Next() = 0;
                     InvoicedQty := InvoicedQty + ItemLedgEntry."Invoiced Quantity";
                     if not ItemLedgEntry."Completely Invoiced" then begin
                         TotalUnitPerCost := 0;
@@ -569,12 +569,12 @@ report 12115 "Calculate End Year Costs"
                         if ValueEntry.FindSet then
                             repeat
                                 TotalUnitPerCost := TotalUnitPerCost + ValueEntry."Cost per Unit";
-                            until ValueEntry.Next = 0;
+                            until ValueEntry.Next() = 0;
                         NotInvoicedAmt := NotInvoicedAmt + TotalUnitPerCost * (ItemLedgEntry.Quantity - ItemLedgEntry."Invoiced Quantity");
                         NotInvoicedQty := NotInvoicedQty + (ItemLedgEntry.Quantity - ItemLedgEntry."Invoiced Quantity");
                     end;
                 end;
-            until ItemLedgEntry.Next = 0;
+            until ItemLedgEntry.Next() = 0;
             TotInvoicedQty := InvoicedQty + BefStItemCostQty;
             TotInvoicedAmt := InvoicedAmount + BefStItemCostAmt;
         end;
@@ -648,7 +648,7 @@ report 12115 "Calculate End Year Costs"
                     if "Residual Quantity" > 0 then
                         LIFOAmount += "Year Average Cost" * "Residual Quantity";
                     UpdateExpCostExist("Competence Year", StartingDate);
-                until Next = 0;
+                until Next() = 0;
         end;
 
         with ItemCostHistory2 do
@@ -701,7 +701,7 @@ report 12115 "Calculate End Year Costs"
         if LIFOBand.FindSet then
             repeat
                 TotalBandQty := TotalBandQty + LIFOBand."Residual Quantity";
-            until LIFOBand.Next = 0;
+            until LIFOBand.Next() = 0;
         NewBand := (TotalBandQty + Quantity) > TotalBandQty;
         NewQuantity := Quantity;
     end;
@@ -740,7 +740,7 @@ report 12115 "Calculate End Year Costs"
                     end;
                     OverheadRtgAmt += "Overhead Cost";
                     UpdateExpCostExist("Posting Date", StartingDate);
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -862,7 +862,7 @@ report 12115 "Calculate End Year Costs"
                           Abs(Quantity) *
                           ItemCostHistory2.GetCompCost(ItemCostingSetup."Components Valuation");
                     UpdateExpCostExist("Posting Date", StartingDate);
-                until Next = 0;
+                until Next() = 0;
             exit(ItemCompCost);
         end;
     end;
@@ -920,7 +920,7 @@ report 12115 "Calculate End Year Costs"
                             ProdOrdOutput += Quantity
                     end else
                         ProdOrdOutput += Quantity
-                until Next = 0;
+                until Next() = 0;
             exit(ProdOrdOutput)
         end;
     end;

@@ -1,16 +1,21 @@
-table 49 "Invoice Post. Buffer"
+﻿table 49 "Invoice Post. Buffer"
 {
     Caption = 'Invoice Post. Buffer';
     ReplicateData = false;
+#if CLEAN18
+        TableType = Temporary;
+#else
+    ObsoleteState = Pending;
+    ObsoleteTag = '18.0';
+    ObsoleteReason = 'This table will be marked as temporary. Please ensure you do not store any data in the table.';
+#endif
 
     fields
     {
-        field(1; Type; Option)
+        field(1; Type; Enum "Invoice Posting Line Type")
         {
             Caption = 'Type';
             DataClassification = SystemMetadata;
-            OptionCaption = 'Prepmt. Exch. Rate Difference,G/L Account,Item,Resource,Fixed Asset';
-            OptionMembers = "Prepmt. Exch. Rate Difference","G/L Account",Item,Resource,"Fixed Asset";
         }
         field(2; "G/L Account"; Code[20])
         {
@@ -335,7 +340,7 @@ table 49 "Invoice Post. Buffer"
         OnBeforePrepareSales(Rec, SalesLine);
 
         Clear(Rec);
-        Type := SalesLine.Type.AsInteger();
+        Type := SalesLine.Type;
         "System-Created Entry" := true;
         "Gen. Bus. Posting Group" := SalesLine."Gen. Bus. Posting Group";
         "Gen. Prod. Posting Group" := SalesLine."Gen. Prod. Posting Group";
@@ -457,7 +462,7 @@ table 49 "Invoice Post. Buffer"
         VATPostingSetup: Record "VAT Posting Setup";
     begin
         Clear(Rec);
-        Type := PurchLine.Type.AsInteger();
+        Type := PurchLine.Type;
         "System-Created Entry" := true;
         "Gen. Bus. Posting Group" := PurchLine."Gen. Bus. Posting Group";
         "Gen. Prod. Posting Group" := PurchLine."Gen. Prod. Posting Group";

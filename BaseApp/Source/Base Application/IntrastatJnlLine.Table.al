@@ -262,7 +262,7 @@ table 263 "Intrastat Jnl. Line"
                 Country: Record "Country/Region";
             begin
                 Country.SetRange("EU Country/Region Code", "Transaction Specification");
-                if Country.IsEmpty then
+                if Country.IsEmpty() then
                     FieldError("Transaction Specification");
             end;
         }
@@ -829,12 +829,12 @@ table 263 "Intrastat Jnl. Line"
                             if DtldVendLedgEntry2."Vendor Ledger Entry No." <> DtldVendLedgEntry2."Applied Vend. Ledger Entry No." then
                                 FindAppliedVendLedgEntryAmtLCY(
                                   DtldVendLedgEntry2."Vendor Ledger Entry No.", StartDate, EndDate, ClosedEntry, IsCorrective, TotalAppliedAmount);
-                        until DtldVendLedgEntry2.Next = 0;
+                        until DtldVendLedgEntry2.Next() = 0;
                     end;
                 end else
                     FindAppliedVendLedgEntryAmtLCY(
                       DtldVendLedgEntry."Applied Vend. Ledger Entry No.", StartDate, EndDate, ClosedEntry, IsCorrective, TotalAppliedAmount);
-            until DtldVendLedgEntry.Next = 0;
+            until DtldVendLedgEntry.Next() = 0;
         exit(TotalAppliedAmount);
     end;
 
@@ -859,12 +859,12 @@ table 263 "Intrastat Jnl. Line"
                             if DtldCustLedgEntry2."Cust. Ledger Entry No." <> DtldCustLedgEntry2."Applied Cust. Ledger Entry No." then
                                 FindAppliedCustLedgEntryAmtLCY(
                                   DtldCustLedgEntry2."Cust. Ledger Entry No.", StartDate, EndDate, ClosedEntry, IsCorrective, TotalAppliedAmount);
-                        until DtldCustLedgEntry2.Next = 0;
+                        until DtldCustLedgEntry2.Next() = 0;
                     end;
                 end else
                     FindAppliedCustLedgEntryAmtLCY(
                       DtldCustLedgerEntry."Applied Cust. Ledger Entry No.", StartDate, EndDate, ClosedEntry, IsCorrective, TotalAppliedAmount);
-            until DtldCustLedgerEntry.Next = 0;
+            until DtldCustLedgerEntry.Next() = 0;
         exit(TotalAppliedAmount);
     end;
 
@@ -934,7 +934,7 @@ table 263 "Intrastat Jnl. Line"
             if FindSet then
                 repeat
                     Result += (Base + "Nondeductible Base");
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 

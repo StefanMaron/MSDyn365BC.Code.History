@@ -36,7 +36,7 @@ codeunit 1231 "SEPA DD-Fill Export Buffer"
         BankExportImportSetup.TestField("Check Export Codeunit");
         repeat
             CODEUNIT.Run(BankExportImportSetup."Check Export Codeunit", TempDirectDebitCollectionEntry);
-        until TempDirectDebitCollectionEntry.Next = 0;
+        until TempDirectDebitCollectionEntry.Next() = 0;
 
         if DirectDebitCollection.HasPaymentFileErrors then begin
             Commit();
@@ -46,7 +46,7 @@ codeunit 1231 "SEPA DD-Fill Export Buffer"
         GLSetup.Get();
         GLSetup.TestField("LCY Code");
 
-        TempDirectDebitCollectionEntry.FindSet;
+        TempDirectDebitCollectionEntry.FindSet();
         with PaymentExportData do begin
             Reset;
             if FindLast then;
@@ -86,7 +86,7 @@ codeunit 1231 "SEPA DD-Fill Export Buffer"
 
                 OnBeforeInsertPaymentExportData(PaymentExportData, TempDirectDebitCollectionEntry);
                 Insert(true);
-            until TempDirectDebitCollectionEntry.Next = 0;
+            until TempDirectDebitCollectionEntry.Next() = 0;
         end;
     end;
 

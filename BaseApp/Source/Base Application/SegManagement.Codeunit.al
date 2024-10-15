@@ -33,7 +33,7 @@ codeunit 5051 SegManagement
         LoggedSegment.LockTable();
         LoggedSegment.SetCurrentKey("Segment No.");
         LoggedSegment.SetRange("Segment No.", SegmentHeader."No.");
-        if not LoggedSegment.IsEmpty then
+        if not LoggedSegment.IsEmpty() then
             Error(Text000, LoggedSegment.TableCaption, SegmentHeader."No.");
 
         SegmentHeader.TestField(Description);
@@ -59,7 +59,7 @@ codeunit 5051 SegManagement
                 SegmentLine."Campaign Entry No." := GetCampaignEntryNo(SegmentLine, LoggedSegment."Entry No.");
                 OnBeforeCampaignEntryNoModify(SegmentLine);
                 SegmentLine.Modify();
-            until SegmentLine.Next = 0;
+            until SegmentLine.Next() = 0;
 
         SegmentLine.Reset();
         SegmentLine.SetRange("Segment No.", SegmentHeader."No.");
@@ -101,7 +101,7 @@ codeunit 5051 SegManagement
                     Attachment.Modify(true);
                 end;
                 NextInteractLogEntryNo += 1;
-            until SegmentLine.Next = 0;
+            until SegmentLine.Next() = 0;
         end else
             Error(Text001, SegmentHeader."No.");
 
@@ -200,7 +200,7 @@ codeunit 5051 SegManagement
                 InterLogEntryCommentLine."Entry No." := InteractLogEntry."Entry No.";
                 OnLogInteractionOnBeforeInterLogEntryCommentLineInsert(InterLogEntryCommentLine);
                 InterLogEntryCommentLine.Insert();
-            until InterLogEntryCommentLineTmp.Next = 0;
+            until InterLogEntryCommentLineTmp.Next() = 0;
 
         if Deliver and (SegmentLine."Correspondence Type".AsInteger() <> 0) and (not Postponed) then begin
             InteractLogEntry."Delivery Status" := InteractLogEntry."Delivery Status"::"In Progress";
@@ -542,7 +542,7 @@ codeunit 5051 SegManagement
             InteractionLogEntry.SetRange("Document Type", SalesInvoiceInterDocType);
             InteractionLogEntry.SetRange("Document No.", "Order No.");
             InteractionLogEntry.SetRange("Interaction Group Code", InteractTemplate."Interaction Group Code");
-            if not InteractionLogEntry.IsEmpty then
+            if not InteractionLogEntry.IsEmpty() then
                 exit;
 
             LogDocument(

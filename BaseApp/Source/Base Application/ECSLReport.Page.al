@@ -23,7 +23,7 @@ page 321 "ECSL Report"
                     trigger OnAssistEdit()
                     begin
                         if AssistEdit(xRec) then
-                            CurrPage.Update;
+                            CurrPage.Update();
                     end;
                 }
                 field("VAT Report Config. Code"; "VAT Report Config. Code")
@@ -65,7 +65,7 @@ page 321 "ECSL Report"
                     begin
                         FilterTokens.MakeDateFilter(DateFilter);
                         // SETFILTER("Date Filter",DateFilter);
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field("Start Date"; "Start Date")

@@ -58,7 +58,7 @@ codeunit 99000752 "Check Routing Lines"
                     RtngLine."Next Operation No." := RtngLine2."Operation No.";
                     RtngLine.Modify();
                 end;
-            until RtngLine.Next = 0;
+            until RtngLine.Next() = 0;
     end;
 
     local procedure CalcPreviousOperations(RtngHeader: Record "Routing Header"; VersionCode: Code[20])
@@ -85,9 +85,9 @@ codeunit 99000752 "Check Routing Lines"
                               RtngLine2."Previous Operation No." +
                               RtngLine."Operation No.";
                             RtngLine2.Modify();
-                        until RtngLine2.Next = 0;
+                        until RtngLine2.Next() = 0;
                 end;
-            until RtngLine.Next = 0;
+            until RtngLine.Next() = 0;
     end;
 
     local procedure CheckCircularReference(ActSequences: Integer; MaxSequences: Integer; RoutingNo: Code[20])
@@ -182,7 +182,7 @@ codeunit 99000752 "Check Routing Lines"
                     RoutingLine."Sequence No. (Forward)" := SequenceNo;
                     RoutingLine.Modify();
                     SequenceNo += 1;
-                until RoutingLine.Next = 0;
+                until RoutingLine.Next() = 0;
         end;
     end;
 
@@ -247,7 +247,7 @@ codeunit 99000752 "Check Routing Lines"
                 RtngLine."Fixed Scrap Qty. (Accum.)" := 0;
                 RtngLine."Scrap Factor % (Accumulated)" := 0;
                 RtngLine.Modify();
-            until RtngLine.Next = 0;
+            until RtngLine.Next() = 0;
 
         MaxSeq := RtngLine.Count();
 
@@ -291,7 +291,7 @@ codeunit 99000752 "Check Routing Lines"
         RtngLine.SetCurrentKey("Routing No.", "Version Code", "Sequence No. (Backward)");
         RtngLine.SetRange("Routing No.", RtngHeader."No.");
         RtngLine.SetRange("Version Code", VersionCode);
-        if RtngLine.IsEmpty then
+        if RtngLine.IsEmpty() then
             exit;
 
         if VersionCode <> '' then begin
@@ -325,7 +325,7 @@ codeunit 99000752 "Check Routing Lines"
                                 CalcScrapFactor := ScrapFactorThis;
                             if CalcScrapQty < ScrapQtyThis then
                                 CalcScrapQty := ScrapQtyThis;
-                        until RtngLine2.Next = 0;
+                        until RtngLine2.Next() = 0;
                 end;
                 if CalcScrapFactor <> 0 then begin
                     if RtngLine."Scrap Factor %" <> 0 then
@@ -341,7 +341,7 @@ codeunit 99000752 "Check Routing Lines"
                 RtngLine."Fixed Scrap Qty. (Accum.)" := CalcScrapQty;
                 RtngLine."Scrap Factor % (Accumulated)" := CalcScrapFactor;
                 RtngLine.Modify();
-            until RtngLine.Next = 0;
+            until RtngLine.Next() = 0;
 
         RtngLine.ModifyAll(Recalculate, false);
         Check(RtngHeader, VersionCode);
@@ -386,7 +386,7 @@ codeunit 99000752 "Check Routing Lines"
                 RtngLine.TestField("Previous Operation No.");
                 WorkCenter.Get(RtngLine."Work Center No.");
                 WorkCenter.TestField("Subcontractor No.");
-            until RtngLine.Next = 0;
+            until RtngLine.Next() = 0;
         RtngLine.SetRange("WIP Item");
 
         RtngLine.SetFilter("Next Operation No.", '%1', '');
@@ -395,7 +395,7 @@ codeunit 99000752 "Check Routing Lines"
         if NoOfProcesses <> 1 then begin
             repeat
                 InsertInErrList(RtngLine);
-            until RtngLine.Next = 0;
+            until RtngLine.Next() = 0;
             Error(
               Text002,
               RtngHeader."No.",
@@ -409,7 +409,7 @@ codeunit 99000752 "Check Routing Lines"
         if NoOfProcesses <> 1 then begin
             repeat
                 InsertInErrList(RtngLine);
-            until RtngLine.Next = 0;
+            until RtngLine.Next() = 0;
             Error(
               Text003,
               RtngHeader."No.",
@@ -422,7 +422,7 @@ codeunit 99000752 "Check Routing Lines"
         if RtngLine.Find('-') then begin
             repeat
                 InsertInErrList(RtngLine);
-            until RtngLine.Next = 0;
+            until RtngLine.Next() = 0;
             Error(
               Text004,
               RtngLine."Routing No.",
@@ -434,7 +434,7 @@ codeunit 99000752 "Check Routing Lines"
         if RtngLine.Find('-') then begin
             repeat
                 InsertInErrList(RtngLine);
-            until RtngLine.Next = 0;
+            until RtngLine.Next() = 0;
             Error(
               Text005,
               RtngLine."Routing No.",
@@ -450,11 +450,11 @@ codeunit 99000752 "Check Routing Lines"
                 RtngLine2.SetRange("Routing No.", RtngLine."Routing No.");
                 RtngLine2.SetRange("Version Code", VersionCode);
                 RtngLine2.SetFilter("Operation No.", RtngLine."Previous Operation No.");
-                if RtngLine2.IsEmpty then
+                if RtngLine2.IsEmpty() then
                     Error(
                       Text006,
                       RtngLine."Routing No.");
-            until RtngLine.Next = 0;
+            until RtngLine.Next() = 0;
 
         RtngLine.SetCurrentKey("Routing No.", "Version Code", "Sequence No. (Forward)");
         RtngLine.SetFilter("Next Operation No.", '<>%1', '');
@@ -465,11 +465,11 @@ codeunit 99000752 "Check Routing Lines"
                 RtngLine2.SetRange("Routing No.", RtngLine."Routing No.");
                 RtngLine2.SetRange("Version Code", VersionCode);
                 RtngLine2.SetFilter("Operation No.", RtngLine."Next Operation No.");
-                if RtngLine2.IsEmpty then
+                if RtngLine2.IsEmpty() then
                     Error(
                       Text007,
                       RtngLine."Routing No.");
-            until RtngLine.Next = 0;
+            until RtngLine.Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]

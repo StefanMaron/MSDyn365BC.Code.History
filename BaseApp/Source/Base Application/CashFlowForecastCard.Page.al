@@ -20,7 +20,7 @@ page 847 "Cash Flow Forecast Card"
                     trigger OnAssistEdit()
                     begin
                         if AssistEdit(xRec) then
-                            CurrPage.Update;
+                            CurrPage.Update();
                     end;
                 }
                 field(Description; Description)
@@ -71,7 +71,7 @@ page 847 "Cash Flow Forecast Card"
                     trigger OnValidate()
                     begin
                         if not ValidateShowInChart(ShowInChart) then;
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field("Search Name"; "Search Name")

@@ -1,4 +1,4 @@
-﻿page 475 "VAT Statement Preview Line"
+page 475 "VAT Statement Preview Line"
 {
     Caption = 'Lines';
     Editable = false;
@@ -179,7 +179,7 @@
         VATPeriod := NewVATPeriod;
         VATStatement.InitializeRequest(VATStmtName, Rec, Selection, PeriodSelection, false, UseAmtsInAddCurr, VATPeriod);
         OnUpdateFormOnBeforePageUpdate(VATStmtName, Rec, Selection, PeriodSelection, false, UseAmtsInAddCurr, VATPeriod);
-        CurrPage.Update;
+        CurrPage.Update();
 
         OnAfterUpdateForm();
     end;

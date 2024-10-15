@@ -32,8 +32,13 @@
             Caption = 'Period Reminder Time';
             MinValue = 0;
             ObsoleteReason = 'Redesigned to a new field "Period Reminder Calculation"';
+#if SLICE3771430
+            ObsoleteState = Removed;
+            ObsoleteTag = '18.0';
+#else
             ObsoleteState = Pending;
             ObsoleteTag = '15.0';
+#endif
         }
         field(23; "Update Period Job Frequency"; Option)
         {

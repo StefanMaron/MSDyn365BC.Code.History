@@ -23,7 +23,7 @@ page 12152 "Subcontracting Order"
                     trigger OnAssistEdit()
                     begin
                         if AssistEdit(xRec) then
-                            CurrPage.Update;
+                            CurrPage.Update();
                     end;
                 }
                 field("Buy-from Vendor No."; "Buy-from Vendor No.")
@@ -33,7 +33,7 @@ page 12152 "Subcontracting Order"
 
                     trigger OnValidate()
                     begin
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field("Buy-from Contact No."; "Buy-from Contact No.")
@@ -352,7 +352,7 @@ page 12152 "Subcontracting Order"
                         ChangeExchangeRate.SetParameter("Currency Code", "Currency Factor", "Document Date");
                         if ChangeExchangeRate.RunModal = ACTION::OK then begin
                             Validate("Currency Factor", ChangeExchangeRate.GetParameter);
-                            CurrPage.Update;
+                            CurrPage.Update();
                         end;
                         Clear(ChangeExchangeRate);
                     end;
@@ -772,7 +772,7 @@ page 12152 "Subcontracting Order"
 
     local procedure PaytoVendorNoOnAfterValidate()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure ShortcutDimension1CodeOnAfterV()

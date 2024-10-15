@@ -378,7 +378,7 @@ codeunit 144055 "UT PAG Auto Payment"
         CreateCustBillHeaderAndOpenCustBillCard(CustomerBillCard, CreateBankAccount, CreatePaymentMethod);
 
         // Exercise.
-        DirectDebitCollection.CreateNew(CustomerBillCard."No.".Value, '', 0);
+        DirectDebitCollection.CreateRecord(CustomerBillCard."No.".Value, '', 0);
         DirectDebitCollection."Source Table ID" := DATABASE::"Customer Bill Header";
         DirectDebitCollection.Modify();
         DirectDebitCollectionEntry.SetRange("Direct Debit Collection No.", DirectDebitCollection."No.");

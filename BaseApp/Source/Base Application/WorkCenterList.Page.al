@@ -383,7 +383,7 @@ page 99000755 "Work Center List"
                 LastWrkCntr := FirstWrkCntr;
                 More := (WrkCntrCount > 0);
                 while More do
-                    if WorkCenter.Next = 0 then
+                    if WorkCenter.Next() = 0 then
                         More := false
                     else
                         if not WorkCenter.Mark then

@@ -4,11 +4,9 @@ table 6506 "Item Tracking Comment"
 
     fields
     {
-        field(1; Type; Option)
+        field(1; Type; Enum "Item Tracking Comment Type")
         {
             Caption = 'Type';
-            OptionCaption = ' ,Serial No.,Lot No.';
-            OptionMembers = " ","Serial No.","Lot No.";
         }
         field(2; "Item No."; Code[20])
         {
@@ -51,5 +49,35 @@ table 6506 "Item Tracking Comment"
     fieldgroups
     {
     }
+
+    procedure CopyComments(CommentType: Enum "Item Tracking Comment Type"; ItemNo: Code[20]; VariantCode: Code[10]; TrackingNo: Code[50]; NewTrackingNo: Code[50])
+    var
+        ItemTrackingComment: Record "Item Tracking Comment";
+        NewItemTrackingComment: Record "Item Tracking Comment";
+    begin
+        if TrackingNo = NewTrackingNo then
+            exit;
+
+        ItemTrackingComment.SetRange(Type, CommentType);
+        ItemTrackingComment.SetRange("Item No.", ItemNo);
+        ItemTrackingComment.SetRange("Variant Code", VariantCode);
+        ItemTrackingComment.SetRange("Serial/Lot No.", TrackingNo);
+        if ItemTrackingComment.IsEmpty() then
+            exit;
+
+        NewItemTrackingComment.SetRange(Type, CommentType);
+        NewItemTrackingComment.SetRange("Item No.", ItemNo);
+        NewItemTrackingComment.SetRange("Variant Code", VariantCode);
+        NewItemTrackingComment.SetRange("Serial/Lot No.", NewTrackingNo);
+        if not NewItemTrackingComment.IsEmpty() then
+            NewItemTrackingComment.DeleteAll();
+
+        if ItemTrackingComment.FindSet() then
+            repeat
+                NewItemTrackingComment := ItemTrackingComment;
+                NewItemTrackingComment."Serial/Lot No." := NewTrackingNo;
+                NewItemTrackingComment.Insert();
+            until ItemTrackingComment.Next() = 0;
+    end;
 }
 

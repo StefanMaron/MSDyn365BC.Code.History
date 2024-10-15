@@ -640,11 +640,15 @@ page 9008 "Whse. Basic Role Center"
                     RunObject = page "Blanket Purch. Order Archives";
                 }
             }
+#if not CLEAN18
             group(SetupAndExtensions)
             {
                 Caption = 'Setup & Extensions';
                 Image = Setup;
                 ToolTip = 'Overview and change system and application settings, and manage extensions and services';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'The new common entry points to all Settings is introduced in the app bar''s cogwheel menu (aligned with the Office apps).';
+                ObsoleteTag = '18.0';
                 action("Assisted Setup")
                 {
                     ApplicationArea = Basic, Suite;
@@ -652,6 +656,9 @@ page 9008 "Whse. Basic Role Center"
                     Image = QuestionaireSetup;
                     RunObject = Page "Assisted Setup";
                     ToolTip = 'Set up core functionality such as sales tax, sending documents as email, and approval workflow by running through a few pages that guide you through the information.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The new common entry points to all Settings is introduced in the app bar''s cogwheel menu (aligned with the Office apps).';
+                    ObsoleteTag = '18.0';
                 }
                 action("Manual Setup")
                 {
@@ -659,6 +666,9 @@ page 9008 "Whse. Basic Role Center"
                     Caption = 'Manual Setup';
                     RunObject = Page "Manual Setup";
                     ToolTip = 'Define your company policies for business departments and for general activities by filling setup windows manually.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The new common entry points to all Settings is introduced in the app bar''s cogwheel menu (aligned with the Office apps).';
+                    ObsoleteTag = '18.0';
                 }
                 action("Service Connections")
                 {
@@ -667,6 +677,9 @@ page 9008 "Whse. Basic Role Center"
                     Image = ServiceTasks;
                     RunObject = Page "Service Connections";
                     ToolTip = 'Enable and configure external services, such as exchange rate updates, Microsoft Social Engagement, and electronic bank integration.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The new common entry points to all Settings is introduced in the app bar''s cogwheel menu (aligned with the Office apps).';
+                    ObsoleteTag = '18.0';
                 }
                 action(Extensions)
                 {
@@ -675,8 +688,24 @@ page 9008 "Whse. Basic Role Center"
                     Image = NonStockItemSetup;
                     RunObject = Page "Extension Management";
                     ToolTip = 'Install Extensions for greater functionality of the system.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The new common entry points to all Settings is introduced in the app bar''s cogwheel menu (aligned with the Office apps).';
+                    ObsoleteTag = '18.0';
+                }
+                action(Workflows)
+                {
+                    ApplicationArea = Suite;
+                    Caption = 'Workflows';
+                    Promoted = true;
+                    PromotedCategory = Process;
+                    RunObject = Page Workflows;
+                    ToolTip = 'Set up or enable workflows that connect business-process tasks performed by different users. System tasks, such as automatic posting, can be included as steps in workflows, preceded or followed by user tasks. Requesting and granting approval to create new records are typical workflow steps.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The new common entry points to all Settings is introduced in the app bar''s cogwheel menu (aligned with the Office apps).';
+                    ObsoleteTag = '18.0';
                 }
             }
+#endif
         }
         area(creation)
         {

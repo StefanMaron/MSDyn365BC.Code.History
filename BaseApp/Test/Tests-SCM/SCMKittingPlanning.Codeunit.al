@@ -1006,7 +1006,7 @@ codeunit 137089 "SCM Kitting - Planning"
           InventoryPostingGroupCode);
 
         BOMCompItem.SetRange("Parent Item No.", ParentAssemblyItem."No.");
-        BOMCompItem.FindSet;
+        BOMCompItem.FindSet();
         ChildItem1.Get(BOMCompItem."No.");
         ChildItem1.Validate("Replenishment System", ChildItem1."Replenishment System"::"Prod. Order");
         ChildItem1.Validate("Reordering Policy", ChildItem1."Reordering Policy"::"Lot-for-Lot");

@@ -314,9 +314,9 @@ codeunit 5332 "Lookup CRM Tables"
                                 else
                                     FieldRef[1].SetFilter(StrSubstNo('%1|%2', FieldFilter[1], FieldFilter[2]));
 
-                        until Field.Next = 0;
+                        until Field.Next() = 0;
                 end;
-            until IntegrationTableMapping.Next = 0;
+            until IntegrationTableMapping.Next() = 0;
 
         exit(RecRef[1].GetView(false));
     end;

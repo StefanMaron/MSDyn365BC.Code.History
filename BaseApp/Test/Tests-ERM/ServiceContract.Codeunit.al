@@ -654,7 +654,7 @@ codeunit 136100 "Service Contract"
         TotalAmount: Decimal;
     begin
         ServiceContractLine.SetFilter("Contract No.", ServiceContractHeader."Contract No.");
-        ServiceContractLine.FindSet;
+        ServiceContractLine.FindSet();
 
         repeat
             TotalAmount += ServiceContractLine."Line Amount";
@@ -672,9 +672,9 @@ codeunit 136100 "Service Contract"
         // Profit: Relative size of profit should be the same before and after distribution.
         // Even  : Diff bewteen Line Amounts before and after is equal for all lines.
 
-        OldServiceContractLine.FindSet;
+        OldServiceContractLine.FindSet();
         ServiceContractLine.SetFilter("Contract No.", OldServiceContractLine."Contract No.");
-        ServiceContractLine.FindSet;
+        ServiceContractLine.FindSet();
         ServiceContractHeader.SetFilter("Contract No.", OldServiceContractLine."Contract No.");
         ServiceContractHeader.FindFirst;
 
@@ -733,7 +733,7 @@ codeunit 136100 "Service Contract"
     begin
         // Save Line Amount value in temperary record
         ServiceContractLine.SetFilter("Contract No.", ServiceContractHeader."Contract No.");
-        ServiceContractLine.FindSet;
+        ServiceContractLine.FindSet();
 
         repeat
             SaveServiceContractLine := ServiceContractLine;
@@ -752,7 +752,7 @@ codeunit 136100 "Service Contract"
         ServiceItemNo: Code[20];
     begin
         ServiceContractLine.SetFilter("Contract No.", '%1|%2', ContractNo1, ContractNo2);
-        ServiceContractLine.FindSet;
+        ServiceContractLine.FindSet();
 
         repeat
             if ServiceItemNo = '' then
@@ -771,11 +771,11 @@ codeunit 136100 "Service Contract"
         // Compare all lines and validate they have identical values except from Contract No and Line No
         ServiceContractLineActual.SetRange("Contract Type", ServiceContractHeaderActual."Contract Type");
         ServiceContractLineActual.SetRange("Contract No.", ServiceContractHeaderActual."Contract No.");
-        ServiceContractLineActual.FindSet;
+        ServiceContractLineActual.FindSet();
 
         ServiceContractLineExpected.SetRange("Contract Type", ServiceContractHeaderExpected."Contract Type");
         ServiceContractLineExpected.SetRange("Contract No.", ServiceContractHeaderExpected."Contract No.");
-        ServiceContractLineExpected.FindSet;
+        ServiceContractLineExpected.FindSet();
 
         if ServiceContractLineActual.Count <> ServiceContractLineActual.Count then
             Error(NoOfServiceLinesNotSameErr, ServiceContractLineActual.Count, ServiceContractLineActual.Count);
@@ -1193,7 +1193,7 @@ codeunit 136100 "Service Contract"
             SetRange("Document No.", ServiceHeader."No.");
             SetRange(Type, Type::"G/L Account");
             Assert.RecordCount(ServiceLine, ExpectedCount);
-            FindSet;
+            FindSet();
             repeat
                 Assert.AreEqual(ExpectedAccountNo, "No.", FieldCaption("No."));
                 Assert.AreEqual(ExpectedAmount, Amount, FieldCaption(Amount));
@@ -1214,7 +1214,7 @@ codeunit 136100 "Service Contract"
             SetRange("Document No.", ServiceHeader."No.");
             SetRange(Type, Type::"G/L Account");
             Assert.AreEqual(ExpectedCount, Count, '');
-            FindSet;
+            FindSet();
             for I := 1 to ExpectedCount - 1 do begin
                 Assert.AreNearlyEqual(
                   ExpectedAmount, Amount,

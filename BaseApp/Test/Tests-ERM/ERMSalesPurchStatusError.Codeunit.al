@@ -2339,7 +2339,11 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         GenJournalTemplate.Modify(true);
     end;
 
-    local procedure CreateJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenBusinessPostingGroup: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; GenPostingType: Enum "General Posting Type"; GenJournalTemplateType: Enum "Gen. Journal Template Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal)
+    local procedure CreateJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenBusinessPostingGroup: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; GenPostingType: Enum "General Posting Type";
+                                                                                                                                           GenJournalTemplateType: Enum "Gen. Journal Template Type";
+                                                                                                                                           AccountType: Enum "Gen. Journal Account Type";
+                                                                                                                                           AccountNo: Code[20];
+                                                                                                                                           Amount: Decimal)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalTemplate: Record "Gen. Journal Template";
@@ -2355,7 +2359,10 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         GenJournalLine.Modify(true);
     end;
 
-    local procedure CreateJournalLineWithAppliesToDocNo(var GenJournalLine: Record "Gen. Journal Line"; GenJournalTemplateType: Enum "Gen. Journal Template Type"; DocumentType: Enum "Gen. Journal Document Type"; AppliesToDocumentType: Enum "Gen. Journal Document Type"; BalAccountType: Enum "Gen. Journal Account Type"; DocumentNo: Code[20])
+    local procedure CreateJournalLineWithAppliesToDocNo(var GenJournalLine: Record "Gen. Journal Line"; GenJournalTemplateType: Enum "Gen. Journal Template Type"; DocumentType: Enum "Gen. Journal Document Type";
+                                                                                                                                    AppliesToDocumentType: Enum "Gen. Journal Document Type";
+                                                                                                                                    BalAccountType: Enum "Gen. Journal Account Type";
+                                                                                                                                    DocumentNo: Code[20])
     var
         BankAccount: Record "Bank Account";
         GenJournalBatch: Record "Gen. Journal Batch";

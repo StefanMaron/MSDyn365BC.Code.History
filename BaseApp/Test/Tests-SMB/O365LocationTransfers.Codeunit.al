@@ -647,10 +647,9 @@ codeunit 137281 "O365 Location Transfers"
         // [GIVEN] Item "I" with stock on BLUE location
         CreateAndPostItem(Item, LocationBlue.Code, LibraryRandom.RandIntInRange(100, 200));
 
-        LibraryLowerPermissions.SetO365INVCreate;
-        LibraryLowerPermissions.AddO365INVPost;
-        LibraryLowerPermissions.AddWhseMgtActivities;
-        LibraryLowerPermissions.AddInvtPickPutawayMovement;
+        LibraryLowerPermissions.SetO365INVCreate();
+        LibraryLowerPermissions.AddO365INVPost();
+        LibraryLowerPermissions.AddO365WhseEdit();
 
         // [GIVEN] Direct transfer order for item "I" from BLUE to SILVER location. Bin code for the transfer receipt is not filled
         CreateDirectTransferHeader(TransferHeader, LocationBlue.Code, LocationSilver.Code);
@@ -899,6 +898,8 @@ codeunit 137281 "O365 Location Transfers"
 
         LibraryUtility.GenerateGUID;
 
+        UpdatePostedDirectTransfersNoSeries();
+
         if not LibraryFiscalYear.AccountingPeriodsExists then
             LibraryFiscalYear.CreateFiscalYear;
 
@@ -964,7 +965,7 @@ codeunit 137281 "O365 Location Transfers"
     end;
 
     [Scope('OnPrem')]
-    procedure CreateDirectTransferHeader(var TransferHeader: Record "Transfer Header"; FromLocation: Text[10]; ToLocation: Text[10])
+    local procedure CreateDirectTransferHeader(var TransferHeader: Record "Transfer Header"; FromLocation: Text[10]; ToLocation: Text[10])
     begin
         Clear(TransferHeader);
         TransferHeader.Init();
@@ -976,7 +977,7 @@ codeunit 137281 "O365 Location Transfers"
     end;
 
     [Scope('OnPrem')]
-    procedure CreateTransferRoute(var TransferRoute: Record "Transfer Route"; TransferFrom: Code[10]; TransferTo: Code[10])
+    local procedure CreateTransferRoute(var TransferRoute: Record "Transfer Route"; TransferFrom: Code[10]; TransferTo: Code[10])
     begin
         Clear(TransferRoute);
         TransferRoute.Init();
@@ -986,7 +987,7 @@ codeunit 137281 "O365 Location Transfers"
     end;
 
     [Scope('OnPrem')]
-    procedure CreateAndUpdateTransferRoute(var TransferRoute: Record "Transfer Route"; TransferFrom: Code[10]; TransferTo: Code[10]; InTransitCode: Code[10]; ShippingAgentCode: Code[10]; ShippingAgentServiceCode: Code[10])
+    local procedure CreateAndUpdateTransferRoute(var TransferRoute: Record "Transfer Route"; TransferFrom: Code[10]; TransferTo: Code[10]; InTransitCode: Code[10]; ShippingAgentCode: Code[10]; ShippingAgentServiceCode: Code[10])
     begin
         CreateTransferRoute(TransferRoute, TransferFrom, TransferTo);
         TransferRoute.Validate("In-Transit Code", InTransitCode);
@@ -1000,6 +1001,21 @@ codeunit 137281 "O365 Location Transfers"
         LocationFrom := CreateLocationWithInventoryPostingSetup(false);
         LocationTo := CreateLocationWithInventoryPostingSetup(false);
         LocationInTransit := CreateLocationWithInventoryPostingSetup(true);
+    end;
+
+    local procedure UpdatePostedDirectTransfersNoSeries()
+    var
+        InventorySetup: Record "Inventory Setup";
+        NoSeries: Record "No. Series";
+        NoSeriesLine: Record "No. Series Line";
+    begin
+        LibraryUtility.CreateNoSeries(NoSeries, true, false, true);
+        LibraryUtility.CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, '', '');
+
+        InventorySetup.Get();
+        InventorySetup.Validate("Posted Direct Trans. Nos.", NoSeries.Code);
+        InventorySetup.Validate("Direct Transfer Posting", InventorySetup."Direct Transfer Posting"::"Receipt and Shipment");
+        InventorySetup.Modify(true);
     end;
 
     local procedure ValidateInventoryForLocation(Item: Record Item; LocationCode: Code[10]; ExpectedInventory: Decimal)

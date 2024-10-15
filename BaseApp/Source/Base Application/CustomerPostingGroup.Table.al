@@ -390,11 +390,11 @@ table 92 "Customer Posting Group"
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
         Customer.SetRange("Customer Posting Group", Code);
-        if not Customer.IsEmpty then
+        if not Customer.IsEmpty() then
             Error(YouCannotDeleteErr, Code);
 
         CustLedgerEntry.SetRange("Customer Posting Group", Code);
-        if not CustLedgerEntry.IsEmpty then
+        if not CustLedgerEntry.IsEmpty() then
             Error(YouCannotDeleteErr, Code);
     end;
 

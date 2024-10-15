@@ -120,11 +120,13 @@ table 5820 "Cost Element Buffer"
         end;
     end;
 
+#if not CLEAN17
     [Obsolete('Replaced by AddExpectedCostElement();', '17.0')]
     procedure AddExpectedCost(NewType: Option; NewVarianceType: Option; NewExpectedCost: Decimal; NewExpectedCostACY: Decimal)
     begin
         AddExpectedCostElement("Cost Entry Type".FromInteger(NewType), "Cost Variance Type".FromInteger(NewVarianceType), NewExpectedCost, NewExpectedCostACY);
     end;
+#endif
 
     procedure AddExpectedCostElement(NewEntryType: Enum "Cost Entry Type"; NewVarianceType: Enum "Cost Variance Type"; NewExpectedCost: Decimal; NewExpectedCostACY: Decimal)
     begin
@@ -165,11 +167,13 @@ table 5820 "Cost Element Buffer"
           "Actual Cost (ACY)" - InvtAdjmtBuffer."Cost Amount (Actual) (ACY)" - InvtAdjmtBuffer."Cost Amount (Expected) (ACY)";
     end;
 
+#if not CLEAN17
     [Obsolete('Replaced by GetElement().', '17.0')]
     procedure Retrieve(NewType: Option; NewVarianceType: Option): Boolean
     begin
         exit(GetElement("Cost Entry Type".FromInteger(NewType), "Cost Variance Type".FromInteger(NewVarianceType)));
     end;
+#endif
 
     procedure GetElement(NewEntryType: Enum "Cost Entry Type"; NewVarianceType: Enum "Cost Variance Type"): Boolean
     begin

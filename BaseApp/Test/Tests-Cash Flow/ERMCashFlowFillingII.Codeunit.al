@@ -896,7 +896,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         LibraryVariableStorage.Enqueue(CashFlowForecast."No.");  // Enqueue AccountScheduleOverviewPageHandler.
         RowNo := LibraryRandom.RandInt(10);  // Using Random value for Account Schedule Row No.
         CashFlowAccount.SetRange("Account Type", CashFlowAccount."Account Type"::Entry);
-        CashFlowAccount.FindSet;
+        CashFlowAccount.FindSet();
         repeat
             RowNo += 1;
             CreateAccountScheduleAndLine(AccScheduleLine, CashFlowAccount."No.", Format(RowNo), AccScheduleName.Name);

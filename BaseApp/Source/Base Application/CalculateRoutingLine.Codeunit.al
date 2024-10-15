@@ -333,7 +333,7 @@ codeunit 99000774 "Calculate Routing Line"
                         ReturnNextCalendarEntry(CalendarEntry, OldCalendarEntry, 1);
                     end else begin
                         CalendarEntry := OldCalendarEntry;
-                        StopLoop := CalendarEntry.Next = 0;
+                        StopLoop := CalendarEntry.Next() = 0;
                     end;
                 OnCreateLoadForwardOnBeforeEndStopLoop(ProdOrderRoutingLine, TimeType, StopLoop);
             until StopLoop;
@@ -385,7 +385,7 @@ codeunit 99000774 "Calculate Routing Line"
                     ((TotalDuration - Overlap) / TotalDuration) *
                     CalendarEntry2."Capacity (Effective)" / CalendarEntry2.Capacity * ConCurrCapacity,
                     Workcenter."Calendar Rounding Precision");
-            until CalendarEntry2.Next = 0;
+            until CalendarEntry2.Next() = 0;
         exit(AvQty);
     end;
 
@@ -668,7 +668,7 @@ codeunit 99000774 "Calculate Routing Line"
 
                     SetMinDateTime(ProdEndingDate, ProdEndingTime, ProdStartingDate, ProdStartingTime);
                     ProdOrderRoutingLine3 := ProdOrderRoutingLine2;
-                until ProdOrderRoutingLine2.Next = 0;
+                until ProdOrderRoutingLine2.Next() = 0;
 
             OnCalcRoutingLineBackOnBeforeGetQueueTime(ProdOrderRoutingLine, ProdOrderRoutingLine2, ProdOrderRoutingLine3);
 
@@ -978,7 +978,7 @@ codeunit 99000774 "Calculate Routing Line"
                             CalendarMgt.TimeFactor(Workcenter2."Unit of Measure Code"),
                             Workcenter2."Calendar Rounding Precision");
                     end;
-                until ProdOrderRoutingLine2.Next = 0
+                until ProdOrderRoutingLine2.Next() = 0
             else
                 // parallel routing with finished first operation
                 if ProdStartingDate = 0D then begin
@@ -1178,7 +1178,7 @@ codeunit 99000774 "Calculate Routing Line"
                 if not IsHandled then
                     ExpectedOperOutput := ExpectedOperOutput + ProdOrderLine."Quantity (Base)";
                 TotalScrap := TotalScrap + ProdOrderLine."Scrap %";
-            until ProdOrderLine.Next = 0;
+            until ProdOrderLine.Next() = 0;
             ActualOperOutput := CostCalcMgt.CalcActOutputQtyBase(ProdOrderLine, ProdOrderRoutingLine);
             ProdOrderQty := ExpectedOperOutput - ActualOperOutput;
             if ProdOrderQty < 0 then
@@ -1444,7 +1444,7 @@ codeunit 99000774 "Calculate Routing Line"
                             end;
                             if NextProdOrderCapNeed."Ending Time" > StartTime then
                                 StartTime := NextProdOrderCapNeed."Ending Time"
-                        until (NextProdOrderCapNeed.Next = 0) or (RemainNeedQty = 0) or (AvailCap = 0);
+                        until (NextProdOrderCapNeed.Next() = 0) or (RemainNeedQty = 0) or (AvailCap = 0);
 
                     if (AvailCap > 0) and (RemainNeedQty > 0) then begin
                         AvailTime := Min(CalendarMgt.CalcTimeDelta(CalendarEntry."Ending Time", StartTime), AvailCap);
@@ -1467,7 +1467,7 @@ codeunit 99000774 "Calculate Routing Line"
                     end;
                 end;
                 if RemainNeedQty > 0 then begin
-                    if CalendarEntry.Next = 0 then begin
+                    if CalendarEntry.Next() = 0 then begin
                         TestForError(Text003, Text004, CalendarEntry.Date);
                         exit;
                     end;
@@ -1662,7 +1662,7 @@ codeunit 99000774 "Calculate Routing Line"
                 SendAheadLotSize := xSendAheadLotSize;
 
                 Result := Result or GetSendAheadEndingTime(TmpProdOrderRtngLine, SendAheadLotSize);
-            until TmpProdOrderRtngLine.Next = 0;
+            until TmpProdOrderRtngLine.Next() = 0;
         end else
             Result := GetSendAheadEndingTime(TmpProdOrderRtngLine, SendAheadLotSize);
 
@@ -1683,7 +1683,7 @@ codeunit 99000774 "Calculate Routing Line"
                 SendAheadLotSize := xSendAheadLotSize;
 
                 Result := Result or GetSendAheadStartingTime(TmpProdOrderRtngLine, SendAheadLotSize);
-            until TmpProdOrderRtngLine.Next = 0;
+            until TmpProdOrderRtngLine.Next() = 0;
         end else
             Result := GetSendAheadStartingTime(TmpProdOrderRtngLine, SendAheadLotSize);
 
@@ -1708,7 +1708,7 @@ codeunit 99000774 "Calculate Routing Line"
         end else begin
             CalendarEntry2.Find('+');            // rewind within the same day
             CalendarEntry2.SetRange(Date);
-            if CalendarEntry2.Next = 0 then
+            if CalendarEntry2.Next() = 0 then
                 TestForError(Text003, Text004, CalendarEntry2.Date);
 
             if OldCalendarEntry.Date < (CalendarEntry2.Date - 1) then begin

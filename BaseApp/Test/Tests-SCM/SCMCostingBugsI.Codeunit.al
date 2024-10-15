@@ -274,7 +274,7 @@ codeunit 137620 "SCM Costing Bugs I"
 
         // Verify
         ValueEntry.SetRange("Item No.", Item."No.");
-        ValueEntry.FindSet;
+        ValueEntry.FindSet();
         repeat
             ValueEntry.TestField("Valuation Date", Day1);
         until ValueEntry.Next = 0;
@@ -411,7 +411,7 @@ codeunit 137620 "SCM Costing Bugs I"
         // Make purchase return
         Vendor.Get(VendorNo);
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Return Order", Vendor."No.");
-        PurchaseHeader.GetPstdDocLinesToRevere;
+        PurchaseHeader.GetPstdDocLinesToReverse();
 
         // Verify post purchase return
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -463,7 +463,7 @@ codeunit 137620 "SCM Costing Bugs I"
         // Make purchase return
         Vendor.Get(VendorNo);
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Return Order", Vendor."No.");
-        PurchaseHeader.GetPstdDocLinesToRevere;
+        PurchaseHeader.GetPstdDocLinesToReverse();
 
         // Verify post purchase return
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);

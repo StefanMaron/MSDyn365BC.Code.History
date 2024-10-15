@@ -1457,7 +1457,7 @@ codeunit 144060 "ERM Intrastat"
         // [GIVEN] "Item Description" in Line 2 = ZZ2
         IntrastatJnlLine.SetRange("Journal Batch Name", IntrastatJnlBatch.Name);
         IntrastatJnlLine.SetRange("Document No.", DocumentNo);
-        IntrastatJnlLine.FindSet;
+        IntrastatJnlLine.FindSet();
         SetRandomItemDescriptionToIntrastatLine(IntrastatJnlLine);
         IntrastatJnlLine.Next;
         SetRandomItemDescriptionToIntrastatLine(IntrastatJnlLine);
@@ -1531,7 +1531,7 @@ codeunit 144060 "ERM Intrastat"
         // [GIVEN] "Item Description" in Line 2 = ZZ2
         IntrastatJnlLine.SetRange("Journal Batch Name", IntrastatJnlBatch.Name);
         IntrastatJnlLine.SetRange("Document No.", DocumentNo);
-        IntrastatJnlLine.FindSet;
+        IntrastatJnlLine.FindSet();
         ItemDescription[1] := SetRandomItemDescriptionToIntrastatLine(IntrastatJnlLine);
         IntrastatJnlLine.Next;
         ItemDescription[2] := SetRandomItemDescriptionToIntrastatLine(IntrastatJnlLine);
@@ -1554,7 +1554,7 @@ codeunit 144060 "ERM Intrastat"
         Assert.RecordCount(IntrastatJnlLine, 2);
 
         // [THEN] "Item Description" of the 1st line is ZZ1
-        IntrastatJnlLine.FindSet;
+        IntrastatJnlLine.FindSet();
         IntrastatJnlLine.TestField("Item Description", ItemDescription[1]);
 
         // [THEN] "Item Description" of the 2nd line is ZZ2
@@ -3198,7 +3198,7 @@ codeunit 144060 "ERM Intrastat"
         CompanyInfo.Get();
         IntrastatJnlLine.SetRange("Journal Template Name", IntrastatJnlBatch."Journal Template Name");
         IntrastatJnlLine.SetRange("Journal Batch Name", IntrastatJnlBatch.Name);
-        IntrastatJnlLine.FindSet;
+        IntrastatJnlLine.FindSet();
         repeat
             IntrastatJnlLine.Validate("Transport Method", TransportMethod);
             IntrastatJnlLine.Validate("Transaction Type", TransactionType);
@@ -3218,7 +3218,7 @@ codeunit 144060 "ERM Intrastat"
     begin
         TariffNumber.FindFirst;
         Item.SetRange("Tariff No.", '');
-        if not Item.IsEmpty then
+        if not Item.IsEmpty() then
             Item.ModifyAll("Tariff No.", TariffNumber."No.");
     end;
 

@@ -109,16 +109,16 @@ report 7305 "Whse.-Source - Create Document"
                 QtyHandled: Decimal;
                 QtyHandledBase: Decimal;
             begin
-                if TempWhseWorksheetLineMovement.IsEmpty then
+                if TempWhseWorksheetLineMovement.IsEmpty() then
                     CurrReport.Skip();
 
-                TempWhseWorksheetLineMovement.FindSet;
+                TempWhseWorksheetLineMovement.FindSet();
                 repeat
                     CreateMovementLines(TempWhseWorksheetLineMovement, PickQty, PickQtyBase);
                     QtyHandled := TempWhseWorksheetLineMovement."Qty. to Handle" - PickQty;
                     QtyHandledBase := TempWhseWorksheetLineMovement."Qty. to Handle (Base)" - PickQtyBase;
                     UpdateMovementWorksheet(TempWhseWorksheetLineMovement, QtyHandled, QtyHandledBase);
-                until TempWhseWorksheetLineMovement.Next = 0;
+                until TempWhseWorksheetLineMovement.Next() = 0;
             end;
 
             trigger OnPreDataItem()
@@ -542,7 +542,7 @@ report 7305 "Whse.-Source - Create Document"
                 if SortActivity <> SortActivity::None then
                     WhseActivHeader.SortWhseDoc();
                 Commit();
-            until WhseActivHeader.Next = 0;
+            until WhseActivHeader.Next() = 0;
 
             if PrintDoc then
                 PrintWarehouseDocument(WhseActivHeader);
@@ -811,8 +811,7 @@ report 7305 "Whse.-Source - Create Document"
         with WhseItemTrackingLine do begin
             Reset;
             SetCurrentKey("Serial No.", "Lot No.");
-            SetRange("Serial No.", PostedWhseRcptLine."Serial No.");
-            SetRange("Lot No.", PostedWhseRcptLine."Lot No.");
+            SetTrackingFilterFromPostedWhseReceiptLine(PostedWhseRcptLine);
             SetRange("Source Type", SourceType);
             SetRange("Source ID", PostedWhseRcptLine."No.");
             SetRange("Source Ref. No.", PostedWhseRcptLine."Line No.");
@@ -833,6 +832,7 @@ report 7305 "Whse.-Source - Create Document"
     local procedure CheckAvailabilityWithTracking(WhseWorksheetLine: Record "Whse. Worksheet Line")
     var
         WhseItemTrackingLine: Record "Whse. Item Tracking Line";
+        WhseItemTrackingSetup: Record "Item Tracking Setup";
         WarehouseAvailabilityMgt: Codeunit "Warehouse Availability Mgt.";
         TrackedQtyInBin: Decimal;
     begin
@@ -842,19 +842,21 @@ report 7305 "Whse.-Source - Create Document"
             SetRange("Location Code", WhseWorksheetLine."Location Code");
             SetRange("Item No.", WhseWorksheetLine."Item No.");
             SetRange("Variant Code", WhseWorksheetLine."Variant Code");
-            if IsEmpty then
+            if IsEmpty() then
                 exit;
 
-            FindSet;
+            FindSet();
             repeat
-                TrackedQtyInBin := WarehouseAvailabilityMgt.CalcQtyOnBin(
-                    WhseWorksheetLine."Location Code", WhseWorksheetLine."From Bin Code", WhseWorksheetLine."Item No.",
-                    WhseWorksheetLine."Variant Code", "Lot No.", "Serial No.");
+                WhseItemTrackingSetup.CopyTrackingFromWhseItemTrackingLine(WhseItemTrackingLine);
+                TrackedQtyInBin :=
+                    WarehouseAvailabilityMgt.CalcQtyOnBin(
+                        WhseWorksheetLine."Location Code", WhseWorksheetLine."From Bin Code", WhseWorksheetLine."Item No.",
+                        WhseWorksheetLine."Variant Code", WhseItemTrackingSetup);
                 if TrackedQtyInBin < "Quantity (Base)" + WarehouseAvailabilityMgt.CalcQtyAssignedToMove(
                      WhseWorksheetLine, WhseItemTrackingLine)
                 then
                     Error(TotalPendingMovQtyExceedsBinAvailErr, WhseWorksheetLine."Line No.", "Lot No.", "Serial No.");
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -878,14 +880,13 @@ report 7305 "Whse.-Source - Create Document"
                     TempWhseItemTrkgLine.SetRange("Source Type", "Source Type");
                     TempWhseItemTrkgLine.SetRange("Source ID", "Source ID");
                     TempWhseItemTrkgLine.SetRange("Source Ref. No.", "Source Ref. No.");
-                    TempWhseItemTrkgLine.SetRange("Serial No.", "Serial No.");
-                    TempWhseItemTrkgLine.SetRange("Lot No.", "Lot No.");
+                    TempWhseItemTrkgLine.SetTrackingFilterFromWhseItemTrackingLine(WhseItemTrackingLine);
                     if TempWhseItemTrkgLine.Find('-') then
                         "Quantity Handled (Base)" += TempWhseItemTrkgLine."Quantity (Base)";
                     "Qty. to Handle (Base)" := "Quantity (Base)" - "Quantity Handled (Base)";
                     OnBeforeWhseItemTrackingLineModify(WhseItemTrackingLine, TempWhseItemTrkgLine);
                     Modify;
-                until Next = 0;
+                until Next() = 0;
         end
     end;
 
@@ -934,8 +935,7 @@ report 7305 "Whse.-Source - Create Document"
                       DATABASE::"Whse. Worksheet Line", 0, BufferWhseWorksheetLine.Name, BufferWhseWorksheetLine."Line No.", false);
                     SetSourceFilter(BufferWhseWorksheetLine."Worksheet Template Name", 0);
                     SetRange("Location Code", BufferWhseWorksheetLine."Location Code");
-                    SetRange("Serial No.", WhseItemTrackingLine."Serial No.");
-                    SetRange("Lot No.", WhseItemTrackingLine."Lot No.");
+                    SetTrackingFilterFromWhseItemTrackingLine(WhseItemTrackingLine);
                     if FindFirst() then begin
                         "Quantity (Base)" += WhseItemTrackingLine."Quantity (Base)";
                         "Quantity Handled (Base)" += WhseItemTrackingLine."Quantity Handled (Base)";
@@ -1004,7 +1004,7 @@ report 7305 "Whse.-Source - Create Document"
                     "Qty. Outstanding (Base)" := "Qty. (Base)" - "Qty. Handled (Base)";
                     Modify;
                 end;
-            until (Next = 0) or (QtyHandledBase = 0);
+            until (Next() = 0) or (QtyHandledBase = 0);
         end;
     end;
 
@@ -1051,7 +1051,7 @@ report 7305 "Whse.-Source - Create Document"
                     CreatePutAway.Run(TempPostedWhseRcptLine2);
                     CreatePutAway.UpdateTempWhseItemTrkgLines(TempPostedWhseRcptLine2, SourceType);
                 end;
-            until TempPostedWhseRcptLine.Next = 0;
+            until TempPostedWhseRcptLine.Next() = 0;
     end;
 
     procedure FEFOLocation(LocCode: Code[10]): Boolean
@@ -1074,7 +1074,7 @@ report 7305 "Whse.-Source - Create Document"
             Item.Get(ItemNo);
             if Item."Item Tracking Code" <> '' then begin
                 ItemTrackingCode.Get(Item."Item Tracking Code");
-                exit((ItemTrackingCode."SN Specific Tracking" or ItemTrackingCode."Lot Specific Tracking"));
+                exit(ItemTrackingCode.IsSpecific());
             end;
         end;
         exit(false);

@@ -233,7 +233,7 @@ report 12107 "Calculate Interest on Arrears"
                         repeat
                             CustLedgerEntry.CalcFields("Amount (LCY)", "Remaining Amt. (LCY)");
                             TotalAmount := TotalAmount + CustLedgerEntry."Amount (LCY)";
-                        until CustLedgerEntry.Next = 0;
+                        until CustLedgerEntry.Next() = 0;
                     CustLedgerEntry.SetCurrentKey("Closed by Entry No.");
                     CustLedgerEntry.SetRange("Closed by Entry No.", CreateCustLedgEntry."Entry No.");
                     CustLedgerEntry.SetFilter("Posting Date", '>=%1', CreateCustLedgEntry."Due Date");
@@ -241,7 +241,7 @@ report 12107 "Calculate Interest on Arrears"
                         repeat
                             ix2 := ix2 + 1;
                             DueDateTmp[ix2] := CustLedgerEntry."Posting Date";
-                        until CustLedgerEntry.Next = 0;
+                        until CustLedgerEntry.Next() = 0;
                     ix := 0;
                     CustLedgerEntry.SetCurrentKey("Closed by Entry No.");
                     CustLedgerEntry.SetRange("Closed by Entry No.", CreateCustLedgEntry."Entry No.");
@@ -294,7 +294,7 @@ report 12107 "Calculate Interest on Arrears"
                                     IntLedgerEntrySource := IntLedgerEntrySource + IntLedgerEntryDetail[ix];
                                     RateInterestDateDetail[ix] := CalcDate('<+1D>', DueDateTmp[ix]);
                                 end;
-                            until CustLedgerEntry.Next = 0;
+                            until CustLedgerEntry.Next() = 0;
                     end;
                     if CustLedgerEntry.Get("Closed by Entry No.") then begin
                         ix := ix + 1;
@@ -598,7 +598,7 @@ report 12107 "Calculate Interest on Arrears"
                         repeat
                             VenLedgerEntry.CalcFields("Amount (LCY)", "Remaining Amt. (LCY)");
                             TotalAmount := TotalAmount + VenLedgerEntry."Amount (LCY)";
-                        until VenLedgerEntry.Next = 0;
+                        until VenLedgerEntry.Next() = 0;
 
                     VenLedgerEntry.SetCurrentKey("Closed by Entry No.");
                     VenLedgerEntry.SetRange("Closed by Entry No.", CreateVendLedgEntry."Entry No.");
@@ -607,7 +607,7 @@ report 12107 "Calculate Interest on Arrears"
                         repeat
                             ix2 := ix2 + 1;
                             DueDateTmp[ix2] := VenLedgerEntry."Posting Date";
-                        until VenLedgerEntry.Next = 0;
+                        until VenLedgerEntry.Next() = 0;
 
                     ix := 0;
                     VenLedgerEntry.SetCurrentKey("Closed by Entry No.");
@@ -660,7 +660,7 @@ report 12107 "Calculate Interest on Arrears"
                                     IntLedgerEntrySource := IntLedgerEntrySource + IntLedgerEntryDetail[ix];
                                     RateInterestDateDetail[ix] := CalcDate('<+1D>', DueDateTmp[ix]);
                                 end;
-                            until VenLedgerEntry.Next = 0;
+                            until VenLedgerEntry.Next() = 0;
                     end;
 
                     if VenLedgerEntry.Get("Closed by Entry No.") then begin
@@ -961,7 +961,7 @@ report 12107 "Calculate Interest on Arrears"
                         DateSecond := EndingDate;
                 end else
                     DateSecond := EndingDate;
-            until InterestonArrears.Next = 0;
+            until InterestonArrears.Next() = 0;
     end;
 }
 

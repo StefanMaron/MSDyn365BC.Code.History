@@ -244,7 +244,6 @@ codeunit 136125 "Service Posting Journals"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure PostConsumeForServiceOrderWithMultipleLines()
     var
@@ -565,7 +564,7 @@ codeunit 136125 "Service Posting Journals"
     begin
         ServiceLine.SetRange("Document Type", ServiceLine."Document Type"::Order);
         ServiceLine.SetRange("Document No.", ServiceOrderNo);
-        ServiceLine.FindSet;
+        ServiceLine.FindSet();
     end;
 
     local procedure VerifyBinContent(Bin: Record Bin; ItemNo: Code[20]; Quantity: Decimal)
@@ -605,7 +604,7 @@ codeunit 136125 "Service Posting Journals"
         GLEntry.SetRange("Document Type", GLEntry."Document Type"::Invoice);
         GLEntry.SetRange("Source Type", GLEntry."Source Type"::Customer);
         GLEntry.SetRange("Document No.", ServiceInvoiceHeader."No.");
-        GLEntry.FindSet;
+        GLEntry.FindSet();
         repeat
             GLEntry.TestField("Source Type", GLEntry."Source Type"::Customer);
             GLEntry.TestField("Source No.", ServiceInvoiceHeader."Bill-to Customer No.");
@@ -639,7 +638,7 @@ codeunit 136125 "Service Posting Journals"
         ServiceInvoiceHeader: Record "Service Invoice Header";
         ServiceInvoiceLine: Record "Service Invoice Line";
     begin
-        TempServiceLine.FindSet;
+        TempServiceLine.FindSet();
         ServiceInvoiceHeader.SetRange("Order No.", TempServiceLine."Document No.");
         ServiceInvoiceHeader.FindFirst;
         repeat
@@ -656,7 +655,7 @@ codeunit 136125 "Service Posting Journals"
     var
         ServiceLedgerEntry: Record "Service Ledger Entry";
     begin
-        TempServiceLine.FindSet;
+        TempServiceLine.FindSet();
         ServiceLedgerEntry.SetRange("Document Type", ServiceLedgerEntry."Document Type"::Shipment);
         ServiceLedgerEntry.SetRange("Service Order No.", TempServiceLine."Document No.");
         repeat
@@ -690,7 +689,7 @@ codeunit 136125 "Service Posting Journals"
     begin
         ServiceLedgerEntry.SetRange("Service Order No.", ServiceOrderNo);
         ServiceLedgerEntry.SetRange("No.", No);
-        ServiceLedgerEntry.FindSet;
+        ServiceLedgerEntry.FindSet();
         repeat
             ServiceLedgerEntry.TestField("Job No.", JobTask."Job No.");
             ServiceLedgerEntry.TestField("Job Task No.", JobTask."Job Task No.");
@@ -706,7 +705,7 @@ codeunit 136125 "Service Posting Journals"
         ServiceShipmentLine: Record "Service Shipment Line";
     begin
         ServiceShipmentLine.SetRange("Order No.", TempServiceLine."Document No.");
-        TempServiceLine.FindSet;
+        TempServiceLine.FindSet();
         repeat
             ServiceShipmentLine.SetRange("Order Line No.", TempServiceLine."Line No.");
             ServiceShipmentLine.FindFirst;
@@ -725,7 +724,7 @@ codeunit 136125 "Service Posting Journals"
         ServiceInvoiceHeader.FindFirst;
         VATEntry.SetRange("Document Type", VATEntry."Document Type"::Invoice);
         VATEntry.SetRange("Document No.", ServiceInvoiceHeader."No.");
-        VATEntry.FindSet;
+        VATEntry.FindSet();
         repeat
             VATEntry.TestField("Posting Date", ServiceInvoiceHeader."Posting Date");
             VATEntry.TestField("Bill-to/Pay-to No.", ServiceInvoiceHeader."Bill-to Customer No.");
@@ -779,11 +778,13 @@ codeunit 136125 "Service Posting Journals"
         Reply := (Question = ExpectedConfirm);
     end;
 
+#if not CLEAN18
     [MessageHandler]
     [Scope('OnPrem')]
     procedure MessageHandler(Message: Text[1024])
     begin
     end;
+#endif
 
     [ConfirmHandler]
     [Scope('OnPrem')]

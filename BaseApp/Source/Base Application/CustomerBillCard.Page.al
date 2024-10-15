@@ -19,7 +19,7 @@ page 12175 "Customer Bill Card"
                     trigger OnAssistEdit()
                     begin
                         if AssistEdit(xRec) then
-                            CurrPage.Update;
+                            CurrPage.Update();
                     end;
                 }
                 field("Bank Account No."; "Bank Account No.")

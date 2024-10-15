@@ -12,7 +12,7 @@ codeunit 5610 "Calculate Depreciation"
         CalculateCustom1Depr: Codeunit "Calculate Custom 1 Depr.";
 
     procedure Calculate(var DeprAmount: Decimal; var Custom1Amount: Decimal; var NumberOfDays: Integer; var Custom1NumberOfDays: Integer; FANo: Code[20]; DeprBookCode: Code[10]; UntilDate: Date; EntryAmounts: array[4] of Decimal; DateFromProjection: Date; DaysInPeriod: Integer; UseCustom1: Boolean; UseCustom2: Boolean; var Custom2Amount: Decimal; ForcedPercent1: Decimal; ForcedPercent2: Decimal)
-    var        
+    var
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -46,6 +46,8 @@ codeunit 5610 "Calculate Depreciation"
               UseCustom2, Custom1Amount, Custom2Amount, ForcedPercent1, ForcedPercent2);
             Custom1NumberOfDays := NumberOfDays;
         end;
+
+        OnAfterCalcDeprYearCalculateAdditionalDepr2ndYear(DeprAmount, FANo, DeprBookCode);
     end;
 
     local procedure CheckDeprDaysInFiscalYear(FADeprBook: Record "FA Depreciation Book"; CheckDeprDays: Boolean; UntilDate: Date)
@@ -84,6 +86,11 @@ codeunit 5610 "Calculate Depreciation"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckDeprDaysInFiscalYear(FADeprBook: Record "FA Depreciation Book"; CheckDeprDays: Boolean; UntilDate: Date; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcDeprYearCalculateAdditionalDepr2ndYear(var DeprAmount: Decimal; FANo: code[20]; DepreBookCode: code[10])
     begin
     end;
 }

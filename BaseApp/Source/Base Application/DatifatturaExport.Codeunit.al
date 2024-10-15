@@ -97,14 +97,14 @@ codeunit 12182 "Datifattura Export"
         if FileNameCounter = 0 then
             exit;
 
-        TempNameValueBuffer.FindSet;
+        TempNameValueBuffer.FindSet();
         if FileNameCounter > 1 then begin
             DataCompression.CreateZipArchive;
             repeat
                 FileManagement.BLOBImportFromServerFile(TempBlob, TempNameValueBuffer.Name);
                 TempBlob.CreateInStream(ServerTempFileInStream);
                 DataCompression.AddEntry(ServerTempFileInStream, TempNameValueBuffer.Value);
-            until TempNameValueBuffer.Next = 0;
+            until TempNameValueBuffer.Next() = 0;
             Clear(TempBlob);
             TempBlob.CreateOutStream(ZipOutStream);
             DataCompression.SaveZipArchive(ZipOutStream);
@@ -171,7 +171,7 @@ codeunit 12182 "Datifattura Export"
                         ExportSaleInvoiceCustAndInvInfo(VATReportLine, XMLRootNode, DatiFatturaBodyDTEXmlNode);
                     end;
                     AddInvoiceAmountsData(VATReportLine, DatiFatturaBodyDTEXmlNode);
-                until (VATReportLine.Next = 0) or (CessionarioCommittenteDTECount = 1000);
+                until (VATReportLine.Next() = 0) or (CessionarioCommittenteDTECount = 1000);
                 CessionarioCommittenteDTECount := 0;
                 FileCounter += 1;
                 GetFileSuffix(FileCounter, CessionarioCommittenteDTELoopCouner, FileSuffix);
@@ -204,7 +204,7 @@ codeunit 12182 "Datifattura Export"
                         ExportPurchInvoiceVendAndInvInfo(VATReportLine, XMLRootNode, DatiFatturaBodyDTEXmlNode);
                     end;
                     AddInvoiceAmountsData(VATReportLine, DatiFatturaBodyDTEXmlNode);
-                until (VATReportLine.Next = 0) or (CessionarioCommittenteDTECount = 1000);
+                until (VATReportLine.Next() = 0) or (CessionarioCommittenteDTECount = 1000);
                 CessionarioCommittenteDTECount := 0;
                 FileCounter += 1;
                 GetFileSuffix(FileCounter, CessionarioCommittenteDTELoopCouner, FileSuffix);

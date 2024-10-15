@@ -73,7 +73,7 @@
                     SalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
                     SalesLine.SetRange("Document No.", "No.");
                     SalesLine.SetFilter("Purch. Order Line No.", '<>0');
-                    if not SalesLine.IsEmpty then
+                    if not SalesLine.IsEmpty() then
                         Error(
                           Text006,
                           FieldCaption("Sell-to Customer No."));
@@ -146,6 +146,9 @@
 
             trigger OnValidate()
             var
+#if not CLEAN18
+                CustomerTemplMgt: Codeunit "Customer Templ. Mgt.";
+#endif
                 FatturaDocHelper: Codeunit "Fattura Doc. Helper";
                 IsHandled: Boolean;
             begin
@@ -192,12 +195,22 @@
                         TestField("Currency Code", xRec."Currency Code");
                     end;
 
-                CreateDim(
-                  DATABASE::Customer, "Bill-to Customer No.",
-                  DATABASE::"Salesperson/Purchaser", "Salesperson Code",
-                  DATABASE::Campaign, "Campaign No.",
-                  DATABASE::"Responsibility Center", "Responsibility Center",
-                  DATABASE::"Customer Template", "Bill-to Customer Template Code");
+#if not CLEAN18
+                if not CustomerTemplMgt.IsEnabled() then
+                    CreateDim(
+                      DATABASE::Customer, "Bill-to Customer No.",
+                      DATABASE::"Salesperson/Purchaser", "Salesperson Code",
+                      DATABASE::Campaign, "Campaign No.",
+                      DATABASE::"Responsibility Center", "Responsibility Center",
+                      DATABASE::"Customer Template", "Bill-to Customer Template Code")
+                else
+#endif
+                    CreateDim(
+                      DATABASE::Customer, "Bill-to Customer No.",
+                      DATABASE::"Salesperson/Purchaser", "Salesperson Code",
+                      DATABASE::Campaign, "Campaign No.",
+                      DATABASE::"Responsibility Center", "Responsibility Center",
+                      DATABASE::"Customer Templ.", "Bill-to Customer Templ. Code");
 
                 Validate("Payment Terms Code");
                 Validate("Prepmt. Payment Terms Code");
@@ -368,7 +381,7 @@
                     SalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
                     SalesLine.SetRange("Document No.", "No.");
                     SalesLine.SetFilter("Purch. Order Line No.", '<>0');
-                    if not SalesLine.IsEmpty then
+                    if not SalesLine.IsEmpty() then
                         Error(
                           Text006,
                           FieldCaption("Ship-to Code"));
@@ -757,7 +770,7 @@
                             Currency.Get("Currency Code");
                         SalesLine.LockTable();
                         LockTable();
-                        SalesLine.FindSet;
+                        SalesLine.FindSet();
                         repeat
                             SalesLine.TestField("Quantity Invoiced", 0);
                             SalesLine.TestField("Prepmt. Amt. Inv.", 0);
@@ -791,7 +804,7 @@
                             end;
                             OnValidatePricesIncludingVATOnBeforeSalesLineModify(Rec, SalesLine, Currency, RecalculatePrice);
                             SalesLine.Modify();
-                        until SalesLine.Next = 0;
+                        until SalesLine.Next() = 0;
                     end;
                     OnAfterChangePricesIncludingVAT(Rec);
                 end;
@@ -838,6 +851,9 @@
             var
                 ApprovalEntry: Record "Approval Entry";
                 EnumAssignmentMgt: Codeunit "Enum Assignment Management";
+#if not CLEAN18
+                CustomerTemplMgt: Codeunit "Customer Templ. Mgt.";
+#endif
             begin
                 ValidateSalesPersonOnSalesHeader(Rec, false, false);
 
@@ -845,15 +861,25 @@
                 ApprovalEntry.SetRange("Document Type", EnumAssignmentMgt.GetSalesApprovalDocumentType("Document Type"));
                 ApprovalEntry.SetRange("Document No.", "No.");
                 ApprovalEntry.SetFilter(Status, '%1|%2', ApprovalEntry.Status::Created, ApprovalEntry.Status::Open);
-                if not ApprovalEntry.IsEmpty then
+                if not ApprovalEntry.IsEmpty() then
                     Error(Text053, FieldCaption("Salesperson Code"));
 
-                CreateDim(
-                  DATABASE::"Salesperson/Purchaser", "Salesperson Code",
-                  DATABASE::Customer, "Bill-to Customer No.",
-                  DATABASE::Campaign, "Campaign No.",
-                  DATABASE::"Responsibility Center", "Responsibility Center",
-                  DATABASE::"Customer Template", "Bill-to Customer Template Code");
+#if not CLEAN18
+                if not CustomerTemplMgt.IsEnabled() then
+                    CreateDim(
+                      DATABASE::"Salesperson/Purchaser", "Salesperson Code",
+                      DATABASE::Customer, "Bill-to Customer No.",
+                      DATABASE::Campaign, "Campaign No.",
+                      DATABASE::"Responsibility Center", "Responsibility Center",
+                      DATABASE::"Customer Template", "Bill-to Customer Template Code")
+                else
+#endif
+                    CreateDim(
+                      DATABASE::"Salesperson/Purchaser", "Salesperson Code",
+                      DATABASE::Customer, "Bill-to Customer No.",
+                      DATABASE::Campaign, "Campaign No.",
+                      DATABASE::"Responsibility Center", "Responsibility Center",
+                      DATABASE::"Customer Templ.", "Bill-to Customer Templ. Code");
             end;
         }
         field(45; "Order Class"; Code[10])
@@ -1724,11 +1750,9 @@
                 end;
             end;
         }
-        field(124; "IC Status"; Option)
+        field(124; "IC Status"; Enum "Sales Document IC Status")
         {
             Caption = 'IC Status';
-            OptionCaption = 'New,Pending,Sent';
-            OptionMembers = New,Pending,Sent;
         }
         field(125; "Sell-to IC Partner Code"; Code[20])
         {
@@ -2051,6 +2075,9 @@
         {
             Caption = 'Payment Instructions Id';
             TableRelation = "O365 Payment Instructions";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Microsoft Invoicing is not supported in Business Central';
+            ObsoleteTag = '18.0';
         }
         field(200; "Work Description"; BLOB)
         {
@@ -2127,20 +2154,45 @@
             TableRelation = Campaign;
 
             trigger OnValidate()
+#if not CLEAN18
+            var
+                CustomerTemplMgt: Codeunit "Customer Templ. Mgt.";
+#endif
             begin
-                CreateDim(
-                  DATABASE::Campaign, "Campaign No.",
-                  DATABASE::Customer, "Bill-to Customer No.",
-                  DATABASE::"Salesperson/Purchaser", "Salesperson Code",
-                  DATABASE::"Responsibility Center", "Responsibility Center",
-                  DATABASE::"Customer Template", "Bill-to Customer Template Code");
+#if not CLEAN18
+                if not CustomerTemplMgt.IsEnabled() then
+                    CreateDim(
+                      DATABASE::Campaign, "Campaign No.",
+                      DATABASE::Customer, "Bill-to Customer No.",
+                      DATABASE::"Salesperson/Purchaser", "Salesperson Code",
+                      DATABASE::"Responsibility Center", "Responsibility Center",
+                      DATABASE::"Customer Template", "Bill-to Customer Template Code")
+                else
+#endif
+                    CreateDim(
+                      DATABASE::Campaign, "Campaign No.",
+                      DATABASE::Customer, "Bill-to Customer No.",
+                      DATABASE::"Salesperson/Purchaser", "Salesperson Code",
+                      DATABASE::"Responsibility Center", "Responsibility Center",
+                      DATABASE::"Customer Templ.", "Bill-to Customer Templ. Code")
             end;
         }
         field(5051; "Sell-to Customer Template Code"; Code[10])
         {
             Caption = 'Sell-to Customer Template Code';
+#if not CLEAN18
             TableRelation = "Customer Template";
+#endif
+            ObsoleteReason = 'Will be removed with other functionality related to "old" templates. Replaced by "Sell-to Customer Templ. Code".';
+#if not CLEAN18
+            ObsoleteState = Pending;
+            ObsoleteTag = '18.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '21.0';
+#endif
 
+#if not CLEAN18
             trigger OnValidate()
             var
                 SellToCustTemplate: Record "Customer Template";
@@ -2174,6 +2226,7 @@
                 then
                     RecreateSalesLines(FieldCaption("Sell-to Customer Template Code"));
             end;
+#endif
         }
         field(5052; "Sell-to Contact No."; Code[20])
         {
@@ -2334,8 +2387,19 @@
         field(5054; "Bill-to Customer Template Code"; Code[10])
         {
             Caption = 'Bill-to Customer Template Code';
+#if not CLEAN18
             TableRelation = "Customer Template";
+#endif
+            ObsoleteReason = 'Will be removed with other functionality related to "old" templates. Replaced by "Bill-to Customer Templ. Code".';
+#if not CLEAN18
+            ObsoleteState = Pending;
+            ObsoleteTag = '18.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '21.0';
+#endif
 
+#if not CLEAN18
             trigger OnValidate()
             var
                 BillToCustTemplate: Record "Customer Template";
@@ -2389,6 +2453,7 @@
                 then
                     RecreateSalesLines(FieldCaption("Bill-to Customer Template Code"));
             end;
+#endif
         }
         field(5055; "Opportunity No."; Code[20])
         {
@@ -2405,12 +2470,114 @@
                 LinkSalesDocWithOpportunity(xRec."Opportunity No.");
             end;
         }
+        field(5056; "Sell-to Customer Templ. Code"; Code[20])
+        {
+            Caption = 'Sell-to Customer Template Code';
+            TableRelation = "Customer Templ.";
+
+            trigger OnValidate()
+            var
+                SellToCustTemplate: Record "Customer Templ.";
+            begin
+                TestField("Document Type", "Document Type"::Quote);
+                TestStatusOpen();
+
+                if not InsertMode and
+                   ("Sell-to Customer Templ. Code" <> xRec."Sell-to Customer Templ. Code") and
+                   (xRec."Sell-to Customer Templ. Code" <> '')
+                then begin
+                    if GetHideValidationDialog() or not GuiAllowed then
+                        Confirmed := true
+                    else
+                        Confirmed := Confirm(ConfirmChangeQst, false, FieldCaption("Sell-to Customer Templ. Code"));
+                    if Confirmed then begin
+                        if InitFromTemplate("Sell-to Customer Templ. Code", FieldCaption("Sell-to Customer Templ. Code")) then
+                            exit
+                    end else begin
+                        "Sell-to Customer Templ. Code" := xRec."Sell-to Customer Templ. Code";
+                        exit;
+                    end;
+                end;
+
+                if SellToCustTemplate.Get("Sell-to Customer Templ. Code") then
+                    CopyFromNewSellToCustTemplate(SellToCustTemplate);
+
+                if not InsertMode and
+                   ((xRec."Sell-to Customer Templ. Code" <> "Sell-to Customer Templ. Code") or
+                    (xRec."Currency Code" <> "Currency Code"))
+                then
+                    RecreateSalesLines(CopyStr(FieldCaption("Sell-to Customer Templ. Code"), 1, 100));
+            end;
+        }
+        field(5057; "Bill-to Customer Templ. Code"; Code[20])
+        {
+            Caption = 'Bill-to Customer Template Code';
+            TableRelation = "Customer Templ.";
+
+            trigger OnValidate()
+            var
+                BillToCustTemplate: Record "Customer Templ.";
+            begin
+                TestField("Document Type", "Document Type"::Quote);
+                TestStatusOpen();
+
+                if not InsertMode and
+                   ("Bill-to Customer Templ. Code" <> xRec."Bill-to Customer Templ. Code") and
+                   (xRec."Bill-to Customer Templ. Code" <> '')
+                then begin
+                    if GetHideValidationDialog() or not GuiAllowed then
+                        Confirmed := true
+                    else
+                        Confirmed := Confirm(ConfirmChangeQst, false, FieldCaption("Bill-to Customer Templ. Code"));
+                    if Confirmed then begin
+                        if InitFromTemplate("Bill-to Customer Templ. Code", FieldCaption("Bill-to Customer Templ. Code")) then
+                            exit
+                    end else begin
+                        "Bill-to Customer Templ. Code" := xRec."Bill-to Customer Templ. Code";
+                        exit;
+                    end;
+                end;
+
+                Validate("Ship-to Code", '');
+                if BillToCustTemplate.Get("Bill-to Customer Templ. Code") then begin
+                    BillToCustTemplate.TestField("Customer Posting Group");
+                    "Customer Posting Group" := BillToCustTemplate."Customer Posting Group";
+                    "Invoice Disc. Code" := BillToCustTemplate."Invoice Disc. Code";
+                    "Customer Price Group" := BillToCustTemplate."Customer Price Group";
+                    "Customer Disc. Group" := BillToCustTemplate."Customer Disc. Group";
+                    "Allow Line Disc." := BillToCustTemplate."Allow Line Disc.";
+                    Validate("Payment Terms Code", BillToCustTemplate."Payment Terms Code");
+                    Validate("Payment Method Code", BillToCustTemplate."Payment Method Code");
+                    "Prices Including VAT" := BillToCustTemplate."Prices Including VAT";
+                    "Shipment Method Code" := BillToCustTemplate."Shipment Method Code";
+                end;
+
+                CreateDim(
+                  DATABASE::"Customer Templ.", "Bill-to Customer Templ. Code",
+                  DATABASE::"Salesperson/Purchaser", "Salesperson Code",
+                  DATABASE::Customer, "Bill-to Customer No.",
+                  DATABASE::Campaign, "Campaign No.",
+                  DATABASE::"Responsibility Center", "Responsibility Center");
+
+                OnValidateBilltoCustomerTemplCodeOnBeforeRecreateSalesLines(Rec, CurrFieldNo);
+
+                if not InsertMode and
+                   (xRec."Sell-to Customer Templ. Code" = "Sell-to Customer Templ. Code") and
+                   (xRec."Bill-to Customer Templ. Code" <> "Bill-to Customer Templ. Code")
+                then
+                    RecreateSalesLines(CopyStr(FieldCaption("Bill-to Customer Templ. Code"), 1, 100));
+            end;
+        }
         field(5700; "Responsibility Center"; Code[10])
         {
             Caption = 'Responsibility Center';
             TableRelation = "Responsibility Center";
 
             trigger OnValidate()
+#if not CLEAN18
+            var
+                CustomerTemplMgt: Codeunit "Customer Templ. Mgt.";
+#endif
             begin
                 TestStatusOpen;
                 if not UserSetupMgt.CheckRespCenter(0, "Responsibility Center") then
@@ -2422,12 +2589,22 @@
                 UpdateOutboundWhseHandlingTime;
                 UpdateShipToAddress;
 
-                CreateDim(
-                  DATABASE::"Responsibility Center", "Responsibility Center",
-                  DATABASE::Customer, "Bill-to Customer No.",
-                  DATABASE::"Salesperson/Purchaser", "Salesperson Code",
-                  DATABASE::Campaign, "Campaign No.",
-                  DATABASE::"Customer Template", "Bill-to Customer Template Code");
+#if not CLEAN18
+                if not CustomerTemplMgt.IsEnabled() then
+                    CreateDim(
+                      DATABASE::"Responsibility Center", "Responsibility Center",
+                      DATABASE::Customer, "Bill-to Customer No.",
+                      DATABASE::"Salesperson/Purchaser", "Salesperson Code",
+                      DATABASE::Campaign, "Campaign No.",
+                      DATABASE::"Customer Template", "Bill-to Customer Template Code")
+                else
+#endif
+                    CreateDim(
+                      DATABASE::"Responsibility Center", "Responsibility Center",
+                      DATABASE::Customer, "Bill-to Customer No.",
+                      DATABASE::"Salesperson/Purchaser", "Salesperson Code",
+                      DATABASE::Campaign, "Campaign No.",
+                      DATABASE::"Customer Templ.", "Bill-to Customer Templ. Code");
 
                 if xRec."Responsibility Center" <> "Responsibility Center" then begin
                     RecreateSalesLines(FieldCaption("Responsibility Center"));
@@ -3011,7 +3188,6 @@
     var
         CustInvoiceDisc: Record "Cust. Invoice Disc.";
         PaymentLines: Record "Payment Lines";
-        SalesCommentLine: Record "Sales Comment Line";
         PostSalesDelete: Codeunit "PostSales-Delete";
         ArchiveManagement: Codeunit ArchiveManagement;
         EnvInfoProxy: Codeunit "Env. Info Proxy";
@@ -3040,20 +3216,10 @@
         WhseRequest.SetRange("Source Type", DATABASE::"Sales Line");
         WhseRequest.SetRange("Source Subtype", "Document Type");
         WhseRequest.SetRange("Source No.", "No.");
-        if not WhseRequest.IsEmpty then
+        if not WhseRequest.IsEmpty() then
             WhseRequest.DeleteAll(true);
 
-        SalesLine.SetRange("Document Type", "Document Type");
-        SalesLine.SetRange("Document No.", "No.");
-        SalesLine.SetRange(Type, SalesLine.Type::"Charge (Item)");
-
-        DeleteSalesLines;
-        SalesLine.SetRange(Type);
-        DeleteSalesLines;
-
-        SalesCommentLine.SetRange("Document Type", "Document Type");
-        SalesCommentLine.SetRange("No.", "No.");
-        SalesCommentLine.DeleteAll();
+        DeleteAllSalesLines();
 
         PaymentLines.DeletePaymentLines(Rec);
 
@@ -3123,6 +3289,7 @@
         RecreateSalesLinesMsg: Label 'If you change %1, the existing sales lines will be deleted and new sales lines based on the new information on the header will be created.\\Do you want to continue?', Comment = '%1: FieldCaption';
         ResetItemChargeAssignMsg: Label 'If you change %1, the existing sales lines will be deleted and new sales lines based on the new information on the header will be created.\The amount of the item charge assignment will be reset to 0.\\Do you want to continue?', Comment = '%1: FieldCaption';
         LinesNotUpdatedMsg: Label 'You have changed %1 on the sales header, but it has not been changed on the existing sales lines.', Comment = 'You have changed Order Date on the sales header, but it has not been changed on the existing sales lines.';
+        LinesNotUpdatedDateMsg: Label 'You have changed the %1 on the sales order, which might affect the prices and discounts on the sales order lines. You should review the lines and manually update prices and discounts if needed.', Comment = '%1: OrderDate';
         Text019: Label 'You must update the existing sales lines manually.';
         AffectExchangeRateMsg: Label 'The change may affect the exchange rate that is used for price calculation on the sales lines.';
         Text021: Label 'Do you want to update the exchange rate?';
@@ -3768,7 +3935,7 @@
                     TempItemChargeAssgntSales.Modify();
                     TempItemChargeAssgntSales.Mark(true);
                 end;
-            until TempItemChargeAssgntSales.Next = 0;
+            until TempItemChargeAssgntSales.Next() = 0;
     end;
 
     procedure MessageIfSalesLinesExist(ChangedFieldName: Text[100])
@@ -3798,7 +3965,7 @@
             exit;
 
         if SalesLinesExist and not GetHideValidationDialog then begin
-            MessageText := StrSubstNo(LinesNotUpdatedMsg, ChangedFieldName);
+            MessageText := StrSubstNo(LinesNotUpdatedDateMsg, ChangedFieldName);
             if "Currency Code" <> '' then
                 MessageText := StrSubstNo(SplitMessageTxt, MessageText, AffectExchangeRateMsg);
             Message(MessageText);
@@ -3921,7 +4088,7 @@
                     SalesLine.UpdateAmounts;
                     SalesLine.Modify();
                 end;
-            until SalesLine.Next = 0;
+            until SalesLine.Next() = 0;
         end;
     end;
 
@@ -3955,7 +4122,7 @@
                         FieldNo("Requested Delivery Date"),
                         FieldNo("Promised Delivery Date"),
                         FieldNo("Outbound Whse. Handling Time"):
-                            ConfirmResvDateConflict;
+                            ConfirmReservationDateConflict();
                     end
                 else
                     exit
@@ -4025,14 +4192,14 @@
                 SalesLineReserve.AssignForPlanning(SalesLine);
                 OnUpdateSalesLinesByFieldNoOnBeforeSalesLineModify(SalesLine, ChangedFieldNo, CurrFieldNo);
                 SalesLine.Modify(true);
-            until SalesLine.Next = 0;
+            until SalesLine.Next() = 0;
     end;
 
-    local procedure ConfirmResvDateConflict()
+    procedure ConfirmReservationDateConflict()
     var
-        ResvEngMgt: Codeunit "Reservation Engine Mgt.";
+        ReservationEngineMgt: Codeunit "Reservation Engine Mgt.";
     begin
-        if ResvEngMgt.ResvExistsForSalesHeader(Rec) then
+        if ReservationEngineMgt.ResvExistsForSalesHeader(Rec) then
             if not Confirm(Text063, false) then
                 Error('');
     end;
@@ -4116,6 +4283,23 @@
         exit(SalesLine.FindFirst);
     end;
 
+    procedure DeleteAllSalesLines()
+    var
+        SalesCommentLine: Record "Sales Comment Line";
+    begin
+        SalesLine.SetRange("Document Type", "Document Type");
+        SalesLine.SetRange("Document No.", "No.");
+        SalesLine.SetRange(Type, SalesLine.Type::"Charge (Item)");
+
+        DeleteSalesLines();
+        SalesLine.SetRange(Type);
+        DeleteSalesLines();
+
+        SalesCommentLine.SetRange("Document Type", "Document Type");
+        SalesCommentLine.SetRange("No.", "No.");
+        SalesCommentLine.DeleteAll();
+    end;
+
     local procedure DeleteSalesLines()
     var
         ReservMgt: Codeunit "Reservation Management";
@@ -4130,7 +4314,7 @@
             repeat
                 SalesLine.SuspendStatusCheck(true);
                 SalesLine.Delete(true);
-            until SalesLine.Next = 0;
+            until SalesLine.Next() = 0;
         end;
     end;
 
@@ -4158,6 +4342,9 @@
     var
         Cont: Record Contact;
         ConfirmManagement: Codeunit "Confirm Management";
+#if not CLEAN18
+        CustomerTemplMgt: Codeunit "Customer Templ. Mgt.";
+#endif
     begin
         if ("Bill-to Customer No." <> '') and ("Sell-to Customer No." <> '') then
             exit(true);
@@ -4168,7 +4355,12 @@
 
         if "Sell-to Customer No." = '' then begin
             TestField("Sell-to Contact No.");
-            TestField("Sell-to Customer Template Code");
+#if not CLEAN18
+            if not CustomerTemplMgt.IsEnabled() then
+                TestField("Sell-to Customer Template Code")
+            else
+#endif
+                TestField("Sell-to Customer Templ. Code");
             GetContact(Cont, "Sell-to Contact No.");
             CreateCustomerFromSellToCustomerTemplate(Cont);
             Commit();
@@ -4177,7 +4369,12 @@
 
         if "Bill-to Customer No." = '' then begin
             TestField("Bill-to Contact No.");
-            TestField("Bill-to Customer Template Code");
+#if not CLEAN18
+            if not CustomerTemplMgt.IsEnabled() then
+                TestField("Bill-to Customer Template Code")
+            else
+#endif
+                TestField("Bill-to Customer Templ. Code");
             GetContact(Cont, "Bill-to Contact No.");
             CreateCustomerFromBillToCustomerTemplate(Cont);
             Commit();
@@ -4189,6 +4386,9 @@
 
     local procedure CreateCustomerFromSellToCustomerTemplate(Cont: Record Contact)
     var
+#if not CLEAN18
+        CustomerTemplMgt: Codeunit "Customer Templ. Mgt.";
+#endif
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -4196,11 +4396,19 @@
         if IsHandled then
             exit;
 
-        Cont.CreateCustomer("Sell-to Customer Template Code");
+#if not CLEAN18
+        if not CustomerTemplMgt.IsEnabled() then
+            Cont.CreateCustomer("Sell-to Customer Template Code")
+        else
+#endif
+        Cont.CreateCustomerFromTemplate("Sell-to Customer Templ. Code");
     end;
 
     local procedure CreateCustomerFromBillToCustomerTemplate(Cont: Record Contact)
     var
+#if not CLEAN18
+        CustomerTemplMgt: Codeunit "Customer Templ. Mgt.";
+#endif
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -4208,7 +4416,12 @@
         if IsHandled then
             exit;
 
-        Cont.CreateCustomer("Bill-to Customer Template Code");
+#if not CLEAN18
+        if not CustomerTemplMgt.IsEnabled() then
+            Cont.CreateCustomer("Bill-to Customer Template Code")
+        else
+#endif
+            Cont.CreateCustomerFromTemplate("Bill-to Customer Templ. Code");
     end;
 
     local procedure CheckShipmentInfo(var SalesLine: Record "Sales Line"; BillTo: Boolean)
@@ -4273,9 +4486,10 @@
                 SalesLine.TestField("Return Receipt No.", '');
     end;
 
+#if not CLEAN18
     local procedure CopyFromSellToCustTemplate(SellToCustTemplate: Record "Customer Template")
     begin
-        if not ApplicationAreaMgmt.IsSalesTaxEnabled then
+        if not ApplicationAreaMgmt.IsSalesTaxEnabled() then
             SellToCustTemplate.TestField("Gen. Bus. Posting Group");
         "Gen. Bus. Posting Group" := SellToCustTemplate."Gen. Bus. Posting Group";
         "VAT Bus. Posting Group" := SellToCustTemplate."VAT Bus. Posting Group";
@@ -4283,6 +4497,19 @@
             Validate("Bill-to Customer Template Code", "Sell-to Customer Template Code");
 
         OnAfterCopyFromSellToCustTemplate(Rec, SellToCustTemplate);
+    end;
+#endif
+
+    local procedure CopyFromNewSellToCustTemplate(SellToCustTemplate: Record "Customer Templ.")
+    begin
+        if not ApplicationAreaMgmt.IsSalesTaxEnabled() then
+            SellToCustTemplate.TestField("Gen. Bus. Posting Group");
+        "Gen. Bus. Posting Group" := SellToCustTemplate."Gen. Bus. Posting Group";
+        "VAT Bus. Posting Group" := SellToCustTemplate."VAT Bus. Posting Group";
+        if "Bill-to Customer No." = '' then
+            Validate("Bill-to Customer Templ. Code", "Sell-to Customer Templ. Code");
+
+        OnAfterCopyFromNewSellToCustTemplate(Rec, SellToCustTemplate);
     end;
 
     local procedure RecreateReqLine(OldSalesLine: Record "Sales Line"; NewSourceRefNo: Integer; ToTemp: Boolean)
@@ -4385,8 +4612,14 @@
         ContBusinessRelation: Record "Contact Business Relation";
         Customer: Record Customer;
         Cont: Record Contact;
+#if not CLEAN18
         CustTemplate: Record "Customer Template";
+#endif
+        CustomerTempl: Record "Customer Templ.";
         SearchContact: Record Contact;
+#if not CLEAN18
+        CustomerTemplMgt: Codeunit "Customer Templ. Mgt.";
+#endif
         ContactBusinessRelationFound: Boolean;
         IsHandled: Boolean;
     begin
@@ -4435,8 +4668,14 @@
                 SetShipToAddress(
                   SearchContact."Company Name", SearchContact."Name 2", SearchContact.Address, SearchContact."Address 2",
                   SearchContact.City, SearchContact."Post Code", SearchContact.County, SearchContact."Country/Region Code");
-                if ("Sell-to Customer Template Code" = '') and (not CustTemplate.IsEmpty) then
-                    Validate("Sell-to Customer Template Code", Cont.FindCustomerTemplate);
+#if not CLEAN18
+                if not CustomerTemplMgt.IsEnabled() then begin
+                    if ("Sell-to Customer Template Code" = '') and (not CustTemplate.IsEmpty) then
+                        Validate("Sell-to Customer Template Code", Cont.FindCustomerTemplate());
+                end else
+#endif
+                    if ("Sell-to Customer Templ. Code" = '') and (not CustomerTempl.IsEmpty) then
+                        Validate("Sell-to Customer Templ. Code", Cont.FindNewCustomerTemplate());
                 OnUpdateSellToCustOnAfterSetFromSearchContact(Rec, SearchContact);
             end else begin
                 IsHandled := false;
@@ -4506,8 +4745,14 @@
     var
         ContBusinessRelation: Record "Contact Business Relation";
         Cont: Record Contact;
+#if not CLEAN18
         CustTemplate: Record "Customer Template";
+#endif
         SearchContact: Record Contact;
+        CustomerTempl: Record "Customer Templ.";
+#if not CLEAN18
+        CustomerTemplMgt: Codeunit "Customer Templ. Mgt.";
+#endif
         ContactBusinessRelationFound: Boolean;
         IsHandled: Boolean;
     begin
@@ -4538,7 +4783,10 @@
                 SkipBillToContact := true;
                 Validate("Bill-to Customer No.", ContBusinessRelation."No.");
                 SkipBillToContact := false;
+#if not CLEAN18
                 "Bill-to Customer Template Code" := '';
+#endif
+                "Bill-to Customer Templ. Code" := '';
             end else
                 CheckCustomerContactRelation(Cont, "Bill-to Customer No.", ContBusinessRelation."No.");
         end else begin
@@ -4559,8 +4807,14 @@
 
                 OnUpdateBillToCustOnAfterSalesQuote(Rec, SearchContact);
 
-                if ("Bill-to Customer Template Code" = '') and (not CustTemplate.IsEmpty) then
-                    Validate("Bill-to Customer Template Code", Cont.FindCustomerTemplate);
+#if not CLEAN18
+                if not CustomerTemplMgt.IsEnabled() then begin
+                    if ("Bill-to Customer Template Code" = '') and (not CustTemplate.IsEmpty) then
+                        Validate("Bill-to Customer Template Code", Cont.FindCustomerTemplate());
+                end else
+#endif
+                    if ("Bill-to Customer Templ. Code" = '') and (not CustomerTempl.IsEmpty) then
+                        Validate("Bill-to Customer Templ. Code", Cont.FindNewCustomerTemplate());
             end else begin
                 IsHandled := false;
                 OnUpdateBillToCustOnBeforeContactIsNotRelatedToAnyCostomerErr(Rec, Cont, ContBusinessRelation, IsHandled);
@@ -4591,11 +4845,23 @@
     end;
 
     local procedure UpdateSellToCustTemplateCode()
+#if not CLEAN18
+    var
+        CustomerTemplMgt: Codeunit "Customer Templ. Mgt.";
+#endif
     begin
-        if ("Document Type" = "Document Type"::Quote) and ("Sell-to Customer No." = '') and ("Sell-to Customer Template Code" = '') and
-           (GetFilterContNo = '')
-        then
-            Validate("Sell-to Customer Template Code", SelectSalesHeaderCustomerTemplate);
+#if not CLEAN18
+        if not CustomerTemplMgt.IsEnabled() then begin
+            if ("Document Type" = "Document Type"::Quote) and ("Sell-to Customer No." = '') and ("Sell-to Customer Template Code" = '') and
+               (GetFilterContNo = '')
+            then
+                Validate("Sell-to Customer Template Code", SelectSalesHeaderCustomerTemplate());
+        end else
+#endif
+            if ("Document Type" = "Document Type"::Quote) and ("Sell-to Customer No." = '') and ("Sell-to Customer Templ. Code" = '') and
+               (GetFilterContNo = '')
+            then
+                Validate("Sell-to Customer Templ. Code", SelectSalesHeaderNewCustomerTemplate());
     end;
 
     procedure GetShippingTime(CalledByFieldNo: Integer)
@@ -4858,7 +5124,7 @@
                     SalesLine.Modify();
                     ATOLink.UpdateAsmDimFromSalesLine(SalesLine);
                 end;
-            until SalesLine.Next = 0;
+            until SalesLine.Next() = 0;
     end;
 
     local procedure VerifyShippedReceivedItemLineDimChange(var ShippedReceivedItemLineDimChangeConfirmed: Boolean)
@@ -4906,10 +5172,10 @@
                                             if ItemLedgEntry.FindSet then
                                                 repeat
                                                     CreateTempAdjmtValueEntries(TempValueEntry, ItemLedgEntry."Entry No.");
-                                                until ItemLedgEntry.Next = 0;
-                                        until Next = 0;
+                                                until ItemLedgEntry.Next() = 0;
+                                        until Next() = 0;
                                 end;
-                        until SalesLine.Next = 0;
+                        until SalesLine.Next() = 0;
                 end;
             "Document Type"::"Return Order", "Document Type"::"Credit Memo":
                 begin
@@ -4935,10 +5201,10 @@
                                             if ItemLedgEntry.FindSet then
                                                 repeat
                                                     CreateTempAdjmtValueEntries(TempValueEntry, ItemLedgEntry."Entry No.");
-                                                until ItemLedgEntry.Next = 0;
-                                        until Next = 0;
+                                                until ItemLedgEntry.Next() = 0;
+                                        until Next() = 0;
                                 end;
-                        until SalesLine.Next = 0;
+                        until SalesLine.Next() = 0;
                 end;
         end;
         PAGE.RunModal(0, TempValueEntry);
@@ -5001,20 +5267,20 @@
                         TempValueEntry := ValueEntry;
                         if TempValueEntry.Insert() then;
                     end;
-                until Next = 0;
+                until Next() = 0;
         end;
-    end;
-
-    [Obsolete('Typo in the function name, use GetPstdDocLinesToReverse instead', '15.1')]
-    procedure GetPstdDocLinesToRevere()
-    begin
-        GetPstdDocLinesToReverse();
     end;
 
     procedure GetPstdDocLinesToReverse()
     var
         SalesPostedDocLines: Page "Posted Sales Document Lines";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetPstdDocLinesToReverse(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         GetCust("Sell-to Customer No.");
         SalesPostedDocLines.SetToSalesHeader(Rec);
         SalesPostedDocLines.SetRecord(Cust);
@@ -5081,21 +5347,23 @@
         WarehouseActivityLine.SetRange("Source Type", DATABASE::"Sales Line");
         WarehouseActivityLine.SetRange("Source Subtype", DocType);
         WarehouseActivityLine.SetRange("Source No.", DocNo);
-        if WarehouseActivityLine.IsEmpty then
+        if WarehouseActivityLine.IsEmpty() then
             exit(false);
         SalesLine.SetRange("Document Type", DocType);
         SalesLine.SetRange("Document No.", DocNo);
         SalesLine.SetRange(Type, SalesLine.Type::Item);
-        if SalesLine.IsEmpty then
+        if SalesLine.IsEmpty() then
             exit(false);
         exit(true);
     end;
 
+#if not CLEAN17
     [Obsolete('Replaced by WhseShipmentConflict().', '17.0')]
     procedure WhseShpmntConflict(DocType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order"; DocNo: Code[20]; ShippingAdvice: Option Partial,Complete): Boolean
     begin
         exit(WhseShipmentConflict("Sales Document Type".FromInteger(DocType), DocNo, "Sales Header Shipping Advice".FromInteger(ShippingAdvice)));
     end;
+#endif
 
     procedure WhseShipmentConflict(DocType: Enum "Sales Document Type"; DocNo: Code[20]; ShippingAdvice: Enum "Sales Header Shipping Advice"): Boolean
     var
@@ -5107,7 +5375,7 @@
         WarehouseShipmentLine.SetRange("Source Type", DATABASE::"Sales Line");
         WarehouseShipmentLine.SetRange("Source Subtype", DocType);
         WarehouseShipmentLine.SetRange("Source No.", DocNo);
-        if WarehouseShipmentLine.IsEmpty then
+        if WarehouseShipmentLine.IsEmpty() then
             exit(false);
         exit(true);
     end;
@@ -5475,7 +5743,7 @@
                         AsmHeader.Modify();
                         Window.Close;
                     end;
-            until ATOLink.Next = 0;
+            until ATOLink.Next() = 0;
     end;
 
     procedure CheckShippingAdvice()
@@ -5500,7 +5768,7 @@
                     then
                         Result := false;
                 end;
-            until SalesLine.Next = 0;
+            until SalesLine.Next() = 0;
         if QtyToShipBaseTotal = 0 then
             Result := true;
 
@@ -5601,7 +5869,7 @@
         if SalesLine.FindSet then
             repeat
                 CollectParamsInBufferForCreateDimSet(TempSalesLine, SalesLine);
-            until SalesLine.Next = 0;
+            until SalesLine.Next() = 0;
         TempSalesLine.Reset();
         TempSalesLine.MarkedOnly(false);
         if TempSalesLine.FindSet then
@@ -5609,7 +5877,7 @@
                 SalesLine.CreateDim(DATABASE::"G/L Account", TempSalesLine."No.",
                   DATABASE::Job, TempSalesLine."Job No.",
                   DATABASE::"Responsibility Center", TempSalesLine."Responsibility Center");
-            until TempSalesLine.Next = 0;
+            until TempSalesLine.Next() = 0;
     end;
 
     local procedure CollectParamsInBufferForCreateDimSet(var TempSalesLine: Record "Sales Line" temporary; SalesLine: Record "Sales Line")
@@ -5630,7 +5898,7 @@
                 TempSalesLine.SetRange("Job No.", SalesLine."Job No.");
                 TempSalesLine.SetRange("Responsibility Center", SalesLine."Responsibility Center");
                 OnCollectParamsInBufferForCreateDimSetOnAfterSetTempSalesLineFilters(TempSalesLine, SalesLine);
-                if TempSalesLine.IsEmpty then
+                if TempSalesLine.IsEmpty() then
                     InsertTempSalesLineInBuffer(TempSalesLine, SalesLine, TempSalesLine."No.", false);
             end;
     end;
@@ -5777,7 +6045,7 @@
                 VATProdPostingGroupIterator := SplitSalesLine."VAT Prod. Posting Group";
             end;
             UpdateTotalingSalesLine(SplitSalesLine, TotalingSalesLine);
-        until SplitSalesLine.Next = 0;
+        until SplitSalesLine.Next() = 0;
         TotalingSalesLine.Insert(true);
     end;
 
@@ -5948,7 +6216,7 @@
             SalesLineReserve.CopyReservEntryToTemp(TempReservEntry, SalesLine);
             RecreateReqLine(SalesLine, 0, true);
             OnRecreateReservEntryReqLineOnAfterLoop(Rec);
-        until SalesLine.Next = 0;
+        until SalesLine.Next() = 0;
     end;
 
     local procedure TransferItemChargeAssgntSalesToTemp(var ItemChargeAssgntSales: Record "Item Charge Assignment (Sales)"; var TempItemChargeAssgntSales: Record "Item Charge Assignment (Sales)" temporary)
@@ -5960,7 +6228,7 @@
                 TempItemChargeAssgntSales.Init();
                 TempItemChargeAssgntSales := ItemChargeAssgntSales;
                 TempItemChargeAssgntSales.Insert();
-            until ItemChargeAssgntSales.Next = 0;
+            until ItemChargeAssgntSales.Next() = 0;
             ItemChargeAssgntSales.DeleteAll();
         end;
     end;
@@ -6019,10 +6287,10 @@
                         ItemChargeAssgntSales."Document Line No." := TempInteger.Number;
                         ItemChargeAssgntSales.Validate("Unit Cost", 0);
                         ItemChargeAssgntSales.Insert();
-                    until TempItemChargeAssgntSales.Next = 0;
+                    until TempItemChargeAssgntSales.Next() = 0;
                     TempInteger.Delete();
                 end;
-            until TempSalesLine.Next = 0;
+            until TempSalesLine.Next() = 0;
 
         ClearItemAssgntSalesFilter(TempItemChargeAssgntSales);
         TempItemChargeAssgntSales.DeleteAll();
@@ -6286,7 +6554,10 @@
 
     local procedure CopySellToCustomerAddressFieldsFromCustomer(var SellToCustomer: Record Customer)
     begin
+#if not CLEAN18
         "Sell-to Customer Template Code" := '';
+#endif
+        "Sell-to Customer Templ. Code" := '';
         "Sell-to Customer Name" := Cust.Name;
         "Sell-to Customer Name 2" := Cust."Name 2";
         "Sell-to Phone No." := Cust."Phone No.";
@@ -6319,7 +6590,11 @@
 
     procedure CopyShipToCustomerAddressFieldsFromCust(var SellToCustomer: Record Customer)
     var
+        CustomerTempl: Record "Customer Templ.";
+#if not CLEAN18
         SellToCustTemplate: Record "Customer Template";
+        CustomerTemplMgt: Codeunit "Customer Templ. Mgt.";
+#endif
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -6340,10 +6615,18 @@
         "Ship-to Contact" := Cust.Contact;
         if Cust."Shipment Method Code" <> '' then
             Validate("Shipment Method Code", Cust."Shipment Method Code");
-        if not SellToCustTemplate.Get("Sell-to Customer Template Code") then begin
-            "Tax Area Code" := Cust."Tax Area Code";
-            "Tax Liable" := Cust."Tax Liable";
-        end;
+#if not CLEAN18
+        if not CustomerTemplMgt.IsEnabled() then begin
+            if not SellToCustTemplate.Get("Sell-to Customer Template Code") then begin
+                "Tax Area Code" := Cust."Tax Area Code";
+                "Tax Liable" := Cust."Tax Liable";
+            end;
+        end else
+#endif
+            if not CustomerTempl.Get("Sell-to Customer Templ. Code") then begin
+                "Tax Area Code" := Cust."Tax Area Code";
+                "Tax Liable" := Cust."Tax Liable";
+            end;
         SetCustomerLocationCode();
         "Shipping Agent Code" := Cust."Shipping Agent Code";
         "Shipping Agent Service Code" := Cust."Shipping Agent Service Code";
@@ -6404,7 +6687,10 @@
         if IsHandled then
             exit;
 
+#if not CLEAN18
         "Bill-to Customer Template Code" := '';
+#endif
+        "Bill-to Customer Templ. Code" := '';
         "Bill-to Name" := BillToCustomer.Name;
         "Bill-to Name 2" := BillToCustomer."Name 2";
         if BillToCustomerIsReplaced or ShouldCopyAddressFromBillToCustomer(BillToCustomer) then begin
@@ -6711,7 +6997,7 @@
         SalesLine.SetRange("Document Type", "Document Type");
         SalesLine.SetRange("Document No.", "No.");
         if (ContactNo = '') and (CustomerNo = '') then begin
-            if not SalesLine.IsEmpty then
+            if not SalesLine.IsEmpty() then
                 Error(Text005, ContactCaption);
             Init;
             GetSalesSetup;
@@ -6730,7 +7016,7 @@
         SalesLine.SetRange("Document Type", "Document Type");
         SalesLine.SetRange("Document No.", "No.");
         if TemplateCode = '' then begin
-            if not SalesLine.IsEmpty then
+            if not SalesLine.IsEmpty() then
                 Error(Text005, TemplateCaption);
             Init;
             GetSalesSetup;
@@ -6847,6 +7133,8 @@
         OnAfterSelltoCustomerNoOnAfterValidate(Rec, xRec);
     end;
 
+#if not CLEAN18
+    [Obsolete('Will be removed with other functionality related to "old" templates. Replaced by SelectSalesHeaderNewCustomerTemplate()', '18.0')]
     procedure SelectSalesHeaderCustomerTemplate(): Code[10]
     var
         Contact: Record Contact;
@@ -6858,7 +7146,23 @@
         if not Contact.ContactToCustBusinessRelationExist then
             if ConfirmManagement.GetResponse(SelectCustomerTemplateQst, false) then begin
                 Commit();
-                exit(Contact.LookupCustomerTemplate);
+                exit(CopyStr(Contact.LookupCustomerTemplate(), 1, 10));
+            end;
+    end;
+#endif
+
+    procedure SelectSalesHeaderNewCustomerTemplate(): Code[20]
+    var
+        Contact: Record Contact;
+        ConfirmManagement: Codeunit "Confirm Management";
+    begin
+        Contact.Get("Sell-to Contact No.");
+        if (Contact.Type = Contact.Type::Person) and (Contact."Company No." <> '') then
+            Contact.Get(Contact."Company No.");
+        if not Contact.ContactToCustBusinessRelationExist then
+            if ConfirmManagement.GetResponse(SelectCustomerTemplateQst, false) then begin
+                Commit();
+                exit(Contact.LookupNewCustomerTemplate());
             end;
     end;
 
@@ -7035,12 +7339,26 @@
     end;
 
     procedure GetBillToNo(): Code[20]
+#if not CLEAN18
+    var
+        CustomerTemplMgt: Codeunit "Customer Templ. Mgt.";
+#endif
     begin
-        if ("Document Type" = "Document Type"::Quote) and
-           ("Bill-to Customer No." = '') and ("Bill-to Contact No." <> '') and
-           ("Bill-to Customer Template Code" <> '')
-        then
-            exit("Bill-to Contact No.");
+#if not CLEAN18
+        if not CustomerTemplMgt.IsEnabled() then begin
+            if ("Document Type" = "Document Type"::Quote) and
+               ("Bill-to Customer No." = '') and ("Bill-to Contact No." <> '') and
+               ("Bill-to Customer Template Code" <> '')
+            then
+                exit("Bill-to Contact No.");
+        end else
+#endif
+            if ("Document Type" = "Document Type"::Quote) and
+               ("Bill-to Customer No." = '') and ("Bill-to Contact No." <> '') and
+               ("Bill-to Customer Templ. Code" <> '')
+            then
+                exit("Bill-to Contact No.");
+
         exit("Bill-to Customer No.");
     end;
 
@@ -7190,7 +7508,7 @@
                             Resource.TestField(Blocked, false);
                         end;
                 end;
-            until CurrentSalesLine.Next = 0;
+            until CurrentSalesLine.Next() = 0;
     end;
 
     procedure CopyDocument()
@@ -7492,8 +7810,16 @@
     begin
     end;
 
+#if not CLEAN18
+    [Obsolete('Will be removed with other functionality related to "old" templates. Replaced by OnAfterCopyFromNewSellToCustTemplate().', '18.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyFromSellToCustTemplate(var SalesHeader: Record "Sales Header"; SellToCustTemplate: Record "Customer Template")
+    begin
+    end;
+#endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyFromNewSellToCustTemplate(var SalesHeader: Record "Sales Header"; SellToCustTemplate: Record "Customer Templ.")
     begin
     end;
 
@@ -7654,6 +7980,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetNoSeriesCode(var SalesHeader: Record "Sales Header"; SalesSetup: Record "Sales & Receivables Setup"; var NoSeriesCode: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetPstdDocLinesToReverse(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
 
@@ -7972,8 +8303,16 @@
     begin
     end;
 
+#if not CLEAN18
+    [Obsolete('Will be removed with other functionality related to "old" templates. Replaced by OnValidateBilltoCustomerTemplCodeOnBeforeRecreateSalesLines()', '18.0')]
     [IntegrationEvent(false, false)]
     local procedure OnValidateBilltoCustomerTemplateCodeBeforeRecreateSalesLines(var SalesHeader: Record "Sales Header"; CallingFieldNo: Integer)
+    begin
+    end;
+#endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateBilltoCustomerTemplCodeOnBeforeRecreateSalesLines(var SalesHeader: Record "Sales Header"; CallingFieldNo: Integer)
     begin
     end;
 

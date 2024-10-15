@@ -165,6 +165,7 @@ codeunit 134480 "ERM Dimension General Part 2"
         GeneralLedgerSetup: Record "General Ledger Setup";
         Dimension: Record Dimension;
         NewDimensionCode: Code[20];
+        OldDimensionCode: Code[20];
     begin
         // Test Rename the Global Dimension with new code.
 
@@ -172,6 +173,7 @@ codeunit 134480 "ERM Dimension General Part 2"
         Initialize;
         GeneralLedgerSetup.Get();
         Dimension.Get(GeneralLedgerSetup."Global Dimension 1 Code");
+        OldDimensionCode := Dimension.Code;
 
         // 2. Exercise: Rename the Global Dimension 1 Code.
         NewDimensionCode :=
@@ -184,6 +186,9 @@ codeunit 134480 "ERM Dimension General Part 2"
         // 3. Verify: Verify the Global Dimension 1 code in General Ledger Setup with new created code.
         GeneralLedgerSetup.Get();
         GeneralLedgerSetup.TestField("Global Dimension 1 Code", NewDimensionCode);
+
+        // tear down
+        Dimension.Rename(OldDimensionCode);
     end;
 
     [Test]
@@ -193,6 +198,7 @@ codeunit 134480 "ERM Dimension General Part 2"
         GeneralLedgerSetup: Record "General Ledger Setup";
         Dimension: Record Dimension;
         NewDimensionCode: Code[20];
+        OldDimensionCode: Code[20];
     begin
         // Test Rename the Shortcut Dimension with new code.
 
@@ -200,6 +206,7 @@ codeunit 134480 "ERM Dimension General Part 2"
         Initialize;
         GeneralLedgerSetup.Get();
         Dimension.Get(GeneralLedgerSetup."Shortcut Dimension 3 Code");
+        OldDimensionCode := Dimension.Code;
 
         // 2. Exercise: Rename the Shortcut Dimension 3 Code.
         NewDimensionCode :=
@@ -212,6 +219,9 @@ codeunit 134480 "ERM Dimension General Part 2"
         // 3. Verify: Verify the Shortcut Dimension 3 code in General Ledger Setup with new created code.
         GeneralLedgerSetup.Get();
         GeneralLedgerSetup.TestField("Shortcut Dimension 3 Code", NewDimensionCode);
+
+        // tear down
+        Dimension.Rename(OldDimensionCode);
     end;
 
     [Test]
@@ -2972,7 +2982,7 @@ codeunit 134480 "ERM Dimension General Part 2"
         LibraryDimension.CreateDimension(Dimension);
         LibraryDimension.CreateDimensionValue(DimensionValue, Dimension.Code);
         DimSetID := LibraryDimension.CreateDimSet(DimensionSetID, DimensionValue."Dimension Code", DimensionValue.Code);
-        Item.FindSet;
+        Item.FindSet();
         Item.Next(1);
         ItemSetFilter := Item."No.";
         GetNextItemDefaultDims(Item, 0);
@@ -3125,7 +3135,7 @@ codeunit 134480 "ERM Dimension General Part 2"
         LibraryDimension.CreateDimensionValue(DimValue[3], Dimension.Code);
     end;
 
-    local procedure MockItemAnalysisViewEntry(ItemAnalysisArea: Option; ItemAnalysisViewCode: Code[10]; ItemNo: Code[20]; Dim1ValueCode: Code[20]): Decimal
+    local procedure MockItemAnalysisViewEntry(ItemAnalysisArea: Enum "Analysis Area Type"; ItemAnalysisViewCode: Code[10]; ItemNo: Code[20]; Dim1ValueCode: Code[20]): Decimal
     var
         ItemAnalysisViewEntry: Record "Item Analysis View Entry";
     begin
@@ -3207,7 +3217,7 @@ codeunit 134480 "ERM Dimension General Part 2"
         Item.Next(Steps);
         repeat
             DefaultDim.SetRange("No.", Item."No.");
-            if DefaultDim.IsEmpty then
+            if DefaultDim.IsEmpty() then
                 exit;
         until Item.Next = 0;
     end;
@@ -3461,7 +3471,7 @@ codeunit 134480 "ERM Dimension General Part 2"
         CODEUNIT.Run(CODEUNIT::"Update Item Analysis View", ItemAnalysisView);
     end;
 
-    local procedure CreateItemTypeServiceOrNonStockAnalysisView(var ItemAnalysisView: Record "Item Analysis View"; AnalysisArea: Option; UpdateOnPosting: Boolean; IsService: Boolean) ItemNo: Code[20]
+    local procedure CreateItemTypeServiceOrNonStockAnalysisView(var ItemAnalysisView: Record "Item Analysis View"; AnalysisArea: Enum "Analysis Area Type"; UpdateOnPosting: Boolean; IsService: Boolean) ItemNo: Code[20]
     begin
         if IsService then
             ItemNo := CreateItemTypeService

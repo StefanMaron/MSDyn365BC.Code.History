@@ -5,60 +5,6 @@
     <Cmt Name="LcxAdmin" />
     <Cmt Name="Rccx" />
   </OwnedComments>
-  <Item ItemId=";Codeunit 2841182953 - NamedType 363558503" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[%1 must not be %2]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1=FieldCaption,%2=User ID]D;]A;(LookupHint=Codeunit Document Approval - Users - NamedType ValueNotExpectedErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 2841182953 - NamedType 92175520" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Wrong status of %1.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Document Approval - Users - NamedType WrongOrderStatusErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 2841182953 - NamedType 2683580623" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Wrong number of Approval Entries.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Document Approval - Users - NamedType WrongNumberOfApprovalEntriesMsg)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 2841182953 - NamedType 4262651581" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The user name %1 does not exist.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Document Approval - Users - NamedType UserNameErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 2841182953 - NamedType 1047990052" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Test User Name]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Document Approval - Users - NamedType TestUserNameTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 2841182953 - NamedType 2555085220" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[You cannot use %1 for this action.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[You cannot use Customer 10000 for this action.]D;]A;(LookupHint=Codeunit Document Approval - Users - NamedType RecordRestrictedTxt)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 2841182953 - NamedType 2292485203" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Approval Administrator must have a value in User Setup]]></Val>
@@ -66,24 +12,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Document Approval - Users - NamedType ApprovalAdministratorErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 2841182953 - NamedType 3171781228" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The User Setup does not exist]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Document Approval - Users - NamedType UserSetupDoesNotExistErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 2841182953 - NamedType 3472498760" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[TestField]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Document Approval - Users - NamedType TestFieldTok)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2841182953 - NamedType 4086801020" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -113,6 +41,78 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Document Approval - Users - NamedType PhoneNoCannotContainLettersErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2841182953 - NamedType 2555085220" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You cannot use %1 for this action.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[You cannot use Customer 10000 for this action.]D;]A;(LookupHint=Codeunit Document Approval - Users - NamedType RecordRestrictedTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2841182953 - NamedType 3472498760" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[TestField]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Document Approval - Users - NamedType TestFieldTok)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2841182953 - NamedType 1047990052" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Test User Name]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Document Approval - Users - NamedType TestUserNameTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2841182953 - NamedType 4262651581" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The user name %1 does not exist.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Document Approval - Users - NamedType UserNameErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2841182953 - NamedType 3171781228" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The User Setup does not exist]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Document Approval - Users - NamedType UserSetupDoesNotExistErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2841182953 - NamedType 363558503" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 must not be %2]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1=FieldCaption,%2=User ID]D;]A;(LookupHint=Codeunit Document Approval - Users - NamedType ValueNotExpectedErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2841182953 - NamedType 2683580623" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Wrong number of Approval Entries.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Document Approval - Users - NamedType WrongNumberOfApprovalEntriesMsg)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2841182953 - NamedType 92175520" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Wrong status of %1.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Document Approval - Users - NamedType WrongOrderStatusErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 800798923 - NamedType 188336940" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[You are logged in as a Team Member role, so you cannot complete this task.]]></Val>
@@ -122,15 +122,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Item Charges Plan-based E2E - NamedType TeamMemberErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3449329301 - NamedType 43668131" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Incorrect Planned Delivery Date on Order Promising Line.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Reserv. & Order Promising E2E - NamedType PlannedDeliveryDateErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 3449329301 - NamedType 445621140" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Incorrect Earliest Shipment Date on Order Promising Line.]]></Val>
@@ -138,6 +129,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Reserv. & Order Promising E2E - NamedType EarliestShipmentDateErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3449329301 - NamedType 43668131" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Incorrect Planned Delivery Date on Order Promising Line.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Reserv. & Order Promising E2E - NamedType PlannedDeliveryDateErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3449329301 - NamedType 188336940" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -158,15 +158,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit RTCAdmin_User_PermissionSet - NamedType ErrorStringCom001)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 508968462 - NamedType 556272475" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The account  is not a valid Windows account.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit RTCAdmin_User_PermissionSet - NamedType UserIsNotValidWinAccountTxt)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 508968462 - NamedType 1108324090" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[OS number %1 is not handled in the test.]]></Val>
@@ -174,15 +165,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit RTCAdmin_User_PermissionSet - NamedType NotSupportedOS001)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 508968462 - NamedType 3697636339" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[JANE\Doe]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit RTCAdmin_User_PermissionSet - NamedType UserInvalid001)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 508968462 - NamedType 1485306685" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -194,13 +176,13 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit RTCAdmin_User_PermissionSet - NamedType User002)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 508968462 - NamedType 3128643513" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 508968462 - NamedType 96340954" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The account Everyone is not allowed.]]></Val>
+      <Val><![CDATA[The account BUILTIN\Administrators is not allowed.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit RTCAdmin_User_PermissionSet - NamedType UserEveryoneIsNotAllowedTxt)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit RTCAdmin_User_PermissionSet - NamedType UserAdministratorsIsNotAllowedTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 508968462 - NamedType 2544073895" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -212,13 +194,31 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit RTCAdmin_User_PermissionSet - NamedType UserAnonymousIsNotAllowedTxt)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 508968462 - NamedType 96340954" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 508968462 - NamedType 3128643513" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The account BUILTIN\Administrators is not allowed.]]></Val>
+      <Val><![CDATA[The account Everyone is not allowed.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit RTCAdmin_User_PermissionSet - NamedType UserAdministratorsIsNotAllowedTxt)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit RTCAdmin_User_PermissionSet - NamedType UserEveryoneIsNotAllowedTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 508968462 - NamedType 3697636339" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[JANE\Doe]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit RTCAdmin_User_PermissionSet - NamedType UserInvalid001)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 508968462 - NamedType 556272475" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The account  is not a valid Windows account.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit RTCAdmin_User_PermissionSet - NamedType UserIsNotValidWinAccountTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1482848178 - NamedType 1639088740" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

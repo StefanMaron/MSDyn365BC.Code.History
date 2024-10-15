@@ -161,7 +161,7 @@ report 12152 "Create Subcontr.Transf. Order"
             repeat
                 if CheckPurchLine(PurchLine, false, QtyToPost) then
                     exit(true);
-            until PurchLine.Next = 0;
+            until PurchLine.Next() = 0;
 
         exit(false);
     end;
@@ -251,7 +251,7 @@ report 12152 "Create Subcontr.Transf. Order"
                         SubcontractingMgt.TransfSUBOrdCompToSUBTransfOrd(TransferLine, ProdOrderComponent);
                     end else
                         exit(true);
-            until ProdOrderComponent.Next = 0;
+            until ProdOrderComponent.Next() = 0;
 
         exit(false);
     end;

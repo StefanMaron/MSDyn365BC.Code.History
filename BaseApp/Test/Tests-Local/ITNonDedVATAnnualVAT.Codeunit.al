@@ -329,7 +329,7 @@ codeunit 144193 "IT - Non Ded.VAT - Annual VAT"
         VATEntry.SetRange(Type, VATEntry.Type::Purchase);
         VATEntry.SetRange("VAT Bus. Posting Group", VATBusPostingGroup);
         VATEntry.SetRange("VAT Prod. Posting Group", VATProdPostingGroup);
-        VATEntry.FindSet;
+        VATEntry.FindSet();
     end;
 
     local procedure FindVATRegister(var VATRegister: Record "VAT Register")

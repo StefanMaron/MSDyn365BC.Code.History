@@ -489,7 +489,7 @@ table 12113 "Tmp Withholding Contribution"
                     Assoggettato := Assoggettato + GrossAmount;
                     GrossAmount := 0;
                 end;
-            until (SocSecBracketLine.Next = 0) or (GrossAmount = 0);
+            until (SocSecBracketLine.Next() = 0) or (GrossAmount = 0);
 
         Validate("Soc.Sec.Non Taxable Amount", "Soc.Sec.Non Taxable Amount" + GrossAmount);
     end;
@@ -550,7 +550,7 @@ table 12113 "Tmp Withholding Contribution"
                     Assoggettato := Assoggettato + GrossAmount;
                     GrossAmount := 0;
                 end;
-            until (SocSecBracketLine.Next = 0) or (GrossAmount = 0);
+            until (SocSecBracketLine.Next() = 0) or (GrossAmount = 0);
 
         Validate("INAIL Non Taxable Amount", "INAIL Non Taxable Amount" + GrossAmount);
         // END INAIL

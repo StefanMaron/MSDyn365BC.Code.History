@@ -10,6 +10,9 @@ page 5484 "G/L Entry Entity"
     ModifyAllowed = false;
     PageType = API;
     SourceTable = "G/L Entry";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'API version beta will be deprecated.';
+    ObsoleteTag = '18.0';
 
     layout
     {

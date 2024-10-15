@@ -60,7 +60,6 @@ codeunit 12104 LocalApplicationManagement
         PostingNoExistsQst: Label 'If you create an invoice based on order %1 with an existing posting number, it will cause a gap in the number series. \\Do you want to continue?', Comment = '%1=Document number';
         CancelledErr: Label 'Cancelled by user.';
 
-    [Scope('OnPrem')]
     procedure CheckDigit(FiscalCode: Code[20])
     var
         NewStr: Code[10];
@@ -487,9 +486,8 @@ codeunit 12104 LocalApplicationManagement
         exit(true);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 74, 'OnCreateInvLinesOnBeforeFind', '', true, true)]
-    [Scope('Internal')]
-    procedure CheckPostingNoOnCreateInvLinesOnBeforeFind(var PurchRcptLine: Record "Purch. Rcpt. Line")
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Purch.-Get Receipt", 'OnCreateInvLinesOnBeforeFind', '', true, true)]
+    local procedure CheckPostingNoOnCreateInvLinesOnBeforeFind(var PurchRcptLine: Record "Purch. Rcpt. Line")
     begin
         if not CheckOriginalOrderPostingNo(PurchRcptLine) then
             Error(CancelledErr);

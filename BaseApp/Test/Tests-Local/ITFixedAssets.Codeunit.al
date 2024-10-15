@@ -729,7 +729,7 @@ codeunit 144000 "IT - Fixed Assets"
 
         // Verify that Description field was copied for new Fixed Assets.
         Assert.AreEqual(Quantity, FixedAsset.Count, FixedAssetCountError);
-        FixedAsset.FindSet;
+        FixedAsset.FindSet();
 
         // Find FA Deprecition Book for the initial Fixed Asset.
         FADepreciationBook2.SetFilter("FA No.", FixedAssetNo);

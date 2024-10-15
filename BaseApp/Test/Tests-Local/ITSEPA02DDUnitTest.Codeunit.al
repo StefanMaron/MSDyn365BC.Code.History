@@ -1214,7 +1214,7 @@ codeunit 144017 "IT - SEPA.02 DD Unit Test"
         IssuedCustomerBillHeader.SetRange("Bank Account No.", CustomerBillHeader."Bank Account No.");
         IssuedCustomerBillHeader.FindLast;
         IssuedCustomerBillLine.SetRange("Customer Bill No.", IssuedCustomerBillHeader."No.");
-        IssuedCustomerBillLine.FindSet;
+        IssuedCustomerBillLine.FindSet();
         repeat
             TempIssuedCustomerBillLine := IssuedCustomerBillLine;
             TempIssuedCustomerBillLine.Insert
@@ -1308,7 +1308,7 @@ codeunit 144017 "IT - SEPA.02 DD Unit Test"
     [Normal]
     local procedure VerifyPaymentExportData(var TempCustomerBillLine: Record "Customer Bill Line" temporary; PaymentExportData: Record "Payment Export Data"; CustomerBillHeader: Record "Customer Bill Header")
     begin
-        TempCustomerBillLine.FindSet;
+        TempCustomerBillLine.FindSet();
         repeat
             VerifyPaymentLine(PaymentExportData, TempCustomerBillLine, CustomerBillHeader);
         until TempCustomerBillLine.Next = 0;
@@ -1381,7 +1381,7 @@ codeunit 144017 "IT - SEPA.02 DD Unit Test"
         SuggestCustomerBills.OK.Invoke;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 419, 'OnBeforeDownloadHandler', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"File Management", 'OnBeforeDownloadHandler', '', false, false)]
     local procedure SetFileNameOnBeforeDownloadHandler(var ToFolder: Text; ToFileName: Text; FromFileName: Text; var IsHandled: Boolean)
     begin
         LibraryVariableStorage.Enqueue(FromFileName);

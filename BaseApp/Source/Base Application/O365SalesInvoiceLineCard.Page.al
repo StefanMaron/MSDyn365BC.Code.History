@@ -289,7 +289,7 @@ page 2157 "O365 Sales Invoice Line Card"
                         exit;
                     Delete(true);
                     if not EnvInfoProxy.IsInvoicing then
-                        CurrPage.Update;
+                        CurrPage.Update();
                 end;
             }
         }
@@ -395,7 +395,7 @@ page 2157 "O365 Sales Invoice Line Card"
 
         TotalSalesHeader.Get("Document Type", "Document No.");
         DocumentTotals.SalesRedistributeInvoiceDiscountAmounts(Rec, VATAmount, TotalSalesLine);
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure GetTotalSalesHeader()

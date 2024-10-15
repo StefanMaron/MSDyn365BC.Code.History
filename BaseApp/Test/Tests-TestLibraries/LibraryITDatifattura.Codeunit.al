@@ -106,7 +106,7 @@ codeunit 143005 "Library - IT Datifattura"
         VATReportSetup.Modify();
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 12182, 'OnBeforeSaveFileOnClient', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Datifattura Export", 'OnBeforeSaveFileOnClient', '', false, false)]
     local procedure SetFileNameOnBeforeSaveFileOnClient(var NewServerFilePath: Text)
     var
         NameValueBuffer: Record "Name/Value Buffer";
@@ -119,7 +119,7 @@ codeunit 143005 "Library - IT Datifattura"
         NewServerFilePath := NameValueBuffer.Value;
     end;
 
-    [EventSubscriber(ObjectType::Table, 700, 'OnAfterInsertEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Error Message", 'OnAfterInsertEvent', '', false, false)]
     local procedure ThrowErrorOnAfterInsertEventTableErrorMessage(var Rec: Record "Error Message"; RunTrigger: Boolean)
     begin
         if Rec."Message Type" = Rec."Message Type"::Error then

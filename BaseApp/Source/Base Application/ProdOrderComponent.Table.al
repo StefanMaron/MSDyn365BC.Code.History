@@ -39,7 +39,7 @@
                     TestField("Act. Consumption (Qty)", 0);
                 end;
                 WhseValidateSourceLine.ProdComponentVerifyChange(Rec, xRec);
-                ReserveProdOrderComp.VerifyChange(Rec, xRec);
+                ProdOrderCompReserve.VerifyChange(Rec, xRec);
                 CalcFields("Reserved Qty. (Base)");
                 TestField("Reserved Qty. (Base)", 0);
                 TestField("Remaining Qty. (Base)", "Expected Qty. (Base)");
@@ -201,7 +201,7 @@
                 end;
                 GetDefaultBin;
                 WhseValidateSourceLine.ProdComponentVerifyChange(Rec, xRec);
-                ReserveProdOrderComp.VerifyChange(Rec, xRec);
+                ProdOrderCompReserve.VerifyChange(Rec, xRec);
                 CalcFields("Reserved Qty. (Base)");
                 TestField("Reserved Qty. (Base)", 0);
                 TestField("Remaining Qty. (Base)", "Expected Qty. (Base)");
@@ -236,7 +236,7 @@
                 "Remaining Qty. (Base)" := Round("Remaining Quantity" * "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision);
                 "Completely Picked" := "Qty. Picked" >= "Expected Quantity";
 
-                ReserveProdOrderComp.VerifyQuantity(Rec, xRec);
+                ProdOrderCompReserve.VerifyQuantity(Rec, xRec);
 
                 "Cost Amount" := Round("Expected Quantity" * "Unit Cost");
                 "Overhead Amount" :=
@@ -282,7 +282,7 @@
                     ItemLedgEntry.SetRange("Prod. Order Comp. Line No.", "Line No.");
                     if "Line No." = 0 then
                         ItemLedgEntry.SetRange("Item No.", "Item No.");
-                    if not ItemLedgEntry.IsEmpty then
+                    if not ItemLedgEntry.IsEmpty() then
                         Error(Text99000002, "Flushing Method", ItemLedgEntry.TableCaption);
                 end;
 
@@ -309,7 +309,7 @@
                         PickWhseWorksheetLine.SetRange("Source No.", "Prod. Order No.");
                         PickWhseWorksheetLine.SetRange("Source Line No.", "Prod. Order Line No.");
                         PickWhseWorksheetLine.SetRange("Source Subline No.", "Line No.");
-                        if not PickWhseWorksheetLine.IsEmpty then
+                        if not PickWhseWorksheetLine.IsEmpty() then
                             Error(Text99000002, "Flushing Method", PickWhseWorksheetLine.TableCaption);
                     end;
                 end;
@@ -337,7 +337,7 @@
 
                 GetDefaultBin;
                 WhseValidateSourceLine.ProdComponentVerifyChange(Rec, xRec);
-                ReserveProdOrderComp.VerifyChange(Rec, xRec);
+                ProdOrderCompReserve.VerifyChange(Rec, xRec);
                 GetUpdateFromSKU;
             end;
         }
@@ -902,7 +902,7 @@
         end;
 
         WhseValidateSourceLine.ProdComponentDelete(Rec);
-        ReserveProdOrderComp.DeleteLine(Rec);
+        ProdOrderCompReserve.DeleteLine(Rec);
 
         CalcFields("Reserved Qty. (Base)");
         TestField("Reserved Qty. (Base)", 0);
@@ -941,7 +941,7 @@
         if Status = Status::Finished then
             Error(Text000);
 
-        ReserveProdOrderComp.VerifyQuantity(Rec, xRec);
+        ProdOrderCompReserve.VerifyQuantity(Rec, xRec);
 
         if Status = Status::Released then
             WhseProdRelease.ReleaseLine(Rec, xRec);
@@ -953,7 +953,7 @@
             Error(Text000);
 
         WhseValidateSourceLine.ProdComponentVerifyChange(Rec, xRec);
-        ReserveProdOrderComp.VerifyChange(Rec, xRec);
+        ProdOrderCompReserve.VerifyChange(Rec, xRec);
         if Status = Status::Released then
             WhseProdRelease.ReleaseLine(Rec, xRec);
     end;
@@ -976,7 +976,7 @@
         Location: Record Location;
         SKU: Record "Stockkeeping Unit";
         ReservMgt: Codeunit "Reservation Management";
-        ReserveProdOrderComp: Codeunit "Prod. Order Comp.-Reserve";
+        ProdOrderCompReserve: Codeunit "Prod. Order Comp.-Reserve";
         UOMMgt: Codeunit "Unit of Measure Management";
         DimMgt: Codeunit DimensionManagement;
         WhseProdRelease: Codeunit "Whse.-Production Release";
@@ -1085,7 +1085,7 @@
                         OnGetNeededQtyOnBeforeAddOutputQtyBase(CapLedgEntry, OutputQtyBase, IsHandled);
                         if not IsHandled then
                             OutputQtyBase := OutputQtyBase + CapLedgEntry."Output Quantity" + CapLedgEntry."Scrap Quantity";
-                    until CapLedgEntry.Next = 0;
+                    until CapLedgEntry.Next() = 0;
             end;
 
             CompQtyBase := CostCalcMgt.CalcActNeededQtyBase(ProdOrderLine, Rec, OutputQtyBase);
@@ -1205,7 +1205,7 @@
     procedure BlockDynamicTracking(SetBlock: Boolean)
     begin
         Blocked := SetBlock;
-        ReserveProdOrderComp.Block(Blocked);
+        ProdOrderCompReserve.Block(Blocked);
     end;
 
     procedure CreateDim(Type1: Integer; No1: Code[20])
@@ -1234,7 +1234,7 @@
 
     procedure OpenItemTrackingLines()
     begin
-        ReserveProdOrderComp.CallItemTracking(Rec);
+        ProdOrderCompReserve.CallItemTracking(Rec);
     end;
 
     procedure ValidateShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
@@ -1494,7 +1494,7 @@
             ProdOrderComp."Bin Code" := ProdOrderComp2."Bin Code";
     end;
 
-    local procedure CheckBin()
+    procedure CheckBin()
     var
         BinContent: Record "Bin Content";
         Bin: Record Bin;

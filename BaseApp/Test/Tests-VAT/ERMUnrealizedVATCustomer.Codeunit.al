@@ -1753,7 +1753,7 @@ codeunit 134025 "ERM Unrealized VAT Customer"
         end;
     end;
 
-    local procedure VerifyDetailedCustomerEntry(CustLedgerEntryNo: Integer; EntryType: Option; DocumentType: Enum "Gen. Journal Document Type"; Amount: Decimal; AmountLCY: Decimal)
+    local procedure VerifyDetailedCustomerEntry(CustLedgerEntryNo: Integer; EntryType: Enum "Detailed CV Ledger Entry Type"; DocumentType: Enum "Gen. Journal Document Type"; Amount: Decimal; AmountLCY: Decimal)
     var
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
         GeneralLedgerSetup: Record "General Ledger Setup";
@@ -1873,7 +1873,7 @@ codeunit 134025 "ERM Unrealized VAT Customer"
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
         CustLedgerEntry.SetRange("Customer No.", CustomerNo);
-        CustLedgerEntry.FindSet;
+        CustLedgerEntry.FindSet();
         repeat
             CustLedgerEntry.CalcFields("Remaining Amount");
             CustLedgerEntry.TestField("Remaining Amount", 0);
@@ -1981,7 +1981,7 @@ codeunit 134025 "ERM Unrealized VAT Customer"
             SetRange("Bill-to/Pay-to No.", CVNo);
             SetRange("Document Type", "Document Type"::Invoice);
             SetRange("Document No.", InvoiceNo);
-            FindSet;
+            FindSet();
             for i := ArrayLen(SalesLine) downto 1 do begin
                 VerifyUnrealizedVATEntryAmounts(
                   VATEntry, -SalesLine[i].Amount, -(SalesLine[i]."Amount Including VAT" - SalesLine[i].Amount), 0, 0);
@@ -2001,7 +2001,7 @@ codeunit 134025 "ERM Unrealized VAT Customer"
             SetRange("Bill-to/Pay-to No.", CVNo);
             SetRange("Document Type", "Document Type"::Payment);
             SetRange("Document No.", PaymentNo);
-            FindSet;
+            FindSet();
             for i := ArrayLen(SalesLine) downto 1 do begin
                 Assert.AreEqual(
                   UnrealVATEntryNo[ArrayLen(SalesLine) - i + 1],

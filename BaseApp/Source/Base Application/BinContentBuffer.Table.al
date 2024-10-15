@@ -2,6 +2,9 @@ table 7330 "Bin Content Buffer"
 {
     Caption = 'Bin Content Buffer';
     ReplicateData = false;
+#pragma warning disable AS0034
+    TableType = Temporary;
+#pragma warning restore AS0034
 
     fields
     {
@@ -87,6 +90,11 @@ table 7330 "Bin Content Buffer"
         field(6501; "Serial No."; Code[50])
         {
             Caption = 'Serial No.';
+            DataClassification = SystemMetadata;
+        }
+        field(6515; "Package No."; Code[50])
+        {
+            Caption = 'Package No.';
             DataClassification = SystemMetadata;
         }
     }

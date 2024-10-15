@@ -23,7 +23,7 @@ page 12154 "Subcontr. Transfer Order"
                     trigger OnAssistEdit()
                     begin
                         if AssistEdit(xRec) then
-                            CurrPage.Update;
+                            CurrPage.Update();
                     end;
                 }
                 field("Transfer-from Code"; "Transfer-from Code")
@@ -481,7 +481,7 @@ page 12154 "Subcontr. Transfer Order"
                     begin
                         CurrPage.SaveRecord;
                         SubcontractingMgt.CalculateHeaderValue(Rec);
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
             }

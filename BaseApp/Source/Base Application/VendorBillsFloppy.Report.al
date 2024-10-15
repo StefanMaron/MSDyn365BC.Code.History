@@ -453,7 +453,7 @@ report 12175 "Vendor Bills Floppy"
             repeat
                 VendorBankAccount.Get(VendorBillLine."Vendor No.", VendorBillLine."Vendor Bank Acc. No.");
                 VendorBankAccount.Mark := VendorBankAccount.IBAN = '';
-            until VendorBillLine.Next = 0;
+            until VendorBillLine.Next() = 0;
 
         VendorBankAccount.MarkedOnly(true);
         if VendorBankAccount.FindFirst then begin

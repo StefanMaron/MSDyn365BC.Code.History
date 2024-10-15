@@ -1817,7 +1817,7 @@ codeunit 144164 "ERM Payment Lines"
         DiscountAmount: Decimal;
     begin
         PaymentLines.SetRange(Code, Code);
-        PaymentLines.FindSet;
+        PaymentLines.FindSet();
         repeat
             DiscountAmount += Amount * (PaymentLines."Payment %" / 100) * (PaymentLines."Discount %" / 100);
         until PaymentLines.Next = 0;
@@ -1864,7 +1864,7 @@ codeunit 144164 "ERM Payment Lines"
         PaymentLines: Record "Payment Lines";
     begin
         PaymentLines.SetRange(Code, Code);
-        PaymentLines.FindSet;
+        PaymentLines.FindSet();
         FirstDueDateCalculation := PaymentLines."Due Date Calculation";
         PaymentLines.Next;
         exit(Format(PaymentLines."Due Date Calculation"));

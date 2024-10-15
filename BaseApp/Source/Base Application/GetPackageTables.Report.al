@@ -81,7 +81,7 @@ report 8616 "Get Package Tables"
                         ConfigLine.Modify();
                     end;
                 end;
-            until TempConfigSelection.Next = 0;
+            until TempConfigSelection.Next() = 0;
 
         CurrReport.Break();
     end;
@@ -134,7 +134,7 @@ report 8616 "Get Package Tables"
                             "Line Type" := ConfigLine."Line Type";
                             Insert;
                         end;
-                until ConfigLine.Next = 0;
+                until ConfigLine.Next() = 0;
         end;
     end;
 }

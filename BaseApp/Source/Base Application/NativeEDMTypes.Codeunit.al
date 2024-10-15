@@ -94,7 +94,7 @@ codeunit 2801 "Native - EDM Types"
                     SalesLinesArrayJSON := StrSubstNo('%1,%2', SalesLinesArrayJSON, SalesLineJSON)
                 else
                     SalesLinesArrayJSON := StrSubstNo('%1', SalesLineJSON);
-            until TempSalesInvoiceLineAggregate.Next = 0;
+            until TempSalesInvoiceLineAggregate.Next() = 0;
 
         exit(StrSubstNo('[%1]', SalesLinesArrayJSON));
     end;
@@ -278,7 +278,7 @@ codeunit 2801 "Native - EDM Types"
                 O365CouponClaimDocLinkRecordRef.GetTable(O365CouponClaim);
                 CouponToJSON(O365CouponClaimDocLinkRecordRef, JsonObject);
                 JSONManagement.AddJObjectToJArray(JsonArray, JsonObject);
-            until O365CouponClaimDocLink.Next = 0;
+            until O365CouponClaimDocLink.Next() = 0;
 
         exit(JSONManagement.WriteCollectionToString);
     end;
@@ -300,7 +300,7 @@ codeunit 2801 "Native - EDM Types"
                 O365PostedCouponClaimRecordRef.GetTable(O365PostedCouponClaim);
                 CouponToJSON(O365PostedCouponClaimRecordRef, JsonObject);
                 JSONManagement.AddJObjectToJArray(JsonArray, JsonObject);
-            until O365PostedCouponClaim.Next = 0;
+            until O365PostedCouponClaim.Next() = 0;
 
         exit(JSONManagement.WriteCollectionToString);
     end;
@@ -375,7 +375,7 @@ codeunit 2801 "Native - EDM Types"
             repeat
                 AttachmentToJSON(TempAttachmentEntityBuffer, JsonObject);
                 JSONManagement.AddJObjectToJArray(JsonArray, JsonObject);
-            until TempAttachmentEntityBuffer.Next = 0;
+            until TempAttachmentEntityBuffer.Next() = 0;
 
         exit(JSONManagement.WriteCollectionToString);
     end;

@@ -388,11 +388,11 @@ page 12155 "Subcontr.Transfer Ord. Subform"
 
     trigger OnDeleteRecord(): Boolean
     var
-        ReserveTransferLine: Codeunit "Transfer Line-Reserve";
+        TransferLineReserve: Codeunit "Transfer Line-Reserve";
     begin
-        if not ReserveTransferLine.DeleteLineConfirm(Rec) then
+        if not TransferLineReserve.DeleteLineConfirm(Rec) then
             exit(false);
-        ReserveTransferLine.DeleteLine(Rec);
+        TransferLineReserve.DeleteLine(Rec);
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)

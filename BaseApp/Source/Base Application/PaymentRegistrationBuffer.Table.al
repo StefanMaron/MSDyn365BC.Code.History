@@ -1,4 +1,4 @@
-﻿table 981 "Payment Registration Buffer"
+table 981 "Payment Registration Buffer"
 {
     Caption = 'Payment Registration Buffer';
     ReplicateData = false;
@@ -206,7 +206,7 @@
                     OnPopulateTableOnBeforeInsert(Rec, CustLedgerEntry);
                     Insert();
                 end;
-            until CustLedgerEntry.Next = 0;
+            until CustLedgerEntry.Next() = 0;
         end;
 
         if FindSet then;
@@ -250,7 +250,7 @@
             repeat
                 TempSavePmtRegnBuf := TempWorkPmtRegnBuf;
                 TempSavePmtRegnBuf.Insert();
-            until TempWorkPmtRegnBuf.Next = 0;
+            until TempWorkPmtRegnBuf.Next() = 0;
     end;
 
     local procedure RestoreUserValues(var TempSavePmtRegnBuf: Record "Payment Registration Buffer" temporary)
@@ -268,7 +268,7 @@
                     OnRestoreUserValuesOnBeforeModify(Rec, TempSavePmtRegnBuf);
                     Modify;
                 end;
-            until TempSavePmtRegnBuf.Next = 0;
+            until TempSavePmtRegnBuf.Next() = 0;
     end;
 
     procedure GetPmtDiscStyle(): Text

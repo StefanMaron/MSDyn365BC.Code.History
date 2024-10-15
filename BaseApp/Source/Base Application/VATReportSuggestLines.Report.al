@@ -14,7 +14,7 @@ report 741 "VAT Report Suggest Lines"
                 VATReportLine: Record "VAT Report Line";
             begin
                 VATReportLine.SetRange("VAT Report No.", "No.");
-                if not VATReportLine.IsEmpty then
+                if not VATReportLine.IsEmpty() then
                     if not Confirm(DeleteReportLinesQst, false) then
                         Error('');
                 VATReportLine.DeleteAll();
@@ -183,7 +183,7 @@ report 741 "VAT Report Suggest Lines"
         VATEntryLoc: Record "VAT Entry";
     begin
         VATEntryLoc.Copy(VATEntry);
-        if VATEntryLoc.Next = 0 then
+        if VATEntryLoc.Next() = 0 then
             exit(true);
         exit((VATEntryLoc."Posting Date" <> VATEntry."Posting Date") or
           (VATEntryLoc.Type <> VATEntry.Type) or
@@ -238,7 +238,7 @@ report 741 "VAT Report Suggest Lines"
                      VATReportLine."Posting Date", true, Abs(VATReportLine."Amount Incl. VAT"))
                 then
                     VATReportLine.Delete();
-            until VATReportLine.Next = 0;
+            until VATReportLine.Next() = 0;
     end;
 
     local procedure IsInvoice(VATEntry: Record "VAT Entry"): Boolean

@@ -243,7 +243,7 @@ codeunit 143002 "Library - VAT Utils"
     var
         VATReportSetup: Record "VAT Report Setup";
     begin
-        if VATReportSetup.IsEmpty then
+        if VATReportSetup.IsEmpty() then
             VATReportSetup.Insert(true);
         VATReportSetup.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
         VATReportSetup.Validate(

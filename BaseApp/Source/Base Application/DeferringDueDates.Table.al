@@ -73,7 +73,7 @@ table 12173 "Deferring Due Dates"
                 then
                     Error(PeriodConflictErr);
 
-            until DefDueDates.Next = 0;
+            until DefDueDates.Next() = 0;
     end;
 
     var

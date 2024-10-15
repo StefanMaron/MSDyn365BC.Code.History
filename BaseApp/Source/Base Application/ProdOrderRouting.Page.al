@@ -228,6 +228,12 @@ page 99000817 "Prod. Order Routing"
                     ToolTip = 'Specifies the unit cost for this operation if it is different than the unit cost on the work center or machine center card.';
                     Visible = false;
                 }
+                field("Lot Size"; "Lot Size")
+                {
+                    ApplicationArea = Manufacturing;
+                    ToolTip = 'Specifies the number of items that are included in the same operation at the same time. The run time on routing lines is reduced proportionally to the lot size. For example, if the lot size is two pieces, the run time will be reduced by half.';
+                    Visible = false;
+                }
                 field("Direct Unit Cost"; "Direct Unit Cost")
                 {
                     ApplicationArea = Manufacturing;

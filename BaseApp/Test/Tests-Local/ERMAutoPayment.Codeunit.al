@@ -1944,7 +1944,7 @@ codeunit 144050 "ERM Auto Payment"
         GLEntry: Record "G/L Entry";
     begin
         GLEntry.SetRange("Transaction No.", TransactionNo);
-        GLEntry.FindSet;
+        GLEntry.FindSet();
         Assert.AreEqual(2, GLEntry.Count, GLEntryErr); // 2 is important since there must be two lines with balance.
     end;
 
@@ -1953,7 +1953,7 @@ codeunit 144050 "ERM Auto Payment"
         GLBookEntry: Record "GL Book Entry";
     begin
         GLBookEntry.SetRange("Transaction No.", TransactionNo);
-        GLBookEntry.FindSet;
+        GLBookEntry.FindSet();
         Assert.AreEqual(2, GLBookEntry.Count, GLBookEntryErr); // 2 is important since there must be two lines with balance.
     end;
 

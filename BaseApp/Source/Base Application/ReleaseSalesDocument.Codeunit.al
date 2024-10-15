@@ -75,7 +75,7 @@
                         if SalesLine.IsInventoriableItem then
                             SalesLine.TestField("Location Code");
                         OnCodeOnAfterSalesLineCheck(SalesLine);
-                    until SalesLine.Next = 0;
+                    until SalesLine.Next() = 0;
                 SalesLine.SetFilter(Type, '>0');
             end;
 
@@ -83,6 +83,9 @@
 
             SalesLine.SetRange("Drop Shipment", false);
             NotOnlyDropShipment := SalesLine.FindFirst;
+
+            OnCodeOnCheckTracking(SalesHeader, SalesLine);
+
             SalesLine.Reset();
 
             OnBeforeCalcInvDiscount(SalesHeader, PreviewMode);
@@ -221,7 +224,7 @@
             repeat
                 if SalesLine.AsmToOrderExists(AsmHeader) then
                     CODEUNIT.Run(CODEUNIT::"Release Assembly Document", AsmHeader);
-            until SalesLine.Next = 0;
+            until SalesLine.Next() = 0;
     end;
 
     local procedure ReopenATOs(SalesHeader: Record "Sales Header")
@@ -236,7 +239,7 @@
             repeat
                 if SalesLine.AsmToOrderExists(AsmHeader) then
                     ReleaseAssemblyDocument.Reopen(AsmHeader);
-            until SalesLine.Next = 0;
+            until SalesLine.Next() = 0;
     end;
 
     procedure ReleaseSalesHeader(var SalesHdr: Record "Sales Header"; Preview: Boolean) LinesWereModified: Boolean
@@ -348,6 +351,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnCodeOnAfterSalesLineCheck(var SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnCheckTracking(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
     begin
     end;
 

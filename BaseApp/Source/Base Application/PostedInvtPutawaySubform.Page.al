@@ -173,7 +173,7 @@ page 7391 "Posted Invt. Put-away Subform"
 
     local procedure BinCodeOnAfterValidate()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 }
 

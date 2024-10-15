@@ -332,7 +332,7 @@ table 12185 "Vendor Bill Withholding Tax"
                     CompPartiesBase := CompPartiesBase + GrossAmount;
                     GrossAmount := 0;
                 end;
-            until (SocSecBracketLine.Next = 0) or (GrossAmount = 0);
+            until (SocSecBracketLine.Next() = 0) or (GrossAmount = 0);
         Validate("Soc.Sec.Non Taxable Amount", "Soc.Sec.Non Taxable Amount" + GrossAmount);
     end;
 

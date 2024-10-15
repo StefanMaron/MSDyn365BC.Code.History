@@ -323,7 +323,7 @@ report 5984 "Contract Invoicing"
         if ServContractLine.FindSet then
             repeat
                 ContAmt := ContAmt + Round(ServContractMgt.CalcContractLineAmount(ServContractLine."Line Amount", DateFrom, DateTo));
-            until ServContractLine.Next = 0;
+            until ServContractLine.Next() = 0;
         exit(Round(ContAmt));
     end;
 

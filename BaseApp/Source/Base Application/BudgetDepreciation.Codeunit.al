@@ -158,7 +158,7 @@ codeunit 5615 "Budget Depreciation"
                 TempDimSetEntry."Dimension Value Code" := DimVal.Code;
                 TempDimSetEntry."Dimension Value ID" := DimVal."Dimension Value ID";
                 TempDimSetEntry.Insert();
-            until DefaultDim.Next = 0;
+            until DefaultDim.Next() = 0;
 
         exit(DimMgt.GetDimensionSetID(TempDimSetEntry));
     end;

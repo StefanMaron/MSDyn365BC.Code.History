@@ -423,6 +423,17 @@ page 99000818 "Prod. Order Components"
                             ItemAvailFormsMgt.ShowItemAvailFromProdOrderComp(Rec, ItemAvailFormsMgt.ByLocation);
                         end;
                     }
+                    action(Lot)
+                    {
+                        ApplicationArea = ItemTracking;
+                        Caption = 'Lot';
+                        Image = LotInfo;
+                        RunObject = Page "Item Availability by Lot No.";
+                        RunPageLink = "No." = field("Item No."),
+                            "Location Filter" = field("Location Code"),
+                            "Variant Filter" = field("Variant Code");
+                        ToolTip = 'View the current and projected quantity of the item in each lot.';
+                    }
                     action("BOM Level")
                     {
                         ApplicationArea = Manufacturing;
@@ -604,12 +615,12 @@ page 99000818 "Prod. Order Components"
 
     trigger OnDeleteRecord(): Boolean
     var
-        ReserveProdOrderComp: Codeunit "Prod. Order Comp.-Reserve";
+        ProdOrderCompReserve: Codeunit "Prod. Order Comp.-Reserve";
     begin
         Commit();
-        if not ReserveProdOrderComp.DeleteLineConfirm(Rec) then
+        if not ProdOrderCompReserve.DeleteLineConfirm(Rec) then
             exit(false);
-        ReserveProdOrderComp.DeleteLine(Rec);
+        ProdOrderCompReserve.DeleteLine(Rec);
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)

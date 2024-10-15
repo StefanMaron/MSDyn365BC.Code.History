@@ -373,9 +373,8 @@ codeunit 135023 "Data Migration Status Test"
         Reply := true;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 6100, 'OnFindBatchForItemTransactions', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnFindItemJournalBatch(MigrationType: Text[250]; var ItemJournalBatchName: Code[10])
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Data Migration Facade", 'OnFindBatchForItemTransactions', '', false, false)]
+    local procedure OnFindItemJournalBatch(MigrationType: Text[250]; var ItemJournalBatchName: Code[10])
     begin
         ItemJournalBatchName := 'IJB';
     end;
@@ -386,9 +385,8 @@ codeunit 135023 "Data Migration Status Test"
     begin
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 6100, 'OnFindBatchForCustomerTransactions', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnFindCustomerJournalBatch(MigrationType: Text[250]; var GenJournalBatchName: Code[10])
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Data Migration Facade", 'OnFindBatchForCustomerTransactions', '', false, false)]
+    local procedure OnFindCustomerJournalBatch(MigrationType: Text[250]; var GenJournalBatchName: Code[10])
     begin
         GenJournalBatchName := 'GJB';
     end;
@@ -401,9 +399,8 @@ codeunit 135023 "Data Migration Status Test"
         Assert.AreEqual(LibraryVariableStorage.DequeueText, GeneralJournal."Account Type".Value, 'A different option was expected')
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 6100, 'OnFindBatchForVendorTransactions', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnFindVendorJournalBatch(MigrationType: Text[250]; var GenJournalBatchName: Code[10])
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Data Migration Facade", 'OnFindBatchForVendorTransactions', '', false, false)]
+    local procedure OnFindVendorJournalBatch(MigrationType: Text[250]; var GenJournalBatchName: Code[10])
     begin
         GenJournalBatchName := 'GJB';
     end;
@@ -424,9 +421,8 @@ codeunit 135023 "Data Migration Status Test"
         GenJournalLine.Insert();
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 6100, 'OnFindBatchForAccountTransactions', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnFindAccountJournalBatch(DataMigrationStatus: Record "Data Migration Status"; var GenJournalBatchName: Code[10])
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Data Migration Facade", 'OnFindBatchForAccountTransactions', '', false, false)]
+    local procedure OnFindAccountJournalBatch(DataMigrationStatus: Record "Data Migration Status"; var GenJournalBatchName: Code[10])
     begin
         GenJournalBatchName := 'GJB';
     end;

@@ -15,7 +15,7 @@ report 12195 "Datifattura Suggest Lines"
                 VATReportLine: Record "VAT Report Line";
             begin
                 VATReportLine.SetRange("VAT Report No.", "No.");
-                if not VATReportLine.IsEmpty then
+                if not VATReportLine.IsEmpty() then
                     if not Confirm(DeleteReportLinesQst, false) then
                         Error('');
                 VATReportLine.DeleteAll();
@@ -76,7 +76,7 @@ report 12195 "Datifattura Suggest Lines"
         VATReportLine.SetRange("VAT Entry No.", VATEntry."Entry No.");
 
         // check if the entry was reported before
-        if not VATReportLine.IsEmpty then
+        if not VATReportLine.IsEmpty() then
             exit;
 
         if not FindVATReportLine(VATReportLine, VATEntry) then

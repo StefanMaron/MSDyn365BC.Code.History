@@ -19,7 +19,7 @@ page 12159 "Company Officials Card"
                     trigger OnAssistEdit()
                     begin
                         if AssistEdit(xRec) then
-                            CurrPage.Update;
+                            CurrPage.Update();
                     end;
                 }
                 field("Job Title"; "Job Title")

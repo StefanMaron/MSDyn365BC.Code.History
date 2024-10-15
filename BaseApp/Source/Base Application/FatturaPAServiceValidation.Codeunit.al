@@ -49,9 +49,8 @@ codeunit 12181 "FatturaPA Service Validation"
     begin
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5980, 'OnBeforePostWithLines', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnBeforePostWithLines(var PassedServHeader: Record "Service Header"; var PassedServLine: Record "Service Line"; var PassedShip: Boolean; var PassedConsume: Boolean; var PassedInvoice: Boolean)
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Service-Post", 'OnBeforePostWithLines', '', false, false)]
+    local procedure OnBeforePostWithLines(var PassedServHeader: Record "Service Header"; var PassedServLine: Record "Service Line"; var PassedShip: Boolean; var PassedConsume: Boolean; var PassedInvoice: Boolean)
     var
         ServiceMgtSetup: Record "Service Mgt. Setup";
         DummyElectronicDocumentFormat: Record "Electronic Document Format";

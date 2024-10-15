@@ -17,11 +17,9 @@ table 380 "Detailed Vendor Ledg. Entry"
             Caption = 'Vendor Ledger Entry No.';
             TableRelation = "Vendor Ledger Entry";
         }
-        field(3; "Entry Type"; Option)
+        field(3; "Entry Type"; Enum "Detailed CV Ledger Entry Type")
         {
             Caption = 'Entry Type';
-            OptionCaption = ',Initial Entry,Application,Unrealized Loss,Unrealized Gain,Realized Loss,Realized Gain,Payment Discount,Payment Discount (VAT Excl.),Payment Discount (VAT Adjustment),Appln. Rounding,Correction of Remaining Amount,Payment Tolerance,Payment Discount Tolerance,Payment Tolerance (VAT Excl.),Payment Tolerance (VAT Adjustment),Payment Discount Tolerance (VAT Excl.),Payment Discount Tolerance (VAT Adjustment)';
-            OptionMembers = ,"Initial Entry",Application,"Unrealized Loss","Unrealized Gain","Realized Loss","Realized Gain","Payment Discount","Payment Discount (VAT Excl.)","Payment Discount (VAT Adjustment)","Appln. Rounding","Correction of Remaining Amount","Payment Tolerance","Payment Discount Tolerance","Payment Tolerance (VAT Excl.)","Payment Tolerance (VAT Adjustment)","Payment Discount Tolerance (VAT Excl.)","Payment Discount Tolerance (VAT Adjustment)";
         }
         field(4; "Posting Date"; Date)
         {
@@ -306,7 +304,7 @@ table 380 "Detailed Vendor Ledg. Entry"
                 DtldVendLedgEntry."Transaction No." := 0;
                 DtldVendLedgEntry."Application No." := ApplicationNo;
                 DtldVendLedgEntry.Modify();
-            until DtldVendLedgEntry.Next = 0;
+            until DtldVendLedgEntry.Next() = 0;
         end;
     end;
 

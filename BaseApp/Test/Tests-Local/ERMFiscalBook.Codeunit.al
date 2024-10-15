@@ -240,7 +240,7 @@ codeunit 144075 "ERM Fiscal Book"
         GLBookEntry.SetFilter(Amount, AmountFilter, 0);
         GLBookEntry.SetRange("Document Type", GLBookEntry."Document Type"::Payment);
         GLBookEntry.SetRange("G/L Account No.", GLAccountNo);
-        GLBookEntry.FindSet;
+        GLBookEntry.FindSet();
         VerifyAmountsOnGLBookEntry(GLBookEntry, DocumentNo2, DebitAmount, CreditAmount);
         GLBookEntry.Next;
         VerifyAmountsOnGLBookEntry(GLBookEntry, DocumentNo, DebitAmount, CreditAmount);

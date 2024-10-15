@@ -142,11 +142,11 @@ codeunit 12184 "Fattura Doc. Helper"
         CollectShipmentInfo(TempSalesShipmentBuffer, LineRecRef, TempFatturaHeader);
         BuildOrderDataBuffer(TempFatturaLine, TempSalesShipmentBuffer, TempFatturaHeader);
         BuildShipmentDataBuffer(TempFatturaLine, TempSalesShipmentBuffer);
-        LineRecRef.FindSet;
+        LineRecRef.FindSet();
         repeat
             if not IsSplitPaymentLine(LineRecRef) then
                 InsertFatturaLine(TempFatturaLine, DocLineNo, TempFatturaHeader, LineRecRef, PricesIncludingVAT);
-        until LineRecRef.Next = 0;
+        until LineRecRef.Next() = 0;
 
         CollectVATOnLines(TempVATEntry, TempVATPostingSetup, TempFatturaHeader);
         TempVATEntry.Reset();
@@ -159,7 +159,7 @@ codeunit 12184 "Fattura Doc. Helper"
                     InsertVATFatturaLine(
                       TempFatturaLine, TempFatturaHeader."Document Type" = TempFatturaHeader."Document Type"::Invoice,
                       TempVATEntry, TempFatturaHeader."Customer No", IsSplitPayment);
-            until TempVATEntry.Next = 0;
+            until TempVATEntry.Next() = 0;
         end;
     end;
 
@@ -181,7 +181,7 @@ codeunit 12184 "Fattura Doc. Helper"
             CustLedgerEntry.CalcFields("Amount (LCY)");
             TempFatturaLine.Amount := CustLedgerEntry."Amount (LCY)";
             TempFatturaLine.Insert();
-        until CustLedgerEntry.Next = 0;
+        until CustLedgerEntry.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -226,7 +226,7 @@ codeunit 12184 "Fattura Doc. Helper"
             SetCurrentKey(
               "Document No.", Type, "VAT Bus. Posting Group", "VAT Prod. Posting Group",
               "VAT %", "Deductible %", "VAT Identifier", "Transaction No.", "Unrealized VAT Entry No.");
-            FindSet;
+            FindSet();
             TempFatturaLine.Init();
             TempFatturaLine.Quantity := 1;
             repeat
@@ -251,7 +251,7 @@ codeunit 12184 "Fattura Doc. Helper"
                 FindLast;
                 SetRange("VAT Bus. Posting Group");
                 SetRange("VAT Prod. Posting Group");
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -448,7 +448,7 @@ codeunit 12184 "Fattura Doc. Helper"
     local procedure CheckCompanyInformationFields(var ErrorMessage: Record "Error Message")
     begin
         ErrorMessage.LogIfLengthExceeded(
-          CompanyInformation, CompanyInformation.FieldNo("Fiscal Code"), ErrorMessage."Message Type"::Error, 11);
+          CompanyInformation, CompanyInformation.FieldNo("Fiscal Code"), ErrorMessage."Message Type"::Error, 16);
         ErrorMessage.LogIfEmpty(
           CompanyInformation, CompanyInformation.FieldNo("Country/Region Code"), ErrorMessage."Message Type"::Error);
         ErrorMessage.LogIfEmpty(
@@ -630,7 +630,7 @@ codeunit 12184 "Fattura Doc. Helper"
                 LastDocNo := VATEntry."Document No.";
                 LastPostingDate := VATEntry."Posting Date";
                 Insert;
-            until VATEntry.Next = 0;
+            until VATEntry.Next() = 0;
             TempVATEntry := FirstVATEntry;
             Find;
         end;
@@ -686,7 +686,7 @@ codeunit 12184 "Fattura Doc. Helper"
             if not IsSplitPaymentLine(LineRecRef) then
                 if Evaluate(AmountInclVAT, Format(LineRecRef.Field(LineAmountIncludingVATFieldNo).Value)) then
                     TotalAmount += AmountInclVAT;
-        until LineRecRef.Next = 0;
+        until LineRecRef.Next() = 0;
         exit(TotalAmount);
     end;
 
@@ -737,7 +737,7 @@ codeunit 12184 "Fattura Doc. Helper"
         CustLedgerEntry.SetRange("Document Type", TempFatturaHeader."Document Type");
         CustLedgerEntry.SetRange("Document No.", TempFatturaHeader."Document No.");
         CustLedgerEntry.SetRange("Posting Date", TempFatturaHeader."Posting Date");
-        CustLedgerEntry.FindSet;
+        CustLedgerEntry.FindSet();
     end;
 
     local procedure FindAppliedEntry(var AppliedCustLedgerEntry: Record "Cust. Ledger Entry"; OriginalCustLedgerEntry: Record "Cust. Ledger Entry"): Boolean
@@ -775,13 +775,13 @@ codeunit 12184 "Fattura Doc. Helper"
                                    (AppliedCustLedgerEntry."Document Type" = AppliedDocType)
                                 then
                                     exit(true);
-                        until AppliedDtldCustLedgEntry.Next = 0;
+                        until AppliedDtldCustLedgEntry.Next() = 0;
                 end else
                     if AppliedCustLedgerEntry.Get(InvDtldCustLedgEntry."Applied Cust. Ledger Entry No.") and
                        (AppliedCustLedgerEntry."Document Type" = AppliedDocType)
                     then
                         exit(true);
-            until InvDtldCustLedgEntry.Next = 0;
+            until InvDtldCustLedgEntry.Next() = 0;
         exit(false);
     end;
 
@@ -832,7 +832,7 @@ codeunit 12184 "Fattura Doc. Helper"
         repeat
             if Evaluate(InvDiscountAmount, Format(LineRecRef.Field(LineInvDiscAmountFieldNo).Value)) then;
             ServInvDiscount += InvDiscountAmount;
-        until LineRecRef.Next = 0;
+        until LineRecRef.Next() = 0;
         exit(ServInvDiscount);
     end;
 
@@ -909,7 +909,7 @@ codeunit 12184 "Fattura Doc. Helper"
                     TempLineNumberBuffer."New Line Number" := i;
                     TempLineNumberBuffer.Insert();
                 end;
-            until LineRecRef.Next = 0;
+            until LineRecRef.Next() = 0;
         if TempFatturaHeader."Order No." <> '' then
             if TempFatturaHeader."Entry Type" = TempFatturaHeader."Entry Type"::Sales then begin
                 SalesShipmentLine.SetRange(Type, SalesShipmentLine.Type::Item);
@@ -921,7 +921,7 @@ codeunit 12184 "Fattura Doc. Helper"
                         InsertShipmentBuffer(
                           TempSalesShipmentBuffer, TempLineNumberBuffer."New Line Number", SalesShipmentLine."Document No.",
                           SalesShipmentLine."Shipment Date", false);
-                    until SalesShipmentLine.Next = 0;
+                    until SalesShipmentLine.Next() = 0;
             end else begin
                 ServiceShipmentLine.SetRange(Type, ServiceShipmentLine.Type::Item);
                 ServiceShipmentLine.SetRange("Order No.", TempFatturaHeader."Order No.");
@@ -932,7 +932,7 @@ codeunit 12184 "Fattura Doc. Helper"
                         InsertShipmentBuffer(
                           TempSalesShipmentBuffer, TempLineNumberBuffer."New Line Number", ServiceShipmentLine."Document No.",
                           ServiceShipmentLine."Posting Date", false);
-                    until ServiceShipmentLine.Next = 0;
+                    until ServiceShipmentLine.Next() = 0;
             end;
     end;
 
@@ -961,7 +961,7 @@ codeunit 12184 "Fattura Doc. Helper"
                         TempVATEntry.Insert();
                     end;
                 end;
-            until VATEntry.Next = 0;
+            until VATEntry.Next() = 0;
     end;
 
     local procedure CollectVATPostingSetup(var TempVATPostingSetup: Record "VAT Posting Setup" temporary; VATEntry: Record "VAT Entry")
@@ -1001,7 +1001,7 @@ codeunit 12184 "Fattura Doc. Helper"
             repeat
                 if MultipleOrders then
                     TempFatturaLine."Related Line No." := TempSalesShipmentBuffer."Line No.";
-                Finished := TempSalesShipmentBuffer.Next = 0;
+                Finished := TempSalesShipmentBuffer.Next() = 0;
                 TempFatturaLine."Line No." += 1;
                 TempFatturaLine.Insert();
             until Finished or (TempFatturaLine."Document No." <> TempSalesShipmentBuffer."Document No.");
@@ -1024,7 +1024,7 @@ codeunit 12184 "Fattura Doc. Helper"
                 if MultipleOrders then
                     TempFatturaLine."Related Line No." := TempSalesShipmentBuffer."Line No.";
                 TempFatturaLine.Insert();
-            until TempSalesShipmentBuffer.Next = 0;
+            until TempSalesShipmentBuffer.Next() = 0;
         end;
     end;
 
@@ -1058,7 +1058,7 @@ codeunit 12184 "Fattura Doc. Helper"
             SourceNoNoValue := CurrRecRef.Field(NoFieldNo).Value;
             repeat
                 InsertExtTextFatturaLine(TempFatturaLine, LineRecRef, StrSubstNo(TxtTok, SourceNoNoValue));
-            until LineRecRef.Next = 0;
+            until LineRecRef.Next() = 0;
         end;
         TypeFieldRef.SetRange;
         AttachedToLineNoFieldRef.SetRange(0);
@@ -1072,7 +1072,7 @@ codeunit 12184 "Fattura Doc. Helper"
                     if SourceNoNoValue <> '' then
                         InsertExtTextFatturaLine(TempFatturaLine, LineRecRef, SourceNoNoValue);
                 end;
-            until (LineRecRef.Next = 0) or SourceTypeFound;
+            until (LineRecRef.Next() = 0) or SourceTypeFound;
 
         TypeFieldRef.SetRange;
         AttachedToLineNoFieldRef.SetRange;
@@ -1213,7 +1213,7 @@ codeunit 12184 "Fattura Doc. Helper"
                 LineRecRef.FindFirst;
                 exit(true);
             end;
-        until LineRecRef.Next = 0;
+        until LineRecRef.Next() = 0;
         LineRecRef.FindFirst;
         exit(false)
     end;
@@ -1480,7 +1480,7 @@ codeunit 12184 "Fattura Doc. Helper"
         end;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1305, 'OnBeforeInsertSalesInvoiceHeader', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Quote to Invoice", 'OnBeforeInsertSalesInvoiceHeader', '', false, false)]
     local procedure AssignFatturaDocTypeOnBeforeInsertSalesInvoiceHeader(var SalesInvoiceHeader: Record "Sales Header"; QuoteSalesHeader: Record "Sales Header")
     begin
         SalesInvoiceHeader."Fattura Document Type" := QuoteSalesHeader."Fattura Document Type";

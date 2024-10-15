@@ -161,7 +161,7 @@ report 12153 "Create Subcontr. Return Order"
             repeat
                 if CheckPurchLine(PurchLine, false, QtyToPost) then
                     exit(true);
-            until PurchLine.Next = 0;
+            until PurchLine.Next() = 0;
 
         exit(false);
     end;
@@ -245,7 +245,7 @@ report 12153 "Create Subcontr. Return Order"
                         SubcontractingMgt.TransfSUBOrdCompToSUBTransfOrd(TransferLine, ProdOrderComponent);
                     end else
                         exit(true);
-            until ProdOrderComponent.Next = 0;
+            until ProdOrderComponent.Next() = 0;
         end;
         exit(false);
     end;

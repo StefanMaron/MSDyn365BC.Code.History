@@ -520,9 +520,9 @@ report 12116 "Vendor Account Bills List"
                                 TempDetailedVendorLedgEntryApplied := DetailedVendorLedgEntryApplied;
                                 if TempDetailedVendorLedgEntryApplied.Insert() then;
                             end;
-                        until DetailedVendorLedgEntryApplied.Next = 0;
+                        until DetailedVendorLedgEntryApplied.Next() = 0;
                 end;
-            until DetailedVendorLedgEntry.Next = 0;
+            until DetailedVendorLedgEntry.Next() = 0;
     end;
 
     local procedure IsPaymentDocumentType(VendorLedgerEntry: Record "Vendor Ledger Entry"): Boolean

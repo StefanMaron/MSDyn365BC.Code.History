@@ -1182,7 +1182,7 @@ codeunit 137026 "Sales Correct Cr. Memo"
         exit(FixedAsset."No.");
     end;
 
-    local procedure MockDtldCustLedgEntry(CustLedgEntryNo: Integer; EntryType: Option)
+    local procedure MockDtldCustLedgEntry(CustLedgEntryNo: Integer; EntryType: Enum "Detailed CV Ledger Entry Type")
     var
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin

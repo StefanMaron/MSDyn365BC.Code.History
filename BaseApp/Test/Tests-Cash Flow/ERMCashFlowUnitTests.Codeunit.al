@@ -2203,7 +2203,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
     begin
         PaymentLines.SetRange(Type, PaymentLines.Type::"Payment Terms");
         PaymentLines.SetRange(Code, PaymentTermsCode);
-        PaymentLines.FindSet;
+        PaymentLines.FindSet();
         repeat
             PaymentLines.Validate("Discount %", DiscountPercentage);
             PaymentLines.Modify();

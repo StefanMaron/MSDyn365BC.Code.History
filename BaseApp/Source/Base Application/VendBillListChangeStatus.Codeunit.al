@@ -71,7 +71,7 @@ codeunit 12171 "Vend. Bill List-Change Status"
                 end;
                 VendorBillLine."Vendor Bill No." := NextVendBillNo;
                 VendorBillLine.Modify();
-            until VendorBillLine.Next = 0;
+            until VendorBillLine.Next() = 0;
         end;
 
         OnAfterFromOpenToSent(VendorBillHeader);
@@ -104,7 +104,7 @@ codeunit 12171 "Vend. Bill List-Change Status"
                     end;
                     VendorBillLine."Vendor Bill No." := '';
                     VendorBillLine.Modify();
-                until VendorBillLine.Next = 0;
+                until VendorBillLine.Next() = 0;
         end;
 
         OnAfterFromSentToOpen(VendorBillHeader);

@@ -14,7 +14,7 @@ codeunit 132479 "Posting Codeunit Mock"
         MsgType: Integer;
     begin
         ContextID := 0;
-        FindSet;
+        FindSet();
         repeat
             MsgType := "Message Type";
             case MsgType of

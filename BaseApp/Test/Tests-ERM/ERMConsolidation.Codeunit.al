@@ -859,7 +859,7 @@ codeunit 134092 "ERM Consolidation"
         Consolidate.SetDocNo(DocNo);
         Consolidate.InsertGLAccount(DebitGLAcc);
         Consolidate.InsertGLAccount(CreditGLAcc);
-        TempGLEntry.FindSet;
+        TempGLEntry.FindSet();
         repeat
             Consolidate.InsertGLEntry(TempGLEntry);
         until TempGLEntry.Next = 0;

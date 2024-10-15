@@ -8,6 +8,9 @@ page 5471 "Customer Entity"
     ODataKeyFields = SystemId;
     PageType = API;
     SourceTable = Customer;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'API version beta will be deprecated.';
+    ObsoleteTag = '18.0';
 
     layout
     {
@@ -315,7 +318,7 @@ page 5471 "Customer Entity"
             Error(NotProvidedCustomerNameErr);
 
         Customer.SetRange("No.", "No.");
-        if not Customer.IsEmpty then
+        if not Customer.IsEmpty() then
             Insert;
 
         Insert(true);

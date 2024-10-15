@@ -109,7 +109,7 @@ page 99000799 "Standard Tasks"
                 LastStdTask := FirstStdTask;
                 More := (StdTaskCount > 0);
                 while More do
-                    if StandardTask.Next = 0 then
+                    if StandardTask.Next() = 0 then
                         More := false
                     else
                         if not StandardTask.Mark then

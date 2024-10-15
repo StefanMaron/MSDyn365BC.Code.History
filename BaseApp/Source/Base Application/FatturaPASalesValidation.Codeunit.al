@@ -67,9 +67,8 @@ codeunit 12180 "FatturaPA Sales Validation"
         CODEUNIT.Run(ElectronicDocumentFormat."Codeunit ID", RecordVariant);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 80, 'OnAfterCheckSalesDoc', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnAfterCheckSalesDoc(var SalesHeader: Record "Sales Header"; CommitIsSuppressed: Boolean)
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnAfterCheckSalesDoc', '', false, false)]
+    local procedure OnAfterCheckSalesDoc(var SalesHeader: Record "Sales Header"; CommitIsSuppressed: Boolean)
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
         DummyElectronicDocumentFormat: Record "Electronic Document Format";

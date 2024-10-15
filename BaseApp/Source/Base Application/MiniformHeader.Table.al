@@ -34,7 +34,7 @@ table 7700 "Miniform Header"
             begin
                 MiniformHeader.SetFilter(Code, '<>%1', Code);
                 MiniformHeader.SetRange("Start Miniform", true);
-                if not MiniformHeader.IsEmpty then
+                if not MiniformHeader.IsEmpty() then
                     Error(Text002);
             end;
         }

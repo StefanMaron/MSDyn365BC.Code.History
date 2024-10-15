@@ -148,7 +148,7 @@ xmlport 12100 "CBI Payment Request.00.04.00"
                             trigger OnBeforePassVariable()
                             begin
                                 if CompanyInformation.Address = '' then
-                                    currXMLport.Skip;
+                                    currXMLport.Skip();
                             end;
                         }
                         textelement(thiscompanypostcode)
@@ -158,7 +158,7 @@ xmlport 12100 "CBI Payment Request.00.04.00"
                             trigger OnBeforePassVariable()
                             begin
                                 if CompanyInformation."Post Code" = '' then
-                                    currXMLport.Skip;
+                                    currXMLport.Skip();
                             end;
                         }
                         textelement(thiscompanycity)
@@ -168,7 +168,7 @@ xmlport 12100 "CBI Payment Request.00.04.00"
                             trigger OnBeforePassVariable()
                             begin
                                 if CompanyInformation.City = '' then
-                                    currXMLport.Skip;
+                                    currXMLport.Skip();
                             end;
                         }
                         textelement(thiscompanycountry)
@@ -178,7 +178,7 @@ xmlport 12100 "CBI Payment Request.00.04.00"
                             trigger OnBeforePassVariable()
                             begin
                                 if CompanyInformation."Country/Region Code" = '' then
-                                    currXMLport.Skip;
+                                    currXMLport.Skip();
                             end;
                         }
                     }
@@ -298,7 +298,7 @@ xmlport 12100 "CBI Payment Request.00.04.00"
                         trigger OnBeforePassVariable()
                         begin
                             if PaymentExportData."Recipient Bank BIC" = '' then
-                                currXMLport.Skip;
+                                currXMLport.Skip();
                         end;
                     }
                     textelement(Cdtr)
@@ -315,7 +315,7 @@ xmlport 12100 "CBI Payment Request.00.04.00"
                                 trigger OnBeforePassField()
                                 begin
                                     if PaymentExportData."Recipient Address" = '' then
-                                        currXMLport.Skip;
+                                        currXMLport.Skip();
                                 end;
                             }
                             fieldelement(PstCd; PaymentExportData."Recipient Post Code")
@@ -324,7 +324,7 @@ xmlport 12100 "CBI Payment Request.00.04.00"
                                 trigger OnBeforePassField()
                                 begin
                                     if PaymentExportData."Recipient Post Code" = '' then
-                                        currXMLport.Skip;
+                                        currXMLport.Skip();
                                 end;
                             }
                             fieldelement(TwnNm; PaymentExportData."Recipient City")
@@ -333,7 +333,7 @@ xmlport 12100 "CBI Payment Request.00.04.00"
                                 trigger OnBeforePassField()
                                 begin
                                     if PaymentExportData."Recipient City" = '' then
-                                        currXMLport.Skip;
+                                        currXMLport.Skip();
                                 end;
                             }
                             fieldelement(Ctry; PaymentExportData."Recipient Country/Region Code")
@@ -342,7 +342,7 @@ xmlport 12100 "CBI Payment Request.00.04.00"
                                 trigger OnBeforePassField()
                                 begin
                                     if PaymentExportData."Recipient Country/Region Code" = '' then
-                                        currXMLport.Skip;
+                                        currXMLport.Skip();
                                 end;
                             }
                         }
@@ -371,7 +371,7 @@ xmlport 12100 "CBI Payment Request.00.04.00"
                             trigger OnBeforePassVariable()
                             begin
                                 if RemittanceText1 = '' then
-                                    currXMLport.Skip;
+                                    currXMLport.Skip();
                             end;
                         }
                         textelement(remittancetext2)
@@ -382,7 +382,7 @@ xmlport 12100 "CBI Payment Request.00.04.00"
                             trigger OnBeforePassVariable()
                             begin
                                 if RemittanceText2 = '' then
-                                    currXMLport.Skip;
+                                    currXMLport.Skip();
                             end;
                         }
 
@@ -407,7 +407,7 @@ xmlport 12100 "CBI Payment Request.00.04.00"
                     if not TempGroupedGenJnlLine.Get("Gen. Journal Line"."Journal Template Name", "Gen. Journal Line"."Journal Batch Name",
                          "Gen. Journal Line"."Line No.")
                     then
-                        currXMLport.Skip;
+                        currXMLport.Skip();
             end;
         }
     }
@@ -477,7 +477,7 @@ xmlport 12100 "CBI Payment Request.00.04.00"
             end;
             PaymentExportDataGroup."Line No." += 1;
             PaymentExportDataGroup.Amount += PaymentExportData.Amount;
-        until PaymentExportData.Next = 0;
+        until PaymentExportData.Next() = 0;
         InsertPmtGroup(PaymentGroupNo);
     end;
 

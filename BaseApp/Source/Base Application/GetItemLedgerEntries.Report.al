@@ -1,4 +1,4 @@
-report 594 "Get Item Ledger Entries"
+﻿report 594 "Get Item Ledger Entries"
 {
     Caption = 'Get Item Ledger Entries';
     Permissions = TableData "General Posting Setup" = imd;
@@ -36,7 +36,7 @@ report 594 "Get Item Ledger Entries"
                                 repeat
                                     if IsItemLedgerEntryCorrected(ItemLedgEntry, "Entry No.") then
                                         CurrReport.Skip();
-                                until ItemLedgEntry.Next = 0;
+                                until ItemLedgEntry.Next() = 0;
                         end;
                     end;
 
@@ -64,7 +64,7 @@ report 594 "Get Item Ledger Entries"
                                     if not IntrastatJnlLine2.FindFirst then
                                         InsertItemJnlLine;
                                 end;
-                        until ValueEntry.Next = 0;
+                        until ValueEntry.Next() = 0;
                 end;
 
                 trigger OnPreDataItem()
@@ -184,8 +184,8 @@ report 594 "Get Item Ledger Entries"
                                             if VATEntry.FindSet then
                                                 repeat
                                                     InsertEUServiceLine(VATEntry);
-                                                until VATEntry.Next = 0;
-                                        until TempCustLedgEntry.Next = 0;
+                                                until VATEntry.Next() = 0;
+                                        until TempCustLedgEntry.Next() = 0;
                                 end;
                             Type::Purchase:
                                 begin
@@ -206,8 +206,8 @@ report 594 "Get Item Ledger Entries"
                                             if VATEntry.FindSet then
                                                 repeat
                                                     InsertEUServiceLine(VATEntry);
-                                                until VATEntry.Next = 0;
-                                        until TempVendLedgEntry.Next = 0;
+                                                until VATEntry.Next() = 0;
+                                        until TempVendLedgEntry.Next() = 0;
                                 end;
                         end
                     else begin
@@ -682,7 +682,7 @@ report 594 "Get Item Ledger Entries"
                                     Location.Get(ItemLedgEntry2."Location Code");
                                     if Location."Use As In-Transit" then
                                         Include := true;
-                                until Include or (ItemLedgEntry2.Next = 0);
+                                until Include or (ItemLedgEntry2.Next() = 0);
                             if not Include then
                                 exit(false);
                         end;
@@ -893,7 +893,7 @@ report 594 "Get Item Ledger Entries"
                                             TotalAmt := TotalAmt + (PurchInvLine.Amount / PurchInvHeader."Currency Factor")
                                         else
                                             TotalAmt := TotalAmt + PurchInvLine.Amount;
-                                    until PurchInvLine.Next = 0;
+                                    until PurchInvLine.Next() = 0;
                                 end else begin
                                     PurchRcptLine.SetRange("Document No.", ValueEntry."Document No.");
                                     PurchRcptLine.SetRange(Type, PurchRcptLine.Type::Item);
@@ -903,7 +903,7 @@ report 594 "Get Item Ledger Entries"
                                             if PurchRcptLine.Correction = true then
                                                 CorrectionFound := true;
                                             DocItemSum += PurchRcptLine."Quantity Invoiced";
-                                        until PurchRcptLine.Next = 0;
+                                        until PurchRcptLine.Next() = 0;
                                         if (DocItemSum = 0) and CorrectionFound then
                                             CurrReport.Skip();
                                     end;
@@ -920,7 +920,7 @@ report 594 "Get Item Ledger Entries"
                                             TotalAmt := TotalAmt - (PurchCrMemoLine.Amount / PurchCrMemoHdr."Currency Factor")
                                         else
                                             TotalAmt := TotalAmt - PurchCrMemoLine.Amount;
-                                    until PurchCrMemoLine.Next = 0;
+                                    until PurchCrMemoLine.Next() = 0;
                                 end else begin
                                     PurchRcptLine.SetRange("Document No.", ValueEntry."Document No.");
                                     PurchRcptLine.SetRange(Type, PurchRcptLine.Type::Item);
@@ -930,7 +930,7 @@ report 594 "Get Item Ledger Entries"
                                             if PurchRcptLine.Correction = true then
                                                 CorrectionFound := true;
                                             DocItemSum += PurchRcptLine."Quantity Invoiced";
-                                        until PurchRcptLine.Next = 0;
+                                        until PurchRcptLine.Next() = 0;
                                         if (DocItemSum = 0) and CorrectionFound then
                                             CurrReport.Skip();
                                     end;
@@ -955,7 +955,7 @@ report 594 "Get Item Ledger Entries"
                                             TotalAmt := TotalAmt - (SalesInvoiceLine.Amount / SalesInvoiceHeader."Currency Factor")
                                         else
                                             TotalAmt := TotalAmt - SalesInvoiceLine.Amount;
-                                    until SalesInvoiceLine.Next = 0;
+                                    until SalesInvoiceLine.Next() = 0;
                                 end else begin
                                     SalesShipLine.SetRange("Document No.", ValueEntry."Document No.");
                                     SalesShipLine.SetRange(Type, SalesShipLine.Type::Item);
@@ -965,7 +965,7 @@ report 594 "Get Item Ledger Entries"
                                             if SalesShipLine.Correction = true then
                                                 CorrectionFound := true;
                                             DocItemSum += SalesShipLine."Quantity Invoiced";
-                                        until SalesShipLine.Next = 0;
+                                        until SalesShipLine.Next() = 0;
                                         if (DocItemSum = 0) and CorrectionFound then
                                             CurrReport.Skip();
                                     end;
@@ -983,7 +983,7 @@ report 594 "Get Item Ledger Entries"
                                                 TotalAmt := TotalAmt + (SalesCrMemoLine.Amount / SalesCrMemoHeader."Currency Factor")
                                             else
                                                 TotalAmt := TotalAmt + SalesCrMemoLine.Amount;
-                                        until SalesCrMemoLine.Next = 0;
+                                        until SalesCrMemoLine.Next() = 0;
                                     end else begin
                                         SalesShipLine.SetRange("Document No.", ValueEntry."Document No.");
                                         SalesShipLine.SetRange(Type, SalesShipLine.Type::Item);
@@ -993,7 +993,7 @@ report 594 "Get Item Ledger Entries"
                                                 if SalesShipLine.Correction = true then
                                                     CorrectionFound := true;
                                                 DocItemSum += SalesShipLine."Quantity Invoiced";
-                                            until SalesShipLine.Next = 0;
+                                            until SalesShipLine.Next() = 0;
                                             if (DocItemSum = 0) and CorrectionFound then
                                                 CurrReport.Skip();
                                         end;
@@ -1011,7 +1011,7 @@ report 594 "Get Item Ledger Entries"
                                                     TotalAmt := TotalAmt - (ServiceInvoiceLine.Amount / ServiceInvoiceHeader."Currency Factor")
                                                 else
                                                     TotalAmt := TotalAmt - ServiceInvoiceLine.Amount;
-                                            until ServiceInvoiceLine.Next = 0;
+                                            until ServiceInvoiceLine.Next() = 0;
                                         end else begin
                                             ServiceShipLine.SetRange("Document No.", ValueEntry."Document No.");
                                             ServiceShipLine.SetRange(Type, ServiceShipLine.Type::Item);
@@ -1021,7 +1021,7 @@ report 594 "Get Item Ledger Entries"
                                                     if ServiceShipLine.Correction = true then
                                                         CorrectionFound := true;
                                                     DocItemSum += ServiceShipLine."Quantity Invoiced";
-                                                until ServiceShipLine.Next = 0;
+                                                until ServiceShipLine.Next() = 0;
                                                 if (DocItemSum = 0) and CorrectionFound then
                                                     CurrReport.Skip();
                                             end;
@@ -1039,7 +1039,7 @@ report 594 "Get Item Ledger Entries"
                                                         TotalAmt := TotalAmt + (ServiceCrMemoLine.Amount / ServiceCrMemoHeader."Currency Factor")
                                                     else
                                                         TotalAmt := TotalAmt + ServiceCrMemoLine.Amount;
-                                                until ServiceCrMemoLine.Next = 0;
+                                                until ServiceCrMemoLine.Next() = 0;
                                             end else begin
                                                 ServiceShipLine.SetRange("Document No.", ValueEntry."Document No.");
                                                 ServiceShipLine.SetRange(Type, ServiceShipLine.Type::Item);
@@ -1049,7 +1049,7 @@ report 594 "Get Item Ledger Entries"
                                                         if ServiceShipLine.Correction = true then
                                                             CorrectionFound := true;
                                                         DocItemSum += ServiceShipLine."Quantity Invoiced";
-                                                    until ServiceShipLine.Next = 0;
+                                                    until ServiceShipLine.Next() = 0;
                                                     if (DocItemSum = 0) and CorrectionFound then
                                                         CurrReport.Skip();
                                                 end;
@@ -1207,7 +1207,7 @@ report 594 "Get Item Ledger Entries"
                         ActualAmount, AddCurrencyFactor);
                 TotalAmt := TotalAmt + ActualAmount;
 
-            until ValueEntry2.Next = 0;
+            until ValueEntry2.Next() = 0;
         end;
     end;
 
@@ -1316,7 +1316,7 @@ report 594 "Get Item Ledger Entries"
                                     TempAppliedCustLedgEntry.Insert();
                                 end;
                             end;
-                        until DtldCustLedgEntry2.Next = 0;
+                        until DtldCustLedgEntry2.Next() = 0;
                     end;
                 end else begin
                     CustLedgEntry2.SetRange("Entry No.", DtldCustLedgEntry."Applied Cust. Ledger Entry No.");
@@ -1325,7 +1325,7 @@ report 594 "Get Item Ledger Entries"
                         TempAppliedCustLedgEntry.Insert();
                     end;
                 end;
-            until DtldCustLedgEntry.Next = 0;
+            until DtldCustLedgEntry.Next() = 0;
     end;
 
     local procedure FindAppliedVendLedgEntries(VendLedgEntry: Record "Vendor Ledger Entry"; var TempAppliedVendLedgEntry: Record "Vendor Ledger Entry" temporary)
@@ -1357,7 +1357,7 @@ report 594 "Get Item Ledger Entries"
                                     TempAppliedVendLedgEntry.Insert();
                                 end;
                             end;
-                        until DtldVendLedgEntry2.Next = 0;
+                        until DtldVendLedgEntry2.Next() = 0;
                     end;
                 end else begin
                     VendLedgEntry2.SetRange("Entry No.", DtldVendLedgEntry."Applied Vend. Ledger Entry No.");
@@ -1366,7 +1366,7 @@ report 594 "Get Item Ledger Entries"
                         TempAppliedVendLedgEntry.Insert();
                     end;
                 end;
-            until DtldVendLedgEntry.Next = 0;
+            until DtldVendLedgEntry.Next() = 0;
     end;
 
     local procedure FilterVATEntryOnCustLedgEntry(var VATEntry: Record "VAT Entry"; CustLedgEntry: Record "Cust. Ledger Entry")

@@ -62,7 +62,7 @@ report 12113 "Close/Open Balance Sheet"
                                         TempDimBuf2."Dimension Value Code" := TempDimBuf."Dimension Value Code";
                                         TempDimBuf2.Insert();
                                     end;
-                                until TempSelectedDim.Next = 0;
+                                until TempSelectedDim.Next() = 0;
 
                             EntryNo := DimBufMgt.GetDimensionId(TempDimBuf2);
 
@@ -122,7 +122,7 @@ report 12113 "Close/Open Balance Sheet"
                                 if ClosePerGlobalDim2 then
                                     GenJnlLine."Shortcut Dimension 2 Code" := GlobalDimVal2;
                                 HandleGenJnlLine;
-                            until EntryNoAmountBuf.Next = 0;
+                            until EntryNoAmountBuf.Next() = 0;
 
                         EntryNoAmountBuf.DeleteAll();
                     end;
@@ -455,7 +455,7 @@ report 12113 "Close/Open Balance Sheet"
                    (TempSelectedDim."Dimension Code" <> GLSetup."Global Dimension 2 Code")
                 then
                     ClosePerGlobalDimOnly := false;
-            until TempSelectedDim.Next = 0;
+            until TempSelectedDim.Next() = 0;
 
         CollectCloseIncomeStmtDimID;
 
@@ -584,19 +584,19 @@ report 12113 "Close/Open Balance Sheet"
                 if GLEntry."Dimension Set ID" <> 0 then begin
                     DimSetEntry.SetRange("Dimension Set ID", GLEntry."Dimension Set ID");
                     TempDimBuf.DeleteAll();
-                    DimSetEntry.FindSet;
+                    DimSetEntry.FindSet();
                     repeat
                         TempDimBuf."Table ID" := DATABASE::"G/L Entry";
                         TempDimBuf."Dimension Code" := DimSetEntry."Dimension Code";
                         TempDimBuf."Dimension Value Code" := DimSetEntry."Dimension Value Code";
                         TempDimBuf.Insert();
-                    until DimSetEntry.Next = 0;
+                    until DimSetEntry.Next() = 0;
                     DimBufMgt.InsertDimensionsUsingEntryNo(
                       TempDimBuf, GLEntry."Close Income Statement Dim. ID");
                 end;
                 GLEntry.SetFilter(
                   "Close Income Statement Dim. ID", '>%1', GLEntry."Close Income Statement Dim. ID");
-            until GLEntry.Next = 0;
+            until GLEntry.Next() = 0;
             NextDimID := GLEntry."Close Income Statement Dim. ID" + 1;
         end else
             NextDimID := 2; // 1 is used when there are no dimensions on the entry
@@ -645,7 +645,7 @@ report 12113 "Close/Open Balance Sheet"
                 DimBuf."Dimension Value Code" := DimSetEntry."Dimension Value Code";
                 DimBuf.Insert();
                 Counter += 1;
-            until DimSetEntry.Next = 0;
+            until DimSetEntry.Next() = 0;
         exit(Counter);
     end;
 
@@ -664,7 +664,7 @@ report 12113 "Close/Open Balance Sheet"
         DimensionSetID: Integer;
     begin
         DimBufCount := GetGLEntryDimensions(GLEntryNo, GLEntryDimensionSetID, TempDimBuf);
-        if not TempDimBuf.IsEmpty then begin
+        if not TempDimBuf.IsEmpty() then begin
             TempDimBuf.FindFirst;
             DimensionSetID := DimBufMgt.FindDimensionsKnownDimBufCount(TempDimBuf, DimBufCount);
             if DimensionSetID = 0 then begin

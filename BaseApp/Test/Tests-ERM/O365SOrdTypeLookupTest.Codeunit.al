@@ -72,8 +72,8 @@ codeunit 134646 "O365 S. Ord. Type Lookup Test"
         // [GIVEN] A Sales Order
         SalesOrder.OpenNew;
 
-        TempOptionLookupBuffer.FillBuffer(TempOptionLookupBuffer."Lookup Type"::Sales);
-        TempOptionLookupBuffer.FindSet;
+        TempOptionLookupBuffer.FillLookupBuffer(TempOptionLookupBuffer."Lookup Type"::Sales);
+        TempOptionLookupBuffer.FindSet();
         repeat
             // [WHEN] Opening the Subtype lookup and selecting service
             LibraryVariableStorage.Enqueue(TempOptionLookupBuffer."Lookup Type");
@@ -215,7 +215,7 @@ codeunit 134646 "O365 S. Ord. Type Lookup Test"
         TempOptionLookupBuffer: Record "Option Lookup Buffer" temporary;
     begin
         TempOptionLookupBuffer.FillBuffer(LibraryVariableStorage.DequeueInteger);
-        TempOptionLookupBuffer.FindSet;
+        TempOptionLookupBuffer.FindSet();
         repeat
             OptionLookupList.GotoKey(TempOptionLookupBuffer."Option Caption");
         until TempOptionLookupBuffer.Next = 0;

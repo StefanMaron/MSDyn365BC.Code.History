@@ -1469,9 +1469,8 @@ codeunit 144150 "Periodic VAT Pmt. Comm. Tests"
         exit(Format(DecimalValue, 0, '<Precision,2><Sign><Integer><Decimals><Comma,,>'));
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 9015, 'OnAfterGetApplicationVersion', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnAfterGetApplicationVersion(var ApplicationVersion: Text[80])
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Application System Constants", 'OnAfterGetApplicationVersion', '', false, false)]
+    local procedure OnAfterGetApplicationVersion(var ApplicationVersion: Text[80])
     begin
         ApplicationVersion := '13.01.02';
     end;

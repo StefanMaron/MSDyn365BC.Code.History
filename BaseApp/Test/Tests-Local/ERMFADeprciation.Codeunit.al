@@ -1079,7 +1079,7 @@ codeunit 144143 "ERM FA Deprciation"
         DepreciationTableLine: Record "Depreciation Table Line";
     begin
         DepreciationTableLine.SetRange("Depreciation Table Code", DepreciationTableCode);
-        DepreciationTableLine.FindSet;
+        DepreciationTableLine.FindSet();
         repeat
             PeriodDepreciationPerc += DepreciationTableLine."Period Depreciation %";
         until DepreciationTableLine.Next = 0;

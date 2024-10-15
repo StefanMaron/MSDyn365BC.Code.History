@@ -1137,7 +1137,6 @@ codeunit 137044 "SCM Order Promising"
         SalesHeader: Record "Sales Header";
         ProductionOrder: Record "Production Order";
         AvailableToPromise: Codeunit "Available to Promise";
-        OrderType: Option ItemOrder,ProjectOrder;
         ExpectedQuantity: Integer;
     begin
         // [FEATURE] [UT] [Availability]
@@ -1149,7 +1148,7 @@ codeunit 137044 "SCM Order Promising"
         ExpectedQuantity := LibraryRandom.RandIntInRange(2, 4);
         CreateSalesOrderWithRequestedDeliveryDate(SalesHeader, Item."No.", ExpectedQuantity, 0D, WorkDate + 7);
         LibraryManufacturing.CreateProductionOrderFromSalesOrder(
-          SalesHeader, ProductionOrder.Status::"Firm Planned", OrderType::ItemOrder);
+          SalesHeader, ProductionOrder.Status::"Firm Planned", "Create Production Order Type"::ItemOrder);
         AvailableToPromise.CalcAvailableInventory(Item);
 
         Assert.AreEqual(

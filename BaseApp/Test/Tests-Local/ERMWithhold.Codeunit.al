@@ -1,4 +1,4 @@
-﻿codeunit 144090 "ERM Withhold"
+codeunit 144090 "ERM Withhold"
 {
     // // [FEATURE] [Withholding Tax]
     // Test for Withhold Tax functionality.

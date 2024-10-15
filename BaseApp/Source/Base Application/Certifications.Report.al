@@ -567,7 +567,7 @@ report 12106 Certifications
                     Contributions.SetRange("Vendor No.", Vendor."No.");
                     Contributions.SetFilter("Payment Date", '%1..%2', FromPaymentDate, ToPaymentDate);
                     Contributions.SetRange(Reported, false);
-                    if Contributions.IsEmpty then
+                    if Contributions.IsEmpty() then
                         INPS := false;
                 end;
             }

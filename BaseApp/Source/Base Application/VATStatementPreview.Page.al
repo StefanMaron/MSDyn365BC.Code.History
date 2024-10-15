@@ -88,7 +88,7 @@ page 474 "VAT Statement Preview"
                         FilterTokens.MakeDateFilter(DateFilter);
                         SetFilter("Date Filter", DateFilter);
                         UpdateSubForm();
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
             }

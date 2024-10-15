@@ -3088,7 +3088,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         VATEntry: Record "VAT Entry";
     begin
         VATEntry.SetFilter("Document No.", DocumentNo);
-        VATEntry.FindSet;
+        VATEntry.FindSet();
         repeat
             if InclVAT then begin
                 if Abs(VATEntry.Base + VATEntry.Amount) = Amount then begin

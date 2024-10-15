@@ -247,7 +247,7 @@ report 12123 "Lifo Entries"
                     repeat
                         if LifoBand2.Get("Entry No.") then
                             LifoBand2.Mark(true);
-                    until Next = 0;
+                    until Next() = 0;
             end;
     end;
 
@@ -268,7 +268,7 @@ report 12123 "Lifo Entries"
                         IncrementValue += -"Increment Value";
                         InventoryValue += -"Increment Value";
                     end;
-                until Next = 0;
+                until Next() = 0;
             end;
     end;
 }

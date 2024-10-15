@@ -2328,7 +2328,7 @@ codeunit 144012 "IT - VAT Reporting - Export"
         NameValueBuffer: Record "Name/Value Buffer";
     begin
         NameValueBuffer.SetRange(Name, FileGIUD);
-        NameValueBuffer.FindSet;
+        NameValueBuffer.FindSet();
         repeat
             FileName += NameValueBuffer.Value;
         until NameValueBuffer.Next = 0;
@@ -3800,7 +3800,7 @@ codeunit 144012 "IT - VAT Reporting - Export"
         LibraryXPathXMLReader.VerifyNodeCountByXPath('/DTE/CessionarioCommittenteDTE/DatiFatturaBodyDTE/DatiRiepilogo/Deducibile', 0);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 12182, 'OnBeforeSaveFileOnClient', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Datifattura Export", 'OnBeforeSaveFileOnClient', '', false, false)]
     local procedure SetFileNameOnBeforeSaveFileOnClient(var NewServerFilePath: Text)
     var
         FileManagement: Codeunit "File Management";
@@ -3817,7 +3817,7 @@ codeunit 144012 "IT - VAT Reporting - Export"
         AddNewNameValueBuffer(FileGUID, NewServerFilePath);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 12182, 'OnAfterSaveFileOnClient', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Datifattura Export", 'OnAfterSaveFileOnClient', '', false, false)]
     local procedure GetSuggestedFileNameOnAfterSaveFileOnClient(SuggestedFileName: Text)
     begin
         AddNewNameValueBuffer('SuggestedFileName', SuggestedFileName);

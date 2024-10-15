@@ -47,7 +47,7 @@ codeunit 12174 "Incl. in VAT Report Validation"
                 repeat
                     IncludeVATReportErrorLogParam := IncludeinVATReportErrorLog;
                     IncludeVATReportErrorLogParam.Insert();
-                until IncludeinVATReportErrorLog.Next = 0;
+                until IncludeinVATReportErrorLog.Next() = 0;
         end;
     end;
 
@@ -142,7 +142,7 @@ codeunit 12174 "Incl. in VAT Report Validation"
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetFilter(Quantity, '<>0');
         SalesLine.SetRange("Include in VAT Transac. Rep.", true);
-        if SalesLine.IsEmpty then
+        if SalesLine.IsEmpty() then
             exit;
 
         // Clear Log
@@ -155,16 +155,16 @@ codeunit 12174 "Incl. in VAT Report Validation"
         CheckNRCountryCodeInSalesHeader(SalesHeader);
         CheckVATRegistrationNoInSalesHeader(SalesHeader);
 
-        SalesLine.FindSet;
+        SalesLine.FindSet();
         repeat
             CheckIncludeInVATReportInSalesLine(SalesLine);
-        until SalesLine.Next = 0;
+        until SalesLine.Next() = 0;
 
         if IncludeinVATReportErrorLog.FindSet then
             repeat
                 IncludeVATReportErrorLogParam := IncludeinVATReportErrorLog;
                 IncludeVATReportErrorLogParam.Insert();
-            until IncludeinVATReportErrorLog.Next = 0;
+            until IncludeinVATReportErrorLog.Next() = 0;
     end;
 
     local procedure CheckIncludeInVATReportInSalesLine(SalesLine: Record "Sales Line")
@@ -254,7 +254,7 @@ codeunit 12174 "Incl. in VAT Report Validation"
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
         PurchaseLine.SetFilter(Quantity, '<>0');
         PurchaseLine.SetRange("Include in VAT Transac. Rep.", true);
-        if PurchaseLine.IsEmpty then
+        if PurchaseLine.IsEmpty() then
             exit;
 
         // Clear Log
@@ -267,16 +267,16 @@ codeunit 12174 "Incl. in VAT Report Validation"
         CheckNRCountryCodeInPurchaseHeader(PurchaseHeader);
         CheckVATRegistrationNoInPurchaseHeader(PurchaseHeader);
 
-        PurchaseLine.FindSet;
+        PurchaseLine.FindSet();
         repeat
             CheckIncludeInVATReportInPurchaseLine(PurchaseLine);
-        until PurchaseLine.Next = 0;
+        until PurchaseLine.Next() = 0;
 
         if IncludeinVATReportErrorLog.FindSet then
             repeat
                 IncludeVATReportErrorLogParam := IncludeinVATReportErrorLog;
                 IncludeVATReportErrorLogParam.Insert();
-            until IncludeinVATReportErrorLog.Next = 0;
+            until IncludeinVATReportErrorLog.Next() = 0;
     end;
 
     local procedure CheckIncludeInVATReportInPurchaseLine(PurchaseLine: Record "Purchase Line")
@@ -367,7 +367,7 @@ codeunit 12174 "Incl. in VAT Report Validation"
         ServiceLine.SetRange("Document No.", ServiceHeader."No.");
         ServiceLine.SetFilter(Quantity, '<>0');
         ServiceLine.SetRange("Include in VAT Transac. Rep.", true);
-        if ServiceLine.IsEmpty then
+        if ServiceLine.IsEmpty() then
             exit;
 
         // Clear Log
@@ -380,16 +380,16 @@ codeunit 12174 "Incl. in VAT Report Validation"
         CheckNRCountryCodeInServiceHeader(ServiceHeader);
         CheckVATRegistrationNoInServiceHeader(ServiceHeader);
 
-        ServiceLine.FindSet;
+        ServiceLine.FindSet();
         repeat
             CheckIncludeInVATReportInServiceLine(ServiceLine);
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
 
         if IncludeinVATReportErrorLog.FindSet then
             repeat
                 IncludeVATReportErrorLogParam := IncludeinVATReportErrorLog;
                 IncludeVATReportErrorLogParam.Insert();
-            until IncludeinVATReportErrorLog.Next = 0;
+            until IncludeinVATReportErrorLog.Next() = 0;
     end;
 
     local procedure CheckIncludeInVATReportInServiceLine(ServiceLine: Record "Service Line")

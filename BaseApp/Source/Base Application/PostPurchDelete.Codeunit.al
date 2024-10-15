@@ -104,7 +104,7 @@ codeunit 364 "PostPurch-Delete"
                 OnBeforeDeletePurchRcptLines(PurchRcptLine);
                 PurchRcptLine.TestField("Quantity Invoiced", PurchRcptLine.Quantity);
                 PurchRcptLine.Delete();
-            until PurchRcptLine.Next = 0;
+            until PurchRcptLine.Next() = 0;
         ItemTrackingMgt.DeleteItemEntryRelation(
           DATABASE::"Purch. Rcpt. Line", 0, PurchRcptHeader."No.", '', 0, 0, true);
 
@@ -121,7 +121,7 @@ codeunit 364 "PostPurch-Delete"
                 OnBeforeDeletePurchInvLines(PurchInvLine);
                 PurchInvLine.Delete();
                 ItemTrackingMgt.DeleteValueEntryRelation(PurchInvLine.RowID1);
-            until PurchInvLine.Next = 0;
+            until PurchInvLine.Next() = 0;
 
         MoveEntries.MoveDocRelatedEntries(DATABASE::"Purch. Inv. Header", PurchInvHeader."No.");
     end;
@@ -135,7 +135,7 @@ codeunit 364 "PostPurch-Delete"
             repeat
                 OnBeforeDeletePurchCrMemoLines(PurchCrMemoLine);
                 PurchCrMemoLine.Delete();
-            until PurchCrMemoLine.Next = 0;
+            until PurchCrMemoLine.Next() = 0;
         ItemTrackingMgt.DeleteItemEntryRelation(
           DATABASE::"Purch. Cr. Memo Line", 0, PurchCrMemoHeader."No.", '', 0, 0, true);
 
@@ -152,7 +152,7 @@ codeunit 364 "PostPurch-Delete"
                 OnBeforeDeletePurchShptLines(ReturnShipmentLine);
                 ReturnShipmentLine.TestField("Quantity Invoiced", ReturnShipmentLine.Quantity);
                 ReturnShipmentLine.Delete();
-            until ReturnShipmentLine.Next = 0;
+            until ReturnShipmentLine.Next() = 0;
         ItemTrackingMgt.DeleteItemEntryRelation(
           DATABASE::"Return Shipment Line", 0, ReturnShptHeader."No.", '', 0, 0, true);
 

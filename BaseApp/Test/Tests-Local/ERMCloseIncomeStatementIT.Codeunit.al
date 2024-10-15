@@ -595,7 +595,7 @@ codeunit 144113 "ERM Close Income Statement IT"
         with SelectedDimension do begin
             DeleteAll();
 
-            DimSetEntry.FindSet;
+            DimSetEntry.FindSet();
             repeat
                 "User ID" := UserId;
                 "Object Type" := 3;

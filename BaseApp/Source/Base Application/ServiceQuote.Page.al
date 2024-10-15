@@ -23,7 +23,7 @@ page 5964 "Service Quote"
                     trigger OnAssistEdit()
                     begin
                         if AssistEdit(xRec) then
-                            CurrPage.Update;
+                            CurrPage.Update();
                     end;
                 }
                 field(Description; Description)
@@ -534,7 +534,7 @@ page 5964 "Service Quote"
                         ChangeExchangeRate.SetParameter("Currency Code", "Currency Factor", "Posting Date");
                         if ChangeExchangeRate.RunModal = ACTION::OK then begin
                             Validate("Currency Factor", ChangeExchangeRate.GetParameter);
-                            CurrPage.Update;
+                            CurrPage.Update();
                         end;
                         Clear(ChangeExchangeRate);
                     end;
@@ -737,9 +737,9 @@ page 5964 "Service Quote"
 
                 trigger OnAction()
                 begin
-                    CurrPage.Update;
+                    CurrPage.Update();
                     CODEUNIT.Run(CODEUNIT::"Serv-Quote to Order (Yes/No)", Rec);
-                    CurrPage.Update;
+                    CurrPage.Update();
                 end;
             }
             action("&Print")
@@ -814,34 +814,34 @@ page 5964 "Service Quote"
         if GetFilter("Customer No.") = xRec."Customer No." then
             if "Customer No." <> xRec."Customer No." then
                 SetRange("Customer No.");
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure BilltoCustomerNoOnAfterValidat()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure PricesIncludingVATOnAfterValid()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure ShiptoCodeOnAfterValidate()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure OrderTimeOnAfterValidate()
     begin
         UpdateResponseDateTime;
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure OrderDateOnAfterValidate()
     begin
         UpdateResponseDateTime;
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure FinishingTimeOnAfterValidate()

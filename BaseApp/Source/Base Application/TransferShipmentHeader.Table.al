@@ -318,11 +318,9 @@ table 5744 "Transfer Shipment Header"
             Caption = 'Transport Reason Code';
             TableRelation = "Transport Reason Code";
         }
-        field(12181; "Source Type"; Option)
+        field(12181; "Source Type"; Enum "Analysis Source Type")
         {
             Caption = 'Source Type';
-            OptionCaption = ' ,Customer,Vendor,Item';
-            OptionMembers = " ",Customer,Vendor,Item;
         }
         field(12182; "Source No."; Code[20])
         {
@@ -389,7 +387,7 @@ table 5744 "Transfer Shipment Header"
         if TransShptLine.Find('-') then
             repeat
                 TransShptLine.Delete();
-            until TransShptLine.Next = 0;
+            until TransShptLine.Next() = 0;
 
         InvtCommentLine.SetRange("Document Type", InvtCommentLine."Document Type"::"Posted Transfer Shipment");
         InvtCommentLine.SetRange("No.", "No.");
@@ -479,7 +477,7 @@ table 5744 "Transfer Shipment Header"
               FieldCaption("Shipment Method Code"), "Shipment Method Code");
     end;
 
-    [Obsolete('Function scope will be changed to OnPrem','15.1')]
+    [Obsolete('Function scope will be changed to OnPrem', '15.1')]
     procedure CheckTDDData(): Boolean
     var
         ShippingAgent: Record "Shipping Agent";

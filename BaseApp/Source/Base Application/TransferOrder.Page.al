@@ -25,7 +25,7 @@ page 5740 "Transfer Order"
                     trigger OnAssistEdit()
                     begin
                         if AssistEdit(xRec) then
-                            CurrPage.Update;
+                            CurrPage.Update();
                     end;
                 }
                 field("Transfer-from Code"; "Transfer-from Code")
@@ -51,7 +51,7 @@ page 5740 "Transfer Order"
 
                     trigger OnValidate()
                     begin
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field("In-Transit Code"; "In-Transit Code")

@@ -444,7 +444,7 @@ report 12120 "VAT Register - Print"
                                             repeat
                                                 VendLedgEntry.CalcFields(Amount);
                                                 LedgAmount := LedgAmount + -VendLedgEntry.Amount;
-                                            until VendLedgEntry.Next = 0;
+                                            until VendLedgEntry.Next() = 0;
                                             LedgCurrCode := VendLedgEntry."Currency Code";
                                         end;
                                 end;
@@ -462,7 +462,7 @@ report 12120 "VAT Register - Print"
                                                 repeat
                                                     VendLedgEntry.CalcFields(Amount);
                                                     LedgAmount += VendLedgEntry.Amount;
-                                                until VendLedgEntry.Next = 0;
+                                                until VendLedgEntry.Next() = 0;
                                                 LedgCurrCode := VendLedgEntry."Currency Code";
                                             end;
                                     end else
@@ -478,7 +478,7 @@ report 12120 "VAT Register - Print"
                                         repeat
                                             CustLedgEntry.CalcFields(Amount);
                                             LedgAmount := LedgAmount + -CustLedgEntry.Amount;
-                                        until CustLedgEntry.Next = 0;
+                                        until CustLedgEntry.Next() = 0;
                                         LedgCurrCode := CustLedgEntry."Currency Code";
                                     end;
                                 end;
@@ -682,7 +682,7 @@ report 12120 "VAT Register - Print"
                                         VATBookEntry2.Modify();
                                     end;
                                 end;
-                            until VATBookEntry2.Next = 0;
+                            until VATBookEntry2.Next() = 0;
 
                         VATEntry.Get("Unrealized VAT Entry No.");
 
@@ -1176,7 +1176,7 @@ report 12120 "VAT Register - Print"
                         FirstOne := false;
                     end else
                         FilterString := FilterString + '|' + NoSeries.Code;
-                until NoSeries.Next = 0;
+                until NoSeries.Next() = 0;
                 VATBookEntry.SetFilter("No. Series", FilterString);
             end;
 
@@ -1366,7 +1366,7 @@ report 12120 "VAT Register - Print"
                   VATBookEntry."Unrealized Base" +
                   VATBookEntry."Nondeductible Base" +
                   VATBookEntry."Nondeductible Amount";
-            until VATBookEntry.Next = 0;
+            until VATBookEntry.Next() = 0;
 
         exit(LocalTotDoc);
     end;

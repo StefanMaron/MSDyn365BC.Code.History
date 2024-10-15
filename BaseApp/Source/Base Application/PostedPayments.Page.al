@@ -139,7 +139,7 @@ page 12172 "Posted Payments"
                             if ServiceInvoiceLine.FindSet then
                                 repeat
                                     DocumentAmount := DocumentAmount + ServiceInvoiceLine."Amount Including VAT";
-                                until ServiceInvoiceLine.Next = 0;
+                                until ServiceInvoiceLine.Next() = 0;
                         end else
                             if ServiceCrMemoHeader.Get(Code) then begin
                                 CurrencyCode := ServiceCrMemoHeader."Currency Code";
@@ -148,7 +148,7 @@ page 12172 "Posted Payments"
                                 if ServiceCrMemoLine.FindSet then
                                     repeat
                                         DocumentAmount := DocumentAmount + ServiceCrMemoLine."Amount Including VAT";
-                                    until ServiceCrMemoLine.Next = 0;
+                                    until ServiceCrMemoLine.Next() = 0;
                             end;
                 end;
 
@@ -161,7 +161,7 @@ page 12172 "Posted Payments"
 
                 Amount := "Payment %" * DocumentAmount / 100;
                 PostedPaymentLines2.Copy(Rec);
-                LastRec := PostedPaymentLines2.Next = 0;
+                LastRec := PostedPaymentLines2.Next() = 0;
                 if LastRec then
                     Amount := DocumentAmount - ResidualTotal
                 else begin
@@ -169,7 +169,7 @@ page 12172 "Posted Payments"
                     ResidualTotal := ResidualTotal + Amount;
                 end;
                 Modify;
-            until Next = 0;
+            until Next() = 0;
     end;
 }
 

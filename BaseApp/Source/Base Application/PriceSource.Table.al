@@ -114,6 +114,10 @@ table 7005 "Price Source"
             DataClassification = SystemMetadata;
             TableRelation = "VAT Business Posting Group";
         }
+        field(25; Description; Text[100])
+        {
+            DataClassification = CustomerContent;
+        }
     }
 
     keys
@@ -158,6 +162,7 @@ table 7005 "Price Source"
         Clear("Source ID");
         "Parent Source No." := '';
         "Source No." := '';
+        Description := '';
         "Filter Source No." := '';
         "Currency Code" := '';
         GetPriceType();

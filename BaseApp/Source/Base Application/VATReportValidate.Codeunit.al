@@ -46,7 +46,7 @@ codeunit 744 "VAT Report Validate"
 
     local procedure ShowErrorLog()
     begin
-        if not TempVATReportErrorLog.IsEmpty then begin
+        if not TempVATReportErrorLog.IsEmpty() then begin
             PAGE.Run(PAGE::"VAT Report Error Log", TempVATReportErrorLog);
             Error('');
         end;
@@ -94,7 +94,7 @@ codeunit 744 "VAT Report Validate"
                     VATReportLine.Type::Sale:
                         CheckCust(VATReportLine, VATEntry);
                 end;
-            until VATReportLine.Next = 0
+            until VATReportLine.Next() = 0
     end;
 
     [Scope('OnPrem')]

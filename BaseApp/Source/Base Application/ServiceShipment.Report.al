@@ -762,7 +762,7 @@ report 5913 "Service - Shipment"
                 DimTxtArr[DimTxtArrLength] := TxtToAdd
             end else
                 DimTxtArr[DimTxtArrLength] := DimTxtArr[DimTxtArrLength] + Separation + TxtToAdd;
-        until DimSetEntry.Next = 0;
+        until DimSetEntry.Next() = 0;
     end;
 
     procedure InitializeRequest(NewShowInternalInfo: Boolean; NewShowCorrectionLines: Boolean; NewShowLotSN: Boolean)

@@ -898,6 +898,8 @@ table 21 "Cust. Ledger Entry"
                 if SalesCrMemoHdr.Get("Document No.") then
                     OpenDocumentAttachmentDetails(SalesCrMemoHdr);
         end;
+
+        OnAfterShowPostedDocAttachment(Rec);
     end;
 
     local procedure OpenDocumentAttachmentDetails("Record": Variant)
@@ -917,6 +919,7 @@ table 21 "Cust. Ledger Entry"
         [SecurityFiltering(SecurityFilter::Filtered)]
         SalesCrMemoHdr: Record "Sales Cr.Memo Header";
         DocumentAttachment: Record "Document Attachment";
+        HasPostedDocumentAttachment: Boolean;
     begin
         case "Document Type" of
             "Document Type"::Invoice:
@@ -926,6 +929,9 @@ table 21 "Cust. Ledger Entry"
                 if SalesCrMemoHdr.Get("Document No.") then
                     exit(DocumentAttachment.HasPostedDocumentAttachment(SalesCrMemoHdr));
         end;
+
+        OnAfterHasPostedDocAttachment(Rec, HasPostedDocumentAttachment);
+        exit(HasPostedDocumentAttachment);
     end;
 
     procedure DrillDownOnEntries(var DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry")
@@ -1137,7 +1143,17 @@ table 21 "Cust. Ledger Entry"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterShowDoc(CustLedgerEntry: Record "Cust. Ledger Entry")
+    local procedure OnAfterShowDoc(var CustLedgerEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterShowPostedDocAttachment(var CustLedgerEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterHasPostedDocAttachment(var CustLedgerEntry: Record "Cust. Ledger Entry"; var HasPostedDocumentAttachment: Boolean)
     begin
     end;
 

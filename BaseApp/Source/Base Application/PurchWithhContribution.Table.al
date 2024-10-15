@@ -505,7 +505,7 @@ table 12137 "Purch. Withh. Contribution"
                         Assoggettato := Assoggettato + GrossAmount;
                         GrossAmount := 0;
                     end;
-                until (SocSecCodeLine.Next = 0) or (GrossAmount = 0);
+                until (SocSecCodeLine.Next() = 0) or (GrossAmount = 0);
 
             Validate("Soc.Sec.Non Taxable Amount", "Soc.Sec.Non Taxable Amount" + GrossAmount);
         end;
@@ -580,7 +580,7 @@ table 12137 "Purch. Withh. Contribution"
                         AssoggettatoINAIL := AssoggettatoINAIL + GrossAmountINAIL;
                         GrossAmountINAIL := 0;
                     end;
-                until (RigheScaglioniINAIL.Next = 0) or (GrossAmountINAIL = 0);
+                until (RigheScaglioniINAIL.Next() = 0) or (GrossAmountINAIL = 0);
 
             Validate("INAIL Non Taxable Amount", "INAIL Non Taxable Amount" + GrossAmountINAIL);
             // INAIL END

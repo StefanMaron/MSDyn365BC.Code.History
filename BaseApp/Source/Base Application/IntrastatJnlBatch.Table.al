@@ -92,7 +92,7 @@ table 262 "Intrastat Jnl. Batch"
                     TestField("File Disk No.");
                     if "File Disk No." <> '' then begin
                         IntrastatJnlBatch.SetRange("File Disk No.", "File Disk No.");
-                        if not IntrastatJnlBatch.IsEmpty then
+                        if not IntrastatJnlBatch.IsEmpty() then
                             FieldError("File Disk No.");
                     end;
                 end;

@@ -293,7 +293,7 @@ report 12154 "Subcontract. Transfer Shipment"
                             Continue := false;
 
                             DimSetEntry.SetRange("Dimension Set ID", "Transfer Shipment Header"."Dimension Set ID");
-                            DimSetEntry.FindSet;
+                            DimSetEntry.FindSet();
                             repeat
                                 OldDimText := DimText;
                                 if DimText = '' then
@@ -309,7 +309,7 @@ report 12154 "Subcontract. Transfer Shipment"
                                     Continue := true;
                                     exit;
                                 end;
-                            until DimSetEntry.Next = 0;
+                            until DimSetEntry.Next() = 0;
                         end;
 
                         trigger OnPreDataItem()
@@ -415,7 +415,7 @@ report 12154 "Subcontract. Transfer Shipment"
                                         Continue := true;
                                         exit;
                                     end;
-                                until (DimSetEntry.Next = 0);
+                                until (DimSetEntry.Next() = 0);
                             end;
 
                             trigger OnPreDataItem()

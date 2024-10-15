@@ -23,7 +23,7 @@ codeunit 1222 "SEPA CT-Prepare Source"
             repeat
                 TempGenJnlLine := FromGenJnlLine;
                 TempGenJnlLine.Insert();
-            until FromGenJnlLine.Next = 0
+            until FromGenJnlLine.Next() = 0
         end else
             CreateTempJnlLines(FromGenJnlLine, TempGenJnlLine);
     end;
@@ -65,7 +65,7 @@ codeunit 1222 "SEPA CT-Prepare Source"
                     CumulativeCnt += 1;
                 end;
                 PrevVendorBillLine := VendorBillLine;
-            until VendorBillLine.Next = 0;
+            until VendorBillLine.Next() = 0;
             InsertTempGenJnlLine(TempGenJnlLine, VendorBillHeader, PrevVendorBillLine, CumulativeAmount, CumulativeCnt);
         end;
 
@@ -74,7 +74,7 @@ codeunit 1222 "SEPA CT-Prepare Source"
             repeat
                 VendorBillLine.TestField("Document Type", VendorBillLine."Document Type"::Invoice);
                 InsertTempGenJnlLine(TempGenJnlLine, VendorBillHeader, VendorBillLine, VendorBillLine."Amount to Pay", 1);
-            until VendorBillLine.Next = 0;
+            until VendorBillLine.Next() = 0;
 
         OnAfterCreateTempJnlLines(FromGenJnlLine, TempGenJnlLine);
     end;

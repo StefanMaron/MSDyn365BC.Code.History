@@ -496,7 +496,7 @@ codeunit 137926 "SCM Assembly Item Tracking"
         WhseActivityLine.SetRange("Source Type", DATABASE::"Assembly Line");
         WhseActivityLine.SetRange("Source Document", WhseActivityLine."Source Document"::"Assembly Consumption");
         WhseActivityLine.SetRange("Source No.", SourceNo);
-        WhseActivityLine.FindSet;
+        WhseActivityLine.FindSet();
         repeat
             WhseActivityLine.Validate("Lot No.", LN);
             WhseActivityLine.Validate("Serial No.", SN);

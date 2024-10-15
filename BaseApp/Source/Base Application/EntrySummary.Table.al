@@ -1,6 +1,9 @@
 table 338 "Entry Summary"
 {
     Caption = 'Entry Summary';
+#pragma warning disable AS0034
+    TableType = Temporary;
+#pragma warning restore AS0034
 
     fields
     {
@@ -126,6 +129,16 @@ table 338 "Entry Summary"
             Caption = 'Double-entry Adjustment';
             Editable = false;
         }
+        field(6512; "Non Serial Tracking"; Boolean)
+        {
+            Caption = 'Non Serial Tracking';
+            Editable = false;
+        }
+        field(6515; "Package No."; Code[50])
+        {
+            Caption = 'Package No.';
+            CaptionClass = '6,1';
+        }
     }
 
     keys
@@ -134,7 +147,9 @@ table 338 "Entry Summary"
         {
             Clustered = true;
         }
-        key(Key2; "Lot No.", "Serial No.")
+#pragma warning disable AS0009
+        key(Key2; "Lot No.", "Serial No.", "Package No.")
+#pragma warning restore AS0009
         {
         }
         key(Key3; "Expiration Date")
@@ -175,11 +190,25 @@ table 338 "Entry Summary"
           ("Double-entry Adjustment" <> 0));
     end;
 
+    procedure HasNonSerialTracking() NonSerialTracking: Boolean
+    begin
+        NonSerialTracking := "Lot No." <> '';
+
+        OnAfterHasNonSerialTracking(Rec, NonSerialTracking);
+    end;
+
     procedure HasSameTracking(EntrySummary: Record "Entry Summary") SameTracking: Boolean
     begin
         SameTracking := ("Serial No." = EntrySummary."Serial No.") and ("Lot No." = EntrySummary."Lot No.");
 
         OnAfterHasSameTracking(Rec, EntrySummary, SameTracking);
+    end;
+
+    procedure HasSameNonSerialTracking(EntrySummary: Record "Entry Summary") SameTracking: Boolean
+    begin
+        SameTracking := "Lot No." = EntrySummary."Lot No.";
+
+        OnAfterHasSameNonSerialTracking(Rec, EntrySummary, SameTracking);
     end;
 
     procedure CopyTrackingFromItemTrackingSetup(ItemTrackingSetup: Record "Item Tracking Setup")
@@ -229,6 +258,20 @@ table 338 "Entry Summary"
         OnAfterSetTrackingFilterFromEntrySummary(Rec, EntrySummary);
     end;
 
+    procedure SetNonSerialTrackingFilterFromEntrySummary(EntrySummary: Record "Entry Summary")
+    begin
+        SetRange("Lot No.", EntrySummary."Lot No.");
+
+        OnAfterSetNonSerialTrackingFilterFromEntrySummary(Rec, EntrySummary);
+    end;
+
+    procedure SetNonSerialTrackingFilterFromReservEntry(ReservEntry: Record "Reservation Entry")
+    begin
+        SetRange("Lot No.", ReservEntry."Lot No.");
+
+        OnAfterSetNonSerialTrackingFilterFromReservEntry(Rec, ReservEntry);
+    end;
+
     procedure SetTrackingFilterFromItemTrackingSetup(ItemTrackingSetup: Record "Item Tracking Setup")
     begin
         SetRange("Serial No.", ItemTrackingSetup."Serial No.");
@@ -259,6 +302,16 @@ table 338 "Entry Summary"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterHasSameNonSerialTracking(ToEntrySummary: Record "Entry Summary"; FromEntrySummary: Record "Entry Summary"; var SameTracking: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterHasNonSerialTracking(EntrySummary: Record "Entry Summary"; var NonSerialTracking: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterCopyTrackingFromReservEntry(var ToEntrySummary: Record "Entry Summary"; FromReservEntry: Record "Reservation Entry")
     begin
     end;
@@ -279,6 +332,16 @@ table 338 "Entry Summary"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterSetNonSerialTrackingFilterFromEntrySummary(var ToEntrySummary: Record "Entry Summary"; FromEntrySummary: Record "Entry Summary")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetNonSerialTrackingFilterFromReservEntry(var ToEntrySummary: Record "Entry Summary"; FromReservEntry: Record "Reservation Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterSetTrackingFilterFromItemTrackingSetup(var ToEntrySummary: Record "Entry Summary"; ItemTrackingSetup: Record "Item Tracking Setup")
     begin
     end;
@@ -292,6 +355,5 @@ table 338 "Entry Summary"
     local procedure OnAfterSetTrackingFilterFromSpec(var ToEntrySummary: Record "Entry Summary"; FromTrackingSpecification: Record "Tracking Specification")
     begin
     end;
-
 }
 

@@ -1,4 +1,4 @@
-﻿page 29 "Vendor Ledger Entries"
+page 29 "Vendor Ledger Entries"
 {
     ApplicationArea = Basic, Suite;
     Caption = 'Vendor Ledger Entries';
@@ -12,6 +12,7 @@
     SourceTableView = SORTING("Entry No.")
                       ORDER(Descending);
     UsageCategory = History;
+    AdditionalSearchTerms = 'Vendor Check, Pay Vendor, Vendor Bills';
 
     layout
     {
@@ -522,7 +523,7 @@
                         VendEntryApplyPostEntries.ApplyVendEntryFormEntry(VendLedgEntry);
                         VendLedgEntry.Get(VendLedgEntry."Entry No.");
                         Rec := VendLedgEntry;
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 action(UnapplyEntries)

@@ -249,7 +249,7 @@ table 5611 "Depreciation Book"
                     repeat
                         FADeprBook.CalcDeprPeriod;
                         FADeprBook.Modify();
-                    until FADeprBook.Next = 0;
+                    until FADeprBook.Next() = 0;
             end;
         }
         field(12100; "Compress Depreciation"; Boolean)
@@ -286,7 +286,7 @@ table 5611 "Depreciation Book"
         FASetup.Get();
         FADeprBook.SetCurrentKey("Depreciation Book Code");
         FADeprBook.SetRange("Depreciation Book Code", Code);
-        if not FADeprBook.IsEmpty then
+        if not FADeprBook.IsEmpty() then
             Error(Text000);
 
         if not InsCoverageLedgEntry.IsEmpty and (FASetup."Insurance Depr. Book" = Code) then
@@ -371,7 +371,7 @@ table 5611 "Depreciation Book"
         if DeprBook.Find('-') then
             repeat
                 Found := DeprBook."Compress Depreciation";
-            until (DeprBook.Next = 0) or Found;
+            until (DeprBook.Next() = 0) or Found;
         if Found then
             if not Confirm(Text1130000, false, GLAcc.TableCaption) then
                 Error(Text1130001);

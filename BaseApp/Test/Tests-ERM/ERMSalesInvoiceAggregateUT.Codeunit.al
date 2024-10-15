@@ -1755,7 +1755,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         VerifyLinesMatch(SalesLine, SalesInvoiceEntityAggregate);
     end;
 
-    local procedure VerifyAggregateTableIsUpdatedForPostedInvoice(DocumentNo: Text; ExpectedStatus: Option)
+    local procedure VerifyAggregateTableIsUpdatedForPostedInvoice(DocumentNo: Text; ExpectedStatus: Enum "Invoice Entity Aggregate Status")
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
         SalesInvoiceEntityAggregate: Record "Sales Invoice Entity Aggregate";

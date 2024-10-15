@@ -1503,7 +1503,7 @@ codeunit 144192 "IT - Fiscal Reports"
         // Verify Progressive No.
         GLBookEntry.SetCurrentKey("Official Date");
         GLBookEntry.SetRange("Official Date", StartDate, ClosingDate(EndDate));
-        GLBookEntry.FindSet;
+        GLBookEntry.FindSet();
 
         if not IsNewFiscalYear(StartDate) then
             ProgressiveNo := LastGenJnlNo;
@@ -1602,7 +1602,7 @@ codeunit 144192 "IT - Fiscal Reports"
         VATBookEntry.CalcFields("No. Series");
         VATBookEntry.SetRange("No. Series", GetNoSeries(VATRegisterCode));
         VATBookEntry.SetFilter(Type, '<>%1', VATBookEntry.Type::Settlement);
-        VATBookEntry.FindSet;
+        VATBookEntry.FindSet();
         repeat
             if FinalPrint then
                 VATBookEntry.TestField("Printing Date", Today)

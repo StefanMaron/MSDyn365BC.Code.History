@@ -112,7 +112,7 @@ codeunit 363 "PostSales-Delete"
             repeat
                 SalesShptLine.TestField("Quantity Invoiced", SalesShptLine.Quantity);
                 SalesShptLine.Delete(true);
-            until SalesShptLine.Next = 0;
+            until SalesShptLine.Next() = 0;
         ItemTrackingMgt.DeleteItemEntryRelation(
           DATABASE::"Sales Shipment Line", 0, SalesShptHeader."No.", '', 0, 0, true);
 
@@ -126,7 +126,7 @@ codeunit 363 "PostSales-Delete"
             repeat
                 SalesInvLine.Delete();
                 ItemTrackingMgt.DeleteValueEntryRelation(SalesInvLine.RowID1);
-            until SalesInvLine.Next = 0;
+            until SalesInvLine.Next() = 0;
 
         MoveEntries.MoveDocRelatedEntries(DATABASE::"Sales Invoice Header", SalesInvHeader."No.");
     end;
@@ -137,7 +137,7 @@ codeunit 363 "PostSales-Delete"
         if SalesCrMemoLine.Find('-') then
             repeat
                 SalesCrMemoLine.Delete();
-            until SalesCrMemoLine.Next = 0;
+            until SalesCrMemoLine.Next() = 0;
         ItemTrackingMgt.DeleteItemEntryRelation(
           DATABASE::"Sales Cr.Memo Line", 0, SalesCrMemoHeader."No.", '', 0, 0, true);
 
@@ -151,7 +151,7 @@ codeunit 363 "PostSales-Delete"
             repeat
                 SalesRcptLine.TestField("Quantity Invoiced", SalesRcptLine.Quantity);
                 SalesRcptLine.Delete();
-            until SalesRcptLine.Next = 0;
+            until SalesRcptLine.Next() = 0;
         ItemTrackingMgt.DeleteItemEntryRelation(
           DATABASE::"Return Receipt Line", 0, ReturnRcptHeader."No.", '', 0, 0, true);
 

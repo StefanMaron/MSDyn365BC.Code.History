@@ -93,7 +93,7 @@ page 35491 "Subcontracting Transfer List"
                         if TransHeader.Find('-') then
                             repeat
                                 ReleaseTransferDoc.Run(TransHeader);
-                            until TransHeader.Next = 0;
+                            until TransHeader.Next() = 0;
                     end;
                 }
             }

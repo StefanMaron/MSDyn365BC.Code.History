@@ -456,12 +456,14 @@ codeunit 5931 "Resource Skill Mgt."
         end;
     end;
 
+#if not CLEAN17
     [Obsolete('Replaced by AssignResSkillRelationWithUpdate().', '17.0')]
     procedure AssignRelationWithUpdate(SrcType: Integer; SrcCode: Code[20]; DestType: Integer; DestCode: Code[20])
     begin
         AssignResSkillRelationWithUpdate(
             "Resource Skill Type".FromInteger(SrcType), SrcCode, "Resource Skill Type".FromInteger(DestType), DestCode);
     end;
+#endif
 
     procedure AssignResSkillRelationWithUpdate(SrcType: Enum "Resource Skill Type"; SrcCode: Code[20]; DestType: Enum "Resource Skill Type"; DestCode: Code[20])
     var
@@ -561,12 +563,14 @@ codeunit 5931 "Resource Skill Mgt."
         end;
     end;
 
+#if not CLEAN17
     [Obsolete('Replaced by ChangeResSkillRelationWithItem().', '17.0')]
     procedure ChangeRelationWithItem(SrcType: Integer; SrcCode: Code[20]; RelationType: Integer; DestCode: Code[20]; OriginalCode: Code[20]; ServItemGroupCode: Code[10]): Boolean
     begin
         ChangeResSkillRelationWithItem(
             "Resource Skill Type".FromInteger(SrcType), SrcCode, "Resource Skill Type".FromInteger(RelationType), DestCode, OriginalCode, ServItemGroupCode);
     end;
+#endif
 
     procedure ChangeResSkillRelationWithItem(SrcType: Enum "Resource Skill Type"; SrcCode: Code[20]; RelationType: Enum "Resource Skill Type"; DestCode: Code[20]; OriginalCode: Code[20]; ServItemGroupCode: Code[10]): Boolean
     var
@@ -639,12 +643,14 @@ codeunit 5931 "Resource Skill Mgt."
         exit(true);
     end;
 
+#if not CLEAN17
     [Obsolete('Replaced by ChangeResSkillRelationWithGroup().', '17.0')]
     procedure ChangeRelationWithGroup(SrcType: Integer; SrcCode: Code[20]; RelationType: Integer; DestCode: Code[20]; OriginalCode: Code[20]): Boolean
     begin
         ChangeResSkillRelationWithGroup(
             "Resource Skill Type".FromInteger(SrcType), SrcCode, "Resource Skill Type".FromInteger(RelationType), DestCode, OriginalCode);
     end;
+#endif
 
     procedure ChangeResSkillRelationWithGroup(SrcType: Enum "Resource Skill Type"; SrcCode: Code[20]; RelationType: Enum "Resource Skill Type"; DestCode: Code[20]; OriginalCode: Code[20]): Boolean
     var
@@ -777,7 +783,7 @@ codeunit 5931 "Resource Skill Mgt."
                     begin
                         ServItem.SetCurrentKey("Service Item Group Code");
                         ServItem.SetRange("Service Item Group Code", "No.");
-                        if not ServItem.IsEmpty then
+                        if not ServItem.IsEmpty() then
                             exit(true);
 
                         Item.SetCurrentKey("Service Item Group");
@@ -810,7 +816,7 @@ codeunit 5931 "Resource Skill Mgt."
                         SetRange("Source Code", ResSkill."No.");
                         SetRange("Skill Code", ResSkill."Skill Code");
                         SetRange(Type, Type::"Service Item");
-                        if not IsEmpty then
+                        if not IsEmpty() then
                             exit(true);
 
                         ServItem.SetCurrentKey("Item No.");
@@ -824,7 +830,7 @@ codeunit 5931 "Resource Skill Mgt."
                                 SetRange(Type, Type::"Service Item");
                                 SetRange("No.", ServItem."No.");
                                 SetRange("Skill Code", ResSkill."Skill Code");
-                                if not IsEmpty then
+                                if not IsEmpty() then
                                     exit(true);
                             until ServItem.Next() = 0;
                     end;
@@ -834,7 +840,7 @@ codeunit 5931 "Resource Skill Mgt."
                         SetRange("Source Type", "Source Type"::"Service Item Group");
                         SetRange("Source Code", ResSkill."No.");
                         SetRange("Skill Code", ResSkill."Skill Code");
-                        if not IsEmpty then
+                        if not IsEmpty() then
                             exit(true);
                     end;
             end;
@@ -853,12 +859,14 @@ codeunit 5931 "Resource Skill Mgt."
         exit(SelectedOption - 1);
     end;
 
+#if not CLEAN17
     [Obsolete('Replaced by RevalidateResSkillRelation().', '17.0')]
     procedure RevalidateRelation(SrcType: Integer; SrcCode: Code[20]; DestType: Integer; DestCode: Code[20]): Boolean
     begin
         RevalidateResSkillRelation(
             "Resource Skill Type".FromInteger(SrcType), SrcCode, "Resource Skill Type".FromInteger(DestType), DestCode);
     end;
+#endif
 
     procedure RevalidateResSkillRelation(SrcType: Enum "Resource Skill Type"; SrcCode: Code[20]; DestType: Enum "Resource Skill Type"; DestCode: Code[20]): Boolean
     var
@@ -919,7 +927,7 @@ codeunit 5931 "Resource Skill Mgt."
                     SrcResSkill.SetRange(Type, SrcType);
                     SrcResSkill.SetRange("No.", SrcCode);
                     SrcResSkill.SetRange("Skill Code", "Skill Code");
-                    if SrcResSkill.IsEmpty then
+                    if SrcResSkill.IsEmpty() then
                         exit(true);
                 until Next() = 0
         end;

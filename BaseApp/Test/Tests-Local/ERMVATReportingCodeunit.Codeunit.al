@@ -348,7 +348,7 @@ codeunit 134055 "ERM VAT Reporting - Codeunit"
         VATReportSetup: Record "VAT Report Setup";
     begin
         // Create VAT Report Setup.
-        if VATReportSetup.IsEmpty then
+        if VATReportSetup.IsEmpty() then
             VATReportSetup.Insert();
         VATReportSetup."No. Series" := LibraryUtility.GetGlobalNoSeriesCode;
         VATReportSetup."Intermediary VAT Reg. No." := LibraryVATUtils.GenerateVATRegistrationNumber;

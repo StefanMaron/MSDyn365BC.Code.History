@@ -783,7 +783,7 @@ codeunit 134975 "ERM Dimension Report"
         end;
     end;
 
-    local procedure CheckValuePostingReport(LocalValuePosting: Option; GlobalValuePosting: Option)
+    local procedure CheckValuePostingReport(LocalValuePosting: Enum "Default Dimension Value Posting Type"; GlobalValuePosting: Enum "Default Dimension Value Posting Type")
     var
         Dimension: Record Dimension;
         Customer: Record Customer;
@@ -900,7 +900,7 @@ codeunit 134975 "ERM Dimension Report"
         exit(Dimension.Code);
     end;
 
-    local procedure CreateDefaultDimensionCodes(CustomerNo: Code[20]; DimCode: Code[20]; DimValCode: Code[20]; ValuePosting: Option)
+    local procedure CreateDefaultDimensionCodes(CustomerNo: Code[20]; DimCode: Code[20]; DimValCode: Code[20]; ValuePosting: Enum "Default Dimension Value Posting Type")
     var
         DefaultDimension: Record "Default Dimension";
     begin
@@ -912,7 +912,7 @@ codeunit 134975 "ERM Dimension Report"
         DefaultDimension.Modify(true);
     end;
 
-    local procedure CreateDefaultDimensionVendor(var DefaultDimension: Record "Default Dimension"; VendorNo: Code[20]; DimCode: Code[20]; DimValue: Code[20]; ValuePosting: Option)
+    local procedure CreateDefaultDimensionVendor(var DefaultDimension: Record "Default Dimension"; VendorNo: Code[20]; DimCode: Code[20]; DimValue: Code[20]; ValuePosting: Enum "Default Dimension Value Posting Type")
     begin
         LibraryDimension.CreateDefaultDimensionVendor(DefaultDimension, VendorNo, DimCode, DimValue);
         DefaultDimension.Validate("Value Posting", ValuePosting);
@@ -951,7 +951,7 @@ codeunit 134975 "ERM Dimension Report"
     begin
         DimensionValue.SetRange("Dimension Code", DimensionCode);
         DimensionValue.SetRange("Dimension Value Type", DimensionValue."Dimension Value Type"::Standard);
-        DimensionValue.FindSet;
+        DimensionValue.FindSet();
         DimensionValue.Next(LibraryRandom.RandInt(DimensionValue.Count));
         exit(DimensionValue.Code);
     end;
@@ -1002,7 +1002,7 @@ codeunit 134975 "ERM Dimension Report"
         FindItemJournalBatch(ItemJournalBatch, ItemJournalBatch."Template Type"::Item, true);
         with DimensionValue do begin
             SetRange("Global Dimension No.", 1);
-            FindSet;
+            FindSet();
             repeat
                 Counter += 1;
                 LibraryInventory.CreateItem(Item[Counter]);
@@ -1064,7 +1064,7 @@ codeunit 134975 "ERM Dimension Report"
         ItemJournalLine.SetRange("Journal Template Name", ItemJournalBatch."Journal Template Name");
         ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
         ItemJournalLine.SetFilter("Item No.", ItemFilter);
-        ItemJournalLine.FindSet;
+        ItemJournalLine.FindSet();
     end;
 
     local procedure CleanSelectedDimension(var SelectedDimension: Record "Selected Dimension"; UserID: Code[50]; ObjectType: Integer; ObjectID: Integer)
@@ -1130,7 +1130,7 @@ codeunit 134975 "ERM Dimension Report"
 
     local procedure VerifyDimValForItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; DefaultDimension: array[2] of Record "Default Dimension")
     begin
-        ItemJournalLine.FindSet;
+        ItemJournalLine.FindSet();
         Assert.AreEqual(DefaultDimension[1]."Dimension Value Code", ItemJournalLine."Shortcut Dimension 1 Code", FailureDimValCodeMsg);
         ItemJournalLine.Next;
         Assert.AreEqual(DefaultDimension[2]."Dimension Value Code", ItemJournalLine."Shortcut Dimension 1 Code", FailureDimValCodeMsg);

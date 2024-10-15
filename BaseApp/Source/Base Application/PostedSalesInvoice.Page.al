@@ -7,6 +7,9 @@ page 132 "Posted Sales Invoice"
     RefreshOnActivate = true;
     SourceTable = "Sales Invoice Header";
 
+    AboutTitle = 'About posted sales invoice details';
+    AboutText = 'This sales invoice is posted and counting in the books. You can''t edit it directly, but you can post corrections if you have to make adjustments.';
+
     layout
     {
         area(content)
@@ -232,9 +235,10 @@ page 132 "Posted Sales Invoice"
                 field(Cancelled; Cancelled)
                 {
                     ApplicationArea = Basic, Suite;
-                    Importance = Additional;
                     Style = Unfavorable;
                     StyleExpr = Cancelled;
+                    AboutTitle = 'Canceled invoice';
+                    AboutText = 'If an invoice is canceled, here''s a link to the associated credit memo that shows if the sales invoice was credited partly or in full.';
                     ToolTip = 'Specifies if the posted sales invoice has been either corrected or canceled.';
 
                     trigger OnDrillDown()
@@ -260,6 +264,8 @@ page 132 "Posted Sales Invoice"
                     ApplicationArea = Basic, Suite;
                     DrillDown = false;
                     Importance = Promoted;
+                    AboutTitle = 'Closed means paid';
+                    AboutText = 'A sales invoice is marked as Closed when the invoice is paid in full, or when a credit memo is applied for the remaining amount.';
                     ToolTip = 'Specifies if the posted invoice is paid. The check box will also be selected if a credit memo for the remaining amount has been applied.';
                 }
                 group("Work Description")
@@ -1001,6 +1007,8 @@ page 132 "Posted Sales Invoice"
                 Promoted = true;
                 PromotedCategory = Category4;
                 ShortCutKey = 'Shift+Ctrl+I';
+                AboutTitle = 'Get detailed posting details';
+                AboutText = 'Here, you can look up the ledger entries that were created when this invoice was posted, as well as any related documents.';
                 ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
                 Visible = NOT IsOfficeAddin;
 
@@ -1084,6 +1092,8 @@ page 132 "Posted Sales Invoice"
                     Promoted = true;
                     PromotedCategory = Category5;
                     PromotedIsBig = true;
+                    AboutTitle = 'Correct an invoice';
+                    AboutText = 'If you have to make adjustments to this invoice, you can post a correction or cancel the invoice entirely. In both cases, a credit memo is created to represent the adjustment you make.';
                     ToolTip = 'Reverse this posted invoice. A credit memo will be created and matched with the invoice, and the invoice will be canceled. Shipments for the invoice will be reversed. To create a new invoice with the same information, use the Copy function. When you copy an invoice, remember to post shipments for the new invoice.';
                     Visible = not Cancelled;
 

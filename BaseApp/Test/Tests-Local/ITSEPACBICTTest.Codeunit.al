@@ -404,7 +404,7 @@ codeunit 144020 "IT - SEPA CBI CT Test"
         PaymentJnlExportErrorText.SetRange("Journal Template Name", '');
         PaymentJnlExportErrorText.SetRange("Journal Batch Name", '');
         PaymentJnlExportErrorText.SetRange("Document No.", DocumentNo);
-        PaymentJnlExportErrorText.FindSet;
+        PaymentJnlExportErrorText.FindSet();
     end;
 
     local procedure SetBankAccountABI(BankAccountCode: Code[20]; ABIValue: Code[5])

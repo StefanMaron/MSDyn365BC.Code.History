@@ -159,7 +159,7 @@ page 2108 "O365 Outstanding Customer List"
         Blocked := Blocked::All;
         Modify(true);
         CustContUpdate.DeleteCustomerContacts(Rec);
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 }
 

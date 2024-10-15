@@ -77,7 +77,7 @@ codeunit 12170 "Recall Customer Bill"
 
             BankReceiptToIssue := BankReceiptToIssue + 1;
             CustomerBillLine.Delete();
-        until CustomerBillLine.Next = 0;
+        until CustomerBillLine.Next() = 0;
 
         Window.Close;
 
@@ -241,7 +241,7 @@ codeunit 12170 "Recall Customer Bill"
                 BankReceiptToIssue := BankReceiptToIssue + 1;
                 IssuedCustomerBillLine."Recall Date" := WorkDate;
                 IssuedCustomerBillLine.Modify();
-            until IssuedCustomerBillLine.Next = 0;
+            until IssuedCustomerBillLine.Next() = 0;
 
             Message(BillsRecalledMsg, BankReceiptToIssue);
             Window.Close;

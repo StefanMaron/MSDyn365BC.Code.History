@@ -108,7 +108,7 @@ page 5660 "Depreciation Table Lines"
                 TotDepr += DeprTableLine."Period Depreciation %" +
                   DeprTableLine."Anticipated %" +
                   DeprTableLine."Accelerated/Reduced %";
-            until DeprTableLine.Next = 0;
+            until DeprTableLine.Next() = 0;
     end;
 }
 

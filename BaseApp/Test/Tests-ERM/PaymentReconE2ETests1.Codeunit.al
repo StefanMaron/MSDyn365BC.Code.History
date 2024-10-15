@@ -284,6 +284,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         OutStream: OutStream;
     begin
         Initialize();
+        SetOnMatchOnClosingDocumentNumber();
         TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
 
         WriteCAMTHeader(OutStream, '', 'TEST');
@@ -437,6 +438,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         OutStream: OutStream;
     begin
         Initialize();
+        SetOnMatchOnClosingDocumentNumber();
         TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
 
         WriteCAMTHeader(OutStream, '', 'TEST');
@@ -1199,6 +1201,8 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         ExcessiveAmount: Decimal;
     begin
         Initialize();
+        SetOnMatchOnClosingDocumentNumber();
+
         ExcessiveAmount := 1.23;
         TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
 
@@ -1360,6 +1364,8 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         OutStream: OutStream;
     begin
         Initialize();
+        SetOnMatchOnClosingDocumentNumber();
+
         TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
 
         LibrarySales.CreateCustomer(Cust);
@@ -1631,6 +1637,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
 
         // [GIVEN] Two Sales and two payments are created and put into xml import bank statment
         CreateTwoSaleTwoPmtOutstream(CustLedgEntry, CustLedgEntry2, OutStream, TempBlobUTF8);
+        SetOnMatchOnClosingDocumentNumber();
 
         // [WHEN] Statement is imported and payments are posted
         LibraryLowerPermissions.SetBanking;
@@ -2008,6 +2015,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
 
         // [GIVEN] Two sale and two payments and two purchases and two payments are created and put into xml import bank statment
         CreateTwoSaleTwoPmtTwoPurchTwoPmt(CustLedgEntry, CustLedgEntry2, VendLedgEntry, VendLedgEntry2, OutStream, TempBlobUTF8);
+        SetOnMatchOnClosingDocumentNumber();
 
         // [WHEN] Statement is imported and customer ledger payment is posted
         LibraryLowerPermissions.SetBanking;
@@ -2067,6 +2075,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
 
         // [GIVEN] Two sale and two payments and two purchases and two payments are created and put into xml import bank statment
         CreateTwoSaleTwoPmtTwoPurchTwoPmt(CustLedgEntry, CustLedgEntry2, VendLedgEntry, VendLedgEntry2, OutStream, TempBlobUTF8);
+        SetOnMatchOnClosingDocumentNumber();
 
         // [WHEN] Statement is imported and customer ledger payment is posted
         LibraryLowerPermissions.SetBanking;
@@ -2186,7 +2195,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         i := 1;
         BankAccLedgEntry.SetRange("Bank Account No.", BankAcc."No.");
         BankAccLedgEntry.SetRange(Open, true);
-        BankAccLedgEntry.FindSet;
+        BankAccLedgEntry.FindSet();
         repeat
             EntryNoArray[i] += BankAccLedgEntry."Entry No.";
             i := i + 1;
@@ -2542,6 +2551,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
 
         // [GIVEN] Two sales with payments and two purchases with payments are created and put into xml import bank statment
         CreateTwoSaleTwoPmtTwoPurchTwoPmt(CustLedgEntry, CustLedgEntry2, VendLedgEntry, VendLedgEntry2, OutStream, TempBlobUTF8);
+        SetOnMatchOnClosingDocumentNumber();
 
         // [WHEN] Statement is imported and customer ledger payment is posted
         LibraryLowerPermissions.SetBanking;
@@ -2790,6 +2800,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
     var
         InventorySetup: Record "Inventory Setup";
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        BankPmtApplSettings: Record "Bank Pmt. Appl. Settings";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryApplicationArea: Codeunit "Library - Application Area";
@@ -2799,6 +2810,9 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         LibraryApplicationArea.EnableFoundationSetup;
         LibraryVariableStorage.Clear;
         LibraryLowerPermissions.SetOutsideO365Scope;
+        if BankPmtApplSettings.Get() then
+            BankPmtApplSettings.Delete();
+
         if Initialized then
             exit;
         Initialized := true;
@@ -3292,6 +3306,15 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         CustLedgEntry.CalcFields("Remaining Amount", "Remaining Amt. (LCY)");
     end;
 
+    local procedure SetOnMatchOnClosingDocumentNumber()
+    var
+        BankPmtApplSettings: Record "Bank Pmt. Appl. Settings";
+    begin
+        BankPmtApplSettings.GetOrInsert();
+        BankPmtApplSettings."Bank Ledg Closing Doc No Match" := true;
+        BankPmtApplSettings.Modify();
+    end;
+
     local procedure PostPayment(var CustLedgEntry: Record "Cust. Ledger Entry"; BankAccNo: Code[20])
     var
         GenJournalTemplate: Record "Gen. Journal Template";
@@ -3413,7 +3436,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         TotalAmt: Decimal;
     begin
         BankAccLedgEntry.SetRange("Bank Account No.", BankAccNo);
-        BankAccLedgEntry.FindSet;
+        BankAccLedgEntry.FindSet();
         repeat
             TotalAmt += BankAccLedgEntry.Amount;
         until BankAccLedgEntry.Next = 0;
