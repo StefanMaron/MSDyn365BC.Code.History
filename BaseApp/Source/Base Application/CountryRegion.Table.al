@@ -218,7 +218,13 @@
         CompanyInformation: Record "Company Information";
         CustomAddressFormat: Record "Custom Address Format";
         LineNo: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeInitAddressFormat(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         CreateAddressFormat(Code, 1, CompanyInformation.FieldNo(Name));
         CreateAddressFormat(Code, 2, CompanyInformation.FieldNo("Name 2"));
         CreateAddressFormat(Code, 3, CompanyInformation.FieldNo("Contact Person"));
@@ -259,6 +265,11 @@
     begin
         CustomAddressFormat.SetRange("Country/Region Code", Code);
         CustomAddressFormat.DeleteAll(true);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitAddressFormat(var CountryRegion: Record "Country/Region"; var IsHandled: Boolean)
+    begin
     end;
 }
 

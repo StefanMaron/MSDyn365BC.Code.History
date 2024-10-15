@@ -1104,6 +1104,8 @@
         Cont: Record Contact;
         IsDuplicateCheckNeeded: Boolean;
     begin
+        OnBeforeOnModify(Rec, ContactBeforeModify);
+
         SetLastDateTimeModified();
 
         if "No." <> '' then
@@ -1175,7 +1177,7 @@
                                 Cont.County := County;
                                 ContChanged := true;
                             end;
-                            OnAfterSyncAddress(Cont, Rec, ContChanged);
+                            OnAfterSyncAddress(Cont, Rec, ContChanged, ContactBeforeModify);
                         end;
                     if RMSetup."Inherit Communication Details" then begin
                         if (ContactBeforeModify."Phone No." <> "Phone No.") and (ContactBeforeModify."Phone No." = Cont."Phone No.") then begin
@@ -3651,7 +3653,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterSyncAddress(var Contact: Record Contact; RecContact: Record Contact; var ContChanged: Boolean)
+    local procedure OnAfterSyncAddress(var Contact: Record Contact; RecContact: Record Contact; var ContChanged: Boolean; var ContactBeforeModify: Record Contact)
     begin
     end;
 
@@ -4005,6 +4007,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnProcessPersonNameChangeOnBeforeAssignVendorContact(var Vendor: Record Vendor; var Contact: Record Contact; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnModify(var Contact: Record Contact; ContactBeforeModify: Record Contact)
     begin
     end;
 }

@@ -1,4 +1,4 @@
-codeunit 1232 "SEPA DD-Prepare Source"
+﻿codeunit 1232 "SEPA DD-Prepare Source"
 {
     TableNo = "Direct Debit Collection Entry";
 
@@ -34,7 +34,13 @@ codeunit 1232 "SEPA DD-Prepare Source"
         PaymentLine: Record "Payment Line";
         SEPADDCheckLine: Codeunit "SEPA DD-Check Line";
         AppliesToEntryNo: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCreateTempCollectionEntries(FromDirectDebitCollectionEntry, ToDirectDebitCollectionEntry, IsHandled);
+        if IsHandled then
+            exit;
+
         ToDirectDebitCollectionEntry.Reset();
         DirectDebitCollection.Get(FromDirectDebitCollectionEntry.GetRangeMin("Direct Debit Collection No."));
         PaymentHeader.Get(DirectDebitCollection.Identifier);
@@ -69,6 +75,11 @@ codeunit 1232 "SEPA DD-Prepare Source"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateTempCollectionEntries(var FromDirectDebitCollectionEntry: Record "Direct Debit Collection Entry"; var ToDirectDebitCollectionEntry: Record "Direct Debit Collection Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateTempCollectionEntries(var FromDirectDebitCollectionEntry: Record "Direct Debit Collection Entry"; var ToDirectDebitCollectionEntry: Record "Direct Debit Collection Entry"; isHandled: Boolean)
     begin
     end;
 

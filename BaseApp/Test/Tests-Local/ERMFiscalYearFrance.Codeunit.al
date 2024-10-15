@@ -176,6 +176,31 @@ codeunit 144074 "ERM Fiscal Year France"
         Assert.IsFalse(AccountingPeriod.Find, AccPeriodMustNotExistErr);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostingDateNotAllowedInFiscallyCloseYear()
+    var
+        AccountingPeriod: Record "Accounting Period";
+        GLSetup: Record "General Ledger Setup";
+        FiscalYearFiscalClose: Codeunit "Fiscal Year-FiscalClose";
+    begin
+        // [SCENARIO 436804] Expect the error message at Field-"Allow Posting From" in General Ledger Setup when Fiscally Close Year.
+        Initialize();
+
+        // [GIVEN] Two fiscal years: 2020-01-01..2020-12-31 and 2021-01-01..2021-12-31
+        CreateAccountingPeriods;
+
+        // [GIVEN] Close the fiscal year in accounting period.
+        AccountingPeriod.SetRange("New Fiscal Year", true);
+        AccountingPeriod.SetRange(Closed, true);
+        if AccountingPeriod.FindFirst() then
+            FiscalYearFiscalClose.Run(AccountingPeriod);
+
+        // [WHEN] Modify "Allow Posting From" in General Ledger Setup as 2021-01-01
+        // [THEN] Expect the error from Field "Allow Posting From" in General Ledger Setup
+        asserterror GLSetup.Validate("Allow Posting From", GetFirstAccountingPeriodDate(true));
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore();

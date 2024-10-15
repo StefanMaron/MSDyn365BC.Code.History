@@ -15,6 +15,7 @@
             trigger OnValidate()
             begin
                 CheckAllowedPostingDates(0);
+                CheckPostingDateRange("Allow Posting From", FieldCaption("Allow Posting From"));
             end;
         }
         field(3; "Allow Posting To"; Date)
@@ -856,6 +857,7 @@
         Text10802: Label 'It is not allowed to specify %1 when %2 is %3.';
         ObsoleteErr: Label 'This field is obsolete, it has been replaced by Table 248 VAT Reg. No. Srv Config.';
         RecordHasBeenRead: Boolean;
+        PostingRangeErr: Label '%1 must be within the allowed posting range: %2..%3', Comment = '%1 is Field Caption,%2 is Posting Allowed From,%3 is Posting Allowed To';
 
     procedure CheckDecimalPlacesFormat(var DecimalPlaces: Text[5])
     var
@@ -1108,6 +1110,18 @@
     procedure GetPmtToleranceVisible(): Boolean
     begin
         exit(("Payment Tolerance %" > 0) or ("Max. Payment Tolerance Amount" <> 0));
+    end;
+
+    procedure CheckPostingDateRange(DateToCheck: Date; FldCaption: Text[50])
+    var
+        AccountingPeriod: Record "Accounting Period";
+    begin
+        if AccountingPeriod.IsEmpty() then
+            exit;
+        CalcFields("Posting Allowed From", "Posting Allowed To");
+        if ((DateToCheck < "Posting Allowed From") or (DateToCheck >= "Posting Allowed To")) then
+            Error(PostingRangeErr, FldCaption,
+              "Posting Allowed From", CalcDate('<-1D>', "Posting Allowed To"));
     end;
 
     [IntegrationEvent(true, false)]
