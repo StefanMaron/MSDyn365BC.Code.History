@@ -57,11 +57,13 @@ codeunit 11755 "Registration Log Mgt. CZL"
     procedure LogVerification(var NewRegistrationLogCZL: Record "Registration Log CZL"; ResponseObject: JsonObject)
     var
         AddressObject: JsonObject;
+        ResourceStatusObject: JsonObject;
         Address: array[10] of Text;
         AddressText: Text;
         Value: Text;
+        VATSourceStatus: Text;
+        CZCodeTok: Label 'CZ', Locked = true;
         VATRegistrationNoKeyTok: Label 'dic', Locked = true;
-        VATRegistrationNoTxt: Label 'CZ%1', Locked = true;
         NameKeyTok: Label 'obchodniJmeno', Locked = true;
         AddressKeyTok: Label 'sidlo', Locked = true;
         CityKeyTok: Label 'nazevObce', Locked = true;
@@ -71,16 +73,27 @@ codeunit 11755 "Registration Log Mgt. CZL"
         HouseNoKeyTok: Label 'cisloDomovni', Locked = true;
         OrientationNoNoKeyTok: Label 'cisloOrientacni', Locked = true;
         AddressTextKeyTok: Label 'textovaAdresa', Locked = true;
+        RegistrationListKeyTok: Label 'seznamRegistraci', Locked = true;
+        VATSourceStatusKeyTok: Label 'stavZdrojeDph', Locked = true;
+        ActiveSourceKeyTok: Label 'AKTIVNI', Locked = true;
     begin
         NewRegistrationLogCZL."Entry No." := 0;
         NewRegistrationLogCZL.Status := NewRegistrationLogCZL.Status::Valid;
         NewRegistrationLogCZL."Verified Date" := CurrentDateTime;
         NewRegistrationLogCZL."User ID" := CopyStr(UserId(), 1, MaxStrLen(NewRegistrationLogCZL."User ID"));
 
+        // VAT Source Status
+        if GetValue(ResponseObject, RegistrationListKeyTok, ResourceStatusObject) then
+            GetValue(ResourceStatusObject, VATSourceStatusKeyTok, VATSourceStatus);
+
         // VAT Registration No.
-        if GetValue(ResponseObject, VATRegistrationNoKeyTok, Value) then
-            NewRegistrationLogCZL."Verified VAT Registration No." :=
-              CopyStr(StrSubstNo(VATRegistrationNoTxt, Value), 1, MaxStrLen(NewRegistrationLogCZL."Verified VAT Registration No."));
+        if VATSourceStatus = ActiveSourceKeyTok then
+            if GetValue(ResponseObject, VATRegistrationNoKeyTok, Value) then begin
+                if CopyStr(Value, 1, 2) <> CZCodeTok then
+                    Value := CZCodeTok + Value;
+                NewRegistrationLogCZL."Verified VAT Registration No." :=
+                    CopyStr(Value, 1, MaxStrLen(NewRegistrationLogCZL."Verified VAT Registration No."))
+            end;
 
         // Name
         if GetValue(ResponseObject, NameKeyTok, Value) then
