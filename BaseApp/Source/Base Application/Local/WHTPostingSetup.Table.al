@@ -1,4 +1,4 @@
-table 28043 "WHT Posting Setup"
+﻿table 28043 "WHT Posting Setup"
 {
     Caption = 'WHT Posting Setup';
 
@@ -17,6 +17,9 @@ table 28043 "WHT Posting Setup"
         field(3; "WHT %"; Decimal)
         {
             Caption = 'WHT %';
+            DecimalPlaces = 0 : 5;
+            MaxValue = 100;
+            MinValue = 0;
         }
         field(4; "Prepaid WHT Account Code"; Code[20])
         {

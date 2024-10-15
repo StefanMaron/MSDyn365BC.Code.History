@@ -530,17 +530,17 @@ codeunit 134148 "ERM Reverse GL Entries-II"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure ReverseEntriesModalPageHandler(var ReverseEntries: TestPage "Reverse Entries")
+    procedure ReverseEntriesModalPageHandler(var ReverseTransactionEntries: TestPage "Reverse Transaction Entries")
     var
         NewDescription: Text;
     begin
         NewDescription := LibraryVariableStorage.DequeueText;
 
-        ReverseEntries.First;
-        ReverseEntries.Description.SetValue(NewDescription);
-        while ReverseEntries.Next() do
-            ReverseEntries.Description.SetValue(NewDescription);
-        ReverseEntries.Reverse.Invoke;
+        ReverseTransactionEntries.First;
+        ReverseTransactionEntries.Description.SetValue(NewDescription);
+        while ReverseTransactionEntries.Next() do
+            ReverseTransactionEntries.Description.SetValue(NewDescription);
+        ReverseTransactionEntries.Reverse.Invoke;
     end;
 
     [ConfirmHandler]
@@ -572,11 +572,11 @@ codeunit 134148 "ERM Reverse GL Entries-II"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure ReverseEntriesCheckDateModalPageHandler(var ReverseEntries: TestPage "Reverse Entries")
+    procedure ReverseEntriesCheckDateModalPageHandler(var ReverseTransactionEntries: TestPage "Reverse Transaction Entries")
     begin
-        ReverseEntries.First;
-        LibraryVariableStorage.Enqueue(ReverseEntries."Posting Date".Value);
-        LibraryVariableStorage.Enqueue(ReverseEntries."Posting Date".Caption);
+        ReverseTransactionEntries.First;
+        LibraryVariableStorage.Enqueue(ReverseTransactionEntries."Posting Date".Value);
+        LibraryVariableStorage.Enqueue(ReverseTransactionEntries."Posting Date".Caption);
     end;
 }
 

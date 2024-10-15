@@ -7482,6 +7482,7 @@
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>6.5pt</FontSize>
                                     <FontWeight>=IIF(Fields!AccountTypePosting.Value,"Normal","Bold")</FontWeight>
+                                    <Format>=Fields!GLBudgetedAmount7Format.Value</Format>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
@@ -7555,6 +7556,7 @@
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>6.5pt</FontSize>
                                     <FontWeight>=IIF(Fields!AccountTypePosting.Value,"Normal","Bold")</FontWeight>
+                                    <Format>=Fields!GLBudgetedAmount8Format.Value</Format>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
@@ -7628,6 +7630,7 @@
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>6.5pt</FontSize>
                                     <FontWeight>=IIF(Fields!AccountTypePosting.Value,"Normal","Bold")</FontWeight>
+                                    <Format>=Fields!GLBudgetedAmount9Format.Value</Format>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
@@ -7701,6 +7704,7 @@
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>6.5pt</FontSize>
                                     <FontWeight>=IIF(Fields!AccountTypePosting.Value,"Normal","Bold")</FontWeight>
+                                    <Format>=Fields!GLBudgetedAmount10Format.Value</Format>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
@@ -7774,6 +7778,7 @@
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>6.5pt</FontSize>
                                     <FontWeight>=IIF(Fields!AccountTypePosting.Value,"Normal","Bold")</FontWeight>
+                                    <Format>=Fields!GLBudgetedAmount10Format.Value</Format>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
@@ -7847,6 +7852,7 @@
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>6.5pt</FontSize>
                                     <FontWeight>=IIF(Fields!AccountTypePosting.Value,"Normal","Bold")</FontWeight>
+                                    <Format>=Fields!GLBudgetedAmount12Format.Value</Format>
                                   </Style>
                                 </TextRun>
                               </TextRuns>

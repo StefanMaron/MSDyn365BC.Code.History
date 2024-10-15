@@ -198,7 +198,7 @@ page 740 "VAT Report"
             {
                 ApplicationArea = All;
                 Caption = 'Attachments';
-                SubPageLink = "Table ID" = CONST(740),
+                SubPageLink = "Table ID" = CONST(Database::"VAT Report Header"),
                               "No." = FIELD("No."),
                               "VAT Report Config. Code" = FIELD("VAT Report Config. Code");
             }
@@ -374,9 +374,9 @@ page 740 "VAT Report"
                         CalcAndPostVATSettlement: Report "Calc. and Post VAT Settlement";
                     begin
                         if "Include Prev. Open Entries" then
-				            CalcAndPostVATSettlement.InitializeRequest(0D, "End Date", Enum::"VAT Date Type"::"Posting Date", WorkDate(), "No.", '', false, false)
+				            CalcAndPostVATSettlement.InitializeRequest(0D, "End Date", WorkDate(), "No.", '', false, false)
                         else
-				            CalcAndPostVATSettlement.InitializeRequest("Start Date", "End Date", Enum::"VAT Date Type"::"Posting Date", WorkDate(), "No.", '', false, false);
+				            CalcAndPostVATSettlement.InitializeRequest("Start Date", "End Date", WorkDate(), "No.", '', false, false);
                         CalcAndPostVATSettlement.SetVATReport(Rec);
                         CalcAndPostVATSettlement.SetRequestOptionEditable(not VATReportMediator.DisableCalcAndPostVATTSettlementFields(Rec));
                         CalcAndPostVATSettlement.Run();

@@ -129,6 +129,19 @@ codeunit 131003 "Library - Text File Validation"
             InStr.ReadText(Line);
     end;
 
+    procedure ReadLineWithEncoding(FileName: Text; Encoding: TextEncoding; LineNumber: Integer) Line: Text
+    var
+        File: File;
+        InStr: InStream;
+        i: Integer;
+    begin
+        File.TextMode(true);
+        File.Open(FileName, Encoding);
+        File.CreateInStream(InStr);
+        for i := 1 to LineNumber do
+            InStr.ReadText(Line);
+    end;
+
     procedure ReadValue(Line: Text; StartingPosition: Integer; Length: Integer) FieldValue: Text
     begin
         FieldValue := CopyStr(Line, StartingPosition, Length);

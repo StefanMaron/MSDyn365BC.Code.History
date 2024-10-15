@@ -864,6 +864,7 @@ codeunit 145302 "BAS Reporting"
             "Entry No." := LibraryUtility.GetNewRecNo(VATEntry, FieldNo("Entry No."));
             Type := Type;
             "Posting Date" := PostingDate;
+            "VAT Reporting Date" := PostingDate;
             "Bill-to/Pay-to No." := LibrarySales.CreateCustomerNo();
             "VAT Bus. Posting Group" := VATBusPostingGroup;
             "VAT Prod. Posting Group" := VATProdPostingGroup;

@@ -195,7 +195,7 @@ page 527 "Posted Sales Credit Memo Lines"
                     ApplicationArea = ItemTracking;
                     Caption = 'Item &Tracking Lines';
                     Image = ItemTrackingLines;
-                    ShortCutKey = 'Ctrl+Alt+I'; 
+                    ShortCutKey = 'Ctrl+Alt+I';
                     ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
 
                     trigger OnAction()
@@ -209,5 +209,10 @@ page 527 "Posted Sales Credit Memo Lines"
 
     var
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+
+    trigger OnOpenPage()
+    begin
+        Rec.SetSecurityFilterOnRespCenter();
+    end;
 }
 

@@ -78,7 +78,7 @@ report 5053 "Contact - Person Summary"
             dataitem("To-do"; "To-do")
             {
                 DataItemLink = "Contact Company No." = FIELD("Company No."), "Contact No." = FIELD("No.");
-                DataItemTableView = SORTING("Contact Company No.", "Contact No.", Closed, Date) WHERE("System To-do Type" = CONST("Contact Attendee"));
+                DataItemTableView = SORTING("Contact Company No.", "Contact No.", Closed, Date) WHERE("System To-do Type" = filter("Contact Attendee" | Organizer));
                 RequestFilterFields = Closed, Date, Type;
                 column(Task_Description; Description)
                 {

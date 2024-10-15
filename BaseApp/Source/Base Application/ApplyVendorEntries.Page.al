@@ -1335,6 +1335,7 @@
 
     local procedure PostDirectApplication(PreviewMode: Boolean)
     var
+        RecBeforeRunPostApplicationVendorLedgerEntry: Record "Vendor Ledger Entry";
         ApplyUnapplyParameters: Record "Apply Unapply Parameters";
         NewApplyUnapplyParameters: Record "Apply Unapply Parameters";
         VendEntryApplyPostedEntries: Codeunit "VendEntry-Apply Posted Entries";
@@ -1365,7 +1366,10 @@
                     ApplyUnapplyParameters."Journal Batch Name" := GLSetup."Apply Jnl. Batch Name";
                 end;
                 PostApplication.SetParameters(ApplyUnapplyParameters);
+                RecBeforeRunPostApplicationVendorLedgerEntry := Rec;
                 if ACTION::OK = PostApplication.RunModal() then begin
+                    if Rec."Entry No." <> RecBeforeRunPostApplicationVendorLedgerEntry."Entry No." then
+                        Rec := RecBeforeRunPostApplicationVendorLedgerEntry;
                     PostApplication.GetParameters(NewApplyUnapplyParameters);
                     if NewApplyUnapplyParameters."Posting Date" < ApplicationDate then
                         Error(ApplicationDateErr, Rec.FieldCaption("Posting Date"), Rec.TableCaption());

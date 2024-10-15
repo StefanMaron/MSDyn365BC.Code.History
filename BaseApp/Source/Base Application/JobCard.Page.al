@@ -319,8 +319,11 @@
 
                         trigger OnValidate()
                         begin
-                            if BillToOptions = BillToOptions::"Default (Customer)" then
+                            if BillToOptions = BillToOptions::"Default (Customer)" then begin
                                 Rec.Validate("Bill-to Customer No.", Rec."Sell-to Customer No.");
+                                Rec.Validate("Bill-to Contact No.", Rec."Sell-to Contact No.");
+                            end;
+
                             UpdateBillToInformationEditable();
                         end;
                     }
@@ -855,7 +858,7 @@
             {
                 ApplicationArea = All;
                 Caption = 'Attachments';
-                SubPageLink = "Table ID" = CONST(167),
+                SubPageLink = "Table ID" = CONST(Database::Job),
                               "No." = FIELD("No.");
             }
             part(Control1902136407; "Job No. of Prices FactBox")

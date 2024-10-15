@@ -20,6 +20,7 @@ codeunit 144004 "ERM Feature Bug AU"
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryReportDataset: Codeunit "Library - Report Dataset";
+        AmountNotMatchedErr: Label 'Amount not matched.';
 
     [Test]
     [Scope('OnPrem')]
@@ -254,6 +255,59 @@ codeunit 144004 "ERM Feature Bug AU"
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);  // True for receive and invoice.
         CreateGeneralJnlLine(GenJournalLine, WHTPostingSetup, PurchaseLine);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyVATAmountAfterPosting()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: array[2] of Record "Sales Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        GLAccount: Record "G/L Account";
+        SalesInvoiceLine: Record "Sales Invoice Line";
+    begin
+        // [SCENARIO 456460] Total VAT rounding issue in sales invoice and sales order.
+        // [GIVEN] VAT Posting Setup.
+        LibraryERM.CreateVATPostingSetupWithAccounts(
+          VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", 7);
+
+        // [GIVEN] Create Sales Invoice with new customer and set Price Including VAT true
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
+        SalesHeader.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        SalesHeader.Validate("Prices Including VAT", true);
+        SalesHeader.Modify(true);
+
+        // [GIVEN] Create first sales line with new GL Account which have VAT posting setup of 7%
+        LibrarySales.CreateSalesLine(
+          SalesLine[1], SalesHeader, SalesLine[1].Type::"G/L Account",
+          LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GLAccount."Gen. Posting Type"::Sale), 3000);
+        SalesLine[1].Validate("Unit Price", 1.1);
+        SalesLine[1].Modify(true);
+
+        // [GIVEN] Create second sales line with new posting GL and VAT psoting setup will be same
+        LibrarySales.CreateSalesLine(
+          SalesLine[2], SalesHeader, SalesLine[2].Type::"G/L Account",
+          LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GLAccount."Gen. Posting Type"::Sale), -1);
+        SalesLine[2].Validate("Unit Price", 1650);
+        SalesLine[2].Modify(true);
+
+        // [THEN] Post the document
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [VERIFY]  Verify first Sales Line VAT Base Amount and Amount Including VAT on posted invoice.
+        SalesInvoiceLine.SetRange("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
+        SalesInvoiceLine.SetRange("No.", SalesLine[1]."No.");
+        SalesInvoiceLine.FindFirst();
+        Assert.AreEqual(SalesLine[1]."VAT Base Amount", SalesInvoiceLine."VAT Base Amount", AmountNotMatchedErr);
+        Assert.AreEqual(SalesLine[1]."Amount Including VAT", SalesInvoiceLine."Amount Including VAT", AmountNotMatchedErr);
+
+        // [VERIFY]  Verify second Sales Line VAT Base Amount and Amount Including VAT on posted invoice.
+        SalesInvoiceLine.SetRange("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
+        SalesInvoiceLine.SetRange("No.", SalesLine[2]."No.");
+        SalesInvoiceLine.FindFirst();
+        Assert.AreEqual(SalesLine[2]."VAT Base Amount", SalesInvoiceLine."VAT Base Amount", AmountNotMatchedErr);
+        Assert.AreEqual(SalesLine[2]."Amount Including VAT", SalesInvoiceLine."Amount Including VAT", AmountNotMatchedErr);
     end;
 
     local procedure CreateBankAccount(CurrencyCode: Code[10]): Code[20]

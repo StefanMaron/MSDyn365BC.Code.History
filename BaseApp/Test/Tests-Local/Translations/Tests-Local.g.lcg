@@ -428,6 +428,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Feature Bug AU - NamedType AmountMustBeEqualMsg)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2138291622 - NamedType 2625341778" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Amount not matched.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Feature Bug AU - NamedType AmountNotMatchedErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 32916062 - NamedType 3420941840" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 must be %2 in %3.]]></Val>

@@ -62,6 +62,8 @@ permissionset 7862 "D365 ACC. RECEIVABLE"
                   tabledata "Package No. Information" = RIMD,
                   tabledata "Payment Matching Details" = RIMD,
                   tabledata "Payment Method" = RIMD,
+                  tabledata "Payment Rec. Related Entry" = RIMD,
+                  tabledata "Pmt. Rec. Applied-to Entry" = RIMD,
                   tabledata "Posted Payment Recon. Hdr" = RIMD,
                   tabledata "Posted Payment Recon. Line" = RIMD,
                   tabledata "Posted Whse. Shipment Header" = R,

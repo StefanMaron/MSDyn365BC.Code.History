@@ -242,6 +242,7 @@ codeunit 5341 "CRM Int. Table. Subscriber"
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Integration Record Synch.", 'OnTransferFieldData', '', false, false)]
     procedure OnTransferFieldData(SourceFieldRef: FieldRef; DestinationFieldRef: FieldRef; var NewValue: Variant; var IsValueFound: Boolean; var NeedsConversion: Boolean)
     var
+        CDSConnectionSetup: Record "CDS Connection Setup";
         CRMConnectionSetup: Record "CRM Connection Setup";
         IntegrationTableMapping: Record "Integration Table Mapping";
         Item: Record Item;
@@ -275,6 +276,29 @@ codeunit 5341 "CRM Int. Table. Subscriber"
                     NeedsConversion := false;
                     exit;
                 end;
+
+        if (DestinationFieldRef.Record().Number() = Database::"CRM Salesorder") and (DestinationFieldRef.Name() = 'OwnerId') then
+            if CRMConnectionSetup.IsBidirectionalSalesOrderIntEnabled() then begin
+                CDSConnectionSetup.Get();
+                case CDSConnectionSetup."Ownership Model" of
+                    CDSConnectionSetup."Ownership Model"::Team:
+                        begin
+                            // in case of field mapping to OwnerId, if ownership model is Team, we don't change the value if Salesperson changes
+                            NewValue := DestinationFieldRef.Value();
+                            IsValueFound := true;
+                            NeedsConversion := false;
+                            exit;
+                        end;
+                    CDSConnectionSetup."Ownership Model"::Person:
+                        begin
+                            // in case of field mapping to OwnerId, if ownership model is Person, we should find the user mapped to the Salesperson/Purchaser
+                            NewValue := CRMSynchHelper.GetCoupledCDSUserId(SourceFieldRef.Record());
+                            IsValueFound := true;
+                            NeedsConversion := false;
+                            exit;
+                        end;
+                end;
+            end;
 
         if CRMSynchHelper.ConvertTableToOption(SourceFieldRef, DestinationFieldRef, OptionValue) then begin
             NewValue := OptionValue;

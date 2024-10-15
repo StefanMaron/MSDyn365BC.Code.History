@@ -14,6 +14,8 @@ codeunit 145403 "AU Feature Bugs"
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryRandom: Codeunit "Library - Random";
         LibrarySales: Codeunit "Library - Sales";
+        LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryReportDataset: Codeunit "Library - Report Dataset";
         AmountMustBeZeroMsg: Label 'Amount must be zero.';
 
     [Test]
@@ -164,6 +166,38 @@ codeunit 145403 "AU Feature Bugs"
 
         //[VERIFY] Verify the posted Vendor Ledger Entry.
         VerifyVendorLedgerEntry(VendorNo, Amount);
+    end;
+
+    [Test]
+    [HandlerFunctions('BudgetRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure GLBudgetAddNewGLBudgetEntryWith2DecimalPlaces()
+    var
+        GLAccount: Record "G/L Account";
+        GLBudgetName: Record "G/L Budget Name";
+        BudgetAmount: Decimal;
+        GLAccountNo: Code[20];
+    begin
+        // [SCENARIO 457899] G/L Budget  doesn't show the same amount as the Budget G/L Entries.
+
+        // [GIVEN] Create GL Budget Name and GL Account
+        LibraryERM.CreateGLBudgetName(GLBudgetName);
+        LibraryERM.CreateGLAccount(GLAccount);
+
+        // [GIVEN] Enqueue value for BudgetRequestPageHandler.
+        LibraryVariableStorage.Enqueue(GLAccountNo);
+
+        // [GIVEN] Creaet GL Budget Entry and add Budget Amount 
+        BudgetAmount := LibraryRandom.RandDec(1000000, 2);
+        CreateGLBudgetEntry(GLBudgetName.Name, GLAccount."No.", BudgetAmount);
+        Commit();
+
+        // [THEN] Run the Budget report
+        REPORT.Run(REPORT::Budget);
+
+        // [VERIFY] Verify the Budget Amount on xml will be same.
+        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.AssertElementWithValueExists('TotalBudgetAmount', BudgetAmount);
     end;
 
     local procedure CreateAndPostGeneralJournalLine(): Code[20]
@@ -410,6 +444,17 @@ codeunit 145403 "AU Feature Bugs"
         until VendorLedgerEntry.Next() = 0;
     end;
 
+    local procedure CreateGLBudgetEntry(GLBudgetName: Code[10]; AccountNo: Code[20]; Amount2: Decimal): Integer
+    var
+        GLBudgetEntry: Record "G/L Budget Entry";
+    begin
+        LibraryERM.CreateGLBudgetEntry(GLBudgetEntry, WorkDate(), AccountNo, GLBudgetName);
+        GLBudgetEntry.Validate(Amount, Amount2);  // Taking Variable name Amount2 due to global variable.
+        GLBudgetEntry.Modify(true);
+        GLBudgetEntry.TestField("Last Date Modified");
+        exit(GLBudgetEntry."Entry No.");
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandler(Question: Text[1024]; var Reply: Boolean)
@@ -422,6 +467,18 @@ codeunit 145403 "AU Feature Bugs"
     procedure MessageHandler(Message: Text[1024])
     begin
         // Message Handler.
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure BudgetRequestPageHandler(var Budget: TestRequestPage Budget)
+    var
+        No: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(No);
+        Budget."G/L Account".SetFilter("No.", No);
+        Budget.StartingDate.SetValue(Format(WorkDate()));
+        Budget.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 }
 

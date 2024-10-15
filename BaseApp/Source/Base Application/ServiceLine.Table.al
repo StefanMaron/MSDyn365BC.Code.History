@@ -3450,9 +3450,24 @@
             "Shipping Agent Code" := ServHeader."Shipping Agent Code";
             "Shipping Agent Service Code" := ServHeader."Shipping Agent Service Code";
             "Shipping Time" := ServHeader."Shipping Time";
+
+            SetInheritedDimensionSetID(ServHeader);
         end;
 
         OnAfterAssignHeaderValues(Rec, ServHeader);
+    end;
+
+    local procedure SetInheritedDimensionSetID(ServHeader: Record "Service Header")
+    begin
+        if ServItemLine."Dimension Set ID" <> 0 then begin
+            "Shortcut Dimension 1 Code" := ServItemLine."Shortcut Dimension 1 Code";
+            "Shortcut Dimension 2 Code" := ServItemLine."Shortcut Dimension 2 Code";
+            "Dimension Set ID" := ServItemLine."Dimension Set ID";
+        end else begin
+            "Shortcut Dimension 1 Code" := ServHeader."Shortcut Dimension 1 Code";
+            "Shortcut Dimension 2 Code" := ServHeader."Shortcut Dimension 2 Code";
+            "Dimension Set ID" := ServHeader."Dimension Set ID";
+        end;
     end;
 
     local procedure InitServHeaderShipToCode()
@@ -4372,6 +4387,7 @@
             Amount := 0;
             "VAT Base Amount" := 0;
             "Amount Including VAT" := 0;
+            OnUpdateVATAmountOnAfterClearAmounts(Rec);
         end else begin
             TotalLineAmount := 0;
             TotalInvDiscAmount := 0;
@@ -4410,6 +4426,7 @@
                                 (TotalAmount + Amount) * (1 - ServHeader."VAT Base Discount %" / 100) * "VAT %" / 100 -
                                 TotalAmountInclVAT, Currency."Amount Rounding Precision", Currency.VATRoundingDirection());
                             Amount := Round(Amount, Currency."Amount Rounding Precision");
+                            OnUpdateVATAmountsIfPricesInclVATOnAfterNormalVATCalc(Rec, ServHeader, Currency);
                         end;
                     "VAT Calculation Type"::"Full VAT":
                         begin
@@ -4445,6 +4462,7 @@
                                 (TotalAmount + Amount) * (1 - ServHeader."VAT Base Discount %" / 100) * "VAT %" / 100,
                                 Currency."Amount Rounding Precision", Currency.VATRoundingDirection()) -
                               TotalAmountInclVAT + TotalVATDifference;
+                            OnUpdateVATAmountsIfPricesExclVATOnAfterNormalVATCalc(Rec, ServHeader, Currency);
                         end;
                     "VAT Calculation Type"::"Full VAT":
                         begin
@@ -5868,8 +5886,23 @@
     var
         DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
     begin
+        if not DimMgt.IsDefaultDimDefinedForTable(GetTableValuePair(FieldNo)) then exit;
         InitDefaultDimensionSources(DefaultDimSource, FieldNo);
         CreateDim(DefaultDimSource);
+    end;
+
+    local procedure GetTableValuePair(FieldNo: Integer) TableValuePair: Dictionary of [Integer, Code[20]]
+    begin
+        case true of
+            FieldNo = Rec.FieldNo("No."):
+                TableValuePair.Add(DimMgt.TypeToTableID5(Rec.Type.AsInteger()), Rec."No.");
+            FieldNo = Rec.FieldNo("Responsibility Center"):
+                TableValuePair.Add(Database::"Responsibility Center", Rec."Responsibility Center");
+            FieldNo = Rec.FieldNo("Job No."):
+                TableValuePair.Add(Database::Job, Rec."Job No.");
+            FieldNo = Rec.FieldNo("Location Code"):
+                TableValuePair.Add(Database::Location, Rec."Location Code");
+        end;
     end;
 
     local procedure InitDefaultDimensionSources(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; FieldNo: Integer)
@@ -6528,6 +6561,21 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateAmountsOnAfterCalcExpectedLineAmount(var ServiceLine: Record "Service Line"; xServiceLine: Record "Service Line"; var ExpectedLineAmount: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateVATAmountsIfPricesInclVATOnAfterNormalVATCalc(var ServiceLine: Record "Service Line"; ServHeader: Record "Service Header"; Currency: Record Currency)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateVATAmountsIfPricesExclVATOnAfterNormalVATCalc(var ServiceLine: Record "Service Line"; ServHeader: Record "Service Header"; Currency: Record Currency)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateVATAmountOnAfterClearAmounts(var ServiceLine: Record "Service Line")
     begin
     end;
 }
