@@ -1875,6 +1875,36 @@ codeunit 147522 "SII Document Processing"
         Assert.AreEqual(ServiceHeader."ID Type", ServiceInvoiceHeader."ID Type", DifferentValueErr);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure DoNotQueueJobQueueEntryOnPostingSalesInvoice()
+    var
+        SIISetup: Record "SII Setup";
+        GenJournalLine: Record "Gen. Journal Line";
+        JobQueueEntry: Record "Job Queue Entry";
+    begin
+        // [FEATURE] [Journal] [Sales] [Invoice]
+        // [SCENARIO 527369] Posting customer's invoice does not trigger the job queue entry
+
+        Initialize();
+
+        JobQueueEntry.DeleteAll();
+        // [GIVEN] Enabled SII Setup with "Dot No Schedule JQ Entry" option enabled
+        SIISetup.Get();
+        SIISetup.Validate("Do Not Schedule JQ Entry", true);
+        SIISetup.Modify(true);
+        // [GIVEN] Journal line with type "Invoice" for customer
+        LibraryJournals.CreateGenJournalLineWithBatch(
+          GenJournalLine, GenJournalLine."Document Type"::Invoice,
+          GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo(), LibraryRandom.RandIntInRange(100, 200));
+
+        // [WHEN] Post journal
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [THEN] The SII job queue entry has not been created
+        VerifySIIJobQueueEntryCount(0);
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore();

@@ -255,7 +255,7 @@ report 6 "Trial Balance"
                         Accumulate := true;
                         FirstLevel := StrLen("No.");
                     end else
-                        if (StrLen("No.") <= PreviousLevel) and (StrLen("No.") <= FirstLevel) and (StrLen("No.") >= FixedLevel) then
+                        if (StrLen("No.") <= PreviousLevel) and (StrLen("No.") <= FirstLevel) and ((StrLen("No.") <> FixedLevel) or (StrLen("No.") = FixedLevel)) then
                             Accumulate := true
                         else
                             Accumulate := false;

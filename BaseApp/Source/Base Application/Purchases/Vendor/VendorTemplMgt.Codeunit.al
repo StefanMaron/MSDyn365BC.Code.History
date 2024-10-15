@@ -149,6 +149,8 @@ codeunit 1385 "Vendor Templ. Mgt."
                 DestDefaultDimension.Validate("Dimension Code", SourceDefaultDimension."Dimension Code");
                 DestDefaultDimension.Validate("Dimension Value Code", SourceDefaultDimension."Dimension Value Code");
                 DestDefaultDimension.Validate("Value Posting", SourceDefaultDimension."Value Posting");
+                if (SourceDefaultDimension."Value Posting" = SourceDefaultDimension."Value Posting"::"Code Mandatory") and (SourceDefaultDimension."Allowed Values Filter" <> '') then
+                    DestDefaultDimension.Validate("Allowed Values Filter", SourceDefaultDimension."Allowed Values Filter");
                 if not DestDefaultDimension.Get(DestDefaultDimension."Table ID", DestDefaultDimension."No.", DestDefaultDimension."Dimension Code") then
                     DestDefaultDimension.Insert(true);
             until SourceDefaultDimension.Next() = 0;

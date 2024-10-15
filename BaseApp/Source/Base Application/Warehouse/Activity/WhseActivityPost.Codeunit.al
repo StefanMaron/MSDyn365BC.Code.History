@@ -60,6 +60,7 @@ codeunit 7324 "Whse.-Activity-Post"
         WhseActivHeader: Record "Warehouse Activity Header";
         WhseActivLine: Record "Warehouse Activity Line";
         TempWhseActivLine: Record "Warehouse Activity Line" temporary;
+        TempWarehouseActivityLineForItemTrackingChecking: Record "Warehouse Activity Line" temporary;
         WhseSetup: Record "Warehouse Setup";
         WhseRequest: Record "Warehouse Request";
         PurchHeader: Record "Purchase Header";
@@ -148,8 +149,10 @@ codeunit 7324 "Whse.-Activity-Post"
                 if ItemTrackingRequired then
                     CheckAvailability(WhseActivLine);
                 InsertTempWhseActivLine(WhseActivLine, ItemTrackingRequired);
+                InsertTempWhseActivLineForChecking(WhseActivLine, ItemTrackingRequired);
             until WhseActivLine.Next() = 0;
             CheckWhseItemTrackingAgainstSource();
+            TempWarehouseActivityLineForItemTrackingChecking.DeleteAll();
         end;
         NoOfRecords := LineCount;
         // Posting lines
@@ -264,6 +267,27 @@ codeunit 7324 "Whse.-Activity-Post"
             TempWhseActivLine := WhseActivLine;
             OnBeforeTempWhseActivLineInsert(TempWhseActivLine, WhseActivLine);
             TempWhseActivLine.Insert();
+            if ItemTrackingRequired and
+               (WhseActivLine."Activity Type" in [WhseActivLine."Activity Type"::"Invt. Pick", WhseActivLine."Activity Type"::"Invt. Put-away"])
+            then
+                ItemTrackingMgt.SynchronizeWhseActivItemTrkg(WhseActivLine, IsPreview);
+        end;
+    end;
+
+    local procedure InsertTempWhseActivLineForChecking(WhseActivLine: Record "Warehouse Activity Line"; ItemTrackingRequired: Boolean)
+    begin
+        TempWarehouseActivityLineForItemTrackingChecking.SetSourceFilter(
+            WhseActivLine."Source Type", WhseActivLine."Source Subtype", WhseActivLine."Source No.", WhseActivLine."Source Line No.", WhseActivLine."Source Subline No.", false);
+
+        if TempWarehouseActivityLineForItemTrackingChecking.Find('-') then begin
+            TempWarehouseActivityLineForItemTrackingChecking."Qty. to Handle" += WhseActivLine."Qty. to Handle";
+            TempWarehouseActivityLineForItemTrackingChecking."Qty. to Handle (Base)" += WhseActivLine."Qty. to Handle (Base)";
+            TempWarehouseActivityLineForItemTrackingChecking.Modify();
+        end else begin
+            TempWarehouseActivityLineForItemTrackingChecking.Init();
+            TempWarehouseActivityLineForItemTrackingChecking := WhseActivLine;
+
+            TempWarehouseActivityLineForItemTrackingChecking.Insert();
             if ItemTrackingRequired and
                (WhseActivLine."Activity Type" in [WhseActivLine."Activity Type"::"Invt. Pick", WhseActivLine."Activity Type"::"Invt. Put-away"])
             then
@@ -1130,20 +1154,32 @@ codeunit 7324 "Whse.-Activity-Post"
     local procedure CalcLastOperationNo(ProdOrderLine: Record "Prod. Order Line"): Code[10]
     var
         ProdOrderRtngLine: Record "Prod. Order Routing Line";
-        ProdOrderRouteManagement: Codeunit "Prod. Order Route Management";
     begin
         ProdOrderRtngLine.SetRange(Status, ProdOrderLine.Status);
         ProdOrderRtngLine.SetRange("Prod. Order No.", ProdOrderLine."Prod. Order No.");
         ProdOrderRtngLine.SetRange("Routing Reference No.", ProdOrderLine."Routing Reference No.");
         ProdOrderRtngLine.SetRange("Routing No.", ProdOrderLine."Routing No.");
         if not ProdOrderRtngLine.IsEmpty() then begin
-            ProdOrderRouteManagement.Check(ProdOrderLine);
+            CheckProdOrderLine(ProdOrderLine);
             ProdOrderRtngLine.SetRange("Next Operation No.", '');
             ProdOrderRtngLine.FindLast();
             exit(ProdOrderRtngLine."Operation No.");
         end;
 
         exit('');
+    end;
+
+    local procedure CheckProdOrderLine(var ProdOrderLine: Record "Prod. Order Line")
+    var
+        ProdOrderRouteManagement: Codeunit "Prod. Order Route Management";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckProdOrderLine(ProdOrderLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        ProdOrderRouteManagement.Check(ProdOrderLine);
     end;
 
     local procedure GetLocation(LocationCode: Code[10])
@@ -1227,26 +1263,26 @@ codeunit 7324 "Whse.-Activity-Post"
         TrackingSpecification: Record "Tracking Specification";
         JobPlanningLine: Record "Job Planning Line";
     begin
-        TempWhseActivLine.Reset();
-        if TempWhseActivLine.FindSet() then
+        TempWarehouseActivityLineForItemTrackingChecking.Reset();
+        if TempWarehouseActivityLineForItemTrackingChecking.FindSet() then
             repeat
-                case TempWhseActivLine."Source Type" of
+                case TempWarehouseActivityLineForItemTrackingChecking."Source Type" of
                     Database::"Prod. Order Component":
-                        TrackingSpecification.CheckItemTrackingQuantity(TempWhseActivLine."Source Type", TempWhseActivLine."Source Subtype", TempWhseActivLine."Source No.", TempWhseActivLine."Source Subline No.", TempWhseActivLine."Source Line No.", TempWhseActivLine."Qty. to Handle (Base)", TempWhseActivLine."Qty. to Handle (Base)", true, InvoiceSourceDoc);
+                        TrackingSpecification.CheckItemTrackingQuantity(TempWarehouseActivityLineForItemTrackingChecking."Source Type", TempWarehouseActivityLineForItemTrackingChecking."Source Subtype", TempWarehouseActivityLineForItemTrackingChecking."Source No.", TempWarehouseActivityLineForItemTrackingChecking."Source Subline No.", TempWarehouseActivityLineForItemTrackingChecking."Source Line No.", TempWarehouseActivityLineForItemTrackingChecking."Qty. to Handle (Base)", TempWarehouseActivityLineForItemTrackingChecking."Qty. to Handle (Base)", true, InvoiceSourceDoc);
                     Database::Job:
                         begin
                             // Checking tracking specification for Job by mapping Temporary warehouse activity line to Job planning line item tracking.
                             JobPlanningLine.SetLoadFields(Status);
                             JobPlanningLine.SetCurrentKey("Job Contract Entry No.");
-                            JobPlanningLine.SetRange("Job Contract Entry No.", TempWhseActivLine."Source Line No.");
+                            JobPlanningLine.SetRange("Job Contract Entry No.", TempWarehouseActivityLineForItemTrackingChecking."Source Line No.");
                             JobPlanningLine.FindFirst();
 
-                            TrackingSpecification.CheckItemTrackingQuantity(Database::"Job Planning Line", JobPlanningLine.Status.AsInteger(), TempWhseActivLine."Source No.", TempWhseActivLine."Source Line No.", TempWhseActivLine."Qty. to Handle (Base)", TempWhseActivLine."Qty. to Handle (Base)", true, InvoiceSourceDoc);
+                            TrackingSpecification.CheckItemTrackingQuantity(Database::"Job Planning Line", JobPlanningLine.Status.AsInteger(), TempWarehouseActivityLineForItemTrackingChecking."Source No.", TempWarehouseActivityLineForItemTrackingChecking."Source Line No.", TempWarehouseActivityLineForItemTrackingChecking."Qty. to Handle (Base)", TempWarehouseActivityLineForItemTrackingChecking."Qty. to Handle (Base)", true, InvoiceSourceDoc);
                         end;
                     else
-                        TrackingSpecification.CheckItemTrackingQuantity(TempWhseActivLine."Source Type", TempWhseActivLine."Source Subtype", TempWhseActivLine."Source No.", TempWhseActivLine."Source Line No.", TempWhseActivLine."Qty. to Handle (Base)", TempWhseActivLine."Qty. to Handle (Base)", true, InvoiceSourceDoc);
+                        TrackingSpecification.CheckItemTrackingQuantity(TempWarehouseActivityLineForItemTrackingChecking."Source Type", TempWarehouseActivityLineForItemTrackingChecking."Source Subtype", TempWarehouseActivityLineForItemTrackingChecking."Source No.", TempWarehouseActivityLineForItemTrackingChecking."Source Line No.", TempWarehouseActivityLineForItemTrackingChecking."Qty. to Handle (Base)", TempWarehouseActivityLineForItemTrackingChecking."Qty. to Handle (Base)", true, InvoiceSourceDoc);
                 end;
-            until TempWhseActivLine.Next() = 0;
+            until TempWarehouseActivityLineForItemTrackingChecking.Next() = 0;
     end;
 
     local procedure CheckAvailability(WhseActivLine: Record "Warehouse Activity Line")
@@ -1863,6 +1899,11 @@ codeunit 7324 "Whse.-Activity-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnPostWhseActivityLineOnBeforePostDoc(var TempWarehouseActivityLine: Record "Warehouse Activity Line" temporary; WhseActivHeader: Record "Warehouse Activity Header"; var PostedSourceType: Integer; var PostedSourceSubType: Integer; var PostedSourceNo: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; var IsHandled: Boolean)
     begin
     end;
 }

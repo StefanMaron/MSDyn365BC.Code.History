@@ -384,6 +384,24 @@ page 10752 "SII History"
                     SIIManagement.MarkAsNotAccepted(SIIHistory);
                 end;
             }
+            action(UploadPendingDocuments)
+            {
+                ApplicationArea = All;
+                Caption = 'Upload Pending Documents';
+                Enabled = Enabled;
+                Visible = UploadPendingDocsVisible;
+                Image = SendTo;
+                Scope = Repeater;
+                ToolTip = 'Upload pending documents to SII. If you enabled the ''Enable Batch Submissions'' option then documents will be sent when their number exceeds the ''Job Batch Submission Threshold'' in the SII Setup.';
+
+                trigger OnAction()
+                var
+                    SIIDocUploadManagement: Codeunit "SII Doc. Upload Management";
+                begin
+                    SIIDocUploadManagement.UploadPendingDocuments();
+                    CurrPage.Update();
+                end;
+            }
             action("Recreate Missing SII Entries")
             {
                 ApplicationArea = All;
@@ -502,6 +520,9 @@ page 10752 "SII History"
                 actionref("Mark As Not Accepted_Promoted"; "Mark As Not Accepted")
                 {
                 }
+                actionref(UploadPendingDocuments_Promoted; UploadPendingDocuments)
+                {
+                }
                 actionref("Recreate Missing SII Entries_Promoted"; "Recreate Missing SII Entries")
                 {
                 }
@@ -565,10 +586,12 @@ page 10752 "SII History"
             Enabled := SIISetup.Enabled;
             EnabledBatchSubmission := Enabled and SIISetup."Enable Batch Submissions";
             ShowAdvancedActions := SIISetup."Show Advanced Actions";
+            UploadPendingDocsVisible := SIISetup."Do Not Schedule JQ Entry";
         end else begin
             Enabled := false;
             EnabledBatchSubmission := false;
             ShowAdvancedActions := false;
+            UploadPendingDocsVisible := false;
         end;
         NewSendingExperienceAvailable := SIISetup."New Automatic Sending Exp.";
         SIIJobManagement.CreateAndStartJobQueueEntryForMissingEntryDetection(SIISetup."Auto Missing Entries Check");
@@ -589,6 +612,7 @@ page 10752 "SII History"
         StyleText: Text;
         Enabled: Boolean;
         EnabledBatchSubmission: Boolean;
+        UploadPendingDocsVisible: Boolean;
         RetryAcceptedQst: Label 'Accepted entries have been selected. Do you want to resend them?';
         ShowAdvancedActions: Boolean;
         NewSendingExperienceAvailable: Boolean;

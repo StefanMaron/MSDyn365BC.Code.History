@@ -43,6 +43,7 @@ table 10799 "SII Sending State"
     var
         JobQueueEntry: Record "Job Queue Entry";
     begin
+        Rec.ReadIsolation := IsolationLevel::UpdLock;
         InitRecord();
         if IsNullGuid(Rec."Job Queue Entry Id") then begin
             Rec.Validate(Status, PendingStatusTxt);

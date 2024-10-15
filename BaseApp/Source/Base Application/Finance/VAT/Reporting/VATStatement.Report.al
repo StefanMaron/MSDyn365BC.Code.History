@@ -819,6 +819,16 @@ report 12 "VAT Statement"
                         Base := ConditionalAdd(0, VATEntry.Base, VATEntry."Additional-Currency Base");
                     Amount := Amount + Base;
                 end;
+            VATStatementLine."Amount Type"::"Non-Deductible Amount":
+                begin
+                    VATEntry.CalcSums("Non-Deductible VAT Amount");
+                    Amount := ConditionalAdd(0, VATEntry."Non-Deductible VAT Amount", 0);
+                end;
+            VATStatementLine."Amount Type"::"Non-Deductible Base":
+                begin
+                    VATEntry.CalcSums("Non-Deductible VAT Base");
+                    Amount := ConditionalAdd(0, VATEntry."Non-Deductible VAT Base", 0);
+                end;
         end;
     end;
 

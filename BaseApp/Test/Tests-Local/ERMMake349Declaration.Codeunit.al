@@ -2627,7 +2627,7 @@ codeunit 144117 "ERM Make 349 Declaration"
     end;
 
     [Test]
-    [HandlerFunctions('Make349DeclarationRequestPageHandler,GenericMessageHandler,ConfirmHandler,CustomerVendorWarnings349CustomPeriodPageHandler')]
+    [HandlerFunctions('Make349DeclarationRequestPageHandler,GenericMessageHandler,ConfirmHandler,CustomerVendorWarnings349CustomPeriodPageHandlerMultiple')]
     [Scope('OnPrem')]
     procedure PurchCreditMemoWithNoTaxableVATSameFYCorrection()
     var
@@ -2748,7 +2748,7 @@ codeunit 144117 "ERM Make 349 Declaration"
     end;
 
     [Test]
-    [HandlerFunctions('Make349DeclarationRequestPageHandler,GenericMessageHandler,ConfirmHandler,CustomerVendorWarnings349CustomPeriodPageHandler')]
+    [HandlerFunctions('Make349DeclarationRequestPageHandler,GenericMessageHandler,ConfirmHandler,CustomerVendorWarnings349CustomPeriodPageHandlerMultiple')]
     [Scope('OnPrem')]
     procedure SalesCreditMemoWithNoTaxableVATSameFYCorrection()
     var
@@ -7545,6 +7545,30 @@ codeunit 144117 "ERM Make 349 Declaration"
         CustomerVendorWarnings349."Include Correction".SetValue(true);
         CustomerVendorWarnings349."Original Declaration Period".SetValue(LibraryVariableStorage.DequeueText());
         CustomerVendorWarnings349."Original Declared Amount".SetValue(LibraryVariableStorage.DequeueDecimal());
+        CustomerVendorWarnings349.Process.Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure CustomerVendorWarnings349CustomPeriodPageHandlerMultiple(var CustomerVendorWarnings349: TestPage "Customer/Vendor Warnings 349")
+    var
+        CustVenodrNo: Variant;
+        OriginalDeclarationPeriod: Variant;
+        OriginalDeclaredAmount: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(CustVenodrNo);
+        LibraryVariableStorage.Dequeue(OriginalDeclarationPeriod);
+        LibraryVariableStorage.Dequeue(OriginalDeclaredAmount);
+
+        CustomerVendorWarnings349.FILTER.SetFilter("Customer/Vendor No.", CustVenodrNo);
+        CustomerVendorWarnings349."Include Correction".SetValue(true);
+        CustomerVendorWarnings349."Original Declaration Period".SetValue(OriginalDeclarationPeriod);
+        CustomerVendorWarnings349."Original Declared Amount".SetValue(OriginalDeclaredAmount);
+        CustomerVendorWarnings349.Next();
+        CustomerVendorWarnings349."Include Correction".SetValue(true);
+        CustomerVendorWarnings349."Original Declaration Period".SetValue(OriginalDeclarationPeriod);
+        CustomerVendorWarnings349."Original Declared Amount".SetValue(OriginalDeclaredAmount);
+
         CustomerVendorWarnings349.Process.Invoke();
     end;
 

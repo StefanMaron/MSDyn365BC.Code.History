@@ -405,6 +405,8 @@ table 10740 "No Taxable Entry"
         SetRange("Ignore In SII", NoTaxableEntry."Ignore In SII");
         SetRange("No Taxable Type", NoTaxableEntry."No Taxable Type");
         SetRange("Delivery Operation Code", NoTaxableEntry."Delivery Operation Code");
+        SetRange("VAT Bus. Posting Group", NoTaxableEntry."VAT Bus. Posting Group");
+        SetRange("VAT Prod. Posting Group", NoTaxableEntry."VAT Prod. Posting Group");
         if FindFirst() then begin
             Base += NoTaxableEntry.Base;
             "Base (LCY)" += NoTaxableEntry."Base (LCY)";

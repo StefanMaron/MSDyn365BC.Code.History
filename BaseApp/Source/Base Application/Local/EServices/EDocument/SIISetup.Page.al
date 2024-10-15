@@ -78,6 +78,11 @@ page 10751 "SII Setup"
                     ApplicationArea = All;
                     ToolTip = 'Specifies if you want to exclude lines that are negative from the export to the SII file.';
                 }
+                field("Do Not Schedule JQ Entry"; Rec."Do Not Schedule JQ Entry")
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies if the automatic scheduling of the background job for the SII Service is disabled. If you enable this option, you must upload documents manually from the SII History page by the Upload Pending Documents action';
+                }
                 field("Operation Date"; Rec."Operation Date")
                 {
                     ApplicationArea = All;
@@ -176,7 +181,7 @@ page 10751 "SII Setup"
                 Caption = 'Show SII History';
                 Image = History;
                 RunObject = Page "SII History";
-                ToolTip = 'Show history of all SII communication.';
+                                ToolTip = 'Show history of all SII communication.';
             }
         }
         area(Promoted)

@@ -426,10 +426,14 @@ codeunit 12 "Gen. Jnl.-Post Line"
         LastEntryNo: Integer;
         LastTransactionNo: Integer;
     begin
+        OnBeforeInitNextEntryNo(GLEntry);
+
         GLEntry.LockTable();
         GLEntry.GetLastEntry(LastEntryNo, LastTransactionNo);
         NextEntryNo := LastEntryNo + 1;
         NextTransactionNo := LastTransactionNo + 1;
+
+        OnAfterInitNextEntryNo(GLEntry, NextEntryNo, NextTransactionNo);
     end;
 
     procedure InitVAT(var GenJnlLine: Record "Gen. Journal Line"; var GLEntry: Record "G/L Entry"; var VATPostingSetup: Record "VAT Posting Setup")
@@ -1275,7 +1279,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
         OnAfterPostCust(GenJournalLine, Balancing, TempGLEntryBuf, NextEntryNo, NextTransactionNo);
     end;
 
-    local procedure PostVend(GenJournalLine: Record "Gen. Journal Line"; Balancing: Boolean)
+    local procedure PostVend(var GenJournalLine: Record "Gen. Journal Line"; Balancing: Boolean)
     var
         Vend: Record Vendor;
         VendPostingGr: Record "Vendor Posting Group";
@@ -2418,9 +2422,11 @@ codeunit 12 "Gen. Jnl.-Post Line"
                   NewCVLedgEntryBuf, OldCVLedgEntryBuf2, DtldCVLedgEntryBuf, GenJnlLine, PmtDiscLCY, PmtDiscAddCurr,
                   NextTransactionNo, FirstNewVATEntryNo, DtldCVLedgEntryBuf."Entry Type"::"Payment Discount (VAT Excl.)");
 
-            DtldCVLedgEntryBuf.InitDetailedCVLedgEntryBuf(
-                GenJnlLine, NewCVLedgEntryBuf, DtldCVLedgEntryBuf,
-                DtldCVLedgEntryBuf."Entry Type"::"Payment Discount", PmtDisc, PmtDiscLCY, PmtDiscAddCurr, 0, 0, 0);
+            OnCalcPmtDiscBeforeInitDetailedCVLedgEntryBuff(GenJnlLine, IsHandled);
+            if not IsHandled then
+                DtldCVLedgEntryBuf.InitDetailedCVLedgEntryBuf(
+                    GenJnlLine, NewCVLedgEntryBuf, DtldCVLedgEntryBuf,
+                    DtldCVLedgEntryBuf."Entry Type"::"Payment Discount", PmtDisc, PmtDiscLCY, PmtDiscAddCurr, 0, 0, 0);
 
             OnCalcPmtDiscOnAfterCalcPmtDisc(DtldCVLedgEntryBuf, OldCVLedgEntryBuf2, PmtDisc, PmtDiscLCY, GenJnlLine);
         end;
@@ -2648,9 +2654,11 @@ codeunit 12 "Gen. Jnl.-Post Line"
               NewCVLedgEntryBuf, OldCVLedgEntryBuf2, DtldCVLedgEntryBuf, GenJnlLine, PmtDiscTolLCY, PmtDiscTolAddCurr,
               NextTransactionNo, FirstNewVATEntryNo, DtldCVLedgEntryBuf."Entry Type"::"Payment Discount Tolerance (VAT Excl.)");
 
-        DtldCVLedgEntryBuf.InitDetailedCVLedgEntryBuf(
-          GenJnlLine, NewCVLedgEntryBuf, DtldCVLedgEntryBuf,
-          DtldCVLedgEntryBuf."Entry Type"::"Payment Discount Tolerance", PmtDiscTol, PmtDiscTolLCY, PmtDiscTolAddCurr, 0, 0, 0);
+        OnCalcPmtDiscToleranceBeforeInitDetailedCVLedgEntryBuff(GenJnlLine, IsHandled);
+        if not IsHandled then
+            DtldCVLedgEntryBuf.InitDetailedCVLedgEntryBuf(
+                GenJnlLine, NewCVLedgEntryBuf, DtldCVLedgEntryBuf,
+                DtldCVLedgEntryBuf."Entry Type"::"Payment Discount Tolerance", PmtDiscTol, PmtDiscTolLCY, PmtDiscTolAddCurr, 0, 0, 0);
 
         OnAfterCalcPmtDiscToleranceProc(DtldCVLedgEntryBuf, OldCVLedgEntryBuf, PmtDiscTol, PmtDiscTolLCY, GenJnlLine);
     end;
@@ -2978,7 +2986,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
         end;
     end;
 
-    local procedure FindAmtForAppln(var NewCVLedgEntryBuf: Record "CV Ledger Entry Buffer"; var OldCVLedgEntryBuf: Record "CV Ledger Entry Buffer"; var OldCVLedgEntryBuf2: Record "CV Ledger Entry Buffer"; var AppliedAmount: Decimal; var AppliedAmountLCY: Decimal; var OldAppliedAmount: Decimal; ApplnRoundingPrecision: Decimal)
+    local procedure FindAmtForAppln(var NewCVLedgEntryBuf: Record "CV Ledger Entry Buffer"; var OldCVLedgEntryBuf: Record "CV Ledger Entry Buffer"; var OldCVLedgEntryBuf2: Record "CV Ledger Entry Buffer"; var AppliedAmount: Decimal; var AppliedAmountLCY: Decimal; var OldAppliedAmount: Decimal; ApplnRoundingPrecision: Decimal; var GenJournalLine: Record "Gen. Journal Line")
     var
         IsHandled: Boolean;
     begin
@@ -2994,9 +3002,10 @@ codeunit 12 "Gen. Jnl.-Post Line"
                 if (PaymentToleranceMgt.CheckCalcPmtDisc(NewCVLedgEntryBuf, OldCVLedgEntryBuf2, ApplnRoundingPrecision, false, false) and
                     (Abs(OldCVLedgEntryBuf2."Amount to Apply") >=
                      Abs(OldCVLedgEntryBuf2."Remaining Amount" - OldCVLedgEntryBuf2."Remaining Pmt. Disc. Possible")))
-                then
-                    AppliedAmount := -OldCVLedgEntryBuf2."Remaining Amount"
-                else
+                then begin
+                    AppliedAmount := -OldCVLedgEntryBuf2."Remaining Amount";
+                    OnAfterSetAppliedAmountFromRemainingAmount(OldCVLedgEntryBuf2, AppliedAmount, GenJournalLine)
+                end else
                     AppliedAmount := -OldCVLedgEntryBuf2."Amount to Apply"
             end else
                 AppliedAmount := -OldCVLedgEntryBuf2."Remaining Amount";
@@ -3013,6 +3022,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
                    OldCVLedgEntryBuf."Accepted Pmt. Disc. Tolerance"
                 then begin
                     AppliedAmount := -OldCVLedgEntryBuf2."Remaining Amount";
+                    OnAfterSetAppliedAmountFromRemainingAmountOnEmptyFilter(OldCVLedgEntryBuf2, AppliedAmount, GenJournalLine);
                     OldCVLedgEntryBuf."Accepted Pmt. Disc. Tolerance" := false;
                 end else
                     AppliedAmount := ABSMin(NewCVLedgEntryBuf."Remaining Amount", -OldCVLedgEntryBuf2."Amount to Apply")
@@ -3150,6 +3160,9 @@ codeunit 12 "Gen. Jnl.-Post Line"
           DtldCVLedgEntryBuf, NewCVLedgEntryBuf, OldCVLedgEntryBuf, PrevNewCVLedgEntryBuf, PrevOldCVLedgEntryBuf, GenJnlLine);
 
         OldCVLedgEntryBuf.Open := OldCVLedgEntryBuf."Remaining Amount" <> 0;
+
+        OnCalcApplicationOnAfterFillOldCVLedgEntryBufOpen(GenJnlLine, OldCVLedgEntryBuf);
+
         if not OldCVLedgEntryBuf.Open then
             OldCVLedgEntryBuf.SetClosedFields(
               NewCVLedgEntryBuf."Entry No.", GenJnlLine."Posting Date",
@@ -3764,7 +3777,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
         MultiplePostingGroups := CheckCustMultiplePostingGroups(DtldCVLedgEntryBuf);
 
         DtldCVLedgEntryBuf.Reset();
-        OnAfterSetDtldCustLedgEntryNoOffset(DtldCVLedgEntryBuf);
+        OnAfterSetDtldCustLedgEntryNoOffset(DtldCVLedgEntryBuf, DtldCustLedgEntryNoOffset);
         DtldCVLedgEntryBuf.SetRange("Initial Document Type", DtldCVLedgEntryBuf."Initial Document Type"::Bill);
         if DtldCVLedgEntryBuf.FindFirst() then
             FindBill := true;
@@ -4187,8 +4200,13 @@ codeunit 12 "Gen. Jnl.-Post Line"
         PmtTolAmtToBeApplied: Decimal;
         AllApplied: Boolean;
         IsAmountToApplyCheckHandled: Boolean;
+        IsHandled: Boolean;
     begin
-        OnBeforeApplyVendLedgEntry(NewCVLedgEntryBuf, DtldCVLedgEntryBuf, GenJnlLine, Vend, IsAmountToApplyCheckHandled);
+        IsHandled := false;
+        OnBeforeApplyVendLedgEntry(NewCVLedgEntryBuf, DtldCVLedgEntryBuf, GenJnlLine, Vend, IsAmountToApplyCheckHandled, IsHandled);
+        if IsHandled then
+            exit;
+
         if not IsAmountToApplyCheckHandled then
             if NewCVLedgEntryBuf."Amount to Apply" = 0 then
                 exit;
@@ -4677,7 +4695,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
             PurchSetup.Get();
             if PurchSetup."Appln. between Currencies" = PurchSetup."Appln. between Currencies"::None then
                 OldVendLedgEntry.SetRange("Currency Code", NewCVLedgEntryBuf."Currency Code");
-            OnPrepareTempVendLedgEntryOnAfterSetFiltersBlankAppliesToDocNo(OldVendLedgEntry, GenJnlLine, NewCVLedgEntryBuf);
+            OnPrepareTempVendLedgEntryOnAfterSetFiltersBlankAppliesToDocNo(OldVendLedgEntry, GenJnlLine, NewCVLedgEntryBuf, Vend);
             if OldVendLedgEntry.FindSet(false) then
                 repeat
                     CheckCarteraAccessPermissions(OldVendLedgEntry."Document Situation");
@@ -4809,13 +4827,15 @@ codeunit 12 "Gen. Jnl.-Post Line"
         if GenJournalLine."Account Type" <> GenJournalLine."Account Type"::Vendor then
             exit;
 
+        OnPostDtldVendLedgEntriesOnBeforeSetDtldVendLedgEntryNoOffset(GenJournalLine, DetailedVendorLedgEntry);
+
         if DetailedVendorLedgEntry.FindLast() then
             DtldVendLedgEntryNoOffset := DetailedVendorLedgEntry."Entry No."
         else
             DtldVendLedgEntryNoOffset := 0;
 
-        OnPostDtldVendLedgEntriesOnAfterSetDtldVendLedgEntryNoOffset(GenJournalLine);
-	
+        OnPostDtldVendLedgEntriesOnAfterSetDtldVendLedgEntryNoOffset(GenJournalLine, DetailedVendorLedgEntry, DtldVendLedgEntryNoOffset);
+        
         DetailedCVLedgEntryBuffer.Reset();
         DetailedCVLedgEntryBuffer.SetRange("Initial Document Type", DetailedCVLedgEntryBuffer."Initial Document Type"::Bill);
         if DetailedCVLedgEntryBuffer.FindFirst() then
@@ -4824,7 +4844,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
         MultiplePostingGroups := CheckVendMultiplePostingGroups(DetailedCVLedgEntryBuffer);
 
         DetailedCVLedgEntryBuffer.Reset();
-        OnAfterSetDtldVendLedgEntryNoOffset(DetailedCVLedgEntryBuffer);
+        OnAfterSetDtldVendLedgEntryNoOffset(DetailedCVLedgEntryBuffer, DtldVendLedgEntryNoOffset);
         if DetailedCVLedgEntryBuffer.FindSet() then begin
             if LedgEntryInserted or FindBill then begin
                 SaveEntryNo := NextEntryNo;
@@ -5681,7 +5701,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
         if not IsHandled then begin
             FindAmtForAppln(
               NewCVLedgEntryBuf, OldCVLedgEntryBuf, OldCVLedgEntryBuf2,
-              AppliedAmount, AppliedAmountLCY, OldAppliedAmount, ApplnRoundingPrecision);
+              AppliedAmount, AppliedAmountLCY, OldAppliedAmount, ApplnRoundingPrecision, GenJnlLine);
 
             CalcCurrencyUnrealizedGainLoss(
               OldCVLedgEntryBuf, DtldCVLedgEntryBuf, GenJnlLine, -OldAppliedAmount, OldRemainingAmtBeforeAppln);
@@ -8147,7 +8167,14 @@ codeunit 12 "Gen. Jnl.-Post Line"
     end;
 
     local procedure CheckDetCustLedgEntryMultiplePostingGrOnBeforeUnapply(var DetailedCustLedgEntry2: Record "Detailed Cust. Ledg. Entry"; DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"): Boolean
+    var
+        IsHandled: Boolean;
+        MultiplePostingGroupsDetected: Boolean;
     begin
+        OnBeforeCheckDetCustLedgEntryMultiplePostingGrOnBeforeUnapply(DetailedCustLedgEntry2, DetailedCustLedgEntry, MultiplePostingGroupsDetected, IsHandled);
+        if IsHandled then
+            exit(MultiplePostingGroupsDetected);
+
         DetailedCustLedgEntry2.SetRange("Entry Type", DetailedCustLedgEntry2."Entry Type"::Application);
         DetailedCustLedgEntry2.FindSet();
         repeat
@@ -8158,7 +8185,14 @@ codeunit 12 "Gen. Jnl.-Post Line"
     end;
 
     local procedure CheckDetVendLedgEntryMultiplePostingGrOnBeforeUnapply(var DetailedVendorLedgEntry2: Record "Detailed Vendor Ledg. Entry"; var DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry"): Boolean
+    var
+        IsHandled: Boolean;
+        MultiplePostingGroupsDetected: Boolean;
     begin
+        OnBeforeCheckDetVendLedgEntryMultiplePostingGrOnBeforeUnapply(DetailedVendorLedgEntry2, DetailedVendorLedgEntry, MultiplePostingGroupsDetected, IsHandled);
+        if IsHandled then
+            exit(MultiplePostingGroupsDetected);
+
         DetailedVendorLedgEntry2.SetRange("Entry Type", DetailedVendorLedgEntry2."Entry Type"::Application);
         DetailedVendorLedgEntry2.FindSet();
         repeat
@@ -9185,7 +9219,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBeforeApplyVendLedgEntry(var NewCVLedgEntryBuf: Record "CV Ledger Entry Buffer"; var DtldCVLedgEntryBuf: Record "Detailed CV Ledg. Entry Buffer"; var GenJnlLine: Record "Gen. Journal Line"; Vend: Record Vendor; var IsAmountToApplyCheckHandled: Boolean)
+    local procedure OnBeforeApplyVendLedgEntry(var NewCVLedgEntryBuf: Record "CV Ledger Entry Buffer"; var DtldCVLedgEntryBuf: Record "Detailed CV Ledg. Entry Buffer"; var GenJnlLine: Record "Gen. Journal Line"; Vend: Record Vendor; var IsAmountToApplyCheckHandled: Boolean; var IsHandled: Boolean)
     begin
     end;
 
@@ -9599,6 +9633,11 @@ codeunit 12 "Gen. Jnl.-Post Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitNewDtldCVLedgEntryBuf(var DtldCVLedgEntryBuf: Record "Detailed CV Ledg. Entry Buffer"; var NewCVLedgEntryBuf: Record "CV Ledger Entry Buffer"; var OldCVLedgEntryBuf: Record "CV Ledger Entry Buffer"; var PrevNewCVLedgEntryBuf: Record "CV Ledger Entry Buffer"; var PrevOldCVLedgEntryBuf: Record "CV Ledger Entry Buffer"; var GenJnlLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcApplicationOnAfterFillOldCVLedgEntryBufOpen(var GenJnlLine: Record "Gen. Journal Line"; var OldCVLedgerEntryBuffer: Record "CV Ledger Entry Buffer")
     begin
     end;
 
@@ -10353,7 +10392,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPrepareTempVendLedgEntryOnAfterSetFiltersBlankAppliesToDocNo(var OldVendorLedgerEntry: Record "Vendor Ledger Entry"; GenJournalLine: Record "Gen. Journal Line"; CVLedgerEntryBuffer: Record "CV Ledger Entry Buffer")
+    local procedure OnPrepareTempVendLedgEntryOnAfterSetFiltersBlankAppliesToDocNo(var OldVendorLedgerEntry: Record "Vendor Ledger Entry"; GenJournalLine: Record "Gen. Journal Line"; CVLedgerEntryBuffer: Record "CV Ledger Entry Buffer"; Vendor: Record Vendor)
     begin
     end;
 
@@ -10713,7 +10752,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterSetDtldCustLedgEntryNoOffset(var DtldCVLedgEntryBuf: Record "Detailed CV Ledg. Entry Buffer")
+    local procedure OnAfterSetDtldCustLedgEntryNoOffset(var DtldCVLedgEntryBuf: Record "Detailed CV Ledg. Entry Buffer"; var DtldCustLedgEntryNoOffset: Integer)
     begin
     end;
 
@@ -10783,7 +10822,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterSetDtldVendLedgEntryNoOffset(var DtldCVLedgEntryBuf: Record "Detailed CV Ledg. Entry Buffer")
+    local procedure OnAfterSetDtldVendLedgEntryNoOffset(var DtldCVLedgEntryBuf: Record "Detailed CV Ledg. Entry Buffer"; var DtldVendLedgEntryNoOffset: Integer)
     begin
     end;
 
@@ -11178,12 +11217,47 @@ codeunit 12 "Gen. Jnl.-Post Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPostDtldVendLedgEntriesOnAfterSetDtldVendLedgEntryNoOffset(var GenJournalLine: Record "Gen. Journal Line")
+    local procedure OnPostDtldVendLedgEntriesOnBeforeSetDtldVendLedgEntryNoOffset(var GenJournalLine: Record "Gen. Journal Line"; var DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostDtldVendLedgEntriesOnAfterSetDtldVendLedgEntryNoOffset(var GenJournalLine: Record "Gen. Journal Line"; var DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry"; var DtldVendLedgEntryNoOffset: Integer)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnVendUnrealizedVATOnBeforeGetUnrealizedVATPart(var GenJournalLine: Record "Gen. Journal Line"; var VendorLedgerEntry: Record "Vendor Ledger Entry"; PaidAmount: Decimal; TotalUnrealVATAmountFirst: Decimal; TotalUnrealVATAmountLast: Decimal; SettledAmount: Decimal; VATEntry2: Record "VAT Entry"; var VATPart: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetAppliedAmountFromRemainingAmount(var CVLedgEntryBuffer: Record "CV Ledger Entry Buffer"; var AppliedAmount: Decimal; var GenJnlLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetAppliedAmountFromRemainingAmountOnEmptyFilter(var CVLedgerEntryBuffer: Record "CV Ledger Entry Buffer"; var AppliedAmount: Decimal; var GenJnlLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcPmtDiscBeforeInitDetailedCVLedgEntryBuff(var GenJnlLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcPmtDiscToleranceBeforeInitDetailedCVLedgEntryBuff(var GenJnlLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckDetVendLedgEntryMultiplePostingGrOnBeforeUnapply(var DetailedVendorLedgEntry2: Record "Detailed Vendor Ledg. Entry"; var DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry"; var MultiplePostingGroupsDetected: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckDetCustLedgEntryMultiplePostingGrOnBeforeUnapply(var DetailedCustLedgEntry2: Record "Detailed Cust. Ledg. Entry"; var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; var MultiplePostingGroupsDetected: Boolean; var IsHandled: Boolean)
     begin
     end;
 
@@ -11199,6 +11273,16 @@ codeunit 12 "Gen. Jnl.-Post Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePostCust(var GenJournalLine: Record "Gen. Journal Line"; Balancing: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitNextEntryNo(var GLEntry: Record "G/L Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitNextEntryNo(var GLEntry: Record "G/L Entry"; var NextEntryNo: Integer; var NextTransactionNo: Integer)
     begin
     end;
 }

@@ -116,6 +116,15 @@ table 10751 "SII Setup"
         {
             Caption = 'Do Not Export Negative Lines';
         }
+        field(22; "Do Not Schedule JQ Entry"; Boolean)
+        {
+            Caption = 'Do Not Schedule Job Queue Entry';
+
+            trigger OnValidate()
+            begin
+                FeatureTelemetry.LogUsage('0000MY1', SIIFeatureNameTok, StrSubstNo(DoNotScheduleJobQueueEntryEnabledTxt, Rec."Do Not Schedule JQ Entry"));
+            end;
+        }
         field(30; "Starting Date"; Date)
         {
             Caption = 'Starting Date';
@@ -199,6 +208,7 @@ table 10751 "SII Setup"
         SiiLRTxt: Label 'https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroLR.xsd', Locked = true;
         SIIFeatureNameTok: Label 'SII', Locked = true;
         NewAutomaticSendingExperienceEnabledTxt: Label 'New Automatic Sending Experience: %1', Locked = true, Comment = '%1 = either true or false';
+        DoNotScheduleJobQueueEntryEnabledTxt: Label 'Do Not Schedule Job Queue Entry: %1', Locked = true, Comment = '%1 = either true or false';
 
     procedure IsEnabled(): Boolean
     begin

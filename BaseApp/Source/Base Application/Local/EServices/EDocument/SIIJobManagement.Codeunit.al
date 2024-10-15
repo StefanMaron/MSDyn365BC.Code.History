@@ -26,6 +26,8 @@ codeunit 10751 "SII Job Management"
         SIISetup: Record "SII Setup";
     begin
         SIISetup.Get();
+        if SIISetup."Do Not Schedule JQ Entry" then
+            exit;
         if SIISetup."New Automatic Sending Exp." and (JobType = JobType::HandlePending) then begin
             SchedulePendingEntriesHandling();
             exit;
@@ -57,6 +59,7 @@ codeunit 10751 "SII Job Management"
     var
         JobQueueEntry: Record "Job Queue Entry";
     begin
+        JobQueueEntry.ReadIsolation(IsolationLevel::UpdLock);
         JobQueueEntry.Reset();
         JobQueueEntry.SetRange("Object Type to Run", JobQueueEntry."Object Type to Run"::Codeunit);
 
@@ -180,6 +183,7 @@ codeunit 10751 "SII Job Management"
         Schedule: Boolean;
         JobType: Option HandlePending,HandleCommError,InitialUpload;
     begin
+        SIISendingState.ReadIsolation(IsolationLevel::UpdLock);
         SIISendingState.InitRecord();
         if IsNullGuid(SIISendingState."Job Queue Entry ID") then
             Schedule := true

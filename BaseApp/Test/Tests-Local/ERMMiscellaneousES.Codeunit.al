@@ -104,6 +104,7 @@ codeunit 144072 "ERM Miscellaneous ES"
         LibraryJournals: Codeunit "Library - Journals";
         isInitialized: Boolean;
         PostedInvoiceIsPaidCorrectOrCancelErr: Label 'You cannot perform this action for closed or partially paid entries, nor for any entries that are created with the Cartera module.';
+        RecipientBankErr: Label 'Recipant Bank Account must be %1 in %2.', Comment = '%1 = Recipant Bank %2=Table Name';
 
     [Test]
     [HandlerFunctions('SalesInvoiceBookRequestPageHandler')]
@@ -1850,6 +1851,142 @@ codeunit 144072 "ERM Miscellaneous ES"
             LibraryReportDataset.AssertElementTagWithValueExists('VATEntry_Document_No_', PostedDocNo[i]);
     end;
 
+    [Test]
+    [HandlerFunctions('PurchasesInvoiceBookRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure NonDeductibleVATOnPurchasesInvoiceBookReport()
+    var
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchInvLine: Record "Purch. Inv. Line";
+        VATSetup: Record "VAT Setup";
+        VATPostingSetup: Record "VAT Posting Setup";
+        VATEntry: Record "VAT Entry";
+        VendorNo: Code[20];
+        PostedDocNo: Code[20];
+    begin
+        // [SCENARIO 493276] Non-Deductible VAT %, Non-Deductible VAT Base and Non-Deductible VAT Amount are displayed in Purchases Invoice Book report when Enable Non-Deductible VAT is set to true in VAT Setup.
+        Initialize();
+
+        // [GIVEN] Validate Enable Non-Deductible VAT in VAT Setup.
+        VATSetup.Get();
+        VATSetup."Enable Non-Deductible VAT" := true;
+        VATSetup.Modify();
+
+        // [GIVEN] Create VAT Posting Setup with Non-Deductible VAT.
+        CreateVATPostingSetupWithNonDeductibleVAT(VATPostingSetup);
+
+        // [GIVEN] Generate and save Vendor in a Variable.
+        VendorNo := LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group");
+
+        // [GIVEN] Create an Item and Validate VAT Prod. Posting Group.
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        Item.Modify(true);
+
+        // [GIVEN] Create a Purchase Header and Validate Vendor Invoice No.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VendorNo);
+        PurchaseHeader.Validate("Vendor Invoice No.", LibraryRandom.RandText(2));
+        PurchaseHeader.Modify(true);
+
+        // [GIVEN] Create a Purchase Line and Validate Direct Unit Cost.
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", LibraryRandom.RandInt(0));
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(100, 100));
+        PurchaseLine.Modify(true);
+
+        // [GIVEN] Post Purchase Invoice.
+        PostedDocNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, false);
+
+        // [GIVEN] Find Purch. Inv. Line.
+        PurchInvLine.SetRange("No.", Item."No.");
+        PurchInvLine.FindFirst();
+
+        // [WHEN] Run Purchases Invoice Book report.
+        RunReportWithVATEntry(REPORT::"Purchases Invoice Book", PostedDocNo, VATEntry."Document Type"::Invoice);
+
+        // [THEN] Element Tag VATEntry2_NonDeductibleVAT and Non-Deductible VAT% in Purch. Inv. Line are same.
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementTagWithValueExists('VATEntry2_NonDeductibleVAT', Format(PurchInvLine."Non-Deductible VAT %"));
+
+        // [THEN] Element Tag VATEntry2_NonDeductibleVATBase and Non-Deductible VAT Base in Purch. Inv. Line are same.
+        LibraryReportDataset.AssertElementTagWithValueExists('VATEntry2_NonDeductibleVATBase', Format(PurchInvLine."Non-Deductible VAT Base"));
+
+        // [THEN] Element Tag VATEntry2_NonDeductibleVATAmt and Non-Deductible VAT Amount in Purch. Inv. Line are same.
+        LibraryReportDataset.AssertElementTagWithValueExists('VATEntry2_NonDeductibleVATAmt', Format(PurchInvLine."Non-Deductible VAT Amount"));
+    end;
+
+
+    [Test]
+    procedure RecipientBankAccountRetrivedFromVendorNotFromVendorLedgerEntryWhileApplied()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Vendor: Record Vendor;
+        VendorBankAccount: array[2] of Record "Vendor Bank Account";
+        VATPostingSetup: Record "VAT Posting Setup";
+        GenJournalLine: Record "Gen. Journal Line";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        AppliestoDoc: Code[20];
+    begin
+        // [SCINARIO 523612] The Recipient Bank Account is always retrieved from the Vendor Card and not from the one specified in the posted Purchase Invoice if you try to apply invoices in the Payment Journal.
+        Initialize();
+
+        // [GIVEN] Create a Vendor.
+        LibraryPurchase.CreateVendor(Vendor);
+
+        // [GIVEN] Create two Vendor Bank Accounts for the Vendor.
+        LibraryPurchase.CreateVendorBankAccount(VendorBankAccount[1], Vendor."No.");
+        LibraryPurchase.CreateVendorBankAccount(VendorBankAccount[2], Vendor."No.");
+
+        // [GIVEN] Validate Preferred Bank Account with one Vendor Bank Account Code.
+        Vendor.Validate("Preferred Bank Account Code", VendorBankAccount[1].Code);
+        Vendor.Modify(true);
+
+        // [GIVEN] Create a Purchase Header of Document Type Order for the Vendor.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, Vendor."No.");
+
+        // [GIVEN] Create Vat Posting Setup for the Venodr.
+        CreateVATPostingSetup(VATPostingSetup, Vendor."VAT Bus. Posting Group", LibraryRandom.RandInt(9));
+
+        // [GIVEN] Update Vendor Bank Account Code with different Vendor Bank Account than Preferred Bank Account Code.
+        PurchaseHeader.Validate(PurchaseHeader."Vendor Bank Acc. Code", VendorBankAccount[2].Code);
+        PurchaseHeader.Modify(true);
+
+        // [GIVEN] Create Purchase Line of Type Item.
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(3));
+
+        // [GIVEN] Validate Direct Unit Cost, Vat Product Posting Group.
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
+        PurchaseLine.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        PurchaseLine.Modify(true);
+
+        // [GIVEN] Post Purchase Order and get the Posted Purchase Document No.
+        AppliestoDoc := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [GIVEN] Create Journal Line and Validate Applies-to Doc No. with the Posted Purchase Document No.
+        LibraryJournals.CreateGenJournalLineWithBatch(
+            GenJournalLine,
+            GenJournalLine."Document Type"::Payment,
+            GenJournalLine."Account Type"::Vendor,
+            '',
+             0);
+        GenJournalLine.Validate("Applies-to Doc. No.", AppliestoDoc);
+        GenJournalLine.Modify(true);
+
+        // [THEN] Verify if the Recipient Bank Account in Payment Journal matches with Venodr Ledger Entry.
+        VendorLedgerEntry.SetRange("Document No.", AppliestoDoc);
+        VendorLedgerEntry.FindFirst();
+        Assert.AreEqual(
+            GenJournalLine."Recipient Bank Account",
+            VendorLedgerEntry."Recipient Bank Account",
+            StrSubstNo(
+                RecipientBankErr,
+                VendorLedgerEntry."Recipient Bank Account",
+                GenJournalLine.TableCaption()));
+    end;
+
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear();
@@ -2718,6 +2855,38 @@ codeunit 144072 "ERM Miscellaneous ES"
             Assert.AreNearlyEqual(
               CostAmtNonInvtbl, "Cost Amount (Non-Invtbl.)", LibraryERM.GetAmountRoundingPrecision(), ExpectedValueMsg);
         end;
+    end;
+
+    local procedure CreateVATPostingSetupWithNonDeductibleVAT(var VATPostingSetup: Record "VAT Posting Setup")
+    var
+        VATBusinessPostingGroup: Record "VAT Business Posting Group";
+        VATProductPostingGroup: Record "VAT Product Posting Group";
+    begin
+        LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
+        LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
+        LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusinessPostingGroup.Code, VATProductPostingGroup.Code);
+        VATPostingSetup.Validate("VAT %", LibraryRandom.RandIntInRange(2, 2));
+        VATPostingSetup.Validate("Allow Non-Deductible VAT", VATPostingSetup."Allow Non-Deductible VAT"::Allow);
+        VATPostingSetup.Validate("Non-Deductible VAT %", LibraryRandom.RandIntInRange(3, 3));
+        VATPostingSetup.Validate("Non-Ded. Purchase VAT Account", LibraryERM.CreateGLAccountNo());
+        VatPostingSetup.Validate("Purchase VAT Account", LibraryERM.CreateGLAccountNo());
+        VatPostingSetup.Modify(true);
+    end;
+
+    local procedure CreateVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; VATBusinessPostingGroupCode: Code[20]; VATPercent: Decimal)
+    var
+        VATProductPostingGroup: Record "VAT Product Posting Group";
+    begin
+        LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
+        LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusinessPostingGroupCode, VATProductPostingGroup.Code);
+        VATPostingSetup.Validate("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        VATPostingSetup.Validate("VAT %", VATPercent);
+        VATPostingSetup.Validate("VAT Identifier", LibraryUtility.GenerateGUID());
+        VATPostingSetup.Validate("Purch. VAT Unreal. Account", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Validate("Sales VAT Unreal. Account", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Validate("Purchase VAT Account", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Validate("Sales VAT Account", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Modify(true);
     end;
 
     [RequestPageHandler]

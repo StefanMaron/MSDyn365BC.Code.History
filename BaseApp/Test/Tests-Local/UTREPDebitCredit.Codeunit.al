@@ -709,6 +709,50 @@ codeunit 144040 "UT REP Debit Credit"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('TrialBalanceRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure TotalWithDifferentAccountLevelCorrectOnTrialBalanceReport()
+    var
+        AmountWithinPeriod: Decimal;
+        GLAccountNo: array[2] of Code[20];
+        PeriodStart: Date;
+        PeriodEnd: Date;
+        RunAsOption: Option XML,Excel;
+    begin
+        // [SCENARIO 521732] Trial Balance does not sum up as expected with Different Level Account Filters in the Spanish Version.
+        Initialize();
+
+        // [GIVEN] Reporting period from 01-01-15 to 31-12-15 (1 year)
+        PeriodStart := CalcDate('<-CY>', WorkDate());
+        PeriodEnd := CalcDate('<CY>', WorkDate());
+
+        // [GIVEN] G/L Account
+        GLAccountNo[1] := LibraryERM.CreateGLAccountNo();
+        GLAccountNo[2] := LibraryERM.CreateGLAccountNo();
+
+        // [GIVEN] G/L Entry within the reporting period
+        AmountWithinPeriod := CreateGLEntryWithSpecifiedAmount(GLAccountNo[1], WorkDate());
+        AmountWithinPeriod += CreateGLEntryWithSpecifiedAmount(GLAccountNo[2], WorkDate());
+        Commit();
+
+        // [WHEN] Run Trial Balance report
+        LibraryVariableStorage.Enqueue(true);
+        LibraryVariableStorage.Enqueue(GLAccountNo[1] + '|' + GLAccountNo[2]);
+        LibraryVariableStorage.Enqueue(PeriodStart);
+        LibraryVariableStorage.Enqueue(PeriodEnd);
+        LibraryVariableStorage.Enqueue(false);
+        LibraryVariableStorage.Enqueue(RunAsOption::XML);
+
+        REPORT.Run(REPORT::"Trial Balance");
+
+        // [THEN] "Accumulated Balance at date" field contains sum of entries before and within period (100 + 500 = 600)
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists('TotalBalanceAtEnd', AmountWithinPeriod);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore();

@@ -1710,6 +1710,82 @@ codeunit 147590 "Test VAT Statement"
         VATStatementPreview.VATStatementLineSubForm.ColumnValue.AssertEquals(-SalesHeader.Amount / ExchangeRateAmount);
     end;
 
+    [Test]
+    [HandlerFunctions('TemplateSelectionModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure NonDeductibleVATBaseAndAmountShouldShowCorrectFigures()
+    var
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        VATSetup: Record "VAT Setup";
+        VATPostingSetup: Record "VAT Posting Setup";
+        VATStatementName: Record "VAT Statement Name";
+        VATStatementLine: Record "VAT Statement Line";
+        VatEntry: Record "VAT Entry";
+        LibraryInventory: Codeunit "Library - Inventory";
+        VATStatement: TestPage "VAT Statement";
+        VATStatementPreview: TestPage "VAT Statement Preview";
+        NoTaxableEntries: TestPage "No Taxable Entries";
+        VendorNo: Code[20];
+        PostedDocNo: Code[20];
+    begin
+        // [SCENARIO 533499] VAT Declaration does not show the right figures for "Non-Deductible Base" and "Non-Deductible Amount" Amount Types in the Spanish version.
+        Initialize();
+
+        // [GIVEN] Validate Enable Non-Deductible VAT in VAT Setup.
+        VATSetup.Get();
+        VATSetup."Enable Non-Deductible VAT" := true;
+        VATSetup.Modify();
+
+        // [GIVEN] Create VAT Posting Setup with Non-Deductible VAT.
+        CreateVATPostingSetupWithNonDeductibleVAT(VATPostingSetup);
+
+        // [GIVEN] Generate and save Vendor in a Variable.
+        VendorNo := LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group");
+
+        // [GIVEN] Create an Item and Validate VAT Prod. Posting Group.
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        Item.Modify(true);
+
+        // [GIVEN] Create a Purchase Header and Validate Vendor Invoice No.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VendorNo);
+        PurchaseHeader.Validate("Vendor Invoice No.", LibraryRandom.RandText(2));
+        PurchaseHeader.Modify(true);
+
+        // [GIVEN] Create a Purchase Line and Validate Direct Unit Cost.
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", LibraryRandom.RandInt(0));
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(100, 100));
+        PurchaseLine.Modify(true);
+
+        // [THEN] Post Purchase Invoice.
+        PostedDocNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, false);
+
+        // [WHEN] VAT Statement Lines for No Taxable VAT Posting Setup with Amount type = Amount and Base
+        CreateVATStatement(VATStatementName);
+        CreateVATStatementLineVATTotalling(
+          VATStatementLine, VATStatementName, '1', VATPostingSetup,
+          VATStatementLine."Gen. Posting Type"::Purchase, VATStatementLine."Amount Type"::"Non-Deductible Base", '');
+        CreateVATStatementLineVATTotalling(
+          VATStatementLine, VATStatementName, '2', VATPostingSetup,
+          VATStatementLine."Gen. Posting Type"::Purchase, VATStatementLine."Amount Type"::"Non-Deductible Amount", '');
+
+        VatEntry.SetRange(Type, VatEntry.Type::Purchase);
+        VatEntry.SetRange("Document No.", PostedDocNo);
+        VatEntry.FindFirst();
+
+        // [THEN] Verify: VAT Statement Preview shows correct Non-Deducatible VAT Base and Amount in VAT Statement Lines lines respectively
+        LibraryVariableStorage.Enqueue(VATStatementName."Statement Template Name");
+        VATStatementPreview.Trap();
+        NoTaxableEntries.Trap();
+        VATStatement.OpenEdit();
+        VATStatement."P&review".Invoke();
+        VATStatementPreview.VATStatementLineSubForm.ColumnValue.AssertEquals(VatEntry."Non-Deductible VAT Base");
+        VATStatementPreview.VATStatementLineSubForm.Next();
+        VATStatementPreview.VATStatementLineSubForm.ColumnValue.AssertEquals(VatEntry."Non-Deductible VAT Amount");
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2300,6 +2376,22 @@ codeunit 147590 "Test VAT Statement"
         LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals(TotalAmtTok, TotalAmount);
         LibraryReportDataset.AssertCurrentRowValueEquals(TotalBaseTok, TotalBase);
+    end;
+
+    local procedure CreateVATPostingSetupWithNonDeductibleVAT(var VATPostingSetup: Record "VAT Posting Setup")
+    var
+        VATBusinessPostingGroup: Record "VAT Business Posting Group";
+        VATProductPostingGroup: Record "VAT Product Posting Group";
+    begin
+        LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
+        LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
+        LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusinessPostingGroup.Code, VATProductPostingGroup.Code);
+        VATPostingSetup.Validate("VAT %", LibraryRandom.RandIntInRange(2, 2));
+        VATPostingSetup.Validate("Allow Non-Deductible VAT", VATPostingSetup."Allow Non-Deductible VAT"::Allow);
+        VATPostingSetup.Validate("Non-Deductible VAT %", LibraryRandom.RandIntInRange(3, 3));
+        VATPostingSetup.Validate("Non-Ded. Purchase VAT Account", LibraryERM.CreateGLAccountNo());
+        VatPostingSetup.Validate("Purchase VAT Account", LibraryERM.CreateGLAccountNo());
+        VatPostingSetup.Modify(true);
     end;
 
     [ModalPageHandler]

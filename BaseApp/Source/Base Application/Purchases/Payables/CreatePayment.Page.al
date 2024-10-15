@@ -170,10 +170,6 @@ page 1190 "Create Payment"
     var
         PostingDate: Date;
         BalAccountNo: Code[20];
-        NextDocNo: Code[20];
-        JournalBatchName: Code[10];
-        JournalTemplateName: Code[10];
-        BankPaymentType: Enum "Bank Payment Type";
         StartingDocumentNoErr: Label 'The value in the Starting Document No. field must have a number so that we can assign the next number in the series.';
         BatchNumberNotFilledErr: Label 'You must fill the Batch Name field.';
         PostingDateNotFilledErr: Label 'You must fill the Posting Date field.';
@@ -181,6 +177,12 @@ page 1190 "Create Payment"
         MessageToRecipientMsg: Label 'Payment of %1 %2 ', Comment = '%1 document type, %2 Document No.';
         EarlierPostingDateErr: Label 'You cannot create a payment with an earlier posting date for %1 %2.', Comment = '%1 - Document Type, %2 - Document No.. You cannot create a payment with an earlier posting date for Invoice INV-001.';
         DocToApplyLbl: Label '%1 %2', Locked = true, Comment = '%1=Document Type;%2=Vendor No.';
+
+    protected var
+        NextDocNo: Code[20];
+        JournalBatchName: Code[10];
+        JournalTemplateName: Code[10];
+        BankPaymentType: Enum "Bank Payment Type";
 
     procedure GetPostingDate(): Date
     begin
@@ -233,6 +235,7 @@ page 1190 "Create Payment"
                     Vendor.CheckBlockedVendOnJnls(Vendor, GenJournalDocType::Payment, true);
                 if PostingDate < VendorLedgerEntry."Posting Date" then
                     Error(EarlierPostingDateErr, VendorLedgerEntry."Document Type", VendorLedgerEntry."Document No.");
+                OnCheckVendorLedgerEntryPostingDate(VendorLedgerEntry, PostingDate);
                 if VendorLedgerEntry."Applies-to ID" = '' then begin
                     VendorLedgerEntry.CalcFields("Remaining Amount");
                     TempVendorPaymentBuffer."Vendor No." := VendorLedgerEntry."Vendor No.";
@@ -385,7 +388,7 @@ page 1190 "Create Payment"
             until TempVendorPaymentBuffer.Next() = 0;
     end;
 
-    local procedure UpdateDimensions(var GenJnlLine: Record "Gen. Journal Line"; TempVendorPaymentBuffer: Record "Vendor Payment Buffer" temporary)
+    protected procedure UpdateDimensions(var GenJnlLine: Record "Gen. Journal Line"; TempVendorPaymentBuffer: Record "Vendor Payment Buffer" temporary)
     var
         DimBuf: Record "Dimension Buffer";
         TempDimSetEntry: Record "Dimension Set Entry" temporary;
@@ -434,7 +437,7 @@ page 1190 "Create Payment"
         OnAfterAssignCombinedDimensionSetID(GenJournalLine, DimSetIDArr);
     end;
 
-    local procedure SetNextNo(GenJournalBatchNoSeries: Code[20]; KeepSavedDocumentNo: Boolean)
+    protected procedure SetNextNo(GenJournalBatchNoSeries: Code[20]; KeepSavedDocumentNo: Boolean)
     var
         GenJournalLine: Record "Gen. Journal Line";
         NoSeriesBatch: Codeunit "No. Series - Batch";
@@ -538,12 +541,17 @@ page 1190 "Create Payment"
     end;
 
     [IntegrationEvent(false, false)]
+    procedure OnCheckVendorLedgerEntryPostingDate(var VendorLedgerEntry: Record "Vendor Ledger Entry"; PostingDate: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterAssignCombinedDimensionSetID(var GenJournalLine: Record "Gen. Journal Line"; DimSetIDArr: array[10] of Integer)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeGetMessageToRecipient(TempVendorPaymentBuffer: Record "Vendor Payment Buffer" temporary; DocumentsToApply: List of [Text]; var IsHandled: Boolean; MessageToRecipient: Text[140])
+    local procedure OnBeforeGetMessageToRecipient(TempVendorPaymentBuffer: Record "Vendor Payment Buffer" temporary; DocumentsToApply: List of [Text]; var IsHandled: Boolean; var MessageToRecipient: Text[140])
     begin
     end;
 

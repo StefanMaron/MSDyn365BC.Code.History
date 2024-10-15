@@ -10,10 +10,10 @@ using System.Environment.Configuration;
 using System.Reflection;
 using System.IO;
 using System.Utilities;
+
 /// <summary>
 /// This code unit supports the 'Report Layouts' page and provides implementations for adding/deleting/editing user and extension defined report layouts.
 /// </summary>
-
 codeunit 9660 "Report Layouts Impl."
 {
     Access = Internal;
@@ -114,6 +114,7 @@ codeunit 9660 "Report Layouts Impl."
     internal procedure SetDefaultReportLayoutSelection(SelectedReportLayoutList: Record "Report Layout List"; ShowMessage: Boolean)
     var
         ReportLayoutSelection: Record "Report Layout Selection";
+        CustomDimensions: Dictionary of [Text, Text];
     begin
         // Add to TenantReportLayoutSelection table with an Empty Guid.
         AddLayoutSelection(SelectedReportLayoutList, EmptyGuid);
@@ -129,6 +130,11 @@ codeunit 9660 "Report Layouts Impl."
             ReportLayoutSelection.Type := GetReportLayoutSelectionCorrespondingEnum(SelectedReportLayoutList);
             ReportLayoutSelection.Insert(true);
         end;
+
+        CustomDimensions.Add('ReportId', Format(SelectedReportLayoutList."Report ID"));
+        CustomDimensions.Add('LayoutName', SelectedReportLayoutList."Name");
+        CustomDimensions.Add('Action', 'SetDefault');
+        Log('0000N0D', 'Report layout default changed by user', CustomDimensions);
 
         if ShowMessage then
             Message(DefaultLayoutSetTxt, SelectedReportLayoutList."Caption", SelectedReportLayoutList."Report Name");
@@ -214,6 +220,7 @@ codeunit 9660 "Report Layouts Impl."
         UploadResult: Boolean;
         UploadFileName: Text;
         ErrorMessage: Text;
+        CustomDimensions: Dictionary of [Text, Text];
     begin
         if ReportID = 0 then
             exit;
@@ -286,19 +293,46 @@ codeunit 9660 "Report Layouts Impl."
         TenantReportLayout."MIME Type" := CreateLayoutMime(UploadFileName);
         TenantReportLayout.Insert(true);
 
+        CustomDimensions.Add('ReportId', Format(TenantReportLayout."Report ID"));
+        CustomDimensions.Add('LayoutName', LayoutName);
+        CustomDimensions.Add('LayoutDescription', LayoutDescription);
+        CustomDimensions.Add('LayoutFormat', Format(LayoutFormat));
+        CustomDimensions.Add('Action', 'New');
+        Log('0000N0E', 'Report layout added by user', CustomDimensions);
+
         ReturnReportID := TenantReportLayout."Report ID";
         ReturnLayoutName := TenantReportLayout."Name";
+    end;
+
+    internal procedure DeleteReportLayout(TenantReportLayout: Record "Tenant Report Layout")
+    var
+        CustomDimensions: Dictionary of [Text, Text];
+    begin
+        TenantReportLayout.Delete(true);
+
+        AddReportLayoutDimensions(TenantReportLayout, CustomDimensions);
+        CustomDimensions.Add('Action', 'Delete');
+        Log('0000N0F', 'Report layout deleted by user', CustomDimensions);
     end;
 
     internal procedure ReplaceLayout(ReportID: Integer; LayoutName: Text[250]; LayoutDescription: Text[250]; LayoutFormat: Option; var ReturnReportID: Integer; var ReturnLayoutName: Text)
     var
         TenantReportLayout: Record "Tenant Report Layout";
+        CustomDimensions: Dictionary of [Text, Text];
     begin
         TenantReportLayout."Report ID" := ReportID;
         TenantReportLayout."Name" := LayoutName;
 
-        if TenantReportLayout.Get(ReportID, LayoutName, TenantReportLayout."App ID") then
+        if TenantReportLayout.Get(ReportID, LayoutName, TenantReportLayout."App ID") then begin
             InsertNewLayout(ReportID, LayoutName, LayoutDescription, LayoutFormat, TenantReportLayout."Company Name" = '', ReturnReportID, ReturnLayoutName);
+
+            CustomDimensions.Add('ReportId', Format(ReportID));
+            CustomDimensions.Add('LayoutName', LayoutName);
+            CustomDimensions.Add('LayoutDescription', LayoutDescription);
+            CustomDimensions.Add('LayoutFormat', Format(LayoutFormat));
+            CustomDimensions.Add('Action', 'Replace');
+            Log('0000N0G', 'Report layout replaced by user', CustomDimensions);
+        end;
     end;
 
     local procedure CreateLayoutMime(FileNameWithExtension: Text) MimeType: Text[255]
@@ -323,6 +357,7 @@ codeunit 9660 "Report Layouts Impl."
         SourceLayoutOutStream: OutStream;
         AllCompaniesTxt: Label '';
         AvailableInAllCompanies: Boolean;
+        CustomDimensions: Dictionary of [Text, Text];
     begin
         if SelectedReportLayoutList."User Defined" then begin
             if TenantReportLayout.Get(SelectedReportLayoutList."Report ID", SelectedReportLayoutList.Name, EmptyGuid) then
@@ -382,6 +417,14 @@ codeunit 9660 "Report Layouts Impl."
             if not CreateCopy then
                 if (SelectedReportLayoutList.Name <> NewLayoutName) then
                     UpdateDefaultLayoutSelectionName(SelectedReportLayoutList, NewLayoutName);
+
+            CustomDimensions.Add('ReportId', Format(TenantReportLayout."Report ID"));
+            CustomDimensions.Add('OldLayoutName', TenantReportLayout.Name);
+            CustomDimensions.Add('OldLayoutDescription', TenantReportLayout.Description);
+            CustomDimensions.Add('NewLayoutName', NewLayoutName);
+            CustomDimensions.Add('NewLayoutDescription', NewDescription);
+            CustomDimensions.Add('Action', 'Edit');
+            Log('0000N0H', 'Report layout properties changed by user', CustomDimensions);
         end;
     end;
 
@@ -391,10 +434,17 @@ codeunit 9660 "Report Layouts Impl."
         FileManagement: Codeunit "File Management";
         FileName: Text;
         MediaOutStream: OutStream;
+        CustomDimensions: Dictionary of [Text, Text];
     begin
         TempBlob.CreateOutStream(MediaOutStream);
         SelectedReportLayoutList."Layout".ExportStream(MediaOutStream);
         FileName := GetFileName(SelectedReportLayoutList);
+
+        CustomDimensions.Add('ReportId', Format(SelectedReportLayoutList."Report ID"));
+        CustomDimensions.Add('LayoutName', SelectedReportLayoutList."Name");
+        CustomDimensions.Add('Action', 'Export');
+        Log('0000N0I', 'Report layout exported by user', CustomDimensions);
+
         exit(FileManagement.BLOBExport(TempBlob, FileName, true));
     end;
 
@@ -505,6 +555,12 @@ codeunit 9660 "Report Layouts Impl."
         end;
     end;
 
+    local procedure AddReportLayoutDimensions(TenantReportLayout: Record "Tenant Report Layout"; var CustomDimensions: Dictionary of [Text, Text])
+    begin
+        CustomDimensions.Set('ReportId', Format(TenantReportLayout."Report ID"));
+        CustomDimensions.Set('LayoutName', TenantReportLayout."Name");
+    end;
+
     [EventSubscriber(ObjectType::Page, Page::"Report Layout Selection", 'OnSelectReportLayout', '', false, false)]
     local procedure SelectReportLayout(var ReportLayoutList: Record "Report Layout List"; var Handled: Boolean)
     begin
@@ -522,5 +578,10 @@ codeunit 9660 "Report Layouts Impl."
     [InternalEvent(false, false)]
     local procedure OnBeforeUpload(var AlreadyUploaded: Boolean; var UploadFileName: Text; var FileInStream: InStream)
     begin
+    end;
+
+    local procedure Log(EventId: Text; AuditMessage: Text; CustomDimensions: Dictionary of [Text, Text])
+    begin
+        Session.LogMessage(EventId, AuditMessage, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, CustomDimensions);
     end;
 }

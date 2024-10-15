@@ -41,6 +41,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         JournalBatchNameErr: Label 'Journal Batch Name must be %1 in %2';
         AppliesToIDNotSetErr: Label 'Applies-to ID is not set on Vendor Ledger Entry';
         AppliesToIDNotRemovedErr: Label 'Applies-to ID is not removed on Vendor Ledger Entry';
+        SuggestToVendorRefundErr: Label 'Document No. must be blank.';
 
     [Test]
     [HandlerFunctions('MessageHandler')]
@@ -435,16 +436,12 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         SuggestVendorPayment(
           GenJournalBatch, GenJournalLine."Account No.", AddRandomDaysToWorkDate(), true, GenJournalLine."Account Type"::"G/L Account",
           GenJournalLine."Bal. Account No.", GenJournalLine."Bank Payment Type"::" ", true);
-        DocumentNo2 := FindAndPostPaymentJournalLine(GenJournalBatch);
 
         // 3. Verify: Verify values on Vendor Ledger Entry after post the Payment Journal.
-        VerifyValuesOnVendLedgerEntry(
-          GenJournalLine."Document No.", GenJournalLine."Document Type"::Refund, GenJournalLine."Account No.", GenJournalLine.Amount,
-          GenJournalLine.Amount, true, GenJournalLine."On Hold");
-        VerifyValuesOnVendLedgerEntry(
-          DocumentNo, GenJournalLine."Document Type"::Refund, GenJournalLine."Account No.", GenJournalLine.Amount / 2, 0, false, '');
-        VerifyValuesOnVendLedgerEntry(
-          DocumentNo2, GenJournalLine."Document Type"::Payment, GenJournalLine."Account No.", -GenJournalLine.Amount / 2, 0, false, '');
+        DocumentNo2 := FindAndPostPaymentJournalLineRefund(GenJournalBatch);
+
+        // 4. Verify: Verify values of Document No. in Payment Journal.
+        Assert.AreEqual(DocumentNo2, '', SuggestToVendorRefundErr);
     end;
 
     [Test]
@@ -4208,6 +4205,68 @@ codeunit 134076 "ERM Suggest Vendor Payment"
             JournalBatchName2,
             GenJournalLine2."Journal Batch Name",
             StrSubstNo(JournalBatchNameErr, JournalBatchName2, GenJournalLine2.TableCaption()));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SuggestVendorPaymentForRefundUsingSummarizePerVenodr()
+    var
+        Vendor: Record Vendor;
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GenJournalLine: Record "Gen. Journal Line";
+        DocumentNo: Code[20];
+    begin
+        // [SCENARIO 495872] Journal Lines will not be suggested by Suggest Vendor Payments routine if Summarize per Vendor is enabled.
+        Initialize();
+
+        // [GIVEN] Create a vendor.
+        LibraryPurchase.CreateVendor(Vendor);
+
+        // [GIVEN] Create a Journal Batch using Journal Template General.
+        CreateGeneralJournalBatch(GenJournalBatch, GenJournalTemplate.Type::General);
+
+        // [GIVEN] Create Journal Line using Document Type Refund.
+        CreateGeneralJournalLine(
+            GenJournalLine,
+            GenJournalBatch,
+            WorkDate(),
+            Vendor."No.",
+            GenJournalLine."Document Type"::Refund,
+            -LibraryRandom.RandDec(100, 2));
+
+        // [GIVEN] Post the General Journal line.
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [GIVEN] Create a General Journal Batch using Journal Template Payments.
+        CreateGeneralJournalBatch(GenJournalBatch, GenJournalTemplate.Type::Payments);
+
+        // [GIVEN] Suggest Vendor Payment is invoked with Summarize Per Vendor set to true.
+        SuggestVendorPayment(
+            GenJournalBatch,
+            GenJournalLine."Account No.",
+            AddRandomDaysToWorkDate(),
+            true,
+            GenJournalLine."Account Type"::"G/L Account",
+            GenJournalLine."Bal. Account No.",
+            GenJournalLine."Bank Payment Type"::" ",
+            true);
+
+        // [GIVEN] Get the value of Document No. of Suggested Line. 
+        DocumentNo := FindAndPostPaymentJournalLineRefund(GenJournalBatch);
+
+        // [THEN] The General Journal line should not be created.
+        Assert.AreEqual(DocumentNo, '', SuggestToVendorRefundErr);
+    end;
+
+    local procedure FindAndPostPaymentJournalLineRefund(GenJournalBatch: Record "Gen. Journal Batch"): Code[20]
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        GenJournalLine.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
+        GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
+        if GenJournalLine.FindFirst() then
+            exit(GenJournalLine."Document No.");
     end;
 
     [ModalPageHandler]
