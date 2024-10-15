@@ -229,7 +229,7 @@
             exit;
 
         IsHandled := false;
-        OnBeforeOnNewRecord(Customer, IsHandled);
+        OnBeforeOnNewRecord(Customer, IsHandled, Rec);
         if IsHandled then
             exit;
 
@@ -242,7 +242,7 @@
         "Post Code" := Customer."Post Code";
         Validate(Contact, Customer.Contact);
 
-        OnAfterOnNewRecord(Customer);
+        OnAfterOnNewRecord(Customer, Rec);
     end;
 
     trigger OnOpenPage()
@@ -300,12 +300,12 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterOnNewRecord(var Customer: Record Customer)
+    local procedure OnAfterOnNewRecord(var Customer: Record Customer; var ShipToAddress: Record "Ship-to Address")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeOnNewRecord(var Customer: Record Customer; var IsHandled: Boolean)
+    local procedure OnBeforeOnNewRecord(var Customer: Record Customer; var IsHandled: Boolean; var ShipToAddress: Record "Ship-to Address")
     begin
     end;
 }

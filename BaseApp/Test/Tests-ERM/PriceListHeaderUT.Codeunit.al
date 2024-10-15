@@ -32,6 +32,7 @@ codeunit 134118 "Price List Header UT"
         LinesExistErr: Label 'You cannot change %1 because one or more lines exist.', Comment = '%1 - Field caption';
         StatusUpdateQst: Label 'Do you want to update status to %1?', Comment = '%1 - status value: Draft, Active, or Inactive';
         CannotDeleteActivePriceListErr: Label 'You cannot delete the active price list %1.', Comment = '%1 - the price list code.';
+        SourceNoMustBeFilledErr: Label 'Source No. must be filled';
         IsInitialized: Boolean;
 
     [Test]
@@ -109,6 +110,45 @@ codeunit 134118 "Price List Header UT"
         PriceListHeader."Source Group" := PriceListHeader."Source Group"::All;
         asserterror PriceListHeader.Insert(true);
         Assert.ExpectedError(CodeMustNotBeBlankErr);
+    end;
+
+    [Test]
+    procedure T006_DeleteLineOnHeaderDeletion()
+    var
+        PriceListHeader: array[2] of Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+    begin
+        Initialize();
+        PriceListHeader[1].DeleteAll();
+        PriceListLine.DeleteAll();
+
+        // [GIVEN] Price list header, where "Code" is 'X' has two lines
+        PriceListHeader[1].Init();
+        PriceListHeader[1]."Source Group" := PriceListHeader[1]."Source Group"::Job;
+        PriceListHeader[1].Insert(true);
+        PriceListLine."Price List Code" := PriceListHeader[1].Code;
+        PriceListLine."Line No." := 0;
+        PriceListLine.Insert();
+        PriceListLine."Line No." := 0;
+        PriceListLine.Insert();
+
+        // [GIVEN] Price list header, where "Code" is 'Y' has one lines
+        PriceListHeader[2].Init();
+        PriceListHeader[2]."Source Group" := PriceListHeader[2]."Source Group"::Job;
+        PriceListHeader[2].Insert(true);
+        PriceListLine."Price List Code" := PriceListHeader[2].Code;
+        PriceListLine."Line No." := 0;
+        PriceListLine.Insert();
+
+        // [WHEN] Delete header 'X'
+        PriceListHeader[1].Delete(true);
+
+        // [THEN] Lines, where "Price List Code" is 'X', are deleted
+        PriceListLine.SetRange("Price List Code", PriceListHeader[1].Code);
+        Assert.RecordIsEmpty(PriceListLine);
+        // [THEN] Line, where "Price List Code" is 'Y', is not deleted
+        PriceListLine.SetRange("Price List Code", PriceListHeader[2].Code);
+        Assert.RecordIsNotEmpty(PriceListLine);
     end;
 
     [Test]
@@ -699,6 +739,67 @@ codeunit 134118 "Price List Header UT"
         Assert.ExpectedError(StrSubstNo(CannotDeleteActivePriceListErr, PriceListHeader.Code));
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmYesHandler')]
+    procedure T060_UpdateStatusOnHeaderAsDefault()
+    var
+        Item: Record Item;
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: array[2] of Record "Price List Line";
+    begin
+        // [SCENARIO] Update of Status in the header with lines updates lines with confirmation.
+        Initialize();
+        // [GIVEN] New price list, where "Status" is 'Draft', "Allow Updating Defaults" is 'Yes'
+        CreatePriceList(PriceListHeader, PriceListLine[1]);
+        PriceListHeader."Allow Updating Defaults" := true;
+        PriceListHeader.Modify();
+        PriceListHeader.TestField(Status, PriceListHeader.Status::Draft);
+        // [GIVEN] Two lines, where Item is the same, but "Source No." are different
+        LibraryPriceCalculation.CreateSalesPriceLine(
+            PriceListLine[2], PriceListHeader.Code, "Price Source Type"::"All Customers", '',
+            PriceListLine[1]."Asset Type", PriceListLine[1]."Asset No.");
+
+        // [WHEN] Set "Status" as 'Active' and answer 'Yes'
+        PriceListHeader.Validate(Status, PriceListHeader.Status::Active);
+
+        // [THEN] Confirmation question: 'Do you want to update Status to Active?'
+        Assert.AreEqual(
+            StrSubstNo(StatusUpdateQst, PriceListHeader.Status::Active),
+            LibraryVariableStorage.DequeueText(), 'Confirm question'); // from ConfirmYesHandler
+        // [THEN] Price list header and lines got "Status" 'Active'.
+        PriceListHeader.TestField(Status, PriceListHeader.Status::Active);
+        PriceListLine[1].Find();
+        PriceListLine[1].TestField(Status, PriceListHeader.Status::Active);
+        PriceListLine[2].Find();
+        PriceListLine[2].TestField(Status, PriceListHeader.Status::Active);
+    end;
+
+    [Test]
+    procedure T061_UpdateStatusOnHeaderAsDefaultWithBlankSourceNo()
+    var
+        Item: Record Item;
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: array[2] of Record "Price List Line";
+    begin
+        // [SCENARIO] Update of Status in the header with lines updates lines with confirmation.
+        Initialize();
+        // [GIVEN] New price list, where "Status" is 'Draft', "Allow Updating Defaults" is 'Yes'
+        CreatePriceList(PriceListHeader, PriceListLine[1]);
+        PriceListHeader."Allow Updating Defaults" := true;
+        PriceListHeader.Modify();
+        PriceListHeader.TestField(Status, PriceListHeader.Status::Draft);
+        // [GIVEN] Two lines, where Item is the same, but "Source No." is <blank> in the 2nd line
+        LibraryPriceCalculation.CreateSalesPriceLine(
+            PriceListLine[2], PriceListHeader.Code, "Price Source Type"::Customer, '',
+            PriceListLine[1]."Asset Type", PriceListLine[1]."Asset No.");
+
+        // [WHEN] Set "Status" as 'Active' and answer 'Yes'
+        asserterror PriceListHeader.Validate(Status, PriceListHeader.Status::Active);
+
+        // [THEN] Error message: "Source No. must be filled in line"
+        asserterror Assert.ExpectedError(SourceNoMustBeFilledErr);
+        Assert.KnownFailure('Unhandled UI: Confirm', 377478);
+    end;
 
     [Test]
     procedure T100_DeletePricesOnCampaignDeletion()

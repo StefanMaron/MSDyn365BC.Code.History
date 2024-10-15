@@ -393,7 +393,12 @@ codeunit 452 "Report Distribution Management"
     procedure RunDefaultCheckSalesElectronicDocument(SalesHeader: Record "Sales Header")
     var
         ElectronicDocumentFormat: Record "Electronic Document Format";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeRunDefaultCheckSalesElectronicDocument(SalesHeader, IsHandled);
+        if IsHandled then
+            exit;
         GetElectronicDocumentFormat(ElectronicDocumentFormat, SalesHeader);
 
         ElectronicDocumentFormat.ValidateElectronicSalesDocument(SalesHeader, ElectronicDocumentFormat.Code);
@@ -453,6 +458,11 @@ codeunit 452 "Report Distribution Management"
             ClientZipFileName := CopyStr(FileManagement.GetFileNameWithoutExtension(ClientFileName) + '.zip', 1, 250);
         end;
         ServerFile.Close;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRunDefaultCheckSalesElectronicDocument(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
     end;
 }
 

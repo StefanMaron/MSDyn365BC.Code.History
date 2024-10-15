@@ -1523,6 +1523,11 @@
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
         Location: Record Location;
     begin
+        AddLoadFields(
+            "Price Calculation Method", "Sell-to Customer No.", "Customer Disc. Group", "Customer Price Group",
+            "VAT %", "VAT Calculation Type", "VAT Bus. Posting Group", "VAT Prod. Posting Group",
+            "Dimension Set ID", "Currency Code", "Qty. per Unit of Measure", "Allow Line Disc.");
+
         if Location.ReadPermission then
             LocationCodeVisible := not Location.IsEmpty();
 

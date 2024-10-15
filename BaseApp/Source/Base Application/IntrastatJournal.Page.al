@@ -183,6 +183,11 @@
                     ToolTip = 'Specifies the counter party''s VAT number.';
                     Visible = false;
                 }
+                field("Location Code"; "Location Code")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the code for the location that the entry is linked to.';
+                }
             }
             group(Control40)
             {
