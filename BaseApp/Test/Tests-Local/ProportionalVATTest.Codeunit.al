@@ -1238,9 +1238,11 @@ codeunit 144000 "Proportional VAT Test"
         ExpectedAmount: Decimal;
         ExpectedAmountACY: Decimal;
     begin
-        CalcVATBaseAmount(ExpectedAmount, ExpectedAmountACY, PurchHeader."Posting Date", PurchHeader."Currency Code", PurchLine.Amount);
-        ExpectedAmount := CalcVATAmount2(ExpectedAmount, VATPostingSetup, true);
-        ExpectedAmountACY := CalcVATAmount2(ExpectedAmountACY, VATPostingSetup, true);
+        ExpectedAmount := LibraryERM.ConvertCurrency(PurchLine.Amount, PurchHeader."Currency Code", '', PurchHeader."Posting Date");
+        ExpectedAmountACY := PurchLine.Amount;
+
+        ExpectedAmount := CalcVATAmount2(ExpectedAmount, VATPostingSetup, TRUE);
+        ExpectedAmountACY := CalcVATAmount2(ExpectedAmountACY, VATPostingSetup, TRUE);
 
         VerifyGLEntry(VATPostingSetup."Purchase VAT Account", DocNo, ExpectedAmount, ExpectedAmountACY);
     end;

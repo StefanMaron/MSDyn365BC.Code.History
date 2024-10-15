@@ -124,6 +124,10 @@
           SalesHeader, SalesShptHeader, SalesInvHeader, SalesCrMemoHeader, ReturnRcptHeader, WhseShip, WhseReceive, SalesLinesProcessed,
           SuppressCommit, EverythingInvoiced);
         ErrorMessageMgt.Finish(ZeroSalesLineRecID);
+
+        SendICDocument(SalesHeader);
+        UpdateHandledICInboxTransaction(SalesHeader);
+
         if not SalesHeader.IsCreditDocType then begin
             ReverseAmount(TotalSalesLine);
             ReverseAmount(TotalSalesLineLCY);
@@ -559,8 +563,6 @@
                 ArchiveUnpostedOrder(SalesHeader);
 
             CheckICPartnerBlocked(SalesHeader);
-            SendICDocument(SalesHeader, ModifyHeader);
-            UpdateHandledICInboxTransaction(SalesHeader);
 
             LockTables(SalesHeader);
 
@@ -5896,10 +5898,11 @@
         end;
     end;
 
-    local procedure SendICDocument(var SalesHeader: Record "Sales Header"; var ModifyHeader: Boolean)
+    local procedure SendICDocument(var SalesHeader: Record "Sales Header")
     var
         ICInboxOutboxMgt: Codeunit ICInboxOutboxMgt;
         IsHandled: Boolean;
+        ModifyHeader: Boolean;
     begin
         IsHandled := false;
         OnBeforeSendICDocument(SalesHeader, ModifyHeader, IsHandled);

@@ -74,6 +74,7 @@ codeunit 8800 "Custom Layout Reporting"
         TableFilterTxt: Text;
         ForTok: Label ' for %1', Comment = '%1: customer name, Sample: Statement for Stan as of 21/02/2020';
         AsOfTok: Label ' as of %1', Comment = '%1: date, Sample: Statement for Stan as of 21/02/2020';
+        TargetEmailAddressErr: Label 'The target email address has not been specified on the document layout for %1, %2. //Choose the Document Layouts action on the customer or vendor card to specify the email address.', Comment = '%1 - Source Data RecordID, %2 - Usage';
 
     procedure GetLayoutIteratorKeyFilter(var FilterRecordRef: RecordRef; var FilterRecordKeyFieldRef: FieldRef; CustomReportLayoutCode: Code[20])
     var
@@ -396,7 +397,7 @@ codeunit 8800 "Custom Layout Reporting"
                             else
                                 SaveAsReport(DataRecRef, ReportID, REPORTFORMAT::PDF)
                         else
-                            CustomReportSelection.CheckEmailSendTo(DataRecRef);
+                            CheckEmailSendTo(DataRecRef, CustomReportSelection);
                     end else
                         EmailReport(DataRecRef, ReportID, CustomReportSelection)
                 end;
@@ -1275,6 +1276,11 @@ codeunit 8800 "Custom Layout Reporting"
         exit(ClientTypeManagement.GetCurrentClientType in [CLIENTTYPE::Background]);
     end;
 
+    local procedure IsCustomReportSelectionNull(CustomReportSelection: Record "Custom Report Selection"): Boolean
+    begin
+        exit((CustomReportSelection."Source Type" = 0) and (CustomReportSelection."Source No." = '') and (CustomReportSelection.Sequence = 0));
+    end;
+
     procedure SetTableFilterForReportID(ReportID: Integer; CustomerNo: Text);
     begin
         TableFilterForReportID := ReportID;
@@ -1465,6 +1471,22 @@ codeunit 8800 "Custom Layout Reporting"
         ReportInbox."Created Date-Time" := RoundDateTime(CurrentDateTime, 60000);
         if not ReportInbox.Insert(true) then
             ReportInbox.Modify(true);
+    end;
+
+    local procedure CheckEmailSendTo(DataRecRef: RecordRef; CustomReportSelection: Record "Custom Report Selection")
+    var
+        ErrorMessage: Text;
+        ReportSelectionUsage: Text;
+    begin
+        if CustomReportSelection."Send To Email" = '' then begin
+            if IsCustomReportSelectionNull(CustomReportSelection) then
+                ReportSelectionUsage := Format(ReportSelections.Usage)
+            else
+                ReportSelectionUsage := Format(CustomReportSelection.Usage);
+
+            ErrorMessage := StrSubstNo(TargetEmailAddressErr, DataRecRef.RecordId, ReportSelectionUsage);
+            ErrorMessageManagement.LogError(CustomReportSelection, ErrorMessage, '');
+        end;
     end;
 
     [IntegrationEvent(false, false)]
