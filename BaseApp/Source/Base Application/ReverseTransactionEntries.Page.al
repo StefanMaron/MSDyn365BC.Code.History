@@ -1,7 +1,7 @@
 page 183 "Reverse Transaction Entries"
 {
     Caption = 'Reverse Entries';
-    DataCaptionExpression = Caption();
+    DataCaptionExpression = Rec.Caption();
     DeleteAllowed = false;
     InsertAllowed = false;
     PageType = List;

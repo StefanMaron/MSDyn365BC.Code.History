@@ -2,7 +2,7 @@
 page 179 "Reverse Entries"
 {
     Caption = 'Reverse Entries';
-    DataCaptionExpression = Caption();
+    DataCaptionExpression = Rec.Caption();
     DeleteAllowed = false;
     InsertAllowed = false;
     PageType = List;

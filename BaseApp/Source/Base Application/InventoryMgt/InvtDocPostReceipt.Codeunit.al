@@ -168,6 +168,7 @@ codeunit 5850 "Invt. Doc.-Post Receipt"
                     InvtRcptLine."Applies-from Entry" := InvtDocLine."Applies-from Entry";
                     InvtRcptLine."Dimension Set ID" := InvtDocLine."Dimension Set ID";
                     InvtRcptLine."Reason Code" := InvtDocLine."Reason Code";
+                    InvtRcptLine."Source Code" := SourceCode ;
                     OnRunOnBeforeInvtRcptLineInsert(InvtRcptLine, InvtDocLine);
                     InvtRcptLine.Insert();
                     OnRunOnAfterInvtRcptLineInsert(InvtRcptLine, InvtDocLine, InvtRcptHeader, InvtDocHeader);

@@ -2,7 +2,7 @@ page 1007 "Job Planning Lines"
 {
     AutoSplitKey = true;
     Caption = 'Job Planning Lines';
-    DataCaptionExpression = Caption();
+    DataCaptionExpression = Rec.Caption();
     PageType = List;
     SourceTable = "Job Planning Line";
 

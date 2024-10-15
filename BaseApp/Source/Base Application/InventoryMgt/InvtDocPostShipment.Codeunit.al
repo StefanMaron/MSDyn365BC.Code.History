@@ -169,6 +169,7 @@ codeunit 5851 "Invt. Doc.-Post Shipment"
                     InvtShptLine."Applies-from Entry" := InvtDocLine."Applies-from Entry";
                     InvtShptLine."Reason Code" := InvtDocLine."Reason Code";
                     InvtShptLine."Dimension Set ID" := InvtDocLine."Dimension Set ID";
+                    InvtShptLine."Source Code" := SourceCode;
                     OnRunOnBeforeInvtShptLineInsert(InvtShptLine, InvtDocLine, InvtShptHeader, InvtDocHeader);
                     InvtShptLine.Insert();
                     OnRunOnAfterInvtShptLineInsert(InvtShptLine, InvtDocLine, InvtShptHeader, InvtDocHeader);

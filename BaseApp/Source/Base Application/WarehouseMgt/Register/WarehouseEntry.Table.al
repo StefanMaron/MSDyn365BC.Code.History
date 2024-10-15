@@ -469,8 +469,6 @@
         Item: Record Item;
         ItemTrackingCode: Record "Item Tracking Code";
     begin
-        SetRange("Package No.", FromWhseEntry."Package No.");
-
         Item.Get("Item No.");
         if not ItemTrackingCode.Get(Item."Item Tracking Code") then
             exit;
@@ -479,6 +477,8 @@
             SetRange("Serial No.", FromWhseEntry."Serial No.");
         if (ItemTrackingCode."Lot Specific Tracking" and ItemTrackingCode."Lot Warehouse Tracking") then
             SetRange("Lot No.", FromWhseEntry."Lot No.");
+        if (ItemTrackingCode."Package Specific Tracking" and ItemTrackingCode."Package Warehouse Tracking") then
+            SetRange("Package No.", FromWhseEntry."Package No.");
     end;
 
     [IntegrationEvent(false, false)]
