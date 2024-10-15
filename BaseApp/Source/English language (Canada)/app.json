@@ -2,7 +2,7 @@
     "id":  "fe2381dc-81ce-4d36-9107-6aae586a6720",
     "name":  "English language (Canada)",
     "publisher":  "Microsoft",
-    "version":  "16.16.29464.0",
+    "version":  "16.17.30467.0",
     "dependencies":  [
 
                      ],
@@ -15,5 +15,5 @@
     "EULA":  "https://www.microsoft.com/en-us/download/details.aspx?id=56765",
     "help":  "https://go.microsoft.com/fwlink/?linkid=2115116",
     "url":  "https://www.microsoft.com/en-us/dynamics365/contact-us",
-    "application":  "16.16.0.0"
+    "application":  "16.17.0.0"
 }
