@@ -27,18 +27,7 @@ codeunit 5856 "TransferOrder-Post Transfer"
         OnRunOnAfterTransHeaderSetHideValidationDialog(TransHeader, Rec, HideValidationDialog);
 
         with TransHeader do begin
-            TestField("Transfer-from Code");
-            TestField("Transfer-to Code");
-            TestField("Direct Transfer");
-            if ("Transfer-from Code" <> '') and
-               ("Transfer-from Code" = "Transfer-to Code")
-            then
-                Error(
-                  SameLocationErr,
-                  "No.", FieldCaption("Transfer-from Code"), FieldCaption("Transfer-to Code"));
-            TestField("In-Transit Code", '');
-            TestField(Status, Status::Released);
-            TestField("Posting Date");
+            CheckBeforeTransferPost();
 
             CheckDim();
 
@@ -141,7 +130,6 @@ codeunit 5856 "TransferOrder-Post Transfer"
         WhseReceive: Boolean;
         OriginalQuantity: Decimal;
         OriginalQuantityBase: Decimal;
-        SameLocationErr: Label 'Transfer order %1 cannot be posted because %2 and %3 are the same.', Comment = '%1 - order number, %2 - location from, %3 - location to';
         NothingToPostErr: Label 'There is nothing to post.';
         PostingLinesMsg: Label 'Posting transfer lines #2######', Comment = '#2 - line counter';
         PostingDocumentTxt: Label 'Transfer Order %1', Comment = '%1 - document number';
@@ -234,6 +222,7 @@ codeunit 5856 "TransferOrder-Post Transfer"
         DirectTransHeader."No. Series" := InvtSetup."Posted Direct Trans. Nos.";
         DirectTransHeader."No." :=
             NoSeriesMgt.GetNextNo(InvtSetup."Posted Direct Trans. Nos.", TransferHeader."Posting Date", true);
+        OnInsertDirectTransHeaderOnBeforeDirectTransHeaderInsert(DirectTransHeader, TransferHeader);
         DirectTransHeader.Insert();
 
         OnAfterInsertDirectTransHeader(DirectTransHeader, TransferHeader);
@@ -241,33 +230,12 @@ codeunit 5856 "TransferOrder-Post Transfer"
 
     local procedure InsertDirectTransLine(DirectTransHeader: Record "Direct Trans. Header"; TransLine: Record "Transfer Line")
     begin
+        OnBeforeInsertDirectTransLine(TransLine);
         DirectTransLine.Init();
         DirectTransLine."Document No." := DirectTransHeader."No.";
-        DirectTransLine."Line No." := TransLine."Line No.";
-        DirectTransLine."Item No." := TransLine."Item No.";
-        DirectTransLine.Description := TransLine.Description;
-        DirectTransLine.Quantity := TransLine."Qty. to Ship";
-        DirectTransLine."Unit of Measure" := TransLine."Unit of Measure";
-        DirectTransLine."Shortcut Dimension 1 Code" := TransLine."Shortcut Dimension 1 Code";
-        DirectTransLine."Shortcut Dimension 2 Code" := TransLine."Shortcut Dimension 2 Code";
-        DirectTransLine."Dimension Set ID" := TransLine."Dimension Set ID";
-        DirectTransLine."Gen. Prod. Posting Group" := TransLine."Gen. Prod. Posting Group";
-        DirectTransLine."Inventory Posting Group" := TransLine."Inventory Posting Group";
-        DirectTransLine.Quantity := TransLine.Quantity;
-        DirectTransLine."Quantity (Base)" := TransLine."Quantity (Base)";
-        DirectTransLine."Qty. per Unit of Measure" := TransLine."Qty. per Unit of Measure";
-        DirectTransLine."Unit of Measure Code" := TransLine."Unit of Measure Code";
-        DirectTransLine."Gross Weight" := TransLine."Gross Weight";
-        DirectTransLine."Net Weight" := TransLine."Net Weight";
-        DirectTransLine."Unit Volume" := TransLine."Unit Volume";
-        DirectTransLine."Variant Code" := TransLine."Variant Code";
-        DirectTransLine."Units per Parcel" := TransLine."Units per Parcel";
-        DirectTransLine."Description 2" := TransLine."Description 2";
-        DirectTransLine."Transfer Order No." := TransLine."Document No.";
-        DirectTransLine."Transfer-from Code" := TransLine."Transfer-from Code";
-        DirectTransLine."Transfer-to Code" := TransLine."Transfer-to Code";
-        DirectTransLine."Transfer-from Bin Code" := TransLine."Transfer-from Bin Code";
-        DirectTransLine."Item Category Code" := TransLine."Item Category Code";
+        DirectTransLine.CopyFromTransferLine(TransLine);
+
+        OnInsertDirectTransLineOnAfterPopulateDirectTransLine(DirectTransLine, DirectTransHeader, TransLine);
         if TransLine.Quantity > 0 then begin
             OriginalQuantity := TransLine.Quantity;
             OriginalQuantityBase := TransLine."Quantity (Base)";
@@ -278,6 +246,7 @@ codeunit 5856 "TransferOrder-Post Transfer"
             if WhseReceive then
                 PostWhseJnlLine(ItemJnlLine, OriginalQuantity, OriginalQuantityBase, TempHandlingSpecification, 1);
         end;
+        OnInsertDirectTransLineOnBeforeDirectTransHeaderInsert(DirectTransHeader, TransLine);
         DirectTransLine.Insert();
 
         OnAfterInsertDirectTransLine(DirectTransLine, DirectTransHeader, TransLine)
@@ -466,12 +435,32 @@ codeunit 5856 "TransferOrder-Post Transfer"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertDirectTransLine(TransferLine: Record "Transfer Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforePostWhseJnlLine(ItemJnlLine: Record "Item Journal Line"; OriginalQuantity: Decimal; OriginalQuantityBase: Decimal; var TempHandlingSpecification: Record "Tracking Specification" temporary; Direction: Integer; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTransferTracking(var FromTransLine: Record "Transfer Line"; var ToTransLine: Record "Transfer Line"; TransferQty: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertDirectTransLineOnAfterPopulateDirectTransLine(var DirectTransLine: Record "Direct Trans. Line"; DirectTransHeader: Record "Direct Trans. Header"; TransLine: Record "Transfer Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertDirectTransHeaderOnBeforeDirectTransHeaderInsert(var DirectTransHeader: Record "Direct Trans. Header"; TransferHeader: Record "Transfer Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertDirectTransLineOnBeforeDirectTransHeaderInsert(var DirectTransHeader: Record "Direct Trans. Header"; TransLine: Record "Transfer Line")
     begin
     end;
 

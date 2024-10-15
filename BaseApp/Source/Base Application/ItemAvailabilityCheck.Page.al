@@ -136,6 +136,8 @@ page 1872 "Item Availability Check"
         TotalQuantity: Decimal;
         InventoryQty: Decimal;
         LocationCode: Code[10];
+        VariantCode: Code[10];
+        UnitOfMeasureCode: Code[20];
         Heading: Text;
         SelectVentorTxt: Label 'Select a vendor';
         AvailableInventoryLbl: Label 'Available Inventory';
@@ -158,6 +160,11 @@ page 1872 "Item Availability Check"
         AvailabilityCheckNotification.SetData('LocationCode', LocationCode);
     end;
 
+    procedure PopulateDataOnNotification(var AvailabilityCheckNotification: Notification; Name: Text; Value: Text)
+    begin
+        AvailabilityCheckNotification.SetData(Name, Value);
+    end;
+
     [Scope('OnPrem')]
     procedure InitializeFromNotification(AvailabilityCheckNotification: Notification)
     var
@@ -174,8 +181,12 @@ page 1872 "Item Availability Check"
         Evaluate(TotalQuantity, AvailabilityCheckNotification.GetData('TotalQuantity'));
         Evaluate(InventoryQty, AvailabilityCheckNotification.GetData('InventoryQty'));
         Evaluate(LocationCode, AvailabilityCheckNotification.GetData('LocationCode'));
-        CurrPage.AvailabilityCheckDetails.PAGE.SetUnitOfMeasureCode(
-          AvailabilityCheckNotification.GetData('UnitOfMeasureCode'));
+        if AvailabilityCheckNotification.GetData('VariantCode') <> '' then
+            Evaluate(VariantCode, AvailabilityCheckNotification.GetData('VariantCode'));
+        if AvailabilityCheckNotification.GetData('UnitOfMeasureCode') <> '' then begin
+            Evaluate(UnitOfMeasureCode, AvailabilityCheckNotification.GetData('UnitOfMeasureCode'));
+            CurrPage.AvailabilityCheckDetails.PAGE.SetUnitOfMeasureCode(AvailabilityCheckNotification.GetData('UnitOfMeasureCode'));
+        end;
 
         if AvailabilityCheckNotification.GetData('GrossReq') <> '' then begin
             Evaluate(GrossReq, AvailabilityCheckNotification.GetData('GrossReq'));
@@ -295,6 +306,9 @@ page 1872 "Item Availability Check"
 
         PurchaseLine.Validate(Type, PurchaseLine.Type::Item);
         PurchaseLine.Validate("No.", "No.");
+        PurchaseLine.Validate("Variant Code", VariantCode);
+        PurchaseLine.Validate("Unit of Measure Code", UnitOfMeasureCode);
+        PurchaseLine.Validate(Quantity, -TotalQuantity);
         PurchaseLine.Modify(true);
 
         exit(true);

@@ -12,8 +12,6 @@ report 5195 "Create Conts. from Customers"
             RequestFilterFields = "No.", "Search Name", "Customer Posting Group", "Currency Code";
 
             trigger OnAfterGetRecord()
-            var
-                CustContUpdate: Codeunit "CustCont-Update";
             begin
                 Window.Update(1);
 
@@ -45,10 +43,7 @@ report 5195 "Create Conts. from Customers"
                     Insert;
                 end;
 
-                if Contact = '' then
-                    "Primary Contact No." := Cont."No."
-                else
-                    CustContUpdate.InsertNewContactPerson(Customer, false);
+                InsertNewContactIfNeeded(Customer);
                 Modify(true);
             end;
 
@@ -107,8 +102,29 @@ report 5195 "Create Conts. from Customers"
         Window: Dialog;
         DuplicateContactExist: Boolean;
 
+    local procedure InsertNewContactIfNeeded(var Customer: Record Customer)
+    var
+        CustContUpdate: Codeunit "CustCont-Update";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeInsertNewContactIfNeeded(ContBusRel, Customer, IsHandled);
+        if IsHandled then
+            exit;
+
+        if Customer.Contact = '' then
+            Customer."Primary Contact No." := Cont."No."
+        else
+            CustContUpdate.InsertNewContactPerson(Customer, false);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeContactInsert(Customer: Record Customer; var Contact: Record Contact)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertNewContactIfNeeded(ContactBusinessRelation: Record "Contact Business Relation"; var Customer: Record Customer; var IsHandled: Boolean)
     begin
     end;
 

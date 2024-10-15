@@ -495,6 +495,34 @@ codeunit 138028 "O365 Adjust Inventory"
         LibraryVariableStorage.AssertEmpty;
     end;
 
+    [Test]
+    [HandlerFunctions('AdjustInventoryModalPageHandler')]
+    procedure ClearTemporaryJournalBatchWhenInventoryIsNotAdjusted()
+    var
+        Item: Record Item;
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemCard: TestPage "Item Card";
+        NoOfBatches: Integer;
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 432933] Clear temporary item journal batch when inventory is not adjusted.
+        Initialize();
+
+        LibraryInventory.CreateItem(Item);
+
+        NoOfBatches := ItemJournalBatch.Count();
+
+        ItemCard.OpenEdit();
+        ItemCard.FILTER.SetFilter("No.", Item."No.");
+
+        LibraryVariableStorage.Enqueue(0);
+        ItemCard.AdjustInventory.Invoke();
+
+        Assert.AreEqual(NoOfBatches, ItemJournalBatch.Count(), '');
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         LibraryApplicationArea: Codeunit "Library - Application Area";

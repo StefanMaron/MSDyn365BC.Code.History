@@ -906,7 +906,9 @@ codeunit 134117 "Price Lists UI"
         Initialize(true);
         // [GIVEN] New sales price list, where AllowLineDisc and AllowInvoiceDisc are on
         SalesPriceList.OpenNew();
+        Assert.IsTrue(SalesPriceList.Code.Editable(), 'Code.not Editable after OpenNew');
         SalesPriceList.AllowLineDisc.SetValue(true);
+        Assert.IsFalse(SalesPriceList.Code.Editable(), 'Code.Editable after Insert');
         SalesPriceList.AllowInvoiceDisc.SetValue(true);
 
         // [WHEN] Add a new item line
@@ -1204,6 +1206,64 @@ codeunit 134117 "Price Lists UI"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmNoHandler')]
+    procedure T039_DefaultsCopiedToNewLineInSalesPriceListAllowEditing()
+    var
+        Currency: Record Currency;
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+        PriceListsUI: Codeunit "Price Lists UI";
+        SalesPriceList: TestPage "Sales Price List";
+    begin
+        // [SCENARIO] Defaults from the header are copied to the new line, if "Allow Editing Defaults" is Yes
+        Initialize(true);
+        BindSubscription(PriceListsUI);
+        // [GIVEN] "Allow Editing Active Price" is Yes for Sales
+        LibraryPriceCalculation.AllowEditingActiveSalesPrice();
+        // [GIVEN] Price List for Customer X, where 'Starting Date' is 050122, "Allow Editing Defaults" is Yes
+        LibraryPriceCalculation.CreatePriceHeader(
+            PriceListHeader, "Price Type"::Sale, "Price Source Type"::Customer, LibrarySales.CreateCustomerNo());
+        PriceListHeader."Allow Updating Defaults" := true;
+        PriceListHeader."Starting Date" := WorkDate() + 5;
+        PriceListHeader.Modify();
+
+        // [GIVEN] Open price list card
+        SalesPriceList.OpenEdit();
+        SalesPriceList.Filter.SetFilter(Code, PriceListHeader.Code);
+
+        // [WHEN] Create a new line
+        SalesPriceList.Lines.New();
+
+        // [THEN] New line, where Customer X, 'Starting Date' is 050122, "Asset Type" is Item
+        SalesPriceList.Lines.SourceType.AssertEquals(PriceListHeader."Source Type");
+        SalesPriceList.Lines.SourceNo.AssertEquals(PriceListHeader."Source No.");
+        Assert.IsTrue(SalesPriceList.Lines.SourceNo.Visible(), 'SourceNo.not Visible');
+        Assert.IsFalse(SalesPriceList.Lines.AssignToNo.Visible(), 'AssignToNo.Visible');
+        SalesPriceList.Lines.StartingDate.AssertEquals(PriceListHeader."Starting Date");
+        SalesPriceList.Lines."Asset Type".AssertEquals("Price Asset Type"::Item);
+
+        // [GIVEN] Set Item No 'I1'
+        SalesPriceList.Lines."Asset No.".SetValue(LibraryInventory.CreateItemNo());
+
+        // [GIVEN] Change the header, "All Customers", "Currency Code" is 'CCC', Ending Date = 100122
+        SalesPriceList.SourceType.SetValue("Price Source Type"::"All Customers");
+        SalesPriceList.EndingDate.SetValue(WorkDate() + 10);
+        LibraryERM.FindCurrency(Currency);
+        SalesPriceList.CurrencyCode.SetValue(Currency.Code);
+
+        // [WHEN] Create a new line
+        SalesPriceList.Lines.New();
+
+        // [THEN] New line, where All Customers, 'Ending Date' is 100122, "Currency Code" is 'CCC'
+        PriceListHeader.Find();
+        SalesPriceList.Lines.SourceType.AssertEquals(PriceListHeader."Source Type");
+        SalesPriceList.Lines.SourceNo.AssertEquals(PriceListHeader."Source No.");
+        SalesPriceList.Lines.StartingDate.AssertEquals(PriceListHeader."Starting Date");
+        SalesPriceList.Lines.EndingDate.AssertEquals(PriceListHeader."Ending Date");
+        SalesPriceList.Lines.CurrencyCode.AssertEquals(PriceListHeader."Currency Code");
+    end;
+
+    [Test]
     procedure T040_ValidateCurrencyCodeDifferentFromSource()
     var
         Currency: Record Currency;
@@ -1278,8 +1338,12 @@ codeunit 134117 "Price Lists UI"
         Assert.IsFalse(PurchasePriceList.JobSourceType.Visible(), 'JobSourceType.Visible');
         PurchasePriceList.Filter.SetFilter(Code, PriceListHeader.Code);
         PurchasePriceList.Lines.New();
+        Assert.IsTrue(PurchasePriceList.Lines.SourceNo.Visible(), 'SourceNo.not Visible');
+        Assert.IsFalse(PurchasePriceList.Lines.AssignToNo.Visible(), 'AssignToNo.Visible');
         PurchasePriceList.Lines.SourceNo.SetValue(Vendor[2]."No.");
         PurchasePriceList.Lines."Asset Type".SetValue("Price Asset Type"::"G/L Account");
+        Assert.IsTrue(PurchasePriceList.Lines."Asset No.".Visible(), '"Asset No.".not Visible');
+        Assert.IsFalse(PurchasePriceList.Lines."Product No.".Visible(), '"Product No.". Visible');
         PurchasePriceList.Lines."Asset No.".SetValue(LibraryERM.CreateGLAccountNo());
 
         // [THEN] Price list line added, where "Currency Code" is 'EUR'
@@ -1324,12 +1388,16 @@ codeunit 134117 "Price Lists UI"
         // [GIVEN] Change Customer to 'L' on the header
         SalesPriceList.OpenEdit();
         SalesPriceList.Filter.SetFilter(Code, PriceListHeader.Code);
+        Assert.IsTrue(SalesPriceList.Lines.SourceNo.Visible(), 'SourceNo.not Visible');
+        Assert.IsFalse(SalesPriceList.Lines.AssignToNo.Visible(), 'AssignToNo. Visible');
         SalesPriceList.SourceNo.SetValue(Customer[2]."No.");
         SalesPriceList.CurrencyCode.AssertEquals(Customer[2]."Currency Code");
 
         // [WHEN] Add new price list line with a g/l account
         SalesPriceList.Lines.New();
         SalesPriceList.Lines."Asset Type".SetValue("Price Asset Type"::"G/L Account");
+        Assert.IsTrue(SalesPriceList.Lines."Asset No.".Visible(), '"Asset No.".not Visible');
+        Assert.IsFalse(SalesPriceList.Lines."Product No.".Visible(), '"Product No.". Visible');
         SalesPriceList.Lines."Asset No.".SetValue(LibraryERM.CreateGLAccountNo());
 
         // [THEN] Price list line added, where "Assign-to" is 'L', "Currency Code" is 'EUR'
@@ -1377,12 +1445,16 @@ codeunit 134117 "Price Lists UI"
         // [GIVEN] Change vendor to 'L' on the header
         PurchasePriceList.OpenEdit();
         PurchasePriceList.Filter.SetFilter(Code, PriceListHeader.Code);
+        Assert.IsTrue(PurchasePriceList.Lines.SourceNo.Visible(), 'SourceNo.not Visible');
+        Assert.IsFalse(PurchasePriceList.Lines.AssignToNo.Visible(), 'AssignToNo. Visible');
         PurchasePriceList.SourceNo.SetValue(Vendor[2]."No.");
         PurchasePriceList.CurrencyCode.AssertEquals(Vendor[2]."Currency Code");
 
         // [WHEN] Add new price list line with a g/l account
         PurchasePriceList.Lines.New();
         PurchasePriceList.Lines."Asset Type".SetValue("Price Asset Type"::"G/L Account");
+        Assert.IsTrue(PurchasePriceList.Lines."Asset No.".Visible(), '"Asset No.".not Visible');
+        Assert.IsFalse(PurchasePriceList.Lines."Product No.".Visible(), '"Product No.". Visible');
         PurchasePriceList.Lines."Asset No.".SetValue(LibraryERM.CreateGLAccountNo());
 
         // [THEN] Price list line added, where "Assign-to" is 'L', "Currency Code" is 'EUR'
@@ -1420,7 +1492,8 @@ codeunit 134117 "Price Lists UI"
 
         // [THEN] "Applie-to Type", "Assign-to", "Currency Code",  "Starting/Ending Date", "Price Includes VAT" are visible and editable
         Assert.IsTrue(SalesPriceList.Lines.SourceType.Visible(), 'SourceType.Visible');
-        Assert.IsTrue(SalesPriceList.Lines.SourceNo.Visible(), 'SourceType.No');
+        Assert.IsTrue(SalesPriceList.Lines.SourceNo.Visible(), 'SourceNo.Visible');
+        Assert.IsFalse(SalesPriceList.Lines.AssignToNo.Visible(), 'AssignToNo.Visible');
         Assert.IsTrue(SalesPriceList.Lines.CurrencyCode.Visible(), 'CurrencyCode.Visible');
         Assert.IsTrue(SalesPriceList.Lines.StartingDate.Visible(), 'StartingDate.Visible');
         Assert.IsTrue(SalesPriceList.Lines.EndingDate.Visible(), 'EndingDate.Visible');
@@ -1452,12 +1525,203 @@ codeunit 134117 "Price Lists UI"
 
         // [THEN] "Applie-to Type", "Assign-to", "Currency Code",  "Starting/Ending Date", "Price Includes VAT" are visible and editable
         Assert.IsTrue(PurchPriceList.Lines.SourceType.Visible(), 'SourceType.Visible');
-        Assert.IsTrue(PurchPriceList.Lines.SourceNo.Visible(), 'SourceType.No');
+        Assert.IsTrue(PurchPriceList.Lines.SourceNo.Visible(), 'SourceNo.Visible');
+        Assert.IsFalse(PurchPriceList.Lines.AssignToNo.Visible(), 'AssignToNo.Visible');
         Assert.IsTrue(PurchPriceList.Lines.CurrencyCode.Visible(), 'CurrencyCode.Visible');
         Assert.IsTrue(PurchPriceList.Lines.StartingDate.Visible(), 'StartingDate.Visible');
         Assert.IsTrue(PurchPriceList.Lines.EndingDate.Visible(), 'EndingDate.Visible');
         Assert.IsTrue(PurchPriceList.Lines.PriceIncludesVAT.Visible(), 'PriceIncludesVAT.No');
         Assert.IsTrue(PurchPriceList.Lines.VATBusPostingGrPrice.Visible(), 'VATBusPostingGrPrice.No');
+    end;
+
+    [Test]
+    procedure T046_SalesPriceLinesAllowUpdatingDefaultsDropDownLookup()
+    var
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+        SalesPriceList: TestPage "Sales Price List";
+    begin
+        Initialize(true);
+        // [GIVEN] Custom lookup is off
+        LibraryPriceCalculation.SetUseCustomLookup(false);
+
+        // [GIVEN] Price List header for "All Customers", where "Allow Updating Defaults" is 'Yes' and one line
+        LibraryPriceCalculation.CreatePriceHeader(
+            PriceListHeader, "Price Type"::Sale, "Price Source Type"::"All Customers", '');
+        PriceListHeader."Allow Updating Defaults" := true;
+        PriceListHeader.Modify();
+        LibraryPriceCalculation.CreateSalesPriceLine(
+            PriceListLine, PriceListHeader.Code, "Price Source Type"::"All Customers", '',
+            "Price Asset Type"::"G/L Account", LibraryERM.CreateGLAccountNo());
+
+        // [WHEN] Open sales price list
+        SalesPriceList.Trap();
+        RunSalesPriceList("Price Source Group"::Customer);
+        SalesPriceList.Filter.SetFilter(Code, PriceListHeader.Code);
+
+        // [THEN] "Assign-to Parent No." is not visible in the header
+        Assert.IsTrue(SalesPriceList.SourceType.Visible(), 'Header SourceType.Visible');
+        Assert.IsFalse(SalesPriceList.JobSourceType.Visible(), 'Header JobSourceType.Visible');
+        Assert.IsFalse(SalesPriceList.AssignToParentNo.Visible(), 'Header AssignToParentNo.Visible');
+        Assert.IsFalse(SalesPriceList.SourceNo.Visible(), 'Header SourceNo.Visible');
+        Assert.IsTrue(SalesPriceList.AssignToNo.Visible(), 'Header AssignToNo.Visible');
+        // [THEN] "Applie-to Type", "Assign-to", "Currency Code",  "Starting/Ending Date", "Price Includes VAT" are visible and editable
+        Assert.IsTrue(SalesPriceList.Lines.SourceType.Visible(), 'SourceType.Visible');
+        Assert.IsTrue(SalesPriceList.Lines.AssignToNo.Visible(), 'AssignToNo.Visible');
+        Assert.IsFalse(SalesPriceList.Lines.AssignToParentNo.Visible(), 'AssignToParentNo.Visible');
+        Assert.IsTrue(SalesPriceList.Lines.CurrencyCode.Visible(), 'CurrencyCode.Visible');
+        Assert.IsTrue(SalesPriceList.Lines.StartingDate.Visible(), 'StartingDate.Visible');
+        Assert.IsTrue(SalesPriceList.Lines.EndingDate.Visible(), 'EndingDate.Visible');
+        Assert.IsTrue(SalesPriceList.Lines.PriceIncludesVAT.Visible(), 'PriceIncludesVAT.No');
+        Assert.IsTrue(SalesPriceList.Lines.VATBusPostingGrPrice.Visible(), 'VATBusPostingGrPrice.No');
+        Assert.IsTrue(SalesPriceList.Lines."Product No.".Visible(), '"Product No.".Visible');
+        // [THEN] "Source No.", "Asset No." are invisible
+        Assert.IsFalse(SalesPriceList.Lines.SourceNo.Visible(), 'SourceNo.Visible');
+        Assert.IsFalse(SalesPriceList.Lines."Asset No.".Visible(), '"Asset No.".Visible');
+    end;
+
+    [Test]
+    procedure T047_PurchPriceLinesAllowUpdatingDefaultsDropDownLookup()
+    var
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+        PurchPriceList: TestPage "Purchase Price List";
+    begin
+        Initialize(true);
+        // [GIVEN] Custom lookup is off
+        LibraryPriceCalculation.SetUseCustomLookup(false);
+
+        // [GIVEN] Price List header for "All Vendors", where "Allow Updating Defaults" is 'Yes' and one line
+        LibraryPriceCalculation.CreatePriceHeader(
+            PriceListHeader, "Price Type"::Sale, "Price Source Type"::"All Vendors", '');
+        PriceListHeader."Allow Updating Defaults" := true;
+        PriceListHeader.Modify();
+        LibraryPriceCalculation.CreatePurchPriceLine(
+            PriceListLine, PriceListHeader.Code, "Price Source Type"::"All Vendors", '',
+            "Price Asset Type"::"G/L Account", LibraryERM.CreateGLAccountNo());
+
+        // [WHEN] Open Purch price list
+        PurchPriceList.Trap();
+        RunPurchPriceList("Price Source Group"::Vendor);
+        PurchPriceList.Filter.SetFilter(Code, PriceListHeader.Code);
+
+        // [THEN] "Assign-to Parent No." is not visible in the header
+        Assert.IsTrue(PurchPriceList.SourceType.Visible(), 'Header SourceType.Visible');
+        Assert.IsFalse(PurchPriceList.JobSourceType.Visible(), 'Header JobSourceType.Visible');
+        Assert.IsFalse(PurchPriceList.AssignToParentNo.Visible(), 'Header AssignToParentNo.Visible');
+        Assert.IsFalse(PurchPriceList.SourceNo.Visible(), 'Header SourceNo.Visible');
+        Assert.IsTrue(PurchPriceList.AssignToNo.Visible(), 'Header AssignToNo.Visible');
+        // [THEN] "Applie-to Type", "Assign-to", "Currency Code",  "Starting/Ending Date", "Price Includes VAT" are visible and editable
+        Assert.IsTrue(PurchPriceList.Lines.SourceType.Visible(), 'SourceType.Visible');
+        Assert.IsTrue(PurchPriceList.Lines.AssignToNo.Visible(), 'AssignToNo.Visible');
+        Assert.IsFalse(PurchPriceList.Lines.AssignToParentNo.Visible(), 'AssignToParentNo.Visible');
+        Assert.IsTrue(PurchPriceList.Lines.CurrencyCode.Visible(), 'CurrencyCode.Visible');
+        Assert.IsTrue(PurchPriceList.Lines.StartingDate.Visible(), 'StartingDate.Visible');
+        Assert.IsTrue(PurchPriceList.Lines.EndingDate.Visible(), 'EndingDate.Visible');
+        Assert.IsTrue(PurchPriceList.Lines.PriceIncludesVAT.Visible(), 'PriceIncludesVAT.No');
+        Assert.IsTrue(PurchPriceList.Lines.VATBusPostingGrPrice.Visible(), 'VATBusPostingGrPrice.No');
+        Assert.IsTrue(PurchPriceList.Lines."Product No.".Visible(), '"Product No.".Visible');
+        // [THEN] "Source No.", "Asset No." are invisible
+        Assert.IsFalse(PurchPriceList.Lines.SourceNo.Visible(), 'SourceNo.Visible');
+        Assert.IsFalse(PurchPriceList.Lines."Asset No.".Visible(), '"Asset No.".Visible');
+    end;
+
+    [Test]
+    procedure T048_SalesJobPriceLinesAllowUpdatingDefaultsDropDownLookup()
+    var
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+        SalesPriceList: TestPage "Sales Price List";
+    begin
+        Initialize(true);
+        // [GIVEN] Custom lookup is off
+        LibraryPriceCalculation.SetUseCustomLookup(false);
+
+        // [GIVEN] Sales Price List for "All Jobs", where "Allow Updating Defaults" is 'Yes' and one line
+        LibraryPriceCalculation.CreatePriceHeader(
+            PriceListHeader, "Price Type"::Sale, "Price Source Type"::"All Jobs", '');
+        PriceListHeader."Allow Updating Defaults" := true;
+        PriceListHeader.Modify();
+        LibraryPriceCalculation.CreateSalesPriceLine(
+            PriceListLine, PriceListHeader.Code, "Price Source Type"::"All Jobs", '',
+            "Price Asset Type"::"G/L Account", LibraryERM.CreateGLAccountNo());
+
+        // [WHEN] Open Sales Job price list
+        SalesPriceList.Trap();
+        RunSalesPriceList("Price Source Group"::Job);
+        SalesPriceList.Filter.SetFilter(Code, PriceListHeader.Code);
+
+        // [THEN] "Assign-to Parent No." is not visible in the header
+        Assert.IsFalse(SalesPriceList.SourceType.Visible(), 'Header SourceType.Visible');
+        Assert.IsTrue(SalesPriceList.JobSourceType.Visible(), 'Header JobSourceType.Visible');
+        Assert.IsFalse(SalesPriceList.SourceNo.Visible(), 'Header SourceNo.Visible');
+        Assert.IsFalse(SalesPriceList.AssignToParentNo.Visible(), 'Header AssignToParentNo.Visible');
+        Assert.IsTrue(SalesPriceList.AssignToNo.Visible(), 'Header AssignToNo.Visible');
+        // [THEN] "Assign-to Type", "Assign-to", "Currency Code",  "Starting/Ending Date", "Price Includes VAT" are visible and editable
+        Assert.IsFalse(SalesPriceList.Lines.SourceType.Visible(), 'SourceType.Visible');
+        Assert.IsTrue(SalesPriceList.Lines.JobSourceType.Visible(), 'JobSourceType.Visible');
+        Assert.IsTrue(SalesPriceList.Lines.AssignToParentNo.Visible(), 'AssignToParentNo.Visible');
+        Assert.IsTrue(SalesPriceList.Lines.AssignToNo.Visible(), 'AssignToNo.Visible');
+        Assert.IsTrue(SalesPriceList.Lines.CurrencyCode.Visible(), 'CurrencyCode.Visible');
+        Assert.IsTrue(SalesPriceList.Lines.StartingDate.Visible(), 'StartingDate.Visible');
+        Assert.IsTrue(SalesPriceList.Lines.EndingDate.Visible(), 'EndingDate.Visible');
+        Assert.IsTrue(SalesPriceList.Lines.PriceIncludesVAT.Visible(), 'PriceIncludesVAT.No');
+        Assert.IsTrue(SalesPriceList.Lines.VATBusPostingGrPrice.Visible(), 'VATBusPostingGrPrice.No');
+        Assert.IsTrue(SalesPriceList.Lines."Product No.".Visible(), '"Product No.".Visible');
+        // [THEN] "Source No.", "Asset No." are invisible
+        Assert.IsFalse(SalesPriceList.Lines.SourceNo.Visible(), 'SourceNo.Visible');
+        Assert.IsFalse(SalesPriceList.Lines."Asset No.".Visible(), '"Asset No.".Visible');
+    end;
+
+    [Test]
+    procedure T049_PurchJobPriceLinesAllowUpdatingDefaultsDropDownLookup()
+    var
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+        PurchPriceList: TestPage "Purchase Price List";
+    begin
+        Initialize(true);
+        // [GIVEN] Custom lookup is off
+        LibraryPriceCalculation.SetUseCustomLookup(false);
+
+        // [GIVEN] Purchase Price List for "Job Task" 'JT', where "Allow Updating Defaults" is 'Yes' and one line
+        LibraryJob.CreateJob(Job);
+        LibraryJob.CreateJobTAsk(Job, JobTask);
+        LibraryPriceCalculation.CreatePriceHeader(
+            PriceListHeader, "Price Type"::Purchase, "Price Source Type"::"Job Task", Job."No.", JobTask."Job Task No.");
+        PriceListHeader."Allow Updating Defaults" := true;
+        PriceListHeader.Modify();
+        LibraryPriceCalculation.CreatePurchPriceLine(
+            PriceListLine, PriceListHeader.Code, "Price Source Type"::Job, Job."No.",
+            "Price Asset Type"::"G/L Account", LibraryERM.CreateGLAccountNo());
+
+        // [WHEN] Open Purch Job price list
+        PurchPriceList.Trap();
+        RunPurchPriceList("Price Source Group"::Job);
+        PurchPriceList.Filter.SetFilter(Code, PriceListHeader.Code);
+
+        // [THEN] "Assign-to Parent No." is visible in the header
+        Assert.IsFalse(PurchPriceList.SourceType.Visible(), 'Header SourceType.Visible');
+        Assert.IsTrue(PurchPriceList.JobSourceType.Visible(), 'Header JobSourceType.Visible');
+        Assert.IsFalse(PurchPriceList.SourceNo.Visible(), 'Header SourceNo.Visible');
+        Assert.IsTrue(PurchPriceList.AssignToParentNo.Visible(), 'Header AssignToParentNo.Visible');
+        Assert.IsTrue(PurchPriceList.AssignToNo.Visible(), 'Header AssignToNo.Visible');
+        // [THEN] "Assign-to Type", "Assign-to", "Currency Code",  "Starting/Ending Date", "Price Includes VAT" are visible and editable
+        Assert.IsFalse(PurchPriceList.Lines.SourceType.Visible(), 'SourceType.Visible');
+        Assert.IsTrue(PurchPriceList.Lines.JobSourceType.Visible(), 'JobSourceType.Visible');
+        Assert.IsTrue(PurchPriceList.Lines.AssignToParentNo.Visible(), 'AssignToParentNo.Visible');
+        Assert.IsTrue(PurchPriceList.Lines.AssignToNo.Visible(), 'AssignToNo.Visible');
+        Assert.IsTrue(PurchPriceList.Lines.CurrencyCode.Visible(), 'CurrencyCode.Visible');
+        Assert.IsTrue(PurchPriceList.Lines.StartingDate.Visible(), 'StartingDate.Visible');
+        Assert.IsTrue(PurchPriceList.Lines.EndingDate.Visible(), 'EndingDate.Visible');
+        Assert.IsTrue(PurchPriceList.Lines.PriceIncludesVAT.Visible(), 'PriceIncludesVAT.No');
+        Assert.IsTrue(PurchPriceList.Lines.VATBusPostingGrPrice.Visible(), 'VATBusPostingGrPrice.No');
+        Assert.IsTrue(PurchPriceList.Lines."Product No.".Visible(), '"Product No.".Visible');
+        // [THEN] "Source No.", "Asset No." are invisible
+        Assert.IsFalse(PurchPriceList.Lines.SourceNo.Visible(), 'SourceNo.Visible');
+        Assert.IsFalse(PurchPriceList.Lines."Asset No.".Visible(), '"Asset No.".Visible');
     end;
 
     [Test]
@@ -2064,7 +2328,9 @@ codeunit 134117 "Price Lists UI"
         Initialize(true);
         // [GIVEN] New Purch price list, where AllowLineDisc and AllowInvoiceDisc are on
         PurchPriceList.OpenNew();
+        Assert.IsTrue(PurchPriceList.Code.Editable(), 'Code.not Editable after OpenNew');
         PurchPriceList.AllowLineDisc.SetValue(true);
+        Assert.IsFalse(PurchPriceList.Code.Editable(), 'Code.Editable after Insert');
         PurchPriceList.AllowInvoiceDisc.SetValue(true);
 
         // [WHEN] Add a new item line
@@ -2149,6 +2415,52 @@ codeunit 134117 "Price Lists UI"
         PriceListLine.TestField("Price Type", "Price Type"::Purchase);
         PriceListLine.TestField("Source Type", "Price Source Type"::"All Jobs");
         PriceListLine.TestField("Source No.", '');
+    end;
+
+    [Test]
+    procedure T080_SalesPriceListManualCode()
+    var
+        SalesPriceList: TestPage "Sales Price List";
+        NewCode: Code[20];
+    begin
+        // [FEATURE] [Sales]
+        Initialize(true);
+        // [GIVEN] New Sales price list from "Sales Price Lists"
+        SalesPriceList.Trap();
+        RunSalesPriceList("Price Source Group"::Customer);
+        SalesPriceList.New();
+        Assert.IsTrue(SalesPriceList.Code.Editable(), 'Code.must be Editable');
+
+        // [WHEN] Enter Code as 'X' manually
+        NewCode := LibraryUtility.GenerateGUID();
+        SalesPriceList.Code.SetValue(NewCode);
+
+        // [THEN] Code is 'X', not editable
+        SalesPriceList.Code.AssertEquals(NewCode);
+        Assert.IsFalse(SalesPriceList.Code.Editable(), 'Code.must not be Editable');
+    end;
+
+    [Test]
+    procedure T090_PurchPriceListManualCode()
+    var
+        PurchPriceList: TestPage "Purchase Price List";
+        NewCode: Code[20];
+    begin
+        // [FEATURE] [Purchase]
+        Initialize(true);
+        // [GIVEN] New Purch price list from "Purchase Price Lists"
+        PurchPriceList.Trap();
+        RunPurchPriceList("Price Source Group"::Vendor);
+        PurchPriceList.New();
+        Assert.IsTrue(PurchPriceList.Code.Editable(), 'Code.must be Editable');
+
+        // [WHEN] Enter Code as 'X' manually
+        NewCode := LibraryUtility.GenerateGUID();
+        PurchPriceList.Code.SetValue(NewCode);
+
+        // [THEN] Code is 'X', not editable
+        PurchPriceList.Code.AssertEquals(NewCode);
+        Assert.IsFalse(PurchPriceList.Code.Editable(), 'Code.must not be Editable');
     end;
 
     [Test]
@@ -3773,6 +4085,7 @@ codeunit 134117 "Price Lists UI"
         LibraryPriceCalculation.EnableExtendedPriceCalculation(Enable);
         LibraryPriceCalculation.DisallowEditingActiveSalesPrice();
         LibraryPriceCalculation.DisallowEditingActivePurchPrice();
+        LibraryPriceCalculation.SetUseCustomLookup(true);
         PriceListHeader.ModifyAll(Status, PriceListHeader.Status::Draft);
         PriceListHeader.DeleteAll(true);
         PriceListLine.ModifyAll(Status, PriceListLine.Status::Draft);
@@ -3991,12 +4304,36 @@ codeunit 134117 "Price Lists UI"
         JobsSetup.Modify();
     end;
 
+    local procedure RunPurchPriceList(SourceGroup: Enum "Price Source Group")
+    var
+        PriceListHeader: Record "Price List Header";
+    begin
+        PriceListHeader.FilterGroup(2);
+        PriceListHeader.SetRange("Price Type", "Price Type"::Purchase);
+        PriceListHeader.SetRange("Source Group", SourceGroup);
+        PriceListHeader.FilterGroup(0);
+        Page.Run(Page::"Purchase Price List", PriceListHeader);
+    end;
+
+    local procedure RunSalesPriceList(SourceGroup: Enum "Price Source Group")
+    var
+        PriceListHeader: Record "Price List Header";
+    begin
+        PriceListHeader.FilterGroup(2);
+        PriceListHeader.SetRange("Price Type", "Price Type"::Sale);
+        PriceListHeader.SetRange("Source Group", SourceGroup);
+        PriceListHeader.FilterGroup(0);
+        Page.Run(Page::"Sales Price List", PriceListHeader);
+    end;
+
     local procedure VerifyAllControlsEditable(var SalesPriceList: TestPage "Sales Price List")
     begin
-        Assert.IsTrue(SalesPriceList.Code.Editable(), 'Code.not Editable');
+        Assert.IsFalse(SalesPriceList.Code.Editable(), 'Code.Editable');
         Assert.IsTrue(SalesPriceList.Description.Editable(), 'Description.not Editable');
         Assert.IsTrue(SalesPriceList.SourceType.Editable(), 'SourceType.not Editable');
         Assert.IsTrue(SalesPriceList.SourceNo.Editable(), 'SourceNo.not Editable');
+        Assert.IsTrue(SalesPriceList.SourceNo.Visible(), 'SourceNo.not Visible');
+        Assert.IsFalse(SalesPriceList.AssignToNo.Visible(), 'AssignToNo.not Visible');
         Assert.IsTrue(SalesPriceList.StartingDate.Editable(), 'StartingDate.not Editable');
         Assert.IsTrue(SalesPriceList.EndingDate.Editable(), 'EndingDate.not Editable');
         Assert.IsTrue(SalesPriceList.VATBusPostingGrPrice.Editable(), 'VATBusPostingGrPrice.not Editable');
@@ -4010,10 +4347,12 @@ codeunit 134117 "Price Lists UI"
 
     local procedure VerifyAllControlsEditable(var PurchasePriceList: TestPage "Purchase Price List")
     begin
-        Assert.IsTrue(PurchasePriceList.Code.Editable(), 'Code.not Editable');
+        Assert.IsFalse(PurchasePriceList.Code.Editable(), 'Code.Editable');
         Assert.IsTrue(PurchasePriceList.Description.Editable(), 'Description.not Editable');
         Assert.IsTrue(PurchasePriceList.SourceType.Editable(), 'SourceType.not Editable');
         Assert.IsTrue(PurchasePriceList.SourceNo.Editable(), 'SourceNo.not Editable');
+        Assert.IsTrue(PurchasePriceList.SourceNo.Visible(), 'SourceNo.not Visible');
+        Assert.IsFalse(PurchasePriceList.AssignToNo.Visible(), 'AssignToNo. Visible');
         Assert.IsTrue(PurchasePriceList.StartingDate.Editable(), 'StartingDate.not Editable');
         Assert.IsTrue(PurchasePriceList.EndingDate.Editable(), 'EndingDate.not Editable');
         Assert.IsTrue(PurchasePriceList.PriceIncludesVAT.Editable(), 'PriceIncludesVAT.not Editable');
@@ -4029,6 +4368,8 @@ codeunit 134117 "Price Lists UI"
         Assert.IsFalse(SalesPriceList.Description.Editable(), 'Description.Editable');
         Assert.IsFalse(SalesPriceList.SourceType.Editable(), 'SourceType.Editable');
         Assert.IsFalse(SalesPriceList.SourceNo.Editable(), 'SourceNo.Editable');
+        Assert.IsTrue(SalesPriceList.SourceNo.Visible(), 'SourceNo.not Visible');
+        Assert.IsFalse(SalesPriceList.AssignToNo.Visible(), 'AssignToNo.Visible');
         Assert.IsFalse(SalesPriceList.StartingDate.Editable(), 'StartingDate.Editable');
         Assert.IsFalse(SalesPriceList.EndingDate.Editable(), 'EndingDate.Editable');
         Assert.IsFalse(SalesPriceList.VATBusPostingGrPrice.Editable(), 'VATBusPostingGrPrice.Editable');
@@ -4046,6 +4387,8 @@ codeunit 134117 "Price Lists UI"
         Assert.IsFalse(PurchasePriceList.Description.Editable(), 'Description.Editable');
         Assert.IsFalse(PurchasePriceList.SourceType.Editable(), 'SourceType.Editable');
         Assert.IsFalse(PurchasePriceList.SourceNo.Editable(), 'SourceNo.Editable');
+        Assert.IsTrue(PurchasePriceList.SourceNo.Visible(), 'SourceNo.not Visible');
+        Assert.IsFalse(PurchasePriceList.AssignToNo.Visible(), 'AssignToNo.Visible');
         Assert.IsFalse(PurchasePriceList.StartingDate.Editable(), 'StartingDate.Editable');
         Assert.IsFalse(PurchasePriceList.EndingDate.Editable(), 'EndingDate.Editable');
         Assert.IsFalse(PurchasePriceList.PriceIncludesVAT.Editable(), 'PriceIncludesVAT.Editable');
@@ -4077,6 +4420,12 @@ codeunit 134117 "Price Lists UI"
     procedure ConfirmYesHandler(Question: text; var Reply: Boolean)
     begin
         Reply := true;
+    end;
+
+    [ConfirmHandler]
+    procedure ConfirmNoHandler(Question: text; var Reply: Boolean)
+    begin
+        Reply := false;
     end;
 
     [ModalPageHandler]

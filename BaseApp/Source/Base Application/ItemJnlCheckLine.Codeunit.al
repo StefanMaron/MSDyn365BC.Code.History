@@ -36,6 +36,8 @@
         Item: Record Item;
         GenJnlPostPreview: Codeunit "Gen. Jnl.-Post Preview";
         IsHandled: Boolean;
+        ShouldCheckDiscountAmount: Boolean;
+        ShouldCheckLocationCode: Boolean;
     begin
         GLSetup.Get();
         InvtSetup.Get();
@@ -69,9 +71,10 @@
                    (Quantity <> 0) and
                    not Adjustment
                 then begin
-                    if (Type <> Type::Resource) and (Item.Type = Item.Type::Inventory) and
-                       (not "Direct Transfer" or ("Document Type" = "Document Type"::"Transfer Shipment"))
-                    then
+                    ShouldCheckLocationCode := (Type <> Type::Resource) and (Item.Type = Item.Type::Inventory) and
+                       (not "Direct Transfer" or ("Document Type" = "Document Type"::"Transfer Shipment"));
+                    OnRunCheckOnAfterCalcShouldCheckLocationCode(ItemJnlLine, ShouldCheckLocationCode);
+                    if ShouldCheckLocationCode then
                         TestField("Location Code", ErrorInfo.Create());
                     if ("Entry Type" = "Entry Type"::Transfer) and
                        (not "Direct Transfer" or ("Document Type" = "Document Type"::"Transfer Receipt"))
@@ -94,7 +97,9 @@
             else
                 ItemJnlLine.TestField("Bin Code", '', ErrorInfo.Create());
 
-            if "Entry Type" in ["Entry Type"::"Positive Adjmt.", "Entry Type"::"Negative Adjmt."] then
+            ShouldCheckDiscountAmount := "Entry Type" in ["Entry Type"::"Positive Adjmt.", "Entry Type"::"Negative Adjmt."];
+            OnRunCheckOnAfterCalcShouldCheckDiscountAmount(ItemJnlLine, ShouldCheckDiscountAmount);
+            if ShouldCheckDiscountAmount then
                 TestField("Discount Amount", 0, ErrorInfo.Create());
 
             if "Entry Type" = "Entry Type"::Transfer then begin
@@ -436,6 +441,7 @@
         InvtPeriod: Record "Inventory Period";
         UserSetupManagement: Codeunit "User Setup Management";
         DateCheckDone: Boolean;
+        ShouldShowError: Boolean;
     begin
         with ItemJnlLine do begin
             TestField("Posting Date", ErrorInfo.Create());
@@ -446,7 +452,9 @@
             if not DateCheckDone then
                 UserSetupManagement.CheckAllowedPostingDate("Posting Date");
 
-            if not InvtPeriod.IsValidDate("Posting Date") then
+            ShouldShowError := not InvtPeriod.IsValidDate("Posting Date");
+            OnCheckDatesOnAfterCalcShouldShowError(ItemJnlLine, ShouldShowError);
+            if ShouldShowError then
                 InvtPeriod.ShowError("Posting Date");
 
             if "Document Date" <> 0D then
@@ -664,7 +672,22 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCheckDatesOnAfterCalcShouldShowError(var ItemJournalLine: Record "Item Journal Line"; var ShouldShowError: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCheckDimensionsOnAfterAssignDimTableIDs(var ItemJnlLine: Record "Item Journal Line"; var TableID: array[10] of Integer; var No: array[10] of Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunCheckOnAfterCalcShouldCheckLocationCode(var ItemJournalLine: Record "Item Journal Line"; var ShouldCheckLocationCode: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunCheckOnAfterCalcShouldCheckDiscountAmount(var ItemJournalLine: Record "Item Journal Line"; var ShouldCheckDiscountAmount: Boolean)
     begin
     end;
 }

@@ -2,16 +2,19 @@ codeunit 4780 "Create Manufacturing DemoData"
 {
     procedure Create()
     begin
-        InitManufacturingDemoDataSetup();
-
         if IsDemoDataPopulated() then
             exit;
+
+        InitManufacturingDemoDataSetup();
+
+        FeatureTelemetry.LogUptake('0000H75', ContosoCoffeeDemoDatasetFeatureNameTok, Enum::"Feature Uptake Status"::Used);
 
         CreateSetupData();
         CreateMasterData();
         CreateTransactionData();
 
         FinishCreatingManufacturingDemoData();
+        FeatureTelemetry.LogUsage('0000GYW', ContosoCoffeeDemoDatasetFeatureNameTok, 'DemoData creation ended');
     end;
 
     procedure CreateManufacturingSetupData()
@@ -57,6 +60,8 @@ codeunit 4780 "Create Manufacturing DemoData"
         ManufacturingDemoDataSetup."Manufacturing Location" := XNorthTok;
 
         ManufacturingDemoDataSetup.Insert();
+
+        FeatureTelemetry.LogUptake('0000GYV', ContosoCoffeeDemoDatasetFeatureNameTok, Enum::"Feature Uptake Status"::"Set up");
     end;
 
     local procedure CreateSetupData()
@@ -104,6 +109,7 @@ codeunit 4780 "Create Manufacturing DemoData"
 
     var
         ManufacturingDemoDataSetup: Record "Manufacturing Demo Data Setup";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
         XFINISHEDTok: Label 'FINISHED', MaxLength = 10, Comment = 'Must be the same as Standard and Eval demodata';
         XRETAILTok: Label 'RETAIL', MaxLength = 10, Comment = 'Must be the same as Standard and Eval demodata';
         XRAWMATTok: Label 'RAW MAT', MaxLength = 10, Comment = 'Must be the same as Standard and Eval demodata';
@@ -111,6 +117,7 @@ codeunit 4780 "Create Manufacturing DemoData"
         XDOMESTICTok: Label 'DOMESTIC', MaxLength = 10, Comment = 'Must be the same as Standard and Eval demodata';
         XZEROTok: Label 'ZERO', Locked = true;
         XNorthTok: Label 'North', MaxLength = 10;
+        ContosoCoffeeDemoDatasetFeatureNameTok: Label 'ContosoCoffeeDemoDataset', Locked = true;
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateSetupData()

@@ -264,7 +264,7 @@ table 5997 "Standard Service Line"
     begin
         "Dimension Set ID" :=
           DimMgt.EditDimensionSet(
-            "Dimension Set ID", StrSubstNo('%1 %2 %3', TableCaption, "No.", "Line No."),
+            Rec, "Dimension Set ID", StrSubstNo('%1 %2 %3', TableCaption, "No.", "Line No."),
             "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
         Modify;
     end;
@@ -334,6 +334,8 @@ table 5997 "Standard Service Line"
           DimMgt.GetRecDefaultDimID(
             Rec, CurrFieldNo, DefaultDimSource, SourceCodeSetup."Service Management",
             "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
+
+        OnAfterCreateDim(Rec, DefaultDimSource);
     end;
 
     procedure CreateDimFromDefaultDim()
@@ -383,6 +385,11 @@ table 5997 "Standard Service Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitDefaultDimensionSources(var StandardServiceLine: Record "Standard Service Line"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateDim(var StandardServiceLine: Record "Standard Service Line"; DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
     begin
     end;
 
