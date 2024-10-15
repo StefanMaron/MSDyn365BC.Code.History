@@ -50,6 +50,7 @@ codeunit 10767 "Purch. Cr. Memo Hdr. - Edit"
         SIIDocUploadState."Succeeded VAT Registration No." := PurchCrMemoHdr."Succeeded VAT Registration No.";
         SIIDocUploadState.GetCorrectionInfo(
           SIIDocUploadState."Corrected Doc. No.", SIIDocUploadState."Corr. Posting Date", SIIDocUploadState."Posting Date");
+        SIIDocUploadState."Is Credit Memo Removal" := SIIDocUploadState.IsCreditMemoRemoval();
         SIIDocUploadState.Modify();
     end;
 

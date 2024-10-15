@@ -726,7 +726,8 @@
         FromSalesInvHeader.CalcFields(Amount);
         with ToSalesHeader do
             if ("Applies-to Doc. Type" = "Applies-to Doc. Type"::" ") and ("Applies-to Doc. No." = '') and
-               (FromDocType = "Sales Document Type From"::"Posted Invoice") and (FromSalesInvHeader.Amount = 0)
+               (FromDocType = "Sales Document Type From"::"Posted Invoice") and (FromSalesInvHeader.Amount = 0) and
+               ("Document Type" = "Document Type"::"Credit Memo")
             then begin
                 "Applies-to Doc. Type" := "Applies-to Doc. Type"::Invoice;
                 "Applies-to Doc. No." := FromDocNo;

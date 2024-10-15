@@ -43,6 +43,7 @@ codeunit 10769 "Service Cr. Memo Header - Edit"
         SIIDocUploadState."Sales Cr. Memo Type" := ServiceCrMemoHeader."Cr. Memo Type" + 1;
         SIIDocUploadState."Sales Special Scheme Code" := ServiceCrMemoHeader."Special Scheme Code" + 1;
         SIISchemeCodeMgt.ValidateServiceSpecialRegimeCodeInSIIDocUploadState(xSIIDocUploadState, SIIDocUploadState);
+        SIIDocUploadState."Is Credit Memo Removal" := SIIDocUploadState.IsCreditMemoRemoval();
         SIIDocUploadState.Modify();
     end;
 

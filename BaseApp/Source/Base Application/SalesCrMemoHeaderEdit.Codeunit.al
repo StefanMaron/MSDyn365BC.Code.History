@@ -47,6 +47,7 @@ codeunit 10766 "Sales Cr.Memo Header - Edit"
         SIIDocUploadState.IDType := SalesCrMemoHeader."ID Type";
         SIIDocUploadState."Succeeded Company Name" := SalesCrMemoHeader."Succeeded Company Name";
         SIIDocUploadState."Succeeded VAT Registration No." := SalesCrMemoHeader."Succeeded VAT Registration No.";
+        SIIDocUploadState."Is Credit Memo Removal" := SIIDocUploadState.IsCreditMemoRemoval();
         SIIDocUploadState.Modify();
     end;
 }

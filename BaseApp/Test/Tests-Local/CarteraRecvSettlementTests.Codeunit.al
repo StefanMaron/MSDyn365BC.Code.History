@@ -1224,6 +1224,7 @@ codeunit 147536 "Cartera Recv. Settlement Tests"
 
         // Find Cartera Payment GL Entries
         GLEntry.Reset();
+        GLEntry.SetFilter(Amount, '<>0');
         LibraryCarteraReceivables.FindCarteraGLEntries(GLEntry, BillGroupNo, GLEntry."Document Type"::Payment);
         Assert.AreEqual(SettledAmount, GLEntry."Credit Amount", UnexpectedAmountErr);
         GLEntry.Next;

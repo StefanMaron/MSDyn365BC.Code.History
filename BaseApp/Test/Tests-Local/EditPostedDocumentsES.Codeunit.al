@@ -364,6 +364,7 @@ codeunit 147330 "Edit Posted Documents ES"
         EnqueValuesForEditableFieldsPostedServiceCreditMemo(ServiceCrMemoHeader);
         PostedDocNo := CreateAndPostServiceCreditMemo();
         LibraryLowerPermissions.SetO365ServiceMgtRead();
+        LibraryLowerPermissions.AddSalesDocsPost();
 
         PostedServiceCreditMemo.OpenView();
         PostedServiceCreditMemo.Filter.SetFilter("No.", PostedDocNo);
