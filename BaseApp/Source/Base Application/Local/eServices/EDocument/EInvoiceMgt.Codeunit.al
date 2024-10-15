@@ -124,8 +124,8 @@ codeunit 10145 "E-Invoice Mgt."
         CFDINamespaceTxt: Label 'http://www.sat.gob.mx/cfd/4', Comment = 'Locked';
         CartaPorteNamespaceTxt: Label 'http://www.sat.gob.mx/CartaPorte30', Locked = true;
         CFDIXSDLocationTxt: Label 'http://www.sat.gob.mx/sitio_internet/cfd/4/cfdv40.xsd', Comment = 'Locked';
-        CFDIComercioExteriorNamespaceTxt: Label 'http://www.sat.gob.mx/ComercioExterior11', Comment = 'Locked';
-        CFDIComercioExteriorSchemaLocationTxt: Label 'http://www.sat.gob.mx/sitio_internet/cfd/ComercioExterior11/ComercioExterior11.xsd', Comment = 'Locked';
+        CFDIComercioExteriorNamespaceTxt: Label 'http://www.sat.gob.mx/ComercioExterior20', Comment = 'Locked';
+        CFDIComercioExteriorSchemaLocationTxt: Label 'http://www.sat.gob.mx/sitio_internet/cfd/ComercioExterior20/ComercioExterior20.xsd', Comment = 'Locked';
         CartaPorteSchemaLocationTxt: Label 'http://www.sat.gob.mx/sitio_internet/cfd/CartaPorte/CartaPorte30.xsd', Locked = true;
         CancelSelectionMenuQst: Label 'Cancel Request,Get Response,Mark as Canceled,Reset Cancellation Request';
 
@@ -3809,7 +3809,7 @@ codeunit 10145 "E-Invoice Mgt."
         XMLDOMManagement.AddAttribute(RootXMLNode, 'xmlns:cfdi', CFDINamespaceTxt);
         XMLDOMManagement.AddAttribute(RootXMLNode, 'xmlns:xsi', XSINamespaceTxt);
         if IsForeignTrade then
-            XMLDOMManagement.AddAttribute(RootXMLNode, 'xmlns:cce11', CFDIComercioExteriorNamespaceTxt);
+            XMLDOMManagement.AddAttribute(RootXMLNode, 'xmlns:cce20', CFDIComercioExteriorNamespaceTxt);
         if IsForeignTrade then
             XMLDOMManagement.AddAttributeWithPrefix(
               RootXMLNode, 'schemaLocation', 'xsi', XSINamespaceTxt,
@@ -3865,7 +3865,7 @@ codeunit 10145 "E-Invoice Mgt."
         XMLDOMManagement.AddAttribute(RootXMLNode, 'xmlns:cartaporte30', CartaPorteNamespaceTxt);
         XMLDOMManagement.AddAttribute(RootXMLNode, 'xmlns:xsi', XSINamespaceTxt);
         if IsForeignTrade then
-            XMLDOMManagement.AddAttribute(RootXMLNode, 'xmlns:cce11', CFDIComercioExteriorNamespaceTxt);
+            XMLDOMManagement.AddAttribute(RootXMLNode, 'xmlns:cce20', CFDIComercioExteriorNamespaceTxt);
         if IsForeignTrade then
             XMLDOMManagement.AddAttributeWithPrefix(
               RootXMLNode, 'schemaLocation', 'xsi', XSINamespaceTxt,
@@ -4690,8 +4690,10 @@ codeunit 10145 "E-Invoice Mgt."
         Currency: Record Currency;
         VATFactor: Decimal;
     begin
-        if DocumentLine."VAT %" = 0 then
+        if DocumentLine."VAT %" = 0 then begin
+            DocumentLine."Line Discount Amount" += InvDiscountAmount;
             exit;
+        end;
 
         VATFactor := 1 + DocumentLine."VAT %" / 100;
         if RoundingModel <> RoundingModel::"Model3-NoRecalculation" then begin
@@ -5923,7 +5925,7 @@ codeunit 10145 "E-Invoice Mgt."
     var
         NewChildNode: DotNet XmlNode;
     begin
-        NodeName := 'cce11:' + NodeName;
+        NodeName := 'cce20:' + NodeName;
         NewChildNode := XMLNode.OwnerDocument.CreateNode('element', NodeName, NameSpace);
         if IsNull(NewChildNode) then
             exit(false);
@@ -6150,17 +6152,15 @@ IsVATExemptLine(TempDocumentLine));
         GetCustomer(Customer, DocumentHeader."Bill-to/Pay-To No.", false);
 
         // ComercioExterior
-        DocNameSpace := 'http://www.sat.gob.mx/ComercioExterior11';
+        DocNameSpace := CFDIComercioExteriorNamespaceTxt;
         AddElementCCE(XMLCurrNode, 'ComercioExterior', '', DocNameSpace, XMLNewChild);
         XMLCurrNode := XMLNewChild;
-        AddAttribute(XMLDoc, XMLCurrNode, 'Version', '1.1');
+        AddAttribute(XMLDoc, XMLCurrNode, 'Version', '2.0');
         if IsTransferDocument(DocumentHeader."Document Table ID") then
             AddAttribute(XMLDoc, XMLCurrNode, 'MotivoTraslado', DocumentHeader."SAT Transfer Reason");
-        AddAttribute(XMLDoc, XMLCurrNode, 'TipoOperacion', '2');
         AddAttribute(XMLDoc, XMLCurrNode, 'ClaveDePedimento', 'A1');
         AddAttribute(XMLDoc, XMLCurrNode, 'CertificadoOrigen', '0');
         AddAttribute(XMLDoc, XMLCurrNode, 'Incoterm', DocumentHeader."SAT International Trade Term");
-        AddAttribute(XMLDoc, XMLCurrNode, 'Subdivision', '0');
 
         CurrencyFactor :=
           Round(1 / DocumentHeader."Currency Factor", 0.000001) / DocumentHeader."Exchange Rate USD";
@@ -6204,16 +6204,16 @@ IsVATExemptLine(TempDocumentLine));
             AddAttribute(XMLDoc, XMLCurrNode, 'UnidadAduana', UnitOfMeasure."SAT Customs Unit");
             AddAttribute(
               XMLDoc, XMLCurrNode, 'ValorUnitarioAduana',
-              FormatDecimal(Round(TempDocumentLineCCE.Amount / TempDocumentLineCCE.Quantity * CurrencyFactor, 0.01, '<'), 2));
+              FormatDecimal(Round(TempDocumentLineCCE.Amount / TempDocumentLineCCE.Quantity * CurrencyFactor, 0.000001, '<'), 6));
             if LineNo <> LineCount then begin
                 AddAttribute(
                   XMLDoc, XMLCurrNode, 'ValorDolares',
-                  FormatDecimal(Round(TempDocumentLineCCE.Amount * CurrencyFactor, 0.01), 2));
-                SumAmountUSD += Round(TempDocumentLineCCE.Amount * CurrencyFactor, 0.01);
+                  FormatDecimal(Round(TempDocumentLineCCE.Amount * CurrencyFactor, 0.0001), 4));
+                SumAmountUSD += Round(TempDocumentLineCCE.Amount * CurrencyFactor, 0.0001);
             end else
                 AddAttribute(
                   XMLDoc, XMLCurrNode, 'ValorDolares',
-                  FormatDecimal(Round(DocumentHeader.Amount * CurrencyFactor, 0.01) - SumAmountUSD, 2));
+                  FormatDecimal(Round(DocumentHeader.Amount * CurrencyFactor, 0.0001) - SumAmountUSD, 4));
             XMLCurrNode := XMLCurrNode.ParentNode; // Mercancia
         until TempDocumentLineCCE.Next() = 0;
         XMLCurrNode := XMLCurrNode.ParentNode; // Mercancias
@@ -6238,14 +6238,14 @@ IsVATExemptLine(TempDocumentLine));
 
         GetCustomer(Customer, DocumentHeader."Bill-to/Pay-To No.", false);
         // ComercioExterior
-        WriteOutStr(OutStr, '1.1|'); // Version
+        WriteOutStr(OutStr, '2.0|'); // Version
         if IsTransferDocument(DocumentHeader."Document Table ID") then
             WriteOutStr(OutStr, DocumentHeader."SAT Transfer Reason" + '|'); // MotivoTraslado
-        WriteOutStr(OutStr, '2|'); // TipoOperacion
+        //WriteOutStr(OutStr, '2|'); // TipoOperacion
         WriteOutStr(OutStr, 'A1|'); // ClaveDePedimento
         WriteOutStr(OutStr, '0|'); // CertificadoOrigen
         WriteOutStr(OutStr, DocumentHeader."SAT International Trade Term" + '|'); // Incoterm
-        WriteOutStr(OutStr, '0|'); // Subdivision
+        //WriteOutStr(OutStr, '0|'); // Subdivision
 
         CurrencyFactor :=
           Round(1 / DocumentHeader."Currency Factor", 0.000001) / DocumentHeader."Exchange Rate USD";
@@ -6275,14 +6275,14 @@ IsVATExemptLine(TempDocumentLine));
             WriteOutStr(OutStr, UnitOfMeasure."SAT Customs Unit" + '|'); // UnidadAduana
             WriteOutStr(OutStr,
               FormatDecimal(
-                Round(TempDocumentLineCCE.Amount / TempDocumentLineCCE.Quantity * CurrencyFactor, 0.01, '<'), 2) + '|'); // ValorUnitarioAduana
+                Round(TempDocumentLineCCE.Amount / TempDocumentLineCCE.Quantity * CurrencyFactor, 0.000001, '<'), 6) + '|'); // ValorUnitarioAduana
             if LineNo <> LineCount then begin
                 WriteOutStr(OutStr,
-                  FormatDecimal(Round(TempDocumentLineCCE.Amount * CurrencyFactor, 0.01), 2) + '|'); // ValorDolares
-                SumAmountUSD += Round(TempDocumentLineCCE.Amount * CurrencyFactor, 0.01);
+                  FormatDecimal(Round(TempDocumentLineCCE.Amount * CurrencyFactor, 0.0001), 4) + '|'); // ValorDolares
+                SumAmountUSD += Round(TempDocumentLineCCE.Amount * CurrencyFactor, 0.0001);
             end else
                 WriteOutStr(OutStr,
-                    FormatDecimal(Round(DocumentHeader.Amount * CurrencyFactor, 0.01) - SumAmountUSD, 2) + '|'); // ValorDolares
+                    FormatDecimal(Round(DocumentHeader.Amount * CurrencyFactor, 0.0001) - SumAmountUSD, 4) + '|'); // ValorDolares
         until TempDocumentLineCCE.Next() = 0;
     end;
 
