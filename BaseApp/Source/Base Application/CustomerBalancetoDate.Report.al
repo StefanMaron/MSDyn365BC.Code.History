@@ -238,6 +238,7 @@
                 if MaxDate = 0D then
                     Error(BlankMaxDateErr);
 
+                DateFilterTxt := GetFilter("Date Filter");
                 SetRange("Date Filter", 0D, MaxDate);
                 CalcFields("Net Change (LCY)", "Net Change");
 
@@ -365,6 +366,8 @@
         OK: Boolean;
         CurrencyCode: Code[10];
         PrintUnappliedEntries: Boolean;
+        DateFilterTxt: Text;
+
         CustBalancetoDateCaptionLbl: Label 'Customer - Balance to Date';
         CurrReportPageNoCaptionLbl: Label 'Page';
         AllamtsareinLCYCaptionLbl: Label 'All amounts are in LCY.';
@@ -441,24 +444,48 @@
         CustLedgerEntry: Record "Cust. Ledger Entry";
         ClosingCustLedgerEntry: Record "Cust. Ledger Entry";
     begin
-        if CustLedgerEntry.Get(EntryNo) and (CustLedgerEntry."Posting Date" <= MaxDate) then begin
-            CustLedgerEntry.SetRange("Date Filter", 0D, MaxDate);
-            CustLedgerEntry.CalcFields("Remaining Amount", "Original Amount", Amount);
-            if CustLedgerEntry."Remaining Amount" <> 0 then
-                exit(true);
-            if ShowEntriesWithZeroBalance then begin
-                if ClosingCustLedgerEntry.Get(CustLedgerEntry."Closed by Entry No.") then
-                    exit(ClosingCustLedgerEntry."Posting Date" <= MaxDate);
-                if (CustLedgerEntry.Amount = 0) and
-                   (CustLedgerEntry."Original Amount" = 0) and
-                   not CustLedgerEntry.Open and
-                   (CustLedgerEntry."Posting Date" <= MaxDate) then
+        if DateFilterTxt = '' then begin
+            if CustLedgerEntry.Get(EntryNo) and (CustLedgerEntry."Posting Date" <= MaxDate) then begin
+                CustLedgerEntry.SetRange("Date Filter", 0D, MaxDate);
+                CustLedgerEntry.CalcFields("Remaining Amount", "Original Amount", Amount);
+                if CustLedgerEntry."Remaining Amount" <> 0 then
                     exit(true);
+                if ShowEntriesWithZeroBalance then begin
+                    if ClosingCustLedgerEntry.Get(CustLedgerEntry."Closed by Entry No.") then
+                        exit(false);
+                    ClosingCustLedgerEntry.SetRange("Closed by Entry No.", CustLedgerEntry."Entry No.");
+                    if not ClosingCustLedgerEntry.IsEmpty then
+                        exit(false);
+                    if (CustLedgerEntry.Amount = 0) and
+                       (CustLedgerEntry."Original Amount" = 0) and
+                       not CustLedgerEntry.Open and
+                       (CustLedgerEntry."Posting Date" <= MaxDate) then
+                        exit(true);
+                end;
+            end;
+        end else
+            if CustLedgerEntry.Get(EntryNo) then begin
+                CustLedgerEntry.SetFilter("Posting Date", DateFilterTxt);
+                CustLedgerEntry.CalcFields("Remaining Amount", "Original Amount", Amount);
+                if CustLedgerEntry."Remaining Amount" <> 0 then
+                    exit(true);
+                if ShowEntriesWithZeroBalance then begin
+                    ClosingCustLedgerEntry.SetFilter("Posting Date", DateFilterTxt);
+                    ClosingCustLedgerEntry.SetRange("Entry No.", CustLedgerEntry."Closed by Entry No.");
+                    if not ClosingCustLedgerEntry.IsEmpty() then
+                        exit(true);
+
+                    if (CustLedgerEntry.Amount = 0) and
+                       (CustLedgerEntry."Original Amount" = 0) and
+                       not CustLedgerEntry.Open
+                       then
+                        exit(true);
+                end;
             end;
 
-            if PrintUnappliedEntries then
-                exit(CheckUnappliedEntryExists(EntryNo));
-        end;
+        if PrintUnappliedEntries then
+            exit(CheckUnappliedEntryExists(EntryNo));
+
         exit(false);
     end;
 

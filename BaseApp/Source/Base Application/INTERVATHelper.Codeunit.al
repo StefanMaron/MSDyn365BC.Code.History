@@ -11,6 +11,16 @@ codeunit 11308 "INTERVAT Helper"
         XMLDOMMgt: Codeunit "XML DOM Management";
 
     procedure AddElementDeclarant(XMLCurrNode: DotNet XmlNode; SequenceNumber: Integer)
+    begin
+        AddElementDeclarantCustom(XMLCurrNode, SequenceNumber, '');
+    end;
+
+    procedure AddElementDeclarant(XMLCurrNode: DotNet XmlNode; SequenceNumber: Integer; Comment: Text)
+    begin
+        AddElementDeclarantCustom(XMLCurrNode, SequenceNumber, Comment);
+    end;
+
+    local procedure AddElementDeclarantCustom(XMLCurrNode: DotNet XmlNode; SequenceNumber: Integer; Comment: Text)
     var
         CompanyInformation: Record "Company Information";
         Country: Record "Country/Region";
@@ -41,6 +51,8 @@ codeunit 11308 "INTERVAT Helper"
 
         if CompanyInformation."Phone No." <> '' then
             XMLDOMMgt.AddElement(XMLCurrNode, 'common:Phone', GetValidPhoneNumber(CompanyInformation."Phone No."), Text001, XMLNewChild);
+        if Comment <> '' then
+            XMLDOMMgt.AddElement(XMLCurrNode, 'common:Comment', Comment, Text001, XMLNewChild);
 
         DeclarantReference := GetDeclarantReference(SequenceNumber);
 

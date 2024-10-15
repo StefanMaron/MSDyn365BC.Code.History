@@ -197,6 +197,12 @@ report 11307 "VAT - Form"
                                 Enabled = IsCorrection;
                                 ToolTip = 'Specifies the sequence number of the previously submitted declaration.';
                             }
+                            field(CommentControl; Comment)
+                            {
+                                ApplicationArea = Basic, Suite;
+                                Caption = 'Comment';
+                                ToolTip = 'Specifies the comment for the declaration.';
+                            }
                         }
                     }
                     group("&Representative")
@@ -338,6 +344,7 @@ report 11307 "VAT - Form"
         Text19039936: Label 'The report generates a XML file according to the INTERVAT 8.0 schema defined by the Belgium tax authority.';
         Identifier: Text[20];
         ClientFileNameTxt: Label 'Intervat.xml', Locked = true;
+        Comment: Text;
 
     local procedure AssignRow(j: Integer; Amount: Decimal)
     begin
@@ -394,7 +401,7 @@ report 11307 "VAT - Form"
         if IsCorrection then
             AddElementReplacedVATDeclaration(XMLCurrNode);
 
-        INTERVATHelper.AddElementDeclarant(XMLCurrNode, GetSequenceNumber);
+        INTERVATHelper.AddElementDeclarant(XMLCurrNode, GetSequenceNumber, Comment);
         XMLCurrNode := XMLFirstNode;
 
         INTERVATHelper.AddElementPeriod(XMLCurrNode, ChoicePeriodType, Vperiod, Vyear, '');
@@ -501,7 +508,7 @@ report 11307 "VAT - Form"
           XMLCurrNode.OwnerDocument, XMLCurrNode,
           'http://www.w3.org/2001/XMLSchema-instance',
           'schemaLocation',
-          DocNameSpace + ' NewTVA-in_v0_7.xsd');
+          DocNameSpace + ' NewTVA-in_v0_9.xsd');
     end;
 
     [Scope('OnPrem')]
