@@ -22,6 +22,8 @@ report 742 "VAT Report Request Page"
                 VATStatement: Report "VAT Statement";
                 Base: Decimal;
                 Amount: Decimal;
+                NDBase: Decimal;
+                NDAmount: Decimal;
             begin
                 Copy(Rec);
 
@@ -43,10 +45,12 @@ report 742 "VAT Report Request Page"
                 VATStatementReportLine.SetRange("VAT Report Config. Code", "VAT Report Config. Code");
                 VATStatementReportLine.DeleteAll();
                 repeat
-                    VATStatement.CalcLineTotalWithBase(VATStatementLine, Amount, Base, 0);
+                    VATStatement.CalcLineTotalWithNonDeductiblePart(VATStatementLine, Amount, Base, NDAmount, NDBase, 0);
                     if VATStatementLine."Print with" = VATStatementLine."Print with"::"Opposite Sign" then begin
                         Amount := -Amount;
                         Base := -Base;
+                        NDAmount := -NDAmount;
+                        NDBase := -NDBase;
                     end;
                     VATStatementReportLine.Init();
                     VATStatementReportLine.Validate("VAT Report No.", "No.");
@@ -57,6 +61,8 @@ report 742 "VAT Report Request Page"
                     VATStatementReportLine.Validate("Box No.", VATStatementLine."Box No.");
                     VATStatementReportLine.Validate(Amount, Amount);
                     VATStatementReportLine.Validate(Base, Base);
+                    VATStatementReportLine.Validate("Non-Deductible Amount", NDAmount);
+                    VATStatementReportLine.Validate("Non-Deductible Base", NDBase);
                     VATStatementReportLine.Insert();
                 until VATStatementLine.Next() = 0;
             end;
@@ -106,25 +112,25 @@ report 742 "VAT Report Request Page"
                         TableRelation = "VAT Statement Name".Name WHERE("Statement Template Name" = FIELD("Statement Template Name"));
                         ToolTip = 'Specifies the VAT Statement to generate the VAT report.';
                     }
-                    field("Period Year"; "Period Year")
+                    field("Period Year"; Rec."Period Year")
                     {
                         ApplicationArea = Basic, Suite;
                         Editable = PeriodIsEditable;
                         ToolTip = 'Specifies the year of the reporting period.';
                     }
-                    field("Period Type"; "Period Type")
+                    field("Period Type"; Rec."Period Type")
                     {
                         ApplicationArea = Basic, Suite;
                         Editable = PeriodIsEditable;
                         ToolTip = 'Specifies the length of the reporting period.';
                     }
-                    field("Period No."; "Period No.")
+                    field("Period No."; Rec."Period No.")
                     {
                         ApplicationArea = Basic, Suite;
                         Editable = PeriodIsEditable;
                         ToolTip = 'Specifies the specific reporting period to use.';
                     }
-                    field("Start Date"; "Start Date")
+                    field("Start Date"; Rec."Start Date")
                     {
                         ApplicationArea = Basic, Suite;
                         Editable = PeriodIsEditable;
@@ -132,7 +138,7 @@ report 742 "VAT Report Request Page"
                         ShowMandatory = true;
                         ToolTip = 'Specifies the first date of the reporting period.';
                     }
-                    field("End Date"; "End Date")
+                    field("End Date"; Rec."End Date")
                     {
                         ApplicationArea = Basic, Suite;
                         Editable = PeriodIsEditable;
@@ -140,7 +146,7 @@ report 742 "VAT Report Request Page"
                         ShowMandatory = true;
                         ToolTip = 'Specifies the last date of the reporting period.';
                     }
-                    field("Amounts in ACY"; "Amounts in Add. Rep. Currency")
+                    field("Amounts in ACY"; Rec."Amounts in Add. Rep. Currency")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Amounts in Add. Reporting Currency';
@@ -161,18 +167,18 @@ report 742 "VAT Report Request Page"
             VATStatementName: Record "VAT Statement Name";
         begin
             CopyFilters("VAT Report Header");
-            FindFirst;
+            FindFirst();
 
             if VATStatementTemplate.Count = 1 then begin
-                VATStatementTemplate.FindFirst;
+                VATStatementTemplate.FindFirst();
                 "Statement Template Name" := VATStatementTemplate.Name;
-                Modify;
+                Modify();
 
                 VATStatementName.SetRange("Statement Template Name", VATStatementTemplate.Name);
                 if VATStatementName.Count = 1 then begin
-                    VATStatementName.FindFirst;
+                    VATStatementName.FindFirst();
                     "Statement Name" := VATStatementName.Name;
-                    Modify;
+                    Modify();
                 end;
             end;
 

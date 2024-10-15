@@ -50,6 +50,19 @@ page 742 "VAT Report Statement Subform"
                     ToolTip = 'Specifies the amount of the entry in the report statement.';
                     Editable = false;
                 }
+                field(NDBase; "Non-Deductible Base")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the VAT base that is used to calculate the amount in the Non-Deductible Base field.';
+                    Visible = ShowBase;
+                    Editable = false;
+                }
+                field(NDAmount; "Non-Deductible Amount")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the VAT amount that is used to calculate the amount in the Non-Deductible Amount field.';
+                    Editable = false;
+                }
             }
         }
     }

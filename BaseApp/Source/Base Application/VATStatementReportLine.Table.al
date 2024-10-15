@@ -64,6 +64,18 @@
             ObsoleteReason = 'Moved to VAT Group Management extension field 4701 Group Amount';
             ObsoleteTag = '18.0';
         }
+        field(10600; "Non-Deductible Base"; Decimal)
+        {
+            AutoFormatType = 1;
+            Caption = 'Non-Deductible Base';
+            Editable = false;
+        }
+        field(10601; "Non-Deductible Amount"; Decimal)
+        {
+            AutoFormatType = 1;
+            Caption = 'Non-Deductible Amount';
+            Editable = false;
+        }
     }
 
     keys
