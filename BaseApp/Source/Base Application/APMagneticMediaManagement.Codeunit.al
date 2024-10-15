@@ -35,10 +35,10 @@ codeunit 10085 "A/P Magnetic Media Management"
         Codes[2, 12] := 'DIV-07';
         Codes[2, 13] := 'DIV-09';
         Codes[2, 14] := 'DIV-10';
-        Codes[2, 15] := 'DIV-11';
-        Codes[2, 16] := 'DIV-12';
-        Codes[2, 17] := 'DIV-02-E';
-        Codes[2, 18] := 'DIV-02-F';
+        Codes[2, 15] := 'DIV-12';
+        Codes[2, 16] := 'DIV-02-E';
+        Codes[2, 17] := 'DIV-02-F';
+        Codes[2, 18] := 'DIV-13';
 
         Codes[3, 1] := 'INT-01';
         Codes[3, 2] := 'INT-02';
@@ -213,7 +213,7 @@ codeunit 10085 "A/P Magnetic Media Management"
                                 IncrCodeNos(CodeNos, ActualCodePos, 'F', 15); // fish purchased for resale
                             12:
                                 IncrCodeNos(CodeNos, ActualCodePos, 'D', 13); // 409A deferral
-                            13:
+                            14:
                                 IncrCodeNos(CodeNos, ActualCodePos, 'B', 11); // excess golden parachutes
                             15:
                                 IncrCodeNos(CodeNos, ActualCodePos, 'E', 14); // 409A Income
@@ -245,8 +245,6 @@ codeunit 10085 "A/P Magnetic Media Management"
                 case j of
                     10:
                         CodeNos := InsStr(CodeNos, 'A', j); // FIT withheld
-                    11:
-                        CodeNos := InsStr(CodeNos, 'B', j); // Investment expenses
                     12:
                         CodeNos := InsStr(CodeNos, 'C', j); // Foreign tax paid
                     13:

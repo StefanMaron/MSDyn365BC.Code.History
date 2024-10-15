@@ -1,4 +1,4 @@
-﻿table 37 "Sales Line"
+table 37 "Sales Line"
 {
     Caption = 'Sales Line';
     DrillDownPageID = "Sales Lines";
@@ -4258,6 +4258,7 @@
 
     local procedure UpdateUnitPriceByField(CalledByFieldNo: Integer)
     var
+        BlanketOrderSalesLine: Record "Sales Line";
         IsHandled: Boolean;
         PriceCalculation: Interface "Price Calculation";
     begin
@@ -4279,13 +4280,17 @@
                 begin
                     IsHandled := false;
                     OnUpdateUnitPriceOnBeforeFindPrice(SalesHeader, Rec, CalledByFieldNo, CurrFieldNo, IsHandled);
-                    if not IsHandled then begin
-                        GetPriceCalculationHandler(PriceType::Sale, SalesHeader, PriceCalculation);
-                        if not ("Copied From Posted Doc." and IsCreditDocType()) then begin
-                            PriceCalculation.ApplyDiscount();
-                            ApplyPrice(CalledByFieldNo, PriceCalculation);
+                    if not IsHandled then
+                        if not BlanketOrderIsRelated(BlanketOrderSalesLine) then begin
+                            GetPriceCalculationHandler(PriceType::Sale, SalesHeader, PriceCalculation);
+                            if not ("Copied From Posted Doc." and IsCreditDocType()) then begin
+                                PriceCalculation.ApplyDiscount();
+                                ApplyPrice(CalledByFieldNo, PriceCalculation);
+                            end;
+                        end else begin
+                            Validate("Unit Price", BlanketOrderSalesLine."Unit Price");
+                            Validate("Line Discount %", BlanketOrderSalesLine."Line Discount %");
                         end;
-                    end;
                     OnUpdateUnitPriceByFieldOnAfterFindPrice(SalesHeader, Rec, CalledByFieldNo, CurrFieldNo);
                 end;
         end;
@@ -4296,6 +4301,14 @@
 
         ClearFieldCausedPriceCalculation();
         OnAfterUpdateUnitPrice(Rec, xRec, CalledByFieldNo, CurrFieldNo);
+    end;
+
+    local procedure BlanketOrderIsRelated(var BlanketOrderSalesLine: Record "Sales Line"): Boolean
+    begin
+        if "Blanket Order Line No." = 0 then exit;
+        BlanketOrderSalesLine.SetLoadFields("Unit Price", "Line Discount %");
+        if BlanketOrderSalesLine.Get("Document Type"::"Blanket Order", "Blanket Order No.", "Blanket Order Line No.") then
+            exit(true);
     end;
 
     local procedure ShowUnitPriceChangedMsg()
@@ -4666,6 +4679,7 @@
         OnAfterUpdateAmounts(Rec, xRec, CurrFieldNo);
 
         UpdateVATAmounts();
+        UpdateVATRoundingFromVATAmountLines();
         InitOutstandingAmount();
         CheckCreditLimit();
 
@@ -7769,6 +7783,10 @@
         "Outbound Whse. Handling Time" := SalesHeader."Outbound Whse. Handling Time";
         "Shipping Time" := SalesHeader."Shipping Time";
 
+        "Shortcut Dimension 1 Code" := SalesHeader."Shortcut Dimension 1 Code";
+        "Shortcut Dimension 2 Code" := SalesHeader."Shortcut Dimension 2 Code";
+        "Dimension Set ID" := SalesHeader."Dimension Set ID";
+
         OnAfterInitHeaderDefaults(Rec, SalesHeader, xRec);
     end;
 
@@ -8373,8 +8391,23 @@
     var
         DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
     begin
+        if not DimMgt.IsDefaultDimDefinedForTable(GetTableValuePair(FieldNo)) then exit;
         InitDefaultDimensionSources(DefaultDimSource, FieldNo);
         CreateDim(DefaultDimSource);
+    end;
+
+    local procedure GetTableValuePair(FieldNo: Integer) TableValuePair: Dictionary of [Integer, Code[20]]
+    begin
+        case true of
+            FieldNo = Rec.FieldNo("No."):
+                TableValuePair.Add(DimMgt.SalesLineTypeToTableID(Type), Rec."No.");
+            FieldNo = Rec.FieldNo("Responsibility Center"):
+                TableValuePair.Add(Database::"Responsibility Center", Rec."Responsibility Center");
+            FieldNo = Rec.FieldNo("Job No."):
+                TableValuePair.Add(Database::Job, Rec."Job No.");
+            FieldNo = Rec.FieldNo("Location Code"):
+                TableValuePair.Add(Database::Location, Rec."Location Code");
+        end;
     end;
 
     local procedure InitDefaultDimensionSources(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; FieldNo: Integer)
@@ -8486,6 +8519,34 @@
             end;
             LookupStateMgr.ClearSavedRecord();
         end;
+    end;
+
+    local procedure UpdateVATRoundingFromVATAmountLines()
+    var
+        TempSalesHeader: Record "Sales Header" temporary;
+        TempSalesLine: Record "Sales Line" temporary;
+        SalesDoc: Codeunit "Release Sales Document";
+    begin
+        GetSalesHeader();
+
+        if not SalesHeader."Prices Including VAT" then
+            exit;
+
+        TempSalesHeader.Init();
+        TempSalesHeader := SalesHeader;
+        TempSalesHeader.Insert();
+
+        TempSalesLine.Init();
+        TempSalesLine.Copy(Rec);
+        TempSalesLine.Insert();
+
+        if SalesDoc.CalcAndUpdateVATOnLines(TempSalesHeader, TempSalesLine) then
+            if Abs(Amount) < Abs(TempSalesLine.Amount) then begin
+                Amount := TempSalesLine.Amount;
+                "VAT Base Amount" := TempSalesLine."VAT Base Amount";
+                "VAT Difference" := TempSalesLine."VAT Difference";
+                "Amount Including VAT" := TempSalesLine."Amount Including VAT";
+            end;
     end;
 
 #if not CLEAN20

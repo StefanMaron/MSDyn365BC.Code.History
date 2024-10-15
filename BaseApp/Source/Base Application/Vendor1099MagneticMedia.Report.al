@@ -721,13 +721,12 @@ report 10115 "Vendor 1099 Magnetic Media"
           StrSubstNo('#1##########', MagMediaManagement.FormatMoneyAmount(
               MagMediaManagement.GetAmt(GetFullMiscCode(9), FormType, EndLine), 12)) +
           StrSubstNo('#1##########', MagMediaManagement.FormatMoneyAmount(
-              MagMediaManagement.GetAmt(GetFullMiscCode(13), FormType, EndLine), 12)) +
+              MagMediaManagement.GetAmt(GetFullMiscCode(14), FormType, EndLine), 12)) +
           StrSubstNo('#1##########', MagMediaManagement.FormatMoneyAmount(
               MagMediaManagement.GetAmt(GetFullMiscCode(10), FormType, EndLine), 12)) +
           StrSubstNo(GetHashTagStringWithLength(12), MagMediaManagement.FormatMoneyAmount(
               MagMediaManagement.GetAmt(GetFullMiscCode(12), FormType, EndLine), 12)) +
-          StrSubstNo('#1##########', MagMediaManagement.FormatMoneyAmount(
-              MagMediaManagement.GetAmt(GetFullMiscCode(14), FormType, EndLine), 12)) +
+          StrSubstNo(GetHashTagStringWithLength(12), MagMediaManagement.FormatMoneyAmount(0, 12)) +
           StrSubstNo(GetHashTagStringWithLength(12), MagMediaManagement.FormatMoneyAmount(
               MagMediaManagement.GetAmt(GetFullMiscCode(11), FormType, EndLine), 12)) + // Fish purchased for resale
           StrSubstNo(GetHashTagStringWithLength(12), MagMediaManagement.FormatMoneyAmount(0, 12)) +
@@ -806,9 +805,9 @@ report 10115 "Vendor 1099 Magnetic Media"
           StrSubstNo('#1##########', MagMediaManagement.FormatMoneyAmount(
               MagMediaManagement.GetAmt('DIV-10', FormType, EndLine), 12)) + // non-cash liquidation E (211-222)
           StrSubstNo('#1##########', MagMediaManagement.FormatMoneyAmount(
-              MagMediaManagement.GetAmt('DIV-11', FormType, EndLine), 12)) + // Exempt-interest dividends F (223-234)
+              MagMediaManagement.GetAmt('DIV-12', FormType, EndLine), 12)) + // Exempt-interest dividends F (223-234)
           StrSubstNo('#1##########', MagMediaManagement.FormatMoneyAmount(
-              MagMediaManagement.GetAmt('DIV-12', FormType, EndLine), 12)) + // Specified private activity bond... G (235-246)
+              MagMediaManagement.GetAmt('DIV-13', FormType, EndLine), 12)) + // Specified private activity bond... G (235-246)
           StrSubstNo(GetHashTagStringWithLength(12), MagMediaManagement.FormatMoneyAmount(
               MagMediaManagement.GetAmt('DIV-02-E', FormType, EndLine), 12)) + // Section 897 Ordinary Dividens (247-258)
           StrSubstNo(GetHashTagStringWithLength(12), MagMediaManagement.FormatMoneyAmount(
@@ -991,13 +990,12 @@ report 10115 "Vendor 1099 Magnetic Media"
           StrSubstNo('#1################', MagMediaManagement.FormatMoneyAmount(
               MagMediaManagement.GetTotal(GetFullMiscCode(9), FormType, EndLine), 18)) +
           StrSubstNo('#1################', MagMediaManagement.FormatMoneyAmount(
-              MagMediaManagement.GetTotal(GetFullMiscCode(13), FormType, EndLine), 18)) +
+              MagMediaManagement.GetTotal(GetFullMiscCode(14), FormType, EndLine), 18)) +
           StrSubstNo('#1################', MagMediaManagement.FormatMoneyAmount(
               MagMediaManagement.GetTotal(GetFullMiscCode(10), FormType, EndLine), 18)) +
           StrSubstNo(GetHashTagStringWithLength(18), MagMediaManagement.FormatMoneyAmount(
               MagMediaManagement.GetTotal(GetFullMiscCode(12), FormType, EndLine), 18)) +
-          StrSubstNo(GetHashTagStringWithLength(18), MagMediaManagement.FormatMoneyAmount(
-              MagMediaManagement.GetTotal(GetFullMiscCode(14), FormType, EndLine), 18)) +
+          StrSubstNo(GetHashTagStringWithLength(18), MagMediaManagement.FormatMoneyAmount(0, 18)) +
           StrSubstNo(GetHashTagStringWithLength(18), MagMediaManagement.FormatMoneyAmount(
               MagMediaManagement.GetTotal(GetFullMiscCode(11), FormType, EndLine), 18)) +
           StrSubstNo(GetHashTagStringWithLength(18), MagMediaManagement.FormatMoneyAmount(0, 18)) +
@@ -1056,9 +1054,9 @@ report 10115 "Vendor 1099 Magnetic Media"
           StrSubstNo('#1################', MagMediaManagement.FormatMoneyAmount(
               MagMediaManagement.GetTotal('DIV-10', FormType, EndLine), 18)) + // non-cash liquidation E
           StrSubstNo('#1################', MagMediaManagement.FormatMoneyAmount(
-              MagMediaManagement.GetTotal('DIV-11', FormType, EndLine), 18)) + // Exempt-interest dividends F
+              MagMediaManagement.GetTotal('DIV-12', FormType, EndLine), 18)) + // Exempt-interest dividends F
           StrSubstNo(GetHashTagStringWithLength(18), MagMediaManagement.FormatMoneyAmount(
-              MagMediaManagement.GetTotal('DIV-12', FormType, EndLine), 18)) + // Specified private activity bond interest dividends G
+              MagMediaManagement.GetTotal('DIV-13', FormType, EndLine), 18)) + // Specified private activity bond interest dividends G
           StrSubstNo(GetHashTagStringWithLength(18), MagMediaManagement.FormatMoneyAmount(
               MagMediaManagement.GetTotal('DIV-02-E', FormType, EndLine), 18)) + // Specified 897 Ordinary Dividends
           StrSubstNo(GetHashTagStringWithLength(18), MagMediaManagement.FormatMoneyAmount(

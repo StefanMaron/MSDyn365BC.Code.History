@@ -1194,6 +1194,42 @@ codeunit 134475 "ERM Dimension Sales"
         VATEntry.TestField(Amount, 0);
     end;
 
+    [Test]
+    procedure VerifyDimensionsAreNotReInitializedIfDefaultDimensionDoesntExist()
+    var
+        Customer: Record Customer;
+        Item: Record Item;
+        Location: Record Location;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        DimensionValue: Record "Dimension Value";
+        DimensionValue2: Record "Dimension Value";
+    begin
+        // [SCENARIO 455039] Verify dimensions are not re-initialized on validate field if default dimensions does not exist
+        Initialize();
+
+        // [GIVEN] Create Customer with default global dimension value
+        CreateCustomerWithDefaultGlobalDimValue(Customer, DimensionValue);
+
+        // [GIVEN] Create Item without Default Dimension
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create Location without Default Dimension
+        LibraryWarehouse.CreateLocation(Location);
+
+        // [GIVEN] Create Sales Order
+        CreateSalesOrder(SalesHeader, SalesLine, Customer."No.", Item."No.");
+
+        // [GIVEN] Update global dimension 1 on Sales Line
+        UpdateGlobalDimensionOnSalesLine(SalesLine, DimensionValue2);
+
+        // [WHEN] Change Location on Sales Line
+        UpdateLocationOnSalesLine(SalesLine, Location.Code);
+
+        // [VERIFY] Verify Dimensions are not re initialized on Sales Line
+        VerifyDimensionOnSalesOrderLine(SalesHeader."Document Type", SalesHeader."No.", DimensionValue2."Dimension Code");
+    end;
+
 #if not CLEAN20
     [Test]
     [Scope('OnPrem')]
@@ -1991,6 +2027,64 @@ codeunit 134475 "ERM Dimension Sales"
               VATEntry.Amount,
               StrSubstNo('Incorrect Amount in "VAT Entry"[%1]', Index));
         until VATEntry.Next() = 0;
+    end;
+
+    local procedure VerifyDimensionOnSalesOrderLine(DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20]; DimensionCode: Code[20])
+    var
+        DimensionSetEntry: Record "Dimension Set Entry";
+        SalesLine: Record "Sales Line";
+    begin
+        FindSalesLine(SalesLine, DocumentType, DocumentNo);
+        DimensionSetEntry.SetRange("Dimension Set ID", SalesLine."Dimension Set ID");
+        DimensionSetEntry.FindFirst();
+        Assert.AreEqual(
+          DimensionCode, DimensionSetEntry."Dimension Code",
+          StrSubstNo(DimensionValueCodeError, DimensionSetEntry.FieldCaption("Dimension Code"), DimensionCode));
+    end;
+
+    local procedure FindSalesLine(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20])
+    begin
+        SalesLine.SetRange("Document Type", DocumentType);
+        SalesLine.SetRange("Document No.", DocumentNo);
+        SalesLine.FindFirst();
+    end;
+
+    local procedure UpdateLocationOnSalesLine(var SalesLine: Record "Sales Line"; LocationCode: Code[10])
+    begin
+        SalesLine.Validate("Location Code", LocationCode);
+        SalesLine.Modify(true);
+    end;
+
+    local procedure UpdateGlobalDimensionOnSalesLine(var SalesLine: Record "Sales Line"; var DimensionValue: Record "Dimension Value")
+    begin
+        LibraryDimension.CreateDimensionValue(DimensionValue, LibraryERM.GetGlobalDimensionCode(1));
+        SalesLine.Validate("Shortcut Dimension 1 Code", DimensionValue.Code);
+        SalesLine.Modify(true);
+    end;
+
+    local procedure CreateSalesOrder(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; CustomerNo: Code[20]; ItemNo: Code[20])
+    begin
+        // Sales Order with one Sales line. Take random value for Quantity and Unit Price.        
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo);
+        CreateAndModifySalesLine(
+          SalesLine, SalesHeader, ItemNo, LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(100, 2));
+    end;
+
+    local procedure CreateAndModifySalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; ItemNo: Code[20]; Quantity: Decimal; UnitPrice: Decimal)
+    begin
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, Quantity);
+        SalesLine.Validate("Unit Price", UnitPrice);
+        SalesLine.Modify(true);
+    end;
+
+    local procedure CreateCustomerWithDefaultGlobalDimValue(var Customer: Record Customer; var DimensionValue: Record "Dimension Value")
+    var
+        DefaultDimension: Record "Default Dimension";
+    begin
+        LibrarySales.CreateCustomer(Customer);
+        LibraryDimension.CreateDimensionValue(DimensionValue, LibraryERM.GetGlobalDimensionCode(1));
+        LibraryDimension.CreateDefaultDimensionCustomer(
+          DefaultDimension, Customer."No.", DimensionValue."Dimension Code", DimensionValue.Code);
     end;
 
     [ConfirmHandler]

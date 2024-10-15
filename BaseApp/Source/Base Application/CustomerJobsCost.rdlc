@@ -752,7 +752,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Code.BlankZero(Sum(Fields!Percent_Completion_.Value))</Value>
+                                  <Value>=Code.BlankZero((Sum(Fields!UsageCost.Value)/Sum(Fields!ScheduledCost.Value))*100)</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <FontWeight>Bold</FontWeight>
