@@ -1061,6 +1061,7 @@
         // [FEATURE] [CA]
         // [SCENARIO 303720] Export EFT CA (RB) with two headers and all business data in payment journal
         // [SCENARIO 362896] Settlement Date is exported via data exchange ACH RB Header "Settlement Date" field
+        // [SCENARIO 401126] Settlement Julian Date is exported with the Julian date format of the "Settlement Date" field value
         Initialize();
         BindSubscription(ERMElectronicFundsTransfer);
         TestClientTypeSubscriber.SetClientType(ClientType::Web);
@@ -1838,6 +1839,25 @@
         VendorBankAccount.SetRange("Use for Electronic Payments", true);
         Assert.AreEqual(2, VendorBankAccount.Count,
             'The vendor should have 2 bank accounts that have electronic payments enabled');
+    end;
+
+    [Test]
+    procedure ACHRBHeaderSettlementJulianDateUT()
+    var
+        ACHRBHeader: Record "ACH RB Header";
+        ExportEFTRB: Codeunit "Export EFT (RB)";
+        Date: Date;
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 401126] TAB 10303 "ACH RB Header"."Settlement Julian Date" contains a date in the Julian date format
+        Date := LibraryRandom.RandDate(1000);
+        ACHRBHeader.Validate("Settlement Date", Date);
+        ACHRBHeader.TestField("Settlement Date", Date);
+        ACHRBHeader.TestField("Settlement Julian Date", ExportEFTRB.JulianDate(Date));
+
+        ACHRBHeader.Validate("Settlement Date", 0D);
+        ACHRBHeader.TestField("Settlement Date", 0D);
+        ACHRBHeader.TestField("Settlement Julian Date", 0);
     end;
 
     local procedure Initialize()
@@ -3069,6 +3089,7 @@
         TempACHRBHeader.TestField("File Creation Number", FileCreationNo);
         TempACHRBHeader.TestField("File Creation Date", ExportEFTRB.JulianDate(Today()));
         TempACHRBHeader.TestField("Settlement Date", SettleDate);
+        TempACHRBHeader.TestField("Settlement Julian Date", ExportEFTRB.JulianDate(SettleDate)); // TFS 401126
 
         ERMElectronicFundsTransfer.GetTempACHRBDetail(TempACHRBDetail);
         TempACHRBDetail.TestField("File Creation Number", FileCreationNo);

@@ -95,7 +95,7 @@
         }
         field(29; "Job Posting Group"; Code[20])
         {
-            Caption = 'Job Posting Group';
+            Caption = 'Posting Group';
             TableRelation = "Inventory Posting Group";
         }
         field(30; "Global Dimension 1 Code"; Code[20])

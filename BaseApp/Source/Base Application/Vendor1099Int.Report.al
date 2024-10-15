@@ -179,8 +179,7 @@ report 10111 "Vendor 1099 Int"
                 PageGroupNo := 0;
 
                 // Create date range which covers the entire calendar year
-                PeriodDate[1] := DMY2Date(1, 1, Year);
-                PeriodDate[2] := DMY2Date(31, 12, Year);
+                UpdatePeriodDateArray();
 
                 // Fill in the Codes used on this particular 1099 form
                 Clear(Codes);
@@ -228,6 +227,7 @@ report 10111 "Vendor 1099 Int"
                         begin
                             if (Year < 1980) or (Year > 2060) then
                                 Error('You must enter a valid year, eg 1993');
+                            UpdatePeriodDateArray();
                         end;
                     }
                     field(TestPrint; TestPrint)
@@ -244,7 +244,7 @@ report 10111 "Vendor 1099 Int"
         {
         }
 
-        trigger OnOpenPage()
+        trigger OnInit()
         begin
             TestPrint := false;   /*always default to false*/
             Year := Date2DMY(WorkDate, 3);   /*default to current working year*/
@@ -335,6 +335,12 @@ report 10111 "Vendor 1099 Int"
     procedure FormatCompanyAddress()
     begin
         IRS1099Div.FormatCompanyAddress(CompanyAddress, CompanyInfo, TestPrint);
+    end;
+
+    local procedure UpdatePeriodDateArray()
+    begin
+        PeriodDate[1] := DMY2Date(1, 1, Year);
+        PeriodDate[2] := DMY2Date(31, 12, Year);
     end;
 }
 

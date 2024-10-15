@@ -520,8 +520,6 @@
         if SalesInvoiceLine."VAT Calculation Type" = SalesInvoiceLine."VAT Calculation Type"::"Sales Tax" then
             exit;
 
-        SalesReceivablesSetup.GetRecordOnce();
-
         with GenPostingSetup do begin
             Get(SalesInvoiceLine."Gen. Bus. Posting Group", SalesInvoiceLine."Gen. Prod. Posting Group");
             if SalesInvoiceLine.Type <> SalesInvoiceLine.Type::"G/L Account" then begin
@@ -530,7 +528,7 @@
                 TestField("Sales Credit Memo Account");
                 TestGLAccount("Sales Credit Memo Account", SalesInvoiceLine);
             end;
-            if HasLineDiscountSetup() then
+            if HasLineDiscountSetup(SalesInvoiceLine) then
                 if "Sales Line Disc. Account" <> '' then
                     TestGLAccount("Sales Line Disc. Account", SalesInvoiceLine);
             if SalesInvoiceLine.Type = SalesInvoiceLine.Type::Item then begin
@@ -798,12 +796,14 @@
             end;
     end;
 
-    local procedure HasLineDiscountSetup() Result: Boolean
+    local procedure HasLineDiscountSetup(SalesInvoiceLine: Record "Sales Invoice Line") Result: Boolean
     begin
         with SalesReceivablesSetup do begin
             GetRecordOnce();
             Result := "Discount Posting" in ["Discount Posting"::"Line Discounts", "Discount Posting"::"All Discounts"];
         end;
+        if Result then
+            Result := SalesInvoiceLine."Line Discount %" <> 0;
         OnHasLineDiscountSetup(SalesReceivablesSetup, Result);
     end;
 

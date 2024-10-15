@@ -1657,8 +1657,10 @@
                 ToolTip = 'View the federal form 1099-MISC for miscellaneous income.';
 
                 trigger OnAction()
+                var
+                    IRS1099Management: Codeunit "IRS 1099 Management";
                 begin
-                    RunReport(REPORT::"Vendor 1099 Misc");
+                    IRS1099Management.Run1099MiscReport();
                 end;
             }
             action("Vendor 1099 Information")

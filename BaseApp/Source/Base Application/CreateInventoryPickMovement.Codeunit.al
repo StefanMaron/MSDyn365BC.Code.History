@@ -675,8 +675,14 @@
                     ItemTrackingMgt.SumUpItemTrackingOnlyInventoryOrATO(TempReservEntry, TempHandlingSpecification, true, true)
                 else begin
                     SetFilterReservEntry(ReservationEntry, NewWhseActivLine);
-                    ItemTrackingMgt.SumUpItemTrackingOnlyInventoryOrATO(ReservationEntry, TempHandlingSpecification, true, true);
+                    CopyReservEntriesToTemp(TempReservEntry, ReservationEntry);
+                    if IsInvtMovement then
+                        PrepareItemTrackingFromWhseIT(
+                          NewWhseActivLine."Source Type", NewWhseActivLine."Source Subtype", NewWhseActivLine."Source No.",
+                          NewWhseActivLine."Source Line No.", 1);
+                    ItemTrackingMgt.SumUpItemTrackingOnlyInventoryOrATO(TempReservEntry, TempHandlingSpecification, true, true);
                 end;
+
                 if PickOrMoveAccordingToFEFO(NewWhseActivLine."Location Code", WhseItemTrackingSetup) or
                    PickStrictExpirationPosting(NewWhseActivLine."Item No.", WhseItemTrackingSetup)
                 then begin
@@ -926,9 +932,14 @@
                 WhseActivLine."Location Code", WhseActivLine."Item No.", WhseActivLine."Variant Code", TempWhseActivLine2);
 
         BlockedItemTrackingSetup.CopyTrackingFromItemTrackingSetup(WhseItemTrackingSetup);
-        QtyBlocked :=
-            WhseAvailMgt.CalcQtyOnBlockedITOrOnBlockedOutbndBins(
-                WhseActivLine."Location Code", WhseActivLine."Item No.", WhseActivLine."Variant Code", WhseItemTrackingSetup);
+        if Location."Bin Mandatory" then
+            QtyBlocked :=
+                WhseAvailMgt.CalcQtyOnBlockedITOrOnBlockedOutbndBins(
+                    WhseActivLine."Location Code", WhseActivLine."Item No.", WhseActivLine."Variant Code", WhseItemTrackingSetup)
+        else
+            QtyBlocked := 
+                WhseAvailMgt.CalcQtyOnBlockedItemTracking(
+                    WhseActivLine."Location Code", WhseActivLine."Item No.", WhseActivLine."Variant Code");
 
         exit(
           Item2.Inventory - Abs(Item2."Reserved Qty. on Inventory") - QtyAssgndtoPick - QtyOnDedicatedBins - QtyBlocked +
@@ -1300,7 +1311,7 @@
                 NewWhseActivLine."Due Date" := "Due Date";
                 RemQtyToPickBase := "Qty. (Base)";
                 OnCreateInvtMvntWithoutSourceOnAfterTransferFields(NewWhseActivLine, InternalMovementLine);
-                PrepareItemTrackingFromWhseIT(InternalMovementLine);
+                PrepareItemTrackingForInternalMovement(InternalMovementLine);
                 CreatePickOrMoveLine(NewWhseActivLine, RemQtyToPickBase, RemQtyToPickBase, false);
             until Next = 0;
         end;
@@ -1365,29 +1376,35 @@
         end;
     end;
 
-    local procedure PrepareItemTrackingFromWhseIT(InternalMovementLine: Record "Internal Movement Line")
-    var
-        WhseItemTrackingLine: Record "Whse. Item Tracking Line";
-        EntryNo: Integer;
+    local procedure PrepareItemTrackingForInternalMovement(InternalMovementLine: Record "Internal Movement Line")
     begin
         // function recopies warehouse item tracking into temporary item tracking table
         // when Invt. Movement is created from Internal Movement
         TempReservEntry.Reset();
         TempReservEntry.DeleteAll();
 
-        WhseItemTrackingLine.SetCurrentKey("Source ID", "Source Type", "Source Subtype", "Source Batch Name");
-        WhseItemTrackingLine.SetRange("Source Type", DATABASE::"Internal Movement Line");
-        WhseItemTrackingLine.SetRange("Source ID", InternalMovementLine."No.");
-        WhseItemTrackingLine.SetRange("Source Ref. No.", InternalMovementLine."Line No.");
+        PrepareItemTrackingFromWhseIT(
+          DATABASE::"Internal Movement Line", 0, InternalMovementLine."No.", InternalMovementLine."Line No.", -1);
+    end;
 
+    local procedure PrepareItemTrackingFromWhseIT(SourceType: Integer; SourceSubtype: Integer; SourceNo: Code[20]; SourceLineNo: Integer; SignFactor: Integer)
+    var
+        WhseItemTrackingLine: Record "Whse. Item Tracking Line";
+        EntryNo: Integer;
+    begin
+        if TempReservEntry.FindLast() then
+            EntryNo := TempReservEntry."Entry No.";
+
+        WhseItemTrackingLine.SetSourceFilter(SourceType, SourceSubtype, SourceNo, SourceLineNo, true);
         if WhseItemTrackingLine.Find('-') then
             repeat
                 TempReservEntry.TransferFields(WhseItemTrackingLine);
                 EntryNo += 1;
                 TempReservEntry."Entry No." := EntryNo;
-                TempReservEntry.Positive := false;
                 TempReservEntry."Reservation Status" := TempReservEntry."Reservation Status"::Surplus;
-                TempReservEntry.Validate("Quantity (Base)", -TempReservEntry."Quantity (Base)");
+                if SignFactor < 0 then
+                    TempReservEntry.Validate("Quantity (Base)", -TempReservEntry."Quantity (Base)");
+                TempReservEntry.Positive := (TempReservEntry."Quantity (Base)" > 0);
                 TempReservEntry.UpdateItemTracking;
                 OnBeforeTempReservEntryInsert(TempReservEntry, WhseItemTrackingLine);
                 TempReservEntry.Insert();
@@ -1648,6 +1665,18 @@
     procedure SetSuppressCommit(NewSuppressCommit: Boolean)
     begin
         SuppressCommit := NewSuppressCommit;
+    end;
+
+    local procedure CopyReservEntriesToTemp(var TempReservationEntry: Record "Reservation Entry" temporary; var ReservationEntry: Record "Reservation Entry")
+    begin
+        TempReservationEntry.Reset();
+        TempReservationEntry.DeleteAll();
+
+        if ReservationEntry.FindSet() then
+            repeat
+                TempReservationEntry := ReservationEntry;
+                TempReservationEntry.Insert();
+            until ReservationEntry.Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]

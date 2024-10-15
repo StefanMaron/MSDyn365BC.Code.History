@@ -591,13 +591,13 @@
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the sales credit memo line that the record is linked to.';
-                    Visible = false;
+                    Visible = IsPACEnabled;
                 }
                 field("Retention VAT %"; "Retention VAT %")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the retention VAT percentage that is used in the line.';
-                    Visible = false;
+                    Visible = IsPACEnabled;
                 }
             }
             group(Control39)
@@ -938,11 +938,13 @@
     trigger OnInit()
     var
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
+        EInvoiceMgt: Codeunit "E-Invoice Mgt.";	
     begin
         SalesSetup.Get();
         Currency.InitRoundingPrecision();
         TempOptionLookupBuffer.FillBuffer(TempOptionLookupBuffer."Lookup Type"::Sales);
-        IsFoundation := ApplicationAreaMgmtFacade.IsFoundationEnabled;
+        IsFoundation := ApplicationAreaMgmtFacade.IsFoundationEnabled();
+        IsPACEnabled := EInvoiceMgt.IsPACEnvironmentEnabled();
     end;
 
     trigger OnModifyRecord(): Boolean
@@ -1006,6 +1008,7 @@
         DimVisible8: Boolean;
         IsBlankNumber: Boolean;
         IsCommentLine: Boolean;
+        IsPACEnabled: Boolean;
 
     procedure ApproveCalcInvDisc()
     begin

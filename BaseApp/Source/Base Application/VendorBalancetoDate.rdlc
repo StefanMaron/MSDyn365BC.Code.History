@@ -1220,11 +1220,14 @@
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>8pt</FontSize>
-                                    <Format>=Fields!OriginalAmtFormat.Value</Format>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
-                              <Style />
+                              <Style>
+                                <FontFamily>Segoe UI</FontFamily>
+                                <FontSize>8pt</FontSize>
+                                <TextAlign>Right</TextAlign>
+                              </Style>
                             </Paragraph>
                           </Paragraphs>
                           <ZIndex>154</ZIndex>
@@ -1442,11 +1445,14 @@
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>8pt</FontSize>
-                                    <Format>=Fields!OriginalAmtFormat.Value</Format>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
-                              <Style />
+                              <Style>
+                                <FontFamily>Segoe UI</FontFamily>
+                                <FontSize>8pt</FontSize>
+                                <TextAlign>Right</TextAlign>
+                              </Style>
                             </Paragraph>
                           </Paragraphs>
                           <ZIndex>118</ZIndex>
@@ -1669,11 +1675,14 @@
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>8pt</FontSize>
-                                    <Format>=Fields!AmtFormat.Value</Format>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
-                              <Style />
+                              <Style>
+                                <FontFamily>Segoe UI</FontFamily>
+                                <FontSize>8pt</FontSize>
+                                <TextAlign>Right</TextAlign>
+                              </Style>
                             </Paragraph>
                           </Paragraphs>
                           <rd:DefaultName>textbox97</rd:DefaultName>
@@ -3859,11 +3868,14 @@
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>8pt</FontSize>
                                     <FontWeight>Bold</FontWeight>
-                                    <Format>=Fields!RemainingAmtFormat.Value</Format>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
-                              <Style />
+                              <Style>
+                                <FontFamily>Segoe UI</FontFamily>
+                                <FontSize>8pt</FontSize>
+                                <TextAlign>Right</TextAlign>
+                              </Style>
                             </Paragraph>
                           </Paragraphs>
                           <rd:DefaultName>textbox7</rd:DefaultName>
@@ -5307,9 +5319,6 @@ End Function
         <Field Name="OriginalAmt">
           <DataField>OriginalAmt</DataField>
         </Field>
-        <Field Name="OriginalAmtFormat">
-          <DataField>OriginalAmtFormat</DataField>
-        </Field>
         <Field Name="EntryNo_VendLedgEntry3">
           <DataField>EntryNo_VendLedgEntry3</DataField>
         </Field>
@@ -5331,9 +5340,6 @@ End Function
         <Field Name="Amt">
           <DataField>Amt</DataField>
         </Field>
-        <Field Name="AmtFormat">
-          <DataField>AmtFormat</DataField>
-        </Field>
         <Field Name="CurrencyCode1">
           <DataField>CurrencyCode1</DataField>
         </Field>
@@ -5342,9 +5348,6 @@ End Function
         </Field>
         <Field Name="RemainingAmt">
           <DataField>RemainingAmt</DataField>
-        </Field>
-        <Field Name="RemainingAmtFormat">
-          <DataField>RemainingAmtFormat</DataField>
         </Field>
         <Field Name="Name1_Vendor">
           <DataField>Name1_Vendor</DataField>
