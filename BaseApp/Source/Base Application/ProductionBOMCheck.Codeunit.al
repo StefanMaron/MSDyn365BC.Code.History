@@ -38,6 +38,20 @@ codeunit 99000769 "Production BOM-Check"
         end else
             CheckBOM(ProdBOMHeader."No.", VersionCode);
 
+        ProcessItems(ProdBOMHeader, VersionCode, CalcLowLevel);
+
+        OnAfterCode(ProdBOMHeader, VersionCode);
+    end;
+
+    local procedure ProcessItems(var ProdBOMHeader: Record "Production BOM Header"; VersionCode: Code[20]; var CalcLowLevel: Codeunit "Calculate Low-Level Code")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeProcessItems(ProdBOMHeader, VersionCode, IsHandled);
+        if IsHandled then
+            exit;
+
         Item.SetCurrentKey("Production BOM No.");
         Item.SetRange("Production BOM No.", ProdBOMHeader."No.");
 
@@ -56,8 +70,6 @@ codeunit 99000769 "Production BOM-Check"
                 ItemUnitOfMeasure.Get(Item."No.", ProdBOMHeader."Unit of Measure Code");
             until Item.Next() = 0;
         end;
-
-        OnAfterCode(ProdBOMHeader, VersionCode);
     end;
 
     local procedure OpenDialogWindow()
@@ -199,6 +211,11 @@ codeunit 99000769 "Production BOM-Check"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOpenDialogWindow(var Window: Dialog; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeProcessItems(var ProdBOMHeader: Record "Production BOM Header"; VersionCode: Code[20]; var IsHandled: Boolean)
     begin
     end;
 

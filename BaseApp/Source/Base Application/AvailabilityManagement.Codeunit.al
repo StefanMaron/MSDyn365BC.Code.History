@@ -225,6 +225,7 @@ codeunit 99000889 AvailabilityManagement
                                 JobPlanningLine2.SetRange(Status, "Source Subtype");
                                 JobPlanningLine2.SetRange("Job No.", "Source ID");
                                 JobPlanningLine2.SetRange("Job Contract Entry No.", "Source Line No.");
+                                JobPlanningLine2.FindFirst();
                                 JobPlanningLine2.CalcFields("Reserved Quantity");
                                 QtyReservedTotal := JobPlanningLine2."Reserved Quantity";
                                 CapableToPromise.RemoveReqLines(JobPlanningLine2."Job No.", JobPlanningLine2."Job Contract Entry No.", 0, false);

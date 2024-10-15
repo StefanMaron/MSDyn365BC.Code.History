@@ -141,7 +141,13 @@ table 841 "Cash Flow Account"
             trigger OnLookup()
             var
                 GLAccList: Page "G/L Account List";
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeOnLookup(Rec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 GLAccList.LookupMode(true);
                 if GLAccList.RunModal() = ACTION::LookupOK then
                     "G/L Account Filter" := CopyStr(GLAccList.GetSelectionFilter(), 1, MaxStrLen("G/L Account Filter"));
@@ -202,5 +208,10 @@ table 841 "Cash Flow Account"
 
     var
         MoveEntries: Codeunit MoveEntries;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnLookup(var CashFlowAccount: Record "Cash Flow Account"; var IsHandled: Boolean)
+    begin
+    end;
 }
 

@@ -449,7 +449,7 @@ codeunit 144001 "VAT Report"
         SetupVATReportScenario(VATReportHeader, TestPeriodStart, TestPeriodEnd);
 
         VATReportLine.SetRange("VAT Report No.", VATReportHeader."No.");
-        VATEntry.SetRange("Posting Date", TestPeriodStart, TestPeriodEnd);
+        VATEntry.SetRange("VAT Reporting Date", TestPeriodStart, TestPeriodEnd);
 
         Assert.AreEqual(VATEntry.Count, VATReportLine.Count, IncorrectNoOfReportLinesErr);
 
@@ -2668,7 +2668,7 @@ codeunit 144001 "VAT Report"
     var
         VATEntry: Record "VAT Entry";
     begin
-        VATEntry.SetRange("Posting Date", TestPeriodStart, TestPeriodEnd);
+        VATEntry.SetRange("VAT Reporting Date", TestPeriodStart, TestPeriodEnd);
         VATEntry.DeleteAll(true);
     end;
 
@@ -2873,6 +2873,7 @@ codeunit 144001 "VAT Report"
         with VATEntry do begin
             Validate("Entry No.", EntryNo);
             Validate("Posting Date", PostingDate);
+            Validate("VAT Reporting Date", PostingDate);
             if IsPurchase then
                 Validate(Type, Type::Purchase)
             else
@@ -2894,6 +2895,7 @@ codeunit 144001 "VAT Report"
         with VATEntry do begin
             Validate("Entry No.", GetNextVATEntryNo);
             Validate("Posting Date", PostingDate);
+            Validate("VAT Reporting Date", PostingDate);
             Validate(Type, Type::Sale);
             Validate("Country/Region Code", CountryCode);
             Validate("VAT Registration No.", VATRegNo);
@@ -3324,7 +3326,7 @@ codeunit 144001 "VAT Report"
         VATEntry: Record "VAT Entry";
     begin
         with VATEntry do begin
-            SetRange("Posting Date", TestPeriodStart, TestPeriodEnd);
+            SetRange("VAT Reporting Date", TestPeriodStart, TestPeriodEnd);
             SetRange("VAT Registration No.", VATRegNo);
             SetRange("Country/Region Code", CountryCode);
             FindSet();

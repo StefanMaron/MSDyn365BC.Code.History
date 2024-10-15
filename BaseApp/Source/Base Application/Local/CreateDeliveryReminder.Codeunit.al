@@ -22,7 +22,13 @@
     procedure Remind(PurchLine: Record "Purchase Line"; DeliveryReminderTerms: Record "Delivery Reminder Term"; var DeliveryReminderLevel: Record "Delivery Reminder Level"; DateOfTheCurrentDay: Date) RetValue: Boolean
     var
         DelivReminLedgerEntries: Record "Delivery Reminder Ledger Entry";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeRemind(PurchLine, DeliveryReminderTerms, DeliveryReminderLevel, DateOfTheCurrentDay, LineLevel, RetValue, IsHandled);
+        if IsHandled then
+            exit(RetValue);
+
         PurchaseSetup.Get();
         PurchaseSetup.TestField("Default Del. Rem. Date Field");
         case PurchaseSetup."Default Del. Rem. Date Field" of
@@ -307,6 +313,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeDeliveryReminderTextLineInsert(var DeliveryReminderLine: Record "Delivery Reminder Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRemind(PurchaseLine: Record "Purchase Line"; DeliveryReminderTerm: Record "Delivery Reminder Term"; var DeliveryReminderLevel: Record "Delivery Reminder Level"; DateOfTheCurrentDay: Date; var LineLevel: Integer; var RetValue: Boolean; var IsHandled: Boolean)
     begin
     end;
 

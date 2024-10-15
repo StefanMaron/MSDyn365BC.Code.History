@@ -11,15 +11,15 @@ report 741 "VAT Report Suggest Lines"
             DataItemTableView = SORTING("No.") ORDER(Ascending);
             dataitem(VATEntrySales; "VAT Entry")
             {
-                DataItemTableView = SORTING(Type, "Country/Region Code", "VAT Registration No.", "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Posting Date") WHERE(Type = CONST(Sale));
+                DataItemTableView = SORTING(Type, "Country/Region Code", "VAT Registration No.", "VAT Bus. Posting Group", "VAT Prod. Posting Group", "VAT Reporting Date") WHERE(Type = CONST(Sale));
                 RequestFilterFields = "VAT Bus. Posting Group", "VAT Prod. Posting Group";
                 RequestFilterHeading = 'Sales entries';
 
                 trigger OnAfterGetRecord()
                 begin
                     if "EU Service" then
-                        if "Posting Date" < 20100101D then
-                            Error(Text11000, FieldCaption("Posting Date"), 20100101D);
+                        if "VAT Reporting Date" < 20100101D then
+                            Error(Text11000, FieldCaption("VAT Reporting Date"), 20100101D);
 
                     UpdateProgressBar;
                     AddVATReportLine(VATEntrySales);
@@ -39,7 +39,7 @@ report 741 "VAT Report Suggest Lines"
             }
             dataitem(VATEntryPurchases; "VAT Entry")
             {
-                DataItemTableView = SORTING(Type, "Country/Region Code", "VAT Registration No.", "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Posting Date") WHERE(Type = CONST(Purchase));
+                DataItemTableView = SORTING(Type, "Country/Region Code", "VAT Registration No.", "VAT Bus. Posting Group", "VAT Prod. Posting Group", "VAT Reporting Date") WHERE(Type = CONST(Purchase));
                 RequestFilterFields = "VAT Bus. Posting Group", "VAT Prod. Posting Group";
                 RequestFilterHeading = 'Purchase entries';
 
@@ -124,7 +124,7 @@ report 741 "VAT Report Suggest Lines"
 
     var
         Text11000: Label '%1 must not be less than %2 for Services.';
-        Text001: Label 'Posting Date #1########';
+        Text001: Label 'VAT Date #1########';
         Text002: Label 'Suggesting lines @2@@@@@@@@@@@@@';
         Text003: Label 'Existing lines will be deleted and new lines will be created. Continue?';
         Text006: Label 'You can process one declaration only.';
@@ -378,7 +378,7 @@ report 741 "VAT Report Suggest Lines"
                 "EU Goods/Services"::Services:
                     VATEntry.SetRange("EU Service", true);
             end;
-            VATEntry.SetRange("Posting Date", "Start Date", "End Date");
+            VATEntry.SetRange("VAT Reporting Date", "Start Date", "End Date");
         end;
     end;
 

@@ -831,6 +831,53 @@ codeunit 134180 "WF Demo Purch. Order Approvals"
         PurchLine.TestField("Over-Receipt Approval Status", PurchLine."Over-Receipt Approval Status"::Approved);
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandler,ApprovalEntriesPageHandler')]
+    [Scope('OnPrem')]
+    procedure VerifyDetailtextonApprovalEntryPageFromPurchOrder()
+    var
+        Workflow: Record Workflow;
+        ApprovalEntry: Record "Approval Entry";
+        PurchaseHeader: Record "Purchase Header";
+        CurrentUserSetup: Record "User Setup";
+        IntermediateApproverUserSetup: Record "User Setup";
+        FinalUserSetup: Record "User Setup";
+        PurchAmount: Decimal;
+    begin
+        // [SCENARIO 453092] The amount of the initial Details on the approval entries is updating with new approval amount. 
+        Initialize();
+
+        // [GIVEN] Purchase Order Approval Workflow that has Purchaser as the approver and No Limit as the limit type.
+        //  and Purchase Order is sent for approval.
+        SendDocumentForApproval(Workflow, CurrentUserSetup, IntermediateApproverUserSetup, FinalUserSetup, PurchaseHeader);
+
+        // [VERIFY] Verify Purchase Order status is set to Pending Approval
+        VerifyPurchaseDocumentStatus(PurchaseHeader, PurchaseHeader.Status::"Pending Approval");
+
+        // [VERIFY] Verify Approval requests and their data
+        LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, PurchaseHeader.RecordId);
+        Assert.AreEqual(3, ApprovalEntry.Count, UnexpectedNoOfApprovalEntriesErr);
+
+        // [VERIFY] Approval Entry created correctly
+        ApprovalEntry.Next();
+        VerifyApprovalEntry(ApprovalEntry, UserId, IntermediateApproverUserSetup."User ID", ApprovalEntry.Status::Open);
+
+        // [THEN] Cancel the approval request
+        CancelPurchaseOrder(PurchaseHeader);
+
+        // [THEN] Update purchase amount on line.
+        UpdatePurchaseAmountOnLine(PurchaseHeader, LibraryRandom.RandIntInRange(5000, 10000));
+
+        // [THEN] Send For approval after changing the purchase order value.
+        SendPurchaseOrderForApproval(PurchaseHeader);
+
+        // [THEN] Setup - Assign the approval entry to current user so that it can be approved
+        LibraryDocumentApprovals.UpdateApprovalEntryWithCurrUser(PurchaseHeader.RecordId);
+
+        // [VERIFY] Verify the Detail text on Approval entries page. 
+        CheckDetailTextForDocumentOnApprovalEntriesPage(ApprovalEntry, PurchaseHeader);
+    end;
+
     local procedure SendDocumentForApproval(var Workflow: Record Workflow; var CurrentUserSetup: Record "User Setup"; var IntermediateApproverUserSetup: Record "User Setup"; var FinalApproverUserSetup: Record "User Setup"; var PurchHeader: Record "Purchase Header")
     var
         WorkflowSetup: Codeunit "Workflow Setup";
@@ -1143,6 +1190,49 @@ codeunit 134180 "WF Demo Purch. Order Approvals"
         NewWorkflowStep.Validate("Function Name", NewStepFunctionName);
         NewWorkflowStep.Insert(true);
         WorkflowStep.InsertAfterStep(NewWorkflowStep);
+    end;
+
+    local procedure CheckDetailTextForDocumentOnApprovalEntriesPage(ApprovalEntry: Record "Approval Entry"; PurchaseHeader: Record "Purchase Header")
+    var
+        PurchaseOrder: TestPage "Purchase Order";
+    begin
+        ApprovalEntry.SetRange(Status, ApprovalEntry.Status::Canceled);
+        ApprovalEntry.SetRange("Document No.", PurchaseHeader."No.");
+        ApprovalEntry.FindFirst();
+        LibraryVariableStorage.Enqueue(ApprovalEntry.RecordDetails());
+
+        PurchaseOrder.OpenView();
+        PurchaseOrder.GoToRecord(PurchaseHeader);
+        PurchaseOrder.Approvals.Invoke();
+        PurchaseOrder.Close();
+    end;
+
+    local procedure UpdatePurchaseAmountOnLine(PurchaseHeader: Record "Purchase Header"; Amount: Integer)
+    var
+        PurchaseLine: Record "Purchase Line";
+    begin
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, '', 1);
+        PurchaseLine.Validate("Direct Unit Cost", Amount);
+        PurchaseLine.Modify(true);
+    end;
+
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure ApprovalEntriesPageHandler(var ApprovalEntries: TestPage "Approval Entries")
+    var
+        ApprovalEntry: Record "Approval Entry";
+        Variant: Variant;
+        DeatilsText: Variant;
+        AEDeatilsText: Text;
+    begin
+        LibraryVariableStorage.Dequeue(DeatilsText);
+        ApprovalEntries.Filter.SetFilter(Status, Format(ApprovalEntry.Status::Canceled));
+        if ApprovalEntries.First() then
+            repeat
+                AEDeatilsText := ApprovalEntries.Details.Value;
+                Assert.AreEqual(DeatilsText, AEDeatilsText, '')
+            until ApprovalEntries.Next();
+        ApprovalEntries.Close();
     end;
 }
 

@@ -690,6 +690,7 @@
             GenJnlBatch.TestField("No. Series");
             DocNo := NoSeriesMgt.GetNextNo(GenJnlBatch."No. Series", 0D, true);
         end;
+        OnPreReportOnAfterSetDocNo(DocNo, Post);
 
         ValueEntryFilter := PostValueEntryToGL.GetFilters();
         InvtSetup.Get();
@@ -888,6 +889,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateAmounts(var ItemValueEntry: Record "Value Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPreReportOnAfterSetDocNo(var DocNo: Code[20]; Post: Boolean)
     begin
     end;
 
