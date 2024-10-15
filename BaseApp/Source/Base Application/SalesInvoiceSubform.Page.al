@@ -133,6 +133,12 @@ page 47 "Sales Invoice Subform"
                     ToolTip = 'Specifies that the WHT Product Posting Group is assigned from the Product Entity selected in Sales Line.';
                     Visible = false;
                 }
+                field("Gen. Prod. Posting Group"; "Gen. Prod. Posting Group")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the item''s product type to link transactions made for this item with the appropriate general ledger account according to the general posting setup.';
+                    Visible = false;
+                }
                 field("VAT Prod. Posting Group"; "VAT Prod. Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
