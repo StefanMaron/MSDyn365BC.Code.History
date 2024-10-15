@@ -182,7 +182,7 @@ page 9072 "IT Operations Activities"
 
         SetFilter("Date Filter2", '<=%1', CreateDateTime(Today, 0T));
         SetFilter("Date Filter3", '>%1', CreateDateTime(Today, 0T));
-        SetFilter("User ID Filter", UserId);
+        SetRange("User ID Filter", UserId);
 
         ShowIntelligentCloud := not EnvironmentInfo.IsSaaS;
         IntegrationSynchJobErrors.SetDataIntegrationUIElementsVisible(ShowDataIntegrationCues);
