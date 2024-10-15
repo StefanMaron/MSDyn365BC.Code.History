@@ -82,6 +82,7 @@ codeunit 99000809 "Planning Line Management"
 
             CostCalcMgt.RoutingCostPerUnit(
               Type, "No.", "Direct Unit Cost", "Indirect Cost %", "Overhead Rate", "Unit Cost per", "Unit Cost Calculation");
+            OnTransferRoutingLineOnBeforeValidateDirectUnitCost(ReqLine, RoutingLine, PlanningRoutingLine);
             Validate("Direct Unit Cost");
 
             UpdateDatetime;
@@ -960,6 +961,11 @@ codeunit 99000809 "Planning Line Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnTransferBOMOnBeforeGetDefaultBin(var PlanningComponent: Record "Planning Component"; var ProductionBOMLine: Record "Production BOM Line"; RequisitionLine: Record "Requisition Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransferRoutingLineOnBeforeValidateDirectUnitCost(var ReqLine: Record "Requisition Line"; var RoutingLine: Record "Routing Line"; var PlanningRoutingLine: Record "Planning Routing Line")
     begin
     end;
 

@@ -531,6 +531,116 @@ codeunit 134154 "ERM Intercompany III"
         FileManagement.DeleteServerFile(FileName);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesLineReservedQuantityWhenCustomerReserveAlways()
+    var
+        Customer: Record Customer;
+        ICInboxSalesHeader: Record "IC Inbox Sales Header";
+        ICInboxSalesLine: Record "IC Inbox Sales Line";
+        ICInboxOutboxMgt: Codeunit ICInboxOutboxMgt;
+        ReserveMethod: Enum "Reserve Method";
+        ICPartnerRefType: Enum "IC Partner Reference Type";
+        ItemNo: Code[20];
+        LineNo: Integer;
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 360306] Create Sales Order from IC Inbox Transaction in case Customer has Reserve = Always.
+        Initialize();
+        ItemNo := LibraryInventory.CreateItemNo();
+        CreateAndPostPurchaseOrder(ItemNo);
+
+        // [GIVEN] Customer with Reserve = Always and IC Partner Code "ICP1".
+        // [GIVEN] IC Inbox Transaction with Sales Order type for IC Partner "ICP1".
+        // [GIVEN] IC Indox Transaction has linked IC Inbox Sales Line with "IC Partner Ref. Type" = "Item", Quantity = "Q1" > 0.
+        CreateCustomerWithICPartner(Customer);
+        UpdateReserveOnCustomer(Customer, ReserveMethod::Always);
+        MockICInboxSalesHeader(ICInboxSalesHeader, Customer."No.");
+        LineNo := MockICInboxSalesLine(ICInboxSalesHeader, ICPartnerRefType::Item, ItemNo);
+        ICInboxSalesLine.Get(
+            ICInboxSalesHeader."IC Transaction No.", ICInboxSalesHeader."IC Partner Code",
+            ICInboxSalesHeader."Transaction Source", LineNo);
+
+        // [WHEN] Create Sales Order from IC Inbox Transaction.
+        ICInboxOutboxMgt.CreateSalesDocument(ICInboxSalesHeader, false, WorkDate());
+
+        // [THEN] Sales Order with line is created. Sales Line has Quantity = "Q1", Reserved Quantity = "Q1".
+        VerifyReservedQuantityOnSalesLine(Customer."No.", ICInboxSalesLine.Quantity, ICInboxSalesLine.Quantity);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesLineReservedQuantityWhenCustomerReserveOptional()
+    var
+        Customer: Record Customer;
+        ICInboxSalesHeader: Record "IC Inbox Sales Header";
+        ICInboxSalesLine: Record "IC Inbox Sales Line";
+        ICInboxOutboxMgt: Codeunit ICInboxOutboxMgt;
+        ReserveMethod: Enum "Reserve Method";
+        ICPartnerRefType: Enum "IC Partner Reference Type";
+        ItemNo: Code[20];
+        LineNo: Integer;
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 360306] Create Sales Order from IC Inbox Transaction in case Customer has Reserve = Optional.
+        Initialize();
+        ItemNo := LibraryInventory.CreateItemNo();
+        CreateAndPostPurchaseOrder(ItemNo);
+
+        // [GIVEN] Customer with Reserve = Optional and IC Partner Code "ICP1".
+        // [GIVEN] IC Inbox Transaction with Sales Order type for IC Partner "ICP1".
+        // [GIVEN] IC Indox Transaction has linked IC Inbox Sales Line with "IC Partner Ref. Type" = "Item", Quantity = "Q1".
+        CreateCustomerWithICPartner(Customer);
+        UpdateReserveOnCustomer(Customer, ReserveMethod::Optional);
+        MockICInboxSalesHeader(ICInboxSalesHeader, Customer."No.");
+        LineNo := MockICInboxSalesLine(ICInboxSalesHeader, ICPartnerRefType::Item, ItemNo);
+        ICInboxSalesLine.Get(
+            ICInboxSalesHeader."IC Transaction No.", ICInboxSalesHeader."IC Partner Code",
+            ICInboxSalesHeader."Transaction Source", LineNo);
+
+        // [WHEN] Create Sales Order from IC Inbox Transaction.
+        ICInboxOutboxMgt.CreateSalesDocument(ICInboxSalesHeader, false, WorkDate());
+
+        // [THEN] Sales Order with line is created. Sales Line has Quantity = "Q1", Reserved Quantity = 0.
+        VerifyReservedQuantityOnSalesLine(Customer."No.", ICInboxSalesLine.Quantity, 0);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesLineNonItemTypeReservedQuantityWhenCustomerReserveAlways()
+    var
+        Customer: Record Customer;
+        ICInboxSalesHeader: Record "IC Inbox Sales Header";
+        ICInboxSalesLine: Record "IC Inbox Sales Line";
+        ICGLAccount: Record "IC G/L Account";
+        ICInboxOutboxMgt: Codeunit ICInboxOutboxMgt;
+        ReserveMethod: Enum "Reserve Method";
+        ICPartnerRefType: Enum "IC Partner Reference Type";
+        LineNo: Integer;
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 360306] Create Sales Order with G/L Account type line from IC Inbox Transaction in case Customer has Reserve = Always.
+        Initialize();
+        LibraryERM.CreateICGLAccount(ICGLAccount);
+
+        // [GIVEN] Customer with Reserve = Always and IC Partner Code "ICP1".
+        // [GIVEN] IC Inbox Transaction with Sales Order type for IC Partner "ICP1".
+        // [GIVEN] IC Indox Transaction has linked IC Inbox Sales Line with "IC Partner Ref. Type" = "G/L Account", Quantity = "Q1".
+        CreateCustomerWithICPartner(Customer);
+        UpdateReserveOnCustomer(Customer, ReserveMethod::Always);
+        MockICInboxSalesHeader(ICInboxSalesHeader, Customer."No.");
+        LineNo := MockICInboxSalesLine(ICInboxSalesHeader, ICPartnerRefType::"G/L Account", ICGLAccount."No.");
+        ICInboxSalesLine.Get(
+            ICInboxSalesHeader."IC Transaction No.", ICInboxSalesHeader."IC Partner Code",
+            ICInboxSalesHeader."Transaction Source", LineNo);
+
+        // [WHEN] Create Sales Order from IC Inbox Transaction.
+        ICInboxOutboxMgt.CreateSalesDocument(ICInboxSalesHeader, false, WorkDate());
+
+        // [THEN] Sales Order with line is created. Sales Line has Quantity = "Q1", Reserved Quantity = 0.
+        VerifyReservedQuantityOnSalesLine(Customer."No.", ICInboxSalesLine.Quantity, 0);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -636,6 +746,13 @@ codeunit 134154 "ERM Intercompany III"
         ExpectedIndentation[6] := 0;  // decremented by 1 due to "End-Total" type
     end;
 
+    local procedure CreateCustomerWithICPartner(var Customer: Record Customer)
+    begin
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("IC Partner Code", CreateICPartnerCode());
+        Customer.Modify(true);
+    end;
+
     local procedure CreateICPartnerCode(): Code[20]
     var
         ICPartner: Record "IC Partner";
@@ -649,9 +766,11 @@ codeunit 134154 "ERM Intercompany III"
 
     local procedure CreateCustomerWithDefaultDimensions(DimensionValue: array[5] of Record "Dimension Value") CustomerNo: Code[20]
     var
+        Customer: Record Customer;
         DefaultDimension: Record "Default Dimension";
     begin
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CreateCustomerWithICPartner(Customer);
+        CustomerNo := Customer."No.";
         LibraryDimension.CreateDefaultDimensionCustomer(
           DefaultDimension, CustomerNo, DimensionValue[1]."Dimension Code", DimensionValue[1].Code);
         LibraryDimension.CreateDefaultDimensionCustomer(
@@ -719,6 +838,20 @@ codeunit 134154 "ERM Intercompany III"
         PurchaseLine.Modify(true);
     end;
 
+    local procedure CreateAndPostPurchaseOrder(ItemNo: Code[20])
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo, LibraryRandom.RandDecInRange(100, 200, 2));
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(10, 20, 2));
+        PurchaseLine.Modify(true);
+        PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+    end;
+
     local procedure GetICDimensionValueFromDimensionValue(var ICDimensionValue: Record "IC Dimension Value"; DimensionValue: Record "Dimension Value")
     begin
         ICDimensionValue.Reset();
@@ -729,6 +862,8 @@ codeunit 134154 "ERM Intercompany III"
     end;
 
     local procedure MockICInboxSalesOrder(var ICInboxSalesHeader: Record "IC Inbox Sales Header"; DimensionValue: array[5] of Record "Dimension Value"; CustomerNo: Code[20])
+    var
+        ICPartnerRefType: Enum "IC Partner Reference Type";
     begin
         MockICInboxSalesHeader(ICInboxSalesHeader, CustomerNo);
         MockICDocumentDimension(ICInboxSalesHeader."IC Partner Code", ICInboxSalesHeader."IC Transaction No.",
@@ -736,36 +871,44 @@ codeunit 134154 "ERM Intercompany III"
         MockICDocumentDimension(ICInboxSalesHeader."IC Partner Code", ICInboxSalesHeader."IC Transaction No.",
           DimensionValue[4], DATABASE::"IC Inbox Sales Header", 0);
         MockICDocumentDimension(ICInboxSalesHeader."IC Partner Code", ICInboxSalesHeader."IC Transaction No.",
-          DimensionValue[5], DATABASE::"IC Inbox Sales Line", MockICInboxSalesLine(ICInboxSalesHeader));
+          DimensionValue[5], DATABASE::"IC Inbox Sales Line",
+          MockICInboxSalesLine(ICInboxSalesHeader, ICPartnerRefType::Item, LibraryInventory.CreateItemNo()));
     end;
 
     local procedure MockICInboxSalesHeader(var ICInboxSalesHeader: Record "IC Inbox Sales Header"; CustomerNo: Code[20])
+    var
+        Customer: Record Customer;
     begin
+        Customer.Get(CustomerNo);
         ICInboxSalesHeader.Init();
         ICInboxSalesHeader."IC Transaction No." :=
           LibraryUtility.GetNewRecNo(ICInboxSalesHeader, ICInboxSalesHeader.FieldNo("IC Transaction No."));
-        ICInboxSalesHeader."IC Partner Code" :=
-          LibraryUtility.GenerateRandomCode(ICInboxSalesHeader.FieldNo("IC Partner Code"), DATABASE::"IC Inbox Sales Header");
+        ICInboxSalesHeader."IC Partner Code" := Customer."IC Partner Code";
         ICInboxSalesHeader."Document Type" := ICInboxSalesHeader."Document Type"::Order;
-        ICInboxSalesHeader."Sell-to Customer No." := CustomerNo;
-        ICInboxSalesHeader."Bill-to Customer No." := CustomerNo;
-        ICInboxSalesHeader."Posting Date" := WorkDate;
-        ICInboxSalesHeader."Document Date" := WorkDate;
+        ICInboxSalesHeader."Sell-to Customer No." := Customer."No.";
+        ICInboxSalesHeader."Bill-to Customer No." := Customer."No.";
+        ICInboxSalesHeader."Posting Date" := WorkDate();
+        ICInboxSalesHeader."Document Date" := WorkDate();
         ICInboxSalesHeader.Insert();
     end;
 
-    local procedure MockICInboxSalesLine(ICInboxSalesHeader: Record "IC Inbox Sales Header"): Integer
+    local procedure MockICInboxSalesLine(ICInboxSalesHeader: Record "IC Inbox Sales Header"; ICPartnerRefType: Enum "IC Partner Reference Type"; ICPartnerReference: Code[20]): Integer
     var
         ICInboxSalesLine: Record "IC Inbox Sales Line";
+        UnitOfMeasure: Record "Unit of Measure";
     begin
+        LibraryInventory.FindUnitOfMeasure(UnitOfMeasure);
         ICInboxSalesLine.Init();
         ICInboxSalesLine."Line No." :=
           LibraryUtility.GetNewRecNo(ICInboxSalesLine, ICInboxSalesLine.FieldNo("Line No."));
         ICInboxSalesLine."IC Transaction No." := ICInboxSalesHeader."IC Transaction No.";
         ICInboxSalesLine."IC Partner Code" := ICInboxSalesHeader."IC Partner Code";
         ICInboxSalesLine."Transaction Source" := ICInboxSalesHeader."Transaction Source";
-        ICInboxSalesLine."IC Partner Ref. Type" := ICInboxSalesLine."IC Partner Ref. Type"::Item;
-        ICInboxSalesLine."IC Partner Reference" := LibraryInventory.CreateItemNo;
+        ICInboxSalesLine."IC Partner Ref. Type" := ICPartnerRefType;
+        ICInboxSalesLine."IC Partner Reference" := ICPartnerReference;
+        ICInboxSalesLine.Quantity := LibraryRandom.RandDecInRange(10, 20, 2);
+        ICInboxSalesLine."Unit Price" := LibraryRandom.RandDecInRange(100, 200, 2);
+        ICInboxSalesLine."Unit of Measure Code" := UnitOfMeasure.Code;
         ICInboxSalesLine.Insert();
         exit(ICInboxSalesLine."Line No.");
     end;
@@ -924,6 +1067,12 @@ codeunit 134154 "ERM Intercompany III"
         PurchaseLine.Modify(true);
     end;
 
+    local procedure UpdateReserveOnCustomer(var Customer: Record Customer; ReserveMethod: Enum "Reserve Method")
+    begin
+        Customer.Validate(Reserve, ReserveMethod);
+        Customer.Modify(true);
+    end;
+
     local procedure VerifySalesDocDimSet(DimensionValue: array[5] of Record "Dimension Value"; CustomerNo: Code[20])
     var
         SalesHeader: Record "Sales Header";
@@ -1001,6 +1150,22 @@ codeunit 134154 "ERM Intercompany III"
         GLEntry.FindFirst;
         GLEntry.TestField(Description, DescrpitionTxt);
         GLEntry.TestField("IC Partner Code", ICPartnerCode);
+    end;
+
+    local procedure VerifyReservedQuantityOnSalesLine(CustomerNo: Code[20]; ExpectedQuantity: Decimal; ExpectedReservedQuantity: Decimal)
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        SalesHeader.SetRange("Sell-to Customer No.", CustomerNo);
+        SalesHeader.FindFirst();
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.FindFirst();
+        Assert.AreEqual(SalesLine.Quantity, ExpectedQuantity, '');
+
+        SalesLine.CalcFields("Reserved Quantity");
+        Assert.AreEqual(ExpectedReservedQuantity, SalesLine."Reserved Quantity", '');
     end;
 
     [ConfirmHandler]

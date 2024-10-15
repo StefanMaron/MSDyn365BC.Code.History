@@ -340,7 +340,7 @@ codeunit 11000 "Data Export Management"
     begin
         InputText := DelChr(InputText, '=', '~!$^&*(){}[]\|;:''"?/,<>@#`.-+=');
         InputText := DelChr(InputText, '=');
-        exit(CopyStr(InputText, 1, 50));
+        exit(CopyStr(ConvertString(InputText), 1, 50));
     end;
 
     local procedure LoadEmptyIndexXMLWithDTD(var XMLDocOut: DotNet XmlDocument; DTDFileName: Text)

@@ -13,6 +13,12 @@ page 806 "Online Map Location"
     {
         area(content)
         {
+            label(GeoLocationInstructionsLbl)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Allow Business Central to access data about the geographical location of the device.';
+            }
+
             field(GeolocationLbl; GeolocationLbl)
             {
                 ApplicationArea = Basic, Suite;

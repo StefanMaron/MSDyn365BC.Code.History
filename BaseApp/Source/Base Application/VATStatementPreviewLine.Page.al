@@ -1,4 +1,4 @@
-page 475 "VAT Statement Preview Line"
+﻿page 475 "VAT Statement Preview Line"
 {
     Caption = 'Lines';
     Editable = false;
@@ -185,6 +185,8 @@ page 475 "VAT Statement Preview Line"
         UseAmtsInAddCurr := NewUseAmtsInAddCurr;
         VATStatementGermany.InitializeRequest(VATStmtName, Rec, Selection, PeriodSelection, false, UseAmtsInAddCurr);
         CurrPage.Update;
+
+        OnAfterUpdateForm();
     end;
 
     [Scope('OnPrem')]
@@ -198,6 +200,7 @@ page 475 "VAT Statement Preview Line"
                         GLEntry.SetRange("Posting Date", 0D, GetRangeMax("Date Filter"))
                     else
                         CopyFilter("Date Filter", GLEntry."Posting Date");
+                    OnColumnValueDrillDownOnBeforeRunGeneralLedgerEntries(VATEntry, GLEntry, Rec);
                     PAGE.Run(PAGE::"General Ledger Entries", GLEntry);
                 end;
             Type::"VAT Entry Totaling":
@@ -227,7 +230,7 @@ page 475 "VAT Statement Preview Line"
                         Selection::"Open and Closed":
                             VATEntry.SetRange(Closed);
                     end;
-                    OnBeforeOpenPageVATEntryTotaling(VATEntry, Rec);
+                    OnBeforeOpenPageVATEntryTotaling(VATEntry, Rec, GLEntry);
                     PAGE.Run(PAGE::"VAT Entries", VATEntry);
                 end;
             Type::"Row Totaling",
@@ -242,7 +245,17 @@ page 475 "VAT Statement Preview Line"
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBeforeOpenPageVATEntryTotaling(var VATEntry: Record "VAT Entry"; var VATStatementLine: Record "VAT Statement Line")
+    local procedure OnBeforeOpenPageVATEntryTotaling(var VATEntry: Record "VAT Entry"; var VATStatementLine: Record "VAT Statement Line"; var GLEntry: Record "G/L Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnColumnValueDrillDownOnBeforeRunGeneralLedgerEntries(var VATEntry: Record "VAT Entry"; var GLEntry: Record "G/L Entry"; var VATStatementLine: Record "VAT Statement Line")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterUpdateForm()
     begin
     end;
 }

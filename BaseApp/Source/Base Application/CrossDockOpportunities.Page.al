@@ -355,7 +355,6 @@ page 5783 "Cross-Dock Opportunities"
 
     var
         WhseCrossDockOpportunity: Record "Whse. Cross-Dock Opportunity";
-        CrossDockMgt: Codeunit "Whse. Cross-Dock Management";
         QtyToHandleBase: Decimal;
         QtyNeededSumBase: Decimal;
         QtyOnCrossDockBase: Decimal;
@@ -386,20 +385,14 @@ page 5783 "Cross-Dock Opportunities"
     local procedure CalcValues()
     var
         ReceiptLine: Record "Warehouse Receipt Line";
-        Dummy: Decimal;
     begin
-        CrossDockMgt.CalcCrossDockedItems(ItemNo2, VariantCode2, '', LocationCode2, Dummy, QtyOnCrossDockBase);
-        QtyOnCrossDockBase += CrossDockMgt.CalcCrossDockReceivedNotCrossDocked(LocationCode2, ItemNo2, VariantCode2);
-
         if TemplateName2 = '' then begin
             ReceiptLine.Get(NameNo2, LineNo2);
             QtyToHandleBase := ReceiptLine."Qty. to Receive (Base)";
         end;
 
         CalcFields("Qty. Cross-Docked (Base)", "Total Qty. Needed (Base)");
-        QtyToBeCrossDockedBase := "Qty. Cross-Docked (Base)" - QtyOnCrossDockBase;
-        if QtyToBeCrossDockedBase < 0 then
-            QtyToBeCrossDockedBase := 0;
+        QtyToBeCrossDockedBase := "Qty. Cross-Docked (Base)";
 
         "Item No." := ItemNo2;
         "Variant Code" := VariantCode2;

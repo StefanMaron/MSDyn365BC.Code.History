@@ -377,7 +377,7 @@ codeunit 1630 "Office Management"
         InvokeExtension('storeValue', Name, Value, '', '');
     end;
 
-    [Obsolete('For internal use only, the function has been replaced by GetOfficeAddinTelemetryCategory.','16.0')]
+    [Obsolete('For internal use only, the function has been replaced by GetOfficeAddinTelemetryCategory.', '16.0')]
     procedure TraceCategory(): Text
     begin
         exit(GetOfficeAddinTelemetryCategory());
@@ -429,6 +429,11 @@ codeunit 1630 "Office Management"
             exit(Codeunit::"Office Jobs Handler");
 
         HostType := GetHostType;
+
+        OnGetExternalHandlerCodeunit(OfficeAddinContext, HostType, ExternalHandler);
+        if ExternalHandler > 0 then
+            exit(ExternalHandler);
+
         case HostType of
             OfficeHostType.OutlookItemRead, OfficeHostType.OutlookItemEdit, OfficeHostType.OutlookTaskPane, OfficeHostType.OutlookMobileApp:
                 exit(Codeunit::"Office Contact Handler");
@@ -436,7 +441,6 @@ codeunit 1630 "Office Management"
                 exit(Codeunit::"Office Document Handler");
         end;
 
-        OnGetExternalHandlerCodeunit(OfficeAddinContext, HostType, ExternalHandler);
         if ExternalHandler > 0 then
             exit(ExternalHandler);
 

@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -602,6 +602,7 @@ table 11021 "Sales VAT Advance Notif."
                         else
                             VATStmtLine2.TestField("Amount Type");
                     end;
+                    OnCalcLineTotalOnBeforeCalcTotalAmountVATEntryTotaling(VATStmtLine2, VATEntry, Amount);
                     CalcTotalAmount(VATStmtLine2);
                 end;
             VATStmtLine2.Type::"Row Totaling":
@@ -666,6 +667,11 @@ table 11021 "Sales VAT Advance Notif."
         Selection := Selection2;
         PeriodSelection := PeriodSelection2;
         "Amounts in Add. Rep. Currency" := UseAmtsInAddCurr2;
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnCalcLineTotalOnBeforeCalcTotalAmountVATEntryTotaling(VATStmtLine: Record "VAT Statement Line"; var VATEntry: Record "VAT Entry"; var Amount: Decimal)
+    begin
     end;
 }
 

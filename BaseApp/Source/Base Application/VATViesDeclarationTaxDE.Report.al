@@ -3,7 +3,7 @@ report 11007 "VAT-Vies Declaration Tax - DE"
     DefaultLayout = RDLC;
     RDLCLayout = './VATViesDeclarationTaxDE.rdlc';
     ApplicationArea = Basic, Suite;
-    Caption = 'VAT-Vies Declaration Tax - DE';
+    Caption = 'VAT- VIES Declaration (Form)';
     UsageCategory = ReportsAndAnalysis;
 
     dataset
