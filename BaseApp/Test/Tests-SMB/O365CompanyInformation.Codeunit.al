@@ -14,6 +14,7 @@ codeunit 138041 "O365 Company Information"
         XPmtRegTxt: Label 'PMT REG', Comment = 'Payment Registration';
         Assert: Codeunit Assert;
         LibraryUtility: Codeunit "Library - Utility";
+        LibraryERM: Codeunit "Library - ERM";
 
     [Test]
     [Scope('OnPrem')]
@@ -107,6 +108,30 @@ codeunit 138041 "O365 Company Information"
 
         Company.Get(CompanyName);
         Company.TestField("Display Name", NewCompanyName);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure BankAccountPostingGroupSaveOnPageAfterReopenCompanyInvormationPage()
+    var
+        BankAccountPostingGroup: Record "Bank Account Posting Group";
+        CompanyInformation: TestPage "Company Information";
+    begin
+        // [SCENARIO 373047] "Bank Account Posting Group" do not reset to blank after reopen "Company Information" page
+        // [GIVEN] Create Bank Account Posting Group
+        LibraryERM.CreateBankAccountPostingGroup(BankAccountPostingGroup);
+
+        // [GIVEN] Opened "Company Information" page and change "Bank Account Posting Group"
+        CompanyInformation.OpenEdit();
+        CompanyInformation.BankAccountPostingGroup.SetValue(BankAccountPostingGroup.Code);
+
+        // [WHEN] Reopen "Company Information" page
+        CompanyInformation.Close();
+        CompanyInformation.OpenEdit();
+
+        // [THEN] BankAccountPostingGroup is populated
+        CompanyInformation.BankAccountPostingGroup.AssertEquals(BankAccountPostingGroup.Code);
+        CompanyInformation.Close();
     end;
 }
 

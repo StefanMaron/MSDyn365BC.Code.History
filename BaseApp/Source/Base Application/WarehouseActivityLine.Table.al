@@ -110,6 +110,11 @@ table 5767 "Warehouse Activity Line"
                 ItemVariant: Record "Item Variant";
                 IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateVariantCode(Rec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if "Variant Code" = '' then
                     Validate("Item No.")
                 else begin
@@ -238,6 +243,8 @@ table 5767 "Warehouse Activity Line"
                 then
                     if GetBin("Location Code", "Bin Code") then
                         CheckIncreaseCapacity(true);
+
+                OnValidateQtyToHandleOnBeforeCalcQtyToHandleBase(Rec, xRec, Location, CurrFieldNo);
 
                 if not UseBaseQty then begin
                     "Qty. to Handle (Base)" :=
@@ -470,16 +477,9 @@ table 5767 "Warehouse Activity Line"
 
             trigger OnLookup()
             var
-                WhseItemTrackingSetup: Record "Item Tracking Setup";
                 BinCode: Code[20];
             begin
-                if "Action Type" = "Action Type"::Take then begin
-                    WhseItemTrackingSetup.CopyTrackingFromWhseActivityLine(Rec);
-                    BinCode :=
-                        WMSMgt.BinContentLookUp(
-                            "Location Code", "Item No.", "Variant Code", "Zone Code", WhseItemTrackingSetup, "Bin Code")
-                end else
-                    BinCode := WMSMgt.BinLookUp("Location Code", "Item No.", "Variant Code", "Zone Code");
+                BinCode := FindBinCode();
 
                 if BinCode <> '' then begin
                     Validate("Bin Code", BinCode);
@@ -496,6 +496,7 @@ table 5767 "Warehouse Activity Line"
                 AvailableQtyBase: Decimal;
                 UOMCode: Code[10];
                 NewBinCode: Code[20];
+                IsHandled: Boolean;
             begin
                 CheckBinInSourceDoc;
 
@@ -507,6 +508,10 @@ table 5767 "Warehouse Activity Line"
 
                 if "Bin Code" <> xRec."Bin Code" then begin
                     CheckInvalidBinCode;
+                    IsHandled := false;
+                    OnValidateBinCodeOnAfterCheckInvalidBinCode(Rec, xRec, CurrFieldNo, IsHandled);
+                    if IsHandled then
+                        exit;
                     if GetBin("Location Code", "Bin Code") then begin
                         if CurrFieldNo <> 0 then begin
                             if ("Activity Type" = "Activity Type"::"Put-away") and
@@ -940,10 +945,10 @@ table 5767 "Warehouse Activity Line"
                     WhseActivLine2.SetFilter("Line No.", '<>%1', "Line No.")
                 else
                     WhseActivLine2.SetRange("Line No.", "Line No.");
+            OnDeleteRelatedWhseActivLinesOnBeforeWhseActivLine2Find(WhseActivLine, WhseActivLine2);
             if WhseActivLine2.Find('-') then
                 repeat
-                    OnBeforeDeleteWhseActivLine2(WhseActivLine2, CalledFromHeader);
-                    WhseActivLine2.Delete(); // to ensure correct item tracking update
+                    DeleteWhseActivLine2(WhseActivLine2, CalledFromHeader);
                     WhseActivLine2.DeleteBinContent(WhseActivLine2."Action Type"::Place);
                     UpdateRelatedItemTrkg(WhseActivLine2);
                 until WhseActivLine2.Next = 0;
@@ -951,6 +956,18 @@ table 5767 "Warehouse Activity Line"
             if (not CalledFromHeader) and ("Action Type" <> "Action Type"::" ") then
                 ShowDeletedMessage(WhseActivLine);
         end;
+    end;
+
+    local procedure DeleteWhseActivLine2(var WhseActivLine2: Record "Warehouse Activity Line"; CalledFromHeader: Boolean)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeDeleteWhseActivLine2(WhseActivLine2, CalledFromHeader, IsHandled);
+        if IsHandled then
+            exit;
+
+        WhseActivLine2.Delete(); // to ensure correct item tracking update
     end;
 
     procedure CheckWhseDocLine()
@@ -1124,11 +1141,17 @@ table 5767 "Warehouse Activity Line"
         BinContent: Record "Bin Content";
         DeductCubage: Decimal;
         DeductWeight: Decimal;
+        IsHandled: Boolean;
     begin
         if DeductLineCapacity then begin
             DeductCubage := xRec.Cubage;
             DeductWeight := xRec.Weight;
         end;
+
+        IsHandled := false;
+        OnCheckIncreaseCapacityOnBeforeCheckIncreaseBinContent(Rec, Bin, DeductCubage, DeductWeight, IsHandled);
+        if IsHandled then
+            exit;
 
         if BinContent.Get("Location Code", "Bin Code", "Item No.", "Variant Code", "Unit of Measure Code") then
             BinContent.CheckIncreaseBinContent(
@@ -1145,8 +1168,12 @@ table 5767 "Warehouse Activity Line"
         NewWhseActivLine: Record "Warehouse Activity Line";
         LineSpacing: Integer;
         NewLineNo: Integer;
+        IsHandled: Boolean;
     begin
-        OnBeforeSplitLines(WhseActivLine);
+        IsHandled := false;
+        OnBeforeSplitLines(WhseActivLine, IsHandled);
+        if IsHandled then
+            exit;
 
         CheckSplitLine(WhseActivLine);
 
@@ -1158,11 +1185,8 @@ table 5767 "Warehouse Activity Line"
         else
             LineSpacing := 10000;
 
-        if LineSpacing = 0 then begin
-            ReNumberAllLines(NewWhseActivLine, WhseActivLine."Line No.", NewLineNo);
-            WhseActivLine.Get(WhseActivLine."Activity Type", WhseActivLine."No.", NewLineNo);
-            LineSpacing := 5000;
-        end;
+        if LineSpacing = 0 then
+            ReNumberWhseActivityLines(NewWhseActivLine, WhseActivLine, NewLineNo, LineSpacing);
 
         NewWhseActivLine.Reset();
         NewWhseActivLine.Init();
@@ -1229,6 +1253,25 @@ table 5767 "Warehouse Activity Line"
                 WhseActivLine.FieldError(
                 "Qty. to Handle", StrSubstNo(Text003, WhseActivLine.FieldCaption("Qty. Outstanding")));
         end;
+    end;
+
+    local procedure FindBinCode() BinCode: Code[20]
+    var
+        WhseItemTrackingSetup: Record "Item Tracking Setup";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeFindBinCode(Rec, Item, BinCode, IsHandled);
+        if IsHandled then
+            exit(BinCode);
+
+        if "Action Type" = "Action Type"::Take then begin
+            WhseItemTrackingSetup.CopyTrackingFromWhseActivityLine(Rec);
+            BinCode :=
+                WMSMgt.BinContentLookUp(
+                    "Location Code", "Item No.", "Variant Code", "Zone Code", WhseItemTrackingSetup, "Bin Code")
+        end else
+            BinCode := WMSMgt.BinLookUp("Location Code", "Item No.", "Variant Code", "Zone Code");
     end;
 
     procedure UpdateBreakbulkQtytoHandle()
@@ -1342,7 +1385,6 @@ table 5767 "Warehouse Activity Line"
     procedure ShowActivityDoc()
     var
         WhseActivHeader: Record "Warehouse Activity Header";
-        WhsePickCard: Page "Warehouse Pick";
         WhsePutawayCard: Page "Warehouse Put-away";
         WhseMovCard: Page "Warehouse Movement";
         InvtPickCard: Page "Inventory Pick";
@@ -1352,10 +1394,7 @@ table 5767 "Warehouse Activity Line"
         WhseActivHeader.SetRange("No.", "No.");
         case "Activity Type" of
             "Activity Type"::Pick:
-                begin
-                    WhsePickCard.SetTableView(WhseActivHeader);
-                    WhsePickCard.RunModal;
-                end;
+                RunWhsePickCard(WhseActivHeader);
             "Activity Type"::"Put-away":
                 begin
                     WhsePutawayCard.SetTableView(WhseActivHeader);
@@ -1664,6 +1703,8 @@ table 5767 "Warehouse Activity Line"
             else
                 OnCheckReservedItemTrkgOnCkeckTypeElseCase(Rec, CheckType, ItemTrkgCode);
         end;
+
+        OnAfterCheckReservedItemTrkg(Rec, xRec, CurrFieldNo, LineReservedQty);
     end;
 
     procedure DeleteBinContent(ActionType: Option)
@@ -1878,7 +1919,13 @@ table 5767 "Warehouse Activity Line"
     local procedure CheckSNSpecificationExists()
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckSNSpecificationExists(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if "Serial No." <> '' then begin
             WarehouseActivityLine.SetCurrentKey("Item No.");
             WarehouseActivityLine.SetRange("Activity Type", "Activity Type");
@@ -1923,7 +1970,13 @@ table 5767 "Warehouse Activity Line"
         TempTrackingSpecification: Record "Tracking Specification" temporary;
         CheckGlobalEntrySummary: Boolean;
         LotNo: Code[50];
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeFindLotNoBySerialNo(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         InitTrackingSpecFromWhseActivLine(TempTrackingSpecification, Rec);
         CheckGlobalEntrySummary :=
           ("Activity Type" <> "Activity Type"::"Put-away") and
@@ -2029,6 +2082,8 @@ table 5767 "Warehouse Activity Line"
                     Message(Text013);
             end;
         end;
+
+        OnAfterShowDeletedMessage(WhseActivLine2);
     end;
 
     local procedure ConfirmWhseActivLinesDeletionRecreate(WarehouseActivityLine: Record "Warehouse Activity Line"; var WhseWorksheetLine: Record "Whse. Worksheet Line"): Boolean
@@ -2067,6 +2122,7 @@ table 5767 "Warehouse Activity Line"
                 WhseActivLine3.Copy(WhseActivLine2);
                 WhseActivLine3.SetRange("Action Type", WhseActivLine."Action Type");
                 WhseActivLine3.SetFilter("Line No.", '<>%1', WhseActivLine."Line No.");
+                OnConfirmWhseActivLinesDeletionOutOfBalanceOnAfterWhseActivLine3SetFilters(WhseActivLine, WhseActivLine2, WhseActivLine3);
                 if not WhseActivLine3.IsEmpty then begin
                     IsHandled := false;
                     OnBeforeConfirmWhseActivLinesDeletionOutOfBalance(WhseActivLine2, IsHandled);
@@ -2376,6 +2432,20 @@ table 5767 "Warehouse Activity Line"
         OnAfterTestTrackingIfRequired(Rec, WhseItemTrackingSetup);
     end;
 
+    local procedure ReNumberWhseActivityLines(var NewWhseActivityLine: Record "Warehouse Activity Line"; var WhseActivLine: Record "Warehouse Activity Line"; var NewLineNo: Integer; var LineSpacing: Integer)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeReNumberWhseActivityLines(NewWhseActivityLine, WhseActivLine, NewLineNo, LineSpacing, IsHandled);
+        if IsHandled then
+            exit;
+
+        ReNumberAllLines(NewWhseActivityLine, WhseActivLine."Line No.", NewLineNo);
+        WhseActivLine.Get(WhseActivLine."Activity Type", WhseActivLine."No.", NewLineNo);
+        LineSpacing := 5000;
+    end;
+
     local procedure ReNumberAllLines(var NewWhseActivityLine: Record "Warehouse Activity Line"; OldLineNo: Integer; var NewLineNo: Integer)
     var
         TempWarehouseActivityLine: Record "Warehouse Activity Line" temporary;
@@ -2403,6 +2473,20 @@ table 5767 "Warehouse Activity Line"
     begin
         IsTrackingFilterExist := (GetFilter("Serial No.") <> '') or (GetFilter("Lot No.") <> '');
         OnAfterTrackingFilterExists(Rec, IsTrackingFilterExist);
+    end;
+
+    local procedure RunWhsePickCard(var WhseActivHeader: Record "Warehouse Activity Header")
+    var
+        WhsePickCard: Page "Warehouse Pick";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeRunWhsePickCard(WhseActivHeader, IsHandled);
+        if IsHandled then
+            exit;
+
+        WhsePickCard.SetTableView(WhseActivHeader);
+        WhsePickCard.RunModal;
     end;
 
     [IntegrationEvent(false, false)]
@@ -2531,6 +2615,11 @@ table 5767 "Warehouse Activity Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterShowDeletedMessage(var WarehouseActivityLine: Record "Warehouse Activity Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterSplitLines(var WarehouseActivityLine: Record "Warehouse Activity Line"; NewWarehouseActivityLine: Record "Warehouse Activity Line")
     begin
     end;
@@ -2611,6 +2700,11 @@ table 5767 "Warehouse Activity Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckSNSpecificationExists(var WarehouseActivityLine: Record "Warehouse Activity Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeConfirmWhseActivLinesDeletionRecreate(WarehouseActivityLine: Record "Warehouse Activity Line"; var IsHandled: Boolean)
     begin
     end;
@@ -2621,7 +2715,7 @@ table 5767 "Warehouse Activity Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSplitLines(var WarehouseActivityLine: Record "Warehouse Activity Line")
+    local procedure OnBeforeSplitLines(var WarehouseActivityLine: Record "Warehouse Activity Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -2636,7 +2730,17 @@ table 5767 "Warehouse Activity Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeDeleteWhseActivLine2(var WarehouseActivityLine2: Record "Warehouse Activity Line"; CalledFromHeader: Boolean)
+    local procedure OnBeforeDeleteWhseActivLine2(var WarehouseActivityLine2: Record "Warehouse Activity Line"; CalledFromHeader: Boolean; IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFindBinCode(var WarehouseActivityLine: Record "Warehouse Activity Line"; var Item: Record Item; var BinCode: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFindLotNoBySerialNo(var WarehouseActivityLine: Record "Warehouse Activity Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -2666,6 +2770,11 @@ table 5767 "Warehouse Activity Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateVariantCode(var WarehouseActivityLine: Record "Warehouse Activity Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCreateNewUOMLineOnBeforeNewWhseActivLineInsert(var NewWarehouseActivityLine: Record "Warehouse Activity Line"; WarehouseActivityLine: Record "Warehouse Activity Line")
     begin
     end;
@@ -2691,6 +2800,11 @@ table 5767 "Warehouse Activity Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnValidateQtyToHandleOnBeforeCalcQtyToHandleBase(var WarehouseActivityLine: Record "Warehouse Activity Line"; var xWarehouseActivityLine: Record "Warehouse Activity Line"; Location: Record Location; CallingFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnValidateVariantCodeOnAfterGetItemVariant(var WarehouseActivityLine: Record "Warehouse Activity Line"; ItemVariant: Record "Item Variant"; var IsHandled: Boolean)
     begin
     end;
@@ -2705,8 +2819,43 @@ table 5767 "Warehouse Activity Line"
     begin
     end;
 
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeReNumberWhseActivityLines(var NewWarehouseActivityLine: Record "Warehouse Activity Line"; var WarehouseActivityLine: Record "Warehouse Activity Line"; var NewLineNo: Integer; var LineSpacing: Integer; var sHandled: Boolean)
+    begin
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnCheckReservedItemTrkgOnCkeckTypeElseCase(var WarehouseActivityLine: Record "Warehouse Activity Line"; CheckType: Enum "Item Tracking Type"; ItemTrkgCode: Code[50])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDeleteRelatedWhseActivLinesOnBeforeWhseActivLine2Find(var WhseActivLine: Record "Warehouse Activity Line"; var WhseActivLine2: Record "Warehouse Activity Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckIncreaseCapacityOnBeforeCheckIncreaseBinContent(var WarehouseActivityLine: Record "Warehouse Activity Line"; var Bin: Record Bin; DeductCubage: Decimal; DeductWeight: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateBinCodeOnAfterCheckInvalidBinCode(var WarehouseActivityLine: Record "Warehouse Activity Line"; xWarehouseActivityLine: Record "Warehouse Activity Line"; CurrFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRunWhsePickCard(var WhseActivHeader: Record "Warehouse Activity Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnConfirmWhseActivLinesDeletionOutOfBalanceOnAfterWhseActivLine3SetFilters(var WhseActivLine: Record "Warehouse Activity Line"; var WhseActivLine2: Record "Warehouse Activity Line"; var WhseActivLine3: Record "Warehouse Activity Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckReservedItemTrkg(var WarehouseActivityLine: Record "Warehouse Activity Line"; xRec: Record "Warehouse Activity Line"; CurrFieldNo: Integer; LineReservedQty: Integer)
     begin
     end;
 }

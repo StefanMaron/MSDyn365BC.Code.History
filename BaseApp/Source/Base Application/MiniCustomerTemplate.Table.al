@@ -3,7 +3,7 @@ table 1300 "Mini Customer Template"
     Caption = 'Mini Customer Template';
     ReplicateData = true;
     ObsoleteState = Pending;
-    ObsoleteReason = 'This functionality will be replaced by other templates.';
+    ObsoleteReason = 'Deprecate mini templates. Use table "Customer Templ." instead and for extensions.';
     ObsoleteTag = '16.0';
 
     fields

@@ -75,44 +75,41 @@ page 7001 "Price List Lines"
                 }
                 field("Unit Price"; Rec."Unit Price")
                 {
+                    AccessByPermission = tabledata "Sales Price Access" = R;
                     ApplicationArea = All;
                     Editable = AmountEditable;
                     Enabled = PriceMandatory;
-                    Visible = PriceVisible and IsSalesPrice;
+                    Visible = PriceVisible;
                     Style = Subordinate;
                     StyleExpr = not PriceMandatory;
                     ToolTip = 'Specifies the unit price of the product.';
                 }
                 field("Cost Factor"; Rec."Cost Factor")
                 {
+                    AccessByPermission = tabledata "Sales Price Access" = R;
                     ApplicationArea = All;
                     Editable = AmountEditable;
                     Enabled = PriceMandatory;
-                    Visible = PriceVisible and IsSalesPrice;
+                    Visible = PriceVisible;
                     Style = Subordinate;
                     StyleExpr = not PriceMandatory;
                     ToolTip = 'Specifies the unit cost factor, if you have agreed with your customer that he should pay certain item usage by cost value plus a certain percent value to cover your overhead expenses.';
                 }
-                field(DirectUnitCost; Rec."Unit Price")
-                {
-                    Caption = 'Direct Unit Cost';
-                    ApplicationArea = All;
-                    Editable = AmountEditable;
-                    Enabled = PriceMandatory;
-                    Visible = PriceVisible and not IsSalesPrice;
-                    Style = Subordinate;
-                    StyleExpr = not PriceMandatory;
-                    ToolTip = 'Specifies the direct unit cost of the product.';
-                }
                 field("Unit Cost"; Rec."Unit Cost")
                 {
-                    ApplicationArea = All;
-                    Editable = AmountEditable;
-                    Enabled = PriceMandatory;
-                    Visible = PriceVisible and not IsSalesPrice;
-                    Style = Subordinate;
-                    StyleExpr = not PriceMandatory;
+                    Visible = false;
                     ToolTip = 'Specifies the unit cost of the product.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Purchase price field is in the Purchase Price List Lines page.';
+                    ObsoleteTag = '18.0';
+                }
+                field(DirectUnitCost; Rec."Direct Unit Cost")
+                {
+                    Visible = false;
+                    ToolTip = 'Specifies the direct unit cost of the product.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Purchase price field is in the Purchase Price List Lines page.';
+                    ObsoleteTag = '18.0';
                 }
                 field("Allow Line Disc."; Rec."Allow Line Disc.")
                 {
@@ -122,10 +119,11 @@ page 7001 "Price List Lines"
                     Editable = PriceMandatory;
                     Style = Subordinate;
                     StyleExpr = not PriceMandatory;
-                    ToolTip = 'Specifies the if the line discount allowed.';
+                    ToolTip = 'Specifies if a line discount will be calculated when the price is offered.';
                 }
                 field("Line Discount %"; Rec."Line Discount %")
                 {
+                    AccessByPermission = tabledata "Sales Discount Access" = R;
                     ApplicationArea = All;
                     Visible = DiscountVisible;
                     Enabled = DiscountMandatory;
@@ -137,12 +135,12 @@ page 7001 "Price List Lines"
                 field("Allow Invoice Disc."; Rec."Allow Invoice Disc.")
                 {
                     ApplicationArea = All;
-                    Visible = PriceVisible and IsSalesPrice;
+                    Visible = PriceVisible;
                     Enabled = PriceMandatory;
                     Editable = PriceMandatory;
                     Style = Subordinate;
                     StyleExpr = not PriceMandatory;
-                    ToolTip = 'Specifies the if the invoice discount allowed.';
+                    ToolTip = 'Specifies if an invoice discount will be calculated when the price is offered.';
                 }
             }
         }
@@ -174,7 +172,6 @@ page 7001 "Price List Lines"
         DiscountVisible: Boolean;
         PriceMandatory: Boolean;
         PriceVisible: Boolean;
-        IsSalesPrice: Boolean;
         AmountTypeIsVisible: Boolean;
         AmountTypeIsEditable: Boolean;
 
@@ -202,7 +199,6 @@ page 7001 "Price List Lines"
         AmountTypeIsVisible := ViewAmountType = ViewAmountType::Any;
         DiscountVisible := ViewAmountType in [ViewAmountType::Any, ViewAmountType::Discount];
         PriceVisible := ViewAmountType in [ViewAmountType::Any, ViewAmountType::Price];
-        IsSalesPrice := PriceType = PriceType::Sale;
     end;
 
     procedure SetPriceType(NewPriceType: Enum "Price Type")

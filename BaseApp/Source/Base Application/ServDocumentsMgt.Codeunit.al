@@ -1,4 +1,4 @@
-codeunit 5988 "Serv-Documents Mgt."
+﻿codeunit 5988 "Serv-Documents Mgt."
 {
     Permissions = TableData "Invoice Post. Buffer" = imd,
                   TableData "Service Header" = imd,
@@ -844,6 +844,8 @@ codeunit 5988 "Serv-Documents Mgt."
     end;
 
     procedure Finalize(var PassedServHeader: Record "Service Header")
+    var
+        IsHandled: Boolean;
     begin
         OnBeforeFinalize(PassedServHeader, CloseCondition);
 
@@ -856,23 +858,26 @@ codeunit 5988 "Serv-Documents Mgt."
         FinalizeCrMemoDocument();
         FinalizeWarrantyLedgerEntries(PassedServHeader, CloseCondition);
 
-        if ((ServHeader."Document Type" = ServHeader."Document Type"::Order) and CloseCondition) or
-           (ServHeader."Document Type" <> ServHeader."Document Type"::Order)
-        then begin
-            // Service Lines, Service Item Lines, Service Header
-            FinalizeDeleteLines();
-            FinalizeDeleteServOrdAllocat();
-            FinalizeDeleteItemLines();
-            FinalizeDeleteComments(PassedServHeader."Document Type");
-            OnFinalizeOnBeforeFinalizeDeleteHeader(PassedServHeader);
-            FinalizeDeleteHeader(PassedServHeader);
-        end else begin
-            // Service Lines, Service Item Lines, Service Header
-            FinalizeLines();
-            FinalizeItemLines();
-            OnFinalizeOnBeforeFinalizeHeader(PassedServHeader);
-            FinalizeHeader(PassedServHeader);
-        end;
+        IsHandled := false;
+        OnFinalizeOnBeforeFinalizeHeaderAndLines(PassedServHeader, IsHandled);
+        if not IsHandled then
+            if ((ServHeader."Document Type" = ServHeader."Document Type"::Order) and CloseCondition) or
+               (ServHeader."Document Type" <> ServHeader."Document Type"::Order)
+            then begin
+                // Service Lines, Service Item Lines, Service Header
+                FinalizeDeleteLines();
+                FinalizeDeleteServOrdAllocat();
+                FinalizeDeleteItemLines();
+                FinalizeDeleteComments(PassedServHeader."Document Type");
+                OnFinalizeOnBeforeFinalizeDeleteHeader(PassedServHeader);
+                FinalizeDeleteHeader(PassedServHeader);
+            end else begin
+                // Service Lines, Service Item Lines, Service Header
+                FinalizeLines();
+                FinalizeItemLines();
+                OnFinalizeOnBeforeFinalizeHeader(PassedServHeader);
+                FinalizeHeader(PassedServHeader);
+            end;
 
         OnAfterFinalize(PassedServHeader, CloseCondition);
     end;
@@ -2352,6 +2357,11 @@ codeunit 5988 "Serv-Documents Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckDimValuePosting(var ServiceLine2: Record "Service Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFinalizeOnBeforeFinalizeHeaderAndLines(var PassedServHeader: Record "Service Header"; var IsHandled: Boolean)
     begin
     end;
 }

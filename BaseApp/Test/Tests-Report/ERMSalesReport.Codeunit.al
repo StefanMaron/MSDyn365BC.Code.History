@@ -10,6 +10,7 @@ codeunit 134976 "ERM Sales Report"
     end;
 
     var
+        LibraryFinanceChargeMemo: Codeunit "Library - Finance Charge Memo";
         LibraryUtility: Codeunit "Library - Utility";
         LibrarySales: Codeunit "Library - Sales";
         LibraryERM: Codeunit "Library - ERM";
@@ -3349,6 +3350,136 @@ codeunit 134976 "ERM Sales Report"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('ReminderRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure BankBranchNoOnReminderReport()
+    var
+        IssuedReminderHeader: Record "Issued Reminder Header";
+        CompanyInfo: Record "Company Information";
+    begin
+        // [FEATURE] [Reminder]
+        // [SCENARIO 370811] "Bank Branch No." field exists on Reminder report
+        Initialize();
+
+        // [GIVEN] Set "Bank Branch No." of MaxStrLen for Company Information
+        SetBankBranchNoForCompanyInfo();
+
+        // [GIVEN] Mocked Issued Reminder with line
+        MockIssuedReminder(IssuedReminderHeader);
+        IssuedReminderHeader.SetRecFilter;
+        Commit();
+
+        // [WHEN] Run report "Reminder"
+        REPORT.Run(REPORT::Reminder, true, false, IssuedReminderHeader);
+
+        // [THEN] "Bank Branch No." from Company Information is present on the report
+        CompanyInfo.Get();
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists('CompanyInfoBankBranchNo', CompanyInfo."Bank Branch No.");
+        LibraryReportDataset.AssertElementWithValueExists('BankBranchNoCaption', 'Bank Branch No.');
+    end;
+
+    [Test]
+    [HandlerFunctions('StandardSalesInvoiceRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure StandardSalesInvoiceJobNoAndJobTaskNo()
+    var
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesInvoiceLine: Record "Sales Invoice Line";
+    begin
+        // [SCENARIO 370287] "Standard Sales - Invoice" report dataset has "Job No" and "Job Task No" from Sales Invoice line.
+        Initialize();
+
+        // [GIVEN] Sales Invoice with Sales Invoice Line with Job No and Job Task No.
+        MockSalesInvoiceHeaderWithExternalDocumentNo(SalesInvoiceHeader);
+        MockSalesInvoiceLineWithJobNoAndJobTaskNo(SalesInvoiceLine, SalesInvoiceHeader."No.");
+
+        // [WHEN] Report "Standard Sales - Invoice" is run for Sales Invoice.
+        RunStandardSalesInvoiceReport(SalesInvoiceHeader."No.");
+
+        // [THEN] Resulting dataset has Job No and Job Task No.
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists('JobNo', SalesInvoiceLine."Job No.");
+        LibraryReportDataset.AssertElementWithValueExists('JobTaskNo', SalesInvoiceLine."Job Task No.");
+    end;
+
+    [Test]
+    [HandlerFunctions('StatementRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure BankBranchNoOnCustomerStatementReport()
+    var
+        Customer: Record Customer;
+        CompanyInfo: Record "Company Information";
+        GenJournalLine: Record "Gen. Journal Line";
+        Statement: Report Statement;
+        DateChoice: Option "Due Date","Posting Date";
+    begin
+        // [FEATURE] [Statement]
+        // [SCENARIO 373079] "Bank Branch No." field exists on Statement report
+        Initialize();
+
+        // [GIVEN] Set "Bank Branch No." of MaxStrLen for Company Information
+        SetBankBranchNoForCompanyInfo();
+
+        // [GIVEN] Created Invoice and Payment General Line for Customer
+        CreateCustomerAndPostGenJnlLines(Customer, GenJournalLine);
+
+        // [WHEN] Run Statement report
+        Clear(Statement);
+        Customer.SetRange("No.", Customer."No.");
+        Statement.SetTableView(Customer);
+        Statement.InitializeRequest(
+          false, false, true, false, false, false, '<' + Format(LibraryRandom.RandInt(5)) + 'M>',
+          DateChoice::"Due Date", true, WorkDate, WorkDate);
+        Commit();
+        Statement.Run();
+
+        // [THEN] "Bank Branch No." from Company Information is present on the report
+        CompanyInfo.Get();
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists('BankBranchNo_CompanyInfo', CompanyInfo."Bank Branch No.");
+        LibraryReportDataset.AssertElementWithValueExists('BankBranchNo_CompanyInfoCaption', 'Bank Branch No.');
+    end;
+
+    [Test]
+    [HandlerFunctions('FinChargeMemoRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure BankBranchNoOnFinanceChargeMemo()
+    var
+        Customer: Record Customer;
+        CompanyInfo: Record "Company Information";
+        FinanceChargeTerms: Record "Finance Charge Terms";
+        GenJournalLine: Record "Gen. Journal Line";
+        IssuedFinChargeMemoNo: Code[20];
+    begin
+        // [FEATURE] [Finance Charge Memo]
+        // [SCENARIO 373079] "Bank Branch No." field exists on Finance Charge Memo
+        Initialize();
+
+        // [GIVEN] Set "Bank Branch No." of MaxStrLen for Company Information
+        SetBankBranchNoForCompanyInfo();
+
+        // [GIVEN] Created Invoice and Payment General Line for Customer
+        CreateCustomerAndPostGenJnlLines(Customer, GenJournalLine);
+
+        // [GIVEN] Created Finance Charge Terms and issued Finance Charge Memo
+        LibraryFinanceChargeMemo.CreateFinanceChargeTermAndText(FinanceChargeTerms);
+        Customer.Validate("Fin. Charge Terms Code", FinanceChargeTerms.Code);
+        Customer.Modify(true);
+        IssuedFinChargeMemoNo := IssueAndGetFinChargeMemoNo(
+            CreateSuggestFinanceChargeMemo(GenJournalLine."Account No.", GenJournalLine."Document No."));
+
+        // [WHEN] Run Finance Charge Memo report
+        RunReportFinanceChargeMemo(IssuedFinChargeMemoNo);
+
+        // [THEN] "Bank Branch No." from Company Information is present on the report
+        CompanyInfo.Get();
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists('CompanyInfoBankBranchNo', CompanyInfo."Bank Branch No.");
+        LibraryReportDataset.AssertElementWithValueExists('BankBranchNoCaption', 'Bank Branch No.');
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Sales Report");
@@ -3369,6 +3500,115 @@ codeunit 134976 "ERM Sales Report"
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Sales Report");
+    end;
+
+    local procedure CreateSuggestFinanceChargeMemo(CustomerNo: Code[20]; DocumentNo: Code[20]): Code[20]
+    var
+        FinanceChargeMemoHeader: Record "Finance Charge Memo Header";
+        DocumentDate: Date;
+    begin
+        LibraryERM.CreateFinanceChargeMemoHeader(FinanceChargeMemoHeader, CustomerNo);
+        DocumentDate := CalculateFinanceChargeMemoDate(DocumentNo, FinanceChargeMemoHeader."Fin. Charge Terms Code");
+        FinanceChargeMemoHeader.Validate("Posting Date", DocumentDate);
+        FinanceChargeMemoHeader.Validate("Document Date", DocumentDate);
+        FinanceChargeMemoHeader.Modify(true);
+        SuggestFinanceChargeMemoLines(FinanceChargeMemoHeader);
+        exit(FinanceChargeMemoHeader."No.");
+    end;
+
+    local procedure CalculateFinanceChargeMemoDate(DocumentNo: Code[20]; "Code": Code[10]) DocumentDate: Date
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        FinanceChargeTerms: Record "Finance Charge Terms";
+    begin
+        FinanceChargeTerms.Get(Code);
+        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, DocumentNo);
+        DocumentDate := CalcDate('<1D>', CalcDate(FinanceChargeTerms."Due Date Calculation", CustLedgerEntry."Due Date"));
+    end;
+
+    local procedure SuggestFinanceChargeMemoLines(FinanceChargeMemoHeader: Record "Finance Charge Memo Header")
+    var
+        SuggestFinChargeMemoLines: Report "Suggest Fin. Charge Memo Lines";
+    begin
+        FinanceChargeMemoHeader.SetRange("No.", FinanceChargeMemoHeader."No.");
+        SuggestFinChargeMemoLines.SetTableView(FinanceChargeMemoHeader);
+        SuggestFinChargeMemoLines.UseRequestPage(false);
+        SuggestFinChargeMemoLines.Run();
+    end;
+
+    local procedure IssueAndGetFinChargeMemoNo(No: Code[20]) IssuedDocNo: Code[20]
+    var
+        FinanceChargeMemoHeader: Record "Finance Charge Memo Header";
+        NoSeriesManagement: Codeunit NoSeriesManagement;
+    begin
+        FinanceChargeMemoHeader.Get(No);
+        IssuedDocNo := NoSeriesManagement.GetNextNo(FinanceChargeMemoHeader."Issuing No. Series", WorkDate, false);
+        IssueFinChargeMemo(FinanceChargeMemoHeader);
+    end;
+
+    local procedure IssueFinChargeMemo(FinanceChargeMemoHeader: Record "Finance Charge Memo Header")
+    var
+        FinChrgMemoIssue: Codeunit "FinChrgMemo-Issue";
+    begin
+        FinChrgMemoIssue.Set(FinanceChargeMemoHeader, false, FinanceChargeMemoHeader."Document Date");
+        LibraryERM.RunFinChrgMemoIssue(FinChrgMemoIssue);
+    end;
+
+    local procedure RunReportFinanceChargeMemo(FinanceChargeMemoNo: Code[20])
+    begin
+        LibraryVariableStorage.Enqueue(FinanceChargeMemoNo);
+        Commit();
+        REPORT.Run(REPORT::"Finance Charge Memo");
+    end;
+
+    local procedure CreateCustomerAndPostGenJnlLines(var Customer: Record Customer; var GenJournalLine: Record "Gen. Journal Line")
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        InvoiceAmount: Decimal;
+    begin
+        LibrarySales.CreateCustomer(Customer);
+        InvoiceAmount := LibraryRandom.RandDec(100, 2);
+        LibraryERM.SelectGenJnlBatch(GenJournalBatch);
+        LibraryERM.ClearGenJournalLines(GenJournalBatch);
+        LibraryERM.CreateGeneralJnlLine(GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
+          GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Customer, Customer."No.", InvoiceAmount);
+        LibraryERM.CreateGeneralJnlLine(GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
+          GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Customer, Customer."No.", -(InvoiceAmount * 2));
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+    end;
+
+    local procedure SetBankBranchNoForCompanyInfo()
+    var
+        CompanyInfo: Record "Company Information";
+    begin
+        CompanyInfo.Get();
+        CompanyInfo.Validate("Bank Branch No.", LibraryUtility.GenerateRandomXMLText(MaxStrLen(CompanyInfo."Bank Branch No.")));
+        CompanyInfo.Modify(true);
+    end;
+
+    local procedure MockIssuedReminder(var IssuedReminderHeader: Record "Issued Reminder Header")
+    var
+        IssuedReminderLine: Record "Issued Reminder Line";
+        CustomerPostingGroup: Record "Customer Posting Group";
+    begin
+        IssuedReminderHeader.Init();
+        IssuedReminderHeader."No." :=
+          LibraryUtility.GenerateRandomCode(IssuedReminderHeader.FieldNo("No."), DATABASE::"Issued Reminder Header");
+        LibrarySales.CreateCustomerPostingGroup(CustomerPostingGroup);
+        CustomerPostingGroup."Additional Fee Account" := '';
+        CustomerPostingGroup.Modify();
+        IssuedReminderHeader."Customer Posting Group" := CustomerPostingGroup.Code;
+        IssuedReminderHeader."Due Date" := LibraryRandom.RandDate(LibraryRandom.RandIntInRange(10, 100));
+        IssuedReminderHeader.Insert();
+        IssuedReminderLine.Init();
+        IssuedReminderLine."Line No." := LibraryUtility.GetNewRecNo(IssuedReminderLine, IssuedReminderLine.FieldNo("Line No."));
+        IssuedReminderLine."Line Type" := IssuedReminderLine."Line Type"::"Reminder Line";
+        IssuedReminderLine."Reminder No." := IssuedReminderHeader."No.";
+        IssuedReminderLine."Due Date" := IssuedReminderHeader."Due Date";
+        IssuedReminderLine."Remaining Amount" := LibraryRandom.RandIntInRange(10, 100);
+        IssuedReminderLine.Amount := IssuedReminderLine."Remaining Amount";
+        IssuedReminderLine.Type := IssuedReminderLine.Type::"G/L Account";
+        IssuedReminderLine.Insert();
     end;
 
     local procedure UpdateGeneralLedgerSetup(VATSpecificationInLCY: Boolean)
@@ -3636,6 +3876,16 @@ codeunit 134976 "ERM Sales Report"
         SalesInvoiceHeader."No." := LibraryUtility.GenerateGUID;
         SalesInvoiceHeader."External Document No." := LibraryUtility.GenerateGUID;
         SalesInvoiceHeader.Insert();
+    end;
+
+    local procedure MockSalesInvoiceLineWithJobNoAndJobTaskNo(var SalesInvoiceLine: Record "Sales Invoice Line"; SalesInvoiceHeaderNo: Code[20])
+    begin
+        SalesInvoiceLine."Document No." := SalesInvoiceHeaderNo;
+        SalesInvoiceLine."Line No." := 10000;
+        SalesInvoiceLine.Description := SalesInvoiceLine."Document No.";
+        SalesInvoiceLine."Job No." := LibraryUtility.GenerateGUID();
+        SalesInvoiceLine."Job Task No." := LibraryUtility.GenerateGUID();
+        SalesInvoiceLine.Insert();
     end;
 
     local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; CurrencyCode: Code[10]; CustomerNo: Code[20])
@@ -5237,6 +5487,33 @@ codeunit 134976 "ERM Sales Report"
     procedure SalesStatisticsRequestPageHandler(var SalesStatistics: TestRequestPage "Sales Statistics")
     begin
         SalesStatistics.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure ReminderRequestPageHandler(var Reminder: TestRequestPage Reminder)
+    begin
+        Reminder.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure StatementRequestPageHandler(var StatementRequestPage: TestRequestPage Statement)
+    begin
+        StatementRequestPage."Start Date".SetValue(WorkDate);
+        StatementRequestPage."End Date".SetValue(WorkDate);
+        StatementRequestPage.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure FinChargeMemoRequestPageHandler(var FinanceChargeMemo: TestRequestPage "Finance Charge Memo")
+    var
+        IssuedFinChargeMemoNo: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(IssuedFinChargeMemoNo);
+        FinanceChargeMemo."Issued Fin. Charge Memo Header".SetFilter("No.", IssuedFinChargeMemoNo);
+        FinanceChargeMemo.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 }
 

@@ -1,4 +1,4 @@
-table 23 Vendor
+﻿table 23 Vendor
 {
     Caption = 'Vendor';
     DataCaptionFields = "No.", Name;
@@ -8,6 +8,8 @@ table 23 Vendor
                   TableData "Service Item" = rm,
                   TableData "Price List Header" = rd,
                   TableData "Price List Line" = rd,
+                  TableData "Purchase Price Access" = rd,
+                  TableData "Purchase Discount Access" = rd,
                   TableData "Purchase Price" = rd,
                   TableData "Purchase Line Discount" = rd;
 
@@ -1447,7 +1449,6 @@ table 23 Vendor
         PurchPrepmtPct: Record "Purchase Prepayment %";
         SocialListeningSearchTopic: Record "Social Listening Search Topic";
         CustomReportSelection: Record "Custom Report Selection";
-        PurchOrderLine: Record "Purchase Line";
         IntrastatSetup: Record "Intrastat Setup";
         VATRegistrationLogMgt: Codeunit "VAT Registration Log Mgt.";
     begin
@@ -1468,20 +1469,7 @@ table 23 Vendor
         if not OrderAddr.IsEmpty then
             OrderAddr.DeleteAll();
 
-        PurchOrderLine.SetCurrentKey("Document Type", "Pay-to Vendor No.");
-        PurchOrderLine.SetRange("Pay-to Vendor No.", "No.");
-        if PurchOrderLine.FindFirst then
-            Error(
-              Text000,
-              TableCaption, "No.",
-              PurchOrderLine."Document Type");
-
-        PurchOrderLine.SetRange("Pay-to Vendor No.");
-        PurchOrderLine.SetRange("Buy-from Vendor No.", "No.");
-        if not PurchOrderLine.IsEmpty then
-            Error(
-              Text000,
-              TableCaption, "No.");
+        CheckOutstandingPurchaseDocuments();
 
         UpdateContFromVend.OnDelete(Rec);
 
@@ -1564,6 +1552,8 @@ table 23 Vendor
     begin
         ApprovalsMgmt.OnRenameRecordInApprovalRequest(xRec.RecordId, RecordId);
         DimMgt.RenameDefaultDim(DATABASE::Vendor, xRec."No.", "No.");
+        CommentLine.RenameCommentLine(CommentLine."Table Name"::Vendor, xRec."No.", "No.");
+
         SetLastModifiedDateTime;
         if xRec."Invoice Disc. Code" = xRec."No." then
             "Invoice Disc. Code" := "No.";
@@ -1624,6 +1614,7 @@ table 23 Vendor
                 PurchSetup.TestField("Vendor Nos.");
                 NoSeriesMgt.SetSeries("No.");
                 Rec := Vend;
+                OnAssistEditOnBeforeExit(Rec);
                 exit(true);
             end;
         end;
@@ -1718,6 +1709,32 @@ table 23 Vendor
             then
                 VendBlockedErrorMessage(Vend2, Transaction);
         end;
+    end;
+
+    local procedure CheckOutstandingPurchaseDocuments()
+    var
+        PurchOrderLine: Record "Purchase Line";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckOutstandingPurchaseDocuments(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        PurchOrderLine.SetCurrentKey("Document Type", "Pay-to Vendor No.");
+        PurchOrderLine.SetRange("Pay-to Vendor No.", "No.");
+        if PurchOrderLine.FindFirst() then
+            Error(
+              Text000,
+              TableCaption, "No.",
+              PurchOrderLine."Document Type");
+
+        PurchOrderLine.SetRange("Pay-to Vendor No.");
+        PurchOrderLine.SetRange("Buy-from Vendor No.", "No.");
+        if not PurchOrderLine.IsEmpty() then
+            Error(
+              Text000,
+              TableCaption, "No.");
     end;
 
     procedure CreateAndShowNewInvoice()
@@ -2176,6 +2193,7 @@ table 23 Vendor
         ResultRecordRef: RecordRef;
         ApplicableCountryCode: Code[10];
         IsHandled: Boolean;
+        LogNotVerified: Boolean;
     begin
         IsHandled := false;
         OnBeforeVATRegistrationValidation(Rec, IsHandled);
@@ -2185,18 +2203,21 @@ table 23 Vendor
         if not VATRegistrationNoFormat.Test("VAT Registration No.", "Country/Region Code", "No.", DATABASE::Vendor) then
             exit;
 
-        VATRegistrationLogMgt.LogVendor(Rec);
-
-        if ("Country/Region Code" = '') and (VATRegistrationNoFormat."Country/Region Code" = '') then
-            exit;
-        ApplicableCountryCode := "Country/Region Code";
-        if ApplicableCountryCode = '' then
-            ApplicableCountryCode := VATRegistrationNoFormat."Country/Region Code";
-        if VATRegNoSrvConfig.VATRegNoSrvIsEnabled then begin
-            VATRegistrationLogMgt.ValidateVATRegNoWithVIES(
-                ResultRecordRef, Rec, "No.", VATRegistrationLog."Account Type"::Vendor.AsInteger(), ApplicableCountryCode);
-            ResultRecordRef.SetTable(Rec);
+        LogNotVerified := true;
+        if ("Country/Region Code" <> '') or (VATRegistrationNoFormat."Country/Region Code" <> '') then begin
+            ApplicableCountryCode := "Country/Region Code";
+            if ApplicableCountryCode = '' then
+                ApplicableCountryCode := VATRegistrationNoFormat."Country/Region Code";
+            if VATRegNoSrvConfig.VATRegNoSrvIsEnabled then begin
+                LogNotVerified := false;
+                VATRegistrationLogMgt.ValidateVATRegNoWithVIES(
+                    ResultRecordRef, Rec, "No.", VATRegistrationLog."Account Type"::Vendor.AsInteger(), ApplicableCountryCode);
+                ResultRecordRef.SetTable(Rec);
+            end;
         end;
+
+        if LogNotVerified then
+            VATRegistrationLogMgt.LogVendor(Rec);
     end;
 
     procedure UpdateCurrencyId()
@@ -2322,6 +2343,11 @@ table 23 Vendor
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAssistEditOnBeforeExit(var Vendor: Record Vendor)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeIsContactUpdateNeeded(Vendor: Record Vendor; xVendor: Record Vendor; var UpdateNeeded: Boolean)
     begin
     end;
@@ -2333,6 +2359,11 @@ table 23 Vendor
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckBlockedVend(Vendor: Record Vendor; Source: Option Journal,Document; DocType: Option; Transaction: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckOutstandingPurchaseDocuments(Vendor: Record Vendor; var IsHandled: Boolean)
     begin
     end;
 

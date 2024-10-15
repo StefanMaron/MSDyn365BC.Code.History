@@ -39,22 +39,26 @@ codeunit 5706 "TransferOrder-Post (Yes/No)"
                     then
                         DefaultNumber := 2;
                 until (TransLine.Next = 0) or (DefaultNumber > 0);
-            if "Direct Transfer" then begin
-                TransferPostShipment.Run(TransHeader);
-                TransferPostReceipt.Run(TransHeader);
-            end else begin
-                if DefaultNumber = 0 then
-                    DefaultNumber := 1;
-                Selection := StrMenu(Text000, DefaultNumber);
-                case Selection of
-                    0:
-                        exit;
-                    Selection::Shipment:
-                        TransferPostShipment.Run(TransHeader);
-                    Selection::Receipt:
-                        TransferPostReceipt.Run(TransHeader);
+
+            IsHandled := false;
+            OnCodeOnBeforePostTransferOrder(TransHeader, DefaultNumber, Selection, IsHandled);
+            if not IsHandled then
+                if "Direct Transfer" then begin
+                    TransferPostShipment.Run(TransHeader);
+                    TransferPostReceipt.Run(TransHeader);
+                end else begin
+                    if DefaultNumber = 0 then
+                        DefaultNumber := 1;
+                    Selection := StrMenu(Text000, DefaultNumber);
+                    case Selection of
+                        0:
+                            exit;
+                        Selection::Shipment:
+                            TransferPostShipment.Run(TransHeader);
+                        Selection::Receipt:
+                            TransferPostReceipt.Run(TransHeader);
+                    end;
                 end;
-            end;
         end;
 
         OnAfterPost(TransHeader, Selection);
@@ -67,6 +71,11 @@ codeunit 5706 "TransferOrder-Post (Yes/No)"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePost(var TransHeader: Record "Transfer Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnBeforePostTransferOrder(var TransHeader: Record "Transfer Header"; var DefaultNumber: Integer; var Selection: Option; var IsHandled: Boolean)
     begin
     end;
 }

@@ -67,8 +67,13 @@ codeunit 5772 "Whse.-Purch. Release"
     end;
 
     procedure Reopen(PurchHeader: Record "Purchase Header")
+    var
+        IsHandled: Boolean;
     begin
-        OnBeforeReopen(PurchHeader);
+        IsHandled := false;
+        OnBeforeReopen(PurchHeader, WhseRqst, IsHandled);
+        if IsHandled then
+            exit;
 
         with PurchHeader do begin
             FilterWarehouseRequest(WhseRqst, PurchHeader, WhseRqst."Document Status"::Released);
@@ -180,7 +185,7 @@ codeunit 5772 "Whse.-Purch. Release"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeReopen(var PurchaseHeader: Record "Purchase Header")
+    local procedure OnBeforeReopen(var PurchaseHeader: Record "Purchase Header"; var WhseRqst: Record "Warehouse Request"; var IsHandled: Boolean)
     begin
     end;
 

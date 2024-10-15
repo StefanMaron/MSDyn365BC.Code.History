@@ -397,7 +397,7 @@ page 7378 "Invt. Pick Subform"
         WhseActivLine: Record "Warehouse Activity Line";
     begin
         WhseActivLine.Copy(Rec);
-        CODEUNIT.Run(CODEUNIT::"Whse.-Act.-Post (Yes/No)", Rec);
+        CODEUNIT.Run(CODEUNIT::"Whse.-Act.-Post (Yes/No)", WhseActivLine);
         CurrPage.Update(false);
     end;
 

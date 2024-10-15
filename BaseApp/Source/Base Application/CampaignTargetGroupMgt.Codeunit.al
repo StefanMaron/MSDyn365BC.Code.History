@@ -246,15 +246,14 @@ codeunit 7030 "Campaign Target Group Mgt"
 
     local procedure NoPriceDiscForCampaign(CampaignNo: Code[20]): Boolean
     var
-        PriceCalculationSetup: Record "Price Calculation Setup";
         PriceListLine: Record "Price List Line";
+        PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
     begin
-        if PriceCalculationSetup.FindDefault(PriceCalculationSetup.Method::"Lowest Price", PriceCalculationSetup.Type::Sale) then
-            if PriceCalculationSetup.Implementation <> PriceCalculationSetup.Implementation::"Business Central (Version 15.0)" then begin
-                PriceListLine.SetRange("Source Type", PriceListLine."Source Type"::Campaign);
-                PriceListLine.SetRange("Source No.", CampaignNo);
-                exit(PriceListLine.IsEmpty());
-            end;
+        if PriceCalculationMgt.IsExtendedPriceCalculationEnabled() then begin
+            PriceListLine.SetRange("Source Type", PriceListLine."Source Type"::Campaign);
+            PriceListLine.SetRange("Source No.", CampaignNo);
+            exit(PriceListLine.IsEmpty());
+        end;
         exit(NoPriceDiscV15ForCampaign(CampaignNo));
     end;
 

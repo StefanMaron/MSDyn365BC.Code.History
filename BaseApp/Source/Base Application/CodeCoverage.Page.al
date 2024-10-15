@@ -157,10 +157,8 @@ page 9990 "Code Coverage"
                 PromotedIsBig = true;
 
                 trigger OnAction()
-                var
-                    EnvironmentInformation: Codeunit "Environment Information";
                 begin
-                    if EnvironmentInformation.IsProduction() then
+                    if not IsCodeCoverageEnabled() then
                         Error(RunCodeCoverageInSandboxErr);
                     CodeCoverageMgt.Start(true);
                     CodeCoverageRunning := true;
@@ -318,12 +316,23 @@ page 9990 "Code Coverage"
     end;
 
     trigger OnOpenPage()
+    begin
+        if not IsCodeCoverageEnabled() then
+            Error(RunCodeCoverageInSandboxErr);
+    end;
+
+    local procedure IsCodeCoverageEnabled(): Boolean
     var
         EnvironmentInformation: Codeunit "Environment Information";
+        ServerSetting: Codeunit "Server Setting";
     begin
-        CodeCoverageRunning := false;
-        if EnvironmentInformation.IsProduction() then
-            Error(RunCodeCoverageInSandboxErr);
+        if not ServerSetting.GetTestAutomationEnabled() then
+            exit(false);
+
+        if not EnvironmentInformation.IsSaas() then
+            exit(true);
+
+        exit(EnvironmentInformation.IsSandbox());
     end;
 
     var
@@ -344,7 +353,7 @@ page 9990 "Code Coverage"
         ObjectTypeFilter: Text;
         RequiredCoveragePercent: Integer;
         CoveragePercentStyle: Text;
-        RunCodeCoverageInSandboxErr: Label 'You can only run code coverage in a sandbox environment.';
+        RunCodeCoverageInSandboxErr: Label 'Test Automation is not enabled on this system. For more information, see https://go.microsoft.com/fwlink/?linkid=2131960.';
 
     local procedure SetStyles()
     begin

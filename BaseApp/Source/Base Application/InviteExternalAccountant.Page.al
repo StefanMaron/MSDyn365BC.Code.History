@@ -423,10 +423,10 @@ page 9033 "Invite External Accountant"
     begin
         SendToList.Add(SendTo);
         if EmailFeature.IsEnabled() then begin
-            EmailMessage.CreateMessage(SendToList, StrSubstNo(EmailSubjectTxt, PRODUCTNAME.Marketing),
+            EmailMessage.Create(SendToList, StrSubstNo(EmailSubjectTxt, PRODUCTNAME.Marketing),
                     DefineFullEmailBody(NewUserWelcomeEmail), true);
             EmailScenario.GetEmailAccount(Enum::"Email Scenario"::"Invite External Accountant", EmailAccount);
-            exit(Email.Send(EmailMessage.GetId(), EmailAccount."Account Id", EmailAccount.Connector));
+            exit(Email.Send(EmailMessage, EmailAccount."Account Id", EmailAccount.Connector));
         end else begin
             SMTPMail.CreateMessage('', MailManagement.GetSenderEmailAddress(), SendToList,
               StrSubstNo(EmailSubjectTxt, PRODUCTNAME.Marketing), DefineFullEmailBody(NewUserWelcomeEmail), true);

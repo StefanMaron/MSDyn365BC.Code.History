@@ -222,9 +222,14 @@ page 436 "Reminder List"
                     ToolTip = 'Post the specified reminder entries according to your specifications in the Reminder Terms window. This specification determines whether interest and/or additional fees are posted to the customer''s account and the general ledger.';
 
                     trigger OnAction()
+                    var
+                        IsHandled: Boolean;
                     begin
                         CurrPage.SetSelectionFilter(ReminderHeader);
-                        REPORT.RunModal(REPORT::"Issue Reminders", true, true, ReminderHeader);
+                        IsHandled := false;
+                        OnIssueOnBeforeIssueRemindersRunModal(ReminderHeader, IsHandled);
+                        if not IsHandled then
+                            REPORT.RunModal(REPORT::"Issue Reminders", true, true, ReminderHeader);
                         CurrPage.Update(false);
                     end;
                 }
@@ -297,6 +302,11 @@ page 436 "Reminder List"
     begin
         CurrPage.SetSelectionFilter(ReminderHeader);
         exit(SelectionFilterManagement.GetSelectionFilterForIssueReminder(ReminderHeader));
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnIssueOnBeforeIssueRemindersRunModal(var ReminderHeader: Record "Reminder Header"; var IsHandled: Boolean)
+    begin
     end;
 }
 

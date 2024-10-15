@@ -1,4 +1,4 @@
-table 472 "Job Queue Entry"
+﻿table 472 "Job Queue Entry"
 {
     Caption = 'Job Queue Entry';
     DataCaptionFields = "Object Type to Run", "Object ID to Run", "Object Caption to Run";
@@ -202,6 +202,7 @@ table 472 "Job Queue Entry"
             begin
                 SetRecurringField();
                 Clear("Next Run Date Formula");
+                SetMinimumNumberOfMinutesBetweenRuns();
             end;
         }
         field(19; "Run on Mondays"; Boolean)
@@ -513,6 +514,7 @@ table 472 "Job Queue Entry"
         OnInsertOnBeforeSetDefaultValues(Rec, SetupUserId);
 
         SetDefaultValues(SetupUserId);
+        SetMinimumNumberOfMinutesBetweenRuns();
     end;
 
     trigger OnModify()
@@ -523,6 +525,7 @@ table 472 "Job Queue Entry"
         if RunParametersChanged then
             Reschedule();
         SetDefaultValues(RunParametersChanged);
+        SetMinimumNumberOfMinutesBetweenRuns();
     end;
 
     var
@@ -652,6 +655,8 @@ table 472 "Job Queue Entry"
         JobQueueLogEntry.Status := JobQueueLogEntry.Status::"In Process";
         JobQueueLogEntry."Processed by User ID" := UserId();
         JobQueueLogEntry."Job Queue Category Code" := "Job Queue Category Code";
+        Rec.CalcFields(XML);
+        JobQueueLogEntry.XML := Rec.XML;
         OnBeforeInsertLogEntry(JobQueueLogEntry, Rec);
         JobQueueLogEntry.Insert(true);
         LastJobQueueLogEntryNo := JobQueueLogEntry."Entry No.";
@@ -760,15 +765,18 @@ table 472 "Job Queue Entry"
     procedure ScheduleTask(): Guid
     var
         TaskGUID: Guid;
+        IsHandled: Boolean;
     begin
         CheckRequiredPermissions();
         if "User ID" <> UserId() then begin
             "User ID" := UserId();
             Modify(true);
         end;
-        OnBeforeScheduleTask(Rec, TaskGUID);
-        if not IsNullGuid(TaskGUID) then
-            exit(TaskGUID);
+        IsHandled := false;
+        OnBeforeScheduleTask(Rec, TaskGUID, IsHandled);
+        if not IsHandled then
+            if not IsNullGuid(TaskGUID) then
+                exit(TaskGUID);
 
         exit(
           TASKSCHEDULER.CreateTask(
@@ -897,6 +905,14 @@ table 472 "Job Queue Entry"
 
         if "Recurring Job" and "Run in User Session" then
             Error(UserSessionJobsCannotBeRecurringErr);
+
+        SetMinimumNumberOfMinutesBetweenRuns();
+    end;
+
+    local procedure SetMinimumNumberOfMinutesBetweenRuns()
+    begin
+        if Rec."Recurring Job" and not IsNextRunDateFormulaSet() and (Rec."No. of Minutes between Runs" = 0) then
+            Rec."No. of Minutes between Runs" := 1440; // Default to one day
     end;
 
     local procedure SetStatusValue(NewStatus: Option)
@@ -1294,7 +1310,7 @@ table 472 "Job Queue Entry"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeScheduleTask(var JobQueueEntry: Record "Job Queue Entry"; var TaskGUID: Guid)
+    local procedure OnBeforeScheduleTask(var JobQueueEntry: Record "Job Queue Entry"; var TaskGUID: Guid; var IsHandled: Boolean)
     begin
     end;
 

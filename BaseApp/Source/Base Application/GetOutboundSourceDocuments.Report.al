@@ -22,7 +22,13 @@ report 7304 "Get Outbound Source Documents"
                     var
                         ATOLink: Record "Assemble-to-Order Link";
                         ATOAsmLine: Record "Assembly Line";
+                        IsHandled: Boolean;
                     begin
+                        IsHandled := false;
+                        OnBeforeWhseShipmentLineOnAfterGetRecord("Warehouse Shipment Line", "Whse. Pick Request", IsHandled);
+                        if IsHandled then
+                            CurrReport.Skip();
+
                         if not "Assemble to Order" then begin
                             CalcFields("Pick Qty.", "Pick Qty. (Base)");
                             if "Qty. (Base)" > "Qty. Picked (Base)" + "Pick Qty. (Base)" then begin
@@ -162,8 +168,17 @@ report 7304 "Get Outbound Source Documents"
             }
 
             trigger OnAfterGetRecord()
+            var
+                SkipRecord: Boolean;
             begin
-                OnBeforeWhsePickRequestOnAfterGetRecord("Whse. Pick Request", PickWkshTemplate, PickWkshName, LocationCode, LineCreated);
+                OnBeforeWhsePickRequestOnAfterGetRecord("Whse. Pick Request", PickWkshTemplate, PickWkshName, LocationCode, LineCreated, SkipRecord);
+                if SkipRecord then
+                    CurrReport.Skip();
+            end;
+
+            trigger OnPreDataItem()
+            begin
+                OnBeforePreDataItemWhsePickRequest("Whse. Pick Request");
             end;
         }
     }
@@ -191,10 +206,14 @@ report 7304 "Get Outbound Source Documents"
                 Error(Text000);
 
         Completed := true;
+
+        OnAfterPostReport();
     end;
 
     trigger OnPreReport()
     begin
+        OnBeforePreReport();
+
         LineCreated := false;
     end;
 
@@ -264,12 +283,32 @@ report 7304 "Get Outbound Source Documents"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeWhsePickRequestOnAfterGetRecord(var WhsePickRequest: Record "Whse. Pick Request"; PickWkshTemplate: Code[10]; PickWkshName: Code[10]; LocationCode: Code[10]; var LineCreated: Boolean)
+    local procedure OnBeforeWhsePickRequestOnAfterGetRecord(var WhsePickRequest: Record "Whse. Pick Request"; PickWkshTemplate: Code[10]; PickWkshName: Code[10]; LocationCode: Code[10]; var LineCreated: Boolean; var SkipRecord: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnWhseShipHeaderOnPreDataItem(var WarehouseShipmentHeader: Record "Warehouse Shipment Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPostReport()
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePreReport()
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePreDataItemWhsePickRequest(var WhsePickRequest: Record "Whse. Pick Request")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeWhseShipmentLineOnAfterGetRecord(var WhseShipmentLine: Record "Warehouse Shipment Line"; var WhsePickRequest: Record "Whse. Pick Request"; var IsHandled: Boolean)
     begin
     end;
 }
