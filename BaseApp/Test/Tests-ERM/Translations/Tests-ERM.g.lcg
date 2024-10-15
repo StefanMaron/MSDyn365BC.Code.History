@@ -4712,6 +4712,15 @@
       <Cmt Name="Dev"><![CDATA[%1 = Table Name]D;]A;(LookupHint=Codeunit ERM Purchase Invoice - NamedType CurrencyErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3007153660 - NamedType 3905048205" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Document No. are not equal.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Purchase Invoice - NamedType DocumentNoErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3007153660 - NamedType 4189119108" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Document should be copied]]></Val>
