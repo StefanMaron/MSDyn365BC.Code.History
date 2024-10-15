@@ -57,6 +57,23 @@ table 97 "Comment Line"
         OnAfterSetUpNewLine(Rec, CommentLine);
     end;
 
+    procedure RenameCommentLine(TableName: Enum "Comment Line Table Name"; OldNo: Code[20]; NewNo: Code[20])
+    var
+        OldCommentLine: Record "Comment Line";
+        NewCommentLine: Record "Comment Line";
+    begin
+        OldCommentLine.SetRange("Table Name", TableName);
+        OldCommentLine.SetRange("No.", OldNo);
+        if OldCommentLine.FindSet() then begin
+            repeat
+                NewCommentLine := OldCommentLine;
+                NewCommentLine."No." := NewNo;
+                NewCommentLine.Insert();
+            until OldCommentLine.Next() = 0;
+            OldCommentLine.DeleteAll();
+        end;
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetUpNewLine(var CommentLineRec: Record "Comment Line"; var CommentLineFilter: Record "Comment Line")
     begin

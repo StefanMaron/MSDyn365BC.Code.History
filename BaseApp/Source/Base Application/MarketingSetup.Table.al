@@ -564,8 +564,8 @@ table 5079 "Marketing Setup"
         if IsNullGuid("Exchange Client Secret Key") or
            not IsolatedStorage.Contains("Exchange Client Secret Key", DATASCOPE::Company)
         then begin
-            SendTraceTag('0000CF9', EmailLoggingTelemetryCategoryTxt, Verbosity::Warning, ExchangeAccountNotConfiguredTxt, DataClassification::SystemMetadata);
-            Error(ExchangeAccountNotConfiguredErr);
+            SendTraceTag('0000CF9', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, ExchangeAccountNotConfiguredTxt, DataClassification::SystemMetadata);
+            exit('');
         end;
 
         IsolatedStorageManagement.Get("Exchange Client Secret Key", DATASCOPE::Company, ClientSecret);

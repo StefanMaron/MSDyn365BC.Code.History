@@ -223,6 +223,7 @@ codeunit 1509 "Notification Entry Dispatcher"
         end;
 
         ConvertHtmlFileToText(HtmlBodyFilePath, BodyTextOut);
+        FileManagement.DeleteServerFile(HtmlBodyFilePath);
         exit(true);
     end;
 
