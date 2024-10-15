@@ -237,7 +237,7 @@ pageextension 4703 "VAT Report Setup Extension" extends "VAT Report Setup"
                     field(GroupSettlementGenJnlTempl; Rec."Group Settle. Gen. Jnl. Templ.")
                     {
                         ApplicationArea = Basic, Suite;
-                        ToolTip = 'Specifies the number series used for the document to post VAT for the VAT group to the settlement account.';
+                        ToolTip = 'Specifies the general journal template used for the document to post VAT for the VAT group to the settlement account.';
                     }
                 }
             }

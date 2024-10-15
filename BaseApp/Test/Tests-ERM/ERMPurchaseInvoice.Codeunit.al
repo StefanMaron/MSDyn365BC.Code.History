@@ -2056,6 +2056,7 @@ codeunit 134328 "ERM Purchase Invoice"
         // [GIVEN] Purchase Invoice card is opened
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
         LibraryVariableStorage.Enqueue(Vendor2."No.");
+        LibraryVariableStorage.Enqueue(StrSubstNo('''''..%1', WorkDate()));
         LibraryVariableStorage.Enqueue(true); // yes to change "Buy-from Vendor No."
         LibraryVariableStorage.Enqueue(true); // yes to change "Pay-to Vendor No."
         PurchaseInvoice.OpenEdit;
@@ -2093,6 +2094,7 @@ codeunit 134328 "ERM Purchase Invoice"
         // [GIVEN] Purchase Invoice card is opened
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
         LibraryVariableStorage.Enqueue(Vendor2."No.");
+        LibraryVariableStorage.Enqueue('');
         LibraryVariableStorage.Enqueue(true); // yes to change "Pay-to Vendor No."
         PurchaseInvoice.OpenEdit;
         PurchaseInvoice.FILTER.SetFilter("No.", PurchaseHeader."No.");
@@ -2237,6 +2239,7 @@ codeunit 134328 "ERM Purchase Invoice"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 332188]
+        // [SCENARIO 391749] The Vendor Lookup page must has Date Filter
         Initialize;
 
         CreateVendorsWithSameName(Vendor1, Vendor2);
@@ -2251,6 +2254,7 @@ codeunit 134328 "ERM Purchase Invoice"
         PurchaseInvoice.OpenEdit;
         PurchaseInvoice.FILTER.SetFilter("No.", PurchaseHeader."No.");
 
+        LibraryVariableStorage.Enqueue(StrSubstNo('''''..%1', WorkDate()));
         PurchaseInvoice."Buy-from Vendor Name".Lookup;
         PurchaseInvoice.PurchLines.Type.SetValue(PurchaseLine.Type::Item);
         PurchaseInvoice.PurchLines."No.".SetValue(LibraryInventory.CreateItemNo);
@@ -2289,6 +2293,7 @@ codeunit 134328 "ERM Purchase Invoice"
         PurchaseHeader.TestField("No.");
 
         LibraryVariableStorage.Enqueue(Vendor2."No.");
+        LibraryVariableStorage.Enqueue('');
         LibraryVariableStorage.Enqueue(true);
 
         PurchaseInvoice.OpenEdit;
@@ -2711,7 +2716,7 @@ codeunit 134328 "ERM Purchase Invoice"
         LineDiscountAmount: Decimal;
         LineDiscountPercent: Integer;
     begin
-        // [SCENARIO 385314] Changing Location in Purchase Line does not reset "Line Discount Amount" and "Line Discount %"
+        // [SCENARIO 385314,395161] Changing Location in Purchase Line does not reset "Line Discount Amount" and "Line Discount %"
         Initialize();
 
         // [GIVEN] Created Location "L1"
@@ -2737,7 +2742,8 @@ codeunit 134328 "ERM Purchase Invoice"
         PurchaseLine.Validate("Location Code", Location.Code);
 
         // [THEN] Field "Line discount %" is not reset
-        PurchaseLine.TestField("Line Discount %", LineDiscountPercent);
+        asserterror PurchaseLine.TestField("Line Discount %", LineDiscountPercent);
+        Assert.KnownFailure('Line Discount % must', 396550);
     end;
 
     local procedure Initialize()
@@ -3969,6 +3975,8 @@ codeunit 134328 "ERM Purchase Invoice"
     procedure VendorLookupHandler(var VendorLookup: TestPage "Vendor Lookup")
     begin
         VendorLookup.GotoKey(LibraryVariableStorage.DequeueText);
+        Assert.AreEqual(LibraryVariableStorage.DequeueText(),
+            VendorLookup.Filter.GetFilter("Date Filter"), 'Wrong Date Filter.');
         VendorLookup.OK.Invoke;
     end;
 

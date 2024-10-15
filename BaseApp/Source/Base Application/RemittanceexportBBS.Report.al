@@ -693,7 +693,7 @@ report 15000060 "Remittance - export (BBS)"
     procedure MoveToWaitingJournal(JournalLine: Record "Gen. Journal Line")
     begin
         WaitingJournal.Init();
-        WaitingJournal.TransferFields(JournalLine);
+        WaitingJournal.PerformTransferFieldsFromGenJournalLine(JournalLine);
         WaitingJournal."Payment Order ID - Sent" := RemittancePaymentOrder.ID;
         WaitingJournal."Remittance Status" := WaitingJournal."Remittance Status"::Sent;
         WaitingJournal.Reference := NextWaitingJournalRef;

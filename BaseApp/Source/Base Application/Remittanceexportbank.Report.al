@@ -1256,7 +1256,7 @@ report 15000050 "Remittance - export (Bank)"
         WaitingJournal2: Record "Waiting Journal";
     begin
         WaitingJournal.Init();
-        WaitingJournal.TransferFields(JournalLine);
+        WaitingJournal.PerformTransferFieldsFromGenJournalLine(JournalLine);
         WaitingJournal."Payment Order ID - Sent" := RemittancePaymentOrder.ID;
         WaitingJournal."Remittance Status" := WaitingJournal."Remittance Status"::Sent;
         // Own reference, sent to bank:

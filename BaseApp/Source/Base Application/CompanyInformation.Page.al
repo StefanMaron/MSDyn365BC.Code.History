@@ -81,6 +81,11 @@ Page 1 "Company Information"
                         VATRegistrationLogMgt.AssistEditCompanyInfoVATReg();
                     end;
                 }
+                field("Registration No."; "Registration No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the company''''s registration number. You can enter a maximum of 20 characters, both numbers and letters.';
+                }
                 field(GLN; GLN)
                 {
                     ApplicationArea = BasicEU;

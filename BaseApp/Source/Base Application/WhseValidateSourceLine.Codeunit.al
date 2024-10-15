@@ -243,8 +243,6 @@
         WhseShptLine: Record "Warehouse Shipment Line";
         WhseManagement: Codeunit "Whse. Management";
     begin
-        if not WhseRcptLine.ReadPermission then
-            exit;
         if ((SourceType = DATABASE::"Purchase Line") and (SourceSubType = 1) and (SourceQty >= 0)) or
            ((SourceType = DATABASE::"Purchase Line") and (SourceSubType = 5) and (SourceQty < 0)) or
            ((SourceType = DATABASE::"Sales Line") and (SourceSubType = 1) and (SourceQty < 0)) or

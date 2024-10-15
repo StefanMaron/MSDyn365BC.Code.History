@@ -726,6 +726,10 @@ table 15000004 "Waiting Journal"
         {
             Caption = 'Index Entry';
         }
+        field(10000; "Description 2"; Text[50])
+        {
+            Caption = 'Description';
+        }
         field(10604; "VAT Code"; Code[10])
         {
             Caption = 'VAT Code';
@@ -1059,6 +1063,27 @@ table 15000004 "Waiting Journal"
     procedure GetWaitingJournalNotFoundForRemittanceImport(): Text[250]
     begin
         exit(WaitingJournalNotFoundErr);
+    end;
+
+    procedure WriteDescription(NewValue: Text)
+    begin
+        Description := CopyStr(NewValue, 1, MaxStrLen(Description));
+        "Description 2" := CopyStr(NewValue, MaxStrLen(Description) + 1, MaxStrLen("Description 2"));
+    end;
+
+    procedure ReadDescription(): Text
+    begin
+        exit(Description + "Description 2");
+    end;
+
+    procedure PerformTransferFieldsFromGenJournalLine(GenJournalLine: Record "Gen. Journal Line")
+    var
+        TempDescription: Text;
+    begin
+        TempDescription := GenJournalLine.Description;
+        GenJournalLine.Description := '';
+        TransferFields(GenJournalLine);
+        WriteDescription(TempDescription);
     end;
 }
 

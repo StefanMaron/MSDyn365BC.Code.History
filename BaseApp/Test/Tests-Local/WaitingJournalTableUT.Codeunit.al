@@ -14,6 +14,7 @@ codeunit 144123 "WaitingJournalTable UT"
         LibraryDimension: Codeunit "Library - Dimension";
         DimensionManagement: Codeunit DimensionManagement;
         LibraryERM: Codeunit "Library - ERM";
+        LibraryUtility: Codeunit "Library - Utility";
 
     [Test]
     [Scope('OnPrem')]
@@ -288,6 +289,46 @@ codeunit 144123 "WaitingJournalTable UT"
 
         // [THEN] "Gen. Journal Line"."Dimension Set ID" = 17
         GenJournalLine.TestField("Dimension Set ID", WaitingJournal."Dimension Set ID");
+    end;
+
+    [Test]
+    procedure WaitingJournalDescriptionReadWrite()
+    var
+        WaitingJournal: Record "Waiting Journal";
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 395366] TAB 15000004 "Waiting Journal" Read\Write Description methods
+        GenJournalLine.Description :=
+          CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(GenJournalLine.Description)), 1, MaxStrLen(GenJournalLine.Description));
+
+        WaitingJournal.WriteDescription(GenJournalLine.Description);
+        Assert.AreEqual(GenJournalLine.Description, WaitingJournal.ReadDescription(), 'ReadDescription');
+
+        WaitingJournal.WriteDescription('');
+        WaitingJournal.PerformTransferFieldsFromGenJournalLine(GenJournalLine);
+        Assert.AreEqual(GenJournalLine.Description, WaitingJournal.ReadDescription(), 'PerformTransferFieldsFromGenJournalLine');
+    end;
+
+    [Test]
+    procedure WaitingJournalDescriptionUI()
+    var
+        WaitingJournal: Record "Waiting Journal";
+        GenJournalLine: Record "Gen. Journal Line";
+        WaitingJournalPage: TestPage "Waiting Journal";
+    begin
+        // [FEATURE] [UT] [UI]
+        // [SCENARIO 395366] PAG 15000005 "Waiting Journal" Description field on the page
+        GenJournalLine.Description :=
+          CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(GenJournalLine.Description)), 1, MaxStrLen(GenJournalLine.Description));
+
+        WaitingJournal.WriteDescription(GenJournalLine.Description);
+        WaitingJournal.Insert();
+        WaitingJournalPage.OpenEdit();
+        WaitingJournalPage.GoToRecord(WaitingJournal);
+        Assert.IsTrue(WaitingJournalPage.DescriptionField.Visible(), 'DescriptionField');
+        WaitingJournalPage.DescriptionField.AssertEquals(GenJournalLine.Description);
+        WaitingJournalPage.Close();
     end;
 
     [ModalPageHandler]

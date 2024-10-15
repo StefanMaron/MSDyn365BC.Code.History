@@ -1164,7 +1164,7 @@ codeunit 144004 "Trade Settlement 2017 - XML"
         // [WHEN] Run REP 10618 "Trade Settlement - 2017"
         FileName := FileManagement.ServerTempFileName('.xml');
 
-        RunTradeSettlement2017Report(VATEntry, FileManagement.ServerTempFileName(''), FileName);
+        RunTradeSettlement2017Report(VATEntry, FileManagement.ServerTempFileName(''), FileName, FileManagement.ServerTempFileName(''));
         LibraryXMLRead.Initialize(FileName);
 
         // [THEN] Check BaseWithVat, BaseWithoutVat and BaseOutside for first purchase invoice
@@ -1438,11 +1438,13 @@ codeunit 144004 "Trade Settlement 2017 - XML"
         VATEntry: Record "VAT Entry";
         FileManagement: Codeunit "File Management";
         FileName: Text;
+        XmlFileName: Text;
     begin
         VATEntry.SetRange("Bill-to/Pay-to No.", CVNo);
         FileName := FileManagement.ServerTempFileName('.xml');
-        RunTradeSettlement2017Report(VATEntry, FileName, FileManagement.ServerTempFileName(''));
-        LibraryXMLRead.Initialize(FileName);
+        XmlFileName := FileManagement.ServerTempFileName('');
+        RunTradeSettlement2017Report(VATEntry, FileName, FileManagement.ServerTempFileName(''), XmlFileName);
+        LibraryXMLRead.Initialize(XmlFileName + '.xml');
     end;
 
     local procedure RunTradeSettlement2017ReportCombine(LastVATEntryNo: Integer)
@@ -1450,16 +1452,19 @@ codeunit 144004 "Trade Settlement 2017 - XML"
         VATEntry: Record "VAT Entry";
         FileManagement: Codeunit "File Management";
         FileName: Text;
+        XmlFileName: Text;
     begin
         VATEntry.SetFilter("Entry No.", '%1..', LastVATEntryNo + 1);
         FileName := FileManagement.ServerTempFileName('.xml');
-        RunTradeSettlement2017Report(VATEntry, FileName, FileManagement.ServerTempFileName(''));
-        LibraryXMLRead.Initialize(FileName);
+        XmlFileName := FileManagement.ServerTempFileName('');
+        RunTradeSettlement2017Report(VATEntry, FileName, FileManagement.ServerTempFileName(''), XmlFileName);
+        LibraryXMLRead.Initialize(XmlFileName + '.xml');
     end;
 
-    local procedure RunTradeSettlement2017Report(var VATEntry: Record "VAT Entry"; ParamertFileName: Text; DataSetFileName: Text)
+    local procedure RunTradeSettlement2017Report(var VATEntry: Record "VAT Entry"; ParamertFileName: Text; DataSetFileName: Text; XmlFileName: Text)
     begin
         LibraryVariableStorage.Enqueue(ParamertFileName);
+        LibraryVariableStorage.Enqueue(XmlFileName);
         LibraryVariableStorage.Enqueue(DataSetFileName);
 
         REPORT.Run(REPORT::"Trade Settlement 2017", true, true, VATEntry);
@@ -1612,7 +1617,7 @@ codeunit 144004 "Trade Settlement 2017 - XML"
         TradeSettlement2017.SettlementPeriod.SetValue(NorwegianVATTools.VATPeriodNo(WorkDate));
         TradeSettlement2017.ExportXML.SetValue(true);
         FileName := LibraryVariableStorage.DequeueText;
-        TradeSettlement2017.ClientFileName.SetValue(FileName);
+        TradeSettlement2017.ClientFileName.SetValue(LibraryVariableStorage.DequeueText());
         TradeSettlement2017.SaveAsXml(FileName, LibraryVariableStorage.DequeueText);
     end;
 }
