@@ -104,6 +104,7 @@ codeunit 144090 "ERM Withhold"
         DialogErr: Label 'Dialog';
         LibraryApplicationArea: Codeunit "Library - Application Area";
         MultiApplyErr: Label 'To calculate taxes correctly, the payment must be applied to only one document.';
+        PayableAmtErr: Label 'Payble amount is 0.';
 
     [Test]
     [HandlerFunctions('ContributionCodesINPSModalPageHandler')]
@@ -2143,6 +2144,59 @@ codeunit 144090 "ERM Withhold"
         WithholdingTax.TestField("Withholding Tax Amount", 0);
     end;
 
+    [Test]
+    [HandlerFunctions('ShowComputedWithholdContribModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure VerifyThreshold()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        PurchaseLine: Record "Purchase Line";
+        TmpWithholdingContribution: Record "Tmp Withholding Contribution";
+        PurchaseHeader: Record "Purchase Header";
+        VendorNo: Code[20];
+        ContributionCode: Code[20];
+        WithholdCode: Code[20];
+        InvoiceAmount: Decimal;
+        PostedDocumentNo: Code[20];
+        TaxableBase: Decimal;
+        WithholdingTaxAmount: Decimal;
+        WithhTaxesContributionCard: TestPage "Withh. Taxes-Contribution Card";
+    begin
+        // [SCENARIO 436923] Social Security threshold brackets calculation error.
+        Initialize();
+
+        // [GIVEN] Vendor with Social Security Contribution having Contribution Brackets.
+        SetupWithhAndSocSec(ContributionCode, WithholdCode);
+        VendorNo := CreateVendorWithSocSecAndWithholdCodes(WithholdCode, ContributionCode, '');
+
+        // [GIVEN] Posted Purchase Invoice
+        InvoiceAmount := LibraryRandom.RandDecInRange(1000, 2000, 2);
+        CreatePurchaseInvoiceWithAmount(PurchaseHeader, WorkDate(), VendorNo, 1, InvoiceAmount);
+        InitTmpWithholdingContribution(TmpWithholdingContribution, VendorNo);
+
+        // [WHEN] Validate "Gross Amount"
+        TmpWithholdingContribution.Validate("Gross Amount", InvoiceAmount);
+        PostedDocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [WHEN] Create and Post Payment Journal with applies to Posted Invoice.
+        CreateAndPostGenJnlLineWithAppliesToDoc(
+            GenJournalLine."Document Type"::Payment, 
+            PostedDocumentNo, 
+            GenJournalLine."Applies-to Doc. Type"::Invoice, 
+            WorkDate());
+
+        // [GIVEN] Create Another Purchase Invoice of same vendor.
+        InvoiceAmount := LibraryRandom.RandDecInRange(1000, 10000, 2);
+        CreatePurchaseInvoiceWithAmount(PurchaseHeader, WorkDate(), VendorNo, 1, InvoiceAmount);
+        WithholdingTaxAmount := CalculateWithholdTaxes(VendorNo, InvoiceAmount, TaxableBase);
+
+        // [THEN] Calculate Withhold Taxes Contribution on Purchase Invoice page.
+        CalculateWithholdTaxesContributionOnPurchInvoice(WithhTaxesContributionCard, PurchaseLine."Document No.");
+
+        // [VERIFY] Verify Payable Amount is calculated on Page -Withhold Taxes-Contribution Card.
+        VerifyValueOnWithholdTaxesContributionCardPage(WithhTaxesContributionCard);
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear();
@@ -3032,6 +3086,32 @@ codeunit 144090 "ERM Withhold"
 
         FindContributions(Contributions, VendorNo);
         Contributions.TestField("External Document No.", ExternalDocNo);
+    end;
+
+    local procedure CreateAndPostGenJnlLineWithAppliesToDoc(
+        DocumentType: Enum "Gen. Journal Document Type";
+        AppliesToDocNo: Code[20];
+        AppliesToDocType: Enum "Gen. Journal Document Type";
+        PostingDate: Date)
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        CreateAndApplyGeneralJnlLine(GenJournalLine, DocumentType, AppliesToDocNo, AppliesToDocType);
+        GenJournalLine.Validate("Posting Date", PostingDate);
+        ShowComputedWithholdContributionOnPayment(GenJournalLine."Journal Batch Name");
+        VerifyTmpWithholdingContributionNotEmpty(AppliesToDocNo);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+    end;
+
+    local procedure VerifyValueOnWithholdTaxesContributionCardPage(WithhTaxesContributionCard: TestPage "Withh. Taxes-Contribution Card")
+    var
+        PayableAmttxt: Text;
+        PayableAmt: Decimal;
+    begin
+        PayableAmttxt := WithhTaxesContributionCard."Payable Amount".Value();
+        Evaluate(PayableAmt, PayableAmttxt);
+        Assert.AreNotEqual(0, PayableAmt, '');
+        WithhTaxesContributionCard.OK.Invoke();
     end;
 
     [ModalPageHandler]

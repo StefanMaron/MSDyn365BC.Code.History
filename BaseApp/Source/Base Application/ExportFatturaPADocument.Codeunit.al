@@ -461,7 +461,9 @@ codeunit 12179 "Export FatturaPA Document"
     local procedure PopulateLineData(var TempFatturaLine: Record "Fattura Line" temporary)
     var
         Item: Record Item;
+        UoMMaxLength: Integer;
     begin
+        UoMMaxLength := 10;
         with TempXMLBuffer do begin
             // 2.2.1 DettaglioLinee
             AddGroupElement('DettaglioLinee');
@@ -474,7 +476,7 @@ codeunit 12179 "Export FatturaPA Document"
             end;
             AddNonEmptyElement('Descrizione', TempFatturaLine.Description);
             AddNonEmptyElement('Quantita', FormatQuantity(TempFatturaLine.Quantity));
-            AddNonEmptyElement('UnitaMisura', TempFatturaLine."Unit of Measure");
+            AddNonEmptyElement('UnitaMisura', CopyStr(TempFatturaLine."Unit of Measure", 1, UoMMaxLength));
             AddNonEmptyElement('PrezzoUnitario', FormatNonBlankQuantity(TempFatturaLine."Unit Price"));
             if (TempFatturaLine."Discount Percent" <> 0) or (TempFatturaLine."Discount Amount" <> 0) then begin
                 AddGroupElement('ScontoMaggiorazione');
