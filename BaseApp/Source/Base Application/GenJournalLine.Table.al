@@ -2969,6 +2969,11 @@
         {
             Caption = 'Allow Issue';
         }
+        field(12186; "Fattura Document Type"; Code[20])
+        {
+            Caption = 'Fattura Document Type';
+            TableRelation = "Fattura Document Type";
+        }
     }
 
     keys
@@ -6005,6 +6010,7 @@
         "On Hold" := SalesHeader."On Hold";
         if "Account Type" = "Account Type"::Customer then
             "Posting Group" := SalesHeader."Customer Posting Group";
+        "Fattura Document Type" := SalesHeader."Fattura Document Type";
 
         OnAfterCopyGenJnlLineFromSalesHeader(SalesHeader, Rec);
     end;

@@ -454,6 +454,8 @@ codeunit 1004 "Job Transfer Line"
         NondeductibleVATAmtPrUnit: Decimal;
         NondeductibleVATAmtPrUnitLCY: Decimal;
         IsHandled: Boolean;
+        NDVATAmountRounding: Decimal;
+        NDVATBaseRounding: Decimal;
     begin
         IsHandled := false;
         OnBeforeFromPurchaseLineToJnlLine(PurchHeader, PurchInvHeader, PurchCrMemoHeader, PurchLine, SourceCode, JobJnlLine, IsHandled);
@@ -504,7 +506,7 @@ codeunit 1004 "Job Transfer Line"
             VATAmount := "Amount Including VAT" - Amount;
             BaseAmount := Amount;
             GenJnlPostLine.ChangeVATAmounts(VATAmount, BaseAmount, NondeductibleVATAmount, NondeductibleBaseAmount,
-              "Deductible %", GLSetup."Amount Rounding Precision");
+              "Deductible %", GLSetup."Amount Rounding Precision", NDVATAmountRounding, NDVATBaseRounding);
 
             NondeductibleVATAmtPrUnit := NondeductibleVATAmount / Quantity;
             if "Currency Code" = '' then

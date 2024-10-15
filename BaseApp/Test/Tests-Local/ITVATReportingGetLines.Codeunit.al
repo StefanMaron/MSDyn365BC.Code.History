@@ -20,6 +20,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryRandom: Codeunit "Library - Random";
+        LibraryITLocalization: Codeunit "Library - IT Localization";
         isInitialized: Boolean;
         ErrorUnexpectedValue: Label 'Unexpected value in %1 field of %2 table.';
         ErrorUnexpectedNumberOfLines: Label 'Unexpected number of lines.';
@@ -2492,6 +2493,44 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
 
         // [THEN] VAT report consists of one line having Base = 2000, Amount = 400
         VerifyVATReportLineAmounts(PurchaseHeader, VATReportHeader."No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure FatturaDocumentTypeCopiesToVATReportLineForSalesDoc()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        VATReportHeader: Record "VAT Report Header";
+        VATReportLine: Record "VAT Report Line";
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 394014] "Fattura Document Type" specified in sales document copies to Dattifatura VAT report line
+
+        Initialize();
+        WorkDate(LibraryVATUtils.GetPostingDate());
+        LibraryVATUtils.SetupThresholdAmount(WorkDate(), false);
+        LibraryVATUtils.UpdateVATPostingSetup(true);
+
+        // [GIVEN] Posted sales invoice with "Fattura Document Type" = "TD26"
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
+        SalesHeader.Validate("Fattura Document Type", LibraryITLocalization.GetRandomFatturaDocType(''));
+        SalesHeader.Modify(true);
+        LibrarySales.CreateSalesLine(
+          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(100));
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
+        SalesLine.Modify(true);
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [WHEN] Create VAT Report
+        LibraryVATUtils.CreateVATReport(
+          VATReportHeader, VATReportLine, VATReportHeader."VAT Report Config. Code"::Datifattura, WorkDate, WorkDate);
+
+        // [THEN] VAT Report Line has "Fattura Document Type" = "TD26"
+        VATReportLine.TestField("Fattura Document Type", SalesHeader."Fattura Document Type");
+
+        // Tear Down.
+        LibraryVATUtils.TearDown();
     end;
 
     local procedure Initialize()

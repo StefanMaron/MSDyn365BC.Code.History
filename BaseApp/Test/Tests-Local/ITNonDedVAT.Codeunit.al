@@ -21,6 +21,7 @@ codeunit 144001 "IT - Non Ded. VAT"
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryFA: Codeunit "Library - Fixed Asset";
         LibraryRandom: Codeunit "Library - Random";
+        LibraryDimension: Codeunit "Library - Dimension";
         Assert: Codeunit Assert;
         IncorrectGLEntryAmtErr: Label 'Incorect amount in G/L Entry.';
 
@@ -374,7 +375,9 @@ codeunit 144001 "IT - Non Ded. VAT"
 
         // [GIVEN] Purchase Invoice with Amount = 1000, "Deferral Code" = "DT" and VAT setup = "V"
         // [GIVEN] Posting G/L Account = "GLA"
-        CreatePurchInvoiceWithDeferralAndDedVAT(PurchaseHeader, PurchaseLine, VATPostingSetup, DeferralTemplate);
+        CreatePurchInvoiceWithDeferralAndDedVAT(
+            PurchaseHeader, PurchaseLine, WorkDate(), VATPostingSetup,
+            DeferralTemplate."Deferral Code", LibraryRandom.RandDecInRange(1000, 2000, 2));
 
         // [WHEN] Post purchase invoice
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -411,7 +414,9 @@ codeunit 144001 "IT - Non Ded. VAT"
 
         // [GIVEN] Purchase Invoice with Amount = 1000, "Deferral Code" = "DT" and VAT setup = "V"
         // [GIVEN] Posting G/L Account = "GLA"
-        CreatePurchInvoiceWithDeferralAndDedVAT(PurchaseHeader, PurchaseLine, VATPostingSetup, DeferralTemplate);
+        CreatePurchInvoiceWithDeferralAndDedVAT(
+            PurchaseHeader, PurchaseLine, WorkDate(), VATPostingSetup,
+            DeferralTemplate."Deferral Code", LibraryRandom.RandDecInRange(1000, 2000, 2));
 
         // [WHEN] Post purchase invoice
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -447,7 +452,9 @@ codeunit 144001 "IT - Non Ded. VAT"
 
         // [GIVEN] Purchase Invoice with Amount = 1000, "Deferral Code" = "DT" and VAT setup = "V"
         // [GIVEN] Posting G/L Account = "GLA"
-        CreatePurchInvoiceWithDeferralAndDedVAT(PurchaseHeader, PurchaseLine, VATPostingSetup, DeferralTemplate);
+        CreatePurchInvoiceWithDeferralAndDedVAT(
+            PurchaseHeader, PurchaseLine, WorkDate(), VATPostingSetup,
+            DeferralTemplate."Deferral Code", LibraryRandom.RandDecInRange(1000, 2000, 2));
 
         // [WHEN] Post purchase invoice
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -455,6 +462,199 @@ codeunit 144001 "IT - Non Ded. VAT"
         // [THEN] Non-Deductible VAT Amount to defer = 200
         // [THEN] G/L Entries for "GLA" = 1000, 200 and balanced with deferall account -1000, -200, 500, 100, 500, 100.
         VerifyGLEntryDeferrals(DeferralTemplate."Deferral Account", PurchaseLine, VATPostingSetup, DeferralTemplate);
+    end;
+
+    [Test]
+    procedure NonDedRevChrgVATRoundingOnPurchInvWithCustomLinesAndDimensions()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        PurchaseHeader: Record "Purchase Header";
+        VATEntry: Record "VAT Entry";
+        PostedInvoiceNo: Code[20];
+    begin
+        // [FEATURE] [Purchase] [Non-deductible VAT] [Reverse Charge VAT] [Dimension] [Rounding]
+        // [SCENARIO 384393] Purchase invoice non-deductible VAT rounding in case of reverse charge VAT, several custom lines with different dimensions
+
+        // [GIVEN] Reverse charge VAT posting setup with VAT = 22% and Deductible VAT = 40%
+        CreateVATPostingSetupWithPct(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT", 22, 40);
+        // [GIVEN] Purchase invoice with several custom lines with different dimensions having in total Amount Excl. VAT = 1675.71, VAT Amount = 368.66
+        CreatePurchaseInvoiceTFS384393(PurchaseHeader, VATPostingSetup);
+
+        // [WHEN] Post the invoice
+        PostedInvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [THEN] There are several VAT entries having in total: Base = 670.28, Amount = 147.46, Nondeductible Base = 1005.43, Nondeductible Amount = 221.20
+        FindVATEntry(VATEntry, PostedInvoiceNo);
+        VATEntry.CalcSums(Base, Amount, "Nondeductible Base", "Nondeductible Amount");
+        VATEntry.TestField(Base, 670.28);
+        VATEntry.TestField(Amount, 147.46);
+        VATEntry.TestField("Nondeductible Base", 1005.43);
+        VATEntry.TestField("Nondeductible Amount", 221.2);
+    end;
+
+    [Test]
+    procedure NonDedNormalVATRoundingOnPurchInvWithCustomLinesAndDimensions()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        PurchaseHeader: Record "Purchase Header";
+        VATEntry: Record "VAT Entry";
+        PostedInvoiceNo: Code[20];
+    begin
+        // [FEATURE] [Purchase] [Non-deductible VAT] [Normal VAT] [Dimension] [Rounding]
+        // [SCENARIO 384393] Purchase invoice non-deductible VAT rounding in case of normal VAT, several custom lines with different dimensions
+
+        // [GIVEN] Normal VAT posting setup with VAT = 22% and Deductible VAT = 40%
+        CreateVATPostingSetupWithPct(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", 22, 40);
+        // [GIVEN] Purchase invoice with several custom lines with different dimensions having in total Amount Excl. VAT = 1675.71, VAT Amount = 368.66
+        CreatePurchaseInvoiceTFS384393(PurchaseHeader, VATPostingSetup);
+
+        // [WHEN] Post the invoice
+        PostedInvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [THEN] There are several VAT entries having in total: Base = 670.28, Amount = 147.46, Nondeductible Base = 1005.43, Nondeductible Amount = 221.20
+        FindVATEntry(VATEntry, PostedInvoiceNo);
+        VATEntry.CalcSums(Base, Amount, "Nondeductible Base", "Nondeductible Amount");
+        VATEntry.TestField(Base, 670.28);
+        VATEntry.TestField(Amount, 147.46);
+        VATEntry.TestField("Nondeductible Base", 1005.43);
+        VATEntry.TestField("Nondeductible Amount", 221.2);
+    end;
+
+    [Test]
+    procedure NonDedRevChrgVATRoundingOnPurchInvWith6LinesAndDimensions()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        PurchaseHeader: Record "Purchase Header";
+        VATEntry: Record "VAT Entry";
+        PostedInvoiceNo: Code[20];
+    begin
+        // [FEATURE] [Purchase] [Non-deductible VAT] [Reverse Charge VAT] [Dimension] [Rounding]
+        // [SCENARIO 384393] Purchase invoice non-deductible VAT rounding in case of reverse charge VAT, several custom lines with different dimensions (384393 case 2)
+
+        // [GIVEN] Reverse charge VAT posting setup with VAT = 22% and Deductible VAT = 40%
+        CreateVATPostingSetupWithPct(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT", 22, 40);
+        // [GIVEN] Purchase invoice with 6 lines different dimensions each having Amount = 151.53, having in total Amount Excl. VAT = 909.18, VAT Amount = 200.02
+        CreatePurchaseInvoiceTFS384393_2(PurchaseHeader, VATPostingSetup);
+
+        // [WHEN] Post the invoice
+        PostedInvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [THEN] There are several VAT entries having in total: Base = 363.67, Amount = 80.01, Nondeductible Base = 545.51, Nondeductible Amount = 120.01
+        FindVATEntry(VATEntry, PostedInvoiceNo);
+        Assert.RecordCount(VATEntry, 6);
+        VATEntry.CalcSums(Base, Amount, "Nondeductible Base", "Nondeductible Amount");
+        VATEntry.TestField(Base, 363.67);
+        VATEntry.TestField(Amount, 80.01);
+        VATEntry.TestField("Nondeductible Base", 545.51);
+        VATEntry.TestField("Nondeductible Amount", 120.01);
+    end;
+
+    [Test]
+    procedure NonDedNormalVATRoundingOnPurchInvWith6LinesAndDimensions()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        PurchaseHeader: Record "Purchase Header";
+        VATEntry: Record "VAT Entry";
+        PostedInvoiceNo: Code[20];
+    begin
+        // [FEATURE] [Purchase] [Non-deductible VAT] [Normal VAT] [Dimension] [Rounding]
+        // [SCENARIO 384393] Purchase invoice non-deductible VAT rounding in case of normal VAT, several custom lines with different dimensions (384393 case 2)
+
+        // [GIVEN] Normal VAT posting setup with VAT = 22% and Deductible VAT = 40%
+        CreateVATPostingSetupWithPct(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", 22, 40);
+        // [GIVEN] Purchase invoice with 6 lines different dimensions each having Amount = 151.53, having in total Amount Excl. VAT = 909.18, VAT Amount = 200.02
+        CreatePurchaseInvoiceTFS384393_2(PurchaseHeader, VATPostingSetup);
+
+        // [WHEN] Post the invoice
+        PostedInvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [THEN] There are several VAT entries having in total: Base = 363.67, Amount = 80.01, Nondeductible Base = 545.51, Nondeductible Amount = 120.01
+        FindVATEntry(VATEntry, PostedInvoiceNo);
+        Assert.RecordCount(VATEntry, 6);
+        VATEntry.CalcSums(Base, Amount, "Nondeductible Base", "Nondeductible Amount");
+        VATEntry.TestField(Base, 363.67);
+        VATEntry.TestField(Amount, 80.01);
+        VATEntry.TestField("Nondeductible Base", 545.51);
+        VATEntry.TestField("Nondeductible Amount", 120.01);
+    end;
+
+    [Test]
+    procedure DeferralNonDedVATRounding()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        DeferralTemplate: Record "Deferral Template";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        GLEntry: Record "G/L Entry";
+        PostedInvoiceNo: Code[20];
+    begin
+        // [FEATURE] [Purchase] [Non-deductible VAT] [Deferral] [Rounding]
+        // [SCENARIO 394920] Purchase invoice non-deductible VAT rounding in case of deferrals with several periods
+
+        // [GIVEN] VAT posting setup with VAT = 22% and Deductible VAT = 40%
+        CreateVATPostingSetupWithPct(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", 22, 60);
+        // [GIVEN] Deferral Template 6 periods
+        LibraryERM.CreateDeferralTemplate(
+          DeferralTemplate, DeferralTemplate."Calc. Method"::"Straight-Line",
+          DeferralTemplate."Start Date"::"Posting Date", 6);
+        // [GIVEN] Purchase Invoice with Amount = 426.5, Posting Date = 30-06-2021
+        CreatePurchInvoiceWithDeferralAndDedVAT(
+          PurchaseHeader, PurchaseLine, DMY2Date(30, 6, Date2DMY(WorkDate(), 3)), VATPostingSetup, DeferralTemplate."Deferral Code", 426.5);
+
+        // [WHEN] Post the invoice
+        PostedInvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [THEN] There are several deferral non-deductible G/L entries with total amount 37.53
+        FindGLEntry(GLEntry, PostedInvoiceNo, VATPostingSetup."Nondeductible VAT Account");
+        Assert.RecordCount(GLEntry, 9);
+        GLEntry.CalcSums(Amount);
+        GLEntry.TestField(Amount, 37.53);
+    end;
+
+    local procedure CreatePurchaseInvoiceTFS384393(var PurchaseHeader: Record "Purchase Header"; VATPostingSetup: Record "VAT Posting Setup")
+    var
+        DimensionValue: array[7] of Record "Dimension Value";
+        VendorNo: Code[20];
+        GLAccountNo: Code[20];
+    begin
+        VendorNo := LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group");
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VendorNo);
+
+        GLAccountNo := LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, 0);
+        Create7DimensionValues(DimensionValue);
+        CreatePurchaseLineGL(PurchaseHeader, GLAccountNo, 1.42, DimensionValue[1]);
+        CreatePurchaseLineGL(PurchaseHeader, GLAccountNo, 88.97, DimensionValue[2]);
+        CreatePurchaseLineGL(PurchaseHeader, GLAccountNo, 48.94, DimensionValue[3]);
+        CreatePurchaseLineGL(PurchaseHeader, GLAccountNo, 90.44, DimensionValue[3]);
+        CreatePurchaseLineGL(PurchaseHeader, GLAccountNo, 60.27, DimensionValue[4]);
+        CreatePurchaseLineGL(PurchaseHeader, GLAccountNo, 52.29, DimensionValue[3]);
+        CreatePurchaseLineGL(PurchaseHeader, GLAccountNo, 64.12, DimensionValue[1]);
+        CreatePurchaseLineGL(PurchaseHeader, GLAccountNo, 107.87, DimensionValue[5]);
+        CreatePurchaseLineGL(PurchaseHeader, GLAccountNo, 48.03, DimensionValue[6]);
+        CreatePurchaseLineGL(PurchaseHeader, GLAccountNo, 219.05, DimensionValue[5]);
+        CreatePurchaseLineGL(PurchaseHeader, GLAccountNo, 132.73, DimensionValue[2]);
+        CreatePurchaseLineGL(PurchaseHeader, GLAccountNo, 50.82, DimensionValue[2]);
+        CreatePurchaseLineGL(PurchaseHeader, GLAccountNo, 68.85, DimensionValue[4]);
+        CreatePurchaseLineGL(PurchaseHeader, GLAccountNo, 222.95, DimensionValue[5]);
+        CreatePurchaseLineGL(PurchaseHeader, GLAccountNo, 58.9, DimensionValue[7]);
+        CreatePurchaseLineGL(PurchaseHeader, GLAccountNo, 65.2, DimensionValue[2]);
+        CreatePurchaseLineGL(PurchaseHeader, GLAccountNo, 232.63, DimensionValue[5]);
+        CreatePurchaseLineGL(PurchaseHeader, GLAccountNo, 62.23, DimensionValue[1]);
+    end;
+
+    local procedure CreatePurchaseInvoiceTFS384393_2(var PurchaseHeader: Record "Purchase Header"; VATPostingSetup: Record "VAT Posting Setup")
+    var
+        DimensionValue: array[7] of Record "Dimension Value";
+        VendorNo: Code[20];
+        GLAccountNo: Code[20];
+        i: Integer;
+    begin
+        VendorNo := LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group");
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VendorNo);
+        GLAccountNo := LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, 0);
+        Create7DimensionValues(DimensionValue);
+        for i := 1 to 6 do
+            CreatePurchaseLineGL(PurchaseHeader, GLAccountNo, 151.53, DimensionValue[i]);
     end;
 
     local procedure CreateGLAccount(GenProdPostingGroup: Code[20]; VATProductPostingGroup: Code[20]): Code[20]
@@ -532,19 +732,31 @@ codeunit 144001 "IT - Non Ded. VAT"
         exit(Vendor."No.");
     end;
 
-    local procedure CreatePurchInvoiceWithDeferralAndDedVAT(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; VATPostingSetup: Record "VAT Posting Setup"; DeferralTemplate: Record "Deferral Template")
+    local procedure CreatePurchInvoiceWithDeferralAndDedVAT(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; PostingDate: Date; VATPostingSetup: Record "VAT Posting Setup"; DeferralCode: Code[10]; DirectUnitCost: Decimal)
     var
         GLAccount: Record "G/L Account";
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
         PurchaseHeader.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
-        PurchaseHeader.Validate("Posting Date", WorkDate);
+        PurchaseHeader.Validate("Posting Date", PostingDate);
         PurchaseHeader.Modify(true);
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account",
           LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GLAccount."Gen. Posting Type"::Purchase), 1);
-        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(200, 300, 2));
-        PurchaseLine.Validate("Deferral Code", DeferralTemplate."Deferral Code");
+        PurchaseLine.Validate("Direct Unit Cost", DirectUnitCost);
+        PurchaseLine.Validate("Deferral Code", DeferralCode);
+        PurchaseLine.Modify(true);
+    end;
+
+    local procedure CreatePurchaseLineGL(PurchaseHeader: Record "Purchase Header"; GLAccountNo: Code[20]; DirectUnitCost: Decimal; DimensionValue: Record "Dimension Value")
+    var
+        PurchaseLine: Record "Purchase Line";
+    begin
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", GLAccountNo, 1);
+        PurchaseLine.Validate("Direct Unit Cost", DirectUnitCost);
+        PurchaseLine.Validate(
+          "Dimension Set ID",
+          LibraryDimension.CreateDimSet(PurchaseLine."Dimension Set ID", DimensionValue."Dimension Code", DimensionValue.Code));
         PurchaseLine.Modify(true);
     end;
 
@@ -596,6 +808,25 @@ codeunit 144001 "IT - Non Ded. VAT"
             Validate("Deductible %", DeductiblePct);
             Modify(true);
         end;
+    end;
+
+    local procedure CreateVATPostingSetupWithPct(var VATPostingSetup: Record "VAT Posting Setup"; VATCalculationType: Option; VATPct: Decimal; DeductiblePct: Decimal)
+    begin
+        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATCalculationType, VATPct);
+        VATPostingSetup.Validate("Nondeductible VAT Account", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Validate("Reverse Chrg. VAT Acc.", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Validate("Deductible %", DeductiblePct);
+        VATPostingSetup.Modify(true);
+    end;
+
+    local procedure Create7DimensionValues(var DimensionValue: array[7] of Record "Dimension Value")
+    var
+        Dimension: Record Dimension;
+        i: Integer;
+    begin
+        LibraryDimension.CreateDimension(Dimension);
+        for i := 1 to ArrayLen(DimensionValue) do
+            LibraryDimension.CreateDimensionValue(DimensionValue[i], Dimension.Code);
     end;
 
     local procedure GetNonDeductibleVATAccountNo(VATPostingSetup: Record "VAT Posting Setup"; PostingGLAccountNo: Code[20]): Code[20]
