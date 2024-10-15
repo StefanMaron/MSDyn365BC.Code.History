@@ -667,7 +667,11 @@ page 5077 "Create Interaction"
                     end
                 end;
             Step::"Step 4":
-                CurrPage.Close();
+                begin
+                    InteractionLogEntry.CopyFromSegment(Rec);
+                    InteractionLogEntry.Modify();
+                    CurrPage.Close();
+                end;
         end;
     end;
 
