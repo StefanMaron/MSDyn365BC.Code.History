@@ -2778,6 +2778,9 @@ codeunit 99000854 "Inventory Profile Offsetting"
                                 SetTransfer(TransLine, SupplyInvtProfile);
                         end;
 
+                    if ReqLine."Ref. Order Type" <> ReqLine."Ref. Order Type"::"Prod. Order" then
+                        ReqLine."Low-Level Code" := 0;
+
                     OnMaintainPlanningLineOnBeforeAdjustPlanLine(ReqLine, SupplyInvtProfile, TempSKU);
                     AdjustPlanLine(SupplyInvtProfile);
                     "Accept Action Message" := true;

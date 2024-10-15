@@ -121,6 +121,7 @@ codeunit 99000856 "Planning Transparency"
             TempInvProfileTrack."Source Type" := SourceType;
             TempInvProfileTrack."Source ID" := SourceID;
             TempInvProfileTrack."Quantity Tracked" := Qty;
+            OnLogSurplusOnBeforeInsertTempInvProfileTrack(TempInvProfileTrack);
             TempInvProfileTrack.Insert();
         end;
     end;
@@ -277,7 +278,7 @@ codeunit 99000856 "Planning Transparency"
                             PlanningElement."Track Quantity To" := QtyRemaining;
                             TransferWarningSourceText(TempInvProfileTrack, PlanningElement);
                             IsHandled := false;
-                            OnPublishSurplusOnBeforePlanningElementInsert(PlanningElement, IsHandled);
+                            OnPublishSurplusOnBeforePlanningElementInsert(PlanningElement, IsHandled, TempInvProfileTrack);
                             if not IsHandled then
                                 PlanningElement.Insert();
                         end;
@@ -306,6 +307,8 @@ codeunit 99000856 "Planning Transparency"
         TempInvProfileTrack.SetRange("Line No.");
         TempInvProfileTrack.SetRange("Warning Level");
         CleanLog(SupplyInvProfile."Line No.");
+
+        OnAfterPublishSurplus(SupplyInvProfile, SKU, ReqLine, ReservEntry);
     end;
 
     local procedure SurplusQty(var ReqLine: Record "Requisition Line"; var ReservEntry: Record "Reservation Entry"): Decimal
@@ -512,12 +515,22 @@ codeunit 99000856 "Planning Transparency"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPublishSurplusOnBeforePlanningElementInsert(var UntrackedPlanningElement: Record "Untracked Planning Element"; var IsHandled: Boolean)
+    local procedure OnPublishSurplusOnBeforePlanningElementInsert(var UntrackedPlanningElement: Record "Untracked Planning Element"; var IsHandled: Boolean; TempInventoryProfileTrackBuffer: Record "Inventory Profile Track Buffer" temporary)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnPublishSurplusOnBeforeExceptionPlanningElementInsert(var UntrackedPlanningElement: Record "Untracked Planning Element"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPublishSurplus(var InventoryProfile: Record "Inventory Profile"; var StockkeepingUnit: Record "Stockkeeping Unit"; var RequisitionLine: Record "Requisition Line"; var ReservationEntry: Record "Reservation Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLogSurplusOnBeforeInsertTempInvProfileTrack(var TempInventoryProfileTrackBuffer: Record "Inventory Profile Track Buffer" temporary)
     begin
     end;
 }

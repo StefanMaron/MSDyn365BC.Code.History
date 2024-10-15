@@ -29,9 +29,12 @@ codeunit 139460 "User Access in SaaS Tests"
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure CannotAccessWebServiceKeyForAnotherUserInSaaS()
+    var
+        TestUserPermissionsSubs: Codeunit "Test User Permissions Subs.";
     begin
         // [SCENARIO] In SaaS, a user cannot access another user's web service key
         Initialize();
+        BindSubscription(TestUserPermissionsSubs);
         // [GIVEN] Running in SaaS
         // [WHEN] The current user opens another user's card
         // [THEN] The user cannnot see the other user's current web service key

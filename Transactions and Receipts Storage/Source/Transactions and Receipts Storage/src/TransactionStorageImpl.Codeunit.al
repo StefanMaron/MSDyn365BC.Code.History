@@ -18,6 +18,7 @@ codeunit 6203 "Transaction Storage Impl."
     InherentEntitlements = X;
     InherentPermissions = X;
     Permissions = tabledata "Transact. Storage Export State" = RIM,
+                  tabledata "Transact. Storage Table Entry" = RIM,
                   tabledata "Transact. Storage Task Entry" = RIM,
                   tabledata "Transaction Storage Setup" = RI,
                   tabledata "G/L Entry" = r,
@@ -33,6 +34,7 @@ codeunit 6203 "Transaction Storage Impl."
         CannotGetStorageNameFromKeyVaultErr: Label 'Cannot get storage account name from Azure Key Vault using key %1', Locked = true;
 #endif
         TimeDeadlineExceededErr: Label 'A time deadline of %1 hours for the export has been exceeded. The export has been stopped.', Comment = '%1 = number of hours';
+        CannotCreateTaskErr: Label 'The task for export cannot be created.', Locked = true;
 
     trigger OnRun()
     var
@@ -64,6 +66,11 @@ codeunit 6203 "Transaction Storage Impl."
 
         if IsValidTaskExist() then
             exit;
+
+        if not TaskScheduler.CanCreateTask() then begin
+            FeatureTelemetry.LogError('0000MFR', TransactionStorageTok, '', CannotCreateTaskErr);
+            exit;
+        end;
 
         TransactStorageExportState.ResetSetup();
         if not TransactionStorageSetup.Get() then
@@ -110,7 +117,7 @@ codeunit 6203 "Transaction Storage Impl."
         if not TransactionStorageSetup.Get() then
             TransactionStorageSetup.Insert();
         if (CurrentDateTime() - TransactStorageTaskEntry."Starting Date/Time") >= (TransactionStorageSetup."Max. Number of Hours" * 60 * 60 * 1000) then begin
-            FeatureTelemetry.LogError('0000LNB', TransactionStorageTok, StrSubstNo(TimeDeadlineExceededErr, TransactionStorageSetup."Max. Number of Hours"), '');
+            FeatureTelemetry.LogError('0000LNB', TransactionStorageTok, '', StrSubstNo(TimeDeadlineExceededErr, TransactionStorageSetup."Max. Number of Hours"));
             Error('');
         end;
     end;

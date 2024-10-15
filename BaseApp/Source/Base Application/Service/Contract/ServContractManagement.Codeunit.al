@@ -2448,7 +2448,7 @@ codeunit 5940 ServContractManagement
         ServiceApplyEntryNo: Integer;
     begin
         if (ServiceContractLine."Starting Date" < ServiceContractHeader."Next Invoice Date") and
-           (ServiceContractLine."Invoiced to Date" = 0D)
+           (ServiceContractLine."Invoiced to Date" = 0D) and (WorkDate() < ServiceContractHeader."Next Invoice Date")
         then begin
             PartInvoiceFrom := ServiceContractLine."Starting Date";
             PartInvoiceTo := ServiceContractHeader."Next Invoice Date" - 1;

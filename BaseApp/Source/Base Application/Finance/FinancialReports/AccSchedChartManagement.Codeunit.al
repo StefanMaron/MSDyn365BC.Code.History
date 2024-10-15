@@ -448,6 +448,8 @@ codeunit 762 "Acc. Sched. Chart Management"
             if Dimension2Totaling <> '' then
                 GLAcc.SetFilter("Global Dimension 2 Filter", Dimension2Totaling);
             GLAcc.FilterGroup(0);
+
+            OnDrillDownOnGLAccountOnBeforeRunChartOfAccountsGL(GLAcc, ColumnLayout);
             PAGE.Run(PAGE::"Chart of Accounts (G/L)", GLAcc)
         end else begin
             GLAcc.CopyFilter("Date Filter", GLAccAnalysisView."Date Filter");
@@ -521,6 +523,11 @@ codeunit 762 "Acc. Sched. Chart Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnDrillDownTotalingTypeElseCase(var AccScheduleLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout"; var BusChartBuf: Record "Business Chart Buffer")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDrillDownOnGLAccountOnBeforeRunChartOfAccountsGL(var GLAccount: Record "G/L Account"; var ColumnLayout: Record "Column Layout")
     begin
     end;
 }
