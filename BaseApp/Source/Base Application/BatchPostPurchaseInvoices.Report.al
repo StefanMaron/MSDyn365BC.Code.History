@@ -137,6 +137,10 @@ report 497 "Batch Post Purchase Invoices"
             PurchasesPayablesSetup: Record "Purchases & Payables Setup";
             ClientTypeManagement: Codeunit "Client Type Management";
         begin
+            if not VATReportingDateMgt.IsVATDateEnabled() then begin
+                ReplaceVATDateReq := ReplacePostingDate;
+                VATDateReq := PostingDateReq;
+            end;
             if ClientTypeManagement.GetCurrentClientType() = ClientType::Background then
                 exit;
             PurchasesPayablesSetup.Get();

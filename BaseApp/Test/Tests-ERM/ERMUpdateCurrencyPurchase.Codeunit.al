@@ -366,7 +366,6 @@ codeunit 134086 "ERM Update Currency - Purchase"
 #endif
 
     [Test]
-    [HandlerFunctions('StatisticsMessageHandler')]
     [Scope('OnPrem')]
     procedure ExchRateAdjustmentWithVendor()
     var
@@ -704,6 +703,7 @@ codeunit 134086 "ERM Update Currency - Purchase"
           CurrencyExchangeRate."Starting Date", CurrencyExchangeRate."Starting Date", 'Test', CurrencyExchangeRate."Starting Date",
           CurrencyExchangeRate."Currency Code", true, false);
         ExchRateAdjustment.UseRequestPage(false);
+        ExchRateAdjustment.SetHideUI(true);
         ExchRateAdjustment.Run();
     end;
 
