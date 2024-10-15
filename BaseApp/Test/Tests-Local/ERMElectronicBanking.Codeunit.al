@@ -842,6 +842,7 @@ codeunit 141021 "ERM Electronic - Banking"
     begin
         // [FEATURE] [EFT Payment]
         // [SCENARIO] Not posted summarized payment  can be exported to EFT file from EFT register
+        // [SCENARIO 399338] Document No is exported in case of blanked Payment Reference
         Initialize;
 
         // [GIVEN] Post 3 invoices for vendor VEND
@@ -855,6 +856,9 @@ codeunit 141021 "ERM Electronic - Banking"
         CreateGenJournalBatchWithBankAccount(GenJournalBatch);
         SuggestVendorPayments(GenJournalLine, GenJournalBatch, Vendor."No.", true);
         FindFirstGenJournalLineFromBatch(GenJournalBatch, GenJournalLine);
+        GenJournalLine.Validate("Payment Reference", '');
+        GenJournalLine.TestField("Document No.");
+        GenJournalLine.Modify(true);
 
         // [GIVEN] Export payment
         EFTPaymentCreateFile(GenJournalLine);
@@ -863,8 +867,8 @@ codeunit 141021 "ERM Electronic - Banking"
         // [WHEN] File is being exported from EFT register
         FilePath := EFTPaymentCreateFileFromEFTRegister(EFTRegister);
 
-        // [THEN] EFT file contains line with Payment Reference (TFS 391963)
-        VerifyDocumentNoEFTFile(FilePath, GenJournalLine."Payment Reference");
+        // [THEN] EFT file contains line with Document No. (TFS 399338)
+        VerifyDocumentNoEFTFile(FilePath, GenJournalLine."Document No.");
     end;
 
     [Test]

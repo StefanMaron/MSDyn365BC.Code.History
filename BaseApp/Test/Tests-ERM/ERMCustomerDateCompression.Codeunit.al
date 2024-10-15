@@ -22,7 +22,6 @@ codeunit 134032 "ERM Customer Date Compression"
         ErrorMessageDoNotMatch: Label 'Error Message must be same.';
 
     [Test]
-    [HandlerFunctions('ConfirmHandler')]
     [Scope('OnPrem')]
     procedure DateCompressionByWeek()
     var
@@ -50,7 +49,6 @@ codeunit 134032 "ERM Customer Date Compression"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandler')]
     [Scope('OnPrem')]
     procedure DateCompressionByMonth()
     var
@@ -65,7 +63,6 @@ codeunit 134032 "ERM Customer Date Compression"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandler')]
     [Scope('OnPrem')]
     procedure DateCompressionByYear()
     var
@@ -102,7 +99,6 @@ codeunit 134032 "ERM Customer Date Compression"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandler')]
     [Scope('OnPrem')]
     procedure UnapplyDateCompressCustEntry()
     var
@@ -141,6 +137,7 @@ codeunit 134032 "ERM Customer Date Compression"
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.UpdateLocalData;
+        LibraryFiscalYear.CreateClosedAccountingPeriods();
         IsInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Customer Date Compression");
@@ -154,7 +151,6 @@ codeunit 134032 "ERM Customer Date Compression"
     begin
         // Setup: Close the Open Fiscal Year. Make Payment and Invoice entries for a Customer from General Journal Line with same random
         // amount and Post them.
-        LibraryFiscalYear.CloseFiscalYear;
         NoOfLines := LibraryRandom.RandInt(5);
         CreateDocumentLine(GenJournalLine, CustomerNo, NoOfLines, FirstPostingDate, Period);
         JnlLineAmount := NoOfLines * GenJournalLine.Amount;
@@ -278,14 +274,6 @@ codeunit 134032 "ERM Customer Date Compression"
         Assert.AreEqual(
           JnlLinePaymentAmt, CustLedgEntryAmt, StrSubstNo(AmountError, CustLedgerEntry.FieldCaption(Amount), JnlLinePaymentAmt,
             CustLedgerEntry.TableCaption, CustLedgerEntry.FieldCaption("Entry No."), CustLedgerEntry."Entry No."));
-    end;
-
-    [ConfirmHandler]
-    [Scope('OnPrem')]
-    procedure ConfirmHandler(Question: Text[1024]; var Reply: Boolean)
-    begin
-        // Confirm Handler for Date Compression confirmation message.
-        Reply := true;
     end;
 }
 

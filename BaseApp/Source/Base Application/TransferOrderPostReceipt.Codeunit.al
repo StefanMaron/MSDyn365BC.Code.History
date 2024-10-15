@@ -113,6 +113,8 @@ codeunit 5705 "TransferOrder-Post Receipt"
                     InsertTransRcptLine(TransRcptHeader."No.", TransRcptLine, TransLine);
                 until TransLine.Next() = 0;
 
+            OnRunOnAfterInsertTransRcptLines(TransRcptHeader, TransLine, TransHeader, Location, WhseReceive);
+
             if InvtSetup."Automatic Cost Adjustment" <> InvtSetup."Automatic Cost Adjustment"::Never then begin
                 InvtAdjmt.SetProperties(true, InvtSetup."Automatic Cost Posting");
                 InvtAdjmt.MakeMultiLevelAdjmt;
@@ -670,7 +672,7 @@ codeunit 5705 "TransferOrder-Post Receipt"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeTransferOrderPostReceipt(var TransferHeader: Record "Transfer Header"; CommitIsSuppressed: Boolean)
     begin
     end;
@@ -787,6 +789,11 @@ codeunit 5705 "TransferOrder-Post Receipt"
 
     [IntegrationEvent(false, false)]
     local procedure OnRunOnAfterTransLineSetFiltersForRcptLines(var TransferLine: Record "Transfer Line"; TransferHeader: Record "Transfer Header"; Location: Record Location; WhseReceive: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnAfterInsertTransRcptLines(TransRcptHeader: Record "Transfer Receipt Header"; TransferLine: Record "Transfer Line"; TransferHeader: Record "Transfer Header"; Location: Record Location; WhseReceive: Boolean)
     begin
     end;
 

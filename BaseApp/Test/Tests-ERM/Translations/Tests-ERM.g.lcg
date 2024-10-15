@@ -158,6 +158,33 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Currency UT - NamedType NumericErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3900902476 - NamedType 4169762848" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The action was cancelled by the user.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Data Administration Page Tests - NamedType ActionCancelledMsg)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3900902476 - NamedType 1017507873" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[A job queue entry that runs daily to refresh the table information cache was created.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Data Administration Page Tests - NamedType JobScheduledMsg)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3900902476 - NamedType 1880458826" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Do you want to delete the entry and create a new entry in the current company]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Data Administration Page Tests - NamedType OtherCompanyJQQst)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1618149176 - NamedType 1320261027" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[G/L accounts for discounts are missing on one or more lines on the General Posting Setup page.]]></Val>
@@ -4523,6 +4550,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Purchase Order - NamedType FieldError)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1951354433 - NamedType 3683325401" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 is not set for the %2 G/L account with no. %3.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 - caption Gen. Prod. Posting Group; %2 - G/L Account Description; %3 - G/L Account No.]D;]A;(LookupHint=Codeunit ERM Purchase Order - NamedType GenProdPostingGroupErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1951354433 - NamedType 2983229909" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Incorrect Dimension Set ID in %1.]]></Val>
@@ -5700,6 +5736,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Sales Document - NamedType FieldError)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 891447087 - NamedType 3683325401" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 is not set for the %2 G/L account with no. %3.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 - caption Gen. Prod. Posting Group; %2 - G/L Account Description; %3 - G/L Account No.]D;]A;(LookupHint=Codeunit ERM Sales Document - NamedType GenProdPostingGroupErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 891447087 - NamedType 2390114641" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -7853,15 +7898,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Manual Payment Registration - NamedType WrongWarningErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2240216850 - NamedType 2629161054" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The Accounting Period does not exist.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit No Accounting Periods: Basic - NamedType AccountingPeriodDoesNotExistErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 2240216850 - NamedType 3770914415" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The fiscal year does not exist.]]></Val>
@@ -7869,6 +7905,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit No Accounting Periods: Basic - NamedType CloseIncomeStatementErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2240216850 - NamedType 2320961781" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[No accounting periods have been set up. In order to run date compression you must set up accounting periods.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit No Accounting Periods: Basic - NamedType NoAccountingPeriodsErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2240216850 - NamedType 3803773841" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -11687,15 +11732,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Service Order Release - NamedType VerifyDisplayedErrorMsg)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 70905174 - NamedType 3699227408" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[This document cannot be shipped completely. Change the value in the Shipping Advice field to Partial.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Service Order Release - NamedType WarehousePartialShippingErrorTxt)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 70905174 - NamedType 1435650532" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The Service Line cannot be deleted when a related Warehouse Shipment Line exists.]]></Val>
@@ -13208,6 +13244,33 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Suggest Price Lines UT - NamedType SourceGroupUpdateMsg)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1907926743 - NamedType 762284302" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[There are one or more errors. For details, see the journal error FactBox.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Adv. Intrastat Checklist - NamedType AdvChecklistErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1907926743 - NamedType 2200152239" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Could not parse the filter expression. Use the lookup action, or type a string in the following format: "Type: Shipment, Quantity: <>0".]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Adv. Intrastat Checklist - NamedType FilterStringParseErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 313154776 - NamedType 3308798032" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The end date %1 is not valid. You must keep at least %2 years uncompressed.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 is a date in short date format, %2 is an integer]D;]A;(LookupHint=Codeunit Test Date Compression - NamedType DateCompressionEndingDateErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1182591388 - NamedType 2633847134" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Expected empty error from Preview. Actual error: ]]></Val>
@@ -13377,6 +13440,24 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test RED Setup Gen. Jnl. - NamedType PostedDeferralHeaderNumberErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3359274847 - NamedType 2667088805" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Document %1 has been archived.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Reten. Pol. Doc. Arch. - NamedType ArchiveSalesDocMsg)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3359274847 - NamedType 1122546544" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Archive Order no.: %1?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Reten. Pol. Doc. Arch. - NamedType ArchiveSalesDocQst)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3571738936 - NamedType 2120421046" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -13613,22 +13694,85 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Working On Service Orders - NamedType UnknownError)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";EnumExtension 586576576 - EnumValue 3970700065 - Property 2879900210" ItemType=";EnumExtension - EnumValue" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Page 3468399646 - Property 2879900210" ItemType=";Page - Page" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Mock Price List Header]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Mock Price List Header - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 2536628933 - Property 2879900210" ItemType=";Page - Page" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Mock Price List Line]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Mock Price List Line - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 1324809545 - Property 2879900210" ItemType=";Page - Page" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Mock Price Worksheet Line]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Mock Price Worksheet Line - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";PageExtension 3476147406 - Control 3422810303 - Property 1968111052" ItemType=";PageExtension - Control" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[ERM Tests Page 1]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(ObjectTarget=Page 1015858496)(LookupHint=PageExtension ERM Tests Data Admin Guide - Control ERMTestsDatAdminGuideGroup1 - Property InstructionalText)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";PageExtension 3476147406 - Control 1040932858 - Property 1968111052" ItemType=";PageExtension - Control" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[ERM Tests Page 2]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(ObjectTarget=Page 1015858496)(LookupHint=PageExtension ERM Tests Data Admin Guide - Control ERMTestsDatAdminGuideGroup2 - Property InstructionalText)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";EnumExtension 3739422659 - EnumValue 2491697818 - Property 2879900210" ItemType=";EnumExtension - EnumValue" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Test Guide Page 1]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(ObjectTarget=Enum 4386953)(LookupHint=EnumExtension ERM Tests Data Admin Guide Page - EnumValue TestGuidePage1 - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";EnumExtension 3739422659 - EnumValue 578607967 - Property 2879900210" ItemType=";EnumExtension - EnumValue" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Test Guide Page 2]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(ObjectTarget=Enum 4386953)(LookupHint=EnumExtension ERM Tests Data Admin Guide Page - EnumValue TestGuidePage2 - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";EnumExtension 586576576 - EnumValue 338080195 - Property 2879900210" ItemType=";EnumExtension - EnumValue" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[All Locations]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(ObjectTarget=Enum 4044826764)(LookupHint=EnumExtension Mock Source Type - Locations - EnumValue All Locations - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(ObjectTarget=Enum 4044826764)(LookupHint=EnumExtension Mock Source Type - Locations - EnumValue Test_All_Locations - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";EnumExtension 586576576 - EnumValue 3891454143 - Property 2879900210" ItemType=";EnumExtension - EnumValue" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";EnumExtension 586576576 - EnumValue 2477410928 - Property 2879900210" ItemType=";EnumExtension - EnumValue" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Location]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(ObjectTarget=Enum 4044826764)(LookupHint=EnumExtension Mock Source Type - Locations - EnumValue Location - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(ObjectTarget=Enum 4044826764)(LookupHint=EnumExtension Mock Source Type - Locations - EnumValue Test_Location - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
 </LCX>

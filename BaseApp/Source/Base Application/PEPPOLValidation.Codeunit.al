@@ -3,7 +3,14 @@ codeunit 1620 "PEPPOL Validation"
     TableNo = "Sales Header";
 
     trigger OnRun()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOnRun(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         CheckSalesDocument(Rec);
         CheckSalesDocumentLines(Rec);
     end;
@@ -281,6 +288,11 @@ codeunit 1620 "PEPPOL Validation"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckShipToAddress(SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnRun(SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
 }

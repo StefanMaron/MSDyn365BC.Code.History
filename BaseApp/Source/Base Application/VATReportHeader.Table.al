@@ -333,8 +333,15 @@
         Text007: Label 'This is not allowed because of the setup in the %1 window.';
         Text008: Label 'You must specify an original report for a report of type %1.';
 
-    procedure GetNoSeriesCode(): Code[20]
+    procedure GetNoSeriesCode() Result: Code[20]
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetNoSeriesCode(Rec, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         VATReportSetup.Get();
         case "VAT Report Config. Code" of
             "VAT Report Config. Code"::"VAT Return":
@@ -386,6 +393,8 @@
             "Statement Template Name" := VATReportsConfiguration."VAT Statement Template";
             "Statement Name" := VATReportsConfiguration."VAT Statement Name";
         end;
+
+        OnAfterInitRecord(Rec);
     end;
 
     procedure CheckEditingAllowed()
@@ -512,6 +521,16 @@
         ECSLVATReportLine.SetRange("Report No.", "No.");
         if not ECSLVATReportLine.IsEmpty() then
             ECSLVATReportLine.DeleteAll(true);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitRecord(var VATReportHeader: Record "VAT Report Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetNoSeriesCode(var VATReportHeader: Record "VAT Report Header"; var Result: Code[20]; var IsHandled: Boolean)
+    begin
     end;
 }
 

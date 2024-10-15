@@ -313,11 +313,24 @@ page 5870 "BOM Structure"
     end;
 
     procedure RefreshPage()
+    begin
+        GenerateBOMTree();
+
+        CurrPage.Update(false);
+    end;
+
+    local procedure GenerateBOMTree()
     var
         CalcBOMTree: Codeunit "Calculate BOM Tree";
         RaiseError: Boolean;
         ErrorText: Text;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGenerateBOMTree(Rec, Item, AsmHeader, ProdOrderLine, ShowBy, ItemFilter, IsHandled);
+        if IsHandled then
+            exit;
+
         Item.SetFilter("No.", ItemFilter);
         Item.SetRange("Date Filter", 0D, WorkDate);
         CalcBOMTree.SetItemFilter(Item);
@@ -337,8 +350,6 @@ page 5870 "BOM Structure"
             ShowBy::Assembly:
                 CalcBOMTree.GenerateTreeForAsm(AsmHeader, Rec, 0);
         end;
-
-        CurrPage.Update(false);
     end;
 
     local procedure ShowWarnings()
@@ -375,6 +386,11 @@ page 5870 "BOM Structure"
             Item.SetFilter("Location Filter", "Location Code");
 
         ItemAvailFormsMgt.ShowItemAvailFromItem(Item, AvailType);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGenerateBOMTree(var BOMBuffer: Record "BOM Buffer"; var Item: Record Item; var AsmHeader: Record "Assembly Header"; var ProdOrderLine: Record "Prod. Order Line"; ShowBy: Integer; ItemFilter: Code[250]; var IsHandled: Boolean)
+    begin
     end;
 
     [IntegrationEvent(TRUE, false)]

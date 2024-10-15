@@ -46,6 +46,8 @@ codeunit 3687 "Low-Level Code Calculator"
 
         LowLevelCodeParam.Close();
         Session.LogMessage('0000CIM', StrSubstNo(TimeTakenForRunTxt, CurrentDateTime() - Start), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', 'Planning');
+
+        OnAfterCalculate();
     end;
 
     procedure SuggestToRunAsBackgroundJob()
@@ -262,5 +264,10 @@ codeunit 3687 "Low-Level Code Calculator"
         BOMStructure.AddRelation(Parent, Child);
         AddKeyToList(Parent.GetKey());
         AddKeyToList(Child.GetKey());
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalculate()
+    begin
     end;
 }

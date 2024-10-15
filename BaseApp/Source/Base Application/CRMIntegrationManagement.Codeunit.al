@@ -68,7 +68,9 @@ codeunit 5330 "CRM Integration Management"
         ConnectionDisabledNotificationMsg: Label 'Connection to Dynamics 365 is broken and that it has been disabled due to an error: %1', Comment = '%1 = Error text received from D365 for Sales';
         DoYouWantEnableWebServiceQst: Label 'Do you want to enable the Item Availability web service?';
         DoYouWantDisableWebServiceQst: Label 'Do you want to disable the Item Availability web service?';
-        CRMConnectionSetupTxt: Label 'Set up %1 connection', Comment = '%1 = CRM product name';
+        CRMConnectionSetupTitleTxt: Label 'Set up a connection to %1', Comment = '%1 = CRM product name';
+        CRMConnectionSetupShortTitleTxt: Label 'Connect to %1', Comment = '%1 = CRM product name';
+        CRMConnectionSetupDescriptionTxt: Label 'Connect your Dynamics 365 services for better insights. Data is exchanged between the apps for better productivity.';
         VideoUrlSetupCRMConnectionTxt: Label '', Locked = true;
         ConnectionDisabledReasonTxt: Label 'The connection to %1 was disabled because integration user %2 has insufficient privileges to run the synchronization.', Comment = '%1 = a URL, %2 - an email address';
         CannotAssignRoleToTeamErr: Label 'Cannot assign role %3 to team %1 for business unit %2.', Comment = '%1 = team name, %2 = business unit name, %3 = security role name';
@@ -2715,8 +2717,9 @@ codeunit 5330 "CRM Integration Management"
     begin
         NavApp.GetCurrentModuleInfo(Info);
         if not GuidedExperience.Exists(GuidedExperienceType::"Assisted Setup", ObjectType::Page, PAGE::"CRM Connection Setup Wizard") then begin
-            GuidedExperience.InsertAssistedSetup(StrSubstNo(CRMConnectionSetupTxt, CRMProductName.SHORT), CopyStr(StrSubstNo(CRMConnectionSetupTxt, CRMProductName.SHORT), 1, 50), '',
-                0, ObjectType::Page, PAGE::"CRM Connection Setup Wizard", AssistedSetupGroup::Customize, VideoUrlSetupCRMConnectionTxt, VideoCategory::Customize, '');
+            GuidedExperience.InsertAssistedSetup(StrSubstNo(CRMConnectionSetupTitleTxt, CRMProductName.SHORT),
+                StrSubstNo(CRMConnectionSetupShortTitleTxt, CRMProductName.SHORT), CRMConnectionSetupDescriptionTxt,
+                10, ObjectType::Page, PAGE::"CRM Connection Setup Wizard", AssistedSetupGroup::Customize, VideoUrlSetupCRMConnectionTxt, VideoCategory::Customize, '');
         end;
     end;
 
@@ -2748,25 +2751,21 @@ codeunit 5330 "CRM Integration Management"
             exit;
 
         OnEnabledDatabaseTriggersSetup(TableID, Enabled);
-        if not Enabled then
-            Enabled := IsCRMIntegrationRecord(TableID);
+        if not Enabled then begin
+            if CDSConnectionSetup.Get() then
+                if CDSConnectionSetup."Is Enabled" then
+                    Enabled := IsCRMIntegrationRecord(TableID);
+            if not Enabled then
+                if CRMConnectionSetup.IsEnabled() then
+                    Enabled := IsCRMIntegrationRecord(TableID);
+        end;
 
         if Enabled then begin
-            if CDSConnectionSetup.Get() then
-                if CDSConnectionSetup."Is Enabled" then begin
-                    Insert := true;
-                    Modify := true;
-                    Delete := false;
-                    Rename := true;
-                    exit;
-                end;
-
-            if CRMConnectionSetup.IsEnabled() then begin
-                Insert := true;
-                Modify := true;
+            Insert := true;
+            Modify := true;
+            Rename := true;
+            if not Delete then
                 Delete := false;
-                Rename := true;
-            end;
         end;
     end;
 
@@ -2790,11 +2789,23 @@ codeunit 5330 "CRM Integration Management"
 
     local procedure ReactivateJobForTable(TableNo: Integer)
     var
+        CRMConnectionSetup: Record "CRM Connection Setup";
+        CDSConnectionSetup: Record "CDS Connection Setup";
         JobQueueEntry: Record "Job Queue Entry";
         DataUpgradeMgt: Codeunit "Data Upgrade Mgt.";
         JobQueueDispatcher: Codeunit "Job Queue Dispatcher";
         MomentForJobToBeReady: DateTime;
+        Enabled: Boolean;
     begin
+        if CDSConnectionSetup.Get() then
+            Enabled := CDSConnectionSetup."Is Enabled";
+
+        if not Enabled then
+            Enabled := CRMConnectionSetup.IsEnabled();
+
+        if not Enabled then
+            exit;
+
         if not IsCRMIntegrationRecord(TableNo) then
             exit;
 

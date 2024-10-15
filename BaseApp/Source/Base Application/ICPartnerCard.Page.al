@@ -188,7 +188,14 @@ page 609 "IC Partner Card"
                 TransferTypeLbl := FolderPathTransferTypeTxt;
             "Inbox Type"::Email:
                 TransferTypeLbl := EmailAddressTransferTypeTxt;
+            else
+                OnSetInboxDetailsCaptionOnCaseElse(Rec, TransferTypeLbl);
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetInboxDetailsCaptionOnCaseElse(var ICPartner: Record "IC Partner"; var TransferTypeText: Text)
+    begin
     end;
 }
 

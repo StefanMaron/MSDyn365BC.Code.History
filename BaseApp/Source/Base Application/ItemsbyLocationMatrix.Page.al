@@ -678,6 +678,7 @@ page 9231 "Items by Location Matrix"
           "Item No.", "Entry Type", "Variant Code", "Drop Shipment", "Location Code", "Posting Date");
         ItemLedgerEntry.SetRange("Item No.", "No.");
         ItemLedgerEntry.SetRange("Location Code", MatrixRecords[ColumnID].Code);
+        OnMatrixOnDrillDownOnAfterItemLedgerEntrySetFilters(Rec, ItemLedgerEntry, ColumnID);
         PAGE.Run(0, ItemLedgerEntry);
     end;
 
@@ -715,6 +716,11 @@ page 9231 "Items by Location Matrix"
         Field30Visible := MATRIX_CurrSetLength > 29;
         Field31Visible := MATRIX_CurrSetLength > 30;
         Field32Visible := MATRIX_CurrSetLength > 31;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnMatrixOnDrillDownOnAfterItemLedgerEntrySetFilters(var Item: Record Item; var ItemLedgerEntry: Record "Item Ledger Entry"; ColumnID: integer)
+    begin
     end;
 }
 
