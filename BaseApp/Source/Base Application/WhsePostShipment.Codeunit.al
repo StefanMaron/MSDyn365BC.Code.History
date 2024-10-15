@@ -1129,7 +1129,7 @@
             exit;
 
         SalesLine.Validate("Qty. to Ship", SumOfQtyToShip);
-        SalesLine."Qty. to Ship (Base)" := SumOfQtyToShipBase;
+        SalesLine."Qty. to Ship (Base)" := SalesLine.MaxQtyToShipBase(SumOfQtyToShipBase);
     end;
 
     local procedure HandlePurchaseLine(var WhseShptLine: Record "Warehouse Shipment Line")

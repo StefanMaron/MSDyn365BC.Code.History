@@ -229,6 +229,10 @@ table 263 "Intrastat Jnl. Line"
             Caption = 'Location Code';
             TableRelation = Location;
         }
+        field(32; Counterparty; Boolean)
+        {
+            Caption = 'Counterparty';
+        }
         field(11315; "Conversion Factor"; Decimal)
         {
             Caption = 'Conversion Factor';
@@ -285,11 +289,7 @@ table 263 "Intrastat Jnl. Line"
 
     trigger OnDelete()
     begin
-        IntrastatJnlBatch.Get("Journal Template Name", "Journal Batch Name");
-        if Type = Type::Receipt then
-            IntrastatJnlBatch.TestField("System 19 reported", false)
-        else
-            IntrastatJnlBatch.TestField("System 29 reported", false);
+        AssertBatchIsNotReported(Rec);
     end;
 
     trigger OnInsert()
@@ -300,14 +300,12 @@ table 263 "Intrastat Jnl. Line"
 
     trigger OnModify()
     begin
-        IntrastatJnlBatch.Get("Journal Template Name", "Journal Batch Name");
-        CheckBatchIsNotReported(IntrastatJnlBatch);
+        AssertBatchIsNotReported(Rec);
     end;
 
     trigger OnRename()
     begin
-        IntrastatJnlBatch.Get(xRec."Journal Template Name", xRec."Journal Batch Name");
-        CheckBatchIsNotReported(IntrastatJnlBatch);
+        AssertBatchIsNotReported(xRec);
     end;
 
     var
@@ -359,6 +357,12 @@ table 263 "Intrastat Jnl. Line"
         end;
 
         exit((("Journal Batch Name" <> '') and ("Journal Template Name" = '')) or (BatchFilter <> ''));
+    end;
+
+    local procedure AssertBatchIsNotReported(IntrastatJnlLine: Record "Intrastat Jnl. Line")
+    begin
+        IntrastatJnlBatch.Get(IntrastatJnlLine."Journal Template Name", IntrastatJnlLine."Journal Batch Name");
+        CheckBatchIsNotReported(IntrastatJnlBatch);
     end;
 
     local procedure CheckBatchIsNotReported(IntrastatJnlBatch: Record "Intrastat Jnl. Batch")

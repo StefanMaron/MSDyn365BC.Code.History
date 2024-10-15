@@ -1497,6 +1497,7 @@ page 256 "Payment Journal"
     trigger OnAfterGetRecord()
     begin
         StyleTxt := GetOverdueDateInteractions(OverdueWarningText);
+        GenJnlManagement.GetAccounts(Rec, AccName, BalAccName);
         ShowShortcutDimCode(ShortcutDimCode);
         HasPmtFileErr := HasPaymentFileErrors;
         RecipientBankAccountMandatory := IsAllowPaymentExport and

@@ -1338,7 +1338,8 @@
                 OnValidateVATProdPostingGroupOnBeforeCheckVATCalcType(Rec, VATPostingSetup, IsHandled);
                 if not IsHandled then
                     case "VAT Calculation Type" of
-                    	"VAT Calculation Type"::"Sales Tax":
+                        "VAT Calculation Type"::"Reverse Charge VAT",
+                        "VAT Calculation Type"::"Sales Tax":
                             "VAT %" := 0;
                         "VAT Calculation Type"::"Full VAT":
                             begin
@@ -3673,7 +3674,6 @@
         Text053: Label 'must have the same sign as the return shipment';
         Text054: Label 'The quantity that you are trying to invoice is greater than the quantity in return shipment %1.';
         PurchSetupRead: Boolean;
-        UseVATForReverseCharge: Boolean;
         CannotFindDescErr: Label 'Cannot find %1 with Description %2.\\Make sure to use the correct type.', Comment = '%1 = Type caption %2 = Description';
         CommentLbl: Label 'Comment';
         LineDiscountPctErr: Label 'The value in the Line Discount % field must be between 0 and 100.';
@@ -3721,18 +3721,11 @@
         end else begin
             GetPurchHeader;
             AmountInclVAT := "Amount Including VAT";
-            if "VAT Calculation Type" = "VAT Calculation Type"::"Reverse Charge VAT" then
-                Validate(
-                  "Outstanding Amount",
-                  Round(
-                    Amount * "Outstanding Quantity" / Quantity,
-                    Currency."Amount Rounding Precision"))
-            else
-                Validate(
-                  "Outstanding Amount",
-                  Round(
-                    AmountInclVAT * "Outstanding Quantity" / Quantity,
-                    Currency."Amount Rounding Precision"));
+            Validate(
+              "Outstanding Amount",
+              Round(
+                AmountInclVAT * "Outstanding Quantity" / Quantity,
+                Currency."Amount Rounding Precision"));
             if IsCreditDocType then
                 Validate(
                   "Return Shpd. Not Invd.",
@@ -3768,7 +3761,7 @@
         end else
             if "Qty. to Receive" <> 0 then
                 "Qty. to Receive (Base)" :=
-                    UOMMgt.CalcBaseQty("No.", "Variant Code", "Unit of Measure Code", "Qty. to Receive", "Qty. per Unit of Measure");
+                    MaxQtyToReceiveBase(UOMMgt.CalcBaseQty("No.", "Variant Code", "Unit of Measure Code", "Qty. to Receive", "Qty. per Unit of Measure"));
 
         OnAfterInitQtyToReceive(Rec, CurrFieldNo);
 
@@ -3929,6 +3922,14 @@
             exit("Return Qty. Shipped (Base)" + "Return Qty. to Ship (Base)" - "Qty. Invoiced (Base)");
 
         exit("Qty. Received (Base)" + "Qty. to Receive (Base)" - "Qty. Invoiced (Base)");
+    end;
+
+    procedure MaxQtyToReceiveBase(QtyToReceiveBase: Decimal): Decimal
+    begin
+        if Abs(QtyToReceiveBase) > Abs("Outstanding Qty. (Base)") then
+            exit("Outstanding Qty. (Base)");
+
+        exit(QtyToReceiveBase);
     end;
 
     procedure CalcInvDiscToInvoice()
@@ -4593,6 +4594,7 @@
         TotalInvDiscAmount: Decimal;
         TotalAmount: Decimal;
         TotalAmountInclVAT: Decimal;
+        TotalVATDifference: Decimal;
         TotalQuantityBase: Decimal;
         TotalVATBaseAmount: Decimal;
         IsHandled: Boolean;
@@ -4638,11 +4640,12 @@
                 PurchLine2.SetFilter("VAT %", '<>0');
                 if not PurchLine2.IsEmpty then begin
                     PurchLine2.CalcSums(
-                      "Line Amount", "Inv. Discount Amount", Amount, "Amount Including VAT", "Quantity (Base)", "VAT Base Amount");
+                      "Line Amount", "Inv. Discount Amount", Amount, "Amount Including VAT", "Quantity (Base)", "VAT Difference", "VAT Base Amount");
                     TotalLineAmount := PurchLine2."Line Amount";
                     TotalInvDiscAmount := PurchLine2."Inv. Discount Amount";
                     TotalAmount := PurchLine2.Amount;
                     TotalAmountInclVAT := PurchLine2."Amount Including VAT";
+                    TotalVATDifference := PurchLine2."VAT Difference";
                     TotalQuantityBase := PurchLine2."Quantity (Base)";
                     OnAfterUpdateTotalAmounts(Rec, PurchLine2, TotalAmount, TotalAmountInclVAT, TotalLineAmount, TotalInvDiscAmount);
                     TotalVATBaseAmount := PurchLine2."VAT Base Amount";
@@ -4725,7 +4728,7 @@
                               Round(
                                 (TotalAmount + Amount) * (1 - PurchHeader."VAT Base Discount %" / 100) * "VAT %" / 100,
                                 Currency."Amount Rounding Precision", Currency.VATRoundingDirection) -
-                              TotalAmountInclVAT;
+                              TotalAmountInclVAT + TotalVATDifference;
                         end;
                     "VAT Calculation Type"::"Full VAT":
                         begin
@@ -5826,8 +5829,9 @@
                     if not ZeroAmountLine(QtyType) then begin
                         if (Type = Type::"G/L Account") and not "Prepayment Line" then
                             RoundingLineInserted := (("No." = GetVPGInvRoundAcc(PurchHeader)) and "System-Created Entry") or RoundingLineInserted;
-                        if ("VAT Calculation Type" = "VAT Calculation Type"::"Sales Tax") or
-                          (not UseVATForReverseCharge and ("VAT Calculation Type" = "VAT Calculation Type"::"Reverse Charge VAT")) then
+                        if "VAT Calculation Type" in
+                           ["VAT Calculation Type"::"Reverse Charge VAT", "VAT Calculation Type"::"Sales Tax"]
+                        then
                             "VAT %" := 0;
                         if not VATAmountLine.Get(
                              "VAT Identifier", "VAT Calculation Type", "Tax Group Code", "Use Tax", "Line Amount" >= 0)
@@ -7205,7 +7209,6 @@
     [Scope('OnPrem')]
     procedure SetUseVATForReverseCharge()
     begin
-        UseVATForReverseCharge := true;
     end;
 
     procedure GetDeferralAmount() DeferralAmount: Decimal

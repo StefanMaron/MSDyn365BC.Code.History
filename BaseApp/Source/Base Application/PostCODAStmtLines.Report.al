@@ -28,6 +28,7 @@ report 2000059 "Post CODA Stmt. Lines"
                 trigger OnPostDataItem()
                 begin
                     if PrintReport then begin
+                        Commit();
                         ManualApplication.SetSelection(false);
                         ManualApplication.SetTableView(CodBankStmt);
                         ManualApplication.RunModal

@@ -2171,6 +2171,80 @@
         Assert.AreEqual(Customer."VAT Registration No.", IntrastatJnlLine.GetPartnerID, '');
     end;
 
+    [Test]
+    procedure BatchReportedIsCheckedOnModify()
+    var
+        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 402692] Intrastat journal batch "System 19 reported" should be False on Modify the receipt journal line
+
+        // Positive
+        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate());
+        LibraryERM.CreateIntrastatJnlLine(IntrastatJnlLine, IntrastatJnlBatch."Journal Template Name", IntrastatJnlBatch.Name);
+        IntrastatJnlLine.Modify(true);
+
+        // Negative
+        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate());
+        IntrastatJnlBatch.Validate("System 19 reported", true);
+        IntrastatJnlBatch.Modify(true);
+        LibraryERM.CreateIntrastatJnlLine(IntrastatJnlLine, IntrastatJnlBatch."Journal Template Name", IntrastatJnlBatch.Name);
+        asserterror IntrastatJnlLine.Modify(true);
+        Assert.ExpectedErrorCode('TestField');
+        Assert.ExpectedError(IntrastatJnlBatch.FieldName("System 19 reported"));
+    end;
+
+    [Test]
+    procedure BatchReportedIsCheckedOnRename()
+    var
+        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 402692] Intrastat journal batch "System 19 reported" should be False on Rename the receipt journal line
+
+        // Positive
+        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate());
+        LibraryERM.CreateIntrastatJnlLine(IntrastatJnlLine, IntrastatJnlBatch."Journal Template Name", IntrastatJnlBatch.Name);
+        IntrastatJnlLine.Rename(
+          IntrastatJnlLine."Journal Template Name", IntrastatJnlLine."Journal Batch Name", IntrastatJnlLine."Line No." + 10000);
+
+        // Negative
+        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate());
+        IntrastatJnlBatch.Validate("System 19 reported", true);
+        IntrastatJnlBatch.Modify(true);
+        LibraryERM.CreateIntrastatJnlLine(IntrastatJnlLine, IntrastatJnlBatch."Journal Template Name", IntrastatJnlBatch.Name);
+        asserterror IntrastatJnlLine.Rename(
+            IntrastatJnlLine."Journal Template Name", IntrastatJnlLine."Journal Batch Name", IntrastatJnlLine."Line No." + 10000);
+        Assert.ExpectedErrorCode('TestField');
+        Assert.ExpectedError(IntrastatJnlBatch.FieldName("System 19 reported"));
+    end;
+
+    [Test]
+    procedure BatchReportedIsCheckedOnDelete()
+    var
+        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 402692] Intrastat journal batch "System 19 reported" should be False on Delete the receipt journal line
+
+        // Positive
+        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate());
+        LibraryERM.CreateIntrastatJnlLine(IntrastatJnlLine, IntrastatJnlBatch."Journal Template Name", IntrastatJnlBatch.Name);
+        IntrastatJnlLine.Delete(true);
+
+        // Negative
+        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate());
+        IntrastatJnlBatch.Validate("System 19 reported", true);
+        IntrastatJnlBatch.Modify(true);
+        LibraryERM.CreateIntrastatJnlLine(IntrastatJnlLine, IntrastatJnlBatch."Journal Template Name", IntrastatJnlBatch.Name);
+        asserterror IntrastatJnlLine.Delete(true);
+        Assert.ExpectedErrorCode('TestField');
+        Assert.ExpectedError(IntrastatJnlBatch.FieldName("System 19 reported"));
+    end;
+
     local procedure Initialize()
     var
         IntrastatSetup: Record "Intrastat Setup";
