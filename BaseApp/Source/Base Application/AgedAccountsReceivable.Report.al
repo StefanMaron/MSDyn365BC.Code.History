@@ -757,7 +757,7 @@ report 120 "Aged Accounts Receivable"
         PeriodEndDate: array[5] of Date;
         HeaderText: array[5] of Text[30];
         Text000: Label 'Not Due';
-        BeforeTok: Label 'Before';
+        AfterTok: Label 'After';
         CurrencyCode: Code[10];
         Text002: Label 'days';
         Text004: Label 'Aged by %1';
@@ -837,9 +837,9 @@ report 120 "Aged Accounts Receivable"
             i := i + 1;
         end;
         if HeadingType = HeadingType::"Date Interval" then
-            HeaderText[i] := StrSubstNo('%1 %2', BeforeTok, PeriodStartDate[i - 1])
+            HeaderText[i] := StrSubstNo('%1 %2', AfterTok, PeriodStartDate[i - 1])
         else
-            HeaderText[i] := StrSubstNo('%1 %2 %3', BeforeTok, EndingDate - PeriodStartDate[i - 1] + 1, Text002);
+            HeaderText[i] := StrSubstNo('%1 %2 %3', AfterTok, EndingDate - PeriodStartDate[i - 1] + 1, Text002);
     end;
 
     local procedure InsertTemp(var CustLedgEntry: Record "Cust. Ledger Entry")

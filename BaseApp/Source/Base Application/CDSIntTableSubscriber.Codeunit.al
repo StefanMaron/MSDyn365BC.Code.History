@@ -439,7 +439,8 @@ codeunit 7205 "CDS Int. Table. Subscriber"
             if not OptionSetMetadataDictionary.ContainsKey(CRMOptionMapping."Option Value") then
                 CDSIntegrationMgt.InsertOptionSetMetadataWithOptionValue(EntityName, FieldName, OptionLabel, CRMOptionMapping."Option Value")
             else
-                CDSIntegrationMgt.UpdateOptionSetMetadata(EntityName, FieldName, CRMOptionMapping."Option Value", OptionLabel);
+                if OptionSetMetadataDictionary.Get(CRMOptionMapping."Option Value") <> OptionLabel then
+                    CDSIntegrationMgt.UpdateOptionSetMetadata(EntityName, FieldName, CRMOptionMapping."Option Value", OptionLabel);
         end;
     end;
 
@@ -470,6 +471,107 @@ codeunit 7205 "CDS Int. Table. Subscriber"
             UpdateOrInsertDocumentOptionSet(CRMOptionMapping, RecRef, DocumentType::Order, OptionLabel);
             UpdateOrInsertDocumentOptionSet(CRMOptionMapping, RecRef, DocumentType::Quote, OptionLabel);
             UpdateOrInsertDocumentOptionSet(CRMOptionMapping, RecRef, DocumentType::Invoice, OptionLabel);
+        end;
+    end;
+
+    procedure SyncDocumentOptionSets()
+    var
+        CRMOptionMapping: Record "CRM Option Mapping";
+        OrderPaymentTermsOptionSetMetadataDictionary: Dictionary of [Integer, Text];
+        OrderFreightTermsOptionSetMetadataDictionary: Dictionary of [Integer, Text];
+        OrderShippingMethodOptionSetMetadataDictionary: Dictionary of [Integer, Text];
+        QuotePaymentTermsOptionSetMetadataDictionary: Dictionary of [Integer, Text];
+        QuoteFreightTermsOptionSetMetadataDictionary: Dictionary of [Integer, Text];
+        QuoteShippingMethodOptionSetMetadataDictionary: Dictionary of [Integer, Text];
+        InvoicePaymentTermsOptionSetMetadataDictionary: Dictionary of [Integer, Text];
+        InvoiceShippingMethodOptionSetMetadataDictionary: Dictionary of [Integer, Text];
+        OptionLabel: Text;
+        OrderEntityName: Text;
+        QuoteEntityName: Text;
+        InvoiceEntityName: Text;
+        PaymentTermsFieldName: Text;
+        FreightTermsFieldName: Text;
+        ShippingMethodFieldName: Text;
+    begin
+        if CRMOptionMapping.FindSet() then begin
+            OrderEntityName := 'salesorder';
+            QuoteEntityName := 'quote';
+            InvoiceEntityName := 'invoice';
+            PaymentTermsFieldName := 'paymenttermscode';
+            FreightTermsFieldName := 'freighttermscode';
+            ShippingMethodFieldName := 'shippingmethodcode';
+
+            OrderPaymentTermsOptionSetMetadataDictionary := CDSIntegrationMgt.GetOptionSetMetadata(OrderEntityName, PaymentTermsFieldName);
+            OrderFreightTermsOptionSetMetadataDictionary := CDSIntegrationMgt.GetOptionSetMetadata(OrderEntityName, FreightTermsFieldName);
+            OrderShippingMethodOptionSetMetadataDictionary := CDSIntegrationMgt.GetOptionSetMetadata(OrderEntityName, ShippingMethodFieldName);
+
+            QuotePaymentTermsOptionSetMetadataDictionary := CDSIntegrationMgt.GetOptionSetMetadata(QuoteEntityName, PaymentTermsFieldName);
+            QuoteFreightTermsOptionSetMetadataDictionary := CDSIntegrationMgt.GetOptionSetMetadata(QuoteEntityName, FreightTermsFieldName);
+            QuoteShippingMethodOptionSetMetadataDictionary := CDSIntegrationMgt.GetOptionSetMetadata(QuoteEntityName, ShippingMethodFieldName);
+
+            InvoicePaymentTermsOptionSetMetadataDictionary := CDSIntegrationMgt.GetOptionSetMetadata(InvoiceEntityName, PaymentTermsFieldName);
+            InvoiceShippingMethodOptionSetMetadataDictionary := CDSIntegrationMgt.GetOptionSetMetadata(InvoiceEntityName, ShippingMethodFieldName);
+
+            repeat
+                OptionLabel := CRMOptionMapping."Option Value Caption";
+                if OptionLabel <> '' then
+                    case CRMOptionMapping."Table ID" of
+                        Database::"Payment Terms":
+                            begin
+                                if not OrderPaymentTermsOptionSetMetadataDictionary.ContainsKey(CRMOptionMapping."Option Value") then
+                                    CDSIntegrationMgt.InsertOptionSetMetadataWithOptionValue(OrderEntityName, PaymentTermsFieldName, OptionLabel, CRMOptionMapping."Option Value")
+                                else
+                                    if OrderPaymentTermsOptionSetMetadataDictionary.Get(CRMOptionMapping."Option Value") <> OptionLabel then
+                                        CDSIntegrationMgt.UpdateOptionSetMetadata(OrderEntityName, PaymentTermsFieldName, CRMOptionMapping."Option Value", OptionLabel);
+
+                                if not QuotePaymentTermsOptionSetMetadataDictionary.ContainsKey(CRMOptionMapping."Option Value") then
+                                    CDSIntegrationMgt.InsertOptionSetMetadataWithOptionValue(QuoteEntityName, PaymentTermsFieldName, OptionLabel, CRMOptionMapping."Option Value")
+                                else
+                                    if QuotePaymentTermsOptionSetMetadataDictionary.Get(CRMOptionMapping."Option Value") <> OptionLabel then
+                                        CDSIntegrationMgt.UpdateOptionSetMetadata(QuoteEntityName, PaymentTermsFieldName, CRMOptionMapping."Option Value", OptionLabel);
+
+                                if not InvoicePaymentTermsOptionSetMetadataDictionary.ContainsKey(CRMOptionMapping."Option Value") then
+                                    CDSIntegrationMgt.InsertOptionSetMetadataWithOptionValue(InvoiceEntityName, PaymentTermsFieldName, OptionLabel, CRMOptionMapping."Option Value")
+                                else
+                                    if InvoicePaymentTermsOptionSetMetadataDictionary.Get(CRMOptionMapping."Option Value") <> OptionLabel then
+                                        CDSIntegrationMgt.UpdateOptionSetMetadata(InvoiceEntityName, PaymentTermsFieldName, CRMOptionMapping."Option Value", OptionLabel);
+                            end;
+                        Database::"Shipment Method":
+                            begin
+                                if not OrderFreightTermsOptionSetMetadataDictionary.ContainsKey(CRMOptionMapping."Option Value") then
+                                    CDSIntegrationMgt.InsertOptionSetMetadataWithOptionValue(OrderEntityName, FreightTermsFieldName, OptionLabel, CRMOptionMapping."Option Value")
+                                else
+                                    if OrderFreightTermsOptionSetMetadataDictionary.Get(CRMOptionMapping."Option Value") <> OptionLabel then
+                                        CDSIntegrationMgt.UpdateOptionSetMetadata(OrderEntityName, FreightTermsFieldName, CRMOptionMapping."Option Value", OptionLabel);
+
+                                if not QuoteFreightTermsOptionSetMetadataDictionary.ContainsKey(CRMOptionMapping."Option Value") then
+                                    CDSIntegrationMgt.InsertOptionSetMetadataWithOptionValue(QuoteEntityName, FreightTermsFieldName, OptionLabel, CRMOptionMapping."Option Value")
+                                else
+                                    if QuoteFreightTermsOptionSetMetadataDictionary.Get(CRMOptionMapping."Option Value") <> OptionLabel then
+                                        CDSIntegrationMgt.UpdateOptionSetMetadata(QuoteEntityName, FreightTermsFieldName, CRMOptionMapping."Option Value", OptionLabel);
+                            end;
+                        Database::"Shipping Agent":
+                            begin
+                                if not OrderShippingMethodOptionSetMetadataDictionary.ContainsKey(CRMOptionMapping."Option Value") then
+                                    CDSIntegrationMgt.InsertOptionSetMetadataWithOptionValue(OrderEntityName, ShippingMethodFieldName, OptionLabel, CRMOptionMapping."Option Value")
+                                else
+                                    if OrderShippingMethodOptionSetMetadataDictionary.Get(CRMOptionMapping."Option Value") <> OptionLabel then
+                                        CDSIntegrationMgt.UpdateOptionSetMetadata(OrderEntityName, ShippingMethodFieldName, CRMOptionMapping."Option Value", OptionLabel);
+
+                                if not QuoteShippingMethodOptionSetMetadataDictionary.ContainsKey(CRMOptionMapping."Option Value") then
+                                    CDSIntegrationMgt.InsertOptionSetMetadataWithOptionValue(QuoteEntityName, ShippingMethodFieldName, OptionLabel, CRMOptionMapping."Option Value")
+                                else
+                                    if QuoteShippingMethodOptionSetMetadataDictionary.Get(CRMOptionMapping."Option Value") <> OptionLabel then
+                                        CDSIntegrationMgt.UpdateOptionSetMetadata(QuoteEntityName, ShippingMethodFieldName, CRMOptionMapping."Option Value", OptionLabel);
+
+                                if not InvoiceShippingMethodOptionSetMetadataDictionary.ContainsKey(CRMOptionMapping."Option Value") then
+                                    CDSIntegrationMgt.InsertOptionSetMetadataWithOptionValue(InvoiceEntityName, ShippingMethodFieldName, OptionLabel, CRMOptionMapping."Option Value")
+                                else
+                                    if InvoiceShippingMethodOptionSetMetadataDictionary.Get(CRMOptionMapping."Option Value") <> OptionLabel then
+                                        CDSIntegrationMgt.UpdateOptionSetMetadata(InvoiceEntityName, ShippingMethodFieldName, CRMOptionMapping."Option Value", OptionLabel);
+                            end;
+                    end;
+            until CRMOptionMapping.Next() = 0;
         end;
     end;
 

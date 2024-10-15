@@ -517,7 +517,7 @@ report 7391 "Whse. Get Bin Content"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterInitializeItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; var ItemJournalTemplate: Record "Item Journal Template"; var ItemJournalBatch: Record "Item Journal Batch")
     begin
     end;
@@ -537,7 +537,7 @@ report 7391 "Whse. Get Bin Content"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBinContentOnAfterGetRecordOnDestinationTypeElseCase(QtyToEmptyBase: Decimal; var BinContent: Record "Bin Content")
     begin
     end;
@@ -547,7 +547,7 @@ report 7391 "Whse. Get Bin Content"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeGetItemTracking(var BinContent: Record "Bin Content"; var IsHandled: Boolean)
     begin
     end;
