@@ -253,9 +253,9 @@ codeunit 142035 "UT PAG INTRASTAT"
         CountryRegion.Modify();
         IntrastatJnlLine."Country/Region Code" := CountryRegion.Code;
         IntrastatJnlLine."Tariff No." := LibraryUtility.CreateCodeRecord(DATABASE::"Tariff Number");
-        TransactionType.FindFirst;
+        TransactionType.FindFirst();
         IntrastatJnlLine."Transaction Type" := TransactionType.Code;
-        TransportMethod.FindFirst;
+        TransportMethod.FindFirst();
         IntrastatJnlLine."Transport Method" := TransportMethod.Code;
         IntrastatJnlLine."Total Weight" := 1;
         IntrastatJnlLine."Area" := LibraryUtility.CreateCodeRecord(DATABASE::"Tariff Number");

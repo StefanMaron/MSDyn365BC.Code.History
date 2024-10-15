@@ -320,7 +320,7 @@ codeunit 134998 "Reminder - Add. Fee Setup"
         end;
 
         AdditionalFeeSetup.SetRange("Reminder Terms Code", AdditionalFeeSetup1."Reminder Terms Code");
-        AdditionalFeeSetup.FindFirst;
+        AdditionalFeeSetup.FindFirst();
 
         // [WHEN] Add. Fee is calculated
         AddFeeAmountActual := CalculateAddFeeFromSetupUT(AdditionalFeeSetup, RemainingAmount);
@@ -706,7 +706,7 @@ codeunit 134998 "Reminder - Add. Fee Setup"
         end;
 
         AdditionalFeeSetup.SetRange("Reminder Terms Code", AdditionalFeeSetup1."Reminder Terms Code");
-        AdditionalFeeSetup.FindFirst;
+        AdditionalFeeSetup.FindFirst();
 
         // [WHEN] Add. Fee is calculated
         AddFeeAmountActual := CalculateAddFeeFromSetupUT(AdditionalFeeSetup, RemainingAmount);

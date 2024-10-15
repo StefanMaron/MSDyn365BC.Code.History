@@ -24,7 +24,7 @@ codeunit 142500 "DACH REP Lab Tests"
         VATStatementLine: Record "VAT Statement Line";
     begin
         // [SCENARIO 379359] Columns "Type" and "Amount Type" in report "G/L - VAT Reconciliation" should contain translated values
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Statement Line with type = "Account Totaling" and "Amount Type" = Base
         CreateVATStatementLine(
@@ -42,7 +42,7 @@ codeunit 142500 "DACH REP Lab Tests"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateVATStatementLine(var VATStatementLine: Record "VAT Statement Line"; Type: Enum "VAT Statement Line Type"; AmountType: Enum "VAT Statement Line Amount Type")
@@ -53,7 +53,7 @@ codeunit 142500 "DACH REP Lab Tests"
         LibraryERM.CreateVATStatementTemplate(VATStatementTemplate);
         LibraryERM.CreateVATStatementName(VATStatementName, VATStatementTemplate.Name);
         LibraryERM.CreateVATStatementLine(VATStatementLine, VATStatementTemplate.Name, VATStatementName.Name);
-        VATStatementLine."Account Totaling" := LibraryERM.CreateGLAccountNo;
+        VATStatementLine."Account Totaling" := LibraryERM.CreateGLAccountNo();
         VATStatementLine.Type := Type;
         VATStatementLine."Amount Type" := AmountType;
         VATStatementLine.Modify();
@@ -65,7 +65,7 @@ codeunit 142500 "DACH REP Lab Tests"
     begin
         VATStatementLine.SetRange("Statement Name", VATStatementLine."Statement Name");
         GlVatReconciliation.SetTableView(VATStatementLine);
-        GlVatReconciliation.Run;  // Invokes GLVATReconciliationReportHandler, AddCurrencyVATAdvNotAccProofReportHandler and GLVATReconciliationSelectionReportHandler.
+        GlVatReconciliation.Run();  // Invokes GLVATReconciliationReportHandler, AddCurrencyVATAdvNotAccProofReportHandler and GLVATReconciliationSelectionReportHandler.
     end;
 
     [RequestPageHandler]

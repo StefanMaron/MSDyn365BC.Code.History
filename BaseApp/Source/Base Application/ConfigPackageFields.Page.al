@@ -209,7 +209,7 @@ page 8624 "Config. Package Fields"
                         ConfigPackageField.SetRange("Package Code", "Package Code");
                         ConfigPackageField.SetRange("Table ID", "Table ID");
                         ConfigPackageField.SetFilter("Processing Order", '..%1', "Processing Order" - 1);
-                        if ConfigPackageField.FindLast then begin
+                        if ConfigPackageField.FindLast() then begin
                             ExchangeLines(Rec, ConfigPackageField);
                             CurrPage.Update(false);
                         end;
@@ -234,7 +234,7 @@ page 8624 "Config. Package Fields"
                         ConfigPackageField.SetRange("Package Code", "Package Code");
                         ConfigPackageField.SetRange("Table ID", "Table ID");
                         ConfigPackageField.SetFilter("Processing Order", '%1..', "Processing Order" + 1);
-                        if ConfigPackageField.FindFirst then begin
+                        if ConfigPackageField.FindFirst() then begin
                             ExchangeLines(Rec, ConfigPackageField);
                             CurrPage.Update(false);
                         end;
@@ -300,7 +300,7 @@ page 8624 "Config. Package Fields"
         exit(ConfigPackageTable."Table Caption");
     end;
 
-    local procedure ExchangeLines(var ConfigPackageField1: Record "Config. Package Field"; var ConfigPackageField2: Record "Config. Package Field")
+    protected procedure ExchangeLines(var ConfigPackageField1: Record "Config. Package Field"; var ConfigPackageField2: Record "Config. Package Field")
     var
         ProcessingOrder: Integer;
     begin

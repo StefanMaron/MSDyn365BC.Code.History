@@ -14,69 +14,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Accounting Period Search Test - NamedType WrongPeriodDateErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 866365624 - NamedType 3686013834" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[bookingscontact@email.com]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Booking Customer Sync Test - NamedType bookingsContactEmailTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 866365624 - NamedType 2373037332" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[bookingsupdatefromnav@email.com]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Booking Customer Sync Test - NamedType bookingsUpdateFromNavEmailTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 866365624 - NamedType 1068770790" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[navcompany@email.com]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Booking Customer Sync Test - NamedType navCompanyEmailTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 866365624 - NamedType 2218899555" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[navcustomer@email.com]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Booking Customer Sync Test - NamedType navCustomerEmailTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 866365624 - NamedType 1604442396" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[navupdatefrombookings@email.com]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Booking Customer Sync Test - NamedType navUpdateFromBookingsEmailTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 866365624 - NamedType 1331936148" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[updatebookingsfromnav@email.com]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Booking Customer Sync Test - NamedType updateBookingsFromNavEmailTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 866365624 - NamedType 217357444" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[updatenavcustomerfrombookings@email.com]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Booking Customer Sync Test - NamedType updateNavFromBookingsEmailTxt)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 3312798875 - NamedType 1887292331" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[This posting date will cause an overdue payment.]]></Val>
@@ -203,6 +140,51 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Discount Setup Notifications - NamedType MissingDiscountAccountMsg)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1257424307 - NamedType 3796863197" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Document Date must have a value]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Doc. Backgr. Error Handling - NamedType EmptyDocumentDateErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1257424307 - NamedType 4182394938" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Journal Template Name must have a value]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Doc. Backgr. Error Handling - NamedType EmptyJournalTemplNameErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1257424307 - NamedType 1228440678" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Unit of Measure Code must have a value]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Doc. Backgr. Error Handling - NamedType EmptyUnitOfMeasureCodeErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1257424307 - NamedType 270587865" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The dimensions used in %1 %2 are invalid]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Document Type, %2 = Document No, %3 = Error text]D;]A;(LookupHint=Codeunit Doc. Backgr. Error Handling - NamedType InvalidDimensionsErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1257424307 - NamedType 1327624653" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Return Qty. to Receive must be equal to '0']]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Doc. Backgr. Error Handling - NamedType ReturnQtyToReceiveErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3004069584 - NamedType 2711826255" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Applied %1 calculations.]]></Val>
@@ -257,6 +239,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM - XBRL Taxonomy Pages - NamedType SingleLineExpectedErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2859947066 - NamedType 1058771820" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[ACC.SCHED.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[Part of the name for the confguration package, stands for Account Schedule]D;]A;{MaxLength=10}]D;]A;(LookupHint=Codeunit ERM Account Schedule - NamedType AccSchedPrefixTxt)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2859947066 - NamedType 685312924" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Unexpected Account Schedule amount in Account Schedule Line %1, Column Layout  %2]]></Val>
@@ -264,6 +255,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Account Schedule - NamedType AccSchOverviewAmountsErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2859947066 - NamedType 2126343653" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Account schedule %1 will be overwritten.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 - name of the account schedule.]D;]A;(LookupHint=Codeunit ERM Account Schedule - NamedType AlreadyExistsErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2859947066 - NamedType 2715861462" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -318,6 +318,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Account Schedule - NamedType ClearDimTotalingConfirmTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2859947066 - NamedType 1180786219" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Column layout %1 will be overwritten.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 - name of the column layout.]D;]A;(LookupHint=Codeunit ERM Account Schedule - NamedType ColLayoutAlreadyExistsErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2859947066 - NamedType 418649963" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -525,6 +534,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Account Schedule - NamedType NonexistentErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2859947066 - NamedType 4281092735" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 tables are processed.\%2 errors found.\%3 records inserted.\%4 records modified.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = number of tables processed, %2 = number of errors, %3 = number of records inserted, %4 = number of records modified]D;]A;(LookupHint=Codeunit ERM Account Schedule - NamedType NoTablesAndErrorsMsg)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2859947066 - NamedType 3374810639" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -2293,7 +2311,7 @@
   </Item>
   <Item ItemId=";Codeunit 99008375 - NamedType 3965687225" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Amount must be negative in Gen. Journal Line Journal Template Name='',Journal Batch Name='',Line No.='0'.]]></Val>
+      <Val><![CDATA[Amount must be negative]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -2442,6 +2460,123 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Excel Reports - NamedType VATSpecExistsErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3768269560 - NamedType 1947391627" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 must be %2 in \\%3 %4=%5.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Exch. Rate Adjmt. Apply - NamedType AmountErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3768269560 - NamedType 3235670077" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[There is nothing to adjust.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Exch. Rate Adjmt. Apply - NamedType NothingToAdjustTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2436506434 - NamedType 1947391627" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 field must be %2 in %3 table for %4 field %5.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Exch. Rate Adjmt. Bank - NamedType AmountErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2436506434 - NamedType 873896575" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[One or more currency exchange rates have been adjusted.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Exch. Rate Adjmt. Bank - NamedType ExchRateWasAdjustedTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2436506434 - NamedType 1997925594" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 must be %2 in %3.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Exch. Rate Adjmt. Bank - NamedType GLEntryAmountErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2646364736 - NamedType 2867664679" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 field must be %2 in %3 table for %4 field %5.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Exch. Rate Adjmt. Customer - NamedType AmountMismatchErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2646364736 - NamedType 873896575" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[One or more currency exchange rates have been adjusted.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Exch. Rate Adjmt. Customer - NamedType ExchRateWasAdjustedTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2646364736 - NamedType 2975884559" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You cannot reverse %1 No. %2 because the entry has an associated Realized Gain/Loss entry.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Exch. Rate Adjmt. Customer - NamedType ReversalErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3692207144 - NamedType 2867664679" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 field must be %2 in %3 table for %4 field %5.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Exch. Rate Adjmt. Vendor - NamedType AmountMismatchErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3692207144 - NamedType 873896575" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[One or more currency exchange rates have been adjusted.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Exch. Rate Adjmt. Vendor - NamedType ExchRateWasAdjustedTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1542747169 - NamedType 952304833" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Exchange Rate Adjmt. of %1 %2]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Exch. Rate Adjustment - NamedType ExchangeRateAdjmtTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1542747169 - NamedType 873896575" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[One or more currency exchange rates have been adjusted.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Exch. Rate Adjustment - NamedType ExchRateWasAdjustedTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1542747169 - NamedType 3964207736" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Expect no adjustment for entries before %1]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Exch. Rate Adjustment - NamedType ExpectNoAdjustmentErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3511384618 - NamedType 2701301548" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -3360,6 +3495,33 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM MIR Test - NamedType ValueMustEqualMsg)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2480070618 - NamedType 3827127211" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Blocked must be equal to 'No']]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Multiple Posting Groups - NamedType BlockedTestFieldErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2480070618 - NamedType 3375722853" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Gen. Prod. Posting Group must have a value in G/L Account: No.=%1. It cannot be zero or empty.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Multiple Posting Groups - NamedType GenProdPostingGroupTestFieldErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2480070618 - NamedType 1084747160" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[TestField]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Multiple Posting Groups - NamedType TestFieldCodeErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2516795050 - NamedType 90657030" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -4444,7 +4606,7 @@
   </Item>
   <Item ItemId=";Codeunit 1951354433 - NamedType 3008900764" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Amount must be negative in %1 %2='',%3='',%4='0'.]]></Val>
+      <Val><![CDATA[Amount must be negative]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -9257,6 +9419,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Purch. Batch Document Posting - NamedType BatchCompletedMsg)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2145458787 - NamedType 1740051646" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[One or more document lines with a value in the No. field do not have a quantity specified. \Do you want to continue?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Purch. Batch Document Posting - NamedType ConfirmZeroQuantityPostingMsg)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2145458787 - NamedType 777386507" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Do you want to post the %1?]]></Val>
@@ -9401,6 +9572,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Purch. Correct Cr. Memo - NamedType PostPeriodClosedErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 523317442 - NamedType 3699968903" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Check purchase document line.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Purch. Document Posting Errors - NamedType CheckPurchLineMsg)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 523317442 - NamedType 1939872490" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Select a Dimension Value Code for the Dimension Code %1 for Vendor %2.]]></Val>
@@ -9455,6 +9635,15 @@
       <Cmt Name="Dev"><![CDATA[%1 = Return Shipment No.]D;]A;(LookupHint=Codeunit Purch. Document Posting Errors - NamedType ReturnShptHeaderConflictErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 523317442 - NamedType 1781772806" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Setup is blocked in %1 for %2 %3 and %4 %5.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 - General/VAT Posting Setup, %2 %3 %4 %5 - posting groups.]D;]A;(LookupHint=Codeunit Purch. Document Posting Errors - NamedType SetupBlockedErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1217376489 - NamedType 33787277" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The change may affect the exchange rate that is used for price calculation on the purchase lines.]]></Val>
@@ -9462,6 +9651,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Purchase Documents - NamedType AffectExchangeRateMsg)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1217376489 - NamedType 1740051646" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[One or more document lines with a value in the No. field do not have a quantity specified. \Do you want to continue?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Purchase Documents - NamedType ConfirmZeroQuantityPostingMsg)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1217376489 - NamedType 3084717063" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -9896,6 +10094,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Sales Batch Document Posting - NamedType BatchCompletedMsg)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1475444133 - NamedType 1740051646" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[One or more document lines with a value in the No. field do not have a quantity specified. \Do you want to continue?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Sales Batch Document Posting - NamedType ConfirmZeroQuantityPostingMsg)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1475444133 - NamedType 777386507" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Do you want to post the %1?]]></Val>
@@ -10049,6 +10256,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Sales Correct Cr. Memo - NamedType PostPeriodClosedErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3682866832 - NamedType 2539667963" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Check sales document line.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Sales Document Posting Errors - NamedType CheckSalesLineMsg)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3682866832 - NamedType 1939872490" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Select a Dimension Value Code for the Dimension Code %1 for Customer %2.]]></Val>
@@ -10101,6 +10317,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[%1 = Shipping No.]D;]A;(LookupHint=Codeunit Sales Document Posting Errors - NamedType SalesShptHeaderConflictErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3682866832 - NamedType 1781772806" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Setup is blocked in %1 for %2 %3 and %4 %5.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 - General/VAT Posting Setup, %2 %3 %4 %5 - posting groups.]D;]A;(LookupHint=Codeunit Sales Document Posting Errors - NamedType SetupBlockedErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1418697282 - NamedType 529860193" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -13406,6 +13631,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test RED Setup Gen. Jnl. - NamedType DecimalPlacesInDeferralPctErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 518006362 - NamedType 3625337335" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[is not within the range of posting dates for deferrals for your company]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test RED Setup Gen. Jnl. - NamedType DeferralsPostingDateOutOfRangeErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 518006362 - NamedType 3869243324" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[When %1 is selected for]]></Val>
@@ -13422,6 +13656,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test RED Setup Gen. Jnl. - NamedType PostedDeferralHeaderNumberErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 518006362 - NamedType 4286061625" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The date in the Allow Deferral Posting From field must not be after the date in the Allow Deferral Posting To field.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test RED Setup Gen. Jnl. - NamedType WrongAllowDeferralPostingDatesErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3359274847 - NamedType 2667088805" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

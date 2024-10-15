@@ -339,7 +339,7 @@ codeunit 138931 "O365 Brand Color Tests"
     begin
         O365BrandColor.DeleteAll();
         O365BrandColor.Init();
-        O365BrandColor.Code := LibraryUtility.GenerateGUID;
+        O365BrandColor.Code := LibraryUtility.GenerateGUID();
         O365BrandColor."Color Value" := ColorValue;
         O365BrandColor.Insert();
     end;

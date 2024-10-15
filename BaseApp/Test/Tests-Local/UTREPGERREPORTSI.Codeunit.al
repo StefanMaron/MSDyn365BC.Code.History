@@ -27,7 +27,7 @@ codeunit 142070 "UT REP GERREPORTS - I"
     begin
         // Purpose of the test is to validate Method FormatNoText for Report 1401 - Check.
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise: Function FormatNoText with Zero Value and Currency Code as blank.
         Check.FormatNoText(NoText, 0, '');
@@ -47,7 +47,7 @@ codeunit 142070 "UT REP GERREPORTS - I"
     begin
         // Purpose of the test is to validate Method FormatNoText for Report 1401 - Check.
         // Setup.
-        Initialize;
+        Initialize();
         Amount := LibraryRandom.RandDecInDecimalRange(1, 9, 2);  // Decimal range - 1 to 9.
 
         // Exercise: Function FormatNoText with Amount Value and Currency Code as blank.
@@ -69,7 +69,7 @@ codeunit 142070 "UT REP GERREPORTS - I"
     begin
         // Purpose of the test is to validate Method FormatNoText for Report 1401 - Check.
         // Setup.
-        Initialize;
+        Initialize();
         CurrencyCode := LibraryUTUtility.GetNewCode10;
         Amount := LibraryRandom.RandDecInDecimalRange(1, 9, 2);  // Decimal range - 1 to 9.
 
@@ -92,7 +92,7 @@ codeunit 142070 "UT REP GERREPORTS - I"
     begin
         // Purpose of the test is to validate the OnPreReport trigger of the GL Total Balance Report for Header Text and Period End Balance.
         // Setup.
-        Initialize;
+        Initialize();
         CreateGLAccount(GLEntry, GLAccount."Account Type"::Heading);
         GLSetup.Get();
 
@@ -117,7 +117,7 @@ codeunit 142070 "UT REP GERREPORTS - I"
     begin
         // Purpose of the test is to validate the OnPreReport trigger of the GL Total Balance Report for non existing Accounting Period error.
         // Setup.
-        Initialize;
+        Initialize();
         CreateGLAccount(GLEntry, GLAccount."Account Type"::Heading);
         GLAccount.Get(GLEntry."G/L Account No.");
         GLAccount."Date Filter" := SelectStartingDateAccountingPeriod;
@@ -141,7 +141,7 @@ codeunit 142070 "UT REP GERREPORTS - I"
     begin
         // Purpose of the test is to validate the OnAfterGetRecord - G/L Account trigger of the GL Total Balance Report for negative Net Change in GL Entry.
         // Setup.
-        Initialize;
+        Initialize();
         CreateGLAccount(GLEntry, GLAccount."Account Type"::Posting);
         GLEntry.Amount := -1;
         GLEntry.Modify();
@@ -165,7 +165,7 @@ codeunit 142070 "UT REP GERREPORTS - I"
     begin
         // Purpose of the test is to validate the OnAfterGetRecord - G/L Account trigger of the GL Total Balance Report for positive Net Change and End Balance Type Debit in GL Entry.
         // Setup.
-        Initialize;
+        Initialize();
         CreateGLAccount(GLEntry, GLAccount."Account Type"::Heading);
 
         // Exercise.
@@ -187,7 +187,7 @@ codeunit 142070 "UT REP GERREPORTS - I"
     begin
         // Purpose of the test is to validate the OnAfterGetRecord - G/L Account trigger of the GL Total Balance Report for positive Net Change in GL Entry.
         // Setup.
-        Initialize;
+        Initialize();
         CreateGLAccount(GLEntry, GLAccount."Account Type"::"Begin-Total");
         GLEntry."Debit Amount" := 1;
         GLEntry.Modify();
@@ -212,7 +212,7 @@ codeunit 142070 "UT REP GERREPORTS - I"
         // Purpose of the test is to validate VendorLedgerEntry - OnAfterGetRecord of Report ID - 11006 Vendor Detailed Aging.
 
         // Setup: Run report Vendor Detailed Aging for OverDueMonths for Vendor Ledger Entry, whose month in Due Date is less than Posting Date month and day are same in both dates.
-        Initialize;
+        Initialize();
         VendorLedgerEntryDueDate := CalcDate('<' + Format(-LibraryRandom.RandInt(5)) + 'M>', WorkDate);  // Vendor Ledger Entry, month in Due Date is less than Posting Date month and day are same in both dates.
         OverDueMonths := (Date2DMY(WorkDate, 3) - Date2DMY(VendorLedgerEntryDueDate, 3)) * 12 + Date2DMY(WorkDate, 2) - Date2DMY(VendorLedgerEntryDueDate, 2);  // Calculation based on function OverDueMonths of Report Vendor Detailed Aging.
         OverDueMonthsVendorLedgerEntry(VendorLedgerEntryDueDate, OverDueMonths);
@@ -230,7 +230,7 @@ codeunit 142070 "UT REP GERREPORTS - I"
         // Purpose of the test is to validate VendorLedgerEntry - OnAfterGetRecord of Report ID - 11006 Vendor Detailed Aging.
 
         // Setup: Run report Vendor Detailed Aging for OverDueMonths for Vendor Ledger Entry, whose day in Due Date is greater than day in Posting Date.
-        Initialize;
+        Initialize();
         VendorLedgerEntryDueDate := CalcDate('<' + Format(-LibraryRandom.RandInt(5)) + 'Y>', CalcDate('<+CM>', WorkDate)); // Vendor Ledger Entry day in Due Date is greater than day in Posting Date.
         OverDueMonths := (Date2DMY(WorkDate, 3) - Date2DMY(VendorLedgerEntryDueDate, 3)) * 12 + Date2DMY(WorkDate, 2) - Date2DMY(VendorLedgerEntryDueDate, 2);  // Calculation based on function OverDueMonths of Report Vendor Detailed Aging.
         OverDueMonthsVendorLedgerEntry(VendorLedgerEntryDueDate, OverDueMonths - 1);
@@ -261,7 +261,7 @@ codeunit 142070 "UT REP GERREPORTS - I"
     begin
         // Purpose of the test is to validate EndingDate of Report ID - 11006 Vendor Detailed Aging.
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise & verify: Run Report Vendor Detailed Aging and verify default Ending Date on Report Vendor Detailed Aging is WORKDATE in VendorDetailedAgingEndDateRequestPageHandler.
         REPORT.Run(REPORT::"Vendor Detailed Aging");  // Opens VendorDetailedAgingEndDateRequestPageHandler.
@@ -269,14 +269,14 @@ codeunit 142070 "UT REP GERREPORTS - I"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure SelectStartingDateAccountingPeriod() StartingDate: Date
     var
         AccountingPeriod: Record "Accounting Period";
     begin
-        AccountingPeriod.FindLast;
+        AccountingPeriod.FindLast();
 
         // Enqueue value for use in GLTotalBalanceWithoutAccPeriodRequestPagetHandler.
         StartingDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', AccountingPeriod."Starting Date");
@@ -297,7 +297,7 @@ codeunit 142070 "UT REP GERREPORTS - I"
     var
         GLEntry2: Record "G/L Entry";
     begin
-        GLEntry2.FindLast;
+        GLEntry2.FindLast();
         GLEntry."Entry No." := GLEntry2."Entry No." + 1;
         GLEntry."G/L Account No." := GLAccountNo;
         GLEntry."Posting Date" := WorkDate;
@@ -314,7 +314,7 @@ codeunit 142070 "UT REP GERREPORTS - I"
         Vendor."No." := LibraryUTUtility.GetNewCode;
         Vendor.Insert();
 
-        VendorLedgerEntry2.FindLast;
+        VendorLedgerEntry2.FindLast();
         VendorLedgerEntry."Entry No." := VendorLedgerEntry2."Entry No." + 1;
         VendorLedgerEntry."Due Date" := DueDate;
         VendorLedgerEntry."Vendor No." := Vendor."No.";
@@ -330,7 +330,7 @@ codeunit 142070 "UT REP GERREPORTS - I"
     begin
         GLAccount.SetRange("No.", No);
         GLTotalBalance.SetTableView(GLAccount);
-        GLTotalBalance.Run;  // Invokes GLTotalBalanceWithoutAccPeriodRequestPagetHandler and GLTotalBalanceRequestPageHandler.
+        GLTotalBalance.Run();  // Invokes GLTotalBalanceWithoutAccPeriodRequestPagetHandler and GLTotalBalanceRequestPageHandler.
     end;
 
     local procedure VerifyEndBalanceAndAccountNoType(EndBalance: Variant; EndBalanceType: Variant; AccountType: Variant; NoGLAcc: Code[20])

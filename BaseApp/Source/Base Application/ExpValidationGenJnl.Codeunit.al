@@ -10,7 +10,7 @@ codeunit 1272 "Exp. Validation Gen. Jnl."
         DeletePaymentFileErrors;
 
         GenJnlLine.CopyFilters(Rec);
-        if GenJnlLine.FindSet then
+        if GenJnlLine.FindSet() then
             repeat
                 CODEUNIT.Run(CODEUNIT::"Payment Export Gen. Jnl Check", GenJnlLine);
             until GenJnlLine.Next() = 0;

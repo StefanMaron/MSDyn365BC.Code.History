@@ -173,18 +173,6 @@ codeunit 7326 "Whse. Item Tracking FEFO"
         TempGlobalEntrySummary.SetTrackingKey();
     end;
 
-#if not CLEAN17
-    [Obsolete('Replaced by same procedure with parameter ItemTrackingSetup.', '17.0')]
-    procedure InsertEntrySummaryFEFO(LotNo: Code[50]; SerialNo: Code[50]; ExpirationDate: Date)
-    var
-        WhseItemTrackingSetup: Record "Item Tracking Setup";
-    begin
-        WhseItemTrackingSetup."Serial No." := SerialNo;
-        WhseItemTrackingSetup."Lot No." := LotNo;
-        InsertEntrySummaryFEFO(WhseItemTrackingSetup, ExpirationDate);
-    end;
-#endif
-
     procedure InsertEntrySummaryFEFO(ItemTrackingSetup: Record "Item Tracking Setup"; ExpirationDate: Date)
     var
         IsHandled: Boolean;
@@ -205,18 +193,6 @@ codeunit 7326 "Whse. Item Tracking FEFO"
         end else
             HasExpiredItems := true;
     end;
-
-#if not CLEAN17
-    [Obsolete('Replaced by same procedure with parameter ItemTrackingSetup.', '17.0')]
-    procedure EntrySummaryFEFOExists(LotNo: Code[50]; SerialNo: Code[50]): Boolean
-    var
-        WhseItemTrackingSetup: Record "Item Tracking Setup";
-    begin
-        WhseItemTrackingSetup."Serial No." := SerialNo;
-        WhseItemTrackingSetup."Lot No." := LotNo;
-        EntrySummaryFEFOExists(WhseItemTrackingSetup);
-    end;
-#endif
 
     procedure EntrySummaryFEFOExists(ItemTrackingSetup: Record "Item Tracking Setup"): Boolean
     begin

@@ -100,7 +100,7 @@ page 11003 "Data Export Record Definitions"
                         DataExportRecordDefinition.SetRange("Data Export Code", "Data Export Code");
                         DataExportRecordDefinition.SetRange("Data Exp. Rec. Type Code", "Data Exp. Rec. Type Code");
                         ExportBusinessData.SetTableView(DataExportRecordDefinition);
-                        ExportBusinessData.Run;
+                        ExportBusinessData.Run();
                         Clear(ExportBusinessData);
                     end;
                 }

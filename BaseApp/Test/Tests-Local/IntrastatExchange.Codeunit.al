@@ -49,7 +49,7 @@ codeunit 144004 "Intrastat Exchange"
     begin
         // [FEATURE] [Purchase] [Order]
         // [SCENARIO 208579] Purchase quantities in a section called "CNT+19" of Intrastat file should be rounded to nearest integer
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item with Tarriff No having "Supplementary Units" = TRUE
         CreateItemWithTariffNo(Item, CreateTariffNo(true));
@@ -96,7 +96,7 @@ codeunit 144004 "Intrastat Exchange"
     begin
         // [FEATURE] [Sales] [Order]
         // [SCENARIO 208579] Sales quantities in a section called "CNT+19" of Intrastat file should be rounded to nearest integer
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item with Tarriff No
         CreateItemWithTariffNo(Item, CreateTariffNo(true));
@@ -143,7 +143,7 @@ codeunit 144004 "Intrastat Exchange"
     begin
         // [FEATURE] [Purchase] [Order]
         // [SCENARIO 208579] Weigth of receipt in a section called "CNT+18" of Intrastat file should be rounded to nearest integer
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item with weight = "0.16" kg
         CreateIntrastatJournalTemplateAndBatch(IntrastatJnlBatch, WorkDate);
@@ -193,7 +193,7 @@ codeunit 144004 "Intrastat Exchange"
     begin
         // [FEATURE] [Sales] [Order]
         // [SCENARIO 208579] Weigth of shippment in a section called "CNT+18" of Intrastat file should be rounded to nearest integer
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item with weight = "0.16" kg
         CreateIntrastatJournalTemplateAndBatch(IntrastatJnlBatch, WorkDate);
@@ -234,7 +234,7 @@ codeunit 144004 "Intrastat Exchange"
         IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
     begin
         // [SCENARIO 208382] Run 'Intrastat - Disk Tax Auth AT' report when filter for "Intrastat Jornal Batch".Name is not specified
-        Initialize;
+        Initialize();
 
         // [GIVEN] Intrastat Journal Batch with "Journal Template Name" = "T", Name = "B"
         LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate);
@@ -255,7 +255,7 @@ codeunit 144004 "Intrastat Exchange"
         IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
     begin
         // [SCENARIO 208382] Run 'Intrastat - Disk Tax Auth AT' report when filter for "Intrastat Jornal Batch"."Journal Template Name" is not specified
-        Initialize;
+        Initialize();
 
         // [GIVEN] Intrastat Journal Batch with "Journal Template Name" = "T", Name = "B"
         LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate);
@@ -284,7 +284,7 @@ codeunit 144004 "Intrastat Exchange"
     begin
         // [FEATURE] [Shipment] [UT]
         // [SCENARIO 295289] Supplementary tag MEA+AAE++PCE exists for the Shipment lines with Tariff that use Supplementary Units
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Item1" with "Tariff1" and "Item2" with "Tariff2"
         // [GIVEN] "Tariff2" is using Supplementary Units
@@ -339,7 +339,7 @@ codeunit 144004 "Intrastat Exchange"
     begin
         // [FEATURE] [Receipt] [UT]
         // [SCENARIO 295289] Supplementary tag MEA+AAE++PCE exists for the Receipts lines with Tariff that use Supplementary Units
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Item1" with "Tariff1" and "Item2" with "Tariff2"
         // [GIVEN] "Tariff2" is using Supplementary Units
@@ -384,7 +384,7 @@ codeunit 144004 "Intrastat Exchange"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Intrastat Exchange");
         LibraryRandom.SetSeed(1);
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         LibraryReportDataset.Reset();
         IntrastatJnlTemplate.DeleteAll(true);
 
@@ -393,7 +393,7 @@ codeunit 144004 "Intrastat Exchange"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Intrastat Exchange");
 
         IsInitialized := true;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         SetIntrastatCodeOnCountryRegion;
         SetDACHReportSelection;
         SetCompanyInfoFields;
@@ -492,7 +492,7 @@ codeunit 144004 "Intrastat Exchange"
         LibraryVariableStorage.Enqueue(IntrastatTemplateName);
         LibraryVariableStorage.Enqueue(IntrastatBatchName);
         IntrastatDiskTaxAuthAT.InitializeRequest(Filename);
-        IntrastatDiskTaxAuthAT.Run;
+        IntrastatDiskTaxAuthAT.Run();
     end;
 
     local procedure RunIntrastatJournalForm(Type: Option)
@@ -532,13 +532,8 @@ codeunit 144004 "Intrastat Exchange"
     end;
 
     local procedure FindOrCreateIntrastatTransactionType(): Code[10]
-    var
-        TransactionType: Record "Transaction Type";
     begin
-        TransactionType.Code := Format(LibraryRandom.RandIntInRange(1, 9));
-        if not TransactionType.Get(TransactionType.Code) then
-            TransactionType.Insert();
-        exit(TransactionType.Code);
+        exit(LibraryUtility.FindOrCreateCodeRecord(DATABASE::"Transaction Type"));
     end;
 
     local procedure FindOrCreateIntrastatTransportMethod(): Code[10]
@@ -555,7 +550,7 @@ codeunit 144004 "Intrastat Exchange"
         with CountryRegion do begin
             SetFilter(Code, '<>%1', CompanyInfo."Country/Region Code");
             SetFilter("Intrastat Code", '<>%1', '');
-            FindFirst;
+            FindFirst();
             exit(Code);
         end;
     end;
@@ -598,7 +593,7 @@ codeunit 144004 "Intrastat Exchange"
         TempTariffNo: Code[20];
     begin
         // TariffNo must be length 8 and unique
-        TempTariffNo := LibraryUtility.GenerateGUID;
+        TempTariffNo := LibraryUtility.GenerateGUID();
         TariffNo := CopyStr(TempTariffNo, StrLen(TempTariffNo) - MaxStrLen(TariffNo) + 1);
         TariffNumber.Init();
         TariffNumber.Validate("No.", TariffNo);

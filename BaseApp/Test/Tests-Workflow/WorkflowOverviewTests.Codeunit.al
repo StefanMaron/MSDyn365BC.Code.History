@@ -43,7 +43,7 @@ codeunit 134209 "Workflow Overview Tests"
         // [THEN] The Workflow Overview page opens with details on the current workflow.
 
         // Setup
-        Initialize;
+        Initialize();
         LibraryDocumentApprovals.SetupUsersForApprovals(ApprovalUserSetup);
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.CustomerWorkflowCode);
         LibrarySales.CreateCustomer(Customer);
@@ -80,7 +80,7 @@ codeunit 134209 "Workflow Overview Tests"
         // [THEN] The Workflow Overview page opens with details on the current workflow.
 
         // Setup
-        Initialize;
+        Initialize();
         LibraryDocumentApprovals.SetupUsersForApprovals(ApprovalUserSetup);
         LibraryWorkflow.CreateEnabledWorkflow(Workflow1, WorkflowSetup.CustomerWorkflowCode);
         CreateEnabledWorkflow(Workflow2, WorkflowSetup.CustomerCreditLimitChangeApprovalWorkflowCode);
@@ -122,7 +122,7 @@ codeunit 134209 "Workflow Overview Tests"
         // [THEN] The Workflow Overview page opens with details on the current workflow.
 
         // Setup
-        Initialize;
+        Initialize();
         LibraryDocumentApprovals.SetupUsersForApprovals(ApprovalUserSetup);
         CreateEnabledWorkflow(Workflow, WorkflowCode);
         CreateSalesDoc(SalesHeader, DocType);
@@ -132,7 +132,7 @@ codeunit 134209 "Workflow Overview Tests"
         ApprovalsMgmt.OnSendSalesDocForApproval(SalesHeader);
 
         ApprovalEntry.SetRange("Record ID to Approve", SalesHeader.RecordId);
-        ApprovalEntry.FindFirst;
+        ApprovalEntry.FindFirst();
         ApprovalEntry.ShowRecord;
 
         // Verify: in handler.
@@ -215,7 +215,7 @@ codeunit 134209 "Workflow Overview Tests"
         // [THEN] The Workflow Overview page opens with details on the current workflow.
 
         // Setup
-        Initialize;
+        Initialize();
         LibraryDocumentApprovals.SetupUsersForApprovals(ApprovalUserSetup);
         CreateEnabledWorkflow(Workflow, WorkflowCode);
         CreatePurchaseDoc(PurchaseHeader, DocType);
@@ -225,7 +225,7 @@ codeunit 134209 "Workflow Overview Tests"
         ApprovalsMgmt.OnSendPurchaseDocForApproval(PurchaseHeader);
 
         ApprovalEntry.SetRange("Record ID to Approve", PurchaseHeader.RecordId);
-        ApprovalEntry.FindFirst;
+        ApprovalEntry.FindFirst();
         ApprovalEntry.ShowRecord;
 
         // Verify: in handler.
@@ -300,8 +300,8 @@ codeunit 134209 "Workflow Overview Tests"
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Workflow Overview Tests");
         LibraryWorkflow.DisableAllWorkflows;
         UserSetup.DeleteAll();
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.CreateVATData();
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Workflow Overview Tests");
@@ -319,7 +319,7 @@ codeunit 134209 "Workflow Overview Tests"
 
         WorkflowStep.SetRange("Workflow Code", Workflow.Code);
         WorkflowStep.SetRange("Function Name", WorkflowResponseHandling.CreateApprovalRequestsCode);
-        WorkflowStep.FindFirst;
+        WorkflowStep.FindFirst();
         LibraryWorkflow.InsertApprovalArgument(WorkflowStep.ID, WorkflowStepArgument."Approver Type"::Approver,
           WorkflowStepArgument."Approver Limit Type"::"Direct Approver", '', false);
         LibraryWorkflow.EnableWorkflow(Workflow);

@@ -4,8 +4,9 @@ permissionset 2911 "D365 ACCOUNTANTS"
     Assignable = true;
     Caption = 'Dynamics 365 for Accountants';
 
-    IncludedPermissionSets = "User Login Times - View",
+    IncludedPermissionSets = "LOGIN",
                              "Metadata - Read",
+                             "User Login Times - View",
                              "User Personalization - Edit",
                              "Webhook - Edit";
 
@@ -34,7 +35,6 @@ permissionset 2911 "D365 ACCOUNTANTS"
 #endif
                   tabledata "Sales Prepayment %" = D,
                   tabledata "Sales Shipment Header" = R,
-                  tabledata "SMTP Mail Setup" = RIM,
                   tabledata "Standard Customer Sales Code" = RD,
                   tabledata "User Setup" = RIM,
                   tabledata "Warranty Ledger Entry" = Rm;

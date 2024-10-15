@@ -1377,7 +1377,7 @@ report 11514 "G/L Setup Information"
                         CurrReport.Skip();
 
                     RecRef.Open(TableNo);
-                    if RecRef.FindFirst then
+                    if RecRef.FindFirst() then
                         repeat
                             FldRef := RecRef.Field("No.");
                             FldRefValue := FldRef.Value;
@@ -1424,7 +1424,7 @@ report 11514 "G/L Setup Information"
                     Clear(ErrorText);
 
                     NumberSeriesBuffer.Reset();
-                    if NumberSeriesBuffer.FindSet then
+                    if NumberSeriesBuffer.FindSet() then
                         repeat
                             if not ((StrPos(NumberSeriesBuffer."Field Name", 'Posting') = 0) and
                                     (StrPos(NumberSeriesBuffer."Field Name", 'Posted') = 0))
@@ -1441,7 +1441,7 @@ report 11514 "G/L Setup Information"
                             NumberSeriesBuffer2.Reset();
                             NumberSeriesBuffer2.SetRange("Field Value", NumberSeriesBuffer."Field Value");
                             NumberSeriesBuffer2.SetFilter("Entry No.", '<> %1', NumberSeriesBuffer."Entry No.");
-                            if NumberSeriesBuffer2.FindSet then
+                            if NumberSeriesBuffer2.FindSet() then
                                 repeat
                                     if not ((NumberSeriesBuffer2."Table No." = NumberSeriesBuffer."Table No.") and NumberSeriesBuffer2.Checked) then begin
                                         AddError(StrSubstNo(Text1140015, NumberSeriesBuffer."Table Name", NumberSeriesBuffer."Field Name",

@@ -417,7 +417,7 @@ report 11005 "VAT Statement Germany"
                     VATStmtLine2.SetRange("Statement Template Name", VATStmtLine2."Statement Template Name");
                     VATStmtLine2.SetRange("Statement Name", VATStmtLine2."Statement Name");
                     VATStmtLine2.SetFilter("Row No.", VATStmtLine2."Row Totaling");
-                    if VATStmtLine2.FindSet then
+                    if VATStmtLine2.FindSet() then
                         repeat
                             if not CalcLineTotal(
                                 VATStmtLine2, TotalAmount, TotalEmpty, TotalBase,

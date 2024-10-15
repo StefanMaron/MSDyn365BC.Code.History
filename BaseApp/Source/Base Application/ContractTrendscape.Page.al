@@ -40,7 +40,7 @@ page 6060 "Contract Trendscape"
                         Clear(ServContract);
                         ServContract.SetRange("Contract Type", ServContract."Contract Type"::Contract);
                         ServContract.SetRange("Contract No.", ContractNo);
-                        if ServContract.FindFirst then begin
+                        if ServContract.FindFirst() then begin
                             Get(ServContract."Contract Type"::Contract, ServContract."Contract No.");
                             SetRange("Contract No.", ServContract."Contract No.");
                             SetRange("Contract Type", "Contract Type"::Contract);

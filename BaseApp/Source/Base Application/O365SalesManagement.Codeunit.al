@@ -44,16 +44,16 @@ codeunit 2107 "O365 Sales Management"
         if TaxSetup.Get then begin
             if TaxSetup."Non-Taxable Tax Group Code" <> '' then
                 TaxGroup.SetFilter(Code, '<>%1', TaxSetup."Non-Taxable Tax Group Code");
-            if TaxGroup.FindFirst then
+            if TaxGroup.FindFirst() then
                 Item."Tax Group Code" := TaxGroup.Code;
         end;
 
         if Item."Gen. Prod. Posting Group" = '' then
-            if GenProductPostingGroup.FindFirst then
+            if GenProductPostingGroup.FindFirst() then
                 Item."Gen. Prod. Posting Group" := GenProductPostingGroup.Code;
 
         if Item."VAT Prod. Posting Group" = '' then
-            if VATProductPostingGroup.FindFirst then
+            if VATProductPostingGroup.FindFirst() then
                 Item."VAT Prod. Posting Group" := VATProductPostingGroup.Code;
 
         if Item.Modify then;

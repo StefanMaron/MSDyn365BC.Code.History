@@ -364,7 +364,7 @@ codeunit 5350 "CRM Statistics Job"
         ForAllCustomers := CustomerNo = '';
         if not ForAllCustomers then
             DtldCustLedgEntry.SetRange("Customer No.", CustomerNo);
-        if DtldCustLedgEntry.FindSet then begin
+        if DtldCustLedgEntry.FindSet() then begin
             CurrCLENo := DtldCustLedgEntry."Cust. Ledger Entry No.";
             repeat
                 if CurrCLENo <> DtldCustLedgEntry."Cust. Ledger Entry No." then begin

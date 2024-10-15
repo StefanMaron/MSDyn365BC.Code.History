@@ -34,7 +34,7 @@ codeunit 136403 "Resource Journal"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Resource Journal");
 
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.CreateVATData();
         IsInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Resource Journal");
     end;
@@ -53,7 +53,7 @@ codeunit 136403 "Resource Journal"
         // Test the functionality of Navigation from Navigation pane on Resource Planning.
 
         // 1. Setup: Create new Resource, Resource Journal Line.
-        Initialize;
+        Initialize();
         ResourceNo := CreateResource;
         CreateMultipleJournalLines(ResJournalLine, ResourceNo);
         DocumentNo := ResJournalLine."Document No.";  // Assign Value in Global Variable.
@@ -61,7 +61,7 @@ codeunit 136403 "Resource Journal"
         // 2. Exercise: Post Resource Journal Line and open the Navigate page.
         LibraryResource.PostResourceJournalLine(ResJournalLine);
         Navigate.SetDoc(WorkDate, DocumentNo);
-        Navigate.Run;
+        Navigate.Run();
 
         // 3. Verify: Verify number of entries for Res. Ledger Entry table.
         ResLedgerEntry.SetRange("Resource No.", ResourceNo);
@@ -80,7 +80,7 @@ codeunit 136403 "Resource Journal"
         // Test the Posting of Resource Journal Line.
 
         // 1. Setup: Create Resource, Resource Journal Template, Resource Journal Batch and create Resource Journal Line.
-        Initialize;
+        Initialize();
         FindResourceJournalBatch(ResJournalBatch);
         CreateResourceJournalLine(ResJournalLine, ResJournalBatch."Journal Template Name", ResJournalBatch.Name, CreateResource);
         TempResJournalLine := ResJournalLine;
@@ -107,7 +107,7 @@ codeunit 136403 "Resource Journal"
         // Test the Creation of Resource Journal Template, assign Resource Journal Batches and Resource Journal Line Posting.
 
         // 1. Setup: Create Resource Journal Template, Create Resource Batch.
-        Initialize;
+        Initialize();
         LibraryResource.FindResource(Resource);
         CreateResourceJournalTemplate(ResJournalTemplate);
         LibraryResource.CreateResourceJournalBatch(ResJournalBatch, ResJournalTemplate.Name);
@@ -145,7 +145,7 @@ codeunit 136403 "Resource Journal"
         // Test the Posting of Resource Journal line using the Recurring Resource Journal Template and Recurring Resource Journal Batch.
 
         // 1. Setup: Find Recurring Resource Journal Template, Create Recurring Resource Journal Batch.
-        Initialize;
+        Initialize();
         LibraryResource.FindResource(Resource);
         LibraryResource.CreateResourceJournalBatch(ResJournalBatch, CreateRecurringJournalTemplate);
 
@@ -180,7 +180,7 @@ codeunit 136403 "Resource Journal"
         // Create New Resource by Page and verify it.
 
         // 1. Setup.
-        Initialize;
+        Initialize();
 
         // 2. Exercise: Create Resource by Resource Card Page.
         InsertValuesOnTempResource(TempResource);
@@ -202,7 +202,7 @@ codeunit 136403 "Resource Journal"
         // Check Resource Journal Line values by Page.
 
         // 1. Setup: Create Resource.
-        Initialize;
+        Initialize();
         Resource.Get(CreateResource);
         FindResourceJournalBatch(ResJournalBatch);
         TemplateName := ResJournalBatch."Journal Template Name";  // Assign global variable.
@@ -238,7 +238,7 @@ codeunit 136403 "Resource Journal"
         // Check Resource Price on Resource Journal Line with and without Work Type by Page.
 
         // 1. Setup: Create Resource and Resource Price.
-        Initialize;
+        Initialize();
         FindResourceJournalBatch(ResJournalBatch);
         TemplateName := ResJournalBatch."Journal Template Name";  // Assign global variable.
         ResJournalTemplate.SetFilter(Name, '<>%1', ResJournalBatch."Journal Template Name");
@@ -299,7 +299,7 @@ codeunit 136403 "Resource Journal"
         // Check Resource Price on Resource Journal Line after used batch job Resource Price Change Resource and Resource Price Change Resource Prices.
 
         // 1. Setup: Create Resource and Resource Price.
-        Initialize;
+        Initialize();
         FindResourceJournalBatch(ResJournalBatch);
         TemplateName := ResJournalBatch."Journal Template Name";  // Assign global variable.
         ResJournalTemplate.SetFilter(Name, '<>%1', ResJournalBatch."Journal Template Name");
@@ -338,7 +338,7 @@ codeunit 136403 "Resource Journal"
     begin
         // Test Blank Description in Resource Ledger Entries after Posting Resource Journal Line with Blank Description.
 
-        Initialize;
+        Initialize();
         PostResourceJournalWithDescription('');  // Passing Blank Value for Description.
     end;
 
@@ -349,8 +349,8 @@ codeunit 136403 "Resource Journal"
     begin
         // Test Description updated correctly in Resource Ledger Entries after Posting Resource Journal Line with some Description.
 
-        Initialize;
-        PostResourceJournalWithDescription(LibraryUtility.GenerateGUID);  // Passing any Value for Description.
+        Initialize();
+        PostResourceJournalWithDescription(LibraryUtility.GenerateGUID());  // Passing any Value for Description.
     end;
 
     local procedure PostResourceJournalWithDescription(Description: Text[50])
@@ -384,7 +384,7 @@ codeunit 136403 "Resource Journal"
         // Test various Costs and Prices on Resource Journal Line after updating Work Type with Unit of Measure containing larger Quantity Per Unit of Measure.
 
         // 1. Setup: Create Resource and update a new Unit of Measure for it.
-        Initialize;
+        Initialize();
         CreateResourceAndUpdateUOM(ResourceUnitOfMeasure);
 
         // 2. Exercise. Create Resource Journal Line with Work Type contains Resource Unit of Measure.
@@ -407,7 +407,7 @@ codeunit 136403 "Resource Journal"
         // Test Quantity Per Unit of Measure and Base Quantity in Resource Ledger Entry after Posting Resource Journal with Work Type having Unit Of Measure attached.
 
         // 1. Setup: Create Resource and update a new Unit of Measure for it, Create Resource Journal Line with Work Type contains Resource Unit of Measure.
-        Initialize;
+        Initialize();
         CreateResourceAndUpdateUOM(ResourceUnitOfMeasure);
         CreateAndUpdateResourceJournalLine(ResJournalLine, ResourceUnitOfMeasure."Resource No.", ResourceUnitOfMeasure.Code);
         TempResJournalLine := ResJournalLine;
@@ -532,7 +532,7 @@ codeunit 136403 "Resource Journal"
         ResLedgerEntry.SetRange("Document No.", DocumentNo);
         ResLedgerEntry.SetRange("Journal Batch Name", JournalBatchName);
         ResLedgerEntry.SetRange("Resource No.", ResourceNo);
-        ResLedgerEntry.FindFirst;
+        ResLedgerEntry.FindFirst();
     end;
 
     local procedure FindUnitOfMeasure(): Code[10]
@@ -550,7 +550,7 @@ codeunit 136403 "Resource Journal"
     begin
         ResourcePriceChange.SetRange(Code, ResourceNo);
         ResourcePriceChange.SetRange("Work Type Code", WorkTypeCode);
-        ResourcePriceChange.FindFirst;
+        ResourcePriceChange.FindFirst();
         exit(ResourcePriceChange."New Unit Price");
     end;
 #endif
@@ -559,7 +559,7 @@ codeunit 136403 "Resource Journal"
     var
         ResourceCard: TestPage "Resource Card";
     begin
-        ResourceCard.OpenNew;
+        ResourceCard.OpenNew();
         ResourceCard."No.".SetValue(Resource."No.");
         ResourceCard.Name.SetValue(Resource.Name);
         ResourceCard."Direct Unit Cost".SetValue(Resource."Direct Unit Cost");
@@ -618,7 +618,7 @@ codeunit 136403 "Resource Journal"
         ResourcePriceChange.SetRange(Code, ResourceNo);
         ImplementResPriceChange.SetTableView(ResourcePriceChange);
         ImplementResPriceChange.UseRequestPage(false);
-        ImplementResPriceChange.Run;
+        ImplementResPriceChange.Run();
     end;
 
     local procedure RunSuggestResPriceChgResBatchJob(ResourceNo: Code[20]; WorkTypeCode: Code[10])
@@ -632,7 +632,7 @@ codeunit 136403 "Resource Journal"
         SuggestResPriceChgRes.InitializeRequest(0, LibraryRandom.RandDec(10, 2), '', true);  // Value is not important here.
         SuggestResPriceChgRes.SetTableView(Resource);
         SuggestResPriceChgRes.UseRequestPage(false);
-        SuggestResPriceChgRes.Run;
+        SuggestResPriceChgRes.Run();
     end;
 
     local procedure RunSuggestResPriceChgPriceBatchJob(ResourceNo: Code[20]; WorkTypeCode: Code[10])
@@ -647,7 +647,7 @@ codeunit 136403 "Resource Journal"
         SuggestResPriceChgPrice.InitializeRequest(0, LibraryRandom.RandDec(10, 2), '', true);  // Value is not important here.
         SuggestResPriceChgPrice.SetTableView(ResourcePrice);
         SuggestResPriceChgPrice.UseRequestPage(false);
-        SuggestResPriceChgPrice.Run;
+        SuggestResPriceChgPrice.Run();
     end;
 #endif
 
@@ -673,7 +673,7 @@ codeunit 136403 "Resource Journal"
     local procedure VerifyNavigateRecords(var TempDocumentEntry2: Record "Document Entry" temporary; TableID: Integer; NoOfRecords: Integer)
     begin
         TempDocumentEntry2.SetRange("Table ID", TableID);
-        TempDocumentEntry2.FindFirst;
+        TempDocumentEntry2.FindFirst();
         TempDocumentEntry2.TestField("No. of Records", NoOfRecords);
     end;
 
@@ -684,7 +684,7 @@ codeunit 136403 "Resource Journal"
         ResJournalLine.SetRange("Document No.", DocumentNo);
         ResJournalLine.SetRange("Resource No.", ResourceNo);
         ResJournalLine.SetRange("Work Type Code", WorkTypeCode);
-        ResJournalLine.FindFirst;
+        ResJournalLine.FindFirst();
         ResJournalLine.TestField("Unit Price", UnitPrice);
     end;
 
@@ -706,7 +706,7 @@ codeunit 136403 "Resource Journal"
     begin
         ResourcePrice.SetRange(Code, ResourceNo);
         ResourcePrice.SetRange("Work Type Code", WorkTypeCode);
-        ResourcePrice.FindFirst;
+        ResourcePrice.FindFirst();
         Assert.AreEqual(UnitPrice, ResourcePrice."Unit Price", UnitPriceError);
     end;
 #endif
@@ -717,7 +717,7 @@ codeunit 136403 "Resource Journal"
     begin
         ResJournalLine.SetRange("Journal Batch Name", TempResJournalLine."Journal Batch Name");
         ResJournalLine.SetRange("Document No.", TempResJournalLine."Document No.");
-        ResJournalLine.FindFirst;
+        ResJournalLine.FindFirst();
         ResJournalLine.TestField(Quantity, TempResJournalLine.Quantity);
         ResJournalLine.TestField("Unit Cost", TempResJournalLine."Unit Cost");
         ResJournalLine.TestField("Total Price", TempResJournalLine."Total Price");

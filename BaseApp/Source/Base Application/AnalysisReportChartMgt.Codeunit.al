@@ -26,7 +26,7 @@ codeunit 770 "Analysis Report Chart Mgt."
             SetRange("User ID", UserId);
             SetRange("Analysis Area", AnalysisArea);
             SetRange("Last Viewed", true);
-            Found := FindFirst;
+            Found := FindFirst();
             Reset;
             if Found then
                 exit;
@@ -102,7 +102,7 @@ codeunit 770 "Analysis Report Chart Mgt."
                     end;
             end;
 
-            Initialize;
+            Initialize();
             case AnalysisReportChartSetup."Base X-Axis on" of
                 AnalysisReportChartSetup."Base X-Axis on"::Period:
                     begin
@@ -125,7 +125,7 @@ codeunit 770 "Analysis Report Chart Mgt."
                         for PeriodCounter := 1 to NoOfPeriods do begin
                             AnalysisReportChartSetup.SetLinkToMeasureLines(AnalysisReportChartLine);
                             AnalysisReportChartLine.SetFilter("Chart Type", '<>%1', AnalysisReportChartLine."Chart Type"::" ");
-                            if AnalysisReportChartLine.FindSet then
+                            if AnalysisReportChartLine.FindSet() then
                                 repeat
                                     GetPeriodFromMapColumn(PeriodCounter - 1, FromDate, ToDate);
                                     AnalysisLine.SetRange("Date Filter", FromDate, ToDate);
@@ -151,7 +151,7 @@ codeunit 770 "Analysis Report Chart Mgt."
                         AnalysisReportChartLine2.SetFilter("Chart Type", '<>%1', AnalysisReportChartLine2."Chart Type"::" ");
                         XCounter := 0;
                         AnalysisLine.SetRange("Date Filter", "Period Filter Start Date", "Period Filter End Date");
-                        if AnalysisReportChartLine.FindSet then
+                        if AnalysisReportChartLine.FindSet() then
                             repeat
                                 AddColumn(AnalysisReportChartLine."Measure Name");
                                 if not AnalysisLine.Get(
@@ -159,7 +159,7 @@ codeunit 770 "Analysis Report Chart Mgt."
                                      AnalysisReportChartLine."Analysis Line Line No.")
                                 then
                                     Error(Text003);
-                                if AnalysisReportChartLine2.FindSet then
+                                if AnalysisReportChartLine2.FindSet() then
                                     repeat
                                         if not AnalysisColumn.Get(
                                              AnalysisReportChartSetup."Analysis Area", AnalysisReportChartSetup."Analysis Column Template Name",
@@ -180,7 +180,7 @@ codeunit 770 "Analysis Report Chart Mgt."
                         AnalysisReportChartLine2.SetFilter("Chart Type", '<>%1', AnalysisReportChartLine2."Chart Type"::" ");
                         AnalysisLine.SetRange("Date Filter", "Period Filter Start Date", "Period Filter End Date");
                         XCounter := 0;
-                        if AnalysisReportChartLine.FindSet then
+                        if AnalysisReportChartLine.FindSet() then
                             repeat
                                 AddColumn(AnalysisReportChartLine."Measure Name");
                                 if not AnalysisColumn.Get(
@@ -188,7 +188,7 @@ codeunit 770 "Analysis Report Chart Mgt."
                                      AnalysisReportChartLine."Analysis Column Line No.")
                                 then
                                     Error(Text003);
-                                if AnalysisReportChartLine2.FindSet then
+                                if AnalysisReportChartLine2.FindSet() then
                                     repeat
                                         if not AnalysisLine.Get(
                                              AnalysisReportChartSetup."Analysis Area", AnalysisReportChartSetup."Analysis Line Template Name",
@@ -213,7 +213,7 @@ codeunit 770 "Analysis Report Chart Mgt."
         with AnalysisReportChartLine do begin
             AnalysisReportChartSetup.SetLinkToMeasureLines(AnalysisReportChartLine);
             SetFilter("Chart Type", '<>%1', "Chart Type"::" ");
-            if FindSet then
+            if FindSet() then
                 repeat
                     case "Chart Type" of
                         "Chart Type"::Line:
@@ -277,7 +277,7 @@ codeunit 770 "Analysis Report Chart Mgt."
                     AnalysisReportChartSetup.FilterAnalysisLine(AnalysisLine);
                     BusChartBuf.GetXValue(BusChartBuf."Drill-Down X Index", XName);
                     AnalysisLine.SetRange(Description, Format(XName));
-                    AnalysisLine.FindFirst;
+                    AnalysisLine.FindFirst();
                     MeasureValueString := BusChartBuf.GetMeasureValueString(BusChartBuf."Drill-Down Measure Index");
                     Evaluate(AnalysisColumnLineNo, MeasureValueString);
                     AnalysisColumn.Get(
@@ -290,7 +290,7 @@ codeunit 770 "Analysis Report Chart Mgt."
                     AnalysisReportChartSetup.FilterAnalysisColumn(AnalysisColumn);
                     BusChartBuf.GetXValue(BusChartBuf."Drill-Down X Index", XName);
                     AnalysisColumn.SetRange("Column Header", Format(XName));
-                    AnalysisColumn.FindFirst;
+                    AnalysisColumn.FindFirst();
                     MeasureValueString := BusChartBuf.GetMeasureValueString(BusChartBuf."Drill-Down Measure Index");
                     Evaluate(AnalysisLineLineNo, MeasureValueString);
                     AnalysisLine.Get(

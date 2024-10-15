@@ -174,7 +174,7 @@ page 432 "Reminder Levels"
                             Error(ChartNotAvailableInWebErr, PRODUCTNAME.Short);
 
                         AddFeeChart.SetViewMode(Rec, false, true);
-                        AddFeeChart.RunModal;
+                        AddFeeChart.RunModal();
                     end;
                 }
             }
@@ -197,7 +197,7 @@ page 432 "Reminder Levels"
     begin
         ReminderTerms.SetFilter(Code, GetFilter("Reminder Terms Code"));
         ShowColumn := true;
-        if ReminderTerms.FindFirst then begin
+        if ReminderTerms.FindFirst() then begin
             ReminderTerms.SetRecFilter;
             if ReminderTerms.GetFilter(Code) = GetFilter("Reminder Terms Code") then
                 ShowColumn := false;
@@ -209,7 +209,6 @@ page 432 "Reminder Levels"
     var
         ReminderTerms: Record "Reminder Terms";
         ClientTypeManagement: Codeunit "Client Type Management";
-        EnvironmentInfo: Codeunit "Environment Information";
         ShowColumn: Boolean;
         [InDataSet]
         ReminderTermsCodeVisible: Boolean;

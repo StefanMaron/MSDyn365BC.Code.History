@@ -458,7 +458,7 @@ page 99000913 "Simulated Prod. Order Lines"
                     ApplicationArea = ItemTracking;
                     Caption = 'Item &Tracking Lines';
                     Image = ItemTrackingLines;
-                    ShortCutKey = 'Shift+Ctrl+I';
+                    ShortCutKey = 'Ctrl+Alt+I'; 
                     ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
 
                     trigger OnAction()
@@ -527,24 +527,12 @@ page 99000913 "Simulated Prod. Order Lines"
         PAGE.Run(PAGE::"Prod. Order Components", ProdOrderComp);
     end;
 
-    local procedure ShowRouting()
-    var
-        ProdOrderRtngLine: Record "Prod. Order Routing Line";
-    begin
-        ProdOrderRtngLine.SetRange(Status, Status);
-        ProdOrderRtngLine.SetRange("Prod. Order No.", "Prod. Order No.");
-        ProdOrderRtngLine.SetRange("Routing Reference No.", "Routing Reference No.");
-        ProdOrderRtngLine.SetRange("Routing No.", "Routing No.");
-
-        PAGE.Run(PAGE::"Prod. Order Routing", ProdOrderRtngLine);
-    end;
-
     local procedure ShowTracking()
     var
         TrackingForm: Page "Order Tracking";
     begin
         TrackingForm.SetProdOrderLine(Rec);
-        TrackingForm.RunModal;
+        TrackingForm.RunModal();
     end;
 
     procedure UpdateForm(SetSaveRecord: Boolean)

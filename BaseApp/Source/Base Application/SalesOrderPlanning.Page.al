@@ -182,7 +182,7 @@ page 99000883 "Sales Order Planning"
                     begin
                         if Item.Get("Item No.") then;
                         ItemStatistics.SetItem(Item);
-                        ItemStatistics.RunModal;
+                        ItemStatistics.RunModal();
                     end;
                 }
             }
@@ -284,7 +284,7 @@ page 99000883 "Sales Order Planning"
                           "Sales Order Line No.");
 
                         TrackingForm.SetSalesLine(SalesOrderLine);
-                        TrackingForm.RunModal;
+                        TrackingForm.RunModal();
                         BuildForm;
                     end;
                 }

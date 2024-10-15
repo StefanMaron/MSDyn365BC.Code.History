@@ -49,7 +49,7 @@ codeunit 134382 "ERM Dimension Journals"
         CustomerNo: Code[20];
         JournalDimSet: Integer;
     begin
-        Initialize;
+        Initialize();
         PrepareGeneralJournal(GenJournalBatch);
 
         CustomerNo := CreateCustomer;
@@ -83,8 +83,8 @@ codeunit 134382 "ERM Dimension Journals"
         JournalDimSet: Integer;
         AllocationDimSet: Integer;
     begin
-        Initialize;
-        GLAccountNo := LibraryERM.CreateGLAccountNo;
+        Initialize();
+        GLAccountNo := LibraryERM.CreateGLAccountNo();
         SetupDefaultDimensions(DefaultDimension, DATABASE::"G/L Account", GLAccountNo);
 
         DocumentNo := DimGenJnlAllocation(GenJournalLine, GenJnlAllocation, GLAccountNo, 0);
@@ -110,8 +110,8 @@ codeunit 134382 "ERM Dimension Journals"
         JournalDimSet: Integer;
         AllocationDimSet: Integer;
     begin
-        Initialize;
-        GLAccountNo := LibraryERM.CreateGLAccountNo;
+        Initialize();
+        GLAccountNo := LibraryERM.CreateGLAccountNo();
         SetupDefaultDimensions(DefaultDimension, DATABASE::"G/L Account", GLAccountNo);
 
         DocumentNo := DimGenJnlAllocation(GenJournalLine, GenJnlAllocation, GLAccountNo, FindDimensionSet);
@@ -162,7 +162,7 @@ codeunit 134382 "ERM Dimension Journals"
         DocumentNo: Code[20];
         ItemNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         ItemNo := FindItem;
         SetupDefaultDimensions(DefaultDimension, DATABASE::Item, ItemNo);
@@ -197,7 +197,7 @@ codeunit 134382 "ERM Dimension Journals"
         DocumentNo: Code[20];
         ItemNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         ItemNo := FindItem;
         PrepareItemJournal(ItemJournalBatch, ItemJournalTemplate.Type::Item);
@@ -220,7 +220,7 @@ codeunit 134382 "ERM Dimension Journals"
         JournalDimSet := ItemJournalLine."Dimension Set ID";
 
         DimSetEntry.SetFilter("Dimension Set ID", '<>%1', JournalDimSet);
-        DimSetEntry.FindFirst;
+        DimSetEntry.FindFirst();
         NewJournalDimSet := DimSetEntry."Dimension Set ID";
         ItemJournalLine."New Dimension Set ID" := NewJournalDimSet;
         ItemJournalLine.Modify();
@@ -240,7 +240,7 @@ codeunit 134382 "ERM Dimension Journals"
         ResourceNo: Code[20];
         JournalDimSet: Integer;
     begin
-        Initialize;
+        Initialize();
 
         Evaluate(DocumentNo, LibraryUtility.GenerateRandomCode(ResJournalLine.FieldNo("Document No."), DATABASE::"Res. Journal Line"));
         ResourceNo := FindResource;
@@ -272,7 +272,7 @@ codeunit 134382 "ERM Dimension Journals"
         JobNo: Code[20];
         JournalDimSet: Integer;
     begin
-        Initialize;
+        Initialize();
 
         Evaluate(DocumentNo, LibraryUtility.GenerateRandomCode(JobJournalLine.FieldNo("Document No."), DATABASE::"Job Journal Line"));
         JobNo := FindJob;
@@ -306,7 +306,7 @@ codeunit 134382 "ERM Dimension Journals"
         DocumentNo: Code[20];
         JournalDimSet: Integer;
     begin
-        Initialize;
+        Initialize();
 
         Evaluate(DocumentNo, LibraryUtility.GenerateRandomCode(FAJournalLine.FieldNo("Document No."), DATABASE::"FA Journal Line"));
         FANo := FindFA;
@@ -344,7 +344,7 @@ codeunit 134382 "ERM Dimension Journals"
         DocumentNo: Code[20];
         JournalDimSet: Integer;
     begin
-        Initialize;
+        Initialize();
 
         Evaluate(DocumentNo, LibraryUtility.GenerateRandomCode(InsuranceJournalLine.FieldNo("Document No."), DATABASE::
             "Insurance Journal Line"));
@@ -378,7 +378,7 @@ codeunit 134382 "ERM Dimension Journals"
         ShortcutDimCode: Code[20];
         ShortcutDimValueCode: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         PrepareGeneralJournal(GenJournalBatch);
         ShortcutDimCode := FindShortcutDimension;
@@ -417,7 +417,7 @@ codeunit 134382 "ERM Dimension Journals"
         ShortcutDimCode: Code[20];
         ShortcutDimValueCode: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         DimGenJnlAllocation(GenJournalLine, GenJnlAllocation, LibraryERM.CreateGLAccountNo, 0);
         ShortcutDimCode := FindShortcutDimension;
@@ -455,7 +455,7 @@ codeunit 134382 "ERM Dimension Journals"
         ShortcutDimCode: Code[20];
         ShortcutDimValueCode: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         PrepareItemJournal(ItemJournalBatch, ItemJournalTemplate.Type::Item);
         ShortcutDimCode := FindShortcutDimension;
@@ -496,7 +496,7 @@ codeunit 134382 "ERM Dimension Journals"
         ShortcutDimCode: Code[20];
         ShortcutDimValueCode: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         Evaluate(DocumentNo, LibraryUtility.GenerateRandomCode(ResJournalLine.FieldNo("Document No."), DATABASE::"Res. Journal Line"));
         ShortcutDimCode := FindShortcutDimension;
@@ -535,7 +535,7 @@ codeunit 134382 "ERM Dimension Journals"
         ShortcutDimCode: Code[20];
         ShortcutDimValueCode: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         Evaluate(DocumentNo, LibraryUtility.GenerateRandomCode(JobJournalLine.FieldNo("Document No."), DATABASE::"Job Journal Line"));
         ShortcutDimCode := FindShortcutDimension;
@@ -577,7 +577,7 @@ codeunit 134382 "ERM Dimension Journals"
         ShortcutDimCode: Code[20];
         ShortcutDimValueCode: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         Evaluate(DocumentNo, LibraryUtility.GenerateRandomCode(FAJournalLine.FieldNo("Document No."), DATABASE::"FA Journal Line"));
         FANo := FindFA;
@@ -619,7 +619,7 @@ codeunit 134382 "ERM Dimension Journals"
         ShortcutDimCode: Code[20];
         ShortcutDimValueCode: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         Evaluate(DocumentNo, LibraryUtility.GenerateRandomCode(InsuranceJournalLine.FieldNo("Document No."), DATABASE::
             "Insurance Journal Line"));
@@ -661,7 +661,7 @@ codeunit 134382 "ERM Dimension Journals"
         // Test Functionality of Default Dimension Single.
 
         // Setup: Create Vendor with Default Dimension.
-        Initialize;
+        Initialize();
         VendorNo := CreateVendor;
         SetupDefaultDimensions(DefaultDimension, DATABASE::Vendor, VendorNo);
 
@@ -686,7 +686,7 @@ codeunit 134382 "ERM Dimension Journals"
         // Check GLEntry Dimension after posting multiple General Journal Lines.
 
         // Setup: Create Multiple General Journal Lines with two different Dimensions.
-        Initialize;
+        Initialize();
         CreateMultipleJournalLinesWithDimension(GenJournalLine);
         TempGenJournalLine := GenJournalLine;
         TempGenJournalLine.Insert();
@@ -700,7 +700,7 @@ codeunit 134382 "ERM Dimension Journals"
             GLEntry.SetRange("Document No.", TempGenJournalLine."Document No.");
             GLEntry.SetRange("G/L Account No.", TempGenJournalLine."Account No.");
             GLEntry.SetRange("Global Dimension 2 Code", TempGenJournalLine."Shortcut Dimension 2 Code");
-            GLEntry.FindFirst;
+            GLEntry.FindFirst();
         until TempGenJournalLine.Next = 0;
     end;
 
@@ -714,7 +714,7 @@ codeunit 134382 "ERM Dimension Journals"
         // Check that Payment Journal contains correct entries filtered according to 'By Dimension' field value after executing the Suggest Vendor Payment.
 
         // Setup: Create and Post multiple General Journal Lines with two different Dimensions.
-        Initialize;
+        Initialize();
         CreateMultipleJournalLinesWithDimension(GenJournalLine);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
@@ -738,7 +738,7 @@ codeunit 134382 "ERM Dimension Journals"
         // Check the Dimensions on Posted Purchase Invoice.
 
         // 1. Setup: Create Vendor with Dimension.
-        Initialize;
+        Initialize();
         CreateVendorWithDimension(DefaultDimension);
         LibraryVariableStorage.Enqueue(DefaultDimension."Dimension Value Code");
 
@@ -762,7 +762,7 @@ codeunit 134382 "ERM Dimension Journals"
         // Check the Dimensions on running Suggest Vendor Payments on Payment Journal when Balance Account Type is Bank Account.
 
         // 1. Setup: Post Purchase Invoice with Vendor Dimension and Create Payment Journal Line for Created Vendor.
-        Initialize;
+        Initialize();
         CreateBankAccountWithDimension(DefaultDimension);
         CreateVendorWithDimension(DefaultDimension2);
         CreateAndPostPurchaseInvoice(PurchaseHeader, DefaultDimension2."No.");  // Default Dimension2."No." contains Vendor No.
@@ -796,7 +796,7 @@ codeunit 134382 "ERM Dimension Journals"
         // Test to validate Vendor Ledger Entry after Post Purchase invoice, Payment Journal and Purchase Application with Currency Code.
 
         // Setup: Create Vendor with Currency code, Create and post Purchase Invoice and Payment Journal.
-        Initialize;
+        Initialize();
         VendorNo := CreateVendorWithCurrencyCode;
         PurchaseInvoiceDocumentNo := CreateAndPostPurchaseInvoiceWithCurrencyCode(VendorNo);
         CreateAndPostGenJournalLine(
@@ -825,7 +825,7 @@ codeunit 134382 "ERM Dimension Journals"
         // Test to validate Customer Ledger Entry after Post Sales invoice, Cash Receipt Journal and Sales Application with Currency Code.
 
         // Setup: Create Customer with Currency code, Create and Post Sales Invoice and Cash Receipt Journal.
-        Initialize;
+        Initialize();
         CustomerNo := CreateCustomerWithCurrencyCode;
         SalesInvoiceDocumentNo := CreateAndPostSalesInvoiceWithCurrencyCode(CustomerNo);
         CreateAndPostGenJournalLine(
@@ -849,7 +849,7 @@ codeunit 134382 "ERM Dimension Journals"
         PurchaseHeader: Record "Purchase Header";
     begin
         // Verify that program populate correct Dimensions on Purchase Line when Dimensions are updated on Purchase Order Page.
-        Initialize;
+        Initialize();
         DimensionsOnPurchaseLine(PAGE::"Purchase Order", PurchaseHeader."Document Type"::Order);
     end;
 
@@ -861,7 +861,7 @@ codeunit 134382 "ERM Dimension Journals"
         PurchaseHeader: Record "Purchase Header";
     begin
         // Verify that program populate correct Dimensions on Purchase Line when Dimensions are updated on Purchase Invoice Page.
-        Initialize;
+        Initialize();
         DimensionsOnPurchaseLine(PAGE::"Purchase Invoice", PurchaseHeader."Document Type"::Invoice);
     end;
 
@@ -873,7 +873,7 @@ codeunit 134382 "ERM Dimension Journals"
         PurchaseHeader: Record "Purchase Header";
     begin
         // Verify that program populate correct Dimensions on Purchase Line when Dimensions are updated on Purchase Quote Page.
-        Initialize;
+        Initialize();
         DimensionsOnPurchaseLine(PAGE::"Purchase Quote", PurchaseHeader."Document Type"::Quote);
     end;
 
@@ -885,7 +885,7 @@ codeunit 134382 "ERM Dimension Journals"
         PurchaseHeader: Record "Purchase Header";
     begin
         // Verify that program populate correct Dimensions on Purchase Line when Dimensions are updated on Purchase Credit Memo Page.
-        Initialize;
+        Initialize();
         DimensionsOnPurchaseLine(PAGE::"Purchase Credit Memo", PurchaseHeader."Document Type"::"Credit Memo");
     end;
 
@@ -897,7 +897,7 @@ codeunit 134382 "ERM Dimension Journals"
         SalesHeader: Record "Sales Header";
     begin
         // Verify that program populate correct Dimensions on Sales Line when Dimensions are updated on Sales Order Page.
-        Initialize;
+        Initialize();
         DimensionsOnSalesLine(PAGE::"Sales Order", SalesHeader."Document Type"::Order);
     end;
 
@@ -909,7 +909,7 @@ codeunit 134382 "ERM Dimension Journals"
         SalesHeader: Record "Sales Header";
     begin
         // Verify that program populate correct Dimensions on Sales Line when Dimensions are updated on Sales Invoice Page.
-        Initialize;
+        Initialize();
         DimensionsOnSalesLine(PAGE::"Sales Invoice", SalesHeader."Document Type"::Invoice);
     end;
 
@@ -921,7 +921,7 @@ codeunit 134382 "ERM Dimension Journals"
         SalesHeader: Record "Sales Header";
     begin
         // Verify that program populate correct Dimensions on Sales Line when Dimensions are updated on Sales Quote Page.
-        Initialize;
+        Initialize();
         DimensionsOnSalesLine(PAGE::"Sales Quote", SalesHeader."Document Type"::Quote);
     end;
 
@@ -933,7 +933,7 @@ codeunit 134382 "ERM Dimension Journals"
         SalesHeader: Record "Sales Header";
     begin
         // Verify that program populate correct Dimensions on Sales Line when Dimensions are updated on Sales Credit Memo Page.
-        Initialize;
+        Initialize();
         DimensionsOnSalesLine(PAGE::"Sales Credit Memo", SalesHeader."Document Type"::"Credit Memo");
     end;
 
@@ -945,7 +945,7 @@ codeunit 134382 "ERM Dimension Journals"
         ServiceHeader: Record "Service Header";
     begin
         // Verify that program populate correct Dimensions on Service Line when Dimensions are updated on Service Invoice Page.
-        Initialize;
+        Initialize();
         DimensionsOnServiceLine(PAGE::"Service Order", ServiceHeader."Document Type"::Order);
     end;
 
@@ -957,7 +957,7 @@ codeunit 134382 "ERM Dimension Journals"
         ServiceHeader: Record "Service Header";
     begin
         // Verify that program populate correct Dimensions on Service Line when Dimensions are updated on Service Invoice Page.
-        Initialize;
+        Initialize();
         DimensionsOnServiceLine(PAGE::"Service Invoice", ServiceHeader."Document Type"::Invoice);
     end;
 
@@ -969,7 +969,7 @@ codeunit 134382 "ERM Dimension Journals"
         ServiceHeader: Record "Service Header";
     begin
         // Verify that program populate correct Dimensions on Service Line when Dimensions are updated on Service Quote Page.
-        Initialize;
+        Initialize();
         DimensionsOnServiceLine(PAGE::"Service Quote", ServiceHeader."Document Type"::Quote);
     end;
 
@@ -981,7 +981,7 @@ codeunit 134382 "ERM Dimension Journals"
         ServiceHeader: Record "Service Header";
     begin
         // Verify that program populate correct Dimensions on Service Line when Dimensions are updated on Service Credit Memo Page.
-        Initialize;
+        Initialize();
         DimensionsOnServiceLine(PAGE::"Service Credit Memo", ServiceHeader."Document Type"::"Credit Memo");
     end;
 
@@ -992,7 +992,7 @@ codeunit 134382 "ERM Dimension Journals"
         ServiceHeader: Record "Service Header";
     begin
         // Verify that program populate correct dimensions on Service Line when Customer created with default dimensions on Service Order.
-        Initialize;
+        Initialize();
         DefaultDimensionsOnServiceLine(ServiceHeader."Document Type"::Order);
     end;
 
@@ -1003,7 +1003,7 @@ codeunit 134382 "ERM Dimension Journals"
         ServiceHeader: Record "Service Header";
     begin
         // Verify that program populate correct dimensions on Service Line when Customer created with default dimensions on Service Invoice.
-        Initialize;
+        Initialize();
         DefaultDimensionsOnServiceLine(ServiceHeader."Document Type"::Invoice);
     end;
 
@@ -1014,7 +1014,7 @@ codeunit 134382 "ERM Dimension Journals"
         ServiceHeader: Record "Service Header";
     begin
         // Verify that program populate correct dimensions on Service Line when Customer created with default dimensions on Service Quote.
-        Initialize;
+        Initialize();
         DefaultDimensionsOnServiceLine(ServiceHeader."Document Type"::Quote);
     end;
 
@@ -1025,7 +1025,7 @@ codeunit 134382 "ERM Dimension Journals"
         ServiceHeader: Record "Service Header";
     begin
         // Verify that program populate correct dimensions on Service Line when Customer created with default dimensions on Service Credit Memo.
-        Initialize;
+        Initialize();
         DefaultDimensionsOnServiceLine(ServiceHeader."Document Type"::"Credit Memo");
     end;
 
@@ -1065,7 +1065,7 @@ codeunit 134382 "ERM Dimension Journals"
     begin
         // [FEATURE] [UI] [General Journal]
         // [SCENARIO 379229] General Journal Dimensions FactBox shows empty recordset for the new line
-        Initialize;
+        Initialize();
         ClearGeneralJournalTemplates;
 
         // [GIVEN] Existing dimension set
@@ -1092,7 +1092,7 @@ codeunit 134382 "ERM Dimension Journals"
     begin
         // [FEATURE] [UI] [General Journal]
         // [SCENARIO 379229] General Journal Dimensions FactBox shows dimension set, related to "Dimension Set Id"
-        Initialize;
+        Initialize();
         ClearGeneralJournalTemplates;
 
         // [GIVEN] Gen. Journal Line with some dimension set "DimSetID"
@@ -1125,7 +1125,7 @@ codeunit 134382 "ERM Dimension Journals"
     begin
         // [FEATURE] [UI] [General Journal]
         // [SCENARIO] Verify General Journal page shows message when in simple mode and document number is blank
-        Initialize;
+        Initialize();
         ClearGeneralJournalTemplates;
 
         // [GIVEN] General Journal set to show simple page
@@ -1159,7 +1159,7 @@ codeunit 134382 "ERM Dimension Journals"
     begin
         // [FEATURE] [UI] [General Journal]
         // [SCENARIO] Verify General Journal page does not show message when in classic mode and document number is blank
-        Initialize;
+        Initialize();
         ClearGeneralJournalTemplates;
 
         // [GIVEN] General Journal set to show classic page
@@ -1191,7 +1191,7 @@ codeunit 134382 "ERM Dimension Journals"
     begin
         // [FEATURE] [UI] [General Journal]
         // [SCENARIO] Verify General Journal page does not show message when in simple mode and document number is not blank
-        Initialize;
+        Initialize();
         ClearGeneralJournalTemplates;
 
         // [GIVEN] General Journal set to show simple page
@@ -1222,7 +1222,7 @@ codeunit 134382 "ERM Dimension Journals"
     begin
         // [FEATURE] [UI] [General Journal]
         // [SCENARIO] Verify General Journal page does not show message when in classic mode and document number is not blank
-        Initialize;
+        Initialize();
         ClearGeneralJournalTemplates;
 
         // [GIVEN] General Journal set to show classic page
@@ -1781,7 +1781,7 @@ codeunit 134382 "ERM Dimension Journals"
         LibraryReportValidation: Codeunit "Library - Report Validation";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Dimension Journals");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         LibraryReportValidation.DeleteObjectOptions(CurrentSaveValuesId);
 
         // Lazy Setup.
@@ -1790,12 +1790,12 @@ codeunit 134382 "ERM Dimension Journals"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Dimension Journals");
 
         ClearDimensionPriority;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
-        LibraryERMCountryData.CreateGeneralPostingSetupData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdateLocalPostingSetup;
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
+        LibraryERMCountryData.CreateGeneralPostingSetupData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdateLocalPostingSetup();
         isInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Dimension Journals");
@@ -2018,7 +2018,7 @@ codeunit 134382 "ERM Dimension Journals"
     begin
         GenJournalLine.SetRange("Document Type", GenJournalLine."Document Type"::Payment);
         GenJournalLine.SetRange("Account No.", VendorNo);
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
     end;
 
     local procedure ApplyCustomerEntry(var ApplyingCustLedgerEntry: Record "Cust. Ledger Entry"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; JournalBatchName: Code[20])
@@ -2035,7 +2035,7 @@ codeunit 134382 "ERM Dimension Journals"
         // Find Posted Customer Ledger Entries.
         FindGLRegister(GLRegister, JournalBatchName);
         CustLedgerEntry.SetRange("Entry No.", GLRegister."From Entry No.", GLRegister."To Entry No.");
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
 
         // Set Applies-to ID.
         LibraryERM.SetAppliestoIdCustomer(CustLedgerEntry);
@@ -2053,7 +2053,7 @@ codeunit 134382 "ERM Dimension Journals"
         // Find Posted Vendor Ledger Entries.
         FindGLRegister(GLRegister, JournalBatchName);
         VendorLedgerEntry.SetRange("Entry No.", GLRegister."From Entry No.", GLRegister."To Entry No.");
-        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.FindFirst();
 
         // Set Applies-to ID.
         LibraryERM.SetAppliestoIdVendor(VendorLedgerEntry);
@@ -2074,7 +2074,7 @@ codeunit 134382 "ERM Dimension Journals"
         GenJnlTemplate: Record "Gen. Journal Template";
     begin
         GenJnlTemplate.SetRange(Type, GenJnlTemplate.Type::Payments);
-        GenJnlTemplate.FindFirst;
+        GenJnlTemplate.FindFirst();
         GenJnlTemplate.SetFilter(Name, '<>%1', GenJnlTemplate.Name);
         GenJnlTemplate.DeleteAll();
     end;
@@ -2095,7 +2095,7 @@ codeunit 134382 "ERM Dimension Journals"
         repeat
             DimensionSetEntry.SetRange("Dimension Set ID", DimensionSetID);
             DimensionSetEntry.SetRange("Dimension Code", DefaultDimension."Dimension Code");
-            DimensionSetEntry.FindFirst;
+            DimensionSetEntry.FindFirst();
             Assert.AreEqual(DimensionSetEntry."Dimension Value Code", DefaultDimension."Dimension Value Code", 'Dimension value mismatch');
         until DefaultDimension.Next = 0;
     end;
@@ -2106,7 +2106,7 @@ codeunit 134382 "ERM Dimension Journals"
     begin
         DimensionSetEntry.SetRange("Dimension Set ID", DimensionSetID);
         DimensionSetEntry.SetRange("Dimension Code", ShortcutDimCode);
-        DimensionSetEntry.FindFirst;
+        DimensionSetEntry.FindFirst();
         Assert.AreEqual(
           DimensionSetEntry."Dimension Value Code", ShortcutDimValueCode, 'Wrong Dimension value on gen. Jnl. line dimension');
     end;
@@ -2246,7 +2246,7 @@ codeunit 134382 "ERM Dimension Journals"
         LibraryERM.FindRecurringTemplateName(GenJnlTemplate);
         GenJnlBatch.SetRange("Journal Template Name", GenJnlTemplate.Name);
         GenJnlBatch.SetFilter(Name, '<>%1', '');
-        if not GenJnlBatch.FindFirst then
+        if not GenJnlBatch.FindFirst() then
             LibraryERM.CreateGenJournalBatch(GenJnlBatch, GenJnlTemplate.Name);
         GenJnlBatch.Recurring := GenJnlTemplate.Recurring;
         GenJnlBatch.Modify(true);
@@ -2256,19 +2256,19 @@ codeunit 134382 "ERM Dimension Journals"
     local procedure FindResourceBatch(var ResJournalBatch: Record "Res. Journal Batch")
     begin
         ResJournalBatch.SetRange(Recurring, false);
-        ResJournalBatch.FindFirst;
+        ResJournalBatch.FindFirst();
     end;
 
     local procedure FindJobBatch(var JobJournalBatch: Record "Job Journal Batch")
     begin
         JobJournalBatch.SetRange(Recurring, false);
-        JobJournalBatch.FindFirst;
+        JobJournalBatch.FindFirst();
     end;
 
     local procedure FindFABatch(var FAJournalBatch: Record "FA Journal Batch")
     begin
         FAJournalBatch.SetRange(Recurring, false);
-        FAJournalBatch.FindFirst;
+        FAJournalBatch.FindFirst();
 
         // Disable FA number series
         FAJournalBatch.Validate("No. Series", '');
@@ -2277,7 +2277,7 @@ codeunit 134382 "ERM Dimension Journals"
 
     local procedure FindInsuranceBatch(var InsuranceJournalBatch: Record "Insurance Journal Batch")
     begin
-        InsuranceJournalBatch.FindFirst;
+        InsuranceJournalBatch.FindFirst();
 
         // Disable Insurance number series
         InsuranceJournalBatch.Validate("No. Series", '');
@@ -2312,7 +2312,7 @@ codeunit 134382 "ERM Dimension Journals"
     var
         Resource: Record Resource;
     begin
-        Resource.FindFirst;
+        Resource.FindFirst();
         exit(Resource."No.");
     end;
 
@@ -2320,7 +2320,7 @@ codeunit 134382 "ERM Dimension Journals"
     var
         Job: Record Job;
     begin
-        Job.FindFirst;
+        Job.FindFirst();
         exit(Job."No.");
     end;
 
@@ -2330,7 +2330,7 @@ codeunit 134382 "ERM Dimension Journals"
     begin
         JobTask.SetRange("Job No.", JobNo);
         JobTask.SetRange("Job Task Type", JobTask."Job Task Type"::Posting);
-        JobTask.FindFirst;
+        JobTask.FindFirst();
         exit(JobTask."Job Task No.");
     end;
 
@@ -2338,7 +2338,7 @@ codeunit 134382 "ERM Dimension Journals"
     var
         FixedAsset: Record "Fixed Asset";
     begin
-        FixedAsset.FindFirst;
+        FixedAsset.FindFirst();
         exit(FixedAsset."No.");
     end;
 
@@ -2346,7 +2346,7 @@ codeunit 134382 "ERM Dimension Journals"
     var
         Insurance: Record Insurance;
     begin
-        Insurance.FindFirst;
+        Insurance.FindFirst();
         exit(Insurance."No.");
     end;
 
@@ -2372,7 +2372,7 @@ codeunit 134382 "ERM Dimension Journals"
     begin
         DimensionValue.SetRange("Dimension Code", DimensionCode);
         DimensionValue.SetRange("Dimension Value Type", DimensionValue."Dimension Value Type"::Standard);
-        DimensionValue.FindFirst;
+        DimensionValue.FindFirst();
         exit(DimensionValue.Code);
     end;
 
@@ -2383,7 +2383,7 @@ codeunit 134382 "ERM Dimension Journals"
         DimensionValue.SetRange("Dimension Code", DimensionCode);
         DimensionValue.SetRange("Dimension Value Type", DimensionValue."Dimension Value Type"::Standard);
         DimensionValue.SetFilter(Code, '<>' + DimValueCode);
-        DimensionValue.FindFirst;
+        DimensionValue.FindFirst();
         exit(DimensionValue.Code);
     end;
 
@@ -2392,7 +2392,7 @@ codeunit 134382 "ERM Dimension Journals"
         with ServiceLine do begin
             SetRange("Document Type", ServiceHeader."Document Type");
             SetRange("Document No.", ServiceHeader."No.");
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -2400,7 +2400,7 @@ codeunit 134382 "ERM Dimension Journals"
     begin
         GenJournalLine.SetRange("Document Type", GenJournalLine."Document Type"::Payment);
         GenJournalLine.SetRange("Bal. Account No.", AccountNo);
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
     end;
 
     local procedure SetupDefaultDimensions(var DefaultDimension: Record "Default Dimension"; TableID: Integer; No: Code[20])
@@ -2559,7 +2559,7 @@ codeunit 134382 "ERM Dimension Journals"
         PurchaseLine: Record "Purchase Line";
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VendorNo);
-        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID);
+        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
         PurchaseHeader.Modify(true);
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", CreateGLAccountWithVAT, LibraryRandom.RandInt(10));  // Take Random Value for Quantity.
@@ -2689,7 +2689,7 @@ codeunit 134382 "ERM Dimension Journals"
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
         GenJournalTemplate.SetRange(Type, GenJournalTemplate.Type::Payments);
-        GenJournalTemplate.FindFirst;
+        GenJournalTemplate.FindFirst();
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
         GenJournalLine.Validate("Journal Template Name", GenJournalBatch."Journal Template Name");
         GenJournalLine.Validate("Journal Batch Name", GenJournalBatch.Name);
@@ -2767,7 +2767,7 @@ codeunit 134382 "ERM Dimension Journals"
     local procedure FindGLRegister(var GLRegister: Record "G/L Register"; JournalBatchName: Code[20])
     begin
         GLRegister.SetRange("Journal Batch Name", JournalBatchName);
-        GLRegister.FindFirst;
+        GLRegister.FindFirst();
     end;
 
     local procedure GetDimensionsValues(var DimensionValue1Code: Code[20]; var DimensionValue2Code: Code[20])
@@ -2830,7 +2830,7 @@ codeunit 134382 "ERM Dimension Journals"
     begin
         Commit();  // Commit required to avoid rollback of write transaction before opening Suggest Vendor Payments Report.
         SuggestVendorPayments.SetGenJnlLine(GenJournalLine);
-        SuggestVendorPayments.Run;
+        SuggestVendorPayments.Run();
     end;
 
     local procedure SuggestVendorPaymentAndVerifyGlobalDim1(var GenJournalLine: Record "Gen. Journal Line"; VendorNo: Code[20]; DimValCode: Code[20])
@@ -2877,7 +2877,7 @@ codeunit 134382 "ERM Dimension Journals"
             SetRange("Account Type", "Account Type"::Vendor);
             SetRange("Account No.", VendorNo);
             Assert.AreEqual(1, Count, NoOfSuggestedLineIncorrectErr);
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -3004,7 +3004,7 @@ codeunit 134382 "ERM Dimension Journals"
         GenJournalLine: Record "Gen. Journal Line";
         DimValCode: array[2] of Code[20];
     begin
-        Initialize;
+        Initialize();
         CreatePostInvoicesWithGlobalDimCode(LibraryERM.GetGlobalDimensionCode(1), GenJournalLine, VendorNo, DimValCode);
         // Verify a line is suggested for every Dimension Value of Global Dimension 1
         SuggestVendorPaymentAndVerifyGlobalDim1(GenJournalLine, VendorNo, DimValCode[1]);
@@ -3017,7 +3017,7 @@ codeunit 134382 "ERM Dimension Journals"
         GenJournalLine: Record "Gen. Journal Line";
         DimValCode: array[2] of Code[20];
     begin
-        Initialize;
+        Initialize();
         CreatePostInvoicesWithGlobalDimCode(LibraryERM.GetGlobalDimensionCode(2), GenJournalLine, VendorNo, DimValCode);
         // Verify a line is suggested for every Dimension Value of Global Dimension 2
         SuggestVendorPaymentAndVerifyGlobalDim2(GenJournalLine, VendorNo, DimValCode[1]);
@@ -3031,7 +3031,7 @@ codeunit 134382 "ERM Dimension Journals"
         Currency1Code: Code[10];
         Currency2Code: Code[10];
     begin
-        Initialize;
+        Initialize();
         CreatePostInvoicesWithCurrency(GenJournalLine, VendorNo, Currency1Code, Currency2Code);
         // Verify a line is suggested for every Currency
         SuggestVendorPaymentAndVerifyCurrency(GenJournalLine, VendorNo, Currency1Code);

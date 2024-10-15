@@ -485,7 +485,7 @@ page 5700 "Stockkeeping Unit Card"
                             ItemStatistics: Page "Item Statistics";
                         begin
                             ItemStatistics.SetItem(Item);
-                            ItemStatistics.RunModal;
+                            ItemStatistics.RunModal();
                         end;
                     }
                 }

@@ -113,7 +113,7 @@ page 5005276 "Deliv. Reminder Ledger Entries"
                 trigger OnAction()
                 begin
                     Navigate.SetDoc("Posting Date", "Reminder No.");
-                    Navigate.Run;
+                    Navigate.Run();
                 end;
             }
         }

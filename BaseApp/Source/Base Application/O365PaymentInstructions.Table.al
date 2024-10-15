@@ -108,10 +108,10 @@ table 2155 "O365 Payment Instructions"
         SalesHeader: Record "Sales Header";
     begin
         DocumentDescription := '';
-#if not CLEAN19
+#if not CLEAN18
         SalesHeader.SetRange("Payment Instructions Id", Id);
 #endif
-        if SalesHeader.FindFirst then
+        if SalesHeader.FindFirst() then
             DocumentDescription := StrSubstNo(DocumentDescriptionTxt, SalesHeader.GetDocTypeTxt, SalesHeader."No.");
     end;
 

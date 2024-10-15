@@ -153,7 +153,7 @@ page 5601 "Fixed Asset List"
                         begin
                             CurrPage.SetSelectionFilter(FA);
                             DefaultDimMultiple.SetMultiRecord(FA, FieldNo("No."));
-                            DefaultDimMultiple.RunModal;
+                            DefaultDimMultiple.RunModal();
                         end;
                     }
                 }
@@ -328,7 +328,7 @@ page 5601 "Fixed Asset List"
                     CopyFA: Report "Copy Fixed Asset";
                 begin
                     CopyFA.SetFANo("No.");
-                    CopyFA.RunModal;
+                    CopyFA.RunModal();
                 end;
             }
         }

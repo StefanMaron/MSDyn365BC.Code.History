@@ -101,6 +101,7 @@ page 99000912 "Simulated Production Order"
             group(Schedule)
             {
                 Caption = 'Schedule';
+#if not CLEAN17
                 field("Starting Time"; StartingTime)
                 {
                     ApplicationArea = Manufacturing;
@@ -169,6 +170,7 @@ page 99000912 "Simulated Production Order"
                         CurrPage.Update(true);
                     end;
                 }
+#endif
                 field("Starting Date-Time"; "Starting Date-Time")
                 {
                     ApplicationArea = Manufacturing;
@@ -401,16 +403,18 @@ page 99000912 "Simulated Production Order"
                     ToolTip = 'Copy information from an existing production order record to a new one. This can be done regardless of the status type of the production order. You can, for example, copy from a released production order to a new planned production order. Note that before you start to copy, you have to create the new record.';
 
                     trigger OnAction()
+                    var
+                        CopyProdOrderDoc: Report "Copy Production Order Document";
                     begin
                         CopyProdOrderDoc.SetProdOrder(Rec);
-                        CopyProdOrderDoc.RunModal;
+                        CopyProdOrderDoc.RunModal();
                         Clear(CopyProdOrderDoc);
                     end;
                 }
             }
         }
     }
-
+#if not CLEAN17
     trigger OnAfterGetRecord()
     begin
         GetStartingEndingDateAndTime(StartingTime, StartingDate, EndingTime, EndingDate);
@@ -427,12 +431,12 @@ page 99000912 "Simulated Production Order"
     end;
 
     var
-        CopyProdOrderDoc: Report "Copy Production Order Document";
         StartingTime: Time;
         EndingTime: Time;
         StartingDate: Date;
         EndingDate: Date;
         DateAndTimeFieldVisible: Boolean;
+#endif
 
     local procedure ShortcutDimension1CodeOnAfterV()
     begin

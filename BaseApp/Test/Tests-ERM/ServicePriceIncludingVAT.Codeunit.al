@@ -32,11 +32,11 @@ codeunit 136123 "Service Price Including VAT"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Service Price Including VAT");
 
-        LibraryService.SetupServiceMgtNoSeries;
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.CreateGeneralPostingSetupData;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryService.SetupServiceMgtNoSeries();
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.CreateGeneralPostingSetupData();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         IsInitialized := true;
         Commit();
@@ -70,7 +70,7 @@ codeunit 136123 "Service Price Including VAT"
         ServiceLine: Record "Service Line";
     begin
         // 1.Setup: Setup Data for Posting of Service Order.
-        Initialize;
+        Initialize();
         CreateServiceOrder(ServiceHeader, PriceIncludingVAT);
         GetServiceLine(ServiceLine, ServiceHeader);
         CopyServiceLine(TempServiceLine, ServiceLine);
@@ -231,7 +231,7 @@ codeunit 136123 "Service Price Including VAT"
         ServiceInvoiceLine: Record "Service Invoice Line";
     begin
         ServiceInvoiceHeader.SetRange("Order No.", TempServiceLine."Document No.");
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
         TempServiceLine.FindSet();
         repeat
             ServiceInvoiceLine.Get(ServiceInvoiceHeader."No.", TempServiceLine."Line No.");
@@ -254,7 +254,7 @@ codeunit 136123 "Service Price Including VAT"
         GLEntry: Record "G/L Entry";
     begin
         ServiceInvoiceHeader.SetRange("Order No.", OrderNo);
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
         GLEntry.SetRange("Document Type", GLEntry."Document Type"::Invoice);
         GLEntry.SetRange("Document No.", ServiceInvoiceHeader."No.");
         GLEntry.FindSet();
@@ -271,12 +271,12 @@ codeunit 136123 "Service Price Including VAT"
         ServiceCrMemoHeader: Record "Service Cr.Memo Header";
     begin
         ServiceCrMemoHeader.SetRange("Pre-Assigned No.", PreAssignedNo);
-        ServiceCrMemoHeader.FindFirst;
+        ServiceCrMemoHeader.FindFirst();
         ServiceLedgerEntry.SetRange("Document Type", ServiceLedgerEntry."Document Type"::"Credit Memo");
         ServiceLedgerEntry.SetRange("Document No.", ServiceCrMemoHeader."No.");
         repeat
             ServiceLedgerEntry.SetRange("Document Line No.", TempServiceLine."Line No.");
-            ServiceLedgerEntry.FindFirst;
+            ServiceLedgerEntry.FindFirst();
             ServiceLedgerEntry.TestField("No.", TempServiceLine."No.");
             ServiceLedgerEntry.TestField(Quantity, TempServiceLine.Quantity);
             Assert.AreNearlyEqual(

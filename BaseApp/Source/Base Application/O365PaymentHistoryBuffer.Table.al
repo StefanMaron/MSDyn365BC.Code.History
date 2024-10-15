@@ -69,7 +69,7 @@ table 2105 "O365 Payment History Buffer"
         DeleteAll();
         InvoiceCustLedgerEntry.SetRange("Document Type", InvoiceCustLedgerEntry."Document Type"::Invoice);
         InvoiceCustLedgerEntry.SetRange("Document No.", SalesInvoiceDocumentNo);
-        if not InvoiceCustLedgerEntry.FindFirst then
+        if not InvoiceCustLedgerEntry.FindFirst() then
             exit;
 
         if PaymentCustLedgerEntry.Get(InvoiceCustLedgerEntry."Closed by Entry No.") then
@@ -77,7 +77,7 @@ table 2105 "O365 Payment History Buffer"
 
         PaymentCustLedgerEntry.SetCurrentKey("Closed by Entry No.");
         PaymentCustLedgerEntry.SetRange("Closed by Entry No.", InvoiceCustLedgerEntry."Entry No.");
-        if PaymentCustLedgerEntry.FindSet then
+        if PaymentCustLedgerEntry.FindSet() then
             repeat
                 CopyFromCustomerLedgerEntry(PaymentCustLedgerEntry);
             until PaymentCustLedgerEntry.Next() = 0;

@@ -1,8 +1,12 @@
+#if not CLEAN20
 page 587 "XBRL Rollup Lines"
 {
     Caption = 'XBRL Rollup Lines';
     PageType = List;
     SourceTable = "XBRL Rollup Line";
+    ObsoleteReason = 'XBRL feature will be discontinued';
+    ObsoleteState = Pending;
+    ObsoleteTag = '20.0';
 
     layout
     {
@@ -52,5 +56,15 @@ page 587 "XBRL Rollup Lines"
     actions
     {
     }
+
+    trigger OnOpenPage()
+    var
+        XBRLDeprecationNotification: Codeunit "XBRL Deprecation Notification";
+    begin
+        XBRLDeprecationNotification.Show();
+    end;
+
 }
 
+
+#endif

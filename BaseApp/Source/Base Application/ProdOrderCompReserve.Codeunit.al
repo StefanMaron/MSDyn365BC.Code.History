@@ -380,7 +380,7 @@ codeunit 99000838 "Prod. Order Comp.-Reserve"
             TrackingSpecification.InitFromProdOrderComp(ProdOrderComp);
             ItemTrackingLines.SetSourceSpec(TrackingSpecification, ProdOrderComp."Due Date");
             ItemTrackingLines.SetInbound(ProdOrderComp.IsInbound);
-            ItemTrackingLines.RunModal;
+            ItemTrackingLines.RunModal();
         end;
 
         OnAfterCallItemTracking(ProdOrderComp);
@@ -523,7 +523,7 @@ codeunit 99000838 "Prod. Order Comp.-Reserve"
             Clear(AvailableProdOrderComp);
             AvailableProdOrderComp.SetCurrentSubType(EntrySummary."Entry No." - EntryStartNo());
             AvailableProdOrderComp.SetSource(SourceRecRef, ReservEntry, ReservEntry.GetTransferDirection());
-            AvailableProdOrderComp.RunModal;
+            AvailableProdOrderComp.RunModal();
         end;
     end;
 
@@ -649,7 +649,7 @@ codeunit 99000838 "Prod. Order Comp.-Reserve"
 
         AvailabilityFilter := CalcReservEntry.GetAvailabilityFilter(AvailabilityDate, Positive);
         ProdOrderComp.FilterLinesForReservation(CalcReservEntry, Status.AsInteger(), AvailabilityFilter, Positive);
-        if ProdOrderComp.FindSet then
+        if ProdOrderComp.FindSet() then
             repeat
                 ProdOrderComp.CalcFields("Reserved Qty. (Base)");
                 TempEntrySummary."Total Reserved Quantity" -= ProdOrderComp."Reserved Qty. (Base)";

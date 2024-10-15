@@ -47,7 +47,7 @@ codeunit 142077 "VAT - Vies Declaration XML"
         // Purpose of the test is to validate OnPreReport of Report ID 11108 VAT - VIES Declaration XML.
 
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise.
         ExportSalesEU3PartyVATVIES(NormalNoSeriesCodeTok, ExportedFileName);
@@ -69,7 +69,7 @@ codeunit 142077 "VAT - Vies Declaration XML"
         OldCompanyName: Text[100];
     begin
         // [SCENARIO] Company Name from VAT Report Setup is used in VAT VIES Declaration when it is non-empty
-        Initialize;
+        Initialize();
         // [GIVEN] Invalid Company Name in Company Information
         OldCompanyName := UpdateCompanyInformation(InvalidCompanyNameTok);
         // [GIVEN] Valid Company Name in VAT Report Setup
@@ -95,7 +95,7 @@ codeunit 142077 "VAT - Vies Declaration XML"
         OldCompanyName: Text[100];
     begin
         // [SCENARIO] Company Name from Company Information is used in VAT VIES Declaration when it is empty in VAT Report Setup
-        Initialize;
+        Initialize();
         // [GIVEN] Valid Company Name in Company Information
         OldCompanyName := UpdateCompanyInformation(ValidCompanyNameTok);
         // [GIVEN] Empty Company Name in VAT Report Setup
@@ -122,7 +122,7 @@ codeunit 142077 "VAT - Vies Declaration XML"
         // Purpose of the test is to validate OnPreReport of Report ID 11108 VAT - VIES Declaration XML.
 
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise.
         asserterror ExportSalesEU3PartyVATVIES('0000001', ExportedFileName);
@@ -141,7 +141,7 @@ codeunit 142077 "VAT - Vies Declaration XML"
         // Purpose of the test is to validate OnPreReport of Report ID 11108 VAT - VIES Declaration XML.
 
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise.
         asserterror ExportSalesEU3PartyVATVIES('Z00000001', ExportedFileName);
@@ -162,12 +162,12 @@ codeunit 142077 "VAT - Vies Declaration XML"
         Commit();
 
         VATVIESDeclarationXML.SetFileName(XMLFileName);
-        VATVIESDeclarationXML.Run;
+        VATVIESDeclarationXML.Run();
     end;
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateCustomerVATEntries(var Customer: Record Customer; var ReportingDate: Date)
@@ -185,7 +185,7 @@ codeunit 142077 "VAT - Vies Declaration XML"
         EntryNo: Integer;
     begin
         with VATEntry do begin
-            FindLast;
+            FindLast();
             EntryNo := "Entry No.";
             Init;
             "Entry No." := EntryNo + 1;
@@ -236,7 +236,7 @@ codeunit 142077 "VAT - Vies Declaration XML"
         with Customer do begin
             SetFilter("VAT Bus. Posting Group", '<>%1', '');
             SetFilter("VAT Registration No.", '<>%1', '');
-            FindFirst;
+            FindFirst();
         end
     end;
 

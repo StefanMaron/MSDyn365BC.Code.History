@@ -46,7 +46,7 @@ codeunit 136206 "Marketing Profiling"
         ProfileQuestionnaireCode: Code[10];
     begin
         // 1. Setup: Create Profile Questionnaires Header and Line.
-        Initialize;
+        Initialize();
         ProfileQuestionnaireCode := CreateQuestionnairesHeader;
         CreateQuestionnairesLines(ProfileQuestionnaireCode, ProfileQuestionnaireLine."Contact Class. Field"::Rating);
 
@@ -75,7 +75,7 @@ codeunit 136206 "Marketing Profiling"
         ProfileQuestionnaireCode: Code[10];
     begin
         // 1. Setup: Create Profile Questionnaires Header and Line.
-        Initialize;
+        Initialize();
         ProfileQuestionnaireCode := CreateQuestionnairesHeader;
         CreateQuestionnairesLines(ProfileQuestionnaireCode, ContactClass);
 
@@ -101,7 +101,7 @@ codeunit 136206 "Marketing Profiling"
         // Test that it is possible to create the contact rating automatically and assigning answer points.
 
         // 1. Setup: Create Profile Questionnaires Header.
-        Initialize;
+        Initialize();
         ProfileQuestionnaireCode := CreateQuestionnairesHeader;
 
         // Set global variables for Form Handler.
@@ -130,7 +130,7 @@ codeunit 136206 "Marketing Profiling"
         // Test that filling in a contact profile manually on a contact card updates the No. of Contact on Profile Questionnaires Line.
 
         // 1. Setup: Create Profile Questionnaires - Questionnaires Header and Questionnaires Line.
-        Initialize;
+        Initialize();
         ProfileQuestionnaireCode := CreateQuestionnairesHeader;
         QuestionnairesLinesWOClass(ProfileQuestionnaireCode);
 
@@ -155,7 +155,7 @@ codeunit 136206 "Marketing Profiling"
 
         // 1. Setup: Create Profile Questionnaires - Questionnaires Header and Questionnaires Line.
         // Manually set the Answer on Contact Profile.
-        Initialize;
+        Initialize();
         ProfileQuestionnaireCode := CreateQuestionnairesHeader;
         QuestionnairesLinesWOClass(ProfileQuestionnaireCode);
         ManuallySetAnswerOnContProfile(ProfileQuestionnaireCode);
@@ -213,7 +213,7 @@ codeunit 136206 "Marketing Profiling"
         // Profit (LCY) On Running Update Classification Updates No. of Contact Assigned.
 
         // 1. Setup: Create Profile Questionnaires - Questionnaires Header and Questionnaires Line.
-        Initialize;
+        Initialize();
         ProfileQuestionnaireCode := CreateQuestionnairesHeader;
         QuestionnairesLinesCustClass(ProfileQuestionnaireCode, CustomerClass);
 
@@ -238,7 +238,7 @@ codeunit 136206 "Marketing Profiling"
         // Test that profile questionnaires Test Report generates correct output.
 
         // 1. Setup: Create Profile Questionnaires - Questionnaires Header and Questionnaires Line.
-        Initialize;
+        Initialize();
         ProfileQuestionnaireCode := CreateQuestionnairesHeader;
 
         LibraryMarketing.CreateProfileQuestionnaireLine(ProfileQuestionnaireLine, ProfileQuestionnaireCode);
@@ -285,7 +285,7 @@ codeunit 136206 "Marketing Profiling"
         FilePath: Text[1024];
     begin
         // 1. Setup: Create Profile Questionnaires - Questionnaires Header and Questionnaires Line.
-        Initialize;
+        Initialize();
         ProfileQuestionnaireCode := CreateQuestionnairesHeader;
         LibraryMarketing.CreateProfileQuestionnaireLine(ProfileQuestionnaireLine, ProfileQuestionnaireCode);
         UpdateQuestionnairesLineType(ProfileQuestionnaireLine, ProfileQuestionnaireLine.Type::Question, 0);
@@ -316,7 +316,7 @@ codeunit 136206 "Marketing Profiling"
         ProfileQuestionnaireCode: Code[10];
     begin
         // 1. Setup: Create Profile Questionnaires - Questionnaires Header and Questionnaires Line.
-        Initialize;
+        Initialize();
         ProfileQuestionnaireCode := CreateQuestionnairesHeader;
         QuestionnairesLinesWOClassWithMultipleAnswerOptions(ProfileQuestionnaireCode);
 
@@ -342,7 +342,7 @@ codeunit 136206 "Marketing Profiling"
         ProfileQuestionnaireCode: Code[10];
     begin
         // 1. Setup: Create Profile Questionnaires - Questionnaires Header and Questionnaires Line.
-        Initialize;
+        Initialize();
         ProfileQuestionnaireCode := CreateQuestionnairesHeader;
         QuestionnairesLinesWOClassWithMultipleAnswerOptions(ProfileQuestionnaireCode);
 
@@ -368,7 +368,7 @@ codeunit 136206 "Marketing Profiling"
         ToValue: Decimal;
     begin
         // 1. Setup: Create Profile Questionnaires - Questionnaires Header and Questionnaires Line.
-        Initialize;
+        Initialize();
         ProfileQuestionnaireCode := CreateQuestionnairesHeader;
         CreateQuestionnairesLinesWithValues(ProfileQuestionnaireCode, FromValue, ToValue);
 
@@ -395,7 +395,7 @@ codeunit 136206 "Marketing Profiling"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 375341] A Contact having posted Purchase Invoice with positive amount should be included in Answer with positive range of total value
-        Initialize;
+        Initialize();
         InvoiceAmount := LibraryRandom.RandIntInRange(100, 200);
         ProfileQuestionnaireCode := CreateQuestionnairesHeaderWithContactType(ProfileQuestionnaireHeader."Contact Type"::Companies);
 
@@ -445,7 +445,7 @@ codeunit 136206 "Marketing Profiling"
         // [FEATURE] [UT] [UI]
         // [SCENARIO 375354] When finish "Create Rating" wizard with multiple profile questionnaire lines all the lines are added to Questionnaire setup
 
-        Initialize;
+        Initialize();
         // [GIVEN] Questionnaire with one heading line and two answers
         LibraryMarketing.CreateQuestionnaireHeader(ProfileQuestionnaireHeader);
         ProfileQuestionnaireLine."Profile Questionnaire Code" := ProfileQuestionnaireHeader.Code;
@@ -480,7 +480,7 @@ codeunit 136206 "Marketing Profiling"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 381660] Stan calls "Update Contacts Classification" report when question's classification method is "Percentage of Value"
-        Initialize;
+        Initialize();
         InvoiceAmount := LibraryRandom.RandIntInRange(10, 20);
         OldWorkDate := WorkDate;
         WorkDate := CalcDate('<2Y>', WorkDate); // move to clean year.
@@ -547,8 +547,8 @@ codeunit 136206 "Marketing Profiling"
 
         LibrarySales.SetCreditWarningsToNoWarnings;
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         isInitialized := true;
         Commit();
@@ -622,11 +622,11 @@ codeunit 136206 "Marketing Profiling"
         Vendor.SetRecFilter;
         CreateContsFromVendors.UseRequestPage(false);
         CreateContsFromVendors.SetTableView(Vendor);
-        CreateContsFromVendors.Run;
+        CreateContsFromVendors.Run();
 
         ContactBusinessRelation.SetRange("Link to Table", ContactBusinessRelation."Link to Table"::Vendor);
         ContactBusinessRelation.SetRange("No.", Vendor."No.");
-        ContactBusinessRelation.FindFirst;
+        ContactBusinessRelation.FindFirst();
         ContactNo := ContactBusinessRelation."Contact No.";
         VendorNo := Vendor."No.";
     end;
@@ -716,14 +716,14 @@ codeunit 136206 "Marketing Profiling"
     begin
         ProfileQuestionnaireLine.SetRange("Profile Questionnaire Code", ProfileQuestionnaireCode);
         ProfileQuestionnaireLine.SetRange(Type, ProfileQuestionnaireLine.Type::Answer);
-        ProfileQuestionnaireLine.FindFirst;
+        ProfileQuestionnaireLine.FindFirst();
     end;
 
     local procedure FindFirstQuestionOnProfileQuestionnaireLine(var ProfileQuestionnaireLine: Record "Profile Questionnaire Line"; ProfileQuestionnaireCode: Code[20])
     begin
         ProfileQuestionnaireLine.SetRange("Profile Questionnaire Code", ProfileQuestionnaireCode);
         ProfileQuestionnaireLine.SetRange(Type, ProfileQuestionnaireLine.Type::Question);
-        ProfileQuestionnaireLine.FindFirst;
+        ProfileQuestionnaireLine.FindFirst();
     end;
 
     local procedure FinishStepToDoWizard(var TempProfileQuestionnaireLine: Record "Profile Questionnaire Line" temporary)
@@ -743,11 +743,11 @@ codeunit 136206 "Marketing Profiling"
 
         Contact.SetRange(Type, Contact.Type::Person);
         Contact.SetFilter("Company No.", '<>''''');
-        Contact.FindFirst;
+        Contact.FindFirst();
 
         ContactProfileAnswers.SetTableView(ProfileQuestionnaireLine);
         ContactProfileAnswers.SetRunFromForm(ProfileQuestionnaireLine, Contact, ProfileQuestionnaireCode);
-        ContactProfileAnswers.RunModal;
+        ContactProfileAnswers.RunModal();
     end;
 
     local procedure NextStepToDoWizard(var TempProfileQuestionnaireLine: Record "Profile Questionnaire Line" temporary)
@@ -765,7 +765,7 @@ codeunit 136206 "Marketing Profiling"
         ProfileQuestionnaireHeader.SetRange(Code, ProfileQuestionnaireCode);
         UpdateContactClassification.SetTableView(ProfileQuestionnaireHeader);
         UpdateContactClassification.UseRequestPage(false);
-        UpdateContactClassification.RunModal;
+        UpdateContactClassification.RunModal();
     end;
 
     local procedure UpdateCustomerClass(ProfileQuestionnaireLine: Record "Profile Questionnaire Line"; CustomerClass: Option)
@@ -840,9 +840,9 @@ codeunit 136206 "Marketing Profiling"
         ContactProfileAnswer: Record "Contact Profile Answer";
     begin
         SegmentLine.SetRange("Segment No.", SegmentNo);
-        SegmentLine.FindFirst;
+        SegmentLine.FindFirst();
         ContactProfileAnswer.SetRange("Profile Questionnaire Code", ProfileQuestionnaireCode);
-        ContactProfileAnswer.FindFirst;
+        ContactProfileAnswer.FindFirst();
         SegmentLine.TestField("Contact No.", ContactProfileAnswer."Contact No.");
     end;
 
@@ -954,7 +954,7 @@ codeunit 136206 "Marketing Profiling"
         SavedSegmentCriteria: Record "Saved Segment Criteria";
     begin
         SavedSegmentCriteria.SetRange(Code, LibraryVariableStorage.DequeueText);
-        SavedSegmentCriteria.FindFirst;
+        SavedSegmentCriteria.FindFirst();
         SavedSegmentCriteriaList.SetRecord(SavedSegmentCriteria);
         Response := ACTION::LookupOK;
     end;

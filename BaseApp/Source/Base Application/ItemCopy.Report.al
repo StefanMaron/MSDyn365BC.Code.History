@@ -430,7 +430,7 @@ report 11511 "Item Copy"
 
         CommentLine.SetRange("Table Name", CommentLine."Table Name"::Item);
         CommentLine.SetRange("No.", FromItemNo);
-        if CommentLine.FindSet then begin
+        if CommentLine.FindSet() then begin
             InitDialog(Text013);
             repeat
                 CommentLine."No." := ToItemNo;
@@ -448,7 +448,7 @@ report 11511 "Item Copy"
     begin
         if CopyUnitOfMeasure then begin
             ItemUnitOfMeasure.SetRange("Item No.", FromItem."No.");
-            if ItemUnitOfMeasure.FindSet then begin
+            if ItemUnitOfMeasure.FindSet() then begin
                 InitDialog(Text014);
                 repeat
                     ItemUnitOfMeasure."Item No." := ToItem."No.";
@@ -476,7 +476,7 @@ report 11511 "Item Copy"
             exit;
 
         ItemVariant.SetRange("Item No.", FromItemNo);
-        if ItemVariant.FindSet then begin
+        if ItemVariant.FindSet() then begin
             InitDialog(Text015);
             repeat
                 ItemVariant."Item No." := ToItemNo;
@@ -496,7 +496,7 @@ report 11511 "Item Copy"
         ItemTranslation.SetRange("Item No.", FromItemNo);
         if not CopyVariants then
             ItemTranslation.SetRange("Variant Code", '');
-        if ItemTranslation.FindSet then begin
+        if ItemTranslation.FindSet() then begin
             InitDialog(Text016);
             repeat
                 ItemTranslation."Item No." := ToItemNo;
@@ -518,14 +518,14 @@ report 11511 "Item Copy"
 
         ExtendedTextHeader.SetRange("Table Name", ExtendedTextHeader."Table Name"::Item);
         ExtendedTextHeader.SetRange("No.", FromItemNo);
-        if ExtendedTextHeader.FindSet then begin
+        if ExtendedTextHeader.FindSet() then begin
             InitDialog(Text017);
             repeat
                 ExtendedTextLine.SetRange("Table Name", ExtendedTextHeader."Table Name");
                 ExtendedTextLine.SetRange("No.", ExtendedTextHeader."No.");
                 ExtendedTextLine.SetRange("Language Code", ExtendedTextHeader."Language Code");
                 ExtendedTextLine.SetRange("Text No.", ExtendedTextHeader."Text No.");
-                if ExtendedTextLine.FindSet then
+                if ExtendedTextLine.FindSet() then
                     repeat
                         ExtendedTextLine."No." := ToItemNo;
                         ExtendedTextLine.Insert();
@@ -551,7 +551,7 @@ report 11511 "Item Copy"
             exit;
 
         BOMComponent.SetRange("Parent Item No.", FromItemNo);
-        if BOMComponent.FindSet then begin
+        if BOMComponent.FindSet() then begin
             InitDialog(Text018);
             repeat
                 BOMComponent."Parent Item No." := ToItemNo;
@@ -571,7 +571,7 @@ report 11511 "Item Copy"
             exit;
 
         ItemVendor.SetRange("Item No.", FromItemNo);
-        if ItemVendor.FindSet then begin
+        if ItemVendor.FindSet() then begin
             InitDialog(Text021);
             repeat
                 ItemVendor."Item No." := ToItemNo;
@@ -590,7 +590,7 @@ report 11511 "Item Copy"
         if CopyDimensions then begin
             DefaultDim.SetRange("Table ID", DATABASE::Item);
             DefaultDim.SetRange("No.", FromItem."No.");
-            if DefaultDim.FindSet then begin
+            if DefaultDim.FindSet() then begin
                 InitDialog(Text027);
                 repeat
                     DefaultDim."No." := ToItem."No.";
@@ -620,7 +620,7 @@ report 11511 "Item Copy"
 
         TroubleshootingSetup.SetRange(Type, TroubleshootingSetup.Type::Item);
         TroubleshootingSetup.SetRange("No.", FromItemNo);
-        if TroubleshootingSetup.FindSet then begin
+        if TroubleshootingSetup.FindSet() then begin
             InitDialog(Text028);
             repeat
                 TroubleshootingSetup."No." := ToItemNo;
@@ -641,7 +641,7 @@ report 11511 "Item Copy"
 
         ResourceSkill.SetRange(Type, ResourceSkill.Type::Item);
         ResourceSkill.SetRange("No.", FromItemNo);
-        if ResourceSkill.FindSet then begin
+        if ResourceSkill.FindSet() then begin
             InitDialog(Text026);
             repeat
                 ResourceSkill."No." := ToItemNo;
@@ -661,7 +661,7 @@ report 11511 "Item Copy"
             exit;
 
         SalesPrice.SetRange("Item No.", FromItemNo);
-        if SalesPrice.FindSet then begin
+        if SalesPrice.FindSet() then begin
             InitDialog(Text029);
             repeat
                 SalesPrice."Item No." := ToItemNo;
@@ -681,7 +681,7 @@ report 11511 "Item Copy"
 
         SalesLineDiscount.SetRange(Type, SalesLineDiscount.Type::Item);
         SalesLineDiscount.SetRange(Code, FromItemNo);
-        if SalesLineDiscount.FindSet then begin
+        if SalesLineDiscount.FindSet() then begin
             InitDialog(Text030);
             repeat
                 SalesLineDiscount.Code := ToItemNo;
@@ -700,7 +700,7 @@ report 11511 "Item Copy"
             exit;
 
         PurchasePrice.SetRange("Item No.", FromItemNo);
-        if PurchasePrice.FindSet then begin
+        if PurchasePrice.FindSet() then begin
             InitDialog(Text031);
             repeat
                 PurchasePrice."Item No." := ToItemNo;
@@ -719,7 +719,7 @@ report 11511 "Item Copy"
             exit;
 
         PurchLineDiscount.SetRange("Item No.", FromItemNo);
-        if PurchLineDiscount.FindSet then begin
+        if PurchLineDiscount.FindSet() then begin
             InitDialog(Text032);
             repeat
                 PurchLineDiscount."Item No." := ToItemNo;
@@ -740,7 +740,7 @@ report 11511 "Item Copy"
 
         ItemAttributeValueMapping.SetRange("Table ID", DATABASE::Item);
         ItemAttributeValueMapping.SetRange("No.", FromItemNo);
-        if ItemAttributeValueMapping.FindSet then
+        if ItemAttributeValueMapping.FindSet() then
             repeat
                 NewItemAttributeValueMapping := ItemAttributeValueMapping;
                 NewItemAttributeValueMapping."No." := ToItemNo;

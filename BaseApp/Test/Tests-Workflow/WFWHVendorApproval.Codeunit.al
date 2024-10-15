@@ -15,37 +15,15 @@ codeunit 134222 "WFWH Vendor Approval"
         LibraryWorkflow: Codeunit "Library - Workflow";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         Assert: Codeunit Assert;
-        BogusUserIdTxt: Label 'Contoso';
+        BogusUserIdTxt: Label 'CONTOSO';
         DynamicRequestPageParametersVendorTxt: Label '<?xml version="1.0" encoding="utf-8" standalone="yes"?><ReportParameters><DataItems><DataItem name="Vendor">VERSION(1) SORTING(Field1)</DataItem></DataItems></ReportParameters>', Locked = true;
         UnexpectedNoOfWorkflowStepInstancesErr: Label 'Unexpected number of workflow step instances found.';
+        EntryIsNotPendingErr: Label 'The %1 you are trying to act on is not in a pending state.', Comment = '%1 = the table caption for "Workflow Webhook Entry"';
+        UserNotApproverErr: Label 'User %1 does not have the permission necessary to act on the item. Make sure the user is set as approver or substitute in page Approval User Setup, or check the "Workflows" section of the documentation.', Comment = '%1 = a NAV user ID';
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryJobQueue: Codeunit "Library - Job Queue";
         MockOnFindTaskSchedulerAllowed: Codeunit MockOnFindTaskSchedulerAllowed;
         IsInitialized: Boolean;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure MakeCurrentUserAnApprover()
-    var
-        UserSetup: Record "User Setup";
-    begin
-        if not UserSetup.Get(BogusUserIdTxt) then begin
-            UserSetup.Init();
-            UserSetup."User ID" := BogusUserIdTxt;
-            UserSetup."Approver ID" := UserId;
-            UserSetup.Insert(true);
-        end;
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure RemoveBogusUser()
-    var
-        UserSetup: Record "User Setup";
-    begin
-        if UserSetup.Get(BogusUserIdTxt) then
-            UserSetup.Delete(true);
-    end;
 
     [Test]
     [Scope('OnPrem')]
@@ -85,7 +63,7 @@ codeunit 134222 "WFWH Vendor Approval"
         // [THEN] The Approval flow gets started.
 
         // Setup
-        Initialize;
+        Initialize();
         CreateAndEnableVendorWorkflowDefinition(UserId);
 
         // Exercise - New Vendor
@@ -113,7 +91,7 @@ codeunit 134222 "WFWH Vendor Approval"
         // [THEN] The vendor request is approved.
 
         // Setup
-        Initialize;
+        Initialize();
         CreateAndEnableVendorWorkflowDefinition(UserId);
         MakeCurrentUserAnApprover;
         LibraryPurchase.CreateVendor(Vendor);
@@ -135,6 +113,81 @@ codeunit 134222 "WFWH Vendor Approval"
 
     [Test]
     [Scope('OnPrem')]
+    procedure EnsureVendorApprovalWorkflowFailsIfUserIsNotApprover()
+    var
+        Vendor: Record Vendor;
+        DummyWorkflowWebhookEntry: Record "Workflow Webhook Entry";
+        WorkflowWebhookManagement: Codeunit "Workflow Webhook Management";
+    begin
+        // [SCENARIO] Ensure that a webhook vendor approval workflow 'approval' path works correctly.
+        // [GIVEN] A webhook vendor approval workflow for a vendor is enabled.
+        // [GIVEN] A vendor request is pending approval.
+        // [WHEN] The webhook vendor approval workflow receives an 'approval' response for the vendor request, by a user that is not set as an approver.
+        // [THEN] An error is thrown.
+
+        // Setup
+        Initialize();
+        CreateAndEnableVendorWorkflowDefinition(UserId);
+        LibraryPurchase.CreateVendor(Vendor);
+
+        // Setup - A approval
+        SendVendorForApproval(Vendor);
+
+        Commit();
+
+        // Verify
+        VerifyWorkflowWebhookEntryResponse(Vendor.SystemId, DummyWorkflowWebhookEntry.Response::Pending);
+
+        // Exercise
+        asserterror WorkflowWebhookManagement.ContinueByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(Vendor.SystemId));
+        Assert.ExpectedError(StrSubstNo(UserNotApproverErr, UserId()));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure EnsureVendorApprovalWorkflowFailsIfAlreadyApproved()
+    var
+        Vendor: Record Vendor;
+        DummyWorkflowWebhookEntry: Record "Workflow Webhook Entry";
+        WorkflowWebhookManagement: Codeunit "Workflow Webhook Management";
+        PendingWorkflowId: Guid;
+    begin
+        // [SCENARIO] Ensure that a webhook vendor approval workflow 'approval' path works correctly.
+        // [GIVEN] A webhook vendor approval workflow for a vendor is enabled.
+        // [GIVEN] A vendor request is pending approval.
+        // [WHEN] The webhook vendor approval workflow receives an 'approval' response for the vendor request.
+        // [THEN] The vendor request is approved.
+        // [WHEN] The webhook vendor approval workflow receives another 'approval' response.
+        // [THEN] The second approval fails.
+
+        // Setup
+        Initialize();
+        CreateAndEnableVendorWorkflowDefinition(UserId);
+        MakeCurrentUserAnApprover;
+        LibraryPurchase.CreateVendor(Vendor);
+
+        // Setup - A approval
+        SendVendorForApproval(Vendor);
+
+        Commit();
+
+        // Verify
+        VerifyWorkflowWebhookEntryResponse(Vendor.SystemId, DummyWorkflowWebhookEntry.Response::Pending);
+
+        // Exercise
+        PendingWorkflowId := GetPendingWorkflowStepInstanceIdFromDataId(Vendor.SystemId);
+        WorkflowWebhookManagement.ContinueByStepInstanceId(PendingWorkflowId);
+
+        // Verify
+        VerifyWorkflowWebhookEntryResponse(Vendor.SystemId, DummyWorkflowWebhookEntry.Response::Continue);
+
+        // Exercise
+        asserterror WorkflowWebhookManagement.ContinueByStepInstanceId(PendingWorkflowId);
+        Assert.ExpectedError('A response has already been received.');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure EnsureVendorApprovalWorkflowFunctionsCorrectlyWhenCancelled()
     var
         Vendor: Record Vendor;
@@ -148,7 +201,7 @@ codeunit 134222 "WFWH Vendor Approval"
         // [THEN] The vendor request is cancelled.
 
         // Setup
-        Initialize;
+        Initialize();
         CreateAndEnableVendorWorkflowDefinition(UserId);
         MakeCurrentUserAnApprover;
         LibraryPurchase.CreateVendor(Vendor);
@@ -183,7 +236,7 @@ codeunit 134222 "WFWH Vendor Approval"
         // [THEN] The vendor request is rejected.
 
         // Setup
-        Initialize;
+        Initialize();
         CreateAndEnableVendorWorkflowDefinition(UserId);
         MakeCurrentUserAnApprover;
         LibraryPurchase.CreateVendor(Vendor);
@@ -219,7 +272,7 @@ codeunit 134222 "WFWH Vendor Approval"
         // [THEN] The approval entries are renamed to point to the same record.
 
         // Setup
-        Initialize;
+        Initialize();
         CreateAndEnableVendorWorkflowDefinition(UserId);
         MakeCurrentUserAnApprover;
 
@@ -257,7 +310,7 @@ codeunit 134222 "WFWH Vendor Approval"
         // [THEN] The vendor approval requests are canceled and then the vendor is deleted.
 
         // Setup
-        Initialize;
+        Initialize();
         WorkflowCode := CreateAndEnableVendorWorkflowDefinition(UserId);
         MakeCurrentUserAnApprover;
 
@@ -290,7 +343,7 @@ codeunit 134222 "WFWH Vendor Approval"
         VendorCard: TestPage "Vendor Card";
     begin
         // [SCENARIO] Approval actions are correctly enabled/disabled on Vendor Card page while Flow approval is pending.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor record exists, with enabled workflow and a Flow approval request already open.
         LibraryPurchase.CreateVendor(Vendor);
@@ -322,7 +375,7 @@ codeunit 134222 "WFWH Vendor Approval"
         VendorList: TestPage "Vendor List";
     begin
         // [SCENARIO] Approval actions are correctly enabled/disabled on Vendor List page while Flow approval is pending.
-        Initialize;
+        Initialize();
         LibraryApplicationArea.DisableApplicationAreaSetup;
 
         // [GIVEN] Vendor record exists, with enabled workflow and a Flow approval request already open.
@@ -353,7 +406,7 @@ codeunit 134222 "WFWH Vendor Approval"
         VendorCard: TestPage "Vendor Card";
     begin
         // [SCENARIO] Clicking cancel action to cancel pending Flow approval on Vendor Card page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor record exists, with a Flow approval request already open.
         LibraryPurchase.CreateVendor(Vendor);
@@ -366,7 +419,7 @@ codeunit 134222 "WFWH Vendor Approval"
         VendorCard.CancelApprovalRequest.Invoke;
 
         // [THEN] Workflow Webhook Entry record is cancelled
-        WorkflowWebhookEntry.FindFirst;
+        WorkflowWebhookEntry.FindFirst();
         Assert.AreEqual(WorkflowWebhookEntry.Response::Cancel, WorkflowWebhookEntry.Response, 'Approval request should be cancelled.');
 
         // Cleanup
@@ -384,7 +437,7 @@ codeunit 134222 "WFWH Vendor Approval"
         VendorList: TestPage "Vendor List";
     begin
         // [SCENARIO] Clicking cancel action to cancel pending Flow approval on Vendor List page
-        Initialize;
+        Initialize();
         LibraryApplicationArea.DisableApplicationAreaSetup;
 
         // [GIVEN] Vendor record exists, with a Flow approval request already open.
@@ -398,7 +451,7 @@ codeunit 134222 "WFWH Vendor Approval"
         VendorList.CancelApprovalRequest.Invoke;
 
         // [THEN] Workflow Webhook Entry record is cancelled
-        WorkflowWebhookEntry.FindFirst;
+        WorkflowWebhookEntry.FindFirst();
         Assert.AreEqual(WorkflowWebhookEntry.Response::Cancel, WorkflowWebhookEntry.Response, 'Approval request should be cancelled.');
 
         // Cleanup
@@ -421,9 +474,9 @@ codeunit 134222 "WFWH Vendor Approval"
         UserSetup: Record "User Setup";
         LibraryApplicationArea: Codeunit "Library - Application Area";
     begin
-        LibraryApplicationArea.EnableFoundationSetup;
-        LibraryVariableStorage.Clear;
-        LibraryERMCountryData.CreateVATData;
+        LibraryApplicationArea.EnableFoundationSetup();
+        LibraryVariableStorage.Clear();
+        LibraryERMCountryData.CreateVATData();
         LibraryWorkflow.DisableAllWorkflows;
         UserSetup.DeleteAll();
         ClearWorkflowWebhookEntry.DeleteAll();
@@ -433,6 +486,28 @@ codeunit 134222 "WFWH Vendor Approval"
         IsInitialized := true;
         BindSubscription(LibraryJobQueue);
         BindSubscription(MockOnFindTaskSchedulerAllowed);
+    end;
+
+    [Scope('OnPrem')]
+    procedure MakeCurrentUserAnApprover()
+    var
+        UserSetup: Record "User Setup";
+    begin
+        if not UserSetup.Get(BogusUserIdTxt) then begin
+            UserSetup.Init();
+            UserSetup."User ID" := BogusUserIdTxt;
+            UserSetup."Approver ID" := UserId;
+            UserSetup.Insert(true);
+        end;
+    end;
+
+    [Scope('OnPrem')]
+    procedure RemoveBogusUser()
+    var
+        UserSetup: Record "User Setup";
+    begin
+        if UserSetup.Get(BogusUserIdTxt) then
+            UserSetup.Delete(true);
     end;
 
     local procedure CreateAndEnableVendorWorkflowDefinition(ResponseUserID: Code[50]): Code[20]
@@ -457,7 +532,7 @@ codeunit 134222 "WFWH Vendor Approval"
         WorkflowWebhookEntry.Init();
         WorkflowWebhookEntry.SetFilter("Data ID", Id);
         WorkflowWebhookEntry.SetFilter(Response, '=%1', WorkflowWebhookEntry.Response::Pending);
-        WorkflowWebhookEntry.FindFirst;
+        WorkflowWebhookEntry.FindFirst();
 
         exit(WorkflowWebhookEntry."Workflow Step Instance ID");
     end;
@@ -469,7 +544,7 @@ codeunit 134222 "WFWH Vendor Approval"
         WorkflowWebhookEntry.Init();
         WorkflowWebhookEntry.SetCurrentKey("Data ID");
         WorkflowWebhookEntry.SetRange("Data ID", Id);
-        WorkflowWebhookEntry.FindFirst;
+        WorkflowWebhookEntry.FindFirst();
 
         WorkflowWebhookEntry.TestField(Response, ResponseArgument);
     end;

@@ -331,7 +331,7 @@ codeunit 142006 "Export Business Data"
         ConvertedGermanicUmlautTxt := 'AeOeUeueoeaess';
 
         // [GIVEN] Company information contrains umlauts in the following fields:,Address,Adress2,City,Description.
-        CompanyInformation.FindFirst;
+        CompanyInformation.FindFirst();
         CompanyInformation.Address := GermanicUmlautTxt;
         CompanyInformation."Address 2" := GermanicUmlautTxt;
         CompanyInformation.City := GermanicUmlautTxt;
@@ -400,7 +400,7 @@ codeunit 142006 "Export Business Data"
         FolderName := ExportBusinessData(DataExportRecord);
 
         FindChildEntriesToExport(DtldCVLedgEntryBuffer, TempEntryNo);
-        TempEntryNo.FindFirst;
+        TempEntryNo.FindFirst();
         TempEntryNo.Delete();
 
         VerifyEntryNosInDataFile(FolderName, ExpectedFileNames[2], TempEntryNo, TRUE);
@@ -584,7 +584,7 @@ codeunit 142006 "Export Business Data"
         // [SCENARIO 123684] Export Business Data with the Starting Balance in closed Accounting Period for Income Statement G/L Account
         // [GIVEN] G/L Account = "A"
         GLAccount.Init();
-        GLAccount."No." := LibraryUtility.GenerateGUID;
+        GLAccount."No." := LibraryUtility.GenerateGUID();
         GLAccount.Insert();
 
         // [GIVEN] Data Export Record with settings for G/L Account = "A" with Starting Balance
@@ -1104,17 +1104,17 @@ codeunit 142006 "Export Business Data"
         // [WHEN] Parent 1 is deleted
         DataExportRecordSource.SetRange("Data Export Code", DataExportRecord."Data Export Code");
         DataExportRecordSource.SetRange("Data Exp. Rec. Type Code", DataExportRecord."Data Exp. Rec. Type Code");
-        DataExportRecordSource.FindFirst;
+        DataExportRecordSource.FindFirst();
         DataExportRecordSource.Delete(true);
 
         // [THEN] Pair of Parent 2-Chield 2 (with Relation 2) is still in Setup
         Assert.AreEqual(2, DataExportRecordSource.Count, StrSubstNo(WrongNoOfLinesErr, DataExportRecordSource.TableName));
-        DataExportRecordSource.FindFirst;
+        DataExportRecordSource.FindFirst();
         Assert.AreEqual(
           DATABASE::"CV Ledger Entry Buffer", DataExportRecordSource."Table No.", DataExportRecordSource.FieldName("Table No."));
         Assert.AreEqual(
           ExportFileName[2, 1], DataExportRecordSource."Export File Name", DataExportRecordSource.FieldName("Export File Name"));
-        DataExportRecordSource.FindLast;
+        DataExportRecordSource.FindLast();
         Assert.AreEqual(
           DATABASE::"Detailed CV Ledg. Entry Buffer", DataExportRecordSource."Table No.", DataExportRecordSource.FieldName("Table No."));
         Assert.AreEqual(
@@ -1142,7 +1142,7 @@ codeunit 142006 "Export Business Data"
         DataExportRecordSource.SetRange("Data Export Code", DataExportRecord."Data Export Code");
         DataExportRecordSource.SetRange("Data Exp. Rec. Type Code", DataExportRecord."Data Exp. Rec. Type Code");
         DataExportRecordSource.SetRange(Indentation, 1);
-        DataExportRecordSource.FindFirst;
+        DataExportRecordSource.FindFirst();
         DataExportRecordSource.Delete(true);
 
         // [THEN] Relation 1 is also deleted
@@ -1150,7 +1150,7 @@ codeunit 142006 "Export Business Data"
         DataExportTableRelation.SetRange("Data Exp. Rec. Type Code", DataExportRecord."Data Exp. Rec. Type Code");
         Assert.AreEqual(1, DataExportTableRelation.Count, StrSubstNo(WrongNoOfLinesErr, DataExportTableRelation.TableName));
         // [THEN] Relation 2 does still exist
-        DataExportRecordSource.FindFirst;
+        DataExportRecordSource.FindFirst();
         DataExportRecordSource.CalcFields("Table Relation Defined");
         Assert.IsTrue(DataExportRecordSource."Table Relation Defined", DataExportRecordSource.FieldName("Table Relation Defined"));
     end;
@@ -1235,7 +1235,7 @@ codeunit 142006 "Export Business Data"
 
         // [THEN] Record Y and record Z are both indented. Y.Indentation is 1, Z.Indentation is 2.
         DataExportRecordSource.SetRange("Table No.", VATEntryTableNo);
-        DataExportRecordSource.FindFirst;
+        DataExportRecordSource.FindFirst();
         Assert.AreEqual(NoOfRecords - 1, DataExportRecordSource.Indentation, WrongIndentErr);
     end;
 
@@ -1299,7 +1299,7 @@ codeunit 142006 "Export Business Data"
 
         // [THEN] Both record Y and Z are un-indented: Y.Indentation is 0, Z.Indentationis 1.
         DataExportRecordSource.SetRange("Table No.", VATEntryTableNo);
-        DataExportRecordSource.FindFirst;
+        DataExportRecordSource.FindFirst();
         Assert.AreEqual(1, DataExportRecordSource.Indentation, WrongIndentErr);
     end;
 
@@ -1474,7 +1474,7 @@ codeunit 142006 "Export Business Data"
         // [WHEN] Validate RS1."Export Table Name" = 'CVLedger' (substring of RS2)
         DataExportRecordSource.SetRange("Data Export Code", DataExportRecordDefinition."Data Export Code");
         DataExportRecordSource.SetRange("Table No.", DATABASE::Vendor);
-        DataExportRecordSource.FindFirst;
+        DataExportRecordSource.FindFirst();
         DataExportRecordSource.Validate("Export Table Name", 'CVLedger');
 
         // [THEN] Validates successfully
@@ -1497,7 +1497,7 @@ codeunit 142006 "Export Business Data"
         // [WHEN] Validate RS1."Export Table Name" = 'CVLedgerEntryBuffer'
         DataExportRecordSource.SetRange("Data Export Code", DataExportRecordDefinition."Data Export Code");
         DataExportRecordSource.SetRange("Table No.", DATABASE::Vendor);
-        DataExportRecordSource.FindFirst;
+        DataExportRecordSource.FindFirst();
         DataExportRecordSource.Validate("Export Table Name", 'CVLedgerEntryBuffer');
 
         // [THEN] Validates to 'CVLedgerEntryBuffer1'
@@ -1506,7 +1506,7 @@ codeunit 142006 "Export Business Data"
         DataExportRecordSource.Reset();
         DataExportRecordSource.SetRange("Data Export Code", DataExportRecordDefinition."Data Export Code");
         DataExportRecordSource.SetRange("Table No.", DATABASE::"Detailed CV Ledg. Entry Buffer");
-        DataExportRecordSource.FindFirst;
+        DataExportRecordSource.FindFirst();
         DataExportRecordSource.Validate("Export Table Name", 'CVLedgerEntryBuffer');
         DataExportRecordSource.TestField("Export Table Name", 'CVLedgerEntryBuffer2');
     end;
@@ -1527,7 +1527,7 @@ codeunit 142006 "Export Business Data"
         // [GIVEN] RS1."Export Table Name" = 'CVLedgerEntryBuffer1'
         DataExportRecordSource.SetRange("Data Export Code", DataExportRecordDefinition."Data Export Code");
         DataExportRecordSource.SetRange("Table No.", DATABASE::Vendor);
-        DataExportRecordSource.FindFirst;
+        DataExportRecordSource.FindFirst();
         DataExportRecordSource.Validate("Export Table Name", 'CVLedgerEntryBuffer');
         DataExportRecordSource.Modify(true);
 
@@ -1535,7 +1535,7 @@ codeunit 142006 "Export Business Data"
         DataExportRecordSource.Reset();
         DataExportRecordSource.SetRange("Data Export Code", DataExportRecordDefinition."Data Export Code");
         DataExportRecordSource.SetRange("Table No.", DATABASE::"Detailed CV Ledg. Entry Buffer");
-        DataExportRecordSource.FindFirst;
+        DataExportRecordSource.FindFirst();
         DataExportRecordSource.Validate("Export Table Name", 'CVLedgerEntryBuffer');
 
         // [THEN] Validates to 'CVLedgerEntryBuffer2'
@@ -1558,7 +1558,7 @@ codeunit 142006 "Export Business Data"
         // [WHEN] Validate RS1."Export File Name" = 'CVLedger.txt' (substring of RS2)
         DataExportRecordSource.SetRange("Data Export Code", DataExportRecordDefinition."Data Export Code");
         DataExportRecordSource.SetRange("Table No.", DATABASE::Vendor);
-        DataExportRecordSource.FindFirst;
+        DataExportRecordSource.FindFirst();
         DataExportRecordSource.Validate("Export File Name", 'CVLedger.txt');
 
         // [THEN] Validates successfully
@@ -1581,7 +1581,7 @@ codeunit 142006 "Export Business Data"
         // [WHEN] Validate RS1."Export File Name" = 'CVLedgerEntryBuffer.txt' (same as RS2)
         DataExportRecordSource.SetRange("Data Export Code", DataExportRecordDefinition."Data Export Code");
         DataExportRecordSource.SetRange("Table No.", DATABASE::Vendor);
-        DataExportRecordSource.FindFirst;
+        DataExportRecordSource.FindFirst();
         DataExportRecordSource.Validate("Export File Name", 'CVLedgerEntryBuffer.txt');
 
         // [THEN] Validates to 'CVLedgerEntryBuffer1.txt'
@@ -1604,7 +1604,7 @@ codeunit 142006 "Export Business Data"
         // [Given] RS1."Export File Name" = 'CVLedgerEntryBuffer1.txt'
         DataExportRecordSource.SetRange("Data Export Code", DataExportRecordDefinition."Data Export Code");
         DataExportRecordSource.SetRange("Table No.", DATABASE::Vendor);
-        DataExportRecordSource.FindFirst;
+        DataExportRecordSource.FindFirst();
         DataExportRecordSource.Validate("Export File Name", 'CVLedgerEntryBuffer.txt');
         DataExportRecordSource.Modify(true);
 
@@ -1612,7 +1612,7 @@ codeunit 142006 "Export Business Data"
         DataExportRecordSource.Reset();
         DataExportRecordSource.SetRange("Data Export Code", DataExportRecordDefinition."Data Export Code");
         DataExportRecordSource.SetRange("Table No.", DATABASE::"Detailed CV Ledg. Entry Buffer");
-        DataExportRecordSource.FindFirst;
+        DataExportRecordSource.FindFirst();
         DataExportRecordSource.Validate("Export File Name", 'CVLedgerEntryBuffer.txt');
 
         // [THEN] Validates to 'CVLedgerEntryBuffer2.txt'
@@ -1797,7 +1797,7 @@ codeunit 142006 "Export Business Data"
             SetRange("Data Export Code", DataExportRecord."Data Export Code");
             SetRange("Data Exp. Rec. Type Code", DataExportRecord."Data Exp. Rec. Type Code");
             SetRange("Table No.", TableID);
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -1883,7 +1883,7 @@ codeunit 142006 "Export Business Data"
         // Same tables Parent-Child tables are set with empty table filters
         DataExportRecordSource.SetRange("Data Export Code", DataExportRecord."Data Export Code");
         DataExportRecordSource.SetRange("Data Exp. Rec. Type Code", DataExportRecord."Data Exp. Rec. Type Code");
-        DataExportRecordSource.FindLast;
+        DataExportRecordSource.FindLast();
 
         AddRecordSourceWithFields(DataExportRecord, DATABASE::"CV Ledger Entry Buffer", DataExportRecordSource);
         ParentDataExportRecordSource := DataExportRecordSource;
@@ -1915,7 +1915,7 @@ codeunit 142006 "Export Business Data"
         DataExport: Record "Data Export";
     begin
         with DataExport do begin
-            Code := LibraryUtility.GenerateGUID;
+            Code := LibraryUtility.GenerateGUID();
             Description := Code;
             Insert;
             exit(Code);
@@ -1927,7 +1927,7 @@ codeunit 142006 "Export Business Data"
         DataExportRecType: Record "Data Export Record Type";
     begin
         with DataExportRecType do begin
-            Code := LibraryUtility.GenerateGUID;
+            Code := LibraryUtility.GenerateGUID();
             Description := Code;
             Insert;
             exit(Code);
@@ -1978,7 +1978,7 @@ codeunit 142006 "Export Business Data"
             SetRange("Table No.", TableID);
             SetRange("Field No.", FieldID);
             SetRange("Source Line No.", DataExportRecordSource."Line No.");
-            FindFirst;
+            FindFirst();
 
             "Date Filter Handling" := DateFilterHandling;
             Modify;
@@ -2208,7 +2208,9 @@ codeunit 142006 "Export Business Data"
         AddField(DataExportRecField, CompanyInformation.FieldNo("Ship-to Address"));
         AddField(DataExportRecField, CompanyInformation.FieldNo("Ship-to Address 2"));
         AddField(DataExportRecField, CompanyInformation.FieldNo("Ship-to Contact"));
+#if not CLEAN20
         AddField(DataExportRecField, CompanyInformation.FieldNo("IC Inbox Details"));
+#endif
         AddField(DataExportRecField, CompanyInformation.FieldNo("Custom System Indicator Text"));
         AddField(DataExportRecField, CompanyInformation.FieldNo("Tax Office Name"));
         AddField(DataExportRecField, CompanyInformation.FieldNo("Tax Office Name 2"));
@@ -2319,7 +2321,7 @@ codeunit 142006 "Export Business Data"
             SetRange("Data Export Code", DataExpCode);
             SetRange("Data Exp. Rec. Type Code", DataExpRecTypeCode);
             SetRange("Table No.", TableNo);
-            FindFirst;
+            FindFirst();
             AddFields(DataExportRecordSource);
         end;
     end;
@@ -2437,14 +2439,14 @@ codeunit 142006 "Export Business Data"
         NewDtldCVLedgEntryBuffer: Record "Detailed CV Ledg. Entry Buffer";
         NewChildEntryNo: Integer;
     begin
-        CVLedgEntryBuffer.FindLast;
+        CVLedgEntryBuffer.FindLast();
         CVLedgEntryBuffer."Entry No." += 1;
         CVLedgEntryBuffer.Insert();
 
         DtldCVLedgEntryBuffer.SetRange("CV Ledger Entry No.", CVLedgEntryBuffer."Entry No." - 1);
-        if DtldCVLedgEntryBuffer.FindLast then begin
+        if DtldCVLedgEntryBuffer.FindLast() then begin
             NewChildEntryNo := DtldCVLedgEntryBuffer."Entry No." + 1;
-            if DtldCVLedgEntryBuffer.FindSet then
+            if DtldCVLedgEntryBuffer.FindSet() then
                 repeat
                     NewDtldCVLedgEntryBuffer := DtldCVLedgEntryBuffer;
                     NewDtldCVLedgEntryBuffer."Entry No." := NewChildEntryNo;
@@ -2459,7 +2461,7 @@ codeunit 142006 "Export Business Data"
     var
         DtldCVLedgEntryBuffer: Record "Detailed CV Ledg. Entry Buffer";
     begin
-        DtldCVLedgEntryBuffer.FindFirst;
+        DtldCVLedgEntryBuffer.FindFirst();
         DtldCVLedgEntryBuffer."Posting Date" += 1;
         DtldCVLedgEntryBuffer.Modify();
     end;
@@ -2468,7 +2470,7 @@ codeunit 142006 "Export Business Data"
     var
         DtldCVLedgEntryBuffer: Record "Detailed CV Ledg. Entry Buffer";
     begin
-        DtldCVLedgEntryBuffer.FindFirst;
+        DtldCVLedgEntryBuffer.FindFirst();
         DtldCVLedgEntryBuffer."Document Type" :=
             "Gen. Journal Document Type".FromInteger(DtldCVLedgEntryBuffer."Document Type".AsInteger() + 1);
         DtldCVLedgEntryBuffer.Modify();
@@ -2478,7 +2480,7 @@ codeunit 142006 "Export Business Data"
     var
         DtldCVLedgEntryBuffer: Record "Detailed CV Ledg. Entry Buffer";
     begin
-        DtldCVLedgEntryBuffer.FindFirst;
+        DtldCVLedgEntryBuffer.FindFirst();
         DtldCVLedgEntryBuffer."CV No." := 'X';
         DtldCVLedgEntryBuffer.Modify();
     end;
@@ -2487,7 +2489,7 @@ codeunit 142006 "Export Business Data"
     begin
         with DtldCVLedgEntryBuffer do begin
             SetRange("Posting Date", WorkDate);
-            if FindSet then
+            if FindSet() then
                 repeat
                     TempEntryNo.Number := "Entry No.";
                     TempEntryNo.Insert();
@@ -2524,9 +2526,9 @@ codeunit 142006 "Export Business Data"
         DataRangeTxt: Text;
     begin
         with AccountingPeriod do begin
-            FindFirst;
+            FindFirst();
             DataRangeTxt := Format("Starting Date") + '..';
-            FindLast;
+            FindLast();
             DataRangeTxt += Format("Starting Date");
             exit(DataRangeTxt);
         end;
@@ -2806,7 +2808,7 @@ codeunit 142006 "Export Business Data"
         NextEntryNo: Integer;
     begin
         with CustLedgEntry do begin
-            if FindLast then
+            if FindLast() then
                 NextEntryNo := "Entry No." + 1
             else
                 NextEntryNo := 1;
@@ -2819,7 +2821,7 @@ codeunit 142006 "Export Business Data"
         end;
 
         with DetCustLedgEntry do begin
-            if FindLast then
+            if FindLast() then
                 NextEntryNo := "Entry No." + 1
             else
                 NextEntryNo := 1;
@@ -2917,7 +2919,9 @@ codeunit 142006 "Export Business Data"
             "Ship-to Address" := CompanyInformation."Ship-to Address";
             "Ship-to Address 2" := CompanyInformation."Ship-to Address 2";
             "Ship-to Contact" := CompanyInformation."Ship-to Contact";
+#if not CLEAN20
             "IC Inbox Details" := CompanyInformation."IC Inbox Details";
+#endif
             "Custom System Indicator Text" := CompanyInformation."Custom System Indicator Text";
             "Tax Office Name" := CompanyInformation."Tax Office Name";
             "Tax Office Name 2" := CompanyInformation."Tax Office Name 2";
@@ -3150,10 +3154,10 @@ codeunit 142006 "Export Business Data"
     begin
         CustLedgEntry.SetFilter("Posting Date", Customer.GetFilter("Date Filter"));
         ReadCustomersFromDataFile(ZipFilePath, FileName, TempCust);
-        Customer.FindFirst;
+        Customer.FindFirst();
         repeat
             CustLedgEntry.SetRange("Customer No.", Customer."No.");
-            if CustLedgEntry.FindSet then
+            if CustLedgEntry.FindSet() then
                 repeat
                     TempCust.SetRange("No.", Format(CustLedgEntry."Entry No."));
                     Assert.IsFalse(TempCust.IsEmpty, IncorrectNoOfRelatedRecsErr);
@@ -3215,7 +3219,9 @@ codeunit 142006 "Export Business Data"
             "Ship-to Address" := GenerateRandomCode(50);
             "Ship-to Address 2" := GenerateRandomCode(50);
             "Ship-to Contact" := GenerateRandomCode(50);
+#if not CLEAN20
             "IC Inbox Details" := GenerateRandomCode(240);
+#endif
             "Custom System Indicator Text" := GenerateRandomCode(240);
             "Tax Office Name" := GenerateRandomCode(50);
             "Tax Office Name 2" := GenerateRandomCode(50);

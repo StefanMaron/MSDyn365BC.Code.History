@@ -67,7 +67,7 @@ codeunit 142081 "Test Intrastat DACH"
         // [SCENARIO 235022] You cannot create Place Of Dispatcher with blank Code.
         Initialize();
 
-        PlaceOfDispatchers.OpenNew;
+        PlaceOfDispatchers.OpenNew();
         asserterror PlaceOfDispatchers.Code.SetValue('');
 
         Assert.ExpectedErrorCode('TestValidation');
@@ -83,7 +83,7 @@ codeunit 142081 "Test Intrastat DACH"
         // [SCENARIO 235022] You cannot create Place Of Receiver with blank Code.
         Initialize();
 
-        PlaceOfReceivers.OpenNew;
+        PlaceOfReceivers.OpenNew();
         asserterror PlaceOfReceivers.Code.SetValue('');
 
         Assert.ExpectedErrorCode('TestValidation');
@@ -165,7 +165,7 @@ codeunit 142081 "Test Intrastat DACH"
         GetItemLedgerEntries.InitializeRequest(
           CalcDate('<-CM>', NewDate), CalcDate('<CM>', NewDate), 0);
         GetItemLedgerEntries.UseRequestPage(false);
-        GetItemLedgerEntries.Run;
+        GetItemLedgerEntries.Run();
     end;
 
     local procedure SetIntrastatCodeOnCountryRegion(var TempCompanyInformation: Record "Company Information" temporary)

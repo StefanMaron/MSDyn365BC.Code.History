@@ -45,7 +45,7 @@ codeunit 142059 "UT REP FIXEDASSET"
     begin
         // Purpose of the test is to validate the Fixed Asset - OnPreDataItem trigger of Fixed Asset Book Value 03 Report for Group Totals of FA Posting Group with FixedAssetBookValue03FAPostingGroupReportHandler.
         // Setup.
-        Initialize;
+        Initialize();
         CreateFixedAssetWithDepreciationBookSetup(FADepreciationBook);
 
         // Exercise.
@@ -68,7 +68,7 @@ codeunit 142059 "UT REP FIXEDASSET"
     begin
         // Purpose of the test is to validate the Fixed Asset - OnPreDataItem trigger of Fixed Asset Book Value 03 Report for Group Totals of Main Asset with FixedAssetBookValue03MainAssetReportHandler.
         // Setup.
-        Initialize;
+        Initialize();
         OnPreDataItemGroupTotalsFABookValue03(StrSubstNo(GroupCodeNameTxt, FixedAsset.FieldCaption("Main Asset/Component")), 4);  // Group Field Index for Main Asset / Component.
     end;
 
@@ -82,7 +82,7 @@ codeunit 142059 "UT REP FIXEDASSET"
     begin
         // Purpose of the test is to validate the Fixed Asset - OnPreDataItem trigger of Fixed Asset Book Value 03 Report for Group Totals of Global Dimension 2 Code with FixedAssetBookValue03Dimension2ReportHandler.
         // Setup.
-        Initialize;
+        Initialize();
         OnPreDataItemGroupTotalsFABookValue03(StrSubstNo(GroupCodeNameTxt, FixedAsset.FieldCaption("Global Dimension 2 Code")), 6);  // Group Field Index for Global Dimension 2 Code.
     end;
 
@@ -96,7 +96,7 @@ codeunit 142059 "UT REP FIXEDASSET"
     begin
         // Purpose of the test is to validate the Fixed Asset - OnPreDataItem trigger of Fixed Asset Book Value 03 Report for Group Totals of Global Dimension 1 Code with FixedAssetBookValue03Dimension1ReportHandler.
         // Setup.
-        Initialize;
+        Initialize();
         OnPreDataItemGroupTotalsFABookValue03(StrSubstNo(GroupCodeNameTxt, FixedAsset.FieldCaption("Global Dimension 1 Code")), 5);  // Group Field Index for Global Dimension 1 Code.
     end;
 
@@ -110,7 +110,7 @@ codeunit 142059 "UT REP FIXEDASSET"
     begin
         // Purpose of the test is to validate the Fixed Asset - OnPreDataItem trigger of Fixed Asset Book Value 03 Report for Group Totals of FA Location Code with FixedAssetBookValue03FALocationReportHandler.
         // Setup.
-        Initialize;
+        Initialize();
         OnPreDataItemGroupTotalsFABookValue03(StrSubstNo(GroupCodeNameTxt, FixedAsset.FieldCaption("FA Location Code")), 3);  // Group Field Index for FA Location Code.
     end;
 
@@ -124,7 +124,7 @@ codeunit 142059 "UT REP FIXEDASSET"
     begin
         // Purpose of the test is to validate the Fixed Asset - OnPreDataItem trigger of Fixed Asset Book Value 03 Report for Group Totals of FA Subclass Code with FixedAssetBookValue03FASubClassReportHandler.
         // Setup.
-        Initialize;
+        Initialize();
         OnPreDataItemGroupTotalsFABookValue03(StrSubstNo(GroupCodeNameTxt, FixedAsset.FieldCaption("FA Subclass Code")), 2);  // Group Field Index for FA Subclass Code.
     end;
 
@@ -138,7 +138,7 @@ codeunit 142059 "UT REP FIXEDASSET"
     begin
         // Purpose of the test is to validate the Fixed Asset - OnPreDataItem trigger of Fixed Asset Book Value 03 Report for Group Totals of FA Class Code with FixedAssetBookValue03FAClassReportHandler.
         // Setup.
-        Initialize;
+        Initialize();
         OnPreDataItemGroupTotalsFABookValue03(StrSubstNo(GroupCodeNameTxt, FixedAsset.FieldCaption("FA Class Code")), 1);  // Group Field Index for FA Class Code.
     end;
 
@@ -169,7 +169,7 @@ codeunit 142059 "UT REP FIXEDASSET"
     begin
         // Purpose of the test is to validate the OnPreDataItem trigger of Fixed Asset Book Value 03 Report for Print Details option with FixedAssetBookValue03PrintDetailsReportHandler.
         // Setup.
-        Initialize;
+        Initialize();
         CreateFixedAssetWithDepreciationBookSetup(FADepreciationBook);
 
         // Exercise.
@@ -187,7 +187,7 @@ codeunit 142059 "UT REP FIXEDASSET"
     begin
         // Purpose of the test is to validate the OnPreReport trigger of Fixed Asset Book Value 03 Report for Starting Date and Ending Date with FixedAssetBookValue03BlankEndingDateReportHandler.
         // Setup.
-        Initialize;
+        Initialize();
         OnPreReportValidateDatesFABookValue03Error;
     end;
 
@@ -199,7 +199,7 @@ codeunit 142059 "UT REP FIXEDASSET"
     begin
         // Purpose of the test is to validate the OnPreReport trigger of Fixed Asset Book Value 03 Report for later Starting Date than Ending Date with FixedAssetBookValue03StartingDateReportHandler.
         // Setup.
-        Initialize;
+        Initialize();
         OnPreReportValidateDatesFABookValue03Error;
     end;
 
@@ -227,7 +227,7 @@ codeunit 142059 "UT REP FIXEDASSET"
     begin
         // Purpose of the test is to validate the OnPreReport trigger of Fixed Asset Book Value 03 Report for Budget Report Head Line Text with FixedAssetBookValue03WithBudgetReportHandler.
         // Setup.
-        Initialize;
+        Initialize();
         CreateFixedAssetWithDepreciationBookSetup(FADepreciationBook);
 
         // Exercise.
@@ -249,7 +249,7 @@ codeunit 142059 "UT REP FIXEDASSET"
     begin
         // Purpose of the test is to validate the OnPreReport trigger of Fixed Asset Book Value 03 Report for Budget Report Custom 1 Depreciation error with FixedAssetBookValue03WithBudgetReportHandler.
         // Setup.
-        Initialize;
+        Initialize();
         CreateFixedAssetWithDepreciationBookSetup(FADepreciationBook);
         DepreciationBook.Get(FADepreciationBook."Depreciation Book Code");
         DepreciationBook."Use Custom 1 Depreciation" := true;
@@ -274,7 +274,7 @@ codeunit 142059 "UT REP FIXEDASSET"
     begin
         // Purpose of the test is to validate the Fixed Asset - OnAfterGetRecord trigger of Fixed Asset Book Value 03 Report for Reclassification Amount with FixedAssetBookValue03FAClassReportHandler.
         // Setup.
-        Initialize;
+        Initialize();
         CreateFixedAssetWithDepreciationBookSetup(FADepreciationBook);
         FALedgerEntryAmount := CreateFALedgerEntry(FADepreciationBook."FA No.", FADepreciationBook."Depreciation Book Code", FALedgerEntry."FA Posting Type"::"Acquisition Cost");
 
@@ -299,7 +299,7 @@ codeunit 142059 "UT REP FIXEDASSET"
     begin
         // Purpose of the test is to validate the Fixed Asset - OnAfterGetRecord trigger of Fixed Asset Book Value 03 Report for Disposal Date with FixedAssetBookValue03FAClassReportHandler.
         // Setup.
-        Initialize;
+        Initialize();
         CreateFixedAssetWithDepreciationBookSetup(FADepreciationBook);
         FADepreciationBook."Disposal Date" := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate);
         FADepreciationBook.Modify();
@@ -322,7 +322,7 @@ codeunit 142059 "UT REP FIXEDASSET"
     begin
         // Purpose of the test is to validate the Fixed Asset - OnAfterGetRecord trigger of Fixed Asset Book Value 03 Report for Group, Total Net Change with FA Posting Type Appreciation and FixedAssetBookValue03FAClassReportHandler.
         // Setup.
-        Initialize;
+        Initialize();
         OnAfterGetRecordNetChangeFABookValue03;
     end;
 
@@ -334,7 +334,7 @@ codeunit 142059 "UT REP FIXEDASSET"
     begin
         // Purpose of the test is to validate the Fixed Asset - OnAfterGetRecord trigger of Fixed Asset Book Value 03 Report for Group, Total Net Change with FA Posting Type Appreciation and FixedAssetBookValue03FASubClassReportHandler.
         // Setup.
-        Initialize;
+        Initialize();
         OnAfterGetRecordNetChangeFABookValue03;
     end;
 
@@ -362,7 +362,7 @@ codeunit 142059 "UT REP FIXEDASSET"
     begin
         // Purpose of the test is to validate the Fixed Asset - OnAfterGetRecord trigger of Fixed Asset Book Value 03 Report for Group, Total Net Change with FA Posting Type Custom 1 and FixedAssetBookValue03FAClassReportHandler.
         // Setup.
-        Initialize;
+        Initialize();
         OnAfterGetRecordNetChangeCustom1FABookValue03;
     end;
 
@@ -374,7 +374,7 @@ codeunit 142059 "UT REP FIXEDASSET"
     begin
         // Purpose of the test is to validate the Fixed Asset - OnAfterGetRecord trigger of Fixed Asset Book Value 03 Report for Group, Total Net Change with FA Posting Type Custom 1 and FixedAssetBookValue03FASubClassReportHandler.
         // Setup.
-        Initialize;
+        Initialize();
         OnAfterGetRecordNetChangeCustom1FABookValue03;
     end;
 
@@ -406,7 +406,7 @@ codeunit 142059 "UT REP FIXEDASSET"
     begin
         // Purpose of the test is to validate the Fixed Asset - OnAfterGetRecord trigger of Fixed Asset Book Value 03 Report for Group, Total Net Change with FA Posting Type Depreciation and FixedAssetBookValue03FAClassReportHandler.
         // Setup.
-        Initialize;
+        Initialize();
         OnAfterGetRecordDepreciationFABookValue03;
     end;
 
@@ -418,7 +418,7 @@ codeunit 142059 "UT REP FIXEDASSET"
     begin
         // Purpose of the test is to validate the Fixed Asset - OnAfterGetRecord trigger of Fixed Asset Book Value 03 Report for Group, Total Net Change with FA Posting Type Depreciation and FixedAssetBookValue03FASubClassReportHandler.
         // Setup.
-        Initialize;
+        Initialize();
         OnAfterGetRecordDepreciationFABookValue03;
     end;
 
@@ -430,7 +430,7 @@ codeunit 142059 "UT REP FIXEDASSET"
     begin
         // Purpose of the test is to validate the Fixed Asset - OnAfterGetRecord trigger of Fixed Asset Book Value 03 Report for Group, Total Net Change with FA Posting Type Depreciation and FixedAssetBookValue03FALocationReportHandler.
         // Setup.
-        Initialize;
+        Initialize();
         OnAfterGetRecordDepreciationFABookValue03;
     end;
 
@@ -442,7 +442,7 @@ codeunit 142059 "UT REP FIXEDASSET"
     begin
         // Purpose of the test is to validate the Fixed Asset - OnAfterGetRecord trigger of Fixed Asset Book Value 03 Report for Group, Total Net Change with FA Posting Type Depreciation and FixedAssetBookValue03WithBudgetReportHandler.
         // Setup.
-        Initialize;
+        Initialize();
         OnAfterGetRecordDepreciationFABookValue03;
     end;
 
@@ -541,7 +541,7 @@ codeunit 142059 "UT REP FIXEDASSET"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure InitalSetupForReportFABookValue03(var FANo: Code[20]; var FANo2: Code[20]; HasDepreciation: Boolean; AcqCostAmount: Decimal; DepreciationAmount: Decimal; AcqCostPercent: Decimal)
@@ -549,7 +549,7 @@ codeunit 142059 "UT REP FIXEDASSET"
         FASetup: Record "FA Setup";
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        Initialize;
+        Initialize();
         FASetup.Get();
         FANo := CreateFAWithDepreciationBookSetup(FASetup."Default Depr. Book");
         FANo2 := CreateFAWithDepreciationBookSetup(FASetup."Default Depr. Book");
@@ -569,7 +569,7 @@ codeunit 142059 "UT REP FIXEDASSET"
         FASetup: Record "FA Setup";
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        Initialize;
+        Initialize();
         FASetup.Get();
         FANo := CreateFAWithDepreciationBookSetup(FASetup."Default Depr. Book");
 
@@ -638,7 +638,7 @@ codeunit 142059 "UT REP FIXEDASSET"
         FALedgerEntry: Record "FA Ledger Entry";
         FALedgerEntry2: Record "FA Ledger Entry";
     begin
-        FALedgerEntry2.FindLast;
+        FALedgerEntry2.FindLast();
         FALedgerEntry."Entry No." := FALedgerEntry2."Entry No." + 1;
         FALedgerEntry."FA No." := FANo;
         FALedgerEntry."Depreciation Book Code" := DepreciationBookCode;
@@ -725,7 +725,7 @@ codeunit 142059 "UT REP FIXEDASSET"
         FAReclassJournalBatch: Record "FA Reclass. Journal Batch";
         FAReclassJournalTemplate: Record "FA Reclass. Journal Template";
     begin
-        FAReclassJournalTemplate.FindFirst;
+        FAReclassJournalTemplate.FindFirst();
         LibraryFixedAsset.CreateFAReclassJournalBatch(FAReclassJournalBatch, FAReclassJournalTemplate.Name);
         LibraryFixedAsset.CreateFAReclassJournal(
           FAReclassJournalLine, FAReclassJournalBatch."Journal Template Name", FAReclassJournalBatch.Name);
@@ -738,7 +738,7 @@ codeunit 142059 "UT REP FIXEDASSET"
     begin
         FALedgerEntry.SetRange("Depreciation Book Code", DepreciationBookCode);
         FALedgerEntry.SetRange("FA No.", FANo);
-        FALedgerEntry.FindFirst;
+        FALedgerEntry.FindFirst();
     end;
 
     local procedure RunFixedAssetBookValue03Report(NoFilter: Text)
@@ -748,7 +748,7 @@ codeunit 142059 "UT REP FIXEDASSET"
     begin
         FixedAsset.SetFilter("No.", NoFilter);
         FixedAssetBookValue03.SetTableView(FixedAsset);
-        FixedAssetBookValue03.Run;  // Invokes handlers through UpdateFixedAssetBookValue03ReportRequestPage.
+        FixedAssetBookValue03.Run();  // Invokes handlers through UpdateFixedAssetBookValue03ReportRequestPage.
     end;
 
     local procedure UpdateAndPostGLJournalLine(DepreciationBookCode: Code[10])
@@ -760,7 +760,7 @@ codeunit 142059 "UT REP FIXEDASSET"
         DocumentNo: Code[20];
     begin
         FAJournalSetup.SetRange("Depreciation Book Code", DepreciationBookCode);
-        FAJournalSetup.FindFirst;
+        FAJournalSetup.FindFirst();
         GenJournalBatch.Get(FAJournalSetup."Gen. Jnl. Template Name", FAJournalSetup."Gen. Jnl. Batch Name");
         DocumentNo := NoSeriesManagement.GetNextNo(GenJournalBatch."No. Series", WorkDate, false);
         with GenJournalLine do begin

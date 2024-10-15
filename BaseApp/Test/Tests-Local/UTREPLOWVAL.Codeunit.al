@@ -34,7 +34,7 @@
         // Purpose of the test is to validate OnPreReport trigger of Report ID - 595 Adjust Exchange Rates.
 
         // Setup: Run report Adjust Exchange Rates to verify Error Code, Actual error message: The adjustment of exchange rates has been canceled.
-        Initialize;
+        Initialize();
         AdjustExchangeRatesReportErrors(WorkDate, true, false, 'Dialog');  // Posting Date, Post, Adjust G/L Accounts for Add.-Reporting Currency and Expected Error Code.
     end;
 
@@ -47,7 +47,7 @@
         // Purpose of the test is to validate OnPreReport trigger of Report ID - 595 Adjust Exchange Rates.
 
         // Setup: Run report Adjust Exchange Rates to verify Error Code, Actual error message: Document No. must be entered.
-        Initialize;
+        Initialize();
         AdjustExchangeRatesReportErrors(WorkDate, true, false, 'Dialog');  // Posting Date, Post, Adjust G/L Accounts for Add.-Reporting Currency and Expected Error Code.
     end;
 
@@ -60,7 +60,7 @@
         // Purpose of the test is to validate OnPreReport trigger of Report ID - 595  Adjust Exchange Rates.
 
         // Setup: Run report Adjust Exchange Rates to verify Error Code, Actual error message: The adjustment of exchange rates has been canceled.
-        Initialize;
+        Initialize();
         AdjustExchangeRatesReportErrors(WorkDate, false, true, 'Dialog');  // Posting Date, Post, Adjust G/L Accounts for Add.-Reporting Currency and Expected Error Code.
     end;
 
@@ -73,7 +73,7 @@
         // Purpose of the test is to validate CheckPostingDate function of Report ID - 595   Adjust Exchange Rates.
 
         // Setup: Run report Adjust Exchange Rates to verify Error Code, Actual error message: This posting date cannot be entered because it does not occur within the adjustment period. Reenter the posting date.
-        Initialize;
+        Initialize();
         AdjustExchangeRatesReportErrors(CalcDate('<-CM>', WorkDate), false, false, 'TestValidation');  // Posting Date less than Starting Date, Post, Adjust G/L Accounts for Add.-Reporting Currency and Expected Error Code.
     end;
 
@@ -86,7 +86,7 @@
         // Purpose of the test is to validate CheckPostingDate function of Report ID -  Adjust Exchange Rates.
 
         // Setup: Run report Adjust Exchange Rates to verify Error Code, Actual error message: This posting date cannot be entered because it does not occur within the adjustment period. Reenter the posting date.
-        Initialize;
+        Initialize();
         AdjustExchangeRatesReportErrors(CalcDate('<+CM>', WorkDate), false, false, 'TestValidation');  // Posting Date more than Ending Date, Post, Adjust G/L Accounts for Add.-Reporting Currency and Expected Error Code.
     end;
 
@@ -99,7 +99,7 @@
         // Purpose of the test is to validate DueDateLimit - OnValidate Trigger of Report ID -  Adjust Exchange Rates.
 
         // Setup: Run report Adjust Exchange Rates to verify Error Code, Actual error message: Short term liabilities until must not be before Valuation Reference Date.
-        Initialize;
+        Initialize();
         AdjustExchangeRatesReportErrors(WorkDate, false, false, 'TestValidation');  // Posting Date, Post, Adjust G/L Accounts for Add.-Reporting Currency and Expected Error Code.
     end;
 
@@ -125,7 +125,7 @@
     begin
         // Purpose of the test is to validate OnPreReport trigger of Report ID - 595  Adjust Exchange Rates.
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise.
         REPORT.Run(REPORT::"Adjust Exchange Rates");  // Opens AdjustExchangeRatesValuationMethodRequestPageHandler.
@@ -144,7 +144,7 @@
         // Purpose of the test is to validate OnOpenPage Trigger of Report ID -  Adjust Exchange Rates.
 
         // Setup: Run Report to verify Posting Description is updated automatically on Report Adjust Exchange Rates inside AdjustExchangeRatesPostingDescRequestPageHandler.
-        Initialize;
+        Initialize();
         AdjustExchangeRatesReport;
     end;
 
@@ -157,7 +157,7 @@
         // Purpose of the test is to validate EndingDate - OnValidate Trigger of Report ID -  Adjust Exchange Rates.
 
         // Setup: Run Report to verify Valuation Reference Date is automatically updated as last day of the month of Ending Date on Report Adjust Exchange Rates inside AdjustExchangeRatesValPerEndRequestPageHandler.
-        Initialize;
+        Initialize();
         AdjustExchangeRatesReport;
     end;
 
@@ -170,7 +170,7 @@
         // Purpose of the test is to validate ValPerEnd - OnValidate Trigger of Report ID -  Adjust Exchange Rates.
 
         // Setup: Run Report to verify DueDateLimit is automatically updated as next year of same date of Valuation Reference Date on Report Adjust Exchange Rates inside AdjustExchangeRatesValuationMethodRequestPageHandler.
-        Initialize;
+        Initialize();
         AdjustExchangeRatesReport;
     end;
 
@@ -183,7 +183,7 @@
         // Purpose of the test is to validate ValuationMethod - OnValidate Trigger of Report ID -  Adjust Exchange Rates.
 
         // Setup: Run Report to verify Valuation Reference Date and Short term liabilities until is enabled when Valuation Method Type is BilMoG (Germany) on Report Adjust Exchange Rates inside AdjustExchangeRatesValuationMethodRequestPageHandler.
-        Initialize;
+        Initialize();
         AdjustExchangeRatesReport;
     end;
 
@@ -206,7 +206,7 @@
     begin
         // Purpose of the test is to validate Currency - OnAfterGetRecord Trigger of Report ID -  Adjust Exchange Rates.
         // Setup.
-        Initialize;
+        Initialize();
         CurrencyCode := CreateCurrencyWithExchangeRate;
 
         // Exercise.
@@ -231,7 +231,7 @@
     begin
         // [SCENARIO 379603] Adjusted amount printed for vendor entry which was closed prior adjustment
 
-        Initialize;
+        Initialize();
         // [GIVEN] Currency with exchange rates for the end of "Octomer", "November" and "December"
         CurrencyCode := CreateCurrencyWithSpecificExchangeRates(AdjustmentDate);
 
@@ -304,13 +304,13 @@
         ExchRateAdjmtReg.SetRange("Posting Group", BankAccountPostingGroup.Code);
         Assert.RecordCount(ExchRateAdjmtReg, 1);
         // [THEN] The adjusted base amount = 100 + 200;
-        ExchRateAdjmtReg.FindFirst;
+        ExchRateAdjmtReg.FindFirst();
         ExchRateAdjmtReg.TestField("Adjusted Base", TotalAmount);
     end;
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateBankAccountWithCurrencyAndGroup(var BankAccount: Record "Bank Account"; CurrencyCode: Code[10]; BankAccountPostingGroupCode: Code[20])

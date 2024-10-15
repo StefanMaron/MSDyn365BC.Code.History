@@ -261,6 +261,14 @@ table 99000772 "Production BOM Line"
                         Quantity := Round(Length * Width * Depth * "Quantity per", UOMMgt.QtyRndPrecision);
                     "Calculation Formula"::Weight:
                         Quantity := Round(Weight * "Quantity per", UOMMgt.QtyRndPrecision);
+                    "Calculation Formula"::"Fixed Quantity":
+                        begin
+                            TestField(Type, Type::Item);
+                            Quantity := "Quantity per";
+#if not CLEAN20
+                            LogUsageFixedQuantity();
+#endif
+                        end;
                     else
                         OnValidateCalculationFormulaEnumExtension(Rec);
                 end;
@@ -411,6 +419,15 @@ table 99000772 "Production BOM Line"
             Error(BOMLineUOMErr, "Unit of Measure Code", Item."No.", "Production BOM No.", "Version Code", "Line No.");
         exit(UOMMgt.GetQtyPerUnitOfMeasure(Item, "Unit of Measure Code"));
     end;
+#if not CLEAN20
+    local procedure LogUsageFixedQuantity()
+    var
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+    begin
+        if (Rec."Calculation Formula" = Rec."Calculation Formula"::"Fixed Quantity") and (xRec."Calculation Formula" <> Rec."Calculation Formula") then
+            FeatureTelemetry.LogUsage('0000GFP', 'Fixed Quantity in BOM Items', 'Calculation formula updated');
+    end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterTestStatus(ProductionBOMLine: Record "Production BOM Line"; ProductionBOMHeader: Record "Production BOM Header"; ProductionBOMVersion: Record "Production BOM Version")

@@ -210,7 +210,7 @@ page 6013 "Resource Capacity Settings"
 
                         if NewCapacity <> 0 then begin
                             ResCapacityEntry2.Reset();
-                            if ResCapacityEntry2.FindLast then;
+                            if ResCapacityEntry2.FindLast() then;
                             LastEntry := ResCapacityEntry2."Entry No." + 1;
                             ResCapacityEntry2.Reset();
                             ResCapacityEntry2."Entry No." := LastEntry;
@@ -259,7 +259,6 @@ page 6013 "Resource Capacity Settings"
         Text006: Label 'The capacity for %1 days was changed successfully.';
         Text007: Label 'The capacity for %1 day was changed successfully.';
         Text008: Label 'The capacity change was unsuccessful.';
-        CalChange: Record "Customized Calendar Change";
         WorkTemplateRec: Record "Work-Hour Template";
         ResCapacityEntry: Record "Res. Capacity Entry";
         CompanyInformation: Record "Company Information";

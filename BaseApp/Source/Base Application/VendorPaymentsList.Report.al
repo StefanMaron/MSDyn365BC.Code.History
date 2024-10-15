@@ -486,7 +486,7 @@ report 11507 "Vendor Payments List"
         if (_FcyAmt <> 0) and (_FcyAmt <> _LcyAmt) then begin
             CurrExchRate.SetRange("Currency Code", "Vendor Ledger Entry"."Currency Code");
             CurrExchRate.SetFilter("Starting Date", '<=%1', "Vendor Ledger Entry"."Posting Date");
-            if CurrExchRate.FindLast then
+            if CurrExchRate.FindLast() then
                 _ExRate := Round(_LcyAmt * CurrExchRate."Relational Exch. Rate Amount" / _FcyAmt, 0.001);
         end else
             _ExRate := 0;
@@ -512,7 +512,7 @@ report 11507 "Vendor Payments List"
         DetailedVendorLedgerEntry.SetRange(Unapplied, false);
         SumAmount := 0;
         VendorLedgerEntryNo := 0;
-        if DetailedVendorLedgerEntry.FindSet then begin
+        if DetailedVendorLedgerEntry.FindSet() then begin
             repeat
                 if (VendorLedgerEntryNo <> 0) and (VendorLedgerEntryNo <> DetailedVendorLedgerEntry."Vendor Ledger Entry No.") then begin
                     VendorLedgerEntry.Get(VendorLedgerEntryNo);
@@ -543,7 +543,7 @@ report 11507 "Vendor Payments List"
         DetailedVendorLedgerEntry.SetRange(Unapplied, false);
         SumAmount := 0;
         VendorLedgerEntryNo := 0;
-        if DetailedVendorLedgerEntry.FindSet then begin
+        if DetailedVendorLedgerEntry.FindSet() then begin
             repeat
                 VendorLedgerEntry.Get(DetailedVendorLedgerEntry."Applied Vend. Ledger Entry No.");
                 if (VendorLedgerEntryNo <> 0) and (VendorLedgerEntryNo <> DetailedVendorLedgerEntry."Vendor Ledger Entry No.") then

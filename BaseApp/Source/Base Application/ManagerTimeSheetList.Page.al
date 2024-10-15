@@ -8,7 +8,7 @@ page 953 "Manager Time Sheet List"
     CardPageID = "Time Sheet Card";
     RefreshOnActivate = true;
     SourceTable = "Time Sheet Header";
-    SourceTableView = SORTING("Resource No.", "Starting Date");
+    SourceTableView = SORTING("Resource No.", "Starting Date") order(descending);
     UsageCategory = Tasks;
     Editable = false;
 
@@ -203,6 +203,8 @@ page 953 "Manager Time Sheet List"
             TimeSheetAdminActionsVisible := UserSetup."Time Sheet Admin.";
 
         TimeSheetMgt.FilterTimeSheets(Rec, FieldNo("Approver User ID"));
+
+        OnAfterOnOpenPage(Rec);
     end;
 
     var
@@ -225,6 +227,11 @@ page 953 "Manager Time Sheet List"
             TimeSheetMgt.SetTimeSheetNo("No.", TimeSheetLine);
             Page.Run(Page::"Manager Time Sheet", TimeSheetLine);
         end;
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterOnOpenPage(var TimeSheetHeader: Record "Time Sheet Header")
+    begin
     end;
 }
 

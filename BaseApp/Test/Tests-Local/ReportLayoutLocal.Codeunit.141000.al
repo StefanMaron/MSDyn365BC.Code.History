@@ -16,7 +16,7 @@ codeunit 141000 "Report Layout - Local"
     [Scope('OnPrem')]
     procedure TestFixedAssetsListAT()
     begin
-        Initialize;
+        Initialize();
         REPORT.Run(REPORT::"Fixed Assets - List AT");
     end;
 

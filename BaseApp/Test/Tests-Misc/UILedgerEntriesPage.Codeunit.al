@@ -131,41 +131,6 @@ codeunit 134343 "UI Ledger Entries Page"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYes,DeleteChangeLogeRPH,ErrorMessagesMPH')]
-    [Scope('OnPrem')]
-    [Obsolete('The functionality has been replaced with the retention policy module in system application.', '17.0')]
-    procedure DeleteChangeLogEntriesForGLEntry()
-    var
-        ChangeLogEntry: Record "Change Log Entry";
-        GLEntryNo: Integer;
-        ChangeLogEntryNo: Integer;
-    begin
-        // [FEATURE] [General Ledger]
-        // [SCENARIO 306088] User is not able to delete change log entries related to existent G/L Entry
-        Initialize;
-
-        // [GIVEN] Change Log Entries "1" and "2" related to table Customer
-        MockChangeLogEntries(ChangeLogEntry, DATABASE::Customer, LibraryRandom.RandIntInRange(3, 5));
-        // [GIVEN] General Ledger Entry "123" with Descirption = "Old Description"
-        // [GIVEN] Description of G/L entry "123" is changed to "New Description" which leads to Change Log Entry "3" related to G/L entry "123"
-        CreateUpdateGLEntryDescription(GLEntryNo, ChangeLogEntryNo);
-
-        // [WHEN] User run Change Log - Delete report for all records
-        LibraryVariableStorage.Enqueue(StrSubstNo(GLEntryExistsErr, ChangeLogEntryNo, GLEntryNo));
-        RunDeleteChangeLogEntries;
-
-        // [THEN] Change log entries "1" and "2" are deleted
-        Assert.RecordIsEmpty(ChangeLogEntry);
-        // [THEN] Change log entry "3" is not deleted
-        Assert.IsTrue(ChangeLogEntry.Get(ChangeLogEntryNo), 'Change log entry must not be deleted');
-        // [THEN] Confirm "One or more entries cannot be deleted. Do you want to open the list of errors?"
-        // [THEN] Error Messages page contains records related to Change Log Entry "3"
-        // Verification in the ErrorMessagesMPH
-
-        LibraryVariableStorage.AssertEmpty;
-    end;
-
-    [Test]
     [HandlerFunctions('ChangeLogEntriesMPH')]
     [Scope('OnPrem')]
     procedure GLEntryShowChangeHistory()
@@ -178,7 +143,7 @@ codeunit 134343 "UI Ledger Entries Page"
     begin
         // [FEATURE] [General Ledger]
         // [SCENARIO 306088] User can open the history of G/L Entry Descripton update
-        Initialize;
+        Initialize();
 
         // [GIVEN] General Ledger Entry "123" with Descirption = "Old Description"
         OldDesctiption := LibraryUtility.GenerateRandomText(MaxStrLen(GLEntry.Description));
@@ -208,7 +173,7 @@ codeunit 134343 "UI Ledger Entries Page"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateUpdateGLEntryDescription(var GLEntryNo: Integer; var ChangeLogEntryNo: Integer)
@@ -427,7 +392,7 @@ codeunit 134343 "UI Ledger Entries Page"
         ChangeLogEntry.SetRange("Table No.", DATABASE::"G/L Entry");
         ChangeLogEntry.SetRange("Primary Key Field 1 Value", Format(EntryNo, 0, 9));
         ChangeLogEntry.SetRange("Field No.", FieldNo);
-        ChangeLogEntry.FindFirst;
+        ChangeLogEntry.FindFirst();
     end;
 
     local procedure MockChangeLogEntries(var ChangeLogEntry: Record "Change Log Entry"; TableNo: Integer; NumberOfEntries: Integer)
@@ -437,7 +402,7 @@ codeunit 134343 "UI Ledger Entries Page"
         FirstEntryNo: Integer;
         LastEntryNo: Integer;
     begin
-        if ChangeLogEntry.FindLast then;
+        if ChangeLogEntry.FindLast() then;
         EntryNo := ChangeLogEntry."Entry No.";
         FirstEntryNo := EntryNo + 1;
         for i := 1 to NumberOfEntries do begin
@@ -489,16 +454,6 @@ codeunit 134343 "UI Ledger Entries Page"
         GLEntry.Description := CopyStr(Descirption, 1, MaxStrLen(GLEntry.Description));
         GLEntry.Insert();
         exit(GLEntry."Entry No.");
-    end;
-
-    [Obsolete('The functionality has been replaced with the retention policy module in system application.', '17.0')]
-    local procedure RunDeleteChangeLogEntries()
-    var
-        ChangeLogEntry: Record "Change Log Entry";
-    begin
-        Commit();
-        ChangeLogEntry.SetFilter("Date and Time", '..%1', CreateDateTime(CalcDate('<1D>', Today), 0T));
-        REPORT.RunModal(REPORT::"Change Log - Delete", true, false, ChangeLogEntry);
     end;
 
     local procedure VerifyChangeLogEntry(ChangeLogEntry: Record "Change Log Entry"; OldDescription: Text; NewDescription: Text)
@@ -553,14 +508,6 @@ codeunit 134343 "UI Ledger Entries Page"
     procedure ConfirmHandlerYes(Message: Text; var Reply: Boolean)
     begin
         Reply := true;
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    [Obsolete('The functionality has been replaced with the retention policy module in system application.', '17.0')]
-    procedure DeleteChangeLogeRPH(var ChangeLogDelete: TestRequestPage "Change Log - Delete")
-    begin
-        ChangeLogDelete.OK.Invoke;
     end;
 
     [ModalPageHandler]

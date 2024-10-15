@@ -21,7 +21,7 @@ codeunit 1236 "Suggest Col. Definition - XML"
             ColumnNo := 0;
 
             TempXMLBuffer.Reset();
-            if TempXMLBuffer.FindSet then
+            if TempXMLBuffer.FindSet() then
                 repeat
                     ColumnNo += 10000;
 

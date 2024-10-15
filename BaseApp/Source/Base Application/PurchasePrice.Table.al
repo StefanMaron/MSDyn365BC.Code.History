@@ -127,7 +127,7 @@ table 7012 "Purchase Price"
     var
         NewPurchasePrice: Record "Purchase Price";
     begin
-        if PurchPrice.FindSet then
+        if PurchPrice.FindSet() then
             repeat
                 NewPurchasePrice := PurchPrice;
                 NewPurchasePrice."Vendor No." := VendNo;

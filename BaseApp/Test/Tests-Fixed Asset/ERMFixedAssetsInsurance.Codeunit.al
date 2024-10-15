@@ -44,9 +44,9 @@ codeunit 134452 "ERM Fixed Assets Insurance"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Fixed Assets Insurance");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
         isInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Fixed Assets Insurance");
@@ -65,12 +65,12 @@ codeunit 134452 "ERM Fixed Assets Insurance"
         // Test that Insurance Journal Posted successfully with different batch jobs.
 
         // 1. Setup: Create Insurance and fixed asset.
-        Initialize;
+        Initialize();
         LibraryFixedAsset.CreateInsurance(Insurance);
         LibraryFixedAsset.CreateFixedAsset(FixedAsset);
 
         // 2. Exercise: Create Insurance Journal Batch and Post Insurance Journal.
-        InsuranceJournalTemplate.FindFirst;
+        InsuranceJournalTemplate.FindFirst();
         LibraryFixedAsset.CreateInsuranceJournalBatch(InsuranceJournalBatch, InsuranceJournalTemplate.Name);
         Amount[1] := CreatePostInsuranceJournalLine(InsuranceJournalBatch, FixedAsset."No.", Insurance."No.");
 
@@ -90,7 +90,7 @@ codeunit 134452 "ERM Fixed Assets Insurance"
         // Test Creation of Insurance.
 
         // 1. Setup.
-        Initialize;
+        Initialize();
 
         // 2. Exercise: Create Insurance.
         LibraryFixedAsset.CreateInsurance(Insurance);
@@ -109,7 +109,7 @@ codeunit 134452 "ERM Fixed Assets Insurance"
         // Test Annual Premium Amount successfully updated on Insurance.
 
         // 1. Setup: Create Insurance.
-        Initialize;
+        Initialize();
         LibraryFixedAsset.CreateInsurance(Insurance);
 
         // 2. Exercise: Update Annual Premium on Insurance.
@@ -132,7 +132,7 @@ codeunit 134452 "ERM Fixed Assets Insurance"
         // Test Comment creation for Insurance.
 
         // 1. Setup: Create Insurance.
-        Initialize;
+        Initialize();
         LibraryFixedAsset.CreateInsurance(Insurance);
 
         // 2. Exercise: Create Comment for Insurance.
@@ -152,7 +152,7 @@ codeunit 134452 "ERM Fixed Assets Insurance"
         // Test Comment Deletion for Insurance.
 
         // 1. Setup: Create Insurance and Comment for It.
-        Initialize;
+        Initialize();
         LibraryFixedAsset.CreateInsurance(Insurance);
         LibraryFixedAsset.CreateCommentLine(CommentLine, CommentLine."Table Name"::Insurance, Insurance."No.");
 
@@ -179,7 +179,7 @@ codeunit 134452 "ERM Fixed Assets Insurance"
         // Test Default Dimension Creation for Insurance.
 
         // 1. Setup: Create Insurance.
-        Initialize;
+        Initialize();
         LibraryFixedAsset.CreateInsurance(Insurance);
 
         // 2. Exercise: Create Default Dimension for Insurance.
@@ -200,14 +200,14 @@ codeunit 134452 "ERM Fixed Assets Insurance"
         // Test Annual Premium and Policy Coverage on Insurance Statistics page.
 
         // 1. Setup: Create Insurance with Annual Premium and Policy Coverage.
-        Initialize;
+        Initialize();
         LibraryFixedAsset.CreateInsurance(Insurance);
         ModifyAmountsOnInsurance(Insurance);
 
         // 2. Exercise: Run Insurance Statistics.
         Clear(InsuranceStatistics);
         InsuranceStatistics.SetRecord(Insurance);
-        InsuranceStatistics.Run;
+        InsuranceStatistics.Run();
 
         // 3. Verify: Verify Annual Premium and Policy Coverage on Insurance Statistics page.
         Insurance2.TestField("Annual Premium", Insurance."Annual Premium");
@@ -223,7 +223,7 @@ codeunit 134452 "ERM Fixed Assets Insurance"
         // Test deletion of Insurance.
 
         // 1. Setup: Create Insurance.
-        Initialize;
+        Initialize();
         LibraryFixedAsset.CreateInsurance(Insurance);
 
         // 2. Exercise: Delete Insurance.
@@ -249,7 +249,7 @@ codeunit 134452 "ERM Fixed Assets Insurance"
 
         // 1. Setup: Create Fixed Asset,Create Insurance ,FA Posting Group, FA Depreciation Book,Create and Post Purchase Invoice and
         // Create Insurance Journal Batch and Post Insurance Journal.
-        Initialize;
+        Initialize();
         LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
         CreateJournalSetupDepreciation(DepreciationBook);
         CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", FixedAsset."FA Posting Group", DepreciationBook.Code);
@@ -274,7 +274,7 @@ codeunit 134452 "ERM Fixed Assets Insurance"
         // Test error occurs on Running Date Compress Insurance Ledger Report without Starting and Ending Dates.
 
         // 1. Setup.
-        Initialize;
+        Initialize();
 
         // 2. Exercise: Run Date Compress Insurance Ledger Report without Starting and Ending Dates.
         asserterror RunDateCompressInsuranceLedger;
@@ -296,7 +296,7 @@ codeunit 134452 "ERM Fixed Assets Insurance"
         // Test and verify Date Compress Insurance Ledger Report functionality.
 
         // 1. Setup: Create and post Insurance Journal.
-        Initialize;
+        Initialize();
         LibraryFiscalYear.CreateClosedAccountingPeriods();
         JournalBatchName := CreateAndPostInsuranceJournal;
         FindInsuranceRegister(InsuranceRegister, JournalBatchName);
@@ -330,7 +330,7 @@ codeunit 134452 "ERM Fixed Assets Insurance"
         // Check Total Value on Total Value Insured Page through Fixed Asset after Posting Insurance Journal.
 
         // Setup: Create Insurance,Fixed Asset and Post Insurance Journal Line.
-        Initialize;
+        Initialize();
         LibraryFixedAsset.CreateInsurance(Insurance);
         LibraryFixedAsset.CreateFixedAsset(FixedAsset);
         CreateInsuranceJournalBatch(InsuranceJournalBatch);
@@ -362,7 +362,7 @@ codeunit 134452 "ERM Fixed Assets Insurance"
         // Check FA Posting Types Overview Matrix Page for Posted Values through Fixed Asset page with Rounding Option None.
 
         // Setup: Create Setup for Fixed Asset.
-        Initialize;
+        Initialize();
         LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
         LibraryFixedAsset.CreateDepreciationBook(DepreciationBook);
         CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", FixedAsset."FA Posting Group", DepreciationBook.Code);
@@ -387,7 +387,7 @@ codeunit 134452 "ERM Fixed Assets Insurance"
     procedure FAPostingTypesOverviewRounding1()
     begin
         // Check FA Posting Types Overview Matrix Page for Posted Values through Fixed Asset page with Rounding Option 1;
-        Initialize;
+        Initialize();
         FAPostingTypesOverviewWithRoundingFactor(1);
     end;
 
@@ -397,7 +397,7 @@ codeunit 134452 "ERM Fixed Assets Insurance"
     procedure FAPostingTypesOverviewRounding1000()
     begin
         // Check FA Posting Types Overview Matrix Page for Posted Values through Fixed Asset page with Rounding Option 1000;
-        Initialize;
+        Initialize();
         FAPostingTypesOverviewWithRoundingFactor(1000);
     end;
 
@@ -407,7 +407,7 @@ codeunit 134452 "ERM Fixed Assets Insurance"
     procedure FAPostingTypesOverviewRounding1000000()
     begin
         // Check FA Posting Types Overview Matrix Page for Posted Values through Fixed Asset page with Rounding Option 1000000;
-        Initialize;
+        Initialize();
         FAPostingTypesOverviewWithRoundingFactor(1000000);
     end;
 
@@ -420,7 +420,7 @@ codeunit 134452 "ERM Fixed Assets Insurance"
         FAPostingTypesOverview: TestPage "FA Posting Types Overview";
     begin
         // Setup: Create Setup for Fixed Asset.
-        Initialize;
+        Initialize();
         LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
         LibraryFixedAsset.CreateDepreciationBook(DepreciationBook);
         CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", FixedAsset."FA Posting Group", DepreciationBook.Code);
@@ -477,7 +477,7 @@ codeunit 134452 "ERM Fixed Assets Insurance"
         CreateInsuranceJournalLine(
           InsuranceJournalLine, InsuranceJournalBatch, FixedAsset."No.", Insurance."No.", LibraryFiscalYear.GetFirstPostingDate(true));
         LibraryFixedAsset.PostInsuranceJournal(InsuranceJournalLine);
-        LibraryUtility.GenerateGUID;  // Hack to fix problem with Generate GUID.
+        LibraryUtility.GenerateGUID();  // Hack to fix problem with Generate GUID.
     end;
 
     local procedure CreateAndPostPurchaseInvoice(FixedAssetNo: Code[20]; DepreciationBookCode: Code[10])
@@ -531,7 +531,7 @@ codeunit 134452 "ERM Fixed Assets Insurance"
     var
         InsuranceJournalTemplate: Record "Insurance Journal Template";
     begin
-        InsuranceJournalTemplate.FindFirst;
+        InsuranceJournalTemplate.FindFirst();
         LibraryFixedAsset.CreateInsuranceJournalBatch(InsuranceJournalBatch, InsuranceJournalTemplate.Name);
     end;
 
@@ -564,7 +564,7 @@ codeunit 134452 "ERM Fixed Assets Insurance"
         CreateInsuranceJournalLine(InsuranceJournalLine, InsuranceJournalBatch, FixedAssetNo, InsuranceNo, WorkDate);
         Amount := InsuranceJournalLine.Amount;
         LibraryFixedAsset.PostInsuranceJournal(InsuranceJournalLine);
-        LibraryUtility.GenerateGUID;  // Hack to fix problem with Generate GUID.
+        LibraryUtility.GenerateGUID();  // Hack to fix problem with Generate GUID.
     end;
 
     local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header")
@@ -599,7 +599,7 @@ codeunit 134452 "ERM Fixed Assets Insurance"
     local procedure FindInsuranceRegister(var InsuranceRegister: Record "Insurance Register"; JournalBatchName: Code[10])
     begin
         InsuranceRegister.SetRange("Journal Batch Name", JournalBatchName);
-        InsuranceRegister.FindFirst;
+        InsuranceRegister.FindFirst();
     end;
 
     local procedure GetNumberCoverageLedgerEntries(FromEntryNo: Integer; ToEntryNo: Integer): Integer
@@ -649,7 +649,7 @@ codeunit 134452 "ERM Fixed Assets Insurance"
         IndexFigure := LibraryRandom.RandInt(10);
         IndexInsurance.InitializeRequest(No, No, WorkDate, IndexFigure);
         IndexInsurance.UseRequestPage(false);
-        IndexInsurance.Run;
+        IndexInsurance.Run();
     end;
 
     local procedure RunDateCompressInsuranceLedger()
@@ -657,7 +657,7 @@ codeunit 134452 "ERM Fixed Assets Insurance"
         DateCompressInsuranceLedger: Report "Date Compress Insurance Ledger";
     begin
         Clear(DateCompressInsuranceLedger);
-        DateCompressInsuranceLedger.Run;
+        DateCompressInsuranceLedger.Run();
     end;
 
     local procedure SelectFAJournalBatch(var FAJournalBatch: Record "FA Journal Batch")
@@ -685,7 +685,7 @@ codeunit 134452 "ERM Fixed Assets Insurance"
         FAJournalSetup2: Record "FA Journal Setup";
     begin
         FAJournalSetup2.SetRange("Depreciation Book Code", LibraryFixedAsset.GetDefaultDeprBook);
-        FAJournalSetup2.FindFirst;
+        FAJournalSetup2.FindFirst();
         FAJournalSetup.TransferFields(FAJournalSetup2, false);
         FAJournalSetup.Modify(true);
     end;
@@ -696,7 +696,7 @@ codeunit 134452 "ERM Fixed Assets Insurance"
     begin
         CommentLine.SetRange("Table Name", CommentLine."Table Name"::Insurance);
         CommentLine.SetRange("No.", InsuranceNo);
-        CommentLine.FindFirst;
+        CommentLine.FindFirst();
         CommentLine.TestField(Comment, Comment);
     end;
 
@@ -735,7 +735,7 @@ codeunit 134452 "ERM Fixed Assets Insurance"
         GeneralLedgerSetup.Get();
         InsuranceJournalLine.SetRange("FA No.", FANo);
         InsuranceJournalLine.SetRange("Insurance No.", InsuranceNo);
-        InsuranceJournalLine.FindFirst;
+        InsuranceJournalLine.FindFirst();
         InsuranceJournalLineAmount := Amount - (Amount * IndexFigure / 100);
         Assert.AreNearlyEqual(
           -InsuranceJournalLineAmount, InsuranceJournalLine.Amount, GeneralLedgerSetup."Amount Rounding Precision",
@@ -803,7 +803,7 @@ codeunit 134452 "ERM Fixed Assets Insurance"
         Vendor.SetFilter("Vendor Posting Group", '<>''''');
         Vendor.SetFilter("Gen. Bus. Posting Group", '<>''''');
         Vendor.SetRange(Blocked, Vendor.Blocked::" ");
-        Vendor.FindFirst;
+        Vendor.FindFirst();
     end;
 }
 

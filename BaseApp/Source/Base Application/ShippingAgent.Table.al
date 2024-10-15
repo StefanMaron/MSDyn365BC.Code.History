@@ -25,6 +25,11 @@ table 291 "Shipping Agent"
         {
             Caption = 'Account No.';
         }
+        field(720; "Coupled to CRM"; Boolean)
+        {
+            Caption = 'Coupled to Dataverse';
+            Editable = false;
+        }
     }
 
     keys

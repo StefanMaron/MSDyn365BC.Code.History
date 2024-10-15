@@ -1,4 +1,4 @@
-page 132 "Posted Sales Invoice"
+﻿page 132 "Posted Sales Invoice"
 {
     Caption = 'Posted Sales Invoice';
     InsertAllowed = false;
@@ -259,7 +259,7 @@ page 132 "Posted Sales Invoice"
                     DrillDown = false;
                     Importance = Promoted;
                     AboutTitle = 'Closed means paid';
-                    AboutText = 'A sales invoice is marked as Closed when the invoice is paid in full, or when a credit memo is applied for the remaining amount.';
+                    AboutText = 'A sales invoice is marked as *Closed* when the invoice is paid in full, or when a credit memo is applied for the remaining amount.';
                     ToolTip = 'Specifies if the posted invoice is paid. The check box will also be selected if a credit memo for the remaining amount has been applied.';
                 }
                 group("Work Description")
@@ -302,6 +302,13 @@ page 132 "Posted Sales Invoice"
                         end;
                         Clear(ChangeExchangeRate);
                     end;
+                }
+                field("Company Bank Account Code"; "Company Bank Account Code")
+                {
+                    ApplicationArea = Suite;
+                    Editable = false;
+                    Importance = Promoted;
+                    ToolTip = 'Specifies the bank account to use for bank information when the document is printed.';
                 }
                 field("Shipment Date"; "Shipment Date")
                 {
@@ -376,6 +383,13 @@ page 132 "Posted Sales Invoice"
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the direct-debit mandate that the customer has signed to allow direct debit collection of payments.';
+                }
+                field("Customer Posting Group"; "Customer Posting Group")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Editable = false;
+                    ToolTip = 'Specifies the customer''s market type to link business transactions to.';
+                    Visible = false;
                 }
                 field("Tax Liable"; "Tax Liable")
                 {
@@ -754,7 +768,7 @@ page 132 "Posted Sales Invoice"
                     begin
                         RecRef.GetTable(Rec);
                         DocumentAttachmentDetails.OpenForRecRef(RecRef);
-                        DocumentAttachmentDetails.RunModal;
+                        DocumentAttachmentDetails.RunModal();
                     end;
                 }
                 separator(Action171)
@@ -935,7 +949,7 @@ page 132 "Posted Sales Invoice"
                 Image = Navigate;
                 Promoted = true;
                 PromotedCategory = Category4;
-                ShortCutKey = 'Shift+Ctrl+I';
+                ShortCutKey = 'Ctrl+Alt+Q';
                 AboutTitle = 'Get detailed posting details';
                 AboutText = 'Here, you can look up the ledger entries that were created when this invoice was posted, as well as any related documents.';
                 ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
@@ -1177,7 +1191,6 @@ page 132 "Posted Sales Invoice"
     end;
 
     var
-        SalesInvHeader: Record "Sales Invoice Header";
         SellToContact: Record Contact;
         BillToContact: Record Contact;
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
@@ -1190,10 +1203,13 @@ page 132 "Posted Sales Invoice"
         PaymentServiceVisible: Boolean;
         PaymentServiceEnabled: Boolean;
         DocExcStatusVisible: Boolean;
-        IsOfficeAddin: Boolean;
         IsBillToCountyVisible: Boolean;
         IsSellToCountyVisible: Boolean;
         IsShipToCountyVisible: Boolean;
+
+    protected var
+        SalesInvHeader: Record "Sales Invoice Header";
+        IsOfficeAddin: Boolean;
 
     local procedure ActivateFields()
     begin

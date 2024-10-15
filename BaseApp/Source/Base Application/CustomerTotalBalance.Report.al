@@ -172,14 +172,14 @@ report 11003 "Customer Total-Balance"
                     DetailedCustomerLedgEntry.SetRange("Posting Date", StartDate, EndDate);
                     DetailedCustomerLedgEntry.SetRange("Entry Type", DetailedCustomerLedgEntry."Entry Type"::"Realized Loss",
                       DetailedCustomerLedgEntry."Entry Type"::"Realized Gain");
-                    if DetailedCustomerLedgEntry.FindSet then
+                    if DetailedCustomerLedgEntry.FindSet() then
                         repeat
                             DetailedCustomerLedgEntry2.Reset();
                             DetailedCustomerLedgEntry2.SetCurrentKey("Cust. Ledger Entry No.", "Entry Type", "Posting Date");
                             DetailedCustomerLedgEntry2.SetRange("Cust. Ledger Entry No.", DetailedCustomerLedgEntry."Cust. Ledger Entry No.");
                             DetailedCustomerLedgEntry2.SetRange("Entry Type", DetailedCustomerLedgEntry2."Entry Type"::"Initial Entry");
                             DetailedCustomerLedgEntry2.SetRange("Document Type", DetailedCustomerLedgEntry2."Document Type"::Payment);
-                            if DetailedCustomerLedgEntry2.FindSet then begin
+                            if DetailedCustomerLedgEntry2.FindSet() then begin
                                 repeat
                                     if ((DetailedCustomerLedgEntry."Debit Amount (LCY)" <> 0) and
                                         (DetailedCustomerLedgEntry2."Credit Amount (LCY)" <> 0)) or
@@ -201,7 +201,7 @@ report 11003 "Customer Total-Balance"
                                     CustomerLedgEntry2.SetCurrentKey("Closed by Entry No.");
                                     CustomerLedgEntry2.SetRange("Closed by Entry No.", CustomerLedgEntry."Entry No.");
                                     CustomerLedgEntry2.SetRange("Document Type", CustomerLedgEntry2."Document Type"::Payment);
-                                    if CustomerLedgEntry2.FindSet then
+                                    if CustomerLedgEntry2.FindSet() then
                                         repeat
                                             AdjPeriodAmount := AdjPeriodAmount + GetAdjAmount(CustomerLedgEntry2."Entry No.");
                                         until CustomerLedgEntry2.Next() = 0;
@@ -237,14 +237,14 @@ report 11003 "Customer Total-Balance"
                     DetailedCustomerLedgEntry.SetRange("Posting Date", YearStartDate, EndDate);
                     DetailedCustomerLedgEntry.SetRange("Entry Type", DetailedCustomerLedgEntry."Entry Type"::"Realized Loss",
                       DetailedCustomerLedgEntry."Entry Type"::"Realized Gain");
-                    if DetailedCustomerLedgEntry.FindSet then
+                    if DetailedCustomerLedgEntry.FindSet() then
                         repeat
                             DetailedCustomerLedgEntry2.Reset();
                             DetailedCustomerLedgEntry2.SetCurrentKey("Cust. Ledger Entry No.", "Entry Type", "Posting Date");
                             DetailedCustomerLedgEntry2.SetRange("Cust. Ledger Entry No.", DetailedCustomerLedgEntry."Cust. Ledger Entry No.");
                             DetailedCustomerLedgEntry2.SetRange("Entry Type", DetailedCustomerLedgEntry2."Entry Type"::"Initial Entry");
                             DetailedCustomerLedgEntry2.SetRange("Document Type", DetailedCustomerLedgEntry2."Document Type"::Payment);
-                            if DetailedCustomerLedgEntry2.FindSet then begin
+                            if DetailedCustomerLedgEntry2.FindSet() then begin
                                 repeat
                                     if ((DetailedCustomerLedgEntry."Debit Amount (LCY)" <> 0) and
                                         (DetailedCustomerLedgEntry2."Credit Amount (LCY)" <> 0)) or
@@ -266,7 +266,7 @@ report 11003 "Customer Total-Balance"
                                     CustomerLedgEntry2.SetCurrentKey("Closed by Entry No.");
                                     CustomerLedgEntry2.SetRange("Closed by Entry No.", CustomerLedgEntry."Entry No.");
                                     CustomerLedgEntry2.SetRange("Document Type", CustomerLedgEntry2."Document Type"::Payment);
-                                    if CustomerLedgEntry2.FindSet then
+                                    if CustomerLedgEntry2.FindSet() then
                                         repeat
                                             AdjYearAmount := AdjYearAmount + GetAdjAmount(CustomerLedgEntry2."Entry No.");
                                         until CustomerLedgEntry2.Next() = 0;
@@ -420,7 +420,7 @@ report 11003 "Customer Total-Balance"
         DetailedCustomerLedgEntry2.SetRange("Cust. Ledger Entry No.", CustomerLedgEntryEntryNo);
         DetailedCustomerLedgEntry2.SetRange("Entry Type", DetailedCustomerLedgEntry2."Entry Type"::"Initial Entry");
         DetailedCustomerLedgEntry2.SetRange("Document Type", DetailedCustomerLedgEntry2."Document Type"::Payment);
-        if DetailedCustomerLedgEntry2.FindSet then
+        if DetailedCustomerLedgEntry2.FindSet() then
             repeat
                 if ((DetailedCustomerLedgEntry."Debit Amount (LCY)" <> 0) and (DetailedCustomerLedgEntry2."Credit Amount (LCY)" <> 0)) or
                    ((DetailedCustomerLedgEntry."Credit Amount (LCY)" <> 0) and (DetailedCustomerLedgEntry2."Debit Amount (LCY)" <> 0))

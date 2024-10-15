@@ -54,7 +54,7 @@ codeunit 5920 ServItemManagement
                         NewServItemComponent.Reset();
                         NewServItemComponent.SetRange(Active, false);
                         NewServItemComponent.SetRange("Parent Service Item No.", "Service Item No.");
-                        if NewServItemComponent.FindLast then
+                        if NewServItemComponent.FindLast() then
                             ComponentLine := NewServItemComponent."Line No."
                         else
                             ComponentLine := 0;
@@ -91,7 +91,7 @@ codeunit 5920 ServItemManagement
                         ServLogMgt.ServItemComponentAdded(NewServItemComponent);
 
                         NewServItemComponent.SetRange(Active, true);
-                        if NewServItemComponent.FindLast then
+                        if NewServItemComponent.FindLast() then
                             ComponentLine := NewServItemComponent."Line No."
                         else
                             ComponentLine := 0;
@@ -117,7 +117,7 @@ codeunit 5920 ServItemManagement
                         NewServItemComponent.Reset();
                         NewServItemComponent.SetRange(Active, true);
                         NewServItemComponent.SetRange("Parent Service Item No.", "Service Item No.");
-                        if NewServItemComponent.FindLast then
+                        if NewServItemComponent.FindLast() then
                             ComponentLine := NewServItemComponent."Line No."
                         else
                             ComponentLine := 0;
@@ -245,7 +245,7 @@ codeunit 5920 ServItemManagement
                     if TempReservEntry."Serial No." <> '' then begin
                         ServItem.SetRange("Item No.", SalesLine."No.");
                         ServItem.SetRange("Serial No.", TempReservEntry."Serial No.");
-                        if ServItem.FindFirst then
+                        if ServItem.FindFirst() then
                             ServItemWithSerialNoExist := true;
                     end;
                     if (TempReservEntry."Serial No." = '') or (not ServItemWithSerialNoExist) then begin
@@ -323,13 +323,13 @@ codeunit 5920 ServItemManagement
                             BOMComp.SetRange(Type, BOMComp.Type::Item);
                             BOMComp.SetRange("No.", SalesLine."No.");
                             BOMComp.SetRange("Installed in Line No.", 0);
-                            if BOMComp.FindSet then
+                            if BOMComp.FindSet() then
                                 repeat
                                     Clear(BOMComp2);
                                     BOMComp2.SetRange("Parent Item No.", SalesLine."BOM Item No.");
                                     BOMComp2.SetRange("Installed in Line No.", BOMComp."Line No.");
                                     NextLineNo := 0;
-                                    if BOMComp2.FindSet then
+                                    if BOMComp2.FindSet() then
                                         repeat
                                             for Index := 1 to Round(BOMComp2."Quantity per", 1) do begin
                                                 NextLineNo := NextLineNo + 10000;
@@ -431,10 +431,7 @@ codeunit 5920 ServItemManagement
             OnCreateServItemOnServItemLine(ServItem, ServItemLine, IsHandled);
             if not IsHandled then begin
                 Modify;
-                CreateDim(
-                  DATABASE::"Service Item", "Service Item No.",
-                  DATABASE::"Service Item Group", "Service Item Group Code",
-                  DATABASE::"Responsibility Center", "Responsibility Center");
+                CreateDimFromDefaultDim(0);
             end;
         end;
 
@@ -469,7 +466,7 @@ codeunit 5920 ServItemManagement
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetFilter("Qty. to Ship", '<>0');
-        if SalesLine.FindSet then
+        if SalesLine.FindSet() then
             repeat
                 CopyReservationEntryLine(SalesLine);
             until SalesLine.Next() = 0;
@@ -491,7 +488,7 @@ codeunit 5920 ServItemManagement
         ReservEntry.SetFilter("Serial No.", '<>%1', '');
         ReservEntry.SetFilter("Qty. to Handle (Base)", '<>%1', 0);
 
-        if ReservEntry.FindSet then
+        if ReservEntry.FindSet() then
             repeat
                 TempReservEntry := ReservEntry;
                 TempReservEntry.Insert();
@@ -505,7 +502,7 @@ codeunit 5920 ServItemManagement
     begin
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        if SalesLine.FindSet then
+        if SalesLine.FindSet() then
             repeat
                 CreateServItemOnSalesLineShpt(SalesHeader, SalesLine, DummySalesShptLine);
             until SalesLine.Next() = 0;
@@ -556,19 +553,19 @@ codeunit 5920 ServItemManagement
         ServItemDeleted := false;
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        if SalesLine.FindSet then
+        if SalesLine.FindSet() then
             repeat
                 if SalesLine.Type = SalesLine.Type::Item then begin
                     ReservationEntry.SetRange("Item No.", SalesLine."No.");
                     ReservationEntry.SetRange("Location Code", SalesLine."Location Code");
                     ReservationEntry.SetRange("Source ID", SalesLine."Document No.");
                     ReservationEntry.SetRange("Source Ref. No.", SalesLine."Line No.");
-                    if ReservationEntry.FindSet then
+                    if ReservationEntry.FindSet() then
                         repeat
                             ServItem.SetRange("Item No.", SalesLine."No.");
                             ServItem.SetRange("Customer No.", SalesLine."Sell-to Customer No.");
                             ServItem.SetRange("Serial No.", ReservationEntry."Serial No.");
-                            if ServItem.FindFirst then begin
+                            if ServItem.FindFirst() then begin
                                 if ServItem.CheckIfCanBeDeleted <> '' then begin
                                     ServItem.Validate(Status, ServItem.Status::" ");
                                     ServItem.Modify(true);
@@ -597,7 +594,7 @@ codeunit 5920 ServItemManagement
         ReservEntry.SetRange("Source Prod. Order Line", 0);
         ReservEntry.SetFilter("Qty. to Handle (Base)", '<>%1', 0);
 
-        if ReservEntry.FindSet then
+        if ReservEntry.FindSet() then
             repeat
                 TempReservEntry := ReservEntry;
                 TempReservEntry.Insert();
@@ -613,7 +610,7 @@ codeunit 5920 ServItemManagement
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
         PurchaseLine.SetRange("Drop Shipment", true);
         PurchaseLine.SetFilter(Quantity, '<>0');
-        if PurchaseLine.FindSet then
+        if PurchaseLine.FindSet() then
             repeat
                 if SalesLine.Get(SalesLine."Document Type"::Order, PurchaseLine."Sales Order No.", PurchaseLine."Sales Order Line No.") then
                     CopyReservationEntryLine(SalesLine);

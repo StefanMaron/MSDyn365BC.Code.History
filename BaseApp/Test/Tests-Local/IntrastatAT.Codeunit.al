@@ -58,7 +58,7 @@ codeunit 144061 "Intrastat AT"
         IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
     begin
-        Initialize;
+        Initialize();
         // first without error, later with error
         DisableTransportMethodCheck;
 
@@ -93,7 +93,7 @@ codeunit 144061 "Intrastat AT"
         IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
     begin
-        Initialize;
+        Initialize();
         // first without error, later with error
         DisableTransportMethodCheck;
 
@@ -131,7 +131,7 @@ codeunit 144061 "Intrastat AT"
         FilenamePurchase: Text;
         Filepath: Text;
     begin
-        Initialize;
+        Initialize();
         // first without error, later with error
         DisableTransportMethodCheck;
 
@@ -170,7 +170,7 @@ codeunit 144061 "Intrastat AT"
         IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
     begin
-        Initialize;
+        Initialize();
         // first without error, later with error
         DisableTransactionSpecificationCheck;
 
@@ -205,7 +205,7 @@ codeunit 144061 "Intrastat AT"
         IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
     begin
-        Initialize;
+        Initialize();
         // first without error, later with error
         DisableTransactionSpecificationCheck;
 
@@ -243,7 +243,7 @@ codeunit 144061 "Intrastat AT"
         FilenamePurchase: Text;
         Filepath: Text;
     begin
-        Initialize;
+        Initialize();
         // first without error, later with error
         DisableTransactionSpecificationCheck;
 
@@ -270,37 +270,6 @@ codeunit 144061 "Intrastat AT"
     end;
 #endif
 
-#if not CLEAN17
-    [Test]
-    [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler,IntrastatMakeDiskTaxAuthReqPageHandler')]
-    [Scope('OnPrem')]
-    procedure TestIntrastatMakeDiskOnBlankTransportMethodAndTransactionSpecification()
-    var
-        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
-        IntrastatJnlLine: Record "Intrastat Jnl. Line";
-        FilenameSales: Text;
-        FilenamePurchase: Text;
-        Filepath: Text;
-    begin
-        // [SCENARIO 344448] Stan can generate intrastat file from the Intrastat Journal with the correct content
-
-        Initialize;
-        DisableTransportMethodCheck;
-        DisableTransactionSpecificationCheck;
-
-        // [GIVEN] Intrastat batch with entries taken by "Get Entries"
-        PrepareIntrastatBatch(IntrastatJnlBatch);
-        GetIntrastatFilenames(Filepath, FilenameSales, FilenamePurchase, IntrastatJnlBatch);
-
-        // [WHEN] Create intrastat file
-        RunIntrastatMakeDiskTaxAuth(IntrastatJnlBatch, Filepath);
-
-        // [THEN] File content is correct
-        // TFS 344448, 406878: A period text in the file is correct
-        VerifyIntrastatMakeDiskFiles(IntrastatJnlLine, FilenameSales, FilenamePurchase);
-    end;
-#endif
-
     [Test]
     [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler')]
     [Scope('OnPrem')]
@@ -312,7 +281,7 @@ codeunit 144061 "Intrastat AT"
         Item: Record Item;
     begin
         // Setup: Create Intrastat Journal Template and Batch. Create Customer, Item. Create and Post Sales Order.
-        Initialize;
+        Initialize();
         CreateIntrastatJournalTemplateAndBatch(IntrastatJnlBatch, WorkDate);
         CreateCustomerWithCountryRegionCode(Customer, CreateCountryRegionWithIntrastatCode);
         LibraryInventory.CreateItemWithTariffNo(Item, CreateTariffNo(false));
@@ -345,7 +314,7 @@ codeunit 144061 "Intrastat AT"
         j: Integer;
     begin
         // Setup: Create Intrastat Journal Template and Batch. Create Customer, Item. Create and Post Sales Order.
-        Initialize;
+        Initialize();
         DisableTransactionSpecificationCheck;
         CreateIntrastatJournalTemplateAndBatch(IntrastatJnlBatch, WorkDate);
 
@@ -394,7 +363,7 @@ codeunit 144061 "Intrastat AT"
         // [FEATURE] [Purchase]
         // [SCENARIO 376253] Intrastat file should contain quatity of Supplementary Units in a section called "CNT+19"
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item with Tarriff No having "Supplementary Units" = TRUE
         LibraryInventory.CreateItemWithTariffNo(Item, CreateTariffNo(true));
@@ -436,7 +405,7 @@ codeunit 144061 "Intrastat AT"
         // [FEATURE] [Purchase]
         // [SCENARIO 376253] Intrastat file should not contain quatity of non Supplementary Units in a section called "CNT+19"
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item with Tarriff No having "Supplementary Units" = FALSE
         LibraryInventory.CreateItemWithTariffNo(Item, CreateTariffNo(false));
@@ -483,7 +452,7 @@ codeunit 144061 "Intrastat AT"
         // [FEATURE] [Supplementary Units] [Tariff No.]
         // [SCENARIO 376862] Intrastat file must contain quantity of only Supplementary Units in a section called "CNT+19"
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "X" with Tarriff No having "Supplementary Units" = TRUE
         LibraryInventory.CreateItemWithTariffNo(ItemSupp, CreateTariffNo(true));
@@ -662,7 +631,7 @@ codeunit 144061 "Intrastat AT"
         IntrastatJnlTemplate: Record "Intrastat Jnl. Template";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Intrastat AT");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         LibraryReportDataset.Reset();
         IntrastatJnlTemplate.DeleteAll(true);
 
@@ -670,8 +639,8 @@ codeunit 144061 "Intrastat AT"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Intrastat AT");
 
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         SetIntrastatCodeOnCountryRegion;
         SetTariffNoOnItems;
         SetCompanyInfoFields;
@@ -790,7 +759,7 @@ codeunit 144061 "Intrastat AT"
         TempTariffNo: Code[20];
     begin
         // TariffNo must be length 8 and unique
-        TempTariffNo := LibraryUtility.GenerateGUID;
+        TempTariffNo := LibraryUtility.GenerateGUID();
         TariffNo := CopyStr(TempTariffNo, StrLen(TempTariffNo) - MaxStrLen(TariffNo) + 1);
         TariffNumber.Init();
         TariffNumber.Validate("No.", TariffNo);
@@ -879,7 +848,7 @@ codeunit 144061 "Intrastat AT"
             SetRange("Country/Region Code", CountryRegionCode);
             SetRange("Journal Template Name", IntrastatJnlBatch."Journal Template Name");
             SetRange("Journal Batch Name", IntrastatJnlBatch.Name);
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -994,7 +963,7 @@ codeunit 144061 "Intrastat AT"
         LibraryVariableStorage.Enqueue(IntrastatJnlBatch."Journal Template Name");
         LibraryVariableStorage.Enqueue(IntrastatJnlBatch.Name);
         IntrastatDiskTaxAuthAT.InitializeRequest(Path);
-        IntrastatDiskTaxAuthAT.Run;
+        IntrastatDiskTaxAuthAT.Run();
     end;
 
     local procedure RunIntrastatExport2022(var FileTempBlob: Codeunit "Temp Blob"; IntrastatJnlLine: Record "Intrastat Jnl. Line")
@@ -1050,7 +1019,7 @@ codeunit 144061 "Intrastat AT"
         Item: Record Item;
         TariffNumber: Record "Tariff Number";
     begin
-        TariffNumber.FindFirst;
+        TariffNumber.FindFirst();
         Item.SetRange("Tariff No.", '');
         if not Item.IsEmpty() then
             Item.ModifyAll("Tariff No.", TariffNumber."No.");

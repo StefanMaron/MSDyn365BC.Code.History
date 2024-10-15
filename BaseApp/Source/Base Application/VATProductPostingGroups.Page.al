@@ -66,7 +66,7 @@ page 471 "VAT Product Posting Groups"
     begin
         CurrPage.SetSelectionFilter(VATProductPostingGroup);
         // Creating a simple filter, instead of using SelectionFilterManagement code unit.
-        if VATProductPostingGroup.FindFirst then
+        if VATProductPostingGroup.FindFirst() then
             repeat
                 if FilterString <> '' then
                     FilterString := FilterString + '|';

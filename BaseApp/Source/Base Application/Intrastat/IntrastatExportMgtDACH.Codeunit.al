@@ -138,6 +138,7 @@ codeunit 11002 "Intrastat - Export Mgt. DACH"
             FileMgt.CopyServerFile(ServerZipArchiveName, ZipFileName, true);
     end;
 
+    [Obsolete('Replaced by codeunit 352 Intrastat File Writer', '20.0')]
     procedure DownloadFile(ZipFileName: Text; ServerFileShipments: Text; StatisticsPeriod: Text)
     var
         DataCompression: Codeunit "Data Compression";

@@ -175,18 +175,9 @@ page 9080 "Sales Hist. Sell-to FactBox"
     {
     }
 
-    var
-        ShowCustomerNo: Boolean;
-
     local procedure ShowDetails()
     begin
         PAGE.Run(PAGE::"Customer Card", Rec);
-    end;
-
-    [Obsolete('Visibility of the Customer No. can be controlled through personalizaition or PTE', '17.0')]
-    procedure SetCustomerNoVisibility(Visible: Boolean)
-    begin
-        ShowCustomerNo := Visible;
     end;
 }
 

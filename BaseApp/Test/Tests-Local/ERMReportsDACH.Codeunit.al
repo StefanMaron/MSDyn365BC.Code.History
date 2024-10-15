@@ -510,7 +510,7 @@ codeunit 142062 "ERM Reports DACH"
         // [FEATURE] [Vendor Payments List]
         // [SCENARIO 380010] "Total Vendor" has correct amount value (pmt1 + pmt2) in case of two payments when first is applied to two invoices and second is open
         Initialize();
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        VendorNo := LibraryPurchase.CreateVendorNo();
 
         // [GIVEN] Two vendor Invoices: "Inv1" with Amount = "X1", "Inv2" with Amount = "X2"
         CreateAndPostVendorInvoice(VendorNo, InvoiceDocNo[1], InvoiceAmount[1]);
@@ -651,7 +651,7 @@ codeunit 142062 "ERM Reports DACH"
         GenJournalTemplate: Record "Gen. Journal Template";
     begin
         GenJournalTemplate.SetRange(Type, GenJournalTemplate.Type::Payments);
-        GenJournalTemplate.FindFirst;
+        GenJournalTemplate.FindFirst();
         LibraryERM.FindBankAccount(BankAccount);
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
         GenJournalBatch.Validate("Bal. Account Type", GenJournalBatch."Bal. Account Type"::"Bank Account");
@@ -736,7 +736,7 @@ codeunit 142062 "ERM Reports DACH"
     begin
         LibraryPurchase.ReopenPurchaseDocument(PurchaseHeader);
         PurchaseHeader.Validate("Posting Date", NewPostingDate);
-        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID);
+        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
         PurchaseHeader.Modify(true);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
     end;

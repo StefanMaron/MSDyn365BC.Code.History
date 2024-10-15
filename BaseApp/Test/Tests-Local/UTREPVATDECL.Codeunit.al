@@ -25,7 +25,7 @@ codeunit 142058 "UT REP VATDECL"
         // Purpose of the test is to validate OnPreReport of Report ID 11108 VAT - VIES Declaration XML.
 
         // Setup: Run Report VAT - VIES Declaration XML to verify Error Code, Actual error message: Reportingdate must not be empty, if marking is "recall of an earlier report".
-        Initialize;
+        Initialize();
         RunReportVATVIESDeclarationXML(ReportingType::"Recall of an earlier report", 0D, '');  // XML File Name, Reportingdate, No. Series.
     end;
 
@@ -40,7 +40,7 @@ codeunit 142058 "UT REP VATDECL"
         // Purpose of the test is to validate OnPreReport of Report ID 11108 VAT - VIES Declaration XML.
 
         // Setup: Run Report VAT - VIES Declaration XML to verify Error Code, Actual error message: Reportingdate must be empty, if marking is "Normal transmission".
-        Initialize;
+        Initialize();
         RunReportVATVIESDeclarationXML(ReportingType::"Normal transmission", WorkDate, '');  // XML File Name, Reportingdate, No. Series.
     end;
 
@@ -55,7 +55,7 @@ codeunit 142058 "UT REP VATDECL"
         // Purpose of the test is to validate OnPreReport of Report ID 11108 VAT - VIES Declaration XML.
 
         // Setup: Run Report VAT - VIES Declaration XML to verify Error Code, Actual error message: You didn't define a No. Series.
-        Initialize;
+        Initialize();
         RunReportVATVIESDeclarationXML(ReportingType::"Normal transmission", 0D, '');  // XML File Name, Reportingdate, No. Series.
     end;
 
@@ -70,7 +70,7 @@ codeunit 142058 "UT REP VATDECL"
         // Purpose of the test is to validate OnPreReport of Report ID 11108 VAT - VIES Declaration XML.
 
         // Setup: Run Report VAT - VIES Declaration XML to verify Error Code, Actual error message: The No. Series has not 9 digits.
-        Initialize;
+        Initialize();
         RunReportVATVIESDeclarationXML(
           ReportingType::"Normal transmission", 0D, CreateNoSeries(Format(LibraryRandom.RandIntInRange(1, 99999999))));  // Reportingdate, No. Series length is within the range of 1 to 8 digits.
     end;
@@ -86,7 +86,7 @@ codeunit 142058 "UT REP VATDECL"
         // Purpose of the test is to validate OnPreReport of Report ID 11108 VAT - VIES Declaration XML.
 
         // Setup: Run Report VAT - VIES Declaration XML to verify Error Code, Actual error message: The No. Series should only contain numbers.
-        Initialize;
+        Initialize();
         RunReportVATVIESDeclarationXML(ReportingType::"Normal transmission", 0D,
           CreateNoSeries(DelStr(LibraryUTUtility.GetNewCode10, 10, 1)));
         // XML File Name, Reportingdate, No. Series of 9 digit length which contain alphanumeric characters.
@@ -108,7 +108,7 @@ codeunit 142058 "UT REP VATDECL"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateNoSeries(StartingNo: Code[20]): Code[20]

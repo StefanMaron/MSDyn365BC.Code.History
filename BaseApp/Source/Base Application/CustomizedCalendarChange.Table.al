@@ -136,7 +136,7 @@ table 7602 "Customized Calendar Change"
         else begin
             DateTable.SetRange("Period Type", DateTable."Period Type"::Date);
             DateTable.SetRange("Period Start", Date);
-            if DateTable.FindFirst then
+            if DateTable.FindFirst() then
                 Day := DateTable."Period No.";
         end;
         if (Date = 0D) and (Day = Day::" ") then begin

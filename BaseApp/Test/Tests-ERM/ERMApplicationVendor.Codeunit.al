@@ -1,4 +1,4 @@
-codeunit 134011 "ERM Application Vendor"
+﻿codeunit 134011 "ERM Application Vendor"
 {
     // // [FEATURE] [Purchase] [Application]
     // Unsupported version tags:
@@ -43,7 +43,7 @@ codeunit 134011 "ERM Application Vendor"
         GenJournalLine: Record "Gen. Journal Line";
         Stepwise: Boolean;
     begin
-        Initialize;
+        Initialize();
 
         for Stepwise := false to true do
             with GenJournalLine do begin
@@ -61,7 +61,7 @@ codeunit 134011 "ERM Application Vendor"
         GenJournalLine: Record "Gen. Journal Line";
         Stepwise: Boolean;
     begin
-        Initialize;
+        Initialize();
 
         for Stepwise := false to true do
             with GenJournalLine do begin
@@ -82,7 +82,7 @@ codeunit 134011 "ERM Application Vendor"
         GenJournalLine: Record "Gen. Journal Line";
         Stepwise: Boolean;
     begin
-        Initialize;
+        Initialize();
 
         for Stepwise := false to true do
             with GenJournalLine do begin
@@ -100,7 +100,7 @@ codeunit 134011 "ERM Application Vendor"
         GenJournalLine: Record "Gen. Journal Line";
         Stepwise: Boolean;
     begin
-        Initialize;
+        Initialize();
 
         for Stepwise := false to true do
             with GenJournalLine do begin
@@ -118,7 +118,7 @@ codeunit 134011 "ERM Application Vendor"
         GenJournalLine: Record "Gen. Journal Line";
         Stepwise: Boolean;
     begin
-        Initialize;
+        Initialize();
 
         for Stepwise := false to true do
             with GenJournalLine do begin
@@ -137,7 +137,7 @@ codeunit 134011 "ERM Application Vendor"
         GenJournalLine: Record "Gen. Journal Line";
         Stepwise: Boolean;
     begin
-        Initialize;
+        Initialize();
 
         SetupPaymentTolerance;
 
@@ -158,7 +158,7 @@ codeunit 134011 "ERM Application Vendor"
         GenJournalLine: Record "Gen. Journal Line";
         Stepwise: Boolean;
     begin
-        Initialize;
+        Initialize();
 
         LibraryPmtDiscSetup.SetPmtDiscGracePeriodByText('<5D>');
 
@@ -180,7 +180,7 @@ codeunit 134011 "ERM Application Vendor"
         GenJournalLine: Record "Gen. Journal Line";
         Stepwise: Boolean;
     begin
-        Initialize;
+        Initialize();
 
         for Stepwise := false to true do
             with GenJournalLine do begin
@@ -203,7 +203,7 @@ codeunit 134011 "ERM Application Vendor"
         GenJournalLine: Record "Gen. Journal Line";
         Stepwise: Boolean;
     begin
-        Initialize;
+        Initialize();
 
         for Stepwise := false to true do
             with GenJournalLine do begin
@@ -227,7 +227,7 @@ codeunit 134011 "ERM Application Vendor"
         GenJournalLine: Record "Gen. Journal Line";
         Stepwise: Boolean;
     begin
-        Initialize;
+        Initialize();
 
         for Stepwise := false to true do
             with GenJournalLine do begin
@@ -251,7 +251,7 @@ codeunit 134011 "ERM Application Vendor"
         GenJournalLine: Record "Gen. Journal Line";
         Stepwise: Boolean;
     begin
-        Initialize;
+        Initialize();
 
         for Stepwise := false to true do
             with GenJournalLine do begin
@@ -287,7 +287,7 @@ codeunit 134011 "ERM Application Vendor"
     begin
         // [FEATURE] [Adjust Exchange Rates] [Transaction No.]
         // [SCENARIO] Currency Adjustment job posts Detailed Vendor Ledger Entries linked by "Transaction No." with related G/L Entries
-        Initialize;
+        Initialize();
 
         // [GIVEN] Currency "FCY" with different rates on Workdate and on (WorkDate + 1)
         CurrencyCode := SetExchRateForCurrency(2);
@@ -326,8 +326,13 @@ codeunit 134011 "ERM Application Vendor"
         LastTransactionNo[1] := GetLastTransactionNo;
 
         // [WHEN] Run the Adjust Exchange Rates Batch job on (Workdate + 1)
+#if not CLEAN20
         LibraryERM.RunAdjustExchangeRatesSimple(
           CurrencyCode, CalcDate('<1D>', WorkDate), CalcDate('<1D>', WorkDate));
+#else
+        LibraryERM.RunExchRateAdjustmentSimple(
+          CurrencyCode, CalcDate('<1D>', WorkDate), CalcDate('<1D>', WorkDate));
+#endif
 
         // [THEN] posted G/L Entries on different dates have different "Transaction No."
         // [THEN] Dtld. Vendor Ledger Entries have same "Transaction No." with related G/L Entries
@@ -336,7 +341,7 @@ codeunit 134011 "ERM Application Vendor"
         for TransactionNo := LastTransactionNo[1] + 1 to LastTransactionNo[2] do begin
             GLEntry.SetRange("Transaction No.", TransactionNo);
             GLEntry.SetRange("G/L Account No.", VendorPostingGroup."Payables Account");
-            GLEntry.FindLast;
+            GLEntry.FindLast();
             TotalAmount := 0;
             DtldVendLedgEntry.SetRange("Transaction No.", TransactionNo);
             DtldVendLedgEntry.FindSet();
@@ -360,12 +365,12 @@ codeunit 134011 "ERM Application Vendor"
         // [FEATURE] [UT]
         // [SCENARIO 213825] Multiple vendor ledger entries applies when call SetApplId function of codeunit "Vend. Entry-SetAppl.ID"
 
-        Initialize;
+        Initialize();
         MockVendLedgEntry(ApplyingVendLedgerEntry);
         MockVendLedgEntry(VendLedgerEntry);
         MockVendLedgEntry(VendLedgerEntry2);
         VendLedgerEntry.SetRange("Entry No.", VendLedgerEntry."Entry No.", VendLedgerEntry2."Entry No.");
-        AppliesToID := LibraryUtility.GenerateGUID;
+        AppliesToID := LibraryUtility.GenerateGUID();
 
         VendEntrySetApplID.SetApplId(VendLedgerEntry, ApplyingVendLedgerEntry, AppliesToID);
 
@@ -386,12 +391,12 @@ codeunit 134011 "ERM Application Vendor"
         // [FEATURE] [UT]
         // [SCENARIO 213825] Application information clears for already applied vendor ledger entries when call SetApplId function of codeunit "Vend. Entry-SetAppl.ID"
 
-        Initialize;
+        Initialize();
         MockVendLedgEntry(ApplyingVendLedgerEntry);
         MockAppliedVendLedgEntry(VendLedgerEntry);
         MockAppliedVendLedgEntry(VendLedgerEntry2);
         VendLedgerEntry.SetRange("Entry No.", VendLedgerEntry."Entry No.", VendLedgerEntry2."Entry No.");
-        AppliesToID := LibraryUtility.GenerateGUID;
+        AppliesToID := LibraryUtility.GenerateGUID();
 
         VendEntrySetApplID.SetApplId(VendLedgerEntry, ApplyingVendLedgerEntry, AppliesToID);
 
@@ -413,7 +418,7 @@ codeunit 134011 "ERM Application Vendor"
         // Verify Program populates correct Document Type value on G/L entry window after doing un application on Vendor when adjust for payment discount is involved.
 
         // Setup: Post Invocie, Credit Memo and Payment Line.
-        Initialize;
+        Initialize();
         LibraryPmtDiscSetup.SetAdjustForPaymentDisc(true);
         GetGLBalancedBatch(GenJournalBatch);
 
@@ -450,7 +455,7 @@ codeunit 134011 "ERM Application Vendor"
     begin
         // [FEATURE] [Payment Discount]
         // [SCENARIO 364591] Application of Payment to Invoice and Credit Memo with Payment Discount
-        Initialize;
+        Initialize();
         GetGLBalancedBatch(GenJournalBatch);
 
         // [GIVEN] Posted Purchase Invoice with Amount "X", Payment Discount Amount = "D".
@@ -497,7 +502,7 @@ codeunit 134011 "ERM Application Vendor"
     begin
         // [FEATURE] [Payment Discount]
         // [SCENARIO 364591] Application of Refund to Credit Memo and Invoice with Payment Discount
-        Initialize;
+        Initialize();
         GetGLBalancedBatch(GenJournalBatch);
 
         // [GIVEN] Posted Purchase Credit Memo with Amount "X", "Payment Discount Amount" = "D".
@@ -536,6 +541,7 @@ codeunit 134011 "ERM Application Vendor"
     [Scope('OnPrem')]
     procedure ErrorMessageOnApplyWithoutAplliesToID()
     var
+        ApplyUnapplyParameters: Record "Apply Unapply Parameters";
         VendLedgerEntry: Record "Vendor Ledger Entry";
         DummyGenJournalLine: Record "Gen. Journal Line";
         VendEntryApplyPostedEntries: Codeunit "VendEntry-Apply Posted Entries";
@@ -545,7 +551,7 @@ codeunit 134011 "ERM Application Vendor"
         // [SCENARIO 380040] During application, if there is no "Applies-to ID", then "The application could not be posted, because no entry
         // [SCENARIO] has been selected to be applied / for none of the open entries the "Applies-to ID" has been specfied." error message should appear
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor VVV
         // [GIVEN] Gen. Journal Batch GJB with two lines
@@ -558,7 +564,9 @@ codeunit 134011 "ERM Application Vendor"
 
         // [WHEN] Apply Payment to Invoice
         LibraryERM.FindVendorLedgerEntry(VendLedgerEntry, VendLedgerEntry."Document Type"::Payment, DocNo);
-        asserterror VendEntryApplyPostedEntries.Apply(VendLedgerEntry, DocNo, WorkDate);
+        ApplyUnapplyParameters."Document No." := DocNo;
+        ApplyUnapplyParameters."Posting Date" := WorkDate();
+        asserterror VendEntryApplyPostedEntries.Apply(VendLedgerEntry, ApplyUnapplyParameters);
 
         // [THEN] The following message appears: Cannot post because you did not specify which entry to apply. You must specify an entry in the Applies-to ID field for one or more open entries.
         Assert.ExpectedError(NoEntriesAppliedErr);
@@ -572,9 +580,9 @@ codeunit 134011 "ERM Application Vendor"
         VendorNo: Code[20];
     begin
         // [SCENARIO 233340] When payment amount is not sufficient to close applied invoice and credit memo, the remaining amount is left on the last applied entry.
-        Initialize;
+        Initialize();
 
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        VendorNo := LibraryPurchase.CreateVendorNo();
 
         // [GIVEN] Post invoice for 150 LCY, credit-memo for 44 LCY, payment for 105 LCY.
         CreateAndPostInvoiceCrMemoAndPayment(GenJournalLine, VendorNo, 150, 44, 105);
@@ -596,9 +604,9 @@ codeunit 134011 "ERM Application Vendor"
         VendorNo: Code[20];
     begin
         // [SCENARIO 233340] When payment amount is sufficient to close applied invoice and credit memo, the remaining amount is left on the payment entry.
-        Initialize;
+        Initialize();
 
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        VendorNo := LibraryPurchase.CreateVendorNo();
 
         // [GIVEN] Post invoice for 150 LCY, credit-memo for 46 LCY, payment for 105 LCY.
         CreateAndPostInvoiceCrMemoAndPayment(GenJournalLine, VendorNo, 150, 46, 105);
@@ -620,7 +628,7 @@ codeunit 134011 "ERM Application Vendor"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // [SCENARIO 233340] When payment amount is sufficient to close both invoice and credit memo only if the invoice has payment discount, the remaining amount is left on the payment entry. Extra payment amount < discount amount.
-        Initialize;
+        Initialize();
 
         CreateVendorWithPaymentTerms(Vendor, CreatePaymentTerms(3.33333));
 
@@ -644,7 +652,7 @@ codeunit 134011 "ERM Application Vendor"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // [SCENARIO 233340] When payment amount is sufficient to close both invoice and credit memo only if the invoice has payment discount, the remaining amount is left on the payment entry. Extra payment amount > discount amount.
-        Initialize;
+        Initialize();
 
         CreateVendorWithPaymentTerms(Vendor, CreatePaymentTerms(3.33333));
 
@@ -668,7 +676,7 @@ codeunit 134011 "ERM Application Vendor"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // [SCENARIO 233340] When payment amount is not sufficient to close both invoice and credit memo even with a payment discount on the invoice, the remaining amount is left on the last applied entry.
-        Initialize;
+        Initialize();
 
         CreateVendorWithPaymentTerms(Vendor, CreatePaymentTerms(3.33333));
 
@@ -692,7 +700,7 @@ codeunit 134011 "ERM Application Vendor"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // [SCENARIO 233340] When payment amount is sufficient to close both invoice and credit memo only if the invoice has payment discount, the remaining amount is left on the payment entry.
-        Initialize;
+        Initialize();
 
         CreateVendorWithPaymentTerms(Vendor, CreatePaymentTerms(3.33333));
 
@@ -924,17 +932,21 @@ codeunit 134011 "ERM Application Vendor"
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         // Lazy Setup.
         if isInitialized then
             exit;
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateAccountInVendorPostingGroups;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateAccountInVendorPostingGroups();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERM.SetJournalTemplateNameMandatory(false);
+
         VendorAmount := 1000;  // Use a fixed amount to avoid rounding issues.
         isInitialized := true;
         Commit();
+
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
     end;
 
@@ -945,7 +957,7 @@ codeunit 134011 "ERM Application Vendor"
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
         SetApplyVendorEntry(ApplyingVendorLedgerEntry, DocumentType, DocumentNo, AmountToApply);
-        GLRegister.FindLast;
+        GLRegister.FindLast();
         VendorLedgerEntry.SetRange("Entry No.", GLRegister."From Entry No.", GLRegister."To Entry No.");
         VendorLedgerEntry.SetRange("Applying Entry", false);
         VendorLedgerEntry.FindSet();
@@ -997,7 +1009,7 @@ codeunit 134011 "ERM Application Vendor"
         // Create new exchange rate
         LibraryERM.CreateRandomExchangeRate(Currency.Code);
         CurrencyExchangeRate.SetRange("Currency Code", Currency.Code);
-        CurrencyExchangeRate.FindFirst;
+        CurrencyExchangeRate.FindFirst();
 
         // Watch for Realized gain/loss dtld. ledger entries
         LibraryERMVendorWatch.Init();
@@ -1045,7 +1057,13 @@ codeunit 134011 "ERM Application Vendor"
         Desc := GenerateDocument(GenJournalBatch, Vendor, PmtType, InvType, PmtAmount, InvAmount, '<1D>', '', Currency.Code);
 
         // Run the Adjust Exchange Rates Batch job.
-        LibraryERM.RunAdjustExchangeRatesSimple(Currency.Code, CalcDate('<1D>', WorkDate), CalcDate('<1D>', WorkDate));
+#if not CLEAN20
+        LibraryERM.RunAdjustExchangeRatesSimple(
+            Currency.Code, CalcDate('<1D>', WorkDate), CalcDate('<1D>', WorkDate));
+#else
+        LibraryERM.RunExchRateAdjustmentSimple(
+            Currency.Code, CalcDate('<1D>', WorkDate), CalcDate('<1D>', WorkDate));
+#endif
 
         VendorApplyUnapply(Desc, Stepwise);
 
@@ -1430,7 +1448,7 @@ codeunit 134011 "ERM Application Vendor"
         with VendLedgerEntry do begin
             MockVendLedgEntry(VendLedgerEntry);
             "Amount to Apply" := LibraryRandom.RandDec(100, 2);
-            "Applies-to ID" := LibraryUtility.GenerateGUID;
+            "Applies-to ID" := LibraryUtility.GenerateGUID();
             "Accepted Pmt. Disc. Tolerance" := true;
             "Accepted Payment Tolerance" := LibraryRandom.RandDec(100, 2);
             Modify;
@@ -1442,7 +1460,7 @@ codeunit 134011 "ERM Application Vendor"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         GenJournalLine.SetFilter("Journal Batch Name", GenJournalBatch.Name);
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
 
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
@@ -1458,7 +1476,7 @@ codeunit 134011 "ERM Application Vendor"
     local procedure PostVendorApplicationOneGo(var VendorLedgerEntry: Record "Vendor Ledger Entry")
     begin
         // The first entry is the applying entry.
-        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.FindFirst();
         VendorLedgerEntry.CalcFields(Amount);
         LibraryERM.SetApplyVendorEntry(VendorLedgerEntry, VendorLedgerEntry.Amount);
 
@@ -1466,7 +1484,7 @@ codeunit 134011 "ERM Application Vendor"
         LibraryERM.SetAppliestoIdVendor(VendorLedgerEntry);
 
         // Call Apply codeunit.
-        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.FindFirst();
         LibraryERM.PostVendLedgerApplication(VendorLedgerEntry);
     end;
 
@@ -1476,11 +1494,11 @@ codeunit 134011 "ERM Application Vendor"
         i: Integer;
     begin
         // The first entry is the applying entry.
-        VendorLedgerEntry.FindLast;
+        VendorLedgerEntry.FindLast();
         VendorLedgerEntry2.SetRange("Entry No.", VendorLedgerEntry."Entry No.");
-        VendorLedgerEntry2.FindFirst;
+        VendorLedgerEntry2.FindFirst();
 
-        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.FindFirst();
         for i := 1 to VendorLedgerEntry.Count - 1 do begin
             VendorLedgerEntry.CalcFields(Amount);
             LibraryERM.SetApplyVendorEntry(VendorLedgerEntry, VendorLedgerEntry.Amount);
@@ -1505,30 +1523,27 @@ codeunit 134011 "ERM Application Vendor"
 
     local procedure PostVendorUnapplyOneGo(var VendorLedgerEntry: Record "Vendor Ledger Entry")
     var
+        ApplyUnapplyParameters: Record "Apply Unapply Parameters";
         DtldVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
         DtldVendorLedgEntry2: Record "Detailed Vendor Ledg. Entry";
         VendEntryApplyPostedEntries: Codeunit "VendEntry-Apply Posted Entries";
-        PostingDate: Date;
     begin
         DtldVendorLedgEntry.Get(FindLastApplEntry(VendorLedgerEntry."Entry No."));
 
         DtldVendorLedgEntry2.SetRange("Transaction No.", DtldVendorLedgEntry."Transaction No.");
         DtldVendorLedgEntry2.SetRange("Vendor No.", DtldVendorLedgEntry."Vendor No.");
-        DtldVendorLedgEntry2.FindFirst;
+        DtldVendorLedgEntry2.FindFirst();
 
-        PostingDate := DtldVendorLedgEntry."Posting Date";
-
-        VendEntryApplyPostedEntries.PostUnApplyVendor(
-          DtldVendorLedgEntry,
-          VendorLedgerEntry."Document No.",
-          PostingDate);
+        ApplyUnapplyParameters."Document No." := VendorLedgerEntry."Document No.";
+        ApplyUnapplyParameters."Posting Date" := DtldVendorLedgEntry."Posting Date";
+        VendEntryApplyPostedEntries.PostUnApplyVendor(DtldVendorLedgEntry, ApplyUnapplyParameters);
     end;
 
     local procedure PostVendorUnapplyStepwise(var VendorLedgerEntry: Record "Vendor Ledger Entry")
     var
         i: Integer;
     begin
-        VendorLedgerEntry.FindLast;
+        VendorLedgerEntry.FindLast();
 
         for i := 1 to VendorLedgerEntry.Count - 1 do begin
             // Unapply in reverse order.
@@ -1581,7 +1596,7 @@ codeunit 134011 "ERM Application Vendor"
             GLAccount.SetRange("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
             GLAccount.SetRange("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
             GLAccount.SetRange("Direct Posting", true);
-        until (VATPostingSetup.Next = 0) or GLAccount.FindFirst;
+        until (VATPostingSetup.Next = 0) or GLAccount.FindFirst();
 
         VATPostingSetup.Get(GLAccount."VAT Bus. Posting Group", GLAccount."VAT Prod. Posting Group");
     end;
@@ -1590,7 +1605,7 @@ codeunit 134011 "ERM Application Vendor"
     var
         GLEntry: Record "G/L Entry";
     begin
-        GLEntry.FindLast;
+        GLEntry.FindLast();
         exit(GLEntry."Transaction No.");
     end;
 
@@ -1600,7 +1615,7 @@ codeunit 134011 "ERM Application Vendor"
     begin
         PaymentTerms.Reset();
         PaymentTerms.SetFilter("Discount %", DiscountFilter);
-        PaymentTerms.FindFirst;
+        PaymentTerms.FindFirst();
         PaymentTerms."Calc. Pmt. Disc. on Cr. Memos" := true;
         PaymentTerms.Modify(true);
 
@@ -1645,7 +1660,7 @@ codeunit 134011 "ERM Application Vendor"
         GenJnlBatch.SetRange("Bal. Account Type", GenJnlBatch."Bal. Account Type"::"G/L Account");
         GenJnlBatch.SetFilter("Journal Template Name", GenJnlTemplate.Name);
         GenJnlBatch.SetRange("Bal. Account No.");
-        GenJnlBatch.FindFirst;
+        GenJnlBatch.FindFirst();
         GenJnlBatch.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo);
         GenJnlBatch.Modify(true);
 
@@ -1657,7 +1672,7 @@ codeunit 134011 "ERM Application Vendor"
         with GenJournalBatch do begin
             SetRange("Bal. Account Type", "Bal. Account Type"::"G/L Account");
             SetRange("Bal. Account No.", GLAccount."No.");
-            if not FindFirst then begin
+            if not FindFirst() then begin
                 GetGLBalancedBatch(GenJournalBatch);
                 Name := 'VendorVAT';
                 "Bal. Account Type" := "Bal. Account Type"::"G/L Account";
@@ -1702,7 +1717,7 @@ codeunit 134011 "ERM Application Vendor"
     local procedure VerifyVendorEntriesClosed(var VendorLedgerEntry: Record "Vendor Ledger Entry")
     begin
         with VendorLedgerEntry do begin
-            FindFirst;
+            FindFirst();
             repeat
                 Assert.IsFalse(Open, StrSubstNo('Vendor ledger entry %1 did not close.', "Entry No."));
             until Next = 0;
@@ -1712,7 +1727,7 @@ codeunit 134011 "ERM Application Vendor"
     local procedure VerifyVendorEntriesOpen(var VendorLedgerEntry: Record "Vendor Ledger Entry")
     begin
         with VendorLedgerEntry do begin
-            FindFirst;
+            FindFirst();
             repeat
                 Assert.IsTrue(Open, StrSubstNo('Vendor ledger entry %1 did not open.', "Entry No."));
             until Next = 0;
@@ -1763,7 +1778,7 @@ codeunit 134011 "ERM Application Vendor"
     begin
         with VendorLedgerEntry do begin
             SetRange("Document Type", DocType);
-            FindFirst;
+            FindFirst();
             Assert.AreEqual(VendLedgerEntryIsOpen, Open, FieldCaption(Open));
             Assert.AreEqual(
               RemPaymentDiscPossible, "Remaining Pmt. Disc. Possible",

@@ -205,10 +205,10 @@ page 6657 "Return Shipment Lines"
         TempReturnShptLine.Reset();
         TempReturnShptLine.CopyFilters(Rec);
         TempReturnShptLine.SetRange("Document No.", DocNo);
-        if not TempReturnShptLine.FindFirst then begin
+        if not TempReturnShptLine.FindFirst() then begin
             ReturnShptLine.CopyFilters(Rec);
             ReturnShptLine.SetRange("Document No.", DocNo);
-            ReturnShptLine.FindFirst;
+            ReturnShptLine.FindFirst();
             TempReturnShptLine := ReturnShptLine;
             TempReturnShptLine.Insert();
         end;
@@ -220,7 +220,7 @@ page 6657 "Return Shipment Lines"
     begin
         FromReturnShptLine.Copy(Rec);
         CurrPage.SetSelectionFilter(FromReturnShptLine);
-        if FromReturnShptLine.FindFirst then begin
+        if FromReturnShptLine.FindFirst() then begin
             ItemChargeAssgntPurch."Unit Cost" := UnitCost;
             AssignItemChargePurch.CreateShptChargeAssgnt(FromReturnShptLine, ItemChargeAssgntPurch);
         end;

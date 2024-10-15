@@ -23,7 +23,7 @@ codeunit 144062 "UT Local Export Files Encoding"
     begin
         // [FEATURE] [UT] [VAT Statement]
         // [SCENARIO 166131] VAT Statement report exports country specific symbols with correct encoding to FDF file
-        Initialize;
+        Initialize();
 
         // [GIVEN] Company information address contains country specific symbols
         SetCompanyInformationAddress('ÄäÜüöÖß');
@@ -37,7 +37,7 @@ codeunit 144062 "UT Local Export Files Encoding"
 
     local procedure Initialize()
     begin
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
 
         if IsInitialized then
             exit;
@@ -78,7 +78,7 @@ codeunit 144062 "UT Local Export Files Encoding"
 
         VATStatementAT.InitializeRequest(FdfFileName, XmlFileName);
         Commit();
-        VATStatementAT.RunModal;
+        VATStatementAT.RunModal();
     end;
 
     local procedure SetCompanyInformationAddress(NewAddress: Text[50])

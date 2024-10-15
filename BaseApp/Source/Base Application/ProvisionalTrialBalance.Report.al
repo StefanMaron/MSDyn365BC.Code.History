@@ -259,7 +259,7 @@ report 11500 "Provisional Trial Balance"
         begin
             GenJourTemplate.SetRange(Type, GenJourTemplate.Type::General);
             GenJourTemplate.SetRange(Recurring, false);
-            if GenJourTemplate.FindFirst then;
+            if GenJourTemplate.FindFirst() then;
 
             TemplateName := GenJourTemplate.Name;
             GlJourName.SetRange("Journal Template Name", TemplateName);

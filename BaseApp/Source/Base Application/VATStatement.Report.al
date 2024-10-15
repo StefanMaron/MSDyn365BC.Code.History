@@ -1,4 +1,4 @@
-report 12 "VAT Statement"
+﻿report 12 "VAT Statement"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './VATStatement.rdlc';
@@ -287,8 +287,6 @@ report 12 "VAT Statement"
     end;
 
     procedure CalcLineTotalWithBase(VATStmtLine2: Record "VAT Statement Line"; var TotalAmount: Decimal; var TotalBase: Decimal; Level: Integer): Boolean
-    var
-        VATReportSetup: Record "VAT Report Setup";
     begin
         if Level = 0 then begin
             TotalBase := 0;
@@ -345,10 +343,8 @@ report 12 "VAT Statement"
                         VATStmtLine2."Amount Type"::Amount:
                             begin
                                 VATEntry.CalcSums(Base, "Additional-Currency Base", Amount, "Additional-Currency Amount");
+                                Base := ConditionalAdd(0, VATEntry.Base, VATEntry."Additional-Currency Base");
                                 Amount := ConditionalAdd(0, VATEntry.Amount, VATEntry."Additional-Currency Amount");
-                                if VATReportSetup.Get() then;
-                                if VATReportSetup."Report VAT Base" then
-                                    Base := ConditionalAdd(0, VATEntry.Base, VATEntry."Additional-Currency Base");
                             end;
                         VATStmtLine2."Amount Type"::Base:
                             begin

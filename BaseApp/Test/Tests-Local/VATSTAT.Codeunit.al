@@ -46,13 +46,13 @@ codeunit 144001 VATSTAT
     begin
         // Purpose of the test is to validate that a FDF file is generated.
         // Setup.
-        Initialize;
+        Initialize();
         EnqueRequestPageFields(WorkDate, 0D, "VAT Statement Report Selection"::"Open and Closed", "VAT Statement Report Period Selection"::"Within Period",
           ReportingType::Month, false, false, false, false, 0);
 
         // Exercise: Run the VAT Statement AT report.
         VATStatementAT.InitializeRequest(FdfFileName, XmlFileName);
-        VATStatementAT.RunModal;
+        VATStatementAT.RunModal();
 
         // Verify that the Fdf file is generated
         Assert.IsTrue(Exists(FdfFileName), StrSubstNo('File %1 must be generated', FdfFileName));
@@ -67,13 +67,13 @@ codeunit 144001 VATSTAT
     begin
         // Purpose of the test is to validate that a FDF file is generated.
         // Setup.
-        Initialize;
+        Initialize();
         EnqueRequestPageFields(0D, WorkDate, "VAT Statement Report Selection"::"Open and Closed", "VAT Statement Report Period Selection"::"Within Period",
           ReportingType::Quarter, false, false, false, false, 0);
 
         // Exercise: Run the VAT Statement AT report.
         VATStatementAT.InitializeRequest(FdfFileName, XmlFileName);
-        VATStatementAT.RunModal;
+        VATStatementAT.RunModal();
 
         // Verify that the Xml file are generated
         Assert.IsTrue(Exists(XmlFileName), StrSubstNo('File %1 must be generated', XmlFileName));
@@ -91,7 +91,7 @@ codeunit 144001 VATSTAT
         DocNo: Code[20];
     begin
         // Enter a domestic sales invoice and verify that the data in the generated FDF file.
-        Initialize;
+        Initialize();
         EnqueRequestPageFields(WorkDate, WorkDate, "VAT Statement Report Selection"::"Open and Closed", "VAT Statement Report Period Selection"::"Within Period",
           ReportingType::"Defined period", false, false, false, false, 0);
 
@@ -100,7 +100,7 @@ codeunit 144001 VATSTAT
 
         // Exercise.
         VATStatementAT.InitializeRequest(FdfFileName, XmlFileName);
-        VATStatementAT.RunModal;
+        VATStatementAT.RunModal();
 
         // Verify various Amounts in the VAT Statement report.
         GetVATEntry(VATEntry, DocNo, VATEntry."Document Type"::Invoice, VATEntry.Type::Sale);
@@ -130,7 +130,7 @@ codeunit 144001 VATSTAT
         DocNo: Code[20];
     begin
         // Enter an eu sales invoice and verify that the data in the generated FDF file.
-        Initialize;
+        Initialize();
         SetupVatStatementLine('1000', 'EULIEF', true, GetTemplateName());
         SetupVatStatementLine('1017', 'EULIEF', true, GetTemplateName());
         EnqueRequestPageFields(WorkDate, WorkDate, "VAT Statement Report Selection"::"Open and Closed", "VAT Statement Report Period Selection"::"Within Period",
@@ -141,7 +141,7 @@ codeunit 144001 VATSTAT
 
         // Exercise.
         VATStatementAT.InitializeRequest(FdfFileName, XmlFileName);
-        VATStatementAT.RunModal;
+        VATStatementAT.RunModal();
 
         // Verify various Amounts in the VAT Statement report.
         GetVATEntry(VATEntry, DocNo, VATEntry."Document Type"::Invoice, VATEntry.Type::Sale);
@@ -171,7 +171,7 @@ codeunit 144001 VATSTAT
         DocNo: Code[20];
     begin
         // Enter a foreign sales invoice and verify that the data in the generated FDF file.
-        Initialize;
+        Initialize();
         SetupVatStatementLine('1011', 'BU0', true, GetTemplateName());
         EnqueRequestPageFields(WorkDate, WorkDate, "VAT Statement Report Selection"::"Open and Closed", "VAT Statement Report Period Selection"::"Within Period",
           ReportingType::"Defined period", false, false, false, false, 0);
@@ -181,7 +181,7 @@ codeunit 144001 VATSTAT
 
         // Exercise.
         VATStatementAT.InitializeRequest(FdfFileName, XmlFileName);
-        VATStatementAT.RunModal;
+        VATStatementAT.RunModal();
 
         // Verify various Amounts in the VAT Statement report.
         GetVATEntry(VATEntry, DocNo, VATEntry."Document Type"::Invoice, VATEntry.Type::Sale);
@@ -211,7 +211,7 @@ codeunit 144001 VATSTAT
         DocNo: Code[20];
     begin
         // Enter a domestic purchase invoice and verify that the data in the generated FDF file.
-        Initialize;
+        Initialize();
         EnqueRequestPageFields(WorkDate, WorkDate, "VAT Statement Report Selection"::"Open and Closed", "VAT Statement Report Period Selection"::"Within Period",
           ReportingType::"Defined period", false, false, false, false, 0);
 
@@ -220,7 +220,7 @@ codeunit 144001 VATSTAT
 
         // Exercise.
         VATStatementAT.InitializeRequest(FdfFileName, XmlFileName);
-        VATStatementAT.RunModal;
+        VATStatementAT.RunModal();
 
         // Verify various Amounts in the VAT Statement report.
         GetVATEntry(VATEntry, DocNo, VATEntry."Document Type"::Invoice, VATEntry.Type::Purchase);
@@ -249,7 +249,7 @@ codeunit 144001 VATSTAT
         DocNo: Code[20];
     begin
         // Enter an eu purchase invoice and verify that the data in the generated FDF file.
-        Initialize;
+        Initialize();
         EnqueRequestPageFields(WorkDate, WorkDate, "VAT Statement Report Selection"::"Open and Closed", "VAT Statement Report Period Selection"::"Within Period",
           ReportingType::"Defined period", false, false, false, false, 0);
 
@@ -258,7 +258,7 @@ codeunit 144001 VATSTAT
 
         // Exercise.
         VATStatementAT.InitializeRequest(FdfFileName, XmlFileName);
-        VATStatementAT.RunModal;
+        VATStatementAT.RunModal();
 
         // Verify various Amounts in the VAT Statement report.
         GetVATEntry(VATEntry, DocNo, VATEntry."Document Type"::Invoice, VATEntry.Type::Purchase);
@@ -289,7 +289,7 @@ codeunit 144001 VATSTAT
         LibraryXPathXMLReader: Codeunit "Library - XPath XML Reader";
     begin
         // Enter a foreign purchase invoice and verify that the data in the generated FDF file.
-        Initialize;
+        Initialize();
         EnqueRequestPageFields(WorkDate, WorkDate, "VAT Statement Report Selection"::"Open and Closed", "VAT Statement Report Period Selection"::"Within Period",
           ReportingType::"Defined period", false, false, false, false, 0);
 
@@ -298,7 +298,7 @@ codeunit 144001 VATSTAT
 
         // Exercise.
         VATStatementAT.InitializeRequest(FdfFileName, XmlFileName);
-        VATStatementAT.RunModal;
+        VATStatementAT.RunModal();
 
         // Verify various Amounts in the VAT Statement report.
         FdfFileHelper.ReadFdfFile(FdfFileName);
@@ -323,7 +323,7 @@ codeunit 144001 VATSTAT
         DocNo: Code[20];
     begin
         // Enter a domestic sales invoice and verify that the data in the generated FDF file.
-        Initialize;
+        Initialize();
         EnqueRequestPageFields(WorkDate, WorkDate, "VAT Statement Report Selection"::"Open and Closed", "VAT Statement Report Period Selection"::"Within Period",
           ReportingType::"Defined period", false, false, false, false, 0);
 
@@ -332,7 +332,7 @@ codeunit 144001 VATSTAT
 
         // Exercise.
         VATStatementAT.InitializeRequest(FdfFileName, XmlFileName);
-        VATStatementAT.RunModal;
+        VATStatementAT.RunModal();
 
         // Verify various Amounts in the VAT Statement report.
         GetVATEntry(VATEntry, DocNo, VATEntry."Document Type"::"Credit Memo", VATEntry.Type::Sale);
@@ -365,7 +365,7 @@ codeunit 144001 VATSTAT
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 379404] VAT Statement Line '1067' is exported in case of Sales Credit Memo
-        Initialize;
+        Initialize();
 
         // [GIVEN] Setup VAT Statement Line '1067' with 'Row Totaling' = 'UST20' (Sale Domestic VAT20)
         SetupVatStatementLine('1067', 'UST20', true, GetTemplateName());
@@ -378,7 +378,7 @@ codeunit 144001 VATSTAT
 
         // [WHEN] Export VAT Statement
         VATStatementAT.InitializeRequest(FdfFileName, XmlFileName);
-        VATStatementAT.RunModal;
+        VATStatementAT.RunModal();
 
         // [THEN] '1067' is exported:
         // [THEN] FDF file 'DD141' = '-'
@@ -413,7 +413,7 @@ codeunit 144001 VATSTAT
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 382292] VAT Statement Line '1067' is exported in case of Purchase Credit Memo
-        Initialize;
+        Initialize();
 
         EnqueRequestPageFields(WorkDate, WorkDate, "VAT Statement Report Selection"::"Open and Closed", "VAT Statement Report Period Selection"::"Within Period",
           ReportingType::"Defined period", false, false, false, false, 0);
@@ -429,7 +429,7 @@ codeunit 144001 VATSTAT
 
         // [WHEN] Export VAT Statement
         VATStatementAT.InitializeRequest(FdfFileName, XmlFileName);
-        VATStatementAT.RunModal;
+        VATStatementAT.RunModal();
 
         // [THEN] '1067' is exported:
         // [THEN] FDF file 'Zahl141' = '-200'
@@ -458,7 +458,7 @@ codeunit 144001 VATSTAT
         LibraryXPathXMLReader: Codeunit "Library - XPath XML Reader";
     begin
         // Enter an eu sales invoice and verify that the data in the generated FDF file.
-        Initialize;
+        Initialize();
         SetupVatStatementLine('1000', 'EULIEF', true, GetTemplateName());
         SetupVatStatementLine('1017', 'EULIEF', true, GetTemplateName());
         EnqueRequestPageFields(WorkDate, WorkDate, "VAT Statement Report Selection"::"Open and Closed", "VAT Statement Report Period Selection"::"Within Period",
@@ -469,7 +469,7 @@ codeunit 144001 VATSTAT
 
         // Exercise.
         VATStatementAT.InitializeRequest(FdfFileName, XmlFileName);
-        VATStatementAT.RunModal;
+        VATStatementAT.RunModal();
 
         // Verify various Amounts in the VAT Statement report.
         FdfFileHelper.ReadFdfFile(FdfFileName);
@@ -493,7 +493,7 @@ codeunit 144001 VATSTAT
     begin
         // [FEATURE] [Sales]
         // Enter a foreign sales invoice and verify that the data in the generated FDF file
-        Initialize;
+        Initialize();
 
         // [GIVEN] Setup VAT Statement Line '1011' with 'Row Totaling' = 'BU0' (Sale Export VAT10)
         SetupVatStatementLine('1011', 'BU0', true, GetTemplateName());
@@ -505,7 +505,7 @@ codeunit 144001 VATSTAT
 
         // [WHEN] Export VAT Statement
         VATStatementAT.InitializeRequest(FdfFileName, XmlFileName);
-        VATStatementAT.RunModal;
+        VATStatementAT.RunModal();
 
         // [THEN] There is one KZ line
         // [THEN] '1090' is exported with amount -1000
@@ -536,7 +536,7 @@ codeunit 144001 VATSTAT
         VATProPostingGroupCode: Code[20];
     begin
         // Enter a foreign purchase invoice and verify that the data in the generated FDF file.
-        Initialize;
+        Initialize();
 
         CreateVATPostingGroup(VATBusPostingGroupCode, VATProPostingGroupCode);
 
@@ -555,7 +555,7 @@ codeunit 144001 VATSTAT
 
         // Exercise.
         VATStatementAT.InitializeRequest(FdfFileName, XmlFileName);
-        VATStatementAT.RunModal;
+        VATStatementAT.RunModal();
 
         // Verify various Amounts in the VAT Statement report.
         GetVATEntry(VATEntry, DocNo, VATEntry."Document Type"::Invoice, VATEntry.Type::Purchase);
@@ -591,7 +591,7 @@ codeunit 144001 VATSTAT
         VATProPostingGroupCode: Code[20];
     begin
         // Enter a foreign purchase invoice and verify that the data in the generated FDF file.
-        Initialize;
+        Initialize();
 
         CreateVATPostingGroup(VATBusPostingGroupCode, VATProPostingGroupCode);
 
@@ -611,7 +611,7 @@ codeunit 144001 VATSTAT
 
         // Exercise.
         VATStatementAT.InitializeRequest(FdfFileName, XmlFileName);
-        VATStatementAT.RunModal;
+        VATStatementAT.RunModal();
 
         // Verify various Amounts in the VAT Statement report.
         GetVATEntry(VATEntry, DocNo, VATEntry."Document Type"::"Credit Memo", VATEntry.Type::Purchase);
@@ -648,7 +648,7 @@ codeunit 144001 VATSTAT
         VATProPostingGroupCode: Code[20];
     begin
         // Enter a foreign purchase invoice and verify that the data in the generated FDF file.
-        Initialize;
+        Initialize();
 
         CreateVATPostingGroup(VATBusPostingGroupCode, VATProPostingGroupCode);
 
@@ -667,7 +667,7 @@ codeunit 144001 VATSTAT
 
         // Exercise.
         VATStatementAT.InitializeRequest(FdfFileName, XmlFileName);
-        VATStatementAT.RunModal;
+        VATStatementAT.RunModal();
 
         // Verify various Amounts in the VAT Statement report.
         GetVATEntry(VATEntry, DocNo, VATEntry."Document Type"::Invoice, VATEntry.Type::Purchase);
@@ -703,7 +703,7 @@ codeunit 144001 VATSTAT
         VATProPostingGroupCode: Code[20];
     begin
         // Enter a foreign purchase invoice and verify that the data in the generated FDF file.
-        Initialize;
+        Initialize();
 
         CreateVATPostingGroup(VATBusPostingGroupCode, VATProPostingGroupCode);
 
@@ -723,7 +723,7 @@ codeunit 144001 VATSTAT
 
         // Exercise.
         VATStatementAT.InitializeRequest(FdfFileName, XmlFileName);
-        VATStatementAT.RunModal;
+        VATStatementAT.RunModal();
 
         // Verify various Amounts in the VAT Statement report.
         GetVATEntry(VATEntry, DocNo, VATEntry."Document Type"::"Credit Memo", VATEntry.Type::Purchase);
@@ -755,7 +755,7 @@ codeunit 144001 VATSTAT
         DocNo: Code[20];
     begin
         // Enter an eu purchase invoice and verify that the data in the generated FDF file.
-        Initialize;
+        Initialize();
         EnqueRequestPageFields(WorkDate, WorkDate, "VAT Statement Report Selection"::"Open and Closed", "VAT Statement Report Period Selection"::"Within Period",
           ReportingType::"Defined period", false, false, true, true, 0);
 
@@ -764,7 +764,7 @@ codeunit 144001 VATSTAT
 
         // Exercise.
         VATStatementAT.InitializeRequest(FdfFileName, XmlFileName);
-        VATStatementAT.RunModal;
+        VATStatementAT.RunModal();
 
         // Verify various Amounts in the VAT Statement report.
         GetVATEntry(VATEntry, DocNo, VATEntry."Document Type"::Invoice, VATEntry.Type::Purchase);
@@ -807,7 +807,7 @@ codeunit 144001 VATSTAT
         VATProPostingGroupCode: Code[20];
     begin
         // Enter a foreign purchase invoice and verify that the data is NOT in the generated FDF file (field 27 and 28 have been removed in 2014).
-        Initialize;
+        Initialize();
 
         // Setup: Item1
         CreateVATPostingGroup(VATBusPostingGroupCode, VATProPostingGroupCode);
@@ -833,7 +833,7 @@ codeunit 144001 VATSTAT
         EnqueRequestPageFields(WorkDate, WorkDate, "VAT Statement Report Selection"::"Open and Closed", "VAT Statement Report Period Selection"::"Within Period",
           ReportingType::"Defined period", false, false, false, false, 0);
         VATStatementAT.InitializeRequest(FdfFileName, XmlFileName);
-        VATStatementAT.RunModal;
+        VATStatementAT.RunModal();
 
         // Verify various Amounts in the VAT Statement report.
         GetVATEntry(VATEntry1, DocNo1, VATEntry1."Document Type"::Invoice, VATEntry1.Type::Purchase);
@@ -873,7 +873,7 @@ codeunit 144001 VATSTAT
         VATStatementLine: Record "VAT Statement Line";
         StatementTemplateName: Code[10];
     begin
-        Initialize;
+        Initialize();
 
         // Setup: Clear all date to be created by update
         StatementTemplateName := GetTemplateName();
@@ -902,7 +902,7 @@ codeunit 144001 VATSTAT
         VATStatementLine: Record "VAT Statement Line";
         VATLineCount: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup: Clear all date to be created by update
         REPORT.Run(REPORT::"Update VAT Statement Template");
@@ -934,7 +934,7 @@ codeunit 144001 VATSTAT
     begin
         // Purpose of the test is to validate that a FDF file is generated.
         // Setup.
-        Initialize;
+        Initialize();
         CompanyInformation.Get();
         CompanyInformation."Address 2" := 'Zenter';
         CompanyInformation."House Number" := '20House';
@@ -947,7 +947,7 @@ codeunit 144001 VATSTAT
 
         // Exercise: Run the VAT Statement AT report.
         VATStatementAT.InitializeRequest(FdfFileName, XmlFileName);
-        VATStatementAT.RunModal;
+        VATStatementAT.RunModal();
 
         // Verify that the Xml file are generated
         Assert.IsTrue(Exists(XmlFileName), StrSubstNo('File %1 must be generated', XmlFileName));
@@ -1512,10 +1512,8 @@ codeunit 144001 VATSTAT
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         PdfFile: File;
     begin
-        GlobalLanguage(3079); // in decimals use '.' instead of ','
-
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::VATSTAT);
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
 
         if TestClassWorkdate <> 0D then begin
             TestClassWorkdate := CalcDate('<+1D>', TestClassWorkdate);
@@ -1549,7 +1547,7 @@ codeunit 144001 VATSTAT
         TestClassWorkdate := CalcDate('<-1Y>', Today);
         WorkDate := TestClassWorkdate;
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         Commit();
 
         Evaluate(DefinedHeaderAndFooterLines, NumberOffFdfHeaderAndFooterLinesTok);
@@ -1565,7 +1563,7 @@ codeunit 144001 VATSTAT
         with VATStatementLine do begin
             SetFilter("Statement Template Name", TemplateName);
             SetFilter("Row No.", RowNo);
-            FindFirst;
+            FindFirst();
             if not StringContains("Row Totaling", RowTotalingFilter) then begin
                 if Add then begin
                     if "Row Totaling" <> '' then
@@ -1800,7 +1798,7 @@ codeunit 144001 VATSTAT
 
     local procedure AssertStringContainsDec(String: Text; Amount: Decimal)
     begin
-        Assert.AreEqual(String, Format(Abs(Amount), 0, 1), StrSubstNo(StringContainsErr, String, Amount));
+        Assert.AreEqual(String.Replace(',', '.'), Format(Abs(Amount), 0, 1).Replace(',', '.'), StrSubstNo(StringContainsErr, String, Amount));
     end;
 
     local procedure AssertVATStatementLineExists(var VATStatementLine: Record "VAT Statement Line"; RowNo: Code[10])
@@ -1920,7 +1918,7 @@ codeunit 144001 VATSTAT
         VATEntry.SetRange("Document No.", DocumentNo);
         VATEntry.SetRange("Document Type", DocumentType);
         VATEntry.SetRange(Type, Type);
-        VATEntry.FindFirst;
+        VATEntry.FindFirst();
         Assert.AreEqual(1, VATEntry.Count, '');
     end;
 
@@ -1930,11 +1928,11 @@ codeunit 144001 VATSTAT
         VATStatementLine: Record "VAT Statement Line";
         LineNoToCreate: Integer;
     begin
-        VATStatementTemplate.FindFirst;
+        VATStatementTemplate.FindFirst();
 
         with VATStatementLine do begin
             SetRange("Statement Template Name", VATStatementTemplate.Name);
-            if FindLast then
+            if FindLast() then
                 LineNoToCreate := "Line No." + 10000
             else
                 LineNoToCreate := 1;
@@ -1958,11 +1956,11 @@ codeunit 144001 VATSTAT
         VATStatementLine: Record "VAT Statement Line";
         LineNoToCreate: Integer;
     begin
-        VATStatementTemplate.FindFirst;
+        VATStatementTemplate.FindFirst();
 
         with VATStatementLine do begin
             SetRange("Statement Template Name", VATStatementTemplate.Name);
-            if FindLast then
+            if FindLast() then
                 LineNoToCreate := "Line No." + 10000
             else
                 LineNoToCreate := 1;

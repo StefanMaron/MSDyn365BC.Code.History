@@ -672,6 +672,50 @@ codeunit 134155 "ERM Table Fields UT"
     end;
 
     [Test]
+    [Scope('OnPrem')]
+    procedure CheckGenPostingSetupSalesAccountAddsBlockedSetup()
+    var
+        GenBusinessPostingGroup: Record "Gen. Business Posting Group";
+        GenProductPostingGroup: Record "Gen. Product Posting Group";
+        GeneralPostingSetup: Record "General Posting Setup";
+        InstructionMgt: Codeunit "Instruction Mgt.";
+        PostingSetupManagement: Codeunit PostingSetupManagement;
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 403129] CheckGenPostingSetupSalesAccount creates the blocked "Gen. Posting Setup".
+        LibraryERM.CreateGenBusPostingGroup(GenBusinessPostingGroup);
+        LibraryERM.CreateGenProdPostingGroup(GenProductPostingGroup);
+
+        InstructionMgt.CreateMissingMyNotificationsWithDefaultState(PostingSetupManagement.GetPostingSetupNotificationID());
+        PostingSetupManagement.CheckGenPostingSetupSalesAccount(GenBusinessPostingGroup.Code, GenProductPostingGroup.Code);
+
+        GeneralPostingSetup.Get(GenBusinessPostingGroup.Code, GenProductPostingGroup.Code);
+        GeneralPostingSetup.TestField(Blocked, true);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CheckVATPostingSetupSalesAccountAddsBlockedSetup()
+    var
+        VATBusinessPostingGroup: Record "VAT Business Posting Group";
+        VATProductPostingGroup: Record "VAT Product Posting Group";
+        VATPostingSetup: Record "VAT Posting Setup";
+        InstructionMgt: Codeunit "Instruction Mgt.";
+        PostingSetupManagement: Codeunit PostingSetupManagement;
+    begin
+        // [FEATURE] [VAT]
+        // [SCENARIO 403129] CheckVATPostingSetupSalesAccount creates the blocked "VAT Posting Setup".
+        LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
+        LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
+
+        InstructionMgt.CreateMissingMyNotificationsWithDefaultState(PostingSetupManagement.GetPostingSetupNotificationID());
+        PostingSetupManagement.CheckVATPostingSetupSalesAccount(VATBusinessPostingGroup.Code, VATProductPostingGroup.Code);
+
+        VATPostingSetup.Get(VATBusinessPostingGroup.Code, VATProductPostingGroup.Code);
+        VATPostingSetup.TestField(Blocked, true);
+    end;
+
+    [Test]
     procedure RenamingVendorWithComments()
     var
         Vendor: Record Vendor;
@@ -973,7 +1017,7 @@ codeunit 134155 "ERM Table Fields UT"
     var
         AccountingPeriod: Record "Accounting Period";
     begin
-        if AccountingPeriod.FindLast then;
+        if AccountingPeriod.FindLast() then;
         exit(CalcDate('<-CM+1M>', AccountingPeriod."Starting Date"));
     end;
 
@@ -1046,7 +1090,7 @@ codeunit 134155 "ERM Table Fields UT"
         with AvgCostAdjmtEntryPoint do begin
             SetRange("Item No.", ItemNo);
             SetRange("Valuation Date", ValuationDate);
-            FindFirst;
+            FindFirst();
             TestField("Cost Is Adjusted", false);
         end;
     end;
@@ -1059,4 +1103,3 @@ codeunit 134155 "ERM Table Fields UT"
         Reply := LibraryVariableStorage.DequeueBoolean;
     end;
 }
-

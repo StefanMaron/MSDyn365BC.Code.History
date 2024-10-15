@@ -422,7 +422,7 @@ codeunit 99000809 "Planning Line Management"
         PlanningRtngLine.SetRange("Worksheet Template Name", ReqLine."Worksheet Template Name");
         PlanningRtngLine.SetRange("Worksheet Batch Name", ReqLine."Journal Batch Name");
         PlanningRtngLine.SetRange("Worksheet Line No.", ReqLine."Line No.");
-        if not PlanningRtngLine.FindFirst then begin
+        if not PlanningRtngLine.FindFirst() then begin
             if Direction = Direction::Forward then
                 ReqLine.CalcEndingDate('')
             else
@@ -454,7 +454,7 @@ codeunit 99000809 "Planning Line Management"
         PlanningRtngLine.SetRange("Worksheet Line No.", ReqLine2."Line No.");
         PlanningRtngLine.SetFilter("Next Operation No.", '%1', '');
 
-        if PlanningRtngLine.FindFirst then begin
+        if PlanningRtngLine.FindFirst() then begin
             ReqLine2."Ending Date" := PlanningRtngLine."Ending Date";
             ReqLine2."Ending Time" := PlanningRtngLine."Ending Time";
             IsLineModified := true;
@@ -462,7 +462,7 @@ codeunit 99000809 "Planning Line Management"
 
         PlanningRtngLine.SetRange("Next Operation No.");
         PlanningRtngLine.SetFilter("Previous Operation No.", '%1', '');
-        if PlanningRtngLine.FindFirst then begin
+        if PlanningRtngLine.FindFirst() then begin
             ReqLine2."Starting Date" := PlanningRtngLine."Starting Date";
             ReqLine2."Starting Time" := PlanningRtngLine."Starting Time";
             ReqLine2."Order Date" := PlanningRtngLine."Starting Date";
@@ -795,7 +795,7 @@ codeunit 99000809 "Planning Line Management"
         ReqLine2.SetFilter("Planning Level", '>%1', 0);
         OnInsertPlanningLineOnAfterReqLine2SetFilters(ReqLine2, ReqLine);
 
-        if ReqLine2.FindFirst then begin
+        if ReqLine2.FindFirst() then begin
             ReqLine2.BlockDynamicTracking(Blocked);
             ReqLine2.Validate(Quantity, ReqLine2.Quantity + ReqLine.Quantity);
 

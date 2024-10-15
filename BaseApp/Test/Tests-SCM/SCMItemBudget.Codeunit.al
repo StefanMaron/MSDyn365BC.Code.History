@@ -33,7 +33,7 @@ codeunit 137401 "SCM Item Budget"
         // Test and verify Date Compress Item Budget Entries Report functionality.
 
         // Setup: Create Item Budget Entries.
-        Initialize;
+        Initialize();
         LibraryApplicationArea.DisableApplicationAreaSetup;
         LibraryInventory.CreateItemBudgetEntry(
           ItemBudgetEntry, ItemBudgetEntry."Analysis Area"::Sales, FindItemBudgetName, LibraryFiscalYear.GetFirstPostingDate(true),
@@ -64,7 +64,7 @@ codeunit 137401 "SCM Item Budget"
         // Test functionality of Rounding Factor on Sales Budget Overview.
 
         // Setup: Create Item Budget Entry.
-        Initialize;
+        Initialize();
         CreateItemBudgetEntry(ItemBudgetEntry);
 
         // Exercise: Run Sales Budget Overview.
@@ -88,7 +88,7 @@ codeunit 137401 "SCM Item Budget"
         // Test functionality of Show As Column on Sales Budget Overview.
 
         // Setup: Create Item Budget Entry.
-        Initialize;
+        Initialize();
         CreateItemBudgetEntry(ItemBudgetEntry);
         GeneralLedgerSetup.Get();
 
@@ -114,7 +114,7 @@ codeunit 137401 "SCM Item Budget"
         // Delete item budget entries and check overview amount is zero.
 
         // Setup: Create Item Budget Entry.
-        Initialize;
+        Initialize();
         CreateItemBudgetEntry(ItemBudgetEntry);
 
         // Exercise: Run Sales Budget Overview and invoke Delete Budget.
@@ -140,7 +140,7 @@ codeunit 137401 "SCM Item Budget"
         // Decline delete item budget entries and check overview amount is unchanged.
 
         // Setup: Create Item Budget Entry.
-        Initialize;
+        Initialize();
         CreateItemBudgetEntry(ItemBudgetEntry);
 
         // Exercise: Run Sales Budget Overview and invoke Delete Budget.
@@ -166,7 +166,7 @@ codeunit 137401 "SCM Item Budget"
         // Test and verify Sales Budget Overview with compressed Item Budget Entries.
 
         // Setup: Create Item Budget Entries. Run Date Compress Item Budget Entries.
-        Initialize;
+        Initialize();
         CreateItemBudgetEntryWithSourceNo(ItemBudgetEntry, FindItemBudgetName, CreateItem, LibrarySales.CreateCustomerNo);
         CreateItemBudgetEntryWithSourceNo(
           ItemBudgetEntry, ItemBudgetEntry."Budget Name", ItemBudgetEntry."Item No.", ItemBudgetEntry."Source No.");
@@ -226,8 +226,8 @@ codeunit 137401 "SCM Item Budget"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Item Budget");
         LibraryFiscalYear.CreateClosedAccountingPeriods();
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryApplicationArea.EnableItemBudgetSetup;
 
         isInitialized := true;
@@ -283,7 +283,7 @@ codeunit 137401 "SCM Item Budget"
     var
         InventoryPostingSetup: Record "Inventory Posting Setup";
     begin
-        InventoryPostingSetup.FindFirst;
+        InventoryPostingSetup.FindFirst();
         exit(InventoryPostingSetup."Invt. Posting Group Code");
     end;
 
@@ -292,7 +292,7 @@ codeunit 137401 "SCM Item Budget"
         ItemBudgetName: Record "Item Budget Name";
     begin
         ItemBudgetName.SetRange("Analysis Area", ItemBudgetName."Analysis Area"::Sales);
-        ItemBudgetName.FindFirst;
+        ItemBudgetName.FindFirst();
         exit(ItemBudgetName.Name);
     end;
 
@@ -321,7 +321,7 @@ codeunit 137401 "SCM Item Budget"
         Commit();  // Commit required for batch reports.
         Clear(DateCompItemBudgetEntries);
         DateCompItemBudgetEntries.SetTableView(ItemBudgetEntry);
-        DateCompItemBudgetEntries.Run;
+        DateCompItemBudgetEntries.Run();
     end;
 
     local procedure RunSalesBudgetOverview(var SalesBudgetOverview: TestPage "Sales Budget Overview"; CurrentBudgetName: Code[10]; ColumnDimCode: Text[30]; ItemFilter: Code[20]; CustomerFilter: Code[20]; RoundingFactor: Option)

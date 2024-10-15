@@ -44,6 +44,7 @@ permissionset 5759 "D365 BANKING"
                   tabledata "Employee Ledger Entry" = Rimd,
                   tabledata "Employee Posting Group" = RIMD,
                   tabledata "Exch. Rate Adjmt. Reg." = Rimd,
+                  tabledata "Exch. Rate Adjmt. Ledg. Entry" = Rimd,
                   tabledata "G/L Account" = R,
                   tabledata "G/L Entry - VAT Entry Link" = Rimd,
                   tabledata "G/L Entry" = Rim,

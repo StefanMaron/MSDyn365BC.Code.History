@@ -38,7 +38,7 @@ codeunit 134153 "Test Intrastat"
         FilenamePurchase: Text;
         Filepath: Text;
     begin
-        Initialize;
+        Initialize();
         EnableTransportMethodCheck;
         EnableTransactionSpecificationCheck;
 
@@ -74,7 +74,7 @@ codeunit 134153 "Test Intrastat"
         FilenamePurchase: Text;
         Filepath: Text;
     begin
-        Initialize;
+        Initialize();
         EnableTransportMethodCheck;
         EnableTransactionSpecificationCheck;
 
@@ -104,7 +104,7 @@ codeunit 134153 "Test Intrastat"
         IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
     begin
-        Initialize;
+        Initialize();
         EnableTransportMethodCheck;
         EnableTransactionSpecificationCheck;
 
@@ -126,7 +126,7 @@ codeunit 134153 "Test Intrastat"
 
         // Verify
         IntrastatJnlLine.SetFilter("Tariff No.", Item."Tariff No.");
-        IntrastatJnlLine.FindFirst;
+        IntrastatJnlLine.FindFirst();
         IntrastatJnlLine.TestField("Transaction Type");
         IntrastatJnlLine.TestField("Transport Method");
         LibraryReportDataset.LoadDataSetFile;
@@ -148,7 +148,7 @@ codeunit 134153 "Test Intrastat"
     begin
         // [SCENARIO 362690] Intrastat Journal Line Amount = Item."Unit Price" after Sales Order posting with Quantity = 1
         // [FEATURE] [Sales] [Order]
-        Initialize;
+        Initialize();
         CreateIntrastatJournalTemplateAndBatch(IntrastatJnlBatch, WorkDate);
 
         // [GIVEN] Item with "Unit Price" = "X"
@@ -175,7 +175,7 @@ codeunit 134153 "Test Intrastat"
     begin
         // [SCENARIO 362690] Intrastat Journal Line Amount = Item."Unit Price" after Sales Return Order posting with Quantity = 1
         // [FEATURE] [Sales] [Return Order]
-        Initialize;
+        Initialize();
         CreateIntrastatJournalTemplateAndBatch(IntrastatJnlBatch, WorkDate);
 
         // [GIVEN] Item with "Unit Price" = "X"
@@ -202,7 +202,7 @@ codeunit 134153 "Test Intrastat"
     begin
         // [SCENARIO 362690] Intrastat Journal Line Amount = Item."Last Direct Cost" after Purchase Order posting with Quantity = 1
         // [FEATURE] [Purchase] [Order]
-        Initialize;
+        Initialize();
         CreateIntrastatJournalTemplateAndBatch(IntrastatJnlBatch, WorkDate);
 
         // [GIVEN] Item with "Last Direct Cost" = "X"
@@ -229,7 +229,7 @@ codeunit 134153 "Test Intrastat"
     begin
         // [SCENARIO 362690] Intrastat Journal Line Amount = Item."Last Direct Cost" after Purchase Return Order posting with Quantity = 1
         // [FEATURE] [Purchase] [Return Order]
-        Initialize;
+        Initialize();
         CreateIntrastatJournalTemplateAndBatch(IntrastatJnlBatch, WorkDate);
 
         // [GIVEN] Item with "Last Direct Cost" = "X"
@@ -253,7 +253,7 @@ codeunit 134153 "Test Intrastat"
     begin
         // [FEATURE] [UI] [UT]
         // [SCENARIO 331036] Statistical Value is editable on Intrastat Journal page
-        Initialize;
+        Initialize();
         RunIntrastatJournal(IntrastatJournal);
         Assert.IsTrue(IntrastatJournal."Statistical Value".Editable, '');
     end;
@@ -271,7 +271,7 @@ codeunit 134153 "Test Intrastat"
     begin
         // [FEATURE] [Report] [Export]
         // [SCENARIO 331036] 'Intrastat - Make Disk Tax Auth' report with Amount = 0 and given Statistical Value
-        Initialize;
+        Initialize();
 
         // [GIVEN] Intrastat Journal Line has blank Item No., Amount = 0 and Statistical Value = 100, all mandatory fields are filled in.
         CreateIntrastatJournalTemplateAndBatch(IntrastatJnlBatch, WorkDate);
@@ -304,15 +304,15 @@ codeunit 134153 "Test Intrastat"
     var
         IntrastatJnlTemplate: Record "Intrastat Jnl. Template";
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         LibraryReportDataset.Reset();
         IntrastatJnlTemplate.DeleteAll(true);
 
         if IsInitialized then
             exit;
 
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         SetIntrastatCodeOnCountryRegion;
         SetTariffNoOnItems;
         SetCompanyInfoFields;
@@ -400,7 +400,7 @@ codeunit 134153 "Test Intrastat"
         LibraryVariableStorage.Enqueue(IntrastatJnlBatch."Journal Template Name");
         LibraryVariableStorage.Enqueue(IntrastatJnlBatch.Name);
         IntrastatDiskTaxAuthAT.InitializeRequest(Path);
-        IntrastatDiskTaxAuthAT.Run;
+        IntrastatDiskTaxAuthAT.Run();
     end;
 
     local procedure RunIntrastatJournalForm(Type: Option)
@@ -446,7 +446,7 @@ codeunit 134153 "Test Intrastat"
         with CountryRegion do begin
             SetFilter(Code, '<>%1', CompanyInfo."Country/Region Code");
             SetFilter("Intrastat Code", '<>%1', '');
-            FindFirst;
+            FindFirst();
             exit(Code);
         end;
     end;
@@ -462,7 +462,7 @@ codeunit 134153 "Test Intrastat"
         TempTariffNo: Code[20];
     begin
         // TariffNo must be length 8 and unique
-        TempTariffNo := LibraryUtility.GenerateGUID;
+        TempTariffNo := LibraryUtility.GenerateGUID();
         TariffNo := CopyStr(TempTariffNo, StrLen(TempTariffNo) - MaxStrLen(TariffNo) + 1);
         TariffNumber.Init();
         TariffNumber.Validate("No.", TariffNo);
@@ -498,7 +498,7 @@ codeunit 134153 "Test Intrastat"
         Item: Record Item;
         TariffNumber: Record "Tariff Number";
     begin
-        TariffNumber.FindFirst;
+        TariffNumber.FindFirst();
         Item.SetRange("Tariff No.", '');
         if not Item.IsEmpty() then
             Item.ModifyAll("Tariff No.", TariffNumber."No.");
@@ -545,7 +545,7 @@ codeunit 134153 "Test Intrastat"
             SetRange("Journal Template Name", IntrastatJnlBatch."Journal Template Name");
             SetRange("Journal Batch Name", IntrastatJnlBatch.Name);
             SetRange("Item No.", ItemNo);
-            FindFirst;
+            FindFirst();
             Assert.AreEqual(ExpectedQty, Quantity, FieldCaption(Quantity));
             Assert.AreEqual(ExpectedAmount, Amount, FieldCaption(Amount));
         end;

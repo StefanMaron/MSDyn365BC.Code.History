@@ -381,7 +381,7 @@ page 5476 "Sales Invoice Line Entity"
             DocumentIdFilter := GetFilter("Document Id");
             SalesInvoiceAggregator.LoadLines(Rec, DocumentIdFilter);
             SetView(FilterView);
-            if not FindFirst then
+            if not FindFirst() then
                 exit(false);
             LinesLoaded := true;
         end;
@@ -442,7 +442,7 @@ page 5476 "Sales Invoice Line Entity"
         LastOrderNo: Integer;
     begin
         LastOrderNo := 1;
-        if TempFieldBuffer.FindLast then
+        if TempFieldBuffer.FindLast() then
             LastOrderNo := TempFieldBuffer.Order + 1;
 
         Clear(TempFieldBuffer);

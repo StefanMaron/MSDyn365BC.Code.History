@@ -296,7 +296,7 @@ table 1523 "Workflow Step Argument"
             exit;
 
         WorkflowStep.SetRange(Argument, ID);
-        if WorkflowStep.FindFirst then begin
+        if WorkflowStep.FindFirst() then begin
             Workflow.Get(WorkflowStep."Workflow Code");
             Workflow.CheckEditingIsAllowed;
         end;

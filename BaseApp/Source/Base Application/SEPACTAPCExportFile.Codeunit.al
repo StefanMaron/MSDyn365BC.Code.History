@@ -22,7 +22,7 @@ codeunit 11100 "SEPA CT APC-Export File"
         TempBlob.CreateOutStream(OutStr);
         XMLPORT.Export(XMLPortID, OutStr, GenJnlLine);
         PostProcessXMLDocument(TempBlob);
-        CreditTransferRegister.FindLast;
+        CreditTransferRegister.FindLast();
         exit(FileManagement.BLOBExport(TempBlob, StrSubstNo('%1.XML', CreditTransferRegister.Identifier), true) <> '');
     end;
 

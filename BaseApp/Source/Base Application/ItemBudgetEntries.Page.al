@@ -257,7 +257,7 @@ page 7133 "Item Budget Entries"
         else begin
             CopyFilter("Analysis Area", ItemBudgetName."Analysis Area");
             CopyFilter("Budget Name", ItemBudgetName.Name);
-            ItemBudgetName.FindFirst;
+            ItemBudgetName.FindFirst();
         end;
         CurrPage.Editable := not ItemBudgetName.Blocked;
         GLSetup.Get();
@@ -305,7 +305,7 @@ page 7133 "Item Budget Entries"
     begin
         with Item do begin
             SetFilter("No.", ItemFilter);
-            if FindFirst then
+            if FindFirst() then
                 exit("No.");
 
             exit('');
@@ -321,7 +321,7 @@ page 7133 "Item Budget Entries"
         with Period do begin
             SetRange("Period Type", "Period Type"::Date);
             SetFilter("Period Start", DateFilter);
-            if FindFirst then
+            if FindFirst() then
                 exit("Period Start");
 
             exit(0D);
@@ -337,7 +337,7 @@ page 7133 "Item Budget Entries"
         with DimVal do begin
             SetRange("Dimension Code", DimCode);
             SetFilter(Code, DimValFilter);
-            if FindFirst then
+            if FindFirst() then
                 exit(Code);
 
             exit('');
@@ -350,7 +350,7 @@ page 7133 "Item Budget Entries"
     begin
         with Location do begin
             SetFilter(Code, LocationCodetFilter);
-            if FindFirst then
+            if FindFirst() then
                 exit(Code);
 
             exit('');

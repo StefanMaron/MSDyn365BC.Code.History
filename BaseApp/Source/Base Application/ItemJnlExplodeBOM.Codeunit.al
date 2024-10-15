@@ -1,4 +1,4 @@
-﻿codeunit 246 "Item Jnl.-Explode BOM"
+codeunit 246 "Item Jnl.-Explode BOM"
 {
     TableNo = "Item Journal Line";
 

@@ -43,7 +43,7 @@ codeunit 64 "Sales-Get Shipment"
         with SalesShptLine2 do begin
             SetFilter("Qty. Shipped Not Invoiced", '<>0');
             OnCreateInvLinesOnBeforeFind(SalesShptLine2, SalesHeader);
-            if FindSet then begin
+            if FindSet() then begin
                 SalesLine.LockTable();
                 SalesLine.SetRange("Document Type", SalesHeader."Document Type");
                 SalesLine.SetRange("Document No.", SalesHeader."No.");
@@ -153,7 +153,7 @@ codeunit 64 "Sales-Get Shipment"
         ItemChargeAssgntSales.SetRange("Document Type", SalesOrderLine."Document Type");
         ItemChargeAssgntSales.SetRange("Document No.", SalesOrderLine."Document No.");
         ItemChargeAssgntSales.SetRange("Document Line No.", SalesOrderLine."Line No.");
-        if ItemChargeAssgntSales.FindFirst then begin
+        if ItemChargeAssgntSales.FindFirst() then begin
             ItemChargeAssgntSales.CalcSums("Qty. to Assign");
             if ItemChargeAssgntSales."Qty. to Assign" <> 0 then
                 CopyItemChargeAssgnt(
@@ -180,7 +180,7 @@ codeunit 64 "Sales-Get Shipment"
             ItemChargeAssgntSales.SetRange("Document Type", "Document Type");
             ItemChargeAssgntSales.SetRange("Document No.", "Document No.");
             ItemChargeAssgntSales.SetRange("Document Line No.", "Line No.");
-            if ItemChargeAssgntSales.FindSet then
+            if ItemChargeAssgntSales.FindSet() then
                 repeat
                     if ItemChargeAssgntSales."Qty. to Assign" <> 0 then begin
                         ItemChargeAssgntSales2 := ItemChargeAssgntSales;
@@ -188,7 +188,7 @@ codeunit 64 "Sales-Get Shipment"
                           Round(QtyFactor * ItemChargeAssgntSales2."Qty. to Assign", UOMMgt.QtyRndPrecision);
                         SalesLine2.SetRange("Shipment No.", SalesShptLine."Document No.");
                         SalesLine2.SetRange("Shipment Line No.", SalesShptLine."Line No.");
-                        if SalesLine2.FindSet then
+                        if SalesLine2.FindSet() then
                             repeat
                                 SalesLine2.CalcFields("Qty. to Assign");
                                 InsertChargeAssgnt := SalesLine2."Qty. to Assign" <> SalesLine2.Quantity;
@@ -220,7 +220,7 @@ codeunit 64 "Sales-Get Shipment"
                                     SalesShptLine2.SetRange("Order Line No.", ItemChargeAssgntSales."Applies-to Doc. Line No.");
                                     SalesShptLine2.SetRange(Correction, false);
                                     SalesShptLine2.SetFilter(Quantity, '<>0');
-                                    if SalesShptLine2.FindFirst then begin
+                                    if SalesShptLine2.FindFirst() then begin
                                         SalesLine2.SetCurrentKey("Document Type", "Shipment No.", "Shipment Line No.");
                                         SalesLine2.SetRange("Document Type", "Document Type"::Invoice);
                                         SalesLine2.SetRange("Shipment No.", SalesShptLine2."Document No.");

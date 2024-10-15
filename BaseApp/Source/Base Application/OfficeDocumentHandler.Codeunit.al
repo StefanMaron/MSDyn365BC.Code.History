@@ -228,7 +228,7 @@ codeunit 1637 "Office Document Handler"
     begin
         // Unposted
         SalesHeader.SetRange("Document Type", DocType);
-        if SalesHeader.FindSet then
+        if SalesHeader.FindSet() then
             repeat
                 CreateDocumentMatchRecord(TempOfficeDocumentSelection, Series, DocType,
                   SalesHeader."No.", false, SalesHeader."Document Date");
@@ -236,7 +236,7 @@ codeunit 1637 "Office Document Handler"
 
         // Posted Invoices
         if DocType = TempOfficeDocumentSelection."Document Type"::Invoice then
-            if SalesInvoiceHeader.FindSet then
+            if SalesInvoiceHeader.FindSet() then
                 repeat
                     CreateDocumentMatchRecord(TempOfficeDocumentSelection, Series, DocType,
                       SalesInvoiceHeader."No.", true, SalesInvoiceHeader."Document Date");
@@ -244,7 +244,7 @@ codeunit 1637 "Office Document Handler"
 
         // Posted Credit Memos
         if DocType = TempOfficeDocumentSelection."Document Type"::"Credit Memo" then
-            if SalesCrMemoHeader.FindSet then
+            if SalesCrMemoHeader.FindSet() then
                 repeat
                     CreateDocumentMatchRecord(TempOfficeDocumentSelection, Series, DocType,
                       SalesCrMemoHeader."No.", true, SalesCrMemoHeader."Document Date");
@@ -259,7 +259,7 @@ codeunit 1637 "Office Document Handler"
     begin
         // Unposted
         PurchaseHeader.SetRange("Document Type", DocType);
-        if PurchaseHeader.FindSet then
+        if PurchaseHeader.FindSet() then
             repeat
                 CreateDocumentMatchRecord(TempOfficeDocumentSelection, Series, DocType,
                   PurchaseHeader."No.", false, PurchaseHeader."Document Date");
@@ -267,7 +267,7 @@ codeunit 1637 "Office Document Handler"
 
         // Posted Invoices
         if DocType = TempOfficeDocumentSelection."Document Type"::Invoice then
-            if PurchInvHeader.FindSet then
+            if PurchInvHeader.FindSet() then
                 repeat
                     CreateDocumentMatchRecord(TempOfficeDocumentSelection, Series, DocType,
                       PurchInvHeader."No.", true, PurchInvHeader."Document Date");
@@ -275,7 +275,7 @@ codeunit 1637 "Office Document Handler"
 
         // Posted Credit Memos
         if DocType = TempOfficeDocumentSelection."Document Type"::"Credit Memo" then
-            if PurchCrMemoHdr.FindSet then
+            if PurchCrMemoHdr.FindSet() then
                 repeat
                     CreateDocumentMatchRecord(TempOfficeDocumentSelection, Series, DocType,
                       PurchCrMemoHdr."No.", true, PurchCrMemoHdr."Document Date");

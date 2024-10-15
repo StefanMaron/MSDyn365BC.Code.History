@@ -90,7 +90,7 @@ report 11106 "Intrastat - Disk Tax Auth AT"
 
                 trigger OnPostDataItem()
                 begin
-                    if IntrastatJnlLineBuf.FindSet then
+                    if IntrastatJnlLineBuf.FindSet() then
                         repeat
                             IntraJnlLineTest.Get(
                               IntrastatJnlLineBuf."Journal Template Name",
@@ -881,7 +881,7 @@ report 11106 "Intrastat - Disk Tax Auth AT"
         TariffNumber: Record "Tariff Number";
     begin
         TariffNumber.SetRange("Supplementary Units", true);
-        if TariffNumber.FindSet then
+        if TariffNumber.FindSet() then
             repeat
                 if DelChr(TariffNumber."No.") = TariffNo then
                     exit(Abs(Qty));

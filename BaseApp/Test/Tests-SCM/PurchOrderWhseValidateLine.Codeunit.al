@@ -36,8 +36,8 @@ codeunit 137222 "PurchOrder Whse Validate Line"
 
         IsInitialized := true;
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.CreateVATData();
         DisableWarnings;
 
         LibraryWarehouse.NoSeriesSetup(WarehouseSetup);
@@ -59,7 +59,7 @@ codeunit 137222 "PurchOrder Whse Validate Line"
         WhseReceiptLine: Record "Warehouse Receipt Line";
         ExpectedErrorMessage: Text[1024];
     begin
-        Initialize;
+        Initialize();
         TestPurchaseOrderSetup(PurchaseHeader, PurchaseLine, Item, Location);
 
         ExpectedErrorMessage := StrSubstNo(ErrFieldMustNotBeChanged,
@@ -80,7 +80,7 @@ codeunit 137222 "PurchOrder Whse Validate Line"
         Location: Record Location;
         Item: Record Item;
     begin
-        Initialize;
+        Initialize();
         TestPurchaseOrderSetup(PurchaseHeader, PurchaseLine, Item, Location);
 
         PurchaseOrderFieldChange(true, PurchaseHeader, PurchaseLine, PurchaseLine.FieldNo(Type), PurchaseLine.Type::"Fixed Asset");
@@ -272,13 +272,13 @@ codeunit 137222 "PurchOrder Whse Validate Line"
         PurchaseHeader: Record "Purchase Header";
         Location: Record Location;
     begin
-        Initialize;
+        Initialize();
         TestPurchaseOrderSetup(PurchaseHeader, PurchaseLine, Item, Location);
 
         if Reopen then begin
             LibraryPurchase.ReopenPurchaseDocument(PurchaseHeader);
             PurchaseLine.SetRange("No.", PurchaseLine."No.");
-            PurchaseLine.FindFirst;
+            PurchaseLine.FindFirst();
         end;
 
         asserterror PurchaseLine.DeleteAll(true);
@@ -295,7 +295,7 @@ codeunit 137222 "PurchOrder Whse Validate Line"
         Location: Record Location;
         Item: Record Item;
     begin
-        Initialize;
+        Initialize();
         TestPurchaseOrderSetup(PurchaseHeader, PurchaseLine, Item, Location);
         LibraryInventory.CreateItem(Item);
 
@@ -310,7 +310,7 @@ codeunit 137222 "PurchOrder Whse Validate Line"
         Item: Record Item;
         ItemVariant: Record "Item Variant";
     begin
-        Initialize;
+        Initialize();
         TestPurchaseOrderSetup(PurchaseHeader, PurchaseLine, Item, Location);
         LibraryInventory.CreateItemVariant(ItemVariant, Item."No.");
 
@@ -324,7 +324,7 @@ codeunit 137222 "PurchOrder Whse Validate Line"
         Location: Record Location;
         Item: Record Item;
     begin
-        Initialize;
+        Initialize();
         TestPurchaseOrderSetup(PurchaseHeader, PurchaseLine, Item, Location);
         LocationSetup(Location);
 
@@ -338,7 +338,7 @@ codeunit 137222 "PurchOrder Whse Validate Line"
         Location: Record Location;
         Item: Record Item;
     begin
-        Initialize;
+        Initialize();
         TestPurchaseOrderSetup(PurchaseHeader, PurchaseLine, Item, Location);
 
         PurchaseOrderFieldChange(Reopen, PurchaseHeader, PurchaseLine, PurchaseLine.FieldNo(Quantity), PurchaseLine.Quantity - 1);
@@ -352,7 +352,7 @@ codeunit 137222 "PurchOrder Whse Validate Line"
         Item: Record Item;
         ItemUnitOfMeasure: Record "Item Unit of Measure";
     begin
-        Initialize;
+        Initialize();
         TestPurchaseOrderSetup(PurchaseHeader, PurchaseLine, Item, Location);
         LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasure, Item."No.", 1);
 

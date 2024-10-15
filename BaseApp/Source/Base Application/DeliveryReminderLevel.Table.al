@@ -51,7 +51,7 @@ table 5005277 "Delivery Reminder Level"
     procedure NewRecord()
     begin
         DeliveryReminderLevel.SetRange("Reminder Terms Code", "Reminder Terms Code");
-        if DeliveryReminderLevel.FindLast then;
+        if DeliveryReminderLevel.FindLast() then;
         "No." := DeliveryReminderLevel."No." + 1;
     end;
 }

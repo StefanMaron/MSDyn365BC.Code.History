@@ -140,7 +140,7 @@ codeunit 142060 "ERM Sales/Purchase Report"
         // Verify Posted Sales Documents created from Sales Posting Batch Job.
 
         // Setup: Create Sales Order.
-        Initialize;
+        Initialize();
         CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Order, CreateCustomerWithDimension);
         LibraryVariableStorage.Enqueue(SalesHeader."No.");  // Enqueue value for BatchPostSalesOrdersRequestPageHandler.
         SalesOrders.OpenEdit;
@@ -160,7 +160,7 @@ codeunit 142060 "ERM Sales/Purchase Report"
         DocumentNo: Code[20];
     begin
         // Setup: Create and post Sales Document.
-        Initialize;
+        Initialize();
         CreateSalesDocument(SalesHeader, DocumentType, CreateCustomerWithDimension);
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
         LibraryVariableStorage.Enqueue(DocumentNo);  // Enqueue value for ReportHandler.
@@ -183,7 +183,7 @@ codeunit 142060 "ERM Sales/Purchase Report"
         // Verify Registration Number of Vendor in Purchase Header Archive.
 
         // Setup: Create Purchase Order.
-        Initialize;
+        Initialize();
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Order, CreateVendorWithDimension);
         ArchiveManagement.ArchivePurchDocument(PurchaseHeader);
 
@@ -206,7 +206,7 @@ codeunit 142060 "ERM Sales/Purchase Report"
         // Verify Company Information, Registration Number and Dimension on Purchase Credit Memo Report.
 
         // Setup: Create and post Purchase Credit Memo.
-        Initialize;
+        Initialize();
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", CreateVendorWithDimension);
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
         LibraryVariableStorage.Enqueue(OptionValue::No);
@@ -234,7 +234,7 @@ codeunit 142060 "ERM Sales/Purchase Report"
         // Verify Purchase Credit Memo Report with Number of Copies filter.
 
         // Setup: Create and post Purchase Credit Memo.
-        Initialize;
+        Initialize();
         CreateAndPostPurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo");
         LibraryVariableStorage.Enqueue(OptionString::NoOfCopies);  // Enqueue value for PurchaseCreditMemoRequestPageHandler.
 
@@ -258,7 +258,7 @@ codeunit 142060 "ERM Sales/Purchase Report"
         // Verify Purchase Credit Memo Report with Pay To Vendor Number filter.
 
         // Setup: Create and post Purchase Credit Memo.
-        Initialize;
+        Initialize();
 
         CreateAndPostPurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo");
         LibraryVariableStorage.Enqueue(OptionString::PayToVendNo);
@@ -279,7 +279,7 @@ codeunit 142060 "ERM Sales/Purchase Report"
         // Verify Purchase Credit Memo Report with Buy From Vendor Number filter.
 
         // Setup: Create and post Purchase Credit Memo.
-        Initialize;
+        Initialize();
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", CreateVendorWithDimension);
         UpdatePurchHdrPayToVendorNo(PurchaseHeader);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -301,7 +301,7 @@ codeunit 142060 "ERM Sales/Purchase Report"
         // Verify Purchase Credit Memo Report with Posting Date filter.
 
         // Setup: Create and post Purchase Credit Memo.
-        Initialize;
+        Initialize();
         CreateAndPostPurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo");
         LibraryVariableStorage.Enqueue(OptionString::PostingDate);  // Enqueue value for PurchaseCreditMemoRequestPageHandler.
 
@@ -321,12 +321,12 @@ codeunit 142060 "ERM Sales/Purchase Report"
         // Verify Purchase Credit Memo Report with Vendor Credit Memo Number filter.
 
         // Setup: Create and post Purchase Credit Memo.
-        Initialize;
+        Initialize();
         CreateAndPostPurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo");
         LibraryVariableStorage.Enqueue(OptionString::VendCrMemoNo);
         LibraryVariableStorage.Enqueue(PurchaseHeader."Vendor Cr. Memo No.");  // Enqueue value for PurchaseCreditMemoRequestPageHandler.
         PurchCrMemoLine.SetRange("Buy-from Vendor No.", PurchaseHeader."Buy-from Vendor No.");
-        PurchCrMemoLine.FindFirst;
+        PurchCrMemoLine.FindFirst();
 
         // Exercise and Verification: Run Purchase Credit Memo Report. Verify Quantity on Purchase Credit Memo Report.
         RunCreditMemoReportAndVerify(QuantityCaption, PurchCrMemoLine.Quantity);
@@ -340,7 +340,7 @@ codeunit 142060 "ERM Sales/Purchase Report"
         // Verify Vendor Detailed Aging Report without any Vendor No. filter.
 
         // Setup.
-        Initialize;
+        Initialize();
 
         // Needed to close any write transactions before running report.
         Commit();
@@ -359,7 +359,7 @@ codeunit 142060 "ERM Sales/Purchase Report"
         // Verify Vendor Detailed Aging Report with one Vendor No. as filter.
 
         // Setup: Create and post Purchase Invoice.
-        Initialize;
+        Initialize();
         CreateAndPostPurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice);
 
         // Exercise and Verify.
@@ -378,7 +378,7 @@ codeunit 142060 "ERM Sales/Purchase Report"
         // Verify Vendor Detailed Aging Report with Vendor No. range as filter.
 
         // Setup: Create and post Purchase Invoice for different Vendors.
-        Initialize;
+        Initialize();
         CreateAndPostPurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice);
         CreateAndPostPurchaseDocument(PurchaseHeader2, PurchaseHeader2."Document Type"::Invoice);
 
@@ -460,7 +460,7 @@ codeunit 142060 "ERM Sales/Purchase Report"
         // Verify Crossborder Services report with 'Statistic On' as 'Type of Service' and Additional Reporting Currency TRUE.
 
         // Setup: Update General Ledger Setup.
-        Initialize;
+        Initialize();
         CurrencyCode := UpdateGeneralLedgerSetup;
 
         // Exercise.
@@ -501,7 +501,7 @@ codeunit 142060 "ERM Sales/Purchase Report"
         CurrencyCode: Code[10];
     begin
         // Setup: Update General Ledger Setup.
-        Initialize;
+        Initialize();
         CurrencyCode := UpdateGeneralLedgerSetup;
 
         // Exercise.
@@ -526,7 +526,7 @@ codeunit 142060 "ERM Sales/Purchase Report"
         // Verify Crossborder Services report with Posting Date Filter.
 
         // Setup: Create and post Sales Order.
-        Initialize;
+        Initialize();
         SetupForCrossborderServicesReport(SalesLine);
         EnqueueValuesForCrossBorderServiceReport(Format(WorkDate), OptionString::PostingDate, false);  // False for Show Amount in Additional reporting Currency.
 
@@ -546,7 +546,7 @@ codeunit 142060 "ERM Sales/Purchase Report"
         // Verify Crossborder Services report with Country Region Filter.
 
         // Setup: Create and post Sales Order.
-        Initialize;
+        Initialize();
         SetupForCrossborderServicesReport(SalesLine);
         Customer.Get(SalesLine."Sell-to Customer No.");
         EnqueueValuesForCrossBorderServiceReport(Customer."Country/Region Code", OptionString::CountryRegion, false);  // False for Show Amount in Additional reporting Currency.
@@ -567,7 +567,7 @@ codeunit 142060 "ERM Sales/Purchase Report"
         // Verify Crossborder Services report with General Product Posting Group Filter.
 
         // Setup: Create and post Sales Order.
-        Initialize;
+        Initialize();
         SetupForCrossborderServicesReport(SalesLine);
         EnqueueValuesForCrossBorderServiceReport(SalesLine."Gen. Prod. Posting Group", OptionString::GenProdPostingGroup, false);  // False for Show Amount in Additional reporting Currency.
 
@@ -588,7 +588,7 @@ codeunit 142060 "ERM Sales/Purchase Report"
         // Verify Crossborder Services report with Posting Date and Country Region Filter.
 
         // Setup: Create and post Sales Order.
-        Initialize;
+        Initialize();
         SetupForCrossborderServicesReport(SalesLine);
         Customer.Get(SalesLine."Sell-to Customer No.");
         EnqueueValuesForCrossBorderServiceReport(Customer."Country/Region Code", OptionString::PostingDateCountryRegion, false);  // False for Show Amount in Additional reporting Currency.
@@ -610,7 +610,7 @@ codeunit 142060 "ERM Sales/Purchase Report"
         // Verify Crossborder Services report with Posting Date, Country Region and General Product Posting Group Filter.
 
         // Setup: Create and post Sales Order.
-        Initialize;
+        Initialize();
         SetupForCrossborderServicesReport(SalesLine);
         Customer.Get(SalesLine."Sell-to Customer No.");
         EnqueueValuesForCrossBorderServiceReport(Customer."Country/Region Code", OptionString::PostingDateCountryRegionGenProdPostingGrp, false);  // False for Show Amount in Additional reporting Currency.
@@ -631,7 +631,7 @@ codeunit 142060 "ERM Sales/Purchase Report"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 165243] Run Vendor Detailed Aging report when Vendor Ledger Entry has Due Date = 0D
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Vendor Ledger Entry with "Due Date" = 0D
         CreateVendorLedgerEntry(VendorLedgerEntry);
@@ -656,7 +656,7 @@ codeunit 142060 "ERM Sales/Purchase Report"
     begin
         // [FEATURE] [Sales] [Company Information]
         // [SCENARIO 281443] Running Report 210 on a Blanket Sales Order with blank Responsibility Center, default Company Information is used
-        Initialize;
+        Initialize();
         CompanyInfo.Get();
 
         // [GIVEN] A Blanket Sales Order with Reponsibility Center blank
@@ -666,7 +666,7 @@ codeunit 142060 "ERM Sales/Purchase Report"
         SalesHeader.SetRange("No.", SalesHeader."No.");
         BlanketSalesOrderReport.SetTableView(SalesHeader);
         Commit();
-        BlanketSalesOrderReport.Run;
+        BlanketSalesOrderReport.Run();
         // Handled by BlanketSalesOrderRequestPageHandler
 
         // [THEN] Company Information is filled
@@ -678,14 +678,14 @@ codeunit 142060 "ERM Sales/Purchase Report"
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         Clear(LibraryReportDataset);
         DeleteObjectOptionsIfNeeded;
 
         if isInitialized then
             exit;
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         isInitialized := true;
     end;
 
@@ -696,7 +696,7 @@ codeunit 142060 "ERM Sales/Purchase Report"
         VendorLedgerEntry.SetFilter("Vendor No.", VendorNo);
         VendorLedgerEntry.SetFilter("Due Date", '0D..%1', DueDate);
         VendorLedgerEntry.SetRange("Currency Code", '');
-        if VendorLedgerEntry.FindSet then
+        if VendorLedgerEntry.FindSet() then
             repeat
                 VendorLedgerEntry.CalcFields("Remaining Amount");
                 RemAmount += VendorLedgerEntry."Remaining Amount";
@@ -761,7 +761,7 @@ codeunit 142060 "ERM Sales/Purchase Report"
         PurchaseLine: Record "Purchase Line";
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, VendorNo);
-        PurchaseHeader.Validate("Vendor Cr. Memo No.", LibraryUtility.GenerateGUID);
+        PurchaseHeader.Validate("Vendor Cr. Memo No.", LibraryUtility.GenerateGUID());
         PurchaseHeader.Modify(true);
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItem(Item), LibraryRandom.RandDec(100, 2));  // Random value for Quantity.
@@ -796,7 +796,7 @@ codeunit 142060 "ERM Sales/Purchase Report"
         Vendor: Record Vendor;
     begin
         LibraryPurchase.CreateVendor(Vendor);
-        Vendor.Validate("Registration No.", LibraryUtility.GenerateGUID);
+        Vendor.Validate("Registration No.", LibraryUtility.GenerateGUID());
         Vendor.Modify(true);
         FindDimensionValue(DimensionValue);
         LibraryDimension.CreateDefaultDimensionVendor(DefaultDimension, Vendor."No.", DimensionValue."Dimension Code", DimensionValue.Code);
@@ -808,7 +808,7 @@ codeunit 142060 "ERM Sales/Purchase Report"
         with VendorLedgerEntry do begin
             Init;
             "Entry No." := LibraryUtility.GetNewRecNo(VendorLedgerEntry, FieldNo("Entry No."));
-            "Vendor No." := LibraryPurchase.CreateVendorNo;
+            "Vendor No." := LibraryPurchase.CreateVendorNo();
             "Document No." := LibraryUtility.GenerateRandomCode(FieldNo("Document No."), DATABASE::"Vendor Ledger Entry");
             "Posting Date" := WorkDate;
             Open := true;
@@ -852,14 +852,14 @@ codeunit 142060 "ERM Sales/Purchase Report"
     begin
         PurchaseLine.SetRange("Document No.", DocumentNo);
         PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Order);
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
     end;
 
     local procedure FindSalesLine(var SalesLine: Record "Sales Line"; DocumentNo: Code[20])
     begin
         SalesLine.SetRange("Document No.", DocumentNo);
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
     end;
 
     local procedure PostPurchOrderAndRunCrossBorderServiceReport(var PurchaseLine: Record "Purchase Line"; StatisticOn: Option)
@@ -885,7 +885,7 @@ codeunit 142060 "ERM Sales/Purchase Report"
         SalesHeader: Record "Sales Header";
     begin
         // Setup: Create and modify Customer, create and post Purchase Order.
-        Initialize;
+        Initialize();
         SetupForCrossborderServicesReport(SalesLine);
         Customer.Get(SalesLine."Sell-to Customer No.");
         EnqueueValuesForCrossBorderServiceReport(Customer."Country/Region Code", StatisticOn, false);
@@ -975,7 +975,7 @@ codeunit 142060 "ERM Sales/Purchase Report"
         VerifyElementWithValue(VATRegNoName, CompanyInformation."VAT Registration No.");
         DimensionSetEntry.SetRange("Dimension Set ID", DimensionSetID);
         DimensionSetEntry.SetRange("Dimension Value Code", DimensionValueCode);
-        DimensionSetEntry.FindFirst;
+        DimensionSetEntry.FindFirst();
         DimCodeValue := DimensionSetEntry."Dimension Code" + ' ' + DimensionSetEntry."Dimension Value Code";  // Add Space between Dimension Code and Dimension Value Code.
         LibraryReportDataset.AssertElementWithValueExists(ElementName, DimCodeValue);
     end;
@@ -1002,10 +1002,10 @@ codeunit 142060 "ERM Sales/Purchase Report"
     begin
         // Verify Sales Shipment Line and Sales Invoice Line.
         SalesShipmentLine.SetRange("Order No.", OrderNo);
-        SalesShipmentLine.FindFirst;
+        SalesShipmentLine.FindFirst();
         SalesShipmentLine.TestField("Sell-to Customer No.", SellToCustomerNo);
         SalesInvoiceLine.SetRange("Order No.", OrderNo);
-        SalesInvoiceLine.FindFirst;
+        SalesInvoiceLine.FindFirst();
         SalesInvoiceLine.TestField("Sell-to Customer No.", SellToCustomerNo);
     end;
 
@@ -1021,7 +1021,7 @@ codeunit 142060 "ERM Sales/Purchase Report"
         PurchaseHeaderArchive: Record "Purchase Header Archive";
     begin
         PurchaseHeaderArchive.SetRange("No.", PurchaseHeader."No.");
-        PurchaseHeaderArchive.FindFirst;
+        PurchaseHeaderArchive.FindFirst();
         PurchaseHeaderArchive.TestField("Registration No.", PurchaseHeader."Registration No.");
     end;
 

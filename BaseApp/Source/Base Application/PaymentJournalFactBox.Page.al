@@ -291,7 +291,7 @@ page 35517 "Payment Journal FactBox"
         if IsHandled then
             exit;
 
-        if not VendLedgEntry.FindSet then
+        if not VendLedgEntry.FindSet() then
             exit;
 
         if Currency.ReadPermission then

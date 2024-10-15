@@ -183,7 +183,7 @@ codeunit 144060 "ERM Test SEPA CT APC"
         VendorBankAccount.IBAN := 'AL47 2121 1009 0000 0002 3569 8741';
         VendorBankAccount.Modify(true);
 
-        NoSeries.FindFirst;
+        NoSeries.FindFirst();
         CreateBankExpSetup;
         BankAccount."Bank Account No." := '1234 12345678';
         BankAccount.IBAN := 'AT61 1904 3002 3457 3201';
@@ -214,7 +214,7 @@ codeunit 144060 "ERM Test SEPA CT APC"
             Validate(Amount, DefaultLineAmount);
             Validate("Bal. Account Type", "Bal. Account Type"::"Bank Account");
             Validate("Bal. Account No.", BankAccount."No.");
-            Validate("Message to Recipient", LibraryUtility.GenerateGUID);
+            Validate("Message to Recipient", LibraryUtility.GenerateGUID());
             Modify(true);
         end;
     end;

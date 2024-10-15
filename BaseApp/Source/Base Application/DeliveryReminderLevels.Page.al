@@ -75,7 +75,7 @@ page 5005281 "Delivery Reminder Levels"
     begin
         DeliveryReminderTerms.SetFilter(Code, GetFilter("Reminder Terms Code"));
         ShowColumn := true;
-        if DeliveryReminderTerms.FindFirst then begin
+        if DeliveryReminderTerms.FindFirst() then begin
             DeliveryReminderTerms.SetRecFilter;
             if DeliveryReminderTerms.GetFilter(Code) = GetFilter("Reminder Terms Code") then
                 ShowColumn := false;
