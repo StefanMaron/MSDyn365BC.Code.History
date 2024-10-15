@@ -55,12 +55,12 @@ codeunit 5522 "Order Planning Mgt."
 
     procedure PrepareRequisitionRecord(var RequisitionLine: Record "Requisition Line")
     begin
-        RequisitionLine.LockTable();
         RequisitionLine.SetCurrentKey("User ID", "Worksheet Template Name");
         RequisitionLine.SetRange("User ID", UserId);
         RequisitionLine.SetRange("Worksheet Template Name", '');
         OnPrepareRequisitionRecordOnBeforeDeleteAll(RequisitionLine);
-        RequisitionLine.DeleteAll(true);
+        if not RequisitionLine.IsEmpty() then
+            RequisitionLine.DeleteAll(true);
 
         RequisitionLine.Reset();
         RequisitionLine.SetRange("Worksheet Template Name", '');

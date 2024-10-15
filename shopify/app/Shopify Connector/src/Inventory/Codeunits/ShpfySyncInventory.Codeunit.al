@@ -23,15 +23,13 @@ codeunit 30197 "Shpfy Sync Inventory"
         end;
         if ShopLocation.FindSet(false) then begin
             InventoryApi.SetShop(ShopLocation."Shop Code");
+            InventoryApi.SetInventoryIds();
             repeat
                 InventoryApi.ImportStock(ShopLocation);
             until ShopLocation.Next() = 0;
         end;
         InventoryApi.RemoveUnusedInventoryIds();
 
-        if ShopInventory.FindSet() then
-            repeat
-                InventoryApi.ExportStock(ShopInventory);
-            until ShopInventory.Next() = 0;
+        InventoryApi.ExportStock(ShopInventory);
     end;
 }

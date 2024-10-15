@@ -933,6 +933,9 @@ page 233 "Apply Vendor Entries"
             VendLedgEntry.SetRecFilter()
         else
             CurrPage.SetSelectionFilter(VendLedgEntry);
+
+        OnSetVendApplIdOnAfterSetFilter(Rec, CurrentRec, VendLedgEntry, TempApplyingVendLedgEntry);
+
         CallVendEntrySetApplIDSetApplId();
 
         CalcApplnAmount();
@@ -1641,6 +1644,11 @@ page 233 "Apply Vendor Entries"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcApplnAmountOnAfterAppliedVendLedgEntrySetFilter(var AppliedVendorLedgerEntry: Record "Vendor Ledger Entry"; VendorLedgerEntry: Record "Vendor Ledger Entry"; var RecVendorLedgerEntry: Record "Vendor Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetVendApplIdOnAfterSetFilter(var RecVendorLedgerEntry: Record "Vendor Ledger Entry"; CurrentRec: Boolean; var VendorLedgerEntry: Record "Vendor Ledger Entry"; var TempApplyingVendorLedgerEntry: Record "Vendor Ledger Entry" temporary)
     begin
     end;
 }

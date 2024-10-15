@@ -375,6 +375,7 @@
         GenJournalTemplate: Record "Gen. Journal Template";
         ICPartner: Record "IC Partner";
         CheckDone: Boolean;
+        IsHandled: Boolean;
     begin
         OnBeforeCheckAccountNo(GenJnlLine, CheckDone);
         if CheckDone then
@@ -442,7 +443,10 @@
                             FieldError("Sales/Purch. (LCY)", ErrorInfo.Create(StrSubstNo(Text003, FieldCaption(Amount)), true));
                         CheckJobNoIsEmpty(GenJnlLine);
 
-                        CheckICPartner("Account Type", "Account No.", "Document Type", GenJnlLine);
+                        IsHandled := false;
+                        OnCheckAccountNoOnBeforeCheckICPartner(GenJnlLine, IsHandled);
+                        if not IsHandled then
+                            CheckICPartner("Account Type", "Account No.", "Document Type", GenJnlLine);
                     end;
                 "Account Type"::"Bank Account":
                     begin
@@ -1244,6 +1248,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnCheckSalesDocNoIsNotUsedOnAfterSetFilters(GenJournalLine: Record "Gen. Journal Line"; var OldCustLedgerEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckAccountNoOnBeforeCheckICPartner(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean);
     begin
     end;
 }
