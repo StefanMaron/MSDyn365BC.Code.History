@@ -48,6 +48,7 @@ codeunit 134253 "Match Bank Rec. Scenarios"
 
         // Verify.
         VerifyOneToManyMatch(BankAccReconciliation, BankAccReconciliationLine."Statement Line No.", 2, 2 * Amount);
+        BankAccReconciliationPage.Close();
     end;
 
     [Test]
@@ -76,6 +77,7 @@ codeunit 134253 "Match Bank Rec. Scenarios"
 
         // Verify.
         VerifyOneToManyMatch(BankAccReconciliation, BankAccReconciliationLine."Statement Line No.", 2, 2 * Amount);
+        BankAccReconciliationPage.Close();
     end;
 
     [Test]

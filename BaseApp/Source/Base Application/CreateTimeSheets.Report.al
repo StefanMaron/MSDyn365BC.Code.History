@@ -1,4 +1,4 @@
-report 950 "Create Time Sheets"
+﻿report 950 "Create Time Sheets"
 {
     ApplicationArea = Basic, Suite;
     Caption = 'Create Time Sheets';
@@ -137,18 +137,12 @@ report 950 "Create Time Sheets"
 
     trigger OnPreReport()
     var
-        UserSetup: Record "User Setup";
         i: Integer;
         LastDate: Date;
         FirstAccPeriodStartingDate: Date;
         LastAccPeriodStartingDate: Date;
     begin
-        if (not UserSetup.Get(UserId) or not UserSetup."Time Sheet Admin.") and UserSetup.WritePermission then
-            if Confirm(OpenUserSetupQst, true) then
-                PAGE.RunModal(PAGE::"User Setup");
-
-        if not UserSetup.Get(UserId) or not UserSetup."Time Sheet Admin." then
-            Error(Text002);
+        CheckUserSetup();
 
         if StartingDate = 0D then
             Error(Text004, Text005);
@@ -215,6 +209,24 @@ report 950 "Create Time Sheets"
         HideDialog := NewHideDialog;
     end;
 
+    local procedure CheckUserSetup()
+    var
+        UserSetup: Record "User Setup";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckUserSetup(IsHandled);
+        if IsHandled then
+            exit;
+
+        if (not UserSetup.Get(UserId) or not UserSetup."Time Sheet Admin.") and UserSetup.WritePermission then
+            if Confirm(OpenUserSetupQst, true) then
+                PAGE.RunModal(PAGE::"User Setup");
+
+        if not UserSetup.Get(UserId) or not UserSetup."Time Sheet Admin." then
+            Error(Text002);
+    end;
+
     local procedure CheckExistingPeriods(): Boolean
     begin
         TimeSheetHeader.SetRange("Resource No.", Resource."No.");
@@ -230,6 +242,11 @@ report 950 "Create Time Sheets"
     begin
         if Date2DWY(StartingDate, 1) <> ResourcesSetup."Time Sheet First Weekday" + 1 then
             Error(Text010, ResourcesSetup."Time Sheet First Weekday");
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckUserSetup(var IsHandled: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

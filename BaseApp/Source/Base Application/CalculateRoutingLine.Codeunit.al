@@ -1212,8 +1212,10 @@ codeunit 99000774 "Calculate Routing Line"
               ProdOrderRoutingLine."Work Center No.", ProdOrderRoutingLine."Run Time Unit of Meas. Code"),
             UOMMgt.QtyRndPrecision);
 
+        OnCalculateRoutingLineOnBeforeCalcCostInclSetup(ProdOrderRoutingLine, TotalCapacityPerOperation, TotalQtyPerOperation);
         if MfgSetup."Cost Incl. Setup" then
             CalcCostInclSetup(ProdOrderRoutingLine, TotalCapacityPerOperation);
+        OnCalculateRoutingLineOnAfterCalcCostInclSetup(ProdOrderRoutingLine, TotalCapacityPerOperation, TotalQtyPerOperation);
 
         CalcExpectedCost(ProdOrderRoutingLine, TotalQtyPerOperation, TotalCapacityPerOperation);
 
@@ -2096,6 +2098,16 @@ codeunit 99000774 "Calculate Routing Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateLoadForwardOnBeforeEndStopLoop(ProdOrderRoutingLine: Record "Prod. Order Routing Line"; TimeType: Enum "Routing Time Type"; var StopLoop: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateRoutingLineOnAfterCalcCostInclSetup(ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var TotalCapacityPerOperation: Decimal; var TotalQtyPerOperation: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateRoutingLineOnBeforeCalcCostInclSetup(ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var TotalCapacityPerOperation: Decimal; var TotalQtyPerOperation: Decimal)
     begin
     end;
 

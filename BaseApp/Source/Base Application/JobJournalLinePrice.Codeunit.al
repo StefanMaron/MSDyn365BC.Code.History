@@ -119,6 +119,7 @@ codeunit 7023 "Job Journal Line - Price" implements "Line With Price"
             else
                 AssetType := AssetType::" ";
         end;
+        OnAfterGetAssetType(JobJournalLine, AssetType);
     end;
 
     procedure CopyToBuffer(var PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt."): Boolean
@@ -182,7 +183,13 @@ codeunit 7023 "Job Journal Line - Price" implements "Line With Price"
     var
         Job: Record Job;
         SourceType: Enum "Price Source Type";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeAddSources(PriceSourceList, JobJournalLine, CurrPriceType, IsHandled);
+        if IsHandled then
+            exit;
+
         Job.Get(JobJournalLine."Job No.");
         PriceSourceList.Init();
         case CurrPriceType of
@@ -272,7 +279,17 @@ codeunit 7023 "Job Journal Line - Price" implements "Line With Price"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterGetAssetType(JobJournalLine: Record "Job Journal Line"; var AssetType: Enum "Price Asset Type")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterSetPrice(var JobJournalLine: Record "Job Journal Line"; PriceListLine: Record "Price List Line"; AmountType: Enum "Price Amount Type")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeAddSources(var PriceSourceList: Codeunit "Price Source List"; JobJournalLine: Record "Job Journal Line"; CurrPriceType: Enum "Price Type"; var IsHandled: Boolean)
     begin
     end;
 }

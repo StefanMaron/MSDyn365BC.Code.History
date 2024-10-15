@@ -31,10 +31,16 @@ codeunit 99000856 "Planning Transparency"
         CurrWorksheetName := WorksheetName;
     end;
 
-    procedure FindReason(var DemandInvProfile: Record "Inventory Profile"): Integer
+    procedure FindReason(var DemandInvProfile: Record "Inventory Profile") Result: Integer
     var
         SurplusType: Option "None",Forecast,BlanketOrder,SafetyStock,ReorderPoint,MaxInventory,FixedOrderQty,MaxOrder,MinOrder,OrderMultiple,DampenerQty,PlanningFlexibility,Undefined;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeFindReason(DemandInvProfile, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         case DemandInvProfile."Source Type" of
             0:
                 if DemandInvProfile."Order Relation" = DemandInvProfile."Order Relation"::"Safety Stock" then
@@ -58,6 +64,7 @@ codeunit 99000856 "Planning Transparency"
     procedure LogSurplus(SupplyLineNo: Integer; DemandLineNo: Integer; SourceType: Integer; SourceID: Code[20]; Qty: Decimal; SurplusType: Option "None",Forecast,BlanketOrder,SafetyStock,ReorderPoint,MaxInventory,FixedOrderQty,MaxOrder,MinOrder,OrderMultiple,DampenerQty,PlanningFlexibility,Undefined,EmergencyOrder)
     var
         Priority: Integer;
+        IsHandled: Boolean;
     begin
         if (Qty = 0) or (SupplyLineNo = 0) then
             exit;
@@ -85,8 +92,12 @@ codeunit 99000856 "Planning Transparency"
                 Priority := 6;
             SurplusType::DampenerQty:
                 Priority := 7;
-            else
-                SurplusType := SurplusType::Undefined;
+            else begin
+                    IsHandled := false;
+                    OnLogSurplusOnCaseSurplusTypeElse(SupplyLineNo, DemandLineNo, SourceType, SourceID, Qty, SurplusType, Priority, IsHandled);
+                    if not IsHandled then
+                        SurplusType := SurplusType::Undefined;
+                end;
         end;
 
         if SurplusType <> SurplusType::Undefined then begin
@@ -356,6 +367,8 @@ codeunit 99000856 "Planning Transparency"
             else
                 ReturnText := Text000;
         end;
+
+        OnAfterShowSurplusReason(SurplusType, ReturnText);
     end;
 
     procedure SetCurrReqLine(var CurrentReqLine: Record "Requisition Line")
@@ -459,6 +472,21 @@ codeunit 99000856 "Planning Transparency"
     begin
         SequenceNo := SequenceNo + 1;
         exit(SequenceNo);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterShowSurplusReason(SurplusType: Integer; var ReturnText: Text[50])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFindReason(var DemandInvProfile: Record "Inventory Profile"; var Result: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLogSurplusOnCaseSurplusTypeElse(SupplyLineNo: Integer; DemandLineNo: Integer; SourceType: Integer; SourceID: Code[20]; Qty: Decimal; SurplusType: Integer; var Priority: Integer; var IsHandled: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

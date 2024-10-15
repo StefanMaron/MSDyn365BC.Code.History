@@ -689,11 +689,14 @@ codeunit 5340 "CRM Integration Table Synch."
     local procedure IgnoreCompanyContactOnQueryPostFilterIgnoreRecord(SourceRecordRef: RecordRef; var IgnoreRecord: Boolean)
     var
         Contact: Record Contact;
+        CRMSynchHelper: Codeunit "CRM Synch. Helper";
     begin
         if IgnoreRecord then
             exit;
 
         if SourceRecordRef.Number = DATABASE::Contact then begin
+            if CRMSynchHelper.IsContactTypeCheckIgnored() then
+                exit;
             SourceRecordRef.SetTable(Contact);
             if Contact.Type = Contact.Type::Company then
                 IgnoreRecord := true;

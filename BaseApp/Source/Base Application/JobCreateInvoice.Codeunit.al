@@ -178,7 +178,8 @@ codeunit 1002 "Job Create-Invoice"
                 end;
             until JobPlanningLine.Next() = 0;
 
-        JobPlanningLineSource.FindFirst;
+        JobPlanningLineSource.Get(
+          JobPlanningLineSource."Job No.", JobPlanningLineSource."Job Task No.", JobPlanningLineSource."Line No.");
         JobPlanningLineSource.CalcFields("Qty. Transferred to Invoice");
 
         if NoOfSalesLinesCreated = 0 then
@@ -375,6 +376,7 @@ codeunit 1002 "Job Create-Invoice"
         DimMgt: Codeunit DimensionManagement;
         Factor: Integer;
         DimSetIDArr: array[10] of Integer;
+        IsHandled: Boolean;
     begin
         OnBeforeCreateSalesLine(JobPlanningLine, SalesHeader, SalesHeader2, JobInvCurrency);
 
@@ -408,7 +410,11 @@ codeunit 1002 "Job Create-Invoice"
         if JobPlanningLine.Type = JobPlanningLine.Type::Resource then
             SalesLine.Validate(Type, SalesLine.Type::Resource);
 
-        SalesLine.Validate("No.", JobPlanningLine."No.");
+
+        IsHandled := false;
+        OnCreateSalesLineOnBeforeValidateSalesLineNo(JobPlanningLine, SalesLine, IsHandled);
+        if not IsHandled then
+            SalesLine.Validate("No.", JobPlanningLine."No.");
         SalesLine.Validate("Gen. Prod. Posting Group", JobPlanningLine."Gen. Prod. Posting Group");
         SalesLine.Validate("Location Code", JobPlanningLine."Location Code");
         SalesLine.Validate("Work Type Code", JobPlanningLine."Work Type Code");
@@ -491,8 +497,12 @@ codeunit 1002 "Job Create-Invoice"
             JobPlanningLine."VAT Line Amount" := SalesLine."Line Amount";
             JobPlanningLine."VAT %" := SalesLine."VAT %";
         end;
-        if TransferExtendedText.SalesCheckIfAnyExtText(SalesLine, false) then
-            TransferExtendedText.InsertSalesExtText(SalesLine);
+
+        IsHandled := false;
+        OnCreateSalesLineOnBeforeSalesCheckIfAnyExtText(JobPlanningLine, SalesLine, IsHandled);
+        if not IsHandled then
+            if TransferExtendedText.SalesCheckIfAnyExtText(SalesLine, false) then
+                TransferExtendedText.InsertSalesExtText(SalesLine);
 
         OnAfterCreateSalesLine(SalesLine, SalesHeader, Job, JobPlanningLine);
     end;
@@ -658,6 +668,7 @@ codeunit 1002 "Job Create-Invoice"
                     TempJobPlanningLineInvoice."Quantity Transferred" += JobPlanningLineInvoice."Quantity Transferred";
                     TempJobPlanningLineInvoice."Invoiced Amount (LCY)" += JobPlanningLineInvoice."Invoiced Amount (LCY)";
                     TempJobPlanningLineInvoice."Invoiced Cost Amount (LCY)" += JobPlanningLineInvoice."Invoiced Cost Amount (LCY)";
+                    OnFindInvoicesOnBeforeTempJobPlanningLineInvoiceModify(TempJobPlanningLineInvoice, JobPlanningLineInvoice);
                     TempJobPlanningLineInvoice.Modify();
                 end else begin
                     case DetailLevel of
@@ -1010,6 +1021,16 @@ codeunit 1002 "Job Create-Invoice"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCreateSalesLineOnBeforeSalesCheckIfAnyExtText(var JobPlanningLine: Record "Job Planning Line"; var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateSalesLineOnBeforeValidateSalesLineNo(var JobPlanningLine: Record "Job Planning Line"; var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCreateSalesInvoiceLinesOnAfterValidateJobPlanningLine(var JobPlanningLine: Record "Job Planning Line"; var LastError: Text)
     begin
     end;
@@ -1066,6 +1087,11 @@ codeunit 1002 "Job Create-Invoice"
 
     [IntegrationEvent(false, false)]
     local procedure OnFindInvoicesOnBeforeTempJobPlanningLineInvoiceInsert(var TempJobPlanningLineInvoice: Record "Job Planning Line Invoice"; JobPlanningLineInvoice: Record "Job Planning Line Invoice")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindInvoicesOnBeforeTempJobPlanningLineInvoiceModify(var TempJobPlanningLineInvoice: Record "Job Planning Line Invoice"; JobPlanningLineInvoice: Record "Job Planning Line Invoice")
     begin
     end;
 

@@ -175,6 +175,7 @@ codeunit 5790 "Available to Promise"
         CalendarManagement: Codeunit "Calendar Management";
         QtyIsAvailable: Boolean;
         ExactDateFound: Boolean;
+        IsHandled: Boolean;
         ScheduledReceipt: Decimal;
         GrossRequirement: Decimal;
         AvailableQtyPeriod: Decimal;
@@ -189,6 +190,11 @@ codeunit 5790 "Available to Promise"
         CalculateAvailability(Item, AvailabilityAtDate);
         UpdateScheduledReceipt(AvailabilityAtDate, ExcludeOnDate, ExcludeQty);
         CalculateAvailabilityByPeriod(AvailabilityAtDate, PeriodType);
+
+        IsHandled := false;
+        OnEarliestAvailabilityDateOnBeforeFilterDate(Item, NeededQty, StartDate, AvailableQty, PeriodType, LookaheadDateFormula, AvailabilityAtDate, AvailableDate, IsHandled);
+        if IsHandled then
+            exit(AvailableDate);
 
         Date.SetRange("Period Type", PeriodType);
         Date.SetRange("Period Start", 0D, StartDate);
@@ -776,5 +782,11 @@ codeunit 5790 "Available to Promise"
     local procedure OnCalculateAvailabilityAfterClearAvailabilityAtDate(var AvailabilityAtDate: Record "Availability at Date"; var Item: Record Item; var ReqShipDate: Date)
     begin
     end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnEarliestAvailabilityDateOnBeforeFilterDate(var Item: Record Item; NeededQty: Decimal; StartDate: Date; var AvailableQty: Decimal; PeriodType: Option; LookaheadDateFormula: DateFormula; var AvailabilityAtDate: Record "Availability at Date"; var AvailableDate: Date; var IsHandled: Boolean)
+    begin
+    end;
+
 }
 

@@ -58,11 +58,12 @@ codeunit 79 "Sales-Post and Send"
         OnAfterPostAndSend(SalesHeader);
     end;
 
-    local procedure ConfirmPostAndSend(SalesHeader: Record "Sales Header"; var TempDocumentSendingProfile: Record "Document Sending Profile" temporary): Boolean
+    local procedure ConfirmPostAndSend(SalesHeader: Record "Sales Header"; var TempDocumentSendingProfile: Record "Document Sending Profile" temporary) Result: Boolean
     var
         Customer: Record Customer;
         DocumentSendingProfile: Record "Document Sending Profile";
         OfficeMgt: Codeunit "Office Management";
+        IsHandled: Boolean;
     begin
         Customer.Get(SalesHeader."Bill-to Customer No.");
         if OfficeMgt.IsAvailable then
@@ -76,7 +77,10 @@ codeunit 79 "Sales-Post and Send"
             TempDocumentSendingProfile.SetDocumentUsage(SalesHeader);
             TempDocumentSendingProfile.Insert();
 
-            OnBeforeConfirmAndSend(SalesHeader, TempDocumentSendingProfile);
+            IsHandled := false;
+            OnBeforeConfirmAndSend(SalesHeader, TempDocumentSendingProfile, Result, IsHandled);
+            if IsHandled then
+                exit(Result);
             if PAGE.RunModal(PAGE::"Post and Send Confirmation", TempDocumentSendingProfile) <> ACTION::Yes then
                 exit(false);
         end;
@@ -119,7 +123,7 @@ codeunit 79 "Sales-Post and Send"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeConfirmAndSend(SalesHeader: Record "Sales Header"; var TempDocumentSendingProfile: Record "Document Sending Profile" temporary)
+    local procedure OnBeforeConfirmAndSend(SalesHeader: Record "Sales Header"; var TempDocumentSendingProfile: Record "Document Sending Profile" temporary; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 

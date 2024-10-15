@@ -48,9 +48,13 @@ table 5077 "Segment Line"
                                 "Correspondence Type" := InteractTmpl."Correspondence Type (Default)"
                             else
                                 "Correspondence Type" := Cont."Correspondence Type";
-                    end else
-                        if not Salesperson.Get(GetFilter("Salesperson Code")) then
-                            "Salesperson Code" := Cont."Salesperson Code";
+                    end else begin
+                        SetDefaultSalesperson();
+                        if "Salesperson Code" = '' then
+                            if not Salesperson.Get(GetFilter("Salesperson Code")) then
+                                "Salesperson Code" := Cont."Salesperson Code";
+                    end;
+
                 end else begin
                     "Contact Company No." := '';
                     "Contact Alt. Address Code" := '';
@@ -183,7 +187,9 @@ table 5077 "Segment Line"
 
                 if InteractTmpl.Get("Interaction Template Code") then begin
                     "Interaction Group Code" := InteractTmpl."Interaction Group Code";
-                    if Description = '' then
+                    if (Description = '') or
+                       ((xRec."Interaction Template Code" <> '') and (xRec."Interaction Template Code" <> "Interaction Template Code"))
+                    then
                         Description := InteractTmpl.Description;
                     "Cost (LCY)" := InteractTmpl."Unit Cost (LCY)";
                     "Duration (Min.)" := InteractTmpl."Unit Duration (Min.)";
@@ -743,7 +749,13 @@ table 5077 "Segment Line"
     procedure CreatePhoneCall()
     var
         TempSegmentLine: Record "Segment Line" temporary;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCreatePhoneCall(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         Cont.Get("Contact No.");
         TempSegmentLine."Contact No." := Cont."No.";
         TempSegmentLine."Contact Via" := Cont."Phone No.";
@@ -1574,6 +1586,18 @@ table 5077 "Segment Line"
         ODataFieldsExport.RunModal;
     end;
 
+    local procedure SetDefaultSalesperson()
+    var
+        UserSetup: Record "User Setup";
+    begin
+        IF NOT UserSetup.GET(USERID) THEN
+            EXIT;
+
+        IF UserSetup."Salespers./Purch. Code" <> '' THEN
+            VALIDATE("Salesperson Code", UserSetup."Salespers./Purch. Code");
+
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterCheckStatus(var SegmentLine: Record "Segment Line")
     begin
@@ -1601,6 +1625,11 @@ table 5077 "Segment Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckStatus(var SegmentLine: Record "Segment Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreatePhoneCall(var SegmentLine: Record "Segment Line"; var IsHandled: Boolean)
     begin
     end;
 

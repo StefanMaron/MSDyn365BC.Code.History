@@ -48,9 +48,6 @@ report 789 "Delete Phys. Inventory Ledger"
 
             trigger OnPreDataItem()
             begin
-                if not Confirm(Text000, false) then
-                    CurrReport.Break();
-
                 if EntrdDateComprReg."Ending Date" = 0D then
                     Error(Text003, EntrdDateComprReg.FieldCaption("Ending Date"));
 
@@ -101,6 +98,16 @@ report 789 "Delete Phys. Inventory Ledger"
         {
         }
 
+        trigger OnQueryClosePage(CloseAction: Action): Boolean
+        var
+            ConfirmManagement: Codeunit "Confirm Management";
+        begin
+            if CloseAction = Action::Cancel then
+                exit;
+            if not ConfirmManagement.GetResponseOrDefault(DeleteEntriesQst, true) then
+                CurrReport.Break();
+        end;
+
         trigger OnOpenPage()
         begin
             if EntrdDateComprReg."Ending Date" = 0D then
@@ -113,7 +120,7 @@ report 789 "Delete Phys. Inventory Ledger"
     }
 
     var
-        Text000: Label 'This batch job deletes entries. Therefore, it is important that you make a backup of the database before you run the batch job.\\Do you want to delete the entries?';
+        DeleteEntriesQst: Label 'This batch job deletes entries. We recommend that you create a backup of the database before you run the batch job.\\Do you want to continue?';
         Text003: Label '%1 must be specified.';
         Text004: Label 'Deleting phys. inventory ledger entries...\\';
         Text005: Label 'Item No.             #1##########\';

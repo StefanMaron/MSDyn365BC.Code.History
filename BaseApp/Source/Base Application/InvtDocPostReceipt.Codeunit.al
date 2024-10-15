@@ -147,6 +147,7 @@ codeunit 5850 "Invt. Doc.-Post Receipt"
                     InvtRcptLine."Applies-to Entry" := InvtDocLine."Applies-to Entry";
                     InvtRcptLine."Applies-from Entry" := InvtDocLine."Applies-from Entry";
                     InvtRcptLine."Dimension Set ID" := InvtDocLine."Dimension Set ID";
+                    OnRunOnBeforeInvtRcptLineInsert(InvtRcptLine, InvtDocLine);
                     InvtRcptLine.Insert();
 
                     PostItemJnlLine(InvtRcptHeader, InvtRcptLine);
@@ -382,6 +383,11 @@ codeunit 5850 "Invt. Doc.-Post Receipt"
 
     [IntegrationEvent(false, false)]
     local procedure OnRunOnBeforeInvtRcptHeaderInsert(var InvtRcptHeader: Record "Invt. Receipt Header"; InvtDocHeader: Record "Invt. Document Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnBeforeInvtRcptLineInsert(var InvtRcptLine: Record "Invt. Receipt Line"; InvtDocLine: Record "Invt. Document Line")
     begin
     end;
 }

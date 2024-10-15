@@ -287,6 +287,8 @@ table 5901 "Service Item Line"
             TableRelation = "Repair Status";
 
             trigger OnValidate()
+            var
+                RepairStatusInProgress: Boolean;
             begin
                 UpdateResponseTimeHours;
                 if "Repair Status Code" <> '' then begin
@@ -319,7 +321,9 @@ table 5901 "Service Item Line"
                         ServOrderAlloc.ModifyAll("Service Started", false, false);
                     end;
 
-                    if RepairStatus."In Process" then begin
+                    RepairStatusInProgress := RepairStatus."In Process";
+                    OnRepairStatusCodeValidateOnAfterSetRepairStatusInProgress(Rec, RepairStatusInProgress);
+                    if RepairStatusInProgress then begin
                         GetServHeader;
                         if ServHeader."Order Date" > WorkDate then begin
                             "Starting Date" := ServHeader."Order Date";
@@ -2158,6 +2162,7 @@ table 5901 "Service Item Line"
                 ServCommentLine.SetRange(Type, ServCommentLine.Type::"Service Item Loaner");
         end;
         ServCommentLine.SetRange("Table Line No.", "Line No.");
+        OnShowCommentsOnBeforeRunPageServiceCommentSheet(Rec, ServCommentLine);
         PAGE.RunModal(PAGE::"Service Comment Sheet", ServCommentLine);
     end;
 
@@ -2556,6 +2561,16 @@ table 5901 "Service Item Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnRecreateServLine(var ServiceLine: Record "Service Line"; TempServiceLine: Record "Service Line" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRepairStatusCodeValidateOnAfterSetRepairStatusInProgress(var ServiceItemLine: Record "Service Item Line"; var RepairStatusInProgress: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnShowCommentsOnBeforeRunPageServiceCommentSheet(var ServiceItemLine: Record "Service Item Line"; var ServCommentLine: Record "Service Comment Line")
     begin
     end;
 
