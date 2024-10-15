@@ -38,12 +38,10 @@ codeunit 99000772 "Prod. Order Route Management"
     end;
 
     local procedure ErrorInRouting(Status: Enum "Production Order Status"; ProdOrderNo: Code[20]; RoutingNo: Code[20]; Direction: Text[20]; ActualSequence: Integer; MaxSequences: Integer)
-    var
-        LocalText000: Label 'Simulated,Planned,Firm Planned,Released';
     begin
         Error(
           CannotCalculateRoutingNumberErr,
-          SelectStr(Status.AsInteger() + 1, LocalText000),
+          Status,
           ProdOrderNo,
           RoutingNo,
           Direction,

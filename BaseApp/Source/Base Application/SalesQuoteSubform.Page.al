@@ -1095,13 +1095,8 @@
     end;
 
     trigger OnOpenPage()
-    var
-        ServerSetting: Codeunit "Server Setting";
-        PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
     begin
-        IsSaaSExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
-        SuppressTotals := CurrentClientType() = ClientType::ODataV4;
-        ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
+        SetOpenPage();
 
         SetDimensionsVisibility();
         SetItemReferenceVisibility();
@@ -1147,6 +1142,18 @@
         DescriptionIndent: Integer;
         ItemChargeStyleExpression: Text;
         VATAmount: Decimal;
+
+    local procedure SetOpenPage()
+    var
+        ServerSetting: Codeunit "Server Setting";
+        PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
+    begin
+        OnBeforeSetOpenPage();
+
+        IsSaaSExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
+        SuppressTotals := CurrentClientType() = ClientType::ODataV4;
+        ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
+    end;
 
     procedure ApproveCalcInvDisc()
     begin
@@ -1285,7 +1292,7 @@
         UnitofMeasureCodeIsChangeable := not IsCommentLine;
 
         CurrPageIsEditable := CurrPage.Editable;
-        InvDiscAmountEditable := 
+        InvDiscAmountEditable :=
             CurrPageIsEditable and not SalesSetup."Calc. Inv. Discount" and
             (TotalSalesHeader.Status = TotalSalesHeader.Status::Open);
 
@@ -1386,6 +1393,8 @@
           DimVisible1, DimVisible2, DimVisible3, DimVisible4, DimVisible5, DimVisible6, DimVisible7, DimVisible8);
 
         Clear(DimMgt);
+
+        OnAfterSetDimensionsVisibility();
     end;
 
     local procedure SetItemReferenceVisibility()
@@ -1459,6 +1468,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalculateTotals(var TotalSalesLine: Record "Sales Line"; SuppressTotals: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeSetOpenPage()
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterSetDimensionsVisibility();
     begin
     end;
 }

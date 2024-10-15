@@ -521,12 +521,36 @@ codeunit 2580 "Dimension Correction Mgt"
     procedure GetSelectedDimensionSetIDsFilter(var TempDimensionSetEntry: Record "Dimension Set Entry" temporary): Text
     var
         TempFoundDimensionSetIDInteger: Record "Integer" temporary;
-        SelectionFilterManagement: Codeunit SelectionFilterManagement;
-        TempFoundDimSetIDRecordRef: RecordRef;
+        SelectedDimensionSetFilter: Text;
+        LastAddedNumber: Integer;
+        CurrentNumber: Integer;
     begin
         GetSelectedDimensionSetIDs(TempDimensionSetEntry, TempFoundDimensionSetIDInteger);
-        TempFoundDimSetIDRecordRef.GetTable(TempFoundDimensionSetIDInteger);
-        exit(SelectionFilterManagement.GetSelectionFilter(TempFoundDimSetIDRecordRef, TempFoundDimensionSetIDInteger.FieldNo(TempFoundDimensionSetIDInteger.Number)))
+        TempFoundDimensionSetIDInteger.SetCurrentKey(Number);
+        TempFoundDimensionSetIDInteger.Ascending(true);
+        if not TempFoundDimensionSetIDInteger.FindSet() then
+            exit('');
+
+        LastAddedNumber := TempFoundDimensionSetIDInteger.Number;
+        SelectedDimensionSetFilter += Format(LastAddedNumber);
+        CurrentNumber := LastAddedNumber;
+
+        repeat
+            if TempFoundDimensionSetIDInteger.Number > CurrentNumber + 1 then begin
+                if LastAddedNumber <> CurrentNumber then
+                    SelectedDimensionSetFilter += '..' + Format(CurrentNumber) + '|' + Format(TempFoundDimensionSetIDInteger.Number)
+                else
+                    SelectedDimensionSetFilter += '|' + Format(TempFoundDimensionSetIDInteger.Number);
+
+                LastAddedNumber := TempFoundDimensionSetIDInteger.Number;
+            end;
+            CurrentNumber := TempFoundDimensionSetIDInteger.Number;
+        until TempFoundDimensionSetIDInteger.Next() = 0;
+
+        if LastAddedNumber <> CurrentNumber then
+            SelectedDimensionSetFilter += '..' + Format(CurrentNumber);
+
+        exit(SelectedDimensionSetFilter);
     end;
 
     procedure GetSelectedDimensionSetIDs(var TempDimensionSetEntry: Record "Dimension Set Entry" temporary; var TempFoundDimensionSetIDInteger: Record "Integer" temporary)

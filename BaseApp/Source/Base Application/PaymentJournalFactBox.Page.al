@@ -271,7 +271,6 @@ page 35517 "Payment Journal FactBox"
         PaymentTerms := '';
 
         VendLedgEntry.Reset();
-        VendLedgEntry.SetCurrentKey("Document No.");
         Vend.Init();
 
         case true of

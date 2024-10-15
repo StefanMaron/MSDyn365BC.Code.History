@@ -2008,7 +2008,7 @@
         if not Evaluate(PostingDate, PostingDateText) then
             exit(false);
 
-        IncomingDocument.SetRange("Document No.", DocumentNo);
+        IncomingDocument.SetFilter("Document No.", DocumentNo);
         IncomingDocument.SetRange("Posting Date", PostingDate);
 
         exit(IncomingDocument.FindFirst);

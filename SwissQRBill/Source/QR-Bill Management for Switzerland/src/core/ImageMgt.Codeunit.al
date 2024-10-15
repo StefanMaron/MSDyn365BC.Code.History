@@ -25,7 +25,8 @@ codeunit 11514 "Swiss QR-Bill Image Mgt."
     begin
         TempBlob.CreateOutStream(OutStream);
         IBarcodeProvider := QRCodeProvider.QRCodeProvider();
-        IBarcodeProvider.GetBarcodeStream(SourceText, OutStream, ErrorCorrectionLevel::Medium, 5, 0);
+        // encoding 28591 = iso-8859-1 (Western European (ISO))
+        IBarcodeProvider.GetBarcodeStream(SourceText, OutStream, ErrorCorrectionLevel::Medium, 5, 0, 28591);
     end;
 
     local procedure OverlaySwissCross(QRImageTempBlob: Codeunit "Temp Blob"; SwissCrossTempBlob: Codeunit "Temp Blob"): Boolean

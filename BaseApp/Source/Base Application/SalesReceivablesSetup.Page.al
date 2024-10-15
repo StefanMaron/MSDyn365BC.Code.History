@@ -94,7 +94,7 @@ page 459 "Sales & Receivables Setup"
                 field("Default Posting Date"; "Default Posting Date")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies how to use the Posting Date field on sales documents.';
+                    ToolTip = 'Specifies which date must be used as the default posting date on sales documents.';
                 }
                 field("Default Quantity to Ship"; "Default Quantity to Ship")
                 {

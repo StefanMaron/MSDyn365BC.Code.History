@@ -1,4 +1,4 @@
-codeunit 884 "ReadSoft OCR Master Data Sync"
+﻿codeunit 884 "ReadSoft OCR Master Data Sync"
 {
 
     trigger OnRun()
@@ -324,7 +324,13 @@ codeunit 884 "ReadSoft OCR Master Data Sync"
         OCRVendorBankAccounts: Query "OCR Vendor Bank Accounts";
         VendorId: Guid;
         Data: Text;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetVendorBankAccounts(TempBlobList, StartDateTime, EndDateTime, XmlOptions, IsHandled);
+        if IsHandled then
+            exit;
+
         OCRVendorBankAccounts.SetRange(ModifiedAt, StartDateTime, EndDateTime);
         if not OCRVendorBankAccounts.Open() then
             exit;
@@ -551,6 +557,11 @@ codeunit 884 "ReadSoft OCR Master Data Sync"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSendRequest(var Body: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetVendorBankAccounts(var TempBlobList: Codeunit "Temp Blob List"; StartDateTime: DateTime; EndDateTime: DateTime; var XmlOptions: XmlWriteOptions; var IsHandled: Boolean)
     begin
     end;
 

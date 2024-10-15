@@ -680,7 +680,7 @@
         TotalTimeRelatedPartyMatching += CurrentDateTime() - StartTime;
 
         IsHandled := false;
-        OnFindMatchingEntryOnBeforeDocumentMatching(BankPmtApplRule, BankAccReconciliationLine, TempLedgerEntryMatchingBuffer, IsHandled);
+        OnFindMatchingEntryOnBeforeDocumentMatching(BankPmtApplRule, BankAccReconciliationLine, TempLedgerEntryMatchingBuffer, IsHandled, TempBankStatementMatchingBuffer, AccountType, TotalTimeDocumentNoMatching, TotalTimeDocumentNoMatchingForBankLedgerEntry, DocumentMatchedInfoText, LogInfoText);
         if not IsHandled then
             if AccountType <> TempBankStatementMatchingBuffer."Account Type"::"Bank Account" then begin
                 StartTime := CurrentDateTime();
@@ -700,11 +700,22 @@
             RelatedPartyMatching(BankPmtApplRule, TempLedgerEntryMatchingBuffer, BankAccReconciliationLine, AccountType);
             TotalTimeRelatedPartyMatching += CurrentDateTime() - StartTime;
 
-            StartTime := CurrentDateTime();
-            RemainingAmount := CalcRemainingAmount(TempLedgerEntryMatchingBuffer, BankAccReconciliationLine);
-            AmountInclToleranceMatching(
-              BankPmtApplRule, BankAccReconciliationLine, AccountType, RemainingAmount);
-            TotalTimeAmountMatching += CurrentDateTime() - StartTime;
+            IsHandled := false;
+            OnMatchEntriesOnAfterCalcTotalTimeDocumentNoMatching(
+                BankPmtApplRule, BankAccReconciliationLine, TempLedgerEntryMatchingBuffer,
+                AccountType, TempBankStatementMatchingBuffer, TotalTimeRelatedPartyMatching,
+                TotalTimeAmountMatching, RemainingAmount, RelatedPartyMatchedInfoText,
+                LogInfoText, TotalTimeStringNearness, UsePaymentDiscounts, OneToManyTempBankStatementMatchingBuffer,
+                TempCustomerLedgerEntryMatchingBuffer, TempVendorLedgerEntryMatchingBuffer,
+                TempEmployeeLedgerEntryMatchingBuffer, TempBankAccLedgerEntryMatchingBuffer, IsHandled);
+            if not IsHandled then begin
+                StartTime := CurrentDateTime();
+                RemainingAmount := CalcRemainingAmount(TempLedgerEntryMatchingBuffer, BankAccReconciliationLine);
+
+                AmountInclToleranceMatching(
+                BankPmtApplRule, BankAccReconciliationLine, AccountType, RemainingAmount);
+                TotalTimeAmountMatching += CurrentDateTime() - StartTime;
+            end;
         end;
     end;
 
@@ -1070,7 +1081,7 @@
         Customer: Record Customer;
     begin
         if IsCustomerBankAccountMatching(
-             BankAccReconciliationLine."Related-Party Bank Acc. No.", AccountNo)
+             BankAccReconciliationLine."Related-Party Bank Acc. No.", AccountNo, BankAccReconciliationLine."Bank Account No.")
         then begin
             BankPmtApplRule."Related Party Matched" := BankPmtApplRule."Related Party Matched"::Fully;
             AppendText(RelatedPartyMatchedInfoText, MatchedRelatedPartyOnBankAccountMsg);
@@ -1087,7 +1098,7 @@
         Vendor: Record Vendor;
     begin
         Vendor.Get(AccountNo);
-        if IsVendorBankAccountMatching(BankAccReconciliationLine."Related-Party Bank Acc. No.", Vendor."No.") then begin
+        if IsVendorBankAccountMatching(BankAccReconciliationLine."Related-Party Bank Acc. No.", Vendor."No.", BankAccReconciliationLine."Bank Account No.") then begin
             BankPmtApplRule."Related Party Matched" := BankPmtApplRule."Related Party Matched"::Fully;
             AppendText(RelatedPartyMatchedInfoText, MatchedRelatedPartyOnBankAccountMsg);
             exit;
@@ -1504,10 +1515,16 @@
         exit(Nearness);
     end;
 
-    local procedure IsCustomerBankAccountMatching(ValueFromBankStatement: Text; CustomerNo: Code[20]): Boolean
+    local procedure IsCustomerBankAccountMatching(ValueFromBankStatement: Text; CustomerNo: Code[20]; BankAccountNo: Code[20]) Result: Boolean
     var
         CustomerBankAccount: Record "Customer Bank Account";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeIsCustomerBankAccountMatching(ValueFromBankStatement, CustomerNo, BankAccountNo, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         ValueFromBankStatement := BankAccountNoWithoutSpecialChars(ValueFromBankStatement);
         if ValueFromBankStatement = '' then
             exit(false);
@@ -1522,10 +1539,16 @@
         exit(false);
     end;
 
-    local procedure IsVendorBankAccountMatching(ValueFromBankStatement: Text; VendorNo: Code[20]): Boolean
+    local procedure IsVendorBankAccountMatching(ValueFromBankStatement: Text; VendorNo: Code[20]; BankAccountNo: Code[20]) Result: Boolean
     var
         VendorBankAccount: Record "Vendor Bank Account";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeIsVendorBankAccountMatching(ValueFromBankStatement, VendorNo, BankAccountNo, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         ValueFromBankStatement := BankAccountNoWithoutSpecialChars(ValueFromBankStatement);
         if ValueFromBankStatement = '' then
             exit(false);
@@ -2131,12 +2154,22 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeIsCustomerBankAccountMatching(ValueFromBankStatement: Text; CustomerNo: Code[20]; BankAccountNo: Code[20]; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeIsVendorBankAccountMatching(ValueFromBankStatement: Text; VendorNo: Code[20]; BankAccountNo: Code[20]; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnDocumentMatchingForBankLedgerEntryOnBeforeMatch(SearchText: Text; TempLedgerEntryMatchingBuffer: Record "Ledger Entry Matching Buffer" temporary; var BankPmtApplRule: Record "Bank Pmt. Appl. Rule")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnFindMatchingEntryOnBeforeDocumentMatching(var BankPmtApplRule: Record "Bank Pmt. Appl. Rule"; BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; TempLedgerEntryMatchingBuffer: Record "Ledger Entry Matching Buffer" temporary; var IsHandled: Boolean)
+    local procedure OnFindMatchingEntryOnBeforeDocumentMatching(var BankPmtApplRule: Record "Bank Pmt. Appl. Rule"; BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; TempLedgerEntryMatchingBuffer: Record "Ledger Entry Matching Buffer" temporary; var IsHandled: Boolean; TempBankStatementMatchingBuffer: Record "Bank Statement Matching Buffer"; AccountType: Enum "Gen. Journal Account Type"; var TotalTimeDocumentNoMatching: Duration; var TotalTimeDocumentNoMatchingForBankLedgerEntry: Duration; var DocumentMatchedInfoText: Text; LogInfoText: Boolean)
     begin
     end;
 
@@ -2222,6 +2255,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnDisableBankLedgerEntriesMatch(var Disable: boolean; BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnMatchEntriesOnAfterCalcTotalTimeDocumentNoMatching(var BankPmtApplRule: Record "Bank Pmt. Appl. Rule"; BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; TempLedgerEntryMatchingBuffer: Record "Ledger Entry Matching Buffer" temporary; AccountType: Enum "Gen. Journal Account Type"; TempBankStatementMatchingBuffer: Record "Bank Statement Matching Buffer" temporary; var TotalTimeRelatedPartyMatching: Duration; var TotalTimeAmountMatching: Duration; var RemainingAmount: Decimal; var RelatedPartyMatchedInfoText: Text; LogInfoText: Boolean; var TotalTimeStringNearness: Duration; UsePaymentDiscounts: Boolean; OneToManyTempBankStatementMatchingBuffer: Record "Bank Statement Matching Buffer" temporary; var TempCustomerLedgerEntryMatchingBuffer: Record "Ledger Entry Matching Buffer" temporary; var TempVendorLedgerEntryMatchingBuffer: Record "Ledger Entry Matching Buffer" temporary; var TempEmployeeLedgerEntryMatchingBuffer: Record "Ledger Entry Matching Buffer" temporary; var TempBankAccLedgerEntryMatchingBuffer: Record "Ledger Entry Matching Buffer" temporary; var IsHandled: Boolean)
     begin
     end;
 

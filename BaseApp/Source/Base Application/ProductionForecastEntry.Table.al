@@ -112,24 +112,41 @@ table 99000852 "Production Forecast Entry"
         LockTable();
         if "Entry No." = 0 then
             "Entry No." := ForecastEntry.GetLastEntryNo() + 1;
-        PlanningAssignment.AssignOne("Item No.", '', "Location Code", "Forecast Date");
+        CallPlanningAssignmentAssignOne();
     end;
 
     trigger OnModify()
     begin
-        PlanningAssignment.AssignOne("Item No.", '', "Location Code", "Forecast Date");
+        CallPlanningAssignmentAssignOne();
     end;
 
     var
         ItemUnitofMeasure: Record "Item Unit of Measure";
         Item: Record Item;
-        PlanningAssignment: Record "Planning Assignment";
 
     procedure GetLastEntryNo(): Integer;
     var
         FindRecordManagement: Codeunit "Find Record Management";
     begin
         exit(FindRecordManagement.GetLastEntryIntFieldValue(Rec, FieldNo("Entry No.")))
+    end;
+
+    local procedure CallPlanningAssignmentAssignOne()
+    var
+        PlanningAssignment: Record "Planning Assignment";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCallPlanningAssignmentAssignOne(Rec, PlanningAssignment, IsHandled);
+        if IsHandled then
+            exit;
+
+        PlanningAssignment.AssignOne("Item No.", '', "Location Code", "Forecast Date");
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCallPlanningAssignmentAssignOne(var ProductionForecastEntry: Record "Production Forecast Entry"; var PlanningAssignment: Record "Planning Assignment"; var IsHandled: Boolean)
+    begin
     end;
 }
 
