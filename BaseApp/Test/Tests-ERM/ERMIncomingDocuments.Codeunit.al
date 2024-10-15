@@ -1,0 +1,2264 @@
+codeunit 134400 "ERM Incoming Documents"
+{
+    Subtype = Test;
+    TestPermissions = Disabled;
+
+    trigger OnRun()
+    begin
+        // [FEATURE] [Incoming Documents]
+    end;
+
+    var
+        Assert: Codeunit Assert;
+        LibraryPurchase: Codeunit "Library - Purchase";
+        LibrarySales: Codeunit "Library - Sales";
+        LibraryERM: Codeunit "Library - ERM";
+        LibraryIncomingDocuments: Codeunit "Library - Incoming Documents";
+        LibraryUtility: Codeunit "Library - Utility";
+        LibraryRandom: Codeunit "Library - Random";
+        OnlyOneDefaultAttachmentErr: Label 'There can only be one default attachment.';
+        MainAttachErr: Label 'There can only be one main attachment.';
+        LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        ReplaceMainAttachmentQst: Label 'Are you sure you want to replace the attached file?';
+        DoYouWantToRemoveReferenceQst: Label 'Do you want to remove the reference?';
+        DetachQst: Label 'Do you want to remove the reference from this incoming document to posted document %1, posting date %2?', Comment = '%1 Posted Document No. %2 Posting Date';
+        RemovePostedRecordManuallyMsg: Label 'The reference to the posted record has been removed.';
+        DeleteRecordQst: Label 'The reference to the record has been removed.\\Do you want to delete the record?';
+        DocPostedErr: Label 'The document related to this incoming document has been posted.';
+        DialogTxt: Label 'Dialog';
+        EmptyLinkToRelatedRecordErr: Label 'Link to related record is empty.';
+        CannotReplaceMainAttachmentErr: Label 'Cannot replace the main attachment because the document has already been sent to OCR.';
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SetGetURL()
+    var
+        IncomingDoc: Record "Incoming Document";
+        LocalURL: Text;
+    begin
+        with IncomingDoc do begin
+            Init;
+            Assert.AreEqual('', GetURL, 'Expected empty url.');
+            LocalURL := 'abcdefghijklmnopqrstuvxyz1234.txt';
+            SetURL(LocalURL);
+            Assert.AreEqual(LocalURL, GetURL, 'Wrong URL');
+            // verify that it works for strings > 250
+            while StrLen(LocalURL) <= 250 do
+                LocalURL += 'abcdefghijklmnopqrstuvxyz1234.txt';
+            SetURL(LocalURL);
+            Assert.AreEqual(LocalURL, GetURL, 'Wrong URL');
+            // verify that it works for strings > 750
+            while StrLen(LocalURL) <= 750 do
+                LocalURL += 'abcdefghijklmnopqrstuvxyz1234.txt';
+            SetURL(LocalURL);
+            Assert.AreEqual(LocalURL, GetURL, 'Wrong URL');
+            // verify that it fails for strings > length of URL field
+            while StrLen(LocalURL) <= MaxStrLen(URL) do
+                LocalURL += 'abcdefghijklmnopqrstuvxyz1234.txt';
+            asserterror SetURL(LocalURL);
+        end;
+    end;
+
+    [Test]
+    [HandlerFunctions('IncomingDocumentCardHandler')]
+    [Scope('OnPrem')]
+    procedure ShowIncomingDocumentCard()
+    var
+        IncomingDocument: Record "Incoming Document";
+    begin
+        CreateNewIncomingDocument(IncomingDocument);
+        IncomingDocument.TestField(Released, false);
+        IncomingDocument.ShowCardFromEntryNo(IncomingDocument."Entry No.");
+    end;
+
+    [Test]
+    [HandlerFunctions('IncomingDocumentsLookupHandlerPrevRec')]
+    [Scope('OnPrem')]
+    procedure SelectIncomingDocument()
+    var
+        IncomingDocument: Record "Incoming Document";
+        DummyRecordID: RecordID;
+        PrevEntryNo: Integer;
+        NewEntryNo: Integer;
+    begin
+        // Init
+        CreateNewIncomingDocument(IncomingDocument);
+        PrevEntryNo := IncomingDocument."Entry No.";
+        LibraryIncomingDocuments.CreateNewIncomingDocument(IncomingDocument);
+
+        // Execute
+        NewEntryNo := IncomingDocument.SelectIncomingDocument(IncomingDocument."Entry No.", DummyRecordID); // Opens page 190
+
+        // Validate
+        Assert.AreEqual(PrevEntryNo, NewEntryNo, '');
+    end;
+
+    [Test]
+    [HandlerFunctions('IncomingDocumentsLookupHandler')]
+    [Scope('OnPrem')]
+    procedure SelectIncomingDocumentForPostedDoc()
+    var
+        IncomingDocument: Record "Incoming Document";
+        DummyRecordID: RecordID;
+    begin
+        // Init
+        CreateNewIncomingDocument(IncomingDocument);
+
+        // Execute
+        IncomingDocument.SelectIncomingDocumentForPostedDocument('TEST', DMY2Date(1, 1, 2000), DummyRecordID); // Opens page 190
+
+        // Validate
+        IncomingDocument.Find;
+        Assert.IsTrue(IncomingDocument.Posted, '');
+        Assert.AreEqual('TEST', IncomingDocument."Document No.", '');
+        Assert.AreEqual(DMY2Date(1, 1, 2000), IncomingDocument."Posting Date", '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure Release()
+    var
+        IncomingDocument: Record "Incoming Document";
+    begin
+        CreateNewIncomingDocument(IncomingDocument);
+        IncomingDocument.TestField(Released, false);
+        IncomingDocument.Release;
+        IncomingDocument.TestField(Released, true);
+        IncomingDocument.TestField(Status, IncomingDocument.Status::Released);
+        IncomingDocument.TestField("Released Date-Time");
+        IncomingDocument.TestField("Released By User ID", UserSecurityId);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure Reject()
+    var
+        IncomingDocument: Record "Incoming Document";
+    begin
+        CreateNewIncomingDocument(IncomingDocument);
+        IncomingDocument.TestField(Released, false);
+        IncomingDocument.Release;
+        IncomingDocument.TestField(Released, true);
+        IncomingDocument.Reject;
+        IncomingDocument.TestField(Released, false);
+        IncomingDocument.TestField(Status, IncomingDocument.Status::Rejected);
+        IncomingDocument.TestField("Released Date-Time", 0DT);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CreateGenJnlLine()
+    var
+        IncomingDocument: Record "Incoming Document";
+        GenJnlLine: Record "Gen. Journal Line";
+    begin
+        CreateNewIncomingDocument(IncomingDocument);
+
+        GenJnlLine.SetRange("Incoming Document Entry No.", IncomingDocument."Entry No.");
+        GenJnlLine.DeleteAll;
+
+        IncomingDocument.Release;
+        IncomingDocument.Modify;
+        CreateAndAssignGenJournalLineToIncomingDocument(IncomingDocument);
+        IncomingDocument.Modify;
+        IncomingDocument.TestField("Document Type", IncomingDocument."Document Type"::Journal);
+
+        GenJnlLine.FindFirst;
+        Assert.IsTrue(GenJnlLine.HasLinks, 'Gen. Jnl. Line is missing a link.');
+        Assert.AreEqual(GenJnlLine.GetIncomingDocumentURL, IncomingDocument.GetURL, 'Gen. Jnl. Line has a wrong URL.');
+        GenJnlLine."Document No." := LibraryUtility.GenerateGUID;
+        GenJnlLine."Posting Date" := WorkDate;
+        GenJnlLine.Validate("Account Type", GenJnlLine."Account Type"::"G/L Account");
+        GenJnlLine.Validate("Account No.", GetIncomeStatementAcc);
+        GenJnlLine.Validate("Bal. Account Type", GenJnlLine."Bal. Account Type"::"G/L Account");
+        GenJnlLine.Validate("Bal. Account No.", GetBalanceSheetAcc);
+        GenJnlLine.Validate(Amount, 1);
+        GenJnlLine.Modify;
+        CODEUNIT.Run(CODEUNIT::"Gen. Jnl.-Post Batch", GenJnlLine);
+        ValidatePostedIncomingDocument(IncomingDocument);
+    end;
+
+    [Test]
+    [HandlerFunctions('PurchInvHandler')]
+    [Scope('OnPrem')]
+    procedure CreatePurchInvoice()
+    var
+        IncomingDocument: Record "Incoming Document";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Vendor: Record Vendor;
+    begin
+        PurchaseHeader.SetFilter("Incoming Document Entry No.", '<>0');
+        PurchaseHeader.DeleteAll;
+
+        CreateNewIncomingDocument(IncomingDocument);
+        IncomingDocument.Release;
+        IncomingDocument.Modify;
+        IncomingDocument.CreatePurchInvoice;  // Opens page 51 "Purchase Invoice"
+        IncomingDocument.Modify;
+        IncomingDocument.TestField("Document Type", IncomingDocument."Document Type"::"Purchase Invoice");
+
+        PurchaseHeader.FindFirst;
+        PurchaseHeader.TestField("Document Type", PurchaseHeader."Document Type"::Invoice);
+        PurchaseHeader.TestField("Incoming Document Entry No.", IncomingDocument."Entry No.");
+        Assert.IsTrue(PurchaseHeader.HasLinks, 'Purchase Invoice is missing a link.');
+
+        LibraryPurchase.CreateVendor(Vendor);
+        PurchaseHeader.Validate("Buy-from Vendor No.", Vendor."No.");
+        PurchaseHeader."Vendor Invoice No." := PurchaseHeader."No.";
+        PurchaseHeader.Modify;
+
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", GetIncomeStatementAcc, 1);
+
+        CODEUNIT.Run(CODEUNIT::"Purch.-Post", PurchaseHeader);
+        ValidatePostedIncomingDocument(IncomingDocument);
+    end;
+
+    [Test]
+    [HandlerFunctions('IncomingDocumentsLookupHandler')]
+    [Scope('OnPrem')]
+    procedure CreatePurchInvoiceAndSelectIncomingDoc()
+    var
+        IncomingDocument: Record "Incoming Document";
+        PurchaseHeader: Record "Purchase Header";
+        Vendor: Record Vendor;
+        PurchaseInvoice: TestPage "Purchase Invoice";
+    begin
+        // Init
+        PurchaseHeader.SetFilter("Incoming Document Entry No.", '<>0');
+        PurchaseHeader.DeleteAll;
+        PurchaseHeader.Reset;
+        CreateNewIncomingDocument(IncomingDocument);
+        IncomingDocument.Release;
+        IncomingDocument.Modify;
+
+        LibraryPurchase.CreateVendor(Vendor);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");
+        PurchaseHeader."Vendor Invoice No." := PurchaseHeader."No.";
+        PurchaseHeader.Modify;
+
+        // Execute
+        PurchaseInvoice.OpenEdit;
+        PurchaseInvoice.GotoRecord(PurchaseHeader);
+        Assert.IsFalse(PurchaseInvoice.IncomingDocCard.Enabled, '');
+        Assert.IsFalse(PurchaseInvoice.RemoveIncomingDoc.Enabled, '');
+        Assert.IsTrue(PurchaseInvoice.SelectIncomingDoc.Enabled, '');
+        Assert.IsTrue(PurchaseInvoice.IncomingDocAttachFile.Enabled, '');
+
+        PurchaseInvoice.SelectIncomingDoc.Invoke; // Opens page 190
+
+        // Verify
+        Assert.IsTrue(PurchaseInvoice.IncomingDocCard.Enabled, '');
+        Assert.IsTrue(PurchaseInvoice.RemoveIncomingDoc.Enabled, '');
+        Assert.IsTrue(PurchaseInvoice.SelectIncomingDoc.Enabled, '');
+        Assert.IsFalse(PurchaseInvoice.IncomingDocAttachFile.Enabled, '');
+
+        PurchaseHeader.Find;
+        Assert.AreEqual(IncomingDocument."Entry No.", PurchaseHeader."Incoming Document Entry No.", '');
+
+        PurchaseInvoice.RemoveIncomingDoc.Invoke;
+        PurchaseHeader.Find;
+        Assert.AreEqual(0, PurchaseHeader."Incoming Document Entry No.", '');
+
+        PurchaseInvoice.Close;
+    end;
+
+    [Test]
+    [HandlerFunctions('IncomingDocumentsLookupHandler')]
+    [Scope('OnPrem')]
+    procedure CreateAndDeletePurchInvoiceAndSelectIncomingDoc()
+    var
+        IncomingDocument: Record "Incoming Document";
+        PurchaseHeader: Record "Purchase Header";
+        Vendor: Record Vendor;
+        ErrorMessage: Record "Error Message";
+        PurchaseInvoice: TestPage "Purchase Invoice";
+    begin
+        // Init
+        PurchaseHeader.SetFilter("Incoming Document Entry No.", '<>0');
+        PurchaseHeader.DeleteAll;
+        PurchaseHeader.Reset;
+        CreateNewIncomingDocument(IncomingDocument);
+        IncomingDocument.Release;
+        IncomingDocument.Modify;
+
+        LibraryPurchase.CreateVendor(Vendor);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");
+        PurchaseHeader."Vendor Invoice No." := PurchaseHeader."No.";
+        PurchaseHeader.Modify;
+
+        // Execute
+        PurchaseInvoice.OpenEdit;
+        PurchaseInvoice.GotoRecord(PurchaseHeader);
+
+        PurchaseInvoice.SelectIncomingDoc.Invoke; // Opens page 190
+        PurchaseInvoice.Close;
+        PurchaseHeader.Find;
+        Assert.AreEqual(IncomingDocument."Entry No.", PurchaseHeader."Incoming Document Entry No.", '');
+        PurchaseHeader.Delete(true);
+
+        // Verify
+        IncomingDocument.Find;
+        Assert.AreEqual('', IncomingDocument."Document No.", '');
+        Assert.AreEqual(IncomingDocument."Document Type"::" ", IncomingDocument."Document Type", '');
+        Assert.AreEqual(IncomingDocument.Status::Released, IncomingDocument.Status, '');
+        ErrorMessage.SetContext(IncomingDocument);
+        Assert.AreEqual(0, ErrorMessage.ErrorMessageCount(
+            ErrorMessage."Message Type"::Error), 'No errors should have been found.');
+    end;
+
+    [Test]
+    [HandlerFunctions('PurchCrMemoHandler')]
+    [Scope('OnPrem')]
+    procedure CreatePurchCreditMemo()
+    var
+        IncomingDocument: Record "Incoming Document";
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        PurchaseHeader.SetFilter("Incoming Document Entry No.", '<>0');
+        PurchaseHeader.DeleteAll;
+
+        CreateNewIncomingDocument(IncomingDocument);
+        IncomingDocument.Release;
+        Commit;
+        IncomingDocument.CreatePurchCreditMemo;  // Opens page 52 "Purchase Credit Memo"
+        IncomingDocument.Modify;
+        IncomingDocument.TestField("Document Type", IncomingDocument."Document Type"::"Purchase Credit Memo");
+
+        PurchaseHeader.FindFirst;
+        PurchaseHeader.TestField("Document Type", PurchaseHeader."Document Type"::"Credit Memo");
+        PurchaseHeader.TestField("Incoming Document Entry No.", IncomingDocument."Entry No.");
+        Assert.IsTrue(PurchaseHeader.HasLinks, 'Purchase Credit Memo is missing a link.');
+    end;
+
+    [Test]
+    [HandlerFunctions('SalesInvHandler')]
+    [Scope('OnPrem')]
+    procedure CreateSalesInvoice()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        IncomingDocument: Record "Incoming Document";
+    begin
+        SalesHeader.SetFilter("Incoming Document Entry No.", '<>0');
+        SalesHeader.DeleteAll;
+
+        CreateNewIncomingDocument(IncomingDocument);
+        IncomingDocument.Release;
+        IncomingDocument.Modify;
+        IncomingDocument.CreateSalesInvoice;  // Opens page 43 "Sales Invoice"
+        IncomingDocument.Modify;
+        IncomingDocument.TestField("Document Type", IncomingDocument."Document Type"::"Sales Invoice");
+
+        SalesHeader.FindFirst;
+        SalesHeader.TestField("Document Type", SalesHeader."Document Type"::Invoice);
+        SalesHeader.TestField("Incoming Document Entry No.", IncomingDocument."Entry No.");
+        Assert.IsTrue(SalesHeader.HasLinks, 'Sales Invoice is missing a link.');
+
+        SalesHeader.Validate("Sell-to Customer No.", LibrarySales.CreateCustomerNo);
+        SalesHeader.Modify;
+
+        LibrarySales.CreateSalesLine(
+          SalesLine, SalesHeader, SalesLine.Type::"G/L Account", GetIncomeStatementAcc, 1);
+
+        CODEUNIT.Run(CODEUNIT::"Sales-Post", SalesHeader);
+        ValidatePostedIncomingDocument(IncomingDocument);
+    end;
+
+    [Test]
+    [HandlerFunctions('IncomingDocumentsLookupHandler')]
+    [Scope('OnPrem')]
+    procedure CreateSalesInvoiceAndSelectIncomingDoc()
+    var
+        IncomingDocument: Record "Incoming Document";
+        SalesHeader: Record "Sales Header";
+        Customer: Record Customer;
+        SalesInvoice: TestPage "Sales Invoice";
+    begin
+        // Init
+        SalesHeader.SetFilter("Incoming Document Entry No.", '<>0');
+        SalesHeader.DeleteAll;
+        SalesHeader.Reset;
+        CreateNewIncomingDocument(IncomingDocument);
+        IncomingDocument.Release;
+        IncomingDocument.Modify;
+
+        LibrarySales.CreateCustomer(Customer);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
+        SalesHeader.Modify;
+
+        // Execute
+        SalesInvoice.OpenEdit;
+        SalesInvoice.GotoRecord(SalesHeader);
+        Assert.IsFalse(SalesInvoice.IncomingDocCard.Enabled, '');
+        Assert.IsFalse(SalesInvoice.RemoveIncomingDoc.Enabled, '');
+        Assert.IsTrue(SalesInvoice.SelectIncomingDoc.Enabled, '');
+        Assert.IsTrue(SalesInvoice.IncomingDocAttachFile.Enabled, '');
+
+        SalesInvoice.SelectIncomingDoc.Invoke; // Opens page 190
+
+        // Verify
+        Assert.IsTrue(SalesInvoice.IncomingDocCard.Enabled, '');
+        Assert.IsTrue(SalesInvoice.RemoveIncomingDoc.Enabled, '');
+        Assert.IsTrue(SalesInvoice.SelectIncomingDoc.Enabled, '');
+        Assert.IsFalse(SalesInvoice.IncomingDocAttachFile.Enabled, '');
+
+        SalesHeader.Find;
+        Assert.AreEqual(IncomingDocument."Entry No.", SalesHeader."Incoming Document Entry No.", '');
+
+        SalesInvoice.RemoveIncomingDoc.Invoke;
+        SalesHeader.Find;
+        Assert.AreEqual(0, SalesHeader."Incoming Document Entry No.", '');
+
+        SalesInvoice.Close;
+    end;
+
+    [Test]
+    [HandlerFunctions('SalesCrMemoHandler')]
+    [Scope('OnPrem')]
+    procedure CreateSalesCreditMemo()
+    var
+        SalesHeader: Record "Sales Header";
+        IncomingDocument: Record "Incoming Document";
+    begin
+        SalesHeader.SetFilter("Incoming Document Entry No.", '<>0');
+        SalesHeader.DeleteAll;
+
+        CreateNewIncomingDocument(IncomingDocument);
+        IncomingDocument.Release;
+        Commit;
+        IncomingDocument.CreateSalesCreditMemo;  // Opens page 44 "Sales Credit Memo"
+        IncomingDocument.Modify;
+        IncomingDocument.TestField("Document Type", IncomingDocument."Document Type"::"Sales Credit Memo");
+
+        SalesHeader.FindFirst;
+        SalesHeader.TestField("Document Type", SalesHeader."Document Type"::"Credit Memo");
+        SalesHeader.TestField("Incoming Document Entry No.", IncomingDocument."Entry No.");
+        Assert.IsTrue(SalesHeader.HasLinks, 'Sales Credit Memo is missing a link.');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestReadyForPosting()
+    var
+        IncomingDocument: Record "Incoming Document";
+    begin
+        CreateNewIncomingDocument(IncomingDocument);
+        IncomingDocument.Release;
+        IncomingDocument.Modify;
+        IncomingDocument.TestReadyForProcessing;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestOnDelete()
+    var
+        IncomingDocument: Record "Incoming Document";
+        IncomingDocumentAttachment: Record "Incoming Document Attachment";
+    begin
+        // Init
+        CreateNewIncomingDocument(IncomingDocument);
+        IncomingDocumentAttachment."Incoming Document Entry No." := IncomingDocument."Entry No.";
+        IncomingDocumentAttachment."Line No." := 10000;
+        IncomingDocumentAttachment.Insert(true);
+        IncomingDocumentAttachment.SetRange("Incoming Document Entry No.", IncomingDocument."Entry No.");
+
+        // Execute
+        IncomingDocument.Delete(true);
+
+        // Verify;
+        Assert.AreEqual(0, IncomingDocumentAttachment.Count, '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestChangeOfDocType1()
+    var
+        IncomingDocument: Record "Incoming Document";
+    begin
+        CreateNewIncomingDocument(IncomingDocument);
+        IncomingDocument.Release;
+        IncomingDocument.Modify;
+        CreateAndAssignGenJournalLineToIncomingDocument(IncomingDocument);
+        asserterror IncomingDocument.CreatePurchInvoice;
+    end;
+
+    [Test]
+    [HandlerFunctions('PurchInvHandler')]
+    [Scope('OnPrem')]
+    procedure TestChangeOfDocType2()
+    var
+        IncomingDocument: Record "Incoming Document";
+    begin
+        CreateNewIncomingDocument(IncomingDocument);
+        IncomingDocument.Release;
+        IncomingDocument.Modify;
+        IncomingDocument.CreatePurchInvoice;
+        asserterror IncomingDocument.CreateGenJnlLine;
+        asserterror IncomingDocument.CreatePurchCreditMemo;
+        asserterror IncomingDocument.CreateSalesInvoice;
+        asserterror IncomingDocument.CreateSalesCreditMemo;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SetGenJournalLine()
+    var
+        IncomingDocument: Record "Incoming Document";
+        GenJnlLine: Record "Gen. Journal Line";
+    begin
+        CreateNewIncomingDocument(IncomingDocument);
+        IncomingDocument.Release;
+        IncomingDocument.Modify;
+        GenJnlLine.Init;
+        GenJnlLine."Incoming Document Entry No." := IncomingDocument."Entry No.";
+        IncomingDocument.SetGenJournalLine(GenJnlLine);
+        IncomingDocument.TestField("Document Type", IncomingDocument."Document Type"::Journal);
+        Assert.IsTrue(GenJnlLine.HasLinks, 'No link was attached to Gen. Jnl. Line');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SetPurchDoc()
+    var
+        IncomingDocument: Record "Incoming Document";
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        CreateNewIncomingDocument(IncomingDocument);
+        IncomingDocument.Release;
+        IncomingDocument.Modify;
+        PurchaseHeader.Init;
+        PurchaseHeader."Document Type" := PurchaseHeader."Document Type"::Invoice;
+        PurchaseHeader."Incoming Document Entry No." := IncomingDocument."Entry No.";
+        IncomingDocument.SetPurchDoc(PurchaseHeader);
+        IncomingDocument.TestField("Document Type", IncomingDocument."Document Type"::"Purchase Invoice");
+        Assert.IsTrue(PurchaseHeader.HasLinks, 'No link was attached to Purchase Header');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SetSalesDoc()
+    var
+        IncomingDocument: Record "Incoming Document";
+        SalesHeader: Record "Sales Header";
+    begin
+        CreateNewIncomingDocument(IncomingDocument);
+        IncomingDocument.Release;
+        IncomingDocument.Modify;
+        SalesHeader.Init;
+        SalesHeader."Document Type" := SalesHeader."Document Type"::Invoice;
+        SalesHeader."Incoming Document Entry No." := IncomingDocument."Entry No.";
+        IncomingDocument.SetSalesDoc(SalesHeader);
+        IncomingDocument.TestField("Document Type", IncomingDocument."Document Type"::"Sales Invoice");
+        Assert.IsTrue(SalesHeader.HasLinks, 'No link was attached to Sales Header');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SetPostedDocFields()
+    var
+        IncomingDocument: Record "Incoming Document";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 376596] TAB 130 "Incoming Document".SetPostedDocFields() updates Incoming Document fields correctly in case of Status=New
+        CreateNewIncomingDocument(IncomingDocument);
+        IncomingDocument.TestField("Posted Date-Time", 0DT);
+        IncomingDocument.SetPostedDocFields(Today, '1111');
+        IncomingDocument.TestField(Posted, true);
+        IncomingDocument.TestField("Posted Date-Time");
+        IncomingDocument.TestField("Document No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SetPostedDocFieldsForcePosted_Positive()
+    var
+        IncomingDocument: Record "Incoming Document";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 376596] TAB 130 "Incoming Document".SetPostedDocFields() updates Incoming Document fields correctly in case of Status=Posted and ForcePosted=TRUE
+        CreateNewIncomingDocument(IncomingDocument);
+        IncomingDocument.UpdateIncomingDocumentFromPosting(IncomingDocument."Entry No.", DMY2Date(1, 1, 2015), 'TEST');
+
+        IncomingDocument.Find;
+        IncomingDocument.SetPostedDocFieldsForcePosted(DMY2Date(1, 1, 2015), 'TEST', true);
+
+        IncomingDocument.TestField(Posted, true);
+        IncomingDocument.TestField(Processed, true);
+        IncomingDocument.TestField("Posted Date-Time");
+        IncomingDocument.TestField("Document No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SetPostedDocFieldsForcePosted_Negative()
+    var
+        IncomingDocument: Record "Incoming Document";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 376596] TAB 130 "Incoming Document".SetPostedDocFields() throws an error 'The document related to this incoming document has been posted.' in case of Status=Posted and ForcePosted=FALSE
+        CreateNewIncomingDocument(IncomingDocument);
+        IncomingDocument.UpdateIncomingDocumentFromPosting(IncomingDocument."Entry No.", DMY2Date(1, 1, 2015), 'TEST');
+
+        IncomingDocument.Find;
+        asserterror IncomingDocument.SetPostedDocFieldsForcePosted(DMY2Date(1, 1, 2015), 'TEST', false);
+        Assert.ExpectedErrorCode(DialogTxt);
+        Assert.ExpectedError(DocPostedErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CreatePostGenJnlLineNotApproved()
+    var
+        IncomingDocument: Record "Incoming Document";
+        GenJnlLine: Record "Gen. Journal Line";
+    begin
+        LibraryIncomingDocuments.InitIncomingDocuments;
+        UpdateIncomingDocumentsSetup;
+        LibraryIncomingDocuments.CreateNewIncomingDocument(IncomingDocument);
+
+        GenJnlLine.SetRange("Incoming Document Entry No.", IncomingDocument."Entry No.");
+        GenJnlLine.DeleteAll;
+
+        CreateAndAssignGenJournalLineToIncomingDocument(IncomingDocument);
+
+        GenJnlLine.FindFirst;
+        GenJnlLine."Document No." := LibraryUtility.GenerateGUID;
+        GenJnlLine.Modify;
+        CODEUNIT.Run(CODEUNIT::"Gen. Jnl.-Post Batch", GenJnlLine);
+        ValidatePostedIncomingDocument(IncomingDocument);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ClearRelatedGenJnlLine()
+    var
+        IncomingDocument: Record "Incoming Document";
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        // Setup.
+        LibraryIncomingDocuments.InitIncomingDocuments;
+        UpdateIncomingDocumentsSetup;
+        LibraryIncomingDocuments.CreateNewIncomingDocument(IncomingDocument);
+        CreateAndAssignGenJournalLineToIncomingDocument(IncomingDocument);
+
+        // Pre-Exercise Verify.
+        GenJournalLine.SetRange("Incoming Document Entry No.", IncomingDocument."Entry No.");
+        Assert.IsTrue(GenJournalLine.FindFirst, 'There should be a new record connected to the incoming document.');
+
+        // Exercise.
+        IncomingDocument.Delete(true);
+
+        // Verify.
+        GenJournalLine.SetRange("Incoming Document Entry No.", IncomingDocument."Entry No.");
+        Assert.IsTrue(GenJournalLine.IsEmpty, 'There should not be any records connected to the incoming document.');
+    end;
+
+    [Test]
+    [HandlerFunctions('PurchInvHandler')]
+    [Scope('OnPrem')]
+    procedure ClearRelatedPurchaseInvoice()
+    var
+        IncomingDocument: Record "Incoming Document";
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        // Setup.
+        LibraryIncomingDocuments.InitIncomingDocuments;
+        UpdateIncomingDocumentsSetup;
+        LibraryIncomingDocuments.CreateNewIncomingDocument(IncomingDocument);
+        IncomingDocument.CreatePurchInvoice;
+        IncomingDocument.Modify;
+
+        // Pre-Exercise Verify.
+        PurchaseHeader.SetRange("Incoming Document Entry No.", IncomingDocument."Entry No.");
+        PurchaseHeader.SetRange("Document Type", PurchaseHeader."Document Type"::Invoice);
+        Assert.IsTrue(PurchaseHeader.FindFirst, 'There should be a new record connected to the incoming document.');
+
+        // Exercise.
+        IncomingDocument.Delete(true);
+
+        // Verify.
+        PurchaseHeader.SetRange("Incoming Document Entry No.", IncomingDocument."Entry No.");
+        PurchaseHeader.SetRange("Document Type", PurchaseHeader."Document Type"::Invoice);
+        Assert.IsTrue(PurchaseHeader.IsEmpty, 'There should not be any records connected to the incoming document.');
+    end;
+
+    [Test]
+    [HandlerFunctions('PurchCrMemoHandler')]
+    [Scope('OnPrem')]
+    procedure ClearRelatedPurchaseCrMemo()
+    var
+        IncomingDocument: Record "Incoming Document";
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        // Setup.
+        LibraryIncomingDocuments.InitIncomingDocuments;
+        UpdateIncomingDocumentsSetup;
+        LibraryIncomingDocuments.CreateNewIncomingDocument(IncomingDocument);
+        IncomingDocument.CreatePurchCreditMemo;
+        IncomingDocument.Modify;
+
+        // Pre-Exercise Verify.
+        PurchaseHeader.SetRange("Incoming Document Entry No.", IncomingDocument."Entry No.");
+        PurchaseHeader.SetRange("Document Type", PurchaseHeader."Document Type"::"Credit Memo");
+        Assert.IsTrue(PurchaseHeader.FindFirst, 'There should be a new record connected to the incoming document.');
+
+        // Exercise.
+        IncomingDocument.Delete(true);
+
+        // Verify.
+        PurchaseHeader.SetRange("Incoming Document Entry No.", IncomingDocument."Entry No.");
+        PurchaseHeader.SetRange("Document Type", PurchaseHeader."Document Type"::"Credit Memo");
+        Assert.IsTrue(PurchaseHeader.IsEmpty, 'There should not be any records connected to the incoming document.');
+    end;
+
+    [Test]
+    [HandlerFunctions('SalesInvHandler')]
+    [Scope('OnPrem')]
+    procedure ClearRelatedSalesInvoice()
+    var
+        IncomingDocument: Record "Incoming Document";
+        SalesHeader: Record "Sales Header";
+    begin
+        // Setup.
+        LibraryIncomingDocuments.InitIncomingDocuments;
+        UpdateIncomingDocumentsSetup;
+        LibraryIncomingDocuments.CreateNewIncomingDocument(IncomingDocument);
+        IncomingDocument.CreateSalesInvoice;
+        IncomingDocument.Modify;
+
+        // Pre-Exercise Verify.
+        SalesHeader.SetRange("Incoming Document Entry No.", IncomingDocument."Entry No.");
+        SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Invoice);
+        Assert.IsTrue(SalesHeader.FindFirst, 'There should be a new record connected to the incoming document.');
+
+        // Exercise.
+        IncomingDocument.Delete(true);
+
+        // Verify.
+        SalesHeader.SetRange("Incoming Document Entry No.", IncomingDocument."Entry No.");
+        SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Invoice);
+        Assert.IsTrue(SalesHeader.IsEmpty, 'There should not be any records connected to the incoming document.');
+    end;
+
+    [Test]
+    [HandlerFunctions('SalesCrMemoHandler')]
+    [Scope('OnPrem')]
+    procedure ClearRelatedSalesCrMemo()
+    var
+        IncomingDocument: Record "Incoming Document";
+        SalesHeader: Record "Sales Header";
+    begin
+        // Setup.
+        LibraryIncomingDocuments.InitIncomingDocuments;
+        UpdateIncomingDocumentsSetup;
+        LibraryIncomingDocuments.CreateNewIncomingDocument(IncomingDocument);
+        IncomingDocument.CreateSalesCreditMemo;
+        IncomingDocument.Modify;
+
+        // Pre-Exercise Verify.
+        SalesHeader.SetRange("Incoming Document Entry No.", IncomingDocument."Entry No.");
+        SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::"Credit Memo");
+        Assert.IsTrue(SalesHeader.FindFirst, 'There should be a new record connected to the incoming document.');
+
+        // Exercise.
+        IncomingDocument.Delete(true);
+
+        // Verify.
+        SalesHeader.SetRange("Incoming Document Entry No.", IncomingDocument."Entry No.");
+        SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::"Credit Memo");
+        Assert.IsTrue(SalesHeader.IsEmpty, 'There should not be any records connected to the incoming document.');
+    end;
+
+    local procedure CreateIncomingDocumentWithoutAttachments(var IncomingDocument: Record "Incoming Document")
+    begin
+        if IncomingDocument.FindLast then;
+        IncomingDocument.Init;
+        IncomingDocument."Entry No." += 1;
+        IncomingDocument.Insert;
+    end;
+
+    local procedure CreateIncomingDocumentWithMainAttachment(var IncomingDocument: Record "Incoming Document"; var IncomingDocumentAttachment: Record "Incoming Document Attachment")
+    var
+        FileName: Text;
+    begin
+        CreateIncomingDocumentWithoutAttachments(IncomingDocument);
+
+        FileName := CreateDummyFile('xml');
+        IncomingDocumentAttachment.SetRange("Incoming Document Entry No.", IncomingDocument."Entry No.");
+        ImportAttachToIncomingDoc(IncomingDocumentAttachment, FileName);
+        IncomingDocumentAttachment.Get(IncomingDocumentAttachment."Incoming Document Entry No.", IncomingDocumentAttachment."Line No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestInsertTableAttachment()
+    var
+        IncomingDocumentAttachment: Record "Incoming Document Attachment";
+    begin
+        with IncomingDocumentAttachment do begin
+            // Init;
+            if Get(0, 0) then
+                Delete;
+            Init;
+
+            // Execute
+            "Incoming Document Entry No." := 1;
+            Insert(true);
+
+            // Verify
+            Assert.AreNotEqual(Format(0DT), Format("Created Date-Time"), '');
+            Assert.AreNotEqual('', "Created By User Name", '');
+        end;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestImportAttachment()
+    var
+        IncomingDocumentAttachment: Record "Incoming Document Attachment";
+    begin
+        IncomingDocumentAttachment.Init; // to satisfy preCAL
+
+        ImportAndVerifyAttachment('jpg', IncomingDocumentAttachment.Type::Image);
+        ImportAndVerifyAttachment('bmp', IncomingDocumentAttachment.Type::Image);
+        ImportAndVerifyAttachment('png', IncomingDocumentAttachment.Type::Image);
+        ImportAndVerifyAttachment('pdf', IncomingDocumentAttachment.Type::PDF);
+        ImportAndVerifyAttachment('xlsx', IncomingDocumentAttachment.Type::Excel);
+        ImportAndVerifyAttachment('docx', IncomingDocumentAttachment.Type::Word);
+        ImportAndVerifyAttachment('pptx', IncomingDocumentAttachment.Type::PowerPoint);
+        ImportAndVerifyAttachment('msg', IncomingDocumentAttachment.Type::Email);
+        ImportAndVerifyAttachment('xml', IncomingDocumentAttachment.Type::XML);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestExportAttachment()
+    var
+        IncomingDocumentAttachment: Record "Incoming Document Attachment";
+        FileManagement: Codeunit "File Management";
+        OutStr: OutStream;
+        FileName: Text;
+    begin
+        // Init
+        IncomingDocumentAttachment.Init;
+        FileName := IncomingDocumentAttachment.Export('', false);   // Returns as entry no. is 0
+
+        if IncomingDocumentAttachment.FindLast then;
+        IncomingDocumentAttachment."Incoming Document Entry No." += 1;
+        IncomingDocumentAttachment."Line No." := 10000;
+        IncomingDocumentAttachment.Init;
+        FileName := IncomingDocumentAttachment.Export('', false);   // Returns as there is no content
+
+        if not IncomingDocumentAttachment.Find then
+            IncomingDocumentAttachment.Insert(true);
+        IncomingDocumentAttachment.Content.CreateOutStream(OutStr, TEXTENCODING::UTF8);
+        OutStr.WriteText('<hello world/>');
+        IncomingDocumentAttachment.Type := IncomingDocumentAttachment.Type::XML;
+        IncomingDocumentAttachment."File Extension" := 'xml';
+        IncomingDocumentAttachment.Modify;
+
+        // Execute
+        FileName := FileManagement.ServerTempFileName(IncomingDocumentAttachment."File Extension");
+        FileName := IncomingDocumentAttachment.Export(FileName, false);
+
+        // Verify
+
+        // File.OPEN(FileName);
+        // File.TEXTMODE(TRUE);
+        // File.READ(Text);
+        // File.CLOSE;
+        // FileManagement.DeleteServerFile(FileName); Fails in snap
+        // Assert.AreEqual('<hello world/>',Text,'');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestAddAttachmentToExistingEntry()
+    var
+        IncomingDocument: Record "Incoming Document";
+        IncomingDocumentAttachment: Record "Incoming Document Attachment";
+        GLEntry: Record "G/L Entry";
+        IncomingDocumentCard: TestPage "Incoming Document";
+        FileName: Text;
+    begin
+        // Init
+        GLEntry.FindLast;
+        GLEntry.TestField("Posting Date");
+        GLEntry.TestField("Document No.");
+
+        IncomingDocument.SetRange("Document No.", GLEntry."Document No.");
+        IncomingDocument.SetRange("Posting Date", GLEntry."Posting Date");
+        IncomingDocumentAttachment.SetRange("Document No.", GLEntry."Document No.");
+        IncomingDocumentAttachment.SetRange("Posting Date", GLEntry."Posting Date");
+        IncomingDocument.DeleteAll;
+        IncomingDocumentAttachment.DeleteAll;
+
+        // Execution
+        FileName := CreateDummyFile('xml');
+        ImportAttachToIncomingDoc(IncomingDocumentAttachment, FileName);
+
+        // Verify
+        IncomingDocument.FindFirst;
+        IncomingDocument.TestField(Description);
+        IncomingDocument.TestField(Released);
+        IncomingDocument.TestField(Posted);
+        IncomingDocument.TestField("Document No.", GLEntry."Document No.");
+        IncomingDocument.TestField("Posting Date", GLEntry."Posting Date");
+        IncomingDocument.TestField("Related Record ID");
+
+        IncomingDocumentCard.OpenEdit;
+        IncomingDocumentCard.GotoRecord(IncomingDocument);
+        Assert.AreNotEqual(IncomingDocumentCard.Record.Value, '', EmptyLinkToRelatedRecordErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestAddAttachmentToExistingSalesDoc()
+    var
+        IncomingDocument: Record "Incoming Document";
+        IncomingDocumentAttachment: Record "Incoming Document Attachment";
+        SalesHeader: Record "Sales Header";
+        IncomingDocumentCard: TestPage "Incoming Document";
+        FileName: Text;
+    begin
+        // Init
+        SalesHeader.Init;
+        SalesHeader."Document Type" := SalesHeader."Document Type"::Order;
+        SalesHeader.Insert(true);
+
+        IncomingDocumentAttachment.FilterGroup(4);
+        IncomingDocumentAttachment.SetRange("Incoming Document Entry No.", 0);
+        IncomingDocumentAttachment.SetRange("Document Table No. Filter", DATABASE::"Sales Header");
+        IncomingDocumentAttachment.SetRange("Document Type Filter", SalesHeader."Document Type");
+        IncomingDocumentAttachment.SetRange("Document No. Filter", SalesHeader."No.");
+        IncomingDocumentAttachment.FilterGroup(0);
+
+        // Execution
+        FileName := CreateDummyFile('xml');
+        ImportAttachToIncomingDoc(IncomingDocumentAttachment, FileName);
+
+        // Verify
+        Assert.IsTrue(IncomingDocumentAttachment."Incoming Document Entry No." > 0, '');
+        SalesHeader.Find;
+        Assert.AreEqual(IncomingDocumentAttachment."Incoming Document Entry No.", SalesHeader."Incoming Document Entry No.", '');
+        IncomingDocument.Get(SalesHeader."Incoming Document Entry No.");
+        IncomingDocument.TestField(Description);
+        IncomingDocument.TestField(Released);
+        IncomingDocument.TestField(Posted, false);
+        IncomingDocument.TestField("Document No.", '');
+        IncomingDocument.TestField("Posting Date", 0D);
+        IncomingDocument.TestField("Related Record ID", SalesHeader.RecordId);
+
+        IncomingDocumentCard.OpenEdit;
+        IncomingDocumentCard.GotoRecord(IncomingDocument);
+        Assert.AreNotEqual(IncomingDocumentCard.Record.Value, '', EmptyLinkToRelatedRecordErr);
+        IncomingDocumentCard.Record.AssertEquals(IncomingDocument.GetRecordLinkText);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestAddAttachmentToExistingPurchDoc()
+    var
+        IncomingDocument: Record "Incoming Document";
+        IncomingDocumentAttachment: Record "Incoming Document Attachment";
+        PurchaseHeader: Record "Purchase Header";
+        IncomingDocumentCard: TestPage "Incoming Document";
+        FileName: Text;
+    begin
+        // Init
+        PurchaseHeader.Init;
+        PurchaseHeader."Document Type" := PurchaseHeader."Document Type"::Order;
+        PurchaseHeader.Insert(true);
+
+        IncomingDocumentAttachment.FilterGroup(4);
+        IncomingDocumentAttachment.SetRange("Incoming Document Entry No.", 0);
+        IncomingDocumentAttachment.SetRange("Document Table No. Filter", DATABASE::"Purchase Header");
+        IncomingDocumentAttachment.SetRange("Document Type Filter", PurchaseHeader."Document Type");
+        IncomingDocumentAttachment.SetRange("Document No. Filter", PurchaseHeader."No.");
+        IncomingDocumentAttachment.FilterGroup(0);
+
+        // Execution
+        FileName := CreateDummyFile('xml');
+        ImportAttachToIncomingDoc(IncomingDocumentAttachment, FileName);
+
+        // Verify
+        Assert.IsTrue(IncomingDocumentAttachment."Incoming Document Entry No." > 0, '');
+        PurchaseHeader.Find;
+        Assert.AreEqual(IncomingDocumentAttachment."Incoming Document Entry No.", PurchaseHeader."Incoming Document Entry No.", '');
+        IncomingDocument.Get(PurchaseHeader."Incoming Document Entry No.");
+        IncomingDocument.TestField(Description);
+        IncomingDocument.TestField(Released);
+        IncomingDocument.TestField(Posted, false);
+        IncomingDocument.TestField("Document No.", '');
+        IncomingDocument.TestField("Posting Date", 0D);
+        IncomingDocument.TestField("Related Record ID", PurchaseHeader.RecordId);
+
+        IncomingDocumentCard.OpenEdit;
+        IncomingDocumentCard.GotoRecord(IncomingDocument);
+        Assert.AreNotEqual(IncomingDocumentCard.Record.Value, '', EmptyLinkToRelatedRecordErr);
+        IncomingDocumentCard.Record.AssertEquals(IncomingDocument.GetRecordLinkText);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestAddAttachmentToExistingGenJnlLine()
+    var
+        IncomingDocument: Record "Incoming Document";
+        IncomingDocumentAttachment: Record "Incoming Document Attachment";
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalTemplate: Record "Gen. Journal Template";
+        IncomingDocumentCard: TestPage "Incoming Document";
+        FileName: Text;
+    begin
+        // Init
+        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
+        GenJournalLine."Journal Template Name" := GenJournalTemplate.Name;
+        GenJournalLine."Journal Batch Name" := GenJournalBatch.Name;
+        GenJournalLine.SetRange("Journal Template Name", GenJournalTemplate.Name);
+        GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
+        if GenJournalLine.FindLast then;
+        GenJournalLine."Line No." += 10000;
+        GenJournalLine."Document Type" := GenJournalLine."Document Type"::Invoice;
+        GenJournalLine.Insert(true);
+
+        IncomingDocumentAttachment.FilterGroup(4);
+        IncomingDocumentAttachment.SetRange("Incoming Document Entry No.", 0);
+        IncomingDocumentAttachment.SetRange("Journal Template Name Filter", GenJournalLine."Journal Template Name");
+        IncomingDocumentAttachment.SetRange("Journal Batch Name Filter", GenJournalLine."Journal Batch Name");
+        IncomingDocumentAttachment.SetRange("Journal Line No. Filter", GenJournalLine."Line No.");
+        IncomingDocumentAttachment.FilterGroup(0);
+
+        // Execution
+        FileName := CreateDummyFile('xml');
+        ImportAttachToIncomingDoc(IncomingDocumentAttachment, FileName);
+
+        // Verify
+        Assert.IsTrue(IncomingDocumentAttachment."Incoming Document Entry No." > 0, '');
+        GenJournalLine.Find;
+        Assert.AreEqual(IncomingDocumentAttachment."Incoming Document Entry No.", GenJournalLine."Incoming Document Entry No.", '');
+        IncomingDocument.Get(GenJournalLine."Incoming Document Entry No.");
+        IncomingDocument.TestField(Description);
+        IncomingDocument.TestField(Released);
+        IncomingDocument.TestField(Posted, false);
+        IncomingDocument.TestField("Document No.", '');
+        IncomingDocument.TestField("Posting Date", 0D);
+        IncomingDocument.TestField("Related Record ID", GenJournalLine.RecordId);
+
+        IncomingDocumentCard.OpenEdit;
+        IncomingDocumentCard.GotoRecord(IncomingDocument);
+        Assert.AreNotEqual(IncomingDocumentCard.Record.Value, '', EmptyLinkToRelatedRecordErr);
+        IncomingDocumentCard.Record.AssertEquals(IncomingDocument.GetRecordLinkText);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestMainAttachmentIsSetForFirstAttachment()
+    var
+        IncomingDocument: Record "Incoming Document";
+        IncomingDocumentAttachment: Record "Incoming Document Attachment";
+    begin
+        // Init
+        CreateIncomingDocumentWithMainAttachment(IncomingDocument, IncomingDocumentAttachment);
+
+        // Verify
+        Assert.AreEqual(IncomingDocumentAttachment."Main Attachment", true, 'Main Attachment should be set on the main document');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestMainAttachmentIsNotSetForSecondAttachment()
+    var
+        IncomingDocument: Record "Incoming Document";
+        IncomingDocumentAttachment: Record "Incoming Document Attachment";
+        IncomingDocumentAttachment2: Record "Incoming Document Attachment";
+        FileName2: Text;
+    begin
+        // Init
+        CreateIncomingDocumentWithMainAttachment(IncomingDocument, IncomingDocumentAttachment);
+
+        // Execution
+        FileName2 := CreateDummyFile('xml');
+        IncomingDocumentAttachment2.SetRange("Incoming Document Entry No.", IncomingDocumentAttachment."Incoming Document Entry No.");
+        ImportAttachToIncomingDoc(IncomingDocumentAttachment2, FileName2);
+        IncomingDocumentAttachment2.Get(
+          IncomingDocumentAttachment2."Incoming Document Entry No.", IncomingDocumentAttachment2."Line No.");
+
+        // Verify
+        Assert.AreEqual(IncomingDocumentAttachment."Main Attachment", true, 'Main Attachment should be set on the main document');
+        Assert.AreEqual(IncomingDocumentAttachment2."Main Attachment", false, 'Main Attachment should not be set on the second document');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestCannotDeleteMainAttachment()
+    var
+        IncomingDocument: Record "Incoming Document";
+        IncomingDocumentAttachment: Record "Incoming Document Attachment";
+        IncomingDocumentAttachment2: Record "Incoming Document Attachment";
+        FileName2: Text;
+    begin
+        // Init
+        CreateIncomingDocumentWithMainAttachment(IncomingDocument, IncomingDocumentAttachment);
+        IncomingDocumentAttachment.Default := false;
+        IncomingDocumentAttachment.Modify;
+
+        // Execution
+        FileName2 := CreateDummyFile('xml');
+        IncomingDocumentAttachment2.SetRange("Incoming Document Entry No.", IncomingDocumentAttachment."Incoming Document Entry No.");
+        ImportAttachToIncomingDoc(IncomingDocumentAttachment2, FileName2);
+        IncomingDocumentAttachment2.Get(
+          IncomingDocumentAttachment2."Incoming Document Entry No.", IncomingDocumentAttachment2."Line No.");
+        IncomingDocumentAttachment2.Default := true;
+        IncomingDocumentAttachment2.Modify;
+
+        // Verify
+        asserterror IncomingDocumentAttachment.Delete(true);
+        Assert.ExpectedError(MainAttachErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestUpdatingDefaultAttachmentDoesntReplaceMainAttachment()
+    var
+        IncomingDocument: Record "Incoming Document";
+        IncomingDocumentAttachment: Record "Incoming Document Attachment";
+        IncomingDocumentAttachment2: Record "Incoming Document Attachment";
+        MainIncomingDocumentAttachment: Record "Incoming Document Attachment";
+        FileName2: Text;
+    begin
+        // Init
+        CreateIncomingDocumentWithMainAttachment(IncomingDocument, IncomingDocumentAttachment);
+        IncomingDocumentAttachment.Default := false;
+        IncomingDocumentAttachment.Modify;
+
+        FileName2 := CreateDummyFile('xml');
+        IncomingDocumentAttachment2.SetRange("Incoming Document Entry No.", IncomingDocumentAttachment."Incoming Document Entry No.");
+        ImportAttachToIncomingDoc(IncomingDocumentAttachment2, FileName2);
+        IncomingDocumentAttachment2.Get(
+          IncomingDocumentAttachment2."Incoming Document Entry No.", IncomingDocumentAttachment2."Line No.");
+
+        // Execute
+        IncomingDocumentAttachment2.Validate(Default, true);
+        IncomingDocumentAttachment2.Modify;
+
+        // Verify
+        IncomingDocumentAttachment.Get(IncomingDocumentAttachment."Incoming Document Entry No.", IncomingDocumentAttachment."Line No.");
+        IncomingDocumentAttachment2.Get(
+          IncomingDocumentAttachment2."Incoming Document Entry No.", IncomingDocumentAttachment2."Line No.");
+        IncomingDocument.GetMainAttachment(MainIncomingDocumentAttachment);
+
+        Assert.AreEqual(IncomingDocumentAttachment."Main Attachment", true, 'Main Attachment should be set on the main document');
+        Assert.AreEqual(IncomingDocumentAttachment2."Main Attachment", false, 'Main Attachment should not be set on the second document');
+        Assert.AreEqual(IncomingDocumentAttachment.Default, false, 'Main Attachment should not be default');
+        Assert.AreEqual(IncomingDocumentAttachment2.Default, true, 'Default attachment should be set');
+        Assert.AreEqual(
+          IncomingDocumentAttachment."Incoming Document Entry No.", MainIncomingDocumentAttachment."Incoming Document Entry No.",
+          'IncomingDocument.GetMainAttachment result does not match expected value');
+        Assert.AreEqual(
+          IncomingDocumentAttachment."Line No.", MainIncomingDocumentAttachment."Line No.",
+          'IncomingDocument.GetMainAttachment result does not match expected value');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestCannotReplaceMainAttachment()
+    var
+        IncomingDocument: Record "Incoming Document";
+        IncomingDocumentAttachment: Record "Incoming Document Attachment";
+        FileName: Text;
+    begin
+        // Init
+        CreateIncomingDocumentWithMainAttachment(IncomingDocument, IncomingDocumentAttachment);
+        IncomingDocument."OCR Status" := IncomingDocument."OCR Status"::"Awaiting Verification";
+
+        FileName := CreateDummyFile('xml');
+
+        // Execution
+        asserterror IncomingDocument.ReplaceMainAttachment(FileName);
+
+        // Verify
+        Assert.ExpectedError(CannotReplaceMainAttachmentErr);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure TestReplaceMainAttachment()
+    var
+        IncomingDocument: Record "Incoming Document";
+        IncomingDocumentAttachment: Record "Incoming Document Attachment";
+        IncomingDocumentAttachment2: Record "Incoming Document Attachment";
+        MainIncomingDocumentAttachment: Record "Incoming Document Attachment";
+        FileManagement: Codeunit "File Management";
+        FileName2: Text;
+        FileName3: Text;
+    begin
+        // Init
+        CreateIncomingDocumentWithMainAttachment(IncomingDocument, IncomingDocumentAttachment);
+
+        FileName2 := CreateDummyFile('xml');
+        IncomingDocumentAttachment2.SetRange("Incoming Document Entry No.", IncomingDocumentAttachment."Incoming Document Entry No.");
+        ImportAttachToIncomingDoc(IncomingDocumentAttachment2, FileName2);
+        IncomingDocumentAttachment2.Get(
+          IncomingDocumentAttachment2."Incoming Document Entry No.", IncomingDocumentAttachment2."Line No.");
+
+        FileName3 := CreateDummyFile('xml');
+
+        LibraryVariableStorage.Enqueue(ReplaceMainAttachmentQst);
+        LibraryVariableStorage.Enqueue(true);
+
+        // Execution
+        IncomingDocument.ReplaceMainAttachment(FileName3);
+
+        // Verify
+        LibraryVariableStorage.AssertEmpty;
+        IncomingDocument.GetMainAttachment(MainIncomingDocumentAttachment);
+        IncomingDocumentAttachment2.Get(
+          IncomingDocumentAttachment2."Incoming Document Entry No.", IncomingDocumentAttachment2."Line No.");
+
+        Assert.IsFalse(
+          IncomingDocumentAttachment.Get(IncomingDocumentAttachment."Incoming Document Entry No.", IncomingDocumentAttachment."Line No."),
+          'Previous Incoming Document Attachment should be removed');
+        Assert.AreEqual(IncomingDocumentAttachment2."Main Attachment", false, 'Main Attachment should not be set on the third document');
+        Assert.AreEqual(MainIncomingDocumentAttachment."Main Attachment", true, 'Main Attachment should be set on the new document');
+        Assert.AreEqual(MainIncomingDocumentAttachment.Default, true, 'Default should be set on the main document');
+        Assert.AreEqual(
+          MainIncomingDocumentAttachment.Name, FileManagement.GetFileNameWithoutExtension(FileName3), 'Wrong file name is set');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestGetDocNoWithoutIncomingDoc()
+    var
+        PostedDocsWithNoIncDoc: TestPage "Posted Docs. With No Inc. Doc.";
+    begin
+        // init
+        CreateTestGLEntries;
+
+        // Execution
+        PostedDocsWithNoIncDoc.OpenView;
+        PostedDocsWithNoIncDoc.DocNoFilter.SetValue(Format(2));
+        PostedDocsWithNoIncDoc.First;
+
+        // Verification
+        Assert.AreEqual('Test', PostedDocsWithNoIncDoc."First Posting Description".Value, '');
+        Assert.AreEqual(Format(2), PostedDocsWithNoIncDoc."Document No.".Value, '');
+    end;
+
+    [Test]
+    [HandlerFunctions('IncomingDocumentsLookupHandler')]
+    [Scope('OnPrem')]
+    procedure TestUpdateIncomingDocumentFromDocNoWOIncDoc()
+    var
+        IncomingDocument: Record "Incoming Document";
+        PostedDocsWithNoIncDoc: TestPage "Posted Docs. With No Inc. Doc.";
+    begin
+        // [SCENARIO 124640] Annie can get a list of document numbers without an incoming document from the Incoming Documents page.
+
+        // [GIVEN] We have some G/LEntries without an incoming document and we have a new incoming document.
+        CreateTestGLEntries;
+        IncomingDocument.DeleteAll;
+        CreateNewIncomingDocument(IncomingDocument);
+        IncomingDocument.TestField("Entry No.");
+
+        // [WHEN] We open the "Posted Documents without Incoming Document" and select the first and click "Select Inc..."
+        PostedDocsWithNoIncDoc.OpenView;
+        PostedDocsWithNoIncDoc.DocNoFilter.SetValue(Format(2));
+        PostedDocsWithNoIncDoc.First;
+        PostedDocsWithNoIncDoc.SelectIncomingDoc.Invoke; // Opens page 190 - see pagehandler
+
+        // [THEN] PAge 190 opens and the user can select an IC to attach to the posted document.
+        IncomingDocument.Find;
+        Assert.IsTrue(IncomingDocument.Posted, '');
+        Assert.AreEqual('2', IncomingDocument."Document No.", '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestCreateIncomingDocumentFromServerFile()
+    var
+        IncomingDocument: Record "Incoming Document";
+        IncomingDocumentAttachment: Record "Incoming Document Attachment";
+        FileManagement: Codeunit "File Management";
+        File: File;
+        FileName: Text;
+    begin
+        // Init
+        FileName := FileManagement.ServerTempFileName('xml');
+        File.Create(FileName);
+        File.Write('<TEST>hello</TEST>');
+        File.Close;
+
+        // Execute
+        IncomingDocument.CreateIncomingDocumentFromServerFile('MyFile.xml', FileName);
+
+        // Verify
+        IncomingDocumentAttachment.SetRange("Incoming Document Entry No.", IncomingDocument."Entry No.");
+        Assert.AreEqual(1, IncomingDocumentAttachment.Count, '');
+        IncomingDocumentAttachment.FindFirst;
+        IncomingDocumentAttachment.CalcFields(Content);
+        Assert.IsTrue(IncomingDocumentAttachment.Content.HasValue, '');
+        Assert.AreEqual(IncomingDocumentAttachment.Type::XML, IncomingDocumentAttachment.Type, '');
+        Assert.AreEqual('xml', IncomingDocumentAttachment."File Extension", '');
+
+        // Clean-up + test delete
+        IncomingDocument.Delete(true);
+        Assert.AreEqual(0, IncomingDocumentAttachment.Count, '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestDefaultAttachmentOnInsert()
+    var
+        IncomingDocument: Record "Incoming Document";
+        DefaultIncomingDocumentAttachment: Record "Incoming Document Attachment";
+        NonDefaultIncomingDocumentAttachment: Record "Incoming Document Attachment";
+        DefaultAttachmentNo: Integer;
+        NonDefaultAttachmentNo: Integer;
+    begin
+        // Init
+        CreateNewIncomingDocument(IncomingDocument);
+        DefaultAttachmentNo := InsertIncomingDocumentAttachment(IncomingDocument);
+        DefaultIncomingDocumentAttachment.Get(IncomingDocument."Entry No.", DefaultAttachmentNo);
+        NonDefaultAttachmentNo := InsertIncomingDocumentAttachment(IncomingDocument);
+        NonDefaultIncomingDocumentAttachment.Get(IncomingDocument."Entry No.", NonDefaultAttachmentNo);
+
+        // Verify;
+        Assert.IsTrue(DefaultIncomingDocumentAttachment.Default, '');
+        Assert.IsFalse(NonDefaultIncomingDocumentAttachment.Default, '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestDefaultAttachmentOnImport()
+    var
+        IncomingDocument: Record "Incoming Document";
+        IncomingDocumentAttachment: Record "Incoming Document Attachment";
+        FileName: Text;
+    begin
+        // Init
+        CreateIncomingDocumentWithoutAttachments(IncomingDocument);
+        IncomingDocument.SetRange("Entry No.", IncomingDocument."Entry No.");
+        IncomingDocumentAttachment.SetRange("Incoming Document Entry No.", IncomingDocument."Entry No.");
+
+        // Execute
+        FileName := CreateDummyFile('xml');
+        ImportAttachToIncomingDoc(IncomingDocumentAttachment, FileName);
+        FileName := CreateDummyFile('pdf');
+        ImportAttachToIncomingDoc(IncomingDocumentAttachment, FileName);
+        FileName := CreateDummyFile('jpg');
+        ImportAttachToIncomingDoc(IncomingDocumentAttachment, FileName);
+
+        // Verify;
+        IncomingDocumentAttachment.FindSet;
+        Assert.IsTrue(IncomingDocumentAttachment.Default, '');
+        while IncomingDocumentAttachment.Next <> 0 do
+            Assert.IsFalse(IncomingDocumentAttachment.Default, '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestDefaultAttachmentChange()
+    var
+        IncomingDocument: Record "Incoming Document";
+        IncomingDocumentAttachment: Record "Incoming Document Attachment";
+        Attachment1No: Integer;
+        Attachment2No: Integer;
+        Attachment3No: Integer;
+    begin
+        // Init
+        CreateNewIncomingDocument(IncomingDocument);
+        Attachment1No := InsertIncomingDocumentAttachment(IncomingDocument);
+        Attachment2No := InsertIncomingDocumentAttachment(IncomingDocument);
+        Attachment3No := InsertIncomingDocumentAttachment(IncomingDocument);
+
+        // Execute
+        IncomingDocumentAttachment.Get(IncomingDocument."Entry No.", Attachment3No);
+        IncomingDocumentAttachment.Validate(Default, true);
+        IncomingDocumentAttachment.Modify(true);
+
+        // Verify
+        Assert.IsTrue(IncomingDocumentAttachment.Default, '');
+        IncomingDocumentAttachment.Get(IncomingDocument."Entry No.", Attachment2No);
+        Assert.IsFalse(IncomingDocumentAttachment.Default, '');
+        IncomingDocumentAttachment.Get(IncomingDocument."Entry No.", Attachment1No);
+        Assert.IsFalse(IncomingDocumentAttachment.Default, '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestDefaultAttachmentDeleteDisallowed()
+    var
+        IncomingDocument: Record "Incoming Document";
+        IncomingDocumentAttachment: Record "Incoming Document Attachment";
+        Attachment1No: Integer;
+    begin
+        // Init
+        CreateNewIncomingDocument(IncomingDocument);
+        Attachment1No := InsertIncomingDocumentAttachment(IncomingDocument);
+        InsertIncomingDocumentAttachment(IncomingDocument);
+        InsertIncomingDocumentAttachment(IncomingDocument);
+
+        // Execute
+        IncomingDocumentAttachment.Get(IncomingDocument."Entry No.", Attachment1No);
+
+        // Verify
+        asserterror IncomingDocumentAttachment.Delete(true);
+        Assert.ExpectedError(OnlyOneDefaultAttachmentErr);
+
+        // Verify - 2
+        asserterror IncomingDocumentAttachment.DeleteAttachment;
+        Assert.ExpectedError(OnlyOneDefaultAttachmentErr);
+    end;
+
+    [Test]
+    [HandlerFunctions('IncomingDocumentCardHandler')]
+    [Scope('OnPrem')]
+    procedure TestShowIncomingDocumentCard()
+    var
+        IncomingDocument: Record "Incoming Document";
+    begin
+        // [SCENARIO 124640] Annie can see the Incoming Document Card from a posted entry.
+
+        // [GIVEN] We have a posted incoming document.
+        IncomingDocument.DeleteAll;
+        CreateNewIncomingDocument(IncomingDocument);
+        IncomingDocument.TestField("Entry No.");
+        IncomingDocument.Release;
+        IncomingDocument.SetPostedDocFields(DMY2Date(1, 1, 2000), 'TEST');
+
+        // [WHEN] We call the ShowCard method
+        IncomingDocument.ShowCard('TEST', DMY2Date(1, 1, 2000));
+
+        // [THEN] Page 189 opens. Verified by page handler.
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestSetFiltersFromMainRecSalesHeader()
+    var
+        IncomingDocumentAttachment: Record "Incoming Document Attachment";
+        SalesHeader: Record "Sales Header";
+        RecRef: RecordRef;
+    begin
+        // [SCENARIO] User wants to create a new incoming document to an existing entity from the factbox
+
+        // [GIVEN] We have a sales document (credit memo) with no incoming document
+        SalesHeader.Init;
+        SalesHeader."Document Type" := SalesHeader."Document Type"::"Credit Memo";
+        SalesHeader."No." := '1234';
+
+        // [WHEN] The user clicks create incoming document from file,
+        RecRef.GetTable(SalesHeader);
+        IncomingDocumentAttachment.SetFiltersFromMainRecord(RecRef, IncomingDocumentAttachment);
+
+        // [THEN] the sales header fields are set as filters on the attachment
+        Assert.AreEqual(DATABASE::"Sales Header", IncomingDocumentAttachment.GetRangeMin("Document Table No. Filter"), '');
+        Assert.AreEqual(SalesHeader."Document Type", IncomingDocumentAttachment.GetRangeMin("Document Type Filter"), '');
+        Assert.AreEqual(SalesHeader."No.", IncomingDocumentAttachment.GetRangeMin("Document No. Filter"), '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestSetFiltersFromMainRecPurchHeader()
+    var
+        IncomingDocumentAttachment: Record "Incoming Document Attachment";
+        PurchaseHeader: Record "Purchase Header";
+        RecRef: RecordRef;
+    begin
+        // [SCENARIO] User wants to create a new incoming document to an existing entity from the factbox
+
+        // [GIVEN] We have a Purchase document (credit memo) with no incoming document
+        PurchaseHeader.Init;
+        PurchaseHeader."Document Type" := PurchaseHeader."Document Type"::Invoice;
+        PurchaseHeader."No." := '1234';
+
+        // [WHEN] The user clicks create incoming document from file,
+        RecRef.GetTable(PurchaseHeader);
+        IncomingDocumentAttachment.SetFiltersFromMainRecord(RecRef, IncomingDocumentAttachment);
+
+        // [THEN] the Purchase header fields are set as filters on the attachment
+        Assert.AreEqual(DATABASE::"Purchase Header", IncomingDocumentAttachment.GetRangeMin("Document Table No. Filter"), '');
+        Assert.AreEqual(PurchaseHeader."Document Type", IncomingDocumentAttachment.GetRangeMin("Document Type Filter"), '');
+        Assert.AreEqual(PurchaseHeader."No.", IncomingDocumentAttachment.GetRangeMin("Document No. Filter"), '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestSetFiltersFromMainRecGenJnlLine()
+    var
+        IncomingDocumentAttachment: Record "Incoming Document Attachment";
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        RecRef: RecordRef;
+    begin
+        // [SCENARIO] User wants to create a new incoming document to an existing entity from the factbox
+
+        // [GIVEN] We have a GenJournalLine with no incoming document
+        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
+        GenJournalLine.Init;
+        GenJournalLine."Journal Batch Name" := GenJournalBatch.Name;
+        GenJournalLine."Journal Template Name" := GenJournalTemplate.Name;
+        GenJournalLine."Line No." := 10000;
+
+        // [WHEN] The user clicks create incoming document from file,
+        RecRef.GetTable(GenJournalLine);
+        IncomingDocumentAttachment.SetFiltersFromMainRecord(RecRef, IncomingDocumentAttachment);
+
+        // [THEN] the journal line fields are set as filters on the attachment
+        Assert.AreEqual(DATABASE::"Gen. Journal Line", IncomingDocumentAttachment.GetRangeMin("Document Table No. Filter"), '');
+        Assert.AreEqual(GenJournalLine."Journal Batch Name", IncomingDocumentAttachment.GetRangeMin("Journal Batch Name Filter"), '');
+        Assert.AreEqual(
+          GenJournalLine."Journal Template Name", IncomingDocumentAttachment.GetRangeMin("Journal Template Name Filter"), '');
+        Assert.AreEqual(GenJournalLine."Line No.", IncomingDocumentAttachment.GetRangeMin("Journal Line No. Filter"), '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestSetFiltersFromMainRecGLEntry()
+    var
+        IncomingDocumentAttachment: Record "Incoming Document Attachment";
+        GLEntry: Record "G/L Entry";
+        RecRef: RecordRef;
+    begin
+        // [SCENARIO] User wants to create a new incoming document to an existing entity from the factbox
+
+        // [GIVEN] We have a GLEnry with no incoming document
+        GLEntry.Init;
+        GLEntry."Document No." := '1234';
+        GLEntry."Posting Date" := Today;
+
+        // [WHEN] The user clicks create incoming document from file,
+        RecRef.GetTable(GLEntry);
+        IncomingDocumentAttachment.SetFiltersFromMainRecord(RecRef, IncomingDocumentAttachment);
+
+        // [THEN] the GLEntry fields are set as filters on the attachment
+        Assert.AreEqual(GLEntry."Document No.", IncomingDocumentAttachment.GetRangeMin("Document No."), '');
+        Assert.AreEqual(GLEntry."Posting Date", IncomingDocumentAttachment.GetRangeMin("Posting Date"), '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestSetFiltersFromMainRecPostedPurchInvoice()
+    var
+        IncomingDocumentAttachment: Record "Incoming Document Attachment";
+        PurchInvHeader: Record "Purch. Inv. Header";
+        RecRef: RecordRef;
+    begin
+        // [SCENARIO] User wants to create a new incoming document to an existing entity from the factbox
+
+        // [GIVEN] We have a PurchInvHeader with no incoming document
+        PurchInvHeader.Init;
+        PurchInvHeader."No." := '1234';
+        PurchInvHeader."Posting Date" := Today;
+
+        // [WHEN] The user clicks create incoming document from file,
+        RecRef.GetTable(PurchInvHeader);
+        IncomingDocumentAttachment.SetFiltersFromMainRecord(RecRef, IncomingDocumentAttachment);
+
+        // [THEN] the PurchInvHeader fields are set as filters on the attachment
+        Assert.AreEqual(PurchInvHeader."No.", IncomingDocumentAttachment.GetRangeMin("Document No."), '');
+        Assert.AreEqual(PurchInvHeader."Posting Date", IncomingDocumentAttachment.GetRangeMin("Posting Date"), '');
+    end;
+
+    [Test]
+    [HandlerFunctions('IncomingDocumentsLookupHandlerPrevRec,ConfirmHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure TestUnlinkPostedDocumentFromIncomingDocument()
+    var
+        IncomingDocument: Record "Incoming Document";
+        GLEntry: Record "G/L Entry";
+        IncomingDocumentCard: TestPage "Incoming Document";
+        DocumentNo: Code[20];
+        PostingDate: Date;
+        MessageText: Text;
+    begin
+        CreateNewIncomingDocument(IncomingDocument);
+        CreateTestGLEntries;
+
+        GLEntry.FindFirst;
+
+        DocumentNo := GLEntry."Document No.";
+        PostingDate := GLEntry."Posting Date";
+
+        IncomingDocument.Get(IncomingDocument."Entry No.");
+        IncomingDocument."Document Type" := IncomingDocument."Document Type"::Journal;
+        IncomingDocument.Modify;
+
+        IncomingDocument.SelectIncomingDocumentForPostedDocument(DocumentNo, PostingDate, GLEntry.RecordId);
+
+        IncomingDocumentCard.OpenEdit;
+        IncomingDocumentCard.GotoRecord(IncomingDocument);
+
+        LibraryVariableStorage.Enqueue(StrSubstNo(DetachQst, DocumentNo, Format(PostingDate)));
+        LibraryVariableStorage.Enqueue(true);
+
+        MessageText := RemovePostedRecordManuallyMsg;
+        LibraryVariableStorage.Enqueue(MessageText);
+        IncomingDocumentCard.RemoveReferencedRecord.Invoke;
+
+        IncomingDocument.Get(IncomingDocument."Entry No.");
+        Assert.AreEqual(false, IncomingDocument.Posted, 'Posted should be set to false for the incoming document');
+        Assert.AreEqual(0D, IncomingDocument."Posting Date", 'Posting date is not set correctly');
+        Assert.AreEqual(0DT, IncomingDocument."Posted Date-Time", 'Posting date time is not set correctly');
+        Assert.AreEqual(IncomingDocument."Document Type"::" ", IncomingDocument."Document Type", 'Document Type should be removed');
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    local procedure UnlinkNotPostedDocumentFromIncomingDocumentPurchaseHeader(Delete: Boolean)
+    var
+        IncomingDocument: Record "Incoming Document";
+        PurchaseHeader: Record "Purchase Header";
+        IncomingDocumentCard: TestPage "Incoming Document";
+    begin
+        PurchaseHeader.SetFilter("Incoming Document Entry No.", '<>0');
+        PurchaseHeader.DeleteAll;
+
+        CreateNewIncomingDocument(IncomingDocument);
+        IncomingDocument.Release;
+        IncomingDocument.Modify;
+        IncomingDocument.CreatePurchInvoice;  // Opens page 51 "Purchase Invoice"
+        IncomingDocument.Modify;
+        IncomingDocument.TestField("Document Type", IncomingDocument."Document Type"::"Purchase Invoice");
+
+        IncomingDocumentCard.OpenEdit;
+        IncomingDocumentCard.GotoRecord(IncomingDocument);
+
+        LibraryVariableStorage.Enqueue(DoYouWantToRemoveReferenceQst);
+        LibraryVariableStorage.Enqueue(true);
+
+        LibraryVariableStorage.Enqueue(DeleteRecordQst);
+        LibraryVariableStorage.Enqueue(Delete);
+        IncomingDocumentCard.RemoveReferencedRecord.Invoke;
+
+        IncomingDocument.Get(IncomingDocument."Entry No.");
+        Assert.AreEqual(false, IncomingDocument.Posted, 'Posted should be set to false for the incoming document');
+        Assert.AreEqual(0D, IncomingDocument."Posting Date", 'Posting date is not set correctly');
+        Assert.AreEqual(0DT, IncomingDocument."Posted Date-Time", 'Posting date time is not set correctly');
+        Assert.AreEqual(IncomingDocument."Document Type"::" ", IncomingDocument."Document Type", 'Document Type should be removed');
+        if Delete then
+            Assert.IsFalse(PurchaseHeader.FindFirst, 'Purchase document should not be deleted')
+        else begin
+            Clear(PurchaseHeader);
+            Assert.IsTrue(PurchaseHeader.FindFirst, 'Purchase document should not be deleted');
+            Assert.AreEqual(
+              0, PurchaseHeader."Incoming Document Entry No.", 'Incoming Document Entry No. should be removed from Purchase header');
+        end;
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler,PurchInvHandler')]
+    [Scope('OnPrem')]
+    procedure TestUnlinkNotPostedDocumentFromIncomingDocumentPurchaseHeader()
+    begin
+        UnlinkNotPostedDocumentFromIncomingDocumentPurchaseHeader(false);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler,SalesInvHandler')]
+    [Scope('OnPrem')]
+    procedure TestUnlinkNotPostedDocumentFromIncomingDocumentSalesHeader()
+    var
+        IncomingDocument: Record "Incoming Document";
+        SalesHeader: Record "Sales Header";
+        IncomingDocumentCard: TestPage "Incoming Document";
+    begin
+        SalesHeader.SetFilter("Incoming Document Entry No.", '<>0');
+        SalesHeader.DeleteAll;
+
+        CreateNewIncomingDocument(IncomingDocument);
+        IncomingDocument.Release;
+        IncomingDocument.Modify;
+        IncomingDocument.CreateSalesInvoice;
+        IncomingDocument.Modify;
+        IncomingDocument.TestField("Document Type", IncomingDocument."Document Type"::"Sales Invoice");
+
+        IncomingDocumentCard.OpenEdit;
+        IncomingDocumentCard.GotoRecord(IncomingDocument);
+
+        LibraryVariableStorage.Enqueue(DoYouWantToRemoveReferenceQst);
+        LibraryVariableStorage.Enqueue(true);
+
+        LibraryVariableStorage.Enqueue(DeleteRecordQst);
+        LibraryVariableStorage.Enqueue(false);
+        IncomingDocumentCard.RemoveReferencedRecord.Invoke;
+
+        IncomingDocument.Get(IncomingDocument."Entry No.");
+        Assert.AreEqual(false, IncomingDocument.Posted, 'Posted should be set to false for the incoming document');
+        Assert.AreEqual(0D, IncomingDocument."Posting Date", 'Posting date is not set correctly');
+        Assert.AreEqual(0DT, IncomingDocument."Posted Date-Time", 'Posting date time is not set correctly');
+        Assert.AreEqual(IncomingDocument."Document Type"::" ", IncomingDocument."Document Type", 'Document Type should be removed');
+        Clear(SalesHeader);
+        Assert.IsTrue(SalesHeader.FindFirst, 'Sales document should not be deleted');
+        Assert.AreEqual(
+          0, SalesHeader."Incoming Document Entry No.", 'Incoming Document Entry No. should be removed from Purchase header');
+
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure TestUnlinkNotPostedDocumentFromIncomingDocumentJournalLine()
+    var
+        IncomingDocument: Record "Incoming Document";
+        GenJournalLine: Record "Gen. Journal Line";
+        IncomingDocumentCard: TestPage "Incoming Document";
+    begin
+        GenJournalLine.SetFilter("Incoming Document Entry No.", '<>0');
+        GenJournalLine.DeleteAll;
+
+        CreateNewIncomingDocument(IncomingDocument);
+        IncomingDocument.Release;
+        IncomingDocument.Modify;
+        CreateAndAssignGenJournalLineToIncomingDocument(IncomingDocument);
+        IncomingDocument.TestField("Document Type", IncomingDocument."Document Type"::Journal);
+
+        IncomingDocumentCard.OpenEdit;
+        IncomingDocumentCard.GotoRecord(IncomingDocument);
+
+        LibraryVariableStorage.Enqueue(DoYouWantToRemoveReferenceQst);
+        LibraryVariableStorage.Enqueue(true);
+
+        LibraryVariableStorage.Enqueue(DeleteRecordQst);
+        LibraryVariableStorage.Enqueue(false);
+        IncomingDocumentCard.RemoveReferencedRecord.Invoke;
+
+        IncomingDocument.Get(IncomingDocument."Entry No.");
+        Assert.AreEqual(false, IncomingDocument.Posted, 'Posted should be set to false for the incoming document');
+        Assert.AreEqual(0D, IncomingDocument."Posting Date", 'Posting date is not set correctly');
+        Assert.AreEqual(0DT, IncomingDocument."Posted Date-Time", 'Posting date time is not set correctly');
+        Assert.AreEqual(IncomingDocument."Document Type"::" ", IncomingDocument."Document Type", 'Document Type should be removed');
+
+        Clear(GenJournalLine);
+        Assert.IsTrue(GenJournalLine.FindFirst, 'Genearal Journal Line should not be deleted');
+        Assert.AreEqual(
+          0, GenJournalLine."Incoming Document Entry No.", 'Incoming Document Entry No. should be removed from Purchase header');
+
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler,PurchInvHandler')]
+    [Scope('OnPrem')]
+    procedure TestUnlinkingAndDeletingNonPostedDocumentFromIncomingDocument()
+    begin
+        UnlinkNotPostedDocumentFromIncomingDocumentPurchaseHeader(true);
+    end;
+
+    [Test]
+    [HandlerFunctions('HyperlinkHandler')]
+    [Scope('OnPrem')]
+    procedure TestHyperlinkToDocumentURL()
+    var
+        IncomingDocument: Record "Incoming Document";
+        DocumentNo: Text[10];
+        PostingDate: Date;
+    begin
+        CreateNewIncomingDocument(IncomingDocument);
+        IncomingDocument.SetURL('about:blank');
+        DocumentNo := 'TEST';
+        PostingDate := DMY2Date(1, 1, 2000);
+
+        IncomingDocument.SetPostedDocFields(PostingDate, DocumentNo);
+
+        // Running should open IE
+        IncomingDocument.HyperlinkToDocument(DocumentNo, PostingDate);
+    end;
+
+    [Test]
+    [HandlerFunctions('HyperlinkHandler')]
+    [Scope('OnPrem')]
+    procedure TestHyperlinkToDocumentAttachment()
+    var
+        IncomingDocument: Record "Incoming Document";
+        IncomingDocumentAttachment: Record "Incoming Document Attachment";
+        FileName: Text;
+        DocumentNo: Text[10];
+        PostingDate: Date;
+    begin
+        CreateNewIncomingDocument(IncomingDocument);
+
+        DocumentNo := 'TEST';
+        PostingDate := DMY2Date(1, 1, 2000);
+
+        IncomingDocument.SetPostedDocFields(PostingDate, DocumentNo);
+
+        FileName := CreateDummyFile('xml');
+        IncomingDocumentAttachment.SetRange("Incoming Document Entry No.", IncomingDocument."Entry No.");
+        ImportAttachToIncomingDoc(IncomingDocumentAttachment, FileName);
+
+        IncomingDocument.HyperlinkToDocument(DocumentNo, PostingDate);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestIncomingDocsShouldFilterProcessedDocs()
+    var
+        ProcessedIncomingDocument: Record "Incoming Document";
+        UnprocessedIncomingDocument: Record "Incoming Document";
+        IncomingDocumentsPage: TestPage "Incoming Documents";
+    begin
+        ProcessedIncomingDocument.DeleteAll;
+        CreateIncomingDocument(ProcessedIncomingDocument, 'Processed Document', true);
+        CreateIncomingDocument(UnprocessedIncomingDocument, 'Unprocessed Document', false);
+
+        IncomingDocumentsPage.OpenEdit;
+        IncomingDocumentsPage.ShowUnprocessed.Invoke;
+
+        IncomingDocumentsPage.First;
+        Assert.IsFalse(IncomingDocumentsPage.ShowUnprocessed.Enabled, 'Expected that ShowUnprocessed action is disabled');
+        Assert.IsTrue(IncomingDocumentsPage.ShowAll.Enabled, 'Expected that ShowUnprocessed action is disabled');
+        Assert.AreEqual(
+          UnprocessedIncomingDocument.Description, IncomingDocumentsPage.Description.Value,
+          'Expected that Description match the Processed Document');
+        Assert.IsFalse(IncomingDocumentsPage.Next, 'Expected that list contains only one record');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestIncomingDocsShouldShowAllDocsOnShowAllAction()
+    var
+        ProcessedIncomingDocument: Record "Incoming Document";
+        UnprocessedIncomingDocument: Record "Incoming Document";
+        IncomingDocumentsPage: TestPage "Incoming Documents";
+    begin
+        ProcessedIncomingDocument.DeleteAll;
+        CreateIncomingDocument(ProcessedIncomingDocument, 'Processed Document', true);
+        CreateIncomingDocument(UnprocessedIncomingDocument, 'Unprocessed Document', false);
+
+        IncomingDocumentsPage.OpenEdit;
+        IncomingDocumentsPage.FILTER.SetFilter(Processed, Format(true));
+        IncomingDocumentsPage.ShowAll.Invoke;
+
+        Assert.IsTrue(IncomingDocumentsPage.First, 'Expected that list contains 2 records');
+        Assert.IsTrue(IncomingDocumentsPage.Next, 'Expected that list contains 2 records');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestIncomingDocumentSetToProcessedUnprocessed()
+    var
+        IncomingDocument: Record "Incoming Document";
+        IncomingDocumentPage: TestPage "Incoming Document";
+    begin
+        IncomingDocument.DeleteAll;
+
+        CreateNewIncomingDocument(IncomingDocument);
+        IncomingDocument.Description := 'Unprocessed Document';
+        IncomingDocument.Processed := false;
+        IncomingDocument.Modify;
+
+        IncomingDocumentPage.OpenEdit;
+        IncomingDocumentPage.GotoRecord(IncomingDocument);
+        IncomingDocumentPage.SetToProcessed.Invoke;
+
+        IncomingDocument.Get(IncomingDocument."Entry No.");
+        Assert.IsTrue(IncomingDocument.Processed, 'Expected that record is set as processed');
+
+        IncomingDocumentPage.SetToUnprocessed.Invoke;
+        IncomingDocument.Get(IncomingDocument."Entry No.");
+        Assert.IsFalse(IncomingDocument.Processed, 'Expected that record is set as processed');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure MultipleUpdateIncomingDocumentFromPosting()
+    var
+        IncomingDocument: Record "Incoming Document";
+        PostingDate: Date;
+        DocumentNo: Code[20];
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 376596] TAB130 "Incoming Document".UpdateIncomingDocumentFromPosting() uses last Document No and Date in case of multiple call
+        CreateNewIncomingDocument(IncomingDocument);
+        IncomingDocument.UpdateIncomingDocumentFromPosting(IncomingDocument."Entry No.", DMY2Date(1, 1, 2015), 'TEST');
+
+        PostingDate := LibraryRandom.RandDate(10);
+        DocumentNo := LibraryUtility.GenerateGUID;
+        IncomingDocument.Find;
+        IncomingDocument.UpdateIncomingDocumentFromPosting(IncomingDocument."Entry No.", PostingDate, DocumentNo);
+
+        IncomingDocument.Find;
+        Assert.AreEqual(DocumentNo, IncomingDocument."Document No.", IncomingDocument.FieldCaption("Document No."));
+        Assert.AreEqual(PostingDate, IncomingDocument."Posting Date", IncomingDocument.FieldCaption("Posting Date"));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure UT_DocDateAndDueDateNotValidatedWhenChangeSalesInvPostingDateFromIncDoc()
+    var
+        SalesHeader: Record "Sales Header";
+        DocDate: Date;
+        DueDate: Date;
+    begin
+        // [FEATURE] [UT] [Sales]
+        // [SCENARIO 378141] "Document Date" and "Due Date" should not be validated when change "Posting Date" of Sales Invoice related to Incoming Document
+
+        // [GIVEN] Incoming Document with "Entry No." = "X", "Document Date" = "01.01", "Due Date" = "10.01"
+        // [GIVEN] Sales Invoice with "Incoming Document Entry No." = "X", "Posting Date" = "05.01", "Document Date" = "01.01", "Due Date" = "10.01"
+        DocDate := LibraryRandom.RandDate(100);
+        DueDate := LibraryRandom.RandDate(100);
+        MockSalesHeaderWithDateAndIncomingDocEntryNo(SalesHeader, DocDate, DueDate);
+
+        // [WHEN] Change "Posting Date" of Sales Invoice to "08.01"
+        SalesHeader.Validate("Posting Date", DueDate + 1);
+
+        // [THEN] "Document Date" of Sales Invoice is "01.01"
+        SalesHeader.TestField("Document Date", DocDate);
+
+        // [THEN] "Due Date" of Sales Invoice is "10.01"
+        SalesHeader.TestField("Due Date", DueDate);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure UT_DocDateAndDueDateNotValidatedWhenChangePurchInvPostingDateFromIncDoc()
+    var
+        PurchHeader: Record "Purchase Header";
+        DocDate: Date;
+        DueDate: Date;
+    begin
+        // [FEATURE] [UT] [Purchase]
+        // [SCENARIO 378141] "Document Date" and "Due Date" should not be validated when change "Posting Date" of Purchase Invoice related to Incoming Document
+
+        // [GIVEN] Incoming Document with "Entry No." = "X", "Document Date" = "01.01", "Due Date" = "10.01"
+        // [GIVEN] Purchase Invoice with "Incoming Document Entry No." = "X", "Posting Date" = "05.01", "Document Date" = "01.01", "Due Date" = "10.01"
+        DocDate := LibraryRandom.RandDate(100);
+        DueDate := LibraryRandom.RandDate(100);
+        MockPurchHeaderWithDateAndIncomingDocEntryNo(PurchHeader, DocDate, DueDate);
+
+        // [WHEN] Change "Posting Date" of Purchase Invoice to "08.01"
+        PurchHeader.Validate("Posting Date", DueDate + 1);
+
+        // [THEN] "Document Date" of Purchase Invoice is "01.01"
+        PurchHeader.TestField("Document Date", DocDate);
+
+        // [THEN] "Due Date" of Purchase Purchase is "10.01"
+        PurchHeader.TestField("Due Date", DueDate);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestAutomaticCreationActionsDisabled()
+    begin
+        // [WHEN] "Data Exchange Type" is not set on the Incoming Documents
+        // [THEN] "Create Document" and "Create General Jounal Line" actions are disabled
+        TestAutomaticCreationActions(false);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestAutomaticCreationActionsEnabled()
+    begin
+        // [WHEN] "Data Exchange Type" is set on the Incoming Documents
+        // [THEN] "Create Document" and "Create General Jounal Line" actions are enabled
+        TestAutomaticCreationActions(true);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TableIncomingDocumentsVendorInvoiceFieldLength()
+    var
+        IncomingDocument: Record "Incoming Document";
+        PurchaseHeader: Record "Purchase Header";
+        LibraryTablesUT: Codeunit "Library - Tables UT";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 228770] TAB130."Vendor Invoice No." field must have the same length and type of TAB38."Vendor Invoice No." field
+        LibraryTablesUT.CompareFieldTypeAndLength(
+          IncomingDocument, IncomingDocument.FieldNo("Vendor Invoice No."),
+          PurchaseHeader, PurchaseHeader.FieldNo("Vendor Invoice No."));
+    end;
+
+    local procedure TestAutomaticCreationActions(DataExchangeTypeHasValue: Boolean)
+    var
+        IncomingDocumentRec: Record "Incoming Document";
+        IncomingDocumentPage: TestPage "Incoming Document";
+        IncomingDocuments: TestPage "Incoming Documents";
+    begin
+        CreateNewIncomingDocument(IncomingDocumentRec);
+
+        if DataExchangeTypeHasValue then begin
+            IncomingDocumentRec."Data Exchange Type" := LibraryUtility.GenerateGUID;
+            IncomingDocumentRec.Modify;
+        end;
+
+        IncomingDocumentPage.OpenEdit;
+        IncomingDocumentPage.GotoRecord(IncomingDocumentRec);
+        Assert.AreEqual(DataExchangeTypeHasValue, IncomingDocumentPage.CreateGenJnlLine.Enabled, 'Editable value unexpected.');
+        Assert.AreEqual(DataExchangeTypeHasValue, IncomingDocumentPage.CreateDocument.Enabled, 'Editable value unexpected.');
+
+        IncomingDocuments.OpenView;
+        IncomingDocuments.GotoRecord(IncomingDocumentRec);
+        Assert.AreEqual(DataExchangeTypeHasValue, IncomingDocuments.CreateGenJnlLine.Enabled, 'Editable value unexpected.');
+        Assert.AreEqual(DataExchangeTypeHasValue, IncomingDocuments.CreateDocument.Enabled, 'Editable value unexpected.');
+    end;
+
+    local procedure GetIncomeStatementAcc(): Code[20]
+    var
+        GLAccount: Record "G/L Account";
+    begin
+        GLAccount.SetRange("Income/Balance", GLAccount."Income/Balance"::"Income Statement");
+        exit(LibraryERM.FindDirectPostingGLAccount(GLAccount));
+    end;
+
+    local procedure GetBalanceSheetAcc(): Code[20]
+    var
+        GLAccount: Record "G/L Account";
+    begin
+        GLAccount.SetRange("Income/Balance", GLAccount."Income/Balance"::"Balance Sheet");
+        exit(LibraryERM.FindDirectPostingGLAccount(GLAccount));
+    end;
+
+    local procedure CreateNewIncomingDocument(var IncomingDocument: Record "Incoming Document")
+    begin
+        LibraryIncomingDocuments.InitIncomingDocuments;
+        LibraryIncomingDocuments.CreateNewIncomingDocument(IncomingDocument);
+        Commit;
+    end;
+
+    local procedure CreateDummyFile(Extension: Text): Text
+    var
+        FileManagement: Codeunit "File Management";
+        File: File;
+        FileName: Text;
+    begin
+        FileName := FileManagement.ServerTempFileName(Extension);
+        File.Create(FileName);
+        File.Write('<TEST>hello</TEST>');
+        File.Close;
+        exit(FileManagement.DownloadTempFile(FileName));
+    end;
+
+    local procedure CreateTestGLEntries()
+    var
+        GLEntry: Record "G/L Entry";
+        i: Integer;
+    begin
+        if GLEntry.FindLast then;
+        for i := 1 to 10 do begin
+            GLEntry."Entry No." += 1;
+            GLEntry."G/L Account No." := 'TEST';
+            GLEntry."Posting Date" := WorkDate - i mod 3;
+            GLEntry."Document No." := Format(i);
+            GLEntry.Description := 'Test';
+            GLEntry.Amount := 1;
+            GLEntry."Debit Amount" := 1;
+            GLEntry."Credit Amount" := 0;
+            GLEntry.Insert;
+        end;
+    end;
+
+    local procedure CreateAndAssignGenJournalLineToIncomingDocument(var IncomingDocument: Record "Incoming Document")
+    var
+        GeneralJournal: TestPage "General Journal";
+    begin
+        GeneralJournal.Trap;
+        IncomingDocument.CreateGenJnlLine;
+        GeneralJournal.Close;
+        IncomingDocument.Modify;
+    end;
+
+    local procedure MockSalesHeaderWithDateAndIncomingDocEntryNo(var SalesHeader: Record "Sales Header"; DocDate: Date; DueDate: Date)
+    var
+        IncomingDocument: Record "Incoming Document";
+    begin
+        CreateNewIncomingDocument(IncomingDocument);
+        with SalesHeader do begin
+            Init;
+            "Document Type" := "Document Type"::Invoice;
+            Insert(true);
+            "Posting Date" := WorkDate;
+            "Document Date" := DocDate;
+            "Due Date" := DueDate;
+            "Incoming Document Entry No." := IncomingDocument."Entry No.";
+            Modify;
+        end;
+    end;
+
+    local procedure MockPurchHeaderWithDateAndIncomingDocEntryNo(var PurchHeader: Record "Purchase Header"; DocDate: Date; DueDate: Date)
+    var
+        IncomingDocument: Record "Incoming Document";
+    begin
+        CreateNewIncomingDocument(IncomingDocument);
+        with PurchHeader do begin
+            Init;
+            "Document Type" := "Document Type"::Invoice;
+            Insert(true);
+            "Posting Date" := WorkDate;
+            "Document Date" := DocDate;
+            "Due Date" := DueDate;
+            "Incoming Document Entry No." := IncomingDocument."Entry No.";
+            Modify;
+        end;
+    end;
+
+    local procedure ValidatePostedIncomingDocument(var IncomingDocument: Record "Incoming Document")
+    begin
+        IncomingDocument.Get(IncomingDocument."Entry No.");
+        IncomingDocument.TestField(Posted);
+        IncomingDocument.TestField("Posted Date-Time");
+        IncomingDocument.TestField("Document No.");
+        IncomingDocument.TestField("Posting Date");
+        Assert.IsTrue(IncomingDocument.PostedDocExists(IncomingDocument."Document No.", IncomingDocument."Posting Date"), '');
+    end;
+
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure PurchInvHandler(var PurchaseInvoice: Page "Purchase Invoice")
+    begin
+    end;
+
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure PurchCrMemoHandler(var PurchaseCreditMemo: Page "Purchase Credit Memo")
+    begin
+    end;
+
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure SalesInvHandler(var SalesInvoice: Page "Sales Invoice")
+    begin
+    end;
+
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure SalesCrMemoHandler(var SalesCreditMemo: Page "Sales Credit Memo")
+    begin
+    end;
+
+    local procedure UpdateIncomingDocumentsSetup()
+    var
+        IncomingDocumentsSetup: Record "Incoming Documents Setup";
+    begin
+        IncomingDocumentsSetup.Fetch;
+        IncomingDocumentsSetup.Validate("Require Approval To Create", false);
+        IncomingDocumentsSetup.Modify(true);
+    end;
+
+    local procedure ImportAttachToIncomingDoc(var IncomingDocumentAttachment: Record "Incoming Document Attachment"; FilePath: Text)
+    var
+        ImportAttachmentIncDoc: Codeunit "Import Attachment - Inc. Doc.";
+    begin
+        IncomingDocumentAttachment.Init;
+        ImportAttachmentIncDoc.ImportAttachment(IncomingDocumentAttachment, FilePath);
+    end;
+
+    local procedure ImportAndVerifyAttachment(Extension: Text; ExpectedContentType: Option)
+    var
+        IncomingDocument: Record "Incoming Document";
+        IncomingDocumentAttachment: Record "Incoming Document Attachment";
+        FileManagement: Codeunit "File Management";
+        FileName: Text;
+    begin
+        // Init
+        FileName := CreateDummyFile(Extension);
+        CreateIncomingDocumentWithoutAttachments(IncomingDocument);
+        IncomingDocument.SetRange("Entry No.", IncomingDocument."Entry No.");
+
+        // Execute
+        IncomingDocumentAttachment.SetRange("Incoming Document Entry No.", IncomingDocument."Entry No.");
+        ImportAttachToIncomingDoc(IncomingDocumentAttachment, FileName);
+        // FileManagement.DeleteServerFile(FileName); Fails in SNAP
+
+        // Verify
+        Assert.AreEqual(1, IncomingDocumentAttachment.Count, '');
+        IncomingDocumentAttachment.FindFirst;
+        IncomingDocumentAttachment.CalcFields(Content);
+        Assert.IsTrue(IncomingDocumentAttachment.Content.HasValue, '');
+        Assert.AreEqual(ExpectedContentType, IncomingDocumentAttachment.Type, '');
+        Assert.AreEqual(LowerCase(Extension), IncomingDocumentAttachment."File Extension", '');
+        Assert.AreEqual(
+          CopyStr(FileManagement.GetFileNameWithoutExtension(FileName), 1, MaxStrLen(IncomingDocumentAttachment.Name)),
+          IncomingDocumentAttachment.Name, '');
+
+        // Clean-up + test delete
+        IncomingDocument.Find;
+        IncomingDocument.Delete(true);
+        Assert.AreEqual(0, IncomingDocumentAttachment.Count, '');
+    end;
+
+    local procedure InsertIncomingDocumentAttachment(IncomingDocument: Record "Incoming Document"): Integer
+    var
+        IncomingDocumentAttachment: Record "Incoming Document Attachment";
+        LineNo: Integer;
+    begin
+        LineNo := 10000;
+        IncomingDocumentAttachment.SetRange("Incoming Document Entry No.", IncomingDocument."Entry No.");
+        if IncomingDocumentAttachment.FindLast then
+            LineNo += IncomingDocumentAttachment."Line No.";
+
+        IncomingDocumentAttachment.Init;
+        IncomingDocumentAttachment."Incoming Document Entry No." := IncomingDocument."Entry No.";
+        IncomingDocumentAttachment."Line No." := LineNo;
+        IncomingDocumentAttachment.Name := LibraryUtility.GenerateGUID;
+        IncomingDocumentAttachment.Insert(true);
+        exit(LineNo);
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure IncomingDocumentsLookupHandler(var IncomingDocuments: TestPage "Incoming Documents")
+    begin
+        IncomingDocuments.Last;
+        IncomingDocuments.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure IncomingDocumentsLookupHandlerPrevRec(var IncomingDocuments: TestPage "Incoming Documents")
+    begin
+        IncomingDocuments.Previous;
+        IncomingDocuments.OK.Invoke;
+    end;
+
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure IncomingDocumentCardHandler(var IncomingDocumentCard: TestPage "Incoming Document")
+    begin
+        IncomingDocumentCard.OK.Invoke;
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandler(Question: Text; var Reply: Boolean)
+    begin
+        Assert.AreEqual(LibraryVariableStorage.DequeueText, Question, '');
+        Reply := LibraryVariableStorage.DequeueBoolean;
+    end;
+
+    [MessageHandler]
+    [Scope('OnPrem')]
+    procedure MessageHandler(Message: Text)
+    var
+        ActualMessageVariant: Variant;
+        ActualMessage: Text;
+    begin
+        LibraryVariableStorage.Dequeue(ActualMessageVariant);
+        ActualMessage := ActualMessageVariant;
+        Assert.IsTrue(StrPos(Message, ActualMessage) > 0, '');
+    end;
+
+    [HyperlinkHandler]
+    [Scope('OnPrem')]
+    procedure HyperlinkHandler(MessageTxt: Text)
+    begin
+    end;
+
+    local procedure CreateIncomingDocument(var IncomingDocument: Record "Incoming Document"; Description: Text[50]; ProcessedState: Boolean)
+    begin
+        CreateNewIncomingDocument(IncomingDocument);
+        IncomingDocument.Description := Description;
+        IncomingDocument.Processed := ProcessedState;
+        IncomingDocument.Modify;
+    end;
+}
+
