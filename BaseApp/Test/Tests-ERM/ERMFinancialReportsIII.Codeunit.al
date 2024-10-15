@@ -1001,6 +1001,7 @@ codeunit 134987 "ERM Financial Reports III"
               Customer."No.", PaymentAmount, "Bank Payment Type"::"Computer Check");
             Validate("Applies-to ID", UserId);
             Modify(true);
+
             // [GIVEN] MaxEntries number of Purchases Gen. Jnl Lines posted
             CreateAndPostGenJournalLines(
               GenJournalTemplate.Type::Purchases, PAGE::"Purchase Journal",
@@ -1858,6 +1859,7 @@ codeunit 134987 "ERM Financial Reports III"
         SuggestVendorPayments.BankPaymentType.SetValue(BankPmtType::"Computer Check");
         SuggestVendorPayments.LastPaymentDate.SetValue(WorkDate);
         SuggestVendorPayments.StartingDocumentNo.SetValue(LibraryRandom.RandInt(10));
+        SuggestVendorPayments.AlwaysInclCreditMemo.SetValue(true);
         SuggestVendorPayments.OK.Invoke;
     end;
 

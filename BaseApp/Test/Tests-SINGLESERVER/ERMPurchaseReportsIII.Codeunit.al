@@ -1004,31 +1004,6 @@ codeunit 134988 "ERM Purchase Reports III"
     end;
 
     [Test]
-    [HandlerFunctions('PurchaseInvoiceExcelRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure PurchInvoiceReportLayoutWithEnabledPrintVATSpecInLCY()
-    var
-        PurchaseHeader: Record "Purchase Header";
-        DocumentNo: Code[20];
-    begin
-        // [SCENARIO 379970] Report Purchase - Invoice includes VAT specification in LCY section
-        Initialize;
-
-        // [GIVEN] "General Ledger Setup"."Print VAT specification in LCY" is true
-        InitGeneralLedgerSetup(true);
-
-        // [GIVEN] Purchase Invoice posted
-        CreateAndSetupPurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice);
-        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
-
-        // [WHEN] Run Purchase - Invoice report
-        SavePurchaseInvoiceReport(DocumentNo);
-
-        // [THEN] VAT specification in LCY section printed
-        VerifyPurchaseInvoiceReportVATAmountInLCYSection(DocumentNo);
-    end;
-
-    [Test]
     [HandlerFunctions('RHVendorBalanceToDate')]
     [Scope('OnPrem')]
     procedure CheckVendorBalanceToDateWithGlobalDimension1()

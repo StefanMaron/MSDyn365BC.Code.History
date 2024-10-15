@@ -6,17 +6,19 @@ codeunit 7036 "Price Source - Job" implements "Price Source"
 
     procedure GetNo(var PriceSource: Record "Price Source")
     begin
-        if Job.GetBySystemId(PriceSource."Source ID") then
-            PriceSource."Source No." := Job."No."
-        else
+        if Job.GetBySystemId(PriceSource."Source ID") then begin
+            PriceSource."Source No." := Job."No.";
+            FillAdditionalFields(PriceSource);
+        end else
             PriceSource.InitSource();
     end;
 
     procedure GetId(var PriceSource: Record "Price Source")
     begin
-        if Job.Get(PriceSource."Source No.") then
-            PriceSource."Source ID" := Job.SystemId
-        else
+        if Job.Get(PriceSource."Source No.") then begin
+            PriceSource."Source ID" := Job.SystemId;
+            FillAdditionalFields(PriceSource);
+        end else
             PriceSource.InitSource();
     end;
 
@@ -48,5 +50,10 @@ codeunit 7036 "Price Source - Job" implements "Price Source"
     procedure GetGroupNo(PriceSource: Record "Price Source"): Code[20];
     begin
         exit(PriceSource."Source No.");
+    end;
+
+    local procedure FillAdditionalFields(var PriceSource: Record "Price Source")
+    begin
+        PriceSource."Currency Code" := Job."Currency Code";
     end;
 }

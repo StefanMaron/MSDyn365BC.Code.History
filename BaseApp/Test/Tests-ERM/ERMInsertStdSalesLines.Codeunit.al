@@ -269,7 +269,7 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
         CustomerNo: Code[20];
     begin
         // [FEATURE] [Automatic mode] [Quote]
-        // [SCENARIO] Standard codes notification created on quote validate Sell-to Customer No. when Insert Rec. Lines On Quotes = Automatic
+        // [SCENARIO] Recurring sales line created on quote validate Sell-to Customer No. when Insert Rec. Lines On Quotes = Automatic
         Initialize;
 
         // [GIVEN] Customer CUST with standard sales code where Insert Rec. Lines On Quotes = Automatic
@@ -361,7 +361,7 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
         CustomerNo: Code[20];
     begin
         // [FEATURE] [Automatic mode] [Invoice]
-        // [SCENARIO] Standard codes notification created on invoice validate Sell-to Customer No. when Insert Rec. Lines On Invoices = Automatic
+        // [SCENARIO] Recurring sales line created on invoice validate Sell-to Customer No. when Insert Rec. Lines On Invoices = Automatic
         Initialize;
 
         // [GIVEN] Customer CUST with standard sales code where Insert Rec. Lines On Invoices = Automatic
@@ -453,7 +453,7 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
         CustomerNo: Code[20];
     begin
         // [FEATURE] [Automatic mode] [Credit memo]
-        // [SCENARIO] There is no sales standard codes notification on cr memo validate Sell-to Customer No. when Insert Rec. Lines On Cr. Memos = Automatic
+        // [SCENARIO] Recurring sales line created on cr memo validate Sell-to Customer No. when Insert Rec. Lines On Cr. Memos = Automatic
         Initialize;
 
         // [GIVEN] Customer CUST with standard sales code where Insert Rec. Lines On Cr. Memos = Automatic
@@ -519,11 +519,12 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
     procedure AutoInsertStdCustSalesLinesWhenCreateNewSalesOrderFromCustomerList()
     var
         Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
         CustomerList: TestPage "Customer List";
         SalesOrder: TestPage "Sales Order";
     begin
         // [FEATURE] [UI] [Automatic mode] [Order]
-        // [SCENARIO 209394] Standard sales code notification created when new Sales Order is created from Customer List
+        // [SCENARIO 209394] Recurring sales line created when new Sales Order is created from Customer List
         Initialize;
 
         // [GIVEN] Customer "C" with Std. Sales Code where Insert Rec. Lines On Orders = Automatic
@@ -540,9 +541,9 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
         // [WHEN] Activate "Sell-to Customer No." field
         SalesOrder."Sell-to Customer No.".Activate;
 
-        // [THEN] Standard sales code notification created
-        // Verify only notification ID due to test limitations
-        VerifySalesStdCodesNotificationId;
+        // [THEN] Recurring sales line created
+        SalesHeader.get(SalesHeader."Document Type"::Order, SalesOrder."No.".Value);
+        VerifySalesLine(SalesHeader);
     end;
 
     [Test]
@@ -550,6 +551,7 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
     procedure AutoInsertStdCustSalesLinesWhenCreateNewSalesInvoiceFromCustomerList()
     var
         Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
         CustomerList: TestPage "Customer List";
         SalesInvoice: TestPage "Sales Invoice";
     begin
@@ -571,9 +573,9 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
         // [WHEN] Activate "Sell-to Customer No." field
         SalesInvoice."Sell-to Customer No.".Activate;
 
-        // [THEN] Standard sales code notification created
-        // Verify only notification ID due to test limitations
-        VerifySalesStdCodesNotificationId;
+        // [THEN] Recurring sales line created
+        SalesHeader.get(SalesHeader."Document Type"::Invoice, SalesInvoice."No.".Value);
+        VerifySalesLine(SalesHeader);
     end;
 
     [Test]
@@ -581,6 +583,7 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
     procedure AutoInsertStdCustSalesLinesWhenCreateNewSalesQuoteFromCustomerList()
     var
         Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
         CustomerList: TestPage "Customer List";
         SalesQuote: TestPage "Sales Quote";
     begin
@@ -602,9 +605,9 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
         // [WHEN] Activate "Sell-to Customer No." field
         SalesQuote."Sell-to Customer No.".Activate;
 
-        // [THEN] Standard sales code notification created
-        // Verify only notification ID due to test limitations
-        VerifySalesStdCodesNotificationId;
+        // [THEN] Recurring sales line created
+        SalesHeader.get(SalesHeader."Document Type"::Quote, SalesQuote."No.".Value);
+        VerifySalesLine(SalesHeader);
     end;
 
     [Test]
@@ -612,6 +615,7 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
     procedure AutoInsertStdCustSalesLinesWhenCreateNewSalesCrMemoFromCustomerList()
     var
         Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
         CustomerList: TestPage "Customer List";
         SalesCreditMemo: TestPage "Sales Credit Memo";
     begin
@@ -633,9 +637,9 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
         // [WHEN] Activate "Sell-to Customer No." field
         SalesCreditMemo."Sell-to Customer No.".Activate;
 
-        // [THEN] Standard sales code notification created
-        // Verify only notification ID due to test limitations
-        VerifySalesStdCodesNotificationId;
+        // [THEN] Recurring sales line created
+        SalesHeader.get(SalesHeader."Document Type"::"Credit Memo", SalesCreditMemo."No.".Value);
+        VerifySalesLine(SalesHeader);
     end;
 
     [Test]
@@ -774,6 +778,35 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
         LibraryNotificationMgt.RecallNotificationsForRecord(SalesHeader);
     end;
 
+    [Test]
+    [HandlerFunctions('CustomerLookupModalHandler')]
+    [Scope('OnPrem')]
+    procedure SellToCustomerNameLookupSalesOrder()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesOrder: TestPage "Sales Order";
+        CustomerNo: Code[20];
+    begin
+        // [FEATURE] [Order] [UT]
+        // [SCENARIO 348101] Recurring sales line created on order lookup Sell-to Customer Name when Insert Rec. Lines On Orders = Automatic
+        Initialize();
+
+        // [GIVEN] Local currency customer "CUST" with standard sales code "AA" where Insert Rec. Lines On Orders = Automatic
+        CustomerNo := GetNewCustNoWithStandardSalesCode(RefDocType::Order, RefMode::Automatic);
+
+        // [GIVEN] Create new sales order
+        CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order);
+        SalesOrder.OpenEdit();
+        SalesOrder.Filter.setfilter("No.", SalesHeader."No.");
+
+        // [WHEN] Customer "CUST" is being selected from lookup of "Sell-to Customer Name"
+        LibraryVariableStorage.Enqueue(CustomerNo);
+        SalesOrder."Sell-to Customer Name".Lookup();
+
+        // [THEN] Recurring sales line created
+        VerifySalesLine(SalesHeader);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -843,7 +876,7 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
         exit(StandardSalesLine."Standard Sales Code")
     end;
 
-    local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Option)
+    local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type")
     begin
         SalesHeader."Document Type" := DocumentType;
         SalesHeader."No." := LibraryUTUtility.GetNewCode;
@@ -1067,6 +1100,14 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
         SalesHeader."No." := Notification.GetData(SalesHeader.FieldName("No."));
         LibraryVariableStorage.Enqueue(SalesHeader."Document Type");
         LibraryVariableStorage.Enqueue(SalesHeader."No.");
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure CustomerLookupModalHandler(var CustomerLookupPage: TestPage "Customer Lookup")
+    begin
+        CustomerLookupPage.Filter.SetFilter("No.", LibraryVariableStorage.PeekText(2));
+        CustomerLookupPage.OK.Invoke;
     end;
 }
 

@@ -86,5 +86,22 @@ page 9174 "All Objects with Caption"
     begin
         VisibleObjType := Visible;
     end;
+
+    procedure OnLookupObjectId(ObjectType: option; var ObjectIDText: Text): Boolean
+    var
+        AllObjWithCaption: Record AllObjWithCaption;
+        ObjectID: Integer;
+    begin
+        AllObjWithCaption.SetRange("Object Type", ObjectType);
+        AllObjWithCaption."Object Type" := ObjectType;
+        if Evaluate(ObjectID, ObjectIDText) then
+            AllObjWithCaption."Object ID" := ObjectID;
+
+        if Page.RunModal(Page::"All Objects with Caption", AllObjWithCaption) <> ACTION::LookupOK then
+            exit(false);
+
+        ObjectIDText := Format(AllObjWithCaption."Object ID");
+        exit(true);
+    end;
 }
 

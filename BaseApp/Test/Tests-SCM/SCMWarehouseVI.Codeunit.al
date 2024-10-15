@@ -2438,6 +2438,79 @@ codeunit 137408 "SCM Warehouse VI"
         LibraryVariableStorage.AssertEmpty;
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure FillOverReceiptCodeWhseRcptValidateOverReceiptQuantity()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Location: Record Location;
+        WarehouseEmployee: Record "Warehouse Employee";
+        WarehouseReceiptLine: Record "Warehouse Receipt Line";
+        OverReceiptCode: Record "Over-Receipt Code";
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
+    begin
+        // [FEATURE] [Over-Receipt]
+        // [SCENARIO] "Over-Receip Code" is filled in with default value when validate "Over-Receipt Quantity"
+        Initialize();
+
+        // [GIVEN] Warehouse receipt       
+        LibraryWarehouse.CreateLocationWMS(Location, false, false, false, true, false);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
+        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, Location.Code, '', 100);
+        LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
+        LibraryWarehouse.CreateWhseReceiptFromPO(PurchaseHeader);
+        FindWarehouseReceiptLine(WarehouseReceiptLine, PurchaseHeader."No.");
+
+        // [WHEN] Enter "Over-Receipt Quantity"
+        WarehouseReceiptLine.Validate("Over-Receipt Quantity", 5);
+
+        // [THEN] "Over-Receip Code" is filled with default over-receipt code
+        OverReceiptCode.SetRange(Default, true);
+        OverReceiptCode.FindFirst();
+        Assert.IsTrue(WarehouseReceiptLine."Over-Receipt Code" = OverReceiptCode.Code, 'Wrong over-receipt code');
+        NotificationLifecycleMgt.RecallAllNotifications();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure FillOverReceiptCodeWhseRcptValidateQtyToReceive()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Location: Record Location;
+        WarehouseEmployee: Record "Warehouse Employee";
+        WarehouseReceiptHeader: Record "Warehouse Receipt Header";
+        WarehouseReceiptLine: Record "Warehouse Receipt Line";
+        OverReceiptCode: Record "Over-Receipt Code";
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
+        WarehouseReceipt: TestPage "Warehouse Receipt";
+    begin
+        // [FEATURE] [Over-Receipt] [UI]
+        // [SCENARIO] "Over-Receip Code" is filled in with default value when validate "Qty. To Receive"
+        Initialize();
+
+        // [GIVEN] Warehouse receipt       
+        LibraryWarehouse.CreateLocationWMS(Location, false, false, false, true, false);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
+        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, Location.Code, '', 100);
+        LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
+        LibraryWarehouse.CreateWhseReceiptFromPO(PurchaseHeader);
+        FindWarehouseReceiptLine(WarehouseReceiptLine, PurchaseHeader."No.");
+        WarehouseReceiptHeader.Get(WarehouseReceiptLine."No.");
+
+        // [WHEN] Enter "Qty. To Receive"
+        WarehouseReceipt.OpenView();
+        WarehouseReceipt.GoToRecord(WarehouseReceiptHeader);
+        WarehouseReceipt.WhseReceiptLines."Qty. to Receive".SetValue(106);
+
+        // [THEN] "Over-Receip Code" is filled with default over-receipt code
+        OverReceiptCode.SetRange(Default, true);
+        OverReceiptCode.FindFirst();
+        Assert.IsTrue(WarehouseReceipt.WhseReceiptLines."Over-Receipt Code".Value = OverReceiptCode.Code, 'Wrong over-receipt code');
+        NotificationLifecycleMgt.RecallAllNotifications();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -4514,14 +4587,20 @@ codeunit 137408 "SCM Warehouse VI"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure MakeSupplyOrdersPageHandler(var MakeSupplyOrders: Page "Make Supply Orders"; var Response: Action)
+    procedure MakeSupplyOrdersPageHandler(var MakeSupplyOrders: Page "Make Supply Orders";
+
+    var
+        Response: Action)
     begin
         Response := ACTION::LookupOK;
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure ItemAvailabilityByLocationHandler(var ItemAvailabilityByLocation: Page "Item Availability by Location"; var Response: Action)
+    procedure ItemAvailabilityByLocationHandler(var ItemAvailabilityByLocation: Page "Item Availability by Location";
+
+    var
+        Response: Action)
     begin
     end;
 

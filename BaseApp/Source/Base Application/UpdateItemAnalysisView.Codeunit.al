@@ -268,6 +268,7 @@ codeunit 7150 "Update Item Analysis View"
 
             AddValue(TempItemAnalysisViewEntry."Sales Amount (Expected)", ItemAnalysisViewSource.SalesAmountExpected);
             AddValue(TempItemAnalysisViewEntry."Cost Amount (Expected)", ItemAnalysisViewSource.CostAmountExpected);
+            OnUpdateAnalysisViewEntryOnBeforeModifyTempItemAnalysisViewEntry(TempItemAnalysisViewEntry, ItemAnalysisViewSource, ValueEntry);
             TempItemAnalysisViewEntry.Modify();
         end else begin
             if (ItemAnalysisViewSource.EntryType = ItemAnalysisViewSource.EntryType::"Direct Cost") and
@@ -282,6 +283,7 @@ codeunit 7150 "Update Item Analysis View"
 
             TempItemAnalysisViewEntry."Sales Amount (Expected)" := ItemAnalysisViewSource.SalesAmountExpected;
             TempItemAnalysisViewEntry."Cost Amount (Expected)" := ItemAnalysisViewSource.CostAmountExpected;
+            OnUpdateAnalysisViewEntryOnBeforeInsertTempItemAnalysisViewEntry(TempItemAnalysisViewEntry, ItemAnalysisViewSource, ValueEntry);
             TempItemAnalysisViewEntry.Insert();
             NoOfEntries := NoOfEntries + 1;
         end;
@@ -391,7 +393,7 @@ codeunit 7150 "Update Item Analysis View"
 
                         AddValue(ItemAnalysisViewEntry."Sales Amount (Expected)", TempItemAnalysisViewEntry."Sales Amount (Expected)");
                         AddValue(ItemAnalysisViewEntry."Cost Amount (Expected)", TempItemAnalysisViewEntry."Cost Amount (Expected)");
-
+                        OnFlushAnalysisViewEntryOnBeforeModifyItemAnalysisViewEntry(ItemAnalysisViewEntry, TempItemAnalysisViewEntry);
                         ItemAnalysisViewEntry.Modify();
                     end;
             until TempItemAnalysisViewEntry.Next = 0;
@@ -565,7 +567,22 @@ codeunit 7150 "Update Item Analysis View"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnUpdateAnalysisViewEntryOnBeforeInsertTempItemAnalysisViewEntry(var TempItemAnalysisViewEntry: Record "Item Analysis View Entry" temporary; var ItemAnalysisViewSource: Query "Item Analysis View Source"; var ValueEntry: Record "Value Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateAnalysisViewEntryOnBeforeModifyTempItemAnalysisViewEntry(var TempItemAnalysisViewEntry: Record "Item Analysis View Entry" temporary; var ItemAnalysisViewSource: Query "Item Analysis View Source"; var ValueEntry: Record "Value Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateAll(var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFlushAnalysisViewEntryOnBeforeModifyItemAnalysisViewEntry(var ItemAnalysisViewEntry: Record "Item Analysis View Entry"; var TempItemAnalysisViewEntry: Record "Item Analysis View Entry" temporary)
     begin
     end;
 

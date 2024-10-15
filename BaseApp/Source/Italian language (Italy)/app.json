@@ -2,13 +2,13 @@
     "id":  "51ba3799-d76c-4cf0-afd3-e2c2f6c0576b",
     "name":  "Italian language (Italy)",
     "publisher":  "Microsoft",
-    "version":  "16.0.11240.12085",
+    "version":  "16.1.12629.12805",
     "dependencies":  [
                          {
                              "id":  "437dbf0e-84ff-417a-965d-ed2bb9650972",
                              "name":  "Base Application",
                              "publisher":  "Microsoft",
-                             "version":  "16.0.0.0"
+                             "version":  "16.1.0.0"
                          }
                      ],
     "target":  "Cloud",

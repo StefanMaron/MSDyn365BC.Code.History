@@ -2,13 +2,13 @@
     "id":  "e2d4cb5e-9120-4a92-824d-2e1e5dc1a699",
     "name":  "German language (Germany)",
     "publisher":  "Microsoft",
-    "version":  "16.0.11240.12085",
+    "version":  "16.1.12629.12805",
     "dependencies":  [
                          {
                              "id":  "437dbf0e-84ff-417a-965d-ed2bb9650972",
                              "name":  "Base Application",
                              "publisher":  "Microsoft",
-                             "version":  "16.0.0.0"
+                             "version":  "16.1.0.0"
                          }
                      ],
     "target":  "Cloud",

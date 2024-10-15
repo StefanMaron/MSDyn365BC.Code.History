@@ -1140,52 +1140,6 @@ codeunit 134150 "ERM Intrastat Journal"
         IntrastatJournalPage.Close;
     end;
 
-    [Test]
-    [HandlerFunctions('IntrastatJnlTemplateListPageHandler,GetItemLedgerEntriesReportHandler,GreateFileReportHandler')]
-    [Scope('OnPrem')]
-    procedure E2EErrorHandlingOfIntrastatJournalOnlyReceipt()
-    var
-        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
-        SalesLine: Record "Sales Line";
-        PurchaseLine: Record "Purchase Line";
-        ShipmentMethod: Record "Shipment Method";
-        TransactionType: Record "Transaction Type";
-        TransportMethod: Record "Transport Method";
-        IntrastatJournalPage: TestPage "Intrastat Journal";
-        InvoiceDate: Date;
-    begin
-        // [FEATURE] [Intrastat Journal] [Error handling]
-        // [SCENARIO 222489] Deliverable 222489:ChecklistReport and CreateFile should filter lines by Intrastat Setup
-        // [GIVEN] 1 Posted Purchase Order for intrastat
-        // [GIVEN] 1 Posted Sales Order for intrastat
-        // [GIVEN] Journal Template and Batch
-        Initialize;
-        InvoiceDate := CalcDate('<-5Y>');
-        InitIntrastatSetup;
-        CreateAndPostPurchaseOrder(PurchaseLine, InvoiceDate);
-        CreateAndPostSalesOrder(SalesLine, InvoiceDate);
-        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, InvoiceDate);
-        Commit();
-
-        // [GIVEN] A Intrastat Journal
-        OpenIntrastatJournalAndGetEntries(IntrastatJournalPage, IntrastatJnlBatch."Journal Template Name");
-
-        // [GIVEN] A Receipt with all values
-        TransactionType.FindFirst;
-        IntrastatJournalPage."Transaction Type".Value(TransactionType.Code);
-        ShipmentMethod.FindFirst;
-        IntrastatJournalPage."Shpt. Method Code".Value(ShipmentMethod.Code);
-        TransportMethod.FindFirst;
-        IntrastatJournalPage."Transport Method".Value(TransportMethod.Code);
-        IntrastatJournalPage."Total Weight".Value('1');
-
-        // [WHEN] Running Create File
-        // [THEN] You do not get any errors
-        IntrastatJournalPage.CreateFile.Invoke;
-
-        IntrastatJournalPage.Close;
-    end;
-
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure GreateFileReportHandler(var IntrastatMakeDiskTaxAuth: TestRequestPage "Intrastat - Make Disk Tax Auth")

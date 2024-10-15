@@ -149,7 +149,6 @@ codeunit 99000809 "Planning Line Management"
                           ProdBOMLine[Level].Quantity *
                           (1 + ProdBOMLine[Level]."Scrap %" / 100) *
                           (1 + PlanningRtngLine2."Scrap Factor % (Accumulated)") *
-                          (1 + ReqLine."Scrap %" / 100) *
                           LineQtyPerUOM /
                           ItemQtyPerUOM +
                           PlanningRtngLine2."Fixed Scrap Qty. (Accum.)";
@@ -157,7 +156,6 @@ codeunit 99000809 "Planning Line Management"
                         ReqQty :=
                           ProdBOMLine[Level].Quantity *
                           (1 + ProdBOMLine[Level]."Scrap %" / 100) *
-                          (1 + ReqLine."Scrap %" / 100) *
                           LineQtyPerUOM /
                           ItemQtyPerUOM;
                     case ProdBOMLine[Level].Type of
@@ -730,6 +728,7 @@ codeunit 99000809 "Planning Line Management"
                 ReqLine3.Validate("Ending Time", PlanningComp."Due Time");
                 ReqLine3."Due Date" := PlanningComp."Due Date";
                 ReqLine3."Demand Date" := PlanningComp."Due Date";
+                OnCheckMultiLevelStructureOnBeforeValidateQuantity(ReqLine3, PlanningComp);
                 ReqLine3.Validate(Quantity, PlanningComp."Expected Quantity");
                 ReqLine3.Validate("Needed Quantity", PlanningComp."Expected Quantity");
                 ReqLine3.Validate("Demand Quantity", PlanningComp."Expected Quantity");
@@ -1026,6 +1025,11 @@ codeunit 99000809 "Planning Line Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnTransferAsmBOMOnBeforeGetDefaultBin(var PlanningComponent: Record "Planning Component"; var AsmBOMComponent: Record "BOM Component"; ReqLine: Record "Requisition Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckMultiLevelStructureOnBeforeValidateQuantity(var RequisitionLine: Record "Requisition Line"; var PlanningComponent: Record "Planning Component");
     begin
     end;
 }

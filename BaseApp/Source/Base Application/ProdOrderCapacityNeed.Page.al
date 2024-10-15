@@ -34,6 +34,7 @@ page 99000820 "Prod. Order Capacity Need"
                     ApplicationArea = Manufacturing;
                     Caption = 'Starting Time';
                     ToolTip = 'Specifies the starting time of the capacity need.';
+                    Visible = DateAndTimeFieldVisible;
 
                     trigger OnValidate()
                     begin
@@ -45,7 +46,6 @@ page 99000820 "Prod. Order Capacity Need"
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the date and the starting time, which are combined in a format called "starting date-time".';
-                    Visible = false;
 
                     trigger OnValidate()
                     begin
@@ -57,6 +57,7 @@ page 99000820 "Prod. Order Capacity Need"
                     ApplicationArea = Manufacturing;
                     Caption = 'Ending Time';
                     ToolTip = 'Specifies the ending time of the capacity need.';
+                    Visible = DateAndTimeFieldVisible;
 
                     trigger OnValidate()
                     begin
@@ -68,7 +69,6 @@ page 99000820 "Prod. Order Capacity Need"
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the date and the ending time, which are combined in a format called "ending date-time".';
-                    Visible = false;
 
                     trigger OnValidate()
                     begin
@@ -128,9 +128,20 @@ page 99000820 "Prod. Order Capacity Need"
         GetStartingEndingDateAndTime(StartingTime, EndingTime, CurrDate);
     end;
 
+    trigger OnInit()
+    begin
+        DateAndTimeFieldVisible := false;
+    end;
+
+    trigger OnOpenPage()
+    begin
+        DateAndTimeFieldVisible := false;
+    end;
+
     var
         StartingTime: Time;
         EndingTime: Time;
         CurrDate: Date;
+        DateAndTimeFieldVisible: Boolean;
 }
 

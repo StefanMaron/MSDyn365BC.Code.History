@@ -216,6 +216,7 @@ report 7391 "Whse. Get Bin Content"
             "Whse. Document Type" := "Whse. Document Type"::"Whse. Mov.-Worksheet";
             "Whse. Document No." := Name;
             "Whse. Document Line No." := "Line No.";
+            OnBeforeInsertWWLine(WWLine, "Bin Content");
             Insert;
         end;
     end;
@@ -237,6 +238,7 @@ report 7391 "Whse. Get Bin Content"
                 "Qty. (Base)" := QtyToEmptyBase;
                 "Qty. Outstanding (Base)" := QtyToEmptyBase;
             end;
+            OnBeforeInsertWIPLine(WIPLine, "Bin Content");
             Insert;
         end;
     end;
@@ -281,6 +283,7 @@ report 7391 "Whse. Get Bin Content"
             Validate("Transfer-from Bin Code", "Bin Content"."Bin Code");
             Validate("Unit of Measure Code", "Bin Content"."Unit of Measure Code");
             Validate(Quantity, CalcQtyUOM(QtyToEmptyBase, "Qty. per Unit of Measure"));
+            OnBeforeInsertTransferLine(TransferLine, "Bin Content");
             Insert;
         end;
     end;
@@ -298,6 +301,7 @@ report 7391 "Whse. Get Bin Content"
             Validate("To Bin Code", InternalMovementHeader."To Bin Code");
             Validate("Unit of Measure Code", "Bin Content"."Unit of Measure Code");
             Validate(Quantity, CalcQtyUOM(QtyToEmptyBase, "Qty. per Unit of Measure"));
+            OnBeforeInsertInternalMovementLine(InternalMovementLine, "Bin Content");
             Insert;
         end;
     end;
@@ -437,6 +441,26 @@ report 7391 "Whse. Get Bin Content"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInsertTempTrackingSpec(var TempTrackingSpecification: Record "Tracking Specification" temporary; WarehouseEntry: Record "Warehouse Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertInternalMovementLine(var InternalMovementLine: Record "Internal Movement Line"; BinContent: Record "Bin Content")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertTransferLine(var TransferLine: Record "Transfer Line"; BinContent: Record "Bin Content")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertWIPLine(var WhseInternalPutAwayLine: Record "Whse. Internal Put-away Line"; BinContent: Record "Bin Content")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertWWLine(var WhseWorksheetLine: Record "Whse. Worksheet Line"; BinContent: Record "Bin Content")
     begin
     end;
 }

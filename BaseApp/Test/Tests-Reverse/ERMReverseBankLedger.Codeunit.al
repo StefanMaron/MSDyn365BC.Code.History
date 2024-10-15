@@ -545,7 +545,7 @@ codeunit 134134 "ERM Reverse Bank Ledger"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler,VoidCheckPageHandler')]
+    [HandlerFunctions('MessageHandler,VoidCheckPageHandler,SuggestVendorPayments_RPH')]
     [Scope('OnPrem')]
     procedure TwoVoidedVLEAfterVoidCheckOfTwoPmt()
     var
@@ -595,7 +595,7 @@ codeunit 134134 "ERM Reverse Bank Ledger"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
+    [HandlerFunctions('MessageHandler,SuggestVendorPayments_RPH')]
     [Scope('OnPrem')]
     procedure PrintLCYCheckAppliedToFCYInvoice()
     var
@@ -704,7 +704,7 @@ codeunit 134134 "ERM Reverse Bank Ledger"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
+    [HandlerFunctions('MessageHandler,SuggestVendorPayments_RPH')]
     [Scope('OnPrem')]
     procedure RemoveRecordIDToPrintFromCgeckLedgerEntryAfterPostPayment()
     var
@@ -1184,10 +1184,10 @@ codeunit 134134 "ERM Reverse Bank Ledger"
         Vendor.SetRange("No.", VendorNo);
         SuggestVendorPayments.SetTableView(Vendor);
         SuggestVendorPayments.SetGenJnlLine(GenJournalLine);
-        SuggestVendorPayments.InitializeRequest(
-          CalcDate('<2M>', WorkDate), false, 0, false, CalcDate('<2M>', WorkDate), LibraryUtility.GenerateGUID, false,
-          GenJournalLine."Bal. Account Type"::"Bank Account", BankAccountNo, GenJournalLine."Bank Payment Type"::"Computer Check");
-        SuggestVendorPayments.UseRequestPage(false);
+        LibraryVariableStorage.Enqueue(LibraryUtility.GenerateGUID);
+        LibraryVariableStorage.Enqueue(BankAccountNo);
+        Commit();
+        SuggestVendorPayments.UseRequestPage(true);
         SuggestVendorPayments.RunModal;
     end;
 
@@ -1306,6 +1306,22 @@ codeunit 134134 "ERM Reverse Bank Ledger"
         LibraryVariableStorage.Enqueue(SuggestBankAccReconLines.ExcludeReversedEntries.Visible);
         LibraryVariableStorage.Enqueue(SuggestBankAccReconLines.ExcludeReversedEntries.Enabled);
         SuggestBankAccReconLines.Cancel.Invoke;
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure SuggestVendorPayments_RPH(var SuggestVendorPayments: TestRequestPage "Suggest Vendor Payments")
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        SuggestVendorPayments.LastPaymentDate.SetValue(CalcDate('<2M>', WorkDate));
+        SuggestVendorPayments.PostingDate.SetValue(CalcDate('<2M>', WorkDate));
+        SuggestVendorPayments.StartingDocumentNo.SetValue(LibraryVariableStorage.DequeueText);
+        SuggestVendorPayments.BalAccountType.SetValue(GenJournalLine."Bal. Account Type"::"Bank Account");
+        SuggestVendorPayments.BalAccountNo.SetValue(LibraryVariableStorage.DequeueText);
+        SuggestVendorPayments.BankPaymentType.SetValue(GenJournalLine."Bank Payment Type"::"Computer Check");
+        SuggestVendorPayments.AlwaysInclCreditMemo.SetValue(true);
+        SuggestVendorPayments.OK.Invoke;
     end;
 
     [EventSubscriber(ObjectType::Report, 1496, 'OnPreDataItemBankAccount', '', false, false)]

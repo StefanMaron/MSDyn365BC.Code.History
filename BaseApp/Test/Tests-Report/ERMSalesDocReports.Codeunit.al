@@ -548,7 +548,7 @@ codeunit 134390 "ERM Sales Doc. Reports"
 
         // [THEN] Caption of Sell-to Customer No. = "Sell-to Customer No."
         LibraryReportValidation.OpenExcelFile;
-        LibraryReportValidation.VerifyCellValueOnWorksheet(79, 1, SalesHeader.FieldCaption("Sell-to Customer No."), '1');
+        LibraryReportValidation.VerifyCellValueOnWorksheet(85, 1, SalesHeader.FieldCaption("Sell-to Customer No."), '1');
     end;
 
     local procedure VerifySalesReturnOrderConfirmationWithVATAmountLine(LineCount: Integer)

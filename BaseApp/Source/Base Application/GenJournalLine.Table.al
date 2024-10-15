@@ -159,7 +159,7 @@ table 81 "Gen. Journal Line"
             begin
                 TestField("Posting Date");
                 Validate("Document Date", "Posting Date");
-                Validate("Currency Code");
+                ValidateCurrencyCode();
 
                 if ("Posting Date" <> xRec."Posting Date") and (Amount <> 0) then
                     PaymentToleranceMgt.PmtTolGenJnl(Rec);
@@ -1449,6 +1449,7 @@ table 81 "Gen. Journal Line"
                             Amount := -"Bal. VAT Base Amount" - "Bal. VAT Amount";
                         end;
                 end;
+                OnValidateBalVATBaseAmountOnBeforeValidateAmount(Rec, Currency);
                 Validate(Amount);
             end;
         }
@@ -3217,7 +3218,13 @@ table 81 "Gen. Journal Line"
     var
         SourceExists1: Boolean;
         SourceExists2: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateSource(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         SourceExists1 := ("Account Type" <> "Account Type"::"G/L Account") and ("Account No." <> '');
         SourceExists2 := ("Bal. Account Type" <> "Bal. Account Type"::"G/L Account") and ("Bal. Account No." <> '');
         case true of
@@ -4002,8 +4009,15 @@ table 81 "Gen. Journal Line"
         OnAfterUpdateCountryCodeAndVATRegNo(Rec, xRec);
     end;
 
-    procedure JobTaskIsSet(): Boolean
+    procedure JobTaskIsSet() Result: Boolean
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeJobTaskIsSet(Rec, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         exit(("Job No." <> '') and ("Job Task No." <> '') and ("Account Type" = "Account Type"::"G/L Account"));
     end;
 
@@ -4248,6 +4262,18 @@ table 81 "Gen. Journal Line"
         then
             Error(UpdateInterruptedErr);
         Validate("Currency Code", NewCurrencyCode);
+    end;
+
+    local procedure ValidateCurrencyCode()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeValidateCurrencyCode(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        Validate("Currency Code");
     end;
 
     local procedure SetAppliesToFields(DocType: Option; DocNo: Code[20]; ExtDocNo: Code[35])
@@ -5549,10 +5575,16 @@ table 81 "Gen. Journal Line"
     end;
 
     [Scope('OnPrem')]
-    procedure ShowDeferrals(PostingDate: Date; CurrencyCode: Code[10]): Boolean
+    procedure ShowDeferrals(PostingDate: Date; CurrencyCode: Code[10]) ReturnValue: Boolean
     var
         DeferralUtilities: Codeunit "Deferral Utilities";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeShowDeferrals(Rec, ReturnValue, IsHandled);
+        if IsHandled then
+            exit(ReturnValue);
+
         exit(
           DeferralUtilities.OpenLineScheduleEdit(
             "Deferral Code", GetDeferralDocType, "Journal Template Name", "Journal Batch Name", 0, '', "Line No.",
@@ -6596,6 +6628,11 @@ table 81 "Gen. Journal Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeJobTaskIsSet(GenJournalLine: Record "Gen. Journal Line"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeLookUpAppliesToDocCust(GenJournalLine: Record "Gen. Journal Line"; AccNo: Code[20]; var IsHandled: Boolean)
     begin
     end;
@@ -6647,6 +6684,11 @@ table 81 "Gen. Journal Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateBalGenProdPostingGroup(var GenJournalLine: Record "Gen. Journal Line"; var CheckIfFieldIsEmpty: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateCurrencyCode(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -6757,6 +6799,11 @@ table 81 "Gen. Journal Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnValidatePaymentTermsCodeOnBeforeCalculatePmtDiscountDate(var GenJournalLine: Record "Gen. Journal Line"; PaymentTerms: Record "Payment Terms"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateBalVATBaseAmountOnBeforeValidateAmount(var GenJournalLine: Record "Gen. Journal Line"; Currency: Record Currency)
     begin
     end;
 
@@ -7055,6 +7102,16 @@ table 81 "Gen. Journal Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetDeferralAmount(var GenJournalLine: Record "Gen. Journal Line"; DeferralAmount: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateSource(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean);
+    begin
+    end;
+	
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowDeferrals(GenJournalLine: Record "Gen. Journal Line"; var ReturnValue: Boolean; var IsHandled: Boolean);
     begin
     end;
 }

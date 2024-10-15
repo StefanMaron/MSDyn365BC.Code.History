@@ -1386,7 +1386,7 @@ codeunit 134983 "ERM Purchase Reports"
 
         // [THEN] The Total Amount = 100
         LibraryReportValidation.OpenExcelFile;
-        LibraryReportValidation.VerifyCellValue(85, 31, LibraryReportValidation.FormatDecimalValue(PurchaseLine.Amount));
+        LibraryReportValidation.VerifyCellValue(89, 28, LibraryReportValidation.FormatDecimalValue(PurchaseLine.Amount));
     end;
 
     [Test]

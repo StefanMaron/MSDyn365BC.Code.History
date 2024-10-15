@@ -27,7 +27,7 @@ page 7 "Customer Price Groups"
                 {
                     // Visibility should be turned on by an extension for Price Calculation
                     Visible = false;
-                    Caption = 'Price Calculation Method';
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the price calculation method that will override the method set in the sales setup for customers in this group.';
                 }
                 field("Allow Line Disc."; "Allow Line Disc.")
@@ -80,11 +80,17 @@ page 7 "Customer Price Groups"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Sales &Prices';
                     Image = SalesPrices;
-                    RunObject = Page "Sales Prices";
-                    RunPageLink = "Sales Type" = CONST("Customer Price Group"),
-                                  "Sales Code" = FIELD(Code);
-                    RunPageView = SORTING("Sales Type", "Sales Code");
                     ToolTip = 'Define how to set up sales price agreements. These sales prices can be for individual customers, for a group of customers, for all customers, or for a campaign.';
+
+                    trigger OnAction()
+                    var
+                        SalesPrice: Record "Sales Price";
+                    begin
+                        SalesPrice.SetCurrentKey("Sales Type", "Sales Code");
+                        SalesPrice.SetRange("Sales Type", SalesPrice."Sales Type"::"Customer Price Group");
+                        SalesPrice.SetRange("Sales Code", Code);
+                        Page.Run(Page::"Sales Prices", SalesPrice);
+                    end;
                 }
             }
             group(ActionGroupCRM)

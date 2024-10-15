@@ -382,7 +382,7 @@ codeunit 99000772 "Prod. Order Route Management"
                             (1 + ProdOrderRtngLine."Scrap Factor %" / 100), 0.00001) - 1;
                 end else
                     CalcScrapFactor := Round(1 + ProdOrderRtngLine."Scrap Factor %" / 100, 0.00001) - 1;
-                CalcScrapQty := CalcScrapQty + ProdOrderRtngLine."Fixed Scrap Quantity";
+                CalcScrapQty := CalcScrapQty * (1 + ProdOrderRtngLine."Scrap Factor %" / 100) + ProdOrderRtngLine."Fixed Scrap Quantity";
                 OnCalculateOnAfterCalcScrapQtyAndFactor(ProdOrderRtngLine, CalcScrapQty, CalcScrapFactor);
                 ProdOrderRtngLine."Fixed Scrap Qty. (Accum.)" := CalcScrapQty;
                 ProdOrderRtngLine."Scrap Factor % (Accumulated)" := CalcScrapFactor;

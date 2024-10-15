@@ -162,6 +162,35 @@ codeunit 7011 "Price Source List"
         end;
     end;
 
+    procedure Remove(SourceType: Enum "Price Source Type"): Boolean;
+    var
+        PriceSource: Record "Price Source";
+    begin
+        PriceSource.SetRange("Source Type", SourceType);
+        exit(Remove(PriceSource));
+    end;
+
+    procedure RemoveAtLevel(SourceType: Enum "Price Source Type"; Level: Integer): Boolean;
+    var
+        PriceSource: Record "Price Source";
+    begin
+        PriceSource.SetRange(Level, Level);
+        PriceSource.SetRange("Source Type", SourceType);
+        exit(Remove(PriceSource));
+    end;
+
+    local procedure Remove(var PriceSource: Record "Price Source"): Boolean
+    var
+        LocalTempPriceSource: Record "Price Source" temporary;
+    begin
+        LocalTempPriceSource.Copy(TempPriceSource, true);
+        LocalTempPriceSource.CopyFilters(PriceSource);
+        if not LocalTempPriceSource.IsEmpty() then begin
+            LocalTempPriceSource.DeleteAll();
+            exit(true);
+        end;
+    end;
+
     [IntegrationEvent(true, false)]
     local procedure OnAddOnBeforeInsert(var PriceSource: Record "Price Source")
     begin

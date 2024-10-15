@@ -960,9 +960,7 @@ page 44 "Sales Credit Memo"
 
                     trigger OnAction()
                     begin
-                        CopySalesDoc.SetSalesHeader(Rec);
-                        CopySalesDoc.RunModal;
-                        Clear(CopySalesDoc);
+                        CopyDocument();
                         if Get("Document Type", "No.") then;
                     end;
                 }
@@ -1281,7 +1279,6 @@ page 44 "Sales Credit Memo"
     end;
 
     var
-        CopySalesDoc: Report "Copy Sales Document";
         MoveNegSalesLines: Report "Move Negative Sales Lines";
         ReportPrint: Codeunit "Test Report-Print";
         UserMgt: Codeunit "User Setup Management";

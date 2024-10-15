@@ -1,4 +1,4 @@
-table 23 Vendor
+﻿table 23 Vendor
 {
     Caption = 'Vendor';
     DataCaptionFields = "No.", Name;
@@ -1175,7 +1175,8 @@ table 23 Vendor
                 PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
                 PriceType: Enum "Price Type";
             begin
-                PriceCalculationMgt.VerifyMethodImplemented("Price Calculation Method", PriceType::Purchase);
+                if "Price Calculation Method" <> "Price Calculation Method"::" " then
+                    PriceCalculationMgt.VerifyMethodImplemented("Price Calculation Method", PriceType::Purchase);
             end;
         }
         field(7177; "No. of Pstd. Receipts"; Integer)
@@ -2108,6 +2109,7 @@ table 23 Vendor
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
+        OnBeforeOpenVendorLedgerEntries(Rec, DetailedVendorLedgEntry);
         DetailedVendorLedgEntry.SetRange("Vendor No.", "No.");
         CopyFilter("Global Dimension 1 Filter", DetailedVendorLedgEntry."Initial Entry Global Dim. 1");
         CopyFilter("Global Dimension 2 Filter", DetailedVendorLedgEntry."Initial Entry Global Dim. 2");
@@ -2394,6 +2396,11 @@ table 23 Vendor
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOnInsert(var Vendor: Record Vendor; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOpenVendorLedgerEntries(var Vendor: Record Vendor; var DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry")
     begin
     end;
 

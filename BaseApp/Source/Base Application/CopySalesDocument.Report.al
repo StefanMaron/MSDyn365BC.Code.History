@@ -200,7 +200,7 @@ report 292 "Copy Sales Document"
         CopyDocMgt.SetArchDocVal(DocNoOccurrence, DocVersionNo);
         CopyDocMgt.SetIncludeOrgInvInfo(IncludeOrgInvInfo);
 
-        OnPreReportOnBeforeCopySalesDoc(CopyDocMgt);
+        OnPreReportOnBeforeCopySalesDoc(CopyDocMgt, DocType, DocNo, SalesHeader);
 
         CopyDocMgt.CopySalesDoc(DocType, DocNo, SalesHeader);
     end;
@@ -370,6 +370,7 @@ report 292 "Copy Sales Document"
     local procedure LookupSalesArchive()
     begin
         FromSalesHeaderArchive.Reset();
+        OnLookupSalesArchiveOnBeforeSetFilters(FromSalesHeaderArchive, SalesHeader);
         FromSalesHeaderArchive.FilterGroup := 0;
         FromSalesHeaderArchive.SetRange("Document Type", CopyDocMgt.ArchSalesHeaderDocType(DocType));
         FromSalesHeaderArchive.FilterGroup := 2;
@@ -516,8 +517,14 @@ report 292 "Copy Sales Document"
     begin
     end;
 
+
     [IntegrationEvent(false, false)]
-    local procedure OnPreReportOnBeforeCopySalesDoc(var CopyDocumentMgt: Codeunit "Copy Document Mgt.")
+    local procedure OnLookupSalesArchiveOnBeforeSetFilters(var FromSalesHeaderArchive: Record "Sales Header Archive"; var SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPreReportOnBeforeCopySalesDoc(var CopyDocumentMgt: Codeunit "Copy Document Mgt."; DocType: Integer; DocNo: Code[20]; SalesHeader: Record "Sales Header")
     begin
     end;
 }
