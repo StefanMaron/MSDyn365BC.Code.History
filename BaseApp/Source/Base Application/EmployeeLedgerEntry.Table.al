@@ -415,7 +415,7 @@ table 5222 "Employee Ledger Entry"
         }
         field(11300; "Journal Template Name"; Code[10])
         {
-            Caption = 'Journal Template Name';
+            Caption = 'Template Name (obsolete)';
             ObsoleteReason = 'Replaced by W1 field Journal Templ. Name';
 #if CLEAN20
             ObsoleteState = Removed;

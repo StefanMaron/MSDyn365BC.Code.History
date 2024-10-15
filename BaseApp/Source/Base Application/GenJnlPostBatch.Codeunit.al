@@ -624,6 +624,8 @@
     end;
 
     local procedure CheckAllocations(var GenJnlLine2: Record "Gen. Journal Line")
+    var
+        ShowAllocationsRecurringError: Boolean;
     begin
         with GenJnlLine2 do
             if "Account No." <> '' then begin
@@ -646,7 +648,9 @@
                 GenJnlAlloc.SetRange("Journal Line No.", "Line No.");
                 GenJnlAlloc.SetFilter(Amount, '<>0');
                 if not GenJnlAlloc.IsEmpty() then begin
-                    if not GenJnlTemplate.Recurring then
+                    ShowAllocationsRecurringError := not GenJnlTemplate.Recurring;
+                    OnCheckAllocationsOnAfterCalcShowAllocationsRecurringError(GenJnlAlloc, GenJnlLine2, ShowAllocationsRecurringError);
+                    if ShowAllocationsRecurringError then
                         Error(Text023);
                     GenJnlAlloc.SetRange("Account No.", '');
                     if GenJnlAlloc.FindFirst() then
@@ -709,7 +713,7 @@
                         OnPostAllocationsOnBeforePrepareGenJnlLineAddCurr(GenJnlLine2, AllocateGenJnlLine);
                         PrepareGenJnlLineAddCurr(GenJnlLine2);
                         if not Reversing then begin
-                            OnPostAllocationsOnBeforePostNotReversingLine(GenJnlLine2, GenJnlPostLine);
+                            OnPostAllocationsOnBeforePostNotReversingLine(GenJnlLine2, GenJnlPostLine, AllocateGenJnlLine, GenJnlAlloc);
                             GenJnlPostLine.RunWithCheck(GenJnlLine2);
                             if "Recurring Method" in
                                ["Recurring Method"::"V  Variable", "Recurring Method"::"B  Balance"]
@@ -721,7 +725,7 @@
                         end else begin
                             MultiplyAmounts(GenJnlLine2, -1);
                             GenJnlLine2."Reversing Entry" := true;
-                            OnPostAllocationsOnBeforePostReversingLine(GenJnlLine2, GenJnlPostLine);
+                            OnPostAllocationsOnBeforePostReversingLine(GenJnlLine2, GenJnlPostLine, AllocateGenJnlLine, GenJnlAlloc);
                             GenJnlPostLine.RunWithCheck(GenJnlLine2);
                             if "Recurring Method" in
                                ["Recurring Method"::"RV Reversing Variable",
@@ -793,7 +797,7 @@
                 "Posting No. Series" := GenJnlBatch."No. Series"
             else
                 if not EmptyLine then
-                    if "Document No." = LastDocNo then
+                    if ShouldSetDocNoToLastPosted(GenJnlLine2) then
                         "Document No." := LastPostedDocNo
                     else begin
                         if not NoSeries.Get("Posting No. Series") then begin
@@ -813,6 +817,12 @@
                         LastPostedDocNo := "Document No.";
                     end;
         OnAfterCheckDocumentNo(GenJnlLine2, LastDocNo, LastPostedDocNo);
+    end;
+
+    local procedure ShouldSetDocNoToLastPosted(var GenJournalLine: Record "Gen. Journal Line") Result: Boolean
+    begin
+        Result := GenJournalLine."Document No." = LastDocNo;
+        OnAfterShouldSetDocNoToLastPosted(GenJournalLine, LastDocNo, Result);
     end;
 
     local procedure PrepareGenJnlLineAddCurr(var GenJnlLine: Record "Gen. Journal Line")
@@ -1315,6 +1325,7 @@
             if GenJnlLine2.FindLast() then; // Remember the last line
             GenJnlLine3.Copy(GenJnlLine);
             GenJnlLine3.SetCurrentKey("Journal Template Name", "Journal Batch Name", "Line No.");
+            OnUpdateAndDeleteLinesOnBeforeDeleteNonRecurringLines(GenJnlLine3);
             GenJnlLine3.DeleteAll();
             GenJnlLine3.Reset();
             GenJnlLine3.SetRange("Journal Template Name", GenJnlLine."Journal Template Name");
@@ -1789,6 +1800,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterShouldSetDocNoToLastPosted(var GenJournalLine: Record "Gen. Journal Line"; LastDocNo: Code[20]; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckBalance(GenJnlTemplate: Record "Gen. Journal Template"; GenJnlLine: Record "Gen. Journal Line"; CurrentBalance: Decimal; CurrentBalanceReverse: Decimal; CurrencyBalance: Decimal; StartLineNo: Integer; StartLineNoReverse: Integer; LastDocType: Option; LastDocNo: Code[20]; LastDate: Date; LastCurrencyCode: Code[10]; CommitIsSuppressed: Boolean)
     begin
     end;
@@ -1939,12 +1955,12 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPostAllocationsOnBeforePostNotReversingLine(var GenJournalLine: Record "Gen. Journal Line"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
+    local procedure OnPostAllocationsOnBeforePostNotReversingLine(var GenJournalLine: Record "Gen. Journal Line"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; AllocateGenJournalLine: Record "Gen. Journal Line"; var GenJnlAllocation: Record "Gen. Jnl. Allocation")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPostAllocationsOnBeforePostReversingLine(var GenJournalLine: Record "Gen. Journal Line"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
+    local procedure OnPostAllocationsOnBeforePostReversingLine(var GenJournalLine: Record "Gen. Journal Line"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; AllocateGenJournalLine: Record "Gen. Journal Line"; var GenJnlAllocation: Record "Gen. Jnl. Allocation")
     begin
     end;
 
@@ -1989,6 +2005,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCheckAllocationsOnAfterCalcShowAllocationsRecurringError(var GenJnlAllocation: Record "Gen. Jnl. Allocation"; var GenJournalLine: Record "Gen. Journal Line"; var ShowAllocationsRecurringError: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCheckAndCopyBalancingDataOnBeforeCheckGenPostingType(GenJnlLine4: Record "Gen. Journal Line"; GenJnlLine6: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type");
     begin
     end;
@@ -2015,6 +2036,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateAndDeleteLinesOnBeforeModifyRecurringLine(var GenJnlLine: Record "Gen. Journal Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateAndDeleteLinesOnBeforeDeleteNonRecurringLines(var GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 

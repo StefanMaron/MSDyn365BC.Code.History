@@ -2310,7 +2310,7 @@
         }
         field(11300; "Journal Template Name"; Code[10])
         {
-            Caption = 'Journal Template Name';
+            Caption = 'Template Name (obsolete)';
             TableRelation = "Gen. Journal Template" WHERE(Type = FILTER(Purchases));
             ObsoleteReason = 'Replaced by W1 field Journal Templ. Name';
 #if not CLEAN20
@@ -2899,6 +2899,30 @@
         end;
     end;
 
+    internal procedure PerformManualRelease(var PurchaseHeader: Record "Purchase Header")
+    var
+        BatchProcessingMgt: Codeunit "Batch Processing Mgt.";
+        NoOfSelected: Integer;
+        NoOfSkipped: Integer;
+    begin
+        NoOfSelected := PurchaseHeader.Count;
+        PurchaseHeader.SetFilter(Status, '<>%1', PurchaseHeader.Status::Released);
+        NoOfSkipped := NoOfSelected - PurchaseHeader.Count;
+        BatchProcessingMgt.BatchProcess(PurchaseHeader, Codeunit::"Purchase Manual Release", "Error Handling Options"::"Show Error", NoOfSelected, NoOfSkipped);
+    end;
+
+    internal procedure PerformManualReopen(var PurchaseHeader: Record "Purchase Header")
+    var
+        BatchProcessingMgt: Codeunit "Batch Processing Mgt.";
+        NoOfSelected: Integer;
+        NoOfSkipped: Integer;
+    begin
+        NoOfSelected := PurchaseHeader.Count;
+        PurchaseHeader.SetFilter(Status, '<>%1', PurchaseHeader.Status::Open);
+        NoOfSkipped := NoOfSelected - PurchaseHeader.Count;
+        BatchProcessingMgt.BatchProcess(PurchaseHeader, Codeunit::"Purchase Manual Reopen", "Error Handling Options"::"Show Error", NoOfSelected, NoOfSkipped);
+    end;
+
     procedure RecreatePurchLines(ChangedFieldName: Text[100])
     var
         TempPurchLine: Record "Purchase Line" temporary;
@@ -3375,6 +3399,7 @@
         PurchLine.Reset();
         PurchLine.SetRange("Document Type", "Document Type");
         PurchLine.SetRange("Document No.", "No.");
+        OnUpdatePurchLinesByFieldNoOnAfterPurchLineSetFilters(Rec, xRec, PurchLine, ChangedFieldNo);
         if PurchLine.FindSet() then
             repeat
                 xPurchLine := PurchLine;
@@ -3460,7 +3485,7 @@
         DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
     begin
         IsHandled := false;
-        OnBeforeCreateDim(Rec, IsHandled);
+        OnBeforeCreateDim(Rec, IsHandled, DefaultDimSource);
         if IsHandled then
             exit;
 
@@ -3499,7 +3524,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCreateDim(Rec, IsHandled);
+        OnBeforeCreateDim(Rec, IsHandled, DefaultDimSource);
         if IsHandled then
             exit;
 
@@ -5669,6 +5694,8 @@
         CurrentPurchLine.SetRange("Document No.", "No.");
         CurrentPurchLine.SetFilter(Type, '%1|%2', CurrentPurchLine.Type::Item, CurrentPurchLine.Type::Resource);
         CurrentPurchLine.SetFilter("No.", '<>''''');
+        if "Document Type" = "Document Type"::"Blanket Order" then
+            CurrentPurchLine.SetFilter("Qty. to Receive", '<>0');
 
         if CurrentPurchLine.FindSet() then
             repeat
@@ -6238,6 +6265,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnUpdatePurchLinesByFieldNoOnAfterPurchLineSetFilters(var PurchaseHeader: Record "Purchase Header"; xPurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; ChangedFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnUpdatePurchLinesByChangedFieldName(PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; ChangedFieldName: Text[100]; ChangedFieldNo: Integer)
     begin
     end;
@@ -6333,7 +6365,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreateDim(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    local procedure OnBeforeCreateDim(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
     begin
     end;
 

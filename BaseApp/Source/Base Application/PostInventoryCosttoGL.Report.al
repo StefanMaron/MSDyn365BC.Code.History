@@ -215,7 +215,7 @@
 
                     trigger OnAfterGetRecord()
                     begin
-                        ItemValueEntry.Get("Value Entry No.");
+                        GetItemValueEntry("Value Entry No.");
                         with ItemValueEntry do begin
                             if "Item Ledger Entry No." = 0 then begin
                                 TempCapValueEntry."Entry No." := "Entry No.";
@@ -793,6 +793,12 @@
         GenJnlLineReq."Journal Batch Name" := NewJnlBatchName;
     end;
 
+    local procedure GetItemValueEntry(EntryNo: Integer)
+    begin
+        ItemValueEntry.Get(EntryNo);
+        OnAfterGetItemValueEntry(ItemValueEntry);
+    end;
+
     local procedure GetDimText(var DimSetEntry: Record "Dimension Set Entry")
     var
         OldDimText: Text[250];
@@ -827,6 +833,7 @@
 
     local procedure UpdateAmounts()
     begin
+        OnBeforeUpdateAmounts(ItemValueEntry);
         InvtPostToGL.GetAmtToPost(
           COGSAmt, InvtAdjmtAmt, DirCostAmt,
           OvhdCostAmt, VarPurchCostAmt, VarMfgDirCostAmt, VarMfgOvhdAmt,
@@ -843,6 +850,7 @@
         TempValueEntry.Init();
         TempValueEntry := ValueEntry;
         TempValueEntry.Insert();
+        OnAfterInsertValueEntryNoBuf(ValueEntry, TempValueEntry);
     end;
 
     local procedure DisplayStatistics(NotSimulation: Boolean)
@@ -852,6 +860,16 @@
                 Message(StatisticsMsg, TotalValueEntriesPostedToGL)
             else
                 Message(NothingToPostMsg);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetItemValueEntry(var ItemValueEntry: Record "Value Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInsertValueEntryNoBuf(ValueEntry: Record "Value Entry"; var TempValueEntry: Record "Value Entry" temporary)
+    begin
     end;
 
     [IntegrationEvent(false, false)]
@@ -866,6 +884,11 @@
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforePreReport(var Item: Record Item; var ItemValueEntry: Record "Value Entry"; var PostValueEntryToGL: Record "Post Value Entry to G/L")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateAmounts(var ItemValueEntry: Record "Value Entry")
     begin
     end;
 }

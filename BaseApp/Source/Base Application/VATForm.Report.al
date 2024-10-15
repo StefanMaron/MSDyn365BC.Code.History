@@ -136,6 +136,7 @@ report 11307 "VAT - Form"
 
                                 trigger OnValidate()
                                 begin
+                                    FeatureTelemetry.LogUptake('1000HL1', BEVATTok, Enum::"Feature Uptake Status"::"Set up");
                                     if not (Vyear in [1997 .. 2050]) then
                                         Error(Text005);
                                 end;
@@ -255,6 +256,7 @@ report 11307 "VAT - Form"
         CompanyInformation: Record "Company Information";
         CheckVatNo: Codeunit VATLogicalTests;
     begin
+        FeatureTelemetry.LogUptake('1000HL0', BEVATTok, Enum::"Feature Uptake Status"::Discovered);
         CompanyInformation.Get();
         if not CheckVatNo.MOD97Check(CompanyInformation."Enterprise No.") then
             Error(Text001, CompanyInformation.FieldCaption("Enterprise No."), CompanyInformation.TableCaption);
@@ -289,6 +291,12 @@ report 11307 "VAT - Form"
         Clear(Row);
     end;
 
+    trigger OnPostReport()
+    begin
+        FeatureTelemetry.LogUptake('1000HL2', BEVATTok, Enum::"Feature Uptake Status"::"Used");
+        FeatureTelemetry.LogUsage('1000HL3', BEVATTok, 'BE Periodic VAT Report Printed');
+    end;
+
     var
         Text001: Label '%1 in table %2 is not valid.';
         Text005: Label 'Year must be between 1997 and 2050.';
@@ -296,10 +304,12 @@ report 11307 "VAT - Form"
         Text007: Label 'Month must be between 1 and 12.';
         Text012: Label 'Problem creating INTERVAT XML File.';
         Text013: Label 'Row [91] should only be filled in for transactions in the month of December.';
+        BEVATTok: Label 'BE Periodic VAT Statement', Locked = true;
         GLSetup: Record "General Ledger Setup";
         Representative: Record Representative;
         INTERVATHelper: Codeunit "INTERVAT Helper";
         XMLDOMMgt: Codeunit "XML DOM Management";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
         IncludeVatEntries: Enum "VAT Statement Report Selection";
         [InDataSet]
         IsCorrection: Boolean;

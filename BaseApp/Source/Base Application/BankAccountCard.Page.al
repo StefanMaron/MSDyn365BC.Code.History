@@ -296,6 +296,11 @@ page 370 "Bank Account Card"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the protocol number used by the CODA system to import coded bank account statements.';
+
+                    trigger onValidate()
+                    begin
+                        FeatureTelemetry.LogUptake('1000HM3', BECODATok, Enum::"Feature Uptake Status"::"Set up");
+                    end;
                 }
                 field("Version Code"; "Version Code")
                 {
@@ -505,9 +510,11 @@ page 370 "Bank Account Card"
                         var
                             ImportCODA: Report "Import CODA Statement";
                         begin
+                            FeatureTelemetry.LogUptake('1000HM4', BECODATok, Enum::"Feature Uptake Status"::"Used");
                             ImportCODA.SetBankAcc(Rec);
                             ImportCODA.RunModal();
                             Clear(ImportCODA);
+                            FeatureTelemetry.LogUsage('1000HM5', BECODATok, 'BE CODA Bank Statement Imported');
                         end;
                     }
                     action("CODA S&tatements")
@@ -847,6 +854,8 @@ page 370 "Bank Account Card"
     end;
 
     var
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        BECODATok: Label 'BE CODA Bank Statement', Locked = true;
         Text001: Label 'There may be a statement using the %1.\\Do you want to change Balance Last Statement?';
         Text002: Label 'Canceled.';
         [InDataSet]

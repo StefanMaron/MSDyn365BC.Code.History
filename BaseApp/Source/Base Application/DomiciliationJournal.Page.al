@@ -392,8 +392,10 @@ page 2000022 "Domiciliation Journal"
 
                     trigger OnAction()
                     begin
+                        FeatureTelemetry.LogUptake('1000HL9', BEDirectDebtTok, Enum::"Feature Uptake Status"::"Used");
                         ExportToFile;
                         CurrPage.Update(false);
+                        FeatureTelemetry.LogUsage('1000HM0', BEDirectDebtTok, 'BE Direct Debit Generated With Domiciliations');
                     end;
                 }
             }
@@ -450,6 +452,7 @@ page 2000022 "Domiciliation Journal"
         JnlSelected: Boolean;
         OpenedFromBatch: Boolean;
     begin
+        FeatureTelemetry.LogUptake('1000HL8', BEDirectDebtTok, Enum::"Feature Uptake Status"::Discovered);
         OpenedFromBatch := ("Journal Batch Name" <> '') and ("Journal Template Name" = '');
         if OpenedFromBatch then begin
             CurrentJnlBatchName := "Journal Batch Name";
@@ -467,6 +470,8 @@ page 2000022 "Domiciliation Journal"
         DomJnlLine: Record "Domiciliation Journal Line";
         SuggestDomiciliations: Report "Suggest domicilations";
         DomJnlManagement: Codeunit DomiciliationJnlManagement;
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        BEDirectDebtTok: Label 'BE Direct Debit Using Domiciliation', Locked = true;
         CurrentJnlBatchName: Code[10];
         CustName: Text[100];
         BankAccName: Text[100];

@@ -34,7 +34,11 @@ page 11308 "Electronic Banking Setup"
     }
 
     trigger OnOpenPage()
+    var
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        BEElecBankTok: Label 'BE Electronic Banking', Locked = true;
     begin
+        FeatureTelemetry.LogUptake('1000HL4', BEElecBankTok, Enum::"Feature Uptake Status"::Discovered);
         Reset;
         if not Get then begin
             Init;

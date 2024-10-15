@@ -1,4 +1,4 @@
-report 840 "Suggest Worksheet Lines"
+﻿report 840 "Suggest Worksheet Lines"
 {
     Caption = 'Suggest Worksheet Lines';
     Permissions = TableData "Dimension Set ID Filter Line" = rimd,
@@ -1050,6 +1050,13 @@ report 840 "Suggest Worksheet Lines"
 
     local procedure InsertCFLineForFixedAssetsBudget()
     begin
+        InitCFLineForFixedAssetsBudget();
+        CFWorksheetLine2.MoveDefualtDimToJnlLineDim(DATABASE::"Fixed Asset", InvestmentFixedAsset."No.", CFWorksheetLine2."Dimension Set ID");
+        InsertTempCFWorksheetLine(CFWorksheetLine2, 0);
+    end;
+
+    local procedure InitCFLineForFixedAssetsBudget()
+    begin
         with CFWorksheetLine2 do begin
             Init();
             "Source Type" := "Source Type"::"Fixed Assets Budget";
@@ -1065,9 +1072,8 @@ report 840 "Suggest Worksheet Lines"
             "Amount (LCY)" := -FADeprBook."Acquisition Cost";
             "Shortcut Dimension 2 Code" := InvestmentFixedAsset."Global Dimension 2 Code";
             "Shortcut Dimension 1 Code" := InvestmentFixedAsset."Global Dimension 1 Code";
-            MoveDefualtDimToJnlLineDim(DATABASE::"Fixed Asset", InvestmentFixedAsset."No.", "Dimension Set ID");
-            InsertTempCFWorksheetLine(CFWorksheetLine2, 0);
         end;
+        OnAfterInitCFLineForFixedAssetsBudget(CFWorksheetLine2, FADeprBook, InvestmentFixedAsset);
     end;
 
     local procedure InsertCFLineForFixedAssetsDisposal()
@@ -1864,6 +1870,11 @@ report 840 "Suggest Worksheet Lines"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetRecursiveLimit(var Limit: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitCFLineForFixedAssetsBudget(var CashFlowWorksheetLine: Record "Cash Flow Worksheet Line"; FADepreciationBook: Record "FA Depreciation Book"; InvestmentFixedAsset: Record "Fixed Asset")
     begin
     end;
 }

@@ -509,6 +509,7 @@ page 41 "Sales Quote"
                     ObsoleteReason = 'Replaced by W1 field Journal Templ. Name';
                     ObsoleteState = Pending;
                     ObsoleteTag = '20.0';
+                    Visible = false;
                 }
 #endif
                 field("Location Code"; "Location Code")

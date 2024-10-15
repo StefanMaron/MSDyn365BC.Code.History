@@ -450,7 +450,156 @@ codeunit 144024 "Test Financial Journals"
         Assert.ExpectedError(NoSeriesFullfilledPurchaseInvoiceErr);
     end;
 
-    [Normal]
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('GeneralJournalTemplateListModalPageHandler')]
+    procedure CalculateBalanceTotalDifferenceOnFinancialJournalWithGenJournalTemplateNameMandatory()
+    var
+        FinancialJournalPage: TestPage "Financial Journal";
+        GenJournalLine: Record "Gen. Journal Line";
+        JournalTemplateName: Code[10];
+        JournalBatchName: Code[10];
+        DocumentNo: Code[20];
+        GLAccountNo: Code[20];
+        Amounts: array[3] of Decimal;
+    begin
+        // [SCENARIO 440765] System calculates Balance, Difference and Total Balance on Finanical Journal lines when "Journal Template Name Mandatory" = true on G/L Setup.
+        Initialize();
+
+        SetGenJournalTemplateNameMandatoryOnGLSetup(true);
+
+        GLAccountNo := LibraryERM.CreateGLAccountNoWithDirectPosting();
+        DocumentNo := LibraryUtility.GenerateGUID();
+        Amounts[1] := -1900;
+        Amounts[2] := 300;
+        Amounts[3] := -1190;
+
+        JournalTemplateName := LibraryVariableStorage.DequeueText();
+
+        LibraryVariableStorage.Enqueue(JournalTemplateName);
+        FinancialJournalPage.OpenEdit();
+        JournalBatchName := Format(FinancialJournalPage.CurrentJnlBatchName.Value);
+        FinancialJournalPage.Close();
+
+        GenJournalLine.SetRange("Journal Template Name", JournalTemplateName);
+        GenJournalLine.SetRange("Journal Batch Name", JournalBatchName);
+        GenJournalLine.DeleteAll();
+
+        SetupFinancialJournalLineOnPage(
+            GenJournalLine, GenJournalLine."Document Type"::" ", DocumentNo,
+            GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo(),
+            GenJournalLine."Bal. Account Type"::"Bank Account", BankAccountNo);
+
+        SetupFinancialJournalLineOnPage(
+            GenJournalLine, GenJournalLine."Document Type"::" ", DocumentNo,
+            GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo(),
+            GenJournalLine."Bal. Account Type"::"Bank Account", BankAccountNo);
+
+        SetupFinancialJournalLineOnPage(
+            GenJournalLine, GenJournalLine."Document Type"::" ", DocumentNo,
+            GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo(),
+            GenJournalLine."Bal. Account Type"::"Bank Account", BankAccountNo);
+
+        LibraryVariableStorage.Enqueue(JournalTemplateName);
+        FinancialJournalPage.OpenEdit();
+        FinancialJournalPage.BalanceLastStatement.SetValue(0);
+        FinancialJournalPage.StatementEndingBalance.SetValue(3000);
+
+        FinancialJournalPage.Amount.SetValue(Amounts[1]);
+        VerifyBalanceAmountsOnFinancialJournalPage(FinancialJournalPage, 1100, 1900, 1900);
+
+        FinancialJournalPage.Next();
+
+        FinancialJournalPage.Amount.SetValue(Amounts[2]);
+        VerifyBalanceAmountsOnFinancialJournalPage(FinancialJournalPage, 1400, 1600, 1600);
+
+        FinancialJournalPage.Next();
+
+        FinancialJournalPage.Amount.SetValue(Amounts[3]);
+        VerifyBalanceAmountsOnFinancialJournalPage(FinancialJournalPage, 210, 2790, 2790);
+
+        FinancialJournalPage.Previous();
+        VerifyBalanceAmountsOnFinancialJournalPage(FinancialJournalPage, 210, 1600, 2790);
+
+        FinancialJournalPage.Previous();
+        VerifyBalanceAmountsOnFinancialJournalPage(FinancialJournalPage, 210, 1900, 2790);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('GeneralJournalTemplateListModalPageHandler')]
+    procedure CalculateBalanceTotalDifferenceOnFinancialJournalWithoutGenJournalTemplateNameMandatory()
+    var
+        FinancialJournalPage: TestPage "Financial Journal";
+        GenJournalLine: Record "Gen. Journal Line";
+        JournalTemplateName: Code[10];
+        JournalBatchName: Code[10];
+        DocumentNo: Code[20];
+        GLAccountNo: Code[20];
+        Amounts: array[3] of Decimal;
+    begin
+        // [SCENARIO 440765] System calculates Balance, Difference and Total Balance on Finanical Journal lines when "Journal Template Name Mandatory" = FALSE on G/L Setup.
+        Initialize();
+
+        SetGenJournalTemplateNameMandatoryOnGLSetup(false);
+
+        GLAccountNo := LibraryERM.CreateGLAccountNoWithDirectPosting();
+        DocumentNo := LibraryUtility.GenerateGUID();
+        Amounts[1] := -1900;
+        Amounts[2] := 300;
+        Amounts[3] := -1190;
+
+        JournalTemplateName := LibraryVariableStorage.DequeueText();
+
+        LibraryVariableStorage.Enqueue(JournalTemplateName);
+        FinancialJournalPage.OpenEdit();
+        JournalBatchName := Format(FinancialJournalPage.CurrentJnlBatchName.Value);
+        FinancialJournalPage.Close();
+
+        GenJournalLine.SetRange("Journal Template Name", JournalTemplateName);
+        GenJournalLine.SetRange("Journal Batch Name", JournalBatchName);
+        GenJournalLine.DeleteAll();
+
+        SetupFinancialJournalLineOnPage(
+            GenJournalLine, GenJournalLine."Document Type"::" ", DocumentNo,
+            GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo(),
+            GenJournalLine."Bal. Account Type"::"G/L Account", GLAccountNo);
+
+        SetupFinancialJournalLineOnPage(
+            GenJournalLine, GenJournalLine."Document Type"::" ", DocumentNo,
+            GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo(),
+            GenJournalLine."Bal. Account Type"::"G/L Account", GLAccountNo);
+
+        SetupFinancialJournalLineOnPage(
+            GenJournalLine, GenJournalLine."Document Type"::" ", DocumentNo,
+            GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo(),
+            GenJournalLine."Bal. Account Type"::"G/L Account", GLAccountNo);
+
+        LibraryVariableStorage.Enqueue(JournalTemplateName);
+        FinancialJournalPage.OpenEdit();
+        FinancialJournalPage.BalanceLastStatement.SetValue(0);
+        FinancialJournalPage.StatementEndingBalance.SetValue(3000);
+
+        FinancialJournalPage.Amount.SetValue(Amounts[1]);
+        VerifyBalanceAmountsOnFinancialJournalPage(FinancialJournalPage, 1100, 1900, 1900);
+
+        FinancialJournalPage.Next();
+
+        FinancialJournalPage.Amount.SetValue(Amounts[2]);
+        VerifyBalanceAmountsOnFinancialJournalPage(FinancialJournalPage, 1400, 1600, 1600);
+
+        FinancialJournalPage.Next();
+
+        FinancialJournalPage.Amount.SetValue(Amounts[3]);
+        VerifyBalanceAmountsOnFinancialJournalPage(FinancialJournalPage, 210, 2790, 2790);
+
+        FinancialJournalPage.Previous();
+        VerifyBalanceAmountsOnFinancialJournalPage(FinancialJournalPage, 210, 1600, 2790);
+
+        FinancialJournalPage.Previous();
+        VerifyBalanceAmountsOnFinancialJournalPage(FinancialJournalPage, 210, 1900, 2790);
+    end;
+
     local procedure Initialize()
     var
         GenJournalTemplate: Record "Gen. Journal Template";
@@ -486,6 +635,7 @@ codeunit 144024 "Test Financial Journals"
 
         LibrarySetupStorage.SaveSalesSetup();
         LibrarySetupStorage.SavePurchasesSetup();
+        LibrarySetupStorage.SaveGeneralLedgerSetup();
 
         isInitialized := true;
         Commit();
@@ -593,6 +743,15 @@ codeunit 144024 "Test Financial Journals"
         GenJnlBatch.Modify(true);
     end;
 
+    local procedure SetGenJournalTemplateNameMandatoryOnGLSetup(NewValue: Boolean)
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup.Validate("Journal Templ. Name Mandatory", NewValue);
+        GeneralLedgerSetup.Modify(true);
+    end;
+
     [Normal]
     local procedure SetupFinancialJournalPage(var FinancialJournalPage: TestPage "Financial Journal"; var BalanceLastStatement: Decimal; DocumentType: Option " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund; DocumentNo: Code[20]; AccountType: Option "G/L Account",Customer,Vendor,"Bank Account","Fixed Asset","IC Partner"; AccountNo: Code[20]; EndingBalance: Decimal)
     var
@@ -613,6 +772,29 @@ codeunit 144024 "Test Financial Journals"
         FinancialJournalPage.Previous;
     end;
 
+    local procedure SetupFinancialJournalLineOnPage(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: enum "Gen. Journal Document Type"; DocumentNo: Code[20]; AccountType: enum "Gen. Journal Account Type"; AccountNo: Code[20]; BalAccountType: enum "Gen. Journal Account Type"; BalAccountNo: Code[20])
+    begin
+        if GenJournalLine.FindLast() then;
+        GenJournalLine.Validate("Journal Template Name", GenJournalLine.GetFilter("Journal Template Name"));
+        GenJournalLine.Validate("Journal Batch Name", GenJournalLine.GetFilter("Journal Batch Name"));
+        GenJournalLine.Validate("Line No.", GenJournalLine."Line No." + 10000);
+        GenJournalLine.Validate("Document Type", DocumentType);
+        GenJournalLine.Validate("Document No.", DocumentNo);
+        GenJournalLine.Validate("Account Type", AccountType);
+        GenJournalLine.Validate("Account No.", AccountNo);
+        GenJournalLine.Validate(Amount, 0);
+        GenJournalLine.Validate("Bal. Account Type", BalAccountType);
+        GenJournalLine.Validate("Bal. Account No.", BalAccountNo);
+        GenJournalLine.Insert(true)
+    end;
+
+    local procedure VerifyBalanceAmountsOnFinancialJournalPage(var FinancialJournalPage: TestPage "Financial Journal"; ExpectedTotalDifference: Decimal; ExpectedBalance: Decimal; ExpectedTotalBalance: Decimal)
+    begin
+        FinancialJournalPage."Total Difference".AssertEquals(ExpectedTotalDifference);
+        FinancialJournalPage.Balance.AssertEquals(ExpectedBalance);
+        FinancialJournalPage."BalanceLastStatement - TotalBalance - ""Balance (LCY)"" + xRec.""Balance (LCY)""".AssertEquals(ExpectedTotalBalance);
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandler(Question: Text[1024]; var Confirm: Boolean)
@@ -629,11 +811,8 @@ codeunit 144024 "Test Financial Journals"
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure GeneralJournalTemplateListModalPageHandler(var GeneralJournalTemplateListPage: TestPage "General Journal Template List")
-    var
-        Variant: Variant;
     begin
-        LibraryVariableStorage.Dequeue(Variant);
-        GeneralJournalTemplateListPage.FILTER.SetFilter(Name, Variant);
+        GeneralJournalTemplateListPage.FILTER.SetFilter(Name, LibraryVariableStorage.DequeueText());
         GeneralJournalTemplateListPage.OK.Invoke();
     end;
 

@@ -1,6 +1,14 @@
 #if not CLEAN20
 codeunit 11390 "Update Journal Template Names"
 {
+    Permissions = tabledata "G/L Entry" = rm,
+                  tabledata "G/L Register" = rm,
+                  tabledata "Bank Account Ledger Entry" = rm,
+                  tabledata "Cust. Ledger Entry" = rm,
+                  tabledata "Employee Ledger Entry" = rm,
+                  tabledata "Vendor LEdger Entry" = rm,
+                  tabledata "VAT Entry" = rm;
+
     var
         ConfirmCopyTxt: Label 'This procedure will copy values from local Journal Template Name to new Journal Templ. Name if new field in the record is empty. Do you want to copy them?';
 
@@ -11,6 +19,7 @@ codeunit 11390 "Update Journal Template Names"
         if not ConfirmManagement.GetResponse(ConfirmCopyTxt, true) then
             exit;
 
+        UpgradeGeneralLedgerSetup();
         UpgradeGenJournalTemplates();
         UpgradeGLEntryJournalTemplateName();
         UpgradeGLRegisterJournalTemplateName();
@@ -24,13 +33,22 @@ codeunit 11390 "Update Journal Template Names"
         UpgradeServiceHeaderJournalTemplateName();
     end;
 
+    local procedure UpgradeGeneralLedgerSetup()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup."Journal Templ. Name Mandatory" := true;
+        GeneralLedgerSetup.Modify();
+    end;
+
     local procedure UpgradeGenJournalTemplates()
     var
         GenJournalTemplate: Record "Gen. Journal Template";
     begin
         GenJournalTemplate.SetLoadFields(
             "Allow Posting Date From", "Allow Posting Date To", "Allow Posting From", "Allow Posting To");
-        if GenJournalTemplate.FindSet() then
+        if GenJournalTemplate.FindSet(true) then
             repeat
                 if (GenJournalTemplate."Allow Posting From" <> 0D) or (GenJournalTemplate."Allow Posting To" <> 0D) then begin
                     if GenJournalTemplate."Allow Posting Date From" <> 0D then
@@ -49,7 +67,7 @@ codeunit 11390 "Update Journal Template Names"
         GLEntry.SetLoadFields("Journal Templ. Name", "Journal Template Name");
         GLEntry.SetFilter("Journal Template Name", '<>%1', '');
         GLEntry.SetRange("Journal Templ. Name", '');
-        if GLEntry.FindSet() then
+        if GLEntry.FindSet(true) then
             repeat
                 GLEntry."Journal Templ. Name" := GLEntry."Journal Template Name";
                 GLEntry.Modify();
@@ -63,7 +81,7 @@ codeunit 11390 "Update Journal Template Names"
         GLRegister.SetLoadFields("Journal Templ. Name", "Journal Template Name");
         GLRegister.SetFilter("Journal Template Name", '<>%1', '');
         GLRegister.SetRange("Journal Templ. Name", '');
-        if GLRegister.FindSet() then
+        if GLRegister.FindSet(true) then
             repeat
                 GLRegister."Journal Templ. Name" := GLRegister."Journal Template Name";
                 GLRegister.Modify();
@@ -77,7 +95,7 @@ codeunit 11390 "Update Journal Template Names"
         VATEntry.SetLoadFields("Journal Templ. Name", "Journal Template Name");
         VATEntry.SetFilter("Journal Template Name", '<>%1', '');
         VATEntry.SetRange("Journal Templ. Name", '');
-        if VATEntry.FindSet() then
+        if VATEntry.FindSet(true) then
             repeat
                 VATEntry."Journal Templ. Name" := VATEntry."Journal Template Name";
                 VATEntry.Modify();
@@ -91,7 +109,7 @@ codeunit 11390 "Update Journal Template Names"
         BankAccountLedgerEntry.SetLoadFields("Journal Templ. Name", "Journal Template Name");
         BankAccountLedgerEntry.SetFilter("Journal Template Name", '<>%1', '');
         BankAccountLedgerEntry.SetRange("Journal Templ. Name", '');
-        if BankAccountLedgerEntry.FindSet() then
+        if BankAccountLedgerEntry.FindSet(true) then
             repeat
                 BankAccountLedgerEntry."Journal Templ. Name" := BankAccountLedgerEntry."Journal Template Name";
                 BankAccountLedgerEntry.Modify();
@@ -105,7 +123,7 @@ codeunit 11390 "Update Journal Template Names"
         CustLedgerEntry.SetLoadFields("Journal Templ. Name", "Journal Template Name");
         CustLedgerEntry.SetFilter("Journal Template Name", '<>%1', '');
         CustLedgerEntry.SetRange("Journal Templ. Name", '');
-        if CustLedgerEntry.FindSet() then
+        if CustLedgerEntry.FindSet(true) then
             repeat
                 CustLedgerEntry."Journal Templ. Name" := CustLedgerEntry."Journal Template Name";
                 CustLedgerEntry.Modify();
@@ -119,7 +137,7 @@ codeunit 11390 "Update Journal Template Names"
         EmployeeLedgerEntry.SetLoadFields("Journal Templ. Name", "Journal Template Name");
         EmployeeLedgerEntry.SetFilter("Journal Template Name", '<>%1', '');
         EmployeeLedgerEntry.SetRange("Journal Templ. Name", '');
-        if EmployeeLedgerEntry.FindSet() then
+        if EmployeeLedgerEntry.FindSet(true) then
             repeat
                 EmployeeLedgerEntry."Journal Templ. Name" := EmployeeLedgerEntry."Journal Template Name";
                 EmployeeLedgerEntry.Modify();
@@ -133,7 +151,7 @@ codeunit 11390 "Update Journal Template Names"
         VendLedgerEntry.SetLoadFields("Journal Templ. Name", "Journal Template Name");
         VendLedgerEntry.SetFilter("Journal Template Name", '<>%1', '');
         VendLedgerEntry.SetRange("Journal Templ. Name", '');
-        if VendLedgerEntry.FindSet() then
+        if VendLedgerEntry.FindSet(true) then
             repeat
                 VendLedgerEntry."Journal Templ. Name" := VendLedgerEntry."Journal Template Name";
                 VendLedgerEntry.Modify();
@@ -147,7 +165,7 @@ codeunit 11390 "Update Journal Template Names"
         SalesHeader.SetLoadFields("Journal Templ. Name", "Journal Template Name");
         SalesHeader.SetFilter("Journal Template Name", '<>%1', '');
         SalesHeader.SetRange("Journal Templ. Name", '');
-        if SalesHeader.FindSet() then
+        if SalesHeader.FindSet(true) then
             repeat
                 SalesHeader."Journal Templ. Name" := SalesHeader."Journal Template Name";
                 SalesHeader.Modify();
@@ -161,7 +179,7 @@ codeunit 11390 "Update Journal Template Names"
         ServiceHeader.SetLoadFields("Journal Templ. Name", "Journal Template Name");
         ServiceHeader.SetFilter("Journal Template Name", '<>%1', '');
         ServiceHeader.SetRange("Journal Templ. Name", '');
-        if ServiceHeader.FindSet() then
+        if ServiceHeader.FindSet(true) then
             repeat
                 ServiceHeader."Journal Templ. Name" := ServiceHeader."Journal Template Name";
                 ServiceHeader.Modify();
@@ -175,7 +193,7 @@ codeunit 11390 "Update Journal Template Names"
         PurchaseHeader.SetLoadFields("Journal Templ. Name", "Journal Template Name");
         PurchaseHeader.SetFilter("Journal Template Name", '<>%1', '');
         PurchaseHeader.SetRange("Journal Templ. Name", '');
-        if PurchaseHeader.FindSet() then
+        if PurchaseHeader.FindSet(true) then
             repeat
                 PurchaseHeader."Journal Templ. Name" := PurchaseHeader."Journal Template Name";
                 PurchaseHeader.Modify();

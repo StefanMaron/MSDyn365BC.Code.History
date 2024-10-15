@@ -36,10 +36,12 @@
         SatisfactionSurveyMgt: Codeunit "Satisfaction Survey Mgt.";
         UpgradeTag: Codeunit "Upgrade Tag";
         Window: Dialog;
+        InitializeCompanyOnRunLogLbl: Label 'OnRun executed in Codeunit 2 "Company-Initialize". Current language is %1.', Comment = '%1 = The language lcid.';
     begin
         Window.Open(Text000);
 
         OnBeforeOnRun();
+        Session.LogMessage('0000HQL', StrSubstNo(InitializeCompanyOnRunLogLbl, GlobalLanguage()), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, 'Category', 'CompanyInitialize'); 
 
         InitSetupTables();
         AddOnIntegrMgt.InitMfgSetup();
@@ -198,21 +200,9 @@
     internal procedure InitializeCompany()
     var
         GLSetup: Record "General Ledger Setup";
-        ClientTypeManagement: Codeunit "Client Type Management";
     begin
-        if not GuiAllowed() then
-            exit;
-
-        if ClientTypeManagement.GetCurrentClientType() = ClientType::Background then
-            exit;
-
-        if GetExecutionContext() <> ExecutionContext::Normal then
-            exit;
-
-        if GLSetup.Get() then
-            exit;
-
-        CODEUNIT.Run(CODEUNIT::"Company-Initialize");
+        if not GLSetup.Get() then
+            CODEUNIT.Run(CODEUNIT::"Company-Initialize");
     end;
 
     procedure InitSetupTables()
@@ -808,10 +798,21 @@
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"System Initialization", 'OnAfterLogin', '', false, false)]
     local procedure CompanyInitializeOnAfterLogin()
     var
-        GLSetup: Record "General Ledger Setup";
+        ClientTypeManagement: Codeunit "Client Type Management";
+        InitializeCompanyLogLbl: Label 'CompanyInitializeOnAfterLogin executed InitializeCompany in Codeunit 2 "Company-Initialize". Current language is %1.', Comment = '%1 = The language lcid.';
     begin
-        if not GLSetup.Get then
-            Codeunit.Run(Codeunit::"Company-Initialize");
+        
+        if not GuiAllowed() then
+            exit;
+
+        if ClientTypeManagement.GetCurrentClientType() = ClientType::Background then
+            exit;
+
+        if GetExecutionContext() <> ExecutionContext::Normal then
+            exit;
+
+        Session.LogMessage('0000HQ2', StrSubstNo(InitializeCompanyLogLbl, GlobalLanguage()), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, 'Category', 'CompanyInitialize');        
+        InitializeCompany();
     end;
 }
 

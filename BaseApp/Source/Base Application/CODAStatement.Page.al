@@ -164,9 +164,16 @@ page 2000040 "CODA Statement"
         InformationVisible := true;
     end;
 
+    trigger OnOpenPage()
+    begin
+        FeatureTelemetry.LogUptake('1000HM2', BECODATok, Enum::"Feature Uptake Status"::Discovered);
+    end;
+
     var
         CodBankStmt: Record "CODA Statement";
         CodBankStmtLine: Record "CODA Statement Line";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        BECODATok: Label 'BE CODA Bank Statement', Locked = true;
         [InDataSet]
         InformationVisible: Boolean;
         [InDataSet]

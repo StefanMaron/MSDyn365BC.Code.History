@@ -7,6 +7,14 @@ table 11306 "Electronic Banking Setup"
         field(1; "Primary Key"; Code[10])
         {
             Caption = 'Primary Key';
+
+            trigger OnValidate()
+            var
+                FeatureTelemetry: Codeunit "Feature Telemetry";
+                BEElecBankTok: Label 'BE Electronic Banking', Locked = true;
+            begin
+                FeatureTelemetry.LogUptake('1000HL5', BEElecBankTok, Enum::"Feature Uptake Status"::"Set up");
+            end;
         }
         field(2; "Summarize Gen. Jnl. Lines"; Boolean)
         {

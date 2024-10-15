@@ -88,6 +88,8 @@ report 99001025 "Refresh Production Order"
                                 until ProdOrderLine.Next() = 0;
                         end;
                 end;
+                OnProductionOrderOnAfterGetRecordOnAfterCalcRoutingsOrComponents("Production Order", CalcLines, CalcRoutings, CalcComponents, ErrorOccured);
+
                 if (Direction = Direction::Backward) and ("Source Type" = "Source Type"::Family) then begin
                     SetUpdateEndDate;
                     Validate("Due Date", "Due Date");
@@ -437,6 +439,11 @@ report 99001025 "Refresh Production Order"
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterInitReport()
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnProductionOrderOnAfterGetRecordOnAfterCalcRoutingsOrComponents(var ProductionOrder: Record "Production Order"; CalcLines: Boolean; CalcRoutings: Boolean; CalcComponents: Boolean; var ErrorOccured: Boolean)
     begin
     end;
 }

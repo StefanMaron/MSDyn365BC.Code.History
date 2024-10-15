@@ -1260,74 +1260,74 @@
     begin
         IsHandled := false;
         OnBeforeTypeChange(Rec, xRec, InteractLogEntry, Opp, Task, Cont, IsHandled);
-        if IsHandled then
-            exit;
+        if not IsHandled then begin
+            RMSetup.Get();
 
-        RMSetup.Get();
+            if Type <> xRec.Type then begin
+                InteractLogEntry.LockTable();
+                Cont.LockTable();
+                InteractLogEntry.SetCurrentKey("Contact Company No.", "Contact No.");
+                InteractLogEntry.SetRange("Contact Company No.", "Company No.");
+                InteractLogEntry.SetRange("Contact No.", "No.");
+                if InteractLogEntry.FindFirst() then
+                    Error(Text003, FieldCaption(Type));
+                OnTypeChangeOnAfterCheckInteractionLog(Rec, xRec);
+                Task.SetRange("Contact Company No.", "Company No.");
+                Task.SetRange("Contact No.", "No.");
+                if not Task.IsEmpty() then
+                    Error(CannotChangeWithOpenTasksErr, FieldCaption(Type));
+                Opp.SetRange("Contact Company No.", "Company No.");
+                Opp.SetRange("Contact No.", "No.");
+                if not Opp.IsEmpty() then
+                    Error(Text006, FieldCaption(Type));
+            end;
 
-        if Type <> xRec.Type then begin
-            InteractLogEntry.LockTable();
-            Cont.LockTable();
-            InteractLogEntry.SetCurrentKey("Contact Company No.", "Contact No.");
-            InteractLogEntry.SetRange("Contact Company No.", "Company No.");
-            InteractLogEntry.SetRange("Contact No.", "No.");
-            if InteractLogEntry.FindFirst() then
-                Error(Text003, FieldCaption(Type));
-            OnTypeChangeOnAfterCheckInteractionLog(Rec, xRec);
-            Task.SetRange("Contact Company No.", "Company No.");
-            Task.SetRange("Contact No.", "No.");
-            if not Task.IsEmpty() then
-                Error(CannotChangeWithOpenTasksErr, FieldCaption(Type));
-            Opp.SetRange("Contact Company No.", "Company No.");
-            Opp.SetRange("Contact No.", "No.");
-            if not Opp.IsEmpty() then
-                Error(Text006, FieldCaption(Type));
-        end;
-
-        case Type of
-            Type::Company:
-                begin
-                    if Type <> xRec.Type then begin
-                        TestField("Organizational Level Code", '');
-                        TestField("No. of Job Responsibilities", 0);
+            case Type of
+                Type::Company:
+                    begin
+                        if Type <> xRec.Type then begin
+                            TestField("Organizational Level Code", '');
+                            TestField("No. of Job Responsibilities", 0);
+                        end;
+                        "First Name" := '';
+                        "Middle Name" := '';
+                        Surname := '';
+                        "Job Title" := '';
+                        "Company No." := "No.";
+                        "Company Name" := Name;
+                        "Salutation Code" := RMSetup."Def. Company Salutation Code";
                     end;
-                    "First Name" := '';
-                    "Middle Name" := '';
-                    Surname := '';
-                    "Job Title" := '';
-                    "Company No." := "No.";
-                    "Company Name" := Name;
-                    "Salutation Code" := RMSetup."Def. Company Salutation Code";
-                end;
-            Type::Person:
-                begin
-                    CampaignTargetGrMgt.DeleteContfromTargetGr(InteractLogEntry);
-                    Cont.Reset();
-                    Cont.SetCurrentKey("Company No.");
-                    Cont.SetRange("Company No.", "No.");
-                    Cont.SetRange(Type, Type::Person);
-                    OnTypeChangeOnAfterContSetFilters(Cont, Rec);
-                    if Cont.FindFirst() then
-                        Error(Text007, FieldCaption(Type));
-                    CheckIfTypeChangePossibleForPerson();
+                Type::Person:
+                    begin
+                        CampaignTargetGrMgt.DeleteContfromTargetGr(InteractLogEntry);
+                        Cont.Reset();
+                        Cont.SetCurrentKey("Company No.");
+                        Cont.SetRange("Company No.", "No.");
+                        Cont.SetRange(Type, Type::Person);
+                        OnTypeChangeOnAfterContSetFilters(Cont, Rec);
+                        if Cont.FindFirst() then
+                            Error(Text007, FieldCaption(Type));
+                        CheckIfTypeChangePossibleForPerson();
 
-                    if "Company No." = "No." then begin
-                        "Company No." := '';
-                        "Company Name" := '';
-                        "Salutation Code" := RMSetup."Default Person Salutation Code";
-                        NameBreakdown;
+                        if "Company No." = "No." then begin
+                            "Company No." := '';
+                            "Company Name" := '';
+                            "Salutation Code" := RMSetup."Default Person Salutation Code";
+                            NameBreakdown;
+                        end;
                     end;
-                end;
-        end;
-        OnAfterSetTypeForContact(Rec, xRec);
-        Validate("Lookup Contact No.");
+            end;
+            OnAfterSetTypeForContact(Rec, xRec);
+            Validate("Lookup Contact No.");
 
-        if Cont.Get("No.") then begin
-            if Type = Type::Company then
-                CheckDuplicates
-            else
-                DuplMgt.RemoveContIndex(Rec, false);
+            if Cont.Get("No.") then begin
+                if Type = Type::Company then
+                    CheckDuplicates
+                else
+                    DuplMgt.RemoveContIndex(Rec, false);
+            end;
         end;
+        OnAfterTypeChange(Rec);
     end;
 
     procedure AssistEdit(OldCont: Record Contact) Result: Boolean
@@ -1780,7 +1780,7 @@
         OnBeforeCreateVendorLink(Rec, IsHandled);
         if not IsHandled then begin
             CheckForExistingRelationships(ContBusRel."Link to Table"::Vendor);
-            CheckIfPrivacyBlockedGeneric;
+            CheckIfPrivacyBlockedGeneric();
             TestField("Company No.");
             RMSetup.Get();
             RMSetup.TestField("Bus. Rel. Code for Vendors");
@@ -1824,8 +1824,9 @@
     var
         TempSegmentLine: Record "Segment Line" temporary;
     begin
-        CheckIfPrivacyBlockedGeneric;
+        CheckIfPrivacyBlockedGeneric();
         TempSegmentLine.CreateSegLineInteractionFromContact(Rec);
+        OnAfterCreateInteraction(Rec);
     end;
 
     procedure GetDefaultPhoneNo(): Text[30]
@@ -2052,10 +2053,16 @@
         OnAfterIdenticalAddress(Cont, Rec, IsIdentical);
     end;
 
-    procedure ActiveAltAddress(ActiveDate: Date): Code[10]
+    procedure ActiveAltAddress(ActiveDate: Date) Result: Code[10]
     var
         ContAltAddrDateRange: Record "Contact Alt. Addr. Date Range";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeActiveAltAddress(Rec, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         ContAltAddrDateRange.SetCurrentKey("Contact No.", "Starting Date");
         ContAltAddrDateRange.SetRange("Contact No.", "No.");
         ContAltAddrDateRange.SetRange("Starting Date", 0D, ActiveDate);
@@ -2265,15 +2272,18 @@
         if ContBusRel.FindFirst() then
             Error(
               Text019,
-              TableCaption, "No.", ContBusRel.TableCaption, ContBusRel."Link to Table", ContBusRel."No.");
+              TableCaption, "No.", ContBusRel.TableCaption(), ContBusRel."Link to Table", ContBusRel."No.");
 
-        if Confirm(CreateCustomerFromContactQst, true) then begin
-            CustTemplate.SetRange("Contact Type", Type);
-            if CustomerTemplMgt.SelectCustomerTemplate(CustTemplate) then
-                exit(CustTemplate.Code);
+        OnChooseNewCustomerTemplateOnBeforeSelectWithConfirm(Rec, CustTemplate);
 
-            Error(Text022);
-        end;
+        if not HideValidationDialog then
+            if Confirm(CreateCustomerFromContactQst, true) then begin
+                CustTemplate.SetRange("Contact Type", Type);
+                if CustomerTemplMgt.SelectCustomerTemplate(CustTemplate) then
+                    exit(CustTemplate.Code);
+
+                Error(Text022);
+            end;
     end;
 
     local procedure UpdateCompanyNo()
@@ -3477,6 +3487,11 @@
 #endif
 
     [IntegrationEvent(false, false)]
+    local procedure OnChooseNewCustomerTemplateOnBeforeSelectWithConfirm(var Contact: Record Contact; var CustomerTempl: Record "Customer Templ.")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCreateCustomerFromTemplateOnBeforeCustomerInsert(var Cust: Record Customer; CustomerTemplate: Code[20]; var Contact: Record Contact)
     begin
     end;
@@ -3544,6 +3559,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateCustomerLink(var Contact: Record Contact)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateInteraction(var Contact: Record Contact)
     begin
     end;
 
@@ -3618,6 +3638,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterTypeChange(var Contact: Record Contact)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterValidateCity(var Contact: Record Contact; xContact: Record Contact)
     begin
     end;
@@ -3629,6 +3654,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAssistEditOnAfterNoSeriesMgtSetSeries(var Contact: Record Contact; OldContact: Record Contact)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeActiveAltAddress(var Contact: Record Contact; var Result: Code[10]; var IsHandled: Boolean)
     begin
     end;
 

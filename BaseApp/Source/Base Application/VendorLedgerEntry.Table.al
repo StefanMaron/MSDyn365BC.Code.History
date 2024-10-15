@@ -610,7 +610,7 @@
         }
         field(11300; "Journal Template Name"; Code[10])
         {
-            Caption = 'Journal Template Name';
+            Caption = 'Template Name (obsolete)';
             TableRelation = "Gen. Journal Template";
             ObsoleteReason = 'Replaced by W1 field Journal Templ. Name';
 #if CLEAN20

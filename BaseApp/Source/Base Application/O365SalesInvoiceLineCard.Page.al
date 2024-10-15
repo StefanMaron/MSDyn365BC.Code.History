@@ -26,7 +26,7 @@ page 2157 "O365 Sales Invoice Line Card"
                 group(grpPricelist)
                 {
                     Caption = '';
-                    field(Description; Description)
+                    field(Description; Rec.Description)
                     {
                         ApplicationArea = Basic, Suite, Invoicing;
                         Caption = 'Choose from price list';
@@ -36,51 +36,20 @@ page 2157 "O365 Sales Invoice Line Card"
 
                         trigger OnValidate()
                         begin
-                            if IsLookupRequested then
-                                if not O365SalesInvoiceMgmt.LookupDescription(Rec, Description, DescriptionSelected) then
+                            Rec.RestoreLookupSelection();
+
+                            if Rec.IsLookupRequested() then
+                                if not O365SalesInvoiceMgmt.LookupDescription(Rec, Rec.Description, DescriptionSelected) then
                                     Error('');
 
-                            RedistributeTotalsOnAfterValidate;
-                            DescriptionSelected := Description <> '';
+                            RedistributeTotalsOnAfterValidate();
+                            DescriptionSelected := Rec.Description <> '';
                         end;
 
                         trigger OnAfterLookup(Selected: RecordRef)
-                        var
-                            GLAccount: record "G/L Account";
-                            Item: record Item;
-                            Resource: record Resource;
-                            FixedAsset: record "Fixed Asset";
-                            ItemCharge: record "Item Charge";
                         begin
-                            case Rec.Type of
-                                Rec.Type::Item:
-                                    begin
-                                        Selected.SetTable(Item);
-                                        Validate("No.", Item."No.");
-                                    end;
-                                Rec.Type::"G/L Account":
-                                    begin
-                                        Selected.SetTable(GLAccount);
-                                        Validate("No.", GLAccount."No.");
-                                    end;
-                                Rec.Type::Resource:
-                                    begin
-                                        Selected.SetTable(Resource);
-                                        Validate("No.", Resource."No.");
-                                    end;
-                                Rec.Type::"Fixed Asset":
-                                    begin
-                                        Selected.SetTable(FixedAsset);
-                                        Validate("No.", FixedAsset."No.");
-                                    end;
-                                Rec.Type::"Charge (Item)":
-                                    begin
-                                        Selected.SetTable(ItemCharge);
-                                        Validate("No.", ItemCharge."No.");
-                                    end;
-                            end;
+                            Rec.SaveLookupSelection(Selected);
                         end;
-
                     }
                 }
                 group(grpEnterQuantity)

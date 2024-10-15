@@ -418,9 +418,17 @@
         }
         field(11300; "Journal Template Name"; Code[10])
         {
-            Caption = 'Journal Template Name';
+            Caption = 'Template Name (obsolete)';
             DataClassification = SystemMetadata;
             TableRelation = "Gen. Journal Template";
+            ObsoleteReason = 'Replaced by W1 field Journal Templ. Name';
+#if CLEAN20
+            ObsoleteState = Removed;
+            ObsoleteTag = '23.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '20.0';
+#endif
         }
         field(11306; "Org. Pmt. Disc. Possible (LCY)"; Decimal)
         {

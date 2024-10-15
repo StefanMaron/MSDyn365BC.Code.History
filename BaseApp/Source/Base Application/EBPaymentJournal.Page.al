@@ -518,10 +518,15 @@ page 2000001 "EB Payment Journal"
                     ToolTip = 'Export the payments to a file. An export protocol defines the payment file format that you want to use for the electronic banking payments. Each journal line contains all the information needed for payment of an outstanding entry.';
 
                     trigger OnAction()
+                    var
+                        FeatureTelemetry: Codeunit "Feature Telemetry";
+                        BEElecBankTok: Label 'BE Electronic Banking', Locked = true;
                     begin
+                        FeatureTelemetry.LogUptake('1000HL6', BEElecBankTok, Enum::"Feature Uptake Status"::"Used");
                         GetExportProtocol;
                         ExportProtocol.ExportPaymentLines(Rec);
                         CurrPage.Update(false);
+                        FeatureTelemetry.LogUsage('1000HL7', BEElecBankTok, 'BE Electronic Banking Payment Lines Exported');
                     end;
                 }
             }

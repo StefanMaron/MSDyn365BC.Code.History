@@ -481,9 +481,13 @@
         MissingJournalFieldErr: Label 'Please enter a %1 when posting inventory cost to G/L.', Comment = '%1 - field caption';
 
     local procedure FillInvtPostToGLTestBuf(ValueEntry: Record "Value Entry")
+    var
+        SkipFillInvtPost: Boolean;
     begin
         with ValueEntry do begin
-            if not InvtPostToGL.BufferInvtPosting(ValueEntry) then
+            SkipFillInvtPost := not InvtPostToGL.BufferInvtPosting(ValueEntry);
+            OnFillInvtPostToGLTestBufOnAfterCalcSkipFillInvtPost(ValueEntry, SkipFillInvtPost);
+            if SkipFillInvtPost then
                 exit;
 
             if PostMethod = PostMethod::"per Entry" then begin
@@ -545,7 +549,14 @@
     end;
 
     local procedure ErrorNonValidCombination(ValueEntry: Record "Value Entry")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeErrorNonValidCombination(ValueEntry, IsHandled);
+        if IsHandled then
+            exit;
+
         with ValueEntry do
             AddError(
               StrSubstNo(
@@ -714,7 +725,17 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeErrorNonValidCombination(ValueEntry: Record "Value Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforePreReport(var PostValueEntryToGL: Record "Post Value Entry to G/L"; var ItemValueEntry: Record "Value Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFillInvtPostToGLTestBufOnAfterCalcSkipFillInvtPost(var ValueEntry: Record "Value Entry"; var SkipFillInvtPost: Boolean)
     begin
     end;
 

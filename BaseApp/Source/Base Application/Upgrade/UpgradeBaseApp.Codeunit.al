@@ -110,6 +110,7 @@ codeunit 104000 "Upgrade - BaseApp"
         UpgradeServiceHeaderJournalTemplateName();
         UpgradeCustLedgEntryPmtDiscountPossible();
         UpgradeVendLedgEntryPmtDiscountPossible();
+        UpgradeGenJournalLinePmtDiscountPossible();
     end;
 
     local procedure ClearTemporaryTables()
@@ -790,7 +791,7 @@ codeunit 104000 "Upgrade - BaseApp"
         UpgradeTag: Codeunit "Upgrade Tag";
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
     begin
-        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetSetCoupledFlagsUpgradeTag()) then
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetRepeatedSetCoupledFlagsUpgradeTag()) then
             exit;
 
         if EnvironmentInformation.IsSaaS() then
@@ -802,7 +803,7 @@ codeunit 104000 "Upgrade - BaseApp"
                 CRMIntegrationManagement.SetCoupledFlag(CRMIntegrationRecord, true, false)
             until CRMIntegrationRecord.Next() = 0;
 
-        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetSetCoupledFlagsUpgradeTag());
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetRepeatedSetCoupledFlagsUpgradeTag());
     end;
 
     local procedure SetOptionMappingCoupledFlags()
@@ -2596,34 +2597,23 @@ codeunit 104000 "Upgrade - BaseApp"
     local procedure UpgradeGLEntryJournalTemplateName()
     var
         GLEntry: Record "G/L Entry";
-        GeneralLedgerSetup: Record "General Ledger Setup";
         UpgradeTag: Codeunit "Upgrade Tag";
         UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
-        EnableJournalTemplates: Boolean;
     begin
         if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetGLEntryJournalTemplateNameUpgradeTag()) then
             exit;
 
-        EnableJournalTemplates := false;
         GLEntry.SetLoadFields("Journal Templ. Name", "Journal Template Name");
         GLEntry.SetFilter("Journal Template Name", '<>%1', '');
         GLEntry.SetRange("Journal Templ. Name", '');
         if EnvironmentInformation.IsSaaS() then
             if LogTelemetryForManyRecords(Database::"G/L Entry", GLEntry.Count()) then
                 exit;
-        if GLEntry.FindSet() then
+        if GLEntry.FindSet(true) then
             repeat
                 GLEntry."Journal Templ. Name" := GLEntry."Journal Template Name";
                 GLEntry.Modify();
-                if GLEntry."Journal Templ. Name" <> '' then
-                    EnableJournalTemplates := true;
             until GLEntry.Next() = 0;
-
-        if EnableJournalTemplates then begin
-            GeneralLedgerSetup.Get();
-            GeneralLedgerSetup."Journal Templ. Name Mandatory" := true;
-            GeneralLedgerSetup.Modify();
-        end;
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetGLEntryJournalTemplateNameUpgradeTag());
     end;
@@ -2643,7 +2633,7 @@ codeunit 104000 "Upgrade - BaseApp"
         if EnvironmentInformation.IsSaaS() then
             if LogTelemetryForManyRecords(Database::"G/L Register", GLRegister.Count()) then
                 exit;
-        if GLRegister.FindSet() then
+        if GLRegister.FindSet(true) then
             repeat
                 GLRegister."Journal Templ. Name" := GLRegister."Journal Template Name";
                 GLRegister.Modify();
@@ -2666,7 +2656,7 @@ codeunit 104000 "Upgrade - BaseApp"
         if EnvironmentInformation.IsSaaS() then
             if LogTelemetryForManyRecords(Database::"Gen. Journal Template", GenJournalTemplate.Count()) then
                 exit;
-        if GenJournalTemplate.FindSet() then
+        if GenJournalTemplate.FindSet(true) then
             repeat
                 if (GenJournalTemplate."Allow Posting From" <> 0D) or (GenJournalTemplate."Allow Posting To" <> 0D) then begin
                     GenJournalTemplate."Allow Posting Date From" := GenJournalTemplate."Allow Posting From";
@@ -2691,17 +2681,12 @@ codeunit 104000 "Upgrade - BaseApp"
         if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetGenJournalTemplateNamesSetupUpgradeTag()) then
             exit;
 
-        if GeneralLedgerSetup.Get() then
-            if (GeneralLedgerSetup."Payment Recon. Template Name" <> '') or
-                (GeneralLedgerSetup."Jnl. Templ. Name for Applying" <> '') or
-                (GeneralLedgerSetup."Jnl. Batch Name for Applying" <> '')
-            then begin
-                GeneralLedgerSetup."Bank Acc. Recon. Template Name" := GeneralLedgerSetup."Payment Recon. Template Name";
-                GeneralLedgerSetup."Apply Jnl. Template Name" := GeneralLedgerSetup."Jnl. Templ. Name for Applying";
-                GeneralLedgerSetup."Apply Jnl. Batch Name" := GeneralLedgerSetup."Jnl. Batch Name for Applying";
-                GeneralLedgerSetup."Journal Templ. Name Mandatory" := true;
-                GeneralLedgerSetup.Modify();
-            end;
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup."Bank Acc. Recon. Template Name" := GeneralLedgerSetup."Payment Recon. Template Name";
+        GeneralLedgerSetup."Apply Jnl. Template Name" := GeneralLedgerSetup."Jnl. Templ. Name for Applying";
+        GeneralLedgerSetup."Apply Jnl. Batch Name" := GeneralLedgerSetup."Jnl. Batch Name for Applying";
+        GeneralLedgerSetup."Journal Templ. Name Mandatory" := true;
+        GeneralLedgerSetup.Modify();
 
         if InventorySetup.Get() then
             if (InventorySetup."Jnl. Templ. Name Cost Posting" <> '') or
@@ -2769,7 +2754,7 @@ codeunit 104000 "Upgrade - BaseApp"
         if EnvironmentInformation.IsSaaS() then
             if LogTelemetryForManyRecords(Database::"VAT Entry", VATEntry.Count()) then
                 exit;
-        if VATEntry.FindSet() then
+        if VATEntry.FindSet(true) then
             repeat
                 VATEntry."Journal Templ. Name" := VATEntry."Journal Template Name";
                 VATEntry.Modify();
@@ -2793,7 +2778,7 @@ codeunit 104000 "Upgrade - BaseApp"
         if EnvironmentInformation.IsSaaS() then
             if LogTelemetryForManyRecords(Database::"Bank Account Ledger Entry", BankAccountLedgerEntry.Count()) then
                 exit;
-        if BankAccountLedgerEntry.FindSet() then
+        if BankAccountLedgerEntry.FindSet(true) then
             repeat
                 BankAccountLedgerEntry."Journal Templ. Name" := BankAccountLedgerEntry."Journal Template Name";
                 BankAccountLedgerEntry.Modify();
@@ -2817,7 +2802,7 @@ codeunit 104000 "Upgrade - BaseApp"
         if EnvironmentInformation.IsSaaS() then
             if LogTelemetryForManyRecords(Database::"Cust. Ledger Entry", CustLedgerEntry.Count()) then
                 exit;
-        if CustLedgerEntry.FindSet() then
+        if CustLedgerEntry.FindSet(true) then
             repeat
                 CustLedgerEntry."Journal Templ. Name" := CustLedgerEntry."Journal Template Name";
                 CustLedgerEntry.Modify();
@@ -2841,7 +2826,7 @@ codeunit 104000 "Upgrade - BaseApp"
         if EnvironmentInformation.IsSaaS() then
             if LogTelemetryForManyRecords(Database::"Employee Ledger Entry", EmployeeLedgerEntry.Count()) then
                 exit;
-        if EmployeeLedgerEntry.FindSet() then
+        if EmployeeLedgerEntry.FindSet(true) then
             repeat
                 EmployeeLedgerEntry."Journal Templ. Name" := EmployeeLedgerEntry."Journal Template Name";
                 EmployeeLedgerEntry.Modify();
@@ -2865,7 +2850,7 @@ codeunit 104000 "Upgrade - BaseApp"
         if EnvironmentInformation.IsSaaS() then
             if LogTelemetryForManyRecords(Database::"Vendor Ledger Entry", VendLedgerEntry.Count()) then
                 exit;
-        if VendLedgerEntry.FindSet() then
+        if VendLedgerEntry.FindSet(true) then
             repeat
                 VendLedgerEntry."Journal Templ. Name" := VendLedgerEntry."Journal Template Name";
                 VendLedgerEntry.Modify();
@@ -2889,7 +2874,7 @@ codeunit 104000 "Upgrade - BaseApp"
         if EnvironmentInformation.IsSaaS() then
             if LogTelemetryForManyRecords(Database::"Sales Header", SalesHeader.Count()) then
                 exit;
-        if SalesHeader.FindSet() then
+        if SalesHeader.FindSet(true) then
             repeat
                 SalesHeader."Journal Templ. Name" := SalesHeader."Journal Template Name";
                 SalesHeader.Modify();
@@ -2913,7 +2898,7 @@ codeunit 104000 "Upgrade - BaseApp"
         if EnvironmentInformation.IsSaaS() then
             if LogTelemetryForManyRecords(Database::"Service Header", ServiceHeader.Count()) then
                 exit;
-        if ServiceHeader.FindSet() then
+        if ServiceHeader.FindSet(true) then
             repeat
                 ServiceHeader."Journal Templ. Name" := ServiceHeader."Journal Template Name";
                 ServiceHeader.Modify();
@@ -2937,7 +2922,7 @@ codeunit 104000 "Upgrade - BaseApp"
         if EnvironmentInformation.IsSaaS() then
             if LogTelemetryForManyRecords(Database::"Purchase Header", PurchaseHeader.Count()) then
                 exit;
-        if PurchaseHeader.FindSet() then
+        if PurchaseHeader.FindSet(true) then
             repeat
                 PurchaseHeader."Journal Templ. Name" := PurchaseHeader."Journal Template Name";
                 PurchaseHeader.Modify();
@@ -2961,7 +2946,7 @@ codeunit 104000 "Upgrade - BaseApp"
         if EnvironmentInformation.IsSaaS() then
             if LogTelemetryForManyRecords(Database::"Cust. Ledger Entry", CustLedgerEntry.Count()) then
                 exit;
-        if CustLedgerEntry.FindSet() then
+        if CustLedgerEntry.FindSet(true) then
             repeat
                 CustLedgerEntry."Orig. Pmt. Disc. Possible(LCY)" := CustLedgerEntry."Org. Pmt. Disc. Possible (LCY)";
                 CustLedgerEntry.Modify();
@@ -2985,7 +2970,7 @@ codeunit 104000 "Upgrade - BaseApp"
         if EnvironmentInformation.IsSaaS() then
             if LogTelemetryForManyRecords(Database::"Vendor Ledger Entry", VendLedgerEntry.Count()) then
                 exit;
-        if VendLedgerEntry.FindSet() then
+        if VendLedgerEntry.FindSet(true) then
             repeat
                 VendLedgerEntry."Orig. Pmt. Disc. Possible(LCY)" := VendLedgerEntry."Org. Pmt. Disc. Possible (LCY)";
                 VendLedgerEntry.Modify();
@@ -3011,7 +2996,7 @@ codeunit 104000 "Upgrade - BaseApp"
         if EnvironmentInformation.IsSaaS() then
             if LogTelemetryForManyRecords(Database::"Gen. Journal Line", GenJournalLine.Count()) then
                 exit;
-        if GenJournalLine.FindSet() then
+        if GenJournalLine.FindSet(true) then
             repeat
                 GenJournalLine."Orig. Pmt. Disc. Possible" := GenJournalLine."Original Pmt. Disc. Possible";
                 GenJournalLine."Orig. Pmt. Disc. Possible(LCY)" := GenJournalLine."Org. Pmt. Disc. Possible (LCY)";
