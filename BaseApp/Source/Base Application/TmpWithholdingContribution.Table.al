@@ -554,5 +554,25 @@ table 12113 "Tmp Withholding Contribution"
         Validate("INAIL Non Taxable Amount", "INAIL Non Taxable Amount" + GrossAmount);
         // END INAIL
     end;
+
+    procedure ClearDeletedLineNos(GeneralJournalLine: Record "Gen. Journal Line")
+    begin
+        SetRange("Journal Template Name", GeneralJournalLine."Journal Template Name");
+        SetRange("Journal Batch Name", GeneralJournalLine."Journal Batch Name");
+
+        SetRange("Payment Line-Withholding", GeneralJournalLine."Line No.");
+        if FindFirst() then begin
+            Validate("Payment Line-Withholding", 0);
+            Modify(true);
+        end;
+        SetRange("Payment Line-Withholding");
+
+        SetRange("Payment Line-Soc. Sec.", GeneralJournalLine."Line No.");
+        if FindFirst() then begin
+            Validate("Payment Line-Soc. Sec.", 0);
+            Modify(true);
+        end;
+        SetRange("Payment Line-Soc. Sec.");
+    end;
 }
 

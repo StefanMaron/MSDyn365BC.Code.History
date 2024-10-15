@@ -1856,6 +1856,8 @@
     begin
         ApprovalsMgmt.OnRenameRecordInApprovalRequest(xRec.RecordId, RecordId);
         DimMgt.RenameDefaultDim(DATABASE::Vendor, xRec."No.", "No.");
+        CommentLine.RenameCommentLine(CommentLine."Table Name"::Vendor, xRec."No.", "No.");
+
         SetLastModifiedDateTime;
         if xRec."Invoice Disc. Code" = xRec."No." then
             "Invoice Disc. Code" := "No.";

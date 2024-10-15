@@ -2,6 +2,7 @@ codeunit 144017 "IT - SEPA.02 DD Unit Test"
 {
     // // [FEATURE] [Report]
 
+    EventSubscriberInstance = Manual;
     Subtype = Test;
     TestPermissions = Disabled;
 
@@ -480,13 +481,13 @@ codeunit 144017 "IT - SEPA.02 DD Unit Test"
         // [GIVEN] Customer Bill Card
         // [GIVEN] "Company Information"."VAT Registration No." = '123456789'
         // [GIVEN] "Company Information"."Fiscal Code" = ''
-        CreateCustomerBillCardAndUpdateCompanyInformation('123456789', '', CustomerBillHeader);
+        CreateCustomerBillCardAndUpdateCompanyInformation(GetFixedVATRegNo(), '', CustomerBillHeader);
 
         // [WHEN] Run report "Cust Bills Floppy"
         RunCustBillsFloppyReport(FileName, CustomerBillHeader);
 
         // [THEN] Output file should contain line with value = '123456789       ' from 101 to 116 positions
-        Assert.AreNotEqual('', LibraryTextFileValidation.FindLineWithValue(FileName, 101, 16, '123456789       '), ValueNotFoundErr);
+        Assert.AreNotEqual('', LibraryTextFileValidation.FindLineWithValue(FileName, 101, 16, GetOutputFixedVATRegNo()), ValueNotFoundErr);
     end;
 
     [Test]
@@ -502,13 +503,13 @@ codeunit 144017 "IT - SEPA.02 DD Unit Test"
         // [GIVEN] Customer Bill Card
         // [GIVEN] "Company Information"."VAT Registration No." = ''
         // [GIVEN] "Company Information"."Fiscal Code" = '123456789'
-        CreateCustomerBillCardAndUpdateCompanyInformation('', '123456789', CustomerBillHeader);
+        CreateCustomerBillCardAndUpdateCompanyInformation('', GetFixedVATRegNo(), CustomerBillHeader);
 
         // [WHEN] Run report "Cust Bills Floppy"
         RunCustBillsFloppyReport(FileName, CustomerBillHeader);
 
         // [THEN] Output file should contain line with value = '123456789       ' from 101 to 116 positions
-        Assert.AreNotEqual('', LibraryTextFileValidation.FindLineWithValue(FileName, 101, 16, '123456789       '), ValueNotFoundErr);
+        Assert.AreNotEqual('', LibraryTextFileValidation.FindLineWithValue(FileName, 101, 16, GetOutputFixedVATRegNo()), ValueNotFoundErr);
     end;
 
     [Test]
@@ -524,13 +525,13 @@ codeunit 144017 "IT - SEPA.02 DD Unit Test"
         // [GIVEN] Customer Bill Card
         // [GIVEN] "Company Information"."VAT Registration No." = '987654321'
         // [GIVEN] "Company Information"."Fiscal Code" = '123456789'
-        CreateCustomerBillCardAndUpdateCompanyInformation('987654321', '123456789', CustomerBillHeader);
+        CreateCustomerBillCardAndUpdateCompanyInformation('987654321', GetFixedVATRegNo(), CustomerBillHeader);
 
         // [WHEN] Run report "Cust Bills Floppy"
         RunCustBillsFloppyReport(FileName, CustomerBillHeader);
 
         // [THEN] Output file should contain line with value = '123456789       ' from 101 to 116 positions
-        Assert.AreNotEqual('', LibraryTextFileValidation.FindLineWithValue(FileName, 101, 16, '123456789       '), ValueNotFoundErr);
+        Assert.AreNotEqual('', LibraryTextFileValidation.FindLineWithValue(FileName, 101, 16, GetOutputFixedVATRegNo()), ValueNotFoundErr);
     end;
 
     [Test]
@@ -569,14 +570,14 @@ codeunit 144017 "IT - SEPA.02 DD Unit Test"
         // [GIVEN] Customer Bill Card
         // [GIVEN] "Company Information"."VAT Registration No." = '123456789'
         // [GIVEN] "Company Information"."Fiscal Code" = ''
-        CreateCustomerBillCardAndUpdateCompanyInformation('123456789', '', CustomerBillHeader);
+        CreateCustomerBillCardAndUpdateCompanyInformation(GetFixedVATRegNo(), '', CustomerBillHeader);
         PostCustomerBillCard(IssuedCustomerBillHeader, CustomerBillHeader);
 
         // [WHEN] Run report "Issued Cust Bills Floppy"
         RunIssuedCustBillsFloppyReport(FileName, IssuedCustomerBillHeader);
 
         // [THEN] Output file should contain line with value = '123456789       ' from 101 to 116 positions
-        Assert.AreNotEqual('', LibraryTextFileValidation.FindLineWithValue(FileName, 101, 16, '123456789       '), ValueNotFoundErr);
+        Assert.AreNotEqual('', LibraryTextFileValidation.FindLineWithValue(FileName, 101, 16, GetOutputFixedVATRegNo()), ValueNotFoundErr);
     end;
 
     [Test]
@@ -593,14 +594,14 @@ codeunit 144017 "IT - SEPA.02 DD Unit Test"
         // [GIVEN] Customer Bill Card
         // [GIVEN] "Company Information"."VAT Registration No." = ''
         // [GIVEN] "Company Information"."Fiscal Code" = '123456789'
-        CreateCustomerBillCardAndUpdateCompanyInformation('', '123456789', CustomerBillHeader);
+        CreateCustomerBillCardAndUpdateCompanyInformation('', GetFixedVATRegNo(), CustomerBillHeader);
         PostCustomerBillCard(IssuedCustomerBillHeader, CustomerBillHeader);
 
         // [WHEN] Run report "Issued Cust Bills Floppy"
         RunIssuedCustBillsFloppyReport(FileName, IssuedCustomerBillHeader);
 
         // [THEN] Output file should contain line with value = '123456789       ' from 101 to 116 positions
-        Assert.AreNotEqual('', LibraryTextFileValidation.FindLineWithValue(FileName, 101, 16, '123456789       '), ValueNotFoundErr);
+        Assert.AreNotEqual('', LibraryTextFileValidation.FindLineWithValue(FileName, 101, 16, GetOutputFixedVATRegNo()), ValueNotFoundErr);
     end;
 
     [Test]
@@ -617,14 +618,14 @@ codeunit 144017 "IT - SEPA.02 DD Unit Test"
         // [GIVEN] Customer Bill Card
         // [GIVEN] "Company Information"."VAT Registration No." = '987654321'
         // [GIVEN] "Company Information"."Fiscal Code" = '123456789'
-        CreateCustomerBillCardAndUpdateCompanyInformation('987654321', '123456789', CustomerBillHeader);
+        CreateCustomerBillCardAndUpdateCompanyInformation('987654321', GetFixedVATRegNo(), CustomerBillHeader);
         PostCustomerBillCard(IssuedCustomerBillHeader, CustomerBillHeader);
 
         // [WHEN] Run report "Issued Cust Bills Floppy"
         RunIssuedCustBillsFloppyReport(FileName, IssuedCustomerBillHeader);
 
         // [THEN] Output file should contain line with value = '123456789       ' from 101 to 116 positions
-        Assert.AreNotEqual('', LibraryTextFileValidation.FindLineWithValue(FileName, 101, 16, '123456789       '), ValueNotFoundErr);
+        Assert.AreNotEqual('', LibraryTextFileValidation.FindLineWithValue(FileName, 101, 16, GetOutputFixedVATRegNo()), ValueNotFoundErr);
     end;
 
     [Test]
@@ -670,14 +671,14 @@ codeunit 144017 "IT - SEPA.02 DD Unit Test"
         // [GIVEN] Customer."Fiscal Code" = '123456789'
         CreateBankExportImportSetup(BankExportImportSetup, CODEUNIT::"Customer Bills Floppy", 0);
         CreateCustomerBill(CustomerBillHeader, TempCustomerBillLine, BankExportImportSetup.Code, true);
-        UpdateCustomer(TempCustomerBillLine."Customer No.", '987654321', '123456789');
+        UpdateCustomer(TempCustomerBillLine."Customer No.", '987654321', GetFixedVATRegNo());
         PostCustomerBillCard(IssuedCustomerBillHeader, CustomerBillHeader);
 
         // [WHEN] Run report "Issued Cust Bills Floppy"
         RunIssuedCustBillsFloppyReport(FileName, IssuedCustomerBillHeader);
 
         // [THEN] Output file should contain line with value = '123456789       ' from 71 to 86 positions
-        Assert.AreNotEqual('', LibraryTextFileValidation.FindLineWithValue(FileName, 71, 16, '123456789       '), ValueNotFoundErr);
+        Assert.AreNotEqual('', LibraryTextFileValidation.FindLineWithValue(FileName, 71, 16, GetOutputFixedVATRegNo()), ValueNotFoundErr);
     end;
 
     [Test]
@@ -699,14 +700,14 @@ codeunit 144017 "IT - SEPA.02 DD Unit Test"
         // [GIVEN] Customer."Fiscal Code" = '123456789'
         CreateBankExportImportSetup(BankExportImportSetup, CODEUNIT::"Customer Bills Floppy", 0);
         CreateCustomerBill(CustomerBillHeader, TempCustomerBillLine, BankExportImportSetup.Code, true);
-        UpdateCustomer(TempCustomerBillLine."Customer No.", '', '123456789');
+        UpdateCustomer(TempCustomerBillLine."Customer No.", '', GetFixedVATRegNo());
         PostCustomerBillCard(IssuedCustomerBillHeader, CustomerBillHeader);
 
         // [WHEN] Run report "Issued Cust Bills Floppy"
         RunIssuedCustBillsFloppyReport(FileName, IssuedCustomerBillHeader);
 
         // [THEN] Output file should contain line with value = '123456789       ' from 71 to 86 positions
-        Assert.AreNotEqual('', LibraryTextFileValidation.FindLineWithValue(FileName, 71, 16, '123456789       '), ValueNotFoundErr);
+        Assert.AreNotEqual('', LibraryTextFileValidation.FindLineWithValue(FileName, 71, 16, GetOutputFixedVATRegNo()), ValueNotFoundErr);
     end;
 
     [Test]
@@ -784,13 +785,13 @@ codeunit 144017 "IT - SEPA.02 DD Unit Test"
         // [GIVEN] Customer."Fiscal Code" = '123456789'
         CreateBankExportImportSetup(BankExportImportSetup, CODEUNIT::"Customer Bills Floppy", 0);
         CreateCustomerBill(CustomerBillHeader, TempCustomerBillLine, BankExportImportSetup.Code, true);
-        UpdateCustomer(TempCustomerBillLine."Customer No.", '987654321', '123456789');
+        UpdateCustomer(TempCustomerBillLine."Customer No.", '987654321', GetFixedVATRegNo());
 
         // [WHEN] Run report "Issued Cust Bills Floppy"
         RunCustBillsFloppyReport(FileName, CustomerBillHeader);
 
         // [THEN] Output file should contain line with value = '123456789       ' from 71 to 86 positions
-        Assert.AreNotEqual('', LibraryTextFileValidation.FindLineWithValue(FileName, 71, 16, '123456789       '), ValueNotFoundErr);
+        Assert.AreNotEqual('', LibraryTextFileValidation.FindLineWithValue(FileName, 71, 16, GetOutputFixedVATRegNo()), ValueNotFoundErr);
     end;
 
     [Test]
@@ -811,13 +812,13 @@ codeunit 144017 "IT - SEPA.02 DD Unit Test"
         // [GIVEN] Customer."Fiscal Code" = '123456789'
         CreateBankExportImportSetup(BankExportImportSetup, CODEUNIT::"Customer Bills Floppy", 0);
         CreateCustomerBill(CustomerBillHeader, TempCustomerBillLine, BankExportImportSetup.Code, true);
-        UpdateCustomer(TempCustomerBillLine."Customer No.", '', '123456789');
+        UpdateCustomer(TempCustomerBillLine."Customer No.", '', GetFixedVATRegNo());
 
         // [WHEN] Run report "Issued Cust Bills Floppy"
         RunCustBillsFloppyReport(FileName, CustomerBillHeader);
 
         // [THEN] Output file should contain line with value = '123456789       ' from 71 to 86 positions
-        Assert.AreNotEqual('', LibraryTextFileValidation.FindLineWithValue(FileName, 71, 16, '123456789       '), ValueNotFoundErr);
+        Assert.AreNotEqual('', LibraryTextFileValidation.FindLineWithValue(FileName, 71, 16, GetOutputFixedVATRegNo()), ValueNotFoundErr);
     end;
 
     [Test]
@@ -871,6 +872,39 @@ codeunit 144017 "IT - SEPA.02 DD Unit Test"
 
         // [THEN] Output file should contain line with value = '                ' from 71 to 86 positions
         Assert.AreNotEqual('', LibraryTextFileValidation.FindLineWithValue(FileName, 71, 16, '                '), ValueNotFoundErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure UI_CustomerBillFloppyReportRunOnExportIssuedBilToFloppyFileAction()
+    var
+        CustomerBillHeader: Record "Customer Bill Header";
+        IssuedCustomerBillHeader: Record "Issued Customer Bill Header";
+        ITSEPA02DDUnitTest: Codeunit "IT - SEPA.02 DD Unit Test";
+        IssuedCustomerBillCard: TestPage "Issued Customer Bill Card";
+        FileName: Text;
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 369534] A "Customer Bills Floppy" report runs when Stan press action "Export Issued Bill to Floppy File" from the "Issued Customer Bill Card" page
+
+        // [GIVEN] Issued Customer Bill with "VAT Registration No." = 123456789
+        CreateCustomerBillCardAndUpdateCompanyInformation(GetFixedVATRegNo(), '', CustomerBillHeader);
+        PostCustomerBillCard(IssuedCustomerBillHeader, CustomerBillHeader);
+        BindSubscription(ITSEPA02DDUnitTest);
+
+        // [GIVEN] Opened "Issued Customer Bill Card" page with created Vendor Bill
+        IssuedCustomerBillCard.OpenEdit();
+        IssuedCustomerBillCard.FILTER.SetFilter("No.", IssuedCustomerBillHeader."No.");
+
+        // [WHEN] Stan press action "Export Issued Bill to Floppy File"
+        IssuedCustomerBillCard.ExportIssuedBillToFloppyFile.Invoke();
+
+        // [THEN] Output file should contain line with value = '123456789       ' from 101 to 116 positions
+        ITSEPA02DDUnitTest.DequeueFileName(FileName);
+        Assert.AreNotEqual('', LibraryTextFileValidation.FindLineWithValue(FileName, 101, 16, GetOutputFixedVATRegNo()), ValueNotFoundErr);
+        ITSEPA02DDUnitTest.AssertVariableStorageIsEmpty();
+
+        UnbindSubscription(ITSEPA02DDUnitTest);
     end;
 
     [Test]
@@ -1198,6 +1232,16 @@ codeunit 144017 "IT - SEPA.02 DD Unit Test"
         UpdateCompanyInformation(VATRegistrationNo, FiscalCode);
     end;
 
+    local procedure GetFixedVATRegNo(): Text[20]
+    begin
+        exit('123456789');
+    end;
+
+    local procedure GetOutputFixedVATRegNo(): Text
+    begin
+        exit(StrSubstNo('%1       ', GetFixedVATRegNo()));
+    end;
+
     local procedure PostCustomerBillCard(var IssuedCustomerBillHeader: Record "Issued Customer Bill Header"; CustomerBillHeader: Record "Customer Bill Header")
     var
         TempIssuedCustomerBillLine: Record "Issued Customer Bill Line" temporary;
@@ -1250,6 +1294,16 @@ codeunit 144017 "IT - SEPA.02 DD Unit Test"
             "Final Cust. Bill No." := NewFinalCustBillNo;
             Modify();
         end;
+    end;
+    
+    procedure DequeueFileName(var FileName: Text)
+    begin
+        FileName := LibraryVariableStorage.DequeueText();
+    end;
+
+    procedure AssertVariableStorageIsEmpty()
+    begin
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Normal]
@@ -1326,6 +1380,13 @@ codeunit 144017 "IT - SEPA.02 DD Unit Test"
         SuggestCustomerBills.PartnerType.AssertEquals(ExpectedPartnerType);
         SuggestCustomerBills.PartnerType.SetValue(NewPartnerType);
         SuggestCustomerBills.OK.Invoke;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, 419, 'OnBeforeDownloadHandler', '', false, false)]
+    local procedure SetFileNameOnBeforeDownloadHandler(var ToFolder: Text; ToFileName: Text; FromFileName: Text; var IsHandled: Boolean)
+    begin
+        LibraryVariableStorage.Enqueue(FromFileName);
+        IsHandled := true;
     end;
 }
 

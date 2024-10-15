@@ -10,6 +10,7 @@
         WithholdCodeLinesNotSpecifiedErr: Label 'You have not specified any withhold code lines for withhold code %1.';
         ContributionCodeLinesNotSpecifiedErr: Label 'You have not specified any contribution code lines for code %1.';
         ContributionBracketLinesNotSpecifiedErr: Label 'You have not specified any contribution bracket lines for code %1.';
+        MultiApplyErr: Label 'To calculate taxes correctly, the payment must be applied to only one document.';
 
     [Scope('OnPrem')]
     procedure PostPayments(var TempWithholdingSocSec: Record "Tmp Withholding Contribution"; GenJnlLine: Record "Gen. Journal Line"; CalledFromVendBillLine: Boolean)
@@ -317,6 +318,7 @@
         ComputedSocSec: Record "Computed Contribution";
         CurrencyExchRate: Record "Currency Exchange Rate";
         TmpWithholdingSocSec: Record "Tmp Withholding Contribution";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
         with GenJnlLine do begin
             if ("Document Type" <> "Document Type"::Payment) and
@@ -336,6 +338,27 @@
                 TmpWithholdingSocSec."Journal Batch Name" := "Journal Batch Name";
                 TmpWithholdingSocSec."Line No." := "Line No.";
                 TmpWithholdingSocSec."Document Date" := "Document Date";
+                if GenJnlLine."Applies-to ID" <> '' then begin
+                    VendorLedgerEntry.SetRange("Vendor No.", GenJnlLine."Account No.");
+                    VendorLedgerEntry.SetRange("Applies-to ID", GenJnlLine."Applies-to ID");
+                    VendorLedgerEntry.SetRange(Open, true);
+                    VendorLedgerEntry.SetFilter(
+                        "Document Type", '%1|%2',
+                        VendorLedgerEntry."Document Type"::"Credit Memo", VendorLedgerEntry."Document Type"::Invoice);
+                    if VendorLedgerEntry.Count() > 1 then
+                        Error(MultiApplyErr);
+
+                    if VendorLedgerEntry.FindFirst() then begin
+                        VendorLedgerEntry.Validate("Applies-to ID", '');
+                        Codeunit.Run(Codeunit::"Vend. Entry-Edit", VendorLedgerEntry);
+
+                        GenJnlLine.Validate("Applies-to ID", '');
+                        GenJnlLine.Validate("Applies-to Doc. Type", VendorLedgerEntry."Document Type");
+                        GenJnlLine.Validate("Applies-to Doc. No.", VendorLedgerEntry."Document No.");
+                        GenJnlLine.Validate("Applies-to Occurrence No.", VendorLedgerEntry."Document Occurrence");
+                        GenJnlLine.Modify(true);
+                    end;
+                end;
                 TmpWithholdingSocSec."Invoice No." := "Applies-to Doc. No.";
                 TmpWithholdingSocSec."Vendor No." := "Account No.";
                 TmpWithholdingSocSec."Old Withholding Amount" := 0;

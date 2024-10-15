@@ -4005,6 +4005,7 @@
     [Scope('OnPrem')]
     procedure DeleteTmpWithhSocSec()
     begin
+        TmpWithholdingSocSec.ClearDeletedLineNos(Rec);
         if TmpWithholdingSocSec.Get("Journal Template Name", "Journal Batch Name", "Line No.") then
             TmpWithholdingSocSec.Delete();
     end;
@@ -7845,6 +7846,9 @@
         GraphIntContact: Codeunit "Graph Int. - Contact";
         GraphID: Text[250];
     begin
+        if not GraphIntContact.IsUpdateContactIdEnabled() then
+            exit;
+
         if IsNullGuid("Customer Id") then
             Clear("Contact Graph Id");
 

@@ -2489,6 +2489,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Withhold - NamedType DialogErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1767273905 - NamedType 2257933516" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[To calculate taxes correctly, the payment must be applied to only one document.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Withhold - NamedType MultiApplyErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1558692379 - NamedType 1449977514" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[FatturaPA]]></Val>

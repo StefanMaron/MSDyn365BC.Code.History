@@ -1580,14 +1580,17 @@ codeunit 137287 "SCM Inventory Costing II"
         // [SCENARIO 378115] Resource Ledger Entries should be included in the Customer Statistics
         Initialize;
 
-        // [GIVEN] Resource Ledger Entry for Customer with "Total Cost" = "X"
         LibrarySales.CreateCustomer(Customer);
-        MockResourceLedgerEntry(ResLedgerEntry, Customer."No.");
+        // [GIVEN] Resource Ledger Entry for Customer with "Entry Type" = Usage "Total Cost" = "Y"
+        MockResourceLedgerEntry(ResLedgerEntry, ResLedgerEntry."Entry Type"::Usage, Customer."No.");
+        // [GIVEN] Resource Ledger Entry for Customer with "Entry Type" = Sales "Total Cost" = "X"
+        MockResourceLedgerEntry(ResLedgerEntry, ResLedgerEntry."Entry Type"::Sale, Customer."No.");
 
         // [WHEN] Calculate Customer Actual Cost LCY
         ActualCostLCY := CostCalculationManagement.CalcCustActualCostLCY(Customer);
 
         // [THEN] Actual Cost LCY is "X"
+        // BUG 369400: CalcCustActualCostLCY function only considers Resource Ledger Entries with Entry Type equals Sale
         Assert.AreEqual(ResLedgerEntry."Total Cost", ActualCostLCY, ActualCostErr);
     end;
 
@@ -2568,11 +2571,12 @@ codeunit 137287 "SCM Inventory Costing II"
             end;
     end;
 
-    local procedure MockResourceLedgerEntry(var ResLedgerEntry: Record "Res. Ledger Entry"; CustomerNo: Code[20])
+    local procedure MockResourceLedgerEntry(var ResLedgerEntry: Record "Res. Ledger Entry"; EntryType: Option; CustomerNo: Code[20])
     begin
         with ResLedgerEntry do begin
             Init;
             "Entry No." := LibraryUtility.GetNewRecNo(ResLedgerEntry, FieldNo("Entry No."));
+            "Entry Type" := EntryType;
             "Source Type" := "Source Type"::Customer;
             "Source No." := CustomerNo;
             "Total Cost" := LibraryRandom.RandDec(10, 2);

@@ -4045,6 +4045,7 @@
             OnPrepareTempVendLedgEntryOnAfterSetFiltersBlankAppliesToDocNo(OldVendLedgEntry, GenJnlLine, NewCVLedgEntryBuf);
             if OldVendLedgEntry.FindSet(false, false) then
                 repeat
+                    CheckWithholdTax(OldVendLedgEntry."Document Type", OldVendLedgEntry."Document No.", GenJnlLine, true);
                     CheckWithholdTax(OldVendLedgEntry."Document Type", OldVendLedgEntry."Document No.", GenJnlLine, false);
                     UpdateWithholdTaxExtDocNo(OldVendLedgEntry, GenJnlLine);
                     if GenJnlApply.CheckAgainstApplnCurrency(

@@ -1129,6 +1129,11 @@ table 336 "Tracking Specification"
     end;
 
     procedure CheckItemTrackingQuantity(TableNo: Integer; DocumentType: Option; DocumentNo: Code[20]; LineNo: Integer; QtyToHandleBase: Decimal; QtyToInvoiceBase: Decimal; Handle: Boolean; Invoice: Boolean)
+    begin
+        CheckItemTrackingQuantity(TableNo, DocumentType, DocumentNo, LineNo, -1, QtyToHandleBase, QtyToInvoiceBase, Handle, Invoice);
+    end;
+
+    procedure CheckItemTrackingQuantity(TableNo: Integer; DocumentType: Option; DocumentNo: Code[20]; LineNo: Integer; ProdOrderLineNo: Integer; QtyToHandleBase: Decimal; QtyToInvoiceBase: Decimal; Handle: Boolean; Invoice: Boolean)
     var
         ReservationEntry: Record "Reservation Entry";
     begin
@@ -1139,6 +1144,8 @@ table 336 "Tracking Specification"
         if not (Handle or Invoice) then
             exit;
         ReservationEntry.SetSourceFilter(TableNo, DocumentType, DocumentNo, LineNo, true);
+        if ProdOrderLineNo >= 0 then
+            ReservationEntry.SetSourceFilter('', ProdOrderLineNo);
         ReservationEntry.SetFilter("Item Tracking", '%1|%2',
           ReservationEntry."Item Tracking"::"Lot and Serial No.",
           ReservationEntry."Item Tracking"::"Serial No.");

@@ -349,47 +349,16 @@ codeunit 144016 "IT - SEPA.03 CT Unit Test"
     [Scope('OnPrem')]
     procedure ReportVendorBillsFloppyPrintVendorsName()
     var
-        BankExportImportSetup: Record "Bank Export/Import Setup";
         VendorBillHeader: Record "Vendor Bill Header";
         TempVendorBillLine: Record "Vendor Bill Line" temporary;
-        BankAccount: Record "Bank Account";
-        Vendor: Record Vendor;
-        ABICABCodes: Record "ABI/CAB Codes";
-        VendorBankAccount: Record "Vendor Bank Account";
         VendorBillsFloppy: Report "Vendor Bills Floppy";
         ITSEPA03CTUnitTest: Codeunit "IT - SEPA.03 CT Unit Test";
-        FileName: Text;
-        DirectoryPath: Text;
-        TextLine: Text;
-        Name1: Text;
-        Name2: Text;
     begin
         // [GIVEN] Vendor Bill with Bank Import/Export Setup = Codeunit::"Vendor Bills Floppy"
-        CreateBankExportImportSetup(BankExportImportSetup, CODEUNIT::"Vendor Bills Floppy", 0);
-        CreateVendorBill(VendorBillHeader, TempVendorBillLine, BankExportImportSetup.Code, false);
-
         // [GIVEN] Setup ABI, CAB and IBAN for Banc Account
-        BankAccount.Get(VendorBillHeader."Bank Account No.");
-        CreateAbiCabCode(ABICABCodes);
-        BankAccount.Validate(ABI, ABICABCodes.ABI);
-        BankAccount.Validate(CAB, ABICABCodes.CAB);
-        BankAccount.Validate(IBAN, LibraryUtility.GenerateGUID);
-        BankAccount.Modify(true);
-
         // [GIVEN] Setup ABI, CAB and IBAN for Vendor Banc Account
-        VendorBankAccount.Get(TempVendorBillLine."Vendor No.", TempVendorBillLine."Vendor Bank Acc. No.");
-        VendorBankAccount.Validate(ABI, ABICABCodes.ABI);
-        VendorBankAccount.Validate(CAB, ABICABCodes.CAB);
-        VendorBankAccount.Validate(IBAN, LibraryUtility.GenerateGUID);
-        VendorBankAccount.Modify(true);
-
         // [GIVEN] Setup Name and Name2 for Vendor
-        Name1 := LibraryRandom.RandText(30);
-        Name2 := LibraryRandom.RandText(30);
-        Vendor.Get(TempVendorBillLine."Vendor No.");
-        Vendor.Validate(Name, Format(Name1, 30));
-        Vendor.Validate("Name 2", Format(Name2, 30));
-        Vendor.Modify(true);
+        PrepareVendorBillHeaderForFloppyReport(VendorBillHeader, TempVendorBillLine);
 
         // [WHEN] Run report 12175 "Vendor Bills Floppy"
         BindSubscription(ITSEPA03CTUnitTest);
@@ -397,13 +366,41 @@ codeunit 144016 "IT - SEPA.03 CT Unit Test"
         VendorBillsFloppy.UseRequestPage := false;
         VendorBillsFloppy.SetTableView(VendorBillHeader);
         VendorBillsFloppy.Run();
-        ITSEPA03CTUnitTest.DequeueFileName(FileName);
 
         // [THEN] SixthLine of created file contain Vendor.Name and Vendor."Name 2"
-        TextLine := LibraryTextFileValidation.FindLineWithValue(FileName, 11, 30, Vendor.Name);
-        Assert.AreEqual(CopyStr(TextLine, 11, 30), Vendor.Name, '');
-        Assert.AreEqual(CopyStr(TextLine, 41, 30), Vendor."Name 2", '');
-        ITSEPA03CTUnitTest.AssertVariableStorageIsEmpty();
+        VerifyVendorFloppyFileContainsNameOfVendor(ITSEPA03CTUnitTest, TempVendorBillLine);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure UI_VendorBillFloppyReportRunOnExportBillListToFileAction()
+    var
+        VendorBillHeader: Record "Vendor Bill Header";
+        TempVendorBillLine: Record "Vendor Bill Line" temporary;
+        ITSEPA03CTUnitTest: Codeunit "IT - SEPA.03 CT Unit Test";
+        VendorBillListSentCard: TestPage "Vendor Bill List Sent Card";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 369534] A "Vendor Bills Floppy" report runs when Stan press action "Export Bill List To File" from the "Vendor Bill List Sent Card" page
+
+        // [GIVEN] Vendor Bill with Bank Import/Export Setup = Codeunit::"Vendor Bills Floppy"
+        // [GIVEN] Setup ABI, CAB and IBAN for Banc Account
+        // [GIVEN] Setup ABI, CAB and IBAN for Vendor Banc Account
+        // [GIVEN] Setup Name and Name2 for Vendor
+        PrepareVendorBillHeaderForFloppyReport(VendorBillHeader, TempVendorBillLine);
+
+        BindSubscription(ITSEPA03CTUnitTest);
+
+        // [GIVEN] Opened "Vendor Bill List Sent Card" page with created Vendor Bill
+        VendorBillListSentCard.OpenEdit();
+        VendorBillListSentCard.FILTER.SetFilter("No.", VendorBillHeader."No.");
+
+        // [WHEN] Stan press action "Export Bill List To File"
+        VendorBillListSentCard.ExportBillListToFile.Invoke();
+
+        // [THEN] Sixth line of created file contain Vendor.Name and Vendor."Name 2"
+        VerifyVendorFloppyFileContainsNameOfVendor(ITSEPA03CTUnitTest, TempVendorBillLine);
     end;
 
     local procedure FillExportBuffer(PaymentDocNo: Code[20]; var PaymentExportData: Record "Payment Export Data")
@@ -415,6 +412,39 @@ codeunit 144016 "IT - SEPA.03 CT Unit Test"
         PaymentExportData.DeleteAll();
         GenJnlLine.SetRange("Document No.", PaymentDocNo);
         SEPACTFillExportBuffer.FillExportBuffer(GenJnlLine, PaymentExportData, SEPAFormat::pain);
+    end;
+
+    local procedure PrepareVendorBillHeaderForFloppyReport(var VendorBillHeader: Record "Vendor Bill Header"; var TempVendorBillLine: Record "Vendor Bill Line" temporary)
+    var
+        BankExportImportSetup: Record "Bank Export/Import Setup";
+        BankAccount: Record "Bank Account";
+        Vendor: Record Vendor;
+        AbiCabCodes: Record "ABI/CAB Codes";
+        VendorBankAccount: Record "Vendor Bank Account";
+        Name1: Text;
+        Name2: Text;
+    begin
+        CreateBankExportImportSetup(BankExportImportSetup, CODEUNIT::"Vendor Bills Floppy", 0);
+        CreateVendorBill(VendorBillHeader, TempVendorBillLine, BankExportImportSetup.Code, false);
+        BankAccount.Get(VendorBillHeader."Bank Account No.");
+        CreateAbiCabCode(AbiCabCodes);
+        BankAccount.Validate(ABI, AbiCabCodes.ABI);
+        BankAccount.Validate(CAB, AbiCabCodes.CAB);
+        BankAccount.Validate(IBAN, LibraryUtility.GenerateGUID());
+        BankAccount.Modify(true);
+
+        VendorBankAccount.Get(TempVendorBillLine."Vendor No.", TempVendorBillLine."Vendor Bank Acc. No.");
+        VendorBankAccount.Validate(ABI, AbiCabCodes.ABI);
+        VendorBankAccount.Validate(CAB, AbiCabCodes.CAB);
+        VendorBankAccount.Validate(IBAN, LibraryUtility.GenerateGUID());
+        VendorBankAccount.Modify(true);
+
+        Name1 := LibraryRandom.RandText(30);
+        Name2 := LibraryRandom.RandText(30);
+        Vendor.Get(TempVendorBillLine."Vendor No.");
+        Vendor.Validate(Name, Format(Name1, 30));
+        Vendor.Validate("Name 2", Format(Name2, 30));
+        Vendor.Modify(true);
     end;
 
     local procedure CreateVendorBill(var VendorBillHeader: Record "Vendor Bill Header"; var TempVendorBillLines: Record "Vendor Bill Line" temporary; BankExpImpFormat: Code[20]; CumulativeLines: Boolean)
@@ -437,6 +467,7 @@ codeunit 144016 "IT - SEPA.03 CT Unit Test"
         BankAccount."Credit Transfer Msg. Nos." := LibraryUtility.GetGlobalNoSeriesCode;
         BankAccount.Modify();
         VendorBillHeader."Bank Account No." := BankAccount."No.";
+        VendorBillHeader."List Status" := VendorBillHeader."List Status"::Sent;
         VendorBillHeader.Modify();
 
         LibraryPurchase.CreateVendor(Vendor);
@@ -556,6 +587,20 @@ codeunit 144016 "IT - SEPA.03 CT Unit Test"
         PaymentExportData.GetRemittanceTexts(TempPaymentExportRemittanceText);
         TempPaymentExportRemittanceText.FindFirst;
         Assert.ExpectedMessage(ExpectedText, TempPaymentExportRemittanceText.Text);
+    end;
+
+    local procedure VerifyVendorFloppyFileContainsNameOfVendor(var ITSEPA03CTUnitTest: Codeunit "IT - SEPA.03 CT Unit Test"; TempVendorBillLine: Record "Vendor Bill Line" temporary)
+    var
+        Vendor: Record Vendor;
+        TextLine: Text;
+        FileName: Text;
+    begin
+        Vendor.Get(TempVendorBillLine."Vendor No.");
+        ITSEPA03CTUnitTest.DequeueFileName(FileName);
+        TextLine := LibraryTextFileValidation.FindLineWithValue(FileName, 11, 30, Vendor.Name);
+        Assert.AreEqual(CopyStr(TextLine, 11, 30), Vendor.Name, '');
+        Assert.AreEqual(CopyStr(TextLine, 41, 30), Vendor."Name 2", '');
+        ITSEPA03CTUnitTest.AssertVariableStorageIsEmpty();
     end;
 
     [ConfirmHandler]

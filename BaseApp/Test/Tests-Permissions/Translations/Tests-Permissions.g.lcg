@@ -608,4 +608,13 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Editing Permissions - NamedType CannotEditPermissionSetMsg)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1853180782 - NamedType 1287549821" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You cannot rename a tenant permission set until it is used elsewhere, for example, in permission settings for a user or user group.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Editing Permissions - NamedType CannotRenameTenantPermissionSetHavingUsageErr)]]></Cmt>
+    </Cmts>
+  </Item>
 </LCX>
