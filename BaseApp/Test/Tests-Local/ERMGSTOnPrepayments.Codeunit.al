@@ -941,7 +941,7 @@ codeunit 141026 "ERM GST On Prepayments"
         SalesHeader.CalcInvDiscForHeader;
 
         // [THEN] "Prepayment Amount" in Sales Line = 10
-        SalesLine.Find;
+        SalesLine.Find();
         SalesLine.TestField("Prepmt. Line Amount", Round(SalesLine."Line Amount" * SalesLine."Prepayment %" / 100));
     end;
 
