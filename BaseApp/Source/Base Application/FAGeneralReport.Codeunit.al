@@ -1,4 +1,4 @@
-codeunit 5626 "FA General Report"
+﻿codeunit 5626 "FA General Report"
 {
     Permissions = TableData "Fixed Asset" = rm;
 
@@ -69,6 +69,7 @@ codeunit 5626 "FA General Report"
                     end;
             end;
 
+            OnGetLastDateOnAfterFALedgEntrySetFilters(FALedgEntry, FADeprBook, PostingType, FirstLast);
             if Find(FirstLast) then begin
                 if GLEntry then
                     exit("Posting Date");
@@ -273,6 +274,11 @@ codeunit 5626 "FA General Report"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcGLPostedAmountOnBeforeCalcAmount(var FALedgerEntry: Record "FA Ledger Entry"; PostingType: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetLastDateOnAfterFALedgEntrySetFilters(var FALedgerEntry: Record "FA Ledger Entry"; var FADeprBook: Record "FA Depreciation Book"; PostingType: Integer; FirstLast: Text)
     begin
     end;
 }

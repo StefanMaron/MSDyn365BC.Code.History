@@ -47,6 +47,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
     procedure TestInvDiscWithInvDiscOnItm()
     begin
         // Covers documents TFS_TC_ID=11233, TFS_TC_ID=11234 and TFS_TC_ID=11240.
+        Initialize();
         InvDiscAndVATOnPurchInvoice(true, true);
     end;
 
@@ -55,6 +56,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
     procedure TestInvDiscWithoutInvDiscOnItm()
     begin
         // Covers documents TFS_TC_ID=11234, TFS_TC_ID=11236.
+        Initialize();
         InvDiscAndVATOnPurchInvoice(false, true);
     end;
 
@@ -63,6 +65,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
     procedure TestInvDiscWithPurchInvStsOpen()
     begin
         // Covers documents TFS_TC_ID=11233, TFS_TC_ID=11237.
+        Initialize();
         InvDiscAndVATOnPurchInvoice(true, false);
     end;
 
@@ -87,7 +90,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
 
         // Setup: Create Purchase Invoice with newly created Item and Vendor, Calculate Purchase Invoice Discount,
         // Update Purchase Line with a Random Invoice Discount Amount.
-        Initialize;
+        Initialize();
         LibraryPurchase.SetCalcInvDiscount(false);
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
 
@@ -133,7 +136,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         // 6. Verify Invoice Discount Amount and Amount Including VAT on Purchase Invoice Lines.
 
         // Setup: Create Purchase Invoice with newly created Items and Vendor.
-        Initialize;
+        Initialize();
         FindMultiVATPostingSetup(VATPostingSetup);
         CreatePurchaseInvoiceHeader(PurchaseHeader);
         VATPostingSetup.SetRange("VAT Bus. Posting Group", PurchaseHeader."VAT Bus. Posting Group");
@@ -178,7 +181,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
 
         // Setup: Create Purchase Invoice with newly created Items and Vendor. Calculate Invoice Discount on Purchase Invoice,
         // Release the Purchase Invoice.
-        Initialize;
+        Initialize();
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
 
         CreatePurchaseInvoiceHeader(PurchaseHeader);
@@ -214,7 +217,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         // Verify Values on Value Entry after posting Purchase Order as Receive.
 
         // Setup: Set Initial Setup and create Purchase Order.
-        Initialize;
+        Initialize();
         LibraryInventory.SetAutomaticCostPosting(true);
         CreatePurchaseOrder(PurchaseHeader, PurchaseLine);
 
@@ -237,7 +240,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         // Verify Values on Value Entry after posting Purchase Order as Invoice.
 
         // Setup: Set Initial Setup and create Purchase Order.
-        Initialize;
+        Initialize();
         LibraryInventory.SetAutomaticCostPosting(true);
         CreatePurchaseOrder(PurchaseHeader, PurchaseLine);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
@@ -262,7 +265,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         // Verify Line Discount on Sales Credit Memo Using Copy Document after Posting Sales Invoice.
 
         // Setup: Create Sales Invoice and Update Sales & Receivable Setup for Exact Cost Reversing Mandatory.
-        Initialize;
+        Initialize();
         PostedDocumentNo := CreateAndPostSalesInvoice(SalesLine);
         LibrarySales.SetExactCostReversingMandatory(true);
 
@@ -284,7 +287,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         PostingDate: Date;
     begin
         // Create Sales Invoice with Fixed Asset with discount and post it.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
 
         SalesInvoiceNo := CreateAndPostSalesInvoiceWithFADiscount(SalesLine, PostingDate, Customer."No.");
@@ -301,6 +304,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         CustomerCard: TestPage "Customer Card";
         ExpectedErr: Text[1024];
     begin
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         CustomerCard.OpenEdit;
         CustomerCard.FILTER.SetFilter("No.", Customer."No.");
@@ -318,6 +322,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         VendorCard: TestPage "Vendor Card";
         ExpectedErr: Text[1024];
     begin
+        Initialize();
         LibraryPurchase.CreateVendor(Vendor);
         VendorCard.OpenEdit;
         VendorCard.FILTER.SetFilter("No.", Vendor."No.");
@@ -342,7 +347,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         // in statistics page has negative value in Invoice Discount Amount column
 
         // Setup: Create Purchase Invoice with newly created Item and Vendor.
-        Initialize;
+        Initialize();
         LibraryPurchase.SetCalcInvDiscount(false);
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         CreatePurchaseInvoiceHeader(PurchaseHeader);
@@ -374,7 +379,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         // in statistics page has negative value in Invoice Discount Amount column
 
         // Setup:
-        Initialize;
+        Initialize();
         LibrarySales.SetCalcInvDiscount(false);
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         LibrarySales.CreateSalesHeader(
@@ -403,7 +408,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         // Balanced lines have incorrect Invoice Discount Amount due to fix 346152
 
         // Setup: Create Purchase Invoice with newly created Item and Vendor.
-        Initialize;
+        Initialize();
         LibraryPurchase.SetCalcInvDiscount(true);
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         CreatePurchaseInvoiceHeader(PurchaseHeader);
@@ -429,7 +434,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         // Balanced lines have incorrect Invoice Discount Amount due to fix 346152
 
         // Setup:
-        Initialize;
+        Initialize();
         LibrarySales.SetCalcInvDiscount(true);
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         LibrarySales.CreateSalesHeader(
@@ -455,7 +460,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         LineDiscountAmount: Decimal;
     begin
         // Setup.
-        Initialize;
+        Initialize();
         LibrarySales.SetCalcInvDiscount(true);
 
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
@@ -486,7 +491,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         LineDiscountAmount: Decimal;
     begin
         // Setup.
-        Initialize;
+        Initialize();
         LibrarySales.SetCalcInvDiscount(true);
 
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
@@ -515,6 +520,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         SalesHeader: Record "Sales Header";
     begin
         // Test Invoice Discount Amount should be copied when using Copy Document function in Sales Invoice
+        Initialize();
         CopyPostedSalesInvoiceWithInvoiceDiscountAmount(SalesHeader."Document Type"::Invoice, false);
     end;
 
@@ -526,6 +532,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         SalesHeader: Record "Sales Header";
     begin
         // Test Invoice Discount Amount should be copied when using Copy Document function in Sales Credit Memo
+        Initialize();
         CopyPostedSalesInvoiceWithInvoiceDiscountAmount(SalesHeader."Document Type"::"Credit Memo", true);
     end;
 
@@ -537,6 +544,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         PurchaseHeader: Record "Purchase Header";
     begin
         // Test Invoice Discount Amount should be copied when using Copy Document function in Purchase Order
+        Initialize();
         CopyPostedPurchaseInvoiceWithInvoiceDiscountAmount(PurchaseHeader."Document Type"::Order, false);
     end;
 
@@ -548,6 +556,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         PurchaseHeader: Record "Purchase Header";
     begin
         // Test Invoice Discount Amount should be copied when using Copy Document function in Purchase Return Order
+        Initialize();
         CopyPostedPurchaseInvoiceWithInvoiceDiscountAmount(PurchaseHeader."Document Type"::"Return Order", true);
     end;
 
@@ -560,6 +569,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         SalesLine: array[2] of Record "Sales Line";
     begin
         // Verify Amount Including VAT on Sales Order After Enable Prices Including VAT.
+        Initialize();
 
         // Setup: Create Sales Order and Calculate Invoice Discount.
         CreateSalesOrderWithCalculateInvoiceDiscount(SalesHeader, SalesLine);
@@ -581,6 +591,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         PurchaseLine: array[2] of Record "Purchase Line";
     begin
         // Verify Amount Including VAT on Purchase Order After Enable Prices Including VAT.
+        Initialize();
 
         // Setup: Create Purchase Order and Calculate Invoice Discount.
         CreatePurchaseOrderWithCalculateInvoiceDiscount(PurchaseHeader, PurchaseLine);
@@ -604,7 +615,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         // Verify Amount Including VAT on Sales Order After Enable Prices Including VAT with Payment Discount Excluding VAT.
 
         // Setup: Update Pmt. Disc. Excl. VAT with VAT Tolerance and Create Sales Order and Calculate Invoice Discount.
-        Initialize;
+        Initialize();
         LibraryPmtDiscSetup.SetPmtDiscExclVAT(true);
         CreateSalesOrderWithPmtDiscExclVATAndCalculateInvoiceDiscount(SalesHeader, SalesLine);
 
@@ -629,7 +640,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         // Verify Amount Including VAT on Purchase Order After Enable Prices Including VAT with Payment Discount Excluding VAT.
 
         // Setup: Update Pmt. Disc. Excl. VAT with VAT Tolerance and Create Purchase Order and Calculate Invoice Discount.
-        Initialize;
+        Initialize();
         LibraryPmtDiscSetup.SetPmtDiscExclVAT(true);
         CreatePurchaseOrderWithPmtDiscExclVATAndCalculateInvoiceDiscount(PurchaseHeader, PurchaseLine);
 
@@ -659,7 +670,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         // [GIVEN] Assign invoice discount amount through SalesOrderStatisticsPageHandler
         // [GIVEN] Post order partially
         // [GIVEN] Get line invoiced and save invoice discount before inv. discount update
-        Initialize;
+        Initialize();
         CreateSalesOrderWithMultipleLines(SalesHeader);
         InvDiscountAmount := LibraryRandom.RandDec(100, 2);
         OpenSalesOrderStatistics(SalesHeader, InvDiscountAmount);
@@ -693,7 +704,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         // [GIVEN] Assign invoice discount amount through SalesOrderStatisticsPageHandler
         // [GIVEN] Post order partially
         // [GIVEN] Get line invoiced and save invoice discount before inv. discount update
-        Initialize;
+        Initialize();
         CreatePurchOrderWithMultipleLines(PurchHeader);
         InvDiscountAmount := LibraryRandom.RandDec(100, 2);
         OpenPurchOrderStatistics(PurchHeader, InvDiscountAmount);
@@ -721,7 +732,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         // [SCENARIO] Set -GLSetup."Amount Rounding Precision" to Invoice Discount Amount for SO with 3+ lines having same amounts
 
         // [GIVEN] LCY Sales Order with 3+ lines with equal amount each and some Amount Rounding Precision for currency
-        Initialize;
+        Initialize();
         InitializeSalesMultipleLinesEqualAmountsScenario(SalesHeader, InvoiceDiscountAmount, '');
         // [WHEN] We set -GLSetup."Amount Rounding Precision" to Invoice Discount Amount
         UpdateInvDiscAmtOnSalesOrder(SalesHeader, InvoiceDiscountAmount);
@@ -739,7 +750,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         // [SCENARIO] Set -GLSetup."Amount Rounding Precision" to Invoice Discount Amount for PO with 3+ lines having same amounts
 
         // [GIVEN] FCY Purchase Order with 3+ lines with equal amount each and some Amount Rounding Precision for currency
-        Initialize;
+        Initialize();
         InitializePurchaseMultipleLinesEqualAmountsScenario(PurchaseHeader, InvoiceDiscountAmount, '');
         // [WHEN] We set -GLSetup."Amount Rounding Precision" to Invoice Discount Amount
         UpdateInvDiscAmtOnPurchaseOrder(PurchaseHeader, InvoiceDiscountAmount);
@@ -757,7 +768,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         // [SCENARIO] Set -Currency."Amount Rounding Precision" to Invoice Discount Amount for FCY SO with 3+ lines having same amounts
 
         // [GIVEN] FCY Sales Order with 3+ lines with equal amount each and some Amount Rounding Precision for currency
-        Initialize;
+        Initialize();
         InitializeSalesMultipleLinesEqualAmountsScenario(
           SalesHeader, InvoiceDiscountAmount, LibraryERM.CreateCurrencyWithRounding);
         // [WHEN] We set -Currency."Amount Rounding Precision" to Invoice Discount Amount
@@ -776,7 +787,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         // [SCENARIO] Set -Currency."Amount Rounding Precision" to Invoice Discount Amount for FCY PO with 3+ lines having same amounts
 
         // [GIVEN] FCY Purchase Order with 3+ lines with equal amount each and some Amount Rounding Precision for currency
-        Initialize;
+        Initialize();
         InitializePurchaseMultipleLinesEqualAmountsScenario(
           PurchaseHeader, InvoiceDiscountAmount, LibraryERM.CreateCurrencyWithRounding);
         // [WHEN] We set -Currency."Amount Rounding Precision" to Invoice Discount Amount
@@ -796,7 +807,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         // [FEATURE] [Sales] [Line Discount] [Partial Posting]
         // [SCENARIO 374880] Total amount of G/L Account in Sales Order with "Line Discount %" = 100 and posted partially should be equal "Line Discount Amount"
 
-        Initialize;
+        Initialize();
         // [GIVEN] Partially posted Order with "G/L Account" = "X" VAT % = 10, Quantity = 15, "Unit Price" = 9.0909, "Line Discount" = 100%, "Qty. Invoiced" = 9, "Line Disc. Amount" = 136.36
         CreateSalesOrderWithCustomVATAndLineDiscount(SalesHeader, SalesLine, 15, 9.0909, 100);
         ExpectedLineDiscAmount := SalesLine."Line Discount Amount";
@@ -822,7 +833,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         // [FEATURE] [Purchase] [Line Discount] [Partial Posting]
         // [SCENARIO 374880] Total amount of G/L Account in Purchase Order with "Line Discount %" = 100 and posted partially should be equal "Line Discount Amount"
 
-        Initialize;
+        Initialize();
         // [GIVEN] Partially posted Order with "G/L Account" = "X" VAT % = 10, Quantity = 15, "Unit Cost" = 9.0909, "Line Discount" = 100%, "Qty. Invoiced" = 9, "Line Disc. Amount" = 136.36
         CreatePurchOrderWithCustomVATAndLineDiscount(PurchHeader, PurchLine, 15, 9.0909, 100);
         ExpectedLineDiscAmount := PurchLine."Line Discount Amount";
@@ -852,7 +863,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         // [FEATURE] [Sales] [Line Discount]
         // [SCENARIO 378349] G/L Entry with VAT is posted for multiple lines order when one of the lines has "Line Discount %" = 100
 
-        Initialize;
+        Initialize();
         // [GIVEN] Sales Order with sales lines:
         // [GIVEN] Line "1": Line Amount = 2000, "Line Discount %" = 40, "Line Discount Amonut" = 800, "Line Discount VAT Amount" = 80
         // [GIVEN] Line "2": Line Amount = 1000, "Line Discount %" = 100, "Line Discount Amonut" = 1000, "Line Discount VAT Amount" = 100
@@ -886,7 +897,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         // [FEATURE] [Purchase] [Line Discount]
         // [SCENARIO 378349] G/L Entry with VAT is posted for multiple lines order when one of the lines has "Line Discount %" = 100
 
-        Initialize;
+        Initialize();
         // [GIVEN] Purchase Order with sales lines:
         // [GIVEN] Line "1": Line Amount = 2000, "Line Discount %" = 40, "Line Discount Amonut" = 800, "Line Discount VAT Amount" = 80
         // [GIVEN] Line "2": Line Amount = 1000, "Line Discount %" = 100, "Line Discount Amonut" = 1000, "Line Discount VAT Amount" = 100
@@ -920,7 +931,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         // [FEATURE] [Service] [Line Discount]
         // [SCENARIO 378349] G/L Entry with VAT is posted for multiple lines order when one of the lines has "Line Discount %" = 100
 
-        Initialize;
+        Initialize();
         // [GIVEN] Service Invoice with sales lines:
         // [GIVEN] Line "1": Line Amount = 2000, "Line Discount %" = 40, "Line Discount Amonut" = 800, "Line Discount VAT Amount" = 80
         // [GIVEN] Line "2": Line Amount = 1000, "Line Discount %" = 100, "Line Discount Amonut" = 1000, "Line Discount VAT Amount" = 100
@@ -953,7 +964,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         // [FEATURE] [Sales] [Line Discount]
         // [SCENARIO 160175] G/L Entry with "Sales Amount" is posted when "Line Discount %" = 100
 
-        Initialize;
+        Initialize();
         // [GIVEN] Sales Order with "Amount" = "X", "Line Discount %" = 100
         CreateSalesOrderWithCustomVATAndLineDiscount(
           SalesHeader, SalesLine, LibraryRandom.RandInt(100), LibraryRandom.RandDec(100, 2), 100);
@@ -976,7 +987,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         // [FEATURE] [Purchase] [Line Discount]
         // [SCENARIO 160175] G/L Entry with "Purchase Amount" is posted when "Line Discount %" = 100
 
-        Initialize;
+        Initialize();
         // [GIVEN] Purchase Order with "Amount" = "X", "Line Discount %" = 100
         CreatePurchOrderWithCustomVATAndLineDiscount(
           PurchHeader, PurchLine, LibraryRandom.RandInt(100), LibraryRandom.RandDec(100, 2), 100);
@@ -999,7 +1010,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         // [FEATURE] [Service] [Line Discount]
         // [SCENARIO 160175] G/L Entry with "Service Amount" is posted when "Line Discount %" = 100
 
-        Initialize;
+        Initialize();
         // [GIVEN] Purchase Order with "Amount" = "X", "Line Discount %" = 100
         CreateServOrderWithLineDiscount(ServHeader, ServLine, 100);
 
@@ -1020,6 +1031,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
     begin
         // [FEATURE] [UT] [Customer]
         // [SCENARIO 217896] Customer's "Invoice Disc. Code" is updated with new Customer."No." value OnRename trigger in case of xRec."No." = xRec."Invoice Disc. Code"
+        Initialize();
 
         // OnInsert updates blank "Invoice Disc. Code" value with "No."
         Clear(Customer);
@@ -1071,6 +1083,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
     begin
         // [FEATURE] [UT] [Vendor]
         // [SCENARIO 217896] Vendor's "Invoice Disc. Code" is updated with new Vendor."No." value OnRename trigger in case of xRec."No." = xRec."Invoice Disc. Code"
+        Initialize();
 
         // OnInsert updates blank "Invoice Disc. Code" value with "No."
         Clear(Vendor);
@@ -1122,6 +1135,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
     begin
         // [FEATURE] [UT] [Customer]
         // [SCENARIO 217896] Customer Template's "Invoice Disc. Code" is updated with new Customer."No." value OnRename Customer's trigger
+        Initialize();
 
         // [GIVEN] Customer "X1" with "Invoice Disc. Code" = "X1"
         Customer[1].Insert(true);
@@ -1162,7 +1176,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
     begin
         // [FEATURE] [Sales] [Line Discount]
         // [SCENARIO 221273] Two VAT and G\L Entries (positive and negative) after posting sales order with 100% line discount
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales order with 1 line having 100% "Line Discount"
         CreateSalesOrderWithLineDiscount(SalesHeader, SalesLine, 100);
@@ -1194,7 +1208,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
     begin
         // [FEATURE] [Purchase] [Line Discount]
         // [SCENARIO 221273] Two VAT and G\L Entries (positive and negative) after posting purchase order with 100% line discount
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Invoice with 1 line having 100% "Line Discount"
         CreatePurchOrderWithLineDiscount(PurchaseHeader, PurchaseLine, 100);
@@ -1225,6 +1239,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
     begin
         // [FEATURE] [Purchase] [Payment Discount]
         // [SCENARIO 251869] When posting a purchase invoice with 2 lines, the field "Base Before Pmt. Disc." in the VAT Entry contains sum of VAT bases.
+        Initialize();
 
         // [GIVEN] Purchase Invoice
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
@@ -1262,7 +1277,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
     begin
         // [FEATURE] [Purchase] [Discount] [UT]
         // [SCENARIO 256682] CalcTotalPurchAmountOnlyDiscountAllowed function returns total amount of Purchase lines with allowed discount.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Header.
         LibraryPurchase.CreatePurchHeader(PurchHeader, PurchHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
@@ -1292,7 +1307,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
     begin
         // [FEATURE] [Sales] [Discount] [UT]
         // [SCENARIO 256682] CalcTotalSalesAmountOnlyDiscountAllowed function returns total amount of Sales lines with allowed discount.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Header.
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
@@ -1322,7 +1337,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
     begin
         // [FEATURE] [Purchase] [Discount] [UT]
         // [SCENARIO 256682] GetVendInvoiceDiscountPct function calculates Discount % based only on Purchase lines with allowed discount.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Header with default Invoice Discount Calculation.
         CreatePurchaseOrderWithInvoiceDiscountCalculation(PurchHeader, PurchHeader."Invoice Discount Calculation"::None);
@@ -1356,7 +1371,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
     begin
         // [FEATURE] [Sales] [Discount] [UT]
         // [SCENARIO 256682] GetCustInvoiceDiscountPct function calculates Discount % based only on Sales lines with allowed discount.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Header with default Invoice Discount Calculation.
         CreateSalesOrderWithInvoiceDiscountCalculation(SalesHeader, SalesHeader."Invoice Discount Calculation"::None);
@@ -1424,7 +1439,6 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         // 7. Verify Invoice Discount Amount and Amount Including VAT for the Purchase Invoice.
 
         // Setup: Create Purchase Invoice with newly created Item and Vendor.
-        Initialize;
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         ItemNo := CreateItem(AllowInvoiceDisc, VATPostingSetup."VAT Prod. Posting Group");
         CreatePurchaseInvoiceHeader(PurchaseHeader);
@@ -2212,7 +2226,6 @@ codeunit 134027 "ERM Invoice Discount And VAT"
     begin
         // Setup: Update Sales & Receivables Setup
         // Create and post a Sales Invoice with Multiple lines, set and Calculate Invoice Discount
-        Initialize;
         LibrarySales.SetCreditWarningsToNoWarnings;
         LibrarySales.SetStockoutWarning(false);
         DocumentNo := CreateSalesInvoiceWithMultilinesInvoiceDiscount(InvDiscountAmount);
@@ -2239,7 +2252,6 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         FromDocType: Enum "Purchase Document Type From";
     begin
         // Setup: Create Purchase Invoice with Multiple lines, set and Calculate Invoice Discount
-        Initialize;
         DocumentNo := CreatePurchaseInvoiceWithMultilinesInvoiceDiscount(InvDiscountAmount);
         FromDocType := "Purchase Document Type From"::Invoice;
 

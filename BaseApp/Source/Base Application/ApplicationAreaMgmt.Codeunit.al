@@ -35,7 +35,13 @@ codeunit 9178 "Application Area Mgmt."
     procedure GetApplicationAreas() ApplicationAreas: Text
     var
         ApplicationAreaCache: Codeunit "Application Area Cache";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetApplicationAreas(ApplicationAreas, IsHandled);
+        if IsHandled then
+            exit(ApplicationAreas);
+
         if ApplicationAreaCache.GetApplicationAreasForUser(ApplicationAreas) then
             exit(ApplicationAreas);
 
@@ -930,6 +936,11 @@ codeunit 9178 "Application Area Mgmt."
 
     [IntegrationEvent(false, false)]
     local procedure OnGetPremiumExperienceAppAreas(var TempApplicationAreaSetup: Record "Application Area Setup" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetApplicationAreas(var ApplicationAreas: Text; var IsHandled: Boolean)
     begin
     end;
 

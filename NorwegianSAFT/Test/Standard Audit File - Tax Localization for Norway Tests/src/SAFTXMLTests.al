@@ -263,8 +263,10 @@ codeunit 148103 "SAF-T XML Tests"
         SAFTExportHeader: Record "SAF-T Export Header";
         SAFTExportLine: Record "SAF-T Export Line";
         TempXMLBuffer: Record "XML Buffer" temporary;
+        TempResultElementXMLBuffer: Record "XML Buffer" temporary;
         GLAccount: Record "G/L Account";
         Customer: Record Customer;
+        CustomerPostingGroup: Record "Customer Posting Group";
         GLEntry: Record "G/L Entry";
         DocNo: Code[20];
     begin
@@ -277,15 +279,21 @@ codeunit 148103 "SAF-T XML Tests"
         SAFTTestHelper.CreateSAFTExportHeader(SAFTExportHeader, SAFTMappingRange.Code);
 
         DocNo := LibraryUtility.GenerateGUID();
+
+        // [GIVEN] Customer with posting group where "Receivables Account" = "X"
+        Customer.FindFirst();
+        CustomerPostingGroup.Get(Customer."Customer Posting Group");
+
+        // [GIVEN] G/L account "Y"
+        GLAccount.SetFilter("No.", '<>%1', CustomerPostingGroup."Receivables Account");
         GLAccount.SetRange("Income/Balance", GLAccount."Income/Balance"::"Balance Sheet");
         GLAccount.FindFirst();
-        Customer.FindFirst();
         SAFTTestHelper.IncludesNoSourceCodeToTheFirstSAFTSourceCode();
 
-        // [GIVEN] Two G/L Entries with the same document/transaction, one  with "Gen. Posting Type" = Sales, one with blank value
+        // [GIVEN] Two G/L Entries with accounts "X" and "Y"
         SAFTTestHelper.MockGLEntry(
-            SAFTExportHeader."Ending Date", DocNo, GLAccount."No.",
-            1, 0, GLEntry."Gen. Posting Type"::Sale, '',
+            SAFTExportHeader."Ending Date", DocNo, CustomerPostingGroup."Receivables Account",
+            1, 0, 0, '',
             '', GLEntry."Source Type"::Customer, Customer."No.", '', LibraryRandom.RandDec(100, 2), 0);
         SAFTTestHelper.MockGLEntry(
             SAFTExportHeader."Ending Date", DocNo, GLAccount."No.",
@@ -299,12 +307,20 @@ codeunit 148103 "SAF-T XML Tests"
         SAFTTestHelper.FindSAFTExportLine(SAFTExportLine, SAFTExportHeader.ID);
         SAFTTestHelper.LoadXMLBufferFromSAFTExportLine(TempXMLBuffer, SAFTExportLine);
 
-        // [THEN] CustomerID xml node exists just once in the XML file
+        // [THEN] CustomerID xml node exists only for the first G/L entry
+        // TFS ID 389407: CustomerID exports for G/L Entry where G/L account is Receivables Account
         Assert.IsTrue(
             TempXMLBuffer.FindNodesByXPath(TempXMLBuffer,
-                '/n1:AuditFile/n1:GeneralLedgerEntries/n1:Journal/n1:Transaction/n1:Line/n1:CustomerID'),
+                '/n1:AuditFile/n1:GeneralLedgerEntries/n1:Journal/n1:Transaction/n1:Line'),
                 'No G/L entries with CustomerID exported.');
-        Assert.RecordCount(TempXMLBuffer, 1);
+        Assert.RecordCount(TempXMLBuffer, 2);
+
+        SAFTTestHelper.FilterChildElementsByName(TempResultElementXMLBuffer, TempXMLBuffer, 'CustomerID');
+        Assert.RecordIsNotEmpty(TempResultElementXMLBuffer);
+
+        SAFTTestHelper.FindNextElement(TempXMLBuffer);
+        SAFTTestHelper.FilterChildElementsByName(TempResultElementXMLBuffer, TempXMLBuffer, 'CustomerID');
+        Assert.RecordIsEmpty(TempResultElementXMLBuffer);
     end;
 
     [Test]
@@ -315,8 +331,10 @@ codeunit 148103 "SAF-T XML Tests"
         SAFTExportHeader: Record "SAF-T Export Header";
         SAFTExportLine: Record "SAF-T Export Line";
         TempXMLBuffer: Record "XML Buffer" temporary;
+        TempResultElementXMLBuffer: Record "XML Buffer" temporary;
         GLAccount: Record "G/L Account";
-        Vendor: Record Customer;
+        Vendor: Record Vendor;
+        VendorPostingGroup: Record "Vendor Posting Group";
         GLEntry: Record "G/L Entry";
         DocNo: Code[20];
     begin
@@ -329,15 +347,21 @@ codeunit 148103 "SAF-T XML Tests"
         SAFTTestHelper.CreateSAFTExportHeader(SAFTExportHeader, SAFTMappingRange.Code);
 
         DocNo := LibraryUtility.GenerateGUID();
+
+        // [GIVEN] Customer with posting group where "Receivables Account" = "X"
+        Vendor.FindFirst();
+        VendorPostingGroup.GET(Vendor."Vendor Posting Group");
+
+        // [GIVEN] G/L account "Y"
+        GLAccount.SETFILTER("No.", '<>%1', VendorPostingGroup."Payables Account");
         GLAccount.SetRange("Income/Balance", GLAccount."Income/Balance"::"Balance Sheet");
         GLAccount.FindFirst();
-        Vendor.FindFirst();
         SAFTTestHelper.IncludesNoSourceCodeToTheFirstSAFTSourceCode();
 
-        // [GIVEN] Two G/L Entries with the same document/transaction, one  with "Gen. Posting Type" = Sales, one with blank value
+        // [GIVEN] Two G/L Entries with accounts "X" and "Y"
         SAFTTestHelper.MockGLEntry(
-            SAFTExportHeader."Ending Date", DocNo, GLAccount."No.",
-            1, 0, GLEntry."Gen. Posting Type"::Sale, '',
+            SAFTExportHeader."Ending Date", DocNo, VendorPostingGroup."Payables Account",
+            1, 0, 0, '',
             '', GLEntry."Source Type"::Vendor, Vendor."No.", '', LibraryRandom.RandDec(100, 2), 0);
         SAFTTestHelper.MockGLEntry(
             SAFTExportHeader."Ending Date", DocNo, GLAccount."No.",
@@ -351,12 +375,20 @@ codeunit 148103 "SAF-T XML Tests"
         SAFTTestHelper.FindSAFTExportLine(SAFTExportLine, SAFTExportHeader.ID);
         SAFTTestHelper.LoadXMLBufferFromSAFTExportLine(TempXMLBuffer, SAFTExportLine);
 
-        // [THEN] SupplierID xml node exists just once in the XML file
+        // [THEN] SupplierID xml node exists only for the first G/L entry
+        // TFS ID 389407: SupplierID exports for G/L Entry where G/L account is Payables Account
         Assert.IsTrue(
             TempXMLBuffer.FindNodesByXPath(TempXMLBuffer,
-                '/n1:AuditFile/n1:GeneralLedgerEntries/n1:Journal/n1:Transaction/n1:Line/n1:SupplierID'),
+                '/n1:AuditFile/n1:GeneralLedgerEntries/n1:Journal/n1:Transaction/n1:Line'),
                 'No G/L entries with CustomerID exported.');
-        Assert.RecordCount(TempXMLBuffer, 1);
+        Assert.RecordCount(TempXMLBuffer, 2);
+
+        SAFTTestHelper.FilterChildElementsByName(TempResultElementXMLBuffer, TempXMLBuffer, 'SupplierID');
+        Assert.RecordIsNotEmpty(TempResultElementXMLBuffer);
+
+        SAFTTestHelper.FindNextElement(TempXMLBuffer);
+        SAFTTestHelper.FilterChildElementsByName(TempResultElementXMLBuffer, TempXMLBuffer, 'SupplierID');
+        Assert.RecordIsEmpty(TempResultElementXMLBuffer);
     end;
 
     [Test]
@@ -711,6 +743,57 @@ codeunit 148103 "SAF-T XML Tests"
         VerifyXMLNodeOfMasterFile(SAFTExportHeader, 'SupplierID', VendNo);
         LibraryVariableStorage.AssertEmpty();
     END;
+
+    [Test]
+    [HandlerFunctions('ConfirmYesHandler')]
+    procedure DefaultPostCodeUsesWhenCustomerOrVendorHasNoPostCode()
+    var
+        SAFTSetup: Record "SAF-T Setup";
+        SAFTExportHeader: Record "SAF-T Export Header";
+        SAFTExportLine: Record "SAF-T Export Line";
+        Vendor: Record Vendor;
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        Customer: Record Customer;
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        TempXMLBuffer: Record "XML Buffer" temporary;
+    begin
+        // [SCENARIO 389723] A "Default Post Code" of the SAF-T setup uses when customer or vendor does not have their own post code
+
+        Initialize();
+
+        // [GIVEN] SAF-T Setup with single customer and vendor
+        BasicSAFTSetup(SAFTExportHeader);
+
+        // [GIVEN] Customer and vendor does not have the value of Post Code
+        Customer.FindFirst();
+        Customer.Validate("Post Code", '');
+        Customer.Modify(true);
+        SAFTTestHelper.MockCustLedgEntry(
+          SAFTExportHeader."Starting Date", Customer."No.", 1, 1, CustLedgerEntry."Document Type"::Invoice);
+        Vendor.FindFirst();
+        SAFTTestHelper.MockVendLedgEntry(
+          SAFTExportHeader."Starting Date", Vendor."No.", 1, 1, VendorLedgerEntry."Document Type"::Invoice);
+
+        // [GIVEN] "Default Post Code" of the SAF-T Setup is "X"
+        SAFTSetup.Get();
+        SAFTSetup."Default Post Code" := LibraryUtility.GenerateGUID();
+        SAFTSetup.Modify();
+
+        // [WHEN] Export SAF-T
+        LibraryVariableStorage.Enqueue(GenerateSAFTFileImmediatelyQst);
+        SAFTTestHelper.RunSAFTExport(SAFTExportHeader);
+
+        // [THEN] Master file contains the 'n1:Customers/n1:Customer/n1:Address/n1:PostalCode' xml node for customer and vendor with "X" value
+        SAFTExportLine.SetRange(Status, SAFTExportLine.Status::Completed);
+        SAFTTestHelper.FindSAFTExportLine(SAFTExportLine, SAFTExportHeader.ID);
+        SAFTTestHelper.LoadXMLBufferFromSAFTExportLine(TempXMLBuffer, SAFTExportLine);
+        SAFTTestHelper.AssertCurrentValue(
+          TempXMLBuffer,
+          '/n1:AuditFile/n1:MasterFiles/n1:Customers/n1:Customer/n1:Address/n1:PostalCode', SAFTSetup."Default Post Code");
+        SAFTTestHelper.AssertCurrentValue(
+          TempXMLBuffer,
+          '/n1:AuditFile/n1:MasterFiles/n1:Vendors/n1:Vendor/n1:Address/n1:PostalCode', SAFTSetup."Default Post Code");
+    end;
 
     local procedure Initialize()
     begin

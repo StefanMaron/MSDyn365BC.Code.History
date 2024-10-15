@@ -512,7 +512,7 @@
         Amount := Format(VATAmtLine."Invoice Discount Amount", 0, 9);
         AllowanceChargeCurrencyID := GetSalesDocCurrencyCode(SalesHeader);
         TaxCategoryID := VATAmtLine."Tax Category";
-        TaxCategorySchemeID := GetUNCL5305ListID();
+        TaxCategorySchemeID := '';
         Percent := Format(VATAmtLine."VAT %", 0, 9);
         AllowanceChargeTaxSchemeID := VATTxt;
     end;
@@ -534,7 +534,7 @@
         Amount := Format(VATAmtLine."Amount Including VAT" - VATAmtLine."VAT Amount", 0, 9);
         AllowanceChargeCurrencyID := GetSalesDocCurrencyCode(SalesHeader);
         TaxCategoryID := VATAmtLine."Tax Category";
-        TaxCategorySchemeID := GetUNCL5305ListID();
+        TaxCategorySchemeID := '';
         Percent := Format(VATAmtLine."VAT %", 0, 9);
         AllowanceChargeTaxSchemeID := VATTxt;
     end;
@@ -584,7 +584,7 @@
             TransCurrTaxAmtCurrencyID := GLSetup."LCY Code";
         end;
         TaxTotalTaxCategoryID := VATAmtLine."Tax Category";
-        schemeID := GetUNCL5305ListID();
+        schemeID := '';
         TaxCategoryPercent := Format(VATAmtLine."VAT %", 0, 9);
         TaxTotalTaxSchemeID := VATTxt;
 
@@ -592,6 +592,31 @@
           VATAmtLine, SalesHeader, TaxableAmount, SubtotalTaxAmount,
           TransactionCurrencyTaxAmount, TaxTotalTaxCategoryID, schemeID,
           TaxCategoryPercent, TaxTotalTaxSchemeID);
+    end;
+
+    procedure GetTaxTotalInfoLCY(SalesHeader: Record "Sales Header"; var TaxAmount: Text; var TaxCurrencyID: Text; var TaxTotalCurrencyID: Text)
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        VATEntry: Record "VAT Entry";
+    begin
+        GeneralLedgerSetup.Get();
+        if GeneralLedgerSetup."LCY Code" = GetSalesDocCurrencyCode(SalesHeader) then
+            exit;
+
+        TaxCurrencyID := GeneralLedgerSetup."LCY Code";
+        TaxTotalCurrencyID := GeneralLedgerSetup."LCY Code";
+        case SalesHeader."Document Type" of
+            SalesHeader."Document Type"::Invoice:
+                VATEntry.SetRange("Document Type", VATEntry."Document Type"::Invoice);
+            SalesHeader."Document Type"::"Credit Memo":
+                VATEntry.SetRange("Document Type", VATEntry."Document Type"::"Credit Memo");
+        end;
+        VATEntry.SetRange("Document No.", SalesHeader."No.");
+        VATEntry.SetRange("Posting Date", SalesHeader."Posting Date");
+        VATEntry.CalcSums(Amount);
+        TaxAmount := Format(Abs(VATEntry.Amount), 0, 9);
+
+        OnAfterGetTaxTotalInfoLCY(SalesHeader, TaxAmount, TaxCurrencyID, TaxTotalCurrencyID);
     end;
 
     procedure GetLegalMonetaryInfo(SalesHeader: Record "Sales Header"; var VATAmtLine: Record "VAT Amount Line"; var LineExtensionAmount: Text; var LegalMonetaryTotalCurrencyID: Text; var TaxExclusiveAmount: Text; var TaxExclusiveAmountCurrencyID: Text; var TaxInclusiveAmount: Text; var TaxInclusiveAmountCurrencyID: Text; var AllowanceTotalAmount: Text; var AllowanceTotalAmountCurrencyID: Text; var ChargeTotalAmount: Text; var ChargeTotalAmountCurrencyID: Text; var PrepaidAmount: Text; var PrepaidCurrencyID: Text; var PayableRoundingAmount: Text; var PayableRndingAmountCurrencyID: Text; var PayableAmount: Text; var PayableAmountCurrencyID: Text)
@@ -770,7 +795,7 @@
             InvoiceLineTaxPercent := '0';
         end;
 
-        ItemSchemeID := GetUNCL5305ListID();
+        ItemSchemeID := '';
         ClassifiedTaxCategorySchemeID := VATTxt;
     end;
 
@@ -951,11 +976,6 @@
     local procedure GetUNCL4465ListID(): Text
     begin
         exit('UNCL4465');
-    end;
-
-    local procedure GetUNCL5305ListID(): Text
-    begin
-        exit('UNCL5305');
     end;
 
     local procedure GetUNECERec20ListID(): Text
@@ -1470,6 +1490,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetTaxTotalInfo(SalesHeader: Record "Sales Header"; var VATAmtLine: Record "VAT Amount Line"; var TaxAmount: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetTaxTotalInfoLCY(SalesHeader: Record "Sales Header"; var TaxAmount: Text; var TaxCurrencyID: Text; var TaxTotalCurrencyID: Text)
     begin
     end;
 

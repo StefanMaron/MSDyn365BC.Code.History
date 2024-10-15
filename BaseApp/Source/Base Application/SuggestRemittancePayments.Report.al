@@ -198,6 +198,7 @@ report 15000001 "Suggest Remittance Payments"
             if PostingDate = 0D then
                 PostingDate := WorkDate;
             ValidatePostingDate;
+            OnAfterOpenPage(GenJnlLine, UsePaymentDisc, PostingDate);
         end;
     }
 
@@ -612,6 +613,11 @@ report 15000001 "Suggest Remittance Payments"
                   DimMgt.GetCombinedDimensionSetID(DimSetIDArr, "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
             end;
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterOpenPage(GenJournalLine: Record "Gen. Journal Line"; var UsePaymentDisc: Boolean; var PostingDate: Date)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

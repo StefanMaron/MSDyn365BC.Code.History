@@ -1012,6 +1012,7 @@
         PriceListHeader.Reset();
         PriceListHeader.SetRange("Price Type", "Price Type"::Sale);
         PriceListHeader.SetRange("Amount Type", "Price Amount Type"::Price);
+        PriceListHeader.SetRange("Allow Updating Defaults", false);
         IntegrationTableMapping.SetTableFilter(
             GetTableFilterFromView(DATABASE::"Price List Header", PriceListHeader.TableCaption, PriceListHeader.GetView));
         IntegrationTableMapping."Dependency Filter" := 'CURRENCY';
