@@ -100,7 +100,7 @@ page 7374 "Bin Contents"
 
                     trigger OnValidate()
                     begin
-                        CheckQty;
+                        CheckQty();
                     end;
                 }
                 field("Item No."; "Item No.")
@@ -110,7 +110,7 @@ page 7374 "Bin Contents"
 
                     trigger OnValidate()
                     begin
-                        CheckQty;
+                        CheckQty();
                     end;
                 }
                 field("Variant Code"; "Variant Code")
@@ -121,7 +121,7 @@ page 7374 "Bin Contents"
 
                     trigger OnValidate()
                     begin
-                        CheckQty;
+                        CheckQty();
                     end;
                 }
                 field("Unit of Measure Code"; "Unit of Measure Code")
@@ -137,7 +137,7 @@ page 7374 "Bin Contents"
 
                     trigger OnValidate()
                     begin
-                        CheckQty;
+                        CheckQty();
                     end;
                 }
                 field(Default; Default)
@@ -383,13 +383,13 @@ page 7374 "Bin Contents"
         FilterGroup := 0;
     end;
 
-    local procedure CheckQty()
+    protected procedure CheckQty()
     begin
-        TestField(Quantity, 0);
-        TestField("Pick Qty.", 0);
-        TestField("Put-away Qty.", 0);
-        TestField("Pos. Adjmt. Qty.", 0);
-        TestField("Neg. Adjmt. Qty.", 0);
+        Rec.TestField(Quantity, 0);
+        Rec.TestField("Pick Qty.", 0);
+        Rec.TestField("Put-away Qty.", 0);
+        Rec.TestField("Pos. Adjmt. Qty.", 0);
+        Rec.TestField("Neg. Adjmt. Qty.", 0);
     end;
 
     local procedure LocationGet(LocationCode: Code[10])

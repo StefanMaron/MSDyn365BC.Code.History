@@ -156,12 +156,18 @@ table 1670 "Option Lookup Buffer"
         SetRange("Option Caption");
     end;
 
-    procedure FormatOption(FieldRef: FieldRef): Text[30]
+    procedure FormatOption(FieldRef: FieldRef) Result: Text[30]
     var
         SalesLine: Record "Sales Line";
         PurchaseLine: Record "Purchase Line";
         Option: Option;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeFormatOption(FieldRef, Result, IsHandled);
+        if IsHandled then
+            exit;
+
         Option := FieldRef.Value;
         case FieldRef.Record.Number of
             DATABASE::"Sales Line", DATABASE::"Standard Sales Line":
@@ -181,6 +187,7 @@ table 1670 "Option Lookup Buffer"
         ID := OptionID;
         "Option Caption" := OptionText;
         "Lookup Type" := LookupType;
+        OnCreateNewOnBeforeInsert(Rec, OptionID, OptionText, LookupType);
         Insert();
     end;
 
@@ -271,6 +278,16 @@ table 1670 "Option Lookup Buffer"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeIncludeOption(OptionLookupBuffer: Record "Option Lookup Buffer"; LookupType: Option; Option: Integer; var Handled: Boolean; var Result: Boolean; RecRef: RecordRef)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFormatOption(FieldRef: FieldRef; var Result: Text[30]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateNewOnBeforeInsert(var OptionLookupBuffer: Record "Option Lookup Buffer"; OptionID: Integer; OptionText: Text[30]; LookupType: Enum "Option Lookup Type")
     begin
     end;
 

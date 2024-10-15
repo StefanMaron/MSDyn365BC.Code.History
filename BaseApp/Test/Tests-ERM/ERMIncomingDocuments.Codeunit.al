@@ -1967,7 +1967,7 @@ codeunit 134400 "ERM Incoming Documents"
         IncomingDocument.Reset();
 
         IncomingDocument.FindByDocumentNoAndPostingDate(
-            IncomingDocument, '''' + DocumentNo + '''', Format(WorkDate()));
+            IncomingDocument, DocumentNo, Format(WorkDate()));
 
         IncomingDocument.TestField("Entry No.", IncomingDocumentEntryNo);
     end;
