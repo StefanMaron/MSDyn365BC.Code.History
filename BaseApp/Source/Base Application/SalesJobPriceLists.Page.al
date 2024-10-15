@@ -125,13 +125,11 @@ actions{        area(Promoted)
     trigger OnAfterGetRecord()
     begin
         CurrRec := Rec;
-        CurrRec.BlankDefaults();
     end;
 
     trigger OnAfterGetCurrRecord()
     begin
         CurrRec := Rec;
-        CurrRec.BlankDefaults();
     end;
 
     var

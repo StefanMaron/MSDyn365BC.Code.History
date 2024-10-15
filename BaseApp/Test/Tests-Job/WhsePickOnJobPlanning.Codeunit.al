@@ -980,6 +980,7 @@ codeunit 136318 "Whse. Pick On Job Planning"
         // [WHEN] Create a job planning line that require the item from a created location
         QtyToUse := LibraryRandom.RandIntInRange(2, 10);
         CreateJobPlanningLineWithData(JobPlanningLine, JobTask, "Job Planning Line Line Type"::Budget, JobPlanningLine.Type::Item, Item."No.", LocationWithWhsePick.Code, DestinationBin.Code, QtyToUse);
+        JobPlanningLine.AutoReserve();
 
         // [THEN] Pick Qty / Pick Qty (Base) = 0; Qty Picked / Qty Picked (Base) = 0 and Completely Picked = No
         JobPlanningLine.Get(JobPlanningLine."Job No.", JobPlanningLine."Job Task No.", JobPlanningLine."Line No."); //Refresh the job planning lines to have the latest information.
@@ -1024,6 +1025,74 @@ codeunit 136318 "Whse. Pick On Job Planning"
 
         // [THEN] Warehouse entry is created
         VerifyWhseEntriesAfterRegisterPick(Job, JobTask, false);
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler,CreatePickReqHandler,PickSelectionModalPageHandler,ItemTrackingLinesModalPageHandler,AssignSerialNoEnterQtyPageHandler,ItemTrackingSummaryHandler')]
+    procedure CreateAndRegisterWhsePicksWithItemTrackingUsingPickWorksheet()
+    var
+        Location: Record Location;
+        WarehouseEmployee: Record "Warehouse Employee";
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        JobPlanningLine: Record "Job Planning Line";
+        JobTask: Record "Job Task";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        PickWorksheetPage: TestPage "Pick Worksheet";
+        SerialNos: List of [Code[50]];
+        SerialNo: Code[50];
+        Qty: Integer;
+    begin
+        // [FEATURE] 315267 [WMS] Support Inventory Pick and Warehouse Pick for Job Planning Lines
+        // [SCENARIO 459118] Create and register warehouse picks using pick worksheet for job planning line with item tracking.
+        Initialize();
+        Qty := 2;
+
+        // [GIVEN] Location with required shipment and pick.
+        WarehouseEmployee.DeleteAll();
+        LibraryWarehouse.CreateLocationWMS(Location, false, true, true, true, true);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, true);
+
+        // [GIVEN] Serial no.-tracked item.
+        CreateSerialTrackedItem(Item, true);
+
+        // [GIVEN] Post 2 serial nos. "S1" and "S2" to inventory.
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", Location.Code, '', Qty);
+        LibraryVariableStorage.Enqueue(0);
+        ItemJournalLine.OpenItemTrackingLines(false);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+        GetListOfPostedSerialNos(SerialNos, Item."No.");
+
+        // [GIVEN] Job, job task, and job planning line for 2 pcs.
+        // [GIVEN] Select serial nos. "S1" and "S2" on the job planning line.
+        CreateJobWithJobTask(JobTask);
+        CreateJobPlanningLineWithData(
+          JobPlanningLine, JobTask, "Job Planning Line Line Type"::Budget, JobPlanningLine.Type::Item, Item."No.",
+          Location.Code, '', Qty);
+        LibraryVariableStorage.Enqueue(1);
+        JobPlanningLine.OpenItemTrackingLines();
+
+        // [GIVEN] Open pick worksheet and pull the job planning line using "Get Warehouse Documents".
+        PickWorksheetPage.OpenEdit();
+        LibraryVariableStorage.Enqueue(JobPlanningLine."Job No.");
+        LibraryVariableStorage.Enqueue(JobPlanningLine."Location Code");
+        PickWorksheetPage."Get Warehouse Documents".Invoke();
+
+        // [WHEN] Create pick from pick worksheet.
+        Commit();
+        PickWorksheetPage.CreatePick.Invoke();
+        PickWorksheetPage.Close();
+
+        // [THEN] Warehouse pick is created.
+        // [THEN] Serial numbers "S1" and "S2" are selected on the pick lines.
+        WarehouseActivityLine.SetRange("Source Line No.", JobPlanningLine."Job Contract Entry No.");
+        foreach SerialNo in SerialNos do begin
+            WarehouseActivityLine.SetRange("Serial No.", SerialNo);
+            WarehouseActivityLine.FindFirst();
+            WarehouseActivityLine.TestField(Quantity, 1);
+        end;
+
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -2191,6 +2260,20 @@ codeunit 136318 "Whse. Pick On Job Planning"
         if BinContent.FindFirst() then;
     end;
 
+    local procedure GetListOfPostedSerialNos(var SerialNos: List of [Code[50]]; ItemNo: Code[20])
+    var
+        ItemLedgerEntry: Record "Item Ledger Entry";
+    begin
+        Clear(SerialNos);
+        ItemLedgerEntry.SetRange("Item No.", ItemNo);
+        ItemLedgerEntry.SetRange(Positive, true);
+        ItemLedgerEntry.SetFilter("Serial No.", '<>%1', '');
+        ItemLedgerEntry.FindSet();
+        repeat
+            SerialNos.Add(ItemLedgerEntry."Serial No.");
+        until ItemLedgerEntry.Next() = 0;
+    end;
+
     local procedure OpenJobAndCreateWarehousePick(Job: Record Job)
     var
         JobCardPage: TestPage "Job Card";
@@ -2609,9 +2692,27 @@ codeunit 136318 "Whse. Pick On Job Planning"
     end;
 
     [ModalPageHandler]
+    procedure ItemTrackingLinesModalPageHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
+    begin
+        case LibraryVariableStorage.DequeueInteger() of
+            0:
+                ItemTrackingLines."Assign &Serial No.".Invoke();
+            1:
+                ItemTrackingLines."Select Entries".Invoke();
+        end;
+        ItemTrackingLines.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
     [Scope('OnPrem')]
     procedure AssignSerialNoEnterQtyPageHandler(var EnterQuantityPage: TestPage "Enter Quantity to Create")
     begin
         EnterQuantityPage.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure ItemTrackingSummaryHandler(var ItemTrackingSummary: TestPage "Item Tracking Summary")
+    begin
+        ItemTrackingSummary.OK().Invoke();
     end;
 }

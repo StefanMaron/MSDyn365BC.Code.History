@@ -47,6 +47,11 @@ page 388 "Bank Acc. Reconciliation List"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the ending balance shown on the bank''s statement that you want to reconcile with the bank account.';
                 }
+                field(AllowDuplicatedTransactions; Rec."Allow Duplicated Transactions")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies if the import of bank account reconciliation lines with the same transaction ID is allowed.';
+                }
             }
         }
         area(factboxes)

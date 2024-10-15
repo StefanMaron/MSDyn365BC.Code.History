@@ -340,7 +340,7 @@ table 5832 "Capacity Ledger Entry"
 
     local procedure GetCurrencyCode(): Code[10]
     begin
-        if GLSetupRead then begin
+        if not GLSetupRead then begin
             GLSetup.Get();
             GLSetupRead := true;
         end;

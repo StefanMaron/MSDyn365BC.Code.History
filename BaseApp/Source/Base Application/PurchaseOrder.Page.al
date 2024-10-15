@@ -2499,11 +2499,10 @@
         case ShipToOptions of
             ShipToOptions::"Default (Company Address)",
             ShipToOptions::"Custom Address":
-                begin
-                    if xRec."Sell-to Customer No." <> '' then
-                        Rec.Validate("Sell-to Customer No.", '');
+                if xRec."Sell-to Customer No." <> '' then
+                    Rec.Validate("Sell-to Customer No.", '')
+                else
                     Rec.Validate("Location Code", '');
-                end;
             ShipToOptions::Location:
                 if xRec."Sell-to Customer No." <> '' then
                     Rec.Validate("Sell-to Customer No.", '');

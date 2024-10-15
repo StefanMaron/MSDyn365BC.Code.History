@@ -60,6 +60,31 @@ codeunit 131000 "Library - Utility"
         NoSeriesRelationship.Insert(true);
     end;
 
+    procedure CreateRecordLink(RecVar: Variant): Integer
+    var
+        RecordLink: Record "Record Link";
+    begin
+        exit(CreateRecordLink(RecVar, RecordLink.Type::Note));
+    end;
+
+    procedure CreateRecordLink(RecVar: Variant; LinkType: Option): Integer
+    var
+        RecordLink: Record "Record Link";
+        PageManagement: Codeunit "Page Management";
+        RecRef: RecordRef;
+    begin
+        RecRef.GetTable(RecVar);
+        RecordLink."Record ID" := RecRef.RecordId();
+        RecordLink.URL1 := GetUrl(DefaultClientType, CompanyName, OBJECTTYPE::Page, PageManagement.GetPageID(RecVar), RecRef);
+        RecordLink.Type := LinkType;
+        RecordLink.Notify := true;
+        RecordLink.Company := CompanyName();
+        RecordLink."User ID" := UserId();
+        RecordLink."To User ID" := UserId();
+        RecordLink.Insert();
+        exit(RecordLink."Link ID");
+    end;
+
     procedure CheckFieldExistenceInTable(TableNo: Integer; FieldName: Text[30]): Boolean
     var
         "Field": Record "Field";

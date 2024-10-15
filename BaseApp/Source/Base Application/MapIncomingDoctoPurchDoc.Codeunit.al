@@ -653,7 +653,7 @@ codeunit 1218 "Map Incoming Doc to Purch Doc"
 
         ErrorMessage.SetContext(IncomingDocument);
         ErrorMessage.LogMessage(RelatedRec, FieldNo,
-          MessageType, CopyStr(ProcessingMessage, 1, MaxStrLen(ErrorMessage.Description)));
+          MessageType, CopyStr(ProcessingMessage, 1, MaxStrLen(ErrorMessage."Message")));
     end;
 
     local procedure DeleteIntermediateData(DataExch: Record "Data Exch.")

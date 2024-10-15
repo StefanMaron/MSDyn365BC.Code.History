@@ -502,10 +502,10 @@ page 9807 "User Card"
         else
             Clear(TelemetryUserID);
 
-        if AzureADGraph.IsGraphUserAccountEnabled(Rec."Authentication Email", IsGraphUserAccountEnabled) and IsGraphUserAccountEnabled then
-            Microsoft365State := Microsoft365State::Active
-        else
-            Microsoft365State := Microsoft365State::Inactive;
+        Microsoft365State := Microsoft365State::Inactive;
+        if Rec."Authentication Email" <> '' then
+            if AzureADGraph.IsGraphUserAccountEnabled(Rec."Authentication Email", IsGraphUserAccountEnabled) and IsGraphUserAccountEnabled then
+                Microsoft365State := Microsoft365State::Active
     end;
 
     trigger OnDeleteRecord(): Boolean

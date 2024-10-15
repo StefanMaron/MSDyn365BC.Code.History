@@ -3497,7 +3497,7 @@ codeunit 137069 "SCM Production Orders"
           ProductionOrder, ProductionOrder.Status::Planned, ProductionOrder."Source Type"::Item, Item."No.", LibraryRandom.RandInt(100));
 
         // [GIVEN] Record link associated with the production order "P", notification is active
-        CreateRecordLink(ProductionOrder, RecordLink.Type::Note);
+        LibraryUtility.CreateRecordLink(ProductionOrder, RecordLink.Type::Note);
 
         // [WHEN] Change the status of the order "P" from "Planned" to "Firm Planned"
         LibraryManufacturing.ChangeProdOrderStatus(ProductionOrder, ProductionOrder.Status::"Firm Planned", WorkDate(), false);
@@ -3545,7 +3545,7 @@ codeunit 137069 "SCM Production Orders"
         // [GIVEN] 3 record links associated with the production order "PO"
         NoOfLinks := 3;
         for I := 1 to NoOfLinks do
-            CreateRecordLink(ProductionOrder, RecordLink.Type::Note);
+            LibraryUtility.CreateRecordLink(ProductionOrder, RecordLink.Type::Note);
 
         // [WHEN] Change status of the production order "PO" from "Firm Planned" to "Released"
         LibraryManufacturing.ChangeProdOrderStatus(ProductionOrder, ProductionOrder.Status::Released, WorkDate(), false);
@@ -4009,12 +4009,12 @@ codeunit 137069 "SCM Production Orders"
 
         // [GIVEN] 2 Link Type Record Links for the Order
         for Index := 1 to NoOfLinkTypeLinks do begin
-            RecordLink.Get(CreateRecordLink(ProductionOrder, RecordLink.Type::Link));
+            RecordLink.Get(LibraryUtility.CreateRecordLink(ProductionOrder, RecordLink.Type::Link));
             RecordLinkURL1[Index] := RecordLink.URL1;
         end;
 
         // [GIVEN] Note Type Record Link for the Order
-        CreateRecordLink(ProductionOrder, RecordLink.Type::Note);
+        LibraryUtility.CreateRecordLink(ProductionOrder, RecordLink.Type::Note);
 
         // [WHEN] Change Status of the Production Order to Released
         LibraryManufacturing.ChangeProdOrderStatus(ProductionOrder, ProductionOrder.Status::Released, WorkDate(), false);
@@ -4554,23 +4554,6 @@ codeunit 137069 "SCM Production Orders"
         ItemJournalLine.OpenItemTrackingLines(false);  // Assign Tracking on Page Handler.
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
         UpdateNoSeriesOnItemJournalBatch(ItemJournalBatch, LibraryUtility.GetGlobalNoSeriesCode);
-    end;
-
-    local procedure CreateRecordLink(ProductionOrder: Record "Production Order"; RecordLinkType: Integer): Integer
-    var
-        RecordLink: Record "Record Link";
-        PageManagement: Codeunit "Page Management";
-    begin
-        RecordLink."Record ID" := ProductionOrder.RecordId;
-        RecordLink.URL1 :=
-          GetUrl(DefaultClientType, CompanyName, OBJECTTYPE::Page, PageManagement.GetPageID(ProductionOrder), ProductionOrder);
-        RecordLink.Type := RecordLinkType;
-        RecordLink.Notify := true;
-        RecordLink.Company := CompanyName;
-        RecordLink."User ID" := UserId;
-        RecordLink."To User ID" := UserId;
-        RecordLink.Insert();
-        exit(RecordLink."Link ID");
     end;
 
     local procedure CreateSalesOrder(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; ItemNo: Code[20]; Quantity: Decimal)

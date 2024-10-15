@@ -112,6 +112,8 @@
     end;
 
     procedure CheckServiceDocument(var PassedServiceHeader: Record "Service Header"; var PassedServiceLine: Record "Service Line")
+    var
+        GenJnlCheckLine: Codeunit "Gen. Jnl.-Check Line";
     begin
         PrepareDocument(PassedServiceHeader, PassedServiceLine);
         PassedServiceHeader.ValidateSalesPersonOnServiceHeader(PassedServiceHeader, true, true);
@@ -119,6 +121,9 @@
         CheckShippingAdvice();
         CheckDimensions();
         GetAndCheckCustomer();
+        
+        GenJnlCheckLine.CheckVATDateAllowed(PassedServiceHeader."VAT Reporting Date");
+
     end;
 
     local procedure GetInvoicePostingSetup()

@@ -20,22 +20,11 @@ report 98 "Date Compress General Ledger"
                 if Amount <> "Remaining Amount" then
                     CurrReport.Skip();
 
-                with GLEntry2 do begin
-                    Reset();
-                    SetCurrentKey("G/L Account No.", "Posting Date");
-                    CopyFilters("G/L Entry");
-                    if Find('-') then
-                        repeat
-                            if Amount = "Remaining Amount" then
-                                Mark(true);
-                        until Next() = 0;
-                end;
                 GLEntry2 := "G/L Entry";
                 with GLEntry2 do begin
                     SetCurrentKey("G/L Account No.", "Posting Date");
                     CopyFilters("G/L Entry");
                     SetFilter("Posting Date", DateComprMgt.GetDateFilter("Posting Date", EntrdDateComprReg, true));
-                    MarkedOnly(true);
                     repeat
                         SetRange("G/L Account No.", "G/L Account No.");
                         SetRange("Gen. Posting Type", "Gen. Posting Type");

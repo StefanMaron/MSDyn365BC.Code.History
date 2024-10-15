@@ -1660,6 +1660,60 @@ codeunit 137055 "SCM Warehouse Pick"
         CutPasteBinTypes(BinType, TempBinType);
     end;
 
+    [Test]
+    [HandlerFunctions('PickSelectionModalPageHandler,InsertNewProdOrderRoutingLine_ProdOrderRoutingModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure S458884_CanChangeReleasedProductionOrderComponentWhenWhseWorksheetLinesExist()
+    var
+        ParentItem: Record Item;
+        ChildItem: Record Item;
+        ProductionOrder: Record "Production Order";
+        ProductionBOMHeader: Record "Production BOM Header";
+        Quantity: Decimal;
+        PickWorksheetPage: TestPage "Pick Worksheet";
+        ReleasedProductionOrder: TestPage "Released Production Order";
+    begin
+        // [FEATURE] [UT] [Released Production Order] [Pick Worksheet] [Prod. Order Routing]
+        // [SCENARIO 458884] Update "Released Production Order" Routing with Setup Time which changes Production Order Component Due Date.
+        isInitialized := false;
+        Initialize();
+
+        // [GIVEN] Create Parent and Child Items. Parent Item is with Production BOM and Routing
+        LibraryInventory.CreateItem(ParentItem);
+        LibraryInventory.CreateItem(ChildItem);
+        Quantity := LibraryRandom.RandInt(10);
+        UpdateItemInventory(ChildItem."No.", LocationWhite.Code, '', Quantity);
+
+        LibraryManufacturing.CreateCertifiedProductionBOM(ProductionBOMHeader, ChildItem."No.", Quantity);
+        ParentItem.Validate("Replenishment System", ParentItem."Replenishment System"::"Prod. Order");
+        ParentItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        ParentItem.Validate("Routing No.", CreateRouting());
+        ParentItem.Modify(true);
+
+        // [GIVEN] Create and refresh Released Production Order
+        CreateProdOrder(
+            ProductionOrder,
+            ProductionOrder.Status::Released,
+            ProductionOrder."Source Type"::Item,
+            ParentItem."No.",
+            LocationWhite.Code,
+            Quantity
+        );
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
+
+        // [GIVEN] Pick Worksheet is used to get the source documents, without creating Warehouse Pick
+        PickWorksheetPage.OpenEdit();
+        PickWorksheetPage."Get Warehouse Documents".Invoke();
+        PickWorksheetPage.Close();
+
+        // [WHEN] Insert new Routing Line with Setup Time. Uses Handler InsertNewProdOrderRoutingLine_ProdOrderRoutingModalPageHandler
+        ReleasedProductionOrder.OpenEdit();
+        ReleasedProductionOrder.GoToRecord(ProductionOrder);
+        ReleasedProductionOrder.ProdOrderLines.Routing.Invoke();
+
+        // [THEN] No error is thrown
+    end;
+
     local procedure Initialize()
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
@@ -2461,6 +2515,20 @@ codeunit 137055 "SCM Warehouse Pick"
         end;
     end;
 
+    local procedure CreateRouting(): Code[20]
+    var
+        RoutingHeader: Record "Routing Header";
+        RoutingLine: Record "Routing Line";
+        WorkCenter: Record "Work Center";
+    begin
+        LibraryManufacturing.CreateWorkCenter(WorkCenter);
+        LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
+        LibraryManufacturing.CreateRoutingLine(RoutingHeader, RoutingLine, '', Format(LibraryRandom.RandInt(100)), RoutingLine.Type::"Work Center", WorkCenter."No.");
+        RoutingHeader.Validate(Status, RoutingHeader.Status::Certified);
+        RoutingHeader.Modify(true);
+        exit(RoutingHeader."No.");
+    end;
+
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ReservationPageHandler(var Reservation: TestPage Reservation)
@@ -2553,6 +2621,25 @@ codeunit 137055 "SCM Warehouse Pick"
     begin
         PickSelection.Last();
         PickSelection.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure InsertNewProdOrderRoutingLine_ProdOrderRoutingModalPageHandler(var ProdOrderRouting: TestPage "Prod. Order Routing")
+    var
+        WorkCenter: Record "Work Center";
+        MachineCenter: Record "Machine Center";
+        ProdOrderRoutingLine: Record "Prod. Order Routing Line";
+    begin
+        LibraryManufacturing.CreateWorkCenterWithCalendar(WorkCenter);
+        LibraryManufacturing.CreateMachineCenterWithCalendar(MachineCenter, WorkCenter."No.", 1);
+
+        ProdOrderRouting.Last();
+        ProdOrderRouting.New();
+        ProdOrderRouting."Operation No.".SetValue(LibraryUtility.GenerateRandomCode(ProdOrderRoutingLine.FieldNo("Operation No."), Database::"Prod. Order Routing Line"));
+        ProdOrderRouting.Type.SetValue(ProdOrderRoutingLine.Type::"Machine Center".AsInteger());
+        ProdOrderRouting."No.".SetValue(MachineCenter."No.");
+        ProdOrderRouting."Setup Time".SetValue(100);
     end;
 }
 

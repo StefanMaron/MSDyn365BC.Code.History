@@ -2859,7 +2859,7 @@ page 21 "Customer Card"
             end;
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterActivateFields(var Customer: Record Customer)
     begin
     end;
