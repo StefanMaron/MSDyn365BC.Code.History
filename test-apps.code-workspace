@@ -142,6 +142,9 @@
       "path": "./salesandinventoryforecast/test/Sales and Inventory Forecast Tests"
     },
     {
+      "path": "./EmailLogging/Test/_Exclude_Email Logging Using Graph API Tests"
+    },
+    {
       "path": "./paypalpaymentsstandard/test/PayPal Payments Standard Tests"
     },
     {

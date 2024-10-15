@@ -239,6 +239,8 @@
                     begin
                         ValidateAutoReserve();
                         DeltaUpdateTotals();
+                        if  SalesSetup."Calc. Inv. Discount" and (Quantity = 0) then
+                            CurrPage.Update(false);
                     end;
                 }
                 field("Unit of Measure Code"; "Unit of Measure Code")
