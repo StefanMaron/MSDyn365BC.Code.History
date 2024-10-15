@@ -1577,6 +1577,38 @@ codeunit 138012 "O365 Templates Test"
         VerifyItemDataNotEqualAfterApplyTemplate(Item, ItemTempl);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ConfirmHandler')]
+    procedure VerifyCountingDatesUpdatedWhenPhysInvtCountingPeriodUpdatedOnItemFromItemTempl()
+    var
+        Item: Record Item;
+        ItemTempl: Record "Item Templ.";
+        PhysInvtCountingPeriod: Record "Phys. Invt. Counting Period";
+        ItemTemplMgt: Codeunit "Item Templ. Mgt.";
+    begin
+        // [SCENARIO 491210] An issue with the item template card where the physical inventory period value is not validated on the item card, resulting in missing inventory dates and new items not being inventoried.
+        Initialize();
+
+        // [GIVEN] Create new Item Template "T1" with Phys Invt Counting Period
+        LibraryTemplates.CreateItemTemplateWithData(ItemTempl);
+        LibraryInventory.CreatePhysicalInventoryCountingPeriod(PhysInvtCountingPeriod);
+        ItemTempl.Validate("Phys Invt Counting Period Code", PhysInvtCountingPeriod.Code);
+        ItemTempl.Modify(true);
+
+        // [GIVEN] Create new Item "I", and set Default values for different item fields
+        LibraryInventory.CreateItem(Item);
+
+        // [WHEN] Apply "T1" to "I"
+        ItemTemplMgt.UpdateItemFromTemplate(Item);
+
+        // [THEN] "I" filled with data from "T2", Fields in new item matches template's fields
+        Item.Get(Item."No.");
+
+        // [VERIFY] Verify: Values on Item record after applying Item Template
+        VerifyItemAfterApplyTemplateWithPhysInvtCountingPeriod(Item, ItemTempl);
+    end;
+
     local procedure Initialize()
     var
         SalesSetup: Record "Sales & Receivables Setup";
@@ -2755,6 +2787,13 @@ codeunit 138012 "O365 Templates Test"
         Assert.IsFalse(Item."Lead Time Calculation" = ItemTempl."Lead Time Calculation", InsertedItemErr);
         Assert.IsFalse(Item."Reordering Policy" = ItemTempl."Reordering Policy", InsertedItemErr);
         Assert.IsFalse(Item."Replenishment System" = ItemTempl."Replenishment System", InsertedItemErr);
+    end;
+
+    local procedure VerifyItemAfterApplyTemplateWithPhysInvtCountingPeriod(Item: Record Item; ItemTempl: Record "Item Templ.")
+    begin
+        Assert.IsTrue(Item."Phys Invt Counting Period Code" = ItemTempl."Phys Invt Counting Period Code", InsertedItemErr);
+        Assert.IsTrue(Item."Next Counting Start Date" <> 0D, InsertedItemErr);
+        Assert.IsTrue(Item."Next Counting End Date" <> 0D, InsertedItemErr);
     end;
 
     [ModalPageHandler]
