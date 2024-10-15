@@ -560,7 +560,7 @@
     procedure SetCustomerAsRecipient(var Customer: Record Customer; var CustomerBankAccount: Record "Customer Bank Account")
     begin
         "Recipient Name" := Customer.Name;
-        "Recipient Address" := Customer.Address;
+        "Recipient Address" := CopyStr(Customer.Address, 1, 70);
         "Recipient City" := CopyStr(Customer.City, 1, 35);
         "Recipient County" := Customer.County;
         "Recipient Post Code" := Customer."Post Code";
@@ -583,7 +583,7 @@
     procedure SetVendorAsRecipient(var Vendor: Record Vendor; var VendorBankAccount: Record "Vendor Bank Account")
     begin
         "Recipient Name" := Vendor.Name;
-        "Recipient Address" := Vendor.Address;
+        "Recipient Address" := CopyStr(Vendor.Address, 1, 70);
         "Recipient City" := CopyStr(Vendor.City, 1, 35);
         "Recipient County" := Vendor.County;
         "Recipient Post Code" := Vendor."Post Code";
@@ -606,7 +606,7 @@
     procedure SetEmployeeAsRecipient(var Employee: Record Employee)
     begin
         "Recipient Name" := CopyStr(Employee.FullName, 1, MaxStrLen("Recipient Name"));
-        "Recipient Address" := Employee.Address;
+        "Recipient Address" := CopyStr(Employee.Address, 1, 70);
         "Recipient City" := CopyStr(Employee.City, 1, 35);
         "Recipient County" := Employee.County;
         "Recipient Post Code" := Employee."Post Code";
