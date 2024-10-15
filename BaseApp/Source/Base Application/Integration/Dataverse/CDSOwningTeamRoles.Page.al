@@ -1,3 +1,11 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Integration.Dataverse;
+
+using Microsoft.Integration.D365Sales;
+
 page 7206 "CDS Owning Team Roles"
 {
     Caption = 'Dataverse Owning Team Roles', Comment = 'Dataverse is the name of a Microsoft Service and should not be translated.';
@@ -8,7 +16,7 @@ page 7206 "CDS Owning Team Roles"
     PageType = List;
     SourceTable = "CRM Role";
     SourceTableTemporary = true;
-    SourceTableView = SORTING(Name);
+    SourceTableView = sorting(Name);
 
     layout
     {
@@ -18,7 +26,7 @@ page 7206 "CDS Owning Team Roles"
             {
                 ShowCaption = false;
 
-                field("Role Name"; Name)
+                field("Role Name"; Rec.Name)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Role Name';
@@ -37,12 +45,12 @@ page 7206 "CDS Owning Team Roles"
 
     trigger OnAfterGetRecord()
     begin
-        if not BusinessUnitRequiredRoles.ContainsKey(RoleId) then begin
+        if not BusinessUnitRequiredRoles.ContainsKey(Rec.RoleId) then begin
             StyleExpression := '';
             exit;
         end;
 
-        IsAssigned := not IsNullGuid(SolutionId);
+        IsAssigned := not IsNullGuid(Rec.SolutionId);
         if IsAssigned then
             StyleExpression := 'Favorable'
         else
@@ -82,9 +90,9 @@ page 7206 "CDS Owning Team Roles"
                     repeat
                         CRMRole.SetRange(RoleId, CDSTeamroles.RoleId);
                         if CRMRole.FindFirst() then begin
-                            Init();
-                            TransferFields(CRMRole);
-                            Insert();
+                            Rec.Init();
+                            Rec.TransferFields(CRMRole);
+                            Rec.Insert();
                             BusinessUnitCollectedRoles.Add(CDSTeamroles.RoleId, true);
                         end;
                     until CDSTeamroles.Next() = 0;
@@ -108,11 +116,11 @@ page 7206 "CDS Owning Team Roles"
 
         foreach BusinessUnitRequiredRoleId in BusinessUnitRequiredRoles.Keys() do
             if not BusinessUnitCollectedRoles.ContainsKey(BusinessUnitRequiredRoleId) then begin
-                Init();
-                RoleId := BusinessUnitRequiredRoleId;
-                Name := CopyStr(BusinessUnitRequiredRoles.Get(BusinessUnitRequiredRoleId), 1, MaxStrLen(Name));
-                Insert();
-                BusinessUnitCollectedRoles.Add(RoleId, true);
+                Rec.Init();
+                Rec.RoleId := BusinessUnitRequiredRoleId;
+                Rec.Name := CopyStr(BusinessUnitRequiredRoles.Get(BusinessUnitRequiredRoleId), 1, MaxStrLen(Rec.Name));
+                Rec.Insert();
+                BusinessUnitCollectedRoles.Add(Rec.RoleId, true);
             end;
 
         UnregisterTableConnection(TABLECONNECTIONTYPE::CRM, TempConnectionName);

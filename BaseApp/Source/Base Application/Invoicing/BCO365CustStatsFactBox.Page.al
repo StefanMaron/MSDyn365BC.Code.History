@@ -69,7 +69,7 @@ page 2306 "BC O365 Cust. Stats FactBox"
 
     trigger OnAfterGetCurrRecord()
     begin
-        OverdueBalance := CalcOverdueBalance();
+        OverdueBalance := Rec.CalcOverdueBalance();
     end;
 
     var

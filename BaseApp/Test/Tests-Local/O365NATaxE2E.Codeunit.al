@@ -1,8 +1,14 @@
+#if not CLEAN21
 codeunit 138932 "O365 NA Tax E2E"
 {
     Permissions = TableData "Sales Invoice Header" = rimd;
     Subtype = Test;
     TestPermissions = NonRestrictive;
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+#pragma warning disable AS0072 
+    ObsoleteTag = '21.0';
+#pragma warning restore AS0072
 
     trigger OnRun()
     begin
@@ -758,3 +764,4 @@ codeunit 138932 "O365 NA Tax E2E"
     end;
 }
 
+#endif

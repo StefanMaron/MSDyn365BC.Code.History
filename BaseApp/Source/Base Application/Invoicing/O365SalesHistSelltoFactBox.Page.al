@@ -42,7 +42,7 @@ page 2193 "O365 Sales Hist.Sell-toFactBox"
             cuegroup(Control2)
             {
                 ShowCaption = false;
-                field(NoofInvoicesTile; "No. of Invoices")
+                field(NoofInvoicesTile; Rec."No. of Invoices")
                 {
                     ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Draft Invoices';
@@ -54,7 +54,7 @@ page 2193 "O365 Sales Hist.Sell-toFactBox"
                         DrillDownInvoices(false);
                     end;
                 }
-                field(NoofPstdInvoicesTile; "No. of Pstd. Invoices")
+                field(NoofPstdInvoicesTile; Rec."No. of Pstd. Invoices")
                 {
                     ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Sent Invoices';
@@ -79,7 +79,7 @@ page 2193 "O365 Sales Hist.Sell-toFactBox"
         O365SalesDocument: Record "O365 Sales Document";
         O365CustomerSalesDocuments: Page "O365 Customer Sales Documents";
     begin
-        O365SalesDocument.SetRange("Sell-to Customer No.", "No.");
+        O365SalesDocument.SetRange("Sell-to Customer No.", Rec."No.");
         O365SalesDocument.SetRange(Posted, Posted);
 
         Clear(O365CustomerSalesDocuments);

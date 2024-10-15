@@ -1,3 +1,5 @@
+namespace Microsoft.CRM.Outlook;
+
 page 1609 "Office Welcome Dlg"
 {
     Caption = 'Welcome!';

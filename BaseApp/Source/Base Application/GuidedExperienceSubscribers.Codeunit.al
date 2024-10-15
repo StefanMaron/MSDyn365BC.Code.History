@@ -1,3 +1,18 @@
+namespace System.Environment;
+
+using Microsoft.Bank.BankAccount;
+using Microsoft.Finance.GeneralLedger.Account;
+using Microsoft.Finance.RoleCenters;
+using Microsoft.Inventory.Item;
+using Microsoft.RoleCenters;
+using Microsoft.Sales.Customer;
+using Microsoft.Sales.Document;
+using Microsoft.Sales.History;
+using Microsoft.Sales.RoleCenters;
+using System.Environment.Configuration;
+using System.Globalization;
+using System.Media;
+
 codeunit 1878 "Guided Experience Subscribers"
 {
     var
@@ -17,13 +32,13 @@ codeunit 1878 "Guided Experience Subscribers"
         CustomerListSpotlightTourStep1TextTxt: Label 'This is the list of your customers. You can view, edit, and analyze lists like this in Microsoft Excel.';
         CustomerListSpotlightTourStep2TitleTxt: Label 'Open in Excel';
         CustomerListSpotlightTourStep2TextTxt: Label 'When you choose to open the list in Excel you can use it for analysis and calculations that you do not need to save back into Business Central.';
-        MarketingAISpotlightTourTitleTxt: Label 'AI-powered product descriptions', Locked = true;
-        MarketingAISpotlightTourShortTitleTxt: Label 'Create with Copilot', Locked = true;
-        MarketingAISpotlightTourDescriptionTxt: Label 'Copilot in Business Central helps you get more done with less effort. Experience how product description suggestions (preview) accelerate your time to market.', Locked = true;
-        MarketingAISpotlightStep1TitleTxt: Label 'Stop typing and start selling', Locked = true;
-        MarketingAISpotlightStep1TextTxt: Label 'Creating product descriptions has never been easier. Get AI-powered marketing text for your products in a style that speaks to your customers and reflects your brand, right from where you manage your products.', Locked = true;
-        MarketingAISpotlightStep2TitleTxt: Label 'Ready. Set. Create!', Locked = true;
-        MarketingAISpotlightStep2TextTxt: Label 'Copilot can draft text based on item attributes - more attributes result in better suggestions.', Locked = true;
+        MarketingAISpotlightTourTitleTxt: Label 'AI-powered product descriptions';
+        MarketingAISpotlightTourShortTitleTxt: Label 'Create with Copilot';
+        MarketingAISpotlightTourDescriptionTxt: Label 'Copilot in Business Central helps you get more done with less effort. Experience how product description suggestions (preview) accelerate your time to market.';
+        MarketingAISpotlightStep1TitleTxt: Label 'Stop typing and start selling';
+        MarketingAISpotlightStep1TextTxt: Label 'Creating product descriptions has never been easier. Get AI-powered marketing text for your products in a style that speaks to your customers and reflects your brand, right from where you manage your products.';
+        MarketingAISpotlightStep2TitleTxt: Label 'Ready. Set. Create!';
+        MarketingAISpotlightStep2TextTxt: Label 'Copilot can draft text based on item attributes - more attributes result in better suggestions.';
         ItemCardShareToTeamsShortTitleTxt: Label 'Share to Teams';
         ItemCardShareToTeamsTitleTxt: Label 'Share business data to Teams';
         ItemCardShareToTeamsDescriptionTxt: Label 'Quickly share and collaborate on business tasks in Microsoft Teams. For example, sharing a link to an item card without the need to switch apps.';

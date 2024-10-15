@@ -1,3 +1,9 @@
+namespace Microsoft.Finance.Deferral;
+
+using Microsoft.Finance.GeneralLedger.Journal;
+using Microsoft.Purchases.Document;
+using Microsoft.Sales.Document;
+
 page 1702 "Deferral Schedule"
 {
     Caption = 'Deferral Schedule';
@@ -54,12 +60,12 @@ page 1702 "Deferral Schedule"
             part(DeferralSheduleSubform; "Deferral Schedule Subform")
             {
                 ApplicationArea = Suite;
-                SubPageLink = "Deferral Doc. Type" = FIELD("Deferral Doc. Type"),
-                              "Gen. Jnl. Template Name" = FIELD("Gen. Jnl. Template Name"),
-                              "Gen. Jnl. Batch Name" = FIELD("Gen. Jnl. Batch Name"),
-                              "Document Type" = FIELD("Document Type"),
-                              "Document No." = FIELD("Document No."),
-                              "Line No." = FIELD("Line No.");
+                SubPageLink = "Deferral Doc. Type" = field("Deferral Doc. Type"),
+                              "Gen. Jnl. Template Name" = field("Gen. Jnl. Template Name"),
+                              "Gen. Jnl. Batch Name" = field("Gen. Jnl. Batch Name"),
+                              "Document Type" = field("Document Type"),
+                              "Document No." = field("Document No."),
+                              "Line No." = field("Line No.");
             }
         }
     }
@@ -80,7 +86,7 @@ page 1702 "Deferral Schedule"
 
                     trigger OnAction()
                     begin
-                        Changed := CalculateSchedule();
+                        Changed := Rec.CalculateSchedule();
                     end;
                 }
             }
@@ -129,31 +135,31 @@ page 1702 "Deferral Schedule"
         ShowNoofPeriodsError: Boolean;
     begin
         // Prevent closing of the window if the sum of the periods does not equal the Amount to Defer
-        if DeferralHeader.Get("Deferral Doc. Type",
-             "Gen. Jnl. Template Name",
-             "Gen. Jnl. Batch Name",
-             "Document Type",
-             "Document No.", "Line No.")
+        if DeferralHeader.Get(Rec."Deferral Doc. Type",
+             Rec."Gen. Jnl. Template Name",
+             Rec."Gen. Jnl. Batch Name",
+             Rec."Document Type",
+             Rec."Document No.", Rec."Line No.")
         then begin
-            CalcFields("Schedule Line Total");
-            if "Schedule Line Total" <> DeferralHeader."Amount to Defer" then
+            Rec.CalcFields("Schedule Line Total");
+            if Rec."Schedule Line Total" <> DeferralHeader."Amount to Defer" then
                 Error(TotalToDeferErr);
         end;
 
-        DeferralLine.SetRange("Deferral Doc. Type", "Deferral Doc. Type");
-        DeferralLine.SetRange("Gen. Jnl. Template Name", "Gen. Jnl. Template Name");
-        DeferralLine.SetRange("Gen. Jnl. Batch Name", "Gen. Jnl. Batch Name");
-        DeferralLine.SetRange("Document Type", "Document Type");
-        DeferralLine.SetRange("Document No.", "Document No.");
-        DeferralLine.SetRange("Line No.", "Line No.");
+        DeferralLine.SetRange("Deferral Doc. Type", Rec."Deferral Doc. Type");
+        DeferralLine.SetRange("Gen. Jnl. Template Name", Rec."Gen. Jnl. Template Name");
+        DeferralLine.SetRange("Gen. Jnl. Batch Name", Rec."Gen. Jnl. Batch Name");
+        DeferralLine.SetRange("Document Type", Rec."Document Type");
+        DeferralLine.SetRange("Document No.", Rec."Document No.");
+        DeferralLine.SetRange("Line No.", Rec."Line No.");
         OnOnQueryClosePageOnAfterDeferralLineSetFilters(Rec, DeferralLine);
 
         RecCount := DeferralLine.Count();
-        ExpectedCount := DeferralUtilities.CalcDeferralNoOfPeriods("Calc. Method", "No. of Periods", "Start Date");
+        ExpectedCount := DeferralUtilities.CalcDeferralNoOfPeriods(Rec."Calc. Method", Rec."No. of Periods", Rec."Start Date");
         ShowNoofPeriodsError := ExpectedCount <> RecCount;
         OnOnQueryClosePageOnAfterCalcShowNoofPeriodsError(Rec, DeferralLine, ShowNoofPeriodsError);
         if ShowNoofPeriodsError then
-            FieldError("No. of Periods");
+            Rec.FieldError("No. of Periods");
 
         DeferralLine.SetFilter("Posting Date", '>%1', 0D);
         if DeferralLine.FindFirst() then begin
@@ -178,7 +184,7 @@ page 1702 "Deferral Schedule"
 
     procedure SetParameter(DeferralDocType: Integer; GenJnlTemplateName: Code[10]; GenJnlBatchName: Code[10]; DocumentType: Integer; DocumentNo: Code[20]; LineNo: Integer)
     begin
-        DisplayDeferralDocType := "Deferral Document Type".FromInteger(DeferralDocType);
+        DisplayDeferralDocType := Enum::"Deferral Document Type".FromInteger(DeferralDocType);
         DisplayGenJnlTemplateName := GenJnlTemplateName;
         DisplayGenJnlBatchName := GenJnlBatchName;
         DisplayDocumentType := DocumentType;
@@ -205,22 +211,22 @@ page 1702 "Deferral Schedule"
         if IsHandled then
             exit;
 
-        Get(DisplayDeferralDocType, DisplayGenJnlTemplateName, DisplayGenJnlBatchName, DisplayDocumentType, DisplayDocumentNo, DisplayLineNo);
+        Rec.Get(DisplayDeferralDocType, DisplayGenJnlTemplateName, DisplayGenJnlBatchName, DisplayDocumentType, DisplayDocumentNo, DisplayLineNo);
 
-        DeferralTemplate.Get("Deferral Code");
+        DeferralTemplate.Get(Rec."Deferral Code");
         StartDateCalcMethod := Format(DeferralTemplate."Start Date");
         case DisplayDeferralDocType of
-            "Deferral Doc. Type"::"G/L":
+            Rec."Deferral Doc. Type"::"G/L":
                 begin
                     GenJournalLine.Get(DisplayGenJnlTemplateName, DisplayGenJnlBatchName, DisplayLineNo);
                     PostingDate := GenJournalLine."Posting Date";
                 end;
-            "Deferral Doc. Type"::Sales:
+            Rec."Deferral Doc. Type"::Sales:
                 begin
                     SalesHeader.Get(DisplayDocumentType, DisplayDocumentNo);
                     PostingDate := SalesHeader."Posting Date";
                 end;
-            "Deferral Doc. Type"::Purchase:
+            Rec."Deferral Doc. Type"::Purchase:
                 begin
                     PurchaseHeader.Get(DisplayDocumentType, DisplayDocumentNo);
                     PostingDate := PurchaseHeader."Posting Date";

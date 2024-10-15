@@ -1,14 +1,22 @@
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft;
+
+using Microsoft.Foundation.Company;
+using System.Utilities;
+
 report 14022 "Declaration 347 Labels"
 {
     DefaultLayout = RDLC;
-    RDLCLayout = './Local/Declaration347Labels.rdlc';
     Caption = 'Declaration 347 Labels';
 
     dataset
     {
         dataitem(Amount349; "Integer")
         {
-            DataItemTableView = SORTING(Number);
+            DataItemTableView = sorting(Number);
             column(A; A)
             {
             }

@@ -1,3 +1,5 @@
+namespace Microsoft.Service.Contract;
+
 page 6075 "Serv. Contr. List (Serv. Item)"
 {
     Caption = 'Service Contract List';
@@ -83,7 +85,7 @@ page 6075 "Serv. Contr. List (Serv. Item)"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the net amount, excluding any invoice discount amount, that must be paid for products on the line.';
                 }
-                field(Profit; Profit)
+                field(Profit; Rec.Profit)
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the profit, expressed as the difference between the Line Amount and Line Cost fields on the service contract line.';
@@ -166,15 +168,15 @@ page 6075 "Serv. Contr. List (Serv. Item)"
 
                     trigger OnAction()
                     begin
-                        case "Contract Type" of
-                            "Contract Type"::Quote:
+                        case Rec."Contract Type" of
+                            Rec."Contract Type"::Quote:
                                 begin
-                                    ServContractHeader.Get("Contract Type", "Contract No.");
+                                    ServContractHeader.Get(Rec."Contract Type", Rec."Contract No.");
                                     PAGE.Run(PAGE::"Service Contract Quote", ServContractHeader);
                                 end;
-                            "Contract Type"::Contract:
+                            Rec."Contract Type"::Contract:
                                 begin
-                                    ServContractHeader.Get("Contract Type", "Contract No.");
+                                    ServContractHeader.Get(Rec."Contract Type", Rec."Contract No.");
                                     PAGE.Run(PAGE::"Service Contract", ServContractHeader);
                                 end;
                         end;
@@ -188,7 +190,7 @@ page 6075 "Serv. Contr. List (Serv. Item)"
     var
         ServContractHeader: Record "Service Contract Header";
     begin
-        ServContractHeader.Get("Contract Type", "Contract No.");
+        ServContractHeader.Get(Rec."Contract Type", Rec."Contract No.");
         ContractDescription := ServContractHeader.Description;
     end;
 

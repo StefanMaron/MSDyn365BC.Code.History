@@ -1,3 +1,8 @@
+namespace System.Security.AccessControl;
+
+using Microsoft.Integration.D365Sales;
+using Microsoft.Integration.Dataverse;
+
 permissionset 7012 "Dataverse - Edit"
 {
     Access = Public;

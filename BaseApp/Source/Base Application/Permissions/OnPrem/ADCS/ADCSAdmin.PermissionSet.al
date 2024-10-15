@@ -1,3 +1,7 @@
+namespace System.Security.AccessControl;
+
+using Microsoft.Warehouse.ADCS;
+
 permissionset 388 "ADCS - Admin"
 {
     Access = Public;

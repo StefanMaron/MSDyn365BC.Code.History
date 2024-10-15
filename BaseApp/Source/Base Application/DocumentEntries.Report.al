@@ -1,4 +1,34 @@
-﻿report 35 "Document Entries"
+﻿namespace Microsoft.Foundation.Navigate;
+
+using Microsoft.Bank.Check;
+using Microsoft.Bank.Ledger;
+using Microsoft.Finance.Currency;
+using Microsoft.Finance.GeneralLedger.Ledger;
+using Microsoft.Finance.VAT.Ledger;
+using Microsoft.FixedAssets.Insurance;
+using Microsoft.FixedAssets.Ledger;
+using Microsoft.FixedAssets.Maintenance;
+using Microsoft.Inventory.Counting.Journal;
+using Microsoft.Inventory.Ledger;
+using Microsoft.Inventory.Transfer;
+using Microsoft.Manufacturing.Capacity;
+using Microsoft.Manufacturing.Document;
+using Microsoft.Projects.Project.Ledger;
+using Microsoft.Projects.Resources.Ledger;
+using Microsoft.Purchases.History;
+using Microsoft.Purchases.Payables;
+using Microsoft.Sales.FinanceCharge;
+using Microsoft.Sales.History;
+using Microsoft.Sales.Receivables;
+using Microsoft.Sales.Reminder;
+using Microsoft.Service.History;
+using Microsoft.Service.Ledger;
+using Microsoft.Warehouse.History;
+using Microsoft.Warehouse.Ledger;
+using System.Utilities;
+using Microsoft.Bank.Deposit;
+
+report 35 "Document Entries"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './DocumentEntries.rdlc';
@@ -9,7 +39,7 @@
     {
         dataitem("Integer"; "Integer")
         {
-            DataItemTableView = SORTING(Number) WHERE(Number = FILTER(1 ..));
+            DataItemTableView = sorting(Number) where(Number = filter(1 ..));
             column(TodayFormatted; Format(Today, 0, 4))
             {
             }
@@ -51,7 +81,7 @@
             }
             dataitem("Service Ledger Entry"; "Service Ledger Entry")
             {
-                DataItemTableView = SORTING("Document No.", "Posting Date");
+                DataItemTableView = sorting("Document No.", "Posting Date");
                 column(PostDate_ServiceLedgEntry; Format("Posting Date"))
                 {
                 }
@@ -104,7 +134,7 @@
             }
             dataitem("Warranty Ledger Entry"; "Warranty Ledger Entry")
             {
-                DataItemTableView = SORTING("Document No.", "Posting Date");
+                DataItemTableView = sorting("Document No.", "Posting Date");
                 column(EntryNo_WarrantyLedgEntry; "Entry No.")
                 {
                     IncludeCaption = false;
@@ -152,7 +182,7 @@
             }
             dataitem("Service Shipment Header"; "Service Shipment Header")
             {
-                DataItemTableView = SORTING("No.");
+                DataItemTableView = sorting("No.");
                 column(CurrencyCaption; CurrencyCaption)
                 {
                 }
@@ -187,7 +217,7 @@
             }
             dataitem("Sales Shipment Header"; "Sales Shipment Header")
             {
-                DataItemTableView = SORTING("No.");
+                DataItemTableView = sorting("No.");
                 column(PostingDate_SalesShipmentHdr; Format("Posting Date"))
                 {
                 }
@@ -238,7 +268,7 @@
             }
             dataitem("Sales Invoice Header"; "Sales Invoice Header")
             {
-                DataItemTableView = SORTING("No.");
+                DataItemTableView = sorting("No.");
                 column(PostingDate_SalesInvHdr; Format("Posting Date"))
                 {
                 }
@@ -314,7 +344,7 @@
             }
             dataitem("Return Receipt Header"; "Return Receipt Header")
             {
-                DataItemTableView = SORTING("No.");
+                DataItemTableView = sorting("No.");
                 column(PostingDate_ReturnRcptHdr; Format("Posting Date"))
                 {
                 }
@@ -365,7 +395,7 @@
             }
             dataitem("Sales Cr.Memo Header"; "Sales Cr.Memo Header")
             {
-                DataItemTableView = SORTING("No.");
+                DataItemTableView = sorting("No.");
                 column(PostingDate_SalesCrMemoHdr; Format("Posting Date"))
                 {
                 }
@@ -441,7 +471,7 @@
             }
             dataitem("Issued Reminder Header"; "Issued Reminder Header")
             {
-                DataItemTableView = SORTING("No.");
+                DataItemTableView = sorting("No.");
                 column(PostingDate_IssuedReminderHdr; Format("Posting Date"))
                 {
                 }
@@ -523,7 +553,7 @@
             }
             dataitem("Issued Fin. Charge Memo Header"; "Issued Fin. Charge Memo Header")
             {
-                DataItemTableView = SORTING("No.");
+                DataItemTableView = sorting("No.");
                 column(PostingDate_IssuedFinChargeMemoHdr; Format("Posting Date"))
                 {
                 }
@@ -578,7 +608,7 @@
 
                 trigger OnAfterGetRecord()
                 begin
-                    if PrintAmountsInLCY then begin
+                    if PrintAmountsInLCY then
                         if "Currency Code" <> '' then begin
                             "Remaining Amount" := CurrExchRate.ExchangeAmtFCYToLCY("Posting Date", "Currency Code",
                                 "Remaining Amount", CurrExchRate.ExchangeRate("Posting Date", "Currency Code"));
@@ -589,7 +619,6 @@
                             "VAT Amount" := CurrExchRate.ExchangeAmtFCYToLCY("Posting Date", "Currency Code",
                                 "VAT Amount", CurrExchRate.ExchangeRate("Posting Date", "Currency Code"));
                         end;
-                    end;
                 end;
 
                 trigger OnPreDataItem()
@@ -604,7 +633,7 @@
             }
             dataitem("Posted Deposit Header"; "Posted Deposit Header")
             {
-                DataItemTableView = SORTING("No.");
+                DataItemTableView = sorting("No.");
                 column(CurrencyCaption_PostedDepositHdr; CurrencyCaption)
                 {
                 }
@@ -668,7 +697,7 @@
             }
             dataitem("Purch. Rcpt. Header"; "Purch. Rcpt. Header")
             {
-                DataItemTableView = SORTING("No.");
+                DataItemTableView = sorting("No.");
                 column(PostingDate_PurchRcptHdr; Format("Posting Date"))
                 {
                 }
@@ -719,7 +748,7 @@
             }
             dataitem("Purch. Inv. Header"; "Purch. Inv. Header")
             {
-                DataItemTableView = SORTING("No.");
+                DataItemTableView = sorting("No.");
                 column(PostingDate_PurchInvHdr; Format("Posting Date"))
                 {
                 }
@@ -795,7 +824,7 @@
             }
             dataitem("Return Shipment Header"; "Return Shipment Header")
             {
-                DataItemTableView = SORTING("No.");
+                DataItemTableView = sorting("No.");
                 column(PostingDate_ReturnShipmentHdr; Format("Posting Date"))
                 {
                 }
@@ -846,7 +875,7 @@
             }
             dataitem("Purch. Cr. Memo Hdr."; "Purch. Cr. Memo Hdr.")
             {
-                DataItemTableView = SORTING("No.");
+                DataItemTableView = sorting("No.");
                 column(PostingDate_PurchCrMemoHdr; Format("Posting Date"))
                 {
                 }
@@ -922,7 +951,7 @@
             }
             dataitem("Production Order"; "Production Order")
             {
-                DataItemTableView = SORTING(Status, "No.");
+                DataItemTableView = sorting(Status, "No.");
                 column(No_ProductionOrder; "No.")
                 {
                     IncludeCaption = false;
@@ -984,7 +1013,7 @@
             }
             dataitem("Transfer Shipment Header"; "Transfer Shipment Header")
             {
-                DataItemTableView = SORTING("No.");
+                DataItemTableView = sorting("No.");
                 column(PostingDate_TransferShipmentHdr; Format("Posting Date"))
                 {
                 }
@@ -1039,7 +1068,7 @@
             }
             dataitem("Transfer Receipt Header"; "Transfer Receipt Header")
             {
-                DataItemTableView = SORTING("No.");
+                DataItemTableView = sorting("No.");
                 column(PostingDate_TransferRcptHdr; Format("Posting Date"))
                 {
                 }
@@ -1094,7 +1123,7 @@
             }
             dataitem("Posted Whse. Shipment Line"; "Posted Whse. Shipment Line")
             {
-                DataItemTableView = SORTING("Posted Source No.", "Posting Date");
+                DataItemTableView = sorting("Posted Source No.", "Posting Date");
                 column(PostingDate_PostedWhseShipmentLine; Format("Posting Date"))
                 {
                 }
@@ -1162,7 +1191,7 @@
             }
             dataitem("Posted Whse. Receipt Line"; "Posted Whse. Receipt Line")
             {
-                DataItemTableView = SORTING("Posted Source No.", "Posting Date");
+                DataItemTableView = sorting("Posted Source No.", "Posting Date");
                 column(PostingDate_PostedWhseRcptLine; Format("Posting Date"))
                 {
                 }
@@ -1224,7 +1253,7 @@
             }
             dataitem("Posted Deposit Line"; "Posted Deposit Line")
             {
-                DataItemTableView = SORTING("Document No.", "Posting Date");
+                DataItemTableView = sorting("Document No.", "Posting Date");
                 column(CurrencyCaption_PostedDepositLine; CurrencyCaption)
                 {
                 }
@@ -1316,7 +1345,7 @@
             }
             dataitem("G/L Entry"; "G/L Entry")
             {
-                DataItemTableView = SORTING("G/L Account No.", "Posting Date");
+                DataItemTableView = sorting("G/L Account No.", "Posting Date");
                 column(PostingDate_GLEntry; Format("Posting Date"))
                 {
                 }
@@ -1389,7 +1418,7 @@
             }
             dataitem("VAT Entry"; "VAT Entry")
             {
-                DataItemTableView = SORTING("Document No.", "Posting Date");
+                DataItemTableView = sorting("Document No.", "Posting Date");
                 column(PostingDate_VATEntry; Format("Posting Date"))
                 {
                 }
@@ -1427,7 +1456,7 @@
             }
             dataitem("Cust. Ledger Entry"; "Cust. Ledger Entry")
             {
-                DataItemTableView = SORTING("Document No.");
+                DataItemTableView = sorting("Document No.");
                 column(EntryNo_CustLedgEntry; "Entry No.")
                 {
                 }
@@ -1497,7 +1526,7 @@
             }
             dataitem("Detailed Cust. Ledg. Entry"; "Detailed Cust. Ledg. Entry")
             {
-                DataItemTableView = SORTING("Document No.");
+                DataItemTableView = sorting("Document No.");
                 column(PostingDate_DetailedCustLedgEntry; Format("Posting Date"))
                 {
                 }
@@ -1556,7 +1585,7 @@
             }
             dataitem("Reminder/Fin. Charge Entry"; "Reminder/Fin. Charge Entry")
             {
-                DataItemTableView = SORTING(Type, "No.");
+                DataItemTableView = sorting(Type, "No.");
                 column(EntryNo_ReminderFinChargeEntry; "Entry No.")
                 {
                 }
@@ -1606,7 +1635,7 @@
             }
             dataitem("Vendor Ledger Entry"; "Vendor Ledger Entry")
             {
-                DataItemTableView = SORTING("Document No.");
+                DataItemTableView = sorting("Document No.");
                 column(EntryNo_VendLedgEntry; "Entry No.")
                 {
                 }
@@ -1670,7 +1699,7 @@
             }
             dataitem("Detailed Vendor Ledg. Entry"; "Detailed Vendor Ledg. Entry")
             {
-                DataItemTableView = SORTING("Document No.");
+                DataItemTableView = sorting("Document No.");
                 column(PostingDate_DetailedVendLedgEntry; Format("Posting Date"))
                 {
                 }
@@ -1729,7 +1758,7 @@
             }
             dataitem("Item Ledger Entry"; "Item Ledger Entry")
             {
-                DataItemTableView = SORTING("Document No.");
+                DataItemTableView = sorting("Document No.");
                 column(EntryNo_ItemLedgEntry; "Entry No.")
                 {
                 }
@@ -1785,7 +1814,7 @@
             }
             dataitem("Value Entry"; "Value Entry")
             {
-                DataItemTableView = SORTING("Document No.");
+                DataItemTableView = sorting("Document No.");
                 column(PostingDate_ValueEntry; Format("Posting Date"))
                 {
                 }
@@ -1835,7 +1864,7 @@
             }
             dataitem("Phys. Inventory Ledger Entry"; "Phys. Inventory Ledger Entry")
             {
-                DataItemTableView = SORTING("Document No.", "Posting Date");
+                DataItemTableView = sorting("Document No.", "Posting Date");
                 column(EntryNo_PhysInvtLedgEntry; "Entry No.")
                 {
                 }
@@ -1897,7 +1926,7 @@
             }
             dataitem("Res. Ledger Entry"; "Res. Ledger Entry")
             {
-                DataItemTableView = SORTING("Document No.", "Posting Date");
+                DataItemTableView = sorting("Document No.", "Posting Date");
                 column(PostingDate_ResLedgEntry; Format("Posting Date"))
                 {
                 }
@@ -1953,7 +1982,7 @@
             }
             dataitem("Job Ledger Entry"; "Job Ledger Entry")
             {
-                DataItemTableView = SORTING("Document No.", "Posting Date");
+                DataItemTableView = sorting("Document No.", "Posting Date");
                 column(PostingDate_JobLedgEntry; Format("Posting Date"))
                 {
                 }
@@ -2009,7 +2038,7 @@
             }
             dataitem("Bank Account Ledger Entry"; "Bank Account Ledger Entry")
             {
-                DataItemTableView = SORTING("Document No.", "Posting Date");
+                DataItemTableView = sorting("Document No.", "Posting Date");
                 column(EntryNo_BankAccLedgEntry; "Entry No.")
                 {
                 }
@@ -2073,7 +2102,7 @@
             }
             dataitem("Check Ledger Entry"; "Check Ledger Entry")
             {
-                DataItemTableView = SORTING("Document No.", "Posting Date");
+                DataItemTableView = sorting("Document No.", "Posting Date");
                 column(DocNo_CheckLedgEntry; "Document No.")
                 {
                 }
@@ -2141,7 +2170,7 @@
             }
             dataitem("FA Ledger Entry"; "FA Ledger Entry")
             {
-                DataItemTableView = SORTING("Document Type", "Document No.");
+                DataItemTableView = sorting("Document Type", "Document No.");
                 column(PostingDate_FALedgEntry; Format("Posting Date"))
                 {
                 }
@@ -2188,7 +2217,7 @@
             }
             dataitem("Maintenance Ledger Entry"; "Maintenance Ledger Entry")
             {
-                DataItemTableView = SORTING("Document No.", "Posting Date");
+                DataItemTableView = sorting("Document No.", "Posting Date");
                 column(EntryNo_MaintenanceLedgEntry; "Entry No.")
                 {
                 }
@@ -2235,7 +2264,7 @@
             }
             dataitem("Ins. Coverage Ledger Entry"; "Ins. Coverage Ledger Entry")
             {
-                DataItemTableView = SORTING("Document No.", "Posting Date");
+                DataItemTableView = sorting("Document No.", "Posting Date");
                 column(PostingDate_InsCoverageLedgEntry; Format("Posting Date"))
                 {
                 }
@@ -2285,7 +2314,7 @@
             }
             dataitem("Capacity Ledger Entry"; "Capacity Ledger Entry")
             {
-                DataItemTableView = SORTING("Document No.", "Posting Date");
+                DataItemTableView = sorting("Document No.", "Posting Date");
                 column(EntryNo_CapacityLedgEntry; "Entry No.")
                 {
                 }
@@ -2329,7 +2358,7 @@
             }
             dataitem("Warehouse Entry"; "Warehouse Entry")
             {
-                DataItemTableView = SORTING("Reference No.", "Registering Date");
+                DataItemTableView = sorting("Reference No.", "Registering Date");
                 column(EntryNo_WhseEntry; "Entry No.")
                 {
                 }

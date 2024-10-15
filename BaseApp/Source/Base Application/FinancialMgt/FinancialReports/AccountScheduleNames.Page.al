@@ -1,3 +1,5 @@
+namespace Microsoft.Finance.FinancialReports;
+
 page 103 "Account Schedule Names"
 {
     ApplicationArea = Basic, Suite;
@@ -78,7 +80,7 @@ page 103 "Account Schedule Names"
                 var
                     AccSchedule: Page "Account Schedule";
                 begin
-                    AccSchedule.SetAccSchedName(Name);
+                    AccSchedule.SetAccSchedName(Rec.Name);
                     AccSchedule.Run();
                 end;
             }
@@ -99,7 +101,7 @@ page 103 "Account Schedule Names"
                 var
                     ColumnLayout: Page "Column Layout";
                 begin
-                    ColumnLayout.SetColumnLayoutName("Default Column Layout");
+                    ColumnLayout.SetColumnLayoutName(Rec."Default Column Layout");
                     ColumnLayout.Run();
                 end;
             }
@@ -168,7 +170,7 @@ page 103 "Account Schedule Names"
                 var
                     AccSchedOverview: Page "Acc. Schedule Overview";
                 begin
-                    AccSchedOverview.SetAccSchedName(Name);
+                    AccSchedOverview.SetAccSchedName(Rec.Name);
                     AccSchedOverview.Run();
                 end;
             }
@@ -192,7 +194,7 @@ page 103 "Account Schedule Names"
                 ToolTip = 'Prepare to print the document. A report request window for the document opens where you can specify what to include on the print-out.';
                 trigger OnAction()
                 begin
-                    Print();
+                    Rec.Print();
                 end;
             }
         }

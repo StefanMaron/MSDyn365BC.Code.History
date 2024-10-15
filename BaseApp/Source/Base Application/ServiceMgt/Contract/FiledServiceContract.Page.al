@@ -1,7 +1,11 @@
+namespace Microsoft.Service.Contract;
+
+using Microsoft.Foundation.Address;
+
 page 6072 "Filed Service Contract"
 {
     Caption = 'Filed Service Contract';
-    DataCaptionExpression = Format("Contract Type") + ' ' + "Contract No.";
+    DataCaptionExpression = Format(Rec."Contract Type") + ' ' + Rec."Contract No.";
     Editable = false;
     InsertAllowed = false;
     ModifyAllowed = false;
@@ -44,7 +48,7 @@ page 6072 "Filed Service Contract"
                         ApplicationArea = Service;
                         ToolTip = 'Specifies the name of the customer in the filed service contract or contract quote.';
                     }
-                    field(Address; Address)
+                    field(Address; Rec.Address)
                     {
                         ApplicationArea = Service;
                         ToolTip = 'Specifies the address of the customer in the filed service contract or contract quote.';
@@ -59,7 +63,7 @@ page 6072 "Filed Service Contract"
                         ApplicationArea = Service;
                         ToolTip = 'Specifies the postal code.';
                     }
-                    field(City; City)
+                    field(City; Rec.City)
                     {
                         ApplicationArea = Service;
                         ToolTip = 'Specifies the city of the address.';
@@ -68,7 +72,7 @@ page 6072 "Filed Service Contract"
                     {
                         ShowCaption = false;
                         Visible = IsSellToCountyVisible;
-                        field(County; County)
+                        field(County; Rec.County)
                         {
                             ApplicationArea = Service;
                         }
@@ -135,8 +139,8 @@ page 6072 "Filed Service Contract"
             {
                 ApplicationArea = Service;
                 Editable = false;
-                SubPageLink = "Entry No." = FIELD("Entry No.");
-                SubPageView = SORTING("Entry No.", "Line No.");
+                SubPageLink = "Entry No." = field("Entry No.");
+                SubPageView = sorting("Entry No.", "Line No.");
             }
             group(Invoicing)
             {
@@ -357,7 +361,7 @@ page 6072 "Filed Service Contract"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the amount that will be invoiced for each invoice period for the filed service contract or contract quote.';
                 }
-                field(NextInvoicePeriod; NextInvoicePeriod())
+                field(NextInvoicePeriod; Rec.NextInvoicePeriod())
                 {
                     ApplicationArea = Service;
                     Caption = 'Next Invoice Period';
@@ -368,7 +372,7 @@ page 6072 "Filed Service Contract"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the invoice date when this filed service contract was last invoiced.';
                 }
-                field(Prepaid; Prepaid)
+                field(Prepaid; Rec.Prepaid)
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies that this filed service contract or contract quote is prepaid.';
@@ -499,9 +503,9 @@ page 6072 "Filed Service Contract"
 
     local procedure ActivateFields()
     begin
-        IsBillToCountyVisible := FormatAddress.UseCounty("Bill-to Country/Region Code");
-        IsShipToCountyVisible := FormatAddress.UseCounty("Ship-to Country/Region Code");
-        IsSellToCountyVisible := FormatAddress.UseCounty("Country/Region Code");
+        IsBillToCountyVisible := FormatAddress.UseCounty(Rec."Bill-to Country/Region Code");
+        IsShipToCountyVisible := FormatAddress.UseCounty(Rec."Ship-to Country/Region Code");
+        IsSellToCountyVisible := FormatAddress.UseCounty(Rec."Country/Region Code");
     end;
 }
 

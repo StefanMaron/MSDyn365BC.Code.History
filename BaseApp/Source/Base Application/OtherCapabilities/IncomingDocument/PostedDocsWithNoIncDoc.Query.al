@@ -1,3 +1,11 @@
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.EServices.EDocument;
+
+using Microsoft.Finance.GeneralLedger.Ledger;
+
 query 130 "Posted Docs. With No Inc. Doc."
 {
     Caption = 'Posted Docs. With No Inc. Doc.';
@@ -35,7 +43,7 @@ query 130 "Posted Docs. With No Inc. Doc."
                 DataItemLink = "Document No." = G_L_Entry."Document No.", "Posting Date" = G_L_Entry."Posting Date";
                 column(NoOfIncomingDocuments)
                 {
-                    ColumnFilter = NoOfIncomingDocuments = CONST(0);
+                    ColumnFilter = NoOfIncomingDocuments = const(0);
                     Method = Count;
                 }
             }

@@ -1,3 +1,13 @@
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.EServices.EDocument;
+
+using System.Integration;
+using System.IO;
+using System.Reflection;
+
 page 193 "Incoming Doc. Attach. FactBox"
 {
     Caption = 'Incoming Document Files';
@@ -12,7 +22,7 @@ page 193 "Incoming Doc. Attach. FactBox"
         {
             repeater(Group)
             {
-                IndentationColumn = Indentation;
+                IndentationColumn = Rec.Indentation;
                 IndentationControls = Name;
                 field(Name; Rec.Name)
                 {
@@ -22,7 +32,7 @@ page 193 "Incoming Doc. Attach. FactBox"
 
                     trigger OnDrillDown()
                     begin
-                        NameDrillDown();
+                        Rec.NameDrillDown();
                     end;
                 }
                 field(Type; Rec.Type)
@@ -56,7 +66,7 @@ page 193 "Incoming Doc. Attach. FactBox"
                     IncomingDocumentAttachment: Record "Incoming Document Attachment";
                     IncomingDocument: Record "Incoming Document";
                 begin
-                    IncomingDocumentAttachment.SetRange("Incoming Document Entry No.", "Incoming Document Entry No.");
+                    IncomingDocumentAttachment.SetRange("Incoming Document Entry No.", Rec."Incoming Document Entry No.");
                     if GlobalRecordID.TableNo <> 0 then
                         MainRecordRef := GlobalRecordID.GetRecord()
                     else begin
@@ -93,7 +103,7 @@ page 193 "Incoming Doc. Attach. FactBox"
                 var
                     IncomingDocument: Record "Incoming Document";
                 begin
-                    if not IncomingDocument.Get("Incoming Document Entry No.") then
+                    if not IncomingDocument.Get(Rec."Incoming Document Entry No.") then
                         exit;
                     PAGE.RunModal(PAGE::"Incoming Document", IncomingDocument);
 
@@ -168,7 +178,7 @@ page 193 "Incoming Doc. Attach. FactBox"
 
                 trigger OnAction()
                 begin
-                    NameDrillDown();
+                    Rec.NameDrillDown();
                 end;
             }
         }
@@ -179,7 +189,7 @@ page 193 "Incoming Doc. Attach. FactBox"
         IncomingDocumentAttachment: Record "Incoming Document Attachment";
         DocumentSharing: Codeunit "Document Sharing";
     begin
-        StyleExpressionTxt := GetStyleTxt();
+        StyleExpressionTxt := Rec.GetStyleTxt();
 
         ShareOptionsEnabled := (not Rec.IsGroupOrLink()) and (IncomingDocumentAttachment.Get(Rec."Incoming Document Entry No.", Rec."Line No.")) and (DocumentSharing.ShareEnabled());
         DownloadEnabled := (not Rec.IsGroupOrLink()) and (IncomingDocumentAttachment.Get(Rec."Incoming Document Entry No.", Rec."Line No."));
@@ -188,14 +198,14 @@ page 193 "Incoming Doc. Attach. FactBox"
     trigger OnFindRecord(Which: Text): Boolean
     begin
         if LoadedDataFromRecord then begin
-            HasAttachments := FindFirst();
+            HasAttachments := Rec.FindFirst();
             exit(HasAttachments);
         end;
 
         if not FilterWasChanged() then
             exit(HasAttachments);
 
-        PreviousViewFilter := GetView();
+        PreviousViewFilter := Rec.GetView();
         HasAttachments := LoadDataFromOnFindRecord();
         exit(HasAttachments);
     end;
@@ -220,18 +230,18 @@ page 193 "Incoming Doc. Attach. FactBox"
         IncomingDocumentFound: Boolean;
         CurrentFilterGroup: Integer;
     begin
-        CurrentFilterGroup := FilterGroup();
-        FilterGroup(4);
+        CurrentFilterGroup := Rec.FilterGroup();
+        Rec.FilterGroup(4);
         IncomingDocumentFound := FindIncomingDocumentFromFilters(IncomingDocument);
-        GlobalDocumentNo := GetFilter("Document No.");
+        GlobalDocumentNo := Rec.GetFilter("Document No.");
         Clear(GlobalPostingDate);
-        if GetFilter("Posting Date") <> '' then
-            if Evaluate(GlobalPostingDate, GetFilter("Posting Date")) then;
+        if Rec.GetFilter("Posting Date") <> '' then
+            if Evaluate(GlobalPostingDate, Rec.GetFilter("Posting Date")) then;
 
-        FilterGroup(CurrentFilterGroup);
+        Rec.FilterGroup(CurrentFilterGroup);
 
-        Reset();
-        DeleteAll();
+        Rec.Reset();
+        Rec.DeleteAll();
 
         if not IncomingDocumentFound then
             exit(false);
@@ -244,11 +254,11 @@ page 193 "Incoming Doc. Attach. FactBox"
     var
         IncomingDocumentEntryNo: Text;
     begin
-        IncomingDocumentEntryNo := GetFilter("Incoming Document Entry No.");
+        IncomingDocumentEntryNo := Rec.GetFilter("Incoming Document Entry No.");
         if IncomingDocumentEntryNo <> '' then
             exit(IncomingDocument.Get(IncomingDocumentEntryNo));
 
-        exit(IncomingDocument.FindByDocumentNoAndPostingDate(IncomingDocument, GetFilter("Document No."), GetFilter("Posting Date")));
+        exit(IncomingDocument.FindByDocumentNoAndPostingDate(IncomingDocument, Rec.GetFilter("Document No."), Rec.GetFilter("Posting Date")));
     end;
 
     local procedure FilterWasChanged(): Boolean
@@ -256,10 +266,10 @@ page 193 "Incoming Doc. Attach. FactBox"
         CurrentFilterGroup: Integer;
         CurrentViewFilter: Text;
     begin
-        CurrentFilterGroup := FilterGroup();
-        FilterGroup(4);
-        CurrentViewFilter := GetView();
-        FilterGroup(CurrentFilterGroup);
+        CurrentFilterGroup := Rec.FilterGroup();
+        Rec.FilterGroup(4);
+        CurrentViewFilter := Rec.GetView();
+        Rec.FilterGroup(CurrentFilterGroup);
         exit(PreviousViewFilter <> CurrentViewFilter);
     end;
 
@@ -273,13 +283,13 @@ page 193 "Incoming Doc. Attach. FactBox"
         if not DataTypeManagement.GetRecordRef(MainRecordVariant, MainRecordRef) then
             exit;
 
-        DeleteAll();
+        Rec.DeleteAll();
 
         if not MainRecordRef.Get(MainRecordRef.RecordId) then
             exit;
 
         if GetIncomingDocumentRecord(MainRecordVariant, IncomingDocument) then
-            InsertFromIncomingDocument(IncomingDocument, Rec);
+            Rec.InsertFromIncomingDocument(IncomingDocument, Rec);
 
         OnAfterLoadDataFromRecord(MainRecordRef);
         CurrPage.Update(false);
@@ -295,8 +305,8 @@ page 193 "Incoming Doc. Attach. FactBox"
 
     procedure LoadDataFromIncomingDocument(IncomingDocument: Record "Incoming Document")
     begin
-        DeleteAll();
-        InsertFromIncomingDocument(IncomingDocument, Rec);
+        Rec.DeleteAll();
+        Rec.InsertFromIncomingDocument(IncomingDocument, Rec);
         CurrPage.Update(false);
     end;
 

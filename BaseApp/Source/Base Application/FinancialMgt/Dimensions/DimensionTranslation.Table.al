@@ -1,3 +1,7 @@
+namespace Microsoft.Finance.Dimension;
+
+using System.Globalization;
+
 table 388 "Dimension Translation"
 {
     Caption = 'Dimension Translation';
@@ -43,7 +47,7 @@ table 388 "Dimension Translation"
         }
         field(6; "Language Name"; Text[80])
         {
-            CalcFormula = Lookup ("Windows Language".Name WHERE("Language ID" = FIELD("Language ID")));
+            CalcFormula = Lookup("Windows Language".Name where("Language ID" = field("Language ID")));
             Caption = 'Language Name';
             Editable = false;
             FieldClass = FlowField;

@@ -1,3 +1,5 @@
+namespace System.IO;
+
 table 8401 "Record Set Tree"
 {
     Caption = 'Record Set Tree';

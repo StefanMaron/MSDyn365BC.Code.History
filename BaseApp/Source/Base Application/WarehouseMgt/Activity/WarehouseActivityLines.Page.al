@@ -1,3 +1,5 @@
+namespace Microsoft.Warehouse.Activity;
+
 page 5785 "Warehouse Activity Lines"
 {
     Caption = 'Warehouse Activity Lines';
@@ -233,7 +235,7 @@ page 5785 "Warehouse Activity Lines"
 
                     trigger OnAction()
                     begin
-                        ShowActivityDoc();
+                        Rec.ShowActivityDoc();
                     end;
                 }
                 action(ShowDocument)
@@ -246,7 +248,7 @@ page 5785 "Warehouse Activity Lines"
 
                     trigger OnAction()
                     begin
-                        ShowActivityDoc();
+                        Rec.ShowActivityDoc();
                     end;
                 }
                 action("Show &Whse. Document")
@@ -258,7 +260,7 @@ page 5785 "Warehouse Activity Lines"
 
                     trigger OnAction()
                     begin
-                        ShowWhseDoc();
+                        Rec.ShowWhseDoc();
                     end;
                 }
             }
@@ -300,16 +302,16 @@ page 5785 "Warehouse Activity Lines"
 
     local procedure FormCaption(): Text[250]
     begin
-        case "Activity Type" of
-            "Activity Type"::"Put-away":
+        case Rec."Activity Type" of
+            Rec."Activity Type"::"Put-away":
                 exit(Text000);
-            "Activity Type"::Pick:
+            Rec."Activity Type"::Pick:
                 exit(Text001);
-            "Activity Type"::Movement:
+            Rec."Activity Type"::Movement:
                 exit(Text002);
-            "Activity Type"::"Invt. Put-away":
+            Rec."Activity Type"::"Invt. Put-away":
                 exit(Text004);
-            "Activity Type"::"Invt. Pick":
+            Rec."Activity Type"::"Invt. Pick":
                 exit(Text005);
             else
                 exit(Text003);

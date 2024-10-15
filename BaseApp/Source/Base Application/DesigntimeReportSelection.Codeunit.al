@@ -1,3 +1,5 @@
+namespace Microsoft.Foundation.Reporting;
+
 codeunit 9654 "Design-time Report Selection"
 {
     SingleInstance = true;

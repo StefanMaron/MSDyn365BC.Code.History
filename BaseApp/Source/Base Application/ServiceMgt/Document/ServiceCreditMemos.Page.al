@@ -1,3 +1,11 @@
+namespace Microsoft.Service.Document;
+
+using Microsoft.Finance.Dimension;
+using Microsoft.Sales.Customer;
+using Microsoft.Service.Comment;
+using Microsoft.Service.Posting;
+using Microsoft.eServices.EDocument;
+
 page 9320 "Service Credit Memos"
 {
     ApplicationArea = Service;
@@ -7,7 +15,7 @@ page 9320 "Service Credit Memos"
     Editable = false;
     PageType = List;
     SourceTable = "Service Header";
-    SourceTableView = WHERE("Document Type" = CONST("Credit Memo"));
+    SourceTableView = where("Document Type" = const("Credit Memo"));
     UsageCategory = Lists;
 
     layout
@@ -57,7 +65,7 @@ page 9320 "Service Credit Memos"
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the code of the location (for example, warehouse or distribution center) of the items specified on the service item lines.';
                 }
-                field(Priority; Priority)
+                field(Priority; Rec.Priority)
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the priority of the service order.';
@@ -110,15 +118,15 @@ page 9320 "Service Credit Memos"
             part(Control1902018507; "Customer Statistics FactBox")
             {
                 ApplicationArea = Service;
-                SubPageLink = "No." = FIELD("Bill-to Customer No."),
-                              "Date Filter" = FIELD("Date Filter");
+                SubPageLink = "No." = field("Bill-to Customer No."),
+                              "Date Filter" = field("Date Filter");
                 Visible = true;
             }
             part(Control1900316107; "Customer Details FactBox")
             {
                 ApplicationArea = Service;
-                SubPageLink = "No." = FIELD("Customer No."),
-                              "Date Filter" = FIELD("Date Filter");
+                SubPageLink = "No." = field("Customer No."),
+                              "Date Filter" = field("Date Filter");
                 Visible = true;
             }
             systempart(Control1900383207; Links)
@@ -153,7 +161,7 @@ page 9320 "Service Credit Memos"
                     trigger OnAction()
                     begin
                         OnBeforeCalculateSalesTaxStatistics(Rec, true);
-                        OpenStatistics();
+                        Rec.OpenStatistics();
                     end;
                 }
                 action("Co&mments")
@@ -162,10 +170,10 @@ page 9320 "Service Credit Memos"
                     Caption = 'Co&mments';
                     Image = ViewComments;
                     RunObject = Page "Service Comment Sheet";
-                    RunPageLink = "Table Name" = CONST("Service Header"),
-                                  "Table Subtype" = FIELD("Document Type"),
-                                  "No." = FIELD("No."),
-                                  Type = CONST(General);
+                    RunPageLink = "Table Name" = const("Service Header"),
+                                  "Table Subtype" = field("Document Type"),
+                                  "No." = field("No."),
+                                  Type = const(General);
                     ToolTip = 'View or add comments for the record.';
                 }
                 action(Dimensions)
@@ -179,7 +187,7 @@ page 9320 "Service Credit Memos"
 
                     trigger OnAction()
                     begin
-                        ShowDocDim();
+                        Rec.ShowDocDim();
                         CurrPage.SaveRecord();
                     end;
                 }
@@ -196,7 +204,7 @@ page 9320 "Service Credit Memos"
                     begin
                         TempServDocLog.Reset();
                         TempServDocLog.DeleteAll();
-                        TempServDocLog.CopyServLog(TempServDocLog."Document Type"::"Credit Memo".AsInteger(), "No.");
+                        TempServDocLog.CopyServLog(TempServDocLog."Document Type"::"Credit Memo".AsInteger(), Rec."No.");
 
                         TempServDocLog.Reset();
                         TempServDocLog.SetCurrentKey("Change Date", "Change Time");
@@ -211,10 +219,10 @@ page 9320 "Service Credit Memos"
                     Caption = 'CFDI Relation Documents';
                     Image = Allocations;
                     RunObject = Page "CFDI Relation Documents";
-                    RunPageLink = "Document Table ID" = CONST(5900),
-                                  "Document Type" = FIELD("Document Type"),
-                                  "Document No." = FIELD("No."),
-                                  "Customer No." = FIELD("Bill-to Customer No.");
+                    RunPageLink = "Document Table ID" = const(5900),
+                                  "Document Type" = field("Document Type"),
+                                  "Document No." = field("No."),
+                                  "Customer No." = field("Bill-to Customer No.");
                     ToolTip = 'View or add CFDI relation documents for the record.';
                 }
             }
@@ -235,7 +243,7 @@ page 9320 "Service Credit Memos"
 
                     trigger OnAction()
                     begin
-                        SendToPost(Codeunit::"Service-Post (Yes/No)");
+                        Rec.SendToPost(Codeunit::"Service-Post (Yes/No)");
                     end;
                 }
                 action(Preview)
@@ -263,7 +271,7 @@ page 9320 "Service Credit Memos"
 
                     trigger OnAction()
                     begin
-                        SendToPost(Codeunit::"Service-Post and Send");
+                        Rec.SendToPost(Codeunit::"Service-Post and Send");
                     end;
                 }
                 action("Post and &Print")
@@ -276,7 +284,7 @@ page 9320 "Service Credit Memos"
 
                     trigger OnAction()
                     begin
-                        SendToPost(Codeunit::"Service-Post+Print");
+                        Rec.SendToPost(Codeunit::"Service-Post+Print");
                     end;
                 }
                 action("Post &Batch")
@@ -345,9 +353,9 @@ page 9320 "Service Credit Memos"
 
     trigger OnOpenPage()
     begin
-        SetSecurityFilterOnRespCenter();
+        Rec.SetSecurityFilterOnRespCenter();
 
-        CopyCustomerFilter();
+        Rec.CopyCustomerFilter();
     end;
 
     [IntegrationEvent(false, false)]

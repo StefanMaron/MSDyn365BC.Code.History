@@ -81,7 +81,7 @@ page 2313 "BC O365 Posted Sales Invoice"
                     var
                         Customer: Record Customer;
                     begin
-                        if Customer.Get("Sell-to Customer No.") then
+                        if Customer.Get(Rec."Sell-to Customer No.") then
                             PAGE.RunModal(PAGE::"BC O365 Sales Customer Card", Customer);
                     end;
                 }
@@ -179,7 +179,7 @@ page 2313 "BC O365 Posted Sales Invoice"
                 ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Line Items';
                 Editable = false;
-                SubPageLink = "Document No." = FIELD("No.");
+                SubPageLink = "Document No." = field("No.");
             }
             group(Totals)
             {
@@ -198,7 +198,7 @@ page 2313 "BC O365 Posted Sales Invoice"
                         Lookup = false;
                         ToolTip = 'Specifies the total amount on the sales invoice excluding VAT.';
                     }
-                    field(AmountInclVAT; "Amount Including VAT")
+                    field(AmountInclVAT; Rec."Amount Including VAT")
                     {
                         ApplicationArea = Invoicing, Basic, Suite;
                         AutoFormatExpression = CurrencyFormat;
@@ -238,7 +238,7 @@ page 2313 "BC O365 Posted Sales Invoice"
                         Importance = Promoted;
                         ToolTip = 'Specifies a discount amount that is deducted from the value of the Total Incl. VAT field, based on sales lines where the Allow Invoice Disc. field is selected.';
                     }
-                    field(Amount2; Amount)
+                    field(Amount2; Rec.Amount)
                     {
                         ApplicationArea = Invoicing, Basic, Suite;
                         AutoFormatExpression = CurrencyFormat;
@@ -296,13 +296,13 @@ page 2313 "BC O365 Posted Sales Invoice"
             part(PaymentHistory; "O365 Payment History ListPart")
             {
                 ApplicationArea = Invoicing, Basic, Suite;
-                Visible = NOT Cancelled;
+                Visible = not Rec.Cancelled;
             }
             part(CustomerStatisticsFactBox; "BC O365 Cust. Stats FactBox")
             {
                 ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Customer statistics';
-                SubPageLink = "No." = FIELD("Sell-to Customer No.");
+                SubPageLink = "No." = field("Sell-to Customer No.");
             }
         }
     }
@@ -317,11 +317,11 @@ page 2313 "BC O365 Posted Sales Invoice"
                 Caption = 'Register payment';
                 Image = ApplyEntries;
                 ToolTip = 'Pay the invoice as specified in the default Payment Registration Setup.';
-                Visible = NOT IsFullyPaid AND NOT InvoiceCancelled AND (Amount <> 0) AND NOT IsCustomerBlocked;
+                Visible = NOT IsFullyPaid AND NOT InvoiceCancelled AND (Rec.Amount <> 0) AND NOT IsCustomerBlocked;
 
                 trigger OnAction()
                 begin
-                    if O365SalesInvoicePayment.MarkAsPaid("No.") then
+                    if O365SalesInvoicePayment.MarkAsPaid(Rec."No.") then
                         CurrPage.Close();
                 end;
             }
@@ -331,11 +331,11 @@ page 2313 "BC O365 Posted Sales Invoice"
                 Caption = 'View Payments';
                 Image = Navigate;
                 ToolTip = 'Show a list of payments made for this invoice.';
-                Visible = NOT InvoiceCancelled AND (Amount <> 0);
+                Visible = NOT InvoiceCancelled AND (Rec.Amount <> 0);
 
                 trigger OnAction()
                 begin
-                    O365SalesInvoicePayment.ShowHistory("No.");
+                    O365SalesInvoicePayment.ShowHistory(Rec."No.");
                 end;
             }
             action(MarkAsUnpaid)
@@ -344,11 +344,11 @@ page 2313 "BC O365 Posted Sales Invoice"
                 Caption = 'Cancel payment';
                 Image = ReverseRegister;
                 ToolTip = 'Cancel payment registrations for this invoice.';
-                Visible = IsFullyPaid AND NOT InvoiceCancelled AND (Amount <> 0) AND NOT IsCustomerBlocked;
+                Visible = IsFullyPaid AND NOT InvoiceCancelled AND (Rec.Amount <> 0) AND NOT IsCustomerBlocked;
 
                 trigger OnAction()
                 begin
-                    if O365SalesInvoicePayment.CancelSalesInvoicePayment("No.") then
+                    if O365SalesInvoicePayment.CancelSalesInvoicePayment(Rec."No.") then
                         CurrPage.Close();
                 end;
             }
@@ -364,12 +364,12 @@ page 2313 "BC O365 Posted Sales Invoice"
                     ReportSelections: Record "Report Selections";
                     DocumentPath: Text[250];
                 begin
-                    SetRecFilter();
-                    LockTable();
-                    Find();
-                    ReportSelections.GetPdfReportForCust(DocumentPath, ReportSelections.Usage::"S.Invoice", Rec, "Sell-to Customer No.");
+                    Rec.SetRecFilter();
+                    Rec.LockTable();
+                    Rec.Find();
+                    ReportSelections.GetPdfReportForCust(DocumentPath, ReportSelections.Usage::"S.Invoice", Rec, Rec."Sell-to Customer No.");
                     Download(DocumentPath, '', '', '', DocumentPath);
-                    Find();
+                    Rec.Find();
                 end;
             }
             action(Send)
@@ -401,7 +401,7 @@ page 2313 "BC O365 Posted Sales Invoice"
                     O365SalesCancelInvoice: Codeunit "O365 Sales Cancel Invoice";
                     O365DocumentSendMgt: Codeunit "O365 Document Send Mgt";
                 begin
-                    if SalesInvoiceHeader.Get("No.") then begin
+                    if SalesInvoiceHeader.Get(Rec."No.") then begin
                         SalesInvoiceHeader.SetRecFilter();
                         O365SalesCancelInvoice.CancelInvoice(SalesInvoiceHeader);
                     end;
@@ -453,25 +453,25 @@ page 2313 "BC O365 Posted Sales Invoice"
         O365SalesInvoicePayment: Codeunit "O365 Sales Invoice Payment";
         O365DocumentSendMgt: Codeunit "O365 Document Send Mgt";
     begin
-        IsFullyPaid := O365SalesInvoicePayment.GetPaymentCustLedgerEntry(DummyCustLedgerEntry, "No.");
+        IsFullyPaid := O365SalesInvoicePayment.GetPaymentCustLedgerEntry(DummyCustLedgerEntry, Rec."No.");
         FullAddress := GetFullAddress();
-        WorkDescription := GetWorkDescription();
+        WorkDescription := Rec.GetWorkDescription();
         UpdateNoOfAttachmentsLabel(O365SalesAttachmentMgt.GetNoOfAttachments(Rec));
         InvoiceCancelled := O365SalesCancelInvoice.IsInvoiceCanceled(Rec);
-        if Customer.Get("Sell-to Customer No.") then begin
+        if Customer.Get(Rec."Sell-to Customer No.") then begin
             CustomerEmail := Customer."E-Mail";
             IsCustomerBlocked := Customer.IsBlocked();
         end;
         UpdateCurrencyFormat();
-        if TaxArea.Get("Tax Area Code") then
+        if TaxArea.Get(Rec."Tax Area Code") then
             TaxAreaDescription := TaxArea.GetDescriptionInCurrentLanguageFullLength();
         TempStandardAddress.CopyFromSalesInvoiceHeaderSellTo(Rec);
         CalcInvoiceDiscount();
         DiscountVisible := InvoiceDiscountAmount <> 0;
         O365DocumentSendMgt.ShowSalesInvoiceHeaderFailedNotification(Rec);
         if IsCustomerBlocked then
-            O365SalesInvoiceMgmt.SendCustomerHasBeenBlockedNotification("Sell-to Customer Name");
-        CurrPage.PaymentHistory.PAGE.ShowHistoryFactbox("No.");
+            O365SalesInvoiceMgmt.SendCustomerHasBeenBlockedNotification(Rec."Sell-to Customer Name");
+        CurrPage.PaymentHistory.PAGE.ShowHistoryFactbox(Rec."No.");
         // CurrPage.PaymentHistory.PAGE.ACTIVATE(TRUE);
     end;
 
@@ -482,8 +482,8 @@ page 2313 "BC O365 Posted Sales Invoice"
 
     trigger OnFindRecord(Which: Text): Boolean
     begin
-        SetAutoCalcFields(Cancelled);
-        exit(Find(Which));
+        Rec.SetAutoCalcFields(Cancelled);
+        exit(Rec.Find(Which));
     end;
 
     trigger OnInit()
@@ -528,7 +528,7 @@ page 2313 "BC O365 Posted Sales Invoice"
     var
         SalesInvoiceLine: Record "Sales Invoice Line";
     begin
-        SalesInvoiceLine.SetRange("Document No.", "No.");
+        SalesInvoiceLine.SetRange("Document No.", Rec."No.");
         SalesInvoiceLine.CalcSums("Inv. Discount Amount", "Line Amount");
         InvoiceDiscountAmount := SalesInvoiceLine."Inv. Discount Amount";
         SubTotalAmount := SalesInvoiceLine."Line Amount";
@@ -548,11 +548,11 @@ page 2313 "BC O365 Posted Sales Invoice"
         Currency: Record Currency;
         CurrencySymbol: Text[10];
     begin
-        if "Currency Code" = '' then begin
+        if Rec."Currency Code" = '' then begin
             GLSetup.Get();
             CurrencySymbol := GLSetup.GetCurrencySymbol();
         end else begin
-            if Currency.Get("Currency Code") then;
+            if Currency.Get(Rec."Currency Code") then;
             CurrencySymbol := Currency.GetCurrencySymbol();
         end;
         CurrencyFormat := StrSubstNo('%1<precision, 2:2><standard format, 0>', CurrencySymbol);

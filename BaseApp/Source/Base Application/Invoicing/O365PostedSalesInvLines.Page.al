@@ -89,7 +89,7 @@ page 2114 "O365 Posted Sales Inv. Lines"
                 {
                     ApplicationArea = Invoicing, Basic, Suite;
                 }
-                field(LineAmountExclVAT; GetLineAmountExclVAT())
+                field(LineAmountExclVAT; Rec.GetLineAmountExclVAT())
                 {
                     ApplicationArea = Invoicing, Basic, Suite;
                     AutoFormatExpression = CurrencyFormat;
@@ -106,7 +106,7 @@ page 2114 "O365 Posted Sales Inv. Lines"
                     ToolTip = 'Specifies the net amount, excluding any invoice discount amount, that must be paid for products on the line.';
                     Visible = ShowOnlyOnBrick;
                 }
-                field(LineAmountInclVAT; GetLineAmountInclVAT())
+                field(LineAmountInclVAT; Rec.GetLineAmountInclVAT())
                 {
                     ApplicationArea = Invoicing, Basic, Suite;
                     AutoFormatExpression = CurrencyFormat;
@@ -133,12 +133,12 @@ page 2114 "O365 Posted Sales Inv. Lines"
         TaxSetup: Record "Tax Setup";
     begin
         if TaxSetup.Get() then
-            Taxable := "Tax Group Code" <> TaxSetup."Non-Taxable Tax Group Code";
-        if VATProductPostingGroup.Get("VAT Prod. Posting Group") then
+            Taxable := Rec."Tax Group Code" <> TaxSetup."Non-Taxable Tax Group Code";
+        if VATProductPostingGroup.Get(Rec."VAT Prod. Posting Group") then
             VATProductPostingGroupDescription := VATProductPostingGroup.Description
         else
             Clear(VATProductPostingGroup);
-        LineQuantity := Quantity;
+        LineQuantity := Rec.Quantity;
     end;
 
     trigger OnAfterGetRecord()
@@ -147,8 +147,8 @@ page 2114 "O365 Posted Sales Inv. Lines"
         SalesInvoiceHeader: Record "Sales Invoice Header";
         CurrencySymbol: Text[10];
     begin
-        UpdatePriceDescription();
-        SalesInvoiceHeader.Get("Document No.");
+        Rec.UpdatePriceDescription();
+        SalesInvoiceHeader.Get(Rec."Document No.");
 
         if SalesInvoiceHeader."Currency Code" = '' then
             CurrencySymbol := GLSetup.GetCurrencySymbol()

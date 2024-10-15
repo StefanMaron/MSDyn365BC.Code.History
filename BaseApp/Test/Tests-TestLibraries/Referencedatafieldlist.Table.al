@@ -10,23 +10,23 @@ table 130060 "Reference data - field list"
         }
         field(2; "Table ID"; Integer)
         {
-            TableRelation = AllObj."Object ID" WHERE("Object Type" = CONST(Table));
+            TableRelation = AllObj."Object ID" where("Object Type" = const(Table));
         }
         field(3; "Table name"; Text[30])
         {
-            CalcFormula = Lookup(AllObj."Object Name" WHERE("Object Type" = CONST(Table),
-                                                             "Object ID" = FIELD("Table ID")));
+            CalcFormula = Lookup(AllObj."Object Name" where("Object Type" = const(Table),
+                                                             "Object ID" = field("Table ID")));
             Editable = false;
             FieldClass = FlowField;
         }
         field(4; "Field ID"; Integer)
         {
-            TableRelation = Field."No." WHERE(TableNo = FIELD("Table ID"));
+            TableRelation = Field."No." where(TableNo = field("Table ID"));
         }
         field(5; "Field name"; Text[30])
         {
-            CalcFormula = Lookup(Field.FieldName WHERE(TableNo = FIELD("Table ID"),
-                                                        "No." = FIELD("Field ID")));
+            CalcFormula = Lookup(Field.FieldName where(TableNo = field("Table ID"),
+                                                        "No." = field("Field ID")));
             Editable = false;
             FieldClass = FlowField;
         }

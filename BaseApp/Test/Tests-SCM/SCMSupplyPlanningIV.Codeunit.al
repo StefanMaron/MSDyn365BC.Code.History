@@ -1451,21 +1451,6 @@ codeunit 137077 "SCM Supply Planning -IV"
         // Verify: Verify Quantity and Tracking is assigned on Requisition Line. Verified in ItemTrackingPageHandler.
         VerifyRequisitionWithTracking(ItemTrackingMode, Item."No.", SalesLine.Quantity);
     end;
-#if not CLEAN20
-    [Test]
-    [Scope('OnPrem')]
-    procedure ItemWithDescriptionNotEditableForProdForecastMatrixPage()
-    var
-        Item: Record Item;
-    begin
-        // Setup: Create Lot For Lot Item.
-        Initialize();
-        CreateLotForLotItem(Item, Item."Replenishment System"::Purchase);
-
-        // Exercise & Verify: Open Production Forecast Matrix page and  Verify Item No and Description are uneditable.
-        VerifyProductionForecastMatrixUneditable(Item."No.");
-    end;
-#endif
 
     [Test]
     [HandlerFunctions('OrderPromisingPageHandler')]
@@ -5491,19 +5476,6 @@ codeunit 137077 "SCM Supply Planning -IV"
         else
             VerifyRequisitionLineWithSerialTracking(ItemNo, 1);  // Quantity Value required for Serial Tracking.
     end;
-
-#if not CLEAN20
-    local procedure VerifyProductionForecastMatrixUneditable(ItemNo: Code[20])
-    var
-        ProductionForecastMatrix: TestPage "Demand Forecast Matrix";
-    begin
-        // Check the fields are uneditable on the Production Forecast Matrix Page.
-        ProductionForecastMatrix.OpenEdit;
-        ProductionForecastMatrix.FILTER.SetFilter("No.", ItemNo);
-        Assert.IsFalse(ProductionForecastMatrix."No.".Editable, EditableError);
-        Assert.IsFalse(ProductionForecastMatrix.Description.Editable, EditableError);
-    end;
-#endif
 
     local procedure VerifyRequisitionLineEndingTime(var RequisitionLine: Record "Requisition Line"; ItemNo: Code[20]; EndingTime: Time)
     begin

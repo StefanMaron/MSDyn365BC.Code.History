@@ -1,3 +1,5 @@
+namespace Microsoft.Finance.FinancialReports;
+
 page 767 "Account Schedule Chart List"
 {
     Caption = 'Account Schedule Chart List';
@@ -77,7 +79,7 @@ page 767 "Account Schedule Chart List"
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        "Start Date" := WorkDate();
+        Rec."Start Date" := WorkDate();
     end;
 }
 

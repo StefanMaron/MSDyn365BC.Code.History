@@ -1,3 +1,13 @@
+namespace System.Test.Tooling;
+
+using Microsoft.Foundation.NoSeries;
+using Microsoft.Inventory.Item;
+using Microsoft.Purchases.Document;
+using Microsoft.Purchases.Posting;
+using Microsoft.Purchases.Setup;
+using Microsoft.Purchases.Vendor;
+using System.Tooling;
+
 codeunit 149119 "BCPT Purch. Post with N Lines" implements "BCPT Test Param. Provider"
 {
     SingleInstance = true;
@@ -8,11 +18,11 @@ codeunit 149119 "BCPT Purch. Post with N Lines" implements "BCPT Test Param. Pro
         PurchPost: Codeunit "Purch.-Post";
         PurchHeaderId: Guid;
     begin
-        If not IsInitialized or true then begin
+        if not IsInitialized or true then begin
             InitTest();
             IsInitialized := true;
         end;
-        PurchHeaderId := CreatePurchaseOrder(BCPTTestContext);
+        PurchHeaderId := CreatePurchaseOrder(GlobalBCPTTestContext);
         PurchHeader.GetBySystemId(PurchHeaderId);
         PurchHeader.Validate(Receive, true);
         PurchHeader.Validate(Invoice, true);
@@ -21,10 +31,10 @@ codeunit 149119 "BCPT Purch. Post with N Lines" implements "BCPT Test Param. Pro
     end;
 
     var
-        BCPTTestContext: Codeunit "BCPT Test Context";
+        GlobalBCPTTestContext: Codeunit "BCPT Test Context";
         IsInitialized: Boolean;
         NoOfLinesParamLbl: Label 'Lines';
-        ParamValidationErr: Label 'Parameter is not defined in the correct format. The expected format is "%1"';
+        ParamValidationErr: Label 'Parameter is not defined in the correct format. The expected format is "%1"', Comment = '%1 = a string';
         NoOfLinesToCreate: Integer;
 
     local procedure InitTest();
@@ -35,7 +45,7 @@ codeunit 149119 "BCPT Purch. Post with N Lines" implements "BCPT Test Param. Pro
         PurchaseSetup.Get();
         PurchaseSetup.TestField("Order Nos.");
         NoSeriesLine.SetRange("Series Code", PurchaseSetup."Order Nos.");
-        NoSeriesLine.findset(true, true);
+        NoSeriesLine.FindSet(true);
         repeat
             if NoSeriesLine."Ending No." <> '' then begin
                 NoSeriesLine."Ending No." := '';
@@ -45,10 +55,10 @@ codeunit 149119 "BCPT Purch. Post with N Lines" implements "BCPT Test Param. Pro
         until NoSeriesLine.Next() = 0;
         commit();
 
-        if Evaluate(NoOfLinesToCreate, BCPTTestContext.GetParameter(NoOfLinesParamLbl)) then;
+        if Evaluate(NoOfLinesToCreate, GlobalBCPTTestContext.GetParameter(NoOfLinesParamLbl)) then;
     end;
 
-    local procedure CreatePurchaseOrder(Var BCPTTestContext: Codeunit "BCPT Test Context"): Guid
+    local procedure CreatePurchaseOrder(var BCPTTestContext: Codeunit "BCPT Test Context"): Guid
     var
         Vendor: Record Vendor;
         Item: Record Item;

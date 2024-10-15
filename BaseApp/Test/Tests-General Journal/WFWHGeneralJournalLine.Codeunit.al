@@ -28,6 +28,7 @@ codeunit 134220 "WFWH General Journal Line"
         UserCannotActErr: Label 'User %1 cannot act on this step. Make sure the user who created the webhook (%2) is the same who is trying to act.', Comment = '%1, %2 = two distinct NAV user IDs, for example "MEGANB" and "WILLIAMC"';
         UnexpectedNoOfApprovalEntriesErr: Label 'Unexpected number of approval entries found.', Locked = true;
         UnexpectedNoOfWorkflowStepInstancesErr: Label 'Unexpected number of workflow step instances found.';
+        PreventDeleteRecordWithOpenApprovalEntryForSenderMsg: Label 'You can''t delete a record that has open approval entries. To delete a record, you need to Cancel approval request first.';
 
     [Test]
     [Scope('OnPrem')]
@@ -802,12 +803,8 @@ codeunit 134220 "WFWH General Journal Line"
 
         // Exercise
         GenJournalLine.Find();
-        GenJournalLine.Delete(true);
-
-        // Verify
-        VerifyWorkflowWebhookEntryResponse(GenJournalLine.SystemId, DummyWorkflowWebhookEntry.Response::Cancel);
-        WorkflowStepInstance.SetRange("Workflow Code", DummyWorkflowCode);
-        Assert.IsTrue(WorkflowStepInstance.IsEmpty, UnexpectedNoOfWorkflowStepInstancesErr);
+        asserterror GenJournalLine.Delete(true);
+        Assert.ExpectedError(PreventDeleteRecordWithOpenApprovalEntryForSenderMsg);
     end;
 
     [Test]

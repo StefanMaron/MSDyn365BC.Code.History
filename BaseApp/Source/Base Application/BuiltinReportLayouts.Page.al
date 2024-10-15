@@ -1,3 +1,5 @@
+namespace System.Reflection;
+
 page 9654 "Built-in Report Layouts"
 {
     ApplicationArea = Basic, Suite;
@@ -30,7 +32,7 @@ page 9654 "Built-in Report Layouts"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the description of the report layout.';
                 }
-                field(Format; "Layout Format")
+                field(Format; Rec."Layout Format")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the format of the report layout.';
@@ -38,7 +40,9 @@ page 9654 "Built-in Report Layouts"
             }
         }
     }
-actions{        area(Promoted)
+    actions
+    {
+        area(Promoted)
         {
             group(Category_Report)
             {
@@ -49,5 +53,6 @@ actions{        area(Promoted)
                 Caption = 'Layout', Comment = 'Generated from the PromotedActionCategories property index 3.';
             }
         }
-}}
+    }
+}
 

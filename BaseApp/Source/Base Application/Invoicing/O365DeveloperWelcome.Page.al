@@ -56,7 +56,7 @@ page 1305 "O365 Developer Welcome"
 
     trigger OnInit()
     begin
-        SetRange("User ID", UserId);
+        Rec.SetRange("User ID", UserId);
     end;
 
     trigger OnOpenPage()
@@ -81,10 +81,10 @@ page 1305 "O365 Developer Welcome"
 
     local procedure MarkAsCompleted()
     begin
-        "User ID" := CopyStr(UserId(), 1, MaxStrLen("User ID"));
-        "Display Target" := Format(ClientTypeManagement.GetCurrentClientType());
-        "Tour in Progress" := false;
-        "Tour Completed" := true;
-        Insert();
+        Rec."User ID" := CopyStr(UserId(), 1, MaxStrLen(Rec."User ID"));
+        Rec."Display Target" := Format(ClientTypeManagement.GetCurrentClientType());
+        Rec."Tour in Progress" := false;
+        Rec."Tour Completed" := true;
+        Rec.Insert();
     end;
 }

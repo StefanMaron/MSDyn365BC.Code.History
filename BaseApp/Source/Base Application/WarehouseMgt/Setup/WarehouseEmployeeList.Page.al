@@ -1,3 +1,7 @@
+namespace Microsoft.Warehouse.Setup;
+
+using System.Security.User;
+
 page 7348 "Warehouse Employee List"
 {
     Caption = 'Warehouse Employee List';
@@ -22,7 +26,7 @@ page 7348 "Warehouse Employee List"
                     var
                         UserMgt: Codeunit "User Management";
                     begin
-                        UserMgt.DisplayUserInformation("User ID");
+                        UserMgt.DisplayUserInformation(Rec."User ID");
                     end;
                 }
                 field("Location Code"; Rec."Location Code")

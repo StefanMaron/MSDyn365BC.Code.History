@@ -1,3 +1,5 @@
+namespace System.Privacy;
+
 page 1822 "Consent Microsoft Confirm"
 {
     Caption = 'Please review terms and conditions';

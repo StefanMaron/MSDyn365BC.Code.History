@@ -1,3 +1,12 @@
+namespace Microsoft.AccountantPortal;
+
+using System;
+using System.Azure.Identity;
+using System.Email;
+using System.Environment;
+using System.Security.AccessControl;
+using System.Utilities;
+
 page 9033 "Invite External Accountant"
 {
     Caption = 'Invite External Accountant';
@@ -66,7 +75,7 @@ page 9033 "Invite External Accountant"
                         Caption = 'Email Address';
                         ShowCaption = true;
                         ShowMandatory = true;
-                        ToolTip = 'AAD email address of accountant.';
+                        ToolTip = 'Microsoft Entra email address of accountant.';
                     }
                 }
                 group(Control25)
@@ -270,7 +279,7 @@ page 9033 "Invite External Accountant"
         EmailTxt: Label 'email';
         InvitationSuccessTxt: Label '%1 %2 was successfully invited!', Comment = '%1=first name.  %2 =last name.';
         NoExternalAccountantLicenseAvailableErr: Label 'No External Accountant license available. Contact your administrator.';
-        NoAADPermissionsErr: Label 'You do not have permission to invite the user. You must either be a global administrator or a user administrator in Azure AD. Please contact your administrator.';
+        NoAADPermissionsErr: Label 'You do not have permission to invite the user. You must either be a global administrator or a user administrator in Microsoft Entra ID. Please contact your administrator.';
         WizardOpenValidationMsg: Label 'Verifying permissions and license availability.';
         InviteProgressWindowMsg: Label 'Inviting external accountant.  This process could take a little while.';
         EmailSubjectTxt: Label 'You have been invited to %1', Comment = '%1 - product name';
@@ -520,7 +529,7 @@ page 9033 "Invite External Accountant"
     [IntegrationEvent(false, false)]
     local procedure OnInvitationNoAADPermissionsFail()
     begin
-        // This event is called when the invitation process can not proceed due to a lack of user AAD permissions.
+        // This event is called when the invitation process can not proceed due to a lack of user Microsoft Entra ID permissions.
     end;
 
     [IntegrationEvent(false, false)]

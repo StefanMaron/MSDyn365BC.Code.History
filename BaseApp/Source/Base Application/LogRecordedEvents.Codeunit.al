@@ -1,3 +1,7 @@
+namespace System.Tooling;
+
+using System;
+
 codeunit 9804 "Log Recorded Events"
 {
     EventSubscriberInstance = Manual;
@@ -53,7 +57,7 @@ codeunit 9804 "Log Recorded Events"
         TempRecordedEventBuffer."Object Type" := e.ObjectType;
         TempRecordedEventBuffer."Object ID" := e.ObjectId;
         TempRecordedEventBuffer."Event Name" := e.EventName;
-        TempRecordedEventBuffer."Element Name" := e.ElementName;        
+        TempRecordedEventBuffer."Element Name" := e.ElementName;
         TempRecordedEventBuffer."Event Type" := e.EventType;
         TempRecordedEventBuffer."Calling Object Type" := e.CallingObjectType;
         TempRecordedEventBuffer."Calling Object ID" := e.CallingObjectId;

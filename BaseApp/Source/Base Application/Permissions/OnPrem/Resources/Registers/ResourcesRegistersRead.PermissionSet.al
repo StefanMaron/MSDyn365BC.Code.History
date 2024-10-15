@@ -1,3 +1,7 @@
+namespace System.Security.AccessControl;
+
+using Microsoft.Projects.Resources.Ledger;
+
 permissionset 654 "Resources Registers - Read"
 {
     Access = Public;

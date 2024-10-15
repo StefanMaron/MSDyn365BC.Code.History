@@ -19,6 +19,7 @@ codeunit 144054 "ERM RFC/CURP No."
         LibraryRandom: Codeunit "Library - Random";
         RFCNoUsedByAnotherCompanyMsg: Label 'The RFC number %1 is used by another company';
         FieldErr: Label '%1 is not a valid %2', Comment = '%1 = Field Value, %2 = Field Caption';
+        NotAValidRFCNoErr: Label '%1 is not a valid RFC No.';
         VendorRFCNoUsedByAnotherCompanyMsg: Label 'The RFC No. %1 is used by another company';
         FileNameTxt: Label '%1.xlsx';
         SpanishBankCommunicationErr: Label 'You cannot use the Spanish Bank Communication option with a Canadian style check. Please check Vendor %1';
@@ -113,7 +114,7 @@ codeunit 144054 "ERM RFC/CURP No."
     procedure ErrorOnUpdatingWrongRFCNoOnCompanyInformation()
     var
         CompanyInformation: Record "Company Information";
-        RFCNo: Code[10];
+        RFCNo: Text[13];
     begin
         // Setup.
         Initialize();
@@ -121,10 +122,10 @@ codeunit 144054 "ERM RFC/CURP No."
         RFCNo := LibraryUtility.GenerateGUID();
 
         // Exercise.
-        asserterror CompanyInformation.Validate("RFC No.", RFCNo);
+        asserterror CompanyInformation.Validate("RFC Number", RFCNo);
 
         // Verify: Error message for valid RFC No.
-        Assert.ExpectedError(StrSubstNo(FieldErr, RFCNo, CompanyInformation.FieldCaption("RFC No.")));
+        Assert.ExpectedError(StrSubstNo(NotAValidRFCNoErr, RFCNo));
     end;
 
     [Test]
@@ -147,6 +148,8 @@ codeunit 144054 "ERM RFC/CURP No."
         Assert.ExpectedError(StrSubstNo(FieldErr, CURPNo, CompanyInformation.FieldCaption("CURP No.")));
     end;
 
+#if not CLEAN22
+    [Obsolete('RFC No. cannot be 0 length but RFC Number can. The test is obsolete.', '22.0')]
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
@@ -160,10 +163,12 @@ codeunit 144054 "ERM RFC/CURP No."
 
         // Exercise.
         asserterror CompanyInformation.Validate("RFC No.", '');
+        CompanyInformation.Validate("RFC Number", '');
 
         // Verify: Error message for valid RFC No.
         Assert.ExpectedError(StrSubstNo(FieldErr, '', CompanyInformation.FieldCaption("RFC No.")));
     end;
+#endif
 
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
@@ -489,8 +494,7 @@ codeunit 144054 "ERM RFC/CURP No."
     local procedure UpdateCompanyInformation(var CompanyInformation: Record "Company Information")
     begin
         CompanyInformation.Get();
-        CompanyInformation.Validate("RFC No.",
-          GetRandomCode(LibraryUtility.GetFieldLength(DATABASE::"Company Information", CompanyInformation.FieldNo("RFC No."))));
+        CompanyInformation.Validate("RFC Number", GetRandomCode(12)); // RFC Number is 12 or 13 characters.
         CompanyInformation.Validate("CURP No.",
           GetRandomCode(LibraryUtility.GetFieldLength(DATABASE::"Company Information", CompanyInformation.FieldNo("CURP No."))));
         CompanyInformation.Validate("E-Mail", LibraryUtility.GenerateRandomEmail);

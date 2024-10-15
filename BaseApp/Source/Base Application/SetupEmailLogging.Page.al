@@ -1,4 +1,16 @@
 #if not CLEAN22
+namespace System.EMail;
+
+using Microsoft.CRM.Outlook;
+using Microsoft.CRM.Interaction;
+using Microsoft.CRM.Setup;
+using System;
+using System.Environment;
+using System.Environment.Configuration;
+using System.Integration;
+using System.Security.Encryption;
+using System.Utilities;
+
 page 1811 "Setup Email Logging"
 {
     Caption = 'Email Logging Setup';

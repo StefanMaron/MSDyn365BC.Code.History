@@ -1,3 +1,11 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Integration.SyncEngine;
+
+using Microsoft.Integration.Dataverse;
+
 table 5338 "Integration Synch. Job"
 {
     Caption = 'Integration Synch. Job';
@@ -25,8 +33,6 @@ table 5338 "Integration Synch. Job"
         {
             Caption = 'Integration Table Mapping Name';
             TableRelation = "Integration Table Mapping".Name;
-            //This property is currently not supported
-            //TestTableRelation = false;
         }
         field(6; Inserted; Integer)
         {

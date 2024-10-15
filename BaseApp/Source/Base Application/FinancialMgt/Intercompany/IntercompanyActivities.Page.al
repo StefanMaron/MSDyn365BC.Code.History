@@ -1,3 +1,12 @@
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Intercompany;
+
+using Microsoft.Intercompany.Inbox;
+using Microsoft.Intercompany.Outbox;
+
 page 9071 "Intercompany Activities"
 {
     Caption = 'Intercompany';

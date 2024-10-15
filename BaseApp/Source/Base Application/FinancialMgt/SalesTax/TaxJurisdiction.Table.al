@@ -1,3 +1,10 @@
+namespace Microsoft.Finance.SalesTax;
+
+using Microsoft.Finance.GeneralLedger.Account;
+using Microsoft.Finance.GeneralLedger.Setup;
+using System.Telemetry;
+using System.Globalization;
+
 table 320 "Tax Jurisdiction"
 {
     Caption = 'Tax Jurisdiction';

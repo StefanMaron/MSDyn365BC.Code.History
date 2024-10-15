@@ -22,27 +22,6 @@ page 2315 "BC O365 Settings"
                     UpdatePropagation = Both;
                 }
             }
-#if not CLEAN20
-            group(Control15)
-            {
-                ShowCaption = false;
-                Visible = false;
-                ObsoleteReason = 'Empty group';
-                ObsoleteState = Pending;
-                ObsoleteTag = '20.0';
-
-                part(SmtpMailPage; "Email Scenarios FactBox") // Original part has been removed, Email Scenarios Factbox as dummy and part is not visible
-                {
-                    ApplicationArea = Invoicing, Basic, Suite;
-                    Caption = 'Email account';
-                    UpdatePropagation = Both;
-                    Visible = false;
-                    ObsoleteReason = 'Part has been removed.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '20.0';
-                }
-            }
-#endif
             part("Email settings"; "BC O365 Email Settings Part")
             {
                 ApplicationArea = Invoicing, Basic, Suite;
@@ -63,7 +42,7 @@ page 2315 "BC O365 Settings"
                 ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Payment instructions';
             }
-            part("Tax rates"; "BC O365 Tax Settings List")
+            part("Tax rates"; "BC O365 Tax Settings Part")
             {
                 ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Tax rates';

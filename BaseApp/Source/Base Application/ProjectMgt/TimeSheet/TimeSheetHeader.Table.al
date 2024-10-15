@@ -1,3 +1,13 @@
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Projects.TimeSheet;
+
+using Microsoft.Projects.Resources.Resource;
+using Microsoft.Projects.Resources.Setup;
+using System.Security.User;
+
 table 950 "Time Sheet Header"
 {
     Caption = 'Time Sheet Header';
@@ -47,7 +57,7 @@ table 950 "Time Sheet Header"
         {
             Caption = 'Resource Name';
             FieldClass = FlowField;
-            CalcFormula = Lookup(Resource.Name WHERE("No." = FIELD("Resource No.")));
+            CalcFormula = Lookup(Resource.Name where("No." = field("Resource No.")));
             Editable = false;
         }
         field(7; "Owner User ID"; Code[50])
@@ -69,72 +79,72 @@ table 950 "Time Sheet Header"
         }
         field(11; "Unit of Measure"; Code[10])
         {
-            CalcFormula = Lookup(Resource."Base Unit of Measure" WHERE("No." = FIELD("Resource No.")));
+            CalcFormula = Lookup(Resource."Base Unit of Measure" where("No." = field("Resource No.")));
             Caption = 'Unit of Measure';
             FieldClass = FlowField;
             Editable = false;
         }
         field(12; "Open Exists"; Boolean)
         {
-            CalcFormula = Exist("Time Sheet Line" WHERE("Time Sheet No." = FIELD("No."),
-                                                         Status = CONST(Open)));
+            CalcFormula = exist("Time Sheet Line" where("Time Sheet No." = field("No."),
+                                                         Status = const(Open)));
             Caption = 'Open Exists';
             Editable = false;
             FieldClass = FlowField;
         }
         field(13; "Submitted Exists"; Boolean)
         {
-            CalcFormula = Exist("Time Sheet Line" WHERE("Time Sheet No." = FIELD("No."),
-                                                         Status = CONST(Submitted)));
+            CalcFormula = exist("Time Sheet Line" where("Time Sheet No." = field("No."),
+                                                         Status = const(Submitted)));
             Caption = 'Submitted Exists';
             Editable = false;
             FieldClass = FlowField;
         }
         field(14; "Rejected Exists"; Boolean)
         {
-            CalcFormula = Exist("Time Sheet Line" WHERE("Time Sheet No." = FIELD("No."),
-                                                         Status = CONST(Rejected)));
+            CalcFormula = exist("Time Sheet Line" where("Time Sheet No." = field("No."),
+                                                         Status = const(Rejected)));
             Caption = 'Rejected Exists';
             Editable = false;
             FieldClass = FlowField;
         }
         field(15; "Approved Exists"; Boolean)
         {
-            CalcFormula = Exist("Time Sheet Line" WHERE("Time Sheet No." = FIELD("No."),
-                                                         Status = CONST(Approved)));
+            CalcFormula = exist("Time Sheet Line" where("Time Sheet No." = field("No."),
+                                                         Status = const(Approved)));
             Caption = 'Approved Exists';
             Editable = false;
             FieldClass = FlowField;
         }
         field(16; "Posted Exists"; Boolean)
         {
-            CalcFormula = Exist("Time Sheet Posting Entry" WHERE("Time Sheet No." = FIELD("No.")));
+            CalcFormula = exist("Time Sheet Posting Entry" where("Time Sheet No." = field("No.")));
             Caption = 'Posted Exists';
             Editable = false;
             FieldClass = FlowField;
         }
         field(20; Quantity; Decimal)
         {
-            CalcFormula = Sum("Time Sheet Detail".Quantity WHERE("Time Sheet No." = FIELD("No."),
-                                                                  Status = FIELD("Status Filter"),
-                                                                  "Job No." = FIELD("Job No. Filter"),
-                                                                  "Job Task No." = FIELD("Job Task No. Filter"),
-                                                                  Date = FIELD("Date Filter"),
-                                                                  Posted = FIELD("Posted Filter"),
-                                                                  Type = FIELD("Type Filter")));
+            CalcFormula = sum("Time Sheet Detail".Quantity where("Time Sheet No." = field("No."),
+                                                                  Status = field("Status Filter"),
+                                                                  "Job No." = field("Job No. Filter"),
+                                                                  "Job Task No." = field("Job Task No. Filter"),
+                                                                  Date = field("Date Filter"),
+                                                                  Posted = field("Posted Filter"),
+                                                                  Type = field("Type Filter")));
             Caption = 'Quantity';
             FieldClass = FlowField;
         }
         field(21; "Posted Quantity"; Decimal)
         {
-            CalcFormula = Sum("Time Sheet Posting Entry".Quantity WHERE("Time Sheet No." = FIELD("No.")));
+            CalcFormula = sum("Time Sheet Posting Entry".Quantity where("Time Sheet No." = field("No.")));
             Caption = 'Posted Quantity';
             FieldClass = FlowField;
         }
         field(26; Comment; Boolean)
         {
-            CalcFormula = Exist("Time Sheet Comment Line" WHERE("No." = FIELD("No."),
-                                                                 "Time Sheet Line No." = CONST(0)));
+            CalcFormula = exist("Time Sheet Comment Line" where("No." = field("No."),
+                                                                 "Time Sheet Line No." = const(0)));
             Caption = 'Comment';
             Editable = false;
             FieldClass = FlowField;
@@ -171,32 +181,32 @@ table 950 "Time Sheet Header"
         }
         field(40; "Quantity Open"; Decimal)
         {
-            CalcFormula = Sum("Time Sheet Detail".Quantity WHERE("Time Sheet No." = FIELD("No."),
-                                                         Status = CONST(Open)));
+            CalcFormula = sum("Time Sheet Detail".Quantity where("Time Sheet No." = field("No."),
+                                                         Status = const(Open)));
             Caption = 'Quantity Open';
             Editable = false;
             FieldClass = FlowField;
         }
         field(41; "Quantity Submitted"; Decimal)
         {
-            CalcFormula = Sum("Time Sheet Detail".Quantity WHERE("Time Sheet No." = FIELD("No."),
-                                                         Status = CONST(Submitted)));
+            CalcFormula = sum("Time Sheet Detail".Quantity where("Time Sheet No." = field("No."),
+                                                         Status = const(Submitted)));
             Caption = 'Quantity Submitted';
             Editable = false;
             FieldClass = FlowField;
         }
         field(42; "Quantity Approved"; Decimal)
         {
-            CalcFormula = Sum("Time Sheet Detail".Quantity WHERE("Time Sheet No." = FIELD("No."),
-                                                         Status = CONST(Approved)));
+            CalcFormula = sum("Time Sheet Detail".Quantity where("Time Sheet No." = field("No."),
+                                                         Status = const(Approved)));
             Caption = 'Quantity Approved';
             Editable = false;
             FieldClass = FlowField;
         }
         field(43; "Quantity Rejected"; Decimal)
         {
-            CalcFormula = Sum("Time Sheet Detail".Quantity WHERE("Time Sheet No." = FIELD("No."),
-                                                         Status = CONST(Rejected)));
+            CalcFormula = sum("Time Sheet Detail".Quantity where("Time Sheet No." = field("No."),
+                                                         Status = const(Rejected)));
             Caption = 'Quantity Rejected';
             Editable = false;
             FieldClass = FlowField;
@@ -353,8 +363,8 @@ table 950 "Time Sheet Header"
 
         TimeSheetMgt.FilterTimeSheets(Rec, FilterFieldNo);
         if Rec.IsEmpty then
-        Error(Text002);
-        
+            Error(Text002);
+
         SetFilter("Starting Date", '..%1', WorkDate());
         if FindLast() then
             exit("No.");

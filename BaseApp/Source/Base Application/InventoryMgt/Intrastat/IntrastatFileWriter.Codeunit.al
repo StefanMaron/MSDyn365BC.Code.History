@@ -1,4 +1,13 @@
-#if not CLEAN22
+﻿#if not CLEAN22
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Inventory.Intrastat;
+
+using System.IO;
+using System.Utilities;
+
 codeunit 352 "Intrastat File Writer"
 {
     Access = Internal;
@@ -27,9 +36,6 @@ codeunit 352 "Intrastat File Writer"
         ShipmentFilenameTxt: Label 'Shipment-%1.txt', Comment = '%1 - statistics period YYMM';
         ReceiptFilenameTxt: Label 'Receipt-%1.txt', Comment = '%1 - statistics period YYMM';
         ZipFilenameTxt: Label 'Intrastat-%1.zip', Comment = '%1 - statistics period YYMM';
-#if not CLEAN20
-        ServerFileName: Text;
-#endif
 
     procedure Initialize(newZipResultFile: Boolean; newSplitShipmentAndReceiptFiles: Boolean; newFileLineCounterLimit: Integer)
     begin
@@ -61,13 +67,6 @@ codeunit 352 "Intrastat File Writer"
     begin
         StatisticsPeriod := newStatisticsPeriod;
     end;
-
-#if not CLEAN20
-    procedure SetServerFileName(newServerFileName: Text)
-    begin
-        ServerFileName := newServerFileName;
-    end;
-#endif
 
     procedure GetDefaultXMLFileName(): Text
     begin
@@ -130,14 +129,7 @@ codeunit 352 "Intrastat File Writer"
             ResultFileName := CurrFileName;
         ResultFileName := StrSubstNo(ResultFileName, StatisticsPeriod);
 
-#if not CLEAN20
-        if ServerFileName = '' then
-            FileManagement.BLOBExport(ResultFileTempBlob, ResultFileName, true)
-        else
-            FileManagement.BLOBExportToServerFile(ResultFileTempBlob, ServerFileName);
-#else
         FileManagement.BLOBExport(ResultFileTempBlob, ResultFileName, true)
-#endif
     end;
 
     procedure AddCurrFileToResultFile()

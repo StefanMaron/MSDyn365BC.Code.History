@@ -1,6 +1,12 @@
+#if not CLEAN21
 codeunit 138944 "BC O365 Tax Tests"
 {
     Subtype = Test;
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+#pragma warning disable AS0072 
+    ObsoleteTag = '21.0';
+#pragma warning restore AS0072
 
     trigger OnRun()
     begin
@@ -223,3 +229,4 @@ codeunit 138944 "BC O365 Tax Tests"
     end;
 }
 
+#endif

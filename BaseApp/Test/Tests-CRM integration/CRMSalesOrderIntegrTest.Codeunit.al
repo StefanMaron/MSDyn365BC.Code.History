@@ -2061,7 +2061,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
             if ActualText = AnnotationText then
                 exit;
         until RecordLink.Next() = 0;
-        Error(StrSubstNo(SalesOrdernoteNotFoundErr, SalesHeader."No.", AnnotationText));
+        Error(SalesOrdernoteNotFoundErr, SalesHeader."No.", AnnotationText);
     end;
 
     local procedure VerifyCRMSalesOrderNote(SalesHeader: Record "Sales Header"; AnnotationText: Text)
@@ -2082,7 +2082,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
             if ActualText = AnnotationText then
                 exit;
         until CRMAnnotation.Next() = 0;
-        Error(StrSubstNo(CRMSalesOrdernoteNotFoundErr, CRMSalesorderID, AnnotationText));
+        Error(CRMSalesOrdernoteNotFoundErr, CRMSalesorderID, AnnotationText);
     end;
 
     [Scope('OnPrem')]

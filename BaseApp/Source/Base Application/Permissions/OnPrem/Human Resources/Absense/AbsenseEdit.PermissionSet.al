@@ -1,3 +1,10 @@
+namespace System.Security.AccessControl;
+
+using Microsoft.HumanResources.Employee;
+using Microsoft.HumanResources.Comment;
+using Microsoft.HumanResources.Absence;
+using Microsoft.Foundation.UOM;
+
 permissionset 4222 "Absense - Edit"
 {
     Access = Public;

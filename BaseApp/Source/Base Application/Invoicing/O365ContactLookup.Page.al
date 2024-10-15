@@ -6,7 +6,7 @@ page 2179 "O365 Contact Lookup"
     PageType = List;
     RefreshOnActivate = true;
     SourceTable = Contact;
-    SourceTableView = SORTING(Name);
+    SourceTableView = sorting(Name);
     ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
     ObsoleteState = Pending;
     ObsoleteTag = '21.0';

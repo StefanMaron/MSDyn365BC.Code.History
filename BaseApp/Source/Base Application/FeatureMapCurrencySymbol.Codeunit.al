@@ -1,4 +1,12 @@
 #if not CLEAN22
+namespace System.Environment.Configuration;
+
+using Microsoft.Finance.Currency;
+using Microsoft.Foundation.Navigate;
+using Microsoft.Integration.Dataverse;
+using Microsoft.Integration.D365Sales;
+using Microsoft.Integration.SyncEngine;
+
 codeunit 5405 "Feature Map Currency Symbol" implements "Feature Data Update"
 {
     ObsoleteReason = 'Feature CurrencySymbolMapping will be enabled by default in version 22.0.';

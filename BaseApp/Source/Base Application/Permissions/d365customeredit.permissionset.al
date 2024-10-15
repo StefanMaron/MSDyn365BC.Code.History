@@ -1,3 +1,51 @@
+namespace System.Security.AccessControl;
+
+using Microsoft.Bank.Ledger;
+using Microsoft.Warehouse.Structure;
+using Microsoft.Bank.Check;
+using Microsoft.CRM.Duplicates;
+using Microsoft.CRM.Contact;
+using Microsoft.CRM.BusinessRelation;
+using Microsoft.CRM.Profiling;
+using Microsoft.Service.Contract;
+using Microsoft.Finance.Currency;
+using Microsoft.Sales.Customer;
+using Microsoft.Sales.Receivables;
+using Microsoft.Pricing.Calculation;
+using Microsoft.Pricing.PriceList;
+using Microsoft.HumanResources.Payables;
+using Microsoft.Sales.FinanceCharge;
+using Microsoft.Finance.GeneralLedger.Ledger;
+using Microsoft.CRM.Interaction;
+using Microsoft.Inventory.Analysis;
+using Microsoft.Inventory.Item.Catalog;
+using Microsoft.Sales.Reminder;
+using Microsoft.CRM.Opportunity;
+using Microsoft.Pricing.Asset;
+using Microsoft.Pricing.Source;
+using Microsoft.Pricing.Worksheet;
+using Microsoft.Purchases.History;
+using Microsoft.Purchases.Archive;
+using Microsoft.Warehouse.Activity.History;
+using Microsoft.Projects.Resources.Journal;
+using Microsoft.Sales.History;
+using Microsoft.CRM.Comment;
+using Microsoft.Sales.Archive;
+using Microsoft.Sales.Pricing;
+using Microsoft.Service.Document;
+using Microsoft.Service.History;
+using Microsoft.Service.Item;
+using Microsoft.Service.Ledger;
+using Microsoft.Sales.Document;
+using Microsoft.CRM.Task;
+using Microsoft.Purchases.Payables;
+using Microsoft.Warehouse.Activity;
+using Microsoft.Warehouse.Request;
+using Microsoft.Warehouse.Document;
+using Microsoft.Warehouse.Worksheet;
+using Microsoft.Finance.VAT.Ledger;
+using Microsoft.Finance.VAT.Registration;
+
 permissionset 5729 "D365 CUSTOMER, EDIT"
 {
     Assignable = true;
@@ -25,9 +73,6 @@ permissionset 5729 "D365 CUSTOMER, EDIT"
                   tabledata "Customer Bank Account" = IMD,
                   tabledata "Customer Discount Group" = RIMD,
                   tabledata "Customer Templ." = rm,
-#if not CLEAN20
-                  tabledata "Customer Template" = r,
-#endif
                   tabledata "Detailed Cust. Ledg. Entry" = Rimd,
                   tabledata "Dtld. Price Calculation Setup" = Rid,
                   tabledata "Duplicate Price Line" = Rid,

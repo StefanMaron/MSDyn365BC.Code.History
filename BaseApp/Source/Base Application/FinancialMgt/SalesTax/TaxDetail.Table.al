@@ -1,3 +1,5 @@
+namespace Microsoft.Finance.SalesTax;
+
 table 322 "Tax Detail"
 {
     Caption = 'Tax Detail';
