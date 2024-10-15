@@ -27,7 +27,6 @@ codeunit 137025 "SCM Purchase Correct Invoice"
         ItemTrackingMode: Option "Assign Lot No.","Select Entries";
         IsInitialized: Boolean;
         CancelledDocExistsErr: Label 'Cancelled document exists.';
-        AmountPurchInvErr: Label 'Amount must have a value in Purch. Inv. Header';
         CannotAssignNumbersAutoErr: Label 'It is not possible to assign numbers automatically. If you want the program to assign numbers automatically, please activate Default Nos.';
         CorrectPostedInvoiceFromSingleOrderQst: Label 'The invoice was posted from an order. The invoice will be cancelled, and the order will open so that you can make the correction.\ \Do you want to continue?';
         TransactionTypeErr: Label 'Transaction Type are not equal';
@@ -592,7 +591,7 @@ codeunit 137025 "SCM Purchase Correct Invoice"
 
     [Test]
     [Scope('OnPrem')]
-    procedure NotPossibleToCorrectInvoiceWithAmountRoundedToZero()
+    procedure PossibleToCorrectInvoiceWithAmountRoundedToZero()
     var
         PurchInvHeader: Record "Purch. Inv. Header";
         PurchHeader: Record "Purchase Header";
@@ -611,10 +610,7 @@ codeunit 137025 "SCM Purchase Correct Invoice"
         CreateAndPostPurchInvWithCustomAmount(PurchInvHeader, 0.01);
 
         // [WHEN] Correct Posted Purchase Invoice
-        asserterror CorrectPostedPurchInvoice.CancelPostedInvoiceStartNewInvoice(PurchInvHeader, PurchHeader);
-
-        // [THEN] Error message "Amount must have a value in Purch. Inv. Header X" is raised
-        Assert.ExpectedError(AmountPurchInvErr);
+        CorrectPostedPurchInvoice.CancelPostedInvoiceStartNewInvoice(PurchInvHeader, PurchHeader);
     end;
 
     [Test]
