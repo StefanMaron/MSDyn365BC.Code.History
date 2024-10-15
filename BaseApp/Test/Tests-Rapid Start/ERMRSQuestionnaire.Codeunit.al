@@ -171,7 +171,7 @@ codeunit 136600 "ERM RS Questionnaire"
         QuestionnaireManagement.ApplyAnswers(ConfigQuestionnaire);
 
         // [THEN] Check that new Customer is created having Name as Answer inputted.
-        Assert.AreEqual(CustomerCount + 1, Customer.Count, StrSubstNo(CustomerMustMatchError, Customer.TableCaption));
+        Assert.AreEqual(CustomerCount + 1, Customer.Count, StrSubstNo(CustomerMustMatchError, Customer.TableCaption()));
         Customer.SetRange(Name, ConfigQuestion.Answer);
         Assert.IsTrue(Customer.FindFirst, AnswerNotAppliedError);
     end;
@@ -210,7 +210,7 @@ codeunit 136600 "ERM RS Questionnaire"
         asserterror InsertQuestionnaireSameCode(ConfigQuestionnaire.Code);
 
         // [THEN] Check the application generates an error as: "The Config. Questionnaire already exists.".
-        Assert.ExpectedError(StrSubstNo(QuestionnaireError, ConfigQuestionnaire.TableCaption));
+        Assert.ExpectedError(StrSubstNo(QuestionnaireError, ConfigQuestionnaire.TableCaption()));
     end;
 
     [Test]
@@ -284,16 +284,16 @@ codeunit 136600 "ERM RS Questionnaire"
         // [THEN] Check the Config. Questionnaire gets deleted along with related tables records.
         Assert.IsFalse(
           ConfigQuestionnaire.Get(QuestionnaireCode),
-          StrSubstNo(MustNotExistError, QuestionnaireCode, ConfigQuestionnaire.TableCaption));
+          StrSubstNo(MustNotExistError, QuestionnaireCode, ConfigQuestionnaire.TableCaption()));
         Assert.IsFalse(
           ConfigQuestionArea.Get(QuestionnaireCode, QuestionAreaCode),
-          StrSubstNo(MustNotExistError, QuestionAreaCode, ConfigQuestionArea.TableCaption));
+          StrSubstNo(MustNotExistError, QuestionAreaCode, ConfigQuestionArea.TableCaption()));
 
         ConfigQuestion.SetRange("Questionnaire Code", ConfigQuestionArea."Questionnaire Code");
         ConfigQuestion.SetRange("Question Area Code", ConfigQuestionArea.Code);
         Assert.IsFalse(
           ConfigQuestion.FindFirst,
-          StrSubstNo(MustNotExistError, QuestionAreaCode, ConfigQuestion.TableCaption));
+          StrSubstNo(MustNotExistError, QuestionAreaCode, ConfigQuestion.TableCaption()));
     end;
 
     [Test]
@@ -346,7 +346,7 @@ codeunit 136600 "ERM RS Questionnaire"
         QuestionnaireManagement.ApplyAnswers(ConfigQuestionnaire);
 
         // [THEN] Check that new Customer is created.
-        Assert.AreEqual(CustomerCount + 1, Customer.Count, StrSubstNo(CustomerMustMatchError, Customer.TableCaption));
+        Assert.AreEqual(CustomerCount + 1, Customer.Count, StrSubstNo(CustomerMustMatchError, Customer.TableCaption()));
     end;
 
     [Test]
@@ -487,7 +487,7 @@ codeunit 136600 "ERM RS Questionnaire"
         QuestionnaireManagement.ImportQuestionnaireXMLDocument(RootXmlNode.OwnerDocument);
 
         Assert.IsTrue(
-          ConfigQuestion.Get(QuestionnaireCode, QuestionAreaCode, QuestionNo), StrSubstNo(RecordNotImportedError, ConfigQuestion.TableCaption));
+          ConfigQuestion.Get(QuestionnaireCode, QuestionAreaCode, QuestionNo), StrSubstNo(RecordNotImportedError, ConfigQuestion.TableCaption()));
     end;
 
     [Test]
@@ -513,7 +513,7 @@ codeunit 136600 "ERM RS Questionnaire"
         QuestionAreaCode := ConfigQuestionArea.Code;
         QuestionNo := ConfigQuestion."No.";
 
-        QuestionnaireXML := QuestionnaireXML.XmlDocument;
+        QuestionnaireXML := QuestionnaireXML.XmlDocument();
         QuestionnaireManagement.GenerateQuestionnaireXMLDocument(QuestionnaireXML, ConfigQuestionnaire);
 
         ConfigQuestion.Reset();
@@ -537,13 +537,13 @@ codeunit 136600 "ERM RS Questionnaire"
 
         LibraryRapidStart.CreateQuestionnaire(ConfigQuestionnaire);
 
-        XMLDocument := XMLDocument.XmlDocument;
+        XMLDocument := XMLDocument.XmlDocument();
         QuestionnaireManagement.GenerateQuestionnaireXMLDocument(XMLDocument, ConfigQuestionnaire);
 
         XMLQuestionnaireCode := GetXMLNodeText(XMLDocument, ConfigQuestionnaire.FieldName(Code));
 
         Assert.AreEqual(
-          XMLQuestionnaireCode, ConfigQuestionnaire.Code, StrSubstNo(XMLCodeNotGeneratedError, ConfigQuestionnaire.TableCaption));
+          XMLQuestionnaireCode, ConfigQuestionnaire.Code, StrSubstNo(XMLCodeNotGeneratedError, ConfigQuestionnaire.TableCaption()));
     end;
 
     [Test]
@@ -561,14 +561,14 @@ codeunit 136600 "ERM RS Questionnaire"
         LibraryRapidStart.CreateQuestionnaire(ConfigQuestionnaire);
         CreateQuestionAreaWithTableID(ConfigQuestionArea, ConfigQuestionnaire.Code, FindTable);
 
-        XMLDocument := XMLDocument.XmlDocument;
+        XMLDocument := XMLDocument.XmlDocument();
         QuestionnaireManagement.GenerateQuestionnaireXMLDocument(XMLDocument, ConfigQuestionnaire);
 
         XMLQuestionAreaCode :=
           GetXMLQuestionnaireChildNodeText(XMLDocument, QuestionnaireManagement.GetElementName(ConfigQuestionArea.FieldName(Code)));
 
         Assert.AreEqual(
-          XMLQuestionAreaCode, ConfigQuestionArea.Code, StrSubstNo(XMLCodeNotGeneratedError, ConfigQuestionArea.TableCaption));
+          XMLQuestionAreaCode, ConfigQuestionArea.Code, StrSubstNo(XMLCodeNotGeneratedError, ConfigQuestionArea.TableCaption()));
     end;
 
     [Test]
@@ -587,7 +587,7 @@ codeunit 136600 "ERM RS Questionnaire"
     begin
         SetupQuestionnaireTestScenario(ConfigQuestionnaire, ConfigQuestionArea, FindTable);
 
-        XMLDocument := XMLDocument.XmlDocument;
+        XMLDocument := XMLDocument.XmlDocument();
         QuestionnaireManagement.GenerateQuestionnaireXMLDocument(XMLDocument, ConfigQuestionnaire);
 
         QuestionnaireCode := CopyStr(GetXMLNodeText(XMLDocument, ConfigQuestionnaire.FieldName(Code)), 1, MaxStrLen(QuestionnaireCode));
@@ -605,7 +605,7 @@ codeunit 136600 "ERM RS Questionnaire"
 
         Assert.IsTrue(
           ConfigQuestion.Get(QuestionnaireCode, QuestionAreaCode, XMLNode.InnerText),
-          StrSubstNo(XMLCodeNotGeneratedError, ConfigQuestion.TableCaption));
+          StrSubstNo(XMLCodeNotGeneratedError, ConfigQuestion.TableCaption()));
     end;
 
     [Test]
@@ -633,7 +633,7 @@ codeunit 136600 "ERM RS Questionnaire"
         // [THEN] Check the Config. Question Area gets deleted along with related tables records.
         Assert.IsFalse(
           ConfigQuestionArea.Get(ConfigQuestionnaire.Code, QuestionAreaCode),
-          StrSubstNo(MustNotExistError, ConfigQuestionArea.TableCaption, QuestionAreaCode));
+          StrSubstNo(MustNotExistError, ConfigQuestionArea.TableCaption(), QuestionAreaCode));
 
         ConfigQuestion.SetRange("Questionnaire Code", ConfigQuestionArea."Questionnaire Code");
         ConfigQuestion.SetRange("Question Area Code", ConfigQuestionArea.Code);
@@ -673,7 +673,7 @@ codeunit 136600 "ERM RS Questionnaire"
             ConfigQuestionOld.Init();
             ConfigQuestionOld := ConfigQuestion;
             ConfigQuestionOld.Insert();
-        until ConfigQuestion.Next = 0;
+        until ConfigQuestion.Next() = 0;
     end;
 
     local procedure CreateQuestionAreaWithTableID(var ConfigQuestionArea: Record "Config. Question Area"; QuestionnaireCode: Code[10]; TableID: Integer)
@@ -746,7 +746,7 @@ codeunit 136600 "ERM RS Questionnaire"
             ConfigQuestion.Validate(
               Reference, ConfigQuestion."Questionnaire Code" + ConfigQuestion."Question Area Code" + Format(ConfigQuestion."No."));
             ConfigQuestion.Modify(true);
-        until ConfigQuestion.Next = 0;
+        until ConfigQuestion.Next() = 0;
     end;
 
     local procedure SetupQuestionnaireTestScenario(var ConfigQuestionnaire: Record "Config. Questionnaire"; var ConfigQuestionArea: Record "Config. Question Area"; TableID: Integer)
@@ -808,7 +808,7 @@ codeunit 136600 "ERM RS Questionnaire"
               CopyStr(
                 LibraryReportValidation.GetValue, 1,
                 LibraryUtility.GetFieldLength(DATABASE::"Config. Question", ConfigQuestion.FieldNo(Reference))));
-        until ConfigQuestion.Next = 0;
+        until ConfigQuestion.Next() = 0;
     end;
 
     local procedure VerifyQuestionsImported(var ConfigQuestionOld: Record "Config. Question")
@@ -819,25 +819,25 @@ codeunit 136600 "ERM RS Questionnaire"
         repeat
             Assert.IsTrue(
               ConfigQuestion.Get(ConfigQuestionOld."Questionnaire Code", ConfigQuestionOld."Question Area Code", ConfigQuestionOld."No."),
-              StrSubstNo(RecordNotImportedError, ConfigQuestion.TableCaption));
+              StrSubstNo(RecordNotImportedError, ConfigQuestion.TableCaption()));
 
             Assert.AreEqual(
               ConfigQuestion.Question,
               ConfigQuestionOld.Question,
-              StrSubstNo(ValueMustEqualError, ConfigQuestion.FieldCaption(Question), ConfigQuestion.TableCaption, ConfigQuestionOld.Question));
+              StrSubstNo(ValueMustEqualError, ConfigQuestion.FieldCaption(Question), ConfigQuestion.TableCaption(), ConfigQuestionOld.Question));
 
             Assert.AreEqual(
               ConfigQuestion."Answer Option",
               ConfigQuestionOld."Answer Option",
               StrSubstNo(
-                ValueMustEqualError, ConfigQuestion.FieldCaption("Answer Option"), ConfigQuestion.TableCaption,
+                ValueMustEqualError, ConfigQuestion.FieldCaption("Answer Option"), ConfigQuestion.TableCaption(),
                 ConfigQuestionOld."Answer Option"));
 
             Assert.AreEqual(
               ConfigQuestion.Reference,
               ConfigQuestionOld.Reference,
-              StrSubstNo(ValueMustEqualError, ConfigQuestion.FieldCaption(Reference), ConfigQuestion.TableCaption, ConfigQuestionOld.Reference));
-        until ConfigQuestionOld.Next = 0;
+              StrSubstNo(ValueMustEqualError, ConfigQuestion.FieldCaption(Reference), ConfigQuestion.TableCaption(), ConfigQuestionOld.Reference));
+        until ConfigQuestionOld.Next() = 0;
     end;
 
     local procedure VerifyAutogeneratedQuestions(ConfigQuestionArea: Record "Config. Question Area")
@@ -858,8 +858,8 @@ codeunit 136600 "ERM RS Questionnaire"
                   ConfigQuestion."Table ID",
                   ConfigQuestionArea."Table ID",
                   StrSubstNo(
-                    ValueMustEqualError, ConfigQuestion.FieldCaption("Table ID"), ConfigQuestion.TableCaption, ConfigQuestionArea."Table ID"));
-            until Field.Next = 0;
+                    ValueMustEqualError, ConfigQuestion.FieldCaption("Table ID"), ConfigQuestion.TableCaption(), ConfigQuestionArea."Table ID"));
+            until Field.Next() = 0;
     end;
 
     local procedure CreateQuestionAreaXML(var XMLText: Text[1024]; ConfigQuestionArea: Record "Config. Question Area"; InsertXMLText: Boolean)
@@ -994,7 +994,7 @@ codeunit 136600 "ERM RS Questionnaire"
 
         Assert.AreEqual(
           Field."No.", ConfigQuestion."Field ID",
-          StrSubstNo(ValueMustEqualError, ConfigQuestion.FieldCaption("Field ID"), ConfigQuestion.TableCaption, Field."No."));
+          StrSubstNo(ValueMustEqualError, ConfigQuestion.FieldCaption("Field ID"), ConfigQuestion.TableCaption(), Field."No."));
     end;
 
     [ModalPageHandler]
@@ -1046,7 +1046,7 @@ codeunit 136600 "ERM RS Questionnaire"
         Assert.AreEqual(
           ExpectedValue,
           ConfigQuestion.Answer,
-          StrSubstNo(ValueMustEqualError, ConfigQuestion.FieldCaption(Answer), ConfigQuestion.TableCaption, ExpectedValue));
+          StrSubstNo(ValueMustEqualError, ConfigQuestion.FieldCaption(Answer), ConfigQuestion.TableCaption(), ExpectedValue));
     end;
 
     [Test]

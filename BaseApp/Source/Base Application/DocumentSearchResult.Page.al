@@ -14,7 +14,7 @@ page 986 "Document Search Result"
         {
             repeater(General)
             {
-                field("Doc. No."; "Doc. No.")
+                field("Doc. No."; Rec."Doc. No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies information about a non-posted document that is found using the Document Search window during manual payment processing.';
@@ -52,15 +52,23 @@ page 986 "Document Search Result"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Show';
                 Image = ShowSelected;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'Open the document on the selected line.';
 
                 trigger OnAction()
                 begin
                     PaymentRegistrationMgt.ShowRecords(Rec);
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(ShowRecord_Promoted; ShowRecord)
+                {
+                }
             }
         }
     }

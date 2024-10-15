@@ -26,7 +26,7 @@ page 9801 "User Subform"
                         LookupPermissionSet: Page "Lookup Permission Set";
                     begin
                         LookupPermissionSet.LookupMode := true;
-                        if LookupPermissionSet.RunModal = ACTION::LookupOK then begin
+                        if LookupPermissionSet.RunModal() = ACTION::LookupOK then begin
                             LookupPermissionSet.GetRecord(PermissionSetLookupRecord);
                             Scope := PermissionSetLookupRecord.Scope;
                             "App ID" := PermissionSetLookupRecord."App ID";
@@ -109,9 +109,9 @@ page 9801 "User Subform"
 
                 trigger OnAction()
                 var
-                    PermissionPagesMgt: Codeunit "Permission Pages Mgt.";
+                    PermissionSetRelation: Codeunit "Permission Set Relation";
                 begin
-                    PermissionPagesMgt.ShowPermissions(Scope, "App ID", "Role ID", false);
+                    PermissionSetRelation.OpenPermissionSetPage(Rec."Role Name", Rec."Role ID", Rec."App ID", Rec.Scope);
                 end;
             }
         }

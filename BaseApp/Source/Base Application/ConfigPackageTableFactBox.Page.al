@@ -8,17 +8,17 @@ page 8634 "Config. Package Table FactBox"
     {
         area(content)
         {
-            field("Package Code"; "Package Code")
+            field("Package Code"; Rec."Package Code")
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the ID for the table that is part of the migration process.';
             }
-            field("Package Caption"; "Package Caption")
+            field("Package Caption"; Rec."Package Caption")
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies a name for the configuration package.';
             }
-            field("No. of Package Records"; "No. of Package Records")
+            field("No. of Package Records"; Rec."No. of Package Records")
             {
                 ApplicationArea = Basic, Suite;
                 StyleExpr = NoOfRecordsStyleTxt;
@@ -29,7 +29,7 @@ page 8634 "Config. Package Table FactBox"
                     ShowPackageRecords(Show::All, "Dimensions as Columns");
                 end;
             }
-            field("No. of Package Errors"; "No. of Package Errors")
+            field("No. of Package Errors"; Rec."No. of Package Errors")
             {
                 ApplicationArea = Basic, Suite;
                 StyleExpr = NoOfErrorsStyleTxt;
@@ -40,7 +40,7 @@ page 8634 "Config. Package Table FactBox"
                     ShowPackageRecords(Show::Errors, "Dimensions as Columns");
                 end;
             }
-            field(NoOfDatabaseRecords; GetNoOfDatabaseRecords)
+            field(NoOfDatabaseRecords; GetNoOfDatabaseRecords())
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'No. of Database Records';
@@ -49,24 +49,24 @@ page 8634 "Config. Package Table FactBox"
 
                 trigger OnDrillDown()
                 begin
-                    ShowDatabaseRecords;
+                    ShowDatabaseRecords();
                 end;
             }
-            field("No. of Fields Included"; "No. of Fields Included")
+            field("No. of Fields Included"; Rec."No. of Fields Included")
             {
                 ApplicationArea = Basic, Suite;
                 DrillDown = true;
                 DrillDownPageID = "Config. Package Fields";
                 ToolTip = 'Specifies the count of the number of fields that are included in the migration table.';
             }
-            field("No. of Fields Available"; "No. of Fields Available")
+            field("No. of Fields Available"; Rec."No. of Fields Available")
             {
                 ApplicationArea = Basic, Suite;
                 DrillDown = true;
                 DrillDownPageID = "Config. Package Fields";
                 ToolTip = 'Specifies the count of the number of fields that are available in the migration table.';
             }
-            field("Data Template"; "Data Template")
+            field("Data Template"; Rec."Data Template")
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the name of the data template that is being used as part of the migration process.';
@@ -79,7 +79,7 @@ page 8634 "Config. Package Table FactBox"
                     ConfigTemplateList.RunModal();
                 end;
             }
-            field("Processing Order"; "Processing Order")
+            field("Processing Order"; Rec."Processing Order")
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the number of the processing order. This is used to track the migration process.';
@@ -91,7 +91,7 @@ page 8634 "Config. Package Table FactBox"
                 DrillDownPageID = "Config. Package Filters";
                 ToolTip = 'Specifies whether the package is filtered. This field is set depending on filter settings you have specified.';
             }
-            field("Dimensions as Columns"; "Dimensions as Columns")
+            field("Dimensions as Columns"; Rec."Dimensions as Columns")
             {
                 ApplicationArea = Dimensions;
                 ToolTip = 'Specifies whether dimensions should be displayed in columns. If you select No, then the dimensions are not displayed in any format.';

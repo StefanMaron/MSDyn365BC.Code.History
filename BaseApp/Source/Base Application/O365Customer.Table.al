@@ -2,6 +2,14 @@ table 2107 "O365 Customer"
 {
     Caption = 'O365 Customer';
     ReplicateData = false;
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+#if CLEAN21
+    ObsoleteState = Removed;
+    ObsoleteTag = '24.0';
+#else
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
+#endif
 
     fields
     {
@@ -25,7 +33,7 @@ table 2107 "O365 Customer"
         field(59; "Balance (LCY)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Detailed Cust. Ledg. Entry"."Amount (LCY)" WHERE("Customer No." = FIELD("No.")));
+            CalcFormula = Sum("Detailed Cust. Ledg. Entry"."Amount (LCY)" WHERE("Customer No." = FIELD("No.")));
             Caption = 'Balance (LCY)';
             Editable = false;
             FieldClass = FlowField;
@@ -33,9 +41,7 @@ table 2107 "O365 Customer"
         field(67; "Balance Due (LCY)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Detailed Cust. Ledg. Entry"."Amount (LCY)" WHERE("Customer No." = FIELD("No."),
-                                                                                 "Posting Date" = FIELD(UPPERLIMIT("Date Filter")),
-                                                                                 "Initial Entry Due Date" = FIELD("Date Filter")));
+            CalcFormula = Sum("Detailed Cust. Ledg. Entry"."Amount (LCY)" WHERE("Customer No." = FIELD("No.")));
             Caption = 'Balance Due (LCY)';
             Editable = false;
             FieldClass = FlowField;

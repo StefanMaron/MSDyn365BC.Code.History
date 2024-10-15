@@ -420,6 +420,6 @@ page 1832 "Outlook Individual Deployment"
         LearnMoreLbl: Label 'Learn more about installing Outlook add-in';
         WatchVideoLbl: Label 'Watch the video';
         DownloadAddinsLbl: Label '1. Download the add-in files to your device.';
-        PrivacyStatementTxt: Label 'Learn more about our Privacy Statement.';
+        PrivacyStatementTxt: Label 'Privacy and cookies';
 }
 

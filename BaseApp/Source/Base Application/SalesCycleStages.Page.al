@@ -22,33 +22,33 @@ page 5121 "Sales Cycle Stages"
                     ApplicationArea = All;
                     ToolTip = 'Specifies the description of the sales cycle stage.';
                 }
-                field("Completed %"; "Completed %")
+                field("Completed %"; Rec."Completed %")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the percentage of the sales cycle that has been completed when the opportunity reaches this stage.';
                 }
-                field("Chances of Success %"; "Chances of Success %")
+                field("Chances of Success %"; Rec."Chances of Success %")
                 {
                     ApplicationArea = RelationshipMgmt;
                     DecimalPlaces = 0 : 0;
                     ToolTip = 'Specifies the percentage of success that has been achieved when the opportunity reaches this stage.';
                 }
-                field("Activity Code"; "Activity Code")
+                field("Activity Code"; Rec."Activity Code")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the code of the activity linked to this sales cycle stage (if there is one).';
                 }
-                field("Quote Required"; "Quote Required")
+                field("Quote Required"; Rec."Quote Required")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies that a quote is required at this stage before the opportunity can move to the next stage in the sales cycle.';
                 }
-                field("Allow Skip"; "Allow Skip")
+                field("Allow Skip"; Rec."Allow Skip")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies that it is possible to skip this stage and move the opportunity to the next stage.';
                 }
-                field("Date Formula"; "Date Formula")
+                field("Date Formula"; Rec."Date Formula")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies how dates for planned activities are calculated when you run the Opportunity - Details report.';
@@ -88,8 +88,6 @@ page 5121 "Sales Cycle Stages"
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Statistics';
                     Image = Statistics;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Page "Sales Cycle Stage Statistics";
                     RunPageLink = "Sales Cycle Code" = FIELD("Sales Cycle Code"),
                                   Stage = FIELD(Stage);
@@ -106,6 +104,17 @@ page 5121 "Sales Cycle Stages"
                                   "No." = FIELD("Sales Cycle Code"),
                                   "Sub No." = FIELD(Stage);
                     ToolTip = 'View or add comments for the record.';
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(Statistics_Promoted; Statistics)
+                {
                 }
             }
         }

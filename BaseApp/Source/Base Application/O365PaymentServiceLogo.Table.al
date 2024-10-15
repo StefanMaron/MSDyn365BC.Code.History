@@ -35,7 +35,7 @@ table 2119 "O365 Payment Service Logo"
     procedure FindO365Logo(PaymentReportingArgument: Record "Payment Reporting Argument"): Boolean
     begin
         SetRange("Payment Service ID", PaymentReportingArgument."Payment Service ID");
-        exit(FindFirst);
+        exit(FindFirst());
     end;
 }
 

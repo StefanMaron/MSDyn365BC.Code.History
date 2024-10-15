@@ -52,7 +52,7 @@ codeunit 142075 "UT SWS"
     begin
         CreateItem(Item);
         CreateItemJournalLine(ItemJournalLine, Item."No.");
-        EnqueueCalculateInventoryRequestPageValues(WorkDate, LibraryUTUtility.GetNewCode, ZeroQuantity, IncludeItemWithoutTransactions);  // Posting Date as WORKDATE.
+        EnqueueCalculateInventoryRequestPageValues(WorkDate(), LibraryUTUtility.GetNewCode, ZeroQuantity, IncludeItemWithoutTransactions);  // Posting Date as WORKDATE.
 
         // Exercise.
         RunCalculateInventoryReport(ItemJournalLine, Item."No.");
@@ -94,7 +94,7 @@ codeunit 142075 "UT SWS"
         CreateItem(Item);
         CreateItemJournalLine(ItemJournalLine, Item."No.");
         CreateItemLedgerEntry(ItemLedgerEntry, Item."No.", Quantity);
-        EnqueueCalculateInventoryRequestPageValues(WorkDate, LibraryUTUtility.GetNewCode, false, false);  // Posting Date as WORKDATE, Zero Quantity - FALSE.
+        EnqueueCalculateInventoryRequestPageValues(WorkDate(), LibraryUTUtility.GetNewCode, false, false);  // Posting Date as WORKDATE, Zero Quantity - FALSE.
 
         // Exercise.
         RunCalculateInventoryReport(ItemJournalLine, Item."No.");
@@ -281,7 +281,7 @@ codeunit 142075 "UT SWS"
         ItemJournalLine."Entry Type" := ItemJournalLine."Entry Type"::Sale;
         ItemJournalLine."Document No." := LibraryUTUtility.GetNewCode;
         ItemJournalLine."Item No." := ItemNo;
-        ItemJournalLine."Posting Date" := WorkDate;
+        ItemJournalLine."Posting Date" := WorkDate();
         ItemJournalLine."Gen. Prod. Posting Group" := LibraryUTUtility.GetNewCode10;
         ItemJournalLine.Quantity := LibraryRandom.RandDec(10, 2);
         ItemJournalLine."Quantity (Base)" := ItemJournalLine.Quantity;
@@ -388,7 +388,7 @@ codeunit 142075 "UT SWS"
         VendorLedgerEntry."Document No." := DocumentNo;
         VendorLedgerEntry."Document Type" := VendorLedgerEntry."Applies-to Doc. Type"::Payment;
         VendorLedgerEntry."Document No." := AppliesToDocNo;
-        VendorLedgerEntry."Pmt. Disc. Tolerance Date" := WorkDate;
+        VendorLedgerEntry."Pmt. Disc. Tolerance Date" := WorkDate();
         VendorLedgerEntry."Remaining Pmt. Disc. Possible" := LibraryRandom.RandDec(10, 2);
         VendorLedgerEntry.Insert();
     end;
@@ -417,7 +417,7 @@ codeunit 142075 "UT SWS"
         GeneralJournal.OpenEdit;
         GeneralJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
         GeneralJournal.Amount.SetValue(LibraryRandom.RandDec(10, 2));
-        GeneralJournal."Posting Date".SetValue(CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate));  // Posting Date more than WORKDATE.
+        GeneralJournal."Posting Date".SetValue(CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()));  // Posting Date more than WORKDATE.
         GeneralJournal.OK.Invoke;
     end;
 

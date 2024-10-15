@@ -14,47 +14,47 @@ page 559 "Analysis View Budget Entries"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Analysis View Code"; "Analysis View Code")
+                field("Analysis View Code"; Rec."Analysis View Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the analysis view.';
                 }
-                field("Budget Name"; "Budget Name")
+                field("Budget Name"; Rec."Budget Name")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the name of the budget that the analysis view budget entries are linked to.';
                 }
-                field("Business Unit Code"; "Business Unit Code")
+                field("Business Unit Code"; Rec."Business Unit Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the code for the business unit that the analysis view is based on.';
                 }
-                field("G/L Account No."; "G/L Account No.")
+                field("G/L Account No."; Rec."G/L Account No.")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the number of the account that the entry has been posted to.';
                 }
-                field("Dimension 1 Value Code"; "Dimension 1 Value Code")
+                field("Dimension 1 Value Code"; Rec."Dimension 1 Value Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the dimension value you selected for the analysis view dimension that you defined as Dimension 1 on the analysis view card.';
                 }
-                field("Dimension 2 Value Code"; "Dimension 2 Value Code")
+                field("Dimension 2 Value Code"; Rec."Dimension 2 Value Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the dimension value you selected for the analysis view dimension that you defined as Dimension 2 on the analysis view card.';
                 }
-                field("Dimension 3 Value Code"; "Dimension 3 Value Code")
+                field("Dimension 3 Value Code"; Rec."Dimension 3 Value Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the dimension value you selected for the analysis view dimension that you defined as Dimension 3 on the analysis view card.';
                 }
-                field("Dimension 4 Value Code"; "Dimension 4 Value Code")
+                field("Dimension 4 Value Code"; Rec."Dimension 4 Value Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the dimension value you selected for the analysis view dimension that you defined as Dimension 4 on the analysis view card.';
                 }
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the entry''s posting date.';
@@ -66,7 +66,7 @@ page 559 "Analysis View Budget Entries"
 
                     trigger OnDrillDown()
                     begin
-                        DrillDown;
+                        DrillDown();
                     end;
                 }
             }

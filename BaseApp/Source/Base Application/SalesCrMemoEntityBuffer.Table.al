@@ -14,7 +14,7 @@ table 5507 "Sales Cr. Memo Entity Buffer"
 
             trigger OnValidate()
             begin
-                UpdateSellToCustomerId;
+                UpdateSellToCustomerId();
             end;
         }
         field(3; "No."; Code[20])
@@ -75,7 +75,7 @@ table 5507 "Sales Cr. Memo Entity Buffer"
 
             trigger OnValidate()
             begin
-                UpdatePaymentTermsId;
+                UpdatePaymentTermsId();
             end;
         }
         field(24; "Due Date"; Date)
@@ -91,7 +91,7 @@ table 5507 "Sales Cr. Memo Entity Buffer"
 
             trigger OnValidate()
             begin
-                UpdateShipmentMethodId;
+                UpdateShipmentMethodId();
             end;
         }
         field(29; "Shortcut Dimension 1 Code"; Code[20])
@@ -118,7 +118,7 @@ table 5507 "Sales Cr. Memo Entity Buffer"
 
             trigger OnValidate()
             begin
-                UpdateCurrencyId;
+                UpdateCurrencyId();
             end;
         }
         field(35; "Prices Including VAT"; Boolean)
@@ -354,7 +354,7 @@ table 5507 "Sales Cr. Memo Entity Buffer"
 
             trigger OnValidate()
             begin
-                UpdateSellToCustomerNo;
+                UpdateSellToCustomerNo();
             end;
         }
         field(9633; "Contact Graph Id"; Text[250])
@@ -370,7 +370,7 @@ table 5507 "Sales Cr. Memo Entity Buffer"
 
             trigger OnValidate()
             begin
-                UpdateCurrencyCode;
+                UpdateCurrencyCode();
             end;
         }
         field(9635; "Payment Terms Id"; Guid)
@@ -381,7 +381,7 @@ table 5507 "Sales Cr. Memo Entity Buffer"
 
             trigger OnValidate()
             begin
-                UpdatePaymentTermsCode;
+                UpdatePaymentTermsCode();
             end;
         }
         field(9636; "Shipment Method Id"; Guid)
@@ -392,7 +392,7 @@ table 5507 "Sales Cr. Memo Entity Buffer"
 
             trigger OnValidate()
             begin
-                UpdateShipmentMethodCode;
+                UpdateShipmentMethodCode();
             end;
         }
         field(9638; "Bill-to Customer Id"; Guid)
@@ -403,7 +403,7 @@ table 5507 "Sales Cr. Memo Entity Buffer"
 
             trigger OnValidate()
             begin
-                UpdateBillToCustomerNo;
+                UpdateBillToCustomerNo();
             end;
         }
         field(9639; "Reason Code Id"; Guid)
@@ -440,13 +440,13 @@ table 5507 "Sales Cr. Memo Entity Buffer"
     trigger OnInsert()
     begin
         "Last Modified Date Time" := CurrentDateTime;
-        UpdateReferencedRecordIds;
+        UpdateReferencedRecordIds();
     end;
 
     trigger OnModify()
     begin
         "Last Modified Date Time" := CurrentDateTime;
-        UpdateReferencedRecordIds;
+        UpdateReferencedRecordIds();
     end;
 
     trigger OnRename()
@@ -455,7 +455,7 @@ table 5507 "Sales Cr. Memo Entity Buffer"
             Error(CannotModifyPostedInvioceErr);
 
         "Last Modified Date Time" := CurrentDateTime;
-        UpdateReferencedRecordIds;
+        UpdateReferencedRecordIds();
     end;
 
     var
@@ -614,14 +614,14 @@ table 5507 "Sales Cr. Memo Entity Buffer"
 
     procedure UpdateReferencedRecordIds()
     begin
-        UpdateSellToCustomerId;
-        UpdateBillToCustomerId;
-        UpdateCurrencyId;
-        UpdatePaymentTermsId;
-        UpdateShipmentMethodId;
+        UpdateSellToCustomerId();
+        UpdateBillToCustomerId();
+        UpdateCurrencyId();
+        UpdatePaymentTermsId();
+        UpdateShipmentMethodId();
         UpdateReasonCodeId();
 #if not CLEAN20
-        UpdateGraphContactId;
+        UpdateGraphContactId();
 #endif
     end;
 

@@ -6,18 +6,19 @@ codeunit 7130 "Item Budget Management"
     end;
 
     var
-        Text001: Label 'DEFAULT';
-        Text002: Label 'Default budget';
         GLSetup: Record "General Ledger Setup";
         PrevItemBudgetName: Record "Item Budget Name";
+        MatrixMgt: Codeunit "Matrix Management";
+        GLSetupRead: Boolean;
+        GlobalDimType: Enum "Item Budget Dimension Type";
+
+        Text001: Label 'DEFAULT';
+        Text002: Label 'Default budget';
         Text003: Label 'Period';
         Text004: Label '%1 is not a valid line definition.';
         Text005: Label '%1 is not a valid column definition.';
-        MatrixMgt: Codeunit "Matrix Management";
-        GLSetupRead: Boolean;
         Text006: Label 'Do you want to delete the budget entries shown?';
         Text007: Label '<Sign><Integer Thousand><Decimals,2>, Locked = true';
-        GlobalDimType: Enum "Item Budget Dimension Type";
 
     procedure BudgetNameSelection(CurrentAnalysisArea: Option; var CurrentItemBudgetName: Code[10]; var ItemBudgetName: Record "Item Budget Name"; var ItemStatisticsBuffer: Record "Item Statistics Buffer"; var BudgetDim1Filter: Text; var BudgetDim2Filter: Text; var BudgetDim3Filter: Text)
     begin
@@ -409,15 +410,15 @@ codeunit 7130 "Item Budget Management"
         case DimCode of
             '':
                 exit("Item Budget Dimension Type"::Undefined);
-            UpperCase(Item.TableCaption):
+            UpperCase(Item.TableCaption()):
                 exit("Item Budget Dimension Type"::Item);
-            UpperCase(Cust.TableCaption):
+            UpperCase(Cust.TableCaption()):
                 exit("Item Budget Dimension Type"::Customer);
-            UpperCase(Vend.TableCaption):
+            UpperCase(Vend.TableCaption()):
                 exit("Item Budget Dimension Type"::Vendor);
             UpperCase(Text003):
                 exit("Item Budget Dimension Type"::Period);
-            UpperCase(Location.TableCaption):
+            UpperCase(Location.TableCaption()):
                 exit("Item Budget Dimension Type"::Location);
             GLSetup."Global Dimension 1 Code":
                 exit("Item Budget Dimension Type"::"Global Dimension 1");
@@ -443,10 +444,10 @@ codeunit 7130 "Item Budget Management"
         DimSelection: Page "Dimension Selection";
     begin
         GetGLSetup();
-        DimSelection.InsertDimSelBuf(false, Item.TableCaption, Item.TableCaption);
-        DimSelection.InsertDimSelBuf(false, Cust.TableCaption, Cust.TableCaption);
-        DimSelection.InsertDimSelBuf(false, Location.TableCaption, Location.TableCaption);
-        DimSelection.InsertDimSelBuf(false, Vend.TableCaption, Vend.TableCaption);
+        DimSelection.InsertDimSelBuf(false, Item.TableCaption(), Item.TableCaption());
+        DimSelection.InsertDimSelBuf(false, Cust.TableCaption(), Cust.TableCaption());
+        DimSelection.InsertDimSelBuf(false, Location.TableCaption(), Location.TableCaption());
+        DimSelection.InsertDimSelBuf(false, Vend.TableCaption(), Vend.TableCaption());
         DimSelection.InsertDimSelBuf(false, Text003, Text003);
         if GLSetup."Global Dimension 1 Code" <> '' then
             DimSelection.InsertDimSelBuf(false, GLSetup."Global Dimension 1 Code", '');
@@ -460,8 +461,8 @@ codeunit 7130 "Item Budget Management"
             DimSelection.InsertDimSelBuf(false, ItemBudgetName."Budget Dimension 3 Code", '');
 
         DimSelection.LookupMode := true;
-        if DimSelection.RunModal = ACTION::LookupOK then
-            exit(DimSelection.GetDimSelCode);
+        if DimSelection.RunModal() = ACTION::LookupOK then
+            exit(DimSelection.GetDimSelCode());
         exit(OldDimSelCode);
     end;
 
@@ -527,10 +528,10 @@ codeunit 7130 "Item Budget Management"
         GetGLSetup();
         exit(
           not (UpperCase(DimCode) in
-               [UpperCase(Item.TableCaption),
-                UpperCase(Cust.TableCaption),
-                UpperCase(Vend.TableCaption),
-                UpperCase(Location.TableCaption),
+               [UpperCase(Item.TableCaption()),
+                UpperCase(Cust.TableCaption()),
+                UpperCase(Vend.TableCaption()),
+                UpperCase(Location.TableCaption()),
                 UpperCase(Text003),
                 ItemBudgetName."Budget Dimension 1 Code",
                 ItemBudgetName."Budget Dimension 2 Code",

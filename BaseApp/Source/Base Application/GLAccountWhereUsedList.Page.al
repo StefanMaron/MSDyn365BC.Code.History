@@ -1,7 +1,7 @@
 page 99 "G/L Account Where-Used List"
 {
     Caption = 'G/L Account Where-Used List';
-    DataCaptionExpression = Caption;
+    DataCaptionExpression = Caption();
     Editable = false;
     PageType = List;
     SourceTable = "G/L Account Where-Used";
@@ -13,13 +13,13 @@ page 99 "G/L Account Where-Used List"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Table ID"; "Table ID")
+                field("Table ID"; Rec."Table ID")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the object number of the setup table where the G/L account is used.';
                     Visible = false;
                 }
-                field("Table Name"; "Table Name")
+                field("Table Name"; Rec."Table Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the Table Name of the setup table where the G/L account is used.';
@@ -29,7 +29,7 @@ page 99 "G/L Account Where-Used List"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a reference to Line in the setup table, where the G/L account is used. For example, the reference could be a posting group code.';
                 }
-                field("Field Name"; "Field Name")
+                field("Field Name"; Rec."Field Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the field in the setup table where the G/L account is used.';
@@ -60,8 +60,6 @@ page 99 "G/L Account Where-Used List"
                 ApplicationArea = Basic, Suite;
                 Caption = '&Show Details';
                 Image = ViewDetails;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'View more details on the selected record.';
 
                 trigger OnAction()
@@ -71,6 +69,17 @@ page 99 "G/L Account Where-Used List"
                     Clear(CalcGLAccWhereUsed);
                     CalcGLAccWhereUsed.ShowSetupForm(Rec);
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(ShowDetails_Promoted; ShowDetails)
+                {
+                }
             }
         }
     }

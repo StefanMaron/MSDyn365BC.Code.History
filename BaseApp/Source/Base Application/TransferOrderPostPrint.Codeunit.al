@@ -5,13 +5,14 @@ codeunit 5707 "TransferOrder-Post + Print"
     trigger OnRun()
     begin
         TransHeader.Copy(Rec);
-        Code;
+        Code();
         Rec := TransHeader;
     end;
 
     var
-        Text000: Label '&Ship,&Receive';
         TransHeader: Record "Transfer Header";
+
+        Text000: Label '&Ship,&Receive';
 
     local procedure "Code"()
     var
@@ -26,6 +27,7 @@ codeunit 5707 "TransferOrder-Post + Print"
         if IsHandled then
             exit;
 
+        DefaultNumber := 0;
         with TransHeader do begin
             TransLine.SetRange("Document No.", "No.");
             if TransLine.Find('-') then
@@ -87,7 +89,7 @@ codeunit 5707 "TransferOrder-Post + Print"
             exit;
 
         if TransShptHeader.Get(DocNo) then begin
-            TransShptHeader.SetRecFilter;
+            TransShptHeader.SetRecFilter();
             TransShptHeader.PrintRecords(false);
         end;
     end;
@@ -103,7 +105,7 @@ codeunit 5707 "TransferOrder-Post + Print"
             exit;
 
         if TransRcptHeader.Get(DocNo) then begin
-            TransRcptHeader.SetRecFilter;
+            TransRcptHeader.SetRecFilter();
             TransRcptHeader.PrintRecords(false);
         end;
     end;

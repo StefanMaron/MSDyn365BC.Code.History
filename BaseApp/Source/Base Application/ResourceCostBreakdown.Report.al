@@ -20,7 +20,7 @@ report 1107 "Resource - Cost Breakdown"
                 column(TodayFormatted; Format(Today, 0, 4))
                 {
                 }
-                column(CompanyName; COMPANYPROPERTY.DisplayName)
+                column(CompanyName; COMPANYPROPERTY.DisplayName())
                 {
                 }
                 column(ResTableCaptResFilter; Resource.TableCaption + ': ' + ResFilter)
@@ -128,8 +128,8 @@ report 1107 "Resource - Cost Breakdown"
 
     trigger OnPreReport()
     begin
-        ResFilter := Resource.GetFilters;
-        ResLedgEntryFilter := "Res. Ledger Entry".GetFilters;
+        ResFilter := Resource.GetFilters();
+        ResLedgEntryFilter := "Res. Ledger Entry".GetFilters();
     end;
 
     var

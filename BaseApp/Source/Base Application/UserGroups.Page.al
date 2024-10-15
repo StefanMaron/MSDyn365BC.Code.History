@@ -94,10 +94,6 @@ page 9830 "User Groups"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Members';
                 Image = Users;
-                Promoted = true;
-                PromotedOnly = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 RunObject = Page "User Group Members";
                 RunPageLink = "User Group Code" = FIELD(Code);
                 Scope = Repeater;
@@ -110,10 +106,6 @@ page 9830 "User Groups"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Permissions';
                 Image = Permission;
-                Promoted = true;
-                PromotedOnly = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 RunObject = Page "User Group Permission Sets";
                 RunPageLink = "User Group Code" = FIELD(Code);
                 Scope = Repeater;
@@ -181,13 +173,27 @@ page 9830 "User Groups"
                 end;
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(UserGroupMembers_Promoted; UserGroupMembers)
+                {
+                }
+                actionref(UserGroupPermissionSets_Promoted; UserGroupPermissionSets)
+                {
+                }
+            }
+        }
     }
 
     trigger OnOpenPage()
     var
         PermissionManager: Codeunit "Permission Manager";
     begin
-        if PermissionManager.IsIntelligentCloud then
+        if PermissionManager.IsIntelligentCloud() then
             SetRange(Code, IntelligentCloudTok);
     end;
 

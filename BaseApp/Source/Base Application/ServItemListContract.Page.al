@@ -12,13 +12,13 @@ page 6076 "Serv. Item List (Contract)"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Contract No."; "Contract No.")
+                field("Contract No."; Rec."Contract No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the service contract or service contract quote associated with the service contract line.';
                     Visible = false;
                 }
-                field("Service Item No."; "Service Item No.")
+                field("Service Item No."; Rec."Service Item No.")
                 {
                     ApplicationArea = Service;
                     Caption = 'No.';
@@ -29,22 +29,22 @@ page 6076 "Serv. Item List (Contract)"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the description of the service item that is subject to the contract.';
                 }
-                field("Item No."; "Item No.")
+                field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the item linked to the service item in the service contract.';
                 }
-                field("Serial No."; "Serial No.")
+                field("Serial No."; Rec."Serial No.")
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies the serial number of the service item that is subject to the contract.';
                 }
-                field("Customer No."; "Customer No.")
+                field("Customer No."; Rec."Customer No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the customer associated with the service contract.';
                 }
-                field("Ship-to Code"; "Ship-to Code")
+                field("Ship-to Code"; Rec."Ship-to Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies a code for an alternate shipment address if you want to ship to another address than the one that has been entered automatically. This field is also used in case of drop shipment.';
@@ -218,8 +218,6 @@ page 6076 "Serv. Item List (Contract)"
                     ApplicationArea = Service;
                     Caption = 'Statistics';
                     Image = Statistics;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Page "Service Item Statistics";
                     RunPageLink = "No." = FIELD("Service Item No.");
                     ShortCutKey = 'F7';
@@ -302,6 +300,17 @@ page 6076 "Serv. Item List (Contract)"
                         RunPageView = SORTING("Service Item No.");
                         ToolTip = 'View ongoing service lines for the item.';
                     }
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(Statistics_Promoted; Statistics)
+                {
                 }
             }
         }

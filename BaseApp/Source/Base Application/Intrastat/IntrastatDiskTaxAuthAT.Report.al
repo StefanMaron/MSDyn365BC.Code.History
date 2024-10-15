@@ -184,27 +184,27 @@ report 11106 "Intrastat - Disk Tax Auth AT"
                                 IntraFile.Write(Text045 + DecimalZeroFormat(PosNo, 4) + '+' + IntrastatJnlLine."Tariff No." +
                                   Text046 + IntrastatJnlLine."Transaction Type" + ':112+' +
                                   IntrastatJnlLine."Transaction Specification" + ':177' + EndOfLine);
-                            LF;
+                            LF();
                             IntraFile.Write(Text047 + CopyStr(RemoveSpecChar(IntrastatJnlLine."Item Description"), 1, 70) + EndOfLine);
-                            LF;
+                            LF();
                             IntraFile.Write(Text048 + Country."Intrastat Code" + EndOfLine);
-                            LF;
+                            LF();
                             IntraFile.Write(Text049 + CountryOfOrg."Intrastat Code" + EndOfLine);
-                            LF;
+                            LF();
                             IntraFile.Write(Text050 + DecimalZeroFormat(IntrastatJnlLine."Total Weight", 12) + EndOfLine);
-                            LF;
+                            LF();
                             if IntrastatJnlLine."Supplementary Units" then begin
                                 IntraFile.Write(Text051 + DecimalZeroFormat(IntrastatJnlLine.Quantity, 12) + EndOfLine);
-                                LF;
+                                LF();
                                 Segments := Segments + 9;
                             end else
                                 Segments := Segments + 8;
                             IntraFile.Write(Text052 + IntrastatJnlLine."Transport Method" + EndOfLine);
-                            LF;
+                            LF();
                             IntraFile.Write(Text053 + DecimalZeroFormat(IntrastatJnlLine.Amount, 12) + EndOfLine);
-                            LF;
+                            LF();
                             IntraFile.Write(Text054 + DecimalZeroFormat(IntrastatJnlLine."Statistical Value", 12) + EndOfLine);
-                            LF;
+                            LF();
                         end;
                         Clear(IntrastatJnlLine);
                     end;
@@ -249,27 +249,27 @@ report 11106 "Intrastat - Disk Tax Auth AT"
                             IntraFile.Write(Text045 + DecimalZeroFormat(PosNo, 4) + '+' + IntrastatJnlLine."Tariff No." +
                               Text046 + IntrastatJnlLine."Transaction Type" + ':112+' +
                               IntrastatJnlLine."Transaction Specification" + ':177' + EndOfLine);
-                        LF;
+                        LF();
                         IntraFile.Write(Text047 + CopyStr(RemoveSpecChar(IntrastatJnlLine."Item Description"), 1, 70) + EndOfLine);
-                        LF;
+                        LF();
                         IntraFile.Write(Text048 + Country."Intrastat Code" + EndOfLine);
-                        LF;
+                        LF();
                         IntraFile.Write(Text049 + CountryOfOrg."Intrastat Code" + EndOfLine);
-                        LF;
+                        LF();
                         IntraFile.Write(Text050 + DecimalZeroFormat(IntrastatJnlLine."Total Weight", 12) + EndOfLine);
-                        LF;
+                        LF();
                         if IntrastatJnlLine."Supplementary Units" then begin
                             IntraFile.Write(Text051 + DecimalZeroFormat(IntrastatJnlLine.Quantity, 12) + EndOfLine);
-                            LF;
+                            LF();
                             Segments := Segments + 9;
                         end else
                             Segments := Segments + 8;
                         IntraFile.Write(Text052 + IntrastatJnlLine."Transport Method" + EndOfLine);
-                        LF;
+                        LF();
                         IntraFile.Write(Text053 + DecimalZeroFormat(IntrastatJnlLine.Amount, 12) + EndOfLine);
-                        LF;
+                        LF();
                         IntraFile.Write(Text054 + DecimalZeroFormat(IntrastatJnlLine."Statistical Value", 12) + EndOfLine);
-                        LF;
+                        LF();
                     end;
                     Clear(IntrastatJnlLine);
 
@@ -279,30 +279,30 @@ report 11106 "Intrastat - Disk Tax Auth AT"
                     Segments := Segments + 19;
 
                     IntraFile.Write(Text033 + EndOfLine);
-                    LF;
+                    LF();
                     IntraFile.Write(Text034 + DecimalZeroFormat(PosNo, 5) + EndOfLine);
-                    LF;
+                    LF();
                     IntraFile.Write(Text035 + DecimalZeroFormat(WeightTotal, 13) + EndOfLine);
-                    LF;
+                    LF();
                     if QuantityTotal <> 0 then begin
                         IntraFile.Write(
                           Text036 + DecimalZeroFormat(SupplementaryUnitsQtyTotal, 13) + EndOfLine);
-                        LF;
+                        LF();
                         Segments := Segments + 1;
                     end;
                     IntraFile.Write(Text037 + DecimalZeroFormat(ValueTotal, 13) + EndOfLine);
-                    LF;
+                    LF();
                     IntraFile.Write(Text038 + DecimalZeroFormat(StatValueTotal, 13) + EndOfLine);
-                    LF;
+                    LF();
                     IntraFile.Write(Text039 + RemoveSpecChar(CompanyInfo."Statistic No.") + EndOfLine);
-                    LF;
+                    LF();
                     IntraFile.Write(Text040 + Today4 + ':102' + EndOfLine);
-                    LF;
+                    LF();
                     IntraFile.Write(Text041 + DecimalZeroFormat(Segments, 5) + '+' + BKNR + EndOfLine);
-                    LF;
+                    LF();
                     IntraFile.Write(Text042 + BKNR + EndOfLine);
-                    LF;
-                    IntraFile.Close;
+                    LF();
+                    IntraFile.Close();
 
                     RecordsProcessed := RecordsProcessed + 1;
                     DiskStatus.Update(1, Round(RecordsProcessed / RecordsTotal * 10000, 1));
@@ -334,19 +334,19 @@ report 11106 "Intrastat - Disk Tax Auth AT"
                     SupplementaryUnitsQtyTotal := 0;
 
                     IntraFile.Write(Text016 + EndOfLine);
-                    LF;
+                    LF();
                     IntraFile.Write(Text017 + UIDNo + Text018 + DateOfToday + ':' + TimeOfNow + '+' + BKNR + EndOfLine);
-                    LF;
+                    LF();
                     IntraFile.Write(Text019 + BKNR + Text020 + EndOfLine);
-                    LF;
+                    LF();
                     IntraFile.Write(Text021 + UIDNo + '-' + Period + BKNR + EndOfLine);
-                    LF;
+                    LF();
                     IntraFile.Write(Text022 + Period4 + ':610' + EndOfLine);
-                    LF;
+                    LF();
                     IntraFile.Write(Text023 + Today4 + ':102' + EndOfLine);
-                    LF;
+                    LF();
                     IntraFile.Write(Text024 + EndOfLine);
-                    LF;
+                    LF();
                     IntraFile.Write(
                       Text025 + UIDNo + '-000+' + RemoveSpecChar(CompanyInfo.Name) + ':' +
                       RemoveSpecChar(CompanyInfo."Name 2") + ':' +
@@ -354,17 +354,17 @@ report 11106 "Intrastat - Disk Tax Auth AT"
                       RemoveSpecChar(CompanyInfo."Post Code") + ' ' +
                       RemoveSpecChar(CompanyInfo.City) + ':' +
                       RemoveSpecChar(Contactperson) + EndOfLine);
-                    LF;
+                    LF();
                     IntraFile.Write(Text026 + RemoveSpecChar(CompanyInfo."Phone No.") + Text027 + EndOfLine);
-                    LF;
+                    LF();
                     IntraFile.Write(Text026 + RemoveSpecChar(CompanyInfo."Fax No.") + Text028 + EndOfLine);
-                    LF;
+                    LF();
                     IntraFile.Write(Text029 + EndOfLine);
-                    LF;
+                    LF();
                     IntraFile.Write(Text030 + EndOfLine);
-                    LF;
+                    LF();
                     IntraFile.Write(Text032 + EndOfLine);
-                    LF;
+                    LF();
                     PosNo := 0;
 
                     Clear(IntrastatJnlLine);
@@ -403,25 +403,25 @@ report 11106 "Intrastat - Disk Tax Auth AT"
                                 IntraFile.Write(Text045 + DecimalZeroFormat(PosNo, 4) + '+' + IntrastatJnlLine."Tariff No." +
                                   Text059 + IntrastatJnlLine."Transaction Type" + ':112+' +
                                   IntrastatJnlLine."Transaction Specification" + ':177' + EndOfLine);
-                            LF;
+                            LF();
                             IntraFile.Write(Text047 + CopyStr(RemoveSpecChar(IntrastatJnlLine."Item Description"), 1, 70) + EndOfLine);
-                            LF;
+                            LF();
                             IntraFile.Write(Text060 + Country."Intrastat Code" + EndOfLine);
-                            LF;
+                            LF();
                             IntraFile.Write(Text050 + DecimalZeroFormat(IntrastatJnlLine."Total Weight", 12) + EndOfLine);
-                            LF;
+                            LF();
                             if IntrastatJnlLine."Supplementary Units" then begin
                                 IntraFile.Write(Text051 + DecimalZeroFormat(IntrastatJnlLine.Quantity, 12) + EndOfLine);
-                                LF;
+                                LF();
                                 Segments := Segments + 8;
                             end else
                                 Segments := Segments + 7;
                             IntraFile.Write(Text052 + IntrastatJnlLine."Transport Method" + EndOfLine);
-                            LF;
+                            LF();
                             IntraFile.Write(Text053 + DecimalZeroFormat(IntrastatJnlLine.Amount, 12) + EndOfLine);
-                            LF;
+                            LF();
                             IntraFile.Write(Text054 + DecimalZeroFormat(IntrastatJnlLine."Statistical Value", 12) + EndOfLine);
-                            LF;
+                            LF();
                         end;
                         Clear(IntrastatJnlLine);
                     end;
@@ -462,25 +462,25 @@ report 11106 "Intrastat - Disk Tax Auth AT"
                             IntraFile.Write(Text045 + DecimalZeroFormat(PosNo, 4) + '+' + IntrastatJnlLine."Tariff No." +
                               Text059 + IntrastatJnlLine."Transaction Type" + ':112+' +
                               IntrastatJnlLine."Transaction Specification" + ':177' + EndOfLine);
-                        LF;
+                        LF();
                         IntraFile.Write(Text047 + CopyStr(RemoveSpecChar(IntrastatJnlLine."Item Description"), 1, 70) + EndOfLine);
-                        LF;
+                        LF();
                         IntraFile.Write(Text060 + Country."Intrastat Code" + EndOfLine);
-                        LF;
+                        LF();
                         IntraFile.Write(Text050 + DecimalZeroFormat(IntrastatJnlLine."Total Weight", 12) + EndOfLine);
-                        LF;
+                        LF();
                         if IntrastatJnlLine."Supplementary Units" then begin
                             IntraFile.Write(Text051 + DecimalZeroFormat(IntrastatJnlLine.Quantity, 12) + EndOfLine);
-                            LF;
+                            LF();
                             Segments := Segments + 8;
                         end else
                             Segments := Segments + 7;
                         IntraFile.Write(Text052 + IntrastatJnlLine."Transport Method" + EndOfLine);
-                        LF;
+                        LF();
                         IntraFile.Write(Text053 + DecimalZeroFormat(IntrastatJnlLine.Amount, 12) + EndOfLine);
-                        LF;
+                        LF();
                         IntraFile.Write(Text054 + DecimalZeroFormat(IntrastatJnlLine."Statistical Value", 12) + EndOfLine);
-                        LF;
+                        LF();
                     end;
                     Clear(IntrastatJnlLine);
 
@@ -495,30 +495,30 @@ report 11106 "Intrastat - Disk Tax Auth AT"
                     Segments := Segments + 19;
 
                     IntraFile.Write(Text033 + EndOfLine);
-                    LF;
+                    LF();
                     IntraFile.Write(Text034 + DecimalZeroFormat(PosNo, 5) + EndOfLine);
-                    LF;
+                    LF();
                     IntraFile.Write(Text035 + DecimalZeroFormat(WeightTotal, 13) + EndOfLine);
-                    LF;
+                    LF();
                     if QuantityTotal <> 0 then begin
                         IntraFile.Write(
                           Text036 + DecimalZeroFormat(SupplementaryUnitsQtyTotal, 13) + EndOfLine);
-                        LF;
+                        LF();
                         Segments := Segments + 1;
                     end;
                     IntraFile.Write(Text037 + DecimalZeroFormat(ValueTotal, 13) + EndOfLine);
-                    LF;
+                    LF();
                     IntraFile.Write(Text038 + DecimalZeroFormat(StatValueTotal, 13) + EndOfLine);
-                    LF;
+                    LF();
                     IntraFile.Write(Text039 + RemoveSpecChar(CompanyInfo."Statistic No.") + EndOfLine);
-                    LF;
+                    LF();
                     IntraFile.Write(Text040 + Today4 + ':102' + EndOfLine);
-                    LF;
+                    LF();
                     IntraFile.Write(Text041 + DecimalZeroFormat(Segments, 5) + '+' + BKNR + EndOfLine);
-                    LF;
+                    LF();
                     IntraFile.Write(Text042 + BKNR + EndOfLine);
-                    LF;
-                    IntraFile.Close;
+                    LF();
+                    IntraFile.Close();
 
                     RecordsProcessed := RecordsProcessed + 1;
                     DiskStatus.Update(1, Round(RecordsProcessed / RecordsTotal * 10000, 1));
@@ -550,19 +550,19 @@ report 11106 "Intrastat - Disk Tax Auth AT"
                     SupplementaryUnitsQtyTotal := 0;
 
                     IntraFile.Write(Text016 + EndOfLine);
-                    LF;
+                    LF();
                     IntraFile.Write(Text017 + UIDNo + Text018 + DateOfToday + ':' + TimeOfNow + '+' + BKNR + EndOfLine);
-                    LF;
+                    LF();
                     IntraFile.Write(Text019 + BKNR + Text020 + EndOfLine);
-                    LF;
+                    LF();
                     IntraFile.Write(Text021 + UIDNo + '-' + Period + BKNR + EndOfLine);
-                    LF;
+                    LF();
                     IntraFile.Write(Text022 + Period4 + ':610' + EndOfLine);
-                    LF;
+                    LF();
                     IntraFile.Write(Text023 + Today4 + ':102' + EndOfLine);
-                    LF;
+                    LF();
                     IntraFile.Write(Text024 + EndOfLine);
-                    LF;
+                    LF();
                     IntraFile.Write(
                       Text025 + UIDNo + '-000+' + RemoveSpecChar(CompanyInfo.Name) + ':' +
                       RemoveSpecChar(CompanyInfo."Name 2") + ':' +
@@ -570,17 +570,17 @@ report 11106 "Intrastat - Disk Tax Auth AT"
                       RemoveSpecChar(CompanyInfo."Post Code") + ' ' +
                       RemoveSpecChar(CompanyInfo.City) + ':' +
                       RemoveSpecChar(Contactperson) + EndOfLine);
-                    LF;
+                    LF();
                     IntraFile.Write(Text026 + RemoveSpecChar(CompanyInfo."Phone No.") + Text027 + EndOfLine);
-                    LF;
+                    LF();
                     IntraFile.Write(Text026 + RemoveSpecChar(CompanyInfo."Fax No.") + Text028 + EndOfLine);
-                    LF;
+                    LF();
                     IntraFile.Write(Text029 + EndOfLine);
-                    LF;
+                    LF();
                     IntraFile.Write(Text030 + EndOfLine);
-                    LF;
+                    LF();
                     IntraFile.Write(Text032 + EndOfLine);
-                    LF;
+                    LF();
                     PosNo := 0;
 
                     Clear(IntrastatJnlLine);
@@ -683,7 +683,7 @@ report 11106 "Intrastat - Disk Tax Auth AT"
             case true of
                 PrintReceipt and PrintShipment:
                     begin
-                        DataCompression.CreateZipArchive;
+                        DataCompression.CreateZipArchive();
                         FileManagement.BLOBImportFromServerFile(ServerShipmentsTempBlob, ServerTempFileShipments);
                         ServerShipmentsTempBlob.CreateInStream(ServerShipmentsInStream);
                         FileManagement.BLOBImportFromServerFile(ServerReceiptsTempBlob, ServerTempFileReceipts);
@@ -861,13 +861,13 @@ report 11106 "Intrastat - Disk Tax Auth AT"
     begin
         // reset Filepointer to avoid
         // senseless spaces
-        IntraFile.Close;
+        IntraFile.Close();
         if CurrentType = CurrentType::Receipt then
             IntraFile.Open(ServerTempFileReceipts)
         else
             IntraFile.Open(ServerTempFileShipments);
         IntraFile.Seek(IntraFile.Len - 1);
-        IntraFile.Trunc;
+        IntraFile.Trunc();
     end;
 
     [Scope('OnPrem')]

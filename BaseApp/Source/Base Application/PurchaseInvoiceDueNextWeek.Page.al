@@ -17,18 +17,18 @@ page 1162 "Purchase Invoice Due Next Week"
             repeater(Control8)
             {
                 ShowCaption = false;
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies which purchase invoices are due next week.';
                 }
-                field("Document Type"; "Document Type")
+                field("Document Type"; Rec."Document Type")
                 {
                     ApplicationArea = All;
                     StyleExpr = StyleTxt;
                     ToolTip = 'Specifies the type of document.';
                 }
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = All;
                     StyleExpr = StyleTxt;
@@ -40,7 +40,7 @@ page 1162 "Purchase Invoice Due Next Week"
                     Caption = 'Vendor Name';
                     ToolTip = 'Specifies name of the Vendor.';
                 }
-                field("Remaining Amount"; "Remaining Amount")
+                field("Remaining Amount"; Rec."Remaining Amount")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the amount that remains to be paid on the purchase invoice that is due next week.';
@@ -53,7 +53,7 @@ page 1162 "Purchase Invoice Due Next Week"
                         HyperLink(HyperLinkUrl);
                     end;
                 }
-                field("Due Date"; "Due Date")
+                field("Due Date"; Rec."Due Date")
                 {
                     ApplicationArea = All;
                     StyleExpr = StyleTxt;
@@ -73,14 +73,14 @@ page 1162 "Purchase Invoice Due Next Week"
     begin
         Vendor.Get("Vendor No.");
         VendorName := Vendor.Name;
-        StyleTxt := SetStyle;
+        StyleTxt := SetStyle();
     end;
 
     trigger OnOpenPage()
     begin
         SetRange(Open, true);
         SetFilter("Document Type", 'Invoice|Credit Memo');
-        SetFilter("Due Date", '%1..%2', CalcDate('<1D>', WorkDate), CalcDate('<1W>', WorkDate));
+        SetFilter("Due Date", '%1..%2', CalcDate('<1D>', WorkDate()), CalcDate('<1W>', WorkDate()));
         Ascending := false;
     end;
 

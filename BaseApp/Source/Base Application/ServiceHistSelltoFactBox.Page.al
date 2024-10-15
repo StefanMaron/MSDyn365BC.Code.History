@@ -8,7 +8,7 @@ page 9085 "Service Hist. Sell-to FactBox"
     {
         area(content)
         {
-            field("No."; "No.")
+            field("No."; Rec."No.")
             {
                 ApplicationArea = All;
                 Caption = 'Customer No.';
@@ -16,7 +16,7 @@ page 9085 "Service Hist. Sell-to FactBox"
 
                 trigger OnDrillDown()
                 begin
-                    ShowDetails;
+                    ShowDetails();
                 end;
             }
             group(Control1)

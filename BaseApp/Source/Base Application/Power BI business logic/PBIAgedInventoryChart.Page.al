@@ -31,13 +31,13 @@ page 6309 "PBI Aged Inventory Chart"
                     Caption = 'Date';
                     ToolTip = 'Specifies the date.';
                 }
-                field("Period Type"; "Period Type")
+                field("Period Type"; Rec."Period Type")
                 {
                     ApplicationArea = All;
                     Caption = 'Period Type';
                     ToolTip = 'Specifies the sorting.';
                 }
-                field("Period Type Sorting"; "Period Type Sorting")
+                field("Period Type Sorting"; Rec."Period Type Sorting")
                 {
                     ApplicationArea = All;
                     Caption = 'Period Type Sorting';

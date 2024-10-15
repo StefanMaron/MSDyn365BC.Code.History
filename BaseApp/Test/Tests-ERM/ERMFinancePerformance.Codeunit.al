@@ -736,7 +736,7 @@ codeunit 134923 "ERM Finance Performance"
         BusinessChartBuffer: Record "Business Chart Buffer";
     begin
         // [FEATURE] [Chart]
-        asserterror BusinessChartBuffer.RaiseErrorMaxNumberOfMeasuresExceeded;
+        asserterror BusinessChartBuffer.RaiseErrorMaxNumberOfMeasuresExceeded();
         Assert.IsTrue(
           StrPos(GetLastErrorText, StrSubstNo(ErrMaxNumberOfMeasures, BusinessChartBuffer.GetMaxNumberOfMeasures)) > 0,
           MaxNumberOfMeasures);
@@ -1114,8 +1114,8 @@ codeunit 134923 "ERM Finance Performance"
                     CreateOnePerfIndSetupLine(AccountSchedulesChartSetup, AccScheduleLine."Line No.", ColumnLayout."Line No.", MeasureName,
                       Format(AccScheduleLine."Line No.") + ' ' + Format(ColumnLayout."Line No."),
                       "Account Schedule Chart Type".FromInteger(LibraryRandom.RandIntInRange(1, 3)));
-                until ColumnLayout.Next = 0;
-            until AccScheduleLine.Next = 0;
+                until ColumnLayout.Next() = 0;
+            until AccScheduleLine.Next() = 0;
             AccountSchedulesChartSetup."Base X-Axis on"::"Acc. Sched. Line",
             AccountSchedulesChartSetup."Base X-Axis on"::"Acc. Sched. Column":
                 begin
@@ -1124,14 +1124,14 @@ codeunit 134923 "ERM Finance Performance"
                         CreateOnePerfIndSetupLine(
                           AccountSchedulesChartSetup, AccScheduleLine."Line No.", 0, MeasureName, Format(AccScheduleLine."Line No."),
                           "Account Schedule Chart Type".FromInteger(LibraryRandom.RandIntInRange(1, 3)));
-                    until AccScheduleLine.Next = 0;
+                    until AccScheduleLine.Next() = 0;
                     ColumnLayout.FindSet();
                     repeat
                         MeasureName := ColumnLayout."Column Header";
                         CreateOnePerfIndSetupLine(
                           AccountSchedulesChartSetup, 0, ColumnLayout."Line No.", MeasureName, Format(ColumnLayout."Line No."),
                           "Account Schedule Chart Type".FromInteger(LibraryRandom.RandIntInRange(1, 3)));
-                    until ColumnLayout.Next = 0;
+                    until ColumnLayout.Next() = 0;
                 end;
         end;
     end;
@@ -1141,7 +1141,7 @@ codeunit 134923 "ERM Finance Performance"
         AccSchedChartSetupLine: Record "Acc. Sched. Chart Setup Line";
     begin
         with AccSchedChartSetupLine do begin
-            Init;
+            Init();
             "User ID" := AccountSchedulesChartSetup."User ID";
             Name := AccountSchedulesChartSetup.Name;
             "Account Schedule Name" := AccountSchedulesChartSetup."Account Schedule Name";
@@ -1152,7 +1152,7 @@ codeunit 134923 "ERM Finance Performance"
             "Measure Name" := MeasureName;
             "Measure Value" := MeasureValue;
             "Chart Type" := ChartType;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -1286,7 +1286,7 @@ codeunit 134923 "ERM Finance Performance"
             "G/L Account No." := GLAccountNo;
             "Posting Date" := PostingDate;
             Amount := LibraryRandom.RandDec(1000, 2);
-            Insert;
+            Insert();
         end;
     end;
 
@@ -1469,7 +1469,7 @@ codeunit 134923 "ERM Finance Performance"
             TestDrillDownType::CostType:
                 begin
                     AccScheduleLine.FindSet();
-                    AccScheduleLine.Next;
+                    AccScheduleLine.Next();
                     ColumnLayout.FindFirst();
                     AccScheduleLine.SetRange("Date Filter", FromDate, ToDate);
                     AccSchedManagement.SetStartDateEndDate(FromDate, ToDate);
@@ -1549,12 +1549,12 @@ codeunit 134923 "ERM Finance Performance"
 
     local procedure SetupStartAndEndDates(var StartDate: Date; var EndDate: Date; ShowPer: Option Period,"Acc. Sched. Line","Acc. Sched. Column"; PeriodLength: Option; NoOfPeriods: Integer)
     begin
-        StartDate := WorkDate;
+        StartDate := WorkDate();
 
         if ShowPer = ShowPer::Period then
             EndDate := CalculatePeriodEndDate(CalculateNextDate(StartDate, NoOfPeriods - 1, PeriodLength), PeriodLength)
         else
-            EndDate := CalcDate(StrSubstNo('<%1D>', LibraryRandom.RandIntInRange(100, 200)), WorkDate);
+            EndDate := CalcDate(StrSubstNo('<%1D>', LibraryRandom.RandIntInRange(100, 200)), WorkDate());
     end;
 
     local procedure SetupMyNotificationsForCredirLimitCheck(var MyNotifications: Record "My Notifications")
@@ -1759,8 +1759,8 @@ codeunit 134923 "ERM Finance Performance"
                                 MeasureName := CopyStr(AccScheduleLine.Description + ' ' + ColumnLayout."Column Header", 1, MaxStrLen(MeasureName));
                                 VerifyChartMeasure(
                                   BusinessChartBuffer, AccScheduleLine, ColumnLayout, MeasureName, Format(PeriodEnd), RowIndex, PeriodStart, PeriodEnd);
-                            until ColumnLayout.Next = 0;
-                        until AccScheduleLine.Next = 0;
+                            until ColumnLayout.Next() = 0;
+                        until AccScheduleLine.Next() = 0;
                         PeriodStart := PeriodEnd + 1;
                         PeriodEnd :=
                           CalculatePeriodEndDate(
@@ -1783,9 +1783,9 @@ codeunit 134923 "ERM Finance Performance"
                             VerifyChartMeasure(
                               BusinessChartBuffer, AccScheduleLine, ColumnLayout, ColumnLayout."Column Header", AccScheduleLine.Description, RowIndex,
                               StartDate, EndDate);
-                        until ColumnLayout.Next = 0;
+                        until ColumnLayout.Next() = 0;
                         RowIndex += 1;
-                    until AccScheduleLine.Next = 0;
+                    until AccScheduleLine.Next() = 0;
                 end;
             AccountSchedulesChartSetup."Base X-Axis on"::"Acc. Sched. Column":
                 begin
@@ -1802,9 +1802,9 @@ codeunit 134923 "ERM Finance Performance"
                             VerifyChartMeasure(
                               BusinessChartBuffer, AccScheduleLine, ColumnLayout, MeasureName, ColumnLayout."Column Header", RowIndex, StartDate,
                               EndDate);
-                        until AccScheduleLine.Next = 0;
+                        until AccScheduleLine.Next() = 0;
                         RowIndex += 1;
-                    until ColumnLayout.Next = 0;
+                    until ColumnLayout.Next() = 0;
                 end;
         end;
     end;
@@ -2062,12 +2062,12 @@ codeunit 134923 "ERM Finance Performance"
         if DrillDownColumnLayout."Column Type" = DrillDownColumnLayout."Column Type"::Formula then
             Assert.AreEqual(
               StrSubstNo(ColFormulaMSG, DrillDownColumnLayout.Formula), Message,
-              StrSubstNo(FormulaDrillDownERR, DrillDownColumnLayout.TableCaption))
+              StrSubstNo(FormulaDrillDownERR, DrillDownColumnLayout.TableCaption()))
         else
             if DrillDownAccScheduleLine."Totaling Type" = DrillDownAccScheduleLine."Totaling Type"::Formula then
                 Assert.AreEqual(
                   StrSubstNo(RowFormulaMSG, DrillDownAccScheduleLine.Totaling), Message,
-                  StrSubstNo(FormulaDrillDownERR, DrillDownAccScheduleLine.TableCaption));
+                  StrSubstNo(FormulaDrillDownERR, DrillDownAccScheduleLine.TableCaption()));
     end;
 
     [PageHandler]
@@ -2148,7 +2148,7 @@ codeunit 134923 "ERM Finance Performance"
         LibraryVariableStorage.Dequeue(GLAccountNo);
         AnalysisViewBudgetEntries.FILTER.SetFilter("G/L Account No.", GLAccountNo);
         AnalysisViewBudgetEntries."Analysis View Code".AssertEquals(AnalysisViewCode);
-        AnalysisViewBudgetEntries.Close;
+        AnalysisViewBudgetEntries.Close();
     end;
 
     [PageHandler]
@@ -2173,7 +2173,7 @@ codeunit 134923 "ERM Finance Performance"
           AccScheduleOverview.PeriodType.AsInteger,
           'Unexpected account schedule period selected in the overview page.');
 
-        AccScheduleOverview.Close;
+        AccScheduleOverview.Close();
     end;
 
     [StrMenuHandler]

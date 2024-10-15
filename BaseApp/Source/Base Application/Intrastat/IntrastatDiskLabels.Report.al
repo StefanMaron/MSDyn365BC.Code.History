@@ -121,7 +121,7 @@ report 11000 "Intrastat  Disk (Labels)"
 
                     FileName := "Purch. Authorized No." + Text1140002;
                     if not Upload(FileName, '', '', FileName, FileName) then
-                        CurrReport.Quit;
+                        CurrReport.Quit();
 
                     IntraFile.TextMode := true;
                     IntraFile.WriteMode := false;
@@ -134,10 +134,10 @@ report 11000 "Intrastat  Disk (Labels)"
                             IntrastatPurchStatistical := IntrastatPurchStatistical + Decimal;
                         IntrastatPurchRepMonth := CopyStr(ReadString, 3, 2);
                     end;
-                    IntraFile.Close;
+                    IntraFile.Close();
                     FileName := "Sales Authorized No." + Text1140002;
                     if not Upload(FileName, '', '', FileName, FileName) then
-                        CurrReport.Quit;
+                        CurrReport.Quit();
 
                     IntraFile.TextMode := true;
                     IntraFile.WriteMode := false;
@@ -150,7 +150,7 @@ report 11000 "Intrastat  Disk (Labels)"
                             IntrastatSalesStatistical := IntrastatSalesStatistical + Decimal;
                         IntrastatSalesRepMonth := CopyStr(ReadString, 4, 2);
                     end;
-                    IntraFile.Close;
+                    IntraFile.Close();
                 end;
             }
 

@@ -7,7 +7,6 @@ page 1291 "Pmt. Recon. Journal Overview"
     LinksAllowed = false;
     ModifyAllowed = false;
     PageType = List;
-    PromotedActionCategories = 'New,Process,Report,Review,Details,Custom Sorting';
     SourceTable = "Bank Acc. Reconciliation Line";
     SourceTableView = WHERE("Statement Type" = CONST("Payment Application"));
 
@@ -19,31 +18,31 @@ page 1291 "Pmt. Recon. Journal Overview"
             {
                 FreezeColumn = "Statement Amount";
                 ShowCaption = false;
-                field("Match Confidence"; "Match Confidence")
+                field("Match Confidence"; Rec."Match Confidence")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the quality of the automatic payment application on the journal line.';
                     Visible = false;
                 }
-                field("Transaction Date"; "Transaction Date")
+                field("Transaction Date"; Rec."Transaction Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the posting date of the bank account or check ledger entry on the reconciliation line when the Suggest Lines function is used.';
                 }
-                field("Transaction Text"; "Transaction Text")
+                field("Transaction Text"; Rec."Transaction Text")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the text that the customer or vendor entered on that payment transaction that is represented by the journal line.';
                     Width = 40;
                 }
-                field("Statement Amount"; "Statement Amount")
+                field("Statement Amount"; Rec."Statement Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Transaction Amount';
                     ToolTip = 'Specifies the amount of the transaction on the bank''s statement shown on this reconciliation line.';
                 }
-                field(AccountName; GetAppliedToName)
+                field(AccountName; GetAppliedToName())
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Applied to Account';
@@ -52,10 +51,10 @@ page 1291 "Pmt. Recon. Journal Overview"
 
                     trigger OnDrillDown()
                     begin
-                        AppliedToDrillDown;
+                        AppliedToDrillDown();
                     end;
                 }
-                field("Applied Amount"; "Applied Amount")
+                field("Applied Amount"; Rec."Applied Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount of the transaction on the reconciliation line that has been applied to a bank account or check ledger entry.';
@@ -83,7 +82,7 @@ page 1291 "Pmt. Recon. Journal Overview"
                     Editable = false;
                     ToolTip = 'Specifies the description of the entry that the payment is applied to.';
                 }
-                field("Applied Entries"; "Applied Entries")
+                field("Applied Entries"; Rec."Applied Entries")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether the transaction on the bank''s statement has been applied to one or more bank account or check ledger entries.';
@@ -114,9 +113,6 @@ page 1291 "Pmt. Recon. Journal Overview"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Show Non-Applied Lines';
                     Image = FilterLines;
-                    Promoted = true;
-                    PromotedCategory = Category6;
-                    PromotedIsBig = true;
                     ToolTip = 'Display only payments in the list that have not been applied.';
 
                     trigger OnAction()
@@ -130,9 +126,6 @@ page 1291 "Pmt. Recon. Journal Overview"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Show All Lines';
                     Image = AllLines;
-                    Promoted = true;
-                    PromotedCategory = Category6;
-                    PromotedIsBig = true;
                     ToolTip = 'Show all payments in the list no matter what their status is.';
 
                     trigger OnAction()
@@ -140,6 +133,32 @@ page 1291 "Pmt. Recon. Journal Overview"
                         SetRange(Difference);
                         CurrPage.Update();
                     end;
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Review', Comment = 'Generated from the PromotedActionCategories property index 3.';
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Details', Comment = 'Generated from the PromotedActionCategories property index 4.';
+            }
+            group(Category_Category6)
+            {
+                Caption = 'Custom Sorting', Comment = 'Generated from the PromotedActionCategories property index 5.';
+
+                actionref(ShowNonAppliedLines_Promoted; ShowNonAppliedLines)
+                {
+                }
+                actionref(ShowAllLines_Promoted; ShowAllLines)
+                {
                 }
             }
         }

@@ -41,7 +41,7 @@ codeunit 142058 "UT REP VATDECL"
 
         // Setup: Run Report VAT - VIES Declaration XML to verify Error Code, Actual error message: Reportingdate must be empty, if marking is "Normal transmission".
         Initialize();
-        RunReportVATVIESDeclarationXML(ReportingType::"Normal transmission", WorkDate, '');  // XML File Name, Reportingdate, No. Series.
+        RunReportVATVIESDeclarationXML(ReportingType::"Normal transmission", WorkDate(), '');  // XML File Name, Reportingdate, No. Series.
     end;
 
     [Test]

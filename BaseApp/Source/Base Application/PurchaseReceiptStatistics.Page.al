@@ -58,7 +58,7 @@ page 399 "Purchase Receipt Statistics"
 
     trigger OnAfterGetRecord()
     begin
-        ClearAll;
+        ClearAll();
 
         CalculateTotals();
     end;

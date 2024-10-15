@@ -158,7 +158,7 @@ table 770 "Analysis Report Chart Setup"
 
     trigger OnDelete()
     begin
-        DeleteLines;
+        DeleteLines();
     end;
 
     var
@@ -273,15 +273,13 @@ table 770 "Analysis Report Chart Setup"
 
         case "Base X-Axis on" of
             "Base X-Axis on"::Period:
-                begin
-                    if AnalysisColumn.FindSet() then
-                        repeat
-                            if AnalysisLine.FindSet() then
-                                repeat
-                                    InsertLineIntoTemp(TempAnalysisReportChartLine, AnalysisLine, AnalysisColumn);
-                                until AnalysisLine.Next() = 0;
-                        until AnalysisColumn.Next() = 0;
-                end;
+                if AnalysisColumn.FindSet() then
+                    repeat
+                        if AnalysisLine.FindSet() then
+                            repeat
+                                InsertLineIntoTemp(TempAnalysisReportChartLine, AnalysisLine, AnalysisColumn);
+                            until AnalysisLine.Next() = 0;
+                    until AnalysisColumn.Next() = 0;
             "Base X-Axis on"::Line,
             "Base X-Axis on"::Column:
                 begin
@@ -372,13 +370,13 @@ table 770 "Analysis Report Chart Setup"
         AnalysisReportChartLine.Reset();
         SetLinkToMeasureLines(AnalysisReportChartLine);
         AnalysisReportChartLine.SetFilter("Chart Type", '<>%1', AnalysisReportChartLine."Chart Type"::" ");
-        MaxNumMeasures := BusinessChartBuffer.GetMaxNumberOfMeasures;
+        MaxNumMeasures := BusinessChartBuffer.GetMaxNumberOfMeasures();
         NumOfMeasuresToBeSet := MaxNumMeasures - AnalysisReportChartLine.Count();
         if NumOfMeasuresToBeSet > 0 then begin
             AnalysisReportChartLine.SetRange("Chart Type", AnalysisReportChartLine."Chart Type"::" ");
             if AnalysisReportChartLine.FindSet() then
                 repeat
-                    AnalysisReportChartLine."Chart Type" := AnalysisReportChartLine.GetDefaultChartType;
+                    AnalysisReportChartLine."Chart Type" := AnalysisReportChartLine.GetDefaultChartType();
                     AnalysisReportChartLine.Modify();
                     NumOfMeasuresToBeSet -= 1;
                 until (NumOfMeasuresToBeSet = 0) or (AnalysisReportChartLine.Next() = 0);
@@ -390,7 +388,7 @@ table 770 "Analysis Report Chart Setup"
         AnalysisReportChartLine.Reset();
         SetLinkToDimensionLines(AnalysisReportChartLine);
         AnalysisReportChartLine.SetRange("Chart Type", AnalysisReportChartLine."Chart Type"::" ");
-        AnalysisReportChartLine.ModifyAll("Chart Type", AnalysisReportChartLine.GetDefaultChartType);
+        AnalysisReportChartLine.ModifyAll("Chart Type", AnalysisReportChartLine.GetDefaultChartType());
     end;
 
     local procedure DeleteLines()

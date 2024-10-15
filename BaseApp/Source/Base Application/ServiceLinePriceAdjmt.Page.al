@@ -14,7 +14,7 @@ page 6084 "Service Line Price Adjmt."
             group(General)
             {
                 Caption = 'General';
-                field("Service Item No."; "Service Item No.")
+                field("Service Item No."; Rec."Service Item No.")
                 {
                     ApplicationArea = Service;
                     Editable = false;
@@ -27,20 +27,20 @@ page 6084 "Service Line Price Adjmt."
                     Editable = false;
                     ToolTip = 'Specifies the description of the service item for which the price is going to be adjusted.';
                 }
-                field("Service Price Group Code"; "Service Price Group Code")
+                field("Service Price Group Code"; Rec."Service Price Group Code")
                 {
                     ApplicationArea = Service;
                     Caption = 'Service Price Group Code';
                     Editable = false;
                     ToolTip = 'Specifies the code of the service price adjustment group associated with the service item on this line.';
                 }
-                field("Serv. Price Adjmt. Gr. Code"; "Serv. Price Adjmt. Gr. Code")
+                field("Serv. Price Adjmt. Gr. Code"; Rec."Serv. Price Adjmt. Gr. Code")
                 {
                     ApplicationArea = Service;
                     Editable = false;
                     ToolTip = 'Specifies the code of the service price adjustment group that applies to the posted service line.';
                 }
-                field("Adjustment Type"; "Adjustment Type")
+                field("Adjustment Type"; Rec."Adjustment Type")
                 {
                     ApplicationArea = Service;
                     Caption = 'Adjustment Type';
@@ -56,7 +56,7 @@ page 6084 "Service Line Price Adjmt."
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the type of this line, which can be item, resource, cost, or general ledger Account.';
                 }
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
@@ -71,27 +71,27 @@ page 6084 "Service Line Price Adjmt."
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the value of the service line that will be adjusted.';
                 }
-                field("Unit Price"; "Unit Price")
+                field("Unit Price"; Rec."Unit Price")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the price of one unit of the item or resource. You can enter a price manually or have it entered according to the Price/Profit Calculation field on the related card.';
                 }
-                field("New Unit Price"; "New Unit Price")
+                field("New Unit Price"; Rec."New Unit Price")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the unit price of the item, resource, or cost specified on the service line.';
 
                     trigger OnValidate()
                     begin
-                        NewUnitPriceOnAfterValidate;
+                        NewUnitPriceOnAfterValidate();
                     end;
                 }
-                field("Discount %"; "Discount %")
+                field("Discount %"; Rec."Discount %")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the discount percentage you want to provide on the amount on the corresponding service line.';
                 }
-                field("Discount Amount"; "Discount Amount")
+                field("Discount Amount"; Rec."Discount Amount")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the discount you want to provide on the amount on this service line.';
@@ -101,29 +101,29 @@ page 6084 "Service Line Price Adjmt."
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the total net amount on the service line.';
                 }
-                field("New Amount"; "New Amount")
+                field("New Amount"; Rec."New Amount")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the amount to invoice.';
 
                     trigger OnValidate()
                     begin
-                        NewAmountOnAfterValidate;
+                        NewAmountOnAfterValidate();
                     end;
                 }
-                field("Amount incl. VAT"; "Amount incl. VAT")
+                field("Amount incl. VAT"; Rec."Amount incl. VAT")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the total amount that the service line is going to be adjusted, including VAT.';
                 }
-                field("New Amount incl. VAT"; "New Amount incl. VAT")
+                field("New Amount incl. VAT"; Rec."New Amount incl. VAT")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies a new amount, including VAT.';
 
                     trigger OnValidate()
                     begin
-                        NewAmountinclVATOnAfterValidat;
+                        NewAmountinclVATOnAfterValidat();
                     end;
                 }
             }
@@ -222,7 +222,7 @@ page 6084 "Service Line Price Adjmt."
                         ServPriceMgmt.GetServPriceGrSetup(ServPriceGrSetup, ServHeader, ServItemLine);
                         ServInvLinePriceAdjmt := Rec;
                         ServPriceMgmt.AdjustLines(ServInvLinePriceAdjmt, ServPriceGrSetup);
-                        UpdateAmounts;
+                        UpdateAmounts();
                         CurrPage.Update();
                     end;
                 }
@@ -232,7 +232,7 @@ page 6084 "Service Line Price Adjmt."
 
     trigger OnAfterGetRecord()
     begin
-        UpdateAmounts;
+        UpdateAmounts();
     end;
 
     trigger OnOpenPage()
@@ -243,7 +243,7 @@ page 6084 "Service Line Price Adjmt."
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     begin
         if CloseAction in [ACTION::OK, ACTION::LookupOK] then
-            OKOnPush;
+            OKOnPush();
         if not OKPressed then
             if not Confirm(Text001, false) then
                 exit(false);

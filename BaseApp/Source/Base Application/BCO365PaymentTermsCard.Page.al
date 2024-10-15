@@ -1,8 +1,12 @@
+#if not CLEAN21
 page 2320 "BC O365 Payment Terms Card"
 {
     Caption = 'Payment Terms';
     LinksAllowed = false;
     PageType = Card;
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     layout
     {
@@ -14,13 +18,13 @@ page 2320 "BC O365 Payment Terms Card"
                 ShowCaption = false;
                 field(PaymentTermsCode; PaymentTermsCode)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Short name';
                     ToolTip = 'Specifies the short name of the payment term.';
                 }
                 field(Days; Days)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Days';
                     ToolTip = 'Specifies the number of days until payments are due when this payment term is used.';
 
@@ -74,7 +78,7 @@ page 2320 "BC O365 Payment Terms Card"
                 PaymentTermTranslation.DeleteAll();
                 PaymentTerms.Rename(PaymentTermsCode);
                 PaymentTerms.Description := PaymentTermsCode;
-                if O365SalesInitialSetup.Get and (O365SalesInitialSetup."Default Payment Terms Code" = PaymentTermsCode) then
+                if O365SalesInitialSetup.Get() and (O365SalesInitialSetup."Default Payment Terms Code" = PaymentTermsCode) then
                     O365SalesInitialSetup.UpdateDefaultPaymentTerms(PaymentTermsCode);
             end;
 
@@ -99,4 +103,4 @@ page 2320 "BC O365 Payment Terms Card"
         PaymentTerms := NewPaymentTerms;
     end;
 }
-
+#endif

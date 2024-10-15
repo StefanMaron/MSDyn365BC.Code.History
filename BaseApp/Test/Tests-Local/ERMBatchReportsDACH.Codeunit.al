@@ -37,10 +37,10 @@ codeunit 142061 "ERM Batch Reports DACH"
         FANo := CreateFAWithBook;
 
         // [GIVEN] Posted purchase invoice fixed asset "FA" on "Posting Date" = 01-01-2019
-        CreatePostFixedAssetPurchaseInvoice(WorkDate, FANo, LibraryRandom.RandDecInRange(10000, 20000, 2));
+        CreatePostFixedAssetPurchaseInvoice(WorkDate(), FANo, LibraryRandom.RandDecInRange(10000, 20000, 2));
 
         // [WHEN] Post sales invoice "SI" fixed asset "FA" on "Posting Date" = 01-02-2019 with "Depr. until FA Posting Date" = TRUE
-        DocumentNo := CreatePostFixedAssetSalesInvoice(CalcDate('<1M>', WorkDate), FANo, LibraryRandom.RandDecInRange(1000, 2000, 2));
+        DocumentNo := CreatePostFixedAssetSalesInvoice(CalcDate('<1M>', WorkDate()), FANo, LibraryRandom.RandDecInRange(1000, 2000, 2));
 
         // [THEN] There is a GLEntry "X" with "Document Type" = "Invoice", "Document No." = "SI", "Gen. Posting Type" = "Sale", "G/L Account No." = "DispLossGLAcc"
         GLAccountNo := GetFASalesAccOnDispLoss(FANo);
@@ -74,10 +74,10 @@ codeunit 142061 "ERM Batch Reports DACH"
 
         // [GIVEN] Posted purchase invoice fixed asset "FA" on "Posting Date" = 01-01-2019
         BindSubscription(ERMBatchReportsDACHSubscriber);
-        CreatePostFixedAssetPurchaseInvoice(WorkDate, FANo, LibraryRandom.RandDecInRange(10000, 20000, 2));
+        CreatePostFixedAssetPurchaseInvoice(WorkDate(), FANo, LibraryRandom.RandDecInRange(10000, 20000, 2));
 
         // [WHEN] Post sales invoice "SI" fixed asset "FA" on "Posting Date" = 01-02-2019 with "Depr. until FA Posting Date" = TRUE
-        DocumentNo := CreatePostFixedAssetSalesInvoice(CalcDate('<1M>', WorkDate), FANo, LibraryRandom.RandDecInRange(1000, 2000, 2));
+        DocumentNo := CreatePostFixedAssetSalesInvoice(CalcDate('<1M>', WorkDate()), FANo, LibraryRandom.RandDecInRange(1000, 2000, 2));
 
         // [THEN] There is a GLEntry "X" with "Document Type" = "Invoice", "Document No." = "SI", "Gen. Posting Type" = "Sale", "G/L Account No." = "DispLossGLAcc"
         GLAccountNo := GetFASalesAccOnDispLoss(FANo);
@@ -124,7 +124,7 @@ codeunit 142061 "ERM Batch Reports DACH"
 
         LibraryFixedAsset.CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", DepreciationBook.Code);
         FADepreciationBook.Validate("FA Posting Group", FixedAsset."FA Posting Group");
-        FADepreciationBook.Validate("Depreciation Starting Date", WorkDate);
+        FADepreciationBook.Validate("Depreciation Starting Date", WorkDate());
         FADepreciationBook.Validate("No. of Depreciation Years", LibraryRandom.RandInt(5));
         FADepreciationBook.Modify(true);
         exit(FixedAsset."No.");

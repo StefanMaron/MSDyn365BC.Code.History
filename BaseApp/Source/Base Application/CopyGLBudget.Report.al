@@ -185,13 +185,12 @@ report 96 "Copy G/L Budget"
                     if FromGLAccountNo <> '' then
                         SetFilter("G/L Account No.", FromGLAccountNo);
                     SetFilter("Posting Date", FromDate);
-                    if Find('-') then begin
+                    if Find('-') then
                         repeat
                             ProcessRecord(
                               "G/L Account No.", "Business Unit Code", "Posting Date", Description,
                               "Dimension Set ID", Amount);
                         until Next() = 0;
-                    end;
                 end;
             FromSource::"G/L Budget Entry":
                 with FromGLBudgetEntry do begin
@@ -211,8 +210,8 @@ report 96 "Copy G/L Budget"
                         until Next() = 0;
                 end;
         end;
-        InsertGLBudgetEntry;
-        Window.Close;
+        InsertGLBudgetEntry();
+        Window.Close();
 
         if not NoMessage then
             Message(Text010);
@@ -283,21 +282,10 @@ report 96 "Copy G/L Budget"
             GlobalDim1Code := GLSetup."Global Dimension 1 Code";
             GlobalDim2Code := GLSetup."Global Dimension 2 Code";
         end else
-            CurrReport.Quit;
+            CurrReport.Quit();
     end;
 
     var
-        Text001: Label 'Dimensions';
-        Text002: Label 'You must specify a budget name to copy from.';
-        Text003: Label 'You must specify a date interval to copy from.';
-        Text004: Label 'You must specify a budget name to copy to.';
-        Text005: Label 'Do you want to create G/L Budget Name %1?';
-        Text006: Label 'Do you want to start the copy?';
-        Text007: Label 'Copying budget...\\';
-        Text008: Label 'G/L Account No. #1####################\';
-        Text009: Label 'Posting Date    #2######';
-        Text010: Label 'Budget has been successfully copied.';
-        Text011: Label 'You can define only one G/L Account.';
         ToGLBudgetEntry: Record "G/L Budget Entry";
         TempGLBudgetEntry: Record "G/L Budget Entry" temporary;
         TempSelectedDim: Record "Selected Dimension" temporary;
@@ -307,6 +295,7 @@ report 96 "Copy G/L Budget"
         RoundingMethod: Record "Rounding Method";
         DimSelectionBuf: Record "Dimension Selection Buffer";
         DimMgt: Codeunit DimensionManagement;
+        DateAdjustExpression: DateFormula;
         Window: Dialog;
         FromDate: Text;
         FromSource: Option "G/L Entry","G/L Budget Entry";
@@ -319,7 +308,6 @@ report 96 "Copy G/L Budget"
         ToDateCompression: Option "None",Day,Week,Month,Quarter,Year,Period;
         ColumnDim: Text[250];
         AmountAdjustFactor: Decimal;
-        DateAdjustExpression: DateFormula;
         GLBudgetEntryNo: Integer;
         GlobalDim1Code: Code[20];
         GlobalDim2Code: Code[20];
@@ -335,6 +323,18 @@ report 96 "Copy G/L Budget"
         OldPostingDescription: Text[100];
         OldBUCode: Code[20];
         WindowUpdateDateTime: DateTime;
+
+        Text001: Label 'Dimensions';
+        Text002: Label 'You must specify a budget name to copy from.';
+        Text003: Label 'You must specify a date interval to copy from.';
+        Text004: Label 'You must specify a budget name to copy to.';
+        Text005: Label 'Do you want to create G/L Budget Name %1?';
+        Text006: Label 'Do you want to start the copy?';
+        Text007: Label 'Copying budget...\\';
+        Text008: Label 'G/L Account No. #1####################\';
+        Text009: Label 'Posting Date    #2######';
+        Text010: Label 'Budget has been successfully copied.';
+        Text011: Label 'You can define only one G/L Account.';
 
     local procedure ProcessRecord(GLAccNo: Code[20]; BUCode: Code[20]; PostingDate: Date; PostingDescription: Text[100]; DimSetID: Integer; Amount: Decimal)
     var
@@ -372,7 +372,7 @@ report 96 "Copy G/L Budget"
             OldPostingDate := NewDate;
             OldBUCode := BUCode;
             OldPostingDescription := PostingDescription;
-            InsertGLBudgetEntry;
+            InsertGLBudgetEntry();
         end;
 
         NewDimSetID := DimSetID;
@@ -414,7 +414,7 @@ report 96 "Copy G/L Budget"
     var
         Sign: Decimal;
     begin
-        if TempGLBudgetEntry.Find('-') then begin
+        if TempGLBudgetEntry.Find('-') then
             repeat
                 if TempGLBudgetEntry.Amount <> 0 then begin
                     ToGLBudgetEntry := TempGLBudgetEntry;
@@ -451,7 +451,7 @@ report 96 "Copy G/L Budget"
                     end;
                     DimSetEntry.Reset();
                     DimSetEntry.SetRange("Dimension Set ID", TempGLBudgetEntry."Dimension Set ID");
-                    if DimSetEntry.Find('-') then begin
+                    if DimSetEntry.Find('-') then
                         repeat
                             if DimSetEntry."Dimension Code" = GlobalDim1Code then
                                 ToGLBudgetEntry."Global Dimension 1 Code" := DimSetEntry."Dimension Value Code";
@@ -466,12 +466,12 @@ report 96 "Copy G/L Budget"
                             if DimSetEntry."Dimension Code" = BudgetDim4Code then
                                 ToGLBudgetEntry."Budget Dimension 4 Code" := DimSetEntry."Dimension Value Code";
                         until DimSetEntry.Next() = 0;
-                    end;
+
                     if ToGLBudgetEntry.Amount <> 0 then
                         ToGLBudgetEntry.Insert();
                 end;
             until TempGLBudgetEntry.Next() = 0;
-        end;
+
         TempGLBudgetEntry.Reset();
         TempGLBudgetEntry.DeleteAll();
     end;
@@ -517,9 +517,9 @@ report 96 "Copy G/L Budget"
                     if PostingDate <> PrevPostingDate then begin
                         PrevPostingDate := PostingDate;
                         AccountingPeriod.SetRange("Starting Date", 0D, PostingDate);
-                        if AccountingPeriod.FindLast() then begin
+                        if AccountingPeriod.FindLast() then
                             PrevCalculatedPostingDate := AccountingPeriod."Starting Date"
-                        end else
+                        else
                             PrevCalculatedPostingDate := PostingDate;
                     end;
                     PostingDate := PrevCalculatedPostingDate;
@@ -534,10 +534,10 @@ report 96 "Copy G/L Budget"
     begin
         with TempDimBuf2 do begin
             DeleteAll(); // Necessary because of C/SIDE error
-            Init;
-            Insert;
+            Init();
+            Insert();
             SetFilter("Dimension Code", TheFilter);
-            exit(FindFirst);
+            exit(FindFirst());
         end;
     end;
 

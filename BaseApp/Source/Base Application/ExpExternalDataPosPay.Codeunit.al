@@ -19,7 +19,7 @@ codeunit 1709 "Exp. External Data Pos. Pay"
         ExportFileName: Text;
     begin
         DataExch.CalcFields("File Content");
-        if not DataExch."File Content".HasValue then
+        if not DataExch."File Content".HasValue() then
             Error(ExternalContentErr, DataExch.FieldCaption("File Content"));
 
         TempBlob.FromRecord(DataExch, DataExch.FieldNo("File Content"));

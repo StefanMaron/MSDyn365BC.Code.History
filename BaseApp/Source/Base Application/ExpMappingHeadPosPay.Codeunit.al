@@ -34,7 +34,7 @@ codeunit 1703 "Exp. Mapping Head Pos. Pay"
                 end;
             end;
         end;
-        Window.Close;
+        Window.Close();
     end;
 
     var

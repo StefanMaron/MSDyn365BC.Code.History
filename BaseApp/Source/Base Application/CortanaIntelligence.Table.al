@@ -4,7 +4,8 @@ table 851 "Cortana Intelligence"
     ObsoleteState = Removed;
     ObsoleteReason = 'Renamed to Cash Flow Azure AI Buffer';
     ObsoleteTag = '15.0';
-
+    ReplicateData = false;
+    
     fields
     {
         field(1;"Group Id";Text[100])

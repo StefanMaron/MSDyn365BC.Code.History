@@ -12,7 +12,7 @@ codeunit 5884 "Phys. Invt. Order-Post"
     trigger OnRun()
     begin
         PhysInvtOrderHeader.Copy(Rec);
-        Code;
+        Code();
         Rec := PhysInvtOrderHeader;
 
         OnAfterOnRun(Rec, PstdPhysInvtOrderHdr);
@@ -25,7 +25,6 @@ codeunit 5884 "Phys. Invt. Order-Post"
         LineDimCombBlockedErr: Label 'The combination of dimensions used in  phys. inventory order %1, line no. %2 is blocked. %3.', Comment = '%1 = Order No. %2 = line no. %3 = error message';
         InvalidDimErr: Label 'The dimensions used in phys. inventory order %1, line no. %2 are invalid. %3.', Comment = '%1 = Order No. %2 = line no. %3 = error message';
         DifferenceErr: Label 'There is a difference between the values of the fields %1, %2 and %3. \Identified values in the line: %4 %5 %6 %7.', Comment = '%1,%2,%3 - quantities, %4 = text';
-        NothingToPostErr: Label 'There is nothing to post.';
         CopyFromToMsg: Label '%1 %2 -> %3 %4', Comment = '%1,%2 = table captions, %2,%4 = Order No.';
         PhysInvtOrderHeader: Record "Phys. Invt. Order Header";
         PhysInvtOrderLine: Record "Phys. Invt. Order Line";
@@ -45,6 +44,7 @@ codeunit 5884 "Phys. Invt. Order-Post"
         DimManagement: Codeunit DimensionManagement;
         PhysInvtTrackingMgt: Codeunit "Phys. Invt. Tracking Mgt.";
         NoSeriesMgt: Codeunit NoSeriesManagement;
+        DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
         ItemJnlPostLine: Codeunit "Item Jnl.-Post Line";
         Window: Dialog;
         ErrorText: Text[250];
@@ -73,7 +73,7 @@ codeunit 5884 "Phys. Invt. Order-Post"
                 Window.Open(
                 '#1################################\\' +
                 CheckingLinesMsg + PostingLinesMsg);
-                Window.Update(1, StrSubstNo('%1 %2', TableCaption, "No."));
+                Window.Update(1, StrSubstNo('%1 %2', TableCaption(), "No."));
             end;
 
             LockTable();
@@ -90,12 +90,12 @@ codeunit 5884 "Phys. Invt. Order-Post"
             end;
 
             if ModifyHeader then begin
-                Modify;
+                Modify();
                 if not SuppressCommit then
                     Commit();
             end;
 
-            CheckDim;
+            CheckDim();
 
             // Check phys. inventory order lines
             LinesToPost := false;
@@ -121,15 +121,15 @@ codeunit 5884 "Phys. Invt. Order-Post"
                         if (PhysInvtOrderLine."Phys Invt Counting Period Type" <> PhysInvtOrderLine."Phys Invt Counting Period Type"::" ") and
                            (PhysInvtOrderLine."Phys Invt Counting Period Code" <> '')
                         then begin
-                            PhysInvtCountMgt.InitTempItemSKUList;
+                            PhysInvtCountMgt.InitTempItemSKUList();
                             PhysInvtCountMgt.AddToTempItemSKUList(PhysInvtOrderLine."Item No.", PhysInvtOrderLine."Location Code",
                               PhysInvtOrderLine."Variant Code", PhysInvtOrderLine."Phys Invt Counting Period Type");
-                            PhysInvtCountMgt.UpdateItemSKUListPhysInvtCount;
+                            PhysInvtCountMgt.UpdateItemSKUListPhysInvtCount();
                         end;
                     end;
                 until PhysInvtOrderLine.Next() = 0;
             if not LinesToPost then
-                Error(NothingToPostErr);
+                Error(DocumentErrorsMgt.GetNothingToPostErrorMsg());
 
             SourceCodeSetup.Get();
             SourceCode := SourceCodeSetup."Phys. Invt. Orders";
@@ -146,12 +146,12 @@ codeunit 5884 "Phys. Invt. Order-Post"
             PhysInvtOrderLine.SetRange("Entry Type", PhysInvtOrderLine."Entry Type"::"Negative Adjmt.");
             if PhysInvtOrderLine.FindSet() then
                 repeat
-                    PostPhysInventoryOrderLine;
+                    PostPhysInventoryOrderLine();
                 until PhysInvtOrderLine.Next() = 0;
             PhysInvtOrderLine.SetFilter("Entry Type", '<>%1', PhysInvtOrderLine."Entry Type"::"Negative Adjmt.");
             if PhysInvtOrderLine.FindSet() then
                 repeat
-                    PostPhysInventoryOrderLine;
+                    PostPhysInventoryOrderLine();
                 until PhysInvtOrderLine.Next() = 0;
 
             // Insert posted expected phys. invt. tracking Lines
@@ -235,13 +235,13 @@ codeunit 5884 "Phys. Invt. Order-Post"
             if not DimManagement.CheckDimIDComb(PhysInvtOrderHeader."Dimension Set ID") then
                 Error(
                   HeaderDimCombBlockedErr,
-                  PhysInvtOrderHeader."No.", DimManagement.GetDimCombErr);
+                  PhysInvtOrderHeader."No.", DimManagement.GetDimCombErr());
 
         if PhysInvtOrderLine."Line No." <> 0 then
             if not DimManagement.CheckDimIDComb(PhysInvtOrderLine."Dimension Set ID") then
                 Error(
                   LineDimCombBlockedErr,
-                  PhysInvtOrderHeader."No.", PhysInvtOrderLine."Line No.", DimManagement.GetDimCombErr);
+                  PhysInvtOrderHeader."No.", PhysInvtOrderLine."Line No.", DimManagement.GetDimCombErr());
     end;
 
     local procedure CheckDimValuePosting(PhysInvtOrderLine: Record "Phys. Invt. Order Line")
@@ -254,7 +254,7 @@ codeunit 5884 "Phys. Invt. Order-Post"
         if not DimManagement.CheckDimValuePosting(TableIDArr, NumberArr, PhysInvtOrderLine."Dimension Set ID") then
             Error(
               InvalidDimErr,
-              PhysInvtOrderHeader."No.", PhysInvtOrderLine."Line No.", DimManagement.GetDimValuePostingErr);
+              PhysInvtOrderHeader."No.", PhysInvtOrderLine."Line No.", DimManagement.GetDimValuePostingErr());
     end;
 
     local procedure PostItemJnlLine(Positive: Boolean; Qty: Decimal)
@@ -321,8 +321,8 @@ codeunit 5884 "Phys. Invt. Order-Post"
                 Window.Update(
                     1,
                     StrSubstNo(
-                        CopyFromToMsg, PhysInvtOrderHeader.TableCaption, PhysInvtOrderHeader."No.",
-                        PstdPhysInvtOrderHdr.TableCaption, PstdPhysInvtOrderHdr."No."));
+                        CopyFromToMsg, PhysInvtOrderHeader.TableCaption(), PhysInvtOrderHeader."No.",
+                        PstdPhysInvtOrderHdr.TableCaption(), PstdPhysInvtOrderHdr."No."));
         end;
         PstdPhysInvtOrderHdr."Source Code" := SourceCode;
         PstdPhysInvtOrderHdr."User ID" := UserId;
@@ -404,7 +404,7 @@ codeunit 5884 "Phys. Invt. Order-Post"
         end;
 
         TempTrackingSpecification.Reset();
-        if ItemJnlPostLine.CollectTrackingSpecification(TempTrackingSpecification) then begin
+        if ItemJnlPostLine.CollectTrackingSpecification(TempTrackingSpecification) then
             if TempTrackingSpecification.Find('-') then
                 repeat
                     if WhsePosting then begin
@@ -431,7 +431,7 @@ codeunit 5884 "Phys. Invt. Order-Post"
                     OnInsertEntryRelationOnBeforeInsert(ItemEntryRelation, TempTrackingSpecification, PstdPhysInvtOrderLine);
                     ItemEntryRelation.Insert();
                 until TempTrackingSpecification.Next() = 0;
-        end;
+
         TempTrackingSpecification.DeleteAll();
     end;
 
@@ -505,12 +505,12 @@ codeunit 5884 "Phys. Invt. Order-Post"
         IsHandled := false;
         OnPostPhysInventoryOrderLineOnAfterInsertPostedLine(PhysInvtOrderLine, IsHandled);
         if not IsHandled then
-            if not PhysInvtOrderLine.EmptyLine then begin
+            if not PhysInvtOrderLine.EmptyLine() then begin
                 if (PhysInvtOrderLine."Location Code" = '') or
                    ((PhysInvtOrderLine."Pos. Qty. (Base)" = 0) and (PhysInvtOrderLine."Neg. Qty. (Base)" = 0))
-                then begin
+                then
                     WhsePosting := false
-                end else begin
+                else begin
                     Location.Get(PhysInvtOrderLine."Location Code");
                     ChecLocationDirectedPutAwayAndPick();
                     WhsePosting := Location."Bin Mandatory";
@@ -524,7 +524,7 @@ codeunit 5884 "Phys. Invt. Order-Post"
                     PostItemJnlLine(
                       true,// Positive
                       PhysInvtOrderLine."Pos. Qty. (Base)");
-                    InsertEntryRelation;
+                    InsertEntryRelation();
                     if WhsePosting then
                         PostWhseJnlLine(
                           ItemJnlLine, OriginalQuantityBase, OriginalQuantityBase, true); // Positive
@@ -535,7 +535,7 @@ codeunit 5884 "Phys. Invt. Order-Post"
                     PostItemJnlLine(
                       false,// Negative
                       PhysInvtOrderLine."Neg. Qty. (Base)");
-                    InsertEntryRelation;
+                    InsertEntryRelation();
                     if WhsePosting then
                         PostWhseJnlLine(
                           ItemJnlLine, OriginalQuantityBase, OriginalQuantityBase, false); // Negative

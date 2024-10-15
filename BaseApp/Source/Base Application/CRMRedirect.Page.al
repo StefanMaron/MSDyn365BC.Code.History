@@ -22,7 +22,7 @@ page 5329 "CRM Redirect"
         CRMID: Guid;
         CRMEntityTypeName: Text;
     begin
-        CRMInfo := ExtractCRMInfoFromFilters;
+        CRMInfo := ExtractCRMInfoFromFilters();
         ExtractPartsFromCRMInfo(CRMInfo, CRMID, CRMEntityTypeName);
 
         // Open the page of the coupled NAV record, or if it is not coupled, offer to create
@@ -32,25 +32,26 @@ page 5329 "CRM Redirect"
             Error(NoCoupledEntityErr);
         ;
 
-        CurrPage.Close;
+        CurrPage.Close();
     end;
 
     trigger OnOpenPage()
     var
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
     begin
-        if not CRMIntegrationManagement.IsCRMIntegrationEnabled and not CRMIntegrationManagement.IsCDSIntegrationEnabled() then
-            Error(CRMIntegrationNotEnabledErr, CRMProductName.SHORT, CRMProductName.CDSServiceName());
+        if not CRMIntegrationManagement.IsCRMIntegrationEnabled() and not CRMIntegrationManagement.IsCDSIntegrationEnabled() then
+            Error(CRMIntegrationNotEnabledErr, CRMProductName.SHORT(), CRMProductName.CDSServiceName());
     end;
 
     var
+        CRMProductName: Codeunit "CRM Product Name";
+
         FilterRegexTok: Label '%1: ([A-Za-z0-9\-].+)', Locked = true;
         CRMInfoRegexTok: Label 'CRMID:(\{[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\});CRMType:([a-z0-9_ \/]*)\z', Locked = true;
         InvalidFilterErr: Label 'The URL contains an incorrectly formatted filter string and cannot be processed.';
         InvalidCRMIDErr: Label 'The %2 ID in the URL is not correctly formatted: %1.', Comment = '%1 = Whatever was passed as Dataverse ID in the filter, but clearly not an actual Dataverse ID. %2 = Dataverse service name';
         CRMIntegrationNotEnabledErr: Label 'Integration with %1 or %2 is not enabled.', Comment = '%1 = CRM product name. %2 = Dataverse product name';
         NoCoupledEntityErr: Label 'Coupled record not found. Check integration synchronization errors if you have turned Synch. Only Coupled Records off.';
-        CRMProductName: Codeunit "CRM Product Name";
 
     procedure ExtractCRMInfoFromFilters() CRMInfo: Text
     var
@@ -60,7 +61,7 @@ page 5329 "CRM Redirect"
         GroupHelper: DotNet Group;
         FilterText: Text;
     begin
-        FilterText := GetFilters;
+        FilterText := GetFilters();
         RegexHelper := RegexHelper.Regex(StrSubstNo(FilterRegexTok, FieldCaption(Filter)));
         MatchHelper := RegexHelper.Match(FilterText);
         if not MatchHelper.Success then

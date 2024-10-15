@@ -461,7 +461,7 @@ codeunit 142006 "Export Business Data"
         TableFilterText: Text;
     begin
         // Bug ID 322904
-        TableFilterText := CVLedgEntryBuffer.TableName + ': ' + CVLedgEntryBuffer.FieldName("Posting Date") + '=' + Format(WorkDate);
+        TableFilterText := CVLedgEntryBuffer.TableName + ': ' + CVLedgEntryBuffer.FieldName("Posting Date") + '=' + Format(WorkDate());
         SetupParentTableForExport(DataExportRecord, DataExportRecordSource);
 
         DataExportRecordSource.Validate("Period Field No.", 0);
@@ -488,15 +488,15 @@ codeunit 142006 "Export Business Data"
         InitializeFlowFieldScenario(DataExportRecord, DataExportRecordSource, Customer, DateFilterHandling::Period);
         SetTableFilter(DataExportRecord, CustomerTableNo, FormatCustTableFilter(Customer.GetFilter("No.")));
         // [GIVEN] 'Date Filter Handling' on the table is 'End Date Only'
-        DataExportRecordSource.Find;
+        DataExportRecordSource.Find();
         DataExportRecordSource."Date Filter Handling" := DataExportRecordSource."Date Filter Handling"::"End Date Only";
         DataExportRecordSource.Modify();
 
         // [WHEN] Export record with a flow filter for a period after WORKDATE
-        FolderName := ExportBusinessDataSetPeriod(DataExportRecord, CalcDate('<1D>', WorkDate), CalcDate('<1M>', WorkDate));
+        FolderName := ExportBusinessDataSetPeriod(DataExportRecord, CalcDate('<1D>', WorkDate()), CalcDate('<1M>', WorkDate()));
 
         // [THEN] Two customers with positive balance and two with zero balance have been exported
-        Customer.SetRange("Date Filter", CalcDate('<1D>', WorkDate), CalcDate('<1M>', WorkDate));
+        Customer.SetRange("Date Filter", CalcDate('<1D>', WorkDate()), CalcDate('<1M>', WorkDate()));
         VerifyBusinessDataExport(FolderName, DataExportRecordSource."Export File Name", Customer);
     end;
 
@@ -518,7 +518,7 @@ codeunit 142006 "Export Business Data"
         SetTableFilter(DataExportRecord, CustomerTableNo, FormatCustTableFilter(Customer.GetFilter("No.")));
 
         // Exercise: Export record with a flow filter
-        FolderName := ExportBusinessDataSetPeriod(DataExportRecord, CalcDate('<-1M>', WorkDate), WorkDate);
+        FolderName := ExportBusinessDataSetPeriod(DataExportRecord, CalcDate('<-1M>', WorkDate()), WorkDate());
 
         // Verify: Two customers having positive balance at workdatedate have been exported
         VerifyBusinessDataExport(FolderName, DataExportRecordSource."Export File Name", Customer);
@@ -542,7 +542,7 @@ codeunit 142006 "Export Business Data"
         SetTableFilter(DataExportRecord, CustomerTableNo, FormatCustTableFilter(Customer.GetFilter("No.")));
 
         // Exercise: Export record with a flow filter
-        FolderName := ExportBusinessDataSetPeriod(DataExportRecord, CalcDate('<-1M>', WorkDate), WorkDate);
+        FolderName := ExportBusinessDataSetPeriod(DataExportRecord, CalcDate('<-1M>', WorkDate()), WorkDate());
 
         // Verify: Two customers having positive balance at workdatedate have been exported
         VerifyBusinessDataExport(FolderName, DataExportRecordSource."Export File Name", Customer);
@@ -566,7 +566,7 @@ codeunit 142006 "Export Business Data"
         SetTableFilter(DataExportRecord, CustomerTableNo, FormatCustTableFilter(Customer.GetFilter("No.")));
 
         // Exercise: Export record with a flow filter
-        FolderName := ExportBusinessDataSetPeriod(DataExportRecord, CalcDate('<-1M>', WorkDate), WorkDate);
+        FolderName := ExportBusinessDataSetPeriod(DataExportRecord, CalcDate('<-1M>', WorkDate()), WorkDate());
 
         // Verify: Two customers having positive balance at workdatedate have been exported
         VerifyBusinessDataExport(FolderName, DataExportRecordSource."Export File Name", Customer);
@@ -684,9 +684,9 @@ codeunit 142006 "Export Business Data"
         // Verify exported Period in Log file.
         PrepareEmptyBusinessDataToExport(DataExportRecord);
 
-        FolderName := ExportBusinessDataSetPeriod(DataExportRecord, CalcDate('<-1M>', WorkDate), WorkDate);
+        FolderName := ExportBusinessDataSetPeriod(DataExportRecord, CalcDate('<-1M>', WorkDate()), WorkDate());
 
-        VerifyPeriodInLogFile(FolderName, CalcDate('<-1M>', WorkDate), WorkDate);
+        VerifyPeriodInLogFile(FolderName, CalcDate('<-1M>', WorkDate()), WorkDate());
     end;
 
     [Test]
@@ -853,11 +853,11 @@ codeunit 142006 "Export Business Data"
         TableFilterText := StrSubstNo('%1: %2=<>0', Customer.TableName, Customer.FieldName("Net Change"));
         SetTableFilter(DataExportRecord, CustomerTableNo, TableFilterText);
 
-        FolderName := ExportBusinessDataSetPeriod(DataExportRecord, CalcDate('<-6M>', WorkDate), WorkDate);
+        FolderName := ExportBusinessDataSetPeriod(DataExportRecord, CalcDate('<-6M>', WorkDate()), WorkDate());
 
         VerifyCustNetChangeTwoValuesExport(
           FolderName, DataExportRecordSource."Export File Name",
-          CalcDate('<-6M>', WorkDate), WorkDate);
+          CalcDate('<-6M>', WorkDate()), WorkDate());
     end;
 
     [Test]
@@ -901,7 +901,7 @@ codeunit 142006 "Export Business Data"
         SetTableFilter(DataExportRecord, CustomerTableNo, FormatCustTableFilter(Customer.GetFilter("No.")));
 
         // Exercise: Export record with the date filter field no.
-        FolderName := ExportBusinessDataSetPeriod(DataExportRecord, CalcDate('<-1M>', WorkDate), WorkDate);
+        FolderName := ExportBusinessDataSetPeriod(DataExportRecord, CalcDate('<-1M>', WorkDate()), WorkDate());
 
         // Verify: Customers have been exported, Date Filter Field No. does not affect data filtering
         VerifyBusinessDataExport(FolderName, DataExportRecordSource."Export File Name", Customer);
@@ -1233,7 +1233,7 @@ codeunit 142006 "Export Business Data"
         // [WHEN] Indenting record Y.
         DataExportRecordSource.Reset();
         DataExportRecordSource.FindSet();
-        DataExportRecordSource.Next;
+        DataExportRecordSource.Next();
         DataExportRecordSource.Validate(Indentation, 1);
 
         // [THEN] Record Y and record Z are both indented. Y.Indentation is 1, Z.Indentation is 2.
@@ -1297,7 +1297,7 @@ codeunit 142006 "Export Business Data"
         // [WHEN] Un-indent record Y.
         DataExportRecordSource.Reset();
         DataExportRecordSource.FindSet();
-        DataExportRecordSource.Next;
+        DataExportRecordSource.Next();
         DataExportRecordSource.Validate(Indentation, DataExportRecordSource.Indentation - 1);
 
         // [THEN] Both record Y and Z are un-indented: Y.Indentation is 0, Z.Indentationis 1.
@@ -1928,7 +1928,7 @@ codeunit 142006 "Export Business Data"
         with DataExportRecordSource do begin
             FindRecordSource(DataExportRecord, TableID, DataExportRecordSource);
             Validate("Key No.", FirstKeyWithCustNo);
-            Modify;
+            Modify();
         end;
     end;
 
@@ -1945,7 +1945,7 @@ codeunit 142006 "Export Business Data"
             FindRecordSource(DataExportRecord, TableID, DataExportRecordSource);
             Evaluate("Table Filter", TableFilterText);
             Validate("Table Filter");
-            Modify;
+            Modify();
         end;
     end;
 
@@ -2025,7 +2025,7 @@ codeunit 142006 "Export Business Data"
             "Data Export Code" := GetDataExportCode;
             "Data Exp. Rec. Type Code" := GetExpRecTypeCode;
             Description := "Data Export Code" + "Data Exp. Rec. Type Code";
-            Insert;
+            Insert();
             CreateDummyDTDFileBlob(DataExportRecord);
         end;
     end;
@@ -2037,7 +2037,7 @@ codeunit 142006 "Export Business Data"
         with DataExport do begin
             Code := LibraryUtility.GenerateGUID();
             Description := Code;
-            Insert;
+            Insert();
             exit(Code);
         end;
     end;
@@ -2049,7 +2049,7 @@ codeunit 142006 "Export Business Data"
         with DataExportRecType do begin
             Code := LibraryUtility.GenerateGUID();
             Description := Code;
-            Insert;
+            Insert();
             exit(Code);
         end;
     end;
@@ -2075,7 +2075,7 @@ codeunit 142006 "Export Business Data"
     local procedure AddRecordSource(DataExportRecord: Record "Data Export Record Definition"; TableNo: Integer; var DataExportRecordSource: Record "Data Export Record Source")
     begin
         with DataExportRecordSource do begin
-            Init;
+            Init();
             "Data Export Code" := DataExportRecord."Data Export Code";
             "Data Exp. Rec. Type Code" := DataExportRecord."Data Exp. Rec. Type Code";
             "Line No." := "Line No." + 10000;
@@ -2101,7 +2101,7 @@ codeunit 142006 "Export Business Data"
             FindFirst();
 
             "Date Filter Handling" := DateFilterHandling;
-            Modify;
+            Modify();
         end;
     end;
 
@@ -2111,7 +2111,7 @@ codeunit 142006 "Export Business Data"
     begin
         for Counter := 1 to NoOfRecords do
             with DataExportRecordSource do begin
-                Init;
+                Init();
                 "Data Export Code" := DataExportRecord."Data Export Code";
                 "Data Exp. Rec. Type Code" := DataExportRecord."Data Exp. Rec. Type Code";
                 "Line No." := "Line No." + 10000;
@@ -2141,7 +2141,7 @@ codeunit 142006 "Export Business Data"
     begin
         with DataExportRecordSource do begin
             "Period Field No." := PeriodFieldNo;
-            Modify;
+            Modify();
         end;
     end;
 
@@ -2351,13 +2351,13 @@ codeunit 142006 "Export Business Data"
         RecRef: RecordRef;
     begin
         with GLEntry do begin
-            Init;
+            Init();
             RecRef.GetTable(GLEntry);
             "Entry No." := LibraryUtility.GetNewLineNo(RecRef, FieldNo("Entry No."));
             "G/L Account No." := AccountNo;
             "Posting Date" := PostingDate;
             Amount := GLAmount;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -2385,19 +2385,19 @@ codeunit 142006 "Export Business Data"
         with CVLedgEntryBuffer do begin
             RecRef.GetTable(CVLedgEntryBuffer);
             "Entry No." := LibraryUtility.GetNewLineNo(RecRef, FieldNo("Entry No."));
-            "Posting Date" := WorkDate;
+            "Posting Date" := WorkDate();
             "Document Type" := "Document Type"::Invoice;
             "CV No." := VendorNo;
-            Insert;
+            Insert();
         end;
         with DtldCVLedgEntryBuffer do begin
             RecRef.GetTable(DtldCVLedgEntryBuffer);
             "Entry No." := LibraryUtility.GetNewLineNo(RecRef, FieldNo("Entry No."));
             "CV Ledger Entry No." := CVLedgEntryBuffer."Entry No.";
-            "Posting Date" := WorkDate;
+            "Posting Date" := WorkDate();
             "Entry Type" += 1;
             "CV No." := VendorNo;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -2462,7 +2462,7 @@ codeunit 142006 "Export Business Data"
     local procedure DeleteRecordSource(var DataExportRecordSource: Record "Data Export Record Source")
     begin
         with DataExportRecordSource do begin
-            Find;
+            Find();
             Delete(true);
         end;
     end;
@@ -2507,7 +2507,7 @@ codeunit 142006 "Export Business Data"
             "From Field No." := ParentFieldNo;
             "To Table No." := DataExportRecordSource."Table No.";
             "To Field No." := ChildFieldNo;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -2534,9 +2534,9 @@ codeunit 142006 "Export Business Data"
     begin
         with CVLedgEntryBuffer do begin
             "Entry No." := 1;
-            "Posting Date" := WorkDate;
+            "Posting Date" := WorkDate();
             "Document Type" := "Document Type"::Invoice;
-            Insert;
+            Insert();
 
             exit("Entry No.");
         end;
@@ -2554,9 +2554,9 @@ codeunit 142006 "Export Business Data"
             for i := 1 to NoOfEntries do begin
                 "Entry No." += 1;
                 "CV Ledger Entry No." := ParentEntryNo;
-                "Posting Date" := WorkDate;
+                "Posting Date" := WorkDate();
                 "Entry Type" += 1;
-                Insert;
+                Insert();
             end;
 
             exit("Entry No.");
@@ -2584,7 +2584,7 @@ codeunit 142006 "Export Business Data"
                     NewDtldCVLedgEntryBuffer."CV Ledger Entry No." += 1;
                     NewDtldCVLedgEntryBuffer.Insert();
                     NewChildEntryNo += 1;
-                until DtldCVLedgEntryBuffer.Next = 0;
+                until DtldCVLedgEntryBuffer.Next() = 0;
         end;
     end;
 
@@ -2619,7 +2619,7 @@ codeunit 142006 "Export Business Data"
     local procedure FindChildEntriesToExport(var DtldCVLedgEntryBuffer: Record "Detailed CV Ledg. Entry Buffer"; var TempEntryNo: Record "Integer" temporary)
     begin
         with DtldCVLedgEntryBuffer do begin
-            SetRange("Posting Date", WorkDate);
+            SetRange("Posting Date", WorkDate());
             if FindSet() then
                 repeat
                     TempEntryNo.Number := "Entry No.";
@@ -2723,7 +2723,7 @@ codeunit 142006 "Export Business Data"
             Assert.AreEqual(TempEntryNo.Number, ActualEntryNo, WrongEntryNoExportedErr);
             if FirstLineOnly then
                 exit;
-            TempEntryNo.Next;
+            TempEntryNo.Next();
         end;
     end;
 
@@ -2870,7 +2870,7 @@ codeunit 142006 "Export Business Data"
 
     local procedure ExportBusinessData(DataExportRecord: Record "Data Export Record Definition"): Text
     begin
-        exit(ExportBusinessDataSetPeriod(DataExportRecord, WorkDate, WorkDate));
+        exit(ExportBusinessDataSetPeriod(DataExportRecord, WorkDate(), WorkDate()));
     end;
 
     local procedure ExportBusinessDataSetPeriod(var DataExportRecord: Record "Data Export Record Definition"; StartDate: Date; EndDate: Date): Text
@@ -2910,7 +2910,7 @@ codeunit 142006 "Export Business Data"
     var
         FilePathName: Text;
     begin
-        FilePathName := TemporaryPath + Format(CreateGuid);
+        FilePathName := TemporaryPath + Format(CreateGuid());
         CreateDirectory(FilePathName);
         exit(FilePathName);
     end;
@@ -2937,9 +2937,9 @@ codeunit 142006 "Export Business Data"
         end;
 
         if DateFilterHandling = DateFilterHandling::"Start Date Only" then
-            BalanceDate := CalcDate('<-1M>', WorkDate)
+            BalanceDate := CalcDate('<-1M>', WorkDate())
         else
-            BalanceDate := WorkDate;
+            BalanceDate := WorkDate();
 
         // Two of the customers must have positive balance in the specified period, 2 - outside of period dates
         for i := 2 to 5 do
@@ -2969,11 +2969,11 @@ codeunit 142006 "Export Business Data"
             else
                 NextEntryNo := 1;
 
-            Init;
+            Init();
             "Entry No." := NextEntryNo;
             "Customer No." := CustNo;
             "Posting Date" := PostingDate;
-            Insert;
+            Insert();
         end;
 
         with DetCustLedgEntry do begin
@@ -2982,13 +2982,13 @@ codeunit 142006 "Export Business Data"
             else
                 NextEntryNo := 1;
 
-            Init;
+            Init();
             "Entry No." := NextEntryNo;
             "Customer No." := CustNo;
             "Posting Date" := PostingDate;
             Amount := LibraryRandom.RandDec(10000, 2);
             "Cust. Ledger Entry No." := CustLedgEntry."Entry No.";
-            Insert;
+            Insert();
         end;
     end;
 
@@ -3064,7 +3064,7 @@ codeunit 142006 "Export Business Data"
         CompanyInformation2: Record "Company Information";
     begin
         with CompanyInformation2 do begin
-            Get;
+            Get();
             Name := CompanyInformation.Name;
             "Name 2" := CompanyInformation."Name 2";
             Address := CompanyInformation.Address;
@@ -3081,7 +3081,7 @@ codeunit 142006 "Export Business Data"
             "Custom System Indicator Text" := CompanyInformation."Custom System Indicator Text";
             "Tax Office Name" := CompanyInformation."Tax Office Name";
             "Tax Office Name 2" := CompanyInformation."Tax Office Name 2";
-            Modify;
+            Modify();
         end;
     end;
 
@@ -3125,7 +3125,7 @@ codeunit 142006 "Export Business Data"
             Customer.Get(RecRef.Field(1));
             Assert.AreEqual(
               CalcNetChange(Customer), FieldRef.Value, FlowFilterRecExportErr)
-        until RecRef.Next = 0;
+        until RecRef.Next() = 0;
     end;
 
     local procedure VerifyBusinessDataExport(ZipFilePath: Text; FileName: Text; var Customer: Record Customer)
@@ -3139,7 +3139,7 @@ codeunit 142006 "Export Business Data"
             Customer.CalcFields("Net Change");
             Assert.AreEqual(
               Customer."Net Change", TempCustBuffer.Amount, FlowFilterRecExportErr)
-        until TempCustBuffer.Next = 0;
+        until TempCustBuffer.Next() = 0;
     end;
 
     local procedure VerifyFileExists(ExportPath: Text; ExportedFileName: Text)
@@ -3183,7 +3183,7 @@ codeunit 142006 "Export Business Data"
             Customer.Get(TempCustBuffer."G/L Account No.");
             Assert.AreEqual(
               CalcNetChangeWithDim(Customer), TempCustBuffer.Amount, FlowFilterRecExportErr)
-        until TempCustBuffer.Next = 0;
+        until TempCustBuffer.Next() = 0;
     end;
 
     local procedure VerifyCustNetChangeTwoValuesExport(ZipFilePath: Text; FileName: Text; DateFrom: Date; DateTo: Date)
@@ -3317,8 +3317,8 @@ codeunit 142006 "Export Business Data"
                 repeat
                     TempCust.SetRange("No.", Format(CustLedgEntry."Entry No."));
                     Assert.IsFalse(TempCust.IsEmpty, IncorrectNoOfRelatedRecsErr);
-                until CustLedgEntry.Next = 0;
-        until Customer.Next = 0;
+                until CustLedgEntry.Next() = 0;
+        until Customer.Next() = 0;
 
         CustLedgEntry.SetFilter("Customer No.", Customer.GetFilter("No."));
         TempCust.Reset();
@@ -3326,7 +3326,7 @@ codeunit 142006 "Export Business Data"
         repeat
             CustLedgEntry.SetFilter("Entry No.", TempCust."No.");
             Assert.IsFalse(CustLedgEntry.IsEmpty, IncorrectNoOfRelatedRecsErr);
-        until TempCust.Next = 0;
+        until TempCust.Next() = 0;
     end;
 
     local procedure VerifyRecFieldsDeleted(var DataExportRecord: Record "Data Export Record Definition"; TableNo: Integer)
@@ -3364,7 +3364,7 @@ codeunit 142006 "Export Business Data"
     local procedure UpdateValuesInCompanyInformation(var CompanyInformation: Record "Company Information")
     begin
         with CompanyInformation do begin
-            Get;
+            Get();
             Name := GenerateRandomCode(50);
             "Name 2" := GenerateRandomCode(50);
             Address := GenerateRandomCode(50);
@@ -3381,7 +3381,7 @@ codeunit 142006 "Export Business Data"
             "Custom System Indicator Text" := GenerateRandomCode(240);
             "Tax Office Name" := GenerateRandomCode(50);
             "Tax Office Name 2" := GenerateRandomCode(50);
-            Modify;
+            Modify();
         end;
     end;
 
@@ -3454,7 +3454,7 @@ codeunit 142006 "Export Business Data"
     begin
         with DataExportRecord do begin
             "DTD File Name" := DefaultDTDFileTxt;
-            Modify;
+            Modify();
         end;
     end;
 
@@ -3487,7 +3487,7 @@ codeunit 142006 "Export Business Data"
             "Line No." := "Line No." + 10000;
             "Field No." := FieldId;
             "Export Field Name" := 'F' + Format("Field No.");
-            Insert;
+            Insert();
         end;
     end;
 

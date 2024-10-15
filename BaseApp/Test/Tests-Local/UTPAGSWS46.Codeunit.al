@@ -41,7 +41,7 @@ codeunit 142072 "UT PAG SWS46"
         // [THEN] Default value of Document Type and Account Type on Page Cash Receipt Journal is Payment and Customer respectively.
         CashReceiptJournal."Document Type".AssertEquals(GenJournalLine."Document Type"::Payment);
         CashReceiptJournal."Document Type".AssertEquals(GenJournalLine."Account Type"::Customer);
-        CashReceiptJournal.Close;
+        CashReceiptJournal.Close();
     end;
 
     [Test]
@@ -53,7 +53,7 @@ codeunit 142072 "UT PAG SWS46"
     begin
         // [FEATURE] [Cash Receipt Journal]
         // [SCENARIO] Age Days on Cash Receipt Journal FactBox is updated according to Posting Date on Customer Ledger Entry.
-        UpdateInfoBoxPaymentJournal(CalcDate('<-CM>', WorkDate), 0D, 0D, 0, FactBoxFieldValue::AgeDays);  // Posting Date of Customer Ledger Entry Less than Payment Journal Posting Date.
+        UpdateInfoBoxPaymentJournal(CalcDate('<-CM>', WorkDate()), 0D, 0D, 0, FactBoxFieldValue::AgeDays);  // Posting Date of Customer Ledger Entry Less than Payment Journal Posting Date.
     end;
 
     [Test]
@@ -65,7 +65,7 @@ codeunit 142072 "UT PAG SWS46"
     begin
         // [FEATURE] [Cash Receipt Journal]
         // [SCENARIO] Payment Discount Days on Cash Receipt Journal FactBox is updated according to Payment Discount Date on Customer Ledger Entry.
-        UpdateInfoBoxPaymentJournal(WorkDate, CalcDate('<+CM>', WorkDate), 0D, 0, FactBoxFieldValue::PaymDiscDays);  // Posting Date - WORKDATE and Payment Discount Date of Customer Ledger Entry greater than Payment Journal Posting Date.
+        UpdateInfoBoxPaymentJournal(WorkDate(), CalcDate('<+CM>', WorkDate()), 0D, 0, FactBoxFieldValue::PaymDiscDays);  // Posting Date - WORKDATE and Payment Discount Date of Customer Ledger Entry greater than Payment Journal Posting Date.
     end;
 
     [Test]
@@ -77,7 +77,7 @@ codeunit 142072 "UT PAG SWS46"
     begin
         // [FEATURE] [Cash Receipt Journal]
         // [SCENARIO] Due Days on Cash Receipt Journal FactBox is updated according to Due Date on Customer Ledger Entry.
-        UpdateInfoBoxCashReceiptJournal(WorkDate, 0D, CalcDate('<+CM>', WorkDate), 0, FactBoxFieldValue::DueDays);  // Posting Date - WORKDATE and Due Date of Customer Ledger Entry greater than Payment Journal Posting Date.
+        UpdateInfoBoxCashReceiptJournal(WorkDate(), 0D, CalcDate('<+CM>', WorkDate()), 0, FactBoxFieldValue::DueDays);  // Posting Date - WORKDATE and Due Date of Customer Ledger Entry greater than Payment Journal Posting Date.
     end;
 
     [Test]
@@ -89,7 +89,7 @@ codeunit 142072 "UT PAG SWS46"
     begin
         // [FEATURE] [Cash Receipt Journal]
         // [SCENARIO] Payment Discount on Cash Receipt Journal FactBox is updated according to Remaining Payment Discount Possible on Customer Ledger Entry.
-        UpdateInfoBoxCashReceiptJournal(WorkDate, 0D, 0D, 1, FactBoxFieldValue::PMTDiscount);  // Posting Date - WORKDATE and Remaining Payment Discount Possible is not zero on Customer Ledger Entry.
+        UpdateInfoBoxCashReceiptJournal(WorkDate(), 0D, 0D, 1, FactBoxFieldValue::PMTDiscount);  // Posting Date - WORKDATE and Remaining Payment Discount Possible is not zero on Customer Ledger Entry.
     end;
 
     [Test]
@@ -114,7 +114,7 @@ codeunit 142072 "UT PAG SWS46"
         // [THEN] Default value of Document Type and Account Type on Page Payment Journal is Payment and Vendor respectively.
         PaymentJournal."Document Type".AssertEquals(GenJournalLine."Document Type"::Payment);
         PaymentJournal."Account Type".AssertEquals(GenJournalLine."Account Type"::Vendor);
-        PaymentJournal.Close;
+        PaymentJournal.Close();
     end;
 
     [Test]
@@ -126,7 +126,7 @@ codeunit 142072 "UT PAG SWS46"
     begin
         // [FEATURE] [Payment Journal]
         // [SCENARIO] Age Days on Payment Journal FactBox is updated according to Posting Date on Vendor Ledger Entry.
-        UpdateInfoBoxPaymentJournal(CalcDate('<-CM>', WorkDate), 0D, 0D, 0, FactBoxFieldValue::AgeDays);  // Posting Date of Vendor Ledger Entry Less than Payment Journal Posting Date.
+        UpdateInfoBoxPaymentJournal(CalcDate('<-CM>', WorkDate()), 0D, 0D, 0, FactBoxFieldValue::AgeDays);  // Posting Date of Vendor Ledger Entry Less than Payment Journal Posting Date.
     end;
 
     [Test]
@@ -138,7 +138,7 @@ codeunit 142072 "UT PAG SWS46"
     begin
         // [FEATURE] [Payment Journal]
         // [SCENARIO] Payment Discount Days on Payment Journal FactBox is updated according to Payment Discount Date on Vendor Ledger Entry.
-        UpdateInfoBoxPaymentJournal(WorkDate, CalcDate('<+CM>', WorkDate), 0D, 0, FactBoxFieldValue::PaymDiscDays);  // Posting Date - WORKDATE and Payment Discount Date of Vendor Ledger Entry greater than Payment Journal Posting Date.
+        UpdateInfoBoxPaymentJournal(WorkDate(), CalcDate('<+CM>', WorkDate()), 0D, 0, FactBoxFieldValue::PaymDiscDays);  // Posting Date - WORKDATE and Payment Discount Date of Vendor Ledger Entry greater than Payment Journal Posting Date.
     end;
 
     [Test]
@@ -150,7 +150,7 @@ codeunit 142072 "UT PAG SWS46"
     begin
         // [FEATURE] [Payment Journal]
         // [SCENARIO] Due Days on Payment Journal FactBox is updated according to Payment Discount Date on Vendor Ledger Entry.
-        UpdateInfoBoxPaymentJournal(WorkDate, 0D, CalcDate('<+CM>', WorkDate), 0, FactBoxFieldValue::DueDays);  // Posting Date - WORKDATE and Due Date of Vendor Ledger Entry greater than Payment Journal Posting Date.
+        UpdateInfoBoxPaymentJournal(WorkDate(), 0D, CalcDate('<+CM>', WorkDate()), 0, FactBoxFieldValue::DueDays);  // Posting Date - WORKDATE and Due Date of Vendor Ledger Entry greater than Payment Journal Posting Date.
     end;
 
     [Test]
@@ -162,7 +162,7 @@ codeunit 142072 "UT PAG SWS46"
     begin
         // [FEATURE] [Cash Receipt Journal]
         // [SCENARIO] Payment Discount on Payment Journal FactBox is updated according to Remaining Payment Discount Possible on Vendor Ledger Entry.
-        UpdateInfoBoxPaymentJournal(WorkDate, 0D, 0D, 1, FactBoxFieldValue::PmtDiscount);  // Posting Date - WORKDATE and Remaining Payment Discount Possible is 1 on Vendor Ledger Entry.
+        UpdateInfoBoxPaymentJournal(WorkDate(), 0D, 0D, 1, FactBoxFieldValue::PmtDiscount);  // Posting Date - WORKDATE and Remaining Payment Discount Possible is 1 on Vendor Ledger Entry.
     end;
 
     [Test]
@@ -605,7 +605,7 @@ codeunit 142072 "UT PAG SWS46"
         GenJournalLine."Line No." := 1;
         GenJournalLine."Document Type" := GenJournalLine."Document Type"::Payment;
         GenJournalLine."Document No." := LibraryUTUtility.GetNewCode;
-        GenJournalLine."Posting Date" := WorkDate;
+        GenJournalLine."Posting Date" := WorkDate();
         GenJournalLine.Insert();
     end;
 
@@ -735,7 +735,7 @@ codeunit 142072 "UT PAG SWS46"
         PaymentJournal: TestPage "Payment Journal";
     begin
         OpenPaymentJournal(PaymentJournal, JournalBatchName);
-        PaymentJournal."Posting Date".SetValue(WorkDate);
+        PaymentJournal."Posting Date".SetValue(WorkDate());
         PaymentJournal."Applies-to Doc. Type".SetValue(VendorLedgerEntry."Document Type");
         PaymentJournal.AppliesToDocNo.SetValue(VendorLedgerEntry."Document No.");
         PaymentJournal.OK.Invoke;
@@ -807,7 +807,7 @@ codeunit 142072 "UT PAG SWS46"
             FactBoxField::PMTDiscount:
                 CashReceiptJournal.Control1906888607.PMTDiscount.AssertEquals(CustLedgerEntry."Remaining Pmt. Disc. Possible");
         end;
-        CashReceiptJournal.Close;
+        CashReceiptJournal.Close();
     end;
 
     local procedure VerifyPaymentJournal(GenJournalLine: Record "Gen. Journal Line"; VendorLedgerEntry: Record "Vendor Ledger Entry"; FactBox: Option)
@@ -826,7 +826,7 @@ codeunit 142072 "UT PAG SWS46"
             FactBoxField::PmtDiscount:
                 PaymentJournal.Control1906888707.PmtDiscount.AssertEquals(-VendorLedgerEntry."Remaining Pmt. Disc. Possible");
         end;
-        PaymentJournal.Close;
+        PaymentJournal.Close();
     end;
 
     local procedure VerifyPaymentAmountsCashReceiptJournal(GenJournalLine: Record "Gen. Journal Line"; PaymentAmount: Decimal)
@@ -840,7 +840,7 @@ codeunit 142072 "UT PAG SWS46"
           0,
           CashReceiptJournal.Control1906888607.RemainAfterPaymentText.AsDEcimal,
           CashReceiptJournal.Control1906888607.RemainAfterPaymentText.Caption);
-        CashReceiptJournal.Close;
+        CashReceiptJournal.Close();
     end;
 
     local procedure VerifyPaymentAmountsPaymentJournal(GenJournalLine: Record "Gen. Journal Line"; PaymentAmount: Decimal)
@@ -854,7 +854,7 @@ codeunit 142072 "UT PAG SWS46"
           0,
           PaymentJournal.Control1906888707.RemainAfterPayment.AsDEcimal,
           PaymentJournal.Control1906888707.RemainAfterPayment.Caption);
-        PaymentJournal.Close;
+        PaymentJournal.Close();
     end;
 
     local procedure UpdateAppliesToDocCashReceiptJournalWithAppliedEntries(JournalBatchName: Code[10])
@@ -888,7 +888,7 @@ codeunit 142072 "UT PAG SWS46"
           0,
           CashReceiptJournal.Control1906888607.RemainAfterPaymentText.AsDEcimal,
           CashReceiptJournal.Control1906888607.RemainAfterPaymentText.Caption);
-        CashReceiptJournal.Close;
+        CashReceiptJournal.Close();
     end;
 
     local procedure VerifyPaymentAmountsPaymentJournalWithAppliedEntries(GenJournalLine: Record "Gen. Journal Line"; PaymentAmount: Decimal)
@@ -902,7 +902,7 @@ codeunit 142072 "UT PAG SWS46"
           0,
           PaymentJournal.Control1906888707.RemainAfterPayment.AsDEcimal,
           PaymentJournal.Control1906888707.RemainAfterPayment.Caption);
-        PaymentJournal.Close;
+        PaymentJournal.Close();
     end;
 
     local procedure ResetGenJnlTemplate();

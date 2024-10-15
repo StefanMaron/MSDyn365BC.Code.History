@@ -5,20 +5,21 @@ codeunit 273 "Res. Jnl.-B.Post"
     trigger OnRun()
     begin
         ResJnlBatch.Copy(Rec);
-        Code;
+        Code();
         Rec := ResJnlBatch;
     end;
 
     var
-        Text000: Label 'Do you want to post the journals?';
-        Text001: Label 'The journals were successfully posted.';
-        Text002: Label 'It was not possible to post all of the journals. ';
-        Text003: Label 'The journals that were not successfully posted are now marked.';
         ResJnlTemplate: Record "Res. Journal Template";
         ResJnlBatch: Record "Res. Journal Batch";
         ResJnlLine: Record "Res. Journal Line";
         ResJnlPostBatch: Codeunit "Res. Jnl.-Post Batch";
         JnlWithErrors: Boolean;
+
+        Text000: Label 'Do you want to post the journals?';
+        Text001: Label 'The journals were successfully posted.';
+        Text002: Label 'It was not possible to post all of the journals. ';
+        Text003: Label 'The journals that were not successfully posted are now marked.';
 
     local procedure "Code"()
     begin
@@ -51,7 +52,7 @@ codeunit 273 "Res. Jnl.-B.Post"
                   Text003);
 
             if not Find('=><') then begin
-                Reset;
+                Reset();
                 FilterGroup(2);
                 SetRange("Journal Template Name", "Journal Template Name");
                 FilterGroup(0);

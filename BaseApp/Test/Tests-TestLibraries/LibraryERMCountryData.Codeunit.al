@@ -102,7 +102,7 @@ codeunit 131305 "Library - ERM Country Data"
 
     procedure UpdateGeneralLedgerSetup()
     begin
-        UpdateGLSetup;
+        UpdateGLSetup();
     end;
 
     procedure UpdatePrepaymentAccounts()
@@ -315,7 +315,7 @@ codeunit 131305 "Library - ERM Country Data"
                     GLAccount."Cost Type No." := CostType."No.";
                     GLAccount.Modify();
                 end;
-            until CostType.Next = 0;
+            until CostType.Next() = 0;
     end;
 
     local procedure UpdateAccountsInGeneralPostingSetup()
@@ -346,7 +346,7 @@ codeunit 131305 "Library - ERM Country Data"
                 if GeneralPostingSetup."Inventory Adjmt. Account" = '' then
                     GeneralPostingSetup.Validate("Inventory Adjmt. Account", CreateGLAccount);
                 GeneralPostingSetup.Modify(true);
-            until GeneralPostingSetup.Next = 0;
+            until GeneralPostingSetup.Next() = 0;
     end;
 
     local procedure UpdateCustomerPostingGroup()
@@ -363,7 +363,7 @@ codeunit 131305 "Library - ERM Country Data"
                     CustomerPostingGroup.Validate("Payment Disc. Credit Acc.", CreateGLAccount);
                     CustomerPostingGroup.Modify(true);
                 end;
-            until CustomerPostingGroup.Next = 0;
+            until CustomerPostingGroup.Next() = 0;
     end;
 
     local procedure UpdateGLSetup()
@@ -389,7 +389,7 @@ codeunit 131305 "Library - ERM Country Data"
                     VendorPostingGroup.Validate("Payment Disc. Credit Acc.", CreateGLAccount);
                     VendorPostingGroup.Modify(true);
                 end;
-            until VendorPostingGroup.Next = 0;
+            until VendorPostingGroup.Next() = 0;
     end;
 
     local procedure CreateUnitOfMeasure("Code": Text)

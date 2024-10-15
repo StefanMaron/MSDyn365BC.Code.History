@@ -28,7 +28,7 @@ report 11012 "Intrastat - Form DE"
                 column(STRSUBSTNO_Text1140002_COPYSTR__Intrastat_Jnl__Batch___Statistics_Period; StrSubstNo(Text1140002, CopyStr("Intrastat Jnl. Batch"."Statistics Period", 3, 2) + CopyStr("Intrastat Jnl. Batch"."Statistics Period", 1, 2)))
                 {
                 }
-                column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+                column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
                 {
                 }
                 column(USERID; UserId)
@@ -275,7 +275,7 @@ report 11012 "Intrastat - Form DE"
 
     trigger OnPreReport()
     begin
-        IntraJnlLineFilter := "Intrastat Jnl. Line".GetFilters;
+        IntraJnlLineFilter := "Intrastat Jnl. Line".GetFilters();
         if not ("Intrastat Jnl. Line".GetRangeMin(Type) = "Intrastat Jnl. Line".GetRangeMax(Type)) then
             "Intrastat Jnl. Line".FieldError(Type, Text1140000);
 

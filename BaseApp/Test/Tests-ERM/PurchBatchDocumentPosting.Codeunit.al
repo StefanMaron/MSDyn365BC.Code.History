@@ -11,14 +11,14 @@ codeunit 134892 "Purch. Batch Document Posting"
 
     var
         Assert: Codeunit Assert;
+        DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         ReadyToPostInvoicesTemplateTok: Label 'The number of invoices that will be posted is %1. \Do you want to continue?';
         ReadyToPostTwoInvoicesQst: Label 'The number of invoices that will be posted is 2. \Do you want to continue?';
         LibraryRandom: Codeunit "Library - Random";
-        BatchCompletedMsg: Label 'All the documents were processed.';
-        PostingErrorMsg: Label 'There is nothing to post.';
+        BatchCompletedMsg: Label 'All of your selections were processed.';
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryApplicationArea: Codeunit "Library - Application Area";
         IsInitialized: Boolean;
@@ -205,8 +205,8 @@ codeunit 134892 "Purch. Batch Document Posting"
 
         repeat
             ErrorCount += 1;
-            ErrorMessages.Description.AssertEquals(PostingErrorMsg);
-        until not ErrorMessages.Next;
+            ErrorMessages.Description.AssertEquals(DocumentErrorsMgt.GetNothingToPostErrorMsg());
+        until not ErrorMessages.Next();
 
         Assert.AreEqual(PurchaseHeaderToPost.Count, ErrorCount, 'Unexpected error count');
 
@@ -283,7 +283,7 @@ codeunit 134892 "Purch. Batch Document Posting"
         ErrorMessagesPage.Trap;
         InvokePostSelectedInvoices(PurchaseInvoices, PurchaseHeader[2]);
 
-        ErrorMessagesPage.Description.AssertEquals(PostingErrorMsg);
+        ErrorMessagesPage.Description.AssertEquals(DocumentErrorsMgt.GetNothingToPostErrorMsg());
         ErrorMessagesPage.Context.AssertEquals(Format(PurchaseHeader[2].RecordId));
 
         LibraryVariableStorage.AssertEmpty;
@@ -319,7 +319,7 @@ codeunit 134892 "Purch. Batch Document Posting"
         ErrorMessagesPage.Trap;
         InvokePostSelectedCreditMemos(PurchaseCreditMemos, PurchaseHeader[2]);
 
-        ErrorMessagesPage.Description.AssertEquals(PostingErrorMsg);
+        ErrorMessagesPage.Description.AssertEquals(DocumentErrorsMgt.GetNothingToPostErrorMsg());
         ErrorMessagesPage.Context.AssertEquals(Format(PurchaseHeader[2].RecordId));
 
         LibraryVariableStorage.AssertEmpty;
@@ -354,7 +354,7 @@ codeunit 134892 "Purch. Batch Document Posting"
         ErrorMessagesPage.Trap;
         InvokePostSelectedOrders(PurchaseOrderList, PurchaseHeader[2]);
 
-        ErrorMessagesPage.Description.AssertEquals(PostingErrorMsg);
+        ErrorMessagesPage.Description.AssertEquals(DocumentErrorsMgt.GetNothingToPostErrorMsg());
         ErrorMessagesPage.Context.AssertEquals(Format(PurchaseHeader[2].RecordId));
 
         LibraryVariableStorage.AssertEmpty;
@@ -388,7 +388,7 @@ codeunit 134892 "Purch. Batch Document Posting"
         ErrorMessagesPage.Trap;
         InvokePostSelectedReturnOrders(PurchaseReturnOrderList, PurchaseHeader[2]);
 
-        ErrorMessagesPage.Description.AssertEquals(PostingErrorMsg);
+        ErrorMessagesPage.Description.AssertEquals(DocumentErrorsMgt.GetNothingToPostErrorMsg());
         ErrorMessagesPage.Context.AssertEquals(Format(PurchaseHeader[2].RecordId));
 
         LibraryVariableStorage.AssertEmpty;
@@ -862,7 +862,7 @@ codeunit 134892 "Purch. Batch Document Posting"
         Assert.RecordCount(PurchaseHeaderUI, ArrayLen(PurchaseHeader) - 1);
         PurchaseHeaderUI.FindFirst();
         PurchaseHeaderUI.TestField("No.", PurchaseHeader[1]."No.");
-        PurchaseHeaderUI.Next;
+        PurchaseHeaderUI.Next();
         PurchaseHeaderUI.TestField("No.", PurchaseHeader[3]."No.");
     end;
 

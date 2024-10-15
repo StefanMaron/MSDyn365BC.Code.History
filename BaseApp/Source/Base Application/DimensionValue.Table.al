@@ -13,7 +13,7 @@ table 349 "Dimension Value"
 
             trigger OnValidate()
             begin
-                UpdateMapToICDimensionCode;
+                UpdateMapToICDimensionCode();
             end;
         }
         field(2; "Code"; Code[20])
@@ -43,8 +43,8 @@ table 349 "Dimension Value"
                 if ("Dimension Value Type" <> "Dimension Value Type"::Standard) and
                    (xRec."Dimension Value Type" = xRec."Dimension Value Type"::Standard)
                 then
-                    if CheckIfDimValueUsed then
-                        Error(Text004, GetCheckDimErr);
+                    if CheckIfDimValueUsed() then
+                        Error(Text004, GetCheckDimErr());
                 Totaling := '';
             end;
         }
@@ -192,45 +192,40 @@ table 349 "Dimension Value"
     begin
         TestField("Dimension Code");
         TestField(Code);
-        "Global Dimension No." := GetGlobalDimensionNo;
+        "Global Dimension No." := GetGlobalDimensionNo();
 
         UpdateCostAccFromDim(Rec, Rec, 0);
 
         DimMgt.AddDefaultDimensionAllowedDimensionValue(Rec);
-        SetLastModifiedDateTime;
+        SetLastModifiedDateTime();
     end;
 
     trigger OnModify()
     begin
         if "Dimension Code" <> xRec."Dimension Code" then
-            "Global Dimension No." := GetGlobalDimensionNo;
+            "Global Dimension No." := GetGlobalDimensionNo();
 
         UpdateCostAccFromDim(Rec, xRec, 1);
 
-        SetLastModifiedDateTime;
+        SetLastModifiedDateTime();
     end;
 
     trigger OnRename()
     var
         DimValuePerAccount: Record "Dim. Value per Account";
     begin
-        RenameBudgEntryDim;
-        RenameAnalysisViewEntryDim;
-        RenameItemBudgEntryDim;
-        RenameItemAnalysisViewEntryDim;
+        RenameBudgEntryDim();
+        RenameAnalysisViewEntryDim();
+        RenameItemBudgEntryDim();
+        RenameItemAnalysisViewEntryDim();
 
         UpdateCostAccFromDim(Rec, xRec, 3);
         DimValuePerAccount.RenameDimensionValue("Dimension Code", xRec.Code, Code);
 
-        SetLastModifiedDateTime;
+        SetLastModifiedDateTime();
     end;
 
     var
-        Text000: Label '%1\You cannot delete it.';
-        Text002: Label '(CONFLICT)';
-        Text003: Label '%1 can not be (CONFLICT). This name is used internally by the system.';
-        Text004: Label '%1\You cannot change the type.';
-        Text005: Label 'This dimension value has been used in posted or budget entries and is included in a dimension set.';
         DimSetEntry: Record "Dimension Set Entry";
         DimValueComb: Record "Dimension Value Combination";
         DefaultDim: Record "Default Dimension";
@@ -239,6 +234,12 @@ table 349 "Dimension Value"
         CostAccSetup: Record "Cost Accounting Setup";
         CostAccMgt: Codeunit "Cost Account Mgt";
         DimMgt: Codeunit DimensionManagement;
+
+        Text000: Label '%1\You cannot delete it.';
+        Text002: Label '(CONFLICT)';
+        Text003: Label '%1 can not be (CONFLICT). This name is used internally by the system.';
+        Text004: Label '%1\You cannot change the type.';
+        Text005: Label 'This dimension value has been used in posted or budget entries and is included in a dimension set.';
         Text006: Label 'You cannot change the value of %1.';
 
     procedure CheckIfDimValueUsed(): Boolean
@@ -257,7 +258,7 @@ table 349 "Dimension Value"
         if IsHandled then
             exit;
 
-        if CostAccSetup.Get then begin
+        if CostAccSetup.Get() then begin
             CostAccMgt.UpdateCostCenterFromDim(DimensionValue, xDimensionValue, CallingTrigger);
             CostAccMgt.UpdateCostObjectFromDim(DimensionValue, xDimensionValue, CallingTrigger);
         end;
@@ -277,8 +278,8 @@ table 349 "Dimension Value"
         if IsHandled then
             exit;
 
-        if CheckIfDimValueUsed then
-            Error(Text000, GetCheckDimErr);
+        if CheckIfDimValueUsed() then
+            Error(Text000, GetCheckDimErr());
     end;
 
     local procedure RenameBudgEntryDim()
@@ -575,8 +576,8 @@ table 349 "Dimension Value"
         DimValList.LookupMode(true);
         DimVal.SetRange("Dimension Code", Dim);
         DimValList.SetTableView(DimVal);
-        if DimValList.RunModal = ACTION::LookupOK then begin
-            Text := DimValList.GetSelectionFilter;
+        if DimValList.RunModal() = ACTION::LookupOK then begin
+            Text := DimValList.GetSelectionFilter();
             exit(true);
         end;
         exit(false)
@@ -592,7 +593,7 @@ table 349 "Dimension Value"
         DimValuesList.SetTableView(DimValue);
         if DimValue.Get(DimCode, DimValueCode) then
             DimValuesList.SetRecord(DimValue);
-        if DimValuesList.RunModal = ACTION::LookupOK then begin
+        if DimValuesList.RunModal() = ACTION::LookupOK then begin
             DimValuesList.GetRecord(DimValue);
             DimValueCode := DimValue.Code;
         end;

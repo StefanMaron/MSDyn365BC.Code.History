@@ -265,7 +265,7 @@ codeunit 137160 "SCM Prepayment Orders"
         CreateAndReleasePurchaseOrderWithPostPrepaymentInvoice(PurchaseHeader, PurchaseLine, VendorNo, ItemNo, Quantity, LocationCode);
         CreateWarehouseReceipt(PurchaseHeader);
         CreateAndRegisterPutAwayFromPurchaseOrder(PurchaseHeader."No.", ItemNo, LocationCode);
-        PurchaseHeader.Find;
+        PurchaseHeader.Find();
     end;
 
     local procedure CreateAndReleasePurchaseOrderWithPostPrepaymentInvoice(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; VendorNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal; LocationCode: Code[10]): Code[35]
@@ -305,8 +305,8 @@ codeunit 137160 "SCM Prepayment Orders"
         Currency.Modify();
 
         CreateCurrencyExchangeRate(
-          CurrencyExchangeRate, Currency.Code, CalcDate('<' + Format(-LibraryRandom.RandInt(5)) + 'Y>', WorkDate));
-        CreateCurrencyExchangeRate(CurrencyExchangeRate, Currency.Code, WorkDate);
+          CurrencyExchangeRate, Currency.Code, CalcDate('<' + Format(-LibraryRandom.RandInt(5)) + 'Y>', WorkDate()));
+        CreateCurrencyExchangeRate(CurrencyExchangeRate, Currency.Code, WorkDate());
     end;
 
     local procedure CreateCurrencyExchangeRate(var CurrencyExchangeRate: Record "Currency Exchange Rate"; CurrencyCode: Code[10]; StartingDate: Date)
@@ -614,7 +614,7 @@ codeunit 137160 "SCM Prepayment Orders"
 
     local procedure UpdateExternalDocumentNoOnWarehouseShipmentHeader(var WarehouseShipmentHeader: Record "Warehouse Shipment Header")
     begin
-        WarehouseShipmentHeader.Find;
+        WarehouseShipmentHeader.Find();
         WarehouseShipmentHeader.Validate("External Document No.", LibraryUtility.GenerateGUID());
         WarehouseShipmentHeader.Modify(true);
     end;

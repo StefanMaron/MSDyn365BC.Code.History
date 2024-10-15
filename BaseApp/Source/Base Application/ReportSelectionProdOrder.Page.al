@@ -70,6 +70,7 @@ page 99000917 "Report Selection - Prod. Order"
 
     trigger OnOpenPage()
     begin
+        InitUsageFilter();
         SetUsageFilter(false);
     end;
 
@@ -98,8 +99,37 @@ page 99000917 "Report Selection - Prod. Order"
         CurrPage.Update();
     end;
 
+    local procedure InitUsageFilter()
+    var
+        NewReportUsage: Enum "Report Selection Usage";
+    begin
+        if Rec.GetFilter(Usage) <> '' then begin
+            if Evaluate(NewReportUsage, Rec.GetFilter(Usage)) then
+                case NewReportUsage of
+                    "Report Selection Usage"::"M1":
+                        ReportUsage2 := "Report Selection Usage Prod."::"Job Card";
+                    "Report Selection Usage"::"M2":
+                        ReportUsage2 := "Report Selection Usage Prod."::"Mat. & Requisition";
+                    "Report Selection Usage"::"M3":
+                        ReportUsage2 := "Report Selection Usage Prod."::"Shortage List";
+                    "Report Selection Usage"::"M4":
+                        ReportUsage2 := "Report Selection Usage Prod."::"Gantt Chart";
+                    "Report Selection Usage"::"Prod.Order":
+                        ReportUsage2 := "Report Selection Usage Prod."::"Prod. Order";
+                    else
+                        OnInitUsageFilterOnElseCase(NewReportUsage, ReportUsage2);
+                end;
+            Rec.SetRange(Usage);
+        end;
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnSetUsageFilterOnAfterSetFiltersByReportUsage(var Rec: Record "Report Selections"; ReportUsage2: Enum "Report Selection Usage Prod.")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInitUsageFilterOnElseCase(ReportUsage: Enum "Report Selection Usage"; var ReportUsage2: Enum "Report Selection Usage Prod.")
     begin
     end;
 }

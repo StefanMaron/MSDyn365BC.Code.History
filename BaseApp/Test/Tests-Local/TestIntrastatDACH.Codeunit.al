@@ -38,7 +38,7 @@ codeunit 142081 "Test Intrastat DACH"
         Initialize();
         SetIntrastatCodeOnCountryRegion(TempCompanyInfo);
 
-        PostingDate := CalcDate('<3M>', WorkDate);
+        PostingDate := CalcDate('<3M>', WorkDate());
         LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, PostingDate);
         // [GIVEN] Posted Purchase Invoice for EU-Vendor "X" and non-EU Item "X"
         VendorNo := CreateVendor(true);

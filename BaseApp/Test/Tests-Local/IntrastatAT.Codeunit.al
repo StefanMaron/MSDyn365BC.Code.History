@@ -63,7 +63,7 @@ codeunit 144061 "Intrastat AT"
         DisableTransportMethodCheck;
 
         // Setup
-        CreateIntrastatJournalTemplateAndBatch(IntrastatJnlBatch, WorkDate);
+        CreateIntrastatJournalTemplateAndBatch(IntrastatJnlBatch, WorkDate());
         Commit();
         RunGetItemLedgerEntriesToCreateJnlLines(IntrastatJnlBatch);
         LibraryERM.SetMandatoryFieldsOnIntrastatJnlLines(IntrastatJnlLine, IntrastatJnlBatch, '', FindOrCreateIntrastatTransactionType,
@@ -82,7 +82,7 @@ codeunit 144061 "Intrastat AT"
 
         // Verify
         Assert.ExpectedError(
-          StrSubstNo(FieldMustHaveValueErr, IntrastatJnlLine.FieldCaption("Transport Method"), IntrastatJnlLine.TableCaption));
+          StrSubstNo(FieldMustHaveValueErr, IntrastatJnlLine.FieldCaption("Transport Method"), IntrastatJnlLine.TableCaption()));
     end;
 
     [Test]
@@ -98,7 +98,7 @@ codeunit 144061 "Intrastat AT"
         DisableTransportMethodCheck;
 
         // Setup
-        CreateIntrastatJournalTemplateAndBatch(IntrastatJnlBatch, WorkDate);
+        CreateIntrastatJournalTemplateAndBatch(IntrastatJnlBatch, WorkDate());
         Commit();
         RunGetItemLedgerEntriesToCreateJnlLines(IntrastatJnlBatch);
         LibraryERM.SetMandatoryFieldsOnIntrastatJnlLines(IntrastatJnlLine, IntrastatJnlBatch, '', FindOrCreateIntrastatTransactionType,
@@ -117,7 +117,7 @@ codeunit 144061 "Intrastat AT"
 
         // Verify
         Assert.ExpectedError(
-          StrSubstNo(FieldMustHaveValueErr, IntrastatJnlLine.FieldCaption("Transport Method"), IntrastatJnlLine.TableCaption));
+          StrSubstNo(FieldMustHaveValueErr, IntrastatJnlLine.FieldCaption("Transport Method"), IntrastatJnlLine.TableCaption()));
     end;
 
     [Test]
@@ -136,7 +136,7 @@ codeunit 144061 "Intrastat AT"
         DisableTransportMethodCheck;
 
         // Setup
-        CreateIntrastatJournalTemplateAndBatch(IntrastatJnlBatch, WorkDate);
+        CreateIntrastatJournalTemplateAndBatch(IntrastatJnlBatch, WorkDate());
         Commit();
         RunGetItemLedgerEntriesToCreateJnlLines(IntrastatJnlBatch);
         LibraryERM.SetMandatoryFieldsOnIntrastatJnlLines(IntrastatJnlLine, IntrastatJnlBatch, '', FindOrCreateIntrastatTransactionType,
@@ -159,7 +159,7 @@ codeunit 144061 "Intrastat AT"
 
         // Verify
         Assert.ExpectedError(
-          StrSubstNo(FieldMustHaveValueErr, IntrastatJnlLine.FieldCaption("Transport Method"), IntrastatJnlLine.TableCaption));
+          StrSubstNo(FieldMustHaveValueErr, IntrastatJnlLine.FieldCaption("Transport Method"), IntrastatJnlLine.TableCaption()));
     end;
 
     [Test]
@@ -175,7 +175,7 @@ codeunit 144061 "Intrastat AT"
         DisableTransactionSpecificationCheck;
 
         // Setup
-        CreateIntrastatJournalTemplateAndBatch(IntrastatJnlBatch, WorkDate);
+        CreateIntrastatJournalTemplateAndBatch(IntrastatJnlBatch, WorkDate());
         Commit();
         RunGetItemLedgerEntriesToCreateJnlLines(IntrastatJnlBatch);
         LibraryERM.SetMandatoryFieldsOnIntrastatJnlLines(IntrastatJnlLine, IntrastatJnlBatch, FindOrCreateIntrastatTransportMethod,
@@ -194,7 +194,7 @@ codeunit 144061 "Intrastat AT"
 
         // Verify
         Assert.ExpectedError(
-          StrSubstNo(FieldMustHaveValueErr, IntrastatJnlLine.FieldCaption("Transaction Specification"), IntrastatJnlLine.TableCaption));
+          StrSubstNo(FieldMustHaveValueErr, IntrastatJnlLine.FieldCaption("Transaction Specification"), IntrastatJnlLine.TableCaption()));
     end;
 
     [Test]
@@ -210,7 +210,7 @@ codeunit 144061 "Intrastat AT"
         DisableTransactionSpecificationCheck;
 
         // Setup
-        CreateIntrastatJournalTemplateAndBatch(IntrastatJnlBatch, WorkDate);
+        CreateIntrastatJournalTemplateAndBatch(IntrastatJnlBatch, WorkDate());
         Commit();
         RunGetItemLedgerEntriesToCreateJnlLines(IntrastatJnlBatch);
         LibraryERM.SetMandatoryFieldsOnIntrastatJnlLines(IntrastatJnlLine, IntrastatJnlBatch, FindOrCreateIntrastatTransportMethod,
@@ -229,7 +229,7 @@ codeunit 144061 "Intrastat AT"
 
         // Verify
         Assert.ExpectedError(
-          StrSubstNo(FieldMustHaveValueErr, IntrastatJnlLine.FieldCaption("Transaction Specification"), IntrastatJnlLine.TableCaption));
+          StrSubstNo(FieldMustHaveValueErr, IntrastatJnlLine.FieldCaption("Transaction Specification"), IntrastatJnlLine.TableCaption()));
     end;
 
     [Test]
@@ -266,7 +266,7 @@ codeunit 144061 "Intrastat AT"
 
         // Verify
         Assert.ExpectedError(
-          StrSubstNo(FieldMustHaveValueErr, IntrastatJnlLine.FieldCaption("Transaction Specification"), IntrastatJnlLine.TableCaption));
+          StrSubstNo(FieldMustHaveValueErr, IntrastatJnlLine.FieldCaption("Transaction Specification"), IntrastatJnlLine.TableCaption()));
     end;
 #endif
 
@@ -282,7 +282,7 @@ codeunit 144061 "Intrastat AT"
     begin
         // Setup: Create Intrastat Journal Template and Batch. Create Customer, Item. Create and Post Sales Order.
         Initialize();
-        CreateIntrastatJournalTemplateAndBatch(IntrastatJnlBatch, WorkDate);
+        CreateIntrastatJournalTemplateAndBatch(IntrastatJnlBatch, WorkDate());
         CreateCustomerWithCountryRegionCode(Customer, CreateCountryRegionWithIntrastatCode);
         LibraryInventory.CreateItemWithTariffNo(Item, CreateTariffNo(false));
         CreateAndPostSalesDoc(SalesHeader."Document Type"::Order, Customer."No.", Item."No.", LibraryRandom.RandDec(10, 2));
@@ -316,7 +316,7 @@ codeunit 144061 "Intrastat AT"
         // Setup: Create Intrastat Journal Template and Batch. Create Customer, Item. Create and Post Sales Order.
         Initialize();
         DisableTransactionSpecificationCheck;
-        CreateIntrastatJournalTemplateAndBatch(IntrastatJnlBatch, WorkDate);
+        CreateIntrastatJournalTemplateAndBatch(IntrastatJnlBatch, WorkDate());
 
         // Create 2 pairs data with 4 items and 2 Country Region Codes
         for i := 1 to ArrayLen(Customer) do begin
@@ -479,7 +479,7 @@ codeunit 144061 "Intrastat AT"
           PurchaseHeader."Document Type"::"Credit Memo", LibraryPurchase.CreateVendorNo, ItemSupp."No.", LibraryRandom.RandInt(9));
 
         // [GIVEN] Intrastat Journal Line containing Invoice's data
-        CreateIntrastatJournalTemplateAndBatch(IntrastatJnlBatch, WorkDate);
+        CreateIntrastatJournalTemplateAndBatch(IntrastatJnlBatch, WorkDate());
         Commit();
         RunGetItemLedgerEntriesToCreateJnlLines(IntrastatJnlBatch);
 
@@ -900,7 +900,7 @@ codeunit 144061 "Intrastat AT"
     var
         DummyIntrastatJnlLine: Record "Intrastat Jnl. Line";
     begin
-        CreateIntrastatJournalTemplateAndBatch(IntrastatJnlBatch, WorkDate);
+        CreateIntrastatJournalTemplateAndBatch(IntrastatJnlBatch, WorkDate());
         Commit();
         RunGetItemLedgerEntriesToCreateJnlLines(IntrastatJnlBatch);
 
@@ -926,11 +926,11 @@ codeunit 144061 "Intrastat AT"
     begin
         RunIntrastatJournal(IntrastatJournal);
         LibraryVariableStorage.AssertEmpty;
-        LibraryVariableStorage.Enqueue(CalcDate('<-CM>', WorkDate));
-        LibraryVariableStorage.Enqueue(CalcDate('<CM>', WorkDate));
+        LibraryVariableStorage.Enqueue(CalcDate('<-CM>', WorkDate()));
+        LibraryVariableStorage.Enqueue(CalcDate('<CM>', WorkDate()));
         IntrastatJournal.GetEntries.Invoke;
         VerifyIntrastatJnlLinesExist(IntrastatJnlBatch);
-        IntrastatJournal.Close;
+        IntrastatJournal.Close();
     end;
 
     local procedure RunIntrastatJournal(var IntrastatJournal: TestPage "Intrastat Journal")
@@ -1158,7 +1158,7 @@ codeunit 144061 "Intrastat AT"
         FindIntrastatJnlLine(IntrastatJnlLine, IntrastatJnlBatch, CountryRegionCode);
         repeat
             TotalNetWeight += IntrastatJnlLine."Total Weight";
-        until IntrastatJnlLine.Next = 0;
+        until IntrastatJnlLine.Next() = 0;
 
         SearchString :=
           Format(DelStr(CountryRegionCode, 1, StrLen(CountryRegionCode) - 2)) + KGMStringTxt + DecimalZeroFormat(TotalNetWeight, 12);

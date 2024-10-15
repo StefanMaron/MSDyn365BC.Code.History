@@ -363,9 +363,9 @@ codeunit 136903 "Employee Reports"
         // 1. Setup: Find Cause of Absence.
         Initialize();
         LibraryHumanResource.CreateEmployee(Employee);
-        CreateEmployeeAbsence(EmployeeAbsence, Employee."No.", WorkDate);
+        CreateEmployeeAbsence(EmployeeAbsence, Employee."No.", WorkDate());
         EmployeeNo := EmployeeAbsence."Employee No.";
-        CreateEmployeeAbsence(EmployeeAbsence, EmployeeNo, CalcDate('<-' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate));
+        CreateEmployeeAbsence(EmployeeAbsence, EmployeeNo, CalcDate('<-' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate()));
 
         // 2. Exercise: Generate Employee - Absences by Causes Report.
         Commit();
@@ -394,7 +394,7 @@ codeunit 136903 "Employee Reports"
         // 1. Setup: Find Cause of Absence.
         Initialize();
         LibraryHumanResource.CreateEmployee(Employee);
-        CreateEmployeeAbsence(EmployeeAbsence, Employee."No.", WorkDate);
+        CreateEmployeeAbsence(EmployeeAbsence, Employee."No.", WorkDate());
 
         // 2. Exercise: Generate Employee - Staff Absences Report.
         Commit();
@@ -1250,7 +1250,7 @@ codeunit 136903 "Employee Reports"
 
     local procedure AttachBirthDate(var Employee: Record Employee)
     begin
-        Employee.Validate("Birth Date", WorkDate);
+        Employee.Validate("Birth Date", WorkDate());
         Employee.Modify(true);
     end;
 
@@ -1297,8 +1297,8 @@ codeunit 136903 "Employee Reports"
     begin
         LibraryHumanResource.CreateEmployeeQualification(EmployeeQualification, EmployeeNo);
         EmployeeQualification.Validate("Qualification Code", FindQualification);
-        EmployeeQualification.Validate("From Date", WorkDate);
-        EmployeeQualification.Validate("To Date", WorkDate);
+        EmployeeQualification.Validate("From Date", WorkDate());
+        EmployeeQualification.Validate("To Date", WorkDate());
         EmployeeQualification.Validate(Type, EmployeeQualification.Type::Internal);
         EmployeeQualification.Validate(
           "Institution/Company",
@@ -1315,7 +1315,7 @@ codeunit 136903 "Employee Reports"
         LibraryHumanResource.CreateEmployeeRelative(EmployeeRelative, EmployeeNo);
         EmployeeRelative.Validate("Relative Code", FindRelative);
         EmployeeRelative.Validate("First Name", FindRelative);
-        EmployeeRelative.Validate("Birth Date", WorkDate);
+        EmployeeRelative.Validate("Birth Date", WorkDate());
         EmployeeRelative.Modify(true);
     end;
 

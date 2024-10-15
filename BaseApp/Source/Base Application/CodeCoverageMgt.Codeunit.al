@@ -42,7 +42,7 @@ codeunit 9990 "Code Coverage Mgt."
 
     procedure Refresh()
     begin
-        CodeCoverageRefresh;
+        CodeCoverageRefresh();
     end;
 
     procedure Clear()
@@ -54,7 +54,7 @@ codeunit 9990 "Code Coverage Mgt."
 
     procedure Import()
     begin
-        CodeCoverageLoad;
+        CodeCoverageLoad();
     end;
 
     procedure Include(var AllObj: Record AllObj)
@@ -79,13 +79,13 @@ codeunit 9990 "Code Coverage Mgt."
 
         // Establish baseline
         ApplicationBaseline := 0;
-        ApplicationBaseline := ApplicationHits;
+        ApplicationBaseline := ApplicationHits();
     end;
 
     procedure StopApplicationCoverage()
     begin
         if StartedByApp then
-            Stop;
+            Stop();
         StartedByApp := false;
     end;
 
@@ -93,7 +93,7 @@ codeunit 9990 "Code Coverage Mgt."
     var
         CodeCoverage: Record "Code Coverage";
     begin
-        Refresh;
+        Refresh();
         CodeCoverage.SetRange("Line Type", CodeCoverage."Line Type"::Code);
         CodeCoverage.SetFilter("No. of Hits", '>%1', 0);
         // excluding Code Coverage range 9900..9999 from calculation
@@ -111,7 +111,7 @@ codeunit 9990 "Code Coverage Mgt."
     var
         CodeCoverage: Record "Code Coverage";
     begin
-        Refresh;
+        Refresh();
         with CodeCoverage do begin
             SetRange("Line Type", "Line Type"::Code);
             SetRange("Object Type", ObjectType);
@@ -141,7 +141,7 @@ codeunit 9990 "Code Coverage Mgt."
         NoCodeLines := 0;
         NoCodeLinesHit := 0;
 
-        CodeCoverage2.SetPosition(CodeCoverage.GetPosition);
+        CodeCoverage2.SetPosition(CodeCoverage.GetPosition());
         CodeCoverage2.SetRange("Object Type", CodeCoverage."Object Type");
         CodeCoverage2.SetRange("Object ID", CodeCoverage."Object ID");
 
@@ -182,7 +182,7 @@ codeunit 9990 "Code Coverage Mgt."
         NoCodeLines := 0;
         NoCodeLinesHit := 0;
 
-        CodeCoverage2.SetPosition(CodeCoverage.GetPosition);
+        CodeCoverage2.SetPosition(CodeCoverage.GetPosition());
         CodeCoverage2.SetRange("Object Type", CodeCoverage."Object Type");
         CodeCoverage2.SetRange("Object ID", CodeCoverage."Object ID");
 
@@ -205,12 +205,12 @@ codeunit 9990 "Code Coverage Mgt."
         BackupStream: OutStream;
         BackupFile: File;
     begin
-        Refresh;
+        Refresh();
 
         BackupFile.Create(BackupPath);
         BackupFile.CreateOutStream(BackupStream);
         XMLPORT.Export(XMLPORT::"Code Coverage Detailed", BackupStream);
-        BackupFile.Close;
+        BackupFile.Close();
     end;
 
     [Scope('OnPrem')]
@@ -219,12 +219,12 @@ codeunit 9990 "Code Coverage Mgt."
         SummaryStream: OutStream;
         SummaryFile: File;
     begin
-        Refresh;
+        Refresh();
 
         SummaryFile.Create(SummaryPath);
         SummaryFile.CreateOutStream(SummaryStream);
         XMLPORT.Export(XMLPORT::"Code Coverage Summary", SummaryStream);
-        SummaryFile.Close;
+        SummaryFile.Close();
     end;
 
     procedure StartAutomaticBackup(TimeInterval: Integer; BackupPath: Text[1024]; SummaryPath: Text[1024])
@@ -236,18 +236,18 @@ codeunit 9990 "Code Coverage Mgt."
 
         // Setup Timer and File Paths
         if IsNull(Timer) then
-            Timer := Timer.Timer;
+            Timer := Timer.Timer();
         UpdateAutomaticBackupSettings(TimeInterval, BackupPath, SummaryPath);
     end;
 
     procedure UpdateAutomaticBackupSettings(TimeInterval: Integer; BackupPath: Text[1024]; SummaryPath: Text[1024])
     begin
         if not IsNull(Timer) then begin
-            Timer.Stop;
+            Timer.Stop();
             Timer.Interval := TimeInterval * 60000;
             BackupFilePath := BackupPath;
             SummaryFilePath := SummaryPath;
-            Timer.Start;
+            Timer.Start();
         end;
     end;
 

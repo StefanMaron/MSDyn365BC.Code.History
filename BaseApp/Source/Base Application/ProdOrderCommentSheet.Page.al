@@ -42,7 +42,7 @@ page 99000838 "Prod. Order Comment Sheet"
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        SetupNewLine;
+        SetUpNewLine();
     end;
 }
 

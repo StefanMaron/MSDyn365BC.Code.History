@@ -58,7 +58,7 @@ codeunit 1012 "Job Jnl.-Post Line"
         GetGLSetup();
 
         with JobJnlLine do begin
-            if EmptyLine then
+            if EmptyLine() then
                 exit;
 
             if CheckLine then begin
@@ -77,7 +77,7 @@ codeunit 1012 "Job Jnl.-Post Line"
             OnBeforeCreateJobRegister(JobJnlLine);
             if JobReg."No." = 0 then begin
                 JobReg.LockTable();
-                if (not JobReg.FindLast) or (JobReg."To Entry No." <> 0) then begin
+                if (not JobReg.FindLast()) or (JobReg."To Entry No." <> 0) then begin
                     JobReg.Init();
                     JobReg."No." := JobReg."No." + 1;
                     JobReg."From Entry No." := NextEntryNo;
@@ -109,7 +109,7 @@ codeunit 1012 "Job Jnl.-Post Line"
 
             ShouldPostUsage := JobJnlLine2."Entry Type" = JobJnlLine2."Entry Type"::Usage;
             OnCodeOnAfterCalcShouldPostUsage(JobJnlLine2, ShouldPostUsage);
-            if ShouldPostUsage then begin
+            if ShouldPostUsage then
                 case Type of
                     Type::Resource:
                         JobLedgEntryNo := PostResource(JobJnlLine2);
@@ -117,8 +117,8 @@ codeunit 1012 "Job Jnl.-Post Line"
                         JobLedgEntryNo := PostItem(JobJnlLine);
                     Type::"G/L Account":
                         JobLedgEntryNo := CreateJobLedgEntry(JobJnlLine2);
-                end;
-            end else
+                end
+            else
                 JobLedgEntryNo := CreateJobLedgEntry(JobJnlLine2);
         end;
 
@@ -155,7 +155,7 @@ codeunit 1012 "Job Jnl.-Post Line"
             exit;
 
         with JobJnlLine do begin
-            Job.TestBlocked;
+            Job.TestBlocked();
             Job.TestField("Bill-to Customer No.");
             Cust.Get(Job."Bill-to Customer No.");
             TestField("Currency Code", Job."Currency Code");
@@ -285,7 +285,7 @@ codeunit 1012 "Job Jnl.-Post Line"
                    (JobJnlLine2."Job Planning Line No." <> 0) or
                    JobLinkUsage.FindMatchingJobPlanningLine(JobPlanningLine, JobLedgEntry)
                 then
-                    JobLinkUsage.ApplyUsage(JobLedgEntry, JobJnlLine2)
+                    JobLinkUsage.ApplyUsage(JobLedgEntry, JobJnlLine2, CalledFromInvtPutawayPick)
                 else
                     JobPostLine.InsertPlLineFromLedgEntry(JobLedgEntry)
             end;
@@ -312,7 +312,7 @@ codeunit 1012 "Job Jnl.-Post Line"
     begin
         if JobJnlLine."Currency Code" = '' then begin
             Clear(Currency);
-            Currency.InitRoundingPrecision
+            Currency.InitRoundingPrecision()
         end else begin
             Currency.Get(JobJnlLine."Currency Code");
             Currency.TestField("Amount Rounding Precision");
@@ -342,8 +342,10 @@ codeunit 1012 "Job Jnl.-Post Line"
                 IsHandled := false;
                 OnBeforeItemPosting(JobJnlLine2, NextEntryNo, IsHandled);
                 if not IsHandled then begin
-                    InitItemJnlLine;
-                    JobJnlLineReserve.TransJobJnlLineToItemJnlLine(JobJnlLine2, ItemJnlLine, ItemJnlLine."Quantity (Base)");
+                    InitItemJnlLine();
+
+                    //Do not transfer remaining quantity when posting from Inventory Pick as the entry is created during posting process of Item through Item Jnl Line.
+                    JobJnlLineReserve.TransJobJnlLineToItemJnlLine(JobJnlLine2, ItemJnlLine, ItemJnlLine."Quantity (Base)", CalledFromInvtPutawayPick);
 
                     ApplyToJobContractEntryNo := false;
                     if JobPlanningLine.Get("Job No.", "Job Task No.", "Job Planning Line No.") then
@@ -380,7 +382,7 @@ codeunit 1012 "Job Jnl.-Post Line"
                         JobLedgEntry2.SetRange("Ledger Entry No.", ItemLedgEntry."Entry No.");
                         // The following code is only to secure that JLEs created at receipt in version 6.0 or earlier,
                         // are not created again at point of invoice (6.0 SP1 and newer).
-                        if JobLedgEntry2.FindFirst and (JobLedgEntry2.Quantity = -ItemLedgEntry.Quantity) then
+                        if JobLedgEntry2.FindFirst() and (JobLedgEntry2.Quantity = -ItemLedgEntry.Quantity) then
                             SkipJobLedgerEntry := true
                         else begin
                             JobJnlLine2.CopyTrackingFromItemLedgEntry(ItemLedgEntry);
@@ -392,7 +394,7 @@ codeunit 1012 "Job Jnl.-Post Line"
                         TempRemainingQty := JobJnlLine2."Remaining Qty.";
                         JobJnlLine2.Quantity := -ValueEntry."Invoiced Quantity" / "Qty. per Unit of Measure";
                         JobJnlLine2."Quantity (Base)" :=
-                          Round(JobJnlLine2.Quantity * "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision);
+                          Round(JobJnlLine2.Quantity * "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision());
                         Currency.Initialize("Currency Code");
 
                         OnPostItemOnBeforeUpdateTotalAmounts(JobJnlLine2, ItemLedgEntry, ValueEntry);
@@ -438,7 +440,7 @@ codeunit 1012 "Job Jnl.-Post Line"
             exit(EntryNo);
 
         with ResJnlLine do begin
-            Init;
+            Init();
             CopyFromJobJnlLine(JobJnlLine2);
             ResLedgEntry.LockTable();
             ResJnlPostLine.RunWithCheck(ResJnlLine);
@@ -510,7 +512,7 @@ codeunit 1012 "Job Jnl.-Post Line"
     local procedure InitItemJnlLine()
     begin
         with ItemJnlLine do begin
-            Init;
+            Init();
             CopyFromJobJnlLine(JobJnlLine2);
 
             "Source Type" := "Source Type"::Customer;
@@ -615,7 +617,7 @@ codeunit 1012 "Job Jnl.-Post Line"
             ValueEntry.SetRange("Job Ledger Entry No.", 0);
             OnGetJobConsumptionValueEntryFilter(ValueEntry, JobJnlLine, JobJournalLine);
         end;
-        exit(ValueEntry.FindSet);
+        exit(ValueEntry.FindSet());
     end;
 
     local procedure ApplyToMatchingJobPlanningLine(var JobJnlLine: Record "Job Journal Line"; var JobPlanningLine: Record "Job Planning Line"): Boolean

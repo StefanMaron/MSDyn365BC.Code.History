@@ -92,9 +92,10 @@ page 5446 "Automation User Permission"
     end;
 
     var
-        MultipleRoleIDErr: Label 'The permission set %1 is defined multiple times in this context.', Comment = '%1 will be replaced with a Role ID code value from the Permission Set table';
         AutomationAPIManagement: Codeunit "Automation - API Management";
-        UserIDNotSpecifiedForLinesErr: Label 'You must specify a User Security ID to access user permissions.';
         LinesLoaded: Boolean;
+
+        MultipleRoleIDErr: Label 'The permission set %1 is defined multiple times in this context.', Comment = '%1 will be replaced with a Role ID code value from the Permission Set table';
+        UserIDNotSpecifiedForLinesErr: Label 'You must specify a User Security ID to access user permissions.';
 }
 #endif

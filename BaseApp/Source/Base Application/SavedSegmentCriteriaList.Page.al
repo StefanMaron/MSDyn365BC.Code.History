@@ -23,7 +23,7 @@ page 5141 "Saved Segment Criteria List"
                     ApplicationArea = All;
                     ToolTip = 'Specifies the description of the saved segment criteria.';
                 }
-                field("User ID"; "User ID")
+                field("User ID"; Rec."User ID")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the ID of the user who posted the entry, to be used, for example, in the change log.';
@@ -36,7 +36,7 @@ page 5141 "Saved Segment Criteria List"
                         UserMgt.DisplayUserInformation("User ID");
                     end;
                 }
-                field("No. of Actions"; "No. of Actions")
+                field("No. of Actions"; Rec."No. of Actions")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDown = false;

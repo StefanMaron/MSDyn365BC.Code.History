@@ -6,7 +6,6 @@ codeunit 5335 "Integration Table Synch."
     end;
 
     var
-        IntegrationTableMappingHasNoMappedFieldsErr: Label 'There are no field mapping rows for the %2 %3 in the %1 table.', Comment = '%1="Integration Field Mapping" table caption, %2="Integration Field Mapping.Integration Table Mapping Name" field caption, %3 Integration Table Mapping value';
         CurrentIntegrationSynchJob: Record "Integration Synch. Job";
         CurrentIntegrationTableMapping: Record "Integration Table Mapping";
         TempIntegrationFieldMapping: Record "Temp Integration Field Mapping" temporary;
@@ -14,12 +13,14 @@ codeunit 5335 "Integration Table Synch."
         SynchActionType: Option "None",Insert,Modify,ForceModify,IgnoreUnchanged,Fail,Skip,Delete,Uncouple,Couple;
         SynchJobType: Option Synchronization,Ucoupling,Coupling;
         JobState: Option Ready,Created,"In Progress";
+        JobQueueLogEntryNo: Integer;
+
+        IntegrationTableMappingHasNoMappedFieldsErr: Label 'There are no field mapping rows for the %2 %3 in the %1 table.', Comment = '%1="Integration Field Mapping" table caption, %2="Integration Field Mapping.Integration Table Mapping Name" field caption, %3 Integration Table Mapping value';
         UnableToDetectSynchDirectionErr: Label 'The synchronization direction cannot be determined.';
         MappingDoesNotAllowDirectionErr: Label 'The %1 %2 is not configured for %3 synchronization.', Comment = '%1 = Integration Table Mapping caption, %2 Integration Table Mapping Name, %3 = the calculated synch. direction (FromIntegrationTable|ToIntegrationTable)';
         InvalidStateErr: Label 'The synchronization process is in a state that is not valid.';
         DirectionChangeIsNotSupportedErr: Label 'You cannot change the synchronization direction after a job has started.';
         TablesDoNotMatchMappingErr: Label 'Source table %1 and destination table %2 do not match integration table mapping %3.', Comment = '%1,%2 - tables Ids; %2 - name of the mapping.';
-        JobQueueLogEntryNo: Integer;
 
     procedure BeginIntegrationSynchJob(ConnectionType: TableConnectionType; var IntegrationTableMapping: Record "Integration Table Mapping"; SourceTableID: Integer) JobID: Guid
     begin
@@ -48,7 +49,7 @@ codeunit 5335 "Integration Table Synch."
 
         IntegrationTableConnectionType := ConnectionType;
         CurrentIntegrationTableMapping := IntegrationTableMapping;
-        JobQueueLogEntryNo := IntegrationTableMapping.GetJobLogEntryNo;
+        JobQueueLogEntryNo := IntegrationTableMapping.GetJobLogEntryNo();
         if JobType = SynchJobType::Synchronization then
             DirectionIsDefined := DetermineSynchDirection(SourceTableID, ErrorMessage)
         else
@@ -124,7 +125,7 @@ codeunit 5335 "Integration Table Synch."
         if not DoesSourceMatchMapping(SourceRecordRef.Number) then begin
             FinishIntegrationSynchJob(
               StrSubstNo(
-                TablesDoNotMatchMappingErr, SourceRecordRef.Number, DestinationRecordRef.Number, CurrentIntegrationTableMapping.GetName));
+                TablesDoNotMatchMappingErr, SourceRecordRef.Number, DestinationRecordRef.Number, CurrentIntegrationTableMapping.GetName()));
             exit(false);
         end;
 
@@ -159,7 +160,7 @@ codeunit 5335 "Integration Table Synch."
                   CurrentIntegrationTableMapping, SourceRecordRef, DestinationRecordRef,
                   IntegrationRecordSynch, SynchAction, IgnoreSynchOnlyCoupledRecords, CurrentIntegrationSynchJob.ID,
                   IntegrationTableConnectionType);
-                if not IntegrationRecSynchInvoke.Run then begin
+                if not IntegrationRecSynchInvoke.Run() then begin
                     SynchAction := SynchActionType::Fail;
                     LogSynchError(SourceRecordRef, DestinationRecordRef, GetLastErrorText(), false);
                     IntegrationRecSynchInvoke.MarkIntegrationRecordAsFailed(
@@ -348,7 +349,7 @@ codeunit 5335 "Integration Table Synch."
         IntegrationRecDeleteInvoke.SetContext(
           CurrentIntegrationTableMapping, RecRef,
           SynchAction, CurrentIntegrationSynchJob.ID);
-        if not IntegrationRecDeleteInvoke.Run then begin
+        if not IntegrationRecDeleteInvoke.Run() then begin
             LogSynchError(RecRef, RecRef, GetLastErrorText);
             exit(false);
         end;
@@ -391,14 +392,6 @@ codeunit 5335 "Integration Table Synch."
         exit(0DT);
     end;
 
-#if not CLEAN18
-    [Obsolete('No need for setting the last synch time', '18.0')]
-    procedure GetStartDateTime(): DateTime
-    begin
-        exit(CurrentIntegrationSynchJob."Start Date/Time");
-    end;
-#endif
-
     local procedure EnsureState(RequiredState: Option)
     begin
         if (JobState = JobState::"In Progress") and (RequiredState = JobState::Created) then
@@ -430,7 +423,7 @@ codeunit 5335 "Integration Table Synch."
                 DummyIntegrationTableMapping.Direction := SynchDirection;
                 ErrorMessage :=
                   StrSubstNo(
-                    MappingDoesNotAllowDirectionErr, TableCaption, Name,
+                    MappingDoesNotAllowDirectionErr, TableCaption(), Name,
                     DummyIntegrationTableMapping.Direction);
                 exit(false);
             end;
@@ -463,11 +456,11 @@ codeunit 5335 "Integration Table Synch."
     local procedure CreateIntegrationSynchJobEntry(JobType: Option) JobID: Guid
     begin
         if CurrentIntegrationSynchJob.IsEmpty() or IsNullGuid(CurrentIntegrationSynchJob.ID) then begin
-            CurrentIntegrationSynchJob.Reset;
-            CurrentIntegrationSynchJob.Init;
-            CurrentIntegrationSynchJob.ID := CreateGuid;
+            CurrentIntegrationSynchJob.Reset();
+            CurrentIntegrationSynchJob.Init();
+            CurrentIntegrationSynchJob.ID := CreateGuid();
             CurrentIntegrationSynchJob."Start Date/Time" := CurrentDateTime;
-            CurrentIntegrationSynchJob."Integration Table Mapping Name" := CurrentIntegrationTableMapping.GetName;
+            CurrentIntegrationSynchJob."Integration Table Mapping Name" := CurrentIntegrationTableMapping.GetName();
             CurrentIntegrationSynchJob."Synch. Direction" := CurrentIntegrationTableMapping.Direction;
             CurrentIntegrationSynchJob."Job Queue Log Entry No." := JobQueueLogEntryNo;
             CurrentIntegrationSynchJob.Type := JobType;
@@ -487,7 +480,7 @@ codeunit 5335 "Integration Table Synch."
             SetFilter(Status, '<>%1', Status::Disabled);
             if IsEmpty() then
                 Error(
-                  IntegrationTableMappingHasNoMappedFieldsErr, TableCaption,
+                  IntegrationTableMappingHasNoMappedFieldsErr, TableCaption(),
                   FieldCaption("Integration Table Mapping Name"), IntegrationTableMapping.Name);
 
             TempIntegrationFieldMapping.DeleteAll();
@@ -567,7 +560,7 @@ codeunit 5335 "Integration Table Synch."
                 else
                     exit
             end;
-            Modify;
+            Modify();
             Commit();
         end;
     end;

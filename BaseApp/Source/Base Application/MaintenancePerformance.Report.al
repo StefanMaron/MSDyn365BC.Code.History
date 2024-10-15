@@ -12,7 +12,7 @@ report 5982 "Maintenance Performance"
         {
             DataItemTableView = SORTING("Responsibility Center", "Service Zone Code", Status, "Contract Group Code") WHERE(Status = CONST(Signed), "Contract Type" = CONST(Contract));
             RequestFilterFields = "Responsibility Center";
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(TodayFormatted; Format(Today, 0, 4))
@@ -90,7 +90,7 @@ report 5982 "Maintenance Performance"
                 Clear(ServShptHeader);
                 ServShptHeader.SetCurrentKey("Contract No.", "Posting Date");
                 ServShptHeader.SetRange("Contract No.", "Contract No.");
-                ServShptHeader.SetRange("Posting Date", StartingDate, WorkDate);
+                ServShptHeader.SetRange("Posting Date", StartingDate, WorkDate());
                 ActualServices := 0;
                 if ServShptHeader.Find('-') then
                     repeat
@@ -155,12 +155,12 @@ report 5982 "Maintenance Performance"
 
     trigger OnInitReport()
     begin
-        CurrentDate := WorkDate;
+        CurrentDate := WorkDate();
     end;
 
     trigger OnPreReport()
     begin
-        ServContractFilter := "Service Contract Header".GetFilters;
+        ServContractFilter := "Service Contract Header".GetFilters();
     end;
 
     var
@@ -208,10 +208,9 @@ report 5982 "Maintenance Performance"
                 if AllYear then begin
                     if TempDate <= EndingDate then
                         i := i + 1;
-                end else begin
+                end else
                     if (TempDate <= EndingDate) and (CalcDate(ServPeriod, TempDate) <= NextServiceDate) then
                         i := i + 1;
-                end;
                 TempDate := CalcDate(ServPeriod, TempDate);
             until TempDate >= EndingDate;
             exit(i);

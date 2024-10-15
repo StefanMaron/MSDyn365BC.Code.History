@@ -33,8 +33,8 @@ codeunit 142086 "Intrastat XML Export DACH"
         // [SCENARIO 255730] COD 11002 "Intrastat - Export Mgt. DACH".Initialize() checks for a Company Information mandatory fields
         Initialize();
         with CompanyInformation do begin
-            Init;
-            Modify;
+            Init();
+            Modify();
             VerifyCompInfMandatoryField(CompanyInformation, FieldNo("Registration No."));
             VerifyCompInfMandatoryField(CompanyInformation, FieldNo(Area));
             VerifyCompInfMandatoryField(CompanyInformation, FieldNo("Agency No."));
@@ -59,7 +59,7 @@ codeunit 142086 "Intrastat XML Export DACH"
         // [SCENARIO 255730] COD 11002 "Intrastat - Export Mgt. DACH".Initialize() checks for a Intrastat Contact Type mandatory field
         Initialize();
         with IntrastatSetup do begin
-            Get;
+            Get();
             Validate("Intrastat Contact Type", "Intrastat Contact Type"::" ");
             Modify(true);
 
@@ -74,7 +74,7 @@ codeunit 142086 "Intrastat XML Export DACH"
             // Blanket Contact No. (Type = Contact)
             asserterror IntrastatExportMgtDACH.Initialize(CurrentDateTime);
             Assert.ExpectedErrorCode('DB:RecordNotFound');
-            Assert.ExpectedError(Contact.TableCaption);
+            Assert.ExpectedError(Contact.TableCaption());
 
             Validate("Intrastat Contact Type", "Intrastat Contact Type"::Vendor);
             Modify(true);
@@ -82,7 +82,7 @@ codeunit 142086 "Intrastat XML Export DACH"
             // Blanket Contact No. (Type = Vendor)
             asserterror IntrastatExportMgtDACH.Initialize(CurrentDateTime);
             Assert.ExpectedErrorCode('DB:RecordNotFound');
-            Assert.ExpectedError(Vendor.TableCaption);
+            Assert.ExpectedError(Vendor.TableCaption());
         end;
     end;
 
@@ -762,7 +762,7 @@ codeunit 142086 "Intrastat XML Export DACH"
         // [THEN] XML has been exported with Amount = 0, Statistical Value = 100
         ExtractXMLFromZipFile(ZipFileTempBlob, XMLFileTempBlob);
         LibraryXPathXMLReader.InitializeWithBlob(XMLFileTempBlob, '');
-        IntrastatJnlLine.Find;
+        IntrastatJnlLine.Find();
         VerifyXMLItem('/INSTAT/Envelope/Declaration/', IntrastatJnlLine, 0);
         LibraryXPathXMLReader.VerifyNodeValueByXPath(
           '/INSTAT/Envelope/Declaration/Item/invoicedAmount', FormatDecimal(IntrastatJnlLine.Amount));
@@ -1069,7 +1069,7 @@ codeunit 142086 "Intrastat XML Export DACH"
             Validate(Quantity, LibraryRandom.RandDecInDecimalRange(1000, 2000, 2));
             Validate("Net Weight", LibraryRandom.RandDecInDecimalRange(1000, 2000, 2));
             Validate(Amount, LibraryRandom.RandDecInDecimalRange(1000, 2000, 2));
-            Modify;
+            Modify();
 
             IntrastatJnlLineSpec.Amount += Amount;
             IntrastatJnlLineSpec.Quantity += Quantity;
@@ -1081,7 +1081,7 @@ codeunit 142086 "Intrastat XML Export DACH"
     local procedure CreateItemSpecification(var IntrastatJnlLine: Record "Intrastat Jnl. Line"; NewType: Option; SU: Boolean; InternalRefNo: Text)
     begin
         with IntrastatJnlLine do begin
-            Init;
+            Init();
             "Internal Ref. No." := CopyStr(InternalRefNo, 1, MaxStrLen("Internal Ref. No."));
             Type := NewType;
             "Item Description" := LibraryUtility.GenerateGUID();
@@ -1119,11 +1119,11 @@ codeunit 142086 "Intrastat XML Export DACH"
     begin
         ServerFileReceiptsPath := FileManagement.ServerTempFileName('');
         ServerFileReceipts.Create(ServerFileReceiptsPath);
-        ServerFileReceipts.Close;
+        ServerFileReceipts.Close();
 
         ServerFileShipmentsPath := FileManagement.ServerTempFileName('');
         ServerFileShipments.Create(ServerFileShipmentsPath);
-        ServerFileShipments.Close;
+        ServerFileShipments.Close();
 
         DestinationFilePath := FileManagement.ServerTempFileName('');
     end;
@@ -1191,7 +1191,7 @@ codeunit 142086 "Intrastat XML Export DACH"
         CompanyInformation: Record "Company Information";
     begin
         with CompanyInformation do begin
-            Get;
+            Get();
             exit(Format(Area, 2) + Format("Registration No.") + Format("Agency No.", 3));
         end;
     end;
@@ -1319,7 +1319,7 @@ codeunit 142086 "Intrastat XML Export DACH"
         IntrastatSetup: Record "Intrastat Setup";
     begin
         with CompanyInformation do begin
-            Get;
+            Get();
             "Registration No." := '01234567890';
             Area := CopyStr(LibraryUtility.GenerateRandomXMLText(MaxStrLen(Area)), 1, MaxStrLen(Area));
             "Agency No." := CopyStr(LibraryUtility.GenerateRandomXMLText(MaxStrLen("Agency No.")), 1, MaxStrLen("Agency No."));
@@ -1335,7 +1335,7 @@ codeunit 142086 "Intrastat XML Export DACH"
             "Phone No." := LibraryUtility.GenerateGUID();
             "Fax No." := LibraryUtility.GenerateGUID();
             "E-Mail" := LibraryUtility.GenerateGUID();
-            Modify;
+            Modify();
         end;
         with IntrastatSetup do
             LibraryERM.SetIntrastatContact(
@@ -1355,7 +1355,7 @@ codeunit 142086 "Intrastat XML Export DACH"
 
     local procedure VerifyBatchReported(var IntrastatJnlBatch: Record "Intrastat Jnl. Batch"; ExpectedReportedValue: Boolean)
     begin
-        IntrastatJnlBatch.Find;
+        IntrastatJnlBatch.Find();
         IntrastatJnlBatch.TestField(Reported, ExpectedReportedValue);
         LibraryVariableStorage.AssertEmpty;
     end;
@@ -1420,7 +1420,7 @@ codeunit 142086 "Intrastat XML Export DACH"
             VerifyXMLAddress('/INSTAT/Envelope/Party/', Address, "Post Code", City, GetCountryName("Country/Region Code"), 0);
             VerifyXMLAddressDetails('/INSTAT/Envelope/Party/', "Phone No.", "Fax No.", "E-Mail", 0);
         end;
-        LibraryXPathXMLReader.VerifyNodeValueByXPath('/INSTAT/Envelope/softwareUsed', PRODUCTNAME.Full);
+        LibraryXPathXMLReader.VerifyNodeValueByXPath('/INSTAT/Envelope/softwareUsed', PRODUCTNAME.Full());
     end;
 
     local procedure VerifyXMLHeaderTimeDependentValues(MessageID: Text; CreationDate: Date; CreationTime: Time)

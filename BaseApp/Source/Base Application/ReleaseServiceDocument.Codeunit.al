@@ -7,7 +7,7 @@ codeunit 416 "Release Service Document"
     trigger OnRun()
     begin
         ServiceHeader.Copy(Rec);
-        Code;
+        Code();
         Rec := ServiceHeader;
     end;
 
@@ -60,8 +60,8 @@ codeunit 416 "Release Service Document"
             ServLine.Reset();
             Validate("Release Status", "Release Status"::"Released to Ship");
             ServLine.SetServHeader(ServiceHeader);
-            ServLine.CalcVATAmountLines(0, ServiceHeader, ServLine, TempVATAmountLine0, ServLine.IsShipment);
-            ServLine.CalcVATAmountLines(1, ServiceHeader, ServLine, TempVATAmountLine1, ServLine.IsShipment);
+            ServLine.CalcVATAmountLines(0, ServiceHeader, ServLine, TempVATAmountLine0, ServLine.IsShipment());
+            ServLine.CalcVATAmountLines(1, ServiceHeader, ServLine, TempVATAmountLine1, ServLine.IsShipment());
             ServLine.UpdateVATOnLines(0, ServiceHeader, ServLine, TempVATAmountLine0);
             ServLine.UpdateVATOnLines(1, ServiceHeader, ServLine, TempVATAmountLine1);
             Modify(true);

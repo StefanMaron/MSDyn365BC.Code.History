@@ -1,4 +1,4 @@
-﻿page 5098 "Task Card"
+page 5098 "Task Card"
 {
     Caption = 'Task Card';
     DeleteAllowed = false;
@@ -14,7 +14,7 @@
             {
                 Caption = 'General';
                 Editable = PagePartsEditable;
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
@@ -31,17 +31,17 @@
                     ToolTip = 'Specifies the location where the meeting will take place.';
                     Visible = NOT IsSoftwareAsAService;
                 }
-                field("Salesperson Code"; "Salesperson Code")
+                field("Salesperson Code"; Rec."Salesperson Code")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the code of the salesperson assigned to the task.';
 
                     trigger OnValidate()
                     begin
-                        SalespersonCodeOnAfterValidate;
+                        SalespersonCodeOnAfterValidate();
                     end;
                 }
-                field("No. of Attendees"; "No. of Attendees")
+                field("No. of Attendees"; Rec."No. of Attendees")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Enabled = NoOfAttendeesEnable;
@@ -49,14 +49,14 @@
 
                     trigger OnDrillDown()
                     begin
-                        Modify;
+                        Modify();
                         Commit();
                         PAGE.RunModal(PAGE::"Attendee Scheduling", Rec);
                         Get("No.");
                         CurrPage.Update();
                     end;
                 }
-                field("Attendees Accepted No."; "Attendees Accepted No.")
+                field("Attendees Accepted No."; Rec."Attendees Accepted No.")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Enabled = AttendeesAcceptedNoEnable;
@@ -64,14 +64,14 @@
 
                     trigger OnDrillDown()
                     begin
-                        Modify;
+                        Modify();
                         Commit();
                         PAGE.RunModal(PAGE::"Attendee Scheduling", Rec);
                         Get("No.");
                         CurrPage.Update();
                     end;
                 }
-                field("Contact No."; "Contact No.")
+                field("Contact No."; Rec."Contact No.")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Editable = ContactNoEditable;
@@ -99,7 +99,7 @@
                         ContactNoOnAfterValidate();
                     end;
                 }
-                field("Contact Name"; "Contact Name")
+                field("Contact Name"; Rec."Contact Name")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Editable = false;
@@ -132,23 +132,23 @@
                     ExtendedDatatype = EMail;
                     ToolTip = 'Specifies the email address of the contact to which this task has been assigned.';
                 }
-                field("Contact Company Name"; "Contact Company Name")
+                field("Contact Company Name"; Rec."Contact Company Name")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Editable = false;
                     ToolTip = 'Specifies the name of the company for which the contact involved in the task works.';
                 }
-                field("Team Code"; "Team Code")
+                field("Team Code"; Rec."Team Code")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the code of the team to which the task is assigned.';
 
                     trigger OnValidate()
                     begin
-                        TeamCodeOnAfterValidate;
+                        TeamCodeOnAfterValidate();
                     end;
                 }
-                field("Completed By"; "Completed By")
+                field("Completed By"; Rec."Completed By")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Editable = CompletedByEditable;
@@ -157,7 +157,7 @@
 
                     trigger OnValidate()
                     begin
-                        SwitchCardControls
+                        SwitchCardControls();
                     end;
                 }
                 field(Status; Status)
@@ -179,7 +179,7 @@
 
                     trigger OnValidate()
                     begin
-                        TypeOnAfterValidate;
+                        TypeOnAfterValidate();
                     end;
                 }
                 field(TypeOnPrem; Type)
@@ -191,7 +191,7 @@
 
                     trigger OnValidate()
                     begin
-                        TypeOnAfterValidate;
+                        TypeOnAfterValidate();
                     end;
                 }
                 field(AllDayEvent; "All Day Event")
@@ -203,7 +203,7 @@
 
                     trigger OnValidate()
                     begin
-                        AllDayEventOnAfterValidate;
+                        AllDayEventOnAfterValidate();
                     end;
                 }
                 field(Date; Date)
@@ -244,7 +244,7 @@
 
                     trigger OnValidate()
                     begin
-                        SwitchCardControls
+                        SwitchCardControls();
                     end;
                 }
                 field(Closed; Closed)
@@ -254,10 +254,10 @@
 
                     trigger OnValidate()
                     begin
-                        SwitchCardControls
+                        SwitchCardControls();
                     end;
                 }
-                field("Date Closed"; "Date Closed")
+                field("Date Closed"; Rec."Date Closed")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the date the task was closed.';
@@ -267,7 +267,7 @@
             {
                 Caption = 'Related Activities';
                 Editable = PagePartsEditable;
-                field("Campaign No."; "Campaign No.")
+                field("Campaign No."; Rec."Campaign No.")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the number of the campaign to which the task is linked.';
@@ -277,13 +277,13 @@
                         CampaignNoOnAfterValidate();
                     end;
                 }
-                field("Campaign Description"; "Campaign Description")
+                field("Campaign Description"; Rec."Campaign Description")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Editable = false;
                     ToolTip = 'Specifies the description of the campaign to which the task is linked.';
                 }
-                field("Opportunity No."; "Opportunity No.")
+                field("Opportunity No."; Rec."Opportunity No.")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the number of the opportunity to which the task is linked.';
@@ -293,7 +293,7 @@
                         OpportunityNoOnAfterValidate();
                     end;
                 }
-                field("Opportunity Description"; "Opportunity Description")
+                field("Opportunity Description"; Rec."Opportunity Description")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Editable = false;
@@ -311,17 +311,17 @@
 
                     trigger OnValidate()
                     begin
-                        RecurringOnPush;
+                        RecurringOnPush();
                     end;
                 }
-                field("Recurring Date Interval"; "Recurring Date Interval")
+                field("Recurring Date Interval"; Rec."Recurring Date Interval")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Editable = RecurringDateIntervalEditable;
                     Enabled = RecurringDateIntervalEnable;
                     ToolTip = 'Specifies the date formula to assign automatically a recurring task to a salesperson or team.';
                 }
-                field("Calc. Due Date From"; "Calc. Due Date From")
+                field("Calc. Due Date From"; Rec."Calc. Due Date From")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Editable = CalcDueDateFromEditable;
@@ -443,7 +443,7 @@
                         TempSegmentLine."Contact Company No." := "Contact Company No.";
                         TempSegmentLine."Campaign No." := "Campaign No.";
                         TempSegmentLine."Salesperson Code" := "Salesperson Code";
-                        TempSegmentLine.CreatePhoneCall;
+                        TempSegmentLine.CreatePhoneCall();
                     end;
                 }
             }
@@ -452,8 +452,6 @@
                 ApplicationArea = RelationshipMgmt;
                 Caption = '&Create Task';
                 Image = NewToDo;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Create a new task.';
 
                 trigger OnAction()
@@ -464,17 +462,28 @@
                 end;
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("&Create Task_Promoted"; "&Create Task")
+                {
+                }
+            }
+        }
     }
 
     trigger OnAfterGetRecord()
     begin
-        SwitchCardControls;
+        SwitchCardControls();
         if "No." <> "Organizer To-do No." then
             PagePartsEditable := false
         else
             PagePartsEditable := true;
-        SetRecurringEditable;
-        EnableFields;
+        SetRecurringEditable();
+        EnableFields();
         ContactNoOnFormat(Format("Contact No."));
         Contact.GetOrClear("Contact No.");
     end;
@@ -497,20 +506,20 @@
         CalcDueDateFromEditable := true;
         RecurringDateIntervalEditable := true;
         ContactNoEditable := true;
-        IsSoftwareAsAService := EnvironmentInfo.IsSaaS;
+        IsSoftwareAsAService := EnvironmentInfo.IsSaaS();
     end;
 
     trigger OnModifyRecord(): Boolean
     begin
         if ("Team Code" = '') and ("Salesperson Code" = '') then
             Error(
-              Text000, TableCaption, FieldCaption("Salesperson Code"), FieldCaption("Team Code"));
+              Text000, TableCaption(), FieldCaption("Salesperson Code"), FieldCaption("Team Code"));
 
         if (Type = Type::Meeting) and (not "All Day Event") then begin
             if "Start Time" = 0T then
-                Error(Text002, TableCaption, Type, FieldCaption("Start Time"));
+                Error(Text002, TableCaption(), Type, FieldCaption("Start Time"));
             if Duration = 0 then
-                Error(Text002, TableCaption, Type, FieldCaption(Duration));
+                Error(Text002, TableCaption(), Type, FieldCaption(Duration));
         end;
     end;
 
@@ -522,8 +531,6 @@
         MakePhoneCallIsNotAvailableErr: Label 'The Make Phone Call function for this task is available only in the Attendee Scheduling window.';
         MustAssignContactErr: Label 'You must assign a contact to this task before you can use the Make Phone Call function.';
         MultipleTxt: Label '(Multiple)';
-        [InDataSet]
-        ContactNoEditable: Boolean;
         [InDataSet]
         RecurringDateIntervalEditable: Boolean;
         [InDataSet]
@@ -554,13 +561,17 @@
         [InDataSet]
         PagePartsEditable: Boolean;
 
+    protected var
+        [InDataSet]
+        ContactNoEditable: Boolean;
+
     procedure SetRecurringEditable()
     begin
         RecurringDateIntervalEditable := Recurring;
         CalcDueDateFromEditable := Recurring;
     end;
 
-    local procedure EnableFields()
+    protected procedure EnableFields()
     begin
         RecurringDateIntervalEnable := Recurring;
         CalcDueDateFromEnable := Recurring;
@@ -585,7 +596,7 @@
         end;
 
         OnEnableFieldsOnBeforeGetEndDateTime(Rec, StartTimeEnable, EndingTimeEnable, DurationEnable, LocationEnable, AllDayEventEnable);
-        GetEndDateTime;
+        GetEndDateTime();
     end;
 
     local procedure SwitchCardControls()
@@ -613,7 +624,7 @@
 
     local procedure TeamCodeOnAfterValidate()
     begin
-        SwitchCardControls;
+        SwitchCardControls();
         CalcFields(
           "No. of Attendees",
           "Attendees Accepted No.",
@@ -623,24 +634,24 @@
           "Opportunity Description")
     end;
 
-    local procedure ContactNoOnAfterValidate()
+    protected procedure ContactNoOnAfterValidate()
     begin
         CalcFields("Contact Name", "Contact Company Name");
     end;
 
     local procedure TypeOnAfterValidate()
     begin
-        EnableFields;
+        EnableFields();
     end;
 
     local procedure AllDayEventOnAfterValidate()
     begin
-        EnableFields;
+        EnableFields();
     end;
 
     local procedure SalespersonCodeOnAfterValidate()
     begin
-        SwitchCardControls;
+        SwitchCardControls();
         CalcFields(
           "No. of Attendees",
           "Attendees Accepted No.",
@@ -662,7 +673,7 @@
 
     local procedure RecurringOnPush()
     begin
-        SetRecurringEditable;
+        SetRecurringEditable();
 
         OnAfterRecurringOnPush();
     end;

@@ -39,7 +39,7 @@ codeunit 144060 "ERM Test SEPA CT APC"
         RequiredMessageLength: Integer;
     begin
         // [SCENARIO TFS=109389] Message to recipient is stored in the exported file
-        Init;
+        Init();
         ClearGenJnlLine(GenJnlLine);
         RequiredMessageLength := 140;
 
@@ -74,7 +74,7 @@ codeunit 144060 "ERM Test SEPA CT APC"
         TempBlob: Codeunit "Temp Blob";
     begin
         // [SCENARIO TFS=109389] Export Single Line and verify APC requirements in XML file
-        Init;
+        Init();
         ClearGenJnlLine(GenJnlLine);
 
         // [GIVEN] A Payment Journal Line
@@ -101,7 +101,7 @@ codeunit 144060 "ERM Test SEPA CT APC"
         DocumentNo: Code[20];
     begin
         // [SCENARIO TFS=109389] Export Multiple Lines and verify APC requirements in XML file
-        Init;
+        Init();
         ClearGenJnlLine(GenJnlLine);
 
         // [GIVEN] Two Payment Journal Lines
@@ -128,7 +128,7 @@ codeunit 144060 "ERM Test SEPA CT APC"
         GenJnlLine: Record "Gen. Journal Line";
     begin
         // [SCENARIO TFS=109389] Verify that errors are thrown all the way to the UI
-        Init;
+        Init();
         ClearGenJnlLine(GenJnlLine);
 
         // [GIVEN] An empty payment Journal
@@ -204,7 +204,7 @@ codeunit 144060 "ERM Test SEPA CT APC"
     local procedure CreateGenJnlLine(var GenJnlLine: Record "Gen. Journal Line")
     begin
         with GenJnlLine do begin
-            Init;
+            Init();
             LibraryERM.CreateGeneralJnlLine(
               GenJnlLine, GenJournalTemplate.Name, GenJournalBatch.Name,
               "Document Type"::Payment, "Account Type"::Vendor, Vendor."No.", 1);
@@ -222,7 +222,7 @@ codeunit 144060 "ERM Test SEPA CT APC"
     local procedure CreateBankExpSetup()
     begin
         with BankExportImportSetup do begin
-            if Find then
+            if Find() then
                 Delete(true);
             Code := 'SEPA-TEST';
             Validate(Direction, Direction::Export);

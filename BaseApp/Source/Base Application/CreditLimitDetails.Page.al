@@ -12,7 +12,7 @@ page 1871 "Credit Limit Details"
     {
         area(content)
         {
-            field("No."; "No.")
+            field("No."; Rec."No.")
             {
                 ApplicationArea = Basic, Suite;
                 Editable = false;
@@ -24,7 +24,7 @@ page 1871 "Credit Limit Details"
                 Editable = false;
                 ToolTip = 'Specifies the customer''s name.';
             }
-            field("Balance (LCY)"; "Balance (LCY)")
+            field("Balance (LCY)"; Rec."Balance (LCY)")
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the payment amount that the customer owes for completed sales. This value is also known as the customer''s balance.';
@@ -65,13 +65,13 @@ page 1871 "Credit Limit Details"
                 Editable = false;
                 ToolTip = 'Specifies the sum of the amounts in all of the preceding fields in the window.';
             }
-            field("Credit Limit (LCY)"; "Credit Limit (LCY)")
+            field("Credit Limit (LCY)"; Rec."Credit Limit (LCY)")
             {
                 ApplicationArea = Basic, Suite;
                 Editable = false;
                 ToolTip = 'Specifies the maximum amount you allow the customer to exceed the payment balance before warnings are issued.';
             }
-            field(OverdueBalance; CalcOverdueBalance)
+            field(OverdueBalance; CalcOverdueBalance())
             {
                 ApplicationArea = Basic, Suite;
                 CaptionClass = OverdueAmountsTxt;
@@ -90,7 +90,7 @@ page 1871 "Credit Limit Details"
                     CustLedgEntry.DrillDownOnOverdueEntries(DtldCustLedgEntry);
                 end;
             }
-            field(GetInvoicedPrepmtAmountLCY; GetInvoicedPrepmtAmountLCY)
+            field(GetInvoicedPrepmtAmountLCY; GetInvoicedPrepmtAmountLCY())
             {
                 ApplicationArea = Prepayments;
                 Caption = 'Invoiced Prepayment Amount (LCY)';
@@ -107,7 +107,7 @@ page 1871 "Credit Limit Details"
     trigger OnOpenPage()
     begin
         if GetFilter("Date Filter") = '' then
-            SetFilter("Date Filter", '..%1', WorkDate);
+            SetFilter("Date Filter", '..%1', WorkDate());
         CalcFields("Balance (LCY)", "Shipped Not Invoiced (LCY)", "Serv Shipped Not Invoiced(LCY)");
     end;
 
@@ -144,7 +144,7 @@ page 1871 "Credit Limit Details"
         SetRange("No.", "No.");
 
         if GetFilter("Date Filter") = '' then
-            SetFilter("Date Filter", '..%1', WorkDate);
+            SetFilter("Date Filter", '..%1', WorkDate());
         CalcFields("Balance (LCY)", "Shipped Not Invoiced (LCY)", "Serv Shipped Not Invoiced(LCY)");
 
         Evaluate(OrderAmountTotalLCY, CreditLimitNotification.GetData('OrderAmountTotalLCY'));

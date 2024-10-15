@@ -1,3 +1,4 @@
+#if not CLEAN21
 page 2375 "BC O365 Quickbooks Settings"
 {
     Caption = ' ';
@@ -12,26 +13,26 @@ page 2375 "BC O365 Quickbooks Settings"
         {
             field(SyncWithQbo; SyncWithQboLbl)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Editable = false;
                 ShowCaption = false;
                 Visible = QBOVisible;
 
                 trigger OnDrillDown()
                 begin
-                    OnQuickBooksOnlineSyncClicked;
+                    OnQuickBooksOnlineSyncClicked();
                 end;
             }
             field(SyncWithQbd; SyncWithQbdLbl)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Editable = false;
                 ShowCaption = false;
                 Visible = QBDVisible;
 
                 trigger OnDrillDown()
                 begin
-                    OnQuickBooksDesktopSyncClicked;
+                    OnQuickBooksDesktopSyncClicked();
                 end;
             }
         }
@@ -43,15 +44,16 @@ page 2375 "BC O365 Quickbooks Settings"
 
     trigger OnOpenPage()
     begin
-        SetVisibility;
+        SetVisibility();
     end;
 
     var
-        SyncWithQboLbl: Label 'For QuickBooks Online, log in and allow Invoicing to access your QuickBooks.';
-        SyncWithQbdLbl: Label 'For QuickBooks Desktop, launch the setup guide.';
         O365SalesManagement: Codeunit "O365 Sales Management";
         QBDVisible: Boolean;
         QBOVisible: Boolean;
+
+        SyncWithQboLbl: Label 'For QuickBooks Online, log in and allow Invoicing to access your QuickBooks.';
+        SyncWithQbdLbl: Label 'For QuickBooks Desktop, launch the setup guide.';
 
     [IntegrationEvent(false, false)]
     [Scope('OnPrem')]
@@ -70,4 +72,4 @@ page 2375 "BC O365 Quickbooks Settings"
         O365SalesManagement.GetQboQbdVisibility(QBOVisible, QBDVisible);
     end;
 }
-
+#endif

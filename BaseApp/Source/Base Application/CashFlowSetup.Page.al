@@ -17,7 +17,7 @@ page 846 "Cash Flow Setup"
             group(General)
             {
                 Caption = 'General';
-                field("Automatic Update Frequency"; "Automatic Update Frequency")
+                field("Automatic Update Frequency"; Rec."Automatic Update Frequency")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the automatic update frequency of the cash flow forecast. The Cash Flow Forecast with "Show in Chart on Role Center" set will be used for the automatic update.';
@@ -26,47 +26,47 @@ page 846 "Cash Flow Setup"
             group(Accounts)
             {
                 Caption = 'Accounts';
-                field("Receivables CF Account No."; "Receivables CF Account No.")
+                field("Receivables CF Account No."; Rec."Receivables CF Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the receivables account number that is used in cash flow forecasts.';
                 }
-                field("Payables CF Account No."; "Payables CF Account No.")
+                field("Payables CF Account No."; Rec."Payables CF Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the payables account number that is used in cash flow forecasts.';
                 }
-                field("Sales Order CF Account No."; "Sales Order CF Account No.")
+                field("Sales Order CF Account No."; Rec."Sales Order CF Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the sales order account number that is used in cash flow forecasts.';
                 }
-                field("Service CF Account No."; "Service CF Account No.")
+                field("Service CF Account No."; Rec."Service CF Account No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the service account number that is used in cash flow forecasts.';
                 }
-                field("Purch. Order CF Account No."; "Purch. Order CF Account No.")
+                field("Purch. Order CF Account No."; Rec."Purch. Order CF Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the purchase order account number that is used in cash flow forecasts.';
                 }
-                field("FA Budget CF Account No."; "FA Budget CF Account No.")
+                field("FA Budget CF Account No."; Rec."FA Budget CF Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the fixed asset budget account number that is used in cash flow forecasts.';
                 }
-                field("FA Disposal CF Account No."; "FA Disposal CF Account No.")
+                field("FA Disposal CF Account No."; Rec."FA Disposal CF Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the fixed asset disposal account number that is used in cash flow forecasts.';
                 }
-                field("Job CF Account No."; "Job CF Account No.")
+                field("Job CF Account No."; Rec."Job CF Account No.")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the job account number that is used in cash flow forecasts.';
                 }
-                field("Tax CF Account No."; "Tax CF Account No.")
+                field("Tax CF Account No."; Rec."Tax CF Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the tax account number that is used in cash flow forecasts.';
@@ -75,7 +75,7 @@ page 846 "Cash Flow Setup"
             group(Numbering)
             {
                 Caption = 'Numbering';
-                field("Cash Flow Forecast No. Series"; "Cash Flow Forecast No. Series")
+                field("Cash Flow Forecast No. Series"; Rec."Cash Flow Forecast No. Series")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number series that is used in cash flow forecasts.';
@@ -84,28 +84,28 @@ page 846 "Cash Flow Setup"
             group(Tax)
             {
                 Caption = 'Tax';
-                field("Taxable Period"; "Taxable Period")
+                field("Taxable Period"; Rec."Taxable Period")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies how often tax payment is registered.';
                 }
-                field("Tax Payment Window"; "Tax Payment Window")
+                field("Tax Payment Window"; Rec."Tax Payment Window")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a date formula for calculating how soon after the previous tax period finished, the tax payment is registered.';
                 }
-                field("Tax Bal. Account Type"; "Tax Bal. Account Type")
+                field("Tax Bal. Account Type"; Rec."Tax Bal. Account Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the type of the balancing account that your taxes are paid to.';
 
                     trigger OnValidate()
                     begin
-                        TaxAccountTypeValid := HasValidTaxAccountInfo;
+                        TaxAccountTypeValid := HasValidTaxAccountInfo();
                         CurrPage.Update();
                     end;
                 }
-                field("Tax Bal. Account No."; "Tax Bal. Account No.")
+                field("Tax Bal. Account No."; Rec."Tax Bal. Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = TaxAccountTypeValid;
@@ -115,12 +115,12 @@ page 846 "Cash Flow Setup"
             group("Azure AI")
             {
                 Caption = 'Azure AI';
-                field("Period Type"; "Period Type")
+                field("Period Type"; Rec."Period Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the type of period that you want to see the forecast by.';
                 }
-                field("Historical Periods"; "Historical Periods")
+                field("Historical Periods"; Rec."Historical Periods")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of historical periods to include in the forecast.';
@@ -130,23 +130,23 @@ page 846 "Cash Flow Setup"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies how many periods you want the forecast to cover.';
                 }
-                field("API URL"; "API URL")
+                field("API URL"; Rec."API URL")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the API URI to the AzureML instance.';
                 }
-                field("API Key"; "API Key")
+                field("API Key"; Rec."API Key")
                 {
                     ApplicationArea = Basic, Suite;
                     ExtendedDatatype = Masked;
                     ToolTip = 'Specifies the API Key to the AzureML time series experiment.';
                 }
-                field("Time Series Model"; "Time Series Model")
+                field("Time Series Model"; Rec."Time Series Model")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the time series model to be used for the cash flow forecast.';
                 }
-                field("Variance %"; "Variance %")
+                field("Variance %"; Rec."Variance %")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the range of deviation, plus or minus, that you''ll accept in the forecast. Lower percentages represent more accurate forecasts, and are typically between 20 and 40. Forecasts outside the range are considered inaccurate, and do not display.';
@@ -179,9 +179,6 @@ page 846 "Cash Flow Setup"
                     Caption = 'Open Azure AI Gallery';
                     Gesture = None;
                     Image = LinkWeb;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedOnly = true;
                     ToolTip = 'Explore models for Azure Machine Learning, and use Azure Machine Learning Studio to build, test, and deploy the Forecasting Model for Dynamics 365 Business Central.';
 
                     trigger OnAction()
@@ -191,20 +188,31 @@ page 846 "Cash Flow Setup"
                 }
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("Open Azure AI Gallery_Promoted"; "Open Azure AI Gallery")
+                {
+                }
+            }
+        }
     }
 
     trigger OnAfterGetRecord()
     begin
-        TaxAccountTypeValid := HasValidTaxAccountInfo;
-        "API Key" := GetUserDefinedAPIKey;
+        TaxAccountTypeValid := HasValidTaxAccountInfo();
+        "API Key" := GetUserDefinedAPIKey();
     end;
 
     trigger OnOpenPage()
     begin
-        Reset;
-        if not Get then begin
-            Init;
-            Insert;
+        Reset();
+        if not Get() then begin
+            Init();
+            Insert();
         end;
     end;
 

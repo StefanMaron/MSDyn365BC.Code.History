@@ -47,7 +47,7 @@ codeunit 144001 VATSTAT
         // Purpose of the test is to validate that a FDF file is generated.
         // Setup.
         Initialize();
-        EnqueRequestPageFields(WorkDate, 0D, "VAT Statement Report Selection"::"Open and Closed", "VAT Statement Report Period Selection"::"Within Period",
+        EnqueRequestPageFields(WorkDate(), 0D, "VAT Statement Report Selection"::"Open and Closed", "VAT Statement Report Period Selection"::"Within Period",
           ReportingType::Month, false, false, false, false, 0);
 
         // Exercise: Run the VAT Statement AT report.
@@ -68,7 +68,7 @@ codeunit 144001 VATSTAT
         // Purpose of the test is to validate that a FDF file is generated.
         // Setup.
         Initialize();
-        EnqueRequestPageFields(0D, WorkDate, "VAT Statement Report Selection"::"Open and Closed", "VAT Statement Report Period Selection"::"Within Period",
+        EnqueRequestPageFields(0D, WorkDate(), "VAT Statement Report Selection"::"Open and Closed", "VAT Statement Report Period Selection"::"Within Period",
           ReportingType::Quarter, false, false, false, false, 0);
 
         // Exercise: Run the VAT Statement AT report.
@@ -92,7 +92,7 @@ codeunit 144001 VATSTAT
     begin
         // Enter a domestic sales invoice and verify that the data in the generated FDF file.
         Initialize();
-        EnqueRequestPageFields(WorkDate, WorkDate, "VAT Statement Report Selection"::"Open and Closed", "VAT Statement Report Period Selection"::"Within Period",
+        EnqueRequestPageFields(WorkDate(), WorkDate(), "VAT Statement Report Selection"::"Open and Closed", "VAT Statement Report Period Selection"::"Within Period",
           ReportingType::"Defined period", false, false, false, false, 0);
 
         // Create a domestic sales invoice.
@@ -133,7 +133,7 @@ codeunit 144001 VATSTAT
         Initialize();
         SetupVatStatementLine('1000', 'EULIEF', true, GetTemplateName());
         SetupVatStatementLine('1017', 'EULIEF', true, GetTemplateName());
-        EnqueRequestPageFields(WorkDate, WorkDate, "VAT Statement Report Selection"::"Open and Closed", "VAT Statement Report Period Selection"::"Within Period",
+        EnqueRequestPageFields(WorkDate(), WorkDate(), "VAT Statement Report Selection"::"Open and Closed", "VAT Statement Report Period Selection"::"Within Period",
           ReportingType::"Defined period", false, false, false, false, 0);
 
         // Create an eu sales invoice.
@@ -173,7 +173,7 @@ codeunit 144001 VATSTAT
         // Enter a foreign sales invoice and verify that the data in the generated FDF file.
         Initialize();
         SetupVatStatementLine('1011', 'BU0', true, GetTemplateName());
-        EnqueRequestPageFields(WorkDate, WorkDate, "VAT Statement Report Selection"::"Open and Closed", "VAT Statement Report Period Selection"::"Within Period",
+        EnqueRequestPageFields(WorkDate(), WorkDate(), "VAT Statement Report Selection"::"Open and Closed", "VAT Statement Report Period Selection"::"Within Period",
           ReportingType::"Defined period", false, false, false, false, 0);
 
         // Create a foreign sales invoice.
@@ -212,7 +212,7 @@ codeunit 144001 VATSTAT
     begin
         // Enter a domestic purchase invoice and verify that the data in the generated FDF file.
         Initialize();
-        EnqueRequestPageFields(WorkDate, WorkDate, "VAT Statement Report Selection"::"Open and Closed", "VAT Statement Report Period Selection"::"Within Period",
+        EnqueRequestPageFields(WorkDate(), WorkDate(), "VAT Statement Report Selection"::"Open and Closed", "VAT Statement Report Period Selection"::"Within Period",
           ReportingType::"Defined period", false, false, false, false, 0);
 
         // Create a domestic purchase invoice.
@@ -250,7 +250,7 @@ codeunit 144001 VATSTAT
     begin
         // Enter an eu purchase invoice and verify that the data in the generated FDF file.
         Initialize();
-        EnqueRequestPageFields(WorkDate, WorkDate, "VAT Statement Report Selection"::"Open and Closed", "VAT Statement Report Period Selection"::"Within Period",
+        EnqueRequestPageFields(WorkDate(), WorkDate(), "VAT Statement Report Selection"::"Open and Closed", "VAT Statement Report Period Selection"::"Within Period",
           ReportingType::"Defined period", false, false, false, false, 0);
 
         // Create an eu purchase invoice.
@@ -290,7 +290,7 @@ codeunit 144001 VATSTAT
     begin
         // Enter a foreign purchase invoice and verify that the data in the generated FDF file.
         Initialize();
-        EnqueRequestPageFields(WorkDate, WorkDate, "VAT Statement Report Selection"::"Open and Closed", "VAT Statement Report Period Selection"::"Within Period",
+        EnqueRequestPageFields(WorkDate(), WorkDate(), "VAT Statement Report Selection"::"Open and Closed", "VAT Statement Report Period Selection"::"Within Period",
           ReportingType::"Defined period", false, false, false, false, 0);
 
         // Create a foreign purchase invoice.
@@ -324,7 +324,7 @@ codeunit 144001 VATSTAT
     begin
         // Enter a domestic sales invoice and verify that the data in the generated FDF file.
         Initialize();
-        EnqueRequestPageFields(WorkDate, WorkDate, "VAT Statement Report Selection"::"Open and Closed", "VAT Statement Report Period Selection"::"Within Period",
+        EnqueRequestPageFields(WorkDate(), WorkDate(), "VAT Statement Report Selection"::"Open and Closed", "VAT Statement Report Period Selection"::"Within Period",
           ReportingType::"Defined period", false, false, false, false, 0);
 
         // Create a domestic sales invoice.
@@ -369,7 +369,7 @@ codeunit 144001 VATSTAT
 
         // [GIVEN] Setup VAT Statement Line '1067' with 'Row Totaling' = 'UST20' (Sale Domestic VAT20)
         SetupVatStatementLine('1067', 'UST20', true, GetTemplateName());
-        EnqueRequestPageFields(WorkDate, WorkDate, "VAT Statement Report Selection"::"Open and Closed", "VAT Statement Report Period Selection"::"Within Period",
+        EnqueRequestPageFields(WorkDate(), WorkDate(), "VAT Statement Report Selection"::"Open and Closed", "VAT Statement Report Period Selection"::"Within Period",
           ReportingType::"Defined period", false, false, false, false, 0);
 
         // [GIVEN] Posted domestic Sales Credit Memo (VAT Amount = 100)
@@ -415,7 +415,7 @@ codeunit 144001 VATSTAT
         // [SCENARIO 382292] VAT Statement Line '1067' is exported in case of Purchase Credit Memo
         Initialize();
 
-        EnqueRequestPageFields(WorkDate, WorkDate, "VAT Statement Report Selection"::"Open and Closed", "VAT Statement Report Period Selection"::"Within Period",
+        EnqueRequestPageFields(WorkDate(), WorkDate(), "VAT Statement Report Selection"::"Open and Closed", "VAT Statement Report Period Selection"::"Within Period",
           ReportingType::"Defined period", false, false, false, false, 0);
 
         // [GIVEN] Posted EU Purchase Invoice (VAT Amount = 100)
@@ -461,7 +461,7 @@ codeunit 144001 VATSTAT
         Initialize();
         SetupVatStatementLine('1000', 'EULIEF', true, GetTemplateName());
         SetupVatStatementLine('1017', 'EULIEF', true, GetTemplateName());
-        EnqueRequestPageFields(WorkDate, WorkDate, "VAT Statement Report Selection"::"Open and Closed", "VAT Statement Report Period Selection"::"Within Period",
+        EnqueRequestPageFields(WorkDate(), WorkDate(), "VAT Statement Report Selection"::"Open and Closed", "VAT Statement Report Period Selection"::"Within Period",
           ReportingType::"Defined period", false, false, false, false, 0);
 
         // Create an eu sales invoice.
@@ -497,7 +497,7 @@ codeunit 144001 VATSTAT
 
         // [GIVEN] Setup VAT Statement Line '1011' with 'Row Totaling' = 'BU0' (Sale Export VAT10)
         SetupVatStatementLine('1011', 'BU0', true, GetTemplateName());
-        EnqueRequestPageFields(WorkDate, WorkDate, "VAT Statement Report Selection"::"Open and Closed", "VAT Statement Report Period Selection"::"Within Period",
+        EnqueRequestPageFields(WorkDate(), WorkDate(), "VAT Statement Report Selection"::"Open and Closed", "VAT Statement Report Period Selection"::"Within Period",
           ReportingType::"Defined period", false, false, false, false, 0);
 
         // [GIVEN] Foreign sales invoice
@@ -547,7 +547,7 @@ codeunit 144001 VATSTAT
 
         CreateItem(Item, VATProPostingGroupCode);
 
-        EnqueRequestPageFields(WorkDate, WorkDate, "VAT Statement Report Selection"::"Open and Closed", "VAT Statement Report Period Selection"::"Within Period",
+        EnqueRequestPageFields(WorkDate(), WorkDate(), "VAT Statement Report Selection"::"Open and Closed", "VAT Statement Report Period Selection"::"Within Period",
           ReportingType::"Defined period", false, false, false, false, 0);
 
         // Create a foreign purchase invoice.
@@ -602,7 +602,7 @@ codeunit 144001 VATSTAT
 
         CreateItem(Item, VATProPostingGroupCode);
 
-        EnqueRequestPageFields(WorkDate, WorkDate, "VAT Statement Report Selection"::"Open and Closed", "VAT Statement Report Period Selection"::"Within Period",
+        EnqueRequestPageFields(WorkDate(), WorkDate(), "VAT Statement Report Selection"::"Open and Closed", "VAT Statement Report Period Selection"::"Within Period",
           ReportingType::"Defined period", false, false, false, false, 0);
 
         // Create a foreign purchase invoice.
@@ -659,7 +659,7 @@ codeunit 144001 VATSTAT
 
         CreateItem(Item, VATProPostingGroupCode);
 
-        EnqueRequestPageFields(WorkDate, WorkDate, "VAT Statement Report Selection"::"Open and Closed", "VAT Statement Report Period Selection"::"Within Period",
+        EnqueRequestPageFields(WorkDate(), WorkDate(), "VAT Statement Report Selection"::"Open and Closed", "VAT Statement Report Period Selection"::"Within Period",
           ReportingType::"Defined period", false, false, false, false, 0);
 
         // Create a foreign purchase invoice.
@@ -714,7 +714,7 @@ codeunit 144001 VATSTAT
 
         CreateItem(Item, VATProPostingGroupCode);
 
-        EnqueRequestPageFields(WorkDate, WorkDate, "VAT Statement Report Selection"::"Open and Closed", "VAT Statement Report Period Selection"::"Within Period",
+        EnqueRequestPageFields(WorkDate(), WorkDate(), "VAT Statement Report Selection"::"Open and Closed", "VAT Statement Report Period Selection"::"Within Period",
           ReportingType::"Defined period", false, false, false, false, 0);
 
         // Create a foreign purchase invoice.
@@ -756,7 +756,7 @@ codeunit 144001 VATSTAT
     begin
         // Enter an eu purchase invoice and verify that the data in the generated FDF file.
         Initialize();
-        EnqueRequestPageFields(WorkDate, WorkDate, "VAT Statement Report Selection"::"Open and Closed", "VAT Statement Report Period Selection"::"Within Period",
+        EnqueRequestPageFields(WorkDate(), WorkDate(), "VAT Statement Report Selection"::"Open and Closed", "VAT Statement Report Period Selection"::"Within Period",
           ReportingType::"Defined period", false, false, true, true, 0);
 
         // Create an eu purchase invoice.
@@ -830,7 +830,7 @@ codeunit 144001 VATSTAT
           CreateAndPostPurchaseDocumentOnItem(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VATBusPostingGroupCode, Item2);
 
         // Exercise.
-        EnqueRequestPageFields(WorkDate, WorkDate, "VAT Statement Report Selection"::"Open and Closed", "VAT Statement Report Period Selection"::"Within Period",
+        EnqueRequestPageFields(WorkDate(), WorkDate(), "VAT Statement Report Selection"::"Open and Closed", "VAT Statement Report Period Selection"::"Within Period",
           ReportingType::"Defined period", false, false, false, false, 0);
         VATStatementAT.InitializeRequest(FdfFileName, XmlFileName);
         VATStatementAT.RunModal();
@@ -942,7 +942,7 @@ codeunit 144001 VATSTAT
         CompanyInformation."Room Number" := '86Raum';
         CompanyInformation.Modify();
         Commit();
-        EnqueRequestPageFields(0D, WorkDate, "VAT Statement Report Selection"::"Open and Closed", "VAT Statement Report Period Selection"::"Within Period",
+        EnqueRequestPageFields(0D, WorkDate(), "VAT Statement Report Selection"::"Open and Closed", "VAT Statement Report Period Selection"::"Within Period",
           ReportingType::Quarter, false, false, false, false, 0);
 
         // Exercise: Run the VAT Statement AT report.
@@ -985,7 +985,7 @@ codeunit 144001 VATSTAT
         SetupVatStatementLine('1019', '', false, 'VAT');
 
         // [GIVEN] Set VAT Statement AT request page parameters with "Number of Art. 6 Abs. 1" = 1 and post a sales document
-        EnqueRequestPageFields(WorkDate, WorkDate, "VAT Statement Report Selection"::"Open and Closed", "VAT Statement Report Period Selection"::"Within Period",
+        EnqueRequestPageFields(WorkDate(), WorkDate(), "VAT Statement Report Selection"::"Open and Closed", "VAT Statement Report Period Selection"::"Within Period",
           ReportingType::Quarter, true, false, false, false, 1);
         CreateAndPostSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice, GetExportGroup());
 
@@ -1016,7 +1016,7 @@ codeunit 144001 VATSTAT
 
         // [GIVEN] Set VAT Statement AT request page parameters with "Number of Art. 6 Abs. 1" = 0 and post a sales document
         EnqueRequestPageFields(
-            WorkDate, WorkDate, "VAT Statement Report Selection"::"Open and Closed", "VAT Statement Report Period Selection"::"Within Period",
+            WorkDate, WorkDate(), "VAT Statement Report Selection"::"Open and Closed", "VAT Statement Report Period Selection"::"Within Period",
             ReportingType::Quarter, true, false, false, false, 0);
         CreateAndPostSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice, GetExportGroup());
 
@@ -1533,7 +1533,7 @@ codeunit 144001 VATSTAT
         PdfFileName := CopyStr(FileMgt.ServerTempFileName('pdf'), 1, 260);
         PdfFile.Create(PdfFileName);
         PdfFile.Write(PdfFileName);
-        PdfFile.Close;
+        PdfFile.Close();
 
         FdfFileName := CopyStr(FileMgt.GetDirectoryName(PdfFileName) + '\' + DefaultFdfTxt, 1, 260);
         XmlFileName := CopyStr(FileMgt.GetDirectoryName(PdfFileName) + '\' + DefaultXmlTxt, 1, 260);
@@ -1571,7 +1571,7 @@ codeunit 144001 VATSTAT
                     "Row Totaling" := CopyStr("Row Totaling" + RowTotalingFilter, 1, MaxStrLen("Row Totaling"));
                 end else
                     "Row Totaling" := CopyStr(RowTotalingFilter, 1, MaxStrLen("Row Totaling"));
-                Modify;
+                Modify();
             end;
         end;
     end;
@@ -1896,9 +1896,9 @@ codeunit 144001 VATSTAT
 
         VerifyXMLValueInErklaerung(LibraryXPathXMLReader, 'ALLGEMEINE_DATEN/ANBRINGEN', 'U30');
         VerifyXMLValueInErklaerung(LibraryXPathXMLReader, 'ALLGEMEINE_DATEN/ZRVON/@type', 'jahrmonat');
-        VerifyXMLValueInErklaerung(LibraryXPathXMLReader, 'ALLGEMEINE_DATEN/ZRVON', Format(WorkDate, 0, '<Year4>-<Month,2>'));
+        VerifyXMLValueInErklaerung(LibraryXPathXMLReader, 'ALLGEMEINE_DATEN/ZRVON', Format(WorkDate(), 0, '<Year4>-<Month,2>'));
         VerifyXMLValueInErklaerung(LibraryXPathXMLReader, 'ALLGEMEINE_DATEN/ZRBIS/@type', 'jahrmonat');
-        VerifyXMLValueInErklaerung(LibraryXPathXMLReader, 'ALLGEMEINE_DATEN/ZRBIS', Format(WorkDate, 0, '<Year4>-<Month,2>'));
+        VerifyXMLValueInErklaerung(LibraryXPathXMLReader, 'ALLGEMEINE_DATEN/ZRBIS', Format(WorkDate(), 0, '<Year4>-<Month,2>'));
         VerifyXMLValueInErklaerung(LibraryXPathXMLReader, 'ALLGEMEINE_DATEN/FASTNR', '991234567');
     end;
 
@@ -1937,7 +1937,7 @@ codeunit 144001 VATSTAT
             else
                 LineNoToCreate := 1;
 
-            Init;
+            Init();
             Validate("Line No.", LineNoToCreate);
             Validate("Row No.", RowNo);
             Validate(Type, Type::"VAT Entry Totaling");
@@ -1965,7 +1965,7 @@ codeunit 144001 VATSTAT
             else
                 LineNoToCreate := 1;
 
-            Init;
+            Init();
             Validate("Line No.", LineNoToCreate);
             Validate("Row No.", RowNo);
             Validate(Type, Type::"Row Totaling");

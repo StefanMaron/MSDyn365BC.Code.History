@@ -1,4 +1,4 @@
-﻿codeunit 7600 "Calendar Management"
+codeunit 7600 "Calendar Management"
 {
 
     trigger OnRun()
@@ -283,7 +283,7 @@
         CompanyInfo: Record "Company Information";
         WhereUsedBaseCalendar: Record "Where Used Base Calendar";
     begin
-        if CompanyInfo.Get then
+        if CompanyInfo.Get() then
             if CompanyInfo."Base Calendar Code" = BaseCalendarCode then begin
                 WhereUsedBaseCalendar.Init();
                 WhereUsedBaseCalendar."Base Calendar Code" := CompanyInfo."Base Calendar Code";
@@ -340,12 +340,12 @@
         ServMgtSetup: Record "Service Mgt. Setup";
         WhereUsedBaseCalendar: Record "Where Used Base Calendar";
     begin
-        if ServMgtSetup.Get then
+        if ServMgtSetup.Get() then
             if ServMgtSetup."Base Calendar Code" = BaseCalendarCode then begin
                 WhereUsedBaseCalendar.Init();
                 WhereUsedBaseCalendar."Base Calendar Code" := ServMgtSetup."Base Calendar Code";
                 WhereUsedBaseCalendar."Source Type" := WhereUsedBaseCalendar."Source Type"::Service;
-                WhereUsedBaseCalendar."Source Name" := ServMgtSetup.TableCaption;
+                WhereUsedBaseCalendar."Source Name" := ServMgtSetup.TableCaption();
                 WhereUsedBaseCalendar."Customized Changes Exist" := CustomizedChangesExist(ServMgtSetup);
                 WhereUsedBaseCalendar.Insert();
             end;
@@ -398,7 +398,7 @@
     begin
         FillSource(SourceVariant, CustomizedCalendarChange);
         with CustomizedCalendarChange do begin
-            Reset;
+            Reset();
             SetRange("Source Type", "Source Type");
             SetRange("Source Code", "Source Code");
             SetRange("Additional Source Code", "Additional Source Code");
@@ -411,20 +411,20 @@
     var
         CompanyInfo: Record "Company Information";
         CalendarMgt: array[2] of Codeunit "Calendar Management";
+        DateFormula: DateFormula;
+        NegDateFormula: DateFormula;
         LoopCounter: Integer;
         NewDate: Date;
         LoopFactor: Integer;
         CalConvTimeFrame: Integer;
-        DateFormula: DateFormula;
-        NegDateFormula: DateFormula;
         CalendarChangeNo: Integer;
     begin
         if not IsOnBeforeCalcDateBOCHandled(CustomCalendarChange, CalConvTimeFrame) then begin
             CustomCalendarChange[1].AdjustSourceType();
             CustomCalendarChange[2].AdjustSourceType();
 
-            if CompanyInfo.Get then
-                CalConvTimeFrame := CalcDate(CompanyInfo."Cal. Convergence Time Frame", WorkDate) - WorkDate;
+            if CompanyInfo.Get() then
+                CalConvTimeFrame := CalcDate(CompanyInfo."Cal. Convergence Time Frame", WorkDate()) - WorkDate();
 
             CustomCalendarChange[1].CalcCalendarCode();
             CustomCalendarChange[2].CalcCalendarCode();
@@ -436,7 +436,7 @@
         Evaluate(NegDateFormula, '<-0D>');
 
         if OrgDate = 0D then
-            OrgDate := WorkDate;
+            OrgDate := WorkDate();
         if (CalcDate(DateFormula, OrgDate) >= OrgDate) and (DateFormula <> NegDateFormula) then
             LoopFactor := 1
         else
@@ -465,9 +465,9 @@
             CalendarMgt[2].IsNonworkingDay(NewDate, CustomCalendarChange[2]);
 
             OnCalcDateBOCOnAfterSetNonworking(CustomCalendarChange);
-            if CustomCalendarChange[1].Nonworking or CheckBothCalendars and CustomCalendarChange[2].Nonworking then begin
-                NewDate := NewDate + LoopFactor;
-            end else
+            if CustomCalendarChange[1].Nonworking or CheckBothCalendars and CustomCalendarChange[2].Nonworking then
+                NewDate := NewDate + LoopFactor
+            else
                 exit(NewDate);
         until LoopCounter >= CalConvTimeFrame;
         exit(NewDate);
@@ -484,8 +484,8 @@
 
     local procedure ReverseSign(DateFormulaExpr: Text[30]): Text[30]
     var
-        NewDateFormulaExpr: Text[30];
         Formula: DateFormula;
+        NewDateFormulaExpr: Text[30];
     begin
         Evaluate(Formula, DateFormulaExpr);
         NewDateFormulaExpr := ConvertStr(Format(Formula), '+-', '-+');
@@ -636,6 +636,7 @@
         if not (CopyStr(DateFormulaAsText, 1, 1) in ['+', '-']) then
             DateFormulaAsText := '+' + DateFormulaAsText;
 
+        j := 0;
         for i := 1 to StrLen(DateFormulaAsText) do
             if DateFormulaAsText[i] in ['+', '-'] then begin
                 SummandPositions[j + 1] := i;
@@ -646,13 +647,12 @@
                     DateFormulaAsText[i] := '+';
             end;
 
-        for i := j downto 1 do begin
+        for i := j downto 1 do
             if i = j then
                 ReversedDateFormulaAsText := CopyStr(DateFormulaAsText, SummandPositions[i])
             else
                 ReversedDateFormulaAsText :=
                   ReversedDateFormulaAsText + CopyStr(DateFormulaAsText, SummandPositions[i], SummandPositions[i + 1] - SummandPositions[i]);
-        end;
 
         Evaluate(ReversedDateFormula, ReversedDateFormulaAsText);
     end;

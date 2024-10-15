@@ -12,7 +12,7 @@ page 1176 "User Task Group Members"
             {
                 //The GridLayout property is only supported on controls of type Grid
                 //GridLayout = Rows;
-                field("User Name"; "User Name")
+                field("User Name"; Rec."User Name")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'User Name';
@@ -28,7 +28,7 @@ page 1176 "User Task Group Members"
                             Users.SetRecord(User);
 
                         Users.LookupMode := true;
-                        if Users.RunModal = ACTION::LookupOK then begin
+                        if Users.RunModal() = ACTION::LookupOK then begin
                             Users.GetRecord(User);
                             "User Security ID" := User."User Security ID";
                             CurrPage.Update(true);

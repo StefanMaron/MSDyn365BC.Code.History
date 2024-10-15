@@ -23,7 +23,7 @@ report 28 "Dimensions - Detail"
             column(DateFilter; DateFilter)
             {
             }
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(DimFilterText; DimFilterText)
@@ -385,7 +385,7 @@ report 28 "Dimensions - Detail"
                                 StartDate := AccountingPeriod."Starting Date";
                             AccountingPeriod.SetRange("Starting Date", EndDate, DMY2Date(31, 12, 9999));
                             if AccountingPeriod.Find('-') then
-                                if AccountingPeriod.Next <> 0 then
+                                if AccountingPeriod.Next() <> 0 then
                                     EndDate := ClosingDate(AccountingPeriod."Starting Date" - 1);
                         end;
                 end;
@@ -459,13 +459,13 @@ report 28 "Dimensions - Detail"
                         begin
                             if PAGE.RunModal(PAGE::"Analysis View List", AnalysisView) = ACTION::LookupOK then begin
                                 AnalysisViewCode := AnalysisView.Code;
-                                UpdateColumnDim;
+                                UpdateColumnDim();
                             end;
                         end;
 
                         trigger OnValidate()
                         begin
-                            UpdateColumnDim;
+                            UpdateColumnDim();
                         end;
                     }
                     field(IncludeDimensions; ColumnDim)
@@ -522,7 +522,7 @@ report 28 "Dimensions - Detail"
             GLSetup.Get();
             if GLSetup."Additional Reporting Currency" = '' then
                 UseAmtsInAddCurr := false;
-            UpdateColumnDim;
+            UpdateColumnDim();
         end;
     }
 
@@ -545,7 +545,7 @@ report 28 "Dimensions - Detail"
 
         TempSelectedDim.Reset();
         TempSelectedDim.SetFilter("Dimension Value Filter", '<>%1', '');
-        TempSelectedDim.SetFilter("Dimension Code", TempGLAcc.TableCaption);
+        TempSelectedDim.SetFilter("Dimension Code", TempGLAcc.TableCaption());
         if TempSelectedDim.Find('-') then
             GLAcc.SetFilter("No.", TempSelectedDim."Dimension Value Filter");
         GLAcc.SetRange("Account Type", GLAcc."Account Type"::Posting);
@@ -558,7 +558,7 @@ report 28 "Dimensions - Detail"
 
         TempBusUnit.Init();
         TempBusUnit.Insert();
-        TempSelectedDim.SetFilter("Dimension Code", BusUnit.TableCaption);
+        TempSelectedDim.SetFilter("Dimension Code", BusUnit.TableCaption());
         if TempSelectedDim.Find('-') then
             BusUnit.SetFilter(Code, TempSelectedDim."Dimension Value Filter");
         if BusUnit.Find('-') then
@@ -597,17 +597,8 @@ report 28 "Dimensions - Detail"
     end;
 
     var
-        Text000: Label 'Enter an analysis view code.';
-        Text001: Label 'Enter a date filter.';
-        Text002: Label 'Include Dimensions';
-        Text003: Label '(no dimension value)';
-        Text004: Label 'Not updated';
-        Text014: Label '(no business unit)';
         [SecurityFiltering(SecurityFilter::Filtered)]
         AnalysisViewEntry: Record "Analysis View Entry";
-        TempSelectedDim: Record "Selected Dimension" temporary;
-        [SecurityFiltering(SecurityFilter::Filtered)]
-        GLAcc: Record "G/L Account";
         [SecurityFiltering(SecurityFilter::Filtered)]
         BusUnit: Record "Business Unit";
         [SecurityFiltering(SecurityFilter::Filtered)]
@@ -616,6 +607,7 @@ report 28 "Dimensions - Detail"
         TempGLAcc: Record "G/L Account" temporary;
         TempBusUnit: Record "Business Unit" temporary;
         TempDimVal: Record "Dimension Value" temporary;
+        TempSelectedDim: Record "Selected Dimension" temporary;
         DimSelectionBuf: Record "Dimension Selection Buffer";
         GLSetup: Record "General Ledger Setup";
         PrintEmptyLines: Boolean;
@@ -635,6 +627,13 @@ report 28 "Dimensions - Detail"
         DebitTotal: array[4] of Decimal;
         CreditTotal: array[4] of Decimal;
         DimFilterText: Text[250];
+
+        Text000: Label 'Enter an analysis view code.';
+        Text001: Label 'Enter a date filter.';
+        Text002: Label 'Include Dimensions';
+        Text003: Label '(no dimension value)';
+        Text004: Label 'Not updated';
+        Text014: Label '(no business unit)';
         DateFilterCaptionLbl: Label 'Period';
         Analysis_View_CodeCaptionLbl: Label 'Analysis View';
         ViewLastUpdatedTextCaptionLbl: Label 'Last Date Updated';
@@ -649,6 +648,10 @@ report 28 "Dimensions - Detail"
         G_L_Account_No_CaptionLbl: Label 'G/L Account No.';
         Entry_No_CaptionLbl: Label 'Entry No.';
         Text015Lbl: Label 'All amounts are in ';
+
+    protected var
+        [SecurityFiltering(SecurityFilter::Filtered)]
+        GLAcc: Record "G/L Account";
 
     local procedure CalcLine(Level: Integer): Boolean
     var
@@ -676,11 +679,10 @@ report 28 "Dimensions - Detail"
             FindFirstGLEntry[Level] := false;
             TempGLEntry.Reset();
             TempGLEntry.DeleteAll();
-            if AnalysisViewEntry.Find('-') then begin
+            if AnalysisViewEntry.Find('-') then
                 repeat
                     AnalysisViewEntryToGLEntries.GetGLEntries(AnalysisViewEntry, TempGLEntry);
                 until AnalysisViewEntry.Next() = 0;
-            end;
             TempGLEntry.SetCurrentKey("G/L Account No.", "Posting Date");
             TempGLEntry.SetFilter("Posting Date", DateFilter);
             OnPrintDetailOnAfterTempGLEntrySetFilters(TempGLEntry);
@@ -747,7 +749,7 @@ report 28 "Dimensions - Detail"
                         SearchResult := TempGLAcc.Find('-')
                     else
                         if TempGLAcc.Get(IterationDimValCode) then
-                            SearchResult := (TempGLAcc.Next <> 0);
+                            SearchResult := (TempGLAcc.Next() <> 0);
                     if SearchResult then begin
                         IterationDimValCode := TempGLAcc."No.";
                         IterationDimValName := TempGLAcc.Name;
@@ -761,7 +763,7 @@ report 28 "Dimensions - Detail"
                         SearchResult := TempBusUnit.Find('-')
                     else
                         if TempBusUnit.Get(IterationDimValCode) then
-                            SearchResult := (TempBusUnit.Next <> 0);
+                            SearchResult := (TempBusUnit.Next() <> 0);
                     if SearchResult then begin
                         IterationDimValCode := TempBusUnit.Code;
                         if TempBusUnit.Code <> '' then
@@ -778,7 +780,7 @@ report 28 "Dimensions - Detail"
                         SearchResult := TempDimVal.Find('-')
                     else
                         if TempDimVal.Get(IterationDimCode, IterationDimValCode) then
-                            SearchResult := (TempDimVal.Next <> 0);
+                            SearchResult := (TempDimVal.Next() <> 0);
                     if SearchResult then begin
                         IterationDimValCode := TempDimVal.Code;
                         IterationDimValName := TempDimVal.Name;

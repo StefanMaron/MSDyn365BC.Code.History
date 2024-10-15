@@ -33,7 +33,7 @@ report 99001020 "Carry Out Action Msg. - Plan."
                 if not HideDialog then
                     Window.Close();
 
-                CarryOutAction.PrintTransferOrders;
+                CarryOutAction.PrintTransferOrders();
 
                 CarryOutAction.PrintAsmOrders();
 
@@ -43,10 +43,10 @@ report 99001020 "Carry Out Action Msg. - Plan."
                     SetRange("Accept Action Message", true);
 
                     if PurchaseSuggestionExists("Requisition Line") then begin
-                        PurchOrderHeader."Order Date" := WorkDate;
-                        PurchOrderHeader."Posting Date" := WorkDate;
+                        PurchOrderHeader."Order Date" := WorkDate();
+                        PurchOrderHeader."Posting Date" := WorkDate();
 
-                        EndOrderDate := WorkDate;
+                        EndOrderDate := WorkDate();
 
                         PrintOrders := (PurchOrderChoice = PurchOrderChoice::"Make Purch. Orders & Print");
 
@@ -54,9 +54,9 @@ report 99001020 "Carry Out Action Msg. - Plan."
                         ReqWkshMakeOrders.SetCreatedDocumentBuffer(TempDocumentEntry);
                         ReqWkshMakeOrders.Set(PurchOrderHeader, EndOrderDate, PrintOrders);
                         if not NoPlanningResiliency then
-                            ReqWkshMakeOrders.SetPlanningResiliency;
+                            ReqWkshMakeOrders.SetPlanningResiliency();
                         ReqWkshMakeOrders.CarryOutBatchAction("Requisition Line");
-                        CounterFailed := CounterFailed + ReqWkshMakeOrders.GetFailedCounter;
+                        CounterFailed := CounterFailed + ReqWkshMakeOrders.GetFailedCounter();
                     end;
                 end;
 
@@ -67,7 +67,7 @@ report 99001020 "Carry Out Action Msg. - Plan."
             begin
                 LockTable();
 
-                SetReqLineFilters;
+                SetReqLineFilters();
                 if not Find('-') then
                     Error(Text000);
 
@@ -281,13 +281,10 @@ report 99001020 "Carry Out Action Msg. - Plan."
 
     trigger OnPreReport()
     begin
-        OnBeforePreReport;
+        OnBeforePreReport();
     end;
 
     var
-        Text000: Label 'There are no planning lines to make orders for.';
-        Text007: Label 'This template and worksheet are currently active. ';
-        Text008: Label 'You must select a different template name or worksheet name to copy to.';
         PurchOrderHeader: Record "Purchase Header";
         ReqWkshTmpl: Record "Req. Wksh. Template";
         ReqWkshName: Record "Requisition Wksh. Name";
@@ -304,33 +301,39 @@ report 99001020 "Carry Out Action Msg. - Plan."
         ProdWkshName: Code[10];
         CurrReqWkshTemp: Code[10];
         CurrReqWkshName: Code[10];
-        ProdOrderChoice: Enum "Planning Create Prod. Order";
-        PurchOrderChoice: Enum "Planning Create Purchase Order";
-        TransOrderChoice: Enum "Planning Create Transfer Order";
-        AsmOrderChoice: Enum "Planning Create Assembly Order";
         PrintOrders: Boolean;
         CombineTransferOrders: Boolean;
         ReserveforPlannedProd: Boolean;
         HideDialog: Boolean;
         NoPlanningResiliency: Boolean;
-        Text009: Label 'You must select a worksheet to copy to';
-        Text010: Label 'Components were not reserved for orders with status Planned.';
-        Text011: Label 'You must make order for both line %1 and %2 because they are associated.';
-        Text012: Label 'Carrying Out Actions  #1########## @2@@@@@@@@@@@@@';
         Counter: Integer;
         CounterTotal: Integer;
         CounterFailed: Integer;
-        Text013: Label 'Not all Requisition Lines were carried out.\A total of %1 lines were not carried out because of errors encountered.';
         EndOrderDate: Date;
         [InDataSet]
         PurchOrderCopyToReqWksh: Boolean;
         [InDataSet]
         TransOrderCopyToReqWksh: Boolean;
 
-    local procedure CarryOutActions(SourceType: Option Purchase,Transfer,Production,Assembly; Choice: Option; WkshTempl: Code[10]; WkshName: Code[10])
+        Text000: Label 'There are no planning lines to make orders for.';
+        Text007: Label 'This template and worksheet are currently active. ';
+        Text008: Label 'You must select a different template name or worksheet name to copy to.';
+        Text009: Label 'You must select a worksheet to copy to';
+        Text010: Label 'Components were not reserved for orders with status Planned.';
+        Text011: Label 'You must make order for both line %1 and %2 because they are associated.';
+        Text012: Label 'Carrying Out Actions  #1########## @2@@@@@@@@@@@@@';
+        Text013: Label 'Not all Requisition Lines were carried out.\A total of %1 lines were not carried out because of errors encountered.';
+
+    protected var
+        ProdOrderChoice: Enum "Planning Create Prod. Order";
+        PurchOrderChoice: Enum "Planning Create Purchase Order";
+        TransOrderChoice: Enum "Planning Create Transfer Order";
+        AsmOrderChoice: Enum "Planning Create Assembly Order";
+
+    procedure CarryOutActions(SourceType: Enum "Planning Create Source Type"; Choice: Option; WkshTempl: Code[10]; WkshName: Code[10])
     begin
         if NoPlanningResiliency then begin
-            CarryOutAction.SetTryParameters(SourceType, Choice, WkshTempl, WkshName);
+            CarryOutAction.SetParameters(SourceType, Choice, WkshTempl, WkshName);
             CarryOutAction.Run("Requisition Line");
         end else
             if not CarryOutAction.TryCarryOutAction(SourceType, "Requisition Line", Choice, WkshTempl, WkshName) then
@@ -346,25 +349,24 @@ report 99001020 "Carry Out Action Msg. - Plan."
         if IsHandled then
             exit;
 
-        with RequisitionLine do
-            case "Ref. Order Type" of
-                "Ref. Order Type"::"Prod. Order":
-                    if ProdOrderChoice <> ProdOrderChoice::" " then
-                        CarryOutActions(2, ProdOrderChoice.AsInteger(), ProdWkshTempl, ProdWkshName);
-                "Ref. Order Type"::Purchase:
-                    if PurchOrderChoice = PurchOrderChoice::"Copy to Req. Wksh" then
-                        CarryOutActions(0, PurchOrderChoice.AsInteger(), ReqWkshTemp, ReqWksh);
-                "Ref. Order Type"::Transfer:
-                    if TransOrderChoice <> TransOrderChoice::" " then begin
-                        CarryOutAction.SetSplitTransferOrders(not CombineTransferOrders);
-                        CarryOutActions(1, TransOrderChoice.AsInteger(), TransWkshTemp, TransWkshName);
-                    end;
-                "Ref. Order Type"::Assembly:
-                    if AsmOrderChoice <> AsmOrderChoice::" " then
-                        CarryOutActions(3, AsmOrderChoice.AsInteger(), '', '');
-                else
-                    CurrReport.Skip();
-            end;
+        case RequisitionLine."Ref. Order Type" of
+            RequisitionLine."Ref. Order Type"::"Prod. Order":
+                if ProdOrderChoice <> ProdOrderChoice::" " then
+                    CarryOutActions("Planning Create Source Type"::Production, ProdOrderChoice.AsInteger(), ProdWkshTempl, ProdWkshName);
+            RequisitionLine."Ref. Order Type"::Purchase:
+                if PurchOrderChoice = PurchOrderChoice::"Copy to Req. Wksh" then
+                    CarryOutActions("Planning Create Source Type"::Purchase, PurchOrderChoice.AsInteger(), ReqWkshTemp, ReqWksh);
+            RequisitionLine."Ref. Order Type"::Transfer:
+                if TransOrderChoice <> TransOrderChoice::" " then begin
+                    CarryOutAction.SetSplitTransferOrders(not CombineTransferOrders);
+                    CarryOutActions("Planning Create Source Type"::Transfer, TransOrderChoice.AsInteger(), TransWkshTemp, TransWkshName);
+                end;
+            RequisitionLine."Ref. Order Type"::Assembly:
+                if AsmOrderChoice <> AsmOrderChoice::" " then
+                    CarryOutActions("Planning Create Source Type"::Assembly, AsmOrderChoice.AsInteger(), '', '');
+            else
+                CurrReport.Skip();
+        end;
     end;
 
     procedure SetCreatedDocumentBuffer(var TempDocumentEntryNew: Record "Document Entry" temporary)
@@ -402,7 +404,7 @@ report 99001020 "Carry Out Action Msg. - Plan."
                 MfgUserTempl."Make Orders"::"The Active Line":
                     begin
                         ReqLineFilters := ReqLine;
-                        SetRecFilter;
+                        SetRecFilter();
                     end;
                 MfgUserTempl."Make Orders"::"The Active Order":
                     begin
@@ -476,7 +478,7 @@ report 99001020 "Carry Out Action Msg. - Plan."
     begin
         with "Requisition Line" do
             repeat
-                CheckLine;
+                CheckLine();
             until Next() = 0;
     end;
 
@@ -511,7 +513,7 @@ report 99001020 "Carry Out Action Msg. - Plan."
                     begin
                         SalesLine.Get("Demand Subtype", "Demand Order No.", "Demand Line No.");
                         SalesLine.TestField(Type, SalesLine.Type::Item);
-                        if not (("Demand Date" = WorkDate) and (SalesLine."Shipment Date" in [0D, WorkDate])) then
+                        if not (("Demand Date" = WorkDate()) and (SalesLine."Shipment Date" in [0D, WorkDate()])) then
                             TestField("Demand Date", SalesLine."Shipment Date");
                         TestField("No.", SalesLine."No.");
                         TestField("Qty. per UOM (Demand)", SalesLine."Qty. per Unit of Measure");
@@ -526,7 +528,7 @@ report 99001020 "Carry Out Action Msg. - Plan."
                     begin
                         ProdOrderComp.Get("Demand Subtype", "Demand Order No.", "Demand Line No.", "Demand Ref. No.");
                         TestField("No.", ProdOrderComp."Item No.");
-                        if not (("Demand Date" = WorkDate) and (ProdOrderComp."Due Date" in [0D, WorkDate])) then
+                        if not (("Demand Date" = WorkDate()) and (ProdOrderComp."Due Date" in [0D, WorkDate()])) then
                             TestField("Demand Date", ProdOrderComp."Due Date");
                         TestField("Qty. per UOM (Demand)", ProdOrderComp."Qty. per Unit of Measure");
                         TestField("Variant Code", ProdOrderComp."Variant Code");
@@ -542,7 +544,7 @@ report 99001020 "Carry Out Action Msg. - Plan."
                     begin
                         ServLine.Get("Demand Subtype", "Demand Order No.", "Demand Line No.");
                         ServLine.TestField(Type, ServLine.Type::Item);
-                        if not (("Demand Date" = WorkDate) and (ServLine."Needed by Date" in [0D, WorkDate])) then
+                        if not (("Demand Date" = WorkDate()) and (ServLine."Needed by Date" in [0D, WorkDate()])) then
                             TestField("Demand Date", ServLine."Needed by Date");
                         TestField("No.", ServLine."No.");
                         TestField("Qty. per UOM (Demand)", ServLine."Qty. per Unit of Measure");
@@ -560,7 +562,7 @@ report 99001020 "Carry Out Action Msg. - Plan."
                         JobPlanningLine.TestField(Type, JobPlanningLine.Type::Item);
                         JobPlanningLine.TestField("Job No.");
                         JobPlanningLine.TestField(Status, JobPlanningLine.Status::Order);
-                        if not (("Demand Date" = WorkDate) and (JobPlanningLine."Planning Date" in [0D, WorkDate])) then
+                        if not (("Demand Date" = WorkDate()) and (JobPlanningLine."Planning Date" in [0D, WorkDate()])) then
                             TestField("Demand Date", JobPlanningLine."Planning Date");
                         TestField("No.", JobPlanningLine."No.");
                         TestField("Qty. per UOM (Demand)", JobPlanningLine."Qty. per Unit of Measure");
@@ -575,7 +577,7 @@ report 99001020 "Carry Out Action Msg. - Plan."
                     begin
                         AsmLine.Get("Demand Subtype", "Demand Order No.", "Demand Line No.");
                         AsmLine.TestField(Type, AsmLine.Type::Item);
-                        if not (("Demand Date" = WorkDate) and (AsmLine."Due Date" in [0D, WorkDate])) then
+                        if not (("Demand Date" = WorkDate()) and (AsmLine."Due Date" in [0D, WorkDate()])) then
                             TestField("Demand Date", AsmLine."Due Date");
                         TestField("No.", AsmLine."No.");
                         TestField("Qty. per UOM (Demand)", AsmLine."Qty. per Unit of Measure");
@@ -614,7 +616,7 @@ report 99001020 "Carry Out Action Msg. - Plan."
 
             repeat
                 ReqLine3 := ReqLine2;
-                if not ReqLine3.Find then
+                if not ReqLine3.Find() then
                     Error(Text011, "Line No.", ReqLine2."Line No.");
             until (ReqLine2.Next() = 0) or (ReqLine2."Planning Level" = 0)
         end;

@@ -17,7 +17,7 @@ codeunit 3750 DotNetHelper_SecureString
         if Length > 65536 then
             Error(SecureStringSizeLimitErr);
 
-        DotNet_SecureString.SecureString;
+        DotNet_SecureString.SecureString();
         for I := 1 to Length do
             DotNet_SecureString.AppendChar(String[I]);
     end;

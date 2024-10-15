@@ -4,7 +4,7 @@ codeunit 880 "OCR - Send to Service"
 
     trigger OnRun()
     begin
-        SendAllReadyToOcr;
+        SendAllReadyToOcr();
     end;
 
     var
@@ -23,7 +23,7 @@ codeunit 880 "OCR - Send to Service"
         NoOfDocuments: Integer;
         i: Integer;
     begin
-        if not IncDocAttsReadyforOCR.Open then
+        if not IncDocAttsReadyforOCR.Open() then
             exit;  // empty
 
         if GuiAllowed then
@@ -32,14 +32,14 @@ codeunit 880 "OCR - Send to Service"
         // Find Document Count and lock records
         IncomingDocument.LockTable();
         IncomingDocumentAttachment.LockTable();
-        while IncDocAttsReadyforOCR.Read do begin
+        while IncDocAttsReadyforOCR.Read() do begin
             NoOfDocuments += 1;
             IncomingDocumentAttachment.Get(IncDocAttsReadyforOCR.Incoming_Document_Entry_No, IncDocAttsReadyforOCR.Line_No);
             IncomingDocument.Get(IncomingDocumentAttachment."Incoming Document Entry No.");  // lock
             TempIncomingDocumentAttachment := IncomingDocumentAttachment;
             TempIncomingDocumentAttachment.Insert();
         end;
-        IncDocAttsReadyforOCR.Close;
+        IncDocAttsReadyforOCR.Close();
         // Release locks
         Commit();
 
@@ -61,7 +61,7 @@ codeunit 880 "OCR - Send to Service"
         Commit();
 
         if GuiAllowed then begin
-            Window.Close;
+            Window.Close();
             Message(SendDoneMsg, NoOfDocuments);
         end;
     end;

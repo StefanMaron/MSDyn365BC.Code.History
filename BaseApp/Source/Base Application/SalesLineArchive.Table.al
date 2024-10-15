@@ -715,7 +715,7 @@ table 5108 "Sales Line Archive"
         {
             Caption = 'Cross-Reference No.';
             ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
-#if not CLEAN18
+#if not CLEAN19
             ObsoleteState = Pending;
             ObsoleteTag = '18.0';
 #else
@@ -1003,6 +1003,9 @@ table 5108 "Sales Line Archive"
 
     fieldgroups
     {
+        fieldgroup(DropDown; "Document No.", "Line No.", "Version No.", "Sell-to Customer No.")
+        {
+        }
     }
 
     trigger OnDelete()
@@ -1089,9 +1092,9 @@ table 5108 "Sales Line Archive"
         OnCopyTempLinesOnAfterSalesLineArchiveSetFilters(SalesLineArchive, SalesHeaderArchive);
         if SalesLineArchive.FindSet() then
             repeat
-                Init;
+                Init();
                 Rec := SalesLineArchive;
-                Insert;
+                Insert();
                 TempSalesLine.TransferFields(SalesLineArchive);
                 TempSalesLine.Insert();
             until SalesLineArchive.Next() = 0;

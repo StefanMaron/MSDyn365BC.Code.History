@@ -14,7 +14,7 @@ report 124 "Sales Invoice Nos."
             DataItemTableView = SORTING("No.");
             RequestFilterFields = "No.";
             RequestFilterHeading = 'Posted Sales Invoice';
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(STRSUBSTNO_Text004_SalesInvHeaderFilter_; StrSubstNo(Text004, SalesInvHeaderFilter))
@@ -171,15 +171,10 @@ report 124 "Sales Invoice Nos."
 
     trigger OnPreReport()
     begin
-        SalesInvHeaderFilter := "Sales Invoice Header".GetFilters;
+        SalesInvHeaderFilter := "Sales Invoice Header".GetFilters();
     end;
 
     var
-        Text000: Label 'No number series has been used for the following entries:';
-        Text001: Label 'The number series %1 %2 has been used for the following entries:';
-        Text002: Label 'There is a gap in the number series.';
-        Text003: Label 'The documents are not listed according to Posting Date because they were not entered in that order.';
-        Text004: Label 'Posted Sales Invoice: %1';
         NoSeries: Record "No. Series";
         SourceCode: Record "Source Code";
         SalesInvHeaderFilter: Text;
@@ -191,6 +186,12 @@ report 124 "Sales Invoice Nos."
         ErrorText: array[10] of Text[250];
         ErrorCounter: Integer;
         PageGroupNo: Integer;
+
+        Text000: Label 'No number series has been used for the following entries:';
+        Text001: Label 'The number series %1 %2 has been used for the following entries:';
+        Text002: Label 'There is a gap in the number series.';
+        Text003: Label 'The documents are not listed according to Posting Date because they were not entered in that order.';
+        Text004: Label 'Posted Sales Invoice: %1';
         Sales_Invoice_Nos_CaptionLbl: Label 'Sales Invoice Nos.';
         CurrReport_PAGENOCaptionLbl: Label 'Page';
         SourceCode_DescriptionCaptionLbl: Label 'Source Description';

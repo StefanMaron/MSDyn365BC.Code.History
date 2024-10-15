@@ -1,3 +1,4 @@
+#if not CLEAN21
 page 2201 "Sales Invoice Reminder API"
 {
     Caption = 'Sales Invoice Reminder API';
@@ -5,6 +6,9 @@ page 2201 "Sales Invoice Reminder API"
     ModifyAllowed = false;
     SourceTable = "O365 Sales Invoice Document";
     SourceTableTemporary = true;
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     layout
     {
@@ -12,11 +16,11 @@ page 2201 "Sales Invoice Reminder API"
         {
             field(InvoiceId; InvoiceId)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
             }
             field(Message; Message)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
             }
         }
     }
@@ -41,7 +45,7 @@ page 2201 "Sales Invoice Reminder API"
 
     trigger OnOpenPage()
     begin
-        SelectLatestVersion;
+        SelectLatestVersion();
     end;
 }
-
+#endif

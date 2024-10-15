@@ -8,11 +8,6 @@ xmlport 5801 "Export Item Data"
     Format = VariableText;
     TextEncoding = UTF16;
     UseRequestPage = false;
-#if not CLEAN18
-    ObsoleteState = Pending;
-    ObsoleteReason = 'Legacy G/L Locking is no longer supported and the field element GeneralLedgSetup."Use Legacy G/L Entry Locking" will be removed. Therefore, the XML generated from this XmlPort for table element GeneralLedgSetup will no longer contain the "Use Legacy G/L Entry Locking" field.';
-    ObsoleteTag = '18.0';
-#endif
     schema
     {
         textelement(root)
@@ -343,7 +338,9 @@ xmlport 5801 "Export Item Data"
                 fieldelement(Item_CommonItemNo; Item."Common Item No.")
                 {
                 }
-
+                fieldelement(Item_VariantMandatoryIfExists; Item."Variant Mandatory if Exists")
+                {
+                }
                 trigger OnAfterGetRecord()
                 begin
                     Item.Description := CopyStr(Item.Description, 1, MaxStrLen(Item.Description));
@@ -357,7 +354,7 @@ xmlport 5801 "Export Item Data"
 
                     Item.FindFirst();
                     Item.Reset();
-                    Item.SetRecFilter;
+                    Item.SetRecFilter();
 
                     FilteredItem.Copy(Item);
                 end;
@@ -1272,6 +1269,9 @@ xmlport 5801 "Export Item Data"
                 fieldelement(InventorySetup_LocationMandatory; InventorySetup."Location Mandatory")
                 {
                 }
+                fieldelement(InventorySetup_VariantMandatoryIfExists; InventorySetup."Variant Mandatory if Exists")
+                {
+                }
                 fieldelement(InventorySetup_AutomaticCostAdjustment; InventorySetup."Automatic Cost Adjustment")
                 {
                 }
@@ -2059,11 +2059,6 @@ xmlport 5801 "Export Item Data"
                 fieldelement(GeneralLedgSetup_GlobalDimension2Code; GeneralLedgSetup."Global Dimension 2 Code")
                 {
                 }
-#if not CLEAN18
-                fieldelement(GeneralLedgSetup_UseLegacyGlEntryLocking; GeneralLedgSetup."Use Legacy G/L Entry Locking")
-                {
-                }
-#endif
             }
             tableelement(accountingperiod; "Accounting Period")
             {

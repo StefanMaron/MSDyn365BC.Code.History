@@ -204,7 +204,7 @@ codeunit 133782 "Booking Service Sync Test"
 
     local procedure SetValues(var Description: Text[50]; var Price: Decimal)
     begin
-        Description := CreateGuid;
+        Description := CreateGuid();
         Price := Random(1000);
     end;
 

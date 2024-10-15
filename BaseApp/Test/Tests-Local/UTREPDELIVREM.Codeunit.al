@@ -62,7 +62,7 @@ codeunit 142040 "UT REP DELIVREM"
         // Verify: Verify Warning for Vendor No does not exist on Report Delivery Reminder - Test.
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.AssertElementWithValueExists('ErrorText_Number_',
-          StrSubstNo('%1 %2 does not exist.', Vendor.TableCaption, DeliveryReminderHeader."Vendor No."));
+          StrSubstNo('%1 %2 does not exist.', Vendor.TableCaption(), DeliveryReminderHeader."Vendor No."));
     end;
 
     [Test]
@@ -107,11 +107,11 @@ codeunit 142040 "UT REP DELIVREM"
         // Setup: Update General Ledger Setup with Allow Posting From, Create Delivery Reminder Header with Posting Date less than Allow Posting From.
         GeneralLedgerSetup.Get();
         GeneralLedgerSetup."Allow Posting From" :=
-          CalcDate('<' + '+' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate);
+          CalcDate('<' + '+' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate());
         GeneralLedgerSetup.Modify();
 
         CreateDeliveryReminderHeader(DeliveryReminderHeader);
-        DeliveryReminderHeader."Posting Date" := WorkDate;
+        DeliveryReminderHeader."Posting Date" := WorkDate();
         DeliveryReminderHeader.Modify();
         ReminderNo := DeliveryReminderHeader."No.";  // Assign Global variable for Request Page Handler.
 
@@ -136,7 +136,7 @@ codeunit 142040 "UT REP DELIVREM"
         // Purpose of the test is to validate Function OnAfterGetRecord for Dataset DeliveryReminderHeader - Report 5005272 - Delivery Reminder - Test.
         // Setup: Update General Ledger Setup with Allow Posting To, Create Delivery Reminder Header with Posting Date greater than Allow Posting To.
         GeneralLedgerSetup.Get();
-        GeneralLedgerSetup."Allow Posting To" := WorkDate;
+        GeneralLedgerSetup."Allow Posting To" := WorkDate();
         GeneralLedgerSetup.Modify();
 
         CreateDeliveryReminderHeader(DeliveryReminderHeader);
@@ -289,8 +289,8 @@ codeunit 142040 "UT REP DELIVREM"
         // Setup: Create Delivery Reminder Header and Delivery Reminder Line.
         CreateDeliveryReminderHeader(DeliveryReminderHeader);
         DeliveryReminderHeader."Vendor No." := LibraryUTUtility.GetNewCode;
-        DeliveryReminderHeader."Posting Date" := WorkDate;
-        DeliveryReminderHeader."Document Date" := WorkDate;
+        DeliveryReminderHeader."Posting Date" := WorkDate();
+        DeliveryReminderHeader."Document Date" := WorkDate();
         DeliveryReminderHeader.Modify();
         ReminderNo := DeliveryReminderHeader."No.";  // Assign Global variable for Request Page Handler.
 

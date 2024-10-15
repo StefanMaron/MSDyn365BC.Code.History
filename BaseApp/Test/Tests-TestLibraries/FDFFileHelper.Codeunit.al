@@ -31,7 +31,7 @@ codeunit 144003 FDFFileHelper
             if regExMatch.Success then
                 hashTable.Add(regExMatch.Groups.Item('Key').Value, regExMatch.Groups.Item('Value').Value);
         end;
-        textFile.Close;
+        textFile.Close();
     end;
 
     [Scope('OnPrem')]

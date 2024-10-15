@@ -5,14 +5,15 @@ codeunit 5761 "Whse.-Post Receipt (Yes/No)"
     trigger OnRun()
     begin
         WhseReceiptLine.Copy(Rec);
-        Code;
+        Code();
         Rec := WhseReceiptLine;
     end;
 
     var
-        Text000: Label 'Do you want to post the receipt?';
         WhseReceiptLine: Record "Warehouse Receipt Line";
         WhsePostReceipt: Codeunit "Whse.-Post Receipt";
+
+        Text000: Label 'Do you want to post the receipt?';
 
     local procedure "Code"()
     var
@@ -26,7 +27,7 @@ codeunit 5761 "Whse.-Post Receipt (Yes/No)"
             exit;
 
         with WhseReceiptLine do begin
-            if Find then
+            if Find() then
                 if not HideDialog then
                     if not Confirm(Text000, false) then
                         exit;
@@ -36,7 +37,7 @@ codeunit 5761 "Whse.-Post Receipt (Yes/No)"
             WhsePostReceipt.Run(WhseReceiptLine);
 
             OnAfterWhsePostReceiptRun(WhseReceiptLine, WhsePostReceipt);
-            WhsePostReceipt.GetResultMessage;
+            WhsePostReceipt.GetResultMessage();
             Clear(WhsePostReceipt);
         end;
     end;

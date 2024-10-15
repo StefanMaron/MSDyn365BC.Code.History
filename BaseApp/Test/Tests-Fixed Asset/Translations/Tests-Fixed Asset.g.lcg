@@ -1582,7 +1582,7 @@
   </Item>
   <Item ItemId=";Codeunit 138691884 - NamedType 3516382779" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[You do not have the following permissions]]></Val>
+      <Val><![CDATA[Sorry, the current permissions prevented the action.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>

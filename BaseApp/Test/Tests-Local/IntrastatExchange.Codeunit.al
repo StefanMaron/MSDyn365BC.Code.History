@@ -60,7 +60,7 @@ codeunit 144004 "Intrastat Exchange"
             CreatePurchInvWithItem(Item."No.", Quantity);
 
         // [GIVEN] Intrastat Journal Line containing Invoice's data
-        CreateIntrastatJournalTemplateAndBatch(IntrastatJnlBatch, WorkDate);
+        CreateIntrastatJournalTemplateAndBatch(IntrastatJnlBatch, WorkDate());
         Commit();
         RunGetItemLedgerEntriesToCreateJnlLines(IntrastatJnlBatch);
         RemoveExtraLinesFromIntrastatJnlBatch(IntrastatJnlBatch.Name, Item."Tariff No.");
@@ -107,7 +107,7 @@ codeunit 144004 "Intrastat Exchange"
             CreateSalesInvWithItem(Item."No.", Quantity);
 
         // [GIVEN] Intrastat Journal Line containing Invoice's data
-        CreateIntrastatJournalTemplateAndBatch(IntrastatJnlBatch, WorkDate);
+        CreateIntrastatJournalTemplateAndBatch(IntrastatJnlBatch, WorkDate());
         Commit();
         RunGetItemLedgerEntriesToCreateJnlLines(IntrastatJnlBatch);
         RemoveExtraLinesFromIntrastatJnlBatch(IntrastatJnlBatch.Name, Item."Tariff No.");
@@ -146,7 +146,7 @@ codeunit 144004 "Intrastat Exchange"
         Initialize();
 
         // [GIVEN] Item with weight = "0.16" kg
-        CreateIntrastatJournalTemplateAndBatch(IntrastatJnlBatch, WorkDate);
+        CreateIntrastatJournalTemplateAndBatch(IntrastatJnlBatch, WorkDate());
         CreateItemWithTariffNo(Item, CreateTariffNo(false));
         Item."Net Weight" := LibraryRandom.RandDecInDecimalRange(0.1, 0.9, 2);
         Item.Modify(true);
@@ -196,7 +196,7 @@ codeunit 144004 "Intrastat Exchange"
         Initialize();
 
         // [GIVEN] Item with weight = "0.16" kg
-        CreateIntrastatJournalTemplateAndBatch(IntrastatJnlBatch, WorkDate);
+        CreateIntrastatJournalTemplateAndBatch(IntrastatJnlBatch, WorkDate());
         CreateItemWithTariffNo(Item, CreateTariffNo(false));
         Item."Net Weight" := LibraryRandom.RandDecInDecimalRange(0.1, 0.4, 2);
         Item.Modify(true);
@@ -237,7 +237,7 @@ codeunit 144004 "Intrastat Exchange"
         Initialize();
 
         // [GIVEN] Intrastat Journal Batch with "Journal Template Name" = "T", Name = "B"
-        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate);
+        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate());
         Commit();
 
         // [WHEN] Run 'Intrastat - Disk Tax Auth AT' report where Intrastat Journal Batch has filters for "Intrastat Journal Name" = "T", Name = ''
@@ -258,7 +258,7 @@ codeunit 144004 "Intrastat Exchange"
         Initialize();
 
         // [GIVEN] Intrastat Journal Batch with "Journal Template Name" = "T", Name = "B"
-        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate);
+        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate());
         Commit();
 
         // [WHEN] Run 'Intrastat - Disk Tax Auth AT' report where Intrastat Journal Batch has filters for "Intrastat Journal Name" = empty, Name = "B"
@@ -296,7 +296,7 @@ codeunit 144004 "Intrastat Exchange"
         CreateSalesInvWithItem(Item[2]."No.", LibraryRandom.RandDec(100, 2));
 
         // [GIVEN] Intrastat Journal populated for "Item1" and "Item2"
-        CreateIntrastatJournalTemplateAndBatch(IntrastatJnlBatch, WorkDate);
+        CreateIntrastatJournalTemplateAndBatch(IntrastatJnlBatch, WorkDate());
         Commit();
         RunGetItemLedgerEntriesToCreateJnlLines(IntrastatJnlBatch);
         IntrastatJnlLine.SetRange("Journal Batch Name", IntrastatJnlBatch.Name);
@@ -351,7 +351,7 @@ codeunit 144004 "Intrastat Exchange"
         CreatePurchInvWithItem(Item[2]."No.", LibraryRandom.RandDec(100, 2));
 
         // [GIVEN] Intrastat Journal populated for "Item1" and "Item2"
-        CreateIntrastatJournalTemplateAndBatch(IntrastatJnlBatch, WorkDate);
+        CreateIntrastatJournalTemplateAndBatch(IntrastatJnlBatch, WorkDate());
         Commit();
         RunGetItemLedgerEntriesToCreateJnlLines(IntrastatJnlBatch);
         IntrastatJnlLine.SetRange("Journal Batch Name", IntrastatJnlBatch.Name);
@@ -478,11 +478,11 @@ codeunit 144004 "Intrastat Exchange"
     begin
         RunIntrastatJournal(IntrastatJournal);
         LibraryVariableStorage.AssertEmpty;
-        LibraryVariableStorage.Enqueue(CalcDate('<-CM>', WorkDate));
-        LibraryVariableStorage.Enqueue(CalcDate('<CM>', WorkDate));
+        LibraryVariableStorage.Enqueue(CalcDate('<-CM>', WorkDate()));
+        LibraryVariableStorage.Enqueue(CalcDate('<CM>', WorkDate()));
         IntrastatJournal.GetEntries.Invoke;
         VerifyIntrastatJnlLinesExist(IntrastatJnlBatch);
-        IntrastatJournal.Close;
+        IntrastatJournal.Close();
     end;
 
     local procedure RunIntrastatMakeDiskTaxAuth(IntrastatTemplateName: Code[10]; IntrastatBatchName: Code[10]; Filename: Text)
@@ -519,7 +519,7 @@ codeunit 144004 "Intrastat Exchange"
               CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(IntrastatJnlLine."Internal Ref. No.")),
                 1, MaxStrLen(IntrastatJnlLine."Internal Ref. No.")));
             IntrastatJnlLine.Modify(true);
-        until IntrastatJnlLine.Next = 0;
+        until IntrastatJnlLine.Next() = 0;
     end;
 
     local procedure VerifyIntrastatJnlLinesExist(var IntrastatJnlBatch: Record "Intrastat Jnl. Batch")
@@ -712,7 +712,7 @@ codeunit 144004 "Intrastat Exchange"
               CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(IntrastatJnlLine."Internal Ref. No.")),
                 1, MaxStrLen(IntrastatJnlLine."Internal Ref. No.")));
             IntrastatJnlLine.Modify(true);
-        until IntrastatJnlLine.Next = 0;
+        until IntrastatJnlLine.Next() = 0;
     end;
 
     [RequestPageHandler]

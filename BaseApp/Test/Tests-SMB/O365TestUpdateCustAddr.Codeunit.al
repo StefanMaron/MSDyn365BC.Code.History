@@ -1,3 +1,4 @@
+#if not CLEAN21
 codeunit 138054 "O365 Test Update Cust. Addr."
 {
     Subtype = Test;
@@ -33,8 +34,8 @@ codeunit 138054 "O365 Test Update Cust. Addr."
         Assert.AreEqual('', Customer.Address, '');
         Assert.AreEqual('', Customer.City, '');
         Assert.AreEqual('', Customer."Post Code", '');
-        Addr1 := Format(CreateGuid);
-        City := CopyStr(Format(CreateGuid), 1, MaxStrLen(City));
+        Addr1 := Format(CreateGuid());
+        City := CopyStr(Format(CreateGuid()), 1, MaxStrLen(City));
         PostCode := '90210';
         CreatePostCode(PostCode, City);
         LibraryLowerPermissions.SetO365BusFull;
@@ -51,12 +52,12 @@ codeunit 138054 "O365 Test Update Cust. Addr."
         O365SalesInvoice.SaveForLater.Invoke;
 
         // [THEN] The customer address is updated
-        SalesHeader.Find;
+        SalesHeader.Find();
         Assert.AreEqual(Addr1, SalesHeader."Bill-to Address", 'Wrong Bill-to Address');
         Assert.AreEqual(City, SalesHeader."Bill-to City", 'Wrong Bill-to City');
         Assert.AreEqual(PostCode, SalesHeader."Bill-to Post Code", 'Wrong Bill-to Post Code');
 
-        Customer.Find;
+        Customer.Find();
         Assert.AreEqual(Addr1, Customer.Address, 'Wrong Address');
         Assert.AreEqual(City, Customer.City, 'Wrong City');
         Assert.AreEqual(PostCode, Customer."Post Code", 'Wrong Post Code');
@@ -80,13 +81,13 @@ codeunit 138054 "O365 Test Update Cust. Addr."
         LibrarySales.CreateCustomer(Customer);
         PostCode := '2800';
         CreatePostCode(PostCode, 'Lyngby');
-        Customer.Address := Format(CreateGuid);
-        Customer.City := CopyStr(Format(CreateGuid), 1, MaxStrLen(Customer.City));
+        Customer.Address := Format(CreateGuid());
+        Customer.City := CopyStr(Format(CreateGuid()), 1, MaxStrLen(Customer.City));
         Customer."Post Code" := PostCode;
         Customer.Modify();
 
-        Addr1 := Format(CreateGuid);
-        City := CopyStr(Format(CreateGuid), 1, MaxStrLen(City));
+        Addr1 := Format(CreateGuid());
+        City := CopyStr(Format(CreateGuid()), 1, MaxStrLen(City));
         PostCode := '90210';
         CreatePostCode(PostCode, City);
         LibraryLowerPermissions.SetO365BusFull;
@@ -103,12 +104,12 @@ codeunit 138054 "O365 Test Update Cust. Addr."
         O365SalesInvoice.SaveForLater.Invoke;
 
         // [THEN] The customer address is not updated
-        Customer.Find;
+        Customer.Find();
         Assert.AreNotEqual(Addr1, Customer.Address, 'Wrong Address');
         Assert.AreNotEqual(City, Customer.City, 'Wrong City');
         Assert.AreNotEqual(PostCode, Customer."Post Code", 'Wrong Post Code');
 
-        SalesHeader.Find;
+        SalesHeader.Find();
         Assert.AreEqual(Addr1, SalesHeader."Bill-to Address", 'Wrong Bill-to Address');
         Assert.AreEqual(City, SalesHeader."Bill-to City", 'Wrong Bill-to City');
         Assert.AreEqual(PostCode, SalesHeader."Bill-to Post Code", 'Wrong Bill-to Post Code');
@@ -144,4 +145,4 @@ codeunit 138054 "O365 Test Update Cust. Addr."
         O365Address.OK.Invoke;
     end;
 }
-
+#endif

@@ -764,7 +764,7 @@ codeunit 139155 "PEPPOL Management Tests"
         // [SCENARIO 252033] GetAccountingCustomerPartyContact returns Bill-to Name when Contact is blank as ContactName
         Initialize();
 
-        Customer.Init;
+        Customer.Init();
         Customer."No." := LibraryUtility.GenerateGUID();
         Customer."Phone No." := LibraryUtility.GenerateGUID();
         Customer."E-Mail" := LibraryUtility.GenerateGUID();
@@ -841,7 +841,7 @@ codeunit 139155 "PEPPOL Management Tests"
         CountryRegion.Code := CompanyInfo."Country/Region Code";
         CountryRegion.Insert();
         LibraryUtility.FillFieldMaxText(CountryRegion, CountryRegion.FieldNo("VAT Scheme"));
-        CountryRegion.Find;
+        CountryRegion.Find();
 
         // Exercise
         PEPPOLMgt.GetPayeePartyInfo(
@@ -1189,7 +1189,7 @@ codeunit 139155 "PEPPOL Management Tests"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Cust."No.");
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
 
-        SalesLine.SetRecFilter;
+        SalesLine.SetRecFilter();
         SalesLine.SetRange("Line No.");
         CODEUNIT.Run(CODEUNIT::"Sales-Calc. Discount", SalesLine);
 
@@ -1294,7 +1294,7 @@ codeunit 139155 "PEPPOL Management Tests"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Cust."No.");
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
 
-        SalesLine.SetRecFilter;
+        SalesLine.SetRecFilter();
         SalesLine.SetRange("Line No.");
         CODEUNIT.Run(CODEUNIT::"Sales-Calc. Discount", SalesLine);
 
@@ -1449,7 +1449,7 @@ codeunit 139155 "PEPPOL Management Tests"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Cust."No.");
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
 
-        SalesLine.SetRecFilter;
+        SalesLine.SetRecFilter();
         SalesLine.SetRange("Line No.");
         CODEUNIT.Run(CODEUNIT::"Sales-Calc. Discount", SalesLine);
 
@@ -1535,7 +1535,7 @@ codeunit 139155 "PEPPOL Management Tests"
             PEPPOLManagement.GetTotals(SalesLine, TempVATAmountLine);
             TempVATAmountLine.TestField("VAT %", SalesLine."VAT %");
             TempVATAmountLine.TestField("VAT Identifier", Format(SalesLine."VAT %"));
-        until SalesLine.Next = 0;
+        until SalesLine.Next() = 0;
 
         // [THEN] Two TempVATAmountLines generated for the Sales Invoice
         // [THEN] TempVATAmountLine "VAT25" has VAT % = 25, Tax Category = "O", Amount Incl. VAT = 230
@@ -1577,7 +1577,7 @@ codeunit 139155 "PEPPOL Management Tests"
             PEPPOLManagement.GetTotals(SalesLine, TempVATAmountLine);
             TempVATAmountLine.TestField("VAT %", SalesLine."VAT %");
             TempVATAmountLine.TestField("VAT Identifier", Format(SalesLine."VAT %"));
-        until SalesLine.Next = 0;
+        until SalesLine.Next() = 0;
 
         // [THEN] One TempVATAmountLine generated for the Sales Invoice
         // [THEN] TempVATAmountLine has VAT % = 25, Amount Incl. VAT = 125
@@ -1766,7 +1766,7 @@ codeunit 139155 "PEPPOL Management Tests"
         SalesLine.Validate("Line Discount %", LibraryRandom.RandDec(9, 2));
         SalesLine.Modify(true);
 
-        SalesLine.SetRecFilter;
+        SalesLine.SetRecFilter();
         SalesLine.SetRange("Line No.");
         CODEUNIT.Run(CODEUNIT::"Sales-Calc. Discount", SalesLine);
 
@@ -2688,7 +2688,7 @@ codeunit 139155 "PEPPOL Management Tests"
         SalesInvoiceHeader.Get(CreatePostSalesInvoice);
 
         // [WHEN] Send the invoice electronically with PEPPOL format
-        SalesInvoiceHeader.SetRecFilter;
+        SalesInvoiceHeader.SetRecFilter();
         XMLFilePath := PEPPOLXMLExport(SalesInvoiceHeader, GetPEPPOLFormat);
 
         // [THEN] cbc:TaxCurrencyCode and cbc:DocumentTypeCode elements are not exported
@@ -2831,7 +2831,7 @@ codeunit 139155 "PEPPOL Management Tests"
         ShipToAddress.Get(Customer."No.", SalesInvoiceHeader."Ship-to Code");
 
         // [WHEN] Export PEPPOL format
-        SalesInvoiceHeader.SetRecFilter;
+        SalesInvoiceHeader.SetRecFilter();
         XMLFilePath := PEPPOLXMLExport(SalesInvoiceHeader, GetPEPPOLFormat);
 
         // [THEN] "Delivery" tag has been exported with "ActualDeliveryDate" = "18-07-2018", "ID" = "12345", "ID/schemeID" = "0088"
@@ -2858,7 +2858,7 @@ codeunit 139155 "PEPPOL Management Tests"
         Customer.Get(SalesInvoiceHeader."Sell-to Customer No.");
 
         // [WHEN] Export PEPPOL format
-        SalesInvoiceHeader.SetRecFilter;
+        SalesInvoiceHeader.SetRecFilter();
         XMLFilePath := PEPPOLXMLExport(SalesInvoiceHeader, GetPEPPOLFormat);
 
         // [THEN] "Delivery" tag has been exported with "ActualDeliveryDate" = "18-07-2018", "ID" = "12345", "ID/schemeID" = "0088"
@@ -2884,7 +2884,7 @@ codeunit 139155 "PEPPOL Management Tests"
         SalesInvoiceHeader.Get(CreatePostSalesDoc(CreateCustomerWithAddressAndVATRegNo, SalesHeader."Document Type"::Invoice));
 
         // [WHEN] Export PEPPOL format
-        SalesInvoiceHeader.SetRecFilter;
+        SalesInvoiceHeader.SetRecFilter();
         XMLFilePath := PEPPOLXMLExport(SalesInvoiceHeader, GetPEPPOLFormat);
 
         // [THEN] "Delivery" tag has been exported with "ActualDeliveryDate" = "18-07-2018"
@@ -2914,7 +2914,7 @@ codeunit 139155 "PEPPOL Management Tests"
         ShipToAddress.Get(Customer."No.", SalesCrMemoHeader."Ship-to Code");
 
         // [WHEN] Export PEPPOL format
-        SalesCrMemoHeader.SetRecFilter;
+        SalesCrMemoHeader.SetRecFilter();
         XMLFilePath := PEPPOLXMLExport(SalesCrMemoHeader, GetPEPPOLFormat);
 
         // [THEN] "Delivery" tag has been exported with "ActualDeliveryDate" = "18-07-2018", "ID" = "12345", "ID/schemeID" = "0088"
@@ -2941,7 +2941,7 @@ codeunit 139155 "PEPPOL Management Tests"
         Customer.Get(SalesCrMemoHeader."Sell-to Customer No.");
 
         // [WHEN] Export PEPPOL format
-        SalesCrMemoHeader.SetRecFilter;
+        SalesCrMemoHeader.SetRecFilter();
         XMLFilePath := PEPPOLXMLExport(SalesCrMemoHeader, GetPEPPOLFormat);
 
         // [THEN] "Delivery" tag has been exported with "ActualDeliveryDate" = "18-07-2018", "ID" = "12345", "ID/schemeID" = "0088"
@@ -2967,7 +2967,7 @@ codeunit 139155 "PEPPOL Management Tests"
         SalesCrMemoHeader.Get(CreatePostSalesDoc(CreateCustomerWithAddressAndVATRegNo, SalesHeader."Document Type"::"Credit Memo"));
 
         // [WHEN] Export PEPPOL format
-        SalesCrMemoHeader.SetRecFilter;
+        SalesCrMemoHeader.SetRecFilter();
         XMLFilePath := PEPPOLXMLExport(SalesCrMemoHeader, GetPEPPOLFormat);
 
         // [THEN] "Delivery" tag has been exported with "ActualDeliveryDate" = "18-07-2018"
@@ -2993,7 +2993,7 @@ codeunit 139155 "PEPPOL Management Tests"
         Customer.Get(ServiceInvoiceHeader."Customer No.");
 
         // [WHEN] Export PEPPOL format
-        ServiceInvoiceHeader.SetRecFilter;
+        ServiceInvoiceHeader.SetRecFilter();
         XMLFilePath := PEPPOLXMLExport(ServiceInvoiceHeader, GetPEPPOLFormat);
 
         // [THEN] "Delivery" tag has been exported with "ID" = "12345", "ID/schemeID" = "0088"
@@ -3020,7 +3020,7 @@ codeunit 139155 "PEPPOL Management Tests"
         Customer.Get(ServiceCrMemoHeader."Customer No.");
 
         // [WHEN] Export PEPPOL format
-        ServiceCrMemoHeader.SetRecFilter;
+        ServiceCrMemoHeader.SetRecFilter();
         XMLFilePath := PEPPOLXMLExport(ServiceCrMemoHeader, GetPEPPOLFormat);
 
         // [THEN] "Delivery" tag has been exported with "ID" = "12345", "ID/schemeID" = "0088"
@@ -3101,7 +3101,7 @@ codeunit 139155 "PEPPOL Management Tests"
         CountryRegion.Code := Format(LibraryRandom.RandIntInRange(10, 99));
         CountryRegion.Insert;
         CompanyInformation."Country/Region Code" := CountryRegion.Code;
-        CompanyInformation.Modify;
+        CompanyInformation.Modify();
 
         // [GIVEN] Sales Invoice is created
         CreateGenericSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice);
@@ -3131,7 +3131,7 @@ codeunit 139155 "PEPPOL Management Tests"
         // [GIVEN] Sales Invoice is created with the Country/Resion above
         CreateGenericSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice);
         SalesHeader."Bill-to Country/Region Code" := CountryRegion.Code;
-        SalesHeader.Modify;
+        SalesHeader.Modify();
 
         // [WHEN] Run PEPPOL validation for the Sales Invoice
         asserterror CODEUNIT.Run(CODEUNIT::"PEPPOL Validation", SalesHeader);
@@ -3174,7 +3174,7 @@ codeunit 139155 "PEPPOL Management Tests"
         CountryRegion."ISO Code" := '1';
         CountryRegion.Modify();
         SalesHeader."Bill-to Country/Region Code" := CountryRegion.Code;
-        SalesHeader.Modify;
+        SalesHeader.Modify();
         asserterror CODEUNIT.Run(CODEUNIT::"PEPPOL Validation", SalesHeader);
         Assert.ExpectedError('ISO Code should be 2 characters long');
         Assert.ExpectedErrorCode('TableErrorStr');
@@ -3284,7 +3284,7 @@ codeunit 139155 "PEPPOL Management Tests"
           LibraryUtility.GenerateRandomCode(SalesHeader.FieldNo("Your Reference"), DATABASE::"Sales Header"));
 
         if DocumentType = SalesHeader."Document Type"::"Credit Memo" then
-            SalesHeader.Validate("Shipment Date", WorkDate);
+            SalesHeader.Validate("Shipment Date", WorkDate());
 
         SalesHeader.Modify(true);
     end;
@@ -3316,7 +3316,7 @@ codeunit 139155 "PEPPOL Management Tests"
         ElectronicDocumentFormat: Record "Electronic Document Format";
     begin
         with ElectronicDocumentFormat do begin
-            Init;
+            Init();
             Code := NewCode;
             Usage := NewUsage;
             "Codeunit ID" := NewCodeunitID;
@@ -3337,7 +3337,7 @@ codeunit 139155 "PEPPOL Management Tests"
         CompanyInfo: Record "Company Information";
     begin
         with CompanyInfo do begin
-            Get;
+            Get();
             Validate(GLN, '1234567891231');
             Modify(true);
         end;
@@ -3370,7 +3370,7 @@ codeunit 139155 "PEPPOL Management Tests"
     local procedure GetVATAmt(SalesLine: Record "Sales Line"; var VATAmtLine: Record "VAT Amount Line")
     begin
         with VATAmtLine do begin
-            Init;
+            Init();
             "VAT Identifier" := SalesLine."Tax Category";
             "VAT Calculation Type" := SalesLine."VAT Calculation Type";
             "Tax Group Code" := SalesLine."Tax Group Code";
@@ -3578,7 +3578,7 @@ codeunit 139155 "PEPPOL Management Tests"
         CompanyInformation: Record "Company Information";
     begin
         with CompanyInformation do begin
-            Get;
+            Get();
             Validate("SWIFT Code", Format(LibraryRandom.RandIntInRange(1000000, 9999999)));
             Modify(true);
         end;

@@ -35,7 +35,7 @@ codeunit 134418 "Inc Doc Attachment Overview UT"
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdatePurchasesPayablesSetup();
         LibraryInventory.NoSeriesSetup(InventorySetup);
-        LibraryERM.SetJournalTemplateNameMandatory(false);
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
 
         Initialized := true;
         Commit();
@@ -114,7 +114,7 @@ codeunit 134418 "Inc Doc Attachment Overview UT"
           'URL was not set correcly');
         Assert.AreEqual(TempIncDocAttachmentOverview.Indentation, 0, 'Indentation was not set correctly');
 
-        Assert.IsTrue(TempIncDocAttachmentOverview.Next = 0, 'There should be only one record in the TempTable');
+        Assert.IsTrue(TempIncDocAttachmentOverview.Next() = 0, 'There should be only one record in the TempTable');
     end;
 
     [Test]
@@ -138,7 +138,7 @@ codeunit 134418 "Inc Doc Attachment Overview UT"
         // Verify
         Assert.IsTrue(TempIncDocAttachmentOverview.Find('-'), 'There should be only one record in TempTable');
         VerifyLineMatchesIncomingDocumentAttachment(TempIncDocAttachmentOverview, IncomingDocumentAttachment, 1, 0);
-        Assert.IsTrue(TempIncDocAttachmentOverview.Next = 0, 'There should be only one record in the TempTable');
+        Assert.IsTrue(TempIncDocAttachmentOverview.Next() = 0, 'There should be only one record in the TempTable');
     end;
 
     [Test]
@@ -166,15 +166,15 @@ codeunit 134418 "Inc Doc Attachment Overview UT"
         SortingOrder := 1;
         Assert.IsTrue(TempIncDocAttachmentOverview.Find('-'), 'Temp table should not be empty');
         VerifyLineMatchesIncomingDocumentAttachment(TempIncDocAttachmentOverview, IncomingDocumentAttachment, SortingOrder, 0);
-        Assert.IsTrue(TempIncDocAttachmentOverview.Next <> 0, 'There should be more records in the temp table');
+        Assert.IsTrue(TempIncDocAttachmentOverview.Next() <> 0, 'There should be more records in the temp table');
 
         SortingOrder += 1;
         VerifyGroupLine(TempIncDocAttachmentOverview, IncomingDocument, SortingOrder);
-        Assert.IsTrue(TempIncDocAttachmentOverview.Next <> 0, 'There should be more records in the temp table');
+        Assert.IsTrue(TempIncDocAttachmentOverview.Next() <> 0, 'There should be more records in the temp table');
 
         SortingOrder += 1;
         VerifyLineMatchesIncomingDocumentAttachment(TempIncDocAttachmentOverview, IncomingDocumentAttachment2, SortingOrder, 1);
-        Assert.IsTrue(TempIncDocAttachmentOverview.Next = 0, 'There should not be more records in the temp table');
+        Assert.IsTrue(TempIncDocAttachmentOverview.Next() = 0, 'There should not be more records in the temp table');
     end;
 
     [Test]
@@ -209,15 +209,15 @@ codeunit 134418 "Inc Doc Attachment Overview UT"
         SortingOrder := 1;
         Assert.IsTrue(TempIncDocAttachmentOverview.Find('-'), 'Temp table should not be empty');
         VerifyLineMatchesIncomingDocumentAttachment(TempIncDocAttachmentOverview, IncomingDocumentAttachment, SortingOrder, 0);
-        Assert.IsTrue(TempIncDocAttachmentOverview.Next <> 0, 'There should be more records in the temp table');
+        Assert.IsTrue(TempIncDocAttachmentOverview.Next() <> 0, 'There should be more records in the temp table');
 
         SortingOrder += 1;
         VerifyGroupLine(TempIncDocAttachmentOverview, IncomingDocument, SortingOrder);
-        Assert.IsTrue(TempIncDocAttachmentOverview.Next <> 0, 'There should be more records in the temp table');
+        Assert.IsTrue(TempIncDocAttachmentOverview.Next() <> 0, 'There should be more records in the temp table');
 
         SortingOrder += 1;
         VerifyLineMatchesIncomingDocumentAttachment(TempIncDocAttachmentOverview, IncomingDocumentAttachment2, SortingOrder, 1);
-        Assert.IsTrue(TempIncDocAttachmentOverview.Next = 0, 'There should not be more records in the temp table');
+        Assert.IsTrue(TempIncDocAttachmentOverview.Next() = 0, 'There should not be more records in the temp table');
     end;
 
     [Test]

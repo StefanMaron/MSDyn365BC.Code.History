@@ -41,10 +41,9 @@ page 1313 "Dynamics CRM Admin Credentials"
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     begin
-        if (CloseAction = ACTION::OK) or (CloseAction = ACTION::LookupOK) then begin
-            if not Get then
-                Insert;
-        end;
+        if (CloseAction = ACTION::OK) or (CloseAction = ACTION::LookupOK) then
+            if not Get() then
+                Insert();
     end;
 }
 

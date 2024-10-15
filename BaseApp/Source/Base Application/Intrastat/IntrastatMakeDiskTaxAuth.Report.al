@@ -181,9 +181,6 @@ report 593 "Intrastat - Make Disk Tax Auth"
     end;
 
     var
-        Text001: Label 'WwWw';
-        Text002: Label 'INTRASTAT';
-        Text003: Label 'It is not possible to display %1 in a field with a length of %2.';
         TempIntrastatJnlLineGroupTotals: Record "Intrastat Jnl. Line" temporary;
         CompanyInfo: Record "Company Information";
         IntrastatSetup: Record "Intrastat Setup";
@@ -200,6 +197,10 @@ report 593 "Intrastat - Make Disk Tax Auth"
         ExportFormat: Enum "Intrastat Export Format";
         SpecifiedExportFormat: Enum "Intrastat Export Format";
         ExportFormatIsSpecified: Boolean;
+
+        Text001: Label 'WwWw';
+        Text002: Label 'INTRASTAT';
+        Text003: Label 'It is not possible to display %1 in a field with a length of %2.';
 
     local procedure FilterSourceLinesByIntrastatSetupExportTypes()
     begin

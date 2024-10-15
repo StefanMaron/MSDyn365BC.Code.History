@@ -13,7 +13,7 @@ page 931 "Assembly Quote Subform"
         {
             repeater(Group)
             {
-                field("Avail. Warning"; "Avail. Warning")
+                field("Avail. Warning"; Rec."Avail. Warning")
                 {
                     ApplicationArea = Assembly;
                     BlankZero = true;
@@ -30,38 +30,55 @@ page 931 "Assembly Quote Subform"
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies if the assembly order line is of type Item or Resource.';
                 }
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
+
+                    trigger OnValidate()
+                    var
+                        Item: Record "Item";
+                    begin
+                        if "Variant Code" = '' then
+                            VariantCodeMandatory := Item.IsVariantMandatory(Type = Type::Item, "No.");
+                    end;
                 }
                 field(Description; Description)
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies the description of the assembly component.';
                 }
-                field("Description 2"; "Description 2")
+                field("Description 2"; Rec."Description 2")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies the second description of the assembly component.';
                     Visible = false;
                 }
-                field("Variant Code"; "Variant Code")
+                field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the variant of the item on the line.';
+                    ShowMandatory = VariantCodeMandatory;
+
+                    trigger OnValidate()
+                    var
+                        Item: Record "Item";
+                    begin
+                        if "Variant Code" = '' then
+                            VariantCodeMandatory := Item.IsVariantMandatory(Type = Type::Item, "No.");
+                    end;
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the location from which you want to post consumption of the assembly component.';
                 }
-                field("Unit of Measure Code"; "Unit of Measure Code")
+                field("Unit of Measure Code"; Rec."Unit of Measure Code")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
                 }
-                field("Quantity per"; "Quantity per")
+                field("Quantity per"; Rec."Quantity per")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies how many units of the assembly component are required to assemble one assembly item.';
@@ -71,57 +88,57 @@ page 931 "Assembly Quote Subform"
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies how many units of the assembly component are expected to be consumed.';
                 }
-                field("Due Date"; "Due Date")
+                field("Due Date"; Rec."Due Date")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies the date when the assembly component must be available for consumption by the assembly order.';
                     Visible = false;
                 }
-                field("Lead-Time Offset"; "Lead-Time Offset")
+                field("Lead-Time Offset"; Rec."Lead-Time Offset")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies the lead-time offset that is defined for the assembly component on the assembly BOM.';
                     Visible = false;
                 }
-                field("Bin Code"; "Bin Code")
+                field("Bin Code"; Rec."Bin Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the code of the bin where assembly components must be placed prior to assembly and from where they are posted as consumed.';
                     Visible = false;
                 }
-                field("Inventory Posting Group"; "Inventory Posting Group")
+                field("Inventory Posting Group"; Rec."Inventory Posting Group")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies links between business transactions made for the item and an inventory account in the general ledger, to group amounts for that item type.';
                     Visible = false;
                 }
-                field("Unit Cost"; "Unit Cost")
+                field("Unit Cost"; Rec."Unit Cost")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies the cost of one unit of the item or resource on the line.';
                 }
-                field("Cost Amount"; "Cost Amount")
+                field("Cost Amount"; Rec."Cost Amount")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies the cost of the assembly order line.';
                 }
-                field("Qty. per Unit of Measure"; "Qty. per Unit of Measure")
+                field("Qty. per Unit of Measure"; Rec."Qty. per Unit of Measure")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies the quantity per unit of measure of the component item on the assembly order line.';
                 }
-                field("Resource Usage Type"; "Resource Usage Type")
+                field("Resource Usage Type"; Rec."Resource Usage Type")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies how the cost of the resource on the assembly order line is allocated to the assembly item.';
                 }
-                field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
+                field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                     Visible = DimVisible1;
                 }
-                field("Shortcut Dimension 2 Code"; "Shortcut Dimension 2 Code")
+                field("Shortcut Dimension 2 Code"; Rec."Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
@@ -236,7 +253,7 @@ page 931 "Assembly Quote Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromAsmLine(Rec, ItemAvailFormsMgt.ByEvent);
+                            ItemAvailFormsMgt.ShowItemAvailFromAsmLine(Rec, ItemAvailFormsMgt.ByEvent());
                         end;
                     }
                     action(Period)
@@ -248,7 +265,7 @@ page 931 "Assembly Quote Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromAsmLine(Rec, ItemAvailFormsMgt.ByPeriod);
+                            ItemAvailFormsMgt.ShowItemAvailFromAsmLine(Rec, ItemAvailFormsMgt.ByPeriod());
                         end;
                     }
                     action(Variant)
@@ -260,7 +277,7 @@ page 931 "Assembly Quote Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromAsmLine(Rec, ItemAvailFormsMgt.ByVariant);
+                            ItemAvailFormsMgt.ShowItemAvailFromAsmLine(Rec, ItemAvailFormsMgt.ByVariant());
                         end;
                     }
                     action(Location)
@@ -273,7 +290,7 @@ page 931 "Assembly Quote Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromAsmLine(Rec, ItemAvailFormsMgt.ByLocation);
+                            ItemAvailFormsMgt.ShowItemAvailFromAsmLine(Rec, ItemAvailFormsMgt.ByLocation());
                         end;
                     }
                     action(Lot)
@@ -296,7 +313,7 @@ page 931 "Assembly Quote Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromAsmLine(Rec, ItemAvailFormsMgt.ByBOM);
+                            ItemAvailFormsMgt.ShowItemAvailFromAsmLine(Rec, ItemAvailFormsMgt.ByBOM());
                         end;
                     }
                 }
@@ -309,7 +326,7 @@ page 931 "Assembly Quote Subform"
 
                     trigger OnAction()
                     begin
-                        ShowAvailabilityWarning;
+                        ShowAvailabilityWarning();
                     end;
                 }
                 action(Dimensions)
@@ -331,7 +348,7 @@ page 931 "Assembly Quote Subform"
                     ApplicationArea = ItemTracking;
                     Caption = 'Item &Tracking Lines';
                     Image = ItemTrackingLines;
-                    ShortCutKey = 'Ctrl+Alt+I'; 
+                    ShortCutKey = 'Ctrl+Alt+I';
                     ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
 
                     trigger OnAction()
@@ -359,7 +376,7 @@ page 931 "Assembly Quote Subform"
 
                     trigger OnAction()
                     begin
-                        ShowAssemblyList;
+                        ShowAssemblyList();
                     end;
                 }
             }
@@ -376,7 +393,7 @@ page 931 "Assembly Quote Subform"
 
                     trigger OnAction()
                     begin
-                        ShowItemSub;
+                        ShowItemSub();
                         CurrPage.Update();
                     end;
                 }
@@ -389,7 +406,7 @@ page 931 "Assembly Quote Subform"
 
                     trigger OnAction()
                     begin
-                        ExplodeAssemblyList;
+                        ExplodeAssemblyList();
                         CurrPage.Update();
                     end;
                 }
@@ -398,8 +415,12 @@ page 931 "Assembly Quote Subform"
     }
 
     trigger OnAfterGetRecord()
+    var
+        Item: Record Item;
     begin
         ShowShortcutDimCode(ShortcutDimCode);
+        if "Variant Code" = '' then
+            VariantCodeMandatory := Item.IsVariantMandatory(Type = Type::Item, "No.");
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
@@ -409,11 +430,12 @@ page 931 "Assembly Quote Subform"
 
     trigger OnOpenPage()
     begin
-        SetDimensionsVisibility;
+        SetDimensionsVisibility();
     end;
 
     var
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
+        VariantCodeMandatory: Boolean;
 
     protected var
         ShortcutDimCode: array[8] of Code[20];

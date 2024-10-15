@@ -16,22 +16,22 @@ page 960 "Time Sheet Archive List"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
-                field("Starting Date"; "Starting Date")
+                field("Starting Date"; Rec."Starting Date")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the start date for the archived time sheet.';
                 }
-                field("Ending Date"; "Ending Date")
+                field("Ending Date"; Rec."Ending Date")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the end date for an archived time sheet.';
                 }
-                field("Resource No."; "Resource No.")
+                field("Resource No."; Rec."Resource No.")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the list of resource numbers associated with an archived time sheet.';
@@ -54,15 +54,12 @@ page 960 "Time Sheet Archive List"
                 ApplicationArea = Jobs;
                 Caption = '&View Time Sheet';
                 Image = OpenJournal;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ShortCutKey = 'Return';
                 ToolTip = 'Open the time sheet.';
 
                 trigger OnAction()
                 begin
-                    ViewTimeSheet;
+                    ViewTimeSheet();
                 end;
             }
         }
@@ -81,6 +78,17 @@ page 960 "Time Sheet Archive List"
                     RunPageLink = "No." = FIELD("No."),
                                   "Time Sheet Line No." = CONST(0);
                     ToolTip = 'View or add comments for the record.';
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("&View Time Sheet_Promoted"; "&View Time Sheet")
+                {
                 }
             }
         }

@@ -780,7 +780,7 @@
         IntrastatJnlLine."Country/Region Code" := CreateCountryRegion;
         IntrastatJnlLine."Country/Region of Origin Code" := CreateCountryRegion;
         IntrastatJnlLine."Total Weight" := 1;
-        IntrastatJnlLine.Date := WorkDate;
+        IntrastatJnlLine.Date := WorkDate();
         IntrastatJnlLine.Modify();
     end;
 
@@ -799,7 +799,7 @@
         IntrastatJnlLine."Country/Region Code" := CreateCountryRegion;
         IntrastatJnlLine."Country/Region of Origin Code" := CreateCountryRegion;
         IntrastatJnlLine."Total Weight" := TotalWeight;
-        IntrastatJnlLine.Date := WorkDate;
+        IntrastatJnlLine.Date := WorkDate();
         IntrastatJnlLine.Modify();
     end;
 

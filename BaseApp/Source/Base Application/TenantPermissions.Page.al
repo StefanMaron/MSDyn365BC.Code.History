@@ -1,3 +1,4 @@
+#if not CLEAN21
 page 9850 "Tenant Permissions"
 {
     Caption = 'Permissions';
@@ -5,10 +6,12 @@ page 9850 "Tenant Permissions"
     DelayedInsert = true;
     PageType = Worksheet;
     PopulateAllFields = true;
-    PromotedActionCategories = 'New,Process,Report,Read,Insert,Modify,Delete,Execute';
     ShowFilter = false;
     SourceTable = "Tenant Permission";
     SourceTableTemporary = true;
+    ObsoleteReason = 'Replaced by the Permission Set page.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     layout
     {
@@ -32,7 +35,7 @@ page 9850 "Tenant Permissions"
 
                         trigger OnValidate()
                         begin
-                            FillTempPermissions;
+                            FillTempPermissions();
                         end;
 
                         trigger OnAssistEdit()
@@ -51,7 +54,7 @@ page 9850 "Tenant Permissions"
 
                         trigger OnValidate()
                         begin
-                            FillTempPermissions;
+                            FillTempPermissions();
                         end;
                     }
                 }
@@ -96,7 +99,7 @@ page 9850 "Tenant Permissions"
                     ToolTip = 'Specifies the ID of the permission sets that exist in the current database. This field is used internally.';
                     Visible = false;
                 }
-                field("Object Type"; "Object Type")
+                field("Object Type"; Rec."Object Type")
                 {
                     ApplicationArea = Basic, Suite;
                     Enabled = AllowChangePrimaryKey;
@@ -106,13 +109,13 @@ page 9850 "Tenant Permissions"
 
                     trigger OnValidate()
                     begin
-                        ActivateControls;
+                        ActivateControls();
                         SetObjectZeroName(Rec);
-                        EmptyIrrelevantPermissionFields;
-                        SetRelevantPermissionFieldsToYes;
+                        EmptyIrrelevantPermissionFields();
+                        SetRelevantPermissionFieldsToYes();
                     end;
                 }
-                field("Object ID"; "Object ID")
+                field("Object ID"; Rec."Object ID")
                 {
                     ApplicationArea = Basic, Suite;
                     Enabled = AllowChangePrimaryKey;
@@ -131,7 +134,7 @@ page 9850 "Tenant Permissions"
                     trigger OnValidate()
                     begin
                         IsValidatedObjectID := false;
-                        ActivateControls;
+                        ActivateControls();
                         SetObjectZeroName(Rec);
                     end;
                 }
@@ -203,7 +206,7 @@ page 9850 "Tenant Permissions"
                     StyleExpr = ZeroObjStyleExpr;
                     ToolTip = 'Specifies if the permission set has execute permission to this object. The values for the field are blank, Yes, and Indirect. Indirect means permission only through another object. If the field is empty, the permission set does not have execute permission.';
                 }
-                field("Security Filter"; "Security Filter")
+                field("Security Filter"; Rec."Security Filter")
                 {
                     ApplicationArea = Basic, Suite;
                     Enabled = IsTableData and SingleFilterSelected;
@@ -250,8 +253,6 @@ page 9850 "Tenant Permissions"
                     Caption = 'SmartList Permissions';
                     Enabled = IsEmptyCurrentAppID and CanManageUsersOnTenant;
                     Image = Permission;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'View or edit which query objects created by SmartList Designer users need to access, and setup the related permissions in permission sets that you can assign to the users of the database.';
                     Visible = false;
                     ObsoleteState = Pending;
@@ -591,7 +592,7 @@ page 9850 "Tenant Permissions"
 
                     trigger OnAction()
                     begin
-                        AddRelatedTablesToSelected;
+                        AddRelatedTablesToSelected();
                     end;
                 }
                 action(IncludeExclude)
@@ -611,7 +612,7 @@ page 9850 "Tenant Permissions"
                         AggregatePermissionSet.Get(AggregatePermissionSet.Scope::Tenant, "App ID", "Role ID");
                         AddSubtractPermissionSet.SetDestination(AggregatePermissionSet);
                         AddSubtractPermissionSet.RunModal();
-                        FillTempPermissions;
+                        FillTempPermissions();
                     end;
                 }
 #if not CLEAN19
@@ -642,15 +643,13 @@ page 9850 "Tenant Permissions"
                     Caption = 'Start';
                     Enabled = (NOT PermissionLoggingRunning) AND (ControlsAreEditable);
                     Image = Start;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Start recording UI activities to generate the required permission set.';
 
                     trigger OnAction()
                     begin
                         if not Confirm(StartRecordingQst) then
                             exit;
-                        LogTablePermissions.Start;
+                        LogTablePermissions.Start();
                         PermissionLoggingRunning := true;
                     end;
                 }
@@ -661,8 +660,6 @@ page 9850 "Tenant Permissions"
                     Caption = 'Stop';
                     Enabled = PermissionLoggingRunning AND ControlsAreEditable;
                     Image = Stop;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Stop recording.';
 
                     trigger OnAction()
@@ -674,10 +671,56 @@ page 9850 "Tenant Permissions"
                         if not Confirm(AddPermissionsQst) then
                             exit;
                         AddLoggedPermissions(TempTablePermissionBuffer);
-                        FillTempPermissions;
+                        FillTempPermissions();
                         if FindFirst() then;
                     end;
                 }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref(Start_Promoted; Start)
+                {
+                }
+                actionref(Stop_Promoted; Stop)
+                {
+                }
+#if not CLEAN19
+                actionref("SmartList Designer Permissions_Promoted"; "SmartList Designer Permissions")
+                {
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The SmartList Designer is no longer available in Business Central.';
+                    ObsoleteTag = '19.0';
+                }
+#endif
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Read', Comment = 'Generated from the PromotedActionCategories property index 3.';
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Insert', Comment = 'Generated from the PromotedActionCategories property index 4.';
+            }
+            group(Category_Category6)
+            {
+                Caption = 'Modify', Comment = 'Generated from the PromotedActionCategories property index 5.';
+            }
+            group(Category_Category7)
+            {
+                Caption = 'Delete', Comment = 'Generated from the PromotedActionCategories property index 6.';
+            }
+            group(Category_Category8)
+            {
+                Caption = 'Execute', Comment = 'Generated from the PromotedActionCategories property index 7.';
             }
         }
     }
@@ -686,11 +729,11 @@ page 9850 "Tenant Permissions"
     var
         TenantPermission: Record "Tenant Permission";
     begin
-        ActivateControls;
+        ActivateControls();
         SetObjectZeroName(Rec);
         if not IsNewRecord then begin
             TenantPermission := Rec;
-            PermissionRecExists := TenantPermission.Find;
+            PermissionRecExists := TenantPermission.Find();
         end else
             PermissionRecExists := false;
         SingleFilterSelected := GetRangeMin("Role ID") = GetRangeMax("Role ID");
@@ -718,16 +761,16 @@ page 9850 "Tenant Permissions"
         if not IsNullGuid(CurrentAppID) then
             Error(CannotChangeExtensionPermissionErr);
 
-        PermissionPagesMgt.DisallowEditingPermissionSetsForNonAdminUsers;
+        PermissionPagesMgt.DisallowEditingPermissionSetsForNonAdminUsers();
 
         TenantPermission := Rec;
-        TenantPermission.Find;
-        exit(TenantPermission.Delete);
+        TenantPermission.Find();
+        exit(TenantPermission.Delete());
     end;
 
     trigger OnInit()
     begin
-        SetControlsAsReadOnly;
+        SetControlsAsReadOnly();
     end;
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
@@ -741,7 +784,7 @@ page 9850 "Tenant Permissions"
         if not IsNullGuid(CurrentAppID) then
             Error(CannotChangeExtensionPermissionErr);
 
-        PermissionPagesMgt.DisallowEditingPermissionSetsForNonAdminUsers;
+        PermissionPagesMgt.DisallowEditingPermissionSetsForNonAdminUsers();
 
         if ("Execute Permission" = "Execute Permission"::" ") and
            ("Read Permission" = "Read Permission"::" ") and
@@ -778,21 +821,21 @@ page 9850 "Tenant Permissions"
         if not IsNullGuid(CurrentAppID) then
             Error(CannotChangeExtensionPermissionErr);
 
-        PermissionPagesMgt.DisallowEditingPermissionSetsForNonAdminUsers;
+        PermissionPagesMgt.DisallowEditingPermissionSetsForNonAdminUsers();
 
         ModifyRecord(Rec);
         PermissionRecExists := true;
         IsNewRecord := false;
-        exit(Modify);
+        exit(Modify());
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        ActivateControls;
+        ActivateControls();
         PermissionRecExists := false;
         IsNewRecord := true;
         IsValidatedObjectID := false;
-        EmptyIrrelevantPermissionFields;
+        EmptyIrrelevantPermissionFields();
     end;
 
     trigger OnOpenPage()
@@ -809,7 +852,7 @@ page 9850 "Tenant Permissions"
                 CurrentAppID := TenantPermissionSet."App ID";
 
         if not IsNullGuid(CurrentAppID) then
-            PermissionPagesMgt.RaiseNotificationThatSecurityFilterNotEditableForSystemAndExtension;
+            PermissionPagesMgt.RaiseNotificationThatSecurityFilterNotEditableForSystemAndExtension();
 
         if CurrentRoleID = '' then
             if GetFilter("Role ID") <> '' then
@@ -817,8 +860,8 @@ page 9850 "Tenant Permissions"
             else
                 if TenantPermissionSet.FindFirst() then
                     CurrentRoleID := TenantPermissionSet."Role ID";
-        Reset;
-        FillTempPermissions;
+        Reset();
+        FillTempPermissions();
         IsEditable := CurrPage.Editable;
         SingleFilterSelected := GetRangeMin("Role ID") = GetRangeMax("Role ID");
         if SingleFilterSelected then
@@ -1021,12 +1064,12 @@ page 9850 "Tenant Permissions"
                      TempTenantPermission."Object Type", TempTenantPermission."Object ID")
                 then begin
                     Rec := TempTenantPermission;
-                    Modify;
+                    Modify();
                 end;
             until TempTenantPermission.Next() = 0;
 
         Rec := OriginalTenantPermission;
-        if Find then;
+        if Find() then;
     end;
 
     local procedure AddRelatedTablesToSelected()
@@ -1039,12 +1082,12 @@ page 9850 "Tenant Permissions"
             repeat
                 DoAddRelatedTables(TempTenantPermission);
             until TempTenantPermission.Next() = 0;
-        if Find then;
+        if Find() then;
     end;
 
     local procedure AddLoggedPermissions(var TablePermissionBuffer: Record "Table Permission Buffer")
     begin
-        TablePermissionBuffer.SetRange("Session ID", SessionId);
+        TablePermissionBuffer.SetRange("Session ID", SessionId());
         if TablePermissionBuffer.FindSet() then
             repeat
                 AddPermission(CurrentAppID, CurrentRoleID,
@@ -1084,7 +1127,7 @@ page 9850 "Tenant Permissions"
         LogTablePermissions: Codeunit "Log Table Permissions";
     begin
         if not Get(AppID, RoleID, ObjectType, ObjectID) then begin
-            Init;
+            Init();
             "App ID" := AppID;
             "Role ID" := RoleID;
             "Object Type" := ObjectType;
@@ -1094,7 +1137,7 @@ page 9850 "Tenant Permissions"
             "Modify Permission" := "Modify Permission"::" ";
             "Delete Permission" := "Delete Permission"::" ";
             "Execute Permission" := "Execute Permission"::" ";
-            Insert;
+            Insert();
             TenantPermission.TransferFields(Rec, true);
             TenantPermission.Insert();
         end;
@@ -1106,7 +1149,7 @@ page 9850 "Tenant Permissions"
         "Execute Permission" := LogTablePermissions.GetMaxPermission("Execute Permission", AddExecute);
 
         SetObjectZeroName(Rec);
-        Modify;
+        Modify();
         TenantPermission.LockTable();
         if not TenantPermission.Get(AppID, RoleID, ObjectType, ObjectID) then begin
             TenantPermission.TransferFields(Rec, true);
@@ -1173,3 +1216,4 @@ page 9850 "Tenant Permissions"
     end;
 }
 
+#endif

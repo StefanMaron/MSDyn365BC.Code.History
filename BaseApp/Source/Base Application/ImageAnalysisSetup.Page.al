@@ -17,7 +17,7 @@ page 2020 "Image Analysis Setup"
         {
             group(General)
             {
-                field("Api Uri"; "Api Uri")
+                field("Api Uri"; Rec."Api Uri")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'API URI';
@@ -26,7 +26,7 @@ page 2020 "Image Analysis Setup"
                     trigger OnValidate()
                     begin
                         if ("Api Uri" <> '') and (ApiKey <> '') then
-                            SetInfiniteAccess;
+                            SetInfiniteAccess();
                     end;
                 }
                 field("<Api Key>"; ApiKey)
@@ -41,7 +41,7 @@ page 2020 "Image Analysis Setup"
                         SetApiKey(ApiKey);
 
                         if ("Api Uri" <> '') and (ApiKey <> '') then
-                            SetInfiniteAccess;
+                            SetInfiniteAccess();
                     end;
                 }
                 field(LimitType; LimitType)
@@ -78,15 +78,23 @@ page 2020 "Image Analysis Setup"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Computer Vision API Documentation';
                 Image = LinkWeb;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'Set up a Computer Vision account with Microsoft Cognitive Services to do image analysis with Dynamics 365.';
 
                 trigger OnAction()
                 begin
                     HyperLink('https://go.microsoft.com/fwlink/?linkid=848400');
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(SetupAction_Promoted; SetupAction)
+                {
+                }
             }
         }
     }
@@ -96,8 +104,8 @@ page 2020 "Image Analysis Setup"
         AzureAIUsage: Codeunit "Azure AI Usage";
         AzureAIService: Enum "Azure AI Service";
     begin
-        GetSingleInstance;
-        if GetApiKey <> '' then
+        GetSingleInstance();
+        if GetApiKey() <> '' then
             ApiKey := '***';
         if ("Api Uri" <> '') and (ApiKey <> '') then
             AzureAIUsage.SetImageAnalysisIsSetup(true)

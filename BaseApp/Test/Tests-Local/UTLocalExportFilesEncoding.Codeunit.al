@@ -73,7 +73,7 @@ codeunit 144062 "UT Local Export Files Encoding"
         VATStatementAT: Report "VAT Statement AT";
         XmlFileName: Text;
     begin
-        LibraryVariableStorage.Enqueue(WorkDate);
+        LibraryVariableStorage.Enqueue(WorkDate());
         PrepareVATStatementFiles(FdfFileName, XmlFileName);
 
         VATStatementAT.InitializeRequest(FdfFileName, XmlFileName);

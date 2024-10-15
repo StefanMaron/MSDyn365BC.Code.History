@@ -58,7 +58,7 @@ table 750 "Standard General Journal"
     var
         DocumentNo: Code[20];
     begin
-        if StdGenJnl.IsZeroAmountJournal then
+        if StdGenJnl.IsZeroAmountJournal() then
             DocumentNo := TryGetNextDocumentNo(StdGenJnl."Journal Template Name", JnlBatchName);
 
         CreateGenJnl(StdGenJnl, JnlBatchName, DocumentNo, 0D);
@@ -120,7 +120,7 @@ table 750 "Standard General Journal"
 
         OnCopyGenJnlFromStdJnlOnBeforeGenJnlLineTransferFields(GenJnlLine, StdGenJnlLine);
         GenJnlLine.TransferFields(StdGenJnlLine, false);
-        GenJnlLine.UpdateLineBalance;
+        GenJnlLine.UpdateLineBalance();
         GenJnlLine."Currency Factor" := 0;
         GenJnlLine.Validate("Currency Code");
 
@@ -153,7 +153,7 @@ table 750 "Standard General Journal"
         OpenWindow(Text000, StdGenJnlLine.Count);
         if StdGenJnlLine.Find('-') then
             repeat
-                UpdateWindow;
+                UpdateWindow();
                 CopyGenJnlFromStdJnl(StdGenJnlLine, DocumentNo, PostingDate);
             until StdGenJnlLine.Next() = 0;
     end;
@@ -178,7 +178,7 @@ table 750 "Standard General Journal"
         if GenJournalBatch."No. Series" = '' then
             exit('');
 
-        exit(NoSeriesMgt.TryGetNextNo(GenJournalBatch."No. Series", WorkDate));
+        exit(NoSeriesMgt.TryGetNextNo(GenJournalBatch."No. Series", WorkDate()));
     end;
 
     local procedure OpenWindow(DisplayText: Text[250]; NoOfJournalsToBeCreated2: Integer)

@@ -92,7 +92,7 @@ codeunit 448 "Job Queue Dispatcher"
         OnAfterSuccessHandleRequest(JobQueueEntry, JobQueueExecutionTimeInMs);
     end;
 
-    local procedure WaitForOthersWithSameCategory(var CurrJobQueueEntry: Record "Job Queue Entry") Result: Boolean
+    procedure WaitForOthersWithSameCategory(var CurrJobQueueEntry: Record "Job Queue Entry") Result: Boolean
     var
         JobQueueEntry: Record "Job Queue Entry";
         JobQueueEntryCheck: Record "Job Queue Entry";
@@ -239,6 +239,7 @@ codeunit 448 "Job Queue Dispatcher"
 
             StartingWeekDay := Date2DWY(DT2Date(StartingDateTime), 1);
             Found := RunOnDate[(StartingWeekDay - 1 + NoOfDays) mod 7 + 1];
+            NoOfExtraDays := 0;
             while not Found and (NoOfExtraDays < 7) do begin
                 NoOfExtraDays := NoOfExtraDays + 1;
                 NoOfDays := NoOfDays + 1;

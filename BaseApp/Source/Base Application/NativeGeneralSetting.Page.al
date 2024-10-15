@@ -46,7 +46,7 @@ page 2840 "Native - General Setting"
                         if ("Paypal Email Address" <> '') and (not dnMatch.Success) then
                             Error(EmailInvalidErr);
 
-                        AssertCanChangePaypalSetup;
+                        AssertCanChangePaypalSetup();
                     end;
                 }
                 field(countryRegionCode; "Country/Region Code")
@@ -188,22 +188,22 @@ page 2840 "Native - General Setting"
         Clear(NativeAPILanguageHandler);
         BindSubscription(NativeAPILanguageHandler);
 
-        SaveRecord;
-        SetFileNameTemplates;
+        SaveRecord();
+        SetFileNameTemplates();
     end;
 
     trigger OnOpenPage()
     var
         EnvInfoProxy: Codeunit "Env. Info Proxy";
     begin
-        if not EnvInfoProxy.IsInvoicing then begin
-            Insert;
+        if not EnvInfoProxy.IsInvoicing() then begin
+            Insert();
             exit;
         end;
 
         BindSubscription(NativeAPILanguageHandler);
-        LoadRecord;
-        SetCalculatedFields;
+        LoadRecord();
+        SetCalculatedFields();
     end;
 
     var
@@ -222,9 +222,9 @@ page 2840 "Native - General Setting"
 
     local procedure SetCalculatedFields()
     begin
-        SetFileNameTemplates;
-        SetTaxRelatedFields;
-        SetUpdateVersion;
+        SetFileNameTemplates();
+        SetTaxRelatedFields();
+        SetUpdateVersion();
     end;
 
     local procedure SetFileNameTemplates()
@@ -237,7 +237,7 @@ page 2840 "Native - General Setting"
         CurrentLanguageID: Integer;
     begin
         CurrentLanguageID := GlobalLanguage;
-        GlobalLanguage(Language.GetLanguageIdOrDefault(Language.GetUserLanguageCode));
+        GlobalLanguage(Language.GetLanguageIdOrDefault(Language.GetUserLanguageCode()));
 
         Clear(PostedInvoiceFileName);
         Clear(DraftInvoiceFileName);
@@ -245,17 +245,17 @@ page 2840 "Native - General Setting"
 
         DocumentMailing.GetAttachmentFileName(
           PostedInvoiceFileName, DocNoPlaceholderTxt,
-          TempSalesInvoiceHeader.GetDocTypeTxt, NativeReports.PostedSalesInvoiceReportId);
+          TempSalesInvoiceHeader.GetDocTypeTxt(), NativeReports.PostedSalesInvoiceReportId());
 
         TempSalesHeader."Document Type" := TempSalesHeader."Document Type"::Invoice;
         DocumentMailing.GetAttachmentFileName(
           DraftInvoiceFileName, DocNoPlaceholderTxt,
-          TempSalesHeader.GetDocTypeTxt, NativeReports.DraftSalesInvoiceReportId);
+          TempSalesHeader.GetDocTypeTxt(), NativeReports.DraftSalesInvoiceReportId());
 
         TempSalesHeader."Document Type" := TempSalesHeader."Document Type"::Quote;
         DocumentMailing.GetAttachmentFileName(
           QuoteFileName, DocNoPlaceholderTxt,
-          TempSalesHeader.GetDocTypeTxt, NativeReports.SalesQuoteReportId);
+          TempSalesHeader.GetDocTypeTxt(), NativeReports.SalesQuoteReportId());
 
         GlobalLanguage(CurrentLanguageID);
     end;
@@ -281,7 +281,7 @@ page 2840 "Native - General Setting"
     var
         ApplicationSystemConstants: Codeunit "Application System Constants";
     begin
-        UpdateVersion := StrSubstNo(UpdateTxt, ApplicationSystemConstants.BuildBranch, ApplicationSystemConstants.ApplicationBuild);
+        UpdateVersion := StrSubstNo(UpdateTxt, ApplicationSystemConstants.BuildBranch(), ApplicationSystemConstants.ApplicationBuild());
     end;
 
     [ServiceEnabled]
@@ -305,7 +305,7 @@ page 2840 "Native - General Setting"
     var
         GraphMgtGeneralTools: Codeunit "Graph Mgt - General Tools";
     begin
-        GraphMgtGeneralTools.ApiSetup;
+        GraphMgtGeneralTools.ApiSetup();
         SetActionResponse(ActionContext);
     end;
 

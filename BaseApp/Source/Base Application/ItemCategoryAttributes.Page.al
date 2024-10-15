@@ -17,7 +17,7 @@ page 5734 "Item Category Attributes"
             {
                 Enabled = RowEditable;
                 ShowCaption = false;
-                field("Attribute Name"; "Attribute Name")
+                field("Attribute Name"; Rec."Attribute Name")
                 {
                     ApplicationArea = Basic, Suite;
                     AssistEdit = false;
@@ -28,7 +28,7 @@ page 5734 "Item Category Attributes"
 
                     trigger OnValidate()
                     begin
-                        PersistInheritanceData;
+                        PersistInheritanceData();
                     end;
                 }
                 field(Value; Value)
@@ -42,17 +42,17 @@ page 5734 "Item Category Attributes"
 
                     trigger OnValidate()
                     begin
-                        PersistInheritanceData;
-                        ChangeDefaultValue;
+                        PersistInheritanceData();
+                        ChangeDefaultValue();
                     end;
                 }
-                field("Unit of Measure"; "Unit of Measure")
+                field("Unit of Measure"; Rec."Unit of Measure")
                 {
                     ApplicationArea = Basic, Suite;
                     StyleExpr = StyleTxt;
                     ToolTip = 'Specifies the name of the item or resource''s unit of measure, such as piece or hour.';
                 }
-                field("Inherited-From Key Value"; "Inherited-From Key Value")
+                field("Inherited-From Key Value"; Rec."Inherited-From Key Value")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Inherited From';
@@ -70,12 +70,12 @@ page 5734 "Item Category Attributes"
 
     trigger OnAfterGetCurrRecord()
     begin
-        UpdateProperties;
+        UpdateProperties();
     end;
 
     trigger OnAfterGetRecord()
     begin
-        UpdateProperties;
+        UpdateProperties();
     end;
 
     trigger OnClosePage()
@@ -148,11 +148,11 @@ page 5734 "Item Category Attributes"
         ItemCategory: Record "Item Category";
         CurrentCategoryCode: Code[20];
     begin
-        Reset;
+        Reset();
         DeleteAll();
         if CategoryCode = '' then
             exit;
-        SortByInheritance;
+        SortByInheritance();
         ItemAttributeValueMapping.SetRange("Table ID", DATABASE::"Item Category");
         SetItemCategoryCode(CategoryCode);
         CurrentCategoryCode := CategoryCode;
@@ -174,7 +174,7 @@ page 5734 "Item Category Attributes"
                                     else
                                         InsertRecord(TempItemAttributeValue, DATABASE::"Item Category", CurrentCategoryCode);
                                     "Inheritance Level" := ItemCategory.Indentation;
-                                    Modify;
+                                    Modify();
                                 end;
                         end
                     until ItemAttributeValueMapping.Next() = 0;
@@ -182,9 +182,9 @@ page 5734 "Item Category Attributes"
             end else
                 CurrentCategoryCode := '';
         until CurrentCategoryCode = '';
-        Reset;
+        Reset();
         CurrPage.Update(false);
-        SortByInheritance;
+        SortByInheritance();
     end;
 
     procedure SaveAttributes(CategoryCode: Code[20])
@@ -227,7 +227,7 @@ page 5734 "Item Category Attributes"
     local procedure PersistInheritanceData()
     begin
         "Inherited-From Table ID" := DATABASE::"Item Category";
-        CurrPage.SaveRecord;
+        CurrPage.SaveRecord();
     end;
 
     procedure SetItemCategoryCode(CategoryCode: Code[20])
@@ -255,8 +255,8 @@ page 5734 "Item Category Attributes"
     local procedure AttributeExists(AttributeID: Integer) AttribExist: Boolean
     begin
         SetRange("Attribute ID", AttributeID);
-        AttribExist := not IsEmpty;
-        Reset;
+        AttribExist := not IsEmpty();
+        Reset();
     end;
 
     local procedure ChangeDefaultValue()

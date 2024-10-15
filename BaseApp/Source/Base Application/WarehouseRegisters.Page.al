@@ -14,37 +14,37 @@ page 7325 "Warehouse Registers"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
-                field("From Entry No."; "From Entry No.")
+                field("From Entry No."; Rec."From Entry No.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the first item entry number in the register.';
                 }
-                field("To Entry No."; "To Entry No.")
+                field("To Entry No."; Rec."To Entry No.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the last warehouse entry number in the register.';
                 }
-                field("Creation Date"; "Creation Date")
+                field("Creation Date"; Rec."Creation Date")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the date on which the entries in the register were posted.';
                 }
-                field("Creation Time"; "Creation Time")
+                field("Creation Time"; Rec."Creation Time")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the time on which the entries in the register were posted.';
                 }
-                field("Source Code"; "Source Code")
+                field("Source Code"; Rec."Source Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the source code that specifies where the entry was created.';
                 }
-                field("User ID"; "User ID")
+                field("User ID"; Rec."User ID")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the ID of the user who posted the entry, to be used, for example, in the change log.';
@@ -56,7 +56,7 @@ page 7325 "Warehouse Registers"
                         UserMgt.DisplayUserInformation("User ID");
                     end;
                 }
-                field("Journal Batch Name"; "Journal Batch Name")
+                field("Journal Batch Name"; Rec."Journal Batch Name")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the name of the journal batch, a personalized journal layout, that the entries were posted from.';

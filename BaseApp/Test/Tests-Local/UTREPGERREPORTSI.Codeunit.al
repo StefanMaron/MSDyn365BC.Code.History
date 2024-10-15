@@ -213,8 +213,8 @@ codeunit 142070 "UT REP GERREPORTS - I"
 
         // Setup: Run report Vendor Detailed Aging for OverDueMonths for Vendor Ledger Entry, whose month in Due Date is less than Posting Date month and day are same in both dates.
         Initialize();
-        VendorLedgerEntryDueDate := CalcDate('<' + Format(-LibraryRandom.RandInt(5)) + 'M>', WorkDate);  // Vendor Ledger Entry, month in Due Date is less than Posting Date month and day are same in both dates.
-        OverDueMonths := (Date2DMY(WorkDate, 3) - Date2DMY(VendorLedgerEntryDueDate, 3)) * 12 + Date2DMY(WorkDate, 2) - Date2DMY(VendorLedgerEntryDueDate, 2);  // Calculation based on function OverDueMonths of Report Vendor Detailed Aging.
+        VendorLedgerEntryDueDate := CalcDate('<' + Format(-LibraryRandom.RandInt(5)) + 'M>', WorkDate());  // Vendor Ledger Entry, month in Due Date is less than Posting Date month and day are same in both dates.
+        OverDueMonths := (Date2DMY(WorkDate(), 3) - Date2DMY(VendorLedgerEntryDueDate, 3)) * 12 + Date2DMY(WorkDate(), 2) - Date2DMY(VendorLedgerEntryDueDate, 2);  // Calculation based on function OverDueMonths of Report Vendor Detailed Aging.
         OverDueMonthsVendorLedgerEntry(VendorLedgerEntryDueDate, OverDueMonths);
     end;
 
@@ -231,8 +231,8 @@ codeunit 142070 "UT REP GERREPORTS - I"
 
         // Setup: Run report Vendor Detailed Aging for OverDueMonths for Vendor Ledger Entry, whose day in Due Date is greater than day in Posting Date.
         Initialize();
-        VendorLedgerEntryDueDate := CalcDate('<' + Format(-LibraryRandom.RandInt(5)) + 'Y>', CalcDate('<+CM>', WorkDate)); // Vendor Ledger Entry day in Due Date is greater than day in Posting Date.
-        OverDueMonths := (Date2DMY(WorkDate, 3) - Date2DMY(VendorLedgerEntryDueDate, 3)) * 12 + Date2DMY(WorkDate, 2) - Date2DMY(VendorLedgerEntryDueDate, 2);  // Calculation based on function OverDueMonths of Report Vendor Detailed Aging.
+        VendorLedgerEntryDueDate := CalcDate('<' + Format(-LibraryRandom.RandInt(5)) + 'Y>', CalcDate('<+CM>', WorkDate())); // Vendor Ledger Entry day in Due Date is greater than day in Posting Date.
+        OverDueMonths := (Date2DMY(WorkDate(), 3) - Date2DMY(VendorLedgerEntryDueDate, 3)) * 12 + Date2DMY(WorkDate(), 2) - Date2DMY(VendorLedgerEntryDueDate, 2);  // Calculation based on function OverDueMonths of Report Vendor Detailed Aging.
         OverDueMonthsVendorLedgerEntry(VendorLedgerEntryDueDate, OverDueMonths - 1);
     end;
 
@@ -300,7 +300,7 @@ codeunit 142070 "UT REP GERREPORTS - I"
         GLEntry2.FindLast();
         GLEntry."Entry No." := GLEntry2."Entry No." + 1;
         GLEntry."G/L Account No." := GLAccountNo;
-        GLEntry."Posting Date" := WorkDate;
+        GLEntry."Posting Date" := WorkDate();
         GLEntry.Amount := 1;
         GLEntry."Credit Amount" := 1;
         GLEntry.Insert();
@@ -318,7 +318,7 @@ codeunit 142070 "UT REP GERREPORTS - I"
         VendorLedgerEntry."Entry No." := VendorLedgerEntry2."Entry No." + 1;
         VendorLedgerEntry."Due Date" := DueDate;
         VendorLedgerEntry."Vendor No." := Vendor."No.";
-        VendorLedgerEntry."Posting Date" := WorkDate;
+        VendorLedgerEntry."Posting Date" := WorkDate();
         VendorLedgerEntry.Open := true;
         VendorLedgerEntry.Insert();
     end;
@@ -362,7 +362,7 @@ codeunit 142070 "UT REP GERREPORTS - I"
     [Scope('OnPrem')]
     procedure GLTotalBalanceRequestPageHandler(var GLTotalBalance: TestRequestPage "G/L Total-Balance")
     begin
-        UpdateGLTotalBalanceReportRequestPage(GLTotalBalance, WorkDate);
+        UpdateGLTotalBalanceReportRequestPage(GLTotalBalance, WorkDate());
     end;
 
     [RequestPageHandler]
@@ -380,7 +380,7 @@ codeunit 142070 "UT REP GERREPORTS - I"
     [Scope('OnPrem')]
     procedure VendorDetailedAgingEndDateRequestPageHandler(var VendorDetailedAging: TestRequestPage "Vendor Detailed Aging")
     begin
-        VendorDetailedAging.EndingDate.AssertEquals(WorkDate);
+        VendorDetailedAging.EndingDate.AssertEquals(WorkDate());
     end;
 }
 

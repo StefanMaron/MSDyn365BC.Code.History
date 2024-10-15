@@ -13,19 +13,19 @@ page 673 "Job Queue Entry Card"
             {
                 Caption = 'General';
                 Editable = Status = Status::"On Hold";
-                field("Object Type to Run"; "Object Type to Run")
+                field("Object Type to Run"; Rec."Object Type to Run")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Promoted;
                     ToolTip = 'Specifies the type of the object, report or codeunit, that is to be run for the job queue entry. After you specify a type, you then select an object ID of that type in the Object ID to Run field.';
                 }
-                field("Object ID to Run"; "Object ID to Run")
+                field("Object ID to Run"; Rec."Object ID to Run")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Promoted;
                     ToolTip = 'Specifies the ID of the object that is to be run for this job. You can select an ID that is of the object type that you have specified in the Object Type to Run field.';
                 }
-                field("Object Caption to Run"; "Object Caption to Run")
+                field("Object Caption to Run"; Rec."Object Caption to Run")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the object that is selected in the Object ID to Run field.';
@@ -36,54 +36,54 @@ page 673 "Job Queue Entry Card"
                     Importance = Promoted;
                     ToolTip = 'Specifies a description of the job queue entry. You can edit and update the description on the job queue entry card. The description is also displayed in the Job Queue Entries window, but it cannot be updated there.';
                 }
-                field("Parameter String"; "Parameter String")
+                field("Parameter String"; Rec."Parameter String")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies a text string that is used as a parameter by the job queue when it is run.';
                 }
-                field("Job Queue Category Code"; "Job Queue Category Code")
+                field("Job Queue Category Code"; Rec."Job Queue Category Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies the code of the job queue category to which the job queue entry belongs. Choose the field to select a code from the list.';
                 }
-                field("User ID"; "User ID")
+                field("User ID"; Rec."User ID")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies the ID of the user who posted the entry, to be used, for example, in the change log.';
                 }
-                field("Maximum No. of Attempts to Run"; "Maximum No. of Attempts to Run")
+                field("Maximum No. of Attempts to Run"; Rec."Maximum No. of Attempts to Run")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies how many times a job queue task should be rerun after a job queue fails to run. This is useful for situations in which a task might be unresponsive. For example, a task might be unresponsive because it depends on an external resource that is not always available.';
                 }
-                field("Rerun Delay (sec.)"; "Rerun Delay (sec.)")
+                field("Rerun Delay (sec.)"; Rec."Rerun Delay (sec.)")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies how many seconds to wait before re-running this job queue task in the event of a failure.';
                 }
-                field("Last Ready State"; "Last Ready State")
+                field("Last Ready State"; Rec."Last Ready State")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies the date and time when the job queue entry was last set to Ready and sent to the job queue.';
                 }
-                field("Earliest Start Date/Time"; "Earliest Start Date/Time")
+                field("Earliest Start Date/Time"; Rec."Earliest Start Date/Time")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the earliest date and time when the job queue entry should be run. The format for the date and time must be month/day/year hour:minute, and then AM or PM. For example, 3/10/2021 12:00 AM.';
                 }
-                field("Expiration Date/Time"; "Expiration Date/Time")
+                field("Expiration Date/Time"; Rec."Expiration Date/Time")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies the date and time when the job queue entry is to expire, after which the job queue entry will not be run.  The format for the date and time must be month/day/year hour:minute, and then AM or PM. For example, 3/10/2021 12:00 AM.';
                 }
-                field("Timeout"; "Job Timeout")
+                field("Timeout"; Rec."Job Timeout")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the maximum time that the job queue entry is allowed to run.';
@@ -99,18 +99,18 @@ page 673 "Job Queue Entry Card"
                 Caption = 'Report Parameters';
                 Editable = Status = Status::"On Hold";
                 Visible = "Object Type to Run" = "Object Type to Run"::Report;
-                field("Report Request Page Options"; "Report Request Page Options")
+                field("Report Request Page Options"; Rec."Report Request Page Options")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether options on the report request page have been set for scheduled report job. If the check box is selected, then options have been set for the scheduled report.';
                 }
-                field("Report Output Type"; "Report Output Type")
+                field("Report Output Type"; Rec."Report Output Type")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Promoted;
                     ToolTip = 'Specifies the output of the scheduled report.';
                 }
-                field("Printer Name"; "Printer Name")
+                field("Printer Name"; Rec."Printer Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the printer to use to print the scheduled report.';
@@ -120,75 +120,75 @@ page 673 "Job Queue Entry Card"
             {
                 Caption = 'Recurrence';
                 Editable = Status = Status::"On Hold";
-                field("Recurring Job"; "Recurring Job")
+                field("Recurring Job"; Rec."Recurring Job")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies if the job queue entry is recurring. If the Recurring Job check box is selected, then the job queue entry is recurring. If the check box is cleared, the job queue entry is not recurring. After you specify that a job queue entry is a recurring one, you must specify on which days of the week the job queue entry is to run. Optionally, you can also specify a time of day for the job to run and how many minutes should elapse between runs.';
                 }
-                field("Run on Mondays"; "Run on Mondays")
+                field("Run on Mondays"; Rec."Run on Mondays")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies that the job queue entry runs on Mondays.';
                 }
-                field("Run on Tuesdays"; "Run on Tuesdays")
+                field("Run on Tuesdays"; Rec."Run on Tuesdays")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies that the job queue entry runs on Tuesdays.';
                 }
-                field("Run on Wednesdays"; "Run on Wednesdays")
+                field("Run on Wednesdays"; Rec."Run on Wednesdays")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies that the job queue entry runs on Wednesdays.';
                 }
-                field("Run on Thursdays"; "Run on Thursdays")
+                field("Run on Thursdays"; Rec."Run on Thursdays")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies that the job queue entry runs on Thursdays.';
                 }
-                field("Run on Fridays"; "Run on Fridays")
+                field("Run on Fridays"; Rec."Run on Fridays")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies that the job queue entry runs on Fridays.';
                 }
-                field("Run on Saturdays"; "Run on Saturdays")
+                field("Run on Saturdays"; Rec."Run on Saturdays")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies that the job queue entry runs on Saturdays.';
                 }
-                field("Run on Sundays"; "Run on Sundays")
+                field("Run on Sundays"; Rec."Run on Sundays")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies that the job queue entry runs on Sundays.';
                 }
-                field("Next Run Date Formula"; "Next Run Date Formula")
+                field("Next Run Date Formula"; Rec."Next Run Date Formula")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Promoted;
                     ToolTip = 'Specifies the date formula that is used to calculate the next time the recurring job queue entry will run. If you use a date formula, all other recurrence settings are cleared.';
                 }
-                field("Starting Time"; "Starting Time")
+                field("Starting Time"; Rec."Starting Time")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = "Recurring Job" = TRUE;
                     Importance = Promoted;
                     ToolTip = 'Specifies the earliest time of the day that the recurring job queue entry is to be run.';
                 }
-                field("Ending Time"; "Ending Time")
+                field("Ending Time"; Rec."Ending Time")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = "Recurring Job" = TRUE;
                     Importance = Promoted;
                     ToolTip = 'Specifies the latest time of the day that the recurring job queue entry is to be run.';
                 }
-                field("No. of Minutes between Runs"; "No. of Minutes between Runs")
+                field("No. of Minutes between Runs"; Rec."No. of Minutes between Runs")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = "Recurring Job" = TRUE;
                     Importance = Promoted;
                     ToolTip = 'Specifies the minimum number of minutes that are to elapse between runs of a job queue entry. The value cannot be less than one minute. This field only has meaning if the job queue entry is set to be a recurring job. If you use a no. of minutes between runs, the date formula setting is cleared.';
                 }
-                field("Inactivity Timeout Period"; "Inactivity Timeout Period")
+                field("Inactivity Timeout Period"; Rec."Inactivity Timeout Period")
                 {
                     ApplicationArea = Basic, Suite;
                     MinValue = 5;
@@ -242,8 +242,6 @@ page 673 "Job Queue Entry Card"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Set Status to Ready';
                     Image = ResetStatus;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Change the status of the entry.';
 
                     trigger OnAction()
@@ -256,14 +254,12 @@ page 673 "Job Queue Entry Card"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Set On Hold';
                     Image = Pause;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Change the status of the entry.';
 
                     trigger OnAction()
                     begin
                         SetStatus(Status::"On Hold");
-                        RecallModifyOnlyWhenReadOnlyNotification;
+                        RecallModifyOnlyWhenReadOnlyNotification();
                     end;
                 }
                 action("Show Error")
@@ -271,13 +267,11 @@ page 673 "Job Queue Entry Card"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Show Error';
                     Image = Error;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Show the error message that has stopped the entry.';
 
                     trigger OnAction()
                     begin
-                        ShowErrorMessage;
+                        ShowErrorMessage();
                     end;
                 }
                 action(Restart)
@@ -285,13 +279,11 @@ page 673 "Job Queue Entry Card"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Restart';
                     Image = Start;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Stop and start the entry.';
 
                     trigger OnAction()
                     begin
-                        Restart;
+                        Restart();
                     end;
                 }
                 action(RunInForeground)
@@ -299,8 +291,6 @@ page 673 "Job Queue Entry Card"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Run once (foreground)';
                     Image = DebugNext;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Run a copy of this job once in foreground.';
 
                     trigger OnAction()
@@ -323,8 +313,6 @@ page 673 "Job Queue Entry Card"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Log Entries';
                     Image = Log;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Page "Job Queue Log Entries";
                     RunPageLink = ID = FIELD(ID);
                     ToolTip = 'View the job queue log entries.';
@@ -338,7 +326,7 @@ page 673 "Job Queue Entry Card"
 
                     trigger OnAction()
                     begin
-                        LookupRecordToProcess;
+                        LookupRecordToProcess();
                     end;
                 }
                 action(ReportRequestPage)
@@ -347,15 +335,55 @@ page 673 "Job Queue Entry Card"
                     Caption = 'Report Request Page';
                     Enabled = "Object Type to Run" = "Object Type to Run"::Report;
                     Image = "Report";
-                    Promoted = true;
-                    PromotedCategory = "Report";
                     ToolTip = 'Show the request page for the entry. If the entry is set up to run a processing-only report, the request page is blank.';
 
                     trigger OnAction()
                     begin
-                        RunReportRequestPage;
+                        RunReportRequestPage();
                     end;
                 }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref("Set Status to Ready_Promoted"; "Set Status to Ready")
+                {
+                }
+                actionref("Set On Hold_Promoted"; "Set On Hold")
+                {
+                }
+                actionref(Restart_Promoted; Restart)
+                {
+                }
+                actionref(RunInForeground_Promoted; RunInForeground)
+                {
+                }
+                actionref("Show Error_Promoted"; "Show Error")
+                {
+                }
+            }
+            group(Category_Job_Queue)
+            {
+                Caption = 'Job Queue';
+
+                actionref(ReportRequestPage_Promoted; ReportRequestPage)
+                {
+                }
+                actionref(ShowRecord_Promoted; ShowRecord)
+                {
+                }
+                actionref(LogEntries_Promoted; LogEntries)
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+
             }
         }
     }
@@ -363,12 +391,12 @@ page 673 "Job Queue Entry Card"
     trigger OnAfterGetCurrRecord()
     begin
         if CurrPage.Editable and not (Status in [Status::"On Hold", Status::"On Hold with Inactivity Timeout"]) then
-            ShowModifyOnlyWhenReadOnlyNotification;
+            ShowModifyOnlyWhenReadOnlyNotification();
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        ID := CreateGuid;
+        ID := CreateGuid();
         Status := Status::"On Hold";
 
         // Until Modern Dev decided to support InitValue on Duration we have to do it this way.
@@ -397,21 +425,21 @@ page 673 "Job Queue Entry Card"
     var
         ModifyOnlyWhenReadOnlyNotification: Notification;
     begin
-        ModifyOnlyWhenReadOnlyNotification.Id := GetModifyOnlyWhenReadOnlyNotificationId;
-        ModifyOnlyWhenReadOnlyNotification.Recall;
+        ModifyOnlyWhenReadOnlyNotification.Id := GetModifyOnlyWhenReadOnlyNotificationId();
+        ModifyOnlyWhenReadOnlyNotification.Recall();
     end;
 
     local procedure ShowModifyOnlyWhenReadOnlyNotification()
     var
         ModifyOnlyWhenReadOnlyNotification: Notification;
     begin
-        ModifyOnlyWhenReadOnlyNotification.Id := GetModifyOnlyWhenReadOnlyNotificationId;
-        ModifyOnlyWhenReadOnlyNotification.Message := GetChooseSetOnHoldMsg;
+        ModifyOnlyWhenReadOnlyNotification.Id := GetModifyOnlyWhenReadOnlyNotificationId();
+        ModifyOnlyWhenReadOnlyNotification.Message := GetChooseSetOnHoldMsg();
         ModifyOnlyWhenReadOnlyNotification.Scope := NOTIFICATIONSCOPE::LocalScope;
         ModifyOnlyWhenReadOnlyNotification.SetData(FieldName(ID), ID);
         ModifyOnlyWhenReadOnlyNotification.AddAction(SetOnHoldLbl, CODEUNIT::"Job Queue - Send Notification",
           'SetJobQueueEntryStatusToOnHold');
-        ModifyOnlyWhenReadOnlyNotification.Send;
+        ModifyOnlyWhenReadOnlyNotification.Send();
     end;
 }
 

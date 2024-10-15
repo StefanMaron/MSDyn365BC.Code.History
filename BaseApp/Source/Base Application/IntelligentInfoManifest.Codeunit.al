@@ -7,6 +7,8 @@ codeunit 1642 "Intelligent Info Manifest"
 
     var
         AddinManifestManagement: Codeunit "Add-in Manifest Management";
+        EnvironmentInfo: Codeunit "Environment Information";
+
         OpenPaneButtonTxt: Label 'Contact Insights', Comment = 'Shows more information about the contact';
         OpenPaneButtonTooltipTxt: Label 'Opens a more detailed view of the contact in %1.', Comment = '%1 = Application name';
         OpenPaneSuperTipTxt: Label 'Open %1 in Outlook', Comment = '%1 = Application name';
@@ -20,7 +22,6 @@ codeunit 1642 "Intelligent Info Manifest"
         NewDocSuperTipDescTxt: Label 'Creates a new %1 for this contact in %2.', Comment = '%1 = document type (sales quote, purchase credit memo, etc.); %2 = Application name';
         AddinNameTxt: Label 'Contact Insights';
         AddinDescriptionTxt: Label 'Provides customer and vendor information directly within Outlook messages.';
-        EnvironmentInfo: Codeunit "Environment Information";
         AppIdTxt: Label 'cfca30bd-9846-4819-a6fc-56c89c5aae96', Locked = true;
         BrandingFolderTxt: Label 'ProjectMadeira/', Locked = true;
 
@@ -44,7 +45,7 @@ codeunit 1642 "Intelligent Info Manifest"
     local procedure SetupResourceImages(var ManifestText: Text)
     begin
         with AddinManifestManagement do begin
-            if EnvironmentInfo.IsSaaS then begin
+            if EnvironmentInfo.IsSaaS() then begin
                 SetNodeResource(ManifestText, 'nav-icon-16', BrandingFolderTxt + 'OfficeAddin_16x.png', 0);
                 SetNodeResource(ManifestText, 'nav-icon-32', BrandingFolderTxt + 'OfficeAddin_32x.png', 0);
                 SetNodeResource(ManifestText, 'nav-icon-80', BrandingFolderTxt + 'OfficeAddin_80x.png', 0);
@@ -121,17 +122,17 @@ codeunit 1642 "Intelligent Info Manifest"
         TypeIndex: Integer;
     begin
         with AddinManifestManagement do begin
-            SetNodeResource(ManifestText, 'groupLabel', PRODUCTNAME.Short, 2);
-            SetNodeResource(ManifestText, 'groupTooltip', PRODUCTNAME.Full, 3);
+            SetNodeResource(ManifestText, 'groupLabel', PRODUCTNAME.Short(), 2);
+            SetNodeResource(ManifestText, 'groupTooltip', PRODUCTNAME.Full(), 3);
             SetNodeResource(ManifestText, 'openPaneButtonLabel', OpenPaneButtonTxt, 2);
-            SetNodeResource(ManifestText, 'openPaneSuperTipTitle', StrSubstNo(OpenPaneSuperTipTxt, PRODUCTNAME.Short), 2);
-            SetNodeResource(ManifestText, 'openPaneButtonTooltip', StrSubstNo(OpenPaneButtonTooltipTxt, PRODUCTNAME.Full), 3);
-            SetNodeResource(ManifestText, 'openPaneSuperTipDesc', StrSubstNo(OpenPaneSuperTipDescriptionTxt, PRODUCTNAME.Full), 3);
+            SetNodeResource(ManifestText, 'openPaneSuperTipTitle', StrSubstNo(OpenPaneSuperTipTxt, PRODUCTNAME.Short()), 2);
+            SetNodeResource(ManifestText, 'openPaneButtonTooltip', StrSubstNo(OpenPaneButtonTooltipTxt, PRODUCTNAME.Full()), 3);
+            SetNodeResource(ManifestText, 'openPaneSuperTipDesc', StrSubstNo(OpenPaneSuperTipDescriptionTxt, PRODUCTNAME.Full()), 3);
 
             SetNodeResource(ManifestText, 'newMenuButtonLabel', NewMenuButtonTxt, 2);
-            SetNodeResource(ManifestText, 'newMenuSuperTipTitle', StrSubstNo(NewMenuSuperTipTxt, PRODUCTNAME.Short), 2);
-            SetNodeResource(ManifestText, 'newMenuButtonTooltip', StrSubstNo(NewMenuButtonTooltipTxt, PRODUCTNAME.Full), 3);
-            SetNodeResource(ManifestText, 'newMenuSuperTipDesc', StrSubstNo(NewMenuSuperTipDescriptionTxt, PRODUCTNAME.Full), 3);
+            SetNodeResource(ManifestText, 'newMenuSuperTipTitle', StrSubstNo(NewMenuSuperTipTxt, PRODUCTNAME.Short()), 2);
+            SetNodeResource(ManifestText, 'newMenuButtonTooltip', StrSubstNo(NewMenuButtonTooltipTxt, PRODUCTNAME.Full()), 3);
+            SetNodeResource(ManifestText, 'newMenuSuperTipDesc', StrSubstNo(NewMenuSuperTipDescriptionTxt, PRODUCTNAME.Full()), 3);
 
             for TypeIndex := 0 to 6 do begin
                 SetNodeResource(ManifestText, ResourceId('new%1Label', TypeIndex), GetDocType(TypeIndex), 2);
@@ -148,19 +149,19 @@ codeunit 1642 "Intelligent Info Manifest"
     begin
         case TypeIndex of
             0:
-                DocType := HyperlinkManifest.GetNameForSalesQuote;
+                DocType := HyperlinkManifest.GetNameForSalesQuote();
             1:
-                DocType := HyperlinkManifest.GetNameForSalesOrder;
+                DocType := HyperlinkManifest.GetNameForSalesOrder();
             2:
-                DocType := HyperlinkManifest.GetNameForSalesInvoice;
+                DocType := HyperlinkManifest.GetNameForSalesInvoice();
             3:
-                DocType := HyperlinkManifest.GetNameForSalesCrMemo;
+                DocType := HyperlinkManifest.GetNameForSalesCrMemo();
             4:
-                DocType := HyperlinkManifest.GetNameForPurchaseInvoice;
+                DocType := HyperlinkManifest.GetNameForPurchaseInvoice();
             5:
-                DocType := HyperlinkManifest.GetNameForPurchaseCrMemo;
+                DocType := HyperlinkManifest.GetNameForPurchaseCrMemo();
             6:
-                DocType := HyperlinkManifest.GetNameForPurchaseOrder;
+                DocType := HyperlinkManifest.GetNameForPurchaseOrder();
         end;
     end;
 
@@ -193,7 +194,7 @@ codeunit 1642 "Intelligent Info Manifest"
         DocType: Text;
     begin
         DocType := GetDocType(TypeIndex);
-        ResourceValue := StrSubstNo(BaseText, LowerCase(DocType), PRODUCTNAME.Short);
+        ResourceValue := StrSubstNo(BaseText, LowerCase(DocType), PRODUCTNAME.Short());
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Add-in Manifest Management", 'CreateDefaultAddins', '', false, false)]
@@ -203,7 +204,7 @@ codeunit 1642 "Intelligent Info Manifest"
             OfficeAddin.Delete();
 
         with AddinManifestManagement do
-            CreateAddin(OfficeAddin, DefaultManifestText, AddinNameTxt, AddinDescriptionTxt, AppIdTxt, CODEUNIT::"Intelligent Info Manifest");
+            CreateAddin(OfficeAddin, DefaultManifestText(), AddinNameTxt, AddinDescriptionTxt, AppIdTxt, CODEUNIT::"Intelligent Info Manifest");
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Add-in Manifest Management", 'OnGenerateManifest', '', false, false)]
@@ -212,7 +213,7 @@ codeunit 1642 "Intelligent Info Manifest"
         if not CanHandle(CodeunitID) then
             exit;
 
-        ManifestText := OfficeAddin.GetDefaultManifestText;
+        ManifestText := OfficeAddin.GetDefaultManifestText();
         AddinManifestManagement.SetCommonManifestItems(ManifestText);
         SetupUrl(ManifestText);
         SetupResourceImages(ManifestText);
@@ -271,7 +272,7 @@ codeunit 1642 "Intelligent Info Manifest"
           '  <Version>' + GetManifestVersion() + '</Version>' +
           '  <ProviderName>Microsoft</ProviderName>' +
           '  <DefaultLocale>en-US</DefaultLocale>' +
-          '  <DisplayName DefaultValue="' + AddinManifestManagement.XMLEncode(PRODUCTNAME.Short) + '" />' +
+          '  <DisplayName DefaultValue="' + AddinManifestManagement.XMLEncode(PRODUCTNAME.Short()) + '" />' +
           '  <Description DefaultValue="' + AddinDescriptionTxt + '" />' +
           '  <IconUrl DefaultValue="WEBCLIENTLOCATION/Resources/Images/OfficeAddinLogo.png"/>' +
           '  <HighResolutionIconUrl DefaultValue="WEBCLIENTLOCATION/Resources/Images/OfficeAddinLogoHigh.png"/>' +
@@ -895,15 +896,15 @@ codeunit 1642 "Intelligent Info Manifest"
           '      </bt:Urls>' +
           '      <bt:ShortStrings>' +
           '        <!-- Both modes -->' +
-          '        <bt:String id="groupLabel" DefaultValue="' + AddinManifestManagement.XMLEncode(PRODUCTNAME.Short) + '"/>' +
+          '        <bt:String id="groupLabel" DefaultValue="' + AddinManifestManagement.XMLEncode(PRODUCTNAME.Short()) + '"/>' +
           '' +
           '        <bt:String id="openPaneButtonLabel" DefaultValue="Contact Insights"/>' +
           '        <bt:String id="openPaneSuperTipTitle" DefaultValue="Open ' +
-          AddinManifestManagement.XMLEncode(PRODUCTNAME.Short) + ' in Outlook"/>' +
+          AddinManifestManagement.XMLEncode(PRODUCTNAME.Short()) + ' in Outlook"/>' +
           '' +
           '        <bt:String id="newMenuButtonLabel" DefaultValue="New"/>' +
           '        <bt:String id="newMenuSuperTipTitle" DefaultValue="Create a new document in ' +
-          AddinManifestManagement.XMLEncode(PRODUCTNAME.Short) + '"/>' +
+          AddinManifestManagement.XMLEncode(PRODUCTNAME.Short()) + '"/>' +
           '' +
           '        <bt:String id="newSalesQuoteLabel" DefaultValue="Sales Quote"/>' +
           '        <bt:String id="newSalesQuoteSuperTipTitle" DefaultValue="Create new sales quote"/>' +
@@ -927,21 +928,21 @@ codeunit 1642 "Intelligent Info Manifest"
           '        <bt:String id="newPurchaseOrderSuperTipTitle" DefaultValue="Create new purchase order"/>' +
           '      </bt:ShortStrings>' +
           '      <bt:LongStrings>' +
-          '        <bt:String id="groupTooltip" DefaultValue="' + AddinManifestManagement.XMLEncode(PRODUCTNAME.Short) + ' Add-in"/>' +
+          '        <bt:String id="groupTooltip" DefaultValue="' + AddinManifestManagement.XMLEncode(PRODUCTNAME.Short()) + ' Add-in"/>' +
           '' +
           '        <bt:String id="openPaneButtonTooltip" DefaultValue="Opens the contact in an embedded view"/>' +
           '        <bt:String id="openPaneSuperTipDesc" DefaultValue="Opens a pane to interact with the customer or vendor"/>' +
           '' +
           '        <bt:String id="newMenuButtonTooltip" DefaultValue="Creates a new document in ' +
-          AddinManifestManagement.XMLEncode(PRODUCTNAME.Short) + '"/>' +
+          AddinManifestManagement.XMLEncode(PRODUCTNAME.Short()) + '"/>' +
           '        <bt:String id="newMenuSuperTipDesc" DefaultValue="Creates a new document for the selected customer or vendor"/>' +
           '' +
           '        <bt:String id="newSalesQuoteTip" DefaultValue="Creates a new sales quote in ' +
-          AddinManifestManagement.XMLEncode(PRODUCTNAME.Short) + '" />' +
+          AddinManifestManagement.XMLEncode(PRODUCTNAME.Short()) + '" />' +
           '        <bt:String id="newSalesQuoteSuperTipDesc" DefaultValue="Creates a new sales quote for the selected customer." />' +
           '' +
           '        <bt:String id="newSalesOrderTip" DefaultValue="Creates a new sales order in ' +
-          AddinManifestManagement.XMLEncode(PRODUCTNAME.Short) + '" />' +
+          AddinManifestManagement.XMLEncode(PRODUCTNAME.Short()) + '" />' +
           '        <bt:String id="newSalesOrderSuperTipDesc" DefaultValue="Creates a new sales order for the selected customer." />' +
           '' +
           '        <bt:String id="newSalesInvoiceTip" DefaultValue="Creates a new sales invoice" />' +
@@ -1536,15 +1537,15 @@ codeunit 1642 "Intelligent Info Manifest"
           '      </bt:Urls>' +
           '      <bt:ShortStrings>' +
           '        <!-- Both modes -->' +
-          '        <bt:String id="groupLabel" DefaultValue="' + AddinManifestManagement.XMLEncode(PRODUCTNAME.Short) + '"/>' +
+          '        <bt:String id="groupLabel" DefaultValue="' + AddinManifestManagement.XMLEncode(PRODUCTNAME.Short()) + '"/>' +
           '' +
           '        <bt:String id="openPaneButtonLabel" DefaultValue="Contact Insights"/>' +
           '        <bt:String id="openPaneSuperTipTitle" DefaultValue="Open ' +
-          AddinManifestManagement.XMLEncode(PRODUCTNAME.Short) + ' in Outlook"/>' +
+          AddinManifestManagement.XMLEncode(PRODUCTNAME.Short()) + ' in Outlook"/>' +
           '' +
           '        <bt:String id="newMenuButtonLabel" DefaultValue="New"/>' +
           '        <bt:String id="newMenuSuperTipTitle" DefaultValue="Create a new document in ' +
-          AddinManifestManagement.XMLEncode(PRODUCTNAME.Short) + '"/>' +
+          AddinManifestManagement.XMLEncode(PRODUCTNAME.Short()) + '"/>' +
           '' +
           '        <bt:String id="newSalesQuoteLabel" DefaultValue="Sales Quote"/>' +
           '        <bt:String id="newSalesQuoteSuperTipTitle" DefaultValue="Create new sales quote"/>' +
@@ -1568,21 +1569,21 @@ codeunit 1642 "Intelligent Info Manifest"
           '        <bt:String id="newPurchaseOrderSuperTipTitle" DefaultValue="Create new purchase order"/>' +
           '      </bt:ShortStrings>' +
           '      <bt:LongStrings>' +
-          '        <bt:String id="groupTooltip" DefaultValue="' + AddinManifestManagement.XMLEncode(PRODUCTNAME.Short) + ' Add-in"/>' +
+          '        <bt:String id="groupTooltip" DefaultValue="' + AddinManifestManagement.XMLEncode(PRODUCTNAME.Short()) + ' Add-in"/>' +
           '' +
           '        <bt:String id="openPaneButtonTooltip" DefaultValue="Opens the contact in an embedded view"/>' +
           '        <bt:String id="openPaneSuperTipDesc" DefaultValue="Opens a pane to interact with the customer or vendor"/>' +
           '' +
           '        <bt:String id="newMenuButtonTooltip" DefaultValue="Creates a new document in ' +
-          AddinManifestManagement.XMLEncode(PRODUCTNAME.Short) + '"/>' +
+          AddinManifestManagement.XMLEncode(PRODUCTNAME.Short()) + '"/>' +
           '        <bt:String id="newMenuSuperTipDesc" DefaultValue="Creates a new document for the selected customer or vendor"/>' +
           '' +
           '        <bt:String id="newSalesQuoteTip" DefaultValue="Creates a new sales quote in ' +
-          AddinManifestManagement.XMLEncode(PRODUCTNAME.Short) + '" />' +
+          AddinManifestManagement.XMLEncode(PRODUCTNAME.Short()) + '" />' +
           '        <bt:String id="newSalesQuoteSuperTipDesc" DefaultValue="Creates a new sales quote for the selected customer." />' +
           '' +
           '        <bt:String id="newSalesOrderTip" DefaultValue="Creates a new sales order in ' +
-          AddinManifestManagement.XMLEncode(PRODUCTNAME.Short) + '" />' +
+          AddinManifestManagement.XMLEncode(PRODUCTNAME.Short()) + '" />' +
           '        <bt:String id="newSalesOrderSuperTipDesc" DefaultValue="Creates a new sales order for the selected customer." />' +
           '' +
           '        <bt:String id="newSalesInvoiceTip" DefaultValue="Creates a new sales invoice" />' +
@@ -1610,7 +1611,7 @@ codeunit 1642 "Intelligent Info Manifest"
     var
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
     begin
-        if ApplicationAreaMgmtFacade.IsSuiteEnabled then
+        if ApplicationAreaMgmtFacade.IsSuiteEnabled() then
             ItemText :=
               '                    <Item id="' + ItemId + '">' +
               '                      <Label resid="newPurchaseOrderLabel" />' +

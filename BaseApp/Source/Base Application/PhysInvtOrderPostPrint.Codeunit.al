@@ -15,7 +15,7 @@ codeunit 5885 "Phys. Invt. Order-Post + Print"
 
         PstdPhysInvtOrderHdr.Init();
         PstdPhysInvtOrderHdr."No." := PhysInvtOrderHeader."Last Posting No.";
-        PstdPhysInvtOrderHdr.SetRecFilter;
+        PstdPhysInvtOrderHdr.SetRecFilter();
         DocPrint.PrintPostedInvtOrder(PstdPhysInvtOrderHdr, false);
 
         Rec := PhysInvtOrderHeader;

@@ -16,7 +16,7 @@ report 510 "Change Log - Delete"
 
             trigger OnPostDataItem()
             begin
-                TryDeleteProtectedRecords;
+                TryDeleteProtectedRecords();
             end;
 
             trigger OnPreDataItem()
@@ -76,7 +76,7 @@ report 510 "Change Log - Delete"
     begin
         if not GuiAllowed then
             exit;
-        Window.Close;
+        Window.Close();
         if not TempErrorMessage.IsEmpty() then begin
             if ConfirmManagement.GetResponse(SomeEntriesNotDeletedQst, true) then
                 PAGE.RunModal(PAGE::"Error Messages", TempErrorMessage);
@@ -91,16 +91,17 @@ report 510 "Change Log - Delete"
     end;
 
     var
+        TempErrorMessage: Record "Error Message" temporary;
+        Window: Dialog;
+        DialogMsg: Label 'Entries are being deleted...\\@1@@@@@@@@@@@@';
+        CounterTotal: Integer;
+        Counter: Integer;
+
         Text001: Label 'You have not defined a date filter. Do you want to continue?';
         Text002: Label 'Your date filter allows deletion of entries that are less than one year old. Do you want to continue?';
         NothingToDeleteErr: Label 'There are no entries within the filter.';
         DeletedMsg: Label 'The selected entries were deleted.';
-        TempErrorMessage: Record "Error Message" temporary;
-        Window: Dialog;
-        DialogMsg: Label 'Entries are being deleted...\\@1@@@@@@@@@@@@';
         SomeEntriesNotDeletedQst: Label 'One or more entries cannot be deleted.\\Do you want to open the list of errors?';
-        CounterTotal: Integer;
-        Counter: Integer;
 
     local procedure TryDeleteProtectedRecords()
     var
@@ -116,7 +117,7 @@ report 510 "Change Log - Delete"
                     Window.Update(1, Round(Counter / CounterTotal * 10000, 1));
                 Commit();
                 if not CODEUNIT.Run(CODEUNIT::"Change Log Entry - Delete", ChangeLogEntry) then
-                    TempErrorMessage.LogLastError;
+                    TempErrorMessage.LogLastError();
             until ChangeLogEntry.Next() = 0;
     end;
 }

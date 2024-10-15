@@ -14,7 +14,9 @@ codeunit 104020 "Upg Secrets to Isol. Storage"
             exit;
 
         MoveServicePasswordToIsolatedStorage();
+#if not CLEAN21
         MoveGraphMailRefreshCodeToIsolatedStorage();
+#endif
         MoveAzureADAppSetupSecretToIsolatedStorage();
         FixAzureADAppSetup();
     end;
@@ -67,7 +69,7 @@ codeunit 104020 "Upg Secrets to Isol. Storage"
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetAzureADSetupFixTag());
     end;
-
+#if not CLEAN21
     local procedure MoveGraphMailRefreshCodeToIsolatedStorage()
     var
         GraphMailSetup: Record "Graph Mail Setup";
@@ -79,8 +81,8 @@ codeunit 104020 "Upg Secrets to Isol. Storage"
         IF UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetGraphMailRefreshCodeToIsolatedStorageTag()) THEN
             EXIT;
 
-        IF GraphMailSetup.GET THEN
-            IF GraphMailSetup."Refresh Code".HASVALUE THEN BEGIN
+        IF GraphMailSetup.GET() THEN
+            IF GraphMailSetup."Refresh Code".HasValue() then BEGIN
                 GraphMailSetup.CALCFIELDS("Refresh Code");
                 GraphMailSetup."Refresh Code".CREATEINSTREAM(InStr);
                 InStr.READTEXT(RefreshCodeValue);
@@ -90,7 +92,7 @@ codeunit 104020 "Upg Secrets to Isol. Storage"
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetGraphMailRefreshCodeToIsolatedStorageTag());
     end;
-
+#endif
     local procedure MoveAzureADAppSetupSecretToIsolatedStorage()
     var
         AzureADAppSetup: Record "Azure AD App Setup";
@@ -140,7 +142,7 @@ codeunit 104020 "Upg Secrets to Isol. Storage"
         if not TryGetServicePasswordValue(ServicePassword, ServicePasswordValue) then
             exit;
 
-        IF NOT ENCRYPTIONENABLED THEN
+        IF NOT ENCRYPTIONENABLED() THEN
             ISOLATEDSTORAGE.SET(ServicePassword.Key, ServicePasswordValue, DATASCOPE::Company)
         ELSE
             ISOLATEDSTORAGE.SETENCRYPTED(ServicePassword.Key, ServicePasswordValue, DATASCOPE::Company);
@@ -151,7 +153,7 @@ codeunit 104020 "Upg Secrets to Isol. Storage"
     [TryFunction]
     local procedure TryGetServicePasswordValue(ServicePassword: Record "Service Password"; var ServicePasswordValue: Text)
     begin
-        ServicePasswordValue := ServicePassword.GetPassword;
+        ServicePasswordValue := ServicePassword.GetPassword();
     end;
 
     local procedure MoveOCRServiceSecrets()

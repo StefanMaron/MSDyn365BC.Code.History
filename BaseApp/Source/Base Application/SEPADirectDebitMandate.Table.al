@@ -50,7 +50,7 @@ table 1230 "SEPA Direct Debit Mandate"
 
             trigger OnValidate()
             begin
-                ValidateDates;
+                ValidateDates();
             end;
         }
         field(5; "Valid To"; Date)
@@ -59,7 +59,7 @@ table 1230 "SEPA Direct Debit Mandate"
 
             trigger OnValidate()
             begin
-                ValidateDates;
+                ValidateDates();
             end;
         }
         field(6; "Date of Signature"; Date)
@@ -95,7 +95,7 @@ table 1230 "SEPA Direct Debit Mandate"
 
             trigger OnValidate()
             begin
-                if DoesDebitCounterExceedExpectedNumber then
+                if DoesDebitCounterExceedExpectedNumber() then
                     Error(InvalidNumberOfDebitsTxt);
                 if ("Type of Payment" = "Type of Payment"::OneOff) and ("Expected Number of Debits" > 1) then
                     Error(InvalidOneOffNumOfDebitsErr);
@@ -109,7 +109,7 @@ table 1230 "SEPA Direct Debit Mandate"
 
             trigger OnValidate()
             begin
-                if DoesDebitCounterExceedExpectedNumber then begin
+                if DoesDebitCounterExceedExpectedNumber() then begin
                     Message(InvalidNumberOfDebitsTxt);
                     FieldError("Debit Counter");
                 end;
@@ -160,7 +160,7 @@ table 1230 "SEPA Direct Debit Mandate"
     trigger OnInsert()
     begin
         if not IsOnInsertHandled() then
-            InsertNoSeries
+            InsertNoSeries();
     end;
 
     trigger OnModify()
@@ -225,8 +225,8 @@ table 1230 "SEPA Direct Debit Mandate"
     begin
         TestField(Blocked, false);
         Validate("Debit Counter", "Debit Counter" + 1);
-        SetClosed;
-        Modify;
+        SetClosed();
+        Modify();
     end;
 
     procedure GetSequenceType(): Integer
@@ -251,7 +251,7 @@ table 1230 "SEPA Direct Debit Mandate"
 
         "Debit Counter" -= 1;
         SetClosed();
-        Modify;
+        Modify();
     end;
 
     local procedure SetClosed()

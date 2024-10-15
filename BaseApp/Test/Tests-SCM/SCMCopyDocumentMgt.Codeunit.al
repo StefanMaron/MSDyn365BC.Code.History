@@ -640,7 +640,7 @@ codeunit 137212 "SCM Copy Document Mgt."
         LibraryInventory.CreateItem(Item);
         LibraryPurchase.CreatePurchaseDocumentWithItem(
           PurchaseHeaderOrder, PurchaseLine[1], PurchaseHeaderOrder."Document Type"::Order,
-          LibraryPurchase.CreateVendorNo, Item."No.", 3, '', WorkDate);
+          LibraryPurchase.CreateVendorNo, Item."No.", 3, '', WorkDate());
         CreateItemChargePurchaseLine(
           PurchaseLine[2], PurchaseHeaderOrder, PurchaseLine[1]."Document No.", PurchaseLine[1]."Line No.", Item."No.", 3, 3);
 
@@ -681,7 +681,7 @@ codeunit 137212 "SCM Copy Document Mgt."
         LibraryInventory.CreateItem(Item);
         LibrarySales.CreateSalesDocumentWithItem(
           SalesHeaderOrder, SalesLine[1], SalesHeaderOrder."Document Type"::Order,
-          LibrarySales.CreateCustomerNo, Item."No.", 3, '', WorkDate);
+          LibrarySales.CreateCustomerNo, Item."No.", 3, '', WorkDate());
         CreateItemChargeSalesLine(
           SalesLine[2], SalesHeaderOrder, SalesLine[1]."Document No.", SalesLine[1]."Line No.", Item."No.", 3, 3);
 
@@ -722,7 +722,7 @@ codeunit 137212 "SCM Copy Document Mgt."
         LibraryInventory.CreateItem(Item);
         LibraryPurchase.CreatePurchaseDocumentWithItem(
           PurchaseHeaderReturnOrder, PurchaseLine[1], PurchaseHeaderReturnOrder."Document Type"::"Return Order",
-          LibraryPurchase.CreateVendorNo, Item."No.", 3, '', WorkDate);
+          LibraryPurchase.CreateVendorNo, Item."No.", 3, '', WorkDate());
         CreateItemChargePurchaseLine(
           PurchaseLine[2], PurchaseHeaderReturnOrder, PurchaseLine[1]."Document No.", PurchaseLine[1]."Line No.", Item."No.", 3, 3);
 
@@ -763,7 +763,7 @@ codeunit 137212 "SCM Copy Document Mgt."
         LibraryInventory.CreateItem(Item);
         LibrarySales.CreateSalesDocumentWithItem(
           SalesHeaderReturnOrder, SalesLine[1], SalesHeaderReturnOrder."Document Type"::"Return Order",
-          LibrarySales.CreateCustomerNo, Item."No.", 3, '', WorkDate);
+          LibrarySales.CreateCustomerNo, Item."No.", 3, '', WorkDate());
         CreateItemChargeSalesLine(
           SalesLine[2], SalesHeaderReturnOrder, SalesLine[1]."Document No.", SalesLine[1]."Line No.", Item."No.", 3, 3);
 
@@ -974,7 +974,7 @@ codeunit 137212 "SCM Copy Document Mgt."
         // [GIVEN] Create sales order with linked assembly order.
         LibrarySales.CreateSalesDocumentWithItem(
           SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo,
-          Item."No.", 2, '', WorkDate);
+          Item."No.", 2, '', WorkDate());
 
         SalesLine.Validate("Qty. to Assemble to Order", 2);
         SalesLine.Validate("Qty. to Ship", 1);
@@ -1045,7 +1045,7 @@ codeunit 137212 "SCM Copy Document Mgt."
         // [GIVEN] Create sales order with linked assembly order.
         LibrarySales.CreateSalesDocumentWithItem(
           SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo,
-          Item."No.", 2, '', WorkDate);
+          Item."No.", 2, '', WorkDate());
 
         SalesLine.Validate("Qty. to Assemble to Order", 2);
         SalesLine.Validate("Qty. to Ship", 1);
@@ -1104,7 +1104,7 @@ codeunit 137212 "SCM Copy Document Mgt."
         // [GIVEN] Create sales order "SO-SOURCE" with linked assembly order.
         LibrarySales.CreateSalesDocumentWithItem(
           SourceSalesHeader, SourceSalesLine, SourceSalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo,
-          Item."No.", LibraryRandom.RandInt(10), '', WorkDate);
+          Item."No.", LibraryRandom.RandInt(10), '', WorkDate());
 
         // [GIVEN] Increase the standard cost of "C" to "2X" LCY.
         CompItem.Validate("Standard Cost", UnitCost * 2);
@@ -1158,7 +1158,7 @@ codeunit 137212 "SCM Copy Document Mgt."
         // [GIVEN] Create sales order "SO-SOURCE" with linked assembly order.
         LibrarySales.CreateSalesDocumentWithItem(
           SourceSalesHeader, SourceSalesLine, SourceSalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo,
-          Item."No.", LibraryRandom.RandInt(10), '', WorkDate);
+          Item."No.", LibraryRandom.RandInt(10), '', WorkDate());
 
         // [GIVEN] Increase the standard cost of "C" to "2X" LCY.
         CompItem.Validate("Standard Cost", UnitCost * 2);
@@ -1486,11 +1486,7 @@ codeunit 137212 "SCM Copy Document Mgt."
         SalesLine: Record "Sales Line";
     begin
         CreateEmptySalesHeader(SalesHeader, SalesHeader."Document Type"::Quote);
-        SalesHeader."Document Date" := WorkDate;
-#if not CLEAN18
-        SalesHeader."Sell-to Customer Template Code" := FindCustomerTemplate;
-        SalesHeader."Bill-to Customer Template Code" := SalesHeader."Sell-to Customer Template Code";
-#endif
+        SalesHeader."Document Date" := WorkDate();
         SalesHeader.Modify();
         CreateBlankSalesLine(SalesHeader, SalesLine, SalesHeader."Document Type");
     end;
@@ -1664,7 +1660,7 @@ codeunit 137212 "SCM Copy Document Mgt."
         SalesLine.Validate("Document No.", SalesHeader."No.");
         RecRef.GetTable(SalesLine);
         SalesLine.Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, SalesLine.FieldNo("Line No.")));
-        SalesLine.Validate(Description, Format(CreateGuid));
+        SalesLine.Validate(Description, Format(CreateGuid()));
         SalesLine.Insert(true);
     end;
 
@@ -1699,22 +1695,13 @@ codeunit 137212 "SCM Copy Document Mgt."
         AssemblyHeader: Record "Assembly Header";
     begin
         LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, CustomerNo, ItemNo, Qty, '', WorkDate);
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, CustomerNo, ItemNo, Qty, '', WorkDate());
         LibraryAssembly.FindLinkedAssemblyOrder(AssemblyHeader, SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
         LibraryVariableStorage.Enqueue(ItemTracking);
         AssemblyHeader.OpenItemTrackingLines();
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
     end;
 
-#if not CLEAN18
-    local procedure FindCustomerTemplate(): Code[10]
-    var
-        CustomerTemplate: Record "Customer Template";
-    begin
-        CustomerTemplate.FindFirst();
-        exit(CustomerTemplate.Code);
-    end;
-#endif
     local procedure CreateVendor(): Code[20]
     var
         Vendor: Record Vendor;
@@ -2026,7 +2013,7 @@ codeunit 137212 "SCM Copy Document Mgt."
                 ValidateCopiedReceiptHeader(SalesHeader, SalesLine, SourceNo);
         end;
 
-        Assert.IsTrue(SalesLine.Next = 0,
+        Assert.IsTrue(SalesLine.Next() = 0,
           'Unexpected remaining data in destination document');
     end;
 
@@ -2044,7 +2031,7 @@ codeunit 137212 "SCM Copy Document Mgt."
             ToItemChargeAssignmentPurch.SetRange("Item Charge No.", FromItemChargeAssignmentPurch."Item Charge No.");
             ToItemChargeAssignmentPurch.FindFirst();
             ToItemChargeAssignmentPurch.TestField("Qty. to Assign", FromItemChargeAssignmentPurch."Qty. to Assign");
-        until FromItemChargeAssignmentPurch.Next = 0;
+        until FromItemChargeAssignmentPurch.Next() = 0;
     end;
 
     local procedure VerifyItemChargeAssignmentSalesCopied(FromDocType: Enum "Sales Document Type"; FromDocNo: Code[20]; ToDocType: Enum "Sales Document Type"; ToDocNo: Code[20])
@@ -2061,7 +2048,7 @@ codeunit 137212 "SCM Copy Document Mgt."
             ToItemChargeAssignmentSales.SetRange("Item Charge No.", FromItemChargeAssignmentSales."Item Charge No.");
             ToItemChargeAssignmentSales.FindFirst();
             ToItemChargeAssignmentSales.TestField("Qty. to Assign", FromItemChargeAssignmentSales."Qty. to Assign");
-        until FromItemChargeAssignmentSales.Next = 0;
+        until FromItemChargeAssignmentSales.Next() = 0;
     end;
 
     local procedure VerifyShipmntItemChargeAssngmt(SalesHeader: Record "Sales Header"; ItemNo: Code[20])
@@ -2082,7 +2069,7 @@ codeunit 137212 "SCM Copy Document Mgt."
             ItemChargeAssignmentSales."Item No.", ItemNo));
 
         Assert.IsTrue(
-          ItemChargeAssignmentSales.Next = 0,
+          ItemChargeAssignmentSales.Next() = 0,
           'Unexpected data in item charge assignment');
     end;
 
@@ -2104,8 +2091,8 @@ codeunit 137212 "SCM Copy Document Mgt."
             SalesLine.TestField("Unit of Measure", SalesLine2."Unit of Measure");
             SalesLine.TestField("Unit Price", SalesLine2."Unit Price");
             SalesLine.TestField("Location Code", SalesLine2."Location Code");
-        until (SalesLine2.Next = 0) and (SalesLine.Next = 0);
-        Assert.IsTrue(SalesLine2.Next = 0,
+        until (SalesLine2.Next() = 0) and (SalesLine.Next() = 0);
+        Assert.IsTrue(SalesLine2.Next() = 0,
           'Unexpected remaining data in source document');
     end;
 
@@ -2126,8 +2113,8 @@ codeunit 137212 "SCM Copy Document Mgt."
             SalesLine.TestField("Unit of Measure", SalesCrMemoLine."Unit of Measure");
             SalesLine.TestField("Unit Price", SalesCrMemoLine."Unit Price");
             SalesLine.TestField("Location Code", SalesCrMemoLine."Location Code");
-        until (SalesCrMemoLine.Next = 0) and (SalesLine.Next = 0);
-        Assert.IsTrue(SalesCrMemoLine.Next = 0,
+        until (SalesCrMemoLine.Next() = 0) and (SalesLine.Next() = 0);
+        Assert.IsTrue(SalesCrMemoLine.Next() = 0,
           'Unexpected remaining data in source document');
     end;
 
@@ -2148,8 +2135,8 @@ codeunit 137212 "SCM Copy Document Mgt."
             SalesLine.TestField("Unit of Measure", SalesShipmentLine."Unit of Measure");
             SalesLine.TestField("Unit Price", SalesShipmentLine."Unit Price");
             SalesLine.TestField("Location Code", SalesShipmentLine."Location Code");
-        until (SalesShipmentLine.Next = 0) and (SalesLine.Next = 0);
-        Assert.IsTrue(SalesShipmentLine.Next = 0,
+        until (SalesShipmentLine.Next() = 0) and (SalesLine.Next() = 0);
+        Assert.IsTrue(SalesShipmentLine.Next() = 0,
           'Unexpected remaining data in source document');
     end;
 
@@ -2170,8 +2157,8 @@ codeunit 137212 "SCM Copy Document Mgt."
             SalesLine.TestField("Unit of Measure", SalesInvoiceLine."Unit of Measure");
             SalesLine.TestField("Unit Price", SalesInvoiceLine."Unit Price");
             SalesLine.TestField("Location Code", SalesInvoiceLine."Location Code");
-        until (SalesInvoiceLine.Next = 0) and (SalesLine.Next = 0);
-        Assert.IsTrue(SalesInvoiceLine.Next = 0,
+        until (SalesInvoiceLine.Next() = 0) and (SalesLine.Next() = 0);
+        Assert.IsTrue(SalesInvoiceLine.Next() = 0,
           'Unexpected remaining data in source document');
     end;
 
@@ -2192,8 +2179,8 @@ codeunit 137212 "SCM Copy Document Mgt."
             SalesLine.TestField("Unit of Measure", ReturnReceiptLine."Unit of Measure");
             SalesLine.TestField("Unit Price", ReturnReceiptLine."Unit Price");
             SalesLine.TestField("Location Code", ReturnReceiptLine."Location Code");
-        until (ReturnReceiptLine.Next = 0) and (SalesLine.Next = 0);
-        Assert.IsTrue(ReturnReceiptLine.Next = 0,
+        until (ReturnReceiptLine.Next() = 0) and (SalesLine.Next() = 0);
+        Assert.IsTrue(ReturnReceiptLine.Next() = 0,
           'Unexpected remaining data in source document');
     end;
 
@@ -2209,7 +2196,7 @@ codeunit 137212 "SCM Copy Document Mgt."
         repeat
             SalesLine2.TestField(Type, SalesLine.Type);
             SalesLine2.TestField("No.", SalesLine."No.");
-        until (SalesLine2.Next = 0) and (SalesLine.Next = 0);
+        until (SalesLine2.Next() = 0) and (SalesLine.Next() = 0);
     end;
 
     local procedure VerifySNItemTrackingOnSalesLine(SalesLine: Record "Sales Line"; Qty: Decimal)
@@ -2241,7 +2228,7 @@ codeunit 137212 "SCM Copy Document Mgt."
         SalesLine.SetRange(Type, LineType);
         SalesLine.FindSet();
         Assert.AreEqual(ItemNo1, SalesLine."No.", '');
-        SalesLine.Next;
+        SalesLine.Next();
         Assert.AreEqual(ItemNo2, SalesLine."No.", '');
         Assert.AreEqual(0, SalesLine.Next, 'Unexpected remaining data in source document');
     end;
@@ -2255,7 +2242,7 @@ codeunit 137212 "SCM Copy Document Mgt."
         PurchaseLine.SetRange(Type, LineType);
         PurchaseLine.FindSet();
         Assert.AreEqual(ItemNo1, PurchaseLine."No.", '');
-        PurchaseLine.Next;
+        PurchaseLine.Next();
         Assert.AreEqual(ItemNo2, PurchaseLine."No.", '');
         Assert.AreEqual(0, PurchaseLine.Next, 'Unexpected remaining data in source document');
     end;

@@ -51,8 +51,9 @@ table 5805 "Item Charge Assignment (Purch)"
 
                 TestField("Applies-to Doc. Line No.");
                 if ("Qty. to Assign" <> 0) and ("Applies-to Doc. Type" = "Document Type") then
-                    if PurchLineInvoiced then
-                        Error(Text000, PurchLine.TableCaption);
+                    if PurchLineInvoiced() then
+                        Error(CannotAssignToInvoicedErr, PurchLine.TableCaption());
+                Validate("Qty. to Handle", "Qty. to Assign");
                 Validate("Amount to Assign");
             end;
         }
@@ -82,9 +83,7 @@ table 5805 "Item Charge Assignment (Purch)"
             var
                 ItemChargeAssgntPurch: Codeunit "Item Charge Assgnt. (Purch.)";
             begin
-                PurchLine.Get("Document Type", "Document No.", "Document Line No.");
-                if not Currency.Get(PurchLine."Currency Code") then
-                    Currency.InitRoundingPrecision;
+                GetCurrency();
                 "Amount to Assign" := Round("Qty. to Assign" * "Unit Cost", Currency."Amount Rounding Precision");
                 ItemChargeAssgntPurch.SuggestAssgntFromLine(Rec);
             end;
@@ -132,6 +131,30 @@ table 5805 "Item Charge Assignment (Purch)"
             AutoFormatType = 1;
             Caption = 'Applies-to Doc. Line Amount';
         }
+        field(16; "Qty. to Handle"; Decimal)
+        {
+            BlankZero = true;
+            Caption = 'Qty. to Handle';
+            DecimalPlaces = 0 : 5;
+
+            trigger OnValidate()
+            begin
+                if "Qty. to Handle" <> 0 then
+                    TestField("Qty. to Handle", "Qty. to Assign");
+                Validate("Amount to Handle");
+            end;
+        }
+        field(17; "Amount to Handle"; Decimal)
+        {
+            AutoFormatType = 1;
+            Caption = 'Amount to Handle';
+
+            trigger OnValidate()
+            begin
+                GetCurrency();
+                "Amount to Handle" := Round("Qty. to Handle" * "Unit Cost", Currency."Amount Rounding Precision");
+            end;
+        }
     }
 
     keys
@@ -158,10 +181,17 @@ table 5805 "Item Charge Assignment (Purch)"
     end;
 
     var
-        Text000: Label 'You cannot assign item charges to the %1 because it has been invoiced. Instead you can get the posted document line and then assign the item charge to that line.';
         PurchLine: Record "Purchase Line";
         Currency: Record Currency;
+        CannotAssignToInvoicedErr: Label 'You cannot assign item charges to the %1 because it has been invoiced. Instead you can get the posted document line and then assign the item charge to that line.';
         ItemChargeDeletionErr: Label 'You cannot delete posted documents that are applied as item charges to purchase lines. This document applied to %1 %2 %3.', Comment = '%1 - Document Type; %2 - Document No., %3 - Item No.';
+
+    local procedure GetCurrency()
+    begin
+        PurchLine.Get("Document Type", "Document No.", "Document Line No.");
+        if not Currency.Get(PurchLine."Currency Code") then
+            Currency.InitRoundingPrecision;
+    end;
 
     procedure PurchLineInvoiced(): Boolean
     begin

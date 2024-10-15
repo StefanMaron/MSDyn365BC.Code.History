@@ -7,7 +7,6 @@ page 234 "Apply Employee Entries"
     LinksAllowed = false;
     PageType = Worksheet;
     Permissions = TableData "Employee Ledger Entry" = m;
-    PromotedActionCategories = 'New,Process,Report,Entry';
     SourceTable = "Employee Ledger Entry";
 
     layout
@@ -172,7 +171,7 @@ page 234 "Apply Employee Entries"
                         if (xRec."Amount to Apply" = 0) or (Rec."Amount to Apply" = 0) and
                            ((ApplnType = ApplnType::"Applies-to ID") or (CalcType = CalcType::Direct))
                         then
-                            SetEmplApplId;
+                            SetEmplApplId();
                         Rec.Get(Rec."Entry No.");
                         AmounttoApplyOnAfterValidate();
                     end;
@@ -314,8 +313,6 @@ page 234 "Apply Employee Entries"
                     ApplicationArea = BasicHR;
                     Caption = 'Applied E&ntries';
                     Image = Approve;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     RunObject = Page "Applied Employee Entries";
                     RunPageOnRec = true;
                     ToolTip = 'View the ledger entries that have been applied to this record.';
@@ -326,8 +323,6 @@ page 234 "Apply Employee Entries"
                     ApplicationArea = Dimensions;
                     Caption = 'Dimensions';
                     Image = Dimensions;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     ShortCutKey = 'Alt+D';
                     ToolTip = 'View or edit dimensions, such as area, project, or department, that you can assign to sales and purchase documents to distribute costs and analyze transaction history.';
 
@@ -341,8 +336,6 @@ page 234 "Apply Employee Entries"
                     ApplicationArea = BasicHR;
                     Caption = 'Detailed &Ledger Entries';
                     Image = View;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     RunObject = Page "Detailed Empl. Ledger Entries";
                     RunPageLink = "Employee Ledger Entry No." = FIELD("Entry No.");
                     RunPageView = SORTING("Employee Ledger Entry No.", "Posting Date");
@@ -354,8 +347,6 @@ page 234 "Apply Employee Entries"
                     ApplicationArea = BasicHR;
                     Caption = 'Find entries...';
                     Image = Navigate;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     ShortCutKey = 'Ctrl+Alt+Q';
                     ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
                     Visible = NOT IsOfficeAddin;
@@ -379,8 +370,6 @@ page 234 "Apply Employee Entries"
                     ApplicationArea = BasicHR;
                     Caption = 'Set Applies-to ID';
                     Image = SelectLineToApply;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ShortCutKey = 'Shift+F11';
                     ToolTip = 'Set the Applies-to ID field on the posted entry to automatically be filled in with the document number of the entry in the journal.';
 
@@ -398,8 +387,6 @@ page 234 "Apply Employee Entries"
                     Caption = 'Post Application';
                     Ellipsis = true;
                     Image = PostApplication;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ShortCutKey = 'F9';
                     ToolTip = 'Define the document number of the ledger entry to use to perform the application. In addition, you specify the Posting Date for the application.';
 
@@ -413,8 +400,6 @@ page 234 "Apply Employee Entries"
                     ApplicationArea = BasicHR;
                     Caption = 'Preview Posting';
                     Image = ViewPostedOrder;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ShortCutKey = 'Ctrl+Alt+F9';
                     ToolTip = 'Review the different types of entries that will be created when you post the document or journal.';
 
@@ -432,8 +417,6 @@ page 234 "Apply Employee Entries"
                     ApplicationArea = BasicHR;
                     Caption = 'Show Only Selected Entries to Be Applied';
                     Image = ShowSelected;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'View the selected ledger entries that will be applied to the specified record.';
 
                     trigger OnAction()
@@ -451,6 +434,47 @@ page 234 "Apply Employee Entries"
                         else
                             Rec.SetRange("Applies-to ID");
                     end;
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref(ActionSetAppliesToID_Promoted; ActionSetAppliesToID)
+                {
+                }
+                actionref(ActionPostApplication_Promoted; ActionPostApplication)
+                {
+                }
+                actionref(Preview_Promoted; Preview)
+                {
+                }
+                actionref("Show Only Selected Entries to Be Applied_Promoted"; "Show Only Selected Entries to Be Applied")
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Entry', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref("Applied E&ntries_Promoted"; "Applied E&ntries")
+                {
+                }
+                actionref(Dimensions_Promoted; Dimensions)
+                {
+                }
+                actionref("Detailed &Ledger Entries_Promoted"; "Detailed &Ledger Entries")
+                {
+                }
+                actionref(Navigate_Promoted; Navigate)
+                {
                 }
             }
         }
@@ -482,7 +506,7 @@ page 234 "Apply Employee Entries"
         if CalcType = CalcType::Direct then begin
             Empl.Get(Rec."Employee No.");
             ApplnCurrencyCode := '';
-            FindApplyingEntry;
+            FindApplyingEntry();
         end;
 
         AppliesToIDVisible := ApplnType <> ApplnType::"Applies-to Doc. No.";
@@ -492,7 +516,7 @@ page 234 "Apply Employee Entries"
         if CalcType = CalcType::"Gen. Jnl. Line" then
             CalcApplnAmount();
         PostingDone := false;
-        IsOfficeAddin := OfficeMgt.IsAvailable;
+        IsOfficeAddin := OfficeMgt.IsAvailable();
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -508,7 +532,7 @@ page 234 "Apply Employee Entries"
             end;
         end;
 
-        if CheckActionPerformed then begin
+        if CheckActionPerformed() then begin
             Rec := TempApplyingEmplLedgEntry;
             Rec."Applying Entry" := false;
             if AppliesToID = '' then begin
@@ -645,7 +669,7 @@ page 234 "Apply Employee Entries"
                     if GenJnlLine."Bal. Account Type" = GenJnlLine."Bal. Account Type"::Employee then begin
                         TempApplyingEmplLedgEntry."Employee No." := GenJnlLine."Bal. Account No.";
                         Employee.Get(TempApplyingEmplLedgEntry."Employee No.");
-                        TempApplyingEmplLedgEntry.Description := CopyStr(Employee.FullName, 1, MaxStrLen(TempApplyingEmplLedgEntry.Description));
+                        TempApplyingEmplLedgEntry.Description := CopyStr(Employee.FullName(), 1, MaxStrLen(TempApplyingEmplLedgEntry.Description));
                     end else begin
                         TempApplyingEmplLedgEntry."Employee No." := GenJnlLine."Account No.";
                         TempApplyingEmplLedgEntry.Description := GenJnlLine.Description;
@@ -972,12 +996,12 @@ page 234 "Apply Employee Entries"
             exit;
 
         CorrectionAmount := 0;
-        if AppliedEmplLedgEntry.FindSet(false, false) then begin
+        if AppliedEmplLedgEntry.FindSet(false, false) then
             repeat
                 TempAppliedEmplLedgEntry := AppliedEmplLedgEntry;
                 TempAppliedEmplLedgEntry.Insert();
-            until AppliedEmplLedgEntry.Next() = 0;
-        end else
+            until AppliedEmplLedgEntry.Next() = 0
+        else
             exit;
 
         FromZeroGenJnl := (CurrentAmount = 0) and (Type = Type::GenJnlLine);

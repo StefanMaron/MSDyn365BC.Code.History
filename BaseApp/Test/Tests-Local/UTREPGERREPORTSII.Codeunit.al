@@ -51,7 +51,7 @@ codeunit 142071 "UT REP GERREPORTS - II"
         // Setup.
         Initialize();
         CreateCustomer;
-        EnqueueTotalBalanceReports(WorkDate, false);  // Enqueue Work Date and Adjustment Exchange Rate Differences Boolean as FALSE on Handler - CustomerTotalBalanceRequestPageHandler.
+        EnqueueTotalBalanceReports(WorkDate(), false);  // Enqueue Work Date and Adjustment Exchange Rate Differences Boolean as FALSE on Handler - CustomerTotalBalanceRequestPageHandler.
 
         // Exercise: Run Report - Customer Total-Balance set Date Filter and Adjustment Exchange Rate Differences as FALSE on Handler - CustomerTotalBalanceRequestPageHandler.
         REPORT.Run(REPORT::"Customer Total-Balance");
@@ -84,7 +84,7 @@ codeunit 142071 "UT REP GERREPORTS - II"
         // Debit Amount LCY - 0.
         CreateDetailedCustLedgEntry(
           DetailedCustLedgEntry2, DetailedCustLedgEntry."Customer No.", -CreditAmountLCY, 0, CreditAmountLCY, DetailedCustLedgEntry2."Entry Type"::"Initial Entry", DetailedCustLedgEntry."Document Type"::Payment, CustLedgerEntry."Entry No.");
-        EnqueueTotalBalanceReports(WorkDate, true);  // Enqueue Date Filter and Adjustment Exchange Rate Differences Boolean as TRUE on Handler - CustomerTotalBalanceRequestPageHandler.
+        EnqueueTotalBalanceReports(WorkDate(), true);  // Enqueue Date Filter and Adjustment Exchange Rate Differences Boolean as TRUE on Handler - CustomerTotalBalanceRequestPageHandler.
 
         // Exercise: Run Report - Customer Total-Balance set Date Filter and Adjustment Exchange Rate Differences as TRUE on Handler - CustomerTotalBalanceRequestPageHandler.
         REPORT.Run(REPORT::"Customer Total-Balance");
@@ -132,7 +132,7 @@ codeunit 142071 "UT REP GERREPORTS - II"
         CreditAmountLCY := DetailedCustLedgEntry."Debit Amount (LCY)" + LibraryRandom.RandDecInRange(1, 10, 2);  // Generating Credit Amount LCY greater than Debit Amount LCY.
         CreateDetailedCustLedgEntry(
           DetailedCustLedgEntry2, DetailedCustLedgEntry."Customer No.", -CreditAmountLCY, 0, CreditAmountLCY, DetailedCustLedgEntry."Entry Type"::"Initial Entry", DetailedCustLedgEntry2."Document Type"::Payment, CustLedgerEntry."Entry No.");
-        EnqueueTotalBalanceReports(WorkDate, true);  // Enqueue Date Filter and Adjustment Exchange Rate Differences Boolean as TRUE on Handler - CustomerTotalBalanceRequestPageHandler.
+        EnqueueTotalBalanceReports(WorkDate(), true);  // Enqueue Date Filter and Adjustment Exchange Rate Differences Boolean as TRUE on Handler - CustomerTotalBalanceRequestPageHandler.
 
         // Exercise: Run Report - Customer Total-Balance set Date Filter and Adjustment Exchange Rate Differences as TRUE on Handler - CustomerTotalBalanceRequestPageHandler.
         REPORT.Run(REPORT::"Customer Total-Balance");
@@ -175,7 +175,7 @@ codeunit 142071 "UT REP GERREPORTS - II"
         // Setup.
         Initialize();
         CreateVendor;
-        EnqueueTotalBalanceReports(WorkDate, false);  // Enqueue Work Date and Adjustment Exchange Rate Differences Boolean as FALSE on Handler - VendorTotalBalanceRequestPageHandler.
+        EnqueueTotalBalanceReports(WorkDate(), false);  // Enqueue Work Date and Adjustment Exchange Rate Differences Boolean as FALSE on Handler - VendorTotalBalanceRequestPageHandler.
 
         // Exercise: Run Report - Vendor Total-Balance set Date Filter and Adjustment Exchange Rate Differences as FALSE on Handler - VendorTotalBalanceRequestPageHandler.
         REPORT.Run(REPORT::"Vendor Total-Balance");
@@ -209,7 +209,7 @@ codeunit 142071 "UT REP GERREPORTS - II"
         // Value 0 for Debit Amount LCY.
         CreateDetailedVendorLedgEntry(
           DetailedVendorLedgEntry2, DetailedVendorLedgEntry."Vendor No.", -CreditAmountLCY, 0, CreditAmountLCY, DetailedVendorLedgEntry2."Entry Type"::"Initial Entry", DetailedVendorLedgEntry2."Document Type"::Payment, VendorLedgerEntry."Entry No.");
-        EnqueueTotalBalanceReports(WorkDate, true);  // Enqueue Date Filter and Adjustment Exchange Rate Differences Boolean as TRUE on Handler - VendorTotalBalanceRequestPageHandler.
+        EnqueueTotalBalanceReports(WorkDate(), true);  // Enqueue Date Filter and Adjustment Exchange Rate Differences Boolean as TRUE on Handler - VendorTotalBalanceRequestPageHandler.
 
         // Exercise: Run Report - Vendor Total-Balance set Date Filter and Adjustment Exchange Rate Differences as TRUE on Handler - VendorTotalBalanceRequestPageHandler.
         REPORT.Run(REPORT::"Vendor Total-Balance");
@@ -257,7 +257,7 @@ codeunit 142071 "UT REP GERREPORTS - II"
         CreditAmountLCY := DetailedVendorLedgEntry."Debit Amount (LCY)" + LibraryRandom.RandDecInRange(1, 10, 2);  // Generating Credit Amount LCY greater than Debit Amount LCY.
         CreateDetailedVendorLedgEntry(
           DetailedVendorLedgEntry2, DetailedVendorLedgEntry."Vendor No.", -CreditAmountLCY, 0, CreditAmountLCY, DetailedVendorLedgEntry2."Entry Type"::"Initial Entry", DetailedVendorLedgEntry2."Document Type"::Payment, VendorLedgerEntry."Entry No.");
-        EnqueueTotalBalanceReports(WorkDate, true);  // Enqueue Date Filter and Adjustment Exchange Rate Differences Boolean as TRUE on Handler - VendorTotalBalanceRequestPageHandler.
+        EnqueueTotalBalanceReports(WorkDate(), true);  // Enqueue Date Filter and Adjustment Exchange Rate Differences Boolean as TRUE on Handler - VendorTotalBalanceRequestPageHandler.
 
         // Exercise: Run Report - Vendor Total-Balance set Date Filter and Adjustment Exchange Rate Differences as TRUE on Handler - VendorTotalBalanceRequestPageHandler.
         REPORT.Run(REPORT::"Vendor Total-Balance");
@@ -313,7 +313,7 @@ codeunit 142071 "UT REP GERREPORTS - II"
         DetailedCustLedgEntry2.FindLast();
         DetailedCustLedgEntry."Entry No." := DetailedCustLedgEntry2."Entry No." + 1;
         DetailedCustLedgEntry."Customer No." := CustomerNo;
-        DetailedCustLedgEntry."Posting Date" := WorkDate;
+        DetailedCustLedgEntry."Posting Date" := WorkDate();
         DetailedCustLedgEntry."Amount (LCY)" := AmountLCY;
         DetailedCustLedgEntry."Debit Amount (LCY)" := DebitAmountLCY;
         DetailedCustLedgEntry."Credit Amount (LCY)" := CreditAmountLCY;
@@ -376,7 +376,7 @@ codeunit 142071 "UT REP GERREPORTS - II"
         DetailedVendorLedgEntry2.FindLast();
         DetailedVendorLedgEntry."Entry No." := DetailedVendorLedgEntry2."Entry No." + 1;
         DetailedVendorLedgEntry."Vendor No." := VendorNo;
-        DetailedVendorLedgEntry."Posting Date" := WorkDate;
+        DetailedVendorLedgEntry."Posting Date" := WorkDate();
         DetailedVendorLedgEntry."Amount (LCY)" := AmountLCY;
         DetailedVendorLedgEntry."Debit Amount (LCY)" := DebitAmountLCY;
         DetailedVendorLedgEntry."Credit Amount (LCY)" := CreditAmountLCY;

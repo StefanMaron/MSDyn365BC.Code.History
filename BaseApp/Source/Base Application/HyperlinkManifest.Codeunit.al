@@ -21,18 +21,18 @@ codeunit 1643 "Hyperlink Manifest"
         RegExText: Text;
     begin
         // First add the number series rules
-        RegExText := AddPrefixesToRegex(GetNoSeriesPrefixes(GetNoSeriesForPostedSalesInvoice), RegExText);
-        RegExText := AddPrefixesToRegex(GetNoSeriesPrefixes(GetNoSeriesForSalesInvoice), RegExText);
-        RegExText := AddPrefixesToRegex(GetNoSeriesPrefixes(GetNoSeriesForPostedSalesCrMemo), RegExText);
-        RegExText := AddPrefixesToRegex(GetNoSeriesPrefixes(GetNoSeriesForPostedPurchInvoice), RegExText);
-        RegExText := AddPrefixesToRegex(GetNoSeriesPrefixes(GetNoSeriesForPostedPurchCrMemo), RegExText);
-        RegExText := AddPrefixesToRegex(GetNoSeriesPrefixes(GetNoSeriesForPurchaseInvoice), RegExText);
-        RegExText := AddPrefixesToRegex(GetNoSeriesPrefixes(GetNoSeriesForPurchaseOrder), RegExText);
-        RegExText := AddPrefixesToRegex(GetNoSeriesPrefixes(GetNoSeriesForSalesCrMemo), RegExText);
-        RegExText := AddPrefixesToRegex(GetNoSeriesPrefixes(GetNoSeriesForSalesOrder), RegExText);
-        RegExText := AddPrefixesToRegex(GetNoSeriesPrefixes(GetNoSeriesForSalesQuote), RegExText);
-        RegExText := AddPrefixesToRegex(GetNoSeriesPrefixes(GetNoSeriesForPurchaseQuote), RegExText);
-        RegExText := AddPrefixesToRegex(GetNoSeriesPrefixes(GetNoSeriesForPurchaseCrMemo), RegExText);
+        RegExText := AddPrefixesToRegex(GetNoSeriesPrefixes(GetNoSeriesForPostedSalesInvoice()), RegExText);
+        RegExText := AddPrefixesToRegex(GetNoSeriesPrefixes(GetNoSeriesForSalesInvoice()), RegExText);
+        RegExText := AddPrefixesToRegex(GetNoSeriesPrefixes(GetNoSeriesForPostedSalesCrMemo()), RegExText);
+        RegExText := AddPrefixesToRegex(GetNoSeriesPrefixes(GetNoSeriesForPostedPurchInvoice()), RegExText);
+        RegExText := AddPrefixesToRegex(GetNoSeriesPrefixes(GetNoSeriesForPostedPurchCrMemo()), RegExText);
+        RegExText := AddPrefixesToRegex(GetNoSeriesPrefixes(GetNoSeriesForPurchaseInvoice()), RegExText);
+        RegExText := AddPrefixesToRegex(GetNoSeriesPrefixes(GetNoSeriesForPurchaseOrder()), RegExText);
+        RegExText := AddPrefixesToRegex(GetNoSeriesPrefixes(GetNoSeriesForSalesCrMemo()), RegExText);
+        RegExText := AddPrefixesToRegex(GetNoSeriesPrefixes(GetNoSeriesForSalesOrder()), RegExText);
+        RegExText := AddPrefixesToRegex(GetNoSeriesPrefixes(GetNoSeriesForSalesQuote()), RegExText);
+        RegExText := AddPrefixesToRegex(GetNoSeriesPrefixes(GetNoSeriesForPurchaseQuote()), RegExText);
+        RegExText := AddPrefixesToRegex(GetNoSeriesPrefixes(GetNoSeriesForPurchaseCrMemo()), RegExText);
 
         // Wrap the prefixes in parenthesis to group them and fill out the rest of the RegEx:
         if RegExText <> '' then begin
@@ -42,18 +42,18 @@ codeunit 1643 "Hyperlink Manifest"
 
         // Now add the text-based rules
         RegExText := 'invoice|order|quote|credit memo';
-        RegExText += '|' + GetNameForSalesInvoice;
-        RegExText += '|' + GetNameForPurchaseInvoice;
-        RegExText += '|' + GetNameForPurchaseOrder;
-        RegExText += '|' + GetAcronymForPurchaseOrder;
-        RegExText += '|' + GetNameForSalesCrMemo;
-        RegExText += '|' + GetNameForSalesOrder;
-        RegExText += '|' + GetNameForSalesQuote;
-        RegExText += '|' + GetNameForPurchaseQuote;
-        RegExText += '|' + GetNameForPurchaseCrMemo;
+        RegExText += '|' + GetNameForSalesInvoice();
+        RegExText += '|' + GetNameForPurchaseInvoice();
+        RegExText += '|' + GetNameForPurchaseOrder();
+        RegExText += '|' + GetAcronymForPurchaseOrder();
+        RegExText += '|' + GetNameForSalesCrMemo();
+        RegExText += '|' + GetNameForSalesOrder();
+        RegExText += '|' + GetNameForSalesQuote();
+        RegExText += '|' + GetNameForPurchaseQuote();
+        RegExText += '|' + GetNameForPurchaseCrMemo();
 
         RegExText :=
-          StrSubstNo('(%1):? ?#?(%2)', RegExText, GetNumberSeriesRegex);
+          StrSubstNo('(%1):? ?#?(%2)', RegExText, GetNumberSeriesRegex());
         AddInManifestManagement.AddRegExRuleNode(ManifestText, 'DocumentTypes', RegExText);
     end;
 
@@ -306,7 +306,7 @@ codeunit 1643 "Hyperlink Manifest"
             OfficeAddin.Delete();
 
         with AddInManifestManagement do
-            CreateAddin(OfficeAddin, DefaultManifestText, AddinNameTxt, StrSubstNo(AddinDescriptionTxt, PRODUCTNAME.Full),
+            CreateAddin(OfficeAddin, DefaultManifestText(), AddinNameTxt, StrSubstNo(AddinDescriptionTxt, PRODUCTNAME.Full()),
               AppIdTxt, CODEUNIT::"Hyperlink Manifest");
     end;
 
@@ -318,7 +318,7 @@ codeunit 1643 "Hyperlink Manifest"
         if not CanHandle(CodeunitID) then
             exit;
 
-        ManifestText := OfficeAddin.GetDefaultManifestText;
+        ManifestText := OfficeAddin.GetDefaultManifestText();
         AddInManifestManagement.SetCommonManifestItems(ManifestText);
         AddinURL := AddInManifestManagement.ConstructURL(OfficeHostType.OutlookHyperlink, '', GetManifestVersion());
         AddInManifestManagement.SetSourceLocationNodes(ManifestText, AddinURL, 0);
@@ -380,7 +380,7 @@ codeunit 1643 "Hyperlink Manifest"
           '  <DefaultLocale>en-US</DefaultLocale>' +
           '  <DisplayName DefaultValue="' + AddinNameTxt + '" />' +
           '  <Description DefaultValue="' +
-          StrSubstNo(AddinDescriptionTxt, AddInManifestManagement.XMLEncode(PRODUCTNAME.Full)) + '" />' +
+          StrSubstNo(AddinDescriptionTxt, AddInManifestManagement.XMLEncode(PRODUCTNAME.Full())) + '" />' +
           '  <IconUrl DefaultValue="WEBCLIENTLOCATION/Resources/Images/OfficeAddinLogo.png"/>' +
           '  <HighResolutionIconUrl DefaultValue="WEBCLIENTLOCATION/Resources/Images/OfficeAddinLogoHigh.png"/>' +
           '  <AppDomains>' +

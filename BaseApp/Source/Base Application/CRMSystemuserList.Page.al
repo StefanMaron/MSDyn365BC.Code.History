@@ -105,10 +105,6 @@ page 5340 "CRM Systemuser List"
                 ApplicationArea = Suite;
                 Caption = 'Create Salesperson in Business Central';
                 Image = NewCustomer;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Create the Dataverse user as a salesperson in Business Central.';
 
                 trigger OnAction()
@@ -134,10 +130,6 @@ page 5340 "CRM Systemuser List"
                 ApplicationArea = Suite;
                 Caption = 'Couple';
                 Image = LinkAccount;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Link the user in Dataverse to a salesperson in Business Central.';
                 Visible = ShowCouplingControls;
 
@@ -160,10 +152,6 @@ page 5340 "CRM Systemuser List"
             {
                 AccessByPermission = TableData "CRM Integration Record" = D;
                 ApplicationArea = Suite;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 Caption = 'Uncouple';
                 Image = UnLinkAccount;
                 ToolTip = 'Delete the coupling between the user in Dataverse and salesperson in Business Central.';
@@ -198,10 +186,6 @@ page 5340 "CRM Systemuser List"
                 ApplicationArea = Suite;
                 Caption = 'Add coupled users to team';
                 Image = LinkAccount;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 Visible = IsCDSIntegrationEnabled;
                 ToolTip = 'Add the coupled Dataverse users to the default owning team.';
 
@@ -218,8 +202,6 @@ page 5340 "CRM Systemuser List"
                 ApplicationArea = Suite;
                 Caption = 'Hide Coupled Users';
                 Image = FilterLines;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Do not show coupled users.';
 
                 trigger OnAction()
@@ -232,14 +214,38 @@ page 5340 "CRM Systemuser List"
                 ApplicationArea = Suite;
                 Caption = 'Show Coupled Users';
                 Image = ClearFilter;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Show coupled users.';
 
                 trigger OnAction()
                 begin
                     MarkedOnly(false);
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(CreateFromCRM_Promoted; CreateFromCRM)
+                {
+                }
+                actionref(Couple_Promoted; Couple)
+                {
+                }
+                actionref(DeleteCDSCoupling_Promoted; DeleteCDSCoupling)
+                {
+                }
+                actionref(AddCoupledUsersToTeam_Promoted; AddCoupledUsersToTeam)
+                {
+                }
+                actionref(ShowOnlyUncoupled_Promoted; ShowOnlyUncoupled)
+                {
+                }
+                actionref(ShowAll_Promoted; ShowAll)
+                {
+                }
             }
         }
     }

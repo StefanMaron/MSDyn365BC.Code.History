@@ -5,7 +5,6 @@ page 9610 "XML Schema Viewer"
     DeleteAllowed = false;
     InsertAllowed = false;
     PageType = List;
-    PromotedActionCategories = 'New,Process,Report,View,Selection,Navigate';
     SaveValues = true;
     SourceTable = "XML Schema Element";
     SourceTableView = SORTING("XML Schema Code", "Sort Key");
@@ -46,7 +45,7 @@ page 9610 "XML Schema Viewer"
 
                         trigger OnValidate()
                         begin
-                            SetInternalVariables;
+                            SetInternalVariables();
                         end;
                     }
                 }
@@ -56,7 +55,7 @@ page 9610 "XML Schema Viewer"
                 IndentationColumn = Indentation;
                 IndentationControls = "Node Name";
                 ShowAsTree = true;
-                field("Node Name"; "Node Name")
+                field("Node Name"; Rec."Node Name")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -70,7 +69,7 @@ page 9610 "XML Schema Viewer"
 
                     trigger OnValidate()
                     begin
-                        SetStyleExpression;
+                        SetStyleExpression();
                     end;
                 }
                 field(Choice; Choice)
@@ -79,14 +78,14 @@ page 9610 "XML Schema Viewer"
                     Editable = false;
                     ToolTip = 'Specifies if the node has two or more sibling nodes that function as options.';
                 }
-                field("Node Type"; "Node Type")
+                field("Node Type"; Rec."Node Type")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies a type. This field is intended only for internal use.';
                     Visible = false;
                 }
-                field("Data Type"; "Data Type")
+                field("Data Type"; Rec."Data Type")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -104,7 +103,7 @@ page 9610 "XML Schema Viewer"
                     Editable = false;
                     ToolTip = 'Specifies the highest number of times that the node appears in the XML schema.';
                 }
-                field("Simple Data Type"; "Simple Data Type")
+                field("Simple Data Type"; Rec."Simple Data Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the base (unstructured) type of the schema element, such as the Decimal and Date strings.';
@@ -132,8 +131,6 @@ page 9610 "XML Schema Viewer"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Generate XMLport';
                 Image = Export;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Create the XMLport object for import into the Object Designer.';
                 Visible = false;
                 ObsoleteReason = 'Functionality will be reomved';
@@ -155,9 +152,6 @@ page 9610 "XML Schema Viewer"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Generate Data Exchange Definition';
                 Image = Export;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'Initialize a data exchange definition based on the selected data elements, which you then complete in the Data Exchange Framework.';
 
                 trigger OnAction()
@@ -172,8 +166,6 @@ page 9610 "XML Schema Viewer"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Show All';
                 Image = AllLines;
-                Promoted = true;
-                PromotedCategory = Category4;
                 ToolTip = 'Show all elements.';
 
                 trigger OnAction()
@@ -188,8 +180,6 @@ page 9610 "XML Schema Viewer"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Hide Nonmandatory';
                 Image = ShowSelected;
-                Promoted = true;
-                PromotedCategory = Category4;
                 ToolTip = 'Do not show the elements that are marked as non-mandatory.';
 
                 trigger OnAction()
@@ -204,8 +194,6 @@ page 9610 "XML Schema Viewer"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Hide Nonselected';
                 Image = ShowSelected;
-                Promoted = true;
-                PromotedCategory = Category4;
                 ToolTip = 'Do not show the elements that are marked as non-selected.';
 
                 trigger OnAction()
@@ -220,8 +208,6 @@ page 9610 "XML Schema Viewer"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Select All Mandatory Elements';
                 Image = SelectEntries;
-                Promoted = true;
-                PromotedCategory = Category5;
                 ToolTip = 'Mark all elements that are mandatory.';
 
                 trigger OnAction()
@@ -236,8 +222,6 @@ page 9610 "XML Schema Viewer"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Cancel the Selections';
                 Image = SelectEntries;
-                Promoted = true;
-                PromotedCategory = Category5;
                 ToolTip = 'Deselect all elements.';
 
                 trigger OnAction()
@@ -253,11 +237,62 @@ page 9610 "XML Schema Viewer"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Data Exchange Definitions';
                 Image = XMLFile;
-                Promoted = true;
-                PromotedCategory = Category6;
-                PromotedIsBig = true;
                 RunObject = Page "Data Exch Def List";
                 ToolTip = 'View or edit the data exchange definitions that exist in the database to enable import/export of data to or from specific data files.';
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref(GenerateDataExchSetup_Promoted; GenerateDataExchSetup)
+                {
+                }
+                actionref(GenerateXMLPort_Promoted; GenerateXMLPort)
+                {
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Functionality will be reomved';
+                    ObsoleteTag = '18.0';
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'View', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref(ShowAll_Promoted; ShowAll)
+                {
+                }
+                actionref(HideNonMandatory_Promoted; HideNonMandatory)
+                {
+                }
+                actionref(HideNonSelected_Promoted; HideNonSelected)
+                {
+                }
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Selection', Comment = 'Generated from the PromotedActionCategories property index 4.';
+
+                actionref(SelectAll_Promoted; SelectAll)
+                {
+                }
+                actionref(DeselectAll_Promoted; DeselectAll)
+                {
+                }
+            }
+            group(Category_Category6)
+            {
+                Caption = 'Navigate', Comment = 'Generated from the PromotedActionCategories property index 5.';
+
+                actionref(DataExchangeDefinitions_Promoted; DataExchangeDefinitions)
+                {
+                }
             }
         }
     }
@@ -265,12 +300,12 @@ page 9610 "XML Schema Viewer"
     trigger OnAfterGetCurrRecord()
     begin
         NewObjectNo := NewObjectNoInternal;
-        SetStyleExpression;
+        SetStyleExpression();
     end;
 
     trigger OnAfterGetRecord()
     begin
-        SetStyleExpression;
+        SetStyleExpression();
     end;
 
     trigger OnOpenPage()
@@ -281,7 +316,7 @@ page 9610 "XML Schema Viewer"
         if XMLSchema.Find('=<>') then;
         XMLSchemaCode := XMLSchema.Code;
         SetRange("XML Schema Code", XMLSchema.Code);
-        SetInternalVariables;
+        SetInternalVariables();
     end;
 
     var

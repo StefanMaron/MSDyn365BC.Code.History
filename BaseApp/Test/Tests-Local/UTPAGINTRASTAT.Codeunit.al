@@ -104,7 +104,7 @@ codeunit 142035 "UT PAG INTRASTAT"
         Commit();  // Commit required for explicit commit used in function TemplateSelection of Codeunit 350, IntraJnlManagement called by OnOpenPage Trigger of Intrastat Journal Page.
         IntrastatJournal.OpenEdit;
         IntrastatJournal.Form.Invoke;  // Invokes IntrastatFormDEReportHandler.
-        IntrastatJournal.Close;
+        IntrastatJournal.Close();
     end;
 
     [Test]
@@ -129,7 +129,7 @@ codeunit 142035 "UT PAG INTRASTAT"
         Commit();  // Commit required for explicit commit used  in function TemplateSelection of Codeunit 350, IntraJnlManagement called by OnOpenPage Trigger of Intrastat Journal Page.
         IntrastatJournal.OpenEdit;
         IntrastatJournal.ChecklistReport.Invoke;  // Invokes IntrastatChecklistReportPageHandler.
-        IntrastatJournal.Close;
+        IntrastatJournal.Close();
     end;
 
     [Test]
@@ -155,7 +155,7 @@ codeunit 142035 "UT PAG INTRASTAT"
         Commit();  // Commit required for explicit commit used in function TemplateSelection of Codeunit 350, IntraJnlManagement called by OnOpenPage Trigger of Intrastat Journal Page.
         IntrastatJournal.OpenEdit;
         IntrastatJournal.CreateFile.Invoke;  // Invokes IntrastatDiskTaxAuthDEReportPageHandler.
-        IntrastatJournal.Close;
+        IntrastatJournal.Close();
     end;
 
     [Test]
@@ -180,7 +180,7 @@ codeunit 142035 "UT PAG INTRASTAT"
         Commit();  // Commit required for explicit commit used in function TemplateSelection of Codeunit 350, IntraJnlManagement called by OnOpenPage Trigger of Intrastat Journal Page.
         IntrastatJournal.OpenEdit;
         IntrastatJournal.DiskLabels.Invoke;  // Invokes IntrastatMakeDiskTaxAuthReportPageHandler.
-        IntrastatJournal.Close;
+        IntrastatJournal.Close();
     end;
 
     [Test]
@@ -212,7 +212,7 @@ codeunit 142035 "UT PAG INTRASTAT"
 
         IntrastatJournal.OpenEdit;
         IntrastatJournal.Form.Invoke;
-        IntrastatJournal.Close;
+        IntrastatJournal.Close();
         // [THEN] No RDLC rendering errors
     end;
 
@@ -284,7 +284,7 @@ codeunit 142035 "UT PAG INTRASTAT"
         ReportSelectionIntrastat.FILTER.SetFilter(Sequence, Sequence);
         ReportSelectionIntrastat."Report ID".AssertEquals(ReportID);
         ReportSelectionIntrastat."Report Name".AssertEquals(ReportName);
-        ReportSelectionIntrastat.Close;
+        ReportSelectionIntrastat.Close();
     end;
 
     local procedure UpdateReceiptsShipmentsOnIntrastatSetup(ReportReceipts: Boolean; ReportShipments: Boolean)

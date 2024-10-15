@@ -46,8 +46,8 @@ codeunit 141000 "Report Layout - Local"
     var
         GroupTotals: Option " ","FA Class","FA Subclass","FA Location","Main Asset","Global Dimension 1","Global Dimension 2","FA Posting Group";
     begin
-        FixedAssetsListAT.StartDate.SetValue(WorkDate);
-        FixedAssetsListAT.EndDate.SetValue(CalcDate('<+10Y>', WorkDate));
+        FixedAssetsListAT.StartDate.SetValue(WorkDate());
+        FixedAssetsListAT.EndDate.SetValue(CalcDate('<+10Y>', WorkDate()));
         FixedAssetsListAT.GroupTotals.SetValue(GroupTotals::"FA Subclass");
         FixedAssetsListAT.PrintDetails.SetValue(true);
         FixedAssetsListAT.SaveAsPdf(FomatFileName(FixedAssetsListAT.Caption));

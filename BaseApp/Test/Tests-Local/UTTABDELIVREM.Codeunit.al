@@ -101,7 +101,7 @@ codeunit 142029 "UT TAB DELIVREM"
         No := DeliveryReminderLevel."No.";
 
         // Exercise: Create Delivery Reminder Level using NewRecord.
-        DeliveryReminderLevel.NewRecord;
+        DeliveryReminderLevel.NewRecord();
 
         // Verify: Verify Delivery Reminder Level No increased by 1.
         DeliveryReminderLevel.TestField("No.", No + 1);

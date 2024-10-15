@@ -5,7 +5,6 @@ page 613 "Handled IC Outbox Transactions"
     InsertAllowed = false;
     ModifyAllowed = false;
     PageType = List;
-    PromotedActionCategories = 'New,Process,Report,Functions,Outbox Transaction';
     SourceTable = "Handled IC Outbox Trans.";
     UsageCategory = Lists;
 
@@ -16,13 +15,13 @@ page 613 "Handled IC Outbox Transactions"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Transaction No."; "Transaction No.")
+                field("Transaction No."; Rec."Transaction No.")
                 {
                     ApplicationArea = Intercompany;
                     Editable = false;
                     ToolTip = 'Specifies the transaction''s entry number.';
                 }
-                field("IC Partner Code"; "IC Partner Code")
+                field("IC Partner Code"; Rec."IC Partner Code")
                 {
                     ApplicationArea = Intercompany;
                     Editable = false;
@@ -34,37 +33,37 @@ page 613 "Handled IC Outbox Transactions"
                     Editable = false;
                     ToolTip = 'Specifies what action has been taken on the transaction.';
                 }
-                field("Source Type"; "Source Type")
+                field("Source Type"; Rec."Source Type")
                 {
                     ApplicationArea = Intercompany;
                     Editable = false;
                     ToolTip = 'Specifies whether the transaction was created in a journal, a sales document, or a purchase document.';
                 }
-                field("Document Type"; "Document Type")
+                field("Document Type"; Rec."Document Type")
                 {
                     ApplicationArea = Intercompany;
                     Editable = false;
                     ToolTip = 'Specifies the type of the related document.';
                 }
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = Intercompany;
                     Editable = false;
                     ToolTip = 'Specifies the number of the related document.';
                 }
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Intercompany;
                     Editable = false;
                     ToolTip = 'Specifies the entry''s posting date.';
                 }
-                field("Transaction Source"; "Transaction Source")
+                field("Transaction Source"; Rec."Transaction Source")
                 {
                     ApplicationArea = Intercompany;
                     Editable = false;
                     ToolTip = 'Specifies which company created the transaction.';
                 }
-                field("Document Date"; "Document Date")
+                field("Document Date"; Rec."Document Date")
                 {
                     ApplicationArea = Intercompany;
                     Editable = false;
@@ -100,14 +99,11 @@ page 613 "Handled IC Outbox Transactions"
                     ApplicationArea = Intercompany;
                     Caption = 'Details';
                     Image = View;
-                    Promoted = true;
-                    PromotedCategory = Category5;
-                    PromotedOnly = true;
                     ToolTip = 'View transaction details.';
 
                     trigger OnAction()
                     begin
-                        ShowDetails;
+                        ShowDetails();
                     end;
                 }
                 action(Comments)
@@ -115,9 +111,6 @@ page 613 "Handled IC Outbox Transactions"
                     ApplicationArea = Intercompany;
                     Caption = 'Comments';
                     Image = ViewComments;
-                    Promoted = true;
-                    PromotedCategory = Category5;
-                    PromotedOnly = true;
                     RunObject = Page "IC Comment Sheet";
                     RunPageLink = "Table Name" = CONST("Handled IC Outbox Transaction"),
                                   "Transaction No." = FIELD("Transaction No."),
@@ -138,9 +131,6 @@ page 613 "Handled IC Outbox Transactions"
                     ApplicationArea = Intercompany;
                     Caption = 'Re-create Outbox Transaction';
                     Image = NewStatusChange;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedOnly = true;
                     ToolTip = 'Re-creates a transaction in the outbox. For example, if you accepted a transaction in your outbox but then deleted the document or journal instead of posting it, you can re-create the outbox entry and accept it again.';
 
                     trigger OnAction()
@@ -149,6 +139,32 @@ page 613 "Handled IC Outbox Transactions"
                     begin
                         ICInboxOutboxMgt.RecreateOutboxTransaction(Rec);
                     end;
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Functions', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref("Re-create Outbox Transaction_Promoted"; "Re-create Outbox Transaction")
+                {
+                }
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Outbox Transaction', Comment = 'Generated from the PromotedActionCategories property index 4.';
+
+                actionref(Details_Promoted; Details)
+                {
+                }
+                actionref(Comments_Promoted; Comments)
+                {
                 }
             }
         }

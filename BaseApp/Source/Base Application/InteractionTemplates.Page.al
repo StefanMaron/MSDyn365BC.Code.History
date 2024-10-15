@@ -18,7 +18,7 @@ page 5075 "Interaction Templates"
                     ApplicationArea = All;
                     ToolTip = 'Specifies the code for the interaction template.';
                 }
-                field("Interaction Group Code"; "Interaction Group Code")
+                field("Interaction Group Code"; Rec."Interaction Group Code")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the code for the interaction group to which the interaction template belongs.';
@@ -28,7 +28,7 @@ page 5075 "Interaction Templates"
                     ApplicationArea = All;
                     ToolTip = 'Specifies a description of the interaction template.';
                 }
-                field("Word Template Code"; "Word Template Code")
+                field("Word Template Code"; Rec."Word Template Code")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the Word template to use when you create communications for an interaction. The Word template will create either a document or be used as the body text in an email.';
@@ -38,17 +38,17 @@ page 5075 "Interaction Templates"
                         CurrPage.Update();
                     end;
                 }
-                field("Wizard Action"; "Wizard Action")
+                field("Wizard Action"; Rec."Wizard Action")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the action to perform when you click Next in the first page of the Create Interaction guide. Blank results in no action. Open will fill out the template and open the email editor where you can edit the text if needed. Merge will fill out the template and send it immediately.';
                 }
-                field("Correspondence Type (Default)"; "Correspondence Type (Default)")
+                field("Correspondence Type (Default)"; Rec."Correspondence Type (Default)")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the preferred type of correspondence for the interaction. NOTE: If you use the Web client, you must not select the Hard Copy option because printing is not possible from the web client.';
                 }
-                field("Language Code (Default)"; "Language Code (Default)")
+                field("Language Code (Default)"; Rec."Language Code (Default)")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the default language code for the interaction. If the contact''s preferred language is not available, then the program uses this language as the default language.';
@@ -69,55 +69,55 @@ page 5075 "Interaction Templates"
 
                         if InteractTmplLanguage.Get(Code, "Language Code (Default)") then begin
                             if InteractTmplLanguage."Attachment No." <> 0 then
-                                InteractTmplLanguage.OpenAttachment
+                                InteractTmplLanguage.OpenAttachment()
                             else
-                                InteractTmplLanguage.CreateAttachment;
+                                InteractTmplLanguage.CreateAttachment();
                         end else begin
                             InteractTmplLanguage.Init();
                             InteractTmplLanguage."Interaction Template Code" := Code;
                             InteractTmplLanguage."Language Code" := "Language Code (Default)";
                             InteractTmplLanguage.Description := Description;
-                            InteractTmplLanguage.CreateAttachment;
+                            InteractTmplLanguage.CreateAttachment();
                         end;
                         CurrPage.Update();
                     end;
                 }
-                field("Ignore Contact Corres. Type"; "Ignore Contact Corres. Type")
+                field("Ignore Contact Corres. Type"; Rec."Ignore Contact Corres. Type")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies that the correspondence type that you select in the Correspondence Type (Default) field should be used.';
                 }
-                field("Unit Cost (LCY)"; "Unit Cost (LCY)")
+                field("Unit Cost (LCY)"; Rec."Unit Cost (LCY)")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the cost, in LCY, of one unit of the item or resource on the line.';
                 }
-                field("Unit Duration (Min.)"; "Unit Duration (Min.)")
+                field("Unit Duration (Min.)"; Rec."Unit Duration (Min.)")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the usual duration of interactions created using the interaction template.';
                 }
-                field("Information Flow"; "Information Flow")
+                field("Information Flow"; Rec."Information Flow")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the direction of the information flow for the interaction template. There are two options: Outbound and Inbound. Select Outbound if the information is usually sent by your company. Select Inbound if the information is usually received by your company.';
                 }
-                field("Initiated By"; "Initiated By")
+                field("Initiated By"; Rec."Initiated By")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies who usually initiates interactions created using the interaction template. There are two options: Us and Them. Select Us if the interaction is usually initiated by your company. Select Them if the information is usually initiated by your contacts.';
                 }
-                field("Campaign No."; "Campaign No.")
+                field("Campaign No."; Rec."Campaign No.")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the number of the campaign for which the interaction template has been created.';
                 }
-                field("Campaign Target"; "Campaign Target")
+                field("Campaign Target"; Rec."Campaign Target")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies that the contact who is involved in the interaction is the target of a campaign. This is used to measure the response rate of a campaign.';
                 }
-                field("Campaign Response"; "Campaign Response")
+                field("Campaign Response"; Rec."Campaign Response")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies that the interaction template is being used to record interactions that are a response to a campaign. For example, coupons that are sent in as a response to a campaign.';
@@ -163,8 +163,6 @@ page 5075 "Interaction Templates"
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Statistics';
                     Image = Statistics;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Page "Interaction Tmpl. Statistics";
                     RunPageLink = Code = FIELD(Code);
                     ShortCutKey = 'F7';
@@ -200,7 +198,7 @@ page 5075 "Interaction Templates"
                             Error(WordTemplateUsedErr);
 
                         if InteractTemplLanguage.Get(Code, "Language Code (Default)") then
-                            InteractTemplLanguage.OpenAttachment;
+                            InteractTemplLanguage.OpenAttachment();
                     end;
                 }
                 action(Create)
@@ -224,7 +222,7 @@ page 5075 "Interaction Templates"
                             InteractTemplLanguage."Language Code" := "Language Code (Default)";
                             InteractTemplLanguage.Description := Description;
                         end;
-                        InteractTemplLanguage.CreateAttachment;
+                        InteractTemplLanguage.CreateAttachment();
                         CurrPage.Update();
                     end;
                 }
@@ -251,7 +249,7 @@ page 5075 "Interaction Templates"
                             InteractTemplLanguage.Insert();
                             Commit();
                         end;
-                        InteractTemplLanguage.CopyFromAttachment;
+                        InteractTemplLanguage.CopyFromAttachment();
                         CurrPage.Update();
                     end;
                 }
@@ -277,7 +275,7 @@ page 5075 "Interaction Templates"
                             InteractTemplLanguage.Description := Description;
                             InteractTemplLanguage.Insert();
                         end;
-                        InteractTemplLanguage.ImportAttachment;
+                        InteractTemplLanguage.ImportAttachment();
                         CurrPage.Update();
                     end;
                 }
@@ -297,7 +295,7 @@ page 5075 "Interaction Templates"
                             Error(WordTemplateUsedErr);
 
                         if InteractTemplLanguage.Get(Code, "Language Code (Default)") then
-                            InteractTemplLanguage.ExportAttachment;
+                            InteractTemplLanguage.ExportAttachment();
                     end;
                 }
                 action(Remove)
@@ -326,9 +324,6 @@ page 5075 "Interaction Templates"
                 Caption = 'Create Interaction Word Template';
                 ToolTip = 'Create a Word template to use in interaction templates.';
                 Image = Word;
-                Promoted = true;
-                PromotedOnly = true;
-                PromotedCategory = Process;
 
                 trigger OnAction()
                 var
@@ -344,6 +339,20 @@ page 5075 "Interaction Templates"
                 end;
             }
 
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(Statistics_Promoted; Statistics)
+                {
+                }
+                actionref(WordTemplate_Promoted; WordTemplate)
+                {
+                }
+            }
         }
     }
 

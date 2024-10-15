@@ -1,4 +1,4 @@
-﻿table 7000 "Price List Header"
+table 7000 "Price List Header"
 {
     Caption = 'Price List';
 

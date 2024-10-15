@@ -1,11 +1,10 @@
-﻿page 311 "Intrastat Journal"
+page 311 "Intrastat Journal"
 {
     ApplicationArea = BasicEU;
     AutoSplitKey = true;
     Caption = 'Intrastat Journals';
     DataCaptionFields = "Journal Batch Name";
     PageType = Worksheet;
-    PromotedActionCategories = 'New,Process,Report,Bank,Application,Payroll,Approve,Page';
     SaveValues = true;
     SourceTable = "Intrastat Jnl. Line";
     UsageCategory = Tasks;
@@ -29,7 +28,7 @@
                 trigger OnValidate()
                 begin
                     IntraJnlManagement.CheckName(CurrentJnlBatchName, Rec);
-                    CurrentJnlBatchNameOnAfterVali;
+                    CurrentJnlBatchNameOnAfterVali();
                 end;
             }
             repeater(Control1)
@@ -47,14 +46,14 @@
                     StyleExpr = LineStyleExpression;
                     ToolTip = 'Specifies the date the item entry was posted.';
                 }
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = BasicEU;
                     StyleExpr = LineStyleExpression;
                     ToolTip = 'Specifies the document number on the entry.';
                     ShowMandatory = true;
                 }
-                field("Item No."; "Item No.")
+                field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = BasicEU;
                     StyleExpr = LineStyleExpression;
@@ -67,28 +66,28 @@
                     ToolTip = 'Specifies the name of the item.';
                     Caption = 'Item Name';
                 }
-                field("Tariff No."; "Tariff No.")
+                field("Tariff No."; Rec."Tariff No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the item''s tariff number.';
                 }
-                field("Item Description"; "Item Description")
+                field("Item Description"; Rec."Item Description")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the name of the tariff no. that is associated with the item.';
                     Caption = 'Tariff No. Description';
                 }
-                field("Country/Region Code"; "Country/Region Code")
+                field("Country/Region Code"; Rec."Country/Region Code")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the country/region code for the item entry.';
                 }
-                field("Partner VAT ID"; "Partner VAT ID")
+                field("Partner VAT ID"; Rec."Partner VAT ID")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the counter party''s VAT number.';
                 }
-                field("Country/Region of Origin Code"; "Country/Region of Origin Code")
+                field("Country/Region of Origin Code"; Rec."Country/Region of Origin Code")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies a code for the country/region where the item was produced or processed.';
@@ -98,28 +97,28 @@
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the area of the customer or vendor, for the purpose of reporting to INTRASTAT.';
                 }
-                field("Transaction Type"; "Transaction Type")
+                field("Transaction Type"; Rec."Transaction Type")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the type of transaction that the document represents, for the purpose of reporting to INTRASTAT.';
                 }
-                field("Transaction Specification"; "Transaction Specification")
+                field("Transaction Specification"; Rec."Transaction Specification")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies a specification of the document''s transaction, for the purpose of reporting to INTRASTAT.';
                 }
-                field("Transport Method"; "Transport Method")
+                field("Transport Method"; Rec."Transport Method")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the transport method, for the purpose of reporting to INTRASTAT.';
                 }
-                field("Entry/Exit Point"; "Entry/Exit Point")
+                field("Entry/Exit Point"; Rec."Entry/Exit Point")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the code of either the port of entry where the items passed into your country/region or the port of exit.';
                     Visible = false;
                 }
-                field("Supplementary Units"; "Supplementary Units")
+                field("Supplementary Units"; Rec."Supplementary Units")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies if you must report information about quantity and units of measure for this item.';
@@ -129,12 +128,12 @@
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the number of units of the item in the entry.';
                 }
-                field("Net Weight"; "Net Weight")
+                field("Net Weight"; Rec."Net Weight")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the net weight of one unit of the item.';
                 }
-                field("Total Weight"; "Total Weight")
+                field("Total Weight"; Rec."Total Weight")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the total weight for the items in the item entry.';
@@ -144,44 +143,44 @@
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the total amount of the entry, excluding VAT.';
                 }
-                field("Statistical Value"; "Statistical Value")
+                field("Statistical Value"; Rec."Statistical Value")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the entry''s statistical value, which must be reported to the statistics authorities.';
                 }
-                field("Source Type"; "Source Type")
+                field("Source Type"; Rec."Source Type")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the entry type.';
                 }
-                field("Source Entry No."; "Source Entry No.")
+                field("Source Entry No."; Rec."Source Entry No.")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the number that the item entry had in the table it came from.';
                 }
-                field("Cost Regulation %"; "Cost Regulation %")
+                field("Cost Regulation %"; Rec."Cost Regulation %")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies any indirect costs, as a percentage.';
                     Visible = false;
                 }
-                field("Indirect Cost"; "Indirect Cost")
+                field("Indirect Cost"; Rec."Indirect Cost")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies an amount that represents the costs for freight and insurance.';
                     Visible = false;
                 }
-                field("Internal Ref. No."; "Internal Ref. No.")
+                field("Internal Ref. No."; Rec."Internal Ref. No.")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies a reference number used by the customs and tax authorities.';
                 }
-                field("Shpt. Method Code"; "Shpt. Method Code")
+                field("Shpt. Method Code"; Rec."Shpt. Method Code")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the item''s shipment method.';
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code for the location that the entry is linked to.';
@@ -260,9 +259,6 @@
                     Caption = 'Checklist Report';
                     Ellipsis = true;
                     Image = PrintChecklistReport;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ToolTip = 'Review a checklist that you can use to check the contents of the Intrastat journal before you use the Intrastat - Disk Tax Auth batch job.';
 
                     trigger OnAction()
@@ -276,9 +272,6 @@
                     Caption = 'Form';
                     Ellipsis = true;
                     Image = PrintForm;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ToolTip = 'Print the intrastat journal.';
 
                     trigger OnAction()
@@ -292,9 +285,6 @@
                     Caption = 'Create File';
                     Ellipsis = true;
                     Image = MakeDiskette;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ToolTip = 'Create the Intrastat reporting file.';
 
                     trigger OnAction()
@@ -317,7 +307,7 @@
 
                     trigger OnAction()
                     begin
-                        DocPrint.PrintIntrastatDisklabel;
+                        DocPrint.PrintIntrastatDisklabel();
                     end;
                 }
             }
@@ -327,9 +317,6 @@
                 Caption = '&Get Entries';
                 Ellipsis = true;
                 Image = GetEntries;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'Insert item ledger entries that are ready for Intrastat reporting.';
 
                 trigger OnAction()
@@ -347,10 +334,6 @@
                     ApplicationArea = BasicEU;
                     Caption = 'Edit in Excel';
                     Image = Excel;
-                    Promoted = true;
-                    PromotedCategory = Category8;
-                    PromotedIsBig = true;
-                    PromotedOnly = true;
                     ToolTip = 'Send the data in the journal to an Excel file for analysis or editing.';
                     Visible = IsSaaSExcelAddinEnabled;
                     AccessByPermission = System "Allow Action Export To Excel" = X;
@@ -364,6 +347,54 @@
                 }
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref(ChecklistReport_Promoted; ChecklistReport)
+                {
+                }
+                actionref(Form_Promoted; Form)
+                {
+                }
+                actionref(CreateFile_Promoted; CreateFile)
+                {
+                }
+                actionref(GetEntries_Promoted; GetEntries)
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Bank', Comment = 'Generated from the PromotedActionCategories property index 3.';
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Application', Comment = 'Generated from the PromotedActionCategories property index 4.';
+            }
+            group(Category_Category6)
+            {
+                Caption = 'Payroll', Comment = 'Generated from the PromotedActionCategories property index 5.';
+            }
+            group(Category_Category7)
+            {
+                Caption = 'Approve', Comment = 'Generated from the PromotedActionCategories property index 6.';
+            }
+            group(Category_Category8)
+            {
+                Caption = 'Page', Comment = 'Generated from the PromotedActionCategories property index 7.';
+
+                actionref(EditInExcel_Promoted; EditInExcel)
+                {
+                }
+            }
+        }
     }
 
     trigger OnAfterGetRecord()
@@ -373,8 +404,8 @@
 
     trigger OnAfterGetCurrRecord()
     begin
-        if ClientTypeManagement.GetCurrentClientType <> CLIENTTYPE::ODataV4 then
-            UpdateStatisticalValue;
+        if ClientTypeManagement.GetCurrentClientType() <> CLIENTTYPE::ODataV4 then
+            UpdateStatisticalValue();
         UpdateErrors();
     end;
 
@@ -389,10 +420,10 @@
         JnlSelected: Boolean;
     begin
         IsSaaSExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
-        if ClientTypeManagement.GetCurrentClientType = CLIENTTYPE::ODataV4 then
+        if ClientTypeManagement.GetCurrentClientType() = CLIENTTYPE::ODataV4 then
             exit;
 
-        if IsOpenedFromBatch then begin
+        if IsOpenedFromBatch() then begin
             CurrentJnlBatchName := "Journal Batch Name";
             IntraJnlManagement.OpenJnl(CurrentJnlBatchName, Rec);
             exit;
@@ -434,7 +465,7 @@
 
     local procedure CurrentJnlBatchNameOnAfterVali()
     begin
-        CurrPage.SaveRecord;
+        CurrPage.SaveRecord();
         IntraJnlManagement.SetName(CurrentJnlBatchName, Rec);
         CurrPage.Update(false);
     end;

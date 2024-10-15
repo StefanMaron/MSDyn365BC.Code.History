@@ -83,7 +83,7 @@ codeunit 132460 "Background Sessions Test Lib"
                   Format(SessionEvent."Event Type") + '][' +
                   Format(SessionEvent."Event Datetime", 0, '<Minutes,2>:<Seconds,2>:<Second dec>') + '][' +
                   SessionEvent.Comment + ']';
-            until SessionEvent.Next = 0;
+            until SessionEvent.Next() = 0;
 
         exit(dump);
     end;

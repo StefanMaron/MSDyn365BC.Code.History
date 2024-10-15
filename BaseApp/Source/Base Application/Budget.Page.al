@@ -7,7 +7,6 @@ page 113 Budget
     LinksAllowed = false;
     ModifyAllowed = false;
     PageType = ListPlus;
-    PromotedActionCategories = 'New,Process,Report,Period,Column,Budget';
     SaveValues = true;
 
     layout
@@ -30,28 +29,28 @@ page 113 Budget
                     begin
                         GLBudgetNames.LookupMode := true;
                         GLBudgetNames.SetRecord(GLBudgetName);
-                        if GLBudgetNames.RunModal = ACTION::LookupOK then begin
+                        if GLBudgetNames.RunModal() = ACTION::LookupOK then begin
                             GLBudgetNames.GetRecord(GLBudgetName);
                             BudgetName := GLBudgetName.Name;
                             Text := GLBudgetName.Name;
-                            ValidateBudgetName;
-                            ValidateLineDimCode;
-                            ValidateColumnDimCode;
+                            ValidateBudgetName();
+                            ValidateLineDimCode();
+                            ValidateColumnDimCode();
                             UpdateMatrixSubform();
                             exit(true);
                         end;
-                        ValidateBudgetName;
-                        ValidateLineDimCode;
-                        ValidateColumnDimCode;
+                        ValidateBudgetName();
+                        ValidateLineDimCode();
+                        ValidateColumnDimCode();
                         CurrPage.Update();
                         exit(false);
                     end;
 
                     trigger OnValidate()
                     begin
-                        ValidateBudgetName;
-                        ValidateLineDimCode;
-                        ValidateColumnDimCode;
+                        ValidateBudgetName();
+                        ValidateLineDimCode();
+                        ValidateColumnDimCode();
 
                         UpdateMatrixSubform();
                     end;
@@ -72,7 +71,7 @@ page 113 Budget
 
                         Text := NewCode;
                         LineDimCode := NewCode;
-                        ValidateLineDimCode;
+                        ValidateLineDimCode();
                         LineDimCodeOnAfterValidate();
                         exit(true);
                     end;
@@ -81,9 +80,9 @@ page 113 Budget
                     begin
                         if (UpperCase(LineDimCode) = UpperCase(ColumnDimCode)) and (LineDimCode <> '') then begin
                             ColumnDimCode := '';
-                            ValidateColumnDimCode;
+                            ValidateColumnDimCode();
                         end;
-                        ValidateLineDimCode;
+                        ValidateLineDimCode();
                         GenerateColumnCaptions("Matrix Page Step Type"::Initial);
                         LineDimCodeOnAfterValidate();
                     end;
@@ -105,7 +104,7 @@ page 113 Budget
 
                         Text := NewCode;
                         ColumnDimCode := NewCode;
-                        ValidateColumnDimCode;
+                        ValidateColumnDimCode();
                         GenerateColumnCaptions("Matrix Page Step Type"::Initial);
                         ColumnDimCodeOnAfterValidate();
                         exit(true);
@@ -117,9 +116,9 @@ page 113 Budget
                     begin
                         if (UpperCase(LineDimCode) = UpperCase(ColumnDimCode)) and (LineDimCode <> '') then begin
                             LineDimCode := '';
-                            ValidateLineDimCode;
+                            ValidateLineDimCode();
                         end;
-                        ValidateColumnDimCode;
+                        ValidateColumnDimCode();
                         GenerateColumnCaptions("Matrix Page Step Type"::Initial);
                         ColumnDimCodeOnAfterValidate();
                     end;
@@ -156,7 +155,7 @@ page 113 Budget
 
                     trigger OnValidate()
                     begin
-                        ShowColumnNameOnPush;
+                        ShowColumnNameOnPush();
                     end;
                 }
             }
@@ -189,10 +188,10 @@ page 113 Budget
                         GLAccList: Page "G/L Account List";
                     begin
                         GLAccList.LookupMode(true);
-                        if not (GLAccList.RunModal = ACTION::LookupOK) then
+                        if not (GLAccList.RunModal() = ACTION::LookupOK) then
                             exit(false);
 
-                        Text := GLAccList.GetSelectionFilter;
+                        Text := GLAccList.GetSelectionFilter();
                         exit(true);
                     end;
 
@@ -209,7 +208,7 @@ page 113 Budget
 
                     trigger OnValidate()
                     begin
-                        ValidateGLAccCategoryFilter;
+                        ValidateGLAccCategoryFilter();
                     end;
                 }
                 field(IncomeBalGLAccFilter; IncomeBalanceGLAccFilter)
@@ -220,7 +219,7 @@ page 113 Budget
 
                     trigger OnValidate()
                     begin
-                        ValidateIncomeBalanceGLAccFilter;
+                        ValidateIncomeBalanceGLAccFilter();
                     end;
                 }
                 field(GlobalDim1Filter; GlobalDim1Filter)
@@ -360,8 +359,6 @@ page 113 Budget
                     ApplicationArea = Suite;
                     Caption = 'G/L Account Balance B&udget by period';
                     Image = ChartOfAccounts;
-                    Promoted = true;
-                    PromotedCategory = "Report";
                     ToolTip = 'Open a summary of the debit and credit balances for the current budget.';
 
                     trigger OnAction()
@@ -404,8 +401,6 @@ page 113 Budget
                     Caption = 'Copy Budget';
                     Ellipsis = true;
                     Image = CopyBudget;
-                    Promoted = true;
-                    PromotedCategory = Category6;
                     ToolTip = 'Create a copy of the current budget based on a general ledger entry or a general ledger budget entry.';
 
                     trigger OnAction()
@@ -419,13 +414,11 @@ page 113 Budget
                     ApplicationArea = Suite;
                     Caption = 'Delete Budget';
                     Image = Delete;
-                    Promoted = true;
-                    PromotedCategory = Category6;
                     ToolTip = 'Delete the current budget.';
 
                     trigger OnAction()
                     begin
-                        DeleteBudget;
+                        DeleteBudget();
                     end;
                 }
                 separator(Action1102601004)
@@ -438,8 +431,6 @@ page 113 Budget
                     Caption = 'Export to Excel';
                     Ellipsis = true;
                     Image = ExportToExcel;
-                    Promoted = true;
-                    PromotedCategory = Category6;
                     ToolTip = 'Export all or part of the budget to Excel for further analysis. If you make changes in Excel, you can import the budget afterwards.';
 
                     trigger OnAction()
@@ -464,8 +455,6 @@ page 113 Budget
                     Caption = 'Import from Excel';
                     Ellipsis = true;
                     Image = ImportExcel;
-                    Promoted = true;
-                    PromotedCategory = Category6;
                     ToolTip = 'Import a budget that you exported to Excel earlier.';
 
                     trigger OnAction()
@@ -485,9 +474,6 @@ page 113 Budget
                     ApplicationArea = Suite;
                     Caption = 'Reverse Lines and Columns';
                     Image = Undo;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedOnly = true;
                     ToolTip = 'Change the display of the matrix by inverting the values in the Show as Lines and Show as Columns fields.';
 
                     trigger OnAction()
@@ -497,8 +483,8 @@ page 113 Budget
                         TempDimCode := ColumnDimCode;
                         ColumnDimCode := LineDimCode;
                         LineDimCode := TempDimCode;
-                        ValidateLineDimCode;
-                        ValidateColumnDimCode;
+                        ValidateLineDimCode();
+                        ValidateColumnDimCode();
 
                         GenerateColumnCaptions("Matrix Page Step Type"::Initial);
                         UpdateMatrixSubform();
@@ -514,10 +500,6 @@ page 113 Budget
                     ApplicationArea = Suite;
                     Caption = 'Trial Balance/Budget';
                     Image = "Report";
-                    Promoted = true;
-                    PromotedCategory = "Report";
-                    PromotedIsBig = true;
-                    PromotedOnly = true;
                     ToolTip = 'View budget details for the specified period.';
 
                     trigger OnAction()
@@ -530,10 +512,6 @@ page 113 Budget
                     ApplicationArea = Suite;
                     Caption = 'Budget';
                     Image = "Report";
-                    Promoted = true;
-                    PromotedCategory = "Report";
-                    PromotedIsBig = true;
-                    PromotedOnly = true;
                     ToolTip = 'View budget details for the specified period.';
 
                     trigger OnAction()
@@ -553,9 +531,6 @@ page 113 Budget
                 ApplicationArea = Suite;
                 Caption = 'Next Period';
                 Image = NextRecord;
-                Promoted = true;
-                PromotedCategory = Category4;
-                PromotedOnly = true;
                 ToolTip = 'Show the information based on the next period. If you set the View by field to Day, the date filter changes to the day before.';
 
                 trigger OnAction()
@@ -572,10 +547,6 @@ page 113 Budget
                 ApplicationArea = Suite;
                 Caption = 'Previous Period';
                 Image = PreviousRecord;
-                Promoted = true;
-                PromotedCategory = Category4;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Show the information based on the previous period. If you set the View by field to Day, the date filter changes to the day before.';
 
                 trigger OnAction()
@@ -592,10 +563,6 @@ page 113 Budget
                 ApplicationArea = Suite;
                 Caption = 'Previous Set';
                 Image = PreviousSet;
-                Promoted = true;
-                PromotedCategory = Category5;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Go to the previous set of data.';
 
                 trigger OnAction()
@@ -609,10 +576,6 @@ page 113 Budget
                 ApplicationArea = Suite;
                 Caption = 'Previous Column';
                 Image = PreviousRecord;
-                Promoted = true;
-                PromotedCategory = Category5;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Go to the previous column.';
 
                 trigger OnAction()
@@ -626,9 +589,6 @@ page 113 Budget
                 ApplicationArea = Suite;
                 Caption = 'Next Column';
                 Image = NextRecord;
-                Promoted = true;
-                PromotedCategory = Category5;
-                PromotedOnly = true;
                 ToolTip = 'Go to the next column.';
 
                 trigger OnAction()
@@ -642,9 +602,6 @@ page 113 Budget
                 ApplicationArea = Suite;
                 Caption = 'Next Set';
                 Image = NextSet;
-                Promoted = true;
-                PromotedCategory = Category5;
-                PromotedOnly = true;
                 ToolTip = 'Go to the next set of data.';
 
                 trigger OnAction()
@@ -652,6 +609,76 @@ page 113 Budget
                     GenerateColumnCaptions("Matrix Page Step Type"::Next);
                     UpdateMatrixSubform();
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref("Import from Excel_Promoted"; "Import from Excel")
+                {
+                }
+                actionref("Export to Excel_Promoted"; "Export to Excel")
+                {
+                }
+                actionref("Copy Budget_Promoted"; "Copy Budget")
+                {
+                }
+                actionref("Delete Budget_Promoted"; "Delete Budget")
+                {
+                }
+                actionref("Reverse Lines and Columns_Promoted"; "Reverse Lines and Columns")
+                {
+                }
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Period', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref("Previous Period_Promoted"; "Previous Period")
+                {
+                }
+                actionref("Next Period_Promoted"; "Next Period")
+                {
+                }
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Column', Comment = 'Generated from the PromotedActionCategories property index 4.';
+
+                actionref("Previous Column_Promoted"; "Previous Column")
+                {
+                }
+                actionref("Next Column_Promoted"; "Next Column")
+                {
+                }
+                actionref("Previous Set_Promoted"; "Previous Set")
+                {
+                }
+                actionref("Next Set_Promoted"; "Next Set")
+                {
+                }
+            }
+            group(Category_Category6)
+            {
+                Caption = 'Budget', Comment = 'Generated from the PromotedActionCategories property index 5.';
+
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+
+                actionref(ReportBudget_Promoted; ReportBudget)
+                {
+                }
+                actionref(ReportTrialBalance_Promoted; ReportTrialBalance)
+                {
+                }
+                actionref(GLBalanceBudget_Promoted; GLBalanceBudget)
+                {
+                }
             }
         }
     }
@@ -689,10 +716,10 @@ page 113 Budget
         if GLAccBudgetBuf.GetFilter("G/L Account Filter") <> '' then
             GLAccFilter := GLAccBudgetBuf.GetFilter("G/L Account Filter");
 
-        ValidateBudgetName;
+        ValidateBudgetName();
 
         if LineDimCode = '' then
-            LineDimCode := GLAcc.TableCaption;
+            LineDimCode := GLAcc.TableCaption();
         if ColumnDimCode = '' then
             ColumnDimCode := Text001;
 
@@ -701,9 +728,9 @@ page 113 Budget
 
         if (NewBudgetName <> '') and (NewBudgetName <> BudgetName) then begin
             BudgetName := NewBudgetName;
-            ValidateBudgetName;
-            ValidateLineDimCode;
-            ValidateColumnDimCode;
+            ValidateBudgetName();
+            ValidateLineDimCode();
+            ValidateColumnDimCode();
         end;
 
         PeriodType := PeriodType::Month;
@@ -958,8 +985,8 @@ page 113 Budget
         BusUnit: Record "Business Unit";
         DimSelection: Page "Dimension Selection";
     begin
-        DimSelection.InsertDimSelBuf(false, GLAcc.TableCaption, GLAcc.TableCaption);
-        DimSelection.InsertDimSelBuf(false, BusUnit.TableCaption, BusUnit.TableCaption);
+        DimSelection.InsertDimSelBuf(false, GLAcc.TableCaption(), GLAcc.TableCaption());
+        DimSelection.InsertDimSelBuf(false, BusUnit.TableCaption(), BusUnit.TableCaption());
         DimSelection.InsertDimSelBuf(false, Text001, Text001);
         if GLSetup."Global Dimension 1 Code" <> '' then
             DimSelection.InsertDimSelBuf(false, GLSetup."Global Dimension 1 Code", '');
@@ -977,8 +1004,8 @@ page 113 Budget
         OnGetDimSelectionOnBeforeDimSelectionLookup(DimSelection);
 
         DimSelection.LookupMode := true;
-        if DimSelection.RunModal = ACTION::LookupOK then
-            exit(DimSelection.GetDimSelCode);
+        if DimSelection.RunModal() = ACTION::LookupOK then
+            exit(DimSelection.GetDimSelCode());
 
         exit(OldDimSelCode);
     end;
@@ -1091,8 +1118,8 @@ page 113 Budget
         if IsHandled then
             exit;
 
-        if (UpperCase(DimCode) <> UpperCase(GLAcc.TableCaption)) and
-            (UpperCase(DimCode) <> UpperCase(BusUnit.TableCaption)) and
+        if (UpperCase(DimCode) <> UpperCase(GLAcc.TableCaption())) and
+            (UpperCase(DimCode) <> UpperCase(BusUnit.TableCaption())) and
             (UpperCase(DimCode) <> UpperCase(Text001)) and
             (UpperCase(DimCode) <> GLBudgetName."Budget Dimension 1 Code") and
             (UpperCase(DimCode) <> GLBudgetName."Budget Dimension 2 Code") and

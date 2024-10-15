@@ -48,7 +48,7 @@ codeunit 137040 "SCM Delete Return Orders"
 
         // Find the last line we posted and filter by it (otherwise we will invoice all possible lines for the vendor).
         ReturnShipmentLine.FindLast();
-        ReturnShipmentLine.SetRecFilter;
+        ReturnShipmentLine.SetRecFilter();
 
         PurchGetReturnShipments.SetPurchHeader(PurchHeader2);
         PurchGetReturnShipments.CreateInvLines(ReturnShipmentLine);

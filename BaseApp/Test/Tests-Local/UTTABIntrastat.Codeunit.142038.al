@@ -72,7 +72,7 @@ codeunit 142038 "UT TAB Intrastat"
         DACHReportSelections.Insert();
 
         // Exercise: Call New Record function on DACH Report Selections Table.
-        DACHReportSelections.NewRecord;
+        DACHReportSelections.NewRecord();
 
         // Verify: Verify that Sequense No is updated to 1 and Usage is correct on DACH Report Selections Table.
         DACHReportSelections.TestField(Sequence, '1');  // Sequence is updated to 1 if the Sequence is blank.
@@ -96,7 +96,7 @@ codeunit 142038 "UT TAB Intrastat"
         DACHReportSelections.Insert();
 
         // Exercise: Call New Record function on DACH Report Selections Table.
-        DACHReportSelections.NewRecord;
+        DACHReportSelections.NewRecord();
 
         // Verify: Verify that Sequense No is incremented by 1 and Usage is correct on DACH Report Selections Table.
         DACHReportSelections.TestField(Sequence, '2');  // Value increment by 1.
@@ -227,7 +227,7 @@ codeunit 142038 "UT TAB Intrastat"
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
     begin
         // [SCENARIO 391678] Partner VAT ID is validated in shipment Intrastat Journal Line with any value
-        IntrastatJnlLine.Init;
+        IntrastatJnlLine.Init();
         IntrastatJnlLine.Type := IntrastatJnlLine.Type::Shipment;
         IntrastatJnlLine.Validate("Partner VAT ID", LibraryUTUtility.GetNewCode);
         IntrastatJnlLine.Validate("Partner VAT ID", '');
@@ -241,7 +241,7 @@ codeunit 142038 "UT TAB Intrastat"
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
     begin
         // [SCENARIO 391678] Partner VAT ID gives error when validated in receipt Intrastat Journal Line
-        IntrastatJnlLine.Init;
+        IntrastatJnlLine.Init();
         IntrastatJnlLine.Type := IntrastatJnlLine.Type::Receipt;
         asserterror IntrastatJnlLine.Validate("Partner VAT ID", LibraryUTUtility.GetNewCode);
         Assert.ExpectedError('Type must be equal to ''Shipment''');
@@ -256,7 +256,7 @@ codeunit 142038 "UT TAB Intrastat"
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
     begin
         // [SCENARIO 391678] Partner VAT ID is validated in receipt Intrastat Journal Line with blank value
-        IntrastatJnlLine.Init;
+        IntrastatJnlLine.Init();
         IntrastatJnlLine.Type := IntrastatJnlLine.Type::Receipt;
         IntrastatJnlLine."Partner VAT ID" := LibraryUTUtility.GetNewCode;
         IntrastatJnlLine.Validate("Partner VAT ID", '');

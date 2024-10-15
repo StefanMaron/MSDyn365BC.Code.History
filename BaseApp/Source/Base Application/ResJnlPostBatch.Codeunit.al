@@ -6,17 +6,11 @@ codeunit 213 "Res. Jnl.-Post Batch"
     trigger OnRun()
     begin
         ResJnlLine.Copy(Rec);
-        Code;
+        Code();
         Rec := ResJnlLine;
     end;
 
     var
-        Text001: Label 'Journal Batch Name    #1##########\\';
-        Text002: Label 'Checking lines        #2######\';
-        Text003: Label 'Posting lines         #3###### @4@@@@@@@@@@@@@\';
-        Text004: Label 'Updating lines        #5###### @6@@@@@@@@@@@@@';
-        Text005: Label 'Posting lines         #3###### @4@@@@@@@@@@@@@';
-        Text006: Label 'A maximum of %1 posting number series can be used in each journal.';
         AccountingPeriod: Record "Accounting Period";
         ResJnlTemplate: Record "Res. Journal Template";
         ResJnlBatch: Record "Res. Journal Batch";
@@ -25,7 +19,7 @@ codeunit 213 "Res. Jnl.-Post Batch"
         ResJnlLine3: Record "Res. Journal Line";
         ResLedgEntry: Record "Res. Ledger Entry";
         ResReg: Record "Resource Register";
-        NoSeries: Record "No. Series" temporary;
+        TempNoSeries: Record "No. Series" temporary;
         ResJnlCheckLine: Codeunit "Res. Jnl.-Check Line";
         ResJnlPostLine: Codeunit "Res. Jnl.-Post Line";
         NoSeriesMgt: Codeunit NoSeriesManagement;
@@ -41,6 +35,13 @@ codeunit 213 "Res. Jnl.-Post Batch"
         NoOfPostingNoSeries: Integer;
         PostingNoSeriesNo: Integer;
 
+        Text001: Label 'Journal Batch Name    #1##########\\';
+        Text002: Label 'Checking lines        #2######\';
+        Text003: Label 'Posting lines         #3###### @4@@@@@@@@@@@@@\';
+        Text004: Label 'Updating lines        #5###### @6@@@@@@@@@@@@@';
+        Text005: Label 'Posting lines         #3###### @4@@@@@@@@@@@@@';
+        Text006: Label 'A maximum of %1 posting number series can be used in each journal.';
+
     local procedure "Code"()
     begin
         OnBeforeCode(ResJnlLine);
@@ -54,8 +55,8 @@ codeunit 213 "Res. Jnl.-Post Batch"
             ResJnlBatch.Get("Journal Template Name", "Journal Batch Name");
 
             if ResJnlTemplate.Recurring then begin
-                SetRange("Posting Date", 0D, WorkDate);
-                SetFilter("Expiration Date", '%1 | %2..', 0D, WorkDate);
+                SetRange("Posting Date", 0D, WorkDate());
+                SetFilter("Expiration Date", '%1 | %2..', 0D, WorkDate());
             end;
 
             if not Find('=><') then begin
@@ -94,7 +95,7 @@ codeunit 213 "Res. Jnl.-Post Batch"
             ResLedgEntry.LockTable();
             if ResLedgEntry.FindLast() then;
             ResReg.LockTable();
-            if ResReg.FindLast and (ResReg."To Entry No." = 0) then
+            if ResReg.FindLast() and (ResReg."To Entry No." = 0) then
                 ResRegNo := ResReg."No."
             else
                 ResRegNo := ResReg."No." + 1;
@@ -109,33 +110,33 @@ codeunit 213 "Res. Jnl.-Post Batch"
                 LineCount := LineCount + 1;
                 Window.Update(3, LineCount);
                 Window.Update(4, Round(LineCount / NoOfRecords * 10000, 1));
-                if not EmptyLine and
+                if not EmptyLine() and
                    (ResJnlBatch."No. Series" <> '') and
                    ("Document No." <> LastDocNo2)
                 then
                     TestField("Document No.", NoSeriesMgt.GetNextNo(ResJnlBatch."No. Series", "Posting Date", false));
-                if not EmptyLine then
+                if not EmptyLine() then
                     LastDocNo2 := "Document No.";
                 MakeRecurringTexts(ResJnlLine);
                 if "Posting No. Series" = '' then
                     "Posting No. Series" := ResJnlBatch."No. Series"
                 else
-                    if not EmptyLine then
+                    if not EmptyLine() then
                         if "Document No." = LastDocNo then
                             "Document No." := LastPostedDocNo
                         else begin
-                            if not NoSeries.Get("Posting No. Series") then begin
+                            if not TempNoSeries.Get("Posting No. Series") then begin
                                 NoOfPostingNoSeries := NoOfPostingNoSeries + 1;
                                 if NoOfPostingNoSeries > ArrayLen(NoSeriesMgt2) then
                                     Error(
                                       Text006,
                                       ArrayLen(NoSeriesMgt2));
-                                NoSeries.Code := "Posting No. Series";
-                                NoSeries.Description := Format(NoOfPostingNoSeries);
-                                NoSeries.Insert();
+                                TempNoSeries.Code := "Posting No. Series";
+                                TempNoSeries.Description := Format(NoOfPostingNoSeries);
+                                TempNoSeries.Insert();
                             end;
                             LastDocNo := "Document No.";
-                            Evaluate(PostingNoSeriesNo, NoSeries.Description);
+                            Evaluate(PostingNoSeriesNo, TempNoSeries.Description);
                             "Document No." := NoSeriesMgt2[PostingNoSeriesNo].GetNextNo("Posting No. Series", "Posting Date", false);
                             LastPostedDocNo := "Document No.";
                         end;
@@ -145,10 +146,10 @@ codeunit 213 "Res. Jnl.-Post Batch"
             OnCodeOnAfterPostJnlLines(ResJnlBatch, ResJnlLine, ResRegNo);
 
             // Copy register no. and current journal batch name to the res. journal
-            if not ResReg.FindLast or (ResReg."No." <> ResRegNo) then
+            if not ResReg.FindLast() or (ResReg."No." <> ResRegNo) then
                 ResRegNo := 0;
 
-            Init;
+            Init();
             "Line No." := ResRegNo;
 
             // Update/delete lines
@@ -204,12 +205,12 @@ codeunit 213 "Res. Jnl.-Post Batch"
                     end;
                 end;
             if ResJnlBatch."No. Series" <> '' then
-                NoSeriesMgt.SaveNoSeries;
-            if NoSeries.Find('-') then
+                NoSeriesMgt.SaveNoSeries();
+            if TempNoSeries.Find('-') then
                 repeat
-                    Evaluate(PostingNoSeriesNo, NoSeries.Description);
-                    NoSeriesMgt2[PostingNoSeriesNo].SaveNoSeries;
-                until NoSeries.Next() = 0;
+                    Evaluate(PostingNoSeriesNo, TempNoSeries.Description);
+                    NoSeriesMgt2[PostingNoSeriesNo].SaveNoSeries();
+                until TempNoSeries.Next() = 0;
 
             Commit();
         end;

@@ -24,7 +24,7 @@ codeunit 1604 "Export Serv. Inv. - PEPPOL 2.1"
     begin
         SalesInvoicePEPPOL.Initialize(VariantRec);
         SalesInvoicePEPPOL.SetDestination(OutStr);
-        SalesInvoicePEPPOL.Export;
+        SalesInvoicePEPPOL.Export();
     end;
 
 #if not CLEAN20
@@ -41,7 +41,7 @@ codeunit 1604 "Export Serv. Inv. - PEPPOL 2.1"
 
         OutFile.CreateOutStream(OutStream);
         GenerateXMLFile(ServiceInvoiceHeader, OutStream);
-        OutFile.Close;
+        OutFile.Close();
 
         exit(CopyStr(XmlServerPath, 1, 250));
     end;

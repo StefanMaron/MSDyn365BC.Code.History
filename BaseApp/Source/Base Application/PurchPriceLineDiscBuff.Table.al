@@ -1,7 +1,7 @@
 table 1315 "Purch. Price Line Disc. Buff."
 {
     Caption = 'Purch. Price Line Disc. Buff.';
-#if not CLEAN19
+#if not CLEAN21
     ObsoleteState = Pending;
     ObsoleteTag = '16.0';
 #else
@@ -95,13 +95,13 @@ table 1315 "Purch. Price Line Disc. Buff."
     {
     }
 
-#if not CLEAN19
+#if not CLEAN21
     procedure LoadDataForItem(Item: Record Item)
     var
         PurchasePrice: Record "Purchase Price";
         PurchaseLineDiscount: Record "Purchase Line Discount";
     begin
-        Reset;
+        Reset();
         DeleteAll();
 
         "Item No." := Item."No.";
@@ -119,7 +119,7 @@ table 1315 "Purch. Price Line Disc. Buff."
     begin
         if PurchaseLineDiscount.FindSet() then
             repeat
-                Init;
+                Init();
                 "Line Type" := "Line Type"::"Purchase Line Discount";
 
                 "Starting Date" := PurchaseLineDiscount."Starting Date";
@@ -131,7 +131,7 @@ table 1315 "Purch. Price Line Disc. Buff."
                 "Ending Date" := PurchaseLineDiscount."Ending Date";
                 "Variant Code" := PurchaseLineDiscount."Variant Code";
                 "Vendor No." := PurchaseLineDiscount."Vendor No.";
-                Insert;
+                Insert();
             until PurchaseLineDiscount.Next() = 0;
     end;
 
@@ -139,7 +139,7 @@ table 1315 "Purch. Price Line Disc. Buff."
     begin
         if PurchasePrice.FindSet() then
             repeat
-                Init;
+                Init();
                 "Line Type" := "Line Type"::"Purchase Price";
 
                 "Starting Date" := PurchasePrice."Starting Date";
@@ -151,7 +151,7 @@ table 1315 "Purch. Price Line Disc. Buff."
                 "Variant Code" := PurchasePrice."Variant Code";
                 "Vendor No." := PurchasePrice."Vendor No.";
 
-                Insert;
+                Insert();
             until PurchasePrice.Next() = 0;
     end;
 
@@ -160,7 +160,7 @@ table 1315 "Purch. Price Line Disc. Buff."
         PurchaseLineDiscount: Record "Purchase Line Discount";
         PurchasePrice: Record "Purchase Price";
     begin
-        Reset;
+        Reset();
 
         "Item No." := Item."No.";
 

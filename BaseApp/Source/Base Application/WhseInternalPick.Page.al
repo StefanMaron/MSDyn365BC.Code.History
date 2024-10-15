@@ -4,7 +4,6 @@ page 7357 "Whse. Internal Pick"
     PageType = Document;
     PopulateAllFields = true;
     RefreshOnActivate = true;
-    PromotedActionCategories = 'New,Process,Report,Release,Navigate';
     SourceTable = "Whse. Internal Pick Header";
 
     layout
@@ -14,7 +13,7 @@ page 7357 "Whse. Internal Pick"
             group(General)
             {
                 Caption = 'General';
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
@@ -25,29 +24,29 @@ page 7357 "Whse. Internal Pick"
                             CurrPage.Update();
                     end;
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the code of the location where the internal pick is being performed.';
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                         LookupLocation(Rec);
                         CurrPage.Update(true);
                     end;
                 }
-                field("To Zone Code"; "To Zone Code")
+                field("To Zone Code"; Rec."To Zone Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the zone in which you want the items to be placed when they are picked.';
                 }
-                field("To Bin Code"; "To Bin Code")
+                field("To Bin Code"; Rec."To Bin Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the bin in which you want the items to be placed when they are picked.';
                 }
-                field("Document Status"; "Document Status")
+                field("Document Status"; Rec."Document Status")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the document status of the internal pick.';
@@ -57,36 +56,36 @@ page 7357 "Whse. Internal Pick"
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies whether the internal pick is open or released.';
                 }
-                field("Due Date"; "Due Date")
+                field("Due Date"; Rec."Due Date")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the date when the warehouse activity must be completed.';
                 }
-                field("Assigned User ID"; "Assigned User ID")
+                field("Assigned User ID"; Rec."Assigned User ID")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the ID of the user who is responsible for the document.';
                 }
-                field("Assignment Date"; "Assignment Date")
+                field("Assignment Date"; Rec."Assignment Date")
                 {
                     ApplicationArea = Warehouse;
                     Editable = false;
                     ToolTip = 'Specifies the date when the user was assigned the activity.';
                 }
-                field("Assignment Time"; "Assignment Time")
+                field("Assignment Time"; Rec."Assignment Time")
                 {
                     ApplicationArea = Warehouse;
                     Editable = false;
                     ToolTip = 'Specifies the time when the user was assigned the activity.';
                 }
-                field("Sorting Method"; "Sorting Method")
+                field("Sorting Method"; Rec."Sorting Method")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the method by which the warehouse internal pick lines are sorted.';
 
                     trigger OnValidate()
                     begin
-                        SortingMethodOnAfterValidate;
+                        SortingMethodOnAfterValidate();
                     end;
                 }
             }
@@ -163,8 +162,6 @@ page 7357 "Whse. Internal Pick"
                     ApplicationArea = Warehouse;
                     Caption = 'Pick Lines';
                     Image = PickLines;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     RunObject = Page "Warehouse Activity Lines";
                     RunPageLink = "Whse. Document Type" = CONST("Internal Pick"),
                                   "Whse. Document No." = FIELD("No.");
@@ -186,8 +183,6 @@ page 7357 "Whse. Internal Pick"
                     Caption = 'Re&lease';
                     Image = ReleaseDoc;
                     ShortCutKey = 'Ctrl+F9';
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     ToolTip = 'Release the document to the next stage of processing. You must reopen the document before you can make changes to it.';
 
                     trigger OnAction()
@@ -204,8 +199,6 @@ page 7357 "Whse. Internal Pick"
                     ApplicationArea = Warehouse;
                     Caption = 'Re&open';
                     Image = ReOpen;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     ToolTip = 'Reopen the document for additional warehouse activity.';
 
                     trigger OnAction()
@@ -221,15 +214,47 @@ page 7357 "Whse. Internal Pick"
                     Caption = 'Create Pick';
                     Ellipsis = true;
                     Image = CreateInventoryPickup;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Create a warehouse pick document.';
 
                     trigger OnAction()
                     begin
                         CurrPage.Update(true);
-                        CurrPage.WhseInternalPickLines.PAGE.PickCreate;
+                        CurrPage.WhseInternalPickLines.PAGE.PickCreate();
                     end;
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref(CreatePick_Promoted; CreatePick)
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Release', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref("Re&lease_Promoted"; "Re&lease")
+                {
+                }
+                actionref("Re&open_Promoted"; "Re&open")
+                {
+                }
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Navigate', Comment = 'Generated from the PromotedActionCategories property index 4.';
+
+                actionref("Pick Lines_Promoted"; "Pick Lines")
+                {
                 }
             }
         }
@@ -237,7 +262,7 @@ page 7357 "Whse. Internal Pick"
 
     trigger OnOpenPage()
     begin
-        SetWhseLocationFilter;
+        SetWhseLocationFilter();
     end;
 
     local procedure SortingMethodOnAfterValidate()

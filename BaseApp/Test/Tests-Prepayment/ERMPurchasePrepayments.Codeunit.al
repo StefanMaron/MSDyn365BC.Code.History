@@ -347,7 +347,7 @@ codeunit 134333 "ERM Purchase Prepayments"
         Currency: Record Currency;
     begin
         if CurrencyCode = '' then
-            Currency.InitRoundingPrecision
+            Currency.InitRoundingPrecision()
         else
             Currency.Get(CurrencyCode);
 
@@ -373,7 +373,7 @@ codeunit 134333 "ERM Purchase Prepayments"
 
         // Find if a valid exchange rate exists for the currency
         CurrencyExchangeRate.SetFilter("Currency Code", Currency.Code);
-        CurrencyExchangeRate.SetFilter("Starting Date", '<=%1', WorkDate);
+        CurrencyExchangeRate.SetFilter("Starting Date", '<=%1', WorkDate());
         if CurrencyExchangeRate.Count = 0 then
             // Create exchange rate so we're sure there's one
             LibraryERM.CreateRandomExchangeRate(Currency.Code);

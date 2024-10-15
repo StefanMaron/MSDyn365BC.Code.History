@@ -346,7 +346,7 @@ codeunit 142060 "ERM Sales/Purchase Report"
         Commit();
 
         // Exercise and Verify.
-        RunVendorDetailedAgingReportAndVerify(WorkDate, '', '');  // Blank values for Vendor No.
+        RunVendorDetailedAgingReportAndVerify(WorkDate(), '', '');  // Blank values for Vendor No.
     end;
 
     [Test]
@@ -469,7 +469,7 @@ codeunit 142060 "ERM Sales/Purchase Report"
         // Verify: Verify type of Service and Purchase Amount on Crossborder Services report.
         VerifyCrossBorderServiceReport(CurrencyCode,
           GenProdPostingGroupCaption, PurchaseLine."Gen. Prod. Posting Group", PurchFromVendorControlCaption,
-          Round(LibraryERM.ConvertCurrency(PurchaseLine."Line Amount", '', CurrencyCode, WorkDate), 1));  // Taken 1 for Precision as specified in base object Crossborder Serivces report.
+          Round(LibraryERM.ConvertCurrency(PurchaseLine."Line Amount", '', CurrencyCode, WorkDate()), 1));  // Taken 1 for Precision as specified in base object Crossborder Serivces report.
     end;
 
     [Test]
@@ -511,7 +511,7 @@ codeunit 142060 "ERM Sales/Purchase Report"
         Vendor.Get(PurchaseLine."Buy-from Vendor No.");
         VerifyCrossBorderServiceReport(
           CurrencyCode, CountryRegionCodeCaption, Vendor."Country/Region Code", PurchFromVendorCaption,
-          Round(LibraryERM.ConvertCurrency(PurchaseLine."Line Amount", '', CurrencyCode, WorkDate), 1));  // Taken 1 for Precision as specified in base object Crossborder Serivces report.
+          Round(LibraryERM.ConvertCurrency(PurchaseLine."Line Amount", '', CurrencyCode, WorkDate()), 1));  // Taken 1 for Precision as specified in base object Crossborder Serivces report.
     end;
 
     [Test]
@@ -528,10 +528,10 @@ codeunit 142060 "ERM Sales/Purchase Report"
         // Setup: Create and post Sales Order.
         Initialize();
         SetupForCrossborderServicesReport(SalesLine);
-        EnqueueValuesForCrossBorderServiceReport(Format(WorkDate), OptionString::PostingDate, false);  // False for Show Amount in Additional reporting Currency.
+        EnqueueValuesForCrossBorderServiceReport(Format(WorkDate()), OptionString::PostingDate, false);  // False for Show Amount in Additional reporting Currency.
 
         // Exercise and Verification.
-        RunAndVerifyCrossborderServicesReport(FilterTextCaption, StrSubstNo(FilterText, SalesHeader.FieldCaption("Posting Date"), WorkDate));
+        RunAndVerifyCrossborderServicesReport(FilterTextCaption, StrSubstNo(FilterText, SalesHeader.FieldCaption("Posting Date"), WorkDate()));
     end;
 
     [Test]
@@ -595,7 +595,7 @@ codeunit 142060 "ERM Sales/Purchase Report"
 
         // Exercise and Verification.
         RunAndVerifyCrossborderServicesReport(
-          FilterTextCaption, StrSubstNo(PostingDateCountryCodeFilter, WorkDate, Customer."Country/Region Code"));
+          FilterTextCaption, StrSubstNo(PostingDateCountryCodeFilter, WorkDate(), Customer."Country/Region Code"));
     end;
 
     [Test]
@@ -618,7 +618,7 @@ codeunit 142060 "ERM Sales/Purchase Report"
 
         // Exercise and Verification.
         RunAndVerifyCrossborderServicesReport(
-          FilterTextCaption, StrSubstNo(MultipleFilters, SalesLine."Gen. Prod. Posting Group", WorkDate, Customer."Country/Region Code"));
+          FilterTextCaption, StrSubstNo(MultipleFilters, SalesLine."Gen. Prod. Posting Group", WorkDate(), Customer."Country/Region Code"));
     end;
 
     [Test]
@@ -700,7 +700,7 @@ codeunit 142060 "ERM Sales/Purchase Report"
             repeat
                 VendorLedgerEntry.CalcFields("Remaining Amount");
                 RemAmount += VendorLedgerEntry."Remaining Amount";
-            until VendorLedgerEntry.Next = 0;
+            until VendorLedgerEntry.Next() = 0;
     end;
 
     local procedure CreateAndPostPurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type")
@@ -806,13 +806,13 @@ codeunit 142060 "ERM Sales/Purchase Report"
     local procedure CreateVendorLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry")
     begin
         with VendorLedgerEntry do begin
-            Init;
+            Init();
             "Entry No." := LibraryUtility.GetNewRecNo(VendorLedgerEntry, FieldNo("Entry No."));
             "Vendor No." := LibraryPurchase.CreateVendorNo();
             "Document No." := LibraryUtility.GenerateRandomCode(FieldNo("Document No."), DATABASE::"Vendor Ledger Entry");
-            "Posting Date" := WorkDate;
+            "Posting Date" := WorkDate();
             Open := true;
-            Insert;
+            Insert();
             CreateDetailedVendorLedgerEntry(VendorLedgerEntry);
         end;
     end;
@@ -822,14 +822,14 @@ codeunit 142060 "ERM Sales/Purchase Report"
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
     begin
         with DetailedVendorLedgEntry do begin
-            Init;
+            Init();
             "Entry No." := LibraryUtility.GetNewRecNo(DetailedVendorLedgEntry, FieldNo("Entry No."));
             "Vendor Ledger Entry No." := VendorLedgerEntry."Entry No.";
             "Vendor No." := VendorLedgerEntry."Vendor No.";
-            "Posting Date" := WorkDate;
+            "Posting Date" := WorkDate();
             "Entry Type" := "Entry Type"::"Initial Entry";
             Amount := LibraryRandom.RandDec(100, 2);
-            Insert;
+            Insert();
         end;
     end;
 
@@ -1043,7 +1043,7 @@ codeunit 142060 "ERM Sales/Purchase Report"
         LibraryVariableStorage.Dequeue(No);  // Dequeue variable.
         BatchPostSalesOrders.Ship.SetValue(true);
         BatchPostSalesOrders.Invoice.SetValue(true);
-        BatchPostSalesOrders.PostingDate.SetValue(WorkDate);
+        BatchPostSalesOrders.PostingDate.SetValue(WorkDate());
         BatchPostSalesOrders."Sales Header".SetFilter("No.", No);
         BatchPostSalesOrders.OK.Invoke;
     end;
@@ -1097,7 +1097,7 @@ codeunit 142060 "ERM Sales/Purchase Report"
                     CrossborderServices."VAT Entry".SetFilter("Country/Region Code", CountryRegionCode);
                 end;
             OptionString::PostingDate:
-                CrossborderServices."VAT Entry".SetFilter("Posting Date", Format(WorkDate));
+                CrossborderServices."VAT Entry".SetFilter("Posting Date", Format(WorkDate()));
             OptionString::GenProdPostingGroup:
                 begin
                     LibraryVariableStorage.Dequeue(GenProdPostingGroup);  // Dequeue variable.
@@ -1107,7 +1107,7 @@ codeunit 142060 "ERM Sales/Purchase Report"
                 begin
                     LibraryVariableStorage.Dequeue(CountryRegionCode);  // Dequeue variable.
                     CrossborderServices."VAT Entry".SetFilter("Country/Region Code", CountryRegionCode);
-                    CrossborderServices."VAT Entry".SetFilter("Posting Date", Format(WorkDate));
+                    CrossborderServices."VAT Entry".SetFilter("Posting Date", Format(WorkDate()));
                 end;
             OptionString::PostingDateCountryRegionGenProdPostingGrp:
                 begin
@@ -1116,7 +1116,7 @@ codeunit 142060 "ERM Sales/Purchase Report"
                     LibraryVariableStorage.Dequeue(GenProdPostingGroup);  // Dequeue variable.
                     CrossborderServices."VAT Entry".SetFilter("Country/Region Code", CountryRegionCode);
                     CrossborderServices."VAT Entry".SetFilter("Gen. Prod. Posting Group", GenProdPostingGroup);
-                    CrossborderServices."VAT Entry".SetFilter("Posting Date", Format(WorkDate));
+                    CrossborderServices."VAT Entry".SetFilter("Posting Date", Format(WorkDate()));
                 end;
         end;
         CrossborderServices.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
@@ -1165,7 +1165,7 @@ codeunit 142060 "ERM Sales/Purchase Report"
                     PurchaseCreditMemo."Purch. Cr. Memo Hdr.".SetFilter("Buy-from Vendor No.", BuyFromVendorNo);
                 end;
             OptionString::PostingDate:
-                PurchaseCreditMemo."Purch. Cr. Memo Hdr.".SetFilter("Posting Date", Format(WorkDate));
+                PurchaseCreditMemo."Purch. Cr. Memo Hdr.".SetFilter("Posting Date", Format(WorkDate()));
             OptionString::VendCrMemoNo:
                 begin
                     LibraryVariableStorage.Dequeue(VendorCrMemoNo);  // Dequeue variable.

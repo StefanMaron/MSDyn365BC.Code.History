@@ -50,7 +50,7 @@ permissionset 5947 "D365 ITEM, EDIT"
                   tabledata "Purch. Inv. Line" = r,
                   tabledata "Purch. Rcpt. Line" = r,
                   tabledata "Purchase Discount Access" = RIMD,
-#if not CLEAN19
+#if not CLEAN21
                   tabledata "Purchase Line Discount" = RIMD,
                   tabledata "Purchase Price" = RIMD,
 #endif
@@ -61,7 +61,7 @@ permissionset 5947 "D365 ITEM, EDIT"
                   tabledata "Sales Cr.Memo Line" = r,
                   tabledata "Sales Discount Access" = RimD,
                   tabledata "Sales Invoice Line" = r,
-#if not CLEAN19
+#if not CLEAN21
                   tabledata "Sales Line Discount" = RimD,
                   tabledata "Sales Price" = RIMD,
 #endif
