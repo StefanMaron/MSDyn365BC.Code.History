@@ -1,4 +1,4 @@
-codeunit 5701 "Item Subst."
+﻿codeunit 5701 "Item Subst."
 {
 
     trigger OnRun()
@@ -84,27 +84,7 @@ codeunit 5701 "Item Subst."
                     end;
                     TempItemSubstitution."Substitute No." := NonStockItem."Item No."
                 end;
-                TempSalesLine."No." := TempItemSubstitution."Substitute No.";
-                TempSalesLine."Variant Code" := TempItemSubstitution."Substitute Variant Code";
-                SaveQty := TempSalesLine.Quantity;
-                SaveLocation := TempSalesLine."Location Code";
-                SaveDropShip := TempSalesLine."Drop Shipment";
-                TempSalesLine.Quantity := 0;
-                TempSalesLine.Validate("No.", TempItemSubstitution."Substitute No.");
-                TempSalesLine.Validate("Variant Code", TempItemSubstitution."Substitute Variant Code");
-                TempSalesLine."Originally Ordered No." := SaveItemNo;
-                TempSalesLine."Originally Ordered Var. Code" := SaveVariantCode;
-                TempSalesLine."Location Code" := SaveLocation;
-                TempSalesLine."Drop Shipment" := SaveDropShip;
-                TempSalesLine.Validate(Quantity, SaveQty);
-                TempSalesLine.Validate("Unit of Measure Code", OldSalesUOM);
-
-                TempSalesLine.CreateDim(
-                  DimMgt.TypeToTableID3(TempSalesLine.Type.AsInteger()), TempSalesLine."No.",
-                  DATABASE::Job, TempSalesLine."Job No.",
-                  DATABASE::"Responsibility Center", TempSalesLine."Responsibility Center");
-
-                OnItemSubstGetOnAfterSubstSalesLineItem(TempSalesLine, SalesLine, TempItemSubstitution);
+                ItemSubstGetPopulateTempSalesLine(SalesLine);
 
                 Commit();
                 if ItemCheckAvail.SalesLineCheck(TempSalesLine) then
@@ -118,6 +98,38 @@ codeunit 5701 "Item Subst."
 
         SalesLine := TempSalesLine;
         OnAfterItemSubstGet(SalesLine, TempSalesLine);
+    end;
+
+    local procedure ItemSubstGetPopulateTempSalesLine(var SalesLine: Record "Sales Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeItemSubstGetPopulateTempSalesLine(TempSalesLine, TempItemSubstitution, IsHandled);
+        if IsHandled then
+            exit;
+
+        TempSalesLine."No." := TempItemSubstitution."Substitute No.";
+        TempSalesLine."Variant Code" := TempItemSubstitution."Substitute Variant Code";
+        SaveQty := TempSalesLine.Quantity;
+        SaveLocation := TempSalesLine."Location Code";
+        SaveDropShip := TempSalesLine."Drop Shipment";
+        TempSalesLine.Quantity := 0;
+        TempSalesLine.Validate("No.", TempItemSubstitution."Substitute No.");
+        TempSalesLine.Validate("Variant Code", TempItemSubstitution."Substitute Variant Code");
+        TempSalesLine."Originally Ordered No." := SaveItemNo;
+        TempSalesLine."Originally Ordered Var. Code" := SaveVariantCode;
+        TempSalesLine."Location Code" := SaveLocation;
+        TempSalesLine."Drop Shipment" := SaveDropShip;
+        TempSalesLine.Validate(Quantity, SaveQty);
+        TempSalesLine.Validate("Unit of Measure Code", OldSalesUOM);
+
+        TempSalesLine.CreateDim(
+          DimMgt.TypeToTableID3(TempSalesLine.Type.AsInteger()), TempSalesLine."No.",
+          DATABASE::Job, TempSalesLine."Job No.",
+          DATABASE::"Responsibility Center", TempSalesLine."Responsibility Center");
+
+        OnItemSubstGetOnAfterSubstSalesLineItem(TempSalesLine, SalesLine, TempItemSubstitution);
     end;
 
     local procedure CalcCustPrice()
@@ -389,12 +401,16 @@ codeunit 5701 "Item Subst."
         then
             ErrorMessage(ProdOrderComp."Item No.", ProdOrderComp."Variant Code");
 
+        OnGetCompSubstOnAfterCheckPrepareSubstList(ProdOrderComp, TempItemSubstitution, Item, GrossReq, SchedRcpt);
+
         TempItemSubstitution.Reset();
         TempItemSubstitution.SetRange("Variant Code", ProdOrderComp."Variant Code");
         TempItemSubstitution.SetRange("Location Filter", ProdOrderComp."Location Code");
         if TempItemSubstitution.Find('-') then;
         if PAGE.RunModal(PAGE::"Item Substitution Entries", TempItemSubstitution) = ACTION::LookupOK then
             UpdateComponent(ProdOrderComp, TempItemSubstitution."Substitute No.", TempItemSubstitution."Substitute Variant Code");
+
+        OnAfterGetCompSubst(ProdOrderComp, TempItemSubstitution);
     end;
 
     procedure UpdateComponent(var ProdOrderComp: Record "Prod. Order Component"; SubstItemNo: Code[20]; SubstVariantCode: Code[10])
@@ -615,6 +631,11 @@ codeunit 5701 "Item Subst."
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterGetCompSubst(var ProdOrderComp: Record "Prod. Order Component"; var TempItemSubstitution: Record "Item Substitution" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterItemSubstGet(var SalesLine: Record "Sales Line"; TempSalesLine: Record "Sales Line" temporary)
     begin
     end;
@@ -655,6 +676,11 @@ codeunit 5701 "Item Subst."
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeItemSubstGetPopulateTempSalesLine(var TempSalesline: Record "Sales Line" temporary; var TempItemSubstitution: Record "Item Substitution" temporary; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnInsertInSubstServiceListOnAfterCalcQtyAvail(var Item: Record Item; ServiceLine: Record "Service Line"; var TempItemSubstitution: Record "Item Substitution" temporary)
     begin
     end;
@@ -671,6 +697,11 @@ codeunit 5701 "Item Subst."
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateSubstListOnBeforeCalcQtyAvail(var Item: Record Item; ProdOrderComp: Record "Prod. Order Component"; var TempItemSubstitution: Record "Item Substitution" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetCompSubstOnAfterCheckPrepareSubstList(var ProdOrderComp: Record "Prod. Order Component"; var TempItemSubstitution: Record "Item Substitution" temporary; var Item: Record Item; var GrossReq: Decimal; var SchedRcpt: Decimal)
     begin
     end;
 

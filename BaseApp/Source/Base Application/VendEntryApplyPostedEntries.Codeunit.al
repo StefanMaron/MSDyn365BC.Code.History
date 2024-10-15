@@ -292,8 +292,7 @@ codeunit 227 "VendEntry-Apply Posted Entries"
                     CheckAdditionalCurrency(PostingDate, DtldVendLedgEntry."Posting Date");
                     AddCurrChecked := true;
                 end;
-                if DtldVendLedgEntry."Initial Document Type" = DtldVendLedgEntry."Initial Document Type"::" " then
-                    Error(Text1100003);
+                CheckInitialDocumentType(DtldVendLedgEntry, DocNo, PostingDate);
                 CheckReversal(DtldVendLedgEntry."Vendor Ledger Entry No.");
                 if DtldVendLedgEntry."Transaction No." <> 0 then
                     CheckUnappliedEntries(DtldVendLedgEntry);
@@ -333,6 +332,19 @@ codeunit 227 "VendEntry-Apply Posted Entries"
             Commit();
             Window.Close;
         end;
+    end;
+
+    local procedure CheckInitialDocumentType(var DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry"; DocNo: Code[20]; PostingDate: Date)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckInitialDocumentType(DtldVendLedgEntry, DocNo, PostingDate, IsHandled);
+        if IsHandled then
+            exit;
+
+        if DtldVendLedgEntry."Initial Document Type" = DtldVendLedgEntry."Initial Document Type"::" " then
+            Error(Text1100003);
     end;
 
     local procedure CheckPostingDate(PostingDate: Date; var MaxPostingDate: Date)
@@ -556,6 +568,11 @@ codeunit 227 "VendEntry-Apply Posted Entries"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeApply(var VendorLedgerEntry: Record "Vendor Ledger Entry"; var DocumentNo: Code[20]; var ApplicationDate: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckInitialDocumentType(var DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry"; DocNo: Code[20]; PostingDate: Date; var IsHandled: Boolean)
     begin
     end;
 

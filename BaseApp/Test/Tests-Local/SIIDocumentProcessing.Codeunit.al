@@ -75,9 +75,47 @@ codeunit 147522 "SII Document Processing"
     begin
         // [FEATURE] [Journal] [Sales] [Invoice]
         // [SCENARIO] Posting customer's invoice generates SII Doc. Upload State entry when SII Setup is enabled
-        // [SCENARIO 263060] SII Version is 1.1 in SII Doc. Upload State generated from sales invoice
+        // [SCENARIO 375398] SII Version is 1.1bis in SII Doc. Upload State generated from sales invoice
 
-        Initialize;
+        Initialize();
+
+        // [GIVEN] Enabled SII Setup
+        // [GIVEN] Journal line with type "Invoice" for customer
+        LibraryJournals.CreateGenJournalLineWithBatch(
+          GenJournalLine, GenJournalLine."Document Type"::Invoice,
+          GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo, LibraryRandom.RandIntInRange(100, 200));
+
+        // [WHEN] Post journal
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [THEN] SII Doc. Upload State in state "Pending" is created
+        with SIIDocUploadState do begin
+            LibrarySII.FindSIIDocUploadState(
+              SIIDocUploadState, "Document Source"::"Customer Ledger", "Document Type"::Invoice, GenJournalLine."Document No.");
+            TestField(Status, Status::Pending);
+        end;
+
+        // [THEN] Version of SII Doc. Upload State is 1.1bis
+        SIIDocUploadState.TestField("Version No.", SIIDocUploadState."Version No."::"2.1");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostSalesInvoiceFromJournalVersion11()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        SIIDocUploadState: Record "SII Doc. Upload State";
+        OldWorkDate: Date;
+    begin
+        // [FEATURE] [Journal] [Sales] [Invoice]
+        // [SCENARIO] Posting customer's invoice generates SII Doc. Upload State entry when SII Setup is enabled
+        // [SCENARIO 375398] SII Version is 1.1 in SII Doc. Upload State generated from sales invoice when work date is before year 2021
+
+        Initialize();
+
+        // [GIVEN] Work date is 31.12.2020
+        OldWorkDate := WorkDate();
+        WorkDate := 20201231D;
 
         // [GIVEN] Enabled SII Setup
         // [GIVEN] Journal line with type "Invoice" for customer
@@ -97,6 +135,9 @@ codeunit 147522 "SII Document Processing"
 
         // [THEN] Version of SII Doc. Upload State is 1.1
         SIIDocUploadState.TestField("Version No.", SIIDocUploadState."Version No."::"1.1");
+
+        // Tear down
+        WorkDate := OldWorkDate;
     end;
 
     [Test]
@@ -108,7 +149,7 @@ codeunit 147522 "SII Document Processing"
     begin
         // [FEATURE] [Journal] [Purchae] [Invoice]
         // [SCENARIO] Posting vendor's invoice generates SII Doc. Upload State entry when SII Setup is enabled
-        // [SCENARIO 263060] SII Version is 1.1 in SII Doc. Upload State generated from purchase invoice
+        // [SCENARIO 375398] SII Version is 1.1bis in SII Doc. Upload State generated from purchase invoice
         Initialize;
 
         // [GIVEN] Enabled SII Setup
@@ -127,8 +168,8 @@ codeunit 147522 "SII Document Processing"
             TestField(Status, Status::Pending);
         end;
 
-        // [THEN] Version of SII Doc. Upload State is 1.1
-        SIIDocUploadState.TestField("Version No.", SIIDocUploadState."Version No."::"1.1");
+        // [THEN] Version of SII Doc. Upload State is 1.1bis
+        SIIDocUploadState.TestField("Version No.", SIIDocUploadState."Version No."::"2.1");
     end;
 
     [Test]

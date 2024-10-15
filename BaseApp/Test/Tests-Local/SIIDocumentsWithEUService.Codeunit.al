@@ -1182,6 +1182,39 @@ codeunit 147523 "SII Documents With EU Service"
           'sii:BaseImponible', SIIXMLCreator.FormatNumber(CustLedgerEntry.Amount));
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchInvWithVATAndECAmountVersion11bis()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        SIIDocUploadState: Record "SII Doc. Upload State";
+        XMLDoc: DotNet XmlDocument;
+    begin
+        // [FEATURE] [Purchase] [Invoice]
+        // [SCENARIO 375398] CuotaDeducible is zero in the XML file for Purchase invoice with EC for version 1.1bis
+
+        Initialize();
+
+        // [GIVEN] Purchase Invoice with two lines:
+        // [GIVEN] First Line: Amount = 1000, "VAT %" = 21
+        // [GIVEN] First Line: Amount = 1000, "VAT %" = 21, "EC %" = 5.2
+        CreatePurchDocWithNormalAndEC(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, 0);
+        // [GIVEN] Two VAT Entries with Amount = 210 (by "VAT %") and 262 (by "VAT %" + "EC %")
+        VendorLedgerEntry.SetRange("Buy-from Vendor No.", PurchaseHeader."Pay-to Vendor No.");
+        LibraryERM.FindVendorLedgerEntry(
+          VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, false));
+
+        // [GIVEN] SII version is 1.1bis
+        SIIXMLCreator.SetSIIVersionNo(SIIDocUploadState."Version No."::"2.1");
+
+        // [WHEN] Create xml for Posted Purchase Invoice
+        Assert.IsTrue(SIIXMLCreator.GenerateXml(VendorLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
+
+        // [THEN] XML file has node "CuotaDeducible" with value "0"
+        LibrarySII.ValidateElementByName(XMLDoc, 'sii:CuotaDeducible', SIIXMLCreator.FormatNumber(0));
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore;

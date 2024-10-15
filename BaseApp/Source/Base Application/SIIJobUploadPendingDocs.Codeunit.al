@@ -35,8 +35,12 @@ codeunit 10753 "SII Job Upload Pending Docs."
     local procedure OnAfterPostSalesDoc(var SalesHeader: Record "Sales Header"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; SalesShptHdrNo: Code[20]; RetRcpHdrNo: Code[20]; SalesInvHdrNo: Code[20]; SalesCrMemoHdrNo: Code[20])
     var
         SIISetup: Record "SII Setup";
+        IsHandled: Boolean;
     begin
-        OnBeforeOnAfterPostSalesDoc(SalesHeader);
+        IsHandled := false;
+        OnBeforeOnAfterPostSalesDoc(SalesHeader, IsHandled);
+        if IsHandled then
+            exit;
 
         if not SIISetup.IsEnabled then
             exit;
@@ -51,8 +55,12 @@ codeunit 10753 "SII Job Upload Pending Docs."
     local procedure OnAfterPostPurchDoc(var PurchaseHeader: Record "Purchase Header"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; PurchRcpHdrNo: Code[20]; RetShptHdrNo: Code[20]; PurchInvHdrNo: Code[20]; PurchCrMemoHdrNo: Code[20])
     var
         SIISetup: Record "SII Setup";
+        IsHandled: Boolean;
     begin
-        OnBeforeOnAfterPostPurchDoc(PurchaseHeader);
+        IsHandled := false;
+        OnBeforeOnAfterPostPurchDoc(PurchaseHeader, IsHandled);
+        if IsHandled then
+            exit;
 
         if not SIISetup.IsEnabled then
             exit;
@@ -316,12 +324,12 @@ codeunit 10753 "SII Job Upload Pending Docs."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeOnAfterPostSalesDoc(var SalesHeader: Record "Sales Header")
+    local procedure OnBeforeOnAfterPostSalesDoc(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeOnAfterPostPurchDoc(var PurchaseHeader: Record "Purchase Header")
+    local procedure OnBeforeOnAfterPostPurchDoc(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
     begin
     end;
 

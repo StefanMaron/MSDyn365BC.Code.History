@@ -491,10 +491,9 @@
                 if (Quantity * xRec.Quantity < 0) or (Quantity = 0) then
                     InitItemAppl;
 
-                if Type = Type::Item then begin
-                    if Quantity <> xRec.Quantity then
-                        PlanPriceCalcByField(FieldNo(Quantity));
-                end else
+                if Quantity <> xRec.Quantity then
+                    PlanPriceCalcByField(FieldNo(Quantity));
+                if Type <> Type::Item then
                     Validate("Line Discount %");
 
                 OnValidateQuantityOnAfterPlanPriceCalcByField(Rec, xRec);
@@ -507,7 +506,7 @@
                     OnBeforeVerifyReservedQty(Rec, xRec, FieldNo(Quantity));
                     ReservePurchLine.VerifyQuantity(Rec, xRec);
                     IsHandled := false;
-                    OnValidateQuantityOnBeforePurchaseLineVerifyChange(Rec, StatusCheckSuspended, IsHandled);
+                    OnValidateQuantityOnBeforePurchaseLineVerifyChange(Rec, StatusCheckSuspended, IsHandled, xRec);
                     if not IsHandled then
                         WhseValidateSourceLine.PurchaseLineVerifyChange(Rec, xRec);
                     CheckApplToItemLedgEntry;
@@ -727,7 +726,14 @@
             Caption = 'Line Discount Amount';
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateLineDiscountAmount(Rec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 GetPurchHeader;
                 "Line Discount Amount" := Round("Line Discount Amount", Currency."Amount Rounding Precision");
                 TestStatusOpen;
@@ -6394,6 +6400,7 @@
             TempJobJnlLine.Validate(Type, TempJobJnlLine.Type::"G/L Account")
         else
             TempJobJnlLine.Validate(Type, TempJobJnlLine.Type::Item);
+        OnCreateTempJobJnlLineOnBeforeTempJobJnlLineValidateNo(TempJobJnlLine, Rec);
         TempJobJnlLine.Validate("No.", "No.");
         TempJobJnlLine.Validate(Quantity, Quantity);
         TempJobJnlLine.Validate("Variant Code", "Variant Code");
@@ -6888,8 +6895,15 @@
 
     [Scope('OnPrem')]
     procedure ValidateLineDiscountPercent(DropInvoiceDiscountAmount: Boolean)
+    var
+        IsHandled: Boolean;
     begin
         TestStatusOpen;
+        IsHandled := false;
+        OnValidateLineDiscountPercentOnAfterTestStatusOpen(Rec, xRec, CurrFieldNo, IsHandled);
+        if IsHandled then
+            exit;
+
         GetPurchHeader;
         "Line Discount Amount" :=
           Round(
@@ -8048,6 +8062,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateLineDiscountAmount(var PurchaseLine: Record "Purchase Line"; var InHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeValidatePlannedReceiptDateWithCustomCalendarChange(var PurchaseLine: Record "Purchase Line"; var xPurchaseLine: Record "Purchase Line"; var InHandled: Boolean);
     begin
     end;
@@ -8104,6 +8123,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnCopyFromItemOnAfterCheck(PurchaseLine: Record "Purchase Line"; Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateTempJobJnlLineOnBeforeTempJobJnlLineValidateNo(var TempJobJnlLine: Record "Job Journal Line" temporary; PurchaseLine: Record "Purchase Line")
     begin
     end;
 
@@ -8203,6 +8227,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnValidateLineDiscountPercentOnAfterTestStatusOpen(var PurchaseLine: Record "Purchase Line"; var xPurchaseLine: Record "Purchase Line"; CallingFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnValidateLocationCodeOnBeforeDropShipmentError(PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
     begin
     end;
@@ -8278,7 +8307,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidateQuantityOnBeforePurchaseLineVerifyChange(var PurchaseLine: Record "Purchase Line"; StatusCheckSuspended: Boolean; var IsHandled: Boolean);
+    local procedure OnValidateQuantityOnBeforePurchaseLineVerifyChange(var PurchaseLine: Record "Purchase Line"; StatusCheckSuspended: Boolean; var IsHandled: Boolean; var xPurchaseLine: Record "Purchase Line");
     begin
     end;
 

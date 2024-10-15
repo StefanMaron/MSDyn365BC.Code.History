@@ -14,6 +14,9 @@ report 5703 "Transfer Order"
             column(No_TransferHdr; "No.")
             {
             }
+            column(TransferOrderNoCaption; TransferOrderNoCaptionLbl)
+            {
+            }
             dataitem(CopyLoop; "Integer")
             {
                 DataItemTableView = SORTING(Number);
@@ -311,5 +314,6 @@ report 5703 "Transfer Order"
         OutputNo: Integer;
         HdrDimensionsCaptionLbl: Label 'Header Dimensions';
         LineDimensionsCaptionLbl: Label 'Line Dimensions';
+        TransferOrderNoCaptionLbl: Label 'Transfer Order No.';
 }
 

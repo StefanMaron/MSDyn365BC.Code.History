@@ -107,12 +107,16 @@ table 10751 "SII Setup"
                 SIIJobManagement: Codeunit "SII Job Management";
             begin
                 if "Auto Missing Entries Check" = xRec."Auto Missing Entries Check" then
-                    exit;
+                  exit;
 
                 SIIJobManagement.RestartJobQueueEntryForMissingEntryCheck("Auto Missing Entries Check");
             end;
         }
-        field(40; "SuministroInformacion Schema"; Text[2048])
+        field(32; "Include ImporteTotal"; Boolean)
+        {
+            Caption = 'Include ImporteTotal';
+        }
+        field(40;"SuministroInformacion Schema";Text[2048])
         {
             InitValue = 'https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroInformacion.xsd';
         }
@@ -156,14 +160,14 @@ table 10751 "SII Setup"
     procedure IsEnabled(): Boolean
     begin
         if not Get then
-            exit(false);
+          exit(false);
         exit(Enabled);
     end;
 
     procedure SetDefaults()
     begin
         if ("SuministroInformacion Schema" <> '') and ("SuministroLR Schema" <> '') then
-            exit;
+          exit;
         "SuministroInformacion Schema" := SiiTxt;
         "SuministroLR Schema" := SiiLRTxt;
         Modify(true);

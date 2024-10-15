@@ -103,22 +103,18 @@ codeunit 1034 "Job Planning Line - Calendar"
     local procedure GenerateEmail(var TempEmailItem: Record "Email Item" temporary; RecipientEmail: Text[80]; Cancel: Boolean)
     var
         TempBlob: Codeunit "Temp Blob";
-        FileMgt: Codeunit "File Management";
         Stream: OutStream;
+        InStream: Instream;
         ICS: Text;
-        FilePath: Text;
     begin
         ICS := GenerateICS(Cancel);
-        TempBlob.CreateOutStream(Stream, TEXTENCODING::UTF8);
+        TempBlob.CreateOutStream(Stream, TextEncoding::UTF8);
         Stream.Write(ICS);
-
-        FilePath := FileMgt.ServerTempFileName('.ics');
-        FileMgt.BLOBExportToServerFile(TempBlob, FilePath);
+        TempBlob.CreateInStream(InStream);
 
         TempEmailItem.Initialize;
         TempEmailItem.Subject := JobTask.Description;
-        TempEmailItem."Attachment File Path" := CopyStr(FilePath, 1, 250);
-        TempEmailItem."Attachment Name" := StrSubstNo('%1.ics', JobTask.TableCaption);
+        TempEmailItem.AddAttachment(InStream, StrSubstNo('%1.ics', JobTask.TableCaption));
         TempEmailItem."Send to" := RecipientEmail;
     end;
 
@@ -223,12 +219,10 @@ codeunit 1034 "Job Planning Line - Calendar"
 
     local procedure GetHtmlDescription(Description: Text) HtmlAppointDescription: Text
     var
-        DotNet_Regex: Codeunit DotNet_Regex;
+        Regex: Codeunit Regex;
     begin
-        DotNet_Regex.Regex('\\r');
-        HtmlAppointDescription := DotNet_Regex.Replace(Description, '');
-        DotNet_Regex.Regex('\\n');
-        HtmlAppointDescription := DotNet_Regex.Replace(HtmlAppointDescription, '<br>');
+        HtmlAppointDescription := Regex.Replace(Description, '\\r', '');
+        HtmlAppointDescription := Regex.Replace(HtmlAppointDescription, '\\n', '<br>');
         HtmlAppointDescription := 'text/html:<html><body>' + HtmlAppointDescription + '</html></body>';
     end;
 
@@ -250,7 +244,7 @@ codeunit 1034 "Job Planning Line - Calendar"
             exit(EmailAccount."Email Address");
         end;
 
-        SMTPMailSetup.GetSetup;
+        SMTPMailSetup.GetSetup();
         exit(SMTPMailSetup."User ID");
     end;
 

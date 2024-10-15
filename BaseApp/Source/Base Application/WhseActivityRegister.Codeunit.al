@@ -1,4 +1,4 @@
-codeunit 7307 "Whse.-Activity-Register"
+﻿codeunit 7307 "Whse.-Activity-Register"
 {
     Permissions = TableData "Registered Whse. Activity Hdr." = i,
                   TableData "Registered Whse. Activity Line" = i,
@@ -206,9 +206,7 @@ codeunit 7307 "Whse.-Activity-Register"
                 end else begin
                     QtyDiff := "Qty. Outstanding" - "Qty. to Handle";
                     QtyBaseDiff := "Qty. Outstanding (Base)" - "Qty. to Handle (Base)";
-                    Validate("Qty. Outstanding", QtyDiff);
-                    if "Qty. Outstanding (Base)" > QtyBaseDiff then // round off error- qty same, not base qty
-                        "Qty. Outstanding (Base)" := QtyBaseDiff;
+                    UpdateWhseActivLineQtyOutstanding(WarehouseActivityLine, QtyDiff, QtyBaseDiff);
                     Validate("Qty. to Handle", QtyDiff);
                     if "Qty. to Handle (Base)" > QtyBaseDiff then // round off error- qty same, not base qty
                         "Qty. to Handle (Base)" := QtyBaseDiff;
@@ -218,7 +216,23 @@ codeunit 7307 "Whse.-Activity-Register"
                     OnBeforeWhseActivLineModify(WarehouseActivityLine);
                     Modify;
                 end;
-            until Next = 0;
+            until Next() = 0;
+        end;
+    end;
+
+    local procedure UpdateWhseActivLineQtyOutstanding(var WarehouseActivityLine: Record "Warehouse Activity Line"; QtyDiff: Decimal; QtyBaseDiff: Decimal)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeUpdateWhseActivLineQtyOutstanding(WarehouseActivityLine, QtyDiff, QtyBaseDiff, HideDialog, IsHandled);
+        if IsHandled then
+            exit;
+
+        with WarehouseActivityLine do begin
+            Validate("Qty. Outstanding", QtyDiff);
+            if "Qty. Outstanding (Base)" > QtyBaseDiff then // round off error- qty same, not base qty
+                "Qty. Outstanding (Base)" := QtyBaseDiff;
         end;
     end;
 
@@ -226,7 +240,13 @@ codeunit 7307 "Whse.-Activity-Register"
     var
         WhseJnlLine: Record "Warehouse Journal Line";
         WMSMgt: Codeunit "WMS Management";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeRegisterWhseJnlLine(WhseActivLine, RegisteredWhseActivHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         with WhseActivLine do begin
             WhseJnlLine.Init();
             WhseJnlLine."Location Code" := "Location Code";
@@ -1593,12 +1613,9 @@ codeunit 7307 "Whse.-Activity-Register"
                         Cust.Get(WhseActivLine."Destination No.");
                         Cust.CheckBlockedCustOnDocs(Cust, "Source Document", false, false);
                     end;
-                    if Location."Bin Mandatory" then begin
-                        WhseActivLine.TestField("Unit of Measure Code");
-                        WhseActivLine.TestField("Bin Code");
-                        WhseActivLine.CheckWhseDocLine;
-                        UpdateTempBinContentBuffer(WhseActivLine);
-                    end;
+                    if Location."Bin Mandatory" then
+                        CheckBinRelatedFields();
+
                     OnAfterCheckWhseActivLine(WhseActivLine);
 
                     if ((WhseActivLine."Activity Type" = WhseActivLine."Activity Type"::Pick) or
@@ -1626,6 +1643,21 @@ codeunit 7307 "Whse.-Activity-Register"
         end;
 
         OnAfterCheckLines(WhseActivHeader, WhseActivLine);
+    end;
+
+    local procedure CheckBinRelatedFields()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckBinRelatedFields(WhseActivLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        WhseActivLine.TestField("Unit of Measure Code");
+        WhseActivLine.TestField("Bin Code");
+        WhseActivLine.CheckWhseDocLine;
+        UpdateTempBinContentBuffer(WhseActivLine);
     end;
 
     local procedure UpdateSourceDocForInvtMovement(WhseActivityLine: Record "Warehouse Activity Line")
@@ -1919,6 +1951,11 @@ codeunit 7307 "Whse.-Activity-Register"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckBinRelatedFields(WarehouseActivityLine: Record "Warehouse Activity Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforePostedWhseRcptLineModify(var PostedWhseReceiptLine: Record "Posted Whse. Receipt Line"; WarehouseActivityLine: Record "Warehouse Activity Line")
     begin
     end;
@@ -2024,6 +2061,11 @@ codeunit 7307 "Whse.-Activity-Register"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeRegisterWhseJnlLine(WarehouseActivityLine: Record "Warehouse Activity Line"; RegisteredWhseActivityHdr: Record "Registered Whse. Activity Hdr."; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeSourceLineQtyBase(var WarehouseActivityLine: Record "Warehouse Activity Line"; var QtyBase: Decimal; var IsHandled: Boolean)
     begin
     end;
@@ -2055,6 +2097,11 @@ codeunit 7307 "Whse.-Activity-Register"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateWhseSourceDocLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateWhseActivLineQtyOutstanding(var WarehouseActivityLine: Record "Warehouse Activity Line"; var QtyDiff: Decimal; var QtyBaseDiff: Decimal; HideDialog: Boolean; var IsHandled: Boolean)
     begin
     end;
 

@@ -309,8 +309,7 @@ codeunit 226 "CustEntry-Apply Posted Entries"
                     CheckAdditionalCurrency(PostingDate, DtldCustLedgEntry."Posting Date");
                     AddCurrChecked := true;
                 end;
-                if DtldCustLedgEntry."Initial Document Type" = DtldCustLedgEntry."Initial Document Type"::" " then
-                    Error(Text1100003);
+                CheckInitialDocumentType(DtldCustLedgEntry, DocNo, PostingDate, CommitChanges);
                 CheckReversal(DtldCustLedgEntry."Cust. Ledger Entry No.");
                 if DtldCustLedgEntry."Transaction No." <> 0 then
                     CheckUnappliedEntries(DtldCustLedgEntry);
@@ -347,6 +346,19 @@ codeunit 226 "CustEntry-Apply Posted Entries"
             if not HideProgressWindow then
                 Window.Close;
         end;
+    end;
+
+    local procedure CheckInitialDocumentType(var DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; DocNo: Code[20]; PostingDate: Date; var CommitChanges: Boolean)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckInitialDocumentType(DtldCustLedgEntry, DocNo, PostingDate, CommitChanges, IsHandled);
+        if IsHandled then
+            exit;
+
+        if DtldCustLedgEntry."Initial Document Type" = DtldCustLedgEntry."Initial Document Type"::" " then
+            Error(Text1100003);
     end;
 
     local procedure CheckPostingDate(PostingDate: Date; var MaxPostingDate: Date)
@@ -623,6 +635,11 @@ codeunit 226 "CustEntry-Apply Posted Entries"
 
     [IntegrationEvent(false, false)]
     local procedure OnPostUnApplyCustomerCommitOnAfterSetFilters(var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; DetailedCustLedgEntry2: Record "Detailed Cust. Ledg. Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckInitialDocumentType(var DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; DocNo: Code[20]; PostingDate: Date; var CommitChanges: Boolean; var IsHandled: Boolean);
     begin
     end;
 

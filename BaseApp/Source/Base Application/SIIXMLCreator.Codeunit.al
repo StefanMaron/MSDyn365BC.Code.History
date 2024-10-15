@@ -22,7 +22,7 @@ codeunit 10750 "SII XML Creator"
         SIISetupInitialized: Boolean;
         UploadTypeGlb: Option Regular,Intracommunity,RetryAccepted,"Collection In Cash";
         LCLbl: Label 'LC', Locked = true;
-        SIIVersion: Option "1.1","1.0";
+        SIIVersion: Option "1.1","1.0","2.1";
         SiiTxt: Text;
         SiiLRTxt: Text;
 
@@ -101,6 +101,7 @@ codeunit 10750 "SII XML Creator"
         HeaderName := CompanyInformation.Name;
         HeaderVATNo := CompanyInformation."VAT Registration No.";
 
+        SIIDocUploadState.GetSIIDocUploadStateByVendLedgEntry(PurchaseVendorLedgerEntry);
         PopulateXmlPrerequisites(
           XMLDocOut, XMLNode, DocumentType::"Payment Sent", HeaderName, HeaderVATNo, false, UploadTypeGlb::Regular);
 
@@ -108,7 +109,7 @@ codeunit 10750 "SII XML Creator"
         XMLDOMManagement.AddElementWithPrefix(XMLNode, 'RegistroLRPagos', '', 'siiLR', SiiLRTxt, XMLNode);
         XMLDOMManagement.AddElementWithPrefix(XMLNode, 'IDFactura', '', 'siiLR', SiiLRTxt, XMLNode);
         XMLDOMManagement.AddElementWithPrefix(XMLNode, 'IDEmisorFactura', '', 'sii', SiiTxt, XMLNode);
-        SIIDocUploadState.GetSIIDocUploadStateByVendLedgEntry(PurchaseVendorLedgerEntry);
+
         FillThirdPartyId(
           XMLNode,
           Vendor."Country/Region Code",
@@ -328,7 +329,6 @@ codeunit 10750 "SII XML Creator"
         RootXMLNode: DotNet XmlNode;
         CurrentXMlNode: DotNet XmlNode;
         XMLNamespaceManager: DotNet XmlNamespaceManager;
-        CurrentSIIVersion: Option "1.1","1.0";
     begin
         if IsInitialized then begin
             XMLNode := LastXMLNode;
@@ -368,8 +368,7 @@ codeunit 10750 "SII XML Creator"
                 XMLDOMManagement.AddElementWithPrefix(CurrentXMlNode, 'SuministroLRCobrosMetalico', '', 'siiLR', SiiLRTxt, CurrentXMlNode);
         end;
         XMLDOMManagement.AddElementWithPrefix(CurrentXMlNode, 'Cabecera', '', 'sii', SiiTxt, CurrentXMlNode);
-        CurrentSIIVersion := GetSIIVersionNo;
-        XMLDOMManagement.AddElementWithPrefix(CurrentXMlNode, 'IDVersionSii', Format(CurrentSIIVersion), 'sii', SiiTxt, XMLNode); // API version
+        XMLDOMManagement.AddElementWithPrefix(CurrentXMlNode, 'IDVersionSii', CopyStr(Format(SIIVersion), 1, 3), 'sii', SiiTxt, XMLNode); // API version
         XMLDOMManagement.AddElementWithPrefix(CurrentXMlNode, 'Titular', '', 'sii', SiiTxt, CurrentXMlNode);
         FillCompanyInfo(CurrentXMlNode, Name, VATRegistrationNo);
         XMLDOMManagement.FindNode(CurrentXMlNode, '..', CurrentXMlNode);
@@ -430,8 +429,9 @@ codeunit 10750 "SII XML Creator"
                 XMLDOMManagement.AddElementWithPrefix(
                   XMLNode, 'TipoFactura', InvoiceType, 'sii', SiiTxt, TempXMLNode);
 
-            GenerateNodeForFechaOperacionSales(XMLNode, CustLedgerEntry);
-            RegimeCode := GenerateClaveRegimenNodeSales(XMLNode, SIIDocUploadState, CustLedgerEntry, Customer);
+            RegimeCode := GetClaveRegimenNodeSales(SIIDocUploadState, CustLedgerEntry, Customer);
+            GenerateNodeForFechaOperacionSales(XMLNode, CustLedgerEntry, RegimeCode);
+            GenerateClaveRegimenNode(XMLNode, RegimeCode);
 
             // 0) We may have both Services and Goods parts in the same document
             // 1) Build node for Services
@@ -445,7 +445,8 @@ codeunit 10750 "SII XML Creator"
               NonExemptTransactionType[2], ExemptExists[2], CustLedgerEntry, false, DomesticCustomer);
 
             AddNodeForTotals :=
-              ((InvoiceType in ['F2', 'F4']) and
+              IncludeImporteTotalNode() and
+              ((InvoiceType in [GetF2InvoiceType(), 'F4']) and
                (TempServVATEntryCalcNonExempt.Count + TempGoodsVATEntryCalcNonExempt.Count = 1)) or
               (SIIDocUploadState."Sales Special Scheme Code" in [SIIDocUploadState."Sales Special Scheme Code"::"03 Special System",
                                                                  SIIDocUploadState."Sales Special Scheme Code"::"05 Travel Agencies"]);
@@ -500,6 +501,7 @@ codeunit 10750 "SII XML Creator"
         TempXMLNode: DotNet XmlNode;
         VendorLedgerEntryRecRef: RecordRef;
         AddNodeForTotals: Boolean;
+        ECVATEntryExists: Boolean;
         CuotaDeducibleValue: Decimal;
         TotalBase: Decimal;
         TotalNonExemptBase: Decimal;
@@ -532,18 +534,21 @@ codeunit 10750 "SII XML Creator"
                   XMLNode, 'TipoFactura', InvoiceType, 'sii', SiiTxt, TempXMLNode);
 
             GenerateNodeForFechaOperacionPurch(XMLNode, VendorLedgerEntry);
-            RegimeCode := GenerateClaveRegimenNodePurchases(XMLNode, SIIDocUploadState, VendorLedgerEntry, Vendor);
+            RegimeCode := GetClaveRegimenNodePurchases(SIIDocUploadState, VendorLedgerEntry, Vendor);
+            GenerateClaveRegimenNode(XMLNode, RegimeCode);
             if SIIManagement.FindVatEntriesFromLedger(VendorLedgerEntryRecRef, VATEntry) then begin
                 repeat
                     CalculatePurchVATEntries(
                       TempVATEntryNormalCalculated, TempVATEntryReverseChargeCalculated,
                       CuotaDeducibleValue, VATEntry,
                       VendNo, VendorLedgerEntry."Posting Date");
-                until VATEntry.Next = 0;
+                    ECVATEntryExists := ECVATEntryExists or (VATEntry."EC %" <> 0);
+                until VATEntry.Next() = 0;
             end;
 
             AddNodeForTotals :=
-              ((InvoiceType in ['F2', 'F4']) and
+              IncludeImporteTotalNode() and
+              ((InvoiceType in [GetF2InvoiceType(), 'F4']) and
                (TempVATEntryNormalCalculated.Count + TempVATEntryReverseChargeCalculated.Count = 1)) or
               (SIIDocUploadState."Purch. Special Scheme Code" in [SIIDocUploadState."Purch. Special Scheme Code"::"03 Special System",
                                                                   SIIDocUploadState."Purch. Special Scheme Code"::"05 Travel Agencies"]);
@@ -572,7 +577,7 @@ codeunit 10750 "SII XML Creator"
 
             AddPurchTail(
               XMLNode, VendorLedgerEntry."Posting Date", GetRequestDateOfSIIHistoryByVendLedgEntry(VendorLedgerEntry),
-              VendNo, CuotaDeducibleValue, SIIDocUploadState.IDType, RegimeCode);
+              VendNo, CuotaDeducibleValue, SIIDocUploadState.IDType, RegimeCode, ECVATEntryExists, InvoiceType);
 
             exit(true);
         end;
@@ -732,7 +737,7 @@ codeunit 10750 "SII XML Creator"
         XMLDOMManagement.FindNode(XMLNode, '..', XMLNode);
     end;
 
-    local procedure AddPurchTail(var XMLNode: DotNet XmlNode; PostingDate: Date; RequestDate: Date; BuyFromVendorNo: Code[20]; CuotaDeducibleValue: Decimal; IDType: Integer; RegimeCode: Code[2])
+    local procedure AddPurchTail(var XMLNode: DotNet XmlNode; PostingDate: Date; RequestDate: Date; BuyFromVendorNo: Code[20]; CuotaDeducibleValue: Decimal; IDType: Integer; RegimeCode: Code[2]; ECVATEntryExists: Boolean; InvoiceType: Text)
     var
         Vendor: Record Vendor;
         TempXMLNode: DotNet XmlNode;
@@ -745,7 +750,8 @@ codeunit 10750 "SII XML Creator"
 
         FillFechaRegContable(XMLNode, PostingDate, RequestDate);
         XMLDOMManagement.AddElementWithPrefix(
-          XMLNode, 'CuotaDeducible', FormatNumber(CalcCuotaDeducible(PostingDate, RegimeCode, CuotaDeducibleValue)),
+          XMLNode, 'CuotaDeducible',
+          FormatNumber(CalcCuotaDeducible(PostingDate, RegimeCode, IDType, ECVATEntryExists, InvoiceType, CuotaDeducibleValue)),
           'sii', SiiTxt, TempXMLNode);
     end;
 
@@ -1173,10 +1179,12 @@ codeunit 10750 "SII XML Creator"
         DomesticCustomer := SIIManagement.IsDomesticCustomer(Customer);
         XMLDOMManagement.AddElementWithPrefix(XMLNode, 'TipoRectificativa', 'I', 'sii', SiiTxt, TempXMLNode);
         GenerateFacturasRectificadasNode(XMLNode, OldCustLedgerEntry."Document No.", OldCustLedgerEntry."Posting Date");
-        RegimeCode := GenerateClaveRegimenNodeSales(XMLNode, SIIDocUploadState, CustLedgerEntry, Customer);
+        RegimeCode := GetClaveRegimenNodeSales(SIIDocUploadState, CustLedgerEntry, Customer);
+        GenerateClaveRegimenNode(XMLNode, RegimeCode);
 
         TotalAmount := -TotalBase - TotalVATAmount;
-        XMLDOMManagement.AddElementWithPrefix(XMLNode, 'ImporteTotal', FormatNumber(TotalAmount), 'sii', SiiTxt, TempXMLNode);
+        if IncludeImporteTotalNode then
+            XMLDOMManagement.AddElementWithPrefix(XMLNode, 'ImporteTotal', FormatNumber(TotalAmount), 'sii', SiiTxt, TempXMLNode);
         FillBaseImponibleACosteNode(XMLNode, RegimeCode, -TotalNonExemptBase);
         FillOperationDescription(
           XMLNode, GetOperationDescriptionFromDocument(true, CustLedgerEntry."Document No."),
@@ -1301,6 +1309,8 @@ codeunit 10750 "SII XML Creator"
         CuotaDeducibleDecValue: Decimal;
         TotalAmount: Decimal;
         RegimeCode: Code[2];
+        ECVATEntryExists: Boolean;
+        InvoiceType: Text;
     begin
         XMLDOMManagement.AddElementWithPrefix(
           XMLNode, 'NumSerieFacturaEmisor', Format(VendorLedgerEntry."External Document No."), 'sii', SiiTxt, TempXMLNode);
@@ -1330,12 +1340,14 @@ codeunit 10750 "SII XML Creator"
           XMLNode, 'CuotaRectificada', FormatNumber(Abs(OldTotalVATAmount)), 'sii', SiiTxt, TempXMLNode);
         XMLDOMManagement.FindNode(XMLNode, '..', XMLNode);
 
-        RegimeCode := GenerateClaveRegimenNodePurchases(XMLNode, SIIDocUploadState, VendorLedgerEntry, Vendor);
+        RegimeCode := GetClaveRegimenNodePurchases(SIIDocUploadState, VendorLedgerEntry, Vendor);
+        GenerateClaveRegimenNode(XMLNode, RegimeCode);
 
         TotalAmount := OldTotalBase + OldTotalVATAmount + TotalBase + TotalVATAmount;
-        XMLDOMManagement.AddElementWithPrefix(
-          XMLNode, 'ImporteTotal', FormatNumber(TotalAmount), 'sii', SiiTxt,
-          TempXMLNode);
+        if IncludeImporteTotalNode then
+            XMLDOMManagement.AddElementWithPrefix(
+              XMLNode, 'ImporteTotal', FormatNumber(TotalAmount), 'sii', SiiTxt,
+              TempXMLNode);
         FillBaseImponibleACosteNode(XMLNode, RegimeCode, OldTotalNonExemptBase + TotalNonExemptBase);
         FillOperationDescription(
           XMLNode, GetOperationDescriptionFromDocument(false, VendorLedgerEntry."Document No."),
@@ -1373,7 +1385,8 @@ codeunit 10750 "SII XML Creator"
 
                 GenerateRecargoEquivalenciaNodes(XMLNode, ECPercentDiff, ECAmountDiff);
                 XMLDOMManagement.FindNode(XMLNode, '..', XMLNode);
-            until TempVATEntryPerPercent.Next = 0;
+                ECVATEntryExists := ECVATEntryExists or (ECPercentDiff <> 0);
+            until TempVATEntryPerPercent.Next() = 0;
             XMLDOMManagement.FindNode(XMLNode, '..', XMLNode);
         end;
         XMLDOMManagement.FindNode(XMLNode, '..', XMLNode);
@@ -1386,7 +1399,10 @@ codeunit 10750 "SII XML Creator"
         if CuotaDeducibleDecValue = 0 then
             XMLDOMManagement.AddElementWithPrefix(XMLNode, 'CuotaDeducible', FormatNumber(0), 'sii', SiiTxt, TempXMLNode)
         else begin
-            CuotaDeducibleDecValue := CalcCuotaDeducible(VendorLedgerEntry."Posting Date", RegimeCode, CuotaDeducibleDecValue);
+            IsPurchInvoice(InvoiceType, SIIDocUploadState);
+            CuotaDeducibleDecValue :=
+              CalcCuotaDeducible(
+                VendorLedgerEntry."Posting Date", RegimeCode, SIIDocUploadState.IDType, ECVATEntryExists, InvoiceType, CuotaDeducibleDecValue);
             XMLDOMManagement.AddElementWithPrefix(
               XMLNode, 'CuotaDeducible', FormatNumber(CuotaDeducibleDecValue), 'sii', SiiTxt, TempXMLNode);
         end;
@@ -1400,10 +1416,12 @@ codeunit 10750 "SII XML Creator"
         TempXMLNode: DotNet XmlNode;
         VendorLedgerEntryRecRef: RecordRef;
         VATEntriesFound: Boolean;
+        ECVATEntryExists: Boolean;
         CuotaDeducibleDecValue: Decimal;
         TotalAmount: Decimal;
         RegimeCode: Code[2];
         VendNo: Code[20];
+        InvoiceType: Text;
     begin
         XMLDOMManagement.AddElementWithPrefix(
           XMLNode, 'NumSerieFacturaEmisor', Format(VendorLedgerEntry."External Document No."), 'sii', SiiTxt, TempXMLNode);
@@ -1420,15 +1438,17 @@ codeunit 10750 "SII XML Creator"
         XMLDOMManagement.AddElementWithPrefix(XMLNode, 'TipoRectificativa', 'I', 'sii', SiiTxt, TempXMLNode);
         GenerateFacturasRectificadasNode(XMLNode, OldVendorLedgerEntry."External Document No.", OldVendorLedgerEntry."Posting Date");
         SIIDocUploadState.GetSIIDocUploadStateByVendLedgEntry(VendorLedgerEntry);
-        RegimeCode := GenerateClaveRegimenNodePurchases(XMLNode, SIIDocUploadState, VendorLedgerEntry, Vendor);
+        RegimeCode := GetClaveRegimenNodePurchases(SIIDocUploadState, VendorLedgerEntry, Vendor);
+        GenerateClaveRegimenNode(XMLNode, RegimeCode);
         VendNo := SIIManagement.GetVendFromLedgEntryByGLSetup(VendorLedgerEntry);
 
         if not TempVATEntryNormalCalculated.IsEmpty then
             TotalBase -= Abs(TempVATEntryNormalCalculated.Base);
         TotalAmount := TotalBase + TotalVATAmount;
         FillNoTaxableVATEntriesPurch(TempVATEntryNormalCalculated, VendorLedgerEntry);
-        XMLDOMManagement.AddElementWithPrefix(
-          XMLNode, 'ImporteTotal', FormatNumber(TotalAmount), 'sii', SiiTxt, TempXMLNode);
+        if IncludeImporteTotalNode then
+            XMLDOMManagement.AddElementWithPrefix(
+              XMLNode, 'ImporteTotal', FormatNumber(TotalAmount), 'sii', SiiTxt, TempXMLNode);
         FillBaseImponibleACosteNode(XMLNode, RegimeCode, TotalNonExemptBase);
         FillOperationDescription(
           XMLNode, GetOperationDescriptionFromDocument(false, VendorLedgerEntry."Document No."),
@@ -1447,15 +1467,17 @@ codeunit 10750 "SII XML Creator"
                     CalculatePurchVATEntries(
                       TempVATEntryNormalCalculated, TempVATEntryReverseChargeCalculated, CuotaDeducibleDecValue,
                       VATEntry, VendNo, VendorLedgerEntry."Posting Date");
-                until VATEntry.Next = 0;
+                    ECVATEntryExists := ECVATEntryExists or (VATEntry."EC %" <> 0);
+                until VATEntry.Next() = 0;
             AddPurchVATEntriesWithElement(
               XMLNode, TempVATEntryReverseChargeCalculated, 'InversionSujetoPasivo', RegimeCode);
             AddPurchVATEntriesWithElement(
               XMLNode, TempVATEntryNormalCalculated, 'DesgloseIVA', RegimeCode);
             XMLDOMManagement.FindNode(XMLNode, '..', XMLNode);
+            IsPurchInvoice(InvoiceType, SIIDocUploadState);
             AddPurchTail(
               XMLNode, VendorLedgerEntry."Posting Date", GetRequestDateOfSIIHistoryByVendLedgEntry(VendorLedgerEntry),
-              VendNo, CuotaDeducibleDecValue, SIIDocUploadState.IDType, RegimeCode);
+              VendNo, CuotaDeducibleDecValue, SIIDocUploadState.IDType, RegimeCode, ECVATEntryExists, InvoiceType);
         end;
         XMLDOMManagement.FindNode(XMLNode, '../..', XMLNode);
     end;
@@ -1508,12 +1530,14 @@ codeunit 10750 "SII XML Creator"
           XMLNode, 'CuotaRectificada', FormatNumber(Abs(OldTotalVATAmount)), 'sii', SiiTxt, TempXMLNode);
         XMLDOMManagement.FindNode(XMLNode, '..', XMLNode);
 
-        RegimeCode := GenerateClaveRegimenNodeSales(XMLNode, SIIDocUploadState, CustLedgerEntry, Customer);
+        RegimeCode := GetClaveRegimenNodeSales(SIIDocUploadState, CustLedgerEntry, Customer);
+        GenerateClaveRegimenNode(XMLNode, RegimeCode);
 
         TotalAmount := Abs(OldTotalBase + OldTotalVATAmount) - Abs(TotalBase + TotalVATAmount);
-        XMLDOMManagement.AddElementWithPrefix(
-          XMLNode, 'ImporteTotal', FormatNumber(TotalAmount), 'sii', SiiTxt,
-          TempXMLNode);
+        if IncludeImporteTotalNode then
+            XMLDOMManagement.AddElementWithPrefix(
+              XMLNode, 'ImporteTotal', FormatNumber(TotalAmount), 'sii', SiiTxt,
+              TempXMLNode);
 
         FillBaseImponibleACosteNode(XMLNode, RegimeCode, Abs(OldTotalNonExemptBase) - Abs(TotalNonExemptBase));
         FillOperationDescription(
@@ -1631,59 +1655,49 @@ codeunit 10750 "SII XML Creator"
         XMLDOMManagement.FindNode(XMLNode, '..', XMLNode);
     end;
 
-    local procedure GenerateClaveRegimenNodeSales(var XMLNode: DotNet XmlNode; SIIDocUploadState: Record "SII Doc. Upload State"; CustLedgerEntry: Record "Cust. Ledger Entry"; Customer: Record Customer) RegimeCode: Code[2]
+    local procedure GetClaveRegimenNodeSales(SIIDocUploadState: Record "SII Doc. Upload State"; CustLedgerEntry: Record "Cust. Ledger Entry"; Customer: Record Customer): Code[2]
     var
         SIIInitialDocUpload: Codeunit "SII Initial Doc. Upload";
-        TempXMLNode: DotNet XmlNode;
         CustLedgerEntryRecRef: RecordRef;
     begin
         if SIIInitialDocUpload.DateWithinInitialUploadPeriod(CustLedgerEntry."Posting Date") then
-            RegimeCode := '16'
-        else begin
-            DataTypeManagement.GetRecordRef(CustLedgerEntry, CustLedgerEntryRecRef);
-            if SIIManagement.IsLedgerCashFlowBased(CustLedgerEntryRecRef) then
-                RegimeCode := '07'
-            else
-                if SIIDocUploadState."Sales Special Scheme Code" <> 0 then
-                    RegimeCode := CopyStr(Format(SIIDocUploadState."Sales Special Scheme Code"), 1, 2)
-                else
-                    if SIIManagement.CountryIsLocal(Customer."Country/Region Code") then
-                        RegimeCode := '01'
-                    else
-                        RegimeCode := '02';
-        end;
-        if RegimeCode <> '' then
-            XMLDOMManagement.AddElementWithPrefix(XMLNode, 'ClaveRegimenEspecialOTrascendencia', RegimeCode, 'sii', SiiTxt, TempXMLNode);
-        exit(RegimeCode);
+            exit('16');
+        DataTypeManagement.GetRecordRef(CustLedgerEntry, CustLedgerEntryRecRef);
+        if SIIManagement.IsLedgerCashFlowBased(CustLedgerEntryRecRef) then
+            exit('07');
+        if SIIDocUploadState."Sales Special Scheme Code" <> 0 then
+            exit(CopyStr(Format(SIIDocUploadState."Sales Special Scheme Code"), 1, 2));
+        if SIIManagement.CountryIsLocal(Customer."Country/Region Code") then
+            exit('01');
+        exit('02');
     end;
 
-    local procedure GenerateClaveRegimenNodePurchases(var XMLNode: DotNet XmlNode; SIIDocUploadState: Record "SII Doc. Upload State"; VendorLedgerEntry: Record "Vendor Ledger Entry"; Vendor: Record Vendor) RegimeCode: Code[2]
+    local procedure GetClaveRegimenNodePurchases(SIIDocUploadState: Record "SII Doc. Upload State"; VendorLedgerEntry: Record "Vendor Ledger Entry"; Vendor: Record Vendor): Code[2]
     var
         SIIInitialDocUpload: Codeunit "SII Initial Doc. Upload";
-        TempXMLNode: DotNet XmlNode;
         VendorLedgerEntryRecRef: RecordRef;
     begin
         if SIIInitialDocUpload.DateWithinInitialUploadPeriod(VendorLedgerEntry."Posting Date") then
-            RegimeCode := '14'
-        else begin
-            DataTypeManagement.GetRecordRef(VendorLedgerEntry, VendorLedgerEntryRecRef);
-            if SIIManagement.IsLedgerCashFlowBased(VendorLedgerEntryRecRef) then
-                RegimeCode := '07'
-            else
-                if SIIDocUploadState."Purch. Special Scheme Code" <> 0 then
-                    RegimeCode := CopyStr(Format(SIIDocUploadState."Purch. Special Scheme Code"), 1, 2)
-                else
-                    if SIIManagement.VendorIsIntraCommunity(Vendor."No.") then
-                        RegimeCode := '09'
-                    else
-                        RegimeCode := '01';
-        end;
-        if RegimeCode <> '' then
-            XMLDOMManagement.AddElementWithPrefix(XMLNode, 'ClaveRegimenEspecialOTrascendencia', RegimeCode, 'sii', SiiTxt, TempXMLNode);
-        exit(RegimeCode);
+            exit('14');
+        DataTypeManagement.GetRecordRef(VendorLedgerEntry, VendorLedgerEntryRecRef);
+        if SIIManagement.IsLedgerCashFlowBased(VendorLedgerEntryRecRef) then
+            exit('07');
+        if SIIDocUploadState."Purch. Special Scheme Code" <> 0 then
+            exit(CopyStr(Format(SIIDocUploadState."Purch. Special Scheme Code"), 1, 2));
+        if SIIManagement.VendorIsIntraCommunity(Vendor."No.") then
+            exit('09');
+        exit('01');
     end;
 
-    local procedure GenerateNodeForFechaOperacionSales(var XMLNode: DotNet XmlNode; CustLedgerEntry: Record "Cust. Ledger Entry")
+    local procedure GenerateClaveRegimenNode(var XMLNode: DotNet XmlNode; RegimeCode: Code[2])
+    var
+        TempXMLNode: DotNet XmlNode;
+    begin
+        if RegimeCode <> '' then
+            XMLDOMManagement.AddElementWithPrefix(XMLNode, 'ClaveRegimenEspecialOTrascendencia', RegimeCode, 'sii', SiiTxt, TempXMLNode);
+    end;
+
+    local procedure GenerateNodeForFechaOperacionSales(var XMLNode: DotNet XmlNode; CustLedgerEntry: Record "Cust. Ledger Entry"; RegimeCode: Code[2])
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
         SalesInvoiceLine: Record "Sales Invoice Line";
@@ -1698,7 +1712,7 @@ codeunit 10750 "SII XML Creator"
                         if SalesInvoiceLine."Shipment Date" > LastShipDate then
                             LastShipDate := SalesInvoiceLine."Shipment Date";
                     until SalesInvoiceLine.Next = 0;
-                FillFechaOperacion(XMLNode, LastShipDate, SalesInvoiceHeader."Posting Date");
+                FillFechaOperacion(XMLNode, LastShipDate, SalesInvoiceHeader."Posting Date", true, RegimeCode);
             end;
     end;
 
@@ -1719,7 +1733,7 @@ codeunit 10750 "SII XML Creator"
                                 if PurchRcptLine."Posting Date" > LastRcptDate then
                                     LastRcptDate := PurchRcptLine."Posting Date"
                     until PurchInvLine.Next = 0;
-                FillFechaOperacion(XMLNode, LastRcptDate, PurchInvHeader."Posting Date");
+                FillFechaOperacion(XMLNode, LastRcptDate, PurchInvHeader."Posting Date", false, '');
             end;
     end;
 
@@ -1853,14 +1867,6 @@ codeunit 10750 "SII XML Creator"
         SIIVersion := NewSIIVersion;
     end;
 
-    [Scope('OnPrem')]
-    procedure GetSIIVersionNo(): Integer
-    begin
-        if SIIVersion = 0 then
-            exit(SIIVersion::"1.1");
-        exit(SIIVersion);
-    end;
-
     local procedure IsREAGYPSpecialSchemeCode(VATEntry: Record "VAT Entry"; RegimeCode: Code[2]): Boolean
     begin
         exit((VATEntry.Type = VATEntry.Type::Purchase) and (RegimeCode = '02'));
@@ -1989,10 +1995,19 @@ codeunit 10750 "SII XML Creator"
         exit(Amount);
     end;
 
-    local procedure CalcCuotaDeducible(PostingDate: Date; RegimeCode: Code[2]; Amount: Decimal): Decimal
+    local procedure CalcCuotaDeducible(PostingDate: Date; RegimeCode: Code[2]; IDType: Integer; ECVATEntryExists: Boolean; InvoiceType: Text; Amount: Decimal): Decimal
     var
+        SIIDocUploadState: Record "SII Doc. Upload State";
         SIIInitialDocUpload: Codeunit "SII Initial Doc. Upload";
     begin
+        if IncludeChangesVersion11bis() then
+            if ECVATEntryExists or
+               (IDType in [SIIDocUploadState.IDType::"03-Passport", SIIDocUploadState.IDType::"04-ID Document",
+                           SIIDocUploadState.IDType::"05-Certificate Of Residence",
+                           SIIDocUploadState.IDType::"06-Other Probative Document"]) or
+               (InvoiceType = GetF2InvoiceType())
+            then
+                exit(0);
         if SIIInitialDocUpload.DateWithinInitialUploadPeriod(PostingDate) or (RegimeCode = '13') then
             exit(0);
         exit(Amount);
@@ -2266,7 +2281,7 @@ codeunit 10750 "SII XML Creator"
           XMLNode, 'FechaRegContable', FormatDate(NodePostingDate), 'sii', SiiTxt, TempXMLNode);
     end;
 
-    local procedure FillFechaOperacion(var XMLNode: DotNet XmlNode; LastShptRcptDate: Date; PostingDate: Date)
+    local procedure FillFechaOperacion(var XMLNode: DotNet XmlNode; LastShptRcptDate: Date; PostingDate: Date; IsSales: Boolean; RegimeCode: Code[2])
     var
         TempXMLNode: DotNet XmlNode;
     begin
@@ -2275,6 +2290,12 @@ codeunit 10750 "SII XML Creator"
 
         if LastShptRcptDate > WorkDate then
             LastShptRcptDate := PostingDate;
+        if IsSales then begin
+            if not IncludeFechaOperationForSales(PostingDate, LastShptRcptDate, RegimeCode) then
+                exit;
+            if IsShptDateMustBeAfterPostingDate(RegimeCode) then
+                LastShptRcptDate := PostingDate + 1;
+        end;
         XMLDOMManagement.AddElementWithPrefix(XMLNode, 'FechaOperacion', FormatDate(LastShptRcptDate), 'sii', SiiTxt, TempXMLNode);
     end;
 
@@ -2321,6 +2342,8 @@ codeunit 10750 "SII XML Creator"
 
     local procedure IncludeContraparteNodeBySalesInvType(InvoiceType: Text): Boolean
     begin
+        if IncludeChangesVersion11bis() then
+            exit(InvoiceType in ['F1', 'F3']);
         exit(InvoiceType in ['F1', 'F3', 'F4']);
     end;
 
@@ -2335,11 +2358,46 @@ codeunit 10750 "SII XML Creator"
                          SIIDocUploadState."Sales Cr. Memo Type"::"R4 Corrected Invoice (Other)"]);
     end;
 
+    local procedure IncludeFechaOperationForSales(PostingDate: Date; LastShptRcptDate: Date; RegimeCode: Code[2]): Boolean
+    begin
+        if not IncludeChangesVersion11bis() then
+            exit(true);
+        if RegimeCode in ['14', '15'] then
+            exit(true);
+        exit(PostingDate >= LastShptRcptDate);
+    end;
+
+    local procedure IsShptDateMustBeAfterPostingDate(RegimeCode: Code[2]): Boolean
+    begin
+        if not IncludeChangesVersion11bis() then
+            exit(false);
+        exit(RegimeCode = '14');
+    end;
+
     local procedure IncludeChangesVersion11(): Boolean
     var
         SIIDocUploadState: Record "SII Doc. Upload State";
     begin
-        exit(GetSIIVersionNo < SIIDocUploadState."Version No."::"1.0");
+        exit((SIIVersion = SIIDocUploadState."Version No."::"1.1") or IncludeChangesVersion11bis());
+    end;
+
+    local procedure IncludeChangesVersion11bis(): Boolean
+    var
+        SIIDocUploadState: Record "SII Doc. Upload State";
+    begin
+        exit(SIIVersion >= SIIDocUploadState."Version No."::"2.1");
+    end;
+
+    local procedure IncludeImporteTotalNode(): Boolean
+    begin
+        if not IncludeChangesVersion11bis() then
+            exit(true);
+        exit(SIISetup."Include ImporteTotal");
+    end;
+
+    local procedure GetF2InvoiceType(): Text[2]
+    begin
+        exit('F2');
     end;
 
     [Scope('OnPrem')]

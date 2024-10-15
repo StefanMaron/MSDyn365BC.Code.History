@@ -101,14 +101,15 @@ page 10767 "Posted Purch. Cr.Memo - Update"
         xPurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
         OperationDescription: Text[500];
 
-    local procedure RecordChanged(): Boolean
+    local procedure RecordChanged() IsChanged: Boolean
     begin
-        exit(
-          ("Operation Description" <> xPurchCrMemoHdr."Operation Description") or
+        IsChanged := 
+          (("Operation Description" <> xPurchCrMemoHdr."Operation Description") or
           ("Operation Description 2" <> xPurchCrMemoHdr."Operation Description 2") or
           ("Special Scheme Code" <> xPurchCrMemoHdr."Special Scheme Code") or
           ("Cr. Memo Type" <> xPurchCrMemoHdr."Cr. Memo Type") or
           ("Correction Type" <> xPurchCrMemoHdr."Correction Type"));
+        OnAfterRecordChanged(Rec, xPurchCrMemoHdr, IsChanged);
     end;
 
     [Scope('OnPrem')]
@@ -116,6 +117,11 @@ page 10767 "Posted Purch. Cr.Memo - Update"
     begin
         Rec := PurchCrMemoHdr;
         Insert;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterRecordChanged(var PurchCrMemoHeader: Record "Purch. Cr. Memo Hdr."; xPurchCrMemoHeader: Record "Purch. Cr. Memo Hdr."; var IsChanged: Boolean)
+    begin
     end;
 }
 

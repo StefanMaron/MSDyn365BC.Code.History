@@ -621,6 +621,7 @@ table 254 "VAT Entry"
             "VAT %" := VATPostingSetup."VAT %";
             "EC %" := VATPostingSetup."EC %";
         end;
+        OnAfterUpdateRates(Rec, VATPostingSetup);
     end;
 
     procedure SetBillDoc(NewIsBillDoc: Boolean)
@@ -705,6 +706,8 @@ table 254 "VAT Entry"
         "Realized Base" := Sign * "Realized Base";
         "Add.-Curr. Realized Amount" := Sign * "Add.-Curr. Realized Amount";
         "Add.-Curr. Realized Base" := Sign * "Add.-Curr. Realized Base";
+
+        OnAfterCopyAmountsFromVATEntry(VATEntry, WithOppositeSign);
     end;
 
     procedure SetUnrealAmountsToZero()
@@ -799,6 +802,16 @@ table 254 "VAT Entry"
     [IntegrationEvent(false, false)]
     [Scope('OnPrem')]
     procedure OnAfterCopyFromGenJnlLine(var VATEntry: Record "VAT Entry"; GenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    procedure OnAfterCopyAmountsFromVATEntry(var VATEntry: Record "VAT Entry"; WithOppositeSign: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateRates(var VATEntry: Record "VAT Entry"; VATPostingSetup: Record "VAT Posting Setup")
     begin
     end;
 }
