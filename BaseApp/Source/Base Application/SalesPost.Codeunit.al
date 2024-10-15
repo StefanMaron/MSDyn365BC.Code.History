@@ -5561,7 +5561,10 @@
             SalesInvHeader."Source Code" := SrcCode;
             SalesInvHeader."User ID" := UserId;
             SalesInvHeader."No. Printed" := 0;
-            SalesInvHeader."Draft Invoice SystemId" := SalesHeader.SystemId;
+
+            if SalesHeader."Document Type" = SalesHeader."Document Type"::Invoice then
+                SalesInvHeader."Draft Invoice SystemId" := SalesHeader.SystemId;
+                
             SetPaymentInstructions(SalesHeader);
             OnBeforeSalesInvHeaderInsert(SalesInvHeader, SalesHeader, SuppressCommit);
             SalesInvHeader.Insert(true);
