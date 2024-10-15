@@ -37,6 +37,7 @@ codeunit 396 NoSeriesManagement
                   Text001,
                   NoSeries.FieldCaption("Manual Nos."), NoSeries.TableCaption, NoSeries.Code);
         end;
+        OnAfterTestManual(DefaultNoSeriesCode);
     end;
 
     procedure ManualNoAllowed(DefaultNoSeriesCode: Code[20]): Boolean
@@ -515,6 +516,11 @@ codeunit 396 NoSeriesManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSaveNoSeries(var NoSeriesLine: Record "No. Series Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterTestManual(DefaultNoSeriesCode: Code[20])
     begin
     end;
 

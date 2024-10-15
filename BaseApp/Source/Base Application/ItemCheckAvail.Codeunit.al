@@ -1,4 +1,4 @@
-codeunit 311 "Item-Check Avail."
+﻿codeunit 311 "Item-Check Avail."
 {
     Permissions = TableData "My Notifications" = rimd;
 
@@ -330,9 +330,10 @@ codeunit 311 "Item-Check Avail."
         exit(Round(Qty * QtyPerUnitOfMeasure, UOMMgt.QtyRndPrecision));
     end;
 
-    procedure TransferLineShowWarning(TransLine: Record "Transfer Line"): Boolean
+    procedure TransferLineShowWarning(TransLine: Record "Transfer Line") IsWarning: Boolean
     var
         OldTransLine: Record "Transfer Line";
+        IsHandled: Boolean;
     begin
         if not ShowWarningForThisItem(TransLine."Item No.") then
             exit(false);
@@ -350,6 +351,11 @@ codeunit 311 "Item-Check Avail."
                 OldItemNetResChange := -OldTransLine."Reserved Qty. Outbnd. (Base)";
             end;
 
+        IsHandled := false;
+        OnTransferLineShowWarningOnBeforeShowWarning(TransLine, ContextInfo, OldTransLine, OldItemNetChange, IsWarning, IsHandled);
+        if IsHandled then
+            exit(IsWarning);
+
         exit(
           ShowWarning(
             TransLine."Item No.",
@@ -363,9 +369,10 @@ codeunit 311 "Item-Check Avail."
             OldTransLine."Shipment Date"));
     end;
 
-    procedure ServiceInvLineShowWarning(ServLine: Record "Service Line"): Boolean
+    procedure ServiceInvLineShowWarning(ServLine: Record "Service Line") IsWarning: Boolean
     var
         OldServLine: Record "Service Line";
+        IsHandled: Boolean;
     begin
         if not ShowWarningForThisItem(ServLine."No.") then
             exit(false);
@@ -387,6 +394,11 @@ codeunit 311 "Item-Check Avail."
             end;
 
         UseOrderPromise := true;
+        IsHandled := false;
+        OnServiceInvLineShowWarningOnBeforeShowWarning(ServLine, ContextInfo, OldServLine, OldItemNetChange, IsWarning, IsHandled);
+        if IsHandled then
+            exit(IsWarning);
+
         exit(
           ShowWarning(
             ServLine."No.",
@@ -400,9 +412,10 @@ codeunit 311 "Item-Check Avail."
             OldServLine."Needed by Date"));
     end;
 
-    procedure JobPlanningLineShowWarning(JobPlanningLine: Record "Job Planning Line"): Boolean
+    procedure JobPlanningLineShowWarning(JobPlanningLine: Record "Job Planning Line") IsWarning: Boolean
     var
         OldJobPlanningLine: Record "Job Planning Line";
+        IsHandled: Boolean;
     begin
         if not ShowWarningForThisItem(JobPlanningLine."No.") then
             exit(false);
@@ -424,6 +437,11 @@ codeunit 311 "Item-Check Avail."
             end;
 
         UseOrderPromise := true;
+        IsHandled := false;
+        OnJobPlanningLineShowWarningOnBeforeShowWarning(JobPlanningLine, ContextInfo, OldJobPlanningLine, OldItemNetChange, IsWarning, IsHandled);
+        if IsHandled then
+            exit(IsWarning);
+
         exit(
           ShowWarning(
             JobPlanningLine."No.",
@@ -437,9 +455,10 @@ codeunit 311 "Item-Check Avail."
             OldJobPlanningLine."Planning Date"));
     end;
 
-    procedure AsmOrderLineShowWarning(AssemblyLine: Record "Assembly Line"): Boolean
+    procedure AsmOrderLineShowWarning(AssemblyLine: Record "Assembly Line") IsWarning: Boolean
     var
         OldAssemblyLine: Record "Assembly Line";
+        IsHandled: Boolean;
     begin
         if not ShowWarningForThisItem(AssemblyLine."No.") then
             exit(false);
@@ -467,6 +486,11 @@ codeunit 311 "Item-Check Avail."
                 end;
 
         UseOrderPromise := true;
+        IsHandled := false;
+        OnAsmOrderLineShowWarningOnBeforeShowWarning(AssemblyLine, ContextInfo, OldAssemblyLine, OldItemNetChange, IsWarning, IsHandled);
+        if IsHandled then
+            exit(IsWarning);
+
         exit(
           ShowWarning(
             AssemblyLine."No.",
@@ -649,9 +673,10 @@ codeunit 311 "Item-Check Avail."
             Rollback := ShowAndHandleAvailabilityPage(InvtDocLine.RecordId);
     end;
 
-    procedure ItemDocLineShowWarning(InvtDocLine: Record "Invt. Document Line"): Boolean
+    procedure ItemDocLineShowWarning(InvtDocLine: Record "Invt. Document Line") IsWarning: Boolean
     var
         SalesSetup: Record "Sales & Receivables Setup";
+        IsHandled: Boolean;
     begin
         SalesSetup.Get();
         if not SalesSetup."Stockout Warning" then
@@ -662,6 +687,12 @@ codeunit 311 "Item-Check Avail."
             InvtDocLine."Document Type"::Shipment:
                 ItemNetChange := -InvtDocLine.Quantity;
         end;
+
+        IsHandled := false;
+        OnItemDocLineShowWarningOnBeforeShowWarning(InvtDocLine, ContextInfo, OldItemNetChange, IsWarning, IsHandled);
+        if IsHandled then
+            exit(IsWarning);
+
         exit(
           ShowWarning(
             InvtDocLine."Item No.",
@@ -753,7 +784,32 @@ codeunit 311 "Item-Check Avail."
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAsmOrderLineShowWarningOnBeforeShowWarning(AssemblyLine: Record "Assembly Line"; var ContextInfo: Dictionary of [Text, Text]; OldAssemblyLine: Record "Assembly Line"; var OldItemNetChange: Decimal; var IsWarning: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnItemDocLineShowWarningOnBeforeShowWarning(InvtDocLine: Record "Invt. Document Line"; var ContextInfo: Dictionary of [Text, Text]; var OldItemNetChange: Decimal; var IsWarning: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnJobPlanningLineShowWarningOnBeforeShowWarning(JobPlanningLine: Record "Job Planning Line"; var ContextInfo: Dictionary of [Text, Text]; OldJobPlanningLine: Record "Job Planning Line"; var OldItemNetChange: Decimal; var IsWarning: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnSalesLineShowWarningOnBeforeShowWarning(SalesLine: Record "Sales Line"; var ContextInfo: Dictionary of [Text, Text]; OldSalesLine: Record "Sales Line"; var IsWarning: Boolean; var IsHandled: Boolean; var OldItemNetChange: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnServiceInvLineShowWarningOnBeforeShowWarning(ServLine: Record "Service Line"; var ContextInfo: Dictionary of [Text, Text]; OldServLine: Record "Service Line"; var OldItemNetChange: Decimal; var IsWarning: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransferLineShowWarningOnBeforeShowWarning(TransLine: Record "Transfer Line"; var ContextInfo: Dictionary of [Text, Text]; OldTransLine: Record "Transfer Line"; var OldItemNetChange: Decimal; var IsWarning: Boolean; var IsHandled: Boolean)
     begin
     end;
 

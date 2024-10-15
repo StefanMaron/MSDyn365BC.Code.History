@@ -6,7 +6,7 @@ codeunit 20366 "Tax Engine Assisted Setup"
         Info: ModuleInfo;
         SetupWizardTxt: Label 'Set up Tax Engine';
         TaxEngineNotificationMsg: Label 'You don''t have Tax Configurations due to which transactions will not calculate tax. but you can import it manually or from Assisted Setup.';
-        TaxConfigUpgradeMsg: Label 'We have upgraded tax confgiurations, this includes bug fix''s or regulatory changes. we reconmmend you to upgrade it now or else it will be imported when you create documents.';
+        TaxConfigUpgradeMsg: Label 'We have upgraded tax configurations; this includes bug fix''s or regulatory changes. we reconmmend you to upgrade it now or else it will be imported when you create documents.';
         UpgradeUseCasesNotificationMsg: Label 'We have upgraded some use cases which were modified by you. you can export these use cases and apply your changes manually.';
         UpgradeTaxTypesNotificationMsg: Label 'We have upgraded some Tax Types which were modified by you. you can export these Tax Types and apply your changes manually.';
         ImportItNowLbl: Label 'Import it now.';

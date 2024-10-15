@@ -21,6 +21,8 @@ codeunit 137906 "SCM Assembly Availability"
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryManufacturing: Codeunit "Library - Manufacturing";
         LibraryWarehouse: Codeunit "Library - Warehouse";
+        LibraryUtility: Codeunit "Library - Utility";
+        LibraryRandom: Codeunit "Library - Random";
         DummyAssemblyOrderTestPage: TestPage "Assembly Order";
         LastEntryNo: Integer;
         WorkDate2: Date;
@@ -511,6 +513,60 @@ codeunit 137906 "SCM Assembly Availability"
           1, AssemblyInfoPaneManagement.CalcAvailability(AssemblyLine[1]), 'Wrong available quantity for the assembly line.');
         Assert.AreEqual(
           0, AssemblyInfoPaneManagement.CalcAvailability(AssemblyLine[2]), 'Wrong available quantity for the assembly line.');
+    end;
+
+    [Test]
+    procedure AvailabilityOnAfterGetRecordAssemblyOrder()
+    var
+        AsmItem: Record Item;
+        CompItem: Record Item;
+        BOMComponent: Record "BOM Component";
+        AssemblyHeader: Record "Assembly Header";
+        AssemblyLine: Record "Assembly Line";
+        AssemblyOrder: TestPage "Assembly Order";
+        i: Integer;
+    begin
+        // [FEATURE] [Availability] [UT]
+        // [SCENARIO 421845] The availability warnings are updated on moving to next assembly order.
+        Initialize();
+
+        // [GIVEN] Assembly item with component.
+        LibraryInventory.CreateItem(AsmItem);
+        LibraryInventory.CreateItem(CompItem);
+        LibraryManufacturing.CreateBOMComponent(
+          BOMComponent, AsmItem."No.", BOMComponent.Type::Item, CompItem."No.", 1, CompItem."Base Unit of Measure");
+
+        // [GIVEN] Mock two assembly orders.
+        for i := 1 to 2 do begin
+            AssemblyHeader.Init();
+            AssemblyHeader."Document Type" := AssemblyHeader."Document Type"::Order;
+            AssemblyHeader."No." := LibraryUtility.GenerateGUID();
+            AssemblyHeader."Item No." := AsmItem."No.";
+            AssemblyHeader."Due Date" := WorkDate();
+            AssemblyHeader.Insert();
+
+            AssemblyLine.Init();
+            AssemblyLine."Document Type" := AssemblyHeader."Document Type";
+            AssemblyLine."Document No." := AssemblyHeader."No.";
+            AssemblyLine.Type := AssemblyLine.Type::Item;
+            AssemblyLine."No." := CompItem."No.";
+            AssemblyLine."Remaining Quantity" := LibraryRandom.RandInt(10);
+            AssemblyLine."Due Date" := WorkDate();
+            AssemblyLine.Insert();
+        end;
+
+        // [GIVEN] Open the first assembly order. Ensure that "Avail. Warning" flag for the component is "Yes".
+        AssemblyOrder.OpenEdit();
+        AssemblyOrder.FILTER.SetFilter("Item No.", AsmItem."No.");
+        AssemblyOrder.Lines."No.".AssertEquals(CompItem."No.");
+        AssemblyOrder.Lines."Avail. Warning".AssertEquals(true);
+
+        // [WHEN] Go to the next assembly order.
+        AssemblyOrder.Next();
+
+        // [THEN] "Avail. Warning" flag for the component is "Yes".
+        AssemblyOrder.Lines."No.".AssertEquals(CompItem."No.");
+        AssemblyOrder.Lines."Avail. Warning".AssertEquals(true);
     end;
 
     [Normal]

@@ -627,7 +627,7 @@ codeunit 131900 "Library - Marketing"
         Contact.Validate("Country/Region Code", CountryRegionCode);
         Contact.Validate("Post Code", LibraryUtility.GenerateGUID);
         Contact.Validate(City, LibraryUtility.GenerateGUID);
-        Contact.Validate("Phone No.", LibraryUtility.GenerateGUID);
+        Contact.Validate("Phone No.", LibraryUtility.GenerateRandomPhoneNo());
         Contact.Validate("Fax No.", LibraryUtility.GenerateGUID);
         Contact.Validate("E-Mail", LibraryUtility.GenerateGUID + '@' + LibraryUtility.GenerateGUID);
         Contact.Modify(true);

@@ -1,4 +1,4 @@
-table 5901 "Service Item Line"
+﻿table 5901 "Service Item Line"
 {
     Caption = 'Service Item Line';
     DrillDownPageID = "Service Item Lines";
@@ -1431,15 +1431,7 @@ table 5901 "Service Item Line"
                 Error(Text000, ServMgtSetup.TableCaption, ServItemLine.TableCaption, ServHeader.TableCaption);
 
         GetServHeader;
-        if ServHeader."Customer No." = '' then begin
-            if (ServHeader.Name <> '') and (ServHeader.Address <> '') and (ServHeader.City <> '') then
-                Error(
-                  Text001,
-                  TableCaption, ServHeader.FieldCaption("Customer No."), ServHeader.TableCaption, ServHeader."No.");
-            Error(
-              Text002,
-              TableCaption, ServHeader.FieldCaption("Customer No."), ServHeader.TableCaption, ServHeader."No.");
-        end;
+        CheckCustomerNo();
 
         "Responsibility Center" := ServHeader."Responsibility Center";
         "Customer No." := ServHeader."Customer No.";
@@ -1671,6 +1663,26 @@ table 5901 "Service Item Line"
             ServHeader.Get("Document Type", "Document No.");
     end;
 
+    local procedure CheckCustomerNo()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBefoerCheckCustomerNo(ServHeader, Rec, xRec, IsHandled);
+        if IsHandled then
+            exit;
+
+        if ServHeader."Customer No." = '' then begin
+            if (ServHeader.Name <> '') and (ServHeader.Address <> '') and (ServHeader.City <> '') then
+                Error(
+                  Text001,
+                  TableCaption, ServHeader.FieldCaption("Customer No."), ServHeader.TableCaption, ServHeader."No.");
+            Error(
+              Text002,
+              TableCaption, ServHeader.FieldCaption("Customer No."), ServHeader.TableCaption, ServHeader."No.");
+        end;
+    end;
+
     procedure CheckWarranty(Date: Date)
     var
         WarrantyLabor: Boolean;
@@ -1706,6 +1718,7 @@ table 5901 "Service Item Line"
         ServLine.SetRange("Document No.", "Document No.");
         ServLine.SetRange("Service Item Line No.", "Line No.");
         ServLine.SetFilter("Quantity Invoiced", '=0');
+        ServLine.SetServiceItemLine(Rec);
         if ServLine.Find('-') then
             repeat
                 if ServLine.Type = ServLine.Type::Item then begin
@@ -2515,6 +2528,11 @@ table 5901 "Service Item Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckServItemCustomer(ServiceHeader: Record "Service Header"; ServiceItem: Record "Service Item"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBefoerCheckCustomerNo(var ServiceHeader: Record "Service Header"; var ServiceItemLine: Record "Service Item Line"; xServiceItemLine: Record "Service Item Line"; var IsHandled: Boolean)
     begin
     end;
 

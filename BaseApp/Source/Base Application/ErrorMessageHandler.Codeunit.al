@@ -82,13 +82,11 @@ codeunit 29 "Error Message Handler"
         NotificationLifecycleMgt.SendNotification(Notification, ContextErrorMessage."Context Record ID");
     end;
 
-    [Scope('OnPrem')]
     procedure RegisterErrorMessages() RegisterID: Guid
     begin
         RegisterID := RegisterErrorMessages(true);
     end;
 
-    [Scope('OnPrem')]
     procedure RegisterErrorMessages(ClearError: Boolean) RegisterID: Guid
     var
         ContextErrorMessage: Record "Error Message";
@@ -200,7 +198,6 @@ codeunit 29 "Error Message Handler"
         end
     end;
 
-    [Scope('OnPrem')]
     procedure HasErrors(): Boolean
     begin
         exit(TempErrorMessage.HasErrors(false));
