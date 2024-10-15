@@ -290,7 +290,7 @@ codeunit 7308 Replenishment
         Result: Boolean;
     begin
         IsHandled := false;
-        OnBeforePickAccordingToFEFO(Location, ItemNo, VariantCode, IsHandled, Result);
+        OnBeforePickAccordingToFEFO(Location, ItemNo, VariantCode, Result, IsHandled);
         if IsHandled then
             exit(Result);
 
