@@ -94,7 +94,7 @@
         OnAfterInsertMaintenanceAccNo(MaintenanceLedgEntry, FAGLPostBuf);
     end;
 
-    local procedure InsertBufferBalAcc(FAPostingType: Enum "FA Posting Group Account Type"; AllocAmount: Decimal; DeprBookCode: Code[10]; PostingGrCode: Code[20]; GlobalDim1Code: Code[20]; GlobalDim2Code: Code[20]; DimSetID: Integer; AutomaticEntry: Boolean; Correction: Boolean)
+    procedure InsertBufferBalAcc(FAPostingType: Enum "FA Posting Group Account Type"; AllocAmount: Decimal; DeprBookCode: Code[10]; PostingGrCode: Code[20]; GlobalDim1Code: Code[20]; GlobalDim2Code: Code[20]; DimSetID: Integer; AutomaticEntry: Boolean; Correction: Boolean)
     var
         SourceCodeSetup: Record "Source Code Setup";
         DimMgt: Codeunit DimensionManagement;
@@ -110,6 +110,7 @@
         TotalPercent := 0;
         FAPostingGr.Reset();
         FAPostingGr.GetPostingGroup(PostingGrCode, DeprBookCode);
+        OnInsertBufferBalAccOnAfterGetFAPostingGroup(FAPostingGr);
         GLAccNo := GetGLAccNoFromFAPostingGroup(FAPostingGr, FAPostingType, AllocAmount);
 
         DimensionSetIDArr[1] := DimSetID;
@@ -125,6 +126,7 @@
             Reset();
             SetRange(Code, PostingGrCode);
             SetRange("Allocation Type", FAPostingType);
+            OnInsertBufferBalAccOnAfterFAAllocSetFilters(FAAlloc);
             if Find('-') then
                 repeat
                     if ("Account No." = '') and ("Allocation %" > 0) then
@@ -225,7 +227,7 @@
             Reset;
             Find;
             TestField("Bal. Account No.", '');
-            TestField("Account Type", "Account Type"::"Fixed Asset");
+            CheckAccountType(GenJnlLine);
             TestField("Account No.");
             TestField("Depreciation Book Code");
             TestField("Posting Group");
@@ -263,6 +265,18 @@
         end;
         TempFAGLPostBuf.DeleteAll();
         exit(GenJnlLine."Line No.");
+    end;
+
+    local procedure CheckAccountType(var GenJnlLine: Record "Gen. Journal Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckAccountType(GenJnlLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        GenJnlLine.TestField("Account Type", "Gen. Journal Account Type"::"Fixed Asset");
     end;
 
     procedure GetBalAccBuffer(var GenJnlLine: Record "Gen. Journal Line"): Integer
@@ -400,7 +414,8 @@
                             FieldError("Allocated Derogatory %", FieldErrorText);
                     end;
             end;
-        exit(GLAccNo);
+
+        OnAfterGetGLAccNoFromFAPostingGroup(FAPostingGr, FAPostingType, GLAccNo);
     end;
 
     local procedure CalculateNoOfEmptyLines(var GenJnlLine: Record "Gen. Journal Line"; NumberOfEntries: Integer)
@@ -491,6 +506,8 @@
             GainLossAmount := FADeprBook."Gain/Loss";
             FAPostingGr2.Get("FA Posting Group");
         end;
+
+        OnAfterCalcDisposalAmount(FAPostingGr2);
     end;
 
     procedure CorrectEntries()
@@ -649,12 +666,27 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcDisposalAmount(var FAPostingGroup: Record "FA Posting Group")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetGLAccNoFromFAPostingGroup(FAPostingGroup: Record "FA Posting Group"; FAPostingType: Enum "FA Posting Group Account Type"; var GLAccNo: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterInsertBalAcc(var FALedgerEntry: Record "FA Ledger Entry")
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterRun(var FALedgerEntry: Record "FA Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckAccountType(var GenJnlLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -679,6 +711,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnInsertBufferBalAccOnAfterFAAllocSetFilters(var FAAllocation: Record "FA Allocation")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeTempFAGLPostBufModify(var FAPostingGroup: Record "FA Posting Group"; var TempFAGLPostingBuffer: Record "FA G/L Posting Buffer" temporary; GLAmount: Decimal)
     begin
     end;
@@ -688,7 +725,7 @@
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnGetBalAccAfterSaveGenJnlLineFields(var ToGenJnlLine: Record "Gen. Journal Line"; FromGenJnlLine: Record "Gen. Journal Line"; var SkipInsert: Boolean)
     begin
     end;
@@ -710,6 +747,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertBufferBalAccOnAfterAssignFromFAPostingGrAcc(FAAllocation: Record "FA Allocation"; var FAGLPostBuf: Record "FA G/L Posting Buffer")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertBufferBalAccOnAfterGetFAPostingGroup(var FAPostingGr: Record "FA Posting Group")
     begin
     end;
 

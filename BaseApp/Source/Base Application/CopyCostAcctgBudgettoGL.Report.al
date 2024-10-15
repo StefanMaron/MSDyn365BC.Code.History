@@ -46,6 +46,7 @@ report 1136 "Copy Cost Acctg. Budget to G/L"
 
                 // Amt * req. window factor
                 GLBudgetEntryTarget.Amount := Round(Amount * Factor, 0.01);
+                OnAfterGetRecordOnAfterGLBudgetEntryTargetPopulated(GLBudgetEntryTarget, "Cost Budget Entry");
 
                 // Create entries according to "copies". Increment date.
                 for i := 1 to NoOfCopies do begin
@@ -178,9 +179,11 @@ report 1136 "Copy Cost Acctg. Budget to G/L"
             Factor := 1;
     end;
 
+    protected var
+        GLBudgetNameTarget: Record "G/L Budget Name";
+
     var
         GLBudgetEntryTarget: Record "G/L Budget Entry";
-        GLBudgetNameTarget: Record "G/L Budget Name";
         CostType: Record "Cost Type";
         GLAcc: Record "G/L Account";
         CostAccSetup: Record "Cost Accounting Setup";
@@ -240,6 +243,11 @@ report 1136 "Copy Cost Acctg. Budget to G/L"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateBudgetDimensions(var GLBudgetEntryTarget: Record "G/L Budget Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetRecordOnAfterGLBudgetEntryTargetPopulated(var GLBudgetEntryTarget: Record "G/L Budget Entry"; CostBudgetEntry: Record "Cost Budget Entry")
     begin
     end;
 }

@@ -41,34 +41,38 @@ codeunit 5632 "FA Jnl.-Post Line"
         Text003: Label '%1 = %2 already exists for %5 (%3 = %4).';
 
     procedure FAJnlPostLine(FAJnlLine: Record "FA Journal Line"; CheckLine: Boolean)
+    var
+        IsHandled: Boolean;
     begin
-        OnBeforeFAJnlPostLine(FAJnlLine);
-
-        FAInsertLedgEntry.SetGLRegisterNo(0);
-        with FAJnlLine do begin
-            if "FA No." = '' then
-                exit;
-            if "Posting Date" = 0D then
-                "Posting Date" := "FA Posting Date";
-            if CheckLine then
-                FAJnlCheckLine.CheckFAJnlLine(FAJnlLine);
-            DuplicateDeprBook.DuplicateFAJnlLine(FAJnlLine);
-            FANo := "FA No.";
-            BudgetNo := "Budgeted FA No.";
-            DeprBookCode := "Depreciation Book Code";
-            FAPostingType := "FA Posting Type";
-            FAPostingDate := "FA Posting Date";
-            Amount2 := Amount;
-            SalvageValue := "Salvage Value";
-            DeprUntilDate := "Depr. until FA Posting Date";
-            DeprAcqCost := "Depr. Acquisition Cost";
-            ErrorEntryNo := "FA Error Entry No.";
-            if "FA Posting Type" = "FA Posting Type"::Maintenance then begin
-                MakeMaintenanceLedgEntry.CopyFromFAJnlLine(MaintenanceLedgEntry, FAJnlLine);
-                PostMaintenance;
-            end else begin
-                MakeFALedgEntry.CopyFromFAJnlLine(FALedgEntry, FAJnlLine);
-                PostFixedAsset;
+        IsHandled := false;
+        OnBeforeFAJnlPostLine(FAJnlLine, FAInsertLedgEntry, CheckLine, IsHandled);
+        if not IsHandled then begin
+            FAInsertLedgEntry.SetGLRegisterNo(0);
+            with FAJnlLine do begin
+                if "FA No." = '' then
+                    exit;
+                if "Posting Date" = 0D then
+                    "Posting Date" := "FA Posting Date";
+                if CheckLine then
+                    FAJnlCheckLine.CheckFAJnlLine(FAJnlLine);
+                DuplicateDeprBook.DuplicateFAJnlLine(FAJnlLine);
+                FANo := "FA No.";
+                BudgetNo := "Budgeted FA No.";
+                DeprBookCode := "Depreciation Book Code";
+                FAPostingType := "FA Posting Type";
+                FAPostingDate := "FA Posting Date";
+                Amount2 := Amount;
+                SalvageValue := "Salvage Value";
+                DeprUntilDate := "Depr. until FA Posting Date";
+                DeprAcqCost := "Depr. Acquisition Cost";
+                ErrorEntryNo := "FA Error Entry No.";
+                if "FA Posting Type" = "FA Posting Type"::Maintenance then begin
+                    MakeMaintenanceLedgEntry.CopyFromFAJnlLine(MaintenanceLedgEntry, FAJnlLine);
+                    PostMaintenance;
+                end else begin
+                    MakeFALedgEntry.CopyFromFAJnlLine(FALedgEntry, FAJnlLine);
+                    PostFixedAsset;
+                end;
             end;
         end;
 
@@ -76,11 +80,17 @@ codeunit 5632 "FA Jnl.-Post Line"
     end;
 
     procedure GenJnlPostLine(GenJnlLine: Record "Gen. Journal Line"; FAAmount: Decimal; VATAmount: Decimal; NextTransactionNo: Integer; NextGLEntryNo: Integer; GLRegisterNo: Integer)
+    var
+        IsHandled: Boolean;
     begin
-        OnBeforeGenJnlPostLine(GenJnlLine);
+        IsHandled := false;
+        OnBeforeGenJnlPostLine(GenJnlLine, FAInsertLedgEntry, FAAmount, VATAmount, NextTransactionNo, NextGLEntryNo, GLRegisterNo, IsHandled);
+        if not IsHandled then begin
 
-        FAInsertLedgEntry.DeleteAllGLAcc;
-        GenJnlPostLineContinue(GenJnlLine, FAAmount, VATAmount, NextTransactionNo, NextGLEntryNo, GLRegisterNo);
+
+            FAInsertLedgEntry.DeleteAllGLAcc;
+            GenJnlPostLineContinue(GenJnlLine, FAAmount, VATAmount, NextTransactionNo, NextGLEntryNo, GLRegisterNo);
+        end;
     end;
 
     [Scope('OnPrem')]
@@ -602,12 +612,12 @@ codeunit 5632 "FA Jnl.-Post Line"
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBeforeFAJnlPostLine(var FAJournalLine: Record "FA Journal Line")
+    local procedure OnBeforeFAJnlPostLine(var FAJournalLine: Record "FA Journal Line"; var FAInsertLedgerEntry: Codeunit "FA Insert Ledger Entry"; CheckLine: Boolean; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBeforeGenJnlPostLine(var GenJournalLine: Record "Gen. Journal Line")
+    local procedure OnBeforeGenJnlPostLine(var GenJournalLine: Record "Gen. Journal Line"; var FAInsertLedgerEntry: Codeunit "FA Insert Ledger Entry"; FAAmount: Decimal; VATAmount: Decimal; NextTransactionNo: Integer; NextGLEntryNo: Integer; GLRegisterNo: Integer; var IsHandled: Boolean)
     begin
     end;
 
