@@ -33,11 +33,13 @@ codeunit 9027 "Plan Ids"
         AccountantHubPlanGuidTxt: Label '{5d60ea51-0053-458f-80a8-b6f426a1a0c1}', Locked = true;
         InfrastructurePlanGuidTxt: Label '{996DEF3D-B36C-4153-8607-A6FD3C01B89F}', Locked = true;
         PremiumPartnerSandboxPlanGuidTxt: Label '{37b1c04b-a429-4139-a15e-067784a80a55}', Locked = true;
+        BCAdminGuidTxt: Label '{963797fb-eb3b-4cde-8ce3-5878b3f32a3f}', Locked = true;
 #pragma warning disable AA0240
         DelegatedAdminGUIDTxt: Label '{00000000-0000-0000-0000-000000000007}', Locked = true;
         InternalAdminGUIDTxt: Label '{62e90394-69f5-4237-9190-012177145e10}', Locked = true;
         HelpDeskPlanGuidTxt: Label '{00000000-0000-0000-0000-000000000008}', Locked = true;
         D365AdminPartnerGUIDTxt: Label '{00000000-0000-0000-0000-000000000009}', Locked = true;
+        BCAdminPartnerGUIDTxt: Label '{00000000-0000-0000-0000-000000000010}', Locked = true;
 #pragma warning restore AA0240
 
     /// <summary>
@@ -122,6 +124,24 @@ codeunit 9027 "Plan Ids"
     procedure GetDelegatedAdminPlanId(): Guid
     begin
         exit(DelegatedAdminGUIDTxt);
+    end;
+
+    /// <summary>
+    /// Returns the ID for the Delegated BC Admin agent - Partner plan.
+    /// </summary>
+    /// <returns>The ID for the Delegated BC Admin agent - Partner plan.</returns>
+    procedure GetDelegatedBCAdminPlanId(): Guid
+    begin
+        exit(BCAdminPartnerGUIDTxt);
+    end;
+
+    /// <summary>
+    /// Returns the ID for the Internal BC Administrator plan.
+    /// </summary>
+    /// <returns>The ID for the Internal BC Administrator plan.</returns>
+    procedure GetBCAdminPlanId(): Guid
+    begin
+        exit(BCAdminGUIDTxt);
     end;
 
     /// <summary>

@@ -383,6 +383,11 @@
                     ApplicationArea = FixedAssets, BasicMX;
                     ToolTip = 'Specifies the year of the motor carrier that is used to transport the goods or merchandise.';
                 }
+                field("Vehicle Gross Weight"; Rec."Vehicle Gross Weight")
+                {
+                    ApplicationArea = FixedAssets, BasicMX;
+                    ToolTip = 'Specifies the gross weight, in tons, of the vehicle. This information is required by Carte Porte in Mexico.';
+                }
                 field("SAT Federal Autotransport"; Rec."SAT Federal Autotransport")
                 {
                     ApplicationArea = FixedAssets, BasicMX;

@@ -74,5 +74,9 @@
                   tabledata "SAT Suburb" = RIMD,
                   tabledata "SAT International Trade Term" = RIMD,
                   tabledata "SAT Customs Unit" = RIMD,
+                  tabledata "SAT Transfer Reason" = RIMD,
+                  tabledata "SAT Material Type" = RIMD,
+                  tabledata "SAT Customs Regime" = RIMD,
+                  tabledata "SAT Customs Document Type" = RIMD,
                   tabledata "Vendor Location" = RIMD;
 }
