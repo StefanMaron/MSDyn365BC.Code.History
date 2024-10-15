@@ -296,11 +296,26 @@ page 7018 "Purchase Price List"
     trigger OnOpenPage()
     var
         PriceListManagement: Codeunit "Price List Management";
+        DefaultSourceGroup: Enum "Price Source Group";
     begin
         CopyLinesEnabled := PriceListManagement.VerifySourceGroupInLines();
-        UpdateSourceType();
-        PriceUXManagement.GetFirstSourceFromFilter(Rec, OriginalPriceSource, DefaultSourceType);
-        SetSourceNoEnabled();
+        DefaultSourceGroup := GetSourceGroupFilter();
+        UpdateSourceType(DefaultSourceGroup);
+        PriceUXManagement.GetFirstSourceFromFilter(
+            Rec, OriginalPriceSource, GetDefaultSourceType(DefaultSourceGroup));
+    end;
+
+    local procedure GetSourceGroupFilter() SourceGroup: Enum "Price Source Group";
+    var
+        SourceGroupFilter: Text;
+    begin
+        Rec.FilterGroup(2);
+        SourceGroupFilter := Rec.GetFilter("Source Group");
+        Rec.FilterGroup(0);
+        if SourceGroupFilter = '' then
+            exit(SourceGroup::Vendor);
+        if not Evaluate(SourceGroup, SourceGroupFilter) then
+            exit(SourceGroup::Vendor);
     end;
 
     trigger OnAfterGetCurrRecord()
@@ -308,7 +323,8 @@ page 7018 "Purchase Price List"
         PriceListManagement: Codeunit "Price List Management";
     begin
         PriceListIsEditable := Rec.IsEditable();
-        UpdateSourceType();
+        UpdateSourceType(Rec."Source Group");
+        SetSourceNoEnabled();
         ViewAmountType := Rec."Amount Type";
         ViewGroupIsVisible := true;
         if Rec.HasDraftLines() then
@@ -322,10 +338,9 @@ page 7018 "Purchase Price List"
         DefaultAmountType: Enum "Price Amount Type";
     begin
         Rec.CopyFrom(OriginalPriceSource);
-        UpdateSourceType();
+        UpdateSourceType(Rec."Source Group");
         if PriceUXManagement.IsAmountTypeFiltered(Rec, DefaultAmountType) then
             Rec."Amount Type" := DefaultAmountType;
-        SetSourceNoEnabled();
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean;
@@ -347,28 +362,35 @@ page 7018 "Purchase Price List"
                 Rec.UpdateAmountType();
     end;
 
-    local procedure UpdateSourceType()
+    local procedure UpdateSourceType(SourceGroup: Enum "Price Source Group")
     begin
-        case Rec."Source Group" of
-            Rec."Source Group"::Vendor:
+        case SourceGroup of
+            SourceGroup::Vendor:
                 begin
                     IsJobGroup := false;
                     SourceType := "Purchase Price Source Type".FromInteger(Rec."Source Type".AsInteger());
-                    DefaultSourceType := Rec."Source Type"::"All Vendors";
                 end;
-            Rec."Source Group"::Job:
+            SourceGroup::Job:
                 begin
                     IsJobGroup := true;
                     JobSourceType := "Job Price Source Type".FromInteger(Rec."Source Type".AsInteger());
-                    DefaultSourceType := Rec."Source Type"::"All Jobs";
                 end;
+        end;
+    end;
+
+    local procedure GetDefaultSourceType(SourceGroup: Enum "Price Source Group") DefaultSourceType: Enum "Price Source Type";
+    begin
+        case SourceGroup of
+            SourceGroup::Vendor:
+                DefaultSourceType := Rec."Source Type"::"All Vendors";
+            SourceGroup::Job:
+                DefaultSourceType := Rec."Source Type"::"All Jobs";
         end;
     end;
 
     var
         OriginalPriceSource: Record "Price Source";
         PriceUXManagement: Codeunit "Price UX Management";
-        DefaultSourceType: Enum "Price Source Type";
         JobSourceType: Enum "Job Price Source Type";
         SourceType: Enum "Purchase Price Source Type";
         ViewAmountType: Enum "Price Amount Type";

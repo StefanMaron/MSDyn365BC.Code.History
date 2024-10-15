@@ -478,7 +478,7 @@
                 if IsHandled then
                     exit;
 
-                if Type = Type::" " then
+                if not HasTypeToFillMandatoryFields() then
                     exit;
 
                 if "No." <> '' then

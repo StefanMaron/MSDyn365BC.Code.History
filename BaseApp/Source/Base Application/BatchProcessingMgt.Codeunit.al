@@ -12,12 +12,15 @@
         PostingTemplateMsg: Label 'Processing: @1@@@@@@@', Comment = '1 - overall progress';
         RecRefCustomerProcessing: RecordRef;
         ProcessingCodeunitID: Integer;
-        BatchID: Guid;
+        BatchIDGlobal: Guid;
         ProcessingCodeunitNotSetErr: Label 'A processing codeunit has not been selected.';
         BatchCompletedMsg: Label 'All the documents were processed.';
         IsCustomProcessingHandled: Boolean;
         IsHandled: Boolean;
         KeepParameters: Boolean;
+        TelemetryCategoryTxt: Label 'GenJournal', Locked = true;
+        GenJournalPostFailedTxt: Label 'General journal posting failed. Journal Template: %1, Journal Batch: %2', Locked = true;
+        InterCompanyZipFileNamePatternTok: Label 'General Journal IC Batch - %1.zip', Comment = '%1 - today date, Sample: Sales IC Batch - 23-01-2024.zip';
         BatchProcessingTxt: Label 'Batch processing of %1 records.', Comment = '%1 - a table caption';
         ProcessingMsg: Label 'Executing codeunit %1 on record %2.', Comment = '%1 - codeunit id,%2 - record id';
 
@@ -26,6 +29,7 @@
         ErrorContextElement: Codeunit "Error Context Element";
         ErrorMessageMgt: Codeunit "Error Message Management";
         ErrorMessageHandler: Codeunit "Error Message Handler";
+        BatchProcessingMgtHandler: Codeunit "Batch Processing Mgt. Handler";
         Window: Dialog;
         CounterTotal: Integer;
         CounterToPost: Integer;
@@ -41,6 +45,8 @@
         with RecRef do begin
             if IsEmpty() then
                 exit;
+
+            BindSubscription(BatchProcessingMgtHandler);
 
             FillBatchProcessingMap(RecRef);
             Commit();
@@ -67,6 +73,9 @@
                 until Next() = 0;
 
             OnBatchProcessOnBeforeResetBatchID(RecRef, ProcessingCodeunitID);
+
+            UnbindSubscription(BatchProcessingMgtHandler);
+
             ResetBatchID;
 
             IsHandled := false;
@@ -83,6 +92,50 @@
         end;
 
         OnAfterBatchProcess(RecRef, CounterPosted, ProcessingCodeunitID);
+    end;
+
+    procedure BatchProcessGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; PostingCodeunitId: Integer)
+    var
+        ErrorMessageMgt: Codeunit "Error Message Management";
+        ErrorMessageHandler: Codeunit "Error Message Handler";
+        BatchProcessingMgtHandler: Codeunit "Batch Processing Mgt. Handler";
+        ICOutboxExport: Codeunit "IC Outbox Export";
+        PostingResult: Boolean;
+    begin
+        Commit();
+        ErrorMessageMgt.Activate(ErrorMessageHandler);
+
+        BindSubscription(BatchProcessingMgtHandler);
+        PostingResult := Codeunit.Run(PostingCodeunitId, GenJournalLine);
+        if PostingResult then
+            ICOutboxExport.DownloadBatchFiles(GetICBatchFileName());
+        UnbindSubscription(BatchProcessingMgtHandler);
+
+        if not PostingResult then begin
+            ErrorMessageHandler.ShowErrors();
+            LogFailurePostTelemetry(GenJournalLine);
+        end;
+    end;
+
+    local procedure GetICBatchFileName() Result: Text
+    begin
+        Result := StrSubstNo(InterCompanyZipFileNamePatternTok, Format(WorkDate(), 10, '<Year4>-<Month,2>-<Day,2>'));
+
+        OnGetICBatchFileName(Result);
+    end;
+
+    local procedure LogFailurePostTelemetry(var GenJournalLine: Record "Gen. Journal Line")
+    var
+        ErrorMessage: Record "Error Message";
+        Dimensions: Dictionary of [Text, Text];
+        ErrorMessageTxt: Text;
+    begin
+        ErrorMessage.SetRange("Context Table Number", Database::"Gen. Journal Line");
+        if ErrorMessage.FindLast() then
+            ErrorMessageTxt := ErrorMessage.Description;
+        Dimensions.Add('Category', TelemetryCategoryTxt);
+        Dimensions.Add('Error', ErrorMessageTxt);
+        Session.LogMessage('0000F9J', StrSubstNo(GenJournalPostFailedTxt, GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name"), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, Dimensions);
     end;
 
     local procedure CanProcessRecord(var RecRef: RecordRef): Boolean
@@ -123,12 +176,12 @@
     var
         BatchProcessingSessionMap: Record "Batch Processing Session Map";
     begin
-        if IsNullGuid(BatchID) then
+        if IsNullGuid(BatchIDGlobal) then
             exit;
 
         BatchProcessingSessionMap.Init();
         BatchProcessingSessionMap."Record ID" := RecRef.RecordId;
-        BatchProcessingSessionMap."Batch ID" := BatchID;
+        BatchProcessingSessionMap."Batch ID" := BatchIDGlobal;
         BatchProcessingSessionMap."User ID" := UserSecurityId;
         BatchProcessingSessionMap."Session ID" := SessionId;
         BatchProcessingSessionMap.Insert();
@@ -180,8 +233,8 @@
 
     local procedure InitBatchID()
     begin
-        if IsNullGuid(BatchID) then
-            BatchID := CreateGuid;
+        if IsNullGuid(BatchIDGlobal) then
+            BatchIDGlobal := CreateGuid();
     end;
 
     local procedure ProcessRecord(var RecRef: RecordRef; var BatchConfirm: Option): Boolean
@@ -203,23 +256,38 @@
         BatchProcessingSessionMap: Record "Batch Processing Session Map";
     begin
         if not KeepParameters then begin
-            BatchProcessingParameter.SetRange("Batch ID", BatchID);
+            BatchProcessingParameter.SetRange("Batch ID", BatchIDGlobal);
             BatchProcessingParameter.DeleteAll();
 
-            BatchProcessingSessionMap.SetRange("Batch ID", BatchID);
+            BatchProcessingSessionMap.SetRange("Batch ID", BatchIDGlobal);
             BatchProcessingSessionMap.DeleteAll();
         end;
 
-        Clear(BatchID);
+        Clear(BatchIDGlobal);
 
         Commit();
+    end;
+
+    procedure AddArtifact(ArtifactType: Enum "Batch Processing Artifact Type"; ArtifactName: Text[1024]; var TempBlobArtivactValue: Codeunit "Temp Blob")
+    begin
+        OnAddArtifact(BatchIDGlobal, ArtifactType, ArtifactName, TempBlobArtivactValue);
+    end;
+
+    procedure HasArtifacts(ArtifactType: Enum "Batch Processing Artifact Type") Result: Boolean
+    begin
+        OnHasArtifacts(ArtifactType, Result);
+    end;
+
+    procedure GetArtifacts(ArtifactType: Enum "Batch Processing Artifact Type"; var TempBatchProcessingArtifact: Record "Batch Processing Artifact" temporary) Result: Boolean
+    begin
+        OnGetArtifacts(ArtifactType, TempBatchProcessingArtifact, Result);
     end;
 
     procedure DeleteBatchProcessingSessionMapForRecordId(RecordIdToClean: RecordId)
     var
         BatchProcessingSessionMap: Record "Batch Processing Session Map";
     begin
-        BatchProcessingSessionMap.SetRange("Batch ID", BatchID);
+        BatchProcessingSessionMap.SetRange("Batch ID", BatchIDGlobal);
         BatchProcessingSessionMap.SetRange("Record ID", RecordIdToClean);
         BatchProcessingSessionMap.DeleteAll();
     end;
@@ -232,7 +300,7 @@
         BatchProcessingSessionMap.SetRange("Record ID", RecordID);
         BatchProcessingSessionMap.SetRange("User ID", UserSecurityId);
         BatchProcessingSessionMap.SetRange("Session ID", SessionId);
-        BatchProcessingSessionMap.SetFilter("Batch ID", '<>%1', BatchID);
+        BatchProcessingSessionMap.SetFilter("Batch ID", '<>%1', BatchIDGlobal);
         if BatchProcessingSessionMap.FindSet then begin
             repeat
                 BatchProcessingParameter.SetRange("Batch ID", BatchProcessingSessionMap."Batch ID");
@@ -242,7 +310,6 @@
             BatchProcessingSessionMap.DeleteAll();
         end;
     end;
-
 
     [Obsolete('Replaced by SetParameter().', '17.0')]
     procedure AddParameter(ParameterId: Integer; Value: Variant)
@@ -255,10 +322,10 @@
         BatchProcessingParameter: Record "Batch Processing Parameter";
         IsProcessed: Boolean;
     begin
-        InitBatchID;
+        InitBatchID();
 
         BatchProcessingParameter.Init();
-        BatchProcessingParameter."Batch ID" := BatchID;
+        BatchProcessingParameter."Batch ID" := BatchIDGlobal;
         BatchProcessingParameter."Parameter Id" := ParameterId.AsInteger();
         BatchProcessingParameter."Parameter Value" := Format(Value);
 
@@ -356,6 +423,11 @@
         exit(true);
     end;
 
+    procedure IsActive() Result: Boolean
+    begin
+        OnSystemSetBatchProcessingActive(Result);
+    end;
+
     procedure GetIsCustomProcessingHandled(): Boolean
     begin
         exit(IsCustomProcessingHandled);
@@ -383,7 +455,7 @@
             BatchProcessingSessionMap."Session ID" := SessionId;
             BatchProcessingSessionMap.Modify();
         end;
-        BatchID := BatchProcessingSessionMap."Batch ID";
+        BatchIDGlobal := BatchProcessingSessionMap."Batch ID";
     end;
 
     procedure SetRecRefForCustomProcessing(RecRef: RecordRef)
@@ -482,6 +554,31 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnProcessBatchInBackground(var RecRef: RecordRef; var SkippedRecordExists: Boolean)
+    begin
+    end;
+
+    [InternalEvent(false)]
+    local procedure OnSystemSetBatchProcessingActive(var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetICBatchFileName(var Result: Text)
+    begin
+    end;
+
+    [InternalEvent(false)]
+    local procedure OnAddArtifact(BatchID: Guid; ArtifactType: Enum "Batch Processing Artifact Type"; ArtifactName: Text[1024]; var TempBlobArtifactValue: Codeunit "Temp Blob")
+    begin
+    end;
+
+    [InternalEvent(false)]
+    local procedure OnHasArtifacts(ArtifactType: Enum "Batch Processing Artifact Type"; var Result: Boolean)
+    begin
+    end;
+
+    [InternalEvent(false)]
+    local procedure OnGetArtifacts(ArtifactType: Enum "Batch Processing Artifact Type"; var TempBatchProcessingArtifactResult: Record "Batch Processing Artifact" temporary; var Result: Boolean)
     begin
     end;
 }

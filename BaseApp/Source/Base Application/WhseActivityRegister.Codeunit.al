@@ -1809,6 +1809,51 @@
                 until Next() = 0;
     end;
 
+    local procedure AutoReserveForAssemblyLine(var TempWhseActivLineToReserve: Record "Warehouse Activity Line" temporary; var TempReservEntryBefore: Record "Reservation Entry" temporary; var TempReservEntryAfter: Record "Reservation Entry" temporary)
+    var
+        AsmLine: Record "Assembly Line";
+        WhseItemTrackingSetup: Record "Item Tracking Setup";
+        ReservMgt: Codeunit "Reservation Management";
+        FullAutoReservation: Boolean;
+        IsHandled: Boolean;
+        QtyToReserve: Decimal;
+        QtyToReserveBase: Decimal;
+    begin
+        IsHandled := false;
+        OnBeforeAutoReserveForAssemblyLine(TempWhseActivLineToReserve, IsHandled);
+        if IsHandled then
+            exit;
+
+        if TempWhseActivLineToReserve.FindSet() then
+            repeat
+                ItemTrackingMgt.GetWhseItemTrkgSetup(TempWhseActivLineToReserve."Item No.", WhseItemTrackingSetup);
+                if TempWhseActivLineToReserve.HasRequiredTracking(WhseItemTrackingSetup) then begin
+                    AsmLine.Get(
+                      TempWhseActivLineToReserve."Source Subtype", TempWhseActivLineToReserve."Source No.", TempWhseActivLineToReserve."Source Line No.");
+
+                    TempReservEntryBefore.SetSourceFilter(
+                      TempWhseActivLineToReserve."Source Type", TempWhseActivLineToReserve."Source Subtype",
+                      TempWhseActivLineToReserve."Source No.", TempWhseActivLineToReserve."Source Line No.", true);
+                    TempReservEntryBefore.SetTrackingFilterFromWhseActivityLine(TempWhseActivLineToReserve);
+                    TempReservEntryBefore.CalcSums(Quantity, "Quantity (Base)");
+
+                    TempReservEntryAfter.CopyFilters(TempReservEntryBefore);
+                    TempReservEntryAfter.CalcSums(Quantity, "Quantity (Base)");
+
+                    QtyToReserve :=
+                        TempWhseActivLineToReserve."Qty. to Handle" + (TempReservEntryAfter.Quantity - TempReservEntryBefore.Quantity);
+                    QtyToReserveBase :=
+                        TempWhseActivLineToReserve."Qty. to Handle (Base)" + (TempReservEntryAfter."Quantity (Base)" - TempReservEntryBefore."Quantity (Base)");
+
+                    if not IsAssemblyLineCompletelyReserved(AssemblyLine) and (QtyToReserve > 0) then begin
+                        ReservMgt.SetReservSource(AsmLine);
+                        ReservMgt.SetTrackingFromWhseActivityLine(TempWhseActivLineToReserve);
+                        ReservMgt.AutoReserve(FullAutoReservation, '', AsmLine."Due Date", QtyToReserve, QtyToReserveBase);
+                    end;
+                end;
+            until TempWhseActivLineToReserve.Next() = 0;
+    end;
+
     local procedure CheckAndRemoveOrderToOrderBinding(var TempWhseActivLineToReserve: Record "Warehouse Activity Line" temporary)
     var
         SalesLine: Record "Sales Line";
@@ -1853,14 +1898,34 @@
         TempReservEntryBeforeSync: Record "Reservation Entry" temporary;
         TempReservEntryAfterSync: Record "Reservation Entry" temporary;
     begin
-        CheckAndRemoveOrderToOrderBinding(TempWhseActivLineToReserve);
+        if not TempWhseActivLineToReserve.FindFirst() then begin
+            SyncItemTracking();
+            exit;
+        end;
 
-        CollectReservEntries(TempReservEntryBeforeSync, TempWhseActivLineToReserve);
+        case TempWhseActivLineToReserve."Source Document" of
+            "Warehouse Activity Source Document"::"Sales Order":
+                begin
+                    CheckAndRemoveOrderToOrderBinding(TempWhseActivLineToReserve);
+                    CollectReservEntries(TempReservEntryBeforeSync, TempWhseActivLineToReserve);
+                    SyncItemTracking();
+                    CollectReservEntries(TempReservEntryAfterSync, TempWhseActivLineToReserve);
+                    AutoReserveForSalesLine(TempWhseActivLineToReserve, TempReservEntryBeforeSync, TempReservEntryAfterSync);
+                end;
+            "Warehouse Activity Source Document"::"Assembly Consumption":
+                begin
+                    CollectReservEntries(TempReservEntryBeforeSync, TempWhseActivLineToReserve);
+                    SyncItemTracking();
+                    CollectReservEntries(TempReservEntryAfterSync, TempWhseActivLineToReserve);
+                    AutoReserveForAssemblyLine(TempWhseActivLineToReserve, TempReservEntryBeforeSync, TempReservEntryAfterSync);
+                end;
+        end;
+    end;
+
+    local procedure SyncItemTracking()
+    begin
         ItemTrackingMgt.SetPick(GlobalWhseActivLine."Activity Type" = GlobalWhseActivLine."Activity Type"::Pick);
         ItemTrackingMgt.SynchronizeWhseItemTracking(TempTrackingSpecification, RegisteredWhseActivLine."No.", false);
-        CollectReservEntries(TempReservEntryAfterSync, TempWhseActivLineToReserve);
-
-        AutoReserveForSalesLine(TempWhseActivLineToReserve, TempReservEntryBeforeSync, TempReservEntryAfterSync);
     end;
 
     local procedure CollectReservEntries(var TempReservEntry: Record "Reservation Entry" temporary; var TempWhseActivLineToReserve: Record "Warehouse Activity Line" temporary)
@@ -1889,11 +1954,12 @@
         if IsHandled then
             exit;
 
-        if not IsPickPlaceForSalesOrderTrackedItem(WhseActivLine) then
-            exit;
-
-        TempWhseActivLineToReserve.TransferFields(WhseActivLine);
-        TempWhseActivLineToReserve.Insert();
+        if IsPickPlaceForSalesOrderTrackedItem(WhseActivLine) or
+           IsInvtMovementForAssemblyOrderTrackedItem(WhseActivLine)
+        then begin
+            TempWhseActivLineToReserve.TransferFields(WhseActivLine);
+            TempWhseActivLineToReserve.Insert();
+        end;
     end;
 
     local procedure GroupWhseActivLinesByWhseDocAndSource(var TempWarehouseActivityLine: Record "Warehouse Activity Line" temporary; WarehouseActivityLine: Record "Warehouse Activity Line")
@@ -1978,10 +2044,26 @@
           WhseActivityLine.TrackingExists);
     end;
 
+    local procedure IsInvtMovementForAssemblyOrderTrackedItem(WhseActivityLine: Record "Warehouse Activity Line"): Boolean
+    begin
+        exit(
+          (WhseActivityLine."Activity Type" = WhseActivityLine."Activity Type"::"Invt. Movement") and
+          (WhseActivityLine."Action Type" in [WhseActivityLine."Action Type"::Place, WhseActivityLine."Action Type"::" "]) and
+          (WhseActivityLine."Source Document" = WhseActivityLine."Source Document"::"Assembly Consumption") and
+          (WhseActivityLine."Breakbulk No." = 0) and
+          WhseActivityLine.TrackingExists);
+    end;
+
     local procedure IsSalesLineCompletelyReserved(SalesLine: Record "Sales Line"): Boolean
     begin
         SalesLine.CalcFields("Reserved Quantity");
         exit(SalesLine.Quantity = SalesLine."Reserved Quantity");
+    end;
+
+    local procedure IsAssemblyLineCompletelyReserved(AssemblyLine: Record "Assembly Line"): Boolean
+    begin
+        AssemblyLine.CalcFields("Reserved Quantity");
+        exit(AssemblyLine.Quantity = AssemblyLine."Reserved Quantity");
     end;
 
     procedure SetSuppressCommit(NewSuppressCommit: Boolean)
@@ -2137,6 +2219,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeAutoReserveForSalesLine(var TempWhseActivLineToReserve: Record "Warehouse Activity Line" temporary; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeAutoReserveForAssemblyLine(var TempWhseActivLineToReserve: Record "Warehouse Activity Line" temporary; var IsHandled: Boolean)
     begin
     end;
 
