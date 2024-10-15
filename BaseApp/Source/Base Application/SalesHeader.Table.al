@@ -3364,6 +3364,7 @@
                 SalesLine.BlockDynamicTracking(true);
                 repeat
                     RecreateSalesLinesHandleSupplementTypes(TempSalesLine, ExtendedTextAdded, TempItemChargeAssgntSales, TempInteger);
+                    RestoreSalesCommentLine(TempSalesCommentLine, TempSalesLine."Line No.", SalesLine."Line No.");
                     SalesLineReserve.CopyReservEntryFromTemp(TempReservEntry, TempSalesLine, SalesLine."Line No.");
                     RecreateReqLine(TempSalesLine, SalesLine."Line No.", false);
                     SynchronizeForReservations(SalesLine, TempSalesLine);
@@ -3377,7 +3378,7 @@
                     end;
                 until TempSalesLine.Next() = 0;
 
-                RestoreSalesCommentLineFromTemp(TempSalesCommentLine);
+                RestoreSalesCommentLine(TempSalesCommentLine, 0, 0);
 
                 CreateItemChargeAssgntSales(TempItemChargeAssgntSales, TempSalesLine, TempInteger);
 
@@ -3442,15 +3443,17 @@
             until SalesCommentLine.Next() = 0;
     end;
 
-    local procedure RestoreSalesCommentLineFromTemp(var TempSalesCommentLine: Record "Sales Comment Line" temporary)
+    local procedure RestoreSalesCommentLine(var TempSalesCommentLine: Record "Sales Comment Line" temporary; OldDocumnetLineNo: Integer; NewDocumentLineNo: Integer)
     var
         SalesCommentLine: Record "Sales Comment Line";
     begin
         TempSalesCommentLine.SetRange("Document Type", "Document Type");
         TempSalesCommentLine.SetRange("No.", "No.");
-        if TempSalesCommentLine.FindSet() then 
+        TempSalesCommentLine.SetRange("Document Line No.", OldDocumnetLineNo);
+        if TempSalesCommentLine.FindSet() then
             repeat
                 SalesCommentLine := TempSalesCommentLine;
+                SalesCommentLine."Document Line No." := NewDocumentLineNo;
                 SalesCommentLine.Insert();
             until TempSalesCommentLine.Next() = 0;
     end;
