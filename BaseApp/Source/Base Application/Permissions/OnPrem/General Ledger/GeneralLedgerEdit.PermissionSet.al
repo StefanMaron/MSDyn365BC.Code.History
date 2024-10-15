@@ -102,6 +102,7 @@ permissionset 6720 "General Ledger - Edit"
                   tabledata "VAT Reg. No. Srv. Template" = RIMD,
                   tabledata "VAT Registration Log" = RIMD,
                   tabledata "VAT Registration Log Details" = RIMD,
+                  tabledata "VAT Reporting Code" = R,
                   tabledata "VAT Setup Posting Groups" = R,
                   tabledata "VAT Statement Line" = RIMD,
                   tabledata "VAT Statement Name" = RIMD,

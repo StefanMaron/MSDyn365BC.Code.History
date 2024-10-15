@@ -525,6 +525,7 @@ codeunit 1751 "Data Classification Eval. Data"
         SetTableFieldsToNormal(DATABASE::"VAT Business Posting Group");
         SetTableFieldsToNormal(DATABASE::"VAT Product Posting Group");
         SetTableFieldsToNormal(DATABASE::"VAT Posting Setup");
+        SetTableFieldsToNormal(DATABASE::"VAT Reporting Code");
         SetTableFieldsToNormal(DATABASE::"Tax Setup");
         SetTableFieldsToNormal(DATABASE::"Tax Jurisdiction Translation");
         SetTableFieldsToNormal(DATABASE::"Currency for Fin. Charge Terms");

@@ -126,7 +126,7 @@
 
         case DocumentType of
             SalesHeader."Document Type"::"Credit Memo":
-                CopyDocMgt.SetPropertiesForCreditMemoCorrection();
+                CopyDocMgt.SetPropertiesForCorrectiveCreditMemo(true);
             SalesHeader."Document Type"::Invoice:
                 CopyDocMgt.SetPropertiesForInvoiceCorrection(SkipCopyFromDescription);
             else
