@@ -35,6 +35,7 @@ codeunit 147524 "SII Documents No Taxable"
         TestFieldErr: Label '%1 must be equal to ''%2''  in %3';
         TestFieldCodeErr: Label 'TestField';
         NoTaxableSetupErr: Label 'The %1 for VAT Calculation Type = No Taxable VAT must be 0.', Comment = '%1 = VAT or EC percent.';
+        AmountShouldBeNegative: Label 'Amount should be in negative.';
 
     [Test]
     [Scope('OnPrem')]
@@ -2655,6 +2656,53 @@ codeunit 147524 "SII Documents No Taxable"
         LibrarySII.VerifyCountOfElements(XMLDoc, 'sii:ImporteTAIReglasLocalizacion', 1);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesInvoiceWithInvoiceTypeR4NormalAndNoTaxableLinesXml()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        XMLDoc: DotNet XmlDocument;
+        ItemNo: Code[20];
+    begin
+        // [SCENARIO 535796] "Cuando el importe total está cumplimentado, debe ser igual a la suma de las bases imponibles más las cuotas..."
+        // error if you use Invoice type R4 for EU and EXPORT invoices together with Include ImporteTotal in the Spanish version.
+        Initialize();
+
+        // [GIVEN] "Include Importe Total" is enabled in the SII Setup
+        SetIncludeImporteTotalInSIISetup();
+
+        // [GIVEN] Create Sales Invoice with Special Scheme Code as "02 Export" and Invoice Type as "R4 Corrected Invoice (Other)"
+        LibrarySII.CreateForeignCustWithVATSetup(Customer);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
+        SalesHeader.Validate("Invoice Type", SalesHeader."Invoice Type"::"R4 Corrected Invoice (Other)");
+        SalesHeader.Modify(true);
+
+        // [GIVEN] Create Sales line with Item where "VAT Calculation Type" = "No Taxable VAT", "VAT %" = 0 and Amount = 500
+        ItemNo :=
+          LibrarySII.CreateItemNoWithSpecificVATSetup(
+            LibrarySII.CreateSpecificNoTaxableVATSetup(Customer."VAT Bus. Posting Group", false, 0));
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, LibraryRandom.RandInt(100));
+        LibrarySII.UpdateUnitPriceSalesLine(SalesLine, LibraryRandom.RandDec(100, 2));
+
+        // [THEN] Post Sales Invoice and Find Posted Customer Ledger Entry
+        CustLedgerEntry.SetRange("Sell-to Customer No.", Customer."No.");
+        LibraryERM.FindCustomerLedgerEntry(
+          CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice,
+          LibrarySales.PostSalesDocument(SalesHeader, false, false));
+
+        // [WHEN] Create xml for Posted Sales Invoice
+        Assert.IsTrue(SIIXMLCreator.GenerateXml(CustLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
+
+        // [THEN] XML file has ImporteTotal node contains negative amount
+        Assert.IsTrue((GetVATEntryTotalAmount(CustLedgerEntry."Document Type", CustLedgerEntry."Document No.") < 0), AmountShouldBeNegative);
+        LibrarySII.ValidateElementByName(
+          XMLDoc, 'sii:ImporteTotal',
+          SIIXMLCreator.FormatNumber(GetVATEntryTotalAmount(CustLedgerEntry."Document Type", CustLedgerEntry."Document No.")));
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore();
@@ -3181,6 +3229,15 @@ codeunit 147524 "SII Documents No Taxable"
         VATEntry.SetRange("Posting Date", CustLedgEntry."Posting Date");
         VATEntry.FindFirst();
         exit(VATEntry.Amount);
+    end;
+
+    local procedure SetIncludeImporteTotalInSIISetup()
+    var
+        SIISetup: Record "SII Setup";
+    begin
+        SIISetup.Get();
+        SIISetup.Validate("Include ImporteTotal", true);
+        SIISetup.Modify(true);
     end;
 }
 

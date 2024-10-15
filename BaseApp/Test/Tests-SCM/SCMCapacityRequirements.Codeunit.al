@@ -4593,11 +4593,13 @@ codeunit 137074 "SCM Capacity Requirements"
         Capacity, Capacity2, TotalCapacity : Decimal;
         RunTime, RunTime2, TotalRunTime : Decimal;
         ShopCalendarCode: Code[10];
+        CurrentWorkDate: Date;
     begin
         // [SCENARIO 525882] Work Center Group Load page of a Work Center Group shows correct Capacity and Allocated (Qty.) which is the sum of Capacities (shown when Calculate Work Center Calendar) of all Work Centers having that particular Work Center Group Code in them.
         Initialize();
 
         // [GIVEN] Set Work Date as Today and Set Working Day in Work Date.
+        CurrentWorkDate := WorkDate();
         WorkDate(Today);
         WorkDate(SetWorkingDayInWorkDate());
 
@@ -4617,10 +4619,10 @@ codeunit 137074 "SCM Capacity Requirements"
         CreateWorkCenterWithWorkCenterGrpCode(WorkCenter2, WorkCenterGroup.Code, ShopCalendarCode, LibraryRandom.RandInt(0), CapacityUnitOfMeasure.Code);
 
         // [GIVEN] Calculate Work Center Calendar for Work Center.
-        LibraryManufacturing.CalculateWorkCenterCalendar(WorkCenter, CalcDate('<-CM>', WorkDate()), CalcDate('<CM>', WorkDate()));
+        LibraryManufacturing.CalculateWorkCenterCalendar(WorkCenter, CalcDate('<-CM-1M>', WorkDate()), CalcDate('<CM>', WorkDate()));
 
         // [GIVEN] Calculate Work Center Calendar for Work Center 2.
-        LibraryManufacturing.CalculateWorkCenterCalendar(WorkCenter2, CalcDate('<-CM>', WorkDate()), CalcDate('<CM>', WorkDate()));
+        LibraryManufacturing.CalculateWorkCenterCalendar(WorkCenter2, CalcDate('<-CM-1M>', WorkDate()), CalcDate('<CM>', WorkDate()));
 
         // [GIVEN] Open Work Center Load page of Work Center.
         OpenWorkCenterLoadPage(WorkCenterLoad, WorkCenter."No.");
@@ -4709,6 +4711,8 @@ codeunit 137074 "SCM Capacity Requirements"
             WorkCenterGroupLoad.WorkCtrGroupLoadLines."WorkCenterGroup.""Prod. Order Need (Qty.)""".Caption(),
             TotalRunTime,
             WorkCenterGroupLoad.WorkCtrGroupLoadLines.Caption()));
+
+        WorkDate(CurrentWorkDate);
     end;
 
     [Test]

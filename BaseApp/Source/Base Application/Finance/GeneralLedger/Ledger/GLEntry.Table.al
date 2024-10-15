@@ -106,6 +106,13 @@ table 17 "G/L Entry"
             Caption = 'Source Currency Amount';
             DataClassification = CustomerContent;
         }
+        field(19; "Source Currency VAT Amount"; Decimal)
+        {
+            AutoFormatExpression = Rec."Source Currency Code";
+            AutoFormatType = 1;
+            Caption = 'Source VAT Currency Amount';
+            DataClassification = CustomerContent;
+        }
         field(20; "Source Currency Code"; Code[10])
         {
             Caption = 'Source Currency Code';
@@ -199,13 +206,13 @@ table 17 "G/L Entry"
         {
             AutoFormatType = 1;
             BlankZero = true;
-            Caption = 'Debit Amount';
+            Caption = 'Debit Amount (LCY)';
         }
         field(54; "Credit Amount"; Decimal)
         {
             AutoFormatType = 1;
             BlankZero = true;
-            Caption = 'Credit Amount';
+            Caption = 'Credit Amount (LCY)';
         }
         field(55; "Document Date"; Date)
         {
@@ -508,12 +515,12 @@ table 17 "G/L Entry"
         }
         key(Key2; "G/L Account No.", "Posting Date")
         {
-            SumIndexFields = Amount, "Debit Amount", "Credit Amount", "Additional-Currency Amount", "Add.-Currency Debit Amount", "Add.-Currency Credit Amount", "VAT Amount", Quantity, "Source Currency Amount";
+            SumIndexFields = Amount, "Debit Amount", "Credit Amount", "Additional-Currency Amount", "Add.-Currency Debit Amount", "Add.-Currency Credit Amount", "VAT Amount", Quantity, "Source Currency Amount", "Source Currency VAT Amount";
             IncludedFields = Amount, "Additional-Currency Amount";
         }
         key(Key3; "G/L Account No.", "Global Dimension 1 Code", "Global Dimension 2 Code", "Posting Date", "VAT Reporting Date", "Source Currency Code")
         {
-            SumIndexFields = Amount, "Debit Amount", "Credit Amount", "Additional-Currency Amount", "Add.-Currency Debit Amount", "Add.-Currency Credit Amount", "VAT Amount", "Source Currency Amount";
+            SumIndexFields = Amount, "Debit Amount", "Credit Amount", "Additional-Currency Amount", "Add.-Currency Debit Amount", "Add.-Currency Credit Amount", "VAT Amount", "Source Currency Amount", "Source Currency VAT Amount";
         }
         key(Key4; "G/L Account No.", "Business Unit Code", "Posting Date")
         {

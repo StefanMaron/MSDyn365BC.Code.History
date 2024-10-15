@@ -322,7 +322,7 @@ codeunit 147528 "SII Corrective Documents"
 
         // [THEN] ImporteTotal is positive in exported SII File
         LibrarySII.VerifyOneNodeWithValueByXPath(
-          XMLDoc, XPathSalesFacturaExpedidaTok, 'sii:ImporteTotal', SIIXMLCreator.FormatNumber(SalesLine."Amount Including VAT"));
+          XMLDoc, XPathSalesFacturaExpedidaTok, 'sii:ImporteTotal', SIIXMLCreator.FormatNumber(-SalesLine."Amount Including VAT"));
 
         // [THEN] BaseRectificada is "0" in exported SII File
         LibrarySII.VerifyOneNodeWithValueByXPath(

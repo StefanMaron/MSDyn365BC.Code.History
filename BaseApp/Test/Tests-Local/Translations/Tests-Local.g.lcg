@@ -4082,6 +4082,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SII Documents Exemption - NamedType XPathSalesNoExentaTok)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3734030123 - NamedType 2318256851" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Amount should be in negative.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SII Documents No Taxable - NamedType AmountShouldBeNegative)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3734030123 - NamedType 3088887303" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The XML document was not generated properly.]]></Val>
@@ -5090,6 +5099,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UT PAG Debit Credit - NamedType CreditAmountCap)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3750441960 - NamedType 1385475441" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Credit Amount (LCY)]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UT PAG Debit Credit - NamedType CreditAmountLCYTxt)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3750441960 - NamedType 3189543052" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Debit Amount]]></Val>
@@ -5097,6 +5115,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UT PAG Debit Credit - NamedType DebitAmountCap)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3750441960 - NamedType 3355119576" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Debit Amount (LCY)]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UT PAG Debit Credit - NamedType DebitAmountLCYTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3584459191 - NamedType 1591420032" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

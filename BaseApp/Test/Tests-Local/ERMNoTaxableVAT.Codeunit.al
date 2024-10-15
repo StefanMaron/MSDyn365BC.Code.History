@@ -418,6 +418,53 @@ codeunit 144075 "ERM No Taxable VAT"
         VerifyMultipleNoTaxableEntriesCreated(VendorNo, 2);
     end;
 
+    [Test]
+    [HandlerFunctions('ItemChargeAssignmentGetReceiptLinesModalPageHandler,ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure PurchaseInvoiceWithDifferentVATCombinationsAndItemCharges()
+    var
+        GenBusinessPostingGroup: Record "Gen. Business Posting Group";
+        GenProductPostingGroup: array[3] of Record "Gen. Product Posting Group";
+        GeneralPostingSetup: Record "General Posting Setup";
+        VATBusinessPostingGroup: Record "VAT Business Posting Group";
+        VATProductPostingGroup: array[3] of Record "VAT Product Posting Group";
+        VATPostingSetup: Record "VAT Posting Setup";
+        ItemCharge: array[3] of Record "Item Charge";
+        Vendor: Record Vendor;
+        VATEntry: Record "VAT Entry";
+        DocumentNo: Code[20];
+    begin
+        // [SCENARIO 538908] Purchase Invoice with different VAT Combinations and Item Charges produces wrong VAT Amount in the Spanish version.
+        Initialize();
+
+        // [GIVEN] Create General/VAT Posting Setup with their Business Posting Group X, and 3 different General/VAT Product Posting Group
+        CreateGeneralPostingSetupWithGenBusAndProdPostingGroup(GenBusinessPostingGroup, GenProductPostingGroup, GeneralPostingSetup);
+        CreateVATPostingSetupWithVATBusAndProdPostingGroups(VATBusinessPostingGroup, VATProductPostingGroup, VATPostingSetup);
+
+        // [GIVEN] Create 3 different Item Charges for all General/VAT Product Posting Groups
+        CreateItemChargesWithGenProdandVATProdPostingGroups(ItemCharge, GenProductPostingGroup, VATProductPostingGroup);
+
+        // [GIVEN] Create Vendor and Update General/VAT Business Posting Groups on Vendor
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Validate("Gen. Bus. Posting Group", GenBusinessPostingGroup.Code);
+        Vendor.Validate("VAT Bus. Posting Group", VATBusinessPostingGroup.Code);
+        Vendor.Modify(true);
+
+        // [THEN] Create and post multiple Purchase Orders with Item to use later with Charge Item Assignment
+        CreateAndPostPurchaseOrderWithItem(Vendor."No.", GenProductPostingGroup, VATProductPostingGroup);
+
+        // [WHEN] Post Purchase Invoice with Item Charge Lines
+        DocumentNo := PostPurchaseInvoiceWithItemChargeLines(VATPostingSetup, GenProductPostingGroup, VATProductPostingGroup, ItemCharge, Vendor."No.");
+
+        // [THEN] Verify: All posted VAT Entries with VAT % Zero contains Amount as Zero
+        VATEntry.SetRange("Document No.", DocumentNo);
+        if VATEntry.FindSet() then
+            repeat
+                if VATEntry."VAT %" = 0 then
+                    VATEntry.TestField(Amount, 0);
+            until VATEntry.Next() = 0;
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear();
@@ -762,6 +809,188 @@ codeunit 144075 "ERM No Taxable VAT"
         PurchaseHeader.Modify(true);
     end;
 
+    local procedure CreateGeneralPostingSetupWithGenBusAndProdPostingGroup(
+        var GenBusinessPostingGroup: Record "Gen. Business Posting Group";
+        var GenProductPostingGroup: array[3] of Record "Gen. Product Posting Group";
+        var GeneralPostingSetup: Record "General Posting Setup")
+    var
+        i: Integer;
+    begin
+        LibraryERM.CreateGenBusPostingGroup(GenBusinessPostingGroup);
+        for i := 1 to ArrayLen(GenProductPostingGroup) do begin
+            LibraryERM.CreateGenProdPostingGroup(GenProductPostingGroup[i]);
+            LibraryERM.CreateGeneralPostingSetup(GeneralPostingSetup, GenBusinessPostingGroup.Code, GenProductPostingGroup[i].Code);
+            GeneralPostingSetup.Validate("Sales Account", LibraryERM.CreateGLAccountNo());
+            GeneralPostingSetup.Validate("Purch. Account", LibraryERM.CreateGLAccountNo());
+            GeneralPostingSetup.Validate("COGS Account", LibraryERM.CreateGLAccountNo());
+            GeneralPostingSetup.Validate("Inventory Adjmt. Account", LibraryERM.CreateGLAccountNo());
+            GeneralPostingSetup.Validate("Direct Cost Applied Account", LibraryERM.CreateGLAccountNo());
+            GeneralPostingSetup.Modify(true);
+        end;
+    end;
+
+    local procedure CreateVATPostingSetupWithVATBusAndProdPostingGroups(
+        var VATBusinessPostingGroup: Record "VAT Business Posting Group";
+        var VATProductPostingGroup: array[3] of Record "VAT Product Posting Group";
+        var VATPostingSetup: Record "VAT Posting Setup")
+    var
+        SalesVATAccount: Code[20];
+        PurchVATAccount: Code[20];
+        VATRate: Decimal;
+        i: Integer;
+    begin
+        VATRate := 0;
+        SalesVATAccount := LibraryERM.CreateGLAccountNo();
+        PurchVATAccount := LibraryERM.CreateGLAccountNo();
+        LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
+
+        for i := 1 to ArrayLen(VATProductPostingGroup) do begin
+            VATPostingSetup.Init();
+            LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup[i]);
+            LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusinessPostingGroup.Code, VATProductPostingGroup[i].Code);
+            VATPostingSetup.Validate("VAT Bus. Posting Group", VATBusinessPostingGroup.Code);
+            VATPostingSetup.Validate("VAT Prod. Posting Group", VATProductPostingGroup[i].Code);
+            VATPostingSetup.Validate("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT");
+            VATPostingSetup.Validate("VAT %", VATRate);
+            VATPostingSetup.Validate("VAT Identifier", 'VI' + Format(VATRate));
+            VATPostingSetup.Validate("Sales VAT Account", SalesVATAccount);
+            VATPostingSetup.Validate("Purchase VAT Account", PurchVATAccount);
+            VATPostingSetup.Validate("Reverse Chrg. VAT Acc.", LibraryERM.CreateGLAccountNo());
+            VATPostingSetup.Validate("Tax Category", 'S');
+            VATRate := LibraryRandom.RandDecInRange(21, 21, 2);
+            VATPostingSetup.Modify(true);
+        end;
+    end;
+
+    local procedure CreateItemChargesWithGenProdandVATProdPostingGroups(
+        var ItemCharge: array[3] of Record "Item Charge";
+        GenProductPostingGroup: array[3] of Record "Gen. Product Posting Group";
+        VATProductPostingGroup: array[3] of Record "VAT Product Posting Group")
+    var
+        i: Integer;
+    begin
+        for i := 1 to ArrayLen(ItemCharge) do begin
+            LibraryInventory.CreateItemCharge(ItemCharge[i]);
+            ItemCharge[i].Validate("Gen. Prod. Posting Group", GenProductPostingGroup[i].Code);
+            ItemCharge[i].Validate("VAT Prod. Posting Group", VATProductPostingGroup[i].Code);
+            ItemCharge[i].Modify(true);
+        end;
+    end;
+
+
+    local procedure CreateAndPostPurchaseOrderWithItem(
+        VendorNo: Code[20];
+        GenProductPostingGroup: array[3] of Record "Gen. Product Posting Group";
+        VATProductPostingGroup: array[3] of Record "VAT Product Posting Group")
+    var
+        PurchaseHeaderOrder: Record "Purchase Header";
+        PurchaseLineOrder: array[3] of Record "Purchase Line";
+        Item: array[3] of Record Item;
+        i: Integer;
+    begin
+        LibraryPurchase.CreatePurchHeader(PurchaseHeaderOrder, PurchaseHeaderOrder."Document Type"::Order, VendorNo);
+        for i := 1 to ArrayLen(Item) do begin
+            LibraryInventory.CreateItem(Item[i]);
+            Item[i].Validate("Gen. Prod. Posting Group", GenProductPostingGroup[i].Code);
+            Item[i].Validate("VAT Prod. Posting Group", VATProductPostingGroup[1].Code);
+            Item[i].Modify(true);
+            LibraryPurchase.CreatePurchaseLine(
+                PurchaseLineOrder[i], PurchaseHeaderOrder, PurchaseLineOrder[i].Type::Item,
+                Item[i]."No.", LibraryRandom.RandIntInRange(5, 20));
+            PurchaseLineOrder[i].Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(100, 200));
+            PurchaseLineOrder[i].Modify(true);
+        end;
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeaderOrder, true, true);
+    end;
+
+    local procedure PostPurchaseInvoiceWithItemChargeLines(
+        VATPostingSetup: Record "VAT Posting Setup";
+        GenProductPostingGroup: array[3] of Record "Gen. Product Posting Group";
+        VATProductPostingGroup: array[3] of Record "VAT Product Posting Group";
+        ItemCharge: array[3] of Record "Item Charge";
+        VendorNo: Code[20]): Code[20]
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchLineChargeItem: Record "Purchase Line";
+        PurchLineGLAccount: Record "Purchase Line";
+        i, index : Integer;
+    begin
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VendorNo);
+        CreatePurchaseLine(
+            PurchLineGLAccount, PurchaseHeader, PurchLineGLAccount.Type::"G/L Account",
+            LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, "General Posting Type"::Purchase), LibraryRandom.RandIntInRange(1, 1));
+        PurchLineGLAccount.Validate("VAT Prod. Posting Group", VATProductPostingGroup[2].Code);
+        PurchLineGLAccount."Gen. Prod. Posting Group" := GenProductPostingGroup[2].Code;
+        PurchLineGLAccount.Modify(true);
+
+        for i := 1 to ArrayLen(ItemCharge) do begin
+            PurchLineChargeItem.Reset();
+            CreatePurchaseLine(PurchLineChargeItem, PurchaseHeader, PurchLineChargeItem.Type::"Charge (Item)", ItemCharge[i]."No.", 1);
+            PurchLineChargeItem.Validate("Gen. Prod. Posting Group", GenProductPostingGroup[i].Code);
+            PurchLineChargeItem.Validate("VAT Prod. Posting Group", VATProductPostingGroup[1].Code);
+            PurchLineChargeItem.Modify(true);
+
+            LibraryVariableStorage.Enqueue(ArrayLen(ItemCharge));
+            for index := 1 to ArrayLen(ItemCharge) do
+                LibraryVariableStorage.Enqueue(PurchLineChargeItem.Quantity);
+
+            GetReceiptLinesForItemCharge(PurchLineChargeItem);
+            Commit();
+            PurchLineChargeItem.ShowItemChargeAssgnt();
+        end;
+
+        exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));  // Post as Ship and Invoice.
+    end;
+
+    local procedure GetReceiptLinesForItemCharge(PurchaseLineSource: Record "Purchase Line")
+    var
+        PurchRcptLine: Record "Purch. Rcpt. Line";
+        ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)";
+        ItemChargeAssgntPurch: Codeunit "Item Charge Assgnt. (Purch.)";
+    begin
+        PurchaseLineSource.TestField("Qty. to Invoice");
+
+        PurchRcptLine.SetRange("Buy-from Vendor No.", PurchaseLineSource."Buy-from Vendor No.");
+        PurchRcptLine.FindFirst();
+
+        ItemChargeAssignmentPurch."Document Type" := PurchaseLineSource."Document Type";
+        ItemChargeAssignmentPurch."Document No." := PurchaseLineSource."Document No.";
+        ItemChargeAssignmentPurch."Document Line No." := PurchaseLineSource."Line No.";
+        ItemChargeAssignmentPurch."Item Charge No." := PurchaseLineSource."No.";
+
+        ItemChargeAssignmentPurch.SetRange("Document Type", PurchaseLineSource."Document Type");
+        ItemChargeAssignmentPurch.SetRange("Document No.", PurchaseLineSource."Document No.");
+        ItemChargeAssignmentPurch.SetRange("Document Line No.", PurchaseLineSource."Line No.");
+
+        ItemChargeAssignmentPurch."Unit Cost" := PurchaseLineSource."Direct Unit Cost";
+        ItemChargeAssgntPurch.CreateRcptChargeAssgnt(PurchRcptLine, ItemChargeAssignmentPurch);
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandler(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := true;
+    end;
+
+    [ModalPageHandler]
+    procedure ItemChargeAssignmentGetReceiptLinesModalPageHandler(var ItemChargeAssignmentPurch: TestPage "Item Charge Assignment (Purch)")
+    var
+        Index: Integer;
+        "Count": Integer;
+    begin
+        Count := LibraryVariableStorage.DequeueInteger();
+
+        ItemChargeAssignmentPurch.First();
+        ItemChargeAssignmentPurch."Qty. to Assign".SetValue(LibraryVariableStorage.DequeueDecimal());
+
+        for Index := 2 to Count do begin
+            ItemChargeAssignmentPurch.Next();
+            ItemChargeAssignmentPurch."Qty. to Assign".SetValue(LibraryVariableStorage.DequeueDecimal());
+        end;
+
+        ItemChargeAssignmentPurch.OK().Invoke();
+    end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]

@@ -455,15 +455,19 @@ report 90 "Import Consolidation from DB"
         BusUnit: Record "Business Unit";
         ConfirmManagement: Codeunit "Confirm Management";
         ConsolPeriodInclInFiscalYears: Boolean;
+        IsHandled: Boolean;
     begin
         if StartDate = 0D then
             Error(Text006);
         if EndDate = 0D then
             Error(Text007);
 
-        if not SkipDateConfirm then
-            if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(Text023, StartDate, EndDate), true) then
-                CurrReport.Break();
+        IsHandled := false;
+        OnCheckConsolidDatesOnBeforeConfirmConsolidationDates(IsHandled, StartDate, EndDate);
+        if not isHandled then
+            if not SkipDateConfirm then
+                if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(Text023, StartDate, EndDate), true) then
+                    CurrReport.Break();
 
         CheckClosingDates(StartDate, EndDate);
 
@@ -538,6 +542,11 @@ report 90 "Import Consolidation from DB"
         then
             if StartDate <> EndDate then
                 Error(Text030);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckConsolidDatesOnBeforeConfirmConsolidationDates(var IsHandled: Boolean; StartDate: Date; EndDate: Date)
+    begin
     end;
 
     local procedure CheckBusUnitsDatesToFiscalYear(var BusUnit: Record "Business Unit")

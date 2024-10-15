@@ -160,7 +160,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCreateTempSKUForLocation(TempSKU, LocationCode, IsHandled);
+        OnBeforeCreateTempSKUForLocation(TempSKU, LocationCode, IsHandled, ItemNo);
         if IsHandled then
             exit;
 
@@ -6022,7 +6022,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreateTempSKUForLocation(var TempStockkeeping: Record "Stockkeeping Unit" temporary; LocationCode: Code[10]; var IsHandled: Boolean)
+    local procedure OnBeforeCreateTempSKUForLocation(var TempStockkeeping: Record "Stockkeeping Unit" temporary; LocationCode: Code[10]; var IsHandled: Boolean; ItemNo: Code[20])
     begin
     end;
 

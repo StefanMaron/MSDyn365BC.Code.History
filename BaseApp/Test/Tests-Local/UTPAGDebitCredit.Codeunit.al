@@ -41,6 +41,8 @@ codeunit 144039 "UT PAG Debit Credit"
         CaptionMustBeSameMsg: Label 'Caption must be same.';
         CreditAmountCap: Label 'Credit Amount';
         DebitAmountCap: Label 'Debit Amount';
+        CreditAmountLCYTxt: Label 'Credit Amount (LCY)';
+        DebitAmountLCYTxt: Label 'Debit Amount (LCY)';
         isInitialized: Boolean;
 
     [Test]
@@ -287,7 +289,7 @@ codeunit 144039 "UT PAG Debit Credit"
         GeneralLedgerEntries.OpenEdit();
 
         // Verify: Verify Debit Amount and Credit Amount Captions on General Ledger Entries Page.
-        VerifyAmountCaptionOnPage(GeneralLedgerEntries."Credit Amount".Caption, GeneralLedgerEntries."Debit Amount".Caption);
+        VerifyAmountCaptionLCYOnPage(GeneralLedgerEntries."Credit Amount".Caption, GeneralLedgerEntries."Debit Amount".Caption);
         GeneralLedgerEntries.Close();
     end;
 
@@ -327,6 +329,12 @@ codeunit 144039 "UT PAG Debit Credit"
     begin
         Assert.AreEqual(StrSubstNo(DebitAmountCap), DebitAmount, CaptionMustBeSameMsg);
         Assert.AreEqual(StrSubstNo(CreditAmountCap), CreditAmount, CaptionMustBeSameMsg);
+    end;
+
+    local procedure VerifyAmountCaptionLCYOnPage(CreditAmount: Text; DebitAmount: Text)
+    begin
+        Assert.AreEqual(StrSubstNo(DebitAmountLCYTxt), DebitAmount, CaptionMustBeSameMsg);
+        Assert.AreEqual(StrSubstNo(CreditAmountLCYTxt), CreditAmount, CaptionMustBeSameMsg);
     end;
 }
 

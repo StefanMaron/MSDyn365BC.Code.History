@@ -23,7 +23,7 @@ using Microsoft.HumanResources.Employee;
 codeunit 9994 "API Data Upgrade"
 {
 
-    Permissions = TableData "Sales Shipment Header" = r,
+    Permissions = TableData "Sales Shipment Header" = rm,
                   TableData "Sales Shipment Line" = rm,
                   TableData "Purch. Rcpt. Header" = r,
                   TableData "Purch. Rcpt. Line" = rm;

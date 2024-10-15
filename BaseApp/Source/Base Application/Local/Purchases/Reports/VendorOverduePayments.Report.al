@@ -387,8 +387,15 @@ report 10748 "Vendor - Overdue Payments"
                         InvPaidWithinLegalDueDateTotalCount += 1;
                     end;
 
-                    InvoicesPaidToTotalCountPctPerVendor := 100 * InvPaidWithinLegalDueDateCountPerVendor / InvoicesCountPerVendor;
-                    InvoicesPaidToTotalCountPct := 100 * InvPaidWithinLegalDueDateTotalCount / InvoicesTotalCount;
+                    if InvoicesCountPerVendor <> 0 then
+                        InvoicesPaidToTotalCountPctPerVendor := 100 * InvPaidWithinLegalDueDateCountPerVendor / InvoicesCountPerVendor
+                    else
+                        InvoicesPaidToTotalCountPctPerVendor := 0;
+
+                    if InvoicesTotalCount <> 0 then
+                        InvoicesPaidToTotalCountPct := 100 * InvPaidWithinLegalDueDateTotalCount / InvoicesTotalCount
+                    else
+                        InvoicesPaidToTotalCountPct := 0;
                 end;
             }
 
