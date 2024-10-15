@@ -14,45 +14,64 @@ codeunit 148168 "Elster Export Business Data"
     end;
 
     var
-        FileManagement: Codeunit "File Management";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryRandom: Codeunit "Library - Random";
         Assert: Codeunit Assert;
+        IsInitialized: Boolean;
         ConvertedGermanicUmlauErr: Label 'ENU=Converted Germanic umlaut text expected.';
 
     [Test]
     [HandlerFunctions('MessageHandler')]
-    procedure TestExportElsterXMLWithGermanicSymbols()
+    procedure TestExportElsterXMLWithGermanicSymbolsYear2020()
     var
         SalesVATAdvanceNotif: Record "Sales VAT Advance Notif.";
-        LibraryXMLRead: Codeunit "Library - XML Read";
-        GermanicUmlautTxt: Text[7];
-        ConvertedGermanicUmlautTxt: Text[14];
-        FilePath: Text;
     begin
-        // [SCENARIO 382098] Generate Sales VAT Advance Notification XML file with proper Germanic umlaut symbols
+        // [SCENARIO 381046] Generate Sales VAT Advance Notification XML file with proper Germanic umlaut symbols for Elster format year 2020
 
-        GermanicUmlautTxt := 'ÄÖÜüöäß';
-        ConvertedGermanicUmlautTxt := 'AeOeUeueoeaess';
-        FilePath := FileManagement.ServerTempFileName('XML');
-        LibrarySetupStorage.Save(Database::"Company Information");
+        Initialize();
         UpdateCompanyInformation();
 
-        // [GIVEN] Sales VAT Advance Notification "SN"
-        MockSalesVATAdvanceNotif(SalesVATAdvanceNotif, GermanicUmlautTxt);
+        // [GIVEN] Sales VAT Advance Notification "SN" with "Starting Date" = 01.01.2020
+        MockSalesVATAdvanceNotif(SalesVATAdvanceNotif, GetGermanicUmlautString(), 20200101D);
 
         // [WHEN] Creating an XML file for "SN"
         Report.Run(Report::"Create XML-File VAT Adv.Notif.", false, false, SalesVATAdvanceNotif);
 
         // [THEN] Verifying that Germanic umlaut symbols are converted correctly
-        SalesVATAdvanceNotif.CalcFields("XML Submission Document");
-        SalesVATAdvanceNotif."XML Submission Document".Export(FilePath);
-        LibraryXMLRead.Initialize(FilePath);
-
-        Assert.AreEqual(ConvertedGermanicUmlautTxt, LibraryXMLRead.GetElementValue('Name'), ConvertedGermanicUmlauErr);
-        LibrarySetupStorage.Restore();
+        VerifyGermanicSymbols(SalesVATAdvanceNotif, 'http://www.elster.de/elsterxml/schema/v11');
     END;
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    procedure TestExportElsterXMLWithGermanicSymbolsYear2021()
+    var
+        SalesVATAdvanceNotif: Record "Sales VAT Advance Notif.";
+    begin
+        // [SCENARIO 381046] Generate Sales VAT Advance Notification XML file with proper Germanic umlaut symbols for Elster format year 2021
+
+        Initialize();
+        UpdateCompanyInformation();
+
+        // [GIVEN] Sales VAT Advance Notification "SN" with "Starting Date" = 01.01.2021
+        MockSalesVATAdvanceNotif(SalesVATAdvanceNotif, GetGermanicUmlautString(), 20210101D);
+
+        // [WHEN] Creating an XML file for "SN"
+        Report.Run(Report::"Create XML-File VAT Adv.Notif.", false, false, SalesVATAdvanceNotif);
+
+        // [THEN] Verifying that Germanic umlaut symbols are converted correctly
+        VerifyGermanicSymbols(SalesVATAdvanceNotif, 'http://finkonsens.de/elster/elsteranmeldung/ustva/v2021');
+    END;
+
+    local procedure Initialize()
+    begin
+        LibrarySetupStorage.Restore();
+        if IsInitialized then
+            exit;
+
+        LibrarySetupStorage.Save(Database::"Company Information");
+        IsInitialized := true;
+    end;
 
     local procedure UpdateCompanyInformation()
     var
@@ -68,14 +87,24 @@ codeunit 148168 "Elster Export Business Data"
         CompanyInformation.Modify();
     end;
 
-    local procedure MockSalesVATAdvanceNotif(var SalesVATAdvanceNotif: Record "Sales VAT Advance Notif."; GermanicUmlautTxt: Text[7])
+    local procedure GetGermanicUmlautString(): Text[7]
+    begin
+        exit('ÄÖÜüöäß');
+    end;
+
+    local procedure GetConvertedGermanicUmlautString(): Text[14]
+    begin
+        exit('AeOeUeueoeaess');
+    end;
+
+    local procedure MockSalesVATAdvanceNotif(var SalesVATAdvanceNotif: Record "Sales VAT Advance Notif."; GermanicUmlautTxt: Text[7]; StartingDate: Date)
     var
         VATStatementName: Record "VAT Statement Name";
     begin
         SalesVATAdvanceNotif.Init();
         SalesVATAdvanceNotif."No." :=
           LibraryUtility.GenerateRandomCode(SalesVATAdvanceNotif.FieldNo("No."), DATABASE::"Sales VAT Advance Notif.");
-        SalesVATAdvanceNotif."Starting Date" := CalcDate('<-CY>', WorkDate());
+        SalesVATAdvanceNotif."Starting Date" := StartingDate;
         SalesVATAdvanceNotif."XML-File Creation Date" := 0D;
         SalesVATAdvanceNotif."Contact for Tax Office" := GermanicUmlautTxt;
         SalesVATAdvanceNotif.Insert();
@@ -89,6 +118,18 @@ codeunit 148168 "Elster Export Business Data"
         VATStatementName."Sales VAT Adv. Notif." := true;
         VATStatementName.Insert();
     END;
+
+    local procedure VerifyGermanicSymbols(SalesVATAdvanceNotif: Record "Sales VAT Advance Notif."; NameSpace: Text)
+    var
+        LibraryXPathXMLReader: Codeunit "Library - XPath XML Reader";
+        TempBlob: Codeunit "Temp Blob";
+    begin
+        SalesVATAdvanceNotif.CalcFields("XML Submission Document");
+        TempBlob.FromRecord(SalesVATAdvanceNotif, SalesVATAdvanceNotif.FieldNo("XML Submission Document"));
+        LibraryXPathXMLReader.InitializeXml(TempBlob, 'elster', NameSpace);
+        Assert.AreEqual(
+            GetConvertedGermanicUmlautString(), LibraryXPathXMLReader.GetXmlElementValue('//elster:Name'), ConvertedGermanicUmlauErr);
+    end;
 
     [MessageHandler]
     procedure MessageHandler(Message: Text[1024]);
