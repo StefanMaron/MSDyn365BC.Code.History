@@ -258,7 +258,7 @@ codeunit 87 "Blanket Sales Order to Order"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCreateSalesHeader(SalesHeader, PrepmtPercent, CreditLimitExceeded, IsHandled);
+        OnBeforeCreateSalesHeader(SalesHeader, PrepmtPercent, CreditLimitExceeded, IsHandled, SalesOrderHeader);
         if IsHandled then
             exit(CreditLimitExceeded);
 
@@ -485,7 +485,7 @@ codeunit 87 "Blanket Sales Order to Order"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreateSalesHeader(var SalesHeader: Record "Sales Header"; PrepmtPercent: Decimal; var CreditLimitExceeded: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeCreateSalesHeader(var SalesHeader: Record "Sales Header"; PrepmtPercent: Decimal; var CreditLimitExceeded: Boolean; var IsHandled: Boolean; var OrderSalesHeader: Record "Sales Header")
     begin
     end;
 

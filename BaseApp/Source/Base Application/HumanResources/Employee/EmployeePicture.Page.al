@@ -1,4 +1,4 @@
-namespace Microsoft.HumanResources.Employee;
+﻿namespace Microsoft.HumanResources.Employee;
 
 using Microsoft.Integration.Entity;
 using System.Device;
@@ -74,6 +74,7 @@ page 5202 "Employee Picture"
                     Clear(Rec.Image);
                     Rec.Image.ImportFile(FileName, ClientFileName);
                     Rec.Modify(true);
+                    OnActionImportPictureOnAfterModify(Rec);
 
                     if FileManagement.DeleteServerFile(FileName) then;
                 end;
@@ -168,6 +169,11 @@ page 5202 "Employee Picture"
     local procedure SetEditableOnPictureActions()
     begin
         DeleteExportEnabled := Rec.Image.HasValue();
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnActionImportPictureOnAfterModify(var Employee: Record Employee)
+    begin
     end;
 }
 

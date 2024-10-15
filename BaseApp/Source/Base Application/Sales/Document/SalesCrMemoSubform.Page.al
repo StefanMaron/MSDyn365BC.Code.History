@@ -1331,6 +1331,8 @@ page 96 "Sales Cr. Memo Subform"
 
     protected procedure QuantityOnAfterValidate()
     begin
+        OnBeforeQuantityOnAfterValidate(Rec, xRec);
+
         if Rec.Reserve = Rec.Reserve::Always then begin
             CurrPage.SaveRecord();
             Rec.AutoReserve();
@@ -1338,6 +1340,8 @@ page 96 "Sales Cr. Memo Subform"
 
         OnQuantityOnAfterValidateOnBeforeDeltaUpdateTotals(Rec, xRec);
         DeltaUpdateTotals();
+
+        OnAfterQuantityOnAfterValidate(Rec, xRec);
     end;
 
     protected procedure UnitofMeasureCodeOnAfterValidate()
@@ -1519,6 +1523,16 @@ page 96 "Sales Cr. Memo Subform"
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeOnDeleteRecord(var SalesLine: Record "Sales Line"; var DocumentTotals: Codeunit "Document Totals"; var Result: Boolean; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeQuantityOnAfterValidate(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterQuantityOnAfterValidate(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line")
     begin
     end;
 }

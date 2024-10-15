@@ -1944,9 +1944,14 @@ page 22 "Customer List"
     var
         Cust: Record Customer;
         SelectionFilterManagement: Codeunit SelectionFilterManagement;
+        SelectionFilterForCustomer: Text;
     begin
         CurrPage.SetSelectionFilter(Cust);
-        exit(SelectionFilterManagement.GetSelectionFilterForCustomer(Cust));
+        SelectionFilterForCustomer := SelectionFilterManagement.GetSelectionFilterForCustomer(Cust);
+
+        OnAfterGetSelectionFilter(Cust, SelectionFilterForCustomer);
+
+        exit(SelectionFilterForCustomer);
     end;
 
     procedure SetSelection(var Cust: Record Customer)
@@ -1992,6 +1997,11 @@ page 22 "Customer List"
     [IntegrationEvent(false, false)]
     [Scope('OnPrem')]
     procedure SetCaption(var InText: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    procedure OnAfterGetSelectionFilter(var Customer: Record Customer; var SelectionFilterForCustomer: Text)
     begin
     end;
 }

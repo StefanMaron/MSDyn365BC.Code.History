@@ -401,6 +401,7 @@ codeunit 8 AccSchedManagement
             AccountScheduleLine."Dimension 1 Totaling" := AccSchedLine."Dimension 1 Totaling";
             AccountScheduleLine."Dimension 2 Totaling" := AccSchedLine."Dimension 2 Totaling";
             AccountScheduleLine.CopyFilters(AccSchedLine);
+            OnCalcCellOnAfterAccountScheduleLineCopyFilters(ColumnLayout, AccountScheduleLine);
             StartDate := AccountScheduleLine.GetRangeMin("Date Filter");
             if EndDate <> AccountScheduleLine.GetRangeMax("Date Filter") then begin
                 EndDate := AccountScheduleLine.GetRangeMax("Date Filter");
@@ -3016,6 +3017,11 @@ codeunit 8 AccSchedManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeHasCostDimFilter(var AccScheduleLine: Record "Acc. Schedule Line"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcCellOnAfterAccountScheduleLineCopyFilters(ColumnLayout: Record "Column Layout"; var AccScheduleLine: Record "Acc. Schedule Line")
     begin
     end;
 }

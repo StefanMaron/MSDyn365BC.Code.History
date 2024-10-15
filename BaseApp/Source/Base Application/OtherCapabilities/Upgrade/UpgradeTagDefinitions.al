@@ -200,6 +200,7 @@ codeunit 9998 "Upgrade Tag Definitions"
         PerDatabaseUpgradeTags.Add(GetUserGroupsMigrationUpgradeTag());
         PerDatabaseUpgradeTags.Add(GetCustLedgerEntryYourReferenceUpdateTag());
         PerDatabaseUpgradeTags.Add(GetEssentialAttachUserGroupUpgradeTag());
+        PerDatabaseUpgradeTags.Add(GetBCUserGroupUpgradeTag());
         PerDatabaseUpgradeTags.Add(GetRenderWordReportsInPlatformFeatureKeyUpgradeTag());
         PerDatabaseUpgradeTags.Add(GetRegisterBankAccRecCopilotCapabilityUpgradeTag());
     end;
@@ -1003,6 +1004,11 @@ codeunit 9998 "Upgrade Tag Definitions"
         exit('MS-483944-GetD365EssentialAttachUserGroupUpgradeTag-20230911');
     end;
 
+    internal procedure GetBCUserGroupUpgradeTag(): Code[250];
+    begin
+        exit('MS-498639-GetBCUserGroupUpgradeTag-20240502');
+    end;
+
     internal procedure GetItemChargeHandleQtyUpgradeTag(): Code[250]
     begin
         exit('MS-424468-GetItemChargeHandleQtyUpgradeTag-20220524');
@@ -1115,7 +1121,7 @@ codeunit 9998 "Upgrade Tag Definitions"
 
     internal procedure GetSendCloudMigrationUpgradeTelemetryBaseAppTag(): Text[250]
     begin
-        exit('MS-456494-CloudMigrationUptakeBaseApp-20230425');
+        exit('MS-456494-CloudMigrationUptakeBaseApp-20240201');
     end;
 
     internal procedure GetICPartnerGLAccountNoUpgradeTag(): Code[250]

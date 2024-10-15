@@ -589,6 +589,8 @@ report 7305 "Whse.-Source - Create Document"
                 SetRange("Job No.", JobHeader."No.");
                 SetFilter(Quantity, '>0');
 
+                OnPreDataItemJobPlanningLineOnAfterSetFilters("Job Planning Line", JobHeader);
+
                 WhseWkshLine.SetCurrentKey("Source Type", "Source Subtype", "Source No.", "Source Line No.", "Source Subline No.");
                 WhseWkshLine.SetRange("Source Type", Database::Job);
                 WhseWkshLine.SetRange("Source Subtype", 0);
@@ -1515,6 +1517,11 @@ report 7305 "Whse.-Source - Create Document"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateMovementLines(var WhseWorksheetLine: Record "Whse. Worksheet Line"; var PickQty: Decimal; var PickQtyBase: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPreDataItemJobPlanningLineOnAfterSetFilters(var JobPlanningLine: Record "Job Planning Line"; Job: Record Job)
     begin
     end;
 }

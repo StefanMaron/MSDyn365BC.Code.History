@@ -1,4 +1,4 @@
-namespace Microsoft.Finance.Analysis;
+﻿namespace Microsoft.Finance.Analysis;
 
 using Microsoft.CashFlow.Account;
 using Microsoft.Finance.Consolidation;
@@ -210,8 +210,14 @@ codeunit 424 "Export Analysis View"
     var
         AnalysisViewEntry2: Record "Analysis View Entry";
         MaxDate: Date;
+        IsHandled: Boolean;
     begin
         with AnalysisViewEntry do begin
+	        IsHandled := false;
+	        OnBeforeCreateAnalysisViewEntryPart(AnalysisViewEntry, AnalysisView, StartDate, EndDate, AnalysisByDimParameters, IsHandled);
+	        if IsHandled then
+	            exit;
+                
             StartDate := "Posting Date";
             AnalysisViewEntry2.SetFilter("Posting Date", AnalysisByDimParameters."Date Filter");
             if (AnalysisByDimParameters."Date Filter" <> '') and (AnalysisByDimParameters."Amount Type" = "Analysis Amount Type"::"Balance at Date") then begin
@@ -989,6 +995,11 @@ codeunit 424 "Export Analysis View"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckCombination(GLAccountSource: Boolean; Show: Integer; AmountField: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateAnalysisViewEntryPart(var AnalysisViewEntry: Record "Analysis View Entry"; AnalysisView: Record "Analysis View"; var StartDate: Date; var EndDate: Date; AnalysisByDimParameters: Record "Analysis by Dim. Parameters"; var IsHandled: Boolean)
     begin
     end;
 }

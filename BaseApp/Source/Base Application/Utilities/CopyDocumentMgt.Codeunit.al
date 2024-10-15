@@ -591,6 +591,8 @@ codeunit 6620 "Copy Document Mgt."
                     if CopyArchSalesLine(
                          ToSalesHeader, ToSalesLine, FromSalesHeaderArchive, FromSalesLineArchive, NextLineNo, LinesNotCopied, false)
                     then begin
+                    if ToSalesLine."Qty. to Assemble to Order" <> 0 then
+                        ToSalesLine.AutoAsmToOrder();
                         CopyFromArchSalesDocDimToLine(ToSalesLine, FromSalesLineArchive);
                         if FromSalesLineArchive.Type = FromSalesLineArchive.Type::"Charge (Item)" then
                             CopyFromSalesDocAssgntToLine(

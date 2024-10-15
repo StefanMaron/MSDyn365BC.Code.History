@@ -102,6 +102,7 @@ codeunit 5763 "Whse.-Post Shipment"
             SetRange("No.", "No.");
             OnBeforeCheckWhseShptLines(WhseShptLine, WhseShptHeader, Invoice, SuppressCommit);
             SetFilter("Qty. to Ship", '>0');
+            OnRunOnAfterWhseShptLineSetFilters(WhseShptLine);
             if Find('-') then
                 repeat
                     TestField("Unit of Measure Code");
@@ -932,7 +933,7 @@ codeunit 5763 "Whse.-Post Shipment"
             WhseShptLine2.Status := WhseShptLine2.CalcStatusShptLine();
             OnBeforePostUpdateWhseShptLineModify(WhseShptLine2, TempWarehouseShipmentLine);
             WhseShptLine2.Modify();
-            OnAfterPostUpdateWhseShptLine(WhseShptLine2);
+            OnAfterPostUpdateWhseShptLine(WhseShptLine2, TempWarehouseShipmentLine);
         end;
     end;
 
@@ -1428,7 +1429,7 @@ codeunit 5763 "Whse.-Post Shipment"
                     SetRange("Source Line No.", TransLine."Line No.");
                     if Find('-') then begin
                         IsHandled := false;
-                        OnAfterFindWhseShptLineForTransLine(WhseShptLine, TransLine, IsHandled);
+                        OnAfterFindWhseShptLineForTransLine(WhseShptLine, TransLine, IsHandled, ModifyLine);
                         if not IsHandled then begin
                             ModifyLine := TransLine."Qty. to Ship" <> "Qty. to Ship";
                             if ModifyLine then
@@ -1785,7 +1786,7 @@ codeunit 5763 "Whse.-Post Shipment"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterFindWhseShptLineForTransLine(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; var TransferLine: Record "Transfer Line"; var IsHandled: Boolean)
+    local procedure OnAfterFindWhseShptLineForTransLine(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; var TransferLine: Record "Transfer Line"; var IsHandled: Boolean; var ModifyLine: Boolean)
     begin
     end;
 
@@ -1835,7 +1836,7 @@ codeunit 5763 "Whse.-Post Shipment"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterPostUpdateWhseShptLine(var WarehouseShipmentLine: Record "Warehouse Shipment Line")
+    local procedure OnAfterPostUpdateWhseShptLine(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; var TempWarehouseShipmentLineBuffer: Record "Warehouse Shipment Line" temporary)
     begin
     end;
 
@@ -2306,6 +2307,11 @@ codeunit 5763 "Whse.-Post Shipment"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePrintDocuments(var SalesInvoiceHeader: Record "Sales Invoice Header"; var SalesShipmentHeader: Record "Sales Shipment Header"; var PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr."; var ReturnShipmentHeader: Record "Return Shipment Header"; var TransferShipmentHeader: Record "Transfer Shipment Header"; var ServiceInvoiceHeader: Record "Service Invoice Header"; var ServiceShipmentHeader: Record "Service Shipment Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnAfterWhseShptLineSetFilters(var WarehouseShipmentLine: Record "Warehouse Shipment Line")
     begin
     end;
 }

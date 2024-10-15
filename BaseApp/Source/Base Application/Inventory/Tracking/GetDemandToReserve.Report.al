@@ -71,6 +71,8 @@ report 302 "Get Demand To Reserve"
                         CurrReport.Skip();
                 end;
 
+                OnSalesOrderLineOnAfterGetRecordOnBeforeSetTempSalesLine(SalesOrderLine);
+
                 TempSalesLine := SalesOrderLine;
                 TempSalesLine.Insert();
             end;
@@ -540,5 +542,10 @@ report 302 "Get Demand To Reserve"
         StartDate := StartDateFromBatch;
         EndDate := EndDateFromBatch;
         DateFilter := Format(StartDate) + '..' + Format(EndDate);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSalesOrderLineOnAfterGetRecordOnBeforeSetTempSalesLine(var OrderSalesLine: Record "Sales Line")
+    begin
     end;
 }

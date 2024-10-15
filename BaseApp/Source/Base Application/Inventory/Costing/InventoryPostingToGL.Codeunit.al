@@ -277,6 +277,8 @@ codeunit 5802 "Inventory Posting To G/L"
                 else
                     ErrorNonValidCombination(ValueEntry);
             end;
+
+        OnAfterBufferPurchPosting(TempInvtPostBuf, ValueEntry, PostBufDimNo);
     end;
 
     local procedure BufferSalesPosting(ValueEntry: Record "Value Entry"; CostToPost: Decimal; CostToPostACY: Decimal; ExpCostToPost: Decimal; ExpCostToPostACY: Decimal)
@@ -1742,6 +1744,11 @@ codeunit 5802 "Inventory Posting To G/L"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterBufferAdjmtPosting(var TempInvtPostingBuffer: array[20] of Record "Invt. Posting Buffer" temporary; ValueEntry: Record "Value Entry"; var PostBufDimNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterBufferPurchPosting(var TempInvtPostingBuffer: array[20] of Record "Invt. Posting Buffer" temporary; ValueEntry: Record "Value Entry"; var PostBufDimNo: Integer)
     begin
     end;
 }

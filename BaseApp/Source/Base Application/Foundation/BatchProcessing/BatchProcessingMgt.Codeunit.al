@@ -133,7 +133,7 @@ codeunit 1380 "Batch Processing Mgt."
             ResetBatchID();
 
             IsHandled := false;
-            OnBatchProcessOnBeforeShowMessage(CounterPosted, CounterTotal, IsHandled);
+            OnBatchProcessOnBeforeShowMessage(CounterPosted, CounterTotal, IsHandled, ErrorMessageHandler, ErrorMessageMgt, FullBatchProcessed);
 
             if GuiAllowed then begin
                 Window.Close();
@@ -603,7 +603,7 @@ codeunit 1380 "Batch Processing Mgt."
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBatchProcessOnBeforeShowMessage(CounterPosted: Integer; CounterTotal: Integer; var IsHandled: Boolean)
+    local procedure OnBatchProcessOnBeforeShowMessage(CounterPosted: Integer; CounterTotal: Integer; var IsHandled: Boolean; var ErrorMessageHandler: Codeunit "Error Message Handler"; var ErrorMessageMgt: Codeunit "Error Message Management"; FullBatchProcessed: Boolean)
     begin
     end;
 

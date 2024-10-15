@@ -629,6 +629,7 @@ codeunit 5703 "Catalog Item Management"
     procedure CreateNewItem(NonstockItem: Record "Nonstock Item")
     var
         Item: Record Item;
+        InventorySetup: Record "Inventory Setup";
         ItemTemplMgt: Codeunit "Item Templ. Mgt.";
         IsHandled: Boolean;
     begin
@@ -637,8 +638,12 @@ codeunit 5703 "Catalog Item Management"
         if IsHandled then
             exit;
 
+        InventorySetup.SetLoadFields("Default Costing Method");
+        InventorySetup.Get();
+
         Item.Init();
         Item."No." := NonstockItem."Item No.";
+        Item."Costing Method" := InventorySetup."Default Costing Method";
         OnCreateNewItemOnBeforeItemInsert(Item, NonstockItem);
         Item.Insert();
 
