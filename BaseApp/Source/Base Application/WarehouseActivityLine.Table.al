@@ -266,12 +266,12 @@ table 5767 "Warehouse Activity Line"
                         UOMMgt.RoundAndValidateQty("Qty. to Handle", "Qty. Rounding Precision", FieldCaption("Qty. to Handle"));
                     "Qty. to Handle (Base)" :=
                         CalcBaseQty("Qty. to Handle", FieldCaption("Qty. to Handle"), FieldCaption("Qty. to Handle (Base)"));
-                    ValidateQuantityIsBalanced();
                     if "Qty. to Handle (Base)" > "Qty. Outstanding (Base)" then begin // rounding error- qty same, not base qty
                         QtyToHandleBase := "Qty. Outstanding (Base)";
                         OnValidateQtyToHandleOnAfterCalcQtyToHandleBase(Rec, "Qty. To Handle (Base)", QtyToHandleBase);
                         "Qty. to Handle (Base)" := QtyToHandleBase;
                     end;
+                    ValidateQuantityIsBalanced();
                 end;
 
                 if ("Activity Type" = "Activity Type"::"Put-away") and
@@ -1771,6 +1771,54 @@ table 5767 "Warehouse Activity Line"
 
     procedure CheckReservedItemTrkg(CheckType: Enum "Item Tracking Type"; ItemTrkgCode: Code[50])
     var
+        IsHandled: Boolean;
+    begin
+        IsHandled := ("Activity Type" = "Activity Type"::"Invt. Pick") and "Assemble to Order";
+        OnBeforeCheckReservedItemTrkg(Rec, CheckType, ItemTrkgCode, IsHandled);
+        if IsHandled then
+            exit;
+
+        case CheckType of
+            CheckType::"Serial No.":
+                CheckReservedItemTrkgForSerialNo(ItemTrkgCode);
+            CheckType::"Lot No.":
+                CheckReservedItemTrkgForLotNo(ItemTrkgCode);
+            else
+                OnCheckReservedItemTrkgOnCheckTypeElseCase(Rec, CheckType, ItemTrkgCode);
+        end;
+    end;
+
+    local procedure CheckReservedItemTrkgForSerialNo(ItemTrkgCode: Code[50])
+    var
+        ReservEntry: Record "Reservation Entry";
+        WhseItemTrackingSetup: Record "Item Tracking Setup";
+    begin
+        ItemTrackingMgt.GetWhseItemTrkgSetup("Item No.", WhseItemTrackingSetup);
+        if not WhseItemTrackingSetup."Serial No. Required" then
+            exit;
+
+        ReservEntry.SetCurrentKey("Item No.", "Variant Code", "Location Code", "Reservation Status");
+        ReservEntry.SetRange("Item No.", "Item No.");
+        ReservEntry.SetRange("Variant Code", "Variant Code");
+        ReservEntry.SetRange("Location Code", "Location Code");
+        ReservEntry.SetRange("Reservation Status", ReservEntry."Reservation Status"::Reservation);
+        ReservEntry.SetRange("Serial No.", ItemTrkgCode);
+        ReservEntry.SetRange(Positive, false);
+        if ReservEntry.FindFirst() and
+            ((ReservEntry."Source Type" <> "Source Type") or
+            (ReservEntry."Source Subtype" <> "Source Subtype") or
+            (ReservEntry."Source ID" <> "Source No.") or
+            (((ReservEntry."Source Ref. No." <> "Source Line No.") and
+                (ReservEntry."Source Type" <> DATABASE::"Prod. Order Component")) or
+                (((ReservEntry."Source Prod. Order Line" <> "Source Line No.") or
+                (ReservEntry."Source Ref. No." <> "Source Subline No.")) and
+                (ReservEntry."Source Type" = DATABASE::"Prod. Order Component"))))
+        then
+            Error(Text014, FieldCaption("Serial No."), ItemTrkgCode);
+    end;
+
+    local procedure CheckReservedItemTrkgForLotNo(ItemTrkgCode: Code[50])
+    var
         Item: Record Item;
         ReservEntry: Record "Reservation Entry";
         ReservEntry2: Record "Reservation Entry";
@@ -1779,83 +1827,54 @@ table 5767 "Warehouse Activity Line"
         WhseAvailMgt: Codeunit "Warehouse Availability Mgt.";
         LineReservedQty: Decimal;
         AvailQtyFromOtherResvLines: Decimal;
-        IsHandled: Boolean;
     begin
-        IsHandled := ("Activity Type" = "Activity Type"::"Invt. Pick") and "Assemble to Order";
-        OnBeforeCheckReservedItemTrkg(Rec, CheckType, ItemTrkgCode, IsHandled);
-        if IsHandled then
+        ItemTrackingMgt.GetWhseItemTrkgSetup("Item No.", WhseItemTrackingSetup);
+        if not WhseItemTrackingSetup."Lot No. Required" then
             exit;
-        case CheckType of
-            CheckType::"Serial No.":
-                begin
-                    ReservEntry.SetCurrentKey("Item No.", "Variant Code", "Location Code", "Reservation Status");
-                    ReservEntry.SetRange("Item No.", "Item No.");
-                    ReservEntry.SetRange("Variant Code", "Variant Code");
-                    ReservEntry.SetRange("Location Code", "Location Code");
-                    ReservEntry.SetRange("Reservation Status", ReservEntry."Reservation Status"::Reservation);
-                    ReservEntry.SetRange("Serial No.", ItemTrkgCode);
-                    ReservEntry.SetRange(Positive, false);
-                    if ReservEntry.Find('-') and
-                       ((ReservEntry."Source Type" <> "Source Type") or
-                        (ReservEntry."Source Subtype" <> "Source Subtype") or
-                        (ReservEntry."Source ID" <> "Source No.") or
-                        (((ReservEntry."Source Ref. No." <> "Source Line No.") and
-                          (ReservEntry."Source Type" <> DATABASE::"Prod. Order Component")) or
-                         (((ReservEntry."Source Prod. Order Line" <> "Source Line No.") or
-                           (ReservEntry."Source Ref. No." <> "Source Subline No.")) and
-                          (ReservEntry."Source Type" = DATABASE::"Prod. Order Component"))))
-                    then
-                        Error(Text014, FieldCaption("Serial No."), ItemTrkgCode);
-                end;
-            CheckType::"Lot No.":
-                begin
-                    Item.Get("Item No.");
-                    Item.SetRange("Location Filter", "Location Code");
-                    Item.SetRange("Variant Filter", "Variant Code");
-                    Item.SetRange("Lot No. Filter", ItemTrkgCode);
-                    Item.CalcFields(Inventory, "Reserved Qty. on Inventory");
-                    WhseItemTrackingSetup."Lot No." := ItemTrkgCode;
-                    ReservEntry.SetCurrentKey("Item No.", "Variant Code", "Location Code", "Reservation Status");
-                    ReservEntry.SetRange("Item No.", "Item No.");
-                    ReservEntry.SetRange("Variant Code", "Variant Code");
-                    ReservEntry.SetRange("Location Code", "Location Code");
-                    ReservEntry.SetRange("Reservation Status", ReservEntry."Reservation Status"::Reservation);
-                    ReservEntry.SetRange("Lot No.", ItemTrkgCode);
-                    ReservEntry.SetRange(Positive, true);
-                    if ReservEntry.Find('-') then
-                        repeat
-                            ReservEntry2.Get(ReservEntry."Entry No.", false);
-                            if ((ReservEntry2."Source Type" <> "Source Type") or
-                                (ReservEntry2."Source Subtype" <> "Source Subtype") or
-                                (ReservEntry2."Source ID" <> "Source No.") or
-                                (((ReservEntry2."Source Ref. No." <> "Source Line No.") and
-                                  (ReservEntry2."Source Type" <> DATABASE::"Prod. Order Component")) or
-                                 (((ReservEntry2."Source Prod. Order Line" <> "Source Line No.") or
-                                   (ReservEntry2."Source Ref. No." <> "Source Subline No.")) and
-                                  (ReservEntry2."Source Type" = DATABASE::"Prod. Order Component")))) and
-                               (ReservEntry2."Lot No." = '')
-                            then
-                                AvailQtyFromOtherResvLines := AvailQtyFromOtherResvLines + Abs(ReservEntry2."Quantity (Base)");
-                        until ReservEntry.Next() = 0;
 
-                    TempWhseActivLine := Rec;
-                    TempWhseActivLine."Qty. Outstanding (Base)" *= -1;
-                    TempWhseActivLine.Insert();
+        Item.Get("Item No.");
+        Item.SetRange("Location Filter", "Location Code");
+        Item.SetRange("Variant Filter", "Variant Code");
+        Item.SetRange("Lot No. Filter", ItemTrkgCode);
+        Item.CalcFields(Inventory, "Reserved Qty. on Inventory");
+        WhseItemTrackingSetup."Lot No." := ItemTrkgCode;
+        ReservEntry.SetCurrentKey("Item No.", "Variant Code", "Location Code", "Reservation Status");
+        ReservEntry.SetRange("Item No.", "Item No.");
+        ReservEntry.SetRange("Variant Code", "Variant Code");
+        ReservEntry.SetRange("Location Code", "Location Code");
+        ReservEntry.SetRange("Reservation Status", ReservEntry."Reservation Status"::Reservation);
+        ReservEntry.SetRange("Lot No.", ItemTrkgCode);
+        ReservEntry.SetRange(Positive, true);
+        if ReservEntry.Find('-') then
+            repeat
+                ReservEntry2.Get(ReservEntry."Entry No.", false);
+                if ((ReservEntry2."Source Type" <> "Source Type") or
+                    (ReservEntry2."Source Subtype" <> "Source Subtype") or
+                    (ReservEntry2."Source ID" <> "Source No.") or
+                    (((ReservEntry2."Source Ref. No." <> "Source Line No.") and
+                        (ReservEntry2."Source Type" <> DATABASE::"Prod. Order Component")) or
+                        (((ReservEntry2."Source Prod. Order Line" <> "Source Line No.") or
+                        (ReservEntry2."Source Ref. No." <> "Source Subline No.")) and
+                        (ReservEntry2."Source Type" = DATABASE::"Prod. Order Component")))) and
+                    (ReservEntry2."Lot No." = '')
+                then
+                    AvailQtyFromOtherResvLines := AvailQtyFromOtherResvLines + Abs(ReservEntry2."Quantity (Base)");
+            until ReservEntry.Next() = 0;
 
-                    LineReservedQty :=
-                      WhseAvailMgt.CalcLineReservedQtyOnInvt(
-                        "Source Type", "Source Subtype", "Source No.", "Source Line No.", "Source Subline No.", true, WhseItemTrackingSetup, TempWhseActivLine);
+        TempWhseActivLine := Rec;
+        TempWhseActivLine."Qty. Outstanding (Base)" *= -1;
+        TempWhseActivLine.Insert();
 
-                    if (Item.Inventory - Abs(Item."Reserved Qty. on Inventory") +
-                        LineReservedQty + AvailQtyFromOtherResvLines +
-                        WhseAvailMgt.CalcReservQtyOnPicksShips("Location Code", "Item No.", "Variant Code", TempWhseActivLine)) <
-                       "Qty. to Handle (Base)"
-                    then
-                        Error(InventoryNotAvailableErr, FieldCaption("Lot No."), ItemTrkgCode);
-                end;
-            else
-                OnCheckReservedItemTrkgOnCheckTypeElseCase(Rec, CheckType, ItemTrkgCode);
-        end;
+        LineReservedQty :=
+            WhseAvailMgt.CalcLineReservedQtyOnInvt(
+            "Source Type", "Source Subtype", "Source No.", "Source Line No.", "Source Subline No.", true, WhseItemTrackingSetup, TempWhseActivLine);
+
+        if (Item.Inventory - Abs(Item."Reserved Qty. on Inventory") +
+            LineReservedQty + AvailQtyFromOtherResvLines +
+            WhseAvailMgt.CalcReservQtyOnPicksShips("Location Code", "Item No.", "Variant Code", TempWhseActivLine)) <
+            "Qty. to Handle (Base)"
+        then
+            Error(InventoryNotAvailableErr, FieldCaption("Lot No."), ItemTrkgCode);
 
         OnAfterCheckReservedItemTrkg(Rec, xRec, CurrFieldNo, 0, LineReservedQty);
     end;
@@ -3025,7 +3044,7 @@ table 5767 "Warehouse Activity Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeDeleteWhseActivLine2(var WarehouseActivityLine2: Record "Warehouse Activity Line"; CalledFromHeader: Boolean; IsHandled: Boolean)
+    local procedure OnBeforeDeleteWhseActivLine2(var WarehouseActivityLine2: Record "Warehouse Activity Line"; CalledFromHeader: Boolean; var IsHandled: Boolean)
     begin
     end;
 

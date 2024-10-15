@@ -507,6 +507,7 @@ codeunit 5760 "Whse.-Post Receipt"
                         PurchHeader.Invoice := false;
 
                         PurchPost.SetWhseRcptHeader(WhseRcptHeader);
+                        PurchPost.SetSuppressCommit(SuppressCommit);
                         case WhseSetup."Receipt Posting Policy" of
                             WhseSetup."Receipt Posting Policy"::"Posting errors are not processed":
                                 PostPurchErrorsNotProcessed(PurchPost);
@@ -525,6 +526,7 @@ codeunit 5760 "Whse.-Post Receipt"
                         SalesHeader.Invoice := false;
 
                         SalesPost.SetWhseRcptHeader(WhseRcptHeader);
+                        SalesPost.SetSuppressCommit(SuppressCommit);
                         case WhseSetup."Receipt Posting Policy" of
                             WhseSetup."Receipt Posting Policy"::"Posting errors are not processed":
                                 PostSalesErrorsNotProcessed(SalesPost);
@@ -539,6 +541,7 @@ codeunit 5760 "Whse.-Post Receipt"
                         if HideValidationDialog then
                             TransferPostReceipt.SetHideValidationDialog(HideValidationDialog);
                         TransferPostReceipt.SetWhseRcptHeader(WhseRcptHeader);
+                        TransferPostReceipt.SetSuppressCommit(SuppressCommit);
                         case WhseSetup."Receipt Posting Policy" of
                             WhseSetup."Receipt Posting Policy"::"Posting errors are not processed":
                                 PostTransferErrorsNotProcessed(TransferPostReceipt);

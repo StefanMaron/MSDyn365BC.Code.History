@@ -9,18 +9,25 @@ codeunit 375 "Bank Acc. Entry Set Recon.-No."
 
     var
         CheckLedgEntry: Record "Check Ledger Entry";
+        LineCount: Integer;
+        LineNumber: Integer;
+        AppliedAmount: Decimal;
+        UninitializedLineCountTxt: Label 'Uninitialized line count.', Locked = true;
+        UnexpectedLineNumberTxt: Label 'Unexpected line number.', Locked = true;
+        CategoryTxt: Label 'Reconciliation', Locked = true;
 
     procedure ApplyEntries(var BankAccReconLine: Record "Bank Acc. Reconciliation Line"; var BankAccLedgEntry: Record "Bank Account Ledger Entry"; Relation: Option "One-to-One","One-to-Many","Many-to-One"): Boolean
     var
         BankAccRecMatchBuffer: Record "Bank Acc. Rec. Match Buffer";
         NextMatchID: Integer;
+        RemainigAmount: Decimal;
     begin
         OnBeforeApplyEntries(BankAccReconLine, BankAccLedgEntry, Relation);
 
         BankAccLedgEntry.LockTable();
         CheckLedgEntry.LockTable();
         BankAccReconLine.LockTable();
-        BankAccReconLine.Find;
+        BankAccReconLine.Find();
 
         case Relation of
             Relation::"One-to-One":
@@ -56,6 +63,17 @@ codeunit 375 "Bank Acc. Entry Set Recon.-No."
                     if (BankAccReconLine."Applied Entries" > 0) then
                         exit(false); //Many-to-many is not supported
 
+                    if LineCount = 0 then begin
+                        Session.LogMessage('0000GQE', UninitializedLineCountTxt, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTxt);
+                        exit(false);
+                    end;
+
+                    LineNumber += 1;
+                    if LineNumber > LineCount then begin
+                        Session.LogMessage('0000GQF', UnexpectedLineNumberTxt, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTxt);
+                        exit(false);
+                    end;
+
                     NextMatchID := GetNextMatchID(BankAccReconLine, BankAccLedgEntry);
                     BankAccRecMatchBuffer.Init();
                     BankAccRecMatchBuffer."Ledger Entry No." := BankAccLedgEntry."Entry No.";
@@ -73,9 +91,13 @@ codeunit 375 "Bank Acc. Entry Set Recon.-No."
                         BankAccLedgEntry.Modify();
                     end;
 
-                    BankAccReconLine."Applied Amount" += BankAccLedgEntry."Remaining Amount";
-                    if System.Abs(BankAccReconLine."Statement Amount") < System.Abs(BankAccLedgEntry."Remaining Amount") then
+                    if LineNumber < LineCount then begin
                         BankAccReconLine."Applied Amount" := BankAccReconLine."Statement Amount";
+                        AppliedAmount += BankAccReconLine."Applied Amount";
+                    end else begin
+                        RemainigAmount := BankAccLedgEntry."Remaining Amount" - AppliedAmount;
+                        BankAccReconLine."Applied Amount" := RemainigAmount;
+                    end;
 
                     BankAccReconLine."Applied Entries" := BankAccReconLine."Applied Entries" + 1;
                     BankAccReconLine.Validate("Statement Amount");
@@ -84,6 +106,11 @@ codeunit 375 "Bank Acc. Entry Set Recon.-No."
         end;
 
         exit(true);
+    end;
+
+    procedure SetLineCount(NewLineCount: Integer)
+    begin
+        LineCount := NewLineCount;
     end;
 
     local procedure GetNextMatchID(BankAccReconLine: Record "Bank Acc. Reconciliation Line"; BankAccLedgEntry: Record "Bank Account Ledger Entry"): Integer

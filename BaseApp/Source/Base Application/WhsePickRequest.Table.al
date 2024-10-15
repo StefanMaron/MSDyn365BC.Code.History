@@ -93,6 +93,7 @@ table 7325 "Whse. Pick Request"
         {
             Clustered = true;
         }
+        key(Key2; "Document No.", "Document Type", Status) { }
     }
 
     fieldgroups

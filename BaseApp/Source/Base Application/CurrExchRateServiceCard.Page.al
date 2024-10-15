@@ -202,7 +202,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeMakeWebServiceURL(Rec, Result, IsHandled);
+        OnBeforeMakeWebServiceURL(Rec, Result, IsHandled, WebServiceURL);
         if IsHandled then
             exit(Result);
 
@@ -223,7 +223,13 @@
     local procedure GenerateXMLStructure()
     var
         ServiceURL: Text;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGenerateXMLStructure(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         TempXMLBuffer.Reset();
         TempXMLBuffer.DeleteAll();
         GetWebServiceURL(ServiceURL);
@@ -279,7 +285,12 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeMakeWebServiceURL(var CurrExchRateUpdateSetup: Record "Curr. Exch. Rate Update Setup"; var Result: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeMakeWebServiceURL(var CurrExchRateUpdateSetup: Record "Curr. Exch. Rate Update Setup"; var Result: Boolean; var IsHandled: Boolean; var WebServiceURL: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGenerateXMLStructure(var CurrExchRateUpdateSetup: Record "Curr. Exch. Rate Update Setup"; var IsHandled: Boolean)
     begin
     end;
 }

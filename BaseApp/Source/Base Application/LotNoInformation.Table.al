@@ -125,5 +125,21 @@ table 6505 "Lot No. Information"
 
     var
         ItemTrackingComment: Record "Item Tracking Comment";
+
+    procedure ShowCard(LotNo: Code[50]; TrackingSpecification: Record "Tracking Specification")
+    var
+        LotNoInfoNew: Record "Lot No. Information";
+        LotNoInfoForm: Page "Lot No. Information Card";
+    begin
+        Clear(LotNoInfoForm);
+        LotNoInfoForm.Init(TrackingSpecification);
+
+        LotNoInfoNew.SetRange("Item No.", TrackingSpecification."Item No.");
+        LotNoInfoNew.SetRange("Variant Code", TrackingSpecification."Variant Code");
+        LotNoInfoNew.SetRange("Lot No.", LotNo);
+
+        LotNoInfoForm.SetTableView(LotNoInfoNew);
+        LotNoInfoForm.Run();
+    end;
 }
 

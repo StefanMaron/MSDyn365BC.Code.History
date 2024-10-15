@@ -1,4 +1,4 @@
-codeunit 1720 "Deferral Utilities"
+﻿codeunit 1720 "Deferral Utilities"
 {
 
     trigger OnRun()
@@ -183,7 +183,7 @@ codeunit 1720 "Deferral Utilities"
             end;
 
             DeferralLine."Posting Date" := PostDate;
-            DeferralLine.Description := CreateRecurringDescription(PostDate, DeferralTemplate."Period Description");
+            UpdateDeferralLineDescription(DeferralLine, DeferralHeader, DeferralTemplate, PostDate);
 
             CheckPostingDate(DeferralHeader, DeferralLine);
 
@@ -223,7 +223,7 @@ codeunit 1720 "Deferral Utilities"
             InitializeDeferralHeaderAndSetPostDate(DeferralLine, DeferralHeader, PeriodicCount, PostDate);
 
             DeferralLine.Validate("Posting Date", PostDate);
-            DeferralLine.Description := CreateRecurringDescription(PostDate, DeferralTemplate."Period Description");
+            UpdateDeferralLineDescription(DeferralLine, DeferralHeader, DeferralTemplate, PostDate);
 
             AmountToDefer := DeferralHeader."Amount to Defer";
             if PeriodicCount = 1 then
@@ -339,7 +339,7 @@ codeunit 1720 "Deferral Utilities"
             end;
 
             DeferralLine."Posting Date" := PostDate;
-            DeferralLine.Description := CreateRecurringDescription(PostDate, DeferralTemplate."Period Description");
+            UpdateDeferralLineDescription(DeferralLine, DeferralHeader, DeferralTemplate, PostDate);
 
             CheckPostingDate(DeferralHeader, DeferralLine);
 
@@ -363,7 +363,7 @@ codeunit 1720 "Deferral Utilities"
             InitializeDeferralHeaderAndSetPostDate(DeferralLine, DeferralHeader, PeriodicCount, PostDate);
 
             DeferralLine."Posting Date" := PostDate;
-            DeferralLine.Description := CreateRecurringDescription(PostDate, DeferralTemplate."Period Description");
+            UpdateDeferralLineDescription(DeferralLine, DeferralHeader, DeferralTemplate, PostDate);
 
             CheckPostingDate(DeferralHeader, DeferralLine);
 
@@ -373,6 +373,18 @@ codeunit 1720 "Deferral Utilities"
         end;
 
         OnAfterCalculateUserDefined(DeferralHeader, DeferralLine, DeferralTemplate);
+    end;
+
+    local procedure UpdateDeferralLineDescription(var DeferralLine: Record "Deferral Line"; DeferralHeader: Record "Deferral Header"; DeferralTemplate: Record "Deferral Template"; PostDate: Date)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeUpdateDeferralLineDescription(DeferralLine, DeferralHeader, DeferralTemplate, PostDate, IsHandled);
+        if IsHandled then
+            exit;
+
+        DeferralLine.Description := CreateRecurringDescription(PostDate, DeferralTemplate."Period Description");
     end;
 
     procedure FilterDeferralLines(var DeferralLine: Record "Deferral Line"; DeferralDocType: Option; GenJnlTemplateName: Code[10]; GenJnlBatchName: Code[10]; DocumentType: Integer; DocumentNo: Code[20]; LineNo: Integer)
@@ -1031,6 +1043,11 @@ codeunit 1720 "Deferral Utilities"
 
     [IntegrationEvent(false, false)]
     local procedure OnSetDeferralRecordsOnBeforeDeferralHeaderModify(var DeferralHeader: Record "Deferral Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateDeferralLineDescription(var DeferralLine: Record "Deferral Line"; DeferralHeader: Record "Deferral Header"; DeferralTemplate: Record "Deferral Template"; PostDate: Date; var IsHandled: Boolean)
     begin
     end;
 }

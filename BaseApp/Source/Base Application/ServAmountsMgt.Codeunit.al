@@ -1,4 +1,4 @@
-codeunit 5986 "Serv-Amounts Mgt."
+﻿codeunit 5986 "Serv-Amounts Mgt."
 {
     Permissions = TableData "Invoice Post. Buffer" = imd,
                   TableData "General Posting Setup" = imd,
@@ -144,6 +144,8 @@ codeunit 5986 "Serv-Amounts Mgt."
         OnAfterFillInvoicePostBuffer(InvoicePostBuffer, ServiceLine, TempInvoicePostBuffer, SuppressCommit, ServiceLineACY);
 
         UpdateInvoicePostBuffer(TempInvoicePostBuffer, InvoicePostBuffer, ServiceLine);
+
+        OnAfterFillInvoicePostBufferProcedure(InvoicePostBuffer, ServiceLine, TempInvoicePostBuffer, SuppressCommit, ServiceLineACY);
     end;
 
     local procedure InvPostingBufferCalcInvoiceDiscountAmount(var InvoicePostBuffer: Record "Invoice Post. Buffer"; var ServiceLine: Record "Service Line"; var ServiceLineACY: Record "Service Line"; ServiceHeader: Record "Service Header")
@@ -192,7 +194,7 @@ codeunit 5986 "Serv-Amounts Mgt."
 
         TempInvoicePostBuffer.Update(InvoicePostBuffer);
 
-        OnAfterUpdateInvPostBuffer(InvoicePostBuffer);
+        OnAfterUpdateInvPostBuffer(InvoicePostBuffer, TempInvoicePostBuffer);
     end;
 
     procedure DivideAmount(QtyType: Option General,Invoicing,Shipping; ServLineQty: Decimal; var ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line"; var TempVATAmountLine: Record "VAT Amount Line"; var TempVATAmountLineRemainder: Record "VAT Amount Line")
@@ -791,6 +793,11 @@ codeunit 5986 "Serv-Amounts Mgt."
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterFillInvoicePostBufferProcedure(var InvoicePostBuffer: Record "Invoice Post. Buffer"; ServiceLine: Record "Service Line"; var TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary; SuppressCommit: Boolean; ServiceLineACY: Record "Service Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterIncrAmount(var TotalServiceLine: Record "Service Line"; ServiceLine: Record "Service Line")
     begin
     end;
@@ -801,7 +808,7 @@ codeunit 5986 "Serv-Amounts Mgt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterUpdateInvPostBuffer(var InvoicePostBuffer: Record "Invoice Post. Buffer")
+    local procedure OnAfterUpdateInvPostBuffer(var InvoicePostBuffer: Record "Invoice Post. Buffer"; var TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary)
     begin
     end;
 

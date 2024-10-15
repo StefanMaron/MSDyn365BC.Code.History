@@ -403,7 +403,7 @@
                 until ValueEntry.Next() = 0;
             end;
         end;
-        OnAfterPostItem(JobJnlLine2);
+        OnAfterPostItem(JobJnlLine2, ItemJnlPostLine);
     end;
 
     local procedure ModifyValueEntry(var ValueEntry: Record "Value Entry")
@@ -649,7 +649,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterPostItem(var JobJournalLine2: Record "Job Journal Line")
+    local procedure OnAfterPostItem(var JobJournalLine2: Record "Job Journal Line"; var ItemJnlPostLine: Codeunit "Item Jnl.-Post Line")
     begin
     end;
 

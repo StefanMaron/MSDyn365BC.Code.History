@@ -1569,9 +1569,11 @@
         if not GetWhseItemTrkgSetup(ItemNo) then
             exit(false);
 
-        WhseShipmentLine.SetSourceFilter(Type, Subtype, ID, RefNo, true);
-        if not WhseShipmentLine.IsEmpty() then
-            exit(true);
+        if Location.RequireShipment(LocationCode) then begin
+            WhseShipmentLine.SetSourceFilter(Type, Subtype, ID, RefNo, true);
+            if not WhseShipmentLine.IsEmpty() then
+                exit(true);
+        end;
 
         if Type in [DATABASE::"Prod. Order Component", DATABASE::"Prod. Order Line"] then begin
             WhseWkshLine.SetSourceFilter(Type, Subtype, ID, ProdOrderLine, true);
@@ -2793,6 +2795,9 @@
     begin
         OnBeforeRegisterNewItemTrackingLines(TempTrackingSpec);
 
+        TempTrackingSpec.SetCurrentKey(
+          "Source ID", "Source Type", "Source Subtype", "Source Batch Name", "Source Prod. Order Line", "Source Ref. No.");
+
         if TempTrackingSpec.FindSet then
             repeat
                 TempTrackingSpec.SetSourceFilter(
@@ -2825,6 +2830,8 @@
                 ItemTrackingLines.RegisterItemTrackingLines(TrackingSpec, TrackingSpec."Creation Date", TempTrackingSpec);
                 TempTrackingSpec.ClearSourceFilter;
             until TempTrackingSpec.Next() = 0;
+
+        TempTrackingSpec.SetCurrentKey("Entry No.");
     end;
 
     local procedure WhseActivitySignFactor(WhseActivityLine: Record "Warehouse Activity Line"): Integer

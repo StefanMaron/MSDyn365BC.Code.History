@@ -532,7 +532,7 @@ codeunit 7324 "Whse.-Activity-Post"
         TransferPostReceipt: Codeunit "TransferOrder-Post Receipt";
         TransferPostShip: Codeunit "TransferOrder-Post Shipment";
     begin
-        OnBeforePostSourceDocument(WhseActivHeader, PostedSourceType, PostedSourceNo, PostedSourceSubType);
+        OnBeforePostSourceDocument(WhseActivHeader, PostedSourceType, PostedSourceNo, PostedSourceSubType, HideDialog, SuppressCommit);
 
         with WhseActivHeader do
             case "Source Type" of
@@ -844,6 +844,8 @@ codeunit 7324 "Whse.-Activity-Post"
 
     local procedure PostSourceDoc()
     begin
+        OnBeforePostSourceDoc(WhseActivHeader, HideDialog, SuppressCommit);
+
         TempWhseActivLine.Reset();
         TempWhseActivLine.Find('-');
         InitSourceDocument;
@@ -1247,7 +1249,7 @@ codeunit 7324 "Whse.-Activity-Post"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePostSourceDocument(var WarehouseActivityHeader: Record "Warehouse Activity Header"; var PostedSourceType: Integer; var PostedSourceNo: Code[20]; var PostedSourceSubType: Integer)
+    local procedure OnBeforePostSourceDocument(var WarehouseActivityHeader: Record "Warehouse Activity Header"; var PostedSourceType: Integer; var PostedSourceNo: Code[20]; var PostedSourceSubType: Integer; HideDialog: Boolean; SuppressCommit: Boolean)
     begin
     end;
 
@@ -1258,6 +1260,11 @@ codeunit 7324 "Whse.-Activity-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePostWhseJnlLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePostSourceDoc(WhseActivHeader: Record "Warehouse Activity Header"; HideDialog: Boolean; SuppressCommit: Boolean)
     begin
     end;
 

@@ -228,6 +228,8 @@ report 2000006 "File Non Euro SEPA Payments"
                 if not Confirm(Text004, false, FileName) then
                     Error(Text005, FileName);
         end;
+        If FileName = '' then
+            FileName := NonEuroSEPAPaymentsFileNameTxt;
 
         XMLDOMManagement.LoadXMLDocumentFromText('<?xml version="1.0" encoding="UTF-8"?><Document></Document>', XMLDomDoc);
         XMLRootElement := XMLDomDoc.DocumentElement;
@@ -275,6 +277,7 @@ report 2000006 "File Non Euro SEPA Payments"
         Text003: Label 'File name must be specified.';
         Text004: Label 'The %1 already exists.\\Do you want to replace the existing file?';
         Text005: Label 'The file %1 already exists.';
+        NonEuroSEPAPaymentsFileNameTxt: Label 'NonEuroSEPAPayments.xml';
         NumberOfTransactions: Integer;
         [InDataSet]
         IncludeDimTextEnable: Boolean;

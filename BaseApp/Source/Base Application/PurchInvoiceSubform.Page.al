@@ -353,7 +353,11 @@
                 {
                     ApplicationArea = VAT;
                     ToolTip = 'Specifies the percentage of VAT that cannot be deducted for this purchase line.';
-                    Visible = false;
+
+                    trigger OnValidate()
+                    begin
+                        DeltaUpdateTotals();
+                    end;
                 }
                 field("Line Discount Amount"; "Line Discount Amount")
                 {
