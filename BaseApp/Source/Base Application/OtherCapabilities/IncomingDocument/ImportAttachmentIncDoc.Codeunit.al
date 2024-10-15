@@ -234,6 +234,7 @@ codeunit 134 "Import Attachment - Inc. Doc."
     var
         IncomingDocument: Record "Incoming Document";
         SalesHeader: Record "Sales Header";
+        ServiceHeader: Record "Service Header";
         PurchaseHeader: Record "Purchase Header";
         DocTableNo: Integer;
         DocType: Enum "Incoming Document Type";
@@ -260,6 +261,13 @@ codeunit 134 "Import Attachment - Inc. Doc."
                         CreateIncomingDocumentExtended(IncomingDocumentAttachment, IncomingDocument, 0D, '', SalesHeader.RecordId);
                         SalesHeader."Incoming Document Entry No." := IncomingDocument."Entry No.";
                         SalesHeader.Modify();
+                end;
+            DATABASE::"Service Header":
+                begin
+                    ServiceHeader.Get(DocType, DocNo);
+                    CreateIncomingDocumentExtended(IncomingDocumentAttachment, IncomingDocument, 0D, '', ServiceHeader.RecordId);
+                    ServiceHeader."Incoming Document Entry No." := IncomingDocument."Entry No.";
+                    ServiceHeader.Modify();
                     end;
                 DATABASE::"Purchase Header":
                     begin
@@ -358,6 +366,7 @@ codeunit 134 "Import Attachment - Inc. Doc."
     local procedure GetUnpostedSalesPurchaseDocType(var IncomingDocumentAttachment: Record "Incoming Document Attachment"; var IncomingDocument: Record "Incoming Document"): Enum "Incoming Related Document Type"
     var
         SalesHeader: Record "Sales Header";
+        ServiceHeader: Record "Service Header";
         PurchaseHeader: Record "Purchase Header";
     begin
         case IncomingDocumentAttachment.GetRangeMin("Document Table No. Filter") of
@@ -366,6 +375,12 @@ codeunit 134 "Import Attachment - Inc. Doc."
                     if IncomingDocumentAttachment.GetRangeMin("Document Type Filter") = SalesHeader."Document Type"::"Credit Memo" then
                         exit(IncomingDocument."Document Type"::"Sales Credit Memo");
                     exit(IncomingDocument."Document Type"::"Sales Invoice");
+                end;
+            DATABASE::"Service Header":
+                begin
+                    if IncomingDocumentAttachment.GetRangeMin("Document Type Filter") = ServiceHeader."Document Type"::"Credit Memo" then
+                        exit(IncomingDocument."Document Type"::"Service Credit Memo");
+                    exit(IncomingDocument."Document Type"::"Service Invoice");
                 end;
             DATABASE::"Purchase Header":
                 begin
