@@ -83,7 +83,7 @@ page 9075 "RapidStart Services Activities"
             Insert;
         end;
 
-        SetFilter("User ID Filter", UserId);
+        SetRange("User ID Filter", UserId);
     end;
 
     var

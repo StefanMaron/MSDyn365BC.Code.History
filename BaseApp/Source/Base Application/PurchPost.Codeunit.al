@@ -249,6 +249,10 @@
         RemDiscAmt: Decimal;
         TotalChargeAmt: Decimal;
         TotalChargeAmtLCY: Decimal;
+        RoundedPrevTotalChargeAmt: Decimal;
+        PreciseTotalChargeAmt: Decimal;
+        RoundedPrevTotalChargeAmtACY: Decimal;
+        PreciseTotalChargeAmtACY: Decimal;
         LastLineRetrieved: Boolean;
         RoundingLineInserted: Boolean;
         DropShipOrder: Boolean;
@@ -1205,8 +1209,6 @@
         OriginalQty: Decimal;
         QtyToInvoice: Decimal;
         Factor: Decimal;
-        TotalChargeAmt2: Decimal;
-        TotalChargeAmtLCY2: Decimal;
         SignFactor: Integer;
     begin
         OnBeforePostItemChargePerOrder(
@@ -1240,16 +1242,18 @@
                 ItemJnlLine2.Amount / ItemJnlLine2."Invoiced Qty. (Base)",
                 Currency."Unit-Amount Rounding Precision");
 
-            TotalChargeAmt2 := TotalChargeAmt2 + ItemJnlLine2.Amount;
+            PreciseTotalChargeAmt += ItemJnlLine2.Amount;
+
             if PurchHeader."Currency Code" <> '' then
                 ItemJnlLine2.Amount :=
                   CurrExchRate.ExchangeAmtFCYToLCY(
-                    Usedate, PurchHeader."Currency Code", TotalChargeAmt2 + TotalPurchLine.Amount, PurchHeader."Currency Factor") -
-                  TotalChargeAmtLCY2 - TotalPurchLineLCY.Amount
+                    Usedate, PurchHeader."Currency Code", PreciseTotalChargeAmt + TotalPurchLine.Amount, PurchHeader."Currency Factor") -
+                  RoundedPrevTotalChargeAmt - TotalPurchLineLCY.Amount
             else
-                ItemJnlLine2.Amount := TotalChargeAmt2 - TotalChargeAmtLCY2;
+                ItemJnlLine2.Amount := PreciseTotalChargeAmt - RoundedPrevTotalChargeAmt;
 
-            TotalChargeAmtLCY2 := TotalChargeAmtLCY2 + ItemJnlLine2.Amount;
+            RoundedPrevTotalChargeAmt += Round(ItemJnlLine2.Amount, GLSetup."Amount Rounding Precision");
+
             ItemJnlLine2."Unit Cost" := Round(
                 ItemJnlLine2.Amount / ItemJnlLine2."Invoiced Qty. (Base)", GLSetup."Unit-Amount Rounding Precision");
             ItemJnlLine2."Applies-to Entry" := ItemJnlLine2."Item Shpt. Entry No.";
@@ -1302,10 +1306,16 @@
                     if Abs("Quantity (Base)") < Abs(NonDistrItemJnlLine."Quantity (Base)") then begin
                         ItemJnlLine2."Quantity (Base)" := "Quantity (Base)";
                         ItemJnlLine2."Invoiced Qty. (Base)" := ItemJnlLine2."Quantity (Base)";
-                        ItemJnlLine2."Amount (ACY)" :=
-                          Round(OriginalAmtACY * Factor, GLSetup."Amount Rounding Precision");
-                        ItemJnlLine2.Amount :=
-                          Round(OriginalAmt * Factor, GLSetup."Amount Rounding Precision");
+
+                        PreciseTotalChargeAmt += OriginalAmt * Factor;
+                        PreciseTotalChargeAmtACY += OriginalAmtACY * Factor;
+
+                        ItemJnlLine2.Amount := PreciseTotalChargeAmt - RoundedPrevTotalChargeAmt;
+                        ItemJnlLine2."Amount (ACY)" := PreciseTotalChargeAmtACY - RoundedPrevTotalChargeAmtACY;
+
+                        RoundedPrevTotalChargeAmt += Round(ItemJnlLine2.Amount, GLSetup."Amount Rounding Precision");
+                        RoundedPrevTotalChargeAmtACY += Round(ItemJnlLine2."Amount (ACY)", Currency."Amount Rounding Precision");
+
                         ItemJnlLine2."Unit Cost (ACY)" :=
                           Round(ItemJnlLine2.Amount / ItemJnlLine2."Invoiced Qty. (Base)",
                             Currency."Unit-Amount Rounding Precision") * SignFactor;
@@ -6442,6 +6452,11 @@
                 if not TempTrackingSpecification.FindFirst() then
                     TempTrackingSpecification.Init();
             end;
+
+            PreciseTotalChargeAmt := 0;
+            PreciseTotalChargeAmtACY := 0;
+            RoundedPrevTotalChargeAmt := 0;
+            RoundedPrevTotalChargeAmtACY := 0;
 
             if IsCreditDocType then begin
                 if (Abs(RemQtyToBeInvoiced) > Abs(PurchLine."Return Qty. to Ship")) or

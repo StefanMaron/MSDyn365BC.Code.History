@@ -782,9 +782,7 @@ table 5475 "Sales Invoice Entity Aggregate"
         contactFound: Boolean;
     begin
         if "Sell-to Contact No." = '' then
-            contactFound := UpdateContactIdFromCustomer
-        else
-            contactFound := UpdateContactIdFromSellToContactNo;
+            contactFound := UpdateContactIdFromCustomer;
 
         if not contactFound then
             Clear("Contact Graph Id");
@@ -803,28 +801,10 @@ table 5475 "Sales Invoice Entity Aggregate"
         if not GraphIntContact.IsUpdateContactIdEnabled() then
             exit(false);
 
-        Customer.SetRange(Id, "Customer Id");
-        if not Customer.FindFirst then
+        if not Customer.GetBySystemId("Customer Id") then
             exit(false);
 
         if not GraphIntContact.FindGraphContactIdFromCustomer(GraphID, Customer, Contact) then
-            exit(false);
-
-        "Contact Graph Id" := GraphID;
-
-        exit(true);
-    end;
-
-    local procedure UpdateContactIdFromSellToContactNo(): Boolean
-    var
-        Contact: Record Contact;
-        GraphIntegrationRecord: Record "Graph Integration Record";
-        GraphID: Text[250];
-    begin
-        if not Contact.Get("Sell-to Contact No.") then
-            exit(false);
-
-        if not GraphIntegrationRecord.FindIDFromRecordID(Contact.RecordId, GraphID) then
             exit(false);
 
         "Contact Graph Id" := GraphID;
