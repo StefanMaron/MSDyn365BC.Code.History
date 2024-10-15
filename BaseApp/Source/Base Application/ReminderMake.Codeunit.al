@@ -182,6 +182,7 @@
                 repeat
                     StartLineInserted := false;
                     FilterCustLedgEntries(ReminderLevel);
+                    OnMakeReminderOnAfterFilterCustLedgEntries(ReminderLine);
                     AmountsNotDueLineInserted := false;
                     if CustLedgEntry.FindSet then begin
                         repeat
@@ -530,6 +531,7 @@
         ReminderLine.Validate("Applies-to Document Type", CustLedgEntry."Document Type");
         ReminderLine.Validate("Applies-to Document No.", CustLedgEntry."Document No.");
         ReminderLine.Validate("Due Date", CalcDate(ReminderLevel."Due Date Calculation", ReminderHeader."Document Date"));
+        OnAddLineFeeForCustLedgEntryOnReminderLineInsert(ReminderLine);
         ReminderLine.Insert(true);
     end;
 
@@ -639,6 +641,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAddLineFeeForCustLedgEntryOnReminderLineInsert(var ReminderLine: Record "Reminder Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAddRemiderLinesFromCustLedgEntryWithNoReminderLevelFilterOnBeforeCheckAmountsNotDueLineInserted(ReminderHeader: Record "Reminder Header"; ReminderLine: Record "Reminder Line"; var AmountsNotDueLineInserted: Boolean)
     begin
     end;
@@ -742,6 +749,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCheckCustomerIsBlocked(Customer: Record Customer; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnMakeReminderOnAfterFilterCustLedgEntries(var ReminderLine: Record "Reminder Line")
     begin
     end;
 

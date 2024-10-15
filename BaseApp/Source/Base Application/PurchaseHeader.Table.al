@@ -1,4 +1,4 @@
-table 38 "Purchase Header"
+﻿table 38 "Purchase Header"
 {
     Caption = 'Purchase Header';
     DataCaptionFields = "No.", "Buy-from Vendor Name";
@@ -213,11 +213,7 @@ table 38 "Purchase Header"
                         TestField("Currency Code", xRec."Currency Code");
                 end;
 
-                CreateDim(
-                  DATABASE::Vendor, "Pay-to Vendor No.",
-                  DATABASE::"Salesperson/Purchaser", "Purchaser Code",
-                  DATABASE::Campaign, "Campaign No.",
-                  DATABASE::"Responsibility Center", "Responsibility Center");
+                CreateDimensionsFromValidatePayToVendorNo();
 
                 OnValidatePaytoVendorNoBeforeRecreateLines(Rec, CurrFieldNo);
 
@@ -1380,9 +1376,13 @@ table 38 "Purchase Header"
                     CopyAddressInfoFromOrderAddress()
                 else begin
                     GetVend("Buy-from Vendor No.");
-                    "Buy-from Vendor Name" := Vend.Name;
-                    "Buy-from Vendor Name 2" := Vend."Name 2";
-                    CopyBuyFromVendorAddressFieldsFromVendor(Vend, true);
+                    IsHandled := false;
+                    OnValidateOrderAddressCodeOnBeforeCopyBuyFromVendorAddressFieldsFromVendor(Rec, Vend, IsHandled);
+                    if not IsHandled then begin
+                        "Buy-from Vendor Name" := Vend.Name;
+                        "Buy-from Vendor Name 2" := Vend."Name 2";
+                        CopyBuyFromVendorAddressFieldsFromVendor(Vend, true);
+                    end;
 
                     OnValidateOrderAddressCodeOnAfterCopyBuyFromVendorAddressFieldsFromVendor(Rec, Vend);
 
@@ -2561,7 +2561,6 @@ table 38 "Purchase Header"
 
     procedure InitRecord()
     var
-        ArchiveManagement: Codeunit ArchiveManagement;
         IsHandled: Boolean;
     begin
         GetPurchSetup();
@@ -2635,8 +2634,7 @@ table 38 "Purchase Header"
         UpdateInboundWhseHandlingTime();
 
         "Responsibility Center" := UserSetupMgt.GetRespCenter(1, "Responsibility Center");
-        "Doc. No. Occurrence" :=
-            ArchiveManagement.GetNextOccurrenceNo(DATABASE::"Purchase Header", "Document Type".AsInteger(), "No.");
+        GetNextArchiveDocOccurrenceNo();
 
         OnAfterInitRecord(Rec);
     end;
@@ -2714,7 +2712,7 @@ table 38 "Purchase Header"
                     PurchSetup.TestField("Blanket Order Nos.");
             end;
 
-        OnAfterTestNoSeries(Rec);
+        OnAfterTestNoSeries(Rec, PurchSetup);
     end;
 
     procedure GetNoSeriesCode(): Code[20]
@@ -2744,6 +2742,20 @@ table 38 "Purchase Header"
         end;
         OnAfterGetNoSeriesCode(Rec, PurchSetup, NoSeriesCode);
         exit(NoSeriesMgt.GetNoSeriesWithCheck(NoSeriesCode, SelectNoSeriesAllowed, "No. Series"));
+    end;
+
+    local procedure GetNextArchiveDocOccurrenceNo()
+    var
+        ArchiveManagement: Codeunit ArchiveManagement;
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeGetNextArchiveDocOccurrenceNo(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        "Doc. No. Occurrence" :=
+            ArchiveManagement.GetNextOccurrenceNo(DATABASE::"Purchase Header", "Document Type".AsInteger(), "No.");
     end;
 
     local procedure GetPostingNoSeriesCode() PostingNos: Code[20]
@@ -3511,7 +3523,7 @@ table 38 "Purchase Header"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeUpdateShipToAddress(Rec, IsHandled);
+        OnBeforeUpdateShipToAddress(Rec, IsHandled, CurrFieldNo);
         if IsHandled then
             exit;
 
@@ -3739,8 +3751,11 @@ table 38 "Purchase Header"
         ContBusinessRelation: Record "Contact Business Relation";
         Vend: Record Vendor;
         Cont: Record Contact;
+        ShouldUpdateFromContact: Boolean;
     begin
-        if Cont.Get(ContactNo) then begin
+        ShouldUpdateFromContact := Cont.Get(ContactNo);
+        OnUpdateBuyFromVendOnAfterGetContact(Rec, Cont, ShouldUpdateFromContact);
+        if ShouldUpdateFromContact then begin
             "Buy-from Contact No." := Cont."No.";
             if Cont.Type = Cont.Type::Person then
                 "Buy-from Contact" := Cont.Name
@@ -3780,8 +3795,11 @@ table 38 "Purchase Header"
         ContBusinessRelation: Record "Contact Business Relation";
         Vend: Record Vendor;
         Cont: Record Contact;
+        ShouldUpdateFromContact: Boolean;
     begin
-        if Cont.Get(ContactNo) then begin
+        ShouldUpdateFromContact := Cont.Get(ContactNo);
+        OnUpdatePayToVendOnAfterGetContact(Rec, Cont, ShouldUpdateFromContact);
+        if ShouldUpdateFromContact then begin
             "Pay-to Contact No." := Cont."No.";
             if Cont.Type = Cont.Type::Person then
                 "Pay-to Contact" := Cont.Name
@@ -5744,6 +5762,22 @@ table 38 "Purchase Header"
         exit("Posting Date");
     end;
 
+    local procedure CreateDimensionsFromValidatePayToVendorNo()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCreateDimensionsFromValidatePayToVendorNo(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        CreateDim(
+            DATABASE::Vendor, "Pay-to Vendor No.",
+            DATABASE::"Salesperson/Purchaser", "Purchaser Code",
+            DATABASE::Campaign, "Campaign No.",
+            DATABASE::"Responsibility Center", "Responsibility Center");
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetFullDocTypeTxt(var PurchaseHeader: Record "Purchase Header"; var FullDocTypeTxt: Text; var IsHandled: Boolean)
     begin
@@ -5751,6 +5785,11 @@ table 38 "Purchase Header"
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeGetNoSeriesCode(PurchSetup: Record "Purchases & Payables Setup"; var NoSeriesCode: Code[20]; var IsHandled: Boolean; var PurchaseHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetNextArchiveDocOccurrenceNo(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
     begin
     end;
 
@@ -5880,7 +5919,7 @@ table 38 "Purchase Header"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterTestNoSeries(var PurchHeader: Record "Purchase Header")
+    local procedure OnAfterTestNoSeries(var PurchHeader: Record "Purchase Header"; PurchSetup: Record "Purchases & Payables Setup")
     begin
     end;
 
@@ -6024,6 +6063,11 @@ table 38 "Purchase Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateDim(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateDimensionsFromValidatePayToVendorNo(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
     begin
     end;
 
@@ -6218,7 +6262,7 @@ table 38 "Purchase Header"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeUpdateShipToAddress(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    local procedure OnBeforeUpdateShipToAddress(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean; CurrentFieldNo: Integer)
     begin
     end;
 
@@ -6476,6 +6520,11 @@ table 38 "Purchase Header"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnValidateOrderAddressCodeOnBeforeCopyBuyFromVendorAddressFieldsFromVendor(var PurchaseHeader: Record "Purchase Header"; Vend: Record Vendor; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnValidateOrderAddressCodeOnBeforeUpdateLocationCode(var PurchaseHeader: Record "Purchase Header"; var xPurchaseHeader: Record "Purchase Header"; CurrentFieldNo: Integer; var IsHandled: Boolean);
     begin
     end;
@@ -6562,6 +6611,16 @@ table 38 "Purchase Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateAllLineDimOnAfterGetPurchLineNewDimsetID(PurchHeader: Record "Purchase Header"; xPurchHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line"; var NewDimSetID: Integer; NewParentDimSetID: Integer; OldParentDimSetID: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateBuyFromVendOnAfterGetContact(var PurchaseHeader: Record "Purchase Header"; var Cont: Record Contact; var ShouldUpdateFromContact: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdatePayToVendOnAfterGetContact(var PurchaseHeader: Record "Purchase Header"; var Cont: Record Contact; var ShouldUpdateFromContact: Boolean)
     begin
     end;
 

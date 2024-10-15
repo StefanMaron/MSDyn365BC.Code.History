@@ -58,7 +58,7 @@ codeunit 5701 "Item Subst."
         Item.CalcFields(Inventory);
         Item.CalcFields("Qty. on Sales Order");
         Item.CalcFields("Qty. on Service Order");
-        OldSalesUOM := Item."Sales Unit of Measure";
+        SaveItemSalesUOM(Item);
 
         ItemSubstitution.Reset();
         ItemSubstitution.SetRange(Type, ItemSubstitution.Type::Item);
@@ -238,7 +238,7 @@ codeunit 5701 "Item Subst."
         Item.CalcFields(Inventory);
         Item.CalcFields("Qty. on Sales Order");
         Item.CalcFields("Qty. on Service Order");
-        OldSalesUOM := Item."Sales Unit of Measure";
+        SaveItemSalesUOM(Item);
 
         ItemSubstitution.Reset();
         ItemSubstitution.SetRange("No.", ServInvLine."No.");
@@ -578,7 +578,7 @@ codeunit 5701 "Item Subst."
         Item.CalcFields(Inventory);
         Item.CalcFields("Qty. on Sales Order");
         Item.CalcFields("Qty. on Service Order");
-        OldSalesUOM := Item."Sales Unit of Measure";
+        SaveItemSalesUOM(Item);
 
         ItemSubstitution.Reset();
         ItemSubstitution.SetRange(Type, ItemSubstitution.Type::Item);
@@ -632,6 +632,18 @@ codeunit 5701 "Item Subst."
         exit(false);
     end;
 
+    local procedure SaveItemSalesUOM(Item: Record Item)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeSaveItemSalesUOM(OldSalesUOM, Item, IsHandled);
+        if IsHandled then
+            exit;
+
+        OldSalesUOM := Item."Sales Unit of Measure";
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetCompSubst(var ProdOrderComp: Record "Prod. Order Component"; var TempItemSubstitution: Record "Item Substitution" temporary)
     begin
@@ -644,6 +656,11 @@ codeunit 5701 "Item Subst."
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateComponentBeforeAssign(var ProdOrderComp: Record "Prod. Order Component"; var TempProdOrderComp: Record "Prod. Order Component" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSaveItemSalesUOM(var OldSalesUOM: Code[10]; Item: Record Item; var IsHandled: Boolean)
     begin
     end;
 

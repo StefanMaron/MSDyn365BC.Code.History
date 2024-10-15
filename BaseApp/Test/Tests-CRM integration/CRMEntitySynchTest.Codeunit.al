@@ -2475,6 +2475,64 @@ codeunit 139180 "CRM Entity Synch Test"
         VerifyCRMProductPriceLevelAmount(CRMProduct.ProductId, CRMPricelevel.PriceLevelId, PriceListLine."Unit Price");
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure SplitTableFilterUnexpectedChar()
+    var
+        TempItem: Record Item temporary;
+        FieldNo: Integer;
+        TableFilterList: List of [Text];
+    begin
+        FieldNo := TempItem.FieldNo(SystemId);
+        Assert.IsFalse(CRMIntegrationTableSynch.SplitTableFilter(Database::Item, FieldNo,
+            'VERSION(1) SORTING(Field1) WHERE(Field' + Format(FieldNo) + '=FILTER(' + CreateGuid() + '&' + CreateGuid() + '))',
+            TableFilterList), 'SplitTableFilter should return false.');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SplitTableFilterNothingToSplit()
+    var
+        TempItem: Record Item temporary;
+        FieldNo: Integer;
+        FieldFilter: Text;
+        TableFilterList: List of [Text];
+        I: Integer;
+        N: Integer;
+    begin
+        N := CRMIntegrationTableSynch.GetMaxNumberOfConditions();
+        for I := 1 to N do
+            FieldFilter += '|' + Format(CreateGuid());
+        FieldFilter := FieldFilter.TrimStart('|');
+        FieldNo := TempItem.FieldNo(SystemId);
+        Assert.IsTrue(CRMIntegrationTableSynch.SplitTableFilter(Database::Item, FieldNo,
+            'VERSION(1) SORTING(Field1) WHERE(Field' + Format(FieldNo) + '=FILTER(' + FieldFilter + '))', TableFilterList),
+            'SplitTableFilter should return true.');
+        Assert.AreEqual(1, TableFilterList.Count(), 'SplitTableFilter should return 1 filter in the list.');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SplitTableFilterIntoChunks()
+    var
+        TempItem: Record Item temporary;
+        FieldNo: Integer;
+        FieldFilter: Text;
+        TableFilterList: List of [Text];
+        I: Integer;
+        N: Integer;
+    begin
+        N := 3 * CRMIntegrationTableSynch.GetMaxNumberOfConditions();
+        for I := 1 to N do
+            FieldFilter += '|' + Format(CreateGuid());
+        FieldFilter := FieldFilter.TrimStart('|');
+        FieldNo := TempItem.FieldNo(SystemId);
+        Assert.IsTrue(CRMIntegrationTableSynch.SplitTableFilter(Database::Item, FieldNo,
+            'VERSION(1) SORTING(Field1) WHERE(Field' + Format(FieldNo) + '=FILTER(' + FieldFilter + '))', TableFilterList),
+            'SplitTableFilter should return true.');
+        Assert.AreEqual(3, TableFilterList.Count(), 'SplitTableFilter should return 3 filters in the list.');
+    end;
+
     local procedure Init()
     begin
         Init(false, false);

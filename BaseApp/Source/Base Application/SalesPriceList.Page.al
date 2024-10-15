@@ -124,6 +124,7 @@ page 7016 "Sales Price List"
                         ToolTip = 'Specifies the amount type filter that defines the columns shown in the price list lines.';
                         trigger OnValidate()
                         begin
+                            Rec.Validate("Amount Type", ViewAmountType);
                             CurrPage.Lines.Page.SetSubFormLinkFilter(ViewAmountType);
                         end;
                     }
@@ -455,7 +456,10 @@ page 7016 "Sales Price List"
         Rec.CopyFrom(OriginalPriceSource);
         UpdateSourceType(Rec."Source Group");
         if PriceUXManagement.IsAmountTypeFiltered(Rec, DefaultAmountType) then
-            Rec."Amount Type" := DefaultAmountType;
+            Rec."Amount Type" := DefaultAmountType
+        else
+            Rec."Amount Type" := OriginalPriceSource.GetDefaultAmountType();
+        ViewAmountType := Rec."Amount Type";
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean;

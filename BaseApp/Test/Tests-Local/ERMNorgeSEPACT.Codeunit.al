@@ -445,7 +445,7 @@ codeunit 144137 "ERM Norge SEPA CT"
 
     [Test]
     [Scope('OnPrem')]
-    procedure PopulatedKIDforPaymentJournalExport()
+    procedure PopulatedKIDExtDocNoforPaymentJournalExport()
     var
         Vendor: Record Vendor;
         GenJournalLine: Record "Gen. Journal Line";
@@ -454,12 +454,14 @@ codeunit 144137 "ERM Norge SEPA CT"
         TempPaymentExportRemittanceText: Record "Payment Export Remittance Text" temporary;
         SEPACTFillExportBuffer: Codeunit "SEPA CT-Fill Export Buffer";
         KundeID: Code[30];
+        ExtDocNo: Code[35];
     begin
         // [FEATURE] [KID] [UT]
         // [SCENARIO 305007] Payment Journal Line KID field value is stored in PaymentExportRemittanceText table when running SEPACTFillExportBuffer.FillExportBuffer
         Initialize;
 
         KundeID := '12345678911';
+        ExtDocNo := '0987654321';
         Vendor.Get(CreateVendorWithBankAcc);
 
         CreatePaymentGenJnlBatch(GenJournalBatch);
@@ -474,6 +476,7 @@ codeunit 144137 "ERM Norge SEPA CT"
           LibraryRandom.RandDec(100, 2));
         GenJournalLine.Validate("Recipient Bank Account", Vendor."Preferred Bank Account Code");
         GenJournalLine.Validate(KID, KundeID);
+        GenJournalLine.Validate("External Document No.");
         GenJournalLine.Modify(true);
 
         GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
@@ -481,6 +484,7 @@ codeunit 144137 "ERM Norge SEPA CT"
         SEPACTFillExportBuffer.FillExportBuffer(GenJournalLine, TempPaymentExportData);
 
         TempPaymentExportData.TestField(KID, GenJournalLine.KID);
+        TempPaymentExportData.TestField("External Document No.", GenJournalLine."External Document No.");
     end;
 
     [Test]
@@ -620,6 +624,52 @@ codeunit 144137 "ERM Norge SEPA CT"
         LibraryXPathXMLReader.GetNodeList('//RmtInf/Strd/CdtrRefInf/Ref', NodeList);
         Assert.AreEqual(1, NodeList.Count, 'Should be 1 nodes');
         Assert.AreEqual(KundeID,
+          LibraryXPathXMLReader.GetNodeInnerTextByXPathWithIndex('//RmtInf/Strd/CdtrRefInf/Ref', 0), '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ExportXmlCheckExtDocNoStructure()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        BankAccount: Record "Bank Account";
+        TempBlob: Codeunit "Temp Blob";
+        NodeList: DotNet XmlNodeList;
+        OutStr: OutStream;
+        Amount: Decimal;
+        ExtDocNo: Code[35];
+    begin
+        // [SCENARIO 418639] SEPA CT pain.001.001.03 "Ref" tag should contain "External Document No." if "KID" is empty
+        // [GIVEN] Gen. Journal Line "G1" with "External Document No." = "ExtDocNo", "KID" not specified
+        Amount := LibraryRandom.RandDec(100, 2);
+        ExtDocNo := '12345678911';
+        CreateGenJnlLine(
+          GenJournalLine,
+          CreateBankAccountWithExportSetup(CreateNorgeBankExportImportSetup(Amount)),
+          Amount * 2, 1);
+        CreateGenJnlLineRegRepCode(GenJournalLine);
+        GenJournalLine.Validate(KID, '');
+        GenJournalLine.Validate("External Document No.", ExtDocNo);
+        GenJournalLine.Modify(true);
+
+        TempBlob.CreateOutStream(OutStr);
+        BankAccount.Get(GenJournalLine."Bal. Account No.");
+
+        // [WHEN] Export Gen. Journal Line with SEPA CT pain.001.001.03 port
+        XMLPORT.Export(BankAccount.GetPaymentExportXMLPortID, OutStr, GenJournalLine);
+
+        // [THEN] Xml file contains 'SCOR' and External Document No." value in structure
+        LibraryXPathXMLReader.InitializeWithBlob(TempBlob, NamespaceTxt);
+        LibraryXPathXMLReader.GetNodeList('//RmtInf/Strd/CdtrRefInf/Tp/CdOrPrtry/Cd', NodeList);
+        Assert.AreEqual(1, NodeList.Count, 'Should be 1 nodes');
+        Assert.AreEqual('SCOR',
+          LibraryXPathXMLReader.GetNodeInnerTextByXPathWithIndex('//RmtInf/Strd/CdtrRefInf/Tp/CdOrPrtry/Cd', 0), '');
+
+        LibraryXPathXMLReader.GetNodeList('//RmtInf/Strd/CdtrRefInf/Ref', NodeList);
+        Assert.AreEqual(1, NodeList.Count, 'Should be 1 nodes');
+
+        // [THEN] Value of "Ref" = "ExtDocNo"
+        Assert.AreEqual(ExtDocNo,
           LibraryXPathXMLReader.GetNodeInnerTextByXPathWithIndex('//RmtInf/Strd/CdtrRefInf/Ref', 0), '');
     end;
 

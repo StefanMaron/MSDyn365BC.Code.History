@@ -1006,6 +1006,60 @@ codeunit 137931 "SCM - Movement"
         Assert.RecordIsNotEmpty(WarehouseActivityLine);
     end;
 
+    [Test]
+    [HandlerFunctions('WhseItemTrackingLinesModalPageHandlerLotMultipleEntries,MessageHandler')]
+    procedure ExpirationDateInMovementFromWkshtWhenLotIsNotInInventoryYet()
+    var
+        Bin: array[2] of Record Bin;
+        WhseWorksheetLine: Record "Whse. Worksheet Line";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        ItemNo: Code[20];
+        LocationCode: Code[10];
+        LotNo: Code[20];
+        ExpirationDate: Date;
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Worksheet] [Item Tracking] [Expiration Date]
+        // [SCENARIO 420579] Expiration Date is copied from movement worksheet to warehouse movement when the lot no. is not posted to inventory yet.
+        Initialize();
+        LotNo := LibraryUtility.GenerateGUID();
+        ExpirationDate := LibraryRandom.RandDate(90);
+        Qty := LibraryRandom.RandInt(10);
+
+        // [GIVEN] Lot-tracked item with enabled warehouse tracking and mandatory expiration date.
+        ItemNo := CreateItemWithItemTrackingCode(true, true, false, false, true);
+
+        // [GIVEN] Location set up for directed put-away and pick.
+        // [GIVEN] Two bins "B1" and "B2" in picking zone.
+        LocationCode := CreateFullWMSLocation(2, false);
+        LibraryWarehouse.FindBin(Bin[1], LocationCode, FindZone(LocationCode, FindBinType(true, true, false, false)), 1);
+        LibraryWarehouse.FindBin(Bin[2], LocationCode, FindZone(LocationCode, FindBinType(true, true, false, false)), 2);
+
+        // [GIVEN] Create and post warehouse journal line: bin = "B1", lot no. = "L", expiration date = "31/12/YY".
+        CreateAndPostWhseItemJournalLine(Bin[1], ItemNo, LotNo, ExpirationDate, Qty);
+
+        // [GIVEN] Create movement worksheet line: from bin = "B1", to bin = "B2", lot no. = "L", expiration date = "31/12/YY".
+        LibraryWarehouse.CreateMovementWorksheetLine(WhseWorksheetLine, Bin[1], Bin[2], ItemNo, '', Qty);
+        LibraryVariableStorage.Enqueue(1);
+        LibraryVariableStorage.Enqueue(LotNo);
+        LibraryVariableStorage.Enqueue(Qty);
+        WhseWorksheetLine.OpenItemTrackingLines();
+        UpdateExpirationDateOnWhseItemTrackingLine(ItemNo, LotNo, ExpirationDate);
+
+        // [WHEN] Create warehouse movement from the movement worksheet.
+        LibraryWarehouse.CreateWhseMovement(WhseWorksheetLine.Name, LocationCode, 0, false, false);
+
+        // [THEN] A new warehouse movement is created.
+        // [THEN] Lot no. = "L" and expiration date = "31/12/YY" on the movement line.
+        WarehouseActivityLine.SetRange("Activity Type", WarehouseActivityLine."Activity Type"::Movement);
+        WarehouseActivityLine.SetRange("Item No.", ItemNo);
+        WarehouseActivityLine.FindFirst();
+        WarehouseActivityLine.TestField("Lot No.", LotNo);
+        WarehouseActivityLine.TestField("Expiration Date", ExpirationDate);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1234,6 +1288,41 @@ codeunit 137931 "SCM - Movement"
         LibraryInventory.CreateItemJournalLineInItemTemplate(
           ItemJournalLine, ItemNo, Bin."Location Code", Bin.Code, LibraryRandom.RandIntInRange(50, 100));
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+    end;
+
+    local procedure UpdateExpirationDateOnWhseItemTrackingLine(ItemNo: Code[20]; LotNo: Code[20]; ExpirationDate: Date)
+    var
+        WhseItemTrackingLine: Record "Whse. Item Tracking Line";
+    begin
+        WhseItemTrackingLine.SetRange("Item No.", ItemNo);
+        WhseItemTrackingLine.SetRange("Lot No.", LotNo);
+        WhseItemTrackingLine.FindFirst();
+        WhseItemTrackingLine."Expiration Date" := ExpirationDate;
+        WhseItemTrackingLine.Modify();
+    end;
+
+    local procedure CreateAndPostWhseItemJournalLine(Bin: Record Bin; ItemNo: Code[20]; LotNo: Code[20]; ExpirationDate: Date; Qty: Decimal)
+    var
+        WarehouseJournalTemplate: Record "Warehouse Journal Template";
+        WarehouseJournalBatch: Record "Warehouse Journal Batch";
+        WarehouseJournalLine: Record "Warehouse Journal Line";
+    begin
+        LibraryWarehouse.SelectWhseJournalTemplateName(WarehouseJournalTemplate, WarehouseJournalTemplate.Type::Item);
+        LibraryWarehouse.SelectWhseJournalBatchName(
+          WarehouseJournalBatch, WarehouseJournalTemplate.Type, WarehouseJournalTemplate.Name, Bin."Location Code");
+        LibraryWarehouse.CreateWhseJournalLine(
+          WarehouseJournalLine, WarehouseJournalBatch."Journal Template Name", WarehouseJournalBatch.Name,
+          Bin."Location Code", Bin."Zone Code", Bin.Code,
+          WarehouseJournalLine."Entry Type"::"Positive Adjmt.", ItemNo, Qty);
+
+        LibraryVariableStorage.Enqueue(1);
+        LibraryVariableStorage.Enqueue(LotNo);
+        LibraryVariableStorage.Enqueue(Qty);
+        WarehouseJournalLine.OpenItemTrackingLines();
+        UpdateExpirationDateOnWhseItemTrackingLine(ItemNo, LotNo, ExpirationDate);
+
+        LibraryWarehouse.RegisterWhseJournalLine(
+          WarehouseJournalBatch."Journal Template Name", WarehouseJournalBatch.Name, Bin."Location Code", true);
     end;
 
     local procedure FilterWhseActivityLines(var WarehouseActivityLine: Record "Warehouse Activity Line"; WarehouseActivityHeader: Record "Warehouse Activity Header"; ActionType: Enum "Warehouse Action Type")
