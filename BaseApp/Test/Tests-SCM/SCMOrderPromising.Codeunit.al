@@ -1196,6 +1196,43 @@ codeunit 137044 "SCM Order Promising"
         TempOrderPromisingLine.TestField("Earliest Shipment Date", SupplyDate[2]);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure AvailToPromiseCalculationDoesNotIncludeFutureSuppliesWhenQtyIsAvailable()
+    var
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        SalesHeader: Record "Sales Header";
+        TempOrderPromisingLine: Record "Order Promising Line" temporary;
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Availability]
+        // [SCENARIO 364942] Available-to-Promise calculation does not include future supplies when quantity on the current date is available.
+        Initialize();
+        Qty := LibraryRandom.RandIntInRange(10, 20);
+
+        // [GIVEN] Three purchase orders - 20 pcs on 01/01, 10 pcs on 20/01, 10 pcs on 30/01 (DD/MM).
+        LibraryInventory.CreateItem(Item);
+        LibraryPurchase.CreatePurchaseDocumentWithItem(
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', Item."No.", 2 * Qty, '', WorkDate());
+        LibraryPurchase.CreatePurchaseDocumentWithItem(
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', Item."No.", Qty, '', WorkDate() + 20);
+        LibraryPurchase.CreatePurchaseDocumentWithItem(
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', Item."No.", Qty, '', WorkDate() + 40);
+
+        // [GIVEN] Three sales orders - 10 pcs on 01/01, 10 pcs on 10/01, 10 pcs on 20/01
+        CreateSalesOrder(SalesHeader, WorkDate(), '', Item."No.", Qty);
+        CreateSalesOrder(SalesHeader, WorkDate() + 10, '', Item."No.", Qty);
+        CreateSalesOrder(SalesHeader, WorkDate() + 20, '', Item."No.", Qty);
+
+        // [WHEN] Calculate earliest shipment date for the third sales order.
+        CalcSalesHeaderAvailableToPromise(TempOrderPromisingLine, SalesHeader);
+
+        // [THEN] Earliest shipment date = 20/01. The supply on 30/01 is not considered.
+        TempOrderPromisingLine.TestField("Earliest Shipment Date", WorkDate() + 20);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

@@ -1755,6 +1755,8 @@ codeunit 134102 "ERM Prepayment III"
         GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup);
         SalesPrepmtAccount :=
           UpdateSalesPrepmtAccount(GLAccount."No.", SalesLine."Gen. Bus. Posting Group", SalesLine."Gen. Prod. Posting Group");
+        SalesLine.Validate("Prepayment %");
+        SalesLine.Modify(true);
     end;
 
     local procedure SetupForUnrealVAT(var SalesLine: Record "Sales Line"; VATPostingSetup: Record "VAT Posting Setup") OldSalesPrepaymentsAccount: Code[20]
