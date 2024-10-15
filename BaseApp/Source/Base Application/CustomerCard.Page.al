@@ -1,4 +1,4 @@
-page 21 "Customer Card"
+﻿page 21 "Customer Card"
 {
     Caption = 'Customer Card';
     PageType = Card;
@@ -177,6 +177,11 @@ page 21 "Customer Card"
                 {
                     ApplicationArea = BasicMX;
                     ToolTip = 'Specifies the tax scheme required for reporting to the Mexican tax authorities (SAT).';
+                }
+                field("CFDI General Public"; Rec."CFDI General Public")
+                {
+                    ApplicationArea = BasicMX;
+                    ToolTip = 'Specifies that the customer is considered a client that reports general public information according to the Mexican tax authorities (SAT).';
                 }
                 field("Last Date Modified"; "Last Date Modified")
                 {

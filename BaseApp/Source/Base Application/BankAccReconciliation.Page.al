@@ -69,8 +69,7 @@ page 379 "Bank Acc. Reconciliation"
                     Caption = 'Bank Account Ledger Entries';
                     SubPageLink = "Bank Account No." = FIELD("Bank Account No."),
                                   Open = CONST(true),
-                                  "Statement Status" = FILTER(Open | "Bank Acc. Entry Applied" | "Check Entry Applied"),
-                                  Reversed = FILTER(false);
+                                  "Statement Status" = FILTER(Open | "Bank Acc. Entry Applied" | "Check Entry Applied");
                 }
             }
         }
@@ -132,6 +131,40 @@ page 379 "Bank Acc. Reconciliation"
                         SuggestBankAccStatement.SetStmt(Rec);
                         SuggestBankAccStatement.RunModal;
                         Clear(SuggestBankAccStatement);
+                    end;
+                }
+                action(ShowReversedEntries)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Show Reversed Entries';
+                    Ellipsis = true;
+                    Image = ReverseLines;
+                    Promoted = true;
+                    PromotedCategory = Process;
+                    PromotedIsBig = true;
+                    ToolTip = 'Include reversed bank account ledger entries in the list of suggestions.';
+
+                    trigger OnAction()
+                    begin
+                        RecallEmptyListNotification();
+                        UpdateBankAccountLedgerEntrySubpage(Rec."Statement Date", false);
+                    end;
+                }
+                action(HideReversedEntries)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Hide Reversed Entries';
+                    Ellipsis = true;
+                    Promoted = true;
+                    Image = FilterLines;
+                    PromotedCategory = Process;
+                    PromotedIsBig = true;
+                    ToolTip = 'Hide unmatched reversed bank account ledger entries up to the statement date.';
+
+                    trigger OnAction()
+                    begin
+                        RecallEmptyListNotification();
+                        UpdateBankAccountLedgerEntrySubpage(Rec."Statement Date", true);
                     end;
                 }
                 action("Transfer to General Journal")
@@ -440,20 +473,33 @@ page 379 "Bank Acc. Reconciliation"
     end;
 
     local procedure UpdateBankAccountLedgerEntrySubpage(StatementDate: Date)
+    begin
+        UpdateBankAccountLedgerEntrySubpage(StatementDate, true);
+    end;
+
+    local procedure UpdateBankAccountLedgerEntrySubpage(StatementDate: Date; ExcludeReversedEntries: Boolean)
     var
         BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
         FilterDate: Date;
     begin
         BankAccountLedgerEntry.SetRange("Bank Account No.", "Bank Account No.");
         BankAccountLedgerEntry.SetRange(Open, true);
-        BankAccountLedgerEntry.SetRange(Reversed, false);
-        BankAccountLedgerEntry.SetFilter("Statement Status", StrSubstNo('%1|%2|%3', Format(BankAccountLedgerEntry."Statement Status"::Open), Format(BankAccountLedgerEntry."Statement Status"::"Bank Acc. Entry Applied"), Format(BankAccountLedgerEntry."Statement Status"::"Check Entry Applied")));
+        BankAccountLedgerEntry.SetFilter("Statement Status", Format(BankAccountLedgerEntry."Statement Status"::Open) + '|' + Format(BankAccountLedgerEntry."Statement Status"::"Bank Acc. Entry Applied") + '|' + Format(BankAccountLedgerEntry."Statement Status"::"Check Entry Applied"));
         FilterDate := MatchCandidateFilterDate();
         if StatementDate > FilterDate then
             FilterDate := StatementDate;
         if FilterDate <> 0D then
-            BankAccountLedgerEntry.SetFilter("Posting Date", StrSubstNo('<=%1', FilterDate));
-        if BankAccountLedgerEntry.FindSet() then;
+            BankAccountLedgerEntry.SetFilter("Posting Date", '<=' + Format(FilterDate));
+        if BankAccountLedgerEntry.FindSet() then
+            if ExcludeReversedEntries then begin
+                repeat
+                    if (BankAccountLedgerEntry."Statement Status" = BankAccountLedgerEntry."Statement Status"::Open) and (BankAccountLedgerEntry.Reversed = true) then
+                        BankAccountLedgerEntry.Mark(false)
+                    else
+                        BankAccountLedgerEntry.Mark(true);
+                until BankAccountLedgerEntry.Next() = 0;
+                BankAccountLedgerEntry.MarkedOnly(true);
+            end;
         CurrPage.ApplyBankLedgerEntries.Page.SetTableView(BankAccountLedgerEntry);
         CurrPage.ApplyBankLedgerEntries.Page.Update();
     end;
