@@ -78,6 +78,10 @@ table 5331 "CRM Integration Record"
             Caption = 'Option Mapping Failure';
             Editable = false;
         }
+        field(13; "Statistics Uploaded"; Boolean)
+        {
+            Caption = 'Statistics Uploaded';
+        }
     }
 
     keys
@@ -99,6 +103,12 @@ table 5331 "CRM Integration Record"
         {
         }
         key(Key6; "Table ID")
+        {
+        }
+        key(Key7; "Statistics Uploaded", Skipped, "Table ID")
+        {
+        }
+        key(Key8; "Integration ID", "Statistics Uploaded", Skipped, "Table ID")
         {
         }
     }

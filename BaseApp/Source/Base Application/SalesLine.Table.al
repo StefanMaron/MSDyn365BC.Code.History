@@ -3276,6 +3276,9 @@
         key(Key20; "Automatically Generated")
         {
         }
+        key(Key21; SystemModifiedAt)
+        {
+        }
     }
 
     fieldgroups
