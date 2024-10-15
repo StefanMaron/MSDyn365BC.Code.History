@@ -63,15 +63,17 @@ table 314 "Resources Setup"
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
 #endif
-
 #if not CLEAN22
             trigger OnValidate()
             var
                 FeatureTelemetry: Codeunit "Feature Telemetry";
                 TimeSheetManagement: Codeunit "Time Sheet Management";
             begin
-                if "Use New Time Sheet Experience" then
+                if "Use New Time Sheet Experience" then begin
                     FeatureTelemetry.LogUptake('0000JQU', TimeSheetManagement.GetTimeSheetV2FeatureKey(), Enum::"Feature Uptake Status"::Discovered);
+                    FeatureTelemetry.LogUptake('0000JQU', TimeSheetManagement.GetTimeSheetV2FeatureKey(), Enum::"Feature Uptake Status"::"Set up");
+                end else
+                    FeatureTelemetry.LogUptake('0000JQU', TimeSheetManagement.GetTimeSheetV2FeatureKey(), Enum::"Feature Uptake Status"::Undiscovered);
             end;
 #endif
         }

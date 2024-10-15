@@ -31,6 +31,7 @@ codeunit 139155 "PEPPOL Management Tests"
         NoInternationalStandardCodeErr: Label 'You must specify a valid International Standard Code for the Unit of Measure for %1.';
         NegativeUnitPriceErr: Label 'It cannot be negative if you want to send the posted document as an electronic document. \\Do you want to continue?', Comment = '%1 - record ID';
         FieldMustHaveValueErr: Label '%1 must have a value';
+        InvoiceElectronicallySendPEPPOLFormatTxt: Label 'The Invoice File Sucessfully Send in PEEPOL Format';
 
     [Test]
     [Scope('OnPrem')]
@@ -3180,6 +3181,46 @@ codeunit 139155 "PEPPOL Management Tests"
         Assert.ExpectedErrorCode('TableErrorStr');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure PEPPOLValidationSalesInvoiceWhenSalesLineTypeCommentAndDescriptionBlank()
+    var
+        SalesHeader: Record "Sales Header";
+        Item: Record Item;
+        SalesLine: Record "Sales Line";
+        SalesLine2: Record "Sales Line";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        FileManagement: Codeunit "File Management";
+        XMLFilePath: Text;
+    begin
+        // [SCENARIO 487175] Blank Description in Sales Invoice Comment Line leads to an error message during PEPPOL transmission.
+        Initialize();
+
+        // [GIVEN] Create a Sales Header with document type Invoice.
+        CreateGenericSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice);
+
+        // [GIVEN] Create a Item.
+        CreateGenericItem(Item);
+
+        // [GIVEN] Create a Sales Line with Type Item.
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandInt(10));
+
+        // [GIVEN] Create another sales line with the comment and assign the description as empty.
+        LibrarySales.CreateSalesLine(SalesLine2, SalesHeader, SalesLine2.Type::" ", '', 0);
+        SalesLine2.Validate(Description, '');
+        SalesLine2.Modify(true);
+
+        // [GIVEN] Post Sales invoice.
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+
+        // [GIVEN] Send the Invoice Electronically in PEPPOL format..
+        SalesInvoiceHeader.SetRecFilter();
+        XMLFilePath := PEPPOLXMLExport(SalesInvoiceHeader, GetPEPPOLFormat);
+
+        // [VERIFY] Invoice Successfully send the electronically in PEPPOL transmission.
+        Assert.IsTrue(FileManagement.ServerFileExists(XMLFilePath), InvoiceElectronicallySendPEPPOLFormatTxt);
+    end;
+ 
     local procedure Initialize()
     var
         CompanyInfo: Record "Company Information";
