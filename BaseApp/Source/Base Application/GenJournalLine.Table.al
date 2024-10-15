@@ -295,14 +295,7 @@
                 "VAT Base Amount" := Amount - "VAT Amount";
                 "VAT Difference" := 0;
 
-                if "Currency Code" = '' then
-                    "VAT Amount (LCY)" := "VAT Amount"
-                else
-                    "VAT Amount (LCY)" :=
-                      Round(
-                        CurrExchRate.ExchangeAmtFCYToLCY(
-                          "Posting Date", "Currency Code",
-                          "VAT Amount", "Currency Factor"));
+                "VAT Amount (LCY)" := CalcVATAmountLCY();
                 "VAT Base Amount (LCY)" := "Amount (LCY)" - "VAT Amount (LCY)";
 
                 OnValidateVATPctOnBeforeUpdateSalesPurchLCY(Rec, Currency);
@@ -462,7 +455,7 @@
                     if Amount <> 0 then
                         VATReinstMgt.CheckAmount(Rec);
 
-                ValidateAmount(true);
+                ValidateAmount();
 
                 SetExportStatus;
                 UpdatePaymentVATInfo(true);
@@ -902,14 +895,7 @@
                 if Abs("VAT Difference") > Currency."Max. VAT Difference Allowed" then
                     Error(Text013, FieldCaption("VAT Difference"), Currency."Max. VAT Difference Allowed");
 
-                if "Currency Code" = '' then
-                    "VAT Amount (LCY)" := "VAT Amount"
-                else
-                    "VAT Amount (LCY)" :=
-                      Round(
-                        CurrExchRate.ExchangeAmtFCYToLCY(
-                          "Posting Date", "Currency Code",
-                          "VAT Amount", "Currency Factor"));
+                "VAT Amount (LCY)" := CalcVATAmountLCY();
                 "VAT Base Amount (LCY)" := "Amount (LCY)" - "VAT Amount (LCY)";
 
                 UpdateSalesPurchLCY;
@@ -4569,7 +4555,7 @@
         OnAfterValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode);
     end;
 
-    local procedure ValidateAmount(ShouldCheckPaymentTolerance: Boolean)
+    local procedure ValidateAmount()
     begin
         GetCurrency;
         if "Currency Code" = '' then
@@ -4600,9 +4586,8 @@
         if Amount <> xRec.Amount then begin
             if ("Applies-to Doc. No." <> '') or ("Applies-to ID" <> '') then
                 SetApplyToAmount;
-            if ShouldCheckPaymentTolerance then
-                if (xRec.Amount <> 0) or (xRec."Applies-to Doc. No." <> '') or (xRec."Applies-to ID" <> '') then
-                    PaymentToleranceMgt.PmtTolGenJnl(Rec);
+            if (xRec.Amount <> 0) or (xRec."Applies-to Doc. No." <> '') or (xRec."Applies-to ID" <> '') then
+                PaymentToleranceMgt.PmtTolGenJnl(Rec);
         end;
 
         if JobTaskIsSet then begin
@@ -6667,7 +6652,7 @@
             Amount := -Amount;
 
         OnAfterSetAmountWithRemaining(Rec);
-        ValidateAmount(false);
+        ValidateAmount();
     end;
 
     procedure IsOpenedFromBatch(): Boolean
@@ -8526,6 +8511,26 @@
         end else
             if LineDimExists() then
                 Error(RecurringMethodsLineDimdErr, "Recurring Method");
+    end;
+
+    local procedure CalcVATAmountLCY(): Decimal
+    var
+        LCYCurrency: Record Currency;
+        VATAmountLCY: Decimal;
+    begin
+        if "Currency Code" = '' then
+            exit("VAT Amount");
+
+        LCYCurrency.InitRoundingPrecision();
+        if "VAT Difference" = 0 then
+            VATAmountLCY := Round("Amount (LCY)" * "VAT %" / (100 + "VAT %"), LCYCurrency."Amount Rounding Precision", LCYCurrency.VATRoundingDirection())
+        else
+            VATAmountLCY :=
+                Round(
+                    CurrExchRate.ExchangeAmtFCYToLCY("Posting Date", "Currency Code", "VAT Amount", "Currency Factor"),
+                    LCYCurrency."Amount Rounding Precision", LCYCurrency.VATRoundingDirection());
+
+        exit(VATAmountLCY);
     end;
 
     [IntegrationEvent(false, false)]
