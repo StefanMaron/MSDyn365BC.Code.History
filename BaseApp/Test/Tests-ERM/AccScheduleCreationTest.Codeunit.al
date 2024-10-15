@@ -93,6 +93,7 @@ codeunit 134443 "Acc. Schedule Creation Test"
     var
         AccScheduleLine: Record "Acc. Schedule Line";
         AccScheduleLineDescription: Text[80];
+        Changed: Boolean;
     begin
         // [SCENARIO 257783] Existing Acc. Schedule Lines after "Company-Initialize" is called.
 
@@ -104,7 +105,10 @@ codeunit 134443 "Acc. Schedule Creation Test"
         CreateAccScheduleWithOneLine(AccScheduleLineDescription);
 
         // [WHEN] Run codeunit "Company-Initialize"
+        Changed := SetAPIInitialized(true); // skip not needed API setup on company initialize
         CODEUNIT.Run(CODEUNIT::"Company-Initialize");
+        if Changed then
+            SetAPIInitialized(false);
 
         // [THEN] Five Account Schedule Lines exists with Description "Descr"
         AccScheduleLine.SetRange(Description, AccScheduleLineDescription);
@@ -290,6 +294,17 @@ codeunit 134443 "Acc. Schedule Creation Test"
             if (AccScheduleLine.Description <> '') and (AccScheduleLine."Totaling Type" <> AccScheduleLine."Totaling Type"::Formula) then
                 exit;
         until AccScheduleLine.Next = 0;
+    end;
+
+    local procedure SetAPIInitialized(Initialized: Boolean): Boolean
+    var
+        APIEntitiesSetup: Record "API Entities Setup";
+    begin
+        APIEntitiesSetup.SafeGet;
+        if Initialized = APIEntitiesSetup."Demo Company API Initialized" then
+            exit(false);
+        APIEntitiesSetup.Validate("Demo Company API Initialized", Initialized);
+        exit(APIEntitiesSetup.Modify(true));
     end;
 }
 

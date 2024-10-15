@@ -870,7 +870,7 @@
     var
         SalesLineBackup: Record "Sales Line";
     begin
-        if not (SalesHeader.Invoice and (SalesLine."Qty. to Invoice" <> 0)) then
+        if not (SalesHeader.Invoice and (SalesLine."Qty. to Invoice" <> 0) and (SalesLine.Amount <> 0)) then
             exit;
 
         ItemJnlRollRndg := true;
@@ -1622,7 +1622,8 @@
             exit;
 
         with SalesLine do begin
-            TestField(Amount);
+            if "Line Discount %" <> 100 then
+                TestField(Amount);
             TestField("Job No.", '');
             TestField("Job Contract Entry No.", 0);
         end;
@@ -3122,6 +3123,7 @@
         with TempSalesLine do begin
             ResetTempLines(TempSalesLine);
             SetRange(Type, Type::"Charge (Item)");
+            SetFilter("Line Discount %", '<>100');
             if IsEmpty then
                 exit;
 
