@@ -3714,7 +3714,7 @@ table 27 Item
         end;
     end;
 
-    local procedure CalcVAT(): Decimal
+    procedure CalcVAT(): Decimal
     begin
         if "Price Includes VAT" then begin
             VATPostingSetup.Get("VAT Bus. Posting Gr. (Price)", "VAT Prod. Posting Group");

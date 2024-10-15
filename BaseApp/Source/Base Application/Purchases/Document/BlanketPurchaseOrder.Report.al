@@ -691,6 +691,8 @@ report 410 "Blanket Purchase Order"
 
     trigger OnPreReport()
     begin
+        OnBeforeOnPreReport("Purchase Header");
+
         if not CurrReport.UseRequestPage then
             InitLogInteraction();
     end;
@@ -818,6 +820,11 @@ report 410 "Blanket Purchase Order"
     begin
         RecRef.GetTable("Purchase Header");
         CHReportManagement.PrepareFooter(RecRef, REPORT::"Blanket Purchase Order", FooterLabel, FooterTxt);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnPreReport(var PurchaseHeader: Record "Purchase Header")
+    begin
     end;
 }
 

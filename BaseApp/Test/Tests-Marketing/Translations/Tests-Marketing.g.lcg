@@ -392,6 +392,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Marketing Contacts - NamedType ValidationError)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 688363657 - NamedType 3869629113" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Value must match.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Marketing Contacts - NamedType ValueMustMatch)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 688363657 - NamedType 637203524" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[08db77db-1f41-4379-8615-1b581a0225fa]]></Val>

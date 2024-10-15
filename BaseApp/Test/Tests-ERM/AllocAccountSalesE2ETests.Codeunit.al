@@ -15,6 +15,7 @@ codeunit 134830 "Alloc. Account Sales E2E Tests"
         Any: Codeunit Any;
         Assert: Codeunit Assert;
         Initialized: Boolean;
+        DestinationAccountErr: Label 'Destination GL Account must be %1 in %2.', Comment = '%1 = GL Account No. %2 = Page Name';
 
     local procedure Initialize()
     var
@@ -1110,6 +1111,45 @@ codeunit 134830 "Alloc. Account Sales E2E Tests"
         Assert.IsTrue(AllocAccManualOverride.IsEmpty(), 'The manual override was not deleted');
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerFalse')]
+    procedure AccountTypeChangeOnAllocationKeepsLineIntact()
+    var
+        GLAccount: Record "G/L Account";
+        DummyAllocAccountDistribution: Record "Alloc. Account Distribution";
+        AllocationAccountPage: TestPage "Allocation Account";
+    begin
+        // [SCENARIO 539504] Issue when modifying the Account Type on the allocation page it resets automatically.
+        Initialize();
+
+        // [GIVEN] Create GL Account.
+        GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup());
+
+        // [GIVEN] Open Allocation Account Page.
+        AllocationAccountPage.OpenNew();
+
+        // [GIVEN] Create Allocation Account.
+        AllocationAccountPage."No.".SetValue(LibraryERM.CreateNoSeriesCode());
+
+        // [GIVEN] Create New Fixed Distribution.
+        AllocationAccountPage.FixedAccountDistribution.New();
+
+        // [GIVEN] Set Value to GL Account and Assign Gl Account No.
+        AllocationAccountPage.FixedAccountDistribution."Destination Account Type".SetValue(DummyAllocAccountDistribution."Destination Account Type"::"G/L Account");
+        AllocationAccountPage.FixedAccountDistribution."Destination Account Number".SetValue(GLAccount."No.");
+
+        // [GIVEN] Change the Account Type to Variable and Cancel it.
+        AllocationAccountPage."Account Type".SetValue(DummyAllocAccountDistribution."Account Type"::Variable);
+
+        // [THEN] Destination Account Number must not be reset.
+        Assert.AreEqual(
+            AllocationAccountPage.FixedAccountDistribution."Destination Account Number".Value(),
+            GLAccount."No.",
+            StrSubstNo(DestinationAccountErr,
+            GLAccount."No.",
+            AllocationAccountPage.Caption()));
+    end;
+
     local procedure CreateAllocationAccountwithVariableGLDistributionsAndInheritFromParent(
         var AllocationAccount: Record "Allocation Account";
         FirstDimensionValue: Record "Dimension Value";
@@ -1403,6 +1443,12 @@ codeunit 134830 "Alloc. Account Sales E2E Tests"
     procedure ConfirmHandlerTrue(QuestionText: Text[1024]; var Relpy: Boolean)
     begin
         Relpy := true;
+    end;
+
+    [ConfirmHandler]
+    procedure ConfirmHandlerFalse(QuestionText: Text[1024]; var Relpy: Boolean)
+    begin
+        Relpy := false;
     end;
 
     [MessageHandler]

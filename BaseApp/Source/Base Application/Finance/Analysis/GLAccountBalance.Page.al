@@ -177,7 +177,7 @@ page 415 "G/L Account Balance"
         UpdateSubForm();
     end;
 
-    var
+    protected var
         PeriodType: Enum "Analysis Period Type";
         AmountType: Enum "Analysis Amount Type";
         ClosingEntryFilter: Option Include,Exclude;
