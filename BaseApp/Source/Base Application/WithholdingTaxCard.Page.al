@@ -95,17 +95,22 @@ page 12112 "Withholding Tax Card"
                     Editable = false;
                     ToolTip = 'Specifies if the withholding tax amount from this entry has been reported to the tax authority.';
                 }
+#if not CLEAN19
                 field("Non-Taxable Income Type"; "Non-Taxable Income Type")
                 {
                     ApplicationArea = Basic, Suite;
                     OptionCaption = ' ,,,5,6,7,8,9,10,11,12,13';
                     ToolTip = 'Specifies the type of non-taxable income.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Withholding Tax Lines';
+                    ObsoleteTag = '19.0';
 
                     trigger OnValidate()
                     begin
                         SetBaseExcludedStyleExpr();
                     end;
                 }
+#endif
             }
             group("Withholding Tax")
             {

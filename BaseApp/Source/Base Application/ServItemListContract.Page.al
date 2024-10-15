@@ -207,9 +207,10 @@ page 6076 "Serv. Item List (Contract)"
                     Caption = 'Co&mments';
                     Image = ViewComments;
                     RunObject = Page "Service Comment Sheet";
-                    RunPageLink = "Table Name" = CONST(Loaner),
-                                  "Table Subtype" = CONST("0"),
-                                  "No." = FIELD("Service Item No.");
+                    RunPageLink = "Table Name" = CONST("Service Contract"),
+                                  "Table Subtype" = FIELD("Contract Type"),
+                                  "No." = FIELD("Contract No."),
+                                  "Table Line No." = FIELD("Line No.");
                     ToolTip = 'View or add comments for the record.';
                 }
                 action(Statistics)

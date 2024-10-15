@@ -191,13 +191,14 @@ codeunit 137159 "SCM Warehouse VII"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandler,ReservationPageHandler,MessageHandler')]
+    [HandlerFunctions('ConfirmHandler,ReservationPageHandler,MessageHandler,SendNotificationHandler,RecallNotificationHandler')]
     [Scope('OnPrem')]
     procedure PickWithUnreservedQuantityWithAlwaysCreatePickLine()
     var
         Item: Record Item;
         SalesHeader: Record "Sales Header";
         WarehouseActivityLine: Record "Warehouse Activity Line";
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
         Quantity: Decimal;
         OldAlwaysCreatePickLine: Boolean;
     begin
@@ -219,6 +220,7 @@ codeunit 137159 "SCM Warehouse VII"
 
         // Tear Down.
         UpdateAlwaysCreatePickLineOnLocation(LocationWhite, OldAlwaysCreatePickLine);
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]

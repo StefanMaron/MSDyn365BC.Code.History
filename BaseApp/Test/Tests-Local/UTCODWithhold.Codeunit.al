@@ -7,10 +7,12 @@ codeunit 144091 "UT COD Withhold"
 
     trigger OnRun()
     begin
+        // [FEATURE] [Withholding Tax] [UT]
     end;
 
     var
         LibraryUTUtility: Codeunit "Library UT Utility";
+        Assert: Codeunit Assert;
 
     [Test]
     [HandlerFunctions('ConfirmHandler')]
@@ -30,6 +32,22 @@ codeunit 144091 "UT COD Withhold"
     begin
         // Purpose of the test is to validate FromSentToOpen function of Codeunit - 12171 Vend. Bill List-Change Status.
         FromSentToOpenManualLineVendBilListChangeStatus(true);  // Manual Line as True.
+    end;
+
+    [Test]
+    procedure WithholdingContribution_WithholdApplicable_ZeroTaxAmount()
+    var
+        TmpWithholdingContribution: Record "Tmp Withholding Contribution";
+        WithholdingContribution: Codeunit "Withholding - Contribution";
+    begin
+        // [SCENARIO 395226] COD 12101 "Withholding - Contribution".WithholdApplicable() returns TRUE in case of
+        // [SCENARIO 395226] "Non Taxable %" <> 100, "Withholding Tax Amount" = 0, CalledFromVendBillLine = TRUE
+
+        // [GIVEN] Tmp Withholding Contribution record with "Non Taxable %" = 0
+        TmpWithholdingContribution."Withholding Tax Code" := LibraryUTUtility.GetNewCode();
+        TmpWithholdingContribution."Non Taxable %" := 0;
+        TmpWithholdingContribution."Withholding Tax Amount" := 0;
+        Assert.IsTrue(WithholdingContribution.WithholdApplicable(TmpWithholdingContribution, true), 'WithholdApplicable()');
     end;
 
     [TransactionModel(TransactionModel::AutoCommit)]

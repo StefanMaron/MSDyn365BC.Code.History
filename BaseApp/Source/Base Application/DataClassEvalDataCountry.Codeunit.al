@@ -90,6 +90,7 @@ codeunit 1752 "Data Class. Eval. Data Country"
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Sales Header Archive");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Withholding Tax Line");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Fattura Document Type");
+        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Withholding Exceptional Event");
         OnAfterClassifyCountrySpecificTables();
     end;
 

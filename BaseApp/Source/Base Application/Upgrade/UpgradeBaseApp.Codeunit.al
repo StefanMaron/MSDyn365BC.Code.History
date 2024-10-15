@@ -27,6 +27,8 @@
 
     trigger OnUpgradePerCompany()
     begin
+        ClearTemporaryTables();
+
         UpdateDefaultDimensionsReferencedIds();
         UpdateGenJournalBatchReferencedIds();
         UpdateItems();
@@ -56,6 +58,45 @@
         UpgradeUserTaskDescriptionToUTF8();
 
         UpdateWorkflowTableRelations();
+    end;
+
+    local procedure ClearTemporaryTables()
+    var
+        BinContentBuffer: Record "Bin Content Buffer";
+        DocumentEntry: Record "Document Entry";
+        EntrySummary: Record "Entry Summary";
+        InvoicePostBuffer: Record "Invoice Post. Buffer";
+        ItemTrackingSetup: Record "Item Tracking Setup";
+        OptionLookupBuffer: Record "Option Lookup Buffer";
+        ParallelSessionEntry: Record "Parallel Session Entry";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetClearTemporaryTablesUpgradeTag()) then
+            exit;
+
+        BinContentBuffer.Reset();
+        BinContentBuffer.DeleteAll();
+
+        DocumentEntry.Reset();
+        DocumentEntry.DeleteAll();
+
+        EntrySummary.Reset();
+        EntrySummary.DeleteAll();
+
+        InvoicePostBuffer.Reset();
+        InvoicePostBuffer.DeleteAll();
+
+        ItemTrackingSetup.Reset();
+        ItemTrackingSetup.DeleteAll();
+
+        OptionLookupBuffer.Reset();
+        OptionLookupBuffer.DeleteAll();
+
+        ParallelSessionEntry.Reset();
+        ParallelSessionEntry.DeleteAll();
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetClearTemporaryTablesUpgradeTag());
     end;
 
     local procedure UpdateWorkflowTableRelations()

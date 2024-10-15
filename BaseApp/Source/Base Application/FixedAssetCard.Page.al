@@ -92,6 +92,11 @@ page 5600 "Fixed Asset Card"
                     ApplicationArea = FixedAssets;
                     Importance = Additional;
                     ToolTip = 'Specifies if the asset is for budgeting purposes.';
+
+                    trigger OnValidate()
+                    begin
+                        ShowAcquisitionNotification();
+                    end;
                 }
                 field("Source FA No."; "Source FA No.")
                 {
@@ -727,7 +732,8 @@ page 5600 "Fixed Asset Card"
             exit;
 
         ShowNotification :=
-          (not Acquired) and FieldsForAcquitionInGeneralGroupAreCompleted() and AtLeastOneDepreciationLineIsComplete();
+          (not Acquired) and (not "Budgeted Asset") and
+          FieldsForAcquitionInGeneralGroupAreCompleted() and AtLeastOneDepreciationLineIsComplete();
         if ShowNotification and IsNullGuid(FAAcquireWizardNotificationId) then begin
             Acquirable := true;
             ShowAcquireWizardNotification();
@@ -792,10 +798,10 @@ page 5600 "Fixed Asset Card"
         UpdateAllowed := true;
         UpdateConfirmed := true;
 
-        if (FADepreciationBook."FA Posting Group" <> '') and 
-           (FADepreciationBook."FA Posting Group" <> FASubclass."Default FA Posting Group") 
+        if (FADepreciationBook."FA Posting Group" <> '') and
+           (FADepreciationBook."FA Posting Group" <> FASubclass."Default FA Posting Group")
         then begin
-            FALedgerEntry.SetRange("FA No.","No.");  
+            FALedgerEntry.SetRange("FA No.", "No.");
             UpdateAllowed := FALedgerEntry.IsEmpty();
 
             if UpdateAllowed then
@@ -809,6 +815,7 @@ page 5600 "Fixed Asset Card"
         end;
 
         if UpdateConfirmed and UpdateAllowed then begin
+            Validate("FA Posting Group", FASubclass."Default FA Posting Group");
             FADepreciationBook.Validate("FA Posting Group", FASubclass."Default FA Posting Group");
             if Simple then
                 SaveSimpleDepreciationBook("No.")

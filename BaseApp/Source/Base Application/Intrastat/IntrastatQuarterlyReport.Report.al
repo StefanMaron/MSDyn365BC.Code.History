@@ -1,7 +1,7 @@
 report 12161 "Intrastat - Quarterly Report"
 {
     DefaultLayout = RDLC;
-    RDLCLayout = './IntrastatQuarterlyReport.rdlc';
+    RDLCLayout = './Intrastat/IntrastatQuarterlyReport.rdlc';
     Caption = 'Intrastat - Quarterly Report';
 
     dataset

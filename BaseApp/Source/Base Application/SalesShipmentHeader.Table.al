@@ -606,6 +606,20 @@ table 110 "Sales Shipment Header"
             Caption = 'TDD Prepared By';
             DataClassification = EndUserIdentifiableInformation;
         }
+        field(12182; "Fattura Project Code"; Code[15])
+        {
+            Caption = 'Fattura Project Code';
+            TableRelation = "Fattura Project Info".Code WHERE (Type = FILTER (Project));
+        }
+        field(12183; "Fattura Tender Code"; Code[15])
+        {
+            Caption = 'Fattura Tender Code';
+            TableRelation = "Fattura Project Info".Code WHERE (Type = FILTER (Tender));
+        }
+        field(12184; "Customer Purchase Order No."; Text[35])
+        {
+            Caption = 'Customer Purchase Order No.';
+        }
     }
 
     keys

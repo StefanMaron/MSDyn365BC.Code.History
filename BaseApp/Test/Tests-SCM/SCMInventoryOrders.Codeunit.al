@@ -2171,6 +2171,78 @@ codeunit 137400 "SCM Inventory - Orders"
         PurchaseLineReturn[2].TestField("Qty. Assigned", PurchaseLineReturn[2].Quantity);
     end;
 
+    [Test]
+    [HandlerFunctions('SalesListHandler')]
+    procedure SalesOrderPostingDateAfterDropShipmentPurchaseReceive()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        // [FEATURE] [Drop Shipment] [Receipt] [Posting Date]
+        // [SCENARIO 390141] Posting Date on Sales Order is updated after posting receive on Purchase Line linked via Drop Shipment.
+        Initialize(false);
+
+        // [GIVEN] Sales order with Posting Date "28-01-2023" with Drop Shipment sales line
+        // [GIVEN] Document Date = "27-01-2023".
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
+        SalesHeader.Validate("Document Date", WorkDate() - 1);
+        SalesHeader.Modify(true);
+        CreateSalesLineWithPurchasingCode(SalesLine, SalesHeader);
+
+        // [GIVEN] Create a purchase order associated with the sales order via drop shipment with Posting Date "15-02-2023".
+        CreatePurchaseOrder(PurchaseHeader, SalesHeader."Sell-to Customer No.");
+        PurchaseHeader.Validate("Posting Date", LibraryRandom.RandDate(30));
+        PurchaseHeader.Modify(true);
+        GetDropShipmentLine(PurchaseLine, PurchaseHeader);
+
+        // [WHEN] Post purchase receipt
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+
+        // [THEN] Sales Order has Posting Date updated to "15-02-2023".
+        // [THEN] The Document Date retains "27-01-2023".
+        SalesHeader.Find();
+        SalesHeader.TestField("Posting Date", PurchaseHeader."Posting Date");
+        SalesHeader.TestField("Document Date", WorkDate() - 1);
+    end;
+
+    [Test]
+    [HandlerFunctions('SalesListHandler')]
+    procedure PurchaseOrderPostingDateAfterDropShipmentSalesShip()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        // [FEATURE] [Drop Shipment] [Shipment] [Posting Date]
+        // [SCENARIO 390141] Posting Date on Sales Order is updated after posting receive on Purchase Line linked via Drop Shipment.
+        Initialize(false);
+
+        // [GIVEN] Sales order with Posting Date "15-02-2023" with Drop Shipment sales line.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
+        SalesHeader.Validate("Posting Date", LibraryRandom.RandDate(30));
+        SalesHeader.Modify(true);
+        CreateSalesLineWithPurchasingCode(SalesLine, SalesHeader);
+
+        // [GIVEN] Create a purchase order associated with the sales order via drop shipment with Posting Date "28-01-2023".
+        // [GIVEN] Document Date = "27-01-2023".
+        CreatePurchaseOrder(PurchaseHeader, SalesHeader."Sell-to Customer No.");
+        PurchaseHeader.Validate("Document Date", WorkDate() - 1);
+        PurchaseHeader.Modify(true);
+        GetDropShipmentLine(PurchaseLine, PurchaseHeader);
+
+        // [WHEN] Post sales shipment.
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+
+        // [THEN] Purchase Order has Posting Date updated to "15-02-2023".
+        // [THEN] The Document Date retains "27-01-2023".
+        PurchaseHeader.Find();
+        PurchaseHeader.TestField("Posting Date", SalesHeader."Posting Date");
+        PurchaseHeader.TestField("Document Date", WorkDate() - 1);
+    end;
+
     local procedure Initialize(Enable: Boolean)
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2195,6 +2267,7 @@ codeunit 137400 "SCM Inventory - Orders"
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibraryERMCountryData.UpdatePurchasesPayablesSetup();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
         NoSeriesSetup;
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");

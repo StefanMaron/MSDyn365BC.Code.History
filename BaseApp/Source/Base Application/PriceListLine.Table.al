@@ -740,9 +740,19 @@ table 7001 "Price List Line"
         TestField(Status, Status::Draft);
     end;
 
+    local procedure VerifyParentSource() Result: Boolean;
+    var
+        PriceSourceLocal: Record "Price Source";
+        PriceSourceInterface: Interface "Price Source";
+    begin
+        CopyTo(PriceSourceLocal);
+        PriceSourceInterface := "Source Type";
+        Result := PriceSourceInterface.VerifyParent(PriceSourceLocal);
+    end;
+
     procedure VerifySource()
     begin
-        if "Source Type" = "Price Source Type"::"Job Task" then
+        if VerifyParentSource() then
             TestField("Parent Source No.")
         else
             TestField("Parent Source No.", '');

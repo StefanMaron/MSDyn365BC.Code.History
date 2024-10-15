@@ -1,7 +1,7 @@
 report 12160 "Intrastat - Monthly Report"
 {
     DefaultLayout = RDLC;
-    RDLCLayout = './IntrastatMonthlyReport.rdlc';
+    RDLCLayout = './Intrastat/IntrastatMonthlyReport.rdlc';
     Caption = 'Intrastat - Monthly Report';
 
     dataset

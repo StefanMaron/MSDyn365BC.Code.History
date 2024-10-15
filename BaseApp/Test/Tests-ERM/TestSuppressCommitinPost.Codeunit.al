@@ -16,6 +16,7 @@
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryPlanning: Codeunit "Library - Planning";
+        LibraryManufacturing: Codeunit "Library - Manufacturing";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         Assert: Codeunit Assert;
         IsInitialized: Boolean;
@@ -613,6 +614,43 @@
 
         // Tear down
         TearDownVATPostingSetup(SalesHeader3."VAT Bus. Posting Group");
+    end;
+
+    [Test]
+    procedure TestPostSalesWithATONoCommit()
+    var
+        AsmItem: Record Item;
+        CompItem: Record Item;
+        BOMComponent: Record "BOM Component";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        GLEntry: Record "G/L Entry";
+        SalesPost: Codeunit "Sales-Post";
+    begin
+        // [FEATURE] [Assembly to Order] [Sales]
+        // [SCENARIO 395582] Forward suppress commit from sales order to linked assembly-to-order.
+
+        LibraryInventory.CreateItem(AsmItem);
+        AsmItem.Validate("Replenishment System", AsmItem."Replenishment System"::Assembly);
+        AsmItem.Validate("Assembly Policy", AsmItem."Assembly Policy"::"Assemble-to-Order");
+        AsmItem.Modify(true);
+        CreateItemWithInventory(CompItem, LibraryRandom.RandIntInRange(50, 100), '');
+        LibraryManufacturing.CreateBOMComponent(
+          BOMComponent, AsmItem."No.", BOMComponent.Type::Item, CompItem."No.", 1, CompItem."Base Unit of Measure");
+
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
+        SalesHeader.Validate("Shipment Date", LibraryRandom.RandDate(30));
+        SalesHeader.Modify(true);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, AsmItem."No.", LibraryRandom.RandInt(10));
+
+        GLEntry.Init();
+        GLEntry.Consistent(false);
+
+        SalesHeader.Ship := true;
+        SalesPost.SetSuppressCommit(true);
+        SalesPost.Run(SalesHeader);
+
+        GLEntry.Consistent(true);
     end;
 
     local procedure Initialize()

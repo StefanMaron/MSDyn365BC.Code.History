@@ -5,6 +5,24 @@
     <Cmt Name="LcxAdmin" />
     <Cmt Name="Rccx" />
   </OwnedComments>
+  <Item ItemId=";Codeunit 3965915386 - NamedType 1534236911" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 was authenticated.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SMTP Mail Auth Tests - NamedType AuthenticationSuccessfulMsg)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3965915386 - NamedType 2563123446" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Could not authenticate.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SMTP Mail Auth Tests - NamedType AuthenticationFailedMsg)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2290587599 - NamedType 412603913" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Test Name]]></Val>
@@ -147,6 +165,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SMTP Mail Test - Method AddAttachmentWithInternationalNameTest - NamedType AttachmentInternationalName)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 685047160 - NamedType 3367967186" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Before people can send email they must authenticate their email account. They can do that by choosing the Authenticate action on the SMTP Mail Setup page.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SMTP Page Tests - NamedType EveryUserShouldPressAuthenticateMsg)]]></Cmt>
     </Cmts>
   </Item>
 </LCX>

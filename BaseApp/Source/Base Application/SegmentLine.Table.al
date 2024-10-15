@@ -48,9 +48,13 @@ table 5077 "Segment Line"
                                 "Correspondence Type" := InteractTmpl."Correspondence Type (Default)"
                             else
                                 "Correspondence Type" := Cont."Correspondence Type";
-                    end else
-                        if not Salesperson.Get(GetFilter("Salesperson Code")) then
-                            "Salesperson Code" := Cont."Salesperson Code";
+                    end else begin
+                        SetDefaultSalesperson();
+                        if "Salesperson Code" = '' then
+                            if not Salesperson.Get(GetFilter("Salesperson Code")) then
+                                "Salesperson Code" := Cont."Salesperson Code";
+                    end;
+
                 end else begin
                     "Contact Company No." := '';
                     "Contact Alt. Address Code" := '';
@@ -183,7 +187,9 @@ table 5077 "Segment Line"
 
                 if InteractTmpl.Get("Interaction Template Code") then begin
                     "Interaction Group Code" := InteractTmpl."Interaction Group Code";
-                    if Description = '' then
+                    if (Description = '') or
+                       ((xRec."Interaction Template Code" <> '') and (xRec."Interaction Template Code" <> "Interaction Template Code"))
+                    then
                         Description := InteractTmpl.Description;
                     "Cost (LCY)" := InteractTmpl."Unit Cost (LCY)";
                     "Duration (Min.)" := InteractTmpl."Unit Duration (Min.)";
@@ -1552,6 +1558,18 @@ table 5077 "Segment Line"
 
         ODataFieldsExport.SetExportData(TenantWebService, RecRef);
         ODataFieldsExport.RunModal;
+    end;
+
+    local procedure SetDefaultSalesperson()
+    var
+        UserSetup: Record "User Setup";
+    begin
+        IF NOT UserSetup.GET(USERID) THEN
+            EXIT;
+
+        IF UserSetup."Salespers./Purch. Code" <> '' THEN
+            VALIDATE("Salesperson Code", UserSetup."Salespers./Purch. Code");
+
     end;
 
     [IntegrationEvent(false, false)]
