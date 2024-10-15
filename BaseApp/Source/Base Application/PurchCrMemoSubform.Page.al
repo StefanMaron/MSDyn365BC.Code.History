@@ -282,7 +282,7 @@ page 98 "Purch. Cr. Memo Subform"
                     ApplicationArea = SalesTax;
                     Editable = NOT IsCommentLine;
                     Enabled = NOT IsCommentLine;
-                    ShowMandatory = (NOT IsCommentLine) AND ("No." <> '');
+                    ShowMandatory = "Tax Area Code" <> '';
                     ToolTip = 'Specifies the tax group that is used to calculate and post sales tax.';
 
                     trigger OnValidate()

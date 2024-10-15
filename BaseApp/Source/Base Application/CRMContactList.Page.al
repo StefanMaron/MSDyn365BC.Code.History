@@ -143,12 +143,15 @@ page 5342 "CRM Contact List"
         end;
     end;
 
+    trigger OnInit()
+    begin
+        CODEUNIT.Run(CODEUNIT::"CRM Integration Management");
+    end;
+
     trigger OnOpenPage()
     var
         LookupCRMTables: Codeunit "Lookup CRM Tables";
     begin
-        CODEUNIT.Run(CODEUNIT::"CRM Integration Management");
-
         FilterGroup(4);
         SetView(LookupCRMTables.GetIntegrationTableMappingView(DATABASE::"CRM Contact"));
         FilterGroup(0);

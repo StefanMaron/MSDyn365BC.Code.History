@@ -924,9 +924,11 @@ table 77 "Report Selections"
 
         ShowNoBodyNoAttachmentError(ReportUsage, FoundBody, FoundAttachment);
 
-        if FoundBody and not FoundAttachment then
-            AllEmailsWereSuccessful :=
-              DocumentMailing.EmailFile('', '', ServerEmailBodyFilePath, DocNo, EmailAddress, DocName, not ShowDialog, ReportUsage);
+        if FoundBody and not FoundAttachment then begin
+            EmailAddress := CopyStr(
+                GetNextEmailAddressFromCustomReportSelection(CustomReportSelection, DefaultEmailAddress, Usage, Sequence), 1, MaxStrLen(EmailAddress));
+            AllEmailsWereSuccessful := DocumentMailing.EmailFile('', '', ServerEmailBodyFilePath, DocNo, EmailAddress, DocName, not ShowDialog, ReportUsage);
+        end;
 
         if FoundAttachment then begin
             if ReportUsage = Usage::JQ then begin

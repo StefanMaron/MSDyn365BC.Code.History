@@ -4741,6 +4741,8 @@ codeunit 134387 "ERM Sales Documents III"
         LibrarySales.CreateSalesCommentLine(SalesCommentLine, "Sales Document Type"::Order, SalesHeader."No.", SalesLine."Line No.");
 
         SalesHeader.Validate("Sell-to Customer No.", LibrarySales.CreateCustomerNo());
+        // [SCENARIO 360476] No duplicate Comment Lines inserted
+        Commit();
 
         SalesCommentLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesCommentLine.SetRange("No.", SalesHeader."No.");

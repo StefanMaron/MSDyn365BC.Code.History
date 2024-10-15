@@ -325,7 +325,7 @@ table 5080 "To-do"
         }
         field(16; Comment; Boolean)
         {
-            CalcFormula = Exist ("Rlshp. Mgt. Comment Line" WHERE("Table Name" = CONST("To-do"),
+            CalcFormula = Exist("Rlshp. Mgt. Comment Line" WHERE("Table Name" = CONST("To-do"),
                                                                   "No." = FIELD("Organizer To-do No."),
                                                                   "Sub No." = CONST(0)));
             Caption = 'Comment';
@@ -346,14 +346,14 @@ table 5080 "To-do"
         }
         field(18; "Contact Name"; Text[100])
         {
-            CalcFormula = Lookup (Contact.Name WHERE("No." = FIELD("Contact No.")));
+            CalcFormula = Lookup(Contact.Name WHERE("No." = FIELD("Contact No.")));
             Caption = 'Contact Name';
             Editable = false;
             FieldClass = FlowField;
         }
         field(19; "Team Name"; Text[50])
         {
-            CalcFormula = Lookup (Team.Name WHERE(Code = FIELD("Team Code")));
+            CalcFormula = Lookup(Team.Name WHERE(Code = FIELD("Team Code")));
             Caption = 'Team Name';
             Editable = false;
             FieldClass = FlowField;
@@ -361,14 +361,14 @@ table 5080 "To-do"
         }
         field(20; "Salesperson Name"; Text[50])
         {
-            CalcFormula = Lookup ("Salesperson/Purchaser".Name WHERE(Code = FIELD("Salesperson Code")));
+            CalcFormula = Lookup("Salesperson/Purchaser".Name WHERE(Code = FIELD("Salesperson Code")));
             Caption = 'Salesperson Name';
             Editable = false;
             FieldClass = FlowField;
         }
         field(21; "Campaign Description"; Text[100])
         {
-            CalcFormula = Lookup (Campaign.Description WHERE("No." = FIELD("Campaign No.")));
+            CalcFormula = Lookup(Campaign.Description WHERE("No." = FIELD("Campaign No.")));
             Caption = 'Campaign Description';
             Editable = false;
             FieldClass = FlowField;
@@ -380,7 +380,7 @@ table 5080 "To-do"
         }
         field(23; "Contact Company Name"; Text[100])
         {
-            CalcFormula = Lookup (Contact.Name WHERE("No." = FIELD("Contact Company No.")));
+            CalcFormula = Lookup(Contact.Name WHERE("No." = FIELD("Contact Company No.")));
             Caption = 'Contact Company Name';
             Editable = false;
             FieldClass = FlowField;
@@ -413,7 +413,7 @@ table 5080 "To-do"
         }
         field(27; "Opportunity Description"; Text[100])
         {
-            CalcFormula = Lookup (Opportunity.Description WHERE("No." = FIELD("Opportunity No.")));
+            CalcFormula = Lookup(Opportunity.Description WHERE("No." = FIELD("Opportunity No.")));
             Caption = 'Opportunity Description';
             Editable = false;
             FieldClass = FlowField;
@@ -603,14 +603,14 @@ table 5080 "To-do"
         }
         field(43; "No. of Attendees"; Integer)
         {
-            CalcFormula = Count (Attendee WHERE("To-do No." = FIELD("Organizer To-do No.")));
+            CalcFormula = Count(Attendee WHERE("To-do No." = FIELD("Organizer To-do No.")));
             Caption = 'No. of Attendees';
             Editable = false;
             FieldClass = FlowField;
         }
         field(44; "Attendees Accepted No."; Integer)
         {
-            CalcFormula = Count (Attendee WHERE("To-do No." = FIELD("Organizer To-do No."),
+            CalcFormula = Count(Attendee WHERE("To-do No." = FIELD("Organizer To-do No."),
                                                 "Invitation Response Type" = CONST(Accepted)));
             Caption = 'Attendees Accepted No.';
             Editable = false;
@@ -2848,6 +2848,7 @@ table 5080 "To-do"
     var
         ExchangeServiceSetup: Record "Exchange Service Setup";
         AzureADMgt: Codeunit "Azure AD Mgt.";
+        [NonDebuggable]
         AccessToken: Text;
     begin
         AccessToken := AzureADMgt.GetAccessToken(AzureADMgt.GetO365Resource, AzureADMgt.GetO365ResourceName, false);

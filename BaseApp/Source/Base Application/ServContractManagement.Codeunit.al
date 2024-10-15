@@ -361,6 +361,7 @@ codeunit 5940 ServContractManagement
         ServHeader2."Document Type" := ServHeader2."Document Type"::Invoice;
         ServMgtSetup.Get();
         ServMgtSetup.TestField("Contract Invoice Nos.");
+        OnCreateServHeaderOnBeforeInitSeries(ServHeader2, ServMgtSetup);
         NoSeriesMgt.InitSeries(
           ServMgtSetup."Contract Invoice Nos.", '',
           PostDate, ServHeader2."No.", ServHeader2."No. Series");
@@ -594,7 +595,7 @@ codeunit 5940 ServContractManagement
             ServLine.Insert();
         end;
 
-        CreateDescriptionServiceLines(ServContractLine."Service Item No.", ServContractLine.Description);
+        CreateDescriptionServiceLines(ServContractLine."Service Item No.", ServContractLine.Description, ServContractLine."Serial No.");
     end;
 
     local procedure CreateLastServLines(ServHeader: Record "Service Header"; ContractType: Integer; ContractNo: Code[20])
@@ -689,6 +690,7 @@ codeunit 5940 ServContractManagement
         ServHeader2."Document Type" := ServHeader2."Document Type"::"Credit Memo";
         ServMgtSetup.Get();
         ServMgtSetup.TestField("Contract Credit Memo Nos.");
+        OnCreateOrGetCreditHeaderOnBeforeInitSeries(ServHeader2, ServMgtSetup);
         NoSeriesMgt.InitSeries(
           ServMgtSetup."Contract Credit Memo Nos.", ServHeader2."No. Series", 0D,
           ServHeader2."No.", ServHeader2."No. Series");
@@ -1361,6 +1363,8 @@ codeunit 5940 ServContractManagement
         ServHeader: Record "Service Header";
         InvoiceFrom: Date;
         InvoiceTo: Date;
+        PartInvoiceFrom: Date;
+        PartInvoiceTo: Date;
         ServiceApplyEntry: Integer;
     begin
         GetNextInvoicePeriod(ServContractToInvoice, InvoiceFrom, InvoiceTo);
@@ -1385,6 +1389,19 @@ codeunit 5940 ServContractManagement
                                 then
                                     CreateDetailedServLine(ServHeader, ServContractLine, "Contract Type", "Contract No.");
 
+                        if Prepaid then
+                            if (ServContractLine."Starting Date" < "Next Invoice Date") and (ServContractLine."Invoiced to Date" = 0D) then begin
+                                PartInvoiceFrom := ServContractLine."Starting Date";
+                                PartInvoiceTo := "Next Invoice Date" - 1;
+                                ServiceApplyEntry :=
+                                  CreateServiceLedgerEntry(
+                                    ServHeader, "Contract Type", "Contract No.", CalcDate('<-CM>', PartInvoiceFrom), PartInvoiceTo,
+                                    false, false, ServContractLine."Line No.");
+                                if ServiceApplyEntry <> 0 then
+                                    CreateServLine(ServHeader, "Contract Type", "Contract No.", PartInvoiceFrom, PartInvoiceTo, ServiceApplyEntry, false);
+                                ServiceApplyEntry := 0;
+                            end;
+
                         ServiceApplyEntry :=
                           CreateServiceLedgerEntry(
                             ServHeader, "Contract Type", "Contract No.", InvoiceFrom, InvoiceTo,
@@ -1393,7 +1410,7 @@ codeunit 5940 ServContractManagement
                         if ServiceApplyEntry <> 0 then
                             CreateServLine(
                               ServHeader, "Contract Type", "Contract No.",
-                              GetMaxDate(ServContractLine."Starting Date", InvoiceFrom), InvoiceTo, ServiceApplyEntry, false);
+                              CountLineInvFrom(false, ServContractLine, InvoiceFrom), InvoiceTo, ServiceApplyEntry, false);
                     until ServContractLine.Next = 0;
             end;
             CreateLastServLines(ServHeader, "Contract Type", "Contract No.");
@@ -1920,23 +1937,14 @@ codeunit 5940 ServContractManagement
         OnAfterFilterServContractLine(ServContractLine, ContractNo, ContractType);
     end;
 
-    local procedure CountLineInvFrom(SigningContract: Boolean; var ServContractLine: Record "Service Contract Line"; InvFrom: Date) LineInvFrom: Date
+    local procedure CountLineInvFrom(SigningContract: Boolean; ServContractLine: Record "Service Contract Line"; InvFrom: Date) LineInvFrom: Date
     begin
-        if SigningContract then begin
-            if ServContractLine."Invoiced to Date" = 0D then
-                LineInvFrom := ServContractLine."Starting Date"
-            else
+        if ServContractLine."Invoiced to Date" = 0D then
+            LineInvFrom := ServContractLine."Starting Date"
+        else
+            if SigningContract then begin
                 if ServContractLine."Invoiced to Date" <> CalcDate('<CM>', ServContractLine."Invoiced to Date") then
                     LineInvFrom := ServContractLine."Invoiced to Date" + 1
-        end else
-            if ServContractLine."Invoiced to Date" = 0D then begin
-                if ServContractLine."Starting Date" >= CalcDate('<-CM>', ServContractLine."Starting Date") then
-                    LineInvFrom := ServContractLine."Starting Date"
-                else
-                    if ServContractLine."Starting Date" <= InvFrom then
-                        LineInvFrom := CalcDate('<CM+1D>', ServContractLine."Starting Date")
-                    else
-                        LineInvFrom := 0D;
             end else
                 LineInvFrom := InvFrom;
     end;
@@ -1999,13 +2007,13 @@ codeunit 5940 ServContractManagement
             ServContractLine."Invoiced to Date" := InvTo;
     end;
 
-    local procedure CreateDescriptionServiceLines(ServContractLineItemNo: Code[20]; ServContractLineDesc: Text[100])
+    local procedure CreateDescriptionServiceLines(ServContractLineItemNo: Code[20]; ServContractLineDesc: Text[100]; ServContractLineItemSerialNo: Code[50])
     var
         ServLineDescription: Text;
         RequiredLength: Integer;
     begin
         if ServContractLineItemNo <> '' then begin
-            ServLineDescription := StrSubstNo('%1 %2', ServContractLineItemNo, ServContractLineDesc);
+            ServLineDescription := StrSubstNo('%1 %2 %3', ServContractLineItemNo, ServContractLineDesc, ServContractLineItemSerialNo);
             RequiredLength := MaxStrLen(ServLine.Description);
             InsertDescriptionServiceLine(CopyStr(ServLineDescription, 1, RequiredLength));
             if StrLen(ServLineDescription) > RequiredLength then
@@ -2146,13 +2154,6 @@ codeunit 5940 ServContractManagement
         end;
     end;
 
-    local procedure GetMaxDate(FirstDate: Date; SecondDate: Date): Date
-    begin
-        if FirstDate > SecondDate then
-            exit(FirstDate);
-        exit(SecondDate);
-    end;
-
     local procedure SetSalespersonCode(SalesPersonCodeToCheck: Code[20]; var SalesPersonCodeToAssign: Code[20])
     begin
         if SalesPersonCodeToCheck <> '' then
@@ -2225,6 +2226,16 @@ codeunit 5940 ServContractManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateHeadingServLineOnBeforeServLineInsert(var ServiceLine: Record "Service Line"; ServiceContractHeader: Record "Service Contract Header"; ServiceHeader: Record "Service Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateOrGetCreditHeaderOnBeforeInitSeries(var ServiceHeader: Record "Service Header"; ServMgtSetup: Record "Service Mgt. Setup")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateServHeaderOnBeforeInitSeries(var ServiceHeader: Record "Service Header"; ServMgtSetup: Record "Service Mgt. Setup")
     begin
     end;
 

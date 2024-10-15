@@ -349,6 +349,7 @@ codeunit 99000757 "Update Prod. Order Cost"
                 ProdOrderLine."Total Exp. Oper. Output (Qty.)" *
                 ProdOrderLine.Quantity);
 
+        OnUpdateUnitCostOnProdOrderOnBeforeValidateUnitCost(ProdOrderLine);
         ProdOrderLine.Validate(
           "Unit Cost",
           (ProdOrderLine."Expected Operation Cost Amt." + ProdOrderLine."Expected Component Cost Amt.") / ProdOrderLine.Quantity);
@@ -374,6 +375,11 @@ codeunit 99000757 "Update Prod. Order Cost"
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateUnitCostOnProdOrderOnAfterValidateUnitCost(var ProdOrderLine: Record "Prod. Order Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateUnitCostOnProdOrderOnBeforeValidateUnitCost(var ProdOrderLine: Record "Prod. Order Line")
     begin
     end;
 }

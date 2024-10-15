@@ -44,6 +44,7 @@ codeunit 5323 "Exchange Add-in Setup"
     var
         ExchangeServiceSetup: Record "Exchange Service Setup";
         AzureADMgt: Codeunit "Azure AD Mgt.";
+        [NonDebuggable]
         AccessToken: Text;
     begin
         SendTraceTag('0000BX8', ExchangeTelemetryCategoryTxt, Verbosity::Normal, TryInitializeWithEmailTxt, DataClassification::SystemMetadata);

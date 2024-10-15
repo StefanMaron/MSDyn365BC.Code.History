@@ -14,7 +14,7 @@ table 99000829 "Planning Component"
         field(2; "Worksheet Batch Name"; Code[10])
         {
             Caption = 'Worksheet Batch Name';
-            TableRelation = "Requisition Wksh. Name".Name WHERE("Worksheet Template Name" = FIELD("Worksheet Template Name"));
+            TableRelation = IF ("Worksheet Template Name" = FILTER(<> '')) "Requisition Wksh. Name".Name WHERE("Worksheet Template Name" = FIELD("Worksheet Template Name"));
         }
         field(3; "Worksheet Line No."; Integer)
         {
