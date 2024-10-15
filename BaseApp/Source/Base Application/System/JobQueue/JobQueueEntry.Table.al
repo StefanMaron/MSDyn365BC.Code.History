@@ -146,6 +146,7 @@ table 472 "Job Queue Entry"
                 ReportLayoutSelection: Record "Report Layout Selection";
                 InitServerPrinterTable: Codeunit "Init. Server Printer Table";
                 EnvironmentInfo: Codeunit "Environment Information";
+                IsHandled: Boolean;
             begin
                 TestField("Object Type to Run", "Object Type to Run"::Report);
 
@@ -160,8 +161,12 @@ table 472 "Job Queue Entry"
                 end;
                 if "Report Output Type" = "Report Output Type"::Print then begin
                     if EnvironmentInfo.IsSaaS() then begin
-                        "Report Output Type" := "Report Output Type"::PDF;
-                        Message(NoPrintOnSaaSMsg);
+                        IsHandled := false;
+                        OnValidateReportOutputTypeOnBeforeShowPrintNotAllowedInSaaS(Rec, IsHandled);
+                        if not IsHandled then begin
+                            "Report Output Type" := "Report Output Type"::PDF;
+                            Message(NoPrintOnSaaSMsg);
+                        end;
                     end else
                         "Printer Name" := InitServerPrinterTable.FindClosestMatchToClientDefaultPrinter("Object ID to Run");
                 end else
@@ -1502,13 +1507,13 @@ table 472 "Job Queue Entry"
     var
         JobQueueEntry: Record "Job Queue Entry";
     begin
-        JobQueueEntry.ReadIsolation(IsolationLevel::ReadCommitted);
+        JobQueueEntry.ReadIsolation(IsolationLevel::ReadUnCommitted);
         JobQueueEntry.SetRange("Job Queue Category Code", JobQueueCategory.Code);
         JobQueueEntry.SetFilter(Status, '%1|%2', JobQueueEntry.Status::"In Process", JobQueueEntry.Status::Ready);
         exit(not JobQueueEntry.IsEmpty);
     end;
 
-    internal procedure ActivateNextJobInCategory(var JobQueueCategory: Record "Job Queue Category")
+    internal procedure ActivateNextJobInCategory(var JobQueueCategory: Record "Job Queue Category"): Boolean
     var
         JobQueueEntry: Record "Job Queue Entry";
         JobQueueCategoryCode: Code[10];
@@ -1537,19 +1542,20 @@ table 472 "Job Queue Entry"
                 JobQueueEntry.SetError(NoTaskErr);
                 WaitingJobsExist := JobQueueEntry.FindFirst();
             end;
-        if JobQueueCategoryExist then
+        if JobQueueCategoryExist and OneActivated then
             RefreshRecoveryTask(JobQueueCategory);
+        exit(OneActivated);
     end;
 
     internal procedure RefreshRecoveryTask(var JobQueueCategory: Record "Job Queue Category")
     begin
-        if not IsNullGuid(JobQueueCategory."Recovery Task Id") and (JobQueueCategory."Recovery Task Start Time" > 0DT) and (JobQueueCategory."Recovery Task Start Time" > CurrentDateTime() + 500000) then  // not first time and more than 5 min. to go?
+        if not IsNullGuid(JobQueueCategory."Recovery Task Id") and (JobQueueCategory."Recovery Task Start Time" > 0DT) and (JobQueueCategory."Recovery Task Start Time" > CurrentDateTime() + 300000) then  // not first time and more than 5 min. to go?
             exit;
 
         if not IsNullGuid(JobQueueCategory."Recovery Task Id") then
             if TaskScheduler.TaskExists(JobQueueCategory."Recovery Task Id") then
                 TaskScheduler.CancelTask(JobQueueCategory."Recovery Task Id");
-        JobQueueCategory."Recovery Task Start Time" := CurrentDateTime() + 900000; // 15 minutes from now
+        JobQueueCategory."Recovery Task Start Time" := CurrentDateTime() + 4 * 60 * 60 * 1000; // 4 hours from now
         JobQueueCategory."Recovery Task Id" := TaskScheduler.CreateTask(Codeunit::"Job Queue Category Scheduler", Codeunit::"Job Queue Category Scheduler", true, CompanyName(), JobQueueCategory."Recovery Task Start Time", JobQueueCategory.RecordId());
         JobQueueCategory.Modify();
     end;
@@ -1562,7 +1568,7 @@ table 472 "Job Queue Entry"
             exit;
         JobQueueCategory.Code := Rec."Job Queue Category Code";
         if not AnyActivateJobInCategory(JobQueueCategory) then
-            ActivateNextJobInCategory(JobQueueCategory);
+            if ActivateNextJobInCategory(JobQueueCategory) then;
     end;
 
     internal procedure SetPriority(NewPriority: Enum "Job Queue Priority")
@@ -1706,6 +1712,11 @@ table 472 "Job Queue Entry"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeIsReadyToStart(var JobQueueEntry: Record "Job Queue Entry"; var ReadyToStart: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateReportOutputTypeOnBeforeShowPrintNotAllowedInSaaS(var JobQueueEntry: Record "Job Queue Entry"; var IsHandled: Boolean)
     begin
     end;
 }

@@ -307,7 +307,8 @@ report 20 "Calc. and Post VAT Settlement"
                         VATEntry.CalcSums(
                           Base, Amount,
                           "Additional-Currency Base", "Additional-Currency Amount",
-                          "Non-Deductible VAT Amount", "Non-Deductible VAT Amount ACY");
+                          "Non-Deductible VAT Amount", "Non-Deductible VAT Amount ACY",
+                          "Non-Deductible VAT Base", "Non-Deductible VAT Base ACY");
 
                         ReversingEntry := false;
                         // Balancing entries to VAT accounts
@@ -819,8 +820,6 @@ report 20 "Calc. and Post VAT Settlement"
         GLSetup: Record "General Ledger Setup";
         VATPostingSetup: Record "VAT Posting Setup";
         GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
-        EntrdStartDate: Date;
-        EnteredEndDate: Date;
         PrintVATEntries: Boolean;
         NextVATEntryNo: Integer;
 #if not CLEAN22
@@ -869,6 +868,8 @@ report 20 "Calc. and Post VAT Settlement"
     protected var
         GLAccSettle: Record "G/L Account";
         PostSettlement: Boolean;
+        EntrdStartDate: Date;
+        EnteredEndDate: Date;
 
     /// <summary>
     /// InitializeRequest with "VAT Date" default to "Posting Date"

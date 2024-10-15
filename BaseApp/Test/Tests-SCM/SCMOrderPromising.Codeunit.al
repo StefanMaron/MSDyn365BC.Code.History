@@ -1368,6 +1368,59 @@ codeunit 137044 "SCM Order Promising"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('SendAvailabilityNotificationHandler,ItemAvailabilityCheckHandler,RecallNotificationHandler,ConfirmHandlerNo')]
+    [Scope('OnPrem')]
+    procedure AvailNotificationIsShownWithInventoryShortageWhenInventoryOfItemIsLowerThanQtyInSO()
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
+        SalesOrder: TestPage "Sales Order";
+    begin
+        // [SCENARIO 541881] Available Inventory in the Notification Shows the Inventory of Item and 
+        // Inventory Shortage shows the difference between Inventory of Item and Quantity entered on Sales Order.
+        Initialize();
+
+        // [GIVEN] Setup: Enable Stockout Warning and Data Check.
+        LibrarySales.SetStockoutWarning(true);
+        LibraryERM.SetEnableDataCheck(false);
+
+        // [GIVEN] Create an Item and Validate Reserve.
+        LibraryInventory.CreateItem(Item);
+        Item.Validate(Reserve, Item.Reserve::Always);
+        Item.Modify(true);
+
+        // [GIVEN] Save Item No. in a Variable.
+        ItemNo := Item."No.";
+
+        // [GIVEN] Create and Post Item Journal Line.
+        CreateAndPostItemJournalLine(Item."No.", '', LibraryRandom.RandIntInRange(15, 15));
+
+        // [GIVEN] Create a Sales Header.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
+
+        // [GIVEN] Create a Sales Line.
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 0);
+
+        // [GIVEN] Open Sales Order page and Validate Quantity.
+        SalesOrder.OpenEdit();
+        SalesOrder.Filter.SetFilter("No.", SalesHeader."No.");
+        SalesOrder.SalesLines.First();
+        SalesOrder.SalesLines.Quantity.SetValue(LibraryRandom.RandIntInRange(16, 16));
+
+        // [WHEN] Validate Quantity in Sales Order page.
+        SalesOrder.Filter.SetFilter("No.", SalesHeader."No.");
+        SalesOrder.SalesLines.First();
+        SalesOrder.SalesLines.Quantity.SetValue(LibraryRandom.RandIntInRange(17, 17));
+
+        // [THEN] InventoryQty must be equal to Inventory of Item and TotalQuantity Must be equal to the
+        // Difference of Inventory and Quantity of Sales Order in ItemAvailabilityCheckHandler.
+        NotificationLifecycleMgt.RecallAllNotifications();
+        LibraryERM.SetEnableDataCheck(true);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2074,6 +2127,12 @@ codeunit 137044 "SCM Order Promising"
         Reply := LibraryVariableStorage.DequeueBoolean();
     end;
 
+    [ConfirmHandler]
+    procedure ConfirmHandlerNo(ConfirmMessage: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := false;
+    end;
+
     [MessageHandler]
     [Scope('OnPrem')]
     procedure MessageHandler(Message: Text[1024])
@@ -2130,6 +2189,26 @@ codeunit 137044 "SCM Order Promising"
         ItemAvailabilityCheck.AvailabilityCheckDetails."No.".AssertEquals(Item."No.");
         ItemAvailabilityCheck.AvailabilityCheckDetails.Description.AssertEquals(Item.Description);
         ItemAvailabilityCheck.InventoryQty.AssertEquals(Item.Inventory);
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ItemAvailabilityCheckHandler(var ItemAvailabilityCheck: TestPage "Item Availability Check")
+    var
+        Item: Record Item;
+        TotalQuantity: Decimal;
+    begin
+        Item.Get(ItemNo);
+        Item.CalcFields(Inventory);
+        Item.CalcFields("Qty. on Sales Order");
+        if Item."Qty. on Sales Order" <> 0 then
+            TotalQuantity := Item."Qty. on Sales Order" + 1
+        else
+            TotalQuantity := Item.Inventory + 1;
+        ItemAvailabilityCheck.AvailabilityCheckDetails."No.".AssertEquals(Item."No.");
+        ItemAvailabilityCheck.AvailabilityCheckDetails.Description.AssertEquals(Item.Description);
+        ItemAvailabilityCheck.InventoryQty.AssertEquals(Item.Inventory);
+        ItemAvailabilityCheck.TotalQuantity.AssertEquals(Item.Inventory - TotalQuantity);
     end;
 }
 

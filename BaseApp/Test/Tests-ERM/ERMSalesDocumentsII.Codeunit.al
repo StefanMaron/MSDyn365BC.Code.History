@@ -2626,6 +2626,55 @@ codeunit 134386 "ERM Sales Documents II"
 
     [Test]
     [Scope('OnPrem')]
+    procedure CheckBillToCustomerWhenReenteringSameSellTo()
+    var
+        Customer: Record Customer;
+        CustomerBillTo: Record Customer;
+        ShipToAddress: Record "Ship-to Address";
+        SalesHeader: Record "Sales Header";
+    begin
+        // [SCENARIO 542320] Bill-to customer should stay the same when re-entering the same Sell-to customer
+        Initialize();
+
+        // [GIVEN] Customer "C" where Bill-to Customer "B" has Name "N"
+        CreateCustomerWithBillToCustomer(Customer, CustomerBillTo);
+
+        // [GIVEN] Create Ship-to Address for Customer "C" and assigne as default "Ship-to Address"        
+        LibrarySales.CreateShipToAddress(ShipToAddress, Customer."No.");
+        if ShipToAddress."Shipment Method Code" = '' then begin
+            ShipToAddress.Validate("Shipment Method Code", CreateShipmentMethod());
+            ShipToAddress.Modify(true);
+        end;
+
+        // [GIVEN] Set "C_SA" as default "Ship-to Address" for Customer "C".
+        Customer.Validate("Ship-to Code", ShipToAddress.Code);
+        Customer.Modify(true);
+
+        // [GIVEN] Create Sales Order
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+        SalesHeader.TestField("Bill-to Customer No.", CustomerBillTo."No.");
+        SalesHeader.TestField("Ship-to Code", ShipToAddress.Code);
+
+        // [WHEN] reenter the same Sell-to customer
+        SalesHeader.Validate("Sell-to Customer No.", Customer."No.");
+
+        // [THEN] Bill-to customer should stay the same
+        SalesHeader.TestField("Bill-to Customer No.", CustomerBillTo."No.");
+        SalesHeader.TestField("Ship-to Code", ShipToAddress.Code);
+    end;
+
+    local procedure CreateShipmentMethod(): Code[10]
+    var
+        ShipmentMethod: Record "Shipment Method";
+    begin
+        ShipmentMethod.Init();
+        ShipmentMethod.Code := LibraryUtility.GenerateRandomCode(ShipmentMethod.FieldNo(Code), Database::"Shipment Method");
+        ShipmentMethod.Insert();
+        exit(ShipmentMethod.Code);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure OnlyPostingGLAcctMayBeUsedAsFreightGLAccInSalRecSetupUT()
     var
         GLAccount: Record "G/L Account";

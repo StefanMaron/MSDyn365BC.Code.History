@@ -21,7 +21,7 @@ using Microsoft.API.Upgrade;
 
 codeunit 5477 "Sales Invoice Aggregator"
 {
-    Permissions = tabledata "Sales Invoice Header" = rimd,
+    Permissions = tabledata "Sales Invoice Header" = riMd,
                   tabledata "Sales Invoice Entity Aggregate" = RM;
 
     trigger OnRun()
@@ -372,18 +372,40 @@ codeunit 5477 "Sales Invoice Aggregator"
     end;
 
     procedure PropagateOnModify(var SalesInvoiceEntityAggregate: Record "Sales Invoice Entity Aggregate"; var TempFieldBuffer: Record "Field Buffer" temporary)
+    begin
+        if SalesInvoiceEntityAggregate.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled()) then
+            exit;
+
+        if SalesInvoiceEntityAggregate.Posted then
+            PropagateOnModifyToSalesInvoiceHeader(SalesInvoiceEntityAggregate, TempFieldBuffer)
+        else
+            PropagateOnModifyToSalesHeader(SalesInvoiceEntityAggregate, TempFieldBuffer);
+    end;
+
+    local procedure PropagateOnModifyToSalesInvoiceHeader(var SalesInvoiceEntityAggregate: Record "Sales Invoice Entity Aggregate"; var TempFieldBuffer: Record "Field Buffer" temporary)
+    var
+        SalesInvocieHeader: Record "Sales Invoice Header";
+        TypeHelper: Codeunit "Type Helper";
+        TargetRecordRef: RecordRef;
+    begin
+        if not ChangeOnlyContainsWhitelistedFields(TempFieldBuffer) then
+            Error(CannotModifyPostedInvioceErr);
+        if SalesInvocieHeader.Get(SalesInvoiceEntityAggregate."No.") then begin
+            TargetRecordRef.GetTable(SalesInvocieHeader);
+            TypeHelper.TransferFieldsWithValidate(TempFieldBuffer, SalesInvoiceEntityAggregate, TargetRecordRef);
+            TargetRecordRef.SetTable(SalesInvocieHeader);
+            SalesInvocieHeader.Modify(true);
+            CODEUNIT.Run(CODEUNIT::"Sales Inv. Header - Edit", SalesInvocieHeader);
+        end
+    end;
+
+    local procedure PropagateOnModifyToSalesHeader(var SalesInvoiceEntityAggregate: Record "Sales Invoice Entity Aggregate"; var TempFieldBuffer: Record "Field Buffer" temporary)
     var
         SalesHeader: Record "Sales Header";
         TypeHelper: Codeunit "Type Helper";
         TargetRecordRef: RecordRef;
         Exists: Boolean;
     begin
-        if SalesInvoiceEntityAggregate.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled()) then
-            exit;
-
-        if SalesInvoiceEntityAggregate.Posted then
-            Error(CannotModifyPostedInvioceErr);
-
         Exists := SalesHeader.Get(SalesHeader."Document Type"::Invoice, SalesInvoiceEntityAggregate."No.");
         if Exists then
             TargetRecordRef.GetTable(SalesHeader)
@@ -401,6 +423,27 @@ codeunit 5477 "Sales Invoice Aggregator"
             SalesHeader.SetDefaultPaymentServices();
             SalesHeader.Insert(true);
         end;
+    end;
+
+    procedure ChangeOnlyContainsWhitelistedFields(var TempFieldBuffer: Record "Field Buffer"): Boolean
+    var
+        SalesInvoiceEntityAggregate: Record "Sales Invoice Entity Aggregate";
+        WhiteListedFieldsFound, NonWhiteListedFieldsFound : Boolean;
+    begin
+        WhiteListedFieldsFound := false;
+        NonWhiteListedFieldsFound := false;
+        if TempFieldBuffer.findset() then
+            repeat
+                if TempFieldBuffer."Field ID" in [SalesInvoiceEntityAggregate.FieldNo("Due Date"), SalesInvoiceEntityAggregate.FieldNo("Promised Pay Date"), SalesInvoiceEntityAggregate.FieldNo("Dispute Status"), SalesInvoiceEntityAggregate.FieldNo("Dispute Status Id")] then
+                    WhiteListedFieldsFound := true
+                else
+                    NonWhiteListedFieldsFound := true;
+            until (TempFieldBuffer.next() = 0) or NonWhiteListedFieldsFound;
+        if NonWhiteListedFieldsFound then
+            exit(false);
+        if WhiteListedFieldsFound then
+            exit(true);
+        exit(false);
     end;
 
     procedure PropagateOnDelete(var SalesInvoiceEntityAggregate: Record "Sales Invoice Entity Aggregate")

@@ -1946,6 +1946,70 @@ codeunit 147590 "Test VAT Statement"
                 AEATTransferenceFormat[3].TableCaption()));
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure NonDeductibleVATBaseShouldShowCorrectFigureAfterPostingVATSettlement()
+    var
+        Item: Record Item;
+        VATSetup: Record "VAT Setup";
+        VATPostingSetup: Record "VAT Posting Setup";
+        VatEntry: Record "VAT Entry";
+        CalcAndPostVATSettlement: Report "Calc. and Post VAT Settlement";
+        LibraryInventory: Codeunit "Library - Inventory";
+        VendorNo: Code[20];
+        NewDocNo: Code[20];
+        NonDeductibleVATBase: Decimal;
+    begin
+        // [SCENARIO 539438] The Non-Deductible VAT Base field on the Vat Entries is showing an incorrect amount after Calc. and Post VAT Settlement in the Spanish version.
+        Initialize();
+
+        // [GIVEN] Enable Non-Deductible VAT, and also enable Show Non-Ded. VAT In Lines in VAT Setup.
+        VATSetup.Get();
+        VATSetup."Enable Non-Deductible VAT" := true;
+        VATSetup."Show Non-Ded. VAT In Lines" := true;
+        VATSetup.Modify();
+
+        // [GIVEN] Create VAT Posting Setup with Non-Deductible VAT
+        VATPostingSetup.DeleteAll();
+        CreateVATPostingSetupWithNonDeductibleVAT(VATPostingSetup);
+        VATPostingSetup.Validate("VAT %", LibraryRandom.RandIntInRange(21, 21));
+        VATPostingSetup.Validate("Non-Deductible VAT %", LibraryRandom.RandIntInRange(10, 10));
+        VATPostingSetup.Modify((true));
+
+        // [GIVEN] Generate and save Vendor in a Variable.
+        VendorNo := LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group");
+
+        // [GIVEN] Create an Item and Validate VAT Prod. Posting Group.
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        Item.Modify(true);
+
+        // [GIVEN] Create and Post Purchase Invoice with Direct Unit Cost = X
+        NonDeductibleVATBase := CreateAndPostPurchaseInvoice(Item."No.", VendorNo, LibraryRandom.RandIntInRange(1000, 1000));
+
+        // [GIVEN] Create and Post Purchase Invoice with Direct Unit Cost = X
+        NonDeductibleVATBase += CreateAndPostPurchaseInvoice(Item."No.", VendorNo, LibraryRandom.RandIntInRange(2000, 2000));
+
+        // [WHEN] Run Calc and Post VAT Settlement report for VAT Posting Group "VP1" with Post = Yes
+        NewDocNo := LibraryUtility.GenerateGUID();
+        VATPostingSetup.SetRecFilter();
+        CalcAndPostVATSettlement.SetTableView(VATPostingSetup);
+        CalcAndPostVATSettlement.InitializeRequest(
+          WorkDate(), WorkDate(), WorkDate(), NewDocNo, LibraryERM.CreateGLAccountNo(), false, true);
+        CalcAndPostVATSettlement.UseRequestPage(false);
+        CalcAndPostVATSettlement.SaveAsXml(FileManagement.ServerTempFileName('xml'));
+
+        // [THEN] Verify: Non-Deductibale VAT Base is correct after posting VAT Settlement
+        VatEntry.SetRange("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        VatEntry.SetRange("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        VatEntry.SetRange("Document No.", NewDocNo);
+        VatEntry.FindLast();
+        Assert.AreEqual(
+          -NonDeductibleVATBase,
+          VatEntry."Non-Deductible VAT Base",
+          StrSubstNo(ValueMustBeEqualErr, VatEntry.FieldCaption("Non-Deductible VAT Base"), -NonDeductibleVATBase, VatEntry.TableCaption()));
+    end;
+
     local procedure GetVATAmount(DocNo: Code[20]): Decimal
     var
         VATEntry: Record "VAT Entry";
@@ -2572,6 +2636,23 @@ codeunit 147590 "Test VAT Statement"
         VATPostingSetup.Validate("Non-Ded. Purchase VAT Account", LibraryERM.CreateGLAccountNo());
         VatPostingSetup.Validate("Purchase VAT Account", LibraryERM.CreateGLAccountNo());
         VatPostingSetup.Modify(true);
+    end;
+
+    local procedure CreateAndPostPurchaseInvoice(ItemNo: Code[20]; VendorNo: Code[20]; DirectUnitCost: Decimal) NonDeductibleVATBase: Decimal;
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VendorNo);
+        PurchaseHeader.Validate("Vendor Invoice No.", LibraryRandom.RandText(2));
+        PurchaseHeader.Modify(true);
+
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo, LibraryRandom.RandInt(0));
+        PurchaseLine.Validate("Direct Unit Cost", DirectUnitCost);
+        PurchaseLine.Modify(true);
+        NonDeductibleVATBase := PurchaseLine."Non-Deductible VAT Base";
+
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, false);
     end;
 
     [ModalPageHandler]

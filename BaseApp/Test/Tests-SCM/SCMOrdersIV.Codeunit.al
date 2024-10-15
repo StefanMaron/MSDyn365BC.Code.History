@@ -338,6 +338,64 @@
     end;
 
     [Test]
+    [HandlerFunctions('ErrorMessagePageHandler')]
+    procedure WhenSalesPostHaveAnIssueWhsRequestShouldNotBeSaved()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        Bin: Record Bin;
+        InventorySetup: Record "Inventory Setup";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WarehouseRequest: Record "Warehouse Request";
+        Quantity: Decimal;
+        SuccessfullPost: Boolean;
+        InventorySetupUpdated: Boolean;
+    begin
+        Initialize();
+
+        //[GIVEN] Set Inventory Setup 
+        InventorySetup.Get();
+        if not InventorySetup."Prevent Negative Inventory" then begin
+            InventorySetup."Prevent Negative Inventory" := true;
+            InventorySetup.Modify();
+            InventorySetupUpdated := true;
+        end;
+
+        //[GIVEN] Create Locations with pick required and bin mandatory
+        LibraryWarehouse.CreateLocationWMS(Location, true, false, true, false, false);
+        LibraryWarehouse.CreateNumberOfBins(Location.Code, '', '', 3, false);
+        LibraryWarehouse.FindBin(Bin, Location.Code, '', 1);
+
+        //[GIVEN] Create an Item and post qty increase via Item Journal.
+        LibraryInventory.CreateItem(Item);
+        Quantity := LibraryRandom.RandDec(10, 2);
+        CreateAndPostItemJournalLine(Item."No.", Quantity, Location.Code, Bin.Code, Quantity);
+
+        //[GIVEN] Create Sales Order with more qty then available on inventory (not releases)
+        CreateSalesOrder(SalesHeader, SalesLine, SalesLine.Type::Item, LibrarySales.CreateCustomerNo(), Item."No.", Quantity * 2, Location.Code);
+
+        //[WHEN] try to Post shipment Sales Order
+        SalesHeader.Ship := true;
+        SuccessfullPost := SalesHeader.SendToPosting(Codeunit::"Sales-Post");
+
+        //[THEN] Sales Order should not be posted
+        Assert.IsFalse(SuccessfullPost, 'Sales Order should not be posted');
+
+        //[THEN] Warehouse Request should not be saved
+        WarehouseRequest.SetRange("Source Type", Database::"Sales Line");
+        WarehouseRequest.SetRange("Source Subtype", SalesHeader."Document Type");
+        WarehouseRequest.SetRange("Source No.", SalesHeader."No.");
+        Assert.IsTrue(WarehouseRequest.IsEmpty, 'Warehouse Request should not be saved');
+
+        if InventorySetupUpdated then begin
+            InventorySetup.Get();
+            InventorySetup."Prevent Negative Inventory" := false;
+            InventorySetup.Modify();
+        end;
+    end;
+
+    [Test]
     [HandlerFunctions('ItemChargeAssignmentSalesPageHandler,SalesShipmentLinePageHandler,ConfirmHandler')]
     [Scope('OnPrem')]
     procedure UndoSalesShipmentAfterSalesInvoiceWithItemCharge()
@@ -5325,6 +5383,13 @@
         LibraryVariableStorage.Dequeue(LineDiscount);
         SalesOrder.SalesLines."Unit Price".AssertEquals(UnitPrice);
         SalesOrder.SalesLines."Line Discount %".AssertEquals(LineDiscount);
+    end;
+
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure ErrorMessagePageHandler(var ErrorMessages: TestPage "Error Messages")
+    begin
+        ErrorMessages.OK().Invoke();
     end;
 
     [SendNotificationHandler]

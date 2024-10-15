@@ -328,6 +328,7 @@ table 288 "Vendor Bank Account"
         VendorLedgerEntry.SetRange("Vendor No.", "Vendor No.");
         VendorLedgerEntry.SetRange("Recipient Bank Account", Code);
         VendorLedgerEntry.SetRange(Open, true);
+        OnDeleteOnAfterSetFilters(Rec, VendorLedgerEntry);
         if not VendorLedgerEntry.IsEmpty() then
             Error(BankAccDeleteErr);
         if Vendor.Get("Vendor No.") and (Vendor."Preferred Bank Account Code" = Code) then begin
@@ -414,6 +415,11 @@ table 288 "Vendor Bank Account"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidatePostCode(var VendorBankAccount: Record "Vendor Bank Account"; var PostCodeRec: Record "Post Code"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDeleteOnAfterSetFilters(var VendorBankAccount: Record "Vendor Bank Account"; var VendorLedgerEntry: Record "Vendor Ledger Entry")
     begin
     end;
 }

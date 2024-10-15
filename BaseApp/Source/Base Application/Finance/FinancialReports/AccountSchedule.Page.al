@@ -25,6 +25,8 @@ page 104 "Account Schedule"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Name';
                 Lookup = true;
+                ToolTip = 'Specifies the unique name (code) of the financial report row definition.';
+
                 trigger OnLookup(var Text: Text): Boolean
                 begin
                     exit(AccSchedManagement.LookupName(CurrentSchedName, Text));

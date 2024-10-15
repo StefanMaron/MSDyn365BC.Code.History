@@ -1445,6 +1445,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Cartera Vendor Overdue Payment - NamedType ValueNotExistsForMultipleApplicationToPaymentErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3343777107 - NamedType 2465762923" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[GL Entry must be found.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Apply Unapply - NamedType GLEntryMustBeFound)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3343777107 - NamedType 1520820797" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Entries are  still applied.]]></Val>

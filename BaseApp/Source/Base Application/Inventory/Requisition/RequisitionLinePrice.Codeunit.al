@@ -1,6 +1,7 @@
 namespace Microsoft.Inventory.Requisition;
 
 using Microsoft.Inventory.Location;
+using Microsoft.Inventory.Item;
 using Microsoft.Pricing.Asset;
 using Microsoft.Pricing.Calculation;
 using Microsoft.Pricing.PriceList;
@@ -137,11 +138,23 @@ codeunit 7025 "Requisition Line - Price" implements "Line With Price"
     end;
 
     local procedure FillBuffer(var PriceCalculationBuffer: Record "Price Calculation Buffer")
+    var
+        Item: Record Item;
     begin
         PriceCalculationBuffer."Price Calculation Method" := RequisitionLine."Price Calculation Method";
         PriceCalculationBuffer."Variant Code" := RequisitionLine."Variant Code";
         PriceCalculationBuffer."Location Code" := RequisitionLine."Location Code";
         PriceCalculationBuffer."Is SKU" := IsSKU;
+
+        if PriceCalculationBuffer."Asset Type" = PriceCalculationBuffer."Asset Type"::Item then
+            if not PriceCalculationBuffer."Is SKU" then begin
+                Item.SetLoadFields("VAT Prod. Posting Group", "Last Direct Cost");
+                Item.Get(PriceCalculationBuffer."Asset No.");
+                PriceCalculationBuffer."Unit Price" := Item."Last Direct Cost";
+                if PriceCalculationBuffer."VAT Prod. Posting Group" = '' then
+                    PriceCalculationBuffer."VAT Prod. Posting Group" := Item."VAT Prod. Posting Group";
+            end;
+
         PriceCalculationBuffer."Document Date" := RequisitionLine."Order Date";
         if PriceCalculationBuffer."Document Date" = 0D then
             PriceCalculationBuffer."Document Date" := WorkDate();

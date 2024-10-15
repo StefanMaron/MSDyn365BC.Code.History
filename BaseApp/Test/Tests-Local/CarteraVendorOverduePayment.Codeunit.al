@@ -13,6 +13,7 @@ codeunit 147504 "Cartera Vendor Overdue Payment"
         LibraryReportDataset: Codeunit "Library - Report Dataset";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryERM: Codeunit "Library - ERM";
+        LibraryInventory: Codeunit "Library - Inventory";
         ValueNotExistsForMultipleApplicationToInvoiceErr: Label 'Report do not contain multiple application to invoice data in case when it covers posting date.';
         ValueNotExistsForMultipleApplicationToPaymentErr: Label 'Report do not contain multiple application to payment data in case when it covers posting date.';
         ShowPayments: Option Overdue,"Legally Overdue",All;
@@ -113,6 +114,90 @@ codeunit 147504 "Cartera Vendor Overdue Payment"
         GenerateReportWithPartialAppl(InvAmount, PmtAmount, CalcDate('<-CY>', WorkDate()), CalcDate('<CY>', WorkDate()));
         LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(ABSAmountElementNameTxt, InvAmount - PmtAmount);
+    end;
+
+    [Test]
+    [HandlerFunctions('VendorOverduePaymentsRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure NoAndPctOfInvPaidHasValueInVendOverduePaymentReportOnlyWhenPaymentIsDone()
+    var
+        Vendor: Record Vendor;
+        Item: Record Item;
+        PaymentMethod: Record "Payment Method";
+        PaymentTerms: Record "Payment Terms";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+    begin
+        // [SCENARIO 540768] No. of invoices paid within the legal limit and % of invoices paid within the legal limit 
+        // In Vendor - Overdue Payments Report will have values only when Payment of Invoices are done else it will be zero.
+
+        // [GIVEN] Create an Item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create a Payment Method and Validate Create Bills.
+        LibraryERM.CreatePaymentMethod(PaymentMethod);
+        PaymentMethod.Validate("Create Bills", true);
+        PaymentMethod.Modify(true);
+
+        // [GIVEN] Create a Payment terms and Validate Due Date Calculation 
+        // And Max. No. of Days till Due Date.
+        LibraryERM.CreatePaymentTerms(PaymentTerms);
+        Evaluate(PaymentTerms."Due Date Calculation", '<10D>');
+        PaymentTerms.Validate("Max. No. of Days till Due Date", LibraryRandom.RandIntInRange(10, 10));
+        PaymentTerms.Modify(true);
+
+        // [GIVEN] Create a Vendor and Validate Payment Method code and Payment Terms Code.
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Validate("Payment Method Code", PaymentMethod.Code);
+        Vendor.Validate("Payment Terms Code", PaymentTerms.Code);
+        Vendor.Modify(true);
+
+        // [GIVEN] Create a Purchase Header and Validate Posting Date.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");
+        PurchaseHeader.Validate("Posting Date", CalcDate('<CY-3Y>', WorkDate()));
+        PurchaseHeader.Modify(true);
+
+        // [GIVEN] Create a Purchase Line and Validate Direct Unit Cost.
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", LibraryRandom.RandInt(0));
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(10, 10));
+        PurchaseLine.Modify(true);
+
+        // [GIVEN] Post Purchase Invoice.
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
+
+        // [WHEN] Run Vendor - Overdue Payments Report.
+        SaveReportToXml(
+            Vendor."No.",
+            CalcDate('<CY-7Y>', WorkDate()),
+            CalcDate('<CY-3Y>', WorkDate()),
+            ShowPayments::All);
+
+        // [THEN] No. and % of invoices paid within the legal limit must be 0.
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists('InvPaidWithinLegalDueDateCountPerVendorVal', 0);
+        LibraryReportDataset.AssertElementWithValueExists('InvPaidToTotalCountPctPerVendorVal', 0);
+
+        // [GIVEN] Find Vendor Ledger Entry.
+        VendorLedgerEntry.SetRange("Document Type", VendorLedgerEntry."Document Type"::Bill);
+        VendorLedgerEntry.SetRange("Vendor No.", Vendor."No.");
+        VendorLedgerEntry.FindFirst();
+
+        // [GIVEN] Create and Post Gen. Journal Line.
+        CreateAndPostGenJournalLine(Vendor, PurchaseLine, VendorLedgerEntry);
+
+        // [WHEN] Run Vendor - Overdue Payments Report.
+        SaveReportToXml(
+            Vendor."No.",
+            CalcDate('<CY-7Y>', WorkDate()),
+            CalcDate('<CY-3Y>', WorkDate()),
+            ShowPayments::All);
+
+        // [THEN] No. of invoices paid within the legal limit must be 1
+        // And % of invoices paid within the legal limit must be 100.
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists('InvPaidWithinLegalDueDateCountPerVendorVal', LibraryRandom.RandInt(0));
+        LibraryReportDataset.AssertElementWithValueExists('InvPaidToTotalCountPctPerVendorVal', LibraryRandom.RandIntInRange(100, 100));
     end;
 
     local procedure RunRequestPageTest(AssertMessage: Text[250]; StartingDate: Date; EndingDate: Date)
@@ -418,6 +503,26 @@ codeunit 147504 "Cartera Vendor Overdue Payment"
     begin
         LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, DocType, DocNo);
         VendorLedgerEntry.CalcFields(Amount, "Amount (LCY)", "Remaining Amount");
+    end;
+
+    local procedure CreateAndPostGenJournalLine(Vendor: Record Vendor; PurchaseLine: Record "Purchase Line"; VendorLedgerEntry: Record "Vendor Ledger Entry")
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
+        LibraryERM.CreateGeneralJnlLine(GenJournalLine, GenJournalTemplate.Name, GenJournalBatch.Name, GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Vendor, Vendor."No.", PurchaseLine."Amount Including VAT");
+        GenJournalLine.Validate("Posting Date", WorkDate());
+        GenJournalLine.Validate("Applies-to Doc. Type", GenJournalLine."Applies-to Doc. Type"::Bill);
+        GenJournalLine.Validate("Applies-to Doc. No.", VendorLedgerEntry."Document No.");
+        GenJournalLine.Validate("Applies-to Bill No.", VendorLedgerEntry."Bill No.");
+        GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::"G/L Account");
+        GenJournalLine.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo());
+        GenJournalLine.Modify(true);
+
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
     [RequestPageHandler]

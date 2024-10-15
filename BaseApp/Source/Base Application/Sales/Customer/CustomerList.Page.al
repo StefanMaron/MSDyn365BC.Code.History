@@ -773,7 +773,7 @@ page 22 "Customer List"
                 }
                 action("S&ales")
                 {
-                    ApplicationArea = Advanced;
+                    ApplicationArea = Basic, Suite;
                     Caption = 'S&ales';
                     Image = Sales;
                     RunObject = Page "Customer Sales";
@@ -841,7 +841,7 @@ page 22 "Customer List"
                 Image = Sales;
                 action(Sales_InvoiceDiscounts)
                 {
-                    ApplicationArea = Advanced;
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Invoice &Discounts';
                     Image = CalculateInvoiceDiscount;
                     RunObject = Page "Cust. Invoice Discounts";
@@ -851,7 +851,7 @@ page 22 "Customer List"
 #if not CLEAN23
                 action(Sales_Prices)
                 {
-                    ApplicationArea = Advanced;
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Prices';
                     Image = Price;
                     ToolTip = 'View or set up different prices for items that you sell to the customer. An item price is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
@@ -867,7 +867,7 @@ page 22 "Customer List"
                 }
                 action(Sales_LineDiscounts)
                 {
-                    ApplicationArea = Advanced;
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Line Discounts';
                     Image = LineDiscount;
                     ToolTip = 'View or set up different discounts for items that you sell to the customer. An item discount is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
@@ -909,7 +909,7 @@ page 22 "Customer List"
                 Image = Documents;
                 action(Quotes)
                 {
-                    ApplicationArea = Advanced;
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Quotes';
                     Image = Quote;
                     RunObject = Page "Sales Quotes";
@@ -919,7 +919,7 @@ page 22 "Customer List"
                 }
                 action(Orders)
                 {
-                    ApplicationArea = Advanced;
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Orders';
                     Image = Document;
                     RunObject = Page "Sales Order List";
@@ -1141,7 +1141,7 @@ page 22 "Customer List"
                 Caption = 'Prices & Discounts';
                 action(Prices_InvoiceDiscounts)
                 {
-                    ApplicationArea = Advanced;
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Invoice &Discounts';
                     Image = CalculateInvoiceDiscount;
                     RunObject = Page "Cust. Invoice Discounts";
@@ -1841,7 +1841,6 @@ page 22 "Customer List"
         SetCaption(CaptionTxt);
         CurrPage.Caption(CaptionTxt);
 
-        CurrPage.PowerBIEmbeddedReportPart.PAGE.InitPageRatio(PowerBIServiceMgt.GetFactboxRatio());
         CurrPage.PowerBIEmbeddedReportPart.PAGE.SetPageContext(CurrPage.ObjectId(false));
 
         SetWorkflowManagementEnabledState();
@@ -1870,7 +1869,6 @@ page 22 "Customer List"
 
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
-        PowerBIServiceMgt: Codeunit "Power BI Service Mgt.";
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
         CanSendEmail: Boolean;
         ExtendedPriceEnabled: Boolean;

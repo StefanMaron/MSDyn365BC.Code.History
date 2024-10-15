@@ -35,7 +35,6 @@ codeunit 8 AccSchedManagement
         Text017Txt: Label 'The error occurred when the program tried to calculate:\';
         Text018Txt: Label 'Acc. Sched. Line: Row No. = %1, Line No. = %2, Totaling = %3\', Comment = '%1 = Row No., %2= Line No., %3 = Totaling';
         Text019Txt: Label 'Acc. Sched. Column: Column No. = %1, Line No. = %2, Formula  = %3', Comment = '%1 = Column No., %2= Line No., %3 = Formula';
-        Text020: Label 'Because of circular references, the program cannot calculate a formula.';
         AccSchedName: Record "Acc. Schedule Name";
         AccountScheduleLine: Record "Acc. Schedule Line";
         ColumnLayoutName: Record "Column Layout Name";
@@ -52,7 +51,6 @@ codeunit 8 AccSchedManagement
         FiscalStartDate: Date;
         DivisionError: Boolean;
         PeriodError: Boolean;
-        CallLevel: Integer;
         CallingAccSchedLineID: Integer;
         CallingColumnLayoutID: Integer;
         OldAccSchedLineFilters: Text;
@@ -407,7 +405,6 @@ codeunit 8 AccSchedManagement
             end;
             DivisionError := false;
             PeriodError := false;
-            CallLevel := 0;
             CallingAccSchedLineID := AccSchedLine."Line No.";
             CallingColumnLayoutID := ColumnLayout."Line No.";
 
@@ -1377,19 +1374,14 @@ codeunit 8 AccSchedManagement
         RightOperand: Text;
         LeftResult: Decimal;
         RightResult: Decimal;
+        MaxLevel: Integer;
         i: Integer;
         IsExpression: Boolean;
         IsFilter: Boolean;
-        MaxLevel: Integer;
     begin
         Result := 0;
-        MaxLevel := 25; // 1000 is current's MaxStack Depth, 400 is considered CriticalStackDepth. See NavMethodScope.cs if you need to update it
 
         OnBeforeEvaluateExpression(AccSchedLine, ColumnLayout, MaxLevel);
-
-        CallLevel := CallLevel + 1;
-        if CallLevel > MaxLevel then
-            ShowError(Text020, AccSchedLine, ColumnLayout);
 
         Expression := DelChr(Expression, '<>', ' ');
         if StrLen(Expression) > 0 then begin
@@ -1435,7 +1427,6 @@ codeunit 8 AccSchedManagement
                         Result := CalcCellValueInEvaluateExpression(IsAccSchedLineExpression, AccSchedLine, ColumnLayout, Expression, CalcAddCurr, IsFilter);
                 end;
         end;
-        CallLevel := CallLevel - 1;
         exit(Result);
     end;
 

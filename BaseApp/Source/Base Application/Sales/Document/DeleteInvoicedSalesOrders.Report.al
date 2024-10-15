@@ -30,188 +30,189 @@ report 299 "Delete Invoiced Sales Orders"
 
             trigger OnAfterGetRecord()
             var
-                ATOLink: Record "Assemble-to-Order Link";
+                SalesOrderLine: Record "Sales Line";
+                SalesShipmentHeader: Record "Sales Shipment Header";
+                SalesInvoiceHeader: Record "Sales Invoice Header";
+                SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+                ReturnReceiptHeader: Record "Return Receipt Header";
+                PrepaymentSalesInvoiceHeader: Record "Sales Invoice Header";
+                PrepaymentSalesCrMemoHeader: Record "Sales Cr.Memo Header";
+                SalesCommentLine: Record "Sales Comment Line";
+                WarehouseRequest: Record "Warehouse Request";
+                AssembleToOrderLink: Record "Assemble-to-Order Link";
+                ItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)";
                 SalesLineReserve: Codeunit "Sales Line-Reserve";
                 ApprovalsMgmt: Codeunit "Approvals Mgmt.";
+                ArchiveManagement: Codeunit ArchiveManagement;
                 PostSalesDelete: Codeunit "PostSales-Delete";
+                AllLinesDeleted: Boolean;
                 IsHandled: Boolean;
+                SkipLine: Boolean;
+                SuppressCommit: Boolean;
             begin
                 IsHandled := false;
-                OnBeforeSalesHeaderOnAfterGetRecord("Sales Header", IsHandled);
+                OnBeforeSalesHeaderOnAfterGetRecord("Sales Header", IsHandled, ProgressDialog);
                 if IsHandled then
                     CurrReport.Skip();
 
                 if GuiAllowed() then
-                    Window.Update(1, "No.");
+                    ProgressDialog.Update(1, "No.");
 
                 AllLinesDeleted := true;
-                ItemChargeAssgntSales.Reset();
-                ItemChargeAssgntSales.SetRange("Document Type", "Document Type");
-                ItemChargeAssgntSales.SetRange("Document No.", "No.");
-                SalesOrderLine.Reset();
+                ItemChargeAssignmentSales.SetRange("Document Type", "Document Type");
+                ItemChargeAssignmentSales.SetRange("Document No.", "No.");
                 SalesOrderLine.SetRange("Document Type", "Document Type");
                 SalesOrderLine.SetRange("Document No.", "No.");
                 SalesOrderLine.SetFilter("Quantity Invoiced", '<>0');
-                if SalesOrderLine.Find('-') then begin
-                    SalesOrderLine.SetRange("Quantity Invoiced");
-                    SalesOrderLine.SetFilter("Outstanding Quantity", '<>0');
-                    OnAfterSetSalesLineFilters(SalesOrderLine);
-                    if not SalesOrderLine.Find('-') then begin
-                        SalesOrderLine.SetRange("Outstanding Quantity");
-                        SalesOrderLine.SetFilter("Qty. Shipped Not Invoiced", '<>0');
+                SkipLine := false;
+                OnAfterGetRecordSalesHeaderOnBeforeFirstSalesOrderLineFind(SalesOrderLine, SkipLine);
+                if not SkipLine then
+                    if SalesOrderLine.Find('-') then begin
+                        SalesOrderLine.SetRange("Quantity Invoiced");
+                        SalesOrderLine.SetFilter("Outstanding Quantity", '<>0');
+                        OnAfterSetSalesLineFilters(SalesOrderLine);
                         if not SalesOrderLine.Find('-') then begin
-                            SalesOrderLine.LockTable();
+                            SalesOrderLine.SetRange("Outstanding Quantity");
+                            SalesOrderLine.SetFilter("Qty. Shipped Not Invoiced", '<>0');
                             if not SalesOrderLine.Find('-') then begin
-                                SalesOrderLine.SetRange("Qty. Shipped Not Invoiced");
-
-                                IsHandled := false;
-                                OnSalesHeaderOnAfterGetRecordOnBeforeAutoArchiveSalesDocument(IsHandled, "Sales Header");
-                                if not IsHandled then
-                                    ArchiveManagement.AutoArchiveSalesDocument("Sales Header");
-
-                                OnBeforeDeleteSalesLinesLoop("Sales Header", SalesOrderLine);
-                                if SalesOrderLine.Find('-') then
-                                    repeat
-                                        SalesOrderLine.CalcFields("Qty. Assigned");
-                                        if (SalesOrderLine."Qty. Assigned" = SalesOrderLine."Quantity Invoiced") or
-                                           (SalesOrderLine.Type <> SalesOrderLine.Type::"Charge (Item)") or
-                                           IsPostedUnassignedItemChargeWithZeroAmount(SalesOrderLine)
-                                        then begin
-                                            if SalesOrderLine.Type = SalesOrderLine.Type::"Charge (Item)" then begin
-                                                ItemChargeAssgntSales.SetRange("Document Line No.", SalesOrderLine."Line No.");
-                                                ItemChargeAssgntSales.DeleteAll();
-                                            end;
-                                            if SalesOrderLine.Type = SalesOrderLine.Type::Item then
-                                                ATOLink.DeleteAsmFromSalesLine(SalesOrderLine);
-
-                                            IsHandled := false;
-                                            OnSalesHeaderOnAfterGetRecordOnBeforeSalesOrderLineDeleteLinks(IsHandled, SalesOrderLine);
-                                            if not IsHandled then
-                                                if SalesOrderLine.HasLinks then
-                                                    SalesOrderLine.DeleteLinks();
-                                            SalesOrderLine.Delete();
-                                            OnAfterDeleteSalesLine(SalesOrderLine);
-                                        end else
-                                            AllLinesDeleted := false;
-                                        UpdateAssociatedPurchOrder();
-                                    until SalesOrderLine.Next() = 0;
-                                OnAfterDeleteSalesLinesLoop("Sales Header", AllLinesDeleted);
-
-                                if AllLinesDeleted then begin
-                                    PostSalesDelete.DeleteHeader(
-                                      "Sales Header", SalesShptHeader, SalesInvHeader, SalesCrMemoHeader, ReturnRcptHeader,
-                                      PrepmtSalesInvHeader, PrepmtSalesCrMemoHeader);
-
-                                    SalesLineReserve.DeleteInvoiceSpecFromHeader("Sales Header");
-
-                                    SalesCommentLine.SetRange("Document Type", "Document Type");
-                                    SalesCommentLine.SetRange("No.", "No.");
-                                    SalesCommentLine.DeleteAll();
-
-                                    WhseRequest.SetRange("Source Type", DATABASE::"Sales Line");
-                                    WhseRequest.SetRange("Source Subtype", "Document Type");
-                                    WhseRequest.SetRange("Source No.", "No.");
-                                    if not WhseRequest.IsEmpty() then
-                                        WhseRequest.DeleteAll(true);
-
-                                    ApprovalsMgmt.DeleteApprovalEntries(RecordId);
+                                SalesOrderLine.LockTable();
+                                if not SalesOrderLine.Find('-') then begin
+                                    SalesOrderLine.SetRange("Qty. Shipped Not Invoiced");
 
                                     IsHandled := false;
-                                    OnSalesHeaderOnAfterGetRecordOnBeforeDeleteLinks(IsHandled, Invoice);
+                                    OnSalesHeaderOnAfterGetRecordOnBeforeAutoArchiveSalesDocument(IsHandled, "Sales Header");
                                     if not IsHandled then
-                                        if HasLinks then
-                                            DeleteLinks();
+                                        ArchiveManagement.AutoArchiveSalesDocument("Sales Header");
 
-                                    OnBeforeDeleteSalesHeader("Sales Header");
-                                    Delete();
-                                    OnAfterDeleteSalesHeader("Sales Header");
+                                    OnBeforeDeleteSalesLinesLoop("Sales Header", SalesOrderLine);
+                                    if SalesOrderLine.Find('-') then
+                                        repeat
+                                            if ShouldDeleteSalesOrderLine(SalesOrderLine) then begin
+                                                if SalesOrderLine.Type = SalesOrderLine.Type::"Charge (Item)" then begin
+                                                    ItemChargeAssignmentSales.SetRange("Document Line No.", SalesOrderLine."Line No.");
+                                                    ItemChargeAssignmentSales.DeleteAll();
+                                                end;
+                                                if SalesOrderLine.Type = SalesOrderLine.Type::Item then
+                                                    AssembleToOrderLink.DeleteAsmFromSalesLine(SalesOrderLine);
+
+                                                IsHandled := false;
+                                                OnSalesHeaderOnAfterGetRecordOnBeforeSalesOrderLineDeleteLinks(IsHandled, SalesOrderLine);
+                                                if not IsHandled then
+                                                    if SalesOrderLine.HasLinks() then
+                                                        SalesOrderLine.DeleteLinks();
+                                                SalesOrderLine.Delete();
+                                                OnAfterDeleteSalesLine(SalesOrderLine);
+                                            end else
+                                                AllLinesDeleted := false;
+                                            UpdateAssociatedPurchOrder(SalesOrderLine);
+                                        until SalesOrderLine.Next() = 0;
+                                    OnAfterDeleteSalesLinesLoop("Sales Header", AllLinesDeleted);
+
+                                    if AllLinesDeleted then begin
+                                        PostSalesDelete.DeleteHeader(
+                                          "Sales Header", SalesShipmentHeader, SalesInvoiceHeader, SalesCrMemoHeader, ReturnReceiptHeader,
+                                          PrepaymentSalesInvoiceHeader, PrepaymentSalesCrMemoHeader);
+
+                                        SalesLineReserve.DeleteInvoiceSpecFromHeader("Sales Header");
+
+                                        SalesCommentLine.SetRange("Document Type", "Document Type");
+                                        SalesCommentLine.SetRange("No.", "No.");
+                                        SalesCommentLine.DeleteAll();
+
+                                        WarehouseRequest.SetRange("Source Type", Database::"Sales Line");
+                                        WarehouseRequest.SetRange("Source Subtype", "Document Type");
+                                        WarehouseRequest.SetRange("Source No.", "No.");
+                                        if not WarehouseRequest.IsEmpty() then
+                                            WarehouseRequest.DeleteAll(true);
+
+                                        ApprovalsMgmt.DeleteApprovalEntries(RecordId);
+
+                                        IsHandled := false;
+                                        OnSalesHeaderOnAfterGetRecordOnBeforeDeleteLinks(IsHandled, Invoice);
+                                        if not IsHandled then
+                                            if HasLinks() then
+                                                DeleteLinks();
+
+                                        OnBeforeDeleteSalesHeader("Sales Header");
+                                        Delete();
+                                        OnAfterDeleteSalesHeader("Sales Header");
+                                    end;
+                                    SuppressCommit := false;
+                                    OnAfterGetRecordSalesHeaderOnBeforeCommit("Sales Header", SuppressCommit);
+                                    if not SuppressCommit then
+                                        Commit();
                                 end;
-                                Commit();
                             end;
                         end;
                     end;
-                end;
             end;
 
             trigger OnPreDataItem()
             begin
                 if GuiAllowed() then
-                    Window.Open(Text000Txt);
+                    ProgressDialog.Open(ProcessingProgressTxt);
             end;
         }
     }
 
-    requestpage
-    {
-
-        layout
-        {
-        }
-
-        actions
-        {
-        }
-    }
-
-    labels
-    {
-    }
-
     var
-        SalesOrderLine: Record "Sales Line";
-        SalesShptHeader: Record "Sales Shipment Header";
-        SalesInvHeader: Record "Sales Invoice Header";
-        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
-        ReturnRcptHeader: Record "Return Receipt Header";
-        PrepmtSalesInvHeader: Record "Sales Invoice Header";
-        PrepmtSalesCrMemoHeader: Record "Sales Cr.Memo Header";
-        SalesCommentLine: Record "Sales Comment Line";
-        ItemChargeAssgntSales: Record "Item Charge Assignment (Sales)";
-        WhseRequest: Record "Warehouse Request";
-        ArchiveManagement: Codeunit ArchiveManagement;
-        Window: Dialog;
-        AllLinesDeleted: Boolean;
+        ProgressDialog: Dialog;
+        ProcessingProgressTxt: Label 'Processing sales orders #1##########', Comment = '%1 - Sales Order No.';
 
-        Text000Txt: Label 'Processing sales orders #1##########';
-
-    local procedure UpdateAssociatedPurchOrder()
+    local procedure UpdateAssociatedPurchOrder(var SalesOrderLine: Record "Sales Line")
     var
-        PurchLine: Record "Purchase Line";
+        PurchaseLine: Record "Purchase Line";
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeUpdateAssociatedPurchOrder(SalesOrderLine, PurchLine, IsHandled);
+        OnBeforeUpdateAssociatedPurchOrder(SalesOrderLine, PurchaseLine, IsHandled);
         if IsHandled then
             exit;
 
         if SalesOrderLine."Special Order" then
-            if PurchLine.Get(
-                 PurchLine."Document Type"::Order, SalesOrderLine."Special Order Purchase No.", SalesOrderLine."Special Order Purch. Line No.")
+            if PurchaseLine.Get(
+                 PurchaseLine."Document Type"::Order, SalesOrderLine."Special Order Purchase No.", SalesOrderLine."Special Order Purch. Line No.")
             then begin
-                PurchLine."Special Order Sales No." := '';
-                PurchLine."Special Order Sales Line No." := 0;
-                PurchLine.Modify();
+                PurchaseLine."Special Order Sales No." := '';
+                PurchaseLine."Special Order Sales Line No." := 0;
+                PurchaseLine.Modify();
             end;
 
         if SalesOrderLine."Drop Shipment" then
-            if PurchLine.Get(
-                 PurchLine."Document Type"::Order, SalesOrderLine."Purchase Order No.", SalesOrderLine."Purch. Order Line No.")
+            if PurchaseLine.Get(
+                 PurchaseLine."Document Type"::Order, SalesOrderLine."Purchase Order No.", SalesOrderLine."Purch. Order Line No.")
             then begin
-                PurchLine."Sales Order No." := '';
-                PurchLine."Sales Order Line No." := 0;
-                PurchLine.Modify();
+                PurchaseLine."Sales Order No." := '';
+                PurchaseLine."Sales Order Line No." := 0;
+                PurchaseLine.Modify();
             end;
+    end;
+
+    local procedure ShouldDeleteSalesOrderLine(var SalesOrderLine: Record "Sales Line"): Boolean
+    begin
+        if SalesOrderLine.Type <> SalesOrderLine.Type::"Charge (Item)" then
+            exit(true);
+
+        SalesOrderLine.CalcFields("Qty. Assigned");
+        if SalesOrderLine."Qty. Assigned" = SalesOrderLine."Quantity Invoiced" then
+            exit(true);
+
+        if IsPostedUnassignedItemChargeWithZeroAmount(SalesOrderLine) then
+            exit(true);
+
+        exit(false);
     end;
 
     local procedure IsPostedUnassignedItemChargeWithZeroAmount(SalesLine: Record "Sales Line"): Boolean
     begin
-        SalesLine.CalcFields("Qty. Assigned");
         if (SalesLine.Type = SalesLine.Type::"Charge (Item)") and
            (SalesLine.Quantity = SalesLine."Quantity Invoiced") and
-           (SalesLine."Qty. Assigned" = 0) and
            (SalesLine.Amount = 0)
-        then
-            exit(true);
+        then begin
+            SalesLine.CalcFields("Qty. Assigned");
+            if SalesLine."Qty. Assigned" = 0 then
+                exit(true);
+        end;
 
         exit(false);
     end;
@@ -242,7 +243,7 @@ report 299 "Delete Invoiced Sales Orders"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSalesHeaderOnAfterGetRecord(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    local procedure OnBeforeSalesHeaderOnAfterGetRecord(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean; var ProgressDialog: Dialog)
     begin
     end;
 
@@ -268,6 +269,16 @@ report 299 "Delete Invoiced Sales Orders"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterDeleteSalesHeader(var SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetRecordSalesHeaderOnBeforeFirstSalesOrderLineFind(var SalesLine: Record "Sales Line"; var SkipLine: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetRecordSalesHeaderOnBeforeCommit(var SalesHeader: Record "Sales Header"; var SuppressCommit: Boolean)
     begin
     end;
 }

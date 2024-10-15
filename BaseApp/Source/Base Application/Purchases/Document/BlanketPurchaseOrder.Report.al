@@ -606,6 +606,8 @@ report 410 "Blanket Purchase Order"
 
     trigger OnPreReport()
     begin
+        OnBeforeOnPreReport("Purchase Header");
+
         if not CurrReport.UseRequestPage then
             InitLogInteraction();
     end;
@@ -706,6 +708,11 @@ report 410 "Blanket Purchase Order"
         FormatDocument.SetShipmentMethod(ShipmentMethod, PurchaseHeader."Shipment Method Code", PurchaseHeader."Language Code");
         ReferenceText := FormatDocument.SetText(PurchaseHeader."Your Reference" <> '', PurchaseHeader.FieldCaption("Your Reference"));
         VATNoText := FormatDocument.SetText(PurchaseHeader."VAT Registration No." <> '', PurchaseHeader.FieldCaption("VAT Registration No."));
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnPreReport(var PurchaseHeader: Record "Purchase Header")
+    begin
     end;
 }
 
