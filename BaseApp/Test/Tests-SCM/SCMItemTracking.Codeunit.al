@@ -2330,6 +2330,59 @@ codeunit 137405 "SCM Item Tracking"
         Assert.ExpectedError(BeforeExpirationDateShortErr);
     end;
 
+    [Test]
+    [HandlerFunctions('OpenItemTrackingHandler')]
+    [Scope('OnPrem')]
+    procedure RetrieveDocumentItemTrackingPreservesVariantCode()
+    var
+        Item: Record Item;
+        ItemVariant: Record "Item Variant";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        TempTrackingSpecification: Record "Tracking Specification" temporary;
+        ItemTrackingDocManagement: Codeunit "Item Tracking Doc. Management";
+        PurchRcptHeaderNo: Code[20];
+        LotNo: Code[20];
+        LotQty: Integer;
+    begin
+        // [FEATURE] [Purchase] [Receipt] [Item Variant] [UT]
+        // [SCENARIO 359763] Function RetrieveDocumentItemTracking in codeunit "Item Tracking Doc. Management" preserves Variant Code of Item Variant used in tracking
+        Initialize();
+
+        // [GIVEN] Lot Tracked Item with Item Variant Code = "A"
+        LotNo := LibraryUtility.GenerateGUID();
+        LotQty := LibraryRandom.RandInt(10);
+        LibraryItemTracking.CreateLotItem(Item);
+        LibraryInventory.CreateItemVariant(ItemVariant, Item."No.");
+
+        // [GIVEN] Purchase Order was created
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+
+        // [GIVEN] Purchase Line was create for the Item with Variant Code = "A"
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", LotQty);
+        PurchaseLine.Validate("Variant Code", ItemVariant.Code);
+        PurchaseLine.Modify();
+
+        // [GIVEN] Item tracking was enabled with LotNo and LotQty
+        LibraryVariableStorage.Enqueue(1);
+        LibraryVariableStorage.Enqueue(LotNo);
+        LibraryVariableStorage.Enqueue(LotQty);
+        PurchaseLine.OpenItemTrackingLines();
+        // UI handled by OpenItemTrackingHandler
+
+        // [GIVEN] Post Receipt from the purchase order
+        PurchRcptHeaderNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+
+        // [WHEN] Retrieve item tracking from Posted Purchase Receipt
+        ItemTrackingDocManagement.RetrieveDocumentItemTracking(
+          TempTrackingSpecification, PurchRcptHeaderNo, DATABASE::"Purch. Rcpt. Header", 0);
+
+        // [THEN] Tracking Specification has Variant Code = "A"
+        TempTrackingSpecification.SetRange("Lot No.", LotNo);
+        TempTrackingSpecification.FindFirst();
+        TempTrackingSpecification.TestField("Variant Code", ItemVariant.Code);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
