@@ -247,7 +247,7 @@ codeunit 132908 TestCompanyChangePages
         ExpectedSessionID: Integer;
     begin
         // [FEATURE] [UT]
-        // [SCENARIO] FillCompanyData() for Extended data sets "Evaluation Company" to 'No' and schedules a task
+        // [SCENARIO] FillCompanyData() for Extended data sets "Evaluation Company" to 'Yes' and schedules a task
         Initialize();
         // [GIVEN] Config. Package "EXTENDED" is in config. package files
         InitCompanySetupWithPackage('ENU.EXTENDED');
@@ -260,9 +260,9 @@ codeunit 132908 TestCompanyChangePages
         // [THEN] Assisted Company Setup Status, where "Task ID" is filled
         AssistedCompanySetupStatus.Get(CompanyName);
         AssistedCompanySetupStatus.TestField("Task ID", ExpectedTaskID);
-        // [THEN] Company, where "Evaluation Company" is "No"
+        // [THEN] Company, where "Evaluation Company" is "Yes"
         Company.Get(CompanyName);
-        Company.TestField("Evaluation Company", false);
+        Company.TestField("Evaluation Company", true);
     end;
 
     [Test]

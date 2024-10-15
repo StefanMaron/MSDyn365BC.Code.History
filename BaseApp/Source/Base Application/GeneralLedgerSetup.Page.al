@@ -1,4 +1,4 @@
-﻿page 118 "General Ledger Setup"
+page 118 "General Ledger Setup"
 {
     AdditionalSearchTerms = 'finance setup,general ledger setup,g/l setup';
     ApplicationArea = Basic, Suite;
@@ -476,6 +476,11 @@
                         ApplicationArea = Basic, Suite;
                         Enabled = "BAS Group CompanyEnable";
                         ToolTip = 'Specifies if you are lodging a Business Activity Statement (BAS) for a Group of Companies.';
+
+                        trigger OnValidate()
+                        begin
+                            FeatureTelemetry.LogUptake('0000HK9', APACBASTok, Enum::"Feature Uptake Status"::"Set up");
+                        end;
                     }
                     field("Enable GST (Australia)"; "Enable GST (Australia)")
                     {
@@ -945,8 +950,10 @@
         Text002: Label 'If you delete the additional reporting currency, future general ledger entries are posted in LCY only. Deleting the additional reporting currency does not affect already posted general ledger entries.\\Are you sure that you want to delete the additional reporting currency?';
         Text003: Label 'If you change the additional reporting currency, future general ledger entries are posted in the new reporting currency and in LCY. To enable the additional reporting currency, a batch job opens, and running the batch job recalculates already posted general ledger entries in the new additional reporting currency.\Entries will be deleted in the Analysis View if it is unblocked, and an update will be necessary.\\Are you sure that you want to change the additional reporting currency?';
         Text1500000: Label 'Are you sure you want to disable this functionality?';
+        APACBASTok: Label 'APAC Business Activity Statement', Locked = true;
         AllObj: Record AllObj;
         xGeneralLedgerSetup: Record "General Ledger Setup";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
 #if not CLEAN20        
         BackgroundErrorHandlingMgt: Codeunit "Background Error Handling Mgt.";
         [InDataSet]
@@ -1037,4 +1044,3 @@
             "AMAS SoftwareHideValue" := true;
     end;
 }
-

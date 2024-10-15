@@ -374,7 +374,13 @@
     procedure CompressBuffer()
     var
         TempPrepmtInvLineBuffer2: Record "Prepayment Inv. Line Buffer" temporary;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCompressBuffer(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         Find('-');
         repeat
             TempPrepmtInvLineBuffer2 := Rec;
@@ -430,6 +436,11 @@
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterReverseAmounts()
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCompressBuffer(PrepaymentInvLineBuffer: Record "Prepayment Inv. Line Buffer"; var IsHandled: Boolean)
     begin
     end;
 

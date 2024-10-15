@@ -423,8 +423,16 @@ table 28044 "WHT Entry"
         }
     }
 
+    trigger OnInsert()
+    begin
+        FeatureTelemetry.LogUptake('0000HH4', APACWHTTok, Enum::"Feature Uptake Status"::"Used");
+        FeatureTelemetry.LogUsage('0000HH5', APACWHTTok, 'APAC Withholding Tax Set Up');
+    end;
+
     var
         GLSetup: Record "General Ledger Setup";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        APACWHTTok: Label 'APAC Set Up Withholding Tax', Locked = true;
         GLSetupRead: Boolean;
 
     [Scope('OnPrem')]

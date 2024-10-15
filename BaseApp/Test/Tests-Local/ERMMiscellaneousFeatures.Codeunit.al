@@ -291,18 +291,27 @@ codeunit 141020 "ERM Miscellaneous Features"
     end;
 
     [Test]
-    [HandlerFunctions('PrintRemitranceAdvanceStrMenuHandler,SelectSendingOptionModalPageHandler')]
+    [HandlerFunctions('SelectSendingOptionModalPageHandler')]
     [Scope('OnPrem')]
     procedure RunRemittanceAdviceEntries()
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
         NameValueBuffer: Record "Name/Value Buffer";
+        TempAccount: Record "Email Account" temporary;
         ERMMiscellaneousFeatures: Codeunit "ERM Miscellaneous Features";
+        ConnectorMock: Codeunit "Connector Mock";
+        EmailScenarioMock: Codeunit "Email Scenario Mock";
         VendorLedgerEntries: TestPage "Vendor Ledger Entries";
     begin
         // [FEATURE] [Purchase] [Remittance Advice]
         // [SCENARIO 272925] Remittance Advice - Entries report can be run from vendor ledger entries page with #Suite application area
         Initialize();
+
+        // [GIVEN] Add Email Account
+        ConnectorMock.Initialize();
+        ConnectorMock.AddAccount(TempAccount);
+        EmailScenarioMock.DeleteAllMappings();
+        EmailScenarioMock.AddMapping(Enum::"Email Scenario"::Default, TempAccount."Account Id", TempAccount.Connector);
 
         // [GIVEN] Enable Suite application area setup
         LibraryApplicationArea.EnableFoundationSetup();
@@ -607,6 +616,18 @@ codeunit 141020 "ERM Miscellaneous Features"
             NameValueBuffer.Value := FileName;
             NameValueBuffer.Insert(true);
         end;
+    end;
+
+    [ModalPageHandler]
+    procedure DiscardEmailEditorHandler(var EmailEditor: TestPage "Email Editor")
+    begin
+        EmailEditor.Discard.Invoke();
+    end;
+
+    [ConfirmHandler]
+    procedure ConfirmEmailEditorDiscardHandler(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := true;
     end;
 
 }

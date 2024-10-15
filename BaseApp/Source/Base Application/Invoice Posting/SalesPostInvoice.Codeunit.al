@@ -105,7 +105,7 @@
         GenPostingSetup.Get(SalesLine."Gen. Bus. Posting Group", SalesLine."Gen. Prod. Posting Group");
         GenPostingSetup.TestField(Blocked, false);
 
-        SalesPostInvoiceEvents.RunOnPrepareLineOnBeforePrepareSales(SalesHeader, SalesLine);
+        SalesPostInvoiceEvents.RunOnPrepareLineOnBeforePrepareSales(SalesHeader, SalesLine, GenPostingSetup);
         InvoicePostingBuffer.PrepareSales(SalesLine);
 
         InitTotalAmounts(

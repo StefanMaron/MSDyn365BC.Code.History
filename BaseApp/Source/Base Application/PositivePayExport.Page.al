@@ -44,6 +44,17 @@ page 1233 "Positive Pay Export"
                         UpdateSubForm;
                     end;
                 }
+                field(BankPaymentType; BankPaymentType) 
+                {
+                    ApplicationArea = Suite;
+                    Caption = 'Bank Payment Type';
+                    ToolTip = 'Specifies the type of bank payment to include in a positive pay file that you can submit to your bank. For example, this is useful if your bank allows the file to include only check payments.';
+
+                    trigger OnValidate()
+                    begin
+                        UpdateSubForm();
+                    end;
+                }       
             }
             part(PosPayExportDetail; "Positive Pay Export Detail")
             {
@@ -75,8 +86,10 @@ page 1233 "Positive Pay Export"
                     CheckLedgerEntry.SetCurrentKey("Bank Account No.", "Check Date");
                     CheckLedgerEntry.SetRange("Bank Account No.", "No.");
                     CheckLedgerEntry.SetRange("Check Date", LastUploadDateEntered, CutoffUploadDate);
-                    CheckLedgerEntry.ExportCheckFile;
-                    UpdateSubForm;
+                    if BankPaymentType <> Enum::"Bank Payment Type"::" " then
+                        CheckLedgerEntry.SetRange("Bank Payment Type", BankPaymentType);
+                    CheckLedgerEntry.ExportCheckFile();
+                    UpdateSubForm();
                 end;
             }
         }
@@ -100,6 +113,7 @@ page 1233 "Positive Pay Export"
 
     var
         PositivePayEntry: Record "Positive Pay Entry";
+        BankPaymentType: Enum "Bank Payment Type";
         LastUploadDateEntered: Date;
         LastUploadTime: Time;
         CutoffUploadDate: Date;
@@ -108,6 +122,7 @@ page 1233 "Positive Pay Export"
     procedure UpdateSubForm()
     begin
         CurrPage.PosPayExportDetail.PAGE.Set(LastUploadDateEntered, CutoffUploadDate, "No.");
+        CurrPage.PosPayExportDetail.PAGE.SetBankPaymentType(BankPaymentType);
     end;
 }
 

@@ -30,12 +30,13 @@ codeunit 5404 "Lead-Time Management"
         OnAfterPurchaseLeadTime(ItemVend, Result);
     end;
 
-    procedure ManufacturingLeadTime(ItemNo: Code[20]; LocationCode: Code[10]; VariantCode: Code[10]): Code[20]
+    procedure ManufacturingLeadTime(ItemNo: Code[20]; LocationCode: Code[10]; VariantCode: Code[10]) Result: Code[20]
     begin
         // Returns the leadtime in a date formula
 
         GetPlanningParameters.AtSKU(SKU, ItemNo, VariantCode, LocationCode);
-        exit(Format(SKU."Lead Time Calculation"));
+        Result := Format(SKU."Lead Time Calculation");
+        OnAfterManufacturingLeadTime(SKU, Result);
     end;
 
     procedure WhseOutBoundHandlingTime(LocationCode: Code[10]): Code[10]
@@ -64,12 +65,13 @@ codeunit 5404 "Lead-Time Management"
         exit(Format(Location."Inbound Whse. Handling Time"));
     end;
 
-    procedure SafetyLeadTime(ItemNo: Code[20]; LocationCode: Code[10]; VariantCode: Code[10]): Code[20]
+    procedure SafetyLeadTime(ItemNo: Code[20]; LocationCode: Code[10]; VariantCode: Code[10]) Result: Code[20]
     begin
         // Returns the safety lead time in a date formula
 
         GetPlanningParameters.AtSKU(SKU, ItemNo, VariantCode, LocationCode);
-        exit(Format(SKU."Safety Lead Time"));
+        Result := Format(SKU."Safety Lead Time");
+        OnAfterSafetyLeadTime(SKU, Result);
     end;
 
     procedure PlannedEndingDate(ItemNo: Code[20]; LocationCode: Code[10]; VariantCode: Code[10]; DueDate: Date; VendorNo: Code[20]; RefOrderType: Option " ",Purchase,"Prod. Order",Transfer,Assembly) Result: Date
@@ -112,7 +114,7 @@ codeunit 5404 "Lead-Time Management"
         exit(CalendarMgmt.CalcDateBOC2(OrgDateExpression, DueDate, CustomCalendarChange, CheckBothCalendars));
     end;
 
-    procedure PlannedStartingDate(ItemNo: Code[20]; LocationCode: Code[10]; VariantCode: Code[10]; VendorNo: Code[20]; LeadTime: Code[20]; RefOrderType: Option " ",Purchase,"Prod. Order",Transfer,Assembly; EndingDate: Date): Date
+    procedure PlannedStartingDate(ItemNo: Code[20]; LocationCode: Code[10]; VariantCode: Code[10]; VendorNo: Code[20]; LeadTime: Code[20]; RefOrderType: Option " ",Purchase,"Prod. Order",Transfer,Assembly; EndingDate: Date) Result: Date
     var
         CustomCalendarChange: Array[2] of Record "Customized Calendar Change";
         TransferRoute: Record "Transfer Route";
@@ -145,7 +147,8 @@ codeunit 5404 "Lead-Time Management"
             CheckBothCalendars := true;
         end else
             CustomCalendarChange[1].SetSource(CalChange."Source Type"::Location, LocationCode, '', '');
-        exit(CalendarMgmt.CalcDateBOC2(InternalLeadTimeDays(LeadTime), EndingDate, CustomCalendarChange, CheckBothCalendars));
+        Result := CalendarMgmt.CalcDateBOC2(InternalLeadTimeDays(LeadTime), EndingDate, CustomCalendarChange, CheckBothCalendars);
+        OnAfterPlannedStartingDate(LeadTime, EndingDate, CustomCalendarChange, CheckBothCalendars, Result);
     end;
 
     procedure PlannedEndingDate(ItemNo: Code[20]; LocationCode: Code[10]; VariantCode: Code[10]; VendorNo: Code[20]; LeadTime: Code[20]; RefOrderType: Option " ",Purchase,"Prod. Order",Transfer,Assembly; StartingDate: Date): Date
@@ -290,7 +293,22 @@ codeunit 5404 "Lead-Time Management"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterManufacturingLeadTime(TempStockkeepingUnit: Record "Stockkeeping Unit" temporary; var Result: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterPurchaseLeadTime(ItemVend: Record "Item Vendor"; var Result: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPlannedStartingDate(LeadTime: Code[20]; EndingDate: Date; CustomCalendarChange: Array[2] of Record "Customized Calendar Change"; CheckBothCalendars: Boolean; var Result: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSafetyLeadTime(TempStockkeepingUnit: Record "Stockkeeping Unit" temporary; var Result: Code[20])
     begin
     end;
 }

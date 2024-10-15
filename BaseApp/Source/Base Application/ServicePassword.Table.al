@@ -40,8 +40,8 @@ table 1261 "Service Password"
         CryptographyManagement: Codeunit "Cryptography Management";
         OutStream: OutStream;
     begin
-        if CryptographyManagement.IsEncryptionPossible then
-            PasswordText := CryptographyManagement.Encrypt(PasswordText);
+        if CryptographyManagement.IsEncryptionPossible() then
+            PasswordText := CryptographyManagement.EncryptText(CopyStr(PasswordText,1,215));
         Value.CreateOutStream(OutStream);
         OutStream.Write(PasswordText);
     end;

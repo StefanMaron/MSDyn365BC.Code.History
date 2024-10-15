@@ -50,6 +50,7 @@ codeunit 134988 "ERM Purchase Reports III"
         ColumnDoesNotExistErr: Label 'Analysis column does not exist in Analysis Column Template and therefore must not be visible.';
         DocumentNoLbl: Label 'Document No.';
         ExternalDocNoLbl: Label 'External Document No.';
+        ReportDatasetEmptyErr: Label 'Report Dataset should be empty.';
 
     [Test]
     [HandlerFunctions('RHVendorTrialBalance')]
@@ -1670,6 +1671,48 @@ codeunit 134988 "ERM Purchase Reports III"
         Assert.ExpectedMessage(StrSubstNo('Currency Filter: %1|%2', CurrencyCode[1], CurrencyCode[2]), Filters);
     end;
 
+    [Test]
+    [HandlerFunctions('RHAgedAccountsPayable')]
+    [Scope('OnPrem')]
+    procedure AgedAccountPayableReportByDocumentDate()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        Vendor: Record Vendor;
+        PeriodLength: DateFormula;
+        VendorNo: Code[20];
+        Value: Variant;
+        RecordExist: Boolean;
+    begin
+        // [SCENARIO 435424] To check if Aged Account Payable report is not showing Invoices if Posting date is not in range even if Document date is in range
+
+        // [GIVEN] Create Vendor,Post Invoice 
+        Initialize();
+        VendorNo := CreateVendor;
+        LibraryERM.SelectGenJnlBatch(GenJournalBatch);
+        LibraryERM.ClearGenJournalLines(GenJournalBatch);
+        CreateGenJnlLine(GenJournalLine, GenJournalBatch, GenJournalLine."Document Type"::Invoice,
+          GenJournalLine."Account Type"::Vendor, VendorNo, -LibraryRandom.RandDec(100, 2)); // Take Random Amount.
+
+        GenJournalLine.Validate(
+          "Posting Date", CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()));
+        GenJournalLine.Validate("Document Date", CalcDate('<-1D>', GenJournalLine."Posting Date"));
+        GenJournalLine.Modify(true);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [WHEN] Save Aged Accounts Payable Report with AgingBy Document Date option
+        Vendor.SetRecFilter();
+        Evaluate(PeriodLength, '<' + Format(LibraryRandom.RandInt(5)) + 'M>'); // Take Random value for Period length.
+        SaveAgedAccPayable(Vendor, AgingBy::"Document Date", HeadingType::"Date Interval", PeriodLength, false, false, GenJournalLine."Document Date");
+
+        // [THEN] No Record should be found as Posting date is not in range.
+        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.SetRange('No_Vendor', VendorNo);
+        RecordExist := LibraryReportDataset.GetNextRow;
+
+        Assert.AreEqual(RecordExist, false, ReportDatasetEmptyErr);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -3097,6 +3140,16 @@ codeunit 134988 "ERM Purchase Reports III"
         LibraryReportDataset.AssertElementWithValueExists('ExpectedReceiptDate', Format(PurchaseLine."Expected Receipt Date", 0, 4));
         LibraryReportDataset.AssertElementWithValueExists('PromisedReceiptDate', Format(PurchaseLine."Promised Receipt Date", 0, 4));
         LibraryReportDataset.AssertElementWithValueExists('RequestedReceiptDate', Format(PurchaseLine."Requested Receipt Date", 0, 4));
+    end;
+
+    local procedure SaveAgedAccPayable(var Vendor: Record Vendor; AgingBy: Option; HeadingType: Option; PeriodLength: DateFormula; AmountLCY: Boolean; PrintDetails: Boolean; EndingDate: Date)
+    var
+        AgedAccountsPayable: Report "Aged Accounts Payable";
+    begin
+        Clear(AgedAccountsPayable);
+        AgedAccountsPayable.SetTableView(Vendor);
+        AgedAccountsPayable.InitializeRequest(EndingDate, AgingBy, PeriodLength, AmountLCY, PrintDetails, HeadingType, false);
+        AgedAccountsPayable.Run();
     end;
 
     [ModalPageHandler]

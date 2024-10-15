@@ -575,7 +575,7 @@ codeunit 311 "Item-Check Avail."
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeRaiseUpdateInterruptedError(IsHandled);
+        OnBeforeRaiseUpdateInterruptedError(IsHandled, ContextInfo);
         if IsHandled then
             exit;
 
@@ -769,7 +769,7 @@ codeunit 311 "Item-Check Avail."
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBeforeRaiseUpdateInterruptedError(var IsHandled: Boolean)
+    local procedure OnBeforeRaiseUpdateInterruptedError(var IsHandled: Boolean; ContextInfo: Dictionary of [Text, Text])
     begin
     end;
 

@@ -188,6 +188,7 @@ table 7021 "Price Line Filters"
         ObjectTranslation: Record "Object Translation";
         PrimaryKeyField: Record "Field";
         FilterPageBuilder: FilterPageBuilder;
+        RecRef: RecordRef;
         TableCaptionValue: Text;
     begin
         TableCaptionValue :=
@@ -199,9 +200,12 @@ table 7021 "Price Line Filters"
             until PrimaryKeyField.Next() = 0;
         if "Asset Filter" <> '' then
             FilterPageBuilder.SetView(TableCaptionValue, "Asset Filter");
-        if FilterPageBuilder.RunModal() then
-            "Asset Filter" :=
-                CopyStr(FilterPageBuilder.GetView(TableCaptionValue, false), 1, MaxStrLen("Asset Filter"));
+        if FilterPageBuilder.RunModal() then begin
+            RecRef.Open("Table ID");
+            RecRef.SetView(FilterPageBuilder.GetView(TableCaptionValue, false));
+            "Asset Filter" := CopyStr(RecRef.GetView(), 1, MaxStrLen("Asset Filter"));
+            RecRef.Close();
+        end;
     end;
 
     procedure EditPriceLineFilter()
@@ -219,8 +223,7 @@ table 7021 "Price Line Filters"
             FilterPageBuilder.SetView(TableCaptionValue, "Price Line Filter");
         if FilterPageBuilder.RunModal() then begin
             PriceListLine.SetView(FilterPageBuilder.GetView(TableCaptionValue, false));
-            "Price Line Filter" :=
-                CopyStr(PriceListLine.GetView(), 1, MaxStrLen("Price Line Filter"));
+            "Price Line Filter" := CopyStr(PriceListLine.GetView(), 1, MaxStrLen("Price Line Filter"));
         end;
     end;
 

@@ -47,6 +47,11 @@ page 11604 "BAS Business Units"
         }
     }
 
+    trigger OnOpenPage()
+    begin
+        FeatureTelemetry.LogUptake('0000HK8', APACBASTok, Enum::"Feature Uptake Status"::Discovered);
+    end;
+
     trigger OnInit()
     var
         GLSetup: Record "General Ledger Setup";
@@ -54,5 +59,9 @@ page 11604 "BAS Business Units"
         GLSetup.Get();
         GLSetup.TestField("Enable GST (Australia)", true);
     end;
+
+    var
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        APACBASTok: Label 'APAC Business Activity Statement', Locked = true;
 }
 

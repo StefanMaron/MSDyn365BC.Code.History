@@ -237,7 +237,7 @@ page 7024 "Prices Overview"
                 field("Source Type"; Rec."Source Type")
                 {
                     ApplicationArea = Basic, Suite;
-                    Editable = PriceLineEditable and SourceTypeEditable and AllowUpdatingDefaults;
+                    Editable = SourceTypeEditable;
                     ToolTip = 'Specifies the source of the price on the price list line. For example, the price can come from the customer or customer price group.';
 
                     trigger OnValidate()
@@ -248,39 +248,39 @@ page 7024 "Prices Overview"
                 field("Parent Source No."; Rec."Parent Source No.")
                 {
                     ApplicationArea = Basic, Suite;
-                    Editable = PriceLineEditable and ParentSourceNoEditable and AllowUpdatingDefaults;
-                    ShowMandatory = PriceLineEditable and ParentSourceNoEditable and AllowUpdatingDefaults;
+                    Editable = AssignToParentNoEditable;
+                    ShowMandatory = AssignToParentNoEditable;
                     ToolTip = 'Specifies the unique identifier of the job on the price list line.';
                     Visible = UseCustomLookup;
                 }
                 field("Source No."; Rec."Source No.")
                 {
                     ApplicationArea = Basic, Suite;
-                    Editable = PriceLineEditable and SourceNoEditable and AllowUpdatingDefaults;
-                    ShowMandatory = PriceLineEditable and SourceNoEditable and AllowUpdatingDefaults;
+                    Editable = AssignToNoEditable;
+                    ShowMandatory = AssignToNoEditable;
                     ToolTip = 'Specifies the unique identifier of the source of the price on the price list line.';
                     Visible = UseCustomLookup;
                 }
                 field("Assign-to Parent No."; Rec."Assign-to Parent No.")
                 {
                     ApplicationArea = Basic, Suite;
-                    Editable = PriceLineEditable and ParentSourceNoEditable and AllowUpdatingDefaults;
-                    ShowMandatory = PriceLineEditable and ParentSourceNoEditable and AllowUpdatingDefaults;
+                    Editable = AssignToParentNoEditable;
+                    ShowMandatory = AssignToParentNoEditable;
                     ToolTip = 'Specifies the unique identifier of the job on the price list line.';
                     Visible = not UseCustomLookup;
                 }
                 field("Assign-to No."; Rec."Assign-to No.")
                 {
                     ApplicationArea = Basic, Suite;
-                    Editable = PriceLineEditable and SourceNoEditable and AllowUpdatingDefaults;
-                    ShowMandatory = PriceLineEditable and SourceNoEditable and AllowUpdatingDefaults;
+                    Editable = AssignToNoEditable;
+                    ShowMandatory = AssignToNoEditable;
                     ToolTip = 'Specifies the unique identifier of the source of the price on the price list line.';
                     Visible = not UseCustomLookup;
                 }
                 field("Asset Type"; Rec."Asset Type")
                 {
                     ApplicationArea = Basic, Suite;
-                    Editable = PriceLineEditable and AssetTypeEditable;
+                    Editable = AssetTypeEditable;
                     Style = Attention;
                     StyleExpr = LineToVerify;
                     ToolTip = 'Specifies the type of the product.';
@@ -308,41 +308,41 @@ page 7024 "Prices Overview"
                 field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Basic, Suite;
-                    Visible = ItemAssetVisible and UseCustomLookup;
-                    Editable = PriceLineEditable and ItemAsset;
+                    Visible = VariantCodeVisible;
+                    Editable = VariantCodeEditable;
                     ToolTip = 'Specifies the variant of the item on the line.';
                 }
                 field("Variant Code Lookup"; Rec."Variant Code Lookup")
                 {
                     ApplicationArea = Basic, Suite;
-                    Visible = ItemAssetVisible and not UseCustomLookup;
-                    Editable = PriceLineEditable and ItemAsset;
+                    Visible = VariantCodeLookupVisible;
+                    Editable = VariantCodeEditable;
                     ToolTip = 'Specifies the variant of the item on the line.';
                 }
                 field("Work Type Code"; Rec."Work Type Code")
                 {
                     ApplicationArea = Jobs;
                     Visible = ResourceAssetVisible;
-                    Editable = PriceLineEditable and ResourceAsset;
+                    Editable = WorkTypeCodeEditable;
                     ToolTip = 'Specifies the work type code for the resource.';
                 }
                 field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = Suite;
-                    Editable = PriceLineEditable and AllowUpdatingDefaults;
+                    Editable = DateEditable;
                     ToolTip = 'Specifies the currency code of the price list line.';
                 }
                 field("Unit of Measure Code"; Rec."Unit of Measure Code")
                 {
                     ApplicationArea = Basic, Suite;
-                    Visible = (ItemAssetVisible or ResourceAssetVisible) and UseCustomLookup;
+                    Visible = UoMVisible;
                     Editable = PriceLineEditable;
                     ToolTip = 'Specifies the unit price of the product.';
                 }
                 field("Unit of Measure Code Lookup"; Rec."Unit of Measure Code Lookup")
                 {
                     ApplicationArea = Basic, Suite;
-                    Visible = (ItemAssetVisible or ResourceAssetVisible) and not UseCustomLookup;
+                    Visible = UoMLookupVisible;
                     Editable = PriceLineEditable;
                     ToolTip = 'Specifies the unit price of the product.';
                 }
@@ -356,7 +356,7 @@ page 7024 "Prices Overview"
                 {
                     ApplicationArea = Basic, Suite;
                     Visible = AmountTypeIsVisible;
-                    Editable = PriceLineEditable and AmountTypeIsEditable;
+                    Editable = AmountTypeIsEditable;
                     ToolTip = 'Specifies whether the price list line defines prices, discounts, or both.';
                 }
                 field("Published Price"; Rec."Published Price")
@@ -392,8 +392,8 @@ page 7024 "Prices Overview"
                 field("Unit Price"; Rec."Unit Price")
                 {
                     ApplicationArea = Basic, Suite;
-                    Visible = PriceVisible and SalesVisible and not DiscountOnlyVisible;
-                    Editable = PriceLineEditable and PriceEditable;
+                    Visible = SalesPriceVisible;
+                    Editable = UnitPriceEditable;
                     Style = Attention;
                     StyleExpr = LineToVerify and SalesPriceLine and PriceEditable;
                     ToolTip = 'Specifies the unit price of the product.';
@@ -401,8 +401,8 @@ page 7024 "Prices Overview"
                 field("Cost Factor"; Rec."Cost Factor")
                 {
                     ApplicationArea = Basic, Suite;
-                    Visible = PriceVisible and SalesVisible and not DiscountOnlyVisible;
-                    Editable = PriceLineEditable and PriceEditable;
+                    Visible = SalesPriceVisible;
+                    Editable = UnitPriceEditable;
                     Style = Attention;
                     StyleExpr = LineToVerify and SalesPriceLine and PriceEditable;
                     ToolTip = 'Specifies the unit cost factor for job-related prices, if you have agreed with your customer that he should pay certain item usage by cost value plus a certain percent value to cover your overhead expenses.';
@@ -410,8 +410,8 @@ page 7024 "Prices Overview"
                 field("Direct Unit Cost"; Rec."Direct Unit Cost")
                 {
                     ApplicationArea = Basic, Suite;
-                    Visible = PriceVisible and PurchVisible and not DiscountOnlyVisible;
-                    Editable = PriceLineEditable and PriceEditable;
+                    Visible = PurchPriceVisible;
+                    Editable = UnitPriceEditable;
                     Style = Attention;
                     StyleExpr = LineToVerify and PurchPriceLine and PriceEditable;
                     ToolTip = 'Specifies the direct unit cost of the product.';
@@ -419,8 +419,8 @@ page 7024 "Prices Overview"
                 field("Unit Cost"; Rec."Unit Cost")
                 {
                     ApplicationArea = Basic, Suite;
-                    Visible = PriceVisible and PurchVisible and not DiscountOnlyVisible;
-                    Editable = PriceLineEditable and PriceEditable;
+                    Visible = PurchPriceVisible;
+                    Editable = UnitPriceEditable;
                     Style = Attention;
                     StyleExpr = LineToVerify and PurchPriceLine and PriceEditable;
                     ToolTip = 'Specifies the unit cost of the resource.';
@@ -429,7 +429,7 @@ page 7024 "Prices Overview"
                 {
                     ApplicationArea = Basic, Suite;
                     Visible = DiscountVisible;
-                    Editable = PriceLineEditable and DiscountEditable;
+                    Editable = LineDiscPctEditable;
                     Style = Attention;
                     StyleExpr = LineToVerify and DiscountEditable;
                     ToolTip = 'Specifies the line discount percentage for the product.';
@@ -437,26 +437,26 @@ page 7024 "Prices Overview"
                 field("Starting Date"; Rec."Starting Date")
                 {
                     ApplicationArea = Basic, Suite;
-                    Editable = PriceLineEditable and AllowUpdatingDefaults;
+                    Editable = DateEditable;
                     ToolTip = 'Specifies the date from which the price is valid.';
                 }
                 field("Ending Date"; Rec."Ending Date")
                 {
                     ApplicationArea = Basic, Suite;
-                    Editable = PriceLineEditable and AllowUpdatingDefaults;
+                    Editable = DateEditable;
                     ToolTip = 'Specifies the last date that the price is valid.';
                 }
                 field("Allow Line Disc."; Rec."Allow Line Disc.")
                 {
                     ApplicationArea = Basic, Suite;
-                    Visible = PriceVisible and not DiscountOnlyVisible;
+                    Visible = AllowDiscVisible;
                     Editable = PriceLineEditable;
                     ToolTip = 'Specifies if a line discount will be calculated when the price is offered.';
                 }
                 field("Allow Invoice Disc."; Rec."Allow Invoice Disc.")
                 {
                     ApplicationArea = Basic, Suite;
-                    Visible = PriceVisible and not DiscountOnlyVisible;
+                    Visible = AllowDiscVisible;
                     Editable = PriceLineEditable;
                     ToolTip = 'Specifies if an invoice discount will be calculated when the price is offered.';
                 }
@@ -621,6 +621,10 @@ page 7024 "Prices Overview"
         Description5Lbl: Label '%1 %2 %3 %4 %5', Locked = true;
         WithinFilterLbl: Label 'No %1 within the filter %2.', Comment = '%1 - the unique entity id, %2 - the filter string ';
         [InDataSet]
+        AssignToNoEditable: Boolean;
+        [InDataSet]
+        AssignToParentNoEditable: Boolean;
+        [InDataSet]
         PriceTypeVisible: Boolean;
         [InDataSet]
         AmountTypeIsEditable: Boolean;
@@ -657,13 +661,37 @@ page 7024 "Prices Overview"
         [InDataSet]
         SalesPriceLine: Boolean;
         [InDataSet]
+        SalesPriceVisible: Boolean;
+        [InDataSet]
         PurchPriceLine: Boolean;
         [InDataSet]
+        PurchPriceVisible: Boolean;
+        [InDataSet]
+        AllowDiscVisible: Boolean;
+        [InDataSet]
         AllowUpdatingDefaults: Boolean;
+        [InDataSet]
+        DateEditable: Boolean;
+        [InDataSet]
+        VariantCodeEditable: Boolean;
+        [InDataSet]
+        UnitPriceEditable: Boolean;
+        [InDataSet]
+        LineDiscPctEditable: Boolean;
         [InDataSet]
         LineExists: Boolean;
         [InDataSet]
         UseCustomLookup: Boolean;
+        [InDataSet]
+        VariantCodeVisible: Boolean;
+        [InDataSet]
+        VariantCodeLookupVisible: Boolean;
+        [InDataSet]
+        UoMVisible: Boolean;
+        [InDataSet]
+        UoMLookupVisible: Boolean;
+        [InDataSet]
+        WorkTypeCodeEditable: Boolean;
 
     procedure SetRecFilters()
     begin
@@ -809,12 +837,22 @@ page 7024 "Prices Overview"
                 AllowUpdatingDefaults := CurrPriceListHeader."Allow Updating Defaults";
         end;
 
-        AmountTypeIsEditable := Rec."Asset Type" <> Rec."Asset Type"::"Item Discount Group";
         ItemAsset := Rec.IsAssetItem();
         ResourceAsset := Rec.IsAssetResource();
         PriceLineEditable := Rec.IsEditable();
+        SourceTypeEditable :=
+            (PriceSource."Source Type" = PriceSource."Source Type"::All) and PriceLineEditable and AllowUpdatingDefaults;
+        AssetTypeEditable := (PriceAsset."Asset Type" = PriceAsset."Asset Type"::" ") and PriceLineEditable;
+        AmountTypeIsEditable := (Rec."Asset Type" <> Rec."Asset Type"::"Item Discount Group") and PriceLineEditable;
         CalcSourceNoEditable();
         SetFieldsStyle();
+        VariantCodeEditable := PriceLineEditable and ItemAsset;
+        UnitPriceEditable := PriceLineEditable and PriceEditable;
+        DateEditable := PriceLineEditable and AllowUpdatingDefaults;
+        LineDiscPctEditable := PriceLineEditable and DiscountEditable;
+        AssignToNoEditable := SourceNoEditable and PriceLineEditable and AllowUpdatingDefaults;
+        AssignToParentNoEditable := PriceLineEditable and ParentSourceNoEditable and AllowUpdatingDefaults;
+        WorkTypeCodeEditable := PriceLineEditable and ResourceAsset;
     end;
 
     local procedure SetFieldsStyle()
@@ -891,9 +929,13 @@ page 7024 "Prices Overview"
         PriceListLine."Asset Type" := PriceAsset."Asset Type";
         ItemAssetVisible := (PriceAsset."Asset Type" = "Price Asset Type"::" ") or PriceListLine.IsAssetItem();
         ResourceAssetVisible := (PriceAsset."Asset Type" = "Price Asset Type"::" ") or PriceListLine.IsAssetResource();
-
-        SourceTypeEditable := PriceSource."Source Type" = PriceSource."Source Type"::All;
-        AssetTypeEditable := PriceAsset."Asset Type" = PriceAsset."Asset Type"::" ";
+        SalesPriceVisible := PriceVisible and SalesVisible and not DiscountOnlyVisible;
+        PurchPriceVisible := PriceVisible and PurchVisible and not DiscountOnlyVisible;
+        AllowDiscVisible := PriceVisible and not DiscountOnlyVisible;
+        VariantCodeVisible := ItemAssetVisible and UseCustomLookup;
+        VariantCodeLookupVisible := ItemAssetVisible and not UseCustomLookup;
+        UoMVisible := (ItemAssetVisible or ResourceAssetVisible) and UseCustomLookup;
+        UoMLookupVisible := (ItemAssetVisible or ResourceAssetVisible) and not UseCustomLookup;
     end;
 
     local procedure UpdateBasicRecFilters()
