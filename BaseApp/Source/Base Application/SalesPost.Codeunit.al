@@ -48,6 +48,7 @@ codeunit 80 "Sales-Post"
         ICGenJnlLineNo: Integer;
         LineCount: Integer;
         SavedHideProgressWindow: Boolean;
+        SkipInventoryAdjustment: Boolean;
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -163,8 +164,10 @@ codeunit 80 "Sales-Post"
         if ICGenJnlLineNo > 0 then
             PostICGenJnl();
 
-        OnRunOnBeforeMakeInventoryAdjustment(SalesHeader, SalesInvHeader, GenJnlPostLine, ItemJnlPostLine, PreviewMode);
-        MakeInventoryAdjustment();
+        SkipInventoryAdjustment := false;
+        OnRunOnBeforeMakeInventoryAdjustment(SalesHeader, SalesInvHeader, GenJnlPostLine, ItemJnlPostLine, PreviewMode, SkipInventoryAdjustment);
+        if not SkipInventoryAdjustment then
+            MakeInventoryAdjustment();
         UpdateLastPostingNos(SalesHeader);
 
         OnRunOnBeforeFinalizePosting(
@@ -9021,7 +9024,7 @@ codeunit 80 "Sales-Post"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnRunOnBeforeMakeInventoryAdjustment(var SalesHeader: Record "Sales Header"; SalesInvHeader: Record "Sales Invoice Header"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; var ItemJnlPostLine: Codeunit "Item Jnl.-Post Line"; PreviewMode: Boolean)
+    local procedure OnRunOnBeforeMakeInventoryAdjustment(var SalesHeader: Record "Sales Header"; SalesInvHeader: Record "Sales Invoice Header"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; var ItemJnlPostLine: Codeunit "Item Jnl.-Post Line"; PreviewMode: Boolean; var SkipInventoryAdjustment: Boolean)
     begin
     end;
 
