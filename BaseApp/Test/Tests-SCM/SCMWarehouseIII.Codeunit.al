@@ -4252,6 +4252,11 @@ codeunit 137051 "SCM Warehouse - III"
           DATABASE::"Assembly Line", AssemblyLine."Document Type".AsInteger(), AssemblyLine."Document No.", AssemblyLine."Line No.", false);
         ReservationEntry.FindFirst();
         ReservationEntry.TestField("Lot No.", LotNo);
+
+        // [THEN] The assembly line is reserved from inventory.
+        ReservationEntry.TestField("Reservation Status", ReservationEntry."Reservation Status"::Reservation);
+        ReservationEntry.Get(ReservationEntry."Entry No.", true);
+        ReservationEntry.TestField("Source Type", Database::"Item Ledger Entry");
     end;
 
     [Test]

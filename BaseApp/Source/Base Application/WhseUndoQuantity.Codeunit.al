@@ -76,6 +76,8 @@ codeunit 7320 "Whse. Undo Quantity"
             repeat
                 WhseJnlRegLine.RegisterWhseJnlLine(TempWhseJnlLine);
             until TempWhseJnlLine.Next() = 0;
+
+        OnAfterPostTempWhseJnlLineCache(TempWhseJnlLine);
     end;
 
     procedure UndoPostedWhseRcptLine(var PostedWhseRcptLine: Record "Posted Whse. Receipt Line")
@@ -317,9 +319,9 @@ codeunit 7320 "Whse. Undo Quantity"
 
         with PostedWhseRcptLine do begin
             WhseManagement.SetSourceFilterForWhseRcptLine(WhseRcptLine, "Source Type", "Source Subtype", "Source No.", "Source Line No.", true);
-            if WhseRcptLine.FindFirst then begin
-                WhseRcptLine.Validate("Qty. Outstanding", WhseRcptLine."Qty. Outstanding" + Quantity);
+            if WhseRcptLine.FindFirst() then begin
                 WhseRcptLine.Validate("Qty. Received", WhseRcptLine."Qty. Received" - Quantity);
+                WhseRcptLine.Validate("Qty. Outstanding", WhseRcptLine."Qty. Outstanding" + Quantity);
                 if WhseRcptLine."Qty. Received" = 0 then begin
                     WhseRcptLine.Status := WhseRcptLine.Status::" ";
                     WhseRcptHeader.Get(WhseRcptLine."No.");
@@ -467,6 +469,11 @@ codeunit 7320 "Whse. Undo Quantity"
             PostedATOLink.SetRange("Document Line No.", SourceRefNo);
             exit(not PostedATOLink.IsEmpty);
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPostTempWhseJnlLineCache(var TempWhseJnlLine: Record "Warehouse Journal Line" temporary)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

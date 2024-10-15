@@ -2,8 +2,11 @@ report 13400 "G/L Register FI"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './GLRegisterFI.rdlc';
+    ApplicationArea = Basic, Suite;
     Caption = 'G/L Register FI';
+    PreviewMode = PrintLayout;
     UsageCategory = ReportsAndAnalysis;
+    DataAccessIntent = ReadOnly;
 
     dataset
     {

@@ -121,6 +121,23 @@ codeunit 138500 "Common Demodata"
 
     [Test]
     [Scope('OnPrem')]
+    procedure InventorySetup()
+    var
+        InventorySetup: Record "Inventory Setup";
+    begin
+        // [SCENARIO 418162] Inventory Setup, where all "Posted ... Nos" are filled
+        Initialize();
+        InventorySetup.Get();
+        InventorySetup.TestField("Posted Direct Trans. Nos.");
+        InventorySetup.TestField("Posted Invt. Receipt Nos.");
+        InventorySetup.TestField("Posted Invt. Shipment Nos.");
+        InventorySetup.TestField("Posted Phys. Invt. Order Nos.");
+        InventorySetup.TestField("Posted Transfer Rcpt. Nos.");
+        InventorySetup.TestField("Posted Transfer Shpt. Nos.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure InventoryPostingSetup()
     var
         InventoryPostingSetup: Record "Inventory Posting Setup";

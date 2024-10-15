@@ -80,10 +80,7 @@ codeunit 32000000 "Ref. Payment Management"
                     GenJnlLine.Validate("Currency Code", CustLedgEntry."Currency Code");
                     GenJnlLine.Validate(Amount, RefPaymentImported.Amount * -1);
                     GenJnlLine.Comment := RefPaymentImported."Filing Code";
-                    if AccCode <> '' then
-                        GenJnlLine.Validate("Bal. Account No.", AccCode)
-                    else
-                        GenJnlLine.Validate("Bal. Account No.", CustLedgEntry."Bal. Account No.");
+                    GenJnlLine.Validate("Bal. Account No.", GetBalAccountNo(GenJnlLine, AccCode, CustLedgEntry));
                     OnSetLinesOnBeforeGenJnlLineInsert(CustLedgEntry, GenJnlLine);
                     GenJnlLine.Insert(true);
                     LineNro := LineNro + 10000;
@@ -399,6 +396,21 @@ codeunit 32000000 "Ref. Payment Management"
                 PaymentType::SEPA:
                     RefFileSetup.TestField("Allow Comb. SEPA Pmts.");
             end;
+    end;
+
+    local procedure GetBalAccountNo(GenJournalLine: Record "Gen. Journal Line"; AccCode: Code[20]; CustLedgerEntry: Record "Cust. Ledger Entry"): Code[20]
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+    begin
+        if AccCode <> '' then
+            exit(AccCode);
+
+        if (CustLedgerEntry."Bal. Account Type" = CustLedgerEntry."Bal. Account Type"::"Bank Account") and (CustLedgerEntry."Bal. Account No." <> '') then
+            exit(CustLedgEntry."Bal. Account No.");
+
+        GenJournalBatch.Get(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name");
+        if (GenJournalBatch."Bal. Account Type" = GenJournalBatch."Bal. Account Type"::"Bank Account") and (GenJournalBatch."Bal. Account No." <> '') then
+            exit(GenJournalBatch."Bal. Account No.");
     end;
 
     [IntegrationEvent(false, false)]

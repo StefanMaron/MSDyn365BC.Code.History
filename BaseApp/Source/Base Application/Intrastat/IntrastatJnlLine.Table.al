@@ -249,13 +249,25 @@
         key(Key2; "Source Type", "Source Entry No.")
         {
         }
-        key(Key3; Type, "Country/Region Code", "Tariff No.", "Transaction Type", "Transport Method")
+        key(Key3; Type, "Country/Region Code", "Tariff No.", "Transaction Type", "Transport Method", "Country/Region of Origin Code", "Partner VAT ID")
         {
+            ObsoleteReason = 'Key7 should be used instead';
+            ObsoleteState = Pending;
+            ObsoleteTag = '20.0';
         }
         key(Key4; "Internal Ref. No.")
         {
+            ObsoleteReason = 'Key6 should be used instead';
+            ObsoleteState = Pending;
+            ObsoleteTag = '20.0';
         }
         key(Key5; "Document No.")
+        {
+        }
+        key(Key6; "Journal Template Name", "Journal Batch Name", Type, "Internal Ref. No.")
+        {
+        }
+        key(Key7; "Journal Template Name", "Journal Batch Name", Type, "Country/Region Code", "Tariff No.", "Transaction Type", "Transport Method", "Country/Region of Origin Code", "Partner VAT ID")
         {
         }
     }
@@ -380,6 +392,8 @@
         ServiceCrMemoHeader: Record "Service Cr.Memo Header";
         Customer: Record Customer;
         Vendor: Record Vendor;
+        TransferReceiptHeader: Record "Transfer Receipt Header";
+        TransferShipmentHeader: Record "Transfer Shipment Header";
     begin
         if not ItemLedgerEntry.Get("Source Entry No.") then
             exit('');
@@ -450,6 +464,16 @@
                         ServiceCrMemoHeader."Bill-to Country/Region Code", ServiceCrMemoHeader."VAT Registration No.",
                         IsCustomerPrivatePerson(ServiceCrMemoHeader."Bill-to Customer No."), ServiceCrMemoHeader."EU 3-Party Trade"));
                 end;
+            ItemLedgerEntry."Document Type"::"Transfer Receipt":
+                if TransferReceiptHeader.Get(ItemLedgerEntry."Document No.") then
+                    exit(
+                        GetPartnerIDForCountry(
+                            ItemLedgerEntry."Country/Region Code", TransferReceiptHeader."Partner VAT ID", false, false));
+            ItemLedgerEntry."Document Type"::"Transfer Shipment":
+                if TransferShipmentHeader.Get(ItemLedgerEntry."Document No.") then
+                    exit(
+                        GetPartnerIDForCountry(
+                            ItemLedgerEntry."Country/Region Code", TransferShipmentHeader."Partner VAT ID", false, false));
         end;
 
         case ItemLedgerEntry."Source Type" of
