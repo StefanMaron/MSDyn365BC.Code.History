@@ -46,7 +46,7 @@ codeunit 134191 "WF Demo Inc. Doc. Approvals"
         // [THEN] The user will get an error that he cannot post a incoming document that is not approved and released.
 
         // Setup
-        Initialize;
+        Initialize();
 
         CreateIncomingDocApprovalWorkflow(Workflow, CurrentUserSetup, IntermediateApproverUserSetup, FinalApproverUserSetup);
 
@@ -81,7 +81,7 @@ codeunit 134191 "WF Demo Inc. Doc. Approvals"
         // [THEN] The user will get an error that he cannot release a incoming document that is not approved.
 
         // Setup
-        Initialize;
+        Initialize();
 
         CreateIncomingDocApprovalWorkflow(Workflow, CurrentUserSetup, IntermediateApproverUserSetup, FinalApproverUserSetup);
 
@@ -117,7 +117,7 @@ codeunit 134191 "WF Demo Inc. Doc. Approvals"
         // [THEN] The user will get an error that he cannot release the incoming document that is not approved.
 
         // Setup
-        Initialize;
+        Initialize();
 
         CreateIncomingDocApprovalWorkflow(Workflow, CurrentUserSetup, IntermediateApproverUserSetup, FinalApproverUserSetup);
 
@@ -163,7 +163,7 @@ codeunit 134191 "WF Demo Inc. Doc. Approvals"
         // [THEN] The user will get an error that he cannot release the incoming document that is not approved.
 
         // Setup
-        Initialize;
+        Initialize();
 
         CreateIncomingDocApprovalWorkflow(Workflow, CurrentUserSetup, IntermediateApproverUserSetup, FinalApproverUserSetup);
 
@@ -209,7 +209,7 @@ codeunit 134191 "WF Demo Inc. Doc. Approvals"
         // [THEN] The user will get an error that he cannot reopen the incoming document.
 
         // Setup
-        Initialize;
+        Initialize();
 
         CreateIncomingDocApprovalWorkflow(Workflow, CurrentUserSetup, IntermediateApproverUserSetup, FinalApproverUserSetup);
 
@@ -253,7 +253,7 @@ codeunit 134191 "WF Demo Inc. Doc. Approvals"
         // [WHEN] A user sends the incoming document for approval and all users in the group of approvals approve the document.
         // [THEN] The incoming document is approved and released.
 
-        Initialize;
+        Initialize();
 
         CreateIncomingDocApprovalWorkflow(Workflow, CurrentUserSetup, IntermediateApproverUserSetup, FinalApproverUserSetup);
 
@@ -334,7 +334,7 @@ codeunit 134191 "WF Demo Inc. Doc. Approvals"
         // [WHEN] A user sends the incoming document for approval, the first approver approves it and last approver rejects it.
         // [THEN] The incoming document is rejected and open.
 
-        Initialize;
+        Initialize();
 
         CreateIncomingDocApprovalWorkflow(Workflow, CurrentUserSetup, IntermediateApproverUserSetup, FinalApproverUserSetup);
 
@@ -415,7 +415,7 @@ codeunit 134191 "WF Demo Inc. Doc. Approvals"
         // [WHEN] A user sends the incoming document for approval and the first approver rejects it.
         // [THEN] The incoming document is rejected and open.
 
-        Initialize;
+        Initialize();
 
         CreateIncomingDocApprovalWorkflow(Workflow, CurrentUserSetup, IntermediateApproverUserSetup, FinalApproverUserSetup);
 
@@ -481,7 +481,7 @@ codeunit 134191 "WF Demo Inc. Doc. Approvals"
         // [WHEN] A user sends the incoming document for approval and then the user cancels it.
         // [THEN] The incoming document is canceled and open.
 
-        Initialize;
+        Initialize();
 
         CreateIncomingDocApprovalWorkflow(Workflow, CurrentUserSetup, IntermediateApproverUserSetup, FinalApproverUserSetup);
 
@@ -544,7 +544,7 @@ codeunit 134191 "WF Demo Inc. Doc. Approvals"
         // [WHEN] A user sends the incoming document for approval and the second user delegates the approval to the 3rd user and the last user approves it.
         // [THEN] The incoming document is approved and released.
 
-        Initialize;
+        Initialize();
 
         CreateIncomingDocApprovalWorkflow(Workflow, CurrentUserSetup, IntermediateApproverUserSetup, FinalApproverUserSetup);
         LibraryDocumentApprovals.SetSubstitute(CurrentUserSetup, FinalApproverUserSetup);
@@ -629,7 +629,7 @@ codeunit 134191 "WF Demo Inc. Doc. Approvals"
     begin
         // [SCENARIO 3] Approval action availability.
         // [GIVEN] Purchase Header approval disabled.
-        Initialize;
+        Initialize();
         // EnableIncDocWorkflow;
 
         // [WHEN] Purchase Header card is opened.
@@ -712,7 +712,7 @@ codeunit 134191 "WF Demo Inc. Doc. Approvals"
     begin
         // [SCENARIO 3] Approval action availability.
         // [GIVEN] PurchHeader approval disabled.
-        Initialize;
+        Initialize();
         EnableIncDocWorkflow;
 
         // [WHEN] PurchHeader card is opened.
@@ -784,7 +784,7 @@ codeunit 134191 "WF Demo Inc. Doc. Approvals"
         // [WHEN] Approver approves the approval request.
         // [THEN] Incoming Document is released.
 
-        Initialize;
+        Initialize();
 
         CreateIncomingDocApprovalWorkflow(Workflow, CurrentUserSetup, IntermediateApproverUserSetup, FinalApproverUserSetup);
 
@@ -855,7 +855,7 @@ codeunit 134191 "WF Demo Inc. Doc. Approvals"
         // [WHEN] A user sends the incoming document for approval and then the user cancels it.
         // [THEN] The incoming document is canceled and open.
 
-        Initialize;
+        Initialize();
 
         CreateIncomingDocApprovalWorkflow(Workflow, CurrentUserSetup, IntermediateApproverUserSetup, FinalApproverUserSetup);
 
@@ -926,7 +926,7 @@ codeunit 134191 "WF Demo Inc. Doc. Approvals"
         // [THEN] The user will get an error saying they cannot attache a document with no content
 
         // Setup
-        Initialize;
+        Initialize();
 
         CreateIncomingDocument(IncomingDocument);
         CreateIncomingEmptyDocAttachment(IncomingDocument, IncomingDocumentAttachment);
@@ -952,9 +952,9 @@ codeunit 134191 "WF Demo Inc. Doc. Approvals"
     begin
         UserSetup.DeleteAll();
         LibraryERMCountryData.InitializeCountry;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
         LibraryWorkflow.DisableAllWorkflows;
         PostedApprovalEntry.DeleteAll();
         if IsInitialized then
@@ -975,11 +975,11 @@ codeunit 134191 "WF Demo Inc. Doc. Approvals"
 
     local procedure CreateIncomingDocument(var IncomingDocument: Record "Incoming Document")
     begin
-        if IncomingDocument.FindLast then;
+        if IncomingDocument.FindLast() then;
         IncomingDocument.Init();
         IncomingDocument."Entry No." += 1;
         IncomingDocument."OCR Service Doc. Template Code" := 'TEST';
-        IncomingDocument."Data Exchange Type" := LibraryUtility.GenerateGUID;
+        IncomingDocument."Data Exchange Type" := LibraryUtility.GenerateGUID();
         IncomingDocument.Insert(true);
     end;
 
@@ -1040,7 +1040,7 @@ codeunit 134191 "WF Demo Inc. Doc. Approvals"
     local procedure RegetIncomingDocument(var IncomingDocument: Record "Incoming Document")
     begin
         IncomingDocument.SetRecFilter;
-        IncomingDocument.FindFirst;
+        IncomingDocument.FindFirst();
     end;
 
     local procedure VerifyIncomingDocumentIsReleased(var IncomingDocument: Record "Incoming Document")
@@ -1113,7 +1113,7 @@ codeunit 134191 "WF Demo Inc. Doc. Approvals"
         WorkflowStep.SetRange("Workflow Code", Workflow.Code);
         WorkflowStep.SetRange(Type, WorkflowStep.Type::Response);
         WorkflowStep.SetRange("Function Name", WorkflowResponseHandling.CreateNotificationEntryCode);
-        WorkflowStep.FindFirst;
+        WorkflowStep.FindFirst();
 
         LibraryWorkflow.InsertNotificationArgument(WorkflowStep.ID, UserId, 0, '');
 

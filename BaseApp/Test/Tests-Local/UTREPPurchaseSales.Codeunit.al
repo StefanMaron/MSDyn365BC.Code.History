@@ -34,7 +34,7 @@ codeunit 144052 "UT REP Purchase & Sales"
         // Purpose of the test is to validate OnAfterGetRecord Trigger of Report 10578 Purchase - Credit Memo GB.
 
         // Setup: Create Posted Purchase Credit Memo.
-        Initialize;
+        Initialize();
         CreatePostedPurchaseCreditMemoMultipleLine(PurchCrMemoLine);
         Commit();  // Commit required as it is called explicitly from OnRun Trigger of Codeunit 320 PurchCrMemo-Printed.
 
@@ -57,7 +57,7 @@ codeunit 144052 "UT REP Purchase & Sales"
         // Purpose of the test is to validate OnAfterGetRecord Trigger of Report 10577 Purchase - Invoice GB.
 
         // Setup: Create Posted Purchase Invoice.
-        Initialize;
+        Initialize();
         CreatePostedPurchaseInvoiceWithMultipleLine(PurchInvLine);
         Commit();  // Commit required as it is called explicitly from OnRun Trigger of Codeunit 319 Purch. Inv.-Printed.
 
@@ -79,7 +79,7 @@ codeunit 144052 "UT REP Purchase & Sales"
     begin
         // Purpose of the test is to validate Issued Fin. Charge Memo Header - OnAfterGetRecord trigger of Report ID - 118 Finance Charge Memo.
         // Setup.
-        Initialize;
+        Initialize();
         IssuedFinChargeMemoNo := CreateIssuedFinChargeMemo;
         Commit();  // Commit required, because it is explicitly called by IncrNoPrinted function of Codeunit ID - 395 FinChrgMemo-Issue.
 
@@ -101,7 +101,7 @@ codeunit 144052 "UT REP Purchase & Sales"
     begin
         // Purpose of the test is to validate DimensionLoop - OnAfterGetRecord trigger of Report ID - 118 Finance Charge Memo.
         // Setup.
-        Initialize;
+        Initialize();
         IssuedFinChargeMemoNo := CreateIssuedFinChargeMemo;
         UpdateIssuedFinChargeMemoHeaderDimensionSetID(DimensionSetEntry, IssuedFinChargeMemoNo);
         Commit();  // Commit required, because it is explicitly called by IncrNoPrinted function of Codeunit ID - 395 FinChrgMemo-Issue.
@@ -125,7 +125,7 @@ codeunit 144052 "UT REP Purchase & Sales"
     begin
         // Purpose of the test is to validate Purchase Header - OnAfterGetRecord trigger of Report ID - 404 Purchase - Quote.
         // Setup.
-        Initialize;
+        Initialize();
         CreateResponsibilityCenter(ResponsibilityCenter);
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Quote, ResponsibilityCenter.Code);
         Commit();  // Commit required, because it is explicitly called by OnRun Trigger of Codeunit ID - 317 Purch.Header-Printed.
@@ -149,7 +149,7 @@ codeunit 144052 "UT REP Purchase & Sales"
     begin
         // Purpose of the test is to validate Purch. Rcpt. Header - OnAfterGetRecord trigger of Report ID - 408 Purchase - Receipt.
         // Setup.
-        Initialize;
+        Initialize();
         CreateResponsibilityCenter(ResponsibilityCenter);
         PurchaseReceiptHeaderNo := CreatePurchaseReceiptHeader(ResponsibilityCenter.Code);
         Commit();  // Commit required, because it is explicitly called by OnRun Trigger of Codeunit ID - 318 Purch.Rcpt.-Printed.
@@ -174,7 +174,7 @@ codeunit 144052 "UT REP Purchase & Sales"
     begin
         // Purpose of the test is to validate Issued Reminder Line - OnAfterGetRecord trigger of Report ID - 117 Reminder.
         // Setup.
-        Initialize;
+        Initialize();
         Amount := LibraryRandom.RandDec(10, 2);
         IssuedReminderHeaderNo := CreateIssuedReminder(IssuedReminderLine.Type::"G/L Account", Amount);
         Commit();  // Commit required, because it is explicitly called by IncrNoPrinted function of Codeunit ID - 393 Reminder-Issue.
@@ -198,7 +198,7 @@ codeunit 144052 "UT REP Purchase & Sales"
     begin
         // Purpose of the test is to validate Issued Reminder Line - OnAfterGetRecord trigger of Report ID - 117 Reminder.
         // Setup.
-        Initialize;
+        Initialize();
         IssuedReminderHeaderNo := CreateIssuedReminder(IssuedReminderLine.Type::"Customer Ledger Entry", LibraryRandom.RandDec(10, 2));
         Commit();  // Commit required, because it is explicitly called by IncrNoPrinted function of Codeunit ID - 393 Reminder-Issue.
 
@@ -220,7 +220,7 @@ codeunit 144052 "UT REP Purchase & Sales"
     begin
         // Purpose of the test is to validate Sales Shipment Header - OnAfterGetRecord trigger of Report ID - 208 Sales - Shipment.
         // Setup.
-        Initialize;
+        Initialize();
         SalesShipmentHeaderNo := CreateSalesShipment;
         PhoneNo := UpdateSalesShipmentHeaderResponsibilityCenter(SalesShipmentHeaderNo);
         Commit();  // Commit required, because it is explicitly called by OnRun Trigger of Codeunit ID - 314 Sales Shpt.-Printed.
@@ -244,7 +244,7 @@ codeunit 144052 "UT REP Purchase & Sales"
     begin
         // Purpose of the test is to validate Sales Shipment Header - OnAfterGetRecord trigger of Report ID - 208 Sales - Shipment.
         // Setup.
-        Initialize;
+        Initialize();
         SalesShipmentHeaderNo := CreateSalesShipment;
         UpdateSalesShipmentHeaderWithSalesperson(SalesShipmentHeaderNo);
         Commit();  // Commit required, because it is explicitly called by OnRun Trigger of Codeunit ID - 314 Sales Shpt.-Printed.
@@ -263,7 +263,7 @@ codeunit 144052 "UT REP Purchase & Sales"
     procedure OnAfterGetRecordCustomerCreateReminders()
     begin
         // Purpose of the test is to validate Customer OnAfterGetRecord trigger of Report ID - 188 Create Reminders.
-        Initialize;
+        Initialize();
         OnAfterGetRecordCreateReminders(false);  // Using False for Use Header Level.
     end;
 
@@ -272,7 +272,7 @@ codeunit 144052 "UT REP Purchase & Sales"
     procedure OnAfterGetRecordCustomerUseHeaderLevelCreateReminders()
     begin
         // Purpose of the test is to validate Customer OnAfterGetRecord trigger of Report ID - 188 Create Reminders.
-        Initialize;
+        Initialize();
         OnAfterGetRecordCreateReminders(true);  // Using True for Use Header Level.
     end;
 
@@ -283,7 +283,7 @@ codeunit 144052 "UT REP Purchase & Sales"
     begin
         // [FEATURE] [ECSL] [Application Area] [UI] [UT]
         // [SCENARIO 331168] ReportLayout and "Create XML File" fields are enabled on EC Sales List Request page when Application Area = #basic
-        Initialize;
+        Initialize();
 
         // [GIVEN] Enabled Application Area = #basic setup
         LibraryApplicationArea.EnableBasicSetup;
@@ -302,10 +302,10 @@ codeunit 144052 "UT REP Purchase & Sales"
     begin
         // [FEATURE] [ECSL] [Application Area] [UI] [UT]
         // [SCENARIO 331168] ReportLayout and "Create XML File" fields are enabled on EC Sales List Request page when Application Area = #suite
-        Initialize;
+        Initialize();
 
         // [GIVEN] Enabled Application Area = #suite setup
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
         Commit();
 
         // [WHEN] Run "EC Sales List" report
@@ -457,7 +457,7 @@ codeunit 144052 "UT REP Purchase & Sales"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         DeleteObjectOptionsIfNeeded;
     end;
 
@@ -480,7 +480,7 @@ codeunit 144052 "UT REP Purchase & Sales"
     var
         GLEntry2: Record "G/L Entry";
     begin
-        if GLEntry2.FindLast then;
+        if GLEntry2.FindLast() then;
         GLEntry."Entry No." := GLEntry2."Entry No." + 1;
         GLEntry."G/L Account No." := LibraryUTUtility.GetNewCode;
         GLEntry."Document No." := LibraryUTUtility.GetNewCode;
@@ -580,7 +580,7 @@ codeunit 144052 "UT REP Purchase & Sales"
         GLEntry: Record "G/L Entry";
     begin
         CreateGLEntry(GLEntry);
-        if CustLedgerEntry2.FindLast then;
+        if CustLedgerEntry2.FindLast() then;
         CustLedgerEntry."Entry No." := CustLedgerEntry2."Entry No." + 1;
         CustLedgerEntry."Document Type" := CustLedgerEntry."Document Type"::Invoice;
         CustLedgerEntry."Customer No." := CreateCustomer;
@@ -602,7 +602,7 @@ codeunit 144052 "UT REP Purchase & Sales"
         DetailedCustLedgEntry2: Record "Detailed Cust. Ledg. Entry";
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin
-        if DetailedCustLedgEntry2.FindLast then;
+        if DetailedCustLedgEntry2.FindLast() then;
         DetailedCustLedgEntry."Entry No." := DetailedCustLedgEntry2."Entry No." + 1;
         DetailedCustLedgEntry."Cust. Ledger Entry No." := CustLedgerEntryNo;
         DetailedCustLedgEntry."Entry Type" := DetailedCustLedgEntry."Entry Type"::"Realized Loss";
@@ -681,7 +681,7 @@ codeunit 144052 "UT REP Purchase & Sales"
         DimensionValue.Code := LibraryUTUtility.GetNewCode;
         DimensionValue.Insert();
 
-        if DimensionSetEntry2.FindLast then
+        if DimensionSetEntry2.FindLast() then
             DimensionSetEntry."Dimension Set ID" := DimensionSetEntry2."Dimension Set ID" + 1
         else
             DimensionSetEntry."Dimension Set ID" := 1;
@@ -827,7 +827,7 @@ codeunit 144052 "UT REP Purchase & Sales"
         CreateReminders.SetTableView(Customer);
         CreateReminders.InitializeRequest(CalcDate('<CY>', WorkDate), WorkDate, true, UseHeaderLevel, false);  // Calculation done for Document Date, TRUE for OverDueEntries, FALSE for Include Entries On Hold.
         CreateReminders.UseRequestPage(false);
-        CreateReminders.Run;
+        CreateReminders.Run();
     end;
 
     local procedure UpdateIssuedFinChargeMemoHeaderDimensionSetID(var DimensionSetEntry: Record "Dimension Set Entry"; IssuedFinChargeMemoNo: Code[20])
@@ -867,7 +867,7 @@ codeunit 144052 "UT REP Purchase & Sales"
         GLEntry: Record "G/L Entry";
     begin
         GLEntry.SetCurrentKey("Transaction No.");
-        if GLEntry.FindLast then;
+        if GLEntry.FindLast() then;
         exit(GLEntry."Transaction No." + 1);
     end;
 
@@ -876,7 +876,7 @@ codeunit 144052 "UT REP Purchase & Sales"
         PurchInvLine: Record "Purch. Inv. Line";
     begin
         PurchInvLine.SetRange("Document No.", DocumentNo);
-        if PurchInvLine.FindLast then
+        if PurchInvLine.FindLast() then
             exit(PurchInvLine."Line No." + 1);
         exit(1);
     end;
@@ -886,7 +886,7 @@ codeunit 144052 "UT REP Purchase & Sales"
         PurchCrMemoLine: Record "Purch. Cr. Memo Line";
     begin
         PurchCrMemoLine.SetRange("Document No.", DocumentNo);
-        if PurchCrMemoLine.FindLast then
+        if PurchCrMemoLine.FindLast() then
             exit(PurchCrMemoLine."Line No." + 1);
         exit(1);
     end;
@@ -896,7 +896,7 @@ codeunit 144052 "UT REP Purchase & Sales"
         ReminderLine.SetRange(Type, ReminderLine.Type::"Customer Ledger Entry");
         ReminderLine.SetRange("Document Type", ReminderLine."Document Type"::Invoice);
         ReminderLine.SetRange("Entry No.", EntryNo);
-        ReminderLine.FindFirst;
+        ReminderLine.FindFirst();
     end;
 
     local procedure SaveAsXMLFinanceChargeMemoReport(FinanceChargeMemo: TestRequestPage "Finance Charge Memo"; ShowInternalInformation: Boolean; LogInteraction: Boolean)

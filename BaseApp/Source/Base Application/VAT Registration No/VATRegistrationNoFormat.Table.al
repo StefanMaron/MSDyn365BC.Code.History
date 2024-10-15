@@ -66,7 +66,7 @@ table 381 "VAT Registration No. Format"
         end else
             SetRange("Country/Region Code", CountryCode);
         SetFilter(Format, '<> %1', '');
-        if FindSet then
+        if FindSet() then
             repeat
                 AppendString(TextString, Finish, Format);
                 Check := Compare(VATRegNo, Format);
@@ -108,7 +108,7 @@ table 381 "VAT Registration No. Format"
         Cust.SetRange("VAT Registration No.", VATRegNo);
         Cust.SetFilter("No.", '<>%1', Number);
         OnCheckCustOnBeforeCustFindSet(Cust);
-        if Cust.FindSet then begin
+        if Cust.FindSet() then begin
             Check := false;
             Finish := false;
             repeat
@@ -151,7 +151,7 @@ table 381 "VAT Registration No. Format"
         Vend.SetRange("VAT Registration No.", VATRegNo);
         Vend.SetFilter("No.", '<>%1', Number);
         OnCheckVendOnBeforeVendFindSet(Vend);
-        if Vend.FindSet then begin
+        if Vend.FindSet() then begin
             Check := false;
             Finish := false;
             repeat
@@ -192,7 +192,7 @@ table 381 "VAT Registration No. Format"
         Cont.SetCurrentKey("VAT Registration No.");
         Cont.SetRange("VAT Registration No.", VATRegNo);
         Cont.SetFilter("No.", '<>%1', Number);
-        if Cont.FindSet then begin
+        if Cont.FindSet() then begin
             Check := false;
             Finish := false;
             repeat

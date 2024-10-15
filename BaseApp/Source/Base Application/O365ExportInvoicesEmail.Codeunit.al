@@ -171,13 +171,13 @@ codeunit 2129 "O365 Export Invoices + Email"
 
     local procedure InsertSalesInvoices()
     begin
-        if SalesInvoiceHeader.FindSet then begin
+        if SalesInvoiceHeader.FindSet() then begin
             repeat
                 RowNo := RowNo + 1;
                 SalesInvoiceHeader.CalcFields(Amount, "Amount Including VAT", "Work Description", "Invoice Discount Amount");
                 InsertSalesInvoiceSummary;
                 SalesInvoiceLine.SetRange("Document No.", SalesInvoiceHeader."No.");
-                if SalesInvoiceLine.FindSet then begin
+                if SalesInvoiceLine.FindSet() then begin
                     repeat
                         LineRowNo := LineRowNo + 1;
                         InsertSalesLineItem;

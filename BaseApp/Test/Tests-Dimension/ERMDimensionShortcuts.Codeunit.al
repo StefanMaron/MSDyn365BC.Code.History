@@ -35,11 +35,11 @@ codeunit 134485 "ERM Dimension Shortcuts"
         SalesOrder: TestPage "Sales Order";
     begin
         // [GIVEN] Dimension Shortcuts defined by General Ledger Setup
-        Initialize;
+        Initialize();
         LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', '', 1, '', 0D);
 
         // [WHEN] Open page Sales Order
-        SalesOrder.OpenNew;
+        SalesOrder.OpenNew();
 
         // [THEN] Defined Dimension Shortcuts are visible, others are not
         AssertVisibility(1, SalesOrder.SalesLines."Shortcut Dimension 1 Code".Visible);
@@ -62,11 +62,11 @@ codeunit 134485 "ERM Dimension Shortcuts"
         SalesQuote: TestPage "Sales Quote";
     begin
         // [GIVEN] Dimension Shortcuts defined by General Ledger Setup
-        Initialize;
+        Initialize();
         LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::Quote, '', '', 1, '', 0D);
 
         // [WHEN] Open page Sales Quote
-        SalesQuote.OpenNew;
+        SalesQuote.OpenNew();
 
         // [THEN] Defined Dimension Shortcuts are visible, others are not
         AssertVisibility(1, SalesQuote.SalesLines."Shortcut Dimension 1 Code".Visible);
@@ -89,11 +89,11 @@ codeunit 134485 "ERM Dimension Shortcuts"
         SalesInvoice: TestPage "Sales Invoice";
     begin
         // [GIVEN] Dimension Shortcuts defined by General Ledger Setup
-        Initialize;
+        Initialize();
         LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, '', '', 1, '', 0D);
 
         // [WHEN] Open page Sales Invoice
-        SalesInvoice.OpenNew;
+        SalesInvoice.OpenNew();
 
         // [THEN] Defined Dimension Shortcuts are visible, others are not
         AssertVisibility(1, SalesInvoice.SalesLines."Shortcut Dimension 1 Code".Visible);
@@ -116,11 +116,11 @@ codeunit 134485 "ERM Dimension Shortcuts"
         SalesCreditMemo: TestPage "Sales Credit Memo";
     begin
         // [GIVEN] Dimension Shortcuts defined by General Ledger Setup
-        Initialize;
+        Initialize();
         LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::"Credit Memo", '', '', 1, '', 0D);
 
         // [WHEN] Open page Sales Credit Memo
-        SalesCreditMemo.OpenNew;
+        SalesCreditMemo.OpenNew();
 
         // [THEN] Defined Dimension Shortcuts are visible, others are not
         AssertVisibility(1, SalesCreditMemo.SalesLines."Shortcut Dimension 1 Code".Visible);
@@ -143,11 +143,11 @@ codeunit 134485 "ERM Dimension Shortcuts"
         SalesReturnOrder: TestPage "Sales Return Order";
     begin
         // [GIVEN] Dimension Shortcuts defined by General Ledger Setup
-        Initialize;
+        Initialize();
         LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order", '', '', 1, '', 0D);
 
         // [WHEN] Open page Sales Return Order
-        SalesReturnOrder.OpenNew;
+        SalesReturnOrder.OpenNew();
 
         // [THEN] Defined Dimension Shortcuts are visible, others are not
         AssertVisibility(1, SalesReturnOrder.SalesLines."Shortcut Dimension 1 Code".Visible);
@@ -170,11 +170,11 @@ codeunit 134485 "ERM Dimension Shortcuts"
         PurchOrder: TestPage "Purchase Order";
     begin
         // [GIVEN] Dimension Shortcuts defined by General Ledger Setup
-        Initialize;
+        Initialize();
         LibraryPurchase.CreatePurchaseDocumentWithItem(PurchHeader, PurchLine, PurchHeader."Document Type"::Order, '', '', 1, '', 0D);
 
         // [WHEN] Open page Purchase Order
-        PurchOrder.OpenNew;
+        PurchOrder.OpenNew();
 
         // [THEN] Defined Dimension Shortcuts are visible, others are not
         AssertVisibility(1, PurchOrder.PurchLines."Shortcut Dimension 1 Code".Visible);
@@ -197,11 +197,11 @@ codeunit 134485 "ERM Dimension Shortcuts"
         PurchQuote: TestPage "Purchase Quote";
     begin
         // [GIVEN] Dimension Shortcuts defined by General Ledger Setup
-        Initialize;
+        Initialize();
         LibraryPurchase.CreatePurchaseDocumentWithItem(PurchHeader, PurchLine, PurchHeader."Document Type"::Quote, '', '', 1, '', 0D);
 
         // [WHEN] Open page Purchase Quote
-        PurchQuote.OpenNew;
+        PurchQuote.OpenNew();
 
         // [THEN] Defined Dimension Shortcuts are visible, others are not
         AssertVisibility(1, PurchQuote.PurchLines."Shortcut Dimension 1 Code".Visible);
@@ -224,11 +224,11 @@ codeunit 134485 "ERM Dimension Shortcuts"
         PurchInvoice: TestPage "Purchase Invoice";
     begin
         // [GIVEN] Dimension Shortcuts defined by General Ledger Setup
-        Initialize;
+        Initialize();
         LibraryPurchase.CreatePurchaseDocumentWithItem(PurchHeader, PurchLine, PurchHeader."Document Type"::Invoice, '', '', 1, '', 0D);
 
         // [WHEN] Open page Purchase Invoice
-        PurchInvoice.OpenNew;
+        PurchInvoice.OpenNew();
 
         // [THEN] Defined Dimension Shortcuts are visible, others are not
         AssertVisibility(1, PurchInvoice.PurchLines."Shortcut Dimension 1 Code".Visible);
@@ -251,11 +251,11 @@ codeunit 134485 "ERM Dimension Shortcuts"
         PurchCreditMemo: TestPage "Purchase Credit Memo";
     begin
         // [GIVEN] Dimension Shortcuts defined by General Ledger Setup
-        Initialize;
+        Initialize();
         LibraryPurchase.CreatePurchaseDocumentWithItem(PurchHeader, PurchLine, PurchHeader."Document Type"::"Credit Memo", '', '', 1, '', 0D);
 
         // [WHEN] Open page Purchase Credit Memo
-        PurchCreditMemo.OpenNew;
+        PurchCreditMemo.OpenNew();
 
         // [THEN] Defined Dimension Shortcuts are visible, others are not
         AssertVisibility(1, PurchCreditMemo.PurchLines."Shortcut Dimension 1 Code".Visible);
@@ -278,11 +278,11 @@ codeunit 134485 "ERM Dimension Shortcuts"
         PurchReturnOrder: TestPage "Purchase Return Order";
     begin
         // [GIVEN] Dimension Shortcuts defined by General Ledger Setup
-        Initialize;
+        Initialize();
         LibraryPurchase.CreatePurchaseDocumentWithItem(PurchHeader, PurchLine, PurchHeader."Document Type"::"Return Order", '', '', 1, '', 0D);
 
         // [WHEN] Open page Purchase Return Order
-        PurchReturnOrder.OpenNew;
+        PurchReturnOrder.OpenNew();
 
         // [THEN] Defined Dimension Shortcuts are visible, others are not
         AssertVisibility(1, PurchReturnOrder.PurchLines."Shortcut Dimension 1 Code".Visible);
@@ -305,14 +305,14 @@ codeunit 134485 "ERM Dimension Shortcuts"
         SalesOrder: TestPage "Sales Order";
     begin
         // [GIVEN] All Dimension Shortcuts defined by General Ledger Setup
-        Initialize;
+        Initialize();
 
         SetGLSetupAllDimensions;
 
         LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', '', 1, '', 0D);
 
         // [WHEN] Open page Sales Order
-        SalesOrder.OpenNew;
+        SalesOrder.OpenNew();
 
         // [THEN] All Dimension Shortcuts are visible
         Assert.IsTrue(SalesOrder.SalesLines.ShortcutDimCode3.Visible, 'Dim Shortcut 3 must be visible');
@@ -333,13 +333,13 @@ codeunit 134485 "ERM Dimension Shortcuts"
         SalesOrder: TestPage "Sales Order";
     begin
         // [GIVEN] None Dimension Shortcuts defined by General Ledger Setup
-        Initialize;
+        Initialize();
         ClearDimShortcuts;
 
         LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', '', 1, '', 0D);
 
         // [WHEN] Open page Sales Order
-        SalesOrder.OpenNew;
+        SalesOrder.OpenNew();
 
         // [THEN] None Dimension Shortcuts are visible
         Assert.IsFalse(SalesOrder.SalesLines.ShortcutDimCode3.Visible, 'Dim Shortcut 3 must not be visible');
@@ -361,7 +361,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         DimShortcuts: array[6] of Boolean;
     begin
         // [GIVEN] Three random Dimension Shortcuts defined by General Ledger Setup
-        Initialize;
+        Initialize();
 
         Clear(DimShortcuts);
         DimShortcuts[LibraryRandom.RandIntInRange(1, 6)] := true;
@@ -373,7 +373,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', '', 1, '', 0D);
 
         // [WHEN] Open page Sales Order
-        SalesOrder.OpenNew;
+        SalesOrder.OpenNew();
 
         // [THEN] Only 3 defined Dimension Shortcuts are visible, others 3 are not
         Assert.AreEqual(SalesOrder.SalesLines.ShortcutDimCode3.Visible, DimShortcuts[1], 'Dim Shortcut 3');
@@ -396,7 +396,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         SalesQuoteArchive: TestPage "Sales Quote Archive";
     begin
         // [SCENARIO 302075] Sales quote archive line dimensions shortcuts displayed properly
-        Initialize;
+        Initialize();
 
         // [GIVEN] Set up all 8 dimensions in General Ledger Setup
         SetGLSetupAllDimensions;
@@ -432,7 +432,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         PurchaseQuoteArchive: TestPage "Purchase Quote Archive";
     begin
         // [SCENARIO 302075] Purchase quote archive line dimensions shortcuts displayed properly
-        Initialize;
+        Initialize();
 
         // [GIVEN] Set up all 8 dimensions in General Ledger Setup
         SetGLSetupAllDimensions;
@@ -464,13 +464,13 @@ codeunit 134485 "ERM Dimension Shortcuts"
         SalesOrderArchiveSubform: TestPage "Sales Order Archive Subform";
     begin
         // [GIVEN] [SCENARIO 344011] Sales Order Archive Subform line dimensions shortcuts displayed properly
-        Initialize;
+        Initialize();
 
         // [GIVEN] Set up all 8 dimensions in General Ledger Setup
         SetGLSetupAllDimensions;
 
         // [WHEN] Open page "Sales Order Archive Subform"
-        SalesOrderArchiveSubform.OpenNew;
+        SalesOrderArchiveSubform.OpenNew();
 
         // [THEN] Defined Dimension Shortcuts are visible
         AssertVisibility(1, SalesOrderArchiveSubform."Shortcut Dimension 1 Code".Visible);
@@ -491,13 +491,13 @@ codeunit 134485 "ERM Dimension Shortcuts"
         PurchaseOrderArchiveSubform: TestPage "Purchase Order Archive Subform";
     begin
         // [GIVEN] [SCENARIO 344011] Purchase Order Archive Subform line dimensions shortcuts displayed properly
-        Initialize;
+        Initialize();
 
         // [GIVEN] Set up all 8 dimensions in General Ledger Setup
         SetGLSetupAllDimensions;
 
         // [WHEN] Open page "Purchase Order Archive Subform"
-        PurchaseOrderArchiveSubform.OpenNew;
+        PurchaseOrderArchiveSubform.OpenNew();
 
         // [THEN] Defined Dimension Shortcuts are visible
         AssertVisibility(1, PurchaseOrderArchiveSubform."Shortcut Dimension 1 Code".Visible);
@@ -518,13 +518,13 @@ codeunit 134485 "ERM Dimension Shortcuts"
         SalesQuoteArchiveSubform: TestPage "Sales Quote Archive Subform";
     begin
         // [GIVEN] [SCENARIO 344011] Sales Quote Archive Subform line dimensions shortcuts displayed properly
-        Initialize;
+        Initialize();
 
         // [GIVEN] Set up all 8 dimensions in General Ledger Setup
         SetGLSetupAllDimensions;
 
         // [WHEN] Open page "Sales Quote Archive Subform"
-        SalesQuoteArchiveSubform.OpenNew;
+        SalesQuoteArchiveSubform.OpenNew();
 
         // [THEN] Defined Dimension Shortcuts are visible
         AssertVisibility(1, SalesQuoteArchiveSubform."Shortcut Dimension 1 Code".Visible);
@@ -545,13 +545,13 @@ codeunit 134485 "ERM Dimension Shortcuts"
         PurchaseQuoteArchiveSubform: TestPage "Purchase Quote Archive Subform";
     begin
         // [GIVEN] [SCENARIO 344011] Purchase Quote Archive Subform line dimensions shortcuts displayed properly
-        Initialize;
+        Initialize();
 
         // [GIVEN] Set up all 8 dimensions in General Ledger Setup
         SetGLSetupAllDimensions;
 
         // [WHEN] Open page "Purchase Quote Archive Subform"
-        PurchaseQuoteArchiveSubform.OpenNew;
+        PurchaseQuoteArchiveSubform.OpenNew();
 
         // [THEN] Defined Dimension Shortcuts are visible
         AssertVisibility(1, PurchaseQuoteArchiveSubform."Shortcut Dimension 1 Code".Visible);
@@ -572,13 +572,13 @@ codeunit 134485 "ERM Dimension Shortcuts"
         BlanketSalesOrderArchSub: TestPage "Blanket Sales Order Arch. Sub.";
     begin
         // [GIVEN] [SCENARIO 344011] Blanket Sales Order Arch. Sub. line dimensions shortcuts displayed properly
-        Initialize;
+        Initialize();
 
         // [GIVEN] Set up all 8 dimensions in General Ledger Setup
         SetGLSetupAllDimensions;
 
         // [WHEN] Open page "Blanket Sales Order Arch. Sub."
-        BlanketSalesOrderArchSub.OpenNew;
+        BlanketSalesOrderArchSub.OpenNew();
 
         // [THEN] Defined Dimension Shortcuts are visible
         AssertVisibility(1, BlanketSalesOrderArchSub."Shortcut Dimension 1 Code".Visible);
@@ -599,13 +599,13 @@ codeunit 134485 "ERM Dimension Shortcuts"
         BlanketPurchOrderArchSub: TestPage "Blanket Purch. Order Arch.Sub.";
     begin
         // [GIVEN] [SCENARIO 344011] Blanket Purch. Order Arch.Sub. line dimensions shortcuts displayed properly
-        Initialize;
+        Initialize();
 
         // [GIVEN] Set up all 8 dimensions in General Ledger Setup
         SetGLSetupAllDimensions;
 
         // [WHEN] Open page "Blanket Purch. Order Arch.Sub."
-        BlanketPurchOrderArchSub.OpenNew;
+        BlanketPurchOrderArchSub.OpenNew();
 
         // [THEN] Defined Dimension Shortcuts are visible
         AssertVisibility(1, BlanketPurchOrderArchSub."Shortcut Dimension 1 Code".Visible);
@@ -626,13 +626,13 @@ codeunit 134485 "ERM Dimension Shortcuts"
         SalesReturnOrderArcSubform: TestPage "Sales Return Order Arc Subform";
     begin
         // [GIVEN] [SCENARIO 344011] Sales Return Order Arc Subform line dimensions shortcuts displayed properly
-        Initialize;
+        Initialize();
 
         // [GIVEN] Set up all 8 dimensions in General Ledger Setup
         SetGLSetupAllDimensions;
 
         // [WHEN] Open page "Sales Return Order Arc Subform"
-        SalesReturnOrderArcSubform.OpenNew;
+        SalesReturnOrderArcSubform.OpenNew();
 
         // [THEN] Defined Dimension Shortcuts are visible
         AssertVisibility(1, SalesReturnOrderArcSubform."Shortcut Dimension 1 Code".Visible);
@@ -653,13 +653,13 @@ codeunit 134485 "ERM Dimension Shortcuts"
         PurchReturnOrderArcSubform: TestPage "Purch Return Order Arc Subform";
     begin
         // [GIVEN] [SCENARIO 344011] Purch Return Order Arc Subform line dimensions shortcuts displayed properly
-        Initialize;
+        Initialize();
 
         // [GIVEN] Set up all 8 dimensions in General Ledger Setup
         SetGLSetupAllDimensions;
 
         // [WHEN] Open page "Purch Return Order Arc Subform"
-        PurchReturnOrderArcSubform.OpenNew;
+        PurchReturnOrderArcSubform.OpenNew();
 
         // [THEN] Defined Dimension Shortcuts are visible
         AssertVisibility(1, PurchReturnOrderArcSubform."Shortcut Dimension 1 Code".Visible);
@@ -680,7 +680,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         GLEntriesPreview: TestPage "G/L Entries Preview";
     begin
         // [SCENARIO 352854] Dimensions 1-8 are visible on the "G/L Entries Preview" page when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Dimensions 3-8 are filled in the general ledger setup
         SetGLSetupAllDimensions;
@@ -708,7 +708,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         GLEntriesPreview: TestPage "G/L Entries Preview";
     begin
         // [SCENARIO 352854] Dimensions 3-8 are not visible on the "G/L Entries Preview" page when they are empty in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Dimensions 3-8 are empty in the general ledger setup
         ClearDimShortcuts();
@@ -735,7 +735,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         DimShortcuts: array[6] of Boolean;
     begin
         // [SCENARIO 352854] Three random dimensions from 3-8 range are visible on the "G/L Entries Preview" page when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Three random dimensions are filled in the general ledger setup
         ClearDimShortcuts();
@@ -768,7 +768,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         DimSetId: Integer;
     begin
         // [SCENARIO 352854] Shortcut dimensions 3-8 are filled with values in g/l entry record when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Shortcut dimensions 3-8 are filled in the general ledger setup
         CreateShortcutDimensions(DimensionValue);
@@ -802,7 +802,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         DimSetId: Integer;
     begin
         // [SCENARIO 352854] Shortcut dimensions 3-8 are not filled with values in g/l entry record when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Shortcut dimensions 3-8 are not filled in the general ledger setup
         CreateShortcutDimensions(DimensionValue);
@@ -836,7 +836,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         DimSetId: Integer;
     begin
         // [SCENARIO 352854] Three random shortcut dimensions 3-8 are filled with values in g/l entry record when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Three random shortcut dimensions 3-8 are filled in the general ledger setup
         CreateShortcutDimensions(DimensionValue);
@@ -871,7 +871,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         DimSetId: Integer;
     begin
         // [SCENARIO 352854] Shortcut dimensions 3-8 are filled with values in Bank Account Ledger Entry record when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Shortcut dimensions 3-8 are filled in the general ledger setup
         CreateShortcutDimensions(DimensionValue);
@@ -905,7 +905,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         DimSetId: Integer;
     begin
         // [SCENARIO 352854] Shortcut dimensions 3-8 are not filled with values in Bank Account Ledger Entry record when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Shortcut dimensions 3-8 are not filled in the general ledger setup
         CreateShortcutDimensions(DimensionValue);
@@ -939,7 +939,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         DimSetId: Integer;
     begin
         // [SCENARIO 352854] Three random shortcut dimensions 3-8 are filled with values in Bank Account Ledger Entry record when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Three random shortcut dimensions 3-8 are filled in the general ledger setup
         CreateShortcutDimensions(DimensionValue);
@@ -974,7 +974,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         DimSetId: Integer;
     begin
         // [SCENARIO 352854] Shortcut dimensions 3-8 are filled with values in Cust. Ledger Entry record when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Shortcut dimensions 3-8 are filled in the general ledger setup
         CreateShortcutDimensions(DimensionValue);
@@ -1008,7 +1008,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         DimSetId: Integer;
     begin
         // [SCENARIO 352854] Shortcut dimensions 3-8 are not filled with values in Cust. Ledger Entry record when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Shortcut dimensions 3-8 are not filled in the general ledger setup
         CreateShortcutDimensions(DimensionValue);
@@ -1042,7 +1042,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         DimSetId: Integer;
     begin
         // [SCENARIO 352854] Three random shortcut dimensions 3-8 are filled with values in Cust. Ledger Entry record when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Three random shortcut dimensions 3-8 are filled in the general ledger setup
         CreateShortcutDimensions(DimensionValue);
@@ -1077,7 +1077,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         DimSetId: Integer;
     begin
         // [SCENARIO 352854] Shortcut dimensions 3-8 are filled with values in FA Ledger Entry record when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Shortcut dimensions 3-8 are filled in the general ledger setup
         CreateShortcutDimensions(DimensionValue);
@@ -1111,7 +1111,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         DimSetId: Integer;
     begin
         // [SCENARIO 352854] Shortcut dimensions 3-8 are not filled with values in FA Ledger Entry record when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Shortcut dimensions 3-8 are not filled in the general ledger setup
         CreateShortcutDimensions(DimensionValue);
@@ -1145,7 +1145,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         DimSetId: Integer;
     begin
         // [SCENARIO 352854] Three random shortcut dimensions 3-8 are filled with values in FA Ledger Entry record when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Three random shortcut dimensions 3-8 are filled in the general ledger setup
         CreateShortcutDimensions(DimensionValue);
@@ -1180,7 +1180,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         DimSetId: Integer;
     begin
         // [SCENARIO 352854] Shortcut dimensions 3-8 are filled with values in Item Ledger Entry record when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Shortcut dimensions 3-8 are filled in the general ledger setup
         CreateShortcutDimensions(DimensionValue);
@@ -1214,7 +1214,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         DimSetId: Integer;
     begin
         // [SCENARIO 352854] Shortcut dimensions 3-8 are not filled with values in Item Ledger Entry record when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Shortcut dimensions 3-8 are not filled in the general ledger setup
         CreateShortcutDimensions(DimensionValue);
@@ -1248,7 +1248,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         DimSetId: Integer;
     begin
         // [SCENARIO 352854] Three random shortcut dimensions 3-8 are filled with values in Item Ledger Entry record when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Three random shortcut dimensions 3-8 are filled in the general ledger setup
         CreateShortcutDimensions(DimensionValue);
@@ -1283,7 +1283,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         DimSetId: Integer;
     begin
         // [SCENARIO 352854] Shortcut dimensions 3-8 are filled with values in Job Ledger Entry record when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Shortcut dimensions 3-8 are filled in the general ledger setup
         CreateShortcutDimensions(DimensionValue);
@@ -1317,7 +1317,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         DimSetId: Integer;
     begin
         // [SCENARIO 352854] Shortcut dimensions 3-8 are not filled with values in Job Ledger Entry record when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Shortcut dimensions 3-8 are not filled in the general ledger setup
         CreateShortcutDimensions(DimensionValue);
@@ -1351,7 +1351,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         DimSetId: Integer;
     begin
         // [SCENARIO 352854] Three random shortcut dimensions 3-8 are filled with values in Job Ledger Entry record when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Three random shortcut dimensions 3-8 are filled in the general ledger setup
         CreateShortcutDimensions(DimensionValue);
@@ -1386,7 +1386,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         DimSetId: Integer;
     begin
         // [SCENARIO 352854] Shortcut dimensions 3-8 are filled with values in Value Entry record when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Shortcut dimensions 3-8 are filled in the general ledger setup
         CreateShortcutDimensions(DimensionValue);
@@ -1420,7 +1420,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         DimSetId: Integer;
     begin
         // [SCENARIO 352854] Shortcut dimensions 3-8 are not filled with values in Value Entry record when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Shortcut dimensions 3-8 are not filled in the general ledger setup
         CreateShortcutDimensions(DimensionValue);
@@ -1454,7 +1454,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         DimSetId: Integer;
     begin
         // [SCENARIO 352854] Three random shortcut dimensions 3-8 are filled with values in Value Entry record when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Three random shortcut dimensions 3-8 are filled in the general ledger setup
         CreateShortcutDimensions(DimensionValue);
@@ -1489,7 +1489,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         DimSetId: Integer;
     begin
         // [SCENARIO 352854] Shortcut dimensions 3-8 are filled with values in Vendor Ledger Entry record when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Shortcut dimensions 3-8 are filled in the general ledger setup
         CreateShortcutDimensions(DimensionValue);
@@ -1523,7 +1523,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         DimSetId: Integer;
     begin
         // [SCENARIO 352854] Shortcut dimensions 3-8 are not filled with values in Vendor Ledger Entry record when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Shortcut dimensions 3-8 are not filled in the general ledger setup
         CreateShortcutDimensions(DimensionValue);
@@ -1557,7 +1557,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         DimSetId: Integer;
     begin
         // [SCENARIO 352854] Three random shortcut dimensions 3-8 are filled with values in Vendor Ledger Entry record when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Three random shortcut dimensions 3-8 are filled in the general ledger setup
         CreateShortcutDimensions(DimensionValue);
@@ -1592,7 +1592,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         DimSetId: Integer;
     begin
         // [SCENARIO 352854] Shortcut dimensions 3-8 are filled with values in Employee Ledger Entry record when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Shortcut dimensions 3-8 are filled in the general ledger setup
         CreateShortcutDimensions(DimensionValue);
@@ -1626,7 +1626,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         DimSetId: Integer;
     begin
         // [SCENARIO 352854] Shortcut dimensions 3-8 are not filled with values in Employee Ledger Entry record when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Shortcut dimensions 3-8 are not filled in the general ledger setup
         CreateShortcutDimensions(DimensionValue);
@@ -1660,7 +1660,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         DimSetId: Integer;
     begin
         // [SCENARIO 352854] Three random shortcut dimensions 3-8 are filled with values in Employee Ledger Entry record when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Three random shortcut dimensions 3-8 are filled in the general ledger setup
         CreateShortcutDimensions(DimensionValue);
@@ -1695,7 +1695,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         DimSetId: Integer;
     begin
         // [SCENARIO 352854] Shortcut dimensions 3-8 are filled with values in Job WIP Entry record when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Shortcut dimensions 3-8 are filled in the general ledger setup
         CreateShortcutDimensions(DimensionValue);
@@ -1729,7 +1729,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         DimSetId: Integer;
     begin
         // [SCENARIO 352854] Shortcut dimensions 3-8 are not filled with values in Job WIP Entry record when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Shortcut dimensions 3-8 are not filled in the general ledger setup
         CreateShortcutDimensions(DimensionValue);
@@ -1763,7 +1763,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         DimSetId: Integer;
     begin
         // [SCENARIO 352854] Three random shortcut dimensions 3-8 are filled with values in Job WIP Entry record when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Three random shortcut dimensions 3-8 are filled in the general ledger setup
         CreateShortcutDimensions(DimensionValue);
@@ -1798,7 +1798,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         DimSetId: Integer;
     begin
         // [SCENARIO 352854] Shortcut dimensions 3-8 are filled with values in Capacity Ledge rEntry record when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Shortcut dimensions 3-8 are filled in the general ledger setup
         CreateShortcutDimensions(DimensionValue);
@@ -1832,7 +1832,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         DimSetId: Integer;
     begin
         // [SCENARIO 352854] Shortcut dimensions 3-8 are not filled with values in Capacity Ledge rEntry record when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Shortcut dimensions 3-8 are not filled in the general ledger setup
         CreateShortcutDimensions(DimensionValue);
@@ -1866,7 +1866,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         DimSetId: Integer;
     begin
         // [SCENARIO 352854] Three random shortcut dimensions 3-8 are filled with values in Capacity Ledge rEntry record when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Three random shortcut dimensions 3-8 are filled in the general ledger setup
         CreateShortcutDimensions(DimensionValue);
@@ -1901,7 +1901,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         DimSetId: Integer;
     begin
         // [SCENARIO 352854] Shortcut dimensions 3-8 are filled with values in Phys. Inventory Ledger Entry record when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Shortcut dimensions 3-8 are filled in the general ledger setup
         CreateShortcutDimensions(DimensionValue);
@@ -1935,7 +1935,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         DimSetId: Integer;
     begin
         // [SCENARIO 352854] Shortcut dimensions 3-8 are not filled with values in Phys. Inventory Ledger Entry record when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Shortcut dimensions 3-8 are not filled in the general ledger setup
         CreateShortcutDimensions(DimensionValue);
@@ -1969,7 +1969,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         DimSetId: Integer;
     begin
         // [SCENARIO 352854] Three random shortcut dimensions 3-8 are filled with values in Phys. Inventory Ledger Entry record when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Three random shortcut dimensions 3-8 are filled in the general ledger setup
         CreateShortcutDimensions(DimensionValue);
@@ -2004,7 +2004,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         DimSetId: Integer;
     begin
         // [SCENARIO 352854] Shortcut dimensions 3-8 are filled with values in Cash Flow Forecast Entry record when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Shortcut dimensions 3-8 are filled in the general ledger setup
         CreateShortcutDimensions(DimensionValue);
@@ -2038,7 +2038,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         DimSetId: Integer;
     begin
         // [SCENARIO 352854] Shortcut dimensions 3-8 are not filled with values in Cash Flow Forecast Entry record when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Shortcut dimensions 3-8 are not filled in the general ledger setup
         CreateShortcutDimensions(DimensionValue);
@@ -2072,7 +2072,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         DimSetId: Integer;
     begin
         // [SCENARIO 352854] Three random shortcut dimensions 3-8 are filled with values in Cash Flow Forecast Entry record when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Three random shortcut dimensions 3-8 are filled in the general ledger setup
         CreateShortcutDimensions(DimensionValue);
@@ -2107,7 +2107,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         DimSetId: Integer;
     begin
         // [SCENARIO 352854] Shortcut dimensions 3-8 are filled with values in Res. Ledger Entry record when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Shortcut dimensions 3-8 are filled in the general ledger setup
         CreateShortcutDimensions(DimensionValue);
@@ -2141,7 +2141,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         DimSetId: Integer;
     begin
         // [SCENARIO 352854] Shortcut dimensions 3-8 are not filled with values in Res. Ledger Entry record when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Shortcut dimensions 3-8 are not filled in the general ledger setup
         CreateShortcutDimensions(DimensionValue);
@@ -2175,7 +2175,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         DimSetId: Integer;
     begin
         // [SCENARIO 352854] Three random shortcut dimensions 3-8 are filled with values in Res. Ledger Entry record when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Three random shortcut dimensions 3-8 are filled in the general ledger setup
         CreateShortcutDimensions(DimensionValue);
@@ -2210,7 +2210,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         DimSetId: Integer;
     begin
         // [SCENARIO 352854] Shortcut dimensions 3-8 are filled with values in Job WIP G/L Entry record when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Shortcut dimensions 3-8 are filled in the general ledger setup
         CreateShortcutDimensions(DimensionValue);
@@ -2244,7 +2244,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         DimSetId: Integer;
     begin
         // [SCENARIO 352854] Shortcut dimensions 3-8 are not filled with values in Job WIP G/L Entry record when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Shortcut dimensions 3-8 are not filled in the general ledger setup
         CreateShortcutDimensions(DimensionValue);
@@ -2278,7 +2278,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         DimSetId: Integer;
     begin
         // [SCENARIO 352854] Three random shortcut dimensions 3-8 are filled with values in Job WIP G/L Entry record when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Three random shortcut dimensions 3-8 are filled in the general ledger setup
         CreateShortcutDimensions(DimensionValue);
@@ -2313,7 +2313,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         DimSetId: Integer;
     begin
         // [SCENARIO 352854] Shortcut dimensions 3-8 are filled with values in Service Ledger Entry record when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Shortcut dimensions 3-8 are filled in the general ledger setup
         CreateShortcutDimensions(DimensionValue);
@@ -2347,7 +2347,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         DimSetId: Integer;
     begin
         // [SCENARIO 352854] Shortcut dimensions 3-8 are not filled with values in Service Ledger Entry record when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Shortcut dimensions 3-8 are not filled in the general ledger setup
         CreateShortcutDimensions(DimensionValue);
@@ -2381,7 +2381,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         DimSetId: Integer;
     begin
         // [SCENARIO 352854] Three random shortcut dimensions 3-8 are filled with values in Service Ledger Entry record when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Three random shortcut dimensions 3-8 are filled in the general ledger setup
         CreateShortcutDimensions(DimensionValue);
@@ -2416,7 +2416,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         DimSetId: Integer;
     begin
         // [SCENARIO 352854] Shortcut dimensions 3-8 are filled with values in Maintenance Ledger Entry record when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Shortcut dimensions 3-8 are filled in the general ledger setup
         CreateShortcutDimensions(DimensionValue);
@@ -2450,7 +2450,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         DimSetId: Integer;
     begin
         // [SCENARIO 352854] Shortcut dimensions 3-8 are not filled with values in Maintenance Ledger Entry record when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Shortcut dimensions 3-8 are not filled in the general ledger setup
         CreateShortcutDimensions(DimensionValue);
@@ -2484,7 +2484,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         DimSetId: Integer;
     begin
         // [SCENARIO 352854] Three random shortcut dimensions 3-8 are filled with values in Maintenance Ledger Entry record when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Three random shortcut dimensions 3-8 are filled in the general ledger setup
         CreateShortcutDimensions(DimensionValue);
@@ -2519,7 +2519,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         DimSetId: Integer;
     begin
         // [SCENARIO 352854] Shortcut dimensions 3-8 are filled with values in Warranty Ledger Entry record when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Shortcut dimensions 3-8 are filled in the general ledger setup
         CreateShortcutDimensions(DimensionValue);
@@ -2553,7 +2553,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         DimSetId: Integer;
     begin
         // [SCENARIO 352854] Shortcut dimensions 3-8 are not filled with values in Warranty Ledger Entry record when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Shortcut dimensions 3-8 are not filled in the general ledger setup
         CreateShortcutDimensions(DimensionValue);
@@ -2587,7 +2587,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         DimSetId: Integer;
     begin
         // [SCENARIO 352854] Three random shortcut dimensions 3-8 are filled with values in Warranty Ledger Entry record when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Three random shortcut dimensions 3-8 are filled in the general ledger setup
         CreateShortcutDimensions(DimensionValue);
@@ -2619,7 +2619,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         BankAccLedgEntrPreview: TestPage "Bank Acc. Ledg. Entr. Preview";
     begin
         // [SCENARIO 352854] Dimensions 1-8 are visible on the "Bank Acc. Ledg. Entr. Preview" page when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Dimensions 3-8 are filled in the general ledger setup
         SetGLSetupAllDimensions;
@@ -2647,7 +2647,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         BankAccLedgEntrPreview: TestPage "Bank Acc. Ledg. Entr. Preview";
     begin
         // [SCENARIO 352854] Dimensions 3-8 are not visible on the "Bank Acc. Ledg. Entr. Preview" page when they are empty in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Dimensions 3-8 are empty in the general ledger setup
         ClearDimShortcuts();
@@ -2674,7 +2674,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         DimShortcuts: array[6] of Boolean;
     begin
         // [SCENARIO 352854] Three random dimensions from 3-8 range are visible on the "Bank Acc. Ledg. Entr. Preview" page when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Three random dimensions are filled in the general ledger setup
         ClearDimShortcuts();
@@ -2704,7 +2704,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         BankAccountLedgerEntries: TestPage "Bank Account Ledger Entries";
     begin
         // [SCENARIO 352854] Dimensions 1-8 are visible on the "Bank Account Ledger Entries" page when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Dimensions 3-8 are filled in the general ledger setup
         SetGLSetupAllDimensions;
@@ -2732,7 +2732,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         BankAccountLedgerEntries: TestPage "Bank Account Ledger Entries";
     begin
         // [SCENARIO 352854] Dimensions 3-8 are not visible on the "Bank Account Ledger Entries" page when they are empty in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Dimensions 3-8 are empty in the general ledger setup
         ClearDimShortcuts();
@@ -2759,7 +2759,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         DimShortcuts: array[6] of Boolean;
     begin
         // [SCENARIO 352854] Three random dimensions from 3-8 range are visible on the "Bank Account Ledger Entries" page when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Three random dimensions are filled in the general ledger setup
         ClearDimShortcuts();
@@ -2789,7 +2789,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         CapacityLedgerEntries: TestPage "Capacity Ledger Entries";
     begin
         // [SCENARIO 352854] Dimensions 1-8 are visible on the "Capacity Ledger Entries" page when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Dimensions 3-8 are filled in the general ledger setup
         SetGLSetupAllDimensions;
@@ -2817,7 +2817,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         CapacityLedgerEntries: TestPage "Capacity Ledger Entries";
     begin
         // [SCENARIO 352854] Dimensions 3-8 are not visible on the "Capacity Ledger Entries" page when they are empty in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Dimensions 3-8 are empty in the general ledger setup
         ClearDimShortcuts();
@@ -2844,7 +2844,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         DimShortcuts: array[6] of Boolean;
     begin
         // [SCENARIO 352854] Three random dimensions from 3-8 range are visible on the "Capacity Ledger Entries" page when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Three random dimensions are filled in the general ledger setup
         ClearDimShortcuts();
@@ -2874,7 +2874,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         CashFlowForecastEntries: TestPage "Cash Flow Forecast Entries";
     begin
         // [SCENARIO 352854] Dimensions 1-8 are visible on the "Cash Flow Forecast Entries" page when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Dimensions 3-8 are filled in the general ledger setup
         SetGLSetupAllDimensions;
@@ -2902,7 +2902,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         CashFlowForecastEntries: TestPage "Cash Flow Forecast Entries";
     begin
         // [SCENARIO 352854] Dimensions 3-8 are not visible on the "Cash Flow Forecast Entries" page when they are empty in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Dimensions 3-8 are empty in the general ledger setup
         ClearDimShortcuts();
@@ -2929,7 +2929,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         DimShortcuts: array[6] of Boolean;
     begin
         // [SCENARIO 352854] Three random dimensions from 3-8 range are visible on the "Cash Flow Forecast Entries" page when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Three random dimensions are filled in the general ledger setup
         ClearDimShortcuts();
@@ -2959,7 +2959,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         CustLedgEntriesPreview: TestPage "Cust. Ledg. Entries Preview";
     begin
         // [SCENARIO 352854] Dimensions 1-8 are visible on the "Cust. Ledg. Entries Preview" page when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Dimensions 3-8 are filled in the general ledger setup
         SetGLSetupAllDimensions;
@@ -2987,7 +2987,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         CustLedgEntriesPreview: TestPage "Cust. Ledg. Entries Preview";
     begin
         // [SCENARIO 352854] Dimensions 3-8 are not visible on the "Cust. Ledg. Entries Preview" page when they are empty in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Dimensions 3-8 are empty in the general ledger setup
         ClearDimShortcuts();
@@ -3014,7 +3014,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         DimShortcuts: array[6] of Boolean;
     begin
         // [SCENARIO 352854] Three random dimensions from 3-8 range are visible on the "Cust. Ledg. Entries Preview" page when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Three random dimensions are filled in the general ledger setup
         ClearDimShortcuts();
@@ -3044,7 +3044,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         CustomerLedgerEntries: TestPage "Customer Ledger Entries";
     begin
         // [SCENARIO 352854] Dimensions 1-8 are visible on the "Customer Ledger Entries" page when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Dimensions 3-8 are filled in the general ledger setup
         SetGLSetupAllDimensions;
@@ -3072,7 +3072,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         CustomerLedgerEntries: TestPage "Customer Ledger Entries";
     begin
         // [SCENARIO 352854] Dimensions 3-8 are not visible on the "Customer Ledger Entries" page when they are empty in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Dimensions 3-8 are empty in the general ledger setup
         ClearDimShortcuts();
@@ -3099,7 +3099,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         DimShortcuts: array[6] of Boolean;
     begin
         // [SCENARIO 352854] Three random dimensions from 3-8 range are visible on the "Customer Ledger Entries" page when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Three random dimensions are filled in the general ledger setup
         ClearDimShortcuts();
@@ -3129,7 +3129,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         EmplLedgerEntriesPreview: TestPage "Empl. Ledger Entries Preview";
     begin
         // [SCENARIO 352854] Dimensions 1-8 are visible on the "Empl. Ledger Entries Preview" page when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Dimensions 3-8 are filled in the general ledger setup
         SetGLSetupAllDimensions;
@@ -3155,7 +3155,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         EmplLedgerEntriesPreview: TestPage "Empl. Ledger Entries Preview";
     begin
         // [SCENARIO 352854] Dimensions 3-8 are not visible on the "Empl. Ledger Entries Preview" page when they are empty in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Dimensions 3-8 are empty in the general ledger setup
         ClearDimShortcuts();
@@ -3182,7 +3182,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         DimShortcuts: array[6] of Boolean;
     begin
         // [SCENARIO 352854] Three random dimensions from 3-8 range are visible on the "Empl. Ledger Entries Preview" page when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Three random dimensions are filled in the general ledger setup
         ClearDimShortcuts();
@@ -3212,7 +3212,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         EmployeeLedgerEntries: TestPage "Employee Ledger Entries";
     begin
         // [SCENARIO 352854] Dimensions 1-8 are visible on the "EmployeeLedgerEntries" page when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Dimensions 3-8 are filled in the general ledger setup
         SetGLSetupAllDimensions;
@@ -3238,7 +3238,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         EmployeeLedgerEntries: TestPage "Employee Ledger Entries";
     begin
         // [SCENARIO 352854] Dimensions 3-8 are not visible on the "EmployeeLedgerEntries" page when they are empty in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Dimensions 3-8 are empty in the general ledger setup
         ClearDimShortcuts();
@@ -3265,7 +3265,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         DimShortcuts: array[6] of Boolean;
     begin
         // [SCENARIO 352854] Three random dimensions from 3-8 range are visible on the "EmployeeLedgerEntries" page when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Three random dimensions are filled in the general ledger setup
         ClearDimShortcuts();
@@ -3295,7 +3295,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         FAErrorLedgerEntries: TestPage "FA Error Ledger Entries";
     begin
         // [SCENARIO 352854] Dimensions 1-8 are visible on the "FA Error Ledger Entries" page when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Dimensions 3-8 are filled in the general ledger setup
         SetGLSetupAllDimensions;
@@ -3323,7 +3323,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         FAErrorLedgerEntries: TestPage "FA Error Ledger Entries";
     begin
         // [SCENARIO 352854] Dimensions 3-8 are not visible on the "FA Error Ledger Entries" page when they are empty in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Dimensions 3-8 are empty in the general ledger setup
         ClearDimShortcuts();
@@ -3350,7 +3350,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         DimShortcuts: array[6] of Boolean;
     begin
         // [SCENARIO 352854] Three random dimensions from 3-8 range are visible on the "FA Error Ledger Entries" page when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Three random dimensions are filled in the general ledger setup
         ClearDimShortcuts();
@@ -3380,7 +3380,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         FALedgerEntries: TestPage "FA Ledger Entries";
     begin
         // [SCENARIO 352854] Dimensions 1-8 are visible on the "FA Ledger Entries" page when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Dimensions 3-8 are filled in the general ledger setup
         SetGLSetupAllDimensions;
@@ -3408,7 +3408,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         FALedgerEntries: TestPage "FA Ledger Entries";
     begin
         // [SCENARIO 352854] Dimensions 3-8 are not visible on the "FA Ledger Entries" page when they are empty in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Dimensions 3-8 are empty in the general ledger setup
         ClearDimShortcuts();
@@ -3435,7 +3435,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         DimShortcuts: array[6] of Boolean;
     begin
         // [SCENARIO 352854] Three random dimensions from 3-8 range are visible on the "FA Ledger Entries" page when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Three random dimensions are filled in the general ledger setup
         ClearDimShortcuts();
@@ -3465,7 +3465,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         FALedgerEntriesPreview: TestPage "FA Ledger Entries Preview";
     begin
         // [SCENARIO 352854] Dimensions 1-8 are visible on the "FA Ledger Entries Preview" page when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Dimensions 3-8 are filled in the general ledger setup
         SetGLSetupAllDimensions;
@@ -3493,7 +3493,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         FALedgerEntriesPreview: TestPage "FA Ledger Entries Preview";
     begin
         // [SCENARIO 352854] Dimensions 3-8 are not visible on the "FA Ledger Entries Preview" page when they are empty in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Dimensions 3-8 are empty in the general ledger setup
         ClearDimShortcuts();
@@ -3520,7 +3520,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         DimShortcuts: array[6] of Boolean;
     begin
         // [SCENARIO 352854] Three random dimensions from 3-8 range are visible on the "FA Ledger Entries Preview" page when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Three random dimensions are filled in the general ledger setup
         ClearDimShortcuts();
@@ -3550,7 +3550,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         GeneralLedgerEntries: TestPage "General Ledger Entries";
     begin
         // [SCENARIO 352854] Dimensions 1-8 are visible on the "General Ledger Entries" page when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Dimensions 3-8 are filled in the general ledger setup
         SetGLSetupAllDimensions;
@@ -3578,7 +3578,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         GeneralLedgerEntries: TestPage "General Ledger Entries";
     begin
         // [SCENARIO 352854] Dimensions 3-8 are not visible on the "General Ledger Entries" page when they are empty in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Dimensions 3-8 are empty in the general ledger setup
         ClearDimShortcuts();
@@ -3605,7 +3605,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         DimShortcuts: array[6] of Boolean;
     begin
         // [SCENARIO 352854] Three random dimensions from 3-8 range are visible on the "General Ledger Entries" page when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Three random dimensions are filled in the general ledger setup
         ClearDimShortcuts();
@@ -3635,7 +3635,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         ItemLedgerEntries: TestPage "Item Ledger Entries";
     begin
         // [SCENARIO 352854] Dimensions 1-8 are visible on the "Item Ledger Entries" page when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Dimensions 3-8 are filled in the general ledger setup
         SetGLSetupAllDimensions;
@@ -3663,7 +3663,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         ItemLedgerEntries: TestPage "Item Ledger Entries";
     begin
         // [SCENARIO 352854] Dimensions 3-8 are not visible on the "Item Ledger Entries" page when they are empty in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Dimensions 3-8 are empty in the general ledger setup
         ClearDimShortcuts();
@@ -3690,7 +3690,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         DimShortcuts: array[6] of Boolean;
     begin
         // [SCENARIO 352854] Three random dimensions from 3-8 range are visible on the "Item Ledger Entries" page when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Three random dimensions are filled in the general ledger setup
         ClearDimShortcuts();
@@ -3720,7 +3720,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         ItemLedgerEntriesPreview: TestPage "Item Ledger Entries Preview";
     begin
         // [SCENARIO 352854] Dimensions 1-8 are visible on the "Item Ledger Entries Preview" page when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Dimensions 3-8 are filled in the general ledger setup
         SetGLSetupAllDimensions;
@@ -3748,7 +3748,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         ItemLedgerEntriesPreview: TestPage "Item Ledger Entries Preview";
     begin
         // [SCENARIO 352854] Dimensions 3-8 are not visible on the "Item Ledger Entries Preview" page when they are empty in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Dimensions 3-8 are empty in the general ledger setup
         ClearDimShortcuts();
@@ -3775,7 +3775,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         DimShortcuts: array[6] of Boolean;
     begin
         // [SCENARIO 352854] Three random dimensions from 3-8 range are visible on the "Item Ledger Entries Preview" page when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Three random dimensions are filled in the general ledger setup
         ClearDimShortcuts();
@@ -3805,7 +3805,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         JobLedgerEntries: TestPage "Job Ledger Entries";
     begin
         // [SCENARIO 352854] Dimensions 1-8 are visible on the "Job Ledger Entries" page when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Dimensions 3-8 are filled in the general ledger setup
         SetGLSetupAllDimensions;
@@ -3831,7 +3831,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         JobLedgerEntries: TestPage "Job Ledger Entries";
     begin
         // [SCENARIO 352854] Dimensions 3-8 are not visible on the "Job Ledger Entries" page when they are empty in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Dimensions 3-8 are empty in the general ledger setup
         ClearDimShortcuts();
@@ -3858,7 +3858,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         DimShortcuts: array[6] of Boolean;
     begin
         // [SCENARIO 352854] Three random dimensions from 3-8 range are visible on the "Job Ledger Entries" page when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Three random dimensions are filled in the general ledger setup
         ClearDimShortcuts();
@@ -3888,7 +3888,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         JobLedgerEntriesPreview: TestPage "Job Ledger Entries Preview";
     begin
         // [SCENARIO 352854] Dimensions 1-8 are visible on the "Job Ledger Entries Preview" page when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Dimensions 3-8 are filled in the general ledger setup
         SetGLSetupAllDimensions;
@@ -3914,7 +3914,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         JobLedgerEntriesPreview: TestPage "Job Ledger Entries Preview";
     begin
         // [SCENARIO 352854] Dimensions 3-8 are not visible on the "Job Ledger Entries Preview" page when they are empty in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Dimensions 3-8 are empty in the general ledger setup
         ClearDimShortcuts();
@@ -3941,7 +3941,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         DimShortcuts: array[6] of Boolean;
     begin
         // [SCENARIO 352854] Three random dimensions from 3-8 range are visible on the "Job Ledger Entries Preview" page when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Three random dimensions are filled in the general ledger setup
         ClearDimShortcuts();
@@ -3971,7 +3971,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         JobWIPEntries: TestPage "Job WIP Entries";
     begin
         // [SCENARIO 352854] Dimensions 1-8 are visible on the "Job WIP Entries" page when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Dimensions 3-8 are filled in the general ledger setup
         SetGLSetupAllDimensions;
@@ -3999,7 +3999,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         JobWIPEntries: TestPage "Job WIP Entries";
     begin
         // [SCENARIO 352854] Dimensions 3-8 are not visible on the "Job WIP Entries" page when they are empty in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Dimensions 3-8 are empty in the general ledger setup
         ClearDimShortcuts();
@@ -4026,7 +4026,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         DimShortcuts: array[6] of Boolean;
     begin
         // [SCENARIO 352854] Three random dimensions from 3-8 range are visible on the "Job WIP Entries" page when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Three random dimensions are filled in the general ledger setup
         ClearDimShortcuts();
@@ -4056,7 +4056,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         JobWIPGLEntries: TestPage "Job WIP G/L Entries";
     begin
         // [SCENARIO 352854] Dimensions 1-8 are visible on the "Job WIP G/L Entries" page when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Dimensions 3-8 are filled in the general ledger setup
         SetGLSetupAllDimensions;
@@ -4084,7 +4084,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         JobWIPGLEntries: TestPage "Job WIP G/L Entries";
     begin
         // [SCENARIO 352854] Dimensions 3-8 are not visible on the "Job WIP G/L Entries" page when they are empty in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Dimensions 3-8 are empty in the general ledger setup
         ClearDimShortcuts();
@@ -4111,7 +4111,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         DimShortcuts: array[6] of Boolean;
     begin
         // [SCENARIO 352854] Three random dimensions from 3-8 range are visible on the "Job WIP G/L Entries" page when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Three random dimensions are filled in the general ledger setup
         ClearDimShortcuts();
@@ -4141,7 +4141,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         MaintenanceLedgerEntries: TestPage "Maintenance Ledger Entries";
     begin
         // [SCENARIO 352854] Dimensions 1-8 are visible on the "Maintenance Ledger Entries" page when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Dimensions 3-8 are filled in the general ledger setup
         SetGLSetupAllDimensions;
@@ -4169,7 +4169,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         MaintenanceLedgerEntries: TestPage "Maintenance Ledger Entries";
     begin
         // [SCENARIO 352854] Dimensions 3-8 are not visible on the "Maintenance Ledger Entries" page when they are empty in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Dimensions 3-8 are empty in the general ledger setup
         ClearDimShortcuts();
@@ -4196,7 +4196,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         DimShortcuts: array[6] of Boolean;
     begin
         // [SCENARIO 352854] Three random dimensions from 3-8 range are visible on the "Maintenance Ledger Entries" page when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Three random dimensions are filled in the general ledger setup
         ClearDimShortcuts();
@@ -4226,7 +4226,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         MaintLedgEntriesPreview: TestPage "Maint. Ledg. Entries Preview";
     begin
         // [SCENARIO 352854] Dimensions 1-8 are visible on the "Maint. Ledg. Entries Preview" page when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Dimensions 3-8 are filled in the general ledger setup
         SetGLSetupAllDimensions;
@@ -4254,7 +4254,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         MaintLedgEntriesPreview: TestPage "Maint. Ledg. Entries Preview";
     begin
         // [SCENARIO 352854] Dimensions 3-8 are not visible on the "Maint. Ledg. Entries Preview" page when they are empty in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Dimensions 3-8 are empty in the general ledger setup
         ClearDimShortcuts();
@@ -4281,7 +4281,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         DimShortcuts: array[6] of Boolean;
     begin
         // [SCENARIO 352854] Three random dimensions from 3-8 range are visible on the "Maint. Ledg. Entries Preview" page when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Three random dimensions are filled in the general ledger setup
         ClearDimShortcuts();
@@ -4311,7 +4311,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         PhysInventoryLedgerEntries: TestPage "Phys. Inventory Ledger Entries";
     begin
         // [SCENARIO 352854] Dimensions 1-8 are visible on the "Phys. Inventory Ledger Entries" page when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Dimensions 3-8 are filled in the general ledger setup
         SetGLSetupAllDimensions;
@@ -4339,7 +4339,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         PhysInventoryLedgerEntries: TestPage "Phys. Inventory Ledger Entries";
     begin
         // [SCENARIO 352854] Dimensions 3-8 are not visible on the "Phys. Inventory Ledger Entries" page when they are empty in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Dimensions 3-8 are empty in the general ledger setup
         ClearDimShortcuts();
@@ -4366,7 +4366,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         DimShortcuts: array[6] of Boolean;
     begin
         // [SCENARIO 352854] Three random dimensions from 3-8 range are visible on the "Phys. Inventory Ledger Entries" page when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Three random dimensions are filled in the general ledger setup
         ClearDimShortcuts();
@@ -4396,7 +4396,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         ResourceLedgEntriesPreview: TestPage "Resource Ledg. Entries Preview";
     begin
         // [SCENARIO 352854] Dimensions 1-8 are visible on the "Resource Ledg. Entries Preview" page when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Dimensions 3-8 are filled in the general ledger setup
         SetGLSetupAllDimensions;
@@ -4424,7 +4424,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         ResourceLedgEntriesPreview: TestPage "Resource Ledg. Entries Preview";
     begin
         // [SCENARIO 352854] Dimensions 3-8 are not visible on the "Resource Ledg. Entries Preview" page when they are empty in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Dimensions 3-8 are empty in the general ledger setup
         ClearDimShortcuts();
@@ -4451,7 +4451,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         DimShortcuts: array[6] of Boolean;
     begin
         // [SCENARIO 352854] Three random dimensions from 3-8 range are visible on the "Resource Ledg. Entries Preview" page when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Three random dimensions are filled in the general ledger setup
         ClearDimShortcuts();
@@ -4481,7 +4481,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         ResourceLedgerEntries: TestPage "Resource Ledger Entries";
     begin
         // [SCENARIO 352854] Dimensions 1-8 are visible on the "Resource Ledger Entries" page when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Dimensions 3-8 are filled in the general ledger setup
         SetGLSetupAllDimensions;
@@ -4509,7 +4509,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         ResourceLedgerEntries: TestPage "Resource Ledger Entries";
     begin
         // [SCENARIO 352854] Dimensions 3-8 are not visible on the "Resource Ledger Entries" page when they are empty in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Dimensions 3-8 are empty in the general ledger setup
         ClearDimShortcuts();
@@ -4536,7 +4536,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         DimShortcuts: array[6] of Boolean;
     begin
         // [SCENARIO 352854] Three random dimensions from 3-8 range are visible on the "Resource Ledger Entries" page when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Three random dimensions are filled in the general ledger setup
         ClearDimShortcuts();
@@ -4566,7 +4566,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         ServiceLedgerEntries: TestPage "Service Ledger Entries";
     begin
         // [SCENARIO 352854] Dimensions 1-8 are visible on the "Service Ledger Entries" page when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Dimensions 3-8 are filled in the general ledger setup
         SetGLSetupAllDimensions;
@@ -4594,7 +4594,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         ServiceLedgerEntries: TestPage "Service Ledger Entries";
     begin
         // [SCENARIO 352854] Dimensions 3-8 are not visible on the "Service Ledger Entries" page when they are empty in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Dimensions 3-8 are empty in the general ledger setup
         ClearDimShortcuts();
@@ -4621,7 +4621,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         DimShortcuts: array[6] of Boolean;
     begin
         // [SCENARIO 352854] Three random dimensions from 3-8 range are visible on the "Service Ledger Entries" page when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Three random dimensions are filled in the general ledger setup
         ClearDimShortcuts();
@@ -4651,7 +4651,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         ServiceLedgerEntriesPreview: TestPage "Service Ledger Entries Preview";
     begin
         // [SCENARIO 352854] Dimensions 1-8 are visible on the "Service Ledger Entries Preview" page when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Dimensions 3-8 are filled in the general ledger setup
         SetGLSetupAllDimensions;
@@ -4679,7 +4679,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         ServiceLedgerEntriesPreview: TestPage "Service Ledger Entries Preview";
     begin
         // [SCENARIO 352854] Dimensions 3-8 are not visible on the "Service Ledger Entries Preview" page when they are empty in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Dimensions 3-8 are empty in the general ledger setup
         ClearDimShortcuts();
@@ -4706,7 +4706,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         DimShortcuts: array[6] of Boolean;
     begin
         // [SCENARIO 352854] Three random dimensions from 3-8 range are visible on the "Service Ledger Entries Preview" page when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Three random dimensions are filled in the general ledger setup
         ClearDimShortcuts();
@@ -4736,7 +4736,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         ValueEntries: TestPage "Value Entries";
     begin
         // [SCENARIO 352854] Dimensions 1-8 are visible on the "Value Entries" page when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Dimensions 3-8 are filled in the general ledger setup
         SetGLSetupAllDimensions;
@@ -4764,7 +4764,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         ValueEntries: TestPage "Value Entries";
     begin
         // [SCENARIO 352854] Dimensions 3-8 are not visible on the "Value Entries" page when they are empty in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Dimensions 3-8 are empty in the general ledger setup
         ClearDimShortcuts();
@@ -4791,7 +4791,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         DimShortcuts: array[6] of Boolean;
     begin
         // [SCENARIO 352854] Three random dimensions from 3-8 range are visible on the "Value Entries" page when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Three random dimensions are filled in the general ledger setup
         ClearDimShortcuts();
@@ -4821,7 +4821,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         ValueEntriesPreview: TestPage "Value Entries Preview";
     begin
         // [SCENARIO 352854] Dimensions 1-8 are visible on the "Value Entries Preview" page when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Dimensions 3-8 are filled in the general ledger setup
         SetGLSetupAllDimensions;
@@ -4849,7 +4849,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         ValueEntriesPreview: TestPage "Value Entries Preview";
     begin
         // [SCENARIO 352854] Dimensions 3-8 are not visible on the "Value Entries Preview" page when they are empty in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Dimensions 3-8 are empty in the general ledger setup
         ClearDimShortcuts();
@@ -4876,7 +4876,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         DimShortcuts: array[6] of Boolean;
     begin
         // [SCENARIO 352854] Three random dimensions from 3-8 range are visible on the "Value Entries Preview" page when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Three random dimensions are filled in the general ledger setup
         ClearDimShortcuts();
@@ -4906,7 +4906,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         VendLedgEntriesPreview: TestPage "Vend. Ledg. Entries Preview";
     begin
         // [SCENARIO 352854] Dimensions 1-8 are visible on the "Vend. Ledg. Entries Preview" page when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Dimensions 3-8 are filled in the general ledger setup
         SetGLSetupAllDimensions;
@@ -4934,7 +4934,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         VendLedgEntriesPreview: TestPage "Vend. Ledg. Entries Preview";
     begin
         // [SCENARIO 352854] Dimensions 3-8 are not visible on the "Vend. Ledg. Entries Preview" page when they are empty in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Dimensions 3-8 are empty in the general ledger setup
         ClearDimShortcuts();
@@ -4961,7 +4961,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         DimShortcuts: array[6] of Boolean;
     begin
         // [SCENARIO 352854] Three random dimensions from 3-8 range are visible on the "Vend. Ledg. Entries Preview" page when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Three random dimensions are filled in the general ledger setup
         ClearDimShortcuts();
@@ -4991,7 +4991,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         VendorLedgerEntries: TestPage "Vendor Ledger Entries";
     begin
         // [SCENARIO 352854] Dimensions 1-8 are visible on the "Vendor Ledger Entries" page when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Dimensions 3-8 are filled in the general ledger setup
         SetGLSetupAllDimensions;
@@ -5019,7 +5019,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         VendorLedgerEntries: TestPage "Vendor Ledger Entries";
     begin
         // [SCENARIO 352854] Dimensions 3-8 are not visible on the "Vendor Ledger Entries" page when they are empty in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Dimensions 3-8 are empty in the general ledger setup
         ClearDimShortcuts();
@@ -5046,7 +5046,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         DimShortcuts: array[6] of Boolean;
     begin
         // [SCENARIO 352854] Three random dimensions from 3-8 range are visible on the "Vendor Ledger Entries" page when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Three random dimensions are filled in the general ledger setup
         ClearDimShortcuts();
@@ -5076,7 +5076,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         WarrantyLedgEntriesPreview: TestPage "Warranty Ledg. Entries Preview";
     begin
         // [SCENARIO 352854] Dimensions 1-8 are visible on the "Warranty Ledg. Entries Preview" page when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Dimensions 3-8 are filled in the general ledger setup
         SetGLSetupAllDimensions;
@@ -5104,7 +5104,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         WarrantyLedgEntriesPreview: TestPage "Warranty Ledg. Entries Preview";
     begin
         // [SCENARIO 352854] Dimensions 3-8 are not visible on the "Warranty Ledg. Entries Preview" page when they are empty in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Dimensions 3-8 are empty in the general ledger setup
         ClearDimShortcuts();
@@ -5131,7 +5131,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         DimShortcuts: array[6] of Boolean;
     begin
         // [SCENARIO 352854] Three random dimensions from 3-8 range are visible on the "Warranty Ledg. Entries Preview" page when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Three random dimensions are filled in the general ledger setup
         ClearDimShortcuts();
@@ -5161,7 +5161,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         WarrantyLedgerEntries: TestPage "Warranty Ledger Entries";
     begin
         // [SCENARIO 352854] Dimensions 1-8 are visible on the "Warranty Ledger Entries" page when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Dimensions 3-8 are filled in the general ledger setup
         SetGLSetupAllDimensions;
@@ -5189,7 +5189,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         WarrantyLedgerEntries: TestPage "Warranty Ledger Entries";
     begin
         // [SCENARIO 352854] Dimensions 3-8 are not visible on the "Warranty Ledger Entries" page when they are empty in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Dimensions 3-8 are empty in the general ledger setup
         ClearDimShortcuts();
@@ -5216,7 +5216,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         DimShortcuts: array[6] of Boolean;
     begin
         // [SCENARIO 352854] Three random dimensions from 3-8 range are visible on the "Warranty Ledger Entries" page when they are filled in the general ledger setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Three random dimensions are filled in the general ledger setup
         ClearDimShortcuts();
@@ -5250,7 +5250,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         i: Integer;
     begin
         // [SCENARIO 386822] "Global Dimension No." is filled with value when dimension set entries inserted from default dimensions
-        Initialize;
+        Initialize();
 
         // [GIVEN] Shortcut dimensions 3-8 are filled in the general ledger setup
         CreateShortcutDimensions(DimensionValue);
@@ -5280,7 +5280,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         i: Integer;
     begin
         // [SCENARIO 386822] "Global Dimension No." is filled with value when dimension set entries inserted manuall by user
-        Initialize;
+        Initialize();
 
         // [GIVEN] Shortcut dimensions 3-8 are filled in the general ledger setup
         CreateShortcutDimensions(DimensionValue);
@@ -5314,7 +5314,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         DimSetId: array[6] of Integer;
     begin
         // [SCENARIO 386822] Post recurring journal by dimensions with single dimension filter
-        Initialize;
+        Initialize();
 
         // [GIVEN] Shortcut dimensions 3-8 are filled in the general ledger setup ("D1".."D6")
         CreateShortcutDimensions(DimensionValue);
@@ -5354,7 +5354,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         DimSetId: array[6] of Integer;
     begin
         // [SCENARIO 386822] Post recurring journal by dimensions without dimension filter
-        Initialize;
+        Initialize();
 
         // [GIVEN] Shortcut dimensions 3-8 are filled in the general ledger setup ("D1".."D6")
         CreateShortcutDimensions(DimensionValue);
@@ -5399,7 +5399,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         AllocGLAccNo: code[20];
     begin
         // [SCENARIO 388380] Posted recurring journal lines contain original batch name, not the temporary one
-        Initialize;
+        Initialize();
         RemoveTempBatches();
 
         // [GIVEN] Shortcut dimensions 3-8 are filled in the general ledger setup
@@ -5458,7 +5458,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         RecurringGeneralJournal: TestPage "Recurring General Journal";
     begin
         // [SCENARIO 388417] User cannot fill shortcut dimension code on the recurring journal page for "Recurring Method" = "BD Balance by Dimension" line
-        Initialize;
+        Initialize();
 
         // [GIVEN] Shortcut dimensions 3-8 are filled in the general ledger setup
         CreateShortcutDimensions(DimensionValue);
@@ -5494,7 +5494,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         RecurringGeneralJournal: TestPage "Recurring General Journal";
     begin
         // [SCENARIO 388417] User fill shortcut dimension code on the recurring journal page for "Recurring Method" <> "BD Balance by Dimension" line
-        Initialize;
+        Initialize();
 
         // [GIVEN] Shortcut dimensions 3-8 are filled in the general ledger setup
         CreateShortcutDimensions(DimensionValue);
@@ -5538,7 +5538,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         i: Integer;
     begin
         // [SCENARIO 388437] Temporary recurring journal batch does not exist after trying to post without error
-        Initialize;
+        Initialize();
         RemoveTempBatches();
 
         // [GIVEN] Shortcut dimensions 3-8 are filled in the general ledger setup
@@ -5593,7 +5593,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         GLAccNo: array[6] of Code[20];
     begin
         // [SCENARIO 388437] Temporary recurring journal batch does not exist after trying to post without error
-        Initialize;
+        Initialize();
 
         // [GIVEN] Shortcut dimensions 3-8 are filled in the general ledger setup
         CreateShortcutDimensions(DimensionValue);
@@ -5631,7 +5631,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         GLAccNo: array[6] of Code[20];
     begin
         // [SCENARIO 388437] Temporary recurring journal batch gets overflow error
-        Initialize;
+        Initialize();
         RemoveTempBatches();
 
         // [GIVEN] Shortcut dimensions 3-8 are filled in the general ledger setup
@@ -6012,7 +6012,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Dimension Shortcuts");
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         if IsInitialized then
             exit;
 

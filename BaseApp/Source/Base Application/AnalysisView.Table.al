@@ -604,7 +604,7 @@ table 363 "Analysis View"
         if "Account Source" = "Account Source"::"G/L Account" then
             RunCheck := GLEntry.FindLast or GLBudgetEntry.FindLast
         else
-            RunCheck := CFForecastEntry.FindLast;
+            RunCheck := CFForecastEntry.FindLast();
 
         if RunCheck then begin
             NoNotUpdated := 0;
@@ -644,7 +644,7 @@ table 363 "Analysis View"
         AnalysisView: Record "Analysis View";
         UpdateAnalysisView: Codeunit "Update Analysis View";
     begin
-        if AnalysisView.FindSet then
+        if AnalysisView.FindSet() then
             repeat
                 if AnalysisView.Blocked then begin
                     AnalysisView."Refresh When Unblocked" := true;
@@ -659,7 +659,7 @@ table 363 "Analysis View"
     var
         GLEntry: Record "G/L Entry";
     begin
-        if GLEntry.FindLast then begin
+        if GLEntry.FindLast() then begin
             SetRange(Blocked, false);
             if Find('-') then
                 repeat

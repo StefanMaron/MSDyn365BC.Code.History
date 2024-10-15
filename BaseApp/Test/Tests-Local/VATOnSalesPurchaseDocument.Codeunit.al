@@ -49,7 +49,7 @@ codeunit 144007 "VAT On Sales/Purchase Document"
         // Verify that VAT Amount is edited successfully on Sales Return Order Statistics after partial Receipt and Invoice.
 
         // Setup: Create and partially post Sales Return Order.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandDec(10, 2);  // Use Random value for Quantity.
         VATAmount := CreateAndPostSalesDocument(SalesHeader, SalesHeader."Document Type"::"Return Order", Quantity, Quantity / 2, 0);  // Zero for Quantity to Ship.
 
@@ -87,7 +87,7 @@ codeunit 144007 "VAT On Sales/Purchase Document"
         // Verify that VAT Amount is edited successfully on Sales Order Statistics after partial Shipment and Invoice.
 
         // Setup: Create and partially post Sales Order.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandDec(10, 2);  // Use Random value for Quantity.
         VATAmount := CreateAndPostSalesDocument(SalesHeader, SalesHeader."Document Type"::Order, Quantity, 0, Quantity / 2);  // Zero for Return Quantity to Receive.
 
@@ -126,7 +126,7 @@ codeunit 144007 "VAT On Sales/Purchase Document"
         // Verify that VAT Amount is edited successfully on Purchase Return Order Statistics after partial Shipment and Invoice.
 
         // Setup: Create and partially post Purchase Return Order.
-        Initialize;
+        Initialize();
         PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.Validate("Posted Return Shpt. Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         PurchasesPayablesSetup.Modify(true);
@@ -171,7 +171,7 @@ codeunit 144007 "VAT On Sales/Purchase Document"
         // Verify that VAT Amount is edited successfully on Purchase Order Statistics after partial Receipt and Invoice.
 
         // Setup: Create and partially post Purchase Order.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandDec(10, 2);  // Use Random value for Quantity.
         VATAmount := CreateAndPostPurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Order, Quantity, 0, Quantity / 2);  // Zero for Return Quantity to Ship.
         PurchaseHeader.Get(PurchaseHeader."Document Type", PurchaseHeader."No.");
@@ -208,7 +208,7 @@ codeunit 144007 "VAT On Sales/Purchase Document"
     begin
         // [FEATURE] [Sales] [Reverse Charge]
         // [SCENARIO 281088] "Reverse Charge Item" is TRUE in Sales Line when set Item with "Reverse Charge Applies" = TRUE
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Item" with "Reverse Charge Applies"=TRUE
         CreateItemReverseChargeApplies(Item);
@@ -233,7 +233,7 @@ codeunit 144007 "VAT On Sales/Purchase Document"
     begin
         // [FEATURE] [Sales] [Reverse Charge]
         // [SCENARIO 281088] "Reverse Charge Item" is FALSE in Sales Line when "No." set to <blank>
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Item" with "Reverse Charge Applies"=TRUE
         CreateItemReverseChargeApplies(Item);
@@ -259,7 +259,7 @@ codeunit 144007 "VAT On Sales/Purchase Document"
     begin
         // [FEATURE] [Sales] [Reverse Charge]
         // [SCENARIO 281088] "Reverse Charge Item" is FALSE in Sales Line "Type" <> Item
-        Initialize;
+        Initialize();
 
         // [GIVEN] "G/L Account"
         LibrarySales.CreateCustomerWithVATRegNo(Customer);
@@ -286,7 +286,7 @@ codeunit 144007 "VAT On Sales/Purchase Document"
     begin
         // [FEATURE] [Sales] [Reverse Charge]
         // [SCENARIO 281088] Reverse Charge VAT Entry created when post Sales Invoice with Reverse Charge Item and amount above threshold amount
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "X" with "Reverse Charge Item" option enabled
         CreateItemReverseChargeApplies(Item);
@@ -319,7 +319,7 @@ codeunit 144007 "VAT On Sales/Purchase Document"
     begin
         // [FEATURE] [Sales] [Reverse Charge]
         // [SCENARIO 281088] "Reverse Charge Item" is FALSE in Sales Line when set Item with "Reverse Charge Applies" = FALSE
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Item" with "Reverse Charge Applies"=FALSE
         LibraryInventory.CreateItem(Item);
@@ -338,8 +338,8 @@ codeunit 144007 "VAT On Sales/Purchase Document"
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        LibrarySetupStorage.Restore;
-        LibraryVariableStorage.Clear;
+        LibrarySetupStorage.Restore();
+        LibraryVariableStorage.Clear();
 
         if isInitialized then
             exit;
@@ -485,7 +485,7 @@ codeunit 144007 "VAT On Sales/Purchase Document"
 
         LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusinessPostingGroup.Code, ItemVATProdPostingGroup);
 
-        VATPostingSetup.Validate("VAT Identifier", LibraryUtility.GenerateGUID);
+        VATPostingSetup.Validate("VAT Identifier", LibraryUtility.GenerateGUID());
         VATPostingSetup.Validate("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT");
         VATPostingSetup.Modify(true);
     end;
@@ -514,7 +514,7 @@ codeunit 144007 "VAT On Sales/Purchase Document"
     begin
         VATEntry.SetRange("Document Type", VATEntry."Document Type"::Invoice);
         VATEntry.SetRange("Document No.", InvoiceNo);
-        VATEntry.FindFirst;
+        VATEntry.FindFirst();
         VATEntry.TestField("VAT Calculation Type", VATPostingSetup."VAT Calculation Type");
         VATEntry.TestField("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
         VATEntry.TestField("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");

@@ -29,7 +29,7 @@ codeunit 138031 "O365 Adjust Inv. on Empty DB"
         ItemCard: TestPage "Item Card";
         NewInventory: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         ItemJnlTemplate.DeleteAll();
         ItemJnlBatch.DeleteAll();
@@ -57,7 +57,7 @@ codeunit 138031 "O365 Adjust Inv. on Empty DB"
         ItemCard: TestPage "Item Card";
         NewInventory: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         ItemJnlTemplate.DeleteAll();
         ItemJnlBatch.DeleteAll();
@@ -79,15 +79,15 @@ codeunit 138031 "O365 Adjust Inv. on Empty DB"
         LibraryApplicationArea: Codeunit "Library - Application Area";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"O365 Adjust Inv. on Empty DB");
-        LibraryVariableStorage.Clear;
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryVariableStorage.Clear();
+        LibraryApplicationArea.EnableFoundationSetup();
 
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"O365 Adjust Inv. on Empty DB");
 
         if not LibraryFiscalYear.AccountingPeriodsExists then
-            LibraryFiscalYear.CreateFiscalYear;
+            LibraryFiscalYear.CreateFiscalYear();
 
         isInitialized := true;
         Commit();

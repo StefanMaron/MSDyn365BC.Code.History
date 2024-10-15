@@ -205,7 +205,7 @@ codeunit 131000 "Library - Utility"
     begin
         Field.SetRange(TableNo, TableNo);
         Field.SetRange(FieldName, FieldName);
-        Field.FindFirst;
+        Field.FindFirst();
         exit(Field."No.");
     end;
 
@@ -246,7 +246,7 @@ codeunit 131000 "Library - Utility"
     var
         GLEntry: Record "G/L Entry";
     begin
-        if GLEntry.FindLast then
+        if GLEntry.FindLast() then
             exit(GLEntry."Transaction No.");
 
         exit(0);
@@ -288,7 +288,7 @@ codeunit 131000 "Library - Utility"
             Error(StrSubstNo(KeyNotFoundError, FieldRef.Name, RecRef2.Name));
         end;
 
-        if RecRef2.FindLast then begin
+        if RecRef2.FindLast() then begin
             FieldRef := RecRef2.Field(FieldNo);
             FieldCount := FieldRef.Value;
         end else
@@ -635,7 +635,7 @@ codeunit 131000 "Library - Utility"
 
     procedure FindRecord(var RecRef: RecordRef)
     begin
-        RecRef.FindFirst;
+        RecRef.FindFirst();
     end;
 
     local procedure GetTextValue(ObjectType: Option): Text[30]
@@ -661,7 +661,7 @@ codeunit 131000 "Library - Utility"
         FieldRef: FieldRef;
     begin
         VerifyRecordHasCodeKey(TableID, RecRef, FieldRef);
-        if not RecRef.FindFirst then begin
+        if not RecRef.FindFirst() then begin
             FieldRef.Validate(GenerateRandomCode(FieldRef.Number, TableID));
             RecRef.Insert(true);
         end;

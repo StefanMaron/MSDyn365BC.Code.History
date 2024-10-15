@@ -49,7 +49,7 @@ codeunit 144028 "UT REP UKGEN"
         DimensionSetEntry: Record "Dimension Set Entry";
     begin
         // [SCENARIO] validate the DimensionLoop1 - OnAfterGetRecord trigger of Report ID: 10578, Purchase - Credit Memo GB.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Setup.
         CreatePostedPurchaseCreditMemoWithDimension(DimensionSetEntry);
@@ -68,7 +68,7 @@ codeunit 144028 "UT REP UKGEN"
         DimensionSetEntry: Record "Dimension Set Entry";
     begin
         // [SCENARIO] validate the DimensionLoop1 - OnAfterGetRecord trigger of Report ID: 10573, Sales - Credit Memo GB.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Setup.
         CreatePostedSalesCreditMemoWithDimension(DimensionSetEntry);
@@ -87,7 +87,7 @@ codeunit 144028 "UT REP UKGEN"
         DimensionSetEntry: Record "Dimension Set Entry";
     begin
         // [SCENARIO] validate the DimensionLoop1 - OnAfterGetRecord trigger of Report ID: 10572, Sales - Invoice GB.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Setup.
         CreatePostedSalesInvoiceWithDimension(DimensionSetEntry);
@@ -136,7 +136,7 @@ codeunit 144028 "UT REP UKGEN"
         DimensionSetEntry: Record "Dimension Set Entry";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CreateSalesDocumentWithDimension(DimensionSetEntry, DocumentType);
 
         // Run and verify the Dimension Text after running Report.
@@ -173,7 +173,7 @@ codeunit 144028 "UT REP UKGEN"
         DimensionSetEntry: Record "Dimension Set Entry";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CreatePurchaseDocumentWithDimension(DimensionSetEntry, DocumentType);
 
         // Run and verify the Dimension Text after running Report Blanket Purchase Order GB.
@@ -187,7 +187,7 @@ codeunit 144028 "UT REP UKGEN"
     procedure OrderGBWithArchiveTrue()
     begin
         // [SCENARIO] verify Archive Document field on Order GB when Archive Quotes & Orders is True in Purchase & Payables setup.
-        Initialize;
+        Initialize();
         OrderGBWithArchive(true);
     end;
 
@@ -197,7 +197,7 @@ codeunit 144028 "UT REP UKGEN"
     procedure OrderGBWithArchiveFalse()
     begin
         // [SCENARIO] verify Archive Document field on Order GB when Archive Quotes & Orders is False in Purchase & Payables setup.
-        Initialize;
+        Initialize();
         OrderGBWithArchive(false);
     end;
 
@@ -207,7 +207,7 @@ codeunit 144028 "UT REP UKGEN"
     procedure OrderConfirmationGBWithArchiveTrue()
     begin
         // [SCENARIO] verify Archive Document field on Order Confirmation GB when Archive Quotes & Orders is True in Sales & Receivable setup.
-        Initialize;
+        Initialize();
         OrderConfirmationGBWithArchive(true);
     end;
 
@@ -217,7 +217,7 @@ codeunit 144028 "UT REP UKGEN"
     procedure OrderConfirmationGBWithArchiveFalse()
     begin
         // [SCENARIO] verify Archive Document field on Order Confirmation GB when Archive Quotes & Orders is False in Sales & Receivable setup.
-        Initialize;
+        Initialize();
         OrderConfirmationGBWithArchive(false);
     end;
 
@@ -229,7 +229,7 @@ codeunit 144028 "UT REP UKGEN"
         SalesHeader: Record "Sales Header";
     begin
         // [SCENARIO 122292] Print Order Confirmation GB report when Address information is detailed with Bill-to Post Code
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order with "Bill-to Post Code" = 'X'
         CreateSalesDocumentWithFormatAddress(SalesHeader, SalesHeader."Document Type"::Order);
@@ -252,7 +252,7 @@ codeunit 144028 "UT REP UKGEN"
         SalesHeader: Record "Sales Header";
     begin
         // [SCENARIO 122292] Print Order Confirmation GB report when Address information is detailed with Ship-to Post Code
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order with "Ship-to Post Code" = 'X'
         CreateSalesDocumentWithFormatAddress(SalesHeader, SalesHeader."Document Type"::Order);
@@ -278,7 +278,7 @@ codeunit 144028 "UT REP UKGEN"
         PostCode: Code[20];
     begin
         // [SCENARIO 122292] Print Order Confirmation GB report if G/L Setup with "Local Address Format" = "Post Code+City"
-        Initialize;
+        Initialize();
 
         // [GIVEN] G/L Setup with "Local Address Format" = "Post Code+City", "Company Information"."Post Code" = 'X'
         PostCode := LibraryUTUtility.GetNewCode;
@@ -307,7 +307,7 @@ codeunit 144028 "UT REP UKGEN"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 375372] Print Blanket Sales Order GB report when Address information is detailed with Bill-to Post Code
-        Initialize;
+        Initialize();
 
         // [GIVEN] Blanket Sales Order with "Bill-to Post Code" = 'X', "Ship-to Post Code" = 'Y'
         CreateSalesDocumentWithFormatAddress(SalesHeader, SalesHeader."Document Type"::"Blanket Order");
@@ -339,7 +339,7 @@ codeunit 144028 "UT REP UKGEN"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 375372] Print Blanket Sales Order GB report if G/L Setup with "Local Address Format" = "Post Code+City"
-        Initialize;
+        Initialize();
 
         // [GIVEN] G/L Setup with "Local Address Format" = "Post Code+City", "Company Information"."Post Code" = 'X'
         PostCode := LibraryUTUtility.GetNewCode;
@@ -361,8 +361,8 @@ codeunit 144028 "UT REP UKGEN"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
-        LibrarySetupStorage.Restore;
+        LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
         if IsInitialized then
             exit;
 
@@ -383,7 +383,7 @@ codeunit 144028 "UT REP UKGEN"
         DimensionValue.Code := LibraryUTUtility.GetNewCode;
         DimensionValue.Insert();
 
-        DimensionSetEntry2.FindLast;
+        DimensionSetEntry2.FindLast();
         DimensionSetEntry."Dimension Set ID" := DimensionSetEntry2."Dimension Set ID" + 1;
         DimensionSetEntry."Dimension Code" := DimensionValue."Dimension Code";
         DimensionSetEntry."Dimension Value Code" := DimensionValue.Code;
@@ -526,7 +526,7 @@ codeunit 144028 "UT REP UKGEN"
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
         // Setup: Update Purchases and Payables Setup.
-        Initialize;
+        Initialize();
         PurchasesPayablesSetup.Get();
         UpdatePurchasesPayablesSetup(ArchiveQuotesAndOrders);
         LibraryVariableStorage.Enqueue(ArchiveQuotesAndOrders);

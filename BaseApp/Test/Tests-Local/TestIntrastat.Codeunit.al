@@ -34,7 +34,7 @@ codeunit 134153 "Test Intrastat"
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
         Filename: Text;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateIntrastatJournalTemplateAndBatch(IntrastatJnlBatch, WorkDate);
@@ -64,7 +64,7 @@ codeunit 134153 "Test Intrastat"
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
         Filename: Text;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateIntrastatJournalTemplateAndBatch(IntrastatJnlBatch, WorkDate);
@@ -95,7 +95,7 @@ codeunit 134153 "Test Intrastat"
         IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateIntrastatJournalTemplateAndBatch(IntrastatJnlBatch, WorkDate);
@@ -114,7 +114,7 @@ codeunit 134153 "Test Intrastat"
 
         // Verify
         IntrastatJnlLine.SetFilter("Tariff No.", Item."Tariff No.");
-        IntrastatJnlLine.FindFirst;
+        IntrastatJnlLine.FindFirst();
         IntrastatJnlLine.TestField("Transaction Type");
         IntrastatJnlLine.TestField("Transport Method");
         LibraryReportDataset.LoadDataSetFile;
@@ -135,7 +135,7 @@ codeunit 134153 "Test Intrastat"
     begin
         // [SCENARIO 362690] Intrastat Journal Line Amount = Item."Unit Price" after Sales Order posting with Quantity = 1
         // [FEATURE] [Sales] [Order]
-        Initialize;
+        Initialize();
         CreateIntrastatJournalTemplateAndBatch(IntrastatJnlBatch, WorkDate);
 
         // [GIVEN] Item with "Unit Price" = "X"
@@ -162,7 +162,7 @@ codeunit 134153 "Test Intrastat"
     begin
         // [SCENARIO 362690] Intrastat Journal Line Amount = Item."Unit Price" after Sales Return Order posting with Quantity = 1
         // [FEATURE] [Sales] [Return Order]
-        Initialize;
+        Initialize();
         CreateIntrastatJournalTemplateAndBatch(IntrastatJnlBatch, WorkDate);
 
         // [GIVEN] Item with "Unit Price" = "X"
@@ -189,7 +189,7 @@ codeunit 134153 "Test Intrastat"
     begin
         // [SCENARIO 362690] Intrastat Journal Line Amount = Item."Last Direct Cost" after Purchase Order posting with Quantity = 1
         // [FEATURE] [Purchase] [Order]
-        Initialize;
+        Initialize();
         CreateIntrastatJournalTemplateAndBatch(IntrastatJnlBatch, WorkDate);
 
         // [GIVEN] Item with "Last Direct Cost" = "X"
@@ -216,7 +216,7 @@ codeunit 134153 "Test Intrastat"
     begin
         // [SCENARIO 362690] Intrastat Journal Line Amount = Item."Last Direct Cost" after Purchase Return Order posting with Quantity = 1
         // [FEATURE] [Purchase] [Return Order]
-        Initialize;
+        Initialize();
         CreateIntrastatJournalTemplateAndBatch(IntrastatJnlBatch, WorkDate);
 
         // [GIVEN] Item with "Last Direct Cost" = "X"
@@ -240,7 +240,7 @@ codeunit 134153 "Test Intrastat"
     begin
         // [FEATURE] [UI] [UT]
         // [SCENARIO 331036] Statistical Value is editable on Intrastat Journal page
-        Initialize;
+        Initialize();
         RunIntrastatJournal(IntrastatJournal);
         Assert.IsTrue(IntrastatJournal."Statistical Value".Editable, '');
     end;
@@ -256,7 +256,7 @@ codeunit 134153 "Test Intrastat"
     begin
         // [FEATURE] [Report] [Export]
         // [SCENARIO 331036] 'Intrastat - Make Disk Tax Auth' report with Amount = 0 and given Statistical Value
-        Initialize;
+        Initialize();
 
         // [GIVEN] Intrastat Journal Line has blank Item No., Amount = 0 and Statistical Value = 100, all mandatory fields are filled in.
         CreateIntrastatJournalTemplateAndBatch(IntrastatJnlBatch, WorkDate);
@@ -271,7 +271,7 @@ codeunit 134153 "Test Intrastat"
         SetMandatoryFieldsOnJnlLines(IntrastatJnlLine, IntrastatJnlBatch,
           FindOrCreateIntrastatTransportMethod, FindOrCreateIntrastatTransactionType);
         IntrastatJnlLine.Validate("Total Weight", LibraryRandom.RandIntInRange(100, 200));
-        ShipmentMethod.FindFirst;
+        ShipmentMethod.FindFirst();
         IntrastatJnlLine.Validate("Shpt. Method Code", ShipmentMethod.Code);
         IntrastatJnlLine.Modify(true);
 
@@ -287,15 +287,15 @@ codeunit 134153 "Test Intrastat"
     var
         IntrastatJnlTemplate: Record "Intrastat Jnl. Template";
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         LibraryReportDataset.Reset();
         IntrastatJnlTemplate.DeleteAll(true);
 
         if IsInitialized then
             exit;
 
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         SetIntrastatCodeOnCountryRegion;
         SetTariffNoOnItems;
 
@@ -398,7 +398,7 @@ codeunit 134153 "Test Intrastat"
         IntrastatMakeDiskTaxAuth.InitializeRequest(Filename);
         IntrastatMakeDiskTaxAuth.UseRequestPage(false);
         IntrastatMakeDiskTaxAuth.SetTableView(IntrastatJnlLine);
-        IntrastatMakeDiskTaxAuth.RunModal;
+        IntrastatMakeDiskTaxAuth.RunModal();
     end;
 
     local procedure RunIntrastatJournalForm(Type: Option)
@@ -452,7 +452,7 @@ codeunit 134153 "Test Intrastat"
         with CountryRegion do begin
             SetFilter(Code, '<>%1', CompanyInfo."Country/Region Code");
             SetFilter("Intrastat Code", '<>%1', '');
-            FindFirst;
+            FindFirst();
             exit(Code);
         end;
     end;
@@ -473,7 +473,7 @@ codeunit 134153 "Test Intrastat"
         Item: Record Item;
         TariffNumber: Record "Tariff Number";
     begin
-        TariffNumber.FindFirst;
+        TariffNumber.FindFirst();
         Item.SetRange("Tariff No.", '');
         if not Item.IsEmpty() then
             Item.ModifyAll("Tariff No.", TariffNumber."No.");
@@ -487,7 +487,7 @@ codeunit 134153 "Test Intrastat"
             SetRange("Journal Template Name", IntrastatJnlBatch."Journal Template Name");
             SetRange("Journal Batch Name", IntrastatJnlBatch.Name);
             SetRange("Item No.", ItemNo);
-            FindFirst;
+            FindFirst();
             Assert.AreEqual(ExpectedQty, Quantity, FieldCaption(Quantity));
             Assert.AreEqual(ExpectedAmount, Amount, FieldCaption(Amount));
         end;

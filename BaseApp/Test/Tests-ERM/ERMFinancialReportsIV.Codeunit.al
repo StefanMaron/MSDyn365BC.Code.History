@@ -42,7 +42,7 @@ codeunit 134992 "ERM Financial Reports IV"
         // Test VAT Statement Report for Purchase with Open VAT Entries.
 
         // Setup: Create and Post General Journal Line for Vendor, Taking -1 for negative sign factor.
-        Initialize;
+        Initialize();
         LibraryPurchase.CreateVendor(Vendor);
         CreateAndPostGeneralJournalLine(
           VATPostingSetup, GenJournalLine."Account Type"::Vendor, Vendor."No.", GenJournalLine."Gen. Posting Type"::Purchase, -1, true);
@@ -65,7 +65,7 @@ codeunit 134992 "ERM Financial Reports IV"
         // Test VAT Statement Report for Sales with Open VAT Entries.
 
         // Setup: Create and Post General Journal Line for Customer, Taking 1 for positive sign factor.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         CreateAndPostGeneralJournalLine(
           VATPostingSetup, GenJournalLine."Account Type"::Customer, Customer."No.", GenJournalLine."Gen. Posting Type"::Sale, 1, true);
@@ -87,7 +87,7 @@ codeunit 134992 "ERM Financial Reports IV"
         // Test VAT Statement Report for Purchase with Closed VAT Entries.
 
         // Setup: Save VAT Statement Report with Closed Selection and Verify the Amount. Passing TRUE to find Close Entries.
-        Initialize;
+        Initialize();
         FindVATPostingSetupFromVATEntries(VATPostingSetup, VATEntry.Type::Purchase);
 
         // Exercise And Verification done in VATStatementForDifferentEntries function.
@@ -106,7 +106,7 @@ codeunit 134992 "ERM Financial Reports IV"
         // Test VAT Statement Report for Sales with Closed VAT Entries.
 
         // Setup: Save VAT Statement Report with Closed Selection and Verify the Amount. Passing TRUE to find Close Entries for Sale.
-        Initialize;
+        Initialize();
         FindVATPostingSetupFromVATEntries(VATPostingSetup, VATEntry.Type::Sale);
 
         // Exercise And Verification done in VATStatementForDifferentEntries function.
@@ -123,12 +123,12 @@ codeunit 134992 "ERM Financial Reports IV"
         // Test Error Message when Posting Date is not filled while running Calc. and Post VAT Settlement Report.
 
         // Setup: Set Parameters for Report having Starting Date, Ending Date, Posting Date, Document No. and Settlement Account No as Blank.
-        Initialize;
+        Initialize();
         Clear(CalcAndPostVATSettlement);
         CalcAndPostVATSettlement.InitializeRequest(0D, 0D, 0D, '', '', false, false);
 
         // Exercise: Try to save Report with TEST Name.
-        asserterror CalcAndPostVATSettlement.Run;
+        asserterror CalcAndPostVATSettlement.Run();
 
         // Verify: Verify that Posting Date not filled error appears.
         Assert.ExpectedError(StrSubstNo(PostingDateErr));
@@ -144,12 +144,12 @@ codeunit 134992 "ERM Financial Reports IV"
         // Test Error Message when Document No. is not filled while running Calc. and Post VAT Settlement Report.
 
         // Setup: Set Parameters for Report having Starting Date, Ending Date, Document No. and Settlement Account No. as Blank, take Posting Date as WORKDATE.
-        Initialize;
+        Initialize();
         Clear(CalcAndPostVATSettlement);
         CalcAndPostVATSettlement.InitializeRequest(0D, 0D, WorkDate, '', '', false, false);
 
         // Exercise: Try to save Report with TEST Name.
-        asserterror CalcAndPostVATSettlement.Run;
+        asserterror CalcAndPostVATSettlement.Run();
 
         // Verify: Verify that Document No. not filled error appears.
         Assert.ExpectedError(StrSubstNo(DocumentNoErr));
@@ -165,12 +165,12 @@ codeunit 134992 "ERM Financial Reports IV"
         // Test Error Message when Settlement Account is not filled while running Calc. and Post VAT Settlement Report.
 
         // Setup: Set Parameters for Report having Starting Date, Ending Date and Settlement Account No. as Blank, take Posting Date as WORKDATE and a Random Document No. value is not important.
-        Initialize;
+        Initialize();
         Clear(CalcAndPostVATSettlement);
         CalcAndPostVATSettlement.InitializeRequest(0D, 0D, WorkDate, Format(LibraryRandom.RandInt(100)), '', false, false);
 
         // Exercise: Try to save Report with TEST Name.
-        asserterror CalcAndPostVATSettlement.Run;
+        asserterror CalcAndPostVATSettlement.Run();
 
         // Verify: Verify that Settement Account No. not filled error appears.
         Assert.ExpectedError(StrSubstNo(SettlementAccountErr));
@@ -187,7 +187,7 @@ codeunit 134992 "ERM Financial Reports IV"
         // Test Calc. and Post VAT Settlement Report for Sales and when posting is TRUE.
 
         // Calculate and Post VAT Settlement for Customer with Post TRUE, taking 1 for positive sign factor.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         CalcAndPostVATSettlementWithPostingOption(
           GenJournalLine."Account Type"::Customer, Customer."No.", GenJournalLine."Gen. Posting Type"::Sale, 1, true);
@@ -204,7 +204,7 @@ codeunit 134992 "ERM Financial Reports IV"
         // Test Calc. and Post VAT Settlement Report for Sales and when posting is FALSE.
 
         // Calculate and Post VAT Settlement for Customer with Post FALSE, taking 1 for positive sign factor.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         CalcAndPostVATSettlementWithPostingOption(
           GenJournalLine."Account Type"::Customer, Customer."No.", GenJournalLine."Gen. Posting Type"::Sale, 1, false);
@@ -221,7 +221,7 @@ codeunit 134992 "ERM Financial Reports IV"
         // Test Calc. and Post VAT Settlement Report for Purchase and when posting is TRUE.
 
         // Calculate and Post VAT Settlement for Vendor with Post TRUE, taking -1 for negative sign factor.
-        Initialize;
+        Initialize();
         LibraryPurchase.CreateVendor(Vendor);
         CalcAndPostVATSettlementWithPostingOption(
           GenJournalLine."Account Type"::Vendor, Vendor."No.", GenJournalLine."Gen. Posting Type"::Purchase, -1, true);
@@ -238,7 +238,7 @@ codeunit 134992 "ERM Financial Reports IV"
         // Test Calc. and Post VAT Settlement Report for Purchase and when posting is FALSE.
 
         // Calculate and Post VAT Settlement for Vendor with Post FALSE, taking -1 for negative sign factor.
-        Initialize;
+        Initialize();
         LibraryPurchase.CreateVendor(Vendor);
         CalcAndPostVATSettlementWithPostingOption(
           GenJournalLine."Account Type"::Vendor, Vendor."No.", GenJournalLine."Gen. Posting Type"::Purchase, -1, false);
@@ -257,7 +257,7 @@ codeunit 134992 "ERM Financial Reports IV"
         // Verify VAT VIES Declaration Tax Auth. Report.
 
         // Setup: Find Customer with VAT Registration Number, create and post four Sales Orders.
-        Initialize;
+        Initialize();
         CreateCustomerWithCountryRegionVATRegNo(Customer);
         LibraryInventory.CreateItem(Item);
         PostSalesOrderWithVATSetup(Customer."No.", false, SalesLine.Type::Item, Item."No.");
@@ -294,7 +294,7 @@ codeunit 134992 "ERM Financial Reports IV"
         // Test Calc. and Post VAT Settlement Report for Sales with blank VAT Bus. Posting Group.
 
         // Setup: Create and Post Sales Order.
-        Initialize;
+        Initialize();
         CreateVATPostingSetupWithBlankVATBusPostingGroup(VATPostingSetup);
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CreateCustomer(VATPostingSetup));
         CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem(VATPostingSetup));
@@ -321,7 +321,7 @@ codeunit 134992 "ERM Financial Reports IV"
         // Test Calc. and Post VAT Settlement Report for Purchase with blank VAT Bus. Posting Group.
 
         // Setup: Create and Post Purchase Order.
-        Initialize;
+        Initialize();
         LibraryERM.FindVATBusinessPostingGroup(VATBusinessPostingGroup);
         UpdateReverseChargeVATPostingGroup(OldReverseChargeVATPostingGroup, VATBusinessPostingGroup.Code);
         CreateVATPostingSetupWithBlankVATBusPostingGroup(VATPostingSetup);
@@ -352,7 +352,7 @@ codeunit 134992 "ERM Financial Reports IV"
         // Verify that Purchase Receipt Report displaying Company Name.
 
         // Setup: Create purchase order
-        Initialize;
+        Initialize();
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         CreatePurchaseOrder(PurchaseHeader, VATPostingSetup);
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
@@ -384,7 +384,7 @@ codeunit 134992 "ERM Financial Reports IV"
     begin
         // [FEATURE] [Report] [VAT Statement] [UI]
         // [SCENARIO 338378] "VAT Statement" report prints single page when the single vat statement line is reported from VAT Statement Names page
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         CreateAndPostGeneralJournalLine(
           VATPostingSetup, GenJournalLine."Account Type"::Customer, Customer."No.", GenJournalLine."Gen. Posting Type"::Sale, 1, true);
@@ -430,7 +430,7 @@ codeunit 134992 "ERM Financial Reports IV"
     begin
         // [FEATURE] [Report] [VAT Statement] [UI]
         // [SCENARIO 338378] "VAT Statement" report prints single page when the single vat statement line is reported from VAT Statement card page
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         CreateAndPostGeneralJournalLine(
           VATPostingSetup, GenJournalLine."Account Type"::Customer, Customer."No.", GenJournalLine."Gen. Posting Type"::Sale, 1, true);
@@ -513,7 +513,7 @@ codeunit 134992 "ERM Financial Reports IV"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Financial Reports IV");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         Clear(LibraryReportValidation);
 
         ObjectOptions.SetRange("Object Type", ObjectOptions."Object Type"::Report);
@@ -525,8 +525,8 @@ codeunit 134992 "ERM Financial Reports IV"
             exit;
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Financial Reports IV");
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         IsInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Financial Reports IV");
@@ -540,7 +540,7 @@ codeunit 134992 "ERM Financial Reports IV"
             SetRange("VAT Calculation Type", "VAT Calculation Type"::"Normal VAT");
             SetRange(Type, EntryType);
             SetRange(Closed, Closed);
-            FindFirst;
+            FindFirst();
             VATPostingSetup.Get("VAT Bus. Posting Group", "VAT Prod. Posting Group");
         end;
     end;
@@ -781,7 +781,7 @@ codeunit 134992 "ERM Financial Reports IV"
         CalcAndPostVATSettlement.SetTableView(VATPostingSetup);
         CalcAndPostVATSettlement.InitializeRequest(WorkDate, WorkDate, WorkDate, DocumentNo, GLAccount."No.", false, Post);
         Commit();
-        CalcAndPostVATSettlement.Run;
+        CalcAndPostVATSettlement.Run();
     end;
 
     local procedure SaveVATStatementReport(Name: Code[10]; Selection: Enum "VAT Statement Report Selection"; PeriodSelection: Enum "VAT Statement Report Period Selection")
@@ -795,7 +795,7 @@ codeunit 134992 "ERM Financial Reports IV"
         VATStatement.SetTableView(VATStatementName);
         VATStatement.InitializeRequest(VATStatementName, VATStatementLine, Selection, PeriodSelection, false, false);
         Commit();
-        VATStatement.Run;
+        VATStatement.Run();
     end;
 
     local procedure UpdateReverseChargeVATPostingGroup(var OldReverseChargeVATPostingGroup: Code[20]; ReverseChargeVATPostingGroup: Code[20])
@@ -841,7 +841,7 @@ codeunit 134992 "ERM Financial Reports IV"
     begin
         Clear(VATVIESDeclarationTaxAuth);
         VATVIESDeclarationTaxAuth.InitializeRequest(false, WorkDate, WorkDate, CustomerVATRegistrationNo);
-        VATVIESDeclarationTaxAuth.Run;
+        VATVIESDeclarationTaxAuth.Run();
     end;
 
     local procedure VerifyValuesOnCalcAndPostVATSettlementReport(DocumentNo: Code[20])
@@ -849,7 +849,7 @@ codeunit 134992 "ERM Financial Reports IV"
         VATEntry: Record "VAT Entry";
     begin
         VATEntry.SetRange("Document No.", DocumentNo);
-        VATEntry.FindFirst;
+        VATEntry.FindFirst();
         LibraryReportDataset.LoadDataSetFile;
         Assert.AreEqual(
           LibraryReportDataset.Sum('GenJnlLineVATBaseAmount'), -VATEntry.Base,

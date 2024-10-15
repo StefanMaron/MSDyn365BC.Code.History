@@ -71,10 +71,10 @@ report 10571 "Order Confirmation GB"
                     column(CompanyInfoVATRegNo; CompanyInfo."VAT Registration No.")
                     {
                     }
-                    column(CompanyInfoBankName; CompanyInfo."Bank Name")
+                    column(CompanyInfoBankName; CompanyBankAccount.Name)
                     {
                     }
-                    column(CompanyInfoBankAccountNo; CompanyInfo."Bank Account No.")
+                    column(CompanyInfoBankAccountNo; CompanyBankAccount."Bank Account No.")
                     {
                     }
                     column(BilltoCustNo_SalesHeader; "Sales Header"."Bill-to Customer No.")
@@ -125,7 +125,7 @@ report 10571 "Order Confirmation GB"
                     column(PricesIncVAT_SalesHeaderCaption; "Sales Header".FieldCaption("Prices Including VAT"))
                     {
                     }
-                    column(CompanyInfoBankBranchNo; CompanyInfo."Bank Branch No.")
+                    column(CompanyInfoBankBranchNo; CompanyBankAccount."Bank Branch No.")
                     {
                     }
                     column(CompanyInfo3Picture; CompanyInfo3.Picture)
@@ -643,6 +643,9 @@ report 10571 "Order Confirmation GB"
             begin
                 CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
 
+                if not CompanyBankAccount.Get("Sales Header"."Company Bank Account Code") then
+                    CompanyBankAccount.CopyBankFieldsFromCompanyInfo(CompanyInfo);
+
                 if RespCenter.Get("Responsibility Center") then begin
                     FormatAddr.RespCenter(CompanyAddr, RespCenter);
                     CompanyInfo."Phone No." := RespCenter."Phone No.";
@@ -832,6 +835,7 @@ report 10571 "Order Confirmation GB"
         ShipmentMethod: Record "Shipment Method";
         PaymentTerms: Record "Payment Terms";
         SalesPurchPerson: Record "Salesperson/Purchaser";
+        CompanyBankAccount: Record "Bank Account";
         CompanyInfo: Record "Company Information";
         CompanyInfo1: Record "Company Information";
         CompanyInfo3: Record "Company Information";

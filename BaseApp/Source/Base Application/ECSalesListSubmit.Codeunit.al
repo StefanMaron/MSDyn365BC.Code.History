@@ -13,7 +13,7 @@ codeunit 142 "EC Sales List Submit"
         SplitLines(Rec);
 
         SetGovTalkPartsFilter(GovTalkMessageParts, Rec);
-        if not GovTalkMessageParts.FindSet then
+        if not GovTalkMessageParts.FindSet() then
             exit;
 
         repeat
@@ -43,7 +43,7 @@ codeunit 142 "EC Sales List Submit"
         InitGovTalkMessagePart(GovTalkMessageParts, VATReportHeader);
 
         ECSLVATReportLine.SetRange("Report No.", VATReportHeader."No.");
-        if not ECSLVATReportLine.FindSet then
+        if not ECSLVATReportLine.FindSet() then
             exit;
 
         GetGovTalkMessagePart(GovTalkMessageParts);
@@ -78,7 +78,7 @@ codeunit 142 "EC Sales List Submit"
     begin
         VATReportsConfiguration.SetRange("VAT Report Type", VATReportHeader."VAT Report Config. Code");
         VATReportsConfiguration.SetRange("VAT Report Version", VATReportHeader."VAT Report Version");
-        if VATReportsConfiguration.FindFirst then;
+        if VATReportsConfiguration.FindFirst() then;
         if VATReportsConfiguration."Content Max Lines" = 0 then
             exit(DefaltPartMaxLines);
 

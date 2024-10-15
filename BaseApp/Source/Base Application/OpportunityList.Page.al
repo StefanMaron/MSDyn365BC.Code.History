@@ -568,7 +568,7 @@ page 5123 "Opportunity List"
             RecRef.GetTable(RecVar);
             IndexFieldRef := RecRef.Field(IndexFieldNo);
             IndexFieldRef.SetRange(Filter);
-            if RecRef.FindFirst then begin
+            if RecRef.FindFirst() then begin
                 TextFieldRef := RecRef.Field(TextFieldNo);
                 CaptionText := CopyStr(Format(IndexFieldRef.Value) + ' ' + Format(TextFieldRef.Value), 1, MaxStrLen(CaptionText));
             end;

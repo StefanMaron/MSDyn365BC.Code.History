@@ -25,8 +25,8 @@ codeunit 134633 "Graph Collect Mgt CompanyInfo"
         Type: Text;
     begin
         // Setup
-        Type := LibraryUtility.GenerateGUID;
-        ExpectedAddress := LibraryUtility.GenerateGUID;
+        Type := LibraryUtility.GenerateGUID();
+        ExpectedAddress := LibraryUtility.GenerateGUID();
         AddressesString := '[{' +
           '"address": "' + ExpectedAddress + '",' +
           '"name": "name",' +
@@ -54,8 +54,8 @@ codeunit 134633 "Graph Collect Mgt CompanyInfo"
         Type: Text;
     begin
         // Setup
-        Type := LibraryUtility.GenerateGUID;
-        Expected := LibraryUtility.GenerateGUID;
+        Type := LibraryUtility.GenerateGUID();
+        Expected := LibraryUtility.GenerateGUID();
         JsonString := '[{' +
           '"number": "' + Expected + '",' +
           '"type": "' + Type + '"' +
@@ -85,7 +85,7 @@ codeunit 134633 "Graph Collect Mgt CompanyInfo"
         Type: Text;
     begin
         // Setup
-        Type := LibraryUtility.GenerateGUID;
+        Type := LibraryUtility.GenerateGUID();
         JsonString := '[{' +
           '"city": "1",' +
           '"countryOrRegion": "2",' +
@@ -143,8 +143,8 @@ codeunit 134633 "Graph Collect Mgt CompanyInfo"
         Type: Text;
     begin
         // Setup
-        Type := LibraryUtility.GenerateGUID;
-        Expected := LibraryUtility.GenerateGUID;
+        Type := LibraryUtility.GenerateGUID();
+        Expected := LibraryUtility.GenerateGUID();
         JsonString := '{' +
           '"address": "' + Expected + '",' +
           '"type": "' + Type + '"' +
@@ -166,7 +166,7 @@ codeunit 134633 "Graph Collect Mgt CompanyInfo"
         Type: Text;
     begin
         // Setup
-        Type := LibraryUtility.GenerateGUID;
+        Type := LibraryUtility.GenerateGUID();
         AddressString := '[{' +
           '"address": "address@example.com",' +
           '"name": "name",' +
@@ -187,7 +187,7 @@ codeunit 134633 "Graph Collect Mgt CompanyInfo"
         Type: Text;
     begin
         // Setup
-        Type := LibraryUtility.GenerateGUID;
+        Type := LibraryUtility.GenerateGUID();
         PhonesString := '[{' +
           '"number": "555-555-5555",' +
           '"type": "' + Type + '"' +
@@ -207,7 +207,7 @@ codeunit 134633 "Graph Collect Mgt CompanyInfo"
         Type: Text;
     begin
         // Setup
-        Type := LibraryUtility.GenerateGUID;
+        Type := LibraryUtility.GenerateGUID();
         AddressString := '[{' +
           '"city": "1",' +
           '"countryOrRegion": "US",' +
@@ -302,7 +302,7 @@ codeunit 134633 "Graph Collect Mgt CompanyInfo"
         PostalAddressJSON := GraphMgtCompanyInfo.PostalAddressToJSON(CompanyInformation);
 
         // Execute
-        CompanyInformation.FindFirst;
+        CompanyInformation.FindFirst();
         asserterror GraphMgtCompanyInfo.ProcessComplexTypes(CompanyInformation, PostalAddressJSON);
         ActualError := GetLastErrorText;
 
@@ -405,8 +405,8 @@ codeunit 134633 "Graph Collect Mgt CompanyInfo"
         Type: Text;
     begin
         // Setup
-        Type := LibraryUtility.GenerateGUID;
-        ExpectedAddress := LibraryUtility.GenerateGUID;
+        Type := LibraryUtility.GenerateGUID();
+        ExpectedAddress := LibraryUtility.GenerateGUID();
         AddressesString := '[{' +
           '"address": "OriginalAddress",' +
           '"name": "name",' +
@@ -432,8 +432,8 @@ codeunit 134633 "Graph Collect Mgt CompanyInfo"
         Type: Text;
     begin
         // Setup
-        Type := LibraryUtility.GenerateGUID;
-        Expected := LibraryUtility.GenerateGUID;
+        Type := LibraryUtility.GenerateGUID();
+        Expected := LibraryUtility.GenerateGUID();
         JsonString := '[{' +
           '"number": "12345",' +
           '"type": "Original"' +
@@ -462,7 +462,7 @@ codeunit 134633 "Graph Collect Mgt CompanyInfo"
         Street2: Text[50];
     begin
         // Setup
-        Type := LibraryUtility.GenerateGUID;
+        Type := LibraryUtility.GenerateGUID();
         AddressesString := '[{' +
           '"city": "1",' +
           '"countryOrRegion": "US",' +
@@ -519,8 +519,8 @@ codeunit 134633 "Graph Collect Mgt CompanyInfo"
 
         // Execute
         LoadSocialNetworks(TempO365SocialNetwork);
-        TempO365SocialNetwork.FindFirst;
-        TempO365SocialNetwork.Validate(URL, LibraryUtility.GenerateGUID);
+        TempO365SocialNetwork.FindFirst();
+        TempO365SocialNetwork.Validate(URL, LibraryUtility.GenerateGUID());
         TempO365SocialNetwork.Modify();
 
         TempO365SocialNetwork.FindSet();
@@ -548,12 +548,12 @@ codeunit 134633 "Graph Collect Mgt CompanyInfo"
         LoadSocialNetworks(TempO365SocialNetwork);
 
         TempO365SocialNetwork.SetFilter("Media Resources Ref", '<>%1', '');
-        TempO365SocialNetwork.FindFirst;
+        TempO365SocialNetwork.FindFirst();
         DeletedLinks[1] := TempO365SocialNetwork.Code;
         TempO365SocialNetwork.Delete();
 
         TempO365SocialNetwork.SetRange("Media Resources Ref", '');
-        TempO365SocialNetwork.FindFirst;
+        TempO365SocialNetwork.FindFirst();
         DeletedLinks[2] := TempO365SocialNetwork.Code;
         TempO365SocialNetwork.Delete();
 
@@ -584,8 +584,8 @@ codeunit 134633 "Graph Collect Mgt CompanyInfo"
         Type: Text;
     begin
         // Setup
-        Type := LibraryUtility.GenerateGUID;
-        Expected := LibraryUtility.GenerateGUID;
+        Type := LibraryUtility.GenerateGUID();
+        Expected := LibraryUtility.GenerateGUID();
         JsonString := '{' +
           '"address": "OriginalAddress",' +
           '"displayName": "name",' +
@@ -602,15 +602,15 @@ codeunit 134633 "Graph Collect Mgt CompanyInfo"
 
     local procedure RandomCode10(): Code[10]
     begin
-        exit(LibraryUtility.GenerateGUID);
+        exit(LibraryUtility.GenerateGUID());
     end;
 
     local procedure GetCompanyWithAddress(var CompanyInformation: Record "Company Information")
     var
         CountryRegion: Record "Country/Region";
     begin
-        CompanyInformation.FindFirst;
-        CountryRegion.FindLast;
+        CompanyInformation.FindFirst();
+        CountryRegion.FindLast();
         CompanyInformation.Address := RandomCode10;
         CompanyInformation."Address 2" := RandomCode10;
         CompanyInformation.City := RandomCode10;
@@ -678,12 +678,12 @@ codeunit 134633 "Graph Collect Mgt CompanyInfo"
         Count := LibraryRandom.RandIntInRange(3, 5);
         for i := 1 to Count do begin
             O365SocialNetwork.Init();
-            O365SocialNetwork.Name := LibraryUtility.GenerateGUID + LibraryUtility.GenerateGUID;
+            O365SocialNetwork.Name := LibraryUtility.GenerateGUID + LibraryUtility.GenerateGUID();
             O365SocialNetwork.Code := CopyStr(O365SocialNetwork.Name, 1, MaxStrLen(O365SocialNetwork.Code));
-            O365SocialNetwork.Validate(URL, LibraryUtility.GenerateGUID);
+            O365SocialNetwork.Validate(URL, LibraryUtility.GenerateGUID());
             if not O365SocialNetwork.IsTemporary then
                 if i mod 2 = 1 then
-                    O365SocialNetwork."Media Resources Ref" := LibraryUtility.GenerateGUID;
+                    O365SocialNetwork."Media Resources Ref" := LibraryUtility.GenerateGUID();
             O365SocialNetwork.Insert(true);
         end;
     end;

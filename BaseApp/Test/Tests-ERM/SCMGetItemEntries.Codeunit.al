@@ -35,7 +35,7 @@ codeunit 137209 "SCM Get Item Entries"
         NoOfLines: Integer;
     begin
         // Setup: Add country info and additional currency.
-        Initialize;
+        Initialize();
         CompanyInformation.Get();
         TempCompanyInformation := CompanyInformation;
         TempCompanyInformation.Insert(true);
@@ -103,7 +103,7 @@ codeunit 137209 "SCM Get Item Entries"
     begin
         // [SCENARIO 378851] If Item Charge has "Freight/Insurance" = TRUE then entries having this Item Charge should be included in "Statistical Value" in Intrastat.
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item Charge having "Freight/Insurance" = TRUE
         CreateItemCharge(ItemCharge, true);
@@ -144,7 +144,7 @@ codeunit 137209 "SCM Get Item Entries"
     begin
         // [SCENARIO 378851] If Item Charge has "Freight/Insurance" = FALSE then entries having this Item Charge should not be included in "Statistical Value" in Intrastat.
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item Charge having "Freight/Insurance" = FALSE
         CreateItemCharge(ItemCharge, false);
@@ -178,12 +178,12 @@ codeunit 137209 "SCM Get Item Entries"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Get Item Entries");
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Get Item Entries");
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         IsInitialized := true;
         Commit();
 
@@ -230,9 +230,9 @@ codeunit 137209 "SCM Get Item Entries"
         LibraryInventory.CreateItem(Item);
         ItemNo := Item."No.";
         // Add a tariff to all items to insure all eligible lines are retrieved in the intrastat journal.
-        TariffNumber.FindFirst;
+        TariffNumber.FindFirst();
         Item.SetRange("Tariff No.", '');
-        if Item.FindSet then
+        if Item.FindSet() then
             repeat
                 Item.Validate("Tariff No.", TariffNumber."No.");
                 Item.Modify(true);
@@ -246,9 +246,9 @@ codeunit 137209 "SCM Get Item Entries"
         CountryRegion: Record "Country/Region";
     begin
         Item.Get(CreateItem);
-        CompanyInformation.FindFirst;
+        CompanyInformation.FindFirst();
         CountryRegion.SetFilter(Code, '<>%1', CompanyInformation."Country/Region Code");
-        CountryRegion.FindFirst;
+        CountryRegion.FindFirst();
         Item."Country/Region of Origin Code" := CountryRegion.Code;
         Item.GTIN := LibraryUtility.GenerateRandomCode(Item.FieldNo(GTIN), DATABASE::Item);
         Item.Modify(true);
@@ -339,9 +339,9 @@ codeunit 137209 "SCM Get Item Entries"
         SalesLine: Record "Sales Line";
     begin
         LibrarySales.CreateCustomer(Customer);
-        CompanyInformation.FindFirst;
+        CompanyInformation.FindFirst();
         CountryRegion.SetFilter(Code, '<>%1&<>%2', CompanyInformation."Country/Region Code", Item."Country/Region of Origin Code");
-        CountryRegion.FindFirst;
+        CountryRegion.FindFirst();
         Customer.Validate("Country/Region Code", CountryRegion.Code);
         Customer.Modify(true);
 
@@ -384,9 +384,9 @@ codeunit 137209 "SCM Get Item Entries"
         Vendor: Record Vendor;
     begin
         LibraryPurchase.CreateVendor(Vendor);
-        CompanyInformation.FindFirst;
+        CompanyInformation.FindFirst();
         CountryRegion.SetFilter(Code, '<>%1&<>%2', CompanyInformation."Country/Region Code", Item."Country/Region of Origin Code");
-        CountryRegion.FindFirst;
+        CountryRegion.FindFirst();
         Vendor.Validate("Country/Region Code", 'FR');
         Vendor.Modify(true);
 
@@ -432,7 +432,7 @@ codeunit 137209 "SCM Get Item Entries"
 
                     // Output shipment information.
                     SalesShipmentHeader.SetRange("Order No.", SalesHeader."No.");
-                    SalesShipmentHeader.FindFirst;
+                    SalesShipmentHeader.FindFirst();
                     DocumentType := ItemLedgerEntry."Document Type"::"Sales Shipment";
                     DocumentNo := SalesShipmentHeader."No.";
                 end;
@@ -449,7 +449,7 @@ codeunit 137209 "SCM Get Item Entries"
 
                     // Output receipt information.
                     PurchRcptHeader.SetRange("Order No.", PurchaseHeader."No.");
-                    PurchRcptHeader.FindFirst;
+                    PurchRcptHeader.FindFirst();
                     DocumentType := ItemLedgerEntry."Document Type"::"Purchase Receipt";
                     DocumentNo := PurchRcptHeader."No.";
                 end;
@@ -499,7 +499,7 @@ codeunit 137209 "SCM Get Item Entries"
         GetItemLedgerEntries.InitializeRequest(StartDate, EndDate, 0);
         GetItemLedgerEntries.SetIntrastatJnlLine(IntrastatJnlLine);
         GetItemLedgerEntries.UseRequestPage(false);
-        GetItemLedgerEntries.RunModal;
+        GetItemLedgerEntries.RunModal();
     end;
 
     local procedure VerifyIntrastatLines(IntrastatJnlLine: Record "Intrastat Jnl. Line"; DocumentType: Enum "Item Ledger Document Type"; DocumentNo: Code[20]) RetrievedLines: Integer
@@ -519,7 +519,7 @@ codeunit 137209 "SCM Get Item Entries"
             IntrastatJnlLine.SetRange("Document No.", DocumentNo);
             IntrastatJnlLine.SetRange("Item No.", ItemLedgerEntry."Item No.");
             RetrievedLines += IntrastatJnlLine.Count();
-            if IntrastatJnlLine.FindFirst then begin
+            if IntrastatJnlLine.FindFirst() then begin
                 Assert.AreEqual(1, IntrastatJnlLine.Count, 'Too many intrastat entries for ' + Format(ItemLedgerEntry."Entry No."));
                 Item.Get(ItemLedgerEntry."Item No.");
                 IntrastatJnlLine.TestField("Tariff No.", Item."Tariff No.");
@@ -547,7 +547,7 @@ codeunit 137209 "SCM Get Item Entries"
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
     begin
         IntrastatJnlLine.SetFilter("Document No.", DocNo);
-        IntrastatJnlLine.FindFirst;
+        IntrastatJnlLine.FindFirst();
         IntrastatJnlLine.TestField("Statistical Value", Amount);
     end;
 }

@@ -17,7 +17,7 @@ report 8621 "Config. Package - Process"
             begin
                 OnBeforeTextTransformation("Config. Package Table", TempField, TempTransformationRule);
                 TempField.SetRange(TableNo, "Table ID");
-                if TempField.FindSet then
+                if TempField.FindSet() then
                     repeat
                         TempTransformationRule.Get(Format(TempField."No."));
                         ApplyTextTransformation("Config. Package Table", TempField."No.", TempTransformationRule);

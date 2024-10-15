@@ -66,7 +66,7 @@ page 9831 "User Group Members"
                         if UserName = '' then
                             exit;
                         User.SetRange("User Name", UserName);
-                        User.FindFirst;
+                        User.FindFirst();
                         Init;
                         Validate("User Security ID", User."User Security ID");
                         Validate("Company Name", SelectedCompany);

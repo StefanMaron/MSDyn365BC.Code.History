@@ -114,7 +114,7 @@ report 10580 "Payment Practices"
 
             trigger OnPreDataItem()
             begin
-                if not TempAvgPmtApplicationBuffer.FindSet then
+                if not TempAvgPmtApplicationBuffer.FindSet() then
                     CurrReport.Break();
             end;
         }
@@ -149,7 +149,7 @@ report 10580 "Payment Practices"
 
             trigger OnPreDataItem()
             begin
-                if not TempOverduePmtApplicationBuffer.FindSet then
+                if not TempOverduePmtApplicationBuffer.FindSet() then
                     CurrReport.Break();
             end;
         }
@@ -262,7 +262,7 @@ report 10580 "Payment Practices"
     local procedure TransferMarkedEntriesIntoTempTable(var TempAvgPmtApplicationBuffer: Record "Payment Application Buffer" temporary; var TempPaymentApplicationBuffer: Record "Payment Application Buffer" temporary) Exists: Boolean
     begin
         TempPaymentApplicationBuffer.MarkedOnly(true);
-        if TempPaymentApplicationBuffer.FindSet then
+        if TempPaymentApplicationBuffer.FindSet() then
             repeat
                 TempAvgPmtApplicationBuffer := TempPaymentApplicationBuffer;
                 TempAvgPmtApplicationBuffer.Insert();

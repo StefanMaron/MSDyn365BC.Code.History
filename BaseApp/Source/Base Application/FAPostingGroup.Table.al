@@ -457,7 +457,7 @@ table 5606 "FA Posting Group"
         GLAcc: Record "G/L Account";
         PostingSetupMgt: Codeunit PostingSetupManagement;
 
-    local procedure CheckGLAcc(AccNo: Code[20]; DirectPosting: Boolean)
+    procedure CheckGLAcc(AccNo: Code[20]; DirectPosting: Boolean)
     begin
         if AccNo = '' then
             exit;

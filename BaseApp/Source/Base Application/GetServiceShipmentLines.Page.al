@@ -222,10 +222,10 @@ page 5994 "Get Service Shipment Lines"
         TempServiceShptLine.Reset();
         TempServiceShptLine.CopyFilters(Rec);
         TempServiceShptLine.SetRange("Document No.", "Document No.");
-        if not TempServiceShptLine.FindFirst then begin
+        if not TempServiceShptLine.FindFirst() then begin
             ServiceShptLine.CopyFilters(Rec);
             ServiceShptLine.SetRange("Document No.", "Document No.");
-            if not ServiceShptLine.FindFirst then
+            if not ServiceShptLine.FindFirst() then
                 exit(false);
             TempServiceShptLine := ServiceShptLine;
             TempServiceShptLine.Insert();

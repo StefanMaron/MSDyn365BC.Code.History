@@ -44,7 +44,7 @@ codeunit 132563 "XML DOM Management UT"
         XMLDOMMgt.LoadXMLNodeFromText('<root />', RootXmlNode);
 
         // Pre-Exercise
-        NodeName := LibraryUtility.GenerateGUID;
+        NodeName := LibraryUtility.GenerateGUID();
         NodeText := LibraryUtility.GenerateRandomText(1024);
 
         // Exercise
@@ -80,9 +80,9 @@ codeunit 132563 "XML DOM Management UT"
         XMLDOMMgt.LoadXMLNodeFromText('<root />', RootXmlNode);
 
         // Pre-Exercise
-        NodeName := LibraryUtility.GenerateGUID;
+        NodeName := LibraryUtility.GenerateGUID();
         NodeText := LibraryUtility.GenerateRandomText(1024);
-        Prefix := LibraryUtility.GenerateGUID;
+        Prefix := LibraryUtility.GenerateGUID();
         Namespace := 'http://www.contoso.com/';
 
         // Exercise
@@ -119,12 +119,12 @@ codeunit 132563 "XML DOM Management UT"
         XMLDOMMgt.LoadXMLNodeFromText('<root />', RootXmlNode);
 
         // Setup
-        NodeName := LibraryUtility.GenerateGUID;
+        NodeName := LibraryUtility.GenerateGUID();
         NodeText := LibraryUtility.GenerateRandomText(1024);
         XMLDOMMgt.AddElement(RootXmlNode, NodeName, NodeText, '', CreatedXmlNode);
 
         // Pre-Exercise
-        AttributeName := LibraryUtility.GenerateGUID;
+        AttributeName := LibraryUtility.GenerateGUID();
         AttributeValue := LibraryUtility.GenerateRandomText(1024);
 
         // Exercise
@@ -167,16 +167,16 @@ codeunit 132563 "XML DOM Management UT"
         XMLDOMMgt.LoadXMLNodeFromText('<root />', RootXmlNode);
 
         // Setup
-        NodeName := LibraryUtility.GenerateGUID;
+        NodeName := LibraryUtility.GenerateGUID();
         NodeText := LibraryUtility.GenerateRandomText(1024);
-        Prefix := LibraryUtility.GenerateGUID;
+        Prefix := LibraryUtility.GenerateGUID();
         Namespace := 'http://www.contoso.com/';
         XMLDOMMgt.AddElementWithPrefix(RootXmlNode, NodeName, NodeText, Prefix, Namespace, CreatedXmlNode);
 
         // Pre-Exercise
-        AttributeName := LibraryUtility.GenerateGUID;
+        AttributeName := LibraryUtility.GenerateGUID();
         AttributeValue := LibraryUtility.GenerateRandomText(1024);
-        AttributePrefix := LibraryUtility.GenerateGUID;
+        AttributePrefix := LibraryUtility.GenerateGUID();
         AttributeNamespace := 'http://www.contoso.net/';
 
         // Exercise
@@ -239,9 +239,9 @@ codeunit 132563 "XML DOM Management UT"
         // Setup
         XMLDOMMgt.LoadXMLNodeFromText('<root />', RootXmlNode);
 
-        NodeName := LibraryUtility.GenerateGUID;
+        NodeName := LibraryUtility.GenerateGUID();
         NodeText := LibraryUtility.GenerateRandomText(1024);
-        Prefix := LibraryUtility.GenerateGUID;
+        Prefix := LibraryUtility.GenerateGUID();
         Namespace := '';
         XMLDOMMgt.AddElementWithPrefix(RootXmlNode, NodeName, NodeText, Prefix, Namespace, CreatedXmlNode);
 
@@ -273,7 +273,7 @@ codeunit 132563 "XML DOM Management UT"
 
         // Setup
         XMLDOMMgt.LoadXMLNodeFromText('<root />', RootXmlNode);
-        NodeName := LibraryUtility.GenerateGUID;
+        NodeName := LibraryUtility.GenerateGUID();
         NodeText := LibraryUtility.GenerateRandomText(1024);
         Prefix := '';
         Namespace := 'http://www.contoso.net/';
@@ -308,11 +308,11 @@ codeunit 132563 "XML DOM Management UT"
         // [THEN] NamespaceManager is filled out with all the namespaces of the document
 
         TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
-        RootNamespace := LibraryUtility.GenerateGUID;
-        Namespace1 := LibraryUtility.GenerateGUID;
-        Namespace2 := LibraryUtility.GenerateGUID;
-        Namespace1Prefix := LibraryUtility.GenerateGUID;
-        Namespace2Prefix := LibraryUtility.GenerateGUID;
+        RootNamespace := LibraryUtility.GenerateGUID();
+        Namespace1 := LibraryUtility.GenerateGUID();
+        Namespace2 := LibraryUtility.GenerateGUID();
+        Namespace1Prefix := LibraryUtility.GenerateGUID();
+        Namespace2Prefix := LibraryUtility.GenerateGUID();
 
         XMLDOMMgt.LoadXMLNodeFromText(
           WriteXMLFileWithNamespaces(RootNamespace, Namespace1Prefix, Namespace1, Namespace2Prefix, Namespace2),

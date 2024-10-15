@@ -77,7 +77,7 @@ codeunit 144024 "UT REP VATREP"
         VATPostingSetup: Record "VAT Posting Setup";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         FindReverseChargeVATPostingSetup(VATPostingSetup);
         UpdateThresholdAppliesOnGLSetup;
         UpdateDomesticVendorsOnPurchasesPayablesSetup(VATPostingSetup."VAT Bus. Posting Group");
@@ -105,7 +105,7 @@ codeunit 144024 "UT REP VATREP"
         No: Code[20];
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CreateResponsibilityCenter(ResponsibilityCenter);
         No := CreatePurchaseQuote(ResponsibilityCenter.Code);
         LibraryVariableStorage.Enqueue(No);  // Enqueue value for PurchaseQuoteRequestPageHandler.
@@ -150,7 +150,7 @@ codeunit 144024 "UT REP VATREP"
         VATPostingSetup: Record "VAT Posting Setup";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         FindReverseChargeVATPostingSetup(VATPostingSetup);
         UpdateThresholdAppliesOnGLSetup;
         UpdateDomesticCustomersOnSalesReceivablesSetup(VATPostingSetup."VAT Bus. Posting Group");
@@ -178,7 +178,7 @@ codeunit 144024 "UT REP VATREP"
     begin
         // Purpose of the test is to validate Sales Invoice Line - OnAfterGetRecord Trigger of Report 10572 - "Sales - Invoice GB".
         // Setup.
-        Initialize;
+        Initialize();
         CreateSalesInvoice(SalesInvoiceLine);
         LibraryVariableStorage.Enqueue(SalesInvoiceLine."Document No.");  // Enqueue value required for SalesInvoiceGBRequestPageHandler.
         Commit();  // Commit required as it is called explicitly from OnRun function of Codeunit 315 Sales Inv.-Printed.
@@ -197,7 +197,7 @@ codeunit 144024 "UT REP VATREP"
     begin
         // Purpose of the test is to validate Sales Cr. Memo Line - OnAfterGetRecord Trigger of Report 10573 - "Sales - Credit Memo GB".
         // Setup.
-        Initialize;
+        Initialize();
         CreateSalesCrMemo(SalesCrMemoLine);
         LibraryVariableStorage.Enqueue(SalesCrMemoLine."Document No.");  // Enqueue value required for SalesCreditMemoGBRequestPageHandler.
         Commit();  // Commit required as it is called explicitly from OnRun function of Codeunit 316 Sales Cr. Memo-Printed.
@@ -216,7 +216,7 @@ codeunit 144024 "UT REP VATREP"
         // Purpose of the test is to validate OnPreReport Trigger of Report 10511 - VAT Entry Exception Report.
 
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise.
         asserterror REPORT.Run(REPORT::"VAT Entry Exception Report");
@@ -236,7 +236,7 @@ codeunit 144024 "UT REP VATREP"
         // Purpose of the test is to validate OnAfterGetRecord Trigger of Report 10511 - VAT Entry Exception Report with Zero Base.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateVATEntry(VATEntry, VATEntry.Type::Purchase, 0, '', '', CreateVendor);  // Taken Zero for Base and blank for VATProdPostingGroup, VATBusPostingGroup.
         LibraryVariableStorage.Enqueue(VATEntry."Document No.");  // Enqueue for VATEntryExceptionReportRequestPageHandler.
 
@@ -259,7 +259,7 @@ codeunit 144024 "UT REP VATREP"
         // Purpose of the test is to validate OnAfterGetRecord Trigger of Report 10511 - VAT Entry Exception Report with Random Base.
 
         // Setup.
-        Initialize;
+        Initialize();
         FindVATPostingSetup(VATPostingSetup);
         CreateVATEntry(
           VATEntry, VATEntry.Type::Purchase, LibraryRandom.RandDec(10, 2),
@@ -275,7 +275,7 @@ codeunit 144024 "UT REP VATREP"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateCustomer(): Code[20]
@@ -407,7 +407,7 @@ codeunit 144024 "UT REP VATREP"
     var
         VATEntry2: Record "VAT Entry";
     begin
-        VATEntry2.FindLast;
+        VATEntry2.FindLast();
         VATEntry."Entry No." := VATEntry2."Entry No." + 1;
         VATEntry.Type := Type;
         VATEntry."Bill-to/Pay-to No." := BillToPayToNo;
@@ -436,7 +436,7 @@ codeunit 144024 "UT REP VATREP"
         VATPostingSetup.SetFilter("VAT Bus. Posting Group", '<>%1', '');
         VATPostingSetup.SetFilter("VAT Prod. Posting Group", '<>%1', '');
         VATPostingSetup.SetRange("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT");
-        VATPostingSetup.FindFirst;
+        VATPostingSetup.FindFirst();
     end;
 
     local procedure FindVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup")
@@ -445,7 +445,7 @@ codeunit 144024 "UT REP VATREP"
         VATPostingSetup.SetFilter("VAT Prod. Posting Group", '<>''''');
         VATPostingSetup.SetRange("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         VATPostingSetup.SetFilter("VAT %", '>0');
-        VATPostingSetup.FindFirst;
+        VATPostingSetup.FindFirst();
     end;
 
     local procedure RunReportAndVerifyXMLData(ReportID: Option; SalesDocumentCap: Text[30]; DocumentNo: Code[20]; ReverseCharge: Decimal)

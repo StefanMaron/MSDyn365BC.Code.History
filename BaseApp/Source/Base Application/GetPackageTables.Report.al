@@ -68,7 +68,7 @@ report 8616 "Get Package Tables"
         TempConfigSelection.Reset();
         TempConfigSelection.SetRange("Line Type", TempConfigSelection."Line Type"::Table);
         TempConfigSelection.SetRange(Selected, true);
-        if TempConfigSelection.FindSet then
+        if TempConfigSelection.FindSet() then
             repeat
                 if DataExists(TempConfigSelection."Table ID") and not ConfigPackageTable.Get(PackageCode, TempConfigSelection."Table ID") then begin
                     ConfigPackageTable.Init();
@@ -107,7 +107,7 @@ report 8616 "Get Package Tables"
 
         TableInfo.SetRange("Company Name", CompanyName);
         TableInfo.SetRange("Table No.", TableID);
-        if TableInfo.FindFirst then
+        if TableInfo.FindFirst() then
             if TableInfo."No. of Records" > 0 then
                 exit(true);
 
@@ -121,7 +121,7 @@ report 8616 "Get Package Tables"
         with TempConfigSelection do begin
             Reset;
             ConfigLine.SetFilter("Table ID", '<>0');
-            if ConfigLine.FindSet then
+            if ConfigLine.FindSet() then
                 repeat
                     if (ConfigLine."Line Type" <> ConfigLine."Line Type"::Table) or
                        ((ConfigLine."Line Type" = ConfigLine."Line Type"::Table) and (ConfigLine."Package Code" = ''))

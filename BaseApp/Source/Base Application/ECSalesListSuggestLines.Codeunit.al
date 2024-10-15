@@ -52,10 +52,10 @@ codeunit 140 "EC Sales List Suggest Lines"
         TrnIndicator := GetIndicatorCode(EUVATEntries.EU_3_Party_Trade, EUVATEntries.EU_Service);
         ECSLVATReportLine.SetRange("Transaction Indicator", TrnIndicator);
 
-        if not ECSLVATReportLine.FindFirst then begin
+        if not ECSLVATReportLine.FindFirst() then begin
             ECSLVATReportLine.Reset();
             ECSLVATReportLine.SetRange("Report No.", VATReportHeader."No.");
-            if ECSLVATReportLine.FindLast then
+            if ECSLVATReportLine.FindLast() then
                 LastId := ECSLVATReportLine."Line No.";
 
             ECSLVATReportLine.Init();
@@ -111,7 +111,7 @@ codeunit 140 "EC Sales List Suggest Lines"
     begin
         ECSLVATReportLine.SetRange("Report No.", VATReportHeader."No.");
 
-        if not ECSLVATReportLine.FindSet then
+        if not ECSLVATReportLine.FindSet() then
             exit;
         repeat
             ECSLVATReportLine."Total Value Of Supplies" := -Round(ECSLVATReportLine."Total Value Of Supplies", 1);
@@ -128,7 +128,7 @@ codeunit 140 "EC Sales List Suggest Lines"
 
         ECSLVATReportLine.SetRange("Report No.", VATReportHeader."No.");
         ECSLVATReportLine.SetRange("Total Value Of Supplies", 0);
-        if not ECSLVATReportLine.FindSet then
+        if not ECSLVATReportLine.FindSet() then
             exit;
 
         repeat
@@ -152,7 +152,7 @@ codeunit 140 "EC Sales List Suggest Lines"
             exit(true);
 
         ECSLVATReportLineRelation.SetRange("VAT Entry No.", EUVATEntries.VAT_Entry_No);
-        if not ECSLVATReportLineRelation.FindSet then
+        if not ECSLVATReportLineRelation.FindSet() then
             exit(true);
 
         repeat

@@ -917,7 +917,7 @@ report 5607 "Fixed Asset - Projected Value"
         AccountingPeriod.SetFilter(
           "Starting Date", '>=%1', DepreciationCalculation.ToMorrow(PeriodEndingDate, Year365Days,
           DeprBook."Use Accounting Period") + 1);
-        if AccountingPeriod.FindFirst then begin
+        if AccountingPeriod.FindFirst() then begin
             if Date2DMY(AccountingPeriod."Starting Date", 1) <> 31 then
                 UntilDate2 := DepreciationCalculation.Yesterday(AccountingPeriod."Starting Date", Year365Days, DeprBook."Use Accounting Period")
             else

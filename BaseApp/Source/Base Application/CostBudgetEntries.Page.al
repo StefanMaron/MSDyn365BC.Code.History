@@ -131,7 +131,7 @@ page 1115 "Cost Budget Entries"
             CostBudgetName.Init
         else begin
             CopyFilter("Budget Name", CostBudgetName.Name);
-            CostBudgetName.FindFirst;
+            CostBudgetName.FindFirst();
         end;
     end;
 

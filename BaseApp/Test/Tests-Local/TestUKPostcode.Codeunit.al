@@ -23,7 +23,7 @@ codeunit 144500 "Test UK Postcode"
         CustomerCard: TestPage "Customer Card";
     begin
         // [GIVEN] postcode service is configured
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetCustomerEdit;
 
         // [WHEN] on postcode lookup field drilldown, a page with results should open
@@ -38,7 +38,7 @@ codeunit 144500 "Test UK Postcode"
     [Scope('OnPrem')]
     procedure TestPostcodeIsCreatedWhenFlagIsFalse()
     begin
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetO365Basic;
         GeneralTestCreatePostcodeOnPostcodeSelect(false, 0);
         DeleteConfiguration;
@@ -48,7 +48,7 @@ codeunit 144500 "Test UK Postcode"
     [Scope('OnPrem')]
     procedure TestPostcodeIsCreatedWhenFlagIsTrue()
     begin
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetO365Basic;
         GeneralTestCreatePostcodeOnPostcodeSelect(true, 1);
         DeleteConfiguration;
@@ -66,7 +66,7 @@ codeunit 144500 "Test UK Postcode"
         // - Service is configured, use GetAddress.io to retrieve an
         // actual list from mock service
         // - Select the first item on the list
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetCustomerEdit;
 
         // This is what we'd like to get
@@ -109,7 +109,7 @@ codeunit 144500 "Test UK Postcode"
         // [WHEN]
         // - Run the window
         // - retireve the values
-        PostcodeSearch.RunModal;
+        PostcodeSearch.RunModal();
         PostcodeSearch.GetValues(Postcode, DeliveryPoint);
 
         // [THEN]
@@ -146,7 +146,7 @@ codeunit 144500 "Test UK Postcode"
         PostcodeBusinessLogic: Codeunit "Postcode Business Logic";
     begin
         // [GIVEN]
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetO365BusFull;
         TempEnteredAutocompleteAddress.Init();
         TempAutocompleteAddress.Address := 'ADDRESS'; // This is what we want to get back
@@ -208,7 +208,7 @@ codeunit 144500 "Test UK Postcode"
         PostcodeServiceConfig: Record "Postcode Service Config";
     begin
         Clear(PostcodeBusinessLogic);
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
 
         if not Bound then begin
             BindSubscription(PostcodeDummyService);

@@ -170,7 +170,7 @@ codeunit 144011 "UT COMPANY"
         // Purpose of the test is to validate the On Validate trigger of the Registered City field on Company Information Table.
 
         // Setup: Find Post Code.
-        PostCode.FindFirst;
+        PostCode.FindFirst();
 
         // Exercise.
         CompanyInformation.Validate("Registered City", PostCode.City);
@@ -192,7 +192,7 @@ codeunit 144011 "UT COMPANY"
         // Purpose of the test is to validate the On Validate trigger of the Registered Post Code field on Company Information Table.
 
         // Setup: Find Post Code.
-        PostCode.FindFirst;
+        PostCode.FindFirst();
 
         // Exercise.
         CompanyInformation.Validate("Registered Post Code", PostCode.Code);

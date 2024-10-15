@@ -58,10 +58,10 @@ table 5339 "Integration Synch. Job Errors"
         key(Key4; "Integration Synch. Job ID")
         {
         }
-        key(Key5; "Destination Record ID")
+        key(Key5; "Destination Record ID", "Integration Synch. Job ID")
         {
         }
-        key(Key6; "Source Record ID")
+        key(Key6; "Source Record ID", "Integration Synch. Job ID")
         {
         }
     }

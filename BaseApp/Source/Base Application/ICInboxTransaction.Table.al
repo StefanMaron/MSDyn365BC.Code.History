@@ -107,7 +107,7 @@ table 418 "IC Inbox Transaction"
                     ICInboxJnlLine.SetRange("Transaction No.", "Transaction No.");
                     ICInboxJnlLine.SetRange("IC Partner Code", "IC Partner Code");
                     ICInboxJnlLine.SetRange("Transaction Source", "Transaction Source");
-                    if ICInboxJnlLine.FindFirst then
+                    if ICInboxJnlLine.FindFirst() then
                         ICInboxJnlLine.DeleteAll(true);
                 end;
             "Source Type"::"Sales Document":
@@ -115,7 +115,7 @@ table 418 "IC Inbox Transaction"
                     ICInboxSalesHdr.SetRange("IC Transaction No.", "Transaction No.");
                     ICInboxSalesHdr.SetRange("IC Partner Code", "IC Partner Code");
                     ICInboxSalesHdr.SetRange("Transaction Source", "Transaction Source");
-                    if ICInboxSalesHdr.FindFirst then
+                    if ICInboxSalesHdr.FindFirst() then
                         ICInboxSalesHdr.Delete(true);
                 end;
             "Source Type"::"Purchase Document":
@@ -123,7 +123,7 @@ table 418 "IC Inbox Transaction"
                     ICInboxPurchHdr.SetRange("IC Transaction No.", "Transaction No.");
                     ICInboxPurchHdr.SetRange("IC Partner Code", "IC Partner Code");
                     ICInboxPurchHdr.SetRange("Transaction Source", "Transaction Source");
-                    if ICInboxPurchHdr.FindFirst then
+                    if ICInboxPurchHdr.FindFirst() then
                         ICInboxPurchHdr.Delete(true);
                 end;
             else
@@ -151,7 +151,7 @@ table 418 "IC Inbox Transaction"
                     ICInBoxJnlLine.SetRange("Transaction Source", "Transaction Source");
                     Clear(ICInboxJnlLines);
                     ICInboxJnlLines.SetTableView(ICInBoxJnlLine);
-                    ICInboxJnlLines.RunModal;
+                    ICInboxJnlLines.RunModal();
                 end;
             "Source Type"::"Sales Document":
                 begin
@@ -160,7 +160,7 @@ table 418 "IC Inbox Transaction"
                     ICInboxSalesHeader.SetRange("Transaction Source", "Transaction Source");
                     Clear(ICInboxSalesDoc);
                     ICInboxSalesDoc.SetTableView(ICInboxSalesHeader);
-                    ICInboxSalesDoc.RunModal;
+                    ICInboxSalesDoc.RunModal();
                 end;
             "Source Type"::"Purchase Document":
                 begin
@@ -169,7 +169,7 @@ table 418 "IC Inbox Transaction"
                     ICInboxPurchHeader.SetRange("Transaction Source", "Transaction Source");
                     Clear(ICInboxPurchDoc);
                     ICInboxPurchDoc.SetTableView(ICInboxPurchHeader);
-                    ICInboxPurchDoc.RunModal;
+                    ICInboxPurchDoc.RunModal();
                 end;
         end;
 
@@ -199,7 +199,7 @@ table 418 "IC Inbox Transaction"
         HandledICInboxTrans.SetRange("Document Type", "Document Type");
         HandledICInboxTrans.SetRange("Source Type", "Source Type");
         HandledICInboxTrans.SetRange("Document No.", "Document No.");
-        if HandledICInboxTrans.FindFirst then
+        if HandledICInboxTrans.FindFirst() then
             if not ConfirmManagement.GetResponseOrDefault(
                 StrSubstNo(
                     TransactionAlreadyExistsInInboxHandledQst, HandledICInboxTrans."Document Type",
@@ -216,7 +216,7 @@ table 418 "IC Inbox Transaction"
         ICInboxTransaction2.SetRange("IC Partner G/L Acc. No.", "IC Partner G/L Acc. No.");
         ICInboxTransaction2.SetRange("Source Line No.", "Source Line No.");
         ICInboxTransaction2.SetRange("Line Action", "Line Action"::Accept);
-        if ICInboxTransaction2.FindFirst then
+        if ICInboxTransaction2.FindFirst() then
             if not ConfirmManagement.GetResponseOrDefault(
                  StrSubstNo(Text001, ICInboxTransaction2."Transaction No.", "Transaction No."), true)
             then
@@ -227,11 +227,11 @@ table 418 "IC Inbox Transaction"
             ICInboxPurchHeader.Get("Transaction No.", "IC Partner Code", "Transaction Source");
             if ICInboxPurchHeader."Your Reference" <> '' then begin
                 PurchHeader.SetRange("Your Reference", ICInboxPurchHeader."Your Reference");
-                if PurchHeader.FindFirst then
+                if PurchHeader.FindFirst() then
                     Message(Text003, ICInboxPurchHeader."IC Transaction No.", ICInboxPurchHeader."Your Reference")
                 else begin
                     PurchInvHeader.SetRange("Your Reference", ICInboxPurchHeader."Your Reference");
-                    if PurchInvHeader.FindFirst then
+                    if PurchInvHeader.FindFirst() then
                         if not ConfirmManagement.GetResponseOrDefault(
                              StrSubstNo(
                                Text004, ICInboxPurchHeader."Your Reference",

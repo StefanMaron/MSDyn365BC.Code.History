@@ -87,7 +87,7 @@ report 10573 "Sales - Credit Memo GB"
                     column(CompanyInfoVATRegNo; CompanyInfo."VAT Registration No.")
                     {
                     }
-                    column(CompanyInfoBankName; CompanyInfo."Bank Name")
+                    column(CompanyInfoBankName; CompanyBankAccount.Name)
                     {
                     }
                     column(CompanyInfoHomePage; CompanyInfo."Home Page")
@@ -96,7 +96,7 @@ report 10573 "Sales - Credit Memo GB"
                     column(CompanyInfoEMail; CompanyInfo."E-Mail")
                     {
                     }
-                    column(CompanyInfoBankAccountNo; CompanyInfo."Bank Account No.")
+                    column(CompanyInfoBankAccountNo; CompanyBankAccount."Bank Account No.")
                     {
                     }
                     column(BilltoCustNo_SalesCrMemoHeader; "Sales Cr.Memo Header"."Bill-to Customer No.")
@@ -153,7 +153,7 @@ report 10573 "Sales - Credit Memo GB"
                     column(ReturnOrderNo_SalesCrMemoHeader; "Sales Cr.Memo Header"."Return Order No.")
                     {
                     }
-                    column(CompanyInfoBankBranchNo; CompanyInfo."Bank Branch No.")
+                    column(CompanyInfoBankBranchNo; CompanyBankAccount."Bank Branch No.")
                     {
                     }
                     column(PageNo; StrSubstNo(Text006, ''))
@@ -687,6 +687,9 @@ report 10573 "Sales - Credit Memo GB"
             begin
                 CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
 
+                if not CompanyBankAccount.Get("Sales Cr.Memo Header"."Company Bank Account Code") then
+                    CompanyBankAccount.CopyBankFieldsFromCompanyInfo(CompanyInfo);
+
                 CompanyInfo.Get();
 
                 if RespCenter.Get("Responsibility Center") then begin
@@ -869,6 +872,7 @@ report 10573 "Sales - Credit Memo GB"
         Text007: Label 'Total %1 Excl. VAT';
         GLSetup: Record "General Ledger Setup";
         SalesPurchPerson: Record "Salesperson/Purchaser";
+        CompanyBankAccount: Record "Bank Account";
         CompanyInfo: Record "Company Information";
         VATAmountLine: Record "VAT Amount Line" temporary;
         DimSetEntry1: Record "Dimension Set Entry";

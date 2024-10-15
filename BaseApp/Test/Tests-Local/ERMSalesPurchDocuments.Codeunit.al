@@ -73,7 +73,7 @@ codeunit 144038 "ERM Sales Purch Documents"
         DocumentNo: Code[20];
     begin
         // Setup: Update General Ledger Setup, create Vendor with Country Region. Create Purchase Order. Update Buy from Vendor No on Purchase Order.
-        Initialize;
+        Initialize();
         UpdateBillToSellToVATCalcOnGLSetup(GeneralLedgerSetup."Bill-to/Sell-to VAT Calc."::"Sell-to/Buy-from No.");
         CreateVendorWithCountryRegion(Vendor);
         CreateVendorWithCountryRegion(Vendor2);
@@ -103,7 +103,7 @@ codeunit 144038 "ERM Sales Purch Documents"
         DocumentNo: Code[20];
     begin
         // Setup: Update General Ledger Setup, create Customer with Country Region. Create Sales Order. Update Sell To Customer No on Sales Order.
-        Initialize;
+        Initialize();
         SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId);
         SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId);
         UpdateBillToSellToVATCalcOnGLSetup(GeneralLedgerSetup."Bill-to/Sell-to VAT Calc."::"Bill-to/Pay-to No.");
@@ -133,7 +133,7 @@ codeunit 144038 "ERM Sales Purch Documents"
         // Purpose of this test is to hit Reverse Charge OnRun Trigger of Codeunit - 90 Purch.-Post.
 
         // Setup: Create and Post Purchase Invoice with Reverse Charge VAT.
-        Initialize;
+        Initialize();
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT");
         UpdatePurchasesPayablesSetup(VATPostingSetup."VAT Bus. Posting Group");
         CreatePurchaseDocument(
@@ -158,7 +158,7 @@ codeunit 144038 "ERM Sales Purch Documents"
         // Purpose of this test is to verify Reverse Charge Amount on Posted Sales Invoice Line.
 
         // Setup: Create and Post Sales Invoice with Reverse Charge VAT.
-        Initialize;
+        Initialize();
         SetupForSalesDocumentWithRevCharge(SalesHeader, SalesHeader."Document Type"::Invoice);
         FindSalesLine(SalesLine, SalesHeader."Document Type", SalesHeader."No.");
 
@@ -179,7 +179,7 @@ codeunit 144038 "ERM Sales Purch Documents"
         // Purpose of this test is to verify Reverse Charge Amount on Posted Sales Invoice Line with partial Prepayment.
 
         // Setup: Create and Post Sales Order with Reverse Charge VAT.
-        Initialize;
+        Initialize();
         SetupForSalesDocumentWithRevCharge(SalesHeader, SalesHeader."Document Type"::Order);
         UpdateSalesHeaderPrepaymentPct(SalesHeader);
         FindSalesLine(SalesLine, SalesHeader."Document Type", SalesHeader."No.");
@@ -197,7 +197,7 @@ codeunit 144038 "ERM Sales Purch Documents"
     procedure CheckGLBudgetWithBusinessUnit()
     begin
         // Verify that column name displayed correctly after pressing the Show Column name on GL budget with Business Unit.
-        Initialize;
+        Initialize();
         CreateBusinessUnit;
         GLBudgetWithColumnValues;
     end;
@@ -208,7 +208,7 @@ codeunit 144038 "ERM Sales Purch Documents"
     procedure CheckGLBudgetWithGLAccount()
     begin
         // Verify that column name displayed correctly after pressing the Show Column name on GL budget with G/L Account.
-        Initialize;
+        Initialize();
         GLBudgetWithColumnValues;
     end;
 
@@ -449,7 +449,7 @@ codeunit 144038 "ERM Sales Purch Documents"
     begin
         PurchaseLine.SetRange("Document Type", DocumentType);
         PurchaseLine.SetRange("Document No.", DocumentNo);
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
     end;
 
     local procedure FindSalesLine(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20])
@@ -555,7 +555,7 @@ codeunit 144038 "ERM Sales Purch Documents"
     begin
         ReverseCharge := PurchaseLine."Amount Including VAT" - PurchaseLine.Amount;
         PurchInvLine.SetRange("Buy-from Vendor No.", PurchaseLine."Buy-from Vendor No.");
-        PurchInvLine.FindFirst;
+        PurchInvLine.FindFirst();
         PurchInvLine.TestField("No.", PurchaseLine."No.");
         PurchInvLine.TestField("Reverse Charge Item", PurchaseLine."Reverse Charge Item");
         Assert.AreNearlyEqual(
@@ -570,7 +570,7 @@ codeunit 144038 "ERM Sales Purch Documents"
     begin
         ReverseCharge := SalesLine."Amount Including VAT" - SalesLine.Amount;
         SalesInvoiceLine.SetRange("Sell-to Customer No.", SalesLine."Sell-to Customer No.");
-        SalesInvoiceLine.FindFirst;
+        SalesInvoiceLine.FindFirst();
         SalesInvoiceLine.TestField("Reverse Charge Item", ReverseChargeItem);
         Assert.AreNearlyEqual(
           ReverseCharge, SalesInvoiceLine."Reverse Charge", LibraryERM.GetAmountRoundingPrecision,
@@ -582,7 +582,7 @@ codeunit 144038 "ERM Sales Purch Documents"
         VATEntry: Record "VAT Entry";
     begin
         VATEntry.SetRange("Document No.", DocumentNo);
-        VATEntry.FindFirst;
+        VATEntry.FindFirst();
         VATEntry.TestField("Country/Region Code", CountryRegionCode);
         VATEntry.TestField("VAT Registration No.", VATRegistrationNo);
         VATEntry.TestField("Bill-to/Pay-to No.", BillToPayToNo);

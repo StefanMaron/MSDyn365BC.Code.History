@@ -41,7 +41,7 @@ codeunit 144006 "UT REP VAT 2010"
         // Purpose of the test is to verify EC Sales List Report for Seperate Lines and Third Party Trade = True.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateVATEntry(VATEntry, true);
         LibraryVariableStorage.Enqueue(PrintTestValue::"Separate Lines");
 
@@ -65,7 +65,7 @@ codeunit 144006 "UT REP VAT 2010"
         // Purpose of the test is to verify EC Sales List Report for Column with Amount and Third Party Trade = False.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateVATEntry(VATEntry, false);
         LibraryVariableStorage.Enqueue(PrintTestValue::"Column with Amount");
 
@@ -88,7 +88,7 @@ codeunit 144006 "UT REP VAT 2010"
         // Purpose of the test is to verify EC Sales List Report for Error for invalid Date Filter.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateVATEntry(VATEntry, false);
 
         // Exercise.
@@ -100,7 +100,7 @@ codeunit 144006 "UT REP VAT 2010"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateVATEntry(var VATEntry: Record "VAT Entry"; EU3PartyTrade: Boolean)
@@ -110,7 +110,7 @@ codeunit 144006 "UT REP VAT 2010"
     begin
         CountryRegion.Code := LibraryUTUtility.GetNewCode10;
         CountryRegion.Insert();
-        VATEntry2.FindLast;
+        VATEntry2.FindLast();
         VATEntry."Entry No." := VATEntry2."Entry No." + 1;
         VATEntry."Country/Region Code" := CountryRegion.Code;
         VATEntry.Type := VATEntry.Type::Sale;
@@ -131,7 +131,7 @@ codeunit 144006 "UT REP VAT 2010"
         StartDate := DMY2Date(1, 12, Date2DMY(WorkDate, 3) - 1);
         Calender.SetRange("Period Type", Calender."Period Type"::Month);
         Calender.SetRange("Period Start", StartDate);
-        if Calender.FindFirst then;
+        if Calender.FindFirst() then;
         LibraryVariableStorage.Enqueue(StartDate);
         LibraryVariableStorage.Enqueue(NormalDate(Calender."Period End"));
     end;

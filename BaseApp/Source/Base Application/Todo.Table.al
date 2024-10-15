@@ -203,7 +203,7 @@ table 5080 "To-do"
                 OppEntry.SetCurrentKey(Active, "Opportunity No.");
                 OppEntry.SetRange(Active, true);
                 OppEntry.SetRange("Opportunity No.", "Opportunity No.");
-                if OppEntry.FindFirst then
+                if OppEntry.FindFirst() then
                     "Opportunity Entry No." := OppEntry."Entry No."
                 else
                     "Opportunity Entry No." := 0;
@@ -771,7 +771,7 @@ table 5080 "To-do"
         RMCommentLine.DeleteAll();
         Task.SetRange("Organizer To-do No.", "No.");
         Task.SetFilter("No.", '<>%1', "No.");
-        if Task.FindFirst then
+        if Task.FindFirst() then
             Task.DeleteAll();
 
         Attendee.SetRange("To-do No.", "No.");
@@ -990,7 +990,7 @@ table 5080 "To-do"
         if SegHeader.Get(GetFilter("Segment No.")) then begin
             SegLine.SetRange("Segment No.", SegHeader."No.");
             SegLine.SetFilter("Contact No.", '<>%1', '');
-            if SegLine.FindFirst then begin
+            if SegLine.FindFirst() then begin
                 if ActivityCode = '' then
                     ConfirmText := Text002
                 else
@@ -1714,7 +1714,7 @@ table 5080 "To-do"
                 Attendee.SetRange("Invitation Sent", false);
         end;
 
-        if Attendee.FindFirst then
+        if Attendee.FindFirst() then
             ProcessAttendeeAppointment(Task, Attendee);
     end;
 
@@ -1911,7 +1911,7 @@ table 5080 "To-do"
                     else
                         if Attendee."Attendance Type" <> Attendee."Attendance Type"::"To-do Organizer" then begin
                             TeamSalespersonOld.SetRange("Salesperson Code", Attendee."Attendee No.");
-                            if TeamSalespersonOld.FindFirst then begin
+                            if TeamSalespersonOld.FindFirst() then begin
                                 Attendee.Mark(true);
                                 DeleteAttendeeTask(Attendee)
                             end
@@ -2012,12 +2012,12 @@ table 5080 "To-do"
             Task.SetCurrentKey("Organizer To-do No.", "System To-do Type");
             Task.SetRange("Organizer To-do No.", "No.");
             Task.SetRange("Salesperson Code", "Salesperson Code");
-            if Task.FindFirst then begin
+            if Task.FindFirst() then begin
                 Attendee.SetCurrentKey("To-do No.", "Attendee Type", "Attendee No.");
                 Attendee.SetRange("To-do No.", "No.");
                 Attendee.SetRange("Attendee Type", Attendee."Attendee Type"::Salesperson);
                 Attendee.SetRange("Attendee No.", "Salesperson Code");
-                if Attendee.FindFirst then
+                if Attendee.FindFirst() then
                     if Attendee."Attendance Type" = Attendee."Attendance Type"::"To-do Organizer" then begin
                         Attendee.Delete();
                         Task.Delete();
@@ -2031,13 +2031,13 @@ table 5080 "To-do"
 
             Task.SetRange("Salesperson Code");
             Task.SetRange("System To-do Type", "System To-do Type"::Organizer);
-            if Task.FindFirst then begin
+            if Task.FindFirst() then begin
                 Attendee.Reset();
                 Attendee.SetCurrentKey("To-do No.", "Attendee Type", "Attendee No.");
                 Attendee.SetRange("To-do No.", "No.");
                 Attendee.SetRange("Attendee Type", Attendee."Attendee Type"::Salesperson);
                 Attendee.SetRange("Attendee No.", Task."Salesperson Code");
-                if Attendee.FindFirst then begin
+                if Attendee.FindFirst() then begin
                     Attendee."Attendance Type" := Attendee."Attendance Type"::Required;
                     Attendee.Modify
                 end;
@@ -2047,7 +2047,7 @@ table 5080 "To-do"
 
             Attendee.Reset();
             Attendee.SetRange("To-do No.", "No.");
-            if Attendee.FindLast then
+            if Attendee.FindLast() then
                 AttendeeLineNo := Attendee."Line No." + 10000
             else
                 AttendeeLineNo := 10000;
@@ -2061,12 +2061,12 @@ table 5080 "To-do"
             Task.SetCurrentKey("Organizer To-do No.", "System To-do Type");
             Task.SetRange("Organizer To-do No.", "No.");
             Task.SetRange("System To-do Type", "System To-do Type"::Organizer);
-            if Task.FindFirst then
+            if Task.FindFirst() then
                 Task.DeleteAll(true);
 
             if "Contact No." <> '' then begin
                 Task.SetRange("System To-do Type", "System To-do Type"::"Contact Attendee");
-                if Task.FindFirst then begin
+                if Task.FindFirst() then begin
                     Task."Salesperson Code" := "Salesperson Code";
                     Task.Modify(true)
                 end
@@ -2107,7 +2107,7 @@ table 5080 "To-do"
         if Type = Type::Meeting then begin
             Attendee.SetRange("To-do No.", "No.");
             Attendee.SetRange("Attendance Type", Attendee."Attendance Type"::"To-do Organizer");
-            if Attendee.FindFirst then begin
+            if Attendee.FindFirst() then begin
                 Attendee."Attendance Type" := Attendee."Attendance Type"::Required;
                 TaskNo := CreateSubTask(Attendee, Rec);
                 Attendee."Attendance Type" := Attendee."Attendance Type"::"To-do Organizer";
@@ -2123,7 +2123,7 @@ table 5080 "To-do"
             if TeamSalesperson.Find('-') then
                 repeat
                     Task.SetRange("Salesperson Code", TeamSalesperson."Salesperson Code");
-                    if Task.FindFirst then begin
+                    if Task.FindFirst() then begin
                         if (Task."System To-do Type" = Task."System To-do Type"::Organizer) and
                            (Task."Salesperson Code" <> SalespersonCode)
                         then begin
@@ -2133,7 +2133,7 @@ table 5080 "To-do"
                     end else begin
                         Attendee.Reset();
                         Attendee.SetRange("To-do No.", "No.");
-                        if Attendee.FindLast then
+                        if Attendee.FindLast() then
                             AttendeeLineNo := Attendee."Line No." + 10000
                         else
                             AttendeeLineNo := 10000;
@@ -2190,15 +2190,15 @@ table 5080 "To-do"
         OrganizerLineNo: Integer;
     begin
         Attendee.SetRange("To-do No.", "No.");
-        if not Attendee.FindFirst then
+        if not Attendee.FindFirst() then
             exit;
         FirstLineNo := Attendee."Line No.";
-        Attendee.FindLast;
+        Attendee.FindLast();
         LastLineNo := Attendee."Line No.";
 
         Attendee.SetCurrentKey("To-do No.", "Attendance Type");
         Attendee.SetRange("Attendance Type", Attendee."Attendance Type"::"To-do Organizer");
-        Attendee.FindFirst;
+        Attendee.FindFirst();
         OrganizerLineNo := Attendee."Line No.";
 
         if FirstLineNo <> OrganizerLineNo then begin
@@ -2628,13 +2628,13 @@ table 5080 "To-do"
         Attachment: Record Attachment;
         TempAttachment2: Record Attachment temporary;
     begin
-        if TempAttachment.FindSet then
+        if TempAttachment.FindSet() then
             repeat
                 TempAttachment2 := TempAttachment;
                 TempAttachment2.Insert();
             until TempAttachment.Next() = 0;
 
-        if TempAttachment2.FindSet then
+        if TempAttachment2.FindSet() then
             repeat
                 Attachment.Get(TempAttachment2."No.");
                 Attachment.CalcFields("Attachment File");
@@ -2673,7 +2673,7 @@ table 5080 "To-do"
     begin
         TempAttendee.DeleteAll();
 
-        if Attendee.FindSet then
+        if Attendee.FindSet() then
             repeat
                 TempAttendee := Attendee;
                 TempAttendee.Insert();
@@ -2683,7 +2683,7 @@ table 5080 "To-do"
     procedure SetComments(var RMCommentLine: Record "Rlshp. Mgt. Comment Line")
     begin
         TempRMCommentLine.DeleteAll();
-        if RMCommentLine.FindSet then
+        if RMCommentLine.FindSet() then
             repeat
                 TempRMCommentLine := RMCommentLine;
                 TempRMCommentLine.Insert();

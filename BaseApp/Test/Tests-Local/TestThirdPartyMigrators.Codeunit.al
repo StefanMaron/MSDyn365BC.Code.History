@@ -22,12 +22,12 @@ codeunit 144503 "Test Third Party Migrators"
     begin
         // [SCENARIO] Verify that 3rd party Sage Data Migration is shown even the extension is not installed
         // [GIVEN] Sage extension not installed and Data Migration is started
-        Initialize;
+        Initialize();
 
         // [WHEN] The data migration wizard is run
         // [THEN] Sage migrator is registered
         LibraryLowerPermissions.SetO365Basic;
-        LibraryLowerPermissions.AddO365Setup;
+        LibraryLowerPermissions.AddO365Setup();
         LibraryLowerPermissions.AddO365ExtensionMGT;
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
         DataMigrationWizard.Trap;
@@ -49,7 +49,7 @@ codeunit 144503 "Test Third Party Migrators"
     var
         DataMigrationEntity: Record "Data Migration Entity";
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         if IsInitialized then
             exit;
 

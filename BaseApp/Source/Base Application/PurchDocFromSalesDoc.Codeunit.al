@@ -81,7 +81,7 @@ codeunit 1314 "Purch. Doc. From Sales Doc."
             MakeSupplyOrders(TempManufacturingUserTemplate, TempDocumentEntry, RequisitionLine);
 
         TempDocumentEntry.SetRange("Table ID", DATABASE::"Purchase Header");
-        if TempDocumentEntry.FindSet then
+        if TempDocumentEntry.FindSet() then
             repeat
                 if PurchaseHeader.Get(TempDocumentEntry."Document Type", TempDocumentEntry."Document No.") then
                     BuildFilter(NoFilter, PurchaseHeader."No.");
@@ -178,7 +178,7 @@ codeunit 1314 "Purch. Doc. From Sales Doc."
 
         SalesLine.SetRange(Type, SalesLine.Type::Item);
         SalesLine.SetFilter("No.", '<>%1', '');
-        if SalesLine.FindSet then begin
+        if SalesLine.FindSet() then begin
             Item.Get(SalesLine."No.");
             VendorNo := Item."Vendor No.";
             DefaultVendorFound := (VendorNo <> '');

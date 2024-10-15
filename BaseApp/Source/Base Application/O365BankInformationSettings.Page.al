@@ -40,7 +40,7 @@ page 2137 "O365 Bank Information Settings"
 
     trigger OnInit()
     begin
-        Initialize;
+        Initialize();
     end;
 
     trigger OnModifyRecord(): Boolean

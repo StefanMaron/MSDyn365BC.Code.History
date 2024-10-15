@@ -26,7 +26,7 @@ codeunit 134645 "Option Lookup Buffer Test"
         SalesLine: Record "Sales Line";
     begin
         // [SCENARIO] Fill OptionLookupBuffer with values for Sales
-        Initialize;
+        Initialize();
 
         // [GIVEN] Empty Option Lookup Buffer table
         // [WHEN] FillLookupBuffer is called for LookupType::Sales
@@ -55,7 +55,7 @@ codeunit 134645 "Option Lookup Buffer Test"
         t: Text;
     begin
         // [SCENARIO 412825] Fill OptionLookupBuffer with custom values for Sales
-        Initialize;
+        Initialize();
 
         // [GIVEN] Empty Option Lookup Buffer table
         // [GIVEN] Extend "Sales Line Type" enum and add handler for Test_Custom1 value
@@ -103,7 +103,7 @@ codeunit 134645 "Option Lookup Buffer Test"
         PurchaseLine: Record "Purchase Line";
     begin
         // [SCENARIO] Fill OptionLookupBuffer with values for Purchase
-        Initialize;
+        Initialize();
 
         // [GIVEN] Empty Option Lookup Buffer table
         // [WHEN] FillLookupBuffer is called for LookupType::Purchase
@@ -172,7 +172,7 @@ codeunit 134645 "Option Lookup Buffer Test"
         until TempReferenceOptionLookupBuffer.Next = 0;
 
         // [WHEN] Trying to validate an invalid option
-        asserterror TempOptionLookupBuffer.ValidateOption(LibraryUtility.GenerateGUID);
+        asserterror TempOptionLookupBuffer.ValidateOption(LibraryUtility.GenerateGUID());
         // [THEN] An error is thrown
         Assert.ExpectedError(InvalidTypeErr);
     end;
@@ -184,13 +184,13 @@ codeunit 134645 "Option Lookup Buffer Test"
         SalesInvoice: TestPage "Sales Invoice";
     begin
         // [SCENARIO] Show Type field in OnPrem environment
-        Initialize;
+        Initialize();
 
         // [GIVEN] An OnPrem environment
         LibraryApplicationArea.DisableApplicationAreaSetup;
 
         // [WHEN] Opening a new Sales Invoice
-        SalesInvoice.OpenNew;
+        SalesInvoice.OpenNew();
 
         // [THEN] The Type field is visible and the Subtype field is not
         Assert.IsTrue(SalesInvoice.SalesLines.Type.Visible, 'Regular type field should be visible for OnPrem');
@@ -204,12 +204,12 @@ codeunit 134645 "Option Lookup Buffer Test"
         SalesInvoice: TestPage "Sales Invoice";
     begin
         // [SCENARIO] Show the Subtype field in SaaS environment
-        Initialize;
+        Initialize();
 
         // [GIVEN] A SaaS environment
 
         // [WHEN] Opening a new Sales Invoice
-        SalesInvoice.OpenNew;
+        SalesInvoice.OpenNew();
 
         // [THEN] The Subtype field is visible and the type field is not
         asserterror SalesInvoice.SalesLines.Type.Activate;
@@ -226,10 +226,10 @@ codeunit 134645 "Option Lookup Buffer Test"
         SalesInvoice: TestPage "Sales Invoice";
     begin
         // [SCENARIO] The lookup on Subtype contains the expected values for Sales Invoice and all values can be selected.
-        Initialize;
+        Initialize();
 
         // [GIVEN] A Sales Invoice
-        SalesInvoice.OpenNew;
+        SalesInvoice.OpenNew();
 
         TempOptionLookupBuffer.FillLookupBuffer(TempOptionLookupBuffer."Lookup Type"::Sales);
         TempOptionLookupBuffer.FindSet();
@@ -252,10 +252,10 @@ codeunit 134645 "Option Lookup Buffer Test"
         SalesInvoice: TestPage "Sales Invoice";
     begin
         // [SCENARIO] A partial Subtype is entered into the Subtype field triggers autocomplete
-        Initialize;
+        Initialize();
 
         // [GIVEN] A Sales Invoice
-        SalesInvoice.OpenNew;
+        SalesInvoice.OpenNew();
 
         // [WHEN] Setting the Subtype on the Sales Line to ac
         SalesInvoice.SalesLines.FilteredTypeField.SetValue(CopyStr(Format(SalesLine.Type::"G/L Account"), 1, 2));
@@ -291,10 +291,10 @@ codeunit 134645 "Option Lookup Buffer Test"
         SalesInvoice: TestPage "Sales Invoice";
     begin
         // [SCENARIO] A blank Subtype is entered into the Subtype field stays blank
-        Initialize;
+        Initialize();
 
         // [GIVEN] A Sales Invoice
-        SalesInvoice.OpenNew;
+        SalesInvoice.OpenNew();
 
         // [WHEN] Setting the Subtype on the Sales Line to ' '
         SalesInvoice.SalesLines.FilteredTypeField.SetValue(' ');
@@ -315,10 +315,10 @@ codeunit 134645 "Option Lookup Buffer Test"
         SalesInvoice: TestPage "Sales Invoice";
     begin
         // [SCENARIO] When invalid values are entered into Subtype, Item Subtype is set
-        Initialize;
+        Initialize();
 
         // [GIVEN] A Sales Invoice
-        SalesInvoice.OpenNew;
+        SalesInvoice.OpenNew();
 
         // [WHEN] Setting the Subtype to Fixed Asset on the Sales Line
         SalesInvoice.SalesLines.FilteredTypeField.SetValue('AAA');
@@ -331,7 +331,7 @@ codeunit 134645 "Option Lookup Buffer Test"
         SalesInvoice.SalesLines.FilteredTypeField.AssertEquals(Format(SalesLine.Type::Item));
 
         // [WHEN] Setting the Subtype to a random value on the Sales Line
-        SalesInvoice.SalesLines.FilteredTypeField.SetValue(LibraryUtility.GenerateGUID);
+        SalesInvoice.SalesLines.FilteredTypeField.SetValue(LibraryUtility.GenerateGUID());
         // [THEN] An Item Subtype has been set
         SalesInvoice.SalesLines.FilteredTypeField.AssertEquals(Format(SalesLine.Type::Item));
     end;
@@ -344,7 +344,7 @@ codeunit 134645 "Option Lookup Buffer Test"
         SalesInvoice: TestPage "Sales Invoice";
     begin
         // [SCENARIO] In View mode the field is not editable
-        Initialize;
+        Initialize();
 
         // [GIVEN] A SaaS environment and a Sales Invoice
         LibrarySales.CreateSalesInvoice(SalesHeader);
@@ -372,7 +372,7 @@ codeunit 134645 "Option Lookup Buffer Test"
     begin
         // [FEATURE] [Purchase] [Resource]
         // [SCENARIO 289386] A partial Subtype is entered into the Subtype field triggers autocomplete in purchase order document line
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase order
         PurchaseOrder.OpenNew();
@@ -422,8 +422,8 @@ codeunit 134645 "Option Lookup Buffer Test"
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Option Lookup Buffer Test");
         ExperienceTierSetup.DeleteAll();
         ApplicationAreaMgmtFacade.SaveExperienceTierCurrentCompany(ExperienceTierSetup.FieldCaption(Essential));
-        LibraryVariableStorage.Clear;
-        LibrarySales.DisableWarningOnCloseUnpostedDoc;
+        LibraryVariableStorage.Clear();
+        LibrarySales.DisableWarningOnCloseUnpostedDoc();
     end;
 }
 

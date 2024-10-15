@@ -78,7 +78,7 @@ page 9192 "Company Creation Wizard"
                             begin
                                 NewCompanyName := DelChr(NewCompanyName, '<>');
                                 Company.SetFilter(Name, '%1', '@' + NewCompanyName);
-                                if Company.FindFirst then
+                                if Company.FindFirst() then
                                     Error(CompanyAlreadyExistsErr);
 
                                 OnAfterValidateCompanyName(NewCompanyName);
@@ -128,6 +128,23 @@ page 9192 "Company Creation Wizard"
                             Editable = false;
                             MultiLine = true;
                             ShowCaption = false;
+                        }
+                    }
+                    group("Additional Demo Data")
+                    {
+                        Visible = (AdditionalDemoDataVisible)
+                            and ((NewCompanyData = NewCompanyData::"Evaluation Data") or (NewCompanyData = NewCompanyData::"Standard Data"));
+
+                        field("Install Contoso Coffee Demo Data"; InstallAdditionalDemoData)
+                        {
+                            ApplicationArea = All;
+                            ToolTip = 'Install the Contoso Demo Data app on top of the default sample data.';
+                            Caption = 'Install the Contoso Demo Data app on top of the default sample data.';
+
+                            trigger OnDrillDown()
+                            begin
+                                InstallAdditionalDemoData := not InstallAdditionalDemoData;
+                            end;
                         }
                     }
                 }
@@ -293,6 +310,8 @@ page 9192 "Company Creation Wizard"
         UpdateDataDescription();
         EnableControls();
         CurrPage.Update(false);
+
+        OnOpenPageCheckAdditionalDemoData(AdditionalDemoDataVisible);
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -320,6 +339,8 @@ page 9192 "Company Creation Wizard"
         NextActionEnabled: Boolean;
         SetupNotCompletedQst: Label 'The company has not yet been created.\\Are you sure that you want to exit?';
         ConfigurationPackageExists: Boolean;
+        AdditionalDemoDataVisible: Boolean;
+        InstallAdditionalDemoData: Boolean;
         NewCompanyName: Text[30];
         NewCompanyData: Enum "Company Data Type (Internal)";
         NewCompanyDataProduction: Enum "Company Data Type (Production)";
@@ -369,7 +390,7 @@ page 9192 "Company Creation Wizard"
         AssistedCompanySetup.CreateNewCompany(NewCompanyName);
         OnAfterCreateNewCompany(NewCompanyData.AsInteger(), NewCompanyName);
 
-        AssistedCompanySetup.SetUpNewCompany(NewCompanyName, NewCompanyData.AsInteger());
+        AssistedCompanySetup.SetUpNewCompany(NewCompanyName, NewCompanyData.AsInteger(), InstallAdditionalDemoData);
 
         if FindSet() then
             repeat
@@ -508,6 +529,11 @@ page 9192 "Company Creation Wizard"
             NewCompanyData::None:
                 NewCompanyDataDescription += TrialPeriodTxt;
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnOpenPageCheckAdditionalDemoData(var AdditionalDemoDataVisible: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

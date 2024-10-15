@@ -16,7 +16,7 @@ codeunit 144303 "Report Layout - Local"
     [Scope('OnPrem')]
     procedure TestVATEntryExceptionReport()
     begin
-        Initialize;
+        Initialize();
         REPORT.Run(REPORT::"VAT Entry Exception Report");
     end;
 

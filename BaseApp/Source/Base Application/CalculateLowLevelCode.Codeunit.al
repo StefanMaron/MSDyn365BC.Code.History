@@ -45,7 +45,7 @@ codeunit 99000793 "Calculate Low-Level Code"
                 begin
                     Item2.SetCurrentKey("Production BOM No.");
                     Item2.SetRange("Production BOM No.", No);
-                    if Item2.FindSet then
+                    if Item2.FindSet() then
                         repeat
                             ActLevel := CalcLevels(Type::Item, Item2."No.", Level + 1, LevelDepth + 1);
                             if ActLevel > TotalLevels then
@@ -67,7 +67,7 @@ codeunit 99000793 "Calculate Low-Level Code"
         AsmBOMComp.SetCurrentKey(Type, "No.");
         AsmBOMComp.SetRange(Type, Type);
         AsmBOMComp.SetRange("No.", No);
-        if AsmBOMComp.FindSet then
+        if AsmBOMComp.FindSet() then
             repeat
                 ActLevel := CalcLevels(Type::Assembly, AsmBOMComp."Parent Item No.", Level, LevelDepth + 1);
                 if ActLevel > TotalLevels then
@@ -77,7 +77,7 @@ codeunit 99000793 "Calculate Low-Level Code"
         ProdBOMLine.SetCurrentKey(Type, "No.");
         ProdBOMLine.SetRange(Type, Type);
         ProdBOMLine.SetRange("No.", No);
-        if ProdBOMLine.FindSet then
+        if ProdBOMLine.FindSet() then
             repeat
                 if ProdBOMHeader.Get(ProdBOMLine."Production BOM No.") then begin
                     if ProdBOMHeader."No." = ActualProdBOM."No." then
@@ -116,7 +116,7 @@ codeunit 99000793 "Calculate Low-Level Code"
         ProdBOMLine.SetRange("Production BOM No.", ProdBOMNo);
         ProdBOMLine.SetFilter("No.", '<>%1', '');
 
-        if ProdBOMLine.FindSet then
+        if ProdBOMLine.FindSet() then
             repeat
                 if ProdBOMLine."Version Code" <> '' then begin
                     ProductionBOMVersion.Get(ProdBOMLine."Production BOM No.", ProdBOMLine."Version Code");
@@ -157,7 +157,7 @@ codeunit 99000793 "Calculate Low-Level Code"
         BOMComp.SetRange("Parent Item No.", ParentItemNo);
         BOMComp.SetRange(Type, BOMComp.Type::Item);
         BOMComp.SetFilter("No.", '<>%1', '');
-        if BOMComp.FindSet then
+        if BOMComp.FindSet() then
             repeat
                 EntityPresent := CompItem.Get(BOMComp."No.");
                 if EntityPresent or not IgnoreMissingItemsOrBOMs then

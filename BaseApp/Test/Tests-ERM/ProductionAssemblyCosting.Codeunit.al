@@ -30,7 +30,7 @@ codeunit 137617 "Production & Assembly Costing"
         InventorySetup: Record "Inventory Setup";
     begin
         // [SCENARIO 359395] Cost adjustment of transfers of an average-cost item after changing cost calculation type from "Item" to "Item & Location & Variant"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Set average cost calculation type = Item
         SetAverageCostSetup(InventorySetup."Average Cost Calc. Type"::Item);
@@ -74,7 +74,7 @@ codeunit 137617 "Production & Assembly Costing"
         InventorySetup: Record "Inventory Setup";
     begin
         // [SCENARIO 359395] Cost adjustment of average-costed sales returns after changing cost calculation type from "Item" to "Item & Location & Variant"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Set average cost calculation type = Item
         SetAverageCostSetup(InventorySetup."Average Cost Calc. Type"::Item);
@@ -90,7 +90,7 @@ codeunit 137617 "Production & Assembly Costing"
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
 
         // [GIVEN] Post partial sales return with cost application
-        ItemLedgEntry.FindLast;
+        ItemLedgEntry.FindLast();
         CreateItemJournalLineWithAppliesFrom(
           ItemJournalBatch, ItemJournalLine."Entry Type"::Sale, Item."No.", -3 * 3.71, '', ItemLedgEntry."Entry No.", WorkDate);
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
@@ -122,7 +122,7 @@ codeunit 137617 "Production & Assembly Costing"
         PostingDate: Date;
     begin
         // [SCENARIO 359395] Cost adjustment of average-costed sales returns on different dates after changing cost calculation type from "Item" to "Item & Location & Variant"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Set average cost calculation type = Item
         SetAverageCostSetup(InventorySetup."Average Cost Calc. Type"::Item);
@@ -140,7 +140,7 @@ codeunit 137617 "Production & Assembly Costing"
             CreateItemJournalLine(ItemJournalLine, ItemJournalBatch, ItemJournalLine."Entry Type"::Sale, Item."No.", 3.71, PostingDate);
             LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
 
-            ItemLedgEntry.FindLast;
+            ItemLedgEntry.FindLast();
             PostingDate := PostingDate + 1;
             CreateItemJournalLineWithAppliesFrom(
               ItemJournalBatch, ItemJournalLine."Entry Type"::Sale, Item."No.", -3.71, '', ItemLedgEntry."Entry No.", PostingDate);
@@ -173,7 +173,7 @@ codeunit 137617 "Production & Assembly Costing"
         I: Integer;
     begin
         // [SCENARIO 359395] Cost adjustment of average-costed item with sales and transfers posted without fixed application after changing cost calculation type from "Item" to "Item & Location & Variant"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Set average cost calculation type = Item
         SetAverageCostSetup(InventorySetup."Average Cost Calc. Type"::Item);
@@ -220,7 +220,7 @@ codeunit 137617 "Production & Assembly Costing"
         i: Integer;
     begin
         // [SCENARIO 359395] Cost adjustment of average-costed item with sales and returns posted with fixed application after changing cost calculation type from "Item" to "Item & Location & Variant"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Set average cost calculation type = Item
         SetAverageCostSetup(InventorySetup."Average Cost Calc. Type"::Item);
@@ -235,9 +235,9 @@ codeunit 137617 "Production & Assembly Costing"
             CreateItemJournalLine(ItemJournalLine, ItemJournalBatch, ItemJournalLine."Entry Type"::Sale, Item."No.", 3.71, WorkDate);
             LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
 
-            ItemLedgEntry.FindLast;
+            ItemLedgEntry.FindLast();
 
-            Initialize;
+            Initialize();
             CreateItemJournalLineWithAppliesFrom(
               ItemJournalBatch, ItemJournalLine."Entry Type"::Sale, Item."No.", -3.71, '', ItemLedgEntry."Entry No.", WorkDate);
             LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
@@ -271,7 +271,7 @@ codeunit 137617 "Production & Assembly Costing"
         I: Integer;
     begin
         // [SCENARIO 359395] Cost adjustment of an average-costed item transferred with fixed cost application
-        Initialize;
+        Initialize();
 
         // [GIVEN] Set average cost calculation type = Item
         SetAverageCostSetup(InventorySetup."Average Cost Calc. Type"::Item);
@@ -287,7 +287,7 @@ codeunit 137617 "Production & Assembly Costing"
         CreateItemJournalLineWithUnitCost(ItemJnlBatch, ItemJnlLine."Entry Type"::Purchase, Item."No.", 1.63, 6710, WorkDate);
 
         LibraryInventory.PostItemJournalBatch(ItemJnlBatch);
-        ItemLedgEntry.FindLast;
+        ItemLedgEntry.FindLast();
         FromEntryTo := ItemLedgEntry."Entry No.";
         FromEntryTo -= 2;
 
@@ -299,7 +299,7 @@ codeunit 137617 "Production & Assembly Costing"
             ItemJnlLine.Modify(true);
             LibraryInventory.PostItemJournalBatch(ItemJnlBatch);
 
-            ItemLedgEntry.FindLast;
+            ItemLedgEntry.FindLast();
 
             CreateItemJournalLineWithAppliesTo(
               ItemJnlBatch, ItemJnlLine."Entry Type"::Sale, Item."No.", 2.44, Location.Code, ItemLedgEntry."Entry No.", WorkDate);
@@ -336,7 +336,7 @@ codeunit 137617 "Production & Assembly Costing"
         FromEntryTo: Integer;
     begin
         // [SCENARIO 359395] Adjust cost of sales with applied undo sale and a correction of undo
-        Initialize;
+        Initialize();
 
         // [GIVEN] Set average cost calculation type = Item
         SetAverageCostSetup(InventorySetup."Average Cost Calc. Type"::Item);
@@ -348,7 +348,7 @@ codeunit 137617 "Production & Assembly Costing"
         // [GIVEN] Post purchase entries for item "I"
         PostPurchasesItemJournalLines(Item."No.");
 
-        ItemLedgEntry.FindLast;
+        ItemLedgEntry.FindLast();
         FromEntryTo := ItemLedgEntry."Entry No.";
         FromEntryTo -= 2;
 
@@ -359,14 +359,14 @@ codeunit 137617 "Production & Assembly Costing"
             LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
 
             // [GIVEN] Undo sale with fixed cost application
-            ItemLedgEntry.FindLast;
+            ItemLedgEntry.FindLast();
             CreateItemJournalLineWithAppliesFrom(
               ItemJournalBatch, ItemJournalLine."Entry Type"::Sale, Item."No.", -2.44, Location.Code, ItemLedgEntry."Entry No.", WorkDate);
 
             LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
 
             // [GIVEN] Post sale with aplication to previous sales return
-            ItemLedgEntry.FindLast;
+            ItemLedgEntry.FindLast();
             CreateItemJournalLineWithAppliesTo(
               ItemJournalBatch, ItemJournalLine."Entry Type"::Sale, Item."No.", 2.44, Location.Code, ItemLedgEntry."Entry No.", WorkDate);
 
@@ -398,7 +398,7 @@ codeunit 137617 "Production & Assembly Costing"
     begin
         // [FEATURE] [Assembly] [Self-consumption] [Average Cost]
         // [SCENARIO 359395] Adjust cost of assembly rework with self-consumption and applied sales when average cost is calculated by item.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Set average cost calculation type = Item
         SetAverageCostSetup(InventorySetup."Average Cost Calc. Type"::Item);
@@ -410,7 +410,7 @@ codeunit 137617 "Production & Assembly Costing"
         // [GIVEN] Post purchase entries for item "I"
         PostPurchasesItemJournalLines(Item."No.");
 
-        ItemLedgEntry.FindLast;
+        ItemLedgEntry.FindLast();
         FromEntryTo := ItemLedgEntry."Entry No.";
         FromEntryTo -= 2;
 
@@ -426,7 +426,7 @@ codeunit 137617 "Production & Assembly Costing"
 
             LibraryAssembly.PostAssemblyHeader(AssemblyHeader, '');
 
-            ItemLedgEntry.FindLast;
+            ItemLedgEntry.FindLast();
             CreateItemJournalLineWithAppliesTo(
               ItemJournalBatch, ItemJournalLine."Entry Type"::Sale, Item."No.", 2.44, Location.Code, ItemLedgEntry."Entry No.", WorkDate);
             LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
@@ -458,7 +458,7 @@ codeunit 137617 "Production & Assembly Costing"
     begin
         // [FEATURE] [Assembly] [Self-consumption] [Average Cost]
         // [SCENARIO 359395] Adjust cost of assembly rework with self-consumption and applied sales when average cost is calculated by item & location & variant.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Set average cost calculation type = "Item & Location & Variant"
         SetAverageCostSetup(InventorySetup."Average Cost Calc. Type"::"Item & Location & Variant");
@@ -470,7 +470,7 @@ codeunit 137617 "Production & Assembly Costing"
         // [GIVEN] Post purchase entries for item "I"
         PostPurchasesItemJournalLines(Item."No.");
 
-        ItemLedgEntry.FindLast;
+        ItemLedgEntry.FindLast();
         FromEntryTo := ItemLedgEntry."Entry No.";
         FromEntryTo -= 2;
 
@@ -486,7 +486,7 @@ codeunit 137617 "Production & Assembly Costing"
 
             LibraryAssembly.PostAssemblyHeader(AssemblyHeader, '');
 
-            ItemLedgEntry.FindLast;
+            ItemLedgEntry.FindLast();
             CreateItemJournalLineWithAppliesTo(
               ItemJournalBatch, ItemJournalLine."Entry Type"::Sale, Item."No.", 2.44, Location.Code, ItemLedgEntry."Entry No.", WorkDate);
             LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
@@ -518,7 +518,7 @@ codeunit 137617 "Production & Assembly Costing"
     begin
         // [FEATURE] [Assembly] [Self-consumption] [Average Cost]
         // [SCENARIO 359395] Adjust cost of assembly rework with self-consumption and applied sales within month-long valuation period.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Set average cost calculation type = "Item" and valuation period = "Month".
         LibraryInventory.SetAverageCostSetup(
@@ -531,7 +531,7 @@ codeunit 137617 "Production & Assembly Costing"
         // [GIVEN] Post purchase entries for item "I" on WORKDATE.
         PostPurchasesItemJournalLines(Item."No.");
 
-        ItemLedgEntry.FindLast;
+        ItemLedgEntry.FindLast();
         FromEntryTo := ItemLedgEntry."Entry No.";
         FromEntryTo -= 2;
 
@@ -547,7 +547,7 @@ codeunit 137617 "Production & Assembly Costing"
 
             LibraryAssembly.PostAssemblyHeader(AssemblyHeader, '');
 
-            ItemLedgEntry.FindLast;
+            ItemLedgEntry.FindLast();
             CreateItemJournalLineWithAppliesTo(
               ItemJournalBatch, ItemJournalLine."Entry Type"::Sale, Item."No.", 2.44, Location.Code, ItemLedgEntry."Entry No.", WorkDate + 2);
             LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
@@ -579,7 +579,7 @@ codeunit 137617 "Production & Assembly Costing"
     begin
         // [FEATURE] [Assembly] [Self-consumption] [Average Cost]
         // [SCENARIO 294427] Average cost calculation of assembled item being used as a component of itself, and another component item.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Set average cost calculation type = "Item" and valuation period = "Day".
         LibraryInventory.SetAverageCostSetup(
@@ -661,7 +661,7 @@ codeunit 137617 "Production & Assembly Costing"
     begin
         // [FEATURE] [Production Order] [Self-consumption] [Average Cost]
         // [SCENARIO 294427] Average cost calculation of manufacturing item being used as a component of itself, and another component item.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Set average cost calculation type = "Item" and valuation period = "Day".
         LibraryInventory.SetAverageCostSetup(
@@ -747,7 +747,7 @@ codeunit 137617 "Production & Assembly Costing"
     begin
         // [FEATURE] [Production Order] [Make-to-Order] [Average Cost]
         // [SCENARIO 333128] Average cost calculation of multilevel production order.
-        Initialize;
+        Initialize();
         CompUnitCost := LibraryRandom.RandDec(100, 2);
 
         // [GIVEN] Component item "C", intermediate production item "I", final production item "P".
@@ -795,17 +795,17 @@ codeunit 137617 "Production & Assembly Costing"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Production & Assembly Costing");
         // Lazy Setup.
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Production & Assembly Costing");
 
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdateLocalData;
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdateLocalData();
         isInitialized := true;
         Commit();
 
@@ -887,7 +887,7 @@ codeunit 137617 "Production & Assembly Costing"
         ProdOrderLine.SetRange(Status, ProductionOrder.Status);
         ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
         ProdOrderLine.SetRange("Item No.", ItemNo);
-        ProdOrderLine.FindFirst;
+        ProdOrderLine.FindFirst();
     end;
 
     local procedure PostPurchasesItemJournalLines(ItemNo: Code[20])

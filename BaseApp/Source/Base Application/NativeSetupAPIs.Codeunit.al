@@ -1,3 +1,4 @@
+#if not CLEAN20
 codeunit 2800 "Native - Setup APIs"
 {
     ObsoleteState = Pending;
@@ -41,16 +42,12 @@ codeunit 2800 "Native - Setup APIs"
         InsertNativeInvoicingODataWebService(PAGE::"Native - Payment Terms", ApiPrefixTxt + 'PaymentTerms', AllTenants);
         InsertNativeInvoicingODataWebService(PAGE::"Native - Payment Methods", ApiPrefixTxt + 'PaymentMethods', AllTenants);
         InsertNativeInvoicingODataWebService(PAGE::"Native - Attachments", ApiPrefixTxt + 'Attachments', AllTenants);
-#if not CLEAN19
         InsertNativeInvoicingODataWebService(PAGE::"Native - General Setting", ApiPrefixTxt + 'GeneralSettings', AllTenants);
-#endif
-        InsertNativeInvoicingODataWebService(PAGE::"Native - SMTP Mail Setup", ApiPrefixTxt + 'SMTPMailSetup', AllTenants);
         InsertNativeInvoicingODataWebService(PAGE::"Native - Email Setting", ApiPrefixTxt + 'EmailSetting', AllTenants);
         InsertNativeInvoicingODataWebService(PAGE::"Native Country/Regions Entity", ApiPrefixTxt + 'CountryRegion', AllTenants);
         InsertNativeInvoicingODataWebService(PAGE::"Native - PDFs", ApiPrefixTxt + 'PDFs', AllTenants);
         InsertNativeInvoicingODataWebService(PAGE::"Native - Email Preview", ApiPrefixTxt + 'EmailPreview', AllTenants);
         InsertNativeInvoicingODataWebService(PAGE::"Native - Export Invoices", ApiPrefixTxt + 'ExportInvoices', AllTenants);
-        InsertNativeInvoicingODataWebService(PAGE::"Native - Test Mail", ApiPrefixTxt + 'TestMail', AllTenants);
         InsertNativeInvoicingODataWebService(PAGE::"Native - Sales Tax Setup", ApiPrefixTxt + 'SalesTaxSetup', AllTenants);
         InsertNativeInvoicingODataWebService(PAGE::"Native - VAT Setup", ApiPrefixTxt + 'VATSetup', AllTenants);
         InsertNativeInvoicingODataWebService(PAGE::"Native - Languages", ApiPrefixTxt + 'Languages', AllTenants);
@@ -92,4 +89,4 @@ codeunit 2800 "Native - Setup APIs"
         exit(ApiPrefixTxt);
     end;
 }
-
+#endif

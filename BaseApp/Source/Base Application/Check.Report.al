@@ -1,4 +1,4 @@
-﻿report 1401 Check
+report 1401 Check
 {
     DefaultLayout = RDLC;
     RDLCLayout = './Check.rdlc';
@@ -262,7 +262,7 @@
                                                                 EmployeeLedgerEntry.SetRange("Document No.", GenJnlLine2."Applies-to Doc. No.");
                                                                 EmployeeLedgerEntry.SetRange("Employee No.", BalancingNo);
                                                             end;
-                                                            EmployeeLedgerEntry.FindFirst;
+                                                            EmployeeLedgerEntry.FindFirst();
                                                             EmployeeUpdateAmounts(EmployeeLedgerEntry, CurrentLineAmount);
                                                             LineAmount := CurrentLineAmount;
                                                         end;
@@ -1241,7 +1241,7 @@
         CustLedgEntry1.SetRange("Document Type", GenJnlLine."Applies-to Doc. Type");
         CustLedgEntry1.SetRange("Document No.", GenJnlLine."Applies-to Doc. No.");
         CustLedgEntry1.SetRange("Customer No.", BalancingNo);
-        CustLedgEntry1.FindFirst;
+        CustLedgEntry1.FindFirst();
         CustUpdateAmounts(CustLedgEntry1, RemainingAmount);
     end;
 
@@ -1252,7 +1252,7 @@
         VendLedgEntry1.SetRange("Document Type", GenJnlLine."Applies-to Doc. Type");
         VendLedgEntry1.SetRange("Document No.", GenJnlLine."Applies-to Doc. No.");
         VendLedgEntry1.SetRange("Vendor No.", BalancingNo);
-        VendLedgEntry1.FindFirst;
+        VendLedgEntry1.FindFirst();
         VendUpdateAmounts(VendLedgEntry1, RemainingAmount);
     end;
 
@@ -1263,7 +1263,7 @@
         EmployeeLedgerEntry1.SetRange("Document Type", GenJnlLine."Applies-to Doc. Type");
         EmployeeLedgerEntry1.SetRange("Document No.", GenJnlLine."Applies-to Doc. No.");
         EmployeeLedgerEntry1.SetRange("Employee No.", BalancingNo);
-        EmployeeLedgerEntry1.FindFirst;
+        EmployeeLedgerEntry1.FindFirst();
         EmployeeUpdateAmounts(EmployeeLedgerEntry1, RemainingAmount);
     end;
 

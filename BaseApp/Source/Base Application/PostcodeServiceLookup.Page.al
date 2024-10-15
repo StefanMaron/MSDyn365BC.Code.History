@@ -47,7 +47,7 @@ page 10502 "Postcode Service Lookup"
         // Get selection
         CurrPage.SetSelectionFilter(TempNameValueBuffer);
         SetFilter(ID, TempNameValueBuffer.GetFilter(ID));
-        FindFirst;
+        FindFirst();
         TempNameValueBuffer := Rec;
 
         if TempNameValueBuffer.Value = DisabledLbl then

@@ -70,7 +70,6 @@ permissionset 5947 "D365 ITEM, EDIT"
                   tabledata "Service Item" = RM,
                   tabledata "Service Item Component" = RM,
                   tabledata "Service Ledger Entry" = Rm,
-                  tabledata "Social Listening Search Topic" = RIMD,
                   tabledata "Special Equipment" = R,
                   tabledata "Standard Item Journal" = RIMD,
                   tabledata "Standard Item Journal Line" = RIMD,

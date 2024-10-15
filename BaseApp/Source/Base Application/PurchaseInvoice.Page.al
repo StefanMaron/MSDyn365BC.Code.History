@@ -1,4 +1,4 @@
-page 51 "Purchase Invoice"
+﻿page 51 "Purchase Invoice"
 {
     Caption = 'Purchase Invoice';
     PageType = Document;
@@ -360,6 +360,13 @@ page 51 "Purchase Invoice"
                             PurchCalcDiscByType.ApplyDefaultInvoiceDiscount(0, Rec);
                     end;
                 }
+                field("Vendor Posting Group"; "Vendor Posting Group")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Editable = IsPostingGroupEditable;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the vendor''s market type to link business transactions to.';
+                }
                 field("Payment Terms Code"; "Payment Terms Code")
                 {
                     ApplicationArea = Basic, Suite;
@@ -371,6 +378,7 @@ page 51 "Purchase Invoice"
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies how to make payment, such as with bank transfer, cash, or check.';
+                    Visible = IsPaymentMethodCodeVisible;
                 }
                 field("Reason Code"; "Reason Code")
                 {
@@ -409,6 +417,12 @@ page 51 "Purchase Invoice"
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies the date on which the amount in the entry must be paid for a payment discount to be granted.';
+                }
+                field("Journal Templ. Name"; Rec."Journal Templ. Name")
+                {
+                    ApplicationArea = BasicBE;
+                    ToolTip = 'Specifies the name of the journal template in which the purchase header is to be posted.';
+                    Visible = IsJournalTemplNameVisible;
                 }
                 field("Tax Liable"; "Tax Liable")
                 {
@@ -757,6 +771,15 @@ page 51 "Purchase Invoice"
         }
         area(factboxes)
         {
+            part(PurchaseDocCheckFactbox; "Purch. Doc. Check Factbox")
+            {
+                ApplicationArea = All;
+                Caption = 'Check Document';
+                Visible = PurchaseDocCheckFactboxVisible;
+                SubPageLink = "No." = FIELD("No."),
+                              "Document Type" = FIELD("Document Type");
+            }
+
             part("Attached Documents"; "Document Attachment Factbox")
             {
                 ApplicationArea = All;
@@ -927,7 +950,7 @@ page 51 "Purchase Invoice"
                     begin
                         RecRef.GetTable(Rec);
                         DocumentAttachmentDetails.OpenForRecRef(RecRef);
-                        DocumentAttachmentDetails.RunModal;
+                        DocumentAttachmentDetails.RunModal();
                     end;
                 }
             }
@@ -1012,8 +1035,6 @@ page 51 "Purchase Invoice"
                     Visible = CreateIncomingDocFromEmailAttachment;
 
                     trigger OnAction()
-                    var
-                        OfficeMgt: Codeunit "Office Management";
                     begin
                         CurrPage.SaveRecord();
                         OfficeMgt.InitiateSendToIncomingDocumentsWithPurchaseHeaderLink(Rec, "Buy-from Vendor No.");
@@ -1255,7 +1276,7 @@ page 51 "Purchase Invoice"
                     begin
                         Clear(MoveNegPurchLines);
                         MoveNegPurchLines.SetPurchHeader(Rec);
-                        MoveNegPurchLines.RunModal;
+                        MoveNegPurchLines.RunModal();
                         MoveNegPurchLines.ShowDocument;
                     end;
                 }
@@ -1340,7 +1361,7 @@ page 51 "Purchase Invoice"
                     begin
                         // Opens page 6400 where the user can use filtered templates to create new flows.
                         FlowTemplateSelector.SetSearchText(FlowServiceManagement.GetPurchasingTemplateFilter);
-                        FlowTemplateSelector.Run;
+                        FlowTemplateSelector.Run();
                     end;
                 }
                 action(SeeFlows)
@@ -1351,7 +1372,7 @@ page 51 "Purchase Invoice"
                     Promoted = true;
                     PromotedCategory = Category8;
                     RunObject = Page "Flow Selector";
-                                    ToolTip = 'View and configure Power Automate flows that you created.';
+                    ToolTip = 'View and configure Power Automate flows that you created.';
                 }
             }
             group("P&osting")
@@ -1485,6 +1506,8 @@ page 51 "Purchase Invoice"
         CalculateCurrentShippingAndPayToOption;
         BuyFromContact.GetOrClear("Buy-from Contact No.");
         PayToContact.GetOrClear("Pay-to Contact No.");
+
+        OnAfterOnAfterGetRecord(Rec);
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -1494,12 +1517,10 @@ page 51 "Purchase Invoice"
     end;
 
     trigger OnInit()
-    var
-        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
-        JobQueuesUsed := PurchasesPayablesSetup.JobQueueActive;
-        SetExtDocNoMandatoryCondition;
-        ShowShippingOptionsWithLocation := ApplicationAreaMgmtFacade.IsLocationEnabled or ApplicationAreaMgmtFacade.IsAllDisabled;
+        JobQueuesUsed := PurchSetup.JobQueueActive();
+        SetExtDocNoMandatoryCondition();
+        ShowShippingOptionsWithLocation := ApplicationAreaMgmtFacade.IsLocationEnabled() or ApplicationAreaMgmtFacade.IsAllDisabled();
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
@@ -1514,14 +1535,13 @@ page 51 "Purchase Invoice"
 
     trigger OnOpenPage()
     var
-        OfficeMgt: Codeunit "Office Management";
         EnvironmentInfo: Codeunit "Environment Information";
     begin
-        SetDocNoVisible;
-        IsOfficeAddin := OfficeMgt.IsAvailable;
-        CreateIncomingDocFromEmailAttachment := OfficeMgt.OCRAvailable;
-        CreateIncomingDocumentVisible := not OfficeMgt.IsOutlookMobileApp;
-        IsSaaS := EnvironmentInfo.IsSaaS;
+        SetDocNoVisible();
+        IsOfficeAddin := OfficeMgt.IsAvailable();
+        CreateIncomingDocFromEmailAttachment := OfficeMgt.OCRAvailable();
+        CreateIncomingDocumentVisible := not OfficeMgt.IsOutlookMobileApp();
+        IsSaaS := EnvironmentInfo.IsSaaS();
 
         Rec.SetSecurityFilterOnRespCenter();
 
@@ -1530,7 +1550,10 @@ page 51 "Purchase Invoice"
 
         SetRange("Date Filter", 0D, WorkDate());
 
-        ActivateFields;
+        ActivateFields();
+
+        SetPostingGroupEditable();
+        CheckShowBackgrValidationNotification();
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -1546,49 +1569,59 @@ page 51 "Purchase Invoice"
     var
         BuyFromContact: Record Contact;
         PayToContact: Record Contact;
+        PurchSetup: Record "Purchases & Payables Setup";
+        GLSetup: Record "General Ledger Setup";
         MoveNegPurchLines: Report "Move Negative Purchase Lines";
-                               ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
-                               ReportPrint: Codeunit "Test Report-Print";
-                               UserMgt: Codeunit "User Setup Management";
-                               PurchCalcDiscByType: Codeunit "Purch - Calc Disc. By Type";
-                               OfficeMgt: Codeunit "Office Management";
-                               FormatAddress: Codeunit "Format Address";
-                               ChangeExchangeRate: Page "Change Exchange Rate";
-    [InDataSet]
+        ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
+        ReportPrint: Codeunit "Test Report-Print";
+        UserMgt: Codeunit "User Setup Management";
+        PurchCalcDiscByType: Codeunit "Purch - Calc Disc. By Type";
+        OfficeMgt: Codeunit "Office Management";
+        FormatAddress: Codeunit "Format Address";
+        ChangeExchangeRate: Page "Change Exchange Rate";
+        [InDataSet]
+        StatusStyleTxt: Text;
+        HasIncomingDocument: Boolean;
+        DocNoVisible: Boolean;
+        VendorInvoiceNoMandatory: Boolean;
+        OpenApprovalEntriesExist: Boolean;
+        OpenApprovalEntriesExistForCurrUser: Boolean;
+        ShowWorkflowStatus: Boolean;
+        JobQueuesUsed: Boolean;
+        OpenPostedPurchaseInvQst: Label 'The invoice is posted as number %1 and moved to the Posted Purchase Invoices window.\\Do you want to open the posted invoice?', Comment = '%1 = posted document number';
+        IsOfficeAddin: Boolean;
+        CanCancelApprovalForRecord: Boolean;
+        DocumentIsPosted: Boolean;
+        CreateIncomingDocumentVisible: Boolean;
+        CreateIncomingDocFromEmailAttachment: Boolean;
+        TotalsMismatchErr: Label 'The invoice cannot be posted because the total is different from the total on the related incoming document.';
+        IncomingDocEmailAttachmentEnabled: Boolean;
+        CanRequestApprovalForFlow: Boolean;
+        CanCancelApprovalForFlow: Boolean;
+        ShowShippingOptionsWithLocation: Boolean;
+        IsSaaS: Boolean;
+        IsBuyFromCountyVisible: Boolean;
+        IsPayToCountyVisible: Boolean;
+        IsShipToCountyVisible: Boolean;
+        PurchaseDocCheckFactboxVisible: Boolean;
+        [InDataSet]
+        IsJournalTemplNameVisible: Boolean;
+        [InDataSet]
+        IsPaymentMethodCodeVisible: Boolean;
+        IsPostingGroupEditable: Boolean;
 
-    StatusStyleTxt: Text;
-    HasIncomingDocument: Boolean;
-    DocNoVisible: Boolean;
-    VendorInvoiceNoMandatory: Boolean;
-    OpenApprovalEntriesExist: Boolean;
-    OpenApprovalEntriesExistForCurrUser: Boolean;
-    ShowWorkflowStatus: Boolean;
-    JobQueuesUsed: Boolean;
-    OpenPostedPurchaseInvQst: Label 'The invoice is posted as number %1 and moved to the Posted Purchase Invoices window.\\Do you want to open the posted invoice?', Comment = '%1 = posted document number';
-    IsOfficeAddin: Boolean;
-    CanCancelApprovalForRecord: Boolean;
-    DocumentIsPosted: Boolean;
-    CreateIncomingDocumentVisible: Boolean;
-    CreateIncomingDocFromEmailAttachment: Boolean;
-    TotalsMismatchErr: Label 'The invoice cannot be posted because the total is different from the total on the related incoming document.';
-    IncomingDocEmailAttachmentEnabled: Boolean;
-    CanRequestApprovalForFlow: Boolean;
-    CanCancelApprovalForFlow: Boolean;
-    ShowShippingOptionsWithLocation: Boolean;
-    IsSaaS: Boolean;
-    IsBuyFromCountyVisible: Boolean;
-    IsPayToCountyVisible: Boolean;
-    IsShipToCountyVisible: Boolean;
-
-protected var
+    protected var
         ShipToOptions: Option "Default (Company Address)",Location,"Custom Address";
-    PayToOptions: Option "Default (Vendor)","Another Vendor","Custom Address";
+        PayToOptions: Option "Default (Vendor)","Another Vendor","Custom Address";
 
-local procedure ActivateFields()
+    local procedure ActivateFields()
     begin
         IsBuyFromCountyVisible := FormatAddress.UseCounty("Buy-from Country/Region Code");
         IsPayToCountyVisible := FormatAddress.UseCounty("Pay-to Country/Region Code");
         IsShipToCountyVisible := FormatAddress.UseCounty("Ship-to Country/Region Code");
+        GLSetup.Get();
+        IsJournalTemplNameVisible := GLSetup."Journal Templ. Name Mandatory";
+        IsPaymentMethodCodeVisible := not GLSetup."Hide Payment Method Code";
     end;
 
     procedure LineModified()
@@ -1614,8 +1647,7 @@ local procedure ActivateFields()
         if IsHandled then
             exit;
 
-        if ApplicationAreaMgmtFacade.IsFoundationEnabled then
-            LinesInstructionMgt.PurchaseCheckAllLinesHaveQuantityAssigned(Rec);
+        LinesInstructionMgt.PurchaseCheckAllLinesHaveQuantityAssigned(Rec);
 
         SendToPosting(PostingCodeunitID);
 
@@ -1640,7 +1672,7 @@ local procedure ActivateFields()
                     if IsOfficeAddin then begin
                         PurchInvHeader.SetRange("Pre-Assigned No.", "No.");
                         PurchInvHeader.SetRange("Order No.", '');
-                        if PurchInvHeader.FindFirst then
+                        if PurchInvHeader.FindFirst() then
                             PAGE.Run(PAGE::"Posted Purchase Invoice", PurchInvHeader);
                     end else
                         if InstructionMgt.IsEnabled(InstructionMgt.ShowPostedConfirmationMessageCode) then
@@ -1656,8 +1688,6 @@ local procedure ActivateFields()
                     PAGE.Run(PAGE::"Purchase Invoice", PurchaseHeader);
                 end;
         end;
-
-
     end;
 
     local procedure VerifyTotal()
@@ -1711,16 +1741,15 @@ local procedure ActivateFields()
     end;
 
     local procedure SetExtDocNoMandatoryCondition()
-    var
-        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
-        PurchasesPayablesSetup.Get();
-        VendorInvoiceNoMandatory := PurchasesPayablesSetup."Ext. Doc. No. Mandatory"
+        PurchSetup.GetRecordOnce();
+        VendorInvoiceNoMandatory := PurchSetup."Ext. Doc. No. Mandatory";
     end;
 
     local procedure SetControlAppearance()
     var
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
+        DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
         WorkflowWebhookMgt: Codeunit "Workflow Webhook Management";
     begin
         HasIncomingDocument := "Incoming Document Entry No." <> 0;
@@ -1733,6 +1762,26 @@ local procedure ActivateFields()
         CanCancelApprovalForRecord := ApprovalsMgmt.CanCancelApprovalForRecord(RecordId);
 
         WorkflowWebhookMgt.GetCanRequestAndCanCancel(RecordId, CanRequestApprovalForFlow, CanCancelApprovalForFlow);
+        PurchaseDocCheckFactboxVisible := DocumentErrorsMgt.BackgroundValidationEnabled();
+    end;
+
+    procedure RunBackgroundCheck()
+    begin
+        CurrPage.PurchaseDocCheckFactbox.Page.CheckErrorsInBackground(Rec);
+    end;
+
+    local procedure CheckShowBackgrValidationNotification()
+    var
+        DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
+    begin
+        if DocumentErrorsMgt.CheckShowEnableBackgrValidationNotification() then
+            SetControlAppearance();
+    end;
+
+    procedure SetPostingGroupEditable()
+    begin
+        PurchSetup.GetRecordOnce();
+        IsPostingGroupEditable := PurchSetup."Allow Multiple Posting Groups";
     end;
 
     local procedure ShowPostedConfirmationMessage()
@@ -1742,11 +1791,11 @@ local procedure ActivateFields()
     begin
         PurchInvHeader.SetRange("Pre-Assigned No.", "No.");
         PurchInvHeader.SetRange("Order No.", '');
-        if PurchInvHeader.FindFirst then
+        if PurchInvHeader.FindFirst() then
             if InstructionMgt.ShowConfirm(StrSubstNo(OpenPostedPurchaseInvQst, PurchInvHeader."No."),
                  InstructionMgt.ShowPostedConfirmationMessageCode)
             then
-                PAGE.Run(PAGE::"Posted Purchase Invoice", PurchInvHeader);
+                InstructionMgt.ShowPostedDocument(PurchInvHeader, Page::"Purchase Invoice");
     end;
 
     local procedure ValidateShippingOption()
@@ -1784,6 +1833,11 @@ local procedure ActivateFields()
         end;
 
         OnAfterCalculateCurrentShippingAndPayToOption(ShipToOptions, PayToOptions, Rec);
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterOnAfterGetRecord(var PurchaseHeader: Record "Purchase Header")
+    begin
     end;
 
     [IntegrationEvent(false, false)]

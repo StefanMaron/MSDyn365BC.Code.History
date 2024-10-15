@@ -41,10 +41,10 @@ codeunit 136133 "Service Stockout"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Service Stockout");
 
-        LibraryService.SetupServiceMgtNoSeries;
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
+        LibraryService.SetupServiceMgtNoSeries();
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
         IsInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Service Stockout");
@@ -69,7 +69,7 @@ codeunit 136133 "Service Stockout"
 
         // SETUP: Create Supply with Purchase Order for Item X, Quantity = Y.
         // SETUP: Create Service Demand for Item X,with zero quantity.
-        Initialize;
+        Initialize();
         PurchaseQuantity := LibraryRandom.RandInt(10);
         ServiceQuantity := PurchaseQuantity + 1;
         LibraryInventory.CreateItem(Item);
@@ -100,7 +100,7 @@ codeunit 136133 "Service Stockout"
         Assert.AreEqual(
           NbNotifs - 1, TempNotificationContext.Count, 'Unexpected number of notifications after changing Type to Resource.');
 
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -116,7 +116,7 @@ codeunit 136133 "Service Stockout"
         // Test supply cover demand and therefore no warning.
 
         // SETUP: Create Supply for Item X.
-        Initialize;
+        Initialize();
         PurchaseQuantity := LibraryRandom.RandInt(10);
         ServiceQuantity := PurchaseQuantity - 1;
         LibraryInventory.CreateItem(Item);
@@ -147,7 +147,7 @@ codeunit 136133 "Service Stockout"
 
         // SETUP: Create Service Demand for Item X,with zero quantity
         // SETUP: Create Supply with Purchase Order for Item X, Qantity=Y, at a date after service Demand
-        Initialize;
+        Initialize();
         PurchaseQuantity := LibraryRandom.RandInt(10) * 2;  // Taking Minimum Value as 2 as the Sale Quantity should not be zero.
         ServiceQuantity := PurchaseQuantity - 1;
         LibraryInventory.CreateItem(Item);
@@ -160,7 +160,7 @@ codeunit 136133 "Service Stockout"
 
         // VERIFY: Quantity on Service order after warning is Y - 1.
         ValidateQuantity(ServiceOrderNo, QuantityToSet);
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -181,7 +181,7 @@ codeunit 136133 "Service Stockout"
 
         // SETUP: Create Supply with Purchase Order for Item X, Qantity=Y, Location = Z.
         // SETUP: Create Service Demand for Item X, Quantity=0, Location = M
-        Initialize;
+        Initialize();
         PurchaseQuantity := LibraryRandom.RandInt(10) * 2;  // Taking Minimum Value as 2 as the Sale Quantity should not be zero.
         ServiceQuantity := PurchaseQuantity - 1;
         LibraryInventory.CreateItem(Item);
@@ -196,7 +196,7 @@ codeunit 136133 "Service Stockout"
 
         // VERIFY: Verify Quantity on Service order after warning is Y - 1.
         ValidateQuantity(ServiceOrderNo, QuantityToSet);
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -215,7 +215,7 @@ codeunit 136133 "Service Stockout"
 
         // SETUP: Create Supply with Purchase Order for Item X, Qantity=Y, Location = Z, Variant = V1.
         // SETUP: Create Service Demand for Item X, Quantity=0, Location = Z, Variant=V2
-        Initialize;
+        Initialize();
         PurchaseQuantity := LibraryRandom.RandInt(10) * 2;  // Taking Minimum Value as 2 as the Sale Quantity should not be zero.
         ServiceQuantity := PurchaseQuantity - 1;
         CreateItemWithVariants(Item);
@@ -229,7 +229,7 @@ codeunit 136133 "Service Stockout"
 
         // VERIFY: Quantity on Service order after warning is Y - 1.
         ValidateQuantity(ServiceOrderNo, QuantityToSet);
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -250,7 +250,7 @@ codeunit 136133 "Service Stockout"
 
         // SETUP: Create Supply with Purchase Order for Item X, Qantity=Y, Location = Z.
         // SETUP: Create Service Demand for Item X, Quantity=Y, Location = Z
-        Initialize;
+        Initialize();
         PurchaseQuantity := LibraryRandom.RandInt(10);
         ServiceQuantity := PurchaseQuantity;
         LibraryInventory.CreateItem(Item);
@@ -266,7 +266,7 @@ codeunit 136133 "Service Stockout"
 
         // VERIFY: Verify Quantity on service order after warning is Y and location M.
         ValidateQuantity(ServiceOrderNo, QuantityToSet);
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -285,7 +285,7 @@ codeunit 136133 "Service Stockout"
 
         // SETUP: Create Supply with Purchase Order for Item X, Qantity=Y, Date = Workdate.
         // SETUP: Create Service Demand for Item X, Quantity=Y, Date = Workdate + 1
-        Initialize;
+        Initialize();
         PurchaseQuantity := LibraryRandom.RandInt(10);
         ServiceQuantity := PurchaseQuantity;
         LibraryInventory.CreateItem(Item);
@@ -300,7 +300,7 @@ codeunit 136133 "Service Stockout"
 
         // VERIFY: Quantity on service order after warning is Y and Date is Workdate - 1.
         ValidateQuantity(ServiceOrderNo, QuantityToSet);
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -318,7 +318,7 @@ codeunit 136133 "Service Stockout"
         // SETUP: Create Supply with Purchase Order for Item X, Quantity = Y1
         // SETUP: Create Supply with Purchase Order for Item X, Quantity = Y2
         // SETUP: Create Service Order Demand for Item X, Quantity=0
-        Initialize;
+        Initialize();
         PurchaseQuantity := LibraryRandom.RandInt(10);
         ServiceQuantity := PurchaseQuantity * 2;
         LibraryInventory.CreateItem(Item);
@@ -354,7 +354,7 @@ codeunit 136133 "Service Stockout"
         // SETUP: Create Job Planning Line Demand for Item X, Quantity=Y2
         // SETUP: Create Service Order Demand for Item X, Quantity=0
         // SETUP: Create Supply with Purchase Order for Item X, Quantity = Y1+Y2+Y3 - 1.
-        Initialize;
+        Initialize();
         PurchaseQuantity := 10;
         JobQuantity := PurchaseQuantity / 2;
         ServiceQuantity := PurchaseQuantity - JobQuantity + 1;
@@ -369,7 +369,7 @@ codeunit 136133 "Service Stockout"
 
         // VERIFY: Verify Quantity on Service Order after warning is Y3.
         ValidateQuantity(ServiceOrderNo, QuantityToSet);
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Normal]
@@ -574,7 +574,7 @@ codeunit 136133 "Service Stockout"
         Customer: Record Customer;
     begin
         Clear(ServiceItem);
-        if ServiceItem.FindFirst then
+        if ServiceItem.FindFirst() then
             repeat
                 Customer.Get(ServiceItem."Customer No.");
                 Item.Get(ServiceItem."Item No.");
@@ -591,7 +591,7 @@ codeunit 136133 "Service Stockout"
         // Method returns the expected receipt date from a purchase order.
         PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Order);
         PurchaseLine.SetRange("Document No.", PurchaseHeaderNo);
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
         if PurchaseLine.Count > 0 then
             exit(PurchaseLine."Expected Receipt Date");
         Error(ReceiptDateDocumentError, PurchaseHeaderNo);
@@ -603,7 +603,7 @@ codeunit 136133 "Service Stockout"
     begin
         ServiceLine.SetRange("Document Type", ServiceLine."Document Type"::Order);
         ServiceLine.SetRange("Document No.", ServiceHeaderNo);
-        ServiceLine.FindFirst;
+        ServiceLine.FindFirst();
         exit(ServiceLine."Needed by Date");
     end;
 
@@ -612,7 +612,7 @@ codeunit 136133 "Service Stockout"
         JobPlanningLine: Record "Job Planning Line";
     begin
         JobPlanningLine.SetRange("Job No.", JobNo);
-        JobPlanningLine.FindFirst;
+        JobPlanningLine.FindFirst();
         exit(JobPlanningLine."Planning Date");
     end;
 
@@ -639,7 +639,7 @@ codeunit 136133 "Service Stockout"
 
         ServiceLineToSelect.SetRange("Document No.", ServiceOrderNo);
         ServiceLineToSelect.SetRange("Document Type", ServiceLineToSelect."Document Type"::Order);
-        ServiceLineToSelect.FindFirst;
+        ServiceLineToSelect.FindFirst();
 
         LineNo := Format(ServiceLineToSelect."Line No.");
         ServiceLinesToReturn.First;
@@ -658,7 +658,7 @@ codeunit 136133 "Service Stockout"
         if ServiceHeader.Get(ServiceHeader."Document Type"::Order, DocumentNo) then begin
             ServiceLine.SetRange("Document Type", ServiceLine."Document Type"::Order);
             ServiceLine.SetRange("Document No.", ServiceHeader."No.");
-            ServiceLine.FindFirst;
+            ServiceLine.FindFirst();
             Assert.AreEqual(Quantity, ServiceLine.Quantity, 'Verify Sales Line Quantity matches expected');
             exit;
         end;

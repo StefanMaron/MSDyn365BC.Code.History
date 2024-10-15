@@ -18,7 +18,7 @@ codeunit 1204 "Map Data Exch. To RapidStart"
 
         DataExchLineDef.SetRange("Data Exch. Def Code", DataExch."Data Exch. Def Code");
         DataExchLineDef.SetRange("Parent Code", '');
-        if DataExchLineDef.FindSet then
+        if DataExchLineDef.FindSet() then
             repeat
                 ProcessColumnMapping(DataExch, DataExchLineDef, TargetRapidstartPackageCode);
             until DataExchLineDef.Next() = 0;
@@ -34,7 +34,7 @@ codeunit 1204 "Map Data Exch. To RapidStart"
         DataExchField.SetRange("Data Exch. No.", DataExch."Entry No.");
         DataExchField.SetRange("Data Exch. Line Def Code", DataExchLineDef.Code);
 
-        if not DataExchField.FindSet then
+        if not DataExchField.FindSet() then
             exit;
 
         CurrentLineNo := -1;
@@ -48,7 +48,7 @@ codeunit 1204 "Map Data Exch. To RapidStart"
         ChildDataExchLineDef.SetRange("Data Exch. Def Code", DataExchLineDef."Data Exch. Def Code");
         ChildDataExchLineDef.SetRange("Parent Code", DataExchLineDef.Code);
 
-        if not ChildDataExchLineDef.FindSet then
+        if not ChildDataExchLineDef.FindSet() then
             exit;
 
         repeat
@@ -70,7 +70,7 @@ codeunit 1204 "Map Data Exch. To RapidStart"
         DataExchFieldMapping.SetRange("Data Exch. Line Def Code", DataExchLineDef.Code);
         DataExchFieldMapping.SetRange("Table ID", DATABASE::"Config. Package Data");
         DataExchFieldMapping.SetFilter("Column No.", '>0');
-        if not DataExchFieldMapping.FindFirst then
+        if not DataExchFieldMapping.FindFirst() then
             Error(TargetTableFieldDefinitionMustBeSpecifiedErr);
 
         CurrentLineNo := DataExchField."Line No.";
@@ -85,14 +85,14 @@ codeunit 1204 "Map Data Exch. To RapidStart"
         PreviousConfigPackageRecord.Init();
         PreviousConfigPackageRecord.SetRange("Table ID", DataExchFieldMapping."Target Table ID");
         PreviousConfigPackageRecord.SetRange("Package Code", TargetRapidstartPackageCode);
-        if PreviousConfigPackageRecord.FindLast then
+        if PreviousConfigPackageRecord.FindLast() then
             NewConfigPackageRecord.Validate("No.", PreviousConfigPackageRecord."No." + 1)
         else
             NewConfigPackageRecord.Validate("No.", 1);
 
         if DataExchField."Parent Node ID" <> '' then begin
             TempDataExchRapidStartBuffer.SetRange("Node ID", DataExchField."Parent Node ID");
-            TempDataExchRapidStartBuffer.FindFirst;
+            TempDataExchRapidStartBuffer.FindFirst();
             NewConfigPackageRecord.Validate("Parent Record No.", TempDataExchRapidStartBuffer."RapidStart No.");
         end;
 

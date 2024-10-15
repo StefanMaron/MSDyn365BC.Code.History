@@ -30,7 +30,7 @@ codeunit 134090 "ERM Pmt Disc And VAT Cust/Vend"
         SalesHeader: Record "Sales Header";
     begin
         // Check GL and VAT Entries for Posted Sales Invoice with Item and GL Account Sales Lines.
-        Initialize;
+        Initialize();
         SalesDocumentWithVAT(SalesHeader."Document Type"::Invoice, -1);  // Passing -1 to make Verification Amounts Negative.
     end;
 
@@ -41,7 +41,7 @@ codeunit 134090 "ERM Pmt Disc And VAT Cust/Vend"
         SalesHeader: Record "Sales Header";
     begin
         // Check GL and VAT Entries for Posted Sales Credit Memo with Item and GL Account Sales Lines.
-        Initialize;
+        Initialize();
         SalesDocumentWithVAT(SalesHeader."Document Type"::"Credit Memo", 1);  // Passing 1 to make Verification Amounts Positive.
     end;
 
@@ -86,9 +86,9 @@ codeunit 134090 "ERM Pmt Disc And VAT Cust/Vend"
         // Check Payment Discount Amount and VAT Amount on GL and VAT Entry after posting a Payment for Sales Invoice.
 
         // Update General Ledger, VAT Posting Setup. Post Sales Invoice and make Payment for it.
-        Initialize;
+        Initialize();
         LibraryPmtDiscSetup.SetAdjustForPaymentDisc(true);
-        GLAccountNo := LibraryERM.CreateGLAccountNo;
+        GLAccountNo := LibraryERM.CreateGLAccountNo();
         FindVATPostingSetup(VATPostingSetup);
         CreateCustomerAndItem(Customer, Item, VATPostingSetup);
         OldPmtDiscDebitAcc :=
@@ -124,9 +124,9 @@ codeunit 134090 "ERM Pmt Disc And VAT Cust/Vend"
         // Check Payment Discount Amount and VAT Amount on GL and VAT Entry after Unapplying posted Payment for Sales Invoice.
 
         // Setup: Update General Ledger, VAT Posting Setup. Post Sales Invoice and make Payment for it.
-        Initialize;
+        Initialize();
         LibraryPmtDiscSetup.SetAdjustForPaymentDisc(true);
-        GLAccountNo := LibraryERM.CreateGLAccountNo;
+        GLAccountNo := LibraryERM.CreateGLAccountNo();
         FindVATPostingSetup(VATPostingSetup);
         CreateCustomerAndItem(Customer, Item, VATPostingSetup);
         OldPmtDiscDebitAcc :=
@@ -157,7 +157,7 @@ codeunit 134090 "ERM Pmt Disc And VAT Cust/Vend"
         PurchaseHeader: Record "Purchase Header";
     begin
         // Check GL and VAT Entries for Posted Purchase Invoice with Item and GL Account Purchase Lines.
-        Initialize;
+        Initialize();
         PurchaseDocumentWithVAT(PurchaseHeader."Document Type"::Invoice, 1);  // Passing 1 to make Verification Amounts Positive.
     end;
 
@@ -168,7 +168,7 @@ codeunit 134090 "ERM Pmt Disc And VAT Cust/Vend"
         PurchaseHeader: Record "Purchase Header";
     begin
         // Check GL and VAT Entries for Posted Purchase Credit Memo with Item and GL Account Purchase Lines.
-        Initialize;
+        Initialize();
         PurchaseDocumentWithVAT(PurchaseHeader."Document Type"::"Credit Memo", -1);  // Passing -1 to make Verification Amounts Negative.
     end;
 
@@ -213,9 +213,9 @@ codeunit 134090 "ERM Pmt Disc And VAT Cust/Vend"
         // Check Payment Discount Amount and VAT Amount on GL and VAT Entry after posting a Payment for Purchase Invoice.
 
         // Update General Ledger Setup, VAT Posting Setup. Post Purchase Invoice and make Payment for it.
-        Initialize;
+        Initialize();
         LibraryPmtDiscSetup.SetAdjustForPaymentDisc(true);
-        GLAccountNo := LibraryERM.CreateGLAccountNo;
+        GLAccountNo := LibraryERM.CreateGLAccountNo();
         FindVATPostingSetup(VATPostingSetup);
         CreateVendorAndItem(Vendor, Item, VATPostingSetup);
         OldPmtDiscCreditAcc :=
@@ -251,9 +251,9 @@ codeunit 134090 "ERM Pmt Disc And VAT Cust/Vend"
         // Check Payment Discount Amount and VAT Amount on GL and VAT Entry after Unapplying posted Payment for Purchase Invoice.
 
         // Setup: Update General Ledger Setup, VAT Posting Setup. Post Purchase Invoice and make Payment for it.
-        Initialize;
+        Initialize();
         LibraryPmtDiscSetup.SetAdjustForPaymentDisc(true);
-        GLAccountNo := LibraryERM.CreateGLAccountNo;
+        GLAccountNo := LibraryERM.CreateGLAccountNo();
         FindVATPostingSetup(VATPostingSetup);
         CreateVendorAndItem(Vendor, Item, VATPostingSetup);
         OldPmtDiscCreditAcc :=
@@ -290,7 +290,7 @@ codeunit 134090 "ERM Pmt Disc And VAT Cust/Vend"
     begin
         // [FEATURE] [FULL VAT] [Purchase]
         // [SCENARIO 377970] Two VAT Entries are created from vendor Payment to two Invoices application with Full VAT setup in case of adjust for payment discount
-        Initialize;
+        Initialize();
 
         // [GIVEN] GLSetup."Adjust for Payment Disc." = TRUE
         // [GIVEN] G/L Account "Acc" with FULL VAT posting setup
@@ -336,7 +336,7 @@ codeunit 134090 "ERM Pmt Disc And VAT Cust/Vend"
     begin
         // [FEATURE] [FULL VAT] [Sale]
         // [SCENARIO 377970] Four VAT Entries are created from customer Payment to two Invoices application with two VAT Setups (NOVAT and FULLVAT) in case of adjust for payment discount
-        Initialize;
+        Initialize();
 
         // [GIVEN] GLSetup."Adjust for Payment Disc." = TRUE
         // [GIVEN] G/L Account "Acc" with FULL VAT posting setup
@@ -387,7 +387,7 @@ codeunit 134090 "ERM Pmt Disc And VAT Cust/Vend"
         // [FEATURE] [FULL VAT] [Sale]
         // [SCENARIO 379704] VAT Entries are created from Customer Payment to one Invoice application with two VAT Setups (NormalVAT and FullVAT) in case of payment discount
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] GLSetup."Adjust for Payment Disc." = TRUE
         LibraryPmtDiscSetup.SetAdjustForPaymentDisc(true);
@@ -449,7 +449,7 @@ codeunit 134090 "ERM Pmt Disc And VAT Cust/Vend"
         // [FEATURE] [FULL VAT] [Purchase]
         // [SCENARIO 379704] VAT Entries are created from Vendor Payment to one Invoice application with two VAT Setups (NormalVAT and FullVAT) in case of payment discount
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] GLSetup."Adjust for Payment Disc." = TRUE
         LibraryPmtDiscSetup.SetAdjustForPaymentDisc(true);
@@ -506,7 +506,7 @@ codeunit 134090 "ERM Pmt Disc And VAT Cust/Vend"
         // [FEATURE] [Payment Tolerance] [Rounding] [VAT Difference] [Sales]
         // [SCENARIO 227380] Post customer payment journal applied to several invoices
         // [SCENARIO 227380] in case of Payment Tolerance, VAT Difference, negative invoice lines and rounding
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Payment Tolerance %" = 5, "Max. Paym. Tol. Amount" = 20, "Max. VAT Difference Allowed" = 0.01
         SetupPmtTolAndVATDifference(5, 20, 0.01);
@@ -562,7 +562,7 @@ codeunit 134090 "ERM Pmt Disc And VAT Cust/Vend"
         // [FEATURE] [Payment Tolerance] [Rounding] [VAT Difference] [Purchase]
         // [SCENARIO 227380] Post vendor payment journal applied to several invoices
         // [SCENARIO 227380] in case of Payment Tolerance, VAT Difference, negative invoice lines and rounding
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Payment Tolerance %" = 5, "Max. Paym. Tol. Amount" = 20, "Max. VAT Difference Allowed" = 0.01
         SetupPmtTolAndVATDifference(5, 20, 0.01);
@@ -609,16 +609,16 @@ codeunit 134090 "ERM Pmt Disc And VAT Cust/Vend"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Pmt Disc And VAT Cust/Vend");
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         if isInitialized then
             exit;
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Pmt Disc And VAT Cust/Vend");
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
         LibraryPmtDiscSetup.ClearAdjustPmtDiscInVATSetup;
         UpdateDefaultVATSetupPct;
         isInitialized := true;
@@ -741,8 +741,8 @@ codeunit 134090 "ERM Pmt Disc And VAT Cust/Vend"
         LibraryERM.CreateGenBusPostingGroup(GenBusinessPostingGroup);
         LibraryERM.CreateGenProdPostingGroup(GenProductPostingGroup);
         LibraryERM.CreateGeneralPostingSetup(GeneralPostingSetup, GenBusinessPostingGroup.Code, GenProductPostingGroup.Code);
-        GeneralPostingSetup."Sales Pmt. Tol. Debit Acc." := LibraryERM.CreateGLAccountNo;
-        GeneralPostingSetup."Purch. Pmt. Tol. Credit Acc." := LibraryERM.CreateGLAccountNo;
+        GeneralPostingSetup."Sales Pmt. Tol. Debit Acc." := LibraryERM.CreateGLAccountNo();
+        GeneralPostingSetup."Purch. Pmt. Tol. Credit Acc." := LibraryERM.CreateGLAccountNo();
         GeneralPostingSetup.Modify(true);
     end;
 

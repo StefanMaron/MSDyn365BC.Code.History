@@ -208,17 +208,6 @@ page 595 "Change Log Entries"
                 RunObject = Page "Change Log Setup";
                 ToolTip = 'Enable, disable or setup change logging.';
             }
-            action("Delete Entries")
-            {
-                ApplicationArea = All;
-                Caption = 'Delete Entries';
-                Image = Delete;
-                RunObject = Report "Change Log - Delete";
-                ToolTip = 'Find and delete change log entries.';
-                ObsoleteState = Pending;
-                ObsoleteReason = 'The functionality has been replaced with the retention policy module in system application.';
-                ObsoleteTag = '17.0';
-            }
             action(RetentionPolicy)
             {
                 ApplicationArea = All;

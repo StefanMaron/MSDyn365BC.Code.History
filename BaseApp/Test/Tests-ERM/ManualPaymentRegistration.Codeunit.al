@@ -1751,13 +1751,13 @@ codeunit 134710 "Manual Payment Registration"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Manual Payment Registration");
-        LibrarySetupStorage.Restore;
-        LibraryVariableStorage.Clear;
+        LibrarySetupStorage.Restore();
+        LibraryVariableStorage.Clear();
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Manual Payment Registration");
 
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateAccountInCustomerPostingGroup;
         isInitialized := true;
         Commit();
@@ -1895,7 +1895,7 @@ codeunit 134710 "Manual Payment Registration"
     begin
         CustLedgerEntry.SetRange("Customer No.", CustomerNo);
         CustLedgerEntry.SetRange("Document No.", DocNo);
-        CustLedgerEntry.FindLast;
+        CustLedgerEntry.FindLast();
     end;
 
     local procedure FindPaymentRegistrationBuffer(var TempPaymentRegistrationBuffer: Record "Payment Registration Buffer" temporary; CustomerNo: Code[20]; DocNo: Code[20])
@@ -1961,7 +1961,7 @@ codeunit 134710 "Manual Payment Registration"
 
         IssuedFinChargeMemoHeader.SetRange("Pre-Assigned No.", FinanceChargeMemoHeader."No.");
         IssuedFinChargeMemoHeader.SetRange("Customer No.", FinanceChargeMemoHeader."Customer No.");
-        IssuedFinChargeMemoHeader.FindLast;
+        IssuedFinChargeMemoHeader.FindLast();
         exit(IssuedFinChargeMemoHeader."No.")
     end;
 
@@ -2097,7 +2097,7 @@ codeunit 134710 "Manual Payment Registration"
         SalesHeader: Record "Sales Header";
         i: Integer;
     begin
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
         for i := 1 to ArrayLen(DocumentNo) do begin
             CreateSalesDocumentWithCustomer(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo);
             DocumentNo[i] := LibrarySales.PostSalesDocument(SalesHeader, true, true);

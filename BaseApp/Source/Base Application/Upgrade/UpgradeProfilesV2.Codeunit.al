@@ -406,7 +406,6 @@ codeunit 104040 "Upgrade Profiles V2"
         ProductionPlannerLockedTxt: Label 'Production Planner', Locked = true;
         PurchasingAgentLockedTxt: Label 'Purchasing Agent', Locked = true;
         RapidstartServicesLockedTxt: Label 'RapidStart Services', Locked = true;
-        ResourceManagerLockedTxt: Label 'Resource Manager', Locked = true;
         SalesManagerLockedTxt: Label 'Sales Manager', Locked = true;
         ShippingAndReceivingLockedTxt: Label 'Shipping and Receiving', Locked = true;
         ShippingAndReceivingWMSLockedTxt: Label 'Shipping and Receiving - WMS', Locked = true;

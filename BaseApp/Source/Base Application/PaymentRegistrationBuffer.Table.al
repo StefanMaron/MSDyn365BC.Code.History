@@ -183,7 +183,7 @@ table 981 "Payment Registration Buffer"
 
         CustLedgerEntry.SetFilter("Document Type", '<>%1', CustLedgerEntry."Document Type"::Payment);
         CustLedgerEntry.SetRange(Open, true);
-        if CustLedgerEntry.FindSet then begin
+        if CustLedgerEntry.FindSet() then begin
             repeat
                 if Customer.Get(CustLedgerEntry."Customer No.") then begin
                     CustLedgerEntry.CalcFields("Remaining Amount");
@@ -213,7 +213,7 @@ table 981 "Payment Registration Buffer"
             until CustLedgerEntry.Next() = 0;
         end;
 
-        if FindSet then;
+        if FindSet() then;
     end;
 
     procedure Navigate()
@@ -223,7 +223,7 @@ table 981 "Payment Registration Buffer"
     begin
         CustLedgerEntry.Get("Ledger Entry No.");
         Navigate.SetDoc(CustLedgerEntry."Posting Date", CustLedgerEntry."Document No.");
-        Navigate.Run;
+        Navigate.Run();
     end;
 
     procedure Reload()
@@ -250,7 +250,7 @@ table 981 "Payment Registration Buffer"
         TempWorkPmtRegnBuf.Copy(Rec, true);
         TempWorkPmtRegnBuf.Reset();
         TempWorkPmtRegnBuf.SetRange("Payment Made", true);
-        if TempWorkPmtRegnBuf.FindSet then
+        if TempWorkPmtRegnBuf.FindSet() then
             repeat
                 TempSavePmtRegnBuf := TempWorkPmtRegnBuf;
                 TempSavePmtRegnBuf.Insert();
@@ -259,7 +259,7 @@ table 981 "Payment Registration Buffer"
 
     local procedure RestoreUserValues(var TempSavePmtRegnBuf: Record "Payment Registration Buffer" temporary)
     begin
-        if TempSavePmtRegnBuf.FindSet then
+        if TempSavePmtRegnBuf.FindSet() then
             repeat
                 if Get(TempSavePmtRegnBuf."Ledger Entry No.") then begin
                     "Payment Made" := TempSavePmtRegnBuf."Payment Made";

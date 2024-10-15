@@ -157,7 +157,7 @@ table 5089 "Contact Profile Answer"
             ProfileQuestnLine3.SetRange("Profile Questionnaire Code", "Profile Questionnaire Code");
             ProfileQuestnLine3.SetRange(Type, ProfileQuestnLine3.Type::Question);
             ProfileQuestnLine3.SetFilter("Line No.", '>%1', ProfileQuestnLine2."Line No.");
-            if ProfileQuestnLine3.FindFirst then
+            if ProfileQuestnLine3.FindFirst() then
                 ContProfileAnswer.SetRange(
                   "Line No.", ProfileQuestnLine2."Line No.", ProfileQuestnLine3."Line No.")
             else

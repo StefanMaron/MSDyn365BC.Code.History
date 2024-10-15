@@ -34,9 +34,9 @@ codeunit 144062 "ERM Payment Terms Reporting"
         // [FEATURE] [Purchase] [Order] [UI]
         // [SCENARIO 212351] Field "Invoice Receipt Date" exists in Purchase Order
 
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetPurchDocsCreate;
-        PurchaseOrder.OpenNew;
+        PurchaseOrder.OpenNew();
         Assert.IsTrue(PurchaseOrder."Invoice Receipt Date".Visible, 'Field Invoice Receipt Date is not visible');
         PurchaseOrder.Close;
     end;
@@ -50,9 +50,9 @@ codeunit 144062 "ERM Payment Terms Reporting"
         // [FEATURE] [Purchase] [Invoice] [UI]
         // [SCENARIO 212351] Field "Invoice Receipt Date" exists in Purchase Invoice
 
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetPurchDocsCreate;
-        PurchaseInvoice.OpenNew;
+        PurchaseInvoice.OpenNew();
         Assert.IsTrue(PurchaseInvoice."Invoice Receipt Date".Visible, 'Field Invoice Receipt Date is not visible');
         PurchaseInvoice.Close;
     end;
@@ -67,10 +67,10 @@ codeunit 144062 "ERM Payment Terms Reporting"
         // [FEATURE] [Purchase] [Order] [UI] [SaaS]
         // [SCENARIO 212351] Field "Invoice Receipt Date" exists in Purchase Order under SaaS version of NAV
 
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetPurchDocsCreate;
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
-        PurchaseOrder.OpenNew;
+        PurchaseOrder.OpenNew();
         Assert.IsTrue(PurchaseOrder."Invoice Receipt Date".Visible, 'Field Invoice Receipt Date is not visible');
         PurchaseOrder.Close;
     end;
@@ -85,10 +85,10 @@ codeunit 144062 "ERM Payment Terms Reporting"
         // [FEATURE] [Purchase] [Invoice] [UI] [SaaS]
         // [SCENARIO 212351] Field "Invoice Receipt Date" exists in Purchase Invoice under SaaS version of NAV
 
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetPurchDocsCreate;
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
-        PurchaseInvoice.OpenNew;
+        PurchaseInvoice.OpenNew();
         Assert.IsTrue(PurchaseInvoice."Invoice Receipt Date".Visible, 'Field Invoice Receipt Date is not visible');
         PurchaseInvoice.Close;
     end;
@@ -102,7 +102,7 @@ codeunit 144062 "ERM Payment Terms Reporting"
         // [FEATURE] [Purchase] [UT]
         // [SCENARIO 212351] Field "Invoice Receipt Date" equals "Document Date" when create Purchase Order
 
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetPurchDocsCreate;
         PurchaseHeader.Init();
         PurchaseHeader."Document Type" := PurchaseHeader."Document Type"::Order;
@@ -120,7 +120,7 @@ codeunit 144062 "ERM Payment Terms Reporting"
         // [FEATURE] [Purchase] [UT]
         // [SCENARIO 212351] Field "Invoice Receipt Date" equals "Document Date" when create Purchase Invoice
 
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetPurchDocsCreate;
         PurchaseHeader.Init();
         PurchaseHeader."Document Type" := PurchaseHeader."Document Type"::Invoice;
@@ -138,7 +138,7 @@ codeunit 144062 "ERM Payment Terms Reporting"
         // [FEATURE] [UT]
         // [SCENARIO 212351] Field "Invoice Receipt Date" is blank when create Purchase Credit Memo
 
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetPurchDocsCreate;
         PurchaseHeader.Init();
         PurchaseHeader."Document Type" := PurchaseHeader."Document Type"::"Credit Memo";
@@ -155,8 +155,8 @@ codeunit 144062 "ERM Payment Terms Reporting"
         // [FEATURE] [UT]
         // [SCENARIO 212351] Field "Invoice Receipt Date" equals "Document Date" when create General Journal Line with "Document Type" = Invoice
 
-        Initialize;
-        LibraryLowerPermissions.SetO365Setup;
+        Initialize();
+        LibraryLowerPermissions.SetO365Setup();
         LibraryJournals.CreateGenJournalLineWithBatch(
           GenJournalLine, GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Vendor, '', 0);
         GenJournalLine.TestField("Invoice Receipt Date");
@@ -172,8 +172,8 @@ codeunit 144062 "ERM Payment Terms Reporting"
         // [FEATURE] [UT]
         // [SCENARIO 212351] Field "Invoice Receipt Date" is blank when create General Journal Line with "Document Type" = Payment
 
-        Initialize;
-        LibraryLowerPermissions.SetO365Setup;
+        Initialize();
+        LibraryLowerPermissions.SetO365Setup();
         LibraryJournals.CreateGenJournalLineWithBatch(
             GenJournalLine, GenJournalLine."Document Type"::Payment, "Gen. Journal Account Type"::"G/L Account", '', 0);
         GenJournalLine.TestField("Invoice Receipt Date", 0D);
@@ -188,8 +188,8 @@ codeunit 144062 "ERM Payment Terms Reporting"
         // [FEATURE] [UT]
         // [SCENARIO 212351] Field "Invoice Receipt Date" equals "Document Date" when switch "Document Type" to Invoice on General Journal Line
 
-        Initialize;
-        LibraryLowerPermissions.SetO365Setup;
+        Initialize();
+        LibraryLowerPermissions.SetO365Setup();
         LibraryJournals.CreateGenJournalLineWithBatch(
           GenJournalLine, GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Vendor, '', 0);
         GenJournalLine.Validate("Document Type", GenJournalLine."Document Type"::Invoice);
@@ -206,8 +206,8 @@ codeunit 144062 "ERM Payment Terms Reporting"
         // [FEATURE] [UT]
         // [SCENARIO 212351] Cannot validate "Invoice Receipt Date" in General Journal Line with "Document Type" = Payment
 
-        Initialize;
-        LibraryLowerPermissions.SetO365Setup;
+        Initialize();
+        LibraryLowerPermissions.SetO365Setup();
         LibraryJournals.CreateGenJournalLineWithBatch(
           GenJournalLine, GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Vendor, '', 0);
         asserterror GenJournalLine.Validate("Invoice Receipt Date", WorkDate);
@@ -225,8 +225,8 @@ codeunit 144062 "ERM Payment Terms Reporting"
         // [FEATURE] [Purchase] [UT]
         // [SCENARIO 212351] Field "Invoice Receipt Date" not changes on "Document Date" validation of General Journal Line
 
-        Initialize;
-        LibraryLowerPermissions.SetO365Setup;
+        Initialize();
+        LibraryLowerPermissions.SetO365Setup();
         LibraryLowerPermissions.AddAccountPayables;
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, '');
         ExpectedDate := PurchaseHeader."Invoice Receipt Date";
@@ -244,8 +244,8 @@ codeunit 144062 "ERM Payment Terms Reporting"
         // [FEATURE] [UT]
         // [SCENARIO 212351] Field "Invoice Receipt Date" not changes on "Document Date" validation of General Journal Line
 
-        Initialize;
-        LibraryLowerPermissions.SetO365Setup;
+        Initialize();
+        LibraryLowerPermissions.SetO365Setup();
         LibraryJournals.CreateGenJournalLineWithBatch(
             GenJournalLine, GenJournalLine."Document Type"::Invoice, "Gen. Journal Account Type"::"G/L Account", '', 0);
         ExpectedDate := GenJournalLine."Invoice Receipt Date";
@@ -264,8 +264,8 @@ codeunit 144062 "ERM Payment Terms Reporting"
         // [FEATURE] [Purchase]
         // [SCENARIO 212351] Field "Invoice Receipt Date" inherits to Vendor Ledger Entry after posting Purchase Document
 
-        Initialize;
-        LibraryLowerPermissions.SetO365Setup;
+        Initialize();
+        LibraryLowerPermissions.SetO365Setup();
         LibraryLowerPermissions.AddAccountPayables;
 
         // [GIVEN] Purchase Invoice with "Invoice Receipt Date" = "X"
@@ -291,9 +291,9 @@ codeunit 144062 "ERM Payment Terms Reporting"
     begin
         // [SCENARIO 212351] Field "Invoice Receipt Date" inherits to Vendor Ledger Entry after posting General Journal Line with "Document Type" = Invoice
 
-        Initialize;
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddJournalsPost;
+        Initialize();
+        LibraryLowerPermissions.SetO365Setup();
+        LibraryLowerPermissions.AddJournalsPost();
 
         // [GIVEN] General Journal Line with "Document Type" = Invoice and "Invoice Receipt Date" = "X"
         LibraryJournals.CreateGenJournalLineWithBatch(
@@ -321,9 +321,9 @@ codeunit 144062 "ERM Payment Terms Reporting"
         // [FEATURE] [UT]
         // [SCENARIO 212351] Stan can change "Invoice Receipt Date" in Vendor Ledger Entry
 
-        Initialize;
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddJournalsPost;
+        Initialize();
+        LibraryLowerPermissions.SetO365Setup();
+        LibraryLowerPermissions.AddJournalsPost();
 
         // [GIVEN] Posted Vendor Ledger Entry "Document Type" = Invoice and "Invoice Receipt Date" = 01.01.2017
         LibraryJournals.CreateGenJournalLineWithBatch(
@@ -355,9 +355,9 @@ codeunit 144062 "ERM Payment Terms Reporting"
         // [FEATURE] [UT]
         // [SCENARIO 212351] No purchase invoices includes into Payment Application Buffer by function BuildPmtApplicationBuffer of codeunit "Payment Terms Reporting Mgt." for Vendor with "Exclude from Pmt. Pract. Rep." option
 
-        Initialize;
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddPurchDocsPost;
+        Initialize();
+        LibraryLowerPermissions.SetO365Setup();
+        LibraryLowerPermissions.AddPurchDocsPost();
         SetStartingEndingDates(StartingDate, EndingDate);
 
         MockVendLedEntryNo(true, VendorLedgerEntry."Document Type"::Invoice, StartingDate, 0D, 0D, 0D, false);
@@ -380,9 +380,9 @@ codeunit 144062 "ERM Payment Terms Reporting"
         // [FEATURE] [UT]
         // [SCENARIO 212351] Only purchase invoices within specified period includes into Payment Application Buffer by function BuildPmtApplicationBuffer of codeunit "Payment Terms Reporting Mgt."
 
-        Initialize;
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddPurchDocsPost;
+        Initialize();
+        LibraryLowerPermissions.SetO365Setup();
+        LibraryLowerPermissions.AddPurchDocsPost();
         SetStartingEndingDates(StartingDate, EndingDate);
 
         // 4 invoices are within StartingDate and Ending Date
@@ -414,9 +414,9 @@ codeunit 144062 "ERM Payment Terms Reporting"
         // [FEATURE] [UT]
         // [SCENARIO 212351] "Document Date" uses for "Invoice Receipt Date" when it's blank on bulding Payment Application Buffer by function BuildPmtApplicationBuffer of codeunit "Payment Terms Reporting Mgt."
 
-        Initialize;
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddPurchDocsPost;
+        Initialize();
+        LibraryLowerPermissions.SetO365Setup();
+        LibraryLowerPermissions.AddPurchDocsPost();
         SetStartingEndingDates(StartingDate, EndingDate);
 
         // [GIVEN] Vendor Ledger Entry with blank "Invoice Receipt Date" and "Document Date" = "X"
@@ -442,9 +442,9 @@ codeunit 144062 "ERM Payment Terms Reporting"
         // [FEATURE] [UT]
         // [SCENARIO 212351] Invoice does not count as overdue if "Due Date" is after Work Date when invoke function GetPctOfPmtsNotPaid
 
-        Initialize;
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddPurchDocsPost;
+        Initialize();
+        LibraryLowerPermissions.SetO365Setup();
+        LibraryLowerPermissions.AddPurchDocsPost();
         SetStartingEndingDates(StartingDate, EndingDate);
 
         // [GIVEN] Work Date is January 5
@@ -471,9 +471,9 @@ codeunit 144062 "ERM Payment Terms Reporting"
         // [FEATURE] [UT]
         // [SCENARIO 212351] Invoice counts as overdue if "Due Date" is before Work Date when invoke function GetPctOfPmtsNotPaid
 
-        Initialize;
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddPurchDocsPost;
+        Initialize();
+        LibraryLowerPermissions.SetO365Setup();
+        LibraryLowerPermissions.AddPurchDocsPost();
         SetStartingEndingDates(StartingDate, EndingDate);
 
         // [GIVEN] Work Date is January 5
@@ -502,9 +502,9 @@ codeunit 144062 "ERM Payment Terms Reporting"
         // [FEATURE] [UT]
         // [SCENARIO 212351] Invoice does not count as overdue if Partial Payment before "Due Date" and "Work Date" before "Due Date"
 
-        Initialize;
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddPurchDocsPost;
+        Initialize();
+        LibraryLowerPermissions.SetO365Setup();
+        LibraryLowerPermissions.AddPurchDocsPost();
         SetStartingEndingDates(StartingDate, EndingDate);
 
         // [GIVEN] Work Date is January 4
@@ -538,9 +538,9 @@ codeunit 144062 "ERM Payment Terms Reporting"
         // [SCENARIO 212351] Invoice counts as overdue if Partial Payment before "Due Date" and "Work Date" after "Due Date"
         // [SCENARIO 253950] Partial payments does not affect the percantage of payments not paid
 
-        Initialize;
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddPurchDocsPost;
+        Initialize();
+        LibraryLowerPermissions.SetO365Setup();
+        LibraryLowerPermissions.AddPurchDocsPost();
         SetStartingEndingDates(StartingDate, EndingDate);
 
         // [GIVEN] Work Date is January 5
@@ -574,9 +574,9 @@ codeunit 144062 "ERM Payment Terms Reporting"
         // [SCENARIO 252313] Invoice with "Due Date" after "Work Date" that is not paid does not consider in overdue payments calculation
         // [SCENARIO 253950] Partial payments does not affect the percantage of payments not paid
 
-        Initialize;
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddPurchDocsPost;
+        Initialize();
+        LibraryLowerPermissions.SetO365Setup();
+        LibraryLowerPermissions.AddPurchDocsPost();
         SetStartingEndingDates(StartingDate, EndingDate);
 
         // [GIVEN] Work Date is January 3
@@ -609,9 +609,9 @@ codeunit 144062 "ERM Payment Terms Reporting"
         // [FEATURE] [UT]
         // [SCENARIO 212351] Invoice counts as overdue if Full Payment after "Due Date" and "Work Date" before "Due Date"
 
-        Initialize;
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddPurchDocsPost;
+        Initialize();
+        LibraryLowerPermissions.SetO365Setup();
+        LibraryLowerPermissions.AddPurchDocsPost();
         SetStartingEndingDates(StartingDate, EndingDate);
 
         // [GIVEN] Work Date is January 3
@@ -643,9 +643,9 @@ codeunit 144062 "ERM Payment Terms Reporting"
         // [SCENARIO 212351] When calculate average number of days to make payment by function GetAvgNumberOfDaysToMakePmt of codeunit "Payment Terms Reporting Mgt." the payments with "Posting Date" less than "Invoice Receipt Date" does not count
         // [SCENARIO 252313] When calculate average number of days to make payment by function GetAvgNumberOfDaysToMakePmt of codeunit "Payment Terms Reporting Mgt." only the payments with "Posting Date" after "Invoice Receipt Date" considers for calculati
 
-        Initialize;
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddPurchDocsPost;
+        Initialize();
+        LibraryLowerPermissions.SetO365Setup();
+        LibraryLowerPermissions.AddPurchDocsPost();
 
         // [GIVEN] Invoice with "Invoice Receipt Date"  = January 4
         SetStartingEndingDates(StartingDate, EndingDate);
@@ -683,9 +683,9 @@ codeunit 144062 "ERM Payment Terms Reporting"
         // [FEATURE] [UT]
         // [SCENARIO 212351] All payments considered by function GetPctOfPmtsPaidInDays of codeunit Payment Terms Reporting Mgt.
 
-        Initialize;
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddPurchDocsPost;
+        Initialize();
+        LibraryLowerPermissions.SetO365Setup();
+        LibraryLowerPermissions.AddPurchDocsPost();
 
         // [GIVEN] Invoice with "Invoice Receipt Date"  = January 4
         SetStartingEndingDates(StartingDate, EndingDate);
@@ -721,9 +721,9 @@ codeunit 144062 "ERM Payment Terms Reporting"
         // [FEATURE] [UT]
         // [SCENARIO 212351] Half of payments considered by function GetPctOfPmtsPaidInDays of codeunit Payment Terms Reporting Mgt.
 
-        Initialize;
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddPurchDocsPost;
+        Initialize();
+        LibraryLowerPermissions.SetO365Setup();
+        LibraryLowerPermissions.AddPurchDocsPost();
 
         // [GIVEN] Invoice with "Invoice Receipt Date"  = January 4
         SetStartingEndingDates(StartingDate, EndingDate);
@@ -758,9 +758,9 @@ codeunit 144062 "ERM Payment Terms Reporting"
         // [FEATURE] [UT]
         // [SCENARIO 212351] No payments considered by function GetPctOfPmtsPaidInDays of codeunit Payment Terms Reporting Mgt.
 
-        Initialize;
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddPurchDocsPost;
+        Initialize();
+        LibraryLowerPermissions.SetO365Setup();
+        LibraryLowerPermissions.AddPurchDocsPost();
 
         // [GIVEN] Invoice with "Invoice Receipt Date"  = January 4
         SetStartingEndingDates(StartingDate, EndingDate);
@@ -794,9 +794,9 @@ codeunit 144062 "ERM Payment Terms Reporting"
         // [FEATURE] [Report]
         // [SCENARIO 212351] Payment Practices report do not show details if "Show Invoices" option is off on Request Page
 
-        Initialize;
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddPurchDocsPost;
+        Initialize();
+        LibraryLowerPermissions.SetO365Setup();
+        LibraryLowerPermissions.AddPurchDocsPost();
 
         // [GIVEN] Work Date is January 3
         // [GIVEN] Invoice with "Due Date"  = January 4
@@ -830,9 +830,9 @@ codeunit 144062 "ERM Payment Terms Reporting"
         // [FEATURE] [Report]
         // [SCENARIO 212351] Payment Practices report shows details if "Show Invoices" option is on on Request Page
 
-        Initialize;
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddPurchDocsPost;
+        Initialize();
+        LibraryLowerPermissions.SetO365Setup();
+        LibraryLowerPermissions.AddPurchDocsPost();
 
         // [GIVEN] Work Date is January 3
         // [GIVEN] Invoice with "Due Date"  = January 4
@@ -868,9 +868,9 @@ codeunit 144062 "ERM Payment Terms Reporting"
         // [FEATURE] [Report]
         // [SCENARIO 212351] Payment Practices shows percent of payments paid in days per each Payment Period Setup
 
-        Initialize;
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddPurchDocsPost;
+        Initialize();
+        LibraryLowerPermissions.SetO365Setup();
+        LibraryLowerPermissions.AddPurchDocsPost();
         SetStartingEndingDates(StartingDate, EndingDate);
 
         // [GIVEN] Work Date is January 3
@@ -917,9 +917,9 @@ codeunit 144062 "ERM Payment Terms Reporting"
         // [SCENARIO 252313] Invoice with "Due Date" equals "Work Date" that is not paid does not consider in overdue payments calculation
         // [SCENARIO 253950] Partial payments does not affect the percantage of payments not paid
 
-        Initialize;
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddPurchDocsPost;
+        Initialize();
+        LibraryLowerPermissions.SetO365Setup();
+        LibraryLowerPermissions.AddPurchDocsPost();
         SetStartingEndingDates(StartingDate, EndingDate);
 
         // [GIVEN] Work Date is January 3
@@ -949,9 +949,9 @@ codeunit 144062 "ERM Payment Terms Reporting"
         // [FEATURE] [UT]
         // [SCENARIO 252313] Invoice paid before "Invoice Receipt Date" does not consider by function GetPctOfPmtsPaidInDays of codeunit Payment Terms Reporting Mgt.
 
-        Initialize;
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddPurchDocsPost;
+        Initialize();
+        LibraryLowerPermissions.SetO365Setup();
+        LibraryLowerPermissions.AddPurchDocsPost();
 
         // [GIVEN] Invoice with "Invoice Receipt Date"  = January 4
         SetStartingEndingDates(StartingDate, EndingDate);
@@ -988,9 +988,9 @@ codeunit 144062 "ERM Payment Terms Reporting"
         // [FEATURE] [UT]
         // [SCENARIO 252313] When calculate average number of days to make payment by function GetAvgNumberOfDaysToMakePmt of codeunit "Payment Terms Reporting Mgt." the payments with "Posting Date" equals "Invoice Receipt Date" considers for calculation
 
-        Initialize;
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddPurchDocsPost;
+        Initialize();
+        LibraryLowerPermissions.SetO365Setup();
+        LibraryLowerPermissions.AddPurchDocsPost();
 
         // [GIVEN] Invoice with "Invoice Receipt Date"  = January 4
         SetStartingEndingDates(StartingDate, EndingDate);
@@ -1024,9 +1024,9 @@ codeunit 144062 "ERM Payment Terms Reporting"
         // [FEATURE] [UT]
         // [SCENARIO 252313] Function GetAvgNumberOfDaysToMakePmt of codeunit "Payment Terms Reporting Mgt." returns zero when all payments with "Posting Date" before "Invoice Receipt Date"
 
-        Initialize;
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddPurchDocsPost;
+        Initialize();
+        LibraryLowerPermissions.SetO365Setup();
+        LibraryLowerPermissions.AddPurchDocsPost();
 
         // [GIVEN] Invoice with "Invoice Receipt Date"  = January 4
         SetStartingEndingDates(StartingDate, EndingDate);
@@ -1059,9 +1059,9 @@ codeunit 144062 "ERM Payment Terms Reporting"
         // [FEATURE] [UT]
         // [SCENARIO 252313] Function GetPctOfPmtsNotPaid returns zero when all payments paid in time
 
-        Initialize;
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddPurchDocsPost;
+        Initialize();
+        LibraryLowerPermissions.SetO365Setup();
+        LibraryLowerPermissions.AddPurchDocsPost();
         SetStartingEndingDates(StartingDate, EndingDate);
 
         // [GIVEN] Work Date is January 4
@@ -1094,9 +1094,9 @@ codeunit 144062 "ERM Payment Terms Reporting"
         // [FEATURE] [UT]
         // [SCENARIO 253950] Partial payments does not affect the percantage of payments not paid
 
-        Initialize;
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddPurchDocsPost;
+        Initialize();
+        LibraryLowerPermissions.SetO365Setup();
+        LibraryLowerPermissions.AddPurchDocsPost();
         SetStartingEndingDates(StartingDate, EndingDate);
 
         // [GIVEN] Work Date is January 4

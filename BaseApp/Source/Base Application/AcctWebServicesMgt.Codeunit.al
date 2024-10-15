@@ -14,7 +14,7 @@ codeunit 1344 "Acct. WebServices Mgt."
         AmountDecimalPlaces: Text[5];
         LocalCurrencySymbol: Text[10];
     begin
-        if GeneralLedgerSetup.FindFirst then begin
+        if GeneralLedgerSetup.FindFirst() then begin
             AmountDecimalPlaces := GeneralLedgerSetup."Amount Decimal Places";
             LocalCurrencySymbol := GeneralLedgerSetup.GetCurrencySymbol();
         end else begin

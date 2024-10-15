@@ -23,7 +23,7 @@ codeunit 144502 "Test UK Postcode Pages"
     begin
         // [GIVEN] postcode service is not configured
         // - Unbind dummy service so it won't raise an error
-        Initialize;
+        Initialize();
         Teardown; // unbind dummy service
         LibraryLowerPermissions.SetCustomerView;
 
@@ -42,7 +42,7 @@ codeunit 144502 "Test UK Postcode Pages"
     begin
         // [GIVEN] postcode service is not configured
         // - Unbind dummy service so it won't raise an error
-        Initialize;
+        Initialize();
         Teardown; // unbind dummy service
         LibraryLowerPermissions.SetCustomerEdit;
 
@@ -60,7 +60,7 @@ codeunit 144502 "Test UK Postcode Pages"
         CustomerCard: TestPage "Customer Card";
     begin
         // [GIVEN] postcode service is configured
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetCustomerEdit;
 
         // [WHEN] customer card is opened and country is set to GB
@@ -81,7 +81,7 @@ codeunit 144502 "Test UK Postcode Pages"
         CustomerCard: TestPage "Customer Card";
     begin
         // [GIVEN] postcode service is configured
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetCustomerEdit;
 
         // [WHEN] customer card is opened and country is set to something other than GB
@@ -112,7 +112,7 @@ codeunit 144502 "Test UK Postcode Pages"
         // - Service is configured
         // - Retrieve a result with one address, so that values are
         // automatically set
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetCustomerEdit;
 
         // [WHEN] we assume successful process, copying fields
@@ -150,7 +150,7 @@ codeunit 144502 "Test UK Postcode Pages"
         // - Service is configured
         // - Retrieve a result with one address, so that values are
         // automatically set
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetCustomerEdit;
 
         // [GIVEN] ensure blank address fields
@@ -184,7 +184,7 @@ codeunit 144502 "Test UK Postcode Pages"
     begin
         // [GIVEN] postcode service is not configured
         // - Unbind dummy service so it won't raise an error
-        Initialize;
+        Initialize();
         Teardown; // unbind dummy service
         LibraryLowerPermissions.SetO365HRView;
 
@@ -203,7 +203,7 @@ codeunit 144502 "Test UK Postcode Pages"
     begin
         // [GIVEN] postcode service is not configured
         // - Unbind dummy service so it won't raise an error
-        Initialize;
+        Initialize();
         Teardown; // unbind dummy service
         LibraryLowerPermissions.SetO365HREdit;
 
@@ -221,7 +221,7 @@ codeunit 144502 "Test UK Postcode Pages"
         EmployeeCard: TestPage "Employee Card";
     begin
         // [GIVEN] postcode service is configured
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetO365HREdit;
 
         // [WHEN] customer card is opened and country is set to GB
@@ -242,7 +242,7 @@ codeunit 144502 "Test UK Postcode Pages"
         EmployeeCard: TestPage "Employee Card";
     begin
         // [GIVEN] postcode service is configured
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetO365HREdit;
 
         // [WHEN] customer card is opened and country is set to something other than GB
@@ -273,7 +273,7 @@ codeunit 144502 "Test UK Postcode Pages"
         // - Service is configured
         // - Retrieve a result with one address, so that values are
         // automatically set
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetO365HREdit;
 
         // [WHEN] we assume successful process, copying fields
@@ -311,7 +311,7 @@ codeunit 144502 "Test UK Postcode Pages"
         // - Service is configured
         // - Retrieve a result with one address, so that values are
         // automatically set
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetO365HREdit;
 
         // [GIVEN] ensure blank address fields
@@ -345,7 +345,7 @@ codeunit 144502 "Test UK Postcode Pages"
     begin
         // [GIVEN] postcode service is not configured
         // - Unbind dummy service so it won't raise an error
-        Initialize;
+        Initialize();
         Teardown; // unbind dummy service
         LibraryLowerPermissions.SetCustomerView;
 
@@ -364,7 +364,7 @@ codeunit 144502 "Test UK Postcode Pages"
     begin
         // [GIVEN] postcode service is not configured
         // - Unbind dummy service so it won't raise an error
-        Initialize;
+        Initialize();
         Teardown; // unbind dummy service
         LibraryLowerPermissions.SetCustomerEdit;
 
@@ -382,7 +382,7 @@ codeunit 144502 "Test UK Postcode Pages"
         ShiptoAddress: TestPage "Ship-to Address";
     begin
         // [GIVEN] postcode service is configured
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetCustomerEdit;
 
         // [WHEN] customer card is opened and country is set to GB
@@ -403,7 +403,7 @@ codeunit 144502 "Test UK Postcode Pages"
         ShiptoAddress: TestPage "Ship-to Address";
     begin
         // [GIVEN] postcode service is configured
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetCustomerEdit;
 
         // [WHEN] customer card is opened and country is set to something other than GB
@@ -434,7 +434,7 @@ codeunit 144502 "Test UK Postcode Pages"
         // - Service is configured
         // - Retrieve a result with one address, so that values are
         // automatically set
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetCustomerEdit;
 
         // [WHEN] we assume successful process, copying fields
@@ -472,7 +472,7 @@ codeunit 144502 "Test UK Postcode Pages"
         // - Service is configured
         // - Retrieve a result with one address, so that values are
         // automatically set
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetCustomerEdit;
 
         // [GIVEN] ensure blank address fields
@@ -506,7 +506,7 @@ codeunit 144502 "Test UK Postcode Pages"
     begin
         // [GIVEN] postcode service is not configured
         // - Unbind dummy service so it won't raise an error
-        Initialize;
+        Initialize();
         Teardown; // unbind dummy service
         LibraryLowerPermissions.SetVendorView;
 
@@ -525,7 +525,7 @@ codeunit 144502 "Test UK Postcode Pages"
     begin
         // [GIVEN] postcode service is not configured
         // - Unbind dummy service so it won't raise an error
-        Initialize;
+        Initialize();
         Teardown; // unbind dummy service
         LibraryLowerPermissions.SetVendorEdit;
 
@@ -543,7 +543,7 @@ codeunit 144502 "Test UK Postcode Pages"
         VendorCard: TestPage "Vendor Card";
     begin
         // [GIVEN] postcode service is configured
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetVendorEdit;
 
         // [WHEN] customer card is opened and country is set to GB
@@ -564,7 +564,7 @@ codeunit 144502 "Test UK Postcode Pages"
         VendorCard: TestPage "Vendor Card";
     begin
         // [GIVEN] postcode service is configured
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetVendorEdit;
 
         // [WHEN] customer card is opened and country is set to something other than GB
@@ -595,7 +595,7 @@ codeunit 144502 "Test UK Postcode Pages"
         // - Service is configured
         // - Retrieve a result with one address, so that values are
         // automatically set
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetVendorEdit;
 
         // [WHEN] we assume successful process, copying fields
@@ -633,7 +633,7 @@ codeunit 144502 "Test UK Postcode Pages"
         // - Service is configured
         // - Retrieve a result with one address, so that values are
         // automatically set
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetVendorEdit;
 
         // [GIVEN] ensure blank address fields
@@ -667,7 +667,7 @@ codeunit 144502 "Test UK Postcode Pages"
     begin
         // [GIVEN] postcode service is not configured
         // - Unbind dummy service so it won't raise an error
-        Initialize;
+        Initialize();
         Teardown; // unbind dummy service
         LibraryLowerPermissions.SetSalesDocsCreate;
 
@@ -686,7 +686,7 @@ codeunit 144502 "Test UK Postcode Pages"
     begin
         // [GIVEN] postcode service is not configured
         // - Unbind dummy service so it won't raise an error
-        Initialize;
+        Initialize();
         Teardown; // unbind dummy service
         LibraryLowerPermissions.SetSalesDocsCreate;
 
@@ -704,7 +704,7 @@ codeunit 144502 "Test UK Postcode Pages"
         BankAccountCard: TestPage "Bank Account Card";
     begin
         // [GIVEN] postcode service is configured
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetSalesDocsCreate;
 
         // [WHEN] customer card is opened and country is set to GB
@@ -725,7 +725,7 @@ codeunit 144502 "Test UK Postcode Pages"
         BankAccountCard: TestPage "Bank Account Card";
     begin
         // [GIVEN] postcode service is configured
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetSalesDocsCreate;
 
         // [WHEN] customer card is opened and country is set to something other than GB
@@ -756,7 +756,7 @@ codeunit 144502 "Test UK Postcode Pages"
         // - Service is configured
         // - Retrieve a result with one address, so that values are
         // automatically set
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetSalesDocsCreate;
 
         // [WHEN] we assume successful process, copying fields
@@ -794,7 +794,7 @@ codeunit 144502 "Test UK Postcode Pages"
         // - Service is configured
         // - Retrieve a result with one address, so that values are
         // automatically set
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetSalesDocsCreate;
 
         // [GIVEN] ensure blank address fields
@@ -828,7 +828,7 @@ codeunit 144502 "Test UK Postcode Pages"
     begin
         // [GIVEN] postcode service is not configured
         // - Unbind dummy service so it won't raise an error
-        Initialize;
+        Initialize();
         Teardown; // unbind dummy service
         LibraryLowerPermissions.SetO365BusFull;
 
@@ -847,7 +847,7 @@ codeunit 144502 "Test UK Postcode Pages"
     begin
         // [GIVEN] postcode service is not configured
         // - Unbind dummy service so it won't raise an error
-        Initialize;
+        Initialize();
         Teardown; // unbind dummy service
         LibraryLowerPermissions.SetO365BusFull;
 
@@ -865,7 +865,7 @@ codeunit 144502 "Test UK Postcode Pages"
         LocationCard: TestPage "Location Card";
     begin
         // [GIVEN] postcode service is configured
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetO365BusFull;
 
         // [WHEN] customer card is opened and country is set to GB
@@ -886,7 +886,7 @@ codeunit 144502 "Test UK Postcode Pages"
         LocationCard: TestPage "Location Card";
     begin
         // [GIVEN] postcode service is configured
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetO365BusFull;
 
         // [WHEN] customer card is opened and country is set to something other than GB
@@ -917,7 +917,7 @@ codeunit 144502 "Test UK Postcode Pages"
         // - Service is configured
         // - Retrieve a result with one address, so that values are
         // automatically set
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetO365BusFull;
 
         // [WHEN] we assume successful process, copying fields
@@ -955,7 +955,7 @@ codeunit 144502 "Test UK Postcode Pages"
         // - Service is configured
         // - Retrieve a result with one address, so that values are
         // automatically set
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetO365BusFull;
 
         // [GIVEN] ensure blank address fields
@@ -989,7 +989,7 @@ codeunit 144502 "Test UK Postcode Pages"
     begin
         // [GIVEN] postcode service is not configured
         // - Unbind dummy service so it won't raise an error
-        Initialize;
+        Initialize();
         Teardown; // unbind dummy service
         LibraryLowerPermissions.SetO365BusFull;
 
@@ -1008,7 +1008,7 @@ codeunit 144502 "Test UK Postcode Pages"
     begin
         // [GIVEN] postcode service is not configured
         // - Unbind dummy service so it won't raise an error
-        Initialize;
+        Initialize();
         Teardown; // unbind dummy service
         LibraryLowerPermissions.SetO365BusFull;
 
@@ -1026,7 +1026,7 @@ codeunit 144502 "Test UK Postcode Pages"
         ResourceCard: TestPage "Resource Card";
     begin
         // [GIVEN] postcode service is configured
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetO365BusFull;
 
         // [WHEN] customer card is opened
@@ -1055,7 +1055,7 @@ codeunit 144502 "Test UK Postcode Pages"
         // - Service is configured
         // - Retrieve a result with one address, so that values are
         // automatically set
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetO365BusFull;
 
         // [WHEN] we assume successful process, copying fields
@@ -1090,7 +1090,7 @@ codeunit 144502 "Test UK Postcode Pages"
         // - Service is configured
         // - Retrieve a result with one address, so that values are
         // automatically set
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetO365BusFull;
 
         // [GIVEN] ensure blank address fields
@@ -1122,7 +1122,7 @@ codeunit 144502 "Test UK Postcode Pages"
     begin
         // [GIVEN] postcode service is not configured
         // - Unbind dummy service so it won't raise an error
-        Initialize;
+        Initialize();
         Teardown; // unbind dummy service
         LibraryLowerPermissions.SetCustomerEdit;
 
@@ -1141,7 +1141,7 @@ codeunit 144502 "Test UK Postcode Pages"
     begin
         // [GIVEN] postcode service is not configured
         // - Unbind dummy service so it won't raise an error
-        Initialize;
+        Initialize();
         Teardown; // unbind dummy service
         LibraryLowerPermissions.SetCustomerEdit;
 
@@ -1159,7 +1159,7 @@ codeunit 144502 "Test UK Postcode Pages"
         ContactCard: TestPage "Contact Card";
     begin
         // [GIVEN] postcode service is configured
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetCustomerEdit;
 
         // [WHEN] customer card is opened and country is set to GB
@@ -1180,7 +1180,7 @@ codeunit 144502 "Test UK Postcode Pages"
         ContactCard: TestPage "Contact Card";
     begin
         // [GIVEN] postcode service is configured
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetCustomerEdit;
 
         // [WHEN] customer card is opened and country is set to something other than GB
@@ -1211,7 +1211,7 @@ codeunit 144502 "Test UK Postcode Pages"
         // - Service is configured
         // - Retrieve a result with one address, so that values are
         // automatically set
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetCustomerEdit;
 
         // [WHEN] we assume successful process, copying fields
@@ -1249,7 +1249,7 @@ codeunit 144502 "Test UK Postcode Pages"
         // - Service is configured
         // - Retrieve a result with one address, so that values are
         // automatically set
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetCustomerEdit;
 
         // [GIVEN] ensure blank address fields
@@ -1283,7 +1283,7 @@ codeunit 144502 "Test UK Postcode Pages"
     begin
         // [GIVEN] postcode service is not configured
         // - Unbind dummy service so it won't raise an error
-        Initialize;
+        Initialize();
         Teardown; // unbind dummy service
         LibraryLowerPermissions.SetCustomerEdit;
 
@@ -1302,7 +1302,7 @@ codeunit 144502 "Test UK Postcode Pages"
     begin
         // [GIVEN] postcode service is not configured
         // - Unbind dummy service so it won't raise an error
-        Initialize;
+        Initialize();
         Teardown; // unbind dummy service
         LibraryLowerPermissions.SetCustomerEdit;
 
@@ -1320,7 +1320,7 @@ codeunit 144502 "Test UK Postcode Pages"
         ContactAltAddressCard: TestPage "Contact Alt. Address Card";
     begin
         // [GIVEN] postcode service is configured
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetCustomerEdit;
 
         // [WHEN] customer card is opened and country is set to GB
@@ -1341,7 +1341,7 @@ codeunit 144502 "Test UK Postcode Pages"
         ContactAltAddressCard: TestPage "Contact Alt. Address Card";
     begin
         // [GIVEN] postcode service is configured
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetCustomerEdit;
 
         // [WHEN] customer card is opened and country is set to something other than GB
@@ -1372,7 +1372,7 @@ codeunit 144502 "Test UK Postcode Pages"
         // - Service is configured
         // - Retrieve a result with one address, so that values are
         // automatically set
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetCustomerEdit;
 
         // [WHEN] we assume successful process, copying fields
@@ -1410,7 +1410,7 @@ codeunit 144502 "Test UK Postcode Pages"
         // - Service is configured
         // - Retrieve a result with one address, so that values are
         // automatically set
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetCustomerEdit;
 
         // [GIVEN] ensure blank address fields
@@ -1444,7 +1444,7 @@ codeunit 144502 "Test UK Postcode Pages"
     begin
         // [GIVEN] postcode service is not configured
         // - Unbind dummy service so it won't raise an error
-        Initialize;
+        Initialize();
         Teardown; // unbind dummy service
         LibraryLowerPermissions.SetO365BusFull;
 
@@ -1463,7 +1463,7 @@ codeunit 144502 "Test UK Postcode Pages"
     begin
         // [GIVEN] postcode service is not configured
         // - Unbind dummy service so it won't raise an error
-        Initialize;
+        Initialize();
         Teardown; // unbind dummy service
         LibraryLowerPermissions.SetO365BusFull;
 
@@ -1481,7 +1481,7 @@ codeunit 144502 "Test UK Postcode Pages"
         CompanyInformation: TestPage "Company Information";
     begin
         // [GIVEN] postcode service is configured
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetO365BusFull;
 
         // [WHEN] customer card is opened and country is set to GB
@@ -1501,7 +1501,7 @@ codeunit 144502 "Test UK Postcode Pages"
         CompanyInformation: TestPage "Company Information";
     begin
         // [GIVEN] postcode service is configured
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetO365BusFull;
 
         // [WHEN] customer card is opened and country is set to something other than GB
@@ -1531,7 +1531,7 @@ codeunit 144502 "Test UK Postcode Pages"
         // - Service is configured
         // - Retrieve a result with one address, so that values are
         // automatically set
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetO365BusFull;
 
         // [WHEN] we assume successful process, copying fields
@@ -1568,7 +1568,7 @@ codeunit 144502 "Test UK Postcode Pages"
         // - Service is configured
         // - Retrieve a result with one address, so that values are
         // automatically set
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetO365BusFull;
 
         // [GIVEN] ensure blank address fields
@@ -1601,7 +1601,7 @@ codeunit 144502 "Test UK Postcode Pages"
     begin
         // [GIVEN] postcode service is not configured
         // - Unbind dummy service so it won't raise an error
-        Initialize;
+        Initialize();
         Teardown; // unbind dummy service
         LibraryLowerPermissions.SetO365BusFull;
 
@@ -1620,7 +1620,7 @@ codeunit 144502 "Test UK Postcode Pages"
     begin
         // [GIVEN] postcode service is not configured
         // - Unbind dummy service so it won't raise an error
-        Initialize;
+        Initialize();
         Teardown; // unbind dummy service
         LibraryLowerPermissions.SetO365BusFull;
 
@@ -1638,7 +1638,7 @@ codeunit 144502 "Test UK Postcode Pages"
         CompanyInformation: TestPage "Company Information";
     begin
         // [GIVEN] postcode service is configured
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetO365BusFull;
 
         // [WHEN] customer card is opened and country is set to GB
@@ -1658,7 +1658,7 @@ codeunit 144502 "Test UK Postcode Pages"
         CompanyInformation: TestPage "Company Information";
     begin
         // [GIVEN] postcode service is configured
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetO365BusFull;
 
         // [WHEN] customer card is opened and country is set to something other than GB
@@ -1688,7 +1688,7 @@ codeunit 144502 "Test UK Postcode Pages"
         // - Service is configured
         // - Retrieve a result with one address, so that values are
         // automatically set
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetO365BusFull;
 
         // [WHEN] we assume successful process, copying fields
@@ -1725,7 +1725,7 @@ codeunit 144502 "Test UK Postcode Pages"
         // - Service is configured
         // - Retrieve a result with one address, so that values are
         // automatically set
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetO365BusFull;
 
         // [GIVEN] ensure blank address fields

@@ -23,7 +23,7 @@ codeunit 144501 "Test UK Postcode Config"
         PostcodeConfigurationPage: TestPage "Postcode Configuration Page";
     begin
         // [GIVEN]
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetO365BusFull;
 
         // [WHEN] we open a page, change a value and cancel
@@ -44,7 +44,7 @@ codeunit 144501 "Test UK Postcode Config"
         PostcodeConfigurationPage: TestPage "Postcode Configuration Page";
     begin
         // [GIVEN] we have a config page open and invoke lookup page
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetO365BusFull;
         LibraryVariableStorage.Enqueue('CANCEL'); // Action for lookup page, what to do
         PostcodeConfigurationPage.OpenEdit;
@@ -66,7 +66,7 @@ codeunit 144501 "Test UK Postcode Config"
         PostcodeConfigurationPage: TestPage "Postcode Configuration Page";
     begin
         // [GIVEN] we have a config page open and invoke lookup page
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetO365BusFull;
         LibraryVariableStorage.Enqueue('SELECT'); // Action for lookup page, what to do
         LibraryVariableStorage.Enqueue(2); // Which record id lookup page should select
@@ -87,7 +87,7 @@ codeunit 144501 "Test UK Postcode Config"
         PostcodeServiceConfig: Record "Postcode Service Config";
     begin
         // [GIVEN] we have a basic user
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetO365Basic;
 
         // [WHEN] a user tries to create a config entry
@@ -106,7 +106,7 @@ codeunit 144501 "Test UK Postcode Config"
         PostcodeServiceConfig: Record "Postcode Service Config";
     begin
         // [GIVEN] we have a postcode config entry
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetO365BusFull;
         PostcodeServiceConfig.Init();
         PostcodeServiceConfig.Insert();
@@ -115,7 +115,7 @@ codeunit 144501 "Test UK Postcode Config"
         LibraryLowerPermissions.SetO365Basic;
 
         // [WHEN] we try to access it
-        PostcodeServiceConfig.FindFirst;
+        PostcodeServiceConfig.FindFirst();
 
         // [THEN] everything is ok
     end;

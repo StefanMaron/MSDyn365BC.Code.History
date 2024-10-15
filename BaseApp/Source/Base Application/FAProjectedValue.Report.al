@@ -791,7 +791,7 @@ report 10560 "FA - Projected Value"
 
             if DeprBook."Use Accounting Period" then begin
                 AccPeriod.SetFilter("Starting Date", '<=%1', StartingDate);
-                AccPeriod.FindLast;
+                AccPeriod.FindLast();
                 EndFiscalYear := AccPeriodEndDate(AccPeriod."Starting Date");
             end else
                 EndFiscalYear := FADateCalc.CalculateDate(
@@ -857,7 +857,7 @@ report 10560 "FA - Projected Value"
             NewFiscalYear := DepreciationCalc.ToMorrow(EndFiscalYear, Year365Days, DeprBook."Use Accounting Period");
             if DeprBook."Use Accounting Period" then begin
                 AccPeriod.SetFilter("Starting Date", '<= %1', StartingDate);
-                AccPeriod.FindLast;
+                AccPeriod.FindLast();
                 EndFiscalYear := AccPeriodEndDate(AccPeriod."Starting Date");
             end else
                 EndFiscalYear := FADateCalc.CalculateDate(EndFiscalYear, DaysInFiscalYear, Year365Days);
@@ -878,7 +878,7 @@ report 10560 "FA - Projected Value"
             exit(FADateCalc.CalculateDate(PeriodEndingDate, PeriodLength, Year365Days));
         AccountingPeriod.SetFilter(
           "Starting Date", '>=%1', DepreciationCalc.ToMorrow(PeriodEndingDate, Year365Days, DeprBook."Use Accounting Period") + 1);
-        if AccountingPeriod.FindFirst then begin
+        if AccountingPeriod.FindFirst() then begin
             UntilDate2 := DepreciationCalc.Yesterday(AccountingPeriod."Starting Date", Year365Days, DeprBook."Use Accounting Period");
             PeriodLength :=
               DepreciationCalc.DeprDays(

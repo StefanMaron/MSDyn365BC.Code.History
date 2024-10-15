@@ -187,7 +187,7 @@ codeunit 144010 "UT PAG APACS"
         GenJournalLine: Record "Gen. Journal Line";
         GenJournalLine2: Record "Gen. Journal Line";
     begin
-        GenJournalLine2.FindLast;
+        GenJournalLine2.FindLast();
         GenJournalLine."Line No." := GenJournalLine2."Line No." + 10;
         GenJournalLine."Account Type" := AccountType;
         GenJournalLine."Account No." := AccountNo;

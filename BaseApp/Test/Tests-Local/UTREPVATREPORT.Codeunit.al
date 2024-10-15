@@ -33,7 +33,7 @@ codeunit 144003 "UT REP VAT REPORT"
         SalesLine: Record "Sales Line";
     begin
         // Purpose of this test is to test OnPreDataItem Trigger of Report 202 (Sales Document - Test) for Sales Order.
-        Initialize;
+        Initialize();
         CreateSalesDocumentAndVerifySalesDocumentTest(SalesLine."Document Type"::Order);
     end;
 
@@ -46,7 +46,7 @@ codeunit 144003 "UT REP VAT REPORT"
         SalesLine: Record "Sales Line";
     begin
         // Purpose of this test is to test OnPreDataItem Trigger of Report 202 (Sales Document - Test) for Sales Invoice.
-        Initialize;
+        Initialize();
         CreateSalesDocumentAndVerifySalesDocumentTest(SalesLine."Document Type"::Invoice);
     end;
 
@@ -76,7 +76,7 @@ codeunit 144003 "UT REP VAT REPORT"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateSalesDocument(var SalesLine: Record "Sales Line"; VATPostingSetup: Record "VAT Posting Setup"; DocumentType: Enum "Sales Document Type")
@@ -109,7 +109,7 @@ codeunit 144003 "UT REP VAT REPORT"
         VATPostingSetup.SetFilter("VAT Bus. Posting Group", '<>%1', '');
         VATPostingSetup.SetFilter("VAT Prod. Posting Group", '<>%1', '');
         VATPostingSetup.SetRange("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT");
-        VATPostingSetup.FindFirst;
+        VATPostingSetup.FindFirst();
     end;
 
     local procedure UpdateDomesticCustomersOnSalesReceivablesSetup(DomesticCustomers: Code[20])

@@ -131,10 +131,10 @@ codeunit 5301 "Outlook Synch. NAV Mgt"
                     OSynchLink.Reset();
                     OSynchLink.SetRange("User ID", UserID);
                     OSynchLink.SetRange("Outlook Entry ID Hash", EntryIDHash);
-                    if OSynchLink.FindFirst then begin
+                    if OSynchLink.FindFirst() then begin
                         Evaluate(EntityRecID, Format(OSynchLink."Record ID"));
                         GlobalRecordIDBuffer.SetRange("Search Record ID", UpperCase(Format(EntityRecID)));
-                        if not GlobalRecordIDBuffer.FindFirst then
+                        if not GlobalRecordIDBuffer.FindFirst() then
                             if EntityRecRef.Get(EntityRecID) then begin
                                 TempEntityRecRef.Open(EntityRecID.TableNo, true);
                                 CopyRecordReference(EntityRecRef, TempEntityRecRef, false);
@@ -194,7 +194,7 @@ codeunit 5301 "Outlook Synch. NAV Mgt"
     [Scope('OnPrem')]
     procedure CollectNavisionChanges(UserID: Code[50]; SynchronizeAll: Boolean; SynchStartTime: DateTime)
     begin
-        if not SortedEntitiesBuffer.FindSet then
+        if not SortedEntitiesBuffer.FindSet() then
             exit;
 
         GlobalRecordIDBuffer.Reset();
@@ -337,7 +337,7 @@ codeunit 5301 "Outlook Synch. NAV Mgt"
 
         repeat
             GlobalRecordIDBuffer.SetRange("Search Record ID", UpperCase(Format(EntityRecRef.RecordId)));
-            if not GlobalRecordIDBuffer.FindFirst then begin
+            if not GlobalRecordIDBuffer.FindFirst() then begin
                 if OSynchUserSetup1."No. of Elements" > 0 then begin
                     OSynchSetupDetail1.Reset();
                     OSynchSetupDetail1.SetRange("User ID", OSynchUserSetup."User ID");
@@ -359,7 +359,7 @@ codeunit 5301 "Outlook Synch. NAV Mgt"
                                 if CollectionRecRef.Find('-') then
                                     repeat
                                         GlobalRecordIDBuffer.SetRange("Search Record ID", UpperCase(Format(CollectionRecRef.RecordId)));
-                                        if not GlobalRecordIDBuffer.FindFirst then begin
+                                        if not GlobalRecordIDBuffer.FindFirst() then begin
                                             if OSynchDependency1.Find('-') then
                                                 repeat
                                                     CollectionRecRef1.Open(OSynchEntityElement1."Table No.", true);
@@ -423,7 +423,7 @@ codeunit 5301 "Outlook Synch. NAV Mgt"
             if CheckDeletedRecFilterCondition(TempDeletedChangeLogEntry, OSynchFilter) then begin
                 ObtainRecordID(TempDeletedChangeLogEntry, RecID);
                 GlobalRecordIDBuffer.SetRange("Search Record ID", UpperCase(Format(RecID)));
-                if not GlobalRecordIDBuffer.FindFirst then begin
+                if not GlobalRecordIDBuffer.FindFirst() then begin
                     if OSynchLink.Get(OSynchUserSetup."User ID", RecID) then begin
                         XMLWriter.WriteStartElement('DeletedOutlookItem');
                         XMLWriter.WriteAttribute('SynchEntityCode', OSynchEntity.Code);
@@ -472,12 +472,12 @@ codeunit 5301 "Outlook Synch. NAV Mgt"
             CopyRecordReference(ChangedCollectionRecRef, ChangedCollectionRecRef1, false);
 
             OSynchFilter.SetFilter(Type, '<>%1', OSynchFilter.Type::FIELD);
-            if OSynchFilter.FindFirst then
+            if OSynchFilter.FindFirst() then
                 ChangedCollectionRecRef1.SetView(OSynchSetupMgt.ComposeTableFilter(OSynchFilter, NullRecRef));
 
             if ChangedCollectionRecRef1.Find('-') then begin
                 OSynchFilter.SetRange(Type, OSynchFilter.Type::FIELD);
-                if OSynchFilter.FindFirst then begin
+                if OSynchFilter.FindFirst() then begin
                     OSynchSetupMgt.ComposeFilterRecords(OSynchFilter, TempOSynchFilter, ChangedCollectionRecRef1, TempOSynchFilter.Type::CONST);
 
                     EntityRecRef.SetView(OSynchSetupMgt.ComposeTableFilter(TempOSynchFilter, NullRecRef));
@@ -490,7 +490,7 @@ codeunit 5301 "Outlook Synch. NAV Mgt"
                         OSynchUserSetup1.Get(OSynchUserSetup."User ID", OSynchEntityElement."Synch. Entity Code");
                         OSynchFilter1.Reset();
                         OSynchFilter1.SetRange("Record GUID", OSynchUserSetup1."Record GUID");
-                        if OSynchFilter1.FindFirst then
+                        if OSynchFilter1.FindFirst() then
                             TempEntityRecRef.SetView(OSynchSetupMgt.ComposeTableFilter(OSynchFilter1, NullRecRef));
 
                         if TempEntityRecRef.Find('-') then
@@ -531,7 +531,7 @@ codeunit 5301 "Outlook Synch. NAV Mgt"
 
         OSynchFilter1.Reset();
         OSynchFilter1.SetRange("Record GUID", OSynchEntityElement."Record GUID");
-        if not OSynchFilter1.FindFirst then
+        if not OSynchFilter1.FindFirst() then
             exit;
 
         ChangeLogEntry.SetCurrentKey("Table No.", "Primary Key Field 1 Value");
@@ -553,7 +553,7 @@ codeunit 5301 "Outlook Synch. NAV Mgt"
                         ChangeLogEntry.SetRange("Primary Key Field 1 Value", TempDeletedChangeLogEntry."Primary Key Field 1 Value");
                         ChangeLogEntry.SetRange("Field No.", OSynchFilter1."Field No.");
 
-                        if ChangeLogEntry.FindLast then
+                        if ChangeLogEntry.FindLast() then
                             OSynchSetupMgt.CreateFilterCondition(
                               TempOSynchFilter,
                               OSynchFilter1."Master Table No.",
@@ -905,7 +905,7 @@ codeunit 5301 "Outlook Synch. NAV Mgt"
 
                         RelatedRecRef.Open(TempOSynchField."Table No.");
                         RelatedRecRef.SetView(OSynchSetupMgt.ComposeTableFilter(OSynchFilter, SynchRecRef));
-                        FieldValueDefined := RelatedRecRef.FindFirst;
+                        FieldValueDefined := RelatedRecRef.FindFirst();
                         if FieldValueDefined then
                             FieldRef := RelatedRecRef.Field(TempOSynchField."Field No.");
                     end else
@@ -985,7 +985,7 @@ codeunit 5301 "Outlook Synch. NAV Mgt"
                                     OSynchOptionCorrel.SetRange("Field Line No.", TempOSynchField."Line No.");
                                     OptionId := OSynchTypeConversion.TextToOptionValue(Format(FieldRef.Value), FieldRef.OptionCaption);
                                     OSynchOptionCorrel.SetRange("Option No.", OptionId);
-                                    if OSynchOptionCorrel.FindFirst then
+                                    if OSynchOptionCorrel.FindFirst() then
                                         XMLWriter.WriteElementTextContent(Format(OSynchOptionCorrel."Enumeration No."))
                                     else
                                         if not OSynchSetupMgt.CheckOEnumeration(TempOSynchField) then
@@ -1029,13 +1029,13 @@ codeunit 5301 "Outlook Synch. NAV Mgt"
                 OSynchFilter1.Reset();
                 OSynchFilter1.SetRange("Record GUID", OSynchDependency."Record GUID");
                 OSynchFilter1.SetRange("Filter Type", OSynchFilter1."Filter Type"::Condition);
-                if OSynchFilter1.FindFirst then
+                if OSynchFilter1.FindFirst() then
                     TempCollectionElementRecRef.SetView(OSynchSetupMgt.ComposeTableFilter(OSynchFilter1, NullRecRef));
 
                 if TempCollectionElementRecRef.Find('-') then begin
                     OSynchDependency.CalcFields("Depend. Synch. Entity Tab. No.");
                     OSynchFilter1.SetRange("Filter Type", OSynchFilter1."Filter Type"::"Table Relation");
-                    if OSynchFilter1.FindFirst then begin
+                    if OSynchFilter1.FindFirst() then begin
                         EntityRecRef.Open(OSynchDependency."Depend. Synch. Entity Tab. No.");
                         EntityRecRef.SetView(OSynchSetupMgt.ComposeTableFilter(OSynchFilter1, TempCollectionElementRecRef));
                         if EntityRecRef.Find('-') then begin
@@ -1090,7 +1090,7 @@ codeunit 5301 "Outlook Synch. NAV Mgt"
         FieldRef: FieldRef;
     begin
         IsMatched := true;
-        if not OSynchFilterIn.FindFirst then
+        if not OSynchFilterIn.FindFirst() then
             exit;
 
         ChangeLogEntry.SetCurrentKey("Table No.", "Primary Key Field 1 Value");
@@ -1103,7 +1103,7 @@ codeunit 5301 "Outlook Synch. NAV Mgt"
         TempRecRef.Open(TempDeletedChangeLogEntry."Table No.", true);
         TempRecRef.Init();
 
-        if ChangeLogEntry.FindSet then
+        if ChangeLogEntry.FindSet() then
             repeat
                 FieldRef := TempRecRef.Field(ChangeLogEntry."Field No.");
                 if not
@@ -1128,7 +1128,7 @@ codeunit 5301 "Outlook Synch. NAV Mgt"
     begin
         ChangeLogEntry.SetCurrentKey("Table No.", "Primary Key Field 1 Value");
         OSynchProcessLine.FilterChangeLog(RecID, ChangeLogEntry);
-        if ChangeLogEntry.FindLast then;
+        if ChangeLogEntry.FindLast() then;
 
         OSynchLink.Reset();
         if OSynchLink.Get(OSynchUserSetup."User ID", RecID) then begin
@@ -1155,7 +1155,7 @@ codeunit 5301 "Outlook Synch. NAV Mgt"
         ChangeLogEntry.Reset();
         ChangeLogEntry.SetCurrentKey("Table No.", "Primary Key Field 1 Value");
         OSynchProcessLine.FilterChangeLog(CollectionElementRecID, ChangeLogEntry);
-        if ChangeLogEntry.FindLast then
+        if ChangeLogEntry.FindLast() then
             CollectionElementLMDT := ChangeLogEntry."Date and Time";
 
         if OSynchLink.Get(OSynchUserSetup."User ID", EntityRecID) then
@@ -1391,7 +1391,7 @@ codeunit 5301 "Outlook Synch. NAV Mgt"
     local procedure UpdateGlobalRecordIDBuffer(RecID: RecordID; SynchEntityCode: Code[10])
     begin
         GlobalRecordIDBuffer.SetRange("Search Record ID", UpperCase(Format(RecID)));
-        if GlobalRecordIDBuffer.FindFirst then
+        if GlobalRecordIDBuffer.FindFirst() then
             exit;
 
         GlobalRecordIDBuffer.Init();

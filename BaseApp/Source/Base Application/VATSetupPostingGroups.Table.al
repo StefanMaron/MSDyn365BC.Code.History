@@ -99,13 +99,18 @@ table 1877 "VAT Setup Posting Groups"
     procedure PopulateVATProdGroups()
     var
         VATSetupPostingGroups: Record "VAT Setup Posting Groups";
+        Handled: Boolean;
     begin
         SetRange(Default, false);
         DeleteAll();
 
         SetRange(Default, true);
-        if not FindSet then begin
-            InitWithStandardValues;
+        if not FindSet() then begin
+            OnInitWithStandardValues(Handled, Rec);
+
+            if not Handled then
+                InitWithStandardValues;
+
             FindSet();
         end;
 
@@ -162,7 +167,7 @@ table 1877 "VAT Setup Posting Groups"
         if ValidateVATRates = false then
             exit(false);
         VATSetupPostingGroups.SetRange(Selected, true);
-        if not VATSetupPostingGroups.FindSet then
+        if not VATSetupPostingGroups.FindSet() then
             exit;
 
         repeat
@@ -187,6 +192,42 @@ table 1877 "VAT Setup Posting Groups"
         exit(true);
     end;
 
+    procedure GetLabelTok(LabelName: Text): Code[20]
+    begin
+        case LabelName of
+            'FULLNORMTok':
+                exit(FULLNORMTok);
+            'FULLREDTok':
+                exit(FULLREDTok);
+            'SERVNORMTok':
+                exit(SERVNORMTok);
+            'STANDARDTok':
+                exit(STANDARDTok);
+            'ZEROTok':
+                exit(ZEROTok);
+            else
+                Error('Labels not found in VATSetupPostingGroups');
+        end
+    end;
+
+    procedure GetLabelTxt(LabelName: Text): Text[100]
+    begin
+        case LabelName of
+            'FULLNORMTxt':
+                exit(FULLNORMTxt);
+            'FULLREDTxt':
+                exit(FULLREDTxt);
+            'SERVNORMTxt':
+                exit(SERVNORMTxt);
+            'STANDARDTxt':
+                exit(STANDARDTxt);
+            'ZEROTxt':
+                exit(ZEROTxt);
+            else
+                Error('Labels not found in VATSetupPostingGroups');
+        end
+    end;
+
     local procedure InitWithStandardValues()
     begin
         AddOrUpdateProdPostingGrp(FULLNORMTok, FULLNORMTxt, 100, '56130', '46330', false, true);
@@ -196,6 +237,11 @@ table 1877 "VAT Setup Posting Groups"
         AddOrUpdateProdPostingGrp(SERVREDTok, SERVREDTxt, 5, '56110', '46310', true, true);
         AddOrUpdateProdPostingGrp(STANDARDTok, STANDARDTxt, 20, '56100', '46300', false, true);
         AddOrUpdateProdPostingGrp(ZEROTok, ZEROTxt, 0, '56100', '46300', false, true);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInitWithStandardValues(var Handled: Boolean; VATSetupPostingGroups: Record "VAT Setup Posting Groups")
+    begin
     end;
 }
 

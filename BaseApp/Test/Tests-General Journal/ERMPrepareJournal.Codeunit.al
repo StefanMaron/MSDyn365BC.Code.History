@@ -43,7 +43,7 @@ codeunit 134232 "ERM Prepare Journal"
     begin
         // [SCENARIO] Test verifies that Prepare G/L Accounts Opening Balance generates Gen. Journal Line for G/L Account
         // [GIVEN] Direct Posting GL Account, General Journal Template and General Journal Batch
-        Initialize;
+        Initialize();
         LibraryERM.CreateGLAccount(GLAccount);
         GLAccount.Validate("Direct Posting", true);
         GLAccount.Validate("Account Type", GLAccount."Account Type"::Posting);
@@ -59,7 +59,7 @@ codeunit 134232 "ERM Prepare Journal"
 
         // [THEN] System runs Create G/L Acc. Journal Lines report and generates General Journal Line
         GenJournalLine.SetFilter("Account No.", GLAccount."No.");
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         GeneralJournal.GotoRecord(GenJournalLine);
         Assert.AreEqual(Format(GeneralJournal."Account No."), GLAccount."No.", '');
     end;
@@ -77,7 +77,7 @@ codeunit 134232 "ERM Prepare Journal"
         // [SCENARIO] Test verifies that Prepare G/L Accounts Opening Balance
         // doesn't generate Gen. Journal Line for Not-Direct Posting G/L Account
         // [GIVEN] Not-Direct Posting GL Account, General Journal Template and Gen. Journal Batch
-        Initialize;
+        Initialize();
         LibraryERM.CreateGLAccount(GLAccount);
         GLAccount.Validate("Direct Posting", false);
         GLAccount.Validate("Account Type", GLAccount."Account Type"::Posting);
@@ -108,19 +108,19 @@ codeunit 134232 "ERM Prepare Journal"
     begin
         // [SCENARIO] Test verifies that Prepare Customers Opening Balance generates Gen. Journal Line for Customer
         // [GIVEN] Customer, General Journal Template and Gen Journal Batch
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         CreateGeneralJournalBatch(GenJournalBatch);
 
         // [WHEN] Run Prepare Journal > Prepare Customers Opening Balance
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         GeneralJournal.OpenEdit;
         GeneralJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
         GeneralJournal."Customers Opening balance".Invoke;
 
         // [THEN] System runs Create G/L Acc. Journal Lines report and generates General Journal Line
         GenJournalLine.SetFilter("Account No.", Customer."No.");
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         GeneralJournal.GotoRecord(GenJournalLine);
         Assert.AreEqual(Format(GeneralJournal."Account No."), Customer."No.", '');
     end;
@@ -138,14 +138,14 @@ codeunit 134232 "ERM Prepare Journal"
         // [SCENARIO] Test verifies that Prepare Customers Opening Balance
         // doesn't generate Gen. Journal Line for blocked Customer
         // [GIVEN] Blocked Customer, General Journal Template and Gen Journal Batch
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         Customer.Validate(Blocked, Customer.Blocked::All);
         Customer.Modify(true);
         CreateGeneralJournalBatch(GenJournalBatch);
 
         // [WHEN] Run Prepare Journal > Prepare Customers Opening Balance
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         GeneralJournal.OpenEdit;
         GeneralJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
         GeneralJournal."Customers Opening balance".Invoke;
@@ -167,19 +167,19 @@ codeunit 134232 "ERM Prepare Journal"
     begin
         // [SCENARIO] Test verifies that Prepare Vendor Opening Balance generates Gen. Journal Line for Vendor
         // [GIVEN] Vendor, General Journal Template and Gen Journal Batch
-        Initialize;
+        Initialize();
         LibraryPurchase.CreateVendor(Vendor);
         CreateGeneralJournalBatch(GenJournalBatch);
 
         // [WHEN] Run Prepare Journal > Prepare Vendor Opening Balance
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         GeneralJournal.OpenEdit;
         GeneralJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
         GeneralJournal."Vendors Opening balance".Invoke;
 
         // [THEN] System runs Create G/L Acc. Journal Lines report and generates General Journal Line
         GenJournalLine.SetFilter("Account No.", Vendor."No.");
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         GeneralJournal.GotoRecord(GenJournalLine);
         Assert.AreEqual(Format(GeneralJournal."Account No."), Vendor."No.", '');
     end;
@@ -197,14 +197,14 @@ codeunit 134232 "ERM Prepare Journal"
         // [SCENARIO] Test verifies that Prepare Vendor Opening Balance
         // doesn't generate Gen. Journal Line for blocked Vendor
         // [GIVEN] Blocked Vendor, General Journal Template and Gen Journal Batch
-        Initialize;
+        Initialize();
         LibraryPurchase.CreateVendor(Vendor);
         Vendor.Validate(Blocked, Vendor.Blocked::All);
         Vendor.Modify(true);
         CreateGeneralJournalBatch(GenJournalBatch);
 
         // [WHEN] Run Prepare Journal > Prepare Vendor Opening Balance
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         GeneralJournal.OpenEdit;
         GeneralJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
         GeneralJournal."Vendors Opening balance".Invoke;
@@ -224,7 +224,7 @@ codeunit 134232 "ERM Prepare Journal"
         GenJournalLine: Record "Gen. Journal Line";
         GeneralJournal: TestPage "General Journal";
     begin
-        Initialize;
+        Initialize();
         // [SCENARIO] Test verifies that Prepare Customers Opening Balance
         // doesn't generate Gen. Journal Line for blocked Customer
         // [GIVEN] PrivacyBlocked Customer, General Journal Template and Gen Journal Batch
@@ -234,7 +234,7 @@ codeunit 134232 "ERM Prepare Journal"
         CreateGeneralJournalBatch(GenJournalBatch);
 
         // [WHEN] Run Prepare Journal > Prepare Customers Opening Balance
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         GeneralJournal.OpenEdit;
         GeneralJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
         GeneralJournal."Customers Opening balance".Invoke;
@@ -254,7 +254,7 @@ codeunit 134232 "ERM Prepare Journal"
         GenJournalLine: Record "Gen. Journal Line";
         GeneralJournal: TestPage "General Journal";
     begin
-        Initialize;
+        Initialize();
         // [SCENARIO] Test verifies that Prepare Vendor Opening Balance
         // doesn't generate Gen. Journal Line for blocked Vendor
         // [GIVEN] PrivacyBlocked Vendor, General Journal Template and Gen Journal Batch
@@ -264,7 +264,7 @@ codeunit 134232 "ERM Prepare Journal"
         CreateGeneralJournalBatch(GenJournalBatch);
 
         // [WHEN] Run Prepare Journal > Prepare Vendor Opening Balance
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         GeneralJournal.OpenEdit;
         GeneralJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
         GeneralJournal."Vendors Opening balance".Invoke;
@@ -287,7 +287,7 @@ codeunit 134232 "ERM Prepare Journal"
       PostingDate: Date;
     begin
       // [SCENARIO 341562] Action "G/L Accounts Opening balance " on General Journal page uses CurrentPostingDate in Simple mode.
-      Initialize;
+      Initialize();
 
       // [GIVEN] General Journal in Simple mode.
       GenJnlManagement.SetJournalSimplePageModePreference(true,PAGE::"General Journal");
@@ -324,7 +324,7 @@ codeunit 134232 "ERM Prepare Journal"
       PostingDate: Date;
     begin
       // [SCENARIO 341562] Action "G/L Accounts Opening balance " on General Journal page uses WorkDate() in Classic mode.
-      Initialize;
+      Initialize();
 
       // [GIVEN] General Journal in Classic mode.
       GenJnlManagement.SetJournalSimplePageModePreference(false,PAGE::"General Journal");
@@ -357,7 +357,7 @@ codeunit 134232 "ERM Prepare Journal"
       PostingDate: Date;
     begin
       // [SCENARIO 341562] Action "Customers Opening balance " on General Journal page uses CurrentPostingDate in Simple mode.
-      Initialize;
+      Initialize();
 
       // [GIVEN] General Journal in Simple mode.
       GenJnlManagement.SetJournalSimplePageModePreference(true,PAGE::"General Journal");
@@ -392,7 +392,7 @@ codeunit 134232 "ERM Prepare Journal"
       PostingDate: Date;
     begin
       // [SCENARIO 341562] Action "Customers Opening balance " on General Journal page uses WorkDate() in Classic mode.
-      Initialize;
+      Initialize();
 
       // [GIVEN] General Journal in Classic mode.
       GenJnlManagement.SetJournalSimplePageModePreference(false,PAGE::"General Journal");
@@ -424,7 +424,7 @@ codeunit 134232 "ERM Prepare Journal"
       PostingDate: Date;
     begin
       // [SCENARIO 341562] Action "Vendors Opening balance " on General Journal page uses CurrentPostingDate in Simple mode.
-      Initialize;
+      Initialize();
 
       // [GIVEN] General Journal in Simple mode.
       GenJnlManagement.SetJournalSimplePageModePreference(true,PAGE::"General Journal");
@@ -459,7 +459,7 @@ codeunit 134232 "ERM Prepare Journal"
       PostingDate: Date;
     begin
       // [SCENARIO 341562] Action "Vendors Opening balance " on General Journal page uses WorkDate() in Classic mode.
-      Initialize;
+      Initialize();
 
       // [GIVEN] General Journal in Classic mode.
       GenJnlManagement.SetJournalSimplePageModePreference(false,PAGE::"General Journal");

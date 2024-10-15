@@ -27,21 +27,21 @@ table 9001 "User Group Member"
         }
         field(4; "User Name"; Code[50])
         {
-            CalcFormula = Lookup (User."User Name" WHERE("User Security ID" = FIELD("User Security ID")));
+            CalcFormula = Lookup(User."User Name" WHERE("User Security ID" = FIELD("User Security ID")));
             Caption = 'User Name';
             Editable = false;
             FieldClass = FlowField;
         }
         field(5; "User Full Name"; Text[80])
         {
-            CalcFormula = Lookup (User."Full Name" WHERE("User Security ID" = FIELD("User Security ID")));
+            CalcFormula = Lookup(User."Full Name" WHERE("User Security ID" = FIELD("User Security ID")));
             Caption = 'User Full Name';
             Editable = false;
             FieldClass = FlowField;
         }
         field(6; "User Group Name"; Text[50])
         {
-            CalcFormula = Lookup ("User Group".Name WHERE(Code = FIELD("User Group Code")));
+            CalcFormula = Lookup("User Group".Name WHERE(Code = FIELD("User Group Code")));
             Caption = 'User Group Name';
             Editable = false;
             FieldClass = FlowField;
@@ -109,7 +109,7 @@ table 9001 "User Group Member"
             exit;
 
         if UserSelection.Open(User) then
-            if User.FindSet then
+            if User.FindSet() then
                 repeat
                     "User Group Code" := GetRangeMin("User Group Code");
                     "User Security ID" := User."User Security ID";
@@ -123,7 +123,6 @@ table 9001 "User Group Member"
         UserGroupAccessControl: Record "User Group Access Control";
         UserGroupMember: Record "User Group Member";
         DefaultAllProfile: Record "All Profile";
-        ConfPersonalizationMgt: Codeunit "Conf./Personalization Mgt.";
         NewProfileID: Code[30];
     begin
         if IsNullGuid("User Security ID") or ("User Group Code" = '') then
@@ -171,7 +170,7 @@ table 9001 "User Group Member"
     begin
         UserGroupMember.SetRange("User Security ID", "User Security ID");
         UserGroupMember.SetFilter("User Group Code", '<>%1', UserGroupCode);
-        if not UserGroupMember.FindFirst then begin
+        if not UserGroupMember.FindFirst() then begin
             if not UserPersonalization.Get("User Security ID") then
                 exit;
             Clear(UserPersonalization."Profile ID");

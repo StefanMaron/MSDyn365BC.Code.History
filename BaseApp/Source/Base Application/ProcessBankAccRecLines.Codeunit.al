@@ -45,7 +45,7 @@ codeunit 1248 "Process Bank Acc. Rec Lines"
 
         CreateBankAccRecLineTemplate(TempBankAccReconLine, BankAccRecon, DataExch);
         DataExchLineDef.SetRange("Data Exch. Def Code", DataExchDef.Code);
-        DataExchLineDef.FindFirst;
+        DataExchLineDef.FindFirst();
 
         DataExchMapping.Get(DataExchDef.Code, DataExchLineDef.Code, DATABASE::"Bank Acc. Reconciliation Line");
 
@@ -88,7 +88,7 @@ codeunit 1248 "Process Bank Acc. Rec Lines"
     var
         BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
     begin
-        if TempBankAccReconLine.FindSet then
+        if TempBankAccReconLine.FindSet() then
             repeat
                 if TempBankAccReconLine.CanImport then begin
                     BankAccReconciliationLine := TempBankAccReconLine;

@@ -84,7 +84,7 @@ table 5406 "Prod. Order Line"
                     Validate(Quantity);
                 GetUpdateFromSKU;
 
-                CreateDim(DATABASE::Item, "Item No.");
+                CreateDimFromDefaultDim();
                 DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
             end;
         }
@@ -135,6 +135,7 @@ table 5406 "Prod. Order Line"
                 WhseValidateSourceLine.ProdOrderLineVerifyChange(Rec, xRec);
                 GetUpdateFromSKU;
                 GetDefaultBin;
+                CreateDimFromDefaultDim();
             end;
         }
         field(21; "Shortcut Dimension 1 Code"; Code[20])
@@ -460,7 +461,9 @@ table 5406 "Prod. Order Line"
             CalcFormula = Sum("Reservation Entry".Quantity WHERE("Source ID" = FIELD("Prod. Order No."),
                                                                   "Source Ref. No." = CONST(0),
                                                                   "Source Type" = CONST(5406),
+#pragma warning disable
                                                                   "Source Subtype" = FIELD(Status),
+#pragma warning restore
                                                                   "Source Batch Name" = CONST(''),
                                                                   "Source Prod. Order Line" = FIELD("Line No."),
                                                                   "Reservation Status" = CONST(Reservation)));
@@ -513,7 +516,7 @@ table 5406 "Prod. Order Line"
             trigger OnValidate()
             begin
                 GetItem;
-                GetGLSetup;
+                GetGLSetup();
                 WhseValidateSourceLine.ProdOrderLineVerifyChange(Rec, xRec);
                 "Unit Cost" := Item."Unit Cost";
 
@@ -568,7 +571,9 @@ table 5406 "Prod. Order Line"
             CalcFormula = Sum("Reservation Entry"."Quantity (Base)" WHERE("Source ID" = FIELD("Prod. Order No."),
                                                                            "Source Ref. No." = CONST(0),
                                                                            "Source Type" = CONST(5406),
+#pragma warning disable
                                                                            "Source Subtype" = FIELD(Status),
+#pragma warning restore
                                                                            "Source Batch Name" = CONST(''),
                                                                            "Source Prod. Order Line" = FIELD("Line No."),
                                                                            "Reservation Status" = CONST(Reservation)));
@@ -900,7 +905,7 @@ table 5406 "Prod. Order Line"
         ProdOrderLine.SetRange("Routing No.", "Routing No.");
         ProdOrderLine.SetFilter("Line No.", '<>%1', "Line No.");
         ProdOrderLine.SetRange("Routing Reference No.", "Routing Reference No.");
-        if not ProdOrderLine.FindFirst then begin
+        if not ProdOrderLine.FindFirst() then begin
             ProdOrderRoutingLine.SetRange(Status, Status);
             ProdOrderRoutingLine.SetRange("Prod. Order No.", "Prod. Order No.");
             ProdOrderRoutingLine.SetRange("Routing No.", "Routing No.");
@@ -991,20 +996,38 @@ table 5406 "Prod. Order Line"
         exit(Blocked);
     end;
 
+#if not CLEAN20
+    [Obsolete('Replaced by CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])', '20.0')]
     procedure CreateDim(Type1: Integer; No1: Code[20])
     var
         TableID: array[10] of Integer;
         No: array[10] of Code[20];
+        DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
     begin
         TableID[1] := Type1;
         No[1] := No1;
         OnAfterCreateDimTableIDs(Rec, CurrFieldNo, TableID, No);
+        CreateDefaultDimSourcesFromDimArray(DefaultDimSource, TableID, No);
 
         "Shortcut Dimension 1 Code" := '';
         "Shortcut Dimension 2 Code" := '';
         "Dimension Set ID" :=
           DimMgt.GetRecDefaultDimID(
-            Rec, CurrFieldNo, TableID, No, '',
+            Rec, CurrFieldNo, DefaultDimSource, '',
+            "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", ProdOrder."Dimension Set ID", DATABASE::Item);
+    end;
+#endif
+
+    procedure CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    begin
+#if not CLEAN20
+        RunEventOnAfterCreateDimTableIDs(DefaultDimSource);
+#endif
+        "Shortcut Dimension 1 Code" := '';
+        "Shortcut Dimension 2 Code" := '';
+        "Dimension Set ID" :=
+          DimMgt.GetRecDefaultDimID(
+            Rec, CurrFieldNo, DefaultDimSource, '',
             "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", ProdOrder."Dimension Set ID", DATABASE::Item);
     end;
 
@@ -1340,7 +1363,7 @@ table 5406 "Prod. Order Line"
         ProdOrderComp.SetRange(Status, Status);
         ProdOrderComp.SetRange("Prod. Order No.", "Prod. Order No.");
         ProdOrderComp.SetRange("Prod. Order Line No.", "Line No.");
-        if ProdOrderComp.FindSet then begin
+        if ProdOrderComp.FindSet() then begin
             ModifyRecord := false;
             OnUpdateProdOrderCompOnAfterFind(Rec, ModifyRecord);
             if ModifyRecord then
@@ -1408,7 +1431,7 @@ table 5406 "Prod. Order Line"
         ProdOrderComp.SetRange("Prod. Order No.", "Prod. Order No.");
         ProdOrderComp.SetRange("Prod. Order Line No.", "Line No.");
         ProdOrderComp.LockTable();
-        if ProdOrderComp.FindSet then
+        if ProdOrderComp.FindSet() then
             repeat
                 NewCompDimSetID := DimMgt.GetDeltaDimSetID(ProdOrderComp."Dimension Set ID", NewDimSetID, OldDimSetID);
                 if ProdOrderComp."Dimension Set ID" <> NewCompDimSetID then begin
@@ -1482,6 +1505,69 @@ table 5406 "Prod. Order Line"
         exit((Status = Status::Simulated) or (Status = Status::Planned) or (Status = Status::"Firm Planned"));
     end;
 
+    procedure CreateDimFromDefaultDim()
+    var
+        DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
+    begin
+        InitDefaultDimensionSources(DefaultDimSource);
+        CreateDim(DefaultDimSource);
+    end;
+
+    local procedure InitDefaultDimensionSources(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    begin
+        DimMgt.AddDimSource(DefaultDimSource, Database::Item, Rec."Item No.");
+        DimMgt.AddDimSource(DefaultDimSource, Database::Location, Rec."Location Code");
+
+        OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource);
+    end;
+
+#if not CLEAN20
+    local procedure CreateDefaultDimSourcesFromDimArray(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; TableID: array[10] of Integer; No: array[10] of Code[20])
+    var
+        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
+    begin
+        DimArrayConversionHelper.CreateDefaultDimSourcesFromDimArray(Database::"Prod. Order Line", DefaultDimSource, TableID, No);
+    end;
+
+    local procedure CreateDimTableIDs(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; var TableID: array[10] of Integer; var No: array[10] of Code[20])
+    var
+        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
+    begin
+        DimArrayConversionHelper.CreateDimTableIDs(Database::"Prod. Order Line", DefaultDimSource, TableID, No);
+    end;
+
+    local procedure RunEventOnAfterCreateDimTableIDs(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    var
+        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
+        TableID: array[10] of Integer;
+        No: array[10] of Code[20];
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeRunEventOnAfterCreateDimTableIDs(Rec, DefaultDimSource, IsHandled);
+        if IsHandled then
+            exit;
+
+        if not DimArrayConversionHelper.IsSubscriberExist(Database::"Prod. Order Line") then
+            exit;
+
+        CreateDimTableIDs(DefaultDimSource, TableID, No);
+        OnAfterCreateDimTableIDs(Rec, CurrFieldNo, TableID, No);
+        CreateDefaultDimSourcesFromDimArray(DefaultDimSource, TableID, No);
+    end;
+
+    [Obsolete('Temporary event for compatibility', '20.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRunEventOnAfterCreateDimTableIDs(var ProdOrderLine: Record "Prod. Order Line"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; var IsHandled: Boolean)
+    begin
+    end;
+#endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitDefaultDimensionSources(var ProdOrderLine: Record "Prod. Order Line"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    begin
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterCheckEndingDate(var ProdOrderLine: Record "Prod. Order Line")
     begin
@@ -1492,11 +1578,13 @@ table 5406 "Prod. Order Line"
     begin
     end;
 
+#if not CLEAN20
+    [Obsolete('Temporary event for compatibility.', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateDimTableIDs(var ProdOrderLine: Record "Prod. Order Line"; CallingFieldNo: Integer; var TableID: array[10] of Integer; var No: array[10] of Code[20])
     begin
     end;
-
+#endif
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyFromItem(var ProdOrderLine: Record "Prod. Order Line"; Item: Record Item; var xProdOrderLine: Record "Prod. Order Line")
     begin

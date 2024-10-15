@@ -30,8 +30,6 @@ codeunit 1485 "Rolecenter Selector Mgt."
         DefaultLangaugeCodeTxt: Label 'ENU', Locked = true;
         LanguageCodeRegExPatternTxt: Label '[A-Z]{3}=', Locked = true;
         LanguageCodePatternTxt: Label '%1=', Locked = true;
-        RoleCenterSelectorAddinTxt: Label 'Microsoft.Dynamics.Nav.Client.RoleCenterSelector', Locked = true;
-        RoleCenterSelectorPublickKeyTxt: Label '31bf3856ad364e35', Locked = true;
 
     [Scope('OnPrem')]
     procedure BuildJsonFromPageMetadata(RolecenterId: Integer): Text
@@ -110,14 +108,14 @@ codeunit 1485 "Rolecenter Selector Mgt."
         PageAction.SetRange("Page ID", RolecenterId);
         PageAction.SetRange("Action Type", PageAction."Action Type"::ActionContainer);
         PageAction.SetRange("Action Subtype", PageAction."Action Subtype"::ActivityButtons);
-        if not PageAction.FindFirst then
+        if not PageAction.FindFirst() then
             exit(FeatureBucketsJArray.ToString);
 
         BucketPageAction.SetRange("Page ID", RolecenterId);
         BucketPageAction.SetRange("Parent Action ID", PageAction."Action ID");
         BucketPageAction.SetRange("Action Type", BucketPageAction."Action Type"::ActionGroup);
         BucketPageAction.SetRange(Indentation, 1);
-        if BucketPageAction.FindSet then
+        if BucketPageAction.FindSet() then
             repeat
                 JSONManagement.InitializeEmptyObject;
                 JSONManagement.GetJSONObject(FeatureBucketJObject);
@@ -132,7 +130,7 @@ codeunit 1485 "Rolecenter Selector Mgt."
                 FeaturePageAction.SetRange(Indentation, 2);
                 FeaturePageAction.SetRange(Promoted, true);
 
-                if FeaturePageAction.FindSet then
+                if FeaturePageAction.FindSet() then
                     repeat
                         FeatureJObject := FeatureJObject.JObject;
                         JSONManagement.AddJPropertyToJObject(FeatureJObject, JsonNameElementLbl, FeaturePageAction.Caption);
@@ -182,19 +180,6 @@ codeunit 1485 "Rolecenter Selector Mgt."
         JSONManagement.AddJArrayToJObject(PageDataJObject, JsonDropdownContentLbl, ProfileJArray);
 
         exit(PageDataJObject.ToString);
-    end;
-
-    local procedure IsRolecenterSelectorInstalled(): Boolean
-    var
-        Addin: Record "Add-in";
-    begin
-        Addin.SetRange("Add-in Name", RoleCenterSelectorAddinTxt);
-        Addin.SetRange("Public Key Token", RoleCenterSelectorPublickKeyTxt);
-        Addin.SetRange(Category, Addin.Category::"JavaScript Control Add-in");
-
-        if Addin.FindFirst then
-            if Addin.Resource.HasValue then
-                exit(true);
     end;
 
     [Scope('OnPrem')]

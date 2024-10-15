@@ -60,7 +60,7 @@ codeunit 141 "EC Sales List Populate XML"
     begin
         ECSLVATReportLine.SetRange("Report No.", VATReportHeader."No.");
         ECSLVATReportLine.SetRange("XML Part Id", PartId);
-        if ECSLVATReportLine.FindSet then begin
+        if ECSLVATReportLine.FindSet() then begin
             repeat
                 XMLDOMManagement.AddElement(EuropeanSalesListBodyNode, 'EuropeanSale', '', '', SaleElement);
                 XMLDOMManagement.AddElementWithPrefix(SaleElement, 'SubmittersReference', Format(ECSLVATReportLine."Line No."),

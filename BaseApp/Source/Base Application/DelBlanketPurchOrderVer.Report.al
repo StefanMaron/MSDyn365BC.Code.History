@@ -21,7 +21,7 @@ report 5173 "Del. Blanket Purch. Order Ver."
                 PurchHeader.SetRange("Document Type", PurchHeader."Document Type"::"Blanket Order");
                 PurchHeader.SetRange("No.", "No.");
                 PurchHeader.SetRange("Doc. No. Occurrence", "Doc. No. Occurrence");
-                if not PurchHeader.FindFirst then
+                if not PurchHeader.FindFirst() then
                     Delete(true);
             end;
         }

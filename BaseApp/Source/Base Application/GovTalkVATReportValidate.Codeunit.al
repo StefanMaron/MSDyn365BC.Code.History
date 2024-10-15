@@ -35,7 +35,7 @@ codeunit 10528 "GovTalk VAT Report Validate"
 
         ErrorMessage.ClearLogRec(GovTalkSetup);
         with GovTalkSetup do begin
-            if not FindFirst then
+            if not FindFirst() then
                 ErrorMessage.LogSimpleMessage(ErrorMessage."Message Type"::Error, GovTalkSetupMissingErr)
             else
                 if (Username = '') or IsNullGuid(Password) or (Endpoint = '') then

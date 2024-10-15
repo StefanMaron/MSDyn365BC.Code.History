@@ -425,7 +425,7 @@ codeunit 99000836 "Transfer Line-Reserve"
             if TransferQty = 0 then
                 exit;
             OldReservEntry.SetRange("Reservation Status", ReservStatus);
-            if OldReservEntry.FindSet then
+            if OldReservEntry.FindSet() then
                 repeat
                     OldReservEntry.TestItemFields(OldTransLine."Item No.", OldTransLine."Variant Code", TransferLocation);
 
@@ -565,7 +565,7 @@ codeunit 99000836 "Transfer Line-Reserve"
         SourceTrackingSpecification: Record "Tracking Specification";
         ItemTrackingLines: Page "Item Tracking Lines";
     begin
-        if not TempTrackingSpecification.FindSet then
+        if not TempTrackingSpecification.FindSet() then
             exit;
         SourceTrackingSpecification.InitFromTransLine(TransferLine, TransferLine."Shipment Date", Direction::Outbound);
 
@@ -650,7 +650,7 @@ codeunit 99000836 "Transfer Line-Reserve"
         JobPlanningLine.SetRange(Status, FromTrackingSpecification."Source Subtype");
         JobPlanningLine.SetRange("Job No.", FromTrackingSpecification."Source ID");
         JobPlanningLine.SetRange("Job Contract Entry No.", FromTrackingSpecification."Source Ref. No.");
-        JobPlanningLine.FindFirst;
+        JobPlanningLine.FindFirst();
         exit(JobPlanningLine."Planning Date");
     end;
 
@@ -725,7 +725,7 @@ codeunit 99000836 "Transfer Line-Reserve"
         if MatchThisEntry(EntrySummary."Entry No.") then begin
             Clear(AvailableTransferLines);
             AvailableTransferLines.SetSource(SourceRecRef, ReservEntry, ReservEntry.GetTransferDirection());
-            AvailableTransferLines.RunModal;
+            AvailableTransferLines.RunModal();
         end;
     end;
 
@@ -831,7 +831,7 @@ codeunit 99000836 "Transfer Line-Reserve"
             1: // Inbound
                 TransLine.FilterInboundLinesForReservation(CalcReservEntry, AvailabilityFilter, Positive);
         end;
-        if TransLine.FindSet then
+        if TransLine.FindSet() then
             repeat
                 case Direction of
                     0:

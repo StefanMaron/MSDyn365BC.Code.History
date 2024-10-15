@@ -143,12 +143,7 @@
                 if IsHandled then
                     exit;
 
-                CreateDim(
-                  DimMgt.TypeToTableID1("Account Type".AsInteger()), "Account No.",
-                  DimMgt.TypeToTableID1("Bal. Account Type".AsInteger()), "Bal. Account No.",
-                  DATABASE::Job, "Job No.",
-                  DATABASE::"Salesperson/Purchaser", "Salespers./Purch. Code",
-                  DATABASE::Campaign, "Campaign No.");
+                CreateDimFromDefaultDim(FieldNo("Account No."));
 
                 Validate("IC Partner G/L Acc. No.", GetDefaultICPartnerGLAccNo);
                 ValidateApplyRequirements(Rec);
@@ -331,12 +326,7 @@
                     UpdateLineBalance;
                     UpdateSource;
                     Clear("Balance Account Id");
-                    CreateDim(
-                      DimMgt.TypeToTableID1("Bal. Account Type".AsInteger()), "Bal. Account No.",
-                      DimMgt.TypeToTableID1("Account Type".AsInteger()), "Account No.",
-                      DATABASE::Job, "Job No.",
-                      DATABASE::"Salesperson/Purchaser", "Salespers./Purch. Code",
-                      DATABASE::Campaign, "Campaign No.");
+                    CreateDimFromDefaultDim(FieldNo("Bal. Account No."));
                     if not ("Account Type" in ["Account Type"::Customer, "Account Type"::Vendor]) then
                         "Recipient Bank Account" := '';
                     if xRec."Bal. Account No." <> '' then begin
@@ -348,6 +338,11 @@
                     end;
                     exit;
                 end;
+
+                ReadGLSetup();
+                if GLSetup."Journal Templ. Name Mandatory" then
+                    if GenJnlTemplate.Name <> "Journal Template Name" then
+                        GenJnlTemplate.Get("Journal Template Name");
 
                 OnValidateBalAccountNoOnBeforeAssignValue(Rec, xRec);
 
@@ -374,12 +369,7 @@
                 Validate("Bal. VAT Prod. Posting Group");
                 UpdateLineBalance;
                 UpdateSource;
-                CreateDim(
-                  DimMgt.TypeToTableID1("Bal. Account Type".AsInteger()), "Bal. Account No.",
-                  DimMgt.TypeToTableID1("Account Type".AsInteger()), "Account No.",
-                  DATABASE::Job, "Job No.",
-                  DATABASE::"Salesperson/Purchaser", "Salespers./Purch. Code",
-                  DATABASE::Campaign, "Campaign No.");
+                CreateDimFromDefaultDim(FieldNo("Bal. Account No."));
                 UpdateBalanceAccountId();
                 Validate("IC Partner G/L Acc. No.", GetDefaultICPartnerGLAccNo);
                 ValidateApplyRequirements(Rec);
@@ -613,12 +603,7 @@
             begin
                 ValidateSalesPersonPurchaserCode(Rec);
 
-                CreateDim(
-                  DATABASE::"Salesperson/Purchaser", "Salespers./Purch. Code",
-                  DimMgt.TypeToTableID1("Account Type".AsInteger()), "Account No.",
-                  DimMgt.TypeToTableID1("Bal. Account Type".AsInteger()), "Bal. Account No.",
-                  DATABASE::Job, "Job No.",
-                  DATABASE::Campaign, "Campaign No.");
+                CreateDimFromDefaultDim(FieldNo("Salespers./Purch. Code"));
             end;
         }
         field(28; "Pending Approval"; Boolean)
@@ -727,7 +712,7 @@
                                 CustLedgEntry.SetRange("Customer No.", TempGenJnlLine."Account No.");
                                 CustLedgEntry.SetRange(Open, true);
                                 OnAppliesToDocNoOnValidateOnAfterCustLedgEntrySetFilters(Rec, CustLedgEntry, TempGenJnlLine);
-                                if CustLedgEntry.FindFirst then begin
+                                if CustLedgEntry.FindFirst() then begin
                                     if CustLedgEntry."Amount to Apply" <> 0 then begin
                                         CustLedgEntry."Amount to Apply" := 0;
                                         CODEUNIT.Run(CODEUNIT::"Cust. Entry-Edit", CustLedgEntry);
@@ -745,7 +730,7 @@
                                 VendLedgEntry.SetRange("Vendor No.", TempGenJnlLine."Account No.");
                                 VendLedgEntry.SetRange(Open, true);
                                 OnAppliesToDocNoOnValidateOnAfterVendLedgEntrySetFilters(Rec, VendLedgEntry);
-                                if VendLedgEntry.FindFirst then begin
+                                if VendLedgEntry.FindFirst() then begin
                                     if VendLedgEntry."Amount to Apply" <> 0 then begin
                                         VendLedgEntry."Amount to Apply" := 0;
                                         CODEUNIT.Run(CODEUNIT::"Vend. Entry-Edit", VendLedgEntry);
@@ -763,7 +748,7 @@
                                 EmplLedgEntry.SetRange("Employee No.", TempGenJnlLine."Account No.");
                                 EmplLedgEntry.SetRange(Open, true);
                                 OnAppliesToDocNoValidateOnAfterEmplLedgEntrySetFilters(Rec, EmplLedgEntry);
-                                if EmplLedgEntry.FindFirst then begin
+                                if EmplLedgEntry.FindFirst() then begin
                                     if EmplLedgEntry."Amount to Apply" <> 0 then begin
                                         EmplLedgEntry."Amount to Apply" := 0;
                                         CODEUNIT.Run(CODEUNIT::"Empl. Entry-Edit", EmplLedgEntry);
@@ -829,12 +814,7 @@
                 if "Source Code" <> SourceCodeSetup."Job G/L WIP" then
                     Validate("Job Task No.", '');
                 if "Job No." = '' then begin
-                    CreateDim(
-                      DATABASE::Job, "Job No.",
-                      DimMgt.TypeToTableID1("Account Type".AsInteger()), "Account No.",
-                      DimMgt.TypeToTableID1("Bal. Account Type".AsInteger()), "Bal. Account No.",
-                      DATABASE::"Salesperson/Purchaser", "Salespers./Purch. Code",
-                      DATABASE::Campaign, "Campaign No.");
+                    CreateDimFromDefaultDim(FieldNo("Job No."));
                     exit;
                 end;
 
@@ -846,12 +826,7 @@
                 Job.TestBlocked;
                 "Job Currency Code" := Job."Currency Code";
 
-                CreateDim(
-                  DATABASE::Job, "Job No.",
-                  DimMgt.TypeToTableID1("Account Type".AsInteger()), "Account No.",
-                  DimMgt.TypeToTableID1("Bal. Account Type".AsInteger()), "Bal. Account No.",
-                  DATABASE::"Salesperson/Purchaser", "Salespers./Purch. Code",
-                  DATABASE::Campaign, "Campaign No.");
+                CreateDimFromDefaultDim(FieldNo("Job No."));
             end;
         }
         field(43; Quantity; Decimal)
@@ -1132,6 +1107,11 @@
 
                 if ("Bal. Account Type" = "Bal. Account Type"::Employee) and ("Currency Code" <> '') then
                     Error(OnlyLocalCurrencyForEmployeeErr);
+
+                ReadGLSetup();
+                if GLSetup."Journal Templ. Name Mandatory" then
+                    if GenJnlTemplate.Name <> "Journal Template Name" then
+                        GenJnlTemplate.Get("Journal Template Name");
 
                 OnValidateBalAccountTypeOnBeforeSetBalAccountNo(Rec, xRec);
 
@@ -1962,6 +1942,17 @@
             Caption = 'VAT Base Before Pmt. Disc.';
             Editable = false;
         }
+        field(126; "Orig. Pmt. Disc. Possible"; Decimal)
+        {
+            AutoFormatExpression = "Currency Code";
+            AutoFormatType = 1;
+            Caption = 'Original Pmt. Disc. Possible';
+        }
+        field(127; "Orig. Pmt. Disc. Possible(LCY)"; Decimal)
+        {
+            AutoFormatType = 1;
+            Caption = 'Orig. Pmt. Disc. Possible (LCY)';
+        }
         field(160; "Job Queue Status"; Option)
         {
             Caption = 'Job Queue Status';
@@ -2451,12 +2442,7 @@
 
             trigger OnValidate()
             begin
-                CreateDim(
-                  DATABASE::Campaign, "Campaign No.",
-                  DimMgt.TypeToTableID1("Account Type".AsInteger()), "Account No.",
-                  DimMgt.TypeToTableID1("Bal. Account Type".AsInteger()), "Bal. Account No.",
-                  DATABASE::Job, "Job No.",
-                  DATABASE::"Salesperson/Purchaser", "Salespers./Purch. Code");
+                CreateDimFromDefaultDim(FieldNo("Campaign No."));
             end;
         }
         field(5400; "Prod. Order No."; Code[20])
@@ -2814,13 +2800,8 @@
         GenJournalLine.SetRange("Journal Template Name", "Journal Template Name");
         GenJournalLine.SetRange("Journal Batch Name", "Journal Batch Name");
         if GenJournalLine.Count = 1 then
-            if GenJournalBatch.Get("Journal Template Name", "Journal Batch Name") then begin
+            if GenJournalBatch.Get("Journal Template Name", "Journal Batch Name") then
                 ApprovalsMgmt.OnCancelGeneralJournalBatchApprovalRequest(GenJournalBatch);
-                if GenJournalBatch."Pending Approval" then begin
-                    GenJournalBatch."Pending Approval" := false;
-                    GenJournalBatch.Modify();
-                end;
-            end;
 
         TestField("Check Printed", false);
 
@@ -3043,7 +3024,7 @@
         GenJnlBatch.Get("Journal Template Name", "Journal Batch Name");
         GenJnlLine.SetRange("Journal Template Name", "Journal Template Name");
         GenJnlLine.SetRange("Journal Batch Name", "Journal Batch Name");
-        if GenJnlLine.FindFirst then begin
+        if GenJnlLine.FindFirst() then begin
             "Posting Date" := LastGenJnlLine."Posting Date";
             "Document Date" := LastGenJnlLine."Posting Date";
             "Document No." := LastGenJnlLine."Document No.";
@@ -3136,7 +3117,7 @@
     begin
         GenJnlLine.CopyFilters(Rec);
 
-        if not GenJnlLine.FindSet then
+        if not GenJnlLine.FindSet() then
             exit;
         GenJnlBatch.Get(GenJnlLine."Journal Template Name", GenJnlLine."Journal Batch Name");
         if GenJnlBatch."No. Series" = '' then
@@ -3255,7 +3236,7 @@
             SetRange("Journal Batch Name", "Journal Batch Name");
             LastGenJnlLine.Init();
             First := true;
-            if FindSet then begin
+            if FindSet() then begin
                 repeat
                     if ((FirstDocNo <> GetTempRenumberDocumentNo()) and (GenJnlLine2.GetFilter("Document No.") = '')) then begin
                         Commit();
@@ -3312,7 +3293,7 @@
                     CustLedgEntry.SetRange("Customer No.", AccNo);
                     CustLedgEntry.SetRange("Applies-to ID", OriginalAppliesToID);
                     OnRenumberAppliesToIDOnAfterCustLedgEntrySetFilters(GenJnlLine2, AccNo, CustLedgEntry);
-                    if CustLedgEntry.FindSet then
+                    if CustLedgEntry.FindSet() then
                         repeat
                             CustLedgEntry2.Get(CustLedgEntry."Entry No.");
                             CustLedgEntry2."Applies-to ID" := NewAppliesToID;
@@ -3324,7 +3305,7 @@
                     VendLedgEntry.SetRange("Vendor No.", AccNo);
                     VendLedgEntry.SetRange("Applies-to ID", OriginalAppliesToID);
                     OnRenumberAppliesToIDOnAfterVendLedgEntrySetFilters(GenJnlLine2, AccNo, VendLedgEntry);
-                    if VendLedgEntry.FindSet then
+                    if VendLedgEntry.FindSet() then
                         repeat
                             VendLedgEntry2.Get(VendLedgEntry."Entry No.");
                             VendLedgEntry2."Applies-to ID" := NewAppliesToID;
@@ -3357,14 +3338,14 @@
             GenJnlAlloc.SetRange("Journal Template Name", "Journal Template Name");
             GenJnlAlloc.SetRange("Journal Batch Name", "Journal Batch Name");
             GenJnlAlloc.SetRange("Journal Line No.", "Line No.");
-            if GenJnlAlloc.FindSet then
+            if GenJnlAlloc.FindSet() then
                 repeat
                     GenJnlAlloc.CheckVAT(Rec);
                 until GenJnlAlloc.Next() = 0;
         end;
     end;
 
-    local procedure SetCurrencyCode(AccType2: Enum "Gen. Journal Account Type"; AccNo2: Code[20]) Result: Boolean
+    protected procedure SetCurrencyCode(AccType2: Enum "Gen. Journal Account Type"; AccNo2: Code[20]) Result: Boolean
     var
         BankAcc: Record "Bank Account";
         IsHandled: Boolean;
@@ -3457,7 +3438,7 @@
         CheckDirectPosting(GLAcc);
     end;
 
-    local procedure CheckICPartner(ICPartnerCode: Code[20]; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20])
+    protected procedure CheckICPartner(ICPartnerCode: Code[20]; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20])
     var
         ICPartner: Record "IC Partner";
     begin
@@ -3633,7 +3614,10 @@
         CustLedgEntry."Accepted Pmt. Disc. Tolerance" := false;
         CustLedgEntry."Accepted Payment Tolerance" := 0;
         CustLedgEntry."Amount to Apply" := 0;
-
+        IF Rec."On Hold" = CustLedgEntry."On Hold" then begin
+            CustLedgEntry."On Hold" := '';
+            Rec."On Hold" := '';
+        end;
         OnAfterClearCustApplnEntryFields(CustLedgEntry);
     end;
 
@@ -3642,7 +3626,10 @@
         VendLedgEntry."Accepted Pmt. Disc. Tolerance" := false;
         VendLedgEntry."Accepted Payment Tolerance" := 0;
         VendLedgEntry."Amount to Apply" := 0;
-
+        IF Rec."On Hold" = VendLedgEntry."On Hold" then begin
+            VendLedgEntry."On Hold" := '';
+            Rec."On Hold" := '';
+        end;
         OnAfterClearVendApplnEntryFields(VendLedgEntry);
     end;
 
@@ -3660,7 +3647,7 @@
         CurrExchRate.SetRange("Currency Code", "Currency Code");
         CurrExchRate.SetRange("Starting Date", 0D, "Posting Date");
 
-        if not CurrExchRate.FindLast then
+        if not CurrExchRate.FindLast() then
             exit(false);
 
         if CurrExchRate."Relational Currency Code" = '' then
@@ -3674,7 +3661,7 @@
             exit(false);
 
         CurrExchRate.SetRange("Currency Code", CurrExchRate."Relational Currency Code");
-        if CurrExchRate.FindLast then
+        if CurrExchRate.FindLast() then
             exit(
               CurrExchRate."Fix Exchange Rate Amount" =
               CurrExchRate."Fix Exchange Rate Amount"::Both);
@@ -3682,6 +3669,8 @@
         exit(false);
     end;
 
+#if not CLEAN20
+    [Obsolete('Replaced by CreateDim(DefaultDimSource:List of [Dictionary of [Integer, Code[20]]])', '20.0')]
     procedure CreateDim(Type1: Integer; No1: Code[20]; Type2: Integer; No2: Code[20]; Type3: Integer; No3: Code[20]; Type4: Integer; No4: Code[20]; Type5: Integer; No5: Code[20])
     var
         TableID: array[10] of Integer;
@@ -3710,6 +3699,28 @@
         "Dimension Set ID" :=
           DimMgt.GetRecDefaultDimID(
             Rec, CurrFieldNo, TableID, No, "Source Code", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
+
+        OnAfterCreateDim(Rec, CurrFieldNo);
+    end;
+#endif
+
+    procedure CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCreateDim(Rec, IsHandled, CurrFieldNo);
+        if IsHandled then
+            exit;
+#if not CLEAN20
+        RunEventOnAfterCreateDimTableIDs(DefaultDimSource);
+#endif
+
+        "Shortcut Dimension 1 Code" := '';
+        "Shortcut Dimension 2 Code" := '';
+        "Dimension Set ID" :=
+          DimMgt.GetRecDefaultDimID(
+            Rec, CurrFieldNo, DefaultDimSource, "Source Code", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
 
         OnAfterCreateDim(Rec, CurrFieldNo);
     end;
@@ -4163,7 +4174,7 @@
                     CustLedgEntry.SetRange("Customer No.", "Account No.");
                     CustLedgEntry.SetRange(Open, true);
                     OnSetApplyToAmountOnAfterCustLedgEntrySetFilters(Rec, CustLedgEntry);
-                    if CustLedgEntry.FindFirst then
+                    if CustLedgEntry.FindFirst() then
                         if CustLedgEntry."Amount to Apply" = 0 then begin
                             CustLedgEntry.CalcFields("Remaining Amount");
                             CustLedgEntry."Amount to Apply" := CustLedgEntry."Remaining Amount";
@@ -4177,7 +4188,7 @@
                     VendLedgEntry.SetRange("Document No.", "Applies-to Doc. No.");
                     VendLedgEntry.SetRange("Vendor No.", "Account No.");
                     VendLedgEntry.SetRange(Open, true);
-                    if VendLedgEntry.FindFirst then
+                    if VendLedgEntry.FindFirst() then
                         if VendLedgEntry."Amount to Apply" = 0 then begin
                             VendLedgEntry.CalcFields("Remaining Amount");
                             VendLedgEntry."Amount to Apply" := VendLedgEntry."Remaining Amount";
@@ -4191,7 +4202,7 @@
                     EmplLedgEntry.SetRange("Document No.", "Applies-to Doc. No.");
                     EmplLedgEntry.SetRange("Employee No.", "Account No.");
                     EmplLedgEntry.SetRange(Open, true);
-                    if EmplLedgEntry.FindFirst then
+                    if EmplLedgEntry.FindFirst() then
                         if EmplLedgEntry."Amount to Apply" = 0 then begin
                             EmplLedgEntry.CalcFields("Remaining Amount");
                             EmplLedgEntry."Amount to Apply" := EmplLedgEntry."Remaining Amount";
@@ -4224,7 +4235,7 @@
                     CustLedgEntry.SetRange("Applies-to ID", TempGenJnlLine."Applies-to ID");
                     CustLedgEntry.SetRange(Open, true);
                     OnValidateApplyRequirementsOnAfterCustLedgEntrySetFiltersWithAppliesToID(TempGenJnlLine, CustLedgEntry);
-                    if CustLedgEntry.FindSet then
+                    if CustLedgEntry.FindSet() then
                         repeat
                             CheckIfPostingDateIsEarlier(
                               TempGenJnlLine, CustLedgEntry."Posting Date", CustLedgEntry."Document Type", CustLedgEntry."Document No.", CustLedgEntry);
@@ -4238,7 +4249,7 @@
                         CustLedgEntry.SetRange("Customer No.", TempGenJnlLine."Account No.");
                         CustLedgEntry.SetRange(Open, true);
                         OnValidateApplyRequirementsOnAfterCustLedgEntrySetFiltersWithoutAppliesToID(TempGenJnlLine, CustLedgEntry);
-                        if CustLedgEntry.FindFirst then
+                        if CustLedgEntry.FindFirst() then
                             CheckIfPostingDateIsEarlier(
                               TempGenJnlLine, CustLedgEntry."Posting Date", CustLedgEntry."Document Type", CustLedgEntry."Document No.", CustLedgEntry);
                     end;
@@ -4248,7 +4259,7 @@
                     VendLedgEntry.SetRange("Vendor No.", TempGenJnlLine."Account No.");
                     VendLedgEntry.SetRange("Applies-to ID", TempGenJnlLine."Applies-to ID");
                     VendLedgEntry.SetRange(Open, true);
-                    if VendLedgEntry.FindSet then
+                    if VendLedgEntry.FindSet() then
                         repeat
                             CheckIfPostingDateIsEarlier(
                               TempGenJnlLine, VendLedgEntry."Posting Date", VendLedgEntry."Document Type", VendLedgEntry."Document No.", VendLedgEntry);
@@ -4261,7 +4272,7 @@
                             VendLedgEntry.SetRange("Document Type", TempGenJnlLine."Applies-to Doc. Type");
                         VendLedgEntry.SetRange("Vendor No.", TempGenJnlLine."Account No.");
                         VendLedgEntry.SetRange(Open, true);
-                        if VendLedgEntry.FindFirst then
+                        if VendLedgEntry.FindFirst() then
                             CheckIfPostingDateIsEarlier(
                               TempGenJnlLine, VendLedgEntry."Posting Date", VendLedgEntry."Document Type", VendLedgEntry."Document No.", VendLedgEntry);
                     end;
@@ -4271,7 +4282,7 @@
                     EmplLedgEntry.SetRange("Employee No.", TempGenJnlLine."Account No.");
                     EmplLedgEntry.SetRange("Applies-to ID", TempGenJnlLine."Applies-to ID");
                     EmplLedgEntry.SetRange(Open, true);
-                    if EmplLedgEntry.FindSet then
+                    if EmplLedgEntry.FindSet() then
                         repeat
                             CheckIfPostingDateIsEarlier(
                               TempGenJnlLine, EmplLedgEntry."Posting Date", EmplLedgEntry."Document Type", EmplLedgEntry."Document No.", EmplLedgEntry);
@@ -4284,7 +4295,7 @@
                             EmplLedgEntry.SetRange("Document Type", TempGenJnlLine."Applies-to Doc. Type");
                         EmplLedgEntry.SetRange("Employee No.", TempGenJnlLine."Account No.");
                         EmplLedgEntry.SetRange(Open, true);
-                        if EmplLedgEntry.FindFirst then
+                        if EmplLedgEntry.FindFirst() then
                             CheckIfPostingDateIsEarlier(
                               TempGenJnlLine, EmplLedgEntry."Posting Date", EmplLedgEntry."Document Type", EmplLedgEntry."Document No.", EmplLedgEntry);
                     end;
@@ -4495,7 +4506,7 @@
             CustLedgEntry.Reset();
             CustLedgEntry.SetRange("Document No.", "Applies-to Doc. No.");
             CustLedgEntry.SetRange(Open, true);
-            if not CustLedgEntry.FindFirst then
+            if not CustLedgEntry.FindFirst() then
                 Error(NotExistErr, "Applies-to Doc. No.");
 
             Validate("Account No.", CustLedgEntry."Customer No.");
@@ -4535,7 +4546,7 @@
             VendLedgEntry.Reset();
             VendLedgEntry.SetRange("Document No.", "Applies-to Doc. No.");
             VendLedgEntry.SetRange(Open, true);
-            if not VendLedgEntry.FindFirst then
+            if not VendLedgEntry.FindFirst() then
                 Error(NotExistErr, "Applies-to Doc. No.");
 
             Validate("Account No.", VendLedgEntry."Vendor No.");
@@ -4575,7 +4586,7 @@
             EmplLedgEntry.Reset();
             EmplLedgEntry.SetRange("Document No.", "Applies-to Doc. No.");
             EmplLedgEntry.SetRange(Open, true);
-            if not EmplLedgEntry.FindFirst then
+            if not EmplLedgEntry.FindFirst() then
                 Error(NotExistErr, "Applies-to Doc. No.");
 
             Validate("Account No.", EmplLedgEntry."Employee No.");
@@ -4597,7 +4608,7 @@
         end;
     end;
 
-    local procedure UpdateCurrencyCode(NewCurrencyCode: Code[10])
+    protected procedure UpdateCurrencyCode(NewCurrencyCode: Code[10])
     var
         ConfirmManagement: Codeunit "Confirm Management";
         FromCurrencyCode: Code[10];
@@ -4644,7 +4655,7 @@
            ("Account Type" in ["Account Type"::Customer, "Account Type"::Vendor])))
     end;
 
-    local procedure CheckPaymentTolerance()
+    protected procedure CheckPaymentTolerance()
     begin
         if Amount <> 0 then
             if ("Bal. Account No." <> xRec."Bal. Account No.") or ("Account No." <> xRec."Account No.") then
@@ -4804,7 +4815,7 @@
         exit(PaymentJnlExportErrorText.JnlBatchHasErrors(Rec));
     end;
 
-    local procedure UpdateDescriptionFromBalAccount(Name: Text[100])
+    protected procedure UpdateDescriptionFromBalAccount(Name: Text[100])
     begin
         if not IsAdHocBalAccDescription() then
             Description := Name;
@@ -4937,11 +4948,11 @@
         if "Applies-to Doc. No." <> '' then begin
             CustLedgEntry.SetRange("Document Type", "Applies-to Doc. Type");
             CustLedgEntry.SetRange("Document No.", "Applies-to Doc. No.");
-            if CustLedgEntry.FindFirst then;
+            if CustLedgEntry.FindFirst() then;
         end else
             if "Applies-to ID" <> '' then begin
                 CustLedgEntry.SetRange("Applies-to ID", "Applies-to ID");
-                if CustLedgEntry.FindFirst then;
+                if CustLedgEntry.FindFirst() then;
             end;
     end;
 
@@ -4953,12 +4964,12 @@
         if "Applies-to Doc. No." <> '' then begin
             VendLedgEntry.SetRange("Document Type", "Applies-to Doc. Type");
             VendLedgEntry.SetRange("Document No.", "Applies-to Doc. No.");
-            if VendLedgEntry.FindFirst then;
+            if VendLedgEntry.FindFirst() then;
         end else
             if "Applies-to ID" <> '' then begin
                 VendLedgEntry.SetCurrentKey("Vendor No.", "Applies-to ID", Open, Positive, "Due Date");
                 VendLedgEntry.SetRange("Applies-to ID", "Applies-to ID");
-                if VendLedgEntry.FindFirst then;
+                if VendLedgEntry.FindFirst() then;
             end;
     end;
 
@@ -4969,11 +4980,11 @@
         if "Applies-to Doc. No." <> '' then begin
             EmplLedgEntry.SetRange("Document Type", "Applies-to Doc. Type");
             EmplLedgEntry.SetRange("Document No.", "Applies-to Doc. No.");
-            if EmplLedgEntry.FindFirst then;
+            if EmplLedgEntry.FindFirst() then;
         end else
             if "Applies-to ID" <> '' then begin
                 EmplLedgEntry.SetRange("Applies-to ID", "Applies-to ID");
-                if EmplLedgEntry.FindFirst then;
+                if EmplLedgEntry.FindFirst() then;
             end;
     end;
 
@@ -4991,7 +5002,7 @@
                     if FindFirstCustLedgEntryWithAppliesToID(AccNo, "Applies-to ID") then begin
                         OnSetJournalLineFieldsFromApplicationOnAfterFindFirstCustLedgEntryWithAppliesToID(Rec, CustLedgEntry);
                         CustLedgEntry.SetRange("Exported to Payment File", true);
-                        "Exported to Payment File" := CustLedgEntry.FindFirst;
+                        "Exported to Payment File" := CustLedgEntry.FindFirst();
                     end
                 end else
                     if "Applies-to Doc. No." <> '' then
@@ -5005,7 +5016,7 @@
                     if FindFirstVendLedgEntryWithAppliesToID(AccNo, "Applies-to ID") then begin
                         OnSetJournalLineFieldsFromApplicationOnAfterFindFirstVendLedgEntryWithAppliesToID(Rec, VendLedgEntry);
                         VendLedgEntry.SetRange("Exported to Payment File", true);
-                        "Exported to Payment File" := VendLedgEntry.FindFirst;
+                        "Exported to Payment File" := VendLedgEntry.FindFirst();
                     end
                 end else
                     if "Applies-to Doc. No." <> '' then
@@ -5019,7 +5030,7 @@
                     if FindFirstEmplLedgEntryWithAppliesToID(AccNo, "Applies-to ID") then begin
                         OnSetJournalLineFieldsFromApplicationOnAfterFindFirstEmplLedgEntryWithAppliesToID(Rec, EmplLedgEntry);
                         EmplLedgEntry.SetRange("Exported to Payment File", true);
-                        "Exported to Payment File" := EmplLedgEntry.FindFirst;
+                        "Exported to Payment File" := EmplLedgEntry.FindFirst();
                     end
                 end else
                     if "Applies-to Doc. No." <> '' then
@@ -5116,7 +5127,7 @@
         exit(EmplLedgEntry.FindFirst)
     end;
 
-    local procedure ClearPostingGroups()
+    protected procedure ClearPostingGroups()
     begin
         "Gen. Posting Type" := "Gen. Posting Type"::" ";
         "Gen. Bus. Posting Group" := '';
@@ -5127,7 +5138,7 @@
         OnAfterClearPostingGroups(Rec);
     end;
 
-    local procedure ClearBalancePostingGroups()
+    protected procedure ClearBalancePostingGroups()
     begin
         "Bal. Gen. Posting Type" := "Bal. Gen. Posting Type"::" ";
         "Bal. Gen. Bus. Posting Group" := '';
@@ -5153,12 +5164,7 @@
     begin
         UpdateLineBalance;
         UpdateSource;
-        CreateDim(
-          DimMgt.TypeToTableID1("Account Type".AsInteger()), "Account No.",
-          DimMgt.TypeToTableID1("Bal. Account Type".AsInteger()), "Bal. Account No.",
-          DATABASE::Job, "Job No.",
-          DATABASE::"Salesperson/Purchaser", "Salespers./Purch. Code",
-          DATABASE::Campaign, "Campaign No.");
+        CreateDimFromDefaultDim(0);
         if not ("Bal. Account Type" in ["Bal. Account Type"::Customer, "Bal. Account Type"::Vendor]) then
             "Recipient Bank Account" := '';
         if xRec."Account No." <> '' then begin
@@ -5198,7 +5204,7 @@
             exit(false);
 
         Reset;
-        if FindLast then;
+        if FindLast() then;
         "Line No." += 10000;
 
         "Account Type" := AccountType;
@@ -5261,7 +5267,7 @@
     begin
         GenJnlLine.CopyFilters(Rec);
 
-        if GenJnlLine.FindSet then
+        if GenJnlLine.FindSet() then
             repeat
                 if GenJnlLine.IsApplied then begin
                     VendLedgerEntry.SetRange("Vendor No.", GenJnlLine."Account No.");
@@ -5320,7 +5326,7 @@
         GenJnlLine.SetRange("Journal Template Name", "Journal Template Name");
         GenJnlLine.SetRange("Journal Batch Name", "Journal Batch Name");
 
-        if GenJnlLine.FindSet then begin
+        if GenJnlLine.FindSet() then begin
             Window.Open(CalcPostDateMsg);
             repeat
                 Evaluate(EmptyDateFormula, '<0D>');
@@ -5346,7 +5352,7 @@
         BankAcc: Record "Bank Account";
         ConfirmManagement: Codeunit "Confirm Management";
     begin
-        if not FindSet then
+        if not FindSet() then
             Error(NothingToExportErr);
         SetRange("Journal Template Name", "Journal Template Name");
         SetRange("Journal Batch Name", "Journal Batch Name");
@@ -5434,6 +5440,20 @@
         OnAfterCopyGenJnlLineFromCustLedgEntry(CustLedgerEntry, Rec);
     end;
 
+    procedure CopyVendLedgEntry(VendorLedgerEntry: Record "Vendor Ledger Entry")
+    begin
+        "Document Type" := VendorLedgerEntry."Document Type";
+        Description := VendorLedgerEntry.Description;
+        "Shortcut Dimension 1 Code" := VendorLedgerEntry."Global Dimension 1 Code";
+        "Shortcut Dimension 2 Code" := VendorLedgerEntry."Global Dimension 2 Code";
+        "Dimension Set ID" := VendorLedgerEntry."Dimension Set ID";
+        "Posting Group" := VendorLedgerEntry."Vendor Posting Group";
+        "Source Type" := "Source Type"::Vendor;
+        "Source No." := VendorLedgerEntry."Vendor No.";
+
+        OnAfterCopyGenJnlLineFromVendLedgEntry(VendorLedgerEntry, Rec);
+    end;
+
     procedure CopyFromGenJnlAllocation(GenJnlAlloc: Record "Gen. Jnl. Allocation")
     begin
         "Account No." := GenJnlAlloc."Account No.";
@@ -5460,7 +5480,7 @@
         OnAfterCopyGenJnlLineFromGenJnlAllocation(GenJnlAlloc, Rec);
     end;
 
-#if not CLEAN19
+#if not CLEAN20
     [Obsolete('Replaced by InvoicePostBuffer.CopyToGenJnlLine(Rec)', '19.0')]
     procedure CopyFromInvoicePostBuffer(InvoicePostBuffer: Record "Invoice Post. Buffer")
     begin
@@ -5470,7 +5490,7 @@
     end;
 #endif
 
-#if not CLEAN19
+#if not CLEAN20
     [Obsolete('Replaced by InvoicePostBuffer.CopyToGenJnlLineFA(Rec)', '19.0')]
     procedure CopyFromInvoicePostBufferFA(InvoicePostBuffer: Record "Invoice Post. Buffer")
     begin
@@ -5917,7 +5937,7 @@
               "Currency Code", CustVendLedgEntryCurrencyCode, AccountType, true);
     end;
 
-    local procedure SetAmountWithRemaining(CalcPmtDisc: Boolean; AmountToApply: Decimal; RemainingAmount: Decimal; RemainingPmtDiscPossible: Decimal)
+    protected procedure SetAmountWithRemaining(CalcPmtDisc: Boolean; AmountToApply: Decimal; RemainingAmount: Decimal; RemainingPmtDiscPossible: Decimal)
     begin
         if AmountToApply <> 0 then
             if CalcPmtDisc and (Abs(AmountToApply) >= Abs(RemainingAmount - RemainingPmtDiscPossible)) then
@@ -5955,7 +5975,7 @@
             if TemplateFilter <> '' then
                 GenJournalBatch.SetFilter("Journal Template Name", TemplateFilter);
             GenJournalBatch.SetFilter(Name, BatchFilter);
-            GenJournalBatch.FindFirst;
+            GenJournalBatch.FindFirst();
         end;
 
         exit((("Journal Batch Name" <> '') and ("Journal Template Name" = '')) or (BatchFilter <> ''));
@@ -5994,14 +6014,6 @@
             "Deferral Code", "Deferral Document Type"::"G/L".AsInteger(), "Journal Template Name", "Journal Batch Name", 0, '', "Line No.",
             GetDeferralAmount(), PostingDate, Description, CurrencyCode));
     end;
-
-#if not CLEAN17
-    [Obsolete('Replace by enum "Deferral Document Type" value.', '17.0')]
-    procedure GetDeferralDocType(): Integer
-    begin
-        exit(DeferralDocType::"G/L".AsInteger());
-    end;
-#endif
 
     procedure IsForPurchase(): Boolean
     begin
@@ -6083,7 +6095,7 @@
         else
             GenJournalLine.SetFilter("Line No.", '<%1', LastGenJnlLine."Line No.");
 
-        if GenJournalLine.FindLast then begin
+        if GenJournalLine.FindLast() then begin
             if BottomLine then begin
                 GenJournalLine.SetRange("Document No.", LastGenJnlLine."Document No.");
                 GenJournalLine.SetRange("Posting Date", LastGenJnlLine."Posting Date");
@@ -6092,7 +6104,7 @@
                 GenJournalLine.SetRange("Posting Date", GenJournalLine."Posting Date");
             end;
             GenJournalLine.SetRange("Bal. Account No.", '');
-            if GenJournalLine.FindFirst then begin
+            if GenJournalLine.FindFirst() then begin
                 GenJournalLine.CalcSums(Amount);
                 "Document No." := GenJournalLine."Document No.";
                 "Posting Date" := GenJournalLine."Posting Date";
@@ -6609,7 +6621,7 @@
         GenJournalLine.Validate("Journal Batch Name", BatchName);
         GenJournalLine.SetRange("Journal Template Name", TemplateName);
         GenJournalLine.SetRange("Journal Batch Name", BatchName);
-        if GenJournalLine.FindLast then
+        if GenJournalLine.FindLast() then
             exit(GenJournalLine."Line No." + 10000);
         exit(10000);
     end;
@@ -6630,7 +6642,7 @@
         GenJournalLine2.SetFilter("Bank Payment Type", 'Electronic Payment|Electronic Payment-IAT');
         GenJournalLine2.SetRange("Exported to Payment File", true);
         GenJournalLine2.SetRange("Check Transmitted", false);
-        if not GenJournalLine2.FindFirst then
+        if not GenJournalLine2.FindFirst() then
             Error(NoEntriesToVoidErr);
 
         Clear(VoidTransmitElecPmnts);
@@ -6641,7 +6653,7 @@
         else
             if "Bal. Account Type" = "Bal. Account Type"::"Bank Account" then
                 VoidTransmitElecPmnts.SetBankAccountNo("Bal. Account No.");
-        VoidTransmitElecPmnts.RunModal;
+        VoidTransmitElecPmnts.RunModal();
     end;
 
     procedure TransmitPaymentFile()
@@ -6661,7 +6673,7 @@
         else
             if "Bal. Account Type" = "Bal. Account Type"::"Bank Account" then
                 VoidTransmitElecPmnts.SetBankAccountNo("Bal. Account No.");
-        VoidTransmitElecPmnts.RunModal;
+        VoidTransmitElecPmnts.RunModal();
     end;
 
     local procedure SetSalespersonPurchaserCode(SalesperPurchCodeToCheck: Code[20]; var SalesperPuchCodeToAssign: Code[20])
@@ -6688,7 +6700,7 @@
         Vendor: Record Vendor;
         Employee: Record Employee;
     begin
-        if FindSet then begin
+        if FindSet() then begin
             repeat
                 case "Account Type" of
                     "Account Type"::Customer:
@@ -6797,6 +6809,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyGenJnlLineFromVendLedgEntry(VendLedgerEntry: Record "Vendor Ledger Entry"; var GenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterCopyGenJnlLineFromGenJnlAllocation(GenJnlAllocation: Record "Gen. Jnl. Allocation"; var GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
@@ -6866,7 +6883,7 @@
     begin
     end;
 
-#if not CLEAN19
+#if not CLEAN20
     [Obsolete('Event moved to Invoice Post. Buffer table together with procedure CopyGenJnlLineFromInvPostBuffer().', '19.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyGenJnlLineFromInvPostBuffer(InvoicePostBuffer: Record "Invoice Post. Buffer"; var GenJournalLine: Record "Gen. Journal Line")
@@ -6874,7 +6891,7 @@
     end;
 #endif
 
-#if not CLEAN19
+#if not CLEAN20
     [Obsolete('Event moved to Invoice Post. Buffer table together with procedure CopyGenJnlLineFromInvPostBufferFA().', '19.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyGenJnlLineFromInvPostBufferFA(InvoicePostBuffer: Record "Invoice Post. Buffer"; var GenJournalLine: Record "Gen. Journal Line")
@@ -7032,10 +7049,13 @@
     begin
     end;
 
+#if not CLEAN20
+    [Obsolete('Replaced by OnAfterInitDefaultDimensionSources()', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateDimTableIDs(var GenJournalLine: Record "Gen. Journal Line"; CallingFieldNo: Integer; var TableID: array[10] of Integer; var No: array[10] of Code[20])
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateFAAcquisitionLines(var FAGenJournalLine: Record "Gen. Journal Line"; GenJournalLine: Record "Gen. Journal Line")
@@ -7595,7 +7615,7 @@
             "Applies-to Doc. Type"::"Credit Memo":
                 "Document Type" := "Document Type"::Refund;
             "Applies-to Doc. Type"::Invoice,
-            "Applies-to Doc. Type"::Refund:
+"Applies-to Doc. Type"::Refund:
                 "Document Type" := "Document Type"::Payment;
         end;
     end;
@@ -7692,19 +7712,6 @@
             exit;
 
         "Account Id" := BankAccount.SystemId;
-    end;
-
-    local procedure UpdateBankAccountNo()
-    var
-        BankAccount: Record "Bank Account";
-    begin
-        if IsNullGuid("Account Id") then
-            exit;
-
-        if not BankAccount.GetBySystemId("Account Id") then
-            exit;
-
-        "Account No." := BankAccount."No.";
     end;
 
     procedure UpdateCustomerID()
@@ -7830,27 +7837,13 @@
         end;
     end;
 
+#if not CLEAN20
+    [Obsolete('The functionality that uses this was removed', '20.0')]
     procedure UpdateGraphContactId()
-    var
-        Customer: Record Customer;
-        Contact: Record Contact;
-        GraphIntContact: Codeunit "Graph Int. - Contact";
-        GraphID: Text[250];
     begin
-        if not GraphIntContact.IsUpdateContactIdEnabled() then
-            exit;
-
-        if IsNullGuid("Customer Id") then
-            Clear("Contact Graph Id");
-
-        if not Customer.GetBySystemId("Customer Id") then
-            Clear("Contact Graph Id");
-
-        if not GraphIntContact.FindGraphContactIdFromCustomer(GraphID, Customer, Contact) then
-            Clear("Contact Graph Id");
-
-        "Contact Graph Id" := GraphID;
+        Clear("Contact Graph Id");
     end;
+#endif
 
     procedure UpdateJournalBatchID()
     var
@@ -8044,6 +8037,46 @@
                     LCYCurrency."Amount Rounding Precision", LCYCurrency.VATRoundingDirection());
 
         exit(VATAmountLCY);
+    end;
+
+    procedure CreateDimFromDefaultDim(FromFieldNo: Integer)
+    var
+        DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
+    begin
+        InitDefaultDimensionSources(DefaultDimSource, FromFieldNo);
+        CreateDim(DefaultDimSource);
+    end;
+
+    local procedure InitDefaultDimensionSources(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; FromFieldNo: Integer)
+    begin
+        DimMgt.AddDimSource(DefaultDimSource, DimMgt.TypeToTableID1("Account Type".AsInteger()), Rec."Account No.", FromFieldNo = Rec.Fieldno("Account No."));
+        DimMgt.AddDimSource(DefaultDimSource, DimMgt.TypeToTableID1("Bal. Account Type".AsInteger()), Rec."Bal. Account No.", FromFieldNo = Rec.Fieldno("Bal. Account No."));
+        DimMgt.AddDimSource(DefaultDimSource, Database::Job, Rec."Job No.", FromFieldNo = Rec.FieldNo("Job No."));
+        DimMgt.AddDimSource(DefaultDimSource, Database::"Salesperson/Purchaser", Rec."Salespers./Purch. Code", FromFieldNo = Rec.FieldNo("Salespers./Purch. Code"));
+        DimMgt.AddDimSource(DefaultDimSource, Database::Campaign, Rec."Campaign No.", FromFieldNo = Rec.FieldNo("Campaign No."));
+
+        OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource);
+    end;
+
+#if not CLEAN20
+    local procedure RunEventOnAfterCreateDimTableIDs(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    var
+        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
+        TableID: array[10] of Integer;
+        No: array[10] of Code[20];
+    begin
+        if not DimArrayConversionHelper.IsSubscriberExist(Database::"Gen. Journal Line") then
+            exit;
+
+        DimArrayConversionHelper.CreateDimTableIDs(Database::"Gen. Journal Line", DefaultDimSource, TableID, No);
+        OnAfterCreateDimTableIDs(Rec, CurrFieldNo, TableID, No);
+        DimArrayConversionHelper.CreateDefaultDimSourcesFromDimArray(Database::"Gen. Journal Line", DefaultDimSource, TableID, No);
+    end;
+#endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitDefaultDimensionSources(var GenJournalLine: Record "Gen. Journal Line"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    begin
     end;
 
     [IntegrationEvent(false, false)]

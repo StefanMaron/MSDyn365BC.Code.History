@@ -71,7 +71,7 @@ table 237 "Job Journal Batch"
         }
         field(22; Recurring; Boolean)
         {
-            CalcFormula = Lookup ("Job Journal Template".Recurring WHERE(Name = FIELD("Journal Template Name")));
+            CalcFormula = Lookup("Job Journal Template".Recurring WHERE(Name = FIELD("Journal Template Name")));
             Caption = 'Recurring';
             Editable = false;
             FieldClass = FlowField;
@@ -125,4 +125,3 @@ table 237 "Job Journal Batch"
         "Reason Code" := JobJnlTemplate."Reason Code";
     end;
 }
-

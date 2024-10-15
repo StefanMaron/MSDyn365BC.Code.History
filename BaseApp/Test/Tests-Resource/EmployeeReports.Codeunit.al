@@ -37,7 +37,7 @@ codeunit 136903 "Employee Reports"
         // in corresponding Employee Relative.
 
         // 1. Setup: Create Employee and Relative.
-        Initialize;
+        Initialize();
         LibraryHumanResource.CreateEmployee(Employee);
         CreateEmployeeRelative(EmployeeRelative, Employee."No.");
 
@@ -46,7 +46,7 @@ codeunit 136903 "Employee Reports"
         Clear(EmployeeRelatives);
         EmployeeRelative.SetRange("Employee No.", EmployeeRelative."Employee No.");
         EmployeeRelatives.SetTableView(EmployeeRelative);
-        EmployeeRelatives.Run;
+        EmployeeRelatives.Run();
 
         // 3. Verify: Test that value of First Name and Birth Date in Employee - Relatives matches the value of First Name and Birth Date
         // in corresponding Employee Relative Report.
@@ -66,7 +66,7 @@ codeunit 136903 "Employee Reports"
         // in corresponding Confidential Information.
 
         // 1. Setup: Create Employee and Find Confidential.
-        Initialize;
+        Initialize();
         LibraryHumanResource.CreateEmployee(Employee);
         LibraryHumanResource.CreateConfidentialInformation(ConfidentialInformation, Employee."No.", FindConfidential);
 
@@ -75,7 +75,7 @@ codeunit 136903 "Employee Reports"
         Clear(EmployeeConfidentialInfo);
         ConfidentialInformation.SetRange("Employee No.", ConfidentialInformation."Employee No.");
         EmployeeConfidentialInfo.SetTableView(ConfidentialInformation);
-        EmployeeConfidentialInfo.Run;
+        EmployeeConfidentialInfo.Run();
 
         // 3. Verify: Verify that value of Description in Employee - Confidential Info. matches the value of Description
         // in corresponding Confidential Information.
@@ -99,7 +99,7 @@ codeunit 136903 "Employee Reports"
         // and Serial No in corresponding Misc. Article Information.
 
         // 1. Setup: Create Employee, Find Misc. Article and Modify Misc. Article Information.
-        Initialize;
+        Initialize();
         LibraryHumanResource.CreateEmployee(Employee);
         ModifyMiscellaneousArticle(MiscArticleInformation, Employee."No.");
 
@@ -108,7 +108,7 @@ codeunit 136903 "Employee Reports"
         Clear(EmployeeMiscArticleInfo);
         MiscArticleInformation.SetRange("Employee No.", MiscArticleInformation."Employee No.");
         EmployeeMiscArticleInfo.SetTableView(MiscArticleInformation);
-        EmployeeMiscArticleInfo.Run;
+        EmployeeMiscArticleInfo.Run();
 
         // 3. Verify: Verify that value of Description and Serial No in Employee - Misc. Article Info. matches the value of Description
         // and Serial No in corresponding Misc. Article Information.
@@ -128,7 +128,7 @@ codeunit 136903 "Employee Reports"
         // and From Date in corresponding Employee Qualification.
 
         // 1. Setup: Create Employee.
-        Initialize;
+        Initialize();
         LibraryHumanResource.CreateEmployee(Employee);
         CreateEmployeeQualifications(EmployeeQualification, Employee."No.");
 
@@ -137,7 +137,7 @@ codeunit 136903 "Employee Reports"
         Clear(EmployeeQualifications);
         EmployeeQualification.SetRange("Employee No.", EmployeeQualification."Employee No.");
         EmployeeQualifications.SetTableView(EmployeeQualification);
-        EmployeeQualifications.Run;
+        EmployeeQualifications.Run();
 
         // 3. Verify: Verify that value of Description and From Date in Employee - Qualifications matches the value of Description
         // and From Date in corresponding Employee Qualification.
@@ -156,7 +156,7 @@ codeunit 136903 "Employee Reports"
         // Test that the values of Code in Employee - Contracts Report must match in Corresponding Employment Contract Table values.
 
         // 1. Setup: Find Employment Contract and Modify Employee.
-        Initialize;
+        Initialize();
         LibraryHumanResource.CreateEmployee(Employee);
         FindEmploymentContract(EmploymentContract);
         ModifyEmployeeContracts(Employee, EmploymentContract.Code);
@@ -166,7 +166,7 @@ codeunit 136903 "Employee Reports"
         Clear(EmployeeContracts);
         EmploymentContract.SetRange(Code, EmploymentContract.Code);
         EmployeeContracts.SetTableView(EmploymentContract);
-        EmployeeContracts.Run;
+        EmployeeContracts.Run();
 
         // 3. Verify: Verify that the values of Code in Employee - Contracts Report must match in Corresponding
         // Employment Contract Table values.
@@ -187,7 +187,7 @@ codeunit 136903 "Employee Reports"
         // Test that the values of Code in Employee - Unions Report must match in Corresponding Employee Table values.
 
         // 1. Setup: Find Union and Modify Employee.
-        Initialize;
+        Initialize();
         LibraryHumanResource.CreateEmployee(Employee);
         LibraryHumanResource.CreateUnion(Union);
         ModifyEmployeeUnions(Employee, Union.Code);
@@ -197,7 +197,7 @@ codeunit 136903 "Employee Reports"
         Clear(EmployeeUnions);
         Union.SetRange(Code, Union.Code);
         EmployeeUnions.SetTableView(Union);
-        EmployeeUnions.Run;
+        EmployeeUnions.Run();
 
         // 3. Verify: Verify that the values of Code in Employee - Unions Report must match in Corresponding Employee Table values.
         LibraryReportDataset.LoadDataSetFile;
@@ -217,7 +217,7 @@ codeunit 136903 "Employee Reports"
         // Employee Table values.
 
         // 1. Setup: Create Employee.
-        Initialize;
+        Initialize();
         LibraryHumanResource.CreateEmployee(Employee);
         ModifyEmployeePhoneNos(Employee);
 
@@ -226,7 +226,7 @@ codeunit 136903 "Employee Reports"
         Clear(EmployeePhoneNos);
         Employee.SetRange("No.", Employee."No.");
         EmployeePhoneNos.SetTableView(Employee);
-        EmployeePhoneNos.Run;
+        EmployeePhoneNos.Run();
 
         // 3. Verify: Verify that the values of Phone No and Mobile Phone No in Employee - Phone Nos. Report must match
         // in Corresponding Employee Table values.
@@ -244,7 +244,7 @@ codeunit 136903 "Employee Reports"
         // Test that the values of Birth Date in Employee - Birthdays Report must match in Corresponding Employee Table values.
 
         // 1. Setup: Create Employee.
-        Initialize;
+        Initialize();
         LibraryHumanResource.CreateEmployee(Employee);
         AttachBirthDate(Employee);
 
@@ -253,7 +253,7 @@ codeunit 136903 "Employee Reports"
         Clear(EmployeeBirthdays);
         Employee.SetRange("No.", Employee."No.");
         EmployeeBirthdays.SetTableView(Employee);
-        EmployeeBirthdays.Run;
+        EmployeeBirthdays.Run();
 
         // 3. Verify: Verify that the values of Birth Date in Employee - Birthdays Report must match in
         // Corresponding Employee Table values.
@@ -274,7 +274,7 @@ codeunit 136903 "Employee Reports"
         // Test that the values of Address in Employee - Addresses Report must match in Corresponding Employee Table values.
 
         // 1. Setup: Create Employee.
-        Initialize;
+        Initialize();
         LibraryHumanResource.CreateEmployee(Employee);
         AttachAddress(Employee);
 
@@ -283,7 +283,7 @@ codeunit 136903 "Employee Reports"
         Clear(EmployeeAddresses);
         Employee.SetRange("No.", Employee."No.");
         EmployeeAddresses.SetTableView(Employee);
-        EmployeeAddresses.Run;
+        EmployeeAddresses.Run();
 
         // 3. Verify: Verify that the values of Address in Employee - Addresses Report must match in
         // Corresponding Employee Table values.
@@ -303,7 +303,7 @@ codeunit 136903 "Employee Reports"
         // in Corresponding Employee Table values.
 
         // 1. Setup: Create Employee.
-        Initialize;
+        Initialize();
         LibraryHumanResource.CreateEmployee(Employee);
         CreateAlternativeAddress(AlternativeAddress, Employee."No.");
         AttachAlternativeAddress(Employee, AlternativeAddress.Code);
@@ -313,7 +313,7 @@ codeunit 136903 "Employee Reports"
         Clear(EmployeeAltAddresses);
         Employee.SetRange("No.", Employee."No.");
         EmployeeAltAddresses.SetTableView(Employee);
-        EmployeeAltAddresses.Run;
+        EmployeeAltAddresses.Run();
 
         // 3. Verify: Test that the values of Alternative Address and Post Code in Employee - Alt. Addresses Report must match
         // Corresponding Employee Table values.
@@ -332,7 +332,7 @@ codeunit 136903 "Employee Reports"
         // match in Corresponding Employee Table values.
 
         // 1. Setup: Create Employee.
-        Initialize;
+        Initialize();
         CreateEmployeeList(Employee);
 
         // 2. Exercise: Generate Resource Journal - Test.
@@ -340,7 +340,7 @@ codeunit 136903 "Employee Reports"
         Clear(EmployeeList);
         Employee.SetRange("No.", Employee."No.");
         EmployeeList.SetTableView(Employee);
-        EmployeeList.Run;
+        EmployeeList.Run();
 
         // 3. Verify: Verify that the values of Department Code and Statistics Group Code in Employee - List Report must
         // match in Corresponding Employee Table values.
@@ -361,7 +361,7 @@ codeunit 136903 "Employee Reports"
         // match in Corresponding Employee Absence Table values.
 
         // 1. Setup: Find Cause of Absence.
-        Initialize;
+        Initialize();
         LibraryHumanResource.CreateEmployee(Employee);
         CreateEmployeeAbsence(EmployeeAbsence, Employee."No.", WorkDate);
         EmployeeNo := EmployeeAbsence."Employee No.";
@@ -372,7 +372,7 @@ codeunit 136903 "Employee Reports"
         Clear(EmployeeAbsencesByCauses);
         EmployeeAbsence.SetRange("Employee No.", EmployeeAbsence."Employee No.");
         EmployeeAbsencesByCauses.SetTableView(EmployeeAbsence);
-        EmployeeAbsencesByCauses.Run;
+        EmployeeAbsencesByCauses.Run();
 
         // 3. Verify: Verify that the values of Employee No,To Date in Employee - Absences by Causes Report must
         // match in Corresponding Employee Absence Table values.
@@ -392,7 +392,7 @@ codeunit 136903 "Employee Reports"
         // match in Corresponding Employee Absence Table values.
 
         // 1. Setup: Find Cause of Absence.
-        Initialize;
+        Initialize();
         LibraryHumanResource.CreateEmployee(Employee);
         CreateEmployeeAbsence(EmployeeAbsence, Employee."No.", WorkDate);
 
@@ -401,7 +401,7 @@ codeunit 136903 "Employee Reports"
         Clear(EmployeeStaffAbsences);
         EmployeeAbsence.SetRange("Employee No.", EmployeeAbsence."Employee No.");
         EmployeeStaffAbsences.SetTableView(EmployeeAbsence);
-        EmployeeStaffAbsences.Run;
+        EmployeeStaffAbsences.Run();
 
         // 3. Verify: Verify that the values of Cause of Absence Code and Unit of Measure Code in
         // Employee - Staff Absences Report must match in Corresponding Employee Absence Table values.
@@ -422,19 +422,19 @@ codeunit 136903 "Employee Reports"
     begin
         // [FEATURE] [UT] [Format Address]
         // [SCENARIO 212227] FormatPostCodeCity returns correct Address if Country <> '', and "Country/Region"."Address Format" = "Post Code+City"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Record "Country/Region" with Code = "CR1" and "Address Format" = "Post Code+City"
         CreateCountryRegionWithAddressFormat(CountryRegion, CountryRegion."Address Format"::"Post Code+City");
 
         // [GIVEN] "Post Code" = '123456'
-        PostCode := LibraryUtility.GenerateGUID;
+        PostCode := LibraryUtility.GenerateGUID();
 
         // [GIVEN] "City" = 'Moscow'
-        City := LibraryUtility.GenerateGUID;
+        City := LibraryUtility.GenerateGUID();
 
         // [GIVEN] "County" = 'Moscowia'
-        County := LibraryUtility.GenerateGUID;
+        County := LibraryUtility.GenerateGUID();
 
         // [WHEN] Invoike FormatPostCodeCity of "Format Address" (codeunit 365) with CountryCode = "CR1"
         FormatAddress.FormatPostCodeCity(PostCodeCityText, CountyText, City, PostCode, County, CountryRegion.Code);
@@ -459,7 +459,7 @@ codeunit 136903 "Employee Reports"
     begin
         // [FEATURE] [UT] [Format Address]
         // [SCENARIO 212227] FormatPostCodeCity returns correct Address if Country <> '', and PostCode is blank, and "Country/Region"."Address Format" = "Post Code+City"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Record "Country/Region" with Code = "CR1" and "Address Format" = "Post Code+City"
         CreateCountryRegionWithAddressFormat(CountryRegion, CountryRegion."Address Format"::"Post Code+City");
@@ -467,10 +467,10 @@ codeunit 136903 "Employee Reports"
         // [GIVEN] "Post Code" = ''
 
         // [GIVEN] "City" = 'Moscow'
-        City := LibraryUtility.GenerateGUID;
+        City := LibraryUtility.GenerateGUID();
 
         // [GIVEN] "County" = 'Moscowia'
-        County := LibraryUtility.GenerateGUID;
+        County := LibraryUtility.GenerateGUID();
 
         // [WHEN] Invoike FormatPostCodeCity of "Format Address" (codeunit 365) with CountryCode = "CR1" and PostCode = ''
         FormatAddress.FormatPostCodeCity(PostCodeCityText, CountyText, City, '', County, CountryRegion.Code);
@@ -496,19 +496,19 @@ codeunit 136903 "Employee Reports"
     begin
         // [FEATURE] [UT] [Format Address]
         // [SCENARIO 212227] FormatPostCodeCity returns correct Address if Country <> '', and "Country/Region"."Address Format" = "City+County+Post Code"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Record "Country/Region" with Code = "CR1" and "Address Format" = "City+County+Post Code"
         CreateCountryRegionWithAddressFormat(CountryRegion, CountryRegion."Address Format"::"City+County+Post Code");
 
         // [GIVEN] "Post Code" = '123456'
-        PostCode := LibraryUtility.GenerateGUID;
+        PostCode := LibraryUtility.GenerateGUID();
 
         // [GIVEN] "City" = 'Moscow'
-        City := LibraryUtility.GenerateGUID;
+        City := LibraryUtility.GenerateGUID();
 
         // [GIVEN] "County" = 'Moscowia'
-        County := LibraryUtility.GenerateGUID;
+        County := LibraryUtility.GenerateGUID();
 
         // [WHEN] Invoike FormatPostCodeCity of "Format Address" (codeunit 365) with CountryCode = "CR1"
         FormatAddress.FormatPostCodeCity(PostCodeCityText, CountyText, City, PostCode, County, CountryRegion.Code);
@@ -534,7 +534,7 @@ codeunit 136903 "Employee Reports"
     begin
         // [FEATURE] [UT] [Format Address]
         // [SCENARIO 212227] FormatPostCodeCity returns correct Address if Country <> '', and PostCode is blank, and "Country/Region"."Address Format" = "City+County+Post Code"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Record "Country/Region" with Code = "CR1" and "Address Format" = "City+County+Post Code"
         CreateCountryRegionWithAddressFormat(CountryRegion, CountryRegion."Address Format"::"City+County+Post Code");
@@ -542,10 +542,10 @@ codeunit 136903 "Employee Reports"
         // [GIVEN] "Post Code" = ''
 
         // [GIVEN] "City" = 'Moscow'
-        City := LibraryUtility.GenerateGUID;
+        City := LibraryUtility.GenerateGUID();
 
         // [GIVEN] "County" = 'Moscowia'
-        County := LibraryUtility.GenerateGUID;
+        County := LibraryUtility.GenerateGUID();
 
         // [WHEN] Invoike FormatPostCodeCity of "Format Address" (codeunit 365) with CountryCode = "CR1" and PostCode = ''
         FormatAddress.FormatPostCodeCity(PostCodeCityText, CountyText, City, '', County, CountryRegion.Code);
@@ -570,16 +570,16 @@ codeunit 136903 "Employee Reports"
     begin
         // [FEATURE] [UT] [Format Address]
         // [SCENARIO 212227] FormatPostCodeCity returns correct Address if Country <> '', and County is blank, and "Country/Region"."Address Format" = "City+County+Post Code"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Record "Country/Region" with Code = "CR1" and "Address Format" = "City+County+Post Code"
         CreateCountryRegionWithAddressFormat(CountryRegion, CountryRegion."Address Format"::"City+County+Post Code");
 
         // [GIVEN] "Post Code" = '123456'
-        PostCode := LibraryUtility.GenerateGUID;
+        PostCode := LibraryUtility.GenerateGUID();
 
         // [GIVEN] "City" = 'Moscow'
-        City := LibraryUtility.GenerateGUID;
+        City := LibraryUtility.GenerateGUID();
 
         // [GIVEN] "County" = ''
 
@@ -605,7 +605,7 @@ codeunit 136903 "Employee Reports"
     begin
         // [FEATURE] [UT] [Format Address]
         // [SCENARIO 212227] FormatPostCodeCity returns correct Address if Country <> '', and PostCode and County are blank, and "Country/Region"."Address Format" = "City+County+Post Code"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Record "Country/Region" with Code = "CR1" and "Address Format" = "City+County+Post Code"
         CreateCountryRegionWithAddressFormat(CountryRegion, CountryRegion."Address Format"::"City+County+Post Code");
@@ -613,7 +613,7 @@ codeunit 136903 "Employee Reports"
         // [GIVEN] "Post Code" = ''
 
         // [GIVEN] "City" = 'Moscow'
-        City := LibraryUtility.GenerateGUID;
+        City := LibraryUtility.GenerateGUID();
 
         // [GIVEN] "County" = ''
 
@@ -641,19 +641,19 @@ codeunit 136903 "Employee Reports"
     begin
         // [FEATURE] [UT] [Format Address]
         // [SCENARIO 212227] FormatPostCodeCity returns correct Address if Country <> '', and "Country/Region"."Address Format" = "City+Post Code"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Record "Country/Region" with Code = "CR1" and "Address Format" = "City+Post Code"
         CreateCountryRegionWithAddressFormat(CountryRegion, CountryRegion."Address Format"::"City+Post Code");
 
         // [GIVEN] "Post Code" = '123456'
-        PostCode := LibraryUtility.GenerateGUID;
+        PostCode := LibraryUtility.GenerateGUID();
 
         // [GIVEN] "City" = 'Moscow'
-        City := LibraryUtility.GenerateGUID;
+        City := LibraryUtility.GenerateGUID();
 
         // [GIVEN] "County" = 'Moscowia'
-        County := LibraryUtility.GenerateGUID;
+        County := LibraryUtility.GenerateGUID();
 
         // [WHEN] Invoike FormatPostCodeCity of "Format Address" (codeunit 365) with CountryCode = "CR1"
         FormatAddress.FormatPostCodeCity(PostCodeCityText, CountyText, City, PostCode, County, CountryRegion.Code);
@@ -678,7 +678,7 @@ codeunit 136903 "Employee Reports"
     begin
         // [FEATURE] [UT] [Format Address]
         // [SCENARIO 212227] FormatPostCodeCity returns correct Address if Country <> '', and PostCode = '', and "Country/Region"."Address Format" = "City+Post Code"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Record "Country/Region" with Code = "CR1" and "Address Format" = "City+Post Code"
         CreateCountryRegionWithAddressFormat(CountryRegion, CountryRegion."Address Format"::"City+Post Code");
@@ -686,10 +686,10 @@ codeunit 136903 "Employee Reports"
         // [GIVEN] "Post Code" = ''
 
         // [GIVEN] "City" = 'Moscow'
-        City := LibraryUtility.GenerateGUID;
+        City := LibraryUtility.GenerateGUID();
 
         // [GIVEN] "County" = 'Moscowia'
-        County := LibraryUtility.GenerateGUID;
+        County := LibraryUtility.GenerateGUID();
 
         // [WHEN] Invoike FormatPostCodeCity of "Format Address" (codeunit 365) with CountryCode = "CR1"
         FormatAddress.FormatPostCodeCity(PostCodeCityText, CountyText, City, '', County, CountryRegion.Code);
@@ -715,19 +715,19 @@ codeunit 136903 "Employee Reports"
     begin
         // [FEATURE] [UT] [Format Address]
         // [SCENARIO 212227] FormatPostCodeCity returns correct Address if Country <> '', and "Country/Region"."Address Format" = "Blank Line+Post Code+City"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Record "Country/Region" with Code = "CR1" and "Address Format" = "Blank Line+Post Code+City"
         CreateCountryRegionWithAddressFormat(CountryRegion, CountryRegion."Address Format"::"Blank Line+Post Code+City");
 
         // [GIVEN] "Post Code" = '123456'
-        PostCode := LibraryUtility.GenerateGUID;
+        PostCode := LibraryUtility.GenerateGUID();
 
         // [GIVEN] "City" = 'Moscow'
-        City := LibraryUtility.GenerateGUID;
+        City := LibraryUtility.GenerateGUID();
 
         // [GIVEN] "County" = 'Moscowia'
-        County := LibraryUtility.GenerateGUID;
+        County := LibraryUtility.GenerateGUID();
 
         // [WHEN] Invoike FormatPostCodeCity of "Format Address" (codeunit 365) with CountryCode = "CR1"
         FormatAddress.FormatPostCodeCity(PostCodeCityText, CountyText, City, PostCode, County, CountryRegion.Code);
@@ -752,7 +752,7 @@ codeunit 136903 "Employee Reports"
     begin
         // [FEATURE] [UT] [Format Address]
         // [SCENARIO 212227] FormatPostCodeCity returns correct Address if Country <> '', and PostCode = '', and "Country/Region"."Address Format" = "Blank Line+Post Code+City"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Record "Country/Region" with Code = "CR1" and "Address Format" = "Blank Line+Post Code+City"
         CreateCountryRegionWithAddressFormat(CountryRegion, CountryRegion."Address Format"::"Blank Line+Post Code+City");
@@ -760,10 +760,10 @@ codeunit 136903 "Employee Reports"
         // [GIVEN] "Post Code" = ''
 
         // [GIVEN] "City" = 'Moscow'
-        City := LibraryUtility.GenerateGUID;
+        City := LibraryUtility.GenerateGUID();
 
         // [GIVEN] "County" = 'Moscowia'
-        County := LibraryUtility.GenerateGUID;
+        County := LibraryUtility.GenerateGUID();
 
         // [WHEN] Invoike FormatPostCodeCity of "Format Address" (codeunit 365) with CountryCode = "CR1"
         FormatAddress.FormatPostCodeCity(PostCodeCityText, CountyText, City, '', County, CountryRegion.Code);
@@ -789,19 +789,19 @@ codeunit 136903 "Employee Reports"
     begin
         // [FEATURE] [UT] [Format Address]
         // [SCENARIO 212227] FormatPostCodeCity returns correct Address if Country = '', and "General Ledger Setup"."Local Address Format" = "Post Code+City"
-        Initialize;
+        Initialize();
 
         // [GIVEN] "General Ledger Setup" with "Local Address Format" = "Post Code+City"
         UpdateGLSetupAddressFormat(GeneralLedgerSetup."Local Address Format"::"Post Code+City");
 
         // [GIVEN] "Post Code" = '123456'
-        PostCode := LibraryUtility.GenerateGUID;
+        PostCode := LibraryUtility.GenerateGUID();
 
         // [GIVEN] "City" = 'Moscow'
-        City := LibraryUtility.GenerateGUID;
+        City := LibraryUtility.GenerateGUID();
 
         // [GIVEN] "County" = 'Moscowia'
-        County := LibraryUtility.GenerateGUID;
+        County := LibraryUtility.GenerateGUID();
 
         // [WHEN] Invoike FormatPostCodeCity of "Format Address" (codeunit 365) with CountryCode = ''
         FormatAddress.FormatPostCodeCity(PostCodeCityText, CountyText, City, PostCode, County, '');
@@ -826,7 +826,7 @@ codeunit 136903 "Employee Reports"
     begin
         // [FEATURE] [UT] [Format Address]
         // [SCENARIO 212227] FormatPostCodeCity returns correct Address if Country = '', and PostCode is blank, and "General Ledger Setup"."Local Address Format" = "Post Code+City"
-        Initialize;
+        Initialize();
 
         // [GIVEN] "General Ledger Setup" with "Local Address Format" = "Post Code+City"
         UpdateGLSetupAddressFormat(GeneralLedgerSetup."Local Address Format"::"Post Code+City");
@@ -834,10 +834,10 @@ codeunit 136903 "Employee Reports"
         // [GIVEN] "Post Code" = ''
 
         // [GIVEN] "City" = 'Moscow'
-        City := LibraryUtility.GenerateGUID;
+        City := LibraryUtility.GenerateGUID();
 
         // [GIVEN] "County" = 'Moscowia'
-        County := LibraryUtility.GenerateGUID;
+        County := LibraryUtility.GenerateGUID();
 
         // [WHEN] Invoike FormatPostCodeCity of "Format Address" (codeunit 365) with CountryCode = '' and PostCode = ''
         FormatAddress.FormatPostCodeCity(PostCodeCityText, CountyText, City, '', County, '');
@@ -863,19 +863,19 @@ codeunit 136903 "Employee Reports"
     begin
         // [FEATURE] [UT] [Format Address]
         // [SCENARIO 212227] FormatPostCodeCity returns correct Address if Country = '', and "General Ledger Setup"."Local Address Format" = "City+County+Post Code"
-        Initialize;
+        Initialize();
 
         // [GIVEN] "General Ledger Setup" "Local Address Format" = "City+County+Post Code"
         UpdateGLSetupAddressFormat(GeneralLedgerSetup."Local Address Format"::"City+County+Post Code");
 
         // [GIVEN] "Post Code" = '123456'
-        PostCode := LibraryUtility.GenerateGUID;
+        PostCode := LibraryUtility.GenerateGUID();
 
         // [GIVEN] "City" = 'Moscow'
-        City := LibraryUtility.GenerateGUID;
+        City := LibraryUtility.GenerateGUID();
 
         // [GIVEN] "County" = 'Moscowia'
-        County := LibraryUtility.GenerateGUID;
+        County := LibraryUtility.GenerateGUID();
 
         // [WHEN] Invoike FormatPostCodeCity of "Format Address" (codeunit 365) with CountryCode = ''
         FormatAddress.FormatPostCodeCity(PostCodeCityText, CountyText, City, PostCode, County, '');
@@ -901,7 +901,7 @@ codeunit 136903 "Employee Reports"
     begin
         // [FEATURE] [UT] [Format Address]
         // [SCENARIO 212227] FormatPostCodeCity returns correct Address if Country = '', and PostCode is blank, and "General Ledger Setup"."Local Address Format" = "City+County+Post Code"
-        Initialize;
+        Initialize();
 
         // [GIVEN] "General Ledger Setup" with "Local Address Format" = "City+County+Post Code"
         UpdateGLSetupAddressFormat(GeneralLedgerSetup."Local Address Format"::"City+County+Post Code");
@@ -909,10 +909,10 @@ codeunit 136903 "Employee Reports"
         // [GIVEN] "Post Code" = ''
 
         // [GIVEN] "City" = 'Moscow'
-        City := LibraryUtility.GenerateGUID;
+        City := LibraryUtility.GenerateGUID();
 
         // [GIVEN] "County" = 'Moscowia'
-        County := LibraryUtility.GenerateGUID;
+        County := LibraryUtility.GenerateGUID();
 
         // [WHEN] Invoike FormatPostCodeCity of "Format Address" (codeunit 365) with CountryCode = '' and PostCode = ''
         FormatAddress.FormatPostCodeCity(PostCodeCityText, CountyText, City, '', County, '');
@@ -937,16 +937,16 @@ codeunit 136903 "Employee Reports"
     begin
         // [FEATURE] [UT] [Format Address]
         // [SCENARIO 212227] FormatPostCodeCity returns correct Address if Country = '', and County is blank, and "General Ledger Setup"."Local Address Format" = "City+County+Post Code"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Record "Country/Region" with Code = "CR1" and "Address Format" = "City+County+Post Code"
         UpdateGLSetupAddressFormat(GeneralLedgerSetup."Local Address Format"::"City+County+Post Code");
 
         // [GIVEN] "Post Code" = '123456'
-        PostCode := LibraryUtility.GenerateGUID;
+        PostCode := LibraryUtility.GenerateGUID();
 
         // [GIVEN] "City" = 'Moscow'
-        City := LibraryUtility.GenerateGUID;
+        City := LibraryUtility.GenerateGUID();
 
         // [GIVEN] "County" = ''
 
@@ -972,7 +972,7 @@ codeunit 136903 "Employee Reports"
     begin
         // [FEATURE] [UT] [Format Address]
         // [SCENARIO 212227] FormatPostCodeCity returns correct Address if Country = '', and PostCode and County are blank, and "General Ledger Setup"."Local Address Format" = "City+County+Post Code"
-        Initialize;
+        Initialize();
 
         // [GIVEN] "General Ledger Setup" with "Local Address Format" = "City+County+Post Code"
         UpdateGLSetupAddressFormat(GeneralLedgerSetup."Local Address Format"::"City+County+Post Code");
@@ -980,7 +980,7 @@ codeunit 136903 "Employee Reports"
         // [GIVEN] "Post Code" = ''
 
         // [GIVEN] "City" = 'Moscow'
-        City := LibraryUtility.GenerateGUID;
+        City := LibraryUtility.GenerateGUID();
 
         // [GIVEN] "County" = ''
 
@@ -1008,19 +1008,19 @@ codeunit 136903 "Employee Reports"
     begin
         // [FEATURE] [UT] [Format Address]
         // [SCENARIO 212227] FormatPostCodeCity returns correct Address if Country = '', and "General Ledger Setup"."Local Address Format" = "City+Post Code"
-        Initialize;
+        Initialize();
 
         // [GIVEN] "General Ledger Setup" with "Local Address Format" = "City+Post Code"
         UpdateGLSetupAddressFormat(GeneralLedgerSetup."Local Address Format"::"City+Post Code");
 
         // [GIVEN] "Post Code" = '123456'
-        PostCode := LibraryUtility.GenerateGUID;
+        PostCode := LibraryUtility.GenerateGUID();
 
         // [GIVEN] "City" = 'Moscow'
-        City := LibraryUtility.GenerateGUID;
+        City := LibraryUtility.GenerateGUID();
 
         // [GIVEN] "County" = 'Moscowia'
-        County := LibraryUtility.GenerateGUID;
+        County := LibraryUtility.GenerateGUID();
 
         // [WHEN] Invoike FormatPostCodeCity of "Format Address" (codeunit 365) with CountryCode = ''
         FormatAddress.FormatPostCodeCity(PostCodeCityText, CountyText, City, PostCode, County, '');
@@ -1045,7 +1045,7 @@ codeunit 136903 "Employee Reports"
     begin
         // [FEATURE] [UT] [Format Address]
         // [SCENARIO 212227] FormatPostCodeCity returns correct Address if Country = '', and PostCode = '', and "General Ledger Setup"."Local Address Format" = "City+Post Code"
-        Initialize;
+        Initialize();
 
         // [GIVEN] "General Ledger Setup" with "Local Address Format" = "City+Post Code"
         UpdateGLSetupAddressFormat(GeneralLedgerSetup."Local Address Format"::"City+Post Code");
@@ -1053,10 +1053,10 @@ codeunit 136903 "Employee Reports"
         // [GIVEN] "Post Code" = ''
 
         // [GIVEN] "City" = 'Moscow'
-        City := LibraryUtility.GenerateGUID;
+        City := LibraryUtility.GenerateGUID();
 
         // [GIVEN] "County" = 'Moscowia'
-        County := LibraryUtility.GenerateGUID;
+        County := LibraryUtility.GenerateGUID();
 
         // [WHEN] Invoike FormatPostCodeCity of "Format Address" (codeunit 365) with CountryCode = ''
         FormatAddress.FormatPostCodeCity(PostCodeCityText, CountyText, City, '', County, '');
@@ -1082,19 +1082,19 @@ codeunit 136903 "Employee Reports"
     begin
         // [FEATURE] [UT] [Format Address]
         // [SCENARIO 212227] FormatPostCodeCity returns correct Address if Country = '', and "General Ledger Setup"."Local Address Format" = "Blank Line+Post Code+City"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Record "Country/Region" with Code = "CR1" and "Address Format" = "Blank Line+Post Code+City"
         UpdateGLSetupAddressFormat(GeneralLedgerSetup."Local Address Format"::"Blank Line+Post Code+City");
 
         // [GIVEN] "Post Code" = '123456'
-        PostCode := LibraryUtility.GenerateGUID;
+        PostCode := LibraryUtility.GenerateGUID();
 
         // [GIVEN] "City" = 'Moscow'
-        City := LibraryUtility.GenerateGUID;
+        City := LibraryUtility.GenerateGUID();
 
         // [GIVEN] "County" = 'Moscowia'
-        County := LibraryUtility.GenerateGUID;
+        County := LibraryUtility.GenerateGUID();
 
         // [WHEN] Invoike FormatPostCodeCity of "Format Address" (codeunit 365) with CountryCode = ''
         FormatAddress.FormatPostCodeCity(PostCodeCityText, CountyText, City, PostCode, County, '');
@@ -1119,7 +1119,7 @@ codeunit 136903 "Employee Reports"
     begin
         // [FEATURE] [UT] [Format Address]
         // [SCENARIO 212227] FormatPostCodeCity returns correct Address if Country = '', and PostCode = '', and "General Ledger Setup"."Local Address Format" = "Blank Line+Post Code+City"
-        Initialize;
+        Initialize();
 
         // [GIVEN] "General Ledger Setup" with "Local Address Format" = "Blank Line+Post Code+City"
         UpdateGLSetupAddressFormat(GeneralLedgerSetup."Local Address Format"::"Blank Line+Post Code+City");
@@ -1127,10 +1127,10 @@ codeunit 136903 "Employee Reports"
         // [GIVEN] "Post Code" = ''
 
         // [GIVEN] "City" = 'Moscow'
-        City := LibraryUtility.GenerateGUID;
+        City := LibraryUtility.GenerateGUID();
 
         // [GIVEN] "County" = 'Moscowia'
-        County := LibraryUtility.GenerateGUID;
+        County := LibraryUtility.GenerateGUID();
 
         // [WHEN] Invoike FormatPostCodeCity of "Format Address" (codeunit 365) with CountryCode = ''
         FormatAddress.FormatPostCodeCity(PostCodeCityText, CountyText, City, '', County, '');
@@ -1183,12 +1183,12 @@ codeunit 136903 "Employee Reports"
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Employee Reports");
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Employee Reports");
 
-        LibraryService.SetupServiceMgtNoSeries;
+        LibraryService.SetupServiceMgtNoSeries();
 
         isInitialized := true;
         Commit();
@@ -1305,7 +1305,7 @@ codeunit 136903 "Employee Reports"
         GeneralLedgerSetup.Get();
         LibraryERM.CreatePostCode(PostCode);
         DimensionValue.SetRange("Dimension Code", GeneralLedgerSetup."Global Dimension 1 Code");
-        DimensionValue.FindFirst;
+        DimensionValue.FindFirst();
         LibraryHumanResource.CreateEmployee(Employee);
         Employee.Validate("Global Dimension 1 Code", DimensionValue.Code);
         Employee.Validate("Statistics Group Code", FindEmployeeStatisticsGroup);

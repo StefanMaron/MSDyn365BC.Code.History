@@ -103,7 +103,7 @@ page 709 "Error Message Register"
             ErrorMessage.SetRange("Message Type", Type);
         ErrorMessage.CopyToTemp(TempErrorMessage);
         ErrorMessages.SetRecords(TempErrorMessage);
-        ErrorMessages.RunModal;
+        ErrorMessages.RunModal();
     end;
 }
 

@@ -204,7 +204,7 @@ codeunit 2114 "O365 HTML Templ. Mgt."
         GetCompanyInfo;
 
         if CompanyInformation."Brand Color Value" = '' then
-            if O365BrandColor.FindFirst then
+            if O365BrandColor.FindFirst() then
                 exit(O365BrandColor."Color Value");
 
         exit(CompanyInformation."Brand Color Value");
@@ -216,7 +216,7 @@ codeunit 2114 "O365 HTML Templ. Mgt."
     begin
         O365SocialNetwork.SetFilter(URL, '<>%1', '');
         O365SocialNetwork.SetFilter("Media Resources Ref", '<>%1', '');
-        if O365SocialNetwork.FindFirst then begin
+        if O365SocialNetwork.FindFirst() then begin
             SocialNetworksHTMLPart := SocialNetworksSectionHTMLText;
             GetCompanyInfo;
             FillParameterValueEncoded(
@@ -352,7 +352,7 @@ codeunit 2114 "O365 HTML Templ. Mgt."
         PaymentServicesHTMLText: Text;
         PaymentServicesRowsHTMLText: Text;
     begin
-        if TempPaymentReportingArgument.FindSet then begin
+        if TempPaymentReportingArgument.FindSet() then begin
             PaymentServicesHTMLText := PaymentServicesSectionHTMLText;
 
             FillParameterValueEncoded(PaymentServicesHTMLText, 'WantToPayOnline', WantToPayOnlineQst);

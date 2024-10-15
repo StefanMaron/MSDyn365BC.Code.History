@@ -42,7 +42,7 @@ codeunit 10520 GovTalkMessageManagement
         if not GovTalkVATReportValidate.ValidateGovTalkPrerequisites(VATReportHeader) then
             exit(false);
 
-        GovTalkSetup.FindFirst;
+        GovTalkSetup.FindFirst();
         CompanyInformation.Get();
 
         XmlDoc := XmlDoc.XmlDocument;
@@ -326,7 +326,7 @@ codeunit 10520 GovTalkMessageManagement
     var
         DummyGuid: Guid;
     begin
-        GovTalkSetup.FindFirst;
+        GovTalkSetup.FindFirst();
         ArchiveXMLMessage(VATReportHeader, GovTalkMessageXMLNode, 0, DummyGuid);
         exit(ProcessGovTalkSubmission(VATReportHeader, GovTalkSetup.Endpoint, GovTalkMessageXMLNode, true, true, DummyGuid));
     end;
@@ -508,7 +508,7 @@ codeunit 10520 GovTalkMessageManagement
     [Scope('OnPrem')]
     procedure SubmitECSLGovTalkRequest(var VATReportHeader: Record "VAT Report Header"; GovTalkMessageXMLNode: DotNet XmlNode; XMLPartID: Guid)
     begin
-        GovTalkSetup.FindFirst;
+        GovTalkSetup.FindFirst();
         ArchiveXMLMessage(VATReportHeader, GovTalkMessageXMLNode, 0, XMLPartID);
         ProcessGovTalkSubmission(VATReportHeader, GovTalkSetup.Endpoint, GovTalkMessageXMLNode, true, true, XMLPartID)
     end;
@@ -538,7 +538,7 @@ codeunit 10520 GovTalkMessageManagement
         GovTalkMessageParts: Record "GovTalk Message Parts";
     begin
         GovTalkMessageParts.SetFilter("Correlation Id", CorrelationId);
-        if not GovTalkMessageParts.FindFirst then
+        if not GovTalkMessageParts.FindFirst() then
             Error('');
         GovTalkMessageParts.Validate(Status, NewStatus);
         GovTalkMessageParts.Modify(true);

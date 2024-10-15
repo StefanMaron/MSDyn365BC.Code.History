@@ -18,6 +18,8 @@ codeunit 139049 "SMB Office Addin Mgmt Test"
         FileManagement: Codeunit "File Management";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        PrivacyNotice: Codeunit "Privacy Notice";
+        PrivacyNoticeRegistrations: Codeunit "Privacy Notice Registrations";
         AdminEmail: Text[80];
         AdminPassword: Text[50];
         CloseReopenHandlerAction: Option CloseImmediately,EnterCredentials;
@@ -52,7 +54,7 @@ codeunit 139049 "SMB Office Addin Mgmt Test"
         // Validate that a manifest can be generated
 
         // Setup
-        Initialize;
+        Initialize();
         InitializeHyperLinkNoSeries5Prefix;
         AddinManifestManagement.GetAddin(OfficeAddin, CODEUNIT::"Hyperlink Manifest");
 
@@ -74,7 +76,7 @@ codeunit 139049 "SMB Office Addin Mgmt Test"
         // Validate that the intelligent information manifest can be generated and that the URLs are updated
 
         // Setup
-        Initialize;
+        Initialize();
         AddinManifestManagement.GetAddin(OfficeAddin, CODEUNIT::"Intelligent Info Manifest");
 
         // Exercise
@@ -95,7 +97,7 @@ codeunit 139049 "SMB Office Addin Mgmt Test"
         // Validate that a manifest is generated with multiple regular expressions
 
         // Setup
-        Initialize;
+        Initialize();
         InitializeHyperLinkNoSeries5Prefix;
         AddinManifestManagement.GetAddin(OfficeAddin, CODEUNIT::"Hyperlink Manifest");
 
@@ -117,10 +119,10 @@ codeunit 139049 "SMB Office Addin Mgmt Test"
         // Validate that a manifest is generated with multiple regular expressions
 
         // Setup
-        Initialize;
+        Initialize();
         InitializeHyperLinkNoSeries1Prefix;
         OfficeAddin."Manifest Codeunit" := CODEUNIT::"Hyperlink Manifest";
-        OfficeAddin.FindFirst;
+        OfficeAddin.FindFirst();
 
         // Exercise
         AddinManifestManagement.SetTestMode(true);
@@ -140,10 +142,10 @@ codeunit 139049 "SMB Office Addin Mgmt Test"
         // Validate that a generated manifest saves as expected to a given filename
 
         // Setup
-        Initialize;
+        Initialize();
         InitializeHyperLinkNoSeries5Prefix;
         OfficeAddin."Manifest Codeunit" := CODEUNIT::"Hyperlink Manifest";
-        OfficeAddin.FindFirst;
+        OfficeAddin.FindFirst();
 
         // Exercise
         AddinManifestManagement.SetTestMode(true);
@@ -161,7 +163,7 @@ codeunit 139049 "SMB Office Addin Mgmt Test"
         FilePath: Text;
     begin
         // Validate that the Hyperlink add in manifest generates properly
-        Initialize;
+        Initialize();
         InitializeHyperLinkNoSeries5Prefix;
         AddinManifestManagement.GetAddin(OfficeAddin, CODEUNIT::"Hyperlink Manifest");
 
@@ -183,7 +185,7 @@ codeunit 139049 "SMB Office Addin Mgmt Test"
         // When generating a manifest, the default manifest template is unchanged.
 
         // Setup
-        Initialize;
+        Initialize();
         InitializeHyperLinkNoSeries5Prefix;
         AddinManifestManagement.GetAddin(OfficeAddin, CODEUNIT::"Hyperlink Manifest");
         XMLDomManagement.LoadXMLNodeFromText(OfficeAddin.GetDefaultManifestText, OldManifestXML);
@@ -207,7 +209,7 @@ codeunit 139049 "SMB Office Addin Mgmt Test"
         // Call the add in credentials page, enter credentials, and verify that they make it into the table
 
         // Setup
-        Initialize;
+        Initialize();
         TempOfficeAdminCredentials.DeleteAll();
         Commit();
 
@@ -233,7 +235,7 @@ codeunit 139049 "SMB Office Addin Mgmt Test"
         // Call the add in credentials page, enter credentials, and verify that they make it into the table
 
         // Setup
-        Initialize;
+        Initialize();
         TempOfficeAdminCredentials.DeleteAll();
         Commit();
 
@@ -256,7 +258,7 @@ codeunit 139049 "SMB Office Addin Mgmt Test"
         // Call the add in credentials page, enter credentials, and verify that they make it into the table
 
         // Setup
-        Initialize;
+        Initialize();
         TempOfficeAdminCredentials.DeleteAll();
         Commit();
 
@@ -280,7 +282,7 @@ codeunit 139049 "SMB Office Addin Mgmt Test"
         // Call the add in credentials page, enter credentials, and verify that they make it into the table
 
         // Setup
-        Initialize;
+        Initialize();
         TempOfficeAdminCredentials.DeleteAll();
         Commit();
 
@@ -312,7 +314,7 @@ codeunit 139049 "SMB Office Addin Mgmt Test"
         // Get details from the add in helper and validate those against the manifest XML to verify that they are gathered appropriately.
 
         // Setup
-        Initialize;
+        Initialize();
         AddinManifestManagement.GetAddin(OfficeAddin, CODEUNIT::"Hyperlink Manifest");
         ManifestText := OfficeAddin.GetDefaultManifestText;
 
@@ -350,7 +352,7 @@ codeunit 139049 "SMB Office Addin Mgmt Test"
         // Validate that updating the triggers also updates the manifest in the configuration table
 
         // Setup
-        Initialize;
+        Initialize();
         InitializeHyperLinkNoSeries5Prefix;
         AddinManifestManagement.GetAddin(OfficeAddin, CODEUNIT::"Hyperlink Manifest");
         OldManifest := OfficeAddin.GetDefaultManifestText;
@@ -375,7 +377,7 @@ codeunit 139049 "SMB Office Addin Mgmt Test"
         // Validate that the ConstructURL function creates the URL correctly.
 
         // Setup
-        Initialize;
+        Initialize();
         HostType := 'Outlook-Test2';
 
         // Exercise
@@ -406,7 +408,7 @@ codeunit 139049 "SMB Office Addin Mgmt Test"
         // Validate that the ConstructURL function creates the URL correctly if an add-in command is specified.
 
         // Setup
-        Initialize;
+        Initialize();
         HostType := 'Outlook-Test3';
         Command := OutlookCommand.NewSalesCreditMemo;
 
@@ -427,29 +429,12 @@ codeunit 139049 "SMB Office Addin Mgmt Test"
 
     [Test]
     [Scope('OnPrem')]
-    procedure DownloadDocInsightsManifestUI()
-    var
-        OfficeAddinManagement: TestPage "Office Add-in Management";
-    begin
-        // Setup
-        Initialize;
-        OfficeAddinManagement.OpenView;
-
-        // Exercise
-        OfficeAddinManagement.FindFirstField(OfficeAddinManagement."Manifest Codeunit", CODEUNIT::"Hyperlink Manifest");
-
-        // Verify that an error is thrown - generation will fail due to HTTPS restraints
-        asserterror OfficeAddinManagement."Download Add-in Manifest".Invoke;
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure DownloadContactInsightsManifestUI()
     var
         OfficeAddinManagement: TestPage "Office Add-in Management";
     begin
         // Setup
-        Initialize;
+        Initialize();
         OfficeAddinManagement.OpenView;
 
         // Exercise
@@ -461,6 +446,29 @@ codeunit 139049 "SMB Office Addin Mgmt Test"
 
     [Test]
     [Scope('OnPrem')]
+    [HandlerFunctions('AcceptPrivacyNotice')]
+    procedure DownloadDocInsightsManifestAndApprovePrivacyNotice()
+    var
+        OfficeAddin: Record "Office Add-in";
+        AddinManifestManagement: Codeunit "Add-in Manifest Management";
+        Filename: Text;
+    begin
+        // Setup
+        Initialize();
+        AddinManifestManagement.SetTestMode(true);
+        Filename := FileManagement.ServerTempFileName('xml');
+        AddinManifestManagement.GetAddin(OfficeAddin, CODEUNIT::"Hyperlink Manifest");
+        PrivacyNotice.SetApprovalState(PrivacyNoticeRegistrations.GetExchangePrivacyNoticeId(), "Privacy Notice Approval State"::"Not set");
+
+        // Exercise
+        AddinManifestManagement.DownloadManifestToClient(OfficeAddin, Filename);
+
+        // Verify
+        Assert.IsTrue(Exists(Filename), 'File did not generate and download.');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure DownloadDocInsightsManifest()
     var
         OfficeAddin: Record "Office Add-in";
@@ -468,7 +476,7 @@ codeunit 139049 "SMB Office Addin Mgmt Test"
         Filename: Text;
     begin
         // Setup
-        Initialize;
+        Initialize();
         AddinManifestManagement.SetTestMode(true);
         Filename := FileManagement.ServerTempFileName('xml');
         AddinManifestManagement.GetAddin(OfficeAddin, CODEUNIT::"Hyperlink Manifest");
@@ -489,7 +497,7 @@ codeunit 139049 "SMB Office Addin Mgmt Test"
         Filename: Text;
     begin
         // Setup
-        Initialize;
+        Initialize();
         AddinManifestManagement.SetTestMode(true);
         Filename := FileManagement.ServerTempFileName('xml');
         AddinManifestManagement.GetAddin(OfficeAddin, CODEUNIT::"Intelligent Info Manifest");
@@ -514,7 +522,7 @@ codeunit 139049 "SMB Office Addin Mgmt Test"
         Manifest2Text: Text;
     begin
         // Setup
-        Initialize;
+        Initialize();
         AddinManifestManagement.SetTestMode(true);
         Filename := FileManagement.ServerTempFileName('xml');
         Filename2 := FileManagement.ServerTempFileName('xml');
@@ -561,7 +569,7 @@ codeunit 139049 "SMB Office Addin Mgmt Test"
         SearchPosition: Integer;
     begin
         // [SCENARIO] A power user can download an add-in manifest file, make changes to it, then upload it to the server. When the add-in is downloaded or deployed, the changes made will persist.
-        Initialize;
+        Initialize();
         AddinManifestManagement.SetTestMode(true);
         Filename := FileManagement.ServerTempFileName('xml');
         SearchString := '<bt:Url id="taskPaneUrl"';
@@ -606,7 +614,7 @@ codeunit 139049 "SMB Office Addin Mgmt Test"
         CredentialHandlerRan: Boolean;
     begin
         // Setup
-        Initialize;
+        Initialize();
         OfficeAddinManagement.OpenView;
         CloseHandlerRan := false;
         CredentialHandlerRan := false;
@@ -777,8 +785,9 @@ codeunit 139049 "SMB Office Addin Mgmt Test"
         LibraryApplicationArea: Codeunit "Library - Application Area";
         AddinManifestManagement: Codeunit "Add-in Manifest Management";
     begin
+        PrivacyNotice.SetApprovalState(PrivacyNoticeRegistrations.GetExchangePrivacyNoticeId(), "Privacy Notice Approval State"::Agreed);
         AddinManifestManagement.CreateDefaultAddins(OfficeAddin);
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
     end;
 
     [Normal]
@@ -1383,6 +1392,12 @@ codeunit 139049 "SMB Office Addin Mgmt Test"
     procedure ConfirmHandler(Question: Text[1024]; var Reply: Boolean)
     begin
         Reply := false;
+    end;
+
+    [ModalPageHandler]
+    procedure AcceptPrivacyNotice(var PrivacyNotice: TestPage "Privacy Notice")
+    begin
+        PrivacyNotice.Accept.Invoke();
     end;
 }
 

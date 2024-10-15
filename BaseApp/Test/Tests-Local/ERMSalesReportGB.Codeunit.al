@@ -44,7 +44,7 @@ codeunit 144039 "ERM Sales Report GB"
         // Verify that Customer Statement Report can be printed if it has overdue entries
 
         // Setup
-        Initialize;
+        Initialize();
         CustomerNo := CreateCustomer;
         CreateAndPostSalesDocumentWithDueDate(
           SalesLine, CustomerNo, SalesLine."Document Type"::Order, '', true, CalcDate('<+1M>', WorkDate));
@@ -61,7 +61,7 @@ codeunit 144039 "ERM Sales Report GB"
           true, false, true, false, false, false, '<' + Format(LibraryRandom.RandInt(5)) + 'M>',
           DateChoice::"Due Date", true, WorkDate, CalcDate('<+3M>', WorkDate));
         Commit();
-        Statement.Run;
+        Statement.Run();
 
         // Verify
         FileMgt.ServerFileExists(FileName);
@@ -76,7 +76,7 @@ codeunit 144039 "ERM Sales Report GB"
     begin
         // [FEATURE] [UI] [Order] [Confirmation]
         // [SCENARIO 225794] "External Document No." is shown with its caption when report "Order Confirmation GB" is printed for Sales Order
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order with "External Document No." = "XXX"
         MockSalesOrderWithExternalDocumentNo(SalesHeader);
@@ -100,7 +100,7 @@ codeunit 144039 "ERM Sales Report GB"
 
         LibraryERMCountryData.UpdatePrepaymentAccounts;
         LibraryERMCountryData.UpdateFAPostingGroup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
     end;
 
     local procedure RunOrderConfirmationGBReport(SalesHeaderNo: Code[20])
@@ -172,9 +172,9 @@ codeunit 144039 "ERM Sales Report GB"
 
     local procedure MockSalesOrderWithExternalDocumentNo(var SalesHeader: Record "Sales Header")
     begin
-        SalesHeader."No." := LibraryUtility.GenerateGUID;
+        SalesHeader."No." := LibraryUtility.GenerateGUID();
         SalesHeader."Document Type" := SalesHeader."Document Type"::Order;
-        SalesHeader."External Document No." := LibraryUtility.GenerateGUID;
+        SalesHeader."External Document No." := LibraryUtility.GenerateGUID();
         SalesHeader.Insert();
     end;
 }

@@ -280,7 +280,7 @@ table 483 "Change Global Dim. Log Entry"
         Field.SetRange(RelationTableNo, DATABASE::"Dimension Set Entry");
         Field.SetRange(FieldName, 'Dimension Set ID');
         Field.SetFilter(ObsoleteState, '<>%1', Field.ObsoleteState::Removed);
-        if Field.FindFirst then begin
+        if Field.FindFirst() then begin
             "Dim. Set ID Field No." := Field."No.";
             exit(true);
         end;

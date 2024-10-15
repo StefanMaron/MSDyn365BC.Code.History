@@ -9,10 +9,10 @@ codeunit 10525 "Payment Practices Mgt."
         DaysFromLessThanDaysToErr: Label 'The value in the Days From field must be higher than the value in the Days To field.';
         DaysFromAndDaysToNotSpecifiedErr: Label 'Yoy must fill in the Days From and Days To fields.';
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Purch.-Post", 'OnBeforePostVendorEntry', '', false, false)]
-    local procedure FillInvoiceReceiptDateOnBeforePostVendorEntry(var GenJnlLine: Record "Gen. Journal Line"; var PurchHeader: Record "Purchase Header"; var TotalPurchLine: Record "Purchase Line"; var TotalPurchLineLCY: Record "Purchase Line")
+    [EventSubscriber(ObjectType::Table, Database::"Gen. Journal Line", 'OnAfterCopyGenJnlLineFromPurchHeaderPayment', '', false, false)]
+    local procedure FillInvoiceReceiptDateOnAfterCopyGenJnlLineFromPurchHeaderPayment(var GenJournalLine: Record "Gen. Journal Line"; PurchaseHeader: Record "Purchase Header")
     begin
-        GenJnlLine."Invoice Receipt Date" := PurchHeader."Invoice Receipt Date";
+        GenJournalLine."Invoice Receipt Date" := PurchaseHeader."Invoice Receipt Date";
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Vend. Entry-Edit", 'OnBeforeVendLedgEntryModify', '', false, false)]
@@ -41,7 +41,7 @@ codeunit 10525 "Payment Practices Mgt."
         VendorLedgerEntry.SetCurrentKey("Vendor No.", "Posting Date", "Currency Code");
         VendorLedgerEntry.SetRange("Document Type", VendorLedgerEntry."Document Type"::Invoice);
         VendorLedgerEntry.SetRange("Posting Date", StartingDate, EndingDate);
-        if VendorLedgerEntry.FindSet then
+        if VendorLedgerEntry.FindSet() then
             repeat
                 if LastVendNo <> VendorLedgerEntry."Vendor No." then begin
                     Vendor.Get(VendorLedgerEntry."Vendor No.");
@@ -50,7 +50,7 @@ codeunit 10525 "Payment Practices Mgt."
                 if Vendor."Exclude from Pmt. Pract. Rep." then begin
                     // Skip all entries associated with this Vendor
                     VendorLedgerEntry.SetRange("Vendor No.", Vendor."No.");
-                    VendorLedgerEntry.FindLast;
+                    VendorLedgerEntry.FindLast();
                     VendorLedgerEntry.SetRange("Vendor No.");
                 end else begin
                     if HasAppliedPmtVendLedgEntries(TempVendorLedgerEntry, VendorLedgerEntry) then begin
@@ -84,7 +84,7 @@ codeunit 10525 "Payment Practices Mgt."
         InvVendorLedgerEntry.TestField("Document Type", InvVendorLedgerEntry."Document Type"::Invoice);
         InvDtldVendLedgEntry.SetRange("Vendor Ledger Entry No.", InvVendorLedgerEntry."Entry No.");
         InvDtldVendLedgEntry.SetRange(Unapplied, false);
-        if InvDtldVendLedgEntry.FindSet then
+        if InvDtldVendLedgEntry.FindSet() then
             repeat
                 if InvDtldVendLedgEntry."Vendor Ledger Entry No." =
                    InvDtldVendLedgEntry."Applied Vend. Ledger Entry No."
@@ -93,7 +93,7 @@ codeunit 10525 "Payment Practices Mgt."
                       "Applied Vend. Ledger Entry No.", InvDtldVendLedgEntry."Applied Vend. Ledger Entry No.");
                     PmtDtldVendLedgEntry.SetRange("Entry Type", PmtDtldVendLedgEntry."Entry Type"::Application);
                     PmtDtldVendLedgEntry.SetRange(Unapplied, false);
-                    if PmtDtldVendLedgEntry.FindSet then
+                    if PmtDtldVendLedgEntry.FindSet() then
                         repeat
                             if PmtDtldVendLedgEntry."Vendor Ledger Entry No." <>
                                PmtDtldVendLedgEntry."Applied Vend. Ledger Entry No."
@@ -127,7 +127,7 @@ codeunit 10525 "Payment Practices Mgt."
         TempPaymentApplicationBuffer.Reset();
         TempPaymentApplicationBuffer.SetFilter("Pmt. Entry No.", '<>%1', 0);
         TempPaymentApplicationBuffer.SetFilter("Pmt. Posting Date", '<>%1', 0D); // Consider only paid invoices
-        if not TempPaymentApplicationBuffer.FindSet then
+        if not TempPaymentApplicationBuffer.FindSet() then
             exit(0);
 
         repeat
@@ -158,7 +158,7 @@ codeunit 10525 "Payment Practices Mgt."
 
         TempPaymentApplicationBuffer.Reset();
         TempPaymentApplicationBuffer.SetFilter("Pmt. Entry No.", '<>%1', 0);
-        if not TempPaymentApplicationBuffer.FindSet then
+        if not TempPaymentApplicationBuffer.FindSet() then
             exit(0);
 
         repeat
@@ -182,7 +182,7 @@ codeunit 10525 "Payment Practices Mgt."
         OverduePmts: Integer;
     begin
         TempPaymentApplicationBuffer.Reset();
-        if not TempPaymentApplicationBuffer.FindSet then
+        if not TempPaymentApplicationBuffer.FindSet() then
             exit(0);
 
         repeat
@@ -195,7 +195,7 @@ codeunit 10525 "Payment Practices Mgt."
                     if TempPaymentApplicationBuffer."Pmt. Posting Date" > TempPaymentApplicationBuffer."Due Date" then begin
                         OverduePmts += 1;
                         TempPaymentApplicationBuffer.Mark(true);
-                        TempPaymentApplicationBuffer.FindLast; // if at least one partial payment are not paid within agreed terms then treat the whole invoice as not paid within agreed terms
+                        TempPaymentApplicationBuffer.FindLast(); // if at least one partial payment are not paid within agreed terms then treat the whole invoice as not paid within agreed terms
                     end;
                 until TempPaymentApplicationBuffer.Next() = 0;
                 TempPaymentApplicationBuffer.SetRange("Pmt. Entry No.");
@@ -204,7 +204,7 @@ codeunit 10525 "Payment Practices Mgt."
                     OverduePmts += 1;
                     // Mark records to show them as details in Payment Practices report
                     TempPaymentApplicationBuffer.Mark(true);
-                    TempPaymentApplicationBuffer.FindLast; // if invoice is not fully paid then do not consider partial payments and treat the whole invoice as not paid within agreed terms
+                    TempPaymentApplicationBuffer.FindLast(); // if invoice is not fully paid then do not consider partial payments and treat the whole invoice as not paid within agreed terms
                 end;
             TempPaymentApplicationBuffer.SetRange("Invoice Entry No.");
             Total += 1;

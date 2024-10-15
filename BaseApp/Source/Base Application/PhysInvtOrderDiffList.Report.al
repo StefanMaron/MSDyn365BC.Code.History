@@ -512,7 +512,7 @@ report 5875 "Phys. Invt. Order Diff. List"
                         trigger OnAfterGetRecord()
                         begin
                             if Number = 1 then begin
-                                if not DimSetEntry.FindSet then
+                                if not DimSetEntry.FindSet() then
                                     CurrReport.Break();
                             end else
                                 if not Continue then
@@ -719,7 +719,7 @@ report 5875 "Phys. Invt. Order Diff. List"
             ReservEntry.Reset();
             ReservEntry.SetSourceFilter(DATABASE::"Phys. Invt. Order Line", 0, "Document No.", "Line No.", true);
             ReservEntry.SetSourceFilter('', 0);
-            if ReservEntry.FindSet then
+            if ReservEntry.FindSet() then
                 repeat
                     FindOrCreateDiffListBuffer(NoOfBufferLines, NextLineNo);
                     TempPhysInvtCountBuffer."Track. Serial No." := ReservEntry."Serial No.";

@@ -210,14 +210,14 @@ page 1826 "Company Consolidation Wizard"
                         begin
                             BusinessUnitInformation.Reset();
                             BusinessUnitInformation.SetRange(Code, BusinessUnitCode);
-                            if BusinessUnitInformation.FindFirst then
+                            if BusinessUnitInformation.FindFirst() then
                                 Error(RecordExistsErr);
 
                             if not NewCompany then begin
                                 BusinessUnit.ChangeCompany(ConsolidatedCompany);
                                 BusinessUnit.Reset();
                                 BusinessUnit.SetRange(Code, BusinessUnitCode);
-                                if BusinessUnit.FindFirst then
+                                if BusinessUnit.FindFirst() then
                                     Error(RecordExistsErr);
                             end;
                         end;
@@ -621,7 +621,7 @@ page 1826 "Company Consolidation Wizard"
                 SaveBusinessUnitInformation;
                 UpdateBusinessUnitSetupComplete(BusinessUnitCompanyName, true);
                 BusinessUnitSetup.SetRange(Completed, false);
-                if BusinessUnitSetup.FindFirst then
+                if BusinessUnitSetup.FindFirst() then
                     Step := Step - 2;
             end else
                 BackActionBusUnit2 := true;
@@ -673,7 +673,7 @@ page 1826 "Company Consolidation Wizard"
 
     local procedure ShowBusinessUnitsSetup()
     begin
-        if not BusinessUnitSetup.FindFirst then
+        if not BusinessUnitSetup.FindFirst() then
             BusinessUnitSetup.FillTable(SelectCompanyName);
         CurrPage.Caption := CompanyConsolidationTxt;
         SetupBusUnitsVisible := true;
@@ -705,7 +705,7 @@ page 1826 "Company Consolidation Wizard"
             MaxNumberOfSteps := BusinessUnitSetup.Count();
             BusinessUnitSetup.SetFilter(Completed, '=FALSE');
             CurrPage.Caption := StrSubstNo(StepCaptionTxt, StepIndex, MaxNumberOfSteps);
-            if BusinessUnitSetup.FindFirst then begin
+            if BusinessUnitSetup.FindFirst() then begin
                 BusinessUnitCompanyName := BusinessUnitSetup."Company Name";
                 Company.Get(BusinessUnitCompanyName);
                 BusinessUnitName := CopyStr(Company."Display Name", 1, 30);
@@ -881,7 +881,7 @@ page 1826 "Company Consolidation Wizard"
     local procedure RunConsolidationTestDatabaseReport()
     begin
         ConsolidationTest.SetConsolidatedCompany(CopyStr(ConsolidatedCompany, 1, 30));
-        ConsolidationTest.Run;
+        ConsolidationTest.Run();
     end;
 
     procedure RemoveCompanyRecord(var Company: Record Company; FakeCompanyName: Text[30]; FakeCompanyCreated: Boolean; FakeCompanySet: Boolean)

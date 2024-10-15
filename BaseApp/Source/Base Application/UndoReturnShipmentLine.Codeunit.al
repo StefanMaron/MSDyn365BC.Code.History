@@ -41,7 +41,6 @@ codeunit 5814 "Undo Return Shipment Line"
         JobItem: Boolean;
         NextLineNo: Integer;
         Text004: Label 'This shipment has already been invoiced. Undo Return Shipment can be applied only to posted, but not invoiced shipments.';
-        Text005: Label 'Undo Return Shipment can be performed only for lines of type Item. Please select a line of the Item type and repeat the procedure.';
         AlreadyReversedErr: Label 'This return shipment has already been reversed.';
 
     procedure SetHideDialog(NewHideDialog: Boolean)

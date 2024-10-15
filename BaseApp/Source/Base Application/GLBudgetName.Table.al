@@ -131,7 +131,7 @@ table 95 "G/L Budget Name"
         Window.Open(Text001);
         T0 := Time;
         GLBudgetEntry.LockTable();
-        if GLBudgetEntry.FindSet then
+        if GLBudgetEntry.FindSet() then
             repeat
                 i := i + 1;
                 if Time > T0 + 750 then begin

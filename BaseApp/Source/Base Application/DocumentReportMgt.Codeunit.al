@@ -6,7 +6,19 @@ codeunit 9651 "Document Report Mgt."
     end;
 
     var
+#if not CLEAN20
         NotImplementedErr: Label 'This option is not available.';
+        UnexpectedHexCharacterRegexErr: Label 'hexadecimal value 0x[0-9a-fA-F]*, is an invalid character', Locked = true;
+        UnexpectedCharInDataErr: Label 'Cannot create the document because it includes garbled text. Make sure the text is readable and then try again.';
+        FileTypeHtmlTxt: Label 'html', Locked = true;
+        FileTypeWordTxt: Label 'docx', Locked = true;
+        FileTypePdfTxt: Label 'pdf', Locked = true;
+        UnableToRenderPdfDocument: Label 'The Word document cannot be converted to a PDF document.';
+        LayoutEmptyErr: Label 'The custom report layout for ''%1'' is empty.', Comment = '%1 = Code of the Custom report layout';
+        EnableLegacyPrint: Boolean;
+#else
+        UpgradeNotSupportedErr: Label 'Upgrade is not supported after version 20.';
+#endif
         TemplateValidationQst: Label 'The Word layout does not comply with the current report design (for example, fields are missing or the report ID is wrong).\The following errors were detected during the layout validation:\%1\Do you want to continue?';
         TemplateValidationErr: Label 'The Word layout does not comply with the current report design (for example, fields are missing or the report ID is wrong).\The following errors were detected during the document validation:\%1\You must update the layout to match the current report design.';
         AbortWithValidationErr: Label 'The Word layout action has been canceled because of validation errors.';
@@ -15,17 +27,11 @@ codeunit 9651 "Document Report Mgt."
         UpgradeMessageMsg: Label 'The report upgrade process returned the following log messages:\%1.';
         NoReportLayoutUpgradeRequiredMsg: Label 'The layout upgrade process completed without detecting any required changes in the current application.';
         CompanyInformationPicErr: Label 'The document contains elements that cannot be converted to PDF. This may be caused by missing image data in the document.';
-        UnexpectedHexCharacterRegexErr: Label 'hexadecimal value 0x[0-9a-fA-F]*, is an invalid character', Locked = true;
-        UnexpectedCharInDataErr: Label 'Cannot create the document because it includes garbled text. Make sure the text is readable and then try again.';
-        UnableToRenderPdfDocument: Label 'The Word document cannot be converted to a PDF document.';
-        FileTypeWordTxt: Label 'docx', Locked = true;
-        FileTypePdfTxt: Label 'pdf', Locked = true;
-        FileTypeHtmlTxt: Label 'html', Locked = true;
         ClientTypeMgt: Codeunit "Client Type Management";
-        EnableLegacyPrint: Boolean;
-        LayoutEmptyErr: Label 'The custom report layout for ''%1'' is empty.', Comment = '%1 = Code of the Custom report layout';
 
+#if not CLEAN20
     [Scope('OnPrem')]
+    [Obsolete('This procedure will be replaced by the report event CustomDocumentMerger. Subscribe to it to override the merging behavior.', '20.0')]
     procedure MergeWordLayout(ReportID: Integer; ReportAction: Option SaveAsPdf,SaveAsWord,SaveAsExcel,Preview,Print,SaveAsHtml; InStrXmlData: InStream; FileName: Text; var DocumentStream: OutStream)
     var
         ReportLayoutSelection: Record "Report Layout Selection";
@@ -47,6 +53,7 @@ codeunit 9651 "Document Report Mgt."
         if ReportAction = ReportAction::Print then
             PrinterName := FileName;
         TempBlobOut.CreateOutStream(OutStrWordDoc);
+
         OnBeforeMergeDocument(ReportID, ReportAction, InStrXmlData, PrinterName, OutStrWordDoc, IsHandled, FileName = '');
         if IsHandled then begin
             if (FileName <> '') and TempBlobOut.HasValue then begin
@@ -143,7 +150,45 @@ codeunit 9651 "Document Report Mgt."
             end;
     end;
 
+    [Scope('OnPrem')]
+    [Obsolete('This procedure will be eventually replaced by platform functionality. Subscribe to the event FetchReportLayoutByCode instead.', '20.0')]
+    procedure GetWordLayoutStream(ReportID: Integer; var LayoutStream: OutStream; var Success: Boolean)
+    var
+        ReportLayoutSelection: Record "Report Layout Selection";
+        CustomReportLayout: Record "Custom Report Layout";
+        TempBlobIn: Codeunit "Temp Blob";
+        CustomLayoutCode: Code[20];
+        InStrWordDoc: InStream;
+    begin
+        Success := false;
+        // Temporarily selected layout for Design-time report execution?
+        if ReportLayoutSelection.GetTempLayoutSelected() <> '' then
+            CustomLayoutCode := ReportLayoutSelection.GetTempLayoutSelected()
+        else  // Normal selection
+            if ReportLayoutSelection.Get(ReportID, CompanyName) and
+               (ReportLayoutSelection.Type = ReportLayoutSelection.Type::"Custom Layout")
+            then
+                CustomLayoutCode := ReportLayoutSelection."Custom Report Layout Code";
+
+        OnAfterGetCustomLayoutCode(ReportID, CustomLayoutCode);
+
+        if CustomLayoutCode <> '' then
+            if not CustomReportLayout.Get(CustomLayoutCode) then
+                CustomLayoutCode := '';
+
+        if CustomLayoutCode <> '' then begin
+            ValidateAndUpdateWordLayoutOnRecord(CustomReportLayout);
+            CustomReportLayout.GetLayoutBlob(TempBlobIn);
+            TempBlobIn.CreateInStream(InStrWordDoc);
+            ValidateWordLayoutCheckOnly(ReportID, InStrWordDoc);
+            CopyStream(LayoutStream, InStrWordDoc);
+            Success := true;
+        end;
+    end;
+
+
     [TryFunction]
+    [Obsolete('The rendering of Word documents will be handled on the Platform. To override the behavior, subscribe on the report event CustomDocumentMerger.', '20.0')]
     procedure TryXmlMergeWordDocument(var InStrWordDoc: InStream; var InStrXmlData: InStream; var OutStrWordDoc: OutStream)
     var
         NAVWordXMLMerger: DotNet WordReportManager;
@@ -151,6 +196,7 @@ codeunit 9651 "Document Report Mgt."
         OutStrWordDoc := NAVWordXMLMerger.MergeWordDocument(InStrWordDoc, InStrXmlData, OutStrWordDoc);
         OnAfterTryXmlMergeWordDocument(OutStrWordDoc);
     end;
+#endif
 
     procedure ValidateWordLayout(ReportID: Integer; DocumentStream: InStream; useConfirm: Boolean; updateContext: Boolean): Boolean
     var
@@ -177,6 +223,7 @@ codeunit 9651 "Document Report Mgt."
         exit(true);
     end;
 
+#if not CLEAN20
     local procedure ValidateWordLayoutCheckOnly(ReportID: Integer; DocumentStream: InStream)
     var
         NAVWordXMLMerger: DotNet WordReportManager;
@@ -216,6 +263,7 @@ codeunit 9651 "Document Report Mgt."
         end;
         exit(false);
     end;
+#endif
 
     procedure TryUpdateWordLayout(DocumentStream: InStream; var UpdateStream: OutStream; CachedCustomPart: Text; CurrentCustomPart: Text): Text
     var
@@ -245,8 +293,9 @@ codeunit 9651 "Document Report Mgt."
     begin
         if not TryConvertWordBlobToPdf(TempBlob) then
             Error(CompanyInformationPicErr);
-
+#if not CLEAN20
         OnAfterConvertToPdf(TempBlob, ReportID);
+#endif
     end;
 
     [TryFunction]
@@ -263,16 +312,17 @@ codeunit 9651 "Document Report Mgt."
         TempBlobWord := TempBlobPdf;
     end;
 
+#if not CLEAN20
     [TryFunction]
     local procedure TryConvertWordBlobToPdfOnStream(var TempBlobWord: Codeunit "Temp Blob"; var OutStreamPdfDoc: OutStream)
     var
-        TempBlobPdf: Codeunit "Temp Blob";
         InStreamWordDoc: InStream;
         WordTransformation: DotNet WordTransformation;
     begin
         TempBlobWord.CreateInStream(InStreamWordDoc);
         WordTransformation.ConvertToPdf(InStreamWordDoc, OutStreamPdfDoc);
     end;
+#endif
 
     procedure ConvertWordToHtml(var TempBlob: Codeunit "Temp Blob")
     var
@@ -289,13 +339,13 @@ codeunit 9651 "Document Report Mgt."
         TempBlob := TempBlobHtml
     end;
 
+#if not CLEAN20
     local procedure PrintWordDoc(ReportID: Integer; var TempBlob: Codeunit "Temp Blob"; PrinterName: Text; Collate: Boolean; var pdfStream: OutStream)
     var
         PrinterTable: Record "Printer";
         FileMgt: Codeunit "File Management";
         LocalPrinter: Boolean;
     begin
-#if CLEAN17
         // We cannot check the state of the pdfStream (not possible to detect that it's uninitialized from AL)
         // Get the printer table record and check if the Payload column is empty or not. Empty means a local Windows printer, not empty is an
         // extension based printer
@@ -317,123 +367,6 @@ codeunit 9651 "Document Report Mgt."
             if not TryConvertWordBlobToPdfOnStream(TempBlob, pdfStream) then
                 Error(UnableToRenderPdfDocument);
         end;
-#else
-        if ClientTypeMgt.GetCurrentClientType = CLIENTTYPE::Windows then
-            PrintWordDocInWord(ReportID, TempBlob, PrinterName, Collate, 1)
-        else begin
-            // We cannot check the state of the pdfStream (not possible to detect that it's uninitialized from AL)
-            // Get the printer table record and check if the Payload column is empty or not. Empty means a local Windows printer, not empty is an
-            // extension based printer
-            if (PrinterTable.Get(PrinterName)) then begin
-                if (strlen(PrinterTable.Payload) = 0) then
-                    LocalPrinter := True;
-            end;
-
-            if EnableLegacyPrint or LocalPrinter then begin
-                if ClientTypeMgt.GetCurrentClientType in [CLIENTTYPE::Web, CLIENTTYPE::Phone, CLIENTTYPE::Tablet, CLIENTTYPE::Desktop] then begin
-                    ConvertWordToPdf(TempBlob, ReportID);
-                    FileMgt.BLOBExport(TempBlob, UserFileName(ReportID, FileTypePdfTxt), true);
-                end else
-                    PrintWordDocOnServer(TempBlob, PrinterName, Collate);
-                // Don't clear the pdfStream as it might have an empty implementation (uninitialized) which can cause an runtime exception to be throw.
-                // Reinsert the clear call when compiler is fixed and emit code like this.pdfStream.Value?.Clear();
-                // clear(pdfStream); // Nothing is written to the stream when called using the legacy signature
-            end else begin
-                if not TryConvertWordBlobToPdfOnStream(TempBlob, pdfStream) then
-                    Error(UnableToRenderPdfDocument);
-            end;
-        end;
-#endif
-    end;
-
-#if not CLEAN17
-    [Obsolete('The procedure uses .NET which does not function on non-Windows client types.', '17.3')]
-    local procedure PrintWordDocInWord(ReportID: Integer; TempBlob: Codeunit "Temp Blob"; PrinterName: Text; Collate: Boolean; Copies: Integer)
-    var
-        FileMgt: Codeunit "File Management";
-        WordApplicationHandler: Codeunit WordApplicationHandler;
-        WordManagement: Codeunit WordManagement;
-        [RunOnClient]
-        WordApplication: DotNet ApplicationClass;
-        [RunOnClient]
-        WordDocument: DotNet Document;
-        [RunOnClient]
-        WordHelper: DotNet WordHelper;
-        FileName: Text;
-        T0: DateTime;
-    begin
-        WordManagement.Activate(WordApplicationHandler, 9651);
-        if WordManagement.TryGetWord(WordApplication) then begin
-            FileName := StrSubstNo('%1.docx', CreateGuid);
-            FileName := FileMgt.BLOBExport(TempBlob, FileName, false);
-
-            if PrinterName = '' then
-                if not SelectPrinter(PrinterName, Collate, Copies) then begin
-                    WordManagement.Deactivate(9651);
-                    exit;
-                end;
-
-            WordDocument := WordHelper.CallOpen(WordApplication, FileName, false, false);
-            WordHelper.CallPrintOut(WordDocument, PrinterName, Collate, Copies);
-
-            T0 := CurrentDateTime;
-            while (WordApplication.BackgroundPrintingStatus > 0) and (CurrentDateTime < T0 + 180000) do
-                Sleep(250);
-            WordManagement.Deactivate(9651);
-            if DeleteClientFile(FileName) then;
-        end else begin
-            if (PrinterName <> '') and IsValidPrinter(PrinterName) then
-                PrintWordDocOnServer(TempBlob, PrinterName, Collate) // Don't print on server if the printer has not been setup.
-            else
-                FileMgt.BLOBExport(TempBlob, UserFileName(ReportID, FileTypeWordTxt), true);
-        end;
-    end;
-
-    local procedure SelectPrinter(var PrinterName: Text; var Collate: Boolean; var Copies: Integer): Boolean
-    var
-        [RunOnClient]
-        DotNetPrintDialog: DotNet PrintDialog;
-        [RunOnClient]
-        DotNetDialogResult: DotNet DialogResult;
-        [RunOnClient]
-        DotNetPrinterSettings: DotNet PrinterSettings;
-        PrintDialogResult: Integer;
-    begin
-        DotNetPrinterSettings := DotNetPrinterSettings.PrinterSettings;
-        DotNetPrintDialog := DotNetPrintDialog.PrintDialog;
-
-        DotNetPrintDialog.ShowNetwork := true;
-        DotNetDialogResult := DotNetPrintDialog.ShowDialog;
-        PrintDialogResult := DotNetDialogResult;
-
-        // 1 - means OK
-        // 6 - means YES
-        if not (PrintDialogResult in [1, 6]) then
-            exit(false);
-
-        DotNetPrinterSettings := DotNetPrintDialog.PrinterSettings;
-        PrinterName := DotNetPrinterSettings.PrinterName;
-        Collate := DotNetPrinterSettings.Collate;
-        Copies := DotNetPrinterSettings.Copies;
-
-        exit(true);
-    end;
-
-    [TryFunction]
-    local procedure DeleteClientFile(FileName: Text)
-    var
-        FileMgt: Codeunit "File Management";
-    begin
-        FileMgt.DeleteClientFile(FileName);
-    end;
-
-    local procedure IsValidPrinter(PrinterName: Text): Boolean
-    var
-        Printer: Record Printer;
-    begin
-        Printer.SetFilter(Name, PrinterName);
-        Printer.FindFirst;
-        exit(not Printer.IsEmpty);
     end;
 #endif
 
@@ -455,6 +388,7 @@ codeunit 9651 "Document Report Mgt."
         exit(XmlHasDataset);
     end;
 
+#if not CLEAN20
     local procedure PrintWordDocOnServer(TempBlob: Codeunit "Temp Blob"; PrinterName: Text; Collate: Boolean)
     var
         WordTransformation: DotNet WordTransformation;
@@ -475,6 +409,7 @@ codeunit 9651 "Document Report Mgt."
 
         exit(FileManagement.GetSafeFileName(ReportMetadata.Caption) + '.' + fileExtension);
     end;
+#endif
 
     [Scope('OnPrem')]
     procedure ApplyUpgradeToReports(var ReportUpgradeCollection: DotNet ReportUpgradeCollection; testOnly: Boolean): Boolean
@@ -504,7 +439,9 @@ codeunit 9651 "Document Report Mgt."
         exit(ReportChangeLogCollection.Count > 0);
     end;
 
+#if not CLEAN20
     [Scope('OnPrem')]
+    [Obsolete('The upgrade will be handled by the platform.', '20.0')]
     procedure CalculateUpgradeChangeSet(var ReportUpgradeCollection: DotNet ReportUpgradeCollection)
     var
         CustomReportLayout: Record "Custom Report Layout";
@@ -518,6 +455,7 @@ codeunit 9651 "Document Report Mgt."
                     ReportUpgradeSet.CalculateAutoChangeSet(CustomReportLayout.GetCustomXmlPart);
             until CustomReportLayout.Next <> 1;
     end;
+#endif
 
     local procedure ProcessUpgradeLog(var ReportChangeLogCollection: DotNet IReportChangeLogCollection)
     var
@@ -534,54 +472,77 @@ codeunit 9651 "Document Report Mgt."
             Message(UpgradeMessageMsg, Format(ReportChangeLogCollection));
     end;
 
-    [Scope('OnPrem')]
-    procedure BulkUpgrade(testMode: Boolean)
+#if not CLEAN20
+    [Obsolete('The layouts will be moved to a system table where they will be handled by the platform in the future. Avoid using this functionality explicitly.', '20.0')]
+    local procedure BulkUpgradeImplementation(testMode: Boolean)
     var
         ReportUpgradeCollection: DotNet ReportUpgradeCollection;
     begin
         ReportUpgradeCollection := ReportUpgradeCollection.ReportUpgradeCollection;
+
         CalculateUpgradeChangeSet(ReportUpgradeCollection);
         ApplyUpgradeToReports(ReportUpgradeCollection, testMode);
     end;
+#endif
 
+    [Scope('OnPrem')]
+    procedure BulkUpgrade(testMode: Boolean)
+    begin
+#if not CLEAN20
+        BulkUpgradeImplementation(testMode);
+#else
+        Message(UpgradeNotSupportedErr);
+#endif
+    end;
+
+#if not CLEAN20
     [IntegrationEvent(false, false)]
+    [Obsolete('The rendering of Word documents will be handled on the Platform. To override the behavior, subscribe on the report event CustomDocumentMerger.', '20.0')]
     local procedure OnAfterConvertToPdf(var TempBlob: Codeunit "Temp Blob"; ReportID: Integer);
     begin
     end;
 
     [IntegrationEvent(false, false)]
+    [Obsolete('The rendering of Word documents will be handled on the Platform. To override the behavior, subscribe on the report event CustomDocumentMerger.', '20.0')]
     local procedure OnAfterGetCustomLayoutCode(ReportID: Integer; var CustomLayoutCode: Code[20])
     begin
     end;
 
     [IntegrationEvent(false, false)]
+    [Obsolete('The rendering of Word documents will be handled on the Platform. To override the behavior, subscribe on the report event CustomDocumentMerger.', '20.0')]
     local procedure OnAfterMergeWordDocument(ReportID: Integer; InStrXmlData: InStream; var TempBlob: Codeunit "Temp Blob")
     begin
     end;
 
     [IntegrationEvent(false, false)]
+    [Obsolete('The rendering of Word documents will be handled on the Platform. To override the behavior, subscribe on the report event CustomDocumentMerger.', '20.0')]
     local procedure OnAfterTryXmlMergeWordDocument(var OutStrWordDoc: OutStream)
     begin
     end;
 
     [IntegrationEvent(false, false)]
+    [Obsolete('The rendering of Word documents will be handled on the Platform. To override the behavior, subscribe on the report event CustomDocumentMerger.', '20.0')]
     local procedure OnBeforeMergeDocument(ReportID: Integer; ReportAction: Option SaveAsPdf,SaveAsWord,SaveAsExcel,Preview,Print,SaveAsHtml; var InStrXmlData: InStream; PrinterName: Text; OutStream: OutStream; var Handled: Boolean; IsFileNameBlank: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
+    [Obsolete('The rendering of Word documents will be handled on the Platform. To override the behavior, subscribe on the report event CustomDocumentMerger.', '20.0')]
     local procedure OnBeforeMergeWordDocument()
     begin
     end;
 
     [IntegrationEvent(false, false)]
+    [Obsolete('The rendering of Word documents will be handled on the Platform. To override the behavior, subscribe on the report event CustomDocumentMerger.', '20.0')]
     local procedure OnBeforeCalculateUpgradeChangeSetSetCustomReportLayoutFilters(var CustomReportLayout: Record "Custom Report Layout")
     begin
     end;
 
     [IntegrationEvent(false, false)]
+    [Obsolete('The rendering of Word documents will be handled on the Platform. To override the behavior, subscribe on the report event CustomDocumentMerger.', '20.0')]
     local procedure OnMergeReportLayoutOnSuppressCommit(ReportID: Integer; var IsHandled: Boolean)
     begin
     end;
+#endif
 }
 

@@ -118,7 +118,7 @@ codeunit 137451 "Phys. Invt. Order PAG UT"
     begin
         // [SCENARIO] validate ShowRecords function of Page ID - 344 Navigate.
         // Setup.
-        Initialize;
+        Initialize();
         CreatePostedPhysInvtOrderHeader(PstdPhysInvtOrderHdr);
         LibraryVariableStorage.Enqueue(PstdPhysInvtOrderHdr."No."); // Required inside PostedPhysInvtOrderListPageHandler.
 
@@ -136,7 +136,7 @@ codeunit 137451 "Phys. Invt. Order PAG UT"
     begin
         // [SCENARIO] validate ShowRecords function of Page ID - 344 Navigate.
         // Setup.
-        Initialize;
+        Initialize();
         CreatePhysInventoryLedgerEntry(PhysInvtLedgEntry);
         LibraryVariableStorage.Enqueue(PhysInvtLedgEntry."Document No."); // Required inside PhysInventoryLedgerEntriesPageHandler.
 
@@ -177,7 +177,7 @@ codeunit 137451 "Phys. Invt. Order PAG UT"
     begin
         // [SCENARIO] validate RecordingLines - OnAction Trigger of Page Posted Physical Inventory Order Subform.
         // Setup.
-        Initialize;
+        Initialize();
         CreatePostedPhysInvtOrderHeader(PstdPhysInvtOrderHdr);
         CreatePostedPhysInvtOrderLine(PstdPhysInvtOrderLine, PstdPhysInvtOrderHdr."No.");
 
@@ -206,8 +206,8 @@ codeunit 137451 "Phys. Invt. Order PAG UT"
     begin
         // [SCENARIO] validate Dimension - OnAction trigger of Page Posted Physical Inventory Order Subform.
         // Setup.
-        Initialize;
-        DimensionSetEntry.FindLast;
+        Initialize();
+        DimensionSetEntry.FindLast();
         CreateDimensionSetEntry(DimensionSetEntry2, DimensionSetEntry."Dimension Set ID" + 1);  // Value required for non existing Dimension Set Entry.
 
         CreatePostedPhysInvtOrderHeader(PstdPhysInvtOrderHdr);
@@ -236,7 +236,7 @@ codeunit 137451 "Phys. Invt. Order PAG UT"
     begin
         // [SCENARIO] validate ExpectedTrackingLines - OnAction trigger of Page ID - 5005360  Posted Physical Inventory Order Subform.
         // Setup.
-        Initialize;
+        Initialize();
         CreatePostedPhysInvtOrderHeader(PstdPhysInvtOrderHdr);
         CreatePostedPhysInvtOrderLine(PstdPhysInvtOrderLine, PstdPhysInvtOrderHdr."No.");
         PstdPhysInvtOrderLine."Quantity (Base)" := 1;
@@ -273,7 +273,7 @@ codeunit 137451 "Phys. Invt. Order PAG UT"
 
         // [WHEN] SetSources and run the Page - Used Tracking Lines.
         PhysInvtTrackingLinesPage.SetSources(PhysInvtTrackingBuffer);
-        PhysInvtTrackingLinesPage.Run;
+        PhysInvtTrackingLinesPage.Run();
 
         // [THEN] Verify Serial No, Lot No and Qty. Expected (Base) on Page Used Tracking Lines.
         PhysInvtTrackingLines."Lot No".AssertEquals(PhysInvtTrackingBuffer."Lot No");
@@ -313,7 +313,7 @@ codeunit 137451 "Phys. Invt. Order PAG UT"
     begin
         // [SCENARIO] validate Trigger OnDrillDown of NoCorrectLines on Page Phys. Invt. Order Statistics.
         // Setup: Create Physical Inventory Order and open Physical Inventory Order Statistics page.
-        Initialize;
+        Initialize();
         OpenPhysInvtOrderStatisticsPage(PhysInvtOrderStatistics, PhysInvtOrderLine."Entry Type"::"Positive Adjmt.", 0, true);  // Quantity (Base) - 0 and Without Difference - True.
 
         // Exercise.
@@ -335,7 +335,7 @@ codeunit 137451 "Phys. Invt. Order PAG UT"
     begin
         // [SCENARIO] validate Trigger OnDrillDown of NoPosDiffLines on Page Phys. Invt. Order Statistics.
         // Setup: Create Physical Inventory Order and open Physical Inventory Order Statistics page.
-        Initialize;
+        Initialize();
         OpenPhysInvtOrderStatisticsPage(PhysInvtOrderStatistics, PhysInvtOrderLine."Entry Type"::"Positive Adjmt.", 1, false);  // Quantity (Base) - 1 and Without Difference - False.
 
         // Exercise.
@@ -357,7 +357,7 @@ codeunit 137451 "Phys. Invt. Order PAG UT"
     begin
         // [SCENARIO] validate Trigger OnDrillDown of NoNegDiffLines on Page Phys. Invt. Order Statistics.
         // Setup: Create Physical Inventory Order and open Physical Inventory Order Statistics page.
-        Initialize;
+        Initialize();
         OpenPhysInvtOrderStatisticsPage(PhysInvtOrderStatistics, PhysInvtOrderLine."Entry Type"::"Negative Adjmt.", 0, false);  // Quantity (Base) - 0 and Without Difference - False.
 
         // Exercise.
@@ -401,7 +401,7 @@ codeunit 137451 "Phys. Invt. Order PAG UT"
     begin
         // [SCENARIO] validate Trigger OnDrillDown of NoCorrectLines on Page Posted Phys. Invt. Order Stat.
         // Setup: Create Posted Physical Inventory Order and open Posted Physical Inventory Order Statistics page.
-        Initialize;
+        Initialize();
         OpenPostedPhysInvtOrderStatisticsPage(
           PostedPhysInvtOrderStat, PstdPhysInvtOrderLine."Entry Type"::"Positive Adjmt.", 0, true);  // Quantity (Base) - 0 and Without Difference - True.
 
@@ -424,7 +424,7 @@ codeunit 137451 "Phys. Invt. Order PAG UT"
     begin
         // [SCENARIO] Validate Trigger OnDrillDown of NoPosDiffLines on Page Posted Phys. Invt. Order Stat.
         // [GIVEN]: Create Posted Physical Inventory Order Pos Line with Expected Qty = 1 and Recorded Qty = 0
-        Initialize;
+        Initialize();
         OpenPostedPhysInvtOrderStatisticsPage(PostedPhysInvtOrderStat, PstdPhysInvtOrderLine."Entry Type"::"Positive Adjmt.", 1, false);  // Quantity (Base) - 1 and Without Difference - False.
 
         // [WHEN] Open Posted Physical Inventory Order Statistics page.
@@ -448,7 +448,7 @@ codeunit 137451 "Phys. Invt. Order PAG UT"
     begin
         // [SCENARIO] Validate Trigger OnDrillDown of NoNegDiffLines on Page Posted Phys. Invt. Order Stat.
         // [GIVEN]: Create Posted Physical Inventory Order Neg Line with Expected Qty = 1 and Recorded Qty = 0
-        Initialize;
+        Initialize();
         OpenPostedPhysInvtOrderStatisticsPage(PostedPhysInvtOrderStat, PstdPhysInvtOrderLine."Entry Type"::"Negative Adjmt.", 0, false);  // Quantity (Base) - 0 and Without Difference - False.
 
         // [WHEN] Open Posted Physical Inventory Order Statistics page.
@@ -475,7 +475,7 @@ codeunit 137451 "Phys. Invt. Order PAG UT"
         // [SCENARIO] validate function CopyDocument of Page Phys. Inventory Order.
 
         // Setup: Create Physical Inventory Order with Line, and create another Physical Inventory Order Header.
-        Initialize;
+        Initialize();
         Item."No." := LibraryUTUtility.GetNewCode;
         Item.Insert();
         CreatePhysInventoryOrderHeader(PhysInvtOrderHeader);
@@ -492,7 +492,7 @@ codeunit 137451 "Phys. Invt. Order PAG UT"
 
         // [THEN] Verify Physical Inventory Order Line successfully copied to second Physical Inventory Order.
         PhysInvtOrderLine.SetRange("Document No.", PhysInvtOrderHeader2."No.");
-        PhysInvtOrderLine.FindFirst;
+        PhysInvtOrderLine.FindFirst();
         PhysInvtOrderLine.TestField("Item No.", Item."No.");
     end;
 
@@ -520,7 +520,7 @@ codeunit 137451 "Phys. Invt. Order PAG UT"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateDimensionSetEntry(var DimensionSetEntry: Record "Dimension Set Entry"; DimensionSetID: Integer)
@@ -581,7 +581,7 @@ codeunit 137451 "Phys. Invt. Order PAG UT"
     var
         PhysInventoryLedgerEntry: Record "Phys. Inventory Ledger Entry";
     begin
-        PhysInventoryLedgerEntry.FindLast;
+        PhysInventoryLedgerEntry.FindLast();
         if PhysInventoryLedgerEntry."Entry No." = 0 then
             PhysInventoryLedgerEntry2."Entry No." := 1
         else
@@ -613,7 +613,7 @@ codeunit 137451 "Phys. Invt. Order PAG UT"
     begin
         // Set Document for Navigate with Posting Date and Document No.
         Navigate.SetDoc(WorkDate, DocumentNo);
-        Navigate.Run;
+        Navigate.Run();
     end;
 
     local procedure CreatePhysInventoryOrder(EntryType: Option; QuantityBase: Decimal; WithoutDifference: Boolean): Code[20]

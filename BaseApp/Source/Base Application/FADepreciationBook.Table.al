@@ -104,7 +104,7 @@ table 5612 "FA Depreciation Book"
             trigger OnValidate()
             begin
                 ModifyDeprFields;
-                if ("Straight-Line %" <> 0) and not LinearMethod then
+                if ("Straight-Line %" <> 0) and not LinearMethod() then
                     DeprMethodError;
                 AdjustLinearMethod("No. of Depreciation Years", "Fixed Depr. Amount");
             end;
@@ -792,14 +792,16 @@ table 5612 "FA Depreciation Book"
         Text002: Label '%1 is later than %2.';
         Text003: Label 'must not be %1';
         Text004: Label 'untitled';
-        FA: Record "Fixed Asset";
-        DeprBook: Record "Depreciation Book";
         FAMoveEntries: Codeunit "FA MoveEntries";
         FADateCalc: Codeunit "FA Date Calculation";
         DepreciationCalc: Codeunit "Depreciation Calculation";
         Text10500: Label '%1 must be Straight-Line if %2 is %3 in %4: %5.';
         OnlyOneDefaultDeprBookErr: Label 'Only one fixed asset depreciation book can be marked as the default book';
         FiscalYear365Err: Label 'An ending date for depreciation cannot be calculated automatically when the Fiscal Year 365 Days option is chosen. You must manually enter the ending date.';
+
+    protected var
+        FA: Record "Fixed Asset";
+        DeprBook: Record "Depreciation Book";
 
     local procedure AdjustLinearMethod(var Amount1: Decimal; var Amount2: Decimal)
     begin
@@ -888,7 +890,7 @@ table 5612 "FA Depreciation Book"
         exit(DeprBook."Default Exchange Rate");
     end;
 
-    local procedure LinearMethod(): Boolean
+    protected procedure LinearMethod(): Boolean
     begin
         exit(
           "Depreciation Method" in
@@ -897,7 +899,7 @@ table 5612 "FA Depreciation Book"
            "Depreciation Method"::"DB2/SL"]);
     end;
 
-    local procedure DecliningMethod(): Boolean
+    protected procedure DecliningMethod(): Boolean
     begin
         exit(
           "Depreciation Method" in
@@ -907,12 +909,12 @@ table 5612 "FA Depreciation Book"
            "Depreciation Method"::"DB2/SL"]);
     end;
 
-    local procedure UserDefinedMethod(): Boolean
+    protected procedure UserDefinedMethod(): Boolean
     begin
         exit("Depreciation Method" = "Depreciation Method"::"User-Defined");
     end;
 
-    local procedure TestHalfYearConventionMethod()
+    protected procedure TestHalfYearConventionMethod()
     begin
         if "Depreciation Method" in
            ["Depreciation Method"::"Declining-Balance 2",

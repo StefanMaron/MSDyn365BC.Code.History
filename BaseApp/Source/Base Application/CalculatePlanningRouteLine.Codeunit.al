@@ -351,7 +351,14 @@ codeunit 99000810 "Calculate Planning Route Line"
     end;
 
     local procedure LoadCapBack(CapType: Enum "Capacity Type"; CapNo: Code[20]; TimeType: Enum "Routing Time Type"; Write: Boolean)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeLoadCapBack(PlanningRoutingLine, TimeType, ProdStartingDate, ProdStartingTime, IsHandled);
+        if IsHandled then
+            exit;
+
         PlanningRoutingLine."Starting Date" := ProdEndingDate;
         PlanningRoutingLine."Starting Time" := ProdEndingTime;
 
@@ -947,7 +954,7 @@ codeunit 99000810 "Calculate Planning Route Line"
         UpdateDates := true;
 
         with PlanningRoutingLine do begin
-            ResourceIsConstrained := ConstrainedCapacity.Get(Type, "No.");
+            ResourceIsConstrained := GetConstrainedCapacity(Type, "No.", ConstrainedCapacity);
             ParentIsConstrained := ParentWorkCenter.Get(Type::"Work Center", "Work Center No.");
             if (RemainNeedQty > 0) and (ResourceIsConstrained or ParentIsConstrained) then
                 FinitelyLoadCapForward(RoutingTimeType::"Setup Time", ConstrainedCapacity, ResourceIsConstrained, ParentWorkCenter, ParentIsConstrained)
@@ -978,7 +985,7 @@ codeunit 99000810 "Calculate Planning Route Line"
                 WorkCenter."Calendar Rounding Precision");
 
             with PlanningRoutingLine do begin
-                ResourceIsConstrained := ConstrainedCapacity.Get(Type, "No.");
+                ResourceIsConstrained := GetConstrainedCapacity(Type, "No.", ConstrainedCapacity);
                 ParentIsConstrained := ParentWorkCenter.Get(Type::"Work Center", "Work Center No.");
                 if (RemainNeedQty > 0) and (ResourceIsConstrained or ParentIsConstrained) then
                     FinitelyLoadCapForward(RoutingTimeType::"Run Time", ConstrainedCapacity, ResourceIsConstrained, ParentWorkCenter, ParentIsConstrained)
@@ -1254,7 +1261,13 @@ codeunit 99000810 "Calculate Planning Route Line"
         xConCurrCap: Decimal;
         EndTime: Time;
         StartTime: Time;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeFinitelyLoadCapForward(PlanningRoutingLine, TimeType, ProdStartingDate, ProdStartingTime, IsHandled);
+        if IsHandled then
+            exit;
+
         if (RemainNeedQty = 0) and WaitTimeOnly then
             exit;
         StartTime := ProdStartingTime;
@@ -1460,7 +1473,7 @@ codeunit 99000810 "Calculate Planning Route Line"
     begin
         xTotalLotSize := TotalLotSize;
         xSendAheadLotSize := SendAheadLotSize;
-        if TmpPlanRtngLine.FindSet then begin
+        if TmpPlanRtngLine.FindSet() then begin
             repeat
                 TotalLotSize := xTotalLotSize;
                 SendAheadLotSize := xSendAheadLotSize;
@@ -1481,7 +1494,7 @@ codeunit 99000810 "Calculate Planning Route Line"
     begin
         xTotalLotSize := TotalLotSize;
         xSendAheadLotSize := SendAheadLotSize;
-        if TmpPlanRtngLine.FindSet then begin
+        if TmpPlanRtngLine.FindSet() then begin
             repeat
                 TotalLotSize := xTotalLotSize;
                 SendAheadLotSize := xSendAheadLotSize;
@@ -1578,7 +1591,7 @@ codeunit 99000810 "Calculate Planning Route Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeLoadCapForward(var PlanningRoutingLine: Record "Planning Routing Line"; TimeType: Enum "Routing Time Type"; var ProdStartingDate: Date; ProdStartingTime: Time; var IsHandled: Boolean)
+    local procedure OnBeforeLoadCapForward(var PlanningRoutingLine: Record "Planning Routing Line"; TimeType: Enum "Routing Time Type"; var ProdStartingDate: Date; var ProdStartingTime: Time; var IsHandled: Boolean)
     begin
     end;
 
@@ -1614,6 +1627,16 @@ codeunit 99000810 "Calculate Planning Route Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeFinitelyLoadCapBack(TimeType: Enum "Routing Time Type"; ConstrainedCapacity: Record "Capacity Constrained Resource"; ResourceIsConstrained: Boolean; ParentWorkCenter: Record "Capacity Constrained Resource"; ParentIsConstrained: Boolean; var ProdEndingTime: Time; var ProdEndingDate: Date; var ConCurrCap: Decimal; var PlanningRoutingLine: Record "Planning Routing Line"; var CalendarEntry: Record "Calendar Entry"; var RemainNeedQty: Decimal; var WorkCenter: Record "Work Center"; var CurrentTimeFactor: Decimal; var CurrentRounding: Decimal; var CalculateRoutingLine: Codeunit "Calculate Routing Line"; var ReqLine: Record "Requisition Line"; var FirstInBatch: Boolean; var FirstEntry: Boolean; var NextCapNeedLineNo: Integer; var LotSize: Decimal; var PlanningResiliency: Boolean; var TempPlanningErrorLog: Record "Planning Error Log" temporary; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeLoadCapBack(var PlanningRoutingLine: Record "Planning Routing Line"; TimeType: Enum "Routing Time Type"; var ProdStartingDate: Date; var ProdStartingTime: Time; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFinitelyLoadCapForward(var PlanningRoutingLine: Record "Planning Routing Line"; TimeType: Enum "Routing Time Type"; var ProdStartingDate: Date; var ProdStartingTime: Time; var IsHandled: Boolean)
     begin
     end;
 }

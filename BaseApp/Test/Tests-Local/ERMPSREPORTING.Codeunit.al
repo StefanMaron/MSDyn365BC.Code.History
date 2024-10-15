@@ -49,7 +49,7 @@ codeunit 144061 "ERM PSREPORTING"
         // Verify Cost Amount(Expected) on Sales Analysis Matrix when Item Ledger Entry Type Filter Sales.
 
         // Setup: Post Sales Invoice with Ship Option and Create Analysis Report Name.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         CreateSalesInvoice(SalesHeader, Customer."No.");
         FindValueEntry(ValueEntry, LibrarySales.PostSalesDocument(SalesHeader, true, false));
@@ -90,7 +90,7 @@ codeunit 144061 "ERM PSREPORTING"
         // Verify Cost Amount(Expected) on Sales Analysis Matrix when Item Ledger Entry Type Filter Purchase.
 
         // Setup: Post Purchase Invoice with Ship Option and Create Analysis Report Name.
-        Initialize;
+        Initialize();
         LibraryPurchase.CreateVendor(Vendor);
         CreatePurchaseInvoice(PurchaseHeader, Vendor."No.");
         FindValueEntry(ValueEntry, LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false));
@@ -125,7 +125,7 @@ codeunit 144061 "ERM PSREPORTING"
         // Verify Area Code for Inventory Analysis Area.
 
         // Setup: Create Item with Dimension, create and post Item Journal Line.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         UpdateItemDimension(DefaultDimension, Item."No.");
         CreateAndPostItemJournalLine(ItemJournalLine, Item."No.");
@@ -138,7 +138,7 @@ codeunit 144061 "ERM PSREPORTING"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateItem(): Code[20]
@@ -256,7 +256,7 @@ codeunit 144061 "ERM PSREPORTING"
     local procedure FindValueEntry(var ValueEntry: Record "Value Entry"; DocumentNo: Code[20])
     begin
         ValueEntry.SetRange("Document No.", DocumentNo);
-        ValueEntry.FindFirst;
+        ValueEntry.FindFirst();
     end;
 
     local procedure OpenAndEditAnalysisReportSales(Name: Code[10]; AnalysisLineTemplateName: Code[10]; AnalysisColumnTemplateName: Code[10])
@@ -302,7 +302,7 @@ codeunit 144061 "ERM PSREPORTING"
         SalesAnalysisReport.ShowMatrix.Invoke;  // Opens SalesAnalysisMatrixPageHandler.
     end;
 
-    [ModalPageHandler]
+    [PageHandler]
     [Scope('OnPrem')]
     procedure SalesAnalysisMatrixPageHandler(var SalesAnalysisMatrix: TestPage "Sales Analysis Matrix")
     var
@@ -322,7 +322,7 @@ codeunit 144061 "ERM PSREPORTING"
         PurchaseAnalysisReport.ShowMatrix.Invoke;  // Opens PurchaseAnalysisMatrixPageHandler.
     end;
 
-    [ModalPageHandler]
+    [PageHandler]
     [Scope('OnPrem')]
     procedure PurchaseAnalysisMatrixPageHandler(var PurchaseAnalysisMatrix: TestPage "Purchase Analysis Matrix")
     var

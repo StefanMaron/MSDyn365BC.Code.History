@@ -550,7 +550,7 @@ page 5200 "Employee Card"
                     begin
                         RecRef.GetTable(Rec);
                         DocumentAttachmentDetails.OpenForRecRef(RecRef);
-                        DocumentAttachmentDetails.RunModal;
+                        DocumentAttachmentDetails.RunModal();
                     end;
                 }
                 action(PayEmployee)
@@ -599,7 +599,6 @@ page 5200 "Employee Card"
                     Caption = 'Sent Emails';
                     Image = ShowList;
                     ToolTip = 'View a list of emails that you have sent to this employee.';
-                    Visible = EmailImprovementFeatureEnabled;
 
                     trigger OnAction()
                     var
@@ -673,12 +672,9 @@ page 5200 "Employee Card"
     }
 
     trigger OnOpenPage()
-    var
-        EmailFeature: Codeunit "Email Feature";
     begin
         SetNoFieldVisible();
         IsCountyVisible := FormatAddress.UseCounty("Country/Region Code");
-        EmailImprovementFeatureEnabled := EmailFeature.IsEnabled();
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
@@ -718,7 +714,6 @@ page 5200 "Employee Card"
         NewMode: Boolean;
         IsAddressLookupTextEnabled: Boolean;
         LookupAddressLbl: Label 'Lookup address from postcode';
-        EmailImprovementFeatureEnabled: Boolean;
 
     local procedure SetNoFieldVisible()
     var

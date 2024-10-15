@@ -222,7 +222,7 @@ report 130 "EC Sales List"
                     VATEntry.SetCurrentKey(
                       Type, "Country/Region Code", "VAT Registration No.", "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Posting Date");
                     VATEntry.CopyFilters("VAT Entry");
-                    if not VATEntry.FindSet then;
+                    if not VATEntry.FindSet() then;
 
                     EUTrdPartyAmtService := 0;
                     NotEUTrdPartyAmtService := 0;
@@ -313,7 +313,7 @@ report 130 "EC Sales List"
         Calendar.SetFilter("Period Type", '%1|%2', Calendar."Period Type"::Month, Calendar."Period Type"::Quarter);
         Calendar.SetRange("Period Start", PeriodStart);
         Calendar.SetRange("Period End", ClosingDate(PeriodEnd));
-        if not Calendar.FindFirst then
+        if not Calendar.FindFirst() then
             Error(Text10500, "VAT Entry".FieldCaption("Posting Date"), "VAT Entry".GetFilter("Posting Date"));
 
         GLSetup.Get();

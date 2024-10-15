@@ -60,7 +60,7 @@ codeunit 144005 "UT REP Doclay"
         No: Code[20];
     begin
         // Setup: Create Purchase Document.
-        Initialize;
+        Initialize();
         No := CreatePurchaseDocument(DocumentType);
         Commit();  // Codeunit 317 Purch.Header - Printed OnRUN calls commit.
 
@@ -81,7 +81,7 @@ codeunit 144005 "UT REP Doclay"
         // Purpose of the test is to validate OnAfterGetRecord Trigger of CopyLoop of Report 10577 Purchase - Invoice GB.
 
         // Setup: Create Posted Purchase Invoice.
-        Initialize;
+        Initialize();
         No := CreatePostedPurchaseInvoice;
         Commit();  // Codeunit 319 (Purch. Inv.-Printed) OnRun calls commit.
 
@@ -102,7 +102,7 @@ codeunit 144005 "UT REP Doclay"
         // Purpose of the test is to validate OnAfterGetRecord Trigger of CopyLoop of Report 10578 Purchase - Credit Memo GB.
 
         // Setup: Create Posted Purchase Credit Memo.
-        Initialize;
+        Initialize();
         No := CreatePostedPurchaseCreditMemo;
         Commit();  // Codeunit 320 PurchCrMemo-Printed OnRun Calls commit.
 
@@ -140,7 +140,7 @@ codeunit 144005 "UT REP Doclay"
         No: Code[20];
     begin
         // Setup: Create Sales Document according to the Document Type provided in parameter.
-        Initialize;
+        Initialize();
         No := CreateSalesDocument(DocumentType);
         Commit();  // Commit required since explicit Commit used on OnRun Trigger of COD313: Sales-Printed.
 
@@ -153,7 +153,7 @@ codeunit 144005 "UT REP Doclay"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreatePostedPurchaseCreditMemo(): Code[20]

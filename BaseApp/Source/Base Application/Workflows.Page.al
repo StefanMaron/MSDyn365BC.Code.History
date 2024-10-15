@@ -100,7 +100,7 @@ page 1500 Workflows
                         WorkflowPage.SetOpenNew(true);
                         WorkflowPage.SetTableView(Workflow);
                         WorkflowPage.SetRecord(Workflow);
-                        WorkflowPage.Run;
+                        WorkflowPage.Run();
                     end;
                 }
                 action(CopyFromTemplate)
@@ -191,7 +191,7 @@ page 1500 Workflows
                         Workflow.Get("Workflow Code");
                         WorkflowPage.SetRecord(Workflow);
                         WorkflowPage.SetOpenView(true);
-                        WorkflowPage.Run;
+                        WorkflowPage.Run();
                     end;
                 }
                 action(DeleteAction)
@@ -413,7 +413,7 @@ page 1500 Workflows
         TempWorkflowBuffer.Copy(Rec, true);
         CurrPage.SetSelectionFilter(TempWorkflowBuffer);
 
-        if TempWorkflowBuffer.FindSet then
+        if TempWorkflowBuffer.FindSet() then
             repeat
                 if TempWorkflowBuffer."Workflow Code" <> '' then
                     if Filter = '' then
@@ -430,7 +430,7 @@ page 1500 Workflows
         CopyFilters(TempWorkflowBuffer);
         if StrLen(GetFilter("Workflow Code")) > 0 then
             SetFilter("Workflow Code", TempWorkflowBuffer.GetFilter("Workflow Code") + '|''''');
-        if FindLast then;
+        if FindLast() then;
     end;
 }
 

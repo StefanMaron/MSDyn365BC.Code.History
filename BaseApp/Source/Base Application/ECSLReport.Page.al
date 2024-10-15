@@ -285,7 +285,7 @@ page 321 "ECSL Report"
                     VATReportLog: Page "VAT Report Log";
                 begin
                     VATReportLog.SetReport(Rec);
-                    VATReportLog.RunModal;
+                    VATReportLog.RunModal();
                 end;
             }
         }
@@ -377,7 +377,7 @@ page 321 "ECSL Report"
         ErrorMessage: Record "Error Message";
     begin
         ErrorMessage.SetRange("Context Record ID", Context);
-        if ErrorMessage.FindFirst then
+        if ErrorMessage.FindFirst() then
             ErrorMessage.DeleteAll(true);
         Commit();
     end;

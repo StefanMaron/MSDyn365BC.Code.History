@@ -38,7 +38,7 @@ codeunit 144015 "UT REP Intrastat"
         // Purpose of the test is to verify Total Weight on Intrastat - CheckList Report.
 
         // Setup: Create Intrastat Journal Line.
-        Initialize;
+        Initialize();
         CreateIntrastatJournalLine(IntrastatJnlLine);
         TotalWtIntrastatJnlLine := IntrastatJnlLine."Total Weight";
 
@@ -62,7 +62,7 @@ codeunit 144015 "UT REP Intrastat"
         // [SCENARIO 232831] Stan can create Intrastat Reporting file, if "Document No." value of "Intrastat Journal Line" record is longer than 10 characters.
         // Posted Shipment No. Series is longer than 10 characters. Stan post Sales Invoice with Item, Sales Shipment is created. Stan creates Intrastat Journal Line based on the Sales Shipment.
         // Then he run the report "Intrastat - Make Disk Tax Auth" and Intrastat Report file is created.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Intrastat Journal Line with "Document No." value length more than 10 characters.
         CreateIntrastatJournalLine(IntrastatJnlLine);
@@ -87,7 +87,7 @@ codeunit 144015 "UT REP Intrastat"
         FileName: Text;
     begin
         // [SCENARIO 292570] Exported "Total Wheight" should be rounded up to the next whole value
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create intrastat journal line with "Total Wheight" = 1.01
         CreateIntrastatJournalLine(IntrastatJnlLine);
@@ -107,7 +107,7 @@ codeunit 144015 "UT REP Intrastat"
     var
         IntrastatSetup: Record "Intrastat Setup";
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         IntrastatSetup.DeleteAll();
     end;
 
@@ -116,7 +116,7 @@ codeunit 144015 "UT REP Intrastat"
         CountryRegion: Record "Country/Region";
         IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
     begin
-        CountryRegion.FindFirst;
+        CountryRegion.FindFirst();
         CreateIntrastatJournalTemplateAndBatch(IntrastatJnlBatch);
         IntrastatJnlLine."Journal Template Name" := IntrastatJnlBatch."Journal Template Name";
         IntrastatJnlLine."Journal Batch Name" := IntrastatJnlBatch.Name;
@@ -161,7 +161,7 @@ codeunit 144015 "UT REP Intrastat"
         IntrastatMakeDiskTaxAuth.InitializeRequest(Filename);
         IntrastatMakeDiskTaxAuth.UseRequestPage(false);
         IntrastatMakeDiskTaxAuth.SetTableView(IntrastatJnlLine);
-        IntrastatMakeDiskTaxAuth.RunModal;
+        IntrastatMakeDiskTaxAuth.RunModal();
     end;
 
     local procedure VerifyExportedTotalWeight(FileName: Text; ExpectedTotalWeight: Decimal)

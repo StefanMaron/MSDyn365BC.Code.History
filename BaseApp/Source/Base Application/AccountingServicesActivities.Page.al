@@ -77,7 +77,7 @@ page 9070 "Accounting Services Activities"
                         UserTaskList: Page "User Task List";
                     begin
                         UserTaskList.SetPageToShowMyPendingUserTasks;
-                        UserTaskList.Run;
+                        UserTaskList.Run();
                     end;
                 }
             }

@@ -28,7 +28,7 @@ codeunit 144051 "UT REP Check"
         // Purpose of the test is to validate PrintCheck - OnAfterGetRecord Trigger of Report 1401 - Check.
 
         // Setup: Create Bank Account and General Journal Line.
-        Initialize;
+        Initialize();
         CreateGeneralJournalLine(GenJournalLine, GenJournalLine."Account Type"::"Bank Account", CreateBankAccount);
         CheckAmountText := DelChr(Format(GenJournalLine.Amount, 0, '**<Sign><Integer>-<Decimals,3>**'), '=', '.');  // Calculation of format String and DELCHR based on Report - Check.
 
@@ -43,7 +43,7 @@ codeunit 144051 "UT REP Check"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateBankAccount(): Code[20]

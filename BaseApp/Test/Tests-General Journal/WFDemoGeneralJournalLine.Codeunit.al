@@ -41,7 +41,7 @@ codeunit 134188 "WF Demo General Journal Line"
         // [WHEN] Journal Line 2 send for approval
         // [THEN] Two lines are send for approval
 
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.GeneralJournalLineApprovalWorkflowCode);
@@ -91,7 +91,7 @@ codeunit 134188 "WF Demo General Journal Line"
         // [WHEN] Direct approver clicks the Approve action
         // [THEN] Approval entry is approved
 
-        Initialize;
+        Initialize();
 
         // Setup
         CreateDirectApprovalEnabledWorkflow(Workflow);
@@ -146,7 +146,7 @@ codeunit 134188 "WF Demo General Journal Line"
         // [WHEN] Direct approver clicks the Reject action
         // [THEN] Approval entry is rejected
 
-        Initialize;
+        Initialize();
 
         // Setup
         CreateDirectApprovalEnabledWorkflow(Workflow);
@@ -202,7 +202,7 @@ codeunit 134188 "WF Demo General Journal Line"
         // [WHEN] Direct approver clicks the Delegat action
         // [THEN] Approval entry is delegated to the substitute
 
-        Initialize;
+        Initialize();
 
         // Setup
         CreateDirectApprovalEnabledWorkflow(Workflow);
@@ -275,7 +275,7 @@ codeunit 134188 "WF Demo General Journal Line"
         // [WHEN] Requestor clicks the Cancel action
         // [THEN] Approval entry is canceled
 
-        Initialize;
+        Initialize();
 
         // Setup
         CreateDirectApprovalEnabledWorkflow(Workflow);
@@ -328,7 +328,7 @@ codeunit 134188 "WF Demo General Journal Line"
         // [GIVEN] Approval entry exists for the journal batch
         // [WHEN] Requestor clicks the Cancel action
         // [THEN] Approval entry is canceled
-        Initialize;
+        Initialize();
 
         // Setup
         CreateDirectApprovalEnabledWorkflow(Workflow);
@@ -377,7 +377,7 @@ codeunit 134188 "WF Demo General Journal Line"
         // [GIVEN] Approval entry exists for the journal batch
         // [WHEN] Requestor clicks the Cancel action
         // [THEN] Approval entry is canceled
-        Initialize;
+        Initialize();
 
         // Setup
         CreateDirectApprovalEnabledWorkflow(Workflow);
@@ -426,7 +426,7 @@ codeunit 134188 "WF Demo General Journal Line"
         // [GIVEN] Approval entry exists for the journal batch
         // [WHEN] Direct approver clicks the Approve action
         // [THEN] Approval entry is approved
-        Initialize;
+        Initialize();
 
         // Setup
         CreateDirectApprovalEnabledWorkflow(Workflow);
@@ -481,7 +481,7 @@ codeunit 134188 "WF Demo General Journal Line"
         // [GIVEN] Approval entry exists for the journal batch
         // [WHEN] Direct approver clicks the Approve action
         // [THEN] Approval entry is approved
-        Initialize;
+        Initialize();
 
         // Setup
         CreateDirectApprovalEnabledWorkflow(Workflow);
@@ -537,7 +537,7 @@ codeunit 134188 "WF Demo General Journal Line"
         // [GIVEN] Approval entry exists for the journal batch
         // [WHEN] Direct approver clicks the Approve action
         // [THEN] Approval entry is approved
-        Initialize;
+        Initialize();
 
         // Setup
         CreateDirectApprovalEnabledWorkflow(Workflow);
@@ -594,7 +594,7 @@ codeunit 134188 "WF Demo General Journal Line"
         // [WHEN] Direct approver clicks the Approve action
         // [THEN] Approval entry is approved
 
-        Initialize;
+        Initialize();
 
         // Setup
         CreateDirectApprovalEnabledWorkflow(Workflow);
@@ -649,7 +649,7 @@ codeunit 134188 "WF Demo General Journal Line"
         // [WHEN] Direct approver clicks the Reject action
         // [THEN] Approval entry is rejected
 
-        Initialize;
+        Initialize();
 
         // Setup
         CreateDirectApprovalEnabledWorkflow(Workflow);
@@ -705,7 +705,7 @@ codeunit 134188 "WF Demo General Journal Line"
         // [WHEN] Direct approver clicks the Delegat action
         // [THEN] Approval entry is delegated to the substitute
 
-        Initialize;
+        Initialize();
 
         // Setup
         CreateDirectApprovalEnabledWorkflow(Workflow);
@@ -778,7 +778,7 @@ codeunit 134188 "WF Demo General Journal Line"
         // [WHEN] Requestor clicks the Cancel action
         // [THEN] Approval entry is canceled
 
-        Initialize;
+        Initialize();
 
         // Setup
         CreateDirectApprovalEnabledWorkflow(Workflow);
@@ -825,7 +825,7 @@ codeunit 134188 "WF Demo General Journal Line"
     begin
         // [SCENARIO] Visibility of approval actions on a journal batch
 
-        Initialize;
+        Initialize();
 
         CreateApprovalSetup(ApproverUserSetup, RequestorUserSetup);
 
@@ -889,7 +889,7 @@ codeunit 134188 "WF Demo General Journal Line"
     begin
         // [SCENARIO] Visibility of approval actions on a journal batch
 
-        Initialize;
+        Initialize();
 
         CreateApprovalSetup(ApproverUserSetup, RequestorUserSetup);
 
@@ -953,7 +953,7 @@ codeunit 134188 "WF Demo General Journal Line"
     begin
         // [SCENARIO] Visibility of approval actions on a journal batch
 
-        Initialize;
+        Initialize();
 
         CreateApprovalSetup(ApproverUserSetup, RequestorUserSetup);
 
@@ -1011,8 +1011,8 @@ codeunit 134188 "WF Demo General Journal Line"
         GenJournalTemplate: Record "Gen. Journal Template";
         LibraryApplicationArea: Codeunit "Library - Application Area";
     begin
-        LibraryApplicationArea.EnableFoundationSetup;
-        LibraryVariableStorage.Clear;
+        LibraryApplicationArea.EnableFoundationSetup();
+        LibraryVariableStorage.Clear();
         Workflow.ModifyAll(Enabled, false, true);
         UserSetup.DeleteAll();
         GenJournalTemplate.DeleteAll();

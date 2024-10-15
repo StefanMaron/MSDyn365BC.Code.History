@@ -23,7 +23,7 @@ codeunit 99000756 VersionManagement
             ProdBOMVersion.SetRange(Status, ProdBOMVersion.Status::Certified)
         else
             ProdBOMVersion.SetFilter(Status, '<>%1', ProdBOMVersion.Status::Closed);
-        if not ProdBOMVersion.FindLast then
+        if not ProdBOMVersion.FindLast() then
             Clear(ProdBOMVersion);
 
         exit(ProdBOMVersion."Version Code");
@@ -70,7 +70,7 @@ codeunit 99000756 VersionManagement
         else
             RtngVersion.SetFilter(Status, '<>%1', RtngVersion.Status::Closed);
 
-        if not RtngVersion.FindLast then
+        if not RtngVersion.FindLast() then
             Clear(RtngVersion);
 
         exit(RtngVersion."Version Code");

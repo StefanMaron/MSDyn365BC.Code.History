@@ -161,8 +161,6 @@ page 6061 "Contract Trend Lines"
         PeriodFormLinesMgt: Codeunit "Period Form Lines Mgt.";
         PeriodType: Enum "Analysis Period Type";
         AmountType: Enum "Analysis Amount Type";
-        ProfitAmount: Decimal;
-        ProfitPct: Decimal;
 
     protected var
         ServContract: Record "Service Contract Header";

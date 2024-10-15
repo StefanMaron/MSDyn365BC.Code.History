@@ -170,7 +170,7 @@ table 10560 "Accounting Period GB"
     begin
         AccountingPeriod2.Reset();
         AccountingPeriod2.SetRange("Period Start", 0D, ReferenceDate);
-        if AccountingPeriod2.FindLast then begin
+        if AccountingPeriod2.FindLast() then begin
             StartDate := AccountingPeriod2."Period Start";
             EndDate := AccountingPeriod2."Period End";
         end;

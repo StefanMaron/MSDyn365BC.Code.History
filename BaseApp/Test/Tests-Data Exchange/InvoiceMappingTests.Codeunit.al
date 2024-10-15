@@ -42,7 +42,7 @@ codeunit 139158 "Invoice Mapping Tests"
         Item2: Record Item;
         Currency: Record Currency;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         SetupDataExchTable(DataExch);
@@ -70,7 +70,7 @@ codeunit 139158 "Invoice Mapping Tests"
         IncomingDocument: Record "Incoming Document";
         ActualTotalAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         SetupDataExchTable(DataExch);
@@ -105,7 +105,7 @@ codeunit 139158 "Invoice Mapping Tests"
         IncomingDocument: Record "Incoming Document";
         ActualTotalAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         SetupDataExchTable(DataExch);
@@ -143,7 +143,7 @@ codeunit 139158 "Invoice Mapping Tests"
         ActualTotalAmount: Decimal;
         ChangedTotalAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         SetupDataExchTable(DataExch);
@@ -179,7 +179,7 @@ codeunit 139158 "Invoice Mapping Tests"
         PurchaseInvoice: TestPage "Purchase Invoice";
     begin
         PurchaseHeader.SetRange("Incoming Document Entry No.", IncomingEntryNo);
-        PurchaseHeader.FindFirst;
+        PurchaseHeader.FindFirst();
         PurchaseInvoice.OpenEdit;
         PurchaseInvoice.GotoRecord(PurchaseHeader);
         asserterror PurchaseInvoice.Post.Invoke;
@@ -196,7 +196,7 @@ codeunit 139158 "Invoice Mapping Tests"
         IncomingDocument: Record "Incoming Document";
         DiscountAmount: Integer;
     begin
-        Initialize;
+        Initialize();
         DiscountAmount := 100;
 
         // Setup
@@ -234,7 +234,7 @@ codeunit 139158 "Invoice Mapping Tests"
         ErrorMessage: Record "Error Message";
         DiscountAmount: Integer;
     begin
-        Initialize;
+        Initialize();
         DiscountAmount := 100;
 
         // Setup
@@ -272,7 +272,7 @@ codeunit 139158 "Invoice Mapping Tests"
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         SetupDataExchTable(DataExch);
@@ -306,7 +306,7 @@ codeunit 139158 "Invoice Mapping Tests"
         ActualTotalAmount: Decimal;
         PrepaidAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         PrepaidAmount := LibraryRandom.RandDecInDecimalRange(1, 100, 2);
@@ -344,7 +344,7 @@ codeunit 139158 "Invoice Mapping Tests"
         Currency: Record Currency;
         PurchaseHeader: Record "Purchase Header";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         SetupDataExchTable(DataExch);
@@ -360,7 +360,7 @@ codeunit 139158 "Invoice Mapping Tests"
         AssertPurchaseDoc(DataExch, BuyFromVendor, BuyFromVendor, Item1, Item2, Currency, 0);
         AssertIntermediateDataIsDeleted(DataExch);
         PurchaseHeader.SetRange("Incoming Document Entry No.", DataExch."Incoming Entry No.");
-        PurchaseHeader.FindFirst;
+        PurchaseHeader.FindFirst();
         Assert.AreEqual(PurchaseHeader."Posting Date", PurchaseHeader."Due Date", '');
     end;
 
@@ -377,7 +377,7 @@ codeunit 139158 "Invoice Mapping Tests"
         ErrorMessage: Record "Error Message";
         ChargeAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         ChargeAmount := LibraryRandom.RandDecInDecimalRange(1, 100, 2);
@@ -411,7 +411,7 @@ codeunit 139158 "Invoice Mapping Tests"
         ChargeAmount: Decimal;
         ChargeReason: Text;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         ChargeAmount := LibraryRandom.RandDecInDecimalRange(1, 100, 2);
@@ -466,7 +466,7 @@ codeunit 139158 "Invoice Mapping Tests"
         ChargeAmount: Decimal;
         ChargeReason: Text;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         PurchasesPayablesSetup.Get();
@@ -501,7 +501,7 @@ codeunit 139158 "Invoice Mapping Tests"
         PurchaseHeader: Record "Purchase Header";
         DiscountAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         DiscountAmount := 100;
 
         // Setup
@@ -525,7 +525,7 @@ codeunit 139158 "Invoice Mapping Tests"
         DataExch: Record "Data Exch.";
         PurchaseHeader: Record "Purchase Header";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         Setup(DataExch);
@@ -546,7 +546,7 @@ codeunit 139158 "Invoice Mapping Tests"
         DataExch: Record "Data Exch.";
         PurchaseHeader: Record "Purchase Header";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         Setup(DataExch);
@@ -566,7 +566,7 @@ codeunit 139158 "Invoice Mapping Tests"
         DataExch: Record "Data Exch.";
         PurchaseHeader: Record "Purchase Header";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         Setup(DataExch);
@@ -587,7 +587,7 @@ codeunit 139158 "Invoice Mapping Tests"
         DataExch: Record "Data Exch.";
         PurchaseLine: Record "Purchase Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         Setup(DataExch);
@@ -607,7 +607,7 @@ codeunit 139158 "Invoice Mapping Tests"
         DataExch: Record "Data Exch.";
         PurchaseLine: Record "Purchase Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         Setup(DataExch);
@@ -631,7 +631,7 @@ codeunit 139158 "Invoice Mapping Tests"
         Item2: Record Item;
         Currency: Record Currency;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         SetupDataExchTable(DataExch);
@@ -653,7 +653,7 @@ codeunit 139158 "Invoice Mapping Tests"
         DataExch: Record "Data Exch.";
         PurchaseLine: Record "Purchase Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         Setup(DataExch);
@@ -679,7 +679,7 @@ codeunit 139158 "Invoice Mapping Tests"
         Currency: Record Currency;
         HeaderRecNo: Integer;
     begin
-        Initialize;
+        Initialize();
         HeaderRecNo := 1;
 
         // Setup
@@ -710,7 +710,7 @@ codeunit 139158 "Invoice Mapping Tests"
     begin
         // [FEATURE] [Incoming Document]
         // [SCENARIO 294747] Purchase Invoice is not posted when totals differ from Incoming Document totals in case Incoming Document has LCY
-        Initialize;
+        Initialize();
         CurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates;
         UpdateGLSetupLCYCode(CurrencyCode);
 
@@ -745,7 +745,7 @@ codeunit 139158 "Invoice Mapping Tests"
         TextToAccountMapping.DeleteAll();
         PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyVendorAddressNotificationId);
         PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyPayToVendorAddressNotificationId);
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
 
         if IsInitialized then
             exit;
@@ -757,8 +757,8 @@ codeunit 139158 "Invoice Mapping Tests"
         PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.Validate("Debit Acc. for Non-Item Lines", GLAccount."No.");
         PurchasesPayablesSetup.Modify(true);
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
 
         IsInitialized := true;
@@ -797,7 +797,7 @@ codeunit 139158 "Invoice Mapping Tests"
         IncomingDocument."Created Doc. Error Msg. Type" := IncomingDocument."Created Doc. Error Msg. Type"::Warning;
         IncomingDocument.Modify();
 
-        if DataExch.FindLast then
+        if DataExch.FindLast() then
             EntryNo += DataExch."Entry No.";
 
         DataExch.Init();
@@ -914,7 +914,7 @@ codeunit 139158 "Invoice Mapping Tests"
             SetRange("Data Exch. No.", DataExch."Entry No.");
             SetRange("Table ID", TableID);
             SetRange("Field ID", FieldID);
-            FindFirst;
+            FindFirst();
             Value := Val;
             Modify;
         end;
@@ -929,7 +929,7 @@ codeunit 139158 "Invoice Mapping Tests"
             SetRange("Table ID", TableID);
             SetRange("Field ID", FieldID);
 
-            if FindFirst then
+            if FindFirst() then
                 DeleteAll();
         end;
     end;
@@ -1001,12 +1001,12 @@ codeunit 139158 "Invoice Mapping Tests"
     begin
         // prepare variables needed for calculation of totals
         PurchaseHeader.SetRange("Incoming Document Entry No.", DataExch."Incoming Entry No.");
-        if PurchaseHeader.FindFirst then begin
+        if PurchaseHeader.FindFirst() then begin
             VATAmount := 0;
             TempTotalPurchaseLine.Init();
             CurrentPurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
             CurrentPurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
-            if CurrentPurchaseLine.FindFirst then begin
+            if CurrentPurchaseLine.FindFirst() then begin
                 DocumentTotals.PurchaseCalculateTotalsWithInvoiceRounding(CurrentPurchaseLine, VATAmount, TempTotalPurchaseLine);
                 exit(TempTotalPurchaseLine."Amount Including VAT");
             end;

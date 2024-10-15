@@ -35,7 +35,7 @@ codeunit 10522 "Submit VAT Declaration Request"
         VATRegNoXMLNode: DotNet XmlNode;
         DummyXMLNode: DotNet XmlNode;
     begin
-        CompanyInformation.FindFirst;
+        CompanyInformation.FindFirst();
         with XMLDOMManagement do begin
             AddElementWithPrefix(BodyXMLNode, 'IRenvelope', '', 'vat', VATDeclarationNameSpaceTxt, IREnvelopeXMLNode);
             AddElementWithPrefix(IREnvelopeXMLNode, 'IRheader', '', 'vat', VATDeclarationNameSpaceTxt, IRHeaderXMLNode);
@@ -65,7 +65,7 @@ codeunit 10522 "Submit VAT Declaration Request"
     begin
         with XMLDOMManagement do begin
             ChildXMLBuffer.SetRange("Parent Entry No.", GovTalkMessage.RootXMLBuffer);
-            if ChildXMLBuffer.FindSet then
+            if ChildXMLBuffer.FindSet() then
                 repeat
                     AddElementWithPrefix(GovTalkRequestXMLNode,
                       ChildXMLBuffer.Name, ChildXMLBuffer.Value, 'vat', VATDeclarationNameSpaceTxt, DummyXMLNode);

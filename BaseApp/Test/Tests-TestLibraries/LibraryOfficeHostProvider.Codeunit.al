@@ -38,6 +38,8 @@ codeunit 131010 "Library - Office Host Provider"
         exit(false);
     end;
 
+#if not CLEAN20
+    [Obsolete('Use the alternative procedure using RecordRef.', '20.0')]
     procedure CreateEmailAttachments(ContentType: Text[250]; AttachmentCount: Integer; OCRAction: Option InitiateSendToOCR,InitiateSendToIncomingDocuments,InitiateSendToWorkFlow; VendorNumber: Code[20])
     var
         TempExchangeObject: Record "Exchange Object" temporary;
@@ -71,6 +73,42 @@ codeunit 131010 "Library - Office Host Provider"
         end;
         TempExchangeObjectInternal.Copy(TempExchangeObject, true);
     end;
+#endif
+
+    procedure CreateEmailAttachments(ContentType: Text[250]; AttachmentCount: Integer; OCRAction: Option InitiateSendToOCR,InitiateSendToIncomingDocuments,InitiateSendToWorkFlow; RecRef: RecordRef)
+    var
+        TempExchangeObject: Record "Exchange Object" temporary;
+        TempBlob: Codeunit "Temp Blob";
+        LibraryUtility: Codeunit "Library - Utility";
+        BlobInStream: InStream;
+        OutStream: OutStream;
+        FileContent: BigText;
+    begin
+        with TempExchangeObject do begin
+            repeat
+                Init;
+                Validate(Type, Type::Attachment);
+                Validate("Item ID", CreateGuid);
+                Validate(Name, CreateGuid);
+                Validate("Parent ID", CreateGuid);
+                Validate("Content Type", ContentType);
+                Validate(InitiatedAction, OCRAction);
+                Validate(RecId, RecRef.RecordId());
+                // add an attachment
+                FileContent.AddText(LibraryUtility.GenerateRandomAlphabeticText(10, 0));
+                TempBlob.CreateOutStream(OutStream);
+                FileContent.Write(OutStream);
+                TempBlob.CreateInStream(BlobInStream);
+                SetContent(BlobInStream);
+                if not Insert(true) then
+                    Modify(true);
+                AttachmentCount := AttachmentCount - 1;
+            until AttachmentCount = 0;
+            Commit
+        end;
+        TempExchangeObjectInternal.Copy(TempExchangeObject, true);
+    end;
+
 
     procedure SetEmailBody(NewEmailBody: Text)
     begin
@@ -168,7 +206,7 @@ codeunit 131010 "Library - Office Host Provider"
         if not CanHandle then
             exit;
 
-        if OfficeAddinContext.FindLast then
+        if OfficeAddinContext.FindLast() then
             TempOfficeAddinContext.Copy(OfficeAddinContext);
     end;
 
@@ -182,8 +220,9 @@ codeunit 131010 "Library - Office Host Provider"
             Result := true;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Office Host Management", 'OnGetEmailAndAttachments', '', false, false)]
-    local procedure OnGetEmailAndAttachments(var TempExchangeObject: Record "Exchange Object" temporary; "Action": Option InitiateSendToOCR,InitiateSendToIncomingDocuments,InitiateSendToWorkFlow; VendorNumber: Code[20])
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Office Host Management", 'OnGetEmailAndAttachmentsForEntity', '', false, false)]
+    local procedure OnGetEmailAndAttachmentsForEntity(var TempExchangeObject: Record "Exchange Object" temporary; "Action": Option InitiateSendToOCR,InitiateSendToIncomingDocuments,InitiateSendToWorkFlow,InitiateSendToAttachments; RecRef: RecordRef)
     begin
         if not CanHandle then
             exit;

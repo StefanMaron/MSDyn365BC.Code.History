@@ -205,7 +205,7 @@ page 5489 "Dimension Lines Entity"
             FilterView := GetView;
             LoadLinesFromId(ParentIdFilter);
             SetView(FilterView);
-            if not FindFirst then
+            if not FindFirst() then
                 exit(false);
             LinesLoaded := true;
         end;
@@ -257,7 +257,7 @@ page 5489 "Dimension Lines Entity"
         ParentSystemId := "Parent Id";
 
         Reset;
-        if FindFirst then
+        if FindFirst() then
             repeat
                 TempDimensionSetEntry.TransferFields(Rec, true);
                 TempDimensionSetEntry."Dimension Set ID" := 0;

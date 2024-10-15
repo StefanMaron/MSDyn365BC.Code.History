@@ -37,7 +37,7 @@ codeunit 6080 "Service Price Management"
             SetRange("Document Type", ServItemLine."Document Type");
             SetRange("Document No.", ServItemLine."Document No.");
             SetRange("Service Item Line No.", ServItemLine."Line No.");
-            if FindFirst then
+            if FindFirst() then
                 DeleteAll();
             ServLine.Reset();
             ServLine.SetCurrentKey("Document Type", "Document No.", "Service Item Line No.");
@@ -93,7 +93,7 @@ codeunit 6080 "Service Price Management"
             CalculateWeight(ServLinePriceAdjmt, ServPriceGrSetup);
         end;
 
-        if ServLinePriceAdjmt.FindFirst then begin
+        if ServLinePriceAdjmt.FindFirst() then begin
             Commit();
             Clear(ServPriceAdjmtForm);
             ServPriceAdjmtForm.SetVars(ServPriceGrSetup.Amount, ServPriceGrSetup."Include VAT");
@@ -106,7 +106,7 @@ codeunit 6080 "Service Price Management"
                 SetRange("Document Type", ServItemLine."Document Type");
                 SetRange("Document No.", ServItemLine."Document No.");
                 SetRange("Service Item Line No.", ServItemLine."Line No.");
-                if FindFirst then
+                if FindFirst() then
                     DeleteAll();
             end;
         end else

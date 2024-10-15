@@ -80,10 +80,10 @@ report 117 Reminder
                 column(CustNo_IssuedReminderHeader; "Issued Reminder Header"."Customer No.")
                 {
                 }
-                column(CompanyInfoBankAccountNo; CompanyInfo."Bank Account No.")
+                column(CompanyInfoBankAccountNo; CompanyBankAccount."Bank Account No.")
                 {
                 }
-                column(CompanyInfoBankName; CompanyInfo."Bank Name")
+                column(CompanyInfoBankName; CompanyBankAccount.Name)
                 {
                 }
                 column(CompanyInfoVATRegNo; CompanyInfo.GetVATRegistrationNumber)
@@ -199,7 +199,7 @@ report 117 Reminder
                     trigger OnAfterGetRecord()
                     begin
                         if Number = 1 then begin
-                            if not DimSetEntry.FindSet then
+                            if not DimSetEntry.FindSet() then
                                 CurrReport.Break();
                         end else
                             if not Continue then
@@ -386,7 +386,7 @@ report 117 Reminder
                         Clear(CompanyInfo2.Picture);
                         Clear(CompanyInfo3.Picture);
 
-                        if FindLast then begin
+                        if FindLast() then begin
                             EndLineNo := "Line No." + 1;
                             repeat
                                 Continue :=
@@ -420,11 +420,11 @@ report 117 Reminder
                         SetFilter("Line No.", '>=%1', EndLineNo);
                         if not ShowNotDueAmounts then begin
                             SetFilter(Type, '<>%1', Type::" ");
-                            if FindFirst then
+                            if FindFirst() then
                                 if "Line No." > EndLineNo then begin
                                     SetRange(Type);
                                     SetRange("Line No.", EndLineNo, "Line No." - 1); // find "Open Entries Not Due" line
-                                    if FindLast then
+                                    if FindLast() then
                                         SetRange("Line No.", EndLineNo, "Line No." - 1);
                                 end;
                             SetRange(Type);
@@ -604,7 +604,7 @@ report 117 Reminder
                         CustEntry.SetRange("Customer No.", "Issued Reminder Header"."Customer No.");
                         CustEntry.SetRange("Document Type", CustEntry."Document Type"::Reminder);
                         CustEntry.SetRange("Document No.", "Issued Reminder Header"."No.");
-                        if CustEntry.FindFirst then begin
+                        if CustEntry.FindFirst() then begin
                             CustEntry.CalcFields("Amount (LCY)", Amount);
                             CurrFactor := 1 / (CustEntry."Amount (LCY)" / CustEntry.Amount);
                             VALExchRate := StrSubstNo(Text013, Round(1 / CurrFactor * 100, 0.000001), CurrExchRate."Exchange Rate Amount");
@@ -662,6 +662,9 @@ report 117 Reminder
                 CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
 
                 DimSetEntry.SetRange("Dimension Set ID", "Dimension Set ID");
+
+                if not CompanyBankAccount.Get("Issued Reminder Header"."Company Bank Account Code") then
+                    CompanyBankAccount.CopyBankFieldsFromCompanyInfo(CompanyInfo);
 
                 FormatAddr.IssuedReminder(CustAddr, "Issued Reminder Header");
                 if "Your Reference" = '' then
@@ -816,7 +819,7 @@ report 117 Reminder
     trigger OnPostReport()
     begin
         if LogInteraction and not IsReportInPreviewMode then
-            if "Issued Reminder Header".FindSet then
+            if "Issued Reminder Header".FindSet() then
                 repeat
                     SegManagement.LogDocument(
                       8, "Issued Reminder Header"."No.", 0, 0, DATABASE::Customer, "Issued Reminder Header"."Customer No.",
@@ -831,6 +834,7 @@ report 117 Reminder
         Customer: Record Customer;
         CustEntry: Record "Cust. Ledger Entry";
         GLSetup: Record "General Ledger Setup";
+        CompanyBankAccount: Record "Bank Account";
         CompanyInfo1: Record "Company Information";
         CompanyInfo2: Record "Company Information";
         CompanyInfo3: Record "Company Information";

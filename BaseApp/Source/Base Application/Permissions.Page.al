@@ -195,7 +195,7 @@ page 9803 Permissions
                 begin
                     AggregatePermissionSet.Get(AggregatePermissionSet.Scope::System, NullGuid, "Role ID");
                     AddSubtractPermissionSet.SetDestination(AggregatePermissionSet);
-                    AddSubtractPermissionSet.RunModal;
+                    AddSubtractPermissionSet.RunModal();
                     Reset();
                     FillTempPermissions;
                 end;
@@ -238,7 +238,7 @@ page 9803 Permissions
             if GetFilter("Role ID") <> '' then
                 CurrentRoleID := GetFilter("Role ID")
             else
-                if PermissionSet.FindFirst then
+                if PermissionSet.FindFirst() then
                     CurrentRoleID := PermissionSet."Role ID";
         Reset;
         FillTempPermissions;
@@ -292,7 +292,7 @@ page 9803 Permissions
         AllObj.SetRange("Object Type");
         TempPermission.Copy(Permission, true);
         TempPermission.Init();
-        if AllObj.FindSet then
+        if AllObj.FindSet() then
             repeat
                 TempPermission."Object Type" := AllObj."Object Type";
                 TempPermission."Object ID" := AllObj."Object ID";

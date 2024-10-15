@@ -783,7 +783,7 @@ report 852 "Cash Flow Dimensions - Detail"
         end;
     end;
 
-    local procedure Iteration(var FindFirst: Boolean; IterationDimCode: Text[30]; var IterationDimValCode: Code[20]; var IterationDimValName: Text[100]; IterationFilter: Text[250]): Boolean
+    local procedure Iteration(var FindFirstRec: Boolean; IterationDimCode: Text[30]; var IterationDimValCode: Code[20]; var IterationDimValName: Text[100]; IterationFilter: Text[250]): Boolean
     var
         SearchResult: Boolean;
     begin
@@ -792,7 +792,7 @@ report 852 "Cash Flow Dimensions - Detail"
                 begin
                     TempCFAccount.Reset();
                     TempCFAccount.SetFilter("No.", IterationFilter);
-                    if FindFirst then
+                    if FindFirstRec then
                         SearchResult := TempCFAccount.Find('-')
                     else
                         if TempCFAccount.Get(IterationDimValCode) then
@@ -806,7 +806,7 @@ report 852 "Cash Flow Dimensions - Detail"
                 begin
                     TempCashFlowForecast.Reset();
                     TempCashFlowForecast.SetFilter("No.", IterationFilter);
-                    if FindFirst then
+                    if FindFirstRec then
                         SearchResult := TempCashFlowForecast.Find('-')
                     else
                         if TempCashFlowForecast.Get(IterationDimValCode) then
@@ -823,7 +823,7 @@ report 852 "Cash Flow Dimensions - Detail"
                     TempDimVal.Reset();
                     TempDimVal.SetRange("Dimension Code", IterationDimCode);
                     TempDimVal.SetFilter(Code, IterationFilter);
-                    if FindFirst then
+                    if FindFirstRec then
                         SearchResult := TempDimVal.Find('-')
                     else
                         if TempDimVal.Get(IterationDimCode, IterationDimValCode) then
@@ -838,7 +838,7 @@ report 852 "Cash Flow Dimensions - Detail"
             IterationDimValCode := '';
             IterationDimValName := '';
         end;
-        FindFirst := false;
+        FindFirstRec := false;
         exit(SearchResult);
     end;
 

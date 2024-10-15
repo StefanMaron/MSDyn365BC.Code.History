@@ -213,6 +213,7 @@ page 9300 "Sales Quotes"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether the document is open, waiting to be approved, has been invoiced for prepayment, or has been released to the next stage of processing.';
                     Visible = false;
+                    StyleExpr = StatusStyleTxt;
                 }
                 field("Quote Valid Until Date"; "Quote Valid Until Date")
                 {
@@ -538,9 +539,10 @@ page 9300 "Sales Quotes"
 
                     trigger OnAction()
                     var
-                        ReleaseSalesDoc: Codeunit "Release Sales Document";
+                        SalesHeader: Record "Sales Header";
                     begin
-                        ReleaseSalesDoc.PerformManualRelease(Rec);
+                        CurrPage.SetSelectionFilter(SalesHeader);
+                        PerformManualRelease(SalesHeader);
                     end;
                 }
                 action(Reopen)
@@ -553,9 +555,10 @@ page 9300 "Sales Quotes"
 
                     trigger OnAction()
                     var
-                        ReleaseSalesDoc: Codeunit "Release Sales Document";
+                        SalesHeader: Record "Sales Header";
                     begin
-                        ReleaseSalesDoc.PerformManualReopen(Rec);
+                        CurrPage.SetSelectionFilter(SalesHeader);
+                        PerformManualReopen(SalesHeader);
                     end;
                 }
             }
@@ -609,6 +612,7 @@ page 9300 "Sales Quotes"
     trigger OnAfterGetRecord()
     begin
         StyleTxt := SetStyle;
+        StatusStyleTxt := GetStatusStyleText();
     end;
 
     trigger OnOpenPage()
@@ -627,11 +631,15 @@ page 9300 "Sales Quotes"
         IsOfficeAddin: Boolean;
         CanCancelApprovalForRecord: Boolean;
         CustomerSelected: Boolean;
-        ContactSelected: Boolean;
-        QuoteActionsEnabled: Boolean;
         CanRequestApprovalForFlow: Boolean;
         CanCancelApprovalForFlow: Boolean;
         StyleTxt: Text;
+        [InDataSet]
+        StatusStyleTxt: Text;
+
+    protected var
+        ContactSelected: Boolean;
+        QuoteActionsEnabled: Boolean;
 
     local procedure SetControlAppearance()
     var
@@ -650,11 +658,9 @@ page 9300 "Sales Quotes"
 
     local procedure CheckSalesCheckAllLinesHaveQuantityAssigned()
     var
-        ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
         LinesInstructionMgt: Codeunit "Lines Instruction Mgt.";
     begin
-        if ApplicationAreaMgmtFacade.IsFoundationEnabled then
-            LinesInstructionMgt.SalesCheckAllLinesHaveQuantityAssigned(Rec);
+        LinesInstructionMgt.SalesCheckAllLinesHaveQuantityAssigned(Rec);
     end;
 
     procedure SetStyle(): Text

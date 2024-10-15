@@ -108,10 +108,10 @@ report 10572 "Sales - Invoice GB"
                     column(CompanyInfoVATRegNo; CompanyInfo."VAT Registration No.")
                     {
                     }
-                    column(CompanyInfoBankName; CompanyInfo."Bank Name")
+                    column(CompanyInfoBankName; CompanyBankAccount.Name)
                     {
                     }
-                    column(CompanyInfoBankAccNo; CompanyInfo."Bank Account No.")
+                    column(CompanyInfoBankAccNo; CompanyBankAccount."Bank Account No.")
                     {
                     }
                     column(BilltoCustNo_SalesInvcHeader; "Sales Invoice Header"."Bill-to Customer No.")
@@ -168,7 +168,7 @@ report 10572 "Sales - Invoice GB"
                     column(PriceIncludVAT_SalesInvcHeader; "Sales Invoice Header"."Prices Including VAT")
                     {
                     }
-                    column(CompanyInfoBankBranchNo; CompanyInfo."Bank Branch No.")
+                    column(CompanyInfoBankBranchNo; CompanyBankAccount."Bank Branch No.")
                     {
                     }
                     column(CompanyInfoEMail; CompanyInfo."E-Mail")
@@ -721,6 +721,9 @@ report 10572 "Sales - Invoice GB"
             begin
                 CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
 
+                if not CompanyBankAccount.Get("Sales Invoice Header"."Company Bank Account Code") then
+                    CompanyBankAccount.CopyBankFieldsFromCompanyInfo(CompanyInfo);
+
                 if RespCenter.Get("Responsibility Center") then begin
                     FormatAddr.RespCenter(CompanyAddr, RespCenter);
                     CompanyInfo."Phone No." := RespCenter."Phone No.";
@@ -912,6 +915,7 @@ report 10572 "Sales - Invoice GB"
         ShipmentMethod: Record "Shipment Method";
         PaymentTerms: Record "Payment Terms";
         SalesPurchPerson: Record "Salesperson/Purchaser";
+        CompanyBankAccount: Record "Bank Account";
         CompanyInfo: Record "Company Information";
         CompanyInfo1: Record "Company Information";
         CompanyInfo2: Record "Company Information";

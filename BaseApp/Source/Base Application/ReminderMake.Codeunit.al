@@ -1,4 +1,4 @@
-﻿codeunit 392 "Reminder-Make"
+codeunit 392 "Reminder-Make"
 {
 
     trigger OnRun()
@@ -52,7 +52,7 @@
             CustLedgEntry.SetRange(Open, true);
             CustLedgEntry.SetRange(Positive, true);
             OnBeforeCustLedgerEntryFind(CustLedgEntry, ReminderHeaderReq, Cust);
-            if CustLedgEntry.FindSet then
+            if CustLedgEntry.FindSet() then
                 repeat
                     if CustLedgEntry."On Hold" = '' then begin
                         Currency.Code := CustLedgEntry."Currency Code";
@@ -64,7 +64,7 @@
             OnCodeOnBeforeCurrencyLoop(CustLedgEntry, ReminderHeaderReq, ReminderTerms, OverdueEntriesOnly,
                 IncludeEntriesOnHold, HeaderExists, CustLedgEntryLastIssuedReminderLevelFilter, Currency,
                 Cust, CustLedgEntryLineFeeFilters);
-            if Currency.FindSet then
+            if Currency.FindSet() then
                 repeat
                     if not MakeReminder(Currency.Code) then
                         RetVal := false;
@@ -139,7 +139,7 @@
 
         with Cust do begin
             FilterCustLedgEntryReminderLevel(CustLedgEntry, ReminderLevel, CurrencyCode);
-            if not ReminderLevel.FindLast then
+            if not ReminderLevel.FindLast() then
                 exit(false);
             CustLedgEntryOnHoldTEMP.DeleteAll();
 
@@ -147,7 +147,7 @@
 
             ReminderLevel.SetRange("Reminder Terms Code", ReminderTerms.Code);
             ReminderLevel.SetRange("No.", 1, MaxLineLevel);
-            if not ReminderLevel.FindLast then
+            if not ReminderLevel.FindLast() then
                 ReminderLevel.Init();
             if MakeDoc and (CustAmount > 0) and (CustAmountLCY(CurrencyCode, CustAmount) >= ReminderTerms."Minimum Amount (LCY)") then begin
                 if CheckCustomerIsBlocked(Cust) then
@@ -159,7 +159,7 @@
                     ReminderHeader.SetRange("Customer No.", "No.");
                     ReminderHeader.SetRange("Currency Code", CurrencyCode);
                     OnBeforeReminderHeaderFind(ReminderHeader, ReminderHeaderReq, ReminderTerms, Cust);
-                    if ReminderHeader.FindFirst then
+                    if ReminderHeader.FindFirst() then
                         exit(false);
                     ReminderHeader.Init();
                     ReminderHeader."No." := '';
@@ -177,14 +177,14 @@
                 NextLineNo := 0;
                 ReminderLevel.MarkedOnly(true);
                 CustLedgEntry.MarkedOnly(true);
-                ReminderLevel.FindLast;
+                ReminderLevel.FindLast();
 
                 repeat
                     StartLineInserted := false;
                     FilterCustLedgEntries(ReminderLevel);
                     OnMakeReminderOnAfterFilterCustLedgEntries(ReminderLine);
                     AmountsNotDueLineInserted := false;
-                    if CustLedgEntry.FindSet then begin
+                    if CustLedgEntry.FindSet() then begin
                         repeat
                             SetReminderLine(LineLevel, ReminderDueDate);
                             IsGracePeriodExpired :=
@@ -213,18 +213,18 @@
                 OnMakeReminderOnBeforeReminderHeaderInsertLines(ReminderHeader);
                 ReminderHeader.InsertLines;
                 ReminderLine.SetRange("Reminder No.", ReminderHeader."No.");
-                ReminderLine.FindLast;
+                ReminderLine.FindLast();
                 NextLineNo := ReminderLine."Line No.";
                 GetOpenEntriesNotDueOnHoldTranslated("Language Code", OpenEntriesNotDueTranslated, OpenEntriesOnHoldTranslated);
                 CustLedgEntry.SetRange("Last Issued Reminder Level");
                 OnMakeReminderOnBeforeCustLedgEntryFindSet(CustLedgEntry, Cust, ReminderHeader, MaxReminderLevel, OverdueEntriesOnly);
-                if CustLedgEntry.FindSet then
+                if CustLedgEntry.FindSet() then
                     repeat
                         AddRemiderLinesFromCustLedgEntryWithNoReminderLevelFilter(ReminderLine, ReminderLevel, LineLevel, ReminderDueDate, NextLineNo, OpenEntriesNotDueTranslated, StartLineInserted)
                     until CustLedgEntry.Next() = 0;
 
                 if IncludeEntriesOnHold then
-                    if CustLedgEntryOnHoldTEMP.FindSet then begin
+                    if CustLedgEntryOnHoldTEMP.FindSet() then begin
                         InsertReminderLine(
                           ReminderHeader."No.", ReminderLine."Line Type"::"On Hold", '', NextLineNo);
                         InsertReminderLine(
@@ -312,7 +312,7 @@
 
         repeat
             FilterCustLedgEntries(ReminderLevel);
-            if CustLedgEntry.FindSet then
+            if CustLedgEntry.FindSet() then
                 repeat
                     OnFindAndMarkReminderCandidatesOnBeforeCustLedgEntryLoop(CustLedgEntry, ReminderHeaderReq);
                     if CustLedgEntry."On Hold" = '' then
@@ -501,7 +501,7 @@
         TempCustLedgEntry.Insert();
         TempCustLedgEntry.Reset();
         TempCustLedgEntry.CopyFilters(CustLedgEntryLineFeeFilters);
-        if not TempCustLedgEntry.FindFirst then
+        if not TempCustLedgEntry.FindFirst() then
             exit;
 
         CustLedgEntry.CalcFields("Remaining Amount");
@@ -539,7 +539,7 @@
         ReminderLineExtra: Record "Reminder Line";
     begin
         ReminderLineExtra.SetRange("Reminder No.", ReminderNo);
-        if ReminderLineExtra.FindLast then;
+        if ReminderLineExtra.FindLast() then;
         exit(ReminderLineExtra."Line No.");
     end;
 
@@ -593,7 +593,7 @@
             SetRange("Document Type", ReminderLine."Document Type");
             SetRange("Document No.", ReminderLine."Document No.");
             SetFilter("Line Type", '<>%1', ReminderLine."Line Type");
-            if FindFirst then
+            if FindFirst() then
                 Delete(true);
         end;
     end;

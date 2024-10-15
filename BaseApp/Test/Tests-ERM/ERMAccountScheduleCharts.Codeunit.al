@@ -31,7 +31,7 @@ codeunit 134561 "ERM Account Schedule Charts"
         // Test that OnOpenPage will create a new record in table Account Schedule Chart Setup if table is empty.
 
         // Setup : Delete the record from table Account Schedule Chart Setup.
-        Initialize;
+        Initialize();
         AccountSchedulesChartSetup.DeleteAll();
 
         // Call function OnOpenPage.
@@ -154,7 +154,7 @@ codeunit 134561 "ERM Account Schedule Charts"
         // Test that Message comes up when Column Type field in Column Layout table is set to Formula.
 
         // Setup: Create Account Sch. line and column layout and also update business chart buffer table.
-        Initialize;
+        Initialize();
         UpdateBusinessChartBuffer(BusinessChartBuffer,
           CreateAccountScheduleLine(AccScheduleLine, AccScheduleLine."Totaling Type"::"Cost Type", ''),
           CreateColumnLayout(ColumnLayout, ColumnLayout."Column Type"::Formula),
@@ -180,7 +180,7 @@ codeunit 134561 "ERM Account Schedule Charts"
         // Test that UpdataData function will fill the required values in the business chart buffer.
 
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise: Create Account Sch. line and column layout and also update business chart buffer table.
         UpdateBusinessChartBuffer(BusinessChartBuffer,
@@ -204,7 +204,7 @@ codeunit 134561 "ERM Account Schedule Charts"
         // To check that error is thrown when Acc. Schedule Name (having duplicate Name and description values) is set on AccountSchedulesChartSetup.
 
         // Setup: To create two Account Schedule Lines having same Name and Description.
-        Initialize;
+        Initialize();
         CreateAccountScheduleLine(AccScheduleLine, AccScheduleLine."Totaling Type"::"Cost Type", '');
         LibraryERM.CreateAccScheduleLine(AccScheduleLine2, AccScheduleLine."Schedule Name");
         AccScheduleLine2.Description := AccScheduleLine.Description;
@@ -229,7 +229,7 @@ codeunit 134561 "ERM Account Schedule Charts"
         // To check that error is thrown when Column Layout Name (which has duplicate Name and Column Header values) is set on AccountSchedulesChartSetup.
 
         // Setup: To create two Column Layouts having same Name and Column Header Values.
-        Initialize;
+        Initialize();
         CreateColumnLayout(ColumnLayout, ColumnLayout."Column Type"::Formula);
         LibraryERM.CreateColumnLayout(ColumnLayout2, ColumnLayout."Column Layout Name");
         ColumnLayout2."Column Header" := ColumnLayout."Column Header";
@@ -254,7 +254,7 @@ codeunit 134561 "ERM Account Schedule Charts"
         // To verify that Default Column Layout, corresponding to Account Schedule Name, is set automatically as Column Layout Name on Acc. Schedule Chart Setup Page.
 
         // Setup: To create Account Schedule Name with Default Column Layout.
-        Initialize;
+        Initialize();
         LibraryERM.CreateColumnLayoutName(ColumnLayoutName);
         LibraryERM.CreateAccScheduleName(AccScheduleName);
         AccScheduleName."Default Column Layout" := ColumnLayoutName.Name;
@@ -275,7 +275,7 @@ codeunit 134561 "ERM Account Schedule Charts"
         AccountSchedulesChartSetup: Record "Account Schedules Chart Setup";
         ChartName: Text[30];
     begin
-        Initialize;
+        Initialize();
         ChartName := Insert4LinesIntoAccSchedChartSetupReturn2nd(UserId);
 
         AccSchedChartManagement.GetSetupRecordset(AccountSchedulesChartSetup, ChartName, 0);
@@ -290,7 +290,7 @@ codeunit 134561 "ERM Account Schedule Charts"
         AccountSchedulesChartSetup: Record "Account Schedules Chart Setup";
         ChartName: Text[30];
     begin
-        Initialize;
+        Initialize();
         ChartName := Insert4LinesIntoAccSchedChartSetupReturn2nd('');
 
         AccSchedChartManagement.GetSetupRecordset(AccountSchedulesChartSetup, ChartName, 0);
@@ -305,11 +305,11 @@ codeunit 134561 "ERM Account Schedule Charts"
         AccountSchedulesChartSetupActual: Record "Account Schedules Chart Setup";
         AccountSchedulesChartSetupExpected: Record "Account Schedules Chart Setup";
     begin
-        Initialize;
+        Initialize();
         Insert4LinesIntoAccSchedChartSetupReturn2nd(UserId);
 
         AccountSchedulesChartSetupExpected.SetFilter("User ID", UserId);
-        AccountSchedulesChartSetupExpected.FindFirst;
+        AccountSchedulesChartSetupExpected.FindFirst();
 
         AccSchedChartManagement.GetSetupRecordset(AccountSchedulesChartSetupActual, '', 0);
 
@@ -325,7 +325,7 @@ codeunit 134561 "ERM Account Schedule Charts"
         ChartName: Text[30];
         Move: Integer;
     begin
-        Initialize;
+        Initialize();
         ChartName := Insert4LinesIntoAccSchedChartSetupReturn2nd(UserId);
         Move := -1;
 
@@ -347,7 +347,7 @@ codeunit 134561 "ERM Account Schedule Charts"
         ChartName: Text[30];
         Move: Integer;
     begin
-        Initialize;
+        Initialize();
         ChartName := Insert4LinesIntoAccSchedChartSetupReturn2nd(UserId);
         Move := 1;
 
@@ -368,11 +368,11 @@ codeunit 134561 "ERM Account Schedule Charts"
         ExpectedAccountSchedulesChartSetup: Record "Account Schedules Chart Setup";
         ChartName: Text[30];
     begin
-        Initialize;
+        Initialize();
         ChartName := Insert4LinesIntoAccSchedChartSetupReturn2nd(UserId);
 
         ExpectedAccountSchedulesChartSetup.SetRange("User ID", UserId);
-        ExpectedAccountSchedulesChartSetup.FindFirst;
+        ExpectedAccountSchedulesChartSetup.FindFirst();
 
         AccSchedChartManagement.GetSetupRecordset(AccountSchedulesChartSetup, ChartName, 1);
         AccSchedChartManagement.GetSetupRecordset(AccountSchedulesChartSetup, AccountSchedulesChartSetup.Name, 1);
@@ -388,11 +388,11 @@ codeunit 134561 "ERM Account Schedule Charts"
         ExpectedAccountSchedulesChartSetup: Record "Account Schedules Chart Setup";
         ChartName: Text[30];
     begin
-        Initialize;
+        Initialize();
         ChartName := Insert4LinesIntoAccSchedChartSetupReturn2nd(UserId);
 
         ExpectedAccountSchedulesChartSetup.SetRange("User ID", UserId);
-        ExpectedAccountSchedulesChartSetup.FindLast;
+        ExpectedAccountSchedulesChartSetup.FindLast();
 
         AccSchedChartManagement.GetSetupRecordset(AccountSchedulesChartSetup, ChartName, -1);
         AccSchedChartManagement.GetSetupRecordset(AccountSchedulesChartSetup, AccountSchedulesChartSetup.Name, -1);
@@ -409,24 +409,24 @@ codeunit 134561 "ERM Account Schedule Charts"
         AccountSchedulesChartSetupName: Text[30];
     begin
         // [SCENARIO 305350] User ID field is filled with current user ID when create Account Schedules Chart Setup line from Account Schedules Chart Setup page.
-        Initialize;
+        Initialize();
 
         // [WHEN] Insert new line into Account Schedules Chart Setup table from Account Schedules Chart Setup page.
-        AccountSchedulesChartSetupPage.OpenNew;
-        AccountSchedulesChartSetupName := LibraryUtility.GenerateGUID;
+        AccountSchedulesChartSetupPage.OpenNew();
+        AccountSchedulesChartSetupName := LibraryUtility.GenerateGUID();
         AccountSchedulesChartSetupPage.Name.Value := AccountSchedulesChartSetupName;
         AccountSchedulesChartSetupPage.OK.Invoke;
 
         // [THEN] "User ID" of added record is equal to current user ID.
         AccountSchedulesChartSetupRec.SetRange(Name, AccountSchedulesChartSetupName);
-        AccountSchedulesChartSetupRec.FindFirst;
+        AccountSchedulesChartSetupRec.FindFirst();
         AccountSchedulesChartSetupRec.TestField("User ID", UserId);
     end;
 
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Account Schedule Charts");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
 
         if IsInitialized then
             exit;
@@ -526,7 +526,7 @@ codeunit 134561 "ERM Account Schedule Charts"
         // Test that Message comes up when Totaling Type field in Account Sch. Line table is set to either Formula or Set Base For Percent.
 
         // Setup: Create Account Sch. line and column layout and also update business chart buffer table.
-        Initialize;
+        Initialize();
         UpdateBusinessChartBuffer(BusinessChartBuffer,
           CreateAccountScheduleLine(AccScheduleLine, TotalingType, ''),
           CreateColumnLayout(ColumnLayout, ColumnLayout."Column Type"::"Net Change"),
@@ -551,7 +551,7 @@ codeunit 134561 "ERM Account Schedule Charts"
         // Test that Chart of cost type page opens when Totaling Type field in Account Sch. Line table is set to either Cost type or Cost type total.
 
         // Setup: Create Account Sch. line and column layout and also update business chart buffer table.
-        Initialize;
+        Initialize();
         UpdateBusinessChartBuffer(BusinessChartBuffer,
           CreateAccountScheduleLine(AccScheduleLine, TotalingType, ''),
           CreateColumnLayout(ColumnLayout, ColumnLayout."Column Type"::"Net Change"),
@@ -575,7 +575,7 @@ codeunit 134561 "ERM Account Schedule Charts"
         // Test that Chart of cash flow accounts page opens when Totaling Type field in Account Sch. Line table is set to either Cash Flow Entry Accounts or Cash Flow Total Accounts.
 
         // Setup: Create Account Sch. line and column layout and also update business chart buffer table.
-        Initialize;
+        Initialize();
         UpdateBusinessChartBuffer(BusinessChartBuffer,
           CreateAccountScheduleLine(AccScheduleLine, TotalingType, ''),
           CreateColumnLayout(ColumnLayout, ColumnLayout."Column Type"::"Net Change"),
@@ -599,7 +599,7 @@ codeunit 134561 "ERM Account Schedule Charts"
         // Test that Chart of Accounts (G/L) page opens when Totaling Type field in Account Sch. Line table is set to either Total Accounts or Posting Accounts.
 
         // Setup: Create Account Sch. line and column layout and also update business chart buffer table.
-        Initialize;
+        Initialize();
         UpdateBusinessChartBuffer(BusinessChartBuffer,
           CreateAccountScheduleLine(AccScheduleLine, TotalingType, ''),
           CreateColumnLayout(ColumnLayout, ColumnLayout."Column Type"::"Net Change"),
@@ -624,7 +624,7 @@ codeunit 134561 "ERM Account Schedule Charts"
         // Test that Chart of Accs. (Analysis View) page opens when Analysis View Name field in Account Schedule Name table is not blank.
 
         // Setup: Create Analysis View, Account Sch. line and column layout and also update business chart buffer table.
-        Initialize;
+        Initialize();
         LibraryERM.CreateAnalysisView(AnalysisView);
         UpdateBusinessChartBuffer(BusinessChartBuffer,
           CreateAccountScheduleLine(AccScheduleLine, TotalingType, AnalysisView.Code),

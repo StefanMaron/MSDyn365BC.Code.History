@@ -38,7 +38,7 @@ codeunit 10524 "Create VAT Declaration Request"
         VATStatementReportLine.SetRange("VAT Report Config. Code", VATReportHeader."VAT Report Config. Code");
         VATStatementReportLine.SetRange("VAT Report No.", VATReportHeader."No.");
         VATStatementReportLine.SetRange("Box No.", CopyStr(BoxNo, 1, MaxStrLen(VATStatementReportLine."Box No.")));
-        if VATStatementReportLine.FindFirst then
+        if VATStatementReportLine.FindFirst() then
             exit(VATStatementReportLine.Amount);
         exit(0);
     end;

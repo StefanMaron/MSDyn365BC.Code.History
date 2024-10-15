@@ -109,7 +109,7 @@ report 7320 "Whse. Adjustment Bin"
 
                 trigger OnPostDataItem()
                 begin
-                    WhseEntry.FindLast;
+                    WhseEntry.FindLast();
                     "Warehouse Entry" := WhseEntry;
                 end;
 

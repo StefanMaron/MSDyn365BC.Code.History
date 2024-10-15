@@ -92,7 +92,7 @@ codeunit 10500 "Postcode Business Logic"
         if PostcodeNotificationMemory.Get(UserId) then
             exit;
 
-        RecExists := PostcodeServiceConfig.FindFirst;
+        RecExists := PostcodeServiceConfig.FindFirst();
         if RecExists and (PostcodeServiceConfig.GetServiceKey <> DisabledTok) then
             exit;
 
@@ -190,7 +190,7 @@ codeunit 10500 "Postcode Business Logic"
             PostcodeSelectAddress.LookupMode(true);
             PostcodeSelectAddress.SetAddressList(TempAddressNameValueBuffer);
 
-            PageResultAction := PostcodeSelectAddress.RunModal;
+            PageResultAction := PostcodeSelectAddress.RunModal();
             if (PageResultAction = ACTION::Cancel) or (PageResultAction = ACTION::LookupCancel) then
                 exit(false);
 
@@ -212,7 +212,7 @@ codeunit 10500 "Postcode Business Logic"
         else
             ServiceConnection.Status := ServiceConnection.Status::Disabled;
 
-        if not PostcodeServiceConfig.FindFirst then begin
+        if not PostcodeServiceConfig.FindFirst() then begin
             PostcodeServiceConfig.Init();
             PostcodeServiceConfig.Insert();
             PostcodeServiceConfig.SaveServiceKey('Disabled');

@@ -33,8 +33,8 @@ codeunit 137411 "SCM Stockout"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Stockout");
         SalesSetup.Get();
         Stockoutwarning := SalesSetup."Stockout Warning";
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         isInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Stockout");
     end;
@@ -47,7 +47,7 @@ codeunit 137411 "SCM Stockout"
         NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
     begin
         TestStockoutWarning(ItemStockOutWarningTestType::Yes, false);
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -65,7 +65,7 @@ codeunit 137411 "SCM Stockout"
         NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
     begin
         TestStockoutWarning(ItemStockOutWarningTestType::Default, true);
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -170,7 +170,7 @@ codeunit 137411 "SCM Stockout"
     begin
         // [Scenario] When Item type is Service, Stockout warning should be No and Editable=False
         // Setup
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
 
         // Excercise
@@ -223,7 +223,7 @@ codeunit 137411 "SCM Stockout"
         ItemCheckAvail: Codeunit "Item-Check Avail.";
         ItemInventoryQty: Decimal;
     begin
-        Initialize;
+        Initialize();
         LibrarySales.SetStockoutWarning(SalesSetupStockOutWarning);
         CreateItemSetStockoutWarning(Item, ItemStockOutWarning);
         ItemInventoryQty := LibraryRandom.RandInt(100);

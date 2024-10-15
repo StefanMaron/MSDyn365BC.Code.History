@@ -60,7 +60,7 @@ codeunit 144027 "UT REP ACCPER - Fixed Asset"
         GroupTotals: Option " ","FA Class","FA Subclass","FA Location","Main Asset","Global Dimension 1","Global Dimension 2","FA Posting Group";
     begin
         // Purpose of the test is to validate Fixed Asset - OnPreDataItem Trigger of Report 10560 (FA - Projected Value) with Group Totals FA Posting Group.
-        Initialize;
+        Initialize();
         RunFAProjectedValueAfterPostFAGLJournals(FixedAsset, GroupTotals::"FA Posting Group");
 
         // Verify.
@@ -76,7 +76,7 @@ codeunit 144027 "UT REP ACCPER - Fixed Asset"
         GroupTotals: Option " ","FA Class","FA Subclass","FA Location","Main Asset","Global Dimension 1","Global Dimension 2","FA Posting Group";
     begin
         // Purpose of the test is to validate Fixed Asset - OnPreDataItem Trigger of Report 10560 (FA - Projected Value) with Group Totals FA Class.
-        Initialize;
+        Initialize();
         RunFAProjectedValueAfterPostFAGLJournals(FixedAsset, GroupTotals::"FA Class");
 
         // Verify.
@@ -92,7 +92,7 @@ codeunit 144027 "UT REP ACCPER - Fixed Asset"
         GroupTotals: Option " ","FA Class","FA Subclass","FA Location","Main Asset","Global Dimension 1","Global Dimension 2","FA Posting Group";
     begin
         // Purpose of the test is to validate Fixed Asset - OnPreDataItem Trigger of Report 10560 (FA - Projected Value) with Group Totals FA Subclass.
-        Initialize;
+        Initialize();
         RunFAProjectedValueAfterPostFAGLJournals(FixedAsset, GroupTotals::"FA Subclass");
 
         // Verify.
@@ -108,7 +108,7 @@ codeunit 144027 "UT REP ACCPER - Fixed Asset"
         GroupTotals: Option " ","FA Class","FA Subclass","FA Location","Main Asset","Global Dimension 1","Global Dimension 2","FA Posting Group";
     begin
         // Purpose of the test is to validate Fixed Asset - OnPreDataItem Trigger of Report 10560 (FA - Projected Value) with Group Totals FA Location.
-        Initialize;
+        Initialize();
         RunFAProjectedValueAfterPostFAGLJournals(FixedAsset, GroupTotals::"FA Location");
 
         // Verify.
@@ -124,7 +124,7 @@ codeunit 144027 "UT REP ACCPER - Fixed Asset"
         GroupTotals: Option " ","FA Class","FA Subclass","FA Location","Main Asset","Global Dimension 1","Global Dimension 2","FA Posting Group";
     begin
         // Purpose of the test is to validate Fixed Asset - OnPreDataItem Trigger of Report 10560 (FA - Projected Value) with Group Totals Global Dimension 1.
-        Initialize;
+        Initialize();
         RunFAProjectedValueAfterPostFAGLJournals(FixedAsset, GroupTotals::"Global Dimension 1");
 
         // Verify.
@@ -141,7 +141,7 @@ codeunit 144027 "UT REP ACCPER - Fixed Asset"
         GroupTotals: Option " ","FA Class","FA Subclass","FA Location","Main Asset","Global Dimension 1","Global Dimension 2","FA Posting Group";
     begin
         // Purpose of the test is to validate Fixed Asset - OnPreDataItem Trigger of Report 10560 (FA - Projected Value) with Group Totals Global Dimension 2.
-        Initialize;
+        Initialize();
         RunFAProjectedValueAfterPostFAGLJournals(FixedAsset, GroupTotals::"Global Dimension 2");
 
         // Verify.
@@ -158,7 +158,7 @@ codeunit 144027 "UT REP ACCPER - Fixed Asset"
         GroupTotals: Option " ","FA Class","FA Subclass","FA Location","Main Asset","Global Dimension 1","Global Dimension 2","FA Posting Group";
     begin
         // Purpose of the test is to validate Fixed Asset - OnPreDataItem Trigger of Report 10560 (FA - Projected Value) with Group Totals Main Asset.
-        Initialize;
+        Initialize();
         RunFAProjectedValueAfterPostFAGLJournals(FixedAsset, GroupTotals::"Main Asset");
 
         // Verify.
@@ -176,7 +176,7 @@ codeunit 144027 "UT REP ACCPER - Fixed Asset"
         GroupTotals: Option " ","FA Class","FA Subclass","FA Location","Main Asset","Global Dimension 1","Global Dimension 2","FA Posting Group";
     begin
         // Purpose of the test is to validate Insert Bal Account - OnValidate Trigger of Report 10560 (FA - Projected Value) for G/L Budget Name Error.
-        Initialize;
+        Initialize();
         asserterror RunFAProjectedValueAfterPostFAGLJournals(FixedAsset, GroupTotals);
 
         // Verify: Verify Actual Error - "You must specify G/L Budget Name."
@@ -192,7 +192,7 @@ codeunit 144027 "UT REP ACCPER - Fixed Asset"
         GroupTotals: Option " ","FA Class","FA Subclass","FA Location","Main Asset","Global Dimension 1","Global Dimension 2","FA Posting Group";
     begin
         // Purpose of the test is to validate No. Of Days - OnValidate Trigger of Report 10560 (FA - Projected Value).
-        Initialize;
+        Initialize();
         RunFAProjectedValueAfterPostFAGLJournals(FixedAsset, GroupTotals);
 
         // Verify.
@@ -211,7 +211,7 @@ codeunit 144027 "UT REP ACCPER - Fixed Asset"
         GroupTotals: Option " ","FA Class","FA Subclass","FA Location","Main Asset","Global Dimension 1","Global Dimension 2","FA Posting Group";
     begin
         // Purpose of the test is to validate OnPreReport Trigger of Report 10560 (FA - Projected Value) with Print Per Fixed Asset as True.
-        Initialize;
+        Initialize();
         RunFAProjectedValueAfterPostFAGLJournals(FixedAsset, GroupTotals);
 
         // Verify.
@@ -226,7 +226,7 @@ codeunit 144027 "UT REP ACCPER - Fixed Asset"
     procedure OnPreReportFalseUseCustom1DeprFAProjectedValue()
     begin
         // Purpose of the test is to validate OnPreReport Trigger of Report 10560 (FA - Projected Value) with Use Custom 1 Depreciation as False.
-        Initialize;
+        Initialize();
         RunFAProjectedValAfterPostFAGLJnlWithDiffDeprBook(false, 0, false, LibraryRandom.RandDec(10, 2));  // UseCustom1Depreciation as False. Take Random Amount.
 
         // Verify.
@@ -244,7 +244,7 @@ codeunit 144027 "UT REP ACCPER - Fixed Asset"
         FAPostingTypeSetup: Record "FA Posting Type Setup";
     begin
         // Purpose of he test is to validate OnPreReport Trigger of Report 10560 (FA - Projected Value) with Use Custom 1 Depreciation as True.
-        Initialize;
+        Initialize();
         RunFAProjectedValAfterPostFAGLJnlWithDiffDeprBook(true, 0, false, LibraryRandom.RandDec(10, 2));  // UseCustom1Depreciation as True, UseAccountingPeriods as False, Take Random Amount.
 
         // Verify.
@@ -260,7 +260,7 @@ codeunit 144027 "UT REP ACCPER - Fixed Asset"
     procedure OnPreReportFAProjectedValueNoOfDaysError()
     begin
         // Purpose of the test is to validate OnPreReport Trigger of Report 10560 (FA - Projected Value) with No. Of Days.
-        Initialize;
+        Initialize();
         asserterror
           RunFAProjectedValAfterPostFAGLJnlWithDiffDeprBook(
             false, LibraryRandom.RandInt(5), false, LibraryRandom.RandDec(10, 2));  // UseCustom1Depreciation and UseAccountingPeriods as False. Take Random Amount and No Of Days.
@@ -277,7 +277,7 @@ codeunit 144027 "UT REP ACCPER - Fixed Asset"
         Amount: Decimal;
     begin
         // Purpose of the test is to validate FA Ledger Entry - OnAfterGetRecord Trigger of Report 10560 (FA - Projected Value).
-        Initialize;
+        Initialize();
         Amount := LibraryRandom.RandDec(10, 2);
         RunFAProjectedValAfterPostFAGLJnlWithDiffDeprBook(false, 0, true, Amount); // UseCustom1Depreciation as False, UseAccountingPeriods as True, Take Random Amount.
 
@@ -292,7 +292,7 @@ codeunit 144027 "UT REP ACCPER - Fixed Asset"
     procedure OnAfterGetRecFATrueProjectedDisposalFAProjectedVal()
     begin
         // Purpose of the test is to validate Fixed Asset - OnAfterGetRecord Trigger of Report 10560 (FA - Projected Value) with Projected Disposal as True.
-        Initialize;
+        Initialize();
         RunFAProjectedValAfterPostFAGLJnlWithProjectedDisposal(true);  // Projected Disposal as True.
     end;
 
@@ -302,7 +302,7 @@ codeunit 144027 "UT REP ACCPER - Fixed Asset"
     procedure OnAfterGetRecFAFalseProjectedDisposalFAProjectedVal()
     begin
         // Purpose of the test is to validate Fixed Asset - OnAfterGetRecord Trigger of Report 10560 (FA - Projected Value) with Projected Disposal as False.
-        Initialize;
+        Initialize();
         RunFAProjectedValAfterPostFAGLJnlWithProjectedDisposal(false);  // Projected Disposal as False.
     end;
 
@@ -325,7 +325,7 @@ codeunit 144027 "UT REP ACCPER - Fixed Asset"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateAndPostFAGLJournals(var GenJournalLine: Record "Gen. Journal Line"; FixedAssetNo: Code[20]; DepreciationBookCode: Code[10]; BalAccountNo: Code[20]; Amount: Decimal)

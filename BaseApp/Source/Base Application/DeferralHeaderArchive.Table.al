@@ -108,7 +108,7 @@ table 5127 "Deferral Header Archive"
         DeferralLineArchive.SetRange("Doc. No. Occurrence", DocNoOcurrence);
         DeferralLineArchive.SetRange("Version No.", VersionNo);
         DeferralLineArchive.SetRange("Line No.", LineNo);
-        if DeferralLineArchive.FindFirst then
+        if DeferralLineArchive.FindFirst() then
             DeferralLineArchive.DeleteAll();
     end;
 }

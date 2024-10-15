@@ -2,6 +2,14 @@ table 2850 "Native - API Tax Setup"
 {
     Caption = 'Native - API Tax Setup';
     ReplicateData = false;
+#if not CLEAN20
+    ObsoleteState = Pending;
+    ObsoleteTag = '20.0';
+#else
+    ObsoleteState = Removed;
+    ObsoleteTag = '23.0';
+#endif
+    ObsoleteReason = 'These objects will be removed';
 
     fields
     {
@@ -100,11 +108,13 @@ table 2850 "Native - API Tax Setup"
         {
             Caption = 'Default';
 
+#if not CLEAN20
             trigger OnValidate()
             begin
                 if xRec.Default and (not Default) then
                     Error(OneValueMustBeDefaultErr);
             end;
+#endif
         }
         field(8000; Id; Guid)
         {
@@ -130,6 +140,7 @@ table 2850 "Native - API Tax Setup"
     {
     }
 
+#if not CLEAN20
     trigger OnDelete()
     begin
         DeleteRecord;
@@ -330,7 +341,7 @@ table 2850 "Native - API Tax Setup"
             VATPostingSetup.Modify(true);
 
             SalesLine.SetRange("VAT Prod. Posting Group", Code);
-            if SalesLine.FindSet then
+            if SalesLine.FindSet() then
                 repeat
                     SalesLine.Validate("VAT Prod. Posting Group");
                     SalesLine.Modify(true);
@@ -374,5 +385,5 @@ table 2850 "Native - API Tax Setup"
     local procedure OnCanDeleteTaxSetup(var PreventDeletion: Boolean; var NativeAPITaxSetup: Record "Native - API Tax Setup")
     begin
     end;
+#endif
 }
-

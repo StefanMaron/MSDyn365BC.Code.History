@@ -113,7 +113,7 @@ codeunit 138946 "BC Test Invoice"
 
         // [WHEN] This invoice is posted
         // [THEN] An error is thrown, posting a test invoice is not allowed
-        SalesHeader.FindLast;
+        SalesHeader.FindLast();
         asserterror CODEUNIT.Run(CODEUNIT::"Sales-Post", SalesHeader);
         Assert.ExpectedError(CannotSendTestInvoiceErr);
     end;
@@ -122,7 +122,7 @@ codeunit 138946 "BC Test Invoice"
     var
         SalesHeader: Record "Sales Header";
     begin
-        SalesHeader.FindLast;
+        SalesHeader.FindLast();
         BCO365SalesInvoice.OpenEdit;
         BCO365SalesInvoice.GotoRecord(SalesHeader);
     end;

@@ -59,7 +59,7 @@ page 10501 "Postcode Configuration Page"
     var
         PostcodeServiceManager: Codeunit "Postcode Service Manager";
     begin
-        if not FindFirst then begin
+        if not FindFirst() then begin
             Init;
             Insert;
             ServiceKeyText := DisabledTok;

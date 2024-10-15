@@ -1,7 +1,11 @@
+#if not CLEAN20
 report 507 "XBRL Copy Setup"
 {
     Caption = 'XBRL Copy Setup';
     ProcessingOnly = true;
+    ObsoleteReason = 'XBRL feature will be discontinued';
+    ObsoleteState = Pending;
+    ObsoleteTag = '20.0';
 
     dataset
     {
@@ -20,7 +24,7 @@ report 507 "XBRL Copy Setup"
                 end;
 
                 ToXBRLLine.SetRange(Name, Name);
-                if ToXBRLLine.FindFirst then begin
+                if ToXBRLLine.FindFirst() then begin
                     ToXBRLLine.Description := Description;
                     ToXBRLLine."Constant Amount" := "Constant Amount";
                     ToXBRLLine."Source Type" := "Source Type";
@@ -181,3 +185,5 @@ report 507 "XBRL Copy Setup"
     end;
 }
 
+
+#endif
