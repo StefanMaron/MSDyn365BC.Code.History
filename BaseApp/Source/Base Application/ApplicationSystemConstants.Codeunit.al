@@ -13,7 +13,7 @@ codeunit 9015 "Application System Constants"
     procedure OriginalApplicationVersion() ApplicationVersion: Text[248]
     begin
         // Should be 'Build Version' with ! on both sides.
-        ApplicationVersion := 'FR Business Central 23.11';
+        ApplicationVersion := 'FR Business Central 23.12';
     end;
 
     procedure ApplicationVersion() ApplicationVersion: Text[248]
@@ -56,14 +56,14 @@ codeunit 9015 "Application System Constants"
     begin
         // Should be 'Platform Product Version' with ! on both sides.
         // Will return a string similar to '13.4.98761.98765'.
-        exit('23.0.23293.0');
+        exit('23.0.24742.0');
     end;
 
     procedure PlatformFileVersion(): Text[80]
     begin
         // Should be 'Platform File Version' with ! on both sides.
         // Will return a string similar to '13.4.98761.98765'.
-        exit('23.0.23293.0');
+        exit('23.0.24742.0');
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Version Triggers", 'GetApplicationVersion', '', false, false)]
