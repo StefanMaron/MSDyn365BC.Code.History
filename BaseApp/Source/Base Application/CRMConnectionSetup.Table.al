@@ -555,6 +555,7 @@ table 5330 "CRM Connection Setup"
     end;
 
     [Scope('OnPrem')]
+    [NonDebuggable]
     procedure SetPassword(PasswordText: Text)
     begin
         if IsTemporary() then begin
@@ -1260,6 +1261,7 @@ table 5330 "CRM Connection Setup"
         until TempNameValueBuffer.Next() = 0;
     end;
 
+    [NonDebuggable]
     procedure PromptForCredentials(var AdminEmail: Text; var AdminPassword: Text): Boolean
     var
         TempOfficeAdminCredentials: Record "Office Admin. Credentials" temporary;
@@ -1284,6 +1286,7 @@ table 5330 "CRM Connection Setup"
     end;
 
     [Scope('OnPrem')]
+    [NonDebuggable]
     procedure PromptForCredentials(var AdminEmail: Text; var AdminPassword: Text; var AdminADDomain: Text): Boolean
     var
         TempOfficeAdminCredentials: Record "Office Admin. Credentials" temporary;

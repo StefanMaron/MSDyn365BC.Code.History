@@ -229,7 +229,7 @@
         field(29; "Purchaser Code"; Code[20])
         {
             Caption = 'Purchaser Code';
-            TableRelation = "Salesperson/Purchaser";
+            TableRelation = "Salesperson/Purchaser" where(Blocked = const(false));
 
             trigger OnValidate()
             begin
@@ -2260,6 +2260,8 @@
     begin
         "Last Modified Date Time" := CurrentDateTime();
         "Last Date Modified" := Today();
+
+        OnAfterSetLastModifiedDateTime(Rec);
     end;
 
     procedure ToPriceSource(var PriceSource: Record "Price Source")
@@ -2500,6 +2502,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetTotalAmountLCY(var Vendor: Record Vendor; var TotalAmountLCY: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetLastModifiedDateTime(var Vendor: Record Vendor)
     begin
     end;
 

@@ -210,7 +210,7 @@ page 5853 "Get Pst.Doc-RtrnRcptLn Subform"
                     ApplicationArea = ItemTracking;
                     Caption = 'Item &Tracking Lines';
                     Image = ItemTrackingLines;
-                    ShortCutKey = 'Ctrl+Alt+I'; 
+                    ShortCutKey = 'Ctrl+Alt+I';
                     ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
 
                     trigger OnAction()
@@ -238,7 +238,7 @@ page 5853 "Get Pst.Doc-RtrnRcptLn Subform"
         if IsHandled then
             exit(ReturnValue);
 
-        exit(Find(Which));
+        exit(Rec.Find(Which));
     end;
 
     trigger OnOpenPage()
@@ -265,7 +265,7 @@ page 5853 "Get Pst.Doc-RtrnRcptLn Subform"
             TempReturnRcptLine.Insert();
         end;
 
-        exit("Line No." = TempReturnRcptLine."Line No.");
+        exit(Rec."Line No." = TempReturnRcptLine."Line No.");
     end;
 
     procedure GetSelectedLine(var FromReturnRcptLine: Record "Return Receipt Line")
@@ -278,7 +278,7 @@ page 5853 "Get Pst.Doc-RtrnRcptLn Subform"
     var
         ReturnRcptHeader: Record "Return Receipt Header";
     begin
-        if not ReturnRcptHeader.Get("Document No.") then
+        if not ReturnRcptHeader.Get(Rec."Document No.") then
             exit;
         PAGE.Run(PAGE::"Posted Return Receipt", ReturnRcptHeader);
     end;

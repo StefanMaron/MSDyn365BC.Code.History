@@ -84,6 +84,8 @@ codeunit 137404 "SCM Manufacturing"
         CircularRefInBOMErr: Label 'The production BOM %1 has a circular reference. Pay attention to the production BOM %2 that closes the loop.', Comment = '%1 = Production BOM No., %2 = Production BOM No.';
         ExpectedWhsePickRequest: Label 'Expected a Warehouse Pick Request associated with the Production Order Component Line, since the line has a positive remaining quantity';
         DidntExpectWhsePickRequest: Label 'Did not expect a Warehouse Pick Request associated with the Production Order Component Line, since the line doesn''t have a postitive remaining quantity';
+        ProdOrderNoHandlerErr: Label 'Prod. Order No. must be %1, actual value is %2.', Comment = '%1: Expected Prod. Order No. Value; %2: Actual Prod. Order No. Value.';
+        ProdOrderStatusHandlerErr: Label 'Prod. Order Status must be %1, actual value is %2.', Comment = '%1: Expected Prod. Order Status Value; %2: Actual Prod. Order Status Value.';
 
     [Test]
     [HandlerFunctions('ConfirmHandlerTrue,OutputJournalItemtrackingPageHandler,MessageHandler')]
@@ -3931,6 +3933,28 @@ codeunit 137404 "SCM Manufacturing"
         Assert.IsTrue(ProdOrderCapacityNeed."Starting Time" >= 120000T, '');
     end;
 
+    [Test]
+    [HandlerFunctions('ProdOrderCompAndRoutingHandler')]
+    [Scope('OnPrem')]
+    procedure ProdOrderCompAndRoutingOnReleasedPlannedProdOrders()
+    var
+        ProductionOrder: Record "Production Order";
+    begin
+        // [SCENARIO 453061] "Production Order - Comp. and Routing" of "Released Production Orders" Page should run "Prod. Order Comp. and Routing" Report with filters
+        Initialize();
+
+        // [GIVEN] Create a Production Order
+        LibraryManufacturing.CreateProductionOrder(
+          ProductionOrder, ProductionOrder.Status::Released,
+          ProductionOrder."Source Type"::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10));
+
+        // [WHEN] Refresh the Production Order, direction - Forward
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
+
+        // [THEN] Verify Report "Prod. Order Comp. and Routing" filters
+        VerifyRelProductionOrderPage(ProductionOrder);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -6497,6 +6521,17 @@ codeunit 137404 "SCM Manufacturing"
         exit(ProdOrderRoutingLine."Operation No.");
     end;
 
+    local procedure VerifyRelProductionOrderPage(ProductionOrder: Record "Production Order")
+    var
+        RelProdOrders: TestPage "Released Production Orders";
+    begin
+        RelProdOrders.OpenView();
+        RelProdOrders.GoToRecord(ProductionOrder);
+        LibraryVariableStorage.Enqueue(ProductionOrder."No.");
+        LibraryVariableStorage.Enqueue(ProductionOrder.Status.AsInteger());
+        RelProdOrders."Production Order - Comp. and Routing".Invoke();
+    end;
+
     [PageHandler]
     [Scope('OnPrem')]
     procedure ViewAppliedEntriesPageHandler(var ViewAppliedEntries: TestPage "View Applied Entries")
@@ -6562,6 +6597,30 @@ codeunit 137404 "SCM Manufacturing"
     [PageHandler]
     procedure BOMStructurePageHandler(var BOMStructure: TestPage "BOM Structure")
     begin
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure ProdOrderCompAndRoutingHandler(var ProdOrderCompAndRouting: TestRequestPage "Prod. Order Comp. and Routing")
+    var
+        ExpectedProdOrderNo: Code[20];
+        ExpectedProdOrderStatus: Integer;
+    begin
+        ExpectedProdOrderNo := LibraryVariableStorage.DequeueText();
+        ExpectedProdOrderStatus := LibraryVariableStorage.DequeueInteger();
+
+        Assert.IsTrue(
+            ProdOrderCompAndRouting."Production Order".GetFilter("No.") = ExpectedProdOrderNo,
+            StrSubstNo(
+                ProdOrderNoHandlerErr,
+                ProdOrderCompAndRouting."Production Order".GetFilter("No."),
+                ExpectedProdOrderNo));
+        Assert.IsTrue(
+            ProdOrderCompAndRouting."Production Order".GetFilter(Status) = Format(ExpectedProdOrderStatus),
+            StrSubstNo(
+                ProdOrderStatusHandlerErr,
+                ProdOrderCompAndRouting."Production Order".GetFilter(Status),
+                Format(ExpectedProdOrderStatus)));
     end;
 
     local procedure CreateRoutingAndBOM(ItemNo: Code[20]; ComponentNo: Code[20]; WorkCenterNo: Code[20]; ConcurrentCapacities: Integer; RoutingLinkCode: Code[10])

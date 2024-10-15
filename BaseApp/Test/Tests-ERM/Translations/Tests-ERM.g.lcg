@@ -1958,6 +1958,15 @@
       <Cmt Name="Dev"><![CDATA[%3, %5-%9 - numbers, %1,%4 - text value, %2 - date]D;]A;(LookupHint=Codeunit ERM Consolidation - NamedType TransactionLineTok)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 937765622 - NamedType 3305540346" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Invalid Customer Name]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Copy Item - NamedType CustomerNameErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 937765622 - NamedType 1732972977" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Number of target records does not match the number of source records]]></Val>
@@ -5927,6 +5936,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Purchase Order - NamedType SuggestAssignmentErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1951354433 - NamedType 2347725511" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You have changed the Order Date on the purchase order, which might affect the prices and discounts on the purchase order lines.\Do you want to update the order date for existing lines?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Purchase Order - NamedType UpdateLinesOrderDateAutomaticallyQst)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1951354433 - NamedType 4171454311" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Wrong dimension value in Sales Header %1.]]></Val>
@@ -7342,7 +7360,7 @@
   </Item>
   <Item ItemId=";Codeunit 2641639841 - NamedType 2354784708" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[You have changed the %1 on the sales header, which might affect the prices and discounts on the sales lines. You should review the lines and manually update prices and discounts if needed.]]></Val>
+      <Val><![CDATA[You have changed the %1 on the sales header, which might affect the prices and discounts on the sales lines.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -7473,6 +7491,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[.]D;]A;(LookupHint=Codeunit ERM Sales Documents III - NamedType ReturnRcptNoErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2641639841 - NamedType 436192843" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[ You should review the lines and manually update prices and discounts if needed.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Sales Documents III - NamedType ReviewLinesManuallyMsg)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2641639841 - NamedType 3856989538" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -10580,6 +10607,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Price List Header UT - NamedType CodeMustNotBeBlankErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2122422003 - NamedType 4269124380" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Assign-to Parent No. (custom) must have a value]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Price List Header UT - NamedType CustomParentSourceNoMustBeFilledErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2122422003 - NamedType 1428668148" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Do you want to update %1 in the price list lines?]]></Val>
@@ -10587,6 +10623,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[%1 - the field caption]D;]A;(LookupHint=Codeunit Price List Header UT - NamedType DateConfirmQst)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2122422003 - NamedType 3112762305" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Assign-to Parent No. (jobs) must have a value]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Price List Header UT - NamedType JobsParentSourceNoMustBeFilledErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2122422003 - NamedType 2236746637" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -10627,7 +10672,7 @@
   </Item>
   <Item ItemId=";Codeunit 2122422003 - NamedType 1940579729" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Assign-to Parent No. must be equal to '']]></Val>
+      <Val><![CDATA[Assign-to Parent No. (jobs) must be equal to '']]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -10659,6 +10704,24 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Price List Header UT - NamedType ResourceNoErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2122422003 - NamedType 2067344316" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Assign-to No. (custom) must be equal to '']]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Price List Header UT - NamedType SourceNoCustomMustBeBlankErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2122422003 - NamedType 355640624" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Assign-to No. (custom) must have a value]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Price List Header UT - NamedType SourceNoCustomMustBeFilledErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2122422003 - NamedType 1804422259" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -10787,6 +10850,24 @@
       <Cmt Name="Dev"><![CDATA[%1 - the price list code, %2 - line no]D;]A;(LookupHint=Codeunit Price List Line UT - NamedType CannotDeleteActivePriceListLineErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2479071172 - NamedType 1684174124" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Assign-to No. (custom) must be equal to '']]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Price List Line UT - NamedType CustomSourceNoMustBeBlankErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2479071172 - NamedType 909444000" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Assign-to No. (custom) must have a value]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Price List Line UT - NamedType CustomSourceNoMustBeFilledErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2479071172 - NamedType 578697751" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Field %1 is not allowed in the price list line where %2 is %3.]]></Val>
@@ -10834,7 +10915,7 @@
   </Item>
   <Item ItemId=";Codeunit 2479071172 - NamedType 1940579729" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Assign-to Parent No. must be equal to '']]></Val>
+      <Val><![CDATA[Assign-to Parent No. (custom) must be equal to '']]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -10843,7 +10924,7 @@
   </Item>
   <Item ItemId=";Codeunit 2479071172 - NamedType 4020569621" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Assign-to Parent No. must have a value]]></Val>
+      <Val><![CDATA[Assign-to Parent No. (custom) must have a value]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -11392,7 +11473,7 @@
   </Item>
   <Item ItemId=";Codeunit 1217376489 - NamedType 454677184" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[You have changed the %1 on the purchase order, which might affect the prices and discounts on the purchase order lines. You should review the lines and manually update prices and discounts if needed.]]></Val>
+      <Val><![CDATA[You have changed the %1 on the purchase order, which might affect the prices and discounts on the purchase order lines.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -11406,6 +11487,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[You have changed Posting Date on the purchase header, but it has not been changed on the existing purchase lines.]D;]A;(LookupHint=Codeunit Purchase Documents - NamedType PurchLinesNotUpdatedMsg)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1217376489 - NamedType 436192843" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You should review the lines and manually update prices and discounts if needed.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Purchase Documents - NamedType ReviewLinesManuallyMsg)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1217376489 - NamedType 732925611" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -15780,6 +15870,24 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(ObjectTarget=Page 1015858496)(LookupHint=PageExtension ERM Tests Data Admin Guide - Control ERMTestsDatAdminGuideGroup2 - Property InstructionalText)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";EnumExtension 763123190 - EnumValue 1339369926 - Property 2879900210" ItemType=";EnumExtension - EnumValue" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Test Text Parameter]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(ObjectTarget=Enum 961356743)(LookupHint=EnumExtension Batch Post. Parameter Type UT - EnumValue Test Text Parameter - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";EnumExtension 763123190 - EnumValue 2161055158 - Property 2879900210" ItemType=";EnumExtension - EnumValue" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Test Time Parameter]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(ObjectTarget=Enum 961356743)(LookupHint=EnumExtension Batch Post. Parameter Type UT - EnumValue Test Time Parameter - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";EnumExtension 3739422659 - EnumValue 2491697818 - Property 2879900210" ItemType=";EnumExtension - EnumValue" PsrId="63" InstFlg="true" Leaf="true">

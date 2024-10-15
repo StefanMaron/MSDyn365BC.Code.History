@@ -571,7 +571,7 @@ page 974 "Time Sheet Lines Subform"
             repeat
                 TimeSheetApprovalMgt.ProcessAction(TimeSheetLine, ActionType);
             until TimeSheetLine.Next() = 0;
-        OnAfterProcess(TempTimeSheetLine, ActionType);
+        OnAfterProcess(TempTimeSheetLine, ActionType, ProcessAll);
         CurrPage.Update(true);
     end;
 
@@ -742,8 +742,8 @@ page 974 "Time Sheet Lines Subform"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterProcess(var TimeSheetLine: Record "Time Sheet Line"; "Action": Option "Submit Selected","Submit All","Reopen Selected","Reopen All")
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterProcess(var TimeSheetLine: Record "Time Sheet Line"; "Action": Option "Submit Selected","Submit All","Reopen Selected","Reopen All"; ProcessAll: Boolean)
     begin
     end;
 

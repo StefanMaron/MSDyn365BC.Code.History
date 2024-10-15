@@ -22,6 +22,7 @@ codeunit 134381 "ERM Dimension Priority"
         LibraryPlanning: Codeunit "Library - Planning";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryJob: Codeunit "Library - Job";
+        LibraryWarehouse: Codeunit "Library - Warehouse";
         isInitialized: Boolean;
         WrongDimValueCodeErr: Label 'Wrong dimension value code.';
 
@@ -144,7 +145,7 @@ codeunit 134381 "ERM Dimension Priority"
         VendNo := CreateVendorWithPurchaserAndDefDim(DimensionCode, DimValueArray);
         ItemNo := CreateItemWithReplenishmentPociliyAndDefDim(DimensionCode, DimValueArray[3], VendNo);
         CreateReqLineAndCarryOutAction(ItemNo);
-        VerifyDimValueInPurchLine(VendNo, DimensionCode, DimValueArray[2]);
+        VerifyDimValueInPurchLine(VendNo, DimensionCode, DimValueArray[1]);
     end;
 
     [Test]
@@ -600,6 +601,81 @@ codeunit 134381 "ERM Dimension Priority"
         // [THEN] Sales Line Dimension Value = "JDV".
         FindSalesLineFromJobPlanningLine(SalesLine, JobPlanningLine);
         VerifySalesLineDimensionValue(SalesLine, JobDimensionValue.Code);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifySalesOrderWithItemDefaultDimPrioritiesOnSalesLine()
+    var
+        Dimension: Record Dimension;
+        Item: Record Item;
+        ItemDimensionValue: Record "Dimension Value";
+        Location: Record Location;
+        LocationDimensionValue: Record "Dimension Value";
+        Customer: Record Customer;
+        CustomerDimensionValue: Record "Dimension Value";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        // [SCENARIO 444690] Check Dimension Priorities will work on sales orders when you have three Priorities.
+        Initialize();
+
+        // [GIVEN] Default Dimension Priorities for Source Code = SALES are set as 1 for Customer and 2 for Item and 3 for Location
+        SetSalesOrderDimensionPriorities(1, 2, 3);
+
+        // [GIVEN] Create Dimension Code
+        LibraryDimension.CreateDimension(Dimension);
+
+        // [GIVEN] Customer with Default Dimension Value .
+        CreateCustomerWithDefaultDimension(Customer, ItemDimensionValue, Dimension.Code);
+
+        // [GIVEN] Location with Default Dimension Value .
+        CreateLocationWithDefaultDimension(Location, LocationDimensionValue, Dimension.Code);
+
+        // [GIVEN] Item with Default Dimension Value .
+        CreateItemWithDefaultDimension(Item, ItemDimensionValue, Dimension.Code);
+
+        // [GIVEN] Create Sales Order with sales line 
+        CreateSalesOrderWithSalesLine(SalesHeader, SalesLine, Customer."No.", Location.Code, Item."No.");
+        Commit();
+
+        // [VERIFY] Verify Item Dimension on Sales Line
+        VerifySalesLineDimensionValue(SalesLine, ItemDimensionValue.Code);
+    end;
+
+    [Test]
+    [HandlerFunctions('MsgHandler')]
+    procedure VerifyGlobalDimensionIsSetFromPurchaserRelatedToVendorForPurchaseOrderCreatedFromReqWorksheet()
+    var
+        Item: Record Item;
+        Vendor: Record Vendor;
+        DimensionValue: Record "Dimension Value";
+    begin
+        // [SCENARION: 453034] Verify Global dimension on Purchase Line from Purchaser related to Vendor for Purchase Order created from Req. Worksheet 
+        // [GIVEN] Initialize
+        Initialize();
+
+        // [GIVEN] Setup Dimension Priority For Purchaser
+        SetupDimensionPriorityForPurchSrcCode();
+
+        // [GIVEN] Create dimensions with Value and set to Shortcut Dimension 1 Code on General Ledger Setup
+        CreateDimensionAndSetupOnGeneralLedgerSetup(DimensionValue);
+
+        // [GIVEN] Create Vendor with Purchaser
+        CreateVendorWithPurchaserAndDefDim(Vendor, DimensionValue."Dimension Code", DimensionValue.Code);
+
+        // [GIVEN] Create Item with SKU
+        CreateItemWithSKU(Item, Vendor);
+
+        // [GIVEN] Create Sales Order
+        CreateSalesOrderForItem(Item);
+
+        // [WHEN] Calculate Plan for Req. Worksheet and Carry Out Req. Worksheet
+        // [HANDLER] MsgHandler
+        CreateReqLineAndCarryOutAction(Item);
+
+        // [THEN] Verify Dimension Value in Purchase Line
+        VerifyDimValueInPurchLine(Vendor, DimensionValue."Dimension Code", DimensionValue.Code);
     end;
 
     local procedure Initialize()
@@ -1175,9 +1251,55 @@ codeunit 134381 "ERM Dimension Priority"
         CreateDefaultDimensionPriority(SourceCode, DATABASE::"G/L Account", 2);
     end;
 
+    local procedure SetSalesOrderDimensionPriorities(CustomerPriority: Integer; ItemPriority: Integer; LocationPriority: Integer)
+    var
+        SourceCodeSetup: Record "Source Code Setup";
+    begin
+        SourceCodeSetup.Get();
+        ClearDefaultDimensionPriorities(SourceCodeSetup.Sales);
+        CreateDefaultDimensionPriority(SourceCodeSetup.Sales, DATABASE::Customer, CustomerPriority);
+        CreateDefaultDimensionPriority(SourceCodeSetup.Sales, DATABASE::Item, ItemPriority);
+        CreateDefaultDimensionPriority(SourceCodeSetup.Sales, DATABASE::Location, LocationPriority);
+    end;
+
+    local procedure CreateLocationWithDefaultDimension(var Location: Record Location; var DimensionValue: Record "Dimension Value"; DimensionCode: Code[20])
+    var
+        DefaultDimension: Record "Default Dimension";
+    begin
+        LibraryDimension.CreateDimensionValue(DimensionValue, DimensionCode);
+        LibraryWarehouse.CreateLocation(Location);
+        LibraryDimension.CreateDefaultDimension(DefaultDimension, DATABASE::Location, Location.Code, DimensionCode, DimensionValue.Code);
+    end;
+
+    local procedure CreateCustomerWithDefaultDimension(var Customer: Record Customer; var DimensionValue: Record "Dimension Value"; DimensionCode: Code[20])
+    var
+        DefaultDimension: Record "Default Dimension";
+    begin
+        LibraryDimension.CreateDimensionValue(DimensionValue, DimensionCode);
+        LibrarySales.CreateCustomer(Customer);
+        LibraryDimension.CreateDefaultDimension(DefaultDimension, DATABASE::Customer, Customer."No.", DimensionCode, DimensionValue.Code);
+    end;
+
+    local procedure CreateSalesOrderWithSalesLine(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; CustomerNo: Code[20]; LocationCode: Code[10]; ItemNo: Code[20])
+    var
+        DummyGLAccount: Record "G/L Account";
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo);
+        SalesHeader.Validate("Location Code", LocationCode);
+        SalesHeader.Modify();
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, 1);
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDecInRange(1000, 2000, 2));
+        SalesLine.Modify(true);
+    end;
+
     [MessageHandler]
     [Scope('OnPrem')]
     procedure MessageHandler(Message: Text)
+    begin
+    end;
+
+    [MessageHandler]
+    procedure MsgHandler(Message: Text)
     begin
     end;
 
@@ -1228,6 +1350,95 @@ codeunit 134381 "ERM Dimension Priority"
     begin
         LibraryDimension.FindDimensionSetEntry(DimSetEntry, SalesLine."Dimension Set ID");
         DimSetEntry.TestField("Dimension Value Code", DimensionValueCode);
+    end;
+
+    local procedure VerifyDimValueInPurchLine(var Vendor: Record Vendor; DimensionCode: Code[20]; DimensionValueCode: Code[20])
+    var
+        PurchLine: Record "Purchase Line";
+        DimensionSetEntry: Record "Dimension Set Entry";
+    begin
+        FindPurchLine(PurchLine, Vendor."No.");
+        DimensionSetEntry.Get(PurchLine."Dimension Set ID", DimensionCode);
+        Assert.AreEqual(DimensionValueCode, DimensionSetEntry."Dimension Value Code", WrongDimValueCodeErr);
+    end;
+
+    local procedure CreateSalesOrderForItem(var Item: Record Item)
+    var
+        Cust: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        LibrarySales.CreateCustomer(Cust);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Cust."No.");
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
+    end;
+
+    local procedure CreateReqLineAndCarryOutAction(var Item: Record Item)
+    var
+        ReqLine: Record "Requisition Line";
+    begin
+        CreateReqLine(ReqLine, Item);
+        LibraryPlanning.CarryOutReqWksh(ReqLine, WorkDate(), WorkDate, WorkDate(), WorkDate, '');
+    end;
+
+    local procedure CreateReqLine(var ReqLine: Record "Requisition Line"; var Item: Record Item)
+    var
+        ReqWkshTemplate: Record "Req. Wksh. Template";
+        RequisitionWkshName: Record "Requisition Wksh. Name";
+    begin
+        CreateReqWkshTemplateName(RequisitionWkshName, ReqWkshTemplate);
+        LibraryPlanning.CalculatePlanForReqWksh(Item, ReqWkshTemplate.Name, RequisitionWkshName.Name, WorkDate(), WorkDate());
+        FindReqLine(ReqLine, Item);
+    end;
+
+    local procedure FindReqLine(var ReqLine: Record "Requisition Line"; var Item: Record Item)
+    begin
+        ReqLine.SetRange(Type, ReqLine.Type::Item);
+        ReqLine.SetRange("No.", Item."No.");
+        ReqLine.FindFirst();
+    end;
+
+    local procedure CreateReqWkshTemplateName(var RequisitionWkshName: Record "Requisition Wksh. Name"; var ReqWkshTemplate: Record "Req. Wksh. Template")
+    begin
+        ReqWkshTemplate.SetRange(Type, ReqWkshTemplate.Type::"Req.");
+        ReqWkshTemplate.FindFirst();
+        LibraryPlanning.CreateRequisitionWkshName(RequisitionWkshName, ReqWkshTemplate.Name);
+    end;
+
+    local procedure CreateDimensionAndSetupOnGeneralLedgerSetup(var DimensionValue: Record "Dimension Value")
+    begin
+        LibraryDimension.CreateDimWithDimValue(DimensionValue);
+        LibraryERM.SetGlobalDimensionCode(1, DimensionValue."Dimension Code");
+    end;
+
+    local procedure CreateVendorWithPurchaserAndDefDim(var Vendor: Record Vendor; DimensionCode: Code[20]; DimensionValueCode: Code[20])
+    var
+        Purchaser: Record "Salesperson/Purchaser";
+        DefaultDimension: Record "Default Dimension";
+    begin
+        LibraryPurchase.CreateVendor(Vendor);
+        LibrarySales.CreateSalesperson(Purchaser);
+        LibraryDimension.CreateDefaultDimension(
+          DefaultDimension, DATABASE::"Salesperson/Purchaser", Purchaser.Code, DimensionCode, DimensionValueCode);
+        Vendor.Validate("Purchaser Code", Purchaser.Code);
+        Vendor.Modify(true);
+    end;
+
+    local procedure CreateItemWithSKU(var Item: Record Item; var Vendor: Record Vendor)
+    var
+        Location: Record Location;
+        SKU: Record "Stockkeeping Unit";
+    begin
+        LibraryWarehouse.CreateLocation(Location);
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Vendor No.", Vendor."No.");
+        Item.Validate("Vendor Item No.", LibraryUtility.GenerateGUID());
+        Item.Validate("Reordering Policy", Item."Reordering Policy"::"Lot-for-Lot");
+        Item.Modify(true);
+        LibraryInventory.CreateStockkeepingUnitForLocationAndVariant(SKU, Location.Code, Item."No.", '');
+        SKU.Validate("Vendor Item No.", LibraryUtility.GenerateGUID());
+        SKU.Validate("Reordering Policy", SKU."Reordering Policy"::"Lot-for-Lot");
+        SKU.Modify(true);
     end;
 
     [ConfirmHandler]

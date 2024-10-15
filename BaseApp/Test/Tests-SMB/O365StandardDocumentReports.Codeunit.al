@@ -438,7 +438,9 @@ codeunit 138043 "O365 Standard Document Reports"
     [Scope('OnPrem')]
     procedure StandardSalesInvoiceDraftReqHandler(var StandardSalesDraftInvoice: TestRequestPage "Standard Sales - Draft Invoice")
     begin
+#if not CLEAN22        
         StandardSalesDraftInvoice.ArchiveDocument.SetValue(true);
+#endif        
         StandardSalesDraftInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 
