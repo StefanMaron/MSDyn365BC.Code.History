@@ -438,6 +438,7 @@ table 11400 "CBG Statement"
                 Counter := CBGStatementLine."Line No.";
                 AmountVV := CBGStatementLine."Debit Incl. VAT" - CBGStatementLine."Credit Incl. VAT";
                 GenJnlLine.Init();
+                GenJnlLine.SetSuppressCommit(true);
                 CBGStatementLine.CreateGenJournalLine(GenJnlLine);
                 AmountLV := GenJnlLine."Amount (LCY)";
                 GenJnlLine."Line No." := Counter;

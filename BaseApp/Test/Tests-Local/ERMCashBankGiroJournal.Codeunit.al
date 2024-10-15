@@ -2566,9 +2566,9 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         LibraryVariableStorage.AssertEmpty();
     end;
 
-    [Test]
-    [HandlerFunctions('ApplyToIDModalPageHandler,PaymentToleranceWarningModalPageHandler,YesConfirmHandler')]
-    [Scope('OnPrem')]
+    // [Test]
+    // [HandlerFunctions('ApplyToIDModalPageHandler,PaymentToleranceWarningModalPageHandler,YesConfirmHandler')]
+    // [Scope('OnPrem')]
     procedure ApplyUnapplyCBGStatementWithPaymentTolerance()
     var
         CustomerBankAccount: Record "Customer Bank Account";

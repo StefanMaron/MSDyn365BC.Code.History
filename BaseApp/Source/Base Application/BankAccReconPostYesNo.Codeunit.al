@@ -12,11 +12,17 @@ codeunit 371 "Bank Acc. Recon. Post (Yes/No)"
         PostPaymentsOnlyQst: Label 'Do you want to post the payments?';
         PostPaymentsAndReconcileQst: Label 'Do you want to post the payments and reconcile the bank account?';
 
-    procedure BankAccReconPostYesNo(var BankAccReconciliation: Record "Bank Acc. Reconciliation"): Boolean
+    procedure BankAccReconPostYesNo(var BankAccReconciliation: Record "Bank Acc. Reconciliation") Result: Boolean
     var
         BankAccRecon: Record "Bank Acc. Reconciliation";
         Question: Text;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeBankAccReconPostYesNo(BankAccReconciliation, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         BankAccRecon.Copy(BankAccReconciliation);
 
         if BankAccRecon."Statement Type" = BankAccRecon."Statement Type"::"Payment Application" then
@@ -33,6 +39,11 @@ codeunit 371 "Bank Acc. Recon. Post (Yes/No)"
         CODEUNIT.Run(CODEUNIT::"Bank Acc. Reconciliation Post", BankAccRecon);
         BankAccReconciliation := BankAccRecon;
         exit(true);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeBankAccReconPostYesNo(var BankAccReconciliation: Record "Bank Acc. Reconciliation"; var Result: Boolean; var Handled: Boolean)
+    begin
     end;
 }
 

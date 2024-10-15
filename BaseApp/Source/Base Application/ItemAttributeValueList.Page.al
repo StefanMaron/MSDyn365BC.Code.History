@@ -26,10 +26,13 @@ page 7504 "Item Attribute Value List"
                     var
                         ItemAttributeValue: Record "Item Attribute Value";
                         ItemAttributeValueMapping: Record "Item Attribute Value Mapping";
+                        ItemAttribute: Record "Item Attribute";
                     begin
                         OnBeforeCheckAttributeName(Rec, RelatedRecordCode);
-                        if xRec."Attribute Name" <> '' then
-                            DeleteItemAttributeValueMapping(xRec."Attribute ID");
+                        if xRec."Attribute Name" <> '' then begin
+                            xRec.FindItemAttributeByName(ItemAttribute);
+                            DeleteItemAttributeValueMapping(ItemAttribute.ID);
+                        end;
 
                         if not FindAttributeValue(ItemAttributeValue) then
                             InsertItemAttributeValue(ItemAttributeValue, Rec);

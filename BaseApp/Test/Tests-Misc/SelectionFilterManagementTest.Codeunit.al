@@ -359,6 +359,7 @@ codeunit 132537 SelectionFilterManagementTest
 
     [Test]
     [Scope('OnPrem')]
+    [TransactionModel(TransactionModel::AutoRollback)]
     procedure GetSelectionFilterForDimensionValueWithSpecialSymbols()
     var
         DimensionValue: Record "Dimension Value";
@@ -854,6 +855,64 @@ codeunit 132537 SelectionFilterManagementTest
             InsertSerialNoInformation(ItemNo, Format(i));
 
         exit(ItemNo);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure GetSelectionFilterForCustomerComputingRangesOnLists()
+    var
+        Customer: Record Customer;
+        CurrencyRecordRef: RecordRef;
+        SelectionString: Text;
+    begin
+        // [SCENARIO] GetSelectionFilter procedure can be used to get the filter on the primary key from the selected (marked) records.
+
+        // [GIVEN] A table (Currency) with at least 1 record
+        if not Customer.FindFirst then begin
+            Customer.Init;
+            Customer."No." := 'ABC';
+            Customer.Insert;
+        end;
+
+        // [WHEN] A record in the table is selected (marked).
+        Customer.Mark(true);
+        Customer.MarkedOnly(true);
+        CurrencyRecordRef.GetTable(Customer);
+
+        // [THEN] The filter consists of just one value - the primary key field value of the selected record (Currency.Code).
+        SelectionString := SelectionFilterManagement.AddQuotes(Customer."No.");
+        CheckGetSelectionResults(SelectionString, SelectionFilterManagement.GetSelectionFilter(CurrencyRecordRef, Customer.FieldNo("No."), false));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    procedure GetSelectionFilterForDimensionValueWithSpecialSymbolsComputingRangesOnLists()
+    var
+        DimensionValue: Record "Dimension Value";
+        DimensionValueRecordRef: RecordRef;
+    begin
+        // [FEATURE] [Dimension] [Dimension Value] [UT]
+        // [SCENARIO 312912] Function GetSelectionFilterForDimensionValue of SelectionFilterManagement puts Dimension Value Code between single quotes in case Code contains chars &.@<>=
+
+        // [GIVEN] Dimension Values A, A1, B, B1, C, C1, D, D1, E with Code, that contains chars &.@<>=
+        LibraryDimension.CreateDimensionValueWithCode(DimensionValue, 'XK&N7S', LibraryERM.GetGlobalDimensionCode(1));
+        LibraryDimension.CreateDimensionValueWithCode(DimensionValue, 'XK&X', LibraryERM.GetGlobalDimensionCode(1));
+        LibraryDimension.CreateDimensionValueWithCode(DimensionValue, 'XK.N7S', LibraryERM.GetGlobalDimensionCode(1));
+        LibraryDimension.CreateDimensionValueWithCode(DimensionValue, 'XK.X', LibraryERM.GetGlobalDimensionCode(1));
+        LibraryDimension.CreateDimensionValueWithCode(DimensionValue, 'XK@N7S', LibraryERM.GetGlobalDimensionCode(1));
+        LibraryDimension.CreateDimensionValueWithCode(DimensionValue, 'XK@X', LibraryERM.GetGlobalDimensionCode(1));
+        LibraryDimension.CreateDimensionValueWithCode(DimensionValue, 'XK<>N7S', LibraryERM.GetGlobalDimensionCode(1));
+        LibraryDimension.CreateDimensionValueWithCode(DimensionValue, 'XK<X', LibraryERM.GetGlobalDimensionCode(1));
+        LibraryDimension.CreateDimensionValueWithCode(DimensionValue, 'XK=N7S', LibraryERM.GetGlobalDimensionCode(1));
+
+        // [WHEN] Filter Dimension Value to "A|B|C|D|E". Run GetSelectionFilterForDimensionValue of SelectionFilterManagement codeunit on the filtered record.
+        // [THEN] Function returns "'A'|'B'|'C'|'D'|'E'", i.e. each Dimension Value Code is put between single quotes.
+        DimensionValue.SetFilter(Code, '*N7S');
+        DimensionValueRecordRef.GetTable(DimensionValue);
+        Assert.AreEqual(
+          '''XK&N7S''|''XK.N7S''|''XK@N7S''|''XK<>N7S''|''XK=N7S''',
+          SelectionFilterManagement.GetSelectionFilter(DimensionValueRecordRef, DimensionValue.FieldNo(Code), false), '');
     end;
 }
 

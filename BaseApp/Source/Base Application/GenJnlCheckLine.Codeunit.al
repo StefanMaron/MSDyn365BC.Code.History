@@ -324,7 +324,7 @@
                            (((Amount < 0) xor ("Sales/Purch. (LCY)" < 0)) and (Amount <> 0) and ("Sales/Purch. (LCY)" <> 0))
                         then
                             LogFieldError(GenJnlLine, GenJnlLine.FieldNo("Sales/Purch. (LCY)"), StrSubstNo(Text003, FieldCaption(Amount)));
-                        LogTestField(GenJnlLine, FieldNo("Job No."), '');
+                        CheckJobNoIsEmpty(GenJnlLine);
 
                         CheckICPartner("Account Type", "Account No.", "Document Type");
                     end;
@@ -335,7 +335,7 @@
                         LogTestField(GenJnlLine, FieldNo("Gen. Prod. Posting Group"), '');
                         LogTestField(GenJnlLine, FieldNo("VAT Bus. Posting Group"), '');
                         LogTestField(GenJnlLine, FieldNo("VAT Prod. Posting Group"), '');
-                        LogTestField(GenJnlLine, FieldNo("Job No."), '');
+                        CheckJobNoIsEmpty(GenJnlLine);
                         if (Amount < 0) and ("Bank Payment Type" = "Bank Payment Type"::"Computer Check") then
                             LogTestField(GenJnlLine, FieldNo("Check Printed"), true);
                         if ("Bank Payment Type" = "Bank Payment Type"::"Electronic Payment") or
@@ -411,7 +411,7 @@
 
                         if ((Amount > 0) xor ("Sales/Purch. (LCY)" < 0)) and (Amount <> 0) and ("Sales/Purch. (LCY)" <> 0) then
                             LogFieldError(GenJnlLine, GenJnlLine.FieldNo("Sales/Purch. (LCY)"), StrSubstNo(Text009, FieldCaption(Amount)));
-                        LogTestField(GenJnlLine, FieldNo("Job No."), '');
+                        CheckJobNoIsEmpty(GenJnlLine);
 
                         CheckICPartner("Bal. Account Type", "Bal. Account No.", "Document Type");
                     end;
@@ -441,6 +441,18 @@
             end;
 
         OnAfterCheckBalAccountNo(GenJnlLine);
+    end;
+
+    local procedure CheckJobNoIsEmpty(GenJnlLine: Record "Gen. Journal Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckJobNoIsEmpty(GenJnlLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        LogTestField(GenJnlLine, GenJnlLine.FieldNo("Job No."), '');
     end;
 
     procedure CheckSalesDocNoIsNotUsed(var GenJournalLine: Record "Gen. Journal Line")
@@ -897,6 +909,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckAppliesToDocNo(GenJnlLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckJobNoIsEmpty(GenJnlLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
     begin
     end;
 
