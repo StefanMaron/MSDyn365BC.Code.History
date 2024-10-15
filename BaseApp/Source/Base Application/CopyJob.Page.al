@@ -186,7 +186,7 @@ page 1040 "Copy Job"
             CopyJob.SetJobTaskRange(FromJobTaskNo, ToJobTaskNo);
             CopyJob.SetJobTaskDateRange(FromDate, ToDate);
             CopyJob.CopyJob(SourceJob, TargetJobNo, TargetJobDescription, TargetBillToCustomerNo);
-            Message(Text001);
+            Message(Text001, SourceJob."No.", TargetJobNo);
         end
     end;
 
@@ -204,7 +204,7 @@ page 1040 "Copy Job"
         Source: Option "Job Planning Lines","Job Ledger Entries","None";
         PlanningLineType: Option "Budget+Billable",Budget,Billable;
         LedgerEntryType: Option "Usage+Sale",Usage,Sale;
-        Text001: Label 'The job was successfully copied.';
+        Text001: Label 'The job no. %1 was successfully copied to the new job no. %2 with the status Planning.', Comment = '%1 - The "No." of source job; %2 - The "No." of target job';
         Text002: Label 'Job No. %1 will be assigned to the new Job. Do you want to continue?';
         Text003: Label '%1 %2 does not exist.', Comment = 'Job Task 1000 does not exist.';
         CopyJobPrices: Boolean;

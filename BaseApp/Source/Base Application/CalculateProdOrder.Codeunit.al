@@ -797,6 +797,12 @@ codeunit 99000773 "Calculate Prod. Order"
         Location: Record Location;
         FromProdBinCode: Code[20];
     begin
+        ProdOrder.Get(ProdOrderLine.Status, ProdOrderLine."Prod. Order No.");
+        if (ProdOrder."Location Code" = ProdOrderLine."Location Code") and (ProdOrder."Bin Code" <> '') then begin
+            ProdOrderLine.Validate("Bin Code", ProdOrder."Bin Code");
+            exit;
+        end;
+
         if ParentBinCode <> '' then
             ProdOrderLine.Validate("Bin Code", ParentBinCode)
         else

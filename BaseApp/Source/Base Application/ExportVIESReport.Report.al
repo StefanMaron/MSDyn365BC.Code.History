@@ -1,6 +1,6 @@
 report 11008 "Export VIES Report"
 {
-    Caption = 'Export VIES Report';
+    Caption = 'VAT- VIES Declaration (XML)';
     ProcessingOnly = true;
 
     dataset

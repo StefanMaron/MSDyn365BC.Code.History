@@ -500,6 +500,24 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Sales/Purchase Report - NamedType VendFilterCaption)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3711915420 - NamedType 4291162734" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[/ReportDataSet/DataItems/DataItem/DataItems/DataItem/DataItems/DataItem/DataItems/DataItem/Columns/Column[@name='No_SalesShptLine']5D;]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Sales/Purchase Report - NamedType No_SalesShipmentLine_XPathTok)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3711915420 - NamedType 695900292" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[/ReportDataSet/DataItems/DataItem/Columns/Column[@name='OrderNo']5D;]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Sales/Purchase Report - NamedType OrderNo_StandardSalesInvoice_XPathTok)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 777216586 - NamedType 3114637384" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 is not empty.]]></Val>

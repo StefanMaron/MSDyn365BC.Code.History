@@ -96,6 +96,7 @@ codeunit 142060 "ERM Sales/Purchase Report"
         LibrarySales: Codeunit "Library - Sales";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryRandom: Codeunit "Library - Random";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         BuyFromVendCaption: Label 'BuyfromVendNo_PurchCrMemoHdr';
@@ -127,10 +128,12 @@ codeunit 142060 "ERM Sales/Purchase Report"
         SalesToCustomerControlCaption: Label 'SalesToCust_Control1160023';
         ValueNotMatch: Label 'Value must be same.';
         VendFilterCaption: Label 'VendFilter';
+        LibraryXPathXMLReader: Codeunit "Library - XPath XML Reader";
         isInitialized: Boolean;
-        CurrentSaveValuesId: Integer;
+        No_SalesShipmentLine_XPathTok: Label '/ReportDataSet/DataItems/DataItem/DataItems/DataItem/DataItems/DataItem/DataItems/DataItem/Columns/Column[@name=''No_SalesShptLine'']';
+        OrderNo_StandardSalesInvoice_XPathTok: Label '/ReportDataSet/DataItems/DataItem/Columns/Column[@name=''OrderNo'']';
 
-    // [Test]
+    [Test]
     [HandlerFunctions('BatchPostSalesOrdersRequestPageHandler,MessageHandler')]
     [Scope('OnPrem')]
     procedure SalesOrderWithSalesPostingBatchJob()
@@ -142,14 +145,16 @@ codeunit 142060 "ERM Sales/Purchase Report"
 
         // Setup: Create Sales Order.
         Initialize();
+        LibrarySales.SetPostAndPrintWithJobQueue(false);
         CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Order, CreateCustomerWithDimension);
         LibraryVariableStorage.Enqueue(SalesHeader."No.");  // Enqueue value for BatchPostSalesOrdersRequestPageHandler.
-        SalesOrders.OpenEdit;
+        LibraryVariableStorage.Enqueue(false); // do not print
+        SalesOrders.OpenEdit();
         SalesOrders.FILTER.SetFilter("No.", SalesHeader."No.");
-        Commit;  // COMMIT is required for run Sales Posting Batch Job Report.
+        Commit();  // COMMIT is required for run Sales Posting Batch Job Report.
 
         // Exercise: Run Sales Posting Batch Job Report.
-        SalesOrders."Post &Batch".Invoke;  // Control is using to run Sales Posting Batch Job Report.
+        SalesOrders."Post &Batch".Invoke();  // Control is using to run Sales Posting Batch Job Report.
 
         // Verify: Verify Posted Sales Shipment and posted Sales Invoice.
         VerifyPostedSalesDocument(SalesHeader."No.", SalesHeader."Sell-to Customer No.");
@@ -697,6 +702,74 @@ codeunit 142060 "ERM Sales/Purchase Report"
         LibraryReportDataset.AssertElementWithValueExists('CompanyInfo__VAT_Registration_No__', CompanyInfo."VAT Registration No.");
     end;
 
+    [Test]
+    [HandlerFunctions('BatchPostSalesOrdersRequestPageHandler,MessageHandler,SalesShipmentReportHandler,StandardSalesInvoiceReportHandler')]
+    [Scope('OnPrem')]
+    procedure TwoSalesOrderBatchPostingWithPrint()
+    var
+        Customer: Record Customer;
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        SalesHeader: array[2] of Record "Sales Header";
+        SalesLine: array[2] of Record "Sales Line";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesShipmentHeader: Record "Sales Shipment Header";
+        LibraryJobQueue: Codeunit "Library - Job Queue";
+        SalesOrders: TestPage "Sales Order List";
+        Index: Integer;
+        SalesHeaderFilter: Text;
+    begin
+        // [FEATURE] [Batch Posting] [Sales] [Order]
+        // [SCENARIO 357933] Stan can post and print two sales orders via "Batch Post Sales Orders"
+        Initialize();
+
+        SetReportOutputTypeOnSalesSetup(SalesReceivablesSetup."Report Output Type"::Print);
+        LibrarySales.SetPostAndPrintWithJobQueue(true);
+        LibrarySales.SetPostWithJobQueue(true);
+        BindSubscription(LibraryJobQueue);
+        LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
+
+        LibrarySales.CreateCustomer(Customer);
+        // [GIVEN] Two sales orders
+        for Index := 1 to ArrayLen(SalesHeader) do begin
+            CreateSalesDocument(SalesHeader[Index], SalesHeader[Index]."Document Type"::Order, Customer."No.");
+            LibrarySales.FindFirstSalesLine(SalesLine[Index], SalesHeader[Index]);
+        end;
+
+        SalesHeaderFilter := StrSubstNo('%1|%2', SalesHeader[1]."No.", SalesHeader[2]."No.");
+        LibraryVariableStorage.Enqueue(SalesHeaderFilter);
+        LibraryVariableStorage.Enqueue(true); // print
+        for Index := 1 to ArrayLen(SalesHeader) do begin
+            LibraryVariableStorage.Enqueue(SalesHeader[Index]."No."); // for shipment header
+            LibraryVariableStorage.Enqueue(SalesHeader[Index]."No."); // for invoice header
+        end;
+
+        SalesOrders.OpenEdit();
+        SalesOrders.FILTER.SetFilter("No.", SalesHeaderFilter);
+        Commit();
+
+        // [WHEN] Run "Batch Post Sales Orders" report with "Print" option for two orders
+        SalesOrders."Post &Batch".Invoke(); // runs Batch Posting Sales Orders report
+
+        for Index := 1 to ArrayLen(SalesHeader) do begin
+            LibraryJobQueue.FindAndRunJobQueueEntryByRecordId(SalesHeader[Index].RecordId); // background post
+            FindSalesShipmentHeader(SalesShipmentHeader, SalesHeader[Index]."No.");
+            LibraryJobQueue.FindAndRunJobQueueEntryByRecordId(SalesShipmentHeader.RecordId); // background print shipment
+            FindSalesInvoiceHeader(SalesInvoiceHeader, SalesHeader[Index]."No.");
+            LibraryJobQueue.FindAndRunJobQueueEntryByRecordId(SalesInvoiceHeader.RecordId); // background print invoice
+        end;
+
+        // [THEN] 4 reports printed. Shipment and Invoice per each posted order
+        Assert.AreEqual(2 * ArrayLen(SalesHeader), LibraryVariableStorage.Length, '');
+
+        for Index := 1 to ArrayLen(SalesHeader) do begin
+            VerifyPostedSalesDocument(SalesHeader[Index]."No.", Customer."No.");
+            VerifyPrintedSalesShipment(SalesLine[Index]);
+            VerifyPrintedStandardSalesInvoice(SalesHeader[Index]);
+        end;
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -706,13 +779,16 @@ codeunit 142060 "ERM Sales/Purchase Report"
         LibraryVariableStorage.Clear();
         Clear(LibraryReportDataset);
         DeleteObjectOptionsIfNeeded();
+        LibrarySetupStorage.Restore();
 
         if isInitialized then
             exit;
+        isInitialized := true;
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"ERM Sales/Purchase Report");
         LibraryERMCountryData.UpdateGeneralPostingSetup();
-        isInitialized := true;
+        LibrarySetupStorage.SaveSalesSetup();
+        
         LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"ERM Sales/Purchase Report");
     end;
 
@@ -889,6 +965,18 @@ codeunit 142060 "ERM Sales/Purchase Report"
         SalesLine.FindFirst;
     end;
 
+    local procedure FindSalesShipmentHeader(var SalesShipmentHeader: Record "Sales Shipment Header"; OrderNo: Code[20])
+    begin
+        SalesShipmentHeader.SetRange("Order No.", OrderNo);
+        SalesShipmentHeader.FindFirst();
+    end;
+
+    local procedure FindSalesInvoiceHeader(var SalesInvoiceHeader: Record "Sales Invoice Header"; OrderNo: Code[20])
+    begin
+        SalesInvoiceHeader.SetRange("Order No.", OrderNo);
+        SalesInvoiceHeader.FindFirst();
+    end;
+
     local procedure PostPurchOrderAndRunCrossBorderServiceReport(var PurchaseLine: Record "Purchase Line"; StatisticOn: Option)
     var
         PurchaseHeader: Record "Purchase Header";
@@ -985,6 +1073,15 @@ codeunit 142060 "ERM Sales/Purchase Report"
         exit(GeneralLedgerSetup."Additional Reporting Currency");
     end;
 
+    local procedure SetReportOutputTypeOnSalesSetup(ReportOutputType: Option)
+    var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+    begin
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup."Report Output Type" := ReportOutputType;
+        SalesReceivablesSetup.Modify();
+    end;
+
     local procedure UpdatePurchHdrPayToVendorNo(var PurchaseHeader: Record "Purchase Header")
     begin
         PurchaseHeader.Validate("Pay-to Vendor No.", CreateVendorWithDimension);
@@ -1060,19 +1157,38 @@ codeunit 142060 "ERM Sales/Purchase Report"
         LibraryReportDataset.AssertCurrentRowValueEquals('DocumentNo_VendLedgEntry', VendorLedgerEntry."Document No.");
     end;
 
+    local procedure VerifyPrintedSalesShipment(SalesLine: Record "Sales Line")
+    begin
+        Clear(LibraryXPathXMLReader);
+        LibraryXPathXMLReader.Initialize(LibraryVariableStorage.DequeueText(), '');
+        LibraryXPathXMLReader.VerifyNodeCountByXPath(No_SalesShipmentLine_XPathTok, 1);
+        LibraryXPathXMLReader.VerifyNodeValueByXPath(No_SalesShipmentLine_XPathTok, SalesLine."No.");
+    end;
+
+    local procedure VerifyPrintedStandardSalesInvoice(SalesHeader: Record "Sales Header")
+    begin
+        Clear(LibraryXPathXMLReader);
+        LibraryXPathXMLReader.Initialize(LibraryVariableStorage.DequeueText, '');
+        LibraryXPathXMLReader.VerifyNodeCountByXPath('/ReportDataSet/DataItems/DataItem', 1);
+        LibraryXPathXMLReader.VerifyNodeValueByXPath(OrderNo_StandardSalesInvoice_XPathTok, SalesHeader."No.");
+    end;
+
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure BatchPostSalesOrdersRequestPageHandler(var BatchPostSalesOrders: TestRequestPage "Batch Post Sales Orders")
     var
         No: Variant;
+        PrintDocuments: Boolean;
     begin
-        CurrentSaveValuesId := REPORT::"Batch Post Sales Orders";
         LibraryVariableStorage.Dequeue(No);  // Dequeue variable.
+        PrintDocuments := LibraryVariableStorage.DequeueBoolean();
         BatchPostSalesOrders.Ship.SetValue(true);
         BatchPostSalesOrders.Invoice.SetValue(true);
         BatchPostSalesOrders.PostingDate.SetValue(WorkDate);
         BatchPostSalesOrders."Sales Header".SetFilter("No.", No);
-        BatchPostSalesOrders.OK.Invoke;
+        if PrintDocuments then
+            BatchPostSalesOrders.PrintDoc.SetValue(PrintDocuments);
+        BatchPostSalesOrders.OK.Invoke();
     end;
 
     [ConfirmHandler]
@@ -1090,7 +1206,6 @@ codeunit 142060 "ERM Sales/Purchase Report"
         CountryRegionCode: Variant;
         ShowAmountInAddReportingCurrency: Variant;
     begin
-        CurrentSaveValuesId := REPORT::"Crossborder Services";
         LibraryVariableStorage.Dequeue(StatisticOn);
         LibraryVariableStorage.Dequeue(CountryRegionCode);
         LibraryVariableStorage.Dequeue(ShowAmountInAddReportingCurrency);
@@ -1112,7 +1227,6 @@ codeunit 142060 "ERM Sales/Purchase Report"
         OptionString: Option PostingDate,CountryRegion,GenProdPostingGroup,PostingDateCountryRegion,PostingDateCountryRegionGenProdPostingGrp;
         StatisticsOn: Option Countries,"Type Of Service",Both;
     begin
-        CurrentSaveValuesId := REPORT::"Crossborder Services";
         CrossborderServices.Selection.SetValue(StatisticsOn::Countries);  // Setting value for control 'Statistics on'.
         CrossborderServices.UseAmtsInAddCurr.SetValue(false);  // Setting value for control 'Show Amount in Additional Reporting Currency'.
         LibraryVariableStorage.Dequeue(OptionValue); // Dequeue variable.
@@ -1167,7 +1281,6 @@ codeunit 142060 "ERM Sales/Purchase Report"
         FilterOption: Option;
         OptionString: Option No,NoOfCopies,PayToVendNo,BuyFromVendNo,PostingDate,VendCrMemoNo;
     begin
-        CurrentSaveValuesId := REPORT::"Purchase - Credit Memo";
         LibraryVariableStorage.Dequeue(OptionValue); // Dequeue variable.
         FilterOption := OptionValue;
         case FilterOption of
@@ -1209,7 +1322,6 @@ codeunit 142060 "ERM Sales/Purchase Report"
     var
         No: Variant;
     begin
-        CurrentSaveValuesId := REPORT::"Sales - Credit Memo";
         LibraryVariableStorage.Dequeue(No);  // Dequeue variable.
         SalesCreditMemo.ShowInternalInfo.SetValue(true);  // Control use for Show Internal Information.
         SalesCreditMemo."Sales Cr.Memo Header".SetFilter("No.", No);
@@ -1229,7 +1341,6 @@ codeunit 142060 "ERM Sales/Purchase Report"
     var
         No: Variant;
     begin
-        CurrentSaveValuesId := REPORT::"Sales - Invoice";
         LibraryVariableStorage.Dequeue(No);  // Dequeue variable.
         SalesInvoice.ShowInternalInfo.SetValue(true);  // Control use for Show Internal Information.
         SalesInvoice."Sales Invoice Header".SetFilter("No.", No);
@@ -1243,7 +1354,6 @@ codeunit 142060 "ERM Sales/Purchase Report"
         EndingDate: Variant;
         No: Variant;
     begin
-        CurrentSaveValuesId := REPORT::"Vendor Detailed Aging";
         LibraryVariableStorage.Dequeue(EndingDate);  // Dequeue variable.
         LibraryVariableStorage.Dequeue(No);  // Dequeue variable.
         VendorDetailedAging.EndingDate.SetValue(EndingDate);  // Control use for Ending Date.
@@ -1255,15 +1365,45 @@ codeunit 142060 "ERM Sales/Purchase Report"
     [Scope('OnPrem')]
     procedure PHVendorDetailedAging(var VendorDetailedAging: TestRequestPage "Vendor Detailed Aging")
     begin
-        CurrentSaveValuesId := REPORT::"Vendor Detailed Aging";
         VendorDetailedAging.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 
     local procedure DeleteObjectOptionsIfNeeded()
     var
-        LibraryReportValidation: Codeunit "Library - Report Validation";
+        ObjectOptions: Record "Object Options";
     begin
-        LibraryReportValidation.DeleteObjectOptions(CurrentSaveValuesId);
+        ObjectOptions.SetRange("Object Type", ObjectOptions."Object Type"::Report);
+        ObjectOptions.DeleteAll();
+    end;
+
+    [ReportHandler]
+    [Scope('OnPrem')]
+    procedure SalesShipmentReportHandler(var SalesShipment: Report "Sales - Shipment")
+    var
+        SalesShipmentHeader: Record "Sales Shipment Header";
+        FileManagement: Codeunit "File Management";
+        FilePath: Text;
+    begin
+        FindSalesShipmentHeader(SalesShipmentHeader, LibraryVariableStorage.DequeueText());
+        SalesShipment.SetTableView(SalesShipmentHeader);
+        FilePath := FileManagement.ServerTempFileName('xml');
+        SalesShipment.SaveAsXml(FilePath);
+        LibraryVariableStorage.Enqueue(FilePath);
+    end;
+
+    [ReportHandler]
+    [Scope('OnPrem')]
+    procedure StandardSalesInvoiceReportHandler(var StandardSalesInvoice: Report "Standard Sales - Invoice")
+    var
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        FileManagement: Codeunit "File Management";
+        FilePath: Text;
+    begin
+        FindSalesInvoiceHeader(SalesInvoiceHeader, LibraryVariableStorage.DequeueText());
+        StandardSalesInvoice.SetTableView(SalesInvoiceHeader);
+        FilePath := FileManagement.ServerTempFileName('xml');
+        StandardSalesInvoice.SaveAsXml(FilePath);
+        LibraryVariableStorage.Enqueue(FilePath);
     end;
 }
 
