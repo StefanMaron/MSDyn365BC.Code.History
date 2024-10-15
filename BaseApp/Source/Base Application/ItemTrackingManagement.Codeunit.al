@@ -70,18 +70,21 @@
                 begin
                     if not SerialNoInfo.Get(ItemNo, VariantCode, ItemTrackingNo) then
                         Error(Text003, SerialNoInfo.FieldCaption("Serial No."), ItemTrackingNo);
+                    SerialNoInfo.SetRecFilter();
                     PAGE.RunModal(0, SerialNoInfo);
                 end;
             ItemTrackingType::"Lot No.":
                 begin
                     if not LotNoInfo.Get(ItemNo, VariantCode, ItemTrackingNo) then
                         Error(Text003, LotNoInfo.FieldCaption("Lot No."), ItemTrackingNo);
+                    LotNoInfo.SetRecFilter();
                     PAGE.RunModal(0, LotNoInfo);
                 end;
             ItemTrackingType::"Package No.":
                 begin
                     if not PackageNoInfo.Get(ItemNo, VariantCode, ItemTrackingNo) then
                         Error(Text003, PackageNoInfo.FieldCaption("Package No."), ItemTrackingNo);
+                    PackageNoInfo.SetRecFilter();
                     PAGE.RunModal(0, PackageNoInfo);
                 end;
         end;

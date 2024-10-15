@@ -284,9 +284,13 @@
     end;
 
     trigger OnRename()
+    var
+        DimValuePerAccount: Record "Dim. Value per Account";
     begin
         if ("Table ID" <> xRec."Table ID") or ("Dimension Code" <> xRec."Dimension Code") then
             Error(Text000, TableCaption);
+
+        DimValuePerAccount.RenameNo("Table ID", xRec."No.", "No.", "Dimension Code");
     end;
 
     var

@@ -26,6 +26,7 @@ codeunit 136305 "Job Journal"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryMarketing: Codeunit "Library - Marketing";
+        LibraryPriceCalculation: Codeunit "Library - Price Calculation";
         CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
         Initialized: Boolean;
         BlankJobNoError: Label '%1 must have a value in %2: %3=%4, %5=%6, %7=%8, %9=%10, %11=%12, %13=%14. It cannot be zero or empty.', Comment = '%1=Field name,%2=Table name,%3=Field,%4=Field value,%5=Field,%6=Field value,%7=Field,%8=Field value,%9=Field,%10=Field value,%11=Field,%12=Field value,%13=Field,%14=Field value';
@@ -2511,6 +2512,158 @@ codeunit 136305 "Job Journal"
 
         JobJournalLine.TestField(Type, JobJournalLine.Type::Resource);
         JobJournalLine.TestField("No.", ResourceNo);
+    end;
+
+    [Test]
+    procedure UnitCostAndDirectUnitCostFromPurchPriceToJobJnlLineInFCY()
+    var
+        PriceCalculationSetup: Record "Price Calculation Setup";
+        PriceListLine: Record "Price List Line";
+        Currency: Record Currency;
+        Resource: Record Resource;
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        JobJournalLine: Record "Job Journal Line";
+        ExchRate: Decimal;
+        UnitCostLCY: Decimal;
+        UnitCostFCY: Decimal;
+    begin
+        // [FEATURE] [Price] [Resource] [Currency]
+        // [SCENARIO 432481] Unit Cost and Direct Unit Cost from purchase prices to a job journal line in foreign currency.
+        Initialize();
+        ExchRate := LibraryRandom.RandIntInRange(2, 5);
+        UnitCostLCY := LibraryRandom.RandDec(100, 2);
+        UnitCostFCY := UnitCostLCY * ExchRate;
+
+        // [GIVEN] Enable new prices expirience.
+        LibraryPriceCalculation.EnableExtendedPriceCalculation();
+        PriceCalculationSetup.DeleteAll();
+        LibraryPriceCalculation.AddSetup(
+          PriceCalculationSetup, "Price Calculation Method"::"Lowest Price", "Price Type"::Purchase,
+          "Price Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 16.0)", true);
+
+        // [GIVEN] Currency "FCY", set exchange rate 1 "LCY" = 1.5 "FCY".
+        Currency.Get(LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), ExchRate, ExchRate));
+
+        // [GIVEN] Job with Currency Code = "FCY".
+        LibraryJob.CreateJob(Job);
+        Job.Validate("Currency Code", Currency.Code);
+        Job.Modify(true);
+        LibraryJob.CreateJobTask(Job, JobTask);
+
+        // [GIVEN] Resource "R".
+        Resource.Get(LibraryJob.CreateConsumable("Job Planning Line Type"::Resource));
+
+        // [GIVEN] Create purchase price for the job and resource:
+        // [GIVEN] Currency Code = "FCY", Unit Cost = 150 FCY, Direct Unit Cost = 150 FCY.
+        LibraryPriceCalculation.CreatePurchPriceLine(
+          PriceListLine, '', "Price Source Type"::Job, Job."No.", "Price Asset Type"::Resource, Resource."No.");
+        PriceListLine.Validate("Currency Code", Currency.Code);
+        PriceListLine.Validate("Direct Unit Cost", UnitCostFCY);
+        PriceListLine.Validate("Unit Cost", UnitCostFCY);
+        PriceListLine.Status := PriceListLine.Status::Active;
+        PriceListLine.Modify();
+
+        // [WHEN] Create job journal line, select the job and resource "R".
+        LibraryJob.CreateJobJournalLineForType("Job Line Type"::" ", JobJournalLine.Type::Resource, JobTask, JobJournalLine);
+        JobJournalLine.Validate("No.", Resource."No.");
+
+        // [THEN] "Unit Cost" = 150 FCY, "Unit Cost (LCY)" = 100 LCY, "Direct Unit Cost (LCY)" = 100 LCY.
+        JobJournalLine.TestField("Currency Code", Currency.Code);
+        JobJournalLine.TestField("Unit Cost", UnitCostFCY);
+        JobJournalLine.TestField("Unit Cost (LCY)", UnitCostLCY);
+        JobJournalLine.TestField("Direct Unit Cost (LCY)", UnitCostLCY);
+    end;
+
+    [Test]
+    procedure UnitCostAndDirectUnitCostFromResourceToJobJnlLineInFCY()
+    var
+        Currency: Record Currency;
+        Resource: Record Resource;
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        JobJournalLine: Record "Job Journal Line";
+        ExchRate: Decimal;
+        UnitCostLCY: Decimal;
+        UnitCostFCY: Decimal;
+    begin
+        // [FEATURE] [Price] [Resource] [Currency]
+        // [SCENARIO 432481] Unit Cost and Direct Unit Cost from resource card to a job journal line in foreign currency.
+        Initialize();
+        ExchRate := LibraryRandom.RandIntInRange(2, 5);
+        UnitCostLCY := LibraryRandom.RandDec(100, 2);
+        UnitCostFCY := UnitCostLCY * ExchRate;
+
+        // [GIVEN] Currency "FCY", set exchange rate 1 "LCY" = 1.5 "FCY".
+        Currency.Get(LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), ExchRate, ExchRate));
+
+        // [GIVEN] Job with Currency Code = "FCY".
+        LibraryJob.CreateJob(Job);
+        Job.Validate("Currency Code", Currency.Code);
+        Job.Modify(true);
+        LibraryJob.CreateJobTask(Job, JobTask);
+
+        // [GIVEN] Resource "R", set "Unit Cost" = 100 LCY, "Direct Unit Cost" = 100 LCY.
+        Resource.Get(LibraryJob.CreateConsumable("Job Planning Line Type"::Resource));
+        Resource.Validate("Unit Cost", UnitCostLCY);
+        Resource.Validate("Direct Unit Cost", UnitCostLCY);
+        Resource.Modify(true);
+
+        // [WHEN] Create job journal line, select the job and resource "R".
+        LibraryJob.CreateJobJournalLineForType("Job Line Type"::" ", JobJournalLine.Type::Resource, JobTask, JobJournalLine);
+        JobJournalLine.Validate("No.", Resource."No.");
+
+        // [THEN] "Unit Cost" = 150 FCY, "Unit Cost (LCY)" = 100 LCY, "Direct Unit Cost (LCY)" = 100 LCY.
+        JobJournalLine.TestField("Currency Code", Currency.Code);
+        JobJournalLine.TestField("Unit Cost", UnitCostFCY);
+        JobJournalLine.TestField("Unit Cost (LCY)", UnitCostLCY);
+        JobJournalLine.TestField("Direct Unit Cost (LCY)", UnitCostLCY);
+    end;
+
+    [Test]
+    procedure UnitCostAndDirectUnitCostFromResourceToJobPlanningLineInFCY()
+    var
+        Currency: Record Currency;
+        Resource: Record Resource;
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        JobPlanningLine: Record "Job Planning Line";
+        ExchRate: Decimal;
+        UnitCostLCY: Decimal;
+        UnitCostFCY: Decimal;
+    begin
+        // [FEATURE] [Price] [Resource] [Currency] [Job Planning Line]
+        // [SCENARIO 432481] Unit Cost and Direct Unit Cost from resource card to a job planning line in foreign currency.
+        Initialize();
+        ExchRate := LibraryRandom.RandIntInRange(2, 5);
+        UnitCostLCY := LibraryRandom.RandDec(100, 2);
+        UnitCostFCY := UnitCostLCY * ExchRate;
+
+        // [GIVEN] Currency "FCY", set exchange rate 1 "LCY" = 1.5 "FCY".
+        Currency.Get(LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), ExchRate, ExchRate));
+
+        // [GIVEN] Job with Currency Code = "FCY".
+        LibraryJob.CreateJob(Job);
+        Job.Validate("Currency Code", Currency.Code);
+        Job.Modify(true);
+        LibraryJob.CreateJobTask(Job, JobTask);
+
+        // [GIVEN] Resource "R", set "Unit Cost" = 100 LCY, "Direct Unit Cost" = 100 LCY.
+        Resource.Get(LibraryJob.CreateConsumable("Job Planning Line Type"::Resource));
+        Resource.Validate("Unit Cost", UnitCostLCY);
+        Resource.Validate("Direct Unit Cost", UnitCostLCY);
+        Resource.Modify(true);
+
+        // [WHEN] Create job planning line, select the job and resource "R".
+        LibraryJob.CreateJobPlanningLine(
+          "Job Planning Line Line Type"::Budget, "Job Planning Line Type"::Resource, JobTask, JobPlanningLine);
+        JobPlanningLine.Validate("No.", Resource."No.");
+
+        // [THEN] "Unit Cost" = 150 FCY, "Unit Cost (LCY)" = 100 LCY, "Direct Unit Cost (LCY)" = 100 LCY.
+        JobPlanningLine.TestField("Currency Code", Currency.Code);
+        JobPlanningLine.TestField("Unit Cost", UnitCostFCY);
+        JobPlanningLine.TestField("Unit Cost (LCY)", UnitCostLCY);
+        JobPlanningLine.TestField("Direct Unit Cost (LCY)", UnitCostLCY);
     end;
 
     local procedure Initialize()

@@ -3546,13 +3546,15 @@
                     end;
 
                     BlanketOrderSalesLine."Qty. to Invoice" :=
-                      BlanketOrderSalesLine.Quantity - BlanketOrderSalesLine."Quantity Invoiced";
-                    BlanketOrderSalesLine."Qty. to Ship" :=
-                      BlanketOrderSalesLine.Quantity - BlanketOrderSalesLine."Quantity Shipped";
+                        BlanketOrderSalesLine.Quantity - BlanketOrderSalesLine."Quantity Invoiced";
+                    if (SalesLine.Quantity = SalesLine."Quantity Shipped") or (SalesLine."Quantity Shipped" = 0) then
+                        BlanketOrderSalesLine."Qty. to Ship" :=
+                            BlanketOrderSalesLine.Quantity - BlanketOrderSalesLine."Quantity Shipped";
                     BlanketOrderSalesLine."Qty. to Invoice (Base)" :=
-                      BlanketOrderSalesLine."Quantity (Base)" - BlanketOrderSalesLine."Qty. Invoiced (Base)";
-                    BlanketOrderSalesLine."Qty. to Ship (Base)" :=
-                      BlanketOrderSalesLine."Quantity (Base)" - BlanketOrderSalesLine."Qty. Shipped (Base)";
+                        BlanketOrderSalesLine."Quantity (Base)" - BlanketOrderSalesLine."Qty. Invoiced (Base)";
+                    if (SalesLine."Quantity (Base)" = SalesLine."Qty. Shipped (Base)") or (SalesLine."Qty. Shipped (Base)" = 0) then
+                        BlanketOrderSalesLine."Qty. to Ship (Base)" :=
+                            BlanketOrderSalesLine."Quantity (Base)" - BlanketOrderSalesLine."Qty. Shipped (Base)";
 
                     OnBeforeBlanketOrderSalesLineModify(BlanketOrderSalesLine, SalesLine);
                     BlanketOrderSalesLine.Modify();
@@ -5284,8 +5286,7 @@
         DiffAmtToDeduct: Decimal;
     begin
         if SalesInvoiceLine."Prepayment %" = 100 then begin
-            SalesOrderLine := TempTotalSalesLine;
-            SalesOrderLine.Find();
+            SalesOrderLine.Get(TempTotalSalesLine."Document Type", TempTotalSalesLine."Document No.", TempTotalSalesLine."Line No.");
             if TempTotalSalesLine."Qty. to Invoice" = SalesOrderLine.Quantity - SalesOrderLine."Quantity Invoiced" then begin
                 DiffAmtToDeduct :=
                   SalesOrderLine."Prepmt. Amt. Inv." - SalesOrderLine."Prepmt Amt Deducted" - TempTotalSalesLine."Prepmt Amt to Deduct";

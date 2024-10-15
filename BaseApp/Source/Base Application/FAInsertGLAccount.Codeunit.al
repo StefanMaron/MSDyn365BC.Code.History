@@ -72,7 +72,6 @@
         FAPostingGr: Record "FA Posting Group";
         FAPostingGr2: Record "FA Posting Group";
         FADeprBook: Record "FA Depreciation Book";
-        FADimMgt: Codeunit FADimensionManagement;
         FAGetGLAccNo: Codeunit "FA Get G/L Account No.";
         DepreciationCalc: Codeunit "Depreciation Calculation";
         NextEntryNo: Integer;
@@ -179,7 +178,6 @@
                     FAGLPostBuf."FA Allocation Line No." := "Line No.";
                     OnInsertBufferBalAccOnAfterAssignFromFAAllocAcc(FAAlloc, FAGLPostBuf);
                     if NewAmount <> 0 then begin
-                        FADimMgt.CheckFAAllocDim(FAAlloc, FAGLPostBuf."Dimension Set ID");
                         InsertBufferEntry();
                         if Flag then begin
                             Clear(FAGLPostBuf);

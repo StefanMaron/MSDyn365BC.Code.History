@@ -228,7 +228,8 @@ report 593 "Intrastat - Make Disk Tax Auth"
             IntrastatJnlLine.TestField("Tariff No.");
             IntrastatJnlLine.TestField("Country/Region Code");
             IntrastatJnlLine.TestField("Transaction Type");
-            IntrastatJnlLine.TestField("Total Weight");
+            if not IntrastatJnlLine."Supplementary Units" then
+                IntrastatJnlLine.TestField("Total Weight");
             if IntrastatJnlLine."Supplementary Units" then
                 IntrastatJnlLine.TestField(Quantity);
         end;
