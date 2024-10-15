@@ -89,9 +89,6 @@ page 1110 "Cost Type Balance"
                 ApplicationArea = CostAccounting;
                 Caption = 'Previous Set';
                 Image = PreviousSet;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'Go to the previous set of data.';
 
                 trigger OnAction()
@@ -105,9 +102,6 @@ page 1110 "Cost Type Balance"
                 ApplicationArea = CostAccounting;
                 Caption = 'Previous Column';
                 Image = PreviousRecord;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'Go to the previous column.';
 
                 trigger OnAction()
@@ -121,9 +115,6 @@ page 1110 "Cost Type Balance"
                 ApplicationArea = CostAccounting;
                 Caption = 'Next Column';
                 Image = NextRecord;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'Go to the next column.';
 
                 trigger OnAction()
@@ -137,9 +128,6 @@ page 1110 "Cost Type Balance"
                 ApplicationArea = CostAccounting;
                 Caption = 'Next Set';
                 Image = NextSet;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'Go to the next set of data.';
 
                 trigger OnAction()
@@ -147,6 +135,26 @@ page 1110 "Cost Type Balance"
                     GenerateColumnCaptions("Matrix Page Step Type"::Next);
                     UpdateMatrixSubform();
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(PreviousSet_Promoted; PreviousSet)
+                {
+                }
+                actionref(PreviousColumn_Promoted; PreviousColumn)
+                {
+                }
+                actionref(NextColumn_Promoted; NextColumn)
+                {
+                }
+                actionref(NextSet_Promoted; NextSet)
+                {
+                }
             }
         }
     }

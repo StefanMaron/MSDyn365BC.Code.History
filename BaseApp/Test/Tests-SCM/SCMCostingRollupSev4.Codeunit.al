@@ -69,7 +69,7 @@ codeunit 137616 "SCM Costing Rollup Sev 4"
         Initialize();
 
         LibraryCosting.AdjustCostItemEntries('', '');
-        LibraryCosting.PostInvtCostToGL(false, WorkDate, '');
+        LibraryCosting.PostInvtCostToGL(false, WorkDate(), '');
 
         LibraryInventory.UpdateAverageCostSettings(
           InventorySetup."Average Cost Calc. Type"::Item, InventorySetup."Average Cost Period"::Day);
@@ -97,7 +97,7 @@ codeunit 137616 "SCM Costing Rollup Sev 4"
         InventorySetup.Modify(true);
 
         // Exercise. Post to G/L.
-        LibraryCosting.PostInvtCostToGL(false, WorkDate, '');
+        LibraryCosting.PostInvtCostToGL(false, WorkDate(), '');
 
         // Verify. Interim accounts have 0 balance.
         InventoryPostingSetup.Get('', Item."Inventory Posting Group");
@@ -126,8 +126,8 @@ codeunit 137616 "SCM Costing Rollup Sev 4"
 
         // Setup. Post purchase and sale, assign purchase charge to sales shipment.
         LibraryPatterns.MAKEItemSimple(Item, Item."Costing Method"::FIFO, 0);
-        LibraryPatterns.POSTPurchaseOrder(PurchaseHeader, Item, '', '', 18, WorkDate, 30, true, true);
-        LibraryPatterns.POSTSalesOrder(SalesHeader, Item, '', '', 18, WorkDate, 0, true, true);
+        LibraryPatterns.POSTPurchaseOrder(PurchaseHeader, Item, '', '', 18, WorkDate(), 30, true, true);
+        LibraryPatterns.POSTSalesOrder(SalesHeader, Item, '', '', 18, WorkDate(), 0, true, true);
         LibraryPatterns.InsertTempILEFromLast(TempItemLedgerEntry);
         SalesShptLine.Get(TempItemLedgerEntry."Document No.", TempItemLedgerEntry."Document Line No.");
 
@@ -141,12 +141,12 @@ codeunit 137616 "SCM Costing Rollup Sev 4"
           SalesShptLine."Document No.", SalesShptLine."Line No.",
           SalesShptLine."No.", 1, 1500);
         ItemChargeAssignmentPurch.Insert();
-        ItemChargeAssgntPurch.SuggestAssgnt(PurchaseLine, PurchaseLine.Quantity, PurchaseLine."Line Amount");
+        ItemChargeAssgntPurch.SuggestAssgnt(PurchaseLine, PurchaseLine.Quantity, PurchaseLine."Line Amount", PurchaseLine.Quantity, PurchaseLine."Line Amount");
 
         // Execute: Adjust and post to G/L.
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
         LibraryCosting.AdjustCostItemEntries(Item."No.", '');
-        LibraryCosting.PostInvtCostToGL(false, WorkDate, '');
+        LibraryCosting.PostInvtCostToGL(false, WorkDate(), '');
 
         // Verify: Value Entry Cost Amount (Non-Invtbl.).
         ValueEntry.SetRange("Item No.", Item."No.");
@@ -172,10 +172,10 @@ codeunit 137616 "SCM Costing Rollup Sev 4"
         // Setup: Create item, add to inventory then remove, generating a rounding entry.
         LibraryPatterns.MAKEItemSimple(Item, Item."Costing Method"::FIFO, 0);
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
-        LibraryPatterns.POSTPositiveAdjustmentAmount(Item, Location.Code, '', 3, WorkDate, 10);
-        LibraryPatterns.POSTNegativeAdjustment(Item, Location.Code, '', '', 1, WorkDate, 0);
-        LibraryPatterns.POSTNegativeAdjustment(Item, Location.Code, '', '', 1, WorkDate, 0);
-        LibraryPatterns.POSTNegativeAdjustment(Item, Location.Code, '', '', 1, WorkDate, 0);
+        LibraryPatterns.POSTPositiveAdjustmentAmount(Item, Location.Code, '', 3, WorkDate(), 10);
+        LibraryPatterns.POSTNegativeAdjustment(Item, Location.Code, '', '', 1, WorkDate(), 0);
+        LibraryPatterns.POSTNegativeAdjustment(Item, Location.Code, '', '', 1, WorkDate(), 0);
+        LibraryPatterns.POSTNegativeAdjustment(Item, Location.Code, '', '', 1, WorkDate(), 0);
 
         // Setup dimension with code mandatory for Inventory account.
         InventoryPostingSetup.Get(Location.Code, Item."Inventory Posting Group");
@@ -221,12 +221,12 @@ codeunit 137616 "SCM Costing Rollup Sev 4"
 
         LotNo := LibraryUtility.GenerateRandomCode(ReservationEntry.FieldNo("Lot No."), DATABASE::"Reservation Entry");
         Qty := LibraryRandom.RandDecInRange(100, 200, 2);
-        LibraryPatterns.POSTPurchaseOrderWithItemTracking(PurchaseHeader, Item, '', '', Qty, WorkDate, 0, true, false, '', LotNo);
-        LibraryPatterns.POSTNegativeAdjustmentWithItemTracking(Item, '', '', Qty - 50, WorkDate, '', LotNo);
+        LibraryPatterns.POSTPurchaseOrderWithItemTracking(PurchaseHeader, Item, '', '', Qty, WorkDate(), 0, true, false, '', LotNo);
+        LibraryPatterns.POSTNegativeAdjustmentWithItemTracking(Item, '', '', Qty - 50, WorkDate(), '', LotNo);
         LibraryPatterns.InsertTempILEFromLast(TempItemLedgerEntry);
 
         LibraryInventory.CreateItemJournalBatchByType(ItemJournalBatch, ItemJournalTemplate.Type::Item);
-        LibraryPatterns.MAKEItemJournalLine(ItemJournalLine, ItemJournalBatch, Item, '', '', WorkDate,
+        LibraryPatterns.MAKEItemJournalLine(ItemJournalLine, ItemJournalBatch, Item, '', '', WorkDate(),
           ItemJournalLine."Entry Type"::"Positive Adjmt.", Qty - 75, 0);
 
         // Exercise. Try to apply from the journal.
@@ -262,8 +262,8 @@ codeunit 137616 "SCM Costing Rollup Sev 4"
         UnitPrice := UnitCost + LibraryRandom.RandDec(10, 2);
 
         LibraryPatterns.MAKEItemSimple(Item, Item."Costing Method"::Average, 0);
-        LibraryPatterns.MAKESalesOrder(SalesHeader, SalesLine, Item, '', '', Qty, WorkDate, UnitCost);
-        LibraryPatterns.POSTPurchaseOrder(PurchaseHeader, Item, '', '', Qty, WorkDate, UnitPrice, true, true);
+        LibraryPatterns.MAKESalesOrder(SalesHeader, SalesLine, Item, '', '', Qty, WorkDate(), UnitCost);
+        LibraryPatterns.POSTPurchaseOrder(PurchaseHeader, Item, '', '', Qty, WorkDate(), UnitPrice, true, true);
         LibrarySales.PostSalesDocument(SalesHeader, true, false);
         LibraryPatterns.InsertTempILEFromLast(TempItemLedgerEntry);
         SalesShptLine.Get(TempItemLedgerEntry."Document No.", TempItemLedgerEntry."Document Line No.");
@@ -345,22 +345,22 @@ codeunit 137616 "SCM Costing Rollup Sev 4"
         // Exercise: Post item journal adjustments. The quantities are manipulated so we end up with a negative qty on hand
         Qty := LibraryRandom.RandDec(5, 2);
         LibraryPatterns.POSTItemJournalLine(ItemJournalBatch."Template Type"::Item, ItemJournalLine."Entry Type"::Sale,
-          Item, Location1.Code, '', '', Qty, WorkDate, LibraryRandom.RandDec(10, 2));
+          Item, Location1.Code, '', '', Qty, WorkDate(), LibraryRandom.RandDec(10, 2));
         LibraryPatterns.POSTItemJournalLine(ItemJournalBatch."Template Type"::Item, ItemJournalLine."Entry Type"::Purchase,
-          Item, Location1.Code, '', '', Qty, WorkDate, LibraryRandom.RandDec(10, 2));
+          Item, Location1.Code, '', '', Qty, WorkDate(), LibraryRandom.RandDec(10, 2));
         LibraryPatterns.POSTItemJournalLine(ItemJournalBatch."Template Type"::Item, ItemJournalLine."Entry Type"::Sale,
-          Item, Location2.Code, '', '', Qty, WorkDate, LibraryRandom.RandDec(10, 2));
+          Item, Location2.Code, '', '', Qty, WorkDate(), LibraryRandom.RandDec(10, 2));
         LibraryPatterns.POSTItemJournalLine(ItemJournalBatch."Template Type"::Item, ItemJournalLine."Entry Type"::Purchase,
-          Item, Location2.Code, '', '', Qty, WorkDate, LibraryRandom.RandDec(10, 2));
+          Item, Location2.Code, '', '', Qty, WorkDate(), LibraryRandom.RandDec(10, 2));
 
         // Now we have 0 quantity of Item. Force a negative quantity
         Qty := LibraryRandom.RandDec(5, 2);
         Qty2 := LibraryRandom.RandDecInRange(6, 10, 2);
         UnitAmount := LibraryRandom.RandDec(10, 2);
         LibraryPatterns.POSTItemJournalLine(ItemJournalBatch."Template Type"::Item, ItemJournalLine."Entry Type"::Sale,
-          Item, Location3.Code, '', '', Qty2, WorkDate, LibraryRandom.RandDec(10, 2));
+          Item, Location3.Code, '', '', Qty2, WorkDate(), LibraryRandom.RandDec(10, 2));
         LibraryPatterns.POSTItemJournalLine(ItemJournalBatch."Template Type"::Item, ItemJournalLine."Entry Type"::Purchase,
-          Item, Location3.Code, '', '', Qty, WorkDate, UnitAmount);
+          Item, Location3.Code, '', '', Qty, WorkDate(), UnitAmount);
 
         // Verify: the unit cost on the item card is updated when we have negative qty on hand
         Item.Get(Item."No.");
@@ -421,7 +421,7 @@ codeunit 137616 "SCM Costing Rollup Sev 4"
 
         // Run Calc.Standard costs on all levels for the parent item
         ParentItem.SetRange("No.", ParentItem."No.");
-        CalculateStandardCost.SetProperties(WorkDate, true, false, false, '', false);
+        CalculateStandardCost.SetProperties(WorkDate(), true, false, false, '', false);
         CalculateStandardCost.CalcItems(ParentItem, TempItem);
         if TempItem.Find('-') then
             repeat
@@ -429,7 +429,7 @@ codeunit 137616 "SCM Costing Rollup Sev 4"
                 // 'Calculate std costs' directly assigns standard cost. Force propagation to unit cost field
                 Item.Validate("Standard Cost", Item."Standard Cost");
                 Item.Modify(true);
-            until TempItem.Next = 0;
+            until TempItem.Next() = 0;
 
         // Exercise: Create and refresh a Released Production Order for parent item
         LibraryManufacturing.CreateProductionOrder(ProdOrder, ProdOrder.Status::Released,
@@ -478,10 +478,10 @@ codeunit 137616 "SCM Costing Rollup Sev 4"
         LibraryInventory.SetAverageCostSetup(InventorySetup."Average Cost Calc. Type"::Item, InventorySetup."Average Cost Period"::Month);
 
         UnitCost := LibraryRandom.RandDecInRange(1, 100, 2);
-        LibraryPatterns.POSTPositiveAdjustment(Item, '', '', '', 800, CalcDate('<1M>', WorkDate), UnitCost);
-        LibraryPatterns.POSTNegativeAdjustment(Item, '', '', '', 200, CalcDate('<2M>', WorkDate), 0);
-        LibraryPatterns.POSTNegativeAdjustment(Item, '', '', '', 200, CalcDate('<3M>', WorkDate), 0);
-        LibraryPatterns.POSTNegativeAdjustment(Item, '', '', '', 100, CalcDate('<1Y>', WorkDate), 0);
+        LibraryPatterns.POSTPositiveAdjustment(Item, '', '', '', 800, CalcDate('<1M>', WorkDate()), UnitCost);
+        LibraryPatterns.POSTNegativeAdjustment(Item, '', '', '', 200, CalcDate('<2M>', WorkDate()), 0);
+        LibraryPatterns.POSTNegativeAdjustment(Item, '', '', '', 200, CalcDate('<3M>', WorkDate()), 0);
+        LibraryPatterns.POSTNegativeAdjustment(Item, '', '', '', 100, CalcDate('<1Y>', WorkDate()), 0);
 
         // Exercise: Run adjust cost, and verify that no error occurs
         AdjustCostAndVerify(Item."No.", UnitCost);
@@ -543,7 +543,7 @@ codeunit 137616 "SCM Costing Rollup Sev 4"
         // Setup: make item, make postings, adjust cost, close year
         LibraryPatterns.MAKEItemSimple(Item, Item."Costing Method"::Average, 0);
 
-        PostingDate := CalcDate('<-1Y>', WorkDate);
+        PostingDate := CalcDate('<-1Y>', WorkDate());
         PositiveItemJournalUnitCost := LibraryRandom.RandDecInRange(1, 100, 2);
         if NegativeHasUnitCost then
             NegativeItemJournalUnitCost := PositiveItemJournalUnitCost
@@ -586,17 +586,17 @@ codeunit 137616 "SCM Costing Rollup Sev 4"
 
         // Setup: Create new inventory period ending date being 20 days from WORKDATE
         InventoryPeriod.Init();
-        InventoryPeriod."Ending Date" := CalcDate('<20D>', WorkDate);
+        InventoryPeriod."Ending Date" := CalcDate('<20D>', WorkDate());
         InventoryPeriod.Insert();
 
         // Setup: Make item, post purchase, post sales.
         LibraryPatterns.MAKEItemSimple(Item, Item."Costing Method"::Average, 0);
         Qty := LibraryRandom.RandDecInRange(1, 100, 2);
-        LibraryPatterns.POSTPurchaseOrder(PurchaseHeader, Item, '', '', Qty, WorkDate, 1, true, true);
-        LibraryPatterns.POSTSalesOrder(SalesHeader, Item, '', '', Qty, WorkDate, 1, true, true);
+        LibraryPatterns.POSTPurchaseOrder(PurchaseHeader, Item, '', '', Qty, WorkDate(), 1, true, true);
+        LibraryPatterns.POSTSalesOrder(SalesHeader, Item, '', '', Qty, WorkDate(), 1, true, true);
 
         // Setup: Post sales credit
-        LibraryPatterns.MAKESalesCreditMemo(SalesHeader, SalesLine, Item, '', '', Qty, WorkDate, 1, 12);
+        LibraryPatterns.MAKESalesCreditMemo(SalesHeader, SalesLine, Item, '', '', Qty, WorkDate(), 1, 12);
         ItemLedgerEntry.SetRange("Item No.", Item."No.");
         ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Sale);
         ItemLedgerEntry.FindLast();

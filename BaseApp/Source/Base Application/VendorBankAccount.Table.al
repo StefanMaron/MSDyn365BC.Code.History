@@ -1,4 +1,4 @@
-table 288 "Vendor Bank Account"
+﻿table 288 "Vendor Bank Account"
 {
     Caption = 'Vendor Bank Account';
     DataCaptionFields = "Vendor No.", "Code", Name;
@@ -55,8 +55,13 @@ table 288 "Vendor Bank Account"
             end;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
-                PostCode.ValidateCity(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
+                IsHandled := false;
+                OnBeforeValidateCity(Rec, PostCode, CurrFieldNo, IsHandled);
+                if not IsHandled then
+                    PostCode.ValidateCity(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
             end;
         }
         field(9; "Post Code"; Code[20])
@@ -75,8 +80,13 @@ table 288 "Vendor Bank Account"
             end;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
-                PostCode.ValidatePostCode(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
+                IsHandled := false;
+                OnBeforeValidatePostCode(Rec, PostCode, CurrFieldNo, IsHandled);
+                if not IsHandled then
+                    PostCode.ValidatePostCode(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
             end;
         }
         field(10; Contact; Text[100])
@@ -107,8 +117,8 @@ table 288 "Vendor Bank Account"
 
             trigger OnValidate()
             begin
-                ConvertBankAccNo;
-                GetBBAN;
+                ConvertBankAccNo();
+                GetBBAN();
 		        OnValidateBankAccount(Rec, 'Bank Account No.');
             end;
         }
@@ -213,16 +223,16 @@ table 288 "Vendor Bank Account"
                     City := AbiCabCodes.City;
                     "Post Code" := AbiCabCodes."Post Code";
                     County := AbiCabCodes.County;
-                    ConvertBankAccNo;
-                    GetBBAN;
+                    ConvertBankAccNo();
+                    GetBBAN();
                 end;
             end;
 
             trigger OnValidate()
             begin
                 AbiCabCodes.CheckABICAB(ABI, CAB);
-                ConvertBankAccNo;
-                GetBBAN;
+                ConvertBankAccNo();
+                GetBBAN();
             end;
         }
         field(12171; CAB; Code[5])
@@ -241,8 +251,8 @@ table 288 "Vendor Bank Account"
                     City := AbiCabCodes.City;
                     "Post Code" := AbiCabCodes."Post Code";
                     County := AbiCabCodes.County;
-                    ConvertBankAccNo;
-                    GetBBAN;
+                    ConvertBankAccNo();
+                    GetBBAN();
                 end;
                 AbiCabCodes.Reset();
             end;
@@ -250,8 +260,8 @@ table 288 "Vendor Bank Account"
             trigger OnValidate()
             begin
                 AbiCabCodes.CheckABICAB(ABI, CAB);
-                ConvertBankAccNo;
-                GetBBAN;
+                ConvertBankAccNo();
+                GetBBAN();
             end;
         }
         field(12174; BBAN; Code[30])
@@ -305,7 +315,7 @@ table 288 "Vendor Bank Account"
                 Confirmed := Confirm(StrSubstNo('%1%2', Text12100, Text12101), false);
             if not Confirmed then begin
                 IBAN := xRec.IBAN;
-                Modify;
+                Modify();
                 Commit();
                 Error(Text12102);
             end;
@@ -353,14 +363,14 @@ table 288 "Vendor Bank Account"
             AbiCabCodes.CheckABICAB(ABI, CAB);
             ConvertBankAccNo();
             IBAN2 := IBAN;
-            GetBBAN;
+            GetBBAN();
             IBAN := IBAN2;
         end;
     end;
 
     procedure GetBankAccountNoWithCheck() AccountNo: Text
     begin
-        AccountNo := GetBankAccountNo;
+        AccountNo := GetBankAccountNo();
         if AccountNo = '' then
             Error(BankAccIdentifierIsEmptyErr);
     end;
@@ -390,7 +400,7 @@ table 288 "Vendor Bank Account"
     local procedure OnBeforeLookupName(xVendorBankAccount: Record "Vendor Bank Account")
     begin
     end;
-    
+
     [IntegrationEvent(false, false)]
     local procedure OnValidateBankAccount(var VendorBankAccount: Record "Vendor Bank Account"; FieldToValidate: Text)
     begin
@@ -403,6 +413,16 @@ table 288 "Vendor Bank Account"
 
     [IntegrationEvent(false, false)]
     local procedure OnGetBankAccount(var Handled: Boolean; VendorBankAccount: Record "Vendor Bank Account"; var ResultBankAccountNo: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateCity(var VendorBankAccount: Record "Vendor Bank Account"; var PostCodeRec: Record "Post Code"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidatePostCode(var VendorBankAccount: Record "Vendor Bank Account"; var PostCodeRec: Record "Post Code"; CurrentFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 }

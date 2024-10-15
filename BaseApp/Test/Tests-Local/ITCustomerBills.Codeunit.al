@@ -288,12 +288,12 @@ codeunit 144191 "IT - Customer Bills"
         TotalAmount: Decimal;
     begin
         LibraryReportValidation.OpenFile;
-        LibraryReportValidation.SetRange(CustLedgerEntry.FieldCaption("Posting Date"), Format(WorkDate));
+        LibraryReportValidation.SetRange(CustLedgerEntry.FieldCaption("Posting Date"), Format(WorkDate()));
         LibraryReportValidation.SetColumn(CustLedgerEntry.FieldCaption("Posting Date"));
         Assert.AreEqual(ExpectedLines, LibraryReportValidation.CountRows, StrSubstNo(NoOfLinesErr, ExpectedLines));
         LibraryReportValidation.SetRange(CustomerBalanceLbl, CustomerBalanceLbl);
         LibraryReportValidation.SetColumn(AmountDueLCYLbl);
-        Evaluate(TotalAmount, LibraryReportValidation.GetValue);
+        Evaluate(TotalAmount, LibraryReportValidation.GetValue());
         Assert.AreEqual(ExpectedAmount, TotalAmount, StrSubstNo(AmountErr, ExpectedAmount));
     end;
 
@@ -305,7 +305,7 @@ codeunit 144191 "IT - Customer Bills"
         LibraryReportValidation.OpenFile;
         LibraryReportValidation.SetRange(VATEntry.FieldCaption("Document No."), DocumentNo);
         LibraryReportValidation.SetColumn(AppliedAmountLbl);
-        Evaluate(ExpectedAmount, LibraryReportValidation.GetValue);
+        Evaluate(ExpectedAmount, LibraryReportValidation.GetValue());
         Assert.AreEqual(Amount, ExpectedAmount, StrSubstNo(AmountErr, ExpectedAmount));
     end;
 
@@ -320,7 +320,7 @@ codeunit 144191 "IT - Customer Bills"
     [Scope('OnPrem')]
     procedure CustomerBillListPageHandler(var CustomerBillsListReport: TestRequestPage "Customer Bills List")
     begin
-        CustomerBillsListReport."Ending Date".SetValue(WorkDate);
+        CustomerBillsListReport."Ending Date".SetValue(WorkDate());
         CustomerBillsListReport."Only Opened Entries".SetValue(ReportOpenEntriesOnly);
         LibraryReportValidation.SetFileName(LibraryUtility.GetGlobalNoSeriesCode);
         CustomerBillsListReport.SaveAsExcel(LibraryReportValidation.GetFileName);

@@ -14,16 +14,16 @@ codeunit 741 "VAT Report Release/Reopen"
         VATReportHeader.CheckIfCanBeReleased(VATReportHeader);
 
         ErrorMessage.SetContext(VATReportHeader);
-        ErrorMessage.ClearLog;
+        ErrorMessage.ClearLog();
 
         IsValidated := false;
         OnBeforeValidate(VATReportHeader, IsValidated);
         if not IsValidated then begin
             VATReportsConfiguration.SetRange("VAT Report Type", VATReportHeader."VAT Report Config. Code");
-            if VATReportsConfiguration.FindFirst and (VATReportsConfiguration."Validate Codeunit ID" <> 0) then
+            if VATReportsConfiguration.FindFirst() and (VATReportsConfiguration."Validate Codeunit ID" <> 0) then
                 CODEUNIT.Run(VATReportsConfiguration."Validate Codeunit ID", VATReportHeader)
             else
-                if VATReportHeader.isDatifattura then
+                if VATReportHeader.isDatifattura() then
                     CODEUNIT.Run(CODEUNIT::"Datifattura Validate", VATReportHeader)
                 else
                     CODEUNIT.Run(CODEUNIT::"VAT Report Validate", VATReportHeader);
@@ -46,7 +46,7 @@ codeunit 741 "VAT Report Release/Reopen"
 
     procedure Submit(var VATReportHeader: Record "VAT Report Header")
     begin
-        VATReportHeader.CheckIfCanBeSubmitted;
+        VATReportHeader.CheckIfCanBeSubmitted();
 
         VATReportHeader.Status := VATReportHeader.Status::Submitted;
         VATReportHeader.Modify();

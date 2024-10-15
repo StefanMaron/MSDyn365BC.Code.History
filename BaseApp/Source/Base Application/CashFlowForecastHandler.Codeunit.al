@@ -41,15 +41,15 @@ codeunit 850 "Cash Flow Forecast Handler"
 
     procedure CalculateForecast(): Boolean
     begin
-        TempErrorMessage.ClearLog;
+        TempErrorMessage.ClearLog();
 
-        if not Initialize then begin
+        if not Initialize() then begin
             ErrorMessage.CopyFromTemp(TempErrorMessage);
             Commit();
             exit(false);
         end;
 
-        CalculateVATAndLedgerForecast;
+        CalculateVATAndLedgerForecast();
         Commit();
         exit(true);
     end;
@@ -71,7 +71,7 @@ codeunit 850 "Cash Flow Forecast Handler"
         TimeSeriesManagement.GetForecast(TempTimeSeriesForecast);
 
         // Insert forecasted data
-        ClearCashFlowAzureAIBuffer;
+        ClearCashFlowAzureAIBuffer();
         CashFlowAzureAIBufferFill(TempTimeSeriesBuffer, TempTimeSeriesForecast);
         ErrorMessage.CopyFromTemp(TempErrorMessage);
     end;
@@ -409,7 +409,7 @@ codeunit 850 "Cash Flow Forecast Handler"
 
         TempTimeSeriesBuffer.SetRange("Group ID", InvoiceOption);
 
-        if TempTimeSeriesBuffer.FindSet and TempCreditMemoTimeSeriesBuffer.FindSet() then
+        if TempTimeSeriesBuffer.FindSet() and TempCreditMemoTimeSeriesBuffer.FindSet() then
             repeat
                 TempTimeSeriesBuffer.Value := TempTimeSeriesBuffer.Value + TempCreditMemoTimeSeriesBuffer.Value;
                 TempTimeSeriesBuffer.Modify();
@@ -460,7 +460,7 @@ codeunit 850 "Cash Flow Forecast Handler"
         TimeSeriesLibState: Option Uninitialized,Initialized,"Data Prepared",Done;
         UsingStandardCredentials: Boolean;
     begin
-        if not CashFlowSetup.Get then
+        if not CashFlowSetup.Get() then
             exit(false);
 
         IsInitialized := true;
@@ -471,7 +471,7 @@ codeunit 850 "Cash Flow Forecast Handler"
             TempErrorMessage.LogMessage(
               CashFlowSetup, CashFlowSetup.FieldNo("Azure AI Enabled"), ErrorMessage."Message Type"::Error,
               StrSubstNo(AzureAIMustBeEnabledErr, CashFlowSetup.FieldCaption("Azure AI Enabled"),
-                CashFlowSetup.TableCaption));
+                CashFlowSetup.TableCaption()));
             IsInitialized := false;
         end;
 
@@ -480,14 +480,14 @@ codeunit 850 "Cash Flow Forecast Handler"
             TempErrorMessage.LogMessage(
               CashFlowSetup, CashFlowSetup.FieldNo("API URL"), ErrorMessage."Message Type"::Error,
               StrSubstNo(AzureAIAPIURLEmptyErr, CashFlowSetup.FieldCaption("API URL"),
-                CashFlowSetup.FieldCaption("API Key"), CashFlowSetup.TableCaption));
+                CashFlowSetup.FieldCaption("API Key"), CashFlowSetup.TableCaption()));
             IsInitialized := false;
         end;
         if IsInitialized = false then
             exit(false);
 
         // check - it will be fixed with Time Series Lib
-        if not CashFlowSetup.IsAPIUserDefined then
+        if not CashFlowSetup.IsAPIUserDefined() then
             if AzureAIUsage.IsLimitReached(AzureAIService::"Machine Learning", LimitValue) then begin
                 TempErrorMessage.LogSimpleMessage(ErrorMessage."Message Type"::Error, AzureMachineLearningLimitReachedErr);
                 exit(false);
@@ -529,7 +529,7 @@ codeunit 850 "Cash Flow Forecast Handler"
         CashFlowAzureAIBuffer: Record "Cash Flow Azure AI Buffer";
     begin
         with CashFlowAzureAIBuffer do begin
-            Init;
+            Init();
             Validate("Group Id", GroupIdValue);
             Validate(Amount, AmountValue);
             Validate("Delta %", DeltaPercentValue);
@@ -538,7 +538,7 @@ codeunit 850 "Cash Flow Forecast Handler"
             Validate("Period Start", PeriodStartValue);
             Validate("Period Type", PeriodTypeValue);
             Validate("Period No.", PeriodNoValue);
-            Insert;
+            Insert();
         end;
     end;
 
@@ -566,14 +566,14 @@ codeunit 850 "Cash Flow Forecast Handler"
 
         // insert correction
         with CashFlowAzureAIBuffer do begin
-            Init;
+            Init();
             Validate("Group Id", GroupIDValue);
             Validate(Amount, CorrectionAmount);
             Validate(Type, Type::Correction);
             Validate("Period Start", TimeSeriesForecast."Period Start Date");
             Validate("Period Type", PeriodTypeValue);
             Validate("Period No.", TimeSeriesForecast."Period No.");
-            Insert;
+            Insert();
         end;
     end;
 
@@ -614,15 +614,15 @@ codeunit 850 "Cash Flow Forecast Handler"
     begin
         case PeriodType of
             PeriodType::Day:
-                exit(WorkDate);
+                exit(WorkDate());
             PeriodType::Week:
-                exit(CalcDate('<CW+1D-1W>', WorkDate));
+                exit(CalcDate('<CW+1D-1W>', WorkDate()));
             PeriodType::Month:
-                exit(CalcDate('<CM+1D-1M>', WorkDate));
+                exit(CalcDate('<CM+1D-1M>', WorkDate()));
             PeriodType::Quarter:
-                exit(CalcDate('<CQ+1D-1Q>', WorkDate));
+                exit(CalcDate('<CQ+1D-1Q>', WorkDate()));
             PeriodType::Year:
-                exit(CalcDate('<CY+1D-1Y>', WorkDate));
+                exit(CalcDate('<CY+1D-1Y>', WorkDate()));
         end;
     end;
 
@@ -630,14 +630,14 @@ codeunit 850 "Cash Flow Forecast Handler"
     var
         SetupNotification: Notification;
     begin
-        if not ShowNotification then
+        if not ShowNotification() then
             exit;
 
         SetupNotification.Message := SetupScheduledForecastingMsg;
         SetupNotification.Scope := NOTIFICATIONSCOPE::LocalScope;
         SetupNotification.AddAction(EnableAzureAITxt, CODEUNIT::"Cash Flow Forecast Handler", 'SetupAzureAI');
         SetupNotification.AddAction(DontAskAgainTxt, CODEUNIT::"Cash Flow Forecast Handler", 'DeactivateNotification');
-        SetupNotification.Send;
+        SetupNotification.Send();
     end;
 
     local procedure ShowNotification(): Boolean
@@ -645,11 +645,11 @@ codeunit 850 "Cash Flow Forecast Handler"
         CashFlowSetup: Record "Cash Flow Setup";
         O365GettingStarted: Record "O365 Getting Started";
     begin
-        if O365GettingStarted.Get(UserId, ClientTypeManagement.GetCurrentClientType) then
+        if O365GettingStarted.Get(UserId, ClientTypeManagement.GetCurrentClientType()) then
             if O365GettingStarted."Tour in Progress" then
                 exit(false);
 
-        if not CashFlowSetup.Get then
+        if not CashFlowSetup.Get() then
             exit(false);
 
         if CashFlowSetup."Azure AI Enabled" then
@@ -668,7 +668,7 @@ codeunit 850 "Cash Flow Forecast Handler"
     var
         CashFlowSetup: Record "Cash Flow Setup";
     begin
-        if not CashFlowSetup.Get then
+        if not CashFlowSetup.Get() then
             exit;
         CashFlowSetup."Show AzureAI Notification" := false;
         CashFlowSetup.Modify(true);
@@ -678,10 +678,10 @@ codeunit 850 "Cash Flow Forecast Handler"
     var
         EnvironmentInfo: Codeunit "Environment Information";
     begin
-        if CashFlowSetup.Get then
+        if CashFlowSetup.Get() then
             PAGE.RunModal(PAGE::"Cash Flow Setup", CashFlowSetup);
-        if CashFlowSetup.Get then begin
-            if EnvironmentInfo.IsSaaS and CashFlowSetup."Azure AI Enabled" then
+        if CashFlowSetup.Get() then begin
+            if EnvironmentInfo.IsSaaS() and CashFlowSetup."Azure AI Enabled" then
                 Message(ScheduledForecastingEnabledMsg);
             CashFlowSetup."Show AzureAI Notification" := false;
             CashFlowSetup.Modify(true);
@@ -708,7 +708,7 @@ codeunit 850 "Cash Flow Forecast Handler"
         if TimeSeriesForecast.FindLast() then
             LastPeriodNo := TimeSeriesForecast."Period No.";
         PeriodTypeOption := PeriodType;
-        if TimeSeriesForecast.FindSet() then begin
+        if TimeSeriesForecast.FindSet() then
             repeat
                 CurrentSum += TimeSeriesForecast.Value;
                 TaxablePeriodEndDate := CashFlowSetup.GetTaxPaymentDueDate(TimeSeriesForecast."Period Start Date");
@@ -734,14 +734,14 @@ codeunit 850 "Cash Flow Forecast Handler"
                 end else
                     TimeSeriesForecast.Delete();
             until (TimeSeriesForecast.Next() = 0);
-        end;
+
         TimeSeriesForecast.SetRange("Group ID");
     end;
 
     [EventSubscriber(ObjectType::Page, Page::"Cash Flow Forecast Chart", 'OnOpenPageEvent', '', false, false)]
     local procedure OnOpenCashFlowForecastChart(var Rec: Record "Business Chart Buffer")
     begin
-        CreateSetupNotification;
+        CreateSetupNotification();
     end;
 
     [IntegrationEvent(false, false)]

@@ -160,18 +160,18 @@ codeunit 144176 "ERM Reverse"
         GeneralLedgerSetup.Get();
         LastGenJnlNo := GeneralLedgerSetup."Last General Journal No.";
         LastPrintedPageNo := GeneralLedgerSetup."Last Printed G/L Book Page";
-        CreatePostGLBookEntry(GenJournalLine, CalcDate('<-CM>', WorkDate));  // Taking First Day of the current month.
-        CreatePostGLBookEntry(GenJournalLine, CalcDate('<-CM + 1M >', WorkDate));  // Taking First Day of the next month.
-        RunGLBookReport(ReportType::Final, CalcDate('<-CM>', WorkDate), CalcDate('<CM>', WorkDate));  // Confirm final printing
-        RunGLBookReport(ReportType::Final, CalcDate('<-CM + 1M>', WorkDate), CalcDate('<CM + 1M>', WorkDate));  // Confirm final printing
+        CreatePostGLBookEntry(GenJournalLine, CalcDate('<-CM>', WorkDate()));  // Taking First Day of the current month.
+        CreatePostGLBookEntry(GenJournalLine, CalcDate('<-CM + 1M >', WorkDate()));  // Taking First Day of the next month.
+        RunGLBookReport(ReportType::Final, CalcDate('<-CM>', WorkDate()), CalcDate('<CM>', WorkDate()));  // Confirm final printing
+        RunGLBookReport(ReportType::Final, CalcDate('<-CM + 1M>', WorkDate()), CalcDate('<CM + 1M>', WorkDate()));  // Confirm final printing
 
         // Exercise.
-        RunGLBookReport(ReportType::Reprint, CalcDate('<-CM + 1M>', WorkDate), CalcDate('<CM + 1M>', WorkDate));
+        RunGLBookReport(ReportType::Reprint, CalcDate('<-CM + 1M>', WorkDate()), CalcDate('<CM + 1M>', WorkDate()));
 
         // Verify:
-        VerifyGeneralLedgerSetup(CalcDate('<CM + 1M>', WorkDate), GetLastProgressiveNo(CalcDate('<CM + 1M>', WorkDate)));
-        VerifyGLBookReprintInfo(CalcDate('<-CM + 1M>', WorkDate), CalcDate('<CM + 1M>', WorkDate), LastPrintedPageNo);
-        VerifyGLBookEntryFinalPrint(CalcDate('<-CM >', WorkDate), CalcDate('<CM + 1M>', WorkDate), LastGenJnlNo);
+        VerifyGeneralLedgerSetup(CalcDate('<CM + 1M>', WorkDate()), GetLastProgressiveNo(CalcDate('<CM + 1M>', WorkDate())));
+        VerifyGLBookReprintInfo(CalcDate('<-CM + 1M>', WorkDate()), CalcDate('<CM + 1M>', WorkDate()), LastPrintedPageNo);
+        VerifyGLBookEntryFinalPrint(CalcDate('<-CM >', WorkDate()), CalcDate('<CM + 1M>', WorkDate()), LastGenJnlNo);
     end;
 
     [Test]
@@ -265,7 +265,7 @@ codeunit 144176 "ERM Reverse"
 
         // Setup.
         Initialize();
-        CreatePostGLBookEntry(GenJournalLine, CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', GetStartDate));  // Random Date within period.
+        CreatePostGLBookEntry(GenJournalLine, CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', GetStartDate()));  // Random Date within period.
         OpenGLRegistersPage(GLRegisters);
 
         // Exercise.
@@ -448,8 +448,8 @@ codeunit 144176 "ERM Reverse"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         CreateGeneralJournalLine(GenJournalLine, AccountType, DocumentType, AccountNo, Amount);
-        GenJournalLine.Validate("Posting Date", CalcDate('<CY>', WorkDate));
-        GenJournalLine.Validate("Operation Occurred Date", CalcDate('<CY>', WorkDate));
+        GenJournalLine.Validate("Posting Date", CalcDate('<CY>', WorkDate()));
+        GenJournalLine.Validate("Operation Occurred Date", CalcDate('<CY>', WorkDate()));
         GenJournalLine.Modify(true);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
@@ -467,8 +467,8 @@ codeunit 144176 "ERM Reverse"
             with GenJournalLine do begin
                 Validate("Gen. Posting Type", GenPostingType);
                 Validate("VAT Bus. Posting Group", VATBusPostingGroupCode);
-                Validate("Posting Date", CalcDate('<CY>', WorkDate));
-                Validate("Operation Occurred Date", CalcDate('<CY>', WorkDate));
+                Validate("Posting Date", CalcDate('<CY>', WorkDate()));
+                Validate("Operation Occurred Date", CalcDate('<CY>', WorkDate()));
                 Modify(true);
             end;
         end;
@@ -704,7 +704,7 @@ codeunit 144176 "ERM Reverse"
         GeneralLedgerSetup.Get();
         OldUnrealizedVAT := GeneralLedgerSetup."Unrealized VAT";
         GeneralLedgerSetup.Validate("Unrealized VAT", UnrealizedVAT);
-        GeneralLedgerSetup.Validate("Last Settlement Date", CalcDate('<-CM>', WorkDate));
+        GeneralLedgerSetup.Validate("Last Settlement Date", CalcDate('<-CM>', WorkDate()));
         GeneralLedgerSetup.Modify(true);
     end;
 

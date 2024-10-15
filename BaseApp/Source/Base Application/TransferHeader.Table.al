@@ -1,4 +1,4 @@
-table 5740 "Transfer Header"
+﻿table 5740 "Transfer Header"
 {
     Caption = 'Transfer Header';
     DataCaptionFields = "No.";
@@ -13,8 +13,8 @@ table 5740 "Transfer Header"
             trigger OnValidate()
             begin
                 if "No." <> xRec."No." then begin
-                    GetInventorySetup;
-                    NoSeriesMgt.TestManual(GetNoSeriesCode);
+                    GetInventorySetup();
+                    NoSeriesMgt.TestManual(GetNoSeriesCode());
                     "No. Series" := '';
                 end;
             end;
@@ -30,7 +30,7 @@ table 5740 "Transfer Header"
                 Confirmed: Boolean;
                 IsHandled: Boolean;
             begin
-                TestStatusOpen;
+                TestStatusOpen();
 
                 IsHandled := false;
                 OnBeforeValidateTransferFromCode(Rec, xRec, IsHandled, HideValidationDialog);
@@ -65,7 +65,7 @@ table 5740 "Transfer Header"
                                   "Shipping Time");
                                 CalcReceiptDate();
                             end;
-                            UpdateTDDPreparedBy;
+                            UpdateTDDPreparedBy();
                             TransLine.LockTable();
                             TransLine.SetRange("Document No.", "No.");
                         end;
@@ -109,10 +109,15 @@ table 5740 "Transfer Header"
             end;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
-                PostCode.ValidatePostCode(
-                  "Transfer-from City", "Transfer-from Post Code",
-                  "Transfer-from County", "Trsf.-from Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
+                IsHandled := false;
+                OnBeforeValidateTransferFromPostCode(Rec, PostCode, CurrFieldNo, IsHandled);
+                if not IsHandled then
+                    PostCode.ValidatePostCode(
+                        "Transfer-from City", "Transfer-from Post Code",
+                        "Transfer-from County", "Trsf.-from Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
             end;
         }
         field(8; "Transfer-from City"; Text[30])
@@ -132,10 +137,15 @@ table 5740 "Transfer Header"
             end;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
-                PostCode.ValidateCity(
-                  "Transfer-from City", "Transfer-from Post Code",
-                  "Transfer-from County", "Trsf.-from Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
+                IsHandled := false;
+                OnBeforeValidateTransferFromCity(Rec, PostCode, CurrFieldNo, IsHandled);
+                if not IsHandled then
+                    PostCode.ValidateCity(
+                        "Transfer-from City", "Transfer-from Post Code",
+                        "Transfer-from County", "Trsf.-from Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
             end;
         }
         field(9; "Transfer-from County"; Text[30])
@@ -166,7 +176,7 @@ table 5740 "Transfer Header"
                 Confirmed: Boolean;
                 IsHandled: Boolean;
             begin
-                TestStatusOpen;
+                TestStatusOpen();
 
                 IsHandled := false;
                 OnBeforeValidateTransferToCode(Rec, xRec, IsHandled, HideValidationDialog);
@@ -201,7 +211,7 @@ table 5740 "Transfer Header"
                             end;
                             TransLine.LockTable();
                             TransLine.SetRange("Document No.", "No.");
-                            UpdateTDDPreparedBy;
+                            UpdateTDDPreparedBy();
                         end;
                         UpdateTransLines(Rec, FieldNo("Transfer-to Code"));
                     end else
@@ -240,10 +250,15 @@ table 5740 "Transfer Header"
             end;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
-                PostCode.ValidatePostCode(
-                  "Transfer-to City", "Transfer-to Post Code", "Transfer-to County",
-                  "Trsf.-to Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
+                IsHandled := false;
+                OnBeforeValidateTransferToPostCode(Rec, PostCode, CurrFieldNo, IsHandled);
+                if not IsHandled then
+                    PostCode.ValidatePostCode(
+                        "Transfer-to City", "Transfer-to Post Code", "Transfer-to County",
+                        "Trsf.-to Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
             end;
         }
         field(17; "Transfer-to City"; Text[30])
@@ -263,10 +278,15 @@ table 5740 "Transfer Header"
             end;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
-                PostCode.ValidateCity(
-                  "Transfer-to City", "Transfer-to Post Code", "Transfer-to County",
-                  "Trsf.-to Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
+                IsHandled := false;
+                OnBeforeValidateTransferToCity(Rec, PostCode, CurrFieldNo, IsHandled);
+                if not IsHandled then
+                    PostCode.ValidateCity(
+                        "Transfer-to City", "Transfer-to Post Code", "Transfer-to County",
+                        "Trsf.-to Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
             end;
         }
         field(18; "Transfer-to County"; Text[30])
@@ -298,7 +318,7 @@ table 5740 "Transfer Header"
             var
                 IsHandled: Boolean;
             begin
-                TestStatusOpen;
+                TestStatusOpen();
 
                 IsHandled := false;
                 OnValidateShipmentDateOnBeforeCalcReceiptDate(IsHandled, Rec);
@@ -316,7 +336,7 @@ table 5740 "Transfer Header"
             var
                 IsHandled: Boolean;
             begin
-                TestStatusOpen;
+                TestStatusOpen();
 
                 IsHandled := false;
                 OnValidateReceiptDateOnBeforeCalcShipmentDate(IsHandled, Rec);
@@ -377,7 +397,7 @@ table 5740 "Transfer Header"
 
             trigger OnValidate()
             begin
-                TestStatusOpen;
+                TestStatusOpen();
                 UpdateTransLines(Rec, FieldNo("In-Transit Code"));
             end;
         }
@@ -426,12 +446,12 @@ table 5740 "Transfer Header"
 
             trigger OnValidate()
             begin
-                TestStatusOpen;
+                TestStatusOpen();
                 if "Shipping Agent Code" <> xRec."Shipping Agent Code" then
                     Validate("Shipping Agent Service Code", '');
                 if "Shipment Method Code" <> '' then
-                    CheckShipAgentMethodComb;
-                UpdateTDDPreparedBy;
+                    CheckShipAgentMethodComb();
+                UpdateTDDPreparedBy();
                 UpdateTransLines(Rec, FieldNo("Shipping Agent Code"));
             end;
         }
@@ -442,7 +462,7 @@ table 5740 "Transfer Header"
 
             trigger OnValidate()
             begin
-                TestStatusOpen;
+                TestStatusOpen();
                 TransferRoute.GetShippingTime(
                   "Transfer-from Code", "Transfer-to Code",
                   "Shipping Agent Code", "Shipping Agent Service Code",
@@ -459,7 +479,7 @@ table 5740 "Transfer Header"
 
             trigger OnValidate()
             begin
-                TestStatusOpen;
+                TestStatusOpen();
                 CalcReceiptDate();
 
                 UpdateTransLines(Rec, FieldNo("Shipping Time"));
@@ -473,7 +493,7 @@ table 5740 "Transfer Header"
             trigger OnValidate()
             begin
                 if "Shipping Agent Code" <> '' then
-                    CheckShipAgentMethodComb;
+                    CheckShipAgentMethodComb();
                 if not ShipmentMethod.ThirdPartyLoader("Shipment Method Code") and
                    ("3rd Party Loader Type" <> "3rd Party Loader Type"::" ")
                 then begin
@@ -539,7 +559,7 @@ table 5740 "Transfer Header"
 
             trigger OnLookup()
             begin
-                ShowDocDim;
+                ShowDocDim();
             end;
 
             trigger OnValidate()
@@ -554,7 +574,7 @@ table 5740 "Transfer Header"
             trigger OnValidate()
             begin
                 if "Shipping Advice" <> xRec."Shipping Advice" then begin
-                    TestStatusOpen;
+                    TestStatusOpen();
                     WhseSourceHeader.TransHeaderVerifyChange(Rec, xRec);
                 end;
             end;
@@ -595,7 +615,7 @@ table 5740 "Transfer Header"
 
             trigger OnValidate()
             begin
-                TestStatusOpen;
+                TestStatusOpen();
                 CalcReceiptDate();
 
                 UpdateTransLines(Rec, FieldNo("Outbound Whse. Handling Time"));
@@ -607,7 +627,7 @@ table 5740 "Transfer Header"
 
             trigger OnValidate()
             begin
-                TestStatusOpen;
+                TestStatusOpen();
                 CalcReceiptDate();
 
                 UpdateTransLines(Rec, FieldNo("Inbound Whse. Handling Time"));
@@ -790,9 +810,9 @@ table 5740 "Transfer Header"
 
     trigger OnInsert()
     begin
-        GetInventorySetup;
+        GetInventorySetup();
         InitInsert();
-        Validate("Shipment Date", WorkDate);
+        Validate("Shipment Date", WorkDate());
     end;
 
     trigger OnRename()
@@ -801,11 +821,6 @@ table 5740 "Transfer Header"
     end;
 
     var
-        Text000: Label 'You cannot rename a %1.';
-        Text001: Label '%1 and %2 cannot be the same in %3 %4.';
-        Text002: Label 'Do you want to change %1?';
-        SameLocationErr: Label 'Transfer order %1 cannot be posted because %2 and %3 are the same.', Comment = '%1 - order number, %2 - location from, %3 - location to';
-        TransferOrderPostedMsg1: Label 'Transfer order %1 was successfully posted and is now deleted.', Comment = '%1 = transfer order number e.g. Transfer order 1003 was successfully posted and is now deleted ';
         TransferRoute: Record "Transfer Route";
         TransHeader: Record "Transfer Header";
         TransLine: Record "Transfer Line";
@@ -817,6 +832,12 @@ table 5740 "Transfer Header"
         WhseSourceHeader: Codeunit "Whse. Validate Source Header";
         HasInventorySetup: Boolean;
         CalledFromWhse: Boolean;
+
+        Text000: Label 'You cannot rename a %1.';
+        Text001: Label '%1 and %2 cannot be the same in %3 %4.';
+        Text002: Label 'Do you want to change %1?';
+        SameLocationErr: Label 'Transfer order %1 cannot be posted because %2 and %3 are the same.', Comment = '%1 - order number, %2 - location from, %3 - location to';
+        TransferOrderPostedMsg1: Label 'Transfer order %1 was successfully posted and is now deleted.', Comment = '%1 = transfer order number e.g. Transfer order 1003 was successfully posted and is now deleted ';
         Text007: Label 'You may have changed a dimension.\\Do you want to update the lines?';
         Text12100: Label ' %1 %2 must be Vendor/Contact for %3 %4 3rd-Party Loader.';
         ShipmentMethod: Record "Shipment Method";
@@ -827,7 +848,7 @@ table 5740 "Transfer Header"
     procedure InitRecord()
     begin
         if "Posting Date" = 0D then
-            Validate("Posting Date", WorkDate);
+            Validate("Posting Date", WorkDate());
 
         OnAfterInitRecord(Rec);
     end;
@@ -866,9 +887,9 @@ table 5740 "Transfer Header"
     begin
         with TransHeader do begin
             TransHeader := Rec;
-            GetInventorySetup;
-            TestNoSeries;
-            if NoSeriesMgt.SelectSeries(GetNoSeriesCode, OldTransHeader."No. Series", "No. Series") then begin
+            GetInventorySetup();
+            TestNoSeries();
+            if NoSeriesMgt.SelectSeries(GetNoSeriesCode(), OldTransHeader."No. Series", "No. Series") then begin
                 NoSeriesMgt.SetSeries("No.");
                 Rec := TransHeader;
                 exit(true);
@@ -966,7 +987,7 @@ table 5740 "Transfer Header"
         DimMgt.ValidateShortcutDimValues(FieldNumber, ShortcutDimCode, "Dimension Set ID");
 
         if OldDimSetID <> "Dimension Set ID" then begin
-            Modify;
+            Modify();
             if TransferLinesExist() then
                 UpdateAllLineDim("Dimension Set ID", OldDimSetID);
         end;
@@ -1029,7 +1050,7 @@ table 5740 "Transfer Header"
                             TransferLine.Validate("Shipping Time", TransferHeader."Shipping Time");
                             OnUpdateTransLinesOnShippingAgentCodeOnBeforeBlockDynamicTracking(TransferLine, TransferHeader);
                             TransferLine.BlockDynamicTracking(false);
-                            TransferLine.DateConflictCheck;
+                            TransferLine.DateConflictCheck();
                         end;
                     FieldNo("Shipping Agent Service Code"):
                         begin
@@ -1039,7 +1060,7 @@ table 5740 "Transfer Header"
                             TransferLine.Validate("Receipt Date", TransferHeader."Receipt Date");
                             TransferLine.Validate("Shipping Time", TransferHeader."Shipping Time");
                             TransferLine.BlockDynamicTracking(false);
-                            TransferLine.DateConflictCheck;
+                            TransferLine.DateConflictCheck();
                         end;
                     FieldNo("Shipment Date"):
                         begin
@@ -1048,7 +1069,7 @@ table 5740 "Transfer Header"
                             TransferLine.Validate("Receipt Date", TransferHeader."Receipt Date");
                             TransferLine.Validate("Shipping Time", TransferHeader."Shipping Time");
                             TransferLine.BlockDynamicTracking(false);
-                            TransferLine.DateConflictCheck;
+                            TransferLine.DateConflictCheck();
                         end;
                     FieldNo("Receipt Date"), FieldNo("Shipping Time"):
                         begin
@@ -1056,7 +1077,7 @@ table 5740 "Transfer Header"
                             TransferLine.Validate("Shipping Time", TransferHeader."Shipping Time");
                             TransferLine.Validate("Receipt Date", TransferHeader."Receipt Date");
                             TransferLine.BlockDynamicTracking(false);
-                            TransferLine.DateConflictCheck;
+                            TransferLine.DateConflictCheck();
                         end;
                     FieldNo("Outbound Whse. Handling Time"):
                         TransferLine.Validate("Outbound Whse. Handling Time", TransferHeader."Outbound Whse. Handling Time");
@@ -1183,13 +1204,13 @@ table 5740 "Transfer Header"
         OldDimSetID := "Dimension Set ID";
         "Dimension Set ID" :=
           DimMgt.EditDimensionSet(
-            Rec, "Dimension Set ID", StrSubstNo('%1 %2', TableCaption, "No."),
+            Rec, "Dimension Set ID", StrSubstNo('%1 %2', TableCaption(), "No."),
             "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
         OnShowDocDimOnAfterAssignDimensionSetID(Rec);
 
         if OldDimSetID <> "Dimension Set ID" then begin
-            Modify;
-            if TransferLinesExist then
+            Modify();
+            if TransferLinesExist() then
                 UpdateAllLineDim("Dimension Set ID", OldDimSetID);
         end;
     end;
@@ -1203,9 +1224,9 @@ table 5740 "Transfer Header"
 
     procedure UpdateAllLineDim(NewParentDimSetID: Integer; OldParentDimSetID: Integer)
     var
+        ConfirmManagement: Codeunit "Confirm Management";
         NewDimSetID: Integer;
         ShippedLineDimChangeConfirmed: Boolean;
-        ConfirmManagement: Codeunit "Confirm Management";
     begin
         // Update all lines with changed dimensions.
 
@@ -1263,7 +1284,7 @@ table 5740 "Transfer Header"
     var
         ShippingAgent: Record "Shipping Agent";
     begin
-        CheckShipAgentMethodComb;
+        CheckShipAgentMethodComb();
         if ShipmentMethod.ThirdPartyLoader("Shipment Method Code") then begin
             TestField("3rd Party Loader Type");
             TestField("3rd Party Loader No.");
@@ -1277,9 +1298,9 @@ table 5740 "Transfer Header"
 
     local procedure VerifyShippedLineDimChange(var ShippedLineDimChangeConfirmed: Boolean)
     begin
-        if TransLine.IsShippedDimChanged then
+        if TransLine.IsShippedDimChanged() then
             if not ShippedLineDimChangeConfirmed then
-                ShippedLineDimChangeConfirmed := TransLine.ConfirmShippedDimChange;
+                ShippedLineDimChangeConfirmed := TransLine.ConfirmShippedDimChange();
     end;
 
     procedure CheckBeforePost()
@@ -1378,7 +1399,7 @@ table 5740 "Transfer Header"
         PurchRcptHeader.SetRange("Location Code", "Transfer-from Code");
         PostedPurchaseReceipts.SetTableView(PurchRcptHeader);
         PostedPurchaseReceipts.LookupMode := true;
-        if PostedPurchaseReceipts.RunModal = ACTION::LookupOK then begin
+        if PostedPurchaseReceipts.RunModal() = ACTION::LookupOK then begin
             PostedPurchaseReceipts.GetSelectedRecords(TempPurchRcptHeader);
             CreateTransferLinesFromSelectedPurchReceipts(TempPurchRcptHeader);
         end;
@@ -1400,7 +1421,7 @@ table 5740 "Transfer Header"
         PurchRcptLine.SetRange("Location Code", "Transfer-from Code");
         PostedPurchaseReceiptLines.SetTableView(PurchRcptLine);
         PostedPurchaseReceiptLines.LookupMode := true;
-        if PostedPurchaseReceiptLines.RunModal = ACTION::LookupOK then begin
+        if PostedPurchaseReceiptLines.RunModal() = ACTION::LookupOK then begin
             PostedPurchaseReceiptLines.GetSelectedRecords(TempPurchRcptLine);
             CreateTransferLinesFromSelectedReceiptLines(TempPurchRcptLine);
         end;
@@ -1506,6 +1527,16 @@ table 5740 "Transfer Header"
         InitRecord();
     end;
 
+    procedure TransferLinesEditable() IsEditable: Boolean;
+    begin
+        if not "Direct Transfer" then
+            IsEditable := ("Transfer-from Code" <> '') and ("Transfer-to Code" <> '') and ("In-Transit Code" <> '')
+        else
+            IsEditable := ("Transfer-from Code" <> '') and ("Transfer-to Code" <> '');
+
+        OnAfterTransferLinesEditable(Rec, IsEditable);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAddTransferLineFromReceiptLineOnBeforeTransferLineInsert(var TransferLine: Record "Transfer Line"; PurchRcptLine: Record "Purch. Rcpt. Line"; var TransferHeader: Record "Transfer Header")
     begin
@@ -1548,6 +1579,11 @@ table 5740 "Transfer Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitFromTransferFromLocation(var TransferHeader: Record "Transfer Header"; Location: Record Location)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterTransferLinesEditable(TransferHeader: Record "Transfer Header"; var IsEditable: Boolean);
     begin
     end;
 
@@ -1673,6 +1709,26 @@ table 5740 "Transfer Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateDirectTransferOnBeforeValidateInTransitCode(var TransferHeader: Record "Transfer Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateTransferFromCity(var TransferHeader: Record "Transfer Header"; var PostCode: Record "Post Code"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateTransferFromPostCode(var TransferHeader: Record "Transfer Header"; var PostCode: Record "Post Code"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateTransferToCity(var TransferHeader: Record "Transfer Header"; var PostCode: Record "Post Code"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateTransferToPostCode(var TransferHeader: Record "Transfer Header"; var PostCode: Record "Post Code"; CurrentFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 

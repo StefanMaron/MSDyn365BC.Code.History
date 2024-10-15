@@ -99,7 +99,7 @@ codeunit 144210 "FatturaPA Document Type"
         // [SCENARIO 352458] A "Fattura Document Type" is self-billing in the Sales Document if customer has the same VAT Registration No. as Company
 
         Initialize();
-        SalesHeader.Init;
+        SalesHeader.Init();
         SalesHeader."Document Type" := SalesHeader."Document Type"::Invoice;
         SalesHeader.Validate("Sell-to Customer No.", LibrarySales.CreateCustomerNo());
         SalesHeader.TestField("Fattura Document Type", FatturaDocHelper.GetInvoiceCode());
@@ -122,7 +122,7 @@ codeunit 144210 "FatturaPA Document Type"
         // [SCENARIO 352458] A "Fattura Document Type" is self-billing in the Service Document if customer has the same VAT Registration No. as Company
 
         Initialize();
-        ServiceHeader.Init;
+        ServiceHeader.Init();
         ServiceHeader."Document Type" := ServiceHeader."Document Type"::Invoice;
         ServiceHeader.Validate("Customer No.", LibrarySales.CreateCustomerNo());
         ServiceHeader.TestField("Fattura Document Type", FatturaDocHelper.GetInvoiceCode());
@@ -144,7 +144,7 @@ codeunit 144210 "FatturaPA Document Type"
         // [SCENARIO 342458] A "Fattura Document Type" is credit memo in the Sales Credit Memo document
 
         Initialize();
-        SalesHeader.Init;
+        SalesHeader.Init();
         SalesHeader."Document Type" := SalesHeader."Document Type"::"Credit Memo";
         SalesHeader.Validate("Sell-to Customer No.", LibrarySales.CreateCustomerNo());
         SalesHeader.TestField("Fattura Document Type", FatturaDocHelper.GetCrMemoCode());
@@ -161,7 +161,7 @@ codeunit 144210 "FatturaPA Document Type"
         // [SCENARIO 342458] A "Fattura Document Type" is credit memo in the Service Credit Memo document
 
         Initialize();
-        ServiceHeader.Init;
+        ServiceHeader.Init();
         ServiceHeader."Document Type" := ServiceHeader."Document Type"::"Credit Memo";
         ServiceHeader.Validate("Customer No.", LibrarySales.CreateCustomerNo());
         ServiceHeader.TestField("Fattura Document Type", FatturaDocHelper.GetCrMemoCode());
@@ -759,7 +759,7 @@ codeunit 144210 "FatturaPA Document Type"
         LibraryITLocalization.LoadTempXMLBufferFromTempBlob(TempXMLBuffer, TempBlob);
         TempXMLBuffer.FindNodesByXPath(TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaBody/DatiGenerali/DatiGeneraliDocumento/TipoDocumento');
         Assert.AreEqual(ExpectedElementValue, TempXMLBuffer.Value,
-          StrSubstNo(UnexpectedElementValueErr, TempXMLBuffer.GetElementName, ExpectedElementValue, TempXMLBuffer.Value));
+          StrSubstNo(UnexpectedElementValueErr, TempXMLBuffer.GetElementName(), ExpectedElementValue, TempXMLBuffer.Value));
     end;
 
     [ConfirmHandler]

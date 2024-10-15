@@ -1,5 +1,9 @@
+﻿#if not CLEAN21
 codeunit 2310 "O365 Sales Invoice Mgmt"
 {
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     trigger OnRun()
     begin
@@ -95,7 +99,7 @@ codeunit 2310 "O365 Sales Invoice Mgmt"
         TempStandardAddress: Record "Standard Address" temporary;
     begin
         TempStandardAddress.CopyFromSalesHeaderSellTo(SalesHeader);
-        FullAddress := TempStandardAddress.ToString;
+        FullAddress := TempStandardAddress.ToString();
         CountryRegionCode := SalesHeader."Sell-to Country/Region Code";
 
         SalesHeader."Bill-to Address" := SalesHeader."Sell-to Address";
@@ -141,8 +145,6 @@ codeunit 2310 "O365 Sales Invoice Mgmt"
             NoOfAttachmentsValueTxt := StrSubstNo(NoOfAttachmentsTxt, NoOfAttachments);
     end;
 
-#if not CLEAN21
-    [Obsolete('Replaced with OnAfterGetSalesHeaderRecordFullLengthTaxAreaDesc.', '21.0')]
     procedure OnAfterGetSalesHeaderRecord(var SalesHeader: Record "Sales Header"; var CurrencyFormat: Text; var TaxAreaDescription: Text[50]; var NoOfAttachmentsValueTxt: Text; var WorkDescription: Text)
     var
         Currency: Record Currency;
@@ -150,26 +152,25 @@ codeunit 2310 "O365 Sales Invoice Mgmt"
         TaxArea: Record "Tax Area";
         CurrencySymbol: Text[10];
     begin
-        SalesHeader.SetDefaultPaymentServices;
+        SalesHeader.SetDefaultPaymentServices();
 
         UpdateNoOfAttachmentsLabel(O365SalesAttachmentMgt.GetNoOfAttachments(SalesHeader), NoOfAttachmentsValueTxt);
-        WorkDescription := SalesHeader.GetWorkDescription;
+        WorkDescription := SalesHeader.GetWorkDescription();
 
         if SalesHeader."Currency Code" = '' then begin
             GLSetup.Get();
-            CurrencySymbol := GLSetup.GetCurrencySymbol;
+            CurrencySymbol := GLSetup.GetCurrencySymbol();
         end else begin
             if Currency.Get(SalesHeader."Currency Code") then;
-            CurrencySymbol := Currency.GetCurrencySymbol;
+            CurrencySymbol := Currency.GetCurrencySymbol();
         end;
         CurrencyFormat := StrSubstNo('%1<precision, 2:2><standard format, 0>', CurrencySymbol);
 
         TaxAreaDescription := '';
         if SalesHeader."Tax Area Code" <> '' then
             if TaxArea.Get(SalesHeader."Tax Area Code") then
-                TaxAreaDescription := TaxArea.GetDescriptionInCurrentLanguage;
+                TaxAreaDescription := TaxArea.GetDescriptionInCurrentLanguage();
     end;
-#endif
 
     procedure OnAfterGetSalesHeaderRecordFullLengthTaxAreaDesc(var SalesHeader: Record "Sales Header"; var CurrencyFormat: Text; var TaxAreaDescription: Text[100]; var NoOfAttachmentsValueTxt: Text; var WorkDescription: Text)
     var
@@ -198,7 +199,6 @@ codeunit 2310 "O365 Sales Invoice Mgmt"
                 TaxAreaDescription := TaxArea.GetDescriptionInCurrentLanguageFullLength();
     end;
 
-
     procedure LookupCustomerName(var SalesHeader: Record "Sales Header"; Text: Text; var CustomerName: Text[100]; var CustomerEmail: Text[80]): Boolean
     var
         Customer: Record Customer;
@@ -213,7 +213,7 @@ codeunit 2310 "O365 Sales Invoice Mgmt"
         BCO365CustomerList.LookupMode(true);
         BCO365CustomerList.SetRecord(Customer);
 
-        if BCO365CustomerList.RunModal = ACTION::LookupOK then begin
+        if BCO365CustomerList.RunModal() = ACTION::LookupOK then begin
             BCO365CustomerList.GetRecord(Customer);
             SalesHeader.SetHideValidationDialog(true);
             CustomerName := Customer.Name;
@@ -251,16 +251,15 @@ codeunit 2310 "O365 Sales Invoice Mgmt"
             if not Customer.Get(Customer.GetCustNoOpenCard(SalesHeader."Sell-to Customer Name", false, false)) then
                 // Lookup by contact name
                 if Contact.Get(Contact.GetContNo(SalesHeader."Sell-to Customer Name")) then begin
-                    if FindCustomerByContactNo(Contact."No.", Customer) then begin
-                        if Customer.IsBlocked then
+                    if FindCustomerByContactNo(Contact."No.", Customer) then
+                        if Customer.IsBlocked() then
                             Error(CustomerBlockedErr);
-                    end else
-                        Customer.Get(CreateCustomerFromContact(Contact));
-                end;
+                end else
+                    Customer.Get(CreateCustomerFromContact(Contact));
 
         // A customer is found, but it is blocked: silently undo the lookup.
         // (e.g. a new customer is created from lookup and immediately deleted from customer card)
-        if (Customer."No." <> '') and Customer.IsBlocked then
+        if (Customer."No." <> '') and Customer.IsBlocked() then
             Error('');
 
         // When no customer or contact is found, create a new and notify the user
@@ -452,7 +451,7 @@ codeunit 2310 "O365 Sales Invoice Mgmt"
             exit(true);
         end;
 
-        if SalesHeader.SalesLinesExist then
+        if SalesHeader.SalesLinesExist() then
             exit(true);
 
         if GuiAllowed then
@@ -481,7 +480,7 @@ codeunit 2310 "O365 Sales Invoice Mgmt"
         BCO365ItemList.LookupMode(true);
         BCO365ItemList.SetRecord(Item);
 
-        if BCO365ItemList.RunModal = ACTION::LookupOK then begin
+        if BCO365ItemList.RunModal() = ACTION::LookupOK then begin
             BCO365ItemList.GetRecord(Item);
             SalesLine.SetHideValidationDialog(true);
             SalesLine.Validate("No.", Item."No.");
@@ -500,10 +499,10 @@ codeunit 2310 "O365 Sales Invoice Mgmt"
     begin
         if SalesLine."Currency Code" = '' then begin
             GLSetup.Get();
-            CurrencySymbol := GLSetup.GetCurrencySymbol;
+            CurrencySymbol := GLSetup.GetCurrencySymbol();
         end else begin
             if Currency.Get(SalesLine."Currency Code") then;
-            CurrencySymbol := Currency.GetCurrencySymbol;
+            CurrencySymbol := Currency.GetCurrencySymbol();
         end;
         CurrencyFormat := StrSubstNo('%1<precision, 2:2><standard format, 0>', CurrencySymbol);
     end;
@@ -526,8 +525,8 @@ codeunit 2310 "O365 Sales Invoice Mgmt"
         BCO365PaymentInstrCard: Page "BC O365 Payment Instr. Card";
     begin
         BCO365PaymentInstrCard.LookupMode := true;
-        if BCO365PaymentInstrCard.RunModal = ACTION::LookupOK then
-            IsDefault := BCO365PaymentInstrCard.GetIsDefault
+        if BCO365PaymentInstrCard.RunModal() = ACTION::LookupOK then
+            IsDefault := BCO365PaymentInstrCard.GetIsDefault()
         else
             IsDefault := false;
     end;
@@ -538,7 +537,7 @@ codeunit 2310 "O365 Sales Invoice Mgmt"
     begin
         Name := '';
         if O365PaymentInstructions.Get(PaymentInstructionsId) then
-            Name := O365PaymentInstructions.GetNameInCurrentLanguage;
+            Name := O365PaymentInstructions.GetNameInCurrentLanguage();
     end;
 
     procedure GetDefaultPaymentInstructionsId(): Integer
@@ -559,11 +558,11 @@ codeunit 2310 "O365 Sales Invoice Mgmt"
         TypeHelper: Codeunit "Type Helper";
         InStream: InStream;
     begin
-        if not SalesInvoiceHeader."Payment Instructions".HasValue then
+        if not SalesInvoiceHeader."Payment Instructions".HasValue() then
             exit('');
 
         SalesInvoiceHeader."Payment Instructions".CreateInStream(InStream, TEXTENCODING::Windows);
-        exit(TypeHelper.ReadAsTextWithSeparator(InStream, TypeHelper.LFSeparator));
+        exit(TypeHelper.ReadAsTextWithSeparator(InStream, TypeHelper.LFSeparator()));
     end;
 #endif
 
@@ -593,7 +592,7 @@ codeunit 2310 "O365 Sales Invoice Mgmt"
         end;
 
         BCO365ContactLookup.LookupMode(true);
-        if BCO365ContactLookup.RunModal = ACTION::LookupOK then begin
+        if BCO365ContactLookup.RunModal() = ACTION::LookupOK then begin
             BCO365ContactLookup.GetRecord(Contact);
             if SalesHeader."Sell-to Contact No." <> Contact."No." then begin
                 if not FindCustomerByContactNo(Contact."No.", Customer) then
@@ -628,20 +627,12 @@ codeunit 2310 "O365 Sales Invoice Mgmt"
             Contact.Type::Company:
                 begin
                     MarketingSetup.TestField("Cust. Template Company Code");
-#if not CLEAN18
-                    Contact.CreateCustomer(MarketingSetup."Cust. Template Company Code");
-#else
                     Contact.CreateCustomerFromTemplate(MarketingSetup."Cust. Template Company Code");
-#endif
                 end;
             Contact.Type::Person:
                 begin
                     MarketingSetup.TestField("Cust. Template Person Code");
-#if not CLEAN18
-                    Contact.CreateCustomer(MarketingSetup."Cust. Template Person Code");
-#else
                     Contact.CreateCustomerFromTemplate(MarketingSetup."Cust. Template Person Code");
-#endif
                 end;
         end;
 
@@ -686,7 +677,7 @@ codeunit 2310 "O365 Sales Invoice Mgmt"
         ItemCreatedNotification: Notification;
     begin
         Session.LogMessage('000023X', InlineItemCreatedTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', DraftInvoiceCategoryLbl);
-        ItemCreatedNotification.Id := CreateGuid;
+        ItemCreatedNotification.Id := CreateGuid();
         ItemCreatedNotification.Message(StrSubstNo(ItemCreatedMsg, Item.Description));
         ItemCreatedNotification.Scope(NOTIFICATIONSCOPE::LocalScope);
         ItemCreatedNotification.AddAction(UndoTxt, CODEUNIT::"O365 Sales Invoice Mgmt", 'UndoItemCreation');
@@ -746,10 +737,10 @@ codeunit 2310 "O365 Sales Invoice Mgmt"
         CustomerFixed: Boolean;
         OriginalLanguageID: Integer;
     begin
-        if not EnvInfoProxy.IsInvoicing then
+        if not EnvInfoProxy.IsInvoicing() then
             exit;
 
-        if not O365SalesInitialSetup.Get then
+        if not O365SalesInitialSetup.Get() then
             exit;
 
         ConfigTemplateLine.SetRange("Data Template Code", O365SalesInitialSetup."Default Customer Template");
@@ -839,7 +830,7 @@ codeunit 2310 "O365 Sales Invoice Mgmt"
             if Item.Get(SalesLine."No.") then
                 if Item."Base Unit of Measure" <> TempUOM.Code then begin
                     Item.Validate("Base Unit of Measure", TempUOM.Code);
-                    Item.Modify
+                    Item.Modify();
                 end;
 
         OriginalUnitPrice := SalesLine."Unit Price"; // Changing uom resets the unit price and line discount.
@@ -886,7 +877,7 @@ codeunit 2310 "O365 Sales Invoice Mgmt"
         if not SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.") then
             exit;
 
-        if not GLSetup.Get then
+        if not GLSetup.Get() then
             exit;
 
         if Item.WritePermission then
@@ -921,13 +912,13 @@ codeunit 2310 "O365 Sales Invoice Mgmt"
         Customer: Record Customer;
     begin
         if Customer.Get(CustomerNo) then
-            exit(Customer.IsBlocked);
+            exit(Customer.IsBlocked());
         exit(false);
     end;
 
     procedure GetCustomerStatus(Customer: Record Customer; var BlockedStatus: Text)
     begin
-        if Customer.IsBlocked then
+        if Customer.IsBlocked() then
             BlockedStatus := Customer.FieldCaption(Blocked)
         else
             BlockedStatus := '';
@@ -937,6 +928,7 @@ codeunit 2310 "O365 Sales Invoice Mgmt"
     var
         ClientTypeManagement: Codeunit "Client Type Management";
     begin
-        exit(ClientTypeManagement.GetCurrentClientType = CLIENTTYPE::Tablet);
+        exit(ClientTypeManagement.GetCurrentClientType() = CLIENTTYPE::Tablet);
     end;
 }
+#endif

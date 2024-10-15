@@ -22,7 +22,7 @@ codeunit 29 "Error Message Handler"
             if IsEmpty() then
                 exit(false);
 
-            LogLastError;
+            LogLastError();
 
             NextID := 0;
             TempErrorMessageBuf.Reset();
@@ -57,15 +57,15 @@ codeunit 29 "Error Message Handler"
     procedure ShowErrors(): Boolean
     begin
         if Active then begin
-            RegisterErrorMessages;
-            exit(TempErrorMessage.ShowErrors);
+            RegisterErrorMessages();
+            exit(TempErrorMessage.ShowErrors());
         end;
     end;
 
     procedure NotifyAboutErrors()
     begin
         if Active then
-            ShowNotification(RegisterErrorMessages);
+            ShowNotification(RegisterErrorMessages());
     end;
 
     procedure InformAboutErrors(ErrorHandlingOptions: Enum "Error Handling Options")
@@ -129,7 +129,7 @@ codeunit 29 "Error Message Handler"
             ErrorCallStack := GetLastErrorCallStack();
             ErrorText := GetLastErrorText();
         end;
-        TempErrorMessage.LogLastError;
+        TempErrorMessage.LogLastError();
 
         TempErrorMessage.SetRange(Context, false);
         if TempErrorMessage.FindSet() then
@@ -216,7 +216,7 @@ codeunit 29 "Error Message Handler"
     local procedure OnGetLastErrorID(var ID: Integer; var ErrorMessage: Text[250])
     begin
         if Active then begin
-            ID := TempErrorMessage.GetLastID;
+            ID := TempErrorMessage.GetLastID();
             ErrorMessage := TempErrorMessage.Description;
         end;
     end;

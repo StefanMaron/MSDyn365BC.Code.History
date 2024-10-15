@@ -156,22 +156,23 @@ table 262 "Intrastat Jnl. Batch"
     begin
         IntrastatJnlLine.SetRange("Journal Template Name", xRec."Journal Template Name");
         IntrastatJnlLine.SetRange("Journal Batch Name", xRec.Name);
-        while IntrastatJnlLine.FindFirst do
+        while IntrastatJnlLine.FindFirst() do
             IntrastatJnlLine.Rename("Journal Template Name", Name, IntrastatJnlLine."Line No.");
     end;
 
     var
-        Text000: Label '%1 must be 4 characters, for example, 9410 for October, 1994.';
-        Text001: Label 'Please check the month number.';
         IntraJnlTemplate: Record "Intrastat Jnl. Template";
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
         Month: Integer;
+
+        Text000: Label '%1 must be 4 characters, for example, 9410 for October, 1994.';
+        Text001: Label 'Please check the month number.';
         Text12100: Label 'You cannot change %1 when Intrastat Jnl. Lines for batch %2 exists.';
 
     [Scope('OnPrem')]
     procedure ErrorIfIntrastatJnlLineExist(ChangedFieldName: Text[100])
     begin
-        if IntrastatJnlLinesExist then
+        if IntrastatJnlLinesExist() then
             Error(
               Text12100,
               ChangedFieldName, Name);
@@ -185,7 +186,7 @@ table 262 "Intrastat Jnl. Batch"
         IntrastatJnlLine.Reset();
         IntrastatJnlLine.SetRange("Journal Template Name", "Journal Template Name");
         IntrastatJnlLine.SetRange("Journal Batch Name", Name);
-        exit(IntrastatJnlLine.FindFirst);
+        exit(IntrastatJnlLine.FindFirst())
     end;
 
     [Scope('OnPrem')]
@@ -206,7 +207,7 @@ table 262 "Intrastat Jnl. Batch"
         Month: Integer;
     begin
         TestField("Statistics Period");
-        Century := Date2DMY(WorkDate, 3) div 100;
+        Century := Date2DMY(WorkDate(), 3) div 100;
         Evaluate(Year, CopyStr("Statistics Period", 1, 2));
         Year := Year + Century * 100;
         Evaluate(Month, CopyStr("Statistics Period", 3, 2));

@@ -8,15 +8,16 @@ codeunit 99000833 "Req. Line-Reserve"
     end;
 
     var
+        FromTrackingSpecification: Record "Tracking Specification";
+        CreateReservEntry: Codeunit "Create Reserv. Entry";
+        ReservMgt: Codeunit "Reservation Management";
+        Blocked: Boolean;
+
         Text000: Label 'Reserved quantity cannot be greater than %1';
         Text002: Label 'must be filled in when a quantity is reserved';
         Text003: Label 'must not be filled in when a quantity is reserved';
         Text004: Label 'must not be changed when a quantity is reserved';
         Text005: Label 'Codeunit is not initialized correctly.';
-        FromTrackingSpecification: Record "Tracking Specification";
-        CreateReservEntry: Codeunit "Create Reserv. Entry";
-        ReservMgt: Codeunit "Reservation Management";
-        Blocked: Boolean;
 
     procedure CreateReservation(var ReqLine: Record "Requisition Line"; Description: Text[100]; ExpectedReceiptDate: Date; Quantity: Decimal; QuantityBase: Decimal; ForReservEntry: Record "Reservation Entry")
     var
@@ -73,14 +74,14 @@ codeunit 99000833 "Req. Line-Reserve"
 
     procedure Caption(ReqLine: Record "Requisition Line") CaptionText: Text
     begin
-        CaptionText := ReqLine.GetSourceCaption;
+        CaptionText := ReqLine.GetSourceCaption();
     end;
 
     procedure FindReservEntry(ReqLine: Record "Requisition Line"; var ReservEntry: Record "Reservation Entry"): Boolean
     begin
         ReservEntry.InitSortingAndFilters(false);
         ReqLine.SetReservationFilters(ReservEntry);
-        exit(ReservEntry.FindLast);
+        exit(ReservEntry.FindLast());
     end;
 
     procedure VerifyChange(var NewReqLine: Record "Requisition Line"; var OldReqLine: Record "Requisition Line")
@@ -210,12 +211,12 @@ codeunit 99000833 "Req. Line-Reserve"
                     exit;
             ReservMgt.SetReservSource(NewReqLine);
             if "Qty. per Unit of Measure" <> OldReqLine."Qty. per Unit of Measure" then
-                ReservMgt.ModifyUnitOfMeasure;
+                ReservMgt.ModifyUnitOfMeasure();
             if "Quantity (Base)" * OldReqLine."Quantity (Base)" < 0 then
                 ReservMgt.DeleteReservEntries(true, 0)
             else
                 ReservMgt.DeleteReservEntries(false, "Quantity (Base)");
-            ReservMgt.ClearSurplus;
+            ReservMgt.ClearSurplus();
             ReservMgt.AutoTrack("Quantity (Base)");
             AssignForPlanning(NewReqLine);
         end;
@@ -237,7 +238,7 @@ codeunit 99000833 "Req. Line-Reserve"
         if not FindReservEntry(OldReqLine, OldReservEntry) then
             exit;
 
-        OldReservEntry.Lock;
+        OldReservEntry.Lock();
 
         NewReqLine.TestField("No.", OldReqLine."No.");
         NewReqLine.TestField("Variant Code", OldReqLine."Variant Code");
@@ -355,7 +356,7 @@ codeunit 99000833 "Req. Line-Reserve"
         if not FindReservEntry(ReqLine, OldReservEntry) then
             exit;
 
-        OldReservEntry.Lock;
+        OldReservEntry.Lock();
 
         TransLine.TestField("Item No.", ReqLine."No.");
         TransLine.TestField("Variant Code", ReqLine."Variant Code");
@@ -432,7 +433,7 @@ codeunit 99000833 "Req. Line-Reserve"
             if Type <> Type::Item then
                 exit;
             if "No." <> '' then
-                PlanningAssignment.ChkAssignOne("No.", "Variant Code", "Location Code", WorkDate);
+                PlanningAssignment.ChkAssignOne("No.", "Variant Code", "Location Code", WorkDate());
         end;
     end;
 
@@ -560,7 +561,7 @@ codeunit 99000833 "Req. Line-Reserve"
     begin
         if SourceRecRef.Number = Database::"Requisition Line" then begin
             SourceRecRef.SetTable(ReqLine);
-            ReqLine.Find;
+            ReqLine.Find();
             QtyPerUOM := ReqLine.GetReservationQty(QtyReserved, QtyReservedBase, QtyToReserve, QtyToReserveBase);
         end;
     end;
@@ -578,7 +579,7 @@ codeunit 99000833 "Req. Line-Reserve"
 
         ReqLine.SetReservationEntry(ReservEntry);
 
-        CaptionText := ReqLine.GetSourceCaption;
+        CaptionText := ReqLine.GetSourceCaption();
     end;
 
     local procedure MatchThisEntry(EntryNo: Integer): Boolean
@@ -622,11 +623,10 @@ codeunit 99000833 "Req. Line-Reserve"
     [EventSubscriber(ObjectType::Page, Page::Reservation, 'OnAfterRelatesToSummEntry', '', false, false)]
     local procedure OnRelatesToEntrySummary(var FilterReservEntry: Record "Reservation Entry"; FromEntrySummary: Record "Entry Summary"; var IsHandled: Boolean)
     begin
-        if MatchThisEntry(FromEntrySummary."Entry No.") then begin
+        if MatchThisEntry(FromEntrySummary."Entry No.") then
             IsHandled :=
                 (FilterReservEntry."Source Type" = DATABASE::"Requisition Line") and
                 (FilterReservEntry."Source Subtype" = 0);
-        end;
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reservation Management", 'OnCreateReservation', '', false, false)]
@@ -677,7 +677,7 @@ codeunit 99000833 "Req. Line-Reserve"
         if MatchThisTable(SourceRecRef.Number) then begin
             SourceRecRef.SetTable(ReqLine);
             ReqLine.SetReservationFilters(ReservEntry);
-            CaptionText := ReqLine.GetSourceCaption;
+            CaptionText := ReqLine.GetSourceCaption();
         end;
     end;
 

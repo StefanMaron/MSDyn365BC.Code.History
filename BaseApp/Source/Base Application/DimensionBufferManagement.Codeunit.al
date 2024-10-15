@@ -6,7 +6,7 @@ codeunit 411 "Dimension Buffer Management"
     end;
 
     var
-        DimensionIDBuffer: Record "Dimension ID Buffer" temporary;
+        TempDimensionIDBuffer: Record "Dimension ID Buffer" temporary;
         TempDimBuf: Record "Dimension Buffer" temporary;
         TempDimEntryBuf: Record "Dimension Entry Buffer" temporary;
         NextDimBufNo: Integer;
@@ -76,7 +76,7 @@ codeunit 411 "Dimension Buffer Management"
             exit(TempDimBuf."Entry No.");
         end;
 
-        DimBuf.Next;
+        DimBuf.Next();
         while (not EndOfTempDimBuf) and (not Found) do begin
             PrevEntryNo := TempDimBuf."Entry No.";
             EndOfDimBuf := false;
@@ -161,7 +161,7 @@ codeunit 411 "Dimension Buffer Management"
     var
         Found: Boolean;
     begin
-        Found := TempDimEntryBuf.Next <> 0;
+        Found := TempDimEntryBuf.Next() <> 0;
         DimEntryNo := TempDimEntryBuf."Dimension Entry No.";
         EntryNo := TempDimEntryBuf."No.";
         exit(Found);
@@ -183,18 +183,18 @@ codeunit 411 "Dimension Buffer Management"
             NextDimBufNo := 1;
 
         NewDimensionComb := false;
-        DimensionIDBuffer.ID := 0;
+        TempDimensionIDBuffer.ID := 0;
         repeat
             if NewDimensionComb then
                 InsertDimIdBuf(Dimbuf)
             else
-                if not DimensionIDBuffer.Get(DimensionIDBuffer.ID, Dimbuf."Dimension Code", Dimbuf."Dimension Value Code") then begin
+                if not TempDimensionIDBuffer.Get(TempDimensionIDBuffer.ID, Dimbuf."Dimension Code", Dimbuf."Dimension Value Code") then begin
                     NewDimensionComb := true;
                     InsertDimIdBuf(Dimbuf);
                 end;
         until Dimbuf.Next() = 0;
 
-        exit(DimensionIDBuffer.ID);
+        exit(TempDimensionIDBuffer.ID);
     end;
 
     procedure RetrieveDimensions(DimId: Integer; var DimBuf: Record "Dimension Buffer")
@@ -205,17 +205,17 @@ codeunit 411 "Dimension Buffer Management"
         if DimId = 0 then
             exit;
 
-        DimensionIDBuffer.SetCurrentKey(ID);
-        DimensionIDBuffer.SetRange(ID, DimId);
+        TempDimensionIDBuffer.SetCurrentKey(ID);
+        TempDimensionIDBuffer.SetRange(ID, DimId);
         repeat
-            DimensionIDBuffer.FindFirst();
+            TempDimensionIDBuffer.FindFirst();
             DimBuf.Init();
             DimBuf."Entry No." := DimId;
-            DimBuf."Dimension Code" := DimensionIDBuffer."Dimension Code";
-            DimBuf."Dimension Value Code" := DimensionIDBuffer."Dimension Value";
+            DimBuf."Dimension Code" := TempDimensionIDBuffer."Dimension Code";
+            DimBuf."Dimension Value Code" := TempDimensionIDBuffer."Dimension Value";
             DimBuf.Insert();
-            DimensionIDBuffer.SetRange(ID, DimensionIDBuffer."Parent ID");
-        until DimensionIDBuffer."Parent ID" = 0;
+            TempDimensionIDBuffer.SetRange(ID, TempDimensionIDBuffer."Parent ID");
+        until TempDimensionIDBuffer."Parent ID" = 0;
     end;
 
     [Scope('OnPrem')]
@@ -227,26 +227,26 @@ codeunit 411 "Dimension Buffer Management"
         if DimId = 0 then
             exit;
 
-        DimensionIDBuffer.SetCurrentKey(ID);
-        DimensionIDBuffer.SetRange(ID, DimId);
-        while DimensionIDBuffer.FindFirst and (DimensionIDBuffer."Parent ID" <> 0) do begin
+        TempDimensionIDBuffer.SetCurrentKey(ID);
+        TempDimensionIDBuffer.SetRange(ID, DimId);
+        while TempDimensionIDBuffer.FindFirst() and (TempDimensionIDBuffer."Parent ID" <> 0) do begin
             DimBuf.Init();
             DimBuf."Entry No." := DimId;
-            DimBuf."Dimension Code" := DimensionIDBuffer."Dimension Code";
-            DimBuf."Dimension Value Code" := DimensionIDBuffer."Dimension Value";
+            DimBuf."Dimension Code" := TempDimensionIDBuffer."Dimension Code";
+            DimBuf."Dimension Value Code" := TempDimensionIDBuffer."Dimension Value";
             DimBuf.Insert();
-            DimensionIDBuffer.SetRange(ID, DimensionIDBuffer."Parent ID");
+            TempDimensionIDBuffer.SetRange(ID, TempDimensionIDBuffer."Parent ID");
         end;
     end;
 
     local procedure InsertDimIdBuf(var DimBuf: Record "Dimension Buffer")
     begin
-        DimensionIDBuffer."Parent ID" := DimensionIDBuffer.ID;
-        DimensionIDBuffer."Dimension Code" := DimBuf."Dimension Code";
-        DimensionIDBuffer."Dimension Value" := DimBuf."Dimension Value Code";
-        DimensionIDBuffer.ID := NextDimBufNo;
+        TempDimensionIDBuffer."Parent ID" := TempDimensionIDBuffer.ID;
+        TempDimensionIDBuffer."Dimension Code" := DimBuf."Dimension Code";
+        TempDimensionIDBuffer."Dimension Value" := DimBuf."Dimension Value Code";
+        TempDimensionIDBuffer.ID := NextDimBufNo;
         NextDimBufNo += 1;
-        DimensionIDBuffer.Insert();
+        TempDimensionIDBuffer.Insert();
     end;
 
     [IntegrationEvent(false, false)]

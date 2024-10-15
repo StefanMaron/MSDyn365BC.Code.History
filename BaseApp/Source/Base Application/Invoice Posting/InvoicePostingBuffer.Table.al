@@ -196,12 +196,10 @@
             Caption = 'FA Posting Date';
             DataClassification = SystemMetadata;
         }
-        field(5601; "FA Posting Type"; Option)
+        field(5601; "FA Posting Type"; Enum "Purchase FA Posting Type")
         {
             Caption = 'FA Posting Type';
             DataClassification = SystemMetadata;
-            OptionCaption = ' ,Acquisition Cost,Maintenance,,Appreciation';
-            OptionMembers = " ","Acquisition Cost",Maintenance,,Appreciation;
         }
         field(5602; "Depreciation Book Code"; Code[10])
         {
@@ -743,7 +741,7 @@
         OnAfterBuildPrimaryKey(Rec);
     end;
 
-    local procedure PadField(TextField: Text; MaxLength: Integer): Text
+    procedure PadField(TextField: Text; MaxLength: Integer): Text
     var
         TextLength: Integer;
     begin

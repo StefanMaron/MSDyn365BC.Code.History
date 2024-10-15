@@ -67,7 +67,7 @@ codeunit 144130 "ERM Service Invoice"
         ServiceInvoice.FILTER.SetFilter("No.", ServiceHeader."No.");
         ServiceInvoice."Bank Account".AssertEquals(UpperCase(BankAccount));
         ServiceInvoice."Cumulative Bank Receipts".AssertEquals(CumulativeBankReceipts);
-        ServiceInvoice.Close;
+        ServiceInvoice.Close();
     end;
 
     [Test]

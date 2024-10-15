@@ -6,7 +6,6 @@ page 99000755 "Work Center List"
     CardPageID = "Work Center Card";
     Editable = false;
     PageType = List;
-    PromotedActionCategories = 'New,Process,Report,Work Center';
     SourceTable = "Work Center";
     UsageCategory = Lists;
 
@@ -17,7 +16,7 @@ page 99000755 "Work Center List"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
@@ -27,47 +26,47 @@ page 99000755 "Work Center List"
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the name of the work center.';
                 }
-                field("Alternate Work Center"; "Alternate Work Center")
+                field("Alternate Work Center"; Rec."Alternate Work Center")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies an alternate work center.';
                 }
-                field("Work Center Group Code"; "Work Center Group Code")
+                field("Work Center Group Code"; Rec."Work Center Group Code")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the work center group, if the work center or underlying machine center is assigned to a work center group.';
                 }
-                field("Global Dimension 1 Code"; "Global Dimension 1 Code")
+                field("Global Dimension 1 Code"; Rec."Global Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for the global dimension that is linked to the record or entry for analysis purposes. Two global dimensions, typically for the company''s most important activities, are available on all cards, documents, reports, and lists.';
                     Visible = false;
                 }
-                field("Global Dimension 2 Code"; "Global Dimension 2 Code")
+                field("Global Dimension 2 Code"; Rec."Global Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for the global dimension that is linked to the record or entry for analysis purposes. Two global dimensions, typically for the company''s most important activities, are available on all cards, documents, reports, and lists.';
                     Visible = false;
                 }
-                field("Direct Unit Cost"; "Direct Unit Cost")
+                field("Direct Unit Cost"; Rec."Direct Unit Cost")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the cost of one unit of the selected item or resource.';
                     Visible = false;
                 }
-                field("Indirect Cost %"; "Indirect Cost %")
+                field("Indirect Cost %"; Rec."Indirect Cost %")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the percentage of the center''s cost that includes indirect costs, such as machine maintenance.';
                     Visible = false;
                 }
-                field("Unit Cost"; "Unit Cost")
+                field("Unit Cost"; Rec."Unit Cost")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the cost of one unit of the item or resource on the line.';
                     Visible = false;
                 }
-                field("Unit of Measure Code"; "Unit of Measure Code")
+                field("Unit of Measure Code"; Rec."Unit of Measure Code")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
@@ -83,53 +82,53 @@ page 99000755 "Work Center List"
                     ToolTip = 'Specifies the efficiency factor as a percentage of the work center.';
                     Visible = false;
                 }
-                field("Maximum Efficiency"; "Maximum Efficiency")
+                field("Maximum Efficiency"; Rec."Maximum Efficiency")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the maximum efficiency factor of the work center.';
                     Visible = false;
                 }
-                field("Minimum Efficiency"; "Minimum Efficiency")
+                field("Minimum Efficiency"; Rec."Minimum Efficiency")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the minimum efficiency factor of the work center.';
                     Visible = false;
                 }
-                field("Simulation Type"; "Simulation Type")
+                field("Simulation Type"; Rec."Simulation Type")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the simulation type for the work center.';
                     Visible = false;
                 }
-                field("Shop Calendar Code"; "Shop Calendar Code")
+                field("Shop Calendar Code"; Rec."Shop Calendar Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the shop calendar code that the planning of this work center refers to.';
                 }
-                field("Search Name"; "Search Name")
+                field("Search Name"; Rec."Search Name")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies an alternate name that you can use to search for the record in question when you cannot remember the value in the Name field.';
                 }
-                field("Overhead Rate"; "Overhead Rate")
+                field("Overhead Rate"; Rec."Overhead Rate")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the overhead rate of this work center.';
                     Visible = false;
                 }
-                field("Last Date Modified"; "Last Date Modified")
+                field("Last Date Modified"; Rec."Last Date Modified")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies when the work center card was last modified.';
                     Visible = false;
                 }
-                field("Flushing Method"; "Flushing Method")
+                field("Flushing Method"; Rec."Flushing Method")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies how consumption of the item (component) is calculated and handled in production processes. Manual: Enter and post consumption in the consumption journal manually. Forward: Automatically posts consumption according to the production order component lines when the first operation starts. Backward: Automatically calculates and posts consumption according to the production order component lines when the production order is finished. Pick + Forward / Pick + Backward: Variations with warehousing.';
                     Visible = false;
                 }
-                field("Subcontractor No."; "Subcontractor No.")
+                field("Subcontractor No."; Rec."Subcontractor No.")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the number of a subcontractor who supplies this work center.';
@@ -177,8 +176,6 @@ page 99000755 "Work Center List"
                     ApplicationArea = Manufacturing;
                     Caption = 'Co&mments';
                     Image = ViewComments;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     RunObject = Page "Manufacturing Comment Sheet";
                     RunPageLink = "No." = FIELD("No.");
                     RunPageView = WHERE("Table Name" = CONST("Work Center"));
@@ -193,12 +190,10 @@ page 99000755 "Work Center List"
                         ApplicationArea = Dimensions;
                         Caption = 'Dimensions-Single';
                         Image = Dimensions;
-                        Promoted = true;
-                        PromotedCategory = Category4;
                         RunObject = Page "Default Dimensions";
                         RunPageLink = "Table ID" = CONST(99000754),
                                       "No." = FIELD("No.");
-                        ShortCutKey='Alt+D';
+                        ShortCutKey = 'Alt+D';
                         ToolTip = 'View or edit the single set of dimensions that are set up for the selected record.';
                     }
                     action("Dimensions-&Multiple")
@@ -207,8 +202,6 @@ page 99000755 "Work Center List"
                         ApplicationArea = Dimensions;
                         Caption = 'Dimensions-&Multiple';
                         Image = DimensionSets;
-                        Promoted = true;
-                        PromotedCategory = Category4;
                         ToolTip = 'View or edit dimensions for a group of records. You can assign dimension codes to transactions to distribute costs and analyze historical information.';
 
                         trigger OnAction()
@@ -237,9 +230,6 @@ page 99000755 "Work Center List"
                     ApplicationArea = Manufacturing;
                     Caption = 'Statistics';
                     Image = Statistics;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
                     RunObject = Page "Work Center Statistics";
                     RunPageLink = "No." = FIELD("No."),
                                   "Date Filter" = FIELD("Date Filter"),
@@ -257,8 +247,6 @@ page 99000755 "Work Center List"
                     ApplicationArea = Manufacturing;
                     Caption = '&Calendar';
                     Image = MachineCenterCalendar;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Page "Work Center Calendar";
                     ToolTip = 'Open the shop calendar, for example to see the load.';
                 }
@@ -267,8 +255,6 @@ page 99000755 "Work Center List"
                     ApplicationArea = Manufacturing;
                     Caption = 'A&bsence';
                     Image = WorkCenterAbsence;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Page "Capacity Absence";
                     RunPageLink = "Capacity Type" = CONST("Work Center"),
                                   "No." = FIELD("No."),
@@ -280,8 +266,6 @@ page 99000755 "Work Center List"
                     ApplicationArea = Manufacturing;
                     Caption = 'Ta&sk List';
                     Image = TaskList;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Page "Work Center Task List";
                     RunPageLink = "No." = FIELD("No.");
                     RunPageView = SORTING(Type, "No.")
@@ -299,8 +283,6 @@ page 99000755 "Work Center List"
                 ApplicationArea = Manufacturing;
                 Caption = 'Subcontr. &Prices';
                 Image = Price;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'View the subcontracting prices.';
 
                 trigger OnAction()
@@ -320,8 +302,6 @@ page 99000755 "Work Center List"
                 ApplicationArea = Manufacturing;
                 Caption = 'Calculate Work Center Calendar';
                 Image = CalcWorkCenterCalendar;
-                Promoted = true;
-                PromotedCategory = Process;
                 RunObject = Report "Calculate Work Center Calendar";
                 ToolTip = 'Create new calendar entries for the work center to define the available daily capacity.';
             }
@@ -333,8 +313,6 @@ page 99000755 "Work Center List"
                 ApplicationArea = Manufacturing;
                 Caption = 'Work Center List';
                 Image = "Report";
-                Promoted = true;
-                PromotedCategory = "Report";
                 RunObject = Report "Work Center List";
                 ToolTip = 'View or edit the list of work centers.';
             }
@@ -343,8 +321,6 @@ page 99000755 "Work Center List"
                 ApplicationArea = Manufacturing;
                 Caption = 'Work Center Load';
                 Image = "Report";
-                Promoted = true;
-                PromotedCategory = "Report";
                 RunObject = Report "Work Center Load";
                 ToolTip = 'Get an overview of availability at the work center, such as the capacity, the allocated quantity, availability after order, and the load in percent.';
             }
@@ -353,16 +329,71 @@ page 99000755 "Work Center List"
                 ApplicationArea = Manufacturing;
                 Caption = 'Work Center Load/Bar';
                 Image = "Report";
-                Promoted = false;
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = "Report";
                 RunObject = Report "Work Center Load/Bar";
                 ToolTip = 'View a list of work centers that are overloaded according to the plan. The efficiency or overloading is shown by efficiency bars.';
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref("Subcontr. &Prices_Promoted"; "Subcontr. &Prices")
+                {
+                }
+                actionref("Calculate Work Center Calendar_Promoted"; "Calculate Work Center Calendar")
+                {
+                }
+                actionref("&Calendar_Promoted"; "&Calendar")
+                {
+                }
+                actionref("A&bsence_Promoted"; "A&bsence")
+                {
+                }
+                actionref("Ta&sk List_Promoted"; "Ta&sk List")
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+
+                actionref("Work Center List_Promoted"; "Work Center List")
+                {
+                }
+                actionref("Work Center Load_Promoted"; "Work Center Load")
+                {
+                }
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Work Center', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref(Statistics_Promoted; Statistics)
+                {
+                }
+                actionref("Co&mments_Promoted"; "Co&mments")
+                {
+                }
+                group(Category_Dimensions)
+                {
+                    Caption = 'Dimensions';
+                    ShowAs = SplitButton;
+
+                    actionref("Dimensions-&Multiple_Promoted"; "Dimensions-&Multiple")
+                    {
+                    }
+                    actionref("Dimensions-Single_Promoted"; "Dimensions-Single")
+                    {
+                    }
+                }
+            }
+        }
     }
 
-    [Scope('OnPrem')]
     procedure GetSelectionFilter(): Code[80]
     var
         WorkCenter: Record "Work Center";
@@ -386,7 +417,7 @@ page 99000755 "Work Center List"
                     if WorkCenter.Next() = 0 then
                         More := false
                     else
-                        if not WorkCenter.Mark then
+                        if not WorkCenter.Mark() then
                             More := false
                         else begin
                             LastWrkCntr := WorkCenter."No.";
@@ -402,7 +433,7 @@ page 99000755 "Work Center List"
                     SelectionFilter := SelectionFilter + FirstWrkCntr + '..' + LastWrkCntr;
                 if WrkCntrCount > 0 then begin
                     WorkCenter.MarkedOnly(true);
-                    WorkCenter.Next;
+                    WorkCenter.Next();
                 end;
             end;
         end;

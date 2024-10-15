@@ -110,7 +110,7 @@ codeunit 144017 "IT - SEPA.02 DD Unit Test"
         VerifyBillLines(CustomerBillHeader, Customer1."No.", BlankLineCount);
         VerifyBillLines(CustomerBillHeader, Customer2."No.", CompanyLineCount);
         VerifyBillLines(CustomerBillHeader, Customer3."No.", PersonLineCount);
-        CustomerBillHeader.Find;
+        CustomerBillHeader.Find();
         CustomerBillHeader.TestField("Partner Type", NewPartnerType);
     end;
 
@@ -1192,9 +1192,9 @@ codeunit 144017 "IT - SEPA.02 DD Unit Test"
         SEPADirectDebitMandate.Init();
         SEPADirectDebitMandate."Customer No." := CustomerNo;
         SEPADirectDebitMandate."Customer Bank Account Code" := CustomerBankAccountCode;
-        SEPADirectDebitMandate."Valid From" := WorkDate;
+        SEPADirectDebitMandate."Valid From" := WorkDate();
         SEPADirectDebitMandate."Valid To" := WorkDate + LibraryRandom.RandIntInRange(300, 600);
-        SEPADirectDebitMandate."Date of Signature" := WorkDate;
+        SEPADirectDebitMandate."Date of Signature" := WorkDate();
         SEPADirectDebitMandate."Expected Number of Debits" := LibraryRandom.RandIntInRange(10, 20);
         SEPADirectDebitMandate.Insert(true);
     end;
@@ -1250,7 +1250,7 @@ codeunit 144017 "IT - SEPA.02 DD Unit Test"
         repeat
             TempIssuedCustomerBillLine := IssuedCustomerBillLine;
             TempIssuedCustomerBillLine.Insert
-        until IssuedCustomerBillLine.Next = 0;
+        until IssuedCustomerBillLine.Next() = 0;
     end;
 
     local procedure CreateCustomerBillCardAndUpdateCompanyInformation(VATRegistrationNo: Text[20]; FiscalCode: Text[20]; var CustomerBillHeader: Record "Customer Bill Header")
@@ -1343,7 +1343,7 @@ codeunit 144017 "IT - SEPA.02 DD Unit Test"
         TempCustomerBillLine.FindSet();
         repeat
             VerifyPaymentLine(PaymentExportData, TempCustomerBillLine, CustomerBillHeader);
-        until TempCustomerBillLine.Next = 0;
+        until TempCustomerBillLine.Next() = 0;
     end;
 
     local procedure VerifyPaymentErrors(SourceTableID: Integer; PaymentDocNo: Code[20]; LineNo: Integer; ExpErrorText: Text; ExpCount: Integer)
@@ -1396,7 +1396,7 @@ codeunit 144017 "IT - SEPA.02 DD Unit Test"
                     CustomerBillLine.TestField("Customer Bank Acc. No.", SEPADirectDebitMandate."Customer Bank Account Code")
                 else
                     CustomerBillLine.TestField("Customer Bank Acc. No.", '');
-            until CustomerBillLine.Next = 0;
+            until CustomerBillLine.Next() = 0;
     end;
 
     [RequestPageHandler]

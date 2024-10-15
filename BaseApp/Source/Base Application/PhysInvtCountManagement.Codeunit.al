@@ -17,7 +17,7 @@ codeunit 7380 "Phys. Invt. Count.-Management"
             if Find('-') then
                 repeat
                     if ("Last Counting Period Update" < "Next Counting Start Date") and
-                       (WorkDate >= "Next Counting Start Date")
+                       (WorkDate() >= "Next Counting Start Date")
                     then
                         InsertTempPhysCountBuffer(
                           "No.", '', '', "Shelf No.", "Phys Invt Counting Period Code",
@@ -35,7 +35,7 @@ codeunit 7380 "Phys. Invt. Count.-Management"
             if Find('-') then
                 repeat
                     if ("Last Counting Period Update" < "Next Counting Start Date") and
-                       (WorkDate >= "Next Counting Start Date")
+                       (WorkDate() >= "Next Counting Start Date")
                     then begin
                         IsHandled := false;
                         OnRunOnSKUOnBeforeInsertTempPhysCountBuffer(Item, SKU, IsHandled);
@@ -60,11 +60,11 @@ codeunit 7380 "Phys. Invt. Count.-Management"
         if TempPhysInvtItemSelection.Find('-') then
             case SourceJnl of
                 SourceJnl::PhysInvtOrder:
-                    CreatePhysInvtOrderLines;
+                    CreatePhysInvtOrderLines();
                 SourceJnl::ItemJnl:
-                    CreatePhysInvtItemJnl;
+                    CreatePhysInvtItemJnl();
                 SourceJnl::WhseJnl:
-                    CreatePhysInvtWhseJnl;
+                    CreatePhysInvtWhseJnl();
                 SourceJnl::Custom:
                     OnCreateCustomPhysInvtJournal(TempPhysInvtItemSelection, SortingMethod, HideValidationDialog);
             end;
@@ -132,10 +132,10 @@ codeunit 7380 "Phys. Invt. Count.-Management"
         then begin
             Window.Open(Text000, TempPhysInvtItemSelection."Item No.");
             repeat
-                Window.Update;
+                Window.Update();
                 CalcInvtQtyOnHand(DocNo, PostingDate, ZeroQty, TempPhysInvtItemSelection);
             until TempPhysInvtItemSelection.Next() = 0;
-            Window.Close;
+            Window.Close();
 
             if PrintDoc then
                 PrintPhysInvtList(ItemJnlBatch, PrintQtyCalculated, PrintDocPerItem, TempPhysInvtItemSelection);
@@ -169,13 +169,13 @@ codeunit 7380 "Phys. Invt. Count.-Management"
         then begin
             Window.Open(Text000, TempPhysInvtItemSelection."Item No.");
             repeat
-                Window.Update;
+                Window.Update();
                 IsHandled := false;
                 OnBeforeCalcWhseQtyOnHand(DocNo, PostingDate, ZeroQty, TempPhysInvtItemSelection, IsHandled, WhseJnlLine);
                 if not IsHandled then
                     CalcWhseQtyOnHand(DocNo, PostingDate, ZeroQty, TempPhysInvtItemSelection);
             until TempPhysInvtItemSelection.Next() = 0;
-            Window.Close;
+            Window.Close();
 
             if PrintDoc then begin
                 IsHandled := false;
@@ -251,11 +251,11 @@ codeunit 7380 "Phys. Invt. Count.-Management"
         i: Integer;
     begin
         if LastDate = 0D then
-            LastCountDate := WorkDate
+            LastCountDate := WorkDate()
         else
             LastCountDate := LastDate;
 
-        i := Date2DMY(WorkDate, 3);
+        i := Date2DMY(WorkDate(), 3);
         Calendar.Reset();
         Calendar.SetRange("Period Type", Calendar."Period Type"::Year);
         Calendar.SetRange("Period No.", i);
@@ -281,7 +281,7 @@ codeunit 7380 "Phys. Invt. Count.-Management"
                     Days := (EndDate - StartDate + 1) div 2; // number of days in half a month
                     Periods[1] := StartDate;
                     Periods[2] := StartDate + Days;
-                    Calendar.Next;
+                    Calendar.Next();
                     StartDate := EndDate + 1;
                     EndDate := NormalDate(Calendar."Period Start") - 1;
                     Days := (EndDate - StartDate + 1) div 2;
@@ -363,7 +363,7 @@ codeunit 7380 "Phys. Invt. Count.-Management"
             exit;
 
         if not PrintDocPerItem then begin
-            ItemJnlBatch.SetRecFilter;
+            ItemJnlBatch.SetRecFilter();
             ItemJnlLine.SetRange("Journal Template Name", ItemJnlLine."Journal Template Name");
             ItemJnlLine.SetRange("Journal Batch Name", ItemJnlLine."Journal Batch Name");
             PhysInvtList.UseRequestPage(false);
@@ -374,7 +374,7 @@ codeunit 7380 "Phys. Invt. Count.-Management"
         end else begin
             TempPhysInvtItemSelection.Find('-');
             repeat
-                ItemJnlBatch.SetRecFilter;
+                ItemJnlBatch.SetRecFilter();
                 PhysInvtList.SetTableView(ItemJnlBatch);
                 ItemJnlLine.SetRange("Journal Template Name", ItemJnlLine."Journal Template Name");
                 ItemJnlLine.SetRange("Journal Batch Name", ItemJnlLine."Journal Batch Name");
@@ -397,7 +397,7 @@ codeunit 7380 "Phys. Invt. Count.-Management"
         WhsePhysInvtList: Report "Whse. Phys. Inventory List";
     begin
         if not PrintDocPerItem then begin
-            WhseJnlBatch.SetRecFilter;
+            WhseJnlBatch.SetRecFilter();
             case SortingMethod of
                 SortingMethod::Item:
                     WhseJnlLine.SetCurrentKey("Location Code", "Item No.", "Variant Code");
@@ -417,7 +417,7 @@ codeunit 7380 "Phys. Invt. Count.-Management"
         end else begin
             TempPhysInvtItemSelection.Find('-');
             repeat
-                WhseJnlBatch.SetRecFilter;
+                WhseJnlBatch.SetRecFilter();
                 case SortingMethod of
                     SortingMethod::Item:
                         WhseJnlLine.SetCurrentKey("Location Code", "Item No.", "Variant Code");
@@ -448,7 +448,7 @@ codeunit 7380 "Phys. Invt. Count.-Management"
 
         with SKU do begin
             if (not MarkedOnly) and (GetFilters = '') then
-                SetRecFilter;
+                SetRecFilter();
 
             FindSet();
             repeat
@@ -463,11 +463,11 @@ codeunit 7380 "Phys. Invt. Count.-Management"
             repeat
                 GetPhysInvtCount("Phys Invt Counting Period Code");
                 PhysInvtCount.TestField("Count Frequency per Year");
-                "Last Counting Period Update" := WorkDate;
+                "Last Counting Period Update" := WorkDate();
                 CalcPeriod(
                   "Last Counting Period Update", "Next Counting Start Date", "Next Counting End Date",
                   PhysInvtCount."Count Frequency per Year");
-                Modify;
+                Modify();
             until Next() = 0;
         end;
 
@@ -478,7 +478,7 @@ codeunit 7380 "Phys. Invt. Count.-Management"
     begin
         with Item do begin
             if (not MarkedOnly) and (GetFilters = '') then
-                SetRecFilter;
+                SetRecFilter();
 
             FindSet();
             repeat
@@ -493,11 +493,11 @@ codeunit 7380 "Phys. Invt. Count.-Management"
             repeat
                 GetPhysInvtCount("Phys Invt Counting Period Code");
                 PhysInvtCount.TestField("Count Frequency per Year");
-                "Last Counting Period Update" := WorkDate;
+                "Last Counting Period Update" := WorkDate();
                 CalcPeriod(
                   "Last Counting Period Update", "Next Counting Start Date", "Next Counting End Date",
                   PhysInvtCount."Count Frequency per Year");
-                Modify;
+                Modify();
             until Next() = 0;
         end;
     end;
@@ -507,23 +507,21 @@ codeunit 7380 "Phys. Invt. Count.-Management"
         Item: Record Item;
         SKU: Record "Stockkeeping Unit";
     begin
-        with TempItem do begin
+        with TempItem do
             if FindSet() then
                 repeat
                     Item.Reset();
                     Item.Get("No.");
                     UpdateItemPhysInvtCount(Item);
                 until Next() = 0;
-        end;
 
-        with TempSKU do begin
+        with TempSKU do
             if FindSet() then
                 repeat
                     SKU.Reset();
                     SKU.Get("Location Code", "Item No.", "Variant Code");
                     UpdateSKUPhysInvtCount(SKU);
                 until Next() = 0;
-        end;
     end;
 
     procedure AddToTempItemSKUList(ItemNo: Code[20]; LocationCode: Code[10]; VariantCode: Code[10]; PhysInvtCountingPeriodType: Option " ",Item,SKU)
@@ -542,9 +540,9 @@ codeunit 7380 "Phys. Invt. Count.-Management"
             if Get(ItemNo) then
                 exit;
 
-            Init;
+            Init();
             "No." := ItemNo;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -554,11 +552,11 @@ codeunit 7380 "Phys. Invt. Count.-Management"
             if Get(LocationCode, ItemNo, VariantCode) then
                 exit;
 
-            Init;
+            Init();
             "Location Code" := LocationCode;
             "Item No." := ItemNo;
             "Variant Code" := VariantCode;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -602,7 +600,7 @@ codeunit 7380 "Phys. Invt. Count.-Management"
 
         Window.Open(Text000, TempPhysInvtItemSelection."Item No.");
         repeat
-            Window.Update;
+            Window.Update();
             CalcPhysInvtOrderLinesRep.SetPhysInvtOrderHeader(PhysInvtOrderHeader);
             CalcPhysInvtOrderLinesRep.InitializeInvtCount(
               TempPhysInvtItemSelection."Phys Invt Counting Period Code",
@@ -621,7 +619,7 @@ codeunit 7380 "Phys. Invt. Count.-Management"
             CalcPhysInvtOrderLinesRep.RunModal();
             Clear(CalcPhysInvtOrderLinesRep);
         until TempPhysInvtItemSelection.Next() = 0;
-        Window.Close;
+        Window.Close();
     end;
 
     local procedure FindCurrentPhysInventoryPeriod(var Calendar: Record Date; var StartDate: Date; var EndDate: Date; LastDate: Date; CountFrequency: Integer)

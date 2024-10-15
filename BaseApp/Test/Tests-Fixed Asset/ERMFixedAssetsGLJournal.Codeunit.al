@@ -460,8 +460,8 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
         // 3. Verify: Verify the Error that Allow Posting to Main Assets must be Yes in FA Setup.
         Assert.AreEqual(
           StrSubstNo(
-            AllowPostingToMainAssetsMsg, FixedAsset.TableCaption, FixedAsset.FieldCaption("No."), FixedAsset."No.",
-            FixedAsset."Main Asset/Component", FASetup.FieldCaption("Allow Posting to Main Assets"), true, FASetup.TableCaption),
+            AllowPostingToMainAssetsMsg, FixedAsset.TableCaption(), FixedAsset.FieldCaption("No."), FixedAsset."No.",
+            FixedAsset."Main Asset/Component", FASetup.FieldCaption("Allow Posting to Main Assets"), true, FASetup.TableCaption()),
           GetLastErrorText, UnknownErr);
     end;
 
@@ -583,7 +583,7 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
         // 3. Verify that Disposal must not be positive for Depreciation Book.
         Assert.ExpectedError(
           StrSubstNo(
-            DisposalMustNotBePositiveMsg, WorkDate, FixedAsset.TableCaption, FixedAsset.FieldCaption("No."), FixedAsset."No.",
+            DisposalMustNotBePositiveMsg, WorkDate(), FixedAsset.TableCaption(), FixedAsset.FieldCaption("No."), FixedAsset."No.",
             FADepreciationBook.FieldCaption("Depreciation Book Code"), FADepreciationBook."Depreciation Book Code"));
     end;
 
@@ -690,7 +690,7 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
         FAJournalLine.FindFirst();
         Assert.AreNearlyEqual(
           -Amount, FAJournalLine.Amount, GeneralLedgerSetup."Amount Rounding Precision",
-          StrSubstNo(AmountErr, FAJournalLine.FieldCaption(Amount), -Amount, FAJournalLine.TableCaption));
+          StrSubstNo(AmountErr, FAJournalLine.FieldCaption(Amount), -Amount, FAJournalLine.TableCaption()));
     end;
 
     [Test]
@@ -787,7 +787,7 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
 
         // 2. Exercise: Run Copy FA Entries To G/L Budget with Random Starting Date.
         LibraryLowerPermissions.SetO365Basic;
-        asserterror RunCopyFAEntriesToGLBudget('', '', '', CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate));
+        asserterror RunCopyFAEntriesToGLBudget('', '', '', CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()));
 
         // 3. Verify: Verify that System generates an error when Starting Date is later than the Ending Date.
         Assert.AreEqual(StrSubstNo(EndingDateErr), GetLastErrorText, UnknownErr);
@@ -817,7 +817,7 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
         LibraryLowerPermissions.SetO365FAEdit;
         LibraryLowerPermissions.AddFinancialReporting;
         LibraryLowerPermissions.AddJournalsPost();
-        RunCopyFAEntriesToGLBudget(FixedAsset."No.", DepreciationBook, GLBudgetName.Name, WorkDate);
+        RunCopyFAEntriesToGLBudget(FixedAsset."No.", DepreciationBook, GLBudgetName.Name, WorkDate());
 
         // 3. Verify: Verify FA Entries must be copy to G\L Budget Entries for Active Fixed Asset.
         // Using 6 because we have created 6 General Journal Lines with different FA Posting Type.
@@ -849,7 +849,7 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
         LibraryLowerPermissions.SetO365FAEdit;
         LibraryLowerPermissions.AddFinancialReporting;
         LibraryLowerPermissions.AddJournalsPost();
-        RunCopyFAEntriesToGLBudget(FixedAsset."No.", LibraryFixedAsset.GetDefaultDeprBook, GLBudgetName.Name, WorkDate);
+        RunCopyFAEntriesToGLBudget(FixedAsset."No.", LibraryFixedAsset.GetDefaultDeprBook, GLBudgetName.Name, WorkDate());
 
         // 3. Verify: Verify FA Entries must not be copy to G\L Budget Entries for Inactive Fixed Asset.
         Assert.AreEqual(0, GetNumberOfGLBudgetEntries(GLBudgetName.Name), GLBudgetEntriesMustNotExistMsg);
@@ -897,7 +897,7 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
           FADepreciationBook."Declining-Balance %");
 
         // Create and post FA G/L Journal for Acquisition and Depriciation with Random Amounts.
-        PostingDate := CalcDate('<12M - 2D>', WorkDate);  // Take Posting Date as per test.
+        PostingDate := CalcDate('<12M - 2D>', WorkDate());  // Take Posting Date as per test.
         CreateGenJournalBatch(GenJournalBatch);
         SetupGLIntegrationInBook(DepreciationBook, true);
         CreateAndModifyFAGLJournalLine(
@@ -918,7 +918,7 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
         AcquisitionCostAfterReclassification := Round(AcquisitionCostBeforeReclassification * ReclassifyAcqCostPct / 100);
         NumberOfDays :=
           DepreciationCalculation.DeprDays(
-            DepreciationCalculation.ToMorrow(PostingDate, false), CalcDate('<1Y>', WorkDate),
+            DepreciationCalculation.ToMorrow(PostingDate, false), CalcDate('<1Y>', WorkDate()),
             false);
         DepreciationBeforeReclassification -=
           AcquisitionCostBeforeReclassification * (FADepreciationBook."Declining-Balance %" / 100) * (NumberOfDays / 360);
@@ -966,7 +966,7 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
         SetupGLIntegrationInBook(DepreciationBook, true);
         CreateAndModifyFAGLJournalLine(
           GenJournalLine, FADepreciationBook, GenJournalBatch, GenJournalLine."FA Posting Type"::"Acquisition Cost",
-          LibraryRandom.RandIntInRange(10000, 20000), WorkDate);
+          LibraryRandom.RandIntInRange(10000, 20000), WorkDate());
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // [GIVEN] Calculated depreciation with Amount = -10 on "DeprDate"
@@ -1035,7 +1035,7 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
           FADepreciationBook."Declining-Balance %");
 
         // Create and post FA G/L Journal for Acquisition and Depriciation with Random value.
-        PostingDate := CalcDate('<12M - 2D>', WorkDate);  // Take Posting Date as per test.
+        PostingDate := CalcDate('<12M - 2D>', WorkDate());  // Take Posting Date as per test.
         CreateGenJournalBatch(GenJournalBatch);
         SetupGLIntegrationInBook(DepreciationBook, true);
         CreateAndModifyFAGLJournalLine(
@@ -1055,7 +1055,7 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
         AcqCostReclassAmount := OriginalAcqCostAmount * (1 - ReclassifyAcqCostPct / 100);
         NumberOfDaysInPeriod :=
           DepreciationCalculation.DeprDays(
-            DepreciationCalculation.ToMorrow(PostingDate, false), CalcDate('<1Y>', WorkDate),
+            DepreciationCalculation.ToMorrow(PostingDate, false), CalcDate('<1Y>', WorkDate()),
             false);
         DeprAmount :=
           -Round(
@@ -1073,7 +1073,7 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
         FindAndPostGenJournalLines(DocumentNo);
 
         // 3. Verify: Verify GL Entries after Depreciation.
-        NumberOfDaysInPeriod := GetNumberOfDaysInPeriod(WorkDate, CalcDate('<' + Format(13) + 'M>', WorkDate));
+        NumberOfDaysInPeriod := GetNumberOfDaysInPeriod(WorkDate(), CalcDate('<' + Format(13) + 'M>', WorkDate()));
         ExpDeprAmount :=
           -Round(
             (AcqCostReclassAmount + DeprReclassAmount) * (FADepreciationBook."Declining-Balance %" / 100) *
@@ -1173,7 +1173,7 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
         // 2. Exercise and verify
         LibraryLowerPermissions.SetO365Basic;
         Assert.AreEqual(
-          LibraryERM.ConvertCurrency(Amount, CurrencyCode, '', WorkDate),
+          LibraryERM.ConvertCurrency(Amount, CurrencyCode, '', WorkDate()),
           GenJournalLine.ConvertAmtFCYToLCYForSourceCurrency(Amount), WrongAmountErr);
     end;
 
@@ -1209,7 +1209,7 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
           GenJournalLine."Bal. Account Type"::"G/L Account", GLAccount."No.", LibraryRandom.RandDec(100, 2));
 
         // Verify
-        GenJournalLine.Find;
+        GenJournalLine.Find();
         GenJournalLine.TestField("Depreciation Book Code", FADepreciationBook."Depreciation Book Code");
     end;
 
@@ -1247,7 +1247,7 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
           GenJournalLine."Bal. Account Type"::"G/L Account", GLAccount."No.", LibraryRandom.RandDec(100, 2));
 
         // Verify
-        GenJournalLine.Find;
+        GenJournalLine.Find();
         GenJournalLine.TestField("Depreciation Book Code", SetupFADepreciationBook."Depreciation Book Code");
     end;
 
@@ -1289,7 +1289,7 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
           GenJournalLine."Bal. Account Type"::"G/L Account", GLAccount."No.", LibraryRandom.RandDec(100, 2));
 
         // Verify
-        GenJournalLine.Find;
+        GenJournalLine.Find();
         GenJournalLine.TestField("Depreciation Book Code", FADepreciationBook."Depreciation Book Code");
     end;
 
@@ -1489,10 +1489,10 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
     begin
         LibraryFixedAsset.CreateFADepreciationBook(FADepreciationBook, FANo, DepreciationBookCode);
         FADepreciationBook.Validate("FA Posting Group", FAPostingGroupCode);
-        FADepreciationBook.Validate("Depreciation Starting Date", WorkDate);
+        FADepreciationBook.Validate("Depreciation Starting Date", WorkDate());
 
         // Depreciation Ending Date greater than Depreciation Starting Date, Using the Random Number for the Year.
-        FADepreciationBook.Validate("Depreciation Ending Date", CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate));
+        FADepreciationBook.Validate("Depreciation Ending Date", CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate()));
         FADepreciationBook.Modify(true);
     end;
 
@@ -1529,7 +1529,7 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
     begin
         SelectFAJournalBatch(FAJournalBatch);
         LibraryFixedAsset.CreateFAJournalLine(FAJournalLine, FAJournalBatch."Journal Template Name", FAJournalBatch.Name);
-        FAJournalLine.Validate("FA Posting Date", WorkDate);
+        FAJournalLine.Validate("FA Posting Date", WorkDate());
         FAJournalLine.Validate("Document No.", GetDocumentNo(FAJournalBatch));
         FAJournalLine.Validate("FA No.", FADepreciationBook."FA No.");
         FAJournalLine.Validate("FA Posting Type", FAPostingType);
@@ -1545,7 +1545,7 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
         FADepreciationBook.Validate("FA Posting Group", FAPostingGroup);
         FADepreciationBook.Validate("Depreciation Method", FADepreciationBook."Depreciation Method"::"Declining-Balance 1");
         FADepreciationBook.Validate("Declining-Balance %", DecliningBalancePct);
-        FADepreciationBook.Validate("Depreciation Starting Date", WorkDate);
+        FADepreciationBook.Validate("Depreciation Starting Date", WorkDate());
         FADepreciationBook.Modify(true);
     end;
 
@@ -1588,7 +1588,7 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
         LibraryFixedAsset.CreateFAReclassJournalBatch(FAReclassJournalBatch, FAReclassJournalTemplate.Name);
         LibraryFixedAsset.CreateFAReclassJournal(
           FAReclassJournalLine, FAReclassJournalBatch."Journal Template Name", FAReclassJournalBatch.Name);
-        FAReclassJournalLine.Validate("FA Posting Date", CalcDate('<' + PeriodTxt + 'M>', WorkDate));
+        FAReclassJournalLine.Validate("FA Posting Date", CalcDate('<' + PeriodTxt + 'M>', WorkDate()));
         DocumentNo := LibraryUtility.GenerateGUID();
         FAReclassJournalLine.Validate("Document No.", DocumentNo);
         FAReclassJournalLine.Validate("FA No.", FANo);
@@ -1651,7 +1651,7 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
             Validate("Document No.", LibraryUtility.GenerateGUID());
             Modify(true);
             LibraryERM.PostGeneralJnlLine(GenJournalLine);
-            exit(LibraryERM.ConvertCurrency("Salvage Value", CurrencyCode, '', WorkDate));
+            exit(LibraryERM.ConvertCurrency("Salvage Value", CurrencyCode, '', WorkDate()));
         end;
     end;
 
@@ -1686,7 +1686,7 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
 
     local procedure GenerateGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; CurrencyCode: Code[10])
     begin
-        GenJournalLine."Posting Date" := WorkDate;
+        GenJournalLine."Posting Date" := WorkDate();
         GenJournalLine."Source Currency Code" := CurrencyCode;
     end;
 
@@ -1696,7 +1696,7 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
         NoSeriesManagement: Codeunit NoSeriesManagement;
     begin
         NoSeries.Get(FAJournalBatch."No. Series");
-        exit(NoSeriesManagement.GetNextNo(FAJournalBatch."No. Series", WorkDate, false));
+        exit(NoSeriesManagement.GetNextNo(FAJournalBatch."No. Series", WorkDate(), false));
     end;
 
     local procedure GetNumberOfGLBudgetEntries(BudgetName: Code[10]): Integer
@@ -1776,7 +1776,7 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
             GenJournalLine.Validate(Description, GenJournalBatch.Name);
             GenJournalLine.Validate("FA Posting Date", GenJournalLine."Posting Date");
             GenJournalLine.Modify(true);
-        until GenJournalLine.Next = 0;
+        until GenJournalLine.Next() = 0;
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
@@ -1833,7 +1833,7 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
         Clear(CopyFAEntriesToGLBudget);
         CopyFAEntriesToGLBudget.UseRequestPage(false);
         CopyFAEntriesToGLBudget.SetTableView(FixedAsset);
-        CopyFAEntriesToGLBudget.InitializeRequest(DepreciationBookCode, GLBudgetName, StartingDate, WorkDate, FixedAsset."No.", false);
+        CopyFAEntriesToGLBudget.InitializeRequest(DepreciationBookCode, GLBudgetName, StartingDate, WorkDate(), FixedAsset."No.", false);
         CopyFAEntriesToGLBudget.SetTransferType(true, true, true, true, true, true);
         CopyFAEntriesToGLBudget.Run();
     end;
@@ -1884,7 +1884,7 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
         CalculateDepreciation: Report "Calculate Depreciation";
         PostingDate: Date;
     begin
-        PostingDate := CalcDate('<' + Format(NoOfMonth) + 'M>', WorkDate);
+        PostingDate := CalcDate('<' + Format(NoOfMonth) + 'M>', WorkDate());
         FixedAsset.SetRange("No.", FADepreciationBook."FA No.");
         Clear(CalculateDepreciation);
         CalculateDepreciation.SetTableView(FixedAsset);
@@ -1966,7 +1966,7 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
         FALedgerEntry.FindFirst();
         Assert.AreNearlyEqual(
           Amount, FALedgerEntry.Amount, GeneralLedgerSetup."Amount Rounding Precision",
-          StrSubstNo(AmountErr, FALedgerEntry.FieldCaption(Amount), Amount, FALedgerEntry.TableCaption));
+          StrSubstNo(AmountErr, FALedgerEntry.FieldCaption(Amount), Amount, FALedgerEntry.TableCaption()));
     end;
 
     local procedure VerifyLastFALedgEntryAmount(FANo: Code[20]; FAPostingType: Enum "FA Ledger Entry FA Posting Type"; ExpectedAmount: Decimal)

@@ -77,7 +77,7 @@ table 1308 "O365 Getting Started Page Data"
 
     local procedure GetPageDataForCurrentDisplayTarget(var O365GettingStartedPageData: Record "O365 Getting Started Page Data"): Boolean
     begin
-        O365GettingStartedPageData.SetFilter("Display Target", StrSubstNo('*%1*', Format(ClientTypeManagement.GetCurrentClientType)));
+        O365GettingStartedPageData.SetFilter("Display Target", StrSubstNo('*%1*', Format(ClientTypeManagement.GetCurrentClientType())));
 
         if not O365GettingStartedPageData.FindLast() then begin
             O365GettingStartedPageData.SetRange("Display Target", AllDisplayTargetsTxt);

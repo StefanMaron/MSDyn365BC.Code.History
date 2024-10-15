@@ -15,7 +15,7 @@ codeunit 103 "Cust. Entry-Edit"
 
         CustLedgEntry := Rec;
         CustLedgEntry.LockTable();
-        CustLedgEntry.Find;
+        CustLedgEntry.Find();
         CustLedgEntry."On Hold" := Rec."On Hold";
         if CustLedgEntry.Open then begin
             CustLedgEntry."Due Date" := Rec."Due Date";

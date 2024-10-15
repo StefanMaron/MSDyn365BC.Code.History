@@ -466,7 +466,7 @@ codeunit 144018 "IT - VAT Reporting - No Thre."
 
         // TODO> replace with LibraryVATUtils.VerifyGetLn after Roxana extracts it
         WorkDate(LibraryVATUtils.GetPostingDate);
-        LibraryVATUtils.SetupThresholdAmount(WorkDate, false);
+        LibraryVATUtils.SetupThresholdAmount(WorkDate(), false);
         LibraryVATUtils.UpdateVATPostingSetup(true);
 
         // TODO> Keep this line, when replacing with VATUtils call
@@ -478,7 +478,7 @@ codeunit 144018 "IT - VAT Reporting - No Thre."
 
         // Create VAT Report.
         LibraryVATUtils.CreateVATReport(
-          VATReportHeader, VATReportLine, VATReportHeader."VAT Report Config. Code"::"VAT Transactions Report", WorkDate, WorkDate);
+          VATReportHeader, VATReportLine, VATReportHeader."VAT Report Config. Code"::"VAT Transactions Report", WorkDate(), WorkDate());
 
         // Verify VAT Report Line.
         LibraryVATUtils.VerifyVATReportLine(VATReportLine);

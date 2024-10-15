@@ -110,11 +110,11 @@ codeunit 144009 "IT - VAT Reporting - Service"
         Initialize();
 
         // Setup.
-        SetupThresholdAmount(WorkDate);
+        SetupThresholdAmount(WorkDate());
         LibraryVATUtils.UpdateVATPostingSetup(InclInVATSetup);
 
         // Create Service Document.
-        LineAmount := CalculateAmount(WorkDate, InclVAT, InclInVATTransRep);
+        LineAmount := CalculateAmount(WorkDate(), InclVAT, InclInVATTransRep);
         CreateServiceDocument(ServiceHeader, ServiceLine, DocumentType, CreateCustomer(false, ServiceHeader.Resident::Resident, true, InclVAT), LineAmount);
 
         // Verify Service Line.
@@ -187,11 +187,11 @@ codeunit 144009 "IT - VAT Reporting - Service"
         Initialize();
 
         // Setup.
-        SetupThresholdAmount(WorkDate);
+        SetupThresholdAmount(WorkDate());
         LibraryVATUtils.UpdateVATPostingSetup(InclInVATSetup);
 
         // Create Service Contract.
-        ContractAmount := CalculateAmount(WorkDate, InclVAT, true);
+        ContractAmount := CalculateAmount(WorkDate(), InclVAT, true);
         CreateServiceContract(ServiceContractHeader, CreateCustomer(false, Customer.Resident::Resident, true, InclVAT), ContractAmount);
 
         // Sign Contract and Create Service Invoice.
@@ -245,15 +245,15 @@ codeunit 144009 "IT - VAT Reporting - Service"
         Initialize();
 
         // Setup.
-        SetupThresholdAmount(WorkDate);
+        SetupThresholdAmount(WorkDate());
         LibraryVATUtils.UpdateVATPostingSetup(true);
 
         // Create Service Contract.
-        ContractAmount := CalculateAmount(WorkDate, InclVAT, true);
+        ContractAmount := CalculateAmount(WorkDate(), InclVAT, true);
         CreateServiceContract(ServiceContractHeader, CreateCustomer(false, Customer.Resident::Resident, true, InclVAT), ContractAmount);
 
         // Create Service Document.
-        LineAmount := CalculateAmount(WorkDate, InclVAT, false);
+        LineAmount := CalculateAmount(WorkDate(), InclVAT, false);
         CreateServiceDocument(ServiceHeader, ServiceLine, ServiceHeader."Document Type"::Invoice, ServiceContractHeader."Customer No.", LineAmount);
 
         // Assign Service Contract.
@@ -305,18 +305,18 @@ codeunit 144009 "IT - VAT Reporting - Service"
         Initialize();
 
         // Setup.
-        SetupThresholdAmount(WorkDate);
+        SetupThresholdAmount(WorkDate());
         LibraryVATUtils.UpdateVATPostingSetup(true);
 
         // Create Service Contract.
-        ContractAmount := CalculateAmount(WorkDate, InclVAT, true);
+        ContractAmount := CalculateAmount(WorkDate(), InclVAT, true);
         CreateServiceContract(ServiceContractHeader, CreateCustomer(false, Customer.Resident::Resident, true, InclVAT), ContractAmount);
 
         // Sign Service Contract.
         SignServiceContract(ServiceContractHeader);
 
         // Create Service Order.
-        LineAmount := CalculateAmount(WorkDate, InclVAT, false);
+        LineAmount := CalculateAmount(WorkDate(), InclVAT, false);
         CreateServiceOrder(ServiceHeader, ServiceLine, ServiceContractHeader."Customer No.", ServiceContractHeader."Contract No.", LineAmount);
 
         // Verify Service Line.
@@ -343,7 +343,7 @@ codeunit 144009 "IT - VAT Reporting - Service"
         Initialize();
 
         // Setup.
-        SetupThresholdAmount(WorkDate);
+        SetupThresholdAmount(WorkDate());
         LibraryVATUtils.UpdateVATPostingSetup(true);
 
         // Create Customer.
@@ -352,7 +352,7 @@ codeunit 144009 "IT - VAT Reporting - Service"
         Customer.Modify(true);
 
         // Create Sales Document.
-        LineAmount := CalculateAmount(WorkDate, false, true);
+        LineAmount := CalculateAmount(WorkDate(), false, true);
         CreateServiceDocument(ServiceHeader, ServiceLine, ServiceHeader."Document Type"::Invoice, Customer."No.", LineAmount);
 
         // Verify Sales Line.
@@ -366,24 +366,30 @@ codeunit 144009 "IT - VAT Reporting - Service"
     [Scope('OnPrem')]
     procedure ServDocManualInclude()
     var
+        ServiceHeader: Record "Service Header";
         ServiceInvoiceTestPage: TestPage "Service Invoice";
         ServiceCreditMemoTestPage: TestPage "Service Credit Memo";
     begin
         // Verify EDITABLE is TRUE through pages because property is not available through record.
 
         // Service Invoice.
-        with ServiceInvoiceTestPage do begin
-            OpenNew;
-            Assert.IsTrue(ServLines."Include in VAT Transac. Rep.".Editable, 'EDITABLE should be TRUE for the field ' + ServLines."Include in VAT Transac. Rep.".Caption);
-            Close;
-        end;
+        LibraryService.CreateServiceHeader(ServiceHeader, "Service Document Type"::Invoice, '');
+        ServiceInvoiceTestPage.OpenNew();
+        ServiceInvoiceTestPage.GotoRecord(ServiceHeader);
+        Assert.IsTrue(
+            ServiceInvoiceTestPage.ServLines."Include in VAT Transac. Rep.".Editable,
+            'EDITABLE should be TRUE for the field ' + ServiceInvoiceTestPage.ServLines."Include in VAT Transac. Rep.".Caption);
+        ServiceInvoiceTestPage.Close();
 
         // Service Credit Memo.
-        with ServiceCreditMemoTestPage do begin
-            OpenNew;
-            Assert.IsTrue(ServLines."Include in VAT Transac. Rep.".Editable, 'EDITABLE should be TRUE for the field ' + ServLines."Include in VAT Transac. Rep.".Caption);
-            Close;
-        end;
+        Clear(ServiceHeader);
+        LibraryService.CreateServiceHeader(ServiceHeader, "Service Document Type"::"Credit Memo", '');
+        ServiceCreditMemoTestPage.OpenNew();
+        ServiceCreditMemoTestPage.GoToRecord(ServiceHeader);
+        Assert.IsTrue(
+            ServiceCreditMemoTestPage.ServLines."Include in VAT Transac. Rep.".Editable,
+            'EDITABLE should be TRUE for the field ' + ServiceCreditMemoTestPage.ServLines."Include in VAT Transac. Rep.".Caption());
+        ServiceCreditMemoTestPage.Close();
     end;
 
     [Test]
@@ -448,11 +454,11 @@ codeunit 144009 "IT - VAT Reporting - Service"
         Initialize();
 
         // Setup.
-        SetupThresholdAmount(WorkDate);
+        SetupThresholdAmount(WorkDate());
         LibraryVATUtils.UpdateVATPostingSetup(true);
 
         // Create Service Document.
-        LineAmount := CalculateAmount(WorkDate, InclVAT, InclInVATTransRep);
+        LineAmount := CalculateAmount(WorkDate(), InclVAT, InclInVATTransRep);
         CreateServiceDocument(ServiceHeader, ServiceLine, DocumentType, CreateCustomer(false, ServiceHeader.Resident::Resident, true, InclVAT), LineAmount);
         DocumentNo := PostServiceHeader(ServiceHeader);
 
@@ -512,18 +518,18 @@ codeunit 144009 "IT - VAT Reporting - Service"
         Initialize();
         // Setup.
 
-        SetupThresholdAmount(WorkDate);
+        SetupThresholdAmount(WorkDate());
         LibraryVATUtils.UpdateVATPostingSetup(true);
 
         // Create Service Contract.
-        ContractAmount := CalculateAmount(WorkDate, false, true);
+        ContractAmount := CalculateAmount(WorkDate(), false, true);
         CreateServiceContract(ServiceContractHeader, CreateCustomer(false, Customer.Resident::Resident, true, false), ContractAmount);
 
         // Sign Service Contract.
         SignServiceContract(ServiceContractHeader);
 
         // Create Service Document.
-        LineAmount := CalculateAmount(WorkDate, false, false);
+        LineAmount := CalculateAmount(WorkDate(), false, false);
         case DocumentType of
             ServiceHeader."Document Type"::Order:
                 // Create Service Order linked to Contract.
@@ -661,11 +667,11 @@ codeunit 144009 "IT - VAT Reporting - Service"
         Initialize();
 
         // Setup.
-        SetupThresholdAmount(WorkDate);
+        SetupThresholdAmount(WorkDate());
         LibraryVATUtils.UpdateVATPostingSetup(true);
 
         // Create Service Document.
-        LineAmount := CalculateAmount(WorkDate, false, true);
+        LineAmount := CalculateAmount(WorkDate(), false, true);
 
         // Create Service Header.
         LibraryService.CreateServiceHeader(ServiceHeader, DocumentType, CreateCustomer(false, ServiceHeader.Resident::Resident, true, false));
@@ -879,11 +885,11 @@ codeunit 144009 "IT - VAT Reporting - Service"
         Initialize();
 
         // Setup.
-        SetupThresholdAmount(WorkDate);
+        SetupThresholdAmount(WorkDate());
         LibraryVATUtils.UpdateVATPostingSetup(true);
 
         // Calculate Line Amount (Excl. VAT).
-        LineAmount := CalculateAmount(WorkDate, false, true);
+        LineAmount := CalculateAmount(WorkDate(), false, true);
 
         // Create Customer (Excl. VAT).
         Customer.Get(CreateCustomer(IndividualPerson, Resident, true, false));
@@ -958,11 +964,11 @@ codeunit 144009 "IT - VAT Reporting - Service"
         Initialize();
 
         // Setup.
-        SetupThresholdAmount(WorkDate);
+        SetupThresholdAmount(WorkDate());
         LibraryVATUtils.UpdateVATPostingSetup(false);
 
         // Calculate Line Amount (Excl. VAT).
-        LineAmount := CalculateAmount(WorkDate, false, true);
+        LineAmount := CalculateAmount(WorkDate(), false, true);
 
         // Create Service Document.
         CreateServiceDocument(ServiceHeader, ServiceLine, DocumentType, CreateCustomer(IndividualPerson, Resident, false, false), LineAmount);
@@ -1258,7 +1264,7 @@ codeunit 144009 "IT - VAT Reporting - Service"
     var
         NoSeriesManagement: Codeunit NoSeriesManagement;
     begin
-        DocumentNo := NoSeriesManagement.GetNextNo(ServiceHeader."Posting No. Series", WorkDate, false);
+        DocumentNo := NoSeriesManagement.GetNextNo(ServiceHeader."Posting No. Series", WorkDate(), false);
     end;
 
     local procedure GetServiceItemNo(CustomerNo: Code[20]): Code[20]
@@ -1314,7 +1320,7 @@ codeunit 144009 "IT - VAT Reporting - Service"
         VATPostingSetup.SetRange("VAT %", LibraryVATUtils.FindMaxVATRate(VATPostingSetup."VAT Calculation Type"::"Normal VAT"));
         VATPostingSetup.SetRange("Include in VAT Transac. Rep.", IncludeInVATTransacRep);
         VATPostingSetup.SetRange("Deductible %", 100);
-        exit(VATPostingSetup.FindFirst);
+        exit(VATPostingSetup.FindFirst())
     end;
 
     local procedure PostServiceHeader(var ServiceHeader: Record "Service Header") DocumentNo: Code[20]
@@ -1372,7 +1378,7 @@ codeunit 144009 "IT - VAT Reporting - Service"
         VATEntry.FindSet();
         repeat
             VATEntry.TestField("Contract No.", ContractNo);
-        until VATEntry.Next = 0;
+        until VATEntry.Next() = 0;
     end;
 
     local procedure VerifyIncludeVAT(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; InclInVATTransRep: Boolean)
@@ -1382,7 +1388,7 @@ codeunit 144009 "IT - VAT Reporting - Service"
         FindVATEntry(VATEntry, DocumentType, DocumentNo);
         repeat
             VATEntry.TestField("Include in VAT Transac. Rep.", InclInVATTransRep);
-        until VATEntry.Next = 0;
+        until VATEntry.Next() = 0;
     end;
 
     local procedure VerifyRefersToPeriod(TableID: Option; DocumentNo: Code[20]; RefersToPeriod: Option)
@@ -1421,7 +1427,7 @@ codeunit 144009 "IT - VAT Reporting - Service"
         FindVATEntry(VATEntry, VATEntry."Document Type"::"Credit Memo", DocumentNo);
         repeat
             VATEntry.TestField("Refers To Period", RefersToPeriod);
-        until VATEntry.Next = 0;
+        until VATEntry.Next() = 0;
     end;
 
     local procedure VerifyTaxRep(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; TaxRepType: Option; TaxRepNo: Code[20])
@@ -1432,7 +1438,7 @@ codeunit 144009 "IT - VAT Reporting - Service"
         repeat
             VATEntry.TestField("Tax Representative Type", TaxRepType);
             VATEntry.TestField("Tax Representative No.", TaxRepNo);
-        until VATEntry.Next = 0;
+        until VATEntry.Next() = 0;
     end;
 
     local procedure TearDown()

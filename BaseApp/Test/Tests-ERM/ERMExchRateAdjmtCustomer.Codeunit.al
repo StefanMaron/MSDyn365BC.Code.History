@@ -29,7 +29,6 @@
         DocTypeReversalErr: Label 'You cannot reverse the entry %1 because it''s an %2 Document.';
 
     [Test]
-    [HandlerFunctions('StatisticsMessageHandler')]
     [Scope('OnPrem')]
     procedure CustAdjustExchRateForHigher()
     var
@@ -42,7 +41,6 @@
     end;
 
     [Test]
-    [HandlerFunctions('StatisticsMessageHandler')]
     [Scope('OnPrem')]
     procedure CustAdjustExchRateForLower()
     var
@@ -55,7 +53,6 @@
     end;
 
     [Test]
-    [HandlerFunctions('StatisticsMessageHandler')]
     [Scope('OnPrem')]
     procedure UnrealizedGainCreditMemoCust()
     var
@@ -93,7 +90,6 @@
     end;
 
     [Test]
-    [HandlerFunctions('StatisticsMessageHandler')]
     [Scope('OnPrem')]
     procedure SalesInvoiceAndPaymentWithDiffExchangeRates()
     var
@@ -224,7 +220,6 @@
     end;
 
     [Test]
-    [HandlerFunctions('StatisticsMessageHandler')]
     [Scope('OnPrem')]
     procedure PurchaseInvoiceAndPaymentWithDiffExchangeRates()
     var
@@ -619,7 +614,6 @@
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure AdjustExchRateForCustomerTwiceGainsLosses()
     var
@@ -659,7 +653,6 @@
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure AdjustExchRateForCustomerTwiceLossesGains()
     var
@@ -699,7 +692,6 @@
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure AdjustExchRateForCustomerTwiceGainsToHigherLosses()
     var
@@ -752,7 +744,6 @@
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure AdjustExchRateForCustomerTwiceLossesToHigherGains()
     var
@@ -822,7 +813,7 @@
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdateLocalPostingSetup();
-        LibraryERM.SetJournalTemplateNameMandatory(false);
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
 
         IsInitialized := true;
         Commit();
@@ -888,7 +879,7 @@
         // Create Currency with different exchange Rate and Starting Date. Take Random for Relational Exchange Rate Amount.
         CurrencyCode := CreateCurrency;
         DeleteExistingExchangeRates(CurrencyCode);
-        CreateExchangeRateWithFixExchRateAmount(CurrencyCode, WorkDate, RelExchRateAmount);
+        CreateExchangeRateWithFixExchRateAmount(CurrencyCode, WorkDate(), RelExchRateAmount);
         CreateExchangeRateWithFixExchRateAmount(CurrencyCode, FirstStartingDate, 2 * RelExchRateAmount);
     end;
 
@@ -1358,7 +1349,7 @@
             VATAmount :=
               Round(
                 Amount * VATPostingSetup."VAT %" / (100 + VATPostingSetup."VAT %"), Currency."Amount Rounding Precision",
-                Currency.VATRoundingDirection);
+                Currency.VATRoundingDirection());
         exit(Round(Amount - VATAmount, Currency."Amount Rounding Precision"));
     end;
 
@@ -1408,13 +1399,6 @@
     procedure MessageHandler(Message: Text[1024])
     begin
         // To handle the message.
-    end;
-
-    [MessageHandler]
-    [Scope('OnPrem')]
-    procedure StatisticsMessageHandler(Message: Text[1024])
-    begin
-        Assert.ExpectedMessage(ExchRateWasAdjustedTxt, Message);
     end;
 }
 

@@ -12,7 +12,7 @@ page 9994 "API Data Upgrade List"
         {
             repeater(Control2)
             {
-                field("Upgrade Tag"; "Upgrade Tag")
+                field("Upgrade Tag"; Rec."Upgrade Tag")
                 {
                     ApplicationArea = All;
                     Caption = 'Entity Name';
@@ -42,9 +42,6 @@ page 9994 "API Data Upgrade List"
             {
                 ApplicationArea = All;
                 Image = Setup;
-                Promoted = true;
-                PromotedOnly = true;
-                PromotedCategory = Process;
                 ToolTip = 'Schedules an upgrade job queue entry for selected API data upgrades.';
 
                 trigger OnAction();
@@ -64,9 +61,6 @@ page 9994 "API Data Upgrade List"
             {
                 ApplicationArea = All;
                 Image = Setup;
-                Promoted = true;
-                PromotedOnly = true;
-                PromotedCategory = Process;
                 ToolTip = 'Reset status of selected scheduled API data upgrade.';
 
                 trigger OnAction();
@@ -75,6 +69,20 @@ page 9994 "API Data Upgrade List"
                     Rec.Modify();
                     CurrPage.Update();
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("Schedule Upgrades_Promoted"; "Schedule Upgrades")
+                {
+                }
+                actionref(Reset_Promoted; Reset)
+                {
+                }
             }
         }
     }

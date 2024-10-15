@@ -448,7 +448,7 @@ codeunit 132213 "Library - Small Business"
             Validate("Direct Posting", true);
             Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
             Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
-            Modify;
+            Modify();
         end;
     end;
 
@@ -485,7 +485,7 @@ codeunit 132213 "Library - Small Business"
         VATIdentifier: Record "VAT Identifier";
     begin
         with VATPostingSetup do begin
-            Init;
+            Init();
             Validate("VAT Bus. Posting Group", VATBusPostingGroupCode);
             Validate("VAT Prod. Posting Group", VATProdPostingGroupCode);
             LibraryERM.CreateVATIdentifier(VATIdentifier);
@@ -493,7 +493,7 @@ codeunit 132213 "Library - Small Business"
             Validate("VAT %", 0);
             Validate("Sales VAT Account", CreateGLAccount);
             Validate("Purchase VAT Account", CreateGLAccount);
-            Insert;
+            Insert();
         end;
     end;
 
@@ -505,7 +505,7 @@ codeunit 132213 "Library - Small Business"
         GlobalDimCodeFieldRef: FieldRef;
     begin
         RecRef.Open(DATABASE::"General Ledger Setup");
-        RecRef.Find;
+        RecRef.Find();
         case DimNumber of
             1:
                 GlobalDimCodeFieldRef := RecRef.Field(GLSetup.FieldNo("Global Dimension 1 Code"));

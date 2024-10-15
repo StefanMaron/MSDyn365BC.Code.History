@@ -1,9 +1,8 @@
 page 99000817 "Prod. Order Routing"
 {
     Caption = 'Prod. Order Routing';
-    DataCaptionExpression = Caption;
+    DataCaptionExpression = Caption();
     PageType = List;
-    PromotedActionCategories = 'New,Process,Report,Line';
     SourceTable = "Prod. Order Routing Line";
 
     layout
@@ -13,30 +12,30 @@ page 99000817 "Prod. Order Routing"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Prod. Order No."; "Prod. Order No.")
+                field("Prod. Order No."; Rec."Prod. Order No.")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the number of the related production order.';
                     Visible = ProdOrderNoVisible;
                 }
-                field("Schedule Manually"; "Schedule Manually")
+                field("Schedule Manually"; Rec."Schedule Manually")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies that the underlying capacity need is recalculated each time a change is made in the schedule of the routing.';
                     Visible = false;
                 }
-                field("Operation No."; "Operation No.")
+                field("Operation No."; Rec."Operation No.")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the operation number.';
                 }
-                field("Previous Operation No."; "Previous Operation No.")
+                field("Previous Operation No."; Rec."Previous Operation No.")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the previous operation number.';
                     Visible = false;
                 }
-                field("Next Operation No."; "Next Operation No.")
+                field("Next Operation No."; Rec."Next Operation No.")
                 {
                     ApplicationArea = Manufacturing;
                     Editable = NextOperationNoEditable;
@@ -48,12 +47,12 @@ page 99000817 "Prod. Order Routing"
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the type of operation.';
                 }
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
-                field("WIP Item"; "WIP Item")
+                field("WIP Item"; Rec."WIP Item")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies if the item is a work in process (WIP) item.';
@@ -63,23 +62,23 @@ page 99000817 "Prod. Order Routing"
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the description of the operation.';
                 }
-                field("Routing Link Code"; "Routing Link Code")
+                field("Routing Link Code"; Rec."Routing Link Code")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the routing link.';
                 }
-                field("Standard Task Code"; "Standard Task Code")
+                field("Standard Task Code"; Rec."Standard Task Code")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the standard task.';
                 }
-                field("Flushing Method"; "Flushing Method")
+                field("Flushing Method"; Rec."Flushing Method")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies how consumption of the item (component) is calculated and handled in production processes. Manual: Enter and post consumption in the consumption journal manually. Forward: Automatically posts consumption according to the production order component lines when the first operation starts. Backward: Automatically calculates and posts consumption according to the production order component lines when the production order is finished. Pick + Forward / Pick + Backward: Variations with warehousing.';
                     Visible = false;
                 }
-                field("Starting Date-Time"; "Starting Date-Time")
+                field("Starting Date-Time"; Rec."Starting Date-Time")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the starting date and the starting time, which are combined in a format called "starting date-time".';
@@ -115,7 +114,7 @@ page 99000817 "Prod. Order Routing"
                         CurrPage.Update(true);
                     end;
                 }
-                field("Ending Date-Time"; "Ending Date-Time")
+                field("Ending Date-Time"; Rec."Ending Date-Time")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the ending date and the ending time, which are combined in a format called "ending date-time".';
@@ -151,7 +150,7 @@ page 99000817 "Prod. Order Routing"
                         CurrPage.Update(true);
                     end;
                 }
-                field("Setup Time"; "Setup Time")
+                field("Setup Time"; Rec."Setup Time")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the setup time of the operation.';
@@ -167,7 +166,7 @@ page 99000817 "Prod. Order Routing"
                     ToolTip = 'Specifies the unit of measure code that applies to the setup time of the operation.';
                     Visible = false;
                 }
-                field("Run Time"; "Run Time")
+                field("Run Time"; Rec."Run Time")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the run time of the operation.';
@@ -183,7 +182,7 @@ page 99000817 "Prod. Order Routing"
                     ToolTip = 'Specifies the unit of measure code that applies to the run time of the operation.';
                     Visible = false;
                 }
-                field("Wait Time"; "Wait Time")
+                field("Wait Time"; Rec."Wait Time")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the wait time after processing.';
@@ -199,7 +198,7 @@ page 99000817 "Prod. Order Routing"
                     ToolTip = 'Specifies the unit of measure code that applies to the wait time.';
                     Visible = false;
                 }
-                field("Move Time"; "Move Time")
+                field("Move Time"; Rec."Move Time")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the move time.';
@@ -215,66 +214,66 @@ page 99000817 "Prod. Order Routing"
                     ToolTip = 'Specifies the unit of measure code that applies to the move time.';
                     Visible = false;
                 }
-                field("Fixed Scrap Quantity"; "Fixed Scrap Quantity")
+                field("Fixed Scrap Quantity"; Rec."Fixed Scrap Quantity")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the fixed scrap quantity.';
                     Visible = false;
                 }
-                field("Routing Link Code2"; "Routing Link Code")
+                field("Routing Link Code2"; Rec."Routing Link Code")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the routing link.';
                     Visible = false;
                 }
-                field("Scrap Factor %"; "Scrap Factor %")
+                field("Scrap Factor %"; Rec."Scrap Factor %")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the scrap factor in percent.';
                     Visible = false;
                 }
-                field("Send-Ahead Quantity"; "Send-Ahead Quantity")
+                field("Send-Ahead Quantity"; Rec."Send-Ahead Quantity")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the send-ahead quantity of the operation.';
                     Visible = false;
                 }
-                field("Concurrent Capacities"; "Concurrent Capacities")
+                field("Concurrent Capacities"; Rec."Concurrent Capacities")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the con capacity of the operation.';
                     Visible = false;
                 }
-                field("Unit Cost per"; "Unit Cost per")
+                field("Unit Cost per"; Rec."Unit Cost per")
                 {
                     ApplicationArea = Manufacturing;
                     Editable = false;
                     ToolTip = 'Specifies the unit cost for this operation if it is different than the unit cost on the work center or machine center card.';
                     Visible = false;
                 }
-                field("Lot Size"; "Lot Size")
+                field("Lot Size"; Rec."Lot Size")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the number of items that are included in the same operation at the same time. The run time on routing lines is reduced proportionally to the lot size. For example, if the lot size is two pieces, the run time will be reduced by half.';
                     Visible = false;
                 }
-                field("Direct Unit Cost"; "Direct Unit Cost")
+                field("Direct Unit Cost"; Rec."Direct Unit Cost")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the direct unit cost that is associated with the document.';
                 }
-                field("Expected Operation Cost Amt."; "Expected Operation Cost Amt.")
+                field("Expected Operation Cost Amt."; Rec."Expected Operation Cost Amt.")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the total cost of operations. It is automatically calculated from the capacity need, when a production order is refreshed or replanned.';
                 }
-                field("Expected Capacity Ovhd. Cost"; "Expected Capacity Ovhd. Cost")
+                field("Expected Capacity Ovhd. Cost"; Rec."Expected Capacity Ovhd. Cost")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the capacity overhead. It is automatically calculated from the capacity need, when a production order is refreshed or replanned.';
                     Visible = false;
                 }
-                field("Expected Capacity Need"; "Expected Capacity Need" / ExpCapacityNeed)
+                field("Expected Capacity Need"; Rec."Expected Capacity Need" / ExpCapacityNeed())
                 {
                     ApplicationArea = Manufacturing;
                     Caption = 'Expected Capacity Need';
@@ -282,42 +281,42 @@ page 99000817 "Prod. Order Routing"
                     ToolTip = 'Specifies the expected capacity need for the production order.';
                     Visible = false;
                 }
-                field("Routing Status"; "Routing Status")
+                field("Routing Status"; Rec."Routing Status")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the status of the routing line, such as Planned, In Progress, or Finished.';
                     Visible = false;
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the location where the machine or work center on the production order routing line operates.';
                     Visible = false;
                 }
-                field("Open Shop Floor Bin Code"; "Open Shop Floor Bin Code")
+                field("Open Shop Floor Bin Code"; Rec."Open Shop Floor Bin Code")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the corresponding bin at the machine or work center, if the location code matches the setup of that machine or work center.';
                     Visible = false;
                 }
-                field("To-Production Bin Code"; "To-Production Bin Code")
+                field("To-Production Bin Code"; Rec."To-Production Bin Code")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the bin that holds components with a flushing method, that involves a warehouse activity to bring the items to the bin.';
                     Visible = false;
                 }
-                field("From-Production Bin Code"; "From-Production Bin Code")
+                field("From-Production Bin Code"; Rec."From-Production Bin Code")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the corresponding bin at the machine or work center if the location code matches the setup of that machine or work center.';
                     Visible = false;
                 }
-                field("Qty. WIP on Transfer Order"; "Qty. WIP on Transfer Order")
+                field("Qty. WIP on Transfer Order"; Rec."Qty. WIP on Transfer Order")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the number of work in process (WIP) items on a subcontractor transfer order.';
                 }
-                field("Qty. WIP on Subcontractors"; "Qty. WIP on Subcontractors")
+                field("Qty. WIP on Subcontractors"; Rec."Qty. WIP on Subcontractors")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the number of work in process (WIP) items on a subcontractor order.';
@@ -352,8 +351,6 @@ page 99000817 "Prod. Order Routing"
                     ApplicationArea = Manufacturing;
                     Caption = 'Co&mments';
                     Image = ViewComments;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     RunObject = Page "Prod. Order Rtng. Cmt. Sh.";
                     RunPageLink = Status = FIELD(Status),
                                   "Prod. Order No." = FIELD("Prod. Order No."),
@@ -367,8 +364,6 @@ page 99000817 "Prod. Order Routing"
                     ApplicationArea = Manufacturing;
                     Caption = 'Tools';
                     Image = Tools;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     RunObject = Page "Prod. Order Routing Tools";
                     RunPageLink = Status = FIELD(Status),
                                   "Prod. Order No." = FIELD("Prod. Order No."),
@@ -382,8 +377,6 @@ page 99000817 "Prod. Order Routing"
                     ApplicationArea = Manufacturing;
                     Caption = 'Personnel';
                     Image = User;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     RunObject = Page "Prod. Order Routing Personnel";
                     RunPageLink = Status = FIELD(Status),
                                   "Prod. Order No." = FIELD("Prod. Order No."),
@@ -397,8 +390,6 @@ page 99000817 "Prod. Order Routing"
                     ApplicationArea = Manufacturing;
                     Caption = 'Quality Measures';
                     Image = TaskQualityMeasure;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     RunObject = Page "Prod. Order Rtng Qlty Meas.";
                     RunPageLink = Status = FIELD(Status),
                                   "Prod. Order No." = FIELD("Prod. Order No."),
@@ -412,8 +403,6 @@ page 99000817 "Prod. Order Routing"
                     ApplicationArea = Manufacturing;
                     Caption = 'Allocated Capacity';
                     Image = AllocatedCapacity;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     ToolTip = 'View the capacity need, which is the sum of the setup time and the run time. The run time is equal to the run time per piece multiplied by the number of pieces in the production order.';
 
                     trigger OnAction()
@@ -447,8 +436,6 @@ page 99000817 "Prod. Order Routing"
                     ApplicationArea = Manufacturing;
                     Caption = 'Order &Tracking';
                     Image = OrderTracking;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Tracks the connection of a supply to its corresponding demand. This can help you find the original demand that created a specific production order or purchase order.';
 
                     trigger OnAction()
@@ -467,11 +454,46 @@ page 99000817 "Prod. Order Routing"
                 }
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref("Order &Tracking_Promoted"; "Order &Tracking")
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Line', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref("Co&mments_Promoted"; "Co&mments")
+                {
+                }
+                actionref(Tools_Promoted; Tools)
+                {
+                }
+                actionref(Personnel_Promoted; Personnel)
+                {
+                }
+                actionref("Quality Measures_Promoted"; "Quality Measures")
+                {
+                }
+                actionref("Allocated Capacity_Promoted"; "Allocated Capacity")
+                {
+                }
+            }
+        }
     }
 
     trigger OnAfterGetRecord()
     begin
-        NextOperationNoEditable := not IsSerial;
+        NextOperationNoEditable := not IsSerial();
         GetStartingEndingDateAndTime(StartingTime, StartingDate, EndingTime, EndingDate);
     end;
 
@@ -482,7 +504,7 @@ page 99000817 "Prod. Order Routing"
 
     trigger OnDeleteRecord(): Boolean
     begin
-        CheckPreviousAndNext;
+        CheckPreviousAndNext();
     end;
 
     trigger OnInit()

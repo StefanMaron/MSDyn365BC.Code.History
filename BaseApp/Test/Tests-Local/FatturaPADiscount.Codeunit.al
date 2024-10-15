@@ -722,7 +722,7 @@ codeunit 144204 "FatturaPA Discount"
     local procedure CreateServiceHeader(var ServiceHeader: Record "Service Header"; DocType: Enum "Service Document Type"; CustomerNo: Code[20])
     begin
         LibraryService.CreateServiceHeader(ServiceHeader, DocType, CustomerNo);
-        ServiceHeader.Validate("Order Date", WorkDate);
+        ServiceHeader.Validate("Order Date", WorkDate());
         ServiceHeader.Validate("Payment Method Code", CreatePaymentMethod);
         ServiceHeader.Validate("Payment Terms Code", CreatePaymentTerms);
         ServiceHeader.Modify(true);
@@ -852,7 +852,7 @@ codeunit 144204 "FatturaPA Discount"
         TempXMLBuffer.Reset();
         TempXMLBuffer.FindNodesByXPath(TempXMLBuffer, XPath);
         Assert.AreEqual(ExpectedValue, TempXMLBuffer.Value,
-          StrSubstNo(UnexpectedElementValueErr, TempXMLBuffer.GetElementName, ExpectedValue, TempXMLBuffer.Value));
+          StrSubstNo(UnexpectedElementValueErr, TempXMLBuffer.GetElementName(), ExpectedValue, TempXMLBuffer.Value));
     end;
 
     local procedure AssertElementDoesNotExist(var TempXMLBuffer: Record "XML Buffer" temporary; XPath: Text)

@@ -33,7 +33,7 @@ report 156 "Retained Earnings Statement"
         GLAccountCategoryMgt: Codeunit "G/L Account Category Mgt.";
     begin
         GLAccountCategoryMgt.GetGLSetup(GeneralLedgerSetup);
-        GLAccountCategoryMgt.RunAccountScheduleReport(GeneralLedgerSetup."Acc. Sched. for Retained Earn.");
+        GLAccountCategoryMgt.RunAccountScheduleReport(GeneralLedgerSetup."Fin. Rep. for Retained Earn.");
     end;
 }
 

@@ -190,7 +190,7 @@ codeunit 137916 "SCM Assembly Reservation I"
         CreateItem(ParentItem);
         CreateItem(ChildItem);
         Qty := LibraryRandom.RandDec(1000, 2);
-        CreateAssemblyOrder(AssemblyHeader[1], AssemblyLine[1], ParentItem."No.", ChildItem."No.", WorkDate, Qty, '');
+        CreateAssemblyOrder(AssemblyHeader[1], AssemblyLine[1], ParentItem."No.", ChildItem."No.", WorkDate(), Qty, '');
         CreateAssemblyOrder(AssemblyHeader[2], AssemblyLine[2], ChildItem."No.", ParentItem."No.", WorkDate2, Qty, '');
 
         LibraryVariableStorage.Enqueue(Qty);
@@ -434,7 +434,7 @@ codeunit 137916 "SCM Assembly Reservation I"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Assembly Reservation I");
 
         MfgSetup.Get();
-        WorkDate2 := CalcDate(MfgSetup."Default Safety Lead Time", WorkDate); // to avoid Due Date Before Work Date message.
+        WorkDate2 := CalcDate(MfgSetup."Default Safety Lead Time", WorkDate()); // to avoid Due Date Before Work Date message.
 
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();

@@ -56,13 +56,13 @@
 
                             if (TotalAmt <> 0) or (not SkipZeroAmounts) then
                                 if ValueEntry."Item Ledger Entry Type" = ValueEntry."Item Ledger Entry Type"::Transfer then
-                                    InsertItemJnlLine
+                                    InsertItemJnlLine()
                                 else begin
                                     IntrastatJnlLine2.Reset();
                                     IntrastatJnlLine2.SetRange("Item No.", "Item No.");
                                     IntrastatJnlLine2.SetRange("Document No.", ValueEntry."Document No.");
                                     if not IntrastatJnlLine2.FindFirst() then
-                                        InsertItemJnlLine;
+                                        InsertItemJnlLine();
                                 end;
                         until ValueEntry.Next() = 0;
                 end;
@@ -126,13 +126,13 @@
                 trigger OnAfterGetRecord()
                 begin
                     IntrastatJnlLine2.SetRange("Source Entry No.", "Entry No.");
-                    if IntrastatJnlLine2.FindFirst or (CompanyInfo."Country/Region Code" = "Country/Region Code") then
+                    if IntrastatJnlLine2.FindFirst() or (CompanyInfo."Country/Region Code" = "Country/Region Code") then
                         CurrReport.Skip();
 
                     if IsJobService("Job Ledger Entry") then
                         CurrReport.Skip();
 
-                    InsertJobLedgerLine;
+                    InsertJobLedgerLine();
                 end;
 
                 trigger OnPreDataItem()
@@ -161,7 +161,7 @@
                     EntryNo: Integer;
                 begin
                     IntrastatJnlLine2.SetRange("Source Entry No.", "Entry No.");
-                    if IntrastatJnlLine2.FindFirst or ("Country/Region Code" = CompanyInfo."Country/Region Code") then
+                    if IntrastatJnlLine2.FindFirst() or ("Country/Region Code" = CompanyInfo."Country/Region Code") then
                         CurrReport.Skip();
 
                     if IntrastatJnlBatch."Corrective Entry" then
@@ -262,7 +262,7 @@
                                 CurrReport.Skip();
                         if not HasCrossedBorder("Item Ledger Entry") then
                             CurrReport.Skip();
-                        InsertValueEntryLine;
+                        InsertValueEntryLine();
                     end;
                 end;
             end;
@@ -427,7 +427,7 @@
         IntrastatJnlLine.LockTable();
         if IntrastatJnlLine.FindLast() then
             if not Confirm(LinesDeletionConfirmationTxt, true, IntrastatJnlLine."Journal Batch Name", IntrastatJnlLine."Journal Template Name") then
-                CurrReport.Quit;
+                CurrReport.Quit();
 
         IntrastatJnlLine.DeleteAll();
 
@@ -461,12 +461,13 @@
         GLSetupRead: Boolean;
         CustomsOfficeNo: Code[10];
         CorrectedIntrastatRepNo: Code[10];
-        Text12100: Label 'There is no %1 with in the filter.\\Filters: %2';
         PrevEntryNo: Integer;
         [InDataSet]
         CustomsOfficeNoEnable: Boolean;
         [InDataSet]
         CorrectedIntrastatRepNoEnable: Boolean;
+
+        Text12100: Label 'There is no %1 with in the filter.\\Filters: %2';
         LinesDeletionConfirmationTxt: Label 'The existing lines for Intrastat journal batch %1 of Intrastat journal template %2 will be deleted. Do you want to continue?', Comment = '%1 - Intrastat Journal Batch; %2 -  Intrastat Journal Template';
 
     protected var
@@ -491,7 +492,7 @@
         Item.Get("Item Ledger Entry"."Item No.");
         GetGLSetup();
         with IntrastatJnlLine do begin
-            Init;
+            Init();
             "Line No." := "Line No." + 10000;
             Date := "Item Ledger Entry"."Last Invoice Date";
             "Country/Region Code" := GetIntrastatCountryCode("Item Ledger Entry"."Country/Region Code");
@@ -515,7 +516,7 @@
 
             if "Item Ledger Entry"."Entry Type" = "Item Ledger Entry"."Entry Type"::Sale then begin
                 Type := Type::Shipment;
-                FillVATRegNoAndCountryRegionCodeFromCustomer(IntrastatJnlLine, GetCustomerNoFromDocumentNo);
+                FillVATRegNoAndCountryRegionCodeFromCustomer(IntrastatJnlLine, GetCustomerNoFromDocumentNo());
                 Amount := Round(-Amount, GLSetup."Amount Rounding Precision");
                 "Indirect Cost" := Round(-"Indirect Cost", GLSetup."Amount Rounding Precision");
                 Validate(Quantity, Round(-Quantity, 0.00001));
@@ -530,10 +531,10 @@
 
                 if ValueEntry."Item Ledger Entry Type" = ValueEntry."Item Ledger Entry Type"::Transfer then begin
                     Amount := Round(Abs(Amount), GLSetup."Amount Rounding Precision");
-                    Validate(Quantity, Round(Abs(Quantity), UOMMgt.QtyRndPrecision));
+                    Validate(Quantity, Round(Abs(Quantity), UOMMgt.QtyRndPrecision()));
                 end else begin
                     Amount := Round(Amount, GLSetup."Amount Rounding Precision");
-                    Validate(Quantity, Round(Quantity, UOMMgt.QtyRndPrecision));
+                    Validate(Quantity, Round(Quantity, UOMMgt.QtyRndPrecision()));
                 end;
             end;
 
@@ -562,7 +563,7 @@
         IsHandled: Boolean;
     begin
         with IntrastatJnlLine do begin
-            Init;
+            Init();
             "Line No." := "Line No." + 10000;
 
             Date := "Job Ledger Entry"."Posting Date";
@@ -715,7 +716,7 @@
     begin
         GetGLSetup();
         with IntrastatJnlLine do begin
-            Init;
+            Init();
             "Line No." := "Line No." + 10000;
             Date := "Value Entry"."Posting Date";
             "Country/Region Code" := "Item Ledger Entry"."Country/Region Code";
@@ -870,7 +871,7 @@
         ServiceShipLine: Record "Service Shipment Line";
         ServiceCrMemoLine: Record "Service Cr.Memo Line";
         ServiceCrMemoHeader: Record "Service Cr.Memo Header";
-        TotalCostAmt : Decimal;
+        TotalCostAmt: Decimal;
     begin
         with ItemLedgerEntry do begin
             TotalInvoicedQty := 0;
@@ -1081,7 +1082,7 @@
                         end;
                 end;
             OnCalculateTotalsOnAfterSumTotals(ItemLedgerEntry, IntrastatJnlBatch, TotalAmt, TotalCostAmt);
-            CalcTotalItemChargeAmt;
+            CalcTotalItemChargeAmt();
         end;
 
         OnAfterCalculateTotals(ItemLedgerEntry, IntrastatJnlBatch, TotalAmt, TotalCostAmt);
@@ -1131,7 +1132,7 @@
             if not HasApplications then
                 IntrastatJnlLine2.SetRange("Service Tariff No.", VATEntry."Service Tariff No.");
             if not IntrastatJnlLine2.FindFirst() then begin
-                Init;
+                Init();
                 "Line No." := "Line No." + 10000;
                 "Source Type" := "Source Type"::"VAT Entry";
                 "Source Entry No." := VATEntry."Entry No.";
@@ -1148,7 +1149,7 @@
                 end;
 
                 if (Amount <> 0) or IntrastatJnlBatch."Corrective Entry" then
-                    Insert;
+                    Insert();
             end else
                 if not HasApplications then begin
                     IntrastatJnlLine2.Amount += GetVATEntryAmount(VATEntry);
@@ -1489,12 +1490,11 @@
                     Type := Type::Receipt
                 else
                     Type := Type::Shipment
-            end else begin
+            end else
                 if ValueEntryDocumentType = "Value Entry"."Document Type"::"Purchase Credit Memo" then
                     Type := Type::Shipment
                 else
                     Type := Type::Receipt;
-            end;
     end;
 
     [IntegrationEvent(false, false)]

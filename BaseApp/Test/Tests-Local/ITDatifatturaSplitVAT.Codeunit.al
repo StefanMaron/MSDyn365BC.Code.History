@@ -64,7 +64,7 @@ codeunit 144562 "IT - Datifattura Split VAT"
 
         LibraryVATUtils.CreateVATReportHeader(
           VATReportHeader, VATReportHeader."VAT Report Config. Code"::Datifattura, VATReportHeader."VAT Report Type"::Standard,
-          WorkDate, WorkDate);
+          WorkDate, WorkDate());
 
         VATReportMediator.GetLines(VATReportHeader);
 
@@ -122,7 +122,7 @@ codeunit 144562 "IT - Datifattura Split VAT"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
         LibraryVATUtils.CreateVATReportHeader(
             VATReportHeader, VATReportHeader."VAT Report Config. Code"::Datifattura, VATReportHeader."VAT Report Type"::Standard,
-            WorkDate, WorkDate);
+            WorkDate, WorkDate());
 
         VATReportMediator.GetLines(VATReportHeader);
         FindVATReportLineByVendor(VATReportLine, VATReportHeader, VATReportLine."Document Type"::Invoice, Vendor."No.");
@@ -172,7 +172,7 @@ codeunit 144562 "IT - Datifattura Split VAT"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
         LibraryVATUtils.CreateVATReportHeader(
             VATReportHeader, VATReportHeader."VAT Report Config. Code"::Datifattura, VATReportHeader."VAT Report Type"::Standard,
-            WorkDate, WorkDate);
+            WorkDate, WorkDate());
 
         VATReportMediator.GetLines(VATReportHeader);
         FindVATReportLineByVendor(VATReportLine, VATReportHeader, VATReportLine."Document Type"::Invoice, Vendor."No.");
@@ -216,7 +216,7 @@ codeunit 144562 "IT - Datifattura Split VAT"
         // [GIVEN] VATReportHeader was created for the dates of the invoice
         LibraryVATUtils.CreateVATReportHeader(
           VATReportHeader, VATReportHeader."VAT Report Config. Code"::Datifattura, VATReportHeader."VAT Report Type"::Standard,
-          WorkDate, WorkDate);
+          WorkDate, WorkDate());
 
         Commit();
 
@@ -252,7 +252,7 @@ codeunit 144562 "IT - Datifattura Split VAT"
         // [GIVEN] Created Vendor "V" with "Fiscal Code" and related "Spesometro Appointment"
         Vendor.Get(LibrarySpesometro.CreateVendor(true, Vendor.Resident::Resident, true, true));
         LibrarySpesometro.InsertSpesometroAppointment(
-          SpesometroAppointment, LibrarySpesometro.CreateAppointmentCode, Vendor."No.", WorkDate, WorkDate);
+          SpesometroAppointment, LibrarySpesometro.CreateAppointmentCode, Vendor."No.", WorkDate(), WorkDate());
 
         // [GIVEN] Created Purchase invoice "V".
         LibraryPurchase.CreatePurchaseInvoiceForVendorNo(PurchaseHeader, Vendor."No.");
@@ -261,7 +261,7 @@ codeunit 144562 "IT - Datifattura Split VAT"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
         LibraryVATUtils.CreateVATReportHeader(
           VATReportHeader, VATReportHeader."VAT Report Config. Code"::Datifattura, VATReportHeader."VAT Report Type"::Standard,
-          WorkDate, WorkDate);
+          WorkDate, WorkDate());
 
         VATReportMediator.GetLines(VATReportHeader);
         FindVATReportLineByVendor(VATReportLine, VATReportHeader, VATReportLine."Document Type"::Invoice, Vendor."No.");
@@ -305,7 +305,7 @@ codeunit 144562 "IT - Datifattura Split VAT"
     local procedure DeleteUnrelatedVATReportLines(var VATReportLine: Record "VAT Report Line")
     begin
         VATReportLine.Reset();
-        VATReportLine.SetRecFilter;
+        VATReportLine.SetRecFilter();
         VATReportLine.SetFilter("Line No.", '<>%1', VATReportLine."Line No.");
         VATReportLine.DeleteAll();
     end;

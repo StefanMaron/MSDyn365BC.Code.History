@@ -207,7 +207,7 @@ codeunit 134004 "ERM Partial Payment Vendor"
         VendorLedgerEntry.SetRange("Document No.", GenJournalLine."Document No.");  // Filter applying entry.
         VendorLedgerEntry.FindFirst();
         DeltaAssert.AddWatch(
-          DATABASE::"Vendor Ledger Entry", VendorLedgerEntry.GetPosition, VendorLedgerEntry.FieldNo("Remaining Amount"),
+          DATABASE::"Vendor Ledger Entry", VendorLedgerEntry.GetPosition(), VendorLedgerEntry.FieldNo("Remaining Amount"),
           VendorLedgerEntry.Amount - ApplicationAmount);
 
         // Exercise: Application Amount between 1 to 49 % to Apply equally on all lines.
@@ -394,7 +394,7 @@ codeunit 134004 "ERM Partial Payment Vendor"
         VendorLedgerEntry.SetRange("Document No.", GenJournalLine."Document No.");  // Filter applying entry.
         VendorLedgerEntry.FindFirst();
         DeltaAssert.AddWatch(
-          DATABASE::"Vendor Ledger Entry", VendorLedgerEntry.GetPosition, VendorLedgerEntry.FieldNo("Remaining Amount"),
+          DATABASE::"Vendor Ledger Entry", VendorLedgerEntry.GetPosition(), VendorLedgerEntry.FieldNo("Remaining Amount"),
           VendorLedgerEntry.Amount + ApplicationAmount);
 
         // Exercise: Application Amount between 1 to 49 % to Apply equally on all lines.
@@ -1348,7 +1348,7 @@ codeunit 134004 "ERM Partial Payment Vendor"
         repeat
             VendorLedgerEntry.Validate("Amount to Apply", AmountToApply);
             VendorLedgerEntry.Modify(true);
-        until VendorLedgerEntry.Next = 0;
+        until VendorLedgerEntry.Next() = 0;
 
         // Set Applies-to ID.
         LibraryERM.SetAppliestoIdVendor(VendorLedgerEntry);
@@ -1372,7 +1372,7 @@ codeunit 134004 "ERM Partial Payment Vendor"
         VendorLedgerEntry.SetRange("Document No.", TempGenJournalLine."Document No.");
         VendorLedgerEntry.FindFirst();
         DeltaAssert.AddWatch(
-          DATABASE::"Vendor Ledger Entry", VendorLedgerEntry.GetPosition, VendorLedgerEntry.FieldNo("Remaining Amount"),
+          DATABASE::"Vendor Ledger Entry", VendorLedgerEntry.GetPosition(), VendorLedgerEntry.FieldNo("Remaining Amount"),
           VendorLedgerEntry.Amount - ApplicationAmount * NoOfLines);
     end;
 
@@ -1387,8 +1387,8 @@ codeunit 134004 "ERM Partial Payment Vendor"
             VendorLedgerEntry.SetRange("Document No.", GenJournalLine."Document No.");
             VendorLedgerEntry.FindFirst();
             DeltaAssert.AddWatch(
-              DATABASE::"Vendor Ledger Entry", VendorLedgerEntry.GetPosition, VendorLedgerEntry.FieldNo("Remaining Amount"), 0);
-        until GenJournalLine.Next = 1;
+              DATABASE::"Vendor Ledger Entry", VendorLedgerEntry.GetPosition(), VendorLedgerEntry.FieldNo("Remaining Amount"), 0);
+        until GenJournalLine.Next() = 1;
     end;
 
     [Normal]
@@ -1402,9 +1402,9 @@ codeunit 134004 "ERM Partial Payment Vendor"
             VendorLedgerEntry.SetRange("Document No.", TempGenJournalLine."Document No.");
             VendorLedgerEntry.FindFirst();
             DeltaAssert.AddWatch(
-              DATABASE::"Vendor Ledger Entry", VendorLedgerEntry.GetPosition, VendorLedgerEntry.FieldNo("Remaining Amount"),
+              DATABASE::"Vendor Ledger Entry", VendorLedgerEntry.GetPosition(), VendorLedgerEntry.FieldNo("Remaining Amount"),
               VendorLedgerEntry.Amount + ApplicationAmount);
-        until TempGenJournalLine.Next = 0;
+        until TempGenJournalLine.Next() = 0;
     end;
 
     local procedure ChangePaymentToleranceCurrency(CurrencyCode: Code[10])
@@ -1442,7 +1442,7 @@ codeunit 134004 "ERM Partial Payment Vendor"
     var
         CurrencyExchangeRate: Record "Currency Exchange Rate";
     begin
-        LibraryERM.CreateExchRate(CurrencyExchangeRate, CurrencyCode, WorkDate);
+        LibraryERM.CreateExchRate(CurrencyExchangeRate, CurrencyCode, WorkDate());
         // Validate any random Exchange Rate Amount greater than 10.
         CurrencyExchangeRate.Validate("Exchange Rate Amount", 10 + LibraryRandom.RandDec(1000, 2));
         CurrencyExchangeRate.Validate("Relational Exch. Rate Amount", CurrencyExchangeRate."Exchange Rate Amount" * MultiplicationFactor);
@@ -1704,7 +1704,7 @@ codeunit 134004 "ERM Partial Payment Vendor"
         repeat
             VendorLedgerEntry.CalcFields("Remaining Amount");
             Amount += VendorLedgerEntry."Remaining Amount";
-        until VendorLedgerEntry.Next = 0;
+        until VendorLedgerEntry.Next() = 0;
     end;
 
     local procedure FindVendorLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; VendorNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type")
@@ -1790,7 +1790,7 @@ codeunit 134004 "ERM Partial Payment Vendor"
         repeat
             NewGenJournalLine := GenJournalLine;
             NewGenJournalLine.Insert();
-        until GenJournalLine.Next = 0;
+        until GenJournalLine.Next() = 0;
     end;
 
     local procedure SetAppliesToIDInGenJournalLine(var GenJournalLine: Record "Gen. Journal Line")
@@ -1809,7 +1809,7 @@ codeunit 134004 "ERM Partial Payment Vendor"
             VendorLedgerEntry.Validate("Amount to Apply", VendorLedgerEntry."Remaining Amount");
             VendorLedgerEntry.Modify(true);
             CODEUNIT.Run(CODEUNIT::"Vend. Entry-Edit", VendorLedgerEntry);
-        until VendorLedgerEntry.Next = 0;
+        until VendorLedgerEntry.Next() = 0;
     end;
 
     local procedure SetPaymentJournalLine(var PaymentJournal: TestPage "Payment Journal"; GenJournalLine: Record "Gen. Journal Line")
@@ -1831,7 +1831,7 @@ codeunit 134004 "ERM Partial Payment Vendor"
             VendorLedgerEntry.SetRange("Document No.", GenJournalLine."Document No.");
             VendorLedgerEntry.FindFirst();
             VendorLedgerEntry.TestField(Open, Open);
-        until GenJournalLine.Next = 0;
+        until GenJournalLine.Next() = 0;
     end;
 
     local procedure VerifyAmountLargerError(EntryNo: Integer)
@@ -1841,7 +1841,7 @@ codeunit 134004 "ERM Partial Payment Vendor"
         Assert.AreEqual(
           StrSubstNo(
             AmountToApplyLargerError, VendorLedgerEntry.FieldCaption("Amount to Apply"),
-            VendorLedgerEntry.FieldCaption("Remaining Amount"), VendorLedgerEntry.TableCaption,
+            VendorLedgerEntry.FieldCaption("Remaining Amount"), VendorLedgerEntry.TableCaption(),
             VendorLedgerEntry.FieldCaption("Entry No."), EntryNo),
           GetLastErrorText,
           UnknownError);
@@ -1854,7 +1854,7 @@ codeunit 134004 "ERM Partial Payment Vendor"
         Assert.AreEqual(
           StrSubstNo(
             AmountToApplyHaveSameSignError, VendorLedgerEntry.FieldCaption("Amount to Apply"),
-            VendorLedgerEntry.FieldCaption("Remaining Amount"), VendorLedgerEntry.TableCaption,
+            VendorLedgerEntry.FieldCaption("Remaining Amount"), VendorLedgerEntry.TableCaption(),
             VendorLedgerEntry.FieldCaption("Entry No."), EntryNo),
           GetLastErrorText,
           UnknownError);
@@ -1885,7 +1885,7 @@ codeunit 134004 "ERM Partial Payment Vendor"
         VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
         VendorLedgerEntry.SetRange(Open, Open);
         if VendorLedgerEntry.IsEmpty() then
-            Error(VendorLedgerEntryError, VendorLedgerEntry.TableCaption);
+            Error(VendorLedgerEntryError, VendorLedgerEntry.TableCaption());
     end;
 
     local procedure VerifyPaymentToleranceEntry(VendorNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; Amount: Decimal)
@@ -1924,7 +1924,7 @@ codeunit 134004 "ERM Partial Payment Vendor"
             Assert.AreNotEqual(
               VendorLedgerEntry.Amount, VendorLedgerEntry."Remaining Amount",
               StrSubstNo(AmountMustNotBeEqual, VendorLedgerEntry.FieldCaption(Amount), VendorLedgerEntry.FieldCaption("Remaining Amount")));
-        until VendorLedgerEntry.Next = 0;
+        until VendorLedgerEntry.Next() = 0;
     end;
 
     local procedure VerifyVendorLedgerEntry(VendorNo: Code[20])

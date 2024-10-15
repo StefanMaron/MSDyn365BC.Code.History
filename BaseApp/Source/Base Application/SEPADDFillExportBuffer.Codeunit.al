@@ -1,4 +1,4 @@
-﻿codeunit 1231 "SEPA DD-Fill Export Buffer"
+codeunit 1231 "SEPA DD-Fill Export Buffer"
 {
     Permissions = TableData "Payment Export Data" = rimd;
     TableNo = "Payment Export Data";
@@ -38,7 +38,7 @@
             CODEUNIT.Run(BankExportImportSetup."Check Export Codeunit", TempDirectDebitCollectionEntry);
         until TempDirectDebitCollectionEntry.Next() = 0;
 
-        if DirectDebitCollection.HasPaymentFileErrors then begin
+        if DirectDebitCollection.HasPaymentFileErrors() then begin
             Commit();
             Error(HasErrorsErr);
         end;
@@ -48,10 +48,10 @@
 
         TempDirectDebitCollectionEntry.FindSet();
         with PaymentExportData do begin
-            Reset;
+            Reset();
             if FindLast() then;
             repeat
-                Init;
+                Init();
                 "Entry No." += 1;
                 SetPreserveNonLatinCharacters(BankExportImportSetup."Preserve Non-Latin Characters");
                 SetBankAsSenderBank(BankAccount, SEPAFormat::pain);
@@ -113,15 +113,15 @@
 
         with SEPADirectDebitMandate do begin
             Get(TempDirectDebitCollectionEntry."Mandate ID");
-            SequenceType := GetSequenceType;
-            UpdateCounter;
+            SequenceType := GetSequenceType();
+            UpdateCounter();
         end;
 
         DirectDebitCollectionEntry := TempDirectDebitCollectionEntry;
         with DirectDebitCollectionEntry do
-            if Find then begin
+            if Find() then begin
                 "Sequence Type" := SequenceType;
-                Modify;
+                Modify();
             end;
     end;
 

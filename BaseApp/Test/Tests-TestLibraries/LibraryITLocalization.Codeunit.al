@@ -112,7 +112,7 @@ codeunit 143000 "Library - IT Localization"
     [Scope('OnPrem')]
     procedure CreateItemCostingSetup(var ItemCostingSetup: Record "Item Costing Setup")
     begin
-        if not ItemCostingSetup.Get then
+        if not ItemCostingSetup.Get() then
             ItemCostingSetup.Insert(true);
     end;
 
@@ -434,7 +434,7 @@ codeunit 143000 "Library - IT Localization"
         UpdateFatturaCompanyInformation;
         ClearAllXMLFilesInTempFolder;
         with SalesReceivablesSetup do begin
-            Get;
+            Get();
             "Fattura PA Nos." := InsertFatturaNoSeries;
         end;
 
@@ -460,7 +460,7 @@ codeunit 143000 "Library - IT Localization"
         CompanyInformation: Record "Company Information";
     begin
         with CompanyInformation do begin
-            Get;
+            Get();
             Validate(IBAN, 'IT60X0542811101000000123456'); // valid IBAN needed
             Validate("Fiscal Code", 'VNTRTR89B16Z154M'); // valid Fiscal Code needed
             Validate("Country/Region Code", 'IT');

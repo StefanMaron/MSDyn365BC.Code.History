@@ -179,8 +179,8 @@ table 5744 "Transfer Shipment Header"
             trigger OnValidate()
             begin
                 if "Shipment Method Code" <> '' then
-                    CheckShipAgentMethodComb;
-                UpdateTDDPreparedBy;
+                    CheckShipAgentMethodComb();
+                UpdateTDDPreparedBy();
             end;
         }
         field(34; "Shipping Agent Service Code"; Code[10])
@@ -196,7 +196,7 @@ table 5744 "Transfer Shipment Header"
             trigger OnValidate()
             begin
                 if "Shipping Agent Code" <> '' then
-                    CheckShipAgentMethodComb;
+                    CheckShipAgentMethodComb();
                 if not ShipmentMethod.ThirdPartyLoader("Shipment Method Code") and
                   ("3rd Party Loader Type" <> "3rd Party Loader Type"::" ")
                 then begin
@@ -437,7 +437,7 @@ table 5744 "Transfer Shipment Header"
 
     procedure ShowDimensions()
     begin
-        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption, "No."));
+        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption(), "No."));
     end;
 
     [Scope('OnPrem')]
@@ -486,7 +486,7 @@ table 5744 "Transfer Shipment Header"
     var
         ShippingAgent: Record "Shipping Agent";
     begin
-        CheckShipAgentMethodComb;
+        CheckShipAgentMethodComb();
         if ShipmentMethod.ThirdPartyLoader("Shipment Method Code") then begin
             TestField("3rd Party Loader Type");
             TestField("3rd Party Loader No.");

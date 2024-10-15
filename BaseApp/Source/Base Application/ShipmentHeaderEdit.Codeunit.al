@@ -10,7 +10,7 @@ codeunit 391 "Shipment Header - Edit"
     begin
         SalesShptHeader := Rec;
         SalesShptHeader.LockTable();
-        SalesShptHeader.Find;
+        SalesShptHeader.Find();
         SalesShptHeader."Shipping Agent Code" := "Shipping Agent Code";
         SalesShptHeader."Shipping Agent Service Code" := "Shipping Agent Service Code";
         SalesShptHeader."Package Tracking No." := "Package Tracking No.";
@@ -37,7 +37,7 @@ codeunit 391 "Shipment Header - Edit"
     begin
         ReturnShptHeader := ReturnShptHeader2;
         ReturnShptHeader.LockTable();
-        ReturnShptHeader.Find;
+        ReturnShptHeader.Find();
         with ReturnShptHeader2 do begin
             ReturnShptHeader."Shipping Agent Code" := "Shipping Agent Code";
             ReturnShptHeader."Shipment Method Code" := "Shipment Method Code";
@@ -60,7 +60,7 @@ codeunit 391 "Shipment Header - Edit"
     begin
         TransferShptHeader := TransferShptHeader2;
         TransferShptHeader.LockTable();
-        TransferShptHeader.Find;
+        TransferShptHeader.Find();
         with TransferShptHeader2 do begin
             TransferShptHeader."Transport Reason Code" := "Transport Reason Code";
             TransferShptHeader."Goods Appearance" := "Goods Appearance";
@@ -91,7 +91,7 @@ codeunit 391 "Shipment Header - Edit"
     begin
         ServiceShptHeader := ServiceShptHeader2;
         ServiceShptHeader.LockTable();
-        ServiceShptHeader.Find;
+        ServiceShptHeader.Find();
         with ServiceShptHeader2 do begin
             ServiceShptHeader."Shipping Agent Code" := "Shipping Agent Code";
             ServiceShptHeader."Shipment Method Code" := "Shipment Method Code";

@@ -24,29 +24,29 @@ page 428 "Shipping Agents"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies a description of the shipping agent.';
                 }
-                field("Internet Address"; "Internet Address")
+                field("Internet Address"; Rec."Internet Address")
                 {
                     Caption = 'Package Tracking URL';
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the URL for the shipping agent''s package tracking system. To let users track specific packages, add %1 to the URL. When users track a package, the tracking number will replace %1. Example, http://www.providername.com/track?awb=%1.';
                 }
-                field("Account No."; "Account No.")
+                field("Account No."; Rec."Account No.")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the account number that the shipping agent has assigned to your company.';
                     Visible = false;
                 }
-                field("Shipping Agent Type"; "Shipping Agent Type")
+                field("Shipping Agent Type"; Rec."Shipping Agent Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the type of the shipping agent.';
                 }
-                field("Shipping Agent No."; "Shipping Agent No.")
+                field("Shipping Agent No."; Rec."Shipping Agent No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the shipping agent.';
                 }
-                field("Coupled to CRM"; "Coupled to CRM")
+                field("Coupled to CRM"; Rec."Coupled to CRM")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies that the shipping agent is coupled to a shipping method in Dataverse.';
@@ -184,6 +184,44 @@ page 428 "Shipping Agents"
                     begin
                         CRMIntegrationManagement.ShowOptionLog(Rec.RecordId);
                     end;
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Shipping_Agent)
+            {
+                Caption = 'Shipping Agent';
+
+                actionref(ShippingAgentServices_Promoted; ShippingAgentServices)
+                {
+                }
+            }
+            group(Category_Synchronize)
+            {
+                Caption = 'Synchronize';
+                Visible = CDSIntegrationEnabled;
+
+                group(Category_Coupling)
+                {
+                    Caption = 'Coupling';
+                    ShowAs = SplitButton;
+
+                    actionref(ManageCRMCoupling_Promoted; ManageCRMCoupling)
+                    {
+                    }
+                    actionref(DeleteCRMCoupling_Promoted; DeleteCRMCoupling)
+                    {
+                    }
+                    actionref(MatchBasedCoupling_Promoted; MatchBasedCoupling)
+                    {
+                    }
+                }
+                actionref(CRMSynchronizeNow_Promoted; CRMSynchronizeNow)
+                {
+                }
+                actionref(ShowLog_Promoted; ShowLog)
+                {
                 }
             }
         }

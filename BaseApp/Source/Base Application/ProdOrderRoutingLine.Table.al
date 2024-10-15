@@ -1,4 +1,4 @@
-table 5409 "Prod. Order Routing Line"
+﻿table 5409 "Prod. Order Routing Line"
 {
     Caption = 'Prod. Order Routing Line';
     DrillDownPageID = "Prod. Order Routing";
@@ -44,7 +44,7 @@ table 5409 "Prod. Order Routing Line"
                 GetProdOrderLine();
                 OnBeforeTerminationProcessesErr(IsHandled, Rec, xRec);
                 if not IsHandled then
-                    if (xRec."Next Operation No." = '') and ("Next Operation No." <> '') and NoTerminationProcessesExist then
+                    if (xRec."Next Operation No." = '') and ("Next Operation No." <> '') and NoTerminationProcessesExist() then
                         Error(NoTerminationProcessesErr);
 
                 SetRecalcStatus();
@@ -92,7 +92,7 @@ table 5409 "Prod. Order Routing Line"
                     if LicensePermission."Execute Permission" <> LicensePermission."Execute Permission"::" " then begin
                         if Status = Status::Released then
                             if SubcontractingManagement.FindSubcOrder(Rec, PurchLine, PurchHeader) then
-                                Error(Text1130001, Status, TableCaption, "Operation No.", PurchLine."Document No.");
+                                Error(Text1130001, Status, TableCaption(), "Operation No.", PurchLine."Document No.");
                         if (xRec."No." <> "No.") and ("Routing Link Code" <> '') then
                             SubcontractingManagement.UpdLinkedComponents(Rec, not HideValidationDialog);
                     end;
@@ -107,13 +107,13 @@ table 5409 "Prod. Order Routing Line"
                         begin
                             WorkCenter.Get("No.");
                             WorkCenter.TestField(Blocked, false);
-                            WorkCenterTransferFields;
+                            WorkCenterTransferFields();
                         end;
                     Type::"Machine Center":
                         begin
                             MachineCenter.Get("No.");
                             MachineCenter.TestField(Blocked, false);
-                            MachineCtrTransferFields;
+                            MachineCtrTransferFields();
                         end;
                 end;
                 ModifyCapNeedEntries();
@@ -304,7 +304,7 @@ table 5409 "Prod. Order Routing Line"
                 SubcontractingManagement: Codeunit SubcontractingManagement;
             begin
                 ProdOrdRtngLine2 := Rec;
-                ProdOrdRtngLine2.SetRecFilter;
+                ProdOrdRtngLine2.SetRecFilter();
                 ProdOrdRtngLine2.SetRange("Operation No.");
                 ProdOrdRtngLine2.SetRange("Routing Link Code", "Routing Link Code");
                 if ProdOrdRtngLine2.Find('-') then
@@ -342,7 +342,7 @@ table 5409 "Prod. Order Routing Line"
             begin
                 if (Type = Type::"Work Center") then begin
                     WorkCenter.Get("No.");
-                    GetSubcPricelist;
+                    GetSubcPricelist();
                 end;
 
                 if "Standard Task Code" = '' then
@@ -563,11 +563,9 @@ table 5409 "Prod. Order Routing Line"
             Caption = 'Critical Path';
             Editable = false;
         }
-        field(79; "Routing Status"; Option)
+        field(79; "Routing Status"; Enum "Prod. Order Routing Status")
         {
             Caption = 'Routing Status';
-            OptionCaption = ' ,Planned,In Progress,Finished';
-            OptionMembers = " ",Planned,"In Progress",Finished;
 
             trigger OnValidate()
             var
@@ -691,7 +689,7 @@ table 5409 "Prod. Order Routing Line"
         }
         field(12181; "Qty. WIP on Subcontractors"; Decimal)
         {
-            CalcFormula = Sum ("Capacity Ledger Entry"."WIP Item Qty." WHERE("Order Type" = CONST(Production),
+            CalcFormula = Sum("Capacity Ledger Entry"."WIP Item Qty." WHERE("Order Type" = CONST(Production),
                                                                              "Order No." = FIELD("Prod. Order No."),
                                                                              "Routing Reference No." = FIELD("Routing Reference No."),
                                                                              "Operation No." = FIELD("Operation No."),
@@ -704,7 +702,7 @@ table 5409 "Prod. Order Routing Line"
         }
         field(12182; "Qty. WIP on Transfer Order"; Decimal)
         {
-            CalcFormula = Sum ("Transfer Line"."WIP Outstanding Qty. (Base)" WHERE("Prod. Order No." = FIELD("Prod. Order No."),
+            CalcFormula = Sum("Transfer Line"."WIP Outstanding Qty. (Base)" WHERE("Prod. Order No." = FIELD("Prod. Order No."),
                                                                                    "Routing No." = FIELD("Routing No."),
                                                                                    "Routing Reference No." = FIELD("Routing Reference No."),
                                                                                    "Operation No." = FIELD("Operation No."),
@@ -796,16 +794,16 @@ table 5409 "Prod. Order Routing Line"
             if not CapLedgEntry.IsEmpty() then
                 Error(
                   Text000,
-                  Status, TableCaption, "Operation No.", CapLedgEntry.TableCaption);
+                  Status, TableCaption(), "Operation No.", CapLedgEntry.TableCaption());
             if SubcontractorPrices.ReadPermission then begin
                 if SubcontractingManagement.FindSubcOrder(Rec, PurchLine, PurchHeader) then
-                    Error(Text1130002, Status, TableCaption, "Operation No.", PurchLine."Document No.");
+                    Error(Text1130002, Status, TableCaption(), "Operation No.", PurchLine."Document No.");
                 if ("Routing Link Code" <> '') and (WorkCenter."Subcontractor No." <> '') then
                     SubcontractingManagement.DelLocationLinkedComponents(Rec, false);
             end;
         end;
 
-        DeleteRelations;
+        DeleteRelations();
 
         UpdateComponentsBin(2); // from trigger = delete
     end;
@@ -1058,7 +1056,7 @@ table 5409 "Prod. Order Routing Line"
     local procedure MachineCtrTransferFields()
     begin
         WorkCenter.Get(MachineCenter."Work Center No.");
-        WorkCenterTransferFields;
+        WorkCenterTransferFields();
 
         Description := MachineCenter.Name;
         "Setup Time" := MachineCenter."Setup Time";
@@ -1221,13 +1219,11 @@ table 5409 "Prod. Order Routing Line"
                                 CalcProdOrder.CalculateRoutingFromActual(ProdOrderRoutingLine, Direction::Backward, true);
                             end;
                         WorkCenter."Simulation Type"::Critical:
-                            begin
-                                if (ProdOrderRoutingLine."Ending Date" > "Starting Date") or
-                                   ((ProdOrderRoutingLine."Ending Date" = "Starting Date") and
-                                    (ProdOrderRoutingLine."Ending Time" > "Starting Time"))
-                                then
-                                    Error(Text002);
-                            end;
+                            if (ProdOrderRoutingLine."Ending Date" > "Starting Date") or
+                                ((ProdOrderRoutingLine."Ending Date" = "Starting Date") and
+                                (ProdOrderRoutingLine."Ending Time" > "Starting Time"))
+                            then
+                                Error(Text002);
                     end;
                     ProdOrderRoutingLine.SetCurrentKey(Status, "Prod. Order No.", "Routing Reference No.",
                       "Routing No.", "Operation No.");
@@ -1278,13 +1274,11 @@ table 5409 "Prod. Order Routing Line"
                                 CalcProdOrder.CalculateRoutingFromActual(ProdOrderRoutingLine, Direction::Forward, true);
                             end;
                         WorkCenter."Simulation Type"::Critical:
-                            begin
-                                if (ProdOrderRoutingLine."Starting Date" < "Ending Date") or
-                                   ((ProdOrderRoutingLine."Starting Date" = "Ending Date") and
-                                    (ProdOrderRoutingLine."Starting Time" < "Ending Time"))
-                                then
-                                    Error(Text003);
-                            end;
+                            if (ProdOrderRoutingLine."Starting Date" < "Ending Date") or
+                                ((ProdOrderRoutingLine."Starting Date" = "Ending Date") and
+                                (ProdOrderRoutingLine."Starting Time" < "Ending Time"))
+                            then
+                                Error(Text003);
                     end;
                     ProdOrderRoutingLine.SetCurrentKey(Status, "Prod. Order No.", "Routing Reference No.",
                       "Routing No.", "Operation No.");
@@ -1300,7 +1294,7 @@ table 5409 "Prod. Order Routing Line"
                 CalcProdOrder.CalculateProdOrderDates(ProdOrderLine, true);
                 AdjustComponents(ProdOrderLine);
             until ProdOrderLine.Next() = 0;
-        CalcProdOrder.CalculateComponents;
+        CalcProdOrder.CalculateComponents();
     end;
 
     local procedure ModifyCapNeedEntries()
@@ -1360,7 +1354,7 @@ table 5409 "Prod. Order Routing Line"
         ErrorOnNext: Boolean;
         ErrorOnPrevious: Boolean;
     begin
-        if IsSerial then
+        if IsSerial() then
             SetPreviousAndNext()
         else begin
             TempDeletedProdOrderRoutingLine := Rec;
@@ -1478,7 +1472,7 @@ table 5409 "Prod. Order Routing Line"
             SubcontractorPrices."Work Center No." := WorkCenter."No.";
             SubcontractorPrices."Variant Code" := ProdOrderLine."Variant Code";
             SubcontractorPrices."Unit of Measure Code" := ProdOrderLine."Unit of Measure Code";
-            SubcontractorPrices."Start Date" := WorkDate;
+            SubcontractorPrices."Start Date" := WorkDate();
             SubcontractorPrices."Currency Code" := '';
             SubcontractingPriceMgt.RoutingPricelistCost(
               SubcontractorPrices,

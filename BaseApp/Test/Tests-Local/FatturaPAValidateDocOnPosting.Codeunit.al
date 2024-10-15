@@ -41,7 +41,7 @@ codeunit 144201 "FatturaPA ValidateDocOnPosting"
         // Default demo data values: "Fattura PA Electronic Format" = "FATTURAPA", "Validate Document On Posting" = FALSE
         SalesReceivablesSetupPage."Fattura PA Electronic Format".AssertEquals(FatturaPATxt);
         SalesReceivablesSetupPage."Validate Document On Posting".AssertEquals(false);
-        SalesReceivablesSetupPage.Close;
+        SalesReceivablesSetupPage.Close();
     end;
 
     [Test]
@@ -61,7 +61,7 @@ codeunit 144201 "FatturaPA ValidateDocOnPosting"
 
         // Default demo data value: "Validate Document On Posting" = FALSE
         ServiceMgtSetup."Validate Document On Posting".AssertEquals(false);
-        ServiceMgtSetup.Close;
+        ServiceMgtSetup.Close();
     end;
 
     [Test]

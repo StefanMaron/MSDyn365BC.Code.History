@@ -134,7 +134,7 @@ codeunit 137503 "SCM Qty on Comb. Invoice"
                 PurchaseLine.Validate(Quantity, PurchaseLine.Quantity + 1)
             else
                 PurchaseLine.Validate(Quantity, PurchaseLine.Quantity - 1);
-        until PurchaseLine.Next = 0;
+        until PurchaseLine.Next() = 0;
     end;
 
     [Test]
@@ -282,7 +282,7 @@ codeunit 137503 "SCM Qty on Comb. Invoice"
                 SalesLine.Validate(Quantity, SalesLine.Quantity + 1)
             else
                 SalesLine.Validate(Quantity, SalesLine.Quantity - 1);
-        until SalesLine.Next = 0;
+        until SalesLine.Next() = 0;
     end;
 
     [Test]

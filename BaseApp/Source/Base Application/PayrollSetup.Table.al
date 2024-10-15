@@ -84,8 +84,8 @@ table 1660 "Payroll Setup"
         if Fetched then
             exit;
         Fetched := true;
-        if not Get then
-            Init;
+        if not Get() then
+            Init();
     end;
 }
 

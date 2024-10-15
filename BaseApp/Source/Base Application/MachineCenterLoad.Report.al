@@ -16,7 +16,7 @@ report 99000784 "Machine Center Load"
             column(TodayFormatted; Format(Today, 0, 4))
             {
             }
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(WorkCenterTableCaptFilter; TableCaption + ':' + WorkCenterFilter)
@@ -186,7 +186,7 @@ report 99000784 "Machine Center Load"
         trigger OnInit()
         begin
             if StartingDate = 0D then
-                StartingDate := WorkDate;
+                StartingDate := WorkDate();
             if Format(PeriodLength) = '' then
                 Evaluate(PeriodLength, '<1W>');
             if NoOfPeriods = 0 then
@@ -200,7 +200,7 @@ report 99000784 "Machine Center Load"
 
     trigger OnPreReport()
     begin
-        WorkCenterFilter := "Work Center".GetFilters;
+        WorkCenterFilter := "Work Center".GetFilters();
     end;
 
     var

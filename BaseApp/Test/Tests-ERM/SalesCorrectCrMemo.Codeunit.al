@@ -102,7 +102,7 @@ codeunit 137026 "Sales Correct Cr. Memo"
         CancelInvoiceByCreditMemo(SalesCrMemoHeader);
 
         // [GIVEN] Cancelled and unapplied Posted Credit Memo
-        SalesCrMemoHeader.Find;
+        SalesCrMemoHeader.Find();
         CancelCrMemo(SalesCrMemoHeader);
         LibraryLowerPermissions.SetSalesDocsPost;
 
@@ -401,7 +401,7 @@ codeunit 137026 "Sales Correct Cr. Memo"
         CancelCrMemo(SalesCrMemoHeader);
 
         // [WHEN] Cancel Invoice "A" by Credit Memo "C"
-        OrigSalesInvHeader.Find;
+        OrigSalesInvHeader.Find();
         CancelInvoice(NewSalesCrMemoHeader, OrigSalesInvHeader);
 
         // [THEN] Cancelled Document exists for Posted Invoice "A" - Posted Credit Memo "C"
@@ -1163,7 +1163,7 @@ codeunit 137026 "Sales Correct Cr. Memo"
     local procedure CreateInvtPeriod(var InventoryPeriod: Record "Inventory Period")
     begin
         InventoryPeriod.Init();
-        InventoryPeriod."Ending Date" := CalcDate('<+1D>', WorkDate);
+        InventoryPeriod."Ending Date" := CalcDate('<+1D>', WorkDate());
         InventoryPeriod.Closed := true;
         InventoryPeriod.Insert();
     end;
@@ -1189,11 +1189,11 @@ codeunit 137026 "Sales Correct Cr. Memo"
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin
         with DetailedCustLedgEntry do begin
-            Init;
+            Init();
             "Entry No." := LibraryUtility.GetNewRecNo(DetailedCustLedgEntry, FieldNo("Entry No."));
             "Cust. Ledger Entry No." := CustLedgEntryNo;
             "Entry Type" := EntryType;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -1234,7 +1234,7 @@ codeunit 137026 "Sales Correct Cr. Memo"
         CopyDocMgt: Codeunit "Copy Document Mgt.";
     begin
         with SalesHeader do begin
-            Init;
+            Init();
             Validate("Document Type", "Document Type"::Invoice);
             Insert(true);
         end;

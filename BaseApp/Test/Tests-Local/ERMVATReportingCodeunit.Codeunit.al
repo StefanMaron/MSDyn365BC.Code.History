@@ -44,7 +44,7 @@ codeunit 134055 "ERM VAT Reporting - Codeunit"
 
         // 3. Verify: Error occurs for Original Report No.
         Assert.ExpectedError(
-          StrSubstNo(OriginalReportNoErr, VATReportHeader.TableCaption, VATReportHeader.FieldCaption("No."), VATReportHeader."No."));
+          StrSubstNo(OriginalReportNoErr, VATReportHeader.TableCaption(), VATReportHeader.FieldCaption("No."), VATReportHeader."No."));
     end;
 
     [Test]
@@ -65,7 +65,7 @@ codeunit 134055 "ERM VAT Reporting - Codeunit"
 
         // 3. Verify: Error occurs for status.
         Assert.ExpectedError(
-          StrSubstNo(StatusErr, VATReportHeader.TableCaption, VATReportHeader.FieldCaption("No."), VATReportHeader."No."));
+          StrSubstNo(StatusErr, VATReportHeader.TableCaption(), VATReportHeader.FieldCaption("No."), VATReportHeader."No."));
     end;
 
     [Test]
@@ -87,7 +87,7 @@ codeunit 134055 "ERM VAT Reporting - Codeunit"
         // 3. Verify: Error occurs for VAT Report Config Code.
         Assert.ExpectedError(
           StrSubstNo(
-            VATReportConfigCodeErr, VATReportHeader.FieldCaption("VAT Report Config. Code"), VATReportHeader.TableCaption,
+            VATReportConfigCodeErr, VATReportHeader.FieldCaption("VAT Report Config. Code"), VATReportHeader.TableCaption(),
             VATReportHeader.FieldCaption("No."), VATReportHeader."No."));
     end;
 
@@ -105,14 +105,14 @@ codeunit 134055 "ERM VAT Reporting - Codeunit"
         CreateVATReportHeader(VATReportHeader);
 
         // 2. Exercise: Update the start and end date to any date less than workdate and Run Suggest Lines.
-        VATReportHeader."Start Date" := CalcDate('<-' + Format(LibraryRandom.RandInt(10) + 1) + 'Y>', WorkDate);
+        VATReportHeader."Start Date" := CalcDate('<-' + Format(LibraryRandom.RandInt(10) + 1) + 'Y>', WorkDate());
         VATReportHeader."End Date" := VATReportHeader."Start Date";
         VATReportHeader.Modify();
         VATReportMediator.GetLines(VATReportHeader);
 
         // 3. Verify: VAT Report Line is empty.
         VATReportLine.SetRange("VAT Report No.", VATReportHeader."No.");
-        Assert.IsTrue(VATReportLine.IsEmpty, StrSubstNo(EmptyErr, VATReportLine.TableCaption));
+        Assert.IsTrue(VATReportLine.IsEmpty, StrSubstNo(EmptyErr, VATReportLine.TableCaption()));
     end;
 
     [Test]
@@ -138,7 +138,7 @@ codeunit 134055 "ERM VAT Reporting - Codeunit"
 
         // 3. Verify: A report is generated with the line
         LibraryReportDataset.LoadDataSetFile;
-        LibraryReportDataset.AssertElementWithValueExists('COMPANYNAME', COMPANYPROPERTY.DisplayName);
+        LibraryReportDataset.AssertElementWithValueExists('COMPANYNAME', COMPANYPROPERTY.DisplayName());
         Assert.AreEqual(7, LibraryReportDataset.RowCount, PrintErr);
 
         // 3b. Verify: Status is released
@@ -178,7 +178,7 @@ codeunit 134055 "ERM VAT Reporting - Codeunit"
             VATReportLine[I]."Record Identifier" := Types[I];
             VATReportLine[I].Base := LibraryRandom.RandDecInRange(1, 9999, 2);
             VATReportLine[I].Amount := LibraryRandom.RandDecInRange(1, 9999, 2);
-            VATReportLine[I]."Posting Date" := LibraryUtility.GenerateRandomDate(20010101D, WorkDate);
+            VATReportLine[I]."Posting Date" := LibraryUtility.GenerateRandomDate(20010101D, WorkDate());
             VATReportLine[I]."Document Type" := "Gen. Journal Document Type".FromInteger(LibraryRandom.RandIntInRange(2, 3)); // Maps to Invoice or Credit Memo
             VATReportLine[I]."Document No." :=
               LibraryUtility.GenerateRandomCode(VATReportLine[I].FieldNo("Document No."), DATABASE::"VAT Report Line");
@@ -194,7 +194,7 @@ codeunit 134055 "ERM VAT Reporting - Codeunit"
 
         // 3. Verify: A report is generated with the lines
         LibraryReportDataset.LoadDataSetFile;
-        LibraryReportDataset.AssertElementWithValueExists('COMPANYNAME', COMPANYPROPERTY.DisplayName);
+        LibraryReportDataset.AssertElementWithValueExists('COMPANYNAME', COMPANYPROPERTY.DisplayName());
         for I := 1 to 7 do begin
             LibraryReportDataset.AssertElementWithValueExists(StrSubstNo('%1_Document_No', Types[I]), VATReportLine[I]."Document No.");
             LibraryReportDataset.AssertElementWithValueExists(
@@ -242,7 +242,7 @@ codeunit 134055 "ERM VAT Reporting - Codeunit"
         asserterror VATReportMediator.Reopen(VATReportHeader);
 
         // 3. Verify: Error occurs for not allowed to reopen due to the VAT Report Setup.
-        Assert.ExpectedError(StrSubstNo(SubmittedErr, VATReportSetup.TableCaption));
+        Assert.ExpectedError(StrSubstNo(SubmittedErr, VATReportSetup.TableCaption()));
     end;
 
     [Test]

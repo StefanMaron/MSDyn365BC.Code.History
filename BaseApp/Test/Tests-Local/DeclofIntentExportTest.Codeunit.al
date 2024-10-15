@@ -323,8 +323,8 @@ codeunit 144088 "Decl. of Intent Export Test"
     begin
         VATExemption.Type := VATExemption.Type::Vendor;
         VATExemption."No." := Vendor."No.";
-        VATExemption."VAT Exempt. Starting Date" := WorkDate;
-        VATExemption."VAT Exempt. Ending Date" := CalcDate('<+1D>', WorkDate);
+        VATExemption."VAT Exempt. Starting Date" := WorkDate();
+        VATExemption."VAT Exempt. Ending Date" := CalcDate('<+1D>', WorkDate());
         VATExemption."VAT Exempt. Int. Registry No." :=
           LibraryUtility.GenerateRandomCode(VATExemption.FieldNo("VAT Exempt. Int. Registry No."), DATABASE::"VAT Exemption");
         VATExemption."VAT Exempt. No." :=

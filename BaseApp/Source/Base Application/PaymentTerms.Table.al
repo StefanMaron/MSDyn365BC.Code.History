@@ -105,27 +105,27 @@
             SetRange("Payment Term", Code);
             DeleteAll();
         end;
-        FilterPaymentLines;
+        FilterPaymentLines();
         if PaymentTermsLine.Find('-') then
             PaymentTermsLine.DeleteAll(true);
     end;
 
     trigger OnInsert()
     begin
-        SetLastModifiedDateTime;
+        SetLastModifiedDateTime();
     end;
 
     trigger OnModify()
     begin
-        SetLastModifiedDateTime;
+        SetLastModifiedDateTime();
     end;
 
     trigger OnRename()
     var
         CRMSyncHelper: Codeunit "CRM Synch. Helper";
     begin
-        SetLastModifiedDateTime;
-        FilterPaymentLines;
+        SetLastModifiedDateTime();
+        FilterPaymentLines();
         if PaymentTermsLine.Find('-') then
             Error(Text000, Code);
         CRMSyncHelper.UpdateCDSOptionMapping(xRec.RecordId(), RecordId());
@@ -165,7 +165,7 @@
         PaymentTermTranslation: Record "Payment Term Translation";
         Language: Codeunit Language;
     begin
-        if PaymentTermTranslation.Get(Code, Language.GetUserLanguageCode) then
+        if PaymentTermTranslation.Get(Code, Language.GetUserLanguageCode()) then
             exit(CopyStr(PaymentTermTranslation.Description, 1, 50));
 
         exit(CopyStr(Description, 1, 50));

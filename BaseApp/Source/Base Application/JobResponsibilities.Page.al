@@ -23,7 +23,7 @@ page 5080 "Job Responsibilities"
                     ApplicationArea = All;
                     ToolTip = 'Specifies the description of the job responsibility.';
                 }
-                field("No. of Contacts"; "No. of Contacts")
+                field("No. of Contacts"; Rec."No. of Contacts")
                 {
                     ApplicationArea = RelationshipMgmt;
                     DrillDownPageID = "Job Responsibility Contacts";

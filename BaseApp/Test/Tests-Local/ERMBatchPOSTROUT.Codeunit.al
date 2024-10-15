@@ -200,7 +200,7 @@ codeunit 144066 "ERM Batch POSTROUT"
         LastUsedSeriesDate := GetLastUsedSeriesDate(PurchaseHeader."Operation Type");
 
         // [WHEN] Run Report Batch Post Purchase Invoices for Posting Date same as Purchase Invoice Posting Date.
-        RunReportBatchPostPurchaseInvoices(BuyFromVendorNo, WorkDate);
+        RunReportBatchPostPurchaseInvoices(BuyFromVendorNo, WorkDate());
 
         // [THEN] Notification: 'An error or warning occured during operation Batch processing of Purchase Header records.'
         VerifyPurchaseErrorNotification;
@@ -404,7 +404,7 @@ codeunit 144066 "ERM Batch POSTROUT"
         // [GIVEN] Create Service Credit Memo.
         Initialize();
         BillToCustomerNo := CreateServiceDocument(ServiceHeader."Document Type"::"Credit Memo");
-        PostingDate := CalcDate('<1D>', WorkDate);
+        PostingDate := CalcDate('<1D>', WorkDate());
 
         // [WHEN] Run Report Batch Post Service Credit Memos for Posting Date higher than Service Cr.Memo Posting Date.
         RunReportBatchPostServiceCreditMemos(BillToCustomerNo, PostingDate);
@@ -426,7 +426,7 @@ codeunit 144066 "ERM Batch POSTROUT"
         BillToCustomerNo := CreateServiceDocument(ServiceHeader."Document Type"::"Credit Memo");
 
         // [WHEN] Run Report Batch Post Service Credit Memos for Posting Date same as Service Cr.Memo Posting Date.
-        RunReportBatchPostServiceCreditMemos(BillToCustomerNo, WorkDate);
+        RunReportBatchPostServiceCreditMemos(BillToCustomerNo, WorkDate());
 
         // [THEN] Verify Service Credit Memo not posted successfully.
         VerifyServiceCrMemoHeaderNotExist(BillToCustomerNo);
@@ -444,7 +444,7 @@ codeunit 144066 "ERM Batch POSTROUT"
         // [GIVEN] Create Service Invoice.
         Initialize();
         BillToCustomerNo := CreateServiceDocument(ServiceHeader."Document Type"::Invoice);
-        PostingDate := CalcDate('<1D>', WorkDate);
+        PostingDate := CalcDate('<1D>', WorkDate());
 
         // [WHEN] Run Report Batch Post Service Invoices for Posting Date higher than Service Invoice Posting Date.
         RunReportBatchPostServiceInvoices(BillToCustomerNo, PostingDate);
@@ -466,7 +466,7 @@ codeunit 144066 "ERM Batch POSTROUT"
         BillToCustomerNo := CreateServiceDocument(ServiceHeader."Document Type"::Invoice);
 
         // [WHEN] Run Report Batch Post Service Invoices for Posting Date same as Service Invoice Posting Date.
-        RunReportBatchPostServiceInvoices(BillToCustomerNo, WorkDate);
+        RunReportBatchPostServiceInvoices(BillToCustomerNo, WorkDate());
 
         // [THEN] Verify Service Invoice not posted successfully.
         VerifyServiceInvoiceHeaderNotExist(BillToCustomerNo);
@@ -485,7 +485,7 @@ codeunit 144066 "ERM Batch POSTROUT"
         BillToCustomerNo := CreateServiceDocument(ServiceHeader."Document Type"::Order);
 
         // [WHEN] Run Report Batch Post Service Orders for Posting Date same as Service Order Posting Date.
-        RunReportBatchPostServiceOrders(BillToCustomerNo, WorkDate);
+        RunReportBatchPostServiceOrders(BillToCustomerNo, WorkDate());
 
         // [THEN] Verify Service Order not posted successfully.
         VerifyServiceInvoiceHeaderNotExist(BillToCustomerNo);
@@ -499,7 +499,7 @@ codeunit 144066 "ERM Batch POSTROUT"
     begin
         // [GIVEN] Create Blanket Purchase Order with Document Date earlier than Posting Date as WORKDATE.
         Initialize();
-        DocumentDate := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate);  // Document Date earlier than Posting Date as WORKDATE.
+        DocumentDate := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate());  // Document Date earlier than Posting Date as WORKDATE.
         BlanketPurchOrderMakeOrderWithDocAndOperationOccurredDate(DocumentDate, DocumentDate);  // Document Date, Operation Occurred Date.
     end;
 
@@ -511,8 +511,8 @@ codeunit 144066 "ERM Batch POSTROUT"
     begin
         // [GIVEN] Create Blanket Purchase Order with Operation Occurred Date more than Posting Date as WORKDATE.
         Initialize();
-        OperationOccurredDate := CalcDate('<1D>', WorkDate);  // Operation Occurred Date more than Posting Date as WORKDATE.
-        BlanketPurchOrderMakeOrderWithDocAndOperationOccurredDate(WorkDate, OperationOccurredDate);  // Document Date, Operation Occurred Date.
+        OperationOccurredDate := CalcDate('<1D>', WorkDate());  // Operation Occurred Date more than Posting Date as WORKDATE.
+        BlanketPurchOrderMakeOrderWithDocAndOperationOccurredDate(WorkDate(), OperationOccurredDate);  // Document Date, Operation Occurred Date.
     end;
 
     local procedure BlanketPurchOrderMakeOrderWithDocAndOperationOccurredDate(DocumentDate: Date; OperationOccurredDate: Date)
@@ -538,9 +538,9 @@ codeunit 144066 "ERM Batch POSTROUT"
     begin
         Initialize();
         // [GIVEN] Blanket Purchase with Order Document Date more than Posting Date as WORKDATE
-        DocumentDate := CalcDate('<1D>', WorkDate);  // Document Date more than Posting Date as WORKDATE.
+        DocumentDate := CalcDate('<1D>', WorkDate());  // Document Date more than Posting Date as WORKDATE.
         CreatePurchaseDocumentWithOperationAndDocumentDate(
-          PurchaseHeader, PurchaseHeader."Document Type"::"Blanket Order", DocumentDate, WorkDate);  // Operation Occurred Date - WORKDATE.
+          PurchaseHeader, PurchaseHeader."Document Type"::"Blanket Order", DocumentDate, WorkDate());  // Operation Occurred Date - WORKDATE.
 
         // [WHEN] Create Purchase Order from Blanket Purchase Order.
         asserterror LibraryPurchase.BlanketPurchaseOrderMakeOrder(PurchaseHeader);
@@ -557,7 +557,7 @@ codeunit 144066 "ERM Batch POSTROUT"
     begin
         // [GIVEN] Create Purchase Quote with Document Date earlier than Posting Date as WORKDATE.
         Initialize();
-        DocumentDate := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate);
+        DocumentDate := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate());
         PurchQuoteMakeOrderWithDocAndOperationOccurredDate(DocumentDate, DocumentDate);  // Document Date, Operation Occurred Date.
     end;
 
@@ -569,8 +569,8 @@ codeunit 144066 "ERM Batch POSTROUT"
     begin
         // [GIVEN] Create Purchase Quote with Operation Occurred Date more than Posting Date as WORKDATE.
         Initialize();
-        OperationOccurredDate := CalcDate('<1D>', WorkDate);
-        PurchQuoteMakeOrderWithDocAndOperationOccurredDate(WorkDate, OperationOccurredDate);  // Document Date, Operation Occurred Date.
+        OperationOccurredDate := CalcDate('<1D>', WorkDate());
+        PurchQuoteMakeOrderWithDocAndOperationOccurredDate(WorkDate(), OperationOccurredDate);  // Document Date, Operation Occurred Date.
     end;
 
     local procedure PurchQuoteMakeOrderWithDocAndOperationOccurredDate(DocumentDate: Date; OperationOccurredDate: Date)
@@ -588,7 +588,7 @@ codeunit 144066 "ERM Batch POSTROUT"
           PurchaseOrderHeader."Document Type"::Order, LibraryPurchase.QuoteMakeOrder(PurchaseHeader));
 
         // [THEN] Verify Purchase Order created with Operation Occurred Date equal to Posting Date and Document Date same as Document Date of Purchase Quote.
-        PurchaseOrderHeader.TestField("Operation Occurred Date", WorkDate);
+        PurchaseOrderHeader.TestField("Operation Occurred Date", WorkDate());
         PurchaseOrderHeader.TestField("Document Date", DocumentDate);
     end;
 
@@ -601,9 +601,9 @@ codeunit 144066 "ERM Batch POSTROUT"
     begin
         // [GIVEN] Create Purchase Quote with Document Date more than Posting Date as WORKDATE.
         Initialize();
-        DocumentDate := CalcDate('<1D>', WorkDate);
+        DocumentDate := CalcDate('<1D>', WorkDate());
         CreatePurchaseDocumentWithOperationAndDocumentDate(
-          PurchaseHeader, PurchaseHeader."Document Type"::Quote, DocumentDate, WorkDate);  // Operation Occurred Date - WORKDATE.
+          PurchaseHeader, PurchaseHeader."Document Type"::Quote, DocumentDate, WorkDate());  // Operation Occurred Date - WORKDATE.
 
         // [WHEN] Create Purchase Order from Purchase Quote.
         asserterror LibraryPurchase.QuoteMakeOrder(PurchaseHeader);
@@ -622,7 +622,7 @@ codeunit 144066 "ERM Batch POSTROUT"
     begin
         // [GIVEN] Create Blanket Sales Order with Document Date earlier than Posting Date as WORKDATE.
         Initialize();
-        DocumentDate := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate);
+        DocumentDate := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate());
         BlanketSalesOrderMakeOrderWithDocAndOperationOccurredDate(DocumentDate, DocumentDate);  // Document Date, Operation Occurred Date.
         NotificationLifecycleMgt.RecallAllNotifications();
     end;
@@ -637,8 +637,8 @@ codeunit 144066 "ERM Batch POSTROUT"
     begin
         // [GIVEN] Create Blanket Sales Order with Operation Occurred Date more than Posting Date as WORKDATE.
         Initialize();
-        OperationOccurredDate := CalcDate('<1D>', WorkDate);
-        BlanketSalesOrderMakeOrderWithDocAndOperationOccurredDate(WorkDate, OperationOccurredDate);  // Document Date, Operation Occurred Date.
+        OperationOccurredDate := CalcDate('<1D>', WorkDate());
+        BlanketSalesOrderMakeOrderWithDocAndOperationOccurredDate(WorkDate(), OperationOccurredDate);  // Document Date, Operation Occurred Date.
         NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
@@ -668,9 +668,9 @@ codeunit 144066 "ERM Batch POSTROUT"
     begin
         Initialize();
         // [GIVEN] Blanket Sales Order with Document Date more than Posting Date as WORKDATE
-        DocumentDate := CalcDate('<1D>', WorkDate);
+        DocumentDate := CalcDate('<1D>', WorkDate());
         CreateSalesDocumentWithOperationAndDocumentDate(
-          SalesHeader, SalesHeader."Document Type"::"Blanket Order", DocumentDate, WorkDate);  // Operation Occurred Date - WORKDATE.
+          SalesHeader, SalesHeader."Document Type"::"Blanket Order", DocumentDate, WorkDate());  // Operation Occurred Date - WORKDATE.
 
         // [WHEN] Create Sales Order from Blanket Sales Order
         asserterror LibrarySales.BlanketSalesOrderMakeOrder(SalesHeader);
@@ -690,7 +690,7 @@ codeunit 144066 "ERM Batch POSTROUT"
     begin
         // [GIVEN] Create Sales Quote with Document Date earlier than Posting Date as WORKDATE.
         Initialize();
-        DocumentDate := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate);
+        DocumentDate := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate());
         SalesQuoteMakeOrderWithDocAndOperationOccurredDate(DocumentDate, DocumentDate);  // Document Date, Operation Occurred Date.
         NotificationLifecycleMgt.RecallAllNotifications();
     end;
@@ -705,8 +705,8 @@ codeunit 144066 "ERM Batch POSTROUT"
     begin
         // [GIVEN] Create Sales Quote with Operation Occurred Date more than Posting Date as WORKDATE.
         Initialize();
-        OperationOccurredDate := CalcDate('<1D>', WorkDate);
-        SalesQuoteMakeOrderWithDocAndOperationOccurredDate(WorkDate, OperationOccurredDate);  // Document Date, Operation Occurred Date.
+        OperationOccurredDate := CalcDate('<1D>', WorkDate());
+        SalesQuoteMakeOrderWithDocAndOperationOccurredDate(WorkDate(), OperationOccurredDate);  // Document Date, Operation Occurred Date.
         NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
@@ -724,7 +724,7 @@ codeunit 144066 "ERM Batch POSTROUT"
         FindSalesHeader(SalesOrderHeader, SalesHeader."Sell-to Customer No.", SalesHeader."Document Type"::Order);
 
         // [THEN] Verify Sales Order created with Operation Occurred Date equal to Posting Date and Document Date same as Document Date of Sales Quote.
-        SalesOrderHeader.TestField("Operation Occurred Date", WorkDate);
+        SalesOrderHeader.TestField("Operation Occurred Date", WorkDate());
         SalesOrderHeader.TestField("Document Date", DocumentDate);
     end;
 
@@ -738,9 +738,9 @@ codeunit 144066 "ERM Batch POSTROUT"
     begin
         // [GIVEN] Create Sales Quote with Document Date more than Posting Date as WORKDATE.
         Initialize();
-        DocumentDate := CalcDate('<1D>', WorkDate);
+        DocumentDate := CalcDate('<1D>', WorkDate());
         CreateSalesDocumentWithOperationAndDocumentDate(
-          SalesHeader, SalesHeader."Document Type"::Quote, DocumentDate, WorkDate);  // Operation Occurred Date - WORKDATE.
+          SalesHeader, SalesHeader."Document Type"::Quote, DocumentDate, WorkDate());  // Operation Occurred Date - WORKDATE.
 
         // [WHEN] Create Sales Order from Sales Quote.
         asserterror LibrarySales.QuoteMakeOrder(SalesHeader);
@@ -763,7 +763,7 @@ codeunit 144066 "ERM Batch POSTROUT"
         Initialize();
         BillToCustomerNo := CreateServiceDocument(ServiceHeader."Document Type"::Order);
         CreateServiceItemAndUpdateServiceLine(BillToCustomerNo);
-        PostingDate := CalcDate('<1D>', WorkDate);  // Posting Date higher than WORKDATE.
+        PostingDate := CalcDate('<1D>', WorkDate());  // Posting Date higher than WORKDATE.
 
         // [WHEN] Run Report Batch Post Service Orders for Posting Date higher than Service Order Posting Date.
         RunReportBatchPostServiceOrders(BillToCustomerNo, PostingDate);  // Opens handler - BatchPostServiceOrdersRequestPageHandler.
@@ -788,7 +788,7 @@ codeunit 144066 "ERM Batch POSTROUT"
         BuyFromVendorNo := CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice);
         FindPurchaseHeader(PurchaseHeader, BuyFromVendorNo, PurchaseHeader."Document Type"::Invoice);
         NoSeriesCode := PurchaseHeader."Operation Type";
-        PostingDate := CalcDate('<1D>', WorkDate);  // Posting Date higher than WORKDATE.
+        PostingDate := CalcDate('<1D>', WorkDate());  // Posting Date higher than WORKDATE.
 
         // [WHEN] Run Report Batch Post Purchase Invoices for Posting Date higher than Purchase Invoice Posting Date.
         RunReportBatchPostPurchaseInvoices(BuyFromVendorNo, PostingDate);  // Opens handler - BatchPostPurchaseInvoicesRequestPageHandler.
@@ -816,7 +816,7 @@ codeunit 144066 "ERM Batch POSTROUT"
         SellToCustomerNo := CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice);
         FindSalesHeader(SalesHeader, SellToCustomerNo, SalesHeader."Document Type"::Invoice);
         NoSeriesCode := SalesHeader."Operation Type";
-        PostingDate := CalcDate('<1D>', WorkDate);
+        PostingDate := CalcDate('<1D>', WorkDate());
 
         // [WHEN] Run Report Batch Post Sales Invoices for Posting Date higher than Sales Invoice Posting Date.
         RunReportBatchPostSalesInvoices(SellToCustomerNo, PostingDate);  // Opens handler - BatchPostSalesInvoicesRequestPageHandler.
@@ -844,7 +844,7 @@ codeunit 144066 "ERM Batch POSTROUT"
         LibraryERM.CreateGLAccount(GLAccount);
         OldSalesPrepaymentsAccount := UpdateVATPostingSetupSalesPrepaymentAccount(VATPostingSetup, GLAccount."No.");
         SellToCustomerNo := CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Order);
-        PostingDate := CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate);  // Posting Date higher than WORKDATE.
+        PostingDate := CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate());  // Posting Date higher than WORKDATE.
         UpdateSalesHeaderPrepaymentPct(SellToCustomerNo, PostingDate);
         UpdateSalesLineVATPostingGroup(SalesHeader, VATPostingSetup, SellToCustomerNo);
 
@@ -908,7 +908,7 @@ codeunit 144066 "ERM Batch POSTROUT"
         LibrarySales.CreateCustomer(Customer);
         LibraryService.CreateServiceHeader(ServiceHeader, DocumentType, Customer."No.");
         ServiceHeader.Validate("Operation Type", FindSalesNoSeries);
-        ServiceHeader.Validate("Posting Date", WorkDate);
+        ServiceHeader.Validate("Posting Date", WorkDate());
         ServiceHeader.Modify(true);
         LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItem(Item));
         ServiceLine.Validate(Quantity, LibraryRandom.RandDec(10, 2));
@@ -1157,13 +1157,13 @@ codeunit 144066 "ERM Batch POSTROUT"
 
     local procedure UpdateNoSeriesLinePurchase(NoSeriesLinePurchase: Record "No. Series Line Purchase")
     begin
-        NoSeriesLinePurchase.Validate("Last Date Used", WorkDate);
+        NoSeriesLinePurchase.Validate("Last Date Used", WorkDate());
         NoSeriesLinePurchase.Modify(true);
     end;
 
     local procedure UpdateNoSeriesLineSales(NoSeriesLineSales: Record "No. Series Line Sales")
     begin
-        NoSeriesLineSales.Validate("Last Date Used", WorkDate);
+        NoSeriesLineSales.Validate("Last Date Used", WorkDate());
         NoSeriesLineSales.Modify(true);
     end;
 
@@ -1192,7 +1192,7 @@ codeunit 144066 "ERM Batch POSTROUT"
         PurchCrMemoHdr.SetRange("Buy-from Vendor No.", BuyFromVendorNo);
         PurchCrMemoHdr.FindFirst();
         PurchCrMemoHdr.TestField("Posting Date", PostingDate);
-        PurchCrMemoHdr.TestField("Document Date", WorkDate);
+        PurchCrMemoHdr.TestField("Document Date", WorkDate());
         PurchCrMemoHdr.TestField("Operation Occurred Date", PostingDate);
     end;
 
@@ -1203,7 +1203,7 @@ codeunit 144066 "ERM Batch POSTROUT"
         PurchInvHeader.SetRange("Buy-from Vendor No.", BuyFromVendorNo);
         PurchInvHeader.FindFirst();
         PurchInvHeader.TestField("Posting Date", PostingDate);
-        PurchInvHeader.TestField("Document Date", WorkDate);
+        PurchInvHeader.TestField("Document Date", WorkDate());
         PurchInvHeader.TestField("Operation Occurred Date", PostingDate);
     end;
 
@@ -1214,7 +1214,7 @@ codeunit 144066 "ERM Batch POSTROUT"
         SalesCrMemoHeader.SetRange("Sell-to Customer No.", SellToCustomerNo);
         SalesCrMemoHeader.FindFirst();
         SalesCrMemoHeader.TestField("Posting Date", PostingDate);
-        SalesCrMemoHeader.TestField("Document Date", WorkDate);
+        SalesCrMemoHeader.TestField("Document Date", WorkDate());
         SalesCrMemoHeader.TestField("Operation Occurred date", PostingDate);
     end;
 
@@ -1225,7 +1225,7 @@ codeunit 144066 "ERM Batch POSTROUT"
         SalesInvoiceHeader.SetRange("Sell-to Customer No.", SellToCustomerNo);
         SalesInvoiceHeader.FindFirst();
         SalesInvoiceHeader.TestField("Posting Date", PostingDate);
-        SalesInvoiceHeader.TestField("Document Date", WorkDate);
+        SalesInvoiceHeader.TestField("Document Date", WorkDate());
         SalesInvoiceHeader.TestField("Operation Occurred Date", PostingDate);
     end;
 
@@ -1268,7 +1268,7 @@ codeunit 144066 "ERM Batch POSTROUT"
         ServiceCrMemoHeader.SetRange("Bill-to Customer No.", BillToCustomerNo);
         ServiceCrMemoHeader.FindFirst();
         ServiceCrMemoHeader.TestField("Posting Date", PostingDate);
-        ServiceCrMemoHeader.TestField("Document Date", WorkDate);
+        ServiceCrMemoHeader.TestField("Document Date", WorkDate());
         ServiceCrMemoHeader.TestField("Operation Occurred Date", PostingDate);
     end;
 
@@ -1287,7 +1287,7 @@ codeunit 144066 "ERM Batch POSTROUT"
         ServiceInvoiceHeader.SetRange("Bill-to Customer No.", BillToCustomerNo);
         ServiceInvoiceHeader.FindFirst();
         ServiceInvoiceHeader.TestField("Posting Date", PostingDate);
-        ServiceInvoiceHeader.TestField("Document Date", WorkDate);
+        ServiceInvoiceHeader.TestField("Document Date", WorkDate());
         ServiceInvoiceHeader.TestField("Operation Occurred Date", PostingDate);
     end;
 
@@ -1320,7 +1320,7 @@ codeunit 144066 "ERM Batch POSTROUT"
     local procedure VerifyNoSeriesLineSales(var NoSeriesLineSales: Record "No. Series Line Sales"; NoSeriesCode: Code[20]; PostingDate: Date)
     begin
         NoSeriesLineSales.SetRange("Series Code", NoSeriesCode);
-        NoSeriesLineSales.SetFilter("Starting Date", '<%1', WorkDate);
+        NoSeriesLineSales.SetFilter("Starting Date", '<%1', WorkDate());
         NoSeriesLineSales.FindLast();
         NoSeriesLineSales.TestField("Last Date Used", PostingDate);
     end;
@@ -1328,7 +1328,7 @@ codeunit 144066 "ERM Batch POSTROUT"
     local procedure VerifyNoSeriesLinePurchase(var NoSeriesLinePurchase: Record "No. Series Line Purchase"; NoSeriesCode: Code[20]; PostingDate: Date)
     begin
         NoSeriesLinePurchase.SetRange("Series Code", NoSeriesCode);
-        NoSeriesLinePurchase.SetFilter("Starting Date", '<%1', WorkDate);
+        NoSeriesLinePurchase.SetFilter("Starting Date", '<%1', WorkDate());
         NoSeriesLinePurchase.FindLast();
         NoSeriesLinePurchase.TestField("Last Date Used", PostingDate);
     end;

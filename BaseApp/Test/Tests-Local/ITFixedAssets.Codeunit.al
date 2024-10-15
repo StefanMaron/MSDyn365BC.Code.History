@@ -522,7 +522,7 @@ codeunit 144000 "IT - Fixed Assets"
         FADepreciationBook: Record "FA Depreciation Book";
     begin
         LibraryFixedAsset.CreateFADepreciationBook(FADepreciationBook, FANo, DepreciationBook);
-        FADepreciationBook.Validate("Depreciation Starting Date", CalcDate('<CM+1D>', WorkDate));
+        FADepreciationBook.Validate("Depreciation Starting Date", CalcDate('<CM+1D>', WorkDate()));
         FADepreciationBook.Validate("No. of Depreciation Years", LibraryRandom.RandInt(5));
         FADepreciationBook.Validate("FA Posting Group", FAPostingGroup);
         FADepreciationBook.Modify(true);
@@ -613,7 +613,7 @@ codeunit 144000 "IT - Fixed Assets"
         FAPostingGroup.SetFilter("Acquisition Cost Account", '<>''''');
         FAPostingGroup.SetFilter("Accum. Depreciation Account", '<>''''');
         FAPostingGroup.SetFilter("Depreciation Expense Acc.", '<>''''');
-        exit(FAPostingGroup.FindFirst);
+        exit(FAPostingGroup.FindFirst())
     end;
 
     local procedure GetGenJournalLine(var GenJnlLine: Record "Gen. Journal Line"; DepreciationBook: Code[10]): Boolean
@@ -624,7 +624,7 @@ codeunit 144000 "IT - Fixed Assets"
         GenJnlLine.SetRange("Journal Template Name", FAJournalSetup."Gen. Jnl. Template Name");
         GenJnlLine.SetRange("Journal Batch Name", FAJournalSetup."Gen. Jnl. Batch Name");
         GenJnlLine.SetFilter(Amount, '<>0');
-        exit(GenJnlLine.FindFirst);
+        exit(GenJnlLine.FindFirst())
     end;
 
     local procedure ModifyDepreciationMethod(FANo: Code[20]; DepreciationBook: Code[10]; DepreciationMethod: Enum "FA Depreciation Method"; DepreciationTableCode: Code[10]; FirstUserDefinedDeprDate: Code[10])
@@ -658,7 +658,7 @@ codeunit 144000 "IT - Fixed Assets"
               "FA Posting Type"::"Acquisition Cost", FixedAsset."No.", LibraryRandom.RandInt(10) * 10000);
             Validate("Depreciation Book Code", DepreciationBook);
             Validate("FA Posting Group", FAPostingGroup);
-            Validate("Document No.", FixedAsset."No." + '-' + Format(Date2DMY(WorkDate, 2)) + '-' + Format(Date2DMY(WorkDate, 3)));
+            Validate("Document No.", FixedAsset."No." + '-' + Format(Date2DMY(WorkDate(), 2)) + '-' + Format(Date2DMY(WorkDate(), 3)));
             Modify(true);
         end;
 
@@ -745,7 +745,7 @@ codeunit 144000 "IT - Fixed Assets"
             FADepreciationBook.TestField("Depreciation Starting Date", FADepreciationBook2."Depreciation Starting Date");
             FADepreciationBook.TestField("Depreciation Ending Date", FADepreciationBook2."Depreciation Ending Date");
             FADepreciationBook.TestField("Acquisition Cost", FADepreciationBook2."Acquisition Cost");
-        until FixedAsset.Next = 0;
+        until FixedAsset.Next() = 0;
     end;
 
     local procedure VerifyNoGLEntriesPosted(DocumentNo: Code[20]; "Count": Integer)
@@ -754,7 +754,7 @@ codeunit 144000 "IT - Fixed Assets"
     begin
         GLEntry.SetFilter("Document No.", DocumentNo);
         GLEntry.SetRange(Positive, true);
-        Assert.AreEqual(Count, GLEntry.Count, StrSubstNo(IncorrectNumberOfEntries, GLEntry.TableCaption));
+        Assert.AreEqual(Count, GLEntry.Count, StrSubstNo(IncorrectNumberOfEntries, GLEntry.TableCaption()));
     end;
 
     local procedure UpdatePurchaseLine(var PurchaseLine: Record "Purchase Line"; DepreciationBook: Code[10]; NoOfFixedAssetCards: Integer)
@@ -789,7 +789,7 @@ codeunit 144000 "IT - Fixed Assets"
     procedure CalculateDepreciationPageHandler(var CalculateDepreciation: TestRequestPage "Calculate Depreciation")
     begin
         RunCalculateDepreciation(
-          CalculateDepreciation, DepreciationBookCode, CalcDate('<CM+1Y>', WorkDate), true, UseAnticipatedDepr, UseAccDecrDepr);
+          CalculateDepreciation, DepreciationBookCode, CalcDate('<CM+1Y>', WorkDate()), true, UseAnticipatedDepr, UseAccDecrDepr);
         CalculateDepreciation.OK.Invoke;
     end;
 
@@ -836,7 +836,7 @@ codeunit 144000 "IT - Fixed Assets"
 
         // Check that the value, calculated earlier, is equal to the value from Page
         Assert.AreEqual(TotalDepr, TotalDeprValue, TotalDepreciationCalcError);
-        DepreciationTableCardPage.Close;
+        DepreciationTableCardPage.Close();
     end;
 
     [Normal]
@@ -846,7 +846,7 @@ codeunit 144000 "IT - Fixed Assets"
         DepreciationTableCardPage.SubFormDeprTableLines."Anticipated %".SetValue(AntPercent);
         DepreciationTableCardPage.SubFormDeprTableLines."Accelerated/Reduced %".SetValue(AccRedPercent);
 
-        DepreciationTableCardPage.SubFormDeprTableLines.Next;
+        DepreciationTableCardPage.SubFormDeprTableLines.Next();
     end;
 
     [ConfirmHandler]

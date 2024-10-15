@@ -98,7 +98,7 @@ codeunit 144139 "ERM VAT"
     begin
         // Setup: Post Purchase Document and Payment Journal. Run Calculate and Post VAT Settlement report. Update VAT Period closed on Periodic Settlement VAT entry.
         GeneralLedgerSetup.Get();
-        UpdateGeneralLedgerSetup(UnrealizedVAT, CalcDate('<CY - 1Y>', WorkDate));  // Required for test case to set last date of the previous year to Work Date.
+        UpdateGeneralLedgerSetup(UnrealizedVAT, CalcDate('<CY - 1Y>', WorkDate()));  // Required for test case to set last date of the previous year to Work Date.
         LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", LibraryRandom.RandDecInRange(10, 20, 2));
         UpdateVATPostingSetup(
           VATPostingSetup."VAT Bus. Posting Group", VATPostingSetup."VAT Prod. Posting Group", false, UnrealizedVATType);  // False for EU Service.
@@ -121,8 +121,8 @@ codeunit 144139 "ERM VAT"
 
         // Tear Down: Update VAT Posting Setup, General Ledger Setup and delete Periodic VAT Settlement entries.
         UpdateGeneralLedgerAndVATPostingSetups(GeneralLedgerSetup, VATPostingSetup);
-        DeletePeriodicSettlementVATEntry(WorkDate);
-        DeletePeriodicSettlementVATEntry(CalcDate('<1M>', WorkDate));  // '1M' required for one month next to Workdate
+        DeletePeriodicSettlementVATEntry(WorkDate());
+        DeletePeriodicSettlementVATEntry(CalcDate('<1M>', WorkDate()));  // '1M' required for one month next to Workdate
         LibraryVariableStorage.AssertEmpty();
     end;
 
@@ -159,7 +159,7 @@ codeunit 144139 "ERM VAT"
     begin
         // Setup: Post Sales Document and Cash Receipt Journal. Run Calculate and Post VAT Settlement report. Update VAT Period closed on Periodic Settlement VAT entry.
         GeneralLedgerSetup.Get();
-        UpdateGeneralLedgerSetup(UnrealizedVAT, CalcDate('<CY - 1Y>', WorkDate));  // Required for test case to set last date of the previous year to Work Date.
+        UpdateGeneralLedgerSetup(UnrealizedVAT, CalcDate('<CY - 1Y>', WorkDate()));  // Required for test case to set last date of the previous year to Work Date.
         LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", LibraryRandom.RandDecInRange(10, 20, 2));
         UpdateVATPostingSetup(
           VATPostingSetup."VAT Bus. Posting Group", VATPostingSetup."VAT Prod. Posting Group", false, UnrealizedVATType);  // False for EU Service
@@ -182,8 +182,8 @@ codeunit 144139 "ERM VAT"
 
         // Tear Down: Update VAT Posting Setup, General Ledger Setup and delete Periodic VAT Settlement entries.
         UpdateGeneralLedgerAndVATPostingSetups(GeneralLedgerSetup, VATPostingSetup);
-        DeletePeriodicSettlementVATEntry(WorkDate);
-        DeletePeriodicSettlementVATEntry(CalcDate('<1M>', WorkDate));  // '1M' required for one month next to Workdate
+        DeletePeriodicSettlementVATEntry(WorkDate());
+        DeletePeriodicSettlementVATEntry(CalcDate('<1M>', WorkDate()));  // '1M' required for one month next to Workdate
         LibraryVariableStorage.AssertEmpty();
     end;
 
@@ -204,7 +204,7 @@ codeunit 144139 "ERM VAT"
         // Setup: Update General Ledger Setup and VAT Posting Setup. Create and Post Sales Invoice.
         Initialize();
         GeneralLedgerSetup.Get();
-        UpdateGeneralLedgerSetup(true, CalcDate('<CY - 1Y>', WorkDate));  // Required for test case to set last date of the previous year to Work Date. True for Unrealized VAT.
+        UpdateGeneralLedgerSetup(true, CalcDate('<CY - 1Y>', WorkDate()));  // Required for test case to set last date of the previous year to Work Date. True for Unrealized VAT.
         LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", LibraryRandom.RandDecInRange(10, 20, 2));
         UpdateVATPostingSetup(
           VATPostingSetup."VAT Bus. Posting Group",
@@ -248,7 +248,7 @@ codeunit 144139 "ERM VAT"
         // Setup: Update General Ledger Setup and VAT Posting Setup. Create and Post Purchase Invoice.
         Initialize();
         GeneralLedgerSetup.Get();
-        UpdateGeneralLedgerSetup(true, CalcDate('<CY - 1Y>', WorkDate));  // Required for test case to set last date of the previous year to Work Date. True for Unrealized VAT.
+        UpdateGeneralLedgerSetup(true, CalcDate('<CY - 1Y>', WorkDate()));  // Required for test case to set last date of the previous year to Work Date. True for Unrealized VAT.
         LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", LibraryRandom.RandDecInRange(10, 20, 2));
         UpdateVATPostingSetup(
           VATPostingSetup."VAT Bus. Posting Group",
@@ -1990,8 +1990,8 @@ codeunit 144139 "ERM VAT"
             SetRange("Document Type", DocType);
             SetRange("Document No.", DocNo);
             SetRange("G/L Account No.", GLAccNo);
-            Assert.IsTrue(FindFirst, StrSubstNo(EntryDoesNotExistErr, TableCaption, GetFilters));
-            Assert.AreEqual(Abs(Amount), "Credit Amount", StrSubstNo(WrongValueErr, TableCaption, FieldCaption("Credit Amount")));
+            Assert.IsTrue(FindFirst, StrSubstNo(EntryDoesNotExistErr, TableCaption(), GetFilters));
+            Assert.AreEqual(Abs(Amount), "Credit Amount", StrSubstNo(WrongValueErr, TableCaption(), FieldCaption("Credit Amount")));
         end;
     end;
 
@@ -2006,20 +2006,20 @@ codeunit 144139 "ERM VAT"
             SetRange("Document No.", DocNo);
             SetRange(Type, Type::Purchase);
             FindFirst();
-            Assert.AreEqual(0, Base, StrSubstNo(WrongValueErr, TableCaption, FieldCaption(Base)));
-            Assert.AreEqual(0, Amount, StrSubstNo(WrongValueErr, TableCaption, FieldCaption(Amount)));
+            Assert.AreEqual(0, Base, StrSubstNo(WrongValueErr, TableCaption(), FieldCaption(Base)));
+            Assert.AreEqual(0, Amount, StrSubstNo(WrongValueErr, TableCaption(), FieldCaption(Amount)));
             Assert.IsTrue(
-              "Nondeductible Base" <> 0, StrSubstNo(WrongValueErr, TableCaption, FieldCaption("Nondeductible Base")));
+              "Nondeductible Base" <> 0, StrSubstNo(WrongValueErr, TableCaption(), FieldCaption("Nondeductible Base")));
             Assert.IsTrue(
-              "Nondeductible Amount" <> 0, StrSubstNo(WrongValueErr, TableCaption, FieldCaption("Nondeductible Amount")));
+              "Nondeductible Amount" <> 0, StrSubstNo(WrongValueErr, TableCaption(), FieldCaption("Nondeductible Amount")));
             ExpectedVATBase := -"Nondeductible Base";
             ExpectedVATAmount := -"Nondeductible Amount";
             SetRange(Type, Type::Sale);
             FindFirst();
-            Assert.AreEqual(0, "Nondeductible Base", StrSubstNo(WrongValueErr, TableCaption, FieldCaption("Nondeductible Base")));
-            Assert.AreEqual(0, "Nondeductible Amount", StrSubstNo(WrongValueErr, TableCaption, FieldCaption("Nondeductible Amount")));
-            Assert.AreEqual(ExpectedVATBase, Base, StrSubstNo(WrongValueErr, TableCaption, FieldCaption(Base)));
-            Assert.AreEqual(ExpectedVATAmount, Amount, StrSubstNo(WrongValueErr, TableCaption, FieldCaption(Amount)));
+            Assert.AreEqual(0, "Nondeductible Base", StrSubstNo(WrongValueErr, TableCaption(), FieldCaption("Nondeductible Base")));
+            Assert.AreEqual(0, "Nondeductible Amount", StrSubstNo(WrongValueErr, TableCaption(), FieldCaption("Nondeductible Amount")));
+            Assert.AreEqual(ExpectedVATBase, Base, StrSubstNo(WrongValueErr, TableCaption(), FieldCaption(Base)));
+            Assert.AreEqual(ExpectedVATAmount, Amount, StrSubstNo(WrongValueErr, TableCaption(), FieldCaption(Amount)));
         end;
     end;
 
@@ -2124,22 +2124,22 @@ codeunit 144139 "ERM VAT"
     local procedure CreateVateRegisterWithSalesType(var VATRegister: Record "VAT Register")
     begin
         with VATRegister do begin
-            Init;
+            Init();
             Code := LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"VAT Register");
             Description := Code;
             Type := Type::Sale;
-            Insert;
+            Insert();
         end;
     end;
 
     local procedure CreateVateRegisterWithPurchaseType(var VATRegister: Record "VAT Register")
     begin
         with VATRegister do begin
-            Init;
+            Init();
             Code := LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"VAT Register");
             Description := Code;
             Type := Type::Purchase;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -2190,7 +2190,7 @@ codeunit 144139 "ERM VAT"
     procedure UnapplyCustomerEntriesModalPageHandler(var UnapplyCustomerEntries: TestPage "Unapply Customer Entries")
     begin
         UnapplyCustomerEntries.Unapply.Invoke;
-        UnapplyCustomerEntries.Close;
+        UnapplyCustomerEntries.Close();
     end;
 
     [ModalPageHandler]
@@ -2198,7 +2198,7 @@ codeunit 144139 "ERM VAT"
     procedure UnapplyVendorEntriesModalPageHandler(var UnapplyVendorEntries: TestPage "Unapply Vendor Entries")
     begin
         UnapplyVendorEntries.Unapply.Invoke;
-        UnapplyVendorEntries.Close;
+        UnapplyVendorEntries.Close();
     end;
 }
 

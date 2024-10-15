@@ -148,7 +148,7 @@ codeunit 144054 "UT TAB Auto Payment"
 
         // Verify: Verify no Issued Customer Bill Line exists for Deleted Issued Customer Bill Header.
         IssuedCustomerBillLine.SetRange("Customer Bill No.", IssuedCustomerBillHeader."No.");
-        Assert.IsFalse(IssuedCustomerBillLine.FindFirst, StrSubstNo(LineMustNotExistsErr, IssuedCustomerBillLine.TableCaption));
+        Assert.IsFalse(IssuedCustomerBillLine.FindFirst, StrSubstNo(LineMustNotExistsErr, IssuedCustomerBillLine.TableCaption()));
     end;
 
     [Test]
@@ -269,7 +269,7 @@ codeunit 144054 "UT TAB Auto Payment"
 
         // Setup.
         Initialize();
-        CreateVendorBillHeader(VendorBillHeader, CreateCurrency, WorkDate);
+        CreateVendorBillHeader(VendorBillHeader, CreateCurrency, WorkDate());
         CreatePostedVendorBillLine(PostedVendorBillLine, VendorBillHeader."No.");
 
         // Exercise.
@@ -319,7 +319,7 @@ codeunit 144054 "UT TAB Auto Payment"
 
         // Verify: Verify no Customer Bill Line exists for deleted Customer Bill Header.
         CustomerBillLine.SetRange("Customer Bill No.", CustomerBillHeader."No.");
-        Assert.IsFalse(CustomerBillLine.FindFirst, StrSubstNo(LineMustNotExistsErr, CustomerBillLine.TableCaption));
+        Assert.IsFalse(CustomerBillLine.FindFirst, StrSubstNo(LineMustNotExistsErr, CustomerBillLine.TableCaption()));
     end;
 
     [Test]
@@ -356,7 +356,7 @@ codeunit 144054 "UT TAB Auto Payment"
         Initialize();
 
         // Exercise.
-        CreateVendorBillHeader(VendorBillHeader, '', WorkDate);  // Blank value for Currency Code.
+        CreateVendorBillHeader(VendorBillHeader, '', WorkDate());  // Blank value for Currency Code.
 
         // Verify.
         Assert.IsTrue(VendorBillHeader.AssistEdit(VendorBillHeader), StrSubstNo(NotAssignedErr, VendorBillHeader.FieldCaption("No.")));
@@ -373,7 +373,7 @@ codeunit 144054 "UT TAB Auto Payment"
 
         // Setup.
         Initialize();
-        CreateVendorBillHeader(VendorBillHeader, '', WorkDate);  // Blank value for Currency Code.
+        CreateVendorBillHeader(VendorBillHeader, '', WorkDate());  // Blank value for Currency Code.
 
         // Exercise.
         asserterror VendorBillHeader.Rename(LibraryUTUtility.GetNewCode);
@@ -393,7 +393,7 @@ codeunit 144054 "UT TAB Auto Payment"
 
         // Setup.
         Initialize();
-        CreateVendorBillHeader(VendorBillHeader, '', WorkDate);  // Blank value for Currency Code.
+        CreateVendorBillHeader(VendorBillHeader, '', WorkDate());  // Blank value for Currency Code.
 
         // Exercise.
         asserterror VendorBillHeader.Validate("Bank Account No.", CreateBankAccount(true));  // True for Blocked.
@@ -417,7 +417,7 @@ codeunit 144054 "UT TAB Auto Payment"
 
         // Exercise.
         asserterror VendorBillHeader.Validate(
-            "Beneficiary Value Date", CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate));
+            "Beneficiary Value Date", CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()));
 
         // Verify: Verify expected error code, actual error: "It's not possible to change Beneficiary Value Date because there are Vendor Bill Line associated to this Vendor Bill Header".
         Assert.ExpectedErrorCode(DialogErr);
@@ -454,7 +454,7 @@ codeunit 144054 "UT TAB Auto Payment"
 
         // Setup.
         Initialize();
-        CreateVendorBillHeader(VendorBillHeader, '', WorkDate);  // Blank for Currency Code.
+        CreateVendorBillHeader(VendorBillHeader, '', WorkDate());  // Blank for Currency Code.
 
         // Exercise.
         asserterror VendorBillHeader.Validate(
@@ -478,7 +478,7 @@ codeunit 144054 "UT TAB Auto Payment"
         CreateVendorBillHeader(VendorBillHeader, '', 0D);  // Blank value for Currency Code and 0D for Posting Date.
 
         // Exercise.
-        VendorBillHeader.Validate("List Date", WorkDate);
+        VendorBillHeader.Validate("List Date", WorkDate());
 
         // Verify.
         VendorBillHeader.TestField("Posting Date", VendorBillHeader."List Date");
@@ -516,7 +516,7 @@ codeunit 144054 "UT TAB Auto Payment"
 
         // Setup.
         Initialize();
-        CreateVendorBillHeader(VendorBillHeader, '', WorkDate);  // Blank value for Currency Code.
+        CreateVendorBillHeader(VendorBillHeader, '', WorkDate());  // Blank value for Currency Code.
 
         // Exercise.
         VendorBillHeader.Validate("Currency Code", CreateCurrencyExchangeRate);
@@ -537,7 +537,7 @@ codeunit 144054 "UT TAB Auto Payment"
 
         // Setup.
         Initialize();
-        CreateVendorBillHeader(VendorBillHeader, CreateCurrencyExchangeRate, WorkDate);
+        CreateVendorBillHeader(VendorBillHeader, CreateCurrencyExchangeRate, WorkDate());
 
         // Exercise.
         VendorBillHeader.Validate("Currency Code", '');  // Blank value required for Currency Code.
@@ -612,7 +612,7 @@ codeunit 144054 "UT TAB Auto Payment"
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear();
-        LibraryUTUtility.Clear;
+        LibraryUTUtility.Clear();
     end;
 
     local procedure CreateBankAccount(Blocked: Boolean): Code[20]
@@ -689,7 +689,7 @@ codeunit 144054 "UT TAB Auto Payment"
     local procedure CreatePostedVendorBillHeader(var PostedVendorBillHeader: Record "Posted Vendor Bill Header")
     begin
         PostedVendorBillHeader."No." := LibraryUTUtility.GetNewCode;
-        PostedVendorBillHeader."Posting Date" := WorkDate;
+        PostedVendorBillHeader."Posting Date" := WorkDate();
         PostedVendorBillHeader.Insert();
     end;
 
@@ -721,7 +721,7 @@ codeunit 144054 "UT TAB Auto Payment"
     var
         VendorBillLine: Record "Vendor Bill Line";
     begin
-        CreateVendorBillHeader(VendorBillHeader, CurrencyCode, WorkDate);
+        CreateVendorBillHeader(VendorBillHeader, CurrencyCode, WorkDate());
         CreateVendorBillLine(VendorBillLine, VendorBillHeader."No.");
     end;
 
@@ -730,10 +730,10 @@ codeunit 144054 "UT TAB Auto Payment"
         VendorBillHeader."No." := LibraryUTUtility.GetNewCode;
         VendorBillHeader."Currency Code" := CurrencyCode;
         VendorBillHeader."Payment Method Code" := CreatePaymentMethod;
-        VendorBillHeader."List Date" := WorkDate;
+        VendorBillHeader."List Date" := WorkDate();
         VendorBillHeader."Currency Code" := CurrencyCode;
         VendorBillHeader."Posting Date" := PostingDate;
-        VendorBillHeader."Beneficiary Value Date" := WorkDate;
+        VendorBillHeader."Beneficiary Value Date" := WorkDate();
         VendorBillHeader.Insert();
     end;
 
@@ -763,7 +763,7 @@ codeunit 144054 "UT TAB Auto Payment"
         VendorLedgerEntry."Entry No." := VendorLedgerEntry2."Entry No." + 1;
         VendorLedgerEntry."Vendor No." := VendorNo;
         VendorLedgerEntry."Document No." := DocumentNo;
-        VendorLedgerEntry."Posting Date" := WorkDate;
+        VendorLedgerEntry."Posting Date" := WorkDate();
         VendorLedgerEntry.Insert();
     end;
 
@@ -791,7 +791,7 @@ codeunit 144054 "UT TAB Auto Payment"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure NoSeriesListModalPageHandler(var NoSeriesList: TestPage "No. Series List")
+    procedure NoSeriesListModalPageHandler(var NoSeriesList: TestPage "No. Series")
     begin
         NoSeriesList.OK.Invoke;
     end;

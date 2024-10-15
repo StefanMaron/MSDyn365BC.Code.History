@@ -13,7 +13,7 @@ report 6005 "Batch Post Service Cr. Memos"
             trigger OnAfterGetRecord()
             begin
                 if CalcInvDisc then
-                    CalculateInvoiceDiscount;
+                    CalculateInvoiceDiscount();
 
                 Counter := Counter + 1;
                 Window.Update(1, "No.");
@@ -30,7 +30,7 @@ report 6005 "Batch Post Service Cr. Memos"
 
             trigger OnPostDataItem()
             begin
-                Window.Close;
+                Window.Close();
                 Message(Text002, CounterOK, CounterTotal);
             end;
 
@@ -126,14 +126,10 @@ report 6005 "Batch Post Service Cr. Memos"
 
     trigger OnPreReport()
     begin
-        OnBeforePreReport;
+        OnBeforePreReport();
     end;
 
     var
-        Text000: Label 'Enter the posting date.';
-        Text001: Label 'Posting credit memos  #1########## @2@@@@@@@@@@@@@';
-        Text002: Label '%1 credit memos out of a total of %2 have now been posted.';
-        Text003: Label 'The exchange rate associated with the new posting date on the service header will not apply to the service lines.';
         ServLine: Record "Service Line";
         SalesSetup: Record "Sales & Receivables Setup";
         ServCalcDisc: Codeunit "Service-Calc. Discount";
@@ -147,6 +143,11 @@ report 6005 "Batch Post Service Cr. Memos"
         ReplaceDocumentDate: Boolean;
         CalcInvDisc: Boolean;
         Text1130000: Label 'The %1 and %2 may be modified automatically if they are greater than the %3.';
+
+        Text000: Label 'Enter the posting date.';
+        Text001: Label 'Posting credit memos  #1########## @2@@@@@@@@@@@@@';
+        Text002: Label '%1 credit memos out of a total of %2 have now been posted.';
+        Text003: Label 'The exchange rate associated with the new posting date on the service header will not apply to the service lines.';
 
     local procedure CalculateInvoiceDiscount()
     begin

@@ -259,7 +259,7 @@ codeunit 144174 "UT Quarter VAT"
         REPORT.Run(REPORT::"Calc. and Post VAT Settlement");
 
         // [THEN] Periodic Settlement VAT Entry has "VAT Settlement" = "X" - "A"
-        PeriodicSettlementVATEntry.Find;
+        PeriodicSettlementVATEntry.Find();
         PeriodicSettlementVATEntry.TestField("VAT Settlement", InputVATAmount - SalesVATAmount);
 
         // [THEN] Next Periodic Settlement VAT Entry gets "Prior Period Input VAT" = "X" - "A", "Prior Period Output VAT" = 0
@@ -302,11 +302,11 @@ codeunit 144174 "UT Quarter VAT"
 
         // [WHEN] Run "Calc. and Post VAT Settlement" report
         LibraryVariableStorage.Enqueue(true);
-        VATPostingSetup.SetRecFilter;
+        VATPostingSetup.SetRecFilter();
         REPORT.Run(REPORT::"Calc. and Post VAT Settlement", true, false, VATPostingSetup);
 
         // [THEN] Periodic Settlement VAT Entry has "VAT Settlement" = "X" - "B"
-        PeriodicSettlementVATEntry.Find;
+        PeriodicSettlementVATEntry.Find();
         PeriodicSettlementVATEntry.TestField("VAT Settlement", InputVATAmount - SalesVATAmount);
 
         // [THEN] Next Periodic Settlement VAT Entry gets "Prior Period Input VAT" = 0, "Prior Period Output VAT" = 0
@@ -362,33 +362,33 @@ codeunit 144174 "UT Quarter VAT"
             MockVATEntrySales(VATEntryDate, SalesVATAmount, VATPostingSetup);
 
             LibraryVariableStorage.Enqueue(true);
-            VATPostingSetup.SetRecFilter;
+            VATPostingSetup.SetRecFilter();
             REPORT.Run(REPORT::"Calc. and Post VAT Settlement", true, false, VATPostingSetup);
         end;
 
         // [THEN] "Periodic Settlement VAT Entry" with "VAT Period" = "2019/11" has "Prior Period Input VAT" = 1000, "VAT Settlement" = 1000 - 50 = 950 and "Prior Year Input VAT" = 0
-        PeriodicSettlementVATEntry.Find;
+        PeriodicSettlementVATEntry.Find();
         PeriodicSettlementVATEntry.TestField("VAT Period", StrSubstNo('%1/11', Date2DMY(PeriodStartDate, 3)));
         PeriodicSettlementVATEntry.TestField("VAT Settlement", InputVATAmount - SalesVATAmount);
         PeriodicSettlementVATEntry.TestField("Prior Period Input VAT", InputVATAmount);
         PeriodicSettlementVATEntry.TestField("Prior Year Input VAT", 0);
 
         // [THEN] "Periodic Settlement VAT Entry" with "VAT Period" = "2019/12" has "Prior Period Input VAT" = 950, "VAT Settlement" = 950 - 150 = 800 and "Prior Year Input VAT" = 0
-        PeriodicSettlementVATEntry.Next;
+        PeriodicSettlementVATEntry.Next();
         PeriodicSettlementVATEntry.TestField("VAT Period", StrSubstNo('%1/12', Date2DMY(PeriodStartDate, 3)));
         PeriodicSettlementVATEntry.TestField("VAT Settlement", InputVATAmount - 2 * SalesVATAmount);
         PeriodicSettlementVATEntry.TestField("Prior Period Input VAT", InputVATAmount - SalesVATAmount);
         PeriodicSettlementVATEntry.TestField("Prior Year Input VAT", 0);
 
         // [THEN] "Periodic Settlement VAT Entry" with "VAT Period" = "2020/01" has "Prior Period Input VAT" = 0, "VAT Settlement" = 800 - 250 = 550 and "Prior Year Input VAT" = 800
-        PeriodicSettlementVATEntry.Next;
+        PeriodicSettlementVATEntry.Next();
         PeriodicSettlementVATEntry.TestField("VAT Period", StrSubstNo('%1/01', Date2DMY(PeriodStartDate, 3) + 1));
         PeriodicSettlementVATEntry.TestField("VAT Settlement", InputVATAmount - 3 * SalesVATAmount);
         PeriodicSettlementVATEntry.TestField("Prior Period Input VAT", 0);
         PeriodicSettlementVATEntry.TestField("Prior Year Input VAT", InputVATAmount - 2 * SalesVATAmount);
 
         // [THEN] "Periodic Settlement VAT Entry" with "VAT Period" = "2020/02" has "Prior Period Input VAT" = 550, "VAT Settlement" = 0 and "Prior Year Input VAT" = 0
-        PeriodicSettlementVATEntry.Next;
+        PeriodicSettlementVATEntry.Next();
         PeriodicSettlementVATEntry.TestField("VAT Period", StrSubstNo('%1/02', Date2DMY(PeriodStartDate, 3) + 1));
         PeriodicSettlementVATEntry.TestField("VAT Settlement", 0);
         PeriodicSettlementVATEntry.TestField("Prior Period Input VAT", InputVATAmount - 3 * SalesVATAmount);
@@ -497,9 +497,9 @@ codeunit 144174 "UT Quarter VAT"
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
         with GeneralLedgerSetup do begin
-            Get;
+            Get();
             "Last Settlement Date" := NewDate;
-            Modify;
+            Modify();
             exit("Last Settlement Date" + 1);
         end;
     end;
@@ -509,7 +509,7 @@ codeunit 144174 "UT Quarter VAT"
         with PeriodicSettlementVATEntry do begin
             "Prior Period Input VAT" := InputVAT;
             "Prior Period Output VAT" := OutputVAT;
-            Modify;
+            Modify();
         end;
     end;
 
@@ -546,7 +546,7 @@ codeunit 144174 "UT Quarter VAT"
     begin
         GeneralLedgerSetup.OpenEdit;
         GeneralLedgerSetup."VAT Settlement Period".AssertEquals(VATSettlementPeriod);
-        GeneralLedgerSetup.Close;
+        GeneralLedgerSetup.Close();
     end;
 
     local procedure VerifyVATEntries(EntryNo: Integer)
@@ -556,7 +556,7 @@ codeunit 144174 "UT Quarter VAT"
         VATEntries.OpenEdit;
         VATEntries.FILTER.SetFilter("Entry No.", Format(EntryNo));
         VATEntries.Closed.AssertEquals(Format(true));
-        VATEntries.Close;
+        VATEntries.Close();
     end;
 
     local procedure VerifyNextPeriodValues(ExpectedNextInputVAT: Decimal; ExpectedNextOuputVAT: Decimal)

@@ -766,13 +766,13 @@ codeunit 134384 "ERM Document Posting Error"
     local procedure VerifyReleaseSalesDocument(SalesHeader: Record "Sales Header")
     begin
         Assert.ExpectedError(
-          StrSubstNo(StatusErr, SalesHeader.TableCaption, SalesHeader."Document Type", SalesHeader."No."));
+          StrSubstNo(StatusErr, SalesHeader.TableCaption(), SalesHeader."Document Type", SalesHeader."No."));
     end;
 
     local procedure VerifyReleasePurchDocument(PurchaseHeader: Record "Purchase Header")
     begin
         Assert.ExpectedError(
-          StrSubstNo(StatusErr, PurchaseHeader.TableCaption, PurchaseHeader."Document Type", PurchaseHeader."No."));
+          StrSubstNo(StatusErr, PurchaseHeader.TableCaption(), PurchaseHeader."Document Type", PurchaseHeader."No."));
     end;
 
     local procedure VerifyVATEntryAmountByVATPostingSetup(VATPostingSetup: Record "VAT Posting Setup"; ExpectedBase: Decimal; ExpectedAmount: Decimal)

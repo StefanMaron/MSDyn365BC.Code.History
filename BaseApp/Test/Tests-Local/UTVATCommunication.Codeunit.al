@@ -366,7 +366,7 @@ codeunit 144117 "UT VAT Communication"
         SalesOrder.OpenEdit;
         SalesOrder.FILTER.SetFilter("No.", SalesLine."Document No.");
         SalesOrder.SalesLines."Prepmt. CM Refers to Period".AssertEquals(PrepmtCMRefersToPeriod);
-        SalesOrder.Close;
+        SalesOrder.Close();
     end;
 
     [Test]
@@ -452,7 +452,7 @@ codeunit 144117 "UT VAT Communication"
         PurchaseOrder.OpenEdit;
         PurchaseOrder.FILTER.SetFilter("No.", PurchaseLine."Document No.");
         PurchaseOrder.PurchLines."Prepmt. CM Refers to Period".AssertEquals(PrepmtCMRefersToPeriod);
-        PurchaseOrder.Close;
+        PurchaseOrder.Close();
     end;
 
     [Test]
@@ -669,7 +669,7 @@ codeunit 144117 "UT VAT Communication"
         VATEntry2.FindLast();
         VATEntry."Entry No." := VATEntry2."Entry No." + 1;
         VATEntry.Type := Type;
-        VATEntry."Posting Date" := WorkDate;
+        VATEntry."Posting Date" := WorkDate();
         VATEntry."Operation Occurred Date" := VATEntry."Posting Date";
         VATEntry."Fiscal Code" := LibraryUTUtility.GetNewCode;
         VATEntry."Include in VAT Transac. Rep." := true;

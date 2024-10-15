@@ -6,7 +6,7 @@ codeunit 134769 "Test User Tasks"
     trigger OnRun()
     begin
         // [FEATURE] [User Tasks]
-        Init;
+        Init();
     end;
 
     var

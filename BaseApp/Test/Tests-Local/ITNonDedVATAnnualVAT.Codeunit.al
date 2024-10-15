@@ -248,7 +248,7 @@ codeunit 144193 "IT - Non Ded.VAT - Annual VAT"
         FindVATEntries(VATEntry, VATBusPostingGroup, VATProdPostingGroup);
         repeat
             NonDeductibleAmount += VATEntry."Nondeductible Amount";
-        until VATEntry.Next = 0;
+        until VATEntry.Next() = 0;
     end;
 
     local procedure CalculateNonDeductibleBaseFromVATEntry(VATBusPostingGroup: Code[20]; VATProdPostingGroup: Code[20]) NonDeductibleBase: Decimal
@@ -258,7 +258,7 @@ codeunit 144193 "IT - Non Ded.VAT - Annual VAT"
         FindVATEntries(VATEntry, VATBusPostingGroup, VATProdPostingGroup);
         repeat
             NonDeductibleBase += VATEntry."Nondeductible Base";
-        until VATEntry.Next = 0;
+        until VATEntry.Next() = 0;
     end;
 
     local procedure CreateVATStatementLine(VATStatementName: Record "VAT Statement Name"; VATBusPostingGroup: Code[20]; VATProdPostingGroup: Code[20]; AmountType: Enum "VAT Statement Line Amount Type")
@@ -325,7 +325,7 @@ codeunit 144193 "IT - Non Ded.VAT - Annual VAT"
 
     local procedure FindVATEntries(var VATEntry: Record "VAT Entry"; VATBusPostingGroup: Code[20]; VATProdPostingGroup: Code[20])
     begin
-        VATEntry.SetRange("Posting Date", WorkDate);
+        VATEntry.SetRange("Posting Date", WorkDate());
         VATEntry.SetRange(Type, VATEntry.Type::Purchase);
         VATEntry.SetRange("VAT Bus. Posting Group", VATBusPostingGroup);
         VATEntry.SetRange("VAT Prod. Posting Group", VATProdPostingGroup);
@@ -419,7 +419,7 @@ codeunit 144193 "IT - Non Ded.VAT - Annual VAT"
         AnnualVATComm2010.UseRequestPage(false);
         AnnualVATComm2010.InitializeRequest(
           VATStatementName."Statement Template Name", VATStatementName.Name, AppointmentCode.Code,
-          DMY2Date(1, 1, Date2DMY(WorkDate, 3)), DMY2Date(31, 12, Date2DMY(WorkDate, 3)));
+          DMY2Date(1, 1, Date2DMY(WorkDate(), 3)), DMY2Date(31, 12, Date2DMY(WorkDate(), 3)));
         LibraryReportValidation.SetFileName(VATStatementName."Statement Template Name");
         AnnualVATComm2010.SaveAsExcel(LibraryReportValidation.GetFileName);
     end;
@@ -432,7 +432,7 @@ codeunit 144193 "IT - Non Ded.VAT - Annual VAT"
     begin
         VATStatementName.SetRange(Name, StatementName);
         VATStatementName.FindFirst();
-        VATStatementName.SetFilter("Date Filter", '%1..%2', DMY2Date(1, 1, Date2DMY(WorkDate, 3)), DMY2Date(31, 12, Date2DMY(WorkDate, 3)));
+        VATStatementName.SetFilter("Date Filter", '%1..%2', DMY2Date(1, 1, Date2DMY(WorkDate(), 3)), DMY2Date(31, 12, Date2DMY(WorkDate(), 3)));
         AppointmentCode.FindFirst();
         Clear(ExpAnnualVATComm2010);
         ExpAnnualVATComm2010.SetTableView(VATStatementName);
@@ -458,8 +458,8 @@ codeunit 144193 "IT - Non Ded.VAT - Annual VAT"
         Clear(VATRegisterPrint);
         VATRegisterPrint.SetTableView(VATBookEntry);
         VATRegisterPrint.InitializeRequest(
-          VATRegister, PrintingType::Test, WorkDate,
-          LibraryUtility.GenerateRandomDate(WorkDate, CalcDate(StrSubstNo('<%1D>', LibraryRandom.RandInt(10)), WorkDate)), true,
+          VATRegister, PrintingType::Test, WorkDate(),
+          LibraryUtility.GenerateRandomDate(WorkDate(), CalcDate(StrSubstNo('<%1D>', LibraryRandom.RandInt(10)), WorkDate())), true,
           CompanyInformation);
         LibraryReportValidation.SetFileName(LibraryUtility.GetGlobalNoSeriesCode);
         VATRegisterPrint.SaveAsExcel(LibraryReportValidation.GetFileName);
@@ -562,7 +562,7 @@ codeunit 144193 "IT - Non Ded.VAT - Annual VAT"
     begin
         LibraryReportValidation.SetRange(SalesLine.FieldCaption("Document No."), DocumentNo);
         LibraryReportValidation.SetColumn(BaseLbl);
-        Evaluate(ActualAmount, LibraryReportValidation.GetValue);
+        Evaluate(ActualAmount, LibraryReportValidation.GetValue());
         Assert.AreEqual(Amount, ActualAmount, StrSubstNo(BaseErr, BaseLbl, Amount));
     end;
 
@@ -573,7 +573,7 @@ codeunit 144193 "IT - Non Ded.VAT - Annual VAT"
         FindGLEntry(GLEntry, DocumentType, DocumentNo, GLAcountNo);
         Assert.AreNearlyEqual(
           Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision,
-          StrSubstNo(AmountErr, GLEntry.FieldCaption(Amount), -1 * Amount, GLEntry.TableCaption));
+          StrSubstNo(AmountErr, GLEntry.FieldCaption(Amount), -1 * Amount, GLEntry.TableCaption()));
     end;
 
     local procedure VerifyExportedFile(FileName: Text; ExpectedValue: Text[1024]; LineNo: Integer; StartPos: Integer; FieldLength: Integer)

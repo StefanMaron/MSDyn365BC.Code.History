@@ -8,7 +8,7 @@ page 1269 "Auto. Bank Stmt. Import Setup"
     {
         area(content)
         {
-            field("Transaction Import Timespan"; "Transaction Import Timespan")
+            field("Transaction Import Timespan"; Rec."Transaction Import Timespan")
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Number of Days Included';
@@ -22,7 +22,7 @@ page 1269 "Auto. Bank Stmt. Import Setup"
                     end;
                 end;
             }
-            field("Automatic Stmt. Import Enabled"; "Automatic Stmt. Import Enabled")
+            field("Automatic Stmt. Import Enabled"; Rec."Automatic Stmt. Import Enabled")
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Enabled';

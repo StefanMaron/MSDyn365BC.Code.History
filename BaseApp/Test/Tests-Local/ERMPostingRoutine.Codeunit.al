@@ -159,7 +159,7 @@ codeunit 144069 "ERM Posting Routine"
     begin
         // Setup: Update General Ledger Setup - Last Gen. Jour. Printing Date, Create Purchase Order.
         Initialize();
-        NewLastGenJourPrintingDate := CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate);  // Last Gen. Jour. Printing Date after WORKDATE.
+        NewLastGenJourPrintingDate := CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate());  // Last Gen. Jour. Printing Date after WORKDATE.
         UpdateGLSetupLastGenJourPrintingDate(NewLastGenJourPrintingDate);
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Order, true);  // Date Order - True.
 
@@ -180,7 +180,7 @@ codeunit 144069 "ERM Posting Routine"
     begin
         // Setup: Update General Ledger Setup - Last Gen. Jour. Printing Date, Create Service Invoice.
         Initialize();
-        NewLastGenJourPrintingDate := CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate);  // Last Gen. Jour. Printing Date after WORKDATE.
+        NewLastGenJourPrintingDate := CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate());  // Last Gen. Jour. Printing Date after WORKDATE.
         UpdateGLSetupLastGenJourPrintingDate(NewLastGenJourPrintingDate);
         CreateServiceInvoice(ServiceHeader);
 
@@ -201,7 +201,7 @@ codeunit 144069 "ERM Posting Routine"
     begin
         // Setup: Update General Ledger Setup - Last Gen. Jour. Printing Date, Create Sales Order.
         Initialize();
-        NewLastGenJourPrintingDate := CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate);  // Last Gen. Jour. Printing Date after WORKDATE.
+        NewLastGenJourPrintingDate := CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate());  // Last Gen. Jour. Printing Date after WORKDATE.
         UpdateGLSetupLastGenJourPrintingDate(NewLastGenJourPrintingDate);
         CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Order, true);  // Date Order - True.
 
@@ -413,7 +413,7 @@ codeunit 144069 "ERM Posting Routine"
 
         // [WHEN] Run Copy Document from Posted Sales Invoice to Sales Document with Include Header = TRUE
         CopySalesDocument(SalesHeader, "Sales Document Type From"::"Posted Invoice", PostedDocNo);
-        SalesHeader.Find;
+        SalesHeader.Find();
 
         // [THEN] Confirmation dialog appears with warning and Document not copied (user pressed cancel)
         Assert.AreEqual(InitialPostingDate, SalesHeader."Posting Date", DocumentShouldNotBeCopiedErr);
@@ -423,7 +423,7 @@ codeunit 144069 "ERM Posting Routine"
         SalesShipmentHeader.FindFirst();
         LibraryVariableStorage.Enqueue(false);
         CopySalesDocument(SalesHeader, "Sales Document Type From"::"Posted Shipment", SalesShipmentHeader."No.");
-        SalesHeader.Find;
+        SalesHeader.Find();
 
         // [THEN] Confirmation dialog appears with warning and Document not copied (user pressed cancel)
         Assert.AreEqual(InitialPostingDate, SalesHeader."Posting Date", DocumentShouldNotBeCopiedErr);
@@ -460,7 +460,7 @@ codeunit 144069 "ERM Posting Routine"
         CopySalesDocument(SalesHeaderDst, "Sales Document Type From"::"Posted Credit Memo", PostedDocNo);
 
         // [THEN] Confirmation dialog appears with warning and Document not copied (user pressed cancel)
-        SalesHeaderDst.Find;
+        SalesHeaderDst.Find();
         Assert.AreEqual(InitialPostingDate, SalesHeaderDst."Posting Date", DocumentShouldNotBeCopiedErr);
 
         // [WHEN] Run Copy Document from Posted Return Receipt to Sales Document with Include Header = TRUE
@@ -468,7 +468,7 @@ codeunit 144069 "ERM Posting Routine"
         ReturnReceiptHeader.FindFirst();
         LibraryVariableStorage.Enqueue(false);
         CopySalesDocument(SalesHeaderDst, "Sales Document Type From"::"Posted Return Receipt", ReturnReceiptHeader."No.");
-        SalesHeaderDst.Find;
+        SalesHeaderDst.Find();
 
         // [THEN] Confirmation dialog appears with warning and Document not copied (user pressed cancel)
         Assert.AreEqual(InitialPostingDate, SalesHeaderDst."Posting Date", DocumentShouldBeCopiedErr);
@@ -501,7 +501,7 @@ codeunit 144069 "ERM Posting Routine"
         CopySalesDocument(SalesHeaderDst, "Sales Document Type From"::Quote, SalesHeaderSrc."No.");
 
         // [THEN] Confirmation dialog appears with warning and Document not copied (user pressed cancel)
-        SalesHeaderDst.Find;
+        SalesHeaderDst.Find();
         Assert.AreEqual(CustomerNo, SalesHeaderDst."Sell-to Customer No.", DocumentShouldBeCopiedErr);
     end;
 
@@ -529,7 +529,7 @@ codeunit 144069 "ERM Posting Routine"
         CopySalesDocument(SalesHeaderDst, "Sales Document Type From"::Quote, SalesHeaderSrc."No.");
 
         // [THEN] Confirmation dialog appears with warning and Document is copied after user confirmation
-        SalesHeaderDst.Find;
+        SalesHeaderDst.Find();
         Assert.AreEqual(SalesHeaderSrc."Sell-to Customer No.", SalesHeaderDst."Sell-to Customer No.", DocumentShouldBeCopiedErr);
     end;
 
@@ -562,7 +562,7 @@ codeunit 144069 "ERM Posting Routine"
 
         // [WHEN] Run Copy Document from Posted Purchase Invoice to Purchase Document with Include Header = TRUE
         CopyPurchDocument(PurchHeader, "Purchase Document Type From"::"Posted Invoice", PostedDocNo);
-        PurchHeader.Find;
+        PurchHeader.Find();
 
         // [THEN] Confirmation dialog appears with warning and Document not copied (user pressed cancel)
         Assert.AreEqual(InitialPostingDate, PurchHeader."Posting Date", DocumentShouldNotBeCopiedErr);
@@ -572,7 +572,7 @@ codeunit 144069 "ERM Posting Routine"
         PurchRcptHeader.FindFirst();
         LibraryVariableStorage.Enqueue(false);
         CopyPurchDocument(PurchHeader, "Purchase Document Type From"::"Posted Receipt", PurchRcptHeader."No.");
-        PurchHeader.Find;
+        PurchHeader.Find();
 
         // [THEN] Confirmation dialog appears with warning and Document not copied (user pressed cancel)
         Assert.AreEqual(InitialPostingDate, PurchHeader."Posting Date", DocumentShouldNotBeCopiedErr);
@@ -610,7 +610,7 @@ codeunit 144069 "ERM Posting Routine"
         CopyPurchDocument(PurchHeaderDst, "Purchase Document Type From"::"Posted Credit Memo", PostedDocNo);
 
         // [THEN] Confirmation dialog appears with warning and Document not copied (user pressed cancel)
-        PurchHeaderDst.Find;
+        PurchHeaderDst.Find();
         Assert.AreEqual(InitialPostingDate, PurchHeaderDst."Posting Date", DocumentShouldNotBeCopiedErr);
 
         // [WHEN] Run Copy Document from Posted Return Shipment to Purchase Document with Include Header = TRUE
@@ -618,7 +618,7 @@ codeunit 144069 "ERM Posting Routine"
         ReturnShptHeader.FindFirst();
         LibraryVariableStorage.Enqueue(false);
         CopyPurchDocument(PurchHeaderDst, "Purchase Document Type From"::"Posted Return Shipment", ReturnShptHeader."No.");
-        PurchHeaderDst.Find;
+        PurchHeaderDst.Find();
 
         // [THEN] Confirmation dialog appears with warning and Document not copied (user pressed cancel)
         Assert.AreEqual(InitialPostingDate, PurchHeaderDst."Posting Date", DocumentShouldBeCopiedErr);
@@ -652,7 +652,7 @@ codeunit 144069 "ERM Posting Routine"
         CopyPurchDocument(PurchHeaderDst, "Purchase Document Type From"::Quote, PurchHeaderSrc."No.");
 
         // [THEN] Confirmation dialog appears with warning and Document not copied (user pressed cancel)
-        PurchHeaderDst.Find;
+        PurchHeaderDst.Find();
         Assert.AreEqual(VendorNo, PurchHeaderDst."Buy-from Vendor No.", DocumentShouldBeCopiedErr);
     end;
 
@@ -681,7 +681,7 @@ codeunit 144069 "ERM Posting Routine"
         CopyPurchDocument(PurchHeaderDst, "Purchase Document Type From"::Quote, PurchHeaderSrc."No.");
 
         // [THEN] Confirmation dialog appears with warning and Document is copied after user confirmation
-        PurchHeaderDst.Find;
+        PurchHeaderDst.Find();
         Assert.AreEqual(
           PurchHeaderSrc."Buy-from Vendor No.", PurchHeaderDst."Buy-from Vendor No.", DocumentShouldBeCopiedErr);
     end;
@@ -705,8 +705,8 @@ codeunit 144069 "ERM Posting Routine"
         CreateCustomerWithPostingSetup(Customer);
         LibrarySales.CreateSalesDocumentWithItem(
           SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, Customer."No.",
-          LibraryInventory.CreateItemNo, LibraryRandom.RandDec(10, 2), '', WorkDate);
-        SalesHeader.Validate("Operation Occurred Date", WorkDate - 1);
+          LibraryInventory.CreateItemNo, LibraryRandom.RandDec(10, 2), '', WorkDate());
+        SalesHeader.Validate("Operation Occurred Date", WorkDate() - 1);
         SalesHeader.Validate("Payment Method Code", PaymentMethod.Code);
         SalesHeader.Modify(true);
 
@@ -737,8 +737,8 @@ codeunit 144069 "ERM Posting Routine"
         CreateVendorWithPostingSetup(Vendor);
         LibraryPurchase.CreatePurchaseDocumentWithItem(
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Invoice, Vendor."No.",
-          LibraryInventory.CreateItemNo, LibraryRandom.RandDec(10, 2), '', WorkDate);
-        PurchaseHeader.Validate("Operation Occurred Date", WorkDate - 1);
+          LibraryInventory.CreateItemNo, LibraryRandom.RandDec(10, 2), '', WorkDate());
+        PurchaseHeader.Validate("Operation Occurred Date", WorkDate() - 1);
         PurchaseHeader.Validate("Payment Method Code", PaymentMethod.Code);
         PurchaseHeader.Modify(true);
 
@@ -769,7 +769,7 @@ codeunit 144069 "ERM Posting Routine"
           GenJournalLine, GenJournalTemplate.Name, GenJournalBatch.Name, GenJournalLine."Document Type"::Invoice,
           GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup,
           GenJournalLine."Bal. Account Type"::Customer, LibrarySales.CreateCustomerNo, -LibraryRandom.RandDec(10, 2));
-        GenJournalLine.Validate("Operation Occurred Date", WorkDate - 1);
+        GenJournalLine.Validate("Operation Occurred Date", WorkDate() - 1);
         GenJournalLine.Modify(true);
 
         // [WHEN] Post Journal Line
@@ -798,7 +798,7 @@ codeunit 144069 "ERM Posting Routine"
           GenJournalLine, GenJournalTemplate.Name, GenJournalBatch.Name, GenJournalLine."Document Type"::Invoice,
           GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup,
           GenJournalLine."Bal. Account Type"::Vendor, LibraryPurchase.CreateVendorNo, LibraryRandom.RandDec(10, 2));
-        GenJournalLine.Validate("Operation Occurred Date", WorkDate - 1);
+        GenJournalLine.Validate("Operation Occurred Date", WorkDate() - 1);
         GenJournalLine.Modify(true);
 
         // [WHEN] Post Journal Line
@@ -921,7 +921,7 @@ codeunit 144069 "ERM Posting Routine"
         LibraryPurchase.CreatePurchaseDocumentWithItem(
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Invoice, Vendor."No.",
           CreateItemWithEmptyVATIdentifier(Vendor."VAT Bus. Posting Group"),
-          LibraryRandom.RandDec(10, 2), '', WorkDate);
+          LibraryRandom.RandDec(10, 2), '', WorkDate());
 
         // [WHEN] Post Purchase Invoice
         asserterror LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -948,7 +948,7 @@ codeunit 144069 "ERM Posting Routine"
         LibrarySales.CreateSalesDocumentWithItem(
           SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, Customer."No.",
           CreateItemWithEmptyVATIdentifier(Customer."VAT Bus. Posting Group"),
-          LibraryRandom.RandDec(10, 2), '', WorkDate);
+          LibraryRandom.RandDec(10, 2), '', WorkDate());
 
         // [WHEN] Post Sales Invoice
         asserterror LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -1036,8 +1036,8 @@ codeunit 144069 "ERM Posting Routine"
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, VendorNo);
         PurchaseHeader.Validate("Vendor Cr. Memo No.", PurchaseHeader."No.");
         PurchaseHeader.Validate("Operation Type", UpdateNoSeries(FindNoSeries(NoSeries."No. Series Type"::Purchase), DateOrder));
-        PurchaseHeader.Validate("Operation Occurred Date", WorkDate);
-        PurchaseHeader.Validate("Document Date", WorkDate);
+        PurchaseHeader.Validate("Operation Occurred Date", WorkDate());
+        PurchaseHeader.Validate("Document Date", WorkDate());
         PurchaseHeader.Modify(true);
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItem(Item), LibraryRandom.RandDec(10, 2));  // Random value for Quantity.
@@ -1053,8 +1053,8 @@ codeunit 144069 "ERM Posting Routine"
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
         SalesHeader.Validate("Operation Type", UpdateNoSeries(FindNoSeries(NoSeries."No. Series Type"::Sales), DateOrder));
-        SalesHeader.Validate("Operation Occurred Date", WorkDate);
-        SalesHeader.Validate("Document Date", WorkDate);
+        SalesHeader.Validate("Operation Occurred Date", WorkDate());
+        SalesHeader.Validate("Document Date", WorkDate());
         SalesHeader.Modify(true);
         LibrarySales.CreateSalesLine(
           SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItem(Item), LibraryRandom.RandDec(10, 2));  // Random value for Quantity.
@@ -1072,7 +1072,7 @@ codeunit 144069 "ERM Posting Routine"
         LibrarySales.CreateCustomer(Customer);
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice, Customer."No.");
         ServiceHeader.Validate("Operation Type", UpdateNoSeries(FindNoSeries(NoSeries."No. Series Type"::Sales), true));  // Date Order - True.
-        ServiceHeader.Validate("Posting Date", WorkDate);
+        ServiceHeader.Validate("Posting Date", WorkDate());
         ServiceHeader.Modify(true);
         LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItem(Item));
         ServiceLine.Validate(Quantity, LibraryRandom.RandDec(10, 2));
@@ -1195,7 +1195,7 @@ codeunit 144069 "ERM Posting Routine"
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
-        SalesHeader.Find;
+        SalesHeader.Find();
         with CustLedgerEntry do begin
             SetRange("Customer No.", SalesHeader."Sell-to Customer No.");
             SetRange("Document No.", PostedInvoiceNo);
@@ -1208,7 +1208,7 @@ codeunit 144069 "ERM Posting Routine"
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
-        PurchaseHeader.Find;
+        PurchaseHeader.Find();
         with VendorLedgerEntry do begin
             SetRange("Vendor No.", PurchaseHeader."Buy-from Vendor No.");
             SetRange("Document No.", PostedInvoiceNo);

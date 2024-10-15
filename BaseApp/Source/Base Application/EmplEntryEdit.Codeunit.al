@@ -8,7 +8,7 @@ codeunit 114 "Empl. Entry-Edit"
     begin
         EmplLedgEntry := Rec;
         EmplLedgEntry.LockTable();
-        EmplLedgEntry.Find;
+        EmplLedgEntry.Find();
         if EmplLedgEntry.Open then begin
             EmplLedgEntry."Applies-to ID" := "Applies-to ID";
             EmplLedgEntry."Payment Method Code" := "Payment Method Code";

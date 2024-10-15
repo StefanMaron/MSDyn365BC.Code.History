@@ -1,7 +1,7 @@
 page 1003 "Job Task Card"
 {
     Caption = 'Job Task Card';
-    DataCaptionExpression = Caption;
+    DataCaptionExpression = Caption();
     DeleteAllowed = false;
     InsertAllowed = false;
     PageType = Card;
@@ -14,7 +14,7 @@ page 1003 "Job Task Card"
             group(General)
             {
                 Caption = 'General';
-                field("Job Task No."; "Job Task No.")
+                field("Job Task No."; Rec."Job Task No.")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the number of the related job task.';
@@ -24,7 +24,7 @@ page 1003 "Job Task Card"
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies a description of the job task. You can enter anything that is meaningful in describing the task. The description is copied and used in descriptions on the job planning line.';
                 }
-                field("Job Task Type"; "Job Task Type")
+                field("Job Task Type"; Rec."Job Task Type")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the purpose of the account. Newly created accounts are automatically assigned the Posting account type, but you can change this. Choose the field to select one of the following five options:';
@@ -34,17 +34,17 @@ page 1003 "Job Task Card"
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies an interval or a list of job task numbers.';
                 }
-                field("Job Posting Group"; "Job Posting Group")
+                field("Job Posting Group"; Rec."Job Posting Group")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the job posting group of the task.';
                 }
-                field("New Page"; "New Page")
+                field("New Page"; Rec."New Page")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies whether you want a new page to start immediately after this job task when you print the job tasks. To start a new page after this job task, select the New Page check box.';
                 }
-                field("No. of Blank Lines"; "No. of Blank Lines")
+                field("No. of Blank Lines"; Rec."No. of Blank Lines")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the number of blank lines that you want inserted before this job task in reports that shows job tasks.';

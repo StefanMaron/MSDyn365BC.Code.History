@@ -338,6 +338,51 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit AzureADUserMgtTest - NamedType DeviceUserCannotBeFirstUser)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3007113063 - NamedType 2924252020" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Expected the user to have the '%1' user group assigned.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 - user group code]D;]A;(LookupHint=Codeunit AzureADUserMgtTest - NamedType ExpectedUserGroupAssignedTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3007113063 - Method 3949896595 - NamedType 1616598201" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Rainy Cloud Group]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit AzureADUserMgtTest - Method TestUserGroupsAppendedOnUserSyncNoCustomPermissions - NamedType RainyCloudUserGroupCode)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3007113063 - Method 3949896595 - NamedType 2657149124" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Shiny Sunlight Group]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit AzureADUserMgtTest - Method TestUserGroupsAppendedOnUserSyncNoCustomPermissions - NamedType ShinySunlightUserGroupCode)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3007113063 - Method 4053469054 - NamedType 1616598201" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Rainy Cloud Group]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit AzureADUserMgtTest - Method TestUserGroupsAppendedOnUserSyncWithCustomPermissions - NamedType RainyCloudUserGroupCode)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3007113063 - Method 4053469054 - NamedType 2657149124" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Shiny Sunlight Group]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit AzureADUserMgtTest - Method TestUserGroupsAppendedOnUserSyncWithCustomPermissions - NamedType ShinySunlightUserGroupCode)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2240440029 - NamedType 190996590" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Backup %1 should not exist.]]></Val>
@@ -1416,15 +1461,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Check Dimensions On Posting - NamedType DimValueSameCodeErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 205634720 - NamedType 272352229" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[There is nothing to post.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Check Dimensions On Posting - NamedType NothingToPostErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 205634720 - NamedType 319042074" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -4370,22 +4406,13 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit DocumentSendingPostTests - NamedType PdfTxt)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3063528946 - NamedType 3309847819" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 3063528946 - NamedType 388206071" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Confirm the first profile and use it for all selected customers.,Confirm the profile for each customer.,Use the default profile for all selected customers without confirmation.]]></Val>
+      <Val><![CDATA[Confirm the first profile and use it for all selected documents.,Confirm the profile for each document.,Use the default profile for all selected documents without confirmation.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit DocumentSendingPostTests - NamedType ProfileSelectionCustomerQst)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3063528946 - NamedType 25665603" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Confirm the first profile and use it for all selected vendors.,Confirm the profile for each vendor.,Use the default profile for all selected vendors without confirmation.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit DocumentSendingPostTests - NamedType ProfileSelectionVendorQst)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit DocumentSendingPostTests - NamedType ProfileSelectionQst)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3063528946 - NamedType 2488362900" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -5513,42 +5540,6 @@
       <Cmt Name="Dev"><![CDATA[%1 - Client File Name]D;]A;(LookupHint=Codeunit PEPPOL BIS BillingTests - NamedType WrongFileNameErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 438645833 - NamedType 2807715770" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Context1]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit PowerBI Deploy Reports Tests - NamedType Context1Txt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 438645833 - NamedType 3790735548" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Report1]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit PowerBI Deploy Reports Tests - NamedType Report1NameTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 438645833 - NamedType 448398189" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Report2]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit PowerBI Deploy Reports Tests - NamedType Report2NameTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 438645833 - NamedType 4168940318" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Report3]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit PowerBI Deploy Reports Tests - NamedType Report3NameTxt)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 2801231272 - NamedType 1508165219" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[You cannot use %1 for this action.]]></Val>
@@ -6123,6 +6114,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Item Charge Extendibility - NamedType EquallyTok)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3244926151 - NamedType 486026524" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Qty. to Handle must be equal to '%1'  in %2]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Item Charge Extendibility - NamedType QtyToHandleMustBeErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3613402004 - NamedType 1229161134" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

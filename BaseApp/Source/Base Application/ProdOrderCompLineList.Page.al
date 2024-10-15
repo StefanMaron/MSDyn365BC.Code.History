@@ -1,9 +1,11 @@
 page 5407 "Prod. Order Comp. Line List"
 {
-    Caption = 'Prod. Order Comp. Line List';
+    ApplicationArea = Manufacturing;
+    Caption = 'Prod. Order Comp. Lines';
     Editable = false;
     PageType = List;
     SourceTable = "Prod. Order Component";
+    UsageCategory = Lists;
 
     layout
     {
@@ -17,22 +19,22 @@ page 5407 "Prod. Order Comp. Line List"
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the status of the production order to which the component list belongs.';
                 }
-                field("Prod. Order No."; "Prod. Order No.")
+                field("Prod. Order No."; Rec."Prod. Order No.")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the number of the related production order.';
                 }
-                field("Prod. Order Line No."; "Prod. Order Line No.")
+                field("Prod. Order Line No."; Rec."Prod. Order Line No.")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the number of the production order line to which the component list belongs.';
                 }
-                field("Item No."; "Item No.")
+                field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the number of the item that is a component in the production order component list.';
                 }
-                field("Variant Code"; "Variant Code")
+                field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the variant of the item on the line.';
@@ -43,13 +45,13 @@ page 5407 "Prod. Order Comp. Line List"
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies a description of the item on the line.';
                 }
-                field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
+                field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                     Visible = false;
                 }
-                field("Shortcut Dimension 2 Code"; "Shortcut Dimension 2 Code")
+                field("Shortcut Dimension 2 Code"; Rec."Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
@@ -109,59 +111,59 @@ page 5407 "Prod. Order Comp. Line List"
                                                                   Blocked = CONST(false));
                     Visible = false;
                 }
-                field("Routing Link Code"; "Routing Link Code")
+                field("Routing Link Code"; Rec."Routing Link Code")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the routing link.';
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the location where the component is stored. Copies the location code from the corresponding field on the production order line.';
                     Visible = true;
                 }
-                field("Quantity per"; "Quantity per")
+                field("Quantity per"; Rec."Quantity per")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies how many units of the component are required to produce the parent item.';
                 }
-                field("Expected Quantity"; "Expected Quantity")
+                field("Expected Quantity"; Rec."Expected Quantity")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the quantity of the component expected to be consumed during the production of the quantity on this line.';
                 }
-                field("Remaining Quantity"; "Remaining Quantity")
+                field("Remaining Quantity"; Rec."Remaining Quantity")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the difference between the finished and planned quantities, or zero if the finished quantity is greater than the remaining quantity.';
                 }
-                field("Qty. on Transfer Order (Base)"; "Qty. on Transfer Order (Base)")
+                field("Qty. on Transfer Order (Base)"; Rec."Qty. on Transfer Order (Base)")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the item amount that is on the transfer order.';
                 }
-                field("Qty. in Transit (Base)"; "Qty. in Transit (Base)")
+                field("Qty. in Transit (Base)"; Rec."Qty. in Transit (Base)")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the items that are in transit.';
                 }
-                field("Qty. transf. to Subcontractor"; "Qty. transf. to Subcontractor")
+                field("Qty. transf. to Subcontractor"; Rec."Qty. transf. to Subcontractor")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the item amount that will be transferred to the subcontractor.';
                 }
-                field("Due Date"; "Due Date")
+                field("Due Date"; Rec."Due Date")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the date when the produced item must be available. The date is copied from the header of the production order.';
                 }
-                field("Unit Cost"; "Unit Cost")
+                field("Unit Cost"; Rec."Unit Cost")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the cost of one unit of the item or resource on the line.';
                     Visible = false;
                 }
-                field("Cost Amount"; "Cost Amount")
+                field("Cost Amount"; Rec."Cost Amount")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the total cost on the line by multiplying the unit cost by the quantity.';
@@ -173,19 +175,19 @@ page 5407 "Prod. Order Comp. Line List"
                     ToolTip = 'Specifies the position of the component on the bill of material.';
                     Visible = false;
                 }
-                field("Position 2"; "Position 2")
+                field("Position 2"; Rec."Position 2")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the components position in the BOM. It is copied from the production BOM when you calculate the production order.';
                     Visible = false;
                 }
-                field("Position 3"; "Position 3")
+                field("Position 3"; Rec."Position 3")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the third reference number for the component position on a bill of material, such as the alternate position number of a component on a print card.';
                     Visible = false;
                 }
-                field("Lead-Time Offset"; "Lead-Time Offset")
+                field("Lead-Time Offset"; Rec."Lead-Time Offset")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the lead-time offset for the component line. It is copied from the corresponding field in the production BOM when you calculate the production order.';

@@ -241,7 +241,7 @@ codeunit 144110 "ERM CASHVAT"
         PurchaseHeader.Validate("VAT Bus. Posting Group", VATBusPostingGroup);
         PurchaseHeader.Validate("Vendor Cr. Memo No.", PurchaseHeader."No.");
         PurchaseHeader.Validate("Prepayment %", PrepaymentPct);
-        PurchaseHeader.Validate("Prepayment Due Date", WorkDate);
+        PurchaseHeader.Validate("Prepayment Due Date", WorkDate());
         PurchaseHeader.Modify(true);
     end;
 

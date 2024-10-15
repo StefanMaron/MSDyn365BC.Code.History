@@ -159,7 +159,7 @@ codeunit 144100 "ERM Fiscal LIFO"
         // Setup.
         Initialize();
         Item.Get(CreateItem(Item."Inventory Valuation"::Average));
-        EnqueueVariablesForHandler(CalcDate('<CY>', WorkDate), false);  // Using False for Definitive.
+        EnqueueVariablesForHandler(CalcDate('<CY>', WorkDate()), false);  // Using False for Definitive.
         CalculateEndYearCosts(Item."No.", ItemCostingSetup."Components Valuation"::"Average Cost", true);
         LibraryVariableStorage.Enqueue(Item."No.");  // Enqueue for LedgerEntryDetailsRequestPageHandler.
 
@@ -200,7 +200,7 @@ codeunit 144100 "ERM Fiscal LIFO"
     procedure PreviousYearDefinitiveDataError()
     begin
         // Verify Definitive data error after Calculate End Year Cost.
-        DefinitiveDataError(false, CalcDate('<CY>', WorkDate), DefinitiveErr);  // Using false for Definitive.
+        DefinitiveDataError(false, CalcDate('<CY>', WorkDate()), DefinitiveErr);  // Using false for Definitive.
     end;
 
     [Test]
@@ -209,7 +209,7 @@ codeunit 144100 "ERM Fiscal LIFO"
     procedure FinalDataErrorCalculateEndYearCost()
     begin
         // Verify Final data error after Calculate End Year Cost.
-        DefinitiveDataError(true, CalcDate('<-CY-1D>', WorkDate), FinalDataErr);  // Using false for Definitive.
+        DefinitiveDataError(true, CalcDate('<-CY-1D>', WorkDate()), FinalDataErr);  // Using false for Definitive.
     end;
 
     [Test]
@@ -237,15 +237,15 @@ codeunit 144100 "ERM Fiscal LIFO"
 
         // [GIVEN] "Calculate End Year Costs" report is run for the previous year with "Definitive" option in order to close the period.
         Commit();
-        RunCalculateEndYearCostsReport(CalcDate('<-CY-1D>', WorkDate), true);
+        RunCalculateEndYearCostsReport(CalcDate('<-CY-1D>', WorkDate()), true);
 
         // [WHEN] Run "Calculate End Year Costs" report for the current year.
-        RunCalculateEndYearCostsReport(CalcDate('<CY>', WorkDate), false);
+        RunCalculateEndYearCostsReport(CalcDate('<CY>', WorkDate()), false);
 
         // [THEN] "FIFO Cost" in Item Cost History is equal to 40 LCY (0 pcs remained from the last year, 50 pcs by 40 LCY remained this year).
         // [THEN] "LIFO Cost" in Item Cost History is equal to 10 LCY (50 pcs by 10 LCY remained from the last year, 0 pcs remained this year).
         VerifyFIFOAndLIFOCostsInItemCostHistory(
-          Item."No.", CalcDate('<CY>', WorkDate),
+          Item."No.", CalcDate('<CY>', WorkDate()),
           (0 * 20.0 + 50 * 40.0) / 50,
           (50 * 10.0 + 0 * 40.0) / 50);
     end;
@@ -275,15 +275,15 @@ codeunit 144100 "ERM Fiscal LIFO"
 
         // [GIVEN] "Calculate End Year Costs" report is run for the previous year with "Definitive" option in order to close the period.
         Commit();
-        RunCalculateEndYearCostsReport(CalcDate('<-CY-1D>', WorkDate), true);
+        RunCalculateEndYearCostsReport(CalcDate('<-CY-1D>', WorkDate()), true);
 
         // [WHEN] Run "Calculate End Year Costs" report for the current year.
-        RunCalculateEndYearCostsReport(CalcDate('<CY>', WorkDate), false);
+        RunCalculateEndYearCostsReport(CalcDate('<CY>', WorkDate()), false);
 
         // [THEN] "FIFO Cost" in Item Cost History is equal to 33.33 LCY (50 pcs by 20 LCY remained from the last year, 100 pcs by 40 LCY remained this year).
         // [THEN] "LIFO Cost" in Item Cost History is equal to 20 LCY (100 pcs by 10 LCY remained from the last year, 50 pcs by 40 LCY remained this year).
         VerifyFIFOAndLIFOCostsInItemCostHistory(
-          Item."No.", CalcDate('<CY>', WorkDate),
+          Item."No.", CalcDate('<CY>', WorkDate()),
           (50 * 20.0 + 100 * 40.0) / 150,
           (100 * 10.0 + 50 * 40.0) / 150);
     end;
@@ -306,27 +306,27 @@ codeunit 144100 "ERM Fiscal LIFO"
         // [GIVEN] Previous year:
         // [GIVEN] Produced 100 pcs of the item, unit cost = 20 LCY. The cost is set using "Before Start Item Cost" functionality.
         // [GIVEN] "Calculate End Year Costs" report is run with "Definitive" option in order to close the period.
-        AddBeforeStartCostToProdItem(Item."No.", CalcDate('<-1Y>', WorkDate), 100, 20.0);
+        AddBeforeStartCostToProdItem(Item."No.", CalcDate('<-1Y>', WorkDate()), 100, 20.0);
         Commit();
-        RunCalculateEndYearCostsReport(CalcDate('<-CY-1D>', WorkDate), true);
+        RunCalculateEndYearCostsReport(CalcDate('<-CY-1D>', WorkDate()), true);
         BeforeStartItemCost.DeleteAll();
 
         // [GIVEN] This year:
         // [GIVEN] Produced 100 pcs, unit cost = 40 LCY. The cost is set using "Before Start Item Cost" functionality.
         // [GIVEN] Sales for 150 pcs. The year-end inventory = 50 pcs, which is less than in the previous year.
-        AddBeforeStartCostToProdItem(Item."No.", WorkDate, 100, 40.0);
+        AddBeforeStartCostToProdItem(Item."No.", WorkDate(), 100, 40.0);
         CreateItemJournalLine(
-          ItemJournalLine, ItemJournalLine."Entry Type"::Sale, Item."No.", WorkDate, 150, 0.0);
+          ItemJournalLine, ItemJournalLine."Entry Type"::Sale, Item."No.", WorkDate(), 150, 0.0);
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
 
         // [WHEN] Run "Calculate End Year Costs" report for the current year.
         Commit();
-        RunCalculateEndYearCostsReport(CalcDate('<CY>', WorkDate), false);
+        RunCalculateEndYearCostsReport(CalcDate('<CY>', WorkDate()), false);
 
         // [THEN] "FIFO Cost" in Item Cost History is equal to 40 LCY (0 pcs remained from the last year, 50 pcs by 40 LCY remained this year).
         // [THEN] "LIFO Cost" in Item Cost History is equal to 20 LCY (50 pcs by 20 LCY remained from the last year, 0 pcs remained this year).
         VerifyFIFOAndLIFOCostsInItemCostHistory(
-          Item."No.", CalcDate('<CY>', WorkDate),
+          Item."No.", CalcDate('<CY>', WorkDate()),
           (0 * 20.0 + 50 * 40.0) / 50,
           (50 * 20.0 + 0 * 40.0) / 50);
     end;
@@ -349,27 +349,27 @@ codeunit 144100 "ERM Fiscal LIFO"
         // [GIVEN] Previous year:
         // [GIVEN] Produced 100 pcs of the item, unit cost = 20 LCY. The cost is set using "Before Start Item Cost" functionality.
         // [GIVEN] "Calculate End Year Costs" report is run with "Definitive" option in order to close the period.
-        AddBeforeStartCostToProdItem(Item."No.", CalcDate('<-1Y>', WorkDate), 100, 20.0);
+        AddBeforeStartCostToProdItem(Item."No.", CalcDate('<-1Y>', WorkDate()), 100, 20.0);
         Commit();
-        RunCalculateEndYearCostsReport(CalcDate('<-CY-1D>', WorkDate), true);
+        RunCalculateEndYearCostsReport(CalcDate('<-CY-1D>', WorkDate()), true);
         BeforeStartItemCost.DeleteAll();
 
         // [GIVEN] This year:
         // [GIVEN] Produced 100 pcs, unit cost = 40 LCY. The cost is set using "Before Start Item Cost" functionality.
         // [GIVEN] Sales for 50 pcs. The year-end inventory = 150 pcs, which is greater than in the previous year.
-        AddBeforeStartCostToProdItem(Item."No.", WorkDate, 100, 40.0);
+        AddBeforeStartCostToProdItem(Item."No.", WorkDate(), 100, 40.0);
         CreateItemJournalLine(
-          ItemJournalLine, ItemJournalLine."Entry Type"::Sale, Item."No.", WorkDate, 50, 0.0);
+          ItemJournalLine, ItemJournalLine."Entry Type"::Sale, Item."No.", WorkDate(), 50, 0.0);
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
 
         // [WHEN] Run "Calculate End Year Costs" report for the current year.
         Commit();
-        RunCalculateEndYearCostsReport(CalcDate('<CY>', WorkDate), false);
+        RunCalculateEndYearCostsReport(CalcDate('<CY>', WorkDate()), false);
 
         // [THEN] "FIFO Cost" in Item Cost History is equal to 33.33 LCY (50 pcs by 20 LCY remained from the last year, 100 pcs by 40 LCY remained this year).
         // [THEN] "LIFO Cost" in Item Cost History is equal to 26.67 LCY (100 pcs by 20 LCY remained from the last year, 50 pcs by 40 LCY remained this year).
         VerifyFIFOAndLIFOCostsInItemCostHistory(
-          Item."No.", CalcDate('<CY>', WorkDate),
+          Item."No.", CalcDate('<CY>', WorkDate()),
           (50 * 20.0 + 100 * 40.0) / 150,
           (100 * 20.0 + 50 * 40.0) / 150);
     end;
@@ -435,21 +435,21 @@ codeunit 144100 "ERM Fiscal LIFO"
     begin
         // Previous year.
         CreateItemJournalLine(
-          ItemJournalLine, ItemJournalLine."Entry Type"::Purchase, ItemNo, CalcDate('<-1Y>', WorkDate), 100, 10.0);
+          ItemJournalLine, ItemJournalLine."Entry Type"::Purchase, ItemNo, CalcDate('<-1Y>', WorkDate()), 100, 10.0);
         CreateItemJournalLine(
-          ItemJournalLine, ItemJournalLine."Entry Type"::Purchase, ItemNo, CalcDate('<-1Y>', WorkDate), 100, 20.0);
+          ItemJournalLine, ItemJournalLine."Entry Type"::Purchase, ItemNo, CalcDate('<-1Y>', WorkDate()), 100, 20.0);
         CreateItemJournalLine(
-          ItemJournalLine, ItemJournalLine."Entry Type"::Sale, ItemNo, CalcDate('<-1Y>', WorkDate), 100, 0.0);
+          ItemJournalLine, ItemJournalLine."Entry Type"::Sale, ItemNo, CalcDate('<-1Y>', WorkDate()), 100, 0.0);
 
         // Current year.
         CreateItemJournalLine(
-          ItemJournalLine, ItemJournalLine."Entry Type"::Purchase, ItemNo, WorkDate, 100, 40.0);
+          ItemJournalLine, ItemJournalLine."Entry Type"::Purchase, ItemNo, WorkDate(), 100, 40.0);
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
 
         Item.Get(ItemNo);
         Item.CalcFields(Inventory);
         CreateItemJournalLine(
-          ItemJournalLine, ItemJournalLine."Entry Type"::Sale, ItemNo, WorkDate, Item.Inventory - EndInventory, 0.0);
+          ItemJournalLine, ItemJournalLine."Entry Type"::Sale, ItemNo, WorkDate(), Item.Inventory - EndInventory, 0.0);
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
     end;
 
@@ -457,8 +457,8 @@ codeunit 144100 "ERM Fiscal LIFO"
     begin
         // Setup.
         CreateAndUpdateItemCostingSetup(ComponentsValuation, EstimatedWIPConsumption);
-        CreateAndPostItemJournal(ItemNo, CalcDate('<-CY-1D>', WorkDate), LibraryRandom.RandDec(10, 2));  // Using random for Quantity.
-        CreateAndPostItemJournal(ItemNo, CalcDate('<CY>', WorkDate), LibraryRandom.RandDec(10, 2));  // Using random for Quantity.
+        CreateAndPostItemJournal(ItemNo, CalcDate('<-CY-1D>', WorkDate()), LibraryRandom.RandDec(10, 2));  // Using random for Quantity.
+        CreateAndPostItemJournal(ItemNo, CalcDate('<CY>', WorkDate()), LibraryRandom.RandDec(10, 2));  // Using random for Quantity.
         CreateAndPostPurchaseOrder(ItemNo);
         CreateAndPostReleaseProdOrder(ItemNo);
 
@@ -526,7 +526,7 @@ codeunit 144100 "ERM Fiscal LIFO"
         // Setup And Exercise.
         Initialize();
         ItemNo := CreateItem(Item."Inventory Valuation"::Average);
-        EnqueueVariablesForHandler(CalcDate('<CY>', WorkDate), false);  // Using False for Definitive.
+        EnqueueVariablesForHandler(CalcDate('<CY>', WorkDate()), false);  // Using False for Definitive.
         CalculateEndYearCosts(ItemNo, ComponentsValuation, EstimatedWIPConsumption);
 
         // Verify: Verifying Item Cost History after Calculate End Year Costs for current year.
@@ -543,7 +543,7 @@ codeunit 144100 "ERM Fiscal LIFO"
         // Setup And Exercise.
         Initialize();
         ItemNo := CreateItem(Item."Inventory Valuation"::Average);
-        EnqueueVariablesForHandler(CalcDate('<-CY-1D>', WorkDate), Definitive);
+        EnqueueVariablesForHandler(CalcDate('<-CY-1D>', WorkDate()), Definitive);
         CalculateEndYearCosts(ItemNo, ComponentsValuation, EstimatedWIPConsumption);
 
         // Verify: Verifying Item Cost History after Calculate End Year Costs.
@@ -560,8 +560,8 @@ codeunit 144100 "ERM Fiscal LIFO"
         Initialize();
         ItemNo := CreateItem(Item."Inventory Valuation"::"Discrete LIFO");
         CreateAndUpdateItemCostingSetup(ItemCostingSetup."Components Valuation"::"Average Cost", true);  // Using true for Estimated WIP Consumption.
-        EnqueueVariablesForHandler(CalcDate('<-CY-1D>', WorkDate), Definitive);
-        CalculateEndYearCostForDefinitive(ItemNo, CalcDate('<-CY-1D>', WorkDate));
+        EnqueueVariablesForHandler(CalcDate('<-CY-1D>', WorkDate()), Definitive);
+        CalculateEndYearCostForDefinitive(ItemNo, CalcDate('<-CY-1D>', WorkDate()));
         CreateAndPostItemJournal(ItemNo, CurrentOrPreviousYear, LibraryRandom.RandDec(10, 2));  // Using random for Quantity.
         EnqueueVariablesForHandler(CurrentOrPreviousYear, false);  // Using false for Definitive.
 
@@ -569,7 +569,7 @@ codeunit 144100 "ERM Fiscal LIFO"
         asserterror REPORT.Run(REPORT::"Calculate End Year Costs");  // Opens CalculateEndYearCostsRequestPageHandler.
 
         // Verify.
-        Assert.ExpectedError(StrSubstNo(DataError, Date2DMY(CalcDate('<-CY-1D>', WorkDate), 3)));
+        Assert.ExpectedError(StrSubstNo(DataError, Date2DMY(CalcDate('<-CY-1D>', WorkDate()), 3)));
     end;
 
     local procedure EndYearInventoryAndStartYearInventory(PreviousYearQuantity: Decimal; CurrentYearQuantity: Decimal)
@@ -582,9 +582,9 @@ codeunit 144100 "ERM Fiscal LIFO"
     begin
         ItemNo := CreateItem(Item."Inventory Valuation"::"Discrete LIFO");
         CreateAndUpdateItemCostingSetup(ItemCostingSetup."Components Valuation"::"Average Cost", true);  // Using true for Estimated WIP Consumption.
-        CreateAndPostItemJournal(ItemNo, CalcDate('<-CY-1D>', WorkDate), PreviousYearQuantity);
-        CreateAndPostItemJournal(ItemNo, CalcDate('<CY>', WorkDate), CurrentYearQuantity);
-        EnqueueVariablesForHandler(CalcDate('<CY>', WorkDate), false);  // Using false for Definitive.
+        CreateAndPostItemJournal(ItemNo, CalcDate('<-CY-1D>', WorkDate()), PreviousYearQuantity);
+        CreateAndPostItemJournal(ItemNo, CalcDate('<CY>', WorkDate()), CurrentYearQuantity);
+        EnqueueVariablesForHandler(CalcDate('<CY>', WorkDate()), false);  // Using false for Definitive.
 
         // Exercise.
         REPORT.Run(REPORT::"Calculate End Year Costs");  // Opens CalculateEndYearCostsRequestPageHandler.
@@ -616,7 +616,7 @@ codeunit 144100 "ERM Fiscal LIFO"
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
-        ItemLedgerEntry.SetRange("Posting Date", CalcDate('<-CY-1D>', WorkDate));
+        ItemLedgerEntry.SetRange("Posting Date", CalcDate('<-CY-1D>', WorkDate()));
         ItemLedgerEntry.FindFirst();
         exit(ItemLedgerEntry.Quantity);
     end;

@@ -355,7 +355,7 @@ codeunit 144012 "IT - VAT Reporting - Export"
         // [THEN] The second file has Numero = 'VIN001'
         // [THEN] (251953) Numero must be reported in an alphanumeric format
         // [THEN] (231531) Data = '2019-03-30'
-        NameValueBuffer.Next;
+        NameValueBuffer.Next();
         FileName := GetFileNameByGUID(NameValueBuffer.Value);
         VerifyDatiFatturaInvoiceNoAndDate(FileName, PostingDate[2], Numero[2]);
 
@@ -534,7 +534,7 @@ codeunit 144012 "IT - VAT Reporting - Export"
         Assert.AreEqual(2, LibraryXMLRead.GetNodesCount('CessionarioCommittenteDTE'), '');
 
         // [THEN] The second file is for purchases with CessionarioCommittenteDTR node
-        NameValueBuffer.Next;
+        NameValueBuffer.Next();
         FileName := GetFileNameByGUID(NameValueBuffer.Value);
         LibraryXMLRead.Initialize(FileName);
 
@@ -563,7 +563,7 @@ codeunit 144012 "IT - VAT Reporting - Export"
           'IT' + CompanyInformation."VAT Registration No." + '_DF_V0001.xml', NameValueBuffer.Value, 'Sales file name is incorrect');
 
         // [THEN] (228951) The second suggested file name is 'IT08106710158_DF_00002'
-        NameValueBuffer.Next;
+        NameValueBuffer.Next();
         Assert.AreEqual(
           'IT' + CompanyInformation."VAT Registration No." + '_DF_00002.xml', NameValueBuffer.Value, 'Purchases file name is incorrect');
     end;
@@ -2237,7 +2237,7 @@ codeunit 144012 "IT - VAT Reporting - Export"
         CurrWorkDate: Date;
     begin
         Initialize();
-        CurrWorkDate := WorkDate;
+        CurrWorkDate := WorkDate();
 
         // Setup
         LibraryITDatifattura.CreateGeneralSetup;
@@ -2319,7 +2319,7 @@ codeunit 144012 "IT - VAT Reporting - Export"
         CurrWorkDate: Date;
     begin
         Initialize();
-        CurrWorkDate := WorkDate;
+        CurrWorkDate := WorkDate();
 
         // Setup
         LibraryITDatifattura.CreateGeneralSetup;
@@ -2419,7 +2419,7 @@ codeunit 144012 "IT - VAT Reporting - Export"
         NameValueBuffer.FindSet();
         repeat
             FileName += NameValueBuffer.Value;
-        until NameValueBuffer.Next = 0;
+        until NameValueBuffer.Next() = 0;
     end;
 
     local procedure GetFileNameWithCountCheck(): Text
@@ -2447,7 +2447,7 @@ codeunit 144012 "IT - VAT Reporting - Export"
         AccountType: Enum "Gen. Journal Account Type";
     begin
         WorkDate(GetPostingDate());
-        SetupThresholdAmount(WorkDate);
+        SetupThresholdAmount(WorkDate());
         UpdateVATPostingSetup(VATPostingSetup."VAT Calculation Type"::"Normal VAT", true);
         if GenPostingType = GenJournalLine."Gen. Posting Type"::Sale then
             AccountType := GenJournalLine."Account Type"::Customer
@@ -2506,7 +2506,7 @@ codeunit 144012 "IT - VAT Reporting - Export"
         XmlFile.Create(XmlPath);
         XmlFile.CreateOutStream(XmlStream);
         XMLDoc.Save(XmlStream);
-        XmlFile.Close;
+        XmlFile.Close();
 
         SignatureXsdPath := GetInetRoot + '\GDL\IT\App\Test\XMLSchemas\xmldsig-core-schema.xsd';
         LibraryVerifyXMLSchema.SetAdditionalSchemaPath(SignatureXsdPath);
@@ -2617,7 +2617,7 @@ codeunit 144012 "IT - VAT Reporting - Export"
     var
         XMLDoc: DotNet XmlDocument;
     begin
-        XMLDoc := XMLDoc.XmlDocument;
+        XMLDoc := XMLDoc.XmlDocument();
         XMLDoc.Load(FileName);
         ValidateXmlAgainstXsdSchema(XMLDoc);
         LibraryXMLRead.Initialize(FileName);
@@ -2662,19 +2662,19 @@ codeunit 144012 "IT - VAT Reporting - Export"
         NameValueBuffer.FindFirst();
         LibraryXMLRead.Initialize(GetFileNameByGUID(NameValueBuffer.Value));
         Assert.AreEqual(1000, LibraryXMLRead.GetNodesCount(NodeName), 'First file is incorrect');
-        NameValueBuffer.Next;
+        NameValueBuffer.Next();
         LibraryXMLRead.Initialize(GetFileNameByGUID(NameValueBuffer.Value));
         Assert.AreEqual(1000, LibraryXMLRead.GetNodesCount(NodeName), 'Second file is incorrect');
-        NameValueBuffer.Next;
+        NameValueBuffer.Next();
         LibraryXMLRead.Initialize(GetFileNameByGUID(NameValueBuffer.Value));
         Assert.AreEqual(1, LibraryXMLRead.GetNodesCount(NodeName), 'Third file is incorrect');
 
         NameValueBuffer.SetRange(Name, 'SuggestedFileName');
         NameValueBuffer.FindFirst();
         Assert.AreEqual(SuggestedFileName[1], NameValueBuffer.Value, 'First file name is incorrect');
-        NameValueBuffer.Next;
+        NameValueBuffer.Next();
         Assert.AreEqual(SuggestedFileName[2], NameValueBuffer.Value, 'Second file name is incorrect');
-        NameValueBuffer.Next;
+        NameValueBuffer.Next();
         Assert.AreEqual(SuggestedFileName[3], NameValueBuffer.Value, 'Third file name is incorrect');
     end;
 
@@ -3122,7 +3122,7 @@ codeunit 144012 "IT - VAT Reporting - Export"
         AccountNo: Code[20];
         Amount: Decimal;
     begin
-        Amount := CalculateAmount(WorkDate, true, true);
+        Amount := CalculateAmount(WorkDate(), true, true);
         Amount := AdjustAmountSign(Amount, DocumentType, AccountType);
 
         // Create Account.
@@ -3632,7 +3632,7 @@ codeunit 144012 "IT - VAT Reporting - Export"
     var
         VATReportSetup: Record "VAT Report Setup";
     begin
-        if not VATReportSetup.Get then
+        if not VATReportSetup.Get() then
             VATReportSetup.Insert(true);
 
         VATReportSetup.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
@@ -3680,7 +3680,7 @@ codeunit 144012 "IT - VAT Reporting - Export"
             "VAT Identifier" :=
               CopyStr(LibraryUtility.GenerateRandomCode(
                   FieldNo("VAT Identifier"), DATABASE::"VAT Entry"), 1, MaxStrLen("VAT Identifier"));
-            Modify;
+            Modify();
         end;
     end;
 
@@ -3711,7 +3711,7 @@ codeunit 144012 "IT - VAT Reporting - Export"
         VATPostingSetup.SetRange("VAT %", LibraryVATUtils.FindMaxVATRate(VATPostingSetup."VAT Calculation Type"::"Normal VAT"));
         VATPostingSetup.SetRange("Include in VAT Transac. Rep.", IncludeInVATTransacRep);
         VATPostingSetup.SetRange("Deductible %", 100);
-        exit(VATPostingSetup.FindFirst);
+        exit(VATPostingSetup.FindFirst())
     end;
 
     local procedure FindVendorLedgerEntry(PostingDate: Date; VendorNo: Code[20]): Integer
@@ -3896,7 +3896,7 @@ codeunit 144012 "IT - VAT Reporting - Export"
     begin
         NewServerFilePath := FileManagement.ServerTempFileName('xml');
 
-        FileGUID := Format(CreateGuid);
+        FileGUID := Format(CreateGuid());
         AddNewNameValueBuffer('FileGUID', FileGUID);
         while StrLen(NewServerFilePath) > 250 do begin
             AddNewNameValueBuffer(FileGUID, NewServerFilePath);

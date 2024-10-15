@@ -95,7 +95,7 @@ codeunit 144105 "ERM Miscellaneous Bugs"
 
         // Setup: Create VAT Transaction Report Amount, Vendor and create Purchase Invoice.
         Initialize();
-        LibraryITLocalization.CreateVATTransactionReportAmount(VATTransactionReportAmount, WorkDate);
+        LibraryITLocalization.CreateVATTransactionReportAmount(VATTransactionReportAmount, WorkDate());
         VATTransactionReportAmount.Validate("Threshold Amount Excl. VAT", 0);
         VATTransactionReportAmount.Validate("Threshold Amount Incl. VAT", LibraryRandom.RandDec(10, 2));
         VATTransactionReportAmount.Modify(true);
@@ -258,7 +258,7 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // [WHEN] Run "VAT Register - Print" report with PrintingType = "Test"
-        RunVATRegisterReport(CalcDate('<CM-1M+1D>', WorkDate), VATRegister.Code, PrintingType::Test, true);
+        RunVATRegisterReport(CalcDate('<CM-1M+1D>', WorkDate()), VATRegister.Code, PrintingType::Test, true);
 
         // [THEN] Print Vendor "V1", Line Amount 1000 and Document No "PI"
         // [THEN] VATRegisterLastPrintedPageNo token in dataset should be 0
@@ -287,7 +287,7 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // [WHEN] Run "VAT Register - Print" report with PrintingType = "Final" and Company Information Data
-        RunVATRegisterReport(CalcDate('<CM-1M+1D>', WorkDate), VATRegister.Code, PrintingType::Final, true);
+        RunVATRegisterReport(CalcDate('<CM-1M+1D>', WorkDate()), VATRegister.Code, PrintingType::Final, true);
 
         // [THEN]  VATRegisterLastPrintedPageNo token in dataset should be equal "Last Printed VAT Register Page" - 1 = 99
         LibraryReportDataSet.LoadDataSetFile;
@@ -312,7 +312,7 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // [WHEN] Run "VAT Register - Print" report with PrintingType = "Final" without Company Information Data
-        RunVATRegisterReport(CalcDate('<CM-1M+1D>', WorkDate), VATRegister.Code, PrintingType::Final, false);
+        RunVATRegisterReport(CalcDate('<CM-1M+1D>', WorkDate()), VATRegister.Code, PrintingType::Final, false);
 
         // [THEN] VATRegisterLastPrintedPageNo1 token in dataset should be 100
         LibraryReportDataSet.LoadDataSetFile;
@@ -336,7 +336,7 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         CreatePurchaseOrderAndVATRegister(VATRegister, PurchaseHeader);
 
         // [WHEN] Run "VAT Register - Print" report with PrintingType = "Final" and Company Information Data
-        RunVATRegisterReport(CalcDate('<CM-1M+1D>', WorkDate), VATRegister.Code, PrintingType::Final, true);
+        RunVATRegisterReport(CalcDate('<CM-1M+1D>', WorkDate()), VATRegister.Code, PrintingType::Final, true);
 
         // [THEN] VATRegisterLastPrintedPageNo token in dataset should be 99
         LibraryReportDataSet.LoadDataSetFile;
@@ -363,7 +363,7 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         PageNo := CreateReprintInfo(VATRegister);
 
         // [WHEN] Run "VAT Register - Print" report with PrintingType = "Reprint" and Company Information Data
-        RunVATRegisterReport(CalcDate('<CM-1M+1D>', WorkDate), VATRegister.Code, PrintingType::Reprint, true);
+        RunVATRegisterReport(CalcDate('<CM-1M+1D>', WorkDate()), VATRegister.Code, PrintingType::Reprint, true);
 
         // [THEN] VATRegisterLastPrintedPageNo token in dataset should be 98
         LibraryReportDataSet.LoadDataSetFile;
@@ -390,7 +390,7 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         PageNo := CreateReprintInfo(VATRegister);
 
         // [WHEN] Run "VAT Register - Print" report with PrintingType = "Reprint" without Company Information Data
-        RunVATRegisterReport(CalcDate('<CM-1M+1D>', WorkDate), VATRegister.Code, PrintingType::Reprint, false);
+        RunVATRegisterReport(CalcDate('<CM-1M+1D>', WorkDate()), VATRegister.Code, PrintingType::Reprint, false);
 
         // [THEN] VATRegisterLastPrintedPageNo1 token in dataset should be 99
         LibraryReportDataSet.LoadDataSetFile;
@@ -416,7 +416,7 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         PageNo := CreateReprintInfo(VATRegister);
 
         // [WHEN] Run "VAT Register - Print" report with PrintingType = "Reprint" and Company Information Data
-        RunVATRegisterReport(CalcDate('<CM-1M+1D>', WorkDate), VATRegister.Code, PrintingType::Reprint, true);
+        RunVATRegisterReport(CalcDate('<CM-1M+1D>', WorkDate()), VATRegister.Code, PrintingType::Reprint, true);
 
         // [THEN] VATRegisterLastPrintedPageNo token in dataset should be 98
         LibraryReportDataSet.LoadDataSetFile;
@@ -438,7 +438,7 @@ codeunit 144105 "ERM Miscellaneous Bugs"
 
         // [GIVEN] VAT Register for Purchase, Purchase Order is not posted
         CreatePurchaseOrderAndVATRegister(VATRegister, PurchaseHeader);
-        BeginDate := CalcDate('<CM-1M+3D>', WorkDate);
+        BeginDate := CalcDate('<CM-1M+3D>', WorkDate());
 
         // [WHEN] Run "VAT Register - Print" report with PrintingType = "Final" and BeginDate is not begin of month
         asserterror RunVATRegisterReport(BeginDate, VATRegister.Code, PrintingType::Final, true);
@@ -465,7 +465,7 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // [WHEN] Run "VAT Register - Print" report with PrintingType = "Final" and BeginDate in next month after WORKDATE
-        asserterror RunVATRegisterReport(CalcDate('<CM+1D>', WorkDate), VATRegister.Code, PrintingType::Final, true);
+        asserterror RunVATRegisterReport(CalcDate('<CM+1D>', WorkDate()), VATRegister.Code, PrintingType::Final, true);
 
         // [THEN] Error "There are entries in the previous period that were not printed" is thrown
         Assert.ExpectedError(PreviousDatesErr);
@@ -488,10 +488,10 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         // [GIVEN] Posted Purchase Order with Posting Date = WORKDATE
         CreatePurchaseOrderAndVATRegister(VATRegister, PurchaseHeader);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
-        VATBookEntry.ModifyAll("Printing Date", CalcDate('<CY>', WorkDate));
+        VATBookEntry.ModifyAll("Printing Date", CalcDate('<CY>', WorkDate()));
 
         // [WHEN] Run "VAT Register - Print" report with PrintingType = "Final" and BeginDate in next year
-        RunVATRegisterReport(CalcDate('<CY+1D>', WorkDate), VATRegister.Code, PrintingType::Final, true);
+        RunVATRegisterReport(CalcDate('<CY+1D>', WorkDate()), VATRegister.Code, PrintingType::Final, true);
 
         // [THEN] VATRegisterLastPrintedPageNo token in dataset should be -1
         LibraryReportDataSet.LoadDataSetFile;
@@ -1040,12 +1040,12 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         CustomerPostingGroup.Get(Customer."Customer Posting Group");
         GeneralPostingSetup.Get(SalesLine."Gen. Bus. Posting Group", SalesLine."Gen. Prod. Posting Group");
         VerifyGLEntryAmount(
-          GLEntry."Document Type"::Invoice, PostedDocumentNo, GeneralPostingSetup."Sales Account", SalesLine.Amount, 0, WorkDate);  // Credit Amount - 0.
+          GLEntry."Document Type"::Invoice, PostedDocumentNo, GeneralPostingSetup."Sales Account", SalesLine.Amount, 0, WorkDate());  // Credit Amount - 0.
         VerifyGLEntryAmount(
-          GLEntry."Document Type"::Invoice, PostedDocumentNo, CustomerPostingGroup."Receivables Account", 0, Amount, WorkDate);  // Debit Amount - 0.
+          GLEntry."Document Type"::Invoice, PostedDocumentNo, CustomerPostingGroup."Receivables Account", 0, Amount, WorkDate());  // Debit Amount - 0.
         VerifyCustLedgerEntryPaymentMethodAmountAndDueDate(
           CustLedgerEntry."Document Type"::Invoice, PostedDocumentNo, Customer."No.", Customer."Payment Method Code", Amount,
-          CalcDate(PaymentLines."Due Date Calculation", WorkDate));
+          CalcDate(PaymentLines."Due Date Calculation", WorkDate()));
     end;
 
     [Test]
@@ -1082,7 +1082,7 @@ codeunit 144105 "ERM Miscellaneous Bugs"
           GLEntry."Document Type"::Payment, CustLedgerEntry."Document No.", Bill."Bills for Coll. Temp. Acc. No.", 0, Amount, PostingDate);  // Debit Amount - 0.
         VerifyCustLedgerEntryPaymentMethodAmountAndDueDate(
           CustLedgerEntry."Document Type"::Payment, CustLedgerEntry."Document No.", Customer."No.", Customer."Payment Method Code", -Amount,
-          CalcDate(PaymentLines."Due Date Calculation", WorkDate));
+          CalcDate(PaymentLines."Due Date Calculation", WorkDate()));
     end;
 
     [Test]
@@ -1117,7 +1117,7 @@ codeunit 144105 "ERM Miscellaneous Bugs"
 
         // Verify: Verify Customer No,Document Type,Document No,Amount and Due Date on Subform Customer Bill Line.
         VerifySubformCustomerBillLineValues(
-          Customer."No.", PostedDocumentNo, Amount, CalcDate(PaymentLines."Due Date Calculation", WorkDate));
+          Customer."No.", PostedDocumentNo, Amount, CalcDate(PaymentLines."Due Date Calculation", WorkDate()));
     end;
 
     [Test]
@@ -1137,7 +1137,7 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         CreateCustomerWithPaymentMethod(Customer);
         CreateAndPostSalesInvoiceWithPaymentMethod(SalesLine, Customer."No.");
         FindPaymentLines(PaymentLines, PaymentLines.Type::"Payment Terms", Customer."Payment Terms Code");
-        LibraryVariableStorage.Enqueue(CalcDate(PaymentLines."Due Date Calculation", WorkDate));  // Enqueue value for handler - CustomerBillsListRequestPageHandler.
+        LibraryVariableStorage.Enqueue(CalcDate(PaymentLines."Due Date Calculation", WorkDate()));  // Enqueue value for handler - CustomerBillsListRequestPageHandler.
         Amount := SalesLine."Amount Including VAT" * PaymentLines."Payment %" / 100;
         RunIssuingCustomerBillReport(Customer."No.");  // Opens handler - IssuingCustomerBillRequestPageHandler.
 
@@ -1272,7 +1272,7 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         Initialize();
 
         // [GIVEN] Set WORKDATE is 1 day before Open Accounting Period
-        OldWorkDate := WorkDate;
+        OldWorkDate := WorkDate();
         WorkDate := NormalDate(LibraryFiscalYear.IdentifyOpenAccountingPeriod - 1);
 
         // [GIVEN] Gen. Journal Line
@@ -1282,7 +1282,7 @@ codeunit 144105 "ERM Miscellaneous Bugs"
           GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, -LibraryRandom.RandIntInRange(10, 100));
 
         // [GIVEN] WORKDATE is closing date
-        WorkDate := ClosingDate(WorkDate);
+        WorkDate := ClosingDate(WorkDate());
 
         // [WHEN] Post the line
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -1317,7 +1317,7 @@ codeunit 144105 "ERM Miscellaneous Bugs"
 
         PostingDocNo :=
           LibraryUtility.GetNextNoFromNoSeries(
-            UpdateNoSeriesOnGenJnlBatch(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name"), WorkDate);
+            UpdateNoSeriesOnGenJnlBatch(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name"), WorkDate());
         DocNo := CopyStr('0' + PostingDocNo, 1, MaxStrLen(DocNo));
         UpdateGenJnlLine(GenJournalLine, DocNo);
 
@@ -1478,7 +1478,7 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         MockDtldVendorLedgerEntry(VendorLedgerEntry."Entry No.", Amount[3]);
 
         // [GIVEN] "Vendor Aging" page is opened with "Date Filter" starting on "15.01.21", "Amount Type" set to "Period Balance".
-        Vendor.SetRange("Date Filter", WorkDate, WorkDate + 30);
+        Vendor.SetRange("Date Filter", WorkDate(), WorkDate + 30);
         Vendor.CalcFields("Balance (LCY)");
         Vendor.TestField("Balance (LCY)", -(Amount[1] + Amount[2] + Amount[3]));
 
@@ -1613,10 +1613,9 @@ codeunit 144105 "ERM Miscellaneous Bugs"
     begin
         // [SCENARIO 427450] "Total Amount" does not included remaining amount of partial payment when payment's amount is greater than withholding tax amount.
 
-        Initialize;
+        Initialize();
 
-        VendorNo := CreateVendorWithholdCode;
-        LibraryVariableStorage.Clear;
+        VendorNo := CreateVendorWithholdCode();
         LibraryERM.CreateBankAccount(BankAccount);
         LibraryITLocalization.CreateBillPostingGroup(BillPostingGroup, BankAccount."No.", FindPaymentMethod);
         LibraryITLocalization.CreateVendorBillHeader(VendorBillHeader);
@@ -1631,7 +1630,7 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         PurchaseHeader.Validate("Payment Method Code", 'BANKTRANSF');
         PurchaseHeader.Modify(true);
 
-        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", CreateAndUpdateGLAccount, 1);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", CreateAndUpdateGLAccount(), 1);
         PurchaseLine.Validate("Direct Unit Cost", 1000);
         PurchaseLine.Modify(true);
 
@@ -1658,12 +1657,12 @@ codeunit 144105 "ERM Miscellaneous Bugs"
 
         RunSuggestVendorBillsForVendorNo(VendorBillHeader, VendorNo);
 
-        Commit;
+        Commit();
 
         VendorBillLine.SetRange("Vendor Bill List No.", VendorBillHeader."No.");
         VendorBillLine.SetRange("Document Type", VendorBillLine."Document Type"::Invoice);
         VendorBillLine.SetRange("Document No.", InvoiceNo);
-        VendorBillLine.FindFirst;
+        VendorBillLine.FindFirst();
         VendorBillLine.TestField("Withholding Tax Amount", PurchWithhContribution."Withholding Tax Amount");
 
         VendorBillWithholdingTax.Get(VendorBillHeader."No.", VendorBillLine."Line No.");
@@ -1671,7 +1670,7 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         VendorBillWithholdingTax.TestField("Withholding Tax Amount", 200);
         VendorBillWithholdingTax.TestField("Non Taxable Amount", 0);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     local procedure Initialize()
@@ -1684,8 +1683,8 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         if IsInitialized then
             exit;
 
-        LibrarySetupStorage.SaveGeneralLedgerSetup;
-        Commit;
+        LibrarySetupStorage.SaveGeneralLedgerSetup();
+        Commit();
         IsInitialized := true;
     end;
 
@@ -1715,7 +1714,7 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         CreateAndPostPurchaseDocument(PurchaseHeader, CreateEUVendor, DocumentType);
 
         RunVATRegisterReport(
-          CalcDate('<CM-1M+1D>', WorkDate), FindVATRegister(PurchaseHeader."Operation Type"), PrintingType::Test, true);
+          CalcDate('<CM-1M+1D>', WorkDate()), FindVATRegister(PurchaseHeader."Operation Type"), PrintingType::Test, true);
 
         // Verify: Program populates correct entries on Report - VAT Register - Print.
         VerifyVendorNameExistOnVATRegister(PurchaseHeader."Buy-from Vendor No.");
@@ -1867,8 +1866,8 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         PurchaseInvoice.OpenEdit;
         PurchaseInvoice.FILTER.SetFilter("No.", No);
         PurchaseInvoice."With&hold Taxes-Soc. Sec.".Invoke;
-        WithhTaxesContributionCard.Close;
-        PurchaseInvoice.Close;
+        WithhTaxesContributionCard.Close();
+        PurchaseInvoice.Close();
     end;
 
     local procedure ChangeStatusUsingVendorBillCardPage(VendorBillHeader: Record "Vendor Bill Header")
@@ -1879,7 +1878,7 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         VendorBillCard.GotoRecord(VendorBillHeader);
         VendorBillCard.InsertVendBillLineManual.Invoke;
         VendorBillCard."&Create List".Invoke;
-        VendorBillCard.Close;
+        VendorBillCard.Close();
     end;
 
     local procedure CreateCountryRegion(): Code[10]
@@ -1925,7 +1924,7 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         ReprintInfoFiscalReports: Record "Reprint Info Fiscal Reports";
         BeginDate: Date;
     begin
-        BeginDate := CalcDate('<CM-1M+1D>', WorkDate);
+        BeginDate := CalcDate('<CM-1M+1D>', WorkDate());
         VATBookEntry.ModifyAll("Printing Date", BeginDate - 1);
         VATRegister.Get(FindVATRegister(OperationType));
         VATRegister.Validate("Last Printed VAT Register Page", LibraryRandom.RandInt(100));
@@ -2048,7 +2047,7 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         LibraryERM.CreateIntrastatJnlTemplate(IntrastatJnlTemplate);
         LibraryERM.CreateIntrastatJnlBatch(IntrastatJnlBatch, IntrastatJnlTemplate.Name);
         IntrastatJnlBatch.Validate(Type, DocumentType);
-        IntrastatJnlBatch.Validate("Statistics Period", Format(WorkDate, 0, LibraryFiscalYear.GetStatisticsPeriod));
+        IntrastatJnlBatch.Validate("Statistics Period", Format(WorkDate(), 0, LibraryFiscalYear.GetStatisticsPeriod));
         IntrastatJnlBatch.Validate("EU Service", true);
         IntrastatJnlBatch.Validate("Corrective Entry", CorrectiveEntry);
         IntrastatJnlBatch.Modify(true);
@@ -2281,7 +2280,7 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         VATTransactionReportAmount: Record "VAT Transaction Report Amount";
     begin
         VATTransactionReportAmount.DeleteAll();
-        LibraryITLocalization.CreateVATTransactionReportAmount(VATTransactionReportAmount, WorkDate);
+        LibraryITLocalization.CreateVATTransactionReportAmount(VATTransactionReportAmount, WorkDate());
         VATTransactionReportAmount.Validate("Threshold Amount Excl. VAT", 0);
         VATTransactionReportAmount.Validate("Threshold Amount Incl. VAT", LibraryRandom.RandDec(10, 2));
         VATTransactionReportAmount.Modify(true);
@@ -2292,7 +2291,7 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         Vendor: Record Vendor;
         WithholdCodeLine: Record "Withhold Code Line";
     begin
-        LibraryITLocalization.CreateWithholdCodeLine(WithholdCodeLine, CreateAndUpdateWithholdCode, WorkDate);  // Using Random value for WithholdingTax and Taxable Base.
+        LibraryITLocalization.CreateWithholdCodeLine(WithholdCodeLine, CreateAndUpdateWithholdCode, WorkDate());  // Using Random value for WithholdingTax and Taxable Base.
         WithholdCodeLine.Validate("Withholding Tax %", LibraryRandom.RandInt(10));  // Using Random value for WithholdingTax.
         WithholdCodeLine.Validate("Taxable Base %", LibraryRandom.RandInt(10));  // Using Random value for Taxable Base.
         WithholdCodeLine.Modify(true);
@@ -2339,8 +2338,8 @@ codeunit 144105 "ERM Miscellaneous Bugs"
     begin
         ReprintInfoFiscalReports.Init();
         ReprintInfoFiscalReports.Validate(Report, ReprintInfoFiscalReports.Report::"VAT Register - Print");
-        ReprintInfoFiscalReports.Validate("Start Date", CalcDate('<CM-1M+1D>', WorkDate));
-        ReprintInfoFiscalReports."End Date" := CalcDate('<CM>', WorkDate);
+        ReprintInfoFiscalReports.Validate("Start Date", CalcDate('<CM-1M+1D>', WorkDate()));
+        ReprintInfoFiscalReports."End Date" := CalcDate('<CM>', WorkDate());
         ReprintInfoFiscalReports."Vat Register Code" := VATRegister.Code;
         ReprintInfoFiscalReports."First Page Number" := LibraryRandom.RandInt(100);
         ReprintInfoFiscalReports.Insert(true);
@@ -2615,7 +2614,7 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         VATEntry.FindFirst();
         IntrastatJournal.FILTER.SetFilter("Service Tariff No.", ServiceTariffNo);
         IntrastatJournal."Document No.".AssertEquals(VATEntry."Document No.");
-        IntrastatJournal.Close;
+        IntrastatJournal.Close();
     end;
 
     local procedure OpenWithholdTaxesContributionCardUsingPurchInvoicePage(PurchaseHeader: Record "Purchase Header")
@@ -2628,7 +2627,7 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         PurchaseInvoice.GotoRecord(PurchaseHeader);
         PurchaseInvoice."With&hold Taxes-Soc. Sec.".Invoke;
         WithhTaxesContributionCard.OK.Invoke;
-        PurchaseInvoice.Close;
+        PurchaseInvoice.Close();
     end;
 
     local procedure OpenVendorLedgerEntriesPage(var VendorLedgerEntries: TestPage "Vendor Ledger Entries"; DocumentNo: Code[20])
@@ -2649,7 +2648,7 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         VendorBillListSentCard.OpenEdit;
         VendorBillListSentCard.GotoRecord(VendorBillHeader);
         VendorBillListSentCard.Post.Invoke;  // Opens ManualVendorPaymentLinePageHandler.
-        VendorBillListSentCard.Close;
+        VendorBillListSentCard.Close();
     end;
 
     local procedure ReverseCustLedgerEntries(DocumentNo: Code[20]; AccountNo: Code[20])
@@ -2712,7 +2711,7 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         PaymentJournal.OpenEdit;
         PaymentJournal.CurrentJnlBatchName.SetValue(JnlBatchName);
         PaymentJournal.WithhTaxSocSec.Invoke;  // Invoke Handler - ShowComputedWithholdContributionModalPageHandler.
-        PaymentJournal.Close;
+        PaymentJournal.Close();
     end;
 
     local procedure SuggestLinesOnVATReport()
@@ -2726,7 +2725,7 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         VATReportSubform.Trap;
         VATReport.OpenNew();
         VATReport."No.".Activate;
-        VATReport."Start Date".SetValue(WorkDate);
+        VATReport."Start Date".SetValue(WorkDate());
         VATReport.SuggestLines.Invoke;
     end;
 
@@ -2765,7 +2764,7 @@ codeunit 144105 "ERM Miscellaneous Bugs"
 
     local procedure UpdateServiceHeaderPostingDate(var ServiceHeader: Record "Service Header")
     begin
-        ServiceHeader.Validate("Posting Date", CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate));  // Posting date greater than WORKDATE.
+        ServiceHeader.Validate("Posting Date", CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate()));  // Posting date greater than WORKDATE.
         ServiceHeader.Modify(true);
     end;
 
@@ -2880,14 +2879,14 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         VATReportSubform.FILTER.SetFilter("Document No.", DocumentNo);
         VATReportSubform.Base.AssertEquals(Amount);
         VATReportSubform."Amount Incl. VAT".AssertEquals(AmountIncludingVAT);
-        VATReportSubform.Close;
+        VATReportSubform.Close();
     end;
 
     local procedure VerifyAmountOnIntrastatJournalPage(IntrastatJournal: TestPage "Intrastat Journal"; Amount: Decimal; DocumentNo: Code[20])
     begin
         IntrastatJournal.FILTER.SetFilter("Document No.", DocumentNo);
         IntrastatJournal.Amount.AssertEquals(Amount);
-        IntrastatJournal.Close;
+        IntrastatJournal.Close();
     end;
 
     local procedure VerifyDetailedCustomerLedgerEntry(DocumentNo: Code[20]; CustomerNo: Code[20]; AmountFilter: Text[30]; Amount: Decimal)
@@ -2993,7 +2992,7 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         Assert.AreNearlyEqual(
           PaymentToleranceAmount, CustLedgerEntry."Max. Payment Tolerance",
           GeneralLedgerSetup."Amount Rounding Precision", StrSubstNo(AmountErrorMsg, CustLedgerEntry.FieldCaption(Amount),
-            PaymentToleranceAmount, CustLedgerEntry.TableCaption, CustLedgerEntry.FieldCaption("Entry No."), CustLedgerEntry."Entry No."));
+            PaymentToleranceAmount, CustLedgerEntry.TableCaption(), CustLedgerEntry.FieldCaption("Entry No."), CustLedgerEntry."Entry No."));
         Assert.AreNotEqual(CustLedgerEntry.Amount, CustLedgerEntry."Remaining Amount", ValueMustNotSameMsg);
     end;
 
@@ -3055,10 +3054,10 @@ codeunit 144105 "ERM Miscellaneous Bugs"
     begin
         GLBookEntry.SetRange("G/L Account No.", AccountNo);
         GLBookEntry.FindFirst();
-        GLBookEntry.TestField("Official Date", NormalDate(WorkDate));
+        GLBookEntry.TestField("Official Date", NormalDate(WorkDate()));
         VATBookEntry.SetRange("Document No.", GLBookEntry."Document No.");
         VATBookEntry.FindFirst();
-        VATBookEntry.TestField("Official Date", NormalDate(WorkDate));
+        VATBookEntry.TestField("Official Date", NormalDate(WorkDate()));
     end;
 
     [ModalPageHandler]
@@ -3091,7 +3090,7 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         ManualVendorPaymentLine.WithholdingTaxCode.SetValue(WithholdingTaxCode);
         ManualVendorPaymentLine.DocumentType.SetValue(VendorLedgerEntry."Document Type"::Payment);
         ManualVendorPaymentLine.DocumentNo.SetValue(LibraryUtility.GenerateGUID());
-        ManualVendorPaymentLine.DocumentDate.SetValue(WorkDate);
+        ManualVendorPaymentLine.DocumentDate.SetValue(WorkDate());
         ManualVendorPaymentLine.TotalAmount.SetValue(LibraryRandom.RandInt(100));
         ManualVendorPaymentLine.InsertLine.Invoke;
     end;
@@ -3107,7 +3106,7 @@ codeunit 144105 "ERM Miscellaneous Bugs"
     [Scope('OnPrem')]
     procedure CommentRequestPageHandler(var PurchCommentSheet: TestPage "Purch. Comment Sheet")
     begin
-        PurchCommentSheet.Date.SetValue(WorkDate);
+        PurchCommentSheet.Date.SetValue(WorkDate());
         PurchCommentSheet.Comment.SetValue(LibraryUtility.GenerateGUID());
         PurchCommentSheet.OK.Invoke;
     end;
@@ -3120,7 +3119,7 @@ codeunit 144105 "ERM Miscellaneous Bugs"
     begin
         LibraryVariableStorage.Dequeue(OnlyOpenedEntries);
         CustomerBillsList."Only Opened Entries".SetValue(OnlyOpenedEntries);
-        CustomerBillsList."Ending Date".SetValue(CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate));  // Using random Date.
+        CustomerBillsList."Ending Date".SetValue(CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate()));  // Using random Date.
         CustomerBillsList.SaveAsXml(LibraryReportDataSet.GetParametersFileName, LibraryReportDataSet.GetFileName);
     end;
 
@@ -3128,23 +3127,23 @@ codeunit 144105 "ERM Miscellaneous Bugs"
     [Scope('OnPrem')]
     procedure GetItemLedgerEntriesRequestPageHandler(var GetItemLedgerEntries: TestRequestPage "Get Item Ledger Entries")
     begin
-        GetItemLedgerEntries.StartingDate.SetValue(WorkDate);
-        GetItemLedgerEntries.EndingDate.SetValue(WorkDate);
-        GetItemLedgerEntries.OK.Invoke;
+        GetItemLedgerEntries.StartingDate.SetValue(WorkDate());
+        GetItemLedgerEntries.EndingDate.SetValue(WorkDate());
+        GetItemLedgerEntries.OK.Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ShowComputedWithholdContributionModalPageHandler(var ShowComputedWithhContrib: TestPage "Show Computed Withh. Contrib.")
     begin
-        ShowComputedWithhContrib.OK.Invoke;
+        ShowComputedWithhContrib.OK.Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure CustomerAgingMatrixModalPageHandler(var CustomerAgingMatrix: TestPage "Customer Aging Matrix")
     begin
-        CustomerAgingMatrix.FILTER.SetFilter("No.", LibraryVariableStorage.DequeueText);
+        CustomerAgingMatrix.FILTER.SetFilter("No.", LibraryVariableStorage.DequeueText());
         LibraryVariableStorage.Enqueue(CustomerAgingMatrix.Field1.Caption);
         LibraryVariableStorage.Enqueue(CustomerAgingMatrix.Field1.Value());
         LibraryVariableStorage.Enqueue(CustomerAgingMatrix.Field2.Caption);
@@ -3170,15 +3169,15 @@ codeunit 144105 "ERM Miscellaneous Bugs"
     [Scope('OnPrem')]
     procedure VATRegisterPrintPageHandler(var VATRegisterPrint: TestRequestPage "VAT Register - Print")
     begin
-        VATRegisterPrint.VATRegister.SetValue(LibraryVariableStorage.DequeueText);
-        VATRegisterPrint.PeriodStartingDate.SetValue(LibraryVariableStorage.DequeueDate);
-        VATRegisterPrint.PeriodEndingDate.SetValue(LibraryVariableStorage.DequeueDate);
-        VATRegisterPrint.RegisterCompanyNo.SetValue(LibraryVariableStorage.DequeueText);
-        VATRegisterPrint.FiscalCode.SetValue(LibraryVariableStorage.DequeueText);
-        VATRegisterPrint.PrintingType.SetValue(LibraryVariableStorage.DequeueInteger);
-        VATRegisterPrint.PrintCompanyInformations.SetValue(LibraryVariableStorage.DequeueBoolean);
+        VATRegisterPrint.VATRegister.SetValue(LibraryVariableStorage.DequeueText());
+        VATRegisterPrint.PeriodStartingDate.SetValue(LibraryVariableStorage.DequeueDate());
+        VATRegisterPrint.PeriodEndingDate.SetValue(LibraryVariableStorage.DequeueDate());
+        VATRegisterPrint.RegisterCompanyNo.SetValue(LibraryVariableStorage.DequeueText());
+        VATRegisterPrint.FiscalCode.SetValue(LibraryVariableStorage.DequeueText());
+        VATRegisterPrint.PrintingType.SetValue(LibraryVariableStorage.DequeueInteger());
+        VATRegisterPrint.PrintCompanyInformations.SetValue(LibraryVariableStorage.DequeueBoolean());
 
-        VATRegisterPrint.SaveAsXml(LibraryReportDataSet.GetParametersFileName, LibraryReportDataSet.GetFileName);
+        VATRegisterPrint.SaveAsXml(LibraryReportDataSet.GetParametersFileName(), LibraryReportDataSet.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -3189,7 +3188,7 @@ codeunit 144105 "ERM Miscellaneous Bugs"
     begin
         LibraryVariableStorage.Dequeue(OnlyOpenedEntries);
         VendorAccountBillsList.OnlyOpenedEntries.SetValue(OnlyOpenedEntries);
-        VendorAccountBillsList.EndingDate.SetValue(CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate));  // Using random Date.
+        VendorAccountBillsList.EndingDate.SetValue(CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate()));  // Using random Date.
         VendorAccountBillsList.SaveAsXml(LibraryReportDataSet.GetParametersFileName, LibraryReportDataSet.GetFileName);
     end;
 
@@ -3197,8 +3196,8 @@ codeunit 144105 "ERM Miscellaneous Bugs"
     [Scope('OnPrem')]
     procedure WithholdingTaxesRequestPageHandler(var WithholdingTaxes: TestRequestPage "Withholding Taxes")
     begin
-        WithholdingTaxes.ReferenceMonth.SetValue(Date2DMY(WorkDate, 2));  // For Reference Month.
-        WithholdingTaxes.ReferenceYear.SetValue(Date2DMY(WorkDate, 3));  // For Reference Year.
+        WithholdingTaxes.ReferenceMonth.SetValue(Date2DMY(WorkDate(), 2));  // For Reference Month.
+        WithholdingTaxes.ReferenceYear.SetValue(Date2DMY(WorkDate(), 3));  // For Reference Year.
         WithholdingTaxes.FinalPrinting.SetValue(true);
         WithholdingTaxes.SaveAsXml(LibraryReportDataSet.GetParametersFileName, LibraryReportDataSet.GetFileName);
     end;
@@ -3207,11 +3206,11 @@ codeunit 144105 "ERM Miscellaneous Bugs"
     [Scope('OnPrem')]
     procedure IssuingCustomerBillRequestPageHandler(var IssuingCustomerBill: TestRequestPage "Issuing Customer Bill")
     begin
-        IssuingCustomerBill.PostingDate.SetValue(CalcDate('<' + Format(LibraryRandom.RandIntInRange(5, 10)) + 'D>', WorkDate));
+        IssuingCustomerBill.PostingDate.SetValue(CalcDate('<' + Format(LibraryRandom.RandIntInRange(5, 10)) + 'D>', WorkDate()));
         IssuingCustomerBill.DocumentDate.SetValue(IssuingCustomerBill.PostingDate.AsDate);
         IssuingCustomerBill.PostingDescription.SetValue(IssuingCustomerBill.PostingDescription.Caption);
         LibraryVariableStorage.Enqueue(IssuingCustomerBill.PostingDate.AsDate);  // Enqueue value in Test function.
-        IssuingCustomerBill.OK.Invoke;
+        IssuingCustomerBill.OK.Invoke();
     end;
 
     [RequestPageHandler]

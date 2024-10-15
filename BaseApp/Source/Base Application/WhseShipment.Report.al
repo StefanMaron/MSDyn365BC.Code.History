@@ -18,7 +18,7 @@ report 7317 "Whse. - Shipment"
             dataitem("Integer"; "Integer")
             {
                 DataItemTableView = SORTING(Number) WHERE(Number = CONST(1));
-                column(CompanyName; COMPANYPROPERTY.DisplayName)
+                column(CompanyName; COMPANYPROPERTY.DisplayName())
                 {
                 }
                 column(TodayFormatted; Format(Today, 0, 4))
@@ -133,7 +133,7 @@ report 7317 "Whse. - Shipment"
     local procedure GetLocation(LocationCode: Code[10])
     begin
         if LocationCode = '' then
-            Location.Init
+            Location.Init()
         else
             if Location.Code <> LocationCode then
                 Location.Get(LocationCode);

@@ -191,7 +191,7 @@ codeunit 144055 "UT PAG Auto Payment"
         // Verify: Verify Dimension Code on DimensionSetEntriesModalPageHandler and EditDimensionSetEntriesModalPageHandler.
 
         // Tear down.
-        VendorBillCard.Close;
+        VendorBillCard.Close();
     end;
 
     [Test]
@@ -257,7 +257,7 @@ codeunit 144055 "UT PAG Auto Payment"
         CustomerBillCard.Control1901848907.Balance.AssertEquals(0);  // Value 0 required for Balance.
         CustomerBillCard.Control1901848907.NewBalance.AssertEquals(0);  // Value 0 required for NewBalance.
         CustomerBillCard.Control1901848907.CreditLimit.AssertEquals(0);  // Value 0 required for CreditLimit.
-        CustomerBillCard.Close;
+        CustomerBillCard.Close();
     end;
 
     [Test]
@@ -302,7 +302,7 @@ codeunit 144055 "UT PAG Auto Payment"
 
         // Verify.
         CustomerBillCard.Control1901848907.Balance.AssertEquals(GLAccount.Balance);
-        CustomerBillCard.Close;
+        CustomerBillCard.Close();
     end;
 
     [Test]
@@ -337,7 +337,7 @@ codeunit 144055 "UT PAG Auto Payment"
 
         // Verify: Verify expected error code, actual error:"XXXX must have a value in Customer Bill Header:XXXX. It cannot be zero or empty."
         Assert.ExpectedErrorCode(TestFieldErr);
-        CustomerBillCard.Close;
+        CustomerBillCard.Close();
     end;
 
     [Test]
@@ -358,7 +358,7 @@ codeunit 144055 "UT PAG Auto Payment"
         CustomerBillCard.SuggestCustomerBill.Invoke;  // Opens SuggestCustomerBillsRequestPageHandler
 
         // Verify: SuggestCustomerBillsRequestPageHandler successfully opened.
-        CustomerBillCard.Close;
+        CustomerBillCard.Close();
     end;
 
     [Test]
@@ -386,7 +386,7 @@ codeunit 144055 "UT PAG Auto Payment"
 
         // Verify: Verify expected error code, actual error:"You cannot create BR Floppy for Payment Method Code XXXX."
         Assert.ExpectedError(StrSubstNo(FieldValueErr, Bill.FieldCaption("Bank Receipt"), Format(true)));
-        CustomerBillCard.Close;
+        CustomerBillCard.Close();
     end;
 
     [Test]
@@ -407,7 +407,7 @@ codeunit 144055 "UT PAG Auto Payment"
 
         // Verify: Verify expected error code, actual error:"Line XXXX has Amount equal to 0."
         Assert.ExpectedErrorCode(DialogErr);
-        CustomerBillCard.Close;
+        CustomerBillCard.Close();
     end;
 
     [Test]
@@ -429,7 +429,7 @@ codeunit 144055 "UT PAG Auto Payment"
 
         // Verify.
         Assert.AreNotEqual('', Format(CustomerBillCard."No."), StrSubstNo(FieldMustNotBeEmptyErr, CustomerBillCard."No.".Caption));  // Using blank value for Customer Bill Card No.
-        CustomerBillCard.Close;
+        CustomerBillCard.Close();
     end;
 
     [Test]
@@ -449,7 +449,7 @@ codeunit 144055 "UT PAG Auto Payment"
 
         // Verify: Verify expected error code, actual error:"You can run this function only when field Allow Issue in table Bill is Yes."
         Assert.ExpectedErrorCode(DialogErr);
-        CustomerBillCard.Close;
+        CustomerBillCard.Close();
     end;
 
     [Test]
@@ -471,7 +471,7 @@ codeunit 144055 "UT PAG Auto Payment"
         VendorBillListSentCard.Print.Invoke;  // Opens VendorBillReportHandler.
 
         // Verify: VendorBillReportHandler successfully opened.
-        VendorBillListSentCard.Close;
+        VendorBillListSentCard.Close();
     end;
 
     [Test]
@@ -492,7 +492,7 @@ codeunit 144055 "UT PAG Auto Payment"
         VendorBillListSentCard.CancelList.Invoke;
 
         // Verify: Verification is done in ConfirmHandler.
-        VendorBillListSentCard.Close;
+        VendorBillListSentCard.Close();
     end;
 
     [Test]
@@ -514,7 +514,7 @@ codeunit 144055 "UT PAG Auto Payment"
         VendorBillCard.Print.Invoke;  // Opens VendorBillReportHandler.
 
         // Verify: VendorBillReportHandler successfully opened.
-        VendorBillCard.Close;
+        VendorBillCard.Close();
     end;
 
     [Test]
@@ -528,7 +528,7 @@ codeunit 144055 "UT PAG Auto Payment"
 
         // Setup.
         Initialize();
-        CreateIssuedCustomerBill(IssuedCustomerBillLine, WorkDate, '');  // Blank for Recalled By.
+        CreateIssuedCustomerBill(IssuedCustomerBillLine, WorkDate(), '');  // Blank for Recalled By.
 
         // Exercise.
         asserterror SelectBillToRecallOnIssuedCustomerBillCard(IssuedCustomerBillLine."Customer Bill No.");
@@ -746,7 +746,7 @@ codeunit 144055 "UT PAG Auto Payment"
         VendorBillCard.OpenEdit;
         VendorBillCard.FILTER.SetFilter("No.", No);
         VendorBillCard.VendorBillLines.InvoiceCard.Invoke;  // Invokes PostedPurchaseInvoiceModalPageHandler.
-        VendorBillCard.Close;
+        VendorBillCard.Close();
     end;
 
     local procedure InvoiceCardOnSubformPostedVendorBillLines(No: Code[20])
@@ -756,7 +756,7 @@ codeunit 144055 "UT PAG Auto Payment"
         PostedVendorBillCard.OpenEdit;
         PostedVendorBillCard.FILTER.SetFilter("No.", No);
         PostedVendorBillCard.SubformPostedVendBillLines.InvoiceCard.Invoke;  // Invokes PostedPurchaseInvoiceModalPageHandler.
-        PostedVendorBillCard.Close;
+        PostedVendorBillCard.Close();
     end;
 
     local procedure SelectBillToRecallOnIssuedCustomerBillCard(No: Code[20])
@@ -804,7 +804,7 @@ codeunit 144055 "UT PAG Auto Payment"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure NoSeriesListModalPageHandler(var NoSeriesList: TestPage "No. Series List")
+    procedure NoSeriesListModalPageHandler(var NoSeriesList: TestPage "No. Series")
     begin
         NoSeriesList.OK.Invoke;
     end;

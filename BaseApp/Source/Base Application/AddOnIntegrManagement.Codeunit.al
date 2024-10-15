@@ -103,8 +103,8 @@ codeunit 5403 AddOnIntegrManagement
     begin
         with MfgSetup do
             if not FindFirst() then begin
-                Init;
-                Insert;
+                Init();
+                Insert();
             end;
     end;
 
@@ -132,15 +132,15 @@ codeunit 5403 AddOnIntegrManagement
                               ProdOrderRtngLine.Status::Released, "Prod. Order No.", "Routing Reference No.", "Routing No.", "Operation No.");
                             MfgSetup.Get();
                             CostCalcMgt.GetRndgSetup(GLSetup, Currency, RndgSetupRead);
-                            if MfgSetup."Cost Incl. Setup" and (Quantity <> 0) then begin
+                            if MfgSetup."Cost Incl. Setup" and (Quantity <> 0) then
                                 PurchOrderLine."Overhead Rate" :=
                                   Round(
                                     WorkCenter."Overhead Rate" *
                                     (ProdOrderRtngLine."Setup Time" /
                                      Quantity +
                                      ProdOrderRtngLine."Run Time"),
-                                    GLSetup."Unit-Amount Rounding Precision");
-                            end else
+                                    GLSetup."Unit-Amount Rounding Precision")
+                            else
                                 PurchOrderLine."Overhead Rate" :=
                                   Round(
                                     WorkCenter."Overhead Rate" * ProdOrderRtngLine."Run Time",
@@ -152,6 +152,7 @@ codeunit 5403 AddOnIntegrManagement
                         PurchOrderLine.Validate("Direct Unit Cost", "Direct Unit Cost");
                     end;
             end;
+
         OnAfterTransferFromReqLineToPurchLine(PurchOrderLine, ReqLine);
     end;
 

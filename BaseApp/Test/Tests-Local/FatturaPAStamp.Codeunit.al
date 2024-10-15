@@ -505,7 +505,7 @@ codeunit 144203 "FatturaPA Stamp"
         ServiceItemLine: Record "Service Item Line";
     begin
         LibraryService.CreateServiceHeader(ServiceHeader, DocType, CreateCustomer);
-        ServiceHeader.Validate("Order Date", WorkDate);
+        ServiceHeader.Validate("Order Date", WorkDate());
         ServiceHeader.Validate("Payment Method Code", CreatePaymentMethod);
         ServiceHeader.Validate("Payment Terms Code", CreatePaymentTerms);
         ServiceHeader.Validate("Fattura Stamp", FatturaStamp);
@@ -529,7 +529,7 @@ codeunit 144203 "FatturaPA Stamp"
     local procedure AssertCurrentElementValue(TempXMLBuffer: Record "XML Buffer" temporary; ExpectedValue: Text)
     begin
         Assert.AreEqual(ExpectedValue, TempXMLBuffer.Value,
-          StrSubstNo(UnexpectedElementValueErr, TempXMLBuffer.GetElementName, ExpectedValue, TempXMLBuffer.Value));
+          StrSubstNo(UnexpectedElementValueErr, TempXMLBuffer.GetElementName(), ExpectedValue, TempXMLBuffer.Value));
     end;
 
     local procedure VerifyStampInXmlFile(TempBlob: Codeunit "Temp Blob"; ExpectedStampAmount: Decimal)

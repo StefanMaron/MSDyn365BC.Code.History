@@ -112,7 +112,7 @@ page 99000799 "Standard Tasks"
                     if StandardTask.Next() = 0 then
                         More := false
                     else
-                        if not StandardTask.Mark then
+                        if not StandardTask.Mark() then
                             More := false
                         else begin
                             LastStdTask := StandardTask.Code;
@@ -128,7 +128,7 @@ page 99000799 "Standard Tasks"
                     SelectionFilter := SelectionFilter + FirstStdTask + '..' + LastStdTask;
                 if StdTaskCount > 0 then begin
                     StandardTask.MarkedOnly(true);
-                    StandardTask.Next;
+                    StandardTask.Next();
                 end;
             end;
         end;

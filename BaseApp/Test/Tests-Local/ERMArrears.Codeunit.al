@@ -152,11 +152,11 @@ codeunit 144095 "ERM Arrears"
         EndingDate: Date;
     begin
         // Setup: Create Finance Charge Term with Interest on Arrears and post sales invoice.
-        EndingDate := CalcDate(StrSubstNo(DateFormulaTxt, Format(LibraryRandom.RandIntInRange(4, 6))), WorkDate);  // Using Random for date formula.
+        EndingDate := CalcDate(StrSubstNo(DateFormulaTxt, Format(LibraryRandom.RandIntInRange(4, 6))), WorkDate());  // Using Random for date formula.
         InterestRate := SetupForCalcInterestOnArrears(FinanceChargeTerms, DiffInterestRate, CalcDate('<-1M>', EndingDate));
         CreateAndPostGenJournalLine(
           GenJournalLine, GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Customer, CreateCustomer(
-            FinanceChargeTerms.Code), WorkDate, LibraryRandom.RandDecInRange(100, 500, 2));  // Using Random Decimal for Amount.
+            FinanceChargeTerms.Code), WorkDate(), LibraryRandom.RandDecInRange(100, 500, 2));  // Using Random Decimal for Amount.
         EnqueueRequestPageHandlerValues(GenJournalLine."Account No.", PrintType::Customer, EndingDate, PrintDetails);  // Enqueue values of CalculateInterestOnArrearsRequestPageHandler.
 
         // Exercise.
@@ -208,11 +208,11 @@ codeunit 144095 "ERM Arrears"
         EndingDate: Date;
     begin
         // Setup: Create Finance Charge Term with Interest on Arrears and post purchase invoice.
-        EndingDate := CalcDate(StrSubstNo(DateFormulaTxt, Format(LibraryRandom.RandIntInRange(4, 6))), WorkDate);  // Using Random for date formula.
+        EndingDate := CalcDate(StrSubstNo(DateFormulaTxt, Format(LibraryRandom.RandIntInRange(4, 6))), WorkDate());  // Using Random for date formula.
         InterestRate := SetupForCalcInterestOnArrears(FinanceChargeTerms, DiffInterestRate, CalcDate('<-1M>', EndingDate));
         CreateAndPostGenJournalLine(
           GenJournalLine, GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Vendor, CreateVendor(
-            FinanceChargeTerms.Code), WorkDate, -LibraryRandom.RandDecInRange(100, 500, 2));  // Using Random Decimal for Amount.
+            FinanceChargeTerms.Code), WorkDate(), -LibraryRandom.RandDecInRange(100, 500, 2));  // Using Random Decimal for Amount.
         EnqueueRequestPageHandlerValues(GenJournalLine."Account No.", PrintType::Vendor, EndingDate, PrintDetails);  // Enqueue values of CalculateInterestOnArrearsRequestPageHandler.
 
         // Exercise.
@@ -233,7 +233,7 @@ codeunit 144095 "ERM Arrears"
     begin
         // Verify interest on Arrears with different interest rate with Payment and Print Details in Calculate Interest on Arrears report for vendor.
         Initialize();
-        EndingDate := CalcDate(StrSubstNo(DateFormulaTxt, Format(LibraryRandom.RandIntInRange(4, 6))), WorkDate);  // Using Random for date formula.
+        EndingDate := CalcDate(StrSubstNo(DateFormulaTxt, Format(LibraryRandom.RandIntInRange(4, 6))), WorkDate());  // Using Random for date formula.
         InterestOnArrearsForVendorWithPayment(EndingDate, EndingDate, LibraryRandom.RandInt(5), true, YearsTxt, 2);  // Using Random for Interest rate, True for Print Details and 2 for Partially Payment.
     end;
 
@@ -246,7 +246,7 @@ codeunit 144095 "ERM Arrears"
     begin
         // Verify interest on Arrears with different interest rate with Payment and without Print Details in Calculate Interest on Arrears report for vendor.
         Initialize();
-        EndingDate := CalcDate(StrSubstNo(DateFormulaTxt, Format(LibraryRandom.RandIntInRange(4, 6))), WorkDate);  // Using Random for date formula.
+        EndingDate := CalcDate(StrSubstNo(DateFormulaTxt, Format(LibraryRandom.RandIntInRange(4, 6))), WorkDate());  // Using Random for date formula.
         InterestOnArrearsForVendorWithPayment(EndingDate, EndingDate, LibraryRandom.RandInt(5), false, YearsTxt, 2);  // Using Random for Interest rate, False for Print Details and 2 for Partially Payment.
     end;
 
@@ -259,7 +259,7 @@ codeunit 144095 "ERM Arrears"
     begin
         // Verify interest on Arrears with different interest rate with Partially Payment before Due Date and without Print Details in Calculate Interest on Arrears report for vendor.
         Initialize();
-        EndingDate := CalcDate(StrSubstNo(DateFormulaTxt, Format(LibraryRandom.RandIntInRange(4, 6))), WorkDate);  // Using Random for date formula.
+        EndingDate := CalcDate(StrSubstNo(DateFormulaTxt, Format(LibraryRandom.RandIntInRange(4, 6))), WorkDate());  // Using Random for date formula.
         InterestOnArrearsForVendorWithPayment(
           EndingDate, EndingDate, LibraryRandom.RandInt(5), false, StrSubstNo(
             DaysTxt, Format(LibraryRandom.RandIntInRange(10, 15))), 2);  // Using Random for Interest rate and No. of Days, False for Print Details and 2 for Partially Payment.
@@ -274,7 +274,7 @@ codeunit 144095 "ERM Arrears"
     begin
         // Verify interest on Arrears with different interest rate with Partially Payment before Due Date and with Print Details in Calculate Interest on Arrears report for vendor.
         Initialize();
-        EndingDate := CalcDate(StrSubstNo(DateFormulaTxt, Format(LibraryRandom.RandIntInRange(4, 6))), WorkDate);  // Using Random for date formula.
+        EndingDate := CalcDate(StrSubstNo(DateFormulaTxt, Format(LibraryRandom.RandIntInRange(4, 6))), WorkDate());  // Using Random for date formula.
         InterestOnArrearsForVendorWithPayment(
           EndingDate, EndingDate, LibraryRandom.RandInt(5), true, StrSubstNo(
             DaysTxt, Format(LibraryRandom.RandIntInRange(10, 15))), 2);  // Using Random for Interest rate and No. of Days, True for Print Details and 2 for Partially Payment.
@@ -289,9 +289,9 @@ codeunit 144095 "ERM Arrears"
     begin
         // Verify interest on Arrears with different interest rate with Full Payment before Due Date and without Print Details in Calculate Interest on Arrears report for vendor.
         Initialize();
-        EndingDate := CalcDate(StrSubstNo(DateFormulaTxt, Format(LibraryRandom.RandIntInRange(4, 6))), WorkDate);  // Using Random for date formula.
+        EndingDate := CalcDate(StrSubstNo(DateFormulaTxt, Format(LibraryRandom.RandIntInRange(4, 6))), WorkDate());  // Using Random for date formula.
         InterestOnArrearsForVendorWithPayment(
-          EndingDate, CalcDate('<30D>', WorkDate), LibraryRandom.RandInt(5), false, StrSubstNo(
+          EndingDate, CalcDate('<30D>', WorkDate()), LibraryRandom.RandInt(5), false, StrSubstNo(
             DaysTxt, Format(LibraryRandom.RandIntInRange(10, 15))), 1);  // Using Random for Interest rate and No. of Days, False for Print Details, 1 for Full Payment and 30 Days required for calculate Days Diifferece.
     end;
 
@@ -304,9 +304,9 @@ codeunit 144095 "ERM Arrears"
     begin
         // Verify interest on Arrears with different interest rate with Full Payment before Due Date and with Print Details in Calculate Interest on Arrears report for vendor.
         Initialize();
-        EndingDate := CalcDate(StrSubstNo(DateFormulaTxt, Format(LibraryRandom.RandIntInRange(4, 6))), WorkDate);  // Using Random for date formula.
+        EndingDate := CalcDate(StrSubstNo(DateFormulaTxt, Format(LibraryRandom.RandIntInRange(4, 6))), WorkDate());  // Using Random for date formula.
         InterestOnArrearsForVendorWithPayment(
-          EndingDate, CalcDate('<30D>', WorkDate), LibraryRandom.RandInt(5), true, StrSubstNo(
+          EndingDate, CalcDate('<30D>', WorkDate()), LibraryRandom.RandInt(5), true, StrSubstNo(
             DaysTxt, Format(LibraryRandom.RandIntInRange(10, 15))), 1);  // Using Random for Interest rate and No. of Days, True for Print Details, 1 for Full Payment and 30 Days required for calculate Days Diifferece.
     end;
 
@@ -319,7 +319,7 @@ codeunit 144095 "ERM Arrears"
     begin
         // Verify interest on Arrears with different interest rate with Full Payment after Due Date and with Print Details in Calculate Interest on Arrears report for vendor.
         Initialize();
-        EndingDate := CalcDate(StrSubstNo(DateFormulaTxt, Format(LibraryRandom.RandIntInRange(4, 6))), WorkDate);  // Using Random for date formula.
+        EndingDate := CalcDate(StrSubstNo(DateFormulaTxt, Format(LibraryRandom.RandIntInRange(4, 6))), WorkDate());  // Using Random for date formula.
         InterestOnArrearsForVendorWithPayment(EndingDate, CalcDate('<-30D>', EndingDate), LibraryRandom.RandInt(5), true, YearsTxt, 1);  // Using Random for Interest rate, True for Print Details, 1 for Full Payment and 30 days for Days Difference.
     end;
 
@@ -332,7 +332,7 @@ codeunit 144095 "ERM Arrears"
     begin
         // Verify interest on Arrears with different interest rate with Full Payment after Due Date and without Print Details in Calculate Interest on Arrears report for vendor.
         Initialize();
-        EndingDate := CalcDate(StrSubstNo(DateFormulaTxt, Format(LibraryRandom.RandIntInRange(4, 6))), WorkDate);  // Using Random for date formula.
+        EndingDate := CalcDate(StrSubstNo(DateFormulaTxt, Format(LibraryRandom.RandIntInRange(4, 6))), WorkDate());  // Using Random for date formula.
         InterestOnArrearsForVendorWithPayment(
           EndingDate, CalcDate('<-30D>', EndingDate), LibraryRandom.RandInt(5), false, YearsTxt, 1);  // Using Random for Interest rate, False for Print Details, 1 for Full Payment and 30 days for Days Difference.
     end;
@@ -374,7 +374,7 @@ codeunit 144095 "ERM Arrears"
     begin
         // Verify interest on Arrears with different interest rate with Payment and Print Details in Calculate Interest on Arrears report for customer.
         Initialize();
-        EndingDate := CalcDate(StrSubstNo(DateFormulaTxt, Format(LibraryRandom.RandIntInRange(4, 6))), WorkDate);  // Using Random for date formula.
+        EndingDate := CalcDate(StrSubstNo(DateFormulaTxt, Format(LibraryRandom.RandIntInRange(4, 6))), WorkDate());  // Using Random for date formula.
         InterestOnArrearsForCustomerWithPayment(EndingDate, EndingDate, LibraryRandom.RandInt(5), true, YearsTxt, 2);  // Using Random for Interest rate, True for Print Details and 2 for Partially Payment.
     end;
 
@@ -387,7 +387,7 @@ codeunit 144095 "ERM Arrears"
     begin
         // Verify interest on Arrears with different interest rate with Payment and without Print Details in Calculate Interest on Arrears report for customer.
         Initialize();
-        EndingDate := CalcDate(StrSubstNo(DateFormulaTxt, Format(LibraryRandom.RandIntInRange(4, 6))), WorkDate);  // Using Random for date formula.
+        EndingDate := CalcDate(StrSubstNo(DateFormulaTxt, Format(LibraryRandom.RandIntInRange(4, 6))), WorkDate());  // Using Random for date formula.
         InterestOnArrearsForCustomerWithPayment(EndingDate, EndingDate, LibraryRandom.RandInt(5), false, YearsTxt, 2);  // Using Random for Interest rate, False for Print Details and 2 for Partially Payment.
     end;
 
@@ -400,7 +400,7 @@ codeunit 144095 "ERM Arrears"
     begin
         // Verify interest on Arrears with different interest rate with Partially Payment before Due Date and without Print Details in Calculate Interest on Arrears report for customer.
         Initialize();
-        EndingDate := CalcDate(StrSubstNo(DateFormulaTxt, Format(LibraryRandom.RandIntInRange(4, 6))), WorkDate);  // Using Random for date formula.
+        EndingDate := CalcDate(StrSubstNo(DateFormulaTxt, Format(LibraryRandom.RandIntInRange(4, 6))), WorkDate());  // Using Random for date formula.
         InterestOnArrearsForCustomerWithPayment(
           EndingDate, EndingDate, LibraryRandom.RandInt(5), false, StrSubstNo(
             DaysTxt, Format(LibraryRandom.RandIntInRange(10, 15))), 2);  // Using Random for Interest rate and No. of Days, False for Print Details and 2 for Partially Payment.
@@ -415,7 +415,7 @@ codeunit 144095 "ERM Arrears"
     begin
         // Verify interest on Arrears with different interest rate with Partially Payment before Due Date and with Print Details in Calculate Interest on Arrears report for customer.
         Initialize();
-        EndingDate := CalcDate(StrSubstNo(DateFormulaTxt, Format(LibraryRandom.RandIntInRange(4, 6))), WorkDate);  // Using Random for date formula.
+        EndingDate := CalcDate(StrSubstNo(DateFormulaTxt, Format(LibraryRandom.RandIntInRange(4, 6))), WorkDate());  // Using Random for date formula.
         InterestOnArrearsForCustomerWithPayment(
           EndingDate, EndingDate, LibraryRandom.RandInt(5), true, StrSubstNo(
             DaysTxt, Format(LibraryRandom.RandIntInRange(10, 15))), 2);  // Using Random for Interest rate and No. of Days, True for Print Details and 2 for Partially Payment.
@@ -430,9 +430,9 @@ codeunit 144095 "ERM Arrears"
     begin
         // Verify interest on Arrears with different interest rate with Full Payment before Due Date and without Print Details in Calculate Interest on Arrears report for customer.
         Initialize();
-        EndingDate := CalcDate(StrSubstNo(DateFormulaTxt, Format(LibraryRandom.RandIntInRange(1, 4))), WorkDate);  // Using Random for date formula.
+        EndingDate := CalcDate(StrSubstNo(DateFormulaTxt, Format(LibraryRandom.RandIntInRange(1, 4))), WorkDate());  // Using Random for date formula.
         InterestOnArrearsForCustomerWithPayment(
-          EndingDate, CalcDate('<30D>', WorkDate), LibraryRandom.RandInt(5), false, StrSubstNo(
+          EndingDate, CalcDate('<30D>', WorkDate()), LibraryRandom.RandInt(5), false, StrSubstNo(
             DaysTxt, Format(LibraryRandom.RandIntInRange(10, 15))), 1);  // Using Random for Interest rate and No. of Days, False for Print Details, 1 for Full Payment and 30 days for Days Difference.
     end;
 
@@ -445,9 +445,9 @@ codeunit 144095 "ERM Arrears"
     begin
         // Verify interest on Arrears with different interest rate with Full Payment before Due Date and with Print Details in Calculate Interest on Arrears report for customer.
         Initialize();
-        EndingDate := CalcDate(StrSubstNo(DateFormulaTxt, Format(LibraryRandom.RandIntInRange(1, 4))), WorkDate);  // Using Random for date formula.
+        EndingDate := CalcDate(StrSubstNo(DateFormulaTxt, Format(LibraryRandom.RandIntInRange(1, 4))), WorkDate());  // Using Random for date formula.
         InterestOnArrearsForCustomerWithPayment(
-          EndingDate, CalcDate('<30D>', WorkDate), LibraryRandom.RandInt(5), true, StrSubstNo(
+          EndingDate, CalcDate('<30D>', WorkDate()), LibraryRandom.RandInt(5), true, StrSubstNo(
             DaysTxt, Format(LibraryRandom.RandIntInRange(10, 15))), 1);  // Using Random for Interest rate and No. of Days, True for Print Details, 1 for Full Payment and 30 days for Days Difference.
     end;
 
@@ -460,7 +460,7 @@ codeunit 144095 "ERM Arrears"
     begin
         // Verify interest on Arrears with different interest rate with Full Payment after Due Date and with Print Details in Calculate Interest on Arrears report for customer.
         Initialize();
-        EndingDate := CalcDate(StrSubstNo(DateFormulaTxt, Format(LibraryRandom.RandIntInRange(4, 6))), WorkDate);  // Using Random for date formula.
+        EndingDate := CalcDate(StrSubstNo(DateFormulaTxt, Format(LibraryRandom.RandIntInRange(4, 6))), WorkDate());  // Using Random for date formula.
         InterestOnArrearsForCustomerWithPayment(
           EndingDate, CalcDate('<-30D>', EndingDate), LibraryRandom.RandInt(5), true, YearsTxt, 1);  // Using Random for Interest rate, True for Print Details, 1 for Full Payment, and 30 days for Days Difference.
     end;
@@ -474,7 +474,7 @@ codeunit 144095 "ERM Arrears"
     begin
         // Verify interest on Arrears with different interest rate with Full Payment after Due Date and without Print Details in Calculate Interest on Arrears report for customer.
         Initialize();
-        EndingDate := CalcDate(StrSubstNo(DateFormulaTxt, Format(LibraryRandom.RandIntInRange(4, 6))), WorkDate);  // Using Random for date formula.
+        EndingDate := CalcDate(StrSubstNo(DateFormulaTxt, Format(LibraryRandom.RandIntInRange(4, 6))), WorkDate());  // Using Random for date formula.
         InterestOnArrearsForCustomerWithPayment(
           EndingDate, CalcDate('<-30D>', EndingDate), LibraryRandom.RandInt(5), false, YearsTxt, 1);  // Using Random for Interest rate, False for Print Details, 1 for Full Payment and 30 days for Days Difference.
     end;
@@ -488,7 +488,7 @@ codeunit 144095 "ERM Arrears"
     begin
         // Verify No Negative interest on Arrears with different interest rate with Full Payment after Due Date and without Print Details in Calculate Interest on Arrears report for customer.
         Initialize();
-        EndingDate := CalcDate(StrSubstNo(DateFormulaTxt, Format(LibraryRandom.RandIntInRange(4, 6))), WorkDate);  // Using Random for date formula.
+        EndingDate := CalcDate(StrSubstNo(DateFormulaTxt, Format(LibraryRandom.RandIntInRange(4, 6))), WorkDate());  // Using Random for date formula.
         InterestOnArrearsForCustomerWithPayment(
           EndingDate, CalcDate('<-30D>', EndingDate), LibraryRandom.RandInt(5), false, StrSubstNo(
             DaysTxt, Format(LibraryRandom.RandIntInRange(7, 10))), 1);  // Using Random Range from 7, require more than ending date, random Integer for Interest rate, False for Print Details, 1 for Full Payment and 30 days for Days Difference.
@@ -614,7 +614,7 @@ codeunit 144095 "ERM Arrears"
         PrintType: Option Customer,Vendor;
     begin
         // Setup: Create Finance Charge Term with Interest on Arrears and post Sales invoice and Payment, post application.
-        EndingDate := CalcDate(StrSubstNo(DateFormulaTxt, Format(LibraryRandom.RandIntInRange(4, 6))), WorkDate);  // Using Random for date formula.
+        EndingDate := CalcDate(StrSubstNo(DateFormulaTxt, Format(LibraryRandom.RandIntInRange(4, 6))), WorkDate());  // Using Random for date formula.
         DiffInterestRate := LibraryRandom.RandInt(5);  // Using Random Integer for Interest Rate.
         InterestRate := SetupForCalcInterestOnArrears(FinanceChargeTerms, DiffInterestRate, CalcDate('<-1M>', EndingDate));
         CreateInvoiceAndMakePayment(
@@ -623,7 +623,7 @@ codeunit 144095 "ERM Arrears"
         PostCustomerApplication(GenJournalLine."Account No.");
         CreateAndPostGenJournalLine(
           GenJournalLine2, GenJournalLine2."Document Type"::Payment, GenJournalLine."Account Type", GenJournalLine."Account No.",
-          CalcDate(Format(NoOfDays) + YearPlusTxt, WorkDate), -GenJournalLine.Amount / PaymentPart);
+          CalcDate(Format(NoOfDays) + YearPlusTxt, WorkDate()), -GenJournalLine.Amount / PaymentPart);
         FindCustomerLedgerEntry(CustLedgerEntry, GenJournalLine."Account No.", CustLedgerEntry."Document Type"::Invoice);
         PostCustomerApplication(GenJournalLine."Account No.");
         EnqueueRequestPageHandlerValues(GenJournalLine."Account No.", PrintType::Customer, EndingDate, PrintDetails);  // Enqueue values of CalculateInterestOnArrearsRequestPageHandler.
@@ -731,7 +731,7 @@ codeunit 144095 "ERM Arrears"
         PrintType: Option Customer,Vendor;
     begin
         // Setup: Create Finance Charge Term with Interest on Arrears and post purchase invoice and Payment, post application.
-        EndingDate := CalcDate(StrSubstNo(DateFormulaTxt, Format(LibraryRandom.RandIntInRange(4, 6))), WorkDate);  // Using Random for date formula.
+        EndingDate := CalcDate(StrSubstNo(DateFormulaTxt, Format(LibraryRandom.RandIntInRange(4, 6))), WorkDate());  // Using Random for date formula.
         DiffInterestRate := LibraryRandom.RandInt(5);  // Using Random Integer for Interest Rate.
         InterestRate := SetupForCalcInterestOnArrears(FinanceChargeTerms, DiffInterestRate, CalcDate('<-1M>', EndingDate));
         CreateInvoiceAndMakePayment(
@@ -740,7 +740,7 @@ codeunit 144095 "ERM Arrears"
         PostVendorApplication(GenJournalLine."Account No.");
         CreateAndPostGenJournalLine(
           GenJournalLine2, GenJournalLine2."Document Type"::Payment, GenJournalLine."Account Type", GenJournalLine."Account No.",
-          CalcDate(Format(NoOfDays) + YearPlusTxt, WorkDate), -GenJournalLine.Amount / PaymentPart);
+          CalcDate(Format(NoOfDays) + YearPlusTxt, WorkDate()), -GenJournalLine.Amount / PaymentPart);
         FindVendorLedgerEntry(VendorLedgerEntry, GenJournalLine."Account No.", VendorLedgerEntry."Document Type"::Invoice);
         PostVendorApplication(GenJournalLine."Account No.");
         VendorLedgerEntry.CalcFields("Remaining Amount");
@@ -883,7 +883,7 @@ codeunit 144095 "ERM Arrears"
         InterestOnArrears: Record "Interest on Arrears";
         InterestOnArrears2: Record "Interest on Arrears";
     begin
-        LibraryITLocalization.CreateInterestOnArrears(InterestOnArrears, Code, CalcDate('<-1D>', WorkDate));
+        LibraryITLocalization.CreateInterestOnArrears(InterestOnArrears, Code, CalcDate('<-1D>', WorkDate()));
         UpdateInterestOnArrears(InterestOnArrears, LibraryRandom.RandIntInRange(5, 10));
         LibraryITLocalization.CreateInterestOnArrears(InterestOnArrears2, Code, StartingDate);
         UpdateInterestOnArrears(InterestOnArrears2, InterestOnArrears."Interest Rate" + InterestRate);
@@ -906,8 +906,8 @@ codeunit 144095 "ERM Arrears"
         FinanceChargeMemoHeader: Record "Finance Charge Memo Header";
     begin
         LibraryERM.CreateFinanceChargeMemoHeader(FinanceChargeMemoHeader, CustomerNo);
-        FinanceChargeMemoHeader.Validate("Posting Date", WorkDate);
-        FinanceChargeMemoHeader.Validate("Document Date", CalcDate('<1Y>', WorkDate));
+        FinanceChargeMemoHeader.Validate("Posting Date", WorkDate());
+        FinanceChargeMemoHeader.Validate("Document Date", CalcDate('<1Y>', WorkDate()));
         FinanceChargeMemoHeader.Modify(true);
         exit(FinanceChargeMemoHeader."No.")
     end;
@@ -915,7 +915,7 @@ codeunit 144095 "ERM Arrears"
     local procedure CreateFinanceChargeTerm(var FinanceChargeTerms: Record "Finance Charge Terms")
     begin
         LibraryERM.CreateFinanceChargeTerms(FinanceChargeTerms);
-        FinanceChargeTerms.Validate("Interest Period (Days)", CalcDate('<CY>', WorkDate) - CalcDate('<-CY>', WorkDate)); // Calculate No. of Days.
+        FinanceChargeTerms.Validate("Interest Period (Days)", CalcDate('<CY>', WorkDate()) - CalcDate('<-CY>', WorkDate())); // Calculate No. of Days.
         FinanceChargeTerms.Validate("Post Additional Fee", false);
         FinanceChargeTerms.Modify(true);
     end;
@@ -940,9 +940,9 @@ codeunit 144095 "ERM Arrears"
     var
         GenJournalLine2: Record "Gen. Journal Line";
     begin
-        CreateAndPostGenJournalLine(GenJournalLine, GenJournalLine."Document Type"::Invoice, AccountType, AccountNo, WorkDate, Amount);
+        CreateAndPostGenJournalLine(GenJournalLine, GenJournalLine."Document Type"::Invoice, AccountType, AccountNo, WorkDate(), Amount);
         CreateAndPostGenJournalLine(
-          GenJournalLine2, GenJournalLine2."Document Type"::Payment, AccountType, AccountNo, CalcDate(Format(NoOfDays), WorkDate),
+          GenJournalLine2, GenJournalLine2."Document Type"::Payment, AccountType, AccountNo, CalcDate(Format(NoOfDays), WorkDate()),
           -Amount / PaymentPart);
     end;
 
@@ -952,8 +952,8 @@ codeunit 144095 "ERM Arrears"
     begin
         LibraryERM.CreateReminderHeader(ReminderHeader);
         ReminderHeader.Validate("Customer No.", CustomerNo);
-        ReminderHeader.Validate("Posting Date", WorkDate);
-        ReminderHeader.Validate("Document Date", CalcDate('<1Y>', WorkDate));
+        ReminderHeader.Validate("Posting Date", WorkDate());
+        ReminderHeader.Validate("Document Date", CalcDate('<1Y>', WorkDate()));
         ReminderHeader.Modify(true);
         exit(ReminderHeader."No.");
     end;
@@ -1131,8 +1131,8 @@ codeunit 144095 "ERM Arrears"
         CalculateInterestOnArrears.CustomerVendor.SetValue(CustomerVendor);
         CalculateInterestOnArrears.InterestCalculationAsOf.SetValue(InterestCalculationAsOf);
         CalculateInterestOnArrears.PrintDetails.SetValue(PrintDetails);
-        CalculateInterestOnArrears.FromPostingDate.SetValue(WorkDate);
-        CalculateInterestOnArrears.ToPostingDate.SetValue(WorkDate);
+        CalculateInterestOnArrears.FromPostingDate.SetValue(WorkDate());
+        CalculateInterestOnArrears.ToPostingDate.SetValue(WorkDate());
         CalculateInterestOnArrears.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 

@@ -136,17 +136,17 @@ codeunit 135152 "Data Classification Wiz. Tests"
         // [THEN] Display the page where the user can choose the tables that he wants to classify
         LibraryAssert.IsTrue(DataClassificationWizard.Entity.Visible, 'Control was expected visible');
         DataClassificationWizard.First;
-        DataClassificationWizard.Next;
+        DataClassificationWizard.Next();
         DataClassificationWizard.Include.SetValue(false);
-        DataClassificationWizard.Next;
+        DataClassificationWizard.Next();
         DataClassificationWizard.Include.SetValue(false);
-        DataClassificationWizard.Next;
+        DataClassificationWizard.Next();
         DataClassificationWizard.Include.SetValue(false);
-        DataClassificationWizard.Next;
+        DataClassificationWizard.Next();
         DataClassificationWizard.Include.SetValue(false);
-        DataClassificationWizard.Next;
+        DataClassificationWizard.Next();
         DataClassificationWizard.Include.SetValue(false);
-        DataClassificationWizard.Next;
+        DataClassificationWizard.Next();
         DataClassificationWizard.Include.SetValue(false);
 
         // [WHEN] The next page is displayed

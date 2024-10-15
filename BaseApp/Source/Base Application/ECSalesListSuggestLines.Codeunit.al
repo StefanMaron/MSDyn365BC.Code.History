@@ -5,10 +5,10 @@ codeunit 140 "EC Sales List Suggest Lines"
     trigger OnRun()
     begin
         ErrorMessage.SetContext(Rec);
-        ErrorMessage.ClearLog;
+        ErrorMessage.ClearLog();
 
         VATReportHeader := Rec;
-        PopulateVatEntryLines;
+        PopulateVatEntryLines();
     end;
 
     var
@@ -24,11 +24,11 @@ codeunit 140 "EC Sales List Suggest Lines"
         EUVATEntries.SetRange(PostingDate, VATReportHeader."Start Date", VATReportHeader."End Date");
         EUVATEntries.SetFilter(CountryCode, '<>%1', CompanyInformation."Country/Region Code");
 
-        EUVATEntries.Open;
-        while EUVATEntries.Read do
+        EUVATEntries.Open();
+        while EUVATEntries.Read() do
             AddOrUpdateECLLine(EUVATEntries);
-        RowsTotalCorrection;
-        DeleteZeroAmountLines;
+        RowsTotalCorrection();
+        DeleteZeroAmountLines();
     end;
 
     local procedure GetECLLine(var ECSLVATReportLine: Record "ECSL VAT Report Line"; EUVATEntries: Query "EU VAT Entries")

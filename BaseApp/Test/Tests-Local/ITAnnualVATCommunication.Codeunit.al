@@ -478,7 +478,7 @@ codeunit 144190 "IT - Annual VAT Communication"
     procedure FiscalYearInExportedAnnualVATCommunicationFile()
     begin
         // Verify the 'Fiscal Year' in exported Annual VAT Communication file.
-        ExportAnnualVATCommunicationWithVariousDetails(Format(Date2DMY(WorkDate, 3), 4), 2, 195, 4, true, true, true);
+        ExportAnnualVATCommunicationWithVariousDetails(Format(Date2DMY(WorkDate(), 3), 4), 2, 195, 4, true, true, true);
     end;
 
     [Test]
@@ -635,7 +635,7 @@ codeunit 144190 "IT - Annual VAT Communication"
           StrSubstNo(FieldNotFoundErr, VATStatementTemplate.FieldCaption("VAT Stat. Export Report ID")));
 
         // Tear Down: Close VAT Statement Template page.
-        VATStatementTemplatesPage.Close;
+        VATStatementTemplatesPage.Close();
     end;
 
     [Test]
@@ -918,7 +918,7 @@ codeunit 144190 "IT - Annual VAT Communication"
         AnnualVATComm2010.UseRequestPage(false);
         AnnualVATComm2010.InitializeRequest(
           VATStatementName."Statement Template Name", VATStatementName.Name, AppointmentCode.Code,
-          DMY2Date(1, 1, Date2DMY(WorkDate, 3)), DMY2Date(31, 12, Date2DMY(WorkDate, 3)));
+          DMY2Date(1, 1, Date2DMY(WorkDate(), 3)), DMY2Date(31, 12, Date2DMY(WorkDate(), 3)));
         LibraryReportValidation.SetFileName(VATStatementName."Statement Template Name");
         AnnualVATComm2010.SaveAsExcel(LibraryReportValidation.GetFileName);
     end;
@@ -931,7 +931,7 @@ codeunit 144190 "IT - Annual VAT Communication"
     begin
         VATStatementName.SetRange(Name, StatementName);
         VATStatementName.FindFirst();
-        VATStatementName.SetFilter("Date Filter", '%1..%2', DMY2Date(1, 1, Date2DMY(WorkDate, 3)), DMY2Date(31, 12, Date2DMY(WorkDate, 3)));
+        VATStatementName.SetFilter("Date Filter", '%1..%2', DMY2Date(1, 1, Date2DMY(WorkDate(), 3)), DMY2Date(31, 12, Date2DMY(WorkDate(), 3)));
         AppointmentCode.FindFirst();
         ExpAnnualVATComm2010.SetTableView(VATStatementName);
         ExpAnnualVATComm2010.UseRequestPage(false);

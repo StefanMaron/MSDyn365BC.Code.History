@@ -15,62 +15,62 @@ page 10 "Countries/Regions"
                 ShowCaption = false;
                 field("Code"; Code)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies the country/region of the address.';
                 }
                 field(Name; Name)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies the country/region of the address.';
                 }
-                field("ISO Code"; "ISO Code")
+                field("ISO Code"; Rec."ISO Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a two-letter country code defined in ISO 3166-1.';
                 }
-                field("ISO Numeric Code"; "ISO Numeric Code")
+                field("ISO Numeric Code"; Rec."ISO Numeric Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a three-digit code number defined in ISO 3166-1.';
                 }
-                field("Address Format"; "Address Format")
+                field("Address Format"; Rec."Address Format")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the format of the address that is displayed on external-facing documents. You link an address format to a country/region code so that external-facing documents based on cards or documents with that country/region code use the specified address format. NOTE: If the County field is filled in, then the county will be printed above the country/region unless you select the City+County+Post Code option.';
                 }
-                field("Contact Address Format"; "Contact Address Format")
+                field("Contact Address Format"; Rec."Contact Address Format")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies where you want the contact name to appear in mailing addresses.';
                 }
-                field("County Name"; "County Name")
+                field("County Name"; Rec."County Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the county.';
                 }
-                field("EU Country/Region Code"; "EU Country/Region Code")
+                field("EU Country/Region Code"; Rec."EU Country/Region Code")
                 {
-                    ApplicationArea = BasicEU;
+                    ApplicationArea = BasicEU, BasicNO;
                     ToolTip = 'Specifies the EU code for the country/region you are doing business with.';
                 }
-                field("Intrastat Code"; "Intrastat Code")
+                field("Intrastat Code"; Rec."Intrastat Code")
                 {
-                    ApplicationArea = BasicEU;
+                    ApplicationArea = BasicEU, BasicNO;
                     ToolTip = 'Specifies an INTRASTAT code for the country/region you are trading with.';
                 }
-                field("Currency Code"; "Currency Code")
+                field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the default currency code for the country/region.';
                     Visible = false;
                 }
-                field("Foreign Country/Region Code"; "Foreign Country/Region Code")
+                field("Foreign Country/Region Code"; Rec."Foreign Country/Region Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the foreign country/region code that identifies a country/region on the Blacklist Communication Report.';
                     Visible = false;
                 }
-                field("VAT Scheme"; "VAT Scheme")
+                field("VAT Scheme"; Rec."VAT Scheme")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the national body that issues the VAT registration number for the country/region in connection with electronic document sending.';
@@ -121,9 +121,6 @@ page 10 "Countries/Regions"
                     Caption = 'Custom Address Format';
                     Enabled = "Address Format" = "Address Format"::Custom;
                     Image = Addresses;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ToolTip = 'Define the scope and order of fields that make up the country/region address.';
 
                     trigger OnAction()
@@ -142,6 +139,17 @@ page 10 "Countries/Regions"
                         CustomAddressFormatPage.SetTableView(CustomAddressFormat);
                         CustomAddressFormatPage.RunModal();
                     end;
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(CustomAddressFormat_Promoted; CustomAddressFormat)
+                {
                 }
             }
         }

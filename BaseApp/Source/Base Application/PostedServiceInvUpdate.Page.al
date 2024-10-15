@@ -23,14 +23,14 @@ page 1356 "Posted Service Inv. - Update"
                     Editable = false;
                     ToolTip = 'Specifies the number of the record.';
                 }
-                field("Bill-to Name"; "Bill-to Name")
+                field("Bill-to Name"; Rec."Bill-to Name")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Customer';
                     Editable = false;
                     ToolTip = 'Specifies the name of customer.';
                 }
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Posting Date';
@@ -41,19 +41,19 @@ page 1356 "Posted Service Inv. - Update"
             group(Payment)
             {
                 Caption = 'Payment';
-                field("Payment Method Code"; "Payment Method Code")
+                field("Payment Method Code"; Rec."Payment Method Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Payment Method Code';
                     ToolTip = 'Specifies how the customer must pay for products on the service document, such as with bank transfer, cash, or check.';
                 }
-                field("Payment Reference"; "Payment Reference")
+                field("Payment Reference"; Rec."Payment Reference")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Payment Reference';
                     ToolTip = 'Specifies the payment of the service invoice.';
                 }
-                field("Company Bank Account Code"; "Company Bank Account Code")
+                field("Company Bank Account Code"; Rec."Company Bank Account Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Company Bank Account Code';

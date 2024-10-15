@@ -68,7 +68,7 @@ codeunit 137608 "SCM CETAF Inventory Valuation"
         QtyPer: Decimal;
     begin
         Initialize();
-        Day1 := WorkDate;
+        Day1 := WorkDate();
         Qty := LibraryRandom.RandInt(20);
         QtyPer := LibraryRandom.RandInt(10);
 
@@ -133,7 +133,7 @@ codeunit 137608 "SCM CETAF Inventory Valuation"
         QtyPer: Decimal;
     begin
         Initialize();
-        Day1 := WorkDate;
+        Day1 := WorkDate();
         Qty := LibraryRandom.RandInt(20);
         QtyPer := LibraryRandom.RandInt(10);
 
@@ -291,7 +291,7 @@ codeunit 137608 "SCM CETAF Inventory Valuation"
         Qty: Decimal;
     begin
         Initialize();
-        Day1 := WorkDate;
+        Day1 := WorkDate();
 
         // Setup the item.
         LibraryPatterns.MAKEItem(Item, CostingMethod, 0, 0, 0, '');
@@ -342,7 +342,7 @@ codeunit 137608 "SCM CETAF Inventory Valuation"
         Qty: Decimal;
     begin
         Initialize();
-        Day1 := WorkDate;
+        Day1 := WorkDate();
 
         // Setup the item.
         LibraryPatterns.MAKEItem(Item, CostingMethod, 0, 0, 0, '');
@@ -441,7 +441,7 @@ codeunit 137608 "SCM CETAF Inventory Valuation"
         LibraryInventory.SetAverageCostSetupInAccPeriods(
           InventorySetup."Average Cost Calc. Type"::Item, InventorySetup."Average Cost Period"::Day);
 
-        Day1 := WorkDate;
+        Day1 := WorkDate();
         if Confirm('') then; // ES workaround.
 
         // Setup the item.
@@ -514,7 +514,7 @@ codeunit 137608 "SCM CETAF Inventory Valuation"
         Qty: Decimal;
     begin
         Initialize();
-        Day1 := WorkDate;
+        Day1 := WorkDate();
         if Confirm('') then; // ES workaround.
 
         // Setup the item.
@@ -614,7 +614,7 @@ codeunit 137608 "SCM CETAF Inventory Valuation"
         LibraryInventory.SetAverageCostSetupInAccPeriods(
           InventorySetup."Average Cost Calc. Type"::Item, InventorySetup."Average Cost Period"::Day);
 
-        Day1 := WorkDate;
+        Day1 := WorkDate();
 
         // Setup the item.
         LibraryPatterns.MAKEItem(Item, CostingMethod, 0, 0, 0, '');
@@ -706,7 +706,7 @@ codeunit 137608 "SCM CETAF Inventory Valuation"
         Qty: Decimal;
     begin
         Initialize();
-        Day1 := WorkDate;
+        Day1 := WorkDate();
 
         // Setup the item.
         LibraryPatterns.MAKEItem(Item, CostingMethod, 0, 0, 0, '');
@@ -836,7 +836,7 @@ codeunit 137608 "SCM CETAF Inventory Valuation"
         LibraryInventory.CreateItem(Item);
 
         // [GIVEN] Set filters on Calculate Inventory Value. Fields Location Filter and Variant Filter, both filters longer than 10 characters
-        Item.SetRecFilter;
+        Item.SetRecFilter();
         Item.SetFilter("Location Filter", '%1|%2', LibraryUtility.GenerateGUID, LibraryUtility.GenerateGUID());
         Item.SetFilter("Variant Filter", '%1|%2', LibraryUtility.GenerateGUID, LibraryUtility.GenerateGUID());
 
@@ -869,13 +869,13 @@ codeunit 137608 "SCM CETAF Inventory Valuation"
 
         // [GIVEN] Post negative adjustment for item "I"
         LibraryPatterns.POSTNegativeAdjustment(
-          Item, Location.Code, ItemVariant.Code, '', LibraryRandom.RandInt(10), WorkDate, LibraryRandom.RandDec(100, 2));
+          Item, Location.Code, ItemVariant.Code, '', LibraryRandom.RandInt(10), WorkDate(), LibraryRandom.RandDec(100, 2));
 
         // [WHEN] Run Inventory Valuation - Check
-        Item.SetRecFilter;
+        Item.SetRecFilter();
         Item.SetRange("Location Filter", Location.Code);
         Item.SetRange("Variant Filter", ItemVariant.Code);
-        CalcInventoryValueCheck.SetProperties(WorkDate, 0, true, true, false, true);
+        CalcInventoryValueCheck.SetProperties(WorkDate(), 0, true, true, false, true);
         CalcInventoryValueCheck.RunCheck(Item, TempErrorBuffer);
 
         // [THEN] Verification returns error: "open outbound entry found".

@@ -30,7 +30,7 @@ page 474 "VAT Statement Preview"
                             PeriodSelection := PeriodSelection::"Within Period";
                         end;
 
-                        UpdateSubForm;
+                        UpdateSubForm();
                     end;
                 }
                 field(Selection; Selection)
@@ -42,11 +42,11 @@ page 474 "VAT Statement Preview"
                     trigger OnValidate()
                     begin
                         if Selection = Selection::"Open and Closed" then
-                            OpenandClosedSelectionOnValida;
+                            OpenandClosedSelectionOnValida();
                         if Selection = Selection::Closed then
-                            ClosedSelectionOnValidate;
+                            ClosedSelectionOnValidate();
                         if Selection = Selection::Open then
-                            OpenSelectionOnValidate;
+                            OpenSelectionOnValidate();
                     end;
                 }
                 field(PeriodSelection; PeriodSelection)
@@ -58,9 +58,9 @@ page 474 "VAT Statement Preview"
                     trigger OnValidate()
                     begin
                         if PeriodSelection = PeriodSelection::"Before and Within Period" then
-                            BeforeandWithinPeriodSelection;
+                            BeforeandWithinPeriodSelection();
                         if PeriodSelection = PeriodSelection::"Within Period" then
-                            WithinPeriodPeriodSelectionOnV;
+                            WithinPeriodPeriodSelectionOnV();
                     end;
                 }
                 field(UseAmtsInAddCurr; UseAmtsInAddCurr)
@@ -72,7 +72,7 @@ page 474 "VAT Statement Preview"
 
                     trigger OnValidate()
                     begin
-                        UseAmtsInAddCurrOnPush;
+                        UseAmtsInAddCurrOnPush();
                     end;
                 }
                 field(DateFilter; DateFilter)
@@ -86,7 +86,7 @@ page 474 "VAT Statement Preview"
                         FilterTokens: Codeunit "Filter Tokens";
                     begin
                         FilterTokens.MakeDateFilter(DateFilter);
-                        SetFilter("Date Filter", DateFilter);
+                        Rec.SetFilter("Date Filter", DateFilter);
                         UpdateSubForm();
                         CurrPage.Update();
                     end;
@@ -207,27 +207,27 @@ page 474 "VAT Statement Preview"
 
     local procedure OpenSelectionOnValidate()
     begin
-        OpenSelectionOnPush;
+        OpenSelectionOnPush();
     end;
 
     local procedure ClosedSelectionOnValidate()
     begin
-        ClosedSelectionOnPush;
+        ClosedSelectionOnPush();
     end;
 
     local procedure OpenandClosedSelectionOnValida()
     begin
-        OpenandClosedSelectionOnPush;
+        OpenandClosedSelectionOnPush();
     end;
 
     local procedure WithinPeriodPeriodSelectionOnV()
     begin
-        WithinPeriodPeriodSelectOnPush;
+        WithinPeriodPeriodSelectOnPush();
     end;
 
     local procedure BeforeandWithinPeriodSelection()
     begin
-        BeforeandWithinPeriodSelOnPush;
+        BeforeandWithinPeriodSelOnPush();
     end;
 }
 

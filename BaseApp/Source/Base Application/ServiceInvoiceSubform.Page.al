@@ -28,30 +28,43 @@ page 5934 "Service Invoice Subform"
                         UpdateSplitVATLinesPage(CopyStr(FieldCaption(Type), 1, 100));
                     end;
                 }
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
 
                     trigger OnValidate()
+                    var
+                        Item: Record "Item";
                     begin
                         ShowShortcutDimCode(ShortcutDimCode);
                         NoOnAfterValidate();
                         UpdateSplitVATLinesPage(CopyStr(FieldCaption("No."), 1, 100));
+                        if "Variant Code" = '' then
+                            VariantCodeMandatory := Item.IsVariantMandatory(Type = Type::Item, "No.");
                     end;
                 }
-                field("Service Tariff No."; "Service Tariff No.")
+                field("Service Tariff No."; Rec."Service Tariff No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the ID of the service tariff that is associated with the service order.';
                 }
-                field("Variant Code"; "Variant Code")
+                field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the variant of the item on the line.';
                     Visible = false;
+                    ShowMandatory = VariantCodeMandatory;
+
+                    trigger OnValidate()
+                    var
+                        Item: Record "Item";
+                    begin
+                        if "Variant Code" = '' then
+                            VariantCodeMandatory := Item.IsVariantMandatory(Type = Type::Item, "No.");
+                    end;
                 }
-                field("Include in VAT Transac. Rep."; "Include in VAT Transac. Rep.")
+                field("Include in VAT Transac. Rep."; Rec."Include in VAT Transac. Rep.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies if the entry must be included in the VAT transaction report.';
@@ -62,7 +75,7 @@ page 5934 "Service Invoice Subform"
                     ToolTip = 'Specifies that the item is a catalog item.';
                     Visible = false;
                 }
-                field("VAT Prod. Posting Group"; "VAT Prod. Posting Group")
+                field("VAT Prod. Posting Group"; Rec."VAT Prod. Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT specification of the involved item or resource to link transactions made for this record with the appropriate general ledger account according to the VAT posting setup.';
@@ -78,25 +91,25 @@ page 5934 "Service Invoice Subform"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the description of an item, resource, cost, or a standard text on the line.';
                 }
-                field("Description 2"; "Description 2")
+                field("Description 2"; Rec."Description 2")
                 {
                     ApplicationArea = Service;
                     Importance = Additional;
                     ToolTip = 'Specifies information in addition to the description.';
                     Visible = false;
                 }
-                field("Return Reason Code"; "Return Reason Code")
+                field("Return Reason Code"; Rec."Return Reason Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the code explaining why the item was returned.';
                     Visible = false;
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the inventory location from where the items on the line should be taken and where they should be registered.';
                 }
-                field("Bin Code"; "Bin Code")
+                field("Bin Code"; Rec."Bin Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the bin where the items are picked or put away.';
@@ -114,7 +127,7 @@ page 5934 "Service Invoice Subform"
                         UpdateSplitVATLinesPage(CopyStr(FieldCaption(Quantity), 1, 100));
                     end;
                 }
-                field("Unit of Measure Code"; "Unit of Measure Code")
+                field("Unit of Measure Code"; Rec."Unit of Measure Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
@@ -125,19 +138,19 @@ page 5934 "Service Invoice Subform"
                         UpdateSplitVATLinesPage(CopyStr(FieldCaption("Unit of Measure Code"), 1, 100));
                     end;
                 }
-                field("Unit of Measure"; "Unit of Measure")
+                field("Unit of Measure"; Rec."Unit of Measure")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the name of the item or resource''s unit of measure, such as piece or hour.';
                     Visible = false;
                 }
-                field("Unit Cost (LCY)"; "Unit Cost (LCY)")
+                field("Unit Cost (LCY)"; Rec."Unit Cost (LCY)")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the cost, in LCY, of one unit of the item or resource on the line.';
                     Visible = false;
                 }
-                field("Unit Price"; "Unit Price")
+                field("Unit Price"; Rec."Unit Price")
                 {
                     ApplicationArea = Service;
                     BlankZero = true;
@@ -148,26 +161,26 @@ page 5934 "Service Invoice Subform"
                         UpdateSplitVATLinesPage(CopyStr(FieldCaption("Unit Price"), 1, 100));
                     end;
                 }
-                field("Tax Liable"; "Tax Liable")
+                field("Tax Liable"; Rec."Tax Liable")
                 {
                     ApplicationArea = SalesTax;
                     Editable = false;
                     ToolTip = 'Specifies if the customer or vendor is liable for sales tax.';
                     Visible = false;
                 }
-                field("Tax Area Code"; "Tax Area Code")
+                field("Tax Area Code"; Rec."Tax Area Code")
                 {
                     ApplicationArea = SalesTax;
                     ToolTip = 'Specifies the tax area that is used to calculate and post sales tax.';
                     Visible = false;
                 }
-                field("Tax Group Code"; "Tax Group Code")
+                field("Tax Group Code"; Rec."Tax Group Code")
                 {
                     ApplicationArea = SalesTax;
                     ShowMandatory = "Tax Area Code" <> '';
                     ToolTip = 'Specifies the tax group that is used to calculate and post sales tax.';
                 }
-                field("Line Discount %"; "Line Discount %")
+                field("Line Discount %"; Rec."Line Discount %")
                 {
                     ApplicationArea = Service;
                     BlankZero = true;
@@ -178,7 +191,7 @@ page 5934 "Service Invoice Subform"
                         UpdateSplitVATLinesPage(CopyStr(FieldCaption("Line Discount %"), 1, 100));
                     end;
                 }
-                field("Line Amount"; "Line Amount")
+                field("Line Amount"; Rec."Line Amount")
                 {
                     ApplicationArea = Service;
                     BlankZero = true;
@@ -189,7 +202,7 @@ page 5934 "Service Invoice Subform"
                         UpdateSplitVATLinesPage(CopyStr(FieldCaption("Line Amount"), 1, 100));
                     end;
                 }
-                field("Line Discount Amount"; "Line Discount Amount")
+                field("Line Discount Amount"; Rec."Line Discount Amount")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the discount amount that is granted for the item on the line.';
@@ -200,66 +213,66 @@ page 5934 "Service Invoice Subform"
                         UpdateSplitVATLinesPage(CopyStr(FieldCaption("Line Discount Amount"), 1, 100));
                     end;
                 }
-                field("Allow Invoice Disc."; "Allow Invoice Disc.")
+                field("Allow Invoice Disc."; Rec."Allow Invoice Disc.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies if the invoice line is included when the invoice discount is calculated.';
                     Visible = false;
                 }
-                field("Inv. Discount Amount"; "Inv. Discount Amount")
+                field("Inv. Discount Amount"; Rec."Inv. Discount Amount")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the total calculated invoice discount amount for the line.';
                     Visible = false;
                 }
-                field("Serv. Price Adjmt. Gr. Code"; "Serv. Price Adjmt. Gr. Code")
+                field("Serv. Price Adjmt. Gr. Code"; Rec."Serv. Price Adjmt. Gr. Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the service price adjustment group code that applies to this line.';
                     Visible = false;
                 }
-                field("Contract No."; "Contract No.")
+                field("Contract No."; Rec."Contract No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the contract, if the service order originated from a service contract.';
                 }
-                field("Service Item No."; "Service Item No.")
+                field("Service Item No."; Rec."Service Item No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the service item number linked to this service line.';
                     Visible = false;
                 }
-                field("Service Item Serial No."; "Service Item Serial No.")
+                field("Service Item Serial No."; Rec."Service Item Serial No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the serial number of the service item to which this service line is linked.';
                     Visible = false;
                 }
-                field("Appl.-to Service Entry"; "Appl.-to Service Entry")
+                field("Appl.-to Service Entry"; Rec."Appl.-to Service Entry")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the service ledger entry number this line is applied to.';
                     Visible = true;
                 }
-                field("Work Type Code"; "Work Type Code")
+                field("Work Type Code"; Rec."Work Type Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies a code for the type of work performed by the resource registered on this line.';
                     Visible = false;
                 }
-                field("Appl.-to Item Entry"; "Appl.-to Item Entry")
+                field("Appl.-to Item Entry"; Rec."Appl.-to Item Entry")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the item ledger entry that the document or journal line is applied to.';
                     Visible = false;
                 }
-                field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
+                field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                     Visible = DimVisible1;
                 }
-                field("Shortcut Dimension 2 Code"; "Shortcut Dimension 2 Code")
+                field("Shortcut Dimension 2 Code"; Rec."Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
@@ -349,7 +362,7 @@ page 5934 "Service Invoice Subform"
                         ValidateShortcutDimCode(8, ShortcutDimCode[8]);
                     end;
                 }
-                field("Automatically Generated"; "Automatically Generated")
+                field("Automatically Generated"; Rec."Automatically Generated")
                 {
                     ApplicationArea = Service;
                     Editable = false;
@@ -381,7 +394,7 @@ page 5934 "Service Invoice Subform"
                         PickPrice();
                     end;
                 }
-#if not CLEAN19
+#if not CLEAN21
                 action("Get Li&ne Discount")
                 {
                     AccessByPermission = TableData "Sales Line Discount" = R;
@@ -439,7 +452,7 @@ page 5934 "Service Invoice Subform"
 
                     trigger OnAction()
                     begin
-                        GetShipment;
+                        GetShipment();
                     end;
                 }
             }
@@ -460,7 +473,7 @@ page 5934 "Service Invoice Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromServLine(Rec, ItemAvailFormsMgt.ByEvent);
+                            ItemAvailFormsMgt.ShowItemAvailFromServLine(Rec, ItemAvailFormsMgt.ByEvent());
                         end;
                     }
                     action(Period)
@@ -472,7 +485,7 @@ page 5934 "Service Invoice Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromServLine(Rec, ItemAvailFormsMgt.ByPeriod);
+                            ItemAvailFormsMgt.ShowItemAvailFromServLine(Rec, ItemAvailFormsMgt.ByPeriod());
                         end;
                     }
                     action(Variant)
@@ -484,7 +497,7 @@ page 5934 "Service Invoice Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromServLine(Rec, ItemAvailFormsMgt.ByVariant);
+                            ItemAvailFormsMgt.ShowItemAvailFromServLine(Rec, ItemAvailFormsMgt.ByVariant());
                         end;
                     }
                     action(Location)
@@ -497,7 +510,7 @@ page 5934 "Service Invoice Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromServLine(Rec, ItemAvailFormsMgt.ByLocation);
+                            ItemAvailFormsMgt.ShowItemAvailFromServLine(Rec, ItemAvailFormsMgt.ByLocation());
                         end;
                     }
                     action(Lot)
@@ -520,7 +533,7 @@ page 5934 "Service Invoice Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromServLine(Rec, ItemAvailFormsMgt.ByBOM);
+                            ItemAvailFormsMgt.ShowItemAvailFromServLine(Rec, ItemAvailFormsMgt.ByBOM());
                         end;
                     }
                 }
@@ -543,7 +556,7 @@ page 5934 "Service Invoice Subform"
                     ApplicationArea = ItemTracking;
                     Caption = 'Item &Tracking Lines';
                     Image = ItemTrackingLines;
-                    ShortCutKey = 'Ctrl+Alt+I'; 
+                    ShortCutKey = 'Ctrl+Alt+I';
                     ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
 
                     trigger OnAction()
@@ -590,8 +603,12 @@ page 5934 "Service Invoice Subform"
     }
 
     trigger OnAfterGetRecord()
+    var
+        Item: Record Item;
     begin
         ShowShortcutDimCode(ShortcutDimCode);
+        if "Variant Code" = '' then
+            VariantCodeMandatory := Item.IsVariantMandatory(Type = Type::Item, "No.");
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -624,7 +641,7 @@ page 5934 "Service Invoice Subform"
     begin
         ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
         BackgroundErrorCheck := DocumentErrorsMgt.BackgroundValidationEnabled();
-        SetDimensionsVisibility;
+        SetDimensionsVisibility();
     end;
 
     var
@@ -635,6 +652,7 @@ page 5934 "Service Invoice Subform"
         ExtendedPriceEnabled: Boolean;
         BackgroundErrorCheck: Boolean;
         ShowAllLinesEnabled: Boolean;
+        VariantCodeMandatory: Boolean;
 
     protected var
         ShortcutDimCode: array[8] of Code[20];
@@ -664,10 +682,10 @@ page 5934 "Service Invoice Subform"
     begin
         OnBeforeInsertExtendedText(Rec);
         if TransferExtendedText.ServCheckIfAnyExtText(Rec, Unconditionally) then begin
-            CurrPage.SaveRecord;
+            CurrPage.SaveRecord();
             TransferExtendedText.InsertServExtText(Rec);
         end;
-        if TransferExtendedText.MakeUpdate then
+        if TransferExtendedText.MakeUpdate() then
             UpdateForm(true);
     end;
 
@@ -684,7 +702,7 @@ page 5934 "Service Invoice Subform"
     protected procedure QuantityOnAfterValidate()
     begin
         if Reserve = Reserve::Always then begin
-            CurrPage.SaveRecord;
+            CurrPage.SaveRecord();
             AutoReserve();
         end;
     end;
@@ -692,7 +710,7 @@ page 5934 "Service Invoice Subform"
     protected procedure UnitofMeasureCodeOnAfterValidate()
     begin
         if Reserve = Reserve::Always then begin
-            CurrPage.SaveRecord;
+            CurrPage.SaveRecord();
             AutoReserve();
         end;
     end;

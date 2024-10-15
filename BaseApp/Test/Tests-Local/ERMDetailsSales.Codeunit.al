@@ -77,7 +77,7 @@ codeunit 144178 "ERM Details Sales"
         DocumentNo2 := CreateAndPostSalesOrder(SalesLine, SalesLine."Sell-to Customer No.", '', OperationType, false);  // Currency Code as blank and Invoice as False.
 
         // Run Combine Shipments Report
-        RunCombineShipmentsReport(SalesLine."Sell-to Customer No.", OperationType, WorkDate, WorkDate);
+        RunCombineShipmentsReport(SalesLine."Sell-to Customer No.", OperationType, WorkDate(), WorkDate());
 
         // Verify: Verify different Sales Invoice created after Combine Shipment.
         Assert.AreNotEqual(FindSalesLine(DocumentNo), FindSalesLine(DocumentNo2), ValueNotEqualErr);
@@ -393,7 +393,7 @@ codeunit 144178 "ERM Details Sales"
         IssueVendorBillAfterPostPurchaseInvoice(VendorBillHeader);
         FindVendorBillLine(VendorBillLine, VendorBillHeader."No.");
         PostedInvoiceNo := FindPostedPurchaseInvoiceNo(VendorBillLine."Vendor No.");
-        VendorBillHeader.Find;
+        VendorBillHeader.Find();
 
         // [WHEN] Post Vendor Bill List
         PostVendorBill(VendorBillHeader."Payment Method Code");
@@ -427,7 +427,7 @@ codeunit 144178 "ERM Details Sales"
         DocumentNo2 := CreateAndPostSalesOrder(SalesLine, SalesLine."Sell-to Customer No.", '', OperationType, false);
 
         // [WHEN] Run Combine Shipments report with Posting Date > Document Date
-        RunCombineShipmentsReport(SalesLine."Sell-to Customer No.", OperationType, WorkDate + 1, WorkDate);
+        RunCombineShipmentsReport(SalesLine."Sell-to Customer No.", OperationType, WorkDate + 1, WorkDate());
 
         // [THEN] Two different Sales Invoice lines created successfully
         Assert.AreNotEqual(FindSalesLine(DocumentNo), FindSalesLine(DocumentNo2), ValueNotEqualErr);
@@ -452,7 +452,7 @@ codeunit 144178 "ERM Details Sales"
         CreateAndPostSalesOrder(SalesLine, SalesLine."Sell-to Customer No.", '', OperationType, false);
 
         // [WHEN] Run Combine Shipments report with Posting Date < Document Date
-        asserterror RunCombineShipmentsReport(SalesLine."Sell-to Customer No.", OperationType, WorkDate, WorkDate + 1);
+        asserterror RunCombineShipmentsReport(SalesLine."Sell-to Customer No.", OperationType, WorkDate(), WorkDate + 1);
 
         // [THEN] The error is thrown: "Document Date must be less than Posting Date."
         Assert.ExpectedErrorCode('Dialog');
@@ -643,7 +643,7 @@ codeunit 144178 "ERM Details Sales"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo);
         SalesHeader.Validate("Operation Type", OperationType);
         SalesHeader.Validate("Bank Account", CreateCustomerBankAccount(CustomerNo));
-        SalesHeader.Validate("Posting Date", WorkDate);
+        SalesHeader.Validate("Posting Date", WorkDate());
         SalesHeader.Validate("Currency Code", CurrencyCode);
         SalesHeader.Modify(true);
     end;
@@ -987,8 +987,8 @@ codeunit 144178 "ERM Details Sales"
     begin
         CombineShipments.SalesOrderHeader.SetFilter("Sell-to Customer No.", LibraryVariableStorage.DequeueText);
         CombineShipments.OperationType.SetValue(LibraryVariableStorage.DequeueText);
-        CombineShipments.CombineFromDate.SetValue(WorkDate);
-        CombineShipments.CombineToDate.SetValue(WorkDate);
+        CombineShipments.CombineFromDate.SetValue(WorkDate());
+        CombineShipments.CombineToDate.SetValue(WorkDate());
         CombineShipments.PostingDate.SetValue(LibraryVariableStorage.DequeueDate);
         CombineShipments.DocDateReq.SetValue(LibraryVariableStorage.DequeueDate);
         CombineShipments.OK.Invoke;
@@ -1003,7 +1003,7 @@ codeunit 144178 "ERM Details Sales"
         LibraryVariableStorage.Dequeue(CustomerNo);
         ClosingBankReceipts.CustEntry1.SetFilter("Customer No.", CustomerNo);
         ClosingBankReceipts.ClosingDateForBankReceipts.SetValue(
-          CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate)); // Using random Date.
+          CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate())); // Using random Date.
         ClosingBankReceipts.OK.Invoke;
     end;
 
@@ -1015,7 +1015,7 @@ codeunit 144178 "ERM Details Sales"
     begin
         LibraryVariableStorage.Dequeue(No);
         CustomerBillsList.Customer.SetFilter("No.", No);
-        CustomerBillsList."Ending Date".SetValue(CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate));  // Using random Date.
+        CustomerBillsList."Ending Date".SetValue(CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()));  // Using random Date.
         CustomerBillsList.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 
@@ -1027,7 +1027,7 @@ codeunit 144178 "ERM Details Sales"
     begin
         LibraryVariableStorage.Dequeue(No);
         CustomerSheetPrint.Customer.SetFilter("No.", No);
-        CustomerSheetPrint.Customer.SetFilter("Date Filter", Format(WorkDate));
+        CustomerSheetPrint.Customer.SetFilter("Date Filter", Format(WorkDate()));
         CustomerSheetPrint.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 
@@ -1039,7 +1039,7 @@ codeunit 144178 "ERM Details Sales"
     begin
         LibraryVariableStorage.Dequeue(No);
         VendorAccountBillsList.Vendor.SetFilter("No.", No);
-        VendorAccountBillsList.EndingDate.SetValue(CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate));  // Using random Date.
+        VendorAccountBillsList.EndingDate.SetValue(CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()));  // Using random Date.
         VendorAccountBillsList.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 }

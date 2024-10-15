@@ -384,7 +384,7 @@ codeunit 144207 "FatturaPA Applications"
     begin
         ApplyFromCustLedgEntry.CalcFields("Remaining Amount");
         LibraryERM.SetApplyCustomerEntry(ApplyFromCustLedgEntry, ApplyFromCustLedgEntry."Remaining Amount");
-        ApplyToCustLedgEntry.SetRecFilter;
+        ApplyToCustLedgEntry.SetRecFilter();
         LibraryERM.SetAppliestoIdCustomer(ApplyToCustLedgEntry);
         LibraryERM.PostCustLedgerApplication(ApplyFromCustLedgEntry);
     end;
@@ -406,7 +406,7 @@ codeunit 144207 "FatturaPA Applications"
     local procedure AssertElementValue(var TempXMLBuffer: Record "XML Buffer" temporary; ElementName: Text; ElementValue: Text)
     begin
         FindNextElement(TempXMLBuffer);
-        Assert.AreEqual(ElementName, TempXMLBuffer.GetElementName,
+        Assert.AreEqual(ElementName, TempXMLBuffer.GetElementName(),
           StrSubstNo(UnexpectedElementNameErr, ElementName, TempXMLBuffer.GetElementName));
         Assert.AreEqual(ElementValue, TempXMLBuffer.Value,
           StrSubstNo(UnexpectedElementValueErr, ElementName, ElementValue, TempXMLBuffer.Value));
@@ -417,14 +417,14 @@ codeunit 144207 "FatturaPA Applications"
         if TempXMLBuffer.HasChildNodes then
             TempXMLBuffer.FindChildElements(TempXMLBuffer)
         else
-            if not (TempXMLBuffer.Next > 0) then begin
+            if not (TempXMLBuffer.Next() > 0) then begin
                 TempXMLBuffer.GetParent;
                 TempXMLBuffer.SetRange("Parent Entry No.", TempXMLBuffer."Parent Entry No.");
-                if not (TempXMLBuffer.Next > 0) then
+                if not (TempXMLBuffer.Next() > 0) then
                     repeat
                         TempXMLBuffer.GetParent;
                         TempXMLBuffer.SetRange("Parent Entry No.", TempXMLBuffer."Parent Entry No.");
-                    until (TempXMLBuffer.Next > 0);
+                    until (TempXMLBuffer.Next() > 0);
             end;
     end;
 

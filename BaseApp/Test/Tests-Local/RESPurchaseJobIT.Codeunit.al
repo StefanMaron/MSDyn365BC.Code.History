@@ -46,7 +46,7 @@ codeunit 144188 "RES Purchase Job IT"
         JobLedgerEntry.FindFirst();
         Assert.AreNearlyEqual(
           PurchaseInvLine."Job Unit Price", JobLedgerEntry."Unit Price", LibraryERM.GetAmountRoundingPrecision,
-          StrSubstNo(UnitPriceErr, JobLedgerEntry.FieldCaption("Unit Price"), PurchaseInvLine."Job Unit Price", JobLedgerEntry.TableCaption));
+          StrSubstNo(UnitPriceErr, JobLedgerEntry.FieldCaption("Unit Price"), PurchaseInvLine."Job Unit Price", JobLedgerEntry.TableCaption()));
     end;
 
     local procedure CreateAndPostPurchaseOrder(): Code[20]

@@ -95,7 +95,7 @@ codeunit 134233 "ERM Base Calendar"
         Customer.Delete(true);
 
         // [THEN] The customized calendar data related with the customer "C" also are deleted
-        VerifyEmptyCalendarData(BaseCalendarCode, CustomizedCalendarChange."Source Type"::Customer, Customer."No.", WorkDate);
+        VerifyEmptyCalendarData(BaseCalendarCode, CustomizedCalendarChange."Source Type"::Customer, Customer."No.", WorkDate());
     end;
 
     [Test]
@@ -115,7 +115,7 @@ codeunit 134233 "ERM Base Calendar"
         Vendor.Delete(true);
 
         // [THEN] The customized calendar data related with the vendor "V" also are deleted
-        VerifyEmptyCalendarData(BaseCalendarCode, CustomizedCalendarChange."Source Type"::Vendor, Vendor."No.", WorkDate);
+        VerifyEmptyCalendarData(BaseCalendarCode, CustomizedCalendarChange."Source Type"::Vendor, Vendor."No.", WorkDate());
     end;
 
     [Test]
@@ -135,7 +135,7 @@ codeunit 134233 "ERM Base Calendar"
         Location.Delete(true);
 
         // [THEN] The customized calendar data related with the location "L" also are deleted
-        VerifyEmptyCalendarData(BaseCalendarCode, CustomizedCalendarChange."Source Type"::Location, Location.Code, WorkDate);
+        VerifyEmptyCalendarData(BaseCalendarCode, CustomizedCalendarChange."Source Type"::Location, Location.Code, WorkDate());
     end;
 
     [Test]
@@ -155,7 +155,7 @@ codeunit 134233 "ERM Base Calendar"
         ShippingAgent.Delete(true);
 
         // [THEN] The customized calendar data related with the shipping agent "SA" also are deleted
-        VerifyEmptyCalendarData(BaseCalendarCode, CustomizedCalendarChange."Source Type"::"Shipping Agent", ShippingAgent.Code, WorkDate);
+        VerifyEmptyCalendarData(BaseCalendarCode, CustomizedCalendarChange."Source Type"::"Shipping Agent", ShippingAgent.Code, WorkDate());
     end;
 
     [Test]
@@ -175,7 +175,7 @@ codeunit 134233 "ERM Base Calendar"
         Customer.Rename(LibraryUtility.GenerateRandomCode20(Customer.FieldNo("No."), DATABASE::Customer));
 
         // [THEN] The customized calendar data related with the customer "C" also are renamed
-        VerifyUnemptyCalendarData(BaseCalendarCode, CustomizedCalendarChange."Source Type"::Customer, Customer."No.", WorkDate);
+        VerifyUnemptyCalendarData(BaseCalendarCode, CustomizedCalendarChange."Source Type"::Customer, Customer."No.", WorkDate());
     end;
 
     [Test]
@@ -195,7 +195,7 @@ codeunit 134233 "ERM Base Calendar"
         Vendor.Rename(LibraryUtility.GenerateRandomCode20(Vendor.FieldNo("No."), DATABASE::Vendor));
 
         // [THEN] The customized calendar data related with the vendor "V" also are renamed
-        VerifyUnemptyCalendarData(BaseCalendarCode, CustomizedCalendarChange."Source Type"::Vendor, Vendor."No.", WorkDate);
+        VerifyUnemptyCalendarData(BaseCalendarCode, CustomizedCalendarChange."Source Type"::Vendor, Vendor."No.", WorkDate());
     end;
 
     [Test]
@@ -215,7 +215,7 @@ codeunit 134233 "ERM Base Calendar"
         Location.Rename(LibraryUtility.GenerateRandomCode(Location.FieldNo(Code), DATABASE::Location));
 
         // [THEN] The customized calendar data related with the location "L" also are renamed
-        VerifyUnemptyCalendarData(BaseCalendarCode, CustomizedCalendarChange."Source Type"::Location, Location.Code, WorkDate);
+        VerifyUnemptyCalendarData(BaseCalendarCode, CustomizedCalendarChange."Source Type"::Location, Location.Code, WorkDate());
     end;
 
     [Test]
@@ -235,7 +235,7 @@ codeunit 134233 "ERM Base Calendar"
         ShippingAgent.Rename(LibraryUtility.GenerateRandomCode(ShippingAgent.FieldNo(Code), DATABASE::"Shipping Agent"));
 
         // [THEN] The customized calendar data related with the shipment agent "SA" also are renamed
-        VerifyUnemptyCalendarData(BaseCalendarCode, CustomizedCalendarChange."Source Type"::"Shipping Agent", ShippingAgent.Code, WorkDate);
+        VerifyUnemptyCalendarData(BaseCalendarCode, CustomizedCalendarChange."Source Type"::"Shipping Agent", ShippingAgent.Code, WorkDate());
     end;
 
     [Test]
@@ -431,7 +431,7 @@ codeunit 134233 "ERM Base Calendar"
             Validate("Source Code", SourceCode);
             Validate("Additional Source Code", '');
             Validate("Base Calendar Code", BaseCalendarCode);
-            Validate(Date, WorkDate);
+            Validate(Date, WorkDate());
             Validate(Description, NewDescription);
             Validate(Nonworking, IsNonworking);
             Insert(true);

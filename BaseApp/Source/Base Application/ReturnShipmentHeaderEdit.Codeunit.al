@@ -9,7 +9,7 @@ codeunit 1406 "Return Shipment Header - Edit"
     begin
         ReturnShipmentHeader := Rec;
         ReturnShipmentHeader.LockTable();
-        ReturnShipmentHeader.Find;
+        ReturnShipmentHeader.Find();
         ReturnShipmentHeader."Ship-to County" := "Ship-to County";
         ReturnShipmentHeader."Ship-to Country/Region Code" := "Ship-to Country/Region Code";
         ReturnShipmentHeader."Additional Information" := "Additional Information";

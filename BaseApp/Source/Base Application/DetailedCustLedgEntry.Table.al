@@ -310,8 +310,8 @@ table 379 "Detailed Cust. Ledg. Entry"
 
     trigger OnInsert()
     begin
-        SetLedgerEntryAmount;
-        SetOriginalDocumentInfo;
+        SetLedgerEntryAmount();
+        SetOriginalDocumentInfo();
     end;
 
     procedure GetLastEntryNo(): Integer;

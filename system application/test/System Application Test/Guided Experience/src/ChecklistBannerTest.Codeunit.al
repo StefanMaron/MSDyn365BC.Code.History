@@ -369,7 +369,7 @@ codeunit 132605 "Checklist Banner Test"
         VerifyCompletionStatusForChecklistItem(ChecklistBannerContainer, 'first', true);
 
         // [THEN] The status of the first checklist item is completed
-        Assert.AreEqual('You completed this step', ChecklistBannerContainer.ChecklistBanner.TaskStatusText.Value(),
+        Assert.AreEqual('This step is completed', ChecklistBannerContainer.ChecklistBanner.TaskStatusText.Value(),
             'The status of the first checklist item is incorrect after completion.');
 
         // [THEN] The labels and the visibility of the banner buttons remain unchanged, as the completion percentage is 25%
@@ -562,15 +562,6 @@ codeunit 132605 "Checklist Banner Test"
 
         // [GIVEN] Back to checklist is invoked
         ChecklistBannerContainer.ChecklistBanner.BackToChecklist.Invoke();
-    end;
-
-    local procedure SecondChecklistItemForTheSecondProfile(var ChecklistBannerContainer: TestPage "Checklist Banner Container")
-    begin
-        // [WHEN] Invoking Previous
-        ChecklistBannerContainer.ChecklistBanner.Previous();
-
-        // [THEN] The currently displayed checklist item is the second one and it is marked as completed
-        VerifyChecklistItemFields(ChecklistBannerContainer, 'second', true);
     end;
 
     local procedure VerifyBannerTextsAndButtonsForWelcomeStep(ChecklistBannerContainer: TestPage "Checklist Banner Container")

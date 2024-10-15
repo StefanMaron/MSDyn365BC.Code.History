@@ -231,7 +231,7 @@
         GeneralLedgerSetup.Get();
         Assert.AreNearlyEqual(
           VATAmount, VATAmountLine."VAT Amount", GeneralLedgerSetup."Amount Rounding Precision",
-          StrSubstNo(AmountError, VATAmountLine.FieldCaption("VAT Amount"), VATAmount, VATAmountLine.TableCaption));
+          StrSubstNo(AmountError, VATAmountLine.FieldCaption("VAT Amount"), VATAmount, VATAmountLine.TableCaption()));
     end;
 
     [Test]
@@ -286,7 +286,7 @@
         // Verify: Verify Purchase Receipt Line Count with Purchase Line Count.
         PurchRcptLine.SetRange("Document No.", PostedDocumentNo);
         Assert.AreEqual(
-          PurchaseLineCount, PurchRcptLine.Count, StrSubstNo(FieldError, PurchaseLine.TableCaption, PurchRcptLine.TableCaption));
+          PurchaseLineCount, PurchRcptLine.Count, StrSubstNo(FieldError, PurchaseLine.TableCaption(), PurchRcptLine.TableCaption()));
     end;
 
     [Test]
@@ -365,7 +365,7 @@
         CreatePurchaseDocument(PurchaseHeader, PurchaseLine, CreateVendor, PurchaseHeader."Document Type"::Order);
         ModifyLocationOnPurchaseLine(PurchaseLine);
         LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, PurchaseLine."Location Code", false);
-        PostedDocumentNo := NoSeriesManagement.GetNextNo(PurchaseHeader."Receiving No. Series", WorkDate, false);
+        PostedDocumentNo := NoSeriesManagement.GetNextNo(PurchaseHeader."Receiving No. Series", WorkDate(), false);
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
         LibraryWarehouse.CreateWhseReceiptFromPO(PurchaseHeader);
 
@@ -377,8 +377,8 @@
         PurchRcptLine.FindFirst();
         PurchaseLine.Get(PurchaseLine."Document Type", PurchaseLine."Document No.", PurchaseLine."Line No.");
         Assert.AreEqual(
-          PurchaseLine."Quantity Received", PurchRcptLine.Quantity, StrSubstNo(FieldError, PurchaseLine.TableCaption,
-            PurchRcptLine.TableCaption));
+          PurchaseLine."Quantity Received", PurchRcptLine.Quantity, StrSubstNo(FieldError, PurchaseLine.TableCaption(),
+            PurchRcptLine.TableCaption()));
 
         // Tear Down: Rollback Setup changes for Location and Warehouse Employee.
         ModifyWarehouseLocation(false);
@@ -510,7 +510,7 @@
         Assert.IsTrue(PurchaseOrder."Pay-to Post Code".Editable, PayToAddressFieldsEditableErr);
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [Test]
     [Scope('OnPrem')]
     procedure LineDiscountOnPurhcaseOrder()
@@ -602,10 +602,10 @@
         PurchInvHeader.Get(PostedDocumentNo);
         Assert.AreEqual(
           PurchaseHeader."Currency Code", PurchaseLine."Currency Code",
-          StrSubstNo(CurrencyError, PurchaseLine.FieldCaption("Currency Code"), PurchaseLine.TableCaption));
+          StrSubstNo(CurrencyError, PurchaseLine.FieldCaption("Currency Code"), PurchaseLine.TableCaption()));
         Assert.AreEqual(
           PurchaseHeader."Currency Code", PurchInvHeader."Currency Code",
-          StrSubstNo(CurrencyError, PurchInvHeader.FieldCaption("Currency Code"), PurchInvHeader.TableCaption));
+          StrSubstNo(CurrencyError, PurchInvHeader.FieldCaption("Currency Code"), PurchInvHeader.TableCaption()));
     end;
 
     [Test]
@@ -723,7 +723,7 @@
         CreatePurchaseDocument(PurchaseHeader, PurchaseLine, CreateVendor, PurchaseHeader."Document Type"::"Return Order");
 
         // Exercise: Post Purchase Return Order and open Navigate page.
-        DocumentNo := NoSeriesManagement.GetNextNo(PurchaseHeader."Return Shipment No. Series", WorkDate, false);
+        DocumentNo := NoSeriesManagement.GetNextNo(PurchaseHeader."Return Shipment No. Series", WorkDate(), false);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
         ReturnShipmentHeader.Get(DocumentNo);
 
@@ -831,7 +831,7 @@
         GeneralLedgerSetup.Get();
         Assert.AreNearlyEqual(
           -TotalAmount, GLEntry.Amount, GeneralLedgerSetup."Amount Rounding Precision",
-          StrSubstNo(AmountError, GLEntry.FieldCaption(Amount), TotalAmount, GLEntry.TableCaption));
+          StrSubstNo(AmountError, GLEntry.FieldCaption(Amount), TotalAmount, GLEntry.TableCaption()));
     end;
 
     [Test]
@@ -915,8 +915,8 @@
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // Exercise: Update Vendor Ledger Entry.
-        DueDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate);
-        PmtDiscountDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate);
+        DueDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate());
+        PmtDiscountDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate());
         RemainingPmtDiscPossible := PurchaseLine."Line Amount" / 2;
         UpdateVendorLedgerEntry(DocumentNo, DueDate, PmtDiscountDate, -RemainingPmtDiscPossible);
 
@@ -1192,7 +1192,7 @@
         // Verify: Verify posting error message.
         Assert.ExpectedError(
           StrSubstNo(
-            PostingError, PurchaseHeader.FieldCaption("Posting Date"), PurchaseHeader.TableCaption,
+            PostingError, PurchaseHeader.FieldCaption("Posting Date"), PurchaseHeader.TableCaption(),
             PurchaseHeader.FieldCaption("Document Type"),
             PurchaseHeader."Document Type", PurchaseHeader.FieldCaption("No."), PurchaseHeader."No."));
     end;
@@ -1308,10 +1308,10 @@
         Assert.AreNearlyEqual(
           PurchaseLine."Job Unit Price", Item."Unit Price" * ItemUnitOfMeasure."Qty. per Unit of Measure",
           GeneralLedgerSetup."Amount Rounding Precision",
-          StrSubstNo(AmountError, PurchaseLine.FieldCaption("Job Unit Price"), PurchaseLine."Job Unit Price", PurchaseLine.TableCaption));
+          StrSubstNo(AmountError, PurchaseLine.FieldCaption("Job Unit Price"), PurchaseLine."Job Unit Price", PurchaseLine.TableCaption()));
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [Test]
     [Scope('OnPrem')]
     procedure PurchaseOrderWithJobUnitCostFactor()
@@ -2425,7 +2425,7 @@
         // Verify: Verifying purchase line amount.
         Assert.AreEqual(
           Round(PurchaseLine.Quantity * PurchaseLine."Direct Unit Cost"), PurchaseLine."Line Amount",
-          StrSubstNo(AmountError, PurchaseLine.FieldCaption("Line Amount"), PurchaseLine."Line Amount", PurchaseLine.TableCaption));
+          StrSubstNo(AmountError, PurchaseLine.FieldCaption("Line Amount"), PurchaseLine."Line Amount", PurchaseLine.TableCaption()));
     end;
 
     [Test]
@@ -2476,7 +2476,7 @@
             PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, PurchaseLine."No.", LibraryRandom.RandDec(100, 2));
 
         // Verify: Verifying Open Status Error.
-        Assert.ExpectedError(StrSubstNo(StatusErr, PurchaseHeader.TableCaption, PurchaseHeader."Document Type", PurchaseHeader."No."));
+        Assert.ExpectedError(StrSubstNo(StatusErr, PurchaseHeader.TableCaption(), PurchaseHeader."Document Type", PurchaseHeader."No."));
     end;
 
     [Test]
@@ -2563,10 +2563,10 @@
         CreateVendorWithCurrency(Vendor);
         ExchangeRateAmount := LibraryRandom.RandDec(10, 2);
         CreateExchangeRates(Vendor."Currency Code",
-          CalcDate(StrSubstNo('<-%1M>', LibraryRandom.RandInt(5)), WorkDate), ExchangeRateAmount, ExchangeRateAmount / 2);
+          CalcDate(StrSubstNo('<-%1M>', LibraryRandom.RandInt(5)), WorkDate()), ExchangeRateAmount, ExchangeRateAmount / 2);
         CreatePurchaseDocument(PurchaseHeader, PurchaseLine, Vendor."No.", PurchaseHeader."Document Type"::Order);
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
-        CreateExchangeRates(Vendor."Currency Code", WorkDate, ExchangeRateAmount, 2 * ExchangeRateAmount);
+        CreateExchangeRates(Vendor."Currency Code", WorkDate(), ExchangeRateAmount, 2 * ExchangeRateAmount);
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Return Order", Vendor."No.");
 
         // Exercise: Get posted document lines to reverse.
@@ -2612,7 +2612,7 @@
         CreatePurchaseHeaderWithCurrency(PurchaseHeader, CreateAndUpdateCurrency);
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem, LibraryRandom.RandDec(10, 2));
-        AmountLCY := Round(LibraryERM.ConvertCurrency(PurchaseLine."Amount Including VAT", PurchaseHeader."Currency Code", '', WorkDate));
+        AmountLCY := Round(LibraryERM.ConvertCurrency(PurchaseLine."Amount Including VAT", PurchaseHeader."Currency Code", '', WorkDate()));
 
         // Exercise: Post Purchase document.
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -2621,7 +2621,7 @@
         VerifyRemainingAmountLCY(PurchaseHeader."Buy-from Vendor No.", AmountLCY);
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [Test]
     [Scope('OnPrem')]
     procedure CombinedDimOnPurchInvoiceWithItemChargeAssignedOnReceipt()
@@ -2675,7 +2675,7 @@
         Qty[2] := SalesLine.Quantity - Qty[1];
         for i := 1 to ArrayLen(Qty) do begin
             DocNo[i] := PostPartialShipment(SalesLine, Qty[i]);
-            PurchLine.Find;
+            PurchLine.Find();
             ModifyPurchaseLineQtyToReceive(PurchLine, Qty[i]);
             AssignItemChargeToShipment(SalesLine."Document No.", PurchLine);
             LibraryPurchase.PostPurchaseDocument(PurchHeader, true, false);
@@ -2760,10 +2760,10 @@
         // [WHEN] Run InsertInvLineFromRcptLine on Invoice
         PurchRcptLine.InsertInvLineFromRcptLine(PurchLine);
         // [THEN] Created Purchase Line in Invoice, where "Inv. Discount Amount" = "X"
-        PurchLine.Find;
+        PurchLine.Find();
         Assert.AreEqual(ExpectedInvDiscAmount, PurchLine."Inv. Discount Amount", WrongInvDiscAmountErr);
         // [THEN] Invoice Header is not changed, "Invoice Discount Value" = "Y"
-        PurchHeader.Find;
+        PurchHeader.Find();
         PurchHeader.TestField("Invoice Discount Value", InvoiceDiscountValue);
     end;
 
@@ -3197,7 +3197,7 @@
 
         // [THEN] Invoice "Invoice Discount Value" = "Y"
         with PurchHeader do begin
-            Find;
+            Find();
             CalcFields("Invoice Discount Amount");
             TestField("Invoice Discount Amount", InvoiceDiscountValue);
         end;
@@ -3300,7 +3300,7 @@
         PurchaseHeader.Validate("Gen. Bus. Posting Group", GenBusPostingGroup.Code);
 
         // [THEN] Field "Gen. Bus. Posting Group" in Purchase Order line is "B"
-        PurchaseLine.Find;
+        PurchaseLine.Find();
         PurchaseLine.TestField("Gen. Bus. Posting Group", GenBusPostingGroup.Code);
     end;
 
@@ -3333,7 +3333,7 @@
 
         // [THEN] Field "Gen. Bus. Posting Group" in Purchase Order is not changed because of error message
         Assert.ExpectedError(StrSubstNo(YouMustDeleteExistingLinesErr, PurchaseLine.FieldCaption("Gen. Bus. Posting Group")));
-        PurchaseLine.Find;
+        PurchaseLine.Find();
         PurchaseLine.TestField("Gen. Bus. Posting Group", OldGenBusPostingGroup);
     end;
 
@@ -3675,7 +3675,7 @@
         // [THEN] Line2: Type = "", "No." = "", Description = "ET2"
         VerifyPurchaseLineCount(PurchaseHeader, 2);
         VerifyPurchaseLineDescription(PurchaseLine, PurchaseLine.Type::" ", StandardText.Code, StandardText.Description);
-        PurchaseLine.Next;
+        PurchaseLine.Next();
         VerifyPurchaseLineDescription(PurchaseLine, PurchaseLine.Type::" ", '', ExtendedText);
     end;
 
@@ -3762,7 +3762,7 @@
         ReceiveWarehouseDocument(PurchaseHeader."No.", PurchaseLine."Line No.");
 
         // [THEN] "Prepmt Amt to Deduct" is updated for Item Charge line as 10
-        PurchaseLineCharge.Find;
+        PurchaseLineCharge.Find();
         PurchaseLineCharge.TestField("Prepmt Amt to Deduct", PurchaseLineCharge.Amount);
 
         // Tear Down
@@ -4192,7 +4192,7 @@
         PurchaseOrder.OpenEdit;
         PurchaseOrder.GotoKey(PurchaseHeader."Document Type", PurchaseHeader."No.");
         Assert.IsFalse(PurchaseOrder."Ship-to Code".Editable, 'Ship-to Code should not be editable');
-        PurchaseOrder.Close;
+        PurchaseOrder.Close();
 
         PurchaseOrder.OpenEdit;
         PurchaseOrder.GotoKey(PurchaseHeaderSellTo."Document Type", PurchaseHeaderSellTo."No.");
@@ -4559,7 +4559,7 @@
         // [THEN] "VAT Difference" and "Amount Including VAT" fields contain VAT difference amount in purchase line
         // [THEN] "VAT Difference" = 1 in purchase line
         // [THEN] "Amount Including VAT" = 5001 in purchase line
-        PurchaseLine.Find;
+        PurchaseLine.Find();
         PurchaseLine.TestField("VAT Difference", VATDifference);
         PurchaseLine.TestField("Amount Including VAT", AmountInclVATBefore + VATDifference);
     end;
@@ -4584,7 +4584,7 @@
         Assert.IsTrue(PurchaseOrder."Shipment Method Code".Enabled, ShipmentMethodCodeIsDisabledErr);
 
         // TearDown
-        PurchaseOrder.Close;
+        PurchaseOrder.Close();
         LibraryApplicationArea.DisableApplicationAreaSetup;
     end;
 
@@ -4608,7 +4608,7 @@
         Assert.IsTrue(PurchaseOrder."Shipment Method Code".Enabled, ShipmentMethodCodeIsDisabledErr);
 
         // TearDown
-        PurchaseOrder.Close;
+        PurchaseOrder.Close();
         LibraryApplicationArea.DisableApplicationAreaSetup;
     end;
 
@@ -4711,7 +4711,7 @@
         PostReceivePurchOrderWithVAT(PurchRcptLine, PurchHeader);
 
         // [GIVEN] Remove Extended Text lines from Purchase Order
-        PurchHeader.Find;
+        PurchHeader.Find();
         PurchHeader.SetStatus(PurchHeader.Status::Open.AsInteger());
         PurchLine.SetRange("Document Type", PurchHeader."Document Type"::Order);
         PurchLine.SetRange("Document No.", PurchHeader."No.");
@@ -4772,7 +4772,7 @@
         PurchaseOrder.GotoRecord(PurchaseHeader);
 
         // [THEN] The "PO"."Invoice Discount Value" = 0 (remains unchanged)
-        PurchaseHeader.Find;
+        PurchaseHeader.Find();
         Assert.AreEqual(PurchaseHeaderOld."Invoice Discount Value", PurchaseHeader."Invoice Discount Value", InvoiceDiscountChangedErr);
     end;
 
@@ -4804,7 +4804,7 @@
         PurchaseInvoice.GotoRecord(PurchaseHeader);
 
         // [THEN] The "PI"."Invoice Discount Value" = 0 (remains unchanged)
-        PurchaseHeader.Find;
+        PurchaseHeader.Find();
         Assert.AreEqual(PurchaseHeaderOld."Invoice Discount Value", PurchaseHeader."Invoice Discount Value", InvoiceDiscountChangedErr);
     end;
 
@@ -4836,7 +4836,7 @@
         PurchaseQuote.GotoRecord(PurchaseHeader);
 
         // [THEN] The "Q"."Invoice Discount Value" = 0 (remains unchanged)
-        PurchaseHeader.Find;
+        PurchaseHeader.Find();
         Assert.AreEqual(PurchaseHeaderOld."Invoice Discount Value", PurchaseHeader."Invoice Discount Value", InvoiceDiscountChangedErr);
     end;
 
@@ -4868,7 +4868,7 @@
         PurchaseCreditMemo.GotoRecord(PurchaseHeader);
 
         // [THEN] The "CrM"."Invoice Discount Value" = 0 (remains unchanged)
-        PurchaseHeader.Find;
+        PurchaseHeader.Find();
         Assert.AreEqual(PurchaseHeaderOld."Invoice Discount Value", PurchaseHeader."Invoice Discount Value", InvoiceDiscountChangedErr);
     end;
 
@@ -4899,7 +4899,7 @@
 
         // TearDown
         LibraryApplicationArea.DisableApplicationAreaSetup;
-        CompanyInformation.Close;
+        CompanyInformation.Close();
     end;
 
     [Test]
@@ -4936,7 +4936,7 @@
         // [GIVEN] Purchase order with vendor = "V" and location = "L".
         LibraryPurchase.CreatePurchaseDocumentWithItem(
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, VendorNo,
-          LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10), Location.Code, WorkDate);
+          LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10), Location.Code, WorkDate());
 
         // [GIVEN] Releasing the purchase order adds a service charge purchase line to the order.
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
@@ -4955,7 +4955,7 @@
         LibraryWarehouse.PostWhseReceipt(WarehouseReceiptHeader);
 
         // [THEN] The receipt is posted without an error.
-        PurchaseLine.Find;
+        PurchaseLine.Find();
         PurchaseLine.TestField("Qty. Received (Base)", PurchaseLine."Quantity (Base)");
 
         // [THEN] Purchase line amount for the service charge is updated to 20.
@@ -4984,7 +4984,7 @@
         PurchaseLine.Modify(true);
 
         // [WHEN] Trying to Suggest Item Charge Assignment
-        asserterror ItemChargeAssgntPurch.SuggestAssgnt(PurchaseLine, 0, 0);
+        asserterror ItemChargeAssgntPurch.SuggestAssgnt(PurchaseLine, 0, 0, 0, 0);
 
         // [THEN] Expected error: "Qty. to Invoice must have a value."
         Assert.ExpectedError(SuggestAssignmentErr);
@@ -5275,7 +5275,7 @@
         OpenItemChargeAssgnt(PurchaseLine, true, Qty);
 
         // [GIVEN] Decrease Qty. to Receive = 10 / 3 = 3.33333 on item charge line.
-        PurchaseLine.Validate("Qty. to Receive", Round(Qty / 3, UOMMgt.QtyRndPrecision));
+        PurchaseLine.Validate("Qty. to Receive", Round(Qty / 3, UOMMgt.QtyRndPrecision()));
         PurchaseLine.Modify(true);
 
         // [GIVEN] Post (partialy) Purch. Order as Receipt
@@ -5295,7 +5295,7 @@
         ItemChargeAssignmentPurch.SetRange("Document Type", ItemChargeAssignmentPurch."Document Type"::Order);
         ItemChargeAssignmentPurch.SetRange("Document No.", PurchaseHeaderOrder."No.");
         ItemChargeAssignmentPurch.FindFirst();
-        ItemChargeAssignmentPurch.TestField("Qty. to Assign", Round(Qty * 2 / 3, UOMMgt.QtyRndPrecision));
+        ItemChargeAssignmentPurch.TestField("Qty. to Assign", Round(Qty * 2 / 3, UOMMgt.QtyRndPrecision()));
         ItemChargeAssignmentPurch.TestField("Amount to Assign", Round(Qty * UnitCost * 2 / 3, LibraryERM.GetAmountRoundingPrecision));
     end;
 
@@ -5381,7 +5381,7 @@
         PurchaseLine.Modify(true);
 
         // [GIVEN] Posted Warehouse Receipt with No "X" and Posted Whse. Receipt Line
-        PurchRcptNo := NoSeriesManagement.GetNextNo(PurchaseHeader."Receiving No. Series", WorkDate, false);
+        PurchRcptNo := NoSeriesManagement.GetNextNo(PurchaseHeader."Receiving No. Series", WorkDate(), false);
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
         LibraryWarehouse.CreateWhseReceiptFromPO(PurchaseHeader);
         ReceiveWarehouseDocument(PurchaseHeader."No.", PurchaseLine."Line No.");
@@ -5483,7 +5483,7 @@
             ItemChargeAssignmentPurch.Insert(true);
             PurchaseLine.Validate("Qty. to Receive", LibraryRandom.RandInt(5));
             PurchaseLine.Modify();
-        until PurchaseLine.Next = 0;
+        until PurchaseLine.Next() = 0;
 
         // [GIVEN] Post Purch. Order as a Receipt
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
@@ -5493,7 +5493,7 @@
         repeat
             PurchaseLine.Validate("Qty. to Invoice", PurchaseLine."Quantity Received");
             PurchaseLine.Modify(true);
-        until PurchaseLine.Next = 0;
+        until PurchaseLine.Next() = 0;
 
         // [WHEN] Post Purch. Order as Invoice
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
@@ -5558,11 +5558,11 @@
         LibraryPurchase.PostPurchaseDocument(PurchaseHeaderInvoice, false, true);
 
         // [THEN] Purchase line with item is fully posted.
-        PurchaseLine.Find;
+        PurchaseLine.Find();
         PurchaseLine.TestField("Quantity Invoiced", PurchaseLine.Quantity);
 
         // [THEN] Purchase line with item charge is fully assigned and posted.
-        ItemChargePurchLine.Find;
+        ItemChargePurchLine.Find();
         ItemChargePurchLine.TestField("Quantity Invoiced", ItemChargePurchLine.Quantity);
         ItemChargePurchLine.CalcFields("Qty. Assigned");
         ItemChargePurchLine.TestField("Qty. Assigned", ItemChargePurchLine.Quantity);
@@ -6157,7 +6157,7 @@
         LibraryVariableStorage.AssertEmpty();
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [Test]
     [Scope('OnPrem')]
     procedure PurchaseOrderWithResourceAndResourceCost()
@@ -6240,7 +6240,7 @@
         Initialize();
 
         // [GIVEN] Item with resource BOM component
-        LibraryManufacturing.CreateBOMComponent(BOMComponent, LibraryInventory.CreateItemNo(), BOMComponent.Type::Resource.AsInteger(), LibraryResource.CreateResourceNo(), 1, '');
+        LibraryManufacturing.CreateBOMComponent(BOMComponent, LibraryInventory.CreateItemNo(), BOMComponent.Type::Resource, LibraryResource.CreateResourceNo(), 1, '');
 
         // [GIVEN] Purchase order with item
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
@@ -6360,7 +6360,7 @@
         // [GIVEN] Vendor "V1" with Shipment Method Code "SMC1" and Pay-to Vendor = V2
         CreateVendorWithShipmentMethodCode(Vendor[1]);
         Vendor[1].Validate("Pay-to Vendor No.", Vendor[2]."No.");
-        Vendor[1].Modify;
+        Vendor[1].Modify();
 
         // [WHEN] Create Purchase Order with "Vendor No." = "V1"
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, Vendor[1]."No.");
@@ -6737,9 +6737,9 @@
     var
         AccountingPeriod: Record "Accounting Period";
     begin
-        if AccountingPeriod.GetFiscalYearStartDate(WorkDate) = 0D then begin
+        if AccountingPeriod.GetFiscalYearStartDate(WorkDate()) = 0D then begin
             AccountingPeriod.Init();
-            AccountingPeriod."Starting Date" := CalcDate('<-CY>', WorkDate);
+            AccountingPeriod."Starting Date" := CalcDate('<-CY>', WorkDate());
             AccountingPeriod."New Fiscal Year" := true;
             AccountingPeriod.Insert();
         end;
@@ -7185,7 +7185,7 @@
         ModifyPurchaseLineJobNo(PurchaseLine, Job."No.", JobTask."Job Task No.", UnitOfMeasureCode);
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     local procedure CreatePurchOrderWithJobAndJobItemPrice(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; ItemNo: Code[20]; UnitOfMeasureCode: Code[10]; var UnitCostFactor: Decimal)
     var
         Job: Record Job;
@@ -7546,7 +7546,7 @@
             "Dimension Value Code" := DimensionValue.Code;
             "Dimension Value ID" := DimensionValue."Dimension Value ID";
             if not Insert then
-                Modify;
+                Modify();
             DimSetID := DimensionMgt.GetDimensionSetID(TempDimSetEntry);
         end;
     end;
@@ -7790,7 +7790,7 @@
         WarehouseSetup: Record "Warehouse Setup";
     begin
         with WarehouseSetup do begin
-            Get;
+            Get();
             Validate("Require Put-away", RequirePutAway);
             Validate("Require Pick", RequirePick);
             Validate("Require Receive", RequireReceive);
@@ -7824,12 +7824,12 @@
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
 
         with GLAccount do begin
-            Init;
+            Init();
             "No." := NewNo;
             Name := NewName;
             "Gen. Prod. Posting Group" := GeneralPostingSetup."Gen. Prod. Posting Group";
             "VAT Prod. Posting Group" := VATPostingSetup."VAT Prod. Posting Group";
-            Insert;
+            Insert();
         end;
     end;
 
@@ -7846,13 +7846,13 @@
             LibraryInventory.CreateInventoryPostingGroup(InventoryPostingGroup);
 
         with Item do begin
-            Init;
+            Init();
             "No." := NewNo;
             Description := NewDescription;
             "Inventory Posting Group" := InventoryPostingGroup.Code;
             "Gen. Prod. Posting Group" := GeneralPostingSetup."Gen. Prod. Posting Group";
             "VAT Prod. Posting Group" := VATPostingSetup."VAT Prod. Posting Group";
-            Insert;
+            Insert();
         end;
     end;
 
@@ -7866,12 +7866,12 @@
         LibraryERM.FindGeneralPostingSetup(GeneralPostingSetup);
 
         with ItemCharge do begin
-            Init;
+            Init();
             "No." := NewNo;
             Description := NewDescription;
             "Gen. Prod. Posting Group" := GeneralPostingSetup."Gen. Prod. Posting Group";
             "VAT Prod. Posting Group" := VATPostingSetup."VAT Prod. Posting Group";
-            Insert;
+            Insert();
         end;
     end;
 
@@ -7880,10 +7880,10 @@
         FixedAsset: Record "Fixed Asset";
     begin
         with FixedAsset do begin
-            Init;
+            Init();
             "No." := NewNo;
             Description := NewDescription;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -7892,10 +7892,10 @@
         StandardText: Record "Standard Text";
     begin
         with StandardText do begin
-            Init;
+            Init();
             Code := NewCode;
             Description := NewDescription;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -7913,7 +7913,7 @@
             "Document Type" := PurchaseHeader."Document Type";
             "Document No." := PurchaseHeader."No.";
             "Line No." := LibraryUtility.GetNewRecNo(PurchaseLine, FieldNo("Line No."));
-            Insert;
+            Insert();
         end;
     end;
 
@@ -7937,7 +7937,7 @@
     local procedure InitPurchaseLine(PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type")
     begin
         with PurchaseLine do begin
-            Init;
+            Init();
             "Document Type" := DocumentType;
             "Document No." := LibraryUtility.GenerateGUID();
             "Line No." := LibraryRandom.RandIntInRange(1000, 2000);
@@ -8081,7 +8081,7 @@
             PurchRcptLine.FindFirst();
             PassedPurchRcptLine := PurchRcptLine;
             PassedPurchRcptLine.Insert();
-        until PurchRcptHeader.Next = 0;
+        until PurchRcptHeader.Next() = 0;
     end;
 
     local procedure FindPurchaseLineWithType(var PurchaseLine: Record "Purchase Line"; DocumentNo: Code[20]; DocumentType: Enum "Purchase Document Type"; LineType: Enum "Purchase Line Type")
@@ -8334,7 +8334,7 @@
         WarehouseReceiptLine.SetRange("Item No.", ItemNo);
         WarehouseReceiptLine.FindFirst();
         WarehouseReceiptHeader.Get(WarehouseReceiptLine."No.");
-        WarehouseReceiptHeader.Validate("Posting Date", CalcDate(StrSubstNo('<%1M>', LibraryRandom.RandInt(6)), WorkDate));
+        WarehouseReceiptHeader.Validate("Posting Date", CalcDate(StrSubstNo('<%1M>', LibraryRandom.RandInt(6)), WorkDate()));
         WarehouseReceiptHeader.Modify(true);
     end;
 
@@ -8354,7 +8354,7 @@
         LibraryERM.ClearGenJournalLines(GenJournalBatch)
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     local procedure SetupLineDiscount(var PurchaseLineDiscount: Record "Purchase Line Discount")
     var
         Item: Record Item;
@@ -8362,7 +8362,7 @@
         // Required Random Value for "Minimum Quantity" and "Line Discount %" fields value is not important.
         Item.Get(CreateItem);
         LibraryERM.CreateLineDiscForVendor(
-          PurchaseLineDiscount, Item."No.", CreateVendor, WorkDate, '', '', Item."Base Unit of Measure", LibraryRandom.RandInt(10));
+          PurchaseLineDiscount, Item."No.", CreateVendor, WorkDate(), '', '', Item."Base Unit of Measure", LibraryRandom.RandInt(10));
         PurchaseLineDiscount.Validate("Line Discount %", LibraryRandom.RandInt(10));
         PurchaseLineDiscount.Modify(true);
     end;
@@ -8382,7 +8382,7 @@
         UnitCostLCY: Decimal;
     begin
         if PurchaseLine."Currency Code" = '' then
-            Currency.InitRoundingPrecision
+            Currency.InitRoundingPrecision()
         else
             Currency.Get(PurchaseLine."Currency Code");
         UnitCostLCY :=
@@ -8457,7 +8457,7 @@
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
         with PurchasesPayablesSetup do begin
-            Get;
+            Get();
             Validate("Default Qty. to Receive", NewDefaultQtyToReceive);
             Modify(true);
         end;
@@ -8469,7 +8469,7 @@
         repeat
             ItemChargeAssignmentPurch.Validate("Qty. to Assign", 0);
             ItemChargeAssignmentPurch.Modify(true);
-        until ItemChargeAssignmentPurch.Next = 0;
+        until ItemChargeAssignmentPurch.Next() = 0;
         ItemChargeAssignmentPurch.Validate("Qty. to Assign", QtyToAssign);
         ItemChargeAssignmentPurch.Modify(true);
     end;
@@ -8622,7 +8622,7 @@
         SalesHeader: Record "Sales Header";
     begin
         with SalesLine do begin
-            Find;
+            Find();
             Validate("Qty. to Ship", QtyToShip);
             Modify(true);
             SalesHeader.Get("Document Type", "Document No.");
@@ -8822,7 +8822,7 @@
         DetailedVendorLedgEntry.FindFirst();
         Assert.AreNearlyEqual(
           Amount, Abs(DetailedVendorLedgEntry.Amount), LibraryERM.GetAmountRoundingPrecision,
-          StrSubstNo(AmountError, DetailedVendorLedgEntry.FieldCaption(Amount), Amount, DetailedVendorLedgEntry.TableCaption));
+          StrSubstNo(AmountError, DetailedVendorLedgEntry.FieldCaption(Amount), Amount, DetailedVendorLedgEntry.TableCaption()));
     end;
 
     local procedure VerifyGLEntry(DocumentNo: Code[20]; Amount: Decimal)
@@ -8838,10 +8838,10 @@
         GLEntry.FindSet();
         repeat
             TotalGLAmount += GLEntry.Amount;
-        until GLEntry.Next = 0;
+        until GLEntry.Next() = 0;
         Assert.AreNearlyEqual(
           Amount, TotalGLAmount, GeneralLedgerSetup."Amount Rounding Precision",
-          StrSubstNo(AmountError, GLEntry.FieldCaption(Amount), Amount, GLEntry.TableCaption));
+          StrSubstNo(AmountError, GLEntry.FieldCaption(Amount), Amount, GLEntry.TableCaption()));
     end;
 
     local procedure VerifyGLEntryWithVATAmount(DocumentNo: Code[20]; PurchaseLine: Record "Purchase Line")
@@ -8855,11 +8855,11 @@
         GLEntry.FindFirst();
         Assert.AreNearlyEqual(
           PurchaseLine."Line Amount", GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision,
-          StrSubstNo(AmountError, GLEntry.FieldCaption(Amount), PurchaseLine."Line Amount", GLEntry.TableCaption));
+          StrSubstNo(AmountError, GLEntry.FieldCaption(Amount), PurchaseLine."Line Amount", GLEntry.TableCaption()));
         Assert.AreNearlyEqual(
           PurchaseLine."VAT %" * PurchaseLine."Line Amount" / 100, GLEntry."VAT Amount", LibraryERM.GetAmountRoundingPrecision,
           StrSubstNo(
-            AmountError, GLEntry.FieldCaption("VAT Amount"), PurchaseLine."VAT %" * PurchaseLine."Line Amount" / 100, GLEntry.TableCaption));
+            AmountError, GLEntry.FieldCaption("VAT Amount"), PurchaseLine."VAT %" * PurchaseLine."Line Amount" / 100, GLEntry.TableCaption()));
     end;
 
     local procedure VerifyGLEntryWithJob(DocumentNo: Code[20]; JobNo: Code[20]; Amount: Decimal)
@@ -8891,7 +8891,7 @@
         REPEAT
             GLEntry.SETRANGE(Description, TempPurchaseLine.Description);
             Assert.RecordIsNotEmpty(GLEntry);
-        UNTIL TempPurchaseLine.NEXT = 0;
+        UNTIL TempPurchaseLine.Next() = 0;
     end;
 
     local procedure VerifyJobLedgerEntryZeroUnitCost(DocumentNo: Code[20]; JobNo: Code[20])
@@ -8916,10 +8916,10 @@
         FindGLEntry(GLEntry, DocumentNo, GeneralPostingSetup."Purch. Inv. Disc. Account");
         Assert.AreNearlyEqual(
           InvoiceDiscountAmount, Abs(GLEntry.Amount), GeneralLedgerSetup."Amount Rounding Precision",
-          StrSubstNo(AmountError, GLEntry.FieldCaption(Amount), InvoiceDiscountAmount, GLEntry.TableCaption));
+          StrSubstNo(AmountError, GLEntry.FieldCaption(Amount), InvoiceDiscountAmount, GLEntry.TableCaption()));
         Assert.AreNearlyEqual(
           InvoiceDiscountAmount, PurchaseLine."Inv. Discount Amount", GeneralLedgerSetup."Amount Rounding Precision",
-          StrSubstNo(AmountError, PurchaseLine.FieldCaption("Inv. Discount Amount"), InvoiceDiscountAmount, PurchaseLine.TableCaption));
+          StrSubstNo(AmountError, PurchaseLine.FieldCaption("Inv. Discount Amount"), InvoiceDiscountAmount, PurchaseLine.TableCaption()));
     end;
 
     local procedure VerifyItemChargeAssignment(DocumentNo: Code[20])
@@ -8957,10 +8957,10 @@
         FindGLEntry(GLEntry, DocumentNo, GeneralPostingSetup."Purch. Line Disc. Account");
         Assert.AreNearlyEqual(
           LineDiscountAmount, Abs(GLEntry.Amount), GeneralLedgerSetup."Amount Rounding Precision",
-          StrSubstNo(AmountError, GLEntry.FieldCaption(Amount), LineDiscountAmount, GLEntry.TableCaption));
+          StrSubstNo(AmountError, GLEntry.FieldCaption(Amount), LineDiscountAmount, GLEntry.TableCaption()));
         Assert.AreNearlyEqual(
           LineDiscountAmount, PurchaseLine."Line Discount Amount", GeneralLedgerSetup."Amount Rounding Precision",
-          StrSubstNo(AmountError, PurchaseLine.FieldCaption("Line Discount Amount"), LineDiscountAmount, PurchaseLine.TableCaption));
+          StrSubstNo(AmountError, PurchaseLine.FieldCaption("Line Discount Amount"), LineDiscountAmount, PurchaseLine.TableCaption()));
     end;
 
     local procedure VerifyVendorLedgerEntry(DocumentNo: Code[20]; Amount: Decimal)
@@ -8975,7 +8975,7 @@
         VendorLedgerEntry.CalcFields("Amount (LCY)");
         Assert.AreNearlyEqual(
           Amount, Abs(VendorLedgerEntry."Amount (LCY)"), GeneralLedgerSetup."Amount Rounding Precision",
-          StrSubstNo(AmountError, VendorLedgerEntry.FieldCaption("Amount (LCY)"), Amount, VendorLedgerEntry.TableCaption));
+          StrSubstNo(AmountError, VendorLedgerEntry.FieldCaption("Amount (LCY)"), Amount, VendorLedgerEntry.TableCaption()));
     end;
 
     local procedure VerifyVendorLedgerEntryWithRemainingAmount(DocumentNo: Code[20]; Amount: Decimal)
@@ -8988,13 +8988,13 @@
         VendorLedgerEntry.TestField("Remaining Pmt. Disc. Possible", 0);
         Assert.AreNearlyEqual(
           Amount, Abs(VendorLedgerEntry."Remaining Amount"), LibraryERM.GetAmountRoundingPrecision,
-          StrSubstNo(AmountError, VendorLedgerEntry.FieldCaption("Remaining Amount"), Amount, VendorLedgerEntry.TableCaption));
+          StrSubstNo(AmountError, VendorLedgerEntry.FieldCaption("Remaining Amount"), Amount, VendorLedgerEntry.TableCaption()));
         Assert.AreNearlyEqual(
           Amount, Abs(VendorLedgerEntry."Original Amount"), LibraryERM.GetAmountRoundingPrecision,
-          StrSubstNo(AmountError, VendorLedgerEntry.FieldCaption("Original Amount"), Amount, VendorLedgerEntry.TableCaption));
+          StrSubstNo(AmountError, VendorLedgerEntry.FieldCaption("Original Amount"), Amount, VendorLedgerEntry.TableCaption()));
         Assert.AreNearlyEqual(
           Amount, Abs(VendorLedgerEntry."Amount (LCY)"), LibraryERM.GetAmountRoundingPrecision,
-          StrSubstNo(AmountError, VendorLedgerEntry.FieldCaption("Amount (LCY)"), Amount, VendorLedgerEntry.TableCaption));
+          StrSubstNo(AmountError, VendorLedgerEntry.FieldCaption("Amount (LCY)"), Amount, VendorLedgerEntry.TableCaption()));
     end;
 
     local procedure VerifyValueEntry(DocumentNo: Code[20]; Amount: Decimal)
@@ -9008,10 +9008,10 @@
         ValueEntry.FindSet();
         repeat
             PurchaseAmount += ValueEntry."Purchase Amount (Actual)";
-        until ValueEntry.Next = 0;
+        until ValueEntry.Next() = 0;
         Assert.AreNearlyEqual(
           Amount, PurchaseAmount, GeneralLedgerSetup."Amount Rounding Precision",
-          StrSubstNo(AmountError, ValueEntry.FieldCaption("Purchase Amount (Actual)"), Amount, ValueEntry.TableCaption));
+          StrSubstNo(AmountError, ValueEntry.FieldCaption("Purchase Amount (Actual)"), Amount, ValueEntry.TableCaption()));
     end;
 
     local procedure VerifyVATEntry(DocumentNo: Code[20]; Amount: Decimal)
@@ -9025,7 +9025,7 @@
         VATEntry.FindFirst();
         Assert.AreNearlyEqual(
           Amount, Abs(VATEntry.Base + VATEntry.Amount), GeneralLedgerSetup."Amount Rounding Precision",
-          StrSubstNo(AmountError, VATEntry.FieldCaption(Amount), Amount, VATEntry.TableCaption));
+          StrSubstNo(AmountError, VATEntry.FieldCaption(Amount), Amount, VATEntry.TableCaption()));
     end;
 
     local procedure VerifyVATEntryWithBase(DocumentNo: Code[20]; PurchaseLine: Record "Purchase Line")
@@ -9044,7 +9044,7 @@
         Assert.AreNearlyEqual(
           PurchaseLine."VAT %" * PurchaseLine."Line Amount" / 100, VATEntry.Amount, LibraryERM.GetAmountRoundingPrecision,
           StrSubstNo(
-            AmountError, VATEntry.FieldCaption(Amount), PurchaseLine."VAT %" * PurchaseLine."Line Amount" / 100, VATEntry.TableCaption));
+            AmountError, VATEntry.FieldCaption(Amount), PurchaseLine."VAT %" * PurchaseLine."Line Amount" / 100, VATEntry.TableCaption()));
     end;
 
     local procedure VerifyNavigateRecords(var DocumentEntry: Record "Document Entry"; TableID: Integer; NoOfRecords: Integer)
@@ -9084,7 +9084,7 @@
             PurchaseLine2.TestField(Quantity, PurchaseLine.Quantity);
             PurchaseLine2.TestField("Direct Unit Cost", PurchaseLine."Direct Unit Cost");
             PurchaseLine2.TestField("Line Amount", PurchaseLine."Line Amount");
-        until PurchaseLine.Next = 0;
+        until PurchaseLine.Next() = 0;
     end;
 
     local procedure VerifyPurchaseInvoiceDocument(DocumentNo: Code[20]; VendorInvoiceNo: Code[35]; PurchaseLine: Record "Purchase Line")
@@ -9105,7 +9105,7 @@
                 PurchInvLine.TestField(Amount, PurchaseLine."Line Amount");
                 PurchInvLine.TestField("Unit Cost (LCY)", PurchaseLine."Unit Cost (LCY)");
             end;
-        until PurchInvLine.Next = 0;
+        until PurchInvLine.Next() = 0;
     end;
 
     local procedure VerifyPurchaseInvoice(DocumentNo: Code[20]; PurchaseLine: Record "Purchase Line")
@@ -9284,7 +9284,7 @@
         ValueEntry.SetRange("Item Ledger Entry No.", ItemLedgEntry."Entry No.");
         ValueEntry.FindFirst();
         Assert.AreEqual(
-          ExpectedDimSetID, ValueEntry."Dimension Set ID", StrSubstNo(IncorrectDimSetIDErr, ItemLedgEntry.TableCaption));
+          ExpectedDimSetID, ValueEntry."Dimension Set ID", StrSubstNo(IncorrectDimSetIDErr, ItemLedgEntry.TableCaption()));
     end;
 
     local procedure VerifyChargeValueEntry(DocNo: array[2] of Code[20]; ItemChargeNo: Code[20]; ShipmentCount: Integer)
@@ -9303,7 +9303,7 @@
                 SetRange("Item Ledger Entry No.", ItemLedgEntry."Entry No.");
                 SetRange("Item Charge No.", ItemChargeNo);
                 FindFirst();
-                Assert.AreEqual(ShipmentCount, Count, StrSubstNo(CountErr, ShipmentCount, TableCaption, GetFilters));
+                Assert.AreEqual(ShipmentCount, Count, StrSubstNo(CountErr, ShipmentCount, TableCaption(), GetFilters));
                 Assert.AreEqual(
                   ItemLedgEntry.Quantity, "Valued Quantity",
                   StrSubstNo(AmountError, FieldCaption("Valued Quantity"), ItemLedgEntry.Quantity, TableCaption));
@@ -9640,7 +9640,7 @@
         ReturnShipmentLine.Insert();
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     local procedure CreateStandardCostWorksheet(var StandardCostWorksheetPage: TestPage "Standard Cost Worksheet"; ResourceNo: Code[20]; StandardCost: Decimal; NewStandardCost: Decimal)
     var
         StandardCostWorksheet: Record "Standard Cost Worksheet";
@@ -9649,7 +9649,7 @@
         StandardCostWorksheetPage."No.".SetValue(ResourceNo);
         StandardCostWorksheetPage."Standard Cost".SetValue(StandardCost);
         StandardCostWorksheetPage."New Standard Cost".SetValue(NewStandardCost);
-        StandardCostWorksheetPage.Next;
+        StandardCostWorksheetPage.Next();
     end;
 
     local procedure ImplementStandardCostChanges(Resource: Record Resource; StandardCost: Decimal; NewStandardCost: Decimal)

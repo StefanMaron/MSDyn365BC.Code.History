@@ -88,7 +88,7 @@ codeunit 137210 "SCM Copy Production BOM"
 
         // Verify: Error: Destination BOM should not be certified.
         Assert.AreEqual(StrSubstNo(ErrBOMIsCertified, ProductionBOMHeader."No."), GetLastErrorText, '');
-        ClearLastError;
+        ClearLastError();
     end;
 
     [Test]
@@ -106,7 +106,7 @@ codeunit 137210 "SCM Copy Production BOM"
 
         // Verify: Error: BOM header cannot be copied to itself.
         Assert.IsTrue(StrPos(GetLastErrorText, ErrAutoCopy) > 0, GetLastErrorText);
-        ClearLastError;
+        ClearLastError();
     end;
 
     [Test]
@@ -163,7 +163,7 @@ codeunit 137210 "SCM Copy Production BOM"
 
         // Verify: Error: destination should not be certified.
         Assert.IsTrue(StrPos(GetLastErrorText, StrSubstNo(ErrBomVersionIsCertified, ProdBOMNo)) > 0, GetLastErrorText);
-        ClearLastError;
+        ClearLastError();
     end;
 
     [Test]
@@ -230,7 +230,7 @@ codeunit 137210 "SCM Copy Production BOM"
 
         // Verify: Error: Cannot use the same version as source.
         Assert.IsTrue(StrPos(GetLastErrorText, ErrAutoCopy) > 0, GetLastErrorText);
-        ClearLastError;
+        ClearLastError();
     end;
 
     [Test]
@@ -244,7 +244,7 @@ codeunit 137210 "SCM Copy Production BOM"
 
         // Verify: Error: destination should not be certified.
         Assert.IsTrue(StrPos(GetLastErrorText, StrSubstNo(ErrBomVersionIsCertified, ProdBOMNo)) > 0, GetLastErrorText);
-        ClearLastError;
+        ClearLastError();
     end;
 
     [Test]
@@ -382,8 +382,8 @@ codeunit 137210 "SCM Copy Production BOM"
             ProductionBOMLine1.TestField("Ending Date", ProductionBOMLine."Ending Date");
             ProductionBOMLine1.TestField("Calculation Formula", ProductionBOMLine."Calculation Formula");
             ProductionBOMLine1.TestField("Quantity per", ProductionBOMLine."Quantity per");
-            IsLastRecord := ProductionBOMLine1.Next;
-        until ProductionBOMLine.Next = 0;
+            IsLastRecord := ProductionBOMLine1.Next();
+        until ProductionBOMLine.Next() = 0;
 
         Assert.AreEqual(0, IsLastRecord, 'There are more lines in the destination Production BOM.');
     end;
@@ -415,7 +415,7 @@ codeunit 137210 "SCM Copy Production BOM"
         ProdBOMNo := ProductionBOMHeader."No.";
 
         // Add first version to BOM Header.
-        VersionCode := NoSeriesManagement.GetNextNo(ProductionBOMHeader."Version Nos.", WorkDate, true);
+        VersionCode := NoSeriesManagement.GetNextNo(ProductionBOMHeader."Version Nos.", WorkDate(), true);
         LibraryManufacturing.CreateProductionBOMVersion(ProductionBOMVersion, ProductionBOMHeader."No.",
           CopyStr(VersionCode, StrLen(VersionCode) - 9, 10), ProductionBOMHeader."Unit of Measure Code");
         ProdBOMVersionCode := ProductionBOMVersion."Version Code";
@@ -427,7 +427,7 @@ codeunit 137210 "SCM Copy Production BOM"
 
         // Create destination version.
         Clear(ProductionBOMVersion);
-        VersionCode := NoSeriesManagement.GetNextNo(ProductionBOMHeader."Version Nos.", WorkDate, true);
+        VersionCode := NoSeriesManagement.GetNextNo(ProductionBOMHeader."Version Nos.", WorkDate(), true);
         LibraryManufacturing.CreateProductionBOMVersion(ProductionBOMVersion, ProductionBOMHeader."No.",
           CopyStr(VersionCode, StrLen(VersionCode) - 9, 10), ProductionBOMHeader."Unit of Measure Code");
 

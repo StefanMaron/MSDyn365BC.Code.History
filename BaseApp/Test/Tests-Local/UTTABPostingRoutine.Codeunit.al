@@ -161,7 +161,7 @@ codeunit 144067 "UT TAB Posting Routine"
         CreatePurchaseHeader(PurchaseHeader);
 
         // Exercise.
-        asserterror PurchaseHeader.Validate("Operation Occurred Date", WorkDate);
+        asserterror PurchaseHeader.Validate("Operation Occurred Date", WorkDate());
 
         // Verify: Verify expected error code, Actual error message: You can not change the Operation Occurred Date field because Posting No. Series Date Order = Yes and the Document has already been assigned Posting No.
         Assert.ExpectedErrorCode(DialogErr);
@@ -208,7 +208,7 @@ codeunit 144067 "UT TAB Posting Routine"
         GenJournalLine.Amount := LibraryRandom.RandDec(10, 2);
         GenJournalLine."Account Type" := GenJournalLine."Account Type"::"G/L Account";
         GenJournalLine."Account No." := LibraryUTUtility.GetNewCode;
-        GenJournalLine."Posting Date" := WorkDate;
+        GenJournalLine."Posting Date" := WorkDate();
         GenJournalLine.Insert();
     end;
 
@@ -235,7 +235,7 @@ codeunit 144067 "UT TAB Posting Routine"
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
         GeneralLedgerSetup.Get();
-        GeneralLedgerSetup."Last Gen. Jour. Printing Date" := CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate);  // Last Gen. Jour. Printing Date after WORKDATE.
+        GeneralLedgerSetup."Last Gen. Jour. Printing Date" := CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate());  // Last Gen. Jour. Printing Date after WORKDATE.
         GeneralLedgerSetup.Modify();
     end;
 }

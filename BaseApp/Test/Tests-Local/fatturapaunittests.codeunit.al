@@ -294,8 +294,8 @@ codeunit 144208 "FatturaPA Unit Tests"
         LibraryInventory.CreateItem(Item);
         Item.Rename(PadStr(Item."No.", MaxStrLen(Item."No."), 'X'));
         LibraryService.CreateExtendedTextHeaderItem(ExtendedTextHeader, Item."No.");
-        ExtendedTextHeader.Validate("Starting Date", WorkDate);
-        ExtendedTextHeader.Validate("Ending Date", WorkDate);
+        ExtendedTextHeader.Validate("Starting Date", WorkDate());
+        ExtendedTextHeader.Validate("Ending Date", WorkDate());
         ExtendedTextHeader.Validate("Sales Invoice", true);
         ExtendedTextHeader.Validate("Sales Credit Memo", true);
         ExtendedTextHeader.Validate("Service Invoice", true);
@@ -313,7 +313,7 @@ codeunit 144208 "FatturaPA Unit Tests"
         CurrExchRate: Record "Currency Exchange Rate";
     begin
         Currency.Get(SalesHeader."Currency Code");
-        Currency.InitRoundingPrecision;
+        Currency.InitRoundingPrecision();
         exit(
           Round(
             CurrExchRate.ExchangeAmtFCYToLCY(

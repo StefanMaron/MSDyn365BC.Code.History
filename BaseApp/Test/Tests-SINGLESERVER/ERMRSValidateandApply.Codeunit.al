@@ -154,13 +154,13 @@ codeunit 136608 "ERM RS Validate and Apply"
 
         // Prerequisite: Test requires that table do not generates error on insert
         KeyValueWithRelation := CreateAndApplyPackageDataForTableWithoutPKCheckOnInsert(ConfigPackage, false);
-        Assert.IsTrue(ConfigPackageError.IsEmpty and NoSeriesLine.Get(KeyValueWithRelation, 0), BadModelTableErr);
+        Assert.IsTrue(ConfigPackageError.IsEmpty() and NoSeriesLine.Get(KeyValueWithRelation, 0), BadModelTableErr);
         LibraryRapidStart.CleanUp(ConfigPackage.Code);
         Clear(ConfigPackage);
 
         // Verification
         KeyValueWithRelation := CreateAndApplyPackageDataForTableWithoutPKCheckOnInsert(ConfigPackage, true);
-        Assert.IsFalse(ConfigPackageError.IsEmpty or NoSeriesLine.Get(KeyValueWithRelation, 0), RecordInsertErr);
+        Assert.IsFalse(ConfigPackageError.IsEmpty() or NoSeriesLine.Get(KeyValueWithRelation, 0), RecordInsertErr);
     end;
 
     [Test]
@@ -847,7 +847,7 @@ codeunit 136608 "ERM RS Validate and Apply"
             Assert.AreEqual(
               TransformedTestBankAccountIBANCodeTxt, ConfigPackageData.Value,
               StrSubstNo('Wrong value in field no. %1 in record %2', ConfigPackageData."Field ID", ConfigPackageData."No."));
-        until ConfigPackageData.Next = 0;
+        until ConfigPackageData.Next() = 0;
     end;
 
     [Test]
@@ -906,7 +906,7 @@ codeunit 136608 "ERM RS Validate and Apply"
         Assert.AreEqual(SalesHeader."Bill-to Customer No.", LibraryVariableStorage.DequeueText, 'Field3 value');
         Assert.IsTrue(LibraryVariableStorage.DequeueBoolean, 'Field3 editable');
 
-        ConfigPackageErrors.Close;
+        ConfigPackageErrors.Close();
         LibraryVariableStorage.AssertEmpty;
     end;
 
@@ -934,7 +934,7 @@ codeunit 136608 "ERM RS Validate and Apply"
         // [THEN] Action "Show Error" and "No. of Errors" are invisible
         Assert.IsFalse(ConfigPackageCard."No. of Errors".Visible, 'No. of Errors.VISIBLE');
         Assert.IsFalse(ConfigPackageCard.ShowError.Visible, 'ShowError.VISIBLE');
-        ConfigPackageCard.Close;
+        ConfigPackageCard.Close();
     end;
 
     [Test]
@@ -963,7 +963,7 @@ codeunit 136608 "ERM RS Validate and Apply"
         // [THEN] "No. of Errors" is visible and equals '1'
         Assert.IsTrue(ConfigPackageCard."No. of Errors".Visible, 'No. of Errors.VISIBLE');
         Assert.AreEqual(1, ConfigPackageCard."No. of Errors".AsInteger, 'wrong No. of Errors');
-        ConfigPackageCard.Close;
+        ConfigPackageCard.Close();
     end;
 
     [Test]
@@ -1011,8 +1011,8 @@ codeunit 136608 "ERM RS Validate and Apply"
         // [THEN] "Field Caption" control does not support drilldown action
         asserterror ConfigPackageErrors."Field Caption".DrillDown;
         Assert.ExpectedError('The NavDrilldownAction method is not supported.');
-        ConfigPackageErrors.Close;
-        ConfigPackageCard.Close;
+        ConfigPackageErrors.Close();
+        ConfigPackageCard.Close();
     end;
 
     [Test]
@@ -1422,7 +1422,7 @@ codeunit 136608 "ERM RS Validate and Apply"
         LibraryRapidStart.CreatePackageData(
           ConfigPackage.Code, TableID, 1, ProductionForecastEntry.FieldNo("Entry No."), Format(ProductionForecastEntry."Entry No." + 1));
         LibraryRapidStart.CreatePackageData(
-          ConfigPackage.Code, TableID, 1, ProductionForecastEntry.FieldNo("Forecast Date"), Format(WorkDate));
+          ConfigPackage.Code, TableID, 1, ProductionForecastEntry.FieldNo("Forecast Date"), Format(WorkDate()));
         LibraryRapidStart.CreatePackageData(
           ConfigPackage.Code, TableID, 1, ProductionForecastEntry.FieldNo("Production Forecast Name"), ProdForecastName);
 
@@ -1436,7 +1436,7 @@ codeunit 136608 "ERM RS Validate and Apply"
         // [THEN] Production Forecast Entry is created with "Production Forecast Name" = "N", "Forecast Date" = WORKDATE
         ProductionForecastEntry.FindLast();
         ProductionForecastEntry.TestField("Production Forecast Name", ProdForecastName);
-        ProductionForecastEntry.TestField("Forecast Date", WorkDate);
+        ProductionForecastEntry.TestField("Forecast Date", WorkDate());
     end;
 
     [Test]
@@ -1467,7 +1467,7 @@ codeunit 136608 "ERM RS Validate and Apply"
           ConfigPackage.Code, TableID, 1, ProductionForecastEntry.FieldNo("Entry No."), Format(ProductionForecastEntry."Entry No." + 1));
 
         LibraryRapidStart.CreatePackageData(
-          ConfigPackage.Code, TableID, 1, ProductionForecastEntry.FieldNo("Forecast Date"), Format(WorkDate));
+          ConfigPackage.Code, TableID, 1, ProductionForecastEntry.FieldNo("Forecast Date"), Format(WorkDate()));
 
         // [WHEN] Apply Package
         LibraryRapidStart.ApplyPackage(ConfigPackage, false);
@@ -1511,7 +1511,7 @@ codeunit 136608 "ERM RS Validate and Apply"
         LibraryRapidStart.CreatePackageData(
           ConfigPackage.Code, TableID, 1, ProductionForecastEntry.FieldNo("Entry No."), Format(ProductionForecastEntry."Entry No." + 1));
         LibraryRapidStart.CreatePackageData(
-          ConfigPackage.Code, TableID, 1, ProductionForecastEntry.FieldNo("Forecast Date"), Format(WorkDate));
+          ConfigPackage.Code, TableID, 1, ProductionForecastEntry.FieldNo("Forecast Date"), Format(WorkDate()));
         LibraryRapidStart.CreatePackageData(
           ConfigPackage.Code, TableID, 1, ProductionForecastEntry.FieldNo("Production Forecast Name"), ProdForecastName);
         LibraryRapidStart.CreatePackageData(

@@ -1,4 +1,4 @@
-report 12 "VAT Statement"
+﻿report 12 "VAT Statement"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './VATStatement.rdlc';
@@ -26,10 +26,13 @@ report 12 "VAT Statement"
                 column(Heading; Heading)
                 {
                 }
-                column(CompanyName; COMPANYPROPERTY.DisplayName)
+                column(CompanyName; COMPANYPROPERTY.DisplayName())
                 {
                 }
                 column(Heading2; Heading2)
+                {
+                }
+                column(HeaderText; HeaderText)
                 {
                 }
                 column(AllAmountsAreIn; AllAmountsAreInLbl)
@@ -44,7 +47,7 @@ report 12 "VAT Statement"
                 }
                 column(TotalAmount; TotalAmount)
                 {
-                    AutoFormatExpression = GetCurrency;
+                    AutoFormatExpression = GetCurrency();
                     AutoFormatType = 1;
                 }
                 column(Selection; Selection)
@@ -211,41 +214,45 @@ report 12 "VAT Statement"
         else
             Heading := Text004;
         Heading2 := StrSubstNo(Text005, StartDate, EndDateReq);
-        VATStmtLineFilter := VATStmtLine.GetFilters;
+        VATStmtLineFilter := VATStmtLine.GetFilters();
         if Selection = Selection::Closed then
             Heading := 'VAT Period : ' + VATPeriod
     end;
 
     var
-        Text000: Label 'VAT entries before and within the period';
-        Text004: Label 'VAT entries within the period';
-        Text005: Label 'Period: %1..%2';
         GLAcc: Record "G/L Account";
         VATEntry: Record "VAT Entry";
         GLSetup: Record "General Ledger Setup";
         VATStmtLine: Record "VAT Statement Line";
-        Selection: Enum "VAT Statement Report Selection";
-        PeriodSelection: Enum "VAT Statement Report Period Selection";
-        PrintInIntegers: Boolean;
         VATStmtLineFilter: Text;
         Heading: Text[50];
         Amount: Decimal;
-        TotalAmount: Decimal;
         RowNo: array[6] of Code[10];
         ErrorText: Text[80];
         i: Integer;
         PageGroupNo: Integer;
         NextPageGroupNo: Integer;
-        UseAmtsInAddCurr: Boolean;
-        EndDate: Date;
-        StartDate: Date;
-        EndDateReq: Date;
         Heading2: Text[50];
         PeriodicSettlVATEntry: Record "Periodic Settlement VAT Entry";
         VATPeriod: Code[10];
+
+        Text000: Label 'VAT entries before and within the period';
+        Text004: Label 'VAT entries within the period';
+        Text005: Label 'Period: %1..%2';
         AllAmountsAreInLbl: Label 'All amounts are in';
         VATStatementCaptionLbl: Label 'VAT Statement';
         TotalAmountCaptionLbl: Label 'Amount';
+
+    protected var
+        EndDate: Date;
+        StartDate: Date;
+        EndDateReq: Date;
+        HeaderText: Text[50];
+        PrintInIntegers: Boolean;
+        PeriodSelection: Enum "VAT Statement Report Period Selection";
+        Selection: Enum "VAT Statement Report Selection";
+        TotalAmount: Decimal;
+        UseAmtsInAddCurr: Boolean;
 
     procedure CalcLineTotal(VATStmtLine2: Record "VAT Statement Line"; var TotalAmount: Decimal; Level: Integer): Boolean
     begin
@@ -273,6 +280,7 @@ report 12 "VAT Statement"
             VATStmtLine2.Type::"VAT Entry Totaling":
                 begin
                     VATEntry.Reset();
+                    Amount := 0;
                     if VATEntry.SetCurrentKey(
                          Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Posting Date")
                     then begin
@@ -539,17 +547,17 @@ report 12 "VAT Statement"
     local procedure ConditionalAdd(Amount: Decimal; AmountToAdd: Decimal; AddCurrAmountToAdd: Decimal): Decimal
     begin
         if UseAmtsInAddCurr then
-            exit(Amount + AddCurrAmountToAdd)
-        else
-            exit(Amount + AmountToAdd);
+            exit(Amount + AddCurrAmountToAdd);
+
+        exit(Amount + AmountToAdd);
     end;
 
     protected procedure GetCurrency(): Code[10]
     begin
         if UseAmtsInAddCurr then
-            exit(GLSetup."Additional Reporting Currency")
-        else
-            exit('');
+            exit(GLSetup."Additional Reporting Currency");
+
+        exit('');
     end;
 
     [IntegrationEvent(false, false)]

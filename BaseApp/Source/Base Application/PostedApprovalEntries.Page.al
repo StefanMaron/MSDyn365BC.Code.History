@@ -21,28 +21,28 @@ page 659 "Posted Approval Entries"
                     Caption = 'Approved';
                     ToolTip = 'Specifies that the approval request has been approved.';
                 }
-                field("Iteration No."; "Iteration No.")
+                field("Iteration No."; Rec."Iteration No.")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the number of handling iterations that this approval request has reached.';
                 }
-                field("Sequence No."; "Sequence No.")
+                field("Sequence No."; Rec."Sequence No.")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the order of approvers when an approval workflow involves more than one approver.';
                 }
-                field("Table ID"; "Table ID")
+                field("Table ID"; Rec."Table ID")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the ID of the table where the record that is subject to approval is stored.';
                     Visible = false;
                 }
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the document number copied from the relevant sales or purchase document, such as a purchase order or a sales quote.';
                 }
-                field("Sender ID"; "Sender ID")
+                field("Sender ID"; Rec."Sender ID")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the ID of the user who sent the approval request for the document to be approved.';
@@ -54,12 +54,12 @@ page 659 "Posted Approval Entries"
                         UserMgt.DisplayUserInformation("Sender ID");
                     end;
                 }
-                field("Salespers./Purch. Code"; "Salespers./Purch. Code")
+                field("Salespers./Purch. Code"; Rec."Salespers./Purch. Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the code for the salesperson or purchaser that was in the document to be approved. It is not a mandatory field, but is useful if a salesperson or a purchaser responsible for the customer/vendor needs to approve the document before it is sent.';
                 }
-                field("Approver ID"; "Approver ID")
+                field("Approver ID"; Rec."Approver ID")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the ID of the user who must approve the document.';
@@ -76,17 +76,17 @@ page 659 "Posted Approval Entries"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the approval status for the entry:';
                 }
-                field("Date-Time Sent for Approval"; "Date-Time Sent for Approval")
+                field("Date-Time Sent for Approval"; Rec."Date-Time Sent for Approval")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the date and the time that the document was sent for approval.';
                 }
-                field("Last Date-Time Modified"; "Last Date-Time Modified")
+                field("Last Date-Time Modified"; Rec."Last Date-Time Modified")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the date when the approval entry was last modified. If, for example, the document approval is canceled, this field will be updated accordingly.';
                 }
-                field("Last Modified By ID"; "Last Modified By ID")
+                field("Last Modified By ID"; Rec."Last Modified By ID")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the ID of the person who last modified the approval entry. If, for example, the document approval is canceled, this field will be updated accordingly.';
@@ -103,22 +103,22 @@ page 659 "Posted Approval Entries"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies whether there are comments related to the approval of the document. If you want to read the comments, click the field to open the Comment Sheet window.';
                 }
-                field("Due Date"; "Due Date")
+                field("Due Date"; Rec."Due Date")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the date when the document is due for approval by the approver.';
                 }
-                field("Amount (LCY)"; "Amount (LCY)")
+                field("Amount (LCY)"; Rec."Amount (LCY)")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the total amount (excl. VAT) on the document waiting for approval. The amount is stated in the local currency.';
                 }
-                field("Currency Code"; "Currency Code")
+                field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the code of the currency of the amounts on the sales or purchase lines.';
                 }
-                field("Delegation Date Formula"; "Delegation Date Formula")
+                field("Delegation Date Formula"; Rec."Delegation Date Formula")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies for the posted approval entry when an overdue approval request was automatically delegated to the relevant substitute. The field is filled with the value in the Delegate After field in the Workflow Responses window, translated to a date formula. The date of automatic delegation is then calculated based on the Date-Time Sent for Approval field in the Approval Entries window.';
@@ -153,9 +153,6 @@ page 659 "Posted Approval Entries"
                     ApplicationArea = Suite;
                     Caption = 'Comments';
                     Image = ViewComments;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ToolTip = 'View or add comments for the record.';
 
                     trigger OnAction()
@@ -173,15 +170,26 @@ page 659 "Posted Approval Entries"
                     ApplicationArea = Suite;
                     Caption = 'Record';
                     Image = Document;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ToolTip = 'Open the document, journal line, or card that the approval request is for.';
 
                     trigger OnAction()
                     begin
-                        ShowRecord;
+                        ShowRecord();
                     end;
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(Comments_Promoted; Comments)
+                {
+                }
+                actionref(Record_Promoted; Record)
+                {
                 }
             }
         }

@@ -73,7 +73,7 @@ codeunit 144156 "ERM Service Tariff"
         SalesLine: Record "Sales Line";
     begin
         // Purpose of the test is to verify error while posting when Service Tariff No. is blank on Sales Order with Service Tariff No. Mandatory checked.
-        SalesOrderWithServiceTariffNoMandatory(StrSubstNo(BlankServiceTariffNoErr, SalesLine.TableCaption), '', '');  // Using blank for Service Tariff No. and Transport Method.
+        SalesOrderWithServiceTariffNoMandatory(StrSubstNo(BlankServiceTariffNoErr, SalesLine.TableCaption()), '', '');  // Using blank for Service Tariff No. and Transport Method.
     end;
 
     [Test]
@@ -84,7 +84,7 @@ codeunit 144156 "ERM Service Tariff"
     begin
         // Purpose of the test is to verify error while posting when Transport Method is blank on Sales Order with Service Tariff No. Mandatory checked.
         SalesOrderWithServiceTariffNoMandatory(
-          StrSubstNo(BlankTransportMethodErr, SalesHeader.TableCaption), CreateServiceTariffNumber, '');  // Using blank for Transport Method.
+          StrSubstNo(BlankTransportMethodErr, SalesHeader.TableCaption()), CreateServiceTariffNumber, '');  // Using blank for Transport Method.
     end;
 
     [Test]
@@ -95,7 +95,7 @@ codeunit 144156 "ERM Service Tariff"
     begin
         // Purpose of the test is to verify error while posting when Payment Method is blank on Sales Order with Service Tariff No. Mandatory checked.
         SalesOrderWithServiceTariffNoMandatory(
-          StrSubstNo(BlankPaymentMethodCodeErr, SalesHeader.TableCaption), CreateServiceTariffNumber, CreateTransportMethod);
+          StrSubstNo(BlankPaymentMethodCodeErr, SalesHeader.TableCaption()), CreateServiceTariffNumber, CreateTransportMethod);
     end;
 
     local procedure SalesOrderWithServiceTariffNoMandatory(ExpectedError: Text; ServiceTariffNumber: Code[10]; TransportMethod: Code[10])
@@ -153,7 +153,7 @@ codeunit 144156 "ERM Service Tariff"
         SalesLine: Record "Sales Line";
     begin
         // Purpose of the test is to verify error while posting prepmt invoice when Service Tariff No. is blank on Sales Order with Service Tariff No. Mandatory checked.
-        SalesPrepmtWithServiceTariffNoMandatory(StrSubstNo(BlankServiceTariffNoErr, SalesLine.TableCaption), '', '');  // Using blank for Service Tariff No.,Transport Method.
+        SalesPrepmtWithServiceTariffNoMandatory(StrSubstNo(BlankServiceTariffNoErr, SalesLine.TableCaption()), '', '');  // Using blank for Service Tariff No.,Transport Method.
     end;
 
     [Test]
@@ -164,7 +164,7 @@ codeunit 144156 "ERM Service Tariff"
     begin
         // Purpose of the test is to verify error while posting prepmt invoice when Transport Method is blank on Sales Order with Service Tariff No. Mandatory checked.
         SalesPrepmtWithServiceTariffNoMandatory(
-          StrSubstNo(BlankTransportMethodErr, SalesHeader.TableCaption), CreateServiceTariffNumber, '');  // Using blank for Transport Method.
+          StrSubstNo(BlankTransportMethodErr, SalesHeader.TableCaption()), CreateServiceTariffNumber, '');  // Using blank for Transport Method.
     end;
 
     [Test]
@@ -175,7 +175,7 @@ codeunit 144156 "ERM Service Tariff"
     begin
         // Purpose of the test is to verify error while posting prepmt invoice when Payment Method is blank on Sales Order with Service Tariff No. Mandatory checked.
         SalesPrepmtWithServiceTariffNoMandatory(
-          StrSubstNo(BlankPaymentMethodCodeErr, SalesHeader.TableCaption), CreateServiceTariffNumber, CreateTransportMethod);
+          StrSubstNo(BlankPaymentMethodCodeErr, SalesHeader.TableCaption()), CreateServiceTariffNumber, CreateTransportMethod);
     end;
 
     local procedure SalesPrepmtWithServiceTariffNoMandatory(ExpectedError: Text; ServiceTariffNumber: Code[10]; TransportMethod: Code[10])
@@ -234,7 +234,7 @@ codeunit 144156 "ERM Service Tariff"
         PurchaseLine: Record "Purchase Line";
     begin
         // Purpose of the test is to verify error while posting when Service Tariff No. is blank on Purchase Order with Service Tariff No. Mandatory checked.
-        PurchaseOrderWithServiceTariffNoMandatory(StrSubstNo(BlankServiceTariffNoErr, PurchaseLine.TableCaption), '', '');  // Using blank for Service Tariff No. and Transport Method.
+        PurchaseOrderWithServiceTariffNoMandatory(StrSubstNo(BlankServiceTariffNoErr, PurchaseLine.TableCaption()), '', '');  // Using blank for Service Tariff No. and Transport Method.
     end;
 
     [Test]
@@ -245,7 +245,7 @@ codeunit 144156 "ERM Service Tariff"
     begin
         // Purpose of the test is to verify error while posting when Transport Method is blank on Purchase Order with Service Tariff No. Mandatory checked.
         PurchaseOrderWithServiceTariffNoMandatory(
-          StrSubstNo(BlankTransportMethodErr, PurchaseHeader.TableCaption), CreateServiceTariffNumber, '');  // Using blank for Transport Method.
+          StrSubstNo(BlankTransportMethodErr, PurchaseHeader.TableCaption()), CreateServiceTariffNumber, '');  // Using blank for Transport Method.
     end;
 
     [Test]
@@ -256,7 +256,7 @@ codeunit 144156 "ERM Service Tariff"
     begin
         // Purpose of the test is to verify error while posting when Payment Method is blank on Purchase Order with Service Tariff No. Mandatory checked.
         PurchaseOrderWithServiceTariffNoMandatory(
-          StrSubstNo(BlankPaymentMethodCodeErr, PurchaseHeader.TableCaption), CreateServiceTariffNumber, CreateTransportMethod);
+          StrSubstNo(BlankPaymentMethodCodeErr, PurchaseHeader.TableCaption()), CreateServiceTariffNumber, CreateTransportMethod);
     end;
 
     local procedure PurchaseOrderWithServiceTariffNoMandatory(ExpectedError: Text; ServiceTariffNumber: Code[10]; TransportMethod: Code[10])
@@ -314,7 +314,7 @@ codeunit 144156 "ERM Service Tariff"
         PurchaseLine: Record "Purchase Line";
     begin
         // Purpose of the test is to verify error while posting Prepmt Invoice when Service Tariff No is blank on Purchase Order with Service Tariff No. Mandatory checked.
-        PurchasePrepmtWithServiceTariffNoMandatory(StrSubstNo(BlankServiceTariffNoErr, PurchaseLine.TableCaption), '', '');  // Using blank for Service Tariff No. and Transport Method.
+        PurchasePrepmtWithServiceTariffNoMandatory(StrSubstNo(BlankServiceTariffNoErr, PurchaseLine.TableCaption()), '', '');  // Using blank for Service Tariff No. and Transport Method.
     end;
 
     [Test]
@@ -325,7 +325,7 @@ codeunit 144156 "ERM Service Tariff"
     begin
         // Purpose of the test is to verify error while posting Prepmt Invoice when Transport Method is blank on Purchase Order with Service Tariff No. Mandatory checked.
         PurchasePrepmtWithServiceTariffNoMandatory(
-          StrSubstNo(BlankTransportMethodErr, PurchaseHeader.TableCaption), CreateServiceTariffNumber, '');  // Using blank for Transport Method.
+          StrSubstNo(BlankTransportMethodErr, PurchaseHeader.TableCaption()), CreateServiceTariffNumber, '');  // Using blank for Transport Method.
     end;
 
     [Test]
@@ -336,7 +336,7 @@ codeunit 144156 "ERM Service Tariff"
     begin
         // Purpose of the test is to verify error while posting Prepmt Invoice when Payment Method is blank on Purchase Order with Service Tariff No. Mandatory checked.
         PurchasePrepmtWithServiceTariffNoMandatory(
-          StrSubstNo(BlankPaymentMethodCodeErr, PurchaseHeader.TableCaption), CreateServiceTariffNumber, CreateTransportMethod);
+          StrSubstNo(BlankPaymentMethodCodeErr, PurchaseHeader.TableCaption()), CreateServiceTariffNumber, CreateTransportMethod);
     end;
 
     local procedure PurchasePrepmtWithServiceTariffNoMandatory(ExpectedError: Text; ServiceTariffNumber: Code[10]; TransportMethod: Code[10])
@@ -396,7 +396,7 @@ codeunit 144156 "ERM Service Tariff"
         ServiceLine: Record "Service Line";
     begin
         // Purpose of the test is to verify error when Service Tariff No is blank on Service Invoice with Service Tariff No. Mandatory checked.
-        ServiceInvoiceWithServiceTariffNoMandatory(StrSubstNo(BlankServiceTariffNoErr, ServiceLine.TableCaption), '', '');  // Using blank for Service Tariff No. and Transport Method.
+        ServiceInvoiceWithServiceTariffNoMandatory(StrSubstNo(BlankServiceTariffNoErr, ServiceLine.TableCaption()), '', '');  // Using blank for Service Tariff No. and Transport Method.
     end;
 
     [Test]
@@ -407,7 +407,7 @@ codeunit 144156 "ERM Service Tariff"
     begin
         // Purpose of the test is to verify error when Transport Method is blank on Service Invoice with Service Tariff No. Mandatory checked.
         ServiceInvoiceWithServiceTariffNoMandatory(
-          StrSubstNo(BlankTransportMethodErr, ServiceHeader.TableCaption), CreateServiceTariffNumber, '');  // Using blank for Transport Method.
+          StrSubstNo(BlankTransportMethodErr, ServiceHeader.TableCaption()), CreateServiceTariffNumber, '');  // Using blank for Transport Method.
     end;
 
     [Test]
@@ -418,7 +418,7 @@ codeunit 144156 "ERM Service Tariff"
     begin
         // Purpose of the test is to verify error when Payment Method is blank on Service Invoice with Service Tariff No. Mandatory checked.
         ServiceInvoiceWithServiceTariffNoMandatory(
-          StrSubstNo(BlankPaymentMethodCodeErr, ServiceHeader.TableCaption), CreateServiceTariffNumber, CreateTransportMethod);
+          StrSubstNo(BlankPaymentMethodCodeErr, ServiceHeader.TableCaption()), CreateServiceTariffNumber, CreateTransportMethod);
     end;
 
     local procedure ServiceInvoiceWithServiceTariffNoMandatory(ExpectedError: Text; ServiceTariffNumber: Code[10]; TransportMethod: Code[10])
@@ -510,7 +510,7 @@ codeunit 144156 "ERM Service Tariff"
         PurchaseHeader.Validate("Transport Method", TransportMethod);
         PurchaseHeader.Validate("Payment Method Code", PaymentMethodCode);
         PurchaseHeader.Validate("Prepayment %", PrepaymentPct);
-        PurchaseHeader.Validate("Prepayment Due Date", WorkDate);
+        PurchaseHeader.Validate("Prepayment Due Date", WorkDate());
         PurchaseHeader.Modify(true);
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine,

@@ -174,31 +174,6 @@ codeunit 130509 "Library - Sales"
         CustomerPriceGroup.Insert(true);
     end;
 
-#if not CLEAN18
-    procedure CreateCustomerTemplate(var CustomerTemplate: Record "Customer Template")
-    begin
-        CustomerTemplate.Init();
-        CustomerTemplate.Validate(Code, LibraryUtility.GenerateRandomCode(CustomerTemplate.FieldNo(Code), DATABASE::"Customer Template"));
-        CustomerTemplate.Insert(true);
-
-        OnAfterCreateCustomerTemplate(CustomerTemplate);
-    end;
-
-    [Scope('OnPrem')]
-    procedure CreateCustomerTemplateWithBusPostingGroups(GenBusPostingGroupCode: Code[20]; VATBusPostingGroupCode: Code[20]): Code[10]
-    var
-        CustomerTemplate: Record "Customer Template";
-    begin
-        CustomerTemplate.Init();
-        CreateCustomerTemplate(CustomerTemplate);
-        CustomerTemplate.Validate("Customer Posting Group", FindCustomerPostingGroup);
-        CustomerTemplate.Validate("Gen. Bus. Posting Group", GenBusPostingGroupCode);
-        CustomerTemplate.Validate("VAT Bus. Posting Group", VATBusPostingGroupCode);
-        CustomerTemplate.Modify(true);
-        exit(CustomerTemplate.Code);
-    end;
-#endif
-
     procedure CreateCustomerWithLocationCode(var Customer: Record Customer; LocationCode: Code[10]): Code[20]
     begin
         with Customer do begin
@@ -660,14 +635,14 @@ codeunit 130509 "Library - Sales"
         CustomReportSelection: Record "Custom Report Selection";
     begin
         with CustomReportSelection do begin
-            Init;
+            Init();
             Validate("Source Type", DATABASE::Customer);
             Validate("Source No.", CustomerNo);
             Validate(Usage, UsageValue);
             Validate("Report ID", ReportID);
             Validate("Custom Report Layout Code", CustomReportLayoutCode);
             Validate("Send To Email", CopyStr(EmailAddress, 1, MaxStrLen("Send To Email")));
-            Insert;
+            Insert();
         end;
     end;
 
@@ -696,7 +671,7 @@ codeunit 130509 "Library - Sales"
         if (PostingDate <> 0D) and (DocDate <> 0D) then
             TmpSalesHeader.FindFirst();
         CombineReturnReceipts.InitializeRequest(
-          WorkDate, WorkDate, TmpSalesHeader."Operation Type", PostingDate, DocDate, CalcInvDiscount, PostCreditMemos);
+          WorkDate, WorkDate(), TmpSalesHeader."Operation Type", PostingDate, DocDate, CalcInvDiscount, PostCreditMemos);
         CombineReturnReceipts.UseRequestPage(false);
         CombineReturnReceipts.RunModal();
     end;
@@ -1148,37 +1123,37 @@ codeunit 130509 "Library - Sales"
     procedure SetOrderNoSeriesInSetup()
     begin
         with SalesReceivablesSetup do begin
-            Get;
+            Get();
             Validate("Order Nos.", LibraryERM.CreateNoSeriesCode);
-            Modify;
+            Modify();
         end;
     end;
 
     procedure SetPostedNoSeriesInSetup()
     begin
         with SalesReceivablesSetup do begin
-            Get;
+            Get();
             Validate("Posted Invoice Nos.", LibraryERM.CreateNoSeriesCode);
             Validate("Posted Shipment Nos.", LibraryERM.CreateNoSeriesCode);
             Validate("Posted Credit Memo Nos.", LibraryERM.CreateNoSeriesCode);
-            Modify;
+            Modify();
         end;
     end;
 
     procedure SetReturnOrderNoSeriesInSetup()
     begin
         with SalesReceivablesSetup do begin
-            Get;
+            Get();
             Validate("Return Order Nos.", LibraryERM.CreateNoSeriesCode);
             Validate("Posted Return Receipt Nos.", LibraryERM.CreateNoSeriesCode);
-            Modify;
+            Modify();
         end;
     end;
 
     procedure SetCopyCommentsOrderToInvoiceInSetup(CopyCommentsOrderToInvoice: Boolean)
     begin
         with SalesReceivablesSetup do begin
-            Get;
+            Get();
             Validate("Copy Comments Order to Invoice", CopyCommentsOrderToInvoice);
             Modify(true);
         end;
@@ -1231,14 +1206,14 @@ codeunit 130509 "Library - Sales"
     var
         InstructionMgt: Codeunit "Instruction Mgt.";
     begin
-        InstructionMgt.DisableMessageForCurrentUser(InstructionMgt.ShowPostedConfirmationMessageCode);
+        InstructionMgt.DisableMessageForCurrentUser(InstructionMgt.ShowPostedConfirmationMessageCode());
     end;
 
     procedure EnableConfirmOnPostingDoc()
     var
         InstructionMgt: Codeunit "Instruction Mgt.";
     begin
-        InstructionMgt.EnableMessageForCurrentUser(InstructionMgt.ShowPostedConfirmationMessageCode);
+        InstructionMgt.EnableMessageForCurrentUser(InstructionMgt.ShowPostedConfirmationMessageCode());
     end;
 
     procedure DisableWarningOnCloseUnreleasedDoc()
@@ -1250,14 +1225,14 @@ codeunit 130509 "Library - Sales"
     var
         InstructionMgt: Codeunit "Instruction Mgt.";
     begin
-        InstructionMgt.DisableMessageForCurrentUser(InstructionMgt.QueryPostOnCloseCode);
+        InstructionMgt.DisableMessageForCurrentUser(InstructionMgt.QueryPostOnCloseCode());
     end;
 
     procedure EnableWarningOnCloseUnpostedDoc()
     var
         InstructionMgt: Codeunit "Instruction Mgt.";
     begin
-        InstructionMgt.DisableMessageForCurrentUser(InstructionMgt.QueryPostOnCloseCode);
+        InstructionMgt.DisableMessageForCurrentUser(InstructionMgt.QueryPostOnCloseCode());
     end;
 
     procedure EnableSalesSetupIgnoreUpdatedAddresses()
@@ -1292,11 +1267,11 @@ codeunit 130509 "Library - Sales"
     procedure MockCustLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; CustomerNo: Code[20])
     begin
         with CustLedgerEntry do begin
-            Init;
+            Init();
             "Entry No." := LibraryUtility.GetNewRecNo(CustLedgerEntry, FieldNo("Entry No."));
             "Customer No." := CustomerNo;
-            "Posting Date" := WorkDate;
-            Insert;
+            "Posting Date" := WorkDate();
+            Insert();
         end;
     end;
 
@@ -1315,16 +1290,16 @@ codeunit 130509 "Library - Sales"
     procedure MockDetailedCustLedgerEntryWithAmount(var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; CustLedgerEntry: Record "Cust. Ledger Entry")
     begin
         with DetailedCustLedgEntry do begin
-            Init;
+            Init();
             "Entry No." := LibraryUtility.GetNewRecNo(DetailedCustLedgEntry, FieldNo("Entry No."));
             "Cust. Ledger Entry No." := CustLedgerEntry."Entry No.";
             "Customer No." := CustLedgerEntry."Customer No.";
-            "Posting Date" := WorkDate;
+            "Posting Date" := WorkDate();
             "Entry Type" := "Entry Type"::"Initial Entry";
             "Document Type" := "Document Type"::Invoice;
             Amount := LibraryRandom.RandDec(100, 2);
             "Amount (LCY)" := Amount;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -1333,8 +1308,8 @@ codeunit 130509 "Library - Sales"
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin
         MockDetailedCustLedgerEntryWithAmount(DetailedCustLedgEntry, CustLedgerEntry);
-        MockApplnDetailedCustLedgerEntry(DetailedCustLedgEntry, true, WorkDate);
-        MockApplnDetailedCustLedgerEntry(DetailedCustLedgEntry, false, WorkDate);
+        MockApplnDetailedCustLedgerEntry(DetailedCustLedgEntry, true, WorkDate());
+        MockApplnDetailedCustLedgerEntry(DetailedCustLedgEntry, false, WorkDate());
     end;
 
     procedure MockDetailedCustLedgEntryZeroBalance(CustLedgerEntry: Record "Cust. Ledger Entry")
@@ -1342,7 +1317,7 @@ codeunit 130509 "Library - Sales"
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin
         MockDetailedCustLedgerEntryWithAmount(DetailedCustLedgEntry, CustLedgerEntry);
-        MockApplnDetailedCustLedgerEntry(DetailedCustLedgEntry, true, WorkDate);
+        MockApplnDetailedCustLedgerEntry(DetailedCustLedgEntry, true, WorkDate());
         MockApplnDetailedCustLedgerEntry(DetailedCustLedgEntry, true, WorkDate + 1);
     end;
 
@@ -1351,7 +1326,7 @@ codeunit 130509 "Library - Sales"
         ApplnDetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin
         with ApplnDetailedCustLedgEntry do begin
-            Init;
+            Init();
             Copy(DetailedCustLedgEntry);
             "Entry No." := LibraryUtility.GetNewRecNo(DetailedCustLedgEntry, DetailedCustLedgEntry.FieldNo("Entry No."));
             "Entry Type" := "Entry Type"::Application;
@@ -1359,7 +1334,7 @@ codeunit 130509 "Library - Sales"
             Amount := -Amount;
             "Amount (LCY)" := Amount;
             Unapplied := UnappliedEntry;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -1379,12 +1354,6 @@ codeunit 130509 "Library - Sales"
     begin
     end;
 
-#if not CLEAN18
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterCreateCustomerTemplate(var CustomerTemplate: Record "Customer Template")
-    begin
-    end;
-#endif
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Option; SellToCustomerNo: Code[20])
     begin

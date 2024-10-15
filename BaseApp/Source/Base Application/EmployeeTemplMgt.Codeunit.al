@@ -188,7 +188,7 @@ codeunit 1387 "Employee Templ. Mgt."
         if EmployeeTempl.FindLast() and (IncStr(EmployeeTempl.Code) <> '') then
             EmployeeTemplCode := EmployeeTempl.Code
         else
-            EmployeeTemplCode := CopyStr(Employee.TableCaption, 1, 4) + '000001';
+            EmployeeTemplCode := CopyStr(Employee.TableCaption(), 1, 4) + '000001';
 
         while EmployeeTempl.Get(EmployeeTemplCode) do
             EmployeeTemplCode := IncStr(EmployeeTemplCode);

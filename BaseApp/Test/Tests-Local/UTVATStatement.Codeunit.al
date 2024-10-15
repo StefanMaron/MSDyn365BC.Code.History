@@ -186,7 +186,7 @@ codeunit 144166 "UT VAT Statement"
         VATEntry."VAT Prod. Posting Group" := VATPostingSetup."VAT Prod. Posting Group";
         VATEntry."Bill-to/Pay-to No." := LibraryUTUtility.GetNewCode;
         VATEntry."Country/Region Code" := CountryRegionCode;
-        VATEntry."Operation Occurred Date" := WorkDate;
+        VATEntry."Operation Occurred Date" := WorkDate();
         VATEntry."Nondeductible Amount" := LibraryRandom.RandDec(10, 2);
         VATEntry."Nondeductible Base" := LibraryRandom.RandDec(100, 2);
         VATEntry."Add. Curr. Nondeductible Amt." := AddCurrNondeductibleAmt;
@@ -237,7 +237,7 @@ codeunit 144166 "UT VAT Statement"
         AnnualVATCommunication.OpenEdit;
         AnnualVATCommunication."Row No.".SetValue(RowNo);
         AnnualVATCommunication."Amount Type".SetValue(AnnualVATCommunication."Amount Type".GetOption(7));  // Set Amount Type as Non-Deductible Amount.
-        AnnualVATCommunication.Next;
+        AnnualVATCommunication.Next();
         AnnualVATCommunication."Row No.".SetValue(RowNo2);
         AnnualVATCommunication."Amount Type".SetValue(AnnualVATCommunication."Amount Type".GetOption(8));  // Set Amount Type as Non-Deductible Base.
         AnnualVATCommunication.OK.Invoke;
@@ -250,7 +250,7 @@ codeunit 144166 "UT VAT Statement"
         VATStatement.OpenEdit;
         VATStatement."Row No.".SetValue(RowNo);
         VATStatement."Amount Type".SetValue(VATStatement."Amount Type".GetOption(7));  // Set Amount Type as Non-Deductible Amount.
-        VATStatement.Next;
+        VATStatement.Next();
         VATStatement."Row No.".SetValue(RowNo2);
         VATStatement."Amount Type".SetValue(VATStatement."Amount Type".GetOption(8));  // Set Amount Type as Non-Deductible Base.
         VATStatement.OK.Invoke;
@@ -300,8 +300,8 @@ codeunit 144166 "UT VAT Statement"
     begin
         LibraryVariableStorage.Dequeue(StatementName);
         VATStatement."VAT Statement Line".SetFilter("Statement Name", StatementName);
-        VATStatement.StartingDate.SetValue(WorkDate);
-        VATStatement.EndingDate.SetValue(WorkDate);
+        VATStatement.StartingDate.SetValue(WorkDate());
+        VATStatement.EndingDate.SetValue(WorkDate());
         VATStatement.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 }

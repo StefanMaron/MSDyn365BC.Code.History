@@ -88,7 +88,7 @@ codeunit 144123 "ERM Details Purchase"
         ExpectedReceiptDate: Date;
     begin
         // Test to verify Purchase Credit Memo posted successfully with higher Expected Receipt Date than its Posting Date.
-        ExpectedReceiptDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate);  // Expected Receipt Date later than Posting Date.
+        ExpectedReceiptDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate());  // Expected Receipt Date later than Posting Date.
         PostedPurchDocumentWithExpectedReceiptDate(PurchaseHeader."Document Type"::"Credit Memo", ExpectedReceiptDate);
     end;
 
@@ -100,7 +100,7 @@ codeunit 144123 "ERM Details Purchase"
         ExpectedReceiptDate: Date;
     begin
         // Test to verify Purchase Credit Memo posted successfully with earlier Expected Receipt Date than its Posting Date.
-        ExpectedReceiptDate := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate);  // Expected Receipt Date earlier than Posting Date.
+        ExpectedReceiptDate := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate());  // Expected Receipt Date earlier than Posting Date.
         PostedPurchDocumentWithExpectedReceiptDate(PurchaseHeader."Document Type"::"Credit Memo", ExpectedReceiptDate);
     end;
 
@@ -111,7 +111,7 @@ codeunit 144123 "ERM Details Purchase"
         PurchaseHeader: Record "Purchase Header";
     begin
         // Test to verify Purchase Credit Memo posted successfully with same Expected Receipt Date as Posting Date.
-        PostedPurchDocumentWithExpectedReceiptDate(PurchaseHeader."Document Type"::"Credit Memo", WorkDate);  // Expected Receipt Date same as Posting Date.
+        PostedPurchDocumentWithExpectedReceiptDate(PurchaseHeader."Document Type"::"Credit Memo", WorkDate());  // Expected Receipt Date same as Posting Date.
     end;
 
     [Test]
@@ -122,7 +122,7 @@ codeunit 144123 "ERM Details Purchase"
         ExpectedReceiptDate: Date;
     begin
         // Test to verify Purchase Return Order posted successfully with higher Expected Receipt Date than its Posting Date.
-        ExpectedReceiptDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate);  // Expected Receipt Date later than Posting Date.
+        ExpectedReceiptDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate());  // Expected Receipt Date later than Posting Date.
         PostedPurchDocumentWithExpectedReceiptDate(PurchaseHeader."Document Type"::"Return Order", ExpectedReceiptDate);
     end;
 
@@ -134,7 +134,7 @@ codeunit 144123 "ERM Details Purchase"
         ExpectedReceiptDate: Date;
     begin
         // Test to verify Purchase Return Order posted successfully with earlier Expected Receipt Date than its Posting Date.
-        ExpectedReceiptDate := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate);  // Expected Receipt Date earlier than Posting Date.
+        ExpectedReceiptDate := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate());  // Expected Receipt Date earlier than Posting Date.
         PostedPurchDocumentWithExpectedReceiptDate(PurchaseHeader."Document Type"::"Return Order", ExpectedReceiptDate);
     end;
 
@@ -145,7 +145,7 @@ codeunit 144123 "ERM Details Purchase"
         PurchaseHeader: Record "Purchase Header";
     begin
         // Test to verify Purchase Return Order posted successfully with same Expected Receipt Date as Posting Date.
-        PostedPurchDocumentWithExpectedReceiptDate(PurchaseHeader."Document Type"::"Return Order", WorkDate);  // Expected Receipt Date same as Posting Date.
+        PostedPurchDocumentWithExpectedReceiptDate(PurchaseHeader."Document Type"::"Return Order", WorkDate());  // Expected Receipt Date same as Posting Date.
     end;
 
     local procedure PostedPurchDocumentWithExpectedReceiptDate(DocumentType: Enum "Purchase Document Type"; ExpectedReceiptDate: Date)
@@ -162,7 +162,7 @@ codeunit 144123 "ERM Details Purchase"
 
         // Verify: Verify Purchase Document posted successfully with different Expected Receipt Date.
         PurchCrMemoHdr.Get(PurchCrMemoHeaderNo);
-        PurchCrMemoHdr.TestField("Posting Date", WorkDate);
+        PurchCrMemoHdr.TestField("Posting Date", WorkDate());
         PurchCrMemoHdr.TestField("Expected Receipt Date", ExpectedReceiptDate);
     end;
 
@@ -173,7 +173,7 @@ codeunit 144123 "ERM Details Purchase"
         ExpectedReceiptDate: Date;
     begin
         // Test to verify Purchase Invoice posted successfully with higher Expected Receipt Date than its Posting Date.
-        ExpectedReceiptDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate);  // Expected Receipt Date later than Posting Date.
+        ExpectedReceiptDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate());  // Expected Receipt Date later than Posting Date.
         PostedPurchInvoiceWithExpectedReceiptDate(ExpectedReceiptDate);
     end;
 
@@ -184,7 +184,7 @@ codeunit 144123 "ERM Details Purchase"
         ExpectedReceiptDate: Date;
     begin
         // Test to verify Purchase Invoice posted successfully with earlier Expected Receipt Date than its Posting Date.
-        ExpectedReceiptDate := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate);  // Expected Receipt Date earlier than Posting Date.
+        ExpectedReceiptDate := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate());  // Expected Receipt Date earlier than Posting Date.
         PostedPurchInvoiceWithExpectedReceiptDate(ExpectedReceiptDate);
     end;
 
@@ -193,7 +193,7 @@ codeunit 144123 "ERM Details Purchase"
     procedure PostedPurchInvoiceWithSameExpectedReceiptDate()
     begin
         // Test to verify Purchase Invoice posted successfully with same Expected Receipt Date as Posting Date.
-        PostedPurchInvoiceWithExpectedReceiptDate(WorkDate);  // Expected Receipt Date same as Posting Date.
+        PostedPurchInvoiceWithExpectedReceiptDate(WorkDate());  // Expected Receipt Date same as Posting Date.
     end;
 
     local procedure PostedPurchInvoiceWithExpectedReceiptDate(ExpectedReceiptDate: Date)
@@ -210,7 +210,7 @@ codeunit 144123 "ERM Details Purchase"
 
         // Verify: Verify Purchase Invoice posted successfully with different Expected Receipt Date.
         PurchInvHeader.Get(PurchInvHeaderNo);
-        PurchInvHeader.TestField("Posting Date", WorkDate);
+        PurchInvHeader.TestField("Posting Date", WorkDate());
         PurchInvHeader.TestField("Expected Receipt Date", ExpectedReceiptDate);
     end;
 
@@ -221,7 +221,7 @@ codeunit 144123 "ERM Details Purchase"
         ExpectedReceiptDate: Date;
     begin
         // Test to verify Purchase Order created successfully Blanket Purchase Order with higher Expected Receipt Date than its Posting Date.
-        ExpectedReceiptDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate);  // Expected Receipt Date later than Posting Date.
+        ExpectedReceiptDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate());  // Expected Receipt Date later than Posting Date.
         BlanketPurchOrderMakeOrderWithExpectedRcptDate(ExpectedReceiptDate);
     end;
 
@@ -232,7 +232,7 @@ codeunit 144123 "ERM Details Purchase"
         ExpectedReceiptDate: Date;
     begin
         // Test to verify Purchase Order created successfully Blanket Purchase Order with lesser Expected Receipt Date than its Posting Date.
-        ExpectedReceiptDate := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate);  // Expected Receipt Date earlier than Posting Date.
+        ExpectedReceiptDate := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate());  // Expected Receipt Date earlier than Posting Date.
         BlanketPurchOrderMakeOrderWithExpectedRcptDate(ExpectedReceiptDate);
     end;
 
@@ -241,7 +241,7 @@ codeunit 144123 "ERM Details Purchase"
     procedure BlanketPurchOrderMakeOrderWithSameExpectedRcptDate()
     begin
         // Test to verify Purchase Order created successfully Blanket Purchase Order with same Expected Receipt Date as Posting Date.
-        BlanketPurchOrderMakeOrderWithExpectedRcptDate(WorkDate);  // Expected Receipt Date same as Posting Date.
+        BlanketPurchOrderMakeOrderWithExpectedRcptDate(WorkDate());  // Expected Receipt Date same as Posting Date.
     end;
 
     local procedure BlanketPurchOrderMakeOrderWithExpectedRcptDate(ExpectedReceiptDate: Date)
@@ -271,7 +271,7 @@ codeunit 144123 "ERM Details Purchase"
     begin
         // Setup: Update Ext. Doc. No. Mandatory - FALSE on Purchases & Payables Setup and Create Purchase Invoice.
         OldExtDocNoMandatory := UpdatePurchasesPayablesSetupExtDocNoMandatory(false);
-        CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, WorkDate, '');  // Expected Receipt Date - WORKDATE.
+        CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, WorkDate(), '');  // Expected Receipt Date - WORKDATE.
 
         // Exercise: Post Purchase Invoice.
         PurchaseInvHeaderNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -333,7 +333,7 @@ codeunit 144123 "ERM Details Purchase"
     begin
         // Setup: Update Ext. Doc. No. Mandatory - FALSE on Purchases & Payables Setup and Create Purchase Credit Memo.
         OldExtDocNoMandatory := UpdatePurchasesPayablesSetupExtDocNoMandatory(false);
-        CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", WorkDate, '');  // Expected Receipt Date - WORKDATE.
+        CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", WorkDate(), '');  // Expected Receipt Date - WORKDATE.
 
         // Exercise: Post Purchase Credit Memo.
         PurchaseCrMemoHeaderNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -380,11 +380,11 @@ codeunit 144123 "ERM Details Purchase"
         // Setup: Create Currency with Exchange rate, create and post Purchase Invoice with that Currency and Apply payment for Invoice on next year.
         CurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates;
 #if not CLEAN20
-        LibraryERM.RunAdjustExchangeRatesSimple(CurrencyCode, WorkDate, WorkDate);  // Ending Date, Posting Date - WORKDATE.
+        LibraryERM.RunAdjustExchangeRatesSimple(CurrencyCode, WorkDate(), WorkDate());  // Ending Date, Posting Date - WORKDATE.
 #else
-        LibraryERM.RunExchRateAdjustmentSimple(CurrencyCode, WorkDate, WorkDate);  // Ending Date, Posting Date - WORKDATE.
+        LibraryERM.RunExchRateAdjustmentSimple(CurrencyCode, WorkDate(), WorkDate());  // Ending Date, Posting Date - WORKDATE.
 #endif
-        CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, WorkDate, CurrencyCode);  // Expected Receipt Date.
+        CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, WorkDate(), CurrencyCode);  // Expected Receipt Date.
 
         PostedPurchaseInvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
         PurchInvHeader.Get(PostedPurchaseInvoiceNo);
@@ -410,7 +410,7 @@ codeunit 144123 "ERM Details Purchase"
         AmountInclVAT: Decimal;
     begin
         // Setup: Create Purchase Return Order, Create Purchase Credit memo and Get Return Shipment Line on it with updating Check Total.
-        CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::"Return Order", WorkDate, '');
+        CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::"Return Order", WorkDate(), '');
         AmountInclVAT := UpdatePurchaseLineDirectUnitCost(PurchaseHeader."No.");
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);  // Post Return Order as Ship.
         LibraryPurchase.CreatePurchHeader(
@@ -456,7 +456,7 @@ codeunit 144123 "ERM Details Purchase"
         GenJournalLine.Validate("Applies-to Doc. No.", AppliestoDocNo);
         GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::"Bank Account");
         GenJournalLine.Validate("Bal. Account No.", BankAccount."No.");
-        GenJournalLine.Validate("Posting Date", CalcDate('<1Y>', WorkDate));
+        GenJournalLine.Validate("Posting Date", CalcDate('<1Y>', WorkDate()));
         GenJournalLine.Modify(true);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
@@ -552,7 +552,7 @@ codeunit 144123 "ERM Details Purchase"
         Commit();  // Commit Required.
         Clear(VendorSheetPrint);
         Vendor.SetRange("No.", No);
-        Vendor.SetRange("Date Filter", CalcDate('<-CY + 1Y>', WorkDate), CalcDate('<CY + 1Y>', WorkDate));  // Date filter on the Date range of payment.
+        Vendor.SetRange("Date Filter", CalcDate('<-CY + 1Y>', WorkDate()), CalcDate('<CY + 1Y>', WorkDate()));  // Date filter on the Date range of payment.
         VendorSheetPrint.SetTableView(Vendor);
         VendorSheetPrint.Run();
     end;

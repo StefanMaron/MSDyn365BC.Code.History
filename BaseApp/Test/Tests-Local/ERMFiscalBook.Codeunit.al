@@ -111,7 +111,7 @@ codeunit 144075 "ERM Fiscal Book"
         Assert.IsTrue(VATRegisters."Last Printed VAT Register Page".Visible, FieldVisibleErr);
 
         // Tear down.
-        VATRegisters.Close;
+        VATRegisters.Close();
     end;
 
     [Test]
@@ -161,7 +161,7 @@ codeunit 144075 "ERM Fiscal Book"
           StrSubstNo(EditableErr, GeneralLedgerSetup."Last Printed G/L Book Page".Caption));
 
         // Tear Down.
-        GeneralLedgerSetup.Close;
+        GeneralLedgerSetup.Close();
     end;
 
     local procedure CreateAndPostGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; VATPostingSetup: Record "VAT Posting Setup"; DocumentNo: Code[20]; DocumentNo2: Code[20])
@@ -242,7 +242,7 @@ codeunit 144075 "ERM Fiscal Book"
         GLBookEntry.SetRange("G/L Account No.", GLAccountNo);
         GLBookEntry.FindSet();
         VerifyAmountsOnGLBookEntry(GLBookEntry, DocumentNo2, DebitAmount, CreditAmount);
-        GLBookEntry.Next;
+        GLBookEntry.Next();
         VerifyAmountsOnGLBookEntry(GLBookEntry, DocumentNo, DebitAmount, CreditAmount);
     end;
 

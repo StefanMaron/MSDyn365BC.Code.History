@@ -174,12 +174,12 @@ codeunit 131332 "Library - Cash Flow Helper"
 
     procedure ChangeWorkdateByDateFormula(BaseDateFormula: DateFormula; CustomDateFormula: DateFormula; AdditionalDateFormula: DateFormula) OldWorkDate: Date
     begin
-        OldWorkDate := ChangeWorkdate(GenerateDateFromFormulas(WorkDate, BaseDateFormula, AdditionalDateFormula, CustomDateFormula));
+        OldWorkDate := ChangeWorkdate(GenerateDateFromFormulas(WorkDate(), BaseDateFormula, AdditionalDateFormula, CustomDateFormula));
     end;
 
     procedure ChangeWorkdate(NewWorkDate: Date) OldWorkDate: Date
     begin
-        OldWorkDate := WorkDate;
+        OldWorkDate := WorkDate();
         WorkDate := NewWorkDate;
     end;
 
@@ -199,7 +199,7 @@ codeunit 131332 "Library - Cash Flow Helper"
         GenJournalBatch: Record "Gen. Journal Batch";
         PaymentDate: Date;
     begin
-        PaymentDate := GenerateDateFromFormulas(WorkDate, DateFormula1, DateFormula2, DateFormula3);
+        PaymentDate := GenerateDateFromFormulas(WorkDate(), DateFormula1, DateFormula2, DateFormula3);
         SelectAndClearGenJournalBatch(GenJournalBatch);
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Invoice,
@@ -220,7 +220,7 @@ codeunit 131332 "Library - Cash Flow Helper"
         GenJournalBatch: Record "Gen. Journal Batch";
         PaymentDate: Date;
     begin
-        PaymentDate := GenerateDateFromFormulas(WorkDate, DateFormula1, DateFormula2, DateFormula3);
+        PaymentDate := GenerateDateFromFormulas(WorkDate(), DateFormula1, DateFormula2, DateFormula3);
         SelectAndClearGenJournalBatch(GenJournalBatch);
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Invoice,
@@ -297,11 +297,11 @@ codeunit 131332 "Library - Cash Flow Helper"
         LibraryFA.CreateFAJournalLine(FAJournalLine, FAJournalTemplate.Name, FAJournalBatch.Name);
         FAJournalLine."Document Type" := FAJournalLine."Document Type"::Invoice;
         NoSeries.Get(FAJournalBatch."No. Series");
-        FAJournalLine.Validate("Document No.", NoSeriesManagement.GetNextNo(FAJournalBatch."No. Series", WorkDate, false));
+        FAJournalLine.Validate("Document No.", NoSeriesManagement.GetNextNo(FAJournalBatch."No. Series", WorkDate(), false));
         FAJournalLine.Validate("FA No.", FixedAsset."No.");
         FAJournalLine.Validate("Depreciation Book Code", FADepreciationBook."Depreciation Book Code");
         FAJournalLine.Validate(Amount, InvestmentAmount);
-        FAJournalLine.Validate("FA Posting Date", CalcDate(FAPostingDateFormula, WorkDate));
+        FAJournalLine.Validate("FA Posting Date", CalcDate(FAPostingDateFormula, WorkDate()));
         FAJournalLine.Modify(true);
         LibraryFA.PostFAJournalLine(FAJournalLine);
     end;
@@ -312,9 +312,9 @@ codeunit 131332 "Library - Cash Flow Helper"
     begin
         LibraryFA.CreateFixedAsset(FixedAsset);
         LibraryFA.CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", DepreciationBookCode);
-        FADepreciationBook."Depreciation Starting Date" := CalcDate(DepreciationStartDateFormula, WorkDate);
-        FADepreciationBook."Depreciation Ending Date" := CalcDate(DepreciationEndDateFormula, WorkDate);
-        FADepreciationBook."Projected Disposal Date" := CalcDate(DisposalDateFormula, WorkDate);
+        FADepreciationBook."Depreciation Starting Date" := CalcDate(DepreciationStartDateFormula, WorkDate());
+        FADepreciationBook."Depreciation Ending Date" := CalcDate(DepreciationEndDateFormula, WorkDate());
+        FADepreciationBook."Projected Disposal Date" := CalcDate(DisposalDateFormula, WorkDate());
         FADepreciationBook."Projected Proceeds on Disposal" := ExpDisposalAmount;
         FADepreciationBook.Modify(true);
     end;
@@ -621,7 +621,7 @@ codeunit 131332 "Library - Cash Flow Helper"
     var
         ForecastDate: Date;
     begin
-        ForecastDate := GenerateDateFromFormulas(WorkDate, BaseDateFormula, AdditionalDateFormula, CustomDateFormula);
+        ForecastDate := GenerateDateFromFormulas(WorkDate(), BaseDateFormula, AdditionalDateFormula, CustomDateFormula);
         FillJournalOnCertainDate(ConsiderSource, CFNo, ForecastDate);
     end;
 
@@ -787,7 +787,7 @@ codeunit 131332 "Library - Cash Flow Helper"
             if ConsiderDefaultPmtDiscount then
                 TotalDiscountAmount +=
                   CalculateDiscountAmount(LineAmount, GetPmtTermsDiscountPercentage(PaymentTerms));
-        until SalesLine.Next = 0;
+        until SalesLine.Next() = 0;
 
         exit(TotalAmount - TotalDiscountAmount);
     end;
@@ -814,7 +814,7 @@ codeunit 131332 "Library - Cash Flow Helper"
             if ConsiderDefaultPmtDiscount then
                 TotalDiscountAmount +=
                   CalculateDiscountAmount(LineAmount, GetPmtTermsDiscountPercentage(PaymentTerms));
-        until PurchaseLine.Next = 0;
+        until PurchaseLine.Next() = 0;
 
         exit(TotalAmount - TotalDiscountAmount);
     end;
@@ -839,7 +839,7 @@ codeunit 131332 "Library - Cash Flow Helper"
             else
                 PrepaymentLineAmount := PurchaseLine."Prepmt. Line Amount" * (1 + PrepaymentVATPct / 100);
             PrepaymentTotalAmount += PrepaymentLineAmount;
-        until PurchaseLine.Next = 0;
+        until PurchaseLine.Next() = 0;
 
         exit(PrepaymentTotalAmount);
     end;
@@ -866,7 +866,7 @@ codeunit 131332 "Library - Cash Flow Helper"
             if ConsiderDefaultPmtDiscount then
                 TotalDiscountAmount +=
                   CalculateDiscountAmount(LineAmount, GetPmtTermsDiscountPercentage(PaymentTerms));
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
 
         exit(TotalAmount - TotalDiscountAmount);
     end;
@@ -891,7 +891,7 @@ codeunit 131332 "Library - Cash Flow Helper"
                 LineAmount := SalesLine."Outstanding Amount (LCY)";
                 TotalAmount += LineAmount;
                 TotalDiscountAmount += CalculateDiscountAmount(LineAmount, PaymentTermsCashFlow."Discount %");
-            until SalesLine.Next = 0;
+            until SalesLine.Next() = 0;
         end;
         exit(TotalAmount - TotalDiscountAmount);
     end;
@@ -916,7 +916,7 @@ codeunit 131332 "Library - Cash Flow Helper"
                 LineAmount := PurchaseLine."Outstanding Amount (LCY)";
                 TotalAmount += LineAmount;
                 TotalDiscountAmount += CalculateDiscountAmount(LineAmount, PaymentTermsCashFlow."Discount %");
-            until PurchaseLine.Next = 0;
+            until PurchaseLine.Next() = 0;
         end;
         exit(TotalAmount - TotalDiscountAmount);
     end;
@@ -941,7 +941,7 @@ codeunit 131332 "Library - Cash Flow Helper"
                 LineAmount := ServiceLine."Outstanding Amount (LCY)";
                 TotalAmount += LineAmount;
                 TotalDiscountAmount += CalculateDiscountAmount(LineAmount, PaymentTermsCashFlow."Discount %");
-            until ServiceLine.Next = 0;
+            until ServiceLine.Next() = 0;
         end;
         exit(TotalAmount - TotalDiscountAmount);
     end;
@@ -969,7 +969,7 @@ codeunit 131332 "Library - Cash Flow Helper"
             TotalAmount += LineAmount;
             JobPlanningLine.CalcFields("Invoiced Amount (LCY)");
             TotalInvoicedAmount += JobPlanningLine."Invoiced Amount (LCY)";
-        until JobPlanningLine.Next = 0;
+        until JobPlanningLine.Next() = 0;
         exit(TotalAmount - TotalInvoicedAmount);
     end;
 
@@ -997,7 +997,7 @@ codeunit 131332 "Library - Cash Flow Helper"
                             PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
                             PurchaseLine.CalcSums("Amount Including VAT", Amount);
                             TotalAmount += PurchaseLine."Amount Including VAT" - PurchaseLine.Amount;
-                        until PurchaseHeader.Next = 0;
+                        until PurchaseHeader.Next() = 0;
                 end;
             DATABASE::"Sales Header":
                 begin
@@ -1008,7 +1008,7 @@ codeunit 131332 "Library - Cash Flow Helper"
                             SalesLine.SetRange("Document No.", SalesHeader."No.");
                             SalesLine.CalcSums("Amount Including VAT", Amount);
                             TotalAmount += SalesLine.Amount - SalesLine."Amount Including VAT";
-                        until SalesHeader.Next = 0;
+                        until SalesHeader.Next() = 0;
                 end;
         end;
         exit(TotalAmount);
@@ -1082,7 +1082,7 @@ codeunit 131332 "Library - Cash Flow Helper"
             if FindLast() then
                 EntryNo := "Entry No.";
 
-            Init;
+            Init();
             "Entry No." := EntryNo + 1;
             "Cash Flow Forecast No." := CFNo;
             "Source Type" := SourceType;
@@ -1092,7 +1092,7 @@ codeunit 131332 "Library - Cash Flow Helper"
                 "Cash Flow Account No." := GetCFAccountNo(SourceType);
             "Cash Flow Date" := CFDate;
             Validate("Amount (LCY)", Amount);
-            Insert;
+            Insert();
         end;
     end;
 

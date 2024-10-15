@@ -248,20 +248,19 @@
                 PurchLine, InvoicePostingBuffer, PurchHeader.GetUseDate(), InvDefLineNo, DeferralLineNo, SuppressCommit);
         end;
 
-        with PurchLine do
-            if "Prepayment Line" then
-                if "Prepmt. Amount Inv. (LCY)" <> 0 then begin
-                    AdjAmount := -"Prepmt. Amount Inv. (LCY)";
+        if PurchLine."Prepayment Line" then
+            if PurchLine."Prepmt. Amount Inv. (LCY)" <> 0 then begin
+                AdjAmount := -PurchLine."Prepmt. Amount Inv. (LCY)";
+                TempInvoicePostingBuffer.PreparePrepmtAdjBuffer(
+                    InvoicePostingBuffer, PurchLine."No.", AdjAmount, PurchHeader."Currency Code" = '');
+                TempInvoicePostingBuffer.PreparePrepmtAdjBuffer(
+                    InvoicePostingBuffer, PurchPostPrepayments.GetCorrBalAccNo(PurchHeader, AdjAmount > 0),
+                    -AdjAmount, PurchHeader."Currency Code" = '');
+            end else
+                if (PurchLine."Prepayment %" = 100) and (PurchLine."Prepmt. VAT Amount Inv. (LCY)" <> 0) then
                     TempInvoicePostingBuffer.PreparePrepmtAdjBuffer(
-                        InvoicePostingBuffer, "No.", AdjAmount, PurchHeader."Currency Code" = '');
-                    TempInvoicePostingBuffer.PreparePrepmtAdjBuffer(
-                        InvoicePostingBuffer, PurchPostPrepayments.GetCorrBalAccNo(PurchHeader, AdjAmount > 0),
-                        -AdjAmount, PurchHeader."Currency Code" = '');
-                end else
-                    if ("Prepayment %" = 100) and ("Prepmt. VAT Amount Inv. (LCY)" <> 0) then
-                        TempInvoicePostingBuffer.PreparePrepmtAdjBuffer(
-                            InvoicePostingBuffer, PurchPostPrepayments.GetInvRoundingAccNo(PurchHeader."Vendor Posting Group"),
-                            "Prepmt. VAT Amount Inv. (LCY)", PurchHeader."Currency Code" = '');
+                        InvoicePostingBuffer, PurchPostPrepayments.GetInvRoundingAccNo(PurchHeader."Vendor Posting Group"),
+                        PurchLine."Prepmt. VAT Amount Inv. (LCY)", PurchHeader."Currency Code" = '');
 
         InsertTempInvoicePostingBufferReverseCharge(TempInvoicePostingBuffer);
     end;
@@ -415,7 +414,7 @@
                 else begin
                     PurchPostInvoiceEvents.RunOnPostLinesOnBeforeGenJnlLinePost(
                         GenJnlLine, PurchHeader, TempInvoicePostingBuffer, GenJnlPostLine, PreviewMode, SuppressCommit);
-                    GLEntryNo := GenJnlPostLine.RunWithCheck(GenJnlLine);
+                    GLEntryNo := RunGenJnlPostLine(GenJnlLine, GenJnlPostLine);
                     PurchPostInvoiceEvents.RunOnPostLinesOnAfterGenJnlLinePost(
                         GenJnlLine, PurchHeader, TempInvoicePostingBuffer, GenJnlPostLine, PreviewMode, SuppressCommit, GLEntryNo);
                 end;
@@ -436,64 +435,62 @@
 
     local procedure PrepareGenJnlLine(var PurchHeader: Record "Purchase Header"; InvoicePostingBuffer: Record "Invoice Posting Buffer"; var GenJnlLine: Record "Gen. Journal Line")
     begin
-        with GenJnlLine do begin
-            InitGenJnlLine(GenJnlLine, PurchHeader, InvoicePostingBuffer);
-            Validate("Document Date");
-            "Operation Occurred Date" := PurchHeader."Operation Occurred Date";
+        InitGenJnlLine(GenJnlLine, PurchHeader, InvoicePostingBuffer);
+        GenJnlLine.Validate("Document Date");
+        GenJnlLine."Operation Occurred Date" := PurchHeader."Operation Occurred Date";
 
-            CopyDocumentFields(
-                InvoicePostingParameters."Document Type", InvoicePostingParameters."Document No.",
-                InvoicePostingParameters."External Document No.", InvoicePostingParameters."Source Code", '');
+        GenJnlLine.CopyDocumentFields(
+            InvoicePostingParameters."Document Type", InvoicePostingParameters."Document No.",
+            InvoicePostingParameters."External Document No.", InvoicePostingParameters."Source Code", '');
 
-            CopyFromPurchHeader(PurchHeader);
-            if GLSetup."Use Activity Code" then
-                "Activity Code" := PurchHeader."Activity Code";
-            "Reverse Sales VAT No. Series" := PurchHeader."Reverse Sales VAT No. Series";
-            "Reverse Sales VAT No." := PurchHeader."Reverse Sales VAT No.";
-            "Fiscal Code" := PurchHeader."Fiscal Code";
-            "Individual Person" := PurchHeader."Individual Person";
-            Resident := PurchHeader.Resident;
-            "First Name" := PurchHeader."First Name";
-            "Last Name" := PurchHeader."Last Name";
-            "Date of Birth" := PurchHeader."Date of Birth";
-            "Place of Birth" := PurchHeader."Birth City";
-            "Tax Representative Type" :=
-              ConvertPurchTaxRepresentativeTypeToGenJnlLine(PurchHeader."Tax Representative Type");
-            "Tax Representative No." := PurchHeader."Tax Representative No.";
-            "Payment Method Code" := PurchHeader."Payment Method Code";
+        GenJnlLine.CopyFromPurchHeader(PurchHeader);
+        if GLSetup."Use Activity Code" then
+            GenJnlLine."Activity Code" := PurchHeader."Activity Code";
+        GenJnlLine."Reverse Sales VAT No. Series" := PurchHeader."Reverse Sales VAT No. Series";
+        GenJnlLine."Reverse Sales VAT No." := PurchHeader."Reverse Sales VAT No.";
+        GenJnlLine."Fiscal Code" := PurchHeader."Fiscal Code";
+        GenJnlLine."Individual Person" := PurchHeader."Individual Person";
+        GenJnlLine.Resident := PurchHeader.Resident;
+        GenJnlLine."First Name" := PurchHeader."First Name";
+        GenJnlLine."Last Name" := PurchHeader."Last Name";
+        GenJnlLine."Date of Birth" := PurchHeader."Date of Birth";
+        GenJnlLine."Place of Birth" := PurchHeader."Birth City";
+        GenJnlLine."Tax Representative Type" :=
+            GenJnlLine.ConvertPurchTaxRepresentativeTypeToGenJnlLine(PurchHeader."Tax Representative Type");
+        GenJnlLine."Tax Representative No." := PurchHeader."Tax Representative No.";
+        GenJnlLine."Payment Method Code" := PurchHeader."Payment Method Code";
 
-            InvoicePostingBuffer.CopyToGenJnlLine(GenJnlLine);
-            "Deductible %" := InvoicePostingBuffer."Deductible %";
-            "VAT Identifier" := InvoicePostingBuffer."VAT Identifier";
-            "Include in VAT Transac. Rep." := InvoicePostingBuffer."Include in VAT Transac. Rep.";
-            "Refers to Period" := InvoicePostingBuffer."Refers to Period";
-            "Contract No." := InvoicePostingBuffer."Contract No.";
-            "Service Tariff No." := InvoicePostingBuffer."Service Tariff No.";
-            "Transport Method" := InvoicePostingBuffer."Transport Method";
-            "Related Entry No." := InvoicePostingBuffer."Related Entry No.";
-            PurchPostInvoiceEvents.RunOnPrepareGenJnlLineOnAfterCopyToGenJnlLine(GenJnlLine, PurchHeader, InvoicePostingBuffer);
-            if GLSetup."Journal Templ. Name Mandatory" then
-                "Journal Template Name" := InvoicePostingBuffer."Journal Templ. Name";
-            "Orig. Pmt. Disc. Possible" := TotalPurchLine."Pmt. Discount Amount";
-            "Orig. Pmt. Disc. Possible(LCY)" :=
-                CurrExchRate.ExchangeAmtFCYToLCY(
-                    PurchHeader.GetUseDate(), PurchHeader."Currency Code", TotalPurchLine."Pmt. Discount Amount", PurchHeader."Currency Factor");
+        InvoicePostingBuffer.CopyToGenJnlLine(GenJnlLine);
+        GenJnlLine."Deductible %" := InvoicePostingBuffer."Deductible %";
+        GenJnlLine."VAT Identifier" := InvoicePostingBuffer."VAT Identifier";
+        GenJnlLine."Include in VAT Transac. Rep." := InvoicePostingBuffer."Include in VAT Transac. Rep.";
+        GenJnlLine."Refers to Period" := InvoicePostingBuffer."Refers to Period";
+        GenJnlLine."Contract No." := InvoicePostingBuffer."Contract No.";
+        GenJnlLine."Service Tariff No." := InvoicePostingBuffer."Service Tariff No.";
+        GenJnlLine."Transport Method" := InvoicePostingBuffer."Transport Method";
+        GenJnlLine."Related Entry No." := InvoicePostingBuffer."Related Entry No.";
+        PurchPostInvoiceEvents.RunOnPrepareGenJnlLineOnAfterCopyToGenJnlLine(GenJnlLine, PurchHeader, InvoicePostingBuffer);
+        if GLSetup."Journal Templ. Name Mandatory" then
+            GenJnlLine."Journal Template Name" := InvoicePostingBuffer."Journal Templ. Name";
+        GenJnlLine."Orig. Pmt. Disc. Possible" := TotalPurchLine."Pmt. Discount Amount";
+        GenJnlLine."Orig. Pmt. Disc. Possible(LCY)" :=
+            CurrExchRate.ExchangeAmtFCYToLCY(
+                PurchHeader.GetUseDate(), PurchHeader."Currency Code", TotalPurchLine."Pmt. Discount Amount", PurchHeader."Currency Factor");
 
-            if InvoicePostingBuffer.Type <> InvoicePostingBuffer.Type::"Prepmt. Exch. Rate Difference" then
-                "Gen. Posting Type" := "Gen. Posting Type"::Purchase;
-            Split := false;
-            if InvoicePostingBuffer.Type = InvoicePostingBuffer.Type::"Fixed Asset" then begin
-                case InvoicePostingBuffer."FA Posting Type" of
-                    InvoicePostingBuffer."FA Posting Type"::"Acquisition Cost":
-                        "FA Posting Type" := "FA Posting Type"::"Acquisition Cost";
-                    InvoicePostingBuffer."FA Posting Type"::Maintenance:
-                        "FA Posting Type" := "FA Posting Type"::Maintenance;
-                    InvoicePostingBuffer."FA Posting Type"::Appreciation:
-                        "FA Posting Type" := "FA Posting Type"::Appreciation;
-                end;
-                InvoicePostingBuffer.CopyToGenJnlLineFA(GenJnlLine);
-                Split := CalcSplitFA(GenJnlLine, InvoicePostingBuffer."No. of Fixed Asset Cards");
+        if InvoicePostingBuffer.Type <> InvoicePostingBuffer.Type::"Prepmt. Exch. Rate Difference" then
+            GenJnlLine."Gen. Posting Type" := "General Posting Type"::Purchase;
+        Split := false;
+        if InvoicePostingBuffer.Type = InvoicePostingBuffer.Type::"Fixed Asset" then begin
+            case InvoicePostingBuffer."FA Posting Type" of
+                InvoicePostingBuffer."FA Posting Type"::"Acquisition Cost":
+                    GenJnlLine."FA Posting Type" := "Gen. Journal Line FA Posting Type"::"Acquisition Cost";
+                InvoicePostingBuffer."FA Posting Type"::Maintenance:
+                    GenJnlLine."FA Posting Type" := "Gen. Journal Line FA Posting Type"::Maintenance;
+                InvoicePostingBuffer."FA Posting Type"::Appreciation:
+                    GenJnlLine."FA Posting Type" := "Gen. Journal Line FA Posting Type"::Appreciation;
             end;
+            InvoicePostingBuffer.CopyToGenJnlLineFA(GenJnlLine);
+            Split := CalcSplitFA(GenJnlLine, InvoicePostingBuffer."No. of Fixed Asset Cards");
         end;
 
         PurchPostInvoiceEvents.RunOnAfterPrepareGenJnlLine(GenJnlLine, PurchHeader, InvoicePostingBuffer);
@@ -667,43 +664,41 @@
         if IsHandled then
             exit;
 
-        with GenJnlLine do begin
-            InitNewLine(
-              PurchHeader."Posting Date", PurchHeader."Document Date", PurchHeader."Posting Description",
-              PurchHeader."Shortcut Dimension 1 Code", PurchHeader."Shortcut Dimension 2 Code",
-              PurchHeader."Dimension Set ID", PurchHeader."Reason Code");
-            "Operation Occurred Date" := PurchHeader."Operation Occurred Date";
+        GenJnlLine.InitNewLine(
+            PurchHeader."Posting Date", PurchHeader."Document Date", PurchHeader."Posting Description",
+            PurchHeader."Shortcut Dimension 1 Code", PurchHeader."Shortcut Dimension 2 Code",
+            PurchHeader."Dimension Set ID", PurchHeader."Reason Code");
+        GenJnlLine."Operation Occurred Date" := PurchHeader."Operation Occurred Date";
 
-            CopyDocumentFields(
-                InvoicePostingParameters."Document Type", InvoicePostingParameters."Document No.",
-                InvoicePostingParameters."External Document No.", InvoicePostingParameters."Source Code", '');
+        GenJnlLine.CopyDocumentFields(
+            InvoicePostingParameters."Document Type", InvoicePostingParameters."Document No.",
+            InvoicePostingParameters."External Document No.", InvoicePostingParameters."Source Code", '');
 
-            "Account Type" := "Account Type"::Vendor;
-            "Account No." := PurchHeader."Pay-to Vendor No.";
-            CopyFromPurchHeader(PurchHeader);
-            SetCurrencyFactor(PurchHeader."Currency Code", PurchHeader."Currency Factor");
-            "System-Created Entry" := true;
-            "Due Date" := PurchHeader."Due Date";
-            "Payment Terms Code" := PurchHeader."Payment Terms Code";
-            "Pmt. Discount Date" := PurchHeader."Pmt. Discount Date";
-            "Payment Discount %" := PurchHeader."Payment Discount %";
-            "Payment Reference" := PurchHeader."Payment Reference";
-            "Payment Method Code" := PurchHeader."Payment Method Code";
-            "Recipient Bank Account" := PurchHeader."Bank Account";
-            "Related Entry No." := PurchHeader."Related Entry No.";
+        GenJnlLine."Account Type" := "Gen. Journal Account Type"::Vendor;
+        GenJnlLine."Account No." := PurchHeader."Pay-to Vendor No.";
+        GenJnlLine.CopyFromPurchHeader(PurchHeader);
+        GenJnlLine.SetCurrencyFactor(PurchHeader."Currency Code", PurchHeader."Currency Factor");
+        GenJnlLine."System-Created Entry" := true;
+        GenJnlLine."Due Date" := PurchHeader."Due Date";
+        GenJnlLine."Payment Terms Code" := PurchHeader."Payment Terms Code";
+        GenJnlLine."Pmt. Discount Date" := PurchHeader."Pmt. Discount Date";
+        GenJnlLine."Payment Discount %" := PurchHeader."Payment Discount %";
+        GenJnlLine."Payment Reference" := PurchHeader."Payment Reference";
+        GenJnlLine."Payment Method Code" := PurchHeader."Payment Method Code";
+        GenJnlLine."Recipient Bank Account" := PurchHeader."Bank Account";
+        GenJnlLine."Related Entry No." := PurchHeader."Related Entry No.";
 
-            CopyFromPurchHeaderApplyTo(PurchHeader);
-            "Applies-to Occurrence No." := PurchHeader."Applies-to Occurrence No.";
-            CopyFromPurchHeaderPayment(PurchHeader);
+        GenJnlLine.CopyFromPurchHeaderApplyTo(PurchHeader);
+        GenJnlLine."Applies-to Occurrence No." := PurchHeader."Applies-to Occurrence No.";
+        GenJnlLine.CopyFromPurchHeaderPayment(PurchHeader);
 
-            InitGenJnlLineAmountFieldsFromTotalLines(GenJnlLine, PurchHeader);
+        InitGenJnlLineAmountFieldsFromTotalLines(GenJnlLine, PurchHeader);
 
-            PurchPostInvoiceEvents.RunOnPostLedgerEntryOnBeforeGenJnlPostLine(
-                GenJnlLine, PurchHeader, TotalPurchLine, TotalPurchLineLCY, PreviewMode, SuppressCommit, GenJnlPostLine);
-            GenJnlPostLine.RunWithCheck(GenJnlLine);
-            PurchPostInvoiceEvents.RunOnPostLedgerEntryOnAfterGenJnlPostLine(
-                GenJnlLine, PurchHeader, TotalPurchLine, TotalPurchLineLCY, PreviewMode, SuppressCommit, GenJnlPostLine);
-        end;
+        PurchPostInvoiceEvents.RunOnPostLedgerEntryOnBeforeGenJnlPostLine(
+            GenJnlLine, PurchHeader, TotalPurchLine, TotalPurchLineLCY, PreviewMode, SuppressCommit, GenJnlPostLine);
+        GenJnlPostLine.RunWithCheck(GenJnlLine);
+        PurchPostInvoiceEvents.RunOnPostLedgerEntryOnAfterGenJnlPostLine(
+            GenJnlLine, PurchHeader, TotalPurchLine, TotalPurchLineLCY, PreviewMode, SuppressCommit, GenJnlPostLine);
     end;
 
     local procedure InitGenJnlLineAmountFieldsFromTotalLines(var GenJnlLine: Record "Gen. Journal Line"; var PurchHeader: Record "Purchase Header")
@@ -716,17 +711,15 @@
         if IsHandled then
             exit;
 
-        with GenJnlLine do begin
-            Amount := -TotalPurchLine."Amount Including VAT";
-            "Source Currency Amount" := -TotalPurchLine."Amount Including VAT";
-            "Amount (LCY)" := -TotalPurchLineLCY."Amount Including VAT";
-            "Sales/Purch. (LCY)" := -TotalPurchLineLCY.Amount;
-            "Inv. Discount (LCY)" := -TotalPurchLineLCY."Inv. Discount Amount";
-            "Orig. Pmt. Disc. Possible" := -TotalPurchLine."Pmt. Discount Amount";
-            "Orig. Pmt. Disc. Possible(LCY)" :=
-                CurrExchRate.ExchangeAmtFCYToLCY(
-                    PurchHeader.GetUseDate(), PurchHeader."Currency Code", -TotalPurchLine."Pmt. Discount Amount", PurchHeader."Currency Factor");
-        end;
+        GenJnlLine.Amount := -TotalPurchLine."Amount Including VAT";
+        GenJnlLine."Source Currency Amount" := -TotalPurchLine."Amount Including VAT";
+        GenJnlLine."Amount (LCY)" := -TotalPurchLineLCY."Amount Including VAT";
+        GenJnlLine."Sales/Purch. (LCY)" := -TotalPurchLineLCY.Amount;
+        GenJnlLine."Inv. Discount (LCY)" := -TotalPurchLineLCY."Inv. Discount Amount";
+        GenJnlLine."Orig. Pmt. Disc. Possible" := -TotalPurchLine."Pmt. Discount Amount";
+        GenJnlLine."Orig. Pmt. Disc. Possible(LCY)" :=
+            CurrExchRate.ExchangeAmtFCYToLCY(
+                PurchHeader.GetUseDate(), PurchHeader."Currency Code", -TotalPurchLine."Pmt. Discount Amount", PurchHeader."Currency Factor");
     end;
 
     procedure PostBalancingEntry(PurchHeaderVar: Variant; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
@@ -819,14 +812,12 @@
 
     local procedure SetApplyToDocNo(PurchHeader: Record "Purchase Header"; var GenJnlLine: Record "Gen. Journal Line")
     begin
-        with GenJnlLine do begin
-            if PurchHeader."Bal. Account Type" = PurchHeader."Bal. Account Type"::"Bank Account" then
-                "Bal. Account Type" := "Bal. Account Type"::"Bank Account";
-            "Bal. Account No." := PurchHeader."Bal. Account No.";
-            "Applies-to Doc. Type" := InvoicePostingParameters."Document Type";
-            "Applies-to Doc. No." := InvoicePostingParameters."Document No.";
-            "Applies-to Occurrence No." := 0;
-        end;
+        if PurchHeader."Bal. Account Type" = PurchHeader."Bal. Account Type"::"Bank Account" then
+            GenJnlLine."Bal. Account Type" := "Gen. Journal Account Type"::"Bank Account";
+        GenJnlLine."Bal. Account No." := PurchHeader."Bal. Account No.";
+        GenJnlLine."Applies-to Doc. Type" := InvoicePostingParameters."Document Type";
+        GenJnlLine."Applies-to Doc. No." := InvoicePostingParameters."Document No.";
+        GenJnlLine."Applies-to Occurrence No." := 0;
 
         PurchPostInvoiceEvents.RunOnAfterSetApplyToDocNo(GenJnlLine, PurchHeader);
     end;
@@ -836,6 +827,12 @@
         VendorLedgerEntry.SetRange("Document Type", InvoicePostingParameters."Document Type");
         VendorLedgerEntry.SetRange("Document No.", InvoicePostingParameters."Document No.");
         VendorLedgerEntry.FindLast();
+    end;
+
+    local procedure RunGenJnlPostLine(var GenJnlLine: Record "Gen. Journal Line"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"): Integer
+    begin
+        PurchPostInvoiceEvents.RunOnBeforeRunGenJnlPostLine(GenJnlLine, GenJnlPostLine);
+        exit(GenJnlPostLine.RunWithCheck(GenJnlLine));
     end;
 
     local procedure GetAmountsForDeferral(PurchLine: Record "Purchase Line"; var AmtToDefer: Decimal; var AmtToDeferACY: Decimal; var DeferralAccount: Code[20])
@@ -1041,40 +1038,38 @@
             PurchPostInvoiceEvents.RunOnCalcDeferralAmountsOnBeforeTempDeferralHeaderInsert(TempDeferralHeader, DeferralHeader, PurchLine);
             TempDeferralHeader.Insert();
 
-            with DeferralLine do begin
-                DeferralUtilities.FilterDeferralLines(
-                  DeferralLine, DeferralHeader."Deferral Doc. Type".AsInteger(),
-                  DeferralHeader."Gen. Jnl. Template Name", DeferralHeader."Gen. Jnl. Batch Name",
-                  PurchLine."Document Type".AsInteger(), PurchLine."Document No.", PurchLine."Line No.");
-                if FindSet() then begin
-                    TotalDeferralCount := Count;
-                    repeat
-                        DeferralCount := DeferralCount + 1;
-                        TempDeferralLine.Init();
-                        TempDeferralLine := DeferralLine;
+            DeferralUtilities.FilterDeferralLines(
+                DeferralLine, DeferralHeader."Deferral Doc. Type".AsInteger(),
+                DeferralHeader."Gen. Jnl. Template Name", DeferralHeader."Gen. Jnl. Batch Name",
+                PurchLine."Document Type".AsInteger(), PurchLine."Document No.", PurchLine."Line No.");
+            if DeferralLine.FindSet() then begin
+                TotalDeferralCount := DeferralLine.Count();
+                repeat
+                    DeferralCount := DeferralCount + 1;
+                    TempDeferralLine.Init();
+                    TempDeferralLine := DeferralLine;
 
-                        if DeferralCount = TotalDeferralCount then begin
-                            TempDeferralLine.Amount := TempDeferralHeader."Amount to Defer" - TotalAmount;
-                            TempDeferralLine."Amount (LCY)" := TempDeferralHeader."Amount to Defer (LCY)" - TotalAmountLCY;
-                        end else begin
-                            if PurchLine.Quantity <> PurchLine."Qty. to Invoice" then
-                                TempDeferralLine.Amount :=
-                                  Round(TempDeferralLine.Amount *
+                    if DeferralCount = TotalDeferralCount then begin
+                        TempDeferralLine.Amount := TempDeferralHeader."Amount to Defer" - TotalAmount;
+                        TempDeferralLine."Amount (LCY)" := TempDeferralHeader."Amount to Defer (LCY)" - TotalAmountLCY;
+                    end else begin
+                        if PurchLine.Quantity <> PurchLine."Qty. to Invoice" then
+                            TempDeferralLine.Amount :=
+                                Round(TempDeferralLine.Amount *
                                     PurchLine.GetDeferralAmount() / OriginalDeferralAmount, Currency."Amount Rounding Precision");
 
-                            TempDeferralLine."Amount (LCY)" :=
-                              Round(
+                        TempDeferralLine."Amount (LCY)" :=
+                            Round(
                                 CurrExchRate.ExchangeAmtFCYToLCY(
                                   PurchHeader.GetUseDate(), PurchHeader."Currency Code",
                                   TempDeferralLine.Amount, PurchHeader."Currency Factor"));
-                            TotalAmount := TotalAmount + TempDeferralLine.Amount;
-                            TotalAmountLCY := TotalAmountLCY + TempDeferralLine."Amount (LCY)";
-                        end;
-                        PurchPostInvoiceEvents.RunOnBeforeTempDeferralLineInsert(
-                            TempDeferralLine, DeferralLine, PurchLine, DeferralCount, TotalDeferralCount);
-                        TempDeferralLine.Insert();
-                    until Next() = 0;
-                end;
+                        TotalAmount := TotalAmount + TempDeferralLine.Amount;
+                        TotalAmountLCY := TotalAmountLCY + TempDeferralLine."Amount (LCY)";
+                    end;
+                    PurchPostInvoiceEvents.RunOnBeforeTempDeferralLineInsert(
+                        TempDeferralLine, DeferralLine, PurchLine, DeferralCount, TotalDeferralCount);
+                    TempDeferralLine.Insert();
+                until DeferralLine.Next() = 0;
             end;
         end;
     end;

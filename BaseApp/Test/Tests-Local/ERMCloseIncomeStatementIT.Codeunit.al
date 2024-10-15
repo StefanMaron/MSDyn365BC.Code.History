@@ -109,7 +109,7 @@ codeunit 144113 "ERM Close Income Statement IT"
         CurrencyCode := CreateCurrencyAndExchangeRate;
         OldAdditionalReportingCurrency := UpdateAddnlReportingCurrencyGeneralLedgerSetup(CurrencyCode);
         CreateAndPostGenJournalLine(GenJournalLine, CalcDate('<CM>', LibraryFiscalYear.GetLastPostingDate(true)));  // Using true for closed.
-        AdditionalCurrencyAmount := LibraryERM.ConvertCurrency(GenJournalLine.Amount, '', CurrencyCode, WorkDate);  // Using blank for To Currency.
+        AdditionalCurrencyAmount := LibraryERM.ConvertCurrency(GenJournalLine.Amount, '', CurrencyCode, WorkDate());  // Using blank for To Currency.
 
         // Exercise: Run Close Income Statement Report.
         RunCloseIncomeStatement(GenJournalLine, CalcDate('<1M-1D>', LibraryFiscalYear.GetLastPostingDate(true)), CreateGLAccount);  // Using true for closed.
@@ -229,7 +229,7 @@ codeunit 144113 "ERM Close Income Statement IT"
         CurrencyCode := CreateCurrencyAndExchangeRate;
         OldAdditionalReportingCurrency := UpdateAddnlReportingCurrencyGeneralLedgerSetup(CurrencyCode);
         CreateAndPostGenJournalLine(GenJournalLine, LibraryFiscalYear.GetLastPostingDate(true));  // Using true for closed.
-        AdditionalCurrencyAmount := LibraryERM.ConvertCurrency(GenJournalLine.Amount, '', CurrencyCode, WorkDate);  // Using blank for To Currency.
+        AdditionalCurrencyAmount := LibraryERM.ConvertCurrency(GenJournalLine.Amount, '', CurrencyCode, WorkDate());  // Using blank for To Currency.
         RunCloseIncomeStatement(GenJournalLine, CalcDate('<1M-1D>', LibraryFiscalYear.GetLastPostingDate(true)), CreateGLAccount);  // Using true for closed.
 
         // Exercise: Run Close Open Balance Sheet Report.
@@ -265,7 +265,7 @@ codeunit 144113 "ERM Close Income Statement IT"
         CurrencyCode := CreateCurrencyAndExchangeRate;
         OldAdditionalReportingCurrency := UpdateAddnlReportingCurrencyGeneralLedgerSetup(CurrencyCode);
         CreateAndPostGenJournalLine(GenJournalLine, LibraryFiscalYear.GetFirstPostingDate(false));  // Using false for closed.
-        AdditionalCurrencyAmount := LibraryERM.ConvertCurrency(GenJournalLine.Amount, '', CurrencyCode, WorkDate);  // Using blank for To Currecny.
+        AdditionalCurrencyAmount := LibraryERM.ConvertCurrency(GenJournalLine.Amount, '', CurrencyCode, WorkDate());  // Using blank for To Currecny.
 
         // Close Newly Created Fiscal Year. Customized Date formula required to calculate Fiscal Ending Date.
         LibraryFiscalYear.CloseFiscalYear();
@@ -673,8 +673,8 @@ codeunit 144113 "ERM Close Income Statement IT"
                 "Object Type" := 3;
                 "Object ID" := REPORT::"Close Income Statement";
                 "Dimension Code" := DimSetEntry."Dimension Code";
-                Insert;
-            until DimSetEntry.Next = 0;
+                Insert();
+            until DimSetEntry.Next() = 0;
         end;
     end;
 
@@ -696,7 +696,7 @@ codeunit 144113 "ERM Close Income Statement IT"
         FindGLEntry(GLEntry, AccountNo);
         Assert.AreNearlyEqual(
           AdditionalCurrencyAmount, GLEntry."Additional-Currency Amount", LibraryERM.GetAmountRoundingPrecision,
-          StrSubstNo(AmountErr, GLEntry.FieldCaption("Additional-Currency Amount"), AdditionalCurrencyAmount, GLEntry.TableCaption));
+          StrSubstNo(AmountErr, GLEntry.FieldCaption("Additional-Currency Amount"), AdditionalCurrencyAmount, GLEntry.TableCaption()));
         VerifyGLEntry(AccountNo, Amount);
     end;
 
@@ -707,7 +707,7 @@ codeunit 144113 "ERM Close Income Statement IT"
         FindGLEntry(GLEntry, AccountNo);
         Assert.AreNearlyEqual(
           Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision,
-          StrSubstNo(AmountErr, GLEntry.FieldCaption(Amount), Amount, GLEntry.TableCaption));
+          StrSubstNo(AmountErr, GLEntry.FieldCaption(Amount), Amount, GLEntry.TableCaption()));
     end;
 
     local procedure VerifyGenJnlLineDim(var GenJournalLine: Record "Gen. Journal Line"; DimSetId: Integer)

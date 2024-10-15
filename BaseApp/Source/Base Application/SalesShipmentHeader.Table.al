@@ -132,7 +132,7 @@
             trigger OnValidate()
             begin
                 if "Shipping Agent Code" <> '' then
-                    CheckShipAgentMethodComb;
+                    CheckShipAgentMethodComb();
                 if not ShipmentMethod.ThirdPartyLoader("Shipment Method Code") and
                   ("3rd Party Loader Type" <> "3rd Party Loader Type"::" ")
                 then begin
@@ -414,8 +414,8 @@
                 if "Shipping Agent Code" <> xRec."Shipping Agent Code" then
                     Validate("Shipping Agent Service Code", '');
                 if "Shipment Method Code" <> '' then
-                    CheckShipAgentMethodComb;
-                UpdateTDDPreparedBy;
+                    CheckShipAgentMethodComb();
+                UpdateTDDPreparedBy();
             end;
         }
         field(106; "Package Tracking No."; Text[30])
@@ -772,7 +772,7 @@
 
     procedure ShowDimensions()
     begin
-        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption, "No."));
+        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption(), "No."));
     end;
 
     procedure IsCompletlyInvoiced(): Boolean
@@ -861,7 +861,7 @@
 
     procedure CheckTDDData(): Boolean
     begin
-        CheckShipAgentMethodComb;
+        CheckShipAgentMethodComb();
         if ShipmentMethod.ThirdPartyLoader("Shipment Method Code") then begin
             TestField("3rd Party Loader Type");
             TestField("3rd Party Loader No.");
@@ -901,7 +901,7 @@
     begin
         CalcFields("Work Description");
         "Work Description".CreateInStream(InStream, TEXTENCODING::UTF8);
-        exit(TypeHelper.ReadAsTextWithSeparator(InStream, TypeHelper.LFSeparator));
+        exit(TypeHelper.ReadAsTextWithSeparator(InStream, TypeHelper.LFSeparator()));
     end;
 
     [IntegrationEvent(false, false)]

@@ -1,5 +1,6 @@
 table 132460 "Test Data Exch. Dest Table"
 {
+    ReplicateData = false;
 
     fields
     {
@@ -50,7 +51,7 @@ table 132460 "Test Data Exch. Dest Table"
     [Scope('OnPrem')]
     procedure InsertRec(KeyValue: Integer; TextValue: Text[30]; DateValue: Date; DecimalValue: Decimal; KeyH1Value: Integer; KeyH2Value: Code[10]; NonKeyValue: Code[10]; ExchNoValue: Integer; LineNoValue: Integer)
     begin
-        Init;
+        Init();
         Validate(Key, KeyValue);
         Validate(Text, TextValue);
         Validate(Date, DateValue);

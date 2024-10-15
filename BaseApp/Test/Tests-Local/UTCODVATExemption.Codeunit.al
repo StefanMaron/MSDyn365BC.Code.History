@@ -184,7 +184,7 @@ codeunit 144072 "UT COD VAT Exemption"
         // Setup: Create Purchase Invoice and VAT Plafond Period. Transaction Model Type Auto Commit is required as Commit is explicitly using on OnRun Trigger of Codeunit - 90 Purch.-Post.
         CreatePurchaseHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, false);  // Check VAT Exemption as False.
         CreateGeneralPostingSetup(PurchaseHeader."Gen. Bus. Posting Group", CreatePurchaseLine(PurchaseHeader));
-        CreateVATPlafondPeriod(VATPlafondPeriod, WorkDate);
+        CreateVATPlafondPeriod(VATPlafondPeriod, WorkDate());
 
         // Exercise.
         asserterror CODEUNIT.Run(CODEUNIT::"Purch.-Post", PurchaseHeader);
@@ -206,7 +206,7 @@ codeunit 144072 "UT COD VAT Exemption"
         // [SCENARIO 377801] Calculated Amount of VAT Plafond Period should be based on Document Date
 
         // [GIVEN] VAT Plafond Period with Year = "X"
-        PostingDate := CalcDate('<' + Format(LibraryRandom.RandIntInRange(5, 10)) + 'Y>', WorkDate);
+        PostingDate := CalcDate('<' + Format(LibraryRandom.RandIntInRange(5, 10)) + 'Y>', WorkDate());
         CreateVATPlafondPeriod(VATPlafondPeriod, PostingDate);
 
         // [GIVEN] VAT Entry with "Document Date" outside year "X"
@@ -271,7 +271,7 @@ codeunit 144072 "UT COD VAT Exemption"
         NoSeries.Insert();
 
         NoSeriesLine."Series Code" := NoSeries.Code;
-        NoSeriesLine."Starting Date" := WorkDate;
+        NoSeriesLine."Starting Date" := WorkDate();
         NoSeriesLine."Starting No." := Format(LibraryRandom.RandInt(10));
         NoSeriesLine.Insert();
         exit(NoSeries.Code);
@@ -285,10 +285,10 @@ codeunit 144072 "UT COD VAT Exemption"
         PurchaseHeader."Buy-from Vendor No." := PurchaseHeader."Pay-to Vendor No.";
         PurchaseHeader."Gen. Bus. Posting Group" := LibraryUTUtility.GetNewCode10;
         PurchaseHeader."VAT Bus. Posting Group" := CreateVATBusinessPostingGroup(VATExemption);
-        PurchaseHeader."Posting Date" := WorkDate;
+        PurchaseHeader."Posting Date" := WorkDate();
         PurchaseHeader."Operation Type" := CreateNumberSeries;
-        PurchaseHeader."Operation Occurred Date" := WorkDate;
-        PurchaseHeader."Document Date" := WorkDate;
+        PurchaseHeader."Operation Occurred Date" := WorkDate();
+        PurchaseHeader."Document Date" := WorkDate();
         PurchaseHeader."Posting No. Series" := CreateNumberSeries;
         PurchaseHeader."Vendor Invoice No." := LibraryUTUtility.GetNewCode;
         PurchaseHeader."Receiving No. Series" := CreateNumberSeries;
@@ -325,10 +325,10 @@ codeunit 144072 "UT COD VAT Exemption"
         SalesHeader."Sell-to Customer No." := CreateCustomer;
         SalesHeader."Bill-to Customer No." := SalesHeader."Sell-to Customer No.";
         SalesHeader."VAT Bus. Posting Group" := CreateVATBusinessPostingGroup(true);  // Check VAT Exemption as True.
-        SalesHeader."Posting Date" := WorkDate;
-        SalesHeader."Document Date" := WorkDate;
+        SalesHeader."Posting Date" := WorkDate();
+        SalesHeader."Document Date" := WorkDate();
         SalesHeader."Operation Type" := CreateNumberSeries;
-        SalesHeader."Operation Occurred Date" := WorkDate;
+        SalesHeader."Operation Occurred Date" := WorkDate();
         SalesHeader.Insert();
     end;
 
@@ -338,11 +338,11 @@ codeunit 144072 "UT COD VAT Exemption"
         ServiceHeader."No." := LibraryUTUtility.GetNewCode;
         ServiceHeader."Customer No." := CreateCustomer;
         ServiceHeader."Bill-to Customer No." := ServiceHeader."Customer No.";
-        ServiceHeader."Posting Date" := WorkDate;
-        ServiceHeader."Document Date" := WorkDate;
+        ServiceHeader."Posting Date" := WorkDate();
+        ServiceHeader."Document Date" := WorkDate();
         ServiceHeader."Operation Type" := CreateNumberSeries;
         ServiceHeader."Posting No. Series" := CreateNumberSeries;
-        ServiceHeader."Operation Occurred Date" := WorkDate;
+        ServiceHeader."Operation Occurred Date" := WorkDate();
         ServiceHeader."VAT Bus. Posting Group" := CreateVATBusinessPostingGroup(true);  // Check VAT Exemption as True.
         ServiceHeader."Shipping No. Series" := CreateNumberSeries;
         ServiceHeader.Insert();
@@ -426,14 +426,14 @@ codeunit 144072 "UT COD VAT Exemption"
         VATEntry: Record "VAT Entry";
     begin
         with VATEntry do begin
-            Init;
+            Init();
             "Document Date" := DocumentDate;
             Type := Type::Purchase;
             "Entry No." :=
               LibraryUtility.GetNewRecNo(VATEntry, FieldNo("Entry No."));
             "Plafond Entry" := true;
             Base := LibraryRandom.RandDec(100, 2);
-            Insert;
+            Insert();
             exit(Base);
         end;
     end;

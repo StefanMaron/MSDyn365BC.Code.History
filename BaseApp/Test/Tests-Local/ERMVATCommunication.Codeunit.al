@@ -114,7 +114,7 @@ codeunit 144118 "ERM VAT Communication"
         LibrarySales.CreateCustomer(Customer);
         Customer.Validate("Individual Person", true);
         Customer.Validate(Resident, Customer.Resident::"Non-Resident");
-        Customer.Validate("Date of Birth", WorkDate);
+        Customer.Validate("Date of Birth", WorkDate());
         Customer.Validate("First Name", Customer."No.");
         Customer.Validate("Last Name", Customer."No.");
         Customer.Validate("VAT Bus. Posting Group", VATBusPostingGroup);
@@ -129,7 +129,7 @@ codeunit 144118 "ERM VAT Communication"
         LibraryPurchase.CreateVendor(Vendor);
         Vendor.Validate("Individual Person", true);
         Vendor.Validate(Resident, Vendor.Resident::"Non-Resident");
-        Vendor.Validate("Date of Birth", WorkDate);
+        Vendor.Validate("Date of Birth", WorkDate());
         Vendor.Validate("First Name", Vendor."No.");
         Vendor.Validate("Last Name", Vendor."No.");
         Vendor.Validate("VAT Bus. Posting Group", VATBusPostingGroup);
@@ -173,7 +173,7 @@ codeunit 144118 "ERM VAT Communication"
         PurchaseHeader.Validate("Transport Method", CreateTransportMethod);
         PurchaseHeader.Validate("Prepmt. CM Refers to Period", PurchaseHeader."Prepmt. CM Refers to Period"::"Current Calendar Year");
         PurchaseHeader.Validate("Prepayment %", LibraryRandom.RandDecInRange(10, 100, 2));
-        PurchaseHeader.Validate("Prepayment Due Date", WorkDate);
+        PurchaseHeader.Validate("Prepayment Due Date", WorkDate());
         PurchaseHeader.Modify(true);
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem(VATPostingSetup."VAT Prod. Posting Group"),
@@ -280,7 +280,7 @@ codeunit 144118 "ERM VAT Communication"
         SalesInvoiceLine.SetRange("Document No.", DocumentNo);
         SalesInvoiceLine.FindFirst();
         Assert.AreEqual(GenBusPostingGroup, SalesInvoiceLine."Gen. Bus. Posting Group", GenBusPostingGroupErr);
-        SalesInvoiceLine.Next;
+        SalesInvoiceLine.Next();
         Assert.AreEqual(GenBusPostingGroup2, SalesInvoiceLine."Gen. Bus. Posting Group", GenBusPostingGroupErr);
     end;
 

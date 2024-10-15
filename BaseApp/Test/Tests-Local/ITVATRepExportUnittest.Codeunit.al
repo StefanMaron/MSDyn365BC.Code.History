@@ -38,7 +38,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
 
     local procedure Initialize()
     begin
-        TransmissionFiles.Clear;
+        TransmissionFiles.Clear();
 
         if isInitialized then
             exit;
@@ -1617,11 +1617,11 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
         LibrarySpesometro.InsertSpesometroAppointment(
           SpesometroAppointment, LibrarySpesometro.CreateAppointmentCode,
           LibrarySpesometro.CreateVendor(false, VendorRec.Resident::Resident, true, false),
-          CalcDate('<-CM>', WorkDate), CalcDate('<CM>', WorkDate));
+          CalcDate('<-CM>', WorkDate()), CalcDate('<CM>', WorkDate()));
         LibrarySpesometro.InsertSpesometroAppointment(
           SpesometroAppointment, LibrarySpesometro.CreateAppointmentCode,
           LibrarySpesometro.CreateVendor(false, VendorRec.Resident::Resident, true, false),
-          CalcDate('<-CM>', WorkDate), 0D);
+          CalcDate('<-CM>', WorkDate()), 0D);
 
         // [THEN] The line is inserted correctly
 
@@ -1644,22 +1644,22 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
         // [WHEN] The line contains Type, No., Date from and Date to but not App. code
         asserterror LibrarySpesometro.InsertSpesometroAppointment(
             SpesometroAppointment, '', LibrarySpesometro.CreateVendor(false, VendorRec.Resident::Resident, true, false),
-            CalcDate('<-CM>', WorkDate), CalcDate('<CM>', WorkDate));
+            CalcDate('<-CM>', WorkDate()), CalcDate('<CM>', WorkDate()));
         Assert.ExpectedError(SpesometroAppointment.FieldCaption("Appointment Code"));
         asserterror LibrarySpesometro.InsertSpesometroAppointment(
-            SpesometroAppointment, LibrarySpesometro.CreateAppointmentCode, '', CalcDate('<-CM>', WorkDate),
-            CalcDate('<CM>', WorkDate));
+            SpesometroAppointment, LibrarySpesometro.CreateAppointmentCode, '', CalcDate('<-CM>', WorkDate()),
+            CalcDate('<CM>', WorkDate()));
         Assert.ExpectedError(SpesometroAppointment.FieldCaption("Vendor No."));
         asserterror LibrarySpesometro.InsertSpesometroAppointment(
             SpesometroAppointment, LibrarySpesometro.CreateAppointmentCode,
-            LibrarySpesometro.CreateVendor(false, VendorRec.Resident::Resident, true, false), 0D, CalcDate('<CM>', WorkDate));
+            LibrarySpesometro.CreateVendor(false, VendorRec.Resident::Resident, true, false), 0D, CalcDate('<CM>', WorkDate()));
         Assert.ExpectedError(SpesometroAppointment.FieldCaption("Starting Date"));
 
         // [WHEN] Date From <= Date To
         asserterror LibrarySpesometro.InsertSpesometroAppointment(
             SpesometroAppointment, LibrarySpesometro.CreateAppointmentCode,
-            LibrarySpesometro.CreateVendor(false, VendorRec.Resident::Resident, true, false), CalcDate('<CM>', WorkDate),
-            CalcDate('<-CM>', WorkDate));
+            LibrarySpesometro.CreateVendor(false, VendorRec.Resident::Resident, true, false), CalcDate('<CM>', WorkDate()),
+            CalcDate('<-CM>', WorkDate()));
 
         // [THEN] An error is generated stating App. Code is required
 
@@ -1680,7 +1680,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
         LibrarySpesometro.InsertSpesometroAppointment(
           SpesometroAppointment, LibrarySpesometro.CreateAppointmentCode,
           LibrarySpesometro.CreateVendor(false, VendorRec.Resident::Resident, true, false),
-          CalcDate('<-CM>', WorkDate), CalcDate('<CM>', WorkDate));
+          CalcDate('<-CM>', WorkDate()), CalcDate('<CM>', WorkDate()));
 
         // [WHEN] The Date To is changed to a value before Date From
         asserterror SpesometroAppointment.Validate("Ending Date", CalcDate('<-1D>', SpesometroAppointment."Starting Date"));
@@ -1706,7 +1706,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
         // [GIVEN] A "Spesometro Appointment" record with Type = Vendor and No. = "Some vendor"
         VendorNo := LibrarySpesometro.CreateVendor(true, VendorRec.Resident::Resident, false, true);
         LibrarySpesometro.InsertSpesometroAppointment(
-          SpesometroAppointment, LibrarySpesometro.CreateAppointmentCode, VendorNo, CalcDate('<-CM>', WorkDate), CalcDate('<CM>', WorkDate));
+          SpesometroAppointment, LibrarySpesometro.CreateAppointmentCode, VendorNo, CalcDate('<-CM>', WorkDate()), CalcDate('<CM>', WorkDate()));
 
         // [WHEN] The function GetAppointmentData(key) is called on the record
         // [WHEN] Key is in the valid range (e.g. VAT Registration No., Fiscal code, First name etc).
@@ -1747,7 +1747,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
         VendorNo := LibrarySpesometro.CreateVendor(true, VendorRec.Resident::"Non-Resident", false, true);
         LibrarySpesometro.InsertSpesometroAppointment(
           SpesometroAppointment, LibrarySpesometro.CreateAppointmentCode, VendorNo,
-          CalcDate('<-CM>', WorkDate), CalcDate('<CM>', WorkDate));
+          CalcDate('<-CM>', WorkDate()), CalcDate('<CM>', WorkDate()));
 
         // [WHEN] The function GetAppointmentData(key) is called on the record
         // [WHEN] Key is in the valid range (e.g. VAT Registration No., Fiscal code, First name etc).
@@ -1785,7 +1785,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
         LibrarySpesometro.InsertSpesometroAppointment(
           SpesometroAppointment, LibrarySpesometro.CreateAppointmentCode,
           LibrarySpesometro.CreateVendor(false, VendorRec.Resident::Resident, true, false),
-          CalcDate('<-CM>', WorkDate), CalcDate('<CM>', WorkDate));
+          CalcDate('<-CM>', WorkDate()), CalcDate('<CM>', WorkDate()));
 
         // [WHEN] User deletes a record
         SpesometroAppointment.Delete();
@@ -1813,12 +1813,12 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
         // [SCENARIO] Appointment data can be fetched during export; No appointment in the date range
         Initialize();
 
-        DateVATStart := CalcDate('<-CM>', WorkDate);
-        DateVATEnd := CalcDate('<CM>', WorkDate);
-        DateSpec1Start := CalcDate('<-CM-1M>', WorkDate);
-        DateSpec1End := CalcDate('<CM-1M>', WorkDate);
-        DateSpec2Start := CalcDate('<-CM+1M>', WorkDate);
-        DateSpec2End := CalcDate('<CM+1M>', WorkDate);
+        DateVATStart := CalcDate('<-CM>', WorkDate());
+        DateVATEnd := CalcDate('<CM>', WorkDate());
+        DateSpec1Start := CalcDate('<-CM-1M>', WorkDate());
+        DateSpec1End := CalcDate('<CM-1M>', WorkDate());
+        DateSpec2Start := CalcDate('<-CM+1M>', WorkDate());
+        DateSpec2End := CalcDate('<CM+1M>', WorkDate());
 
         // [GIVEN] A VAT Report ready to be exported for date range X-Y
         CreateVATReport(VATReportHeader, DateVATStart, DateVATEnd);
@@ -1879,12 +1879,12 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
         // [SCENARIO] Appointment data can be fetched during export; No appointment in the date range, with Ind. Tax Representative
         Initialize();
 
-        DateVATStart := CalcDate('<-CM>', WorkDate);
-        DateVATEnd := CalcDate('<CM>', WorkDate);
-        DateSpec1Start := CalcDate('<-CM-1M>', WorkDate);
-        DateSpec1End := CalcDate('<CM-1M>', WorkDate);
-        DateSpec2Start := CalcDate('<-CM+1M>', WorkDate);
-        DateSpec2End := CalcDate('<CM+1M>', WorkDate);
+        DateVATStart := CalcDate('<-CM>', WorkDate());
+        DateVATEnd := CalcDate('<CM>', WorkDate());
+        DateSpec1Start := CalcDate('<-CM-1M>', WorkDate());
+        DateSpec1End := CalcDate('<CM-1M>', WorkDate());
+        DateSpec2Start := CalcDate('<-CM+1M>', WorkDate());
+        DateSpec2End := CalcDate('<CM+1M>', WorkDate());
 
         // [GIVEN] A VAT Report ready to be exported for date range X-Y
         CreateVATReport(VATReportHeader, DateVATStart, DateVATEnd);
@@ -1962,12 +1962,12 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
         // [SCENARIO] Appointment data can be fetched during export; No appointment in the date range, with Non-ind. Tax Representative
         Initialize();
 
-        DateVATStart := CalcDate('<-CM>', WorkDate);
-        DateVATEnd := CalcDate('<CM>', WorkDate);
-        DateSpec1Start := CalcDate('<-CM-1M>', WorkDate);
-        DateSpec1End := CalcDate('<CM-1M>', WorkDate);
-        DateSpec2Start := CalcDate('<-CM+1M>', WorkDate);
-        DateSpec2End := CalcDate('<CM+1M>', WorkDate);
+        DateVATStart := CalcDate('<-CM>', WorkDate());
+        DateVATEnd := CalcDate('<CM>', WorkDate());
+        DateSpec1Start := CalcDate('<-CM-1M>', WorkDate());
+        DateSpec1End := CalcDate('<CM-1M>', WorkDate());
+        DateSpec2Start := CalcDate('<-CM+1M>', WorkDate());
+        DateSpec2End := CalcDate('<CM+1M>', WorkDate());
 
         // [GIVEN] A VAT Report ready to be exported for date range X-Y
         CreateVATReport(VATReportHeader, DateVATStart, DateVATEnd);
@@ -2042,8 +2042,8 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
         // [SCENARIO] Appointment data can be fetched during export; One Appointment in range, individual
         Initialize();
 
-        DateVATStart := CalcDate('<-CM>', WorkDate);
-        DateVATEnd := CalcDate('<CM>', WorkDate);
+        DateVATStart := CalcDate('<-CM>', WorkDate());
+        DateVATEnd := CalcDate('<CM>', WorkDate());
         DateSpec1Start := CalcDate('<-1D>', DateVATStart);
         DateSpec1End := CalcDate('<+1D>', DateVATStart);
         DateSpec2Start := CalcDate('<+1D>', DateVATEnd);
@@ -2129,8 +2129,8 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
         // [SCENARIO] Appointment data can be fetched during export; One Appointment in range, Non-individual
         Initialize();
 
-        DateVATStart := CalcDate('<-CM>', WorkDate);
-        DateVATEnd := CalcDate('<CM>', WorkDate);
+        DateVATStart := CalcDate('<-CM>', WorkDate());
+        DateVATEnd := CalcDate('<CM>', WorkDate());
         DateSpec1Start := CalcDate('<+1D>', DateVATStart);
         DateSpec1End := CalcDate('<+1D>', DateVATStart);
         DateSpec2Start := CalcDate('<+1D>', DateVATEnd);
@@ -2208,8 +2208,8 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
         // [SCENARIO] Appointment data can be fetched during export; Multiple Appointment records in range
         Initialize();
 
-        DateVATStart := CalcDate('<-CM>', WorkDate);
-        DateVATEnd := CalcDate('<CM>', WorkDate);
+        DateVATStart := CalcDate('<-CM>', WorkDate());
+        DateVATEnd := CalcDate('<CM>', WorkDate());
         DateSpec1Start := CalcDate('<-1D>', DateVATStart);
         DateSpec1End := CalcDate('<+1D>', DateVATStart);
         DateSpec2Start := CalcDate('<-1D>', DateVATEnd);
@@ -2268,7 +2268,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
         VATReportSetup.Modify();
 
         // [WHEN] A VAT Report is exported
-        CreateVATReport(VATReportHeader, CalcDate('<-CM>', WorkDate), CalcDate('<CM>', WorkDate));
+        CreateVATReport(VATReportHeader, CalcDate('<-CM>', WorkDate()), CalcDate('<CM>', WorkDate()));
         ExportToFile(VATReportHeader, true);
         LoadNextFile(TextFile);
 
@@ -2318,7 +2318,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
         VATReportSetup.Modify();
 
         // [WHEN] A VAT Report is exported
-        CreateVATReport(VATReportHeader, CalcDate('<-CM>', WorkDate), CalcDate('<CM>', WorkDate));
+        CreateVATReport(VATReportHeader, CalcDate('<-CM>', WorkDate()), CalcDate('<CM>', WorkDate()));
         ExportToFile(VATReportHeader, true);
         LoadNextFile(TextFile);
 
@@ -2710,7 +2710,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
 
     local procedure CreateVATReportSetup(UseIntermediary: Boolean)
     begin
-        if not VATReportSetup.Get then
+        if not VATReportSetup.Get() then
             VATReportSetup.Insert(true);
 
         VATReportSetup.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
@@ -2761,7 +2761,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
         NewEntryNo := VATEntry."Entry No." + 1;
 
         with VATEntry do begin
-            Init;
+            Init();
             "Entry No." := NewEntryNo;
             "Posting Date" := CalcDate('<-2D>', Today);
             "Document Date" := "Posting Date";
@@ -2804,11 +2804,11 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
         end;
 
         with VATReportLine do begin
-            Init;
+            Init();
             "VAT Report No." := VATReportHeader."No.";
             "Posting Date" := VATEntry."Posting Date";
             "Document No." := VATEntry."Document No.";
-            "Line No." := GetNextLineNo;
+            "Line No." := GetNextLineNo();
             Type := VATEntry.Type;
             Base := VATEntry.Base;
             Amount := VATEntry.Amount;
@@ -2837,7 +2837,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
         NewEntryNo := VATEntry."Entry No." + 1;
 
         with VATEntry do begin
-            Init;
+            Init();
             "Entry No." := NewEntryNo;
             "Posting Date" := CalcDate('<-2D>', Today);
             "Document Date" := "Posting Date";
@@ -2861,11 +2861,11 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
         end;
 
         with VATReportLine do begin
-            Init;
+            Init();
             "VAT Report No." := VATReportHeader."No.";
             "Posting Date" := VATEntry."Posting Date";
             "Document No." := VATEntry."Document No.";
-            "Line No." := GetNextLineNo;
+            "Line No." := GetNextLineNo();
             Type := VATEntry.Type;
             Base := VATEntry.Base;
             Amount := VATEntry.Amount;
@@ -2957,7 +2957,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
         CompanyInformation: Record "Company Information";
     begin
         with CompanyInformation do begin
-            Get;
+            Get();
             if "Fiscal Code" <> '' then
                 exit("Fiscal Code");
             exit("VAT Registration No.");
@@ -3065,7 +3065,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
         with VATReportLine do begin
             Base := NewBase;
             Amount := Base * LibraryRandom.RandIntInRange(1, 21) / 100;
-            Modify;
+            Modify();
         end;
     end;
 

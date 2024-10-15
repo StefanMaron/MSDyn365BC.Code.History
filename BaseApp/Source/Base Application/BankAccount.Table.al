@@ -63,8 +63,13 @@
             end;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
-                PostCode.ValidateCity(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
+                IsHandled := false;
+                OnBeforeValidateCity(Rec, PostCode, CurrFieldNo, IsHandled);
+                if not IsHandled then
+                    PostCode.ValidateCity(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
             end;
         }
         field(8; Contact; Text[100])
@@ -86,8 +91,8 @@
 
             trigger OnValidate()
             begin
-                ConvertBankAccNo;
-                GetBBAN;
+                ConvertBankAccNo();
+                GetBBAN();
                 OnValidateBankAccount(Rec, 'Bank Account No.');
             end;
         }
@@ -225,6 +230,23 @@
                     Error(StrSubstNo(UnincrementableStringErr, FieldCaption("Last Payment Statement No.")));
             end;
         }
+        field(43; "Pmt. Rec. No. Series"; Code[20])
+        {
+            Caption = 'Payment Reconciliation No. Series';
+            TableRelation = "No. Series";
+
+            trigger OnValidate()
+            var
+                BankAccReconciliation: Record "Bank Acc. Reconciliation";
+            begin
+                if "Pmt. Rec. No. Series" = '' then begin
+                    BankAccReconciliation.SetRange("Bank Account No.", "No.");
+                    BankAccReconciliation.SetRange("Statement Type", BankAccReconciliation."Statement Type"::"Payment Application");
+                    if BankAccReconciliation.FindLast() then
+                        "Last Payment Statement No." := BankAccReconciliation."Statement No.";
+                end;
+            end;
+        }
         field(54; "Last Date Modified"; Date)
         {
             Caption = 'Last Date Modified';
@@ -347,8 +369,13 @@
             end;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
-                PostCode.ValidatePostCode(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
+                IsHandled := false;
+                OnBeforeValidatePostCode(Rec, PostCode, CurrFieldNo, IsHandled);
+                if not IsHandled then
+                    PostCode.ValidatePostCode(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
             end;
         }
         field(92; County; Text[30])
@@ -551,14 +578,14 @@
             trigger OnValidate()
             begin
                 if "Automatic Stmt. Import Enabled" then begin
-                    if not IsAutoLogonPossible then
+                    if not IsAutoLogonPossible() then
                         Error(MFANotSupportedErr);
 
                     if not ("Transaction Import Timespan" in [0 .. 9999]) then
                         Error(TransactionImportTimespanMustBePositiveErr);
-                    ScheduleBankStatementDownload
+                    ScheduleBankStatementDownload()
                 end else
-                    UnscheduleBankStatementDownload;
+                    UnscheduleBankStatementDownload();
             end;
         }
         field(140; Image; Media)
@@ -658,16 +685,16 @@
                     City := AbiCabCodes.City;
                     "Post Code" := AbiCabCodes."Post Code";
                     County := AbiCabCodes.County;
-                    ConvertBankAccNo;
-                    GetBBAN;
+                    ConvertBankAccNo();
+                    GetBBAN();
                 end;
             end;
 
             trigger OnValidate()
             begin
                 AbiCabCodes.CheckABICAB(ABI, CAB);
-                ConvertBankAccNo;
-                GetBBAN;
+                ConvertBankAccNo();
+                GetBBAN();
             end;
         }
         field(12171; CAB; Code[5])
@@ -678,8 +705,8 @@
             trigger OnValidate()
             begin
                 AbiCabCodes.CheckABICAB(ABI, CAB);
-                ConvertBankAccNo;
-                GetBBAN;
+                ConvertBankAccNo();
+                GetBBAN();
             end;
         }
         field(12172; "Credit Limit"; Decimal)
@@ -729,7 +756,7 @@
 
     trigger OnDelete()
     begin
-        CheckDeleteBalancingBankAccount;
+        CheckDeleteBalancingBankAccount();
 
         MoveEntries.MoveBankAccEntries(Rec);
 
@@ -764,12 +791,12 @@
     begin
         "Last Date Modified" := Today;
 
-        if IsContactUpdateNeeded then begin
-            Modify;
+        if IsContactUpdateNeeded() then begin
+            Modify();
             UpdateContFromBank.OnModify(Rec);
-            if not Find then begin
-                Reset;
-                if Find then;
+            if not Find() then begin
+                Reset();
+                if Find() then;
             end;
         end;
 
@@ -780,7 +807,7 @@
                 Confirmed := Confirm(StrSubstNo('%1%2', Text12100, Text12101), false);
             if not Confirmed then begin
                 IBAN := xRec.IBAN;
-                Modify;
+                Modify();
                 Commit();
                 Error(Text12102);
             end;
@@ -795,8 +822,6 @@
     end;
 
     var
-        Text000: Label 'You cannot change %1 because there are one or more open ledger entries for this bank account.';
-        Text003: Label 'Do you wish to create a contact for %1 %2?';
         GLSetup: Record "General Ledger Setup";
         BankAcc: Record "Bank Account";
         BankAccLedgEntry: Record "Bank Account Ledger Entry";
@@ -807,6 +832,9 @@
         UpdateContFromBank: Codeunit "BankCont-Update";
         DimMgt: Codeunit DimensionManagement;
         InsertFromContact: Boolean;
+
+        Text000: Label 'You cannot change %1 because there are one or more open ledger entries for this bank account.';
+        Text003: Label 'Do you wish to create a contact for %1 %2?';
         Text004: Label 'Before you can use Online Map, you must fill in the Online Map Setup window.\See Setting Up Online Map in Help.';
         AbiCabCodes: Record "ABI/CAB Codes";
         Text12100: Label 'The field IBAN is mandatory. You will not be able to use the account in a payment file until the IBAN is correctly filled in.';
@@ -852,7 +880,7 @@
         DimMgt.ValidateDimValueCode(FieldNumber, ShortcutDimCode);
         if not IsTemporary then begin
             DimMgt.SaveDefaultDim(DATABASE::"Bank Account", "No.", FieldNumber, ShortcutDimCode);
-            Modify;
+            Modify();
         end;
 
         OnAfterValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode);
@@ -870,7 +898,7 @@
         ContBusRel.SetRange("Link to Table", ContBusRel."Link to Table"::"Bank Account");
         ContBusRel.SetRange("No.", "No.");
         if not ContBusRel.FindFirst() then begin
-            if not Confirm(Text003, false, TableCaption, "No.") then
+            if not Confirm(Text003, false, TableCaption(), "No.") then
                 exit;
             UpdateContFromBank.InsertNewContact(Rec, false);
             ContBusRel.FindFirst();
@@ -881,7 +909,6 @@
         Cont.SetCurrentKey("Company Name", "Company No.", Type, Name);
         Cont.SetRange("Company No.", ContBusRel."Contact No.");
         RunContactListPage(Cont);
-        exit;
     end;
 
     procedure SetInsertFromContact(FromContact: Boolean)
@@ -977,7 +1004,7 @@
     begin
         OnlineMapSetup.SetRange(Enabled, true);
         if OnlineMapSetup.FindFirst() then
-            OnlineMapManagement.MakeSelection(DATABASE::"Bank Account", GetPosition)
+            OnlineMapManagement.MakeSelection(DATABASE::"Bank Account", GetPosition())
         else
             Message(Text004);
     end;
@@ -1013,7 +1040,7 @@
             AbiCabCodes.CheckABICAB(ABI, CAB);
             ConvertBankAccNo();
             IBAN2 := IBAN;
-            GetBBAN;
+            GetBBAN();
             IBAN := IBAN2;
         end;
     end;
@@ -1053,7 +1080,7 @@
 
     procedure GetBankAccountNoWithCheck() AccountNo: Text
     begin
-        AccountNo := GetBankAccountNo;
+        AccountNo := GetBankAccountNo();
         if AccountNo = '' then
             Error(BankAccIdentifierIsEmptyErr, FieldCaption("Bank Account No."), FieldCaption(IBAN));
     end;
@@ -1114,7 +1141,7 @@
     var
         StatementProvider: Text;
     begin
-        StatementProvider := SelectBankLinkingService;
+        StatementProvider := SelectBankLinkingService();
 
         if StatementProvider <> '' then
             OnLinkStatementProviderEvent(BankAccount, StatementProvider);
@@ -1124,7 +1151,7 @@
     var
         StatementProvider: Text;
     begin
-        StatementProvider := SelectBankLinkingService;
+        StatementProvider := SelectBankLinkingService();
 
         if StatementProvider <> '' then
             OnSimpleLinkStatementProviderEvent(OnlineBankAccLink, StatementProvider);
@@ -1141,7 +1168,7 @@
     var
         StatementProvider: Text;
     begin
-        StatementProvider := SelectBankLinkingService;
+        StatementProvider := SelectBankLinkingService();
 
         if StatementProvider <> '' then
             OnRefreshStatementProviderEvent(BankAccount, StatementProvider);
@@ -1151,7 +1178,7 @@
     var
         StatementProvider: Text;
     begin
-        StatementProvider := SelectBankLinkingService;
+        StatementProvider := SelectBankLinkingService();
 
         if StatementProvider <> '' then
             OnRenewAccessConsentStatementProviderEvent(BankAccount, StatementProvider);
@@ -1171,7 +1198,7 @@
     var
         StatementProvider: Text;
     begin
-        StatementProvider := SelectBankLinkingService;
+        StatementProvider := SelectBankLinkingService();
 
         if StatementProvider <> '' then
             OnUpdateBankAccountLinkingEvent(Rec, StatementProvider);
@@ -1183,7 +1210,7 @@
     begin
         if BankAccount.FindSet() then
             repeat
-                if not BankAccount.IsLinkedToBankStatementServiceProvider then begin
+                if not BankAccount.IsLinkedToBankStatementServiceProvider() then begin
                     TempUnlinkedBankAccount := BankAccount;
                     TempUnlinkedBankAccount.Insert();
                 end;
@@ -1196,7 +1223,7 @@
     begin
         if BankAccount.FindSet() then
             repeat
-                if BankAccount.IsLinkedToBankStatementServiceProvider then begin
+                if BankAccount.IsLinkedToBankStatementServiceProvider() then begin
                     TempUnlinkedBankAccount := BankAccount;
                     TempUnlinkedBankAccount.Insert();
                 end;
@@ -1258,9 +1285,9 @@
     var
         JobQueueEntry: Record "Job Queue Entry";
     begin
-        if not IsLinkedToBankStatementServiceProvider then
+        if not IsLinkedToBankStatementServiceProvider() then
             Error(BankAccNotLinkedErr);
-        if not IsAutoLogonPossible then
+        if not IsAutoLogonPossible() then
             Error(AutoLogonNotPossibleErr);
 
         JobQueueEntry.ScheduleRecurrentJobQueueEntry(JobQueueEntry."Object Type to Run"::Codeunit,
@@ -1273,7 +1300,7 @@
         JobQueueEntry."Rerun Delay (sec.)" := 25 * 60;
         JobQueueEntry.Modify();
         if Confirm(JobQEntriesCreatedQst) then
-            ShowBankStatementDownloadJobQueueEntry;
+            ShowBankStatementDownloadJobQueueEntry();
     end;
 
     local procedure UnscheduleBankStatementDownload()
@@ -1291,7 +1318,7 @@
         CurrencyCode: Code[10];
     begin
         GeneralLedgerSetup.Get();
-        Init;
+        Init();
         Validate("Bank Account No.", OnlineBankAccLink."Bank Account No.");
         Validate(Name, OnlineBankAccLink.Name);
         if OnlineBankAccLink."Currency Code" <> '' then
@@ -1336,10 +1363,10 @@
     begin
         Linked := false;
         OnlineFeedStatus := OnlineFeedStatementStatus::"Not Linked";
-        if IsLinkedToBankStatementServiceProvider then begin
+        if IsLinkedToBankStatementServiceProvider() then begin
             Linked := true;
             OnlineFeedStatus := OnlineFeedStatementStatus::Linked;
-            if IsScheduledBankStatement then
+            if IsScheduledBankStatement() then
                 OnlineFeedStatus := OnlineFeedStatementStatus::"Linked and Auto. Bank Statement Enabled";
         end;
     end;
@@ -1349,7 +1376,7 @@
         JobQueueEntry: Record "Job Queue Entry";
     begin
         JobQueueEntry.SetRange("Record ID to Process", RecordId);
-        exit(JobQueueEntry.FindFirst);
+        exit(JobQueueEntry.FindFirst());
     end;
 
     procedure DisableStatementProviders()
@@ -1519,6 +1546,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnGetBankAccount(var Handled: Boolean; BankAccount: Record "Bank Account"; var ResultBankAccountNo: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateCity(var BankAccount: Record "Bank Account"; var PostCode: Record "Post Code"; CurrentFieldNo: Integer; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidatePostCode(var BankAccount: Record "Bank Account"; var PostCode: Record "Post Code"; CurrentFieldNo: Integer; var IsHandled: Boolean);
     begin
     end;
 }

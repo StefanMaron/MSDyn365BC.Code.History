@@ -38,7 +38,7 @@ page 1608 "Office Error Dlg"
     var
         OfficeErrorEngine: Codeunit "Office Error Engine";
     begin
-        ErrorText := OfficeErrorEngine.GetError;
+        ErrorText := OfficeErrorEngine.GetError();
     end;
 
     var

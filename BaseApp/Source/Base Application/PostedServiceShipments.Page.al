@@ -17,12 +17,12 @@ page 5974 "Posted Service Shipments"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
-                field("Customer No."; "Customer No.")
+                field("Customer No."; Rec."Customer No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the customer who owns the items on the service order.';
@@ -32,138 +32,138 @@ page 5974 "Posted Service Shipments"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the name of the customer.';
                 }
-                field("Post Code"; "Post Code")
+                field("Post Code"; Rec."Post Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the postal code.';
                     Visible = false;
                 }
-                field("Country/Region Code"; "Country/Region Code")
+                field("Country/Region Code"; Rec."Country/Region Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the country/region of the address.';
                     Visible = false;
                 }
-                field("Contact Name"; "Contact Name")
+                field("Contact Name"; Rec."Contact Name")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the name of the contact person at the customer company.';
                     Visible = false;
                 }
-                field("Bill-to Customer No."; "Bill-to Customer No.")
+                field("Bill-to Customer No."; Rec."Bill-to Customer No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the customer that you send or sent the invoice or credit memo to.';
                     Visible = false;
                 }
-                field("Bill-to Name"; "Bill-to Name")
+                field("Bill-to Name"; Rec."Bill-to Name")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the name of the customer that you send or sent the invoice or credit memo to.';
                     Visible = false;
                 }
-                field("Bill-to Post Code"; "Bill-to Post Code")
+                field("Bill-to Post Code"; Rec."Bill-to Post Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the postal code of the customer''s billing address.';
                     Visible = false;
                 }
-                field("Bill-to Country/Region Code"; "Bill-to Country/Region Code")
+                field("Bill-to Country/Region Code"; Rec."Bill-to Country/Region Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the country/region code of the customer''s billing address.';
                     Visible = false;
                 }
-                field("Bill-to Contact"; "Bill-to Contact")
+                field("Bill-to Contact"; Rec."Bill-to Contact")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the name of the contact person at the customer''s billing address.';
                     Visible = false;
                 }
-                field("Ship-to Code"; "Ship-to Code")
+                field("Ship-to Code"; Rec."Ship-to Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies a code for an alternate shipment address if you want to ship to another address than the one that has been entered automatically. This field is also used in case of drop shipment.';
                     Visible = false;
                 }
-                field("Ship-to Name"; "Ship-to Name")
+                field("Ship-to Name"; Rec."Ship-to Name")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the name of the customer at the address that the items are shipped to.';
                     Visible = false;
                 }
-                field("Ship-to Post Code"; "Ship-to Post Code")
+                field("Ship-to Post Code"; Rec."Ship-to Post Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the postal code of the address that the items are shipped to.';
                     Visible = false;
                 }
-                field("Ship-to Country/Region Code"; "Ship-to Country/Region Code")
+                field("Ship-to Country/Region Code"; Rec."Ship-to Country/Region Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the country/region code of the address that the items are shipped to.';
                     Visible = false;
                 }
-                field("Ship-to Contact"; "Ship-to Contact")
+                field("Ship-to Contact"; Rec."Ship-to Contact")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the name of the contact person at the address that the items are shipped to.';
                     Visible = false;
                 }
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the date when the shipment was posted.';
                     Visible = false;
                 }
-                field("Salesperson Code"; "Salesperson Code")
+                field("Salesperson Code"; Rec."Salesperson Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the code of the salesperson assigned to the service order.';
                     Visible = false;
                 }
-                field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
+                field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                     Visible = false;
                 }
-                field("Shortcut Dimension 2 Code"; "Shortcut Dimension 2 Code")
+                field("Shortcut Dimension 2 Code"; Rec."Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                     Visible = false;
                 }
-                field("Currency Code"; "Currency Code")
+                field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the currency code for various amounts on the shipment.';
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the location, such as warehouse or distribution center, from where the items on the order were shipped.';
                     Visible = true;
                 }
-                field("Notify Customer"; "Notify Customer")
+                field("Notify Customer"; Rec."Notify Customer")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies in what way the customer wants to receive notifications about the service completed.';
                     Visible = false;
                 }
-                field("Service Order Type"; "Service Order Type")
+                field("Service Order Type"; Rec."Service Order Type")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the type of the service order from which the shipment was created.';
                     Visible = false;
                 }
-                field("Contract No."; "Contract No.")
+                field("Contract No."; Rec."Contract No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the contract associated with the service order.';
                     Visible = false;
                 }
-                field("Response Date"; "Response Date")
+                field("Response Date"; Rec."Response Date")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the approximate date when work on the service order started.';
@@ -175,49 +175,49 @@ page 5974 "Posted Service Shipments"
                     ToolTip = 'Specifies the priority of the posted service order.';
                     Visible = false;
                 }
-                field("Document Date"; "Document Date")
+                field("Document Date"; Rec."Document Date")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the date when the related document was created.';
                     Visible = false;
                 }
-                field("Warning Status"; "Warning Status")
+                field("Warning Status"; Rec."Warning Status")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the warning status for the response time on the original service order.';
                     Visible = false;
                 }
-                field("Allocated Hours"; "Allocated Hours")
+                field("Allocated Hours"; Rec."Allocated Hours")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of hours allocated to the items within the posted service order.';
                     Visible = false;
                 }
-                field("Order Date"; "Order Date")
+                field("Order Date"; Rec."Order Date")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the date when the related order was created.';
                     Visible = false;
                 }
-                field("Expected Finishing Date"; "Expected Finishing Date")
+                field("Expected Finishing Date"; Rec."Expected Finishing Date")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the date when service on the order is expected to be finished.';
                     Visible = false;
                 }
-                field("Starting Date"; "Starting Date")
+                field("Starting Date"; Rec."Starting Date")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the starting date of the service on the shipment.';
                     Visible = false;
                 }
-                field("Finishing Date"; "Finishing Date")
+                field("Finishing Date"; Rec."Finishing Date")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the date when the service is finished.';
                     Visible = false;
                 }
-                field("Service Time (Hours)"; "Service Time (Hours)")
+                field("Service Time (Hours)"; Rec."Service Time (Hours)")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the total time in hours that the service on the service order has taken.';
@@ -253,8 +253,6 @@ page 5974 "Posted Service Shipments"
                     ApplicationArea = Service;
                     Caption = 'Statistics';
                     Image = Statistics;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Page "Service Shipment Statistics";
                     RunPageLink = "No." = FIELD("No.");
                     ShortCutKey = 'F7';
@@ -324,7 +322,7 @@ page 5974 "Posted Service Shipments"
                     trigger OnAction()
                     begin
                         ShowDimensions();
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                     end;
                 }
                 action("Service Email &Queue")
@@ -361,7 +359,7 @@ page 5974 "Posted Service Shipments"
                     begin
                         CertificateOfSupply.SetRange("Document Type", CertificateOfSupply."Document Type"::"Service Shipment");
                         CertificateOfSupply.SetRange("Document No.", "No.");
-                        CertificateOfSupply.Print;
+                        CertificateOfSupply.Print();
                     end;
                 }
             }
@@ -374,8 +372,6 @@ page 5974 "Posted Service Shipments"
                 Caption = '&Print';
                 Ellipsis = true;
                 Image = Print;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Prepare to print the document. A report request window for the document opens where you can specify what to include on the print-out.';
 
                 trigger OnAction()
@@ -389,14 +385,12 @@ page 5974 "Posted Service Shipments"
                 ApplicationArea = Service;
                 Caption = 'Find entries...';
                 Image = Navigate;
-                Promoted = true;
-                PromotedCategory = Process;
                 ShortCutKey = 'Ctrl+Alt+Q';
                 ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
 
                 trigger OnAction()
                 begin
-                    Navigate;
+                    Navigate();
                 end;
             }
             action("Update Document")
@@ -404,10 +398,6 @@ page 5974 "Posted Service Shipments"
                 ApplicationArea = Service;
                 Caption = 'Update Document';
                 Image = Edit;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Add new information that is relevant to the document. You can only edit a few fields because the document has already been posted.';
 
                 trigger OnAction()
@@ -420,11 +410,31 @@ page 5974 "Posted Service Shipments"
                 end;
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("Update Document_Promoted"; "Update Document")
+                {
+                }
+                actionref("&Print_Promoted"; "&Print")
+                {
+                }
+                actionref("&Navigate_Promoted"; "&Navigate")
+                {
+                }
+                actionref(Statistics_Promoted; Statistics)
+                {
+                }
+            }
+        }
     }
 
     trigger OnOpenPage()
     begin
-        SetSecurityFilterOnRespCenter;
+        SetSecurityFilterOnRespCenter();
     end;
 
     var

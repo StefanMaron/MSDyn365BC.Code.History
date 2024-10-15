@@ -480,7 +480,7 @@ codeunit 144172 "ERM Prepayment IT"
         GLSetup: Record "General Ledger Setup";
     begin
         with GLSetup do begin
-            Get;
+            Get();
             Validate("Unrealized VAT", UnrealVAT);
             Modify(true);
         end;
@@ -817,7 +817,7 @@ codeunit 144172 "ERM Prepayment IT"
         PostedPaymentsPage.GotoRecord(PostedPaymentLines);
         PostedPaymentsPage.RecalcAmount.Invoke;
 
-        PostedPaymentLines.Find;
+        PostedPaymentLines.Find();
     end;
 
     local procedure GetCustomerLedgerEntryAmount(DocumentNo: Code[20]): Decimal

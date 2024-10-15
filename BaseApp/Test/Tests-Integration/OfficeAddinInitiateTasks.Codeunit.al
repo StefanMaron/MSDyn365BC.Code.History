@@ -48,7 +48,7 @@ codeunit 139052 "Office Addin Initiate Tasks"
         Assert.IsFalse(CustomerCard.NewSalesQuote.Visible, 'New Sales Quote shouldn''t be visible');
         Assert.IsFalse(CustomerCard.NewSalesInvoice.Visible, 'New Sales Invoice shoudln''t be visible');
         Assert.IsFalse(CustomerCard.NewSalesCreditMemo.Visible, 'New Sales Credit Memo shouldn''t be visible');
-        CustomerCard.Close;
+        CustomerCard.Close();
     end;
 
     [Test]
@@ -686,7 +686,7 @@ codeunit 139052 "Office Addin Initiate Tasks"
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibraryERMCountryData.UpdateSalesReceivablesSetup();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
-        LibraryERM.SetJournalTemplateNameMandatory(false);
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
         LibrarySales.SetStockoutWarning(false);
         SetupCompanyPaymentInfo();
         SetupMarketing();
@@ -769,7 +769,7 @@ codeunit 139052 "Office Addin Initiate Tasks"
         LibrarySales.CreateCustomer(Customer);
 
         // Create Contact from Customer by running the report Create Conts. from Customers.
-        Customer.SetRecFilter;
+        Customer.SetRecFilter();
         CreateContsFromCustomers.UseRequestPage(false);
         CreateContsFromCustomers.SetTableView(Customer);
         CreateContsFromCustomers.Run();
@@ -1044,7 +1044,7 @@ codeunit 139052 "Office Addin Initiate Tasks"
     begin
         SalesReceivablesSetup.Get();
         DocNoSeries := SalesReceivablesSetup."Quote Nos.";
-        QuoteNextNo := NoSeriesManagement.GetNextNo(DocNoSeries, WorkDate, false);
+        QuoteNextNo := NoSeriesManagement.GetNextNo(DocNoSeries, WorkDate(), false);
     end;
 
     [ConfirmHandler]

@@ -304,8 +304,8 @@ codeunit 144015 "IT - Calc. And Post VAT Settl."
         Initialize();
 
         // [GIVEN] Set VAT Plafond Period
-        InitLastSettlementDate(CalcDate('<1M-1D>', CalcDate('<-CY-1Y>', WorkDate)));
-        InitVATPlafondPeriod(CalcDate('<-CY-1Y>', WorkDate), 0);
+        InitLastSettlementDate(CalcDate('<1M-1D>', CalcDate('<-CY-1Y>', WorkDate())));
+        InitVATPlafondPeriod(CalcDate('<-CY-1Y>', WorkDate()), 0);
 
         // [GIVEN] Set VAT Posting Setup with 'Deductible %'=20 and 'VAT %'=10, created G/L Account
         CreateNonDeductibleVATPostingSetupAndGroups(VATPostingSetup);
@@ -316,15 +316,15 @@ codeunit 144015 "IT - Calc. And Post VAT Settl."
         PurchAmount := LibraryRandom.RandDecInRange(100, 1000, 2);
         CreateAndPostPurchInvoice(
           LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"),
-          CalcDate('<+1M+1D>', CalcDate('<-CY-1Y>', WorkDate)), GLAccountCode, PurchAmount, '');
+          CalcDate('<+1M+1D>', CalcDate('<-CY-1Y>', WorkDate())), GLAccountCode, PurchAmount, '');
 
         // [GIVEN] Initialized Calc. and Post VAT Settlement report
-        VATPostingSetup.SetRecFilter;
+        VATPostingSetup.SetRecFilter();
         CalcAndPostVATSettlement.SetTableView(VATPostingSetup);
         CalcAndPostVATSettlement.InitializeRequest(
-          CalcDate('<1M>', CalcDate('<-CY-1Y>', WorkDate)),
-          CalcDate('<2M-1D>', CalcDate('<-CY-1Y>', WorkDate)),
-          CalcDate('<2M-1D>', CalcDate('<-CY-1Y>', WorkDate)),
+          CalcDate('<1M>', CalcDate('<-CY-1Y>', WorkDate())),
+          CalcDate('<2M-1D>', CalcDate('<-CY-1Y>', WorkDate())),
+          CalcDate('<2M-1D>', CalcDate('<-CY-1Y>', WorkDate())),
           '',
           GLAccountCode, GLAccountCode, GLAccountCode, true, false);
 
@@ -376,7 +376,7 @@ codeunit 144015 "IT - Calc. And Post VAT Settl."
 
         // [WHEN] Run the report "Calc. and Post VAT Settlement"
         LibraryVariableStorage.Enqueue(PostingDate);
-        VATPostingSetup.SetRecFilter;
+        VATPostingSetup.SetRecFilter();
         REPORT.Run(REPORT::"Calc. and Post VAT Settlement", true, false, VATPostingSetup);
 
         // [THEN] Verify the "PeriodInputVATYearInputVAT" suggest Advanced Amount
@@ -401,9 +401,9 @@ codeunit 144015 "IT - Calc. And Post VAT Settl."
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
         with GeneralLedgerSetup do begin
-            Get;
+            Get();
             "Last Settlement Date" := CalcDate('<1M>', InitialDate);
-            Modify;
+            Modify();
         end;
     end;
 
@@ -422,11 +422,11 @@ codeunit 144015 "IT - Calc. And Post VAT Settl."
     begin
         with VATPlafondPeriod do begin
             DeleteAll();
-            Init;
+            Init();
             Year := Date2DMY(InitialDate, 3);
             Amount := LibraryRandom.RandDecInRange(1, 10000, 2);
             "Calculated Amount" := CalculatedAmount;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -593,7 +593,7 @@ codeunit 144015 "IT - Calc. And Post VAT Settl."
     local procedure RunAndVerifyCalcAndPostVATSettlement(PostingDate: Date; CreditNextPeriodAmount: Decimal; DebitNextPeriodAmount: Decimal; VATPostingSetup: Record "VAT Posting Setup")
     begin
         LibraryVariableStorage.Enqueue(PostingDate);
-        VATPostingSetup.SetRecFilter;
+        VATPostingSetup.SetRecFilter();
         REPORT.Run(REPORT::"Calc. and Post VAT Settlement", true, false, VATPostingSetup);
 
         VerifyCalcAndPostVATStatementDebitCredit(CreditNextPeriodAmount, DebitNextPeriodAmount);

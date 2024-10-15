@@ -165,9 +165,6 @@ page 99000897 "Available - Prod. Order Lines"
     end;
 
     var
-        Text000: Label 'Fully reserved.';
-        Text001: Label 'Do you want to cancel the reservation?';
-        Text002: Label 'Available Quantity is %1.';
         ReservEntry: Record "Reservation Entry";
         ReservEntry2: Record "Reservation Entry";
         ReservMgt: Codeunit "Reservation Management";
@@ -179,6 +176,10 @@ page 99000897 "Available - Prod. Order Lines"
         NewQtyReservedBase: Decimal;
         CaptionText: Text;
         CurrentSubType: Option;
+
+        Text000: Label 'Fully reserved.';
+        Text001: Label 'Do you want to cancel the reservation?';
+        Text002: Label 'Available Quantity is %1.';
 
     protected var
         QtyToReserve: Decimal;

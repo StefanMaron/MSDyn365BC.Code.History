@@ -1205,14 +1205,14 @@ codeunit 137285 "SCM Inventory Batch Jobs"
         // [THEN] Invt. Post To G/L Test Buffer is filled with two records:
         with TempInvtPostToGLTestBuffer do begin
             // [THEN] The first one has "Gen. Prod. Posting Group" = "X", and blank Inventory Posting Group and Location Code.
-            Reset;
+            Reset();
             SetRange("Gen. Prod. Posting Group", GenProductPostingGroup.Code);
             FindFirst();
             TestField("Invt. Posting Group Code", '');
             TestField("Location Code", '');
 
             // [THEN] The second one has "Inventory Posting Group" = "Y" and Location Code = "Z", and blank "Gen. Prod. Posting Group".
-            Reset;
+            Reset();
             SetRange("Invt. Posting Group Code", InventoryPostingGroup.Code);
             FindFirst();
             TestField("Location Code", ValueEntry."Location Code");
@@ -1455,7 +1455,7 @@ codeunit 137285 "SCM Inventory Batch Jobs"
         // Use Random value for Minimum Quantity and Discount Percentage.
         LibraryERM.CreateLineDiscForCustomer(
           SalesLineDiscount, SalesLineDiscount.Type::Item, CreateItem('', Item."Costing Method"::Standard),
-          SalesLineDiscount."Sales Type"::Customer, CreateCustomer, WorkDate, '', '', '', LibraryRandom.RandDec(10, 2));
+          SalesLineDiscount."Sales Type"::Customer, CreateCustomer, WorkDate(), '', '', '', LibraryRandom.RandDec(10, 2));
         SalesLineDiscount.Validate("Line Discount %", LibraryRandom.RandDec(10, 2));
         SalesLineDiscount.Modify(true);
     end;
@@ -1482,7 +1482,7 @@ codeunit 137285 "SCM Inventory Batch Jobs"
         Item.SetRange("No.", ItemNo);
         CreateItemJournalBatch(ItemJournalBatch, ItemJournalTemplate.Type::Revaluation);
         LibraryCosting.CreateRevaluationJournal(
-          ItemJournalBatch, Item, WorkDate, LibraryUtility.GenerateGUID, CalculatePer::"Item Ledger Entry", false, false, false, CalcBase::" ",
+          ItemJournalBatch, Item, WorkDate(), LibraryUtility.GenerateGUID, CalculatePer::"Item Ledger Entry", false, false, false, CalcBase::" ",
           false);
         ItemJournalLine.SetRange("Value Entry Type", ItemJournalLine."Value Entry Type"::Revaluation);
         ItemJournalLine.SetRange("Item No.", ItemNo);
@@ -1618,11 +1618,11 @@ codeunit 137285 "SCM Inventory Batch Jobs"
     local procedure MockValueEntry(var ValueEntry: Record "Value Entry"; GenProdPostingGroupCode: Code[20]; InventoryPostingGroupCode: Code[20])
     begin
         with ValueEntry do begin
-            Init;
+            Init();
             "Entry No." := LibraryUtility.GetNewRecNo(ValueEntry, FieldNo("Entry No."));
             "Item Ledger Entry No." := 0;
             "Capacity Ledger Entry No." := LibraryRandom.RandInt(100);
-            "Posting Date" := WorkDate;
+            "Posting Date" := WorkDate();
             "Entry Type" := "Entry Type"::"Direct Cost";
             "Gen. Prod. Posting Group" := GenProdPostingGroupCode;
             "Inventory Posting Group" := InventoryPostingGroupCode;
@@ -1632,7 +1632,7 @@ codeunit 137285 "SCM Inventory Batch Jobs"
             "Valued Quantity" := LibraryRandom.RandInt(10);
             "Cost per Unit" := LibraryRandom.RandDec(10, 2);
             "Cost Amount (Actual)" := "Valued Quantity" * "Cost per Unit";
-            Insert;
+            Insert();
         end;
     end;
 

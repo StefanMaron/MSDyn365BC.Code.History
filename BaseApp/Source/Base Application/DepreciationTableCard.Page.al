@@ -21,12 +21,12 @@ page 5659 "Depreciation Table Card"
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies a description of the depreciation table.';
                 }
-                field("Period Length"; "Period Length")
+                field("Period Length"; Rec."Period Length")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the length of period that each of the depreciation table lines will apply to.';
                 }
-                field("Total No. of Units"; "Total No. of Units")
+                field("Total No. of Units"; Rec."Total No. of Units")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the total number of units the asset is expected to produce in its lifetime.';

@@ -12,7 +12,7 @@ report 5051 "Contact - Company Summary"
         {
             DataItemTableView = SORTING("Company No.") WHERE(Type = CONST(Company));
             RequestFilterFields = "Company No.", "Salesperson Code", "Post Code", "Country/Region Code";
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
@@ -262,7 +262,7 @@ report 5051 "Contact - Company Summary"
 
     trigger OnPreReport()
     begin
-        ContactFilter := Contact.GetFilters;
+        ContactFilter := Contact.GetFilters();
     end;
 
     var

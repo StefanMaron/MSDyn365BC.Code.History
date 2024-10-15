@@ -4,18 +4,19 @@ codeunit 744 "VAT Report Validate"
 
     trigger OnRun()
     begin
-        ClearErrorLog;
+        ClearErrorLog();
 
         ValidateVATReportHeader(Rec);
         ValidateVATReportLines(Rec);
 
-        ShowErrorLog;
+        ShowErrorLog();
     end;
 
     var
         TempVATReportErrorLog: Record "VAT Report Error Log" temporary;
         VATReportLine: Record "VAT Report Line";
         ErrorID: Integer;
+
         EmptyFieldErr: Label 'The %1 field in the %2 window must not be empty.';
         SpecifyFieldErr: Label 'You must specify the %1 field for the %2 %3.', Comment = 'You must specify the Fiscal Code No. for Vendor 10000.';
         SpecifyEitherFieldErr: Label 'You must specify the %1 or %2 field for %3 %4.', Comment = 'You must specify the Fiscal Code or VAT Registration No. for Vendor 10000.';
@@ -59,22 +60,22 @@ codeunit 744 "VAT Report Validate"
         OrgVATReportHeader: Record "VAT Report Header";
     begin
         if VATReportHeader."VAT Report Config. Code" = VATReportHeader."VAT Report Config. Code"::" " then
-            InsertErrorLog(StrSubstNo(EmptyFieldErr, VATReportHeader.FieldCaption("VAT Report Config. Code"), VATReportHeader.TableCaption));
+            InsertErrorLog(StrSubstNo(EmptyFieldErr, VATReportHeader.FieldCaption("VAT Report Config. Code"), VATReportHeader.TableCaption()));
 
         if VATReportHeader."VAT Report Type" <> VATReportHeader."VAT Report Type"::Standard then
             if VATReportHeader."Original Report No." = '' then
-                InsertErrorLog(StrSubstNo(EmptyFieldErr, VATReportHeader.FieldCaption("Original Report No."), VATReportHeader.TableCaption))
+                InsertErrorLog(StrSubstNo(EmptyFieldErr, VATReportHeader.FieldCaption("Original Report No."), VATReportHeader.TableCaption()))
             else begin
                 OrgVATReportHeader.Get(VATReportHeader."Original Report No.");
                 if OrgVATReportHeader."Tax Auth. Receipt No." = '' then
                     InsertErrorLog(
                       StrSubstNo(
-                        EmptyFieldOriginalReportErr, VATReportHeader.FieldCaption("Tax Auth. Receipt No."), VATReportHeader.TableCaption,
+                        EmptyFieldOriginalReportErr, VATReportHeader.FieldCaption("Tax Auth. Receipt No."), VATReportHeader.TableCaption(),
                         VATReportHeader."Original Report No."));
                 if OrgVATReportHeader."Tax Auth. Document No." = '' then
                     InsertErrorLog(
                       StrSubstNo(
-                        EmptyFieldOriginalReportErr, VATReportHeader.FieldCaption("Tax Auth. Document No."), VATReportHeader.TableCaption,
+                        EmptyFieldOriginalReportErr, VATReportHeader.FieldCaption("Tax Auth. Document No."), VATReportHeader.TableCaption(),
                         VATReportHeader."Original Report No."));
             end;
     end;
@@ -110,7 +111,7 @@ codeunit 744 "VAT Report Validate"
                         StrSubstNo(
                           SpecifyFieldErr,
                           Vendor.FieldCaption(Name),
-                          Vendor.TableCaption,
+                          Vendor.TableCaption(),
                           Vendor."No."),
                         StrSubstNo(LineNumberErr, VATReportLine."Line No.")));
 
@@ -120,7 +121,7 @@ codeunit 744 "VAT Report Validate"
                         StrSubstNo(
                           SpecifyFieldErr,
                           Vendor.FieldCaption(City),
-                          Vendor.TableCaption,
+                          Vendor.TableCaption(),
                           Vendor."No."),
                         StrSubstNo(LineNumberErr, VATReportLine."Line No.")));
 
@@ -130,7 +131,7 @@ codeunit 744 "VAT Report Validate"
                         StrSubstNo(
                           SpecifyFieldErr,
                           Vendor.FieldCaption(Address),
-                          Vendor.TableCaption,
+                          Vendor.TableCaption(),
                           Vendor."No."),
                         StrSubstNo(LineNumberErr, VATReportLine."Line No.")));
             end;
@@ -142,7 +143,7 @@ codeunit 744 "VAT Report Validate"
                         StrSubstNo(
                           SpecifyFieldErr,
                           Vendor.FieldCaption("Country/Region Code"),
-                          Vendor.TableCaption,
+                          Vendor.TableCaption(),
                           Vendor."No."),
                         StrSubstNo(LineNumberErr, VATReportLine."Line No.")))
                 else
@@ -156,7 +157,7 @@ codeunit 744 "VAT Report Validate"
                         StrSubstNo(
                           SpecifyFieldErr,
                           Vendor.FieldCaption("VAT Registration No."),
-                          Vendor.TableCaption,
+                          Vendor.TableCaption(),
                           Vendor."No."),
                         StrSubstNo(LineNumberErr, VATReportLine."Line No.")))
                 else
@@ -180,7 +181,7 @@ codeunit 744 "VAT Report Validate"
                         StrSubstNo(
                           SpecifyFieldErr,
                           Cust.FieldCaption(Name),
-                          Cust.TableCaption,
+                          Cust.TableCaption(),
                           Cust."No."),
                         StrSubstNo(LineNumberErr, VATReportLine."Line No.")));
 
@@ -190,7 +191,7 @@ codeunit 744 "VAT Report Validate"
                         StrSubstNo(
                           SpecifyFieldErr,
                           Cust.FieldCaption(City),
-                          Cust.TableCaption,
+                          Cust.TableCaption(),
                           Cust."No."),
                         StrSubstNo(LineNumberErr, VATReportLine."Line No.")));
 
@@ -200,7 +201,7 @@ codeunit 744 "VAT Report Validate"
                         StrSubstNo(
                           SpecifyFieldErr,
                           Cust.FieldCaption(Address),
-                          Cust.TableCaption,
+                          Cust.TableCaption(),
                           Cust."No."),
                         StrSubstNo(LineNumberErr, VATReportLine."Line No.")));
             end;
@@ -212,7 +213,7 @@ codeunit 744 "VAT Report Validate"
                         StrSubstNo(
                           SpecifyFieldErr,
                           Cust.FieldCaption("Country/Region Code"),
-                          Cust.TableCaption,
+                          Cust.TableCaption(),
                           Cust."No."),
                         StrSubstNo(LineNumberErr, VATReportLine."Line No.")))
                 else
@@ -228,7 +229,7 @@ codeunit 744 "VAT Report Validate"
                           SpecifyEitherFieldErr,
                           Cust.FieldCaption("Fiscal Code"),
                           Cust.FieldCaption("VAT Registration No."),
-                          Cust.TableCaption,
+                          Cust.TableCaption(),
                           Cust."No."),
                         StrSubstNo(LineNumberErr, VATReportLine."Line No.")))
                 else

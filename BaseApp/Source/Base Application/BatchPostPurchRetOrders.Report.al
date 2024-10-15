@@ -138,9 +138,6 @@
 
     var
         Text003: Label 'The exchange rate associated with the new posting date on the purchase header will not apply to the purchase lines.';
-        PrintDoc: Boolean;
-        [InDataSet]
-        PrintDocVisible: Boolean;
         Text1130000: Label 'The %1 and %2 may be modified automatically if they are greater than the %3.';
 
     protected var
@@ -150,6 +147,9 @@
         ReplacePostingDate: Boolean;
         ReplaceDocumentDate: Boolean;
         CalcInvDisc: Boolean;
+        PrintDoc: Boolean;
+        [InDataSet]
+        PrintDocVisible: Boolean;
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterOnOpenPage(var ShipReq: Boolean; var InvReq: Boolean; var PostingDateReq: Date; var ReplacePostingDate: Boolean; var ReplaceDocumentDate: Boolean; var CalcInvDisc: Boolean)

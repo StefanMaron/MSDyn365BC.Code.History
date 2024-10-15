@@ -58,7 +58,7 @@ codeunit 144160 "UT REP VAT Fiscal Register"
         UpdateCompanyInformationRegisterCompanyNumber;
         CreateNumberSeries(NoSeries);
         EnqueueValuesForVATRegisterPrintRequestPageHandler(
-          NoSeries."VAT Register", PrintingType::Final, CalcDate('<' + Format(-LibraryRandom.RandInt(10)) + 'D>', WorkDate));  // Enqueue earlier Ending Date than Starting Date for handler - VATRegisterPrintRequestPageHandler.
+          NoSeries."VAT Register", PrintingType::Final, CalcDate('<' + Format(-LibraryRandom.RandInt(10)) + 'D>', WorkDate()));  // Enqueue earlier Ending Date than Starting Date for handler - VATRegisterPrintRequestPageHandler.
 
         // Exercise.
         asserterror REPORT.Run(REPORT::"VAT Register - Print");  // Opens handler - VATRegisterPrintRequestPageHandler.
@@ -170,7 +170,7 @@ codeunit 144160 "UT REP VAT Fiscal Register"
         VATBookEntry."Entry No." := VATBookEntry2."Entry No." + 1;
         VATBookEntry.Type := Type;
         VATBookEntry."No. Series" := NoSeries;
-        VATBookEntry."Posting Date" := WorkDate;
+        VATBookEntry."Posting Date" := WorkDate();
         VATBookEntry."Sell-to/Buy-from No." := SellToBuyFromNo;
         VATBookEntry."Document No." := LibraryUTUtility.GetNewCode;
         VATBookEntry."VAT Identifier" := CreateVATIdentifier;
@@ -191,7 +191,7 @@ codeunit 144160 "UT REP VAT Fiscal Register"
         VATEntry."Entry No." := VATEntry2."Entry No." + 1;
         VATEntry.Type := VATBookEntry.Type;
         VATEntry."No. Series" := VATBookEntry."No. Series";
-        VATEntry."Posting Date" := WorkDate;
+        VATEntry."Posting Date" := WorkDate();
         VATEntry."Document No." := VATBookEntry."Document No.";
         VATEntry."Bill-to/Pay-to No." := VATBookEntry."Sell-to/Buy-from No.";
         VATEntry."VAT Identifier" := VATBookEntry."VAT Identifier";
@@ -278,7 +278,7 @@ codeunit 144160 "UT REP VAT Fiscal Register"
 
     local procedure RunReportVATRegisterPrint(VATRegister: Code[10]; PrintType: Option)
     begin
-        EnqueueValuesForVATRegisterPrintRequestPageHandler(VATRegister, PrintingType, WorkDate); // Enqueue WORKDATE as PeriodEndingDate for handler - VATRegisterPrintRequestPageHandler.
+        EnqueueValuesForVATRegisterPrintRequestPageHandler(VATRegister, PrintingType, WorkDate()); // Enqueue WORKDATE as PeriodEndingDate for handler - VATRegisterPrintRequestPageHandler.
         REPORT.Run(REPORT::"VAT Register - Print"); // Opens handler - VATRegisterPrintRequestPageHandler.
     end;
 
@@ -339,7 +339,7 @@ codeunit 144160 "UT REP VAT Fiscal Register"
         LibraryVariableStorage.Dequeue(PrintingType);
         LibraryVariableStorage.Dequeue(PeriodEndingDate);
         VATRegisterPrint.VATRegister.SetValue(VATRegister);
-        VATRegisterPrint.PeriodStartingDate.SetValue(WorkDate);
+        VATRegisterPrint.PeriodStartingDate.SetValue(WorkDate());
         VATRegisterPrint.PeriodEndingDate.SetValue(PeriodEndingDate);
         VATRegisterPrint.PrintingType.SetValue(PrintingType);
         VATRegisterPrint.FiscalCode.SetValue(LibraryUTUtility.GetNewCode);

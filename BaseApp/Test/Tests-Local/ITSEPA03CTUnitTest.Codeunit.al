@@ -528,7 +528,7 @@ codeunit 144016 "IT - SEPA.03 CT Unit Test"
 
     local procedure CreateAbiCabCode(var ABICABCodes: Record "ABI/CAB Codes")
     begin
-        ABICABCodes.Init;
+        ABICABCodes.Init();
         ABICABCodes.Validate(ABI, LibraryUtility.GenerateRandomCode(ABICABCodes.FieldNo(ABI), DATABASE::"ABI/CAB Codes"));
         ABICABCodes.Validate(CAB, LibraryUtility.GenerateRandomCode(ABICABCodes.FieldNo(CAB), DATABASE::"ABI/CAB Codes"));
         ABICABCodes.Insert(true);
@@ -550,7 +550,7 @@ codeunit 144016 "IT - SEPA.03 CT Unit Test"
         TempVendorBillLine.FindSet();
         repeat
             VerifyPaymentLine(PaymentExportData, TempVendorBillLine, VendorBillHeader, TempVendorBillLine."Amount to Pay");
-        until TempVendorBillLine.Next = 0;
+        until TempVendorBillLine.Next() = 0;
     end;
 
     local procedure VerifyPaymentErrors(PaymentDocNo: Code[20]; LineNo: Integer; ExpErrorText: Text; ExpCount: Integer)

@@ -23,7 +23,7 @@ report 412 "Purchase Prepmt. Doc. - Test"
                 column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
                 {
                 }
-                column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+                column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
                 {
                 }
                 column(STRSUBSTNO_Text001_PurchHeaderFilter_; StrSubstNo(Text001, PurchHeaderFilter))
@@ -456,7 +456,7 @@ report 412 "Purchase Prepmt. Doc. - Test"
                                         AddError(
                                           StrSubstNo(
                                             Text016,
-                                             VATPostingSetup.TableCaption,
+                                             VATPostingSetup.TableCaption(),
                                             "VAT Bus. Posting Group", "VAT Prod. Posting Group"));
                                 if VATPostingSetup."Purch. Prepayments Account" = '' then
                                     AddError(StrSubstNo(Text006, VATPostingSetup.FieldCaption("Purch. Prepayments Account")))
@@ -465,9 +465,10 @@ report 412 "Purchase Prepmt. Doc. - Test"
                                         if GLAcc.Blocked then
                                             AddError(
                                               StrSubstNo(
-                                                Text008, GLAcc.FieldCaption(Blocked), false, GLAcc.TableCaption, "No."));
+                                                Text008, GLAcc.FieldCaption(Blocked), false, GLAcc.TableCaption(), "No."));
                                     end else
-                                        AddError(StrSubstNo(Text007, GLAcc.TableCaption, VATPostingSetup."Purch. Prepayments Account"));
+                                        AddError(StrSubstNo(Text007, GLAcc.TableCaption(), VATPostingSetup."Purch. Prepayments Account"));
+
                                 if ErrorCounter = CurrentErrorCount then
                                     if PurchPostPrepmt.PrepmtAmount("Purchase Line", DocumentType) <> 0 then begin
                                         PurchPostPrepmt.FillInvLineBuffer("Purchase Header", "Purchase Line", TempPrepmtInvLineBuf2);
@@ -476,7 +477,7 @@ report 412 "Purchase Prepmt. Doc. - Test"
                             end;
 
                             TempPrepmtInvLineBuf2.Reset();
-                            TempPrepmtInvLineBuf2.DeleteAll
+                            TempPrepmtInvLineBuf2.DeleteAll();
                         end;
                     }
 
@@ -499,8 +500,8 @@ report 412 "Purchase Prepmt. Doc. - Test"
                         PurchPostPrepmt.CalcVATAmountLines("Purchase Header", TempPurchLine, TempVATAmountLine, DocumentType);
                         TempVATAmountLine.DeductVATAmountLine(TempVATAmountLineDeduct);
                         PurchPostPrepmt.UpdateVATOnLines("Purchase Header", TempPurchLine, TempVATAmountLine, DocumentType);
-                        VATAmount := TempVATAmountLine.GetTotalVATAmount;
-                        VATBaseAmount := TempVATAmountLine.GetTotalVATBase;
+                        VATAmount := TempVATAmountLine.GetTotalVATAmount();
+                        VATBaseAmount := TempVATAmountLine.GetTotalVATBase();
                     end;
                 }
                 dataitem(Blank; "Integer")
@@ -540,7 +541,7 @@ report 412 "Purchase Prepmt. Doc. - Test"
                     column(TotalExclVATText; TotalExclVATText)
                     {
                     }
-                    column(VATAmountLine_VATAmountText; TempVATAmountLine.VATAmountText)
+                    column(VATAmountLine_VATAmountText; TempVATAmountLine.VATAmountText())
                     {
                     }
                     column(TotalInclVATText; TotalInclVATText)
@@ -680,13 +681,13 @@ report 412 "Purchase Prepmt. Doc. - Test"
                         "Prepayment Inv. Line Buffer" := TempPrepmtInvLineBuf;
 
                         if not DimMgt.CheckDimIDComb(TempPrepmtInvLineBuf."Dimension Set ID") then
-                            AddError(DimMgt.GetDimCombErr);
+                            AddError(DimMgt.GetDimCombErr());
                         TableID[1] := DimMgt.PurchLineTypeToTableID("Purchase Line".Type::"G/L Account");
                         No[1] := "Prepayment Inv. Line Buffer"."G/L Account No.";
                         TableID[2] := DATABASE::Job;
                         No[2] := "Prepayment Inv. Line Buffer"."Job No.";
                         if not DimMgt.CheckDimValuePosting(TableID, No, TempPrepmtInvLineBuf."Dimension Set ID") then
-                            AddError(DimMgt.GetDimValuePostingErr);
+                            AddError(DimMgt.GetDimValuePostingErr());
 
                         SumPrepaymInvLineBufferAmount := SumPrepaymInvLineBufferAmount + "Prepayment Inv. Line Buffer".Amount;
                     end;
@@ -825,7 +826,7 @@ report 412 "Purchase Prepmt. Doc. - Test"
                     AddError(StrSubstNo(Text000, FieldCaption("Document Type")));
 
                 if not PurchPostPrepmt.CheckOpenPrepaymentLines("Purchase Header", DocumentType) then
-                    AddError(Text005);
+                    AddError(DocumentErrorsMgt.GetNothingToPostErrorMsg());
 
                 if (DocumentType = DocumentType::Invoice) and ("Prepayment Due Date" = 0D) then
                     AddError(StrSubstNo(Text006, FieldCaption("Prepayment Due Date")));
@@ -869,7 +870,7 @@ report 412 "Purchase Prepmt. Doc. - Test"
 
                 DimSetEntry.SetRange("Dimension Set ID", "Dimension Set ID");
                 if not DimMgt.CheckDimIDComb("Dimension Set ID") then
-                    AddError(DimMgt.GetDimCombErr);
+                    AddError(DimMgt.GetDimCombErr());
 
                 TableID[1] := DATABASE::Vendor;
                 No[1] := "Pay-to Vendor No.";
@@ -882,7 +883,7 @@ report 412 "Purchase Prepmt. Doc. - Test"
                 TableID[5] := DATABASE::"Responsibility Center";
                 No[5] := "Responsibility Center";
                 if not DimMgt.CheckDimValuePosting(TableID, No, "Dimension Set ID") then
-                    AddError(DimMgt.GetDimValuePostingErr);
+                    AddError(DimMgt.GetDimValuePostingErr());
             end;
         }
     }
@@ -925,7 +926,7 @@ report 412 "Purchase Prepmt. Doc. - Test"
 
     trigger OnPreReport()
     begin
-        PurchHeaderFilter := "Purchase Header".GetFilters;
+        PurchHeaderFilter := "Purchase Header".GetFilters();
 
         if DocumentType = DocumentType::Invoice then
             PrepmtDocText := Text014
@@ -948,6 +949,7 @@ report 412 "Purchase Prepmt. Doc. - Test"
         LineDimSetEntry: Record "Dimension Set Entry";
         GenJnlCheckLine: Codeunit "Gen. Jnl.-Check Line";
         PurchPostPrepmt: Codeunit "Purchase-Post Prepayments";
+        DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
         DimMgt: Codeunit DimensionManagement;
         DocumentType: Option Invoice,"Credit Memo",Statistic;
         VATAmount: Decimal;
@@ -968,7 +970,6 @@ report 412 "Purchase Prepmt. Doc. - Test"
         Text002: Label 'Total %1';
         Text003: Label 'Total %1 Incl. VAT';
         Text004: Label 'Total %1 Excl. VAT';
-        Text005: Label 'There is nothing to post.';
         Text006: Label '%1 must be specified.';
         Text007: Label '%1 %2 does not exist.';
         Text008: Label '%1 must not be %2 for %3 %4.';
@@ -1010,10 +1011,10 @@ report 412 "Purchase Prepmt. Doc. - Test"
         ContinuedCaption_Control150Lbl: Label 'Continued';
         TotalCaptionLbl: Label 'Total';
 
-    local procedure AddError(Text: Text[250])
+    local procedure AddError(Text: Text)
     begin
         ErrorCounter := ErrorCounter + 1;
-        ErrorText[ErrorCounter] := Text;
+        ErrorText[ErrorCounter] := CopyStr(Text, 1, MaxStrLen(ErrorText[ErrorCounter]));
     end;
 
     local procedure CheckVend(VendNo: Code[20]; FieldCaption: Text[30])
@@ -1025,7 +1026,7 @@ report 412 "Purchase Prepmt. Doc. - Test"
             exit;
         end;
         if not Vend.Get(VendNo) then begin
-            AddError(StrSubstNo(Text007, Vend.TableCaption, VendNo));
+            AddError(StrSubstNo(Text007, Vend.TableCaption(), VendNo));
             exit;
         end;
         if Vend."Privacy Blocked" then
@@ -1033,7 +1034,7 @@ report 412 "Purchase Prepmt. Doc. - Test"
 
         if Vend.Blocked in [Vend.Blocked::All, Vend.Blocked::Payment] then
             AddError(
-              StrSubstNo(Text008, Vend.FieldCaption(Blocked), Vend.Blocked, Vend.TableCaption, VendNo));
+              StrSubstNo(Text008, Vend.FieldCaption(Blocked), Vend.Blocked, Vend.TableCaption(), VendNo));
     end;
 
     local procedure CheckPostingDate(PurchaseHeader: Record "Purchase Header")
@@ -1053,7 +1054,7 @@ report 412 "Purchase Prepmt. Doc. - Test"
                 AddError(StrSubstNo(Text006, PurchaseHeader.FieldCaption("Posting Date")));
             PurchaseHeader."Posting Date" <> NormalDate(PurchaseHeader."Posting Date"):
                 AddError(StrSubstNo(Text009, PurchaseHeader.FieldCaption("Posting Date")));
-            GenJnlCheckLine.DateNotAllowed(PurchaseHeader."Posting Date"):
+            GenJnlCheckLine.DateNotAllowed(PurchaseHeader."Posting Date", PurchaseHeader."Journal Templ. Name"):
                 AddError(StrSubstNo(Text010, PurchaseHeader.FieldCaption("Posting Date")));
         end;
     end;

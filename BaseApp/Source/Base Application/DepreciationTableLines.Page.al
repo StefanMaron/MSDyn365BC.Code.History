@@ -13,12 +13,12 @@ page 5660 "Depreciation Table Lines"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Period No."; "Period No.")
+                field("Period No."; Rec."Period No.")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the number of the depreciation period that this line applies to.';
                 }
-                field("Period Depreciation %"; "Period Depreciation %")
+                field("Period Depreciation %"; Rec."Period Depreciation %")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the depreciation percentage to apply to the period for this line.';
@@ -29,12 +29,12 @@ page 5660 "Depreciation Table Lines"
                         CurrPage.Update(true);
                     end;
                 }
-                field("No. of Units in Period"; "No. of Units in Period")
+                field("No. of Units in Period"; Rec."No. of Units in Period")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the units produced by the asset this depreciation table applies to, during the period when this line applies.';
                 }
-                field("Anticipated %"; "Anticipated %")
+                field("Anticipated %"; Rec."Anticipated %")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the anticipated depreciation percentage.';
@@ -45,7 +45,7 @@ page 5660 "Depreciation Table Lines"
                         CurrPage.Update(true);
                     end;
                 }
-                field("Accelerated/Reduced %"; "Accelerated/Reduced %")
+                field("Accelerated/Reduced %"; Rec."Accelerated/Reduced %")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the accelerated or reduced depreciation percent.';
@@ -87,7 +87,7 @@ page 5660 "Depreciation Table Lines"
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        NewRecord;
+        NewRecord();
     end;
 
     var

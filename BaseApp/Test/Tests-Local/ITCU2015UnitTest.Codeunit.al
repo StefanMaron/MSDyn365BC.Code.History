@@ -37,7 +37,7 @@ codeunit 144021 "IT - CU 2015 Unit Test"
 
         VendorNo := CreateVendor;
 
-        CreateWithholdingTaxAndContributionEntry(VendorNo, ConstReason::A, 0, WorkDate, WorkDate);
+        CreateWithholdingTaxAndContributionEntry(VendorNo, ConstReason::A, 0, WorkDate(), WorkDate());
         asserterror Export('');
 
         Assert.ExpectedError('You need to specify a Signing Company Official');
@@ -53,7 +53,7 @@ codeunit 144021 "IT - CU 2015 Unit Test"
         Initialize();
 
         LibraryVariableStorage.Enqueue(
-          StrSubstNo('There were no Withholding Tax entries for the year %1.', Format(Date2DMY(WorkDate, 3))));
+          StrSubstNo('There were no Withholding Tax entries for the year %1.', Format(Date2DMY(WorkDate(), 3))));
         SigningCompanyOfficialNo := CreateCompanyOfficial;
         Export(SigningCompanyOfficialNo);
     end;
@@ -75,7 +75,7 @@ codeunit 144021 "IT - CU 2015 Unit Test"
         VendorNo := CreateVendor;
 
         // [GIVEN] Withholding Tax "WT" for "V"
-        EntryNo := CreateWithholdingTaxAndContributionEntry(VendorNo, ConstReason::A, 0, WorkDate, WorkDate);
+        EntryNo := CreateWithholdingTaxAndContributionEntry(VendorNo, ConstReason::A, 0, WorkDate(), WorkDate());
         SigningCompanyOfficialNo := CreateCompanyOfficial;
 
         // [GIVEN] Set non-zero "WT"."Non Taxable Amount By Treaty"
@@ -107,7 +107,7 @@ codeunit 144021 "IT - CU 2015 Unit Test"
         VendorNo := CreateNonResidentVendorNo;
 
         // [GIVEN] Withholding Tax for "V" with "Non Taxable Amount By Treaty"
-        EntryNo := CreateWithholdingTaxAndContributionEntry(VendorNo, ConstReason::A, 0, WorkDate, WorkDate);
+        EntryNo := CreateWithholdingTaxAndContributionEntry(VendorNo, ConstReason::A, 0, WorkDate(), WorkDate());
         SigningCompanyOfficialNo := CreateCompanyOfficial;
 
         // [GIVEN] Set non-zero "WT"."Non Taxable Amount By Treaty"
@@ -134,8 +134,8 @@ codeunit 144021 "IT - CU 2015 Unit Test"
 
         VendorNo := CreateVendor;
 
-        CreateWithholdingTaxAndContributionEntry(VendorNo, ConstReason::A, 0, WorkDate, WorkDate);
-        CreateWithholdingTaxAndContributionEntry(VendorNo, ConstReason::A, 0, WorkDate, WorkDate);
+        CreateWithholdingTaxAndContributionEntry(VendorNo, ConstReason::A, 0, WorkDate(), WorkDate());
+        CreateWithholdingTaxAndContributionEntry(VendorNo, ConstReason::A, 0, WorkDate(), WorkDate());
         SigningCompanyOfficialNo := CreateCompanyOfficial;
         Filename := Export(SigningCompanyOfficialNo);
 
@@ -155,8 +155,8 @@ codeunit 144021 "IT - CU 2015 Unit Test"
 
         VendorNo := CreateVendor;
 
-        CreateWithholdingTaxAndContributionEntry(VendorNo, ConstReason::A, 0, WorkDate, WorkDate);
-        CreateWithholdingTaxAndContributionEntry(VendorNo, ConstReason::B, 0, WorkDate, WorkDate);
+        CreateWithholdingTaxAndContributionEntry(VendorNo, ConstReason::A, 0, WorkDate(), WorkDate());
+        CreateWithholdingTaxAndContributionEntry(VendorNo, ConstReason::B, 0, WorkDate(), WorkDate());
         SigningCompanyOfficialNo := CreateCompanyOfficial;
         Filename := Export(SigningCompanyOfficialNo);
 
@@ -181,7 +181,7 @@ codeunit 144021 "IT - CU 2015 Unit Test"
         VendorNo := CreateVendor;
 
         CreateTaxRepresentative;
-        CreateWithholdingTaxAndContributionEntry(VendorNo, ConstReason::A, 0, WorkDate, WorkDate);
+        CreateWithholdingTaxAndContributionEntry(VendorNo, ConstReason::A, 0, WorkDate(), WorkDate());
         SigningCompanyOfficialNo := CreateCompanyOfficial;
         Filename := Export(SigningCompanyOfficialNo);
 
@@ -203,8 +203,8 @@ codeunit 144021 "IT - CU 2015 Unit Test"
         VendorNo := CreateVendor;
 
         // [GIVEN] Withholding Tax for current and previous periods with Reason = ""
-        WHTEntryNo := CreateWithholdingTaxAndContributionEntry(VendorNo, ConstReason::" ", 0, WorkDate, WorkDate);
-        CreateWithholdingTaxAndContributionEntry(VendorNo, ConstReason::" ", -1, WorkDate, WorkDate);
+        WHTEntryNo := CreateWithholdingTaxAndContributionEntry(VendorNo, ConstReason::" ", 0, WorkDate(), WorkDate());
+        CreateWithholdingTaxAndContributionEntry(VendorNo, ConstReason::" ", -1, WorkDate(), WorkDate());
         SigningCompanyOfficialNo := CreateCompanyOfficial;
 
         // [WHEN] Run Withholding Tax Export
@@ -230,8 +230,8 @@ codeunit 144021 "IT - CU 2015 Unit Test"
         VendorNo := CreateVendor;
 
         // [GIVEN] Withholding Tax for current period with Reason = "A" and previous period with Reason Code = ""
-        CreateWithholdingTaxAndContributionEntry(VendorNo, ConstReason::A, 0, WorkDate, WorkDate);
-        CreateWithholdingTaxAndContributionEntry(VendorNo, ConstReason::" ", -1, WorkDate, WorkDate);
+        CreateWithholdingTaxAndContributionEntry(VendorNo, ConstReason::A, 0, WorkDate(), WorkDate());
+        CreateWithholdingTaxAndContributionEntry(VendorNo, ConstReason::" ", -1, WorkDate(), WorkDate());
         SigningCompanyOfficialNo := CreateCompanyOfficial;
 
         // [WHEN] Run Withholding Tax Export
@@ -255,8 +255,8 @@ codeunit 144021 "IT - CU 2015 Unit Test"
         VendorNo := CreateVendor;
 
         // [GIVEN] Withholding Tax for current period with Reason Code = "A" and previous period with Reason Code = "B"
-        CreateWithholdingTaxAndContributionEntry(VendorNo, ConstReason::A, 0, WorkDate, WorkDate);
-        CreateWithholdingTaxAndContributionEntry(VendorNo, ConstReason::B, -1, WorkDate, WorkDate);
+        CreateWithholdingTaxAndContributionEntry(VendorNo, ConstReason::A, 0, WorkDate(), WorkDate());
+        CreateWithholdingTaxAndContributionEntry(VendorNo, ConstReason::B, -1, WorkDate(), WorkDate());
         SigningCompanyOfficialNo := CreateCompanyOfficial;
 
         // [WHEN] Run Withholding Tax Export
@@ -283,10 +283,10 @@ codeunit 144021 "IT - CU 2015 Unit Test"
 
         // [GIVEN] Withholding tax entry with Related Date in current year (e.g. the year 2018)
         VendorNo := CreateVendor;
-        CreateWithholdingTaxAndContributionEntry(VendorNo, ConstReason::A, 0, WorkDate, WorkDate);
+        CreateWithholdingTaxAndContributionEntry(VendorNo, ConstReason::A, 0, WorkDate(), WorkDate());
 
         // [GIVEN] Withholding tax entry with Related Date in previous year (e.g. the year 2017)
-        EntryNo := CreateWithholdingTaxAndContributionEntry(VendorNo, ConstReason::A, 0, WorkDate, CalcDate('<-1Y>', WorkDate));
+        EntryNo := CreateWithholdingTaxAndContributionEntry(VendorNo, ConstReason::A, 0, WorkDate(), CalcDate('<-1Y>', WorkDate()));
         WithholdingTax.Get(EntryNo);
 
         SigningCompanyOfficialNo := CreateCompanyOfficial;
@@ -393,22 +393,22 @@ codeunit 144021 "IT - CU 2015 Unit Test"
         // [GIVEN] "Non-Taxable Income Type" = 1 in Withholding Tax
         VendorNo := CreateVendor;
         CreateWithholdingTaxWithAU001006AndContributionEntry(
-          VendorNo, ConstReason::G, 0, WorkDate, WorkDate, WithholdingTax."Non-Taxable Income Type"::"1");
+          VendorNo, ConstReason::G, 0, WorkDate(), WorkDate, WithholdingTax."Non-Taxable Income Type"::"1");
 
         // [GIVEN] Withholding tax entry with Reason = "H" and year 2017
         // [GIVEN] "Non-Taxable Income Type" = 2 in Withholding Tax
         CreateWithholdingTaxWithAU001006AndContributionEntry(
-          VendorNo, ConstReason::H, 0, WorkDate, WorkDate, WithholdingTax."Non-Taxable Income Type"::"2");
+          VendorNo, ConstReason::H, 0, WorkDate(), WorkDate, WithholdingTax."Non-Taxable Income Type"::"2");
 
         // [GIVEN] Withholding tax entry with Reason = "I" and year 2017
         // [GIVEN] "Non-Taxable Income Type" = 5 in Withholding Tax
         CreateWithholdingTaxWithAU001006AndContributionEntry(
-          VendorNo, ConstReason::I, 0, WorkDate, WorkDate, WithholdingTax."Non-Taxable Income Type"::"5");
+          VendorNo, ConstReason::I, 0, WorkDate(), WorkDate, WithholdingTax."Non-Taxable Income Type"::"5");
 
         // [GIVEN] Withholding tax entry with Reason = "ZO" and year 2017
         // [GIVEN] "Non-Taxable Income Type" = 6 in Withholding Tax
         CreateWithholdingTaxWithAU001006AndContributionEntry(
-          VendorNo, ConstReason::ZO, 0, WorkDate, WorkDate, WithholdingTax."Non-Taxable Income Type"::"6");
+          VendorNo, ConstReason::ZO, 0, WorkDate(), WorkDate, WithholdingTax."Non-Taxable Income Type"::"6");
 
         // [WHEN] Export withholding taxes
         SigningCompanyOfficialNo := CreateCompanyOfficial;
@@ -420,17 +420,17 @@ codeunit 144021 "IT - CU 2015 Unit Test"
 
         // [THEN] Record with "AU001001" = "G", field "AU001002" = 2016, "AU001006" = 1
         ValidateRecordDAndH(
-          VendorNo, SigningCompanyOfficialNo, ConstReason::G, 3, Format(Date2DMY(WorkDate, 3) - 1),
+          VendorNo, SigningCompanyOfficialNo, ConstReason::G, 3, Format(Date2DMY(WorkDate(), 3) - 1),
           WithholdingTax."Non-Taxable Income Type"::"1");
 
         // [THEN] Record with "AU001001" = "H", field "AU001002" = 2016, "AU001006" = 2
         ValidateRecordDAndH(
-          VendorNo, SigningCompanyOfficialNo, ConstReason::H, 5, Format(Date2DMY(WorkDate, 3) - 1),
+          VendorNo, SigningCompanyOfficialNo, ConstReason::H, 5, Format(Date2DMY(WorkDate(), 3) - 1),
           WithholdingTax."Non-Taxable Income Type"::"2");
 
         // [THEN] Record with "AU001001" = "I", field "AU001002" = 2016, "AU001006" = 5
         ValidateRecordDAndH(
-          VendorNo, SigningCompanyOfficialNo, ConstReason::I, 7, Format(Date2DMY(WorkDate, 3) - 1),
+          VendorNo, SigningCompanyOfficialNo, ConstReason::I, 7, Format(Date2DMY(WorkDate(), 3) - 1),
           WithholdingTax."Non-Taxable Income Type"::"5");
 
         // [THEN] Record with "AU001001" = "ZO", without field "AU001002", "AU001006" = 6
@@ -455,7 +455,7 @@ codeunit 144021 "IT - CU 2015 Unit Test"
         VendorNo := CreateVendor;
         WHTEntryNo :=
           CreateWithholdingTaxWithAU001006AndContributionEntry(
-            VendorNo, ConstReason::A, 0, WorkDate, WorkDate, WithholdingTax."Non-Taxable Income Type"::" ");
+            VendorNo, ConstReason::A, 0, WorkDate(), WorkDate, WithholdingTax."Non-Taxable Income Type"::" ");
 
         // [WHEN] Export withholding taxes
         SigningCompanyOfficialNo := CreateCompanyOfficial;
@@ -482,7 +482,7 @@ codeunit 144021 "IT - CU 2015 Unit Test"
         // [GIVEN] Withholding tax entry with Non-Taxable Income Type" = " " and Base - Excluded amount = "X+Y"
         WithholdingTax.Get(
           CreateWithholdingTaxWithAU001006AndContributionEntry(
-            CreateVendor(), ConstReason::A, 0, WorkDate, WorkDate, WithholdingTax."Non-Taxable Income Type"::" "));
+            CreateVendor(), ConstReason::A, 0, WorkDate(), WorkDate, WithholdingTax."Non-Taxable Income Type"::" "));
 
         // [GIVEN] Created Withholding tax lines for entry. Line 1 = Amount X and Non-taxable income type 1
         // [GIVEN] Line 2 = Amount Y and Non-taxable income type 2
@@ -521,7 +521,7 @@ codeunit 144021 "IT - CU 2015 Unit Test"
         // [GIVEN] Withholding tax entry with Non-Taxable Income Type" = " " and Base - Excluded amount = "X+Y"
         WithholdingTax.Get(
           CreateWithholdingTaxWithAU001006AndContributionEntry(
-            CreateVendor(), ConstReason::A, 0, WorkDate, WorkDate, WithholdingTax."Non-Taxable Income Type"::" "));
+            CreateVendor(), ConstReason::A, 0, WorkDate(), WorkDate, WithholdingTax."Non-Taxable Income Type"::" "));
 
         // [GIVEN] Created Withholding tax lines for entry. Line 1 = Amount X and Non-taxable income type 1
         // [GIVEN] Line 2 = Amount Y + 50 and Non-taxable income type 2
@@ -558,7 +558,7 @@ codeunit 144021 "IT - CU 2015 Unit Test"
         // [GIVEN] Withholding tax entry with Non-taxable income type empty
         WithholdingTax.Get(
           CreateWithholdingTaxWithAU001006AndContributionEntry(
-            CreateVendor(), ConstReason::A, 0, WorkDate, WorkDate, WithholdingTax."Non-Taxable Income Type"::" "));
+            CreateVendor(), ConstReason::A, 0, WorkDate(), WorkDate, WithholdingTax."Non-Taxable Income Type"::" "));
 
         // [GIVEN] Withholding Tax card page was open
         WithholdingTaxCard.OpenEdit();
@@ -590,7 +590,7 @@ codeunit 144021 "IT - CU 2015 Unit Test"
         // [GIVEN] Withholding tax entry with Non-taxable income type empty
         WithholdingTax.Get(
           CreateWithholdingTaxWithAU001006AndContributionEntry(
-            CreateVendor(), ConstReason::A, 0, WorkDate, WorkDate, WithholdingTax."Non-Taxable Income Type"::"7"));
+            CreateVendor(), ConstReason::A, 0, WorkDate(), WorkDate, WithholdingTax."Non-Taxable Income Type"::"7"));
 
         // [GIVEN] Withholding Tax card page was open
         WithholdingTaxCard.OpenEdit();
@@ -622,7 +622,7 @@ codeunit 144021 "IT - CU 2015 Unit Test"
         // [GIVEN] Withholding tax entry with Non-taxable income type empty
         WithholdingTax.Get(
           CreateWithholdingTaxWithAU001006AndContributionEntry(
-            CreateVendor(), ConstReason::A, 0, WorkDate, WorkDate, WithholdingTax."Non-Taxable Income Type"::"7"));
+            CreateVendor(), ConstReason::A, 0, WorkDate(), WorkDate, WithholdingTax."Non-Taxable Income Type"::"7"));
 
         // [GIVEN] Withholding Tax card page was open
         WithholdingTaxCard.OpenEdit();
@@ -652,7 +652,7 @@ codeunit 144021 "IT - CU 2015 Unit Test"
         // [GIVEN] Withholding tax entry with Non-taxable income type empty and Base - ExcludedAmount = X
         WithholdingTax.Get(
           CreateWithholdingTaxWithAU001006AndContributionEntry(
-            CreateVendor(), ConstReason::A, 0, WorkDate, WorkDate, WithholdingTax."Non-Taxable Income Type"::" "));
+            CreateVendor(), ConstReason::A, 0, WorkDate(), WorkDate, WithholdingTax."Non-Taxable Income Type"::" "));
 
         // [GIVEN] Withholding Tax card page was open
         WithholdingTaxCard.OpenEdit();
@@ -685,7 +685,7 @@ codeunit 144021 "IT - CU 2015 Unit Test"
         // [GIVEN] Withholding tax entry with Non-taxable income type empty and Base - ExcludedAmount = X
         WithholdingTax.Get(
           CreateWithholdingTaxWithAU001006AndContributionEntry(
-            CreateVendor(), ConstReason::A, 0, WorkDate, WorkDate, WithholdingTax."Non-Taxable Income Type"::" "));
+            CreateVendor(), ConstReason::A, 0, WorkDate(), WorkDate, WithholdingTax."Non-Taxable Income Type"::" "));
 
         // [GIVEN] Withholding Tax card page was open
         WithholdingTaxCard.OpenEdit();
@@ -723,7 +723,7 @@ codeunit 144021 "IT - CU 2015 Unit Test"
         // [GIVEN] Withholding tax entry with Non-taxable income type empty and Base ExcludedAmount = X
         WithholdingTax.Get(
           CreateWithholdingTaxWithAU001006AndContributionEntry(
-            CreateVendor(), ConstReason::A, 0, WorkDate, WorkDate, WithholdingTax."Non-Taxable Income Type"::" "));
+            CreateVendor(), ConstReason::A, 0, WorkDate(), WorkDate, WithholdingTax."Non-Taxable Income Type"::" "));
 
         // [GIVEN] Withholding Tax card page was open
         WithholdingTaxCard.OpenEdit();
@@ -872,13 +872,13 @@ codeunit 144021 "IT - CU 2015 Unit Test"
         VendorNo := CreateVendor();
 
         // [GIVEN] Withholding tax entry 1 with "Non-Taxable Income Type" = " "
-        CreateWithholdingTaxWithAU001006WithEmptyNonTaxable(VendorNo, ConstReason::A, 0, WorkDate, WorkDate);
+        CreateWithholdingTaxWithAU001006WithEmptyNonTaxable(VendorNo, ConstReason::A, 0, WorkDate(), WorkDate());
 
         // [GIVEN] Withholding tax entry 2 with "Non-Taxable Income Type" = 2
-        CreateWithholdingTaxWithAU001006(VendorNo, ConstReason::A, 0, WorkDate, WorkDate, WithholdingTax."Non-Taxable Income Type"::"2");
+        CreateWithholdingTaxWithAU001006(VendorNo, ConstReason::A, 0, WorkDate(), WorkDate, WithholdingTax."Non-Taxable Income Type"::"2");
 
         // [GIVEN] Withholding Tax entry 3 with "Non-Taxable Income Type" = " "
-        CreateWithholdingTaxWithAU001006WithEmptyNonTaxable(VendorNo, ConstReason::A, 0, WorkDate, WorkDate);
+        CreateWithholdingTaxWithAU001006WithEmptyNonTaxable(VendorNo, ConstReason::A, 0, WorkDate(), WorkDate());
 
         // [WHEN] Export withholding taxes
         Filename := Export(CreateCompanyOfficial);
@@ -1070,12 +1070,12 @@ codeunit 144021 "IT - CU 2015 Unit Test"
         with Contributions do begin
             if FindLast() then;
             "Entry No." += 1;
-            Init;
+            Init();
 
             "Company Amount" := LibraryRandom.RandDec(100, 2);
             "Free-Lance Amount" := LibraryRandom.RandDec(100, 2);
 
-            Insert;
+            Insert();
         end;
     end;
 
@@ -1084,7 +1084,7 @@ codeunit 144021 "IT - CU 2015 Unit Test"
         VATReportSetup: Record "VAT Report Setup";
     begin
         VATReportSetup.Get();
-        VATReportSetup."Intermediary Date" := WorkDate;
+        VATReportSetup."Intermediary Date" := WorkDate();
         VATReportSetup.Modify();
 
         CompanyInformation.Validate("Tax Representative No.", CreateVendor);
@@ -1134,8 +1134,8 @@ codeunit 144021 "IT - CU 2015 Unit Test"
         EntryNo: Integer;
     begin
         VendorNo := CreateVendor;
-        CreateWithholdingTaxAndContributionEntry(VendorNo, ConstReason::A, 0, WorkDate, WorkDate);
-        EntryNo := CreateWithholdingTaxAndContributionEntry(VendorNo, ConstReason::A, 0, CalcDate('<-1Y>', WorkDate), WorkDate);
+        CreateWithholdingTaxAndContributionEntry(VendorNo, ConstReason::A, 0, WorkDate(), WorkDate());
+        EntryNo := CreateWithholdingTaxAndContributionEntry(VendorNo, ConstReason::A, 0, CalcDate('<-1Y>', WorkDate()), WorkDate());
         WithholdingTax.Get(EntryNo);
         WithholdingTax.Validate("Withholding Tax Amount", WithholdingTax."Taxable Base" + 2);
         WithholdingTax.Modify(true);
@@ -1205,7 +1205,7 @@ codeunit 144021 "IT - CU 2015 Unit Test"
     begin
         Filename := TemporaryPath + LibraryUtility.GenerateGUID + '.dcm';
         WithholdingTaxExport.SetServerFileName(Filename);
-        WithholdingTaxExport.Export(Date2DMY(WorkDate, 3), SigningCompanyOfficialNo, 1, CommunicationNumber, '1');
+        WithholdingTaxExport.Export(Date2DMY(WorkDate(), 3), SigningCompanyOfficialNo, 1, CommunicationNumber, '1');
     end;
 
     local procedure ExportCertificazioneUnica(): Text
@@ -1218,7 +1218,7 @@ codeunit 144021 "IT - CU 2015 Unit Test"
 
         Filename := TemporaryPath + LibraryUtility.GenerateGUID + '.dcm';
         WithholdingTaxExport.SetServerFileName(Filename);
-        WithholdingTaxExport.Export(Date2DMY(WorkDate, 3), SigningCompanyOfficialNo, 1, CommunicationNumber, '1');
+        WithholdingTaxExport.Export(Date2DMY(WorkDate(), 3), SigningCompanyOfficialNo, 1, CommunicationNumber, '1');
 
         exit(Filename);
     end;

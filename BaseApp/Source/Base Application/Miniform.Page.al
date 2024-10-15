@@ -22,28 +22,28 @@ page 7700 Miniform
                     ApplicationArea = ADCS;
                     ToolTip = 'Specifies your description of the miniform with the code on the header.';
                 }
-                field("Form Type"; "Form Type")
+                field("Form Type"; Rec."Form Type")
                 {
                     ApplicationArea = ADCS;
                     ToolTip = 'Specifies the form type of the miniform.';
                 }
-                field("No. of Records in List"; "No. of Records in List")
+                field("No. of Records in List"; Rec."No. of Records in List")
                 {
                     ApplicationArea = ADCS;
                     ToolTip = 'Specifies the number of records that will be sent to the handheld if the miniform on the header is either Selection List or Data List.';
                 }
-                field("Handling Codeunit"; "Handling Codeunit")
+                field("Handling Codeunit"; Rec."Handling Codeunit")
                 {
                     ApplicationArea = ADCS;
                     LookupPageID = Objects;
                     ToolTip = 'Specifies the number of the codeunit containing the code that handles this miniform.';
                 }
-                field("Next Miniform"; "Next Miniform")
+                field("Next Miniform"; Rec."Next Miniform")
                 {
                     ApplicationArea = ADCS;
                     ToolTip = 'Specifies which form will be shown next when a selection is made in a Data List form or when the last field is entered on a Card form.';
                 }
-                field("Start Miniform"; "Start Miniform")
+                field("Start Miniform"; Rec."Start Miniform")
                 {
                     ApplicationArea = ADCS;
                     ToolTip = 'Specifies that this field is the first miniform that will be shown to the user when starting up a handheld.';

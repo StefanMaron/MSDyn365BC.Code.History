@@ -245,7 +245,7 @@ codeunit 144205 "FatturaPA Attachments"
     begin
         SalesInvoiceHeader.Get(CreatePostSalesDoc("Sales Document Type"::Invoice));
         RecRef.Get(SalesInvoiceHeader.RecordId);
-        RecRef.SetRecFilter;
+        RecRef.SetRecFilter();
     end;
 
     local procedure CreatePostSalesCrMemo(var RecRef: RecordRef)
@@ -254,7 +254,7 @@ codeunit 144205 "FatturaPA Attachments"
     begin
         SalesCrMemoHeader.Get(CreatePostSalesDoc("Sales Document Type"::"Credit Memo"));
         RecRef.Get(SalesCrMemoHeader.RecordId);
-        RecRef.SetRecFilter;
+        RecRef.SetRecFilter();
     end;
 
     local procedure CreatePostSalesDoc(DocumentType: Enum "Sales Document Type"): Code[20]
@@ -345,7 +345,7 @@ codeunit 144205 "FatturaPA Attachments"
             ActualValue := XMLBuffer.Value;
         Assert.AreEqual(
           ExpectedValue, ActualValue, StrSubstNo(UnexpectedElementValueErr, ExpectedName, ExpectedValue, ActualValue));
-        XMLBuffer.Next;
+        XMLBuffer.Next();
     end;
 
     [PageHandler]

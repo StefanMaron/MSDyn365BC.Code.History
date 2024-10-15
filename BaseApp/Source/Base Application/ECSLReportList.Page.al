@@ -14,29 +14,29 @@ page 323 "ECSL Report List"
         {
             repeater(Group)
             {
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = VAT;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
-                field("VAT Report Config. Code"; "VAT Report Config. Code")
+                field("VAT Report Config. Code"; Rec."VAT Report Config. Code")
                 {
                     ApplicationArea = VAT;
                     ToolTip = 'Specifies the appropriate configuration code for EC Sales List Reports.';
                     Visible = false;
                 }
-                field("VAT Report Type"; "VAT Report Type")
+                field("VAT Report Type"; Rec."VAT Report Type")
                 {
                     ApplicationArea = VAT;
                     ToolTip = 'Specifies if you want to create a new VAT report, or if you want to change a previously submitted report.';
                     Visible = false;
                 }
-                field("Start Date"; "Start Date")
+                field("Start Date"; Rec."Start Date")
                 {
                     ApplicationArea = VAT;
                     ToolTip = 'Specifies the first date of the reporting period.';
                 }
-                field("End Date"; "End Date")
+                field("End Date"; Rec."End Date")
                 {
                     ApplicationArea = VAT;
                     ToolTip = 'Specifies the last date of the EC sales list report.';
@@ -46,12 +46,12 @@ page 323 "ECSL Report List"
                     ApplicationArea = VAT;
                     ToolTip = 'Specifies the status of the report.';
                 }
-                field("No. Series"; "No. Series")
+                field("No. Series"; Rec."No. Series")
                 {
                     ApplicationArea = VAT;
                     ToolTip = 'Specifies the number series from which entry or record numbers are assigned to new entries or records.';
                 }
-                field("Original Report No."; "Original Report No.")
+                field("Original Report No."; Rec."Original Report No.")
                 {
                     ApplicationArea = VAT;
                     ToolTip = 'Specifies the number of the original report.';
@@ -87,10 +87,19 @@ page 323 "ECSL Report List"
                 ApplicationArea = VAT;
                 Caption = 'Report Setup';
                 Image = Setup;
-                Promoted = true;
-                PromotedCategory = Process;
                 RunObject = Page "VAT Report Setup";
                 ToolTip = 'Specifies the setup that will be used for the VAT reports submission.';
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("Report Setup_Promoted"; "Report Setup")
+                {
+                }
             }
         }
     }

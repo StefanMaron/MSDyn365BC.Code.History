@@ -5,21 +5,22 @@ codeunit 5673 "Insurance Jnl.-B.Post+Print"
     trigger OnRun()
     begin
         InsuranceJnlBatch.Copy(Rec);
-        Code;
+        Code();
         Copy(InsuranceJnlBatch);
     end;
 
     var
-        Text000: Label 'Do you want to post the journals and print the posting report?';
-        Text001: Label 'The journals were successfully posted.';
-        Text002: Label 'It was not possible to post all of the journals. ';
-        Text003: Label 'The journals that were not successfully posted are now marked.';
         InsuranceJnlTempl: Record "Insurance Journal Template";
         InsuranceJnlBatch: Record "Insurance Journal Batch";
         InsuranceJnlLine: Record "Insurance Journal Line";
         InsuranceReg: Record "Insurance Register";
         InsuranceJnlPostBatch: Codeunit "Insurance Jnl.-Post Batch";
         JournalWithErrors: Boolean;
+
+        Text000: Label 'Do you want to post the journals and print the posting report?';
+        Text001: Label 'The journals were successfully posted.';
+        Text002: Label 'It was not possible to post all of the journals. ';
+        Text003: Label 'The journals that were not successfully posted are now marked.';
 
     local procedure "Code"()
     var
@@ -44,7 +45,7 @@ codeunit 5673 "Insurance Jnl.-B.Post+Print"
                 Clear(InsuranceJnlPostBatch);
                 if InsuranceJnlPostBatch.Run(InsuranceJnlLine) then begin
                     if InsuranceReg.Get(InsuranceJnlLine."Line No.") then begin
-                        InsuranceReg.SetRecFilter;
+                        InsuranceReg.SetRecFilter();
                         REPORT.Run(InsuranceJnlTempl."Posting Report ID", false, false, InsuranceReg);
                     end;
                     Mark(false);
@@ -63,7 +64,7 @@ codeunit 5673 "Insurance Jnl.-B.Post+Print"
                   Text003);
 
             if not Find('=><') then begin
-                Reset;
+                Reset();
                 FilterGroup := 2;
                 SetRange("Journal Template Name", "Journal Template Name");
                 FilterGroup := 0;

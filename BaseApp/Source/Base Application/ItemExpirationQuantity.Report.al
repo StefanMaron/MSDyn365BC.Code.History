@@ -11,7 +11,7 @@ report 5809 "Item Expiration - Quantity"
         dataitem(Header; "Integer")
         {
             DataItemTableView = SORTING(Number) WHERE(Number = CONST(0));
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(ItemCaption; Item.TableCaption + ': ' + ItemFilter)
@@ -146,7 +146,7 @@ report 5809 "Item Expiration - Quantity"
         trigger OnOpenPage()
         begin
             if PeriodStartDate[5] = 0D then
-                PeriodStartDate[5] := CalcDate('<CM>', WorkDate);
+                PeriodStartDate[5] := CalcDate('<CM>', WorkDate());
             if Format(PeriodLength) = '' then
                 Evaluate(PeriodLength, '<1M>');
         end;
@@ -167,7 +167,7 @@ report 5809 "Item Expiration - Quantity"
     var
         NegPeriodLength: DateFormula;
     begin
-        ItemFilter := Item.GetFilters;
+        ItemFilter := Item.GetFilters();
 
         PeriodStartDate[6] := DMY2Date(31, 12, 9999);
         Evaluate(NegPeriodLength, StrSubstNo('-%1', Format(PeriodLength)));
@@ -176,13 +176,14 @@ report 5809 "Item Expiration - Quantity"
     end;
 
     var
-        Text002: Label 'Enter the ending date.';
+        PeriodLength: DateFormula;
         ItemFilter: Text;
         InvtQty: array[6] of Decimal;
         PeriodStartDate: array[7] of Date;
-        PeriodLength: DateFormula;
         i: Integer;
         TotalInvtQty: Decimal;
+
+        Text002: Label 'Enter the ending date.';
         Text003: Label 'The minimum permitted value is 1D.';
 
     procedure InitializeRequest(NewPeriodStartDate: Date; NewPeriodLength: DateFormula)

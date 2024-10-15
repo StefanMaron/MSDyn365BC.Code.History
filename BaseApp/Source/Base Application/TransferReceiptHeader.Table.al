@@ -365,7 +365,7 @@ table 5746 "Transfer Receipt Header"
 
     procedure ShowDimensions()
     begin
-        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption, "No."));
+        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption(), "No."));
     end;
 
     procedure CopyFromTransferHeader(TransHeader: Record "Transfer Header")

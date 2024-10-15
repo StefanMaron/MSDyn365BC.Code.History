@@ -6,17 +6,11 @@ codeunit 5633 "FA Jnl.-Post Batch"
     trigger OnRun()
     begin
         FAJnlLine.Copy(Rec);
-        Code;
+        Code();
         Rec := FAJnlLine;
     end;
 
     var
-        Text001: Label 'Journal Batch Name    #1##########\\';
-        Text002: Label 'Checking lines        #2######\';
-        Text003: Label 'Posting lines         #3###### @4@@@@@@@@@@@@@\';
-        Text004: Label 'Updating lines        #5###### @6@@@@@@@@@@@@@';
-        Text005: Label 'Posting lines         #3###### @4@@@@@@@@@@@@@';
-        Text006: Label 'A maximum of %1 posting number series can be used in each journal.';
         FAJnlLine: Record "FA Journal Line";
         FAJnlLine2: Record "FA Journal Line";
         FAJnlLine3: Record "FA Journal Line";
@@ -24,7 +18,7 @@ codeunit 5633 "FA Jnl.-Post Batch"
         FAJnlBatch: Record "FA Journal Batch";
         FAReg: Record "FA Register";
         FALedgEntry: Record "FA Ledger Entry";
-        NoSeries: Record "No. Series" temporary;
+        TempNoSeries: Record "No. Series" temporary;
         FAJnlSetup: Record "FA Journal Setup";
         FAJnlCheckLine: Codeunit "FA Jnl.-Check Line";
         FAJnlPostLine: Codeunit "FA Jnl.-Post Line";
@@ -45,6 +39,13 @@ codeunit 5633 "FA Jnl.-Post Batch"
         Text008: Label '%1 compressed entries';
         GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
 
+        Text001: Label 'Journal Batch Name    #1##########\\';
+        Text002: Label 'Checking lines        #2######\';
+        Text003: Label 'Posting lines         #3###### @4@@@@@@@@@@@@@\';
+        Text004: Label 'Updating lines        #5###### @6@@@@@@@@@@@@@';
+        Text005: Label 'Posting lines         #3###### @4@@@@@@@@@@@@@';
+        Text006: Label 'A maximum of %1 posting number series can be used in each journal.';
+
     local procedure "Code"()
     var
         UpdateAnalysisView: Codeunit "Update Analysis View";
@@ -60,13 +61,13 @@ codeunit 5633 "FA Jnl.-Post Batch"
             FAJnlBatch.Get("Journal Template Name", "Journal Batch Name");
 
             if FAJnlTemplate.Recurring then begin
-                SetRange("FA Posting Date", 0D, WorkDate);
-                SetFilter("Expiration Date", '%1 | %2..', 0D, WorkDate);
+                SetRange("FA Posting Date", 0D, WorkDate());
+                SetFilter("Expiration Date", '%1 | %2..', 0D, WorkDate());
             end;
 
             if not Find('=><') then begin
                 if PreviewMode then
-                    GenJnlPostPreview.ThrowError;
+                    GenJnlPostPreview.ThrowError();
                 "Line No." := 0;
                 Commit();
                 exit;
@@ -113,13 +114,13 @@ codeunit 5633 "FA Jnl.-Post Batch"
                 FARegNo := 1;
 
             // Post lines
-            PostLines;
+            PostLines();
 
             if FAReg.FindLast() then;
             if FAReg."No." <> FARegNo then
                 FARegNo := 0;
 
-            Init;
+            Init();
             "Line No." := FARegNo;
 
             // Update/delete lines
@@ -164,17 +165,17 @@ codeunit 5633 "FA Jnl.-Post Batch"
                     CreateNewFAJnlLine();
                 end;
             if FAJnlBatch."No. Series" <> '' then
-                NoSeriesMgt.SaveNoSeries;
-            if NoSeries.Find('-') then
+                NoSeriesMgt.SaveNoSeries();
+            if TempNoSeries.Find('-') then
                 repeat
-                    Evaluate(PostingNoSeriesNo, NoSeries.Description);
-                    NoSeriesMgt2[PostingNoSeriesNo].SaveNoSeries;
-                until NoSeries.Next() = 0;
+                    Evaluate(PostingNoSeriesNo, TempNoSeries.Description);
+                    NoSeriesMgt2[PostingNoSeriesNo].SaveNoSeries();
+                until TempNoSeries.Next() = 0;
 
             OnBeforeCommit(FARegNo);
 
             if PreviewMode then
-                GenJnlPostPreview.ThrowError;
+                GenJnlPostPreview.ThrowError();
 
             Commit();
             Clear(FAJnlCheckLine);
@@ -296,7 +297,7 @@ codeunit 5633 "FA Jnl.-Post Batch"
 
             CompressDepr[2].Copy(CompressDepr[1]);
             if not CompressDepr[2].Find('-') then
-                CompressDepr[1].Insert
+                CompressDepr[1].Insert()
             else begin
                 if CompressDepr[2].Find('-') then
                     repeat
@@ -384,7 +385,7 @@ codeunit 5633 "FA Jnl.-Post Batch"
     [Scope('OnPrem')]
     procedure TestGLAcc(var GLAcc: Record "G/L Account")
     begin
-        GLAcc.CheckGLAcc;
+        GLAcc.CheckGLAcc();
         GLAcc.TestField("Gen. Posting Type", GLAcc."Gen. Posting Type"::" ");
         GLAcc.TestField("Gen. Bus. Posting Group", '');
         GLAcc.TestField("Gen. Prod. Posting Group", '');
@@ -420,18 +421,18 @@ codeunit 5633 "FA Jnl.-Post Batch"
                         if "Document No." = LastDocNo then
                             "Document No." := LastPostedDocNo
                         else begin
-                            if not NoSeries.Get("Posting No. Series") then begin
+                            if not TempNoSeries.Get("Posting No. Series") then begin
                                 NoOfPostingNoSeries := NoOfPostingNoSeries + 1;
                                 if NoOfPostingNoSeries > ArrayLen(NoSeriesMgt2) then
                                     Error(
                                       Text006,
                                       ArrayLen(NoSeriesMgt2));
-                                NoSeries.Code := "Posting No. Series";
-                                NoSeries.Description := Format(NoOfPostingNoSeries);
-                                NoSeries.Insert();
+                                TempNoSeries.Code := "Posting No. Series";
+                                TempNoSeries.Description := Format(NoOfPostingNoSeries);
+                                TempNoSeries.Insert();
                             end;
                             LastDocNo := "Document No.";
-                            Evaluate(PostingNoSeriesNo, NoSeries.Description);
+                            Evaluate(PostingNoSeriesNo, TempNoSeries.Description);
                             "Document No." := NoSeriesMgt2[PostingNoSeriesNo].GetNextNo("Posting No. Series", "FA Posting Date", false);
                             LastPostedDocNo := "Document No.";
                         end;

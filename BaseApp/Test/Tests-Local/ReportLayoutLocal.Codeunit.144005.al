@@ -982,7 +982,7 @@ codeunit 144005 "Report Layout - Local"
         // [GIVEN] Created Payment Gen. Journal Line with Amount 250 at 1/4/2019
         LibraryJournals.CreateGenJournalLineWithBatch(GenJournalLine, GenJournalLine."Document Type"::Payment,
           GenJournalLine."Account Type"::Vendor, PurchaseHeader."Buy-from Vendor No.", AmountToPay);
-        GenJournalLine.Validate("Posting Date", CalcDate(StrSubstNo('<%1D>', Days[2] + 1), WorkDate));
+        GenJournalLine.Validate("Posting Date", CalcDate(StrSubstNo('<%1D>', Days[2] + 1), WorkDate()));
         GenJournalLine.Modify(true);
 
         // [GIVEN] Applied Amount -100 to first Vendor Ledger Entry and -150 to second Vendor Ledger Entry and Posted Gen. Journal Line
@@ -1036,7 +1036,7 @@ codeunit 144005 "Report Layout - Local"
         // [GIVEN] Created Payment Gen. Journal Line with Amount -250 at 1/4/2019
         LibraryJournals.CreateGenJournalLineWithBatch(GenJournalLine, GenJournalLine."Document Type"::Payment,
           GenJournalLine."Account Type"::Customer, SalesHeader."Sell-to Customer No.", -AmountToPay);
-        GenJournalLine.Validate("Posting Date", CalcDate(StrSubstNo('<%1D>', Days[2] + 1), WorkDate));
+        GenJournalLine.Validate("Posting Date", CalcDate(StrSubstNo('<%1D>', Days[2] + 1), WorkDate()));
         GenJournalLine.Modify(true);
 
         // [GIVEN] Applied Amount 100 to first Customer Ledger Entry and 150 to second Customer Ledger Entry and Posted Gen. Journal Line
@@ -1079,7 +1079,7 @@ codeunit 144005 "Report Layout - Local"
         RemainingAmount[1] := Amount[1] - AppliedAmount[1] - AppliedAmount[3];
         RemainingAmount[2] := Amount[2] - AppliedAmount[2] - AppliedAmount[4];
         LibraryPurchase.CreateVendor(Vendor);
-        Vendor.SetRecFilter;
+        Vendor.SetRecFilter();
 
         // [GIVEN] Posted Purchase Invoices: "I1" with Amount 1200 and "I2" with Amount 960 both for same Vendor
         CreateTwoGenJnlLinesForSameAccountInSameBatch(
@@ -1133,7 +1133,7 @@ codeunit 144005 "Report Layout - Local"
         RemainingAmount[1] := 0;
         RemainingAmount[2] := 0;
         LibraryPurchase.CreateVendor(Vendor);
-        Vendor.SetRecFilter;
+        Vendor.SetRecFilter();
 
         // [GIVEN] Posted Purchase Invoices: "I1" with Amount 1200 and "I2" with Amount 960 both for same Vendor
         CreateTwoGenJnlLinesForSameAccountInSameBatch(
@@ -1188,7 +1188,7 @@ codeunit 144005 "Report Layout - Local"
         RemainingAmount[1] := 0;
         RemainingAmount[2] := 0;
         LibraryPurchase.CreateVendor(Vendor);
-        Vendor.SetRecFilter;
+        Vendor.SetRecFilter();
 
         // [GIVEN] Posted Purchase Invoices: "I1" with Amount 1200 and "I2" with Amount 960 both for same Vendor
         CreateTwoGenJnlLinesForSameAccountInSameBatch(
@@ -1242,7 +1242,7 @@ codeunit 144005 "Report Layout - Local"
         RemainingAmount[1] := Amount[1] - AppliedAmount[1] - AppliedAmount[3];
         RemainingAmount[2] := Amount[2] - AppliedAmount[2] - AppliedAmount[4];
         LibraryPurchase.CreateVendor(Vendor);
-        Vendor.SetRecFilter;
+        Vendor.SetRecFilter();
 
         // [GIVEN] Posted Payments: "P1" with Amount 1800 and "P2" with Amount 210 both for same Vendor
         CreateTwoGenJnlLinesForSameAccountInSameBatch(
@@ -1296,7 +1296,7 @@ codeunit 144005 "Report Layout - Local"
         RemainingAmount[1] := 0;
         RemainingAmount[2] := 0;
         LibraryPurchase.CreateVendor(Vendor);
-        Vendor.SetRecFilter;
+        Vendor.SetRecFilter();
 
         // [GIVEN] Posted Payments: "P1" with Amount 1800 and "P2" with Amount 360 both for same Vendor
         CreateTwoGenJnlLinesForSameAccountInSameBatch(
@@ -1351,7 +1351,7 @@ codeunit 144005 "Report Layout - Local"
         RemainingAmount[1] := 0;
         RemainingAmount[2] := 0;
         LibraryPurchase.CreateVendor(Vendor);
-        Vendor.SetRecFilter;
+        Vendor.SetRecFilter();
 
         // [GIVEN] Posted Payments: "P1" with Amount 1800 and "P2" with Amount 1000 both for same Vendor
         CreateTwoGenJnlLinesForSameAccountInSameBatch(
@@ -1405,7 +1405,7 @@ codeunit 144005 "Report Layout - Local"
         RemainingAmount[1] := Amount[1] - AppliedAmount[1] - AppliedAmount[3];
         RemainingAmount[2] := Amount[2] - AppliedAmount[2] - AppliedAmount[4];
         LibraryPurchase.CreateVendor(Vendor);
-        Vendor.SetRecFilter;
+        Vendor.SetRecFilter();
 
         // [GIVEN] Posted Purchase Invoices: "I1" with Amount 1200 and "I2" with Amount 960 both for same Vendor
         CreateTwoGenJnlLinesForSameAccountInSameBatch(
@@ -1461,7 +1461,7 @@ codeunit 144005 "Report Layout - Local"
         RemainingAmount[1] := 0;
         RemainingAmount[2] := 0;
         LibraryPurchase.CreateVendor(Vendor);
-        Vendor.SetRecFilter;
+        Vendor.SetRecFilter();
 
         // [GIVEN] Posted Purchase Invoices: "I1" with Amount 1200 and "I2" with Amount 960 both for same Vendor
         CreateTwoGenJnlLinesForSameAccountInSameBatch(
@@ -1518,7 +1518,7 @@ codeunit 144005 "Report Layout - Local"
         RemainingAmount[1] := 0;
         RemainingAmount[2] := 0;
         LibraryPurchase.CreateVendor(Vendor);
-        Vendor.SetRecFilter;
+        Vendor.SetRecFilter();
 
         // [GIVEN] Posted Purchase Invoices: "I1" with Amount 1200 and "I2" with Amount 960 both for same Vendor
         CreateTwoGenJnlLinesForSameAccountInSameBatch(
@@ -1574,7 +1574,7 @@ codeunit 144005 "Report Layout - Local"
         RemainingAmount[1] := Amount[1] - AppliedAmount[1] - AppliedAmount[3];
         RemainingAmount[2] := Amount[2] - AppliedAmount[2] - AppliedAmount[4];
         LibraryPurchase.CreateVendor(Vendor);
-        Vendor.SetRecFilter;
+        Vendor.SetRecFilter();
 
         // [GIVEN] Posted Credit Memos: "P1" with Amount 1800 and "P2" with Amount 210 both for same Vendor
         CreateTwoGenJnlLinesForSameAccountInSameBatch(
@@ -1629,7 +1629,7 @@ codeunit 144005 "Report Layout - Local"
         RemainingAmount[1] := 0;
         RemainingAmount[2] := 0;
         LibraryPurchase.CreateVendor(Vendor);
-        Vendor.SetRecFilter;
+        Vendor.SetRecFilter();
 
         // [GIVEN] Posted Credit Memos: "P1" with Amount 1800 and "P2" with Amount 360 both for same Vendor
         CreateTwoGenJnlLinesForSameAccountInSameBatch(
@@ -1685,7 +1685,7 @@ codeunit 144005 "Report Layout - Local"
         RemainingAmount[1] := 0;
         RemainingAmount[2] := 0;
         LibraryPurchase.CreateVendor(Vendor);
-        Vendor.SetRecFilter;
+        Vendor.SetRecFilter();
 
         // [GIVEN] Posted Credit Memos: "P1" with Amount 1800 and "P2" with Amount 1000 both for same Vendor
         CreateTwoGenJnlLinesForSameAccountInSameBatch(
@@ -1740,7 +1740,7 @@ codeunit 144005 "Report Layout - Local"
         RemainingAmount[1] := Amount[1] - AppliedAmount[1] - AppliedAmount[3];
         RemainingAmount[2] := Amount[2] - AppliedAmount[2] - AppliedAmount[4];
         LibrarySales.CreateCustomer(Customer);
-        Customer.SetRecFilter;
+        Customer.SetRecFilter();
 
         // [GIVEN] Posted Sales Invoices: "I1" with Amount 1200 and "I2" with Amount 960 both for same Customer
         CreateTwoGenJnlLinesForSameAccountInSameBatch(
@@ -1794,7 +1794,7 @@ codeunit 144005 "Report Layout - Local"
         RemainingAmount[1] := 0;
         RemainingAmount[2] := 0;
         LibrarySales.CreateCustomer(Customer);
-        Customer.SetRecFilter;
+        Customer.SetRecFilter();
 
         // [GIVEN] Posted Sales Invoices: "I1" with Amount 1200 and "I2" with Amount 960 both for same Customer
         CreateTwoGenJnlLinesForSameAccountInSameBatch(
@@ -1849,7 +1849,7 @@ codeunit 144005 "Report Layout - Local"
         RemainingAmount[1] := 0;
         RemainingAmount[2] := 0;
         LibrarySales.CreateCustomer(Customer);
-        Customer.SetRecFilter;
+        Customer.SetRecFilter();
 
         // [GIVEN] Posted Sales Invoices: "I1" with Amount 1200 and "I2" with Amount 960 both for same Customer
         CreateTwoGenJnlLinesForSameAccountInSameBatch(
@@ -1903,7 +1903,7 @@ codeunit 144005 "Report Layout - Local"
         RemainingAmount[1] := Amount[1] - AppliedAmount[1] - AppliedAmount[3];
         RemainingAmount[2] := Amount[2] - AppliedAmount[2] - AppliedAmount[4];
         LibrarySales.CreateCustomer(Customer);
-        Customer.SetRecFilter;
+        Customer.SetRecFilter();
 
         // [GIVEN] Posted Payments: "P1" with Amount 1800 and "P2" with Amount 210 both for same Customer
         CreateTwoGenJnlLinesForSameAccountInSameBatch(
@@ -1957,7 +1957,7 @@ codeunit 144005 "Report Layout - Local"
         RemainingAmount[1] := 0;
         RemainingAmount[2] := 0;
         LibrarySales.CreateCustomer(Customer);
-        Customer.SetRecFilter;
+        Customer.SetRecFilter();
 
         // [GIVEN] Posted Payments: "P1" with Amount 1800 and "P2" with Amount 360 both for same Customer
         CreateTwoGenJnlLinesForSameAccountInSameBatch(
@@ -2012,7 +2012,7 @@ codeunit 144005 "Report Layout - Local"
         RemainingAmount[1] := 0;
         RemainingAmount[2] := 0;
         LibrarySales.CreateCustomer(Customer);
-        Customer.SetRecFilter;
+        Customer.SetRecFilter();
 
         // [GIVEN] Posted Payments: "P1" with Amount 1800 and "P2" with Amount 1000 both for same Customer
         CreateTwoGenJnlLinesForSameAccountInSameBatch(
@@ -2066,7 +2066,7 @@ codeunit 144005 "Report Layout - Local"
         RemainingAmount[1] := Amount[1] - AppliedAmount[1] - AppliedAmount[3];
         RemainingAmount[2] := Amount[2] - AppliedAmount[2] - AppliedAmount[4];
         LibrarySales.CreateCustomer(Customer);
-        Customer.SetRecFilter;
+        Customer.SetRecFilter();
 
         // [GIVEN] Posted Sales Invoices: "I1" with Amount 1200 and "I2" with Amount 960 both for same Customer
         CreateTwoGenJnlLinesForSameAccountInSameBatch(
@@ -2122,7 +2122,7 @@ codeunit 144005 "Report Layout - Local"
         RemainingAmount[1] := 0;
         RemainingAmount[2] := 0;
         LibrarySales.CreateCustomer(Customer);
-        Customer.SetRecFilter;
+        Customer.SetRecFilter();
 
         // [GIVEN] Posted Sales Invoices: "I1" with Amount 1200 and "I2" with Amount 960 both for same Customer
         CreateTwoGenJnlLinesForSameAccountInSameBatch(
@@ -2179,7 +2179,7 @@ codeunit 144005 "Report Layout - Local"
         RemainingAmount[1] := 0;
         RemainingAmount[2] := 0;
         LibrarySales.CreateCustomer(Customer);
-        Customer.SetRecFilter;
+        Customer.SetRecFilter();
 
         // [GIVEN] Posted Sales Invoices: "I1" with Amount 1200 and "I2" with Amount 960 both for same Customer
         CreateTwoGenJnlLinesForSameAccountInSameBatch(
@@ -2235,7 +2235,7 @@ codeunit 144005 "Report Layout - Local"
         RemainingAmount[1] := Amount[1] - AppliedAmount[1] - AppliedAmount[3];
         RemainingAmount[2] := Amount[2] - AppliedAmount[2] - AppliedAmount[4];
         LibrarySales.CreateCustomer(Customer);
-        Customer.SetRecFilter;
+        Customer.SetRecFilter();
 
         // [GIVEN] Posted Credit Memos: "P1" with Amount 1800 and "P2" with Amount 210 both for same Customer
         CreateTwoGenJnlLinesForSameAccountInSameBatch(
@@ -2292,7 +2292,7 @@ codeunit 144005 "Report Layout - Local"
         RemainingAmount[1] := 0;
         RemainingAmount[2] := 0;
         LibrarySales.CreateCustomer(Customer);
-        Customer.SetRecFilter;
+        Customer.SetRecFilter();
 
         // [GIVEN] Posted Credit Memos: "P1" with Amount 1800 and "P2" with Amount 360 both for same Customer
         CreateTwoGenJnlLinesForSameAccountInSameBatch(
@@ -2350,7 +2350,7 @@ codeunit 144005 "Report Layout - Local"
         RemainingAmount[1] := 0;
         RemainingAmount[2] := 0;
         LibrarySales.CreateCustomer(Customer);
-        Customer.SetRecFilter;
+        Customer.SetRecFilter();
 
         // [GIVEN] Posted Credit Memos: "P1" with Amount 1800 and "P2" with Amount 1000 both for same Customer
         CreateTwoGenJnlLinesForSameAccountInSameBatch(
@@ -2620,7 +2620,7 @@ codeunit 144005 "Report Layout - Local"
         VendorLedgerEntry.Validate("Applies-to ID", GenJournalLine."Document No.");
         VendorLedgerEntry.Validate("Amount to Apply", AmountToApply1);
         VendorLedgerEntry.Modify(true);
-        VendorLedgerEntry.Next;
+        VendorLedgerEntry.Next();
         VendorLedgerEntry.Validate("Applies-to ID", GenJournalLine."Document No.");
         VendorLedgerEntry.Validate("Amount to Apply", AmountToApply2);
         VendorLedgerEntry.Modify(true);
@@ -2638,7 +2638,7 @@ codeunit 144005 "Report Layout - Local"
         CustLedgerEntry.Validate("Applies-to ID", GenJournalLine."Document No.");
         CustLedgerEntry.Validate("Amount to Apply", AmountToApply1);
         CustLedgerEntry.Modify(true);
-        CustLedgerEntry.Next;
+        CustLedgerEntry.Next();
         CustLedgerEntry.Validate("Applies-to ID", GenJournalLine."Document No.");
         CustLedgerEntry.Validate("Amount to Apply", AmountToApply2);
         CustLedgerEntry.Modify(true);
@@ -3053,7 +3053,7 @@ codeunit 144005 "Report Layout - Local"
             VendorLedgerEntry.CalcFields("Amount (LCY)");
             AmountLCY[Index] := -VendorLedgerEntry."Amount (LCY)";
             Index += 1;
-        until VendorLedgerEntry.Next = 0;
+        until VendorLedgerEntry.Next() = 0;
     end;
 
     local procedure GetAmountsFromInvoiceCustLedgerEntry(var AmountLCY: array[2] of Decimal; DocumentNo: Code[20])
@@ -3069,7 +3069,7 @@ codeunit 144005 "Report Layout - Local"
             CustLedgerEntry.CalcFields("Amount (LCY)");
             AmountLCY[Index] := CustLedgerEntry."Amount (LCY)";
             Index += 1;
-        until CustLedgerEntry.Next = 0;
+        until CustLedgerEntry.Next() = 0;
     end;
 
     local procedure RunVendorAccountBillsListReport(VendorNo: Code[20])
@@ -3266,7 +3266,7 @@ codeunit 144005 "Report Layout - Local"
     [Scope('OnPrem')]
     procedure VendorAccountBillsListRequestPageHandler(var VendorAccountBillsList: TestRequestPage "Vendor Account Bills List")
     begin
-        VendorAccountBillsList.EndingDate.SetValue(CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate));  // Using random Date.
+        VendorAccountBillsList.EndingDate.SetValue(CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate()));  // Using random Date.
         VendorAccountBillsList.SaveAsXml(LibraryReportDataSet.GetParametersFileName, LibraryReportDataSet.GetFileName);
     end;
 
@@ -3274,7 +3274,7 @@ codeunit 144005 "Report Layout - Local"
     [Scope('OnPrem')]
     procedure CustomerBillsListRequestPageHandler(var CustomerBillsList: TestRequestPage "Customer Bills List")
     begin
-        CustomerBillsList."Ending Date".SetValue(CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate));  // Using random Date.
+        CustomerBillsList."Ending Date".SetValue(CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate()));  // Using random Date.
         CustomerBillsList.SaveAsXml(LibraryReportDataSet.GetParametersFileName, LibraryReportDataSet.GetFileName);
     end;
 
@@ -3284,10 +3284,10 @@ codeunit 144005 "Report Layout - Local"
     var
         CostType: Option "Fiscal Cost","Average Cost","Weighted Average Cost","FIFO Cost","LIFO Cost","Discrete LIFO Cost";
     begin
-        FiscalInventoryValuation.CompetenceDate.SetValue(CalcDate('<-2Y>', WorkDate));
+        FiscalInventoryValuation.CompetenceDate.SetValue(CalcDate('<-2Y>', WorkDate()));
         FiscalInventoryValuation.CostType.SetValue(CostType::"Fiscal Cost");
         FiscalInventoryValuation.Item.SetFilter(
-          "Date Filter", StrSubstNo('%1..%2', CalcDate('<-2Y>', WorkDate), CalcDate('<+2Y>', WorkDate)));
+          "Date Filter", StrSubstNo('%1..%2', CalcDate('<-2Y>', WorkDate()), CalcDate('<+2Y>', WorkDate())));
         FiscalInventoryValuation.SaveAsPdf(FomatFileName(FiscalInventoryValuation.Caption));
     end;
 
@@ -3297,7 +3297,7 @@ codeunit 144005 "Report Layout - Local"
     var
         CostType: Option "Fiscal Cost","Average Cost","Weighted Average Cost","FIFO Cost","LIFO Cost","Discrete LIFO Cost";
     begin
-        FiscalInventoryValuation.CompetenceDate.SetValue(CalcDate('<-2Y>', WorkDate));
+        FiscalInventoryValuation.CompetenceDate.SetValue(CalcDate('<-2Y>', WorkDate()));
         FiscalInventoryValuation.CostType.SetValue(CostType::"Fiscal Cost");
         FiscalInventoryValuation.SaveAsPdf(FomatFileName(FiscalInventoryValuation.Caption));
     end;
@@ -3310,8 +3310,8 @@ codeunit 144005 "Report Layout - Local"
     begin
         RecDepreciationBook.FindFirst();
         DepreciationBook.DepreciationBook.SetValue(RecDepreciationBook.Code);
-        DepreciationBook.StartingDate.SetValue(CalcDate('<-2Y>', WorkDate));
-        DepreciationBook.EndingDate.SetValue(CalcDate('<+2Y>', WorkDate));
+        DepreciationBook.StartingDate.SetValue(CalcDate('<-2Y>', WorkDate()));
+        DepreciationBook.EndingDate.SetValue(CalcDate('<+2Y>', WorkDate()));
         DepreciationBook.PrintPerFixedAsset.SetValue(true);
         DepreciationBook.SaveAsPdf(FomatFileName(DepreciationBook.Caption));
     end;
@@ -3320,8 +3320,8 @@ codeunit 144005 "Report Layout - Local"
     [Scope('OnPrem')]
     procedure RHDepreciationBookCheckDates(var DepreciationBook: TestRequestPage "Depreciation Book")
     begin
-        Assert.AreEqual(CalcDate('<-CY>', WorkDate), DepreciationBook.StartingDate.AsDate, StartingDateErr);
-        Assert.AreEqual(CalcDate('<CY>', WorkDate), DepreciationBook.EndingDate.AsDate, EndingDateErr);
+        Assert.AreEqual(CalcDate('<-CY>', WorkDate()), DepreciationBook.StartingDate.AsDate, StartingDateErr);
+        Assert.AreEqual(CalcDate('<CY>', WorkDate()), DepreciationBook.EndingDate.AsDate, EndingDateErr);
     end;
 
     [RequestPageHandler]
@@ -3336,8 +3336,8 @@ codeunit 144005 "Report Layout - Local"
         LibraryVariableStorage.Dequeue(FiscalCode);
         VATRegister.FindFirst();
         VATRegisterPrint.VATRegister.SetValue(VATRegister.Code);
-        VATRegisterPrint.PeriodStartingDate.SetValue(CalcDate('<-2Y>', WorkDate));
-        VATRegisterPrint.PeriodEndingDate.SetValue(CalcDate('<+1Y>', WorkDate));
+        VATRegisterPrint.PeriodStartingDate.SetValue(CalcDate('<-2Y>', WorkDate()));
+        VATRegisterPrint.PeriodEndingDate.SetValue(CalcDate('<+1Y>', WorkDate()));
         VATRegisterPrint.RegisterCompanyNo.SetValue(RegisterCompany);
         VATRegisterPrint.FiscalCode.SetValue(FiscalCode);
         VATRegisterPrint.SaveAsPdf(FomatFileName(VATRegisterPrint.Caption));
@@ -3357,8 +3357,8 @@ codeunit 144005 "Report Layout - Local"
         AnnualVATComm2010.SeparateLedger.SetValue(true);
         AnnualVATComm2010.GroupSettlement.SetValue(true);
         AnnualVATComm2010.ExceptionalEvent.SetValue(true);
-        AnnualVATComm2010.StartDate.SetValue(CalcDate('<-3Y>', WorkDate));
-        AnnualVATComm2010.EndDate.SetValue(CalcDate('<+1Y>', WorkDate));
+        AnnualVATComm2010.StartDate.SetValue(CalcDate('<-3Y>', WorkDate()));
+        AnnualVATComm2010.EndDate.SetValue(CalcDate('<+1Y>', WorkDate()));
         AnnualVATComm2010.SaveAsPdf(FomatFileName(AnnualVATComm2010.Caption));
     end;
 
@@ -3367,7 +3367,7 @@ codeunit 144005 "Report Layout - Local"
     procedure RHAccountBookSheetPrint(var AccountBookSheetPrint: TestRequestPage "Account Book Sheet - Print")
     begin
         AccountBookSheetPrint."G/L Account".SetFilter(
-          "Date Filter", StrSubstNo('%1..%2', CalcDate('<-2Y>', WorkDate), CalcDate('<+2Y>', WorkDate)));
+          "Date Filter", StrSubstNo('%1..%2', CalcDate('<-2Y>', WorkDate()), CalcDate('<+2Y>', WorkDate())));
         AccountBookSheetPrint.SaveAsPdf(FomatFileName(AccountBookSheetPrint.Caption));
     end;
 

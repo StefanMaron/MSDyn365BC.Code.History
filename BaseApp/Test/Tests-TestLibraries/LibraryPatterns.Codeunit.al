@@ -161,7 +161,7 @@ codeunit 132212 "Library - Patterns"
     begin
         LibraryInventory.CreateItemJournalBatchByType(ItemJournalBatch, ItemJournalBatch."Template Type"::Consumption);
         EntryType := ItemJournalLine."Entry Type"::"Negative Adjmt.";
-        if ComponentItem.IsNonInventoriableType then
+        if ComponentItem.IsNonInventoriableType() then
             EntryType := ItemJournalLine."Entry Type"::Consumption;
         MAKEItemJournalLine(
           ItemJournalLine, ItemJournalBatch, ComponentItem, LocationCode, VariantCode, PostingDate,
@@ -875,7 +875,7 @@ codeunit 132212 "Library - Patterns"
         OutboundQty: Decimal;
     begin
         Clear(TempItemLedgerEntry);
-        Day1 := WorkDate;
+        Day1 := WorkDate();
 
         OutboundQty := LibraryRandom.RandInt(10);
         POSTNegativeAdjustment(Item, LocationCode, VariantCode, '', OutboundQty, Day1, LibraryRandom.RandDec(100, 2));
@@ -910,7 +910,7 @@ codeunit 132212 "Library - Patterns"
         InboundQty: Decimal;
     begin
         Clear(TempItemLedgerEntry);
-        Day1 := WorkDate;
+        Day1 := WorkDate();
 
         // Receive partially the Purchase Line, with or without invoicing.
         InboundQty := LibraryRandom.RandIntInRange(10, 20);
@@ -946,7 +946,7 @@ codeunit 132212 "Library - Patterns"
         InboundQty: Decimal;
     begin
         Clear(TempItemLedgerEntry);
-        Day1 := WorkDate;
+        Day1 := WorkDate();
 
         InboundQty := LibraryRandom.RandInt(10);
         MAKEPurchaseOrder(
@@ -967,7 +967,7 @@ codeunit 132212 "Library - Patterns"
         OutboundQty: Decimal;
     begin
         Clear(TempItemLedgerEntry);
-        Day1 := WorkDate;
+        Day1 := WorkDate();
 
         OutboundQty := LibraryRandom.RandInt(ReservEntry.Quantity);
         MAKESalesOrder(SalesHeader, SalesLine, Item, LocationCode, VariantCode, OutboundQty, Day1, LibraryRandom.RandDec(100, 2));
@@ -1007,10 +1007,10 @@ codeunit 132212 "Library - Patterns"
         QtySales1 := RandDec(0, QtyPurch1, 2);
         QtySales2 := RandDec(QtyPurch1 - QtySales1, QtyPurch1 - QtySales1 + QtyPurch2, 2);
 
-        MAKEInbound(Item, QtyPurch1, WorkDate, TempItemJournalLine);
-        MAKEInbound(Item, QtyPurch2, WorkDate, TempItemJournalLine);
+        MAKEInbound(Item, QtyPurch1, WorkDate(), TempItemJournalLine);
+        MAKEInbound(Item, QtyPurch2, WorkDate(), TempItemJournalLine);
 
-        SHIPSales(SalesLine, Item, QtySales1, WorkDate);
+        SHIPSales(SalesLine, Item, QtySales1, WorkDate());
         SHIPSales(SalesLineSplit, Item, QtySales2, WorkDate + 1);
     end;
 
@@ -1030,7 +1030,7 @@ codeunit 132212 "Library - Patterns"
         Qty2 := RandDec(10, 20, 2);
         Qty3 := RandDec(10, 20, 2);
 
-        MAKEInbound(Item, Qty1, WorkDate, TempItemJournalLine);
+        MAKEInbound(Item, Qty1, WorkDate(), TempItemJournalLine);
         UnitCost1 := TempItemJournalLine."Unit Amount";
         MAKEInbound(Item, Qty2, WorkDate + 1, TempItemJournalLine);
         UnitCost2 := TempItemJournalLine."Unit Amount";
@@ -1059,13 +1059,13 @@ codeunit 132212 "Library - Patterns"
     begin
         Qty := RandDec(10, 20, 2);
 
-        MAKEInbound(Item, Qty, WorkDate, TempItemJournalLine);
+        MAKEInbound(Item, Qty, WorkDate(), TempItemJournalLine);
 
-        SHIPSales(SalesLine, Item, Qty / 2, WorkDate);
+        SHIPSales(SalesLine, Item, Qty / 2, WorkDate());
         POSTSalesLine(SalesLine, true, true);
 
-        RECEIVESalesReturn(SalesLineReturn, SalesLine, WorkDate);
-        SHIPSales(SalesLine, Item, Qty, WorkDate);
+        RECEIVESalesReturn(SalesLineReturn, SalesLine, WorkDate());
+        SHIPSales(SalesLine, Item, Qty, WorkDate());
     end;
 
     procedure GRPHSeveralSplitApplication(Item: Record Item; var SalesLine: Record "Sales Line"; var TempItemJournalLine: Record "Item Journal Line" temporary)
@@ -1077,7 +1077,7 @@ codeunit 132212 "Library - Patterns"
 
     procedure GRPHSalesOnly(Item: Record Item; var SalesLine: Record "Sales Line")
     begin
-        SHIPSales(SalesLine, Item, RandDec(10, 20, 2), WorkDate);
+        SHIPSales(SalesLine, Item, RandDec(10, 20, 2), WorkDate());
     end;
 
     procedure GRPHApplyInboundToUnappliedOutbound(var Item: Record Item; var SalesLine: Record "Sales Line")
@@ -1091,9 +1091,9 @@ codeunit 132212 "Library - Patterns"
         QtyIn1 := RandDec(0, QtyOut / 2, 2);
         QtyIn2 := QtyOut - QtyIn1 + RandDec(0, 10, 2);
 
-        SHIPSales(SalesLine, Item, QtyOut, WorkDate);
+        SHIPSales(SalesLine, Item, QtyOut, WorkDate());
 
-        MAKEInbound(Item, QtyIn1, WorkDate - 1, TempItemJournalLine);
+        MAKEInbound(Item, QtyIn1, WorkDate() - 1, TempItemJournalLine);
         MAKEInbound(Item, QtyIn2, WorkDate - 2, TempItemJournalLine);
     end;
 
@@ -1102,8 +1102,8 @@ codeunit 132212 "Library - Patterns"
         QtyIn: Decimal;
     begin
         QtyIn := RandDec(10, 20, 2);
-        MAKEInbound(Item, QtyIn, WorkDate, TempItemJournalLine);
-        SHIPSales(SalesLine, Item, RandDec(0, QtyIn, 2), WorkDate);
+        MAKEInbound(Item, QtyIn, WorkDate(), TempItemJournalLine);
+        SHIPSales(SalesLine, Item, RandDec(0, QtyIn, 2), WorkDate());
     end;
 
     procedure GRPHSalesReturnOnly(var Item: Record Item; var ReturnReceiptLine: Record "Return Receipt Line")
@@ -1128,7 +1128,7 @@ codeunit 132212 "Library - Patterns"
     begin
         GRPHSalesReturnOnly(Item, ReturnReceiptLine1);
         GRPHSalesReturnOnly(Item, ReturnReceiptLine2);
-        SHIPSales(SalesLine, Item, ReturnReceiptLine1.Quantity + RandDec(0, ReturnReceiptLine2.Quantity, 2), WorkDate);
+        SHIPSales(SalesLine, Item, ReturnReceiptLine1.Quantity + RandDec(0, ReturnReceiptLine2.Quantity, 2), WorkDate());
     end;
 
     procedure InsertTempILEFromLast(var TempItemLedgerEntry: Record "Item Ledger Entry" temporary)
@@ -1167,7 +1167,7 @@ codeunit 132212 "Library - Patterns"
                 TestField("Remaining Quantity", RefItemLedgerEntry."Remaining Quantity");
                 TestField("Invoiced Quantity", RefItemLedgerEntry."Invoiced Quantity");
                 TestField("Applies-to Entry", RefItemLedgerEntry."Applies-to Entry");
-                RefItemLedgerEntry.Next;
+                RefItemLedgerEntry.Next();
             until Next = 0;
         end;
     end;
@@ -1261,7 +1261,7 @@ codeunit 132212 "Library - Patterns"
                       StrSubstNo(TXTIncorrectEntry, TempRefItemJnlLine.FieldName(Quantity), ItemJnlLine."Line No."));
                     Assert.AreEqual(TempRefItemJnlLine."Inventory Value (Calculated)", ItemJnlLine."Inventory Value (Calculated)",
                       StrSubstNo(TXTIncorrectEntry, TempRefItemJnlLine.FieldName("Inventory Value (Calculated)"), ItemJnlLine."Line No."));
-                until ItemJnlLine.Next = 0;
+                until ItemJnlLine.Next() = 0;
         end else begin
             if ItemJnlLine.FindSet() then
                 repeat
@@ -1279,7 +1279,7 @@ codeunit 132212 "Library - Patterns"
                     Assert.AreEqual(
                       TempRefItemJnlLine."Inventory Value (Calculated)", ItemJnlLine."Inventory Value (Calculated)",
                       StrSubstNo(TXTIncorrectEntry, TempRefItemJnlLine.FieldName("Inventory Value (Calculated)"), ItemJnlLine."Applies-to Entry"));
-                until ItemJnlLine.Next = 0;
+                until ItemJnlLine.Next() = 0;
         end;
     end;
 
@@ -1318,7 +1318,7 @@ codeunit 132212 "Library - Patterns"
                     if not TempLocation.Insert() then;
                     TempItemVariant.Code := ItemLedgerEntry."Variant Code";
                     if not TempItemVariant.Insert() then;
-                until ItemLedgerEntry.Next = 0;
+                until ItemLedgerEntry.Next() = 0;
 
             if ByLocation then begin
                 TempLocation.FindSet();
@@ -1329,17 +1329,17 @@ codeunit 132212 "Library - Patterns"
                         repeat
                             TempItemLedgerEntry.SetRange("Variant Code", TempItemVariant.Code);
                             CreateRefJournalLinePerItem(TempItemLedgerEntry, TempRefItemJnlLine, PostingDate, ByLocation, ByVariant);
-                        until TempItemVariant.Next = 0;
+                        until TempItemVariant.Next() = 0;
                     end else
                         CreateRefJournalLinePerItem(TempItemLedgerEntry, TempRefItemJnlLine, PostingDate, ByLocation, ByVariant);
-                until TempLocation.Next = 0;
+                until TempLocation.Next() = 0;
             end else begin
                 if ByVariant then begin
                     TempItemVariant.FindSet();
                     repeat
                         TempItemLedgerEntry.SetRange("Variant Code", TempItemVariant.Code);
                         CreateRefJournalLinePerItem(TempItemLedgerEntry, TempRefItemJnlLine, PostingDate, ByLocation, ByVariant);
-                    until TempItemVariant.Next = 0;
+                    until TempItemVariant.Next() = 0;
                 end else
                     CreateRefJournalLinePerItem(TempItemLedgerEntry, TempRefItemJnlLine, PostingDate, ByLocation, ByVariant);
             end;
@@ -1348,7 +1348,7 @@ codeunit 132212 "Library - Patterns"
                 repeat
                     TempItemLedgerEntry := ItemLedgerEntry;
                     TempItemLedgerEntry.Insert();
-                until ItemLedgerEntry.Next = 0;
+                until ItemLedgerEntry.Next() = 0;
             CreateRefJournalLinePerILE(TempItemLedgerEntry, TempRefItemJnlLine, PostingDate);
         end;
     end;
@@ -1374,8 +1374,8 @@ codeunit 132212 "Library - Patterns"
                             RefCostAmount += CalculateCostAtDate(OutboundItemLedgerEntry."Entry No.", PostingDate) /
                               OutboundItemLedgerEntry.Quantity * ItemApplicationEntry.Quantity;
                         end;
-                    until ItemApplicationEntry.Next = 0;
-            until TempItemLedgerEntry.Next = 0;
+                    until ItemApplicationEntry.Next() = 0;
+            until TempItemLedgerEntry.Next() = 0;
 
         if RefQuantity = 0 then
             exit;
@@ -1416,7 +1416,7 @@ codeunit 132212 "Library - Patterns"
                     TempRefItemJnlLine."Applies-to Entry" := TempItemLedgerEntry."Entry No.";
                     TempRefItemJnlLine.Insert();
                 end;
-            until TempItemLedgerEntry.Next = 0;
+            until TempItemLedgerEntry.Next() = 0;
     end;
 
     local procedure CalculateCostAtDate(ItemLedgerEntryNo: Integer; PostingDate: Date): Decimal
@@ -1440,7 +1440,7 @@ codeunit 132212 "Library - Patterns"
         LibraryCosting.CheckAdjustment(Item);
 
         LibraryInventory.CreateItemJournalBatchByType(ItemJnlBatch, ItemJnlBatch."Template Type"::Revaluation);
-        LibraryInventory.MakeItemJournalLine(ItemJnlLine, ItemJnlBatch, Item, WorkDate, ItemJnlLine."Entry Type"::Purchase, 0);
+        LibraryInventory.MakeItemJournalLine(ItemJnlLine, ItemJnlBatch, Item, WorkDate(), ItemJnlLine."Entry Type"::Purchase, 0);
         TempItemLedgerEntry.FindFirst();
         EntryNo := TempItemLedgerEntry."Entry No.";
         ItemJnlLine.Validate("Applies-to Entry", EntryNo);
@@ -1486,7 +1486,7 @@ codeunit 132212 "Library - Patterns"
                 ItemJnlLine.Validate("Inventory Value (Revalued)",
                   Round(ItemJnlLine."Inventory Value (Revalued)" * Factor, LibraryERM.GetAmountRoundingPrecision));
                 ItemJnlLine.Modify();
-            until ItemJnlLine.Next = 0;
+            until ItemJnlLine.Next() = 0;
         LibraryInventory.PostItemJournalBatch(ItemJnlBatch);
     end;
 
@@ -1502,7 +1502,7 @@ codeunit 132212 "Library - Patterns"
                   Round(ItemJnlLine."Inventory Value (Revalued)" * Factor, LibraryERM.GetAmountRoundingPrecision));
                 ItemJnlLine.Validate("Applies-to Entry", AppliesToEntry);
                 ItemJnlLine.Modify();
-            until ItemJnlLine.Next = 0;
+            until ItemJnlLine.Next() = 0;
         LibraryInventory.PostItemJournalBatch(ItemJnlBatch);
     end;
 
@@ -1636,7 +1636,7 @@ codeunit 132212 "Library - Patterns"
         Clear(PurchaseHeader);
         PurchaseHeader."No." := NoSeriesManagement.GetNextNo(PurchaseNoSeries, PostingDate, true);
         PurchaseHeader."Document Type" := DocType;
-        PurchaseHeader.InitRecord;
+        PurchaseHeader.InitRecord();
         PurchaseHeader.Validate("Posting Date", PostingDate);
         PurchaseHeader.Validate("Order Date", PurchaseHeader."Posting Date");
         PurchaseHeader.Validate("Buy-from Vendor No.", Vendor."No.");
@@ -1681,15 +1681,15 @@ codeunit 132212 "Library - Patterns"
         VATBusPostingGroup.Get(Vendor."VAT Bus. Posting Group");
         NoSeriesLineSales.SetCurrentKey("Series Code", "Starting Date");
         NoSeriesLineSales.SetRange("Series Code", VATBusPostingGroup."Default Sales Operation Type");
-        NoSeriesLineSales.SetRange("Starting Date", 0D, WorkDate);
+        NoSeriesLineSales.SetRange("Starting Date", 0D, WorkDate());
         NoSeriesLineSales.FindLast();
-        NoSeriesLineSales.Validate("Last Date Used", WorkDate);
+        NoSeriesLineSales.Validate("Last Date Used", WorkDate());
         NoSeriesLineSales.Modify();
         NoSeriesLinePurchase.SetCurrentKey("Series Code", "Starting Date");
         NoSeriesLinePurchase.SetRange("Series Code", VATBusPostingGroup."Default Purch. Operation Type");
-        NoSeriesLinePurchase.SetRange("Starting Date", 0D, WorkDate);
+        NoSeriesLinePurchase.SetRange("Starting Date", 0D, WorkDate());
         NoSeriesLinePurchase.FindLast();
-        NoSeriesLinePurchase.Validate("Last Date Used", WorkDate);
+        NoSeriesLinePurchase.Validate("Last Date Used", WorkDate());
         NoSeriesLinePurchase.Modify();
         Vendor.Validate("Vendor Posting Group", LibraryPurchase.FindVendorPostingGroup);
         Vendor.Insert();

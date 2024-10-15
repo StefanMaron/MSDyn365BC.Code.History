@@ -14,7 +14,7 @@ report 5606 "Fixed Asset - Book Value 02"
             column(MainHeadLineText; MainHeadLineText)
             {
             }
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(TodayFormatted; Format(Today, 0, 4))
@@ -1123,7 +1123,7 @@ report 5606 "Fixed Asset - Book Value 02"
             begin
                 if not FADeprBook.Get("No.", DeprBookCode) then
                     CurrReport.Skip();
-                if SkipRecord then
+                if SkipRecord() then
                     CurrReport.Skip();
 
                 if GroupTotals = GroupTotals::"FA Posting Group" then
@@ -1175,7 +1175,7 @@ report 5606 "Fixed Asset - Book Value 02"
                             "No.", PostingType, Period2, StartingDate, EndingDate,
                             DeprBookCode, 0, 0, true, true);
 
-                    if GetPeriodDisposal then begin
+                    if GetPeriodDisposal() then begin
                         DisposalAmounts[i] := -(StartAmounts[i] + NetChangeAmounts[i]);
                         ReclassDisposalAmounts[i] := -(ReclassStartAmounts[i] + ReclassNetChangeAmounts[i]);
                     end else begin
@@ -1197,14 +1197,14 @@ report 5606 "Fixed Asset - Book Value 02"
                     BookValueAtStartingDate := BookValueAtStartingDate + StartAmounts[J];
                 end;
 
-                MakeGroupHeadLine;
-                UpdateTotals;
-                CreateGroupTotals;
+                MakeGroupHeadLine();
+                UpdateTotals();
+                CreateGroupTotals();
             end;
 
             trigger OnPostDataItem()
             begin
-                CreateTotals;
+                CreateTotals();
             end;
 
             trigger OnPreDataItem()
@@ -1294,7 +1294,7 @@ report 5606 "Fixed Asset - Book Value 02"
 
         trigger OnOpenPage()
         begin
-            GetDepreciationBookCode;
+            GetDepreciationBookCode();
         end;
     }
 
@@ -1309,28 +1309,20 @@ report 5606 "Fixed Asset - Book Value 02"
         if GroupTotals = GroupTotals::"FA Posting Group" then
             FAGenReport.SetFAPostingGroup("Fixed Asset", DeprBook.Code);
         FAGenReport.AppendFAPostingFilter("Fixed Asset", StartingDate, EndingDate);
-        FAFilter := "Fixed Asset".GetFilters;
+        FAFilter := "Fixed Asset".GetFilters();
         MainHeadLineText := Text000;
         if BudgetReport then
             MainHeadLineText := StrSubstNo('%1 %2', MainHeadLineText, Text001);
         DeprBookText :=
-          StrSubstNo('%1%2 %3', DeprBook.TableCaption, ':', DeprBookCode);
+          StrSubstNo('%1%2 %3', DeprBook.TableCaption(), ':', DeprBookCode);
         NumberOfTypes := 6;
-        MakeHeadLineText;
-        MakeGroupTotalText;
+        MakeHeadLineText();
+        MakeGroupTotalText();
         Period1 := Period1::"Before Starting Date";
         Period2 := Period2::"Net Change";
     end;
 
     var
-        Text000: Label 'Fixed Asset - Book Value 02';
-        Text001: Label '(Budget Report)';
-        Text002: Label 'Group Totals';
-        Text003: Label 'Reclassification';
-        Text004: Label 'Addition in Period';
-        Text005: Label 'Disposal in Period';
-        Text006: Label 'Group Total';
-        Text007: Label '%1 has been modified in fixed asset %2.';
         FASetup: Record "FA Setup";
         DeprBook: Record "Depreciation Book";
         FADeprBook: Record "FA Depreciation Book";
@@ -1386,6 +1378,15 @@ report 5606 "Fixed Asset - Book Value 02"
         EndingAmount: Decimal;
         AcquisitionDate: Date;
         DisposalDate: Date;
+
+        Text000: Label 'Fixed Asset - Book Value 02';
+        Text001: Label '(Budget Report)';
+        Text002: Label 'Group Totals';
+        Text003: Label 'Reclassification';
+        Text004: Label 'Addition in Period';
+        Text005: Label 'Disposal in Period';
+        Text006: Label 'Group Total';
+        Text007: Label '%1 has been modified in fixed asset %2.';
         CurrReport_PAGENOCaptionLbl: Label 'Page';
         TotalCaptionLbl: Label 'Total';
 

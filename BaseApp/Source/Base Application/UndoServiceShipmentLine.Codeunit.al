@@ -1,4 +1,4 @@
-﻿codeunit 5818 "Undo Service Shipment Line"
+codeunit 5818 "Undo Service Shipment Line"
 {
     Permissions = TableData "Item Application Entry" = rmd,
                   TableData "Service Line" = imd,
@@ -35,7 +35,7 @@
 
         LockTable();
         ServShptLine.Copy(Rec);
-        Code;
+        Code();
         Rec := ServShptLine;
     end;
 
@@ -255,7 +255,7 @@
             WhseUndoQty.InsertTempWhseJnlLine(
                 ItemJnlLine,
                 DATABASE::"Service Line", ServLine."Document Type"::Order.AsInteger(), "Order No.", "Order Line No.",
-                TempWhseJnlLine."Reference Document"::"Posted Shipment", TempWhseJnlLine, NextLineNo);
+                TempWhseJnlLine."Reference Document"::"Posted Shipment".AsInteger(), TempWhseJnlLine, NextLineNo);
 
             if "Item Shpt. Entry No." <> 0 then begin
                 ItemJnlPostLine.Run(ItemJnlLine);
@@ -380,7 +380,7 @@
         ServItem.SetRange("Shipment Type", ServItem."Shipment Type"::Service);
         if ServItem.Find('-') then
             repeat
-                if ServItem.CheckIfCanBeDeleted = '' then
+                if ServItem.CheckIfCanBeDeleted() = '' then
                     if ServItem.Delete(true) then;
             until ServItem.Next() = 0;
     end;

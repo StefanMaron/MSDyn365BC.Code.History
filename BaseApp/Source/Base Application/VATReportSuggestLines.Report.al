@@ -19,7 +19,7 @@ report 741 "VAT Report Suggest Lines"
                         Error('');
                 VATReportLine.DeleteAll();
                 if "VAT Report Type" = "VAT Report Type"::"Cancellation " then
-                    CurrReport.Quit;
+                    CurrReport.Quit();
             end;
         }
         dataitem(FEInvoicesIssued; "VAT Entry")
@@ -148,7 +148,7 @@ report 741 "VAT Report Suggest Lines"
         VATReportLine."VAT Report No." := VATReportHeader."No.";
         VATReportLine."Posting Date" := VATEntry."Posting Date";
         VATReportLine."Document No." := VATEntry."Document No.";
-        VATReportLine."Line No." := GetNextLineNo;
+        VATReportLine."Line No." := GetNextLineNo();
         VATReportLine."Document Type" := VATEntry."Document Type";
         VATReportLine.Type := VATEntry.Type;
         VATReportLine.Base := TotalBase;
@@ -209,7 +209,7 @@ report 741 "VAT Report Suggest Lines"
         if CheckNewGroup(VATEntry) then begin
             if DetermineGroupType(VATEntry) = GroupType then
                 CreateVATReportLine(VATEntry, RecordIdentifier);
-            ClearGlobals;
+            ClearGlobals();
         end;
     end;
 

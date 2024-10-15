@@ -19,9 +19,10 @@ table 325 "VAT Posting Setup"
         field(3; "VAT Calculation Type"; Enum "Tax Calculation Type")
         {
             Caption = 'VAT Calculation Type';
-
+            
             trigger OnValidate()
             begin
+                FailIfVATPostingSetupHasVATEntries();
                 if "Include in VAT Comm. Rep." and ("VAT Calculation Type" = "VAT Calculation Type"::"Sales Tax") then
                     "Include in VAT Comm. Rep." := false;
             end;
@@ -36,7 +37,7 @@ table 325 "VAT Posting Setup"
             trigger OnValidate()
             begin
                 TestNotSalesTax(FieldCaption("VAT %"));
-                CheckVATIdentifier;
+                CheckVATIdentifier();
                 if "Include in VAT Comm. Rep." and ("VAT %" <> 0) then
                     "Include in VAT Comm. Rep." := false;
             end;
@@ -151,7 +152,7 @@ table 325 "VAT Posting Setup"
 
             trigger OnValidate()
             begin
-                "VAT %" := GetVATPtc;
+                "VAT %" := GetVATPtc();
             end;
         }
         field(14; "EU Service"; Boolean)
@@ -247,7 +248,7 @@ table 325 "VAT Posting Setup"
             begin
                 if "Include in VAT Transac. Rep." then
                     if not VATTransactionReportAmount.FindFirst() then
-                        Error(Text12101, FieldCaption("Include in VAT Transac. Rep."), VATTransactionReportAmount.TableCaption);
+                        Error(Text12101, FieldCaption("Include in VAT Transac. Rep."), VATTransactionReportAmount.TableCaption());
             end;
         }
         field(12125; "Service Tariff No. Mandatory"; Boolean)
@@ -303,22 +304,35 @@ table 325 "VAT Posting Setup"
 
     trigger OnDelete()
     begin
-        CheckSetupUsage;
+        CheckSetupUsage();
     end;
 
     trigger OnInsert()
     begin
         if "VAT %" = 0 then
-            "VAT %" := GetVATPtc;
+            "VAT %" := GetVATPtc();
     end;
 
     var
+        GLSetup: Record "General Ledger Setup";
+        PostingSetupMgt: Codeunit PostingSetupManagement;
+
         Text000: Label '%1 must be entered on the tax jurisdiction line when %2 is %3.';
         Text001: Label '%1 = %2 has already been used for %3 = %4 in %5 for %6 = %7 and %8 = %9.';
-        GLSetup: Record "General Ledger Setup";
         Text12101: Label 'Before setting %1, you must set %2 .';
-        PostingSetupMgt: Codeunit PostingSetupManagement;
         YouCannotDeleteErr: Label 'You cannot delete %1 %2.', Comment = '%1 = Location Code; %2 = Posting Group';
+        VATPostingSetupHasVATEntriesErr: Label 'You cannot change the VAT posting setup because it has been used to generate VAT entries. Changing the setup now can cause inconsistencies in your financial data.';
+
+    local procedure FailIfVATPostingSetupHasVATEntries()
+    var
+        VATEntry: Record "VAT Entry";
+    begin
+        VATEntry.SetRange("VAT Bus. Posting Group", Rec."VAT Bus. Posting Group");
+        VATEntry.SetRange("VAT Prod. Posting Group", Rec."VAT Prod. Posting Group");
+        
+        if not VATEntry.IsEmpty() then    
+            Error(VATPostingSetupHasVATEntriesErr);
+    end;
 
     procedure CheckGLAcc(AccNo: Code[20])
     var
@@ -326,7 +340,7 @@ table 325 "VAT Posting Setup"
     begin
         if AccNo <> '' then begin
             GLAcc.Get(AccNo);
-            GLAcc.CheckGLAcc;
+            GLAcc.CheckGLAcc();
         end;
     end;
 
@@ -361,7 +375,7 @@ table 325 "VAT Posting Setup"
             Error(
               Text001,
               FieldCaption("VAT Identifier"), VATPostingSetup."VAT Identifier",
-              FieldCaption("VAT %"), VATPostingSetup."VAT %", TableCaption,
+              FieldCaption("VAT %"), VATPostingSetup."VAT %", TableCaption(),
               FieldCaption("VAT Bus. Posting Group"), VATPostingSetup."VAT Bus. Posting Group",
               FieldCaption("VAT Prod. Posting Group"), VATPostingSetup."VAT Prod. Posting Group");
     end;
@@ -518,7 +532,7 @@ table 325 "VAT Posting Setup"
         VATPostingSetupFieldRef.SetRange("VAT Prod. Posting Group");
         TempAccountUseBuffer.UpdateBuffer(VATPostingSetupRecRef, AccountFieldNo);
 
-        VATPostingSetupRecRef.Close;
+        VATPostingSetupRecRef.Close();
 
         TempAccountUseBuffer.Reset();
         TempAccountUseBuffer.SetCurrentKey("No. of Use");

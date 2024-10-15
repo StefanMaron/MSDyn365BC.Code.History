@@ -32,7 +32,7 @@ table 233 "Item Journal Batch"
                     ItemJnlLine.SetRange("Journal Template Name", "Journal Template Name");
                     ItemJnlLine.SetRange("Journal Batch Name", Name);
                     ItemJnlLine.ModifyAll("Reason Code", "Reason Code");
-                    Modify;
+                    Modify();
                 end;
             end;
         }
@@ -66,7 +66,7 @@ table 233 "Item Journal Batch"
                 ItemJnlLine.SetRange("Journal Template Name", "Journal Template Name");
                 ItemJnlLine.SetRange("Journal Batch Name", Name);
                 ItemJnlLine.ModifyAll("Posting No. Series", "Posting No. Series");
-                Modify;
+                Modify();
             end;
         }
         field(21; "Template Type"; Enum "Item Journal Template Type")
@@ -114,15 +114,16 @@ table 233 "Item Journal Batch"
     begin
         ItemJnlLine.SetRange("Journal Template Name", xRec."Journal Template Name");
         ItemJnlLine.SetRange("Journal Batch Name", xRec.Name);
-        while ItemJnlLine.FindFirst do
+        while ItemJnlLine.FindFirst() do
             ItemJnlLine.Rename("Journal Template Name", Name, ItemJnlLine."Line No.");
     end;
 
     var
-        Text000: Label 'Only the %1 field can be filled in on recurring journals.';
-        Text001: Label 'must not be %1';
         ItemJnlTemplate: Record "Item Journal Template";
         ItemJnlLine: Record "Item Journal Line";
+
+        Text000: Label 'Only the %1 field can be filled in on recurring journals.';
+        Text001: Label 'must not be %1';
 
     procedure SetupNewBatch()
     begin

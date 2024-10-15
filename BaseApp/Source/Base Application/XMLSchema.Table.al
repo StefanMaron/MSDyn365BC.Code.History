@@ -122,7 +122,7 @@ table 9600 "XML Schema"
         Description := CopyStr(FileMgt.GetFileName(FileName), 1, MaxStrLen(Description));
         Path := CopyStr(FileName, 1, MaxStrLen(Path));
         XSDParser.LoadSchema(Rec);
-        Modify;
+        Modify();
     end;
 
     [Scope('OnPrem')]
@@ -132,7 +132,7 @@ table 9600 "XML Schema"
         FileMgt: Codeunit "File Management";
     begin
         TempBlob.FromRecord(Rec, FieldNo(XSD));
-        if TempBlob.HasValue then
+        if TempBlob.HasValue() then
             exit(FileMgt.BLOBExport(TempBlob, '*.xsd', ShowFileDialog));
     end;
 
@@ -152,7 +152,7 @@ table 9600 "XML Schema"
                 XMLSchemaElement2.SetRange(Indentation, XMLSchemaElement.Indentation);
                 if XMLSchemaElement2.Count > 1 then
                     exit(Context);
-                Context := XMLSchemaElement.GetFullPath;
+                Context := XMLSchemaElement.GetFullPath();
             until XMLSchemaElement.Next() = 0;
     end;
 

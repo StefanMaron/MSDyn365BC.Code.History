@@ -50,7 +50,7 @@ codeunit 132200 "Library - Costing"
                     CostWithoutRevaluation += ValueEntry."Cost Amount (Actual)" + ValueEntry."Cost Amount (Expected)";
                     ILEQuantity += ValueEntry."Item Ledger Entry Quantity";
                 end;
-            until ValueEntry.Next = 0;
+            until ValueEntry.Next() = 0;
         exit(CostWithoutRevaluation / ILEQuantity + RevaluationUnitCost);
     end;
 
@@ -79,7 +79,7 @@ codeunit 132200 "Library - Costing"
                         UpdateBufferforRoundingCheck(
                           TempItemJournalBuffer, ItemLedgerEntry."Entry No.", ItemApplicationEntry.Quantity, RefInbILECostAmount);
                 end;
-            until ItemApplicationEntry.Next = 0;
+            until ItemApplicationEntry.Next() = 0;
         end;
 
         exit(RefCostAmount);
@@ -175,7 +175,7 @@ codeunit 132200 "Library - Costing"
                             CurrPeriodInboundQty += FixedAppItemLedgerEntry.Quantity;
                         end;
                     end;
-                until ValueEntry.Next = 0;
+                until ValueEntry.Next() = 0;
 
             // Store the revaluation entries
             ValueEntry.SetRange("Entry Type", ValueEntry."Entry Type"::Revaluation);
@@ -184,7 +184,7 @@ codeunit 132200 "Library - Costing"
                 repeat
                     TempValueEntry := ValueEntry;
                     TempValueEntry.Insert();
-                until ValueEntry.Next = 0;
+                until ValueEntry.Next() = 0;
 
             // Add cost and quantity from previous period
             CurrPeriodInboundCost += PrevPeriodCost;
@@ -210,7 +210,7 @@ codeunit 132200 "Library - Costing"
                                     RevaluationUnitCost +=
                                       (TempValueEntry."Cost Amount (Actual)" + TempValueEntry."Cost Amount (Expected)") /
                                       TempValueEntry."Valued Quantity";
-                            until TempValueEntry.Next = 0;
+                            until TempValueEntry.Next() = 0;
 
                         RefCostAmountwoReval := (CurrPeriodInboundCost / CurrPeriodInboundQty) * OutboundItemLedgerEntry.Quantity;
                         RefCostAmount :=
@@ -228,10 +228,10 @@ codeunit 132200 "Library - Costing"
                     end else begin
                         // If fixed applied, verification is same as non-average cost items
                         FixedAppItemLedgerEntry.Get(OutboundItemLedgerEntry."Entry No.");
-                        FixedAppItemLedgerEntry.SetRecFilter;
+                        FixedAppItemLedgerEntry.SetRecFilter();
                         CheckCostAmount(FixedAppItemLedgerEntry, TempItemJournalBuffer);
                     end;
-                until OutboundValueEntry.Next = 0;
+                until OutboundValueEntry.Next() = 0;
 
             // Prepare carry forward values for the next period
             PeriodStartDate := AvgCostAdjmtEntryPoint."Valuation Date" + 1;
@@ -240,7 +240,7 @@ codeunit 132200 "Library - Costing"
             ValueEntry.CalcSums("Cost Amount (Actual)", "Cost Amount (Expected)", "Item Ledger Entry Quantity");
             PrevPeriodCost += ValueEntry."Cost Amount (Actual)" + ValueEntry."Cost Amount (Expected)";
             PrevPeriodQty += ValueEntry."Item Ledger Entry Quantity";
-        until AvgCostAdjmtEntryPoint.Next = 0;
+        until AvgCostAdjmtEntryPoint.Next() = 0;
     end;
 
     local procedure CheckCostAmount(var ItemLedgerEntry: Record "Item Ledger Entry"; var TempItemJournalBuffer: Record "Item Journal Buffer" temporary)
@@ -262,7 +262,7 @@ codeunit 132200 "Library - Costing"
                 Assert.AreEqual(
                   RefCostAmount, ItemLedgerEntry."Cost Amount (Actual)" + ItemLedgerEntry."Cost Amount (Expected)",
                   StrSubstNo(IncorrectCostTxt, ItemLedgerEntry."Entry No."));
-            until ItemLedgerEntry.Next = 0;
+            until ItemLedgerEntry.Next() = 0;
     end;
 
     local procedure CheckNonAverageCosting(Item: Record Item; var TempItemJournalBuffer: Record "Item Journal Buffer" temporary)
@@ -288,7 +288,7 @@ codeunit 132200 "Library - Costing"
           (TempItemLedgerEntry."Cost Amount (Expected)" + TempItemLedgerEntry."Cost Amount (Actual)") / TempItemLedgerEntry.Quantity;
 
         // Check if the subsequent inbound entries have the same cost as the original inbound entry - to make sure the cost modification has been propagated
-        while TempItemLedgerEntry.Next <> 0 do begin
+        while TempItemLedgerEntry.Next() <> 0 do begin
             TempItemLedgerEntry.CalcFields("Cost Amount (Expected)", "Cost Amount (Actual)");
             ActualCost := TempItemLedgerEntry."Cost Amount (Expected)" + TempItemLedgerEntry."Cost Amount (Actual)";
             RefCost := Round(RefCostPerUnit * TempItemLedgerEntry.Quantity, LibraryERM.GetAmountRoundingPrecision);
@@ -332,7 +332,7 @@ codeunit 132200 "Library - Costing"
                                 ValueEntry.CalcSums("Cost Amount (Actual)");
                                 OutpuCostwithoutVariance += ValueEntry."Cost Amount (Actual)";
                             end;
-                    until ItemLedgerEntry.Next = 0;
+                    until ItemLedgerEntry.Next() = 0;
                 Assert.AreEqual(
                   -ConsumptionCost, OutpuCostwithoutVariance,
                   StrSubstNo(OutputConsumpMismatchTxt, ProdOrderLine."Prod. Order No.", ProdOrderLine."Line No."));
@@ -343,7 +343,7 @@ codeunit 132200 "Library - Costing"
                       -RefOutputCostinclVariance, OutputCostinclVariance,
                       StrSubstNo(OutputVarianceMismatchTxt, ProdOrderLine."Prod. Order No.", ProdOrderLine."Line No."));
                 end;
-            until ProdOrderLine.Next = 0;
+            until ProdOrderLine.Next() = 0;
         end;
     end;
 
@@ -432,7 +432,7 @@ codeunit 132200 "Library - Costing"
                 FirstEntryNo := ValueEntry."Entry No.";
                 FirstPostingDate := ValueEntry."Posting Date";
             end;
-        until (ValueEntry.Next = 0);
+        until (ValueEntry.Next() = 0);
     end;
 
     local procedure FindLastValuationDate(ItemLedgerEntryNo: Integer) LastValuationDate: Date
@@ -445,7 +445,7 @@ codeunit 132200 "Library - Costing"
         repeat
             if LastValuationDate < ValueEntry."Valuation Date" then
                 LastValuationDate := ValueEntry."Valuation Date";
-        until (ValueEntry.Next = 0);
+        until (ValueEntry.Next() = 0);
         exit(LastValuationDate);
     end;
 
@@ -500,7 +500,7 @@ codeunit 132200 "Library - Costing"
                 InboundItemLedgerEntry.CalcFields("Cost Amount (Actual)");
                 TempItemJnlBuffer."Inventory Value (Calculated)" := InboundItemLedgerEntry."Cost Amount (Actual)";
                 TempItemJnlBuffer.Insert();
-            until InboundItemLedgerEntry.Next = 0;
+            until InboundItemLedgerEntry.Next() = 0;
     end;
 
     local procedure RoundAmount(Amount: Decimal): Decimal
@@ -544,7 +544,7 @@ codeunit 132200 "Library - Costing"
     begin
         Clear(SuggestSalesPriceOnWksh);
         SuggestSalesPriceOnWksh.InitializeRequest2(
-          SalesType.AsInteger(), SalesCode, WorkDate, WorkDate, '', Item."Base Unit of Measure", false, PriceLowerLimit, UnitPriceFactor, '');
+          SalesType.AsInteger(), SalesCode, WorkDate(), WorkDate, '', Item."Base Unit of Measure", false, PriceLowerLimit, UnitPriceFactor, '');
         SuggestSalesPriceOnWksh.UseRequestPage(false);
         SalesPrice.SetRange("Item No.", Item."No.");
         SuggestSalesPriceOnWksh.SetTableView(SalesPrice);
@@ -557,7 +557,7 @@ codeunit 132200 "Library - Costing"
     begin
         Clear(SuggestItemPriceOnWksh);
         SuggestItemPriceOnWksh.InitializeRequest2(
-          SalesType.AsInteger(), SalesCode, WorkDate, WorkDate, '', Item."Base Unit of Measure", PriceLowerLimit, UnitPriceFactor, '', true);
+          SalesType.AsInteger(), SalesCode, WorkDate(), WorkDate, '', Item."Base Unit of Measure", PriceLowerLimit, UnitPriceFactor, '', true);
         SuggestItemPriceOnWksh.UseRequestPage(false);
         Item.SetRange("No.", Item."No.");
         SuggestItemPriceOnWksh.SetTableView(Item);
@@ -571,7 +571,7 @@ codeunit 132200 "Library - Costing"
     begin
         Clear(SuggestItemPriceOnWksh);
         SuggestItemPriceOnWksh.InitializeRequest2(
-          SalesType.AsInteger(), SalesCode, WorkDate, WorkDate, CurrencyCode, Item."Base Unit of Measure", PriceLowerLimit, UnitPriceFactor, '', true);
+          SalesType.AsInteger(), SalesCode, WorkDate(), WorkDate, CurrencyCode, Item."Base Unit of Measure", PriceLowerLimit, UnitPriceFactor, '', true);
         if Item.HasFilter then
             TmpItem.CopyFilters(Item)
         else begin
@@ -652,7 +652,7 @@ codeunit 132200 "Library - Costing"
     begin
         GetAppliesToValues(AppliesTo, DocumentType, DocumentNo, LineNo, ItemNo);
         with ItemChargeAssignmentPurch do begin
-            Init;
+            Init();
             Validate("Document Type", PurchaseLineCharge."Document Type");
             Validate("Document No.", PurchaseLineCharge."Document No.");
             Validate("Document Line No.", PurchaseLineCharge."Line No.");
@@ -679,7 +679,7 @@ codeunit 132200 "Library - Costing"
     begin
         GetAppliesToValues(AppliesTo, DocumentType, DocumentNo, LineNo, ItemNo);
         with ItemChargeAssignmentSales do begin
-            Init;
+            Init();
             Validate("Document Type", SalesLineCharge."Document Type");
             Validate("Document No.", SalesLineCharge."Document No.");
             Validate("Document Line No.", SalesLineCharge."Line No.");

@@ -23,17 +23,17 @@ page 318 "VAT Statement Templates"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description of the VAT statement template.';
                 }
-                field("Page ID"; "Page ID")
+                field("Page ID"; Rec."Page ID")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the page number.';
                 }
-                field("VAT Statement Report ID"; "VAT Statement Report ID")
+                field("VAT Statement Report ID"; Rec."VAT Statement Report ID")
                 {
                     ApplicationArea = VAT;
                     ToolTip = 'Specifies the ID of the report that you can print for the VAT statement template.';
                 }
-                field("VAT Stat. Export Report ID"; "VAT Stat. Export Report ID")
+                field("VAT Stat. Export Report ID"; Rec."VAT Stat. Export Report ID")
                 {
                     ApplicationArea = VAT;
                     LookupPageID = Objects;

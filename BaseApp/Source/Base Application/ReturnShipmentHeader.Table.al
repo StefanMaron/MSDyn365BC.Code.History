@@ -48,12 +48,6 @@
             //This property is currently not supported
             //TestTableRelation = false;
             ValidateTableRelation = false;
-
-            trigger OnValidate()
-            begin
-                PostCode.ValidateCity(
-                  "Pay-to City", "Pay-to Post Code", "Pay-to County", "Pay-to Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
-            end;
         }
         field(10; "Pay-to Contact"; Text[100])
         {
@@ -93,12 +87,6 @@
             //This property is currently not supported
             //TestTableRelation = false;
             ValidateTableRelation = false;
-
-            trigger OnValidate()
-            begin
-                PostCode.ValidateCity(
-                  "Ship-to City", "Ship-to Post Code", "Ship-to County", "Ship-to Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
-            end;
         }
         field(18; "Ship-to Contact"; Text[100])
         {
@@ -144,7 +132,7 @@
             trigger OnValidate()
             begin
                 if "Shipping Agent Code" <> '' then
-                    CheckShipAgentMethodComb;
+                    CheckShipAgentMethodComb();
                 if not ShipmentMethod.ThirdPartyLoader("Shipment Method Code") and
                    ("3rd Party Loader Type" <> "3rd Party Loader Type"::" ")
                 then begin
@@ -305,12 +293,6 @@
             //This property is currently not supported
             //TestTableRelation = false;
             ValidateTableRelation = false;
-
-            trigger OnValidate()
-            begin
-                PostCode.ValidateCity(
-                  "Buy-from City", "Buy-from Post Code", "Buy-from County", "Buy-from Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
-            end;
         }
         field(84; "Buy-from Contact"; Text[100])
         {
@@ -325,12 +307,6 @@
             //This property is currently not supported
             //TestTableRelation = false;
             ValidateTableRelation = false;
-
-            trigger OnValidate()
-            begin
-                PostCode.ValidatePostCode(
-                  "Pay-to City", "Pay-to Post Code", "Pay-to County", "Pay-to Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
-            end;
         }
         field(86; "Pay-to County"; Text[30])
         {
@@ -351,12 +327,6 @@
             //This property is currently not supported
             //TestTableRelation = false;
             ValidateTableRelation = false;
-
-            trigger OnValidate()
-            begin
-                PostCode.ValidatePostCode(
-                  "Buy-from City", "Buy-from Post Code", "Buy-from County", "Buy-from Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
-            end;
         }
         field(89; "Buy-from County"; Text[30])
         {
@@ -377,12 +347,6 @@
             //This property is currently not supported
             //TestTableRelation = false;
             ValidateTableRelation = false;
-
-            trigger OnValidate()
-            begin
-                PostCode.ValidatePostCode(
-                  "Ship-to City", "Ship-to Post Code", "Ship-to County", "Ship-to Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
-            end;
         }
         field(92; "Ship-to County"; Text[30])
         {
@@ -527,8 +491,8 @@
             trigger OnValidate()
             begin
                 if "Shipment Method Code" <> '' then
-                    CheckShipAgentMethodComb;
-                UpdateTDDPreparedBy;
+                    CheckShipAgentMethodComb();
+                UpdateTDDPreparedBy();
             end;
         }
         field(12174; "3rd Party Loader Type"; Option)
@@ -623,7 +587,6 @@
     var
         ReturnShptHeader: Record "Return Shipment Header";
         PurchCommentLine: Record "Purch. Comment Line";
-        PostCode: Record "Post Code";
         DimMgt: Codeunit DimensionManagement;
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
         UserSetupMgt: Codeunit "User Setup Management";
@@ -653,7 +616,7 @@
 
     procedure ShowDimensions()
     begin
-        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1,%2 %3', TableCaption, "No.", Text001));
+        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1,%2 %3', TableCaption(), "No.", Text001));
     end;
 
     procedure SetSecurityFilterOnRespCenter()
@@ -665,9 +628,9 @@
         if IsHandled then
             exit;
 
-        if UserSetupMgt.GetPurchasesFilter <> '' then begin
+        if UserSetupMgt.GetPurchasesFilter() <> '' then begin
             FilterGroup(2);
-            SetRange("Responsibility Center", UserSetupMgt.GetPurchasesFilter);
+            SetRange("Responsibility Center", UserSetupMgt.GetPurchasesFilter());
             FilterGroup(0);
         end;
     end;
@@ -700,7 +663,7 @@
     var
         ShippingAgent: Record "Shipping Agent";
     begin
-        CheckShipAgentMethodComb;
+        CheckShipAgentMethodComb();
         if ShipmentMethod.ThirdPartyLoader("Shipment Method Code") then begin
             TestField("3rd Party Loader Type");
             TestField("3rd Party Loader No.");

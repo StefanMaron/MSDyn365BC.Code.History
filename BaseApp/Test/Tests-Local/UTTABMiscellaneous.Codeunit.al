@@ -200,7 +200,7 @@ codeunit 144126 "UT TAB Miscellaneous"
         // Setup.
         Initialize();
         DeferringDueDates."No." := CreateDeferringDueDates;
-        DeferringDueDates."From-Date" := WorkDate;
+        DeferringDueDates."From-Date" := WorkDate();
 
         // Exercise.
         asserterror DeferringDueDates.Insert(true);
@@ -220,8 +220,8 @@ codeunit 144126 "UT TAB Miscellaneous"
         // Setup.
         Initialize();
         DeferringDueDates."No." := CreateDeferringDueDates;
-        DeferringDueDates."From-Date" := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate);
-        DeferringDueDates."To-Date" := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate);
+        DeferringDueDates."From-Date" := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate());
+        DeferringDueDates."To-Date" := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate());
 
         // Exercise.
         asserterror DeferringDueDates.Insert(true);
@@ -353,7 +353,7 @@ codeunit 144126 "UT TAB Miscellaneous"
         CreatePaymentLine(PaymentLines, PaymentLines."Sales/Purchase"::Sales, CreateSalesHeader);
 
         // Exercise.
-        asserterror PaymentLines.Validate("Due Date", CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate));
+        asserterror PaymentLines.Validate("Due Date", CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()));
 
         // Verify actual error: "Due Date must be greater than or equal to Document Date."
         Assert.ExpectedErrorCode(DialogCap);
@@ -373,7 +373,7 @@ codeunit 144126 "UT TAB Miscellaneous"
 
         // Exercise.
         asserterror
-          PaymentLines.Validate("Pmt. Discount Date", CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate));
+          PaymentLines.Validate("Pmt. Discount Date", CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()));
 
         // Verify actual error: "Pmt. Discount Date must be greater than or equal to Document Date."
         Assert.ExpectedErrorCode(DialogCap);
@@ -409,10 +409,10 @@ codeunit 144126 "UT TAB Miscellaneous"
         // Setup.
         Initialize();
         VendorBillHeader."No." := LibraryUTUtility.GetNewCode;
-        VendorBillHeader."Posting Date" := WorkDate;
+        VendorBillHeader."Posting Date" := WorkDate();
 
         // Exercise.
-        asserterror VendorBillHeader.Validate("List Date", CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate));
+        asserterror VendorBillHeader.Validate("List Date", CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()));
 
         // Verify actual error: "List Date must not be greater than Posting Date."
         Assert.ExpectedErrorCode(DialogCap);
@@ -798,8 +798,8 @@ codeunit 144126 "UT TAB Miscellaneous"
         DeferringDueDates: Record "Deferring Due Dates";
     begin
         DeferringDueDates."No." := LibraryUTUtility.GetNewCode;
-        DeferringDueDates."From-Date" := WorkDate;
-        DeferringDueDates."To-Date" := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate);  // Use random Date.
+        DeferringDueDates."From-Date" := WorkDate();
+        DeferringDueDates."To-Date" := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate());  // Use random Date.
         DeferringDueDates.Insert();
         exit(DeferringDueDates."No.");
     end;
@@ -818,7 +818,7 @@ codeunit 144126 "UT TAB Miscellaneous"
     begin
         PurchaseHeader."Document Type" := PurchaseHeader."Document Type"::Order;
         PurchaseHeader."No." := LibraryUTUtility.GetNewCode;
-        PurchaseHeader."Document Date" := WorkDate;
+        PurchaseHeader."Document Date" := WorkDate();
         PurchaseHeader.Insert();
         exit(PurchaseHeader."No.");
     end;
@@ -829,7 +829,7 @@ codeunit 144126 "UT TAB Miscellaneous"
     begin
         SalesHeader."Document Type" := SalesHeader."Document Type"::Order;
         SalesHeader."No." := LibraryUTUtility.GetNewCode;
-        SalesHeader."Document Date" := WorkDate;
+        SalesHeader."Document Date" := WorkDate();
         SalesHeader.Insert();
         exit(SalesHeader."No.");
     end;

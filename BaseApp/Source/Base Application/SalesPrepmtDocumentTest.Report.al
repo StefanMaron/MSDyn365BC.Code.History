@@ -1,4 +1,4 @@
-report 212 "Sales Prepmt. Document Test"
+﻿report 212 "Sales Prepmt. Document Test"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './SalesPrepmtDocumentTest.rdlc';
@@ -20,7 +20,7 @@ report 212 "Sales Prepmt. Document Test"
             dataitem(PageCounter; "Integer")
             {
                 DataItemTableView = SORTING(Number) WHERE(Number = CONST(1));
-                column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+                column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
                 {
                 }
                 column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
@@ -425,20 +425,19 @@ report 212 "Sales Prepmt. Document Test"
                                         AddError(
                                           StrSubstNo(
                                             Text006,
-                                            VATPostingSetup.TableCaption,
+                                            VATPostingSetup.TableCaption(),
                                             "VAT Bus. Posting Group", "VAT Prod. Posting Group"));
 
                                 if VATPostingSetup."Sales Prepayments Account" = '' then
                                     AddError(StrSubstNo(Text005, VATPostingSetup.FieldCaption("Sales Prepayments Account")))
-                                else begin
+                                else
                                     if GLAcc.Get(VATPostingSetup."Sales Prepayments Account") then begin
                                         if GLAcc.Blocked then
                                             AddError(
                                               StrSubstNo(
-                                                Text008, GLAcc.FieldCaption(Blocked), false, GLAcc.TableCaption, "No."));
+                                                Text008, GLAcc.FieldCaption(Blocked), false, GLAcc.TableCaption(), "No."));
                                     end else
-                                        AddError(StrSubstNo(Text007, GLAcc.TableCaption, VATPostingSetup."Sales Prepayments Account"));
-                                end;
+                                        AddError(StrSubstNo(Text007, GLAcc.TableCaption(), VATPostingSetup."Sales Prepayments Account"));
 
                                 if ErrorCounter = CurrentErrorCount then
                                     if SalesPostPrepmt.PrepmtAmount("Sales Line", DocumentType) <> 0 then begin
@@ -468,8 +467,8 @@ report 212 "Sales Prepmt. Document Test"
                         SalesPostPrepmt.CalcVATAmountLines("Sales Header", TempSalesLine, TempVATAmountLine, DocumentType);
                         TempVATAmountLine.DeductVATAmountLine(TempVATAmountLineDeduct);
                         SalesPostPrepmt.UpdateVATOnLines("Sales Header", TempSalesLine, TempVATAmountLine, DocumentType);
-                        VATAmount := TempVATAmountLine.GetTotalVATAmount;
-                        VATBaseAmount := TempVATAmountLine.GetTotalVATBase;
+                        VATAmount := TempVATAmountLine.GetTotalVATAmount();
+                        VATBaseAmount := TempVATAmountLine.GetTotalVATBase();
                     end;
                 }
                 dataitem(Blank; "Integer")
@@ -511,7 +510,7 @@ report 212 "Sales Prepmt. Document Test"
                     column(TotalExclVATText; TotalExclVATText)
                     {
                     }
-                    column(VATAmountLine_VATAmountText; TempVATAmountLine.VATAmountText)
+                    column(VATAmountLine_VATAmountText; TempVATAmountLine.VATAmountText())
                     {
                     }
                     column(TotalInclVATText; TotalInclVATText)
@@ -538,7 +537,7 @@ report 212 "Sales Prepmt. Document Test"
                     column(TotalInclVATText_Control118; TotalInclVATText)
                     {
                     }
-                    column(VATAmountLine_VATAmountText_Control119; TempVATAmountLine.VATAmountText)
+                    column(VATAmountLine_VATAmountText_Control119; TempVATAmountLine.VATAmountText())
                     {
                     }
                     column(TotalExclVATText_Control120; TotalExclVATText)
@@ -668,13 +667,13 @@ report 212 "Sales Prepmt. Document Test"
                         "Prepayment Inv. Line Buffer" := TempPrepmtInvLineBuf;
 
                         if not DimMgt.CheckDimIDComb(TempPrepmtInvLineBuf."Dimension Set ID") then
-                            AddError(DimMgt.GetDimCombErr);
+                            AddError(DimMgt.GetDimCombErr());
                         TableID[1] := DimMgt.SalesLineTypeToTableID(TempSalesLine.Type::"G/L Account");
                         No[1] := "Prepayment Inv. Line Buffer"."G/L Account No.";
                         TableID[2] := DATABASE::Job;
                         No[2] := "Prepayment Inv. Line Buffer"."Job No.";
                         if not DimMgt.CheckDimValuePosting(TableID, No, TempPrepmtInvLineBuf."Dimension Set ID") then
-                            AddError(DimMgt.GetDimValuePostingErr);
+                            AddError(DimMgt.GetDimValuePostingErr());
                         SumPrepaymInvLineBufferAmount := SumPrepaymInvLineBufferAmount + "Prepayment Inv. Line Buffer".Amount;
                     end;
 
@@ -822,7 +821,7 @@ report 212 "Sales Prepmt. Document Test"
                     AddError(StrSubstNo(Text000, FieldCaption("Document Type")));
 
                 if not SalesPostPrepmt.CheckOpenPrepaymentLines("Sales Header", DocumentType) then
-                    AddError(Text011);
+                    AddError(DocumentErrorsMgt.GetNothingToPostErrorMsg());
 
                 case DocumentType of
                     DocumentType::Invoice:
@@ -846,7 +845,7 @@ report 212 "Sales Prepmt. Document Test"
 
                 DimSetEntry.SetRange("Dimension Set ID", "Dimension Set ID");
                 if not DimMgt.CheckDimIDComb("Dimension Set ID") then
-                    AddError(DimMgt.GetDimCombErr);
+                    AddError(DimMgt.GetDimCombErr());
 
                 TableID[1] := DATABASE::Customer;
                 No[1] := "Bill-to Customer No.";
@@ -859,7 +858,7 @@ report 212 "Sales Prepmt. Document Test"
                 TableID[5] := DATABASE::"Responsibility Center";
                 No[5] := "Responsibility Center";
                 if not DimMgt.CheckDimValuePosting(TableID, No, "Dimension Set ID") then
-                    AddError(DimMgt.GetDimValuePostingErr);
+                    AddError(DimMgt.GetDimValuePostingErr());
             end;
         }
     }
@@ -903,7 +902,7 @@ report 212 "Sales Prepmt. Document Test"
 
     trigger OnPreReport()
     begin
-        SalesHeaderFilter := "Sales Header".GetFilters;
+        SalesHeaderFilter := "Sales Header".GetFilters();
 
         GLSetup.Get();
         SalesSetup.Get();
@@ -926,6 +925,7 @@ report 212 "Sales Prepmt. Document Test"
         DimSetEntry: Record "Dimension Set Entry";
         LineDimSetEntry: Record "Dimension Set Entry";
         SalesPostPrepmt: Codeunit "Sales-Post Prepayments";
+        DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
         GenJnlCheckLine: Codeunit "Gen. Jnl.-Check Line";
         DimMgt: Codeunit DimensionManagement;
         SalesHeaderFilter: Text;
@@ -953,7 +953,6 @@ report 212 "Sales Prepmt. Document Test"
         Text008: Label '%1 must not be %2 for %3 %4.';
         Text009: Label '%1 must not be a closing date.';
         Text010: Label '%1 is not within your allowed range of posting dates.';
-        Text011: Label 'There is nothing to post.';
         ShowDim: Boolean;
         Continue: Boolean;
         Text012: Label '%1 must be entered.';
@@ -986,10 +985,10 @@ report 212 "Sales Prepmt. Document Test"
         ContinuedCaption_Control152Lbl: Label 'Continued';
         TotalCaptionLbl: Label 'Total';
 
-    local procedure AddError(Text: Text[250])
+    local procedure AddError(Text: Text)
     begin
         ErrorCounter := ErrorCounter + 1;
-        ErrorText[ErrorCounter] := Text;
+        ErrorText[ErrorCounter] := CopyStr(Text, 1, MaxStrLen(ErrorText[ErrorCounter]));
     end;
 
     local procedure CheckCust(CustNo: Code[20]; FieldCaption: Text[30])
@@ -1001,14 +1000,14 @@ report 212 "Sales Prepmt. Document Test"
             exit;
         end;
         if not Cust.Get(CustNo) then begin
-            AddError(StrSubstNo(Text007, Cust.TableCaption, CustNo));
+            AddError(StrSubstNo(Text007, Cust.TableCaption(), CustNo));
             exit;
         end;
         if Cust."Privacy Blocked" then
             AddError(Cust.GetPrivacyBlockedGenericErrorText(Cust));
         if Cust.Blocked in [Cust.Blocked::All, Cust.Blocked::Invoice] then
             AddError(
-              StrSubstNo(Text008, Cust.FieldCaption(Blocked), Cust.Blocked, Cust.TableCaption, CustNo));
+              StrSubstNo(Text008, Cust.FieldCaption(Blocked), Cust.Blocked, Cust.TableCaption(), CustNo));
     end;
 
     local procedure CheckPostingDate(SalesHeader: Record "Sales Header")
@@ -1028,7 +1027,7 @@ report 212 "Sales Prepmt. Document Test"
                 AddError(StrSubstNo(Text005, SalesHeader.FieldCaption("Posting Date")));
             SalesHeader."Posting Date" <> NormalDate(SalesHeader."Posting Date"):
                 AddError(StrSubstNo(Text009, SalesHeader.FieldCaption("Posting Date")));
-            GenJnlCheckLine.DateNotAllowed(SalesHeader."Posting Date"):
+            GenJnlCheckLine.DateNotAllowed(SalesHeader."Posting Date", SalesHeader."Journal Templ. Name"):
                 AddError(StrSubstNo(Text010, SalesHeader.FieldCaption("Posting Date")));
         end;
     end;

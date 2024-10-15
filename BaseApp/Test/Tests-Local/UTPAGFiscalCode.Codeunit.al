@@ -33,7 +33,7 @@ codeunit 144146 "UT PAG Fiscal Code"
 
         // Verify actual error: You cannot create the withhold entry from entry because it's an Invoice Document.
         Assert.ExpectedErrorCode(DialogErr);
-        VendorLedgerEntries.Close;
+        VendorLedgerEntries.Close();
     end;
 
     [Test]
@@ -60,7 +60,7 @@ codeunit 144146 "UT PAG Fiscal Code"
         WithholdingTax.FindFirst();
         WithholdingTax.TestField("Document No.", VendorLedgerEntry."Document No.");
         WithholdingTax.TestField("Payment Date", VendorLedgerEntry."Posting Date");
-        VendorLedgerEntries.Close;
+        VendorLedgerEntries.Close();
     end;
 
     local procedure CreateVendor(): Code[20]
@@ -80,7 +80,7 @@ codeunit 144146 "UT PAG Fiscal Code"
         VendorLedgerEntry."Entry No." := 1;
         if VendorLedgerEntry2.FindLast() then
             VendorLedgerEntry."Entry No." := VendorLedgerEntry2."Entry No." + 1;
-        VendorLedgerEntry."Posting Date" := WorkDate;
+        VendorLedgerEntry."Posting Date" := WorkDate();
         VendorLedgerEntry."Document Type" := DocumentType;
         VendorLedgerEntry."Document No." := LibraryUTUtility.GetNewCode;
         VendorLedgerEntry."Vendor No." := CreateVendor;

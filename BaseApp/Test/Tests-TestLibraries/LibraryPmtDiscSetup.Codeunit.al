@@ -45,7 +45,7 @@ codeunit 131303 "Library - Pmt Disc Setup"
     begin
         PaymentLines.SetRange(Code, PaymentTermsCode);
         PaymentLines.FindFirst();
-        exit(CalcDate(PaymentLines."Discount Date Calculation", WorkDate));
+        exit(CalcDate(PaymentLines."Discount Date Calculation", WorkDate()));
     end;
 
     procedure SetAdjustForPaymentDisc(AdjustForPaymentDisc: Boolean)

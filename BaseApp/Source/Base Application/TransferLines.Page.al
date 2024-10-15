@@ -12,12 +12,12 @@ page 5749 "Transfer Lines"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the document number that is associated with the line or entry.';
                 }
-                field("Item No."; "Item No.")
+                field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the number of the item that is transferred.';
@@ -27,52 +27,52 @@ page 5749 "Transfer Lines"
                     ApplicationArea = Location;
                     ToolTip = 'Specifies a description of the item.';
                 }
-                field("Shipment Date"; "Shipment Date")
+                field("Shipment Date"; Rec."Shipment Date")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies when items on the document are shipped or were shipped. A shipment date is usually calculated from a requested delivery date plus lead time.';
                 }
-                field("Return Order"; "Return Order")
+                field("Return Order"; Rec."Return Order")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies if a component of the transfer line is a return.';
                 }
-                field("Transfer-from Code"; "Transfer-from Code")
+                field("Transfer-from Code"; Rec."Transfer-from Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the code of the location that you are transferring items from.';
                 }
-                field("Transfer-to Code"; "Transfer-to Code")
+                field("Transfer-to Code"; Rec."Transfer-to Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the code of the location that you are transferring items to.';
                 }
-                field("Qty. in Transit"; "Qty. in Transit")
+                field("Qty. in Transit"; Rec."Qty. in Transit")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the quantity of the item that is in transit.';
                 }
-                field("Quantity Received"; "Quantity Received")
+                field("Quantity Received"; Rec."Quantity Received")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the number of items that have been received.';
                 }
-                field("Outstanding Quantity"; "Outstanding Quantity")
+                field("Outstanding Quantity"; Rec."Outstanding Quantity")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the quantity of the items that remains to be shipped.';
                 }
-                field("WIP Qty. Shipped"; "WIP Qty. Shipped")
+                field("WIP Qty. Shipped"; Rec."WIP Qty. Shipped")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the number of work in process (WIP) items that have shipped on a subcontractor transfer order.';
                 }
-                field("WIP Outstanding Qty."; "WIP Outstanding Qty.")
+                field("WIP Outstanding Qty."; Rec."WIP Outstanding Qty.")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the number of work in process (WIP) items that will be shipped on a subcontractor transfer order.';
                 }
-                field("Unit of Measure"; "Unit of Measure")
+                field("Unit of Measure"; Rec."Unit of Measure")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the name of the item or resource''s unit of measure, such as piece or hour.';
@@ -122,6 +122,9 @@ page 5749 "Transfer Lines"
                     end;
                 }
             }
+        }
+        area(Promoted)
+        {
         }
     }
 }

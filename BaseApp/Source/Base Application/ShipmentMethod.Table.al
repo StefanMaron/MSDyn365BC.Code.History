@@ -64,25 +64,25 @@ table 10 "Shipment Method"
     begin
         with ShipmentTermsTranslation do begin
             SetRange("Shipment Method", Code);
-            DeleteAll
+            DeleteAll();
         end;
     end;
 
     trigger OnInsert()
     begin
-        SetLastModifiedDateTime;
+        SetLastModifiedDateTime();
     end;
 
     trigger OnModify()
     begin
-        SetLastModifiedDateTime;
+        SetLastModifiedDateTime();
     end;
 
     trigger OnRename()
     var
         CRMSyncHelper: Codeunit "CRM Synch. Helper";
     begin
-        SetLastModifiedDateTime;
+        SetLastModifiedDateTime();
         CRMSyncHelper.UpdateCDSOptionMapping(xRec.RecordId(), RecordId());
     end;
 
@@ -94,7 +94,6 @@ table 10 "Shipment Method"
             ShipmentMethod.Description := ShipmentMethodTranslation.Description;
     end;
 
-    [Scope('OnPrem')]
     procedure ThirdPartyLoader(ShipmentMethodCode: Code[10]): Boolean
     begin
         exit(
@@ -102,7 +101,6 @@ table 10 "Shipment Method"
           "3rd-Party Loader")
     end;
 
-    [Scope('OnPrem')]
     procedure CheckShipMethod3rdPartyLoader(ShipmentMethodCode: Code[10])
     begin
         if not ThirdPartyLoader(ShipmentMethodCode) then

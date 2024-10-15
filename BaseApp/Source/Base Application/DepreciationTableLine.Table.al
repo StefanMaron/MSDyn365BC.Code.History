@@ -86,8 +86,9 @@ table 5643 "Depreciation Table Line"
     end;
 
     var
-        Text000: Label 'You cannot rename a %1.';
         DeprTableHeader: Record "Depreciation Table Header";
+
+        Text000: Label 'You cannot rename a %1.';
 
     procedure NewRecord()
     var

@@ -92,7 +92,6 @@ table 291 "Shipping Agent"
         CustomizedCalendarChange: Record "Customized Calendar Change";
         CalendarManagement: Codeunit "Calendar Management";
 
-    [Scope('OnPrem')]
     procedure ShippingAgentVendorOrContact(ShippingAgentCode: Code[10]): Boolean
     begin
         if Get(ShippingAgentCode) and

@@ -15,7 +15,7 @@ report 5981 "Contr. Gain/Loss - Resp. Ctr."
             column(TodayFormatted; Format(Today, 0, 4))
             {
             }
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(TblCaptContGnLossFilter; TableCaption + ': ' + ContractGainLossFilter)
@@ -134,7 +134,7 @@ report 5981 "Contr. Gain/Loss - Resp. Ctr."
 
     trigger OnPreReport()
     begin
-        ContractGainLossFilter := "Contract Gain/Loss Entry".GetFilters;
+        ContractGainLossFilter := "Contract Gain/Loss Entry".GetFilters();
     end;
 
     var

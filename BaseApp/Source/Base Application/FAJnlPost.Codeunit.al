@@ -6,21 +6,22 @@ codeunit 5636 "FA. Jnl.-Post"
     trigger OnRun()
     begin
         FAJnlLine.Copy(Rec);
-        Code;
+        Code();
         Copy(FAJnlLine);
     end;
 
     var
-        Text000: Label 'cannot be filtered when posting recurring journals';
-        Text001: Label 'Do you want to post the journal lines?';
-        Text002: Label 'There is nothing to post.';
-        Text003: Label 'The journal lines were successfully posted.';
-        Text004: Label 'The journal lines were successfully posted. You are now in the %1 journal.';
         FAJnlTemplate: Record "FA Journal Template";
         FAJnlLine: Record "FA Journal Line";
         FAJnlPostBatch: Codeunit "FA Jnl.-Post Batch";
+        JournalErrorsMgt: Codeunit "Journal Errors Mgt.";
         TempJnlBatchName: Code[10];
         PreviewMode: Boolean;
+
+        Text000: Label 'cannot be filtered when posting recurring journals';
+        Text001: Label 'Do you want to post the journal lines?';
+        Text003: Label 'The journal lines were successfully posted.';
+        Text004: Label 'The journal lines were successfully posted. You are now in the %1 journal.';
 
     local procedure "Code"()
     var
@@ -35,7 +36,7 @@ codeunit 5636 "FA. Jnl.-Post"
             if not ConfirmPost() then
                 exit;
 
-            DeprBook.CompressingWarning;
+            DeprBook.CompressingWarning();
             TempJnlBatchName := "Journal Batch Name";
 
             FAJnlPostBatch.SetPreviewMode(PreviewMode);
@@ -43,7 +44,7 @@ codeunit 5636 "FA. Jnl.-Post"
 
             if not PreviewMode then begin
                 if "Line No." = 0 then
-                    Message(Text002)
+                    Message(JournalErrorsMgt.GetNothingToPostErrorMsg())
                 else
                     if TempJnlBatchName = "Journal Batch Name" then
                         Message(Text003)
@@ -53,7 +54,7 @@ codeunit 5636 "FA. Jnl.-Post"
                           "Journal Batch Name");
 
                 if not Find('=><') or (TempJnlBatchName <> "Journal Batch Name") then begin
-                    Reset;
+                    Reset();
                     FilterGroup := 2;
                     SetRange("Journal Template Name", "Journal Template Name");
                     SetRange("Journal Batch Name", "Journal Batch Name");

@@ -2,7 +2,6 @@ page 5740 "Transfer Order"
 {
     Caption = 'Transfer Order';
     PageType = Document;
-    PromotedActionCategories = 'New,Process,Report,Release,Posting,Order,Documents,Print/Send,Navigate';
     RefreshOnActivate = true;
     SourceTable = "Transfer Header";
     SourceTableView = SORTING("No.")
@@ -15,7 +14,7 @@ page 5740 "Transfer Order"
             group(General)
             {
                 Caption = 'General';
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Location;
                     Importance = Promoted;
@@ -28,21 +27,33 @@ page 5740 "Transfer Order"
                             CurrPage.Update();
                     end;
                 }
-                field("Transfer-from Code"; "Transfer-from Code")
+                field("Transfer-from Code"; Rec."Transfer-from Code")
                 {
                     ApplicationArea = Location;
                     Editable = (Status = Status::Open) AND EnableTransferFields;
                     Importance = Promoted;
                     ToolTip = 'Specifies the code of the location that items are transferred from.';
+
+                    trigger OnValidate()
+                    begin
+                        IsTransferLinesEditable := Rec.TransferLinesEditable();
+                        CurrPage.Update();
+                    end;
                 }
-                field("Transfer-to Code"; "Transfer-to Code")
+                field("Transfer-to Code"; Rec."Transfer-to Code")
                 {
                     ApplicationArea = Location;
                     Editable = (Status = Status::Open) AND EnableTransferFields;
                     Importance = Promoted;
                     ToolTip = 'Specifies the code of the location that the items are transferred to.';
+
+                    trigger OnValidate()
+                    begin
+                        IsTransferLinesEditable := Rec.TransferLinesEditable();
+                        CurrPage.Update();
+                    end;
                 }
-                field("Direct Transfer"; "Direct Transfer")
+                field("Direct Transfer"; Rec."Direct Transfer")
                 {
                     ApplicationArea = Location;
                     Editable = (Status = Status::Open) AND EnableTransferFields;
@@ -51,41 +62,42 @@ page 5740 "Transfer Order"
 
                     trigger OnValidate()
                     begin
+                        IsTransferLinesEditable := Rec.TransferLinesEditable();
                         CurrPage.Update();
                     end;
                 }
-                field("In-Transit Code"; "In-Transit Code")
+                field("In-Transit Code"; Rec."In-Transit Code")
                 {
                     ApplicationArea = Location;
                     Editable = EnableTransferFields;
                     Enabled = (NOT "Direct Transfer") AND (Status = Status::Open);
                     ToolTip = 'Specifies the in-transit code for the transfer order, such as a shipping agent.';
                 }
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the posting date of the transfer order.';
 
                     trigger OnValidate()
                     begin
-                        PostingDateOnAfterValidate;
+                        PostingDateOnAfterValidate();
                     end;
                 }
-                field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
+                field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = EnableTransferFields;
                     Importance = Additional;
                     ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                 }
-                field("Shortcut Dimension 2 Code"; "Shortcut Dimension 2 Code")
+                field("Shortcut Dimension 2 Code"; Rec."Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = EnableTransferFields;
                     Importance = Additional;
                     ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                 }
-                field("Assigned User ID"; "Assigned User ID")
+                field("Assigned User ID"; Rec."Assigned User ID")
                 {
                     ApplicationArea = Location;
                     Editable = EnableTransferFields;
@@ -109,7 +121,7 @@ page 5740 "Transfer Order"
             group(Shipment)
             {
                 Caption = 'Shipment';
-                field("Shipment Date"; "Shipment Date")
+                field("Shipment Date"; Rec."Shipment Date")
                 {
                     ApplicationArea = Location;
                     Editable = (Status = Status::Open) AND EnableTransferFields;
@@ -117,10 +129,10 @@ page 5740 "Transfer Order"
 
                     trigger OnValidate()
                     begin
-                        ShipmentDateOnAfterValidate;
+                        ShipmentDateOnAfterValidate();
                     end;
                 }
-                field("Outbound Whse. Handling Time"; "Outbound Whse. Handling Time")
+                field("Outbound Whse. Handling Time"; Rec."Outbound Whse. Handling Time")
                 {
                     ApplicationArea = Warehouse;
                     Editable = (Status = Status::Open) AND EnableTransferFields;
@@ -128,16 +140,16 @@ page 5740 "Transfer Order"
 
                     trigger OnValidate()
                     begin
-                        OutboundWhseHandlingTimeOnAfte;
+                        OutboundWhseHandlingTimeOnAfte();
                     end;
                 }
-                field("Shipment Method Code"; "Shipment Method Code")
+                field("Shipment Method Code"; Rec."Shipment Method Code")
                 {
                     ApplicationArea = Location;
                     Editable = (Status = Status::Open) AND EnableTransferFields;
                     ToolTip = 'Specifies the delivery conditions of the related shipment, such as free on board (FOB).';
                 }
-                field("Shipping Agent Code"; "Shipping Agent Code")
+                field("Shipping Agent Code"; Rec."Shipping Agent Code")
                 {
                     ApplicationArea = Location;
                     Editable = (Status = Status::Open) AND EnableTransferFields;
@@ -145,10 +157,10 @@ page 5740 "Transfer Order"
 
                     trigger OnValidate()
                     begin
-                        ShippingAgentCodeOnAfterValida;
+                        ShippingAgentCodeOnAfterValida();
                     end;
                 }
-                field("Shipping Agent Service Code"; "Shipping Agent Service Code")
+                field("Shipping Agent Service Code"; Rec."Shipping Agent Service Code")
                 {
                     ApplicationArea = Location;
                     Editable = (Status = Status::Open) AND EnableTransferFields;
@@ -157,10 +169,10 @@ page 5740 "Transfer Order"
 
                     trigger OnValidate()
                     begin
-                        ShippingAgentServiceCodeOnAfte;
+                        ShippingAgentServiceCodeOnAfte();
                     end;
                 }
-                field("Shipping Time"; "Shipping Time")
+                field("Shipping Time"; Rec."Shipping Time")
                 {
                     ApplicationArea = Location;
                     Editable = (Status = Status::Open) AND EnableTransferFields;
@@ -168,10 +180,10 @@ page 5740 "Transfer Order"
 
                     trigger OnValidate()
                     begin
-                        ShippingTimeOnAfterValidate;
+                        ShippingTimeOnAfterValidate();
                     end;
                 }
-                field("Shipping Advice"; "Shipping Advice")
+                field("Shipping Advice"; Rec."Shipping Advice")
                 {
                     ApplicationArea = Location;
                     Editable = (Status = Status::Open) AND EnableTransferFields;
@@ -185,17 +197,17 @@ page 5740 "Transfer Order"
                                 Error('');
                     end;
                 }
-                field("3rd Party Loader Type"; "3rd Party Loader Type")
+                field("3rd Party Loader Type"; Rec."3rd Party Loader Type")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the type of third party that is responsible for loading the items for this document.';
                 }
-                field("3rd Party Loader No."; "3rd Party Loader No.")
+                field("3rd Party Loader No."; Rec."3rd Party Loader No.")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the ID of the vendor or contact that is responsible for loading the items for this document.';
                 }
-                field("Receipt Date"; "Receipt Date")
+                field("Receipt Date"; Rec."Receipt Date")
                 {
                     ApplicationArea = Location;
                     Editable = Status = Status::Open;
@@ -203,7 +215,7 @@ page 5740 "Transfer Order"
 
                     trigger OnValidate()
                     begin
-                        ReceiptDateOnAfterValidate;
+                        ReceiptDateOnAfterValidate();
                     end;
                 }
             }
@@ -211,20 +223,20 @@ page 5740 "Transfer Order"
             {
                 Caption = 'Transfer-from';
                 Editable = (Status = Status::Open) AND EnableTransferFields;
-                field("Transfer-from Name"; "Transfer-from Name")
+                field("Transfer-from Name"; Rec."Transfer-from Name")
                 {
                     ApplicationArea = Location;
                     Caption = 'Name';
                     ToolTip = 'Specifies the name of the sender at the location that the items are transferred from.';
                 }
-                field("Transfer-from Name 2"; "Transfer-from Name 2")
+                field("Transfer-from Name 2"; Rec."Transfer-from Name 2")
                 {
                     ApplicationArea = Location;
                     Caption = 'Name 2';
                     Importance = Additional;
                     ToolTip = 'Specifies an additional part of the name of the sender at the location that the items are transferred from.';
                 }
-                field("Transfer-from Address"; "Transfer-from Address")
+                field("Transfer-from Address"; Rec."Transfer-from Address")
                 {
                     ApplicationArea = Location;
                     Caption = 'Address';
@@ -232,7 +244,7 @@ page 5740 "Transfer Order"
                     QuickEntry = false;
                     ToolTip = 'Specifies the address of the location that the items are transferred from.';
                 }
-                field("Transfer-from Address 2"; "Transfer-from Address 2")
+                field("Transfer-from Address 2"; Rec."Transfer-from Address 2")
                 {
                     ApplicationArea = Location;
                     Caption = 'Address 2';
@@ -240,7 +252,7 @@ page 5740 "Transfer Order"
                     QuickEntry = false;
                     ToolTip = 'Specifies an additional part of the address of the location that items are transferred from.';
                 }
-                field("Transfer-from City"; "Transfer-from City")
+                field("Transfer-from City"; Rec."Transfer-from City")
                 {
                     ApplicationArea = Location;
                     Caption = 'City';
@@ -252,7 +264,7 @@ page 5740 "Transfer Order"
                 {
                     ShowCaption = false;
                     Visible = IsFromCountyVisible;
-                    field("Transfer-from County"; "Transfer-from County")
+                    field("Transfer-from County"; Rec."Transfer-from County")
                     {
                         ApplicationArea = Location;
                         Caption = 'County';
@@ -260,7 +272,7 @@ page 5740 "Transfer Order"
                         QuickEntry = false;
                     }
                 }
-                field("Transfer-from Post Code"; "Transfer-from Post Code")
+                field("Transfer-from Post Code"; Rec."Transfer-from Post Code")
                 {
                     ApplicationArea = Location;
                     Caption = 'Post Code';
@@ -268,7 +280,7 @@ page 5740 "Transfer Order"
                     QuickEntry = false;
                     ToolTip = 'Specifies the postal code of the location that the items are transferred from.';
                 }
-                field("Trsf.-from Country/Region Code"; "Trsf.-from Country/Region Code")
+                field("Trsf.-from Country/Region Code"; Rec."Trsf.-from Country/Region Code")
                 {
                     ApplicationArea = Location;
                     Caption = 'Country/Region';
@@ -280,29 +292,29 @@ page 5740 "Transfer Order"
                         IsFromCountyVisible := FormatAddress.UseCounty("Trsf.-from Country/Region Code");
                     end;
                 }
-                field("Transfer-from Contact"; "Transfer-from Contact")
+                field("Transfer-from Contact"; Rec."Transfer-from Contact")
                 {
                     ApplicationArea = Location;
                     Caption = 'Contact';
                     Importance = Additional;
                     ToolTip = 'Specifies the name of the contact person at the location that the items are transferred from.';
                 }
-                field("Additional Information"; "Additional Information")
+                field("Additional Information"; Rec."Additional Information")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies additional declaration information that is needed for this shipment.';
                 }
-                field("Additional Notes"; "Additional Notes")
+                field("Additional Notes"; Rec."Additional Notes")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies additional notes that are needed for this shipment.';
                 }
-                field("Additional Instructions"; "Additional Instructions")
+                field("Additional Instructions"; Rec."Additional Instructions")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies additional instructions that are needed for this shipment.';
                 }
-                field("TDD Prepared By"; "TDD Prepared By")
+                field("TDD Prepared By"; Rec."TDD Prepared By")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the user ID of the transport delivery document (TDD) for the transfer order.';
@@ -312,20 +324,20 @@ page 5740 "Transfer Order"
             {
                 Caption = 'Transfer-to';
                 Editable = (Status = Status::Open) AND EnableTransferFields;
-                field("Transfer-to Name"; "Transfer-to Name")
+                field("Transfer-to Name"; Rec."Transfer-to Name")
                 {
                     ApplicationArea = Location;
                     Caption = 'Name';
                     ToolTip = 'Specifies the name of the recipient at the location that the items are transferred to.';
                 }
-                field("Transfer-to Name 2"; "Transfer-to Name 2")
+                field("Transfer-to Name 2"; Rec."Transfer-to Name 2")
                 {
                     ApplicationArea = Location;
                     Caption = 'Name 2';
                     Importance = Additional;
                     ToolTip = 'Specifies an additional part of the name of the recipient at the location that the items are transferred to.';
                 }
-                field("Transfer-to Address"; "Transfer-to Address")
+                field("Transfer-to Address"; Rec."Transfer-to Address")
                 {
                     ApplicationArea = Location;
                     Caption = 'Address';
@@ -333,7 +345,7 @@ page 5740 "Transfer Order"
                     QuickEntry = false;
                     ToolTip = 'Specifies the address of the location that the items are transferred to.';
                 }
-                field("Transfer-to Address 2"; "Transfer-to Address 2")
+                field("Transfer-to Address 2"; Rec."Transfer-to Address 2")
                 {
                     ApplicationArea = Location;
                     Caption = 'Address 2';
@@ -341,7 +353,7 @@ page 5740 "Transfer Order"
                     QuickEntry = false;
                     ToolTip = 'Specifies an additional part of the address of the location that the items are transferred to.';
                 }
-                field("Transfer-to City"; "Transfer-to City")
+                field("Transfer-to City"; Rec."Transfer-to City")
                 {
                     ApplicationArea = Location;
                     Caption = 'City';
@@ -353,7 +365,7 @@ page 5740 "Transfer Order"
                 {
                     ShowCaption = false;
                     Visible = IsToCountyVisible;
-                    field("Transfer-to County"; "Transfer-to County")
+                    field("Transfer-to County"; Rec."Transfer-to County")
                     {
                         ApplicationArea = Location;
                         Caption = 'County';
@@ -361,7 +373,7 @@ page 5740 "Transfer Order"
                         QuickEntry = false;
                     }
                 }
-                field("Transfer-to Post Code"; "Transfer-to Post Code")
+                field("Transfer-to Post Code"; Rec."Transfer-to Post Code")
                 {
                     ApplicationArea = Location;
                     Caption = 'Post Code';
@@ -369,7 +381,7 @@ page 5740 "Transfer Order"
                     QuickEntry = false;
                     ToolTip = 'Specifies the postal code of the location that the items are transferred to.';
                 }
-                field("Trsf.-to Country/Region Code"; "Trsf.-to Country/Region Code")
+                field("Trsf.-to Country/Region Code"; Rec."Trsf.-to Country/Region Code")
                 {
                     ApplicationArea = Location;
                     Caption = 'Country/Region';
@@ -381,7 +393,7 @@ page 5740 "Transfer Order"
                         IsToCountyVisible := FormatAddress.UseCounty("Trsf.-to Country/Region Code");
                     end;
                 }
-                field("Transfer-to Contact"; "Transfer-to Contact")
+                field("Transfer-to Contact"; Rec."Transfer-to Contact")
                 {
                     ApplicationArea = Location;
                     Caption = 'Contact';
@@ -392,14 +404,14 @@ page 5740 "Transfer Order"
             group(Control19)
             {
                 Caption = 'Warehouse';
-                field("Inbound Whse. Handling Time"; "Inbound Whse. Handling Time")
+                field("Inbound Whse. Handling Time"; Rec."Inbound Whse. Handling Time")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the time it takes to make items part of available inventory, after the items have been posted as received.';
 
                     trigger OnValidate()
                     begin
-                        InboundWhseHandlingTimeOnAfter;
+                        InboundWhseHandlingTimeOnAfter();
                     end;
                 }
             }
@@ -407,58 +419,58 @@ page 5740 "Transfer Order"
             {
                 Caption = 'Foreign Trade';
                 Editable = (Status = Status::Open) AND EnableTransferFields;
-                field("Transaction Type"; "Transaction Type")
+                field("Transaction Type"; Rec."Transaction Type")
                 {
-                    ApplicationArea = BasicEU;
+                    ApplicationArea = BasicEU, BasicNO;
                     Importance = Promoted;
                     ToolTip = 'Specifies the type of transaction that the document represents, for the purpose of reporting to INTRASTAT.';
                 }
-                field("Transaction Specification"; "Transaction Specification")
+                field("Transaction Specification"; Rec."Transaction Specification")
                 {
-                    ApplicationArea = BasicEU;
+                    ApplicationArea = BasicEU, BasicNO;
                     ToolTip = 'Specifies a specification of the document''s transaction, for the purpose of reporting to INTRASTAT.';
                 }
-                field("Transport Method"; "Transport Method")
+                field("Transport Method"; Rec."Transport Method")
                 {
-                    ApplicationArea = BasicEU;
+                    ApplicationArea = BasicEU, BasicNO;
                     Importance = Promoted;
                     ToolTip = 'Specifies the transport method, for the purpose of reporting to INTRASTAT.';
                 }
                 field("Area"; Area)
                 {
-                    ApplicationArea = BasicEU;
+                    ApplicationArea = BasicEU, BasicNO;
                     ToolTip = 'Specifies the area of the customer or vendor, for the purpose of reporting to INTRASTAT.';
                 }
-                field("Entry/Exit Point"; "Entry/Exit Point")
+                field("Entry/Exit Point"; Rec."Entry/Exit Point")
                 {
-                    ApplicationArea = BasicEU;
+                    ApplicationArea = BasicEU, BasicNO;
                     ToolTip = 'Specifies the code of either the port of entry at which the items passed into your country/region, or the port of exit.';
                 }
                 field("Partner VAT ID"; Rec."Partner VAT ID")
                 {
-                    ApplicationArea = BasicEU;
+                    ApplicationArea = BasicEU, BasicNO;
                     ToolTip = 'Specifies the counter party''s VAT number.';
                 }
             }
             group(Reporting)
             {
                 Caption = 'Reporting';
-                field("Gross Weight"; "Gross Weight")
+                field("Gross Weight"; Rec."Gross Weight")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the gross weight of an item in the Transfer Header table.';
                 }
-                field("Net Weight"; "Net Weight")
+                field("Net Weight"; Rec."Net Weight")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the net weight of the item.';
                 }
-                field("Parcel Units"; "Parcel Units")
+                field("Parcel Units"; Rec."Parcel Units")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the number of packages on a subcontractor order.';
                 }
-                field("Freight Type"; "Freight Type")
+                field("Freight Type"; Rec."Freight Type")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the freight type that is associated with the documents in the Transfer Header table.';
@@ -492,9 +504,6 @@ page 5740 "Transfer Order"
                     ApplicationArea = Location;
                     Caption = 'Statistics';
                     Image = Statistics;
-                    Promoted = true;
-                    PromotedCategory = Category6;
-                    PromotedIsBig = true;
                     RunObject = Page "Transfer Statistics";
                     RunPageLink = "No." = FIELD("No.");
                     ShortCutKey = 'F7';
@@ -505,8 +514,6 @@ page 5740 "Transfer Order"
                     ApplicationArea = Comments;
                     Caption = 'Co&mments';
                     Image = ViewComments;
-                    Promoted = true;
-                    PromotedCategory = Category6;
                     RunObject = Page "Inventory Comment Sheet";
                     RunPageLink = "Document Type" = CONST("Transfer Order"),
                                   "No." = FIELD("No.");
@@ -518,16 +525,13 @@ page 5740 "Transfer Order"
                     ApplicationArea = Dimensions;
                     Caption = 'Dimensions';
                     Image = Dimensions;
-                    Promoted = true;
-                    PromotedCategory = Category6;
-                    PromotedIsBig = true;
                     ShortCutKey = 'Alt+D';
                     ToolTip = 'View or edit dimensions, such as area, project, or department, that you can assign to sales and purchase documents to distribute costs and analyze transaction history.';
 
                     trigger OnAction()
                     begin
-                        ShowDocDim;
-                        CurrPage.SaveRecord;
+                        ShowDocDim();
+                        CurrPage.SaveRecord();
                     end;
                 }
             }
@@ -540,8 +544,6 @@ page 5740 "Transfer Order"
                     ApplicationArea = Location;
                     Caption = 'S&hipments';
                     Image = Shipment;
-                    Promoted = true;
-                    PromotedCategory = Category9;
                     RunObject = Page "Posted Transfer Shipments";
                     RunPageLink = "Transfer Order No." = FIELD("No.");
                     ToolTip = 'View related posted transfer shipments.';
@@ -551,8 +553,6 @@ page 5740 "Transfer Order"
                     ApplicationArea = Location;
                     Caption = 'Re&ceipts';
                     Image = PostedReceipts;
-                    Promoted = true;
-                    PromotedCategory = Category9;
                     RunObject = Page "Posted Transfer Receipts";
                     RunPageLink = "Transfer Order No." = FIELD("No.");
                     ToolTip = 'View related posted transfer receipts.';
@@ -607,8 +607,6 @@ page 5740 "Transfer Order"
                 Caption = '&Print';
                 Ellipsis = true;
                 Image = Print;
-                Promoted = true;
-                PromotedCategory = Category8;
                 ToolTip = 'Prepare to print the document. A report request window for the document opens where you can specify what to include on the print-out.';
 
                 trigger OnAction()
@@ -627,10 +625,6 @@ page 5740 "Transfer Order"
                     ApplicationArea = Location;
                     Caption = 'Re&lease';
                     Image = ReleaseDoc;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
-                    PromotedOnly = true;
                     RunObject = Codeunit "Release Transfer Document";
                     ShortCutKey = 'Ctrl+F9';
                     ToolTip = 'Release the document to the next stage of processing. You must reopen the document before you can make changes to it.';
@@ -640,9 +634,6 @@ page 5740 "Transfer Order"
                     ApplicationArea = Location;
                     Caption = 'Reo&pen';
                     Image = ReOpen;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedOnly = true;
                     ToolTip = 'Reopen the transfer order after being released for warehouse handling.';
 
                     trigger OnAction()
@@ -697,7 +688,7 @@ page 5740 "Transfer Order"
 
                     trigger OnAction()
                     begin
-                        CreateInvtPutAwayPick;
+                        CreateInvtPutAwayPick();
                     end;
                 }
                 action("Get Bin Content")
@@ -729,7 +720,7 @@ page 5740 "Transfer Order"
 
                     trigger OnAction()
                     begin
-                        GetReceiptLines;
+                        GetReceiptLines();
                     end;
                 }
             }
@@ -743,9 +734,6 @@ page 5740 "Transfer Order"
                     Caption = 'P&ost';
                     Ellipsis = true;
                     Image = PostOrder;
-                    Promoted = true;
-                    PromotedCategory = Category5;
-                    PromotedIsBig = true;
                     ShortCutKey = 'F9';
                     ToolTip = 'Finalize the document or journal by posting the amounts and quantities to the related accounts in your company books.';
 
@@ -759,9 +747,6 @@ page 5740 "Transfer Order"
                     ApplicationArea = Location;
                     Caption = 'Post and &Print';
                     Image = PostPrint;
-                    Promoted = true;
-                    PromotedCategory = Category5;
-                    PromotedIsBig = true;
                     ShortCutKey = 'Shift+F9';
                     ToolTip = 'Finalize and prepare to print the document or journal. The values and quantities are posted to the related accounts. A report request window where you can specify what to include on the print-out.';
 
@@ -779,18 +764,122 @@ page 5740 "Transfer Order"
                 ApplicationArea = Warehouse;
                 Caption = 'Inventory - Inbound Transfer';
                 Image = "Report";
-                Promoted = true;
-                PromotedCategory = "Report";
-                PromotedOnly = true;
                 RunObject = Report "Inventory - Inbound Transfer";
                 ToolTip = 'View which items are currently on inbound transfer orders.';
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                group(Category_Category5)
+                {
+                    Caption = 'Posting', Comment = 'Generated from the PromotedActionCategories property index 4.';
+                    ShowAs = SplitButton;
+
+                    actionref(Post_Promoted; Post)
+                    {
+                    }
+                    actionref(PostAndPrint_Promoted; PostAndPrint)
+                    {
+                    }
+                }
+                actionref("Create Whse. S&hipment_Promoted"; "Create Whse. S&hipment")
+                {
+                }
+                group(Category_Category4)
+                {
+                    Caption = 'Release', Comment = 'Generated from the PromotedActionCategories property index 3.';
+                    ShowAs = SplitButton;
+
+                    actionref("Re&lease_Promoted"; "Re&lease")
+                    {
+                    }
+                    actionref("Reo&pen_Promoted"; "Reo&pen")
+                    {
+                    }
+                }
+                actionref("Create &Whse. Receipt_Promoted"; "Create &Whse. Receipt")
+                {
+                }
+                actionref("Create Inventor&y Put-away/Pick_Promoted"; "Create Inventor&y Put-away/Pick")
+                {
+                }
+            }
+            group(Category_Prepare)
+            {
+                Caption = 'Prepare';
+
+                actionref(GetReceiptLines_Promoted; GetReceiptLines)
+                {
+                }
+                actionref("Get Bin Content_Promoted"; "Get Bin Content")
+                {
+                }
+            }
+            group(Category_Category8)
+            {
+                Caption = 'Print/Send', Comment = 'Generated from the PromotedActionCategories property index 7.';
+
+                actionref("&Print_Promoted"; "&Print")
+                {
+                }
+            }
+            group(Category_Category6)
+            {
+                Caption = 'Order', Comment = 'Generated from the PromotedActionCategories property index 5.';
+
+                actionref(Dimensions_Promoted; Dimensions)
+                {
+                }
+                actionref(Statistics_Promoted; Statistics)
+                {
+                }
+                actionref("Co&mments_Promoted"; "Co&mments")
+                {
+                }
+
+                separator(Navigate_Separator)
+                {
+                }
+
+                actionref("S&hipments_Promoted"; "S&hipments")
+                {
+                }
+                actionref("Re&ceipts_Promoted"; "Re&ceipts")
+                {
+                }
+            }
+            group(Category_Category7)
+            {
+                Caption = 'Documents', Comment = 'Generated from the PromotedActionCategories property index 6.';
+            }
+            group(Category_Category9)
+            {
+                Caption = 'Navigate', Comment = 'Generated from the PromotedActionCategories property index 8.';
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+
+#if not CLEAN21
+                actionref("Inventory - Inbound Transfer_Promoted"; "Inventory - Inbound Transfer")
+                {
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
+                    ObsoleteTag = '21.0';
+                }
+#endif
             }
         }
     }
 
     trigger OnAfterGetRecord()
     begin
-        EnableTransferFields := not IsPartiallyShipped;
+        EnableTransferFields := not IsPartiallyShipped();
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -800,23 +889,29 @@ page 5740 "Transfer Order"
 
     trigger OnOpenPage()
     begin
-        SetDocNoVisible;
-        EnableTransferFields := not IsPartiallyShipped;
-        ActivateFields;
+        SetDocNoVisible();
+        EnableTransferFields := not IsPartiallyShipped();
+        ActivateFields();
     end;
 
     var
-        Text000: Label 'Do you want to change %1 in all related records in the warehouse?';
         FormatAddress: Codeunit "Format Address";
         DocNoVisible: Boolean;
-        EnableTransferFields: Boolean;
         IsFromCountyVisible: Boolean;
         IsToCountyVisible: Boolean;
+        [InDataSet]
+        IsTransferLinesEditable: Boolean;
+
+        Text000: Label 'Do you want to change %1 in all related records in the warehouse?';
+
+    protected var
+        EnableTransferFields: Boolean;
 
     local procedure ActivateFields()
     begin
         IsFromCountyVisible := FormatAddress.UseCounty("Trsf.-from Country/Region Code");
         IsToCountyVisible := FormatAddress.UseCounty("Trsf.-to Country/Region Code");
+        IsTransferLinesEditable := Rec.TransferLinesEditable();
     end;
 
     local procedure PostingDateOnAfterValidate()
@@ -863,7 +958,7 @@ page 5740 "Transfer Order"
     var
         DocumentNoVisibility: Codeunit DocumentNoVisibility;
     begin
-        DocNoVisible := DocumentNoVisibility.TransferOrderNoIsVisible;
+        DocNoVisible := DocumentNoVisibility.TransferOrderNoIsVisible();
     end;
 
     local procedure IsPartiallyShipped(): Boolean

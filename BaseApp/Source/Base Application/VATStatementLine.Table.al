@@ -206,9 +206,10 @@
     }
 
     var
-        Text000: Label 'must not be %1';
         GLAcc: Record "G/L Account";
         TempType: Enum "VAT Statement Line Type";
+
+        Text000: Label 'must not be %1';
 
     [Scope('OnPrem')]
     procedure Export(var NewVATStatementLine: Record "VAT Statement Line")
@@ -229,17 +230,17 @@
     begin
         case "Amount Type" of
             "Amount Type"::Amount:
-                exit(VATEntry.GetAmount);
+                exit(VATEntry.GetAmount());
             "Amount Type"::Base:
-                exit(VATEntry.GetBase);
+                exit(VATEntry.GetBase());
             "Amount Type"::"Unrealized Amount":
-                exit(VATEntry.GetRemUnrealAmount);
+                exit(VATEntry.GetRemUnrealAmount());
             "Amount Type"::"Unrealized Base":
-                exit(VATEntry.GetRemUnrealBase);
+                exit(VATEntry.GetRemUnrealBase());
             "Amount Type"::"Non-Deductible Amount":
-                exit(VATEntry.GetNonDeductAmount);
+                exit(VATEntry.GetNonDeductAmount());
             "Amount Type"::"Non-Deductible Base":
-                exit(VATEntry.GetNonDeductBase);
+                exit(VATEntry.GetNonDeductBase());
         end;
     end;
 }

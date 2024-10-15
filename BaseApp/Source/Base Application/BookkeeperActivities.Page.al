@@ -53,13 +53,13 @@
             cuegroup(Bills)
             {
                 Caption = 'Bills';
-                field("Vendor Bills - Open"; "Vendor Bills - Open")
+                field("Vendor Bills - Open"; Rec."Vendor Bills - Open")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDownPageID = "List of Open Vendor Bills";
                     ToolTip = 'Specifies if the vendor bill remains open.';
                 }
-                field("Vendor Bills - Sent"; "Vendor Bills - Sent")
+                field("Vendor Bills - Sent"; Rec."Vendor Bills - Sent")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDownPageID = "List of Sent Vendor Bills";
@@ -99,7 +99,7 @@
                     DrillDownPageID = "Sales Order List";
                     ToolTip = 'Specifies the number of approved sales orders.';
                 }
-                field("Customer Bills"; "Customer Bills")
+                field("Customer Bills"; Rec."Customer Bills")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDownPageID = "List of Customer Bills";

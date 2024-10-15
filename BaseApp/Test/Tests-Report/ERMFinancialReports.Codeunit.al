@@ -48,7 +48,7 @@ codeunit 134982 "ERM Financial Reports"
     [Scope('OnPrem')]
     procedure DetailTrialBalanceDateRange()
     begin
-        DetailTrialBalanceDateRangeShared(StrSubstNo('%1..', WorkDate));
+        DetailTrialBalanceDateRangeShared(StrSubstNo('%1..', WorkDate()));
     end;
 
     [Test]
@@ -56,7 +56,7 @@ codeunit 134982 "ERM Financial Reports"
     [Scope('OnPrem')]
     procedure DetailTrialBalanceDateFilter()
     begin
-        DetailTrialBalanceDateRangeShared(StrSubstNo('>%1', WorkDate - 1));
+        DetailTrialBalanceDateRangeShared(StrSubstNo('>%1', WorkDate() - 1));
     end;
 
     local procedure DetailTrialBalanceDateRangeShared(DateFilter: Text[30])
@@ -337,7 +337,7 @@ codeunit 134982 "ERM Financial Reports"
         asserterror FixedAssetDetails.Run();
 
         // Verify: Verify error on Fixed Asset Detail Report when no option is set.
-        Assert.ExpectedError(StrSubstNo(DepreciationBookErr, DepreciationBook.TableCaption));
+        Assert.ExpectedError(StrSubstNo(DepreciationBookErr, DepreciationBook.TableCaption()));
     end;
 
     [Test]
@@ -407,7 +407,7 @@ codeunit 134982 "ERM Financial Reports"
         asserterror MaintenanceDetails.Run();
 
         // Verify: Verify error on Maintenance Detail Report when no option is set.
-        Assert.ExpectedError(StrSubstNo(DepreciationBookErr, DepreciationBook.TableCaption));
+        Assert.ExpectedError(StrSubstNo(DepreciationBookErr, DepreciationBook.TableCaption()));
     end;
 
     [Test]
@@ -814,7 +814,7 @@ codeunit 134982 "ERM Financial Reports"
         GenJournalLine.Validate("Posting Date", LibraryFiscalYear.GetFirstPostingDate(false));
         GenJournalLine.Modify(true);
 
-        FCYAmount := Round(LibraryERM.ConvertCurrency(GenJournalLine.Amount, '', CurrencyCode, WorkDate));
+        FCYAmount := Round(LibraryERM.ConvertCurrency(GenJournalLine.Amount, '', CurrencyCode, WorkDate()));
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // Save and Verify Closing Trial Balance Report with Amount LCY option.
@@ -847,7 +847,7 @@ codeunit 134982 "ERM Financial Reports"
         // Exercise.
         Clear(ReconcileCustAndVendAccs);
         GLAccount.SetRange("No.", GLAccountNo);
-        GLAccount.SetRange("Date Filter", WorkDate);
+        GLAccount.SetRange("Date Filter", WorkDate());
         GLAccount.FindFirst();
         ReconcileCustAndVendAccs.SetTableView(GLAccount);
         Commit();
@@ -1035,7 +1035,7 @@ codeunit 134982 "ERM Financial Reports"
 
         VATEntry.SetFilter("Bill-to/Pay-to No.", '%1|%2', Customer[1]."No.", Customer[2]."No.");
         VATEntry.SetFilter("Country/Region Code", Customer[2]."Country/Region Code");
-        VATEntry.SetRange("Posting Date", WorkDate);
+        VATEntry.SetRange("Posting Date", WorkDate());
         Commit();
 
         // [WHEN] Run report "VAT- VIES Declaration Disk" with "Bill-to/Pay-to No." = "C1"|"C2", "Country/Region Code" = "CR2" and Posting Date = 01/02/2018
@@ -1045,7 +1045,7 @@ codeunit 134982 "ERM Financial Reports"
         VerifyInternalRefNoVATEntry(Customer[1]."No.", '');
 
         // [THEN] VAT Entry "V2" has "Internal Ref. No." = INCSTR(FORMAT(01/02/2018,4,2) + '000000') = INCSTR('0102' + '000000') = '0102000001'
-        VerifyInternalRefNoVATEntry(Customer[2]."No.", IncStr(Format(WorkDate, 4, 2) + '000000'));
+        VerifyInternalRefNoVATEntry(Customer[2]."No.", IncStr(Format(WorkDate(), 4, 2) + '000000'));
 
         // [THEN] VAT Entry "V3" has "Internal Ref. No." = <blank>
         VerifyInternalRefNoVATEntry(Customer[3]."No.", '');
@@ -1159,7 +1159,7 @@ codeunit 134982 "ERM Financial Reports"
         CreateAndPostSalesInvoice(SellToCustomer."No.");
 
         VATEntry.SetRange("Bill-to/Pay-to No.", BillToCustomer."No.");
-        VATEntry.SetRange("Posting Date", WorkDate);
+        VATEntry.SetRange("Posting Date", WorkDate());
 
         // [WHEN] Run report "VAT- VIES Declaration Disk" with "Bill-to/Pay-to No." = "BillCust"
         RunVATVIESDeclarationDisk(VATEntry, FileName);
@@ -1203,7 +1203,7 @@ codeunit 134982 "ERM Financial Reports"
         SellToCustomer.Modify();
 
         VATEntry.SetRange("Bill-to/Pay-to No.", BillToCustomer."No.");
-        VATEntry.SetRange("Posting Date", WorkDate);
+        VATEntry.SetRange("Posting Date", WorkDate());
 
         // [WHEN] Run report "VAT- VIES Declaration Disk" with "Bill-to/Pay-to No." = "BillCust"
         Commit();
@@ -1214,7 +1214,7 @@ codeunit 134982 "ERM Financial Reports"
         Assert.ExpectedError(
           StrSubstNo('%1 must have a value in %2: %3=%4.',
             SellToCustomer.FieldCaption("Country/Region Code"),
-            SellToCustomer.TableCaption, SellToCustomer.FieldCaption("No."), SellToCustomer."No."));
+            SellToCustomer.TableCaption(), SellToCustomer.FieldCaption("No."), SellToCustomer."No."));
     end;
 
     [Test]
@@ -1294,7 +1294,7 @@ codeunit 134982 "ERM Financial Reports"
 
         // [WHEN] Run report "VAT- VIES Declaration Disk" with "Bill-to/Pay-to No." = "C1"|"C2" and Posting Date = 01/02/2018
         VATEntry.SetFilter("Bill-to/Pay-to No.", '%1|%2', Customer1."No.", Customer2."No.");
-        VATEntry.SetRange("Posting Date", WorkDate);
+        VATEntry.SetRange("Posting Date", WorkDate());
         Commit();
         RunVATVIESDeclarationDisk(VATEntry, FileName);
 
@@ -1631,7 +1631,7 @@ codeunit 134982 "ERM Financial Reports"
     begin
         LibraryERM.CreateBankAccReconciliation(BankAccReconciliation, BankAccountNo,
           BankAccReconciliation."Statement Type"::"Bank Reconciliation");
-        BankAccReconciliation.Validate("Statement Date", WorkDate);
+        BankAccReconciliation.Validate("Statement Date", WorkDate());
         BankAccReconciliation.Modify(true);
     end;
 
@@ -1743,7 +1743,7 @@ codeunit 134982 "ERM Financial Reports"
         FindVATEntry(VATEntry, VATRegistrationNo);
         repeat
             TotalAdditionalCurrencyBase += VATEntry."Additional-Currency Base";
-        until VATEntry.Next = 0;
+        until VATEntry.Next() = 0;
     end;
 
     local procedure CalculateBase(VATRegistrationNo: Text[20]) TotalBase: Decimal
@@ -1753,7 +1753,7 @@ codeunit 134982 "ERM Financial Reports"
         FindVATEntry(VATEntry, VATRegistrationNo);
         repeat
             TotalBase += VATEntry.Base;
-        until VATEntry.Next = 0;
+        until VATEntry.Next() = 0;
     end;
 
     local procedure CreateAndPostSalesInvoice(CustomerNo: Code[20]) DocumentNo: Code[20]
@@ -1804,10 +1804,10 @@ codeunit 134982 "ERM Financial Reports"
             repeat
                 DetailedCustLedgEntry.SetCurrentKey("Customer No.", "Posting Date");
                 DetailedCustLedgEntry.SetRange("Customer No.", Customer."No.");
-                DetailedCustLedgEntry.SetRange("Posting Date", WorkDate);
+                DetailedCustLedgEntry.SetRange("Posting Date", WorkDate());
                 DetailedCustLedgEntry.CalcSums("Amount (LCY)");
                 CustAccAmount := CustAccAmount + DetailedCustLedgEntry."Amount (LCY)";
-            until Customer.Next = 0;
+            until Customer.Next() = 0;
         exit(CustAccAmount);
     end;
 
@@ -1911,15 +1911,15 @@ codeunit 134982 "ERM Financial Reports"
         VATEntry: Record "VAT Entry";
     begin
         with VATEntry do begin
-            Init;
+            Init();
             "Entry No." := LibraryUtility.GetNewRecNo(VATEntry, FieldNo("Entry No."));
             Type := Type::Sale;
-            "Posting Date" := WorkDate;
+            "Posting Date" := WorkDate();
             "Bill-to/Pay-to No." := Customer."No.";
             "VAT Registration No." := Customer."VAT Registration No.";
             "Country/Region Code" := Customer."Country/Region Code";
             Base := LibraryRandom.RandDecInRange(10, 20, 2);
-            Insert;
+            Insert();
         end;
     end;
 
@@ -1954,7 +1954,7 @@ codeunit 134982 "ERM Financial Reports"
     local procedure FindVATEntry(var VATEntry: Record "VAT Entry"; VATRegistrationNo: Text[20])
     begin
         VATEntry.SetRange(Type, VATEntry.Type::Sale);
-        VATEntry.SetRange("Posting Date", WorkDate);
+        VATEntry.SetRange("Posting Date", WorkDate());
         VATEntry.SetFilter("VAT Registration No.", VATRegistrationNo);
         VATEntry.FindSet();
     end;
@@ -2139,7 +2139,7 @@ codeunit 134982 "ERM Financial Reports"
     begin
         SuggestBankAccReconLines.SetStmt(BankAccReconciliation);
         SuggestBankAccReconLines.SetTableView(BankAccount);
-        SuggestBankAccReconLines.InitializeRequest(WorkDate, WorkDate, false);
+        SuggestBankAccReconLines.InitializeRequest(WorkDate(), WorkDate(), false);
         SuggestBankAccReconLines.UseRequestPage(false);
         SuggestBankAccReconLines.Run();
     end;
@@ -2192,7 +2192,7 @@ codeunit 134982 "ERM Financial Reports"
         VATVIESDeclarationTaxAuth: Report "VAT- VIES Declaration Tax Auth";
     begin
         Clear(VATVIESDeclarationTaxAuth);
-        VATVIESDeclarationTaxAuth.InitializeRequest(IncludeAdditionalCurrAmount, WorkDate, WorkDate, CustomerVATRegistrationNo);
+        VATVIESDeclarationTaxAuth.InitializeRequest(IncludeAdditionalCurrAmount, WorkDate(), WorkDate, CustomerVATRegistrationNo);
         Commit();
         VATVIESDeclarationTaxAuth.Run();
     end;
@@ -2327,7 +2327,7 @@ codeunit 134982 "ERM Financial Reports"
         LibraryReportValidation.VerifyCellValue(2, 1, StrSubstNo('Depreciation Book: %1', DepreciationBookCode));
         LibraryReportValidation.VerifyCellValue(2, 15, 'Page');
         LibraryReportValidation.VerifyCellValue(2, 17, '1'); // verify page number visibility
-        LibraryReportValidation.VerifyCellValue(4, 1, COMPANYPROPERTY.DisplayName);
+        LibraryReportValidation.VerifyCellValue(4, 1, COMPANYPROPERTY.DisplayName());
         LibraryReportValidation.VerifyCellValue(4, 12, UserId);
     end;
 
@@ -2571,8 +2571,8 @@ codeunit 134982 "ERM Financial Reports"
     procedure ExportConsolidationRequesPageHandler(var ExportConsolidation: TestRequestPage "Export Consolidation")
     begin
         CurrentSaveValuesId := REPORT::"Export Consolidation";
-        ExportConsolidation.StartDate.SetValue(WorkDate);
-        ExportConsolidation.EndDate.SetValue(WorkDate);
+        ExportConsolidation.StartDate.SetValue(WorkDate());
+        ExportConsolidation.EndDate.SetValue(WorkDate());
         ExportConsolidation.ClientFileNameControl.SetValue(LibraryReportDataset.GetParametersFileName);
         ExportConsolidation.OK.Invoke;
     end;

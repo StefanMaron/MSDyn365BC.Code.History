@@ -156,11 +156,11 @@ codeunit 144011 "IT - VAT Reporting - Other"
         Initialize();
 
         // Setup.
-        SetupThresholdAmount(WorkDate);
+        SetupThresholdAmount(WorkDate());
         LibraryVATUtils.UpdateVATPostingSetup(not SetIncludeInVATTransRep);
 
         // Create Gen. Journal Line.
-        Amount := CalculateAmount(WorkDate, true, CompAgainstThreshold);
+        Amount := CalculateAmount(WorkDate(), true, CompAgainstThreshold);
         CreateGenJnlLine(GenJournalLine, DocumentType, GenPostingType, AccountType, CreateDefaultAccount(GenPostingType, AccountType), Amount);
 
         // Update Journal Line.
@@ -275,7 +275,7 @@ codeunit 144011 "IT - VAT Reporting - Other"
         VATReportMediator.Release(VATReportHeader);
 
         // [THEN] VAT Report Status = Released
-        VATReportHeader.Find;
+        VATReportHeader.Find();
         VATReportHeader.TestField(Status, VATReportHeader.Status::Released);
     end;
 
@@ -311,7 +311,7 @@ codeunit 144011 "IT - VAT Reporting - Other"
         VATReportMediator.Release(VATReportHeader);
 
         // [THEN] VAT Report Status = Released
-        VATReportHeader.Find;
+        VATReportHeader.Find();
         VATReportHeader.TestField(Status, VATReportHeader.Status::Released);
     end;
 
@@ -390,7 +390,7 @@ codeunit 144011 "IT - VAT Reporting - Other"
         VATReportMediator.Release(VATReportHeader);
 
         // [THEN] VAT Report Status = Released
-        VATReportHeader.Find;
+        VATReportHeader.Find();
         VATReportHeader.TestField(Status, VATReportHeader.Status::Released);
     end;
 
@@ -789,7 +789,7 @@ codeunit 144011 "IT - VAT Reporting - Other"
         VATPostingSetup.SetRange("VAT %", LibraryVATUtils.FindMaxVATRate(VATPostingSetup."VAT Calculation Type"::"Normal VAT"));
         VATPostingSetup.SetRange("Include in VAT Transac. Rep.", IncludeInVATTransacRep);
         VATPostingSetup.SetRange("Deductible %", 100);
-        exit(VATPostingSetup.FindFirst);
+        exit(VATPostingSetup.FindFirst())
     end;
 
     local procedure RunUpdateVATTransDataReport(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; CompAgainstThreshold: Boolean; TestOnly: Boolean; SetIncludeInVATTransRep: Boolean)
@@ -807,7 +807,7 @@ codeunit 144011 "IT - VAT Reporting - Other"
             UpdateVATTransData.InitializeRequest(CompAgainstThreshold, TestOnly, SetIncludeInDataTransmission::"Set Fields")
         else
             UpdateVATTransData.InitializeRequest(CompAgainstThreshold, TestOnly, SetIncludeInDataTransmission::"Clear Fields");
-        UpdateVATTransData.SaveAsExcel(TemporaryPath + Format(CreateGuid) + Xlsx);
+        UpdateVATTransData.SaveAsExcel(TemporaryPath + Format(CreateGuid()) + Xlsx);
     end;
 
     local procedure SetupThresholdAmount(StartingDate: Date)
@@ -879,7 +879,7 @@ codeunit 144011 "IT - VAT Reporting - Other"
         FindVATEntry(VATEntry, DocumentType, DocumentNo);
         repeat
             VATEntry.TestField("Include in VAT Transac. Rep.", InclInVATTransRep);
-        until VATEntry.Next = 0;
+        until VATEntry.Next() = 0;
     end;
 
     local procedure VerifyVendorAccountBillsListRefundAndCreditMemo(RefundNo: Code[20]; CreditMemoNo: Code[20])
@@ -941,7 +941,7 @@ codeunit 144011 "IT - VAT Reporting - Other"
         ErrorMessages.First;
         repeat
             LibraryVariableStorage.Enqueue(ErrorMessages.Description.Value);
-        until ErrorMessages.Next = false;
+        until ErrorMessages.Next() = false;
     end;
 
     [RequestPageHandler]

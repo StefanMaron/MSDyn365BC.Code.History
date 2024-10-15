@@ -2,8 +2,8 @@ table 308 "No. Series"
 {
     Caption = 'No. Series';
     DataCaptionFields = "Code", Description;
-    DrillDownPageID = "No. Series List";
-    LookupPageID = "No. Series List";
+    DrillDownPageID = "No. Series";
+    LookupPageID = "No. Series";
 
     fields
     {
@@ -39,19 +39,6 @@ table 308 "No. Series"
         field(5; "Date Order"; Boolean)
         {
             Caption = 'Date Order';
-
-            trigger OnValidate()
-            var
-                NoSeriesLine: Record "No. Series Line";
-            begin
-                if not "Date Order" then
-                    exit;
-                FindNoSeriesLineToShow(NoSeriesLine);
-                if not NoSeriesLine.FindFirst() then
-                    exit;
-                if NoSeriesLine."Allow Gaps in Nos." then
-                    Error(AllowGapsNotAllowedWithDateOrderErr);
-            end;
         }
         field(12100; "No. Series Type"; Option)
         {
@@ -60,23 +47,27 @@ table 308 "No. Series"
             OptionMembers = Normal,Sales,Purchase;
 
             trigger OnValidate()
+            var
+                NoSeriesLine: Record "No. Series Line";
+                NoSeriesLineSales: Record "No. Series Line Sales";
+                NoSeriesLinePurchase: Record "No. Series Line Purchase";
             begin
                 if "No. Series Type" <> xRec."No. Series Type" then begin
                     case xRec."No. Series Type" of
                         "No. Series Type"::Normal:
                             begin
                                 NoSeriesLine.SetRange("Series Code", Code);
-                                RecordsFound := NoSeriesLine.Find('-');
+                                RecordsFound := not NoSeriesLine.IsEmpty();
                             end;
                         "No. Series Type"::Sales:
                             begin
                                 NoSeriesLineSales.SetRange("Series Code", Code);
-                                RecordsFound := NoSeriesLineSales.Find('-');
+                                RecordsFound := not NoSeriesLineSales.IsEmpty();
                             end;
                         "No. Series Type"::Purchase:
                             begin
                                 NoSeriesLinePurchase.SetRange("Series Code", Code);
-                                RecordsFound := NoSeriesLinePurchase.Find('-');
+                                RecordsFound := not NoSeriesLinePurchase.IsEmpty();
                             end;
                     end;
 
@@ -136,6 +127,11 @@ table 308 "No. Series"
     }
 
     trigger OnDelete()
+    var
+        NoSeriesLine: Record "No. Series Line";
+        NoSeriesRelationship: Record "No. Series Relationship";
+        NoSeriesLineSales: Record "No. Series Line Sales";
+        NoSeriesLinePurchase: Record "No. Series Line Purchase";
     begin
         NoSeriesLine.SetRange("Series Code", Code);
         NoSeriesLine.DeleteAll();
@@ -156,12 +152,7 @@ table 308 "No. Series"
     end;
 
     var
-        NoSeriesLine: Record "No. Series Line";
-        NoSeriesRelationship: Record "No. Series Relationship";
-        NoSeriesLineSales: Record "No. Series Line Sales";
-        NoSeriesLinePurchase: Record "No. Series Line Purchase";
         RecordsFound: Boolean;
-        AllowGapsNotAllowedWithDateOrderErr: Label 'The Date Order setting is not possible for this number series because the Allow Gaps in Nos. check box is selected on one of the number series lines.';
         Text1130000: Label '%1 must not be Normal';
         Text1130004: Label 'No. Serie Lines must be deleted before changing the %1';
 
@@ -201,6 +192,13 @@ table 308 "No. Series"
 
     procedure UpdateLine(var StartDate: Date; var StartNo: Code[20]; var EndNo: Code[20]; var LastNoUsed: Code[20]; var WarningNo: Code[20]; var IncrementByNo: Integer; var LastDateUsed: Date)
     var
+        AllowGaps: Boolean;
+    begin
+        UpdateLine(StartDate, StartNo, EndNo, LastNoUsed, WarningNo, IncrementByNo, LastDateUsed, AllowGaps);
+    end;
+
+    procedure UpdateLine(var StartDate: Date; var StartNo: Code[20]; var EndNo: Code[20]; var LastNoUsed: Code[20]; var WarningNo: Code[20]; var IncrementByNo: Integer; var LastDateUsed: Date; var AllowGaps: Boolean)
+    var
         NoSeriesLine: Record "No. Series Line";
         NoSeriesLineSales: Record "No. Series Line Sales";
         NoSeriesLinePurchase: Record "No. Series Line Purchase";
@@ -214,10 +212,11 @@ table 308 "No. Series"
                     StartDate := NoSeriesLine."Starting Date";
                     StartNo := NoSeriesLine."Starting No.";
                     EndNo := NoSeriesLine."Ending No.";
-                    LastNoUsed := NoSeriesLine.GetLastNoUsed;
+                    LastNoUsed := NoSeriesLine.GetLastNoUsed();
                     WarningNo := NoSeriesLine."Warning No.";
                     IncrementByNo := NoSeriesLine."Increment-by No.";
                     LastDateUsed := NoSeriesLine."Last Date Used";
+                    AllowGaps := NoSeriesLine."Allow Gaps in Nos.";
                 end;
             "No. Series Type"::Sales:
                 begin
@@ -248,7 +247,7 @@ table 308 "No. Series"
         end;
     end;
 
-    local procedure FindNoSeriesLineToShow(var NoSeriesLine: Record "No. Series Line")
+    internal procedure FindNoSeriesLineToShow(var NoSeriesLine: Record "No. Series Line")
     var
         NoSeriesMgt: Codeunit NoSeriesManagement;
     begin
@@ -286,5 +285,23 @@ table 308 "No. Series"
         NoSeriesLinePurchase.Reset();
         NoSeriesLinePurchase.SetRange("Series Code", Code);
     end;
+
+    internal procedure SetAllowGaps(AllowGaps: Boolean)
+    var
+        NoSeriesLine: Record "No. Series Line";
+        StartDate: Date;
+    begin
+        FindNoSeriesLineToShow(NoSeriesLine);
+        StartDate := NoSeriesLine."Starting Date";
+        NoSeriesLine.SetRange("Allow Gaps in Nos.", not AllowGaps);
+        NoSeriesLine.SetFilter("Starting Date", '>=%1', StartDate);
+        NoSeriesLine.LockTable();
+        if NoSeriesLine.FindSet() then
+            repeat
+                NoSeriesLine.Validate("Allow Gaps in Nos.", AllowGaps);
+                NoSeriesLine.Modify();
+            until NoSeriesLine.Next() = 0;
+    end;
+
 }
 

@@ -2,7 +2,6 @@ page 847 "Cash Flow Forecast Card"
 {
     Caption = 'Cash Flow Forecast Card';
     PageType = Card;
-    PromotedActionCategories = 'New,Process,Report,Cash Flow Forecast';
     SourceTable = "Cash Flow Forecast";
 
     layout
@@ -12,7 +11,7 @@ page 847 "Cash Flow Forecast Card"
             group(General)
             {
                 Caption = 'General';
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
@@ -29,33 +28,33 @@ page 847 "Cash Flow Forecast Card"
                     Importance = Promoted;
                     ToolTip = 'Specifies a description of the cash flow forecast.';
                 }
-                field("Description 2"; "Description 2")
+                field("Description 2"; Rec."Description 2")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies an additional description of a forecast.';
                 }
-                field("Consider Discount"; "Consider Discount")
+                field("Consider Discount"; Rec."Consider Discount")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if you want to include the cash discounts that are assigned in entries and documents in cash flow forecast.';
 
                     trigger OnValidate()
                     begin
-                        UpdateEnabled;
+                        UpdateEnabled();
                     end;
                 }
-                field("Consider Pmt. Disc. Tol. Date"; "Consider Pmt. Disc. Tol. Date")
+                field("Consider Pmt. Disc. Tol. Date"; Rec."Consider Pmt. Disc. Tol. Date")
                 {
                     ApplicationArea = Basic, Suite;
                     Enabled = ConsiderPmtDiscTolDateEnable;
                     ToolTip = 'Specifies if the payment discount tolerance date is considered when the cash flow date is calculated. If the check box is cleared, the due date or payment discount date from the customer and vendor ledger entries and the sales order or purchase order are used.';
                 }
-                field("Consider Pmt. Tol. Amount"; "Consider Pmt. Tol. Amount")
+                field("Consider Pmt. Tol. Amount"; Rec."Consider Pmt. Tol. Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the payment tolerance amounts from the posted customer and vendor ledger entries are used in the cash flow forecast. If the check box is cleared, the amount without any payment tolerance amount from the customer and vendor ledger entries are used.';
                 }
-                field("Consider CF Payment Terms"; "Consider CF Payment Terms")
+                field("Consider CF Payment Terms"; Rec."Consider CF Payment Terms")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -74,50 +73,70 @@ page 847 "Cash Flow Forecast Card"
                         CurrPage.Update();
                     end;
                 }
-                field("Search Name"; "Search Name")
+                field("Search Name"; Rec."Search Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies an alternate name that you can use to search for the record in question when you cannot remember the value in the Name field.';
                 }
-                field("Creation Date"; "Creation Date")
+                field("Creation Date"; Rec."Creation Date")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the date that the forecast was created.';
                 }
-                field("Created By"; "Created By")
+                field("Created By"; Rec."Created By")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the user who created the forecast.';
                 }
-                field("G/L Budget From"; "G/L Budget From")
+                field("G/L Budget From"; Rec."G/L Budget From")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the starting date from which you want to use the budget values from the general ledger in the cash flow forecast.';
+
+                    trigger OnValidate()
+                    begin
+                        ValidateFromDatePrecedesToDate("G/L Budget From", "G/L Budget To", 'G/L Budget');
+                    end;
                 }
-                field("G/L Budget To"; "G/L Budget To")
+                field("G/L Budget To"; Rec."G/L Budget To")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the last date to which you want to use the budget values from the general ledger in the cash flow forecast.';
+
+                    trigger OnValidate()
+                    begin
+                        ValidateFromDatePrecedesToDate("G/L Budget From", "G/L Budget To", 'G/L Budget');
+                    end;
                 }
-                field("Manual Payments From"; "Manual Payments From")
+                field("Manual Payments From"; Rec."Manual Payments From")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a starting date from which manual payments should be included in cash flow forecast.';
+
+                    trigger OnValidate()
+                    begin
+                        ValidateFromDatePrecedesToDate("Manual Payments From", "Manual Payments To", 'Manual Payments');
+                    end;
                 }
-                field("Manual Payments To"; "Manual Payments To")
+                field("Manual Payments To"; Rec."Manual Payments To")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a starting date to which manual payments should be included in cash flow forecast.';
+
+                    trigger OnValidate()
+                    begin
+                        ValidateFromDatePrecedesToDate("Manual Payments From", "Manual Payments To", 'Manual Payments');
+                    end;
                 }
-                field("Overdue CF Dates to Work Date"; "Overdue CF Dates to Work Date")
+                field("Overdue CF Dates to Work Date"; Rec."Overdue CF Dates to Work Date")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Move Overdue Cash Flow Dates to Work Date';
                     ToolTip = 'Specifies if you want to change overdue dates to the current work date for the cash flow forecast. Choose the field if this forecast is shown in the forecast chart.';
                 }
-                field("Default G/L Budget Name"; "Default G/L Budget Name")
+                field("Default G/L Budget Name"; Rec."Default G/L Budget Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the general ledger budget to be used when recalculating the cash flow forecast.';
@@ -163,9 +182,6 @@ page 847 "Cash Flow Forecast Card"
                     ApplicationArea = Basic, Suite;
                     Caption = '&Statistics';
                     Image = Statistics;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
                     RunObject = Page "Cash Flow Forecast Statistics";
                     RunPageLink = "No." = FIELD("No.");
                     ShortCutKey = 'F7';
@@ -176,8 +192,6 @@ page 847 "Cash Flow Forecast Card"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Co&mments';
                     Image = ViewComments;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     RunObject = Page "Cash Flow Comment";
                     RunPageLink = "Table Name" = CONST("Cash Flow Forecast"),
                                   "No." = FIELD("No.");
@@ -205,8 +219,6 @@ page 847 "Cash Flow Forecast Card"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Cash Flow Worksheet';
                 Image = Worksheet2;
-                Promoted = true;
-                PromotedCategory = Process;
                 RunObject = Page "Cash Flow Worksheet";
                 ToolTip = 'Get an overview of cash inflows and outflows and create a short-term forecast that predicts how and when you expect money to be received and paid out by your business.';
             }
@@ -220,8 +232,6 @@ page 847 "Cash Flow Forecast Card"
                     Caption = 'Cash Flow &Date List';
                     Ellipsis = true;
                     Image = "Report";
-                    Promoted = true;
-                    PromotedCategory = "Report";
                     ToolTip = 'View forecast entries for a period of time that you specify. The registered cash flow forecast entries are organized by source types, such as receivables, sales orders, payables, and purchase orders. You specify the number of periods and their length.';
 
                     trigger OnAction()
@@ -229,8 +239,38 @@ page 847 "Cash Flow Forecast Card"
                         CashFlowForecast: Record "Cash Flow Forecast";
                     begin
                         CurrPage.SetSelectionFilter(CashFlowForecast);
-                        CashFlowForecast.PrintRecords;
+                        CashFlowForecast.PrintRecords();
                     end;
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref(CashFlowWorksheet_Promoted; CashFlowWorksheet)
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+
+                actionref(CashFlowDateList_Promoted; CashFlowDateList)
+                {
+                }
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Cash Flow Forecast', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref("&Statistics_Promoted"; "&Statistics")
+                {
+                }
+                actionref("Co&mments_Promoted"; "Co&mments")
+                {
                 }
             }
         }
@@ -238,7 +278,7 @@ page 847 "Cash Flow Forecast Card"
 
     trigger OnAfterGetRecord()
     begin
-        UpdateEnabled;
+        UpdateEnabled();
     end;
 
     trigger OnInit()
@@ -248,7 +288,7 @@ page 847 "Cash Flow Forecast Card"
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        UpdateEnabled;
+        UpdateEnabled();
     end;
 
     var
@@ -259,7 +299,13 @@ page 847 "Cash Flow Forecast Card"
     local procedure UpdateEnabled()
     begin
         ConsiderPmtDiscTolDateEnable := "Consider Discount";
-        ShowInChart := GetShowInChart;
+        ShowInChart := GetShowInChart();
+    end;
+
+    local procedure ValidateFromDatePrecedesToDate(FromDate: Date; ToDate: Date; FieldArea: Text)
+    begin
+        if (FromDate <> 0D) and (ToDate <> 0D) and (FromDate > ToDate) then
+            Error('The "%1 To" date precedes the "%1 From" date. Select an end date after the start date.', FieldArea);
     end;
 }
 

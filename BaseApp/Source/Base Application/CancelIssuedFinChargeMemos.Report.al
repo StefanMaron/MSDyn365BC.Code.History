@@ -18,23 +18,21 @@ report 1395 "Cancel Issued Fin.Charge Memos"
                 CancelIssuedFinChargeMemo.SetGenJnlBatch(GenJnlBatch);
                 if CancelIssuedFinChargeMemo.Run("Issued Fin. Charge Memo Header") then begin
                     if CancelIssuedFinChargeMemo.GetErrorMessages(TempErrorMessage) then
-                        AddIssuedFinChargeMemoHeaderToErrorBuffer;
+                        AddIssuedFinChargeMemoHeaderToErrorBuffer();
                     Commit();
-                end else begin
+                end else
                     if NoOfRecords > 1 then begin
-                        TempErrorMessage.LogLastError;
-                        AddIssuedFinChargeMemoHeaderToErrorBuffer;
+                        TempErrorMessage.LogLastError();
+                        AddIssuedFinChargeMemoHeaderToErrorBuffer();
                     end else
                         Error(GetLastErrorText);
-                end;
             end;
 
             trigger OnPostDataItem()
             begin
-                if NoOfRecords > 1 then begin
+                if NoOfRecords > 1 then
                     if not TempIssuedFinChargeMemoHeader.IsEmpty() then
-                        AskShowNotCancelledIssuedFinChargeMemos;
-                end;
+                        AskShowNotCancelledIssuedFinChargeMemos();
             end;
 
             trigger OnPreDataItem()
@@ -72,7 +70,7 @@ report 1395 "Cancel Issued Fin.Charge Memos"
                     begin
                         if UseSamePostingDate then
                             NewPostingDate := 0D;
-                        SetEnabled;
+                        SetEnabled();
                     end;
                 }
                 field(NewPostingDate; NewPostingDate)
@@ -131,7 +129,7 @@ report 1395 "Cancel Issued Fin.Charge Memos"
         begin
             UseSameDocumentNo := true;
             UseSamePostingDate := true;
-            SetEnabled;
+            SetEnabled();
         end;
     }
 

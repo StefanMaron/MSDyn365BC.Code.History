@@ -33,7 +33,7 @@ codeunit 132591 "MemoryStream Wrapper Tests"
         MemoryStreamWrapper.AddText('TestGetPos');
 
         // Exercise and verify
-        Assert.AreEqual(10, MemoryStreamWrapper.GetPosition, 'GetPosition returned wrong value');
+        Assert.AreEqual(10, MemoryStreamWrapper.GetPosition(), 'GetPosition returned wrong value');
     end;
 
     [Test]

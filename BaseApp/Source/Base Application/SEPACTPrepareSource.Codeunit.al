@@ -83,7 +83,7 @@ codeunit 1222 "SEPA CT-Prepare Source"
     local procedure InsertTempGenJnlLine(var TempGenJnlLine: Record "Gen. Journal Line" temporary; VendorBillHeader: Record "Vendor Bill Header"; VendorBillLine: Record "Vendor Bill Line"; AmountToPay: Decimal; CumulativeCnt: Integer)
     begin
         with TempGenJnlLine do begin
-            Init;
+            Init();
             "Journal Template Name" := '';
             "Journal Batch Name" := '';
             "Document Type" := "Document Type"::Payment;
@@ -108,7 +108,8 @@ codeunit 1222 "SEPA CT-Prepare Source"
                 Description := VendorBillLine.Description;
             end;
             "Message to Recipient" := VendorBillLine."Description 2";
-            Insert;
+            OnInsertTempGenJnlLineOnBeforeInsert(TempGenJnlLine, VendorBillLine);
+            Insert();
         end;
     end;
 
@@ -124,6 +125,11 @@ codeunit 1222 "SEPA CT-Prepare Source"
 
     [IntegrationEvent(false, false)]
     local procedure OnCopyJnlLinesOnBeforeTempGenJnlLineInsert(var FromGenJournalLine: Record "Gen. Journal Line"; var TempGenJournalLine: Record "Gen. Journal Line" temporary; GenJournalBatch: Record "Gen. Journal Batch")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertTempGenJnlLineOnBeforeInsert(var TempGenJnlLine: Record "Gen. Journal Line" temporary; VendorBillLine: Record "Vendor Bill Line")
     begin
     end;
 }

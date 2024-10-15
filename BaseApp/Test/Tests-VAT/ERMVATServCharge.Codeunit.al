@@ -723,7 +723,7 @@
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
         SalesLine.SetRange("Document No.", DocumentNo);
         SalesLine.SetRange(Type, SalesLine.Type::"G/L Account");
-        exit(SalesLine.FindFirst);
+        exit(SalesLine.FindFirst())
     end;
 
     local procedure FindSalesLineWithType(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; Type: Enum "Sales Line Type")
@@ -739,7 +739,7 @@
         PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::"Credit Memo");
         PurchaseLine.SetRange("Document No.", DocumentNo);
         PurchaseLine.SetRange(Type, PurchaseLine.Type::"G/L Account");
-        exit(PurchaseLine.FindFirst);
+        exit(PurchaseLine.FindFirst())
     end;
 
     local procedure FindPurchaseLineWithType(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; Type: Enum "Purchase Line Type")
@@ -784,16 +784,16 @@
         SalesLine.FindSet();
         repeat
             AmtIncVat += SalesLine."Line Amount";
-        until SalesLine.Next = 0;
+        until SalesLine.Next() = 0;
         Assert.AreNearlyEqual(
           AmountIncludingVat, AmtIncVat, GeneralLedgerSetup."Amount Rounding Precision", StrSubstNo(AmountError, AmountIncludingVat,
-            SalesLine.TableCaption));
+            SalesLine.TableCaption()));
 
         FindSalesLine(SalesLine, DocumentNo);
         LineAmount += LineAmount * SalesLine."VAT %" / 100;
         Assert.AreNearlyEqual(
           LineAmount, SalesLine."Line Amount", GeneralLedgerSetup."Amount Rounding Precision", StrSubstNo(AmountError, LineAmount,
-            SalesLine.TableCaption));
+            SalesLine.TableCaption()));
     end;
 
     local procedure VerifyPurchaseLine(DocumentNo: Code[20]; LineAmount: Decimal; AmountIncludingVat: Decimal)
@@ -808,16 +808,16 @@
         PurchaseLine.FindSet();
         repeat
             AmtIncVat += PurchaseLine."Line Amount";
-        until PurchaseLine.Next = 0;
+        until PurchaseLine.Next() = 0;
         Assert.AreNearlyEqual(
           AmountIncludingVat, AmtIncVat, GeneralLedgerSetup."Amount Rounding Precision", StrSubstNo(AmountError, AmountIncludingVat,
-            PurchaseLine.TableCaption));
+            PurchaseLine.TableCaption()));
 
         FindPurchaseLine(PurchaseLine, DocumentNo);
         LineAmount += LineAmount * PurchaseLine."VAT %" / 100;
         Assert.AreNearlyEqual(
           LineAmount, PurchaseLine."Line Amount", GeneralLedgerSetup."Amount Rounding Precision", StrSubstNo(AmountError,
-            LineAmount, PurchaseLine.TableCaption));
+            LineAmount, PurchaseLine.TableCaption()));
     end;
 
     local procedure VerifyGLEntryForSales(DocumentNo: Code[20]; VATAmount: Decimal)
@@ -831,7 +831,7 @@
           FindGLEntry(GLEntry."Document Type"::Invoice, DocumentNo, -VATAmount, GeneralLedgerSetup."Amount Rounding Precision");
         Assert.AreNearlyEqual(
           -VATAmount, GLVatAmount, GeneralLedgerSetup."Amount Rounding Precision", StrSubstNo(AmountError, -VATAmount,
-            GLEntry.TableCaption));
+            GLEntry.TableCaption()));
     end;
 
     local procedure VerifyGLEntryForPurchase(PreAssignedNo: Code[20]; VATAmount: Decimal)
@@ -849,7 +849,7 @@
             GLEntry."Document Type"::"Credit Memo", PurchCrMemoHdr."No.", -VATAmount, GeneralLedgerSetup."Amount Rounding Precision");
         Assert.AreNearlyEqual(
           -VATAmount, GLVatAmount, GeneralLedgerSetup."Amount Rounding Precision", StrSubstNo(AmountError, -VATAmount,
-            GLEntry.TableCaption));
+            GLEntry.TableCaption()));
     end;
 
     local procedure VerifyServChargeSalesLines(SalesHeader: Record "Sales Header"; PrepaymentPct: Decimal; PrepmtLineAmt: Decimal)

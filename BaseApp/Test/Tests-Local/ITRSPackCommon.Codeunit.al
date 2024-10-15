@@ -34,7 +34,7 @@ codeunit 148500 "IT RS Pack - Common"
         // [FEATURE] [FatturaPA] [Sales]
         // [SCENARIO 259342] Sales Setup has filled "Fattura PA Nos.", "Fattura PA Electronic Format" and "Validate Document On Posting" = FALSE
         with SalesReceivablesSetup do begin
-            Get;
+            Get();
             TestField("Fattura PA Nos.");
             TestField("Fattura PA Electronic Format", FatturaPATxt);
             TestField("Validate Document On Posting", false);
@@ -50,7 +50,7 @@ codeunit 148500 "IT RS Pack - Common"
         // [FEATURE] [FatturaPA] [Service]
         // [SCENARIO 259342] Service Setup has "Validate Document On Posting" = FALSE
         with ServiceMgtSetup do begin
-            Get;
+            Get();
             TestField("Validate Document On Posting", false);
         end;
     end;

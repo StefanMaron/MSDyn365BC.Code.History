@@ -22,9 +22,9 @@ table 99000764 "Routing Line"
 
             trigger OnValidate()
             begin
-                TestStatus;
+                TestStatus();
 
-                SetRecalcStatus;
+                SetRecalcStatus();
             end;
         }
         field(5; "Next Operation No."; Code[30])
@@ -33,7 +33,7 @@ table 99000764 "Routing Line"
 
             trigger OnValidate()
             begin
-                SetRecalcStatus;
+                SetRecalcStatus();
             end;
         }
         field(6; "Previous Operation No."; Code[30])
@@ -42,7 +42,7 @@ table 99000764 "Routing Line"
 
             trigger OnValidate()
             begin
-                SetRecalcStatus;
+                SetRecalcStatus();
             end;
         }
         field(7; Type; Enum "Capacity Type Routing")
@@ -51,7 +51,7 @@ table 99000764 "Routing Line"
 
             trigger OnValidate()
             begin
-                SetRecalcStatus;
+                SetRecalcStatus();
 
                 "No." := '';
                 "Work Center No." := '';
@@ -67,7 +67,7 @@ table 99000764 "Routing Line"
 
             trigger OnValidate()
             begin
-                SetRecalcStatus;
+                SetRecalcStatus();
 
                 if "No." = '' then
                     exit;
@@ -77,13 +77,13 @@ table 99000764 "Routing Line"
                         begin
                             WorkCenter.Get("No.");
                             WorkCenter.TestField(Blocked, false);
-                            WorkCenterTransferFields;
+                            WorkCenterTransferFields();
                         end;
                     Type::"Machine Center":
                         begin
                             MachineCenter.Get("No.");
                             MachineCenter.TestField(Blocked, false);
-                            MachineCtrTransferFields;
+                            MachineCtrTransferFields();
                         end;
                 end;
 
@@ -138,7 +138,7 @@ table 99000764 "Routing Line"
 
             trigger OnValidate()
             begin
-                SetRecalcStatus;
+                SetRecalcStatus();
             end;
         }
         field(17; "Lot Size"; Decimal)
@@ -154,7 +154,7 @@ table 99000764 "Routing Line"
 
             trigger OnValidate()
             begin
-                SetRecalcStatus;
+                SetRecalcStatus();
             end;
         }
         field(19; "Setup Time Unit of Meas. Code"; Code[10])
@@ -218,18 +218,19 @@ table 99000764 "Routing Line"
             begin
                 if "Standard Task Code" = '' then
                     if "Standard Task Code" <> xRec."Standard Task Code" then begin
-                        DeleteRelations;
+                        DeleteRelations();
                         exit;
                     end;
 
                 StandardTask.Get("Standard Task Code");
                 Description := StandardTask.Description;
 
-                DeleteRelations;
+                DeleteRelations();
 
                 StdTaskTool.SetRange("Standard Task Code", "Standard Task Code");
                 if StdTaskTool.Find('-') then
                     repeat
+                        RtngTool.Init();
                         RtngTool."Routing No." := "Routing No.";
                         RtngTool."Version Code" := "Version Code";
                         RtngTool."Operation No." := "Operation No.";
@@ -242,6 +243,7 @@ table 99000764 "Routing Line"
                 StdTaskPersonnel.SetRange("Standard Task Code", "Standard Task Code");
                 if StdTaskPersonnel.Find('-') then
                     repeat
+                        RtngPersonnel.Init();
                         RtngPersonnel."Routing No." := "Routing No.";
                         RtngPersonnel."Version Code" := "Version Code";
                         RtngPersonnel."Operation No." := "Operation No.";
@@ -254,6 +256,7 @@ table 99000764 "Routing Line"
                 StdTaskQltyMeasure.SetRange("Standard Task Code", "Standard Task Code");
                 if StdTaskQltyMeasure.Find('-') then
                     repeat
+                        RtngQltyMeasure.Init();
                         RtngQltyMeasure."Routing No." := "Routing No.";
                         RtngQltyMeasure."Version Code" := "Version Code";
                         RtngQltyMeasure."Operation No." := "Operation No.";
@@ -356,26 +359,26 @@ table 99000764 "Routing Line"
 
     trigger OnDelete()
     begin
-        TestStatus;
+        TestStatus();
 
-        DeleteRelations;
+        DeleteRelations();
     end;
 
     trigger OnInsert()
     begin
-        TestStatus;
+        TestStatus();
     end;
 
     trigger OnModify()
     begin
-        TestStatus;
+        TestStatus();
     end;
 
     trigger OnRename()
     begin
-        TestStatus;
+        TestStatus();
 
-        SetRecalcStatus;
+        SetRecalcStatus();
     end;
 
     var
@@ -462,7 +465,7 @@ table 99000764 "Routing Line"
     local procedure MachineCtrTransferFields()
     begin
         WorkCenter.Get(MachineCenter."Work Center No.");
-        WorkCenterTransferFields;
+        WorkCenterTransferFields();
 
         Description := MachineCenter.Name;
         "Setup Time" := MachineCenter."Setup Time";
@@ -509,7 +512,7 @@ table 99000764 "Routing Line"
 
         SetRange("Routing No.", RtngHeaderNo);
         SetRange("Version Code", RtngVersionCode);
-        exit(FindSet);
+        exit(FindSet());
     end;
 
     procedure CheckIfRoutingCertified(RoutingLineType: Enum "Capacity Type Routing"; No: Code[20])

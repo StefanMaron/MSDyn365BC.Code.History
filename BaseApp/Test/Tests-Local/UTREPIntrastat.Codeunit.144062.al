@@ -189,7 +189,7 @@ codeunit 144062 "UT REP Intrastat"
         GLBookEntry2.FindLast();
         GLBookEntry."Entry No." := GLBookEntry2."Entry No." + 1;
         GLBookEntry."G/L Account No." := GLAccountNo;
-        GLBookEntry."Posting Date" := WorkDate;
+        GLBookEntry."Posting Date" := WorkDate();
         GLBookEntry."Transaction No." := TransactionNo;
         GLBookEntry.Insert();
     end;
@@ -201,7 +201,7 @@ codeunit 144062 "UT REP Intrastat"
         GLEntry2.FindLast();
         GLEntry."Entry No." := GLEntry2."Entry No." + 1;
         GLEntry."G/L Account No." := GLAccountNo;
-        GLEntry."Posting Date" := WorkDate;
+        GLEntry."Posting Date" := WorkDate();
         GLEntry.Amount := Amount;
         GLEntry."Transaction No." := TransactionNo;
         GLEntry.Insert();
@@ -279,7 +279,7 @@ codeunit 144062 "UT REP Intrastat"
     begin
         LibraryVariableStorage.Dequeue(No);
         AccountBookSheetPrint."G/L Account".SetFilter("No.", No);
-        AccountBookSheetPrint."G/L Account".SetFilter("Date Filter", Format(WorkDate));
+        AccountBookSheetPrint."G/L Account".SetFilter("Date Filter", Format(WorkDate()));
         AccountBookSheetPrint.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 

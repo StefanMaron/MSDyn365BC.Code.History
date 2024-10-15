@@ -106,11 +106,11 @@ codeunit 144008 "IT - VAT Reporting - Purchase"
         Initialize();
 
         // Setup.
-        SetupThresholdAmount(WorkDate);
+        SetupThresholdAmount(WorkDate());
         LibraryVATUtils.UpdateVATPostingSetup(InclInVATSetup);
 
         // Create Purch Document.
-        LineAmount := CalculateAmount(WorkDate, InclVAT, InclInVATTransRep);
+        LineAmount := CalculateAmount(WorkDate(), InclVAT, InclInVATTransRep);
         CreatePurchDocument(
           PurchHeader, PurchLine, DocumentType, CreateVendor(false, PurchHeader.Resident::Resident, true, InclVAT), LineAmount);
 
@@ -180,12 +180,12 @@ codeunit 144008 "IT - VAT Reporting - Purchase"
         Initialize();
 
         // Setup.
-        SetupThresholdAmount(WorkDate);
+        SetupThresholdAmount(WorkDate());
         LibraryVATUtils.UpdateVATPostingSetup(true);
 
         // Calculate Amounts.
-        OrderAmount := CalculateAmount(WorkDate, InclVAT, true); // Above threshold.
-        LineAmount := CalculateAmount(WorkDate, InclVAT, false); // Below threshold.
+        OrderAmount := CalculateAmount(WorkDate(), InclVAT, true); // Above threshold.
+        LineAmount := CalculateAmount(WorkDate(), InclVAT, false); // Below threshold.
 
         // Create Purch Blanket Order.
         CreatePurchDocument(
@@ -234,7 +234,7 @@ codeunit 144008 "IT - VAT Reporting - Purchase"
         Initialize();
 
         // Setup.
-        SetupThresholdAmount(WorkDate);
+        SetupThresholdAmount(WorkDate());
         LibraryVATUtils.UpdateVATPostingSetup(true);
 
         // Create Vendor.
@@ -243,7 +243,7 @@ codeunit 144008 "IT - VAT Reporting - Purchase"
         Vendor.Modify(true);
 
         // Create Purchase Document.
-        LineAmount := CalculateAmount(WorkDate, false, true);
+        LineAmount := CalculateAmount(WorkDate(), false, true);
         CreatePurchDocument(PurchHeader, PurchLine, PurchHeader."Document Type"::Invoice, Vendor."No.", LineAmount);
 
         // Verify Purchase Line.
@@ -367,11 +367,11 @@ codeunit 144008 "IT - VAT Reporting - Purchase"
         Initialize();
 
         // Setup.
-        SetupThresholdAmount(WorkDate);
+        SetupThresholdAmount(WorkDate());
         LibraryVATUtils.UpdateVATPostingSetup(true);
 
         // Create Purch Document.
-        LineAmount := CalculateAmount(WorkDate, InclVAT, InclInVATTransRep);
+        LineAmount := CalculateAmount(WorkDate(), InclVAT, InclInVATTransRep);
         CreatePurchDocument(
           PurchHeader, PurchLine, DocumentType, CreateVendor(false, PurchHeader.Resident::Resident, true, InclVAT), LineAmount);
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchHeader, true, true);
@@ -416,12 +416,12 @@ codeunit 144008 "IT - VAT Reporting - Purchase"
         Initialize();
 
         // Setup.
-        SetupThresholdAmount(WorkDate);
+        SetupThresholdAmount(WorkDate());
         LibraryVATUtils.UpdateVATPostingSetup(true);
 
         // Calculate Amounts.
-        OrderAmount := CalculateAmount(WorkDate, false, true); // Above threshold.
-        LineAmount := CalculateAmount(WorkDate, false, false); // Below threshold.
+        OrderAmount := CalculateAmount(WorkDate(), false, true); // Above threshold.
+        LineAmount := CalculateAmount(WorkDate(), false, false); // Below threshold.
 
         // Create Purchase Blanket Order.
         CreatePurchDocument(
@@ -607,11 +607,11 @@ codeunit 144008 "IT - VAT Reporting - Purchase"
         Initialize();
 
         // Setup.
-        SetupThresholdAmount(WorkDate);
+        SetupThresholdAmount(WorkDate());
         LibraryVATUtils.UpdateVATPostingSetup(true);
 
         // Create Purch Document.
-        LineAmount := CalculateAmount(WorkDate, false, true);
+        LineAmount := CalculateAmount(WorkDate(), false, true);
 
         // Create Purchase Header.
         LibraryPurchase.CreatePurchHeader(PurchHeader, DocumentType, CreateVendor(false, PurchHeader.Resident::Resident, true, false));
@@ -662,12 +662,12 @@ codeunit 144008 "IT - VAT Reporting - Purchase"
         Initialize();
 
         // Setup.
-        SetupThresholdAmount(WorkDate);
+        SetupThresholdAmount(WorkDate());
         LibraryVATUtils.UpdateVATPostingSetup(true);
         SetupPrepayments;
 
         // Create Sales Document.
-        LineAmount := CalculateAmount(WorkDate, false, true);
+        LineAmount := CalculateAmount(WorkDate(), false, true);
 
         // Create Sales Header.
         LibraryPurchase.CreatePurchHeader(
@@ -852,11 +852,11 @@ codeunit 144008 "IT - VAT Reporting - Purchase"
         Initialize();
 
         // Setup.
-        SetupThresholdAmount(WorkDate);
+        SetupThresholdAmount(WorkDate());
         LibraryVATUtils.UpdateVATPostingSetup(true);
 
         // Calculate Line Amount (Excl. VAT).
-        LineAmount := CalculateAmount(WorkDate, false, true);
+        LineAmount := CalculateAmount(WorkDate(), false, true);
 
         // Create Vendor.
         Vendor.Get(CreateVendor(IndividualPerson, Resident, true, false));
@@ -931,11 +931,11 @@ codeunit 144008 "IT - VAT Reporting - Purchase"
         Initialize();
 
         // Setup.
-        SetupThresholdAmount(WorkDate);
+        SetupThresholdAmount(WorkDate());
         LibraryVATUtils.UpdateVATPostingSetup(false);
 
         // Calculate Line Amount (Excl. VAT).
-        LineAmount := CalculateAmount(WorkDate, false, true);
+        LineAmount := CalculateAmount(WorkDate(), false, true);
 
         // Create Purchase Document.
         CreatePurchDocument(PurchHeader, PurchLine, DocumentType, CreateVendor(IndividualPerson, Resident, false, false), LineAmount);
@@ -957,12 +957,12 @@ codeunit 144008 "IT - VAT Reporting - Purchase"
         Initialize();
 
         // Setup.
-        SetupThresholdAmount(WorkDate);
+        SetupThresholdAmount(WorkDate());
         LibraryVATUtils.UpdateVATPostingSetup(true);
         SetupPrepayments;
 
         // Create Sales Document. // WORKING
-        LineAmount := CalculateAmount(WorkDate, InclVAT, InclInVATTransRep);
+        LineAmount := CalculateAmount(WorkDate(), InclVAT, InclInVATTransRep);
 
         // Create Sales Header.
         LibraryPurchase.CreatePurchHeader(PurchHeader, DocumentType, CreateVendor(false, PurchHeader.Resident::Resident, true, false));
@@ -1272,7 +1272,7 @@ codeunit 144008 "IT - VAT Reporting - Purchase"
         VATPostingSetup.SetRange("VAT %", LibraryVATUtils.FindMaxVATRate(VATPostingSetup."VAT Calculation Type"::"Normal VAT"));
         VATPostingSetup.SetRange("Include in VAT Transac. Rep.", IncludeInVATTransacRep);
         VATPostingSetup.SetRange("Deductible %", 100);
-        exit(VATPostingSetup.FindFirst);
+        exit(VATPostingSetup.FindFirst())
     end;
 
     local procedure MakeOrderPurchase(var PurchHeader: Record "Purchase Header"; var PurchOrderHeader: Record "Purchase Header")
@@ -1289,7 +1289,7 @@ codeunit 144008 "IT - VAT Reporting - Purchase"
         NoSeriesManagement: Codeunit NoSeriesManagement;
         NoSeriesCode: Code[20];
     begin
-        PurchHeader.Find; // Required to avoid Another user has modified the record error.
+        PurchHeader.Find(); // Required to avoid Another user has modified the record error.
         PurchHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
         PurchHeader.Validate(Receive, true);
         PurchHeader.Validate(Invoice, true);
@@ -1298,7 +1298,7 @@ codeunit 144008 "IT - VAT Reporting - Purchase"
         UpdateCheckTotal(PurchHeader, PurchLine."Amount Including VAT" - PurchLine."Prepmt. Amt. Incl. VAT");
 
         NoSeriesCode := PurchHeader."Posting No. Series";
-        DocumentNo := NoSeriesManagement.GetNextNo(NoSeriesCode, WorkDate, false);
+        DocumentNo := NoSeriesManagement.GetNextNo(NoSeriesCode, WorkDate(), false);
         CODEUNIT.Run(CODEUNIT::"Purch.-Post", PurchHeader);
     end;
 
@@ -1362,7 +1362,7 @@ codeunit 144008 "IT - VAT Reporting - Purchase"
         VATEntry.FindSet();
         repeat
             VATEntry.TestField("Contract No.", ContractNo);
-        until VATEntry.Next = 0;
+        until VATEntry.Next() = 0;
     end;
 
     local procedure VerifyIncludeVAT(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; InclInVATTransRep: Boolean)
@@ -1372,7 +1372,7 @@ codeunit 144008 "IT - VAT Reporting - Purchase"
         FindVATEntry(VATEntry, DocumentType, DocumentNo);
         repeat
             VATEntry.TestField("Include in VAT Transac. Rep.", InclInVATTransRep);
-        until VATEntry.Next = 0;
+        until VATEntry.Next() = 0;
     end;
 
     local procedure VerifyRefersToPeriod(TableID: Option; DocumentNo: Code[20]; RefersToPeriod: Option)
@@ -1411,7 +1411,7 @@ codeunit 144008 "IT - VAT Reporting - Purchase"
         FindVATEntry(VATEntry, VATEntry."Document Type"::"Credit Memo", DocumentNo);
         repeat
             VATEntry.TestField("Refers To Period", RefersToPeriod);
-        until VATEntry.Next = 0;
+        until VATEntry.Next() = 0;
     end;
 
     local procedure VerifyTaxRep(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; TaxRepType: Option; TaxRepNo: Code[20])
@@ -1422,7 +1422,7 @@ codeunit 144008 "IT - VAT Reporting - Purchase"
         repeat
             VATEntry.TestField("Tax Representative Type", TaxRepType);
             VATEntry.TestField("Tax Representative No.", TaxRepNo);
-        until VATEntry.Next = 0;
+        until VATEntry.Next() = 0;
     end;
 
     local procedure TearDown()

@@ -231,7 +231,7 @@ codeunit 144150 "Periodic VAT Pmt. Comm. Tests"
         // [WHEN] Intermmediaries parameters
         SetIntermediaryValuesInVATReportSetup();
         VATReportSetup.Get();
-        VATReportSetup.Modify;
+        VATReportSetup.Modify();
         VATPmtCommDataLookup.Init();
 
         // [THEN] Check intermmediaries
@@ -1172,7 +1172,7 @@ codeunit 144150 "Periodic VAT Pmt. Comm. Tests"
 
         SetIntermediaryValuesInVATReportSetup();
         LocalVATPmtCommDataLookup.Init();
-        LocalVATPmtCommDataLookup.SetStartDate(WorkDate);
+        LocalVATPmtCommDataLookup.SetStartDate(WorkDate());
         LocalVATPmtCommDataLookup.SetIsIntermediary(true);
         LocalVATPmtCommXMLGenerator.SetVATPmtCommDataLookup(LocalVATPmtCommDataLookup);
         LocalVATPmtCommXMLGenerator.CreateXml(XmlDoc);
@@ -1284,7 +1284,7 @@ codeunit 144150 "Periodic VAT Pmt. Comm. Tests"
     local procedure CreateVATEntry(var VATEntry: Record "VAT Entry"; VATType: Enum "General Posting Type"; VATBase: Decimal; VATAmount: Decimal; OpOccuredDate: Date; VATCalculationType: Enum "Tax Calculation Type")
     begin
         with VATEntry do begin
-            Init;
+            Init();
             "Entry No." := LibraryUtility.GetNewRecNo(VATEntry, FieldNo("Entry No."));
             Type := VATType;
             "VAT Calculation Type" := VATCalculationType;

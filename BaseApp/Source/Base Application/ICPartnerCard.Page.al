@@ -21,12 +21,12 @@ page 609 "IC Partner Card"
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies the name of the intercompany partner.';
                 }
-                field("Currency Code"; "Currency Code")
+                field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies the currency that is used on the entry.';
                 }
-                field("Inbox Type"; "Inbox Type")
+                field("Inbox Type"; Rec."Inbox Type")
                 {
                     ApplicationArea = Intercompany;
                     Caption = 'Transfer Type';
@@ -34,10 +34,10 @@ page 609 "IC Partner Card"
 
                     trigger OnValidate()
                     begin
-                        SetInboxDetailsCaption;
+                        SetInboxDetailsCaption();
                     end;
                 }
-                field("Inbox Details"; "Inbox Details")
+                field("Inbox Details"; Rec."Inbox Details")
                 {
                     ApplicationArea = Intercompany;
                     CaptionClass = TransferTypeLbl;
@@ -45,7 +45,7 @@ page 609 "IC Partner Card"
                     Enabled = EnableInboxDetails;
                     ToolTip = 'Specifies the details of the intercompany partner''s inbox.';
                 }
-                field("Auto. Accept Transactions"; "Auto. Accept Transactions")
+                field("Auto. Accept Transactions"; Rec."Auto. Accept Transactions")
                 {
                     ApplicationArea = Intercompany;
                     Caption = 'Auto. Accept Transactions';
@@ -62,7 +62,7 @@ page 609 "IC Partner Card"
             group("Sales Transaction")
             {
                 Caption = 'Sales Transaction';
-                field("Customer No."; "Customer No.")
+                field("Customer No."; Rec."Customer No.")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies the customer number that this intercompany partner is linked to.';
@@ -71,15 +71,15 @@ page 609 "IC Partner Card"
                     begin
                         CurrPage.Update(true);
                         PropagateCustomerICPartner(xRec."Customer No.", "Customer No.", Code);
-                        Find;
+                        Find();
                     end;
                 }
-                field("Receivables Account"; "Receivables Account")
+                field("Receivables Account"; Rec."Receivables Account")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies the general ledger account to use when you post receivables from customers in this posting group.';
                 }
-                field("Outbound Sales Item No. Type"; "Outbound Sales Item No. Type")
+                field("Outbound Sales Item No. Type"; Rec."Outbound Sales Item No. Type")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies what type of item number is entered in the IC Partner Reference field for items on purchase lines that you send to this IC partner.';
@@ -88,7 +88,7 @@ page 609 "IC Partner Card"
             group("Purchase Transaction")
             {
                 Caption = 'Purchase Transaction';
-                field("Vendor No."; "Vendor No.")
+                field("Vendor No."; Rec."Vendor No.")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies the vendor number that this intercompany partner is linked to.';
@@ -97,20 +97,20 @@ page 609 "IC Partner Card"
                     begin
                         CurrPage.Update(true);
                         PropagateVendorICPartner(xRec."Vendor No.", "Vendor No.", Code);
-                        Find;
+                        Find();
                     end;
                 }
-                field("Payables Account"; "Payables Account")
+                field("Payables Account"; Rec."Payables Account")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies the general ledger account to use when you post payables due to vendors in this posting group.';
                 }
-                field("Outbound Purch. Item No. Type"; "Outbound Purch. Item No. Type")
+                field("Outbound Purch. Item No. Type"; Rec."Outbound Purch. Item No. Type")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies what type of item number is entered in the IC Partner Reference field for items on purchase lines that you send to this IC partner.';
                 }
-                field("Cost Distribution in LCY"; "Cost Distribution in LCY")
+                field("Cost Distribution in LCY"; Rec."Cost Distribution in LCY")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies whether costs are allocated in local currency to one or several IC partners.';
@@ -145,9 +145,6 @@ page 609 "IC Partner Card"
                     ApplicationArea = Dimensions;
                     Caption = 'Dimensions';
                     Image = Dimensions;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedOnly = true;
                     RunObject = Page "Default Dimensions";
                     RunPageLink = "Table ID" = CONST(413),
                                   "No." = FIELD(Code);
@@ -156,16 +153,27 @@ page 609 "IC Partner Card"
                 }
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(Dimensions_Promoted; Dimensions)
+                {
+                }
+            }
+        }
     }
 
     trigger OnAfterGetRecord()
     begin
-        SetInboxDetailsCaption;
+        SetInboxDetailsCaption();
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        SetInboxDetailsCaption;
+        SetInboxDetailsCaption();
     end;
 
     var
@@ -182,7 +190,7 @@ page 609 "IC Partner Card"
     begin
         EnableInboxDetails :=
           ("Inbox Type" <> "Inbox Type"::"No IC Transfer") and
-          not (("Inbox Type" = "Inbox Type"::"File Location") and EnvironmentInfo.IsSaaS);
+          not (("Inbox Type" = "Inbox Type"::"File Location") and EnvironmentInfo.IsSaaS());
         case "Inbox Type" of
             "Inbox Type"::Database:
                 TransferTypeLbl := CompanyNameTransferTypeTxt;

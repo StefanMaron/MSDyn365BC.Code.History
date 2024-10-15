@@ -323,7 +323,7 @@ codeunit 144173 "ERM IT Prepayment II"
         asserterror LibrarySales.PostSalesPrepaymentInvoice(SalesHeader);
 
         // Verify: Verify error on while posting Prepayment Invoice.
-        Assert.ExpectedError(StrSubstNo(PrepaymentDueDateErr, SalesHeader.TableCaption, SalesHeader."No."));
+        Assert.ExpectedError(StrSubstNo(PrepaymentDueDateErr, SalesHeader.TableCaption(), SalesHeader."No."));
     end;
 
     [Test]
@@ -493,7 +493,7 @@ codeunit 144173 "ERM IT Prepayment II"
         // Setup.
         CreatePurchaseDocument(
           PurchaseHeader, PurchaseHeader."Document Type"::Order,
-          100, CalcDate('<1M>', WorkDate), VATPostingSetup."Unrealized VAT Type"::" ");  // Using 100 for Prepayment %.
+          100, CalcDate('<1M>', WorkDate()), VATPostingSetup."Unrealized VAT Type"::" ");  // Using 100 for Prepayment %.
         LibraryPurchase.PostPrepaymentInvoice(PurchaseHeader);
         PurchaseHeader.Validate("Vendor Invoice No.", PurchaseHeader."No.");
         PurchaseHeader.Modify(true);
@@ -526,7 +526,7 @@ codeunit 144173 "ERM IT Prepayment II"
         asserterror LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader);
 
         // Verify.
-        Assert.ExpectedError(StrSubstNo(PrepaymentDueDateErr, PurchaseHeader.TableCaption, PurchaseHeader."No."));
+        Assert.ExpectedError(StrSubstNo(PrepaymentDueDateErr, PurchaseHeader.TableCaption(), PurchaseHeader."No."));
 
         // Tear Down.
         UpdateUnrealizedVATOnGeneralLedgerSetup(OldUnrealizedVAT);
@@ -579,7 +579,7 @@ codeunit 144173 "ERM IT Prepayment II"
         // Setup: Create Purchase Order with VAT Prod. Posting Group
         OldUnrealizedVAT := UpdateUnrealizedVATOnGeneralLedgerSetup(true);
         CreatePurchaseDocument(
-          PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryRandom.RandDec(10, 2), CalcDate('<1M>', WorkDate),
+          PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryRandom.RandDec(10, 2), CalcDate('<1M>', WorkDate()),
           VATPostingSetup."Unrealized VAT Type"::Percentage);  // Using Random for Prepayment %.
 
         // Exercise.
@@ -613,7 +613,7 @@ codeunit 144173 "ERM IT Prepayment II"
         LibraryERM.CreateGLAccount(GLAccount);
         OldUnrealizedVAT := UpdateUnrealizedVATOnGeneralLedgerSetup(true);
         CreatePurchaseDocument(
-          PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryRandom.RandDec(10, 2), CalcDate('<1M>', WorkDate),
+          PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryRandom.RandDec(10, 2), CalcDate('<1M>', WorkDate()),
           VATPostingSetup."Unrealized VAT Type"::Percentage);  // Using Random for Prepayment %.
         LibraryPurchase.PostPrepaymentInvoice(PurchaseHeader);
         FindPurchaseLine(PurchaseLine, PurchaseHeader."No.");
@@ -652,7 +652,7 @@ codeunit 144173 "ERM IT Prepayment II"
         LibraryERM.CreateGLAccount(GLAccount);
         OldUnrealizedVAT := UpdateUnrealizedVATOnGeneralLedgerSetup(true);
         CreatePurchaseDocument(
-          PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryRandom.RandDec(10, 2), CalcDate('<1M>', WorkDate),
+          PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryRandom.RandDec(10, 2), CalcDate('<1M>', WorkDate()),
           VATPostingSetup."Unrealized VAT Type"::Percentage);  // Using Random for Prepayment %.
         LibraryPurchase.PostPrepaymentInvoice(PurchaseHeader);
         FindPurchaseLine(PurchaseLine, PurchaseHeader."No.");
@@ -691,7 +691,7 @@ codeunit 144173 "ERM IT Prepayment II"
         // Setup: Create Purchase Order with multiple line with different VAT Prod. Posting Group.
         OldUnrealizedVAT := UpdateUnrealizedVATOnGeneralLedgerSetup(true);
         CreatePurchaseDocument(
-          PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryRandom.RandDec(10, 2), CalcDate('<1M>', WorkDate),
+          PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryRandom.RandDec(10, 2), CalcDate('<1M>', WorkDate()),
           VATPostingSetup."Unrealized VAT Type"::Percentage);  // Using Random for Prepayment %.
         FindPurchaseLine(PurchaseLine, PurchaseHeader."No.");
         CreateVATPostingSetup(VATPostingSetup, VATPostingSetup."Unrealized VAT Type"::" ");
@@ -729,7 +729,7 @@ codeunit 144173 "ERM IT Prepayment II"
         // Setup: Create Purchase Order with VAT Prod. Posting Group, post Prepayment Invoice and Cr. Memo, update Check Total on Purchase Cr. Memo.
         OldUnrealizedVAT := UpdateUnrealizedVATOnGeneralLedgerSetup(true);
         CreatePurchaseDocument(
-          PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryRandom.RandDec(10, 2), CalcDate('<1M>', WorkDate),
+          PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryRandom.RandDec(10, 2), CalcDate('<1M>', WorkDate()),
           VATPostingSetup."Unrealized VAT Type"::Percentage);  // Using Random for Prepayment %.
         LibraryPurchase.PostPrepaymentInvoice(PurchaseHeader);
         FindPurchaseLine(PurchaseLine, PurchaseHeader."No.");
@@ -763,7 +763,7 @@ codeunit 144173 "ERM IT Prepayment II"
 
         // Setup.
         CreatePurchaseDocument(
-          PurchaseHeader, PurchaseHeader."Document Type"::Order, 0, CalcDate('<1M>', WorkDate),
+          PurchaseHeader, PurchaseHeader."Document Type"::Order, 0, CalcDate('<1M>', WorkDate()),
           VATPostingSetup."Unrealized VAT Type"::" ");  // Using 0 for Prepayment %.
 
         // Exercise.
@@ -787,7 +787,7 @@ codeunit 144173 "ERM IT Prepayment II"
 
         // Setup.
         CreatePurchaseDocument(
-          PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryRandom.RandDec(10, 2), CalcDate('<1M>', WorkDate),
+          PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryRandom.RandDec(10, 2), CalcDate('<1M>', WorkDate()),
           VATpostingSetup."Unrealized VAT Type"::" ");  // Using Random for Prepayment %.
         DocumentNo := GetPostedDocumentNo(PurchaseHeader."Posting No. Series");
 
@@ -812,7 +812,7 @@ codeunit 144173 "ERM IT Prepayment II"
 
         // Setup.
         CreatePurchaseDocument(
-          PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", 0, CalcDate('<1M>', WorkDate),
+          PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", 0, CalcDate('<1M>', WorkDate()),
           VATPostingSetup."Unrealized VAT Type"::" ");  // Using 0 for Prepayment %.
 
         // Exercise.
@@ -836,7 +836,7 @@ codeunit 144173 "ERM IT Prepayment II"
 
         // Setup: Create Purchase Order with multiple line with different VAT Prod. Posting Group.
         CreatePurchaseDocument(
-          PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryRandom.RandDec(10, 2), CalcDate('<1M>', WorkDate),
+          PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryRandom.RandDec(10, 2), CalcDate('<1M>', WorkDate()),
           VATPostingSetup."Unrealized VAT Type"::" ");  // Using Random for Prepayment %.
         FindPurchaseLine(PurchaseLine, PurchaseHeader."No.");
         CreateVATPostingSetup(VATPostingSetup, VATPostingSetup."Unrealized VAT Type"::" ");
@@ -873,7 +873,7 @@ codeunit 144173 "ERM IT Prepayment II"
 
         // Setup: Create Purchase Order with VAT Prod. Posting Group
         CreatePurchaseDocument(
-          PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryRandom.RandDec(10, 2), CalcDate('<1M>', WorkDate),
+          PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryRandom.RandDec(10, 2), CalcDate('<1M>', WorkDate()),
           VATPostingSetup."Unrealized VAT Type"::" ");  // Using Random for Prepayment %.
         CreateVATPostingSetup(VATPostingSetup, VATPostingSetup."Unrealized VAT Type"::" ");
         FindPurchaseLine(PurchaseLine, PurchaseHeader."No.");
@@ -908,7 +908,7 @@ codeunit 144173 "ERM IT Prepayment II"
 
         // Setup.
         CreatePurchaseDocument(
-          PurchaseHeader, PurchaseHeader."Document Type"::Order, 100, CalcDate('<1M>', WorkDate),
+          PurchaseHeader, PurchaseHeader."Document Type"::Order, 100, CalcDate('<1M>', WorkDate()),
           VATPostingSetup."Unrealized VAT Type"::" ");  // Using 100 for Prepayment %.
         FindPurchaseLine(PurchaseLine, PurchaseHeader."No.");
         LibraryPurchase.PostPrepaymentInvoice(PurchaseHeader);
@@ -1291,7 +1291,7 @@ codeunit 144173 "ERM IT Prepayment II"
         CustomerLedgerEntries.OpenView;
         CustomerLedgerEntries.FILTER.SetFilter("Document No.", DocumentNo);
         CustomerLedgerEntries."Apply Entries".Invoke;
-        CustomerLedgerEntries.Close;
+        CustomerLedgerEntries.Close();
     end;
 
     local procedure CalculateAmount(SalesLine: Record "Sales Line"): Decimal
@@ -1503,7 +1503,7 @@ codeunit 144173 "ERM IT Prepayment II"
         NoSeriesLineSales: Record "No. Series Line Sales";
     begin
         NoSeriesLineSales.SetRange("Series Code", NoSeriesCode);
-        NoSeriesLineSales.SetRange("Last Date Used", WorkDate);
+        NoSeriesLineSales.SetRange("Last Date Used", WorkDate());
         NoSeriesLineSales.FindFirst();
         exit(NoSeriesLineSales."Last No. Used");
     end;
@@ -1513,7 +1513,7 @@ codeunit 144173 "ERM IT Prepayment II"
         NoSeriesLinePurchase: Record "No. Series Line Purchase";
     begin
         NoSeriesLinePurchase.SetRange("Series Code", NoSeriesCode);
-        NoSeriesLinePurchase.SetRange("Last Date Used", WorkDate);
+        NoSeriesLinePurchase.SetRange("Last Date Used", WorkDate());
         NoSeriesLinePurchase.FindFirst();
         exit(NoSeriesLinePurchase."Last No. Used");
     end;
@@ -1522,7 +1522,7 @@ codeunit 144173 "ERM IT Prepayment II"
     var
         NoSeriesManagement: Codeunit NoSeriesManagement;
     begin
-        DocumentNo := NoSeriesManagement.GetNextNo(NoSeriesCode, WorkDate, false);
+        DocumentNo := NoSeriesManagement.GetNextNo(NoSeriesCode, WorkDate(), false);
     end;
 
     local procedure PostSalesPrepaymentInvoice(var SalesHeader: Record "Sales Header"; DocumentNo: Code[20])
@@ -1538,7 +1538,7 @@ codeunit 144173 "ERM IT Prepayment II"
         CustomerLedgerEntries.OpenView;
         CustomerLedgerEntries.FILTER.SetFilter("Document No.", DocumentNo);
         CustomerLedgerEntries.UnapplyEntries.Invoke;
-        CustomerLedgerEntries.Close;
+        CustomerLedgerEntries.Close();
     end;
 
     local procedure UpdateUnrealizedVATOnGeneralLedgerSetup(UnrealizedVAT: Boolean) OldUnrealizedVAT: Boolean

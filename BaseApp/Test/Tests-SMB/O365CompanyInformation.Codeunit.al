@@ -108,7 +108,7 @@ codeunit 138041 "O365 Company Information"
 
         NewCompanyName := LibraryUtility.GenerateGUID();
         CompanyInformation.Name.SetValue(NewCompanyName);
-        CompanyInformation.Close;
+        CompanyInformation.Close();
 
         Company.Get(CompanyName);
         Company.TestField("Display Name", NewCompanyName);

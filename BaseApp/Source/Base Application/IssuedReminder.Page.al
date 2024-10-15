@@ -5,7 +5,6 @@ page 438 "Issued Reminder"
     InsertAllowed = false;
     ModifyAllowed = false;
     PageType = Document;
-    PromotedActionCategories = 'New,Process,Report,Print/Send,Reminder,Navigate';
     SourceTable = "Issued Reminder Header";
 
     layout
@@ -16,12 +15,12 @@ page 438 "Issued Reminder"
             {
                 Caption = 'General';
                 Editable = false;
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
-                field("Customer No."; "Customer No.")
+                field("Customer No."; Rec."Customer No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the customer number the reminder is for.';
@@ -36,12 +35,12 @@ page 438 "Issued Reminder"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the address of the customer the reminder is for.';
                 }
-                field("Address 2"; "Address 2")
+                field("Address 2"; Rec."Address 2")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies additional address information.';
                 }
-                field("Post Code"; "Post Code")
+                field("Post Code"; Rec."Post Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the postal code.';
@@ -83,27 +82,33 @@ page 438 "Issued Reminder"
                     Importance = Additional;
                     ToolTip = 'Specifies the email address of the customer contact person the reminder is for.';
                 }
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the posting date that the reminder was issued on.';
                 }
-                field("Document Date"; "Document Date")
+                field("VAT Reporting Date"; Rec."VAT Reporting Date")
+                {
+                    ApplicationArea = VAT;
+                    ToolTip = 'Specifies the VAT date for the reminder.';
+                    Visible = false;
+                }
+                field("Document Date"; Rec."Document Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date when the related document was created.';
                 }
-                field("Pre-Assigned No."; "Pre-Assigned No.")
+                field("Pre-Assigned No."; Rec."Pre-Assigned No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the reminder from which the issued reminder was created.';
                 }
-                field("Reminder Level"; "Reminder Level")
+                field("Reminder Level"; Rec."Reminder Level")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the reminder''s level.';
                 }
-                field("No. Printed"; "No. Printed")
+                field("No. Printed"; Rec."No. Printed")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies how many times the document has been printed.';
@@ -124,22 +129,22 @@ page 438 "Issued Reminder"
             {
                 Caption = 'Posting';
                 Editable = false;
-                field("Reminder Terms Code"; "Reminder Terms Code")
+                field("Reminder Terms Code"; Rec."Reminder Terms Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the reminder terms code for the reminder.';
                 }
-                field("Fin. Charge Terms Code"; "Fin. Charge Terms Code")
+                field("Fin. Charge Terms Code"; Rec."Fin. Charge Terms Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code for the involved finance charges in case of late payment.';
                 }
-                field("Due Date"; "Due Date")
+                field("Due Date"; Rec."Due Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date when payment of the amount on the reminder is due.';
                 }
-                field("Currency Code"; "Currency Code")
+                field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the currency code of the issued reminder.';
@@ -151,22 +156,22 @@ page 438 "Issued Reminder"
                           CurrExchRate.ExchangeRate("Posting Date", "Currency Code"),
                           "Posting Date");
                         ChangeExchangeRate.Editable(false);
-                        if ChangeExchangeRate.RunModal = ACTION::OK then;
+                        if ChangeExchangeRate.RunModal() = ACTION::OK then;
                         Clear(ChangeExchangeRate);
                     end;
                 }
-                field("Company Bank Account Code"; "Company Bank Account Code")
+                field("Company Bank Account Code"; Rec."Company Bank Account Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Promoted;
                     ToolTip = 'Specifies the bank account to use for bank information when the document is printed.';
                 }
-                field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
+                field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                 }
-                field("Shortcut Dimension 2 Code"; "Shortcut Dimension 2 Code")
+                field("Shortcut Dimension 2 Code"; Rec."Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
@@ -220,8 +225,6 @@ page 438 "Issued Reminder"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Co&mments';
                     Image = ViewComments;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     RunObject = Page "Reminder Comment Sheet";
                     RunPageLink = Type = CONST("Issued Reminder"),
                                   "No." = FIELD("No.");
@@ -232,8 +235,6 @@ page 438 "Issued Reminder"
                     ApplicationArea = Basic, Suite;
                     Caption = 'C&ustomer';
                     Image = Customer;
-                    Promoted = true;
-                    PromotedCategory = Category6;
                     RunObject = Page "Customer List";
                     RunPageLink = "No." = FIELD("Customer No.");
                     ToolTip = 'Open the card of the customer that the reminder or finance charge applies to. ';
@@ -244,9 +245,6 @@ page 438 "Issued Reminder"
                     ApplicationArea = Dimensions;
                     Caption = 'Dimensions';
                     Image = Dimensions;
-                    Promoted = true;
-                    PromotedCategory = Category5;
-                    PromotedIsBig = true;
                     ShortCutKey = 'Alt+D';
                     ToolTip = 'View or edit dimensions, such as area, project, or department, that you can assign to sales and purchase documents to distribute costs and analyze transaction history.';
 
@@ -263,9 +261,6 @@ page 438 "Issued Reminder"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Statistics';
                     Image = Statistics;
-                    Promoted = true;
-                    PromotedCategory = Category5;
-                    PromotedIsBig = true;
                     RunObject = Page "Issued Reminder Statistics";
                     RunPageLink = "No." = FIELD("No.");
                     ShortCutKey = 'F7';
@@ -281,8 +276,6 @@ page 438 "Issued Reminder"
                 Caption = '&Print';
                 Ellipsis = true;
                 Image = Print;
-                Promoted = true;
-                PromotedCategory = Category4;
                 ToolTip = 'Prepare to print the document. A report request window for the document opens where you can specify what to include on the print-out.';
 
                 trigger OnAction()
@@ -303,8 +296,6 @@ page 438 "Issued Reminder"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Send by &Email';
                 Image = Email;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Prepare to send the document by email. The Send Email window opens prefilled for the customer where you can add or change information before you send the email.';
 
                 trigger OnAction()
@@ -325,14 +316,12 @@ page 438 "Issued Reminder"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Find entries...';
                 Image = Navigate;
-                Promoted = true;
-                PromotedCategory = Category5;
                 ShortCutKey = 'Ctrl+Alt+Q';
                 ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
 
                 trigger OnAction()
                 begin
-                    Navigate;
+                    Navigate();
                 end;
             }
             action(Cancel)
@@ -341,16 +330,65 @@ page 438 "Issued Reminder"
                 Caption = 'Cancel';
                 Ellipsis = true;
                 Image = Cancel;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Cancel the issued reminder.';
 
                 trigger OnAction()
                 begin
                     IssuedReminderHeader := Rec;
-                    IssuedReminderHeader.SetRecFilter;
+                    IssuedReminderHeader.SetRecFilter();
                     RunCancelIssuedReminder(IssuedReminderHeader);
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref("Send by &Email_Promoted"; "Send by &Email")
+                {
+                }
+                actionref(Cancel_Promoted; Cancel)
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Print/Send', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref("&Print_Promoted"; "&Print")
+                {
+                }
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Reminder', Comment = 'Generated from the PromotedActionCategories property index 4.';
+
+                actionref(Dimensions_Promoted; Dimensions)
+                {
+                }
+                actionref(Statistics_Promoted; Statistics)
+                {
+                }
+                actionref("&Navigate_Promoted"; "&Navigate")
+                {
+                }
+                actionref("Co&mments_Promoted"; "Co&mments")
+                {
+                }
+            }
+            group(Category_Category6)
+            {
+                Caption = 'Navigate', Comment = 'Generated from the PromotedActionCategories property index 5.';
+
+                actionref("C&ustomer_Promoted"; "C&ustomer")
+                {
+                }
             }
         }
     }

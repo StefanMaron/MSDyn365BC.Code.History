@@ -16,7 +16,7 @@ codeunit 131100 "Library - Incoming Documents"
         GenJournalTemplate: Record "Gen. Journal Template";
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
-        if IncomingDocumentsSetup.Get then
+        if IncomingDocumentsSetup.Get() then
             IncomingDocumentsSetup.Delete();
 
         LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);

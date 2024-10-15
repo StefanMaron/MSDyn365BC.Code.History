@@ -384,7 +384,7 @@ codeunit 144145 "UT TAB Fiscal Code"
 
         // Verify: Verify Fiscal Code, Individual Person and Vendor Name.
         VerifyFiscalCodeIndividualPersonAndVendorName(Contact, IndividualPerson);
-        ContactList.Close;
+        ContactList.Close();
     end;
 
     [Test]
@@ -478,7 +478,7 @@ codeunit 144145 "UT TAB Fiscal Code"
             "No." := LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::Customer);
             "Individual Person" := Individual;
             "Country/Region Code" := CountryRegionCode;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -507,7 +507,7 @@ codeunit 144145 "UT TAB Fiscal Code"
             "No." := LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::Vendor);
             "Individual Person" := Individual;
             "Country/Region Code" := CountryRegionCode;
-            Insert;
+            Insert();
         end;
     end;
 

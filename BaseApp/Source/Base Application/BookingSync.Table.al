@@ -50,17 +50,9 @@ table 6702 "Booking Sync"
         field(10; "Customer Template Code"; Code[10])
         {
             Caption = 'Customer Template Code';
-#if not CLEAN18
-            TableRelation = "Customer Template".Code;
-#endif
             ObsoleteReason = 'Will be removed with other functionality related to "old" templates. replaced by "Customer Templ. Code".';
-#if not CLEAN18
-            ObsoleteState = Pending;
-            ObsoleteTag = '18.0';
-#else
             ObsoleteState = Removed;
             ObsoleteTag = '21.0';
-#endif
         }
         field(12; "Sync Services"; Boolean)
         {
@@ -123,7 +115,7 @@ table 6702 "Booking Sync"
         "Customer Filter".CreateOutStream(WriteStream);
         WriteStream.WriteText(FilterText);
         Clear("Last Customer Sync");
-        Modify;
+        Modify();
     end;
 
     procedure SaveItemFilter(FilterText: Text)
@@ -134,15 +126,15 @@ table 6702 "Booking Sync"
         "Item Filter".CreateOutStream(WriteStream);
         WriteStream.WriteText(FilterText);
         Clear("Last Service Sync");
-        Modify;
+        Modify();
     end;
 
     procedure IsSetup(): Boolean
     var
         EnvironmentInfo: Codeunit "Environment Information";
     begin
-        if EnvironmentInfo.IsSaaS then
-            exit(Get and ("Last Service Sync" <> 0DT));
+        if EnvironmentInfo.IsSaaS() then
+            exit(Get() and ("Last Service Sync" <> 0DT));
     end;
 }
 

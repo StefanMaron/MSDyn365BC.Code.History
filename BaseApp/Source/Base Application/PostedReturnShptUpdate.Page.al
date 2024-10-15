@@ -16,20 +16,20 @@ page 1352 "Posted Return Shpt. - Update"
         {
             group(General)
             {
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = PurchReturnOrder;
                     Editable = false;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
-                field("Buy-from Vendor Name"; "Buy-from Vendor Name")
+                field("Buy-from Vendor Name"; Rec."Buy-from Vendor Name")
                 {
                     ApplicationArea = PurchReturnOrder;
                     Caption = 'Vendor';
                     Editable = false;
                     ToolTip = 'Specifies the name of the vendor who delivered the items.';
                 }
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = PurchReturnOrder;
                     Editable = false;
@@ -39,61 +39,61 @@ page 1352 "Posted Return Shpt. - Update"
             group(Shipping)
             {
                 Caption = 'Shipping';
-                field("Ship-to County"; "Ship-to County")
+                field("Ship-to County"; Rec."Ship-to County")
                 {
                     ApplicationArea = PurchReturnOrder;
                     Caption = 'Ship-to County';
                     Editable = true;
                 }
-                field("Ship-to Country/Region Code"; "Ship-to Country/Region Code")
+                field("Ship-to Country/Region Code"; Rec."Ship-to Country/Region Code")
                 {
                     ApplicationArea = PurchReturnOrder;
                     Caption = 'Ship-to Country/Region';
                     Editable = true;
                 }
-                field("Additional Information"; "Additional Information")
+                field("Additional Information"; Rec."Additional Information")
                 {
                     ApplicationArea = PurchReturnOrder;
                     Editable = true;
                     ToolTip = 'Specifies additional declaration information that is needed for this shipment.';
                 }
-                field("Additional Notes"; "Additional Notes")
+                field("Additional Notes"; Rec."Additional Notes")
                 {
                     ApplicationArea = PurchReturnOrder;
                     Editable = true;
                     ToolTip = 'Specifies additional notes that are needed for this shipment.';
                 }
-                field("Additional Instructions"; "Additional Instructions")
+                field("Additional Instructions"; Rec."Additional Instructions")
                 {
                     ApplicationArea = PurchReturnOrder;
                     Editable = true;
                     ToolTip = 'Specifies additional instructions that are needed for this shipment.';
                 }
-                field("TDD Prepared By"; "TDD Prepared By")
+                field("TDD Prepared By"; Rec."TDD Prepared By")
                 {
                     ApplicationArea = PurchReturnOrder;
                     Editable = true;
                     ToolTip = 'Specifies the user ID of the transport delivery document (TDD) for the posted return shipment.';
                 }
-                field("Shipment Method Code"; "Shipment Method Code")
+                field("Shipment Method Code"; Rec."Shipment Method Code")
                 {
                     ApplicationArea = PurchReturnOrder;
                     Editable = true;
                     ToolTip = 'Specifies the shipment method.';
                 }
-                field("Shipping Agent Code"; "Shipping Agent Code")
+                field("Shipping Agent Code"; Rec."Shipping Agent Code")
                 {
                     ApplicationArea = PurchReturnOrder;
                     Editable = true;
                     ToolTip = 'Specifies the code of the shipping agent for the posted return shipment.';
                 }
-                field("3rd Party Loader Type"; "3rd Party Loader Type")
+                field("3rd Party Loader Type"; Rec."3rd Party Loader Type")
                 {
                     ApplicationArea = PurchReturnOrder;
                     Editable = true;
                     ToolTip = 'Specifies the type of third party that is responsible for loading the items for this document.';
                 }
-                field("3rd Party Loader No."; "3rd Party Loader No.")
+                field("3rd Party Loader No."; Rec."3rd Party Loader No.")
                 {
                     ApplicationArea = PurchReturnOrder;
                     Editable = true;
@@ -115,7 +115,7 @@ page 1352 "Posted Return Shpt. - Update"
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     begin
         if CloseAction = ACTION::LookupOK then
-            if RecordChanged then
+            if RecordChanged() then
                 CODEUNIT.Run(CODEUNIT::"Return Shipment Header - Edit", Rec);
     end;
 
@@ -143,7 +143,7 @@ page 1352 "Posted Return Shpt. - Update"
     procedure SetRec(ReturnShipmentHeader: Record "Return Shipment Header")
     begin
         Rec := ReturnShipmentHeader;
-        Insert;
+        Insert();
     end;
 
     [IntegrationEvent(false, false)]

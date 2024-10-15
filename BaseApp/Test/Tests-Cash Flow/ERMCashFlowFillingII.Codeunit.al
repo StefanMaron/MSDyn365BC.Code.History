@@ -900,7 +900,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         repeat
             RowNo += 1;
             CreateAccountScheduleAndLine(AccScheduleLine, CashFlowAccount."No.", Format(RowNo), AccScheduleName.Name);
-        until CashFlowAccount.Next = 0;
+        until CashFlowAccount.Next() = 0;
 
         // Exercise.
         OpenAccountScheduleOverviewPage(AccScheduleLine."Schedule Name");
@@ -1921,7 +1921,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
 
     local procedure OpenAccountScheduleOverviewPage(LayoutName: Code[10])
     var
-        AccountScheduleNames: TestPage "Account Schedule Names";
+        AccountScheduleNames: TestPage "Financial Reports";
     begin
         AccountScheduleNames.OpenEdit;
         AccountScheduleNames.FILTER.SetFilter(Name, LayoutName);
@@ -2226,10 +2226,10 @@ codeunit 134553 "ERM Cash Flow - Filling II"
     var
         SalesOrderList: Page "Sales Order List";
     begin
-        SalesHeader.SetRecFilter;
+        SalesHeader.SetRecFilter();
         Clear(SalesOrderList);
         if SkipShowingLinesWithoutVAT then
-            SalesOrderList.SkipShowingLinesWithoutVAT;
+            SalesOrderList.SkipShowingLinesWithoutVAT();
         SalesOrderList.SetTableView(SalesHeader);
         SalesOrderList.Run();
     end;
@@ -2240,11 +2240,11 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         SalesOrderList: Page "Sales Order List";
     begin
         CashFlowManagement.SetViewOnSalesHeaderForTaxCalc(
-          SalesHeader, CalcDate(StrSubstNo('<%1D>', LibraryRandom.RandIntInRange(5, 10)), WorkDate));
+          SalesHeader, CalcDate(StrSubstNo('<%1D>', LibraryRandom.RandIntInRange(5, 10)), WorkDate()));
         SalesHeader.SetFilter("Your Reference", YourReference);
         Clear(SalesOrderList);
         if SkipShowingLinesWithoutVAT then
-            SalesOrderList.SkipShowingLinesWithoutVAT;
+            SalesOrderList.SkipShowingLinesWithoutVAT();
         SalesOrderList.SetTableView(SalesHeader);
         SalesOrderList.Run();
     end;
@@ -2253,10 +2253,10 @@ codeunit 134553 "ERM Cash Flow - Filling II"
     var
         PurchaseOrderList: Page "Purchase Order List";
     begin
-        PurchaseHeader.SetRecFilter;
+        PurchaseHeader.SetRecFilter();
         Clear(PurchaseOrderList);
         if SkipShowingLinesWithoutVAT then
-            PurchaseOrderList.SkipShowingLinesWithoutVAT;
+            PurchaseOrderList.SkipShowingLinesWithoutVAT();
         PurchaseOrderList.SetTableView(PurchaseHeader);
         PurchaseOrderList.Run();
     end;
@@ -2267,11 +2267,11 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         PurchaseOrderList: Page "Purchase Order List";
     begin
         CashFlowManagement.SetViewOnPurchaseHeaderForTaxCalc(
-          PurchaseHeader, CalcDate(StrSubstNo('<%1D>', LibraryRandom.RandIntInRange(5, 10)), WorkDate));
+          PurchaseHeader, CalcDate(StrSubstNo('<%1D>', LibraryRandom.RandIntInRange(5, 10)), WorkDate()));
         PurchaseHeader.SetFilter("Your Reference", YourReference);
         Clear(PurchaseOrderList);
         if SkipShowingLinesWithoutVAT then
-            PurchaseOrderList.SkipShowingLinesWithoutVAT;
+            PurchaseOrderList.SkipShowingLinesWithoutVAT();
         PurchaseOrderList.SetTableView(PurchaseHeader);
         PurchaseOrderList.Run();
     end;
@@ -2413,9 +2413,9 @@ codeunit 134553 "ERM Cash Flow - Filling II"
     procedure SalesOrderListWithVATPageHandler(var SalesOrderList: TestPage "Sales Order List")
     begin
         SalesOrderList."No.".AssertEquals(LibraryVariableStorage.DequeueText);
-        SalesOrderList.Next;
+        SalesOrderList.Next();
         SalesOrderList."No.".AssertEquals(LibraryVariableStorage.DequeueText);
-        SalesOrderList.Close;
+        SalesOrderList.Close();
     end;
 
     [PageHandler]
@@ -2423,13 +2423,13 @@ codeunit 134553 "ERM Cash Flow - Filling II"
     procedure SalesOrderListAllOrdersVATPageHandler(var SalesOrderList: TestPage "Sales Order List")
     begin
         SalesOrderList."No.".AssertEquals(LibraryVariableStorage.DequeueText);
-        SalesOrderList.Next;
+        SalesOrderList.Next();
         SalesOrderList."No.".AssertEquals(LibraryVariableStorage.DequeueText);
-        SalesOrderList.Next;
+        SalesOrderList.Next();
         SalesOrderList."No.".AssertEquals(LibraryVariableStorage.DequeueText);
-        SalesOrderList.Next;
+        SalesOrderList.Next();
         SalesOrderList."No.".AssertEquals(LibraryVariableStorage.DequeueText);
-        SalesOrderList.Close;
+        SalesOrderList.Close();
     end;
 
     [PageHandler]
@@ -2437,9 +2437,9 @@ codeunit 134553 "ERM Cash Flow - Filling II"
     procedure PurchaseOrderListWithVATPageHandler(var PurchaseOrderList: TestPage "Purchase Order List")
     begin
         PurchaseOrderList."No.".AssertEquals(LibraryVariableStorage.DequeueText);
-        PurchaseOrderList.Next;
+        PurchaseOrderList.Next();
         PurchaseOrderList."No.".AssertEquals(LibraryVariableStorage.DequeueText);
-        PurchaseOrderList.Close;
+        PurchaseOrderList.Close();
     end;
 
     [PageHandler]
@@ -2447,13 +2447,14 @@ codeunit 134553 "ERM Cash Flow - Filling II"
     procedure PurchaseOrderListAllOrdersVATPageHandler(var PurchaseOrderList: TestPage "Purchase Order List")
     begin
         PurchaseOrderList."No.".AssertEquals(LibraryVariableStorage.DequeueText);
-        PurchaseOrderList.Next;
+        PurchaseOrderList.Next();
         PurchaseOrderList."No.".AssertEquals(LibraryVariableStorage.DequeueText);
-        PurchaseOrderList.Next;
+        PurchaseOrderList.Next();
         PurchaseOrderList."No.".AssertEquals(LibraryVariableStorage.DequeueText);
-        PurchaseOrderList.Next;
+        PurchaseOrderList.Next();
         PurchaseOrderList."No.".AssertEquals(LibraryVariableStorage.DequeueText);
-        PurchaseOrderList.Close;
+        PurchaseOrderList.Close();
     end;
+
 }
 

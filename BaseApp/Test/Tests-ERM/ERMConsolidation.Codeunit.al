@@ -84,7 +84,7 @@ codeunit 134092 "ERM Consolidation"
         // [SCENARIO 372046] G/L Account with Debit/Credit Add. Currency Balance should be consolidated to Debit/Credit Consolidation Account
 
         Initialize();
-        UpdateAddnlReportingCurrency(LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, 1, LibraryRandom.RandDec(100, 2)));
+        UpdateAddnlReportingCurrency(LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), 1, LibraryRandom.RandDec(100, 2)));
         Amount := LibraryRandom.RandDec(100, 2);
         // [GIVEN] G/L Account "X1" with Debit Balance = 100, "Cons. Debit Acc" = "A1", "Cons. Credit Acc." = "B1"
         ExpectedDebitAmount :=
@@ -248,7 +248,7 @@ codeunit 134092 "ERM Consolidation"
         // [GIVEN] Business Unit with Company set to current company
         LibraryERM.CreateBusinessUnit(BusinessUnit);
         BusinessUnit.Validate("Company Name", CompanyName);
-        BusinessUnit.Validate("Starting Date", WorkDate);
+        BusinessUnit.Validate("Starting Date", WorkDate());
         BusinessUnit.Validate("Ending Date", WorkDate + 1);
         BusinessUnit.Modify(true);
         Commit();
@@ -680,7 +680,7 @@ codeunit 134092 "ERM Consolidation"
             exit;
 
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
-        LibraryERM.SetJournalTemplateNameMandatory(false);
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
 
         LibrarySetupStorage.SaveGeneralLedgerSetup();
         IsInitialized := true;
@@ -771,7 +771,7 @@ codeunit 134092 "ERM Consolidation"
         GLEntry.Init();
         GLEntry."Entry No." := LibraryUtility.GetNewRecNo(GLEntry, GLEntry.FieldNo("Entry No."));
         GLEntry."G/L Account No." := GLAccNo;
-        GLEntry."Posting Date" := WorkDate;
+        GLEntry."Posting Date" := WorkDate();
         GLEntry.Insert();
         exit(GLEntry."Entry No.");
     end;
@@ -864,9 +864,9 @@ codeunit 134092 "ERM Consolidation"
         TempGLEntry.FindSet();
         repeat
             Consolidate.InsertGLEntry(TempGLEntry);
-        until TempGLEntry.Next = 0;
+        until TempGLEntry.Next() = 0;
         CreateBusinessUnit(BusinessUnit, DateSource);
-        Consolidate.SetGlobals('', '', BusinessUnit."Company Name", '', '', '', 0, WorkDate, WorkDate);
+        Consolidate.SetGlobals('', '', BusinessUnit."Company Name", '', '', '', 0, WorkDate(), WorkDate());
         Consolidate.Run(BusinessUnit);
     end;
 
@@ -928,7 +928,7 @@ codeunit 134092 "ERM Consolidation"
         GLEntry.Init();
         GLEntry."Entry No." += 1;
         GLEntry."G/L Account No." := GLAccNo;
-        GLEntry."Posting Date" := WorkDate;
+        GLEntry."Posting Date" := WorkDate();
         GLEntry.Amount := DebitAmount - CreditAmount;
         GLEntry."Debit Amount" := DebitAmount;
         GLEntry."Credit Amount" := CreditAmount;
@@ -954,8 +954,8 @@ codeunit 134092 "ERM Consolidation"
     [Scope('OnPrem')]
     procedure ConsolidationTestDatabaseReportHandler(var ConsolidationTestDatabase: TestRequestPage "Consolidation - Test Database")
     begin
-        ConsolidationTestDatabase.StartingDate.SetValue(WorkDate);
-        ConsolidationTestDatabase.EndingDate.SetValue(WorkDate);
+        ConsolidationTestDatabase.StartingDate.SetValue(WorkDate());
+        ConsolidationTestDatabase.EndingDate.SetValue(WorkDate());
         ConsolidationTestDatabase.CopyDimensions.SetValue(LibraryVariableStorage.DequeueText);
         ConsolidationTestDatabase.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
@@ -970,7 +970,7 @@ codeunit 134092 "ERM Consolidation"
     [Scope('OnPrem')]
     procedure ImportConsolidationFromDBReportHandler(var ImportConsolidationfromDB: TestRequestPage "Import Consolidation from DB")
     begin
-        ImportConsolidationfromDB.StartingDate.SetValue(WorkDate);
+        ImportConsolidationfromDB.StartingDate.SetValue(WorkDate());
         ImportConsolidationfromDB.EndingDate.SetValue(WorkDate + 1);
         ImportConsolidationfromDB.DocumentNo.SetValue(LibraryRandom.RandInt(100));
         ImportConsolidationfromDB.OK.Invoke;
@@ -982,8 +982,8 @@ codeunit 134092 "ERM Consolidation"
     begin
         GLConsolidationEliminations.JournalTemplateName.SetValue(LibraryVariableStorage.DequeueText);
         GLConsolidationEliminations.JournalBatch.SetValue(LibraryVariableStorage.DequeueText);
-        GLConsolidationEliminations.StartingDate.SetValue(WorkDate);
-        GLConsolidationEliminations.EndingDate.SetValue(WorkDate);
+        GLConsolidationEliminations.StartingDate.SetValue(WorkDate());
+        GLConsolidationEliminations.EndingDate.SetValue(WorkDate());
         GLConsolidationEliminations.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 

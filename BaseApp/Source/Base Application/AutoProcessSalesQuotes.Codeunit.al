@@ -6,7 +6,7 @@ codeunit 5354 "Auto Process Sales Quotes"
     begin
         CODEUNIT.Run(CODEUNIT::"CRM Integration Management");
         Commit();
-        CreateNAVSalesQuotesFromSubmittedCRMSalesquotes;
+        CreateNAVSalesQuotesFromSubmittedCRMSalesquotes();
     end;
 
     var

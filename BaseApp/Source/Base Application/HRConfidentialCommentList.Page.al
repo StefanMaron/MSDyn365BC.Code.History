@@ -14,7 +14,7 @@ page 5235 "HR Confidential Comment List"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
@@ -53,7 +53,7 @@ page 5235 "HR Confidential Comment List"
         if ConfidentialInfo.Get(HRCommentLine."No.", HRCommentLine.Code, HRCommentLine."Table Line No.") and
            Employee.Get(HRCommentLine."No.")
         then
-            exit(HRCommentLine."No." + ' ' + Employee.FullName + ' ' +
+            exit(HRCommentLine."No." + ' ' + Employee.FullName() + ' ' +
               ConfidentialInfo."Confidential Code");
         exit(Text000);
     end;

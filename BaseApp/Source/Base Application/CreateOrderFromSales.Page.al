@@ -47,30 +47,11 @@ page 99000884 "Create Order From Sales"
         CreateStatus: Enum "Create Production Order Status";
         OrderType: Enum "Create Production Order Type";
 
-#if not CLEAN18
-    [Obsolete('Replaced by GetParameters().', '18.0')]
-    procedure ReturnPostingInfo(var NewStatus: Option Simulated,Planned,"Firm Planned",Released; var NewOrderType: Option ItemOrder,ProjectOrder)
-    begin
-        NewStatus := OrderStatus.AsInteger();
-        NewOrderType := OrderType.AsInteger();
-    end;
-#endif
-
     procedure GetParameters(var NewStatus: Enum "Production Order Status"; var NewOrderType: Enum "Create Production Order Type")
     begin
         NewStatus := CreateStatus;
         NewOrderType := OrderType;
     end;
-
-#if not CLEAN18
-    [Obsolete('Replaced by SetParameters().', '18.0')]
-    procedure SetPostingInfo(NewStatus: Option Simulated,Planned,"Firm Planned",Released; NewOrderType: Option ItemOrder,ProjectOrder)
-    begin
-        OrderStatus := "Production Order Status".FromInteger(NewStatus);
-        CreateStatus := OrderStatus;
-        OrderType := "Create Production Order Type".FromInteger(NewOrderType);
-    end;
-#endif
 
     procedure SetParameters(NewStatus: Enum "Create Production Order Status"; NewOrderType: Enum "Create Production Order Type")
     begin

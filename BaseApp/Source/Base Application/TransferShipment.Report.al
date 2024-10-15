@@ -1,4 +1,4 @@
-report 5704 "Transfer Shipment"
+﻿report 5704 "Transfer Shipment"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './TransferShipment.rdlc';
@@ -321,7 +321,7 @@ report 5704 "Transfer Shipment"
 
             trigger OnAfterGetRecord()
             begin
-                TDDDocument := CheckTDDData;
+                TDDDocument := CheckTDDData();
                 if TDDDocument then begin
                     ContracterTxt := Text12100;
                     TDDHeaderTxt := ' / ' + Text12101;
@@ -379,28 +379,24 @@ report 5704 "Transfer Shipment"
     }
 
     var
-        Text000: Label 'COPY';
-        Text001: Label 'Transfer Shipment %1';
-        Text002: Label 'Page %1';
         ShipmentMethod: Record "Shipment Method";
         DimSetEntry1: Record "Dimension Set Entry";
         DimSetEntry2: Record "Dimension Set Entry";
-        FormatAddr: Codeunit "Format Address";
         TransferFromAddr: array[8] of Text[100];
         TransferToAddr: array[8] of Text[100];
         MoreLines: Boolean;
-        NoOfCopies: Integer;
-        NoOfLoops: Integer;
         CopyText: Text[30];
         DimText: Text[120];
         OldDimText: Text[75];
-        ShowInternalInfo: Boolean;
         Continue: Boolean;
-        OutputNo: Integer;
         TDDHeaderTxt: Text[60];
         ContracterTxt: Text[30];
         ShippingAgentAddr: array[8] of Text[100];
         LoaderAddr: array[8] of Text[100];
+
+        Text000: Label 'COPY';
+        Text001: Label 'Transfer Shipment %1';
+        Text002: Label 'Page %1';
         Text12100: Label 'Contractor/Goods Owner';
         Text12101: Label 'Transport Delivery Document';
         TDDDocument: Boolean;
@@ -415,5 +411,12 @@ report 5704 "Transfer Shipment"
         HeaderDimensionsCaptionLbl: Label 'Header Dimensions';
         ShipmentMethodDescriptionCaptionLbl: Label 'Shipment Method';
         LineDimensionsCaptionLbl: Label 'Line Dimensions';
+
+    protected var
+        FormatAddr: Codeunit "Format Address";
+        NoOfCopies: Integer;
+        NoOfLoops: Integer;
+        OutputNo: Integer;
+        ShowInternalInfo: Boolean;
 }
 

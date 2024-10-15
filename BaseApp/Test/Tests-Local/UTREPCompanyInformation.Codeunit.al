@@ -180,7 +180,7 @@ codeunit 144169 "UT REP Company Information"
     begin
         // Purpose of this test is to verify error of Report 12121 (G/L Book Print) with incomplete Company Information.
         // Verify actual error: "All Company Information related fields should be filled in on the request form."
-        GLBookPrintReportWithDifferentDates(WorkDate, WorkDate, DialogTxt);
+        GLBookPrintReportWithDifferentDates(WorkDate(), WorkDate(), DialogTxt);
     end;
 
     [Test]
@@ -191,7 +191,7 @@ codeunit 144169 "UT REP Company Information"
     begin
         // Purpose of this test is to verify error of Report 12121 (G/L Book Print) with Starting Date greater than Ending Date.
         // Verify actual error: "Starting Date must not be greater than EndingDate".
-        GLBookPrintReportWithDifferentDates(CalcDate('<1D>', WorkDate), WorkDate, DialogTxt);
+        GLBookPrintReportWithDifferentDates(CalcDate('<1D>', WorkDate()), WorkDate(), DialogTxt);
     end;
 
     [Test]
@@ -202,7 +202,7 @@ codeunit 144169 "UT REP Company Information"
     begin
         // Purpose of this test is to verify error of Report 12121 (G/L Book Print) with Ending Date greater than Starting Date.
         // Verify actual error: "Ending Date must not be less than Starting Date."
-        GLBookPrintReportWithDifferentDates(CalcDate('<1D>', WorkDate), WorkDate, ValidationTxt);
+        GLBookPrintReportWithDifferentDates(CalcDate('<1D>', WorkDate()), WorkDate(), ValidationTxt);
     end;
 
     local procedure GLBookPrintReportWithDifferentDates(StartingDate: Date; EndingDate: Date; ExpectedErrorCode: Text)
@@ -232,7 +232,7 @@ codeunit 144169 "UT REP Company Information"
         // Purpose of the test is to verify GL Book Entry - OnPreDataItem Trigger of Report 12121 (G/L Book - Print).
         // Setup.
         Initialize();
-        EnqueueVariablesForGLBookPrintRequestPageHandler(WorkDate, CalcDate('<1D>', WorkDate), ReportType::"Test Print");  // Enqueue values in GLBookPrintRequestPageHandler.
+        EnqueueVariablesForGLBookPrintRequestPageHandler(WorkDate(), CalcDate('<1D>', WorkDate()), ReportType::"Test Print");  // Enqueue values in GLBookPrintRequestPageHandler.
         GLBookEntry.SetRange("G/L Account No.", CreateGLBookEntry);
 
         // Exercise.
@@ -253,7 +253,7 @@ codeunit 144169 "UT REP Company Information"
         // Purpose of the test is to verify Integer - OnPreDataItem Trigger of Report 12121 (G/L Book - Print).
         // Setup.
         Initialize();
-        EnqueueVariablesForGLBookPrintRequestPageHandler(WorkDate, CalcDate('<1D>', WorkDate), ReportType::"Test Print");  // Enqueue values in GLBookPrintRequestPageHandler.
+        EnqueueVariablesForGLBookPrintRequestPageHandler(WorkDate(), CalcDate('<1D>', WorkDate()), ReportType::"Test Print");  // Enqueue values in GLBookPrintRequestPageHandler.
 
         // Exercise.
         REPORT.Run(REPORT::"G/L Book - Print");
@@ -274,7 +274,7 @@ codeunit 144169 "UT REP Company Information"
         // Purpose of the test is to verify GL Book Entry - OnAfterGetRecord Trigger of Report 12121 (G/L Book - Print).
         // Setup.
         Initialize();
-        EnqueueVariablesForGLBookPrintRequestPageHandler(WorkDate, CalcDate('<1D>', WorkDate), ReportType::"Final Print");  // Enqueue values in GLBookPrintRequestPageHandler.
+        EnqueueVariablesForGLBookPrintRequestPageHandler(WorkDate(), CalcDate('<1D>', WorkDate()), ReportType::"Final Print");  // Enqueue values in GLBookPrintRequestPageHandler.
         GLBookEntry.SetRange("G/L Account No.", CreateGLBookEntry);
 
         // Exercise.
@@ -296,7 +296,7 @@ codeunit 144169 "UT REP Company Information"
         // Purpose of this test is to verify error of Report 12121 (G/L Book Print) with Reprint report type.
         // Setup.
         Initialize();
-        EnqueueVariablesForGLBookPrintRequestPageHandler(WorkDate, CalcDate('<1D>', WorkDate), ReportType::Reprint);  // Enqueue values in GLBookPrintRequestPageHandler.
+        EnqueueVariablesForGLBookPrintRequestPageHandler(WorkDate(), CalcDate('<1D>', WorkDate()), ReportType::Reprint);  // Enqueue values in GLBookPrintRequestPageHandler.
         GLBookEntry.SetRange("G/L Account No.", CreateGLBookEntry);
 
         // Exercise.
@@ -319,7 +319,7 @@ codeunit 144169 "UT REP Company Information"
         // Setup: Enqueue values in GLBookPrintRequestPageHandler.
         Initialize();
         ReprintInfoFiscalReportsAfterFinalPrint;
-        EnqueueVariablesForGLBookPrintRequestPageHandler(CalcDate('<2D>', WorkDate), CalcDate('<3D>', WorkDate), ReportType::Reprint);   // Taking Fixed Values for Date calculation since Start Date and End Date is based on it. Value important for Test.
+        EnqueueVariablesForGLBookPrintRequestPageHandler(CalcDate('<2D>', WorkDate()), CalcDate('<3D>', WorkDate()), ReportType::Reprint);   // Taking Fixed Values for Date calculation since Start Date and End Date is based on it. Value important for Test.
 
         // Exercise.
         REPORT.Run(REPORT::"G/L Book - Print");
@@ -341,7 +341,7 @@ codeunit 144169 "UT REP Company Information"
         // Setup: Enqueue values in GLBookPrintRequestPageHandler.
         Initialize();
         ReprintInfoFiscalReportsAfterFinalPrint;
-        EnqueueVariablesForGLBookPrintRequestPageHandler(WorkDate, WorkDate, ReportType::Reprint);  // Taking Fixed Values for Date calculation since Start Date and End Date is based on it. Value important for Test.
+        EnqueueVariablesForGLBookPrintRequestPageHandler(WorkDate(), WorkDate(), ReportType::Reprint);  // Taking Fixed Values for Date calculation since Start Date and End Date is based on it. Value important for Test.
 
         // Exercise.
         asserterror REPORT.Run(REPORT::"G/L Book - Print");
@@ -459,7 +459,7 @@ codeunit 144169 "UT REP Company Information"
         BankAccount: Record "Bank Account";
     begin
         BankAccount."No." := LibraryUTUtility.GetNewCode;
-        BankAccount."Date Filter" := WorkDate;
+        BankAccount."Date Filter" := WorkDate();
         BankAccount.Insert();
         exit(BankAccount."No.");
     end;
@@ -471,14 +471,14 @@ codeunit 144169 "UT REP Company Information"
         BankAccountLedgerEntry."Entry No." := LibraryRandom.RandInt(10);
         BankAccountLedgerEntry."Bank Account No." := BankAccountNo;
         BankAccountLedgerEntry."Document No." := LibraryUTUtility.GetNewCode;
-        BankAccountLedgerEntry."Posting Date" := WorkDate;
+        BankAccountLedgerEntry."Posting Date" := WorkDate();
         BankAccountLedgerEntry.Insert();
     end;
 
     local procedure CreateCustomer(var Customer: Record Customer)
     begin
         Customer."No." := LibraryUTUtility.GetNewCode;
-        Customer."Date Filter" := WorkDate;
+        Customer."Date Filter" := WorkDate();
         Customer."Currency Code" := LibraryUTUtility.GetNewCode10;
         Customer."Global Dimension 1 Code" := CreateDimension;
         Customer.Insert();
@@ -493,7 +493,7 @@ codeunit 144169 "UT REP Company Information"
         CustLedgerEntry."Entry No." := CustLedgerEntry2."Entry No." + 1;
         CustLedgerEntry."Customer No." := CustomerNo;
         CustLedgerEntry."Document No." := LibraryUTUtility.GetNewCode;
-        CustLedgerEntry."Posting Date" := WorkDate;
+        CustLedgerEntry."Posting Date" := WorkDate();
         CustLedgerEntry.Insert();
         exit(CustLedgerEntry."Entry No.");
     end;
@@ -550,7 +550,7 @@ codeunit 144169 "UT REP Company Information"
         GLBookEntry2.DeleteAll(true);
         GLBookEntry."Entry No." := EntryNo;
         GLBookEntry."G/L Account No." := LibraryUTUtility.GetNewCode;
-        GLBookEntry."Official Date" := CalcDate('<-1D>', WorkDate);
+        GLBookEntry."Official Date" := CalcDate('<-1D>', WorkDate());
         GLBookEntry."Progressive No." := 0;
         GLBookEntry.Insert();
         exit(GLBookEntry."G/L Account No.");
@@ -562,15 +562,15 @@ codeunit 144169 "UT REP Company Information"
     begin
         // Taking Fixed Values for Date calculation since Start Date and End Date is based on it. Value important for Test.
         ReprintInfoFiscalReports.Report := ReprintInfoFiscalReports.Report::"G/L Book - Print";
-        ReprintInfoFiscalReports."Start Date" := CalcDate('<2D>', WorkDate);
-        ReprintInfoFiscalReports."End Date" := CalcDate('<3D>', WorkDate);
+        ReprintInfoFiscalReports."Start Date" := CalcDate('<2D>', WorkDate());
+        ReprintInfoFiscalReports."End Date" := CalcDate('<3D>', WorkDate());
         ReprintInfoFiscalReports.Insert();
     end;
 
     local procedure CreateVendor(var Vendor: Record Vendor)
     begin
         Vendor."No." := LibraryUTUtility.GetNewCode;
-        Vendor."Date Filter" := WorkDate;
+        Vendor."Date Filter" := WorkDate();
         Vendor."Currency Code" := LibraryUTUtility.GetNewCode10;
         Vendor."Global Dimension 1 Code" := CreateDimension;
         Vendor.Insert();
@@ -585,7 +585,7 @@ codeunit 144169 "UT REP Company Information"
         VendorLedgerEntry."Entry No." := VendorLedgerEntry2."Entry No." + 1;
         VendorLedgerEntry."Vendor No." := VendorNo;
         VendorLedgerEntry."Document No." := LibraryUTUtility.GetNewCode;
-        VendorLedgerEntry."Posting Date" := WorkDate;
+        VendorLedgerEntry."Posting Date" := WorkDate();
         VendorLedgerEntry.Insert();
         exit(VendorLedgerEntry."Entry No.");
     end;
@@ -629,9 +629,9 @@ codeunit 144169 "UT REP Company Information"
         Currency: Record Currency;
     begin
         with Currency do begin
-            Init;
+            Init();
             Code := LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::Currency);
-            Insert;
+            Insert();
             exit(Code);
         end;
     end;
@@ -641,10 +641,10 @@ codeunit 144169 "UT REP Company Information"
         Customer: Record Customer;
     begin
         with Customer do begin
-            Init;
+            Init();
             "No." := LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::Customer);
             "Currency Code" := CurrencyCode;
-            Insert;
+            Insert();
             exit("No.");
         end;
     end;
@@ -656,14 +656,14 @@ codeunit 144169 "UT REP Company Information"
         with CustLedgerEntry do begin
             if FindLast() then
                 LastEntryNo := "Entry No.";
-            Init;
+            Init();
             "Entry No." := LastEntryNo + 1;
             "Customer No." := CustomerNo;
-            "Posting Date" := WorkDate;
+            "Posting Date" := WorkDate();
             "Document Type" := DocumentType;
             "Document No." := CustomerNo;
             "Currency Code" := CurrencyCode;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -675,18 +675,18 @@ codeunit 144169 "UT REP Company Information"
         with DetailedCustLedgEntry do begin
             if FindLast() then
                 LastEntryNo := "Entry No.";
-            Init;
+            Init();
             "Entry No." := LastEntryNo + 1;
             "Cust. Ledger Entry No." := CustLedgerEntry."Entry No.";
             "Entry Type" := EntryType;
-            "Posting Date" := WorkDate;
+            "Posting Date" := WorkDate();
             "Document Type" := CustLedgerEntry."Document Type";
             "Document No." := CustLedgerEntry."Document No.";
             "Customer No." := CustLedgerEntry."Customer No.";
             "Currency Code" := CustLedgerEntry."Currency Code";
             Amount := NewAmount;
             "Amount (LCY)" := NewAmountLCY;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -708,7 +708,7 @@ codeunit 144169 "UT REP Company Information"
         GLBookEntry: Record "GL Book Entry";
         ReportType: Option "Test Print","Final Print",Reprint;
     begin
-        EnqueueVariablesForGLBookPrintRequestPageHandler(WorkDate, CalcDate('<1D>', WorkDate), ReportType::"Final Print");  // Enqueue values in GLBookPrintHandler.
+        EnqueueVariablesForGLBookPrintRequestPageHandler(WorkDate(), CalcDate('<1D>', WorkDate()), ReportType::"Final Print");  // Enqueue values in GLBookPrintHandler.
         GLBookEntry.SetRange("G/L Account No.", CreateGLBookEntry);
         REPORT.Run(REPORT::"G/L Book - Print", true, false, GLBookEntry);
         CreateReprintInfoFiscalReports;
@@ -721,7 +721,7 @@ codeunit 144169 "UT REP Company Information"
         CompanyInformation.Get();
         CompanyInformation."SIA Code" := CopyStr(AssignedTxt, 1, 4);
         CompanyInformation."Autoriz. No." := CopyStr(AssignedTxt, 1, 10);
-        CompanyInformation."Autoriz. Date" := WorkDate;
+        CompanyInformation."Autoriz. Date" := WorkDate();
         CompanyInformation."Signature on Bill" := CopyStr(AssignedTxt, 1, 20);
         CompanyInformation.BBAN := CopyStr(AssignedTxt, 1, 30);
         CompanyInformation.Modify();
@@ -748,10 +748,10 @@ codeunit 144169 "UT REP Company Information"
         CompanyInformation.OpenView;
         CompanyInformation."SIA Code".AssertEquals(UpperCase(CopyStr(AssignedTxt, 1, 4)));
         CompanyInformation."Autoriz. No.".AssertEquals(UpperCase(CopyStr(AssignedTxt, 1, 10)));
-        CompanyInformation."Autoriz. Date".AssertEquals(WorkDate);
+        CompanyInformation."Autoriz. Date".AssertEquals(WorkDate());
         CompanyInformation."Signature on Bill".AssertEquals(CopyStr(AssignedTxt, 1, 20));
         CompanyInformation.BBAN.AssertEquals(UpperCase(CopyStr(AssignedTxt, 1, 30)));
-        CompanyInformation.Close;
+        CompanyInformation.Close();
     end;
 
     local procedure VerifyCompanyInformationOnGLBookPrint()
@@ -780,7 +780,7 @@ codeunit 144169 "UT REP Company Information"
     begin
         LibraryVariableStorage.Dequeue(No);
         BankSheetPrint."Bank Account".SetFilter("No.", No);
-        BankSheetPrint."Bank Account".SetFilter("Date Filter", Format(WorkDate));
+        BankSheetPrint."Bank Account".SetFilter("Date Filter", Format(WorkDate()));
         BankSheetPrint.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 
@@ -831,7 +831,7 @@ codeunit 144169 "UT REP Company Information"
         LibraryVariableStorage.Dequeue(EndingDate);
         LibraryVariableStorage.Dequeue(ReportType);
         if Format(StartingDate) = '' then
-            GLBookPrint.StartingDate.SetValue(WorkDate);
+            GLBookPrint.StartingDate.SetValue(WorkDate());
         GLBookPrint.StartingDate.SetValue(Format(StartingDate));
         GLBookPrint.EndingDate.SetValue(Format(EndingDate));
         GLBookPrint.ReportType.SetValue(ReportType);

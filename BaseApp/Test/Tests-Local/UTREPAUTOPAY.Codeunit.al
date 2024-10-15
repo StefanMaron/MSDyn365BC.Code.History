@@ -175,7 +175,7 @@ codeunit 144051 "UT REP AUTOPAY"
         AmountToPay := LibraryRandom.RandDec(100, 2);
         CreateVendorLedgerEntry(VendorLedgerEntry, AmountToPay);
         CreateDetailedVendorLedgerEntry(VendorLedgerEntry);
-        EnqueueValuesForVendorAccountBillsListRequestPageHandler(VendorLedgerEntry."Vendor No.", WorkDate);  // Enqueue WORKDATE as Ending Date for VendorAccountBillsListRequestPageHandler.
+        EnqueueValuesForVendorAccountBillsListRequestPageHandler(VendorLedgerEntry."Vendor No.", WorkDate());  // Enqueue WORKDATE as Ending Date for VendorAccountBillsListRequestPageHandler.
 
         // Exercise.
         REPORT.Run(REPORT::"Vendor Account Bills List");
@@ -374,9 +374,9 @@ codeunit 144051 "UT REP AUTOPAY"
         CustLedgerEntry."Entry No." := CustLedgerEntry2."Entry No." + 1;
         CustLedgerEntry."Document Type" := CustLedgerEntry."Document Type"::Invoice;
         CustLedgerEntry."Customer No." := CreateCustomer;
-        CustLedgerEntry."Posting Date" := WorkDate;
+        CustLedgerEntry."Posting Date" := WorkDate();
         CustLedgerEntry."Amount (LCY)" := LibraryRandom.RandDec(10, 2);
-        CustLedgerEntry."Due Date" := CalcDate('<' + Format(-LibraryRandom.RandInt(5)) + 'M>', WorkDate);  // Using earlier date than WORKDATE as Due Date must be earlier than Ending Date.
+        CustLedgerEntry."Due Date" := CalcDate('<' + Format(-LibraryRandom.RandInt(5)) + 'M>', WorkDate());  // Using earlier date than WORKDATE as Due Date must be earlier than Ending Date.
         CustLedgerEntry.Insert();
     end;
 
@@ -472,7 +472,7 @@ codeunit 144051 "UT REP AUTOPAY"
         VendorLedgerEntry2.FindLast();
         VendorLedgerEntry."Entry No." := VendorLedgerEntry2."Entry No." + 1;
         VendorLedgerEntry."Vendor No." := CreateVendor;
-        VendorLedgerEntry."Posting Date" := WorkDate;
+        VendorLedgerEntry."Posting Date" := WorkDate();
         VendorLedgerEntry."Document Type" := VendorLedgerEntry."Document Type"::Invoice;
         VendorLedgerEntry."Vendor Bill No." :=
           CreateVendorBill('', VendorBillHeader."List Status"::Open, VendorLedgerEntry."Entry No.", AmountToPay);  // Blank value for CurrencyCode.
@@ -499,7 +499,7 @@ codeunit 144051 "UT REP AUTOPAY"
         No: Variant;
     begin
         LibraryVariableStorage.Dequeue(No);
-        CustomerBillsList."Ending Date".SetValue(WorkDate);
+        CustomerBillsList."Ending Date".SetValue(WorkDate());
         CustomerBillsList.Customer.SetFilter("No.", No);
         CustomerBillsList.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
@@ -512,7 +512,7 @@ codeunit 144051 "UT REP AUTOPAY"
     begin
         LibraryVariableStorage.Dequeue(No);
         CustomerSheetPrint.Customer.SetFilter("No.", No);
-        CustomerSheetPrint.Customer.SetFilter("Date Filter", Format(WorkDate));
+        CustomerSheetPrint.Customer.SetFilter("Date Filter", Format(WorkDate()));
         CustomerSheetPrint.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 

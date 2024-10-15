@@ -16,7 +16,7 @@ report 5955 "Dispatch Board"
             column(TodayFormatted; Format(Today, 0, 4))
             {
             }
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(TableCaptionFilter_ServHeader; TableCaption + ': ' + ServHeaderFilter)
@@ -104,7 +104,7 @@ report 5955 "Dispatch Board"
 
     trigger OnPreReport()
     begin
-        ServHeaderFilter := "Service Header".GetFilters;
+        ServHeaderFilter := "Service Header".GetFilters();
     end;
 
     var

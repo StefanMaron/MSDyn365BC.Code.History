@@ -1,4 +1,4 @@
-codeunit 5812 "Calculate Standard Cost"
+﻿codeunit 5812 "Calculate Standard Cost"
 {
 
     trigger OnRun()
@@ -6,15 +6,14 @@ codeunit 5812 "Calculate Standard Cost"
     end;
 
     var
-        Text000: Label 'Too many levels. Must be below %1.';
         MfgSetup: Record "Manufacturing Setup";
         GLSetup: Record "General Ledger Setup";
         TempItem: Record Item temporary;
         TempWorkCenter: Record "Work Center" temporary;
         TempMachineCenter: Record "Machine Center" temporary;
         TempPriceListLine: Record "Price List Line" temporary;
-        ProdBOMVersionErrBuf: Record "Production BOM Version" temporary;
-        RtngVersionErrBuf: Record "Routing Version" temporary;
+        TempProductionBOMVersion: Record "Production BOM Version" temporary;
+        TempRoutingVersion: Record "Routing Version" temporary;
         CostCalcMgt: Codeunit "Cost Calculation Management";
         VersionMgt: Codeunit VersionManagement;
         UOMMgt: Codeunit "Unit of Measure Management";
@@ -25,9 +24,13 @@ codeunit 5812 "Calculate Standard Cost"
         CalcMultiLevel: Boolean;
         UseAssemblyList: Boolean;
         LogErrors: Boolean;
-        Text001: Label '&Top level,&All levels';
         ShowDialog: Boolean;
         StdCostWkshName: Text[50];
+        ColIdx: Option ,StdCost,ExpCost,ActCost,Dev,"Var";
+        RowIdx: Option ,MatCost,ResCost,ResOvhd,AsmOvhd,Total;
+
+        Text000: Label 'Too many levels. Must be below %1.';
+        Text001: Label '&Top level,&All levels';
         Text002: Label '@1@@@@@@@@@@@@@';
         CalcMfgPrompt: Label 'One or more subassemblies on the assembly list for item %1 use replenishment system Prod. Order. Do you want to calculate standard cost for those subassemblies?';
         TargetText: Label 'Standard Cost,Unit Price';
@@ -35,14 +38,12 @@ codeunit 5812 "Calculate Standard Cost"
         NonAssemblyItemError: Label 'Item %1 %2 does not use replenishment system Assembly. The %3 will not be calculated.', Comment = '%1 = Item No., %2 = Description';
         NoAssemblyListError: Label 'Item %1 %2 has no assembly list. The %3 will not be calculated.', Comment = '%1 = Item No., %2 = Description';
         NonAssemblyComponentWithList: Label 'One or more subassemblies on the assembly list for this item does not use replenishment system Assembly. The %1 for these subassemblies will not be calculated. Are you sure that you want to continue?';
-        ColIdx: Option ,StdCost,ExpCost,ActCost,Dev,"Var";
-        RowIdx: Option ,MatCost,ResCost,ResOvhd,AsmOvhd,Total;
 
     procedure SetProperties(NewCalculationDate: Date; NewCalcMultiLevel: Boolean; NewUseAssemblyList: Boolean; NewLogErrors: Boolean; NewStdCostWkshName: Text[50]; NewShowDialog: Boolean)
     begin
         TempItem.DeleteAll();
-        ProdBOMVersionErrBuf.DeleteAll();
-        RtngVersionErrBuf.DeleteAll();
+        TempProductionBOMVersion.DeleteAll();
+        TempRoutingVersion.DeleteAll();
         ClearAll();
 
         OnBeforeSetProperties(NewCalculationDate, NewCalcMultiLevel, NewUseAssemblyList, NewLogErrors, NewStdCostWkshName, NewShowDialog);
@@ -61,25 +62,25 @@ codeunit 5812 "Calculate Standard Cost"
         OnAfterSetProperties(NewCalculationDate, NewCalcMultiLevel, NewUseAssemblyList, NewLogErrors, NewStdCostWkshName, NewShowDialog);
     end;
 
-    procedure TestPreconditions(var Item: Record Item; var NewProdBOMVersionErrBuf: Record "Production BOM Version"; var NewRtngVersionErrBuf: Record "Routing Version")
+    procedure TestPreconditions(var Item: Record Item; var TempNewProductionBOMVersion: Record "Production BOM Version" temporary; var NewRtngVersionErrBuf: Record "Routing Version")
     var
         TempItem2: Record Item temporary;
     begin
         CalcItems(Item, TempItem2);
 
-        ProdBOMVersionErrBuf.Reset();
-        if ProdBOMVersionErrBuf.Find('-') then
+        TempProductionBOMVersion.Reset();
+        if TempProductionBOMVersion.Find('-') then
             repeat
-                NewProdBOMVersionErrBuf := ProdBOMVersionErrBuf;
-                NewProdBOMVersionErrBuf.Insert();
-            until ProdBOMVersionErrBuf.Next() = 0;
+                TempNewProductionBOMVersion := TempProductionBOMVersion;
+                TempNewProductionBOMVersion.Insert();
+            until TempProductionBOMVersion.Next() = 0;
 
-        RtngVersionErrBuf.Reset();
-        if RtngVersionErrBuf.Find('-') then
+        TempRoutingVersion.Reset();
+        if TempRoutingVersion.Find('-') then
             repeat
-                NewRtngVersionErrBuf := RtngVersionErrBuf;
+                NewRtngVersionErrBuf := TempRoutingVersion;
                 NewRtngVersionErrBuf.Insert();
-            until RtngVersionErrBuf.Next() = 0;
+            until TempRoutingVersion.Next() = 0;
     end;
 
     local procedure AnalyzeAssemblyList(var Item: Record Item; var Depth: Integer; var NonAssemblyItemWithList: Boolean; var ContainsProdBOM: Boolean)
@@ -89,7 +90,7 @@ codeunit 5812 "Calculate Standard Cost"
         BaseDepth: Integer;
         MaxDepth: Integer;
     begin
-        if Item.IsMfgItem and ((Item."Production BOM No." <> '') or (Item."Routing No." <> '')) then begin
+        if Item.IsMfgItem() and ((Item."Production BOM No." <> '') or (Item."Routing No." <> '')) then begin
             ContainsProdBOM := true;
             if Item."Production BOM No." <> '' then
                 AnalyzeProdBOM(Item."Production BOM No.", Depth, NonAssemblyItemWithList, ContainsProdBOM)
@@ -99,7 +100,7 @@ codeunit 5812 "Calculate Standard Cost"
         end;
         BOMComponent.SetRange("Parent Item No.", Item."No.");
         if BOMComponent.FindSet() then begin
-            if not Item.IsAssemblyItem then begin
+            if not Item.IsAssemblyItem() then begin
                 NonAssemblyItemWithList := true;
                 exit
             end;
@@ -158,7 +159,7 @@ codeunit 5812 "Calculate Standard Cost"
         SubNonAssemblyItemWithList: Boolean;
     begin
         CalculationTarget := SelectStr(Target, TargetText);
-        if not Item.IsAssemblyItem then
+        if not Item.IsAssemblyItem() then
             Error(NonAssemblyItemError, Item."No.", Item.Description, CalculationTarget);
         AnalyzeAssemblyList(Item, Depth, SubNonAssemblyItemWithList, ContainsProdBOM);
         if Depth = 0 then
@@ -190,7 +191,7 @@ codeunit 5812 "Calculate Standard Cost"
         if NewUseAssemblyList then
             Instruction := PrepareAssemblyCalculation(Item, Depth, 1, AssemblyContainsProdBOM) // 1=StandardCost
         else
-            if not Item.IsMfgItem then
+            if not Item.IsMfgItem() then
                 exit;
 
         ShowStrMenu := not NewUseAssemblyList or (Depth > 1);
@@ -205,7 +206,7 @@ codeunit 5812 "Calculate Standard Cost"
                     NewCalcMultiLevel := true;
             end;
 
-        SetProperties(WorkDate, NewCalcMultiLevel, NewUseAssemblyList, false, '', false);
+        SetProperties(WorkDate(), NewCalcMultiLevel, NewUseAssemblyList, false, '', false);
 
         if NewUseAssemblyList then begin
             ShowConfirm := NewCalcMultiLevel and AssemblyContainsProdBOM;
@@ -257,7 +258,7 @@ codeunit 5812 "Calculate Standard Cost"
             until TempItem.Next() = 0;
 
         if ShowDialog then
-            Window.Close;
+            Window.Close();
     end;
 
     local procedure CalcAssemblyItem(ItemNo: Code[20]; var Item: Record Item; Level: Integer; CalcMfgItems: Boolean)
@@ -274,7 +275,7 @@ codeunit 5812 "Calculate Standard Cost"
         if GetItem(ItemNo, Item) then
             exit;
 
-        if not Item.IsAssemblyItem then
+        if not Item.IsAssemblyItem() then
             exit;
 
         if not CalcMultiLevel and (Level <> 0) then
@@ -303,8 +304,8 @@ codeunit 5812 "Calculate Standard Cost"
                               BOMComp."Quantity per" *
                               UOMMgt.GetQtyPerUnitOfMeasure(CompItem, BOMComp."Unit of Measure Code");
                             if CompItem.IsInventoriableType() then
-                                if CompItem.IsAssemblyItem or CompItem.IsMfgItem then begin
-                                    if CompItem.IsAssemblyItem then
+                                if CompItem.IsAssemblyItem() or CompItem.IsMfgItem() then begin
+                                    if CompItem.IsAssemblyItem() then
                                         CalcAssemblyItem(BOMComp."No.", CompItem, Level + 1, CalcMfgItems)
                                     else
                                         if CalcMfgItems then
@@ -392,7 +393,7 @@ codeunit 5812 "Calculate Standard Cost"
             Item."Last Unit Cost Calc. Date" := CalculationDate;
 
             TempItem := Item;
-            TempItem.Insert
+            TempItem.Insert();
         end
     end;
 
@@ -416,7 +417,7 @@ codeunit 5812 "Calculate Standard Cost"
                     NewCalcMultiLevel := true;
             end;
 
-        SetProperties(WorkDate, NewCalcMultiLevel, true, false, '', false);
+        SetProperties(WorkDate(), NewCalcMultiLevel, true, false, '', false);
 
         Item.Get(ItemNo);
         DoCalcAssemblyItemPrice(Item, 0);
@@ -435,7 +436,7 @@ codeunit 5812 "Calculate Standard Cost"
         if not CalcMultiLevel and (Level <> 0) then
             exit;
 
-        if not Item.IsAssemblyItem then
+        if not Item.IsAssemblyItem() then
             exit;
 
         BOMComp.SetRange("Parent Item No.", Item."No.");
@@ -493,7 +494,7 @@ codeunit 5812 "Calculate Standard Cost"
         with Item do begin
             LotSize := 1;
 
-            if IsMfgItem then begin
+            if IsMfgItem() then begin
                 if "Lot Size" <> 0 then
                     LotSize := "Lot Size";
                 MfgItemQtyBase := CostCalcMgt.CalcQtyAdjdForBOMScrap(LotSize, "Scrap %");
@@ -508,7 +509,7 @@ codeunit 5812 "Calculate Standard Cost"
                     "Indirect Cost %", "Overhead Rate", LotSize);
                 "Last Unit Cost Calc. Date" := CalculationDate;
             end else
-                if IsAssemblyItem then begin
+                if IsAssemblyItem() then begin
                     CalcAssemblyItem(ItemNo, Item, Level, true);
                     exit
                 end else begin
@@ -581,7 +582,7 @@ codeunit 5812 "Calculate Standard Cost"
         else
             UOMFactor := 1;
 
-        with ProdBOMLine do begin
+        with ProdBOMLine do
             if Find('-') then
                 repeat
                     CompItemQtyBase :=
@@ -613,7 +614,6 @@ codeunit 5812 "Calculate Standard Cost"
                               MfgItem, "No.", RtngNo, CompItemQtyBase, false, Level, SLMat, RUMat, RUCap, RUSub, RUCapOvhd, RUMfgOvhd);
                     end;
                 until Next() = 0;
-        end;
     end;
 
     local procedure CalcRtngCost(RtngHeaderNo: Code[20]; MfgItemQtyBase: Decimal; var SLCap: Decimal; var SLSub: Decimal; var SLCapOvhd: Decimal; var ParentItem: Record Item)
@@ -686,13 +686,12 @@ codeunit 5812 "Calculate Standard Cost"
         if IsHandled then
             exit;
 
-        if BOMVersionCode = '' then begin
+        if BOMVersionCode = '' then
             if ProdBOMHeader.Status <> ProdBOMHeader.Status::Certified then
                 if LogErrors then
                     InsertInErrBuf(ProdBOMHeader."No.", '', false)
                 else
                     ProdBOMHeader.TestField(Status, ProdBOMHeader.Status::Certified);
-        end;
     end;
 
     local procedure InsertInErrBuf(No: Code[20]; Version: Code[10]; IsRtng: Boolean)
@@ -701,13 +700,13 @@ codeunit 5812 "Calculate Standard Cost"
             exit;
 
         if IsRtng then begin
-            RtngVersionErrBuf."Routing No." := No;
-            RtngVersionErrBuf."Version Code" := Version;
-            if RtngVersionErrBuf.Insert() then;
+            TempRoutingVersion."Routing No." := No;
+            TempRoutingVersion."Version Code" := Version;
+            if TempRoutingVersion.Insert() then;
         end else begin
-            ProdBOMVersionErrBuf."Production BOM No." := No;
-            ProdBOMVersionErrBuf."Version Code" := Version;
-            if ProdBOMVersionErrBuf.Insert() then;
+            TempProductionBOMVersion."Production BOM No." := No;
+            TempProductionBOMVersion."Version Code" := Version;
+            if TempProductionBOMVersion.Insert() then;
         end;
     end;
 
@@ -721,7 +720,7 @@ codeunit 5812 "Calculate Standard Cost"
         end else begin
             Item.Get(ItemNo);
             if (StdCostWkshName <> '') and
-               not (Item.IsMfgItem or Item.IsAssemblyItem)
+               not (Item.IsMfgItem() or Item.IsAssemblyItem())
             then
                 if StdCostWksh.Get(StdCostWkshName, StdCostWksh.Type::Item, ItemNo) then begin
                     Item."Unit Cost" := StdCostWksh."New Standard Cost";
@@ -973,8 +972,9 @@ codeunit 5812 "Calculate Standard Cost"
                 WorkCenter.Get("No.");
 
             UnitCost := "Unit Cost per";
-            CalcRtngCostPerUnit(Type, "No.", DirUnitCost, IndirCostPct, OvhdRate, UnitCost, UnitCostCalculation,
-              Item, "Standard Task Code");
+            CalcRtngCostPerUnit(
+                Type, "No.", DirUnitCost, IndirCostPct, OvhdRate, UnitCost, UnitCostCalculation,
+                Item, "Standard Task Code");
             CostTime :=
               CostCalculationMgt.CalcCostTime(
                 MfgItemQtyBase,
@@ -1003,13 +1003,12 @@ codeunit 5812 "Calculate Standard Cost"
         if IsHandled then
             exit;
 
-        if RtngVersionCode = '' then begin
+        if RtngVersionCode = '' then
             if RtngHeader.Status <> RtngHeader.Status::Certified then
                 if LogErrors then
                     InsertInErrBuf(RtngHeader."No.", '', true)
                 else
                     RtngHeader.TestField(Status, RtngHeader.Status::Certified);
-        end;
     end;
 
     [IntegrationEvent(false, false)]

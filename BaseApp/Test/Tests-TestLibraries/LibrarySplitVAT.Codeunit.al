@@ -124,7 +124,7 @@ codeunit 143003 "Library - Split VAT"
         VATTransactionNature: Record "VAT Transaction Nature";
     begin
         with VATTransactionNature do begin
-            Init;
+            Init();
             Code := CopyStr(LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"VAT Transaction Nature"), 1, MaxStrLen(Code));
             Description := LibraryUtility.GenerateGUID();
             Insert(true);

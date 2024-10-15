@@ -210,7 +210,7 @@ codeunit 131902 "Library - Service"
     procedure CreateCommentLineForServCntrct(var ServiceCommentLine: Record "Service Comment Line"; ServiceContractLine: Record "Service Contract Line"; Type: Enum "Service Comment Line Type")
     begin
         CreateServiceCommentLine(
-          ServiceCommentLine, ServiceCommentLine."Table Name"::"Service Contract", ServiceContractLine."Contract Type",
+          ServiceCommentLine, ServiceCommentLine."Table Name"::"Service Contract", ServiceContractLine."Contract Type".AsInteger(),
           ServiceContractLine."Contract No.", Type, ServiceContractLine."Line No.");
     end;
 
@@ -388,7 +388,7 @@ codeunit 131902 "Library - Service"
     procedure CreateServiceHour(var ServiceHour: Record "Service Hour"; ServiceContractHeader: Record "Service Contract Header"; Day: Option)
     begin
         ServiceHour.Init();
-        ServiceHour.Validate("Service Contract Type", ServiceContractHeader."Contract Type" + 1);
+        ServiceHour.Validate("Service Contract Type", ServiceContractHeader."Contract Type".AsInteger() + 1);
         ServiceHour.Validate("Service Contract No.", ServiceContractHeader."Contract No.");
         ServiceHour.Validate("Starting Date", ServiceContractHeader."Starting Date");
         // Use a random Starting Time that does not cause Ending Time to fall in the next day.
@@ -559,7 +559,7 @@ codeunit 131902 "Library - Service"
         ServPriceGroupSetup.Validate("Service Price Group Code", ServicePriceGroupCode);
         ServPriceGroupSetup.Validate("Fault Area Code", FaultAreaCode);
         ServPriceGroupSetup.Validate("Cust. Price Group Code", CustPriceGroupCode);
-        ServPriceGroupSetup.Validate("Starting Date", WorkDate);
+        ServPriceGroupSetup.Validate("Starting Date", WorkDate());
         ServPriceGroupSetup.Validate(Amount, LibraryRandom.RandInt(100));  // Validating as random because value is not important.
         ServPriceGroupSetup.Insert(true);
     end;
@@ -706,7 +706,7 @@ codeunit 131902 "Library - Service"
         TempServiceLine: Record "Service Line" temporary;
         ServicePost: Codeunit "Service-Post";
     begin
-        ServiceHeader.Find;
+        ServiceHeader.Find();
         SetCorrDocNoService(ServiceHeader);
 
         // Fill Activity Code.
@@ -727,7 +727,7 @@ codeunit 131902 "Library - Service"
     var
         ServicePost: Codeunit "Service-Post";
     begin
-        ServiceHeader.Find;
+        ServiceHeader.Find();
         SetCorrDocNoService(ServiceHeader);
         ServicePost.PostWithLines(ServiceHeader, TempServiceLine, Ship, Consume, Invoice);
     end;
@@ -857,7 +857,7 @@ codeunit 131902 "Library - Service"
         MaxLoops: Integer;
     begin
         // Returns a non-working day followed by a working day.
-        WorkingDate := WorkDate;
+        WorkingDate := WorkDate();
         LoopCounter := 0;
         MaxLoops := 366;
         repeat
@@ -880,7 +880,7 @@ codeunit 131902 "Library - Service"
         ServiceHour.SetRange("Service Contract Type", ServiceHour."Service Contract Type"::" ");
         ServiceHour.SetRange("Service Contract No.", '');
         ServiceHour.SetFilter(Day, Date."Period Name");
-        exit(ServiceHour.FindFirst);
+        exit(ServiceHour.FindFirst())
     end;
 
     procedure GetServiceOrderReportGrossAmount(ServiceLine: Record "Service Line"): Decimal
@@ -1010,7 +1010,7 @@ codeunit 131902 "Library - Service"
     procedure CreateCustomizedCalendarChange(BaseCalendarCode: Code[10]; var CustomizedCalendarChange: Record "Customized Calendar Change"; SourceType: Option; SourceCode: Code[10]; AdditionalSourceCode: Code[10]; RecurringSystem: Option; WeekDay: Option; IsNonWorking: Boolean)
     begin
         with CustomizedCalendarChange do begin
-            Init;
+            Init();
             Validate("Source Type", SourceType);
             Validate("Source Code", SourceCode);
             Validate("Additional Source Code", AdditionalSourceCode);

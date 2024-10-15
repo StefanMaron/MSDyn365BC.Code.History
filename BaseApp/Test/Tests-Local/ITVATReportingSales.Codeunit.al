@@ -108,11 +108,11 @@ codeunit 144007 "IT - VAT Reporting - Sales"
         Initialize();
 
         // Setup.
-        SetupThresholdAmount(WorkDate);
+        SetupThresholdAmount(WorkDate());
         LibraryVATUtils.UpdateVATPostingSetup(InclInVATSetup);
 
         // Create Sales Document.
-        LineAmount := CalculateAmount(WorkDate, InclVAT, InclInVATTransRep);
+        LineAmount := CalculateAmount(WorkDate(), InclVAT, InclInVATTransRep);
         CreateSalesDocument(
           SalesHeader, SalesLine, DocumentType, CreateCustomer(false, SalesHeader.Resident::Resident, true, InclVAT), LineAmount);
 
@@ -182,12 +182,12 @@ codeunit 144007 "IT - VAT Reporting - Sales"
         Initialize();
 
         // Setup.
-        SetupThresholdAmount(WorkDate);
+        SetupThresholdAmount(WorkDate());
         LibraryVATUtils.UpdateVATPostingSetup(true);
 
         // Calculate Amounts.
-        OrderAmount := CalculateAmount(WorkDate, InclVAT, true); // Above threshold.
-        LineAmount := CalculateAmount(WorkDate, InclVAT, false); // Below threshold.
+        OrderAmount := CalculateAmount(WorkDate(), InclVAT, true); // Above threshold.
+        LineAmount := CalculateAmount(WorkDate(), InclVAT, false); // Below threshold.
 
         // Create Sales Blanket Order.
         CreateSalesDocument(
@@ -236,7 +236,7 @@ codeunit 144007 "IT - VAT Reporting - Sales"
         Initialize();
 
         // Setup.
-        SetupThresholdAmount(WorkDate);
+        SetupThresholdAmount(WorkDate());
         LibraryVATUtils.UpdateVATPostingSetup(true);
 
         // Create Customer.
@@ -245,7 +245,7 @@ codeunit 144007 "IT - VAT Reporting - Sales"
         Customer.Modify(true);
 
         // Create Sales Document.
-        LineAmount := CalculateAmount(WorkDate, false, true);
+        LineAmount := CalculateAmount(WorkDate(), false, true);
         CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, Customer."No.", LineAmount);
 
         // Verify Sales Line.
@@ -369,11 +369,11 @@ codeunit 144007 "IT - VAT Reporting - Sales"
         Initialize();
 
         // Setup.
-        SetupThresholdAmount(WorkDate);
+        SetupThresholdAmount(WorkDate());
         LibraryVATUtils.UpdateVATPostingSetup(true);
 
         // Create Sales Document.
-        LineAmount := CalculateAmount(WorkDate, InclVAT, InclInVATTransRep);
+        LineAmount := CalculateAmount(WorkDate(), InclVAT, InclInVATTransRep);
         CreateSalesDocument(
           SalesHeader, SalesLine, DocumentType, CreateCustomer(false, SalesHeader.Resident::Resident, true, InclVAT), LineAmount);
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -417,12 +417,12 @@ codeunit 144007 "IT - VAT Reporting - Sales"
         Initialize();
 
         // Setup.
-        SetupThresholdAmount(WorkDate);
+        SetupThresholdAmount(WorkDate());
         LibraryVATUtils.UpdateVATPostingSetup(true);
 
         // Calculate Amounts.
-        OrderAmount := CalculateAmount(WorkDate, false, true); // Above threshold.
-        LineAmount := CalculateAmount(WorkDate, false, false); // Below threshold.
+        OrderAmount := CalculateAmount(WorkDate(), false, true); // Above threshold.
+        LineAmount := CalculateAmount(WorkDate(), false, false); // Below threshold.
 
         // Create Sales Order Linked to Blanket Order.
         BlanketOrderNo :=
@@ -597,11 +597,11 @@ codeunit 144007 "IT - VAT Reporting - Sales"
         Initialize();
 
         // Setup.
-        SetupThresholdAmount(WorkDate);
+        SetupThresholdAmount(WorkDate());
         LibraryVATUtils.UpdateVATPostingSetup(true);
 
         // Create Sales Document.
-        LineAmount := CalculateAmount(WorkDate, false, true);
+        LineAmount := CalculateAmount(WorkDate(), false, true);
 
         // Create Sales Header.
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CreateCustomer(false, SalesHeader.Resident::Resident, true, false));
@@ -651,12 +651,12 @@ codeunit 144007 "IT - VAT Reporting - Sales"
         Initialize();
 
         // Setup.
-        SetupThresholdAmount(WorkDate);
+        SetupThresholdAmount(WorkDate());
         LibraryVATUtils.UpdateVATPostingSetup(true);
         SetupPrepayments;
 
         // Create Sales Document.
-        LineAmount := CalculateAmount(WorkDate, false, true);
+        LineAmount := CalculateAmount(WorkDate(), false, true);
 
         // Create Sales Header.
         LibrarySales.CreateSalesHeader(
@@ -879,11 +879,11 @@ codeunit 144007 "IT - VAT Reporting - Sales"
         Initialize();
 
         // Setup.
-        SetupThresholdAmount(WorkDate);
+        SetupThresholdAmount(WorkDate());
         LibraryVATUtils.UpdateVATPostingSetup(true);
 
         // Calculate Line Amount (Excl. VAT).
-        LineAmount := CalculateAmount(WorkDate, false, true);
+        LineAmount := CalculateAmount(WorkDate(), false, true);
 
         // Create Customer (Excl. VAT).
         Customer.Get(CreateCustomer(IndividualPerson, Resident, true, false));
@@ -962,11 +962,11 @@ codeunit 144007 "IT - VAT Reporting - Sales"
         Initialize();
 
         // Setup.
-        SetupThresholdAmount(WorkDate);
+        SetupThresholdAmount(WorkDate());
         LibraryVATUtils.UpdateVATPostingSetup(false);
 
         // Calculate Line Amount (Excl. VAT).
-        LineAmount := CalculateAmount(WorkDate, false, true);
+        LineAmount := CalculateAmount(WorkDate(), false, true);
 
         // Create Sales Document.
         CreateSalesDocument(SalesHeader, SalesLine, DocumentType, CreateCustomer(IndividualPerson, Resident, false, false), LineAmount);
@@ -1031,12 +1031,12 @@ codeunit 144007 "IT - VAT Reporting - Sales"
         Initialize();
 
         // Setup.
-        SetupThresholdAmount(WorkDate);
+        SetupThresholdAmount(WorkDate());
         LibraryVATUtils.UpdateVATPostingSetup(true);
         SetupPrepayments;
 
         // Create Sales Document.
-        LineAmount := CalculateAmount(WorkDate, InclVAT, InclInVATTransRep);
+        LineAmount := CalculateAmount(WorkDate(), InclVAT, InclInVATTransRep);
         CreatePrePaymentSalesDocument(
           SalesHeader, SalesLine, DocumentType, CreateCustomer(false, SalesHeader.Resident::Resident, true, InclVAT), LineAmount);
         DocumentNo := PostSalesPrepInvoice(SalesHeader);
@@ -1382,7 +1382,7 @@ codeunit 144007 "IT - VAT Reporting - Sales"
         VATPostingSetup.SetRange("VAT %", LibraryVATUtils.FindMaxVATRate(VATPostingSetup."VAT Calculation Type"::"Normal VAT"));
         VATPostingSetup.SetRange("Include in VAT Transac. Rep.", IncludeInVATTransacRep);
         VATPostingSetup.SetRange("Deductible %", 100);
-        exit(VATPostingSetup.FindFirst);
+        exit(VATPostingSetup.FindFirst())
     end;
 
     local procedure MakeOrderSales(var SalesHeader: Record "Sales Header"; var SalesOrderHeader: Record "Sales Header")
@@ -1444,7 +1444,7 @@ codeunit 144007 "IT - VAT Reporting - Sales"
         VATEntry.FindSet();
         repeat
             VATEntry.TestField("Contract No.", ContractNo);
-        until VATEntry.Next = 0;
+        until VATEntry.Next() = 0;
     end;
 
     local procedure VerifyIncludeVAT(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; InclInVATTransRep: Boolean)
@@ -1454,7 +1454,7 @@ codeunit 144007 "IT - VAT Reporting - Sales"
         FindVATEntry(VATEntry, DocumentType, DocumentNo);
         repeat
             VATEntry.TestField("Include in VAT Transac. Rep.", InclInVATTransRep);
-        until VATEntry.Next = 0;
+        until VATEntry.Next() = 0;
     end;
 
     local procedure VerifyRefersToPeriod(TableID: Option; DocumentNo: Code[20]; RefersToPeriod: Option)
@@ -1493,7 +1493,7 @@ codeunit 144007 "IT - VAT Reporting - Sales"
         FindVATEntry(VATEntry, VATEntry."Document Type"::"Credit Memo", DocumentNo);
         repeat
             VATEntry.TestField("Refers To Period", RefersToPeriod);
-        until VATEntry.Next = 0;
+        until VATEntry.Next() = 0;
     end;
 
     local procedure VerifyTaxRep(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; TaxRepType: Option; TaxRepNo: Code[20])
@@ -1504,7 +1504,7 @@ codeunit 144007 "IT - VAT Reporting - Sales"
         repeat
             VATEntry.TestField("Tax Representative Type", TaxRepType);
             VATEntry.TestField("Tax Representative No.", TaxRepNo);
-        until VATEntry.Next = 0;
+        until VATEntry.Next() = 0;
     end;
 
     local procedure TearDown()

@@ -394,7 +394,7 @@
             CFDiscountDate := "Pmt. Discount Date";
 
         if CFDiscountDate <> 0D then begin
-            if CFDiscountDate >= WorkDate then begin
+            if CFDiscountDate >= WorkDate() then begin
                 "Cash Flow Date" := CFDiscountDate;
                 "Amount (LCY)" := "Amount (LCY)" - "Payment Discount";
             end else
@@ -408,7 +408,7 @@
         CashFlowForecast: Record "Cash Flow Forecast";
     begin
         if "Document Date" = 0D then
-            "Document Date" := WorkDate;
+            "Document Date" := WorkDate();
         if "Cash Flow Date" = 0D then
             "Cash Flow Date" := "Document Date";
         if "Amount (LCY)" = 0 then
@@ -488,7 +488,7 @@
                 IsHandled := false;
                 OnCalculateCFAmountAndCFDateOnBeforeCalcPaymentDiscount(CFDiscountDate, PaymentLines, IsHandled);
                 if not IsHandled then
-                    if CFDiscountDate >= WorkDate then begin
+                    if CFDiscountDate >= WorkDate() then begin
                         "Cash Flow Date" := CFDiscountDate;
 
                         "Payment Discount" := Round("Amount (LCY)" * PaymentLines."Discount %" / 100);

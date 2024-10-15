@@ -524,7 +524,7 @@
         LibraryApplicationArea.EnableServiceManagementSetup;
         CompanyInformation.OpenView;
         Assert.IsTrue(CompanyInformation."Paid-In Capital".Visible, FieldIsNotVisibleErr);
-        CompanyInformation.Close;
+        CompanyInformation.Close();
         LibraryApplicationArea.DisableApplicationAreaSetup;
     end;
 
@@ -541,7 +541,7 @@
         LibraryApplicationArea.EnableBasicSetup;
         CustomerCard.OpenView;
         Assert.IsTrue(CustomerCard."PEC E-Mail Address".Visible, FieldIsNotVisibleErr);
-        CustomerCard.Close;
+        CustomerCard.Close();
         LibraryApplicationArea.DisableApplicationAreaSetup;
     end;
 
@@ -2181,8 +2181,8 @@
     local procedure CreateExtendedTextHeader(var ExtendedTextHeader: Record "Extended Text Header"; ItemNo: Code[20])
     begin
         LibraryService.CreateExtendedTextHeaderItem(ExtendedTextHeader, ItemNo);
-        ExtendedTextHeader.Validate("Starting Date", WorkDate);
-        ExtendedTextHeader.Validate("Ending Date", WorkDate);
+        ExtendedTextHeader.Validate("Starting Date", WorkDate());
+        ExtendedTextHeader.Validate("Ending Date", WorkDate());
         ExtendedTextHeader.Validate("Sales Invoice", true);
         ExtendedTextHeader.Validate("Sales Credit Memo", true);
         ExtendedTextHeader.Validate("Service Invoice", true);
@@ -2341,8 +2341,8 @@
         VATExemption.Init();
         VATExemption.Validate(Type, VATExemption.Type::Customer);
         VATExemption.Validate("No.", CustNo);
-        VATExemption.Validate("VAT Exempt. Starting Date", WorkDate);
-        VATExemption.Validate("VAT Exempt. Ending Date", CalcDate('<+1D>', WorkDate));
+        VATExemption.Validate("VAT Exempt. Starting Date", WorkDate());
+        VATExemption.Validate("VAT Exempt. Ending Date", CalcDate('<+1D>', WorkDate()));
         VATExemption.Validate("VAT Exempt. Int. Registry No.",
           LibraryUtility.GenerateRandomCode(VATExemption.FieldNo("VAT Exempt. Int. Registry No."), DATABASE::"VAT Exemption"));
         VATExemption.Validate("VAT Exempt. No.",
@@ -2365,7 +2365,7 @@
     local procedure CreateServiceHeader(var ServiceHeader: Record "Service Header"; DocType: Enum "Service Document Type"; CustomerNo: Code[20])
     begin
         LibraryService.CreateServiceHeader(ServiceHeader, DocType, CustomerNo);
-        ServiceHeader.Validate("Order Date", WorkDate);
+        ServiceHeader.Validate("Order Date", WorkDate());
         ServiceHeader.Validate("Payment Method Code", CreatePaymentMethod);
         ServiceHeader.Validate("Payment Terms Code", CreatePaymentTerms);
         ServiceHeader.Modify(true);
@@ -2490,7 +2490,7 @@
     local procedure AssertElementValue(var TempXMLBuffer: Record "XML Buffer" temporary; ElementName: Text; ElementValue: Text)
     begin
         FindNextElement(TempXMLBuffer);
-        Assert.AreEqual(ElementName, TempXMLBuffer.GetElementName,
+        Assert.AreEqual(ElementName, TempXMLBuffer.GetElementName(),
           StrSubstNo(UnexpectedElementNameErr, ElementName, TempXMLBuffer.GetElementName));
         Assert.AreEqual(ElementValue, TempXMLBuffer.Value,
           StrSubstNo(UnexpectedElementValueErr, ElementName, ElementValue, TempXMLBuffer.Value));
@@ -2499,7 +2499,7 @@
     local procedure AssertCurrentElementValue(TempXMLBuffer: Record "XML Buffer" temporary; ExpectedValue: Text)
     begin
         Assert.AreEqual(ExpectedValue, TempXMLBuffer.Value,
-          StrSubstNo(UnexpectedElementValueErr, TempXMLBuffer.GetElementName, ExpectedValue, TempXMLBuffer.Value));
+          StrSubstNo(UnexpectedElementValueErr, TempXMLBuffer.GetElementName(), ExpectedValue, TempXMLBuffer.Value));
     end;
 
     local procedure FindNextElement(var TempXMLBuffer: Record "XML Buffer" temporary)
@@ -2507,14 +2507,14 @@
         if TempXMLBuffer.HasChildNodes then
             TempXMLBuffer.FindChildElements(TempXMLBuffer)
         else
-            if not (TempXMLBuffer.Next > 0) then begin
+            if not (TempXMLBuffer.Next() > 0) then begin
                 TempXMLBuffer.GetParent;
                 TempXMLBuffer.SetRange("Parent Entry No.", TempXMLBuffer."Parent Entry No.");
-                if not (TempXMLBuffer.Next > 0) then
+                if not (TempXMLBuffer.Next() > 0) then
                     repeat
                         TempXMLBuffer.GetParent;
                         TempXMLBuffer.SetRange("Parent Entry No.", TempXMLBuffer."Parent Entry No.");
-                    until (TempXMLBuffer.Next > 0);
+                    until (TempXMLBuffer.Next() > 0);
             end;
     end;
 
@@ -2600,7 +2600,7 @@
         repeat
             i += 1;
             AmountArray[i] := -VATEntry.Amount;
-        until VATEntry.Next = 0;
+        until VATEntry.Next() = 0;
     end;
 
     local procedure GetMaxRiferimentoTestoLength(): Integer
@@ -2701,7 +2701,7 @@
         SalesShipmentLine.FindSet();
         i := 1;
         VerifyDatiDDTData(TempXMLBuffer, SalesShipmentLine."Document No.", SalesShipmentLine."Shipment Date", i);
-        while SalesShipmentLine.Next <> 0 do begin
+        while SalesShipmentLine.Next() <> 0 do begin
             i += 1;
             FindNextElement(TempXMLBuffer);
             VerifyDatiDDTData(TempXMLBuffer, SalesShipmentLine."Document No.", SalesShipmentLine."Shipment Date", i);
@@ -2720,7 +2720,7 @@
         ServiceShipmentLine.FindSet();
         i := 1;
         VerifyDatiDDTData(TempXMLBuffer, ServiceShipmentLine."Document No.", ServiceShipmentLine."Posting Date", i);
-        while ServiceShipmentLine.Next <> 0 do begin
+        while ServiceShipmentLine.Next() <> 0 do begin
             i += 1;
             FindNextElement(TempXMLBuffer);
             VerifyDatiDDTData(TempXMLBuffer, ServiceShipmentLine."Document No.", ServiceShipmentLine."Posting Date", i);
@@ -2865,7 +2865,7 @@
         CustLedgerEntry.SetRange("Document No.", DocNo);
         CustLedgerEntry.FindSet();
         VerifyDettaglioPagamentoData(TempXMLBuffer, PaymentMethod."Fattura PA Payment Method", CustLedgerEntry);
-        while CustLedgerEntry.Next <> 0 do begin
+        while CustLedgerEntry.Next() <> 0 do begin
             FindNextElement(TempXMLBuffer);
             VerifyDettaglioPagamentoData(TempXMLBuffer, PaymentMethod."Fattura PA Payment Method", CustLedgerEntry);
         end;
@@ -2976,7 +2976,7 @@
             VerifyAltriDatiGestionaliLongText(TempXMLBuffer, StrSubstNo(TxtTok, ExtendedTextLine."No."), ExtendedTextLine.Text);
             TempXMLBuffer.SetFilter(Path, '*' + XPath);
             FindNextElement(TempXMLBuffer);
-        until ExtendedTextLine.Next = 0;
+        until ExtendedTextLine.Next() = 0;
         TempXMLBuffer.SetRange(Path);
     end;
 
@@ -3133,7 +3133,7 @@
     begin
         PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup."VAT Exemption Nos." := VATExemptionNos;
-        PurchasesPayablesSetup.Modify;
+        PurchasesPayablesSetup.Modify();
     end;
 }
 

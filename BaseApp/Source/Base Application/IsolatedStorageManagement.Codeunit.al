@@ -17,7 +17,7 @@ codeunit 1293 "Isolated Storage Management"
     [Scope('OnPrem')]
     procedure Set("Key": Text; Value: Text; Datascope: DataScope): Boolean
     begin
-        if not EncryptionEnabled then
+        if not EncryptionEnabled() then
             exit(ISOLATEDSTORAGE.Set(CopyStr(Key, 1, 200), Value, Datascope));
 
         exit(ISOLATEDSTORAGE.SetEncrypted(CopyStr(Key, 1, 200), Value, Datascope));

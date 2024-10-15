@@ -1,9 +1,11 @@
-﻿codeunit 99000813 "Carry Out Action"
+codeunit 99000813 "Carry Out Action"
 {
     Permissions = TableData "Prod. Order Capacity Need" = rid;
     TableNo = "Requisition Line";
 
     trigger OnRun()
+    var
+        IsHandled: Boolean;
     begin
         ProductionExist := true;
         AssemblyExist := true;
@@ -11,29 +13,34 @@
             TrySourceType::Purchase:
                 CarryOutToReqWksh(Rec, TryWkshTempl, TryWkshName);
             TrySourceType::Transfer:
-                CarryOutTransOrder(Rec, TryChoice, TryWkshTempl, TryWkshName);
+                CarryOutActionsFromTransOrder(Rec, "Planning Create Transfer Order".FromInteger(TryChoice), TryWkshTempl, TryWkshName);
             TrySourceType::Production:
-                ProductionExist := CarryOutProdOrder(Rec, TryChoice, TryWkshTempl, TryWkshName);
+                begin
+                    IsHandled := false;
+                    OnRunOnBeforeCalcProductionExist(Rec, TryChoice, TryWkshTempl, TryWkshName, ProductionExist, IsHandled);
+                    if not IsHandled then
+                        ProductionExist := CarryOutActionsFromProdOrder(Rec, "Planning Create Prod. Order".FromInteger(TryChoice), TryWkshTempl, TryWkshName);
+                end;
             TrySourceType::Assembly:
-                AssemblyExist := CarryOutAsmOrder(Rec, TryChoice);
+                AssemblyExist := CarryOutActionsFromAssemblyOrder(Rec, "Planning Create Assembly Order".FromInteger(TryChoice));
         end;
 
-        if "Action Message" = "Action Message"::Cancel then
-            Delete(true);
+        if Rec."Action Message" = Rec."Action Message"::Cancel then
+            Rec.Delete(true);
 
         ReservEntry.SetCurrentKey(
           "Source ID", "Source Ref. No.", "Source Type", "Source Subtype",
           "Source Batch Name", "Source Prod. Order Line");
-        SetReservationFilters(ReservEntry);
+        Rec.SetReservationFilters(ReservEntry);
         ReservEntry.DeleteAll(true);
 
-        if not ("Action Message" = "Action Message"::Cancel) then begin
-            BlockDynamicTracking(true);
+        if not (Rec."Action Message" = Rec."Action Message"::Cancel) then begin
+            Rec.BlockDynamicTracking(true);
             if TrySourceType = TrySourceType::Production then
-                BlockDynamicTrackingOnComp(true);
+                Rec.BlockDynamicTrackingOnComp(true);
             if ProductionExist and AssemblyExist then
                 DeleteRequisitionLine(Rec);
-            BlockDynamicTracking(false);
+            Rec.BlockDynamicTracking(false);
         end;
     end;
 
@@ -54,21 +61,32 @@
         SplitTransferOrders: Boolean;
         ProductionExist: Boolean;
         AssemblyExist: Boolean;
-        TrySourceType: Option Purchase,Transfer,Production,Assembly;
+        TrySourceType: Enum "Planning Create Source Type";
         TryChoice: Option;
         TryWkshTempl: Code[10];
         TryWkshName: Code[10];
         LineNo: Integer;
         CouldNotChangeSupplyTxt: Label 'The supply type could not be changed in order %1, order line %2.', Comment = '%1 - Production Order No. or Assembly Header No. or Purchase Header No., %2 - Production Order Line or Assembly Line No. or Purchase Line No.';
 
-    procedure TryCarryOutAction(SourceType: Option Purchase,Transfer,Production,Assembly; var ReqLine: Record "Requisition Line"; Choice: Option; WkshTempl: Code[10]; WkshName: Code[10]): Boolean
+    procedure TryCarryOutAction(SourceType: Enum "Planning Create Source Type"; var ReqLine: Record "Requisition Line"; Choice: Option; WkshTempl: Code[10]; WkshName: Code[10]): Boolean
     begin
         CarryOutAction.SetSplitTransferOrders(SplitTransferOrders);
-        CarryOutAction.SetTryParameters(SourceType, Choice, WkshTempl, WkshName);
+        CarryOutAction.SetParameters(SourceType, Choice, WkshTempl, WkshName);
         exit(CarryOutAction.Run(ReqLine));
     end;
 
+#if not CLEAN21
+    [Obsolete('Replaced by procedure SetParameters()', '21.0')]
     procedure SetTryParameters(SourceType: Option Purchase,Transfer,Production,Assembly; Choice: Option; WkshTempl: Code[10]; WkshName: Code[10])
+    begin
+        TrySourceType := "Planning Create Source Type".FromInteger(SourceType);
+        TryChoice := Choice;
+        TryWkshTempl := WkshTempl;
+        TryWkshName := WkshName;
+    end;
+#endif
+
+    procedure SetParameters(SourceType: Enum "Planning Create Source Type"; Choice: Integer; WkshTempl: Code[10]; WkshName: Code[10])
     begin
         TrySourceType := SourceType;
         TryChoice := Choice;
@@ -76,15 +94,25 @@
         TryWkshName := WkshName;
     end;
 
+#if not CLEAN21
+    [Obsolete('Replaced by procedure CarryOutFromProdOrder()', '21.0')]
     procedure CarryOutProdOrder(ReqLine: Record "Requisition Line"; ProdOrderChoice: Option " ",Planned,"Firm Planned","Firm Planned & Print","Copy to Req. Wksh"; ProdWkshTempl: Code[10]; ProdWkshName: Code[10]): Boolean
     begin
+        exit(CarryOutActionsFromProdOrder(ReqLine, "Planning Create Prod. Order".FromInteger(ProdOrderChoice), ProdWkshTempl, ProdWkshName));
+    end;
+#endif
+
+    procedure CarryOutActionsFromProdOrder(ReqLine: Record "Requisition Line"; ProdOrderChoice: Enum "Planning Create Prod. Order"; ProdWkshTempl: Code[10]; ProdWkshName: Code[10]): Boolean
+    begin
         PrintOrder := ProdOrderChoice = ProdOrderChoice::"Firm Planned & Print";
+        OnCarryOutActionsFromProdOrderOnAfterCalcPrintOrder(PrintOrder, ProdOrderChoice);
+
         case ReqLine."Action Message" of
             ReqLine."Action Message"::New:
                 if ProdOrderChoice = ProdOrderChoice::"Copy to Req. Wksh" then
                     CarryOutToReqWksh(ReqLine, ProdWkshTempl, ProdWkshName)
                 else
-                    InsertProdOrder(ReqLine, ProdOrderChoice);
+                    InsertProductionOrder(ReqLine, ProdOrderChoice);
             ReqLine."Action Message"::"Change Qty.",
           ReqLine."Action Message"::Reschedule,
           ReqLine."Action Message"::"Resched. & Chg. Qty.":
@@ -95,9 +123,21 @@
         exit(true);
     end;
 
+#if not CLEAN21
+    [Obsolete('Replaced by procedure CarryOutActionsFromTransOrder()', '21.0')]
     procedure CarryOutTransOrder(ReqLine: Record "Requisition Line"; TransOrderChoice: Option " ","Make Trans. Orders","Make Trans. Orders & Print","Copy to Req. Wksh"; TransWkshTempName: Code[10]; TransJournalName: Code[10])
     begin
-        PrintOrder := TransOrderChoice = TransOrderChoice::"Make Trans. Orders & Print";
+        CarryOutActionsFromTransOrder(ReqLine, "Planning Create Transfer Order".FromInteger(TransOrderChoice), TransWkshTempName, TransJournalName);
+    end;
+#endif
+
+    procedure CarryOutActionsFromTransOrder(ReqLine: Record "Requisition Line"; TransOrderChoice: Enum "Planning Create Transfer Order"; TransWkshTempName: Code[10]; TransJournalName: Code[10])
+    var
+        IsHandled: Boolean;
+    begin
+        OnBeforeCarryOutTransOrder(SplitTransferOrders);
+
+        PrintOrder := TransOrderChoice = TransOrderChoice::"Make Trans. Order & Print";
 
         if SplitTransferOrders then
             Clear(LastTransHeader);
@@ -107,18 +147,35 @@
         else
             case ReqLine."Action Message" of
                 ReqLine."Action Message"::New:
-                    InsertTransLine(ReqLine, LastTransHeader);
+                    begin
+                        IsHandled := false;
+                        OnCarryOutActionsFromTransOrderOnBeforeInsertTransLine(ReqLine, PrintOrder, IsHandled);
+                        if not IsHandled then
+                            InsertTransLine(ReqLine, LastTransHeader);
+                    end;
                 ReqLine."Action Message"::"Change Qty.",
               ReqLine."Action Message"::Reschedule,
               ReqLine."Action Message"::"Resched. & Chg. Qty.":
-                    TransOrderChgAndReshedule(ReqLine);
+                    begin
+                        IsHandled := false;
+                        OnCarryOutActionsFromTransOrderOnBeforeTransOrderChgAndReshedule(ReqLine, PrintOrder, IsHandled);
+                        if not IsHandled then
+                            TransOrderChgAndReshedule(ReqLine);
+                    end;
                 ReqLine."Action Message"::Cancel:
                     DeleteOrderLines(ReqLine);
             end;
     end;
 
-    [Scope('OnPrem')]
+#if not CLEAN21
+    [Obsolete('Replaced by procedure CarryOutActionsFromAssemblyOrder()', '21.0')]
     procedure CarryOutAsmOrder(ReqLine: Record "Requisition Line"; AsmOrderChoice: Option " ","Make Assembly Orders","Make Assembly Orders & Print"): Boolean
+    begin
+        CarryOutActionsFromAssemblyOrder(ReqLine, "Planning Create Assembly Order".FromInteger(AsmOrderChoice));
+    end;
+#endif
+
+    procedure CarryOutActionsFromAssemblyOrder(ReqLine: Record "Requisition Line"; AsmOrderChoice: Enum "Planning Create Assembly Order"): Boolean
     var
         AsmHeader: Record "Assembly Header";
     begin
@@ -195,6 +252,7 @@
                 PlanningComp2 := PlanningComp;
                 PlanningComp2."Worksheet Template Name" := ReqWkshTempName;
                 PlanningComp2."Worksheet Batch Name" := ReqJournalName;
+                PlanningComp2."Worksheet Line No." := LineNo;
                 if PlanningComp2."Planning Line Origin" = PlanningComp2."Planning Line Origin"::"Order Planning" then
                     PlanningComp2."Planning Line Origin" := PlanningComp2."Planning Line Origin"::" ";
                 PlanningComp2."Dimension Set ID" := ReqLine2."Dimension Set ID";
@@ -210,6 +268,7 @@
                 PlanningRoutingLine2 := PlanningRoutingLine;
                 PlanningRoutingLine2."Worksheet Template Name" := ReqWkshTempName;
                 PlanningRoutingLine2."Worksheet Batch Name" := ReqJournalName;
+                PlanningRoutingLine2."Worksheet Line No." := LineNo;
                 OnCarryOutToReqWkshOnAfterPlanningRoutingLineInsert(PlanningRoutingLine2, PlanningRoutingLine);
                 PlanningRoutingLine2.Insert();
             until PlanningRoutingLine.Next() = 0;
@@ -222,6 +281,7 @@
                 ProdOrderCapNeed2 := ProdOrderCapNeed;
                 ProdOrderCapNeed2."Worksheet Template Name" := ReqWkshTempName;
                 ProdOrderCapNeed2."Worksheet Batch Name" := ReqJournalName;
+                ProdOrderCapNeed2."Worksheet Line No." := LineNo;
                 ProdOrderCapNeed.Delete();
                 ProdOrderCapNeed2.Insert();
             until ProdOrderCapNeed.Next() = 0;
@@ -267,7 +327,7 @@
                 ReqLineReserve.UpdateDerivedTracking(ReqLine);
                 ReservMgt.SetReservSource(ProdOrderLine);
                 ReservMgt.DeleteReservEntries(false, ProdOrderLine."Remaining Qty. (Base)");
-                ReservMgt.ClearSurplus;
+                ReservMgt.ClearSurplus();
                 ReservMgt.AutoTrack(ProdOrderLine."Remaining Qty. (Base)");
                 PlanningComponent.SetRange("Worksheet Template Name", "Worksheet Template Name");
                 PlanningComponent.SetRange("Worksheet Batch Name", "Journal Batch Name");
@@ -281,7 +341,7 @@
                             ReservePlanningComponent.UpdateDerivedTracking(PlanningComponent);
                             ReservMgt.SetReservSource(ProdOrderComp);
                             ReservMgt.DeleteReservEntries(false, ProdOrderComp."Remaining Qty. (Base)");
-                            ReservMgt.ClearSurplus;
+                            ReservMgt.ClearSurplus();
                             ReservMgt.AutoTrack(ProdOrderComp."Remaining Qty. (Base)");
                             CheckDateConflict.ProdOrderComponentCheck(ProdOrderComp, false, false);
                         end else
@@ -319,6 +379,7 @@
             OnPurchOrderChgAndResheduleOnAfterGetPurchLine(PurchLine);
             PurchLine.BlockDynamicTracking(true);
             PurchLine.Validate(Quantity, ReqLine.Quantity);
+            OnPurchOrderChgAndResheduleOnBeforeValidateExpectedReceiptDate(ReqLine);
             PurchLine.Validate("Expected Receipt Date", ReqLine."Due Date");
             PurchLine.Validate("Planning Flexibility", ReqLine."Planning Flexibility");
             OnPurchOrderChgAndResheduleOnBeforePurchLineModify(ReqLine, PurchLine);
@@ -327,7 +388,7 @@
             ReqLineReserve.UpdateDerivedTracking(ReqLine);
             ReservMgt.SetReservSource(PurchLine);
             ReservMgt.DeleteReservEntries(false, PurchLine."Outstanding Qty. (Base)");
-            ReservMgt.ClearSurplus;
+            ReservMgt.ClearSurplus();
             ReservMgt.AutoTrack(PurchLine."Outstanding Qty. (Base)");
 
             PurchHeader.Get(PurchLine."Document Type", PurchLine."Document No.");
@@ -356,11 +417,11 @@
             ReqLineReserve.UpdateDerivedTracking(ReqLine);
             ReservMgt.SetReservSource(TransLine, "Transfer Direction"::Outbound);
             ReservMgt.DeleteReservEntries(false, TransLine."Outstanding Qty. (Base)");
-            ReservMgt.ClearSurplus;
+            ReservMgt.ClearSurplus();
             ReservMgt.AutoTrack(TransLine."Outstanding Qty. (Base)");
             ReservMgt.SetReservSource(TransLine, "Transfer Direction"::Inbound);
             ReservMgt.DeleteReservEntries(false, TransLine."Outstanding Qty. (Base)");
-            ReservMgt.ClearSurplus;
+            ReservMgt.ClearSurplus();
             ReservMgt.AutoTrack(TransLine."Outstanding Qty. (Base)");
             TransHeader.Get(TransLine."Document No.");
             PrintTransferOrder(TransHeader);
@@ -377,7 +438,7 @@
             TestField("Ref. Order Type", "Ref. Order Type"::Assembly);
             AsmHeader.LockTable();
             if AsmHeader.Get(AsmHeader."Document Type"::Order, "Ref. Order No.") then begin
-                AsmHeader.SetWarningsOff;
+                AsmHeader.SetWarningsOff();
                 AsmHeader.Validate(Quantity, Quantity);
                 AsmHeader.Validate("Planning Flexibility", "Planning Flexibility");
                 AsmHeader.Validate("Due Date", "Due Date");
@@ -387,7 +448,7 @@
                 ReqLineReserve.UpdateDerivedTracking(ReqLine);
                 ReservMgt.SetReservSource(AsmHeader);
                 ReservMgt.DeleteReservEntries(false, AsmHeader."Remaining Quantity (Base)");
-                ReservMgt.ClearSurplus;
+                ReservMgt.ClearSurplus();
                 ReservMgt.AutoTrack(AsmHeader."Remaining Quantity (Base)");
 
                 PlanningComponent.SetRange("Worksheet Template Name", "Worksheet Template Name");
@@ -400,7 +461,7 @@
                             ReservePlanningComponent.UpdateDerivedTracking(PlanningComponent);
                             ReservMgt.SetReservSource(AsmLine);
                             ReservMgt.DeleteReservEntries(false, AsmLine."Remaining Quantity (Base)");
-                            ReservMgt.ClearSurplus;
+                            ReservMgt.ClearSurplus();
                             ReservMgt.AutoTrack(AsmLine."Remaining Quantity (Base)");
                             CheckDateConflict.AssemblyLineCheck(AsmLine, false);
                         end else
@@ -528,19 +589,28 @@
         OnAfterDeleteRequisitionLine(RequisitionLine);
     end;
 
+#if not CLEAN21
+    [Obsolete('Replaced by InsertProductionOrder', '21.0')]
     procedure InsertProdOrder(ReqLine: Record "Requisition Line"; ProdOrderChoice: Option " ",Planned,"Firm Planned","Firm Planned & Print")
+    begin
+        InsertProductionOrder(ReqLine, "Planning Create Prod. Order".FromInteger(ProdOrderChoice));
+    end;
+#endif
+
+    procedure InsertProductionOrder(ReqLine: Record "Requisition Line"; ProdOrderChoice: Enum "Planning Create Prod. Order")
     var
         MfgSetup: Record "Manufacturing Setup";
         Item: Record Item;
         ProdOrder: Record "Production Order";
         HeaderExist: Boolean;
+        IsHandled: Boolean;
     begin
         Item.Get(ReqLine."No.");
         MfgSetup.Get();
         if FindTempProdOrder(ReqLine) then
             HeaderExist := ProdOrder.Get(TempProductionOrder.Status, TempProductionOrder."No.");
 
-        OnInsertProdOrderOnAfterFindTempProdOrder(ReqLine, ProdOrder, HeaderExist);
+        OnInsertProdOrderOnAfterFindTempProdOrder(ReqLine, ProdOrder, HeaderExist, Item);
 
         if not HeaderExist then begin
             case ProdOrderChoice of
@@ -549,15 +619,21 @@
                 ProdOrderChoice::"Firm Planned",
                 ProdOrderChoice::"Firm Planned & Print":
                     MfgSetup.TestField("Firm Planned Order Nos.");
+                else
+                    OnInsertProductionOrderOnProdOrderChoiceCaseElse(ProdOrderChoice);
             end;
 
             OnInsertProdOrderOnBeforeProdOrderInit(ReqLine);
             ProdOrder.Init();
             if ProdOrderChoice = ProdOrderChoice::"Firm Planned & Print" then
                 ProdOrder.Status := ProdOrder.Status::"Firm Planned"
-            else
-                ProdOrder.Status := "Production Order Status".FromInteger(ProdOrderChoice);
-            ProdOrder."No. Series" := ProdOrder.GetNoSeriesCode;
+            else begin
+                IsHandled := false;
+                OnInsertProdOrderOnProdOrderChoiceNotFirmPlannedPrint(ProdOrder, ProdOrderChoice, IsHandled);
+                if not IsHandled then
+                    ProdOrder.Status := "Production Order Status".FromInteger(ProdOrderChoice.AsInteger());
+            end;
+            ProdOrder."No. Series" := ProdOrder.GetNoSeriesCode();
             if ProdOrder."No. Series" = ReqLine."No. Series" then
                 ProdOrder."No." := ReqLine."Ref. Order No.";
             OnInsertProdOrderOnBeforeProdOrderInsert(ProdOrder, ReqLine);
@@ -594,7 +670,7 @@
         end;
         InsertProdOrderLine(ReqLine, ProdOrder, Item);
 
-        OnAfterInsertProdOrder(ProdOrder, ProdOrderChoice, ReqLine);
+        OnAfterInsertProdOrder(ProdOrder, ProdOrderChoice.AsInteger(), ReqLine);
     end;
 
     procedure InsertProdOrderLine(ReqLine: Record "Requisition Line"; ProdOrder: Record "Production Order"; Item: Record Item)
@@ -627,6 +703,7 @@
         ProdOrderLine."Description 2" := ReqLine."Description 2";
         ProdOrderLine."Variant Code" := ReqLine."Variant Code";
         ProdOrderLine."Location Code" := ReqLine."Location Code";
+        OnInsertProdOrderLineOnBeforeGetBinCode(ProdOrderLine, ReqLine);
         if ReqLine."Bin Code" <> '' then
             ProdOrderLine.Validate("Bin Code", ReqLine."Bin Code")
         else
@@ -648,7 +725,7 @@
         UpdateProdOrderLineQuantity(ProdOrderLine, ReqLine, Item);
         if not (ProdOrder.Status = ProdOrder.Status::Planned) then
             ProdOrderLine."Planning Flexibility" := ReqLine."Planning Flexibility";
-        ProdOrderLine.UpdateDatetime;
+        ProdOrderLine.UpdateDatetime();
         ProdOrderLine."Shortcut Dimension 1 Code" := ReqLine."Shortcut Dimension 1 Code";
         ProdOrderLine."Shortcut Dimension 2 Code" := ReqLine."Shortcut Dimension 2 Code";
         ProdOrderLine."Dimension Set ID" := ReqLine."Dimension Set ID";
@@ -717,7 +794,7 @@
         OnInsertAsmHeaderOnBeforeAsmHeaderInsert(AsmHeader, ReqLine);
         AsmHeader.Insert(true);
         OnInsertAsmHeaderOnAfterAsmHeaderInsert(AsmHeader, ReqLine);
-        AsmHeader.SetWarningsOff;
+        AsmHeader.SetWarningsOff();
         AsmHeader.Validate("Item No.", ReqLine."No.");
         AsmHeader.Validate("Unit of Measure Code", ReqLine."Unit of Measure Code");
         AsmHeader.Description := ReqLine.Description;
@@ -732,12 +809,12 @@
 
         AsmHeader.Quantity := ReqLine.Quantity;
         AsmHeader."Quantity (Base)" := ReqLine."Quantity (Base)";
-        AsmHeader.InitRemainingQty;
-        AsmHeader.InitQtyToAssemble;
+        AsmHeader.InitRemainingQty();
+        AsmHeader.InitQtyToAssemble();
         if ReqLine."Bin Code" <> '' then
             AsmHeader."Bin Code" := ReqLine."Bin Code"
         else
-            AsmHeader.GetDefaultBin;
+            AsmHeader.GetDefaultBin();
 
         AsmHeader."Planning Flexibility" := ReqLine."Planning Flexibility";
         AsmHeader."Shortcut Dimension 1 Code" := ReqLine."Shortcut Dimension 1 Code";
@@ -825,12 +902,12 @@
                 AsmLine."Qty. per Unit of Measure" := PlanningComponent."Qty. per Unit of Measure";
                 AsmLine.Quantity := PlanningComponent."Expected Quantity";
                 AsmLine."Quantity (Base)" := PlanningComponent."Expected Quantity (Base)";
-                AsmLine.InitRemainingQty;
-                AsmLine.InitQtyToConsume;
+                AsmLine.InitRemainingQty();
+                AsmLine.InitQtyToConsume();
                 if PlanningComponent."Bin Code" <> '' then
                     AsmLine."Bin Code" := PlanningComponent."Bin Code"
                 else
-                    AsmLine.GetDefaultBin;
+                    AsmLine.GetDefaultBin();
 
                 AsmLine."Due Date" := PlanningComponent."Due Date";
                 AsmLine."Unit Cost" := PlanningComponent."Unit Cost";
@@ -867,7 +944,7 @@
         with ReqLine do begin
             TransHeader.Init();
             TransHeader."No." := '';
-            TransHeader."Posting Date" := WorkDate;
+            TransHeader."Posting Date" := WorkDate();
             OnInsertTransHeaderOnBeforeTransHeaderInsert(TransHeader, ReqLine);
             TransHeader.Insert(true);
             OnInsertTransHeaderOnAfterTransHeaderInsert(TransHeader, ReqLine);
@@ -984,6 +1061,11 @@
         PurchLine: Record "Purchase Line";
         IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePrintPurchaseOrder2(PurchHeader, PrintOrder, IsHandled);
+        if IsHandled then
+            exit;
+
         if PrintOrder and (PurchHeader."Buy-from Vendor No." <> '') then begin
             PurchHeader2 := PurchHeader;
             PurchSetup.Get();
@@ -996,7 +1078,7 @@
             end;
 
             IsHandled := false;
-            OnBeforePrintPurchaseOrder(PurchHeader2, IsHandled);
+            OnBeforePrintPurchaseOrder(PurchHeader2, IsHandled, PrintOrder);
             if IsHandled then
                 exit;
 
@@ -1149,7 +1231,7 @@
                             PlanningRtngLine.Type, PlanningRtngLine."No.", ReqLine."Location Code", true,
                             FlushingMethod.AsInteger());
 
-                ProdOrderRtngLine.UpdateDatetime;
+                ProdOrderRtngLine.UpdateDatetime();
                 OnAfterTransferPlanningRtngLine(PlanningRtngLine, ProdOrderRtngLine);
                 ProdOrderRtngLine.Insert();
                 OnAfterProdOrderRtngLineInsert(ProdOrderRtngLine, PlanningRtngLine, ProdOrder, ReqLine);
@@ -1181,7 +1263,7 @@
                 ProdOrderComp2."Prod. Order No." := ProdOrder."No.";
                 ProdOrderComp2."Prod. Order Line No." := ProdOrderLineNo;
                 ProdOrderComp2.CopyFromPlanningComp(PlanningComponent);
-                ProdOrderComp2.UpdateDatetime;
+                ProdOrderComp2.UpdateDatetime();
                 OnAfterTransferPlanningComp(PlanningComponent, ProdOrderComp2);
                 ProdOrderComp2.Insert();
                 CopyProdBOMComments(ProdOrderComp2);
@@ -1221,7 +1303,7 @@
                 NewProdOrderCapNeed."Worksheet Template Name" := '';
                 NewProdOrderCapNeed."Worksheet Batch Name" := '';
                 NewProdOrderCapNeed."Worksheet Line No." := 0;
-                NewProdOrderCapNeed.UpdateDatetime;
+                NewProdOrderCapNeed.UpdateDatetime();
                 NewProdOrderCapNeed.Insert();
             until ProdOrderCapNeed.Next() = 0;
     end;
@@ -1269,7 +1351,7 @@
     begin
         if RequisitionLine."Ref. Order Status" = RequisitionLine."Ref. Order Status"::Planned then begin
             TempProductionOrder.SetRange("Planned Order No.", RequisitionLine."Ref. Order No.");
-            exit(TempProductionOrder.FindFirst);
+            exit(TempProductionOrder.FindFirst())
         end;
     end;
 
@@ -1571,7 +1653,7 @@
         if not ProductionBOMHeader.Get(ProdOrderLine."Production BOM No.") then
             exit;
 
-        ActiveVersionCode := VersionManagement.GetBOMVersion(ProductionBOMHeader."No.", WorkDate, true);
+        ActiveVersionCode := VersionManagement.GetBOMVersion(ProductionBOMHeader."No.", WorkDate(), true);
 
         ProductionBOMCommentLine.SetRange("Production BOM No.", ProductionBOMHeader."No.");
         ProductionBOMCommentLine.SetRange("BOM Line No.", ProdOrderComponent."Line No.");
@@ -1700,7 +1782,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePrintPurchaseOrder(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    local procedure OnBeforePrintPurchaseOrder(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean; PrintOrder: Boolean)
     begin
     end;
 
@@ -1775,7 +1857,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnInsertProdOrderOnAfterFindTempProdOrder(var ReqLine: Record "Requisition Line"; var ProdOrder: Record "Production Order"; var HeaderExists: Boolean)
+    local procedure OnInsertProdOrderOnAfterFindTempProdOrder(var ReqLine: Record "Requisition Line"; var ProdOrder: Record "Production Order"; var HeaderExists: Boolean; var Item: Record Item)
     begin
     end;
 
@@ -1866,6 +1948,56 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnPrintTransferOrderOnBeforePrintWithDialogWithCheckForCust(var ReportSelections: Record "Report Selections")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCarryOutActionsFromProdOrderOnAfterCalcPrintOrder(var PrintOrder: Boolean; ProdOrderChoice: Option)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertProductionOrderOnProdOrderChoiceCaseElse(ProdOrderChoice: Enum "Planning Create Prod. Order")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCarryOutActionsFromTransOrderOnBeforeTransOrderChgAndReshedule(ReqLine: Record "Requisition Line"; PrintOrder: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertProdOrderLineOnBeforeGetBinCode(var ProdOrderLine: Record "Prod. Order Line"; ReqLine: Record "Requisition Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertProdOrderOnProdOrderChoiceNotFirmPlannedPrint(var ProdOrder: Record "Production Order"; ProdOrderChoice: Enum "Planning Create Prod. Order"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCarryOutActionsFromTransOrderOnBeforeInsertTransLine(ReqLine: Record "Requisition Line"; PrintOrder: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePrintPurchaseOrder2(var PurchHeader: Record "Purchase Header"; PrintOrder: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPurchOrderChgAndResheduleOnBeforeValidateExpectedReceiptDate(var ReqLine: Record "Requisition Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnBeforeCalcProductionExist(RequisitionLine: Record "Requisition Line"; TryChoice: Option; TryWkshTempl: Code[10]; TryWkshName: Code[10]; var ProductionExist: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCarryOutTransOrder(SplitTransferOrders: Boolean)
     begin
     end;
 }

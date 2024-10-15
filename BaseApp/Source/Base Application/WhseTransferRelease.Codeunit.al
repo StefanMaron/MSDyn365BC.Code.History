@@ -97,10 +97,10 @@ codeunit 5773 "Whse.-Transfer Release"
             "Destination No." := TransferHeader."Transfer-to Code";
             OnBeforeCreateWhseRequest(WarehouseRequest, TransferHeader);
             if CalledFromTransferOrder then begin
-                if Modify then;
+                if Modify() then;
             end else
                 if not Insert() then
-                    Modify;
+                    Modify();
         end;
 
         OnAfterCreateInboundWhseRequest(WarehouseRequest, TransferHeader);
@@ -126,7 +126,7 @@ codeunit 5773 "Whse.-Transfer Release"
             "Destination No." := TransferHeader."Transfer-from Code";
             OnBeforeCreateWhseRequest(WarehouseRequest, TransferHeader);
             if not Insert() then
-                Modify;
+                Modify();
         end;
 
         OnAfterCreateOutboundWhseRequest(WarehouseRequest, TransferHeader);

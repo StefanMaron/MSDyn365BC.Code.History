@@ -11,7 +11,7 @@ report 5050 "Contact - List"
         dataitem(Contact; Contact)
         {
             RequestFilterFields = "No.", "Search Name", Type, "Salesperson Code", "Post Code", "Country/Region Code";
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
@@ -135,7 +135,7 @@ report 5050 "Contact - List"
 
     trigger OnPreReport()
     begin
-        ContactFilter := Contact.GetFilters;
+        ContactFilter := Contact.GetFilters();
 
         GroupNo := 1;
         RecPerPageNum := 4;

@@ -186,7 +186,7 @@ codeunit 136100 "Service Contract"
         // Excercise: Copy Service Contract using Copy Service Document Report
         CreateServiceContractHeader(ServiceContractHeaderTo, ServiceContractHeaderFrom."Customer No.");
         CopyDocMgt.CopyServContractLines(ServiceContractHeaderTo,
-          ServiceContractHeaderFrom."Contract Type",
+          ServiceContractHeaderFrom."Contract Type".AsInteger(),
           ServiceContractHeaderFrom."Contract No.",
           ServiceContractLineTo);
 
@@ -240,7 +240,7 @@ codeunit 136100 "Service Contract"
         asserterror UpdateGlobalDimensionCodeInServiceContract(ServiceContractHeader);
 
         // [THEN] Dimension code remains "X"
-        ServiceContractHeader.Find;
+        ServiceContractHeader.Find();
         Assert.AreEqual(
           InitialDimensionCode, ServiceContractHeader."Shortcut Dimension 1 Code",
           ServiceContractHeader.FieldCaption("Shortcut Dimension 1 Code"));
@@ -272,7 +272,7 @@ codeunit 136100 "Service Contract"
         LineAmount := CreateServiceContractLine(ServContractHeader, CreateServiceItem(Customer."No."));
 
         // [THEN] "Amount Per Period" in Service Contract = 1000
-        ServContractHeader.Find;
+        ServContractHeader.Find();
         ServContractHeader.TestField("Amount per Period",
           Round(LineAmount / 12 *
             ServContractMgt.NoOfMonthsAndMPartsInPeriod(ServContractHeader."Next Invoice Date", ServContractHeader."Expiration Date")));
@@ -295,7 +295,7 @@ codeunit 136100 "Service Contract"
         ServiceContractHeader.Modify(true);
         CreateServiceContractLine(
           ServiceContractHeader, CreateServiceItem(ServiceContractHeader."Customer No."));
-        ServiceContractHeader.Find;
+        ServiceContractHeader.Find();
 
         // [GIVEN] Service Header Expiration Date is set to 28/02/17, Annual Amount = 100
         ModifyServContractExpirationDateVerifyAnnualAmount(
@@ -318,20 +318,20 @@ codeunit 136100 "Service Contract"
     begin
         // [SCENARIO 379298] Lock Service Contract when adding new line after Invoice + Credit Memo in case of Prepaid = FALSE, "Contract Lines On Invoice" = FALSE
         Initialize();
-        SavedWorkDate := WorkDate;
+        SavedWorkDate := WorkDate();
 
         // [GIVEN] Signed Service Contract with line and "Starting Date" = 01-01-2016, "Invoice Period" = Quarter, Prepaid = FALSE, "Contract Lines On Invoice" = FALSE
-        ContractNo := CreateSignServiceContractWithStartingDate(CalcDate('<-CY>', WorkDate), false, true);
+        ContractNo := CreateSignServiceContractWithStartingDate(CalcDate('<-CY>', WorkDate()), false, true);
         // [GIVEN] Create, post service invoice on 01-04-2016
-        CreatePostServiceContractInvoice(ContractNo, CalcDate('<-CY+3M>', WorkDate));
+        CreatePostServiceContractInvoice(ContractNo, CalcDate('<-CY+3M>', WorkDate()));
         // [GIVEN] Create, post service invoice on 01-07-2016
-        CreatePostServiceContractInvoice(ContractNo, CalcDate('<-CY+6M>', WorkDate));
+        CreatePostServiceContractInvoice(ContractNo, CalcDate('<-CY+6M>', WorkDate()));
         // [GIVEN] Set WorkDate = 01-03-2016
-        WorkDate := CalcDate('<-CY+2M>', WorkDate);
+        WorkDate := CalcDate('<-CY+2M>', WorkDate());
         // [GIVEN] Reopen the contract
         OpenServContract(ContractNo);
         // [GIVEN] Modify contract line "Contract Expiration Date" = 01-03-2016. Create, post Service Credit Memo.
-        CreatePostServiceContractCreditMemo(ContractNo, CalcDate('<-CY+2M>', WorkDate));
+        CreatePostServiceContractCreditMemo(ContractNo, CalcDate('<-CY+2M>', WorkDate()));
         // [GIVEN] Add a new service contract line with "Line Amount" = 1200
         MonthlyAmount := AddServiceContractLine(ContractNo);
 
@@ -342,8 +342,8 @@ codeunit 136100 "Service Contract"
         // [THEN] Contract "Next Invoice Period" = "01-07-16 to 30-09-16"
         // [THEN] Contract "Last Invoice Date" = 30-06-2016
         VerifyServiceContractDates(
-          ContractNo, CalcDate('<-CY+9M-1D>', WorkDate), CalcDate('<-CY+6M>', WorkDate),
-          CalcDate('<-CY+9M-1D>', WorkDate), CalcDate('<-CY+6M-1D>', WorkDate));
+          ContractNo, CalcDate('<-CY+9M-1D>', WorkDate()), CalcDate('<-CY+6M>', WorkDate()),
+          CalcDate('<-CY+9M-1D>', WorkDate()), CalcDate('<-CY+6M-1D>', WorkDate()));
         // [THEN] Created invoice has 1 line with G/L Account "No." = "Non-Prepaid Contract Acc.", "Amount" = 400
         VerifyOpenServiceInvoiceDetails(ContractNo, 1, GetServiceContractAccountNo(ContractNo), MonthlyAmount / 3);
 
@@ -362,20 +362,20 @@ codeunit 136100 "Service Contract"
     begin
         // [SCENARIO 379298] Lock Service Contract when adding new line after Invoice + Credit Memo in case of Prepaid = TRUE, "Contract Lines On Invoice" = FALSE
         Initialize();
-        SavedWorkDate := WorkDate;
+        SavedWorkDate := WorkDate();
 
         // [GIVEN] Signed Service Contract with "Starting Date" = 01-01-2016, "Invoice Period" = Quarter,  Prepaid = TRUE, "Contract Lines On Invoice" = FALSE
-        ContractNo := CreateSignServiceContractWithStartingDate(CalcDate('<-CY>', WorkDate), true, false);
+        ContractNo := CreateSignServiceContractWithStartingDate(CalcDate('<-CY>', WorkDate()), true, false);
         // [GIVEN] Create, post service invoice on 01-03-2016
-        CreatePostServiceContractInvoice(ContractNo, CalcDate('<-CY+2M>', WorkDate));
+        CreatePostServiceContractInvoice(ContractNo, CalcDate('<-CY+2M>', WorkDate()));
         // [GIVEN] Create, post service invoice on 01-06-2016
-        CreatePostServiceContractInvoice(ContractNo, CalcDate('<-CY+5M>', WorkDate));
+        CreatePostServiceContractInvoice(ContractNo, CalcDate('<-CY+5M>', WorkDate()));
         // [GIVEN] Set WorkDate = 01-03-2016
-        WorkDate := CalcDate('<-CY+2M>', WorkDate);
+        WorkDate := CalcDate('<-CY+2M>', WorkDate());
         // [GIVEN] Reopen the contract
         OpenServContract(ContractNo);
         // [GIVEN] Modify contract line "Contract Expiration Date" = 01-03-2016. Create, post Service Credit Memo.
-        CreatePostServiceContractCreditMemo(ContractNo, CalcDate('<-CY+2M>', WorkDate));
+        CreatePostServiceContractCreditMemo(ContractNo, CalcDate('<-CY+2M>', WorkDate()));
         // [GIVEN] Add a new service contract line with "Line Amount" = 1200
         MonthlyAmount := AddServiceContractLine(ContractNo);
 
@@ -386,8 +386,8 @@ codeunit 136100 "Service Contract"
         // [THEN] Contract "Next Invoice Period" = "01-07-16 to 30-09-16"
         // [THEN] Contract "Last Invoice Date" = 01-07-2016
         VerifyServiceContractDates(
-          ContractNo, CalcDate('<-CY+6M>', WorkDate), CalcDate('<-CY+6M>', WorkDate),
-          CalcDate('<-CY+9M-1D>', WorkDate), CalcDate('<-CY+6M>', WorkDate));
+          ContractNo, CalcDate('<-CY+6M>', WorkDate()), CalcDate('<-CY+6M>', WorkDate()),
+          CalcDate('<-CY+9M-1D>', WorkDate()), CalcDate('<-CY+6M>', WorkDate()));
         // [THEN] Created invoice has 4 lines with G/L Account "No." = "Prepaid Contract Acc.", "Amount" = 100
         VerifyOpenServiceInvoiceDetails(ContractNo, 4, GetServiceContractAccountNo(ContractNo), MonthlyAmount / 12);
 
@@ -406,20 +406,20 @@ codeunit 136100 "Service Contract"
     begin
         // [SCENARIO 379298] Lock Service Contract when adding new line after Invoice + Credit Memo in case of Prepaid = FALSE, "Contract Lines On Invoice" = TRUE
         Initialize();
-        SavedWorkDate := WorkDate;
+        SavedWorkDate := WorkDate();
 
         // [GIVEN] Signed Service Contract with line and "Starting Date" = 01-01-2016, "Invoice Period" = Quarter, Prepaid = FALSE, "Contract Lines On Invoice" = TRUE
-        ContractNo := CreateSignServiceContractWithStartingDate(CalcDate('<-CY>', WorkDate), false, true);
+        ContractNo := CreateSignServiceContractWithStartingDate(CalcDate('<-CY>', WorkDate()), false, true);
         // [GIVEN] Create, post service invoice on 01-04-2016
-        CreatePostServiceContractInvoice(ContractNo, CalcDate('<-CY+3M>', WorkDate));
+        CreatePostServiceContractInvoice(ContractNo, CalcDate('<-CY+3M>', WorkDate()));
         // [GIVEN] Create, post service invoice on 01-07-2016
-        CreatePostServiceContractInvoice(ContractNo, CalcDate('<-CY+6M>', WorkDate));
+        CreatePostServiceContractInvoice(ContractNo, CalcDate('<-CY+6M>', WorkDate()));
         // [GIVEN] Set WorkDate = 01-03-2016
-        WorkDate := CalcDate('<-CY+2M>', WorkDate);
+        WorkDate := CalcDate('<-CY+2M>', WorkDate());
         // [GIVEN] Reopen the contract
         OpenServContract(ContractNo);
         // [GIVEN] Modify contract line "Contract Expiration Date" = 01-03-2016. Create, post Service Credit Memo.
-        CreatePostServiceContractCreditMemo(ContractNo, CalcDate('<-CY+2M>', WorkDate));
+        CreatePostServiceContractCreditMemo(ContractNo, CalcDate('<-CY+2M>', WorkDate()));
         // [GIVEN] Add a new service contract line with "Line Amount" = 1200
         MonthlyAmount := AddServiceContractLine(ContractNo);
 
@@ -430,8 +430,8 @@ codeunit 136100 "Service Contract"
         // [THEN] Contract "Next Invoice Period" = "01-07-16 to 30-09-16"
         // [THEN] Contract "Last Invoice Date" = 30-06-2016
         VerifyServiceContractDates(
-          ContractNo, CalcDate('<-CY+9M-1D>', WorkDate), CalcDate('<-CY+6M>', WorkDate),
-          CalcDate('<-CY+9M-1D>', WorkDate), CalcDate('<-CY+6M-1D>', WorkDate));
+          ContractNo, CalcDate('<-CY+9M-1D>', WorkDate()), CalcDate('<-CY+6M>', WorkDate()),
+          CalcDate('<-CY+9M-1D>', WorkDate()), CalcDate('<-CY+6M-1D>', WorkDate()));
         // [THEN] Created invoice has 1 line with G/L Account "No." = "Non-Prepaid Contract Acc.", "Amount" = 400
         VerifyOpenServiceInvoiceDetails(ContractNo, 1, GetServiceContractAccountNo(ContractNo), MonthlyAmount / 3);
 
@@ -450,20 +450,20 @@ codeunit 136100 "Service Contract"
     begin
         // [SCENARIO 379298] Lock Service Contract when adding new line after Invoice + Credit Memo in case of Prepaid = TRUE, "Contract Lines On Invoice" = TRUE
         Initialize();
-        SavedWorkDate := WorkDate;
+        SavedWorkDate := WorkDate();
 
         // [GIVEN] Signed Service Contract with "Starting Date" = 01-01-2016, "Invoice Period" = Quarter,  Prepaid = TRUE, "Contract Lines On Invoice" = TRUE
-        ContractNo := CreateSignServiceContractWithStartingDate(CalcDate('<-CY>', WorkDate), true, true);
+        ContractNo := CreateSignServiceContractWithStartingDate(CalcDate('<-CY>', WorkDate()), true, true);
         // [GIVEN] Create, post service invoice on 01-03-2016
-        CreatePostServiceContractInvoice(ContractNo, CalcDate('<-CY+2M>', WorkDate));
+        CreatePostServiceContractInvoice(ContractNo, CalcDate('<-CY+2M>', WorkDate()));
         // [GIVEN] Create, post service invoice on 01-06-2016
-        CreatePostServiceContractInvoice(ContractNo, CalcDate('<-CY+5M>', WorkDate));
+        CreatePostServiceContractInvoice(ContractNo, CalcDate('<-CY+5M>', WorkDate()));
         // [GIVEN] Set WorkDate = 01-03-2016
-        WorkDate := CalcDate('<-CY+2M>', WorkDate);
+        WorkDate := CalcDate('<-CY+2M>', WorkDate());
         // [GIVEN] Reopen the contract
         OpenServContract(ContractNo);
         // [GIVEN] Modify contract line "Contract Expiration Date" = 01-03-2016. Create, post Service Credit Memo.
-        CreatePostServiceContractCreditMemo(ContractNo, CalcDate('<-CY+2M>', WorkDate));
+        CreatePostServiceContractCreditMemo(ContractNo, CalcDate('<-CY+2M>', WorkDate()));
         // [GIVEN] Add a new service contract line with "Line Amount" = 1200
         MonthlyAmount := AddServiceContractLine(ContractNo);
 
@@ -474,8 +474,8 @@ codeunit 136100 "Service Contract"
         // [THEN] Contract "Next Invoice Period" = "01-07-16 to 30-09-16"
         // [THEN] Contract "Last Invoice Date" = 01-07-2016
         VerifyServiceContractDates(
-          ContractNo, CalcDate('<-CY+6M>', WorkDate), CalcDate('<-CY+6M>', WorkDate),
-          CalcDate('<-CY+9M-1D>', WorkDate), CalcDate('<-CY+6M>', WorkDate));
+          ContractNo, CalcDate('<-CY+6M>', WorkDate()), CalcDate('<-CY+6M>', WorkDate()),
+          CalcDate('<-CY+9M-1D>', WorkDate()), CalcDate('<-CY+6M>', WorkDate()));
         // [THEN] Created invoice has 4 lines with G/L Account "No." = "Prepaid Contract Acc.", "Amount" = 100
         VerifyOpenServiceInvoiceDetails(ContractNo, 4, GetServiceContractAccountNo(ContractNo), MonthlyAmount / 12);
 
@@ -494,13 +494,13 @@ codeunit 136100 "Service Contract"
     begin
         // [SCENARIO 379677] Create Service Invoice for Service Contract with Starting Date = 11.06 and Invoice Period = Year and monthly uniform distribution of the total amount
         Initialize();
-        SavedWorkDate := WorkDate;
+        SavedWorkDate := WorkDate();
 
         // [GIVEN] Signed and Locked Service Contract with "Starting Date" = 11.06.2016, "Invoice Period" = Year, "Service Period" = 1Y,
         // [GIVEN] Prepaid = TRUE, "Contract Lines On Invoice" = TRUE and "Line Amount" = 1200
         LineAmount := CreateSingAndLockServiceContract(ServiceContractHeader);
         // [GIVEN] Set WorkDate := 01.07.2016
-        WorkDate := CalcDate('<CM+1D>', WorkDate);
+        WorkDate := CalcDate('<CM+1D>', WorkDate());
 
         // [WHEN] Create Service Invoice for the period from 01.07.16 to 11.06.17
         CreateServiceInvoice(ServiceContractHeader."Contract No.");
@@ -599,13 +599,13 @@ codeunit 136100 "Service Contract"
         ServiceContractHeader.Modify();
         CreateServiceContractLine(
           ServiceContractHeader, CreateServiceItem(ServiceContractHeader."Customer No."));
-        ServiceContractHeader.Find;
+        ServiceContractHeader.Find();
 
         SignServContractDoc.SignContract(ServiceContractHeader);
-        ServiceContractHeader.Find;
+        ServiceContractHeader.Find();
 
         // [WHEN] Service invoice is being created from Service contract
-        CurrentWorkDate := WorkDate;
+        CurrentWorkDate := WorkDate();
         WorkDate := ServiceContractHeader."Next Invoice Date";
         RunCreateServiceInvoice(ServiceContractHeader."Contract No.");
 
@@ -727,7 +727,7 @@ codeunit 136100 "Service Contract"
 
         repeat
             TotalAmount += ServiceContractLine."Line Amount";
-        until ServiceContractLine.Next = 0;
+        until ServiceContractLine.Next() = 0;
 
         ServiceContractHeader.TestField("Annual Amount", TotalAmount);
     end;
@@ -767,8 +767,8 @@ codeunit 136100 "Service Contract"
                       OldServiceContractLine."Line Amount" + Change / ServiceContractLine.Count,
                       'Even Distribution is incorrect');
             end;
-            OldServiceContractLine.Next;
-        until ServiceContractLine.Next = 0;
+            OldServiceContractLine.Next();
+        until ServiceContractLine.Next() = 0;
     end;
 
     local procedure ValidateLine(New: Decimal; Old: Decimal; TotalAmount: Decimal; Change: Decimal)
@@ -807,7 +807,7 @@ codeunit 136100 "Service Contract"
         repeat
             SaveServiceContractLine := ServiceContractLine;
             SaveServiceContractLine.Insert();
-        until ServiceContractLine.Next = 0;
+        until ServiceContractLine.Next() = 0;
     end;
 
     local procedure AssertEqual(Actual: Decimal; Expected: Decimal; ErrorText: Text[250])
@@ -827,7 +827,7 @@ codeunit 136100 "Service Contract"
             if ServiceItemNo = '' then
                 ServiceItemNo := ServiceContractLine."Service Item No.";
             Assert.AreEqual(ServiceItemNo, ServiceContractLine."Service Item No.", 'Service Items are not the same');
-        until ServiceContractLine.Next = 0;
+        until ServiceContractLine.Next() = 0;
     end;
 
     local procedure AssertEqualContract(ServiceContractHeaderActual: Record "Service Contract Header"; ServiceContractHeaderExpected: Record "Service Contract Header")
@@ -859,8 +859,8 @@ codeunit 136100 "Service Contract"
             if LineContentActual <> LineContentExpected then
                 Error(LinesAreNotEqualErr, LineContentActual, LineContentExpected);
 
-            ServiceContractLineExpected.Next;
-        until ServiceContractLineActual.Next = 0;
+            ServiceContractLineExpected.Next();
+        until ServiceContractLineActual.Next() = 0;
     end;
 
     local procedure CreateServiceContractWithAnnualAmount(var ServiceContractHeader: Record "Service Contract Header")
@@ -939,7 +939,7 @@ codeunit 136100 "Service Contract"
         ServiceContractLine.Validate("Customer No.", ServiceContractHeader."Customer No.");
         ServiceContractLine.Validate("Service Item No.", ServiceItemNo);
         ServiceContractLine.Validate(Description, ServiceItemNo); // Required field - Not important for test
-        ServiceContractLine.SetupNewLine;
+        ServiceContractLine.SetupNewLine();
         ServiceContractLine.Insert(true);
         exit(ServiceContractLine."Line Amount");
     end;
@@ -1018,7 +1018,7 @@ codeunit 136100 "Service Contract"
     begin
         CreateServiceContractHeader(ServiceContractHeader, LibrarySales.CreateCustomerNo);
         UpdateServiceContractHeader(
-          ServiceContractHeader, WorkDate, ServiceContractHeader."Invoice Period"::Year, true, true);
+          ServiceContractHeader, WorkDate(), ServiceContractHeader."Invoice Period"::Year, true, true);
         Evaluate(ServiceContractHeader."Service Period", '<1Y>');
         ServiceContractHeader."Expiration Date" := CalcDate('<+1Y>', ServiceContractHeader."Starting Date");
         ServiceContractHeader.Modify();
@@ -1036,9 +1036,9 @@ codeunit 136100 "Service Contract"
     begin
         Clear(ServContractManagement);
         ServiceContractHeader.Get(ServiceContractHeader."Contract Type"::Contract, ContractNo);
-        ServContractManagement.InitCodeUnit;
+        ServContractManagement.InitCodeUnit();
         ServContractManagement.CreateInvoice(ServiceContractHeader);
-        ServContractManagement.FinishCodeunit;
+        ServContractManagement.FinishCodeunit();
     end;
 
     local procedure AddServiceContractLine(ContractNo: Code[20]) MonthlyAmount: Decimal
@@ -1135,7 +1135,7 @@ codeunit 136100 "Service Contract"
         DimensionValue: Record "Dimension Value";
     begin
         LibraryDimension.CreateDimensionValue(DimensionValue, LibraryERM.GetGlobalDimensionCode(1));
-        ServiceContractHeader.Find;
+        ServiceContractHeader.Find();
         ServiceContractHeader.Validate("Shortcut Dimension 1 Code", DimensionValue.Code);
         ServiceContractHeader.Modify(true);
     end;
@@ -1232,7 +1232,7 @@ codeunit 136100 "Service Contract"
         end;
     end;
 
-    local procedure TestContractNo(ContractType: Option)
+    local procedure TestContractNo(ContractType: Enum "Service Contract Type")
     var
         Customer: Record Customer;
         ServiceContractHeader: Record "Service Contract Header";
@@ -1241,7 +1241,7 @@ codeunit 136100 "Service Contract"
         // 1. Setup: CreateCustomer and get next Service Contract No from No Series.
         Initialize();
         LibrarySales.CreateCustomer(Customer);
-        LastNoUsed := UpdateNoSeriesAndGetLastNoUsed;
+        LastNoUsed := UpdateNoSeriesAndGetLastNoUsed();
 
         // 2. Exercise: Find Customer and Create new Service Contract.
         LibraryService.CreateServiceContractHeader(ServiceContractHeader, ContractType, Customer."No.");
@@ -1288,7 +1288,7 @@ codeunit 136100 "Service Contract"
         ServiceLine: Record "Service Line";
         I: Integer;
     begin
-        ServiceHeader.SetRange("Posting Date", WorkDate);
+        ServiceHeader.SetRange("Posting Date", WorkDate());
         FindServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice, ServiceContractHeader."Contract No.");
         with ServiceLine do begin
             SetRange("Document Type", "Document Type"::Invoice);

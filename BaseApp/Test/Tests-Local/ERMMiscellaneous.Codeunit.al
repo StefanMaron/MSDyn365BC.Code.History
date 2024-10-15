@@ -50,7 +50,7 @@ codeunit 144127 "ERM  Miscellaneous"
         // Test to validate Issued Customer Bill after post Sales Invoice.
         // Setup.
         Initialize();
-        EnqueueValuesForHandler(WorkDate, CreateAndPostSalesInvoice(SalesHeader));  // Enqueue required for IssuingCustomerBillRequestPageHandler.
+        EnqueueValuesForHandler(WorkDate(), CreateAndPostSalesInvoice(SalesHeader));  // Enqueue required for IssuingCustomerBillRequestPageHandler.
 
         // Exercise.
         REPORT.Run(REPORT::"Issuing Customer Bill");
@@ -69,7 +69,7 @@ codeunit 144127 "ERM  Miscellaneous"
         // Setup.
         Initialize();
         EnqueueValuesForHandler(
-          CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate), CreateAndPostSalesInvoice(SalesHeader));  // Enqueue required for IssuingCustomerBillRequestPageHandler.
+          CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate()), CreateAndPostSalesInvoice(SalesHeader));  // Enqueue required for IssuingCustomerBillRequestPageHandler.
 
         // Exercise.
         asserterror REPORT.Run(REPORT::"Issuing Customer Bill");
@@ -89,7 +89,7 @@ codeunit 144127 "ERM  Miscellaneous"
         // Setup: Create G/L Account. Create and post General Journal Line.
         Initialize();
         CreateAndPostGeneralJournalLine(GenJournalLine);
-        EnqueueValuesForHandler(WorkDate, GenJournalLine."Account No.");  // Enqueue required for AccountBookSheetPrintRequestPageHandler.
+        EnqueueValuesForHandler(WorkDate(), GenJournalLine."Account No.");  // Enqueue required for AccountBookSheetPrintRequestPageHandler.
 
         // Exercise.
         REPORT.Run(REPORT::"Account Book Sheet - Print");
@@ -620,20 +620,20 @@ codeunit 144127 "ERM  Miscellaneous"
     local procedure CreateCompInfoWithFiscalCodeAndVATRegNo(var CompanyInformation: Record "Company Information"; FiscalCode: Code[20]; VATRegistrationNo: Text[20])
     begin
         with CompanyInformation do begin
-            Get;
+            Get();
             "Fiscal Code" := FiscalCode;
             "VAT Registration No." := VATRegistrationNo;
-            Modify;
+            Modify();
         end;
     end;
 
     local procedure CreateVendorWithFiscalCodeAndVATRegNo(var Vendor: Record Vendor; FiscalCode: Code[20]; VATRegistrationNo: Text[20])
     begin
         with Vendor do begin
-            Init;
+            Init();
             "Fiscal Code" := FiscalCode;
             "VAT Registration No." := VATRegistrationNo;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -666,8 +666,8 @@ codeunit 144127 "ERM  Miscellaneous"
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
         GeneralLedgerSetup.Get();
-        GeneralLedgerSetup.Validate("Allow Posting From", WorkDate);
-        GeneralLedgerSetup.Validate("Allow Posting To", WorkDate);
+        GeneralLedgerSetup.Validate("Allow Posting From", WorkDate());
+        GeneralLedgerSetup.Validate("Allow Posting To", WorkDate());
         GeneralLedgerSetup.Validate("Last Gen. Jour. Printing Date", 0D);
         GeneralLedgerSetup.Modify(true);
     end;

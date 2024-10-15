@@ -170,7 +170,7 @@ codeunit 144077 "UT REP Extra VAT"
     begin
         // Setup.
         UpdateCompanyInformation(Name, Address, PostCode, RegisterCompanyNo, VATRegistrationNo, FiscalCode);
-        LibraryVariableStorage.Enqueue(WorkDate);  // Enqueue Period Starting Date for VAT Register Grouped Request Page Handler.
+        LibraryVariableStorage.Enqueue(WorkDate());  // Enqueue Period Starting Date for VAT Register Grouped Request Page Handler.
 
         // Exercise.
         asserterror REPORT.Run(REPORT::"VAT Register Grouped");  // Opens handler - VATRegisterGroupedRequestPageHandler.
@@ -339,7 +339,7 @@ codeunit 144077 "UT REP Extra VAT"
     procedure OnAfterGetRecEqualDatesVATRegGrouped()
     begin
         // Purpose of the test is to check that the Report - 12108 VAT Register Grouped when Starting Date equals Ending Date and Print company information is Yes.
-        VATRegisterGroupedWithPrintCompanyInformation(CalcDate('<-CM>', WorkDate), CalcDate('<-CM>', WorkDate));  // Taking current month first date as Period Starting Date and Period Ending Date.
+        VATRegisterGroupedWithPrintCompanyInformation(CalcDate('<-CM>', WorkDate()), CalcDate('<-CM>', WorkDate()));  // Taking current month first date as Period Starting Date and Period Ending Date.
     end;
 
     [Test]
@@ -349,7 +349,7 @@ codeunit 144077 "UT REP Extra VAT"
     procedure OnAfterGetRecCrntMthStartingDateVATRegGrouped()
     begin
         // Purpose of the test is to check that the Report - 12108 VAT Register Grouped is working fine when Ending Date is greater then Starting Date and Print company information is Yes.
-        VATRegisterGroupedWithPrintCompanyInformation(CalcDate('<-CM>', WorkDate), 0D);  // Taking current month first date as Period Starting Date, blank Period Ending Date.
+        VATRegisterGroupedWithPrintCompanyInformation(CalcDate('<-CM>', WorkDate()), 0D);  // Taking current month first date as Period Starting Date, blank Period Ending Date.
     end;
 
     [Test]
@@ -359,7 +359,7 @@ codeunit 144077 "UT REP Extra VAT"
     procedure OnAfterGetRecTwoYearBackStartingDateVATRegGrouped()
     begin
         // Purpose of the test is to check the Report - 12108 VAT Register Grouped when Starting Date is 2 years less than Ending Date and Print company information is Yes.
-        VATRegisterGroupedWithPrintCompanyInformation(CalcDate('<CY -2Y +1D>', WorkDate), CalcDate('<-CY>', WorkDate));  // Taking 2 years back date as Period Starting Date, current year first date as Period Ending Date.
+        VATRegisterGroupedWithPrintCompanyInformation(CalcDate('<CY -2Y +1D>', WorkDate()), CalcDate('<-CY>', WorkDate()));  // Taking 2 years back date as Period Starting Date, current year first date as Period Ending Date.
     end;
 
     [Test]
@@ -369,7 +369,7 @@ codeunit 144077 "UT REP Extra VAT"
     procedure OnAfterGetRecCrntMthEndingDateVATRegGrouped()
     begin
         // Purpose of the test is to check that the Report - 12108 VAT Register Grouped is working fine when Ending Date is greater then Starting Date and Print company information is Yes.
-        VATRegisterGroupedWithPrintCompanyInformation(CalcDate('<-CM>', WorkDate), CalcDate('<CM>', WorkDate));  // Taking current month first date as Period Starting Date, current month end date as Period Ending Date.
+        VATRegisterGroupedWithPrintCompanyInformation(CalcDate('<-CM>', WorkDate()), CalcDate('<CM>', WorkDate()));  // Taking current month first date as Period Starting Date, current month end date as Period Ending Date.
     end;
 
     local procedure VATRegisterGroupedWithPrintCompanyInformation(PeriodStartingDate: Date; PeriodEndingDate: Date)
@@ -426,8 +426,8 @@ codeunit 144077 "UT REP Extra VAT"
           LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode10,
           LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode);
         CreateNumberSeries(NoSeries);
-        CreateVATBookEntry(VATBookEntry, WorkDate, NoSeries.Code, Type, UnrealizedAmount);
-        EnqueueValuesForVATRegisterPrintRequestPageHandler(NoSeries."VAT Register", PrintingType::Test, WorkDate, WorkDate);  // Enqueue WORKDATE as PeriodStartingDate and PeriodEndingDate for handler - VATRegisterPrintRequestPageHandler.
+        CreateVATBookEntry(VATBookEntry, WorkDate(), NoSeries.Code, Type, UnrealizedAmount);
+        EnqueueValuesForVATRegisterPrintRequestPageHandler(NoSeries."VAT Register", PrintingType::Test, WorkDate(), WorkDate());  // Enqueue WORKDATE as PeriodStartingDate and PeriodEndingDate for handler - VATRegisterPrintRequestPageHandler.
 
         // Exercise.
         REPORT.Run(REPORT::"VAT Register - Print");  // Opens handler - VATRegisterPrintRequestPageHandler.

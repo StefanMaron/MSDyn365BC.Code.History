@@ -93,17 +93,17 @@ table 99000848 "Registered Absence"
 
     trigger OnInsert()
     begin
-        CheckSyntax;
+        CheckSyntax();
     end;
 
     trigger OnModify()
     begin
-        CheckSyntax;
+        CheckSyntax();
     end;
 
     trigger OnRename()
     begin
-        CheckSyntax;
+        CheckSyntax();
     end;
 
     var

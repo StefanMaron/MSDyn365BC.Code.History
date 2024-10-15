@@ -31,7 +31,7 @@ codeunit 132546 "Data Exch. Field Mapping UT"
 
         // Verify
         Assert.ExpectedError(
-          StrSubstNo(MissingFieldErr, DataExchFieldMapping.FieldCaption("Column No."), DataExchFieldMapping.TableCaption));
+          StrSubstNo(MissingFieldErr, DataExchFieldMapping.FieldCaption("Column No."), DataExchFieldMapping.TableCaption()));
     end;
 
     [Test]
@@ -68,7 +68,7 @@ codeunit 132546 "Data Exch. Field Mapping UT"
         DataExchFieldMapping."Field ID" := Customer.FieldNo(Name);
 
         // Verify
-        Assert.AreEqual(DataExchFieldMapping.GetFieldCaption, Customer.FieldCaption(Name), '');
+        Assert.AreEqual(DataExchFieldMapping.GetFieldCaption(), Customer.FieldCaption(Name), '');
     end;
 
     [Test]
@@ -87,8 +87,9 @@ codeunit 132546 "Data Exch. Field Mapping UT"
         CreateDataExchLineDef(DataExchDef, DataExchLineDef);
         DataExchLineDef.Validate("Data Line Tag", LibraryUtility.GenerateGUID());
         DataExchLineDef.Modify(true);
-        DataExchColDef.InsertRecForImport(DataExchDef.Code, DataExchLineDef.Code, 1,
-          LibraryUtility.GenerateRandomCode(DataExchColDef.FieldNo(Name),
+        DataExchColDef.InsertRecordForImport(
+			DataExchDef.Code, DataExchLineDef.Code, 1,
+			LibraryUtility.GenerateRandomCode(DataExchColDef.FieldNo(Name),
             DATABASE::"Data Exch. Column Def"), '', true, DataExchColDef."Data Type"::Decimal, '', '');
         DataExchMapping.InsertRecForImport(DataExchDef.Code, DataExchLineDef.Code,
           DATABASE::"Gen. Journal Line", '', 0, 0);
@@ -117,8 +118,9 @@ codeunit 132546 "Data Exch. Field Mapping UT"
         CreateDataExchLineDef(DataExchDef, DataExchLineDef);
         DataExchLineDef.Validate("Data Line Tag", LibraryUtility.GenerateGUID());
         DataExchLineDef.Modify(true);
-        DataExchColDef.InsertRecForImport(DataExchDef.Code, DataExchLineDef.Code, 1,
-          LibraryUtility.GenerateRandomCode(DataExchColDef.FieldNo(Name),
+        DataExchColDef.InsertRecordForImport(
+			DataExchDef.Code, DataExchLineDef.Code, 1,
+			LibraryUtility.GenerateRandomCode(DataExchColDef.FieldNo(Name),
             DATABASE::"Data Exch. Column Def"), '', true, DataExchColDef."Data Type"::Decimal, '', '');
         DataExchColDef.Validate(Path,
           CopyStr(DataExchLineDef."Data Line Tag" + '/' + DataExchColDef.Name, 1, MaxStrLen(DataExchColDef.Path)));
@@ -441,7 +443,7 @@ codeunit 132546 "Data Exch. Field Mapping UT"
         DataExchFieldMapping.Modify(true);
 
         // Verify
-        DataExchFieldMapping.Find;
+        DataExchFieldMapping.Find();
         DataExchFieldMapping.TestField(Multiplier, 1);
     end;
 
@@ -546,7 +548,7 @@ codeunit 132546 "Data Exch. Field Mapping UT"
     [Scope('OnPrem')]
     procedure FieldsModalPageHandler(var FieldsLookup: TestPage "Fields Lookup")
     begin
-        FieldsLookup.Next;
+        FieldsLookup.Next();
         FieldsLookup.OK.Invoke;
     end;
 }

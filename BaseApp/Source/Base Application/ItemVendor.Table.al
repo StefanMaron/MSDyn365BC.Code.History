@@ -94,7 +94,7 @@
         LeadTimeMgt: Codeunit "Lead-Time Management";
         ItemReferencemgt: Codeunit "Item Reference Management";
 
-    local procedure InsertItemReference()
+    procedure InsertItemReference()
     var
         ItemReference: Record "Item Reference";
         IsHandled: Boolean;
@@ -104,7 +104,7 @@
         if IsHandled then
             exit;
 
-        if ItemReference.WritePermission then
+        if ItemReference.WritePermission() then
             if ("Vendor No." <> '') and ("Item No." <> '') then
                 ItemReferenceMgt.InsertItemReference(Rec);
     end;
@@ -119,7 +119,7 @@
         if IsHandled then
             exit;
 
-        if ItemReference.WritePermission then
+        if ItemReference.WritePermission() then
             if ("Vendor No." <> '') and ("Item No." <> '') then
                 ItemReferenceMgt.DeleteItemReference(Rec);
     end;
@@ -134,7 +134,7 @@
         if IsHandled then
             exit;
 
-        if ItemReference.WritePermission then
+        if ItemReference.WritePermission() then
             if ("Vendor No." <> '') and ("Item No." <> '') then
                 if ("Vendor No." <> xRec."Vendor No.") or ("Item No." <> xRec."Item No.") or
                    ("Variant Code" <> xRec."Variant Code") or ("Vendor Item No." <> xRec."Vendor Item No.")

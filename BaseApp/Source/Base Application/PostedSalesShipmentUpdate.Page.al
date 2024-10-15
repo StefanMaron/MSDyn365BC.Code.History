@@ -16,20 +16,20 @@ page 1350 "Posted Sales Shipment - Update"
         {
             group(General)
             {
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the number of the record.';
                 }
-                field("Sell-to Customer Name"; "Sell-to Customer Name")
+                field("Sell-to Customer Name"; Rec."Sell-to Customer Name")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Customer';
                     Editable = false;
                     ToolTip = 'Specifies the name of customer at the sell-to address.';
                 }
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -39,57 +39,57 @@ page 1350 "Posted Sales Shipment - Update"
             group(Shipping)
             {
                 Caption = 'Shipping';
-                field("Shipping Agent Code"; "Shipping Agent Code")
+                field("Shipping Agent Code"; Rec."Shipping Agent Code")
                 {
                     ApplicationArea = Suite;
                     Caption = 'Agent';
                     Editable = true;
                     ToolTip = 'Specifies which shipping agent is used to transport the items on the sales document to the customer.';
                 }
-                field("Shipping Agent Service Code"; "Shipping Agent Service Code")
+                field("Shipping Agent Service Code"; Rec."Shipping Agent Service Code")
                 {
                     ApplicationArea = Suite;
                     Caption = 'Agent Service';
                     Editable = true;
                     ToolTip = 'Specifies which shipping agent service is used to transport the items on the sales document to the customer.';
                 }
-                field("Package Tracking No."; "Package Tracking No.")
+                field("Package Tracking No."; Rec."Package Tracking No.")
                 {
                     ApplicationArea = Suite;
                     Editable = true;
                     ToolTip = 'Specifies the shipping agent''s package number.';
                 }
-                field("Additional Information"; "Additional Information")
+                field("Additional Information"; Rec."Additional Information")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = true;
                     ToolTip = 'Specifies additional declaration information that is needed for this shipment.';
                 }
-                field("Additional Notes"; "Additional Notes")
+                field("Additional Notes"; Rec."Additional Notes")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = true;
                     ToolTip = 'Specifies additional notes that are needed for this shipment.';
                 }
-                field("Additional Instructions"; "Additional Instructions")
+                field("Additional Instructions"; Rec."Additional Instructions")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = true;
                     ToolTip = 'Specifies additional instructions that are needed for this shipment.';
                 }
-                field("TDD Prepared By"; "TDD Prepared By")
+                field("TDD Prepared By"; Rec."TDD Prepared By")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = true;
                     ToolTip = 'Specifies the user ID of the transport delivery document (TDD) for the posted sales shipment.';
                 }
-                field("3rd Party Loader Type"; "3rd Party Loader Type")
+                field("3rd Party Loader Type"; Rec."3rd Party Loader Type")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = true;
                     ToolTip = 'Specifies the type of third party that is responsible for loading the items for this document.';
                 }
-                field("3rd Party Loader No."; "3rd Party Loader No.")
+                field("3rd Party Loader No."; Rec."3rd Party Loader No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = true;
@@ -111,7 +111,7 @@ page 1350 "Posted Sales Shipment - Update"
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     begin
         if CloseAction = ACTION::LookupOK then
-            if RecordChanged then
+            if RecordChanged() then
                 CODEUNIT.Run(CODEUNIT::"Shipment Header - Edit", Rec);
     end;
 

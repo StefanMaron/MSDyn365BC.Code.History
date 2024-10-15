@@ -505,13 +505,13 @@ codeunit 144063 "ERM Intrastat - II"
         with PurchaseLine do begin
             Validate(Quantity, 1);
             Validate("Direct Unit Cost", AmountToValidate / 2);
-            Modify;
+            Modify();
         end;
         AmountToValidate -= PurchaseLine.Amount;
         with PurchaseHeader do begin
             Validate("Applies-to Doc. Type", "Applies-to Doc. Type"::Invoice);
             Validate("Applies-to Doc. No.", PurchaseHeaderNo);
-            Modify;
+            Modify();
         end;
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
@@ -558,13 +558,13 @@ codeunit 144063 "ERM Intrastat - II"
         with SalesLine do begin
             Validate(Quantity, 1);
             Validate("Unit Price", AmountToValidate / 2);
-            Modify;
+            Modify();
         end;
         AmountToValidate -= SalesLine.Amount;
         with SalesHeader do begin
             Validate("Applies-to Doc. Type", "Applies-to Doc. Type"::Invoice);
             Validate("Applies-to Doc. No.", SalesHeaderNo);
-            Modify;
+            Modify();
         end;
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
@@ -1268,7 +1268,7 @@ codeunit 144063 "ERM Intrastat - II"
         SalesCreditMemo.OpenEdit;
         SalesCreditMemo.GotoRecord(SalesHeader);
         SalesCreditMemo.ApplyEntries.Invoke;  // Opens handler - ApplyCustomerEntriesModalPageHandler.
-        SalesCreditMemo.Close;
+        SalesCreditMemo.Close();
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
     end;
 
@@ -1407,7 +1407,7 @@ codeunit 144063 "ERM Intrastat - II"
             Validate(Resident, Resident::"Non-Resident");
             Validate("Tax Representative Type", TaxRepresentativeType);
             Validate("Tax Representative No.", TaxRepresentativeNo);
-            Modify;
+            Modify();
             exit("No.");
         end;
     end;
@@ -1444,7 +1444,7 @@ codeunit 144063 "ERM Intrastat - II"
         IntrastatJnlBatch.Validate(Periodicity, IntrastatJnlBatch.Periodicity::Month);
         IntrastatJnlBatch.Validate("EU Service", EUService);
         IntrastatJnlBatch.Validate("Corrective Entry", CorrectiveEntry);
-        IntrastatJnlBatch.Validate("Statistics Period", Format(WorkDate, 0, LibraryFiscalYear.GetStatisticsPeriod));
+        IntrastatJnlBatch.Validate("Statistics Period", Format(WorkDate(), 0, LibraryFiscalYear.GetStatisticsPeriod));
         IntrastatJnlBatch.Modify(true);
     end;
 
@@ -1665,7 +1665,7 @@ codeunit 144063 "ERM Intrastat - II"
             Validate(Resident, Resident::"Non-Resident");
             Validate("Tax Representative Type", TaxRepresentativeType);
             Validate("Tax Representative No.", TaxRepresentativeNo);
-            Modify;
+            Modify();
             exit("No.");
         end;
     end;
@@ -1836,7 +1836,7 @@ codeunit 144063 "ERM Intrastat - II"
         Commit();  // Commit required.
         IntrastatJournal.OpenEdit;
         IntrastatJournal.GetEntries.Invoke;  // Opens handler - GetItemLedgerEntriesRequestPageHandler.
-        IntrastatJournal.Close;
+        IntrastatJournal.Close();
         exit(IntrastatJnlBatch.Name);
     end;
 
@@ -1860,7 +1860,7 @@ codeunit 144063 "ERM Intrastat - II"
         ItemJournal.FILTER.SetFilter("Item No.", ItemJournalLine."Item No.");
         LibraryVariableStorage.Enqueue(ItemTrackingMode::"Assign Lot No.");
         ItemJournal.ItemTrackingLines.Invoke;  // Opens handler - ItemTrackingLinesModalPageHandler.
-        ItemJournal.Close;
+        ItemJournal.Close();
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
     end;
 
@@ -2083,8 +2083,8 @@ codeunit 144063 "ERM Intrastat - II"
     [Scope('OnPrem')]
     procedure GetItemLedgerEntriesRequestPageHandler(var GetItemLedgerEntries: TestRequestPage "Get Item Ledger Entries")
     begin
-        GetItemLedgerEntries.StartingDate.SetValue(WorkDate);
-        GetItemLedgerEntries.EndingDate.SetValue(WorkDate);
+        GetItemLedgerEntries.StartingDate.SetValue(WorkDate());
+        GetItemLedgerEntries.EndingDate.SetValue(WorkDate());
         GetItemLedgerEntries.OK.Invoke;
     end;
 
@@ -2095,8 +2095,8 @@ codeunit 144063 "ERM Intrastat - II"
         ReportType: Option "Test Print";
     begin
         GLBookPrint.ReportType.SetValue(ReportType::"Test Print");
-        GLBookPrint.StartingDate.SetValue(WorkDate);
-        GLBookPrint.EndingDate.SetValue(WorkDate);
+        GLBookPrint.StartingDate.SetValue(WorkDate());
+        GLBookPrint.EndingDate.SetValue(WorkDate());
         GLBookPrint.PrintCompanyInformations.SetValue(false);
         GLBookPrint.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
@@ -2108,8 +2108,8 @@ codeunit 144063 "ERM Intrastat - II"
         VATRegister: Variant;
     begin
         LibraryVariableStorage.Dequeue(VATRegister);
-        VATRegisterPrint.PeriodStartingDate.SetValue(WorkDate);
-        VATRegisterPrint.PeriodEndingDate.SetValue(WorkDate);
+        VATRegisterPrint.PeriodStartingDate.SetValue(WorkDate());
+        VATRegisterPrint.PeriodEndingDate.SetValue(WorkDate());
         VATRegisterPrint.PrintCompanyInformations.SetValue(false);
         VATRegisterPrint.VATRegister.SetValue(VATRegister);
         VATRegisterPrint.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);

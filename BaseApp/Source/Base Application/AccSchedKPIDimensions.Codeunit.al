@@ -7,12 +7,6 @@ codeunit 9 "Acc. Sched. KPI Dimensions"
     end;
 
     var
-        IllegalValErr: Label 'You have entered an illegal value or a nonexistent row number.';
-        GeneralErr: Label '%1\\ %2 %3 %4.', Locked = true;
-        ErrorOccurredErr: Label 'The error occurred when the program tried to calculate:\';
-        AccSchedLineErr: Label 'Acc. Sched. Line: Row No. = %1, Line No. = %2, Totaling = %3\', Comment = '%1 = Row No., %2= Line No., %3 = Totaling';
-        ColumnErr: Label 'Acc. Sched. Column: Column No. = %1, Line No. = %2, Formula  = %3', Comment = '%1 = Column No., %2= Line No., %3 = Formula';
-        CircularRefErr: Label 'Because of circular references, the program cannot calculate a formula.';
         AccSchedName: Record "Acc. Schedule Name";
         AccScheduleLine: Record "Acc. Schedule Line";
         TempAccSchedKPIBuffer: Record "Acc. Sched. KPI Buffer" temporary;
@@ -23,15 +17,22 @@ codeunit 9 "Acc. Sched. KPI Dimensions"
         CallingAccSchedLineID: Integer;
         CallingColumnLayoutID: Integer;
 
+        IllegalValErr: Label 'You have entered an illegal value or a nonexistent row number.';
+        GeneralErr: Label '%1\\ %2 %3 %4.', Locked = true;
+        ErrorOccurredErr: Label 'The error occurred when the program tried to calculate:\';
+        AccSchedLineErr: Label 'Acc. Sched. Line: Row No. = %1, Line No. = %2, Totaling = %3\', Comment = '%1 = Row No., %2= Line No., %3 = Totaling';
+        ColumnErr: Label 'Acc. Sched. Column: Column No. = %1, Line No. = %2, Formula  = %3', Comment = '%1 = Column No., %2= Line No., %3 = Formula';
+        CircularRefErr: Label 'Because of circular references, the program cannot calculate a formula.';
+
     procedure GetCellDataWithDimensions(var AccSchedLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout"; var TempAccSchedKPIBuffer2: Record "Acc. Sched. KPI Buffer" temporary)
     var
         LastDataLineNo: Integer;
     begin
         with TempAccSchedKPIBuffer do begin
-            Init;
+            Init();
             TransferFields(TempAccSchedKPIBuffer2, false);
             if not Insert() then
-                Modify;
+                Modify();
         end;
 
         TempAccSchedKPIBuffer2.Reset();
@@ -53,10 +54,10 @@ codeunit 9 "Acc. Sched. KPI Dimensions"
         until ColumnLayout.Next() = 0;
 
         with TempAccSchedKPIBuffer2 do begin
-            Reset;
+            Reset();
             if FindLast() then;
             if "No." = LastDataLineNo then begin
-                Init;
+                Init();
                 "No." += 1;
                 Date := TempAccSchedKPIBuffer.Date;
                 "Closed Period" := TempAccSchedKPIBuffer."Closed Period";
@@ -130,12 +131,11 @@ codeunit 9 "Acc. Sched. KPI Dimensions"
                     CostType.Type := CostType.Type::Total;
                     CostType.Totaling := AccSchedLine.Totaling;
                     AddCostTypeDimensions(CostType, AccSchedLine, ColumnLayout, AccSchedKPIBuffer);
-                end else begin
+                end else
                     if CostType.Find('-') then
                         repeat
                             AddCostTypeDimensions(CostType, AccSchedLine, ColumnLayout, AccSchedKPIBuffer);
                         until CostType.Next() = 0;
-                end;
             end;
 
             if AccSchedLine."Totaling Type" in
@@ -195,8 +195,8 @@ codeunit 9 "Acc. Sched. KPI Dimensions"
                         AccSchedManagement.GetDimTotalingFilter(2, AccSchedLine."Dimension 2 Totaling"), '&');
                     GLEntryDimensions.SetFilter(Global_Dimension_2_Code, FilterText);
 
-                    GLEntryDimensions.Open;
-                    while GLEntryDimensions.Read do begin
+                    GLEntryDimensions.Open();
+                    while GLEntryDimensions.Read() do begin
                         case AmountType of
                             AmountType::"Net Amount":
                                 AmountToAdd := GLEntryDimensions.Sum_Amount;
@@ -221,8 +221,8 @@ codeunit 9 "Acc. Sched. KPI Dimensions"
                       AnalysisViewEntry."Account Source"::"G/L Account", FilterText,
                       GLAcc.GetFilter("Date Filter"), AccSchedLine);
 
-                    AnalysisViewEntryDimensions.Open;
-                    while AnalysisViewEntryDimensions.Read do begin
+                    AnalysisViewEntryDimensions.Open();
+                    while AnalysisViewEntryDimensions.Read() do begin
                         case AmountType of
                             AmountType::"Net Amount":
                                 AmountToAdd := AnalysisViewEntryDimensions.Sum_Amount;
@@ -258,8 +258,8 @@ codeunit 9 "Acc. Sched. KPI Dimensions"
                         AccSchedManagement.GetDimTotalingFilter(2, AccSchedLine."Dimension 2 Totaling"), '&');
                     GLBudgetEntryDimensions.SetFilter(Global_Dimension_2_Code, FilterText);
 
-                    GLBudgetEntryDimensions.Open;
-                    while GLBudgetEntryDimensions.Read do begin
+                    GLBudgetEntryDimensions.Open();
+                    while GLBudgetEntryDimensions.Read() do begin
                         case AmountType of
                             AmountType::"Net Amount":
                                 AmountToAdd := GLBudgetEntryDimensions.Sum_Amount;
@@ -312,8 +312,8 @@ codeunit 9 "Acc. Sched. KPI Dimensions"
                         AccSchedManagement.GetDimTotalingFilter(4, AccSchedLine."Dimension 4 Totaling"), '&');
                     AnalysisViewBudgEntryDims.SetFilter(Dimension_4_Value_Code, FilterText);
 
-                    AnalysisViewBudgEntryDims.Open;
-                    while AnalysisViewBudgEntryDims.Read do begin
+                    AnalysisViewBudgEntryDims.Open();
+                    while AnalysisViewBudgEntryDims.Read() do begin
                         case AmountType of
                             AmountType::"Net Amount":
                                 AmountToAdd := AnalysisViewBudgEntryDims.Sum_Amount;
@@ -481,8 +481,8 @@ codeunit 9 "Acc. Sched. KPI Dimensions"
                     AccSchedLine.GetFilter("Dimension 2 Filter"), AccSchedLine."Dimension 2 Totaling", '&');
                 CFForecastEntryDimensions.SetFilter(Global_Dimension_2_Code, FilterText);
 
-                CFForecastEntryDimensions.Open;
-                while CFForecastEntryDimensions.Read do begin
+                CFForecastEntryDimensions.Open();
+                while CFForecastEntryDimensions.Read() do begin
                     if AmountType = AmountType::"Net Amount" then
                         AmountToAdd := CFForecastEntryDimensions.Sum_Amount_LCY
                     else
@@ -505,8 +505,8 @@ codeunit 9 "Acc. Sched. KPI Dimensions"
                 AnalysisViewEntryDimensions.SetFilter(
                   Cash_Flow_Forecast_No, AccSchedLine.GetFilter("Cash Flow Forecast Filter"));
 
-                AnalysisViewEntryDimensions.Open;
-                while AnalysisViewEntryDimensions.Read do begin
+                AnalysisViewEntryDimensions.Open();
+                while AnalysisViewEntryDimensions.Read() do begin
                     if AmountType = AmountType::"Net Amount" then
                         AmountToAdd := AnalysisViewEntryDimensions.Sum_Amount
                     else
@@ -820,7 +820,7 @@ codeunit 9 "Acc. Sched. KPI Dimensions"
         with TempAccSchedKPIBufferResulting do begin
             SetRange("Dimension Set ID", DimensionSetID);
             if not FindFirst() then begin
-                Reset;
+                Reset();
                 if FindLast() then;
                 "No." += 1;
                 "Dimension Set ID" := DimensionSetID;
@@ -838,16 +838,14 @@ codeunit 9 "Acc. Sched. KPI Dimensions"
     end;
 
     procedure PassToResult(AccSchedLineShow: Enum "Acc. Schedule Line Show"; Balance: Decimal) BalanceIsOK: Boolean
-    var
-        AccScheduleLine: Record "Acc. Schedule Line";
     begin
         case AccSchedLineShow of
-            AccScheduleLine.Show::"When Positive Balance":
+            "Acc. Schedule Line Show"::"When Positive Balance":
                 if Balance > 0 then
                     BalanceIsOK := true
                 else
                     BalanceIsOK := false;
-            AccScheduleLine.Show::"When Negative Balance":
+            "Acc. Schedule Line Show"::"When Negative Balance":
                 if Balance < 0 then
                     BalanceIsOK := true
                 else

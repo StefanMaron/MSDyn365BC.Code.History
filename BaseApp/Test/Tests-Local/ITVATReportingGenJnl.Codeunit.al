@@ -43,7 +43,7 @@ codeunit 144006 "IT - VAT Reporting - Gen. Jnl."
         AccountType := GenJournalLine."Account Type"::Customer;
 
         // Create Default Amount Threshold.
-        CreateVATTransReportAmount(VATTransRepAmount, WorkDate);
+        CreateVATTransReportAmount(VATTransRepAmount, WorkDate());
         LibraryVATUtils.UpdateVATPostingSetup(true);
 
         // Calculate Gen. Journal Line Amount.
@@ -125,15 +125,15 @@ codeunit 144006 "IT - VAT Reporting - Gen. Jnl."
         AccountType := GenJournalLine."Account Type"::Customer;
 
         // Create Default Amount Threshold.
-        SetupThresholdAmount(WorkDate);
+        SetupThresholdAmount(WorkDate());
         LibraryVATUtils.UpdateVATPostingSetup(true);
 
         // Calculate Gen. Journal Line Amount.
-        Amount := CalculateAmount(WorkDate, true, InclInVATTransRep);
+        Amount := CalculateAmount(WorkDate(), true, InclInVATTransRep);
 
         // Create Additional Amount Threshold (overriding expected behaviour).
         Evaluate(Delta, '<' + Format(Days) + 'D>');
-        CreateVATTransReportAmount(VATTransRepAmount, CalcDate(Delta, WorkDate));
+        CreateVATTransReportAmount(VATTransRepAmount, CalcDate(Delta, WorkDate()));
         if InclInVATTransRep then begin
             VATTransRepAmount.Validate("Threshold Amount Incl. VAT", Amount * 2);
             VATTransRepAmount.Validate("Threshold Amount Excl. VAT", Amount * 2);
@@ -241,11 +241,11 @@ codeunit 144006 "IT - VAT Reporting - Gen. Jnl."
         Initialize();
 
         // Setup.
-        SetupThresholdAmount(WorkDate);
+        SetupThresholdAmount(WorkDate());
         LibraryVATUtils.UpdateVATPostingSetup(InclInVATSetup);
 
         // Create Gen. Journal Line.
-        Amount := CalculateAmount(WorkDate, true, InclInVATTransRep);
+        Amount := CalculateAmount(WorkDate(), true, InclInVATTransRep);
         GenPostingType := GetGenPostingType(AccountType);
         CreateGenJnlLine(GenJournalLine, DocumentType, GenPostingType, AccountType, CreateDefaultAccount(GenPostingType, AccountType), Amount);
 
@@ -309,11 +309,11 @@ codeunit 144006 "IT - VAT Reporting - Gen. Jnl."
         Initialize();
 
         // Setup.
-        SetupThresholdAmount(WorkDate);
+        SetupThresholdAmount(WorkDate());
         LibraryVATUtils.UpdateVATPostingSetup(true);
 
         // Create Gen. Journal Line.
-        Amount := CalculateAmount(WorkDate, true, true);
+        Amount := CalculateAmount(WorkDate(), true, true);
 
         // Create Account.
         AccountNo := CreateAccount(GenPostingType, AccountType, IndividualPerson, GenJournalLine.Resident::"Non-Resident", false);
@@ -501,11 +501,11 @@ codeunit 144006 "IT - VAT Reporting - Gen. Jnl."
         Initialize();
 
         // Setup.
-        SetupThresholdAmount(WorkDate);
+        SetupThresholdAmount(WorkDate());
         LibraryVATUtils.UpdateVATPostingSetup(true);
 
         // Create Gen. Journal Line.
-        Amount := CalculateAmount(WorkDate, true, InclInVATTransRep);
+        Amount := CalculateAmount(WorkDate(), true, InclInVATTransRep);
         CreateGenJnlLine(GenJournalLine, DocumentType, GenPostingType, AccountType, CreateDefaultAccount(GenPostingType, AccountType), Amount);
 
         // Enter VAT Registration No.
@@ -755,11 +755,11 @@ codeunit 144006 "IT - VAT Reporting - Gen. Jnl."
         Initialize();
 
         // Setup.
-        SetupThresholdAmount(WorkDate);
+        SetupThresholdAmount(WorkDate());
         LibraryVATUtils.UpdateVATPostingSetup(true);
 
         // Create Gen. Journal Line.
-        Amount := CalculateAmount(WorkDate, true, true);
+        Amount := CalculateAmount(WorkDate(), true, true);
         CreateGenJnlLine(GenJournalLine, DocumentType, GenPostingType, AccountType, CreateDefaultAccount(GenPostingType, AccountType), Amount);
 
         // Modify Individual Person, Resident.
@@ -773,7 +773,7 @@ codeunit 144006 "IT - VAT Reporting - Gen. Jnl."
         RecordRef.GetTable(GenJournalLine);
         FieldRef := RecordRef.Field(FieldId);
         ClearField(RecordRef, FieldRef);
-        GenJournalLine.Find;
+        GenJournalLine.Find();
 
         // Try to Post Gen. Journal Line and verify Error Message.
         asserterror LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -889,14 +889,14 @@ codeunit 144006 "IT - VAT Reporting - Gen. Jnl."
         Initialize();
 
         // Setup.
-        SetupThresholdAmount(WorkDate);
+        SetupThresholdAmount(WorkDate());
         LibraryVATUtils.UpdateVATPostingSetup(false);
 
         // Create Account.
         AccountNo := CreateAccount(GenPostingType, AccountType, IndividualPerson, Resident, false);
 
         // Create Gen. Journal Line.
-        Amount := CalculateAmount(WorkDate, true, true);
+        Amount := CalculateAmount(WorkDate(), true, true);
         CreateGenJnlLine(GenJournalLine, DocumentType, GenPostingType, AccountType, AccountNo, Amount);
 
         if AccountType = GenJournalLine."Account Type"::"G/L Account" then begin
@@ -1235,7 +1235,7 @@ codeunit 144006 "IT - VAT Reporting - Gen. Jnl."
         VATPostingSetup.SetRange("VAT %", LibraryVATUtils.FindMaxVATRate(VATPostingSetup."VAT Calculation Type"::"Normal VAT"));
         VATPostingSetup.SetRange("Deductible %", 100);
         VATPostingSetup.SetRange("Include in VAT Transac. Rep.", IncludeInVATTransacRep);
-        exit(VATPostingSetup.FindFirst);
+        exit(VATPostingSetup.FindFirst())
     end;
 
     local procedure SetupThresholdAmount(StartingDate: Date)
@@ -1296,7 +1296,7 @@ codeunit 144006 "IT - VAT Reporting - Gen. Jnl."
         FindVATEntry(VATEntry, DocumentType, DocumentNo);
         repeat
             VATEntry.TestField("Include in VAT Transac. Rep.", InclInVATTransRep);
-        until VATEntry.Next = 0;
+        until VATEntry.Next() = 0;
     end;
 
     local procedure TearDown()

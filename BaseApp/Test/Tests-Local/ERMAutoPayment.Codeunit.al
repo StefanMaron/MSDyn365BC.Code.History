@@ -192,10 +192,10 @@ codeunit 144050 "ERM Auto Payment"
     begin
         // Setup: Create and post Customer Bill.Change WorkDate.
         Initialize();
-        PostingDate := CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate);  // Using greater date than WORKDATE as Bill must be issued later than the posted invoice.
+        PostingDate := CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate());  // Using greater date than WORKDATE as Bill must be issued later than the posted invoice.
         IssueBankReceiptAfterPostingSalesInvoice(TempSalesLine, CreatePaymentTermsCode, PostingDate);
         CreateAndPostCustomerBill(TempSalesLine."Sell-to Customer No.");
-        OldWorkDate := WorkDate;
+        OldWorkDate := WorkDate();
         WorkDate := CalcDate('<CY>', PostingDate);
         PostingDate := GetClosingBankRcptDate;
         EnqueueValuesForRequestPageHandler(ConfirmPerApplication, TempSalesLine."Sell-to Customer No.");  // Enqueue values in ClosingBankReceiptsRequestPageHandler.
@@ -227,8 +227,8 @@ codeunit 144050 "ERM Auto Payment"
         // Setup: Issue Bank Receipts after posting Sales Invoices. Run Suggest Customer Bills for created Customers.
         Initialize();
         PaymentTermsCode := CreatePaymentTermsCode;
-        IssueBankReceiptAfterPostingSalesInvoice(TempSalesLine, PaymentTermsCode, WorkDate);
-        IssueBankReceiptAfterPostingSalesInvoice(TempSalesLine2, PaymentTermsCode, WorkDate);
+        IssueBankReceiptAfterPostingSalesInvoice(TempSalesLine, PaymentTermsCode, WorkDate());
+        IssueBankReceiptAfterPostingSalesInvoice(TempSalesLine2, PaymentTermsCode, WorkDate());
         CreateCustomerBillHeader(CustomerBillHeader);
         RunSuggestCustomerBill(
           CustomerBillHeader, StrSubstNo(CustomerNoTxt, TempSalesLine."Sell-to Customer No.", TempSalesLine2."Sell-to Customer No."));
@@ -242,7 +242,7 @@ codeunit 144050 "ERM Auto Payment"
 
         // Verify: Verify values on Report - Issued Customer Bills Report.
         LibraryReportDataset.LoadDataSetFile;
-        LibraryReportDataset.AssertElementWithValueExists(ListDateIssuedCustBillHdrCap, Format(WorkDate));
+        LibraryReportDataset.AssertElementWithValueExists(ListDateIssuedCustBillHdrCap, Format(WorkDate()));
         LibraryReportDataset.AssertElementWithValueExists(AmountIssuedCustBillLineCap, TempSalesLine."Amount Including VAT");
     end;
 
@@ -259,7 +259,7 @@ codeunit 144050 "ERM Auto Payment"
 
         // Setup: Create customer bill after Issue Bank Receipt for posted Sales Invoice . Run Suggest Customer Bill.
         Initialize();
-        IssueBankReceiptAfterPostingSalesInvoice(TempSalesLine, CreatePaymentTermsWithMultiplePaymentLines, WorkDate);
+        IssueBankReceiptAfterPostingSalesInvoice(TempSalesLine, CreatePaymentTermsWithMultiplePaymentLines, WorkDate());
         CreateCustomerBillHeader(CustomerBillHeader);
         RunSuggestCustomerBill(CustomerBillHeader, TempSalesLine."Sell-to Customer No.");
 
@@ -283,7 +283,7 @@ codeunit 144050 "ERM Auto Payment"
 
         // Setup: Create and Post Customer Bill after Issue Bank Receipt for Posted Sales Invoice.
         Initialize();
-        IssueBankReceiptAfterPostingSalesInvoice(TempSalesLine, CreatePaymentTermsWithMultiplePaymentLines, WorkDate);
+        IssueBankReceiptAfterPostingSalesInvoice(TempSalesLine, CreatePaymentTermsWithMultiplePaymentLines, WorkDate());
         CreateAndPostCustomerBill(TempSalesLine."Sell-to Customer No.");
 
         // Exercise: Recall Issued Customer Bill.
@@ -306,11 +306,11 @@ codeunit 144050 "ERM Auto Payment"
 
         // Setup: Create and post Customer Bill. Update Customer. Change WorkDate.
         Initialize();
-        IssueBankReceiptAfterPostingSalesInvoice(TempSalesLine, CreatePaymentTermsCode, WorkDate);
+        IssueBankReceiptAfterPostingSalesInvoice(TempSalesLine, CreatePaymentTermsCode, WorkDate());
         CreateAndPostCustomerBill(TempSalesLine."Sell-to Customer No.");
         UpdateBlockedCustomerToAll(TempSalesLine."Sell-to Customer No.");
-        OldWorkDate := WorkDate;
-        WorkDate := CalcDate('<1Y>', WorkDate);
+        OldWorkDate := WorkDate();
+        WorkDate := CalcDate('<1Y>', WorkDate());
         EnqueueValuesForRequestPageHandler(false, TempSalesLine."Sell-to Customer No.");  // Enqueue False for Confirm Per Application and Customer No. in ClosingBankReceiptsRequestPageHandler.
         Commit();  // Commit required to run the report.
 
@@ -336,7 +336,7 @@ codeunit 144050 "ERM Auto Payment"
 
         // Setup: Issue Bank Receipt for Posted Sales Invoice. Create Customer Bill Header with new Bank Account No and Bills to subject to collection.
         Initialize();
-        IssueBankReceiptAfterPostingSalesInvoice(TempSalesLine, CreatePaymentTermsCode, WorkDate);
+        IssueBankReceiptAfterPostingSalesInvoice(TempSalesLine, CreatePaymentTermsCode, WorkDate());
         LibrarySales.CreateCustomerBillHeader(
           CustomerBillHeader, CreateBankAccount(''), FindPaymentMethod, CustomerBillHeader.Type::"Bills Subject To Collection");  // Blank value for Currency Code,
         RunSuggestCustomerBill(CustomerBillHeader, TempSalesLine."Sell-to Customer No.");
@@ -481,7 +481,7 @@ codeunit 144050 "ERM Auto Payment"
 
         // Setup: Issue bank Receipt, Create Customer Bill Header, Update Customer Blocked to All.
         Initialize();
-        IssueBankReceiptAfterPostingSalesInvoice(TempSalesLine, CreatePaymentTermsCode, WorkDate);
+        IssueBankReceiptAfterPostingSalesInvoice(TempSalesLine, CreatePaymentTermsCode, WorkDate());
         CreateCustomerBillHeader(CustomerBillHeader);
         UpdateBlockedCustomerToAll(TempSalesLine."Sell-to Customer No.");
 
@@ -490,7 +490,7 @@ codeunit 144050 "ERM Auto Payment"
 
         // Verify: Verify no Customer Bill Lines are suggested.
         CustomerBillLine.SetRange("Customer Bill No.", CustomerBillHeader."No.");
-        Assert.IsFalse(CustomerBillLine.FindFirst, StrSubstNo(LineMustNotExistsErr, Customer.TableCaption));
+        Assert.IsFalse(CustomerBillLine.FindFirst, StrSubstNo(LineMustNotExistsErr, Customer.TableCaption()));
     end;
 
     [Test]
@@ -532,7 +532,7 @@ codeunit 144050 "ERM Auto Payment"
 
         // Verify: Verify no Vendor Bill Lines are suggested.
         VendorBillLine.SetRange("Vendor Bill List No.", VendorBillHeader."No.");
-        Assert.IsFalse(VendorBillLine.FindFirst, StrSubstNo(LineMustNotExistsErr, Vendor.TableCaption));
+        Assert.IsFalse(VendorBillLine.FindFirst, StrSubstNo(LineMustNotExistsErr, Vendor.TableCaption()));
     end;
 
     [Test]
@@ -889,7 +889,7 @@ codeunit 144050 "ERM Auto Payment"
 
         // [GIVEN] Posted Customer Bill after Issue Bank Receipt for Posted Sales Invoice.
         Initialize();
-        IssueBankReceiptAfterPostingSalesInvoice(TempSalesLine, CreatePaymentTermsWithMultiplePaymentLines, WorkDate);
+        IssueBankReceiptAfterPostingSalesInvoice(TempSalesLine, CreatePaymentTermsWithMultiplePaymentLines, WorkDate());
         CreateAndPostCustomerBill(TempSalesLine."Sell-to Customer No.");
 
         // [WHEN] Recall Issued Customer Bill.
@@ -945,7 +945,7 @@ codeunit 144050 "ERM Auto Payment"
         // [GIVEN] Create Vendor Bill Card. Invoke "Insert Vend. Bill Line Manual".
         // [GIVEN] Set "Withhold Tax Code" = 'WHTCode', where "Taxable Base %" = X,  "Withholding Tax %" = Y.
         // [WHEN] Invoke "Insert Line".
-        WithholdCodeLine.Get(CreateWithholdCodeWithLine, WorkDate);
+        WithholdCodeLine.Get(CreateWithholdCodeWithLine, WorkDate());
         InsertVendorBillLineManually(VendorNo, VendorBillHeaderNo, TotalAmount, WithholdCodeLine."Withhold Code");
 
         // [THEN] "Vendor Bill Line"."Withholding Tax Amount" = Amount * X * Y
@@ -1214,7 +1214,7 @@ codeunit 144050 "ERM Auto Payment"
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Payment,
           GenJournalLine."Account Type"::Customer, Customer."No.", -LibraryRandom.RandDec(100, 2));  // Use random Value for Amount.
-        GenJournalLine.Validate("Posting Date", CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate));  // Using random date to post General Journal Lines with different dates.
+        GenJournalLine.Validate("Posting Date", CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate()));  // Using random date to post General Journal Lines with different dates.
         Amount += GenJournalLine.Amount;
         GenJournalLine.Modify(true);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -1424,7 +1424,7 @@ codeunit 144050 "ERM Auto Payment"
         WithholdCode.Validate("Withholding Taxes Payable Acc.", GLAccount."No.");
         WithholdCode.Validate("Tax Code", Format(LibraryRandom.RandIntInRange(1000, 9999)));
         WithholdCode.Modify(true);
-        LibraryITLocalization.CreateWithholdCodeLine(WithholdCodeLine, WithholdCode.Code, WorkDate);
+        LibraryITLocalization.CreateWithholdCodeLine(WithholdCodeLine, WithholdCode.Code, WorkDate());
         WithholdCodeLine.Validate("Withholding Tax %", LibraryRandom.RandDecInRange(10, 20, 2));
         WithholdCodeLine.Validate("Taxable Base %", LibraryRandom.RandDecInRange(10, 20, 2));
         WithholdCodeLine.Modify(true);
@@ -1496,7 +1496,7 @@ codeunit 144050 "ERM Auto Payment"
     begin
         CreateContributionCode(ContributionCode, ContributionType);
         LibraryITLocalization.CreateContributionCodeLine(
-          ContributionCodeLine, ContributionCode.Code, WorkDate, ContributionCode."Contribution Type");
+          ContributionCodeLine, ContributionCode.Code, WorkDate(), ContributionCode."Contribution Type");
         ContributionCodeLine.Validate("Social Security %", LibraryRandom.RandIntInRange(5, 10));
         ContributionCodeLine.Validate("Free-Lance Amount %", LibraryRandom.RandIntInRange(10, 20));
         ContributionCodeLine.Validate(
@@ -1652,7 +1652,7 @@ codeunit 144050 "ERM Auto Payment"
         Assert.AreEqual(
           Vendor.Balance,
           VendorBillLine."Amount to Pay" + VendorBillLine."Withholding Tax Amount",
-          StrSubstNo(AmountErr, VendorBillLine.FieldCaption("Amount to Pay"), Vendor.Balance, VendorBillLine.TableCaption));
+          StrSubstNo(AmountErr, VendorBillLine.FieldCaption("Amount to Pay"), Vendor.Balance, VendorBillLine.TableCaption()));
     end;
 
     local procedure FindPaymentMethod(): Code[10]
@@ -1709,7 +1709,7 @@ codeunit 144050 "ERM Auto Payment"
     begin
         SalesReceivablesSetup.Get();
         Evaluate(RiskPeriod, '<-' + Format(SalesReceivablesSetup."Bank Receipts Risk Period") + '>');
-        exit(CalcDate(RiskPeriod, WorkDate));
+        exit(CalcDate(RiskPeriod, WorkDate()));
     end;
 
     local procedure IssueBankReceiptAfterPostingSalesInvoice(var TempSalesLine: Record "Sales Line" temporary; PaymentTermsCode: Code[10]; StartingDate: Date)
@@ -1741,7 +1741,7 @@ codeunit 144050 "ERM Auto Payment"
         VendorBillCard.OpenEdit;
         VendorBillCard.FILTER.SetFilter("No.", No);
         VendorBillCard.InsertVendBillLineManual.Invoke;  // Opens ManualVendorPaymentLinePageHandler.
-        VendorBillCard.Close;
+        VendorBillCard.Close();
     end;
 
     local procedure IssueVendorBill(No: Code[20])
@@ -1917,7 +1917,7 @@ codeunit 144050 "ERM Auto Payment"
         CustLedgerEntry.CalcFields(Amount);
         Assert.AreNearlyEqual(
           Amount, CustLedgerEntry.Amount, LibraryERM.GetAmountRoundingPrecision,
-          StrSubstNo(AmountErr, CustLedgerEntry.FieldCaption(Amount), Amount, CustLedgerEntry.TableCaption));
+          StrSubstNo(AmountErr, CustLedgerEntry.FieldCaption(Amount), Amount, CustLedgerEntry.TableCaption()));
     end;
 
     local procedure VerifyBankRcptTempNoOnCustLedgEntry(CustomerNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type")
@@ -2106,7 +2106,7 @@ codeunit 144050 "ERM Auto Payment"
         ManualVendorPaymentLine.WithholdingTaxCode.SetValue(WithholdingTaxCode);
         ManualVendorPaymentLine.DocumentType.SetValue(VendorLedgerEntry."Document Type"::Payment);
         ManualVendorPaymentLine.DocumentNo.SetValue(LibraryUtility.GenerateGUID());
-        ManualVendorPaymentLine.DocumentDate.SetValue(WorkDate);
+        ManualVendorPaymentLine.DocumentDate.SetValue(WorkDate());
         ManualVendorPaymentLine.TotalAmount.SetValue(TotalAmount);
         ManualVendorPaymentLine.InsertLine.Invoke;
     end;

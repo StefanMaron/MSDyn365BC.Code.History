@@ -1,4 +1,4 @@
-﻿codeunit 1336 "Item Templ. Mgt."
+codeunit 1336 "Item Templ. Mgt."
 {
     trigger OnRun()
     begin
@@ -314,7 +314,7 @@
         if ItemTempl.FindLast() and (IncStr(ItemTempl.Code) <> '') then
             ItemTemplCode := ItemTempl.Code
         else
-            ItemTemplCode := CopyStr(Item.TableCaption, 1, 4) + '000001';
+            ItemTemplCode := CopyStr(Item.TableCaption(), 1, 4) + '000001';
 
         while ItemTempl.Get(ItemTemplCode) do
             ItemTemplCode := IncStr(ItemTemplCode);

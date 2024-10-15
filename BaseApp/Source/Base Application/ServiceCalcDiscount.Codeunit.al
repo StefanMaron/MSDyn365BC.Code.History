@@ -16,7 +16,6 @@ codeunit 5950 "Service-Calc. Discount"
     end;
 
     var
-        Text000: Label 'Service Charge';
         TempServHeader: Record "Service Header";
         TempServiceLine: Record "Service Line";
         CustInvDisc: Record "Cust. Invoice Disc.";
@@ -26,6 +25,8 @@ codeunit 5950 "Service-Calc. Discount"
         ChargeBase: Decimal;
         CurrencyDate: Date;
         TemporaryHeader: Boolean;
+
+        Text000: Label 'Service Charge';
 
     local procedure CalculateInvoiceDiscount(var ServHeader: Record "Service Header"; var ServiceLine: Record "Service Line"; var ServiceLine2: Record "Service Line")
     var
@@ -49,7 +50,7 @@ codeunit 5950 "Service-Calc. Discount"
                 ServiceLine2.SetRange("Document No.", "Document No.");
                 ServiceLine2.SetRange("System-Created Entry", true);
                 ServiceLine2.SetRange(Type, ServiceLine2.Type::"G/L Account");
-                ServiceLine2.SetRange("No.", CustPostingGr.GetServiceChargeAccount);
+                ServiceLine2.SetRange("No.", CustPostingGr.GetServiceChargeAccount());
                 if ServiceLine2.Find('+') then begin
                     ServiceChargeLineNo := ServiceLine2."Line No.";
                     ServiceLine2.Validate("Unit Price", 0);
@@ -78,7 +79,7 @@ codeunit 5950 "Service-Calc. Discount"
             if ("Document Type" in ["Document Type"::Quote]) and
                (ServHeader."Posting Date" = 0D)
             then
-                CurrencyDate := WorkDate
+                CurrencyDate := WorkDate()
             else
                 CurrencyDate := ServHeader."Posting Date";
 
@@ -111,7 +112,7 @@ codeunit 5950 "Service-Calc. Discount"
                             ServiceLine2.SetServHeader(ServHeader);
                         ServiceLine2."Line No." := ServiceLine2."Line No." + GetNewServiceLineNoBias(ServiceLine2);
                         ServiceLine2.Type := ServiceLine2.Type::"G/L Account";
-                        ServiceLine2.Validate("No.", CustPostingGr.GetServiceChargeAccount);
+                        ServiceLine2.Validate("No.", CustPostingGr.GetServiceChargeAccount());
                         ServiceLine2.Description := Text000;
                         ServiceLine2.Validate(Quantity, 1);
                         OnCalculateInvoiceDiscountOnAfterServiceLine2ValidateQuantity(ServHeader, ServiceLine2, CustInvDisc);
@@ -167,7 +168,7 @@ codeunit 5950 "Service-Calc. Discount"
         CustInvDisc: Record "Cust. Invoice Disc.";
     begin
         CustInvDisc.SetRange(Code, InvDiscCode);
-        exit(CustInvDisc.FindFirst);
+        exit(CustInvDisc.FindFirst())
     end;
 
     procedure CalculateWithServHeader(var TempServHeader: Record "Service Header"; var ServiceLine: Record "Service Line"; var TempServiceLine: Record "Service Line")
@@ -218,7 +219,7 @@ codeunit 5950 "Service-Calc. Discount"
             ServiceLine1.SetRange("System-Created Entry", true);
             ServiceLine1.SetRange(Type, ServiceLine1.Type::"G/L Account");
             ServiceLine1.SetRange("No.", CustPostingGr."Service Charge Acc.");
-            exit(ServiceLine1.FindLast);
+            exit(ServiceLine1.FindLast());
         end;
     end;
 

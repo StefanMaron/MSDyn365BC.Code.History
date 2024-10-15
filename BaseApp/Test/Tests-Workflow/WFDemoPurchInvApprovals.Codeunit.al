@@ -48,7 +48,7 @@ codeunit 134179 "WF Demo Purch. Inv. Approvals"
 
         // Setup
         Initialize();
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseInvoiceApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseInvoiceApprovalWorkflowCode());
 
         CreatePurchaseInvoice(PurchaseHeader);
 
@@ -78,7 +78,7 @@ codeunit 134179 "WF Demo Purch. Inv. Approvals"
 
         // Setup
         Initialize();
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseInvoiceApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseInvoiceApprovalWorkflowCode());
 
         CreatePurchaseInvoice(PurchaseHeader);
 
@@ -110,7 +110,7 @@ codeunit 134179 "WF Demo Purch. Inv. Approvals"
 
         // Setup
         Initialize();
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseInvoiceApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseInvoiceApprovalWorkflowCode());
 
         // Setup - Create 3 approval usersetups
         LibraryDocumentApprovals.SetupUsersForApprovals(IntermediateApproverUserSetup);
@@ -156,7 +156,7 @@ codeunit 134179 "WF Demo Purch. Inv. Approvals"
 
         // Setup
         Initialize();
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseInvoiceApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseInvoiceApprovalWorkflowCode());
 
         // Setup - Create 3 approval usersetups
         LibraryDocumentApprovals.SetupUsersForApprovals(IntermediateApproverUserSetup);
@@ -202,7 +202,7 @@ codeunit 134179 "WF Demo Purch. Inv. Approvals"
 
         Initialize();
 
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseInvoiceApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseInvoiceApprovalWorkflowCode());
 
         // Setup - Create 3 approval usersetups
         LibraryDocumentApprovals.SetupUsersForApprovals(IntermediateApproverUserSetup);
@@ -259,7 +259,7 @@ codeunit 134179 "WF Demo Purch. Inv. Approvals"
         // [THEN] Purchase Invoice is reopened and approval entries are marked as rejected.
 
         Initialize();
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseInvoiceApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseInvoiceApprovalWorkflowCode());
 
         // Setup - Create 3 usersetups
         LibraryDocumentApprovals.SetupUsersForApprovals(IntermediateApproverUserSetup);
@@ -320,7 +320,7 @@ codeunit 134179 "WF Demo Purch. Inv. Approvals"
         // [THEN] Purchase Invoice is released.
 
         Initialize();
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseInvoiceApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseInvoiceApprovalWorkflowCode());
 
         // Setup - Create 3 usersetups
         LibraryDocumentApprovals.CreateOrFindUserSetup(CurrentUserSetup, UserId);
@@ -397,7 +397,7 @@ codeunit 134179 "WF Demo Purch. Inv. Approvals"
         // [THEN] Purchase Invoice is opend and approval requests are marked as cancelled.
 
         Initialize();
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseInvoiceApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseInvoiceApprovalWorkflowCode());
 
         // Setup - Create 3 usersetups
         LibraryDocumentApprovals.SetupUsersForApprovals(IntermediateApproverUserSetup);
@@ -455,7 +455,7 @@ codeunit 134179 "WF Demo Purch. Inv. Approvals"
 
         // [GIVEN] Enable workflows: 'Incoming Document' and 'Purchase Invoice Approval'
         EnableIncDocWorkflow;
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseInvoiceApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseInvoiceApprovalWorkflowCode());
         EnablePurchInvWorkflow;
 
         // [GIVEN] Create Incoming Document.
@@ -478,7 +478,7 @@ codeunit 134179 "WF Demo Purch. Inv. Approvals"
         SetPurchDocPurchaserCode(PurchHeader, ApproverUserSetup."Salespers./Purch. Code");
 
         // [WHEN] Purchase Invoice is sent for approval.
-        PurchHeader.Find;
+        PurchHeader.Find();
         LibraryPurchase.SetCheckTotalOnPurchaseDocument(PurchHeader, false, true, true);
         SendPurchaseInvoiceForApproval(PurchHeader);
 
@@ -536,10 +536,10 @@ codeunit 134179 "WF Demo Purch. Inv. Approvals"
         Assert.ExpectedError(NoWorkflowEnabledErr);
 
         // Cleanup
-        PurchaseInvoice.Close;
+        PurchaseInvoice.Close();
 
         // [GIVEN] PurchHeader approval enabled.
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseInvoiceApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseInvoiceApprovalWorkflowCode());
 
         // [WHEN] PurchHeader card is opened.
         PurchaseInvoice.OpenEdit;
@@ -551,7 +551,7 @@ codeunit 134179 "WF Demo Purch. Inv. Approvals"
         Assert.IsFalse(PurchaseInvoice.Approve.Visible, 'Approve should NOT be visible');
         Assert.IsFalse(PurchaseInvoice.Reject.Visible, 'Reject should NOT be visible');
         Assert.IsFalse(PurchaseInvoice.Delegate.Visible, 'Delegate should NOT be visible');
-        PurchaseInvoice.Close;
+        PurchaseInvoice.Close();
 
         // [GIVEN] Approval exist on PurchHeader.
         LibraryDocumentApprovals.SetupUsersForApprovals(ApproverUserSetup);
@@ -568,7 +568,7 @@ codeunit 134179 "WF Demo Purch. Inv. Approvals"
         Assert.IsTrue(PurchaseInvoice.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be enabled');
 
         // Clenup
-        PurchaseInvoice.Close;
+        PurchaseInvoice.Close();
 
         // Setup the approval so it can be approve by current user
         LibraryDocumentApprovals.UpdateApprovalEntryWithCurrUser(PurchHeader.RecordId);
@@ -615,10 +615,10 @@ codeunit 134179 "WF Demo Purch. Inv. Approvals"
         Assert.ExpectedError(NoWorkflowEnabledErr);
 
         // Cleanup
-        PurchaseInvoices.Close;
+        PurchaseInvoices.Close();
 
         // [GIVEN] PurchHeader approval enabled.
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseInvoiceApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseInvoiceApprovalWorkflowCode());
 
         // [WHEN] PurchHeader card is opened.
         PurchaseInvoices.OpenEdit;
@@ -627,7 +627,7 @@ codeunit 134179 "WF Demo Purch. Inv. Approvals"
         // [THEN] Only Send is enabled.
         Assert.IsTrue(PurchaseInvoices.SendApprovalRequest.Enabled, 'SendApprovalRequest should be enabled');
         Assert.IsFalse(PurchaseInvoices.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be disabled');
-        PurchaseInvoices.Close;
+        PurchaseInvoices.Close();
 
         // [GIVEN] Approval exist on PurchHeader.
         LibraryDocumentApprovals.SetupUsersForApprovals(ApproverUserSetup);
@@ -657,7 +657,7 @@ codeunit 134179 "WF Demo Purch. Inv. Approvals"
         // [GIVEN] Purchase Header with no lines.
         Initialize();
         LibraryPurchase.CreatePurchHeader(PurchHeader, PurchHeader."Document Type"::Invoice, '');
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseInvoiceApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseInvoiceApprovalWorkflowCode());
         Commit();
         PurchaseInvoice.OpenEdit;
         PurchaseInvoice.GotoRecord(PurchHeader);
@@ -669,7 +669,7 @@ codeunit 134179 "WF Demo Purch. Inv. Approvals"
         Assert.ExpectedError(NoWorkflowEnabledErr);
 
         // Cleanup
-        PurchaseInvoice.Close;
+        PurchaseInvoice.Close();
     end;
 
     [Test]
@@ -692,7 +692,7 @@ codeunit 134179 "WF Demo Purch. Inv. Approvals"
 
         Initialize();
 
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseInvoiceApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseInvoiceApprovalWorkflowCode());
 
         // Setup - Create 3 approval usersetups
         LibraryDocumentApprovals.SetupUsersForApprovals(IntermediateApproverUserSetup);
@@ -759,7 +759,7 @@ codeunit 134179 "WF Demo Purch. Inv. Approvals"
 
         Initialize();
 
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseInvoiceApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseInvoiceApprovalWorkflowCode());
 
         // Setup - Create 3 approval usersetups
         LibraryDocumentApprovals.SetupUsersForApprovals(IntermediateApproverUserSetup);
@@ -907,12 +907,12 @@ codeunit 134179 "WF Demo Purch. Inv. Approvals"
         PurchaseInvoice.OpenView;
         PurchaseInvoice.GotoRecord(PurchaseHeader);
         PurchaseInvoice.SendApprovalRequest.Invoke;
-        PurchaseInvoice.Close;
+        PurchaseInvoice.Close();
     end;
 
     local procedure RegetPurchaseDocument(var PurchaseHeader: Record "Purchase Header")
     begin
-        PurchaseHeader.SetRecFilter;
+        PurchaseHeader.SetRecFilter();
         PurchaseHeader.FindFirst();
     end;
 
@@ -971,7 +971,7 @@ codeunit 134179 "WF Demo Purch. Inv. Approvals"
         PurchaseInvoice.OpenView;
         PurchaseInvoice.GotoRecord(PurchaseHeader);
         PurchaseInvoice.Approve.Invoke;
-        PurchaseInvoice.Close;
+        PurchaseInvoice.Close();
     end;
 
     local procedure RejectPurchaseInvoice(var PurchaseHeader: Record "Purchase Header")
@@ -981,7 +981,7 @@ codeunit 134179 "WF Demo Purch. Inv. Approvals"
         PurchaseInvoice.OpenView;
         PurchaseInvoice.GotoRecord(PurchaseHeader);
         PurchaseInvoice.Reject.Invoke;
-        PurchaseInvoice.Close;
+        PurchaseInvoice.Close();
     end;
 
     local procedure DelegatePurchaseInvoice(var PurchaseHeader: Record "Purchase Header")
@@ -991,7 +991,7 @@ codeunit 134179 "WF Demo Purch. Inv. Approvals"
         PurchaseInvoice.OpenView;
         PurchaseInvoice.GotoRecord(PurchaseHeader);
         PurchaseInvoice.Delegate.Invoke;
-        PurchaseInvoice.Close;
+        PurchaseInvoice.Close();
     end;
 
     local procedure CancelPurchaseInvoice(var PurchaseHeader: Record "Purchase Header")
@@ -1001,7 +1001,7 @@ codeunit 134179 "WF Demo Purch. Inv. Approvals"
         PurchaseInvoice.OpenView;
         PurchaseInvoice.GotoRecord(PurchaseHeader);
         PurchaseInvoice.CancelApprovalRequest.Invoke;
-        PurchaseInvoice.Close;
+        PurchaseInvoice.Close();
     end;
 
     local procedure SetPurchDocPurchaserCode(PurchaseHeader: Record "Purchase Header"; PurchaserCode: Code[20])
@@ -1094,15 +1094,15 @@ codeunit 134179 "WF Demo Purch. Inv. Approvals"
             if ApprovalComments.First then
                 repeat
                     NumberOfComments += 1;
-                until ApprovalComments.Next;
+                until ApprovalComments.Next();
             Assert.AreEqual(NumberOfExpectedComments, NumberOfComments, 'The page contains the wrong number of comments');
 
             ApprovalComments.Comment.SetValue('Test Comment' + Format(NumberOfExpectedComments));
-            ApprovalComments.Next;
-            ApprovalComments.Close;
+            ApprovalComments.Next();
+            ApprovalComments.Close();
         end;
 
-        PurchaseInvoice.Close;
+        PurchaseInvoice.Close();
     end;
 
     local procedure CheckCommentsForDocumentOnApprovalEntriesPage(ApprovalEntry: Record "Approval Entry"; NumberOfExpectedComments: Integer)
@@ -1120,12 +1120,12 @@ codeunit 134179 "WF Demo Purch. Inv. Approvals"
         if ApprovalComments.First then
             repeat
                 NumberOfComments += 1;
-            until ApprovalComments.Next;
+            until ApprovalComments.Next();
         Assert.AreEqual(NumberOfExpectedComments, NumberOfComments, 'The page contains the wrong number of comments');
 
-        ApprovalComments.Close;
+        ApprovalComments.Close();
 
-        ApprovalEntries.Close;
+        ApprovalEntries.Close();
     end;
 
     local procedure CheckCommentsForDocumentOnRequestsToApprovePage(ApprovalEntry: Record "Approval Entry"; NumberOfExpectedComments: Integer)
@@ -1143,12 +1143,12 @@ codeunit 134179 "WF Demo Purch. Inv. Approvals"
         if ApprovalComments.First then
             repeat
                 NumberOfComments += 1;
-            until ApprovalComments.Next;
+            until ApprovalComments.Next();
         Assert.AreEqual(NumberOfExpectedComments, NumberOfComments, 'The page contains the wrong number of comments');
 
-        ApprovalComments.Close;
+        ApprovalComments.Close();
 
-        RequeststoApprove.Close;
+        RequeststoApprove.Close();
     end;
 
     local procedure CheckUserCanCancelTheApprovalRequest(PurchaseHeader: Record "Purchase Header"; CancelActionExpectedEnabled: Boolean)
@@ -1159,12 +1159,12 @@ codeunit 134179 "WF Demo Purch. Inv. Approvals"
         PurchaseInvoice.OpenView;
         PurchaseInvoice.GotoRecord(PurchaseHeader);
         Assert.AreEqual(CancelActionExpectedEnabled, PurchaseInvoice.CancelApprovalRequest.Enabled, 'Wrong state for the Cancel action');
-        PurchaseInvoice.Close;
+        PurchaseInvoice.Close();
 
         PurchaseInvoices.OpenView;
         PurchaseInvoices.GotoRecord(PurchaseHeader);
         Assert.AreEqual(CancelActionExpectedEnabled, PurchaseInvoices.CancelApprovalRequest.Enabled, 'Wrong state for the Cancel action');
-        PurchaseInvoices.Close;
+        PurchaseInvoices.Close();
     end;
 }
 

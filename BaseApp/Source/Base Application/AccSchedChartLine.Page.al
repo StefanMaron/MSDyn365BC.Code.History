@@ -12,36 +12,36 @@ page 765 "Acc. Sched. Chart Line"
         {
             repeater(General)
             {
-                field("Account Schedule Name"; "Account Schedule Name")
+                field("Account Schedule Name"; Rec."Account Schedule Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the account schedule name.';
                     Visible = false;
                 }
-                field("Account Schedule Line No."; "Account Schedule Line No.")
+                field("Account Schedule Line No."; Rec."Account Schedule Line No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the account schedule line that the chart is based on.';
                     Visible = false;
                 }
-                field("Column Layout Name"; "Column Layout Name")
+                field("Column Layout Name"; Rec."Column Layout Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name. This field is intended only for internal use.';
                     Visible = false;
                 }
-                field("Column Layout Line No."; "Column Layout Line No.")
+                field("Column Layout Line No."; Rec."Column Layout Line No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the line number. This field is intended only for internal use.';
                     Visible = false;
                 }
-                field("Original Measure Name"; "Original Measure Name")
+                field("Original Measure Name"; Rec."Original Measure Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the account schedule columns or lines that you select to include in the Account Schedules Chart Setup window.';
                 }
-                field("Chart Type"; "Chart Type")
+                field("Chart Type"; Rec."Chart Type")
                 {
                     ApplicationArea = All;
                     Editable = IsMeasure;
@@ -77,9 +77,6 @@ page 765 "Acc. Sched. Chart Line"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Select All';
                 Image = AllLines;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'Select all lines.';
 
                 trigger OnAction()
@@ -96,9 +93,6 @@ page 765 "Acc. Sched. Chart Line"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Deselect All';
                 Image = CancelAllLines;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'Unselect all lines.';
 
                 trigger OnAction()
@@ -109,6 +103,20 @@ page 765 "Acc. Sched. Chart Line"
                     AccSchedChartSetupLine.Copy(Rec);
                     AccSchedChartManagement.DeselectAll(AccSchedChartSetupLine, IsMeasure);
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(ShowAll_Promoted; ShowAll)
+                {
+                }
+                actionref(ShowNone_Promoted; ShowNone)
+                {
+                }
             }
         }
     }

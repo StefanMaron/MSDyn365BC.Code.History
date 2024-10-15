@@ -93,7 +93,7 @@ report 406 "Purchase - Invoice"
                 dataitem(PageLoop; "Integer")
                 {
                     DataItemTableView = SORTING(Number) WHERE(Number = CONST(1));
-                    column(DocumentCaptionCopyText; StrSubstNo(DocumentCaption, CopyText))
+                    column(DocumentCaptionCopyText; StrSubstNo(DocumentCaption(), CopyText))
                     {
                     }
                     column(VendAddr1; VendAddr[1])
@@ -371,7 +371,7 @@ report 406 "Purchase - Invoice"
                             AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 1;
                         }
-                        column(VATAmountLineVATAmountText; VATAmountLine.VATAmountText)
+                        column(VATAmountLineVATAmountText; TempVATAmountLine.VATAmountText())
                         {
                         }
                         column(TotalExclVATText; TotalExclVATText)
@@ -491,19 +491,19 @@ report 406 "Purchase - Invoice"
                             if (Type = Type::"G/L Account") and (not ShowInternalInfo) then
                                 "No." := '';
 
-                            VATAmountLine.Init();
-                            VATAmountLine."VAT Identifier" := "VAT Identifier";
-                            VATAmountLine."VAT Calculation Type" := "VAT Calculation Type";
-                            VATAmountLine."Tax Group Code" := "Tax Group Code";
-                            VATAmountLine."Use Tax" := "Use Tax";
-                            VATAmountLine."VAT %" := "VAT %";
-                            VATAmountLine."VAT Base" := Amount;
-                            VATAmountLine."Amount Including VAT" := "Amount Including VAT";
-                            VATAmountLine."Line Amount" := "Line Amount";
+                            TempVATAmountLine.Init();
+                            TempVATAmountLine."VAT Identifier" := "VAT Identifier";
+                            TempVATAmountLine."VAT Calculation Type" := "VAT Calculation Type";
+                            TempVATAmountLine."Tax Group Code" := "Tax Group Code";
+                            TempVATAmountLine."Use Tax" := "Use Tax";
+                            TempVATAmountLine."VAT %" := "VAT %";
+                            TempVATAmountLine."VAT Base" := Amount;
+                            TempVATAmountLine."Amount Including VAT" := "Amount Including VAT";
+                            TempVATAmountLine."Line Amount" := "Line Amount";
                             if "Allow Invoice Disc." then
-                                VATAmountLine."Inv. Disc. Base Amount" := "Line Amount";
-                            VATAmountLine."Invoice Discount Amount" := "Inv. Discount Amount";
-                            VATAmountLine.InsertLine();
+                                TempVATAmountLine."Inv. Disc. Base Amount" := "Line Amount";
+                            TempVATAmountLine."Invoice Discount Amount" := "Inv. Discount Amount";
+                            TempVATAmountLine.InsertLine();
 
                             AllowVATDisctxt := Format("Allow Invoice Disc.");
                             PurchInLineTypeNo := Type.AsInteger();
@@ -523,7 +523,7 @@ report 406 "Purchase - Invoice"
                             PurchInvLine: Record "Purch. Inv. Line";
                             VATIdentifier: Code[20];
                         begin
-                            VATAmountLine.DeleteAll();
+                            TempVATAmountLine.DeleteAll();
                             MoreLines := Find('+');
                             while MoreLines and (Description = '') and ("No." = '') and (Quantity = 0) and (Amount = 0) do
                                 MoreLines := Next(-1) <> 0;
@@ -547,36 +547,36 @@ report 406 "Purchase - Invoice"
                     dataitem(VATCounter; "Integer")
                     {
                         DataItemTableView = SORTING(Number);
-                        column(VATAmountLineVATBase; VATAmountLine."VAT Base")
+                        column(VATAmountLineVATBase; TempVATAmountLine."VAT Base")
                         {
                             AutoFormatExpression = "Purch. Inv. Header"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmountLineVATAmount; VATAmountLine."VAT Amount")
+                        column(VATAmountLineVATAmount; TempVATAmountLine."VAT Amount")
                         {
                             AutoFormatExpression = "Purch. Inv. Header"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmountLineLineAmount; VATAmountLine."Line Amount")
+                        column(VATAmountLineLineAmount; TempVATAmountLine."Line Amount")
                         {
                             AutoFormatExpression = "Purch. Inv. Header"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmountLineInvDiscBaseAmount; VATAmountLine."Inv. Disc. Base Amount")
+                        column(VATAmountLineInvDiscBaseAmount; TempVATAmountLine."Inv. Disc. Base Amount")
                         {
                             AutoFormatExpression = "Purch. Inv. Header"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmountLineInvDisAmt; VATAmountLine."Invoice Discount Amount")
+                        column(VATAmountLineInvDisAmt; TempVATAmountLine."Invoice Discount Amount")
                         {
                             AutoFormatExpression = "Purch. Inv. Header"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmountLineVAT; VATAmountLine."VAT %")
+                        column(VATAmountLineVAT; TempVATAmountLine."VAT %")
                         {
                             DecimalPlaces = 0 : 5;
                         }
-                        column(VATAmountLineVATIdentifier; VATAmountLine."VAT Identifier")
+                        column(VATAmountLineVATIdentifier; TempVATAmountLine."VAT Identifier")
                         {
                         }
                         column(VATAmtSpecCaption; VATAmtSpecCaptionLbl)
@@ -597,12 +597,12 @@ report 406 "Purchase - Invoice"
 
                         trigger OnAfterGetRecord()
                         begin
-                            VATAmountLine.GetLine(Number);
+                            TempVATAmountLine.GetLine(Number);
                         end;
 
                         trigger OnPreDataItem()
                         begin
-                            SetRange(Number, 1, VATAmountLine.Count);
+                            SetRange(Number, 1, TempVATAmountLine.Count);
                         end;
                     }
                     dataitem(VATCounterLCY; "Integer")
@@ -622,11 +622,11 @@ report 406 "Purchase - Invoice"
                         {
                             AutoFormatType = 1;
                         }
-                        column(VATAmtLineVAT_VATCounterLCY; VATAmountLine."VAT %")
+                        column(VATAmtLineVAT_VATCounterLCY; TempVATAmountLine."VAT %")
                         {
                             DecimalPlaces = 0 : 5;
                         }
-                        column(VATIdentifier_VATCounterLCY; VATAmountLine."VAT Identifier")
+                        column(VATIdentifier_VATCounterLCY; TempVATAmountLine."VAT Identifier")
                         {
                         }
                         column(VATIdentCaption; VATIdentCaptionLbl)
@@ -635,13 +635,13 @@ report 406 "Purchase - Invoice"
 
                         trigger OnAfterGetRecord()
                         begin
-                            VATAmountLine.GetLine(Number);
+                            TempVATAmountLine.GetLine(Number);
                             VALVATBaseLCY :=
-                              VATAmountLine.GetBaseLCY(
+                              TempVATAmountLine.GetBaseLCY(
                                 "Purch. Inv. Header"."Posting Date", "Purch. Inv. Header"."Currency Code",
                                 "Purch. Inv. Header"."Currency Factor");
                             VALVATAmountLCY :=
-                              VATAmountLine.GetAmountLCY(
+                              TempVATAmountLine.GetAmountLCY(
                                 "Purch. Inv. Header"."Posting Date", "Purch. Inv. Header"."Currency Code",
                                 "Purch. Inv. Header"."Currency Factor");
                         end;
@@ -653,7 +653,7 @@ report 406 "Purchase - Invoice"
                             then
                                 CurrReport.Break();
 
-                            SetRange(Number, 1, VATAmountLine.Count);
+                            SetRange(Number, 1, TempVATAmountLine.Count);
                             Clear(VALVATBaseLCY);
                             Clear(VALVATAmountLCY);
 
@@ -734,13 +734,44 @@ report 406 "Purchase - Invoice"
                                 CurrReport.Skip();
                         end;
                     }
+                    dataitem(RemitToAddressDataItem; "Integer")
+                    {
+                        DataItemTableView = SORTING(Number) WHERE(Number = CONST(1));
+                        column(RemitToAddressCaption; RemitToAddressCaptionLbl)
+                        {
+                        }
+                        column(RemitToAddress_Name; RemitToAddress[1])
+                        {
+                        }
+                        column(RemitToAddress_Name2; RemitToAddress[2])
+                        {
+                        }
+                        column(RemitToAddress_Contact; RemitToAddress[3])
+                        {
+                        }
+                        column(RemitToAddress_Address; RemitToAddress[4])
+                        {
+                        }
+                        column(RemitToAddress_Address2; RemitToAddress[5])
+                        {
+                        }
+                        column(RemitToAddress_City; RemitToAddress[6])
+                        {
+                        }
+                        column(RemitToAddress_PostCode; RemitToAddress[7])
+                        {
+                        }
+                        column(RemitToAddress_County; RemitToAddress[8])
+                        {
+                        }
+                    }
                 }
 
                 trigger OnAfterGetRecord()
                 begin
                     if Number > 1 then begin
                         OutputNo := OutputNo + 1;
-                        CopyText := FormatDocument.GetCOPYText;
+                        CopyText := FormatDocument.GetCOPYText();
                     end;
 
                     TotalSubTotal := 0;
@@ -753,7 +784,7 @@ report 406 "Purchase - Invoice"
 
                 trigger OnPostDataItem()
                 begin
-                    if not IsReportInPreviewMode then
+                    if not IsReportInPreviewMode() then
                         CODEUNIT.Run(CODEUNIT::"Purch. Inv.-Printed", "Purch. Inv. Header");
                 end;
 
@@ -831,7 +862,7 @@ report 406 "Purchase - Invoice"
 
         trigger OnOpenPage()
         begin
-            InitLogInteraction;
+            InitLogInteraction();
             LogInteractionEnable := LogInteraction;
         end;
     }
@@ -854,12 +885,12 @@ report 406 "Purchase - Invoice"
         end else
             CashVATFooterText := '';
 
-        OnAfterInitReport;
+        OnAfterInitReport();
     end;
 
     trigger OnPostReport()
     begin
-        if LogInteraction and not IsReportInPreviewMode then
+        if LogInteraction and not IsReportInPreviewMode() then
             if "Purch. Inv. Header".FindSet() then
                 repeat
                     SegManagement.LogDocument(14, "Purch. Inv. Header"."No.", 0, 0, DATABASE::Vendor, "Purch. Inv. Header"."Buy-from Vendor No.",
@@ -870,17 +901,15 @@ report 406 "Purchase - Invoice"
     trigger OnPreReport()
     begin
         if not CurrReport.UseRequestPage then
-            InitLogInteraction;
+            InitLogInteraction();
     end;
 
     var
-        Text004: Label 'Purchase - Invoice %1', Comment = '%1 = Document No.';
         GLSetup: Record "General Ledger Setup";
         CompanyInfo: Record "Company Information";
         ShipmentMethod: Record "Shipment Method";
         PaymentTerms: Record "Payment Terms";
         SalesPurchPerson: Record "Salesperson/Purchaser";
-        VATAmountLine: Record "VAT Amount Line" temporary;
         DimSetEntry1: Record "Dimension Set Entry";
         DimSetEntry2: Record "Dimension Set Entry";
         RespCenter: Record "Responsibility Center";
@@ -893,8 +922,9 @@ report 406 "Purchase - Invoice"
         SegManagement: Codeunit SegManagement;
         VendAddr: array[8] of Text[100];
         ShipToAddr: array[8] of Text[100];
+        RemitToAddress: array[8] of Text[100];
         CompanyAddr: array[8] of Text[100];
-        PurchaserText: Text[30];
+        PurchaserText: Text[50];
         VATNoText: Text[80];
         ReferenceText: Text[80];
         OrderNoText: Text[80];
@@ -914,17 +944,11 @@ report 406 "Purchase - Invoice"
         VALVATAmountLCY: Decimal;
         VALSpecLCYHeader: Text[80];
         VALExchRate: Text[50];
-        Text007: Label 'VAT Amount Specification in ';
-        Text008: Label 'Local Currency';
-        Text009: Label 'Exchange rate: %1/%2';
         CalculatedExchRate: Decimal;
-        Text010: Label 'Purchase - Prepayment Invoice %1', Comment = '%1 = Document No.';
         OutputNo: Integer;
         PricesInclVATtxt: Text[30];
         AllowVATDisctxt: Text[30];
         VATAmountText: Text[30];
-        Text011: Label '%1% VAT';
-        Text012: Label 'VAT Amount';
         PurchInLineTypeNo: Integer;
         CashVATFooterText: Text[100];
         CashVATProdGrp: Code[20];
@@ -937,7 +961,17 @@ report 406 "Purchase - Invoice"
         TotalAmountVAT: Decimal;
         TotalInvoiceDiscountAmount: Decimal;
         TotalPaymentDiscountOnVAT: Decimal;
+
+        Text004: Label 'Purchase - Invoice %1', Comment = '%1 = Document No.';
+        Text007: Label 'VAT Amount Specification in ';
+        Text008: Label 'Local Currency';
+        Text009: Label 'Exchange rate: %1/%2';
+        Text010: Label 'Purchase - Prepayment Invoice %1', Comment = '%1 = Document No.';
+        Text011: Label '%1% VAT';
+        Text012: Label 'VAT Amount';
         CompanyInfoPhoneNoCaptionLbl: Label 'Phone No.';
+        HomePageCaptionLbl: Label 'Home Page';
+        EmailCaptionLbl: Label 'Email';
         CompanyInfVATRegNoCaptionLbl: Label 'VAT Registration No.';
         CompanyInfoGiroNoCaptionLbl: Label 'Giro No.';
         CompanyInfBankNameCaptionLbl: Label 'Bank';
@@ -946,8 +980,6 @@ report 406 "Purchase - Invoice"
         InvoiceNoCaptionLbl: Label 'Invoice No.';
         PurchInvHdrPostDtCaptionLbl: Label 'Posting Date';
         PageCaptionLbl: Label 'Page';
-        EmailCaptionLbl: Label 'Email';
-        HomePageCaptionLbl: Label 'Home Page';
         HeaderDimensionsCaptionLbl: Label 'Header Dimensions';
         DirectUnitCostCaptionLbl: Label 'Direct Unit Cost';
         PurchInvLineLinDisCaptionLbl: Label 'Discount %';
@@ -970,12 +1002,16 @@ report 406 "Purchase - Invoice"
         ShipmentMethodDescCaptionLbl: Label 'Shipment Method';
         DocumentDateCaptionLbl: Label 'Document Date';
         AllowInvoiceDisc_PurchInvLineCaptionLbl: Label 'Allow Invoice Discount';
+        RemitToAddressCaptionLbl: Label 'Remit-to Address';
         BuyFromContactPhoneNoLbl: Label 'Buy-from Contact Phone No.';
         BuyFromContactMobilePhoneNoLbl: Label 'Buy-from Contact Mobile Phone No.';
         BuyFromContactEmailLbl: Label 'Buy-from Contact E-Mail';
         PayToContactPhoneNoLbl: Label 'Pay-to Contact Phone No.';
         PayToContactMobilePhoneNoLbl: Label 'Pay-to Contact Mobile Phone No.';
         PayToContactEmailLbl: Label 'Pay-to Contact E-Mail';
+
+    protected var
+        TempVATAmountLine: Record "VAT Amount Line" temporary;
 
     local procedure DocumentCaption(): Text[250]
     begin
@@ -1000,7 +1036,7 @@ report 406 "Purchase - Invoice"
     var
         MailManagement: Codeunit "Mail Management";
     begin
-        exit(CurrReport.Preview or MailManagement.IsHandlingGetEmailBody);
+        exit(CurrReport.Preview or MailManagement.IsHandlingGetEmailBody());
     end;
 
     local procedure FormatAddressFields(var PurchInvHeader: Record "Purch. Inv. Header")
@@ -1008,6 +1044,7 @@ report 406 "Purchase - Invoice"
         FormatAddr.GetCompanyAddr(PurchInvHeader."Responsibility Center", RespCenter, CompanyInfo, CompanyAddr);
         FormatAddr.PurchInvPayTo(VendAddr, PurchInvHeader);
         FormatAddr.PurchInvShipTo(ShipToAddr, PurchInvHeader);
+        FormatAddr.PurchInvRemitTo(RemitToAddress, PurchInvHeader);
     end;
 
     local procedure FormatDocumentFields(PurchInvHeader: Record "Purch. Inv. Header")

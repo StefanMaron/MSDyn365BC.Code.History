@@ -292,7 +292,7 @@ codeunit 144133 "ERM Dishonor"
           TempSalesLine."Sell-to Customer No.", TempSalesLine."Line Amount", GenJournalLine."Document Type"::Dishonored);
         ApplyAndPostGeneralJournalLine(
           TempSalesLine."Sell-to Customer No.", -TempSalesLine."Line Amount", GenJournalLine."Document Type"::Payment);
-        EnqueueValuesInCustomerBillListRequestPageHandler(TempSalesLine."Sell-to Customer No.", CalcDate('<CM>', WorkDate));  // Enqueue values CustomerBillListRequestPageHandler.
+        EnqueueValuesInCustomerBillListRequestPageHandler(TempSalesLine."Sell-to Customer No.", CalcDate('<CM>', WorkDate()));  // Enqueue values CustomerBillListRequestPageHandler.
 
         // Exercise: Run Customer Bills List Report.
         REPORT.Run(REPORT::"Customer Bills List");
@@ -346,7 +346,7 @@ codeunit 144133 "ERM Dishonor"
         IssueBankReceiptAfterPostingSalesInvoice(TempSalesLine, '');  // Payment Terms Code as blank.
         ApplyAndPostGeneralJournalLine(
           TempSalesLine."Sell-to Customer No.", TempSalesLine."Line Amount", GenJournalLine."Document Type"::Dishonored);
-        EnqueueValuesInCustomerBillListRequestPageHandler(TempSalesLine."Sell-to Customer No.", WorkDate);  // Enqueue values CustomerBillListRequestPageHandler.
+        EnqueueValuesInCustomerBillListRequestPageHandler(TempSalesLine."Sell-to Customer No.", WorkDate());  // Enqueue values CustomerBillListRequestPageHandler.
 
         // Exercise: Run Customer Bills List Report.
         asserterror REPORT.Run(REPORT::"Customer Bills List");
@@ -587,7 +587,7 @@ codeunit 144133 "ERM Dishonor"
     begin
         LibraryERM.FindCustomerLedgerEntry(
           CustLedgerEntry, CustLedgerEntry."Document Type"::Payment, CreateAndPostGeneralJournalLine(CustomerNo));
-        PostCustomerApplicationEntry(CustLedgerEntry, DocumentNo, CalcDate('<1M>', WorkDate));
+        PostCustomerApplicationEntry(CustLedgerEntry, DocumentNo, CalcDate('<1M>', WorkDate()));
     end;
 
     local procedure CopySalesLineToTempSalesLine(var TempSalesLine: Record "Sales Line" temporary; SalesLine: Record "Sales Line")
@@ -649,7 +649,7 @@ codeunit 144133 "ERM Dishonor"
         CreateGeneralJournalLine(
           GenJournalLine, CustomerNo, -LibraryRandom.RandDec(10, 2),
           GenJournalLine."Account Type"::Customer, GenJournalLine."Document Type"::Payment);  // Use Random value for Amount.
-        GenJournalLine.Validate("Posting Date", CalcDate('<1D>', WorkDate));
+        GenJournalLine.Validate("Posting Date", CalcDate('<1D>', WorkDate()));
         GenJournalLine.Modify(true);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         exit(GenJournalLine."Document No.");
@@ -881,7 +881,7 @@ codeunit 144133 "ERM Dishonor"
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
         FindCustomerLedgerEntry(CustLedgerEntry, CustomerNo, CustLedgerEntry."Document Type"::Payment);
-        PostCustomerApplicationEntry(CustLedgerEntry, DocumentNo, WorkDate);
+        PostCustomerApplicationEntry(CustLedgerEntry, DocumentNo, WorkDate());
     end;
 
     local procedure PostVendorBillAfterPostingPurchaseInvoice(var TempPurchaseLine: Record "Purchase Line" temporary) DocumentNo: Code[20]
@@ -940,7 +940,7 @@ codeunit 144133 "ERM Dishonor"
         RecRef: RecordRef;
     begin
         with CustLedgerEntry do begin
-            Init;
+            Init();
             RecRef.GetTable(CustLedgerEntry);
             "Entry No." := LibraryUtility.GetNewLineNo(RecRef, FieldNo("Entry No."));
             "Document Type" := "Document Type"::Dishonored;
@@ -949,18 +949,18 @@ codeunit 144133 "ERM Dishonor"
             "Document Occurrence" := LibraryRandom.RandInt(10);
             "Customer No." := LibrarySales.CreateCustomerNo();
             Open := true;
-            Insert;
+            Insert();
         end;
     end;
 
     local procedure MockDtldCustLedgEntry(var DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; CustLedgerEntryNo: Integer; BankReceiptIssued: Boolean)
     begin
         with DtldCustLedgEntry do begin
-            Init;
+            Init();
             "Cust. Ledger Entry No." := CustLedgerEntryNo;
             "Entry Type" := "Entry Type"::"Initial Entry";
             "Bank Receipt Issued" := BankReceiptIssued;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -1033,7 +1033,7 @@ codeunit 144133 "ERM Dishonor"
         CustLedgerEntry.CalcFields(Amount);
         Assert.AreNearlyEqual(
           Amount, CustLedgerEntry.Amount, LibraryERM.GetAmountRoundingPrecision,
-          StrSubstNo(AmountErr, CustLedgerEntry.FieldCaption(Amount), Amount, CustLedgerEntry.TableCaption));
+          StrSubstNo(AmountErr, CustLedgerEntry.FieldCaption(Amount), Amount, CustLedgerEntry.TableCaption()));
         CustLedgerEntry.TestField(Open, true);
     end;
 
@@ -1045,7 +1045,7 @@ codeunit 144133 "ERM Dishonor"
         VendorLedgerEntry.CalcFields(Amount);
         Assert.AreNearlyEqual(
           Amount, VendorLedgerEntry.Amount, LibraryERM.GetAmountRoundingPrecision,
-          StrSubstNo(AmountErr, VendorLedgerEntry.FieldCaption(Amount), Amount, VendorLedgerEntry.TableCaption));
+          StrSubstNo(AmountErr, VendorLedgerEntry.FieldCaption(Amount), Amount, VendorLedgerEntry.TableCaption()));
         VendorLedgerEntry.TestField(Open, false);
     end;
 
@@ -1058,7 +1058,7 @@ codeunit 144133 "ERM Dishonor"
         CustomerEntryStatistics.AvgCollectionPeriodDays_ThisYear.AssertEquals(0);
         CustomerEntryStatistics.AvgCollectionPeriodDays_ThisPeriod.AssertEquals(0);
         CustomerEntryStatistics.AvgCollectionPeriodDays_LastYear.AssertEquals(0);
-        CustomerEntryStatistics.Close;
+        CustomerEntryStatistics.Close();
     end;
 
     local procedure VerifyCustomerLedgerEntry(CustomerNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; Open: Boolean; DocumentTypeToClose: Option; DocumentNoToClose: Code[20])

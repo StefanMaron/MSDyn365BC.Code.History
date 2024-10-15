@@ -17,7 +17,7 @@ page 12116 "Intrastat Jnl. Lines"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the line type.';
                 }
-                field("Reference Period"; "Reference Period")
+                field("Reference Period"; Rec."Reference Period")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the reference period.';
@@ -27,13 +27,13 @@ page 12116 "Intrastat Jnl. Lines"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date of the transaction.';
                 }
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a identification number that refers to the source document.';
                 }
 #if not CLEAN18
-                field("VAT Registration No."; "VAT Registration No.")
+                field("VAT Registration No."; Rec."VAT Registration No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies VAT registration number that is associated with the Intrastat journal.';
@@ -45,7 +45,7 @@ page 12116 "Intrastat Jnl. Lines"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the counter party''s VAT number.';
                 }
-                field("Item No."; "Item No.")
+                field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the item number that is assigned to the item in inventory.';
@@ -55,62 +55,62 @@ page 12116 "Intrastat Jnl. Lines"
                     ApplicationArea = All;
                     ToolTip = 'Specifies the name.';
                 }
-                field("Service Tariff No."; "Service Tariff No.")
+                field("Service Tariff No."; Rec."Service Tariff No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the ID of the service tariff that is associated with the Intrastat journal.';
                 }
-                field("Payment Method"; "Payment Method")
+                field("Payment Method"; Rec."Payment Method")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the payment method that is associated with the Intrastat journal.';
                 }
-                field("Custom Office No."; "Custom Office No.")
+                field("Custom Office No."; Rec."Custom Office No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the customs office that the trade of goods or services passes through.';
                 }
-                field("Corrected Intrastat Report No."; "Corrected Intrastat Report No.")
+                field("Corrected Intrastat Report No."; Rec."Corrected Intrastat Report No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the corrected Intrastat report that is associated with the Intrastat journal.';
                 }
-                field("Corrected Document No."; "Corrected Document No.")
+                field("Corrected Document No."; Rec."Corrected Document No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the document number of the corrected Intrastat journal entry.';
                 }
-                field("Tariff No."; "Tariff No.")
+                field("Tariff No."; Rec."Tariff No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number.';
                 }
-                field("Item Description"; "Item Description")
+                field("Item Description"; Rec."Item Description")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the description.';
                 }
-                field("Country/Region Code"; "Country/Region Code")
+                field("Country/Region Code"; Rec."Country/Region Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the country or region.';
                 }
-                field("Transaction Type"; "Transaction Type")
+                field("Transaction Type"; Rec."Transaction Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the type of transaction that is the source of the entry.';
                 }
-                field("Transport Method"; "Transport Method")
+                field("Transport Method"; Rec."Transport Method")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code for the transport method used for the item on this line.';
                 }
-                field("Entry/Exit Point"; "Entry/Exit Point")
+                field("Entry/Exit Point"; Rec."Entry/Exit Point")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the point of entry or exit.';
                 }
-                field("Group Code"; "Group Code")
+                field("Group Code"; Rec."Group Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the group code that corresponds with the Intrastat journal.';
@@ -120,7 +120,7 @@ page 12116 "Intrastat Jnl. Lines"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the area that the transaction takes place in.';
                 }
-                field("Supplementary Units"; "Supplementary Units")
+                field("Supplementary Units"; Rec."Supplementary Units")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if you must report information about quantity and units of measure for this item.';
@@ -130,22 +130,22 @@ page 12116 "Intrastat Jnl. Lines"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the quantity.';
                 }
-                field("Net Weight"; "Net Weight")
+                field("Net Weight"; Rec."Net Weight")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the net weight of the item.';
                 }
-                field("Currency Code"; "Currency Code")
+                field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the currency code that is associated with the Intrastat journal entry.';
                 }
-                field("Total Weight"; "Total Weight")
+                field("Total Weight"; Rec."Total Weight")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the weight of items on the journal line based on the quantity and the net weight.';
                 }
-                field("Source Currency Amount"; "Source Currency Amount")
+                field("Source Currency Amount"; Rec."Source Currency Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount in the currency of the source of the transaction.';
@@ -155,32 +155,32 @@ page 12116 "Intrastat Jnl. Lines"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the line amount.';
                 }
-                field("Statistical Value"; "Statistical Value")
+                field("Statistical Value"; Rec."Statistical Value")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a value that is calculated based on the amount on the journal line.';
                 }
-                field("Source Type"; "Source Type")
+                field("Source Type"; Rec."Source Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the type of the original ledger entry.';
                 }
-                field("Source Entry No."; "Source Entry No.")
+                field("Source Entry No."; Rec."Source Entry No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the original ledger entry.';
                 }
-                field("Cost Regulation %"; "Cost Regulation %")
+                field("Cost Regulation %"; Rec."Cost Regulation %")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the regulation percent.';
                 }
-                field("Indirect Cost"; "Indirect Cost")
+                field("Indirect Cost"; Rec."Indirect Cost")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the indirect cost amount.';
                 }
-                field("Internal Ref. No."; "Internal Ref. No.")
+                field("Internal Ref. No."; Rec."Internal Ref. No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the internal reference document.';

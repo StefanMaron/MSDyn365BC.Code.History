@@ -217,8 +217,8 @@ codeunit 144206 "Self-Billing Documents"
         // [THEN] A Sales VAT Entry exists on Self-Billing Documents page with Amount = 100
         repeat
             SelfBillingDocuments.Amount.AssertEquals(VATEntry.Amount);
-            SelfBillingDocuments.Next;
-        until VATEntry.Next = 0;
+            SelfBillingDocuments.Next();
+        until VATEntry.Next() = 0;
 
         LibraryVariableStorage.AssertEmpty;
     end;
@@ -489,7 +489,7 @@ codeunit 144206 "Self-Billing Documents"
         SelfBillingDocuments."Fattura Document Type".SetValue(FatturaDocType);
 
         // [THEN] "Fattura Document Type" is "X" in the posted VAT Entry
-        VATEntry.Find;
+        VATEntry.Find();
         VATEntry.TestField("Fattura Document Type", FatturaDocType);
 
         LibraryApplicationArea.DisableApplicationAreaSetup;
@@ -696,7 +696,7 @@ codeunit 144206 "Self-Billing Documents"
     local procedure AssertElementValue(var TempXMLBuffer: Record "XML Buffer" temporary; ElementName: Text; ElementValue: Text)
     begin
         FindNextElement(TempXMLBuffer);
-        Assert.AreEqual(ElementName, TempXMLBuffer.GetElementName,
+        Assert.AreEqual(ElementName, TempXMLBuffer.GetElementName(),
           StrSubstNo(UnexpectedElementNameErr, ElementName, TempXMLBuffer.GetElementName));
         Assert.AreEqual(ElementValue, TempXMLBuffer.Value,
           StrSubstNo(UnexpectedElementValueErr, ElementName, ElementValue, TempXMLBuffer.Value));
@@ -707,14 +707,14 @@ codeunit 144206 "Self-Billing Documents"
         if TempXMLBuffer.HasChildNodes then
             TempXMLBuffer.FindChildElements(TempXMLBuffer)
         else
-            if not (TempXMLBuffer.Next > 0) then begin
+            if not (TempXMLBuffer.Next() > 0) then begin
                 TempXMLBuffer.GetParent;
                 TempXMLBuffer.SetRange("Parent Entry No.", TempXMLBuffer."Parent Entry No.");
-                if not (TempXMLBuffer.Next > 0) then
+                if not (TempXMLBuffer.Next() > 0) then
                     repeat
                         TempXMLBuffer.GetParent;
                         TempXMLBuffer.SetRange("Parent Entry No.", TempXMLBuffer."Parent Entry No.");
-                    until (TempXMLBuffer.Next > 0);
+                    until (TempXMLBuffer.Next() > 0);
             end;
     end;
 
@@ -762,7 +762,7 @@ codeunit 144206 "Self-Billing Documents"
         repeat
             i += 1;
             VerifyDocLine(TempXMLBuffer, TempVATEntry, i);
-        until TempVATEntry.Next = 0;
+        until TempVATEntry.Next() = 0;
     end;
 
     local procedure VerifyMultipleSelfBillingDocuments(var TempVATEntry: Record "VAT Entry" temporary; ZipClientFileName: Text[250]; TempBlob: Codeunit "Temp Blob"; ProgressiveNo: array[2] of Code[20])
@@ -822,7 +822,7 @@ codeunit 144206 "Self-Billing Documents"
         AssertElementValue(TempXMLBuffer, 'IdCodice', CompanyInformation."VAT Registration No.");
         TempXMLBuffer.Reset();
         AssertElementValue(TempXMLBuffer, 'CodiceFiscale', CompanyInformation."Fiscal Code");
-        TempXMLBuffer.Next;
+        TempXMLBuffer.Next();
         AssertElementValue(TempXMLBuffer, 'Denominazione', CompanyInformation.Name);
         AssertElementValue(TempXMLBuffer, 'RegimeFiscale', 'RF' + CompanyInformation."Company Type");
 

@@ -85,7 +85,7 @@ codeunit 144106 "Miscellaneous Bugs IT"
         // Verify.
         VendorBillCard.VendorBillLines."Vendor Bank Acc. No.".AssertEquals(VendorBankAccount.Code);
         VendorBillCard.VendorBillLines."Document Type".AssertEquals('Invoice');
-        VendorBillCard.Close;
+        VendorBillCard.Close();
     end;
 
     [Test]
@@ -225,7 +225,7 @@ codeunit 144106 "Miscellaneous Bugs IT"
         PostedTransferShipment."Gross Weight".AssertEquals(TransferHeader."Gross Weight");
         PostedTransferShipment."Net Weight".AssertEquals(TransferHeader."Net Weight");
         PostedTransferShipment."Parcel Units".AssertEquals(TransferHeader."Parcel Units");
-        PostedTransferShipment.Close;
+        PostedTransferShipment.Close();
     end;
 
     [Test]
@@ -401,7 +401,7 @@ codeunit 144106 "Miscellaneous Bugs IT"
         IntrastatJnlBatch.Validate(Periodicity, IntrastatJnlBatch.Periodicity::Month);
         IntrastatJnlBatch.Validate("EU Service", true);
         IntrastatJnlBatch.Validate("Corrective Entry", false);
-        IntrastatJnlBatch.Validate("Statistics Period", Format(WorkDate, 0, LibraryFiscalYear.GetStatisticsPeriod));
+        IntrastatJnlBatch.Validate("Statistics Period", Format(WorkDate(), 0, LibraryFiscalYear.GetStatisticsPeriod));
         IntrastatJnlBatch.Modify(true);
         exit(IntrastatJnlBatch.Name);
     end;
@@ -455,7 +455,7 @@ codeunit 144106 "Miscellaneous Bugs IT"
         TransportMethod.FindFirst();
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, VendorNo);
         PurchaseHeader.Validate("Location Code", LocationCode);
-        PurchaseHeader.Validate("Prepayment Due Date", WorkDate);
+        PurchaseHeader.Validate("Prepayment Due Date", WorkDate());
         PurchaseHeader.Validate("Prepayment %", PrepaymentPercent);
         PurchaseHeader.Validate("Payment Method Code", CreatePaymentMethod);
         PurchaseHeader.Validate("Service Tariff No.", ServiceTariffNumber."No.");
@@ -529,7 +529,7 @@ codeunit 144106 "Miscellaneous Bugs IT"
         LibraryITLocalization.CreateVendorBillHeader(VendorBillHeader);
         VendorBillHeader.Validate("Bank Account No.", BankAccount."No.");
         VendorBillHeader.Validate("Payment Method Code", CreatePaymentMethod);
-        VendorBillHeader.Validate("Posting Date", WorkDate);
+        VendorBillHeader.Validate("Posting Date", WorkDate());
         VendorBillHeader.Modify(true);
     end;
 
@@ -656,8 +656,8 @@ codeunit 144106 "Miscellaneous Bugs IT"
     [Scope('OnPrem')]
     procedure GetItemLedgerEntriesRequestPageHandler(var GetItemLedgerEntries: TestRequestPage "Get Item Ledger Entries")
     begin
-        GetItemLedgerEntries.StartingDate.SetValue(WorkDate);
-        GetItemLedgerEntries.EndingDate.SetValue(WorkDate);
+        GetItemLedgerEntries.StartingDate.SetValue(WorkDate());
+        GetItemLedgerEntries.EndingDate.SetValue(WorkDate());
         GetItemLedgerEntries.OK.Invoke;
     end;
 
@@ -670,8 +670,8 @@ codeunit 144106 "Miscellaneous Bugs IT"
     begin
         LibraryVariableStorage.Dequeue(RegisterCompanyNo);
         LibraryVariableStorage.Dequeue(FiscalCode);
-        GLBookPrint.StartingDate.SetValue(WorkDate);
-        GLBookPrint.EndingDate.SetValue(WorkDate);
+        GLBookPrint.StartingDate.SetValue(WorkDate());
+        GLBookPrint.EndingDate.SetValue(WorkDate());
         GLBookPrint.RegisterCompanyNo.SetValue(RegisterCompanyNo);
         GLBookPrint.FiscalCode.SetValue(FiscalCode);
         GLBookPrint.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
@@ -688,7 +688,7 @@ codeunit 144106 "Miscellaneous Bugs IT"
         LibraryVariableStorage.Dequeue(VendorBankAccount);
         ManualVendorPaymentLine.VendorNo.SetValue(VendorNo);
         ManualVendorPaymentLine.DocumentNo.SetValue(LibraryUtility.GenerateGUID());
-        ManualVendorPaymentLine.DocumentDate.SetValue(WorkDate);
+        ManualVendorPaymentLine.DocumentDate.SetValue(WorkDate());
         ManualVendorPaymentLine.TotalAmount.SetValue(LibraryRandom.RandDec(100, 2));
         ManualVendorPaymentLine.VendorBankAccount.SetValue(VendorBankAccount);
         ManualVendorPaymentLine.InsertLine.Invoke;
@@ -709,8 +709,8 @@ codeunit 144106 "Miscellaneous Bugs IT"
         NoSeries.SetRange(Code, OperationType);
         NoSeries.FindFirst();
         VATRegisterPrint.VATRegister.SetValue(NoSeries."VAT Register");
-        VATRegisterPrint.PeriodStartingDate.SetValue(WorkDate);
-        VATRegisterPrint.PeriodEndingDate.SetValue(WorkDate);
+        VATRegisterPrint.PeriodStartingDate.SetValue(WorkDate());
+        VATRegisterPrint.PeriodEndingDate.SetValue(WorkDate());
         VATRegisterPrint.RegisterCompanyNo.SetValue(RegisterCompanyNo);
         VATRegisterPrint.FiscalCode.SetValue(FiscalCode);
         VATRegisterPrint.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);

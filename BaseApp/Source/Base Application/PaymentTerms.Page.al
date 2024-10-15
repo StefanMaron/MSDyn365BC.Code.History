@@ -19,7 +19,7 @@ page 4 "Payment Terms"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a code to identify this set of payment terms.';
                 }
-                field("Payment Nos."; "Payment Nos.")
+                field("Payment Nos."; Rec."Payment Nos.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of installments allowed for this payment term.';
@@ -29,12 +29,12 @@ page 4 "Payment Terms"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies an explanation of the payment terms.';
                 }
-                field("Fattura Payment Terms Code"; "Fattura Payment Terms Code")
+                field("Fattura Payment Terms Code"; Rec."Fattura Payment Terms Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the payment terms for Fattura payments.';
                 }
-                field("Coupled to CRM"; "Coupled to CRM")
+                field("Coupled to CRM"; Rec."Coupled to CRM")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies that the payment term is coupled to a payment term in Dataverse.';
@@ -66,8 +66,6 @@ page 4 "Payment Terms"
                 ApplicationArea = Basic, Suite;
                 Caption = '&Calculation';
                 Image = Calculate;
-                Promoted = true;
-                PromotedCategory = Process;
                 RunObject = Page "Payment Terms Lines";
                 RunPageLink = Type = CONST("Payment Terms"),
                               Code = FIELD(Code);
@@ -78,8 +76,6 @@ page 4 "Payment Terms"
                 ApplicationArea = Basic, Suite;
                 Caption = 'T&ranslation';
                 Image = Translation;
-                Promoted = true;
-                PromotedCategory = Process;
                 RunObject = Page "Payment Term Translations";
                 RunPageLink = "Payment Term" = FIELD(Code);
                 ToolTip = 'View or edit descriptions for each payment method in different languages.';
@@ -184,8 +180,54 @@ page 4 "Payment Terms"
                 }
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+            }
+            group(Category_Payment_Terms)
+            {
+                Caption = 'Payment Terms';
+
+                actionref("&Calculation_Promoted"; "&Calculation")
+                {
+                }
+                actionref("T&ranslation_Promoted"; "T&ranslation")
+                {
+                }
+            }
+            group(Category_Synchronize)
+            {
+                Caption = 'Synchronize';
+                Visible = CDSIntegrationEnabled;
+
+                group(Category_Coupling)
+                {
+                    Caption = 'Coupling';
+                    ShowAs = SplitButton;
+
+                    actionref(ManageCRMCoupling_Promoted; ManageCRMCoupling)
+                    {
+                    }
+                    actionref(DeleteCRMCoupling_Promoted; DeleteCRMCoupling)
+                    {
+                    }
+                    actionref(MatchBasedCoupling_Promoted; MatchBasedCoupling)
+                    {
+                    }
+                }
+                actionref(CRMSynchronizeNow_Promoted; CRMSynchronizeNow)
+                {
+                }
+                actionref(ShowLog_Promoted; ShowLog)
+                {
+                }
+            }
+        }
     }
-     
+
     trigger OnAfterGetCurrRecord()
     var
         CRMOptionMapping: Record "CRM Option Mapping";

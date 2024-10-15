@@ -455,7 +455,7 @@ codeunit 144561 "ERM Split VAT"
         // [THEN] Inv. Discount Amount should not be changed
         // Verify using Service Statistics page handler
         LibraryVariableStorage.Enqueue(InvoiceDiscountAmount);
-        SalesHeader.CalcInvDiscForHeader;
+        SalesHeader.CalcInvDiscForHeader();
         PAGE.RunModal(PAGE::"Sales Statistics", SalesHeader);
 
         // Cleanup
@@ -494,7 +494,7 @@ codeunit 144561 "ERM Split VAT"
         // [THEN] Inv. Discount Amount should not be changed
         // Verify using Service Statistics page handler
         LibraryVariableStorage.Enqueue(InvoiceDiscountAmount);
-        ServiceHeader.CalcInvDiscForHeader;
+        ServiceHeader.CalcInvDiscForHeader();
         PAGE.RunModal(PAGE::"Service Statistics", ServiceHeader);
 
         // Cleanup
@@ -784,7 +784,7 @@ codeunit 144561 "ERM Split VAT"
 
         // [WHEN] Field "Type" is changed in Sales Line
         SalesInvoiceSubform.Type.SetValue(SalesLine.Type::"G/L Account");
-        SalesInvoiceSubform.Close;
+        SalesInvoiceSubform.Close();
         LibraryNotificationMgt.RecallNotificationsForRecord(SalesLine);
 
         // [THEN] Value Amount in Split VAT Line was changed.
@@ -814,7 +814,7 @@ codeunit 144561 "ERM Split VAT"
         // [WHEN] Field "No" is changed in Sales Line
         SalesInvoiceSubform."No.".SetValue(
           LibraryInventory.CreateItemNoWithVATProdPostingGroup(VATPostingSetup."VAT Prod. Posting Group"));
-        SalesInvoiceSubform.Close;
+        SalesInvoiceSubform.Close();
         LibraryNotificationMgt.RecallNotificationsForRecord(SalesLine);
 
         // [THEN] Value Amount in Split VAT Line was changed.
@@ -843,7 +843,7 @@ codeunit 144561 "ERM Split VAT"
 
         // [WHEN] Field "Quantity" is changed in Sales Line
         SalesInvoiceSubform.Quantity.SetValue(SalesLine.Quantity * 2);
-        SalesInvoiceSubform.Close;
+        SalesInvoiceSubform.Close();
         LibraryNotificationMgt.RecallNotificationsForRecord(SalesLine);
 
         // [THEN] Value Amount in Split VAT Line was changed.
@@ -874,7 +874,7 @@ codeunit 144561 "ERM Split VAT"
         // [WHEN] Field "Unit of Measure Code" is changed in Sales Line
         LibraryInventory.CreateItemUnitOfMeasureCode(ItemUOM, SalesLine."No.", 2);
         SalesInvoiceSubform."Unit of Measure Code".SetValue(ItemUOM.Code);
-        SalesInvoiceSubform.Close;
+        SalesInvoiceSubform.Close();
         LibraryNotificationMgt.RecallNotificationsForRecord(SalesLine);
 
         // [THEN] Value Amount in Split VAT Line was changed.
@@ -903,7 +903,7 @@ codeunit 144561 "ERM Split VAT"
 
         // [WHEN] Field "Unit Price" is changed in Sales Line
         SalesInvoiceSubform."Unit Price".SetValue(SalesLine."Unit Price" * 2);
-        SalesInvoiceSubform.Close;
+        SalesInvoiceSubform.Close();
         LibraryNotificationMgt.RecallNotificationsForRecord(SalesLine);
 
         // [THEN] Value Amount in Split VAT Line was changed.
@@ -932,7 +932,7 @@ codeunit 144561 "ERM Split VAT"
 
         // [WHEN] Field "Line Discount %" is changed in Sales Line
         SalesInvoiceSubform."Line Discount %".SetValue(LibraryRandom.RandIntInRange(10, 20));
-        SalesInvoiceSubform.Close;
+        SalesInvoiceSubform.Close();
         LibraryNotificationMgt.RecallNotificationsForRecord(SalesLine);
 
         // [THEN] Value Amount in Split VAT Line was changed.
@@ -961,7 +961,7 @@ codeunit 144561 "ERM Split VAT"
 
         // [WHEN] Field "Line Amount" is changed in Sales Line
         SalesInvoiceSubform."Line Amount".SetValue(LibraryRandom.RandIntInRange(10, 20));
-        SalesInvoiceSubform.Close;
+        SalesInvoiceSubform.Close();
         LibraryNotificationMgt.RecallNotificationsForRecord(SalesLine);
 
         // [THEN] Value Amount in Split VAT Line was changed.
@@ -990,7 +990,7 @@ codeunit 144561 "ERM Split VAT"
 
         // [WHEN] Field "Type" is changed in Sales Line
         SalesCrMemoSubform.Type.SetValue(SalesLine.Type::"G/L Account");
-        SalesCrMemoSubform.Close;
+        SalesCrMemoSubform.Close();
         LibraryNotificationMgt.RecallNotificationsForRecord(SalesLine);
 
         // [THEN] Value Amount in Split VAT Line was changed.
@@ -1020,7 +1020,7 @@ codeunit 144561 "ERM Split VAT"
         // [WHEN] Field "No" is changed in Sales Line
         SalesCrMemoSubform."No.".SetValue(
           LibraryInventory.CreateItemNoWithVATProdPostingGroup(VATPostingSetup."VAT Prod. Posting Group"));
-        SalesCrMemoSubform.Close;
+        SalesCrMemoSubform.Close();
         LibraryNotificationMgt.RecallNotificationsForRecord(SalesLine);
 
         // [THEN] Value Amount in Split VAT Line was changed.
@@ -1049,7 +1049,7 @@ codeunit 144561 "ERM Split VAT"
 
         // [WHEN] Field "Quantity" is changed in Sales Line
         SalesCrMemoSubform.Quantity.SetValue(SalesLine.Quantity * 2);
-        SalesCrMemoSubform.Close;
+        SalesCrMemoSubform.Close();
         LibraryNotificationMgt.RecallNotificationsForRecord(SalesLine);
 
         // [THEN] Value Amount in Split VAT Line was changed.
@@ -1080,7 +1080,7 @@ codeunit 144561 "ERM Split VAT"
         // [WHEN] Field "Unit of Measure Code" is changed in Sales Line
         LibraryInventory.CreateItemUnitOfMeasureCode(ItemUOM, SalesLine."No.", 2);
         SalesCrMemoSubform."Unit of Measure Code".SetValue(ItemUOM.Code);
-        SalesCrMemoSubform.Close;
+        SalesCrMemoSubform.Close();
         LibraryNotificationMgt.RecallNotificationsForRecord(SalesLine);
 
         // [THEN] Value Amount in Split VAT Line was changed.
@@ -1109,7 +1109,7 @@ codeunit 144561 "ERM Split VAT"
 
         // [WHEN] Field "Unit Price" is changed in Sales Line
         SalesCrMemoSubform."Unit Price".SetValue(SalesLine."Unit Price" * 2);
-        SalesCrMemoSubform.Close;
+        SalesCrMemoSubform.Close();
         LibraryNotificationMgt.RecallNotificationsForRecord(SalesLine);
 
         // [THEN] Value Amount in Split VAT Line was changed.
@@ -1138,7 +1138,7 @@ codeunit 144561 "ERM Split VAT"
 
         // [WHEN] Field "Line Discount %" is changed in Sales Line
         SalesCrMemoSubform."Line Discount %".SetValue(LibraryRandom.RandIntInRange(10, 20));
-        SalesCrMemoSubform.Close;
+        SalesCrMemoSubform.Close();
         LibraryNotificationMgt.RecallNotificationsForRecord(SalesLine);
 
         // [THEN] Value Amount in Split VAT Line was changed.
@@ -1167,7 +1167,7 @@ codeunit 144561 "ERM Split VAT"
 
         // [WHEN] Field "Line Amount" is changed in Sales Line
         SalesCrMemoSubform."Line Amount".SetValue(LibraryRandom.RandIntInRange(10, 20));
-        SalesCrMemoSubform.Close;
+        SalesCrMemoSubform.Close();
         LibraryNotificationMgt.RecallNotificationsForRecord(SalesLine);
 
         // [THEN] Value Amount in Split VAT Line was changed.
@@ -1196,7 +1196,7 @@ codeunit 144561 "ERM Split VAT"
 
         // [WHEN] Field "Type" is changed in Service Line
         ServiceInvoiceSubform.Type.SetValue(ServiceLine.Type::"G/L Account");
-        ServiceInvoiceSubform.Close;
+        ServiceInvoiceSubform.Close();
         LibraryNotificationMgt.RecallNotificationsForRecord(ServiceLine);
 
         // [THEN] Value Amount in Split VAT Line was changed.
@@ -1226,7 +1226,7 @@ codeunit 144561 "ERM Split VAT"
         // [WHEN] Field "No" is changed in Service Line
         ServiceInvoiceSubform."No.".SetValue(
           LibraryInventory.CreateItemNoWithVATProdPostingGroup(VATPostingSetup."VAT Prod. Posting Group"));
-        ServiceInvoiceSubform.Close;
+        ServiceInvoiceSubform.Close();
         LibraryNotificationMgt.RecallNotificationsForRecord(ServiceLine);
 
         // [THEN] Value Amount in Split VAT Line was changed.
@@ -1255,7 +1255,7 @@ codeunit 144561 "ERM Split VAT"
 
         // [WHEN] Field "Quantity" is changed in Service Line
         ServiceInvoiceSubform.Quantity.SetValue(ServiceLine.Quantity * 2);
-        ServiceInvoiceSubform.Close;
+        ServiceInvoiceSubform.Close();
         LibraryNotificationMgt.RecallNotificationsForRecord(ServiceLine);
 
         // [THEN] Value Amount in Split VAT Line was changed.
@@ -1286,7 +1286,7 @@ codeunit 144561 "ERM Split VAT"
         // [WHEN] Field "Unit of Measure Code" is changed in Service Line
         LibraryInventory.CreateItemUnitOfMeasureCode(ItemUOM, ServiceLine."No.", 2);
         ServiceInvoiceSubform."Unit of Measure Code".SetValue(ItemUOM.Code);
-        ServiceInvoiceSubform.Close;
+        ServiceInvoiceSubform.Close();
         LibraryNotificationMgt.RecallNotificationsForRecord(ServiceLine);
 
         // [THEN] Value Amount in Split VAT Line was changed.
@@ -1315,7 +1315,7 @@ codeunit 144561 "ERM Split VAT"
 
         // [WHEN] Field "Unit Price" is changed in Service Line
         ServiceInvoiceSubform."Unit Price".SetValue(ServiceLine."Unit Price" * 2);
-        ServiceInvoiceSubform.Close;
+        ServiceInvoiceSubform.Close();
         LibraryNotificationMgt.RecallNotificationsForRecord(ServiceLine);
 
         // [THEN] Value Amount in Split VAT Line was changed.
@@ -1344,7 +1344,7 @@ codeunit 144561 "ERM Split VAT"
 
         // [WHEN] Field "Line Discount %" is changed in Service Line
         ServiceInvoiceSubform."Line Discount %".SetValue(LibraryRandom.RandIntInRange(10, 20));
-        ServiceInvoiceSubform.Close;
+        ServiceInvoiceSubform.Close();
         LibraryNotificationMgt.RecallNotificationsForRecord(ServiceLine);
 
         // [THEN] Value Amount in Split VAT Line was changed.
@@ -1373,7 +1373,7 @@ codeunit 144561 "ERM Split VAT"
 
         // [WHEN] Field "Line Amount" is changed in Service Line
         ServiceInvoiceSubform."Line Amount".SetValue(LibraryRandom.RandIntInRange(10, 20));
-        ServiceInvoiceSubform.Close;
+        ServiceInvoiceSubform.Close();
         LibraryNotificationMgt.RecallNotificationsForRecord(ServiceLine);
 
         // [THEN] Value Amount in Split VAT Line was changed.
@@ -1402,7 +1402,7 @@ codeunit 144561 "ERM Split VAT"
 
         // [WHEN] Field "Type" is changed in Service Line
         ServiceCreditMemoSubform.Type.SetValue(ServiceLine.Type::"G/L Account");
-        ServiceCreditMemoSubform.Close;
+        ServiceCreditMemoSubform.Close();
         LibraryNotificationMgt.RecallNotificationsForRecord(ServiceLine);
 
         // [THEN] Value Amount in Split VAT Line was changed.
@@ -1432,7 +1432,7 @@ codeunit 144561 "ERM Split VAT"
         // [WHEN] Field "No" is changed in Service Line
         ServiceCreditMemoSubform."No.".SetValue(
           LibraryInventory.CreateItemNoWithVATProdPostingGroup(VATPostingSetup."VAT Prod. Posting Group"));
-        ServiceCreditMemoSubform.Close;
+        ServiceCreditMemoSubform.Close();
         LibraryNotificationMgt.RecallNotificationsForRecord(ServiceLine);
 
         // [THEN] Value Amount in Split VAT Line was changed.
@@ -1461,7 +1461,7 @@ codeunit 144561 "ERM Split VAT"
 
         // [WHEN] Field "Quantity" is changed in Service Line
         ServiceCreditMemoSubform.Quantity.SetValue(ServiceLine.Quantity * 2);
-        ServiceCreditMemoSubform.Close;
+        ServiceCreditMemoSubform.Close();
         LibraryNotificationMgt.RecallNotificationsForRecord(ServiceLine);
 
         // [THEN] Value Amount in Split VAT Line was changed.
@@ -1492,7 +1492,7 @@ codeunit 144561 "ERM Split VAT"
         // [WHEN] Field "Unit of Measure Code" is changed in Service Line
         LibraryInventory.CreateItemUnitOfMeasureCode(ItemUOM, ServiceLine."No.", 2);
         ServiceCreditMemoSubform."Unit of Measure Code".SetValue(ItemUOM.Code);
-        ServiceCreditMemoSubform.Close;
+        ServiceCreditMemoSubform.Close();
         LibraryNotificationMgt.RecallNotificationsForRecord(ServiceLine);
 
         // [THEN] Value Amount in Split VAT Line was changed.
@@ -1521,7 +1521,7 @@ codeunit 144561 "ERM Split VAT"
 
         // [WHEN] Field "Unit Price" is changed in Service Line
         ServiceCreditMemoSubform."Unit Price".SetValue(ServiceLine."Unit Price" * 2);
-        ServiceCreditMemoSubform.Close;
+        ServiceCreditMemoSubform.Close();
         LibraryNotificationMgt.RecallNotificationsForRecord(ServiceLine);
 
         // [THEN] Value Amount in Split VAT Line was changed.
@@ -1550,7 +1550,7 @@ codeunit 144561 "ERM Split VAT"
 
         // [WHEN] Field "Line Discount %" is changed in Service Line
         ServiceCreditMemoSubform."Line Discount %".SetValue(LibraryRandom.RandIntInRange(10, 20));
-        ServiceCreditMemoSubform.Close;
+        ServiceCreditMemoSubform.Close();
         LibraryNotificationMgt.RecallNotificationsForRecord(ServiceLine);
 
         // [THEN] Value Amount in Split VAT Line was changed.
@@ -1579,7 +1579,7 @@ codeunit 144561 "ERM Split VAT"
 
         // [WHEN] Field "Line Amount" is changed in Service Line
         ServiceCreditMemoSubform."Line Amount".SetValue(LibraryRandom.RandIntInRange(10, 20));
-        ServiceCreditMemoSubform.Close;
+        ServiceCreditMemoSubform.Close();
         LibraryNotificationMgt.RecallNotificationsForRecord(ServiceLine);
 
         // [THEN] Value Amount in Split VAT Line was changed.
@@ -1709,7 +1709,7 @@ codeunit 144561 "ERM Split VAT"
         if SplitVATTest.FindSet() then
             repeat
                 LibrarySplitVAT.AddSalesLine(SalesHeader, SplitVATTest."VAT Prod. Post Group", SplitVATTest."Amount Excl. VAT");
-            until SplitVATTest.Next = 0;
+            until SplitVATTest.Next() = 0;
     end;
 
     local procedure CreateCustomerWithInvoiceDiscount(VATBusPostingGroupCode: Code[20]): Code[20]
@@ -1794,8 +1794,8 @@ codeunit 144561 "ERM Split VAT"
     begin
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice, CustomerNo);
         LibrarySplitVAT.CreateServiceLine(ServiceLine, ServiceHeader, VATPostingSetup."VAT Prod. Posting Group");
-        ServiceHeader.CalcInvDiscForHeader;
-        ServiceLine.Find;
+        ServiceHeader.CalcInvDiscForHeader();
+        ServiceLine.Find();
         exit(ServiceLine."Inv. Discount Amount");
     end;
 
@@ -1914,10 +1914,10 @@ codeunit 144561 "ERM Split VAT"
         SalesSetup: Record "Sales & Receivables Setup";
     begin
         with SalesSetup do begin
-            Get;
+            Get();
             "Calc. Inv. Discount" := true;
             "Calc. Inv. Disc. per VAT ID" := true;
-            Modify;
+            Modify();
         end;
     end;
 

@@ -16,7 +16,7 @@ report 740 "VAT Report Print"
             column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
             {
             }
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(Hdr_ReportCaptionTxt; ReportCaptionTxt)

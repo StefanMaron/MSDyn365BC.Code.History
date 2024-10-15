@@ -36,8 +36,8 @@ codeunit 138033 "O365 Navigate"
         PostInvoice := true;
         DoNotShowPostedDocument := false;
 
-        InstructionMgt.DisableMessageForCurrentUser(InstructionMgt.QueryPostOnCloseCode);
-        InstructionMgt.DisableMessageForCurrentUser(InstructionMgt.ShowPostedConfirmationMessageCode);
+        InstructionMgt.DisableMessageForCurrentUser(InstructionMgt.QueryPostOnCloseCode());
+        InstructionMgt.DisableMessageForCurrentUser(InstructionMgt.ShowPostedConfirmationMessageCode());
 
         // Lazy Setup.
         if isInitialized then
@@ -98,11 +98,11 @@ codeunit 138033 "O365 Navigate"
         PostedSalesInvoice.Trap;
         Navigate."No. of Records".DrillDown;
         Assert.AreEqual(PostedSalesInvoice."Pre-Assigned No.".Value, PreAssignedNo, 'Wrong document was opened');
-        PostedSalesInvoice.Close;
+        PostedSalesInvoice.Close();
 
         PostedSalesInvoice.Trap;
         Navigate.Show.Invoke;
-        PostedSalesInvoice.Close;
+        PostedSalesInvoice.Close();
     end;
 
     [Test]
@@ -134,7 +134,7 @@ codeunit 138033 "O365 Navigate"
         Navigate.Find.Invoke;
 
         Assert.IsTrue(Navigate."No. of Records".AsInteger > 1, 'At least two records should be shown');
-        Navigate.Close;
+        Navigate.Close();
     end;
 
     [Test]
@@ -161,7 +161,7 @@ codeunit 138033 "O365 Navigate"
         Navigate.Find.Invoke;
         Assert.AreEqual(1, Navigate."No. of Records".AsInteger, 'There should be only one record on the first row');
 
-        Navigate.Close;
+        Navigate.Close();
     end;
 
 
@@ -189,7 +189,7 @@ codeunit 138033 "O365 Navigate"
         Navigate.Find.Invoke;
         Assert.AreEqual(1, Navigate."No. of Records".AsInteger, 'There should be only one record on the first row');
 
-        Navigate.Close;
+        Navigate.Close();
     end;
 
     [Test]
@@ -219,7 +219,7 @@ codeunit 138033 "O365 Navigate"
         Navigate.Find.Invoke;
 
         Assert.AreEqual(1, Navigate."No. of Records".AsInteger, 'There should be only one record on the first row');
-        Navigate.Close;
+        Navigate.Close();
     end;
 
     [Test]
@@ -252,9 +252,9 @@ codeunit 138033 "O365 Navigate"
 
         PostedPurchaseInvoice.Trap;
         Navigate.Show.Invoke;
-        PostedPurchaseInvoice.Close;
+        PostedPurchaseInvoice.Close();
 
-        Navigate.Close;
+        Navigate.Close();
     end;
 
     [Test]
@@ -300,7 +300,7 @@ codeunit 138033 "O365 Navigate"
 
         SalesInvoice.Trap;
         Navigate.Show.Invoke;
-        SalesInvoice.Close;
+        SalesInvoice.Close();
 
         // Test opening multiple sales invoices
         Navigate.ContactNo.SetValue(MultipleSalesInvoicesCustomer."No.");
@@ -309,7 +309,7 @@ codeunit 138033 "O365 Navigate"
 
         SalesList.Trap;
         Navigate.Show.Invoke;
-        SalesList.Close;
+        SalesList.Close();
 
         // Test opening one credit memo
         Navigate.ContactNo.SetValue(OneCreditMemoCustomer."No.");
@@ -319,7 +319,7 @@ codeunit 138033 "O365 Navigate"
 
         SalesCreditMemo.Trap;
         Navigate.Show.Invoke;
-        SalesCreditMemo.Close;
+        SalesCreditMemo.Close();
 
         // Test opening multiple sales credit memos
         Navigate.ContactNo.SetValue(MultipleCreditMemoCustomer."No.");
@@ -328,9 +328,9 @@ codeunit 138033 "O365 Navigate"
 
         SalesList.Trap;
         Navigate.Show.Invoke;
-        SalesList.Close;
+        SalesList.Close();
 
-        Navigate.Close;
+        Navigate.Close();
     end;
 
     local procedure PostSalesInvoice(var SalesInvoiceNo: Code[20])
@@ -362,7 +362,7 @@ codeunit 138033 "O365 Navigate"
         PostedSalesInvoice.Trap;
         LibrarySales.EnableConfirmOnPostingDoc;
         SalesInvoice.Post.Invoke;
-        PostedSalesInvoice.Close;
+        PostedSalesInvoice.Close();
     end;
 
     local procedure PostPurchaseInvoice(var PurchaseInvoiceNo: Code[20])
@@ -408,7 +408,7 @@ codeunit 138033 "O365 Navigate"
         SalesInvoice.SalesLines.Quantity.SetValue(LibraryRandom.RandIntInRange(1, 20));
         SalesInvoice.SalesLines.New;
 
-        SalesInvoice.Close;
+        SalesInvoice.Close();
     end;
 
     local procedure CreateCreditMemo(Customer: Record Customer)
@@ -425,7 +425,7 @@ codeunit 138033 "O365 Navigate"
         SalesCreditMemo.SalesLines.Quantity.SetValue(LibraryRandom.RandIntInRange(1, 20));
         SalesCreditMemo.SalesLines.New;
 
-        SalesCreditMemo.Close;
+        SalesCreditMemo.Close();
     end;
 
     local procedure FindSalesHeader(Customer: Record Customer; var SalesHeader: Record "Sales Header")

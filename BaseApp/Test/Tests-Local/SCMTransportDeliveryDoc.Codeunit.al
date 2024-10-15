@@ -327,7 +327,7 @@ codeunit 144101 "SCM Transport Delivery Doc"
 
         // Exercise and Verify.
         RunMiscellaneousReportsAndVerifyError(
-          REPORT::"Sales - Shipment", StrSubstNo(ThirdPartyLoaderNoErr, SalesShipmentHeader.TableCaption, SalesShipmentHeader."No."));
+          REPORT::"Sales - Shipment", StrSubstNo(ThirdPartyLoaderNoErr, SalesShipmentHeader.TableCaption(), SalesShipmentHeader."No."));
     end;
 
     [Test]
@@ -372,7 +372,7 @@ codeunit 144101 "SCM Transport Delivery Doc"
         // Exercise and Verify.
         RunMiscellaneousReportsAndVerifyError(
           REPORT::"Purchase - Return Shipment", StrSubstNo(
-            ThirdPartyLoaderNoErr, ReturnShipmentHeader.TableCaption, ReturnShipmentHeader."No."));
+            ThirdPartyLoaderNoErr, ReturnShipmentHeader.TableCaption(), ReturnShipmentHeader."No."));
     end;
 
     [Test]
@@ -393,7 +393,7 @@ codeunit 144101 "SCM Transport Delivery Doc"
 
         // Exercise and Verify.
         RunMiscellaneousReportsAndVerifyError(
-          REPORT::"Service - Shipment", StrSubstNo(ThirdPartyLoaderNoErr, ServiceShipmentHeader.TableCaption, ServiceShipmentHeader."No."));
+          REPORT::"Service - Shipment", StrSubstNo(ThirdPartyLoaderNoErr, ServiceShipmentHeader.TableCaption(), ServiceShipmentHeader."No."));
     end;
 
     [Test]

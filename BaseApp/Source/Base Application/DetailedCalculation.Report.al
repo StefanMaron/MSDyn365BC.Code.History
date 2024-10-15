@@ -12,7 +12,7 @@ report 99000756 "Detailed Calculation"
         {
             DataItemTableView = SORTING("Low-Level Code");
             RequestFilterFields = "No.";
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(CalculateDate; Text000 + Format(CalculateDate))
@@ -398,7 +398,7 @@ report 99000756 "Detailed Calculation"
 
             trigger OnPreDataItem()
             begin
-                ItemFilter := Item.GetFilters;
+                ItemFilter := Item.GetFilters();
             end;
         }
     }
@@ -429,7 +429,7 @@ report 99000756 "Detailed Calculation"
 
         trigger OnOpenPage()
         begin
-            CalculateDate := WorkDate;
+            CalculateDate := WorkDate();
         end;
     }
 
@@ -443,7 +443,6 @@ report 99000756 "Detailed Calculation"
     end;
 
     var
-        Text000: Label 'As of ';
         MfgSetup: Record "Manufacturing Setup";
         CompItem: Record Item;
         ProdBOMHeader: Record "Production BOM Header";
@@ -472,6 +471,8 @@ report 99000756 "Detailed Calculation"
         OverheadRate: Decimal;
         FooterProdTotalCost: Decimal;
         FooterCostTotal: Decimal;
+
+        Text000: Label 'As of ';
         PageNoCaptionLbl: Label 'Page';
         DetailedCalculationCaptionLbl: Label 'Detailed Calculation';
         UnitCostCaptionLbl: Label 'Unit Cost';

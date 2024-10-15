@@ -117,7 +117,7 @@ codeunit 143002 "Library - VAT Utils"
         Amount: Decimal;
     begin
         // Set the amount
-        Amount := CalculateAmount(WorkDate, true, true);
+        Amount := CalculateAmount(WorkDate(), true, true);
 
         // Create Account.
         AccountNo := CreateAccount(GenPostingType, AccountType, IndividualPerson, Resident, false, UsingFiscalCode);
@@ -214,7 +214,7 @@ codeunit 143002 "Library - VAT Utils"
     procedure CreateVATReportHeader(var VATReportHeader: Record "VAT Report Header"; VATReportConfigCode: Option; VATReportType: Option; StartDate: Date; EndDate: Date)
     begin
         with VATReportHeader do begin
-            Init;
+            Init();
             "No." := LibraryUtility.GenerateGUID();
             Insert(true);
             Validate("VAT Report Config. Code", VATReportConfigCode);
@@ -330,7 +330,7 @@ codeunit 143002 "Library - VAT Utils"
             repeat
                 if VATPostingSetup."VAT %" > VATRate then
                     VATRate := VATPostingSetup."VAT %"
-            until VATPostingSetup.Next = 0;
+            until VATPostingSetup.Next() = 0;
             VATPostingSetup.SetRange("VAT %", VATRate);
             VATPostingSetup.FindFirst();
         end;
@@ -363,7 +363,7 @@ codeunit 143002 "Library - VAT Utils"
         VATPostingSetup.SetRange("VAT %", FindMaxVATRate(VATPostingSetup."VAT Calculation Type"::"Normal VAT"));
         VATPostingSetup.SetRange("Include in VAT Transac. Rep.", IncludeInVATTransacRep);
         VATPostingSetup.SetRange("Deductible %", 100);
-        exit(VATPostingSetup.FindFirst);
+        exit(VATPostingSetup.FindFirst())
     end;
 
     [Scope('OnPrem')]
@@ -393,9 +393,9 @@ codeunit 143002 "Library - VAT Utils"
     begin
         VATEntry.SetCurrentKey("Operation Occurred Date");
         VATEntry.FindLast();
-        if VATEntry."Posting Date" > WorkDate then
+        if VATEntry."Posting Date" > WorkDate() then
             exit(CalcDate('<1D>', VATEntry."Posting Date"));
-        exit(CalcDate('<1D>', WorkDate));
+        exit(CalcDate('<1D>', WorkDate()));
     end;
 
     [Scope('OnPrem')]
@@ -451,7 +451,7 @@ codeunit 143002 "Library - VAT Utils"
         CompanyInformation: Record "Company Information";
     begin
         with CompanyInformation do begin
-            Get;
+            Get();
             "Fiscal Code" := LibraryUtility.GenerateRandomCode(FieldNo("Fiscal Code"), DATABASE::"Company Information");
             "VAT Registration No." := Format(LibraryRandom.RandIntInRange(10000, 99999)) +
               Format(LibraryRandom.RandIntInRange(100000, 999999));
@@ -565,7 +565,7 @@ codeunit 143002 "Library - VAT Utils"
         // Setup.
         WorkDate(GetPostingDate);
 
-        SetupThresholdAmount(WorkDate, UseThreshold);
+        SetupThresholdAmount(WorkDate(), UseThreshold);
 
         UpdateVATPostingSetup(true);
 
@@ -574,7 +574,7 @@ codeunit 143002 "Library - VAT Utils"
 
         // Create VAT Report.
         CreateVATReport(
-          VATReportHeader, VATReportLine, VATReportHeader."VAT Report Config. Code"::"VAT Transactions Report", WorkDate, WorkDate);
+          VATReportHeader, VATReportLine, VATReportHeader."VAT Report Config. Code"::"VAT Transactions Report", WorkDate(), WorkDate());
 
         // Verify VAT Report Line.
         VerifyVATReportLine(VATReportLine);
@@ -654,7 +654,7 @@ codeunit 143002 "Library - VAT Utils"
             ModifyAll("Purch. Prepayments Account", '', true);
             ModifyAll("Include in VAT Transac. Rep.", false, true);
 
-            Reset;
+            Reset();
             SetFilter("Unrealized VAT Type", '<>%1', "Unrealized VAT Type"::" ");
             ModifyAll("Sales VAT Unreal. Account", '', true);
             ModifyAll("Purch. VAT Unreal. Account", '', true);

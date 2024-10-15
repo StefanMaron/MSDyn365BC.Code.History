@@ -11,7 +11,7 @@
             DataItemTableView = WHERE("Document Type" = FILTER(<> Quote));
             RequestFilterFields = "Document Type", "No.";
             RequestFilterHeading = 'Service Document';
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
@@ -499,7 +499,7 @@
                         column(TotalExclVATText; TotalExclVATText)
                         {
                         }
-                        column(VATAmountLine_VATAmountText; VATAmountLine.VATAmountText)
+                        column(VATAmountLine_VATAmountText; TempVATAmountLine.VATAmountText())
                         {
                         }
                         column(TempServiceLine__Line_Amount____TempServiceLine__Inv__Discount_Amount_; TempServiceLine."Line Amount" - TempServiceLine."Inv. Discount Amount")
@@ -663,7 +663,7 @@
                             if Number = 1 then
                                 TempServiceLine.Find('-')
                             else
-                                TempServiceLine.Next;
+                                TempServiceLine.Next();
                             "Service Line" := TempServiceLine;
 
                             with "Service Line" do begin
@@ -714,7 +714,7 @@
                                         CustLedgEntry.SetRange("Customer No.", "Service Header"."Bill-to Customer No.");
                                         CustLedgEntry.SetRange("Document Type", CustLedgEntry."Document Type"::Invoice);
                                         CustLedgEntry.SetRange("Document No.", "Service Header"."Applies-to Doc. No.");
-                                        if not CustLedgEntry.FindLast and not ApplNoError then begin
+                                        if not CustLedgEntry.FindLast() and not ApplNoError then begin
                                             ApplNoError := true;
                                             AddError(
                                               StrSubstNo(
@@ -727,7 +727,7 @@
                                         AddError(
                                           StrSubstNo(
                                             Text017,
-                                            VATPostingSetup.TableCaption, "VAT Bus. Posting Group", "VAT Prod. Posting Group"));
+                                            VATPostingSetup.TableCaption(), "VAT Bus. Posting Group", "VAT Prod. Posting Group"));
                                     if "Document Type" in ["Document Type"::Order, "Document Type"::Invoice, "Document Type"::"Credit Memo"] then
                                         if VATPostingSetup.IsEUService("VAT Bus. Posting Group", "VAT Prod. Posting Group") then begin
                                             if "Service Tariff No." = '' then
@@ -773,18 +773,18 @@
                                         AddError(
                                           StrSubstNo(
                                             Text017,
-                                            GenPostingSetup.TableCaption, "Gen. Bus. Posting Group", "Gen. Prod. Posting Group"));
+                                            GenPostingSetup.TableCaption(), "Gen. Bus. Posting Group", "Gen. Prod. Posting Group"));
                                     if not VATPostingSetup.Get("VAT Bus. Posting Group", "VAT Prod. Posting Group") then
                                         AddError(
                                           StrSubstNo(
                                             Text017,
-                                            VATPostingSetup.TableCaption, "VAT Bus. Posting Group", "VAT Prod. Posting Group"));
+                                            VATPostingSetup.TableCaption(), "VAT Bus. Posting Group", "VAT Prod. Posting Group"));
                                 end;
 
                                 CheckType("Service Line");
 
                                 if not DimMgt.CheckDimIDComb("Dimension Set ID") then
-                                    AddError(DimMgt.GetDimCombErr);
+                                    AddError(DimMgt.GetDimCombErr());
 
                                 if Type = Type::Cost then begin
                                     TableID[1] := DATABASE::"G/L Account";
@@ -797,7 +797,7 @@
                                 TableID[2] := DATABASE::Job;
                                 No[2] := "Job No.";
                                 if not DimMgt.CheckDimValuePosting(TableID, No, "Dimension Set ID") then
-                                    AddError(DimMgt.GetDimValuePostingErr);
+                                    AddError(DimMgt.GetDimValuePostingErr());
                                 if "Line No." > OrigMaxLineNo then begin
                                     "No." := '';
                                     Type := Type::" ";
@@ -836,79 +836,79 @@
                     dataitem(VATCounter; "Integer")
                     {
                         DataItemTableView = SORTING(Number);
-                        column(VATAmountLine__VAT_Amount_; VATAmountLine."VAT Amount")
+                        column(VATAmountLine__VAT_Amount_; TempVATAmountLine."VAT Amount")
                         {
                             AutoFormatExpression = "Service Header"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmountLine__VAT_Base_; VATAmountLine."VAT Base")
+                        column(VATAmountLine__VAT_Base_; TempVATAmountLine."VAT Base")
                         {
                             AutoFormatExpression = "Service Line"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmountLine__Invoice_Discount_Amount_; VATAmountLine."Invoice Discount Amount")
+                        column(VATAmountLine__Invoice_Discount_Amount_; TempVATAmountLine."Invoice Discount Amount")
                         {
                             AutoFormatExpression = "Service Header"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmountLine__Inv__Disc__Base_Amount_; VATAmountLine."Inv. Disc. Base Amount")
+                        column(VATAmountLine__Inv__Disc__Base_Amount_; TempVATAmountLine."Inv. Disc. Base Amount")
                         {
                             AutoFormatExpression = "Service Header"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmountLine__Line_Amount_; VATAmountLine."Line Amount")
+                        column(VATAmountLine__Line_Amount_; TempVATAmountLine."Line Amount")
                         {
                             AutoFormatExpression = "Service Header"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmountLine__VAT_Amount__Control150; VATAmountLine."VAT Amount")
+                        column(VATAmountLine__VAT_Amount__Control150; TempVATAmountLine."VAT Amount")
                         {
                             AutoFormatExpression = "Service Header"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmountLine__VAT_Base__Control151; VATAmountLine."VAT Base")
+                        column(VATAmountLine__VAT_Base__Control151; TempVATAmountLine."VAT Base")
                         {
                             AutoFormatExpression = "Service Line"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmountLine__VAT___; VATAmountLine."VAT %")
+                        column(VATAmountLine__VAT___; TempVATAmountLine."VAT %")
                         {
                             DecimalPlaces = 0 : 5;
                         }
-                        column(VATAmountLine__VAT_Identifier_; VATAmountLine."VAT Identifier")
+                        column(VATAmountLine__VAT_Identifier_; TempVATAmountLine."VAT Identifier")
                         {
                         }
-                        column(VATAmountLine__Invoice_Discount_Amount__Control173; VATAmountLine."Invoice Discount Amount")
-                        {
-                            AutoFormatExpression = "Service Header"."Currency Code";
-                            AutoFormatType = 1;
-                        }
-                        column(VATAmountLine__Inv__Disc__Base_Amount__Control171; VATAmountLine."Inv. Disc. Base Amount")
+                        column(VATAmountLine__Invoice_Discount_Amount__Control173; TempVATAmountLine."Invoice Discount Amount")
                         {
                             AutoFormatExpression = "Service Header"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmountLine__Line_Amount__Control169; VATAmountLine."Line Amount")
+                        column(VATAmountLine__Inv__Disc__Base_Amount__Control171; TempVATAmountLine."Inv. Disc. Base Amount")
                         {
                             AutoFormatExpression = "Service Header"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmountLine__VAT_Amount__Control181; VATAmountLine."VAT Amount")
+                        column(VATAmountLine__Line_Amount__Control169; TempVATAmountLine."Line Amount")
                         {
                             AutoFormatExpression = "Service Header"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmountLine__VAT_Base__Control182; VATAmountLine."VAT Base")
+                        column(VATAmountLine__VAT_Amount__Control181; TempVATAmountLine."VAT Amount")
+                        {
+                            AutoFormatExpression = "Service Header"."Currency Code";
+                            AutoFormatType = 1;
+                        }
+                        column(VATAmountLine__VAT_Base__Control182; TempVATAmountLine."VAT Base")
                         {
                             AutoFormatExpression = "Service Line"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmountLine__Invoice_Discount_Amount__Control183; VATAmountLine."Invoice Discount Amount")
+                        column(VATAmountLine__Invoice_Discount_Amount__Control183; TempVATAmountLine."Invoice Discount Amount")
                         {
                             AutoFormatExpression = "Service Header"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmountLine__Inv__Disc__Base_Amount__Control184; VATAmountLine."Inv. Disc. Base Amount")
+                        column(VATAmountLine__Inv__Disc__Base_Amount__Control184; TempVATAmountLine."Inv. Disc. Base Amount")
                         {
                             AutoFormatExpression = "Service Header"."Currency Code";
                             AutoFormatType = 1;
@@ -943,15 +943,15 @@
 
                         trigger OnAfterGetRecord()
                         begin
-                            VATAmountLine.GetLine(Number);
+                            TempVATAmountLine.GetLine(Number);
                         end;
 
                         trigger OnPreDataItem()
                         begin
-                            if VATAmountLine.Count = 0 then
+                            if TempVATAmountLine.Count = 0 then
                                 CurrReport.Break();
-                            SetRange(Number, 1, VATAmountLine.Count);
-                            CleanAmountsInVATAmountLine;
+                            SetRange(Number, 1, TempVATAmountLine.Count);
+                            CleanAmountsInVATAmountLine();
                         end;
                     }
 
@@ -959,18 +959,18 @@
                     begin
                         Clear(TempServiceLine);
                         Clear(ServAmountsMgt);
-                        VATAmountLine.DeleteAll();
+                        TempVATAmountLine.DeleteAll();
                         TempServiceLine.DeleteAll();
 
                         ServAmountsMgt.GetServiceLines("Service Header", TempServiceLine, 1);
 
                         // Ship prm added
-                        TempServiceLine.CalcVATAmountLines(0, "Service Header", TempServiceLine, VATAmountLine, Ship);
-                        TempServiceLine.UpdateVATOnLines(0, "Service Header", TempServiceLine, VATAmountLine);
-                        VATAmount := VATAmountLine.GetTotalVATAmount;
-                        VATBaseAmount := VATAmountLine.GetTotalVATBase;
+                        TempServiceLine.CalcVATAmountLines(0, "Service Header", TempServiceLine, TempVATAmountLine, Ship);
+                        TempServiceLine.UpdateVATOnLines(0, "Service Header", TempServiceLine, TempVATAmountLine);
+                        VATAmount := TempVATAmountLine.GetTotalVATAmount();
+                        VATBaseAmount := TempVATAmountLine.GetTotalVATBase();
                         VATDiscountAmount :=
-                          VATAmountLine.GetTotalVATDiscount("Service Header"."Currency Code", "Service Header"."Prices Including VAT");
+                          TempVATAmountLine.GetTotalVATDiscount("Service Header"."Currency Code", "Service Header"."Prices Including VAT");
                     end;
                 }
             }
@@ -1056,7 +1056,7 @@
                 end;
 
                 if not (Ship or Invoice) then
-                    AddError(Text012);
+                    AddError(DocumentErrorsMgt.GetNothingToPostErrorMsg());
 
                 if Invoice then
                     if not ("Document Type" = "Document Type"::"Credit Memo") then
@@ -1087,7 +1087,7 @@
                 if ServiceLine.FindFirst() then;
 
                 if not DimMgt.CheckDimIDComb("Dimension Set ID") then
-                    AddError(DimMgt.GetDimCombErr);
+                    AddError(DimMgt.GetDimCombErr());
 
                 TableID[1] := DATABASE::Customer;
                 No[1] := "Bill-to Customer No.";
@@ -1097,7 +1097,7 @@
                 No[4] := "Responsibility Center";
 
                 if not DimMgt.CheckDimValuePosting(TableID, No, "Dimension Set ID") then
-                    AddError(DimMgt.GetDimValuePostingErr);
+                    AddError(DimMgt.GetDimValuePostingErr());
 
                 FindVATExemption(VATExemption, VATExemptionCheck, true);
 
@@ -1205,34 +1205,10 @@
 
     trigger OnPreReport()
     begin
-        ServiceHeaderFilter := "Service Header".GetFilters;
+        ServiceHeaderFilter := "Service Header".GetFilters();
     end;
 
     var
-        Text000: Label 'Ship and Invoice';
-        Text001: Label 'Ship';
-        Text002: Label 'Invoice';
-        Text003: Label 'Order Posting: %1';
-        Text004: Label 'Total %1';
-        Text005: Label 'Total %1 Incl. VAT';
-        Text006: Label '%1 must be specified.';
-        Text007: Label '%1 must be %2 for %3 %4.';
-        Text008: Label '%1 %2 does not exist.';
-        Text009: Label '%1 must not be a closing date.';
-        Text012: Label 'There is nothing to post.';
-        Text014: Label 'Service Document: %1';
-        Text015: Label '%1 must be %2.';
-        Text016: Label '%1 %2 does not exist on customer entries.';
-        Text017: Label '%1 %2 %3 does not exist.';
-        Text019: Label '%1 %2 must be specified.';
-        Text020: Label '%1 must be 0 when %2 is 0.';
-        Text024: Label 'The %1 on the shipment is not the same as the %1 on the Service Header.';
-        Text026: Label 'Line %1 of the shipment %2, which you are attempting to invoice, has already been invoiced.';
-        Text027: Label '%1 must have the same sign as the shipments.';
-        Text033: Label 'Total %1 Excl. VAT';
-        Text034: Label 'Enter "Yes" in %1 and/or %2.';
-        Text035: Label 'You must enter the customer''s %1.';
-        Text036: Label 'The quantity you are attempting to invoice is greater than the quantity in shipment %1.';
         ServiceSetup: Record "Service Mgt. Setup";
         GLSetup: Record "General Ledger Setup";
         Cust: Record Customer;
@@ -1247,12 +1223,13 @@
         GenPostingSetup: Record "General Posting Setup";
         VATPostingSetup: Record "VAT Posting Setup";
         CustLedgEntry: Record "Cust. Ledger Entry";
-        VATAmountLine: Record "VAT Amount Line" temporary;
+        TempVATAmountLine: Record "VAT Amount Line" temporary;
         DimSetEntry: Record "Dimension Set Entry";
         TempDimSetEntry: Record "Dimension Set Entry" temporary;
         VATExemption: Record "VAT Exemption";
         FormatAddr: Codeunit "Format Address";
         DimMgt: Codeunit DimensionManagement;
+        DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
         ServAmountsMgt: Codeunit "Serv-Amounts Mgt.";
         ServiceHeaderFilter: Text;
         SellToAddr: array[8] of Text[100];
@@ -1281,16 +1258,39 @@
         VATNoError: Boolean;
         ApplNoError: Boolean;
         ShowDim: Boolean;
-        Text043: Label '%1 must be zero.';
-        Text045: Label '%1 must not be %2 for %3 %4.';
         MoreLines: Boolean;
         Ship: Boolean;
         Invoice: Boolean;
-        InclInVATReportErrorLogTemp: Record "Incl. in VAT Report Error Log" temporary;
-        Text12100: Label '%1 must be specified on header.';
         DimTxtArrLength: Integer;
         DimTxtArr: array[500] of Text;
         VATExemptionCheck: Boolean;
+        ServiceLineHidden: Boolean;
+
+        Text000: Label 'Ship and Invoice';
+        Text001: Label 'Ship';
+        Text002: Label 'Invoice';
+        Text003: Label 'Order Posting: %1';
+        Text004: Label 'Total %1';
+        Text005: Label 'Total %1 Incl. VAT';
+        Text006: Label '%1 must be specified.';
+        Text007: Label '%1 must be %2 for %3 %4.';
+        Text008: Label '%1 %2 does not exist.';
+        Text009: Label '%1 must not be a closing date.';
+        Text014: Label 'Service Document: %1';
+        Text015: Label '%1 must be %2.';
+        Text016: Label '%1 %2 does not exist on customer entries.';
+        Text017: Label '%1 %2 %3 does not exist.';
+        Text019: Label '%1 %2 must be specified.';
+        Text020: Label '%1 must be 0 when %2 is 0.';
+        Text024: Label 'The %1 on the shipment is not the same as the %1 on the Service Header.';
+        Text026: Label 'Line %1 of the shipment %2, which you are attempting to invoice, has already been invoiced.';
+        Text027: Label '%1 must have the same sign as the shipments.';
+        Text033: Label 'Total %1 Excl. VAT';
+        Text034: Label 'Enter "Yes" in %1 and/or %2.';
+        Text035: Label 'You must enter the customer''s %1.';
+        Text036: Label 'The quantity you are attempting to invoice is greater than the quantity in shipment %1.';
+        Text043: Label '%1 must be zero.';
+        Text045: Label '%1 must not be %2 for %3 %4.';
         Service_Document___TestCaptionLbl: Label 'Service Document - Test';
         CurrReport_PAGENOCaptionLbl: Label 'Page';
         Ship_toCaptionLbl: Label 'Ship-to';
@@ -1332,12 +1332,13 @@
         VATAmountLine__Inv__Disc__Base_Amount__Control171CaptionLbl: Label 'Inv. Disc. Base Amount';
         VATAmountLine__Line_Amount__Control169CaptionLbl: Label 'Line Amount';
         TotalCaptionLbl: Label 'Total';
-        ServiceLineHidden: Boolean;
+        InclInVATReportErrorLogTemp: Record "Incl. in VAT Report Error Log" temporary;
+        Text12100: Label '%1 must be specified on header.';
 
-    local procedure AddError(Text: Text[250])
+    local procedure AddError(Text: Text)
     begin
         ErrorCounter := ErrorCounter + 1;
-        ErrorText[ErrorCounter] := Text;
+        ErrorText[ErrorCounter] := CopyStr(Text, 1, MaxStrLen(ErrorText[ErrorCounter]));
     end;
 
     local procedure CheckShptLines(ServiceLine2: Record "Service Line")
@@ -1369,7 +1370,7 @@
                         if not DimMgt.CheckDimIDConsistency(
                              TempDimSetEntry, TempPostedDimSetEntry, DATABASE::"Service Line", DATABASE::"Service Shipment Line")
                         then
-                            AddError(DimMgt.GetDocDimConsistencyErr);
+                            AddError(DimMgt.GetDocDimConsistencyErr());
 
                         if ServiceShptLine."Customer No." <> "Customer No." then
                             AddError(
@@ -1462,7 +1463,7 @@
 
     procedure CheckQuantity(var ServiceLine: Record "Service Line")
     begin
-        with ServiceLine do begin
+        with ServiceLine do
             if Quantity <> 0 then begin
                 if "No." = '' then
                     AddError(StrSubstNo(Text019, Type, FieldCaption("No.")));
@@ -1472,7 +1473,6 @@
                 if Amount <> 0 then
                     AddError(
                       StrSubstNo(Text020, FieldCaption(Amount), FieldCaption(Quantity)));
-        end;
     end;
 
     procedure InitializeRequest(ShipReceiveOnNextPostReqFrom: Boolean; InvOnNextPostReqFrom: Boolean; ShowDimFrom: Boolean)
@@ -1488,10 +1488,10 @@
 
     local procedure CleanAmountsInVATAmountLine()
     begin
-        VATAmountLine.SetRange("VAT Calculation Type", VATAmountLine."VAT Calculation Type"::"Full VAT");
-        VATAmountLine.ModifyAll("Line Amount", 0);
-        VATAmountLine.ModifyAll("Inv. Disc. Base Amount", 0);
-        VATAmountLine.SetRange("VAT Calculation Type");
+        TempVATAmountLine.SetRange("VAT Calculation Type", TempVATAmountLine."VAT Calculation Type"::"Full VAT");
+        TempVATAmountLine.ModifyAll("Line Amount", 0);
+        TempVATAmountLine.ModifyAll("Inv. Disc. Base Amount", 0);
+        TempVATAmountLine.SetRange("VAT Calculation Type");
     end;
 
     local procedure CheckType(ServiceLine2: Record "Service Line")
@@ -1507,11 +1507,11 @@
                         if "No." <> '' then
                             if GLAcc.Get("No.") then begin
                                 if GLAcc.Blocked then
-                                    AddError(StrSubstNo(Text007, GLAcc.FieldCaption(Blocked), false, GLAcc.TableCaption, "No."));
+                                    AddError(StrSubstNo(Text007, GLAcc.FieldCaption(Blocked), false, GLAcc.TableCaption(), "No."));
                                 if not GLAcc."Direct Posting" and ("Line No." <= OrigMaxLineNo) then
-                                    AddError(StrSubstNo(Text007, GLAcc.FieldCaption("Direct Posting"), true, GLAcc.TableCaption, "No."));
+                                    AddError(StrSubstNo(Text007, GLAcc.FieldCaption("Direct Posting"), true, GLAcc.TableCaption(), "No."));
                             end else
-                                AddError(StrSubstNo(Text008, GLAcc.TableCaption, "No."));
+                                AddError(StrSubstNo(Text008, GLAcc.TableCaption(), "No."));
                     end;
                 Type::Item:
                     begin
@@ -1521,7 +1521,7 @@
                         if "No." <> '' then
                             if Item.Get("No.") then begin
                                 if Item.Blocked then
-                                    AddError(StrSubstNo(Text007, Item.FieldCaption(Blocked), false, Item.TableCaption, "No."));
+                                    AddError(StrSubstNo(Text007, Item.FieldCaption(Blocked), false, Item.TableCaption(), "No."));
                                 if Item.Reserve = Item.Reserve::Always then begin
                                     CalcFields("Reserved Quantity");
                                     if "Document Type" = "Document Type"::"Credit Memo" then begin
@@ -1532,7 +1532,7 @@
                                             AddError(StrSubstNo(Text015, FieldCaption("Reserved Quantity"), SignedXX("Qty. to Ship")));
                                 end
                             end else
-                                AddError(StrSubstNo(Text008, Item.TableCaption, "No."));
+                                AddError(StrSubstNo(Text008, Item.TableCaption(), "No."));
                     end;
                 Type::Resource:
                     begin
@@ -1542,11 +1542,11 @@
                         if "No." <> '' then
                             if Res.Get("No.") then begin
                                 if Res."Privacy Blocked" then
-                                    AddError(StrSubstNo(Text007, Res.FieldCaption("Privacy Blocked"), false, Res.TableCaption, "No."));
+                                    AddError(StrSubstNo(Text007, Res.FieldCaption("Privacy Blocked"), false, Res.TableCaption(), "No."));
                                 if Res.Blocked then
-                                    AddError(StrSubstNo(Text007, Res.FieldCaption(Blocked), false, Res.TableCaption, "No."));
+                                    AddError(StrSubstNo(Text007, Res.FieldCaption(Blocked), false, Res.TableCaption(), "No."));
                             end else
-                                AddError(StrSubstNo(Text008, Res.TableCaption, "No."));
+                                AddError(StrSubstNo(Text008, Res.TableCaption(), "No."));
                     end;
             end;
     end;
@@ -1558,7 +1558,7 @@
         with ServiceHeader do
             if "Customer No." = '' then
                 AddError(StrSubstNo(Text006, FieldCaption("Customer No.")))
-            else begin
+            else
                 if Cust.Get("Customer No.") then begin
                     if (Cust.Blocked = Cust.Blocked::Ship) and Ship then begin
                         ServiceLine2.SetRange("Document Type", "Document Type");
@@ -1571,7 +1571,7 @@
                         AddError(
                           StrSubstNo(
                             Text045,
-                            Cust.FieldCaption("Privacy Blocked"), Cust."Privacy Blocked", Cust.TableCaption, "Customer No."));
+                            Cust.FieldCaption("Privacy Blocked"), Cust."Privacy Blocked", Cust.TableCaption(), "Customer No."));
                     if (Cust.Blocked = Cust.Blocked::All) or
                        ((Cust.Blocked = Cust.Blocked::Invoice) and
                         (not ("Document Type" = "Document Type"::"Credit Memo"))) or
@@ -1580,13 +1580,12 @@
                         AddError(
                           StrSubstNo(
                             Text045,
-                            Cust.FieldCaption(Blocked), Cust.Blocked, Cust.TableCaption, "Customer No."));
+                            Cust.FieldCaption(Blocked), Cust.Blocked, Cust.TableCaption(), "Customer No."));
                 end else
                     AddError(
                       StrSubstNo(
                         Text008,
-                        Cust.TableCaption, "Customer No."));
-            end;
+                        Cust.TableCaption(), "Customer No."));
     end;
 
     local procedure VerifyBilltoCustomerNo(ServiceHeader: Record "Service Header")
@@ -1601,7 +1600,7 @@
                             AddError(
                               StrSubstNo(
                                 Text045,
-                                Cust.FieldCaption("Privacy Blocked"), Cust."Privacy Blocked", Cust.TableCaption, "Bill-to Customer No."));
+                                Cust.FieldCaption("Privacy Blocked"), Cust."Privacy Blocked", Cust.TableCaption(), "Bill-to Customer No."));
                         if (Cust.Blocked = Cust.Blocked::All) or
                            ((Cust.Blocked = Cust.Blocked::Invoice) and
                             ("Document Type" = "Document Type"::"Credit Memo"))
@@ -1609,12 +1608,12 @@
                             AddError(
                               StrSubstNo(
                                 Text045,
-                                Cust.FieldCaption(Blocked), false, Cust.TableCaption, "Bill-to Customer No."));
+                                Cust.FieldCaption(Blocked), false, Cust.TableCaption(), "Bill-to Customer No."));
                     end else
                         AddError(
                           StrSubstNo(
                             Text008,
-                            Cust.TableCaption, "Bill-to Customer No."));
+                            Cust.TableCaption(), "Bill-to Customer No."));
     end;
 
     local procedure VerifyPostingDate(ServiceHeader: Record "Service Header")

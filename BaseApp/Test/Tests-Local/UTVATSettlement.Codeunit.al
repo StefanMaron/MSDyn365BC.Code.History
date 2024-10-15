@@ -59,7 +59,7 @@ codeunit 144186 "UT VAT Settlement"
     begin
         // Initialize
         Initialize();
-        InitialDate := DMY2Date(1, 1, Date2DMY(WorkDate, 3) - 1); // 1/1/Y-1
+        InitialDate := DMY2Date(1, 1, Date2DMY(WorkDate(), 3) - 1); // 1/1/Y-1
         InitLastSettlementDate(CalcDate('<1M-1D>', InitialDate)); // 31/1/Y-1
         InitVATPlafondPeriod(InitialDate, 0); // 1/1/CY-1 (Year will be used)
         LibraryERM.CreateGLAccount(GLAccount);
@@ -95,11 +95,11 @@ codeunit 144186 "UT VAT Settlement"
     begin
         with VATPlafondPeriod do begin
             DeleteAll();
-            Init;
+            Init();
             Year := Date2DMY(InitialDate, 3);
             Amount := LibraryRandom.RandDecInRange(1, 10000, 2);
             "Calculated Amount" := CalculatedAmount;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -108,9 +108,9 @@ codeunit 144186 "UT VAT Settlement"
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
         with GeneralLedgerSetup do begin
-            Get;
+            Get();
             "Last Settlement Date" := CalcDate('<1M>', InitialDate);
-            Modify;
+            Modify();
         end;
     end;
 

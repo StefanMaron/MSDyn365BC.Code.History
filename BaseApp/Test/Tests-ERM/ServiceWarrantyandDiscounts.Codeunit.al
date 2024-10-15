@@ -448,7 +448,7 @@ codeunit 136120 "Service Warranty and Discounts"
             ServiceContractHeader.FieldCaption("Change Status"),
             Format(ServiceContractHeader."Change Status"::Open)));
 
-        ServiceContractHeader.Find;
+        ServiceContractHeader.Find();
         LockOpenServContract.OpenServContract(ServiceContractHeader);
         ContractServiceDiscount[1].Delete(true);
     end;
@@ -520,7 +520,7 @@ codeunit 136120 "Service Warranty and Discounts"
         ServiceInvoiceLine.FindSet();
         repeat
             TotalAmount += ServiceInvoiceLine."Amount Including VAT";
-        until ServiceInvoiceLine.Next = 0;
+        until ServiceInvoiceLine.Next() = 0;
     end;
 
     local procedure CopyServiceLines(var FromServiceLine: Record "Service Line"; var ToTempServiceLine: Record "Service Line" temporary)
@@ -530,7 +530,7 @@ codeunit 136120 "Service Warranty and Discounts"
                 ToTempServiceLine.Init();
                 ToTempServiceLine := FromServiceLine;
                 ToTempServiceLine.Insert();
-            until FromServiceLine.Next = 0
+            until FromServiceLine.Next() = 0
     end;
 
     local procedure CreateDiscountServiceContract(ServiceContractHeader: Record "Service Contract Header"; ServiceItemGroupCode: Code[20]; ResourceGroupNo: Code[20]; ContractDiscountPercentage: Decimal)
@@ -572,7 +572,7 @@ codeunit 136120 "Service Warranty and Discounts"
 
         ServiceContractHeader.CalcFields("Calcd. Annual Amount");
         ServiceContractHeader.Validate("Annual Amount", ServiceContractHeader."Calcd. Annual Amount");
-        ServiceContractHeader.Validate("Starting Date", WorkDate);
+        ServiceContractHeader.Validate("Starting Date", WorkDate());
         ServiceContractHeader.Modify(true);
     end;
 
@@ -587,8 +587,8 @@ codeunit 136120 "Service Warranty and Discounts"
         ServiceItem.Validate("Service Item Group Code", ServiceItemGroup.Code);
         ServiceItem.Validate("Warranty % (Parts)", WarrantyDiscountPercentage);
         ServiceItem.Validate("Warranty % (Labor)", WarrantyDiscountPercentage + 1);
-        ServiceItem.Validate("Warranty Starting Date (Labor)", WorkDate);
-        ServiceItem.Validate("Warranty Starting Date (Parts)", WorkDate);
+        ServiceItem.Validate("Warranty Starting Date (Labor)", WorkDate());
+        ServiceItem.Validate("Warranty Starting Date (Parts)", WorkDate());
         ServiceItem.Modify(true);
     end;
 
@@ -663,14 +663,14 @@ codeunit 136120 "Service Warranty and Discounts"
         LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     local procedure UpdateItemDiscount(var Item: Record Item; CustomerNo: Code[20]; LineDiscountPercentage: Decimal)
     var
         SalesLineDiscount: Record "Sales Line Discount";
         LibraryERM: Codeunit "Library - ERM";
     begin
         LibraryERM.CreateLineDiscForCustomer(
-          SalesLineDiscount, SalesLineDiscount.Type::Item, Item."No.", SalesLineDiscount."Sales Type"::Customer, CustomerNo, WorkDate, '',
+          SalesLineDiscount, SalesLineDiscount.Type::Item, Item."No.", SalesLineDiscount."Sales Type"::Customer, CustomerNo, WorkDate(), '',
           '', Item."Base Unit of Measure", LibraryRandom.RandInt(10));
         SalesLineDiscount.Validate("Line Discount %", LineDiscountPercentage);
         SalesLineDiscount.Modify(true);
@@ -699,7 +699,7 @@ codeunit 136120 "Service Warranty and Discounts"
         repeat
             ServiceLine.Validate("Line Discount %", LineDiscountPercentage);
             ServiceLine.Modify(true);
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     local procedure UpdateServiceLine(OrderNo: Code[20]; LineDiscountType: Option)
@@ -712,7 +712,7 @@ codeunit 136120 "Service Warranty and Discounts"
             ServiceLine.Validate("No.", ServiceLine."No.");
             ServiceLine.Validate("Line Discount Type", LineDiscountType);
             ServiceLine.Modify(true);
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     local procedure UpdateWarrantyServiceLine(OrderNo: Code[20]; ExcludeWarranty: Boolean; ExcludeContractDiscount: Boolean)
@@ -724,7 +724,7 @@ codeunit 136120 "Service Warranty and Discounts"
             ServiceLine.Validate("Exclude Warranty", ExcludeWarranty);
             ServiceLine.Validate("Exclude Contract Discount", ExcludeContractDiscount);
             ServiceLine.Modify(true);
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     local procedure VerifyCustomerLedgerEntry(DocumentNo: Code[20]; PostingDate: Date)
@@ -762,7 +762,7 @@ codeunit 136120 "Service Warranty and Discounts"
             GLEntry.TestField("Source Type", GLEntry."Source Type"::Customer);
             GLEntry.TestField("Source No.", ServiceInvoiceHeader."Bill-to Customer No.");
             GLEntry.TestField("Posting Date", ServiceInvoiceHeader."Posting Date");
-        until GLEntry.Next = 0;
+        until GLEntry.Next() = 0;
     end;
 
     local procedure VerifyManualLineDiscount(OrderNo: Code[20]; LineDiscountPercentage: Decimal)
@@ -776,7 +776,7 @@ codeunit 136120 "Service Warranty and Discounts"
         ServiceInvoiceLine.FindSet();
         repeat
             ServiceInvoiceLine.TestField("Line Discount %", LineDiscountPercentage);
-        until ServiceInvoiceLine.Next = 0;
+        until ServiceInvoiceLine.Next() = 0;
     end;
 
     local procedure VerifyResourceEntryInvoice(OrderNo: Code[20])
@@ -817,7 +817,7 @@ codeunit 136120 "Service Warranty and Discounts"
             ServiceInvoiceLine.TestField("Contract Disc. %", TempServiceLine."Contract Disc. %");
             ServiceInvoiceLine.TestField("Line Discount Type", TempServiceLine."Line Discount Type");
             ServiceInvoiceLine.TestField("Line Discount Amount", TempServiceLine."Line Discount Amount");
-        until TempServiceLine.Next = 0;
+        until TempServiceLine.Next() = 0;
     end;
 
     local procedure VerifyServiceLedgerEntry(DocumentNo: Code[20]; CustomerNo: Code[20])
@@ -829,7 +829,7 @@ codeunit 136120 "Service Warranty and Discounts"
         ServiceLedgerEntry.FindSet();
         repeat
             ServiceLedgerEntry.TestField("Customer No.", CustomerNo);
-        until ServiceLedgerEntry.Next = 0;
+        until ServiceLedgerEntry.Next() = 0;
     end;
 
     local procedure VerifyServiceOrderPost(var TempServiceLine: Record "Service Line" temporary)
@@ -840,7 +840,7 @@ codeunit 136120 "Service Warranty and Discounts"
         Assert.IsFalse(
           ServiceHeader.Get(ServiceHeader."Document Type"::Order, TempServiceLine."Document No."),
           StrSubstNo(
-            ServiceOrderMustNotExist, ServiceHeader.TableCaption, ServiceHeader.FieldCaption("Document Type"),
+            ServiceOrderMustNotExist, ServiceHeader.TableCaption(), ServiceHeader.FieldCaption("Document Type"),
             ServiceHeader."Document Type"::Order, ServiceHeader.FieldCaption("No."), TempServiceLine."Document No."));
 
         VerifyServiceInvoice(TempServiceLine);
@@ -873,7 +873,7 @@ codeunit 136120 "Service Warranty and Discounts"
             ServiceShipmentLine.TestField("Line Discount Type", TempServiceLine."Line Discount Type");
             ServiceShipmentLine.TestField("Warranty Disc. %", TempServiceLine."Warranty Disc. %");
             ServiceShipmentLine.TestField("Contract Disc. %", TempServiceLine."Contract Disc. %");
-        until TempServiceLine.Next = 0;
+        until TempServiceLine.Next() = 0;
     end;
 
     local procedure VerifyVATEntry(DocumentNo: Code[20]; PostingDate: Date)

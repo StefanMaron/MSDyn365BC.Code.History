@@ -693,7 +693,7 @@ codeunit 137601 "SCM CETAF Purchase"
         // Inventory Flow.
         LibraryPatterns.MAKEPurchaseInvoice(
           PurchaseHeader, PurchaseLine, Item, StockkeepingUnit."Location Code", StockkeepingUnit."Variant Code",
-          LibraryRandom.RandInt(10), WorkDate, LibraryRandom.RandDec(100, 5));
+          LibraryRandom.RandInt(10), WorkDate(), LibraryRandom.RandDec(100, 5));
         LibraryPatterns.MAKEPurchaseReturnOrder(
           PurchaseHeader1, PurchaseLine1, Item, StockkeepingUnit."Location Code", StockkeepingUnit."Variant Code", PurchaseLine.Quantity,
           WorkDate, LibraryRandom.RandDec(100, 5));
@@ -885,25 +885,25 @@ codeunit 137601 "SCM CETAF Purchase"
             Qty := LibraryRandom.RandDec(100, 2);
             InvoiceQty := LibraryRandom.RandDecInRange(0, 1, 1) * Qty;
             LibraryPatterns.POSTPurchaseOrderPartially(
-              PurchaseHeader1, Item, StockkeepingUnit."Location Code", StockkeepingUnit."Variant Code", Qty, WorkDate,
+              PurchaseHeader1, Item, StockkeepingUnit."Location Code", StockkeepingUnit."Variant Code", Qty, WorkDate(),
               LibraryRandom.RandDec(100, 5), true, LibraryRandom.RandDecInDecimalRange(InvoiceQty, Qty, 2), true, InvoiceQty);
 
             Qty := LibraryRandom.RandDec(100, 2);
             InvoiceQty := LibraryRandom.RandDecInRange(0, 1, 1) * Qty;
             LibraryPatterns.POSTPurchaseOrderPartially(
-              PurchaseHeader2, Item, StockkeepingUnit."Location Code", StockkeepingUnit."Variant Code", Qty, WorkDate,
+              PurchaseHeader2, Item, StockkeepingUnit."Location Code", StockkeepingUnit."Variant Code", Qty, WorkDate(),
               LibraryRandom.RandDec(100, 5), true, LibraryRandom.RandDecInDecimalRange(InvoiceQty, Qty, 2), true, InvoiceQty);
         end else begin
             Qty := LibraryRandom.RandDec(100, 2);
             InvoiceQty := LibraryRandom.RandDecInRange(0, 1, 1) * Qty;
             LibraryPatterns.POSTPurchaseOrderPartially(
-              PurchaseHeader1, Item, StockkeepingUnit."Location Code", StockkeepingUnit."Variant Code", Qty, WorkDate,
+              PurchaseHeader1, Item, StockkeepingUnit."Location Code", StockkeepingUnit."Variant Code", Qty, WorkDate(),
               LibraryRandom.RandDec(100, 5), true, Qty, true, InvoiceQty);
 
             Qty := LibraryRandom.RandDec(100, 2);
             InvoiceQty := LibraryRandom.RandDecInRange(0, 1, 1) * Qty;
             LibraryPatterns.POSTPurchaseOrderPartially(
-              PurchaseHeader2, Item, StockkeepingUnit."Location Code", StockkeepingUnit."Variant Code", Qty, WorkDate,
+              PurchaseHeader2, Item, StockkeepingUnit."Location Code", StockkeepingUnit."Variant Code", Qty, WorkDate(),
               LibraryRandom.RandDec(100, 5), true, Qty, true, InvoiceQty);
         end;
 

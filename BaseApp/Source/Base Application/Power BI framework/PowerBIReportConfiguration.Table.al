@@ -33,6 +33,11 @@ table 6301 "Power BI Report Configuration"
             Description = 'Cached display URL.';
             ObsoleteTag = '19.0';
         }
+        field(5; ReportName; Text[200])
+        {
+            Caption = 'ReportName';
+            DataClassification = CustomerContent;
+        }
         field(10; ReportEmbedUrl; Text[2048])
         {
             Caption = 'ReportEmbedUrl';

@@ -8,8 +8,8 @@ codeunit 9997 "Upgrade Tag Def - Country"
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Upgrade Tag", 'OnGetPerCompanyUpgradeTags', '', false, false)]
     local procedure RegisterPerCompanyTags(var PerCompanyUpgradeTags: List of [Code[250]])
     begin
-        PerCompanyUpgradeTags.Add(GetFixRemainingAmountCLEUpgradeTag);
-        PerCompanyUpgradeTags.Add(GetFixRemainingAmountVLEUpgradeTag);
+        PerCompanyUpgradeTags.Add(GetFixRemainingAmountCLEUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetFixRemainingAmountVLEUpgradeTag());
         PerCompanyUpgradeTags.Add(GetVATReportTaxAuthDocNoUpgradeTag());
     end;
 

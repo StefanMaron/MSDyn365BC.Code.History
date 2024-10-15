@@ -487,7 +487,7 @@ codeunit 144020 "IT - SEPA CBI CT Test"
         repeat
             VerifyCdtTrxInf(VendorBillLine, Vendor, Counter);
             Counter += 1;
-        until VendorBillLine.Next = 0;
+        until VendorBillLine.Next() = 0;
 
         Assert.AreEqual('CBIPaymentRequest', XMLNode.Name, 'CBIPaymentRequest');
     end;

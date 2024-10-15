@@ -42,14 +42,14 @@
                     if SEPADirectDebitMandate.Get(CustomerBillLine."Direct Debit Mandate ID") then
                         CustomerBillLine.TestField("Customer Bank Acc. No.", SEPADirectDebitMandate."Customer Bank Account Code");
                     CustLedgerEntry.Get(CustomerBillLine."Customer Entry No.");
-                    Init;
+                    Init();
                     "Entry No." := CustomerBillLine."Line No.";
                     "Direct Debit Collection No." := DirectDebitCollection."No.";
                     Validate("Customer No.", CustLedgerEntry."Customer No.");
                     Validate("Applies-to Entry No.", CustLedgerEntry."Entry No.");
                     "Transfer Date" := CustomerBillLine."Due Date";
                     Validate("Mandate ID", CustomerBillLine."Direct Debit Mandate ID");
-                    Insert;
+                    Insert();
                 until CustomerBillLine.Next() = 0;
             end;
     end;
@@ -72,14 +72,14 @@
                     if SEPADirectDebitMandate.Get(IssuedCustomerBillLine."Direct Debit Mandate ID") then
                         IssuedCustomerBillLine.TestField("Customer Bank Acc. No.", SEPADirectDebitMandate."Customer Bank Account Code");
                     CustLedgerEntry.Get(IssuedCustomerBillLine."Customer Entry No.");
-                    Init;
+                    Init();
                     "Entry No." := IssuedCustomerBillLine."Line No.";
                     "Direct Debit Collection No." := DirectDebitCollection."No.";
                     Validate("Customer No.", CustLedgerEntry."Customer No.");
                     Validate("Applies-to Entry No.", CustLedgerEntry."Entry No.");
                     "Transfer Date" := IssuedCustomerBillLine."Due Date";
                     Validate("Mandate ID", IssuedCustomerBillLine."Direct Debit Mandate ID");
-                    Insert;
+                    Insert();
                 until IssuedCustomerBillLine.Next() = 0;
             end;
     end;

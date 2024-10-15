@@ -74,7 +74,7 @@ table 760 "Trailing Sales Orders Setup"
         StartDate: Date;
     begin
         if "Use Work Date as Base" then
-            StartDate := WorkDate
+            StartDate := WorkDate()
         else
             StartDate := Today;
         if "Show Orders" = "Show Orders"::"All Orders" then begin
@@ -84,14 +84,6 @@ table 760 "Trailing Sales Orders Setup"
 
         exit(StartDate);
     end;
-
-#if not CLEAN18
-    [Obsolete('Replaced by GetBusinessChartType().', '18.0')]
-    procedure GetChartType(): Integer
-    begin
-        exit(GetBusinessChartType().AsInteger());
-    end;
-#endif
 
     procedure GetBusinessChartType(): Enum "Business Chart Type"
     begin
@@ -110,25 +102,25 @@ table 760 "Trailing Sales Orders Setup"
     procedure SetPeriodLength(PeriodLength: Option)
     begin
         "Period Length" := PeriodLength;
-        Modify;
+        Modify();
     end;
 
     procedure SetShowOrders(ShowOrders: Integer)
     begin
         "Show Orders" := ShowOrders;
-        Modify;
+        Modify();
     end;
 
     procedure SetValueToCalcuate(ValueToCalc: Integer)
     begin
         "Value to Calculate" := ValueToCalc;
-        Modify;
+        Modify();
     end;
 
     procedure SetChartType(ChartType: Integer)
     begin
         "Chart Type" := ChartType;
-        Modify;
+        Modify();
     end;
 }
 

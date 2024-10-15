@@ -164,7 +164,7 @@ codeunit 144074 "UT REP Fiscal Book"
         // Purpose of the test is to validate OnPreReport Trigger of Report - 12121 G/L Book - Print for two different accounting periods.
         // Setup.
         Initialize();
-        StartingDate := CalcDate('<CY>', WorkDate);
+        StartingDate := CalcDate('<CY>', WorkDate());
         CreateAccountingPeriod(StartingDate);
 
         // Enqueue Accounting Period Starting Date as Starting Date and a random Ending Date in different accounting period for GLBookPrintRequestPageHandler.
@@ -189,10 +189,10 @@ codeunit 144074 "UT REP Fiscal Book"
         // Purpose of the test is to validate OnPreReport Trigger of Report - 12121 G/L Book - Print when Starting Date is equal to Fiscal Year Starting Date.
         // Setup.
         Initialize();
-        CreateAccountingPeriod(WorkDate);
+        CreateAccountingPeriod(WorkDate());
         CreateGLBookEntry;
         EnqueueValuesInGLBookPrintRequestPageHandler(
-          ReportType::"Test Print", WorkDate, CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate));  // Enqueue WORKDATE as Starting Date and a random greater date as Ending Date for GLBookPrintRequestPageHandler.
+          ReportType::"Test Print", WorkDate(), CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()));  // Enqueue WORKDATE as Starting Date and a random greater date as Ending Date for GLBookPrintRequestPageHandler.
 
         // Exercise.
         REPORT.Run(REPORT::"G/L Book - Print");
@@ -213,8 +213,8 @@ codeunit 144074 "UT REP Fiscal Book"
         // Purpose of the test is to validate EndingDate - OnValidate Trigger of Report - 12121 G/L Book - Print when Ending Date is greater than Last Gen. Jour. Printing Date.
         // Setup.
         Initialize();
-        UpdateGLSetupLastGenJourPrintingDate(CalcDate('<' + Format(-LibraryRandom.RandInt(5)) + 'D>', WorkDate));  // Using a random date earlier than WORKDATE for Last Gen Jour. Printing Date.
-        EnqueueValuesInGLBookPrintRequestPageHandler(ReportType::Reprint, WorkDate, WorkDate);  // Enqueue WORKDATE as Starting and Ending Date for GLBookPrintRequestPageHandler.
+        UpdateGLSetupLastGenJourPrintingDate(CalcDate('<' + Format(-LibraryRandom.RandInt(5)) + 'D>', WorkDate()));  // Using a random date earlier than WORKDATE for Last Gen Jour. Printing Date.
+        EnqueueValuesInGLBookPrintRequestPageHandler(ReportType::Reprint, WorkDate(), WorkDate());  // Enqueue WORKDATE as Starting and Ending Date for GLBookPrintRequestPageHandler.
 
         // Exercise.
         asserterror REPORT.Run(REPORT::"G/L Book - Print");
@@ -283,7 +283,7 @@ codeunit 144074 "UT REP Fiscal Book"
     begin
         // Setup: Create Bank Ledger Entry With Random Debit and Credit Amounts.
         BankAccountNo := CreateBankAccount;
-        Amount := CreateBankAccountLedgerEntry(BankAccountNo, CreditAmountLCY, DebitAmountLCY, WorkDate);
+        Amount := CreateBankAccountLedgerEntry(BankAccountNo, CreditAmountLCY, DebitAmountLCY, WorkDate());
         LibraryVariableStorage.Enqueue(BankAccountNo);  // Enqueue Value in BankSheetPrintRequestPageHandler.
 
         // Exercise.
@@ -308,11 +308,11 @@ codeunit 144074 "UT REP Fiscal Book"
         // Setup.
         Initialize();
         EnqueueValuesInGLBookPrintRequestPageHandler(
-          ReportType::"Test Print", CalcDate('<-CY-1Y-CM>', WorkDate), CalcDate('<-CY-1Y+CM>', WorkDate));  // Enqueue values in GLBookPrintRequestPageHandler.
+          ReportType::"Test Print", CalcDate('<-CY-1Y-CM>', WorkDate()), CalcDate('<-CY-1Y+CM>', WorkDate()));  // Enqueue values in GLBookPrintRequestPageHandler.
         REPORT.Run(REPORT::"G/L Book - Print");
-        UpdateGLSetupLastGenJourPrintingDate(CalcDate('<-CY-1Y-CM>', WorkDate));
+        UpdateGLSetupLastGenJourPrintingDate(CalcDate('<-CY-1Y-CM>', WorkDate()));
         EnqueueValuesInGLBookPrintRequestPageHandler(
-          ReportType::"Test Print", CalcDate('<-CY-1Y+1M>', WorkDate), CalcDate('<-CY-1Y+2M>', WorkDate));  // Enqueue values in GLBookPrintRequestPageHandler.
+          ReportType::"Test Print", CalcDate('<-CY-1Y+1M>', WorkDate()), CalcDate('<-CY-1Y+2M>', WorkDate()));  // Enqueue values in GLBookPrintRequestPageHandler.
 
         // Exercise.
         REPORT.Run(REPORT::"G/L Book - Print");
@@ -320,7 +320,7 @@ codeunit 144074 "UT REP Fiscal Book"
         // Verify.
         GeneralLedgerSetup.Get();
         LibraryReportDataset.LoadDataSetFile;
-        LibraryReportDataset.AssertElementWithValueExists(PageNoPrefixCap, PageCap + Format(Date2DMY(CalcDate('<CY-1Y>', WorkDate), 3)));
+        LibraryReportDataset.AssertElementWithValueExists(PageNoPrefixCap, PageCap + Format(Date2DMY(CalcDate('<CY-1Y>', WorkDate()), 3)));
         LibraryReportDataset.AssertElementWithValueExists(LastPrintedPageNoCap, GeneralLedgerSetup."Last Printed G/L Book Page");
     end;
 
@@ -339,9 +339,9 @@ codeunit 144074 "UT REP Fiscal Book"
         // Setup.
         Initialize();
         EnqueueValuesInGLBookPrintRequestPageHandler(
-          ReportType::"Test Print", CalcDate('<CY-1Y-CM>', WorkDate), CalcDate('<CY-1Y+CM>', WorkDate));  // Enqueue values in GLBookPrintRequestPageHandler.
+          ReportType::"Test Print", CalcDate('<CY-1Y-CM>', WorkDate()), CalcDate('<CY-1Y+CM>', WorkDate()));  // Enqueue values in GLBookPrintRequestPageHandler.
         REPORT.Run(REPORT::"G/L Book - Print");
-        UpdateGLSetupLastGenJourPrintingDate(CalcDate('<-CY-1Y-CM>', WorkDate));
+        UpdateGLSetupLastGenJourPrintingDate(CalcDate('<-CY-1Y-CM>', WorkDate()));
         StartDate := GetStartDate(true);
         EndDate := GetEndDate(StartDate);
         EnqueueValuesInGLBookPrintRequestPageHandler(ReportType::"Test Print", StartDate, EndDate);  // Enqueue values in GLBookPrintRequestPageHandler.
@@ -352,7 +352,7 @@ codeunit 144074 "UT REP Fiscal Book"
         // Verify.
         GeneralLedgerSetup.Get();
         LibraryReportDataset.LoadDataSetFile;
-        LibraryReportDataset.AssertElementWithValueExists(PageNoPrefixCap, PageCap + Format(Date2DMY(CalcDate('<CY>', WorkDate), 3)));
+        LibraryReportDataset.AssertElementWithValueExists(PageNoPrefixCap, PageCap + Format(Date2DMY(CalcDate('<CY>', WorkDate()), 3)));
         LibraryReportDataset.AssertElementWithValueExists(LastPrintedPageNoCap, 0);  // 0 is used test Last Printed Page No.
     end;
 
@@ -370,7 +370,7 @@ codeunit 144074 "UT REP Fiscal Book"
           LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode10,
           LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode);
         CreateVATRegisterBuffer;
-        EnqueueValuesInVATRegisterGroupedHandler(CalcDate('<-CM>', WorkDate), CalcDate('<CM>', WorkDate));
+        EnqueueValuesInVATRegisterGroupedHandler(CalcDate('<-CM>', WorkDate()), CalcDate('<CM>', WorkDate()));
         LibraryVariableStorage.Enqueue(false); // Enqueue False for Print Company Information on VAT Register Grouped Request Page Handler.
 
         // Exercise.
@@ -431,7 +431,7 @@ codeunit 144074 "UT REP Fiscal Book"
         BankAccount: Record "Bank Account";
     begin
         BankAccount."No." := LibraryUTUtility.GetNewCode;
-        BankAccount."Date Filter" := WorkDate;
+        BankAccount."Date Filter" := WorkDate();
         BankAccount.Insert();
         exit(BankAccount."No.");
     end;
@@ -466,7 +466,7 @@ codeunit 144074 "UT REP Fiscal Book"
     begin
         Customer."No." := LibraryUTUtility.GetNewCode;
         Customer.Name := Customer."No.";
-        Customer."Date Filter" := WorkDate;
+        Customer."Date Filter" := WorkDate();
         Customer.Insert();
         exit(Customer."No.");
     end;
@@ -480,7 +480,7 @@ codeunit 144074 "UT REP Fiscal Book"
         CustLedgerEntry2.FindLast();
         CustLedgerEntry."Entry No." := CustLedgerEntry2."Entry No." + 1;
         CustLedgerEntry."Customer No." := CustomerNo;
-        CustLedgerEntry."Posting Date" := WorkDate;
+        CustLedgerEntry."Posting Date" := WorkDate();
         CustLedgerEntry."Document No." := DocumentNo;
         CustLedgerEntry."Currency Code" := LibraryUTUtility.GetNewCode10;
         CustLedgerEntry.Amount := LibraryRandom.RandDec(10, 2);
@@ -507,8 +507,8 @@ codeunit 144074 "UT REP Fiscal Book"
         GLBookEntry: Record "GL Book Entry";
     begin
         GLBookEntry.DeleteAll();  // Deletion of G/L Book Entry is required to run Report - G/L Book - Print.
-        GLBookEntry."Posting Date" := WorkDate;
-        GLBookEntry."Official Date" := WorkDate;
+        GLBookEntry."Posting Date" := WorkDate();
+        GLBookEntry."Official Date" := WorkDate();
         GLBookEntry.Insert();
     end;
 
@@ -537,8 +537,8 @@ codeunit 144074 "UT REP Fiscal Book"
     var
         VATRegisterBuffer: Record "VAT Register - Buffer";
     begin
-        VATRegisterBuffer."Period Start Date" := WorkDate;
-        VATRegisterBuffer."Period End Date" := WorkDate;
+        VATRegisterBuffer."Period Start Date" := WorkDate();
+        VATRegisterBuffer."Period End Date" := WorkDate();
         VATRegisterBuffer."VAT Register Code" := CreateVATRegister;
         VATRegisterBuffer."VAT Identifier" := LibraryUTUtility.GetNewCode10;
         VATRegisterBuffer.Insert();
@@ -635,7 +635,7 @@ codeunit 144074 "UT REP Fiscal Book"
     begin
         LibraryVariableStorage.Dequeue(No);
         BankSheetPrint."Bank Account".SetFilter("No.", No);
-        BankSheetPrint."Bank Account".SetFilter("Date Filter", Format(WorkDate));
+        BankSheetPrint."Bank Account".SetFilter("Date Filter", Format(WorkDate()));
         BankSheetPrint.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 
@@ -682,7 +682,7 @@ codeunit 144074 "UT REP Fiscal Book"
     begin
         CompanyInformation.Get();
         VATRegisterPrint.VATRegister.SetValue(CreateVATRegister);
-        VATRegisterPrint.PeriodStartingDate.SetValue(WorkDate);
+        VATRegisterPrint.PeriodStartingDate.SetValue(WorkDate());
         VATRegisterPrint.Name.SetValue(CompanyInformation.Name);
         VATRegisterPrint.Address.SetValue(CompanyInformation.Address);
         VATRegisterPrint.PostCodeCityCounty.SetValue(CompanyInformation."Post Code");
@@ -700,7 +700,7 @@ codeunit 144074 "UT REP Fiscal Book"
     begin
         LibraryVariableStorage.Dequeue(No);
         CustomerSheetPrint.Customer.SetFilter("No.", No);
-        CustomerSheetPrint.Customer.SetFilter("Date Filter", Format(WorkDate));
+        CustomerSheetPrint.Customer.SetFilter("Date Filter", Format(WorkDate()));
         CustomerSheetPrint.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 

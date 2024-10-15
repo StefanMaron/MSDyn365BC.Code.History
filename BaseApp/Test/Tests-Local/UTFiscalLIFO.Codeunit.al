@@ -163,7 +163,7 @@ codeunit 144099 "UT Fiscal LIFO"
     local procedure CreateItemCostHistory(var ItemCostHistory: Record "Item Cost History")
     begin
         ItemCostHistory."Item No." := CreateItem;
-        ItemCostHistory."Competence Year" := WorkDate;
+        ItemCostHistory."Competence Year" := WorkDate();
         ItemCostHistory."Year Average Cost" := LibraryRandom.RandDec(10, 2);
         ItemCostHistory."Weighted Average Cost" := ItemCostHistory."Year Average Cost";
         ItemCostHistory."FIFO Cost" := ItemCostHistory."Year Average Cost";
@@ -206,10 +206,10 @@ codeunit 144099 "UT Fiscal LIFO"
     begin
         LibraryVariableStorage.Dequeue(No);
         LibraryVariableStorage.Dequeue(ItemCostType);
-        FiscalInventoryValuation.CompetenceDate.SetValue(WorkDate);
+        FiscalInventoryValuation.CompetenceDate.SetValue(WorkDate());
         FiscalInventoryValuation.CostType.SetValue(ItemCostType);
         FiscalInventoryValuation.Item.SetFilter("No.", No);
-        FiscalInventoryValuation.Item.SetFilter("Date Filter", Format(WorkDate));
+        FiscalInventoryValuation.Item.SetFilter("Date Filter", Format(WorkDate()));
         FiscalInventoryValuation.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 }

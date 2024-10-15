@@ -175,7 +175,7 @@
         CorrectPostedSalesInvoice.CancelPostedInvoiceCreateNewInvoice(SalesInvoiceHeader, SalesHeaderCorrection);
 
         // VERIFY: The correction must use Exact Cost reversing
-        LastItemLedgEntry.Find;
+        LastItemLedgEntry.Find();
         Assert.AreEqual(
           0, LastItemLedgEntry."Shipped Qty. Not Returned",
           'The quantity on the shipment item ledger should appear as returned');
@@ -381,7 +381,7 @@
         PostedSalesInvoice.GotoRecord(SalesInvoiceHeader);
         PostedSalesInvoice.CreateCreditMemo.Invoke;
 
-        SalesCreditMemo.Close;
+        SalesCreditMemo.Close();
 
         // VERIFY: New Sales Credit Memo must match Posted Sales Invoice
         SalesHeaderCorrection.SetRange("Applies-to Doc. No.", SalesInvoiceHeader."No.");
@@ -436,7 +436,7 @@
                 CheckEverythingIsReverted(Item, Cust, GLEntry);
             end else begin
                 if GLEntry.FindLast() then;
-                SalesInvoiceHeader.Find;
+                SalesInvoiceHeader.Find();
 
                 // VERIFY : It should not be possible to cancel a posted invoice twice
                 asserterror CorrectPostedSalesInvoice.CancelPostedInvoiceCreateNewInvoice(SalesInvoiceHeader, SalesHeaderCorrection);
@@ -501,7 +501,7 @@
         SellItem(SellToCust, Item, 1, SalesInvoiceHeader);
         CheckSomethingIsPosted(Item, BillToCust);
 
-        BillToCust.Find;
+        BillToCust.Find();
         CurrencyExchangeRate.FindFirst();
         BillToCust.Validate("Currency Code", CurrencyExchangeRate."Currency Code");
         BillToCust.Modify(true);
@@ -679,7 +679,7 @@
 
         CreateAndPostSalesInvForNewItemAndCust(Item, Cust, 1, 1, SalesInvoiceHeader);
 
-        Item.Find;
+        Item.Find();
         Item.Validate(Blocked, true);
         Item.Modify(true);
         Commit();
@@ -814,7 +814,7 @@
         repeat
             VerifyCorrectionFailsOnBlockedGLAcc(TempGLAcc, BillToCust, SalesInvoiceHeader);
             VerifyCorrectionFailsOnMandatoryDimGLAcc(TempGLAcc, BillToCust, SalesInvoiceHeader);
-        until TempGLAcc.Next = 0;
+        until TempGLAcc.Next() = 0;
     end;
 
     [Test]
@@ -943,7 +943,7 @@
         CreateAndPostSalesInvForNewItemAndCust(Item, Cust, 1, 1, SalesInvoiceHeader);
 
         GLSetup.Get();
-        GLSetup."Allow Posting To" := CalcDate('<-1D>', WorkDate);
+        GLSetup."Allow Posting To" := CalcDate('<-1D>', WorkDate());
         GLSetup.Modify(true);
         Commit();
 
@@ -987,7 +987,7 @@
         LibraryCosting.AdjustCostItemEntries('', '');
 
         InvtPeriod.Init();
-        InvtPeriod."Ending Date" := CalcDate('<+1D>', WorkDate);
+        InvtPeriod."Ending Date" := CalcDate('<+1D>', WorkDate());
         InvtPeriod.Closed := true;
         InvtPeriod.Insert();
         Commit();
@@ -1111,7 +1111,7 @@
         SalesLine.Modify(true);
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
-        LastItemLedgEntry.Find;
+        LastItemLedgEntry.Find();
         Assert.AreEqual(0, LastItemLedgEntry."Shipped Qty. Not Returned", '');
 
         // Introduce new cost
@@ -1798,12 +1798,12 @@
         repeat
             ToGLAcc := FromGLAcc;
             if ToGLAcc.Insert() then;
-        until FromGLAcc.Next = 0;
+        until FromGLAcc.Next() = 0;
     end;
 
     local procedure BlockGLAcc(var GLAcc: Record "G/L Account")
     begin
-        GLAcc.Find;
+        GLAcc.Find();
         GLAcc.Validate(Blocked, true);
         GLAcc.Modify(true);
         Commit();
@@ -1811,7 +1811,7 @@
 
     local procedure UnblockGLAcc(var GLAcc: Record "G/L Account")
     begin
-        GLAcc.Find;
+        GLAcc.Find();
         GLAcc.Validate(Blocked, false);
         GLAcc.Modify(true);
         Commit();
@@ -1995,7 +1995,7 @@
         repeat
             TotalQty += ValueEntry."Item Ledger Entry Quantity";
             TotalCost += ValueEntry."Cost Amount (Actual)";
-        until ValueEntry.Next = 0;
+        until ValueEntry.Next() = 0;
         Assert.AreEqual(0, TotalQty, '');
         Assert.AreEqual(0, TotalCost, '');
     end;
@@ -2013,7 +2013,7 @@
         repeat
             TotalDebit += GLEntry."Credit Amount";
             TotalCredit += GLEntry."Debit Amount";
-        until GLEntry.Next = 0;
+        until GLEntry.Next() = 0;
 
         Assert.AreEqual(TotalDebit, TotalCredit, '');
     end;
@@ -2029,7 +2029,7 @@
     var
         SalesHeader: Record "Sales Header";
     begin
-        Assert.IsTrue(LastGLEntry.Next = 0, 'No new G/L entries are created');
+        Assert.IsTrue(LastGLEntry.Next() = 0, 'No new G/L entries are created');
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::"Credit Memo");
         SalesHeader.SetRange("Bill-to Customer No.", CustNo);
         Assert.IsTrue(SalesHeader.IsEmpty, 'The Credit Memo should not have been created');

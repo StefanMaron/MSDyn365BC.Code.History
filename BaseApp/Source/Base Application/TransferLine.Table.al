@@ -28,7 +28,7 @@
                 TestField("Quantity Shipped", 0);
                 TestField("WIP Qty. Shipped", 0);
                 if CurrFieldNo <> 0 then
-                    TestStatusOpen;
+                    TestStatusOpen();
                 "Item No." := GetItemNo();
                 TransferLineReserve.VerifyChange(Rec, xRec);
                 CalcFields("Reserved Qty. Inbnd. (Base)");
@@ -36,7 +36,7 @@
                 WhseValidateSourceLine.TransLineVerifyChange(Rec, xRec);
 
                 TempTransferLine := Rec;
-                Init;
+                Init();
                 "Item No." := TempTransferLine."Item No.";
                 OnValidateItemNoOnCopyFromTempTransLine(Rec, TempTransferLine);
                 if "Item No." = '' then
@@ -47,7 +47,7 @@
                 GetTransHeaderExternal();
 
                 OnValidateItemNoOnAfterGetTransHeaderExternal(Rec, TransHeader, TempTransferLine);
-                GetItem;
+                GetItem();
                 GetDefaultBin("Transfer-from Code", "Transfer-to Code");
 
                 Item.TestField(Blocked, false);
@@ -82,7 +82,7 @@
                 IsHandled: Boolean;
             begin
                 if CurrFieldNo <> 0 then
-                    TestStatusOpen;
+                    TestStatusOpen();
                 if Quantity <> 0 then
                     TestField("Item No.");
 
@@ -98,15 +98,15 @@
                    (Abs("Quantity (Base)") < Abs("Qty. Received (Base)"))
                 then
                     FieldError("Quantity (Base)", StrSubstNo(Text002, FieldCaption("Qty. Shipped (Base)")));
-                InitQtyInTransit;
-                InitOutstandingQty;
-                InitQtyToShip;
-                InitQtyToReceive;
+                InitQtyInTransit();
+                InitOutstandingQty();
+                InitQtyToShip();
+                InitQtyToReceive();
                 CheckItemAvailable(FieldNo(Quantity));
 
                 VerifyReserveTransferLineQuantity();
 
-                UpdateWithWarehouseShipReceive;
+                UpdateWithWarehouseShipReceive();
 
                 IsHandled := false;
                 OnValidateQuantityOnBeforeTransLineVerifyChange(Rec, xRec, IsHandled);
@@ -121,7 +121,7 @@
             trigger OnValidate()
             begin
                 if CurrFieldNo <> 0 then
-                    TestStatusOpen;
+                    TestStatusOpen();
             end;
         }
         field(6; "Qty. to Ship"; Decimal)
@@ -167,7 +167,7 @@
                     WhseValidateSourceLine.TransLineVerifyChange(Rec, xRec);
                 end;
 
-                GetTransferHeaderNoVerification;
+                GetTransferHeaderNoVerification();
 
                 if not TransHeader."Direct Transfer" and ("Direct Transfer" = xRec."Direct Transfer") then
                     if "Qty. to Receive" > "Qty. in Transit" then
@@ -191,10 +191,10 @@
             trigger OnValidate()
             begin
                 "Qty. Shipped (Base)" := CalcBaseQty("Quantity Shipped", FieldCaption("Quantity Shipped"), FieldCaption("Qty. Shipped (Base)"));
-                InitQtyInTransit;
-                InitOutstandingQty;
-                InitQtyToShip;
-                InitQtyToReceive;
+                InitQtyInTransit();
+                InitOutstandingQty();
+                InitQtyToShip();
+                InitQtyToReceive();
             end;
         }
         field(9; "Quantity Received"; Decimal)
@@ -206,9 +206,9 @@
             trigger OnValidate()
             begin
                 "Qty. Received (Base)" := CalcBaseQty("Quantity Received", FieldCaption("Quantity Received"), FieldCaption("Qty. Received (Base)"));
-                InitQtyInTransit;
-                InitOutstandingQty;
-                InitQtyToReceive;
+                InitQtyInTransit();
+                InitOutstandingQty();
+                InitQtyToReceive();
             end;
         }
         field(10; Status; Option)
@@ -290,7 +290,7 @@
                     end;
 
                 if "Item No." <> '' then
-                    GetItem;
+                    GetItem();
             end;
         }
         field(14; "Gen. Prod. Posting Group"; Code[20])
@@ -301,7 +301,7 @@
             trigger OnValidate()
             begin
                 if CurrFieldNo <> 0 then
-                    TestStatusOpen;
+                    TestStatusOpen();
             end;
         }
         field(15; "Inventory Posting Group"; Code[20])
@@ -312,7 +312,7 @@
             trigger OnValidate()
             begin
                 if CurrFieldNo <> 0 then
-                    TestStatusOpen;
+                    TestStatusOpen();
             end;
         }
         field(16; "Quantity (Base)"; Decimal)
@@ -331,7 +331,7 @@
                     exit;
 
                 if CurrFieldNo <> 0 then
-                    TestStatusOpen;
+                    TestStatusOpen();
                 TestField("Qty. per Unit of Measure", 1);
                 Validate(Quantity, "Quantity (Base)");
             end;
@@ -409,7 +409,7 @@
                 UnitOfMeasure: Record "Unit of Measure";
             begin
                 if CurrFieldNo <> 0 then
-                    TestStatusOpen;
+                    TestStatusOpen();
                 TestField("Quantity Shipped", 0);
                 TestField("Qty. Shipped (Base)", 0);
                 TestField("Quantity Received", 0);
@@ -424,12 +424,12 @@
                         UnitOfMeasure.Init();
                     "Unit of Measure" := UnitOfMeasure.Description;
                 end;
-                GetItem;
+                GetItem();
                 Validate("Qty. per Unit of Measure", UOMMgt.GetQtyPerUnitOfMeasure(Item, "Unit of Measure Code"));
                 "Gross Weight" := Item."Gross Weight" * "Qty. per Unit of Measure";
                 "Net Weight" := Item."Net Weight" * "Qty. per Unit of Measure";
                 "Unit Volume" := Item."Unit Volume" * "Qty. per Unit of Measure";
-                "Units per Parcel" := Round(Item."Units per Parcel" / "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision);
+                "Units per Parcel" := Round(Item."Units per Parcel" / "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision());
                 "Qty. Rounding Precision" := UOMMgt.GetQtyRoundingPrecision(Item, "Unit of Measure Code");
                 "Qty. Rounding Precision (Base)" := UOMMgt.GetQtyRoundingPrecision(Item, Item."Base Unit of Measure");
 
@@ -485,7 +485,7 @@
                 ItemVariant: Record "Item Variant";
             begin
                 if CurrFieldNo <> 0 then
-                    TestStatusOpen;
+                    TestStatusOpen();
                 TransferLineReserve.VerifyChange(Rec, xRec);
                 WhseValidateSourceLine.TransLineVerifyChange(Rec, xRec);
 
@@ -543,7 +543,7 @@
             begin
                 TestField("Quantity Shipped", 0);
                 if CurrFieldNo <> 0 then
-                    TestStatusOpen;
+                    TestStatusOpen();
                 if "Transfer-from Code" <> xRec."Transfer-from Code" then begin
                     "Transfer-from Bin Code" := '';
                     GetDefaultBin("Transfer-from Code", '');
@@ -552,7 +552,7 @@
                 OnValidateTransferFromCodeOnBeforeCheckItemAvailable(Rec);
                 CheckItemAvailable(FieldNo("Transfer-from Code"));
                 TransferLineReserve.VerifyChange(Rec, xRec);
-                UpdateWithWarehouseShipReceive;
+                UpdateWithWarehouseShipReceive();
                 WhseValidateSourceLine.TransLineVerifyChange(Rec, xRec);
             end;
         }
@@ -566,7 +566,7 @@
             begin
                 TestField("Quantity Shipped", 0);
                 if CurrFieldNo <> 0 then
-                    TestStatusOpen;
+                    TestStatusOpen();
                 if "Transfer-to Code" <> xRec."Transfer-to Code" then begin
                     "Transfer-To Bin Code" := '';
                     GetDefaultBin('', "Transfer-to Code");
@@ -574,7 +574,7 @@
 
                 OnValidateTransferToCodeOnBeforeVerifyChange(Rec);
                 TransferLineReserve.VerifyChange(Rec, xRec);
-                UpdateWithWarehouseShipReceive;
+                UpdateWithWarehouseShipReceive();
                 WhseValidateSourceLine.TransLineVerifyChange(Rec, xRec);
             end;
         }
@@ -587,7 +587,7 @@
                 IsHandled: Boolean;
             begin
                 if CurrFieldNo <> 0 then
-                    TestStatusOpen;
+                    TestStatusOpen();
 
                 IsHandled := false;
                 OnValidateShipmentDateOnBeforeCalcReceiptDate(IsHandled, Rec);
@@ -595,7 +595,7 @@
                     CalcReceiptDate();
 
                 CheckItemAvailable(FieldNo("Shipment Date"));
-                DateConflictCheck;
+                DateConflictCheck();
             end;
         }
         field(39; "Receipt Date"; Date)
@@ -608,7 +608,7 @@
                 IsHandled: Boolean;
             begin
                 if CurrFieldNo <> 0 then
-                    TestStatusOpen;
+                    TestStatusOpen();
 
                 IsHandled := false;
                 OnValidateReceiptDateOnBeforeCalcShipmentDate(IsHandled, Rec);
@@ -616,7 +616,7 @@
                     CalcShipmentDate();
 
                 CheckItemAvailable(FieldNo("Shipment Date"));
-                DateConflictCheck;
+                DateConflictCheck();
                 if "Derived From Line No." = 0 then
                     if DerivedLinesExist(TransferLine, "Document No.", "Line No.") then
                         TransferLine.ModifyAll("Receipt Date", "Receipt Date");
@@ -636,7 +636,7 @@
             trigger OnValidate()
             begin
                 if CurrFieldNo <> 0 then
-                    TestStatusOpen;
+                    TestStatusOpen();
                 if "Shipping Agent Code" <> xRec."Shipping Agent Code" then
                     Validate("Shipping Agent Service Code", '');
             end;
@@ -649,14 +649,14 @@
             trigger OnValidate()
             begin
                 if CurrFieldNo <> 0 then
-                    TestStatusOpen;
+                    TestStatusOpen();
                 TransferRoute.GetShippingTime(
                   "Transfer-from Code", "Transfer-to Code",
                   "Shipping Agent Code", "Shipping Agent Service Code",
                   "Shipping Time");
                 CalcReceiptDate();
                 CheckItemAvailable(FieldNo("Shipping Agent Service Code"));
-                DateConflictCheck;
+                DateConflictCheck();
             end;
         }
         field(43; "Appl.-to Item Entry"; Integer)
@@ -749,9 +749,9 @@
             trigger OnValidate()
             begin
                 if CurrFieldNo <> 0 then
-                    TestStatusOpen;
+                    TestStatusOpen();
                 CalcReceiptDate();
-                DateConflictCheck;
+                DateConflictCheck();
             end;
         }
         field(55; "Reserved Quantity Shipped"; Decimal)
@@ -853,9 +853,9 @@
             trigger OnValidate()
             begin
                 if CurrFieldNo <> 0 then
-                    TestStatusOpen;
+                    TestStatusOpen();
                 CalcReceiptDate();
-                DateConflictCheck;
+                DateConflictCheck();
             end;
         }
         field(5794; "Inbound Whse. Handling Time"; DateFormula)
@@ -865,9 +865,9 @@
             trigger OnValidate()
             begin
                 if CurrFieldNo <> 0 then
-                    TestStatusOpen;
+                    TestStatusOpen();
                 CalcReceiptDate();
-                DateConflictCheck;
+                DateConflictCheck();
             end;
         }
         field(7300; "Transfer-from Bin Code"; Code[20])
@@ -981,7 +981,7 @@
             trigger OnValidate()
             begin
                 if CurrFieldNo <> 0 then
-                    TestStatusOpen;
+                    TestStatusOpen();
                 if "WIP Quantity" <> 0 then
                     TestField("Item No.");
                 if (("WIP Quantity" * "WIP Qty. Shipped") < 0) or
@@ -989,8 +989,8 @@
                 then
                     FieldError("WIP Quantity", StrSubstNo(Text002, FieldCaption("WIP Qty. Shipped")));
 
-                InitWIPOutstandingQty;
-                InitWIPQtyToShip;
+                InitWIPOutstandingQty();
+                InitWIPQtyToShip();
             end;
         }
         field(12192; "WIP Qty. To Ship"; Decimal)
@@ -1015,8 +1015,8 @@
 
             trigger OnValidate()
             begin
-                InitWIPOutstandingQty;
-                InitWIPQtyToShip;
+                InitWIPOutstandingQty();
+                InitWIPQtyToShip();
             end;
         }
         field(12194; "WIP Outstanding Qty."; Decimal)
@@ -1094,7 +1094,7 @@
     var
         ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)";
     begin
-        TestStatusOpen;
+        TestStatusOpen();
 
         TestField("Quantity Shipped", "Quantity Received");
         TestField("Qty. Shipped (Base)", "Qty. Received (Base)");
@@ -1150,17 +1150,6 @@
     end;
 
     var
-        Text001: Label 'You cannot rename a %1.';
-        Text002: Label 'must not be less than %1';
-        Text003: Label 'Warehouse %1 is required for %2 = %3.';
-        Text004: Label '\The entered information may be disregarded by warehouse operations.';
-        Text005: Label 'You cannot ship more than %1 units.';
-        Text006: Label 'All items have been shipped.';
-        Text008: Label 'You cannot receive more than %1 units.';
-        Text009: Label 'No items are currently in transit.';
-        Text011: Label 'Outbound,Inbound';
-        Text012: Label 'You have changed one or more dimensions on the %1, which is already shipped. When you post the line with the changed dimension to General Ledger, amounts on the Inventory Interim account will be out of balance when reported per dimension.\\Do you want to keep the changed dimension?';
-        Text013: Label 'Cancelled.';
         TransferRoute: Record "Transfer Route";
         Item: Record Item;
         TransHeader: Record "Transfer Header";
@@ -1175,6 +1164,18 @@
         UOMMgt: Codeunit "Unit of Measure Management";
         Reservation: Page Reservation;
         TrackingBlocked: Boolean;
+
+        Text001: Label 'You cannot rename a %1.';
+        Text002: Label 'must not be less than %1';
+        Text003: Label 'Warehouse %1 is required for %2 = %3.';
+        Text004: Label '\The entered information may be disregarded by warehouse operations.';
+        Text005: Label 'You cannot ship more than %1 units.';
+        Text006: Label 'All items have been shipped.';
+        Text008: Label 'You cannot receive more than %1 units.';
+        Text009: Label 'No items are currently in transit.';
+        Text011: Label 'Outbound,Inbound';
+        Text012: Label 'You have changed one or more dimensions on the %1, which is already shipped. When you post the line with the changed dimension to General Ledger, amounts on the Inventory Interim account will be out of balance when reported per dimension.\\Do you want to keep the changed dimension?';
+        Text013: Label 'Cancelled.';
         CannotAutoReserveErr: Label 'Quantity %1 in line %2 cannot be reserved automatically.', Comment = '%1 - quantity, %2 - line number';
         MustUseTrackingErr: Label 'You must use the %1 page to specify the %2, if you use item tracking.', Comment = '%1 = Form Name, %2 = Value to Enter';
         LedgEntryWillBeOpenedMsg: Label 'When posting the Applied to Ledger Entry %1 will be opened first.', Comment = '%1 = Entry No.';
@@ -1269,7 +1270,7 @@
         if IsHandled then
             exit;
 
-        GetTransferHeaderNoVerification;
+        GetTransferHeaderNoVerification();
 
         CheckTransferHeader(TransHeader);
 
@@ -1337,8 +1338,8 @@
     procedure ShowDimensions()
     begin
         "Dimension Set ID" :=
-          DimMgt.EditDimensionSet("Dimension Set ID", StrSubstNo('%1 %2 %3', TableCaption, "Document No.", "Line No."));
-        VerifyItemLineDim;
+          DimMgt.EditDimensionSet("Dimension Set ID", StrSubstNo('%1 %2 %3', TableCaption(), "Document No.", "Line No."));
+        VerifyItemLineDim();
         DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
 
         OnAfterShowDimensions(Rec, xRec);
@@ -1414,7 +1415,7 @@
         OnBeforeValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode);
 
         DimMgt.ValidateShortcutDimValues(FieldNumber, ShortcutDimCode, "Dimension Set ID");
-        VerifyItemLineDim;
+        VerifyItemLineDim();
 
         OnAfterValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode);
     end;
@@ -1446,7 +1447,7 @@
            ("Outstanding Quantity" > 0)
         then
             if ItemCheckAvail.TransferLineCheck(Rec) then
-                ItemCheckAvail.RaiseUpdateInterruptedError;
+                ItemCheckAvail.RaiseUpdateInterruptedError();
     end;
 
     local procedure CheckItemCanBeShipped()
@@ -1560,7 +1561,7 @@
 
     procedure RenameNo(OldNo: Code[20]; NewNo: Code[20])
     begin
-        Reset;
+        Reset();
         SetRange("Item No.", OldNo);
         if not Rec.IsEmpty() then
             ModifyAll("Item No.", NewNo, true);
@@ -1766,13 +1767,13 @@
     var
         WhseIntegrationMgt: Codeunit "Whse. Integration Management";
     begin
-        if not IsInbound and ("Quantity (Base)" <> 0) then
+        if not IsInbound() and ("Quantity (Base)" <> 0) then
             WhseIntegrationMgt.CheckIfBinDedicatedOnSrcDoc("Transfer-from Code", "Transfer-from Bin Code", IssueWarning);
     end;
 
     procedure FilterLinesWithItemToPlan(var Item: Record Item; IsReceipt: Boolean; IsSupplyForPlanning: Boolean)
     begin
-        Reset;
+        Reset();
         SetCurrentKey("Item No.");
         SetRange("Item No.", Item."No.");
         SetFilter("Variant Code", Item.GetFilter("Variant Filter"));
@@ -1806,7 +1807,7 @@
 
     procedure FilterInboundLinesForReservation(ReservationEntry: Record "Reservation Entry"; AvailabilityFilter: Text; Positive: Boolean)
     begin
-        Reset;
+        Reset();
         SetCurrentKey("Transfer-to Code", "Receipt Date", "Item No.", "Variant Code");
         SetRange("Item No.", ReservationEntry."Item No.");
         SetRange("Variant Code", ReservationEntry."Variant Code");
@@ -1822,7 +1823,7 @@
 
     procedure FilterOutboundLinesForReservation(ReservationEntry: Record "Reservation Entry"; AvailabilityFilter: Text; Positive: Boolean)
     begin
-        Reset;
+        Reset();
         SetCurrentKey("Transfer-from Code", "Shipment Date", "Item No.", "Variant Code");
         SetRange("Item No.", ReservationEntry."Item No.");
         SetRange("Variant Code", ReservationEntry."Variant Code");
@@ -1838,7 +1839,7 @@
 
     procedure VerifyItemLineDim()
     begin
-        if IsShippedDimChanged then
+        if IsShippedDimChanged() then
             ConfirmShippedDimChange();
     end;
 

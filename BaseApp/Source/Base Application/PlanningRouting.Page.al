@@ -1,7 +1,7 @@
 page 99000863 "Planning Routing"
 {
     Caption = 'Planning Routing';
-    DataCaptionExpression = Caption;
+    DataCaptionExpression = Caption();
     DataCaptionFields = "Worksheet Batch Name", "Worksheet Line No.";
     PageType = List;
     SourceTable = "Planning Routing Line";
@@ -13,18 +13,18 @@ page 99000863 "Planning Routing"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Operation No."; "Operation No.")
+                field("Operation No."; Rec."Operation No.")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the operation number for this planning routing line.';
                 }
-                field("Previous Operation No."; "Previous Operation No.")
+                field("Previous Operation No."; Rec."Previous Operation No.")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the previous operation number and shows the operation that is run directly before the operation.';
                     Visible = false;
                 }
-                field("Next Operation No."; "Next Operation No.")
+                field("Next Operation No."; Rec."Next Operation No.")
                 {
                     ApplicationArea = Planning;
                     Editable = NextOperationNoEditable;
@@ -36,7 +36,7 @@ page 99000863 "Planning Routing"
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the type of operation.';
                 }
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
@@ -46,97 +46,97 @@ page 99000863 "Planning Routing"
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies a description of the task related to this routing line.';
                 }
-                field("Starting Date-Time"; "Starting Date-Time")
+                field("Starting Date-Time"; Rec."Starting Date-Time")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the starting date and the starting time, which are combined in a format called "starting date-time".';
                 }
-                field("Starting Time"; "Starting Time")
+                field("Starting Time"; Rec."Starting Time")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the starting time for the operation for this planning routing line.';
                     Visible = false;
                 }
-                field("Starting Date"; "Starting Date")
+                field("Starting Date"; Rec."Starting Date")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the starting date for the operation for this planning routing line.';
                     Visible = false;
                 }
-                field("Ending Date-Time"; "Ending Date-Time")
+                field("Ending Date-Time"; Rec."Ending Date-Time")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the ending date and the ending time, which are combined in a format called "ending date-time".';
                 }
-                field("Ending Time"; "Ending Time")
+                field("Ending Time"; Rec."Ending Time")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the ending time of the operation for this planning routing line.';
                     Visible = false;
                 }
-                field("Ending Date"; "Ending Date")
+                field("Ending Date"; Rec."Ending Date")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the ending date of the operation for this planning routing line.';
                     Visible = false;
                 }
-                field("Setup Time"; "Setup Time")
+                field("Setup Time"; Rec."Setup Time")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the setup time using the unit of measure from the Setup Time Unit of Measure field on the work or machine center card.';
                 }
-                field("Run Time"; "Run Time")
+                field("Run Time"; Rec."Run Time")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the run time of the operation.';
                 }
-                field("Wait Time"; "Wait Time")
+                field("Wait Time"; Rec."Wait Time")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the wait time.';
                 }
-                field("Move Time"; "Move Time")
+                field("Move Time"; Rec."Move Time")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the move time using the unit of measure in the Move Time Unit of Measure field on the machine or work center card.';
                 }
-                field("Fixed Scrap Quantity"; "Fixed Scrap Quantity")
+                field("Fixed Scrap Quantity"; Rec."Fixed Scrap Quantity")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies a fixed scrap quantity for this routing line.';
                     Visible = false;
                 }
-                field("Scrap Factor %"; "Scrap Factor %")
+                field("Scrap Factor %"; Rec."Scrap Factor %")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the scrap factor as a percentage.';
                     Visible = false;
                 }
-                field("Send-Ahead Quantity"; "Send-Ahead Quantity")
+                field("Send-Ahead Quantity"; Rec."Send-Ahead Quantity")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the output of the operation that must be completed before the next operation can be started.';
                     Visible = false;
                 }
-                field("Concurrent Capacities"; "Concurrent Capacities")
+                field("Concurrent Capacities"; Rec."Concurrent Capacities")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the quantity of machines or personnel that can perform their expected functions simultaneously.';
                     Visible = false;
                 }
-                field("Unit Cost per"; "Unit Cost per")
+                field("Unit Cost per"; Rec."Unit Cost per")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the unit cost for this operation if it is different than the unit cost on the work center or machine center card.';
                     Visible = false;
                 }
-                field("Lot Size"; "Lot Size")
+                field("Lot Size"; Rec."Lot Size")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the number of items that are included in the same operation at the same time. The run time on routing lines is reduced proportionally to the lot size. For example, if the lot size is two pieces, the run time will be reduced by half.';
                     Visible = false;
                 }
-                field("Expected Operation Cost Amt."; "Expected Operation Cost Amt.")
+                field("Expected Operation Cost Amt."; Rec."Expected Operation Cost Amt.")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the expected amount.';
@@ -224,13 +224,13 @@ page 99000863 "Planning Routing"
 
     trigger OnAfterGetRecord()
     begin
-        NextOperationNoEditable := not IsSerial;
+        NextOperationNoEditable := not IsSerial();
     end;
 
     trigger OnDeleteRecord(): Boolean
     begin
-        if IsSerial then
-            SetPreviousAndNext;
+        if IsSerial() then
+            SetPreviousAndNext();
     end;
 
     trigger OnInit()

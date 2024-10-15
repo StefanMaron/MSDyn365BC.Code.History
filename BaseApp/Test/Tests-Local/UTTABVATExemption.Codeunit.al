@@ -314,7 +314,7 @@ codeunit 144070 "UT TAB VAT Exemption"
 
         // Exercise: Validate VAT Exemption -  VAT Exemption Starting Date with Date after Workdate.
         asserterror
-          VATExemption.Validate("VAT Exempt. Starting Date", CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate));
+          VATExemption.Validate("VAT Exempt. Starting Date", CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate()));
 
         // Verify: Verify expected error code, actual error: VAT Exempt. Ending Date must not be prior to VAT Exempt. Starting Date.
         Assert.ExpectedErrorCode(DialogErr);
@@ -356,7 +356,7 @@ codeunit 144070 "UT TAB VAT Exemption"
 
         // Exercise: Validate VAT Exemption - VAT Exemption Ending Date with Date after Workdate.
         asserterror
-          VATExemption.Validate("VAT Exempt. Ending Date", CalcDate('<' + Format(-LibraryRandom.RandInt(10)) + 'D>', WorkDate));
+          VATExemption.Validate("VAT Exempt. Ending Date", CalcDate('<' + Format(-LibraryRandom.RandInt(10)) + 'D>', WorkDate()));
 
         // Verify: Verify expected error code, actual error: VAT Exempt. Ending Date must not be prior to VAT Exempt. Starting Date.
         Assert.ExpectedErrorCode(DialogErr);
@@ -467,7 +467,7 @@ codeunit 144070 "UT TAB VAT Exemption"
     begin
         // Setup No. Series and save the Starting No.
         StartingNo := SetNoSeries;
-        StartDate := CalcDate('<-CM>', WorkDate);
+        StartDate := CalcDate('<-CM>', WorkDate());
 
         // Create the VAT Exemption for a new Customer
         CreateVATExemptionWithValidation(
@@ -493,12 +493,12 @@ codeunit 144070 "UT TAB VAT Exemption"
         CustomerNo := CreateCustomer(true);
 
         // [GIVEN] Created the 1st VAT Exemption for current year
-        StartDate := CalcDate('<-CM>', WorkDate);
+        StartDate := CalcDate('<-CM>', WorkDate());
         CreateVATExemptionWithValidation(
           VATExemption[1], VATExemption[1].Type::Customer, CustomerNo, StartDate, GetNextRandDate(StartDate), true);
 
         // [WHEN] Create the 2nd VAT Exemption for current year
-        StartDate := CalcDate('<-CM+14D>', WorkDate);
+        StartDate := CalcDate('<-CM+14D>', WorkDate());
         // Create the 2nd VAT Exemption for current year
         CreateVATExemptionWithValidation(
           VATExemption[2], VATExemption[2].Type::Customer, CustomerNo, StartDate, GetNextRandDate(StartDate), true);
@@ -520,7 +520,7 @@ codeunit 144070 "UT TAB VAT Exemption"
         // Check that for different customers the system assigns different values of "VAT Exemption Int. Register No."
         // for a one year
         SetNoSeries;
-        StartDate := CalcDate('<-CM>', WorkDate);
+        StartDate := CalcDate('<-CM>', WorkDate());
 
         // Create a new Customer and the 1st VAT Exemption for current year
         CreateVATExemptionWithValidation(
@@ -548,13 +548,13 @@ codeunit 144070 "UT TAB VAT Exemption"
         UpdatePurchasesPayablesSetupVATExemptionNos('');
 
         // [WHEN] Create new line "VAT Exempt." for type Vendor in VAT Exempt.
-        VATExemption.Validate("VAT Exempt. Starting Date", WorkDate);
+        VATExemption.Validate("VAT Exempt. Starting Date", WorkDate());
         VATExemption.Validate(Type, VATExemption.Type::Vendor);
         asserterror VATExemption.Insert(true);
 
         // [THEN] The error was shown.
         Assert.ExpectedErrorCode(TestFieldErr);
-        VATExemption.SetRange("VAT Exempt. Starting Date", WorkDate);
+        VATExemption.SetRange("VAT Exempt. Starting Date", WorkDate());
         VATExemption.SetRange(Type, VATExemption.Type::Vendor);
         Assert.RecordIsEmpty(VATExemption);
     end;
@@ -576,9 +576,9 @@ codeunit 144070 "UT TAB VAT Exemption"
         VATExemptionNo := CopyStr(LibraryRandom.RandText(MaxStrLen(VATExemptionNo)), 1, MaxStrLen(VATExemptionNo));
 
         // [WHEN] Create new line "VAT Exempt." for type Customer in VAT Exempt.
-        VATExemption.Validate("VAT Exempt. Starting Date", WorkDate);
+        VATExemption.Validate("VAT Exempt. Starting Date", WorkDate());
         VATExemption.Validate(Type, VATExemption.Type::Customer);
-        VATExemption.Validate("VAT Exempt. Ending Date", WorkDate);
+        VATExemption.Validate("VAT Exempt. Ending Date", WorkDate());
         VATExemption.Validate("VAT Exempt. No.", VATExemptionNo);
         VATExemption.Insert(true);
 
@@ -686,7 +686,7 @@ codeunit 144070 "UT TAB VAT Exemption"
     begin
         SalesHeader."Document Type" := DocumentType;
         SalesHeader."No." := LibraryUTUtility.GetNewCode;
-        SalesHeader."Document Date" := WorkDate;
+        SalesHeader."Document Date" := WorkDate();
         SalesHeader.Insert();
     end;
 
@@ -694,7 +694,7 @@ codeunit 144070 "UT TAB VAT Exemption"
     begin
         ServiceHeader."Document Type" := DocumentType;
         ServiceHeader."No." := LibraryUTUtility.GetNewCode;
-        ServiceHeader."Document Date" := WorkDate;
+        ServiceHeader."Document Date" := WorkDate();
         ServiceHeader.Insert();
     end;
 
@@ -712,8 +712,8 @@ codeunit 144070 "UT TAB VAT Exemption"
     begin
         VATExemption.Type := VATExemption.Type::Customer;
         VATExemption."No." := CreateCustomer(false);  // Check VAT Exemption as False.
-        VATExemption."VAT Exempt. Ending Date" := WorkDate;
-        VATExemption."VAT Exempt. Starting Date" := WorkDate;
+        VATExemption."VAT Exempt. Ending Date" := WorkDate();
+        VATExemption."VAT Exempt. Starting Date" := WorkDate();
         VATExemption."VAT Exempt. Int. Registry No." := LibraryUTUtility.GetNewCode;
         VATExemption."VAT Exempt. No." := LibraryUTUtility.GetNewCode;
         VATExemption.Insert();

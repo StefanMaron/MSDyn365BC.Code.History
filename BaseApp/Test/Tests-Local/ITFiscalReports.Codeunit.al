@@ -732,7 +732,7 @@ codeunit 144192 "IT - Fiscal Reports"
 
         // [GIVEN] Service Invoice posted
         GLLastGJPrintingDatePrevValue := SetGLLastGJPrintingDate(StartDate);
-        WorkDatePrevValue := WorkDate;
+        WorkDatePrevValue := WorkDate();
         WorkDate := LibraryUtility.GenerateRandomDate(StartDate, EndDate);
         CreateAndPostServiceDocument(ServiceHeader, ServiceHeader."Document Type"::Invoice, VATRegister.Code);
 
@@ -772,7 +772,7 @@ codeunit 144192 "IT - Fiscal Reports"
 
         // [GIVEN] Service Credit Memo posted
         GLLastGJPrintingDatePrevValue := SetGLLastGJPrintingDate(StartDate);
-        WorkDatePrevValue := WorkDate;
+        WorkDatePrevValue := WorkDate();
         WorkDate := LibraryUtility.GenerateRandomDate(StartDate, EndDate);
         CreateAndPostServiceDocument(ServiceHeader, ServiceHeader."Document Type"::"Credit Memo", VATRegister.Code);
 
@@ -806,7 +806,7 @@ codeunit 144192 "IT - Fiscal Reports"
         NoSeries.Get(CreateNoSeries(NoSeries."No. Series Type"::Sales, CreateVATRegister));
         CreateVATBookEntry(
           VATBookEntry, CreateCustomer(''), NoSeries.Code, VATBookEntry.Type::Sale,
-          VATBookEntry."VAT Calculation Type"::"Reverse Charge VAT", WorkDate);
+          VATBookEntry."VAT Calculation Type"::"Reverse Charge VAT", WorkDate());
 
         // [WHEN] Run report VAT Register - Print.
         Commit();
@@ -837,7 +837,7 @@ codeunit 144192 "IT - Fiscal Reports"
         CompanyInformation.Get();
         CreateVATBookEntry(
           VATBookEntry, CreateCustomer(CompanyInformation."Country/Region Code"), NoSeries.Code, VATBookEntry.Type::Sale,
-          VATBookEntry."VAT Calculation Type"::"Reverse Charge VAT", WorkDate);
+          VATBookEntry."VAT Calculation Type"::"Reverse Charge VAT", WorkDate());
 
         // [WHEN] Run report VAT Register - Print.
         Commit();
@@ -866,7 +866,7 @@ codeunit 144192 "IT - Fiscal Reports"
         NoSeries.Get(CreateNoSeries(NoSeries."No. Series Type"::Sales, CreateVATRegister));
         CreateVATBookEntry(
           VATBookEntry, CreateCustomer(CreateCountryRegionCode), NoSeries.Code, VATBookEntry.Type::Sale,
-          VATBookEntry."VAT Calculation Type"::"Reverse Charge VAT", WorkDate);
+          VATBookEntry."VAT Calculation Type"::"Reverse Charge VAT", WorkDate());
 
         // [WHEN] Run report VAT Register - Print.
         Commit();
@@ -895,7 +895,7 @@ codeunit 144192 "IT - Fiscal Reports"
         NoSeries.Get(CreateNoSeries(NoSeries."No. Series Type"::Sales, CreateVATRegister));
         CreateVATBookEntry(
           VATBookEntry, CreateVendor(''), NoSeries.Code, VATBookEntry.Type::Purchase,
-          VATBookEntry."VAT Calculation Type"::"Reverse Charge VAT", WorkDate);
+          VATBookEntry."VAT Calculation Type"::"Reverse Charge VAT", WorkDate());
 
         // [WHEN] Run report VAT Register - Print.
         Commit();
@@ -926,7 +926,7 @@ codeunit 144192 "IT - Fiscal Reports"
         CompanyInformation.Get();
         CreateVATBookEntry(
           VATBookEntry, CreateVendor(CompanyInformation."Country/Region Code"), NoSeries.Code, VATBookEntry.Type::Purchase,
-          VATBookEntry."VAT Calculation Type"::"Reverse Charge VAT", WorkDate);
+          VATBookEntry."VAT Calculation Type"::"Reverse Charge VAT", WorkDate());
 
         // [WHEN] Run report VAT Register - Print.
         Commit();
@@ -955,7 +955,7 @@ codeunit 144192 "IT - Fiscal Reports"
         NoSeries.Get(CreateNoSeries(NoSeries."No. Series Type"::Sales, CreateVATRegister));
         CreateVATBookEntry(
           VATBookEntry, CreateVendor(CreateCountryRegionCode), NoSeries.Code, VATBookEntry.Type::Purchase,
-          VATBookEntry."VAT Calculation Type"::"Reverse Charge VAT", WorkDate);
+          VATBookEntry."VAT Calculation Type"::"Reverse Charge VAT", WorkDate());
 
         // [WHEN] Run report VAT Register - Print.
         Commit();
@@ -984,11 +984,11 @@ codeunit 144192 "IT - Fiscal Reports"
         NoSeries.Get(CreateNoSeries(NoSeries."No. Series Type"::Sales, CreateVATRegister));
         CreateVATBookEntry(
           VATBookEntry, LibraryUTUtility.GetNewCode, NoSeries.Code, VATBookEntry.Type::Settlement,
-          VATBookEntry."VAT Calculation Type"::"Reverse Charge VAT", WorkDate);
+          VATBookEntry."VAT Calculation Type"::"Reverse Charge VAT", WorkDate());
 
         // [WHEN] Run report VAT Register - Print.
         Commit();
-        StartDate := WorkDate;
+        StartDate := WorkDate();
         RunVATRegisterPrint(StartDate, GetEndDate(StartDate), NoSeries."VAT Register");
 
         // [THEN] Field IntraC is not shown in the report.
@@ -1053,7 +1053,7 @@ codeunit 144192 "IT - Fiscal Reports"
 
             RunVATRegisterReport(VATRegister, ReportType::Final, ReportStartDate, ReportEndDate, true);
 
-            VATRegister.Find;
+            VATRegister.Find();
             SetLastPrintedPage(VATRegister, (Index + 1) * 2);
 
             VerifyPageNumberOnWorksheet(Index * 2 + 1, GetYearForPageNumbering(StartDate), 16, 28, 2);
@@ -1210,7 +1210,7 @@ codeunit 144192 "IT - Fiscal Reports"
     var
         GLSetup: Record "General Ledger Setup";
     begin
-        exit(StrSubstNo(SetManuallyMsg, GLSetup.FieldCaption("Last Printed G/L Book Page"), GLSetup.TableCaption));
+        exit(StrSubstNo(SetManuallyMsg, GLSetup.FieldCaption("Last Printed G/L Book Page"), GLSetup.TableCaption()));
     end;
 
     local procedure IsEqual(Expected: Text[1024]; Actual: Text[1024]): Boolean
@@ -1366,7 +1366,7 @@ codeunit 144192 "IT - Fiscal Reports"
         ServiceHeader.Validate(
           "Operation Type",
           CreateNoSeries(NoSeries."No. Series Type"::Sales, VATRegisterCode));
-        ServiceHeader.Validate("Posting Date", WorkDate);
+        ServiceHeader.Validate("Posting Date", WorkDate());
         ServiceHeader.Modify();
         LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItem(Item));
         ServiceLine.Validate(Quantity, LibraryRandom.RandDec(10, 2));
@@ -1384,7 +1384,7 @@ codeunit 144192 "IT - Fiscal Reports"
             "No. Series Type" := NoSeriesType;
             "VAT Register" := VATRegisterCode;
             "Date Order" := true;
-            Modify;
+            Modify();
         end;
 
         LibraryERM.CreateNoSeriesLineSales(NoSeriesLineSales, NoSeries.Code, '', '');
@@ -1407,7 +1407,7 @@ codeunit 144192 "IT - Fiscal Reports"
             "Unrealized Amount" := LibraryRandom.RandDec(10, 2);
             "Unrealized Base" := "Unrealized Amount";
             "Unrealized VAT Entry No." := CreateVATEntry(VATBookEntry, PostingDate);
-            Insert;
+            Insert();
         end;
     end;
 
@@ -1416,7 +1416,7 @@ codeunit 144192 "IT - Fiscal Reports"
         VATEntry: Record "VAT Entry";
     begin
         with VATEntry do begin
-            Init;
+            Init();
             "Entry No." := LibraryUtility.GetNewRecNo(VATEntry, FieldNo("Entry No."));
             Type := VATBookEntry.Type;
             "No. Series" := VATBookEntry."No. Series";
@@ -1429,7 +1429,7 @@ codeunit 144192 "IT - Fiscal Reports"
             "Unrealized VAT Entry No." := "Entry No.";
             "Unrealized Amount" := VATBookEntry."Unrealized Amount";
             "Unrealized Base" := VATBookEntry."Unrealized Base";
-            Insert;
+            Insert();
             exit("Entry No.");
         end;
     end;
@@ -1487,7 +1487,7 @@ codeunit 144192 "IT - Fiscal Reports"
         GLSetup: Record "General Ledger Setup";
     begin
         with GLSetup do begin
-            Get;
+            Get();
             GLLastGJPrintingDatePrevValue := "Last Gen. Jour. Printing Date";
             "Last Gen. Jour. Printing Date" := StartDate - 1;
             Modify
@@ -1511,7 +1511,7 @@ codeunit 144192 "IT - Fiscal Reports"
         repeat
             ProgressiveNo += 1;
             GLBookEntry.TestField("Progressive No.", ProgressiveNo);
-        until GLBookEntry.Next = 0;
+        until GLBookEntry.Next() = 0;
     end;
 
     local procedure VerifyGLBookEntryTestPrint(StartDate: Date; EndDate: Date)
@@ -1608,7 +1608,7 @@ codeunit 144192 "IT - Fiscal Reports"
                 VATBookEntry.TestField("Printing Date", Today)
             else
                 VATBookEntry.TestField("Printing Date", 0D)
-        until VATBookEntry.Next = 0;
+        until VATBookEntry.Next() = 0;
     end;
 
     local procedure VerifyPageNumberOnWorksheet(ExpectedPageNumber: Integer; Year: Integer; RowNo: Integer; ColumnNo: Integer; WorksheetNo: Integer)
@@ -1662,7 +1662,7 @@ codeunit 144192 "IT - Fiscal Reports"
     begin
         Assert.IsTrue(
           IsEqual(
-            Message, StrSubstNo(SetManuallyMsg, VATRegister.FieldCaption("Last Printed VAT Register Page"), VATRegister.TableCaption)),
+            Message, StrSubstNo(SetManuallyMsg, VATRegister.FieldCaption("Last Printed VAT Register Page"), VATRegister.TableCaption())),
           FinalPrintMessageErr);
     end;
 

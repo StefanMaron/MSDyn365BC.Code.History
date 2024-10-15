@@ -30,7 +30,7 @@ table 7346 "Internal Movement Header"
 
                 CheckLocationSettings("Location Code");
                 if "Location Code" <> xRec."Location Code" then begin
-                    if LineExist then
+                    if LineExist() then
                         Error(LinesExistErr, FieldCaption("Location Code"));
                     "To Bin Code" := '';
                 end;
@@ -130,7 +130,7 @@ table 7346 "Internal Movement Header"
             trigger OnValidate()
             begin
                 if "Sorting Method" <> xRec."Sorting Method" then
-                    SortWhseDoc;
+                    SortWhseDoc();
             end;
         }
     }
@@ -149,7 +149,7 @@ table 7346 "Internal Movement Header"
 
     trigger OnDelete()
     begin
-        DeleteRelatedLines;
+        DeleteRelatedLines();
     end;
 
     trigger OnInsert()
@@ -257,7 +257,7 @@ table 7346 "Internal Movement Header"
         if not WhseEmployee.IsEmpty() then
             CurrentLocationCode := InternalMovementHeader."Location Code"
         else
-            CurrentLocationCode := GetDefaultOrFirstAllowedLocation;
+            CurrentLocationCode := GetDefaultOrFirstAllowedLocation();
 
         InternalMovementHeader.FilterGroup := 2;
         InternalMovementHeader.SetRange("Location Code", CurrentLocationCode);
@@ -327,10 +327,10 @@ table 7346 "Internal Movement Header"
     local procedure GetFirstLocationCodeFromLocationsofWhseEmployee(var LocationCode: Code[10]; var WhseEmployeesatLocations: Query "Whse. Employees at Locations"): Boolean
     begin
         WhseEmployeesatLocations.TopNumberOfRows(1);
-        if WhseEmployeesatLocations.Open then
-            if WhseEmployeesatLocations.Read then begin
+        if WhseEmployeesatLocations.Open() then
+            if WhseEmployeesatLocations.Read() then begin
                 LocationCode := WhseEmployeesatLocations.Code;
-                WhseEmployeesatLocations.Close;
+                WhseEmployeesatLocations.Close();
                 exit(true);
             end;
 

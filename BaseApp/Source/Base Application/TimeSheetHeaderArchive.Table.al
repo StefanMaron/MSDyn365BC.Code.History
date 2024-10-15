@@ -133,11 +133,11 @@ table 954 "Time Sheet Header Archive"
 
     procedure FindLastTimeSheetArchiveNo(FilterFieldNo: Integer): Code[20]
     begin
-        Reset;
+        Reset();
         SetCurrentKey("Resource No.", "Starting Date");
 
         TimeSheetMgt.FilterTimeSheetsArchive(Rec, FilterFieldNo);
-        SetFilter("Starting Date", '%1..', WorkDate);
+        SetFilter("Starting Date", '%1..', WorkDate());
         if not FindFirst() then begin
             SetRange("Starting Date");
             SetRange("Ending Date");

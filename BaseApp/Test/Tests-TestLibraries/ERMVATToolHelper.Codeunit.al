@@ -41,7 +41,7 @@ codeunit 131334 "ERM VAT Tool - Helper"
         if SalesLine.FindSet() then
             repeat
                 LibrarySales.AutoReserveSalesLine(SalesLine);
-            until SalesLine.Next = 0;
+            until SalesLine.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -76,9 +76,6 @@ codeunit 131334 "ERM VAT Tool - Helper"
             DATABASE::"Gen. Jnl. Allocation",
             DATABASE::"Gen. Journal Line",
             DATABASE::Item,
-#if not CLEAN18
-            DATABASE::"Item Template",
-#endif
             DATABASE::"Item Charge",
             DATABASE::"Purchase Line",
             DATABASE::Resource,
@@ -92,7 +89,7 @@ codeunit 131334 "ERM VAT Tool - Helper"
                 end;
         end;
 
-        exit(RecRef.FindSet);
+        exit(RecRef.FindSet());
     end;
 
     local procedure BlockItems()
@@ -116,7 +113,7 @@ codeunit 131334 "ERM VAT Tool - Helper"
             repeat
                 Item.Validate(Blocked, true);
                 Item.Modify(true);
-            until Item.Next = 0;
+            until Item.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -174,7 +171,7 @@ codeunit 131334 "ERM VAT Tool - Helper"
                 begin
                     TempRecRef.SetTable(PurchaseLine);
                     LineNo := PurchaseLine."Line No.";
-                    TempRecRef := TempRecRef.Duplicate;
+                    TempRecRef := TempRecRef.Duplicate();
                     FieldRef := TempRecRef.Field(PurchaseLine.FieldNo("Line No."));
                     VATRateChangeConversion.GetNextPurchaseLineNo(PurchaseLine, NextLineNo);
                     FieldRef.Value(NextLineNo);
@@ -191,7 +188,7 @@ codeunit 131334 "ERM VAT Tool - Helper"
                 begin
                     TempRecRef.SetTable(SalesLine);
                     LineNo := SalesLine."Line No.";
-                    TempRecRef := TempRecRef.Duplicate;
+                    TempRecRef := TempRecRef.Duplicate();
                     FieldRef := TempRecRef.Field(SalesLine.FieldNo("Line No."));
                     VATRateChangeConversion.GetNextSalesLineNo(SalesLine, NextLineNo);
                     FieldRef.Value(NextLineNo);
@@ -207,7 +204,7 @@ codeunit 131334 "ERM VAT Tool - Helper"
             DATABASE::"Service Line":
                 begin
                     TempRecRef.SetTable(ServiceLine);
-                    TempRecRef := TempRecRef.Duplicate;
+                    TempRecRef := TempRecRef.Duplicate();
                     FieldRef := TempRecRef.Field(ServiceLine.FieldNo("Line No."));
                     VATRateChangeConversion.GetNextServiceLineNo(ServiceLine, NextLineNo);
                     FieldRef.Value(NextLineNo);
@@ -348,7 +345,7 @@ codeunit 131334 "ERM VAT Tool - Helper"
         PurchaseLine.FindSet();
         repeat
             if PurchaseLine."No." = '' then
-                PurchaseLine.Next;
+                PurchaseLine.Next();
             RecRef.GetTable(PurchaseLine);
             if TempRecRef.Get(RecRef.RecordId) then
                 TempRecRef.Delete(false);
@@ -361,7 +358,7 @@ codeunit 131334 "ERM VAT Tool - Helper"
                 if GetBlanketOrderLinePurchase(PurchaseLine3, PurchaseLine) then
                     SplitLineRefPurchase(TempRecRef, PurchaseLine3, PurchaseLine."Qty. to Receive");
             end;
-        until PurchaseLine.Next = 0;
+        until PurchaseLine.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -376,7 +373,7 @@ codeunit 131334 "ERM VAT Tool - Helper"
         SalesLine.FindSet();
         repeat
             if SalesLine."No." = '' then
-                SalesLine.Next;
+                SalesLine.Next();
             RecRef.GetTable(SalesLine);
             if TempRecRef.Get(RecRef.RecordId) then
                 TempRecRef.Delete(false);
@@ -389,7 +386,7 @@ codeunit 131334 "ERM VAT Tool - Helper"
                 if GetBlanketOrderLineSales(SalesLine3, SalesLine) then
                     SplitLineRefSales(TempRecRef, SalesLine3, SalesLine."Qty. to Ship");
             end;
-        until SalesLine.Next = 0;
+        until SalesLine.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -403,14 +400,14 @@ codeunit 131334 "ERM VAT Tool - Helper"
         ServiceLine.FindSet();
         repeat
             if ServiceLine."No." = '' then
-                ServiceLine.Next;
+                ServiceLine.Next();
             RecRef.GetTable(ServiceLine);
             if TempRecRef.Get(RecRef.RecordId) then
                 TempRecRef.Delete(false);
             CopyRecordRef(RecRef, TempRecRef);
             if IsSplitLineService(ServiceLine) then
                 SplitLineRefService(TempRecRef, ServiceLine, ServiceLine."Qty. to Ship"); // Update Reference Lines.
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -666,7 +663,7 @@ codeunit 131334 "ERM VAT Tool - Helper"
                     GenProdPostingGroup.DeleteAll();
                 end;
                 VATRateChangeConv.Delete(true);
-            until VATRateChangeConv.Next = 0;
+            until VATRateChangeConv.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -691,7 +688,7 @@ codeunit 131334 "ERM VAT Tool - Helper"
         ItemTrackingCode: Record "Item Tracking Code";
     begin
         with ItemTrackingCode do begin
-            Init;
+            Init();
             Validate(Code, LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"Item Tracking Code"));
             Insert(true);
             Validate("SN Specific Tracking", false);
@@ -767,9 +764,6 @@ codeunit 131334 "ERM VAT Tool - Helper"
         GenJournalLine: Record "Gen. Journal Line";
         GLAccount: Record "G/L Account";
         Item: Record Item;
-#if not CLEAN18
-       ItemTemplate: Record "Item Template";
-#endif
         ItemCharge: Record "Item Charge";
         JobJournalLine: Record "Job Journal Line";
         MachineCenter: Record "Machine Center";
@@ -794,10 +788,6 @@ codeunit 131334 "ERM VAT Tool - Helper"
                 exit(GLAccount.FieldNo("Gen. Prod. Posting Group"));
             DATABASE::Item:
                 exit(Item.FieldNo("Gen. Prod. Posting Group"));
-#if not CLEAN18
-            DATABASE::"Item Template":
-                exit(ItemTemplate.FieldNo("Gen. Prod. Posting Group"));
-#endif
             DATABASE::"Item Charge":
                 exit(ItemCharge.FieldNo("Gen. Prod. Posting Group"));
             DATABASE::"Job Journal Line":
@@ -898,12 +888,12 @@ codeunit 131334 "ERM VAT Tool - Helper"
     procedure GetReservationEntry(var ReservationEntry: Record "Reservation Entry"; SourceType: Integer; DocumentNo: Code[20]; DocumentType: Option; LineNo: Integer): Boolean
     begin
         with ReservationEntry do begin
-            Reset;
+            Reset();
             SetRange("Source ID", DocumentNo);
             SetRange("Source Ref. No.", LineNo);
             SetRange("Source Type", SourceType);
             SetRange("Source Subtype", DocumentType);
-            exit(FindSet);
+            exit(FindSet());
         end;
     end;
 
@@ -958,10 +948,6 @@ codeunit 131334 "ERM VAT Tool - Helper"
                 exit(VATRateChangeSetup.FieldNo("Update G/L Accounts"));
             DATABASE::Item:
                 exit(VATRateChangeSetup.FieldNo("Update Items"));
-#if not CLEAN18
-            DATABASE::"Item Template":
-                exit(VATRateChangeSetup.FieldNo("Update Item Templates"));
-#endif
             DATABASE::"Item Charge":
                 exit(VATRateChangeSetup.FieldNo("Update Item Charges"));
             DATABASE::"Job Journal Line":
@@ -1003,7 +989,7 @@ codeunit 131334 "ERM VAT Tool - Helper"
         UpdateOption: Integer;
     begin
         RecRef.Open(DATABASE::"VAT Rate Change Setup");
-        RecRef.Find;
+        RecRef.Find();
         FieldRef := RecRef.Field(GetVATChangeSetupUpdateField(TableId));
         // VAT Prod. Posting Group = 1, Gen. Prod. Posting Group = 2, Both = 3, No = 4
         UpdateOption := FieldRef.Value;
@@ -1019,9 +1005,6 @@ codeunit 131334 "ERM VAT Tool - Helper"
         GenProdPostingGroup: Record "Gen. Product Posting Group";
         GLAccount: Record "G/L Account";
         Item: Record Item;
-#if not CLEAN18
-        ItemTemplate: Record "Item Template";
-#endif
         ItemCharge: Record "Item Charge";
         PurchaseLine: Record "Purchase Line";
         ReminderLine: Record "Reminder Line";
@@ -1043,10 +1026,6 @@ codeunit 131334 "ERM VAT Tool - Helper"
                 exit(GLAccount.FieldNo("VAT Prod. Posting Group"));
             DATABASE::Item:
                 exit(Item.FieldNo("VAT Prod. Posting Group"));
-#if not CLEAN18
-            DATABASE::"Item Template":
-                exit(ItemTemplate.FieldNo("VAT Prod. Posting Group"));
-#endif
             DATABASE::"Item Charge":
                 exit(ItemCharge.FieldNo("VAT Prod. Posting Group"));
             DATABASE::"Purchase Line":
@@ -1078,7 +1057,7 @@ codeunit 131334 "ERM VAT Tool - Helper"
     begin
         VATRateChangeConversion.SetRange(Type, VATRateChangeConversion.Type::"VAT Prod. Posting Group");
         VATRateChangeConversion.SetFilter("To Code", ToCode);
-        exit(VATRateChangeConversion.FindFirst);
+        exit(VATRateChangeConversion.FindFirst())
     end;
 
     [Scope('OnPrem')]
@@ -1088,7 +1067,7 @@ codeunit 131334 "ERM VAT Tool - Helper"
     begin
         VATRateChangeConversion.SetRange(Type, VATRateChangeConversion.Type::"Gen. Prod. Posting Group");
         VATRateChangeConversion.SetFilter("To Code", ToCode);
-        exit(VATRateChangeConversion.FindFirst);
+        exit(VATRateChangeConversion.FindFirst())
     end;
 
     [Scope('OnPrem')]
@@ -1224,7 +1203,7 @@ codeunit 131334 "ERM VAT Tool - Helper"
             else
                 WhseReceiptLine.Validate("Qty. to Receive", WhseReceiptLine.Quantity);
             WhseReceiptLine.Modify(true);
-        until WhseReceiptLine.Next = 0;
+        until WhseReceiptLine.Next() = 0;
         LibraryWarehouse.PostWhseReceipt(WhseReceiptHeader);
     end;
 
@@ -1246,7 +1225,7 @@ codeunit 131334 "ERM VAT Tool - Helper"
             else
                 WhseShipmentLine.Validate("Qty. to Ship", WhseShipmentLine.Quantity);
             WhseShipmentLine.Modify(true);
-        until WhseShipmentLine.Next = 0;
+        until WhseShipmentLine.Next() = 0;
         LibraryWarehouse.PostWhseShipment(WhseShipmentHeader, false);
     end;
 
@@ -1269,8 +1248,8 @@ codeunit 131334 "ERM VAT Tool - Helper"
     begin
         with VATRateChangeSetup do begin
             DeleteAll();
-            Init;
-            Insert;
+            Init();
+            Insert();
             "Update Gen. Prod. Post. Groups" := "Update Gen. Prod. Post. Groups"::No;
             "Update G/L Accounts" := "Update G/L Accounts"::No;
             "Update Items" := "Update Items"::No;
@@ -1318,7 +1297,7 @@ codeunit 131334 "ERM VAT Tool - Helper"
     begin
         FieldRef := TableRecRef.Field(FieldNo);
         FieldRef.SetFilter(FieldValue);
-        exit(TableRecRef.FindSet);
+        exit(TableRecRef.FindSet());
     end;
 
     [Scope('OnPrem')]
@@ -1331,7 +1310,7 @@ codeunit 131334 "ERM VAT Tool - Helper"
         FieldRef2 := TableRecRef.Field(Field2No);
         FieldRef1.SetFilter(Field1Value);
         FieldRef2.SetFilter(Field2Value);
-        exit(TableRecRef.FindSet);
+        exit(TableRecRef.FindSet());
     end;
 
     [Scope('OnPrem')]
@@ -1414,7 +1393,7 @@ codeunit 131334 "ERM VAT Tool - Helper"
         VATRateChangeConv: Record "VAT Rate Change Conversion";
     begin
         with VATRateChangeConv do begin
-            Init;
+            Init();
             Validate(Type, GroupType);
             Validate("From Code", FromGenProdPostingGroup);
             Validate("To Code", ToGenProdPostingGroup);
@@ -1515,7 +1494,7 @@ codeunit 131334 "ERM VAT Tool - Helper"
                     PurchaseLine2.SetFilter("Blanket Order No.", PurchaseLine."Document No.");
                     PurchaseLine2.SetRange("Blanket Order Line No.", LineNo);
                     PurchaseLine2.SetFilter("Description 2", '<>''''');
-                    TempRecRef.SetView(PurchaseLine2.GetView);
+                    TempRecRef.SetView(PurchaseLine2.GetView());
                     TempRecRef.FindFirst();
                     FieldRef := TempRecRef.Field(PurchaseLine2.FieldNo("Blanket Order Line No."));
                     FieldRef.Value(NextLineNo);
@@ -1527,7 +1506,7 @@ codeunit 131334 "ERM VAT Tool - Helper"
                     SalesLine2.SetFilter("Blanket Order No.", SalesLine."Document No.");
                     SalesLine2.SetRange("Blanket Order Line No.", LineNo);
                     SalesLine2.SetFilter("Description 2", '<>''''');
-                    TempRecRef.SetView(SalesLine2.GetView);
+                    TempRecRef.SetView(SalesLine2.GetView());
                     TempRecRef.FindFirst();
                     FieldRef := TempRecRef.Field(SalesLine2.FieldNo("Blanket Order Line No."));
                     FieldRef.Value(NextLineNo);
@@ -1540,7 +1519,7 @@ codeunit 131334 "ERM VAT Tool - Helper"
     [Scope('OnPrem')]
     procedure UpdateQtyToAssignPurchase(var ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)"; PurchLine: Record "Purchase Line")
     begin
-        PurchLine.Find;
+        PurchLine.Find();
         ItemChargeAssignmentPurch.Validate("Qty. to Assign", PurchLine."Qty. to Invoice");
         ItemChargeAssignmentPurch.Modify(true);
     end;
@@ -1548,7 +1527,7 @@ codeunit 131334 "ERM VAT Tool - Helper"
     [Scope('OnPrem')]
     procedure UpdateQtyToAssignSales(var ItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)"; SalesLine: Record "Sales Line")
     begin
-        SalesLine.Find;
+        SalesLine.Find();
         ItemChargeAssignmentSales.Validate("Qty. to Assign", SalesLine."Qty. to Invoice");
         ItemChargeAssignmentSales.Modify(true);
     end;
@@ -1613,7 +1592,7 @@ codeunit 131334 "ERM VAT Tool - Helper"
         for I := ReservationEntry.Count - 1 downto Qty do begin
             ReservationEntry.Validate("Qty. to Handle (Base)", 0);
             ReservationEntry.Modify(true);
-            ReservationEntry.Next;
+            ReservationEntry.Next();
         end;
     end;
 
@@ -1628,7 +1607,7 @@ codeunit 131334 "ERM VAT Tool - Helper"
 
         repeat
             UpdateLineQtyToConsumeInvoice(ServiceLine, Consume, Invoice);
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -1679,7 +1658,7 @@ codeunit 131334 "ERM VAT Tool - Helper"
 
         repeat
             UpdateLineQtyToReceive(PurchaseLine);
-        until PurchaseLine.Next = 0;
+        until PurchaseLine.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -1693,7 +1672,7 @@ codeunit 131334 "ERM VAT Tool - Helper"
 
         repeat
             UpdateLineQtyToShip(SalesLine);
-        until SalesLine.Next = 0;
+        until SalesLine.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -1707,7 +1686,7 @@ codeunit 131334 "ERM VAT Tool - Helper"
 
         repeat
             UpdateLineQtyToShipService(ServiceLine);
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -1751,8 +1730,8 @@ codeunit 131334 "ERM VAT Tool - Helper"
           StrSubstNo(ConversionErrorCount, DataAfterUpdateRecRef.GetFilters));
         repeat
             VerifyPrimaryKeysAreEqual(DataToUpdateRecRef, DataAfterUpdateRecRef);
-            DataAfterUpdateRecRef.Next;
-        until DataToUpdateRecRef.Next = 0;
+            DataAfterUpdateRecRef.Next();
+        until DataToUpdateRecRef.Next() = 0;
     end;
 
     local procedure VerifyGroupsInLogEntry(VATRateChangeLogEntry: Record "VAT Rate Change Log Entry"; TableID: Integer)
@@ -1813,7 +1792,7 @@ codeunit 131334 "ERM VAT Tool - Helper"
                     Assert.AreNotEqual('', Description, StrSubstNo(LogEntryErrorContent, FieldName(Description)));
                     Next;
                 end;
-            until TempRecRef.Next = 0;
+            until TempRecRef.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -1831,21 +1810,21 @@ codeunit 131334 "ERM VAT Tool - Helper"
                     SetRange("Record ID", TempRecRef.RecordId);
                     Assert.IsTrue(FindFirst, StrSubstNo(LogEntryErrorNoEntry, TempRecRef.RecordId));
                     TestField(Converted, true);
-                    TestField("Converted Date", WorkDate);
+                    TestField("Converted Date", WorkDate());
                     TestField("Old VAT Prod. Posting Group", "New VAT Prod. Posting Group");
                     TestField("Old Gen. Prod. Posting Group", "New Gen. Prod. Posting Group");
                     Assert.AreNotEqual('', Description, StrSubstNo(LogEntryErrorContent, FieldName(Description)));
                     // Verify log for split line
-                    TempRecRef.Next;
+                    TempRecRef.Next();
                     SetRange("Table ID", TempRecRef.Number);
                     SetRange("Record ID", TempRecRef.RecordId);
                     Assert.IsTrue(FindFirst, StrSubstNo(LogEntryErrorNoEntry, TempRecRef.RecordId));
                     Assert.IsTrue(Converted, StrSubstNo(LogEntryErrorContent, FieldName(Converted)));
-                    Assert.AreEqual(WorkDate, "Converted Date", StrSubstNo(LogEntryErrorContent, FieldName("Converted Date")));
+                    Assert.AreEqual(WorkDate(), "Converted Date", StrSubstNo(LogEntryErrorContent, FieldName("Converted Date")));
                     VerifyGroupsInLogEntry(VATRateChangeLogEntry, TempRecRef.Number);
                     Assert.AreNotEqual('', Description, StrSubstNo(LogEntryErrorContent, FieldName(Description)));
                 end;
-            until TempRecRef.Next = 0;
+            until TempRecRef.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -1886,11 +1865,11 @@ codeunit 131334 "ERM VAT Tool - Helper"
                         SetRange("Record ID", TempRecRef.RecordId);
                     Assert.IsTrue(FindFirst, StrSubstNo(LogEntryErrorNoEntry, TempRecRef.RecordId));
                     TestField(Converted, true);
-                    TestField("Converted Date", WorkDate);
+                    TestField("Converted Date", WorkDate());
                     TestField(Description, '');
                     VerifyGroupsInLogEntry(VATRateChangeLogEntry, TempRecRef.Number);
                 end;
-            until TempRecRef.Next = 0;
+            until TempRecRef.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -2004,8 +1983,8 @@ codeunit 131334 "ERM VAT Tool - Helper"
             Assert.AreEqual(DataToUpdateRecRef.Field(ServPriceAdjustmentDetail.FieldNo("Serv. Price Adjmt. Gr. Code")).Value,
               DataAfterUpdateRecRef.Field(ServPriceAdjustmentDetail.FieldNo("Serv. Price Adjmt. Gr. Code")).Value,
               ConversionErrorCompare);
-            DataAfterUpdateRecRef.Next;
-        until DataToUpdateRecRef.Next = 0;
+            DataAfterUpdateRecRef.Next();
+        until DataToUpdateRecRef.Next() = 0;
     end;
 
     [Scope('OnPrem')]

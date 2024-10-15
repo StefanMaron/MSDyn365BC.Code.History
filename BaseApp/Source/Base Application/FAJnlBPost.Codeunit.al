@@ -5,20 +5,21 @@ codeunit 5637 "FA. Jnl.-B.Post"
     trigger OnRun()
     begin
         FAJnlBatch.Copy(Rec);
-        Code;
+        Code();
         Copy(FAJnlBatch);
     end;
 
     var
-        Text000: Label 'Do you want to post the journals?';
-        Text001: Label 'The journals were successfully posted.';
-        Text002: Label 'It was not possible to post all of the journals. ';
-        Text003: Label 'The journals that were not successfully posted are now marked.';
         FAJnlTemplate: Record "FA Journal Template";
         FAJnlBatch: Record "FA Journal Batch";
         FAJnlLine: Record "FA Journal Line";
         FAJnlPostBatch: Codeunit "FA Jnl.-Post Batch";
         JournalWithErrors: Boolean;
+
+        Text000: Label 'Do you want to post the journals?';
+        Text001: Label 'The journals were successfully posted.';
+        Text002: Label 'It was not possible to post all of the journals. ';
+        Text003: Label 'The journals that were not successfully posted are now marked.';
 
     local procedure "Code"()
     var
@@ -31,7 +32,7 @@ codeunit 5637 "FA. Jnl.-B.Post"
             if not Confirm(Text000, false) then
                 exit;
 
-            DeprBook.CompressingWarning;
+            DeprBook.CompressingWarning();
             Find('-');
             repeat
                 FAJnlLine."Journal Template Name" := "Journal Template Name";
@@ -54,7 +55,7 @@ codeunit 5637 "FA. Jnl.-B.Post"
                   Text003);
 
             if not Find('=><') then begin
-                Reset;
+                Reset();
                 FilterGroup := 2;
                 SetRange("Journal Template Name", "Journal Template Name");
                 FilterGroup := 0;

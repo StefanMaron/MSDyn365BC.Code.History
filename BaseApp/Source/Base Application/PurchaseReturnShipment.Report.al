@@ -455,14 +455,14 @@ report 6636 "Purchase - Return Shipment"
                 trigger OnAfterGetRecord()
                 begin
                     if Number > 1 then begin
-                        CopyText := FormatDocument.GetCOPYText;
+                        CopyText := FormatDocument.GetCOPYText();
                         OutputNo += 1;
                     end;
                 end;
 
                 trigger OnPostDataItem()
                 begin
-                    if not IsReportInPreviewMode then
+                    if not IsReportInPreviewMode() then
                         CODEUNIT.Run(CODEUNIT::"Return Shipment - Printed", "Return Shipment Header");
                 end;
 
@@ -481,7 +481,7 @@ report 6636 "Purchase - Return Shipment"
             begin
                 CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
 
-                TDDDocument := CheckTDDData;
+                TDDDocument := CheckTDDData();
                 if TDDDocument then begin
                     ContracterTxt := Text12100;
                     TDDHeaderTxt := ' / ' + Text12101;
@@ -557,7 +557,7 @@ report 6636 "Purchase - Return Shipment"
 
         trigger OnOpenPage()
         begin
-            InitLogInteraction;
+            InitLogInteraction();
             LogInteractionEnable := LogInteraction;
         end;
     }
@@ -570,12 +570,12 @@ report 6636 "Purchase - Return Shipment"
     begin
         CompanyInfo.Get();
 
-        OnAfterInitReport;
+        OnAfterInitReport();
     end;
 
     trigger OnPostReport()
     begin
-        if LogInteraction and not IsReportInPreviewMode then
+        if LogInteraction and not IsReportInPreviewMode() then
             if "Return Shipment Header".FindSet() then
                 repeat
                     SegManagement.LogDocument(21, "Return Shipment Header"."No.", 0, 0, DATABASE::Vendor,
@@ -587,7 +587,7 @@ report 6636 "Purchase - Return Shipment"
     trigger OnPreReport()
     begin
         if not CurrReport.UseRequestPage then
-            InitLogInteraction;
+            InitLogInteraction();
     end;
 
     var
@@ -606,7 +606,7 @@ report 6636 "Purchase - Return Shipment"
         ShptShipToAddr: array[8] of Text[100];
         ShptBuyFromAddr: array[8] of Text[100];
         CompanyAddr: array[8] of Text[100];
-        PurchaserText: Text[30];
+        PurchaserText: Text[50];
         ReferenceText: Text[80];
         CopyText: Text[30];
         DimText: Text[120];
@@ -674,7 +674,7 @@ report 6636 "Purchase - Return Shipment"
     var
         MailManagement: Codeunit "Mail Management";
     begin
-        exit(CurrReport.Preview or MailManagement.IsHandlingGetEmailBody);
+        exit(CurrReport.Preview or MailManagement.IsHandlingGetEmailBody());
     end;
 
     local procedure FormatAddressFields(var ReturnShipmentHeader: Record "Return Shipment Header")

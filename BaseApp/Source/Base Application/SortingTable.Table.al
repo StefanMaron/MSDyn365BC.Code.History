@@ -70,7 +70,7 @@ table 1051 "Sorting Table"
         AddFeeSetup.SetRange("Reminder Level No.", ReminderLevel."No.");
         AddFeeSetup.SetRange("Charge Per Line", ChargePerLine);
         AddFeeSetup.SetRange("Currency Code", Currency);
-        if (not AddFeeSetup.FindSet) and (Currency <> '') then begin
+        if (not AddFeeSetup.FindSet()) and (Currency <> '') then begin
             AddFeeSetup.SetRange("Currency Code", '');
             CurrencyFactor := CurrencyExchangeRate.ExchangeAmtLCYToFCY(
                 Today, Currency,
@@ -102,7 +102,7 @@ table 1051 "Sorting Table"
                        (AddFeeSetup."Additional Fee Amount" < AddFeeSetup."Min. Additional Fee Amount")
                     then begin
                         NextRangeStart := 0;
-                        if AddFeeSetup.Next <> 0 then begin
+                        if AddFeeSetup.Next() <> 0 then begin
                             NextRangeStart := AddFeeSetup."Threshold Remaining Amount";
                             AddFeeSetup.Next(-1);
                         end;

@@ -1,4 +1,4 @@
-page 9008 "Whse. Basic Role Center"
+﻿page 9008 "Whse. Basic Role Center"
 {
     Caption = 'Inventory Manager';
     PageType = RoleCenter;
@@ -44,7 +44,18 @@ page 9008 "Whse. Basic Role Center"
                 ApplicationArea = Warehouse;
                 Visible = false;
             }
+#if not CLEAN21
             part("Power BI Report Spinner Part"; "Power BI Report Spinner Part")
+            {
+                AccessByPermission = TableData "Power BI User Configuration" = I;
+                ApplicationArea = Basic, Suite;
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Replaced by PowerBIEmbeddedReportPart';
+                Visible = false;
+                ObsoleteTag = '21.0';
+            }
+#endif
+            part(PowerBIEmbeddedReportPart; "Power BI Embedded Report Part")
             {
                 AccessByPermission = TableData "Power BI User Configuration" = I;
                 ApplicationArea = Basic, Suite;
@@ -649,73 +660,6 @@ page 9008 "Whse. Basic Role Center"
                     ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
                 }
             }
-#if not CLEAN18
-            group(SetupAndExtensions)
-            {
-                Caption = 'Setup & Extensions';
-                Image = Setup;
-                ToolTip = 'Overview and change system and application settings, and manage extensions and services';
-                Visible = false;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'The new common entry points to all Settings is introduced in the app bar''s cogwheel menu (aligned with the Office apps).';
-                ObsoleteTag = '18.0';
-                action("Assisted Setup")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Assisted Setup';
-                    Image = QuestionaireSetup;
-                    RunObject = Page "Assisted Setup";
-                    ToolTip = 'Set up core functionality such as sales tax, sending documents as email, and approval workflow by running through a few pages that guide you through the information.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The new common entry points to all Settings is introduced in the app bar''s cogwheel menu (aligned with the Office apps).';
-                    ObsoleteTag = '18.0';
-                }
-                action("Manual Setup")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Manual Setup';
-                    RunObject = Page "Manual Setup";
-                    ToolTip = 'Define your company policies for business departments and for general activities by filling setup windows manually.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The new common entry points to all Settings is introduced in the app bar''s cogwheel menu (aligned with the Office apps).';
-                    ObsoleteTag = '18.0';
-                }
-                action("Service Connections")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Service Connections';
-                    Image = ServiceTasks;
-                    RunObject = Page "Service Connections";
-                    ToolTip = 'Enable and configure external services, such as exchange rate updates, Microsoft Social Engagement, and electronic bank integration.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The new common entry points to all Settings is introduced in the app bar''s cogwheel menu (aligned with the Office apps).';
-                    ObsoleteTag = '18.0';
-                }
-                action(Extensions)
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Extensions';
-                    Image = NonStockItemSetup;
-                    RunObject = Page "Extension Management";
-                    ToolTip = 'Install Extensions for greater functionality of the system.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The new common entry points to all Settings is introduced in the app bar''s cogwheel menu (aligned with the Office apps).';
-                    ObsoleteTag = '18.0';
-                }
-                action(Workflows)
-                {
-                    ApplicationArea = Suite;
-                    Caption = 'Workflows';
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    RunObject = Page Workflows;
-                    ToolTip = 'Set up or enable workflows that connect business-process tasks performed by different users. System tasks, such as automatic posting, can be included as steps in workflows, preceded or followed by user tasks. Requesting and granting approval to create new records are typical workflow steps.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The new common entry points to all Settings is introduced in the app bar''s cogwheel menu (aligned with the Office apps).';
-                    ObsoleteTag = '18.0';
-                }
-            }
-#endif
         }
         area(creation)
         {

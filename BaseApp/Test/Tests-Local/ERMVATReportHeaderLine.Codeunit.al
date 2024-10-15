@@ -79,7 +79,7 @@ codeunit 134056 "ERM VAT Report Header Line"
         VATReportHdr.Get('Test');
 
         asserterror VATReportHdr.Modify(true);
-        Assert.ExpectedError(StrSubstNo(OnModifyErr, VATReportHdr.TableCaption));
+        Assert.ExpectedError(StrSubstNo(OnModifyErr, VATReportHdr.TableCaption()));
 
         VATReportHdr."Start Date" := Today;
         VATReportHdr."End Date" := Today;
@@ -94,12 +94,12 @@ codeunit 134056 "ERM VAT Report Header Line"
     begin
         Initialize();
         VATReportHdr.Get('Test');
-        VATReportHdr.InitRecord;
+        VATReportHdr.InitRecord();
 
         Assert.AreEqual(
-          VATReportHdr."Start Date", WorkDate, StrSubstNo(DateErr, VATReportHdr.FieldCaption("Original Report No.")));
+          VATReportHdr."Start Date", WorkDate(), StrSubstNo(DateErr, VATReportHdr.FieldCaption("Original Report No.")));
         Assert.AreEqual(
-          VATReportHdr."End Date", WorkDate, StrSubstNo(DateErr, VATReportHdr.FieldCaption("Original Report No.")));
+          VATReportHdr."End Date", WorkDate(), StrSubstNo(DateErr, VATReportHdr.FieldCaption("Original Report No.")));
     end;
 
     [Test]
@@ -187,7 +187,7 @@ codeunit 134056 "ERM VAT Report Header Line"
         VATReportHdr.Status := VATReportHdr.Status::Submitted;
 
         asserterror VATReportHdr.CheckIfCanBeReopened(VATReportHdr);
-        Assert.ExpectedError(StrSubstNo(CheckReopenedErr, VATReportSetup.TableCaption));
+        Assert.ExpectedError(StrSubstNo(CheckReopenedErr, VATReportSetup.TableCaption()));
     end;
 
     [Test]
@@ -253,11 +253,11 @@ codeunit 134056 "ERM VAT Report Header Line"
         VATReportHdr.Status := VATReportHdr.Status::Released;
         VATReportHdr."Tax Auth. Receipt No." := 'x';
         VATReportHdr."Tax Auth. Document No." := 'y';
-        VATReportHdr.CheckIfCanBeSubmitted;
+        VATReportHdr.CheckIfCanBeSubmitted();
 
         VATReportHdr.Status := VATReportHdr.Status::Open;
-        asserterror VATReportHdr.CheckIfCanBeSubmitted;
-        Assert.ExpectedError(StrSubstNo(CanBeSubmittedErr, VATReportHdr.TableCaption));
+        asserterror VATReportHdr.CheckIfCanBeSubmitted();
+        Assert.ExpectedError(StrSubstNo(CanBeSubmittedErr, VATReportHdr.TableCaption()));
     end;
 
     [Test]
@@ -271,13 +271,13 @@ codeunit 134056 "ERM VAT Report Header Line"
         // Test Start date
         VATReportHdr."Start Date" := 0D;
         asserterror VATReportHdr.CheckDates;
-        Assert.ExpectedError(StrSubstNo(StartDateErr, VATReportHdr.TableCaption));
+        Assert.ExpectedError(StrSubstNo(StartDateErr, VATReportHdr.TableCaption()));
 
         // Test End date
         VATReportHdr."Start Date" := Today;
         VATReportHdr."End Date" := 0D;
         asserterror VATReportHdr.CheckDates;
-        Assert.ExpectedError(StrSubstNo(EndDateErr, VATReportHdr.TableCaption));
+        Assert.ExpectedError(StrSubstNo(EndDateErr, VATReportHdr.TableCaption()));
 
         VATReportHdr."End Date" := Today;
         VATReportHdr.CheckDates;
@@ -357,7 +357,7 @@ codeunit 134056 "ERM VAT Report Header Line"
         VATReportHdr."VAT Report Type" := VATReportHdr."VAT Report Type"::"Cancellation ";
         //Original report number is expected due to type Cancellation
         asserterror VATReportHdr.Validate("Original Report No.", '');
-        Assert.ExpectedError(StrSubstNo(CheckOriginalRepNo3Err, VATReportHdr.TableCaption));
+        Assert.ExpectedError(StrSubstNo(CheckOriginalRepNo3Err, VATReportHdr.TableCaption()));
 
         //Original report number cannot be the same as current report number.
         asserterror VATReportHdr.Validate("Original Report No.", VATReportHdr."No.");
@@ -406,7 +406,7 @@ codeunit 134056 "ERM VAT Report Header Line"
         VATReport."Original Report No.".Lookup;
         VATReportHdr.Get(VATReport."No.");
         VATReport.OK.Invoke;
-        VATReportHdr.Find; // Refresh record.
+        VATReportHdr.Find(); // Refresh record.
         VATReportHdr.TestField("Original Report No.", VATReportHdr2."No.");
 
         TearDown(VATReportHdr2);
@@ -459,13 +459,13 @@ codeunit 134056 "ERM VAT Report Header Line"
             VATReportLineRelation."VAT Report Line No." := VATReportLine."Line No.";
             VATReportLineRelation."Line No." := GenerateLineNo(false, true) + 1;
             VATReportLineRelation.Insert();
-        until VATReportLine.Next = 0;
+        until VATReportLine.Next() = 0;
 
         VATReportHdr.Delete(true);
         Commit();
         VATReportHdr.SetRange("No.", 'Test');
-        Assert.IsTrue(VATReportHdr.IsEmpty, StrSubstNo(EmptyMsg, VATReportLine.TableCaption));
-        Assert.IsTrue(VATReportLine.IsEmpty, StrSubstNo(EmptyMsg, VATReportLine.TableCaption));
+        Assert.IsTrue(VATReportHdr.IsEmpty, StrSubstNo(EmptyMsg, VATReportLine.TableCaption()));
+        Assert.IsTrue(VATReportLine.IsEmpty, StrSubstNo(EmptyMsg, VATReportLine.TableCaption()));
         VATReportLineRelation.SetRange("VAT Report No.", VATReportHdr."No.");
     end;
 

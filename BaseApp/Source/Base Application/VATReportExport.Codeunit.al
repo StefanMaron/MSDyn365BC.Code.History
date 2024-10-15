@@ -41,7 +41,7 @@ codeunit 743 "VAT Report Export"
         VATReportHeaderLocal: Record "VAT Report Header";
     begin
         if Validate then begin
-            if VATReportHeader.isDatifattura then
+            if VATReportHeader.isDatifattura() then
                 CODEUNIT.Run(CODEUNIT::"Datifattura Validate", VATReportHeader)
             else
                 CODEUNIT.Run(CODEUNIT::"VAT Report Validate", VATReportHeader);
@@ -50,7 +50,7 @@ codeunit 743 "VAT Report Export"
         VATReportHeaderLocal.Copy(VATReportHeader);
         VATReportHeaderLocal.SetRange("No.", VATReportHeader."No.");
         Commit();
-        if VATReportHeaderLocal.isDatifattura then
+        if VATReportHeaderLocal.isDatifattura() then
             CODEUNIT.Run(CODEUNIT::"Datifattura Export", VATReportHeaderLocal)
         else
             REPORT.Run(REPORT::"Export VAT Transactions", true, false, VATReportHeaderLocal);

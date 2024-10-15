@@ -1180,7 +1180,7 @@ codeunit 134200 "Document Approval - Errors"
     begin
         ApprovalEntry.SetRange(Status, ApprovalEntry.Status::Open);
         GetApprovalEntries(ApprovalEntry, TableID, DocumentType, DocumentNo);
-        ApprovalEntry.SetRecFilter;
+        ApprovalEntry.SetRecFilter();
         ApprovalsMgmt.ApproveApprovalRequests(ApprovalEntry);
     end;
 
@@ -1328,7 +1328,7 @@ codeunit 134200 "Document Approval - Errors"
         ApprovalsMgmt.OnSendPurchaseDocForApproval(PurchaseHeader);
 
         // Verify: no error and status stays Open.
-        PurchaseHeader.Find;
+        PurchaseHeader.Find();
         PurchaseHeader.TestField(Status, PurchaseHeader.Status::Open);
     end;
 
@@ -1394,7 +1394,7 @@ codeunit 134200 "Document Approval - Errors"
         UserSetup.Modify(true);
 
         // Exercise
-        ApprovalEntry.SetRecFilter;
+        ApprovalEntry.SetRecFilter();
         asserterror ApprovalsMgmt.DelegateApprovalRequests(ApprovalEntry);
 
         // Verify
@@ -1414,7 +1414,7 @@ codeunit 134200 "Document Approval - Errors"
         ApprovalsMgmt.OnSendSalesDocForApproval(SalesHeader);
 
         // Verify: no error and status stays Open.
-        SalesHeader.Find;
+        SalesHeader.Find();
         SalesHeader.TestField(Status, SalesHeader.Status::Open);
     end;
 
@@ -1480,7 +1480,7 @@ codeunit 134200 "Document Approval - Errors"
         UserSetup.Modify(true);
 
         // Exercise
-        ApprovalEntry.SetRecFilter;
+        ApprovalEntry.SetRecFilter();
         asserterror ApprovalsMgmt.DelegateApprovalRequests(ApprovalEntry);
 
         // Verify

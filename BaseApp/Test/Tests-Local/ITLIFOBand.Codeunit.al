@@ -60,7 +60,7 @@ codeunit 144194 "IT - LIFO Band"
         LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type, ItemJournalTemplate.Name);
         LibraryInventory.ClearItemJournal(ItemJournalTemplate, ItemJournalBatch);
 
-        if not ItemCostingSetup.Get then begin
+        if not ItemCostingSetup.Get() then begin
             ItemCostingSetup.Init();
             ItemCostingSetup."Components Valuation" := ItemCostingSetup."Components Valuation"::"Average Cost";
             ItemCostingSetup.Insert();
@@ -68,26 +68,26 @@ codeunit 144194 "IT - LIFO Band"
 
         // Make the three lines in different year.
         CreateItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name,
-          ItemJournalLine."Entry Type"::Purchase, Item."No.", CalcDate('<-1Y>', WorkDate), Quantity);
+          ItemJournalLine."Entry Type"::Purchase, Item."No.", CalcDate('<-1Y>', WorkDate()), Quantity);
         CreateItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name,
-          ItemJournalLine."Entry Type"::Purchase, Item."No.", WorkDate, BiggerQuantity);
+          ItemJournalLine."Entry Type"::Purchase, Item."No.", WorkDate(), BiggerQuantity);
         CreateItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name,
-          ItemJournalLine."Entry Type"::"Negative Adjmt.", Item."No.", CalcDate('<+1Y>', WorkDate), Quantity);
+          ItemJournalLine."Entry Type"::"Negative Adjmt.", Item."No.", CalcDate('<+1Y>', WorkDate()), Quantity);
 
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
 
         // Exercise: Run Calculate End Year Costs for WORKDATE-1Y, WORKDATE & WORKDATE+1Y.
-        CalculateEndYearCosts(CalcDate('<CY-1Y>', WorkDate));
-        CalculateEndYearCosts(CalcDate('<CY>', WorkDate));
-        CalculateEndYearCosts(CalcDate('<CY+1Y>', WorkDate));
+        CalculateEndYearCosts(CalcDate('<CY-1Y>', WorkDate()));
+        CalculateEndYearCosts(CalcDate('<CY>', WorkDate()));
+        CalculateEndYearCosts(CalcDate('<CY+1Y>', WorkDate()));
 
         // Verify: Verify the negative adjustment quantity is in second line with Competence Year = WORKDATE based on LIFO.
         LifoBand.SetRange("Item No.", Item."No.");
-        LifoBand.SetRange("Competence Year", CalcDate('<CY-1Y>', WorkDate));
+        LifoBand.SetRange("Competence Year", CalcDate('<CY-1Y>', WorkDate()));
         LifoBand.FindFirst();
         LifoBand.TestField("Absorbed Quantity", 0);
 
-        LifoBand.SetRange("Competence Year", CalcDate('<CY>', WorkDate));
+        LifoBand.SetRange("Competence Year", CalcDate('<CY>', WorkDate()));
         LifoBand.FindFirst();
         LifoBand.TestField("Absorbed Quantity", Quantity);
     end;
@@ -170,7 +170,7 @@ codeunit 144194 "IT - LIFO Band"
         ChangeQtyToInvoiceInPurchaseOrder(PurchaseHeader."No.");
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
 
-        CalculateEndYearCosts(CalcDate('<CY>', WorkDate));
+        CalculateEndYearCosts(CalcDate('<CY>', WorkDate()));
     end;
 
     local procedure CreateItemJournalLine(ItemJournalTemplateName: Text[10]; ItemJournalBatchName: Text[10]; ItemJournalLineEntryType: Enum "Item Ledger Entry Type"; ItemNo: Text[20]; PostingDate: Date; Quantity: Decimal)
@@ -189,7 +189,7 @@ codeunit 144194 "IT - LIFO Band"
     begin
         LibraryPatterns.MAKEItemSimple(Item, Item."Costing Method"::LIFO, LibraryPatterns.RandCost(Item));
         LibraryPatterns.MAKEPurchaseOrder(
-          PurchaseHeader, PurchaseLine, Item, '', '', LibraryRandom.RandIntInRange(100, 200), WorkDate, Item."Unit Cost");
+          PurchaseHeader, PurchaseLine, Item, '', '', LibraryRandom.RandIntInRange(100, 200), WorkDate(), Item."Unit Cost");
     end;
 
     local procedure FindPurchaseOrderLine(var PurchaseLine: Record "Purchase Line"; PurchaseOrderNo: Code[20])
@@ -211,7 +211,7 @@ codeunit 144194 "IT - LIFO Band"
         CreatePurchaseOrder(PurchaseHeader, Item);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, InvoiceOrder);
 
-        CalculateEndYearCosts(CalcDate('<CY>', WorkDate));
+        CalculateEndYearCosts(CalcDate('<CY>', WorkDate()));
         VerifyItemCostHistoryEntry(Item);
     end;
 
@@ -263,7 +263,7 @@ codeunit 144194 "IT - LIFO Band"
     begin
         LibraryVariableStorage.Dequeue(ItemNo);
         LedgerEntryDetails."Item Cost History".SetFilter("Item No.", ItemNo);
-        LedgerEntryDetails."Item Cost History".SetFilter("Competence Year", StrSubstNo('%1', CalcDate('<CY>', WorkDate)));
+        LedgerEntryDetails."Item Cost History".SetFilter("Competence Year", StrSubstNo('%1', CalcDate('<CY>', WorkDate())));
         LedgerEntryDetails.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 }

@@ -34,7 +34,7 @@
         if Currency."Appln. Rounding Precision" = 0 then
             Currency."Appln. Rounding Precision" := Currency."Amount Rounding Precision";
 
-        exit(Round(ApplicationAmount, Currency."Appln. Rounding Precision", Currency.InvoiceRoundingDirection));
+        exit(Round(ApplicationAmount, Currency."Appln. Rounding Precision", Currency.InvoiceRoundingDirection()));
     end;
 
     procedure ApplyCustomerLedgerEntries(ApplyingDocumentType: Enum "Gen. Journal Document Type"; DocumentType: Enum "Gen. Journal Document Type"; ApplyingDocumentNo: Code[20]; DocumentNo: Code[20])
@@ -82,7 +82,7 @@
             repeat
                 VATPostingSetup.Validate("Adjust for Payment Discount", false);
                 VATPostingSetup.Modify(true);
-            until VATPostingSetup.Next = 0;
+            until VATPostingSetup.Next() = 0;
     end;
 
     procedure CheckPreview(PaymentJournal: TestPage "Payment Journal"): Text
@@ -184,13 +184,19 @@
     end;
 
     procedure CreateAccScheduleName(var AccScheduleName: Record "Acc. Schedule Name")
+    var
+        FinancialReport: Record "Financial Report";
+        NewAccSchedName: Code[10];
     begin
+        NewAccSchedName := CopyStr(LibraryUtility.GenerateRandomCode(AccScheduleName.FieldNo(Name), DATABASE::"Acc. Schedule Name"),
+            1, LibraryUtility.GetFieldLength(DATABASE::"Acc. Schedule Name", AccScheduleName.FieldNo(Name)));
         AccScheduleName.Init();
-        AccScheduleName.Validate(
-          Name,
-          CopyStr(LibraryUtility.GenerateRandomCode(AccScheduleName.FieldNo(Name), DATABASE::"Acc. Schedule Name"),
-            1, LibraryUtility.GetFieldLength(DATABASE::"Acc. Schedule Name", AccScheduleName.FieldNo(Name))));
+        AccScheduleName.Validate(Name, NewAccSchedName);
         AccScheduleName.Insert(true);
+        FinancialReport.Init();
+        FinancialReport.Name := NewAccSchedName;
+        FinancialReport."Financial Report Row Group" := NewAccSchedName;
+        FinancialReport.Insert(true);
     end;
 
     procedure CreateAccScheduleLine(var AccScheduleLine: Record "Acc. Schedule Line"; ScheduleName: Code[10])
@@ -209,7 +215,7 @@
         RecRef: RecordRef;
     begin
         with TextToAccMapping do begin
-            Init;
+            Init();
             RecRef.GetTable(TextToAccMapping);
             Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, FieldNo("Line No.")));
             Validate("Mapping Text", MappingText);
@@ -264,11 +270,35 @@
         BankContUpdate.OnModify(BankAccount);
     end;
 
+    procedure CreateBankAccount(var BankAccount: Record "Bank Account"; GLAccount: Record "G/L Account")
+    var
+        BankAccountPostingGroup: Record "Bank Account Posting Group";
+        BankContUpdate: Codeunit "BankCont-Update";
+    begin
+        CreateBankAccountPostingGroup(BankAccountPostingGroup, GLAccount);
+        Clear(BankAccount);
+        BankAccount.Validate("No.", LibraryUtility.GenerateRandomCode(BankAccount.FieldNo("No."), DATABASE::"Bank Account"));
+        BankAccount.Validate(Name, BankAccount."No.");  // Validating No. as Name because value is not important.
+        BankAccount.Insert(true);
+        BankAccount.Validate("Bank Acc. Posting Group", BankAccountPostingGroup.Code);
+        BankAccount.IBAN := LibraryUtility.GenerateRandomCode(BankAccount.FieldNo(IBAN), DATABASE::"Bank Account"); // Bypass CheckIBAN fired in OnValidate Trigger.        
+        BankAccount.Modify(true);
+        BankContUpdate.OnModify(BankAccount);
+    end;
+
     procedure CreateBankAccountNo(): Code[20]
     var
         BankAccount: Record "Bank Account";
     begin
         CreateBankAccount(BankAccount);
+        exit(BankAccount."No.");
+    end;
+
+    procedure CreateBankAccountNoWithNewPostingGroup(GLAccount: Record "G/L Account"): Code[20]
+    var
+        BankAccount: Record "Bank Account";
+    begin
+        CreateBankAccount(BankAccount, GLAccount);
         exit(BankAccount."No.");
     end;
 
@@ -303,6 +333,17 @@
           Code,
           CopyStr(LibraryUtility.GenerateRandomCode(BankAccountPostingGroup.FieldNo(Code), DATABASE::"Bank Account Posting Group"),
             1, LibraryUtility.GetFieldLength(DATABASE::"Bank Account Posting Group", BankAccountPostingGroup.FieldNo(Code))));
+        BankAccountPostingGroup.Insert(true);
+    end;
+
+    procedure CreateBankAccountPostingGroup(var BankAccountPostingGroup: Record "Bank Account Posting Group"; GLAccount: Record "G/L Account")
+    begin
+        Clear(BankAccountPostingGroup);
+        BankAccountPostingGroup.Validate(
+          Code,
+          CopyStr(LibraryUtility.GenerateRandomCode(BankAccountPostingGroup.FieldNo(Code), DATABASE::"Bank Account Posting Group"),
+            1, LibraryUtility.GetFieldLength(DATABASE::"Bank Account Posting Group", BankAccountPostingGroup.FieldNo(Code))));
+        BankAccountPostingGroup.Validate("G/L Account No.", GLAccount."No.");
         BankAccountPostingGroup.Insert(true);
     end;
 
@@ -545,7 +586,7 @@
         CurrencyExchangeRate: Record "Currency Exchange Rate";
     begin
         with CurrencyExchangeRate do begin
-            Init;
+            Init();
             Validate("Currency Code", CurrencyCode);
             Validate("Starting Date", StartingDate);
             Insert(true);
@@ -749,15 +790,15 @@
         RecRef.GetTable(FAJournalLine);
         FAJournalLine.Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, FAJournalLine.FieldNo("Line No.")));
         FAJournalLine.Insert(true);
-        FAJournalLine.Validate("Posting Date", WorkDate);  // Defaults to work date.
+        FAJournalLine.Validate("Posting Date", WorkDate());  // Defaults to work date.
         FAJournalLine.Validate("Document Type", DocumentType);
         FAJournalLine.Validate("FA No.", FANo);
         FAJournalLine.Validate("FA Posting Type", FAPostingType);
-        FAJournalLine.Validate("FA Posting Date", WorkDate);
+        FAJournalLine.Validate("FA Posting Date", WorkDate());
         FAJournalLine.Validate(Amount, Amount);
         if NoSeries.Get(FAJournalBatch."No. Series") then
             FAJournalLine.Validate(
-              "Document No.", NoSeriesMgt.GetNextNo(FAJournalBatch."No. Series", WorkDate, false));  // Unused but required field for posting.
+              "Document No.", NoSeriesMgt.GetNextNo(FAJournalBatch."No. Series", WorkDate(), false));  // Unused but required field for posting.
         FAJournalLine.Validate("External Document No.", FAJournalLine."Document No.");  // Unused but required for vendor posting.
         FAJournalLine.Modify(true);
     end;
@@ -1170,7 +1211,7 @@
                 if Get(SetupGLAccount."VAT Bus. Posting Group", SetupGLAccount."VAT Prod. Posting Group") then
                     exit;
 
-            Init;
+            Init();
             if SetupGLAccount."VAT Bus. Posting Group" <> '' then
                 "VAT Bus. Posting Group" := SetupGLAccount."VAT Bus. Posting Group"
             else begin
@@ -1189,7 +1230,7 @@
                 "Purchase VAT Account" := VATAccountNo
             else
                 "Sales VAT Account" := VATAccountNo;
-            Insert;
+            Insert();
         end;
 
         OnAfterCreatePrepaymentVATPostingSetup(VATPostingSetup, VATCalcType, GenPostingType, SetupGLAccount, VATAccountNo);
@@ -1205,7 +1246,7 @@
                 if Get(SetupGLAccount."Gen. Bus. Posting Group", SetupGLAccount."Gen. Prod. Posting Group") then
                     exit;
 
-            Init;
+            Init();
             if SetupGLAccount."Gen. Bus. Posting Group" <> '' then
                 "Gen. Bus. Posting Group" := SetupGLAccount."Gen. Bus. Posting Group"
             else begin
@@ -1231,7 +1272,7 @@
                         "Sales Line Disc. Account" := CreateGLAccountNo;
                     end;
             end;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -1285,7 +1326,7 @@
     begin
         ReminderLevel.Init();
         ReminderLevel.Validate("Reminder Terms Code", ReminderTermsCode);
-        ReminderLevel.NewRecord;
+        ReminderLevel.NewRecord();
         ReminderLevel.Insert(true);
     end;
 
@@ -1310,7 +1351,7 @@
         ReminderTerms.Insert(true);
     end;
 
-    procedure CreateReminderText(var ReminderText: Record "Reminder Text"; ReminderTermsCode: Code[10]; ReminderLevel: Integer; Position: Option; Text: Text[100])
+    procedure CreateReminderText(var ReminderText: Record "Reminder Text"; ReminderTermsCode: Code[10]; ReminderLevel: Integer; Position: Enum "Reminder Text Position"; Text: Text[100])
     var
         RecRef: RecordRef;
     begin
@@ -1744,14 +1785,14 @@
     begin
         with MyNotifications do
             if not Get(UserId, NotificationId) then begin
-                Init;
+                Init();
                 "User Id" := UserId;
                 "Notification Id" := NotificationId;
                 Enabled := false;
-                Insert;
+                Insert();
             end else begin
                 Enabled := false;
-                Modify;
+                Modify();
             end;
     end;
 
@@ -1818,7 +1859,7 @@
     var
         GLEntry: Record "G/L Entry";
     begin
-        Date := MinDate(WorkDate, Today);
+        Date := MinDate(WorkDate(), Today);
         GLEntry.SetCurrentKey("Posting Date");
         if GLEntry.FindFirst() then
             Date := MinDate(Date, NormalDate(GLEntry."Posting Date"));
@@ -2035,7 +2076,7 @@
 
     procedure FindIntrastatSetup(var IntrastatSetup: Record "Intrastat Setup")
     begin
-        if not IntrastatSetup.Get then
+        if not IntrastatSetup.Get() then
             CreateIntrastatSetup(IntrastatSetup);
     end;
 
@@ -2138,7 +2179,7 @@
             SetFilter("Sales VAT Account", '<>%1', '');
             SetFilter("Purchase VAT Account", '<>%1', '');
             if not FindFirst() then begin
-                Init;
+                Init();
                 VATBusPostingGroup.FindFirst();
                 VATProdPostingGroup.FindFirst();
                 "VAT Bus. Posting Group" := VATBusPostingGroup.Code;
@@ -2371,7 +2412,7 @@
             end;
             TempPostedDeferralLine.Amount += PostedDeferralLine.Amount;
             TempPostedDeferralLine.Modify();
-        until PostedDeferralLine.Next = 0;
+        until PostedDeferralLine.Next() = 0;
         TempPostedDeferralLine.SetRange("Document No.");
         TempPostedDeferralLine.SetRange("Posting Date");
     end;
@@ -2390,7 +2431,7 @@
     begin
         // Round Invoice Amount.
         Currency.Initialize(CurrencyCode);
-        exit(Round(InvoiceAmont, Currency."Invoice Rounding Precision", Currency.InvoiceRoundingDirection));
+        exit(Round(InvoiceAmont, Currency."Invoice Rounding Precision", Currency.InvoiceRoundingDirection()));
     end;
 
     procedure IssueFinanceChargeMemo(FinanceChargeMemoHeader: Record "Finance Charge Memo Header")
@@ -2505,6 +2546,7 @@
         ExchRateAdjustment.InitializeRequest2(
             StartDate, EndDate, PostingDescription, PostingDate, PostingDocNo, true, AdjGLAcc);
         ExchRateAdjustment.UseRequestPage(false);
+        ExchRateAdjustment.SetHideUI(true);
         ExchRateAdjustment.Run();
     end;
 
@@ -2672,12 +2714,13 @@
         GeneralLedgerSetup.Modify(true);
     end;
 
+#if not CLEAN21
+    [Obsolete('Replaced by LibraryERMCountryData.UpdateJournalTemplMandatory()', '21.0')]
     procedure SetJournalTemplNameMandatory(Mandatory: Boolean)
     begin
-        GeneralLedgerSetup.Get();
-        GeneralLedgerSetup.Validate("Journal Templ. Name Mandatory", Mandatory);
-        GeneralLedgerSetup.Modify(true);
+        SetJournalTemplateNameMandatory(Mandatory);
     end;
+#endif
 
     [Scope('OnPrem')]
     procedure SetDefaultTransactionTypesInIntrastatSetup()
@@ -2714,7 +2757,7 @@
                 CustLedgerEntry.Validate("Amount to Apply", CustLedgerEntry."Remaining Amount");
             end;
             CustLedgerEntry.Modify(true);
-        until CustLedgerEntry.Next = 0;
+        until CustLedgerEntry.Next() = 0;
     end;
 
     procedure SetAppliestoIdVendor(var VendorLedgerEntry: Record "Vendor Ledger Entry")
@@ -2730,7 +2773,7 @@
                 VendorLedgerEntry.Validate("Amount to Apply", VendorLedgerEntry."Remaining Amount");
             end;
             VendorLedgerEntry.Modify(true);
-        until VendorLedgerEntry.Next = 0;
+        until VendorLedgerEntry.Next() = 0;
     end;
 
     procedure SetAppliestoIdEmployee(var EmployeeLedgerEntry: Record "Employee Ledger Entry")
@@ -2746,7 +2789,7 @@
                 EmployeeLedgerEntry.Validate("Amount to Apply", EmployeeLedgerEntry."Remaining Amount");
             end;
             EmployeeLedgerEntry.Modify(true);
-        until EmployeeLedgerEntry.Next = 0;
+        until EmployeeLedgerEntry.Next() = 0;
     end;
 
     procedure SetApplyCustomerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; AmountToApply: Decimal)
@@ -2760,7 +2803,7 @@
             repeat
                 CustLedgerEntry2.Validate("Applying Entry", false);
                 CustLedgerEntry2.Modify(true);
-            until CustLedgerEntry2.Next = 0;
+            until CustLedgerEntry2.Next() = 0;
 
         // Clear Applies-to IDs
         CustLedgerEntry2.Reset();
@@ -2769,7 +2812,7 @@
             repeat
                 CustLedgerEntry2.Validate("Applies-to ID", '');
                 CustLedgerEntry2.Modify(true);
-            until CustLedgerEntry2.Next = 0;
+            until CustLedgerEntry2.Next() = 0;
 
         // Apply Payment Entry on Posted Invoice.
         with CustLedgerEntry do begin
@@ -2793,7 +2836,7 @@
             repeat
                 VendorLedgerEntry2.Validate("Applying Entry", false);
                 VendorLedgerEntry2.Modify(true);
-            until VendorLedgerEntry2.Next = 0;
+            until VendorLedgerEntry2.Next() = 0;
 
         // Clear Applies-to IDs.
         VendorLedgerEntry2.Reset();
@@ -2802,7 +2845,7 @@
             repeat
                 VendorLedgerEntry2.Validate("Applies-to ID", '');
                 VendorLedgerEntry2.Modify(true);
-            until VendorLedgerEntry2.Next = 0;
+            until VendorLedgerEntry2.Next() = 0;
 
         // Apply Payment Entry on Posted Invoice.
         with VendorLedgerEntry do begin
@@ -2825,7 +2868,7 @@
             repeat
                 EmployeeLedgerEntry2.Validate("Applying Entry", false);
                 EmployeeLedgerEntry2.Modify(true);
-            until EmployeeLedgerEntry2.Next = 0;
+            until EmployeeLedgerEntry2.Next() = 0;
 
         // Clear Applies-to IDs.
         EmployeeLedgerEntry2.Reset();
@@ -2834,7 +2877,7 @@
             repeat
                 EmployeeLedgerEntry2.Validate("Applies-to ID", '');
                 EmployeeLedgerEntry2.Modify(true);
-            until EmployeeLedgerEntry2.Next = 0;
+            until EmployeeLedgerEntry2.Next() = 0;
 
         // Apply Payment Entry on Posted Invoice.
         with EmployeeLedgerEntry do begin
@@ -2966,7 +3009,7 @@
 
             "Income/Balance" := "Income/Balance"::"Balance Sheet";
             "Direct Posting" := true;
-            Modify;
+            Modify();
 
             if GenPostingType = GenPostingType::Sale then
                 VATPostingSetup."Sales Prepayments Account" := "No."
@@ -3007,7 +3050,7 @@
               CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(IntrastatJnlLine."Internal Ref. No.")),
                 1, MaxStrLen(IntrastatJnlLine."Internal Ref. No.")));
             IntrastatJnlLine.Modify(true);
-        until IntrastatJnlLine.Next = 0;
+        until IntrastatJnlLine.Next() = 0;
     end;
 
     procedure SetMaxVATDifferenceAllowed(MaxVATDifferenceAllowed: Decimal)
@@ -3024,12 +3067,15 @@
         GeneralLedgerSetup.Modify(true);
     end;
 
+#if not CLEAN21
+    [Obsolete('Replaced by LibraryERMCountryData.UpdateJournalTemplMandatory()', '21.0')]
     procedure SetJournalTemplateNameMandatory(Mandatory: Boolean)
     begin
         GeneralLedgerSetup.Get();
         GeneralLedgerSetup.Validate("Journal Templ. Name Mandatory", Mandatory);
         GeneralLedgerSetup.Modify(true);
     end;
+#endif
 
     procedure SetSearchGenPostingTypeAll()
     begin
@@ -3076,16 +3122,6 @@
         GeneralLedgerSetup.Validate("Unrealized VAT", UnrealizedVAT);
         GeneralLedgerSetup.Modify(true);
     end;
-
-#if not CLEAN18
-    [Obsolete('Legacy G/L Locking is no longer supported.', '18.0')]
-    procedure SetUseLegacyGLEntryLocking(UseLegacyGLEntryLocking: Boolean)
-    begin
-        // GeneralLedgerSetup.Get();
-        // GeneralLedgerSetup."Use Legacy G/L Entry Locking" := UseLegacyGLEntryLocking;
-        // GeneralLedgerSetup.Modify(true);
-    end;
-#endif
 
     procedure SetVATRoundingType(Direction: Text[1])
     begin
@@ -3157,7 +3193,7 @@
 
         SuggestBankAccReconLines.SetStmt(BankAccReconciliation);
         SuggestBankAccReconLines.SetTableView(BankAccount);
-        SuggestBankAccReconLines.InitializeRequest(WorkDate, WorkDate, IncludeChecks);
+        SuggestBankAccReconLines.InitializeRequest(WorkDate(), WorkDate(), IncludeChecks);
         SuggestBankAccReconLines.UseRequestPage(false);
 
         SuggestBankAccReconLines.Run();
@@ -3214,7 +3250,7 @@
         CompanyInformation: Record "Company Information";
         PostCode: Record "Post Code";
     begin
-        if not CompanyInformation.Get then
+        if not CompanyInformation.Get() then
             CompanyInformation.Insert(true);
 
         CompanyInformation.Validate(Name, LibraryUtility.GenerateRandomText(MaxStrLen(CompanyInformation.Name)));
@@ -3255,11 +3291,11 @@
         Currency: Record Currency;
     begin
         // Round VAT Entry Amount.
-        Currency.InitRoundingPrecision;
+        Currency.InitRoundingPrecision();
         if CurrencyCode <> '' then
             Currency.Get(CurrencyCode);
 
-        exit(Round(VATAmount, Currency."Amount Rounding Precision", Currency.VATRoundingDirection));
+        exit(Round(VATAmount, Currency."Amount Rounding Precision", Currency.VATRoundingDirection()));
     end;
 
     procedure VerifyVendApplnWithZeroTransNo(DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; AmountLCY: Decimal)
@@ -3356,14 +3392,14 @@
         PaymentLines.SetFilter("Due Date Calculation", '<>''''');
         PaymentLines.SetFilter("Discount Date Calculation", '<>''''');
         PaymentLines.SetFilter("Discount %", '>0');
-        exit(PaymentLines.FindFirst);
+        exit(PaymentLines.FindFirst())
     end;
 
     procedure FindPaymentLines(var PaymentLines: Record "Payment Lines"; "Code": Code[10]): Boolean
     begin
         PaymentLines.SetRange(Type, PaymentLines.Type::"Payment Terms");
         PaymentLines.SetRange(Code, Code);
-        exit(PaymentLines.FindFirst);
+        exit(PaymentLines.FindFirst())
     end;
 
     procedure UpdateAmountOnGenJournalLine(GenJournalBatch: Record "Gen. Journal Batch"; var GeneralJournal: TestPage "General Journal")
@@ -3388,6 +3424,7 @@
         FieldListToExclude.Add(SalesHeaderRef.FieldName("Quote No."));
         FieldListToExclude.Add(SalesHeaderRef.FieldName("No."));
         FieldListToExclude.Add(SalesHeaderRef.FieldName("Posting Date"));
+        FieldListToExclude.Add(SalesHeaderRef.FieldName("VAT Reporting Date"));
         FieldListToExclude.Add(SalesHeaderRef.FieldName("Posting Description"));
         FieldListToExclude.Add(SalesHeaderRef.FieldName("No. Series"));
         FieldListToExclude.Add(SalesHeaderRef.FieldName("Posting No. Series"));

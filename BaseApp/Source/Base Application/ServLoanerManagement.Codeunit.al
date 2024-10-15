@@ -30,7 +30,7 @@ codeunit 5901 ServLoanerManagement
 
             LoanerEntry.LockTable();
             LoanerEntry.Init();
-            LoanerEntry."Entry No." := LoanerEntry.GetNextEntryNo;
+            LoanerEntry."Entry No." := LoanerEntry.GetNextEntryNo();
             LoanerEntry."Loaner No." := ServItemLine."Loaner No.";
             LoanerEntry."Document Type" := LoanerEntry.GetDocTypeFromServDocType(ServItemLine."Document Type");
             LoanerEntry."Document No." := ServItemLine."Document No.";
@@ -39,7 +39,7 @@ codeunit 5901 ServLoanerManagement
             LoanerEntry."Service Item Group Code" := ServItemLine."Service Item Group Code";
             if ServHeader.Get(ServItemLine."Document Type", ServItemLine."Document No.") then
                 LoanerEntry."Customer No." := ServHeader."Customer No.";
-            LoanerEntry."Date Lent" := WorkDate;
+            LoanerEntry."Date Lent" := WorkDate();
             LoanerEntry."Time Lent" := Time;
             LoanerEntry."Date Received" := 0D;
             LoanerEntry."Time Received" := 0T;
@@ -68,7 +68,7 @@ codeunit 5901 ServLoanerManagement
             LoanerEntry.SetRange("Loaner No.", ServItemLine."Loaner No.");
             LoanerEntry.SetRange(Lent, true);
             if LoanerEntry.FindFirst() then begin
-                LoanerEntry."Date Received" := WorkDate;
+                LoanerEntry."Date Received" := WorkDate();
                 LoanerEntry."Time Received" := Time;
                 LoanerEntry.Lent := false;
                 LoanerEntry.Modify();
@@ -82,7 +82,7 @@ codeunit 5901 ServLoanerManagement
                   Text002, ServItemLine."Loaner No.",
                   Format(ServItemLine."Document Type"), ServItemLine."Document No.");
         end else
-            Error(Text003, Loaner.TableCaption);
+            Error(Text003, Loaner.TableCaption());
 
         OnAfterReceiveLoaner(LoanerEntry, ServItemLine);
     end;
@@ -108,7 +108,7 @@ codeunit 5901 ServLoanerManagement
         LoanerEntry.SetRange("Loaner No.", ServShipmentItemLine."Loaner No.");
         LoanerEntry.SetRange(Lent, true);
         if LoanerEntry.FindFirst() then begin
-            LoanerEntry."Date Received" := WorkDate;
+            LoanerEntry."Date Received" := WorkDate();
             LoanerEntry."Time Received" := Time;
             LoanerEntry.Lent := false;
             LoanerEntry.Modify();
@@ -179,7 +179,7 @@ codeunit 5901 ServLoanerManagement
                     end else
                         if ConfirmManagement.GetResponseOrDefault(StrSubstNo(Text006, LoanerEntry."Document No."), true) then begin
                             // receive loaner anyway
-                            LoanerEntry."Date Received" := WorkDate;
+                            LoanerEntry."Date Received" := WorkDate();
                             LoanerEntry."Time Received" := Time;
                             LoanerEntry.Lent := false;
                             LoanerEntry.Modify();

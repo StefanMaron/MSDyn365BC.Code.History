@@ -7,21 +7,12 @@ codeunit 23 "Item Jnl.-Post Batch"
     trigger OnRun()
     begin
         ItemJnlLine.Copy(Rec);
-        ItemJnlLine.SetAutoCalcFields;
-        Code;
+        ItemJnlLine.SetAutoCalcFields();
+        Code();
         Rec := ItemJnlLine;
     end;
 
     var
-        Text001: Label 'Journal Batch Name    #1##########\\';
-        Text002: Label 'Checking lines        #2######\';
-        Text003: Label 'Posting lines         #3###### @4@@@@@@@@@@@@@\';
-        Text004: Label 'Updating lines        #5###### @6@@@@@@@@@@@@@';
-        Text005: Label 'Posting lines         #3###### @4@@@@@@@@@@@@@';
-        Text006: Label 'A maximum of %1 posting number series can be used in each journal.';
-        Text008: Label 'There are new postings made in the period you want to revalue item no. %1.\';
-        Text009: Label 'You must calculate the inventory value again.';
-        Text010: Label 'One or more reservation entries exist for the item with %1 = %2, %3 = %4, %5 = %6 which may be disrupted if you post this negative adjustment. Do you want to continue?', Comment = 'One or more reservation entries exist for the item with Item No. = 1000, Location Code = BLUE, Variant Code = NEW which may be disrupted if you post this negative adjustment. Do you want to continue?';
         ItemJnlTemplate: Record "Item Journal Template";
         ItemJnlBatch: Record "Item Journal Batch";
         ItemJnlLine: Record "Item Journal Line";
@@ -32,7 +23,7 @@ codeunit 23 "Item Jnl.-Post Batch"
         GLSetup: Record "General Ledger Setup";
         InvtSetup: Record "Inventory Setup";
         AccountingPeriod: Record "Accounting Period";
-        NoSeries: Record "No. Series" temporary;
+        TempNoSeries: Record "No. Series" temporary;
         Location: Record Location;
         ItemJnlCheckLine: Codeunit "Item Jnl.-Check Line";
         ItemJnlPostLine: Codeunit "Item Jnl.-Post Line";
@@ -57,6 +48,16 @@ codeunit 23 "Item Jnl.-Post Batch"
         SuppressCommit: Boolean;
         WindowIsOpen: Boolean;
 
+        Text001: Label 'Journal Batch Name    #1##########\\';
+        Text002: Label 'Checking lines        #2######\';
+        Text003: Label 'Posting lines         #3###### @4@@@@@@@@@@@@@\';
+        Text004: Label 'Updating lines        #5###### @6@@@@@@@@@@@@@';
+        Text005: Label 'Posting lines         #3###### @4@@@@@@@@@@@@@';
+        Text006: Label 'A maximum of %1 posting number series can be used in each journal.';
+        Text008: Label 'There are new postings made in the period you want to revalue item no. %1.\';
+        Text009: Label 'You must calculate the inventory value again.';
+        Text010: Label 'One or more reservation entries exist for the item with %1 = %2, %3 = %4, %5 = %6 which may be disrupted if you post this negative adjustment. Do you want to continue?', Comment = 'One or more reservation entries exist for the item with Item No. = 1000, Location Code = BLUE, Variant Code = NEW which may be disrupted if you post this negative adjustment. Do you want to continue?';
+
     local procedure "Code"()
     var
         UpdateAnalysisView: Codeunit "Update Analysis View";
@@ -78,8 +79,8 @@ codeunit 23 "Item Jnl.-Post Batch"
             OnBeforeRaiseExceedLengthError(ItemJnlBatch, RaiseError);
 
             if ItemJnlTemplate.Recurring then begin
-                SetRange("Posting Date", 0D, WorkDate);
-                SetFilter("Expiration Date", '%1 | %2..', 0D, WorkDate);
+                SetRange("Posting Date", 0D, WorkDate());
+                SetFilter("Expiration Date", '%1 | %2..', 0D, WorkDate());
             end;
 
             if not Find('=><') then begin
@@ -119,14 +120,14 @@ codeunit 23 "Item Jnl.-Post Batch"
             PostLines(ItemJnlLine, PhysInvtCountMgt);
 
             // Copy register no. and current journal batch name to item journal
-            if not ItemReg.FindLast or (ItemReg."No." <> ItemRegNo) then
+            if not ItemReg.FindLast() or (ItemReg."No." <> ItemRegNo) then
                 ItemRegNo := 0;
-            if not WhseReg.FindLast or (WhseReg."No." <> WhseRegNo) then
+            if not WhseReg.FindLast() or (WhseReg."No." <> WhseRegNo) then
                 WhseRegNo := 0;
 
             OnAfterCopyRegNos(ItemJnlLine, ItemRegNo, WhseRegNo);
 
-            Init;
+            Init();
 
             "Line No." := ItemRegNo;
             if "Line No." = 0 then
@@ -139,26 +140,26 @@ codeunit 23 "Item Jnl.-Post Batch"
             // Update/delete lines
             OnBeforeUpdateDeleteLines(ItemJnlLine, ItemRegNo);
             if "Line No." <> 0 then begin
-                if ItemJnlTemplate.Recurring then begin
-                    HandleRecurringLine(ItemJnlLine);
-                end else
+                if ItemJnlTemplate.Recurring then
+                    HandleRecurringLine(ItemJnlLine)
+                else
                     HandleNonRecurringLine(ItemJnlLine, OldEntryType);
                 if ItemJnlBatch."No. Series" <> '' then
-                    NoSeriesMgt.SaveNoSeries;
-                if NoSeries.FindSet() then
+                    NoSeriesMgt.SaveNoSeries();
+                if TempNoSeries.FindSet() then
                     repeat
-                        Evaluate(PostingNoSeriesNo, NoSeries.Description);
-                        NoSeriesMgt2[PostingNoSeriesNo].SaveNoSeries;
-                    until NoSeries.Next() = 0;
+                        Evaluate(PostingNoSeriesNo, TempNoSeries.Description);
+                        NoSeriesMgt2[PostingNoSeriesNo].SaveNoSeries();
+                    until TempNoSeries.Next() = 0;
             end;
 
             if PhysInvtCount then
-                PhysInvtCountMgt.UpdateItemSKUListPhysInvtCount;
+                PhysInvtCountMgt.UpdateItemSKUListPhysInvtCount();
 
             OnAfterPostJnlLines(ItemJnlBatch, ItemJnlLine, ItemRegNo, WhseRegNo, WindowIsOpen);
 
             if WindowIsOpen then
-                Window.Close;
+                Window.Close();
             if not SuppressCommit then
                 Commit();
             Clear(ItemJnlCheckLine);
@@ -230,7 +231,7 @@ codeunit 23 "Item Jnl.-Post Batch"
                        ("Inventory Value Per" = "Inventory Value Per"::" ") and
                        "Partial Revaluation"
                     then
-                        CheckRemainingQty;
+                        CheckRemainingQty();
 
                     OnAfterCheckJnlLine(ItemJnlLine, SuppressCommit);
                 end;
@@ -257,12 +258,12 @@ codeunit 23 "Item Jnl.-Post Batch"
             SetCurrentKey("Journal Template Name", "Journal Batch Name", "Line No.");
             FindSet();
             repeat
-                if not EmptyLine and
+                if not EmptyLine() and
                    (ItemJnlBatch."No. Series" <> '') and
                    ("Document No." <> LastDocNo2)
                 then
                     TestField("Document No.", NoSeriesMgt.GetNextNo(ItemJnlBatch."No. Series", "Posting Date", false));
-                if not EmptyLine then
+                if not EmptyLine() then
                     LastDocNo2 := "Document No.";
                 MakeRecurringTexts(ItemJnlLine);
                 ConstructPostingNumber(ItemJnlLine);
@@ -283,7 +284,7 @@ codeunit 23 "Item Jnl.-Post Batch"
                         OriginalQuantity := Quantity;
                         OriginalQuantityBase := "Quantity (Base)";
                         if not ItemJnlPostLine.RunWithCheck(ItemJnlLine) then
-                            ItemJnlPostLine.CheckItemTracking;
+                            ItemJnlPostLine.CheckItemTracking();
                         if "Value Entry Type" <> "Value Entry Type"::Revaluation then begin
                             ItemJnlPostLine.CollectTrackingSpecification(TempTrackingSpecification);
                             OnPostLinesBeforePostWhseJnlLine(ItemJnlLine, SuppressCommit);
@@ -296,7 +297,7 @@ codeunit 23 "Item Jnl.-Post Batch"
 
                 if IsPhysInvtCount(ItemJnlTemplate, "Phys Invt Counting Period Code", "Phys Invt Counting Period Type") then begin
                     if not PhysInvtCount then begin
-                        PhysInvtCountMgt.InitTempItemSKUList;
+                        PhysInvtCountMgt.InitTempItemSKUList();
                         PhysInvtCount := true;
                     end;
                     PhysInvtCountMgt.AddToTempItemSKUList("Item No.", "Location Code", "Variant Code", "Phys Invt Counting Period Type");
@@ -383,7 +384,7 @@ codeunit 23 "Item Jnl.-Post Batch"
             OnHandleNonRecurringLineOnInsertNewLine(ItemJnlLine3);
 
             ItemJnlLine3.SetRange("Journal Batch Name", "Journal Batch Name");
-            if (ItemJnlBatch."No. Series" = '') and not ItemJnlLine3.FindLast and
+            if (ItemJnlBatch."No. Series" = '') and not ItemJnlLine3.FindLast() and
                not (ItemJnlLine2."Entry Type" in [ItemJnlLine2."Entry Type"::Consumption, ItemJnlLine2."Entry Type"::Output])
             then begin
                 ItemJnlLine3.Init();
@@ -404,22 +405,22 @@ codeunit 23 "Item Jnl.-Post Batch"
             if "Posting No. Series" = '' then
                 "Posting No. Series" := ItemJnlBatch."No. Series"
             else
-                if not EmptyLine then
+                if not EmptyLine() then
                     if "Document No." = LastDocNo then
                         "Document No." := LastPostedDocNo
                     else begin
-                        if not NoSeries.Get("Posting No. Series") then begin
+                        if not TempNoSeries.Get("Posting No. Series") then begin
                             NoOfPostingNoSeries := NoOfPostingNoSeries + 1;
                             if NoOfPostingNoSeries > ArrayLen(NoSeriesMgt2) then
                                 Error(
                                   Text006,
                                   ArrayLen(NoSeriesMgt2));
-                            NoSeries.Code := "Posting No. Series";
-                            NoSeries.Description := Format(NoOfPostingNoSeries);
-                            NoSeries.Insert();
+                            TempNoSeries.Code := "Posting No. Series";
+                            TempNoSeries.Description := Format(NoOfPostingNoSeries);
+                            TempNoSeries.Insert();
                         end;
                         LastDocNo := "Document No.";
-                        Evaluate(PostingNoSeriesNo, NoSeries.Description);
+                        Evaluate(PostingNoSeriesNo, TempNoSeries.Description);
                         "Document No." := NoSeriesMgt2[PostingNoSeriesNo].GetNextNo("Posting No. Series", "Posting Date", false);
                         LastPostedDocNo := "Document No.";
                     end;
@@ -480,7 +481,7 @@ codeunit 23 "Item Jnl.-Post Batch"
                 IncludeExpectedCost :=
                     (Item."Costing Method" = Item."Costing Method"::Standard) and
                     (ItemJnlLine4."Inventory Value Per" <> ItemJnlLine4."Inventory Value Per"::" ");
-                Reset;
+                Reset();
                 SetCurrentKey("Item No.", Positive, "Location Code", "Variant Code");
                 SetRange("Item No.", ItemJnlLine."Item No.");
                 SetRange(Positive, true);
@@ -531,7 +532,7 @@ codeunit 23 "Item Jnl.-Post Batch"
                                 RemQuantity := RemQuantity - ItemJnlLine4.Quantity;
 
                                 if RemQuantity = 0 then begin
-                                    if Next > 0 then
+                                    if Next() > 0 then
                                         repeat
                                             if IncludeEntryInCalc(ItemLedgEntry4, PostingDate, IncludeExpectedCost) then begin
                                                 RemQuantity := CalculateRemQuantity("Entry No.", ItemJnlLine."Posting Date");
@@ -556,12 +557,12 @@ codeunit 23 "Item Jnl.-Post Batch"
 
                                 OnItemJnlPostSumLineOnBeforeCalcAppliedAmount(ItemJnlLine4, ItemLedgEntry4);
                                 if ItemJnlLine4.Amount <> 0 then begin
-                                    if IncludeExpectedCost and not ItemLedgEntry5."Completely Invoiced" then begin
+                                    if IncludeExpectedCost and not ItemLedgEntry5."Completely Invoiced" then
                                         ItemJnlLine4."Applied Amount" := Round(
                                             ItemJnlLine4.Amount * (ItemLedgEntry5.Quantity - ItemLedgEntry5."Invoiced Quantity") /
                                             ItemLedgEntry5.Quantity,
-                                            GLSetup."Amount Rounding Precision");
-                                    end else
+                                            GLSetup."Amount Rounding Precision")
+                                    else
                                         ItemJnlLine4."Applied Amount" := 0;
                                     OnBeforeItemJnlPostSumLine(ItemJnlLine4, ItemLedgEntry4);
                                     ItemJnlPostLine.RunWithCheck(ItemJnlLine4);
@@ -574,12 +575,12 @@ codeunit 23 "Item Jnl.-Post Batch"
                                     Error(Text008 + Text009, ItemJnlLine4."Item No.");
                             end;
                         end else
-                            DistributeCosts := Next <> 0;
+                            DistributeCosts := Next() <> 0;
                     until not DistributeCosts;
             end;
 
             if ItemJnlLine."Update Standard Cost" then
-                UpdateStdCost;
+                UpdateStdCost();
         end;
 
         OnAfterItemJnlPostSumLine(ItemJnlLine);
@@ -602,13 +603,13 @@ codeunit 23 "Item Jnl.-Post Batch"
         with ItemJnlLine do begin
             InventorySetup.Get();
             if InventorySetup."Average Cost Calc. Type" = InventorySetup."Average Cost Calc. Type"::Item then
-                UpdateItemStdCost
+                UpdateItemStdCost()
             else
                 if SKU.Get("Location Code", "Item No.", "Variant Code") then begin
                     SKU.Validate("Standard Cost", "Unit Cost (Revalued)");
                     SKU.Modify();
                 end else
-                    UpdateItemStdCost;
+                    UpdateItemStdCost();
         end;
     end;
 
@@ -716,14 +717,12 @@ codeunit 23 "Item Jnl.-Post Batch"
             case "Entry Type" of
                 "Entry Type"::Purchase, "Entry Type"::Sale,
                 "Entry Type"::"Positive Adjmt.", "Entry Type"::"Negative Adjmt.":
-                    begin
-                        if Location."Directed Put-away and Pick" then
-                            WMSMgmt.CheckAdjmtBin(
-                              Location, Quantity,
-                              ("Entry Type" in
-                               ["Entry Type"::Purchase,
-                                "Entry Type"::"Positive Adjmt."]));
-                    end;
+                    if Location."Directed Put-away and Pick" then
+                        WMSMgmt.CheckAdjmtBin(
+                            Location, Quantity,
+                            ("Entry Type" in
+                            ["Entry Type"::Purchase,
+                            "Entry Type"::"Positive Adjmt."]));
                 "Entry Type"::Transfer:
                     begin
                         if Location."Directed Put-away and Pick" then
@@ -815,12 +814,12 @@ codeunit 23 "Item Jnl.-Post Batch"
     local procedure InsertTempSKU(var TempSKU: Record "Stockkeeping Unit" temporary; ItemJnlLine: Record "Item Journal Line")
     begin
         with TempSKU do begin
-            Init;
+            Init();
             "Location Code" := ItemJnlLine."Location Code";
             "Item No." := ItemJnlLine."Item No.";
             "Variant Code" := ItemJnlLine."Variant Code";
             OnBeforeInsertTempSKU(TempSKU, ItemJnlLine);
-            Insert;
+            Insert();
         end;
     end;
 

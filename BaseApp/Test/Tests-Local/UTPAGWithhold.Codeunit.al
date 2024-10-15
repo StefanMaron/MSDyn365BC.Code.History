@@ -36,7 +36,7 @@ codeunit 144094 "UT PAG Withhold"
 
         // Exercise & Verify: Verify expected message in handler - MessageHandler.
         SubformSentVendorBillLines."Amount to Pay".SetValue(LibraryRandom.RandDec(10, 2));
-        SubformSentVendorBillLines.Close;
+        SubformSentVendorBillLines.Close();
     end;
 
     [Test]
@@ -58,13 +58,13 @@ codeunit 144094 "UT PAG Withhold"
         ContributionCode."Soc. Sec. Code Lines".Invoke;
 
         // Exercise.
-        ContributionCodeLines."Starting Date".SetValue(WorkDate);
+        ContributionCodeLines."Starting Date".SetValue(WorkDate());
 
         // Verify: Verify Table - Contribution Code Line exists.
         ContributionCodeLine.SetRange(Code, Format(ContributionCode.Code));
-        ContributionCodeLines.Close;
-        Assert.IsTrue(ContributionCodeLine.FindFirst, StrSubstNo(ValueMustExistMsg, ContributionCodeLine.TableCaption));
-        ContributionCode.Close;
+        ContributionCodeLines.Close();
+        Assert.IsTrue(ContributionCodeLine.FindFirst, StrSubstNo(ValueMustExistMsg, ContributionCodeLine.TableCaption()));
+        ContributionCode.Close();
     end;
 
     [Test]
@@ -90,8 +90,8 @@ codeunit 144094 "UT PAG Withhold"
 
         // Verify: Verify Withholding Tax - Table Name and Number of Records on page - Navigate.
         WithholdingTax.SetRange("Document No.", Format(WithholdingTaxCard."Document No."));
-        VerifyTableNameAndNumberOfRecords(Navigate, WithholdingTax.TableCaption, WithholdingTax.Count);
-        WithholdingTaxCard.Close;
+        VerifyTableNameAndNumberOfRecords(Navigate, WithholdingTax.TableCaption(), WithholdingTax.Count);
+        WithholdingTaxCard.Close();
     end;
 
     [Test]
@@ -116,8 +116,8 @@ codeunit 144094 "UT PAG Withhold"
 
         // Verify: Verify Withholding Tax - Table Name and Number of Records on page - Navigate.
         WithholdingTax.SetRange("Document No.", Format(WithholdingTaxList."Document No."));
-        VerifyTableNameAndNumberOfRecords(Navigate, WithholdingTax.TableCaption, WithholdingTax.Count);
-        WithholdingTaxList.Close;
+        VerifyTableNameAndNumberOfRecords(Navigate, WithholdingTax.TableCaption(), WithholdingTax.Count);
+        WithholdingTaxList.Close();
     end;
 
     [Test]
@@ -142,8 +142,8 @@ codeunit 144094 "UT PAG Withhold"
 
         // Verify: Verify Contributions - Table Name and Number of Records on page - Navigate.
         Contributions.SetRange("Document No.", Format(ContributionCard."Document No."));
-        VerifyTableNameAndNumberOfRecords(Navigate, Contributions.TableCaption, Contributions.Count);
-        ContributionCard.Close;
+        VerifyTableNameAndNumberOfRecords(Navigate, Contributions.TableCaption(), Contributions.Count);
+        ContributionCard.Close();
     end;
 
     [Test]
@@ -204,8 +204,8 @@ codeunit 144094 "UT PAG Withhold"
 
         // Verify: Verify Contributions - Table Name and Number of Records on page - Navigate.
         Contributions.SetRange("Document No.", Format(ContributionList."Document No."));
-        VerifyTableNameAndNumberOfRecords(Navigate, Contributions.TableCaption, Contributions.Count);
-        ContributionList.Close;
+        VerifyTableNameAndNumberOfRecords(Navigate, Contributions.TableCaption(), Contributions.Count);
+        ContributionList.Close();
     end;
 
     [Test]
@@ -325,8 +325,8 @@ codeunit 144094 "UT PAG Withhold"
 
         // Verify: Verify Computed Contribution - Table Name and Number of Records on page - Navigate.
         ComputedContribution.SetRange("Document No.", DocumentNo);
-        VerifyTableNameAndNumberOfRecords(Navigate, ComputedContribution.TableCaption, ComputedContribution.Count);
-        ComputedContributionPage.Close;
+        VerifyTableNameAndNumberOfRecords(Navigate, ComputedContribution.TableCaption(), ComputedContribution.Count);
+        ComputedContributionPage.Close();
     end;
 
     [Test]
@@ -353,8 +353,8 @@ codeunit 144094 "UT PAG Withhold"
 
         // Verify: Verify Computed Withholding Tax - Table Name and Number of Records on page - Navigate.
         ComputedWithholdingTax.SetRange("Document No.", DocumentNo);
-        VerifyTableNameAndNumberOfRecords(Navigate, ComputedWithholdingTax.TableCaption, ComputedWithholdingTax.Count);
-        ComputedWithholdingTaxPage.Close;
+        VerifyTableNameAndNumberOfRecords(Navigate, ComputedWithholdingTax.TableCaption(), ComputedWithholdingTax.Count);
+        ComputedWithholdingTaxPage.Close();
     end;
 
     local procedure Initialize()
@@ -394,7 +394,7 @@ codeunit 144094 "UT PAG Withhold"
         Contributions."Social Security Code" := CreateContributionCode(ContributionCode."Contribution Type"::INPS);
         Contributions."INAIL Code" := CreateContributionCode(ContributionCode."Contribution Type"::INAIL);
         Contributions."Document No." := LibraryUTUtility.GetNewCode;
-        Contributions."Posting Date" := WorkDate;
+        Contributions."Posting Date" := WorkDate();
         Contributions.Insert();
         exit(Contributions."Document No.");
     end;
@@ -422,7 +422,7 @@ codeunit 144094 "UT PAG Withhold"
         WithholdCodeLine: Record "Withhold Code Line";
     begin
         WithholdCodeLine."Withhold Code" := WithholdCode;
-        WithholdCodeLine."Starting Date" := WorkDate;
+        WithholdCodeLine."Starting Date" := WorkDate();
         WithholdCodeLine.Insert();
     end;
 
@@ -456,7 +456,7 @@ codeunit 144094 "UT PAG Withhold"
         if WithholdingTax2.FindLast() then
             WithholdingTax."Entry No." := WithholdingTax2."Entry No." + 1;
         WithholdingTax."Document No." := LibraryUTUtility.GetNewCode;
-        WithholdingTax."Posting Date" := WorkDate;
+        WithholdingTax."Posting Date" := WorkDate();
         WithholdingTax.Insert();
         exit(WithholdingTax."Document No.");
     end;
@@ -466,9 +466,9 @@ codeunit 144094 "UT PAG Withhold"
         ComputedWithholdingTax: Record "Computed Withholding Tax";
     begin
         ComputedWithholdingTax."Vendor No." := LibraryUTUtility.GetNewCode;
-        ComputedWithholdingTax."Document Date" := WorkDate;
+        ComputedWithholdingTax."Document Date" := WorkDate();
         ComputedWithholdingTax."Document No." := LibraryUTUtility.GetNewCode;
-        ComputedWithholdingTax."Posting Date" := WorkDate;
+        ComputedWithholdingTax."Posting Date" := WorkDate();
         ComputedWithholdingTax.Insert();
         exit(ComputedWithholdingTax."Document No.");
     end;
@@ -478,9 +478,9 @@ codeunit 144094 "UT PAG Withhold"
         ComputedContribution: Record "Computed Contribution";
     begin
         ComputedContribution."Vendor No." := LibraryUTUtility.GetNewCode;
-        ComputedContribution."Document Date" := WorkDate;
+        ComputedContribution."Document Date" := WorkDate();
         ComputedContribution."Document No." := LibraryUTUtility.GetNewCode;
-        ComputedContribution."Posting Date" := WorkDate;
+        ComputedContribution."Posting Date" := WorkDate();
         ComputedContribution.Insert();
         exit(ComputedContribution."Document No.");
     end;

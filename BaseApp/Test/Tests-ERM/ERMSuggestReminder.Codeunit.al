@@ -1,4 +1,4 @@
-codeunit 134910 "ERM Suggest Reminder"
+﻿codeunit 134910 "ERM Suggest Reminder"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -53,7 +53,7 @@ codeunit 134910 "ERM Suggest Reminder"
 
         // Verify: Check that no Reminder Line exists when Document Date is before Due Date.
         ReminderLine.SetRange("Reminder No.", ReminderNo);
-        Assert.IsFalse(ReminderLine.FindFirst, ReminderLineExistErr);
+        Assert.IsTrue(ReminderLine.IsEmpty, ReminderLineExistErr);
     end;
 
     [Test]

@@ -1,4 +1,4 @@
-﻿report 99001015 "Calculate Subcontracts"
+report 99001015 "Calculate Subcontracts"
 {
     Caption = 'Calculate Subcontracts';
     ProcessingOnly = true;
@@ -42,7 +42,7 @@
                                         "Scrap Factor % (Accumulated)", "Fixed Scrap Qty. (Accum.)") -
                                 (CostCalcMgt.CalcOutputQtyBaseOnPurchOrder(ProdOrderLine, "Prod. Order Routing Line") +
                                  CostCalcMgt.CalcActOutputQtyBase(ProdOrderLine, "Prod. Order Routing Line"));
-                            QtyToPurch := Round(BaseQtyToPurch / ProdOrderLine."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision);
+                            QtyToPurch := Round(BaseQtyToPurch / ProdOrderLine."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision());
                             OnAfterCalcQtyToPurch(ProdOrderLine, QtyToPurch);
                             if QtyToPurch > 0 then
                                 InsertReqWkshLine();
@@ -119,8 +119,6 @@
     end;
 
     var
-        Text000: Label 'Processing Work Centers   #1##########\';
-        Text001: Label 'Processing Orders         #2########## ';
         MfgSetup: Record "Manufacturing Setup";
         ReqWkshTmpl: Record "Req. Wksh. Template";
         ReqWkShName: Record "Requisition Wksh. Name";
@@ -138,6 +136,9 @@
         Text1130000: Label 'Production Order %1 skipped because Item No. %2 is blocked';
         Text1130001: Label 'Work Center %1 skipped because Vendor %2  is blocked';
         PrivacyBlockedMsg: Label 'Work Center %1 skipped because Vendor %2 is blocked for privacy.', Comment = '%1 = work center code, %2 = vendor code.';
+
+        Text000: Label 'Processing Work Centers   #1##########\';
+        Text001: Label 'Processing Orders         #2########## ';
 
     procedure SetWkShLine(NewReqLine: Record "Requisition Line")
     begin
@@ -159,7 +160,7 @@
             SetSubcontracting(true);
             BlockDynamicTracking(true);
 
-            Init;
+            Init();
             "Line No." := "Line No." + 10000;
             Validate(Type, Type::Item);
             Validate("No.", ProdOrderLine."Item No.");
@@ -244,7 +245,7 @@
                 GetDimFromRefOrderLine(true);
 
             OnBeforeReqWkshLineInsert(ReqLine, ProdOrderLine);
-            Insert;
+            Insert();
         end;
     end;
 

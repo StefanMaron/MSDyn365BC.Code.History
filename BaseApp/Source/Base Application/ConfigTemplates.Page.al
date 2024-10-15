@@ -6,7 +6,6 @@ page 1340 "Config Templates"
     InsertAllowed = false;
     ModifyAllowed = false;
     PageType = List;
-    PromotedActionCategories = 'New,Process,Report,Manage';
     SourceTable = "Config. Template Header";
     UsageCategory = Lists;
 
@@ -18,12 +17,12 @@ page 1340 "Config Templates"
             {
                 field("Template Name"; Description)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies a description of the template.';
                 }
                 field(Enabled; Enabled)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies if the template is ready to be used';
                     Visible = NOT NewMode;
                 }
@@ -35,47 +34,6 @@ page 1340 "Config Templates"
     {
         area(creation)
         {
-#if not CLEAN18
-            action(NewCustomerTemplate)
-            {
-                ApplicationArea = All;
-                Caption = 'New';
-                Image = New;
-                RunObject = Page "Cust. Template Card";
-                RunPageMode = Create;
-                ToolTip = 'Create a new template for a customer card.';
-                Visible = CreateCustomerActionVisible;
-                ObsoleteReason = 'Action will be removed with other functionality related to "old" templates. Use "Customer Templ. List" page instead.';
-                ObsoleteState = Pending;
-                ObsoleteTag = '18.0';
-            }
-            action(NewVendorTemplate)
-            {
-                ApplicationArea = All;
-                Caption = 'New';
-                Image = New;
-                RunObject = Page "Vendor Template Card";
-                RunPageMode = Create;
-                ToolTip = 'Create a new template for a vendor card.';
-                Visible = CreateVendorActionVisible;
-                ObsoleteReason = 'Action will be removed with other functionality related to "old" templates. Use "Vendor Templ. List" page instead.';
-                ObsoleteState = Pending;
-                ObsoleteTag = '18.0';
-            }
-            action(NewItemTemplate)
-            {
-                ApplicationArea = All;
-                Caption = 'New';
-                Image = New;
-                RunObject = Page "Item Template Card";
-                RunPageMode = Create;
-                ToolTip = 'Create a new template for an item card.';
-                Visible = CreateItemActionVisible;
-                ObsoleteReason = 'Action will be removed with other functionality related to "old" templates. Use "Item Templ. List" page instead.';
-                ObsoleteState = Pending;
-                ObsoleteTag = '18.0';
-            }
-#endif
             action(NewConfigTemplate)
             {
                 ApplicationArea = All;
@@ -84,16 +42,13 @@ page 1340 "Config Templates"
                 RunObject = Page "Config. Template Header";
                 RunPageMode = Create;
                 ToolTip = 'Create a new configuration template.';
-#if not CLEAN18
-                Visible = CreateConfigurationTemplateActionVisible;
-#endif
             }
         }
         area(processing)
         {
             action(Delete)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Delete';
                 Image = Delete;
                 ToolTip = 'Delete the record.';
@@ -103,6 +58,17 @@ page 1340 "Config Templates"
                     if Confirm(StrSubstNo(DeleteQst, Code)) then
                         Delete(true);
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Manage', Comment = 'Generated from the PromotedActionCategories property index 3.';
             }
         }
     }
@@ -125,26 +91,20 @@ page 1340 "Config Templates"
         if not Evaluate(FilteredTableId, FilterValue) then
             FilteredTableId := 0;
 
-#if not CLEAN18
-        UpdateActionsVisibility;
-#endif
-        UpdatePageCaption;
+        UpdatePageCaption();
 
         if NewMode then
-            UpdateSelection;
+            UpdateSelection();
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     begin
         if NewMode and (CloseAction = ACTION::LookupOK) then
-            SaveSelection;
+            SaveSelection();
     end;
 
     var
         ConfigTemplateManagement: Codeunit "Config. Template Management";
-#if not CLEAN18
-        CreateConfigurationTemplateActionVisible: Boolean;
-#endif
         FilteredTableId: Integer;
         ConfigurationTemplatesCap: Label 'Configuration Templates';
         CustomerTemplatesCap: Label 'Customer Templates';
@@ -158,30 +118,6 @@ page 1340 "Config Templates"
 
     protected var
         NewMode: Boolean;
-#if not CLEAN18
-        CreateCustomerActionVisible: Boolean;
-        CreateVendorActionVisible: Boolean;
-        CreateItemActionVisible: Boolean;
-
-    local procedure UpdateActionsVisibility()
-    begin
-        CreateCustomerActionVisible := false;
-        CreateItemActionVisible := false;
-        CreateConfigurationTemplateActionVisible := false;
-        CreateVendorActionVisible := false;
-
-        case FilteredTableId of
-            DATABASE::Customer:
-                CreateCustomerActionVisible := true;
-            DATABASE::Item:
-                CreateItemActionVisible := true;
-            DATABASE::Vendor:
-                CreateVendorActionVisible := true;
-            else
-                CreateConfigurationTemplateActionVisible := true;
-        end;
-    end;
-#endif
 
     local procedure UpdatePageCaption()
     var
@@ -230,7 +166,7 @@ page 1340 "Config Templates"
 
         if not (TemplateCode = '') then
             if ConfigTemplateHeader.Get(TemplateCode) then
-                SetPosition(ConfigTemplateHeader.GetPosition);
+                SetPosition(ConfigTemplateHeader.GetPosition());
     end;
 
     local procedure SaveSelection()

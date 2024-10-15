@@ -221,7 +221,7 @@ table 741 "VAT Report Line"
         VATReportSetup.Get();
         VATReportHeader.Get("VAT Report No.");
 
-        VATReportHeader.CheckEditingAllowed
+        VATReportHeader.CheckEditingAllowed();
     end;
 
     var

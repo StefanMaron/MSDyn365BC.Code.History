@@ -1,4 +1,4 @@
-table 737 "VAT Return Period"
+﻿table 737 "VAT Return Period"
 {
     Caption = 'VAT Return Period';
 
@@ -45,7 +45,7 @@ table 737 "VAT Return Period"
         }
         field(21; "VAT Return Status"; Option)
         {
-            CalcFormula = Lookup ("VAT Report Header".Status WHERE("No." = FIELD("VAT Return No.")));
+            CalcFormula = Lookup("VAT Report Header".Status WHERE("No." = FIELD("VAT Return No.")));
             Caption = 'VAT Return Status';
             Editable = false;
             FieldClass = FlowField;
@@ -67,10 +67,11 @@ table 737 "VAT Return Period"
     }
 
     var
-        OverdueTxt: Label 'Your VAT return is overdue since %1 (%2 days)', Comment = '%1 - date; %2 - days count';
-        OpenTxt: Label 'Your VAT return is due %1 (in %2 days)', Comment = '%1 - date; %2 - days count';
         VATReportSetup: Record "VAT Report Setup";
         VATReportSetupGot: Boolean;
+
+        OverdueTxt: Label 'Your VAT return is overdue since %1 (%2 days)', Comment = '%1 - date; %2 - days count';
+        OpenTxt: Label 'Your VAT return is due %1 (in %2 days)', Comment = '%1 - date; %2 - days count';
 
     local procedure GetVATReportSetup()
     begin
@@ -84,17 +85,17 @@ table 737 "VAT Return Period"
     [Scope('OnPrem')]
     procedure CheckOpenOrOverdue(): Text
     begin
-        GetVATReportSetup;
+        GetVATReportSetup();
         if (Status = Status::Open) and ("Due Date" <> 0D) then
             case true of
                 // Overdue
-                ("Due Date" < WorkDate):
-                    exit(StrSubstNo(OverdueTxt, "Due Date", WorkDate - "Due Date"));
-                    // Open
-                VATReportSetup.IsPeriodReminderCalculation and
-              ("Due Date" >= WorkDate) and
-              ("Due Date" <= CalcDate(VATReportSetup."Period Reminder Calculation", WorkDate)):
-                    exit(StrSubstNo(OpenTxt, "Due Date", "Due Date" - WorkDate));
+                ("Due Date" < WorkDate()):
+                    exit(StrSubstNo(OverdueTxt, "Due Date", WorkDate() - "Due Date"));
+                // Open
+                VATReportSetup.IsPeriodReminderCalculation() and
+              ("Due Date" >= WorkDate()) and
+              ("Due Date" <= CalcDate(VATReportSetup."Period Reminder Calculation", WorkDate())):
+                    exit(StrSubstNo(OpenTxt, "Due Date", "Due Date" - WorkDate()));
             end;
     end;
 }

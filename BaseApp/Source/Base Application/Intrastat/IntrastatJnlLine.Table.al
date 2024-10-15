@@ -36,7 +36,7 @@
 
             trigger OnValidate()
             begin
-                GetItemDescription;
+                GetItemDescription();
             end;
         }
         field(7; "Item Description"; Text[100])
@@ -69,7 +69,7 @@
                 if "Source Type" <> xRec."Source Type" then begin
                     "Source Entry No." := 0;
                     if xRec."Source Type" = xRec."Source Type"::"VAT Entry" then
-                        ClearFieldValues;
+                        ClearFieldValues();
                 end;
             end;
         }
@@ -79,7 +79,7 @@
 
             trigger OnLookup()
             begin
-                LookUpSourceEntryNo;
+                LookUpSourceEntryNo();
             end;
 
             trigger OnValidate()
@@ -134,7 +134,7 @@
                 if "Cost Regulation %" <> 0 then
                     Validate("Cost Regulation %")
                 else
-                    CheckIndirectCost;
+                    CheckIndirectCost();
             end;
         }
         field(15; Quantity; Decimal)
@@ -161,7 +161,7 @@
             begin
                 "Indirect Cost" := Round(Amount * "Cost Regulation %" / 100, 1);
                 "Statistical Value" := Round(Amount + "Indirect Cost", 1);
-                CheckIndirectCost;
+                CheckIndirectCost();
             end;
         }
         field(17; "Indirect Cost"; Decimal)
@@ -173,7 +173,7 @@
             trigger OnValidate()
             begin
                 "Cost Regulation %" := 0;
-                CheckIndirectCost;
+                CheckIndirectCost();
             end;
         }
         field(18; "Statistical Value"; Decimal)
@@ -203,7 +203,7 @@
                 Name := Item.Description;
                 "Tariff No." := Item."Tariff No.";
                 "Country/Region of Origin Code" := GetIntrastatCountryCode(Item."Country/Region of Origin Code");
-                GetItemDescription;
+                GetItemDescription();
             end;
         }
         field(21; Name; Text[100])
@@ -399,7 +399,7 @@
                 IntrastatJnlLine.SetRange("Journal Batch Name", "Corrected Intrastat Report No.");
                 IntrastatJnlLines.SetTableView(IntrastatJnlLine);
                 IntrastatJnlLines.SetRecord(IntrastatJnlLine);
-                if IntrastatJnlLines.RunModal = ACTION::LookupOK then begin
+                if IntrastatJnlLines.RunModal() = ACTION::LookupOK then begin
                     IntrastatJnlLines.GetRecord(IntrastatJnlLine);
                     Validate("Corrected Document No.", IntrastatJnlLine."Document No.");
                 end;
@@ -442,13 +442,8 @@
         key(Key3; Type, "Country/Region Code", "VAT Registration No.", "Transaction Type", "Tariff No.", "Group Code", "Transport Method", "Transaction Specification", "Country/Region of Origin Code", "Area", "Corrective entry")
         {
             ObsoleteReason = 'VAT Registration No. merged into W1 Partner VAT ID. Use Key6 instead.';
-#if CLEAN18
             ObsoleteState = Removed;
             ObsoleteTag = '21.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '18.0';
-#endif
         }
         key(Key4; "Internal Ref. No.")
         {
@@ -568,7 +563,7 @@
                     SetVATEntryFilters(VATEntry);
                     VATEntries.SetTableView(VATEntry);
                     VATEntries.SetRecord(VATEntry);
-                    if VATEntries.RunModal = ACTION::LookupOK then begin
+                    if VATEntries.RunModal() = ACTION::LookupOK then begin
                         VATEntries.GetRecord(VATEntry);
                         Validate("Source Entry No.", VATEntry."Entry No.");
                     end;
@@ -690,7 +685,7 @@
     begin
         IntrastatJnlBatch.Get("Journal Template Name", "Journal Batch Name");
         IntrastatJnlBatch.TestField("Statistics Period");
-        Century := Date2DMY(WorkDate, 3) div 100;
+        Century := Date2DMY(WorkDate(), 3) div 100;
         Evaluate(Year, CopyStr(IntrastatJnlBatch."Statistics Period", 1, 2));
         Year := Year + Century * 100;
         Evaluate(Month, CopyStr(IntrastatJnlBatch."Statistics Period", 3, 2));

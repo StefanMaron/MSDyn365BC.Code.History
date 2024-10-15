@@ -5,7 +5,8 @@ codeunit 143 "ECSL Report Validate"
     trigger OnRun()
     begin
         ErrorMessage.SetContext(RecordId);
-        ErrorMessage.ClearLog;
+        ErrorMessage.ClearLog();
+
 
         ValidateVATReportHasLine(Rec);
         CheckVATRegNoOnLines(Rec);
@@ -13,8 +14,9 @@ codeunit 143 "ECSL Report Validate"
     end;
 
     var
-        NoLineFoundErr: Label 'You cannot release a blank VAT report.';
         ErrorMessage: Record "Error Message";
+
+        NoLineFoundErr: Label 'You cannot release a blank VAT report.';
         ZeroTotalValueErr: Label 'You cannot release the report because line No. %1 has zero as the Total Value Of Supplies.', Comment = 'Placeholder 1 holds the line no that cause the error';
         NoVatRegNoErr: Label 'You cannot release the report because line No. %1 is missing a VAT Registration Number. You need to correct this on the sales document and post it again.', Comment = 'Placeholder 1 holds the line no that cause the error';
 

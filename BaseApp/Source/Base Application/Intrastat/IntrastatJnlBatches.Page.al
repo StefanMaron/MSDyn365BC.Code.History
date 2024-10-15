@@ -1,7 +1,7 @@
 page 327 "Intrastat Jnl. Batches"
 {
     Caption = 'Intrastat Jnl. Batches';
-    DataCaptionExpression = DataCaption;
+    DataCaptionExpression = DataCaption();
     PageType = List;
     SourceTable = "Intrastat Jnl. Batch";
 
@@ -32,32 +32,32 @@ page 327 "Intrastat Jnl. Batches"
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the type of item ledger entries to be included.';
                 }
-                field("Statistics Period"; "Statistics Period")
+                field("Statistics Period"; Rec."Statistics Period")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the month to report data for. Enter the period as a four-digit number, with no spaces or symbols. Depending on your country, enter either the month first and then the year, or vice versa. For example, enter either 1706 or 0617 for June, 2017.';
                 }
-                field("EU Service"; "EU Service")
+                field("EU Service"; Rec."EU Service")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies if the journal batch is used for sales of services to other EU countries/regions.';
                 }
-                field("Corrective Entry"; "Corrective Entry")
+                field("Corrective Entry"; Rec."Corrective Entry")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies if the Intrastat journal batch has an adjusting entry.';
                 }
-                field("File Disk No."; "File Disk No.")
+                field("File Disk No."; Rec."File Disk No.")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the floppy disk number if you are creating a reporting disk.';
                 }
-                field("Currency Identifier"; "Currency Identifier")
+                field("Currency Identifier"; Rec."Currency Identifier")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies a code that identifies the currency of the Intrastat report.';
                 }
-                field("Amounts in Add. Currency"; "Amounts in Add. Currency")
+                field("Amounts in Add. Currency"; Rec."Amounts in Add. Currency")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies that you use an additional reporting currency in the general ledger and that you want to report Intrastat in this currency.';
@@ -94,9 +94,6 @@ page 327 "Intrastat Jnl. Batches"
                 ApplicationArea = BasicEU;
                 Caption = 'Edit Journal';
                 Image = OpenJournal;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ShortCutKey = 'Return';
                 ToolTip = 'Open a journal based on the journal batch.';
 
@@ -104,6 +101,17 @@ page 327 "Intrastat Jnl. Batches"
                 begin
                     IntraJnlManagement.TemplateSelectionFromBatch(Rec);
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(EditJournal_Promoted; EditJournal)
+                {
+                }
             }
         }
     }

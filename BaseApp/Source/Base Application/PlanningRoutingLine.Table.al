@@ -31,9 +31,9 @@ table 99000830 "Planning Routing Line"
 
             trigger OnValidate()
             begin
-                SetRecalcStatus;
+                SetRecalcStatus();
 
-                GetLine;
+                GetLine();
                 "Starting Time" := ReqLine."Starting Time";
                 "Ending Time" := ReqLine."Ending Time";
                 "Starting Date" := ReqLine."Starting Date";
@@ -46,9 +46,9 @@ table 99000830 "Planning Routing Line"
 
             trigger OnValidate()
             begin
-                SetRecalcStatus;
+                SetRecalcStatus();
 
-                GetLine;
+                GetLine();
                 ReqLine.TestField("Routing Type", ReqLine."Routing Type"::Serial);
             end;
         }
@@ -58,7 +58,7 @@ table 99000830 "Planning Routing Line"
 
             trigger OnValidate()
             begin
-                SetRecalcStatus;
+                SetRecalcStatus();
             end;
         }
         field(7; Type; Enum "Capacity Type")
@@ -71,7 +71,7 @@ table 99000830 "Planning Routing Line"
                 "Work Center No." := '';
                 "Work Center Group Code" := '';
 
-                ModifyCapNeedEntries;
+                ModifyCapNeedEntries();
             end;
         }
         field(8; "No."; Code[20])
@@ -83,7 +83,7 @@ table 99000830 "Planning Routing Line"
 
             trigger OnValidate()
             begin
-                SetRecalcStatus;
+                SetRecalcStatus();
 
                 if "No." = '' then
                     exit;
@@ -93,18 +93,18 @@ table 99000830 "Planning Routing Line"
                         begin
                             WorkCenter.Get("No.");
                             WorkCenter.TestField(Blocked, false);
-                            WorkCenterTransferfields;
+                            WorkCenterTransferfields();
                         end;
                     Type::"Machine Center":
                         begin
                             MachineCenter.Get("No.");
                             MachineCenter.TestField(Blocked, false);
-                            MachineCtrTransferfields;
+                            MachineCtrTransferfields();
                         end;
                 end;
-                GetLine;
+                GetLine();
                 if ReqLine."Routing Type" = ReqLine."Routing Type"::Serial then
-                    CalcStartingEndingDates;
+                    CalcStartingEndingDates();
             end;
         }
         field(9; "Work Center No."; Code[20])
@@ -131,7 +131,7 @@ table 99000830 "Planning Routing Line"
 
             trigger OnValidate()
             begin
-                CalcStartingEndingDates;
+                CalcStartingEndingDates();
             end;
         }
         field(13; "Run Time"; Decimal)
@@ -142,7 +142,7 @@ table 99000830 "Planning Routing Line"
 
             trigger OnValidate()
             begin
-                CalcStartingEndingDates;
+                CalcStartingEndingDates();
             end;
         }
         field(14; "Wait Time"; Decimal)
@@ -153,7 +153,7 @@ table 99000830 "Planning Routing Line"
 
             trigger OnValidate()
             begin
-                CalcStartingEndingDates;
+                CalcStartingEndingDates();
             end;
         }
         field(15; "Move Time"; Decimal)
@@ -164,7 +164,7 @@ table 99000830 "Planning Routing Line"
 
             trigger OnValidate()
             begin
-                CalcStartingEndingDates;
+                CalcStartingEndingDates();
             end;
         }
         field(16; "Fixed Scrap Quantity"; Decimal)
@@ -175,7 +175,7 @@ table 99000830 "Planning Routing Line"
 
             trigger OnValidate()
             begin
-                SetRecalcStatus;
+                SetRecalcStatus();
             end;
         }
         field(17; "Lot Size"; Decimal)
@@ -196,7 +196,7 @@ table 99000830 "Planning Routing Line"
 
             trigger OnValidate()
             begin
-                SetRecalcStatus;
+                SetRecalcStatus();
             end;
         }
         field(19; "Setup Time Unit of Meas. Code"; Code[10])
@@ -206,7 +206,7 @@ table 99000830 "Planning Routing Line"
 
             trigger OnValidate()
             begin
-                CalcStartingEndingDates;
+                CalcStartingEndingDates();
             end;
         }
         field(20; "Run Time Unit of Meas. Code"; Code[10])
@@ -216,7 +216,7 @@ table 99000830 "Planning Routing Line"
 
             trigger OnValidate()
             begin
-                CalcStartingEndingDates;
+                CalcStartingEndingDates();
             end;
         }
         field(21; "Wait Time Unit of Meas. Code"; Code[10])
@@ -226,7 +226,7 @@ table 99000830 "Planning Routing Line"
 
             trigger OnValidate()
             begin
-                CalcStartingEndingDates;
+                CalcStartingEndingDates();
             end;
         }
         field(22; "Move Time Unit of Meas. Code"; Code[10])
@@ -236,7 +236,7 @@ table 99000830 "Planning Routing Line"
 
             trigger OnValidate()
             begin
-                CalcStartingEndingDates;
+                CalcStartingEndingDates();
             end;
         }
         field(27; "Minimum Process Time"; Decimal)
@@ -260,7 +260,7 @@ table 99000830 "Planning Routing Line"
 
             trigger OnValidate()
             begin
-                CalcStartingEndingDates;
+                CalcStartingEndingDates();
             end;
         }
         field(31; "Send-Ahead Quantity"; Decimal)
@@ -271,7 +271,7 @@ table 99000830 "Planning Routing Line"
 
             trigger OnValidate()
             begin
-                CalcStartingEndingDates;
+                CalcStartingEndingDates();
             end;
         }
         field(34; "Routing Link Code"; Code[10])
@@ -377,7 +377,7 @@ table 99000830 "Planning Routing Line"
 
             trigger OnValidate()
             begin
-                Modify;
+                Modify();
 
                 PlanningRtngLine.Get(
                   "Worksheet Template Name",
@@ -391,14 +391,14 @@ table 99000830 "Planning Routing Line"
 
                 PlngLnMgt.CalculateRoutingFromActual(PlanningRtngLine, 0, false);
 
-                CalculateRoutingBack;
-                CalculateRoutingForward;
+                CalculateRoutingBack();
+                CalculateRoutingForward();
 
                 Get(
                   "Worksheet Template Name",
                   "Worksheet Batch Name", "Worksheet Line No.", "Operation No.");
 
-                UpdateDatetime;
+                UpdateDatetime();
             end;
         }
         field(71; "Starting Date"; Date)
@@ -416,7 +416,7 @@ table 99000830 "Planning Routing Line"
 
             trigger OnValidate()
             begin
-                Modify;
+                Modify();
 
                 PlanningRtngLine.Get(
                   "Worksheet Template Name",
@@ -429,8 +429,8 @@ table 99000830 "Planning Routing Line"
                   "Worksheet Line No.", "Sequence No. (Actual)");
                 PlngLnMgt.CalculateRoutingFromActual(PlanningRtngLine, 1, false);
 
-                CalculateRoutingBack;
-                CalculateRoutingForward;
+                CalculateRoutingBack();
+                CalculateRoutingForward();
 
                 Get(
                   "Worksheet Template Name",
@@ -556,12 +556,12 @@ table 99000830 "Planning Routing Line"
     trigger OnInsert()
     begin
         if "Next Operation No." = '' then
-            SetNextOperations;
+            SetNextOperations();
     end;
 
     trigger OnRename()
     begin
-        SetRecalcStatus;
+        SetRecalcStatus();
     end;
 
     var
@@ -626,7 +626,7 @@ table 99000830 "Planning Routing Line"
     local procedure MachineCtrTransferfields()
     begin
         WorkCenter.Get(MachineCenter."Work Center No.");
-        WorkCenterTransferfields;
+        WorkCenterTransferfields();
 
         Description := MachineCenter.Name;
         "Setup Time" := MachineCenter."Setup Time";
@@ -659,12 +659,12 @@ table 99000830 "Planning Routing Line"
         if "Lot Size" = 0 then
             "Lot Size" := 1;
 
-        exit(Round("Run Time" / "Lot Size", UOMMgt.TimeRndPrecision));
+        exit(Round("Run Time" / "Lot Size", UOMMgt.TimeRndPrecision()));
     end;
 
-    local procedure CalcStartingEndingDates()
+    procedure CalcStartingEndingDates()
     begin
-        Modify;
+        Modify();
 
         PlanningRtngLine.Get(
           "Worksheet Template Name",
@@ -678,8 +678,8 @@ table 99000830 "Planning Routing Line"
 
         PlngLnMgt.CalculateRoutingFromActual(PlanningRtngLine, 0, false);
 
-        CalculateRoutingBack;
-        CalculateRoutingForward;
+        CalculateRoutingBack();
+        CalculateRoutingForward();
 
         Get(
           "Worksheet Template Name",
@@ -688,7 +688,7 @@ table 99000830 "Planning Routing Line"
 
     local procedure CalculateRoutingBack()
     begin
-        GetLine;
+        GetLine();
 
         if "Previous Operation No." <> '' then begin
             PlanningRtngLine.Reset();
@@ -720,13 +720,11 @@ table 99000830 "Planning Routing Line"
                                 PlngLnMgt.CalculateRoutingFromActual(PlanningRtngLine, 1, true);
                             end;
                         WorkCenter."Simulation Type"::Critical:
-                            begin
-                                if (PlanningRtngLine."Ending Date" > "Starting Date") or
-                                   ((PlanningRtngLine."Ending Date" = "Starting Date") and
-                                    (PlanningRtngLine."Ending Time" > "Starting Time"))
-                                then
-                                    Error(Text000);
-                            end;
+                            if (PlanningRtngLine."Ending Date" > "Starting Date") or
+                                ((PlanningRtngLine."Ending Date" = "Starting Date") and
+                                (PlanningRtngLine."Ending Time" > "Starting Time"))
+                            then
+                                Error(Text000);
                     end;
                     PlanningRtngLine.SetCurrentKey(
                       "Worksheet Template Name",
@@ -740,7 +738,7 @@ table 99000830 "Planning Routing Line"
 
     local procedure CalculateRoutingForward()
     begin
-        GetLine;
+        GetLine();
 
         if "Next Operation No." <> '' then begin
             PlanningRtngLine.Reset();
@@ -771,13 +769,11 @@ table 99000830 "Planning Routing Line"
                                 PlngLnMgt.CalculateRoutingFromActual(PlanningRtngLine, 0, true);
                             end;
                         WorkCenter."Simulation Type"::Critical:
-                            begin
-                                if (PlanningRtngLine."Starting Date" < "Ending Date") or
-                                   ((PlanningRtngLine."Starting Date" = "Ending Date") and
-                                    (PlanningRtngLine."Starting Time" < "Ending Time"))
-                                then
-                                    Error(Text001);
-                            end;
+                            if (PlanningRtngLine."Starting Date" < "Ending Date") or
+                                ((PlanningRtngLine."Starting Date" = "Ending Date") and
+                                (PlanningRtngLine."Starting Time" < "Ending Time"))
+                            then
+                                Error(Text001);
                     end;
                     PlanningRtngLine.SetCurrentKey(
                       "Worksheet Template Name",
@@ -861,7 +857,7 @@ table 99000830 "Planning Routing Line"
         "Starting Date" := ProdOrderRoutingLine."Starting Date";
         "Ending Time" := ProdOrderRoutingLine."Ending Time";
         "Ending Date" := ProdOrderRoutingLine."Ending Date";
-        UpdateDatetime;
+        UpdateDatetime();
         Validate("Unit Cost per");
 
         OnAfterTransferFromProdOrderRouting(Rec, ProdOrderRoutingLine);
@@ -976,7 +972,7 @@ table 99000830 "Planning Routing Line"
     [Scope('OnPrem')]
     procedure IsSerial(): Boolean
     begin
-        GetLine;
+        GetLine();
         exit(ReqLine."Routing Type" = ReqLine."Routing Type"::Serial)
     end;
 

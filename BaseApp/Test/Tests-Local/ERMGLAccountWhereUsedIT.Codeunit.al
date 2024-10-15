@@ -41,7 +41,7 @@ codeunit 144563 "ERM G/L Account Where-Used IT"
 
         // [THEN] Withhold Code is shown on "G/L Account Where-Used List"
         ValidateWhereUsedRecord(
-          WithholdCode.TableCaption,
+          WithholdCode.TableCaption(),
           WithholdCode.FieldCaption("Withholding Taxes Payable Acc."),
           StrSubstNo('%1=%2', WithholdCode.FieldCaption(Code), WithholdCode.Code));
     end;
@@ -91,7 +91,7 @@ codeunit 144563 "ERM G/L Account Where-Used IT"
 
         // [THEN] Contribution Code is shown on "G/L Account Where-Used List"
         ValidateWhereUsedRecord(
-          ContributionCode.TableCaption,
+          ContributionCode.TableCaption(),
           ContributionCode.FieldCaption("Social Security Payable Acc."),
           StrSubstNo(
             '%1=%2, %3=%4',
@@ -174,7 +174,7 @@ codeunit 144563 "ERM G/L Account Where-Used IT"
 
         // [THEN] Bill Posting Group is shown on "G/L Account Where-Used List"
         ValidateWhereUsedRecord(
-          BillPostingGroup.TableCaption,
+          BillPostingGroup.TableCaption(),
           BillPostingGroup.FieldCaption("Bills For Collection Acc. No."),
           StrSubstNo(
             '%1=%2, %3=%4',
@@ -233,7 +233,7 @@ codeunit 144563 "ERM G/L Account Where-Used IT"
 
         // [THEN] Bill is shown on "G/L Account Where-Used List"
         ValidateWhereUsedRecord(
-          Bill.TableCaption,
+          Bill.TableCaption(),
           Bill.FieldCaption("Bills for Coll. Temp. Acc. No."),
           StrSubstNo('%1=%2', Bill.FieldCaption(Code), Bill.Code));
     end;

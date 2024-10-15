@@ -891,7 +891,7 @@ codeunit 144081 "SCM Subcontracting"
         Commit();  // Commit required for run batch report.
         PlanningWorksheet.OpenEdit;
         PlanningWorksheet.CalculateRegenerativePlan.Invoke;  // Call CalculatePlanningWkshRequestPageHandler.
-        PlanningWorksheet.Close;
+        PlanningWorksheet.Close();
     end;
 
     local procedure CarryOutActionMessageFromPlanningWorksheet()
@@ -901,7 +901,7 @@ codeunit 144081 "SCM Subcontracting"
         Commit();  // Commit required for run batch report.
         PlanningWorksheet.OpenEdit;
         PlanningWorksheet.CarryOutActionMessage.Invoke;  // Call CarryOutActionMsgPlanRequestPageHandler.
-        PlanningWorksheet.Close;
+        PlanningWorksheet.Close();
     end;
 
     local procedure CarryOutActionMessageFromSubcontractingWorksheet()
@@ -990,7 +990,7 @@ codeunit 144081 "SCM Subcontracting"
         SubcontractingOrder.OpenEdit;
         SubcontractingOrder.FILTER.SetFilter("No.", GetSubcontractingOrderNo(VendorNo));
         SubcontractingOrder.CreateReturnFromSubcontractor.Invoke;
-        SubcontractingOrder.Close;
+        SubcontractingOrder.Close();
     end;
 
     local procedure CreateItemManufacturing(var Item: Record Item; ProdBOMNo: Code[20]; RoutingNo: Code[20])
@@ -1047,7 +1047,7 @@ codeunit 144081 "SCM Subcontracting"
             RoutingLine.Validate("WIP Item", TempRoutingLine."WIP Item");
             RoutingLine.Validate("Routing Link Code", TempRoutingLine."Routing Link Code");
             RoutingLine.Modify(true);
-        until TempRoutingLine.Next = 0;
+        until TempRoutingLine.Next() = 0;
 
         RoutingHeader.Validate(Status, RoutingHeader.Status::Certified);
         RoutingHeader.Modify(true);
@@ -1121,10 +1121,10 @@ codeunit 144081 "SCM Subcontracting"
         SubcontractingWorksheet.OpenEdit;
         SubcontractingWorksheet.FILTER.SetFilter("Prod. Order No.", GetProductionOrderNo(ProductionOrder.Status::Released, SourceNo));
         SubcontractingWorksheet.First;
-        SubcontractingWorksheet."Due Date".SetValue(CalcDate('<-1D>', WorkDate));
+        SubcontractingWorksheet."Due Date".SetValue(CalcDate('<-1D>', WorkDate()));
         Evaluate(Quantity, SubcontractingWorksheet.Quantity.Value);
         SubcontractingWorksheet.Quantity.SetValue(Quantity / PartialValue);
-        SubcontractingWorksheet.Close;
+        SubcontractingWorksheet.Close();
 
         // Carryout Action message from Subcontracting Worksheet to create Subcontracting Order.
         CarryOutActionMessageFromSubcontractingWorksheet;
@@ -1261,7 +1261,7 @@ codeunit 144081 "SCM Subcontracting"
         SubcontractingOrder.OpenEdit;
         SubcontractingOrder.FILTER.SetFilter("No.", GetSubcontractingOrderNo(VendorNo));
         SubcontractingOrder.CreateTransfOrdToSubcontractor.Invoke;  // Transfer order post in SubcontrTransferOrderPageHandler.
-        SubcontractingOrder.Close;
+        SubcontractingOrder.Close();
     end;
 
     local procedure CreateSubcontractingTransferOrderWithWIPAndOrdinaryItems(var TransferHeader: Record "Transfer Header"; CompItem: Record Item; MfgLocationCode: Code[10]; SubconLocationCode: Code[10])
@@ -1325,7 +1325,7 @@ codeunit 144081 "SCM Subcontracting"
         repeat
             if not VATPostingSetup.Get(VATBusinessPostingGroup.Code, '') then
                 LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusinessPostingGroup.Code, '');
-        until VATBusinessPostingGroup.Next = 0;
+        until VATBusinessPostingGroup.Next() = 0;
     end;
 
     local procedure CreateVendor(): Code[20]
@@ -1363,7 +1363,7 @@ codeunit 144081 "SCM Subcontracting"
         LibraryUtility.CreateNoSeries(NoSeries, true, false, false);
         LibraryUtility.CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, '', '');
         with TransportReasonCode do begin
-            Init;
+            Init();
             Validate(Code, LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"Transport Reason Code"));
             Validate("Posted Shpt. Nos.", NoSeries.Code);
             Insert(true);
@@ -1379,7 +1379,7 @@ codeunit 144081 "SCM Subcontracting"
         LibraryUtility.CreateNoSeries(NoSeries, true, false, false);
         LibraryUtility.CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, '', '');
         with TransportReasonCode do begin
-            Init;
+            Init();
             Validate(Code, LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"Transport Reason Code"));
             Validate("Posted Rcpt. Nos.", NoSeries.Code);
             Insert(true);
@@ -1514,7 +1514,7 @@ codeunit 144081 "SCM Subcontracting"
             Item.Validate("Reordering Policy", Item."Reordering Policy"::Order);
             Item.Modify(true);
             ItemFilter += '|' + ProductionBOMLine."No."
-        until ProductionBOMLine.Next = 0;
+        until ProductionBOMLine.Next() = 0;
     end;
 
     local procedure UpdateItemJournalLine(ItemJournalBatch: Record "Item Journal Batch"; LocationCode: Code[10])
@@ -1527,7 +1527,7 @@ codeunit 144081 "SCM Subcontracting"
         repeat
             ItemJournalLine.Validate("Location Code", LocationCode);
             ItemJournalLine.Modify(true);
-        until ItemJournalLine.Next = 0;
+        until ItemJournalLine.Next() = 0;
     end;
 
     local procedure UpdateItemVendorNoOnPlanningWorksheet(ItemNo: Code[20]): Code[20]
@@ -1543,7 +1543,7 @@ codeunit 144081 "SCM Subcontracting"
         repeat
             RequisitionLine.Validate("Vendor No.", ItemVendor."Vendor No.");
             RequisitionLine.Modify(true);
-        until RequisitionLine.Next = 0;
+        until RequisitionLine.Next() = 0;
         exit(ItemVendor."Vendor No.");
     end;
 
@@ -1566,7 +1566,7 @@ codeunit 144081 "SCM Subcontracting"
         repeat
             RequisitionLine.Validate("Accept Action Message", true);
             RequisitionLine.Modify(true);
-        until RequisitionLine.Next = 0;
+        until RequisitionLine.Next() = 0;
     end;
 
     local procedure UpdateSubcontractingHeader(var PurchaseHeader: Record "Purchase Header"; VendorNo: Code[20]; VendorInvoiceNo: Code[20])
@@ -1683,8 +1683,8 @@ codeunit 144081 "SCM Subcontracting"
         LibraryVariableStorage.Dequeue(ItemFilter);
         CalculatePlanPlanWksh.MPS.SetValue(true);
         CalculatePlanPlanWksh.MRP.SetValue(true);
-        CalculatePlanPlanWksh.StartingDate.SetValue(WorkDate);
-        CalculatePlanPlanWksh.EndingDate.SetValue(WorkDate);
+        CalculatePlanPlanWksh.StartingDate.SetValue(WorkDate());
+        CalculatePlanPlanWksh.EndingDate.SetValue(WorkDate());
         CalculatePlanPlanWksh.Item.SetFilter("No.", ItemFilter);
         CalculatePlanPlanWksh.OK.Invoke;
     end;

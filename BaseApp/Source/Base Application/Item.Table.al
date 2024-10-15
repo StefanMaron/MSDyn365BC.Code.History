@@ -18,7 +18,7 @@
             trigger OnValidate()
             begin
                 if "No." <> xRec."No." then begin
-                    GetInvtSetup;
+                    GetInvtSetup();
                     NoSeriesMgt.TestManual(InvtSetup."Item Nos.");
                     "No. Series" := '';
                     if xRec."No." = '' then
@@ -86,7 +86,7 @@
                     if not TempItem.Get(Rec."No.") and IsNullGuid(Rec.SystemId) then
                         Rec.Insert(true);
 
-                UpdateUnitOfMeasureId;
+                UpdateUnitOfMeasureId();
 
                 if "Base Unit of Measure" <> xRec."Base Unit of Measure" then begin
                     TestNoOpenEntriesExist(FieldCaption("Base Unit of Measure"));
@@ -103,10 +103,9 @@
 
                         if not ItemUnitOfMeasure.Get("No.", "Base Unit of Measure") then
                             CreateItemUnitOfMeasure()
-                        else begin
+                        else
                             if ItemUnitOfMeasure."Qty. per Unit of Measure" <> 1 then
                                 Error(BaseUnitOfMeasureQtyMustBeOneErr, "Base Unit of Measure", ItemUnitOfMeasure."Qty. per Unit of Measure");
-                        end;
                         UpdateQtyRoundingPrecisionForBaseUoM();
                     end;
                     "Sales Unit of Measure" := "Base Unit of Measure";
@@ -124,12 +123,12 @@
 
             trigger OnValidate()
             begin
-                if ExistsItemLedgerEntry then
-                    Error(CannotChangeFieldErr, FieldCaption(Type), TableCaption, "No.", ItemLedgEntryTableCaptionTxt);
+                if ExistsItemLedgerEntry() then
+                    Error(CannotChangeFieldErr, FieldCaption(Type), TableCaption(), "No.", ItemLedgEntryTableCaptionTxt);
                 TestNoWhseEntriesExist(FieldCaption(Type));
                 CheckJournalsAndWorksheets(FieldNo(Type));
                 CheckDocuments(FieldNo(Type));
-                if IsNonInventoriableType then
+                if IsNonInventoriableType() then
                     CheckUpdateFieldsForNonInventoriableItem();
             end;
         }
@@ -201,7 +200,7 @@
                                 "Profit %" :=
                                   Round(
                                     100 * (1 - "Unit Cost" /
-                                           ("Unit Price" / (1 + CalcVAT))), 0.00001)
+                                           ("Unit Price" / (1 + CalcVAT()))), 0.00001)
                         else
                             "Profit %" := 0;
                     "Price/Profit Calculation"::"Price=Cost+Profit":
@@ -210,7 +209,7 @@
                             "Unit Price" :=
                               Round(
                                 ("Unit Cost" / (1 - "Profit %" / 100)) *
-                                (1 + CalcVAT),
+                                (1 + CalcVAT()),
                                 GLSetup."Unit-Amount Rounding Precision");
                         end;
                 end;
@@ -246,7 +245,7 @@
                         Error(
                           Text018,
                           ItemTrackingCode.FieldCaption("SN Specific Tracking"),
-                          Format(true), ItemTrackingCode.TableCaption, ItemTrackingCode.Code,
+                          Format(true), ItemTrackingCode.TableCaption(), ItemTrackingCode.Code,
                           FieldCaption("Costing Method"), "Costing Method");
                 end;
 
@@ -850,7 +849,7 @@
             begin
                 if xRec."Gen. Prod. Posting Group" <> "Gen. Prod. Posting Group" then begin
                     if CurrFieldNo <> 0 then
-                        if ProdOrderExist then begin
+                        if ProdOrderExist() then begin
                             Question := StrSubstNo(Text024 + Text022, FieldCaption("Gen. Prod. Posting Group"));
                             if not ConfirmMgt.GetResponseOrDefault(Question, true)
                             then begin
@@ -933,7 +932,7 @@
 
             trigger OnValidate()
             begin
-                UpdateTaxGroupId;
+                UpdateTaxGroupId();
             end;
         }
         field(99; "VAT Prod. Posting Group"; Code[20])
@@ -1101,6 +1100,12 @@
             OptionCaption = 'Default,No,Yes';
             OptionMembers = Default,No,Yes;
         }
+        field(122; "Variant Mandatory if Exists"; Option)
+        {
+            Caption = 'Variant Mandatory if Exists';
+            OptionCaption = 'Default,No,Yes';
+            OptionMembers = Default,No,Yes;
+        }
         field(200; "Cost of Open Production Orders"; Decimal)
         {
             CalcFormula = Sum("Prod. Order Line"."Cost Amount" WHERE(Status = FILTER(Planned | "Firm Planned" | Released),
@@ -1127,7 +1132,7 @@
             begin
                 if "Assembly Policy" = "Assembly Policy"::"Assemble-to-Order" then
                     TestField("Replenishment System", "Replenishment System"::Assembly);
-                if IsNonInventoriableType then
+                if IsNonInventoriableType() then
                     TestField("Assembly Policy", "Assembly Policy"::"Assemble-to-Stock");
             end;
         }
@@ -1619,7 +1624,7 @@
             begin
                 if not IsTemporary then
                     ItemAttributeManagement.InheritAttributesFromItemCategory(Rec, "Item Category Code", xRec."Item Category Code");
-                UpdateItemCategoryId;
+                UpdateItemCategoryId();
             end;
         }
         field(5703; "Created From Nonstock Item"; Boolean)
@@ -1808,7 +1813,7 @@
                         Error(
                           Text018,
                           ItemTrackingCode.FieldCaption("SN Specific Tracking"),
-                          Format(true), ItemTrackingCode.TableCaption, ItemTrackingCode.Code,
+                          Format(true), ItemTrackingCode.TableCaption(), ItemTrackingCode.Code,
                           FieldCaption("Costing Method"), "Costing Method");
                 end;
 
@@ -2001,6 +2006,14 @@
             Caption = 'Next Counting End Date';
             Editable = false;
         }
+        field(7387; "Unit Group Exists"; Boolean)
+        {
+            CalcFormula = exist("Unit Group" where("Source Id" = field(SystemId),
+                                                "Source Type" = const(Item)));
+            Caption = 'Unit Group Exists';
+            Editable = false;
+            FieldClass = FlowField;
+        }
         field(7700; "Identifier Code"; Code[20])
         {
             CalcFormula = Lookup("Item Identifier".Code WHERE("Item No." = FIELD("No.")));
@@ -2022,7 +2035,7 @@
 
             trigger OnValidate()
             begin
-                UpdateUnitOfMeasureCode;
+                UpdateUnitOfMeasureCode();
             end;
         }
         field(8002; "Tax Group Id"; Guid)
@@ -2379,7 +2392,7 @@
                             ActionMessageEntry.SetRange("Reservation Entry", ReservEntry."Entry No.");
                             ActionMessageEntry.DeleteAll();
                             if "Order Tracking Policy" = "Order Tracking Policy"::None then
-                                if ReservEntry.TrackingExists then begin
+                                if ReservEntry.TrackingExists() then begin
                                     TempReservationEntry := ReservEntry;
                                     TempReservationEntry."Reservation Status" := TempReservationEntry."Reservation Status"::Surplus;
                                     TempReservationEntry.Insert();
@@ -2559,7 +2572,7 @@
         OnBeforeOnInsert(Rec, IsHandled);
         if not IsHandled then begin
             if "No." = '' then begin
-                GetInvtSetup;
+                GetInvtSetup();
                 InvtSetup.TestField("Item Nos.");
                 NoSeriesMgt.InitSeries(InvtSetup."Item Nos.", xRec."No. Series", 0D, "No.", "No. Series");
                 "Costing Method" := InvtSetup."Default Costing Method";
@@ -2569,8 +2582,8 @@
               DATABASE::Item, "No.",
               "Global Dimension 1 Code", "Global Dimension 2 Code");
 
-            UpdateReferencedIds;
-            SetLastDateTimeModified;
+            UpdateReferencedIds();
+            SetLastDateTimeModified();
 
             UpdateItemUnitGroup();
         end;
@@ -2580,8 +2593,8 @@
 
     trigger OnModify()
     begin
-        UpdateReferencedIds;
-        SetLastDateTimeModified;
+        UpdateReferencedIds();
+        SetLastDateTimeModified();
         PlanningAssignment.ItemChange(Rec, xRec);
 
         UpdateItemUnitGroup();
@@ -2602,7 +2615,7 @@
 
         ApprovalsMgmt.OnRenameRecordInApprovalRequest(xRec.RecordId, RecordId);
         ItemAttributeValueMapping.RenameItemAttributeValueMapping(xRec."No.", "No.");
-        SetLastDateTimeModified;
+        SetLastDateTimeModified();
 
         UpdateItemUnitGroup();
     end;
@@ -2646,7 +2659,6 @@
         ExtTextHeader: Record "Extended Text Header";
         GenProdPostingGrp: Record "Gen. Product Posting Group";
         ItemUnitOfMeasure: Record "Item Unit of Measure";
-        ItemVariant: Record "Item Variant";
         ItemJnlLine: Record "Item Journal Line";
         ProdOrderLine: Record "Prod. Order Line";
         ProdOrderComp: Record "Prod. Order Component";
@@ -2696,13 +2708,16 @@
         ItemTrackingCodeIgnoresExpirationDateErr: Label 'The settings for expiration dates do not match on the item tracking code and the item. Both must either use, or not use, expiration dates.', Comment = '%1 is the Item number';
         ReplenishmentSystemTransferErr: Label 'The Replenishment System Transfer cannot be used for item.';
         WhseEntriesExistErr: Label 'You cannot change %1 because there are one or more warehouse entries for this item.', Comment = '%1: Changed field name';
-        ItemUnitGroupPrefixLbl: Label 'ITEM', Locked = true;
+#if not CLEAN21
+        DeprecatedFuncTxt: Label 'This function has been deprecated.';
+#endif        
 
     local procedure DeleteRelatedData()
     var
         BinContent: Record "Bin Content";
         MyItem: Record "My Item";
         ItemAttributeValueMapping: Record "Item Attribute Value Mapping";
+        ItemVariant: Record "Item Variant";
     begin
         ItemBudgetEntry.SetCurrentKey("Analysis Area", "Budget Name", "Item No.");
         ItemBudgetEntry.SetRange("Item No.", "No.");
@@ -2804,7 +2819,7 @@
         if IsHandled then
             exit(Result);
 
-        GetInvtSetup;
+        GetInvtSetup();
         InvtSetup.TestField("Item Nos.");
         if NoSeriesMgt.SelectSeries(InvtSetup."Item Nos.", xRec."No. Series", "No. Series") then begin
             NoSeriesMgt.SetSeries("No.");
@@ -2845,7 +2860,7 @@
         DimMgt.ValidateDimValueCode(FieldNumber, ShortcutDimCode);
         if not IsTemporary then begin
             DimMgt.SaveDefaultDim(DATABASE::Item, "No.", FieldNumber, ShortcutDimCode);
-            Modify;
+            Modify();
         end;
 
         OnAfterValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode);
@@ -3061,25 +3076,19 @@
             Error(Text028, "No.", ApplicationWorksheet.Caption, "Application Wksh. User ID");
     end;
 
+#if not CLEAN21
+    [Obsolete('This procedure is discontinued because the TimelineVisualizer control has been deprecated.', '21.0')]
     procedure ShowTimelineFromItem(var Item: Record Item)
-    var
-        ItemAvailByTimeline: Page "Item Availability by Timeline";
     begin
-        ItemAvailByTimeline.SetItem(Item);
-        ItemAvailByTimeline.Run();
+        Message(DeprecatedFuncTxt);
     end;
 
+    [Obsolete('This procedure is discontinued because the TimelineVisualizer control has been deprecated.', '21.0')]
     procedure ShowTimelineFromSKU(ItemNo: Code[20]; LocationCode: Code[10]; VariantCode: Code[10])
-    var
-        Item: Record Item;
     begin
-        Item.Get(ItemNo);
-        Item.SetRange("No.", Item."No.");
-        Item.SetRange("Variant Filter", VariantCode);
-        Item.SetRange("Location Filter", LocationCode);
-        ShowTimelineFromItem(Item);
+        Message(DeprecatedFuncTxt);
     end;
-
+#endif    
     procedure CheckJournalsAndWorksheets(CurrFieldNo: Integer)
     begin
         CheckItemJnlLine(CurrFieldNo);
@@ -3095,9 +3104,9 @@
         ItemJnlLine.SetRange("Item No.", "No.");
         if not ItemJnlLine.IsEmpty() then begin
             if CurrFieldNo = 0 then
-                Error(Text023, TableCaption, "No.", ItemJnlLine.TableCaption);
+                Error(Text023, TableCaption(), "No.", ItemJnlLine.TableCaption());
             if CurrFieldNo = FieldNo(Type) then
-                Error(CannotChangeFieldErr, FieldCaption(Type), TableCaption, "No.", ItemJnlLine.TableCaption);
+                Error(CannotChangeFieldErr, FieldCaption(Type), TableCaption(), "No.", ItemJnlLine.TableCaption());
         end;
     end;
 
@@ -3110,7 +3119,7 @@
         StdCostWksh.SetRange("No.", "No.");
         if not StdCostWksh.IsEmpty() then
             if CurrFieldNo = 0 then
-                Error(Text023, TableCaption, "No.", StdCostWksh.TableCaption);
+                Error(Text023, TableCaption(), "No.", StdCostWksh.TableCaption());
     end;
 
     local procedure CheckReqLine(CurrFieldNo: Integer)
@@ -3123,9 +3132,9 @@
         RequisitionLine.SetRange("No.", "No.");
         if not RequisitionLine.IsEmpty() then begin
             if CurrFieldNo = 0 then
-                Error(Text023, TableCaption, "No.", RequisitionLine.TableCaption);
+                Error(Text023, TableCaption(), "No.", RequisitionLine.TableCaption());
             if CurrFieldNo = FieldNo(Type) then
-                Error(CannotChangeFieldErr, FieldCaption(Type), TableCaption, "No.", RequisitionLine.TableCaption);
+                Error(CannotChangeFieldErr, FieldCaption(Type), TableCaption(), "No.", RequisitionLine.TableCaption());
         end;
     end;
 
@@ -3159,9 +3168,9 @@
         BOMComp.SetRange("No.", "No.");
         if not BOMComp.IsEmpty() then begin
             if CurrFieldNo = 0 then
-                Error(Text023, TableCaption, "No.", BOMComp.TableCaption);
+                Error(Text023, TableCaption(), "No.", BOMComp.TableCaption());
             if CurrFieldNo = FieldNo(Type) then
-                Error(CannotChangeFieldErr, FieldCaption(Type), TableCaption, "No.", BOMComp.TableCaption);
+                Error(CannotChangeFieldErr, FieldCaption(Type), TableCaption(), "No.", BOMComp.TableCaption());
         end;
     end;
 
@@ -3174,9 +3183,9 @@
         PurchaseLine.SetRange("No.", "No.");
         if PurchaseLine.FindFirst() then begin
             if CurrFieldNo = 0 then
-                Error(Text000, TableCaption, "No.", PurchaseLine."Document Type");
+                Error(Text000, TableCaption(), "No.", PurchaseLine."Document Type");
             if CurrFieldNo = FieldNo(Type) then
-                Error(CannotChangeFieldErr, FieldCaption(Type), TableCaption, "No.", PurchaseLine.TableCaption);
+                Error(CannotChangeFieldErr, FieldCaption(Type), TableCaption(), "No.", PurchaseLine.TableCaption());
         end;
     end;
 
@@ -3189,19 +3198,19 @@
         SalesLine.SetRange("No.", "No.");
         if SalesLine.FindFirst() then begin
             if CurrFieldNo = 0 then
-                Error(CannotDeleteItemIfSalesDocExistErr, TableCaption, "No.", SalesLine."Document Type");
+                Error(CannotDeleteItemIfSalesDocExistErr, TableCaption(), "No.", SalesLine."Document Type");
             if CurrFieldNo = FieldNo(Type) then
-                Error(CannotChangeFieldErr, FieldCaption(Type), TableCaption, "No.", SalesLine.TableCaption);
+                Error(CannotChangeFieldErr, FieldCaption(Type), TableCaption(), "No.", SalesLine.TableCaption());
         end;
     end;
 
     local procedure CheckProdOrderLine(CurrFieldNo: Integer)
     begin
-        if ProdOrderExist then begin
+        if ProdOrderExist() then begin
             if CurrFieldNo = 0 then
-                Error(Text002, TableCaption, "No.");
+                Error(Text002, TableCaption(), "No.");
             if CurrFieldNo = FieldNo(Type) then
-                Error(CannotChangeFieldErr, FieldCaption(Type), TableCaption, "No.", ProdOrderLine.TableCaption);
+                Error(CannotChangeFieldErr, FieldCaption(Type), TableCaption(), "No.", ProdOrderLine.TableCaption());
         end;
     end;
 
@@ -3212,9 +3221,9 @@
         ProdOrderComp.SetRange("Item No.", "No.");
         if not ProdOrderComp.IsEmpty() then begin
             if CurrFieldNo = 0 then
-                Error(Text014, TableCaption, "No.");
+                Error(Text014, TableCaption(), "No.");
             if CurrFieldNo = FieldNo(Type) then
-                Error(CannotChangeFieldErr, FieldCaption(Type), TableCaption, "No.", ProdOrderComp.TableCaption);
+                Error(CannotChangeFieldErr, FieldCaption(Type), TableCaption(), "No.", ProdOrderComp.TableCaption());
         end;
     end;
 
@@ -3226,9 +3235,9 @@
         PlanningComponent.SetRange("Item No.", "No.");
         if not PlanningComponent.IsEmpty() then begin
             if CurrFieldNo = 0 then
-                Error(Text023, TableCaption, "No.", PlanningComponent.TableCaption);
+                Error(Text023, TableCaption(), "No.", PlanningComponent.TableCaption());
             if CurrFieldNo = FieldNo(Type) then
-                Error(CannotChangeFieldErr, FieldCaption(Type), TableCaption, "No.", PlanningComponent.TableCaption);
+                Error(CannotChangeFieldErr, FieldCaption(Type), TableCaption(), "No.", PlanningComponent.TableCaption());
         end;
     end;
 
@@ -3238,9 +3247,9 @@
         TransLine.SetRange("Item No.", "No.");
         if not TransLine.IsEmpty() then begin
             if CurrFieldNo = 0 then
-                Error(Text016, TableCaption, "No.");
+                Error(Text016, TableCaption(), "No.");
             if CurrFieldNo = FieldNo(Type) then
-                Error(CannotChangeFieldErr, FieldCaption(Type), TableCaption, "No.", TransLine.TableCaption);
+                Error(CannotChangeFieldErr, FieldCaption(Type), TableCaption(), "No.", TransLine.TableCaption());
         end;
     end;
 
@@ -3252,9 +3261,9 @@
         ServInvLine.SetRange("No.", "No.");
         if not ServInvLine.IsEmpty() then begin
             if CurrFieldNo = 0 then
-                Error(Text017, TableCaption, "No.", ServInvLine."Document Type");
+                Error(Text017, TableCaption(), "No.", ServInvLine."Document Type");
             if CurrFieldNo = FieldNo(Type) then
-                Error(CannotChangeFieldErr, FieldCaption(Type), TableCaption, "No.", ServInvLine.TableCaption);
+                Error(CannotChangeFieldErr, FieldCaption(Type), TableCaption(), "No.", ServInvLine.TableCaption());
         end;
     end;
 
@@ -3268,17 +3277,17 @@
         ProdBOMLine.SetRange("No.", "No.");
         if ProdBOMLine.Find('-') then begin
             if CurrFieldNo = FieldNo(Type) then
-                Error(CannotChangeFieldErr, FieldCaption(Type), TableCaption, "No.", ProdBOMLine.TableCaption);
+                Error(CannotChangeFieldErr, FieldCaption(Type), TableCaption(), "No.", ProdBOMLine.TableCaption());
             if CurrFieldNo = 0 then
                 repeat
                     if ProdBOMHeader.Get(ProdBOMLine."Production BOM No.") and
                        (ProdBOMHeader.Status = ProdBOMHeader.Status::Certified)
                     then
-                        Error(Text004, TableCaption, "No.");
+                        Error(Text004, TableCaption(), "No.");
                     if ProductionBOMVersion.Get(ProdBOMLine."Production BOM No.", ProdBOMLine."Version Code") and
                        (ProductionBOMVersion.Status = ProductionBOMVersion.Status::Certified)
                     then
-                        Error(CannotDeleteItemIfProdBOMVersionExistsErr, TableCaption, "No.");
+                        Error(CannotDeleteItemIfProdBOMVersionExistsErr, TableCaption(), "No.");
                 until ProdBOMLine.Next() = 0;
         end;
     end;
@@ -3289,9 +3298,9 @@
         ServiceContractLine.SetRange("Item No.", "No.");
         if not ServiceContractLine.IsEmpty() then begin
             if CurrFieldNo = 0 then
-                Error(Text023, TableCaption, "No.", ServiceContractLine.TableCaption);
+                Error(Text023, TableCaption(), "No.", ServiceContractLine.TableCaption());
             if CurrFieldNo = FieldNo(Type) then
-                Error(CannotChangeFieldErr, FieldCaption(Type), TableCaption, "No.", ServiceContractLine.TableCaption);
+                Error(CannotChangeFieldErr, FieldCaption(Type), TableCaption(), "No.", ServiceContractLine.TableCaption());
         end;
     end;
 
@@ -3303,9 +3312,9 @@
         AsmHeader.SetRange("Item No.", "No.");
         if not AsmHeader.IsEmpty() then begin
             if CurrFieldNo = 0 then
-                Error(Text023, TableCaption, "No.", AsmHeader.TableCaption);
+                Error(Text023, TableCaption(), "No.", AsmHeader.TableCaption());
             if CurrFieldNo = FieldNo(Type) then
-                Error(CannotChangeFieldErr, FieldCaption(Type), TableCaption, "No.", AsmHeader.TableCaption);
+                Error(CannotChangeFieldErr, FieldCaption(Type), TableCaption(), "No.", AsmHeader.TableCaption());
         end;
     end;
 
@@ -3318,9 +3327,9 @@
         AsmLine.SetRange("No.", "No.");
         if not AsmLine.IsEmpty() then begin
             if CurrFieldNo = 0 then
-                Error(Text023, TableCaption, "No.", AsmLine.TableCaption);
+                Error(Text023, TableCaption(), "No.", AsmLine.TableCaption());
             if CurrFieldNo = FieldNo(Type) then
-                Error(CannotChangeFieldErr, FieldCaption(Type), TableCaption, "No.", AsmLine.TableCaption);
+                Error(CannotChangeFieldErr, FieldCaption(Type), TableCaption(), "No.", AsmLine.TableCaption());
         end;
     end;
 
@@ -3379,9 +3388,9 @@
         JobPlanningLine.SetRange("No.", "No.");
         if not JobPlanningLine.IsEmpty() then begin
             if CurrFieldNo = 0 then
-                Error(Text023, TableCaption, "No.", JobPlanningLine.TableCaption);
+                Error(Text023, TableCaption(), "No.", JobPlanningLine.TableCaption());
             if CurrFieldNo = FieldNo(Type) then
-                Error(CannotChangeFieldErr, FieldCaption(Type), TableCaption, "No.", JobPlanningLine.TableCaption);
+                Error(CannotChangeFieldErr, FieldCaption(Type), TableCaption(), "No.", JobPlanningLine.TableCaption());
         end;
     end;
 
@@ -3409,7 +3418,7 @@
         GetGLSetup();
         if 1 + CalcVAT = 0 then
             exit(0);
-        exit(Round("Unit Price" / (1 + CalcVAT), GLSetup."Unit-Amount Rounding Precision"));
+        exit(Round("Unit Price" / (1 + CalcVAT()), GLSetup."Unit-Amount Rounding Precision"));
     end;
 
     procedure GetItemNo(ItemText: Text): Code[20]
@@ -3448,7 +3457,7 @@
         ItemView: Record Item;
     begin
         ItemView.SetRange(Blocked, false);
-        exit(TryGetItemNoOpenCardWithView(ReturnValue, ItemText, DefaultCreate, ShowItemCard, ShowCreateItemOption, ItemView.GetView));
+        exit(TryGetItemNoOpenCardWithView(ReturnValue, ItemText, DefaultCreate, ShowItemCard, ShowCreateItemOption, ItemView.GetView()));
     end;
 
     internal procedure TryGetItemNoOpenCardWithView(var ReturnValue: Text; ItemText: Text; DefaultCreate: Boolean; ShowItemCard: Boolean; ShowCreateItemOption: Boolean; View: Text): Boolean
@@ -3544,7 +3553,7 @@
             exit(Item."No.");
         Item.SetRange("No.", Item."No.");
         ItemCard.SetTableView(Item);
-        if not (ItemCard.RunModal = ACTION::OK) then
+        if not (ItemCard.RunModal() = ACTION::OK) then
             Error(SelectItemErr);
 
         exit(Item."No.");
@@ -3580,7 +3589,7 @@
         ItemList.SetTableView(Item);
         ItemList.SetRecord(Item);
         ItemList.LookupMode := true;
-        if ItemList.RunModal = ACTION::LookupOK then
+        if ItemList.RunModal() = ACTION::LookupOK then
             ItemList.GetRecord(Item)
         else
             Clear(Item);
@@ -3676,7 +3685,7 @@
         if IsTemporary then
             exit;
 
-        if not GraphMgtGeneralTools.IsApiEnabled then
+        if not GraphMgtGeneralTools.IsApiEnabled() then
             exit;
 
         if "Item Category Code" = '' then begin
@@ -3774,32 +3783,78 @@
         exit(not IsNonInventoriableType);
     end;
 
+    internal procedure IsVariantMandatory(IsTypeItem: Boolean; ItemNo: Code[20]): Boolean
+    begin
+        if not IsTypeItem then
+            exit(false);
+        if ItemNo <> '' then begin
+            if ItemNo = Rec."No." then
+                exit(IsVariantMandatory());
+            if Get(ItemNo) then
+                exit(IsVariantMandatory());
+        end;
+        exit(false)
+    end;
+
+    procedure IsVariantMandatory(): Boolean
+    begin
+        if VariantMandatoryIfAvailable(false, false) then
+            exit(VariantsAvailable())
+        else
+            exit(false);
+    end;
+
+    internal procedure IsVariantMandatory(InvtSetupDefaultSetting: boolean): Boolean
+    begin
+        if VariantMandatoryIfAvailable(true, InvtSetupDefaultSetting) then
+            exit(VariantsAvailable())
+        else
+            exit(false);
+    end;
+
+    local procedure VariantMandatoryIfAvailable(InvtSetupDefaultIsKnown: boolean; InvtSetupDefaultSetting: boolean): Boolean
+    var
+        InvtSetup: Record "Inventory Setup";
+    begin
+        case "Variant Mandatory if Exists" of
+            "Variant Mandatory if Exists"::Default:
+                begin
+                    if InvtSetupDefaultIsKnown then
+                        exit(InvtSetupDefaultSetting);
+                    InvtSetup.Get();
+                    exit(InvtSetup."Variant Mandatory if Exists");
+                end;
+            "Variant Mandatory if Exists"::No:
+                exit(false);
+            "Variant Mandatory if Exists"::Yes:
+                exit(true);
+        end;
+    end;
+
+    local procedure VariantsAvailable(): Boolean
+    var
+        ItemVariant: Record "Item Variant";
+    begin
+        ItemVariant.SetRange("Item No.", "No.");
+        exit(not ItemVariant.IsEmpty());
+    end;
+
     local procedure UpdateItemUnitGroup()
     var
         UnitGroup: Record "Unit Group";
-        Modified: Boolean;
+        CRMIntegrationManagement: Codeunit "CRM Integration Management";
     begin
-        if UnitGroup.Get(UnitGroup."Source Type"::Item, Rec.SystemId) then begin
-            if UnitGroup."Code" <> ItemUnitGroupPrefixLbl + ' ' + Rec."No." + ' ' + 'UOM GR' then begin
-                UnitGroup."Code" := ItemUnitGroupPrefixLbl + ' ' + Rec."No." + ' ' + 'UOM GR';
-                Modified := true;
+        if CRMIntegrationManagement.IsIntegrationEnabled() then begin
+            UnitGroup.SetRange("Source Id", Rec.SystemId);
+            UnitGroup.SetRange("Source Type", UnitGroup."Source Type"::Item);
+            if UnitGroup.IsEmpty() then begin
+                UnitGroup.Init();
+                UnitGroup."Source Id" := Rec.SystemId;
+                UnitGroup."Source No." := Rec."No.";
+                UnitGroup."Source Type" := UnitGroup."Source Type"::Item;
+                UnitGroup.Insert();
             end;
-            if UnitGroup."Source Name" <> Rec.Description then begin
-                UnitGroup."Source Name" := Rec.Description;
-                Modified := true;
-            end;
-            if Modified then
-                UnitGroup.Modify();
-            exit;
-        end else begin
-            UnitGroup.Init();
-            UnitGroup."Source Id" := Rec.SystemId;
-            UnitGroup."Source No." := Rec."No.";
-            UnitGroup."Code" := ItemUnitGroupPrefixLbl + ' ' + Rec."No." + ' ' + 'UOM GR';
-            UnitGroup."Source Name" := Rec.Description;
-            UnitGroup."Source Type" := UnitGroup."Source Type"::Item;
-            UnitGroup.Insert();
-        end;
+        end
     end;
 
     local procedure DeleteItemUnitGroup()

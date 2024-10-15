@@ -14,6 +14,7 @@ codeunit 137101 "SCM Kitting"
         LocationBlack: Record Location;
         LocationRed: Record Location;
         Assert: Codeunit Assert;
+        DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryAssembly: Codeunit "Library - Assembly";
         LibraryCosting: Codeunit "Library - Costing";
@@ -37,7 +38,6 @@ codeunit 137101 "SCM Kitting"
         ItemNotOnInventoryError: Label 'You have insufficient quantity of Item %1 on inventory.';
         AssemblyOrderNosError: Label 'Assembly Order Nos. must have a value in Assembly Setup: Primary Key=. It cannot be zero or empty.';
         OrderCanNotCreatedError: Label 'Order %1 cannot be created, because it already exists or has been posted.';
-        NothingToPostError: Label 'There is nothing to post.';
         ResetAssemblyLines: Label 'This assembly order may have customized lines. Are you sure that you want to reset the lines according to the assembly BOM?';
         AssemblyHeaderDoesNotExistError: Label 'The Assembly Header does not exist.';
         PostJournalLinesConfirm: Label 'Do you want to post the journal lines?';
@@ -414,7 +414,7 @@ codeunit 137101 "SCM Kitting"
     begin
         // Create and post Sales Order for Assembly Item. Create Sales Return Order using Get Posted Doc Lines to Reverse.
         CreateAssemblyItem(Item);
-        CreateAndPostSalesOrder(SalesLine, WorkDate, Item."No.", LibraryRandom.RandDec(10, 2), false);
+        CreateAndPostSalesOrder(SalesLine, WorkDate(), Item."No.", LibraryRandom.RandDec(10, 2), false);
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Return Order", SalesLine."Sell-to Customer No.");
         SalesHeader.GetPstdDocLinesToReverse();
         GeneralPostingSetup.Get(SalesLine."Gen. Bus. Posting Group", SalesLine."Gen. Prod. Posting Group");
@@ -636,7 +636,7 @@ codeunit 137101 "SCM Kitting"
         LibraryAssembly.DeleteAssemblyLine("BOM Component Type"::Resource, AssemblyHeader."No.");
 
         // Verify.
-        LibraryAssembly.PostAssemblyHeader(AssemblyHeader, StrSubstNo(NothingToPostError));
+        LibraryAssembly.PostAssemblyHeader(AssemblyHeader, StrSubstNo(DocumentErrorsMgt.GetNothingToPostErrorMsg()));
     end;
 
 #if not CLEAN19
@@ -869,7 +869,7 @@ codeunit 137101 "SCM Kitting"
         // Exercise.
         CalculateStandardCostOnAssemblyBOM(AssemblyBOM, Item."No.");
         AssemblyBOM.CalcUnitPrice.Invoke;
-        Item.Find;
+        Item.Find();
 
         // Verify.
         Assert.AreNearlyEqual(
@@ -967,7 +967,7 @@ codeunit 137101 "SCM Kitting"
         // Exercise.
         LibraryAssembly.CreateAssemblyHeader(
           AssemblyHeader, CalculateDateUsingDefaultSafetyLeadTime, Item."No.", '', LibraryRandom.RandDec(10, 2), '');
-        Item.Find;
+        Item.Find();
 
         // Verify.
         VerifyAssemblyItemDetailsOnAssemblyOrder(Item, AssemblyHeader."No.");
@@ -1075,11 +1075,11 @@ codeunit 137101 "SCM Kitting"
 
         if DeleteAssemblyOrder then begin
             // Exercise: Add Components Inventory and Post the Assembly Order. Delete the Assembly Order.
-            LibraryAssembly.AddCompInventory(AssemblyHeader, WorkDate, 10 + LibraryRandom.RandDec(10, 2));  // Greater value required for the Component Inventory.
+            LibraryAssembly.AddCompInventory(AssemblyHeader, WorkDate(), 10 + LibraryRandom.RandDec(10, 2));  // Greater value required for the Component Inventory.
             LibraryAssembly.PostAssemblyHeader(AssemblyHeader, '');
-            AssemblyHeader.Find;
+            AssemblyHeader.Find();
             AssemblyHeader.Delete(true);
-            asserterror AssemblyHeader.Find;
+            asserterror AssemblyHeader.Find();
 
             // Verify.
             Assert.ExpectedError(AssemblyHeaderDoesNotExistError);
@@ -1195,10 +1195,10 @@ codeunit 137101 "SCM Kitting"
             NavigateFinishedProductionOrder(Navigate, ProductionOrder."No.");
 
             // Verify.
-            VerifyNoOfRecordsAfterNavigate(Navigate, ProductionOrder.TableCaption);
-            VerifyNoOfRecordsAfterNavigate(Navigate, ItemLedgerEntry.TableCaption);
-            VerifyNoOfRecordsAfterNavigate(Navigate, ValueEntry.TableCaption);
-            VerifyNoOfRecordsAfterNavigate(Navigate, CapacityLedgerEntry.TableCaption);
+            VerifyNoOfRecordsAfterNavigate(Navigate, ProductionOrder.TableCaption());
+            VerifyNoOfRecordsAfterNavigate(Navigate, ItemLedgerEntry.TableCaption());
+            VerifyNoOfRecordsAfterNavigate(Navigate, ValueEntry.TableCaption());
+            VerifyNoOfRecordsAfterNavigate(Navigate, CapacityLedgerEntry.TableCaption());
         end;
     end;
 
@@ -1426,13 +1426,13 @@ codeunit 137101 "SCM Kitting"
         Quantity := CreateAssemblyItemSetupWithDimension(Item, ItemUnitOfMeasure, Resource);
         LibraryAssembly.CreateAssemblyHeader(
           AssemblyHeader, CalculateDateUsingDefaultSafetyLeadTime, Item."No.", '', Quantity, '');
-        LibraryAssembly.AddCompInventory(AssemblyHeader, WorkDate, Quantity);
+        LibraryAssembly.AddCompInventory(AssemblyHeader, WorkDate(), Quantity);
 
         // Exercise.
         PrepareAndPostAssemblyOrder(AssemblyHeader, TempAssemblyLine, 60, 60, false);  // Use 60 for Partial Quantity to Assemble and Quantity to Consume.
 
         // Verify.
-        AssemblyHeader.Find;
+        AssemblyHeader.Find();
         VerifyQuantityOnAssemblyOrder(
           AssemblyHeader, (Quantity * 40) / 100, (TempAssemblyLine.Quantity * 60) / 100,
           TempAssemblyLine.Quantity - TempAssemblyLine."Quantity to Consume");  // Calculated values required for the test.
@@ -1525,7 +1525,7 @@ codeunit 137101 "SCM Kitting"
         UpdateCopyComponentDimensionsOnAssemblySetup(AssemblySetup."Copy Component Dimensions from"::"Order Header");
         Quantity := CreateAssemblyItemSetupWithDimension(Item, ItemUnitOfMeasure, Resource);
         LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, CalculateDateUsingDefaultSafetyLeadTime, Item."No.", '', Quantity, '');
-        LibraryAssembly.AddCompInventory(AssemblyHeader, WorkDate, Quantity * Quantity * ItemUnitOfMeasure."Qty. per Unit of Measure");  // Value required for the Component Inventory.
+        LibraryAssembly.AddCompInventory(AssemblyHeader, WorkDate(), Quantity * Quantity * ItemUnitOfMeasure."Qty. per Unit of Measure");  // Value required for the Component Inventory.
         PrepareAndPostAssemblyOrder(AssemblyHeader, TempAssemblyLine, 100, 100, true);  // Use 100 for full Quantity to Assemble and True for Update All Components.
         FindBOMComponent(BOMComponent, Item."No.", BOMComponent.Type::Item);
         ComponentItem.Get(BOMComponent."No.");
@@ -1648,7 +1648,7 @@ codeunit 137101 "SCM Kitting"
         UpdateQtyToAssembleOnSalesLine(SalesLine, SalesLine.Quantity);
 
         FindAssemblyHeader(AssemblyHeader, AssemblyHeader."Document Type"::Order, SalesLine."No."); // Find the Assembly Header created from the sales line
-        LibraryAssembly.AddCompInventory(AssemblyHeader, WorkDate, LibraryRandom.RandInt(10)); // Add component inventory for assembly item
+        LibraryAssembly.AddCompInventory(AssemblyHeader, WorkDate(), LibraryRandom.RandInt(10)); // Add component inventory for assembly item
 
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
 
@@ -1681,11 +1681,11 @@ codeunit 137101 "SCM Kitting"
         LibrarySales.PostSalesDocument(SalesHeader, true, false);
 
         // Partial invoice the sales order.
-        SalesLine.Find;
+        SalesLine.Find();
         PartialInvoiceSalesOrder(SalesLine, SalesHeader, LibraryRandom.RandDecInDecimalRange(0, SalesLine.Quantity - 0.01, 2));
 
         // Verify: The Invoiced Quantity in the Item Ledger Entries and Sales Invoice Line in Value Entries matche the Quantity Invoiced on the Sales Lines.
-        SalesLine.Find;
+        SalesLine.Find();
         VerifyInvoicedQtyOnItemLedgerEntry(ItemLedgerEntry."Entry Type"::Sale, SalesLine."No.", -SalesLine."Quantity Invoiced");
         FindValueEntry(ValueEntry, ValueEntry."Document Type"::"Sales Invoice", SalesLine."No.");
         VerifyQtyOnValueEntry(ValueEntry, -SalesLine."Quantity Invoiced");
@@ -1697,7 +1697,7 @@ codeunit 137101 "SCM Kitting"
         // Verify: The Invoiced Quantity in the Item Ledger Entries and Sales Invoice Line in Value Entries matche the Quantity Invoiced on the Sales Lines.
         VerifyInvoicedQtyOnItemLedgerEntry(ItemLedgerEntry."Entry Type"::Sale, SalesLine."No.", -SalesLine.Quantity);
         VerifyQtyOnValueEntry(ValueEntry, -PartialInvoicedQty);
-        ValueEntry.Next;
+        ValueEntry.Next();
         VerifyQtyOnValueEntry(ValueEntry, -(SalesLine.Quantity - PartialInvoicedQty));
     end;
 
@@ -1820,7 +1820,7 @@ codeunit 137101 "SCM Kitting"
 
         FindAssemblyOrderLine(AssemblyLine, AssemblyHeader."No.", AssemblyItem."No.");
         AssemblyLine.ExplodeAssemblyList;
-        LibraryAssembly.AddCompInventory(AssemblyHeader, WorkDate, LibraryRandom.RandInt(5));
+        LibraryAssembly.AddCompInventory(AssemblyHeader, WorkDate(), LibraryRandom.RandInt(5));
 
         // Exercise and Verify: Assembly Order can be posted.
         LibraryAssembly.PostAssemblyHeader(AssemblyHeader, '');
@@ -1846,7 +1846,7 @@ codeunit 137101 "SCM Kitting"
         LibraryVariableStorage.Enqueue(ModifiedAccordingToQst);
         UpdatePostingDateOnSalesHeader(
           SalesHeader, SalesLine."Document Type", SalesLine."Document No.",
-          CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate));
+          CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()));
 
         // Verify: Verify the Posting Date on Assembly Order is updated accordingly
         FindAssemblyHeader(AssemblyHeader, AssemblyHeader."Document Type"::Order, SalesLine."No.");
@@ -1904,7 +1904,7 @@ codeunit 137101 "SCM Kitting"
         // Setup: Create Sales Order for Assembly Item and update Posting Date
         Initialize();
         CreateAssemblyItem(Item);
-        PostingDate := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate);
+        PostingDate := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate());
         LibraryVariableStorage.Enqueue(ModifiedAccordingToQst);
         LibraryVariableStorage.Enqueue(ModifiedAccordingToQst);
         CreateSalesOrderWithPostingDate(SalesLine, Item."No.", PostingDate);
@@ -2145,7 +2145,7 @@ codeunit 137101 "SCM Kitting"
         LibraryAssembly.PostAssemblyHeader(AssemblyHeader, '');
 
         // [GIVEN] Sales Order for Parent Item
-        CreateAndPostSalesOrder(SalesLine, WorkDate, ParentItem."No.", ParentItemQuantity, false);
+        CreateAndPostSalesOrder(SalesLine, WorkDate(), ParentItem."No.", ParentItemQuantity, false);
 
         // [GIVEN] Adjust Cost Item Entries
         LibraryCosting.AdjustCostItemEntries(StrSubstNo('%1|%2', ParentItem."No.", ComponentItem."No."), '');
@@ -2372,7 +2372,7 @@ codeunit 137101 "SCM Kitting"
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // [THEN] Last Direct Cost of assembled item "A" is equal to 50 LCY (10 * 5 LCY).
-        AsmItem.Find;
+        AsmItem.Find();
         AsmItem.TestField("Last Direct Cost", QtyPer * CompUnitCost);
     end;
 
@@ -2413,7 +2413,7 @@ codeunit 137101 "SCM Kitting"
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // [THEN] Last Direct Cost of assembled item "A" is equal to 2000 LCY (standard cost).
-        AsmItem.Find;
+        AsmItem.Find();
         AsmItem.TestField("Last Direct Cost", AsmItem."Standard Cost");
     end;
 
@@ -2437,7 +2437,7 @@ codeunit 137101 "SCM Kitting"
         NoSeriesSetup();
         LocationSetup();
         LibraryAssembly.SetupItemJournal(ItemJournalTemplate, ItemJournalBatch);
-        LibraryERM.SetJournalTemplateNameMandatory(false);
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
 
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibrarySetupStorage.Save(DATABASE::"Inventory Setup");
@@ -2562,7 +2562,7 @@ codeunit 137101 "SCM Kitting"
         ManufacturingSetup: Record "Manufacturing Setup";
     begin
         ManufacturingSetup.Get();
-        exit(CalcDate(ManufacturingSetup."Default Safety Lead Time", WorkDate));
+        exit(CalcDate(ManufacturingSetup."Default Safety Lead Time", WorkDate()));
     end;
 
     local procedure CalculateStandardCostOnAssemblyBOM(var AssemblyBOM: TestPage "Assembly BOM"; ItemNo: Code[20])
@@ -2594,7 +2594,7 @@ codeunit 137101 "SCM Kitting"
             LibraryAssembly.CreateAssemblyListComponent(
               BOMComponent.Type, BOMComponent."No.", ToParentItemNo, BOMComponent."Variant Code", BOMComponent."Resource Usage Type",
               BOMComponent."Quantity per", true);  // Use Base Unit of Measure as True.
-        until BOMComponent.Next = 0;
+        until BOMComponent.Next() = 0;
     end;
 
     local procedure CreateAndPostAssemblyOrder(var AssemblyHeader: Record "Assembly Header"; var AssemblyLine: Record "Assembly Line"; AssemblyItemNo: Code[20]; Quantity: Decimal; HeaderQtyFactor: Integer; CompQtyFactor: Integer; UpdateAllComps: Boolean)
@@ -2940,7 +2940,7 @@ codeunit 137101 "SCM Kitting"
             LibraryPurchase.CreatePurchaseLine(
               PurchaseLine, PurchaseHeader, Type::Item, ItemNo, Qty);
             Validate("Direct Unit Cost", DirectUnitCost);
-            Modify;
+            Modify();
         end;
 
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -2951,7 +2951,7 @@ codeunit 137101 "SCM Kitting"
         PurchaseHeader: Record "Purchase Header";
     begin
         LibraryPurchase.CreatePurchaseDocumentWithItem(
-          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', ItemNo, Qty, '', WorkDate);
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', ItemNo, Qty, '', WorkDate());
     end;
 
     local procedure CreateAsmItemAndSalesOrderWithDimSetup(var SalesLine: Record "Sales Line"; var DimensionValue: Record "Dimension Value"; var DimensionValue2: Record "Dimension Value")
@@ -2989,7 +2989,7 @@ codeunit 137101 "SCM Kitting"
         UpdateQtyToAssembleOnSalesLine(SalesLine, SalesLine.Quantity);
 
         FindAssemblyHeader(AssemblyHeader, AssemblyHeader."Document Type"::Order, SalesLine."No."); // Find the Assembly Header created from the sales line
-        LibraryAssembly.AddCompInventory(AssemblyHeader, WorkDate, LibraryRandom.RandInt(10)); // Add component inventory for assembly item
+        LibraryAssembly.AddCompInventory(AssemblyHeader, WorkDate(), LibraryRandom.RandInt(10)); // Add component inventory for assembly item
     end;
 
     local procedure CreateAssemblyItem(var Item: Record Item)
@@ -3099,8 +3099,8 @@ codeunit 137101 "SCM Kitting"
         Item: Record Item;
     begin
         CreateAssemblyItem(Item);
-        LibraryVariableStorage.Enqueue(StrSubstNo(BeforeWorkDateMsg, WorkDate));
-        LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate, Item."No.", '', LibraryRandom.RandInt(10), '');
+        LibraryVariableStorage.Enqueue(StrSubstNo(BeforeWorkDateMsg, WorkDate()));
+        LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate(), Item."No.", '', LibraryRandom.RandInt(10), '');
         LibraryAssembly.AddCompInventory(AssemblyHeader, AssemblyHeader."Posting Date", LibraryRandom.RandInt(10));
     end;
 
@@ -3122,7 +3122,7 @@ codeunit 137101 "SCM Kitting"
         CreateItemJournalBatch(ItemJournalBatch, ItemJournalTemplate.Type::Revaluation);
         Item.SetRange("No.", ItemNo);
         LibraryCosting.CreateRevaluationJournal(
-          ItemJournalBatch, Item, WorkDate, LibraryUtility.GenerateGUID, CalculatePer, false, false, false, CalculationBase::" ", false);
+          ItemJournalBatch, Item, WorkDate(), LibraryUtility.GenerateGUID, CalculatePer, false, false, false, CalculationBase::" ", false);
     end;
 
     local procedure CreateSilverLocation(var Location: Record Location; var Bin: Record Bin)
@@ -3285,7 +3285,7 @@ codeunit 137101 "SCM Kitting"
     begin
         AssemblySetup.Get();
         NoSeries.Get(AssemblySetup."Assembly Order Nos.");
-        exit(NoSeriesManagement.GetNextNo(NoSeries.Code, WorkDate, false));
+        exit(NoSeriesManagement.GetNextNo(NoSeries.Code, WorkDate(), false));
     end;
 
     local procedure GeneralPreparationForUndoSalesShipmentLineWithAssemblyOrder(var AsmItemNo: Code[20]; var Quantity: Decimal): Code[20]
@@ -3311,7 +3311,7 @@ codeunit 137101 "SCM Kitting"
         // Update Quantity to Consume on one Assembly line to zero. Post Sales Order as SHIP.
         UpdateQuantityToConsumeOnAssemblyLine(AssemblyLine, SalesLine."No.");
         AssemblyHeader.Get(AssemblyLine."Document Type", AssemblyLine."Document No.");
-        LibraryAssembly.AddCompInventory(AssemblyHeader, WorkDate, LibraryRandom.RandInt(50) + 100); // Large inventory for component items.
+        LibraryAssembly.AddCompInventory(AssemblyHeader, WorkDate(), LibraryRandom.RandInt(50) + 100); // Large inventory for component items.
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, false));
     end;
@@ -3329,7 +3329,7 @@ codeunit 137101 "SCM Kitting"
         CreateAssemblyItemAndBOMComponentSetup(ChildItem, ParentItem);
         LibraryAssembly.CreateAssemblyHeader(
           AssemblyHeader, CalculateDateUsingDefaultSafetyLeadTime, ParentItem."No.", '', LibraryRandom.RandInt(5), '');
-        LibraryAssembly.AddCompInventory(AssemblyHeader, WorkDate, SupplyQty); // Add Inventory = AssemblyLine.Quantity + SupplyQty for Component.
+        LibraryAssembly.AddCompInventory(AssemblyHeader, WorkDate(), SupplyQty); // Add Inventory = AssemblyLine.Quantity + SupplyQty for Component.
         FindAssemblyOrderLine(AssemblyLine, AssemblyHeader."No.", ChildItem."No.");
         AssemblyLine.ShowReservation();
 
@@ -3390,7 +3390,7 @@ codeunit 137101 "SCM Kitting"
 
     local procedure PrepareAndPostAssemblyOrder(var AssemblyHeader: Record "Assembly Header"; var AssemblyLine: Record "Assembly Line"; HeaderQtyFactor: Integer; CompQtyFactor: Integer; UpdateAllComps: Boolean)
     begin
-        AssemblyHeader.Find;
+        AssemblyHeader.Find();
         LibraryAssembly.PrepareOrderPosting(
           AssemblyHeader, AssemblyLine, HeaderQtyFactor, CompQtyFactor, UpdateAllComps, AssemblyHeader."Due Date");
         LibraryAssembly.PostAssemblyHeader(AssemblyHeader, '');
@@ -3406,7 +3406,7 @@ codeunit 137101 "SCM Kitting"
 
     local procedure RefreshAssemblyOrder(var AssemblyHeader: Record "Assembly Header")
     begin
-        AssemblyHeader.Find;
+        AssemblyHeader.Find();
         LibraryAssembly.ReopenAO(AssemblyHeader);
         LibraryVariableStorage.Enqueue(ResetAssemblyLines);  // Enqueue for ConfirmHandler.
         AssemblyHeader.RefreshBOM;
@@ -3448,7 +3448,7 @@ codeunit 137101 "SCM Kitting"
         AssemblySetup.Modify(true);
     end;
 
-    local procedure UpdateAutomaticCostPostAndAdjmtOnInventorySetup(AutomaticCostPosting: Boolean; AutomaticCostAdjustment: Option)
+    local procedure UpdateAutomaticCostPostAndAdjmtOnInventorySetup(AutomaticCostPosting: Boolean; AutomaticCostAdjustment: Enum "Automatic Cost Adjustment Type")
     var
         InventorySetup: Record "Inventory Setup";
     begin
@@ -3514,9 +3514,9 @@ codeunit 137101 "SCM Kitting"
     var
         NewPostingDate: Date;
     begin
-        AssemblyHeader.Find;
+        AssemblyHeader.Find();
         DeleteAssemblyCommentLine(AssemblyHeader."Document Type", AssemblyHeader."No.");
-        NewPostingDate := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate);
+        NewPostingDate := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate());
         LibraryAssembly.PrepareOrderPosting(AssemblyHeader, AssemblyLine, 40, 40, false, NewPostingDate);  // Less than WORKDATE.
     end;
 
@@ -3534,7 +3534,7 @@ codeunit 137101 "SCM Kitting"
 
     local procedure UpdateQtyToAssembleOnSalesLine(var SalesLine: Record "Sales Line"; QtyToAssemble: Decimal)
     begin
-        LibraryVariableStorage.Enqueue(StrSubstNo(BeforeWorkDateMsg, WorkDate));
+        LibraryVariableStorage.Enqueue(StrSubstNo(BeforeWorkDateMsg, WorkDate()));
         SalesLine.Validate("Qty. to Assemble to Order", QtyToAssemble);
         SalesLine.Modify(true);
     end;
@@ -3611,7 +3611,7 @@ codeunit 137101 "SCM Kitting"
         SalesShipmentLine: Record "Sales Shipment Line";
     begin
         LibraryVariableStorage.Enqueue(UndoShipmentConfirmationMsg);  // UndoShipmentMsg used in ConfirmHandler.
-        LibraryVariableStorage.Enqueue(StrSubstNo(BeforeWorkDateMsg, WorkDate)); // BeforeWorkDateMsg used in Messagehandler
+        LibraryVariableStorage.Enqueue(StrSubstNo(BeforeWorkDateMsg, WorkDate())); // BeforeWorkDateMsg used in Messagehandler
         SalesShipmentLine.SetRange("Document No.", DocumentNo);
         LibrarySales.UndoSalesShipmentLine(SalesShipmentLine);
     end;
@@ -3693,7 +3693,7 @@ codeunit 137101 "SCM Kitting"
             if AssemblyLine."Resource Usage Type" = AssemblyLine."Resource Usage Type"::Fixed then
                 Quantity2 := 1;  // Value 1 required for the test.
             AssemblyLine.TestField(Quantity, Round(BOMComponent."Quantity per" * Quantity2, 0.00001));  // Calculated value required for the test.
-        until BOMComponent.Next = 0;
+        until BOMComponent.Next() = 0;
     end;
 
     local procedure VerifyBOMComponentAfterExplodeBOM(ParentItemNo: Code[20]; ComponentItemNo: Code[20]; QuantityPer: Decimal)
@@ -3706,7 +3706,7 @@ codeunit 137101 "SCM Kitting"
             BOMComponent2.SetRange("No.", BOMComponent."No.");
             FindBOMComponent(BOMComponent2, ParentItemNo, BOMComponent.Type);
             BOMComponent2.TestField("Quantity per", BOMComponent."Quantity per" * QuantityPer);  // Calculate Quantity per from Component Assembly BOM.
-        until BOMComponent.Next = 0;
+        until BOMComponent.Next() = 0;
     end;
 
     local procedure VerifyBOMComponentsOnAssemblyBOM(var AssemblyBOM: TestPage "Assembly BOM"; ItemNo: Code[20])
@@ -3717,8 +3717,8 @@ codeunit 137101 "SCM Kitting"
         repeat
             AssemblyBOM."No.".AssertEquals(BOMComponent."No.");
             AssemblyBOM."Quantity per".AssertEquals(BOMComponent."Quantity per");
-            AssemblyBOM.Next;
-        until BOMComponent.Next = 0;
+            AssemblyBOM.Next();
+        until BOMComponent.Next() = 0;
     end;
 
     local procedure VerifyComponentDetailsOnAssemblyBOM(var AssemblyBOM: TestPage "Assembly BOM"; ItemNo: Code[20]; UnitPrice: Text; UnitCost: Text; ResourceNo: Code[20]; ResourceType: Text; UnitCost2: Text)
@@ -3814,7 +3814,7 @@ codeunit 137101 "SCM Kitting"
             if AssemblyLine."Resource Usage Type" = AssemblyLine."Resource Usage Type"::Fixed then
                 Quantity := 1;  // Value required for the test.
             AssemblyLine.TestField("Quantity to Consume", AssemblyLine."Quantity per" * Quantity);  // Value required for the test.
-        until BOMComponent.Next = 0;
+        until BOMComponent.Next() = 0;
     end;
 
     local procedure VerifyReleasedProductionOrderLine(ProductionOrder: Record "Production Order"): Integer
@@ -3956,7 +3956,7 @@ codeunit 137101 "SCM Kitting"
         FindItemLedgerEntry(ItemLedgerEntry, EntryType, ItemNo);
         ItemLedgerEntry.CalcFields("Cost Amount (Actual)");
         ItemLedgerEntry.TestField("Cost Amount (Actual)", CostAmountActual);
-        ItemLedgerEntry.Next;
+        ItemLedgerEntry.Next();
         ItemLedgerEntry.CalcFields("Cost Amount (Actual)");
         ItemLedgerEntry.TestField("Cost Amount (Actual)", -CostAmountActual);
     end;

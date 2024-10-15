@@ -23,18 +23,18 @@ page 11 "Shipment Methods"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description of the shipment method.';
                 }
-                field("Intra Shipping Code"; "Intra Shipping Code")
+                field("Intra Shipping Code"; Rec."Intra Shipping Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the shipping code for the exit or entry point of the shipment.';
                 }
-                field("3rd-Party Loader"; "3rd-Party Loader")
+                field("3rd-Party Loader"; Rec."3rd-Party Loader")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the items are loaded by an external party when this shipment method is used.';
                     Visible = false;
                 }
-                field("Coupled to CRM"; "Coupled to CRM")
+                field("Coupled to CRM"; Rec."Coupled to CRM")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies that the shipment method is coupled to a freight term in Dataverse.';
@@ -66,8 +66,6 @@ page 11 "Shipment Methods"
                 ApplicationArea = Basic, Suite;
                 Caption = 'T&ranslation';
                 Image = Translation;
-                Promoted = true;
-                PromotedCategory = Process;
                 RunObject = Page "Shipment Method Translations";
                 RunPageLink = "Shipment Method" = FIELD(Code);
                 ToolTip = 'Describe the shipment method in different languages. The translated descriptions appear on quotes, orders, invoices, and credit memos, based on the shipment method code and the language code on the document.';
@@ -169,6 +167,49 @@ page 11 "Shipment Methods"
                     begin
                         CRMIntegrationManagement.ShowOptionLog(Rec.RecordId);
                     end;
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+            }
+            group(Category_Shipment_Method)
+            {
+                Caption = 'Shipment Method';
+
+                actionref("T&ranslation_Promoted"; "T&ranslation")
+                {
+                }
+            }
+            group(Category_Synchronize)
+            {
+                Caption = 'Synchronize';
+                Visible = CDSIntegrationEnabled;
+
+                group(Category_Coupling)
+                {
+                    Caption = 'Coupling';
+                    ShowAs = SplitButton;
+
+                    actionref(ManageCRMCoupling_Promoted; ManageCRMCoupling)
+                    {
+                    }
+                    actionref(DeleteCRMCoupling_Promoted; DeleteCRMCoupling)
+                    {
+                    }
+                    actionref(MatchBasedCoupling_Promoted; MatchBasedCoupling)
+                    {
+                    }
+                }
+                actionref(ShowLog_Promoted; ShowLog)
+                {
+                }
+                actionref(CRMSynchronizeNow_Promoted; CRMSynchronizeNow)
+                {
                 }
             }
         }

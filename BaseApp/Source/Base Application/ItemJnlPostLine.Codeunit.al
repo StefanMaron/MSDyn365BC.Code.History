@@ -176,6 +176,9 @@
             if "Document Date" = 0D then
                 "Document Date" := "Posting Date";
 
+            if "VAT Reporting Date" = 0D then
+                "VAT Reporting Date" := GLSetup.GetVATDate("Posting Date", "Document Date");
+
             if ItemLedgEntryNo = 0 then begin
                 GlobalItemLedgEntry.LockTable();
                 ItemLedgEntryNo := GlobalItemLedgEntry.GetLastEntryNo();
@@ -1490,7 +1493,7 @@
                 until TempTrackingSpecification.Next() = 0;
             OnPostFlushedConsumpOnBeforeProdOrderCompReserveTransferPOCompToItemJnlLine(ItemJnlLine, ProdOrderComp);
             ProdOrderCompReserve.TransferPOCompToItemJnlLine(
-              ProdOrderComp, ItemJnlLine, Round(QtyToPost * ProdOrderComp."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision));
+              ProdOrderComp, ItemJnlLine, Round(QtyToPost * ProdOrderComp."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision()));
 
             OnBeforePostFlushedConsumpItemJnlLine(ItemJnlLine);
 
@@ -1534,7 +1537,7 @@
         OnAfterPostFlushedConsump(ProdOrderComp, ProdOrderRoutingLine, OldItemJnlLine);
     end;
 
-    local procedure UpdateUnitCost(ValueEntry: Record "Value Entry")
+    procedure UpdateUnitCost(ValueEntry: Record "Value Entry")
     var
         ItemCostMgt: Codeunit ItemCostManagement;
         LastDirectCost: Decimal;
@@ -1798,7 +1801,7 @@
         exit(not Application.IsEmpty);
     end;
 
-    local procedure ApplyItemLedgEntry(var ItemLedgEntry: Record "Item Ledger Entry"; var OldItemLedgEntry: Record "Item Ledger Entry"; var ValueEntry: Record "Value Entry"; CausedByTransfer: Boolean)
+    procedure ApplyItemLedgEntry(var ItemLedgEntry: Record "Item Ledger Entry"; var OldItemLedgEntry: Record "Item Ledger Entry"; var ValueEntry: Record "Value Entry"; CausedByTransfer: Boolean)
     var
         ItemLedgEntry2: Record "Item Ledger Entry";
         OldValueEntry: Record "Value Entry";
@@ -2033,8 +2036,9 @@
             end;
             OnApplyItemLedgEntryOnApplicationLoop(ItemLedgEntry);
         until false;
-
+#if not CLEAN21
         OnAfterApplyItemLedgEntry(GlobalItemLedgEntry, OldItemLedgEntry, ItemJnlLine);
+#endif        
     end;
 
     local procedure UpdateItemLedgerEntryRemainingQuantity(var ItemLedgerEntry: Record "Item Ledger Entry"; AppliedQty: Decimal; var OldItemLedgEntry: Record "Item Ledger Entry"; CausedByTransfer: Boolean)
@@ -2274,7 +2278,7 @@
         end;
     end;
 
-    local procedure InitItemLedgEntry(var ItemLedgEntry: Record "Item Ledger Entry")
+    procedure InitItemLedgEntry(var ItemLedgEntry: Record "Item Ledger Entry")
     begin
         ItemLedgEntryNo := ItemLedgEntryNo + 1;
 
@@ -2363,7 +2367,7 @@
         OnAfterInitItemLedgEntry(ItemLedgEntry, ItemJnlLine, ItemLedgEntryNo);
     end;
 
-    local procedure InsertItemLedgEntry(var ItemLedgEntry: Record "Item Ledger Entry"; TransferItem: Boolean)
+    procedure InsertItemLedgEntry(var ItemLedgEntry: Record "Item Ledger Entry"; TransferItem: Boolean)
     var
         IsHandled: Boolean;
     begin
@@ -2620,7 +2624,7 @@
         ValueEntry."Expected Cost" := ExpectedCost;
     end;
 
-    local procedure InsertApplEntry(ItemLedgEntryNo: Integer; InboundItemEntry: Integer; OutboundItemEntry: Integer; TransferedFromEntryNo: Integer; PostingDate: Date; Quantity: Decimal; CostToApply: Boolean)
+    procedure InsertApplEntry(ItemLedgEntryNo: Integer; InboundItemEntry: Integer; OutboundItemEntry: Integer; TransferedFromEntryNo: Integer; PostingDate: Date; Quantity: Decimal; CostToApply: Boolean)
     var
         ApplItemLedgEntry: Record "Item Ledger Entry";
         OldItemApplnEntry: Record "Item Application Entry";
@@ -2763,6 +2767,7 @@
             ValueEntry."Item Ledger Entry Type" := "Entry Type";
             ValueEntry.Type := Type;
             ValueEntry."Posting Date" := "Posting Date";
+            ValueEntry."VAT Reporting Date" := "VAT Reporting Date";
             if "Partial Revaluation" then
                 ValueEntry."Partial Revaluation" := true;
 
@@ -3380,7 +3385,7 @@
         end;
     end;
 
-    local procedure InitTransValueEntry(var ValueEntry: Record "Value Entry"; ItemLedgEntry: Record "Item Ledger Entry")
+    procedure InitTransValueEntry(var ValueEntry: Record "Value Entry"; ItemLedgEntry: Record "Item Ledger Entry")
     var
         AdjCostInvoicedLCY: Decimal;
         AdjCostInvoicedACY: Decimal;
@@ -3981,7 +3986,7 @@
         OnAfterMoveValEntryDimToValEntryDim(ToValueEntry, FromValueEntry);
     end;
 
-    local procedure AutoTrack(var ItemLedgEntryRec: Record "Item Ledger Entry"; IsReserved: Boolean)
+    procedure AutoTrack(var ItemLedgEntryRec: Record "Item Ledger Entry"; IsReserved: Boolean)
     var
         ReservMgt: Codeunit "Reservation Management";
     begin
@@ -5431,7 +5436,7 @@
         ProdOrderCompModified := ProdOrderCompIsModified;
     end;
 
-    local procedure InsertCountryCode(var NewItemLedgEntry: Record "Item Ledger Entry"; ItemLedgEntry: Record "Item Ledger Entry")
+    procedure InsertCountryCode(var NewItemLedgEntry: Record "Item Ledger Entry"; ItemLedgEntry: Record "Item Ledger Entry")
     begin
         if ItemLedgEntry."Location Code" = '' then
             exit;
@@ -6360,11 +6365,13 @@
     begin
     end;
 
+#if not CLEAN21
+    [Obsolete('Event is never called', '21.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterApplyItemLedgEntry(var GlobalItemLedgerEntry: Record "Item Ledger Entry"; var OldItemLedgerEntry: Record "Item Ledger Entry"; ItemJournalLine: Record "Item Journal Line")
     begin
     end;
-
+#endif
     [IntegrationEvent(false, false)]
     local procedure OnAfterApplyItemLedgEntrySetFilters(var ItemLedgerEntry2: Record "Item Ledger Entry"; ItemLedgerEntry: Record "Item Ledger Entry"; ItemJournalLine: Record "Item Journal Line")
     begin

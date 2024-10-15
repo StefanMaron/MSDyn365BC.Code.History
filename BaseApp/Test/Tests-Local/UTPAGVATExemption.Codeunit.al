@@ -46,7 +46,7 @@ codeunit 144071 "UT PAG VAT Exemption"
         // [THEN] Consecutive VAT Exempt. No. field is visible from the Customer Card page
         // TFS 341871
         VerifyVATExemptionDetail(VATExemptions, SalesNoSeriesNextNo, true);
-        CustomerCard.Close;
+        CustomerCard.Close();
     end;
 
     [Test]
@@ -77,7 +77,7 @@ codeunit 144071 "UT PAG VAT Exemption"
         // [THEN] Consecutive VAT Exempt. No. field is not visible from the Vendor Card page
         // TFS 341871
         VerifyVATExemptionDetail(VATExemptions, PurchasesNoSeriesNextNo, false);
-        VendorCard.Close;
+        VendorCard.Close();
     end;
 
     local procedure Initialize()
@@ -96,8 +96,8 @@ codeunit 144071 "UT PAG VAT Exemption"
     begin
         VATExemption.Type := Type;
         VATExemption."No." := No;
-        VATExemption."VAT Exempt. Starting Date" := WorkDate;
-        VATExemption."VAT Exempt. Ending Date" := WorkDate;
+        VATExemption."VAT Exempt. Starting Date" := WorkDate();
+        VATExemption."VAT Exempt. Ending Date" := WorkDate();
         VATExemption."VAT Exempt. Int. Registry No." := LibraryUTUtility.GetNewCode;
         VATExemption.Insert(true);
     end;
@@ -140,8 +140,8 @@ codeunit 144071 "UT PAG VAT Exemption"
     begin
         VATExemptions."VAT Exempt. Int. Registry No.".AssistEdit;
 
-        VATExemptions."VAT Exempt. Starting Date".AssertEquals(WorkDate);
-        VATExemptions."VAT Exempt. Ending Date".AssertEquals(WorkDate);
+        VATExemptions."VAT Exempt. Starting Date".AssertEquals(WorkDate());
+        VATExemptions."VAT Exempt. Ending Date".AssertEquals(WorkDate());
         VATExemptions."VAT Exempt. Int. Registry No.".AssertEquals(VATExemptIntRegistryNo);
         Assert.AreEqual(
           VATProgressiveNoVisible, VATExemptions."Consecutive VAT Exempt. No.".Visible, 'Consecutive VAT Exempt. No. visibility is incorrect');
@@ -150,7 +150,7 @@ codeunit 144071 "UT PAG VAT Exemption"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure NoSeriesPageHandler(var NoSeriesList: Page "No. Series List"; var Response: Action)
+    procedure NoSeriesPageHandler(var NoSeriesList: Page "No. Series"; var Response: Action)
     begin
         Response := ACTION::Yes;
     end;

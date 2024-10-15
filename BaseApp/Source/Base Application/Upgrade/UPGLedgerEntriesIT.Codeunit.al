@@ -12,9 +12,9 @@ codeunit 104151 "UPG.IT Detailed Ledger Entries"
     begin
         if not HybridDeployment.VerifyCanStartUpgrade(CompanyName()) then
             exit;
-         
-        UpgradeDetailedVendorLedgerEntries;
-        UpgradeDetailedCustomerLedgerEntries;
+
+        UpgradeDetailedVendorLedgerEntries();
+        UpgradeDetailedCustomerLedgerEntries();
     end;
 
     procedure UpgradeDetailedVendorLedgerEntries();
@@ -24,7 +24,7 @@ codeunit 104151 "UPG.IT Detailed Ledger Entries"
         UpgradeTag: Codeunit "Upgrade Tag";
         UpgradeTags: Codeunit "Upgrade Tag Def - Country";
     begin
-        IF UpgradeTag.HasUpgradeTag(UpgradeTags.GetFixRemainingAmountVLEUpgradeTag) THEN
+        IF UpgradeTag.HasUpgradeTag(UpgradeTags.GetFixRemainingAmountVLEUpgradeTag()) THEN
             exit;
 
         IF VendorLedgerEntry.FindSet() then
@@ -34,7 +34,7 @@ codeunit 104151 "UPG.IT Detailed Ledger Entries"
                 DetailedVendorLedgEntry.ModifyAll("Original Document Type", VendorLedgerEntry."Document Type");
             until VendorLedgerEntry.Next() = 0;
 
-        UpgradeTag.SetUpgradeTag(UpgradeTags.GetFixRemainingAmountVLEUpgradeTag);
+        UpgradeTag.SetUpgradeTag(UpgradeTags.GetFixRemainingAmountVLEUpgradeTag());
     end;
 
     procedure UpgradeDetailedCustomerLedgerEntries();
@@ -44,7 +44,7 @@ codeunit 104151 "UPG.IT Detailed Ledger Entries"
         UpgradeTag: Codeunit "Upgrade Tag";
         UpgradeTags: Codeunit "Upgrade Tag Def - Country";
     begin
-        IF UpgradeTag.HasUpgradeTag(UpgradeTags.GetFixRemainingAmountCLEUpgradeTag) THEN
+        IF UpgradeTag.HasUpgradeTag(UpgradeTags.GetFixRemainingAmountCLEUpgradeTag()) THEN
             exit;
 
         IF CustLedgerEntry.FindSet() then
@@ -54,7 +54,7 @@ codeunit 104151 "UPG.IT Detailed Ledger Entries"
                 DetailedCustLedgEntry.ModifyAll("Original Document Type", CustLedgerEntry."Document Type");
             until CustLedgerEntry.Next() = 0;
 
-        UpgradeTag.SetUpgradeTag(UpgradeTags.GetFixRemainingAmountCLEUpgradeTag);
+        UpgradeTag.SetUpgradeTag(UpgradeTags.GetFixRemainingAmountCLEUpgradeTag());
     end;
 }
 

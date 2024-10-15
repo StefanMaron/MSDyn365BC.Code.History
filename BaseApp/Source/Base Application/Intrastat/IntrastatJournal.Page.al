@@ -1,4 +1,4 @@
-﻿page 311 "Intrastat Journal"
+page 311 "Intrastat Journal"
 {
     ApplicationArea = BasicEU;
     AutoSplitKey = true;
@@ -6,7 +6,6 @@
     DataCaptionFields = "Journal Batch Name";
     DelayedInsert = true;
     PageType = Worksheet;
-    PromotedActionCategories = 'New,Process,Report,Bank,Application,Payroll,Approve,Page';
     SaveValues = true;
     SourceTable = "Intrastat Jnl. Line";
     UsageCategory = Tasks;
@@ -30,7 +29,7 @@
                 trigger OnValidate()
                 begin
                     IntraJnlManagement.CheckName(CurrentJnlBatchName, Rec);
-                    CurrentJnlBatchNameOnAfterVali;
+                    CurrentJnlBatchNameOnAfterVali();
                 end;
             }
             repeater(Control1)
@@ -41,7 +40,7 @@
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies whether the item was received or shipped by the company.';
                 }
-                field("Reference Period"; "Reference Period")
+                field("Reference Period"; Rec."Reference Period")
                 {
                     ApplicationArea = BasicEU;
                     Editable = false;
@@ -52,23 +51,13 @@
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the date the item entry was posted.';
                 }
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the document number on the entry.';
                     ShowMandatory = true;
                 }
-#if not CLEAN18
-                field("VAT Registration No."; "VAT Registration No.")
-                {
-                    ApplicationArea = BasicEU;
-                    ToolTip = 'Specifies VAT registration number that is associated with the Intrastat journal.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Merged to W1';
-                    ObsoleteTag = '18.0';
-                }
-#endif
-                field("Item No."; "Item No.")
+                field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the number of the item.';
@@ -79,43 +68,43 @@
                     ToolTip = 'Specifies the name of the item.';
                     Caption = 'Item Name';
                 }
-                field("Service Tariff No."; "Service Tariff No.")
+                field("Service Tariff No."; Rec."Service Tariff No.")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the ID of the service tariff that is associated with the Intrastat journal.';
                 }
-                field("Payment Method"; "Payment Method")
+                field("Payment Method"; Rec."Payment Method")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the payment method that is associated with the Intrastat journal.';
                 }
-                field("Custom Office No."; "Custom Office No.")
+                field("Custom Office No."; Rec."Custom Office No.")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the customs office that the trade of goods or services passes through.';
                 }
-                field("Corrected Intrastat Report No."; "Corrected Intrastat Report No.")
+                field("Corrected Intrastat Report No."; Rec."Corrected Intrastat Report No.")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the number of the corrected Intrastat report that is associated with the Intrastat journal.';
                 }
-                field("Corrected Document No."; "Corrected Document No.")
+                field("Corrected Document No."; Rec."Corrected Document No.")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the document number of the corrected Intrastat journal entry.';
                 }
-                field("Tariff No."; "Tariff No.")
+                field("Tariff No."; Rec."Tariff No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the item''s tariff number.';
                 }
-                field("Item Description"; "Item Description")
+                field("Item Description"; Rec."Item Description")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the name of the tariff no. that is associated with the item.';
                     Caption = 'Tariff No. Description';
                 }
-                field("Country/Region Code"; "Country/Region Code")
+                field("Country/Region Code"; Rec."Country/Region Code")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the country/region code for the item entry.';
@@ -126,17 +115,17 @@
                             "Country/Region Code" := Country."Intrastat Code";
                     end;
                 }
-                field("Partner VAT ID"; "Partner VAT ID")
+                field("Partner VAT ID"; Rec."Partner VAT ID")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the counter party''s VAT number.';
                 }
-                field("Country/Region of Origin Code"; "Country/Region of Origin Code")
+                field("Country/Region of Origin Code"; Rec."Country/Region of Origin Code")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the country/region code of the place of origin of the item.';
                 }
-                field("Country/Region of Payment Code"; "Country/Region of Payment Code")
+                field("Country/Region of Payment Code"; Rec."Country/Region of Payment Code")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the country/region of the payment method that is associated with the Intrastat journal.';
@@ -146,33 +135,33 @@
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the code for the area of the customer or vendor with which you traded the items on this journal line.';
                 }
-                field("Transaction Type"; "Transaction Type")
+                field("Transaction Type"; Rec."Transaction Type")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the transaction type for the item entry.';
                 }
-                field("Transaction Specification"; "Transaction Specification")
+                field("Transaction Specification"; Rec."Transaction Specification")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the transaction specification code for the item transaction on this journal line.';
                 }
-                field("Transport Method"; "Transport Method")
+                field("Transport Method"; Rec."Transport Method")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the transport method for the item entry.';
                 }
-                field("Entry/Exit Point"; "Entry/Exit Point")
+                field("Entry/Exit Point"; Rec."Entry/Exit Point")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the code of either the port of entry where the items passed into your country/region or the port of exit.';
                     Visible = true;
                 }
-                field("Group Code"; "Group Code")
+                field("Group Code"; Rec."Group Code")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the group code that corresponds with the Intrastat journal.';
                 }
-                field("Supplementary Units"; "Supplementary Units")
+                field("Supplementary Units"; Rec."Supplementary Units")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies if you must report information about quantity and units of measure for this item.';
@@ -182,23 +171,23 @@
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the number of units of the item in the entry.';
                 }
-                field("Net Weight"; "Net Weight")
+                field("Net Weight"; Rec."Net Weight")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the net weight of one unit of the item.';
                 }
-                field("Currency Code"; "Currency Code")
+                field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the currency code that is associated with the Intrastat journal entry.';
                 }
-                field("Total Weight"; GetFormattedTotalWeight)
+                field("Total Weight"; GetFormattedTotalWeight())
                 {
                     ApplicationArea = BasicEU;
                     Caption = 'Total Weight';
                     ToolTip = 'Specifies the total weight for the items in the item entry.';
                 }
-                field("Source Currency Amount"; "Source Currency Amount")
+                field("Source Currency Amount"; Rec."Source Currency Amount")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the amount in the currency of the source of the transaction.';
@@ -208,12 +197,12 @@
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the total amount of the entry, excluding VAT.';
                 }
-                field("Statistical Value"; "Statistical Value")
+                field("Statistical Value"; Rec."Statistical Value")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the entry''s statistical value, which must be reported to the statistics authorities.';
                 }
-                field("Source Type"; "Source Type")
+                field("Source Type"; Rec."Source Type")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the entry type.';
@@ -223,39 +212,39 @@
                         SourceEntryNoEditable := "Source Type" = "Source Type"::"VAT Entry"
                     end;
                 }
-                field("Source Entry No."; "Source Entry No.")
+                field("Source Entry No."; Rec."Source Entry No.")
                 {
                     ApplicationArea = BasicEU;
                     Editable = SourceEntryNoEditable;
                     ToolTip = 'Specifies the number that the item entry had in the table it came from.';
                 }
-                field("Cost Regulation %"; "Cost Regulation %")
+                field("Cost Regulation %"; Rec."Cost Regulation %")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies any indirect costs, as a percentage.';
                     Visible = false;
                 }
-                field("Indirect Cost"; "Indirect Cost")
+                field("Indirect Cost"; Rec."Indirect Cost")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies an amount that represents the costs for freight and insurance.';
                 }
-                field("Internal Ref. No."; "Internal Ref. No.")
+                field("Internal Ref. No."; Rec."Internal Ref. No.")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies a reference number used by the customs and tax authorities.';
                 }
-                field("Shpt. Method Code"; "Shpt. Method Code")
+                field("Shpt. Method Code"; Rec."Shpt. Method Code")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the item''s shipment method.';
                 }
-                field("Progressive No."; "Progressive No.")
+                field("Progressive No."; Rec."Progressive No.")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the progressive number.';
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code for the location that the entry is linked to.';
@@ -390,9 +379,6 @@
                 Caption = '&Get Entries';
                 Ellipsis = true;
                 Image = GetEntries;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
 
                 trigger OnAction()
                 var
@@ -418,10 +404,6 @@
                     ApplicationArea = BasicEU;
                     Caption = 'Edit in Excel';
                     Image = Excel;
-                    Promoted = true;
-                    PromotedCategory = Category8;
-                    PromotedIsBig = true;
-                    PromotedOnly = true;
                     ToolTip = 'Send the data in the journal to an Excel file for analysis or editing.';
                     Visible = IsSaaSExcelAddinEnabled;
                     AccessByPermission = System "Allow Action Export To Excel" = X;
@@ -435,6 +417,45 @@
                 }
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref(GetEntries_Promoted; GetEntries)
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Bank', Comment = 'Generated from the PromotedActionCategories property index 3.';
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Application', Comment = 'Generated from the PromotedActionCategories property index 4.';
+            }
+            group(Category_Category6)
+            {
+                Caption = 'Payroll', Comment = 'Generated from the PromotedActionCategories property index 5.';
+            }
+            group(Category_Category7)
+            {
+                Caption = 'Approve', Comment = 'Generated from the PromotedActionCategories property index 6.';
+            }
+            group(Category_Category8)
+            {
+                Caption = 'Page', Comment = 'Generated from the PromotedActionCategories property index 7.';
+
+                actionref(EditInExcel_Promoted; EditInExcel)
+                {
+                }
+            }
+        }
     }
 
     trigger OnAfterGetRecord()
@@ -445,8 +466,8 @@
 
     trigger OnAfterGetCurrRecord()
     begin
-        if ClientTypeManagement.GetCurrentClientType <> CLIENTTYPE::ODataV4 then
-            UpdateStatisticalValue;
+        if ClientTypeManagement.GetCurrentClientType() <> CLIENTTYPE::ODataV4 then
+            UpdateStatisticalValue();
         UpdateErrors();
     end;
 
@@ -461,10 +482,10 @@
         JnlSelected: Boolean;
     begin
         IsSaaSExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
-        if ClientTypeManagement.GetCurrentClientType = CLIENTTYPE::ODataV4 then
+        if ClientTypeManagement.GetCurrentClientType() = CLIENTTYPE::ODataV4 then
             exit;
 
-        if IsOpenedFromBatch then begin
+        if IsOpenedFromBatch() then begin
             CurrentJnlBatchName := "Journal Batch Name";
             IntraJnlManagement.OpenJnl(CurrentJnlBatchName, Rec);
             exit;
@@ -515,7 +536,7 @@
 
     local procedure CurrentJnlBatchNameOnAfterVali()
     begin
-        CurrPage.SaveRecord;
+        CurrPage.SaveRecord();
         IntraJnlManagement.SetName(CurrentJnlBatchName, Rec);
         CurrPage.Update(false);
     end;

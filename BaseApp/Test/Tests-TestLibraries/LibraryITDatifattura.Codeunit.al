@@ -21,7 +21,7 @@ codeunit 143005 "Library - IT Datifattura"
         VATReportReleaseReopen: Codeunit "VAT Report Release/Reopen";
     begin
         BindSubscription(LibraryITDatifattura);
-        VATReportHeader.SetRecFilter;
+        VATReportHeader.SetRecFilter();
         VATReportReleaseReopen.Release(VATReportHeader);
         DatifatturaExport.Run(VATReportHeader);
         UnbindSubscription(LibraryITDatifattura);
@@ -45,7 +45,7 @@ codeunit 143005 "Library - IT Datifattura"
         VATReportSetup: Record "VAT Report Setup";
         Vendor: Record Vendor;
     begin
-        if not VATReportSetup.Get then begin
+        if not VATReportSetup.Get() then begin
             VATReportSetup.Init();
             VATReportSetup.Insert(true);
         end;

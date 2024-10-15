@@ -14,7 +14,7 @@ page 5975 "Posted Service Shipment"
             group(General)
             {
                 Caption = 'General';
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Service;
                     Editable = false;
@@ -27,14 +27,14 @@ page 5975 "Posted Service Shipment"
                     Editable = false;
                     ToolTip = 'Specifies a description of the order from which the shipment was posted.';
                 }
-                field("Customer No."; "Customer No.")
+                field("Customer No."; Rec."Customer No.")
                 {
                     ApplicationArea = Service;
                     Editable = false;
                     Importance = Promoted;
                     ToolTip = 'Specifies the number of the customer who owns the items on the service order.';
                 }
-                field("Contact No."; "Contact No.")
+                field("Contact No."; Rec."Contact No.")
                 {
                     ApplicationArea = Service;
                     Editable = false;
@@ -55,7 +55,7 @@ page 5975 "Posted Service Shipment"
                         Editable = false;
                         ToolTip = 'Specifies the address of the customer of the posted service shipment.';
                     }
-                    field("Address 2"; "Address 2")
+                    field("Address 2"; Rec."Address 2")
                     {
                         ApplicationArea = Service;
                         Editable = false;
@@ -78,19 +78,19 @@ page 5975 "Posted Service Shipment"
                             ToolTip = 'Specifies the state, province or county related to the posted service shipment.';
                         }
                     }
-                    field("Post Code"; "Post Code")
+                    field("Post Code"; Rec."Post Code")
                     {
                         ApplicationArea = Service;
                         Editable = false;
                         ToolTip = 'Specifies the postal code.';
                     }
-                    field("Country/Region Code"; "Country/Region Code")
+                    field("Country/Region Code"; Rec."Country/Region Code")
                     {
                         ApplicationArea = Service;
                         Editable = false;
                         ToolTip = 'Specifies the country/region of the address.';
                     }
-                    field("Contact Name"; "Contact Name")
+                    field("Contact Name"; Rec."Contact Name")
                     {
                         ApplicationArea = Service;
                         Editable = false;
@@ -124,50 +124,50 @@ page 5975 "Posted Service Shipment"
                         ToolTip = 'Specifies the email address of the contact person at the customer company.';
                     }
                 }
-                field("Phone No."; "Phone No.")
+                field("Phone No."; Rec."Phone No.")
                 {
                     ApplicationArea = Service;
                     Editable = false;
                     ToolTip = 'Specifies the customer phone number.';
                 }
-                field("Phone No. 2"; "Phone No. 2")
+                field("Phone No. 2"; Rec."Phone No. 2")
                 {
                     ApplicationArea = Service;
                     Editable = false;
                     ToolTip = 'Specifies your customer''s alternate phone number.';
                 }
-                field("E-Mail"; "E-Mail")
+                field("E-Mail"; Rec."E-Mail")
                 {
                     ApplicationArea = Service;
                     Editable = false;
                     ExtendedDatatype = EMail;
                     ToolTip = 'Specifies the email address of the customer.';
                 }
-                field("Notify Customer"; "Notify Customer")
+                field("Notify Customer"; Rec."Notify Customer")
                 {
                     ApplicationArea = Service;
                     Editable = false;
                     ToolTip = 'Specifies in what way the customer wants to receive notifications about the service completed.';
                 }
-                field("Service Order Type"; "Service Order Type")
+                field("Service Order Type"; Rec."Service Order Type")
                 {
                     ApplicationArea = Service;
                     Editable = false;
                     ToolTip = 'Specifies the type of the service order from which the shipment was created.';
                 }
-                field("Contract No."; "Contract No.")
+                field("Contract No."; Rec."Contract No.")
                 {
                     ApplicationArea = Service;
                     Editable = false;
                     ToolTip = 'Specifies the number of the contract associated with the service order.';
                 }
-                field("Response Date"; "Response Date")
+                field("Response Date"; Rec."Response Date")
                 {
                     ApplicationArea = Service;
                     Editable = false;
                     ToolTip = 'Specifies the approximate date when work on the service order started.';
                 }
-                field("Response Time"; "Response Time")
+                field("Response Time"; Rec."Response Time")
                 {
                     ApplicationArea = Service;
                     Editable = false;
@@ -179,19 +179,19 @@ page 5975 "Posted Service Shipment"
                     Editable = false;
                     ToolTip = 'Specifies the priority of the posted service order.';
                 }
-                field("Order No."; "Order No.")
+                field("Order No."; Rec."Order No.")
                 {
                     ApplicationArea = Service;
                     Editable = false;
                     ToolTip = 'Specifies the number of the service order from which the shipment was created.';
                 }
-                field("Responsibility Center"; "Responsibility Center")
+                field("Responsibility Center"; Rec."Responsibility Center")
                 {
                     ApplicationArea = Service;
                     Editable = false;
                     ToolTip = 'Specifies the code of the responsibility center, such as a distribution hub, that is associated with the involved user, company, customer, or vendor.';
                 }
-                field("No. Printed"; "No. Printed")
+                field("No. Printed"; Rec."No. Printed")
                 {
                     ApplicationArea = Service;
                     Editable = false;
@@ -206,7 +206,7 @@ page 5975 "Posted Service Shipment"
             group(Invoicing)
             {
                 Caption = 'Invoicing';
-                field("Bill-to Customer No."; "Bill-to Customer No.")
+                field("Bill-to Customer No."; Rec."Bill-to Customer No.")
                 {
                     ApplicationArea = Service;
                     Editable = false;
@@ -216,28 +216,28 @@ page 5975 "Posted Service Shipment"
                 group("Bill-to")
                 {
                     Caption = 'Bill-to';
-                    field("Bill-to Name"; "Bill-to Name")
+                    field("Bill-to Name"; Rec."Bill-to Name")
                     {
                         ApplicationArea = Service;
                         Caption = ' Name';
                         Editable = false;
                         ToolTip = 'Specifies the name of the customer that you send or sent the invoice or credit memo to.';
                     }
-                    field("Bill-to Address"; "Bill-to Address")
+                    field("Bill-to Address"; Rec."Bill-to Address")
                     {
                         ApplicationArea = Service;
                         Caption = 'Address';
                         Editable = false;
                         ToolTip = 'Specifies the address of the customer to whom you sent the invoice.';
                     }
-                    field("Bill-to Address 2"; "Bill-to Address 2")
+                    field("Bill-to Address 2"; Rec."Bill-to Address 2")
                     {
                         ApplicationArea = Service;
                         Caption = 'Address 2';
                         Editable = false;
                         ToolTip = 'Specifies an additional line of the address.';
                     }
-                    field("Bill-to City"; "Bill-to City")
+                    field("Bill-to City"; Rec."Bill-to City")
                     {
                         ApplicationArea = Service;
                         Caption = 'City';
@@ -248,7 +248,7 @@ page 5975 "Posted Service Shipment"
                     {
                         ShowCaption = false;
                         Visible = IsBillToCountyVisible;
-                        field("Bill-to County"; "Bill-to County")
+                        field("Bill-to County"; Rec."Bill-to County")
                         {
                             ApplicationArea = Service;
                             Caption = 'County';
@@ -256,20 +256,20 @@ page 5975 "Posted Service Shipment"
                             ToolTip = 'Specifies the state, province or county for the customer that the invoice is sent to.';
                         }
                     }
-                    field("Bill-to Post Code"; "Bill-to Post Code")
+                    field("Bill-to Post Code"; Rec."Bill-to Post Code")
                     {
                         ApplicationArea = Service;
                         Caption = 'Post Code';
                         Editable = false;
                         ToolTip = 'Specifies the postal code of the customer''s billing address.';
                     }
-                    field("Bill-to Country/Region Code"; "Bill-to Country/Region Code")
+                    field("Bill-to Country/Region Code"; Rec."Bill-to Country/Region Code")
                     {
                         ApplicationArea = Service;
                         Caption = 'Country/Region';
                         Editable = false;
                     }
-                    field("Bill-to Contact"; "Bill-to Contact")
+                    field("Bill-to Contact"; Rec."Bill-to Contact")
                     {
                         ApplicationArea = Service;
                         Caption = 'Contact';
@@ -304,38 +304,38 @@ page 5975 "Posted Service Shipment"
                         ToolTip = 'Specifies the email address of the contact person at the customer''s billing address.';
                     }
                 }
-                field("Your Reference"; "Your Reference")
+                field("Your Reference"; Rec."Your Reference")
                 {
                     ApplicationArea = Service;
                     Editable = false;
                     ToolTip = 'Specifies a reference to the customer.';
                 }
-                field("Salesperson Code"; "Salesperson Code")
+                field("Salesperson Code"; Rec."Salesperson Code")
                 {
                     ApplicationArea = Service;
                     Editable = false;
                     ToolTip = 'Specifies the code of the salesperson assigned to the service order.';
                 }
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Service;
                     Editable = false;
                     Importance = Promoted;
                     ToolTip = 'Specifies the date when the shipment was posted.';
                 }
-                field("Document Date"; "Document Date")
+                field("Document Date"; Rec."Document Date")
                 {
                     ApplicationArea = Service;
                     Editable = false;
                     ToolTip = 'Specifies the date when the related document was created.';
                 }
-                field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
+                field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
                     ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                 }
-                field("Shortcut Dimension 2 Code"; "Shortcut Dimension 2 Code")
+                field("Shortcut Dimension 2 Code"; Rec."Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
@@ -345,7 +345,7 @@ page 5975 "Posted Service Shipment"
             group(Shipping)
             {
                 Caption = 'Shipping';
-                field("Ship-to Code"; "Ship-to Code")
+                field("Ship-to Code"; Rec."Ship-to Code")
                 {
                     ApplicationArea = Service;
                     Editable = false;
@@ -355,28 +355,28 @@ page 5975 "Posted Service Shipment"
                 group("Ship-to")
                 {
                     Caption = 'Ship-to';
-                    field("Ship-to Name"; "Ship-to Name")
+                    field("Ship-to Name"; Rec."Ship-to Name")
                     {
                         ApplicationArea = Service;
                         Caption = 'Name';
                         Editable = false;
                         ToolTip = 'Specifies the name of the customer at the address that the items are shipped to.';
                     }
-                    field("Ship-to Address"; "Ship-to Address")
+                    field("Ship-to Address"; Rec."Ship-to Address")
                     {
                         ApplicationArea = Service;
                         Caption = 'Address';
                         Editable = false;
                         ToolTip = 'Specifies the address that the items are shipped to.';
                     }
-                    field("Ship-to Address 2"; "Ship-to Address 2")
+                    field("Ship-to Address 2"; Rec."Ship-to Address 2")
                     {
                         ApplicationArea = Service;
                         Caption = 'Address 2';
                         Editable = false;
                         ToolTip = 'Specifies an additional part of the ship-to address, in case it is a long address.';
                     }
-                    field("Ship-to City"; "Ship-to City")
+                    field("Ship-to City"; Rec."Ship-to City")
                     {
                         ApplicationArea = Service;
                         Caption = 'City';
@@ -387,14 +387,14 @@ page 5975 "Posted Service Shipment"
                     {
                         ShowCaption = false;
                         Visible = IsShipToCountyVisible;
-                        field("Ship-to County"; "Ship-to County")
+                        field("Ship-to County"; Rec."Ship-to County")
                         {
                             ApplicationArea = Service;
                             Caption = 'County';
                             Editable = false;
                         }
                     }
-                    field("Ship-to Post Code"; "Ship-to Post Code")
+                    field("Ship-to Post Code"; Rec."Ship-to Post Code")
                     {
                         ApplicationArea = Service;
                         Caption = 'Post Code';
@@ -402,13 +402,13 @@ page 5975 "Posted Service Shipment"
                         Importance = Promoted;
                         ToolTip = 'Specifies the postal code of the address that the items are shipped to.';
                     }
-                    field("Ship-to Country/Region Code"; "Ship-to Country/Region Code")
+                    field("Ship-to Country/Region Code"; Rec."Ship-to Country/Region Code")
                     {
                         ApplicationArea = Service;
                         Caption = 'Country/Region';
                         Editable = false;
                     }
-                    field("Ship-to Contact"; "Ship-to Contact")
+                    field("Ship-to Contact"; Rec."Ship-to Contact")
                     {
                         ApplicationArea = Service;
                         Caption = 'Contact';
@@ -416,74 +416,74 @@ page 5975 "Posted Service Shipment"
                         ToolTip = 'Specifies the name of the contact person at the address that the items are shipped to.';
                     }
                 }
-                field("Ship-to Phone"; "Ship-to Phone")
+                field("Ship-to Phone"; Rec."Ship-to Phone")
                 {
                     ApplicationArea = Service;
                     Editable = false;
                     ToolTip = 'Specifies the customer phone number.';
                 }
-                field("Ship-to Phone 2"; "Ship-to Phone 2")
+                field("Ship-to Phone 2"; Rec."Ship-to Phone 2")
                 {
                     ApplicationArea = Service;
                     Editable = false;
                     ToolTip = 'Specifies an additional phone number at address that the items are shipped to.';
                 }
-                field("Ship-to E-Mail"; "Ship-to E-Mail")
+                field("Ship-to E-Mail"; Rec."Ship-to E-Mail")
                 {
                     ApplicationArea = Service;
                     Editable = false;
                     ToolTip = 'Specifies the email address at the address that the items are shipped to.';
                 }
-                field("Additional Information"; "Additional Information")
+                field("Additional Information"; Rec."Additional Information")
                 {
                     ApplicationArea = Service;
                     Editable = false;
                     ToolTip = 'Specifies additional declaration information that is needed for the shipment.';
                 }
-                field("Additional Notes"; "Additional Notes")
+                field("Additional Notes"; Rec."Additional Notes")
                 {
                     ApplicationArea = Service;
                     Editable = false;
                     ToolTip = 'Specifies additional notes that are needed for the shipment.';
                 }
-                field("Additional Instructions"; "Additional Instructions")
+                field("Additional Instructions"; Rec."Additional Instructions")
                 {
                     ApplicationArea = Service;
                     Editable = false;
                     ToolTip = 'Specifies additional instructions that are needed for the shipment.';
                 }
-                field("TDD Prepared By"; "TDD Prepared By")
+                field("TDD Prepared By"; Rec."TDD Prepared By")
                 {
                     ApplicationArea = Service;
                     Editable = false;
                     ToolTip = 'Specifies the user ID of the transport delivery document (TDD) for the posted service shipment.';
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     Editable = false;
                     Importance = Promoted;
                     ToolTip = 'Specifies the location, such as warehouse or distribution center, from where the items on the order were shipped.';
                 }
-                field("Shipment Method Code"; "Shipment Method Code")
+                field("Shipment Method Code"; Rec."Shipment Method Code")
                 {
                     ApplicationArea = Service;
                     Editable = false;
                     ToolTip = 'Specifies the code for the shipment method that is associated with the posted service shipment.';
                 }
-                field("Shipping Agent Code"; "Shipping Agent Code")
+                field("Shipping Agent Code"; Rec."Shipping Agent Code")
                 {
                     ApplicationArea = Service;
                     Editable = false;
                     ToolTip = 'Specifies the code of the shipping agent for the posted service shipment.';
                 }
-                field("3rd Party Loader Type"; "3rd Party Loader Type")
+                field("3rd Party Loader Type"; Rec."3rd Party Loader Type")
                 {
                     ApplicationArea = Service;
                     Editable = false;
                     ToolTip = 'Specifies the type of third party that is responsible for loading the items for this document.';
                 }
-                field("3rd Party Loader No."; "3rd Party Loader No.")
+                field("3rd Party Loader No."; Rec."3rd Party Loader No.")
                 {
                     ApplicationArea = Service;
                     Editable = false;
@@ -493,81 +493,81 @@ page 5975 "Posted Service Shipment"
             group(Details)
             {
                 Caption = 'Details';
-                field("Warning Status"; "Warning Status")
+                field("Warning Status"; Rec."Warning Status")
                 {
                     ApplicationArea = Service;
                     Editable = false;
                     Importance = Promoted;
                     ToolTip = 'Specifies the warning status for the response time on the original service order.';
                 }
-                field("Link Service to Service Item"; "Link Service to Service Item")
+                field("Link Service to Service Item"; Rec."Link Service to Service Item")
                 {
                     ApplicationArea = Service;
                     Editable = false;
                     ToolTip = 'Specifies the value in this field from the Link Service to Service Item field on the service header.';
                 }
-                field("Allocated Hours"; "Allocated Hours")
+                field("Allocated Hours"; Rec."Allocated Hours")
                 {
                     ApplicationArea = Service;
                     Editable = false;
                     ToolTip = 'Specifies the number of hours allocated to the items within the posted service order.';
                 }
-                field("Service Zone Code"; "Service Zone Code")
+                field("Service Zone Code"; Rec."Service Zone Code")
                 {
                     ApplicationArea = Service;
                     Editable = false;
                     ToolTip = 'Specifies the service zone code assigned to the customer.';
                 }
-                field("Order Date"; "Order Date")
+                field("Order Date"; Rec."Order Date")
                 {
                     ApplicationArea = Service;
                     Editable = false;
                     Importance = Promoted;
                     ToolTip = 'Specifies the date when the related order was created.';
                 }
-                field("Order Time"; "Order Time")
+                field("Order Time"; Rec."Order Time")
                 {
                     ApplicationArea = Service;
                     Editable = false;
                     ToolTip = 'Specifies the time when the service order was created.';
                 }
-                field("Expected Finishing Date"; "Expected Finishing Date")
+                field("Expected Finishing Date"; Rec."Expected Finishing Date")
                 {
                     ApplicationArea = Service;
                     Editable = false;
                     ToolTip = 'Specifies the date when service on the order is expected to be finished.';
                 }
-                field("Starting Date"; "Starting Date")
+                field("Starting Date"; Rec."Starting Date")
                 {
                     ApplicationArea = Service;
                     Editable = false;
                     ToolTip = 'Specifies the starting date of the service on the shipment.';
                 }
-                field("Starting Time"; "Starting Time")
+                field("Starting Time"; Rec."Starting Time")
                 {
                     ApplicationArea = Service;
                     Editable = false;
                     ToolTip = 'Specifies the starting time of the service on the shipment.';
                 }
-                field("Actual Response Time (Hours)"; "Actual Response Time (Hours)")
+                field("Actual Response Time (Hours)"; Rec."Actual Response Time (Hours)")
                 {
                     ApplicationArea = Service;
                     Editable = false;
                     ToolTip = 'Specifies the hours since the creation of the service order, to the time when the order status was changed from Pending to In Process.';
                 }
-                field("Finishing Date"; "Finishing Date")
+                field("Finishing Date"; Rec."Finishing Date")
                 {
                     ApplicationArea = Service;
                     Editable = false;
                     ToolTip = 'Specifies the date when the service is finished.';
                 }
-                field("Finishing Time"; "Finishing Time")
+                field("Finishing Time"; Rec."Finishing Time")
                 {
                     ApplicationArea = Service;
                     Editable = false;
                     ToolTip = 'Specifies the time when the service is finished.';
                 }
-                field("Service Time (Hours)"; "Service Time (Hours)")
+                field("Service Time (Hours)"; Rec."Service Time (Hours)")
                 {
                     ApplicationArea = Service;
                     Editable = false;
@@ -577,13 +577,13 @@ page 5975 "Posted Service Shipment"
             group("Foreign Trade")
             {
                 Caption = 'Foreign Trade';
-                field("Currency Code"; "Currency Code")
+                field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = Service;
                     Editable = false;
                     ToolTip = 'Specifies the currency code for various amounts on the shipment.';
                 }
-                field("EU 3-Party Trade"; "EU 3-Party Trade")
+                field("EU 3-Party Trade"; Rec."EU 3-Party Trade")
                 {
                     ApplicationArea = Service;
                     Editable = false;
@@ -660,8 +660,6 @@ page 5975 "Posted Service Shipment"
                     ApplicationArea = Service;
                     Caption = 'S&tatistics';
                     Image = Statistics;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Page "Service Shipment Statistics";
                     RunPageLink = "No." = FIELD("No.");
                     ShortCutKey = 'F7';
@@ -690,7 +688,7 @@ page 5975 "Posted Service Shipment"
                     trigger OnAction()
                     begin
                         ShowDimensions();
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                     end;
                 }
                 action("Service Document Lo&g")
@@ -732,8 +730,6 @@ page 5975 "Posted Service Shipment"
                     ApplicationArea = Service;
                     Caption = 'Certificate of Supply Details';
                     Image = Certificate;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Page "Certificates of Supply";
                     RunPageLink = "Document Type" = FILTER("Service Shipment"),
                                   "Document No." = FIELD("No.");
@@ -744,8 +740,6 @@ page 5975 "Posted Service Shipment"
                     ApplicationArea = Service;
                     Caption = 'Print Certificate of Supply';
                     Image = PrintReport;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Print the certificate of supply that you must send to your customer for signature as confirmation of receipt.';
 
                     trigger OnAction()
@@ -754,7 +748,7 @@ page 5975 "Posted Service Shipment"
                     begin
                         CertificateOfSupply.SetRange("Document Type", CertificateOfSupply."Document Type"::"Service Shipment");
                         CertificateOfSupply.SetRange("Document No.", "No.");
-                        CertificateOfSupply.Print;
+                        CertificateOfSupply.Print();
                     end;
                 }
             }
@@ -767,8 +761,6 @@ page 5975 "Posted Service Shipment"
                 Caption = '&Print';
                 Ellipsis = true;
                 Image = Print;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Prepare to print the document. A report request window for the document opens where you can specify what to include on the print-out.';
 
                 trigger OnAction()
@@ -782,14 +774,12 @@ page 5975 "Posted Service Shipment"
                 ApplicationArea = Service;
                 Caption = 'Find entries...';
                 Image = Navigate;
-                Promoted = true;
-                PromotedCategory = Process;
                 ShortCutKey = 'Ctrl+Alt+Q';
                 ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
 
                 trigger OnAction()
                 begin
-                    Navigate;
+                    Navigate();
                 end;
             }
             action("Update Document")
@@ -797,10 +787,6 @@ page 5975 "Posted Service Shipment"
                 ApplicationArea = Service;
                 Caption = 'Update Document';
                 Image = Edit;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Add new information that is relevant to the document. You can only edit a few fields because the document has already been posted.';
 
                 trigger OnAction()
@@ -811,6 +797,32 @@ page 5975 "Posted Service Shipment"
                     PostedServiceShptUpdate.SetRec(Rec);
                     PostedServiceShptUpdate.RunModal();
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("Update Document_Promoted"; "Update Document")
+                {
+                }
+                actionref("&Print_Promoted"; "&Print")
+                {
+                }
+                actionref("&Navigate_Promoted"; "&Navigate")
+                {
+                }
+                actionref("S&tatistics_Promoted"; "S&tatistics")
+                {
+                }
+                actionref(CertificateOfSupplyDetails_Promoted; CertificateOfSupplyDetails)
+                {
+                }
+                actionref(PrintCertificateofSupply_Promoted; PrintCertificateofSupply)
+                {
+                }
             }
         }
     }
@@ -831,9 +843,9 @@ page 5975 "Posted Service Shipment"
 
     trigger OnOpenPage()
     begin
-        SetSecurityFilterOnRespCenter;
+        SetSecurityFilterOnRespCenter();
 
-        ActivateFields;
+        ActivateFields();
     end;
 
     var

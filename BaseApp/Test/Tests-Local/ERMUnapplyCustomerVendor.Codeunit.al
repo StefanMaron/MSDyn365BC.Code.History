@@ -153,7 +153,7 @@ codeunit 144158 "ERM Unapply Customer Vendor"
     begin
         // Setup: Post Purchase Document, run Calculate and Post VAT Settlement report, update VAT Period closed on Periodic Settlement VAT entry.
         GeneralLedgerSetup.Get();
-        UpdateGeneralLedgerSetup(UnrealizedVAT, CalcDate('<CY - 1Y>', WorkDate));  // TRUE for UnrealizedVAT, Last Settlement Date is set to last date of the previous year to Work Date.
+        UpdateGeneralLedgerSetup(UnrealizedVAT, CalcDate('<CY - 1Y>', WorkDate()));  // TRUE for UnrealizedVAT, Last Settlement Date is set to last date of the previous year to Work Date.
         SetupPostingDateUnrealizedVATType(JournalPostingDate, UnrealizedVATType, UnrealizedVAT);
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         UpdateVATPostingSetup(
@@ -184,8 +184,8 @@ codeunit 144158 "ERM Unapply Customer Vendor"
         UpdateVATPostingSetup(
           VATPostingSetup."VAT Bus. Posting Group", VATPostingSetup."VAT Prod. Posting Group", VATPostingSetup."Unrealized VAT Type");
         UpdateGeneralLedgerSetup(GeneralLedgerSetup."Unrealized VAT", GeneralLedgerSetup."Last Settlement Date");
-        DeletePeriodicSettlementVATEntry(WorkDate);
-        DeletePeriodicSettlementVATEntry(CalcDate('<1M>', WorkDate));  // '1M' required for one month next to Workdate
+        DeletePeriodicSettlementVATEntry(WorkDate());
+        DeletePeriodicSettlementVATEntry(CalcDate('<1M>', WorkDate()));  // '1M' required for one month next to Workdate
     end;
 
     [Test]
@@ -293,7 +293,7 @@ codeunit 144158 "ERM Unapply Customer Vendor"
     begin
         // Setup: Post Sales Document, Run Calculate and Post VAT Settlement report. Update VAT Period closed on Periodic Settlement VAT entry.
         GeneralLedgerSetup.Get();
-        UpdateGeneralLedgerSetup(UnrealizedVAT, CalcDate('<CY - 1Y>', WorkDate));  // TRUE for UnrealizedVAT, Last Settlement Date is set to last date of the previous year to Work Date.
+        UpdateGeneralLedgerSetup(UnrealizedVAT, CalcDate('<CY - 1Y>', WorkDate()));  // TRUE for UnrealizedVAT, Last Settlement Date is set to last date of the previous year to Work Date.
         SetupPostingDateUnrealizedVATType(JournalPostingDate, UnrealizedVATType, UnrealizedVAT);
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         UpdateVATPostingSetup(
@@ -325,8 +325,8 @@ codeunit 144158 "ERM Unapply Customer Vendor"
         UpdateVATPostingSetup(
           VATPostingSetup."VAT Bus. Posting Group", VATPostingSetup."VAT Prod. Posting Group", VATPostingSetup."Unrealized VAT Type");
         UpdateGeneralLedgerSetup(GeneralLedgerSetup."Unrealized VAT", GeneralLedgerSetup."Last Settlement Date");
-        DeletePeriodicSettlementVATEntry(WorkDate);
-        DeletePeriodicSettlementVATEntry(CalcDate('<1M>', WorkDate));  // '1M' required for one month next to Workdate
+        DeletePeriodicSettlementVATEntry(WorkDate());
+        DeletePeriodicSettlementVATEntry(CalcDate('<1M>', WorkDate()));  // '1M' required for one month next to Workdate
     end;
 
     local procedure Initialize()
@@ -424,10 +424,10 @@ codeunit 144158 "ERM Unapply Customer Vendor"
         VATPostingSetup: Record "VAT Posting Setup";
     begin
         if UnrealizedVAT then begin
-            JournalPostingDate := CalcDate('<1M>', WorkDate);
+            JournalPostingDate := CalcDate('<1M>', WorkDate());
             UnrealizedVATType := VATPostingSetup."Unrealized VAT Type"::Percentage;
         end else begin
-            JournalPostingDate := WorkDate;
+            JournalPostingDate := WorkDate();
             UnrealizedVATType := VATPostingSetup."Unrealized VAT Type"::" ";
         end;
     end;
@@ -505,7 +505,7 @@ codeunit 144158 "ERM Unapply Customer Vendor"
     var
         PeriodicSettlementVATEntry: Record "Periodic Settlement VAT Entry";
     begin
-        FindPeriodicSettlementVATEntry(PeriodicSettlementVATEntry, WorkDate);
+        FindPeriodicSettlementVATEntry(PeriodicSettlementVATEntry, WorkDate());
         PeriodicSettlementVATEntry.Validate("VAT Period Closed", false);
         PeriodicSettlementVATEntry.Modify(true);
     end;

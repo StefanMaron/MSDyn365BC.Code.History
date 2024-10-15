@@ -121,6 +121,8 @@ report 497 "Batch Post Purchase Invoices"
 
     var
         Text003: Label 'The exchange rate associated with the new posting date on the purchase header will not apply to the purchase lines.';
+
+    protected var
         PostingDateReq: Date;
         ReplacePostingDate: Boolean;
         ReplaceDocumentDate: Boolean;

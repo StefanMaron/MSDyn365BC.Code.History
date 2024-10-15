@@ -316,7 +316,7 @@ codeunit 135407 "Prepayments Plan-based E2E"
         SalesOrder.OpenEdit;
         SalesOrder.GotoKey(SalesHeader."Document Type"::Order, SalesOrderNo);
         SalesOrder.PostPrepaymentInvoice.Invoke;
-        SalesOrder.Close;
+        SalesOrder.Close();
     end;
 
     local procedure PostSalesOrder(SalesOrderNo: Code[20]; ExpectFailure: Boolean) PostedSalesOrderNo: Code[20]
@@ -339,7 +339,7 @@ codeunit 135407 "Prepayments Plan-based E2E"
         PurchaseOrder.OpenEdit;
         PurchaseOrder.GotoKey(PurchaseHeader."Document Type"::Order, PurchaseOrderNo);
         PurchaseOrder.PostPrepaymentInvoice.Invoke;
-        PurchaseOrder.Close;
+        PurchaseOrder.Close();
     end;
 
     local procedure PostPurchOrder(PurchaseOrderNo: Code[20]; ExpectFailure: Boolean) PostedPurchaseOrderNo: Code[20]
@@ -405,12 +405,12 @@ codeunit 135407 "Prepayments Plan-based E2E"
     begin
         PostedSalesInvoice.OpenEdit;
         PostedSalesInvoice.GotoKey(PostedSalesInvoiceNo);
-        PostedSalesInvoice.SalesInvLines.Next;
+        PostedSalesInvoice.SalesInvLines.Next();
         Assert.AreEqual(Format(SalesLine.Type::Item), PostedSalesInvoice.SalesInvLines.FilteredTypeField.Value, '');
         Assert.IsTrue(
           Evaluate(ItemLineAmount, PostedSalesInvoice.SalesInvLines."Line Amount".Value), 'Evaluate Failed On Item Line Amount');
         ExpectedPrepaymentAmount := -ItemLineAmount * ExpectedPrepaymentPercentage / 100.0;
-        PostedSalesInvoice.SalesInvLines.Next;
+        PostedSalesInvoice.SalesInvLines.Next();
         Assert.AreEqual(Format(SalesLine.Type::"G/L Account"), PostedSalesInvoice.SalesInvLines.FilteredTypeField.Value, '');
         Assert.IsTrue(
           Evaluate(PrepaymentAmount, PostedSalesInvoice.SalesInvLines."Line Amount".Value), 'Evaluate Failed On Prepayment Amount');
@@ -429,12 +429,12 @@ codeunit 135407 "Prepayments Plan-based E2E"
     begin
         PostedPurchaseInvoice.OpenEdit;
         PostedPurchaseInvoice.GotoKey(PostedPurchaseInvoiceNo);
-        PostedPurchaseInvoice.PurchInvLines.Next;
+        PostedPurchaseInvoice.PurchInvLines.Next();
         Assert.AreEqual(Format(PurchaseLine.Type::Item), PostedPurchaseInvoice.PurchInvLines.FilteredTypeField.Value, '');
         Assert.IsTrue(
           Evaluate(ItemLineAmount, PostedPurchaseInvoice.PurchInvLines."Line Amount".Value), 'Evaluate Failed On Item Line Amount');
         ExpectedPrepaymentAmount := -ItemLineAmount * ExpectedPrepaymentPercentage / 100.0;
-        PostedPurchaseInvoice.PurchInvLines.Next;
+        PostedPurchaseInvoice.PurchInvLines.Next();
         Assert.AreEqual(Format(PurchaseLine.Type::"G/L Account"), PostedPurchaseInvoice.PurchInvLines.FilteredTypeField.Value, '');
         Assert.IsTrue(
           Evaluate(PrepaymentAmount, PostedPurchaseInvoice.PurchInvLines."Line Amount".Value), 'Evaluate Failed On Prepayment Amount');
@@ -486,7 +486,7 @@ codeunit 135407 "Prepayments Plan-based E2E"
     procedure PostedSalesInvoicePageHandler(var PostedSalesInvoice: TestPage "Posted Sales Invoice")
     begin
         LibraryVariableStorage.Enqueue(PostedSalesInvoice."No.".Value);
-        PostedSalesInvoice.Close;
+        PostedSalesInvoice.Close();
     end;
 
     [PageHandler]
@@ -494,7 +494,7 @@ codeunit 135407 "Prepayments Plan-based E2E"
     procedure PostedPurchInvoicePageHandler(var PostedPurchaseInvoice: TestPage "Posted Purchase Invoice")
     begin
         LibraryVariableStorage.Enqueue(PostedPurchaseInvoice."No.".Value);
-        PostedPurchaseInvoice.Close;
+        PostedPurchaseInvoice.Close();
     end;
 
     local procedure CreateSalesPrepmtInvNosInSetup()
@@ -515,7 +515,7 @@ codeunit 135407 "Prepayments Plan-based E2E"
         GeneralPostingSetup.FindSet();
         repeat
             AttachSalesPrepaymentAccountInSetup(GeneralPostingSetup, GLAccountNo);
-        until GeneralPostingSetup.Next = 0;
+        until GeneralPostingSetup.Next() = 0;
     end;
 
     local procedure AttachSalesPrepaymentAccountInSetup(var GeneralPostingSetup: Record "General Posting Setup"; SalesPrepaymentsAccount: Code[20]) SalesPrepaymentsAccountOld: Code[20]
@@ -543,7 +543,7 @@ codeunit 135407 "Prepayments Plan-based E2E"
         GeneralPostingSetup.FindSet();
         repeat
             AttachPurchPrepaymentAccountInSetup(GeneralPostingSetup, GLAccountNo);
-        until GeneralPostingSetup.Next = 0;
+        until GeneralPostingSetup.Next() = 0;
     end;
 
     local procedure AttachPurchPrepaymentAccountInSetup(var GeneralPostingSetup: Record "General Posting Setup"; PurchPrepaymentsAccount: Code[20]) PurchPrepaymentsAccountOld: Code[20]

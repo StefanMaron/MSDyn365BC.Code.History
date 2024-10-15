@@ -39,8 +39,8 @@ report 6653 "Combine Return Receipts"
                             if Cust.Blocked <> Cust.Blocked::All then begin
                                 if ShouldFinalizeSalesInvHeader(SalesOrderHeader, SalesHeader, "Return Receipt Line") then begin
                                     if SalesHeader."No." <> '' then
-                                        FinalizeSalesInvHeader;
-                                    InsertSalesInvHeader;
+                                        FinalizeSalesInvHeader();
+                                    InsertSalesInvHeader();
                                     SalesLine.SetRange("Document Type", SalesHeader."Document Type");
                                     SalesLine.SetRange("Document No.", SalesHeader."No.");
                                     SalesLine."Document Type" := SalesHeader."Document Type";
@@ -82,8 +82,8 @@ report 6653 "Combine Return Receipts"
 
             trigger OnPostDataItem()
             begin
-                CurrReport.Language := GlobalLanguage;
-                Window.Close;
+                CurrReport.Language := ReportLanguage;
+                Window.Close();
                 ShowResult();
             end;
 
@@ -116,6 +116,7 @@ report 6653 "Combine Return Receipts"
                   Text005);
 
                 OnAfterSalesOrderHeaderOnPreDataItem(SalesOrderHeader);
+                ReportLanguage := CurrReport.Language();
             end;
         }
     }
@@ -191,9 +192,9 @@ report 6653 "Combine Return Receipts"
         trigger OnOpenPage()
         begin
             if PostingDateReq = 0D then
-                PostingDateReq := WorkDate;
+                PostingDateReq := WorkDate();
             if DocDateReq = 0D then
-                DocDateReq := WorkDate;
+                DocDateReq := WorkDate();
             SalesSetup.Get();
             CalcInvDisc := SalesSetup."Calc. Inv. Discount";
         end;
@@ -204,15 +205,6 @@ report 6653 "Combine Return Receipts"
     }
 
     var
-        Text000: Label 'Enter the posting date.';
-        Text001: Label 'Enter the document date.';
-        Text002: Label 'Combining return receipts...\\';
-        Text003: Label 'Customer No.        #1##########\';
-        Text004: Label 'Return Order No.    #2##########\';
-        Text005: Label 'Return Receipt No.  #3##########';
-        Text007: Label 'Not all the credit memos were posted. A total of %1 credit memos were not posted.';
-        Text008: Label 'There is nothing to combine.';
-        Text010: Label 'The return receipts are now combined and the number of credit memos created is %1.';
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
         ReturnRcptLine: Record "Return Receipt Line";
@@ -223,22 +215,35 @@ report 6653 "Combine Return Receipts"
         SalesPost: Codeunit "Sales-Post";
         DimMgt: Codeunit DimensionManagement;
         Window: Dialog;
-        PostingDateReq: Date;
-        DocDateReq: Date;
-        CalcInvDisc: Boolean;
-        PostInv: Boolean;
         NoOfSalesInvErrors: Integer;
         NoOfSalesInv: Integer;
         OperationType: Record "No. Series";
         LocalAppMgt: Codeunit LocalApplicationManagement;
         OperationDateFrom: Date;
         OperationDateTo: Date;
+        ReportLanguage: Integer;
         Text1130000: Label 'Insert the Date ';
         Text1130001: Label '[Combine Return Receipts From]';
         Text1130002: Label '[Combine Return Receipts To]';
         Text1130003: Label '[Posting]';
         Text1130004: Label '[Document]';
         Text1130009: Label 'The filter on %1 must be specified in the request form.';
+
+        Text000: Label 'Enter the posting date.';
+        Text001: Label 'Enter the document date.';
+        Text002: Label 'Combining return receipts...\\';
+        Text003: Label 'Customer No.        #1##########\';
+        Text004: Label 'Return Order No.    #2##########\';
+        Text005: Label 'Return Receipt No.  #3##########';
+        Text007: Label 'Not all the credit memos were posted. A total of %1 credit memos were not posted.';
+        Text008: Label 'There is nothing to combine.';
+        Text010: Label 'The return receipts are now combined and the number of credit memos created is %1.';
+
+    protected var
+        PostingDateReq: Date;
+        DocDateReq: Date;
+        CalcInvDisc: Boolean;
+        PostInv: Boolean;
 
     local procedure FinalizeSalesInvHeader()
     var
@@ -249,7 +254,7 @@ report 6653 "Combine Return Receipts"
         with SalesHeader do begin
             if CalcInvDisc then
                 SalesCalcDisc.Run(SalesLine);
-            Find;
+            Find();
             Commit();
             Clear(SalesCalcDisc);
             Clear(SalesPost);
@@ -272,7 +277,7 @@ report 6653 "Combine Return Receipts"
         OnBeforeInsertSalesInvHeader(SalesHeader, SalesOrderHeader, "Return Receipt Header", "Return Receipt Line", NoOfSalesInv, IsHandled);
         if not IsHandled then
             with SalesHeader do begin
-                Init;
+                Init();
                 "Document Type" := "Document Type"::"Credit Memo";
                 "No." := '';
 
@@ -295,7 +300,7 @@ report 6653 "Combine Return Receipts"
                 "Dimension Set ID" := SalesOrderHeader."Dimension Set ID";
                 OnBeforeSalesCrMemoHeaderModify(SalesHeader, SalesOrderHeader);
 
-                Modify;
+                Modify();
                 Commit();
             end;
 

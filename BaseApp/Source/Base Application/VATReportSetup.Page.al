@@ -15,18 +15,18 @@ page 743 "VAT Report Setup"
             group(General)
             {
                 Caption = 'General';
-                field("Modify Submitted Reports"; "Modify Submitted Reports")
+                field("Modify Submitted Reports"; Rec."Modify Submitted Reports")
                 {
                     ApplicationArea = VAT;
                     ToolTip = 'Specifies if users can modify VAT reports that have been submitted to the tax authorities. If the field is left blank, users must create a corrective or supplementary VAT report instead.';
                 }
-                field("Filter Datifattura Lines"; "Filter Datifattura Lines")
+                field("Filter Datifattura Lines"; Rec."Filter Datifattura Lines")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Enable Datifattura Lines Filtering';
                     ToolTip = 'Specifies if the request page must be shown when suggesting Datifattura lines to allow setting a filter for the entries that will be considered.';
                 }
-                field("Report VAT Note"; "Report VAT Note")
+                field("Report VAT Note"; Rec."Report VAT Note")
                 {
                     ApplicationArea = VAT;
                     ToolTip = 'Specifies if the VAT Note field is available for reporting from the VAT Return card page.';
@@ -35,7 +35,7 @@ page 743 "VAT Report Setup"
             group(Numbering)
             {
                 Caption = 'Numbering';
-                field("No. Series"; "No. Series")
+                field("No. Series"; Rec."No. Series")
                 {
                     ApplicationArea = VAT;
                     ToolTip = 'Specifies the number series that will be used for standard VAT reports.';
@@ -44,17 +44,17 @@ page 743 "VAT Report Setup"
             group(Intermediary)
             {
                 Caption = 'Intermediary';
-                field("Intermediary VAT Reg. No."; "Intermediary VAT Reg. No.")
+                field("Intermediary VAT Reg. No."; Rec."Intermediary VAT Reg. No.")
                 {
                     ApplicationArea = VAT;
                     ToolTip = 'Specifies the VAT registration number of your company or your tax representative.';
                 }
-                field("Intermediary CAF Reg. No."; "Intermediary CAF Reg. No.")
+                field("Intermediary CAF Reg. No."; Rec."Intermediary CAF Reg. No.")
                 {
                     ApplicationArea = VAT;
                     ToolTip = 'Specifies the registration number of the intermediary in the registry of tax assistance centers (CAF).';
                 }
-                field("Intermediary Date"; "Intermediary Date")
+                field("Intermediary Date"; Rec."Intermediary Date")
                 {
                     ApplicationArea = VAT;
                     ToolTip = 'Specifies the date that the intermediary processed the VAT report.';
@@ -73,10 +73,10 @@ page 743 "VAT Report Setup"
 
     trigger OnOpenPage()
     begin
-        Reset;
-        if not Get then begin
-            Init;
-            Insert;
+        Reset();
+        if not Get() then begin
+            Init();
+            Insert();
         end;
     end;
 }

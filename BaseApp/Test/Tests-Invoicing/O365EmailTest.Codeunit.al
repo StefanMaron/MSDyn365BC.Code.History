@@ -1,3 +1,4 @@
+#if not CLEAN21
 codeunit 138908 "O365 Email Test"
 {
     Subtype = Test;
@@ -266,4 +267,4 @@ codeunit 138908 "O365 Email Test"
         Assert.Fail('No notification should be thrown.');
     end;
 }
-
+#endif

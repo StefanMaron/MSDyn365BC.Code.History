@@ -30,7 +30,7 @@
                     DrillDownPageID = "Customer List";
                     ToolTip = 'Specifies the number of customer that are blocked from further sales.';
                 }
-                field("Customer Bills"; "Customer Bills")
+                field("Customer Bills"; Rec."Customer Bills")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDownPageID = "List of Customer Bills";

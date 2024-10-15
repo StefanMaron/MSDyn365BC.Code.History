@@ -59,7 +59,7 @@ codeunit 144168 "ERM Company Information"
         Initialize();
         GLAccountNo := CreateGLAccount(IncomeBalance);
         CreateAndPostGeneralJournalLine(GLAccountNo);
-        EnqueueValuesForRequestPageHandler(GLAccountNo, WorkDate);  // Enqueue values for AccountBookPrintRequestPageHandler.
+        EnqueueValuesForRequestPageHandler(GLAccountNo, WorkDate());  // Enqueue values for AccountBookPrintRequestPageHandler.
 
         // Exercise.
         REPORT.Run(REPORT::"Account Book Sheet - Print");
@@ -78,7 +78,7 @@ codeunit 144168 "ERM Company Information"
         // Test to verify Company Information on the Report - Account Book Print when Date Filter applied.
         // Setup: Enqueue values for AccountBookPrintRequestPageHandler.
         Initialize();
-        EnqueueValuesForRequestPageHandler('', WorkDate);  // G/L Account No. as blank.
+        EnqueueValuesForRequestPageHandler('', WorkDate());  // G/L Account No. as blank.
 
         // Exercise.
         REPORT.Run(REPORT::"Account Book Sheet - Print");

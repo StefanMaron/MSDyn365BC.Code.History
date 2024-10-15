@@ -1819,7 +1819,7 @@ codeunit 144200 "FatturaPA Test"
         SalesHeader.Validate("Payment Terms Code", CreatePaymentTerms);
         SalesHeader.Modify(true);
         CreateSalesLineWithVATPostingGroup(SalesLine, SalesHeader, SalesLine.Type::Item, VATPostingSetup."VAT Prod. Posting Group");
-        DocumentNo := NoSeriesManagement.GetNextNo(SalesHeader."Posting No. Series", WorkDate, false);
+        DocumentNo := NoSeriesManagement.GetNextNo(SalesHeader."Posting No. Series", WorkDate(), false);
     end;
 
     local procedure CreatePaymentMethod(): Code[10]
@@ -1975,23 +1975,23 @@ codeunit 144200 "FatturaPA Test"
             repeat
                 if not IsSplitPaymentLine(LineRecRef) then
                     VerifyOrderData(TempXMLBuffer, HeaderRecRef, OrderNo);
-            until LineRecRef.Next = 0;
+            until LineRecRef.Next() = 0;
 
             // fill in LineData
             LineRecRef.FindFirst();
             repeat
                 if not IsSplitPaymentLine(LineRecRef) then
                     VerifyLineData(TempXMLBuffer, LineRecRef, ItemGTIN, VATTransactionNature);
-            until LineRecRef.Next = 0;
+            until LineRecRef.Next() = 0;
 
             // fill in LineVATData
             LineRecRef.FindFirst();
             repeat
                 if not IsSplitPaymentLine(LineRecRef) then
                     VerifyLineVATData(TempXMLBuffer, LineRecRef, IsSplitPayment, VATTransactionNature);
-            until LineRecRef.Next = 0;
+            until LineRecRef.Next() = 0;
 
-            GetParent;
+            GetParent();
             VerifyPaymentData(TempXMLBuffer, HeaderRecRef);
         end;
     end;
@@ -2003,7 +2003,7 @@ codeunit 144200 "FatturaPA Test"
                 LineRecRef.FindFirst();
                 exit(true);
             end;
-        until LineRecRef.Next = 0;
+        until LineRecRef.Next() = 0;
         LineRecRef.FindFirst();
         exit(false)
     end;
@@ -2260,8 +2260,8 @@ codeunit 144200 "FatturaPA Test"
                     end else
                         AssertElementValue(TempXMLBuffer, 'Denominazione', TaxRepresentativeVendor.Name);
 
-                    GetParent;
-                    GetParent;
+                    GetParent();
+                    GetParent();
                 end;
         end;
     end;
@@ -2297,8 +2297,8 @@ codeunit 144200 "FatturaPA Test"
             AssertElementValue(TempXMLBuffer, 'Comune', Customer.City);
             AssertElementValue(TempXMLBuffer, 'Provincia', Customer.County);
             AssertElementValue(TempXMLBuffer, 'Nazione', Customer."Country/Region Code");
-            GetParent;
-            GetParent;
+            GetParent();
+            GetParent();
         end;
     end;
 
@@ -2362,10 +2362,10 @@ codeunit 144200 "FatturaPA Test"
                 if not IsSplitPaymentLine(LineRecRef) then
                     if Evaluate(AmountInclVAT, Format(LineRecRef.Field(LineAmountIncludingVATFieldNo).Value)) then
                         TotalAmount += AmountInclVAT;
-            until LineRecRef.Next = 0;
+            until LineRecRef.Next() = 0;
 
             AssertElementValue(TempXMLBuffer, 'ImportoTotaleDocumento', FormatAmount(TotalAmount));
-            GetParent;
+            GetParent();
         end;
     end;
 
@@ -2617,7 +2617,7 @@ codeunit 144200 "FatturaPA Test"
     local procedure AssertElementValue(var TempXMLBuffer: Record "XML Buffer" temporary; ElementName: Text; ElementValue: Text)
     begin
         FindNextElement(TempXMLBuffer);
-        Assert.AreEqual(ElementName, TempXMLBuffer.GetElementName,
+        Assert.AreEqual(ElementName, TempXMLBuffer.GetElementName(),
           StrSubstNo(UnexpectedElementNameErr, ElementName, TempXMLBuffer.GetElementName));
         Assert.AreEqual(ElementValue, TempXMLBuffer.Value,
           StrSubstNo(UnexpectedElementValueErr, ElementName, ElementValue, TempXMLBuffer.Value));
@@ -2628,14 +2628,14 @@ codeunit 144200 "FatturaPA Test"
         if TempXMLBuffer.HasChildNodes then
             TempXMLBuffer.FindChildElements(TempXMLBuffer)
         else
-            if not (TempXMLBuffer.Next > 0) then begin
+            if not (TempXMLBuffer.Next() > 0) then begin
                 TempXMLBuffer.GetParent;
                 TempXMLBuffer.SetRange("Parent Entry No.", TempXMLBuffer."Parent Entry No.");
-                if not (TempXMLBuffer.Next > 0) then
+                if not (TempXMLBuffer.Next() > 0) then
                     repeat
                         TempXMLBuffer.GetParent;
                         TempXMLBuffer.SetRange("Parent Entry No.", TempXMLBuffer."Parent Entry No.");
-                    until (TempXMLBuffer.Next > 0);
+                    until (TempXMLBuffer.Next() > 0);
             end;
     end;
 

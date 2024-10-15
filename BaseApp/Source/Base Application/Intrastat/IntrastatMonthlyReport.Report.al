@@ -29,7 +29,7 @@
                 column(STRSUBSTNO_Text002__Intrastat_Jnl__Batch___Statistics_Period__; StrSubstNo(Text002, "Intrastat Jnl. Batch"."Statistics Period"))
                 {
                 }
-                column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+                column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
                 {
                 }
                 column(USERID; UserId)
@@ -242,15 +242,9 @@
                 column(Intrastat_Jnl__Line__Country_Region_Code_Caption; FieldCaption("Country/Region Code"))
                 {
                 }
-#if CLEAN18
                 column(Intrastat_Jnl__Line__VAT_Registration_No__Caption; Intra___form_Buffer__VAT_Registration_No__CaptionLbl)
                 {
                 }
-#else
-                column(Intrastat_Jnl__Line__VAT_Registration_No__Caption; FieldCaption("VAT Registration No."))
-                {
-                }
-#endif
                 column(RoundAmount_Control1130016Caption; RoundAmount_Control1130016CaptionLbl)
                 {
                 }
@@ -278,15 +272,9 @@
                 column(Intrastat_Jnl__Line__Country_Region_Code__Control1130121Caption; FieldCaption("Country/Region Code"))
                 {
                 }
-#if CLEAN18
                 column(Intrastat_Jnl__Line__VAT_Registration_No___Control1130123Caption; Intra___form_Buffer__VAT_Registration_No__CaptionLbl)
                 {
                 }
-#else
-                column(Intrastat_Jnl__Line__VAT_Registration_No___Control1130123Caption; FieldCaption("VAT Registration No."))
-                {
-                }
-#endif
                 column(RoundAmount_Control1130125Caption; RoundAmount_Control1130125CaptionLbl)
                 {
                 }
@@ -329,15 +317,9 @@
                 column(Intrastat_Jnl__Line__Country_Region_Code__Control1130153Caption; FieldCaption("Country/Region Code"))
                 {
                 }
-#if CLEAN18
                 column(Intrastat_Jnl__Line__VAT_Registration_No___Control1130155Caption; Intra___form_Buffer__VAT_Registration_No__CaptionLbl)
                 {
                 }
-#else
-                column(Intrastat_Jnl__Line__VAT_Registration_No___Control1130155Caption; FieldCaption("VAT Registration No."))
-                {
-                }
-#endif
                 column(RoundAmount_Control1130157Caption; RoundAmount_Control1130157CaptionLbl)
                 {
                 }
@@ -377,15 +359,9 @@
                 column(Intrastat_Jnl__Line__Country_Region_Code__Control1130181Caption; FieldCaption("Country/Region Code"))
                 {
                 }
-#if CLEAN18
                 column(Intrastat_Jnl__Line__VAT_Registration_No___Control1130183Caption; Intra___form_Buffer__VAT_Registration_No__CaptionLbl)
                 {
                 }
-#else
-                column(Intrastat_Jnl__Line__VAT_Registration_No___Control1130183Caption; FieldCaption("VAT Registration No."))
-                {
-                }
-#endif
                 column(RoundAmount_Control1130185Caption; RoundAmount_Control1130185CaptionLbl)
                 {
                 }
@@ -427,7 +403,7 @@
                         TestField("Service Tariff No.");
                         NoOfRecords := NoOfRecords + 1;
                         RoundAmount := Round(Amount, 1);
-                        GetPaymentMethod;
+                        GetPaymentMethod();
                     end else
                         if not "Intrastat Jnl. Batch"."Corrective Entry" then begin
                             if ("Tariff No." = '') and

@@ -1,4 +1,4 @@
-codeunit 134326 "ERM Purchase Blanket Order"
+﻿codeunit 134326 "ERM Purchase Blanket Order"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -86,7 +86,7 @@ codeunit 134326 "ERM Purchase Blanket Order"
         Assert.AreNearlyEqual(
           PurchaseHeader.Amount * PurchaseLine."VAT %" / 100, VATAmountLine."VAT Amount", GeneralLedgerSetup."Amount Rounding Precision",
           StrSubstNo(AmountErrorMessage, VATAmountLine.FieldCaption("VAT Amount"), PurchaseHeader.Amount * PurchaseLine."VAT %" / 100,
-            VATAmountLine.TableCaption));
+            VATAmountLine.TableCaption()));
     end;
 
     [Test]
@@ -215,7 +215,7 @@ codeunit 134326 "ERM Purchase Blanket Order"
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type"::Order);
         PurchaseLine.FindFirst();
         Assert.AreNearlyEqual(InvDiscountAmount, PurchaseLine."Inv. Discount Amount", GeneralLedgerSetup."Amount Rounding Precision",
-          StrSubstNo(AmountErrorMessage, PurchaseLine.FieldCaption("Inv. Discount Amount"), InvDiscountAmount, PurchaseLine.TableCaption));
+          StrSubstNo(AmountErrorMessage, PurchaseLine.FieldCaption("Inv. Discount Amount"), InvDiscountAmount, PurchaseLine.TableCaption()));
     end;
 
     [Test]
@@ -249,7 +249,7 @@ codeunit 134326 "ERM Purchase Blanket Order"
         PurchaseLine: Record "Purchase Line";
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
-        // [SCENARIO] Check that blank Posting Date is populating on the created Purchase Order from Blanket Order while Default Posting Date is set to No Date on the Purchase & Payables Setup
+        // [SCENARIO] Check that blank Posting Date is populating on the created Purchase Order from Blanket Order while Default Posting Date is set to No Date on the Purchase & Payables Setup.
 
         // Setup: Update Purchase & Payables Setup and create a Purchase Blanket Order.
         Initialize();
@@ -1399,18 +1399,18 @@ codeunit 134326 "ERM Purchase Blanket Order"
     local procedure MockPurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20])
     begin
         with PurchaseHeader do begin
-            Init;
+            Init();
             "Document Type" := DocumentType;
             "No." := LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::"Purchase Header");
             "Buy-from Vendor No." := VendorNo;
-            Insert;
+            Insert();
         end;
     end;
 
     local procedure MockPurchaseLine(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; LineType: Enum "Purchase Line Type")
     begin
         with PurchaseLine do begin
-            Init;
+            Init();
             "Document Type" := PurchaseHeader."Document Type";
             "Document No." := PurchaseHeader."No.";
             "Line No." := LibraryUtility.GetNewRecNo(PurchaseLine, FieldNo("Line No."));
@@ -1420,7 +1420,7 @@ codeunit 134326 "ERM Purchase Blanket Order"
             "Quantity Invoiced" := LibraryRandom.RandInt(10);
             "Direct Unit Cost" := LibraryRandom.RandDec(10, 2);
             "Line Amount" := Quantity * "Direct Unit Cost";
-            Insert;
+            Insert();
         end;
     end;
 
@@ -1438,7 +1438,7 @@ codeunit 134326 "ERM Purchase Blanket Order"
         PurchaseLine.SetRange("Document Type", DocumentType);
         PurchaseLine.SetRange(Type, PurchaseLine.Type::" ");  // Blank value for Type.
         PurchaseLine.SetRange(Description, Description);
-        exit(PurchaseLine.FindFirst);
+        exit(PurchaseLine.FindFirst())
     end;
 
     local procedure FindPurchaseLine(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; BuyFromVendorNo: Code[20])

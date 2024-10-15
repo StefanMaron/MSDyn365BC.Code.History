@@ -238,8 +238,8 @@ codeunit 144149 "UT REP Report"
           CustomerBillHeader, LibraryERM.CreateBankAccountNo, PaymentMethod.Code, CustomerBillHeader.Type::"Bills Subject To Collection");
 
         // [GIVEN] 2 lines for Customer with same Due Date = "Date1" with Cumulative Bank Receipts = True
-        CreateCustomerBillLine(CustomerBillHeader, Customer, LibraryRandom.RandDec(500, 2), WorkDate, true);
-        CreateCustomerBillLine(CustomerBillHeader, Customer, LibraryRandom.RandDec(500, 2), WorkDate, true);
+        CreateCustomerBillLine(CustomerBillHeader, Customer, LibraryRandom.RandDec(500, 2), WorkDate(), true);
+        CreateCustomerBillLine(CustomerBillHeader, Customer, LibraryRandom.RandDec(500, 2), WorkDate(), true);
 
         // [GIVEN] 2 lines for Customer with same Due Date = "Date2" with Cumulative Bank Receipts = True
         CreateCustomerBillLine(CustomerBillHeader, Customer, LibraryRandom.RandDec(500, 2), WorkDate + 1, true);
@@ -297,7 +297,7 @@ codeunit 144149 "UT REP Report"
     begin
         LifoBand.Definitive := false;
         LifoBand.Positive := true;
-        LifoBand."Competence Year" := WorkDate;
+        LifoBand."Competence Year" := WorkDate();
         LifoBand."Item No." := CreateItem;
         LifoBand."Increment Value" := IncrementValue;
         LifoBand."Residual Quantity" := LibraryRandom.RandDec(100, 2);
@@ -320,7 +320,7 @@ codeunit 144149 "UT REP Report"
 
     local procedure CreateVATPlafondPeriod(var VATPlafondPeriod: Record "VAT Plafond Period")
     begin
-        VATPlafondPeriod.Year := Date2DMY(WorkDate, 3);
+        VATPlafondPeriod.Year := Date2DMY(WorkDate(), 3);
         VATPlafondPeriod.Amount := LibraryRandom.RandDec(100, 2);
         VATPlafondPeriod.Insert();
     end;
@@ -344,7 +344,7 @@ codeunit 144149 "UT REP Report"
         else
             NewLineNo := 10000;
         with CustomerBillLine do begin
-            Init;
+            Init();
             "Customer No." := Customer."No.";
             "Customer Bill No." := CustomerBillHeader."No.";
             "Line No." := NewLineNo;
@@ -352,7 +352,7 @@ codeunit 144149 "UT REP Report"
             "Due Date" := DueDate;
             "Cumulative Bank Receipts" := CumulativeBankReceipts;
             "Customer Bank Acc. No." := CustomerBillHeader."Bank Account No.";
-            Insert;
+            Insert();
         end;
     end;
 
@@ -368,8 +368,8 @@ codeunit 144149 "UT REP Report"
         CustLedgerEntry."Customer No." := CustomerNo;
         CustLedgerEntry."Document No." :=
           LibraryUtility.GenerateRandomCode(CustLedgerEntry.FieldNo("Document No."), DATABASE::"Cust. Ledger Entry");
-        CustLedgerEntry."Posting Date" := WorkDate;
-        CustLedgerEntry."Due Date" := WorkDate;
+        CustLedgerEntry."Posting Date" := WorkDate();
+        CustLedgerEntry."Due Date" := WorkDate();
         CustLedgerEntry."Document Type" := DocumentType;
         CustLedgerEntry.Insert();
         exit(CustLedgerEntry."Entry No.");
@@ -388,7 +388,7 @@ codeunit 144149 "UT REP Report"
         DetailedCustLedgEntry."Cust. Ledger Entry No." := CustLedgerEntryNo;
         DetailedCustLedgEntry."Entry Type" := DetailedCustLedgEntry."Entry Type"::Application;
         DetailedCustLedgEntry."Transaction No." := TransactionNo;
-        DetailedCustLedgEntry."Posting Date" := WorkDate;
+        DetailedCustLedgEntry."Posting Date" := WorkDate();
         DetailedCustLedgEntry."Bank Receipt" := BankReceipt;
         DetailedCustLedgEntry."Bank Receipt Issued" := BankReceiptIssued;
         DetailedCustLedgEntry.Insert();
@@ -421,7 +421,7 @@ codeunit 144149 "UT REP Report"
     [Scope('OnPrem')]
     procedure LIFOEntriesReqPageHandler(var LifoEntries: TestRequestPage "Lifo Entries")
     begin
-        LifoEntries."Lifo Band".SetFilter("Competence Year", Format(WorkDate));
+        LifoEntries."Lifo Band".SetFilter("Competence Year", Format(WorkDate()));
         LifoEntries.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 
@@ -429,7 +429,7 @@ codeunit 144149 "UT REP Report"
     [Scope('OnPrem')]
     procedure LIFOValuationReqPageHandler(var LifoValuation: TestRequestPage "LIFO Valuation")
     begin
-        LifoValuation."Lifo Band".SetFilter("Competence Year", Format(WorkDate));
+        LifoValuation."Lifo Band".SetFilter("Competence Year", Format(WorkDate()));
         LifoValuation.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 
@@ -437,7 +437,7 @@ codeunit 144149 "UT REP Report"
     [Scope('OnPrem')]
     procedure VATPlafondPeriodReqPageHandler(var VATPlafondPeriod: TestRequestPage "VAT Plafond Period")
     begin
-        VATPlafondPeriod.VATPlafondPeriod.SetFilter(Year, Format(Date2DMY(WorkDate, 3)));
+        VATPlafondPeriod.VATPlafondPeriod.SetFilter(Year, Format(Date2DMY(WorkDate(), 3)));
         VATPlafondPeriod.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 

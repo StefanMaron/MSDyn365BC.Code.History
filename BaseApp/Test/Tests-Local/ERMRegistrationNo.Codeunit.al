@@ -191,7 +191,7 @@ codeunit 144184 "ERM Registration No."
         No: Variant;
     begin
         LibraryVariableStorage.Dequeue(No);
-        CustomerBillsList."Ending Date".SetValue(WorkDate);
+        CustomerBillsList."Ending Date".SetValue(WorkDate());
         CustomerBillsList.Customer.SetFilter("No.", No);
         CustomerBillsList.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
@@ -204,7 +204,7 @@ codeunit 144184 "ERM Registration No."
     begin
         LibraryVariableStorage.Dequeue(No);
         VendorAccountBillsList.Vendor.SetFilter("No.", No);
-        VendorAccountBillsList.EndingDate.SetValue(WorkDate);
+        VendorAccountBillsList.EndingDate.SetValue(WorkDate());
         VendorAccountBillsList.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 }

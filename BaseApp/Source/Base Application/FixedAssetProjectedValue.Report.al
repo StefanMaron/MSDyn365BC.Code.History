@@ -1,4 +1,4 @@
-report 5607 "Fixed Asset - Projected Value"
+﻿report 5607 "Fixed Asset - Projected Value"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './FixedAssetProjectedValue.rdlc';
@@ -13,13 +13,13 @@ report 5607 "Fixed Asset - Projected Value"
         {
             DataItemTableView = SORTING("No.");
             RequestFilterFields = "No.", "FA Class Code", "FA Subclass Code", "Budgeted Asset";
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(DeprBookText; DeprBookText)
             {
             }
-            column(FixedAssetFilter; "Fixed Asset".TableCaption + ': ' + FAFilter)
+            column(FixedAssetFilter; TableCaption + ': ' + FAFilter)
             {
             }
             column(FAFilter; FAFilter)
@@ -64,7 +64,7 @@ report 5607 "Fixed Asset - Projected Value"
             column(DeprText; DeprText2)
             {
             }
-            column(GroupTotalHeadLine; Text002 + ': ' + GroupHeadLine)
+            column(GroupTotalHeadLine; GroupTotalTxt + ': ' + GroupHeadLine)
             {
             }
             column(GroupAmounts2; GroupAmounts[2])
@@ -278,23 +278,21 @@ report 5607 "Fixed Asset - Projected Value"
                 trigger OnAfterGetRecord()
                 begin
                     if UntilDate >= EndingDate then
-                        CurrReport.Break
-                    else begin
-                        if Number = 1 then begin
-                            CalculateFirstDeprAmount(Done);
-                            if FADeprBook."Book Value" <> 0 then
-                                Done := Done or not EntryPrinted;
-                        end else
-                            CalculateSecondDeprAmount(Done);
-                        if Done then
-                            UpdateTotals
-                        else
-                            UpdateGroupTotals;
-                    end;
+                        CurrReport.Break();
+                    if Number = 1 then begin
+                        CalculateFirstDeprAmount(Done);
+                        if FADeprBook."Book Value" <> 0 then
+                            Done := Done or not EntryPrinted;
+                    end else
+                        CalculateSecondDeprAmount(Done);
+                    if Done then
+                        UpdateTotals()
+                    else
+                        UpdateGroupTotals();
 
                     if Done then
                         if DoProjectedDisposal then
-                            CalculateGainLoss;
+                            CalculateGainLoss();
                 end;
 
                 trigger OnPostDataItem()
@@ -326,19 +324,19 @@ report 5607 "Fixed Asset - Projected Value"
                 end;
 
                 if NewValue <> OldValue then begin
-                    MakeGroupHeadLine;
-                    InitGroupTotals;
+                    MakeGroupHeadLine();
+                    InitGroupTotals();
                     OldValue := NewValue;
                 end;
 
                 if not FADeprBook.Get("No.", DeprBookCode) then
                     CurrReport.Skip();
-                if SkipRecord then
+                if SkipRecord() then
                     CurrReport.Skip();
 
                 if GroupTotals = GroupTotals::"FA Posting Group" then
                     if "FA Posting Group" <> FADeprBook."FA Posting Group" then
-                        Error(Text004, FieldCaption("FA Posting Group"), "No.");
+                        Error(HasBeenModifiedInFAErr, FieldCaption("FA Posting Group"), "No.");
 
                 StartingDate := StartingDate2;
                 EndingDate := EndingDate2;
@@ -354,7 +352,7 @@ report 5607 "Fixed Asset - Projected Value"
                     DoProjectedDisposal := true;
                 end;
 
-                TransferValues;
+                TransferValues();
             end;
 
             trigger OnPreDataItem()
@@ -377,8 +375,8 @@ report 5607 "Fixed Asset - Projected Value"
                 end;
 
                 GroupTotalsInt := GroupTotals;
-                MakeGroupHeadLine;
-                InitGroupTotals;
+                MakeGroupHeadLine();
+                InitGroupTotals();
             end;
         }
         dataitem(ProjectionTotal; "Integer")
@@ -449,16 +447,16 @@ report 5607 "Fixed Asset - Projected Value"
             column(GroupCodeName2; GroupCodeName2)
             {
             }
-            column(FABufferProjectionFAPostingDate; Format(FABufferProjection."FA Posting Date"))
+            column(FABufferProjectionFAPostingDate; Format(TempFABufferProjection."FA Posting Date"))
             {
             }
-            column(FABufferProjectionDepre; FABufferProjection.Depreciation)
+            column(FABufferProjectionDepre; TempFABufferProjection.Depreciation)
             {
             }
-            column(FABufferProjectionCustom1; FABufferProjection."Custom 1")
+            column(FABufferProjectionCustom1; TempFABufferProjection."Custom 1")
             {
             }
-            column(FABufferProjectionCodeName; FABufferProjection."Code Name")
+            column(FABufferProjectionCodeName; TempFABufferProjection."Code Name")
             {
             }
             column(ProjectedAmtspecDtCaption; ProjectedAmtspecDtCaptionLbl)
@@ -477,10 +475,10 @@ report 5607 "Fixed Asset - Projected Value"
             trigger OnAfterGetRecord()
             begin
                 if Number = 1 then begin
-                    if not FABufferProjection.Find('-') then
+                    if not TempFABufferProjection.Find('-') then
                         CurrReport.Break();
                 end else
-                    if FABufferProjection.Next() = 0 then
+                    if TempFABufferProjection.Next() = 0 then
                         CurrReport.Break();
             end;
 
@@ -488,7 +486,7 @@ report 5607 "Fixed Asset - Projected Value"
             begin
                 if not PrintAmountsPerDate then
                     CurrReport.Break();
-                FABufferProjection.Reset();
+                TempFABufferProjection.Reset();
             end;
         }
     }
@@ -513,7 +511,7 @@ report 5607 "Fixed Asset - Projected Value"
 
                         trigger OnValidate()
                         begin
-                            UpdateReqForm;
+                            UpdateReqForm();
                         end;
                     }
                     field(FirstDeprDate; StartingDate)
@@ -587,7 +585,7 @@ report 5607 "Fixed Asset - Projected Value"
                         begin
                             if BalAccount then
                                 if BudgetNameCode = '' then
-                                    Error(Text006, GLBudgetName.TableCaption);
+                                    Error(YouMustSpecifyErr, GLBudgetName.TableCaption());
                         end;
                     }
                     field(PrintPerFixedAsset; PrintDetails)
@@ -619,7 +617,7 @@ report 5607 "Fixed Asset - Projected Value"
                             if UseAccountingPeriod then
                                 PeriodLength := 0;
 
-                            UpdateReqForm;
+                            UpdateReqForm();
                         end;
                     }
                     field(UseCustom1; UseCustom1)
@@ -649,7 +647,7 @@ report 5607 "Fixed Asset - Projected Value"
 
         trigger OnOpenPage()
         begin
-            GetFASetup;
+            GetFASetup();
         end;
     }
 
@@ -664,10 +662,10 @@ report 5607 "Fixed Asset - Projected Value"
         if GroupTotals = GroupTotals::"FA Posting Group" then
             FAGenReport.SetFAPostingGroup("Fixed Asset", DeprBook.Code);
         FAGenReport.AppendFAPostingFilter("Fixed Asset", StartingDate, EndingDate);
-        FAFilter := "Fixed Asset".GetFilters;
-        DeprBookText := StrSubstNo('%1%2 %3', DeprBook.TableCaption, ':', DeprBookCode);
-        MakeGroupTotalText;
-        ValidateDates;
+        FAFilter := "Fixed Asset".GetFilters();
+        DeprBookText := StrSubstNo('%1%2 %3', DeprBook.TableCaption(), ':', DeprBookCode);
+        MakeGroupTotalText();
+        ValidateDates();
         if PrintDetails then begin
             FANo := "Fixed Asset".FieldCaption("No.");
             FADescription := "Fixed Asset".FieldCaption(Description);
@@ -681,8 +679,7 @@ report 5607 "Fixed Asset - Projected Value"
         if PeriodLength = 0 then
             PeriodLength := DaysInFiscalYear;
         if (PeriodLength <= 5) or (PeriodLength > DaysInFiscalYear) then
-            Error(
-              Text000, DaysInFiscalYear);
+            Error(NumberOfDaysMustNotBeGreaterThanErr, DaysInFiscalYear);
         FALedgEntry2."FA Posting Type" := FALedgEntry2."FA Posting Type"::Depreciation;
         DeprText := StrSubstNo('%1', FALedgEntry2."FA Posting Type");
         if DeprBook."Use Custom 1 Depreciation" then begin
@@ -692,26 +689,21 @@ report 5607 "Fixed Asset - Projected Value"
             DeprCustom1Text := StrSubstNo('%1 %2 %3', DeprText, '+', Custom1Text);
         end;
         SalesPriceFieldname := FADeprBook.FieldCaption("Projected Proceeds on Disposal");
-        GainLossFieldname := Text001;
+        GainLossFieldname := ProjectedGainLossTxt;
     end;
 
     var
-        Text000: Label 'Number of Days must not be greater than %1 or less than 5.';
-        Text001: Label 'Projected Gain/Loss';
-        Text002: Label 'Group Total';
-        Text003: Label 'Group Totals';
-        Text004: Label '%1 has been modified in fixed asset %2.';
         GLBudgetName: Record "G/L Budget Name";
         FASetup: Record "FA Setup";
         DeprBook: Record "Depreciation Book";
         FADeprBook: Record "FA Depreciation Book";
         FA: Record "Fixed Asset";
         FALedgEntry2: Record "FA Ledger Entry";
-        FABufferProjection: Record "FA Buffer Projection" temporary;
+        TempFABufferProjection: Record "FA Buffer Projection" temporary;
         FAGenReport: Codeunit "FA General Report";
         CalculateDepr: Codeunit "Calculate Depreciation";
-        FADateCalc: Codeunit "FA Date Calculation";
-        DepreciationCalc: Codeunit "Depreciation Calculation";
+        FADateCalculation: Codeunit "FA Date Calculation";
+        DepreciationCalculation: Codeunit "Depreciation Calculation";
         FAFilter: Text;
         DeprBookText: Text[50];
         GroupCodeName: Text[50];
@@ -756,21 +748,27 @@ report 5607 "Fixed Asset - Projected Value"
         ProjectedDisposal: Boolean;
         DoProjectedDisposal: Boolean;
         EntryPrinted: Boolean;
-        Text005: Label ' ,FA Class,FA Subclass,FA Location,Main Asset,Global Dimension 1,Global Dimension 2,FA Posting Group';
+        GroupCodeNameTxt: Label ' ,FA Class,FA Subclass,FA Location,Main Asset,Global Dimension 1,Global Dimension 2,FA Posting Group';
         BudgetNameCode: Code[10];
         OldValue: Code[20];
         NewValue: Code[20];
         BalAccount: Boolean;
-        Text006: Label 'You must specify %1.';
         TempDeprDate: Date;
         GroupTotalsInt: Integer;
         Year365Days: Boolean;
-        Text007: Label 'You must create accounting periods until %1 to use 365 days depreciation and ''Use Accounting Periods''.';
         Custom2Amount: Decimal;
         UseCustom1: Boolean;
         UseCustom2: Boolean;
         [InDataSet]
         NumberOfDaysCtrlEditable: Boolean;
+
+        NumberOfDaysMustNotBeGreaterThanErr: Label 'Number of Days must not be greater than %1 or less than 5.', Comment = '1 - Number of days in fiscal year';
+        ProjectedGainLossTxt: Label 'Projected Gain/Loss';
+        GroupTotalTxt: Label 'Group Total';
+        GroupTotalsTxt: Label 'Group Totals';
+        HasBeenModifiedInFAErr: Label '%1 has been modified in fixed asset %2.', Comment = '1 - FA Posting Group caption; 2- FA No.';
+        YouMustSpecifyErr: Label 'You must specify %1.', Comment = '1 - G/L Budget Name caption';
+        YouMustCreateAccPeriodsErr: Label 'You must create accounting periods until %1 to use 365 days depreciation and ''Use Accounting Periods''.', Comment = '1 - Date';
         CurrReportPageNoCaptionLbl: Label 'Page';
         FAProjectedValueCaptionLbl: Label 'Fixed Asset - Projected Value';
         FAPostingDateCaptionLbl: Label 'FA Posting Date';
@@ -809,22 +807,22 @@ report 5607 "Fixed Asset - Projected Value"
             DateFromProjection := 0D;
             EntryAmounts[1] := "Book Value";
             EntryAmounts[2] := "Custom 1";
-            EntryAmounts[3] := DepreciationCalc.DeprInFiscalYear("Fixed Asset"."No.", DeprBookCode, StartingDate);
+            EntryAmounts[3] := DepreciationCalculation.DeprInFiscalYear("Fixed Asset"."No.", DeprBookCode, StartingDate);
             TotalBookValue[1] := TotalBookValue[1] + "Book Value";
             TotalBookValue[2] := TotalBookValue[2] + "Book Value";
             GroupTotalBookValue += "Book Value";
-            NewFiscalYear := FADateCalc.GetFiscalYear(DeprBookCode, StartingDate);
-            EndFiscalYear := FADateCalc.CalculateDate(
-              DepreciationCalc.Yesterday(NewFiscalYear, Year365Days), DaysInFiscalYear, Year365Days);
+            NewFiscalYear := FADateCalculation.GetFiscalYear(DeprBookCode, StartingDate);
+            EndFiscalYear := FADateCalculation.CalculateDate(
+                DepreciationCalculation.Yesterday(NewFiscalYear, Year365Days), DaysInFiscalYear, Year365Days);
             TempDeprDate := "Temp. Ending Date";
 
             if DeprBook."Use Custom 1 Depreciation" then
-                Custom1DeprUntil := FADeprBook."Depr. Ending Date (Custom 1)"
+                Custom1DeprUntil := "Depr. Ending Date (Custom 1)"
             else
                 Custom1DeprUntil := 0D;
 
             if Custom1DeprUntil > 0D then
-                EntryAmounts[4] := GetDeprBasis;
+                EntryAmounts[4] := GetDeprBasis();
         end;
         UntilDate := 0D;
         AssetAmounts[1] := 0;
@@ -842,7 +840,7 @@ report 5607 "Fixed Asset - Projected Value"
         UntilDate := StartingDate;
         repeat
             if not FirstTime then
-                GetNextDate;
+                GetNextDate();
             FirstTime := false;
             CalculateDepr.Calculate(
               DeprAmount, Custom1Amount, NumberOfDays, Custom1NumberOfDays,
@@ -851,18 +849,18 @@ report 5607 "Fixed Asset - Projected Value"
             Done := (DeprAmount <> 0) or (Custom1Amount <> 0) or (Custom2Amount <> 0);
         until (UntilDate >= EndingDate) or Done;
         EntryAmounts[3] :=
-          DepreciationCalc.DeprInFiscalYear("Fixed Asset"."No.", DeprBookCode, UntilDate);
+          DepreciationCalculation.DeprInFiscalYear("Fixed Asset"."No.", DeprBookCode, UntilDate);
     end;
 
     local procedure CalculateSecondDeprAmount(var Done: Boolean)
     begin
-        GetNextDate;
+        GetNextDate();
         CalculateDepr.Calculate(
           DeprAmount, Custom1Amount, NumberOfDays, Custom1NumberOfDays,
           "Fixed Asset"."No.", DeprBookCode, UntilDate, EntryAmounts, DateFromProjection, 0,
           UseCustom1, UseCustom2, Custom2Amount, 0, 0);
         Done := CalculationDone(
-          (DeprAmount <> 0) or (Custom1Amount <> 0) or (Custom2Amount <> 0), DateFromProjection);
+            (DeprAmount <> 0) or (Custom1Amount <> 0) or (Custom2Amount <> 0), DateFromProjection);
     end;
 
     local procedure GetNextDate()
@@ -883,13 +881,13 @@ report 5607 "Fixed Asset - Projected Value"
 
         if UntilDate = EndFiscalYear then begin
             EntryAmounts[3] := 0;
-            NewFiscalYear := DepreciationCalc.ToMorrow(EndFiscalYear, Year365Days);
-            EndFiscalYear := FADateCalc.CalculateDate(EndFiscalYear, DaysInFiscalYear, Year365Days);
+            NewFiscalYear := DepreciationCalculation.ToMorrow(EndFiscalYear, Year365Days);
+            EndFiscalYear := FADateCalculation.CalculateDate(EndFiscalYear, DaysInFiscalYear, Year365Days);
         end;
 
-        DateFromProjection := DepreciationCalc.ToMorrow(UntilDate, Year365Days);
+        DateFromProjection := DepreciationCalculation.ToMorrow(UntilDate, Year365Days);
         UntilDate := UntilDate2;
-        if (UntilDate >= EndingDate) then
+        if UntilDate >= EndingDate then
             UntilDate := EndingDate;
     end;
 
@@ -899,24 +897,24 @@ report 5607 "Fixed Asset - Projected Value"
         UntilDate2: Date;
     begin
         if not UseAccountingPeriod or AccountingPeriod.IsEmpty() then
-            exit(FADateCalc.CalculateDate(PeriodEndingDate, PeriodLength, Year365Days));
+            exit(FADateCalculation.CalculateDate(PeriodEndingDate, PeriodLength, Year365Days));
         AccountingPeriod.SetFilter(
-          "Starting Date", '>=%1', DepreciationCalc.ToMorrow(PeriodEndingDate, Year365Days) + 1);
+          "Starting Date", '>=%1', DepreciationCalculation.ToMorrow(PeriodEndingDate, Year365Days) + 1);
         if AccountingPeriod.FindFirst() then begin
             if Date2DMY(AccountingPeriod."Starting Date", 1) <> 31 then
-                UntilDate2 := DepreciationCalc.Yesterday(AccountingPeriod."Starting Date", Year365Days)
+                UntilDate2 := DepreciationCalculation.Yesterday(AccountingPeriod."Starting Date", Year365Days)
             else
                 UntilDate2 := AccountingPeriod."Starting Date" - 1;
             PeriodLength :=
-              DepreciationCalc.DeprDays(
-                DepreciationCalc.ToMorrow(PeriodEndingDate, Year365Days), UntilDate2, Year365Days);
+              DepreciationCalculation.DeprDays(
+                DepreciationCalculation.ToMorrow(PeriodEndingDate, Year365Days), UntilDate2, Year365Days);
             if (PeriodLength <= 5) or (PeriodLength > DaysInFiscalYear) then
                 PeriodLength := DaysInFiscalYear;
             exit(UntilDate2);
         end else begin
             if Year365Days then
-                Error(Text007, DepreciationCalc.ToMorrow(EndingDate, Year365Days) + 1);
-            exit(FADateCalc.CalculateDate(PeriodEndingDate, PeriodLength, Year365Days));
+                Error(YouMustCreateAccPeriodsErr, DepreciationCalculation.ToMorrow(EndingDate, Year365Days) + 1);
+            exit(FADateCalculation.CalculateDate(PeriodEndingDate, PeriodLength, Year365Days));
         end;
     end;
 
@@ -941,8 +939,8 @@ report 5607 "Fixed Asset - Projected Value"
         if GroupCodeName <> '' then begin
             GroupCodeName2 := GroupCodeName;
             if GroupTotals = GroupTotals::"Main Asset" then
-                GroupCodeName2 := StrSubstNo('%1', SelectStr(GroupTotals + 1, Text005));
-            GroupCodeName := StrSubstNo('%1%2 %3', Text003, ':', GroupCodeName2);
+                GroupCodeName2 := StrSubstNo('%1', SelectStr(GroupTotals + 1, GroupCodeNameTxt));
+            GroupCodeName := StrSubstNo('%1%2 %3', GroupTotalsTxt, ':', GroupCodeName2);
         end;
     end;
 
@@ -955,7 +953,7 @@ report 5607 "Fixed Asset - Projected Value"
 
     local procedure MakeGroupHeadLine()
     begin
-        with "Fixed Asset" do begin
+        with "Fixed Asset" do
             case GroupTotals of
                 GroupTotals::"FA Class":
                     GroupHeadLine := "FA Class Code";
@@ -978,7 +976,6 @@ report 5607 "Fixed Asset - Projected Value"
                 GroupTotals::"FA Posting Group":
                     GroupHeadLine := "FA Posting Group";
             end;
-        end;
         if GroupHeadLine = '' then
             GroupHeadLine := '*****';
     end;
@@ -1012,8 +1009,8 @@ report 5607 "Fixed Asset - Projected Value"
               FADeprBook, BudgetNameCode, UntilDate, DeprAmount, Custom1Amount, BalAccount);
 
         if (UntilDate > 0D) or PrintAmountsPerDate then
-            with FABufferProjection do begin
-                Reset;
+            with TempFABufferProjection do begin
+                Reset();
                 if Find('+') then
                     EntryNo := "Entry No." + 1
                 else
@@ -1039,17 +1036,17 @@ report 5607 "Fixed Asset - Projected Value"
                     SetRange("Code Name", CodeName);
                 end;
                 if not Find('=><') then begin
-                    Init;
+                    Init();
                     "Code Name" := CodeName;
                     "FA Posting Date" := UntilDate;
                     "Entry No." := EntryNo;
                     Depreciation := DeprAmount;
                     "Custom 1" := Custom1Amount;
-                    Insert;
+                    Insert();
                 end else begin
                     Depreciation := Depreciation + DeprAmount;
                     "Custom 1" := "Custom 1" + Custom1Amount;
-                    Modify;
+                    Modify();
                 end;
             end;
     end;
@@ -1086,8 +1083,8 @@ report 5607 "Fixed Asset - Projected Value"
 
     local procedure CalculateGainLoss()
     var
-        EntryAmounts: array[14] of Decimal;
         CalculateDisposal: Codeunit "Calculate Disposal";
+        EntryAmounts: array[14] of Decimal;
         PrevAmount: array[2] of Decimal;
     begin
         PrevAmount[1] := AssetAmounts[3];
@@ -1108,21 +1105,21 @@ report 5607 "Fixed Asset - Projected Value"
 
     local procedure CalculationDone(Done: Boolean; FirstDeprDate: Date): Boolean
     var
-        TableDeprCalc: Codeunit "Table Depr. Calculation";
+        TableDeprCalculation: Codeunit "Table Depr. Calculation";
     begin
         if Done or
-          (FADeprBook."Depreciation Method" <> FADeprBook."Depreciation Method"::"User-Defined")
+           (FADeprBook."Depreciation Method" <> FADeprBook."Depreciation Method"::"User-Defined")
         then
             exit(Done);
         exit(
-          TableDeprCalc.GetTablePercent(
+          TableDeprCalculation.GetTablePercent(
             DeprBookCode, FADeprBook."Depreciation Table Code",
             FADeprBook."First User-Defined Depr. Date", FirstDeprDate, UntilDate, 0) = 0);
     end;
 
     local procedure UpdateReqForm()
     begin
-        PageUpdateReqForm;
+        PageUpdateReqForm();
     end;
 
     local procedure PageUpdateReqForm()
@@ -1172,7 +1169,7 @@ report 5607 "Fixed Asset - Projected Value"
             FASetup.Get();
             DeprBookCode := FASetup."Default Depr. Book";
         end;
-        UpdateReqForm;
+        UpdateReqForm();
     end;
 
     local procedure UpdateGroupTotals()

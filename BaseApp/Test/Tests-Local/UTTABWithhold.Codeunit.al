@@ -228,11 +228,11 @@ codeunit 144092 "UT TAB Withhold"
         CreateWithholdCodeLine(WithholdingTax."Withholding Tax Code");
 
         // Exercise.
-        WithholdingTax.Validate("Payment Date", WorkDate);
+        WithholdingTax.Validate("Payment Date", WorkDate());
 
         // Verify: Verify Year and Month on table Withholding Tax.
-        WithholdingTax.TestField(Year, Date2DMY(WorkDate, 3));
-        WithholdingTax.TestField(Month, Date2DMY(WorkDate, 2));
+        WithholdingTax.TestField(Year, Date2DMY(WorkDate(), 3));
+        WithholdingTax.TestField(Month, Date2DMY(WorkDate(), 2));
     end;
 
     [Test]
@@ -260,7 +260,7 @@ codeunit 144092 "UT TAB Withhold"
 
         // Verify: Verify Document Number and Document Date on Inserted record - Withholding Tax.
         WithholdingTax.SetRange("Vendor No.", VendorLedgerEntry."Vendor No.");
-        Assert.IsTrue(WithholdingTax.FindFirst, StrSubstNo(ValueMustExistMsg, WithholdingTax.TableCaption));
+        Assert.IsTrue(WithholdingTax.FindFirst, StrSubstNo(ValueMustExistMsg, WithholdingTax.TableCaption()));
         WithholdingTax.TestField("Document No.", VendorLedgerEntry."Document No.");
         WithholdingTax.TestField("Document Date", VendorLedgerEntry."Document Date");
     end;
@@ -392,11 +392,11 @@ codeunit 144092 "UT TAB Withhold"
         INAILPerMil := CreateContributionCodeLine(ContributionCodeLine."Contribution Type"::INAIL, Contributions."INAIL Code");
 
         // Exercise.
-        Contributions.Validate("Payment Date", WorkDate);
+        Contributions.Validate("Payment Date", WorkDate());
 
         // Verify: Verify Year, Month, Social Security Percentage and INAIL Per Mil on table Contributions.
-        Contributions.TestField(Year, Date2DMY(WorkDate, 3));
-        Contributions.TestField(Month, Date2DMY(WorkDate, 2));
+        Contributions.TestField(Year, Date2DMY(WorkDate(), 3));
+        Contributions.TestField(Month, Date2DMY(WorkDate(), 2));
         Contributions.TestField("Social Security %", SocialSecurityPct);
         Contributions.TestField("INAIL Per Mil", INAILPerMil);
     end;
@@ -439,7 +439,7 @@ codeunit 144092 "UT TAB Withhold"
     begin
         ContributionCodeLine."Contribution Type" := ContributionType;
         ContributionCodeLine.Code := Code;
-        ContributionCodeLine."Starting Date" := WorkDate;
+        ContributionCodeLine."Starting Date" := WorkDate();
         ContributionCodeLine."Social Security %" := LibraryRandom.RandDec(10, 2);
         ContributionCodeLine.Insert();
         exit(ContributionCodeLine."Social Security %");
@@ -462,7 +462,7 @@ codeunit 144092 "UT TAB Withhold"
         CreateEmptyWithholdingTax(WithholdingTax);
         WithholdingTax."Vendor No." := CreateVendor;
         WithholdingTax."Withholding Tax Code" := CreateWithholdCodeCode;
-        WithholdingTax."Posting Date" := WorkDate;
+        WithholdingTax."Posting Date" := WorkDate();
         WithholdingTax."Total Amount" := LibraryRandom.RandDec(10, 2);
         WithholdingTax.Modify();
     end;
@@ -496,7 +496,7 @@ codeunit 144092 "UT TAB Withhold"
         WithholdCodeLine: Record "Withhold Code Line";
     begin
         WithholdCodeLine."Withhold Code" := WithholdCode;
-        WithholdCodeLine."Starting Date" := WorkDate;
+        WithholdCodeLine."Starting Date" := WorkDate();
         WithholdCodeLine.Insert();
     end;
 
@@ -549,8 +549,8 @@ codeunit 144092 "UT TAB Withhold"
         VendorLedgerEntry."Entry No." := VendorLedgerEntry2."Entry No." + 1;
         VendorLedgerEntry."Vendor No." := CreateVendor;
         VendorLedgerEntry."Document No." := LibraryUTUtility.GetNewCode;
-        VendorLedgerEntry."Document Date" := WorkDate;
-        VendorLedgerEntry."Posting Date" := WorkDate;
+        VendorLedgerEntry."Document Date" := WorkDate();
+        VendorLedgerEntry."Posting Date" := WorkDate();
         VendorLedgerEntry.Insert();
     end;
 

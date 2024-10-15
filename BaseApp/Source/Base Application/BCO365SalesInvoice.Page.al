@@ -1,12 +1,15 @@
+#if not CLEAN21
 page 2310 "BC O365 Sales Invoice"
 {
     Caption = 'Draft Invoice';
     DataCaptionExpression = '';
     PageType = Document;
-    PromotedActionCategories = 'New,Process,Report,Manage';
     RefreshOnActivate = true;
     SourceTable = "Sales Header";
     SourceTableView = WHERE("Document Type" = CONST(Invoice));
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     layout
     {
@@ -16,9 +19,9 @@ page 2310 "BC O365 Sales Invoice"
             {
                 Caption = 'Sell to';
                 Visible = NOT IsDevice;
-                field("Sell-to Customer Name"; "Sell-to Customer Name")
+                field("Sell-to Customer Name"; Rec."Sell-to Customer Name")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Customer Name';
                     Importance = Promoted;
                     LookupPageID = "BC O365 Contact Lookup";
@@ -36,7 +39,7 @@ page 2310 "BC O365 Sales Invoice"
                 }
                 field(CustomerEmail; CustomerEmail)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Email Address';
                     Editable = CurrPageEditable AND (CustomerName <> '');
                     ExtendedDatatype = EMail;
@@ -52,7 +55,7 @@ page 2310 "BC O365 Sales Invoice"
                     ShowCaption = false;
                     field(ViewContactCard; ViewContactDetailsLbl)
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         Editable = false;
                         Enabled = CustomerName <> '';
                         ShowCaption = false;
@@ -66,9 +69,9 @@ page 2310 "BC O365 Sales Invoice"
                 group(Control11)
                 {
                     ShowCaption = false;
-                    field("Sell-to Address"; "Sell-to Address")
+                    field("Sell-to Address"; Rec."Sell-to Address")
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         Caption = 'Address';
                         Editable = CustomerName <> '';
                         ToolTip = 'Specifies the address where the customer is located.';
@@ -79,9 +82,9 @@ page 2310 "BC O365 Sales Invoice"
                             O365SalesInvoiceMgmt.UpdateAddress(Rec, FullAddress, CountryRegionCode);
                         end;
                     }
-                    field("Sell-to Address 2"; "Sell-to Address 2")
+                    field("Sell-to Address 2"; Rec."Sell-to Address 2")
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         Caption = 'Address 2';
                         Editable = CustomerName <> '';
                         ToolTip = 'Specifies additional address information.';
@@ -92,9 +95,9 @@ page 2310 "BC O365 Sales Invoice"
                             O365SalesInvoiceMgmt.UpdateAddress(Rec, FullAddress, CountryRegionCode);
                         end;
                     }
-                    field("Sell-to City"; "Sell-to City")
+                    field("Sell-to City"; Rec."Sell-to City")
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         Caption = 'City';
                         Editable = CustomerName <> '';
                         Lookup = false;
@@ -106,9 +109,9 @@ page 2310 "BC O365 Sales Invoice"
                             O365SalesInvoiceMgmt.UpdateAddress(Rec, FullAddress, CountryRegionCode);
                         end;
                     }
-                    field("Sell-to Post Code"; "Sell-to Post Code")
+                    field("Sell-to Post Code"; Rec."Sell-to Post Code")
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         Caption = 'Post Code';
                         Editable = CustomerName <> '';
                         Lookup = false;
@@ -120,9 +123,9 @@ page 2310 "BC O365 Sales Invoice"
                             O365SalesInvoiceMgmt.UpdateAddress(Rec, FullAddress, CountryRegionCode);
                         end;
                     }
-                    field("Sell-to County"; "Sell-to County")
+                    field("Sell-to County"; Rec."Sell-to County")
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         Caption = 'County';
                         Editable = CustomerName <> '';
                         Lookup = false;
@@ -136,7 +139,7 @@ page 2310 "BC O365 Sales Invoice"
                     }
                     field(CountryRegionCode; CountryRegionCode)
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         Caption = 'Country/Region Code';
                         Editable = CurrPageEditable AND (CustomerName <> '');
                         Lookup = true;
@@ -161,7 +164,7 @@ page 2310 "BC O365 Sales Invoice"
                 Visible = IsDevice AND NOT FieldsVisible;
                 field(EnterNewSellToCustomerName; "Sell-to Customer Name")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Add new customer';
                     Importance = Promoted;
                     Lookup = false;
@@ -183,7 +186,7 @@ page 2310 "BC O365 Sales Invoice"
                     Caption = 'Or';
                     field(PickExistingCustomer; PickExistingCustomerLbl)
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         Editable = false;
                         LookupPageID = "BC O365 Contact Lookup";
                         QuickEntry = false;
@@ -203,7 +206,7 @@ page 2310 "BC O365 Sales Invoice"
                 Visible = IsDevice AND FieldsVisible;
                 field(PhoneSellToCustomerName; "Sell-to Customer Name")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Customer Name';
                     Importance = Promoted;
                     LookupPageID = "BC O365 Contact Lookup";
@@ -228,7 +231,7 @@ page 2310 "BC O365 Sales Invoice"
                 }
                 field(PhoneCustomerEmail; CustomerEmail)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Email Address';
                     Editable = CurrPageEditable AND (CustomerName <> '');
                     ExtendedDatatype = EMail;
@@ -241,7 +244,7 @@ page 2310 "BC O365 Sales Invoice"
                 }
                 field(FullAddress; FullAddress)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Address';
                     Editable = false;
                     ToolTip = 'Specifies the address of the customer.';
@@ -255,11 +258,11 @@ page 2310 "BC O365 Sales Invoice"
                         if CustomerName = '' then
                             exit;
 
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                         Commit();
                         TempStandardAddress.CopyFromSalesHeaderSellTo(Rec);
                         if PAGE.RunModal(PAGE::"O365 Address", TempStandardAddress) = ACTION::LookupOK then begin
-                            Find;
+                            Find();
                             O365SalesInvoiceMgmt.UpdateAddress(Rec, FullAddress, CountryRegionCode);
                             // UpdateAddress changes Bill-To address without MODIFYing: make sure the next line is either MODIFY or CurrPage.UPDATE(TRUE);
                             CurrPage.Update(true);
@@ -273,14 +276,14 @@ page 2310 "BC O365 Sales Invoice"
                 Visible = FieldsVisible;
                 field(NextInvoiceNo; NextInvoiceNo)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Expected Invoice No.';
                     Editable = false;
                     ToolTip = 'Specifies the number that your next sent invoice will get.';
                 }
-                field("Payment Terms Code"; "Payment Terms Code")
+                field("Payment Terms Code"; Rec."Payment Terms Code")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Payment Terms';
                     Editable = false;
                     Enabled = CustomerName <> '';
@@ -289,7 +292,7 @@ page 2310 "BC O365 Sales Invoice"
                     var
                         TempO365PaymentTerms: Record "O365 Payment Terms" temporary;
                     begin
-                        TempO365PaymentTerms.RefreshRecords;
+                        TempO365PaymentTerms.RefreshRecords();
                         if TempO365PaymentTerms.Get("Payment Terms Code") then;
                         if PAGE.RunModal(PAGE::"O365 Payment Terms List", TempO365PaymentTerms) = ACTION::LookupOK then
                             Validate("Payment Terms Code", TempO365PaymentTerms.Code);
@@ -297,29 +300,14 @@ page 2310 "BC O365 Sales Invoice"
                 }
                 field(PaymentInstructionsName; PaymentInstructionsName)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Payment Instructions';
                     Editable = false;
                     Enabled = CustomerName <> '';
-
-#if not CLEAN18
-                    trigger OnAssistEdit()
-                    var
-                        O365PaymentInstructions: Record "O365 Payment Instructions";
-                    begin
-                        if O365PaymentInstructions.Get("Payment Instructions Id") then;
-
-                        if PAGE.RunModal(PAGE::"BC O365 Payment Instr. List", O365PaymentInstructions) = ACTION::LookupOK then begin
-                            Validate("Payment Instructions Id", O365PaymentInstructions.Id);
-                            Session.LogMessage('00001SB', PaymentInstrChangedTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PaymentInstrCategoryLbl);
-                            O365SalesInvoiceMgmt.GetPaymentInstructionsName("Payment Instructions Id", PaymentInstructionsName);
-                        end;
-                    end;
-#endif
                 }
-                field("Due Date"; "Due Date")
+                field("Due Date"; Rec."Due Date")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Editable = CustomerName <> '';
                     ToolTip = 'Specifies when the sales invoice must be paid.';
 
@@ -329,9 +317,9 @@ page 2310 "BC O365 Sales Invoice"
                             Validate("Due Date", "Document Date");
                     end;
                 }
-                field("Document Date"; "Document Date")
+                field("Document Date"; Rec."Document Date")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Invoice Date';
                     Editable = CustomerName <> '';
                     ToolTip = 'Specifies when the sales invoice was created.';
@@ -343,7 +331,7 @@ page 2310 "BC O365 Sales Invoice"
                     begin
                         Validate("Posting Date", "Document Date");
 
-                        if "Document Date" < WorkDate then begin
+                        if "Document Date" < WorkDate() then begin
                             PastNotification.Id := DocumentDatePastWorkdateNotificationGuidTok;
                             PastNotification.Message(DocumentDatePastMsg);
                             PastNotification.Scope(NOTIFICATIONSCOPE::LocalScope);
@@ -351,9 +339,9 @@ page 2310 "BC O365 Sales Invoice"
                         end;
                     end;
                 }
-                field("Tax Liable"; "Tax Liable")
+                field("Tax Liable"; Rec."Tax Liable")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Customer is tax liable';
                     Editable = CustomerName <> '';
                     ToolTip = 'Specifies if the sales invoice contains sales tax.';
@@ -366,7 +354,7 @@ page 2310 "BC O365 Sales Invoice"
                 }
                 field(TaxAreaDescription; TaxAreaDescription)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Customer tax rate';
                     Editable = false;
                     Enabled = CustomerName <> '';
@@ -387,16 +375,16 @@ page 2310 "BC O365 Sales Invoice"
                         end;
                     end;
                 }
-                field("VAT Registration No."; "VAT Registration No.")
+                field("VAT Registration No."; Rec."VAT Registration No.")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Editable = (IsUsingVAT AND IsCompanyContact);
                     Visible = IsUsingVAT;
                 }
             }
             part(Lines; "BC O365 Sales Inv. Line Subp.")
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Line Items';
                 Editable = CustomerName <> '';
                 Enabled = CustomerName <> '';
@@ -413,7 +401,7 @@ page 2310 "BC O365 Sales Invoice"
                     ShowCaption = false;
                     field(Amount; Amount)
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         AutoFormatExpression = CurrencyFormat;
                         AutoFormatType = 11;
                         Caption = 'Net Total';
@@ -423,7 +411,7 @@ page 2310 "BC O365 Sales Invoice"
                     }
                     field(AmountInclVAT; "Amount Including VAT")
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         AutoFormatExpression = CurrencyFormat;
                         AutoFormatType = 11;
                         Caption = 'Total Including VAT';
@@ -436,7 +424,7 @@ page 2310 "BC O365 Sales Invoice"
                     }
                     field(DiscountLink; DiscountTxt)
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         DrillDown = true;
                         Editable = false;
                         Enabled = CustomerName <> '';
@@ -460,7 +448,7 @@ page 2310 "BC O365 Sales Invoice"
                     ShowCaption = false;
                     field(SubTotalAmount; SubTotalAmount)
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         AutoFormatExpression = CurrencyFormat;
                         AutoFormatType = 11;
                         Caption = 'Subtotal';
@@ -469,10 +457,10 @@ page 2310 "BC O365 Sales Invoice"
                     }
                     field(InvoiceDiscount; -InvoiceDiscountAmount)
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         AutoFormatExpression = CurrencyFormat;
                         AutoFormatType = 11;
-                        CaptionClass = GetInvDiscountCaption;
+                        CaptionClass = GetInvDiscountCaption();
                         Caption = 'Invoice Discount';
                         Editable = false;
                         Importance = Promoted;
@@ -486,7 +474,7 @@ page 2310 "BC O365 Sales Invoice"
                     }
                     field(Amount2; Amount)
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         AutoFormatExpression = CurrencyFormat;
                         AutoFormatType = 11;
                         Caption = 'Net Total';
@@ -496,7 +484,7 @@ page 2310 "BC O365 Sales Invoice"
                     }
                     field(AmountInclVAT2; "Amount Including VAT")
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         AutoFormatExpression = CurrencyFormat;
                         AutoFormatType = 11;
                         Caption = 'Total Including VAT';
@@ -518,7 +506,7 @@ page 2310 "BC O365 Sales Invoice"
                     ShowCaption = false;
                     field(WorkDescription; WorkDescription)
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         Caption = 'Note for customer';
                         Editable = CurrPageEditable AND (CustomerName <> '');
                         MultiLine = true;
@@ -531,7 +519,7 @@ page 2310 "BC O365 Sales Invoice"
                     }
                     field(NoOfAttachments; NoOfAttachmentsValueTxt)
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         DrillDown = true;
                         Editable = false;
                         Enabled = CustomerName <> '';
@@ -551,7 +539,7 @@ page 2310 "BC O365 Sales Invoice"
         {
             part(CustomerStatisticsFactBox; "BC O365 Cust. Stats FactBox")
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Customer statistics';
                 SubPageLink = "No." = FIELD("Sell-to Customer No.");
             }
@@ -564,14 +552,10 @@ page 2310 "BC O365 Sales Invoice"
         {
             action(ViewPdf)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Preview';
                 Enabled = CustomerName <> '';
                 Image = Document;
-                Promoted = true;
-                PromotedCategory = Category4;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Show a preview of the invoice before you send it.';
                 Visible = NOT IsCustomerBlocked;
 
@@ -580,24 +564,20 @@ page 2310 "BC O365 Sales Invoice"
                     ReportSelections: Record "Report Selections";
                     DocumentPath: Text[250];
                 begin
-                    SetRecFilter;
+                    SetRecFilter();
                     LockTable();
-                    Find;
+                    Find();
                     ReportSelections.GetPdfReportForCust(DocumentPath, ReportSelections.Usage::"S.Invoice Draft", Rec, "Sell-to Customer No.");
                     Download(DocumentPath, '', '', '', DocumentPath);
-                    Find;
+                    Find();
                 end;
             }
             action(SendTest)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Send test invoice';
                 Enabled = CustomerName <> '';
                 Image = Email;
-                Promoted = true;
-                PromotedCategory = Category4;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Send the test invoice.';
                 Visible = TestInvoiceVisible AND NOT IsCustomerBlocked;
 
@@ -607,20 +587,16 @@ page 2310 "BC O365 Sales Invoice"
                 begin
                     if O365SendResendInvoice.SendTestInvoiceFromBC(Rec) then begin
                         ForceExit := true;
-                        CurrPage.Close;
+                        CurrPage.Close();
                     end;
                 end;
             }
             action(Post)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Send';
                 Enabled = CustomerName <> '';
                 Image = Email;
-                Promoted = true;
-                PromotedCategory = Category4;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ShortCutKey = 'Ctrl+Right';
                 ToolTip = 'Finalize and send the invoice.';
                 Visible = NOT TestInvoiceVisible AND NOT IsCustomerBlocked;
@@ -631,9 +607,30 @@ page 2310 "BC O365 Sales Invoice"
                 begin
                     if O365SendResendInvoice.SendSalesInvoiceOrQuoteFromBC(Rec) then begin
                         ForceExit := true;
-                        CurrPage.Close;
+                        CurrPage.Close();
                     end;
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Manage', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref(ViewPdf_Promoted; ViewPdf)
+                {
+                }
+                actionref(SendTest_Promoted; SendTest)
+                {
+                }
+                actionref(Post_Promoted; Post)
+                {
+                }
             }
         }
     }
@@ -649,7 +646,7 @@ page 2310 "BC O365 Sales Invoice"
 
         O365SalesInvoiceMgmt.CalcInvoiceDiscountAmount(Rec, SubTotalAmount, DiscountTxt, InvoiceDiscountAmount, InvDiscAmountVisible);
 
-        if ClientTypeManagement.GetCurrentClientType = CLIENTTYPE::Phone then
+        if ClientTypeManagement.GetCurrentClientType() = CLIENTTYPE::Phone then
             FieldsVisible := CustomerName <> '';
 
         IsCustomerBlocked := O365SalesInvoiceMgmt.IsCustomerBlocked("Sell-to Customer No.");
@@ -661,17 +658,14 @@ page 2310 "BC O365 Sales Invoice"
             Validate(IsTest, true);
         TestInvoiceVisible := IsTest;
 
-        CurrPage.Caption := GetInvTypeCaption;
+        CurrPage.Caption := GetInvTypeCaption();
 
         if TestInvoiceVisible then
             NextInvoiceNo := "No."
         else
-            if SalesReceivablesSetup.Get then
+            if SalesReceivablesSetup.Get() then
                 if SalesReceivablesSetup."Posted Invoice Nos." <> '' then
                     NextInvoiceNo := NoSeriesManagement.ClearStateAndGetNextNo(SalesReceivablesSetup."Posted Invoice Nos.");
-#if not CLEAN18
-        O365SalesInvoiceMgmt.GetPaymentInstructionsName("Payment Instructions Id", PaymentInstructionsName);
-#endif
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -679,8 +673,8 @@ page 2310 "BC O365 Sales Invoice"
         CustInvoiceDisc: Record "Cust. Invoice Disc.";
     begin
         ForceExit := true;
-        if not Find then begin
-            CurrPage.Close;
+        if not Find() then begin
+            CurrPage.Close();
             exit(false);
         end;
 
@@ -690,7 +684,7 @@ page 2310 "BC O365 Sales Invoice"
 
     trigger OnInit()
     begin
-        IsDevice := ClientTypeManagement.GetCurrentClientType in [CLIENTTYPE::Tablet, CLIENTTYPE::Phone];
+        IsDevice := ClientTypeManagement.GetCurrentClientType() in [CLIENTTYPE::Tablet, CLIENTTYPE::Phone];
         FieldsVisible := true;
     end;
 
@@ -702,7 +696,7 @@ page 2310 "BC O365 Sales Invoice"
         "Document Type" := "Document Type"::Invoice;
         IsNew := true;
 
-        SetDefaultPaymentServices;
+        SetDefaultPaymentServices();
     end;
 
     trigger OnNextRecord(Steps: Integer): Integer
@@ -721,7 +715,7 @@ page 2310 "BC O365 Sales Invoice"
         O365SalesInitialSetup: Record "O365 Sales Initial Setup";
         NoFilter: Text;
     begin
-        IsUsingVAT := O365SalesInitialSetup.IsUsingVAT;
+        IsUsingVAT := O365SalesInitialSetup.IsUsingVAT();
         NoFilter := GetFilter("No.");
         if StrPos(UpperCase(NoFilter), 'TESTINVOICE') <> 0 then begin
             TestInvoiceVisible := true;
@@ -770,10 +764,6 @@ page 2310 "BC O365 Sales Invoice"
         TestInvTypeTxt: Label 'Test Invoice';
         DraftInvTypeTxt: Label 'Draft Invoice';
         IsCustomerBlocked: Boolean;
-#if not CLEAN18
-        PaymentInstrCategoryLbl: Label 'AL Payment Instructions', Locked = true;
-        PaymentInstrChangedTelemetryTxt: Label 'Payment instructions were changed for an invoice.', Locked = true;
-#endif
         DocumentDatePastWorkdateNotificationGuidTok: Label 'cfa9edd9-03d7-4bbb-ba07-a90660c28772', Locked = true;
         FieldsVisible: Boolean;
 
@@ -794,3 +784,4 @@ page 2310 "BC O365 Sales Invoice"
         exit(DraftInvTypeTxt);
     end;
 }
+#endif

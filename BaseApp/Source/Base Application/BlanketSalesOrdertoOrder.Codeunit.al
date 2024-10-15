@@ -28,9 +28,9 @@ codeunit 87 "Blanket Sales Order to Order"
 
         ValidateSalesPersonOnSalesHeader(Rec, true, false);
 
-        CheckForBlockedLines;
+        CheckForBlockedLines();
 
-        if QtyToShipIsZero then
+        if QtyToShipIsZero() then
             Error(Text002);
 
         SalesSetup.Get();
@@ -105,7 +105,7 @@ codeunit 87 "Blanket Sales Order to Order"
                         SalesOrderLine."Qty. to Assemble to Order" := SalesOrderLine.Quantity;
                         SalesOrderLine."Qty. to Asm. to Order (Base)" := SalesOrderLine."Quantity (Base)";
                     end;
-                    SalesOrderLine.DefaultDeferralCode;
+                    SalesOrderLine.DefaultDeferralCode();
                     if IsSalesOrderLineToBeInserted(SalesOrderLine) then begin
                         OnBeforeInsertSalesOrderLine(SalesOrderLine, SalesOrderHeader, BlanketOrderSalesLine, Rec);
                         SalesOrderLine.Insert();
@@ -157,7 +157,7 @@ codeunit 87 "Blanket Sales Order to Order"
                         Clear(Reservation);
                         Reservation.SetReservSource(TempSalesLine);
                         Reservation.RunModal();
-                        Find;
+                        Find();
                     until TempSalesLine.Next() = 0;
 
         Clear(CustCheckCreditLimit);
@@ -167,8 +167,6 @@ codeunit 87 "Blanket Sales Order to Order"
     end;
 
     var
-        QuantityCheckErr: Label '%1 of %2 %3 in %4 %5 cannot be more than %6.\%7\%8 - %9 = %6.', Comment = '%1: FIELDCAPTION("Qty. to Ship (Base)"); %2: Field(Type); %3: Field(No.); %4: FIELDCAPTION("Line No."); %5: Field(Line No.); %6: Decimal Qty Difference; %7: Text001; %8: Field(Outstanding Qty. (Base)); %9: Decimal Quantity On Orders';
-        Text001: Label '%1 - Unposted %1 = Possible %2';
         BlanketOrderSalesLine: Record "Sales Line";
         SalesLine: Record "Sales Line";
         SalesOrderHeader: Record "Sales Header";
@@ -178,10 +176,13 @@ codeunit 87 "Blanket Sales Order to Order"
         ItemCheckAvail: Codeunit "Item-Check Avail.";
         UOMMgt: Codeunit "Unit of Measure Management";
         QuantityOnOrders: Decimal;
+        HideValidationDialog: Boolean;
+
+        QuantityCheckErr: Label '%1 of %2 %3 in %4 %5 cannot be more than %6.\%7\%8 - %9 = %6.', Comment = '%1: FIELDCAPTION("Qty. to Ship (Base)"); %2: Field(Type); %3: Field(No.); %4: FIELDCAPTION("Line No."); %5: Field(Line No.); %6: Decimal Qty Difference; %7: Text001; %8: Field(Outstanding Qty. (Base)); %9: Decimal Quantity On Orders';
+        Text001: Label '%1 - Unposted %1 = Possible %2';
         Text002: Label 'There is nothing to create.';
         Text003: Label 'Full automatic reservation was not possible.\Reserve items manually?';
         Text1130000: Label '%1 cannot be greater than %2.', Comment = '%1 = Document Date; %2 = Posting Date';
-        HideValidationDialog: Boolean;
 
     local procedure SalesOrderLineValidateQuantity(var SalesOrderLine: Record "Sales Line"; BlanketOrderSalesLine: Record "Sales Line")
     var
@@ -243,9 +244,10 @@ codeunit 87 "Blanket Sales Order to Order"
             StandardCodesMgt.SetSkipRecurringLines(true);
             SalesOrderHeader.SetStandardCodesMgt(StandardCodesMgt);
             SalesOrderHeader.Insert(true);
+            OnCreateSalesHeaderOnAfterSalesOrderHeaderInsert(SalesHeader, SalesOrderHeader);
 
             if "Order Date" = 0D then
-                SalesOrderHeader."Order Date" := WorkDate
+                SalesOrderHeader."Order Date" := WorkDate()
             else
                 SalesOrderHeader."Order Date" := "Order Date";
             if "Posting Date" <> 0D then
@@ -261,7 +263,7 @@ codeunit 87 "Blanket Sales Order to Order"
 
             SalesOrderHeader."Prepayment %" := PrepmtPercent;
             if SalesOrderHeader."Posting Date" = 0D then
-                SalesOrderHeader."Posting Date" := WorkDate;
+                SalesOrderHeader."Posting Date" := WorkDate();
             SalesOrderHeader.Validate("Posting Date");
 
             OnBeforeSalesOrderHeaderModify(SalesOrderHeader, SalesHeader);
@@ -314,7 +316,7 @@ codeunit 87 "Blanket Sales Order to Order"
                 TestField("Shipment Date");
                 ReservMgt.SetReservSource(SalesLine);
                 ReservMgt.AutoReserve(FullAutoReservation, '', "Shipment Date", "Qty. to Ship", "Qty. to Ship (Base)");
-                Find;
+                Find();
                 if not FullAutoReservation then begin
                     TempSalesLine.TransferFields(SalesLine);
                     TempSalesLine.Insert();
@@ -344,7 +346,7 @@ codeunit 87 "Blanket Sales Order to Order"
                         SalesLine := BlanketOrderSalesLine;
                         ResetQuantityFields(SalesLine);
                         SalesLine.Quantity := "Qty. to Ship";
-                        SalesLine."Quantity (Base)" := Round(SalesLine.Quantity * SalesLine."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision);
+                        SalesLine."Quantity (Base)" := Round(SalesLine.Quantity * SalesLine."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision());
                         SalesLine."Qty. to Ship" := SalesLine.Quantity;
                         SalesLine."Qty. to Ship (Base)" := SalesLine."Quantity (Base)";
                         OnCheckAvailabilityOnBeforeSalesLineInitOutstanding(SalesLine, BlanketOrderSalesLine);
@@ -375,7 +377,7 @@ codeunit 87 "Blanket Sales Order to Order"
             exit;
 
         if ItemCheckAvail.SalesLineCheck(SalesLine) then
-            ItemCheckAvail.RaiseUpdateInterruptedError;
+            ItemCheckAvail.RaiseUpdateInterruptedError();
     end;
 
     local procedure IsSalesOrderLineToBeInserted(SalesOrderLine: Record "Sales Line"): Boolean
@@ -506,6 +508,11 @@ codeunit 87 "Blanket Sales Order to Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnRunOnBeforeValidateBlanketOrderSalesLineQtytoShip(var BlanketOrderSalesLine: Record "Sales Line"; SalesOrderLine: Record "Sales Line"; SalesOrderHeader: Record "Sales Header"; BlanketOrderSalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateSalesHeaderOnAfterSalesOrderHeaderInsert(SalesHeader: Record "Sales Header"; var SalesOrderHeader: Record "Sales Header")
     begin
     end;
 }
