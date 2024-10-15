@@ -154,8 +154,6 @@ page 3845 "Scheduled Tasks"
     local procedure GetMarkedTasks(var ScheduledTask: Record "Scheduled Task"): Boolean
     begin
         CurrPage.SetSelectionFilter(ScheduledTask);
-        ScheduledTask.MarkedOnly(true);
-
         exit(ScheduledTask.FindSet());
     end;
 }

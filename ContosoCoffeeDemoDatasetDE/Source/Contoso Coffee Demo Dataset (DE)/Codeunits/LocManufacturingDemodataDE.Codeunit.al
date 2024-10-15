@@ -42,6 +42,12 @@ codeunit 11080 "Loc. Manufacturing Demodata-DE"
         WhseDemoAccounts.AddAccount(WhseDemoAccount.PurchaseVAT(), '1575');
     end;
 
+    [EventSubscriber(ObjectType::Table, Database::"Whse Demo Data Setup", 'OnBeforeInsertEvent', '', false, false)]
+    local procedure ModifyWhseTaxSetting(var Rec: Record "Whse Demo Data Setup")
+    begin
+        Rec."VAT Prod. Posting Group Code" := 'MWST.19';
+    end;
+
     var
         ManufacturingDemoAccount: Record "Manufacturing Demo Account";
         WhseDemoAccount: Record "Whse. Demo Account";

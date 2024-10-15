@@ -12,12 +12,20 @@ report 189 "Suggest Reminder Lines"
             RequestFilterHeading = 'Reminder';
 
             trigger OnAfterGetRecord()
+            var
+                IsHandled: Boolean;
+                Result: Boolean;
             begin
                 RecordNo := RecordNo + 1;
-                Clear(MakeReminder);
-                MakeReminder.SuggestLines("Reminder Header", CustLedgEntry, OverdueEntriesOnly, IncludeEntriesOnHold, CustLedgEntryLineFeeOn);
+                Clear(ReminderMake);
+                ReminderMake.SuggestLines("Reminder Header", CustLedgerEntry, OverdueEntriesOnly, IncludeEntriesOnHold, CustLedgEntryLineFeeOn);
                 if NoOfRecords = 1 then begin
-                    MakeReminder.Code();
+                    Result := false;
+                    IsHandled := false;
+                    OnAfterGetRecordReminderHeaderOnBeforeMakeReminder(
+                        "Reminder Header", CustLedgerEntry, OverdueEntriesOnly, IncludeEntriesOnHold, CustLedgEntryLineFeeOn, Result, IsHandled);
+                    if not IsHandled then
+                        ReminderMake.Code();
                     Mark := false;
                 end else begin
                     NewDateTime := CurrentDateTime;
@@ -29,7 +37,12 @@ report 189 "Suggest Reminder Lines"
                         end;
                         OldDateTime := CurrentDateTime;
                     end;
-                    Mark := not MakeReminder.Code();
+                    Result := false;
+                    IsHandled := false;
+                    OnAfterGetRecordReminderHeaderOnBeforeMarkReminder(
+                        "Reminder Header", CustLedgerEntry, OverdueEntriesOnly, IncludeEntriesOnHold, CustLedgEntryLineFeeOn, Result, IsHandled);
+                    if not IsHandled then
+                        Mark := not ReminderMake.Code();
                 end;
             end;
 
@@ -118,12 +131,12 @@ report 189 "Suggest Reminder Lines"
 
     trigger OnPreReport()
     begin
-        CustLedgEntry.Copy(CustLedgEntry2)
+        CustLedgerEntry.Copy(CustLedgEntry2)
     end;
 
     var
-        CustLedgEntry: Record "Cust. Ledger Entry";
-        MakeReminder: Codeunit "Reminder-Make";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        ReminderMake: Codeunit "Reminder-Make";
         Window: Dialog;
         NoOfRecords: Integer;
         RecordNo: Integer;
@@ -139,5 +152,15 @@ report 189 "Suggest Reminder Lines"
     protected var
         OverdueEntriesOnly: Boolean;
         IncludeEntriesOnHold: Boolean;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetRecordReminderHeaderOnBeforeMakeReminder(var ReminderHeader: Record "Reminder Header"; var CustLedgerEntry: Record "Cust. Ledger Entry"; OverdueEntriesOnly: Boolean; IncludeEntriesOnHold: Boolean; var CustLedgerEntryLineFeeOn: Record "Cust. Ledger Entry"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetRecordReminderHeaderOnBeforeMarkReminder(var ReminderHeader: Record "Reminder Header"; var CustLedgerEntry: Record "Cust. Ledger Entry"; OverdueEntriesOnly: Boolean; IncludeEntriesOnHold: Boolean; var CustLedgerEntryLineFeeOn: Record "Cust. Ledger Entry"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
 }
 

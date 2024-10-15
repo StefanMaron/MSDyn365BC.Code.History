@@ -15,4 +15,5 @@ enum 135 "Attachment Entity Buffer Document Type"
     value(11; "Item") { Caption = 'Item'; }
     value(12; "Customer") { Caption = 'Customer'; }
     value(13; "Vendor") { Caption = 'Vendor'; }
+    value(14; "Purchase Credit Memo") { Caption = 'Purchase Credit Memo'; }
 }

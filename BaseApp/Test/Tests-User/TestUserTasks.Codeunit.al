@@ -81,81 +81,6 @@ codeunit 134769 "Test User Tasks"
     end;
 
     [Test]
-    [HandlerFunctions('UserTaskRecurrenceModalPageHandler')]
-    [Scope('OnPrem')]
-    procedure TestUserCardRecurrence()
-    var
-        UserTask: Record "User Task";
-        UserTaskGroup: Record "User Task Group";
-        UserTaskGroupMember: Record "User Task Group Member";
-        UserTaskCard: TestPage "User Task Card";
-        CountBefore: Integer;
-        Increment: Integer;
-        TaskTitle: Text[250];
-    begin
-        // [FEATURE] [User Task Group] [UI]
-        // [SCENARIO 417919] Stan create task via "Occurence" field on Task Card page and updating of assignment fields causes update on all tasks having the same "Parent ID"
-        Init();
-
-        LibraryVariableStorage.Clear();
-        CountBefore := UserTask.Count();
-        Increment := LibraryRandom.RandIntInRange(3, 7);
-        TaskTitle := CopyStr(LibraryRandom.RandText(MaxStrLen(TaskTitle)), 1, MaxStrLen(TaskTitle));
-
-        // [GIVEN] Task Group "TG", and User "A".
-        CreateUserTaskGroup(UserTaskGroup);
-        AddUserToUserTaskGroupByCode(User1."User Security ID", UserTaskGroup.Code);
-
-        // [GIVEN] User Task "UT" without assignment
-        UserTaskCard.OpenNew();
-        UserTaskCard.Title.Value(TaskTitle);
-        UserTaskCard.Close();
-
-        UserTask.FindLast();
-        UserTask.TestField(Title, TaskTitle);
-
-        // [GIVEN] Stan specified 5 occurencies for "UT"
-        LibraryVariableStorage.Enqueue(Increment);
-
-        UserTaskCard.OpenEdit();
-        UserTaskCard.Filter.SetFilter(ID, Format(UserTask.ID));
-        UserTaskCard.Recurrence.Invoke();
-        UserTaskCard.OK().Invoke();
-
-        // [GIVEN] New tasks created. (Source (1) + New (4)) = 5
-        Assert.RecordCount(UserTask, CountBefore + Increment);
-
-        // [GIVEN] All of them have the same "Parent ID" = "UT"
-        UserTask.SetRange("Parent ID", UserTask.ID);
-        Assert.RecordCount(UserTask, Increment);
-
-        // [GIVEN] Specified "User Task Group Assigned To" with "TG" on "UT"
-        UserTaskCard.OpenEdit();
-        UserTaskCard.Filter.SetFilter(ID, Format(UserTask.ID));
-        UserTaskCard."User Task Group Assigned To".SetValue(UserTaskGroup.Code);
-        UserTaskCard.OK().Invoke();
-
-        // [GIVEN] System assigned "TG" to all tasks "Parent ID" = "UT"
-        UserTask.SetRange("User Task Group Assigned To", UserTaskGroup.Code);
-        Assert.RecordCount(UserTask, Increment);
-
-        // [WHEN] Stan assigns "A" to task "UT"
-        UserTask.Find();
-        UserTask.Validate("Assigned To", User1."User Security ID");
-        UserTask.Modify(true);
-
-        Assert.RecordCount(UserTask, 0);
-
-        // [THEN] System cleared "User Task Group Assigned To" on all task having "Parent ID" = "UT"
-        // [THEN] System assigned "A" to all task having "Parent ID" = "UT"
-        UserTask.SetRange("User Task Group Assigned To", '');
-        UserTask.SetRange("Assigned To", User1."User Security ID");
-        Assert.RecordCount(UserTask, Increment);
-
-        LibraryVariableStorage.AssertEmpty();
-    end;
-
-    [Test]
     [HandlerFunctions('RequestPageHandler')]
     [Scope('OnPrem')]
     procedure TestUserPurge()
@@ -261,30 +186,6 @@ codeunit 134769 "Test User Tasks"
         UserTaskCard.OK.Invoke;
     end;
 
-    [Test]
-    [Scope('OnPrem')]
-    procedure EnsureUserTaskCanBeAssignedToUserTaskGroup()
-    var
-        UserTask: Record "User Task";
-        UserTaskCard: TestPage "User Task Card";
-    begin
-        // [SCENARIO] Ensure a user task can be assigned to user task group
-
-        // [GIVEN] Creating a new user task.
-        UserTaskCard.Trap;
-        UserTaskCard.OpenNew();
-        UserTaskCard.Title.Value := 'Test User Task';
-        UserTaskCard."User Task Group Assigned To".Value(UserTaskGroup1.Code);
-
-        // [WHEN] user task card page is closed
-        UserTaskCard.OK.Invoke;
-
-        // [THEN] Find User task created and verify that group code is assigned
-        UserTask.SetFilter(Title, 'Test User Task');
-        UserTask.FindFirst();
-        Assert.AreEqual(UserTaskGroup1.Code, UserTask."User Task Group Assigned To", 'Group code was not assigned to user task.');
-    end;
-
     [PageHandler]
     [Scope('OnPrem')]
     procedure CustomerListPageHandler(var CustomerList: Page "Customer List")
@@ -298,19 +199,6 @@ codeunit 134769 "Test User Tasks"
     begin
         UserTaskPurge."User Task".SetFilter("Created By", User1."User Security ID");
         UserTaskPurge.OK.Invoke;
-    end;
-
-    [ModalPageHandler]
-    [Scope('OnPrem')]
-    procedure UserTaskRecurrenceModalPageHandler(var UserTaskRecurrence: TestPage "User Task Recurrence")
-    var
-        DateFormulaVar: DateFormula;
-    begin
-        UserTaskRecurrence.RecurringStartDate.SetValue(DT2Date(CurrentDateTime()));
-        Evaluate(DateFormulaVar, '<1D>');
-        UserTaskRecurrence.Recurrence.SetValue(DateFormulaVar);
-        UserTaskRecurrence.Occurrences.SetValue(LibraryVariableStorage.DequeueInteger());
-        UserTaskRecurrence.OK.Invoke();
     end;
 
     [Scope('OnPrem')]

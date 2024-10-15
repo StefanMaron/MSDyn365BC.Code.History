@@ -121,33 +121,38 @@ codeunit 5404 "Lead-Time Management"
         PlannedShipmentDate: Date;
         ShippingTime: DateFormula;
         CheckBothCalendars: Boolean;
+        IsHandled: Boolean;
     begin
-        // Returns Starting Date calculated backward from Ending Date
+        IsHandled := false;
+        OnBeforePlannedStartingDate(ItemNo, LocationCode, VariantCode, VendorNo, LeadTime, RefOrderType, EndingDate, Result, IsHandled);
+        if not IsHandled then begin
+            // Returns Starting Date calculated backward from Ending Date
 
-        if RefOrderType = RefOrderType::Transfer then begin
-            GetPlanningParameters.AtSKU(TempSKU, ItemNo, VariantCode, LocationCode);
+            if RefOrderType = RefOrderType::Transfer then begin
+                GetPlanningParameters.AtSKU(TempSKU, ItemNo, VariantCode, LocationCode);
 
-            with TransferRoute do begin
-                GetTransferRoute(
-                  TempSKU."Transfer-from Code", LocationCode, "In-Transit Code", "Shipping Agent Code", "Shipping Agent Service Code");
-                GetShippingTime(
-                  TempSKU."Transfer-from Code", LocationCode, "Shipping Agent Code", "Shipping Agent Service Code", ShippingTime);
-                CalcPlanShipmentDateBackward(
-                  PlannedShipmentDate, EndingDate, ShippingTime,
-                  TempSKU."Transfer-from Code", "Shipping Agent Code", "Shipping Agent Service Code");
+                with TransferRoute do begin
+                    GetTransferRoute(
+                      TempSKU."Transfer-from Code", LocationCode, "In-Transit Code", "Shipping Agent Code", "Shipping Agent Service Code");
+                    GetShippingTime(
+                      TempSKU."Transfer-from Code", LocationCode, "Shipping Agent Code", "Shipping Agent Service Code", ShippingTime);
+                    CalcPlanShipmentDateBackward(
+                      PlannedShipmentDate, EndingDate, ShippingTime,
+                      TempSKU."Transfer-from Code", "Shipping Agent Code", "Shipping Agent Service Code");
+                end;
+                exit(PlannedShipmentDate);
             end;
-            exit(PlannedShipmentDate);
-        end;
-        if DateFormulaIsEmpty(LeadTime) then
-            exit(EndingDate);
+            if DateFormulaIsEmpty(LeadTime) then
+                exit(EndingDate);
 
-        if (VendorNo <> '') and (RefOrderType = RefOrderType::Purchase) then begin
-            CustomCalendarChange[1].SetSource(CalChange."Source Type"::Vendor, VendorNo, '', '');
-            CustomCalendarChange[2].SetSource(CalChange."Source Type"::Location, LocationCode, '', '');
-            CheckBothCalendars := true;
-        end else
-            CustomCalendarChange[1].SetSource(CalChange."Source Type"::Location, LocationCode, '', '');
-        Result := CalendarMgmt.CalcDateBOC2(InternalLeadTimeDays(LeadTime), EndingDate, CustomCalendarChange, CheckBothCalendars);
+            if (VendorNo <> '') and (RefOrderType = RefOrderType::Purchase) then begin
+                CustomCalendarChange[1].SetSource(CalChange."Source Type"::Vendor, VendorNo, '', '');
+                CustomCalendarChange[2].SetSource(CalChange."Source Type"::Location, LocationCode, '', '');
+                CheckBothCalendars := true;
+            end else
+                CustomCalendarChange[1].SetSource(CalChange."Source Type"::Location, LocationCode, '', '');
+            Result := CalendarMgmt.CalcDateBOC2(InternalLeadTimeDays(LeadTime), EndingDate, CustomCalendarChange, CheckBothCalendars);
+        end;
         OnAfterPlannedStartingDate(LeadTime, EndingDate, CustomCalendarChange, CheckBothCalendars, Result);
     end;
 
@@ -279,6 +284,11 @@ codeunit 5404 "Lead-Time Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePlannedEndingDate(ItemNo: Code[20]; LocationCode: Code[10]; VariantCode: Code[10]; DueDate: Date; VendorNo: Code[20]; RefOrderType: Option " ",Purchase,"Prod. Order",Transfer,Assembly; var Result: Date; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePlannedStartingDate(ItemNo: Code[20]; LocationCode: Code[10]; VariantCode: Code[10]; VendorNo: Code[20]; LeadTime: Code[20]; RefOrderType: Option " ",Purchase,"Prod. Order",Transfer,Assembly; EndingDate: Date; var Result: Date; var IsHandled: Boolean)
     begin
     end;
 
