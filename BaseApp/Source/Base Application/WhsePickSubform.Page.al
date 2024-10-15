@@ -532,11 +532,20 @@ page 5780 "Whse. Pick Subform"
     end;
 
     local procedure EnableZoneBin()
+    var
+        PlaceLineForConsumption: Boolean;
     begin
+        PlaceLineForConsumption :=
+          (Rec."Action Type" = Rec."Action Type"::Place) and
+          (Rec."Source Document" in ["Warehouse Activity Source Document"::"Prod. Consumption",
+                                     "Warehouse Activity Source Document"::"Assembly Consumption"]) and
+          (Rec."Whse. Document Type" in ["Warehouse Activity Document Type"::Production,
+                                         "Warehouse Activity Document Type"::Assembly]);
+
         ZoneCodeEditable :=
-          (Rec."Action Type" = Rec."Action Type"::Take) or (Rec."Breakbulk No." <> 0);
+          (Rec."Action Type" = Rec."Action Type"::Take) or (Rec."Breakbulk No." <> 0) or PlaceLineForConsumption;
         BinCodeEditable :=
-          (Rec."Action Type" = Rec."Action Type"::Take) or (Rec."Breakbulk No." <> 0);
+          (Rec."Action Type" = Rec."Action Type"::Take) or (Rec."Breakbulk No." <> 0) or PlaceLineForConsumption;
     end;
 
     local procedure SerialNoOnAfterValidate()
