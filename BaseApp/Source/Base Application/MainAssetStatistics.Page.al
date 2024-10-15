@@ -296,7 +296,10 @@ page 5603 "Main Asset Statistics"
         DispDateVisible: Boolean;
 
     local procedure CalcAmount(var FADate: Date; var Amount: Decimal; FADate2: Date; FAPostingType: Enum "FA Journal Line FA Posting Type")
+    var
+        OldAmount: Decimal;
     begin
+        OldAmount := Amount;
         if FADate2 = 0D then
             exit;
         with FADeprBook do
@@ -344,6 +347,8 @@ page 5603 "Main Asset Statistics"
             end;
         if FADate < FADate2 then
             FADate := FADate2;
+
+        OnAfterCalcAmount(Amount, OldAmount, FAPostingType, FADeprBook);
     end;
 
     local procedure GetMinDate(Date1: Date; Date2: Date): Date
@@ -352,6 +357,11 @@ page 5603 "Main Asset Statistics"
             exit(Date2);
 
         exit(Date1);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcAmount(var Amount: Decimal; OldAmount: Decimal; FAPostingType: Enum "FA Journal Line FA Posting Type"; FADepreciationBook: Record "FA Depreciation Book")
+    begin
     end;
 }
 

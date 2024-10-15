@@ -2140,7 +2140,7 @@ table 1003 "Job Planning Line"
         end else
             ClearValues;
 
-        OnUseOnBeforeModify(Rec);
+        OnUseOnBeforeModify(Rec, xRec);
         Modify(true);
     end;
 
@@ -2947,7 +2947,7 @@ table 1003 "Job Planning Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnUseOnBeforeModify(var JobPlanningLine: Record "Job Planning Line")
+    local procedure OnUseOnBeforeModify(var JobPlanningLine: Record "Job Planning Line"; xJobPlanningLine: Record "Job Planning Line")
     begin
     end;
 

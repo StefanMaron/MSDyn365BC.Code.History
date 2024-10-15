@@ -265,6 +265,7 @@
     begin
         // Get journal page mode preference for a page; By defaults this returns FALSE unless a preference
         // is set
+        OnBeforeGetJournalSimplePageModePreference(PageIdToCheck);
         JournalUserPreferences.Reset();
         JournalUserPreferences.SetFilter("User ID", '%1', UserSecurityId);
         JournalUserPreferences.SetFilter("Page ID", '%1', PageIdToCheck);
@@ -534,6 +535,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeLookupName(var GenJnlBatch: Record "Gen. Journal Batch"; var GenJnlLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetJournalSimplePageModePreference(PageIdToCheck: Integer)
     begin
     end;
 

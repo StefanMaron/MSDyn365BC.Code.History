@@ -233,6 +233,7 @@
 
             // Post vendor entry
             Window.Update(4, 1);
+            OnCodeOnBeforePostVendorEntry(PurchHeader, TempPrepmtInvLineBuffer);
             PostVendorEntry(
               PurchHeader, TotalPrepmtInvLineBuffer, TotalPrepmtInvLineBufferLCY, DocumentType, PostingDescription,
               GenJnlLineDocType, GenJnlLineDocNo, GenJnlLineExtDocNo, SrcCode, PostingNoSeriesCode, CalcPmtDiscOnCrMemos);
@@ -244,6 +245,7 @@
             // Balancing account
             if "Bal. Account No." <> '' then begin
                 Window.Update(5, 1);
+                OnCodeOnBeforePostBalancingEntry(PurchHeader, TempPrepmtInvLineBuffer);
                 PostBalancingEntry(
                   PurchHeader, TotalPrepmtInvLineBuffer, TotalPrepmtInvLineBufferLCY, VendLedgEntry, DocumentType,
                   GenJnlLineDocType, GenJnlLineDocNo, GenJnlLineExtDocNo, SrcCode, PostingNoSeriesCode);
@@ -409,6 +411,9 @@
                         NoSeriesCode := "Prepmt. Cr. Memo No. Series";
                     end;
             end;
+
+        if PreviewMode and GLSetup."Journal Templ. Name Mandatory" then
+            GenJournalTemplate.Get(PurchHeader."Journal Templ. Name");
     end;
 
     local procedure UpdateInvoiceDocNos(var PurchHeader: Record "Purchase Header"; var ModifyHeader: Boolean)
@@ -1878,6 +1883,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdatePostedPurchaseDocument(var VendorLedgerEntry: Record "Vendor Ledger Entry"; var PurchInvHeader: Record "Purch. Inv. Header"; var PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr."; DocumentType: Option Invoice,"Credit Memo"; var IsHandled: Boolean; DocumentNo: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnBeforePostBalancingEntry(var PurchaseHeader: Record "Purchase Header"; var TempPrepaymentInvLineBuffer: Record "Prepayment Inv. Line Buffer" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnBeforePostVendorEntry(var PurchaseHeader: Record "Purchase Header"; var TempPrepaymentInvLineBuffer: Record "Prepayment Inv. Line Buffer" temporary)
     begin
     end;
 

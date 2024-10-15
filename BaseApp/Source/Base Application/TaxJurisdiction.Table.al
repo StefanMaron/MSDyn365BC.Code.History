@@ -301,13 +301,28 @@ table 320 "Tax Jurisdiction"
         end;
     end;
 
+#if not CLEAN21
+    [Obsolete('Replaced with GetDescriptionInCurrentLanguageFullLength.', '21.0')]
     procedure GetDescriptionInCurrentLanguage(): Text[50]
     var
         TaxJurisdictionTranslation: Record "Tax Jurisdiction Translation";
         Language: Codeunit Language;
     begin
         if TaxJurisdictionTranslation.Get(Code, Language.GetUserLanguageCode) then
+            exit(CopyStr(TaxJurisdictionTranslation.Description, 1, 50));
+
+        exit(CopyStr(Description, 1, 50));
+    end;
+#endif
+
+    procedure GetDescriptionInCurrentLanguageFullLength(): Text[100]
+    var
+        TaxJurisdictionTranslation: Record "Tax Jurisdiction Translation";
+        Language: Codeunit Language;
+    begin
+        if TaxJurisdictionTranslation.Get(Code, Language.GetUserLanguageCode()) then
             exit(TaxJurisdictionTranslation.Description);
+
         exit(Description);
     end;
 
@@ -319,4 +334,3 @@ table 320 "Tax Jurisdiction"
         exit(Name);
     end;
 }
-

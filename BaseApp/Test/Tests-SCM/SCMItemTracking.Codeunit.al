@@ -38,7 +38,7 @@ codeunit 137405 "SCM Item Tracking"
         PostedWhseQuantityErr: Label 'Posted Warehouse Shipment must have same quantity as Warehouse Shipment';
         WrongExpDateErr: Label 'Wrong expiration date in %1 No. %2';
         ItemLedgEntryWithLotErr: Label 'Item Ledger Entry with Item and Lot not exists.';
-        TrackedQuantityErr: Label 'The %1 does not match the quantity defined in item tracking.';
+        TrackedQuantityErr: Label 'The %1 does not match the quantity defined in item tracking for item %2.';
         LotNoRequiredErr: Label 'You must assign a lot number for item %1.', Comment = '%1 - Item No.';
         SerialNoRequiredErr: Label 'You must assign a serial number for item %1.', Comment = '%1 - Item No.';
         LineNoTxt: Label ' Line No. = ''%1''.', Comment = '%1 - Line No.';
@@ -1715,7 +1715,7 @@ codeunit 137405 "SCM Item Tracking"
 
         // [THEN] The error "Quantity to Ship does not match tracked quantity".
         Assert.AreEqual(
-          StrSubstNo(TrackedQuantityErr, SalesLine.FieldCaption("Qty. to Ship")),
+          StrSubstNo(TrackedQuantityErr, SalesLine.FieldCaption("Qty. to Ship"), SalesLine."No."),
           GetLastErrorText, UnknownError);
     end;
 
@@ -1755,7 +1755,7 @@ codeunit 137405 "SCM Item Tracking"
 
         // [THEN] The error "Quantity to Receive does not match tracked quantity".
         Assert.AreEqual(
-          StrSubstNo(TrackedQuantityErr, PurchaseLine.FieldCaption("Qty. to Receive")),
+          StrSubstNo(TrackedQuantityErr, PurchaseLine.FieldCaption("Qty. to Receive"), PurchaseLine."No."),
           GetLastErrorText, UnknownError);
     end;
 
@@ -3265,7 +3265,7 @@ codeunit 137405 "SCM Item Tracking"
             repeat
                 SumOfQty += WarehouseActivityLine.Quantity;
             until WarehouseActivityLine.Next() <= 0;
-            Assert.AreEqual(PurchaseLine.Quantity, SumOfQty, StrSubstNo(TrackedQuantityErr, SumOfQty));
+            Assert.AreEqual(PurchaseLine.Quantity, SumOfQty, StrSubstNo(TrackedQuantityErr, SumOfQty, Item."No."));
         end;
     end;
 
@@ -3387,7 +3387,7 @@ codeunit 137405 "SCM Item Tracking"
             repeat
                 SumOfQty += WarehouseActivityLine.Quantity;
             until WarehouseActivityLine.Next() <= 0;
-            Assert.AreEqual(SalesLine.Quantity, SumOfQty, StrSubstNo(TrackedQuantityErr, SumOfQty));
+            Assert.AreEqual(SalesLine.Quantity, SumOfQty, StrSubstNo(TrackedQuantityErr, SumOfQty, Item."No."));
         end;
     end;
 

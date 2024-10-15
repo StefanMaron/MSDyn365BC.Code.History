@@ -1,4 +1,4 @@
-table 5621 "FA Journal Line"
+﻿table 5621 "FA Journal Line"
 {
     Caption = 'FA Journal Line';
 
@@ -36,11 +36,17 @@ table 5621 "FA Journal Line"
             Caption = 'FA Posting Type';
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
-                if "FA Posting Type" <> "FA Posting Type"::"Acquisition Cost" then
-                    TestField("Insurance No.", '');
-                if "FA Posting Type" <> "FA Posting Type"::Maintenance then
-                    TestField("Maintenance Code", '');
+                IsHandled := false;
+                OnBeforeValidateFAPostingType(Rec, IsHandled, CurrFieldNo);
+                if not IsHandled then begin
+                    if "FA Posting Type" <> "FA Posting Type"::"Acquisition Cost" then
+                        TestField("Insurance No.", '');
+                    if "FA Posting Type" <> "FA Posting Type"::Maintenance then
+                        TestField("Maintenance Code", '');
+                end;
 
                 "Depr. until FA Posting Date" := "FA Posting Type" = "FA Posting Type"::Disposal;
             end;
@@ -841,6 +847,11 @@ table 5621 "FA Journal Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateFANoOnAfterInitFields(var FAJournalLine: Record "FA Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateFAPostingType(var FAJournalLine: Record "FA Journal Line"; var IsHandled: Boolean; FieldNumber: Integer)
     begin
     end;
 }

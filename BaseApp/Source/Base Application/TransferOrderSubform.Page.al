@@ -409,7 +409,7 @@
                         ApplicationArea = ItemTracking;
                         Caption = 'Shipment';
                         Image = Shipment;
-                        ShortCutKey = 'Ctrl+Alt+I'; 
+                        ShortCutKey = 'Ctrl+Alt+I';
                         ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
 
                         trigger OnAction()

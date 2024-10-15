@@ -156,7 +156,7 @@ page 7324 "Whse. Item Journal"
                     Image = ItemTrackingLines;
                     Promoted = true;
                     PromotedCategory = Category4;
-                    ShortCutKey = 'Shift+Ctrl+I'; // bug 427462
+                    ShortCutKey = 'Ctrl+Alt+I';
                     ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
 
                     trigger OnAction()

@@ -25,6 +25,7 @@ codeunit 9998 "Upgrade Tag Definitions"
         PerCompanyUpgradeTags.Add(GetNewSalesCrMemoEntityBufferUpgradeTag());
         PerCompanyUpgradeTags.Add(GetNewSalesShipmentLineUpgradeTag());
         PerCompanyUpgradeTags.Add(GetSetCoupledFlagsUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetRepeatedSetCoupledFlagsUpgradeTag());
         PerCompanyUpgradeTags.Add(GetSetOptionMappingCoupledFlagsUpgradeTag());
         PerCompanyUpgradeTags.Add(GetDataverseAuthenticationUpgradeTag());
         PerCompanyUpgradeTags.Add(GetCleanupDataExchUpgradeTag());
@@ -278,6 +279,11 @@ codeunit 9998 "Upgrade Tag Definitions"
     procedure GetSetCoupledFlagsUpgradeTag(): Code[250]
     begin
         exit('MS-394960-SetCoupledFlags-20210327');
+    end;
+
+    internal procedure GetRepeatedSetCoupledFlagsUpgradeTag(): Code[250]
+    begin
+        exit('MS-437085-RepeatSetCoupledFlags-20220617');
     end;
 
     internal procedure GetNewISVPlansUpgradeTag(): Code[250]

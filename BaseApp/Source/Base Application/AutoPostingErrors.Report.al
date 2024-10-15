@@ -1705,7 +1705,14 @@
     end;
 
     local procedure CheckPostingDateFAFields(var GenJnlLine: Record "Gen. Journal Line")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckPostingDateFAFields(GenJnlLine, ErrorText, ErrorCounter, IsHandled);
+        if IsHandled then
+            exit;
+
         with GenJnlLine do
             if "FA Posting Date" <> 0D then begin
                 if "FA Posting Date" <> NormalDate("FA Posting Date") then
@@ -2015,7 +2022,14 @@
     end;
 
     local procedure OnAfterGetGenJnlLinePostingDate(var GenJnlLine: Record "Gen. Journal Line")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOnAfterGetGenJnlLinePostingDate(GenJnlLine, ErrorText, ErrorCounter, IsHandled);
+        if IsHandled then
+            exit;
+
         with GenJnlLine do
             if "Posting Date" = 0D then
                 AddError(StrSubstNo(Text002Txt, FieldCaption("Posting Date")))
@@ -2098,6 +2112,16 @@
                 if GenJnlLine2."Bank Payment Type" <> GenJnlLine2."Bank Payment Type"::" " then
                     AddError(StrSubstNo(Text009Txt, FieldCaption("Bank Payment Type")));
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnAfterGetGenJnlLinePostingDate(var GenJournalLine: Record "Gen. Journal Line"; var ErrorText: array[50] of Text[250]; var ErrorCounter: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckPostingDateFAFields(var GenJnlLine: Record "Gen. Journal Line"; var ErrorText: array[50] of Text[250]; var ErrorCounter: Integer; var IsHandled: Boolean)
+    begin
     end;
 }
 

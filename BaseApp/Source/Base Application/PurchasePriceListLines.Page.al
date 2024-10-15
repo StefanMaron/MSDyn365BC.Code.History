@@ -45,7 +45,7 @@ page 7011 "Purchase Price List Lines"
                     Caption = 'Assign-to Job No.';
                     Importance = Promoted;
                     Editable = IsParentAllowed;
-                    Visible = IsJobGroup and AllowUpdatingDefaults and UseCustomLookup;
+                    Visible = ParentSourceNoVisible;
                     ToolTip = 'Specifies the job to which the prices are assigned. If you choose an entity, the price list will be used only for that entity.';
                 }
                 field(AssignToParentNo; Rec."Assign-to Parent No.")
@@ -55,7 +55,7 @@ page 7011 "Purchase Price List Lines"
                     Importance = Promoted;
                     Editable = IsParentAllowed;
                     ShowMandatory = IsParentAllowed;
-                    Visible = IsJobGroup and AllowUpdatingDefaults and not UseCustomLookup;
+                    Visible = AssignToParentNoVisible;
                     ToolTip = 'Specifies the job to which the prices are assigned. If you choose an entity, the price list will be used only for that entity.';
                 }
                 field(SourceNo; Rec."Source No.")
@@ -64,7 +64,7 @@ page 7011 "Purchase Price List Lines"
                     Importance = Promoted;
                     Enabled = SourceNoEnabled;
                     ShowMandatory = SourceNoEnabled;
-                    Visible = AllowUpdatingDefaults and UseCustomLookup;
+                    Visible = SourceNoVisible;
                     ToolTip = 'Specifies the entity to which the prices are assigned. The options depend on the selection in the Assign-to Type field. If you choose an entity, the price list will be used only for that entity.';
                 }
                 field(AssignToNo; Rec."Assign-to No.")
@@ -73,7 +73,7 @@ page 7011 "Purchase Price List Lines"
                     Importance = Promoted;
                     Enabled = SourceNoEnabled;
                     ShowMandatory = SourceNoEnabled;
-                    Visible = AllowUpdatingDefaults and not UseCustomLookup;
+                    Visible = AssignToNoVisible;
                     ToolTip = 'Specifies the entity to which the prices are assigned. The options depend on the selection in the Assign-to Type field. If you choose an entity, the price list will be used only for that entity.';
                 }
                 field(CurrencyCode; Rec."Currency Code")
@@ -210,7 +210,7 @@ page 7011 "Purchase Price List Lines"
                 {
                     AccessByPermission = tabledata "Purchase Price Access" = R;
                     ApplicationArea = All;
-                    Editable = AmountEditable and (ResourceAsset or GLAccountAsset);
+                    Editable = UnitCostEditable;
                     Enabled = PriceMandatory;
                     Visible = PriceVisible and (ResourceAsset or GLAccountAsset);
                     StyleExpr = PriceStyle;
@@ -343,6 +343,14 @@ page 7011 "Purchase Price List Lines"
         [InDataSet]
         GLAccountAsset: Boolean;
         [InDataSet]
+        AssignToNoVisible: Boolean;
+        [InDataSet]
+        AssignToParentNoVisible: Boolean;
+        [InDataSet]
+        ParentSourceNoVisible: Boolean;
+        [InDataSet]
+        SourceNoVisible: Boolean;
+        [InDataSet]
         ResourceAsset: Boolean;
         [InDataSet]
         SourceNoEnabled: Boolean;
@@ -350,6 +358,8 @@ page 7011 "Purchase Price List Lines"
         LineToVerify: Boolean;
         [InDataSet]
         UOMEditable: Boolean;
+        [InDataSet]
+        UnitCostEditable: Boolean;
         [InDataSet]
         UseCustomLookup: Boolean;
 
@@ -370,6 +380,11 @@ page 7011 "Purchase Price List Lines"
         ItemAsset := Rec.IsAssetItem();
         ResourceAsset := Rec.IsAssetResource();
         GLAccountAsset := Rec."Asset Type" = "Price Asset Type"::"G/L Account";
+        UnitCostEditable := AmountEditable and (ResourceAsset or GLAccountAsset);
+        AssignToNoVisible := AllowUpdatingDefaults and not UseCustomLookup;
+        AssignToParentNoVisible := IsJobGroup and AssignToNoVisible;
+        SourceNoVisible := AllowUpdatingDefaults and UseCustomLookup;
+        ParentSourceNoVisible := IsJobGroup and SourceNoVisible;
     end;
 
     local procedure SetMandatoryAmount()

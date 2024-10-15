@@ -302,6 +302,7 @@
                 CheckApplnIsSameAcc;
 
         BankAccReconLine.Validate("Applied Amount", NewAppliedAmt);
+        OnUpdateParentBankAccReconLineOnBeforeBankAccReconLineModify(Rec, BankAccReconLine, IsDelete);
         BankAccReconLine.Modify();
     end;
 
@@ -1020,6 +1021,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcAmountToApply(var AppliedPaymentEntry: Record "Applied Payment Entry"; PostingDate: Date; var AmountToApply: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateParentBankAccReconLineOnBeforeBankAccReconLineModify(var AppliedPaymentEntry: Record "Applied Payment Entry"; var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; IsDelete: Boolean)
     begin
     end;
 }

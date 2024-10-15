@@ -41,7 +41,7 @@ page 579 "Post Application"
                 field(ExtDocNo; ApplyUnapplyParameters."External Document No.")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Document No.';
+                    Caption = 'External Document No.';
                     ToolTip = 'Specifies the external document number of the entry to be applied.';
                 }
 #if not CLEAN20
