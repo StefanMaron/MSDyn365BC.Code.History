@@ -116,7 +116,7 @@ page 810 "Web Services"
 
                 trigger OnAction()
                 begin
-                    WebServiceManagement.LoadRecords(Rec);
+                    Reload();
                 end;
             }
             action("Create Data Set")
@@ -165,8 +165,8 @@ page 810 "Web Services"
     begin
         if WebService.WritePermission() then
             IsWebServiceWriteable := true;
-        WebServiceManagement.LoadRecords(Rec);
 
+        Reload();
     end;
 
     var
@@ -176,5 +176,9 @@ page 810 "Web Services"
         IsWebServiceWriteable: Boolean;
         IsSaas: Boolean;
 
+    procedure Reload()
+    begin
+        WebServiceManagement.LoadRecords(Rec);
+    end;
 }
 

@@ -1,6 +1,6 @@
 page 9020 "Small Business Owner RC"
 {
-    Caption = 'President - Small Business', Comment = '{Dependency=Match,"ProfileDescription_PRESIDENT-SMALLBUSINESS"}';
+    Caption = 'President - Small Business';
     PageType = RoleCenter;
 
     layout
@@ -871,6 +871,7 @@ page 9020 "Small Business Owner RC"
                     RunObject = Page "Resource Groups";
                     ToolTip = 'View all resource groups.';
                 }
+#if not CLEAN19
                 action("Resource Price Changes")
                 {
                     ApplicationArea = Basic, Suite;
@@ -882,6 +883,7 @@ page 9020 "Small Business Owner RC"
                     ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
                     ObsoleteTag = '17.0';
                 }
+#endif
                 action("Resource Registers")
                 {
                     ApplicationArea = Basic, Suite;
@@ -1147,7 +1149,7 @@ page 9020 "Small Business Owner RC"
                 Caption = 'Adjust E&xchange Rates';
                 Ellipsis = true;
                 Image = AdjustExchangeRates;
-                RunObject = Report "Adjust Exchange Rates";
+                RunObject = Codeunit "Exch. Rate Adjmt. Run Handler";
                 ToolTip = 'Adjust general ledger, customer, vendor, and bank account entries to reflect a more updated balance if the exchange rate has changed since the entries were posted.';
             }
             action("Adjust &Item Costs/Prices")

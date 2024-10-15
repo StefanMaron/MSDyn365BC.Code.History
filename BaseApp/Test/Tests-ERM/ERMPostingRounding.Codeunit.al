@@ -29,6 +29,7 @@ codeunit 134157 "ERM Posting Rounding"
         // [SCENARIO 268735] Posting of a purchase invoice with NO VAT, currency, several G/L Accounts with positive and negative lines having zero balance on one of the G/L Accounts
         // [SCENARIO 268735] in case of balanced invoice posting buffer groups rounding
         Initialize();
+        SetPurchInvoicePosting("Purchase Invoice Posting"::"Invoice Posting (Default)");
 
         // [GIVEN] Purchase invoice with NO VAT, currency, several G/L Accounts with positive and negative lines having zero balance on GLAccount "A"
         CreatePurchaseInvoice_TFS268735(PurchaseHeader, GLAccountNo);
@@ -60,6 +61,7 @@ codeunit 134157 "ERM Posting Rounding"
         // [SCENARIO 396183] Posting of a purchase invoice with NO VAT, currency, several G/L Accounts with positive and negative lines
         // [SCENARIO 396183] in case of non balanced invoice posting buffer groups rounding
         Initialize();
+        SetPurchInvoicePosting("Purchase Invoice Posting"::"Invoice Posting (Default)");
 
         // [GIVEN] Purchase invoice with NO VAT, currency, several G/L Accounts with positive and negative lines
         CreatePurchaseInvoice_TFS268735_2(PurchaseHeader, GLAccountNo);
@@ -91,6 +93,7 @@ codeunit 134157 "ERM Posting Rounding"
         // [SCENARIO 268735] Posting of a sales invoice with NO VAT, currency, several G/L Accounts with positive and negative lines having zero balance on one of the G/L Accounts
         // [SCENARIO 268735] in case of balanced invoice posting buffer groups rounding
         Initialize();
+        SetSalesInvoicePosting("Sales Invoice Posting"::"Invoice Posting (Default)");
 
         // [GIVEN] Sales invoice with NO VAT, currency, several G/L Accounts with positive and negative lines having zero balance on GLAccount "A"
         CreateSalesInvoice_TFS268735(SalesHeader, GLAccountNo);
@@ -109,6 +112,7 @@ codeunit 134157 "ERM Posting Rounding"
         VerifyGLEntry(DocumentNo, GetCustomerReceivablesAccountNo(SalesHeader."Customer Posting Group"), 35148.68);
     end;
 
+#if not CLEAN19
     [Test]
     [Scope('OnPrem')]
     procedure NOVATFCYSalesInvoiceWithPositiveAndNegativeLineAmounts2()
@@ -122,6 +126,7 @@ codeunit 134157 "ERM Posting Rounding"
         // [SCENARIO 396183] Posting of a sales invoice with NO VAT, currency, several G/L Accounts with positive and negative lines
         // [SCENARIO 396183] in case of non balanced invoice posting buffer groups rounding
         Initialize();
+        SetSalesInvoicePosting("Sales Invoice Posting"::"Invoice Posting (Default)");
 
         // [GIVEN] Sales invoice with NO VAT, currency, several G/L Accounts with positive and negative lines
         CreateSalesInvoice_TFS268735_2(SalesHeader, GLAccountNo);
@@ -168,6 +173,36 @@ codeunit 134157 "ERM Posting Rounding"
         TempInvoicePostBuffer.ApplyRoundingForFinalPosting;
         VerifyInvoicePostBufferAmounts(TempInvoicePostBuffer, 2, 1, 2, 1, 2, 1);
     end;
+#endif
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure InvoicePostBuffer_Update_ZeroRounding_V19()
+    var
+        TempInvoicePostingBuffer: Record "Invoice Posting Buffer" temporary;
+        TempInvoicePostingBuffer2: Record "Invoice Posting Buffer" temporary;
+        InvDefLineNo: Integer;
+        DeferralLineNo: Integer;
+    begin
+        // [FEATURE] [UT] [Invoice Posting Buffer]
+        // [SCENARIO 268735] TAB 55 "Invoice Posting Buffer".Update() in case of zero rounding for the paired field (i.e. "Amount" = 0, "Amount (ACY)" <> 0)
+        MockTempInvoicePostingBuffer(TempInvoicePostingBuffer, 0, 0, 0, 0, 0, 0);
+
+        MockTempInvoicePostingBuffer(TempInvoicePostingBuffer2, 1, 0, 1, 0, 1, 0);
+        TempInvoicePostingBuffer.Update(TempInvoicePostingBuffer2, InvDefLineNo, DeferralLineNo);
+        VerifyInvoicePostingBufferAmounts(TempInvoicePostingBuffer, 0, 0, 0, 0, 0, 0);
+
+        TempInvoicePostingBuffer2.Delete();
+        MockTempInvoicePostingBuffer(TempInvoicePostingBuffer2, 1, 1, 1, 1, 1, 1);
+        TempInvoicePostingBuffer.Update(TempInvoicePostingBuffer2, InvDefLineNo, DeferralLineNo);
+        VerifyInvoicePostingBufferAmounts(TempInvoicePostingBuffer, 1, 1, 1, 1, 1, 1);
+
+        TempInvoicePostingBuffer.ApplyRoundingForFinalPosting();
+        VerifyInvoicePostingBufferAmounts(TempInvoicePostingBuffer, 2, 1, 2, 1, 2, 1);
+
+        TempInvoicePostingBuffer.ApplyRoundingForFinalPosting();
+        VerifyInvoicePostingBufferAmounts(TempInvoicePostingBuffer, 2, 1, 2, 1, 2, 1);
+    end;
 
     local procedure Initialize()
     var
@@ -178,8 +213,8 @@ codeunit 134157 "ERM Posting Rounding"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Posting Rounding");
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
 
         IsInitialized := true;
         Commit();
@@ -348,6 +383,7 @@ codeunit 134157 "ERM Posting Rounding"
         SalesLine.Modify(true);
     end;
 
+#if not CLEAN19
     local procedure MockTempInvoicePostBuffer(var TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary; NewAmount: Decimal; NewAmountACY: Decimal; NewVATAmount: Decimal; NewVATAmountACY: Decimal; NewVATBaseAmount: Decimal; NewVATBaseAmountACY: Decimal)
     begin
         with TempInvoicePostBuffer do begin
@@ -359,6 +395,22 @@ codeunit 134157 "ERM Posting Rounding"
             "VAT Base Amount" := NewVATBaseAmount;
             "VAT Base Amount (ACY)" := NewVATBaseAmountACY;
             Insert;
+        end;
+    end;
+#endif
+
+    local procedure MockTempInvoicePostingBuffer(var TempInvoicePostingBuffer: Record "Invoice Posting Buffer" temporary; NewAmount: Decimal; NewAmountACY: Decimal; NewVATAmount: Decimal; NewVATAmountACY: Decimal; NewVATBaseAmount: Decimal; NewVATBaseAmountACY: Decimal)
+    begin
+        with TempInvoicePostingBuffer do begin
+            Init();
+            Amount := NewAmount;
+            "Amount (ACY)" := NewAmountACY;
+            "VAT Amount" := NewVATAmount;
+            "VAT Amount (ACY)" := NewVATAmountACY;
+            "VAT Base Amount" := NewVATBaseAmount;
+            "VAT Base Amount (ACY)" := NewVATBaseAmountACY;
+            BuildPrimaryKey();
+            Insert();
         end;
     end;
 
@@ -378,6 +430,24 @@ codeunit 134157 "ERM Posting Rounding"
         exit(CustomerPostingGroup."Receivables Account");
     end;
 
+    local procedure SetSalesInvoicePosting(InvoicePosting: Enum "Sales Invoice Posting")
+    var
+        SalesSetup: Record "Sales & Receivables Setup";
+    begin
+        SalesSetup.Get();
+        SalesSetup.Validate("Invoice Posting Setup", InvoicePosting);
+        SalesSetup.Modify();
+    end;
+
+    local procedure SetPurchInvoicePosting(InvoicePosting: Enum "Purchase Invoice Posting")
+    var
+        PurchSetup: Record "Purchases & Payables Setup";
+    begin
+        PurchSetup.Get();
+        PurchSetup.Validate("Invoice Posting Setup", InvoicePosting);
+        PurchSetup.Modify();
+    end;
+
     local procedure VerifyGLEntry(DocumentNo: Code[20]; GLAccountNo: Code[20]; ExpectedAmount: Decimal)
     var
         GLEntry: Record "G/L Entry";
@@ -390,9 +460,23 @@ codeunit 134157 "ERM Posting Rounding"
         end;
     end;
 
+#if not CLEAN19
     local procedure VerifyInvoicePostBufferAmounts(InvoicePostBuffer: Record "Invoice Post. Buffer"; ExpAmount: Decimal; ExpAmountACY: Decimal; ExpVATAmount: Decimal; ExpVATAmountACY: Decimal; ExpVATBaseAmount: Decimal; ExpVATBaseAmountACY: Decimal)
     begin
         with InvoicePostBuffer do begin
+            TestField(Amount, ExpAmount);
+            TestField("Amount (ACY)", ExpAmountACY);
+            TestField("VAT Amount", ExpVATAmount);
+            TestField("VAT Amount (ACY)", ExpVATAmountACY);
+            TestField("VAT Base Amount", ExpVATBaseAmount);
+            TestField("VAT Base Amount (ACY)", ExpVATBaseAmountACY);
+        end;
+    end;
+#endif
+
+    local procedure VerifyInvoicePostingBufferAmounts(InvoicePostingBuffer: Record "Invoice Posting Buffer"; ExpAmount: Decimal; ExpAmountACY: Decimal; ExpVATAmount: Decimal; ExpVATAmountACY: Decimal; ExpVATBaseAmount: Decimal; ExpVATBaseAmountACY: Decimal)
+    begin
+        with InvoicePostingBuffer do begin
             TestField(Amount, ExpAmount);
             TestField("Amount (ACY)", ExpAmountACY);
             TestField("VAT Amount", ExpVATAmount);

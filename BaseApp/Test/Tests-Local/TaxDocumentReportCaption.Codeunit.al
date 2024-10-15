@@ -26,28 +26,6 @@ codeunit 144001 "Tax Document Report Caption"
         LibraryApplicationArea: Codeunit "Library - Application Area";
 
     [Test]
-    [HandlerFunctions('SalesInvoiceRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure T010_FeatureDisabledIfThresholdAmountIsZero()
-    var
-        SalesInvoiceHeader: Record "Sales Invoice Header";
-    begin
-        // [SCENARIO] Invoice is never a tax invoice if "Tax Invoice Renaming Threshold" is zero.
-        Initialize;
-        // [GIVEN] "Tax Invoice Renaming Threshold" = 0.00
-        SetTaxInvoiceThreshold(0.0);
-        // [GIVEN] Posted invoice for $0.01
-        SalesInvoiceHeader.Get(PostSalesInvoiceLCY(0.01));
-
-        // [WHEN] Print 'Sales - Invoice'
-        SalesInvoiceHeader.SetRecFilter;
-        REPORT.Run(REPORT::"Sales - Invoice", true, false, SalesInvoiceHeader);
-
-        // [THEN] Report title is 'Sales - Invoice'
-        VerifyReportCaption('DocumentCaptionCopyText', StrSubstNo(SalesInvoiceTxt, ''));
-    end;
-
-    [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure T020_ThresholdIsEditableOnGLSetupPage()
@@ -60,101 +38,6 @@ codeunit 144001 "Tax Document Report Caption"
         GeneralLedgerSetupPage.OpenEdit;
         Assert.IsTrue(GeneralLedgerSetupPage."Tax Invoice Renaming Threshold".Visible, 'Tax Invoice Renaming Threshold is not visible');
         Assert.IsTrue(GeneralLedgerSetupPage."Tax Invoice Renaming Threshold".Editable, 'Tax Invoice Renaming Threshold is not editable');
-    end;
-
-    [Test]
-    [HandlerFunctions('SalesInvoiceRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure T100_CaptionSalesInvoiceIfAmountIs1000()
-    var
-        SalesInvoiceHeader: Record "Sales Invoice Header";
-    begin
-        // [FEATURE] [Sales] [Invoice]
-        // [SCENARIO] Report caption is 'Sales - Invoice' if document's total amount is equal to "Tax Invoice Threshold Amount".
-        Initialize;
-        // [GIVEN] "Tax Invoice Threshold Amount" is 1000.00
-        SetTaxInvoiceThreshold(1000.0);
-        // [GIVEN] Posted Sales Invoice, where "Amount Incl. VAT" is 1000.00.
-        SalesInvoiceHeader.Get(PostSalesInvoiceLCY(1000));
-
-        // [WHEN] Print report "Sales - Invoice"
-        SalesInvoiceHeader.SetRecFilter;
-        REPORT.Run(REPORT::"Sales - Invoice", true, false, SalesInvoiceHeader);
-
-        // [THEN] Report title is 'Sales - Invoice'
-        VerifyReportCaption('DocumentCaptionCopyText', StrSubstNo(SalesInvoiceTxt, ''));
-    end;
-
-    [Test]
-    [HandlerFunctions('SalesInvoiceRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure T101_CaptionSalesTaxInvoiceIfAmountMoreThan1000()
-    var
-        SalesInvoiceHeader: Record "Sales Invoice Header";
-    begin
-        // [FEATURE] [Sales] [Invoice]
-        // [SCENARIO] Report caption is 'Sales - Tax Invoice' if document's total amount is above "Tax Invoice Threshold Amount".
-        Initialize;
-        // [GIVEN] "Tax Invoice Threshold Amount" is 1000.00
-        SetTaxInvoiceThreshold(1000.0);
-        // [GIVEN] Posted Sales Invoice, where "Amount Incl. VAT" is 1000.01.
-        SalesInvoiceHeader.Get(PostSalesInvoiceLCY(1000.01));
-
-        // [WHEN] Print report "Sales - Invoice"
-        SalesInvoiceHeader.SetRecFilter;
-        REPORT.Run(REPORT::"Sales - Invoice", true, false, SalesInvoiceHeader);
-
-        // [THEN] Report title is 'Sales - Tax Invoice'
-        VerifyReportCaption('DocumentCaptionCopyText', StrSubstNo(SalesTaxInvoiceTxt, ''));
-    end;
-
-    [Test]
-    [HandlerFunctions('SalesInvoiceRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure T102_CaptionSalesPrepmtTaxInvoiceIfAmountMoreThan1000()
-    var
-        SalesInvoiceHeader: Record "Sales Invoice Header";
-    begin
-        // [FEATURE] [Sales] [Invoice] [Prepayment]
-        // [SCENARIO] Report caption is 'Sales - Prepayment Tax Invoice' if prepayment total amount is above "Tax Invoice Threshold Amount".
-        Initialize;
-        // [GIVEN] "Tax Invoice Threshold Amount" is 1000.00
-        SetTaxInvoiceThreshold(1000.0);
-        // [GIVEN] Posted Prepayment Sales Invoice, where "Amount Incl. VAT" is 1000.01.
-        SalesInvoiceHeader.Get(PostSalesInvoiceLCY(1000.01));
-        SalesInvoiceHeader."Prepayment Invoice" := true;
-        SalesInvoiceHeader.Modify();
-        Commit();
-
-        // [WHEN] Print report "Sales - Invoice"
-        SalesInvoiceHeader.SetRecFilter;
-        REPORT.Run(REPORT::"Sales - Invoice", true, false, SalesInvoiceHeader);
-
-        // [THEN] Report title is 'Sales - Tax Invoice'
-        VerifyReportCaption('DocumentCaptionCopyText', StrSubstNo(SalesPrepmtTaxInvoiceTxt, ''));
-    end;
-
-    [Test]
-    [HandlerFunctions('SalesInvoiceRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure T103_CaptionSalesInvoiceInFCYIfLCYAmountIs1000()
-    var
-        SalesInvoiceHeader: Record "Sales Invoice Header";
-    begin
-        // [FEATURE] [Sales] [Invoice] [FCY]
-        // [SCENARIO] Report caption is 'Sales - Invoice' if FCY document's total amount in LCY is equal to "Tax Invoice Threshold Amount".
-        Initialize;
-        // [GIVEN] "Tax Invoice Threshold Amount" is 1000.00
-        SetTaxInvoiceThreshold(1000.0);
-        // [GIVEN] Posted Sales Invoice in FCY, where "Amount Incl. VAT" is 2000.00 (= NZD1000.00).
-        SalesInvoiceHeader.Get(PostSalesInvoice(2, 2000));
-
-        // [WHEN] Print report "Sales - Invoice"
-        SalesInvoiceHeader.SetRecFilter;
-        REPORT.Run(REPORT::"Sales - Invoice", true, false, SalesInvoiceHeader);
-
-        // [THEN] Report title is 'Sales - Invoice'
-        VerifyReportCaption('DocumentCaptionCopyText', StrSubstNo(SalesInvoiceTxt, ''));
     end;
 
     [Test]
@@ -362,13 +245,6 @@ codeunit 144001 "Tax Document Report Caption"
         LibraryReportDataset.LoadDataSetFile;
         Assert.IsTrue(LibraryReportDataset.GetNextRow, 'Cannot find first row.');
         LibraryReportDataset.AssertCurrentRowValueEquals(CaptionName, ExpectedValue);
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure SalesInvoiceRequestPageHandler(var SalesInvoice: TestRequestPage "Sales - Invoice")
-    begin
-        SalesInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 
     [RequestPageHandler]

@@ -181,7 +181,8 @@ page 400 "Purchase Invoice Statistics"
         PurchInvLine.CalcVATAmountLines(Rec, TempVATAmountLine);
         OnOnAfterGetRecordOnBeforeUpdateSubForm(Rec);
         CurrPage.SubForm.PAGE.SetTempVATAmountLine(TempVATAmountLine);
-        CurrPage.SubForm.PAGE.InitGlobals("Currency Code", false, false, false, false, "VAT Base Discount %", 0);
+        CurrPage.SubForm.PAGE.InitGlobals("Currency Code", false, false, false, false, "VAT Base Discount %");
+        CurrPage.SubForm.Page.ShowGSTAmountACY();
     end;
 
     var
@@ -219,18 +220,18 @@ page 400 "Purchase Invoice Statistics"
         PurchInvLine.SetRange("Document No.", "No.");
         if PurchInvLine.Find('-') then
             repeat
-                VendAmount := VendAmount + PurchInvLine.Amount;
-                AmountInclVAT := AmountInclVAT + PurchInvLine."Amount Including VAT";
+                VendAmount += PurchInvLine.Amount;
+                AmountInclVAT += PurchInvLine."Amount Including VAT";
                 if "Prices Including VAT" then
-                    InvDiscAmount := InvDiscAmount + PurchInvLine."Inv. Discount Amount" / (1 + PurchInvLine."VAT %" / 100)
+                    InvDiscAmount += PurchInvLine."Inv. Discount Amount" / (1 + PurchInvLine."VAT %" / 100)
                 else
-                    InvDiscAmount := InvDiscAmount + PurchInvLine."Inv. Discount Amount";
-                LineQty := LineQty + PurchInvLine.Quantity;
-                TotalNetWeight := TotalNetWeight + (PurchInvLine.Quantity * PurchInvLine."Net Weight");
-                TotalGrossWeight := TotalGrossWeight + (PurchInvLine.Quantity * PurchInvLine."Gross Weight");
-                TotalVolume := TotalVolume + (PurchInvLine.Quantity * PurchInvLine."Unit Volume");
+                    InvDiscAmount += PurchInvLine."Inv. Discount Amount";
+                LineQty += PurchInvLine.Quantity;
+                TotalNetWeight += PurchInvLine.Quantity * PurchInvLine."Net Weight";
+                TotalGrossWeight += PurchInvLine.Quantity * PurchInvLine."Gross Weight";
+                TotalVolume += PurchInvLine.Quantity * PurchInvLine."Unit Volume";
                 if PurchInvLine."Units per Parcel" > 0 then
-                    TotalParcels := TotalParcels + Round(PurchInvLine.Quantity / PurchInvLine."Units per Parcel", 1, '>');
+                    TotalParcels += Round(PurchInvLine.Quantity / PurchInvLine."Units per Parcel", 1, '>');
                 if PurchInvLine."VAT %" <> VATPercentage then
                     if VATPercentage = 0 then
                         VATPercentage := PurchInvLine."VAT %"

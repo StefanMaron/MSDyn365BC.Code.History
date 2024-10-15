@@ -19,32 +19,32 @@ page 1032 "Available - Job Planning Lines"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field(Status; Status)
+                field(Status; Rec.Status)
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the status of a job order.';
                 }
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies a document number for the planning line.';
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the location code for the item on the job planning line.';
                 }
-                field("Planning Date"; "Planning Date")
+                field("Planning Date"; Rec."Planning Date")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the date of the planning line. You can use the planning date for filtering the totals of the job, for example, if you want to see the budgeted usage for a specific month of the year.';
                 }
-                field("Remaining Qty. (Base)"; "Remaining Qty. (Base)")
+                field("Remaining Qty. (Base)"; Rec."Remaining Qty. (Base)")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the remaining quantity of the resource, item, or general ledger account that remains to complete a job, expressed in base units of measure. The quantity is calculated as the difference between Quantity and Qty. Posted.';
                 }
-                field("Reserved Quantity"; "Reserved Quantity")
+                field("Reserved Quantity"; Rec."Reserved Quantity")
                 {
                     ApplicationArea = Reservation;
                     Editable = false;
@@ -58,7 +58,7 @@ page 1032 "Available - Job Planning Lines"
                     Editable = false;
                     ToolTip = 'Specifies how many units of the item on the line are available for reservation.';
                 }
-                field(ReservedQuantity; GetReservedQtyInLine)
+                field(ReservedQuantity; GetReservedQtyInLine())
                 {
                     ApplicationArea = Reservation;
                     Caption = 'Current Reserved Quantity';
@@ -68,15 +68,15 @@ page 1032 "Available - Job Planning Lines"
                     trigger OnDrillDown()
                     begin
                         ReservEntry2.Reset();
-                        SetReservationFilters(ReservEntry2);
+                        Rec.SetReservationFilters(ReservEntry2);
                         ReservEntry2.SetRange("Reservation Status", ReservEntry2."Reservation Status"::Reservation);
                         ReservMgt.MarkReservConnection(ReservEntry2, ReservEntry);
                         PAGE.RunModal(PAGE::"Reservation Entries", ReservEntry2);
-                        UpdateReservFrom;
+                        UpdateReservFrom();
                         CurrPage.Update();
                     end;
                 }
-                field("Work Type Code"; "Work Type Code")
+                field("Work Type Code"; Rec."Work Type Code")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies which work type the resource applies to. Prices are updated based on this entry.';
@@ -104,8 +104,8 @@ page 1032 "Available - Job Planning Lines"
                     trigger OnAction()
                     begin
                         ReservEntry.LockTable();
-                        UpdateReservMgt;
-                        GetReservationQty(QtyReserved, QtyReservedBase, QtyToReserve, QtyToReserveBase);
+                        UpdateReservMgt();
+                        Rec.GetReservationQty(QtyReserved, QtyReservedBase, QtyToReserve, QtyToReserveBase);
                         ReservMgt.CalculateRemainingQty(NewQtyReserved, NewQtyReservedBase);
                         ReservMgt.CopySign(NewQtyReserved, QtyToReserve);
                         ReservMgt.CopySign(NewQtyReservedBase, QtyToReserveBase);
@@ -132,14 +132,14 @@ page 1032 "Available - Job Planning Lines"
                             exit;
 
                         ReservEntry2.Copy(ReservEntry);
-                        SetReservationFilters(ReservEntry2);
+                        Rec.SetReservationFilters(ReservEntry2);
                         if ReservEntry2.Find('-') then begin
-                            UpdateReservMgt;
+                            UpdateReservMgt();
                             repeat
                                 ReservEngineMgt.CancelReservation(ReservEntry2);
                             until ReservEntry2.Next() = 0;
 
-                            UpdateReservFrom;
+                            UpdateReservFrom();
                         end;
                     end;
                 }
@@ -155,7 +155,7 @@ page 1032 "Available - Job Planning Lines"
                     var
                         Job: Record Job;
                     begin
-                        Job.Get("Job No.");
+                        Job.Get(Rec."Job No.");
                         PAGE.Run(PAGE::"Job Card", Job);
                     end;
                 }
@@ -165,14 +165,14 @@ page 1032 "Available - Job Planning Lines"
 
     trigger OnAfterGetRecord()
     begin
-        GetReservationQty(QtyReserved, QtyReservedBase, QtyToReserve, QtyToReserveBase);
+        Rec.GetReservationQty(QtyReserved, QtyReservedBase, QtyToReserve, QtyToReserveBase);
     end;
 
     trigger OnOpenPage()
     begin
         ReservEntry.TestField("Source Type");
 
-        SetFilters;
+        SetFilters();
     end;
 
     var
@@ -184,14 +184,16 @@ page 1032 "Available - Job Planning Lines"
         ReservMgt: Codeunit "Reservation Management";
         ReservEngineMgt: Codeunit "Reservation Engine Mgt.";
         SourceRecRef: RecordRef;
-        QtyToReserve: Decimal;
-        QtyToReserveBase: Decimal;
         QtyReserved: Decimal;
         QtyReservedBase: Decimal;
         NewQtyReserved: Decimal;
         NewQtyReservedBase: Decimal;
         CaptionText: Text;
         CurrentSubType: Option;
+
+    protected var
+        QtyToReserve: Decimal;
+        QtyToReserveBase: Decimal;
 
     procedure SetSource(CurrentSourceRecRef: RecordRef; CurrentReservEntry: Record "Reservation Entry")
     var
@@ -212,89 +214,24 @@ page 1032 "Available - Job Planning Lines"
         CaptionText := ReservMgt.FilterReservFor(SourceRecRef, ReservEntry, Direction);
     end;
 
-#if not CLEAN16
-    [Obsolete('Replaced by SetSource procedure.', '16.0')]
-    procedure SetSalesLine(var CurrentSalesLine: Record "Sales Line"; CurrentReservEntry: Record "Reservation Entry")
-    begin
-        SourceRecRef.GetTable(CurrentSalesLine);
-        SetSource(SourceRecRef, CurrentReservEntry);
-    end;
-
-    [Obsolete('Replaced by SetSource procedure.', '16.0')]
-    procedure SetReqLine(var CurrentReqLine: Record "Requisition Line"; CurrentReservEntry: Record "Reservation Entry")
-    begin
-        SourceRecRef.GetTable(CurrentReqLine);
-        SetSource(SourceRecRef, CurrentReservEntry);
-    end;
-
-    [Obsolete('Replaced by SetSource procedure.', '16.0')]
-    procedure SetPurchLine(var CurrentPurchLine: Record "Purchase Line"; CurrentReservEntry: Record "Reservation Entry")
-    begin
-        SourceRecRef.GetTable(CurrentPurchLine);
-        SetSource(SourceRecRef, CurrentReservEntry);
-    end;
-
-    [Obsolete('Replaced by SetSource procedure.', '16.0')]
-    procedure SetProdOrderLine(var CurrentProdOrderLine: Record "Prod. Order Line"; CurrentReservEntry: Record "Reservation Entry")
-    begin
-        SourceRecRef.GetTable(CurrentProdOrderLine);
-        SetSource(SourceRecRef, CurrentReservEntry);
-    end;
-
-    [Obsolete('Replaced by SetSource procedure.', '16.0')]
-    procedure SetProdOrderComponent(var CurrentProdOrderComp: Record "Prod. Order Component"; CurrentReservEntry: Record "Reservation Entry")
-    begin
-        SourceRecRef.GetTable(CurrentProdOrderComp);
-        SetSource(SourceRecRef, CurrentReservEntry);
-    end;
-
-    [Obsolete('Replaced by SetSource procedure.', '16.0')]
-    procedure SetPlanningComponent(var CurrentPlanningComponent: Record "Planning Component"; CurrentReservEntry: Record "Reservation Entry")
-    begin
-        SourceRecRef.GetTable(CurrentPlanningComponent);
-        SetSource(SourceRecRef, CurrentReservEntry);
-    end;
-
-    [Obsolete('Replaced by SetSource procedure.', '16.0')]
-    procedure SetTransferLine(var CurrentTransLine: Record "Transfer Line"; CurrentReservEntry: Record "Reservation Entry"; TransferDirection: Enum "Transfer Direction")
-    begin
-        SourceRecRef.GetTable(CurrentTransLine);
-        SetSource(SourceRecRef, CurrentReservEntry, TransferDirection);
-    end;
-
-    [Obsolete('Replaced by SetSource procedure.', '16.0')]
-    procedure SetServLine(var CurrentServiceLine: Record "Service Line"; CurrentReservEntry: Record "Reservation Entry")
-    begin
-        SourceRecRef.GetTable(CurrentServiceLine);
-        SetSource(SourceRecRef, CurrentReservEntry);
-    end;
-
-    [Obsolete('Replaced by SetSource procedure.', '16.0')]
-    procedure SetJobPlanningLine(var CurrentJobPlanningLine: Record "Job Planning Line"; CurrentReservEntry: Record "Reservation Entry")
-    begin
-        SourceRecRef.GetTable(CurrentJobPlanningLine);
-        SetSource(SourceRecRef, CurrentReservEntry);
-    end;
-#endif
-
     local procedure CreateReservation(ReserveQuantity: Decimal; ReserveQuantityBase: Decimal)
     var
         TrackingSpecification: Record "Tracking Specification";
     begin
-        CalcFields("Reserved Qty. (Base)");
-        if Abs("Remaining Qty. (Base)") + "Reserved Qty. (Base)" < ReserveQuantityBase then
-            Error(Text003, Abs("Remaining Qty. (Base)") + "Reserved Quantity");
+        Rec.CalcFields("Reserved Qty. (Base)");
+        if Abs(Rec."Remaining Qty. (Base)") + "Reserved Qty. (Base)" < ReserveQuantityBase then
+            Error(Text003, Abs(Rec."Remaining Qty. (Base)") + Rec."Reserved Quantity");
 
-        TestField("No.", ReservEntry."Item No.");
-        TestField("Variant Code", ReservEntry."Variant Code");
-        TestField("Location Code", ReservEntry."Location Code");
+        Rec.TestField("No.", ReservEntry."Item No.");
+        Rec.TestField("Variant Code", ReservEntry."Variant Code");
+        Rec.TestField("Location Code", ReservEntry."Location Code");
 
         TrackingSpecification.InitTrackingSpecification(
-          DATABASE::"Job Planning Line", Status, "Job No.", '', 0, "Job Contract Entry No.",
-          "Variant Code", "Location Code", "Qty. per Unit of Measure");
+          DATABASE::"Job Planning Line", Rec.Status, Rec."Job No.", '', 0, Rec."Job Contract Entry No.",
+          Rec."Variant Code", "Location Code", Rec."Qty. per Unit of Measure");
         ReservMgt.CreateReservation(
-          ReservEntry.Description, "Planning Date", ReserveQuantity, ReserveQuantityBase, TrackingSpecification);
-        UpdateReservFrom;
+          ReservEntry.Description, Rec."Planning Date", ReserveQuantity, ReserveQuantityBase, TrackingSpecification);
+        UpdateReservFrom();
     end;
 
     local procedure UpdateReservFrom()
@@ -312,10 +249,10 @@ page 1032 "Available - Job Planning Lines"
         OnAfterUpdateReservMgt(ReservEntry);
     end;
 
-    local procedure GetReservedQtyInLine(): Decimal
+    protected procedure GetReservedQtyInLine(): Decimal
     begin
         ReservEntry2.Reset();
-        SetReservationFilters(ReservEntry2);
+        Rec.SetReservationFilters(ReservEntry2);
         ReservEntry2.SetRange("Reservation Status", ReservEntry2."Reservation Status"::Reservation);
         exit(ReservMgt.MarkReservConnection(ReservEntry2, ReservEntry));
     end;
@@ -325,41 +262,25 @@ page 1032 "Available - Job Planning Lines"
         CurrentSubType := SubType;
     end;
 
-    [Obsolete('Replaced by SetSource procedure.', '16.0')]
-    procedure SetAssemblyLine(var CurrentAssemblyLine: Record "Assembly Line"; CurrentReservEntry: Record "Reservation Entry")
-    begin
-        SourceRecRef.GetTable(CurrentAssemblyLine);
-        SetSource(SourceRecRef, CurrentReservEntry);
-    end;
-
-    [Obsolete('Replaced by SetSource procedure.', '16.0')]
-    procedure SetAssemblyHeader(var CurrentAssemblyHeader: Record "Assembly Header"; CurrentReservEntry: Record "Reservation Entry")
-    begin
-        SourceRecRef.GetTable(CurrentAssemblyHeader);
-        SetSource(SourceRecRef, CurrentReservEntry);
-    end;
-
     local procedure SetFilters()
     begin
-        SetRange(Status, CurrentSubType);
-        SetRange(Type, Type::Item);
-        SetRange("No.", ReservEntry."Item No.");
-        SetRange("Variant Code", ReservEntry."Variant Code");
-        SetRange("Location Code", ReservEntry."Location Code");
-
-        SetFilter("Planning Date", ReservMgt.GetAvailabilityFilter(ReservEntry."Shipment Date"));
-
+        Rec.SetRange(Status, CurrentSubType);
+        Rec.SetRange(Type, Rec.Type::Item);
+        Rec.SetRange("No.", ReservEntry."Item No.");
+        Rec.SetRange("Variant Code", ReservEntry."Variant Code");
+        Rec.SetRange("Location Code", ReservEntry."Location Code");
+        Rec.SetFilter("Planning Date", ReservMgt.GetAvailabilityFilter(ReservEntry."Shipment Date"));
         case CurrentSubType of
             0, 1, 2, 4:
                 if ReservMgt.IsPositive then
-                    SetFilter("Quantity (Base)", '<0')
+                    Rec.SetFilter("Quantity (Base)", '<0')
                 else
-                    SetFilter("Quantity (Base)", '>0');
+                    Rec.SetFilter("Quantity (Base)", '>0');
             3, 5:
                 if not ReservMgt.IsPositive then
-                    SetFilter("Quantity (Base)", '<0')
+                    Rec.SetFilter("Quantity (Base)", '<0')
                 else
-                    SetFilter("Quantity (Base)", '>0');
+                    Rec.SetFilter("Quantity (Base)", '>0');
         end;
 
         OnAfterSetFilters(Rec, ReservEntry);

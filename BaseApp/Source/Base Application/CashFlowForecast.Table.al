@@ -332,6 +332,8 @@ table 840 "Cash Flow Forecast"
         for SourceType := 1 to ArrayLen(Amounts) do
             Amounts[SourceType] := CalcSourceTypeAmount("Cash Flow Source Type".FromInteger(SourceType));
         TotalAmount := CalcSourceTypeAmount("Cash Flow Source Type".FromInteger(0));
+
+        OnAfterCalculateAllAmounts(FromDate, ToDate, TotalAmount);
     end;
 
     procedure ValidateShowInChart(ShowInChart: Boolean): Boolean
@@ -375,6 +377,11 @@ table 840 "Cash Flow Forecast"
                     exit(0D);
         end;
         exit(CFForecastEntry."Cash Flow Date");
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalculateAllAmounts(FromDate: Date; ToDate: Date; var TotalAmount: Decimal)
+    begin
     end;
 }
 

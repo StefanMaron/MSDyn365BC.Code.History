@@ -27,7 +27,7 @@ report 7 "Trial Balance/Previous Year"
             column(RoundingNo; RoundingNO)
             {
             }
-            column(GLAccTableCaptFilter; "G/L Account".TableCaption + ': ' + GLFilter)
+            column(GLAccTableCaptFilter; TableCaption + ': ' + GLFilter)
             {
             }
             column(LongText; LongText1[1] + LongText1[2] + LongText1[3] + LongText1[4])
@@ -167,7 +167,7 @@ report 7 "Trial Balance/Previous Year"
             begin
                 RoundingNO := Rounding;
                 RoundingText := ReportMgmnt.RoundDescription(Rounding);
-                ReqFormDateFilter := "G/L Account".GetFilter("Date Filter");
+                ReqFormDateFilter := GetFilter("Date Filter");
 
                 SetRange("Date Filter", FiscalYearStartDate, FiscalYearEndDate);
                 CalcFields("Net Change", "Balance at Date");
@@ -191,7 +191,7 @@ report 7 "Trial Balance/Previous Year"
                 else
                     BalanceIncreasePct := 0;
 
-                "G/L Account".SetFilter("Date Filter", ReqFormDateFilter);
+                SetFilter("Date Filter", ReqFormDateFilter);
 
                 LongText1[1] :=
                   StrSubstNo(
@@ -201,13 +201,13 @@ report 7 "Trial Balance/Previous Year"
                 LongText1[3] := '';
                 LongText1[4] := '';
 
-                GLAccountType := "G/L Account"."Account Type";
+                GLAccountType := "Account Type".AsInteger();
 
                 if IsNewPage then begin
                     PageGroupNo := PageGroupNo + 1;
                     IsNewPage := false;
                 end;
-                if "G/L Account"."New Page" then
+                if "New Page" then
                     IsNewPage := true;
             end;
 
@@ -266,14 +266,6 @@ report 7 "Trial Balance/Previous Year"
         GLFilter: Text;
         NetChangeIncreasePct: Decimal;
         BalanceIncreasePct: Decimal;
-        LastYearNetChange: Decimal;
-        LastYearBalance: Decimal;
-        LastYearStartDate: Date;
-        LastYearEndDate: Date;
-        FiscalYearNetChange: Decimal;
-        FiscalYearBalance: Decimal;
-        FiscalYearStartDate: Date;
-        FiscalYearEndDate: Date;
         LongText: array[4] of Text[132];
         LongText1: array[4] of Text[132];
         ReqFormDateFilter: Text[250];
@@ -298,5 +290,15 @@ report 7 "Trial Balance/Previous Year"
         BalanceIncreasePctCaptionLbl: Label '% of';
         LastYearBalanceCaptionLbl: Label 'Last Year';
         BlankLineNo: Integer;
+
+    protected var
+        LastYearNetChange: Decimal;
+        LastYearBalance: Decimal;
+        LastYearStartDate: Date;
+        LastYearEndDate: Date;
+        FiscalYearNetChange: Decimal;
+        FiscalYearBalance: Decimal;
+        FiscalYearStartDate: Date;
+        FiscalYearEndDate: Date;
 }
 

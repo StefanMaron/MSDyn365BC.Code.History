@@ -629,7 +629,7 @@ codeunit 137250 "SCM Inventory Order Tracking"
         LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", '', '', -Qty);
 
         // [WHEN] Auto-track the negative item journal line.
-        ReservationManagement.SetItemJnlLine(ItemJournalLine);
+        ReservationManagement.SetReservSource(ItemJournalLine);
         ReservationManagement.AutoTrack(ItemJournalLine.Quantity);
 
         // [THEN] No order tracking has been established between inventory and the negative adjustment.

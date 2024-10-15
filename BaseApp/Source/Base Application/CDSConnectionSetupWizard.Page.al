@@ -384,7 +384,7 @@ page 7201 "CDS Connection Setup Wizard"
                     var
                         CDSFullSynchReview: Page "CDS Full Synch. Review";
                     begin
-                        Window.Open('Getting things ready for you.');
+                        Window.Open(GettingThingsReadyTxt);
                         SetPassword(UserPassword);
 
                         CDSFullSynchReview.SetRecord(CRMFullSynchReviewLine);
@@ -392,7 +392,10 @@ page 7201 "CDS Connection Setup Wizard"
                         CDSFullSynchReview.LookupMode := true;
                         Window.Close();
                         if CDSFullSynchReview.RunModal() = Action::LookupOK then;
-
+                        CRMFullSynchReviewLine.FindSet();
+                        repeat
+                            InitialSynchRecommendations.Add(CRMFullSynchReviewLine.Name, CRMFullSynchReviewLine."Initial Synch Recommendation")
+                        until CRMFullSynchReviewLine.Next() = 0;
                     end;
                 }
                 group(Control45)
@@ -520,7 +523,7 @@ page 7201 "CDS Connection Setup Wizard"
                     if Step = Step::CoupleSalespersons then begin
                         if (CoupledSalesPeople = false) then
                             Error(SalespeoplShouldBeCoupledErr);
-                        Window.Open('Getting things ready for you.');
+                        Window.Open(GettingThingsReadyTxt);
                         CRMFullSynchReviewLine.DeleteAll();
                         CRMFullSynchReviewLine.Generate();
                         Commit();
@@ -528,7 +531,7 @@ page 7201 "CDS Connection Setup Wizard"
                     end;
 
                     if Step = Step::OwnershipModel then begin
-                        Window.Open('Getting things ready for you.');
+                        Window.Open(GettingThingsReadyTxt);
                         ConfigureCDSSolution();
                         if not IsPersonOwnershipModelSelected then begin
                             CRMFullSynchReviewLine.DeleteAll();
@@ -558,7 +561,7 @@ page 7201 "CDS Connection Setup Wizard"
                     CDSCoupleSalespersons: Page "CDS Couple Salespersons";
                 begin
                     if FinishWithoutSynchronizingData then begin
-                        Window.Open('Getting things ready for you.');
+                        Window.Open(GettingThingsReadyTxt);
                         ConfigureCDSSolution();
                         Session.LogMessage('0000CDW', FinishWithoutSynchronizingDataTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
                         if IsPersonOwnershipModelSelected then
@@ -567,6 +570,7 @@ page 7201 "CDS Connection Setup Wizard"
                                 CDSCoupleSalespersons.Initialize(CrmHelper);
                                 CDSCoupleSalespersons.Run();
                                 GuidedExperience.CompleteAssistedSetup(ObjectType::Page, PAGE::"CDS Connection Setup Wizard");
+                                SetupCompleted := true;
                                 AddCoupledUsersToDefaultOwningTeam();
                                 CurrPage.Close();
                                 exit;
@@ -574,15 +578,14 @@ page 7201 "CDS Connection Setup Wizard"
                         Window.Close();
                         Page.Run(Page::"CDS Connection Setup");
                         GuidedExperience.CompleteAssistedSetup(ObjectType::Page, PAGE::"CDS Connection Setup Wizard");
+                        SetupCompleted := true;
                         CurrPage.Close();
                         exit;
                     end;
 
-                    Window.Open('Getting things ready for you.');
+                    Window.Open(GettingThingsReadyTxt);
                     CRMFullSynchReviewLine.DeleteAll(true);
-
-                    CRMFullSynchReview.SetSkipEntitiesNotFullSyncReady();
-                    CRMFullSynchReviewLine.Generate(true);
+                    CRMFullSynchReviewLine.Generate(InitialSynchRecommendations);
                     CRMFullSynchReviewLine.Start();
                     CRMFullSynchReview.SetRecord(CRMFullSynchReviewLine);
                     CRMFullSynchReview.SetTableView(CRMFullSynchReviewLine);
@@ -591,6 +594,7 @@ page 7201 "CDS Connection Setup Wizard"
                     Window.Close();
                     CRMFullSynchReview.Run();
                     GuidedExperience.CompleteAssistedSetup(ObjectType::Page, PAGE::"CDS Connection Setup Wizard");
+                    SetupCompleted := true;
                     CurrPage.Close();
                 end;
             }
@@ -645,16 +649,24 @@ page 7201 "CDS Connection Setup Wizard"
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     var
         CDSConnectionSetup: Record "CDS Connection Setup";
-        GuidedExperience: Codeunit "Guided Experience";
     begin
-        if CloseAction = ACTION::OK then
-            if GuidedExperience.AssistedSetupExistsAndIsNotComplete(ObjectType::Page, PAGE::"CDS Connection Setup Wizard") then
-                if CDSConnectionSetup."Is Enabled" then begin
-                    if not Confirm(ConnectionNotCompletedQst, false) then
-                        Error('');
-                end else
-                    if not Confirm(ConnectionNotSetUpQst, false) then
-                        Error('');
+        if CloseAction <> ACTION::OK then
+            exit;
+
+        if SetupCompleted then
+            exit;
+
+        if CDSConnectionSetup.Get() then
+            if CDSConnectionSetup."Is Enabled" then begin
+                if not Confirm(ConnectionNotCompletedQst, false) then
+                    Error('');
+                CDSConnectionSetup.Validate("Is Enabled", false);
+                CDSConnectionSetup.Modify(true);
+                exit;
+            end;
+
+        if not Confirm(ConnectionNotSetUpQst, false) then
+            Error('');
     end;
 
     var
@@ -697,7 +709,13 @@ page 7201 "CDS Connection Setup Wizard"
         HasAdminSignedIn: Boolean;
         AreAdminCredentialsCorrect: Boolean;
         FinishWithoutSynchronizingData: Boolean;
+        SetupCompleted: Boolean;
+        InitialSynchRecommendations: Dictionary of [Code[20], Integer];
+#if CLEAN18
+        ScopesLbl: Label 'https://globaldisco.crm.dynamics.com/user_impersonation', Locked = true;
+#else
         GlobalDiscoUrlTok: Label 'https://globaldisco.crm.dynamics.com/', Locked = true;
+#endif
         OpenCoupleSalespeoplePageQst: Label 'The Person ownership model requires that you couple salespersons in Business Central with users in Dataverse before you synchronize data. Otherwise, synchronization will not be successful.\\ Do you want to want to couple salespersons and users now?';
         SynchronizationRecommendationsLbl: Label 'Show synchronization recommendations';
         [NonDebuggable]
@@ -708,7 +726,7 @@ page 7201 "CDS Connection Setup Wizard"
         CoupleSalesPeopleTxt: Label 'Couple Salespeople to Users';
         NoEnvironmentSelectedErr: Label 'To sign in the administrator user you must specify an environment.';
         ConnectionNotSetUpQst: Label 'The connection to Dataverse environment has not been set up.\\Are you sure you want to exit?';
-        ConnectionNotCompletedQst: Label 'The setup for Dataverse is not complete.\\Are you sure you want to exit?';
+        ConnectionNotCompletedQst: Label 'The setup for Dataverse is not complete. The connection to the Dataverse environment will be disabled.\\Are you sure you want to exit?';
         WrongCredentialsErr: Label 'The credentials provided are incorrect.';
         UsernameAndPasswordShouldNotBeEmptyErr: Label 'You must specify a username and a password for the integration user';
         SalespeoplShouldBeCoupledErr: Label 'When the Person ownership model is selected, coupling of salespeople is required.';
@@ -717,6 +735,7 @@ page 7201 "CDS Connection Setup Wizard"
         CategoryTok: Label 'AL Dataverse Integration', Locked = true;
         FinishWithoutSynchronizingDataTxt: Label 'User has chosen to finalize Dataverse configuration without synchronizing data.', Locked = true;
         FinishWithSynchronizingDataTxt: Label 'User has chosen to finalize Dataverse configuration also synchronizing data.', Locked = true;
+        GettingThingsReadyTxt: Label 'Getting things ready for you.';
 
     [NonDebuggable]
     [Scope('OnPrem')]
@@ -724,6 +743,9 @@ page 7201 "CDS Connection Setup Wizard"
     var
         CDSEnvironment: Codeunit "CDS Environment";
         OAuth2: Codeunit OAuth2;
+#if CLEAN18
+        Scopes: List of [Text];
+#endif
         Token: Text;
         RedirectUrl: Text;
     begin
@@ -731,7 +753,12 @@ page 7201 "CDS Connection Setup Wizard"
             RedirectUrl := CDSIntegrationImpl.GetRedirectURL()
         else
             RedirectUrl := "Redirect URL";
+#if CLEAN18
+        Scopes.Add(ScopesLbl);
+        OAuth2.AcquireOnBehalfOfToken(RedirectUrl, Scopes, Token);
+#else
         OAuth2.AcquireOnBehalfOfToken(RedirectUrl, GlobalDiscoUrlTok, Token);
+#endif
         CDSEnvironment.SelectTenantEnvironment(Rec, Token, false);
     end;
 
@@ -760,6 +787,7 @@ page 7201 "CDS Connection Setup Wizard"
                 Step := Step + 1;
 
         EnableControls();
+        SetupCompleted := false;
     end;
 
     local procedure EnableControls()
@@ -958,7 +986,7 @@ page 7201 "CDS Connection Setup Wizard"
         if not HasAdminSignedIn then
             Error(AdminUserShouldBesignedInErr);
 
-        Window.Open('Getting things ready for you.');
+        Window.Open(GettingThingsReadyTxt);
         CDSIntegrationImpl.ImportIntegrationSolution(Rec, CrmHelper, AdminUserName, AdminPassword, AdminAccessToken, AdminADDomain, false);
         Window.Close();
     end;

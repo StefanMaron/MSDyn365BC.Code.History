@@ -16,6 +16,7 @@ codeunit 137048 "SCM Warehouse II"
         LocationBlue: Record Location;
         LocationOrange: Record Location;
         LocationOrange2: Record Location;
+        LocationOrange3: Record Location;
         LocationWhite: Record Location;
         LocationRed: Record Location;
         LocationIntransit: Record Location;
@@ -1879,6 +1880,165 @@ codeunit 137048 "SCM Warehouse II"
     end;
 
     [Test]
+    [Scope('OnPrem')]
+    procedure QtyRndingPrecisionIsCopiedToPostedWhseReceiptLine()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        WarehouseReceiptLine: Record "Warehouse Receipt Line";
+        Item: Record Item;
+        PostedWhseReceiptLine: Record "Posted Whse. Receipt Line";
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        Quantity: Decimal;
+        QtyRndingPrecision: Decimal;
+    begin
+        Initialize;
+
+        // Setup : Create Item, create and release Purchase Order and Create Warehouse Receipt.
+        QtyRndingPrecision := 0.01; // Hardcoding the value is fine as the test veriifes that the value travels all the way to posted lines
+        CreateItemWithRndingPrecAddInventory(Item, QtyRndingPrecision, LocationOrange.Code, 1);
+        CreateAndReleasePurchaseOrder(PurchaseHeader, PurchaseLine, LocationOrange.Code, Item."No.");
+        Quantity := PurchaseLine.Quantity;
+        LibraryWarehouse.CreateWhseReceiptFromPO(PurchaseHeader);
+
+        // Exercise: Warehouse receipt is posted
+        PostWarehouseReceipt(WarehouseReceiptLine."Source Document"::"Purchase Order", PurchaseHeader."No.");
+        FindPostedWhseReceiptLines(PostedWhseReceiptLine, PurchaseHeader."No.");
+
+        // Verify: The 'Qty. Rounding Precision' travels all the way through to Posted Warehouse Receipt Line.
+        PostedWhseReceiptLine.TestField("Qty. Rounding Precision", QtyRndingPrecision);
+        PostedWhseReceiptLine.TestField("Qty. Rounding Precision (Base)", QtyRndingPrecision);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure GetMaxQtyRemainingWhenRndingExceedsTotalQtyOnPostedWhseReceiptLine()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        WarehouseReceiptLine: Record "Warehouse Receipt Line";
+        Item: Record Item;
+        ItemUOM: Record "Item Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        BaseUOM: Record "Unit of Measure";
+        Bin: Record Bin;
+        WarehouseReceiptHeader: Record "Warehouse Receipt Header";
+        WhsePostReceipt: Codeunit "Whse.-Post Receipt";
+        NonBaseQtyPerUOM: Decimal;
+        BaseQtyPerUOM: Decimal;
+    begin
+        Initialize;
+
+        // Bug 401892 Oustanding quaity and remaining quatity rounds to exceed total quanity
+        // [GIVEN] An item with 2 unit of measures and qty. rounding precision as default and non base item unit of measure set to maximum decimals.
+        NonBaseQtyPerUOM := 5.55555;
+        BaseQtyPerUOM := 1;
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateUnitOfMeasureCode(BaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, Item."No.", BaseUOM.Code, BaseQtyPerUOM);
+        ItemUOM.Modify();
+        Item.Validate("Base Unit of Measure", ItemUOM.Code);
+        Item.Modify();
+        LibraryInventory.CreateUnitOfMeasureCode(NonBaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, Item."No.", NonBaseUOM.Code, NonBaseQtyPerUOM);
+
+        LibraryWarehouse.FindBin(Bin, LocationOrange.Code, '', 1);
+        UpdateItemInventory(Item."No.", LocationOrange.Code, Bin.Code, LibraryRandom.RandInt(100));
+
+        // [GIVEN] Create and release Purchase Order and Create Warehouse Receipt.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", 1);
+        PurchaseLine.Validate("Location Code", LocationOrange.Code);
+        PurchaseLine.Validate("Unit of Measure Code", NonBaseUOM.Code);
+        PurchaseLine.Modify(true);
+        LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
+
+        LibraryWarehouse.CreateWhseReceiptFromPO(PurchaseHeader);
+
+        WarehouseReceiptHeader.Get(FindWarehouseReceiptNo(WarehouseReceiptLine."Source Document"::"Purchase Order", PurchaseHeader."No."));
+
+        // [GIVEN] Partial Qty. to Received
+        WarehouseReceiptLine.SetRange("No.", WarehouseReceiptHeader."No.");
+        if WarehouseReceiptLine.FindFirst then begin
+            WarehouseReceiptLine.Validate("Qty. to Receive", 0.3);
+            WarehouseReceiptLine.Modify(true);
+        end;
+
+        // [WHEN]: Warehouse receipt is posted
+        WhsePostReceipt.Run(WarehouseReceiptLine);
+
+        // [THEN]: The "Qty. yo Receive (Base)" and "Qty. Outstanding (Base)" values are set to the maximum quantites remaining rather then the rounded values which exceeds total quanity
+        WarehouseReceiptLine.TestField("Qty. to Receive (Base)", NonBaseQtyPerUOM - WarehouseReceiptLine."Qty. Received (Base)");
+        WarehouseReceiptLine.TestField("Qty. Outstanding (Base)", NonBaseQtyPerUOM - WarehouseReceiptLine."Qty. Received (Base)");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure GetMaxQtyRemainingWhenRndingExceedsTotalQtyOnPostedWhseReceiptLineToShip()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WarehouseShipmentLine: Record "Warehouse Shipment Line";
+        Item: Record Item;
+        ItemUOM: Record "Item Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        BaseUOM: Record "Unit of Measure";
+        Bin: Record Bin;
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        WhsePostShipment: Codeunit "Whse.-Post Shipment";
+        NonBaseQtyPerUOM: Decimal;
+        BaseQtyPerUOM: Decimal;
+    begin
+        Initialize;
+
+        // Bug 404726 Oustanding quaity and remaining quatity rounds to exceed total quanity
+        // [GIVEN] An item with 2 unit of measures and qty. rounding precision as default and non base item unit of measure set to maximum decimals.
+        NonBaseQtyPerUOM := 5.55555;
+        BaseQtyPerUOM := 1;
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateUnitOfMeasureCode(BaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, Item."No.", BaseUOM.Code, BaseQtyPerUOM);
+        ItemUOM.Modify();
+        Item.Validate("Base Unit of Measure", ItemUOM.Code);
+        Item.Modify();
+        LibraryInventory.CreateUnitOfMeasureCode(NonBaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, Item."No.", NonBaseUOM.Code, NonBaseQtyPerUOM);
+
+        LibraryWarehouse.FindBin(Bin, LocationOrange3.Code, '', 1);
+        UpdateItemInventory(Item."No.", LocationOrange3.Code, Bin.Code, LibraryRandom.RandInt(100));
+
+        // [GIVEN] Create and release Sales Order and Create Warehouse Receipt.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesLine."Document Type"::Order, '');
+        LibrarySales.CreateSalesLine(
+          SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
+        SalesLine.Validate("Location Code", LocationOrange3.Code);
+        SalesLine.Validate("Unit of Measure Code", NonBaseUOM.Code);
+        SalesLine.Modify(true);
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+
+        LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
+
+        WarehouseShipmentLine.SetRange("Source Document", "Warehouse Activity Source Document"::"Sales Order");
+        WarehouseShipmentLine.SetRange("Source No.", SalesHeader."No.");
+        WarehouseShipmentLine.FindFirst;
+
+        // [GIVEN] Partial Qty. to Ship
+        WarehouseShipmentLine.SetRange("No.", WarehouseShipmentLine."No.");
+        if WarehouseShipmentLine.FindFirst then begin
+            WarehouseShipmentLine.Validate("Qty. to Ship", 0.3);
+            WarehouseShipmentLine.Modify(true);
+        end;
+
+        // [WHEN]: Warehouse receipt is posted
+        WhsePostShipment.Run(WarehouseShipmentLine);
+
+        // [THEN]: The "Qty. to Ship (Base)" and "Qty. Outstanding (Base)" values are set to the maximum quantites remaining rather then the rounded values which exceeds total quanity
+        WarehouseShipmentLine.TestField("Qty. to Ship (Base)", NonBaseQtyPerUOM - WarehouseShipmentLine."Qty. Shipped (Base)");
+        WarehouseShipmentLine.TestField("Qty. Outstanding (Base)", NonBaseQtyPerUOM - WarehouseShipmentLine."Qty. Shipped (Base)");
+    end;
+
+    [Test]
     [HandlerFunctions('PickSelectionPageHandler')]
     [Scope('OnPrem')]
     procedure WhseBatchPickFromPickWorksheet()
@@ -2188,11 +2348,13 @@ codeunit 137048 "SCM Warehouse II"
         LibraryWarehouse.CreateLocationWMS(LocationOrange, true, true, true, true, true);  // Location: Orange.
         LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, LocationOrange.Code, false);
         LibraryWarehouse.CreateLocationWMS(LocationOrange2, true, true, true, true, true);  // Location: Orange2.
+        LibraryWarehouse.CreateLocationWMS(LocationOrange3, true, true, false, true, true);  // Location: Orange.
         LibraryWarehouse.CreateLocationWMS(LocationRed, false, false, false, true, true);  // Location: Red.
         LibraryWarehouse.CreateInTransitLocation(LocationIntransit);
 
         LibraryWarehouse.CreateNumberOfBins(LocationOrange.Code, '', '', LibraryRandom.RandInt(5) + 2, false);  // 2 is required as minimun number of Bin must be 2.
         LibraryWarehouse.CreateNumberOfBins(LocationOrange2.Code, '', '', LibraryRandom.RandInt(5), false);
+        LibraryWarehouse.CreateNumberOfBins(LocationOrange3.Code, '', '', LibraryRandom.RandInt(5), false);
 
         LocationCode2 := LocationOrange.Code;  // Assign value to global variable for use in handler.
     end;
@@ -2255,6 +2417,21 @@ codeunit 137048 "SCM Warehouse II"
     begin
         LibraryWarehouse.FindBin(Bin, LocationCode, '', BinIndex);
         CreateItem(Item);
+        UpdateItemInventory(Item."No.", LocationCode, Bin.Code, LibraryRandom.RandDec(100, 2) + 100);
+        exit(Bin.Code);
+    end;
+
+    local procedure CreateItemWithRndingPrecAddInventory(var Item: Record Item; QtyRndingPrecision: Decimal; LocationCode: Code[10]; BinIndex: Integer): Code[20]
+    var
+        Bin: Record Bin;
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+    begin
+        LibraryWarehouse.FindBin(Bin, LocationCode, '', BinIndex);
+        CreateItem(Item);
+        ItemUnitOfMeasure.Get(Item."No.", Item."Base Unit of Measure");
+        ItemUnitOfMeasure.Validate("Qty. Rounding Precision", QtyRndingPrecision);
+        ItemUnitOfMeasure.Modify();
+
         UpdateItemInventory(Item."No.", LocationCode, Bin.Code, LibraryRandom.RandDec(100, 2) + 100);
         exit(Bin.Code);
     end;
@@ -2711,7 +2888,7 @@ codeunit 137048 "SCM Warehouse II"
         WarehouseShipmentLine.FindFirst;
     end;
 
-    local procedure FindWarehouseActivityNo(SourceNo: Code[20]; ActivityType: Option): Code[20]
+    local procedure FindWarehouseActivityNo(SourceNo: Code[20]; ActivityType: Enum "Warehouse Activity Type"): Code[20]
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
@@ -2740,7 +2917,7 @@ codeunit 137048 "SCM Warehouse II"
         exit(NoSeriesManagement.GetNextNo(WarehouseSetup."Whse. Ship Nos.", WorkDate, false));
     end;
 
-    local procedure FindWhseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; ActivityType: Option; LocationCode: Code[10]; SourceNo: Code[20]; ActionType: Option)
+    local procedure FindWhseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; ActivityType: Enum "Warehouse Activity Type"; LocationCode: Code[10]; SourceNo: Code[20]; ActionType: Enum "Warehouse Action Type")
     begin
         WarehouseActivityLine.SetRange("Activity Type", ActivityType);
         WarehouseActivityLine.SetRange("Location Code", LocationCode);
@@ -2763,7 +2940,7 @@ codeunit 137048 "SCM Warehouse II"
         WhseWorksheetLine.FindFirst;
     end;
 
-    local procedure FindRegisterWarehouseActivityLine(var RegisteredWhseActivityLine: Record "Registered Whse. Activity Line"; ActivityType: Option; ActionType: Option; LocationCode: Code[10]; SourceNo: Code[20])
+    local procedure FindRegisterWarehouseActivityLine(var RegisteredWhseActivityLine: Record "Registered Whse. Activity Line"; ActivityType: Enum "Warehouse Activity Type"; ActionType: Enum "Warehouse Action Type"; LocationCode: Code[10]; SourceNo: Code[20])
     begin
         RegisteredWhseActivityLine.SetRange("Activity Type", ActivityType);
         RegisteredWhseActivityLine.SetRange("Location Code", LocationCode);
@@ -2848,7 +3025,7 @@ codeunit 137048 "SCM Warehouse II"
     end;
 
     [Normal]
-    local procedure RegisterWarehouseActivity(SourceNo: Code[20]; Type: Option)
+    local procedure RegisterWarehouseActivity(SourceNo: Code[20]; Type: Enum "Warehouse Activity Type")
     var
         WarehouseActivityHeader: Record "Warehouse Activity Header";
     begin
@@ -2934,7 +3111,7 @@ codeunit 137048 "SCM Warehouse II"
         WarehouseSetup.Modify(true);
     end;
 
-    local procedure UpdateQuantityToHandleAndBinOnActivityLine(ActionType: Option; SourceNo: Code[20]; QtyToHandle: Decimal)
+    local procedure UpdateQuantityToHandleAndBinOnActivityLine(ActionType: Enum "Warehouse Action Type"; SourceNo: Code[20]; QtyToHandle: Decimal)
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
         Bin3: Record Bin;
@@ -3094,7 +3271,7 @@ codeunit 137048 "SCM Warehouse II"
           StrSubstNo(BinContentGetCaptionErr, BinContent.GetFilters));
     end;
 
-    local procedure VerifyActivityLine(LocationCode: Code[10]; SourceNo: Code[20]; ItemNo: Code[20]; BaseUnitOfMeasure: Code[10]; Quantity: Decimal; ActivityType: Option)
+    local procedure VerifyActivityLine(LocationCode: Code[10]; SourceNo: Code[20]; ItemNo: Code[20]; BaseUnitOfMeasure: Code[10]; Quantity: Decimal; ActivityType: Enum "Warehouse Activity Type")
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
@@ -3106,7 +3283,7 @@ codeunit 137048 "SCM Warehouse II"
         VerifyWhseActivityLine(WarehouseActivityLine, BaseUnitOfMeasure, 1, Quantity);  // value is Quantity Per Unit Of Measure For Base Unit Of Measure.
     end;
 
-    local procedure VerifyBinCode(ActivityType: Option; ActionType: Option; LocationCode: Code[10]; SourceNo: Code[20]; ExpectedBinCode: Code[20])
+    local procedure VerifyBinCode(ActivityType: Enum "Warehouse Activity Type"; ActionType: Enum "Warehouse Action Type"; LocationCode: Code[10]; SourceNo: Code[20]; ExpectedBinCode: Code[20])
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
@@ -3115,7 +3292,7 @@ codeunit 137048 "SCM Warehouse II"
           ExpectedBinCode, WarehouseActivityLine."Bin Code", StrSubstNo(BinError, ExpectedBinCode, WarehouseActivityLine.TableCaption));
     end;
 
-    local procedure VerifyBinCodeNotEqual(ActivityType: Option; ActionType: Option; LocationCode: Code[10]; SourceNo: Code[20]; NotExpectedBinCode: Code[20])
+    local procedure VerifyBinCodeNotEqual(ActivityType: Enum "Warehouse Activity Type"; ActionType: Enum "Warehouse Action Type"; LocationCode: Code[10]; SourceNo: Code[20]; NotExpectedBinCode: Code[20])
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
@@ -3252,7 +3429,7 @@ codeunit 137048 "SCM Warehouse II"
         PostedWhseShipmentLine.TestField("Source No.", SourceNo);
     end;
 
-    local procedure VerifyRegisteredActivityLine(ActivityType: Option; LocationCode: Code[10]; SourceNo: Code[20]; ItemNo: Code[20]; UnitOfMeasureCode: Code[10]; ExpectedQuantity: Decimal)
+    local procedure VerifyRegisteredActivityLine(ActivityType: Enum "Warehouse Activity Type"; LocationCode: Code[10]; SourceNo: Code[20]; ItemNo: Code[20]; UnitOfMeasureCode: Code[10]; ExpectedQuantity: Decimal)
     var
         RegisteredWhseActivityLine: Record "Registered Whse. Activity Line";
     begin

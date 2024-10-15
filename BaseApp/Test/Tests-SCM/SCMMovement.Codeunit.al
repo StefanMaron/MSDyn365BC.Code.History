@@ -674,6 +674,96 @@ codeunit 137931 "SCM - Movement"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure UoMRoundingPrecisionTransferredWhenCreatingMovement()
+    var
+        Item: Record Item;
+        ItemBaseUOM: Record "Item Unit of Measure";
+        ItemNonBaseUOM: Record "Item Unit of Measure";
+        BaseUOM: Record "Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        LocationCode: Code[10];
+        Bin: Record Bin;
+        WarehouseJournalTemplate: Record "Warehouse Journal Template";
+        WarehouseJournalBatch: Record "Warehouse Journal Batch";
+        WhseJournalLine: Record "Warehouse Journal Line";
+        ItemJournalTemplate: Record "Item Journal Template";
+        ItemJournalBatch: Record "Item Journal Batch";
+        WhseWorksheetLine: Record "Whse. Worksheet Line";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        Qty: Decimal;
+    begin
+        // [SCENARIO] Rounding precision should be transferred to warehouse activity lines when doing a warehouse movement.
+        Initialize();
+        Qty := 10;
+
+        // [GIVEN] An item with base UoM rounding precision 0.01 and a non-base UoM with rounding precision 0.1.
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateUnitOfMeasureCode(BaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemBaseUOM, Item."No.", BaseUOM.Code, 1);
+        ItemBaseUOM."Qty. Rounding Precision" := 0.01;
+        ItemBaseUOM.Modify();
+        Item.Validate("Base Unit of Measure", ItemBaseUOM.Code);
+        Item.Modify();
+        LibraryInventory.CreateUnitOfMeasureCode(NonBaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemNonBaseUOM, Item."No.", NonBaseUOM.Code, 12);
+        ItemNonBaseUOM."Qty. Rounding Precision" := 0.1;
+        ItemNonBaseUOM.Modify();
+
+        // [GIVEN] Directed put-away and pick location.
+        LocationCode := CreateFullWMSLocation(2, false);
+        LibraryWarehouse.FindBin(Bin, LocationCode, FindZone(LocationCode, FindBinType(false, true, false, false)), 1);
+
+        // [GIVEN] Create warehouse journal line for item.
+        LibraryWarehouse.WarehouseJournalSetup(LocationCode, WarehouseJournalTemplate, WarehouseJournalBatch);
+        LibraryWarehouse.CreateWhseJournalLine(
+            WhseJournalLine, WarehouseJournalTemplate.Name, WarehouseJournalBatch.Name, LocationCode,
+            '', Bin.Code, WhseJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", Qty);
+        WhseJournalLine.Validate("Unit of Measure Code", ItemNonBaseUOM.Code);
+        WhseJournalLine.Modify(true);
+        LibraryWarehouse.RegisterWhseJournalLine(
+            WarehouseJournalTemplate.Name, WarehouseJournalBatch.Name, LocationCode, false);
+
+        // [GIVEN] Item journal posted for warehouse journal line.
+        LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Item);
+        LibraryInventory.SelectItemJournalBatchName(
+            ItemJournalBatch, ItemJournalTemplate.Type::Item, ItemJournalTemplate.Name);
+        LibraryInventory.ClearItemJournal(ItemJournalTemplate, ItemJournalBatch);
+        LibraryWarehouse.CalculateWhseAdjustment(Item, ItemJournalBatch);
+        LibraryInventory.PostItemJournalLine(ItemJournalTemplate.Name, ItemJournalBatch.Name);
+
+        // [GIVEN] Open movement worksheet and create line for bin using non-base UoM.
+        CreateEmptyMovementWorksheetLine(WhseWorksheetLine, LocationCode);
+        WhseWorksheetLine.Validate("Item No.", Item."No.");
+        WhseWorksheetLine.Validate("From Bin Code", Bin.Code);
+        WhseWorksheetLine.Validate("Unit of Measure Code", ItemNonBaseUOM.Code);
+        WhseWorksheetLine.Validate(Quantity, Qty);
+        WhseWorksheetLine.Modify(true);
+
+        // [WHEN] Create movement from the movement worksheet.
+        LibraryWarehouse.CreateWhseMovement(
+            WhseWorksheetLine.Name, WhseWorksheetLine."Location Code", "Whse. Activity Sorting Method"::None, false, false);
+
+        // [THEN] Rounding precision has been transferred to the warehouse activity lines.
+        WarehouseActivityLine.SetRange("Item No.", Item."No.");
+        WarehouseActivityLine.FindSet();
+
+        repeat
+            Assert.AreEqual(
+                ItemBaseUOM."Qty. Rounding Precision",
+                WarehouseActivityLine."Qty. Rounding Precision (Base)",
+                'Expected base rounding precision to match item base UoM'
+            );
+            Assert.AreEqual(
+                ItemNonBaseUOM."Qty. Rounding Precision",
+                WarehouseActivityLine."Qty. Rounding Precision",
+                'Expected rounding precision to match item non-base UoM'
+            );
+        until WarehouseActivityLine.Next() = 0;
+    end;
+
+    [Test]
     [HandlerFunctions('BinContentsListModalPageHandler')]
     procedure ValidateAndLookupFromBinCodeOnInternalMovementLine()
     var
@@ -955,7 +1045,8 @@ codeunit 137931 "SCM - Movement"
         LibraryWarehouse.SelectWhseWorksheetTemplate(WhseWorksheetTemplate, WhseWorksheetTemplate.Type::Movement);
         LibraryWarehouse.SelectWhseWorksheetName(WhseWorksheetName, WhseWorksheetTemplate.Name, LocationCode);
         LibraryWarehouse.CreateWhseWorksheetLine(
-          WhseWorksheetLine, WhseWorksheetName."Worksheet Template Name", WhseWorksheetName.Name, WhseWorksheetName."Location Code", 0);
+          WhseWorksheetLine, WhseWorksheetName."Worksheet Template Name", WhseWorksheetName.Name, WhseWorksheetName."Location Code",
+          "Warehouse Worksheet Template Type"::"Put-away");
     end;
 
     local procedure PrepareItemTrackingLinesPurchase(var PurchaseHeader: Record "Purchase Header"; LotNo: array[4] of Code[50]; ExpirationDate: array[4] of Date; Qty: array[4] of Integer)
@@ -1145,7 +1236,7 @@ codeunit 137931 "SCM - Movement"
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
     end;
 
-    local procedure FilterWhseActivityLines(var WarehouseActivityLine: Record "Warehouse Activity Line"; WarehouseActivityHeader: Record "Warehouse Activity Header"; ActionType: Integer)
+    local procedure FilterWhseActivityLines(var WarehouseActivityLine: Record "Warehouse Activity Line"; WarehouseActivityHeader: Record "Warehouse Activity Header"; ActionType: Enum "Warehouse Action Type")
     begin
         WarehouseActivityLine.SetRange("Activity Type", WarehouseActivityHeader.Type);
         WarehouseActivityLine.SetRange("No.", WarehouseActivityHeader."No.");
@@ -1266,6 +1357,7 @@ codeunit 137931 "SCM - Movement"
     end;
 
     [ConfirmHandler]
+    [Scope('OnPrem')]
     procedure ConfirmHandler(ConfirmMessage: Text; var Reply: Boolean)
     begin
         Reply := true;

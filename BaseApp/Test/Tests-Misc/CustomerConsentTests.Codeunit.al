@@ -38,6 +38,32 @@ codeunit 134960 "Customer Consent Tests"
     [Test]
     [HandlerFunctions('CustomerConsentConfirmationPageChooseNoModalPageHandler')]
     [Scope('OnPrem')]
+    procedure DocExchServiceNotEnabledWithoutConsent()
+    var
+        DocExchServiceSetup: Record "Doc. Exch. Service Setup";
+    begin
+        // [FEATURE] [UT] [Document Exchange Service]
+        // [SCENARIO 407179] Stan cannot enable the Document Exchange Service without confirming customer consent
+        DocExchServiceSetup.Validate(Enabled, true);
+        DocExchServiceSetup.TestField(Enabled, false);
+    end;
+
+    [Test]
+    [HandlerFunctions('CustomerConsentConfirmationPageChooseYesModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure DocExchServiceEnabledWithConsent()
+    var
+        DocExchServiceSetup: Record "Doc. Exch. Service Setup";
+    begin
+        // [FEATURE] [UT] [Document Exchange Service]
+        // [SCENARIO 407179] Stan cann enable the Document Exchange Service without confirming customer consent
+        DocExchServiceSetup.Validate(Enabled, true);
+        DocExchServiceSetup.TestField(Enabled, true);
+    end;
+
+    [Test]
+    [HandlerFunctions('CustomerConsentConfirmationPageChooseNoModalPageHandler')]
+    [Scope('OnPrem')]
     procedure VATRegValidationServiceSetupNotEnabledWithoutConsent()
     var
         VATRegistrationConfigPage: TestPage "VAT Registration Config";
@@ -67,14 +93,14 @@ codeunit 134960 "Customer Consent Tests"
     [Scope('OnPrem')]
     procedure CustomerConsentConfirmationPageChooseNoModalPageHandler(var CustConsentConfPage: TestPage "Cust. Consent Confirmation")
     begin
-        CustConsentConfPage.No().Invoke();
+        CustConsentConfPage.Cancel.Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure CustomerConsentConfirmationPageChooseYesModalPageHandler(var CustConsentConfPage: TestPage "Cust. Consent Confirmation")
     begin
-        CustConsentConfPage.Yes().Invoke();
+        CustConsentConfPage.Accept.Invoke();
     end;
 
     [MessageHandler]

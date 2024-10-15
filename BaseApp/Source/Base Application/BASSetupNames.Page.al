@@ -43,8 +43,12 @@ page 11608 "BAS Setup Names"
                 ToolTip = 'View the business activity statement (BAS) configuration information.';
             }
         }
+#if not CLEAN19
         area(creation)
         {
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Action is duplicated in the page.';
+            ObsoleteTag = '19.0';
             action("BAS Setup")
             {
                 ApplicationArea = Basic, Suite;
@@ -56,8 +60,13 @@ page 11608 "BAS Setup Names"
                 RunObject = Page "BAS Setup";
                 RunPageMode = Create;
                 ToolTip = 'View or edit the business activity statement (BAS) configuration information.';
+                Visible = false;
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Action is duplicated in the page.';
+                ObsoleteTag = '19.0';
             }
         }
+#endif
     }
 
     trigger OnInit()

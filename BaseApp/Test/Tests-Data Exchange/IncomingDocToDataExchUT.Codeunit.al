@@ -21,7 +21,9 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
         LibraryRandom: Codeunit "Library - Random";
         LibraryService: Codeunit "Library - Service";
         LibrarySales: Codeunit "Library - Sales";
+        LibraryPurchase: Codeunit "Library - Purchase";
         LibraryInventory: Codeunit "Library - Inventory";
+        LibraryItemReference: Codeunit "Library - Item Reference";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         AssertMsg: Label '%1 Field:"%2" different from expected.', Comment = '%1 - error message, %2 - field number';
@@ -1673,9 +1675,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
         Customer: Record Customer;
         SalesInvoiceLine: Record "Sales Invoice Line";
         Item: Record Item;
-        ItemCrossReference: Record "Item Cross Reference";
-        LibraryPurchase: Codeunit "Library - Purchase";
-        LibraryInventory: Codeunit "Library - Inventory";
+        ItemReference: Record "Item Reference";
     begin
         CompanyInformation.Get();
 
@@ -1700,12 +1700,12 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
 
         repeat
             if SalesInvoiceLine.Type = SalesInvoiceLine.Type::Item then begin
-                // create vendor cross reference to the same Item No. as it is the same Item
+                // create vendor item reference to the same Item No. as it is the same Item
                 Item.Get(SalesInvoiceLine."No.");
-                LibraryInventory.CreateItemCrossReference(
-                  ItemCrossReference, Item."No.", ItemCrossReference."Cross-Reference Type"::Vendor, Vendor."No.");
-                ItemCrossReference.Validate("Cross-Reference No.", Item."No.");
-                ItemCrossReference.Insert(true);
+                LibraryItemReference.CreateItemReference(
+                  ItemReference, Item."No.", ItemReference."Reference Type"::Vendor, Vendor."No.");
+                ItemReference.Validate("Reference No.", Item."No.");
+                ItemReference.Insert(true);
             end;
         until SalesInvoiceLine.Next = 0;
         exit(Vendor."No.")
@@ -1718,9 +1718,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
         Customer: Record Customer;
         ServiceInvoiceLine: Record "Service Invoice Line";
         Item: Record Item;
-        ItemCrossReference: Record "Item Cross Reference";
-        LibraryPurchase: Codeunit "Library - Purchase";
-        LibraryInventory: Codeunit "Library - Inventory";
+        ItemReference: Record "Item Reference";
     begin
         CompanyInformation.Get();
 
@@ -1745,12 +1743,12 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
 
         repeat
             if ServiceInvoiceLine.Type = ServiceInvoiceLine.Type::Item then begin
-                // create vendor cross reference to the same Item No. as it is the same Item
+                // create vendor item reference to the same Item No. as it is the same Item
                 Item.Get(ServiceInvoiceLine."No.");
-                LibraryInventory.CreateItemCrossReference(
-                  ItemCrossReference, Item."No.", ItemCrossReference."Cross-Reference Type"::Vendor, Vendor."No.");
-                ItemCrossReference.Validate("Cross-Reference No.", Item."No.");
-                ItemCrossReference.Insert(true);
+                LibraryItemReference.CreateItemReference(
+                  ItemReference, Item."No.", ItemReference."Reference Type"::Vendor, Vendor."No.");
+                ItemReference.Validate("Reference No.", Item."No.");
+                ItemReference.Insert(true);
             end;
         until ServiceInvoiceLine.Next = 0;
         exit(Vendor."No.")
@@ -1763,9 +1761,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
         Customer: Record Customer;
         SalesCrMemoLine: Record "Sales Cr.Memo Line";
         Item: Record Item;
-        ItemCrossReference: Record "Item Cross Reference";
-        LibraryPurchase: Codeunit "Library - Purchase";
-        LibraryInventory: Codeunit "Library - Inventory";
+        ItemReference: Record "Item Reference";
     begin
         CompanyInformation.Get();
 
@@ -1790,12 +1786,12 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
 
         repeat
             if SalesCrMemoLine.Type = SalesCrMemoLine.Type::Item then begin
-                // create vendor cross reference to the same Item No. as it is the same Item
+                // create vendor item reference to the same Item No. as it is the same Item
                 Item.Get(SalesCrMemoLine."No.");
-                LibraryInventory.CreateItemCrossReference(
-                  ItemCrossReference, Item."No.", ItemCrossReference."Cross-Reference Type"::Vendor, Vendor."No.");
-                ItemCrossReference.Validate("Cross-Reference No.", Item."No.");
-                ItemCrossReference.Insert(true);
+                LibraryItemReference.CreateItemReference(
+                  ItemReference, Item."No.", ItemReference."Reference Type"::Vendor, Vendor."No.");
+                ItemReference.Validate("Reference No.", Item."No.");
+                ItemReference.Insert(true);
             end;
         until SalesCrMemoLine.Next = 0;
 
@@ -1809,9 +1805,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
         Customer: Record Customer;
         ServiceCrMemoLine: Record "Service Cr.Memo Line";
         Item: Record Item;
-        ItemCrossReference: Record "Item Cross Reference";
-        LibraryPurchase: Codeunit "Library - Purchase";
-        LibraryInventory: Codeunit "Library - Inventory";
+        ItemReference: Record "Item Reference";
     begin
         CompanyInformation.Get();
 
@@ -1836,12 +1830,12 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
 
         repeat
             if ServiceCrMemoLine.Type = ServiceCrMemoLine.Type::Item then begin
-                // create vendor cross reference to the same Item No. as it is the same Item
+                // create vendor item reference to the same Item No. as it is the same Item
                 Item.Get(ServiceCrMemoLine."No.");
-                LibraryInventory.CreateItemCrossReference(
-                  ItemCrossReference, Item."No.", ItemCrossReference."Cross-Reference Type"::Vendor, Vendor."No.");
-                ItemCrossReference.Validate("Cross-Reference No.", Item."No.");
-                ItemCrossReference.Insert(true);
+                LibraryItemReference.CreateItemReference(
+                  ItemReference, Item."No.", ItemReference."Reference Type"::Vendor, Vendor."No.");
+                ItemReference.Validate("Reference No.", Item."No.");
+                ItemReference.Insert(true);
             end;
         until ServiceCrMemoLine.Next = 0;
 

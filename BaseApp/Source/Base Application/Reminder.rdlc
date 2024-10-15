@@ -111,7 +111,6 @@
                                                   <TextRun>
                                                     <Value>=Fields!Desc_IssuedReminderLine.Value</Value>
                                                     <Style>
-                                                      <FontStyle>Normal</FontStyle>
                                                       <FontFamily>Segoe UI</FontFamily>
                                                       <FontSize>8pt</FontSize>
                                                     </Style>
@@ -122,12 +121,14 @@
                                             </Paragraphs>
                                             <rd:DefaultName>Textbox2</rd:DefaultName>
                                             <Style>
+                                              <Border>
+                                                <Style>None</Style>
+                                              </Border>
                                               <VerticalAlign>Bottom</VerticalAlign>
                                               <PaddingRight>5pt</PaddingRight>
                                             </Style>
                                           </Textbox>
                                           <ColSpan>21</ColSpan>
-                                          <rd:Selected>true</rd:Selected>
                                         </CellContents>
                                       </TablixCell>
                                       <TablixCell />
@@ -4015,7 +4016,7 @@
                                 </TablixMembers>
                               </TablixRowHierarchy>
                               <DataSetName>DataSet_Result</DataSetName>
-                              <Top>10.8553cm</Top>
+                              <Top>10.5378cm</Top>
                               <Left>0.00287cm</Left>
                               <Height>0.35278cm</Height>
                               <Width>7.06092in</Width>

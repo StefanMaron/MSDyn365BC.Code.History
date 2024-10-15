@@ -145,7 +145,7 @@ table 272 "Check Ledger Entry"
         field(26; "Record ID to Print"; RecordID)
         {
             Caption = 'Record ID to Print';
-            DataClassification = SystemMetadata;
+            DataClassification = CustomerContent;
         }
         field(28040; "WHT Amount"; Decimal)
         {

@@ -60,13 +60,13 @@ table 225 "Post Code"
             var
                 TimeZoneID: Text[180];
             begin
-                if ConfPersonalizationMgt.LookupTimeZone(TimeZoneID) then
+                if TimeZoneSelection.LookupTimeZone(TimeZoneID) then
                     "Time Zone" := TimeZoneID;
             end;
 
             trigger OnValidate()
             begin
-                ConfPersonalizationMgt.ValidateTimeZone("Time Zone");
+                TimeZoneSelection.ValidateTimeZone("Time Zone");
             end;
         }
     }
@@ -100,7 +100,7 @@ table 225 "Post Code"
 
     var
         Text000: Label '%1 %2 already exists.';
-        ConfPersonalizationMgt: Codeunit "Conf./Personalization Mgt.";
+        TimeZoneSelection: Codeunit "Time Zone Selection";
         PostCodeCheck: Codeunit "Post Code Check";
 
     procedure ValidateCity(var CityTxt: Text[30]; var PostCode: Code[20]; var CountyTxt: Text[30]; var CountryCode: Code[10]; UseDialog: Boolean)
@@ -265,11 +265,16 @@ table 225 "Post Code"
 
     procedure CheckClearPostCodeCityCounty(var CityTxt: Text; var PostCode: Code[20]; var CountyTxt: Text; var CountryCode: Code[10]; xCountryCode: Code[10])
     var
+        GLSetup: Record "General Ledger Setup";
         IsHandled: Boolean;
     begin
         IsHandled := false;
         OnBeforeCheckClearPostCodeCityCounty(CityTxt, PostCode, CountyTxt, CountryCode, xCountryCode, IsHandled);
         if IsHandled then
+            exit;
+
+        GLSetup.Get();
+        if GLSetup."Req.Country/Reg. Code in Addr." then
             exit;
 
         if (xCountryCode = CountryCode) or (xCountryCode = '') then

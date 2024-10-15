@@ -1,4 +1,4 @@
-﻿codeunit 92 "Purch.-Post + Print"
+codeunit 92 "Purch.-Post + Print"
 {
     TableNo = "Purchase Header";
 
@@ -169,7 +169,7 @@
             end;
     end;
 
-    local procedure PrintReceive(PurchHeader: Record "Purchase Header")
+    procedure PrintReceive(PurchHeader: Record "Purchase Header")
     var
         PurchRcptHeader: Record "Purch. Rcpt. Header";
         IsHandled: Boolean;
@@ -184,7 +184,7 @@
         PurchRcptHeader.PrintRecords(false);
     end;
 
-    local procedure PrintInvoice(PurchHeader: Record "Purchase Header")
+    procedure PrintInvoice(PurchHeader: Record "Purchase Header")
     var
         PurchInvHeader: Record "Purch. Inv. Header";
         IsHandled: Boolean;
@@ -202,7 +202,7 @@
         PurchInvHeader.PrintRecords(false);
     end;
 
-    local procedure PrintShip(PurchHeader: Record "Purchase Header")
+    procedure PrintShip(PurchHeader: Record "Purchase Header")
     var
         ReturnShptHeader: Record "Return Shipment Header";
         IsHandled: Boolean;
@@ -217,7 +217,7 @@
         ReturnShptHeader.PrintRecords(false);
     end;
 
-    local procedure PrintCrMemo(PurchHeader: Record "Purchase Header")
+    procedure PrintCrMemo(PurchHeader: Record "Purchase Header")
     var
         PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
         IsHandled: Boolean;

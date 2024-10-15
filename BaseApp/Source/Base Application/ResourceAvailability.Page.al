@@ -19,12 +19,11 @@ page 225 "Resource Availability"
                 {
                     ApplicationArea = Jobs;
                     Caption = 'View by';
-                    OptionCaption = 'Day,Week,Month,Quarter,Year,Period';
                     ToolTip = 'Specifies by which period amounts are displayed.';
 
                     trigger OnValidate()
                     begin
-                        if PeriodType = PeriodType::Period then
+                        if PeriodType = PeriodType::"Accounting Period" then
                             PeriodPeriodTypeOnValidate;
                         if PeriodType = PeriodType::Year then
                             YearPeriodTypeOnValidate;
@@ -42,7 +41,6 @@ page 225 "Resource Availability"
                 {
                     ApplicationArea = Jobs;
                     Caption = 'View as';
-                    OptionCaption = 'Net Change,Balance at Date';
                     ToolTip = 'Specifies how amounts are displayed. Net Change: The net change in the balance for the selected period. Balance at Date: The balance as of the last day in the selected period.';
 
                     trigger OnValidate()
@@ -71,12 +69,12 @@ page 225 "Resource Availability"
     end;
 
     var
-        PeriodType: Option Day,Week,Month,Quarter,Year,Period;
-        AmountType: Option "Net Change","Balance at Date";
+        PeriodType: Enum "Analysis Period Type";
+        AmountType: Enum "Analysis Amount Type";
 
     local procedure UpdateSubForm()
     begin
-        CurrPage.ResAvailLines.PAGE.Set(Rec, PeriodType, AmountType);
+        CurrPage.ResAvailLines.PAGE.SetLines(Rec, PeriodType, AmountType);
     end;
 
     local procedure DayPeriodTypeOnPush()

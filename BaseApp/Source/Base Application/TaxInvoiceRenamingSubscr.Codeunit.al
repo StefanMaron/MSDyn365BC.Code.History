@@ -7,8 +7,6 @@ codeunit 12200 "Tax Invoice Renaming Subscr."
 
     var
         ThresholdAmount: Decimal;
-        SalesTaxInvoiceTxt: Label 'Sales - Tax Invoice %1', Comment = '%1 is a placeholder for COPY token';
-        SalesPrepmtTaxInvoiceTxt: Label 'Sales - Prepayment Tax Invoice %1', Comment = '%1 is a placeholder for COPY token';
         ServiceTaxInvoiceTxt: Label 'Service - Tax Invoice %1', Comment = '%1 is a placeholder for COPY token';
         TaxInvoiceTxt: Label 'Tax Invoice';
         PrepmtTaxInvoiceTxt: Label 'Prepayment Tax Invoice';
@@ -39,17 +37,6 @@ codeunit 12200 "Tax Invoice Renaming Subscr."
     begin
         ServiceInvoiceHeader.CalcFields("Amount Including VAT");
         exit(ServiceInvoiceHeader."Amount Including VAT" > ThresholdAmount);
-    end;
-
-    [EventSubscriber(ObjectType::Report, Report::"Sales - Invoice", 'OnBeforeGetDocumentCaption', '', false, false)]
-    local procedure OnBeforeGetSalesInvoiceCaption(SalesInvoiceHeader: Record "Sales Invoice Header"; var DocCaption: Text)
-    begin
-        if GetTaxInvoiceThreshold then
-            if IsSalesInvoiceAmountAboveThreshold(SalesInvoiceHeader) then
-                if SalesInvoiceHeader."Prepayment Invoice" then
-                    DocCaption := SalesPrepmtTaxInvoiceTxt
-                else
-                    DocCaption := SalesTaxInvoiceTxt;
     end;
 
     [EventSubscriber(ObjectType::Report, Report::"Standard Sales - Invoice", 'OnBeforeGetDocumentCaption', '', false, false)]

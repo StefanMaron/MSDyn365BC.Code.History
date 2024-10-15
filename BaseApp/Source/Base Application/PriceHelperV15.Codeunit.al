@@ -1,3 +1,4 @@
+#if not CLEAN19
 codeunit 7019 "Price Helper - V15"
 {
     ObsoleteState = Pending;
@@ -427,3 +428,4 @@ codeunit 7019 "Price Helper - V15"
         CopyJobPrices(SourceJob, TargetJob);
     end;
 }
+#endif

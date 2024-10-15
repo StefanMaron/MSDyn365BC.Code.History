@@ -125,7 +125,7 @@ codeunit 5488 "Graph Mgt - Reports"
                         ColumnNo := ColumnNo + 1;
                         if (ColumnNo > DummyColumnOffset) and (ColumnNo - DummyColumnOffset <= ArrayLen(ColumnValues)) then
                             ColumnValues[ColumnNo - DummyColumnOffset] :=
-                              MatrixMgt.RoundValue(
+                              MatrixMgt.RoundAmount(
                                 AccSchedManagement.CalcCell(AccScheduleLine, TempColumnLayout, DummyUseAmtsInAddCurr),
                                 TempColumnLayout."Rounding Factor")
                     until TempColumnLayout.Next() = 0;
@@ -457,7 +457,7 @@ codeunit 5488 "Graph Mgt - Reports"
         MatrixMgt: Codeunit "Matrix Management";
         DummyUseAmtsInAddCurr: Boolean;
     begin
-        exit(MatrixMgt.GetFormatString(ColumnLayoutArr[ColumnNo]."Rounding Factor", DummyUseAmtsInAddCurr));
+        exit(MatrixMgt.FormatRoundingFactor(ColumnLayoutArr[ColumnNo]."Rounding Factor", DummyUseAmtsInAddCurr));
     end;
 
     local procedure GetDateRangeMax(DateFilter: Text) RangeMax: Date

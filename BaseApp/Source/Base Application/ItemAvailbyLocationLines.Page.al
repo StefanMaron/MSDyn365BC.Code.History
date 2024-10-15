@@ -318,7 +318,7 @@ page 515 "Item Avail. by Location Lines"
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
         ExpectedInventory: Decimal;
         QtyAvailable: Decimal;
-        AmountType: Option "Net Change","Balance at Date";
+        AmountType: Enum "Analysis Amount Type";
         PlannedOrderReleases: Decimal;
         GrossRequirement: Decimal;
         PlannedOrderRcpt: Decimal;
@@ -328,22 +328,34 @@ page 515 "Item Avail. by Location Lines"
         PeriodEnd: Date;
         LocationCode: Code[10];
 
+#if not CLEAN18
     [Obsolete('Replaced by SetItem().', '18.0')]
     procedure Set(var NewItem: Record Item; NewAmountType: Option "Net Change","Balance at Date")
     begin
         SetItem(NewItem, NewAmountType);
     end;
+#endif
 
+#if not CLEAN19
+    [Obsolete('Replaced by SetLines().', '19.0')]
     procedure SetItem(var NewItem: Record Item; NewAmountType: Option "Net Change","Balance at Date")
     begin
-        OnBeforeSet(Rec, NewItem, NewAmountType);
+        SetLines(NewItem, "Analysis Amount Type".FromInteger(NewAmountType));
+
+        OnAfterSet(Item, AmountType.AsInteger());
+    end;
+#endif
+
+    procedure SetLines(var NewItem: Record Item; NewAmountType: Enum "Analysis Amount Type")
+    begin
+        OnBeforeSet(Rec, NewItem, NewAmountType.AsInteger());
         Item.Copy(NewItem);
         PeriodStart := Item.GetRangeMin("Date Filter");
         PeriodEnd := Item.GetRangeMax("Date Filter");
         AmountType := NewAmountType;
         CurrPage.Update(false);
 
-        OnAfterSet(Item, AmountType);
+        OnAfterSetLines(Item, AmountType);
     end;
 
     [Obsolete('Replaced by GetItem().', '18.0')]
@@ -393,8 +405,16 @@ page 515 "Item Avail. by Location Lines"
     begin
     end;
 
+#if not CLEAN19
+    [Obsolete('Replaced by OnAfterSetLines().', '19.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterSet(var Item: Record Item; AmountType: Option);
+    begin
+    end;
+#endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetLines(var Item: Record Item; AmountType: Enum "Analysis Amount Type");
     begin
     end;
 

@@ -35,50 +35,6 @@ codeunit 141061 "UT REP Show FCY and Amt"
         SalesCrMemoLineAmtIncLCYCap: Label 'AmtIncLCY_SalesCrMemoLine';
 
     [Test]
-    [HandlerFunctions('SalesInvoiceRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure OnAfterGetRecordSalesInvoiceHeaderSalesInvoice()
-    var
-        SalesInvoiceLine: Record "Sales Invoice Line";
-    begin
-        // [SCENARIO] verify Amount, Amount Including VAT and Amount in words on Report - 206 Sales - Invoice.
-
-        // Setup.
-        Initialize;
-        CreatePostedSalesInvoice(SalesInvoiceLine);
-        LibraryVariableStorage.Enqueue(SalesInvoiceLine."Document No.");  // Enqueue for SalesInvoiceRequestPageHandler.
-        Commit();  // COMMIT is explicitly called on OnRun of COD315 - Sales Inv.-Printed.
-
-        // Exercise.
-        REPORT.Run(REPORT::"Sales - Invoice");
-
-        // Verify.
-        VerifyValuesOnPostedSalesInvoice(SalesInvoiceLine);
-    end;
-
-    [Test]
-    [HandlerFunctions('SalesCreditMemoRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure OnAfterGetRecordSalesInvoiceHeaderSalesCreditMemo()
-    var
-        SalesCrMemoLine: Record "Sales Cr.Memo Line";
-    begin
-        // [SCENARIO] verify Amount, Amount Including VAT and Amount in words on Report - 207 Sales - Credit Memo.
-
-        // Setup.
-        Initialize;
-        CreatePostedSalesCreditMemo(SalesCrMemoLine);
-        LibraryVariableStorage.Enqueue(SalesCrMemoLine."Document No.");  // Enqueue for SalesCreditMemoRequestPageHandler.
-        Commit();  // COMMIT is explicitly called on OnRun of COD316 - Sales Cr. Memo-Printed.
-
-        // Exercise.
-        REPORT.Run(REPORT::"Sales - Credit Memo");
-
-        // Verify.
-        VerifyValuesOnPostedSalesCreditMemo(SalesCrMemoLine);
-    end;
-
-    [Test]
     [HandlerFunctions('PurchaseInvoiceRequestPageHandler')]
     [Scope('OnPrem')]
     procedure OnAfterGetRecordPurchInvHeaderPurchaseInvoice()
@@ -333,34 +289,6 @@ codeunit 141061 "UT REP Show FCY and Amt"
         PurchaseCreditMemo.ShowLCYForFCY.SetValue(true);
         PurchaseCreditMemo.ShowTHAmountInWords.SetValue(true);
         PurchaseCreditMemo.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure SalesInvoiceRequestPageHandler(var SalesInvoice: TestRequestPage "Sales - Invoice")
-    var
-        No: Variant;
-    begin
-        LibraryVariableStorage.Dequeue(No);
-        SalesInvoice."Sales Invoice Header".SetFilter("No.", No);
-        SalesInvoice.ShowTotalInWords.SetValue(true);
-        SalesInvoice.ShowLCYForFCY.SetValue(true);
-        SalesInvoice.ShowTHAmountInWords.SetValue(true);
-        SalesInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure SalesCreditMemoRequestPageHandler(var SalesCreditMemo: TestRequestPage "Sales - Credit Memo")
-    var
-        No: Variant;
-    begin
-        LibraryVariableStorage.Dequeue(No);
-        SalesCreditMemo."Sales Cr.Memo Header".SetFilter("No.", No);
-        SalesCreditMemo.ShowTotalInWords.SetValue(true);
-        SalesCreditMemo.ShowLCYForFCY.SetValue(true);
-        SalesCreditMemo.ShowTHAmountInWords.SetValue(true);
-        SalesCreditMemo.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 }
 

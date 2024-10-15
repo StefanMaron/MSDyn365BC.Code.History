@@ -1,4 +1,4 @@
-﻿table 302 "Finance Charge Memo Header"
+table 302 "Finance Charge Memo Header"
 {
     Caption = 'Finance Charge Memo Header';
     DataCaptionFields = "No.", Name;

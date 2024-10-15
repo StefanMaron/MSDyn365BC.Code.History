@@ -496,8 +496,10 @@ page 38 "Item Ledger Entries"
 
     trigger OnOpenPage()
     begin
-        if (GetFilters() <> '') and not Find() then
-            if FindFirst() then;
+        OnBeforeOpenPage();
+
+        if (Rec.GetFilters() <> '') and not Rec.Find() then
+            if Rec.FindFirst() then;
 
         SetPackageTrackingVisibility();
         SetDimVisibility();
@@ -619,6 +621,11 @@ page 38 "Item Ledger Entries"
         PackageMgt: Codeunit "Package Management";
     begin
         PackageTrackingVisible := PackageMgt.IsEnabled();
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeOpenPage()
+    begin
     end;
 }
 

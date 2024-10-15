@@ -13,7 +13,7 @@ table 710 "Activity Log"
         field(2; "Record ID"; RecordID)
         {
             Caption = 'Record ID';
-            DataClassification = SystemMetadata;
+            DataClassification = CustomerContent;
         }
         field(3; "Activity Date"; DateTime)
         {

@@ -287,7 +287,11 @@ table 32 "Item Ledger Entry"
         {
             Caption = 'Cross-Reference No.';
             ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
+#if not CLEAN19
             ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
             ObsoleteTag = '17.0';
         }
         field(5701; "Originally Ordered No."; Code[20])

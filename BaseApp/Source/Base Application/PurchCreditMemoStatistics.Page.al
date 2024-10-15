@@ -180,7 +180,8 @@ page 401 "Purch. Credit Memo Statistics"
 
         PurchCrMemoLine.CalcVATAmountLines(Rec, TempVATAmountLine);
         CurrPage.SubForm.PAGE.SetTempVATAmountLine(TempVATAmountLine);
-        CurrPage.SubForm.PAGE.InitGlobals("Currency Code", false, false, false, false, "VAT Base Discount %", 0);
+        CurrPage.SubForm.PAGE.InitGlobals("Currency Code", false, false, false, false, "VAT Base Discount %");
+        CurrPage.SubForm.PAGE.ShowGSTAmountACY();
     end;
 
     var

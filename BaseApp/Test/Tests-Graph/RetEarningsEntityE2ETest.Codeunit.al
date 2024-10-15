@@ -1,3 +1,4 @@
+#if not CLEAN18
 codeunit 135526 "Ret. Earnings Entity E2E Test"
 {
     Subtype = Test;
@@ -67,4 +68,4 @@ codeunit 135526 "Ret. Earnings Entity E2E Test"
         IsInitialized := true;
     end;
 }
-
+#endif

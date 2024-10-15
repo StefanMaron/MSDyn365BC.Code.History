@@ -6,13 +6,18 @@ codeunit 1641 "Setup Email Logging"
     end;
 
     var
+#if not CLEAN17
         TempOfficeAdminCredentials: Record "Office Admin. Credentials" temporary;
         ExchangePowerShellRunner: Codeunit "Exchange PowerShell Runner";
+#endif
         IsolatedStorageManagement: Codeunit "Isolated Storage Management";
+#if not CLEAN17
         PublicFoldersCreationProgressMsg: Label 'Public folder creation  @1@@@@@@@@@@@@@@@@@@';
         Initialized: Boolean;
         AdminCredentialsRequiredErr: Label 'Could not create a public Exchange folder. Check if the credentials of the Exchange administrator are entered correctly.';
+#endif
         EmailLoggingTelemetryCategoryTxt: Label 'AL Email Logging', Locked = true;
+#if not CLEAN17
         CloseConnectionTxt: Label 'Close connection to Exchange.', Locked = true;
         InitializeConnectionTxt: Label 'Initialize connection to Exchange.', Locked = true;
         ConnectionNotInitializedTxt: Label 'Connection to Exchange is not initialized.', Locked = true;
@@ -23,10 +28,14 @@ codeunit 1641 "Setup Email Logging"
         CreateEmailLoggingIncomingRuleTxt: Label 'Create email logging incoming rule.', Locked = true;
         CreateEmailLoggingOutgoingRuleTxt: Label 'Create email logging outgoing rule.', Locked = true;
         EmailLoggingRulesCreatedTxt: Label 'Email logging rules are created.', Locked = true;
+#endif
         ClearEmailLoggingSetupTxt: Label 'Clear email logging setup.', Locked = true;
+#if not CLEAN17
         SetDeployCredentialsTxt: Label 'Set deploy credentials.', Locked = true;
+#endif
         CreateEmailLoggingJobTxt: Label 'Create email logging job.', Locked = true;
         DeleteEmailLoggingJobTxt: Label 'Delete email logging job.', Locked = true;
+#if not CLEAN17
         SetupEmailLoggingTxt: Label 'Setup email logging.', Locked = true;
         CannotFindMarketingSetupTxt: Label 'Cannot find marketing setup record.', Locked = true;
         EnableOrganizationCustomizationTxt: Label 'Enabling organization customization to be able to add new role group.', Locked = true;
@@ -40,6 +49,7 @@ codeunit 1641 "Setup Email Logging"
         CreateStoragePublicFolderTxt: Label 'Creation of new storage public folder.', Locked = true;
         CreatePublicFolderEmailSettingsTxt: Label 'Creation of queue public folder email settings.', Locked = true;
         AddPublicFolderClientPermissionTxt: Label 'Add public folder client permission.', Locked = true;
+#endif
         MissingClientIdOrSecretErr: Label 'The client ID or client secret have not been initialized.';
         MissingClientIdTelemetryTxt: Label 'The client ID has not been initialized.', Locked = true;
         MissingClientSecretTelemetryTxt: Label 'The client secret has not been initialized.', Locked = true;
@@ -50,7 +60,11 @@ codeunit 1641 "Setup Email Logging"
         EmailLoggingClientSecretAKVSecretNameLbl: Label 'emaillogging-clientsecret', Locked = true;
         TenantOAuthAuthorityUrlLbl: Label 'https://login.microsoftonline.com/%1/oauth2', Locked = true;
         CommonOAuthAuthorityUrlLbl: Label 'https://login.microsoftonline.com/common/oauth2', Locked = true;
+#if CLEAN18
+        ScopesLbl: Label 'https://outlook.office.com/.default', Locked = true;
+#else
         ResourceUrlLbl: Label 'https://outlook.office.com', Locked = true;
+#endif
         ClientCredentialsAccessTokenErr: Label 'No client credentials access token received', Locked = true;
         AccessTokenErrMsg: Label 'Failed to acquire an access token.';
         AuthTokenOrCodeNotReceivedErr: Label 'No access token or authorization error code received.', Locked = true;
@@ -60,8 +74,10 @@ codeunit 1641 "Setup Email Logging"
         IgnoredClientCredentialsTxt: Label 'Ignored client credentials.', Locked = true;
         InvalidClientCredentialsTxt: Label 'Invalid client credentials.', Locked = true;
         EmptyRedirectUrlTxt: Label 'Redirect URL is empty, the default URL will be used.', Locked = true;
+#if not CLEAN17
         RootFolderPathTemplateTxt: Label '\%1\', Locked = true;
         PublicFolderPathTemplateTxt: Label '\%1\%2\', Locked = true;
+#endif
         FolderDoesNotExistErr: Label 'The specified Exchange folder does not exist.';
         FolderDoesNotExistTxt: Label 'Exchange folder %1 (%2) does not exist.', Locked = true;
         SetupEmailLoggingTitleTxt: Label 'Set up email logging';
@@ -74,6 +90,7 @@ codeunit 1641 "Setup Email Logging"
         CannotExtractTenantIdTxt: Label 'Cannot extract tenant ID from token.', Locked = true;
         CannotExtractTenantIdErr: Label 'Cannot extract tenant ID from the access token.';
 
+#if not CLEAN17
     [TryFunction]
     [Obsolete('Will be removed', '17.0')]
     [Scope('OnPrem')]
@@ -276,6 +293,83 @@ codeunit 1641 "Setup Email Logging"
         Session.LogMessage('0000BYF', EmailLoggingRulesCreatedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
     end;
 
+    [Obsolete('Will be removed', '17.0')]
+    procedure SetDeployCredentials(Username: Text[80]; Password: Text[30])
+    begin
+        Session.LogMessage('0000BYJ', SetDeployCredentialsTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
+        ExchangePowerShellRunner.SetCredentials(Username, Password);
+    end;
+
+    [Scope('OnPrem')]
+    [Obsolete('Will be removed', '17.0')]
+    [NonDebuggable]
+    procedure SetupEmailLoggingFolderMarketingSetup(RootFolderName: Text; QueueFolderName: Text; StorageFolderName: Text)
+    var
+        MarketingSetup: Record "Marketing Setup";
+        TempExchangeFolder: Record "Exchange Folder" temporary;
+        ExchangeWebServicesClient: Codeunit "Exchange Web Services Client";
+        OAuthCredentials: DotNet OAuthCredentials;
+        Token: Text;
+    begin
+        Session.LogMessage('0000BYH', SetupEmailLoggingTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
+
+        if not MarketingSetup.Get() then begin
+            Session.LogMessage('0000BYI', CannotFindMarketingSetupTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
+            exit;
+        end;
+
+        GetClientCredentialsAccessToken(MarketingSetup.GetExchangeTenantId(), Token);
+        OAuthCredentials := OAuthCredentials.OAuthCredentials(Token);
+        ExchangeWebServicesClient.InitializeOnServerWithImpersonation(
+          TempOfficeAdminCredentials.Email, GetDomainFromEmail(TempOfficeAdminCredentials.Email), OAuthCredentials);
+        ExchangeWebServicesClient.ValidateCredentialsOnServer();
+        ExchangeWebServicesClient.GetPublicFolders(TempExchangeFolder);
+        TempExchangeFolder.Get(StrSubstNo(RootFolderPathTemplateTxt, RootFolderName));
+        ExchangeWebServicesClient.GetPublicFolders(TempExchangeFolder);
+        TempExchangeFolder.Get(StrSubstNo(PublicFolderPathTemplateTxt, RootFolderName, QueueFolderName));
+        TempExchangeFolder.CalcFields("Unique ID");
+        MarketingSetup.SetQueueFolder(TempExchangeFolder);
+        TempExchangeFolder.Get(StrSubstNo(PublicFolderPathTemplateTxt, RootFolderName, StorageFolderName));
+        TempExchangeFolder.CalcFields("Unique ID");
+        MarketingSetup.SetStorageFolder(TempExchangeFolder);
+    end;
+
+    [Obsolete('End of support for Exchange Online PowerShell', '17.0')]
+    [Scope('OnPrem')]
+    procedure ClosePSConnection()
+    begin
+        Session.LogMessage('0000BYL', CloseConnectionTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
+        if Initialized then
+            ExchangePowerShellRunner.RemoveRemoteConnectionInformation();
+        Initialized := false;
+    end;
+#endif
+
+    [Scope('OnPrem')]
+    procedure GetExchangeFolder(var ExchangeWebServicesClient: Codeunit "Exchange Web Services Client"; var ExchangeFolder: Record "Exchange Folder"; FoldersCaption: Text): Boolean
+    var
+        ExchangeFoldersPage: Page "Exchange Folders";
+        FolderID: Text;
+    begin
+        ExchangeFoldersPage.Initialize(ExchangeWebServicesClient, FoldersCaption);
+        ExchangeFoldersPage.LookupMode(true);
+        if Action::LookupOK = ExchangeFoldersPage.RunModal() then begin
+            ExchangeFoldersPage.GetRecord(ExchangeFolder);
+            FolderID := ExchangeFolder.ReadUniqueID();
+            if not ExchangeWebServicesClient.FolderExists(FolderID) then begin
+                Session.LogMessage('0000D9L', StrSubstNo(FolderDoesNotExistTxt, FolderID, ExchangeFolder.FullPath), Verbosity::Normal, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
+                Error(FolderDoesNotExistErr);
+            end;
+            exit(true);
+        end;
+        exit(false);
+    end;
+
+    procedure GetDomainFromEmail(Email: Text): Text
+    begin
+        exit(DelStr(Email, 1, StrPos(Email, '@')));
+    end;
+
     [Scope('OnPrem')]
     procedure ClearEmailLoggingSetup(var MarketingSetup: Record "Marketing Setup")
     begin
@@ -314,72 +408,6 @@ codeunit 1641 "Setup Email Logging"
         MarketingSetup.Modify();
     end;
 
-    [Scope('OnPrem')]
-    [Obsolete('Will be removed', '17.0')]
-    [NonDebuggable]
-    procedure SetupEmailLoggingFolderMarketingSetup(RootFolderName: Text; QueueFolderName: Text; StorageFolderName: Text)
-    var
-        MarketingSetup: Record "Marketing Setup";
-        TempExchangeFolder: Record "Exchange Folder" temporary;
-        ExchangeWebServicesClient: Codeunit "Exchange Web Services Client";
-        OAuthCredentials: DotNet OAuthCredentials;
-        Token: Text;
-    begin
-        Session.LogMessage('0000BYH', SetupEmailLoggingTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
-
-        if not MarketingSetup.Get() then begin
-            Session.LogMessage('0000BYI', CannotFindMarketingSetupTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
-            exit;
-        end;
-
-        GetClientCredentialsAccessToken(MarketingSetup.GetExchangeTenantId(), Token);
-        OAuthCredentials := OAuthCredentials.OAuthCredentials(Token);
-        ExchangeWebServicesClient.InitializeOnServerWithImpersonation(
-          TempOfficeAdminCredentials.Email, GetDomainFromEmail(TempOfficeAdminCredentials.Email), OAuthCredentials);
-        ExchangeWebServicesClient.ValidateCredentialsOnServer();
-        ExchangeWebServicesClient.GetPublicFolders(TempExchangeFolder);
-        TempExchangeFolder.Get(StrSubstNo(RootFolderPathTemplateTxt, RootFolderName));
-        ExchangeWebServicesClient.GetPublicFolders(TempExchangeFolder);
-        TempExchangeFolder.Get(StrSubstNo(PublicFolderPathTemplateTxt, RootFolderName, QueueFolderName));
-        TempExchangeFolder.CalcFields("Unique ID");
-        MarketingSetup.SetQueueFolder(TempExchangeFolder);
-        TempExchangeFolder.Get(StrSubstNo(PublicFolderPathTemplateTxt, RootFolderName, StorageFolderName));
-        TempExchangeFolder.CalcFields("Unique ID");
-        MarketingSetup.SetStorageFolder(TempExchangeFolder);
-    end;
-
-    [Scope('OnPrem')]
-    procedure GetExchangeFolder(var ExchangeWebServicesClient: Codeunit "Exchange Web Services Client"; var ExchangeFolder: Record "Exchange Folder"; FoldersCaption: Text): Boolean
-    var
-        ExchangeFoldersPage: Page "Exchange Folders";
-        FolderID: Text;
-    begin
-        ExchangeFoldersPage.Initialize(ExchangeWebServicesClient, FoldersCaption);
-        ExchangeFoldersPage.LookupMode(true);
-        if Action::LookupOK = ExchangeFoldersPage.RunModal() then begin
-            ExchangeFoldersPage.GetRecord(ExchangeFolder);
-            FolderID := ExchangeFolder.ReadUniqueID();
-            if not ExchangeWebServicesClient.FolderExists(FolderID) then begin
-                Session.LogMessage('0000D9L', StrSubstNo(FolderDoesNotExistTxt, FolderID, ExchangeFolder.FullPath), Verbosity::Normal, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
-                Error(FolderDoesNotExistErr);
-            end;
-            exit(true);
-        end;
-        exit(false);
-    end;
-
-    procedure GetDomainFromEmail(Email: Text): Text
-    begin
-        exit(DelStr(Email, 1, StrPos(Email, '@')));
-    end;
-
-    [Obsolete('Will be removed', '17.0')]
-    procedure SetDeployCredentials(Username: Text[80]; Password: Text[30])
-    begin
-        Session.LogMessage('0000BYJ', SetDeployCredentialsTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
-        ExchangePowerShellRunner.SetCredentials(Username, Password);
-    end;
-
     procedure CreateEmailLoggingJobQueueSetup()
     var
         JobQueueEntry: Record "Job Queue Entry";
@@ -408,16 +436,6 @@ codeunit 1641 "Setup Email Logging"
         JobQueueEntry.SetRange("Object Type to Run", JobQueueEntry."Object Type to Run"::Codeunit);
         JobQueueEntry.SetRange("Object ID to Run", Codeunit::"Email Logging Context Adapter");
         JobQueueEntry.DeleteTasks();
-    end;
-
-    [Obsolete('End of support for Exchange Online PowerShell', '17.0')]
-    [Scope('OnPrem')]
-    procedure ClosePSConnection()
-    begin
-        Session.LogMessage('0000BYL', CloseConnectionTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
-        if Initialized then
-            ExchangePowerShellRunner.RemoveRemoteConnectionInformation();
-        Initialized := false;
     end;
 
     [Scope('OnPrem')]
@@ -468,6 +486,9 @@ codeunit 1641 "Setup Email Logging"
     var
         OAuth2: Codeunit OAuth2;
         PromptInteraction: Enum "Prompt Interaction";
+#if CLEAN18
+        Scopes: List of [Text];
+#endif
         AuthError: Text;
     begin
         if (ClientId = '') or (ClientSecret = '') then begin
@@ -479,6 +500,17 @@ codeunit 1641 "Setup Email Logging"
 
         Session.LogMessage('0000D9M', AcquireAccessTokenTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
 
+#if CLEAN18
+        Scopes.Add(ScopesLbl);
+        OAuth2.AcquireTokenByAuthorizationCode(
+            ClientId,
+            ClientSecret,
+            CommonOAuthAuthorityUrlLbl,
+            RedirectURL,
+            Scopes,
+            PromptInteraction::Consent, AccessToken, AuthError
+        );
+#else
         OAuth2.AcquireTokenByAuthorizationCode(
             ClientId,
             ClientSecret,
@@ -487,6 +519,7 @@ codeunit 1641 "Setup Email Logging"
             ResourceUrlLbl,
             PromptInteraction::Consent, AccessToken, AuthError
         );
+#endif
         if AccessToken = '' then begin
             if AuthError <> '' then
                 Session.LogMessage('0000CFA', AuthError, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt)
@@ -509,6 +542,9 @@ codeunit 1641 "Setup Email Logging"
     procedure GetClientCredentialsAccessToken(ClientId: Text; ClientSecret: Text; RedirectURL: Text; TenantId: Text; var AccessToken: Text)
     var
         OAuth2: Codeunit OAuth2;
+#if CLEAN18
+        Scopes: List of [Text];
+#endif
     begin
         if (ClientId = '') or (ClientSecret = '') then begin
             ClientId := GetClientId();
@@ -517,6 +553,17 @@ codeunit 1641 "Setup Email Logging"
         if RedirectURL = '' then
             RedirectURL := GetRedirectURL();
 
+#if CLEAN18
+        Scopes.Add(ScopesLbl);
+        OAuth2.AcquireTokenWithClientCredentials(
+                    ClientId,
+                    ClientSecret,
+                    StrSubstNo(TenantOAuthAuthorityUrlLbl, TenantId),
+                    RedirectURL,
+                    Scopes,
+                    AccessToken
+                );
+#else
         OAuth2.AcquireTokenWithClientCredentials(
                     ClientId,
                     ClientSecret,
@@ -525,6 +572,7 @@ codeunit 1641 "Setup Email Logging"
                     ResourceUrlLbl,
                     AccessToken
                 );
+#endif
         if AccessToken = '' then begin
             Session.LogMessage('0000CFC', ClientCredentialsAccessTokenErr, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
             Error(AccessTokenErrMsg);

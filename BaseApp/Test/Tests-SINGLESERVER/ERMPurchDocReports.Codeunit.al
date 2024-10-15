@@ -527,6 +527,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         asserterror LibraryReportDataset.AssertElementWithValueExists('', DocumentNo);
     end;
 
+#if not CLEAN19
     [Test]
     [HandlerFunctions('ReportHandlerVendorItemCatalog')]
     [Scope('OnPrem')]
@@ -554,6 +555,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         LibraryReportDataset.AssertElementWithValueExists('ItemVendLeadTimeCal', Format(ItemVendor."Lead Time Calculation"));
         LibraryReportDataset.AssertElementWithValueExists('ItemVendVendorItemNo', ItemVendor."Vendor Item No.");
     end;
+#endif
 
     [Test]
     [HandlerFunctions('ReportHandlerVendorPurchaseList')]
@@ -2201,6 +2203,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         PurchaseLine.Modify(true);
     end;
 
+#if not CLEAN19
     local procedure CreatePurchasePrice(var PurchasePrice: Record "Purchase Price"; VendorNo: Code[20])
     var
         Item: Record Item;
@@ -2211,6 +2214,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         PurchasePrice.Validate("Direct Unit Cost", Item."Last Direct Cost");
         PurchasePrice.Modify(true);
     end;
+#endif
 
     local procedure CreatePurchaseQuoteWithMultipleLine(var PurchaseHeader: Record "Purchase Header")
     var

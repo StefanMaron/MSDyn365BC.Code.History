@@ -220,6 +220,7 @@ codeunit 139049 "SMB Office Addin Mgmt Test"
         Assert.AreEqual(AdminPassword, TempOfficeAdminCredentials.GetPassword, 'Credential mismatch: Password');
     end;
 
+#if not CLEAN19
     [Test]
     [HandlerFunctions('O365CredentialsHandler,ConfirmHandler')]
     [Scope('OnPrem')]
@@ -244,7 +245,7 @@ codeunit 139049 "SMB Office Addin Mgmt Test"
         Assert.AreEqual(TempOfficeAdminCredentials.Email, TempOfficeAdminCredentials2.Email, 'Credential mismatch: Email');
         Assert.AreEqual(TempOfficeAdminCredentials.GetPassword, TempOfficeAdminCredentials2.GetPassword, 'Credential mismatch: Password');
     end;
-
+#endif
     [Test]
     [HandlerFunctions('ExchangeCredentialsHandler,ConfirmHandler')]
     [Scope('OnPrem')]
@@ -594,6 +595,7 @@ codeunit 139049 "SMB Office Addin Mgmt Test"
         Assert.IsTrue(StrPos(ManifestText, NewResource) > 0, 'New resource could not be found in generated manifest.');
     end;
 
+#if not CLEAN19
     [Test]
     [HandlerFunctions('CloseAndReopenCredentialsHandler,ConfirmHandler')]
     [Scope('OnPrem')]
@@ -622,7 +624,7 @@ codeunit 139049 "SMB Office Addin Mgmt Test"
         Assert.IsTrue(CloseHandlerRan, 'Handler for closing credential page did not run.');
         Assert.IsTrue(CredentialHandlerRan, 'Handler for setting credentials did not run.');
     end;
-
+#endif
     [Test]
     [Scope('OnPrem')]
     procedure TestGetOfficeAddin()

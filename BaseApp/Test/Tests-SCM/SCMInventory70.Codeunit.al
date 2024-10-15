@@ -407,53 +407,6 @@ codeunit 137060 "SCM Inventory 7.0"
         Assert.AreEqual(TransferLine.Quantity, TransferLine."Reserved Quantity Outbnd.", ReservedQtyErr);
     end;
 
-#if not CLEAN16
-    [Test]
-    [Scope('OnPrem')]
-    procedure ChangingCrossRefNoDoesNotChangeItemVendorLeadTimeDiffUnitsOfMeasure()
-    var
-        Item: Record Item;
-        ItemCrossRef: Record "Item Cross Reference";
-        UnitOfMeasure: Record "Unit of Measure";
-        Vendor: Record Vendor;
-        ItemVendor: Record "Item Vendor";
-        VendorItemNo: Text[20];
-        LeadTimeFormula: DateFormula;
-    begin
-        // [FEATURE] [Item Cross Reference]
-        // [SCENARIO 361680] Lead time calculation in Vendor Item is not changed after changing "Cross-Ref. No." in linked cross reference when two cross-ref. with diff. units of measure
-        Initialize(false);
-
-        // [GIVEN] Item with two units of measure
-        CreateItemWithTwoUnitsOfMeasure(Item, UnitOfMeasure);
-        LibraryPurchase.CreateVendor(Vendor);
-
-        // [GIVEN] Item cross reference with unit of measure = "U1" and Item Cross Reference No. = "N1"
-        CreateItemCrossReference(ItemCrossRef, Item."No.", Item."Base Unit of Measure", Vendor."No.", '');
-
-        // [GIVEN] Item cross reference with unit of measure = "U2" and Item Cross Reference No. = "N2"
-        VendorItemNo := ItemCrossRef."Cross-Reference No.";
-        CreateItemCrossReference(ItemCrossRef, Item."No.", UnitOfMeasure.Code, Vendor."No.", '');
-
-        // [GIVEN] Set Lead Time Calculation in Item Vendor = "1D"
-        Evaluate(LeadTimeFormula, '<' + Format(LibraryRandom.RandInt(10)) + 'D>');
-        UpdateItemVendorLeadTime(Vendor."No.", Item."No.", LeadTimeFormula);
-
-        // [WHEN] In Item Cross Reference change Cross Reference No. from "N2" to "N1"
-        with ItemCrossRef do
-            Rename("Item No.", '', "Unit of Measure", "Cross-Reference Type", "Cross-Reference Type No.", VendorItemNo);
-
-        ItemVendor.Get(Vendor."No.", Item."No.", '');
-        // [THEN] Item Vendor is updated: "Vendor Item No." = "N1", "Lead Time Calculation" = "1D"
-        Assert.AreEqual(
-          VendorItemNo, ItemVendor."Vendor Item No.",
-          StrSubstNo(WrongFieldValueErr, ItemVendor.FieldCaption("Vendor Item No."), ItemVendor.TableCaption));
-        Assert.IsTrue(
-          LeadTimeFormula = ItemVendor."Lead Time Calculation",
-          StrSubstNo(WrongFieldValueErr, ItemVendor.FieldCaption("Lead Time Calculation"), ItemVendor.TableCaption));
-    end;
-#endif
-
     [Test]
     [Scope('OnPrem')]
     procedure ChangingItemRefNoDoesNotChangeItemVendorLeadTimeDiffUnitsOfMeasure()
@@ -499,80 +452,6 @@ codeunit 137060 "SCM Inventory 7.0"
           StrSubstNo(WrongFieldValueErr, ItemVendor.FieldCaption("Lead Time Calculation"), ItemVendor.TableCaption));
     end;
 
-#if not CLEAN16
-    [Test]
-    [Scope('OnPrem')]
-    procedure ChangingCrossRefNoDoesNotChangeItemVendorLeadTimeSameUnitOfMeasure()
-    var
-        Item: Record Item;
-        ItemCrossRef: Record "Item Cross Reference";
-        Vendor: Record Vendor;
-        ItemVendor: Record "Item Vendor";
-        LeadTimeFormula: DateFormula;
-    begin
-        // [FEATURE] [Item Cross Reference]
-        // [SCENARIO 361680] Lead time calculation in Vendor Item is not changed after changing "Cross-Ref. No." in linked cross reference when two cross-ref. with the same unit of measure
-        Initialize(false);
-
-        // [GIVEN] Item cross reference with unit of measure = "U" and Cross Reference No. = "N1"
-        LibraryInventory.CreateItem(Item);
-        LibraryPurchase.CreateVendor(Vendor);
-        CreateItemCrossReference(ItemCrossRef, Item."No.", Item."Base Unit of Measure", Vendor."No.", '');
-
-        // [GIVEN] Item cross reference with unit of measure = "U" and Cross Reference No. = "N2"
-        CreateItemCrossReference(ItemCrossRef, Item."No.", Item."Base Unit of Measure", Vendor."No.", '');
-
-        // [GIVEN] Set Lead Time Calculation in Item Vendor = "1D"
-        Evaluate(LeadTimeFormula, '<' + Format(LibraryRandom.RandInt(10)) + 'D>');
-        UpdateItemVendorLeadTime(Vendor."No.", Item."No.", LeadTimeFormula);
-
-        // [WHEN] In Item Cross Reference change Cross Reference No. from "N2" to "N3"
-        with ItemCrossRef do
-            Rename("Item No.", '', "Unit of Measure", "Cross-Reference Type", "Cross-Reference Type No.", LibraryUtility.GenerateGUID);
-
-        ItemVendor.Get(Vendor."No.", Item."No.", '');
-
-        // [THEN] Item Vendor is updated: "Vendor Item No." = "N3", "Lead Time Calculation" = "1D"
-        Assert.AreEqual(
-          ItemCrossRef."Cross-Reference No.", ItemVendor."Vendor Item No.",
-          StrSubstNo(WrongFieldValueErr, ItemVendor.FieldCaption("Vendor Item No."), ItemVendor.TableCaption));
-        Assert.IsTrue(
-          LeadTimeFormula = ItemVendor."Lead Time Calculation",
-          StrSubstNo(WrongFieldValueErr, ItemVendor.FieldCaption("Lead Time Calculation"), ItemVendor.TableCaption));
-    end;
-#endif
-
-#if not CLEAN16
-    [Test]
-    [Scope('OnPrem')]
-    procedure TwoCrossReferencesWithDiffVendorsCreateTwoItemVendors()
-    var
-        Item: Record Item;
-        ItemCrossRef: Record "Item Cross Reference";
-        UnitOfMeasure: Record "Unit of Measure";
-        Vendor: array[2] of Record Vendor;
-        ItemVendor: Record "Item Vendor";
-    begin
-        // [FEATURE] [Item Cross Reference]
-        // [SCENARIO 361680] One linked Item Vendor created for each of two Item Cross References
-        Initialize(false);
-
-        // [GIVEN] Item cross-reference related to Vendor "V1"
-        CreateItemWithTwoUnitsOfMeasure(Item, UnitOfMeasure);
-        LibraryPurchase.CreateVendor(Vendor[1]);
-        CreateItemCrossReference(ItemCrossRef, Item."No.", Item."Base Unit of Measure", Vendor[1]."No.", '');
-
-        LibraryPurchase.CreateVendor(Vendor[2]);
-
-        // [WHEN] The second cross-reference for the same item created with a link to Vendor "V2"
-        CreateItemCrossReference(ItemCrossRef, Item."No.", Item."Base Unit of Measure", Vendor[2]."No.", '');
-
-        // [THEN] Two Item Vendor records exist - one for each Vendor
-        Assert.IsTrue(ItemVendor.Get(Vendor[1]."No.", Item."No.", ''), ItemVendorMustExistErr);
-        Assert.IsTrue(ItemVendor.Get(Vendor[2]."No.", Item."No.", ''), ItemVendorMustExistErr);
-    end;
-#endif
-
     [Test]
     [Scope('OnPrem')]
     procedure TwoItemReferencesWithDiffVendorsCreateTwoItemVendors()
@@ -601,39 +480,6 @@ codeunit 137060 "SCM Inventory 7.0"
         Assert.IsTrue(ItemVendor.Get(Vendor[1]."No.", Item."No.", ''), ItemVendorMustExistErr);
         Assert.IsTrue(ItemVendor.Get(Vendor[2]."No.", Item."No.", ''), ItemVendorMustExistErr);
     end;
-
-#if not CLEAN16
-    [Test]
-    [Scope('OnPrem')]
-    procedure ChangingVendorInItemCrossRefDeletesRelatedItemVendor()
-    var
-        Item: Record Item;
-        ItemCrossRef: Record "Item Cross Reference";
-        UnitOfMeasure: Record "Unit of Measure";
-        Vendor: array[2] of Record Vendor;
-        ItemVendor: Record "Item Vendor";
-    begin
-        // [FEATURE] [Item Cross Reference]
-        // [SCENARIO 361680] Item Vendor deleted after the linked cross reference renamed so that two item cross references refer to the same vendor after renaming
-        Initialize(false);
-
-        // [GIVEN] Item with two cross-references on different vendors "V1" and "V2"
-        CreateItemWithTwoUnitsOfMeasure(Item, UnitOfMeasure);
-        LibraryPurchase.CreateVendor(Vendor[1]);
-        CreateItemCrossReference(ItemCrossRef, Item."No.", Item."Base Unit of Measure", Vendor[1]."No.", '');
-
-        LibraryPurchase.CreateVendor(Vendor[2]);
-        CreateItemCrossReference(ItemCrossRef, Item."No.", Item."Base Unit of Measure", Vendor[2]."No.", '');
-
-        // [WHEN] Vendor "V2" in cross-reference is changed "V1"
-        with ItemCrossRef do
-            Rename("Item No.", '', "Unit of Measure", "Cross-Reference Type", Vendor[1]."No.", "Cross-Reference No.");
-
-        // [THEN] Item Vendor for Vendor "V1" exists, Item Vendor for Vendor "V2" does not exist
-        Assert.IsTrue(ItemVendor.Get(Vendor[1]."No.", Item."No.", ''), ItemVendorMustExistErr);
-        Assert.IsFalse(ItemVendor.Get(Vendor[2]."No.", Item."No.", ''), ItemVendorMustNotExistErr);
-    end;
-#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -665,47 +511,6 @@ codeunit 137060 "SCM Inventory 7.0"
         Assert.IsTrue(ItemVendor.Get(Vendor[1]."No.", Item."No.", ''), ItemVendorMustExistErr);
         Assert.IsFalse(ItemVendor.Get(Vendor[2]."No.", Item."No.", ''), ItemVendorMustNotExistErr);
     end;
-
-#if not CLEAN16
-    [Test]
-    [Scope('OnPrem')]
-    procedure ChangingUnitOfMeasureInCrosRefDoesNotChangeItemVendorLeadTime()
-    var
-        Item: Record Item;
-        Vendor: Record Vendor;
-        UnitOfMeasure: Record "Unit of Measure";
-        ItemCrossRef: Record "Item Cross Reference";
-        ItemVendor: Record "Item Vendor";
-        LeadTimeFormula: DateFormula;
-    begin
-        // [FEATURE] [Item Cross Reference]
-        // [SCENARIO 361680] Lead time calculation in Vendor Item is not changed after changing "Unit of Measure" in linked cross reference when two cross-ref.
-        Initialize(false);
-
-        // [GIVEN] Item with two units of measure "U1" and "U2"
-        // [GIVEN] Item cross reference with unit of measure = "U1" and Cross Reference No. = "N"
-        CreateItemWithTwoUnitsOfMeasure(Item, UnitOfMeasure);
-        LibraryPurchase.CreateVendor(Vendor);
-        CreateItemCrossReference(ItemCrossRef, Item."No.", Item."Base Unit of Measure", Vendor."No.", '');
-
-        // [GIVEN] Set Lead Time Calculation in Item Vendor = '1D'
-        Evaluate(LeadTimeFormula, '<' + Format(LibraryRandom.RandInt(10)) + 'D>');
-        UpdateItemVendorLeadTime(Vendor."No.", Item."No.", LeadTimeFormula);
-
-        // [WHEN] Set "Unit of Measure" = "U2" in item cross-reference
-        with ItemCrossRef do
-            Rename("Item No.", '', UnitOfMeasure.Code, "Cross-Reference Type", "Cross-Reference Type No.", "Cross-Reference No.");
-
-        ItemVendor.Get(Vendor."No.", Item."No.", '');
-        // [THEN] Vendor Item No. in Item Vendor = "N", Lead Time Calculation = "1D"
-        Assert.AreEqual(
-          ItemCrossRef."Cross-Reference No.", ItemVendor."Vendor Item No.",
-          StrSubstNo(WrongFieldValueErr, ItemVendor.FieldCaption("Vendor Item No."), ItemVendor.TableCaption));
-        Assert.IsTrue(
-          LeadTimeFormula = ItemVendor."Lead Time Calculation",
-          StrSubstNo(WrongFieldValueErr, ItemVendor.FieldCaption("Lead Time Calculation"), ItemVendor.TableCaption));
-    end;
-#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -746,35 +551,6 @@ codeunit 137060 "SCM Inventory 7.0"
           StrSubstNo(WrongFieldValueErr, ItemVendor.FieldCaption("Lead Time Calculation"), ItemVendor.TableCaption));
     end;
 
-#if not CLEAN16
-    [Test]
-    [Scope('OnPrem')]
-    procedure VendorItemNoCopiedFromCrossReference()
-    var
-        Item: Record Item;
-        Vendor: Record Vendor;
-        ItemCrossReference: Record "Item Cross Reference";
-        PurchaseLine: Record "Purchase Line";
-    begin
-        // [FEATURE] [Item Cross Reference] [Vendor Item No.]
-        // [SCENARIO 377506] "Vendor Item No." in purchase line should be copied from item cross reference if there is a cross reference with matching vendor and unit of measure
-        Initialize(false);
-
-        // [GIVEN] Create item "I" with base unit of measure "U"
-        LibraryInventory.CreateItem(Item);
-        // [GIVEN] Create vendor "V"
-        LibraryPurchase.CreateVendor(Vendor);
-        // [GIVEN] Create item cross reference for item "I", vendor "V" and unit of measure "U", set vendor item no. = "N"
-        CreateItemCrossReference(ItemCrossReference, Item."No.", Item."Base Unit of Measure", Vendor."No.", '');
-
-        // [WHEN] Create purchase order for vendor "V", item "I", unit of measure "U"
-        CreatePurchaseOrder(PurchaseLine, Vendor."No.", Item."No.", '', '');
-
-        // [THEN] "Vendor Item No." in purchase line is "N"
-        PurchaseLine.TestField("Vendor Item No.", ItemCrossReference."Cross-Reference No.");
-    end;
-#endif
-
     [Test]
     [Scope('OnPrem')]
     procedure VendorItemNoCopiedFromItemReference()
@@ -801,42 +577,6 @@ codeunit 137060 "SCM Inventory 7.0"
         // [THEN] "Vendor Item No." in purchase line is "N"
         PurchaseLine.TestField("Vendor Item No.", ItemReference."Reference No.");
     end;
-
-#if not CLEAN16
-    [Test]
-    [Scope('OnPrem')]
-    procedure VendorItemNoCopiedFromCrossReferenceMismatchingUoM()
-    var
-        Item: Record Item;
-        ItemUnitOfMeasure: Record "Item Unit of Measure";
-        Vendor: Record Vendor;
-        ItemCrossReference: Record "Item Cross Reference";
-        PurchaseLine: Record "Purchase Line";
-    begin
-        // [FEATURE] [Item Cross Reference] [Item Unit of Measure] [Vendor Item No.]
-        // [SCENARIO 377506] "Vendor Item No." in purch. line should be copied from item cross reference if there is no cross reference with matching UoM and no other item vendors
-        Initialize(false);
-
-        // [GIVEN] Create item "I" with base unit of measure "U1"
-        LibraryInventory.CreateItem(Item);
-        Item.Validate("Vendor Item No.", LibraryUtility.GenerateGUID);
-        Item.Modify(true);
-
-        // [GIVEN] Create unit of measure "U2" for item "I"
-        LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasure, Item."No.", 1);
-
-        // [GIVEN] Create vendor "V"
-        LibraryPurchase.CreateVendor(Vendor);
-        // [GIVEN] Create item cross reference for item "I", vendor "V" and unit of measure "U2", set vendor item no. = "N"
-        CreateItemCrossReference(ItemCrossReference, Item."No.", ItemUnitOfMeasure.Code, Vendor."No.", '');
-
-        // [WHEN] Create purchase order for vendor "V", item "I" and unit of measure "U1"
-        CreatePurchaseOrder(PurchaseLine, Vendor."No.", Item."No.", '', '');
-
-        // [THEN] "Vendor Item No." in purchase line is "N"
-        PurchaseLine.TestField("Vendor Item No.", ItemCrossReference."Cross-Reference No.");
-    end;
-#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -872,38 +612,6 @@ codeunit 137060 "SCM Inventory 7.0"
         PurchaseLine.TestField("Vendor Item No.", ItemReference."Reference No.");
     end;
 
-#if not CLEAN16
-    [Test]
-    [Scope('OnPrem')]
-    procedure VendorItemNoPriorityCrossReferenceItemVendor()
-    var
-        Item: Record Item;
-        Vendor: Record Vendor;
-        ItemCrossReference: Record "Item Cross Reference";
-        ItemVendor: Record "Item Vendor";
-        PurchaseLine: Record "Purchase Line";
-    begin
-        // [FEATURE] [Item Cross Reference] [Item Vendor] [Vendor Item No.]
-        // [SCENARIO 377506] "Vendor Item No." in purch. line should be copied from item cross reference if there is a cross reference with matching UoM and another item vendor for the same item
-        Initialize(false);
-
-        // [GIVEN] Create item "I" with base unit of measure "U"
-        LibraryInventory.CreateItem(Item);
-        // [GIVEN] Create vendor "V"
-        LibraryPurchase.CreateVendor(Vendor);
-        // [GIVEN] Create item vendor for item "I", vendor "V", set vendor item no. = "N1"
-        MockItemVendor(ItemVendor, Vendor."No.", Item."No.", '');
-        // [GIVEN] Create item cross-reference for item "I", vendor "V", unit of measure "U", set vendor item no. = "N2"
-        CreateItemCrossReference(ItemCrossReference, Item."No.", Item."Base Unit of Measure", Vendor."No.", '');
-
-        // [WHEN] Create purchase order for vendor "V", item "I", unit of measure "U"
-        CreatePurchaseOrder(PurchaseLine, Vendor."No.", Item."No.", '', '');
-
-        // [THEN] "Vendor Item No." in purchase line is "N2"
-        PurchaseLine.TestField("Vendor Item No.", ItemCrossReference."Cross-Reference No.");
-    end;
-#endif
-
     [Test]
     [Scope('OnPrem')]
     procedure VendorItemNoPriorityItemReferenceItemVendor()
@@ -933,42 +641,6 @@ codeunit 137060 "SCM Inventory 7.0"
         // [THEN] "Vendor Item No." in purchase line is "N2"
         PurchaseLine.TestField("Vendor Item No.", ItemReference."Reference No.");
     end;
-
-#if not CLEAN16
-    [Test]
-    [Scope('OnPrem')]
-    procedure VendorItemNoMismatchingCrossReferenceVendorItem()
-    var
-        Item: Record Item;
-        ItemUnitOfMeasure: Record "Item Unit of Measure";
-        Vendor: Record Vendor;
-        ItemCrossReference: Record "Item Cross Reference";
-        ItemVendor: Record "Item Vendor";
-        PurchaseLine: Record "Purchase Line";
-    begin
-        // [FEATURE] [Item Cross Reference] [Item Vendor] [Vendor Item No.]
-        // [SCENARIO 377506] "Vendor Item No." in purch. line should be copied from item item vendor catalog if there is a cross reference with mismatching UoM and another item vendor for the same item
-        Initialize(false);
-
-        // [GIVEN] Create item "I" with base unit of measure "U1"
-        LibraryInventory.CreateItem(Item);
-        // [GIVEN] Create unit of measure "U2" for item "I"
-        LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasure, Item."No.", 1);
-
-        // [GIVEN] Create vendor "V"
-        LibraryPurchase.CreateVendor(Vendor);
-        // [GIVEN] Create item vendor for item "I", vendor "V", set vendor item no. = "N1"
-        MockItemVendor(ItemVendor, Vendor."No.", Item."No.", '');
-        // [GIVEN] Create item cross reference - vendor = "V", item = "I", unit of measure = "U2", set vendor item no. = "N2"
-        CreateItemCrossReference(ItemCrossReference, Item."No.", ItemUnitOfMeasure.Code, Vendor."No.", '');
-
-        // [WHEN] Create purchase order for vendor "V", item "I", unit of measure "U1"
-        CreatePurchaseOrder(PurchaseLine, Vendor."No.", Item."No.", '', '');
-
-        // [THEN] "Vendor Item No." in purchase line is "N1"
-        PurchaseLine.TestField("Vendor Item No.", ItemVendor."Vendor Item No.");
-    end;
-#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -1102,45 +774,6 @@ codeunit 137060 "SCM Inventory 7.0"
         PurchaseLine.TestField("Vendor Item No.", SKU."Vendor Item No.");
     end;
 
-#if not CLEAN16
-    [Test]
-    [Scope('OnPrem')]
-    procedure VendorItemNoUpdatedFromCrossRefWhenChangingUoM()
-    var
-        Item: Record Item;
-        ItemUnitOfMeasure: Record "Item Unit of Measure";
-        Vendor: Record Vendor;
-        ItemCrossReference: array[2] of Record "Item Cross Reference";
-        PurchaseLine: Record "Purchase Line";
-    begin
-        // [FEATURE] [Item Cross Reference] [Item Unit of Measure] [Vendor Item No.]
-        // [SCENARIO 377506] Vendor item no. in purchase line should be updated when changing the unit of measure and there are cross references matching both UoMs
-        Initialize(false);
-
-        // [GIVEN] Create item "I" with base unit of measure "U1"
-        LibraryInventory.CreateItem(Item);
-        // [GIVEN] Create unit of measure "U2" for item "I"
-        LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasure, Item."No.", 1);
-
-        // [GIVEN] Create vendor "V"
-        LibraryPurchase.CreateVendor(Vendor);
-
-        // [GIVEN] Create item cross reference: item = "I", vendor = "V", unit of measure = "U1", set vendor item no. = "N1"
-        CreateItemCrossReference(ItemCrossReference[1], Item."No.", Item."Base Unit of Measure", Vendor."No.", '');
-        // [GIVEN] Create item cross reference: item = "I", vendor = "V", unit of measure = "U2", set vendor item no. = "N2"
-        CreateItemCrossReference(ItemCrossReference[2], Item."No.", ItemUnitOfMeasure.Code, Vendor."No.", '');
-
-        // [GIVEN] Create purchase order: vendor = "V", item = "I", unit of measure = "U1"
-        CreatePurchaseOrder(PurchaseLine, Vendor."No.", Item."No.", '', '');
-
-        // [WHEN] Change unit of measure in purcahse line: new UoM = "U2"
-        PurchaseLine.Validate("Unit of Measure Code", ItemUnitOfMeasure.Code);
-
-        // [THEN] Vendor item no. in purchase line = "N2"
-        PurchaseLine.TestField("Vendor Item No.", ItemCrossReference[2]."Cross-Reference No.");
-    end;
-#endif
-
     [Test]
     [Scope('OnPrem')]
     procedure VendorItemNoUpdatedFromItemRefWhenChangingUoM()
@@ -1178,43 +811,6 @@ codeunit 137060 "SCM Inventory 7.0"
         PurchaseLine.TestField("Vendor Item No.", ItemReference[2]."Reference No.");
     end;
 
-#if not CLEAN16
-    [Test]
-    [Scope('OnPrem')]
-    procedure VendorItemNoNotUpdatedWhenChangingUoMMismatchingCrossRef()
-    var
-        Item: Record Item;
-        ItemUnitOfMeasure: Record "Item Unit of Measure";
-        Vendor: Record Vendor;
-        ItemCrossReference: Record "Item Cross Reference";
-        ItemVendor: Record "Item Vendor";
-        PurchaseLine: Record "Purchase Line";
-    begin
-        // [FEATURE] [Item Cross Reference] [Item Unit of Measure] [Vendor Item No.]
-        // [SCENARIO 377506] Vendor item no. in purchase line should not be updated from item vendor when changing the unit of measure and there is a mismatching cross reference and item vendor for the item
-        Initialize(false);
-
-        // [GIVEN] Create item "I" with base unit of measure "U1"
-        LibraryInventory.CreateItem(Item);
-        // [GIVEN] Create unit of measure "U2" for item "I"
-        LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasure, Item."No.", 1);
-        // [GIVEN] Create vendor "V"
-        LibraryPurchase.CreateVendor(Vendor);
-        // [GIVEN] Create item vendor: item = "I", vendor = "V", vendor item no. = "N1"
-        MockItemVendor(ItemVendor, Vendor."No.", Item."No.", '');
-        // [GIVEN] Create cross reference: item = "I", vendor = "V", unit of measure = "U1", vendor item no. = "N2"
-        CreateItemCrossReference(ItemCrossReference, Item."No.", Item."Base Unit of Measure", Vendor."No.", '');
-        // [GIVEN] Create purchase order: vendor = "V", item = "I", unit of measure = "U1"
-        CreatePurchaseOrder(PurchaseLine, Vendor."No.", Item."No.", '', '');
-
-        // [WHEN] Change unit of measure in purchase line. New unit of measure = "U2"
-        PurchaseLine.Validate("Unit of Measure Code", ItemUnitOfMeasure.Code);
-
-        // [THEN] Vendor item no. in purchase line is updated. New item vendor no. = "N1"
-        PurchaseLine.TestField("Vendor Item No.", ItemVendor."Vendor Item No.");
-    end;
-#endif
-
     [Test]
     [Scope('OnPrem')]
     procedure VendorItemNoNotUpdatedWhenChangingUoMMismatchingItemReference()
@@ -1249,48 +845,6 @@ codeunit 137060 "SCM Inventory 7.0"
         // [THEN] Vendor item no. in purchase line is updated. New item vendor no. = "N1"
         PurchaseLine.TestField("Vendor Item No.", ItemVendor."Vendor Item No.");
     end;
-
-#if not CLEAN16
-    [Test]
-    [Scope('OnPrem')]
-    procedure VendorItemNoUpdatedFromItemWhenChangingUoMMismatchingCrossRef()
-    var
-        Item: Record Item;
-        ItemUnitOfMeasure: Record "Item Unit of Measure";
-        Vendor: Record Vendor;
-        ItemCrossReference: Record "Item Cross Reference";
-        ItemVendor: Record "Item Vendor";
-        PurchaseLine: Record "Purchase Line";
-    begin
-        // [FEATURE] [Item Cross Reference] [Item Unit of Measure] [Vendor Item No.]
-        // [SCENARIO 377506] Vendor item no. in purchase line should be copied from item card when changing the unit of measure and there is a mismatching cross reference
-        Initialize(false);
-
-        // [GIVEN] Create item "I" with base unit of measure "U1", Set vendor item no. = "N1"
-        LibraryInventory.CreateItem(Item);
-        Item.Validate("Vendor Item No.", LibraryUtility.GenerateGUID);
-        Item.Modify(true);
-
-        // [GIVEN] Create unit of measure "U2" for item "I"
-        LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasure, Item."No.", 1);
-        // [GIVEN] Create vendor "V"
-        LibraryPurchase.CreateVendor(Vendor);
-        // [GIVEN] Create cross reference: item = "I", vendor = "V", unit of measure = "U1", vendor item no. = "N2"
-        CreateItemCrossReference(ItemCrossReference, Item."No.", Item."Base Unit of Measure", Vendor."No.", '');
-        // [GIVEN] Delete all item vendors
-        ItemVendor.SetRange("Item No.", Item."No.");
-        ItemVendor.DeleteAll();
-
-        // [GIVEN] Create purchase order: vendor = "V", item = "I", unit of measure = "U1"
-        CreatePurchaseOrder(PurchaseLine, Vendor."No.", Item."No.", '', '');
-
-        // [WHEN] Change unit of measure in purchase line. New unit of measure = "U2"
-        PurchaseLine.Validate("Unit of Measure Code", ItemUnitOfMeasure.Code);
-
-        // [THEN] Vendor item no. in purchase line is updated. New vendor item no. = "N1"
-        PurchaseLine.TestField("Vendor Item No.", Item."Vendor Item No.");
-    end;
-#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -1407,49 +961,6 @@ codeunit 137060 "SCM Inventory 7.0"
         PurchaseLine.TestField("Vendor Item No.", Item."Vendor Item No.");
     end;
 
-#if not CLEAN16
-    [Test]
-    [Scope('OnPrem')]
-    procedure VendorItemNoUpdatedFromItemVendorWhenChangingUoM()
-    var
-        Item: Record Item;
-        Vendor: Record Vendor;
-        ItemVariant: Record "Item Variant";
-        ItemVendor: Record "Item Vendor";
-        ItemUnitOfMeasure: Record "Item Unit of Measure";
-        ItemCrossReference: Record "Item Cross Reference";
-        PurchaseLine: Record "Purchase Line";
-    begin
-        // [FEATURE] [Stockkeeping Unit] [Item Variant] [Location] [Item Cross Reference] [Unit of Measure] [Vendor Item No.]
-        // [SCENARIO 377506] Vendor item no. in purchase line should be copied from item vendor catalog when changing UoM, cross ref. does not match the new UoM, there is a matching item vendor
-        Initialize(false);
-
-        // [GIVEN] Create item "I" with base unit of measure "U1"
-        LibraryInventory.CreateItem(Item);
-        // [GIVEN] Create vendor "V"
-        LibraryPurchase.CreateVendor(Vendor);
-        // [GIVEN] Create item variant: item = "I", vendor = "V"
-        LibraryInventory.CreateItemVariant(ItemVariant, Item."No.");
-        // [GIEN] Create item vendor: vendor = "V", item = "I", variant = "I", set vendor item no. = "N1"
-        MockItemVendor(ItemVendor, Vendor."No.", Item."No.", ItemVariant.Code);
-
-        // [GIVEN] Create unit of measure "U2" for item "I"
-        LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasure, Item."No.", 1);
-        // [GIVEN] Create item cross reference: item = "I", unit of measure = "U1", variant = "V", vendor item no. = "N2"
-        CreateItemCrossReference(ItemCrossReference, Item."No.", Item."Base Unit of Measure", Vendor."No.", ItemVariant.Code);
-
-        // [GIVEN] Create purchase order: vendor = "V", item = "I", variant = "V", unit of measure = "U1"
-        CreatePurchaseOrder(PurchaseLine, Vendor."No.", Item."No.", '', ItemVariant.Code);
-        PurchaseLine.TestField("Vendor Item No.", ItemCrossReference."Cross-Reference No.");
-
-        // [WHEN] Change unit of measure in purchase line: new unit of measure code = "U2"
-        PurchaseLine.Validate("Unit of Measure Code", ItemUnitOfMeasure.Code);
-
-        // [THEN] Vendor item no. in purchase line = "N1"
-        PurchaseLine.TestField("Vendor Item No.", ItemVendor."Vendor Item No.");
-    end;
-#endif
-
     [Test]
     [Scope('OnPrem')]
     procedure ItemDescriptionReqLine()
@@ -1519,89 +1030,6 @@ codeunit 137060 "SCM Inventory 7.0"
         // [THEN] Description is validated from Item Description
         Assert.AreEqual(ItemTranslationDescription, RequisitionLine.Description, DescriptionErr);
     end;
-
-#if not CLEAN16
-    [Test]
-    [Scope('OnPrem')]
-    procedure CrossReferenceClearedOnShippedSalesOrder()
-    var
-        Customer: Record Customer;
-        SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
-        ItemJournalLine: Record "Item Journal Line";
-        ItemCrossReference: Record "Item Cross Reference";
-    begin
-        // [FEATURE] [Item Cross Reference] [Sales] [Order] [Ship]
-        // [SCENARIO 368233] Item Cross Reference revalidation on Sales Line allowed when "Qty. Shipped" is non-zero
-        Initialize(false);
-
-        // [GIVEN] Item with non-zero inventory created
-        CreateItemJournalLine(
-          ItemJournalLine, ItemJournalLine."Entry Type"::"Positive Adjmt.", LibraryInventory.CreateItemNo(), LibraryRandom.RandDec(10, 0), 0);
-        LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
-
-        // [GIVEN] Item Cross Reference "ICR" created for Item and Customer
-        LibrarySales.CreateCustomer(Customer);
-        CreateItemCrossReferenceWithType(
-          ItemCrossReference, ItemJournalLine."Item No.", '',
-          ItemCrossReference."Cross-Reference Type"::Customer, Customer."No.", '');
-
-        // [GIVEN] Sales Order created for Customer and Item, posted with "Ship"
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemCrossReference."Item No.", ItemJournalLine.Quantity);
-        LibrarySales.PostSalesDocument(SalesHeader, true, false);
-        SalesLine.Find();
-
-        // [GIVEN] "Cross-Reference No." cleared on the Sales Line
-        SalesLine.Validate("Cross-Reference No.", '');
-        SalesLine.Modify(true);
-
-        // [WHEN] "Cross-Reference No." set to "ICR"
-        SalesLine.Validate("Cross-Reference No.", ItemCrossReference."Cross-Reference No.");
-
-        // [THEN] "Cross-Reference No." = "ICR"
-        SalesLine.TestField("Cross-Reference No.", ItemCrossReference."Cross-Reference No.");
-    end;
-#endif
-
-#if not CLEAN16
-    [Test]
-    [Scope('OnPrem')]
-    procedure CrossReferenceClearedOnReceivedPurchOrder()
-    var
-        Vendor: Record Vendor;
-        PurchaseHeader: Record "Purchase Header";
-        PurchaseLine: Record "Purchase Line";
-        ItemCrossReference: Record "Item Cross Reference";
-    begin
-        // [FEATURE] [Item Cross Reference] [Purchase] [Order] [Receive]
-        // [SCENARIO 368233] Item Cross Reference revalidation on Purchase Line allowed when "Quantity Received" is non-zero
-        Initialize(false);
-
-        // [GIVEN] Item Cross Reference "ICR" created for Item and Vendor
-        LibraryPurchase.CreateVendor(Vendor);
-        CreateItemCrossReferenceWithType(
-          ItemCrossReference, LibraryInventory.CreateItemNo(), '',
-          ItemCrossReference."Cross-Reference Type"::Vendor, Vendor."No.", '');
-
-        // [GIVEN] Purchase Order created for Vendor and Item, posted with "Ship"
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, Vendor."No.");
-        LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemCrossReference."Item No.", LibraryRandom.RandDec(10, 0));
-        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
-        PurchaseLine.Find();
-
-        // [GIVEN] "Cross-Reference No." cleared on the Purchase Line
-        PurchaseLine.Validate("Cross-Reference No.", '');
-        PurchaseLine.Modify(true);
-
-        // [WHEN] "Cross-Reference No." set to "ICR"
-        PurchaseLine.Validate("Cross-Reference No.", ItemCrossReference."Cross-Reference No.");
-
-        // [THEN] "Cross-Reference No." = "ICR"
-        PurchaseLine.TestField("Cross-Reference No.", ItemCrossReference."Cross-Reference No.");
-    end;
-#endif
 
     local procedure Initialize(Enable: Boolean)
     var
@@ -1715,26 +1143,6 @@ codeunit 137060 "SCM Inventory 7.0"
         Vendor.Modify(true);
         exit(CreateItemTranslation(ItemNo, Vendor."Language Code"));
     end;
-
-#if not CLEAN16
-    local procedure CreateItemCrossReference(var ItemCrossRef: Record "Item Cross Reference"; ItemNo: Code[20]; UoMCode: Code[10]; VendorNo: Code[20]; VariantCode: Code[10])
-    begin
-        CreateItemCrossReferenceWithType(ItemCrossRef, ItemNo, UoMCode, ItemCrossRef."Cross-Reference Type"::Vendor, VendorNo, VariantCode);
-    end;
-
-    local procedure CreateItemCrossReferenceWithType(var ItemCrossRef: Record "Item Cross Reference"; ItemNo: Code[20]; UoMCode: Code[10]; Type: Option; TypeNo: Code[20]; VariantCode: Code[10])
-    begin
-        with ItemCrossRef do begin
-            Validate("Item No.", ItemNo);
-            Validate("Unit of Measure", UoMCode);
-            Validate("Cross-Reference Type", Type);
-            Validate("Cross-Reference Type No.", TypeNo);
-            Validate("Variant Code", VariantCode);
-            Validate("Cross-Reference No.", LibraryUtility.GenerateGUID);
-            Insert(true);
-        end;
-    end;
-#endif
 
     local procedure CreateItemReference(var ItemReference: Record "Item Reference"; ItemNo: Code[20]; UoMCode: Code[10]; VendorNo: Code[20]; VariantCode: Code[10])
     begin
@@ -1858,7 +1266,7 @@ codeunit 137060 "SCM Inventory 7.0"
         Clear(TransferHeader);
         LibraryWarehouse.CreateTransferHeader(TransferHeader, LocationBlue.Code, LocationRed.Code, LocationInTransit.Code);
         LibraryWarehouse.CreateTransferLine(TransferHeader, TransferLine, ItemNo, Qty);
-        ReservationManagement.SetTransferLine(TransferLine, "Transfer Direction"::Outbound);
+        ReservationManagement.SetReservSource(TransferLine, "Transfer Direction"::Outbound);
         ReservationManagement.AutoReserve(FullReservation, '', TransferLine."Shipment Date", Qty, Qty);
     end;
 

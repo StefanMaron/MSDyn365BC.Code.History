@@ -1,4 +1,4 @@
-﻿table 352 "Default Dimension"
+table 352 "Default Dimension"
 {
     Caption = 'Default Dimension';
 

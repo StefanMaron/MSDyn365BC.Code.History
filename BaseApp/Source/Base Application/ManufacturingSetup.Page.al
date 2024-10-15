@@ -123,6 +123,11 @@ page 99000768 "Manufacturing Setup"
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies that actual demand for the selected demand forecast is nettet for the specified location only. If you leave the check box empty, the program regards the demand forecast as valid for all locations.';
                 }
+                field("Use Forecast on Variants"; Rec."Use Forecast on Variants")
+                {
+                    ApplicationArea = Planning;
+                    ToolTip = 'Specifies that actual demand for the selected demand forecast is nettet for the specified item variant. If you leave the check box empty, the program regards the demand forecast as valid for all variants.';
+                }
                 field("Default Safety Lead Time"; "Default Safety Lead Time")
                 {
                     ApplicationArea = Manufacturing, Planning;

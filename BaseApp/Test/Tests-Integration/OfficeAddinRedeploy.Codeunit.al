@@ -11,83 +11,99 @@ codeunit 139054 "Office Addin Redeploy"
     var
         Assert: Codeunit Assert;
         LibraryOfficeHostProvider: Codeunit "Library - Office Host Provider";
+        LibraryAzureADAuthFlow: Codeunit "Library - Azure AD Auth Flow";
+        EnvironmentInfoTestLibrary: Codeunit "Environment Info Test Library";
+        LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
         OfficeHostType: DotNet OfficeHostType;
+        OAuthInitialized: Boolean;
         FieldNotDisplayedErr: Label '%1  field is not displayed';
         FieldIsDisplayedErr: Label '%1  field is displayed';
         ApplicationIDTxt: Label 'cfca30bd-9846-4819-a6fc-56c89c5aae96';
 
     [Test]
-    [HandlerFunctions('RedeployUserNonBreakingPageHandler')]
+    [HandlerFunctions('RedeployUserCannotUpdateNonBreakingPageHandler')]
     [Scope('OnPrem')]
-    procedure ValidateRedeployUserNonBreaking()
+    procedure ValidateRedeployUserCannotUpdateNonBreaking()
     var
         AddinDeploymentHelper: Codeunit "Add-in Deployment Helper";
         UserVersion: Text;
     begin
-        // [GIVEN] User deployed addin and has non breaking update available
-        UpdateOfficeAddinTable(0D, false, UserVersion);
-
-        // [THEN] User is prompted to update now or update later
-        AddinDeploymentHelper.CheckVersion(OfficeHostType.OutlookItemRead, UserVersion);
-    end;
-
-    [Test]
-    [HandlerFunctions('RedeployUserBreakingPageHandler')]
-    [Scope('OnPrem')]
-    procedure ValidateRedeployUserBreaking()
-    var
-        AddinDeploymentHelper: Codeunit "Add-in Deployment Helper";
-        UserVersion: Text;
-    begin
-        // [GIVEN] User deployed addin and has a breaking update available
-        UpdateOfficeAddinTable(0D, true, UserVersion);
-
-        // [THEN] User is prompted to update now
-        AddinDeploymentHelper.CheckVersion(OfficeHostType.OutlookItemRead, UserVersion);
-    end;
-
-    [Test]
-    [HandlerFunctions('RedeployAdminNonBreakingPageHandler')]
-    [Scope('OnPrem')]
-    procedure ValidateRedeployAdminNonBreaking()
-    var
-        AddinDeploymentHelper: Codeunit "Add-in Deployment Helper";
-        UserVersion: Text;
-    begin
-        // [GIVEN] Admin deployed addin and has a non breaking update available
-        UpdateOfficeAddinTable(Today, false, UserVersion);
+        // [GIVEN] User cannot update and has a non breaking update available
+        UpdateOfficeAddinTable(false, UserVersion);
 
         // [THEN] User is prompted to notify admin and continue
         AddinDeploymentHelper.CheckVersion(OfficeHostType.OutlookItemRead, UserVersion);
     end;
 
     [Test]
-    [HandlerFunctions('RedeployAdminBreakingPageHandler')]
+    [HandlerFunctions('RedeployUserCannotUpdateBreakingPageHandler')]
     [Scope('OnPrem')]
-    procedure ValidateRedeployAdminBreaking()
+    procedure ValidateRedeployUserCannotUpdateBreaking()
     var
         AddinDeploymentHelper: Codeunit "Add-in Deployment Helper";
         UserVersion: Text;
     begin
-        // [GIVEN] Admin deployed addin and has a breaking update available
-        UpdateOfficeAddinTable(Today, true, UserVersion);
+        // [GIVEN] User cannot update addin and has a breaking update available
+        UpdateOfficeAddinTable(true, UserVersion);
 
         // [THEN] User is prompted to notify admin and cannot continue
         AddinDeploymentHelper.CheckVersion(OfficeHostType.OutlookItemRead, UserVersion);
     end;
 
     [Test]
-    [HandlerFunctions('RedeployUpdateNowPageHandler,RedeployPromptHandler')]
+    [HandlerFunctions('RedeployUserCanUpdateNonBreakingPageHandler')]
     [Scope('OnPrem')]
-    procedure ValidateRedeployUpdateNowPrompts()
+    procedure ValidateRedeployUserCanUpdateNonBreaking()
     var
         AddinDeploymentHelper: Codeunit "Add-in Deployment Helper";
         UserVersion: Text;
     begin
-        // [GIVEN] User deployed addin and has non breaking update available
-        UpdateOfficeAddinTable(0D, false, UserVersion);
+        // [GIVEN] User can update and has non breaking update available
+        EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
+        LibraryLowerPermissions.SetOutsideO365Scope();
+        InitializeOAuth(true);
+        LibraryLowerPermissions.SetO365Full();
+        UpdateOfficeAddinTable(false, UserVersion);
 
-        // [THEN] User updates now and user is prompted for O365 credentials
+        // [THEN] User is prompted to update now or update later
+        AddinDeploymentHelper.CheckVersion(OfficeHostType.OutlookItemRead, UserVersion);
+    end;
+
+    [Test]
+    [HandlerFunctions('RedeployUserCanUpdateBreakingPageHandler')]
+    [Scope('OnPrem')]
+    procedure ValidateRedeployUserCanUpdateBreaking()
+    var
+        AddinDeploymentHelper: Codeunit "Add-in Deployment Helper";
+        UserVersion: Text;
+    begin
+
+        // [GIVEN] User can update and has a breaking update available
+        EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
+        LibraryLowerPermissions.SetOutsideO365Scope();
+        InitializeOAuth(true);
+        LibraryLowerPermissions.SetO365Full();
+        UpdateOfficeAddinTable(true, UserVersion);
+
+        // [THEN] User is prompted to update now
+        AddinDeploymentHelper.CheckVersion(OfficeHostType.OutlookItemRead, UserVersion);
+    end;
+
+    // [Test]
+    [HandlerFunctions('RedeployUpdateNowPageHandler,RedeployMsgHandler')]
+    [Scope('OnPrem')]
+    procedure ValidateRedeployUpdateNow()
+    var
+        AddinDeploymentHelper: Codeunit "Add-in Deployment Helper";
+        UserVersion: Text;
+    begin
+        // [GIVEN] User can update and has non breaking update available
+        LibraryLowerPermissions.SetOutsideO365Scope();
+        InitializeOAuth(true);
+        LibraryLowerPermissions.SetO365Full();
+        UpdateOfficeAddinTable(false, UserVersion);
+
+        // [THEN] User updates now without being asked for creds
         AddinDeploymentHelper.CheckVersion(OfficeHostType.OutlookItemRead, UserVersion);
     end;
 
@@ -98,8 +114,11 @@ codeunit 139054 "Office Addin Redeploy"
     var
         UserVersion: Text;
     begin
-        // [GIVEN] User deployed addin and has non breaking update available
-        UpdateOfficeAddinTable(0D, false, UserVersion);
+        // [GIVEN] User can update and has non breaking update available
+        LibraryLowerPermissions.SetOutsideO365Scope();
+        InitializeOAuth(true);
+        LibraryLowerPermissions.SetO365Full();
+        UpdateOfficeAddinTable(false, UserVersion);
 
         // [THEN] User updates later and addin is loaded
         InitializeOfficeHostProvider(OfficeHostType.OutlookItemRead, UserVersion);
@@ -112,8 +131,11 @@ codeunit 139054 "Office Addin Redeploy"
         InstructionMgt: Codeunit "Instruction Mgt.";
         UserVersion: Text;
     begin
-        // [GIVEN] User deployed addin and has non breaking update available
-        UpdateOfficeAddinTable(0D, false, UserVersion);
+        // [GIVEN] User can update and has non breaking update available
+        LibraryLowerPermissions.SetOutsideO365Scope();
+        InitializeOAuth(true);
+        LibraryLowerPermissions.SetO365Full();
+        UpdateOfficeAddinTable(false, UserVersion);
 
         // [WHEN] User has chosen to ignore updating notification
         // Force update notification disabled
@@ -124,7 +146,7 @@ codeunit 139054 "Office Addin Redeploy"
     end;
 
     [Test]
-    [HandlerFunctions('RedeployUserIgnoredPageHandler,RedeployIgnoredMsgHandler')]
+    [HandlerFunctions('RedeployUserIgnoredPageHandler')]
     [Scope('OnPrem')]
     procedure ValidateRedeployUserIgnored()
     var
@@ -132,10 +154,13 @@ codeunit 139054 "Office Addin Redeploy"
         AddinDeploymentHelper: Codeunit "Add-in Deployment Helper";
         UserVersion: Text;
     begin
-        // [GIVEN] User deployed addin and has non breaking update available
+        // [GIVEN] User can update and has non breaking update available
         // Force update notification enabled
         InstructionMgt.EnableMessageForCurrentUser(InstructionMgt.OfficeUpdateNotificationCode);
-        UpdateOfficeAddinTable(0D, false, UserVersion);
+        LibraryLowerPermissions.SetOutsideO365Scope();
+        InitializeOAuth(true);
+        LibraryLowerPermissions.SetO365Full();
+        UpdateOfficeAddinTable(false, UserVersion);
 
         // [WHEN] User choses to ignore notification and updates later
         AddinDeploymentHelper.CheckVersion(OfficeHostType.OutlookItemRead, UserVersion);
@@ -161,7 +186,7 @@ codeunit 139054 "Office Addin Redeploy"
     end;
 
     [Test]
-    [HandlerFunctions('RedeployUserBreakingPageHandler')]
+    [HandlerFunctions('RedeployUserCanUpdateBreakingPageHandler')]
     [Scope('OnPrem')]
     procedure ValidateCheckVersionUpgradesAddinTable()
     var
@@ -242,7 +267,7 @@ codeunit 139054 "Office Addin Redeploy"
         OfficeAddinSetup.Modify();
     end;
 
-    local procedure UpdateOfficeAddinTable(AdminDeployedDate: Date; Breaking: Boolean; var UserVersion: Text)
+    local procedure UpdateOfficeAddinTable(Breaking: Boolean; var UserVersion: Text)
     var
         OfficeAddin: Record "Office Add-in";
         AddinManifestManagement: Codeunit "Add-in Manifest Management";
@@ -250,8 +275,6 @@ codeunit 139054 "Office Addin Redeploy"
     begin
         if not OfficeAddin.Get(ApplicationIDTxt) then
             OfficeAddin."Application ID" := ApplicationIDTxt;
-
-        OfficeAddin."Deployment Date" := AdminDeployedDate;
 
         AddinManifestManagement.GetAddinVersion(LatestVersion, CODEUNIT::"Intelligent Info Manifest");
         OfficeAddin.Version := LatestVersion;
@@ -267,9 +290,47 @@ codeunit 139054 "Office Addin Redeploy"
         Commit();
     end;
 
+
+    local procedure InitializeOAuth(CachedTokenAvailable: Boolean)
+    var
+        LibraryO365Sync: Codeunit "Library - O365 Sync";
+    begin
+        Clear(LibraryAzureADAuthFlow);
+        LibraryAzureADAuthFlow.SetTokenAvailable(false); // Never invoking authorization dialog, so dont expose token from auth code.
+        LibraryAzureADAuthFlow.SetCachedTokenAvailable(CachedTokenAvailable);
+        BindSubscription(LibraryAzureADAuthFlow);
+        SetAuthFlowProvider(CODEUNIT::"Library - Azure AD Auth Flow");
+
+        if OAuthInitialized then
+            exit;
+
+        LibraryO365Sync.SetupNavUser;
+
+        OAuthInitialized := true;
+    end;
+
+    local procedure SetAuthFlowProvider(ProviderCodeunit: Integer)
+    var
+        AzureADMgtSetup: Record "Azure AD Mgt. Setup";
+        AzureADAppSetup: Record "Azure AD App Setup";
+    begin
+        AzureADMgtSetup.Get();
+        AzureADMgtSetup."Auth Flow Codeunit ID" := ProviderCodeunit;
+        AzureADMgtSetup.Modify();
+
+        with AzureADAppSetup do
+            if not Get then begin
+                Init;
+                "Redirect URL" := 'http://dummyurl:1234/Main_Instance1/WebClient/OAuthLanding.htm';
+                "App ID" := CreateGuid;
+                SetSecretKeyToIsolatedStorage(CreateGuid);
+                Insert;
+            end;
+    end;
+
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure RedeployUserNonBreakingPageHandler(var OfficeUpdateAvailableDlg: TestPage "Office Update Available Dlg")
+    procedure RedeployUserCanUpdateNonBreakingPageHandler(var OfficeUpdateAvailableDlg: TestPage "Office Update Available Dlg")
     begin
         Assert.IsTrue(OfficeUpdateAvailableDlg.UserNonBreaking.Visible, StrSubstNo(FieldNotDisplayedErr, 'UserNonBreaking'));
         Assert.IsTrue(OfficeUpdateAvailableDlg.UpgradeLater.Visible, StrSubstNo(FieldNotDisplayedErr, 'UpgradeLater'));
@@ -282,7 +343,7 @@ codeunit 139054 "Office Addin Redeploy"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure RedeployUserBreakingPageHandler(var OfficeUpdateAvailableDlg: TestPage "Office Update Available Dlg")
+    procedure RedeployUserCanUpdateBreakingPageHandler(var OfficeUpdateAvailableDlg: TestPage "Office Update Available Dlg")
     begin
         Assert.IsTrue(OfficeUpdateAvailableDlg.UserBreaking.Visible, StrSubstNo(FieldNotDisplayedErr, 'UserBreaking'));
         Assert.IsFalse(OfficeUpdateAvailableDlg.UpgradeLater.Visible, StrSubstNo(FieldIsDisplayedErr, 'UpgradeLater'));
@@ -295,7 +356,7 @@ codeunit 139054 "Office Addin Redeploy"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure RedeployAdminNonBreakingPageHandler(var OfficeUpdateAvailableDlg: TestPage "Office Update Available Dlg")
+    procedure RedeployUserCannotUpdateNonBreakingPageHandler(var OfficeUpdateAvailableDlg: TestPage "Office Update Available Dlg")
     begin
         Assert.IsFalse(OfficeUpdateAvailableDlg.UserBreaking.Visible, StrSubstNo(FieldIsDisplayedErr, 'UserBreaking'));
         Assert.IsTrue(OfficeUpdateAvailableDlg.UpgradeLater.Visible, StrSubstNo(FieldNotDisplayedErr, 'UpgradeLater'));
@@ -309,7 +370,7 @@ codeunit 139054 "Office Addin Redeploy"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure RedeployAdminBreakingPageHandler(var OfficeUpdateAvailableDlg: TestPage "Office Update Available Dlg")
+    procedure RedeployUserCannotUpdateBreakingPageHandler(var OfficeUpdateAvailableDlg: TestPage "Office Update Available Dlg")
     begin
         Assert.IsFalse(OfficeUpdateAvailableDlg.UserBreaking.Visible, StrSubstNo(FieldIsDisplayedErr, 'UserBreaking'));
         Assert.IsFalse(OfficeUpdateAvailableDlg.UpgradeLater.Visible, StrSubstNo(FieldIsDisplayedErr, 'UpgradeLater'));
@@ -329,12 +390,6 @@ codeunit 139054 "Office Addin Redeploy"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure RedeployPromptHandler(var Office365Credentials: TestPage "Office 365 Credentials")
-    begin
-    end;
-
-    [ModalPageHandler]
-    [Scope('OnPrem')]
     procedure RedeployUpdateLaterPageHandler(var OfficeUpdateAvailableDlg: TestPage "Office Update Available Dlg")
     begin
         asserterror OfficeUpdateAvailableDlg.UpgradeLater.DrillDown;
@@ -350,7 +405,7 @@ codeunit 139054 "Office Addin Redeploy"
 
     [MessageHandler]
     [Scope('OnPrem')]
-    procedure RedeployIgnoredMsgHandler(Message: Text[1024])
+    procedure RedeployMsgHandler(Message: Text[1024])
     begin
     end;
 }

@@ -1,4 +1,4 @@
-﻿codeunit 5653 "Insurance Jnl.-Post Batch"
+codeunit 5653 "Insurance Jnl.-Post Batch"
 {
     Permissions = TableData "Insurance Journal Batch" = imd;
     TableNo = "Insurance Journal Line";

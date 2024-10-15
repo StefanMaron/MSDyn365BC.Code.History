@@ -61,7 +61,7 @@ page 5851 "Get Post.Doc - S.ShptLn Sbfrm"
 #endif
                 field("Item Reference No."; "Item Reference No.")
                 {
-                    ApplicationArea = SalesReturnOrder;
+                    ApplicationArea = Suite, ItemReferences;
                     ToolTip = 'Specifies the referenced item number.';
                     Visible = ItemReferenceVisible;
                 }
@@ -81,6 +81,13 @@ page 5851 "Get Post.Doc - S.ShptLn Sbfrm"
                 {
                     ApplicationArea = SalesReturnOrder;
                     ToolTip = 'Specifies either the name of or the description of the item, general ledger account or item charge.';
+                }
+                field("Description 2"; "Description 2")
+                {
+                    ApplicationArea = SalesReturnOrder;
+                    Importance = Additional;
+                    ToolTip = 'Specifies information in addition to the description.';
+                    Visible = false;
                 }
                 field("Return Reason Code"; "Return Reason Code")
                 {

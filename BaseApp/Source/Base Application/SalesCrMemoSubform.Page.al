@@ -95,7 +95,7 @@
 #endif
                 field("Item Reference No."; "Item Reference No.")
                 {
-                    ApplicationArea = Basic, Suite;
+                    ApplicationArea = Suite, ItemReferences;
                     ToolTip = 'Specifies the referenced item number.';
                     Visible = ItemReferenceVisible;
 
@@ -194,6 +194,13 @@
                         UpdateTypeText();
                         DeltaUpdateTotals();
                     end;
+                }
+                field("Description 2"; "Description 2")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies information in addition to the description.';
+                    Visible = false;
                 }
                 field("Return Reason Code"; "Return Reason Code")
                 {
@@ -597,6 +604,32 @@
                         OnAfterValidateShortcutDimCode(Rec, ShortcutDimCode, 8);
                     end;
                 }
+                field("Gross Weight"; "Gross Weight")
+                {
+                    Caption = 'Unit Gross Weight';
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the gross weight of one unit of the item. In the sales statistics window, the gross weight on the line is included in the total gross weight of all the lines for the particular sales document.';
+                    Visible = false;
+                }
+                field("Net Weight"; "Net Weight")
+                {
+                    Caption = 'Unit Net Weight';
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the net weight of one unit of the item. In the sales statistics window, the net weight on the line is included in the total net weight of all the lines for the particular sales document.';
+                    Visible = false;
+                }
+                field("Unit Volume"; "Unit Volume")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the volume of one unit of the item. In the sales statistics window, the volume of one unit of the item on the line is included in the total volume of all the lines for the particular sales document.';
+                    Visible = false;
+                }
+                field("Units per Parcel"; "Units per Parcel")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the number of units per parcel of the item. In the sales statistics window, the number of units per parcel on the line helps to determine the total number of units for all the lines for the particular sales document.';
+                    Visible = false;
+                }
             }
             group(Control39)
             {
@@ -968,6 +1001,8 @@
 
     trigger OnOpenPage()
     begin
+        SetOpenPage();
+
         SetDimensionsVisibility();
         SetItemReferenceVisibility();
     end;
@@ -1009,6 +1044,11 @@
         ItemReferenceVisible: Boolean;
         VATAmount: Decimal;
 
+    local procedure SetOpenPage()
+    begin
+        OnBeforeSetOpenPage();
+    end;
+
     procedure ApproveCalcInvDisc()
     begin
         CODEUNIT.Run(CODEUNIT::"Sales-Disc. (Yes/No)", Rec);
@@ -1030,10 +1070,8 @@
         if IsHandled then
             exit;
 
-        // Set default type Item
-        if ApplicationAreaMgmtFacade.IsFoundationEnabled then
-            if xRec."Document No." = '' then
-                Type := Type::Item;
+        if xRec."Document No." = '' then
+            Type := GetDefaultLineType();
     end;
 
     procedure CalcInvDisc()
@@ -1126,7 +1164,7 @@
         UnitofMeasureCodeIsChangeable := not IsCommentLine;
 
         CurrPageIsEditable := CurrPage.Editable();
-        InvDiscAmountEditable := 
+        InvDiscAmountEditable :=
             CurrPageIsEditable and not SalesSetup."Calc. Inv. Discount" and
             (TotalSalesHeader.Status = TotalSalesHeader.Status::Open);
 
@@ -1216,6 +1254,8 @@
           DimVisible1, DimVisible2, DimVisible3, DimVisible4, DimVisible5, DimVisible6, DimVisible7, DimVisible8);
 
         Clear(DimMgt);
+
+        OnAfterSetDimensionsVisibility();
     end;
 
     local procedure SetItemReferenceVisibility()
@@ -1257,6 +1297,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnCrossReferenceNoOnLookup(var SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeSetOpenPage()
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterSetDimensionsVisibility();
     begin
     end;
 }

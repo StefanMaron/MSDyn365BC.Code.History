@@ -1,3 +1,4 @@
+#if not CLEAN18
 codeunit 135534 "Sales Cr. Memo Line E2E Test"
 {
     Subtype = Test;
@@ -1211,4 +1212,4 @@ codeunit 135534 "Sales Cr. Memo Line E2E Test"
         SalesLineComment.Modify();
     end;
 }
-
+#endif

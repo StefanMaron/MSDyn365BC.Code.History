@@ -1,6 +1,6 @@
 page 9007 "Purchasing Agent Role Center"
 {
-    Caption = 'Purchasing Agent', Comment = '{Dependency=Match,"ProfileDescription_PURCHASINGAGENT"}';
+    Caption = 'Purchasing Agent';
     PageType = RoleCenter;
 
     layout

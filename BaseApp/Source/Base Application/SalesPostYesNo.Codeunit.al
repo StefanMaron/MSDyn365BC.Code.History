@@ -24,7 +24,6 @@ codeunit 81 "Sales-Post (Yes/No)"
         NothingToPostErr: Label 'There is nothing to post.';
         TaxDocPostConfirmQst: Label 'Do you want to post the Tax Document?';
 
-    [Scope('OnPrem')]
     procedure PostAndSend(var SalesHeader: Record "Sales Header")
     var
         SalesHeaderToPost: Record "Sales Header";
@@ -67,14 +66,17 @@ codeunit 81 "Sales-Post (Yes/No)"
 
     local procedure RunSalesPost(var SalesHeader: Record "Sales Header")
     var
+        SalesPost: Codeunit "Sales-Post";
         IsHandled: Boolean;
+        SuppressCommit: Boolean;
     begin
         IsHandled := false;
-        OnBeforeRunSalesPost(SalesHeader, IsHandled);
+        OnBeforeRunSalesPost(SalesHeader, IsHandled, SuppressCommit);
         if IsHandled then
             exit;
 
-        Codeunit.Run(Codeunit::"Sales-Post", SalesHeader);
+        SalesPost.SetSuppressCommit(SuppressCommit);
+        SalesPost.Run(SalesHeader);
     end;
 
     local procedure ConfirmPost(var SalesHeader: Record "Sales Header"; DefaultOption: Integer) Result: Boolean
@@ -207,7 +209,7 @@ codeunit 81 "Sales-Post (Yes/No)"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeRunSalesPost(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    local procedure OnBeforeRunSalesPost(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean; var SuppressCommit: Boolean)
     begin
     end;
 

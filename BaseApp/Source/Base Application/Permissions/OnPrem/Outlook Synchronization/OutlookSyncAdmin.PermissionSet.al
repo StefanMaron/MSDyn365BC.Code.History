@@ -19,7 +19,7 @@ permissionset 3285 "Outlook Sync - Admin"
                   tabledata "Job Queue Log Entry" = Rid,
                   tabledata "Office Add-in" = RIMD,
                   tabledata "Office Add-in Setup" = RIMD,
-                  tabledata "Office Admin. Credentials" = RIMD,
+#if not CLEAN19
                   tabledata "Outlook Synch. Dependency" = RIMD,
                   tabledata "Outlook Synch. Entity" = RIMD,
                   tabledata "Outlook Synch. Entity Element" = RIMD,
@@ -29,5 +29,7 @@ permissionset 3285 "Outlook Sync - Admin"
                   tabledata "Outlook Synch. Lookup Name" = Rimd,
                   tabledata "Outlook Synch. Option Correl." = RIMD,
                   tabledata "Outlook Synch. Setup Detail" = RIMD,
-                  tabledata "Outlook Synch. User Setup" = RIMD;
+                  tabledata "Outlook Synch. User Setup" = RIMD,
+#endif
+                  tabledata "Office Admin. Credentials" = RIMD;
 }

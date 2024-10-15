@@ -70,6 +70,8 @@ report 97 "Date Compr. G/L Budget Entries"
                 if AnalysisView.FindFirst then
                     if LowestEntryNo < 2147483647 then
                         UpdateAnalysisView.SetLastBudgetEntryNo(LowestEntryNo - 1);
+                if UseDataArchive then
+                    DataArchive.Save();
             end;
 
             trigger OnPreDataItem()
@@ -121,6 +123,9 @@ report 97 "Date Compr. G/L Budget Entries"
 
                 SetRange("Entry No.", 0, LastEntryNo);
                 SetRange(Date, EntrdDateComprReg."Starting Date", EntrdDateComprReg."Ending Date");
+
+                if UseDataArchive then
+                    DataArchive.Create(DateComprMgt.GetReportName(Report::"Date Compr. G/L Budget Entries"));
             end;
         }
     }
@@ -192,6 +197,13 @@ report 97 "Date Compr. G/L Budget Entries"
                             DimSelectionBuf.SetDimSelectionMultiple(3, REPORT::"Date Compr. G/L Budget Entries", RetainDimText);
                         end;
                     }
+                    field(UseDataArchiveCtrl; UseDataArchive)
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Archive Deleted Entries';
+                        ToolTip = 'Specifies whether the deleted (compressed) entries will be stored in the data archive for later inspection or export.';
+                        Visible = DataArchiveProviderExists;
+                    }
                 }
             }
         }
@@ -213,6 +225,11 @@ report 97 "Date Compr. G/L Budget Entries"
         trigger OnOpenPage()
         begin
             InitializeParameter;
+        end;
+
+        trigger OnInit()
+        begin
+            DataArchiveProviderExists := DataArchive.DataArchiveProviderExists();
         end;
     }
 
@@ -257,6 +274,7 @@ report 97 "Date Compr. G/L Budget Entries"
         DateComprMgt: Codeunit DateComprMgt;
         DimBufMgt: Codeunit "Dimension Buffer Management";
         DimMgt: Codeunit DimensionManagement;
+        DataArchive: Codeunit "Data Archive";
         Window: Dialog;
         NoOfFields: Integer;
         Retain: array[10] of Boolean;
@@ -268,6 +286,9 @@ report 97 "Date Compr. G/L Budget Entries"
         ComprDimEntryNo: Integer;
         DimEntryNo: Integer;
         RetainDimText: Text[250];
+        UseDataArchive: Boolean;
+        [InDataSet]
+        DataArchiveProviderExists: Boolean;
         RegExists: Boolean;
         CompressEntriesQst: Label 'This batch job deletes entries. We recommend that you create a backup of the database before you run the batch job.\\Do you want to continue?';
         SkipAnalysisViewUpdateCheck: Boolean;
@@ -302,6 +323,8 @@ report 97 "Date Compr. G/L Budget Entries"
             DateComprReg."No. Records Deleted" := DateComprReg."No. Records Deleted" + 1;
             Window.Update(5, DateComprReg."No. Records Deleted");
         end;
+        if UseDataArchive then
+            DataArchive.SaveRecord(GLBudgetEntry);
     end;
 
     procedure ComprCollectedEntries()
@@ -397,10 +420,18 @@ report 97 "Date Compr. G/L Budget Entries"
             InsertField(FieldNo("Global Dimension 2 Code"));
         end;
 
+        DataArchiveProviderExists := DataArchive.DataArchiveProviderExists();
+        UseDataArchive := DataArchiveProviderExists;
+
         RetainDimText := DimSelectionBuf.GetDimSelectionText(3, REPORT::"Date Compr. G/L Budget Entries", '');
     end;
 
     procedure InitializeRequest(StartingDate: Date; EndingDate: Date; PeriodLength: Option; Description: Text[100]; RetainBusinessUnitCode: Boolean; RetainDimensionText: Text[250])
+    begin
+        InitializeRequest(StartingDate, EndingDate, PeriodLength, Description, RetainBusinessUnitCode, RetainDimensionText, true);
+    end;
+
+    procedure InitializeRequest(StartingDate: Date; EndingDate: Date; PeriodLength: Option; Description: Text[100]; RetainBusinessUnitCode: Boolean; RetainDimensionText: Text[250]; DoUseDataArchive: Boolean)
     begin
         InitializeParameter;
         EntrdDateComprReg."Starting Date" := StartingDate;
@@ -409,6 +440,8 @@ report 97 "Date Compr. G/L Budget Entries"
         EntrdGLBudgetEntry.Description := Description;
         Retain[1] := RetainBusinessUnitCode;
         RetainDimText := RetainDimensionText;
+        DataArchiveProviderExists := DataArchive.DataArchiveProviderExists();
+        UseDataArchive := DataArchiveProviderExists and DoUseDataArchive;
     end;
 
     internal procedure SetSkipAnalysisViewUpdateCheck();
@@ -420,17 +453,15 @@ report 97 "Date Compr. G/L Budget Entries"
     var
         TelemetryDimensions: Dictionary of [Text, Text];
     begin
-        // TelemetryDimensions.Add('CompanyName', CompanyName());
         TelemetryDimensions.Add('ReportId', Format(CurrReport.ObjectId(false), 0, 9));
         TelemetryDimensions.Add('ReportName', CurrReport.ObjectId(true));
         TelemetryDimensions.Add('UseRequestPage', Format(CurrReport.UseRequestPage()));
         TelemetryDimensions.Add('StartDate', Format(EntrdDateComprReg."Starting Date", 0, 9));
         TelemetryDimensions.Add('EndDate', Format(EntrdDateComprReg."Ending Date", 0, 9));
         TelemetryDimensions.Add('PeriodLength', Format(EntrdDateComprReg."Period Length", 0, 9));
-        // TelemetryDimensions.Add('Description', EntrdGLBudgetEntry.Description);
         TelemetryDimensions.Add('RetainBusinessUnitCode', Format(Retain[1], 0, 9));
         TelemetryDimensions.Add('RetainDimensions', RetainDimText);
-        // TelemetryDimensions.Add('Filters', "G/L Budget Entry".GetFilters());
+        TelemetryDimensions.Add('UseDataArchive', Format(UseDataArchive));
 
         Session.LogMessage('0000F4G', StrSubstNo(StartDateCompressionTelemetryMsg, CurrReport.ObjectId(false), CurrReport.ObjectId(true)), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, TelemetryDimensions);
     end;
@@ -439,7 +470,6 @@ report 97 "Date Compr. G/L Budget Entries"
     var
         TelemetryDimensions: Dictionary of [Text, Text];
     begin
-        // TelemetryDimensions.Add('CompanyName', CompanyName());
         TelemetryDimensions.Add('ReportId', Format(CurrReport.ObjectId(false), 0, 9));
         TelemetryDimensions.Add('ReportName', CurrReport.ObjectId(true));
         TelemetryDimensions.Add('RegisterNo', Format(DateComprReg."Register No.", 0, 9));

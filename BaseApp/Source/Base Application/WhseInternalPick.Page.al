@@ -4,6 +4,7 @@ page 7357 "Whse. Internal Pick"
     PageType = Document;
     PopulateAllFields = true;
     RefreshOnActivate = true;
+    PromotedActionCategories = 'New,Process,Report,Release,Navigate';
     SourceTable = "Whse. Internal Pick Header";
 
     layout
@@ -128,18 +129,24 @@ page 7357 "Whse. Internal Pick"
             {
                 Caption = '&Pick';
                 Image = CreateInventoryPickup;
+#if not CLEAN19
                 action(List)
                 {
                     ApplicationArea = Warehouse;
                     Caption = 'List';
                     Image = OpportunitiesList;
                     ToolTip = 'View all warehouse documents of this type that exist.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by platform capabilities.';
+                    ObsoleteTag = '19.0';
 
                     trigger OnAction()
                     begin
                         LookupWhseInternalPickHeader(Rec);
                     end;
                 }
+#endif
                 action("Co&mments")
                 {
                     ApplicationArea = Warehouse;
@@ -156,6 +163,8 @@ page 7357 "Whse. Internal Pick"
                     ApplicationArea = Warehouse;
                     Caption = 'Pick Lines';
                     Image = PickLines;
+                    Promoted = true;
+                    PromotedCategory = Category5;
                     RunObject = Page "Warehouse Activity Lines";
                     RunPageLink = "Whse. Document Type" = CONST("Internal Pick"),
                                   "Whse. Document No." = FIELD("No.");
@@ -177,6 +186,8 @@ page 7357 "Whse. Internal Pick"
                     Caption = 'Re&lease';
                     Image = ReleaseDoc;
                     ShortCutKey = 'Ctrl+F9';
+                    Promoted = true;
+                    PromotedCategory = Category4;
                     ToolTip = 'Release the document to the next stage of processing. When a document is released, it will be included in all availability calculations from the expected receipt date of the items. You must reopen the document before you can make changes to it.';
 
                     trigger OnAction()
@@ -193,6 +204,8 @@ page 7357 "Whse. Internal Pick"
                     ApplicationArea = Warehouse;
                     Caption = 'Re&open';
                     Image = ReOpen;
+                    Promoted = true;
+                    PromotedCategory = Category4;
                     ToolTip = 'Reopen the document for additional warehouse activity.';
 
                     trigger OnAction()
@@ -208,6 +221,8 @@ page 7357 "Whse. Internal Pick"
                     Caption = 'Create Pick';
                     Ellipsis = true;
                     Image = CreateInventoryPickup;
+                    Promoted = true;
+                    PromotedCategory = Process;
                     ToolTip = 'Create a warehouse pick document.';
 
                     trigger OnAction()

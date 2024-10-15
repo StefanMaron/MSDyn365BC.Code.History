@@ -1253,8 +1253,8 @@ codeunit 141021 "ERM Electronic - Banking"
 
         // [THEN] EFT file Amount is transferred from Gen. Journal Line
         Assert.IsTrue(
-          LibraryTextFileValidation.FindLineWithValue(
-            FilePath, 31 - StrLen(AmountTxt), StrLen(AmountTxt), AmountTxt) > '', ValueMustExistMsg);
+            LibraryTextFileValidation.FindLineWithValue(
+                FilePath, 31 - StrLen(AmountTxt), StrLen(AmountTxt), AmountTxt) > '', ValueMustExistMsg);
     end;
 
     [Test]
@@ -1364,7 +1364,6 @@ codeunit 141021 "ERM Electronic - Banking"
         UpdateGLSetupAndPurchasesPayablesSetup(VATPostingSetup);
         CreateVendor(Vendor, '', VATPostingSetup."VAT Bus. Posting Group");
         VendorPostingGroup.Get(Vendor."Vendor Posting Group");
-        CreateGLAccount(GLAccount, '');
         for Index := 1 to ArrayLen(InvoiceNo) do begin
             InvoiceNo[Index] := CreateAndPostPurchaseOrder(Vendor."No.", PurchaseLine.Type::"G/L Account", GLAccount."No.", false);
             CalculateInvoiceAndWHTAmount(Vendor."No.", InvoiceNo[Index], InvoiceAmount[Index], WHTAmount[Index]);
@@ -1390,6 +1389,38 @@ codeunit 141021 "ERM Electronic - Banking"
         GLEntry.SetRange("Document No.", GenJournalLine."Document No.");
         GLEntry.SetRange("G/L Account No.", VendorPostingGroup."Payment Tolerance Credit Acc.");
         Assert.RecordIsEmpty(GLEntry);
+    end;
+
+    [Test]
+    [HandlerFunctions('CreateEFTFileRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure EFTFileDocumentNoUsedWhenPaymentReferenceBlank()
+    var
+        Vendor: Record Vendor;
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        FilePath: Text;
+    begin
+        // [FEATURE] [EFT Payment]
+        // [SCENARIO 403477] "Document No." is filled in EFT File Created for Payment Journal Line when "Payment Reference" is blank
+
+        Initialize;
+
+        // [GIVEN] Payment journal line with "Document No." = "X" and blank "Payment Reference"
+        UpdateGLSetupAndPurchasesPayablesSetup(VATPostingSetup);
+        CreateVendor(Vendor, '', VATPostingSetup."VAT Bus. Posting Group");
+        CreateGenJournalBatchWithBankAccount(GenJournalBatch);
+        CreatePaymentJournalLine(GenJournalBatch, GenJournalLine, Vendor);
+        GenJournalLine.Validate("Payment Reference", '');
+        GenJournalLine.Modify(true);
+        UpdateGenJournalLineSkipWHT(GenJournalLine, true);
+
+        // [WHEN] Run EFT export for the created Payment
+        FilePath := EFTPaymentCreateFile(GenJournalLine);
+
+        // [THEN] "X" is exported to the EFT File
+        VerifyDocumentNoEFTFile(FilePath, GenJournalLine."Document No.");
     end;
 
     [Test]

@@ -7,14 +7,8 @@ codeunit 44 ReportManagement
     end;
 
     var
-        SalesHeaderRec: Record "Sales Header";
-        SalesInvoiceHeaderRec: Record "Sales Invoice Header";
-        SalesCrMemoHeaderRec: Record "Sales Cr.Memo Header";
         NotSupportedErr: Label 'The value is not supported.';
         NoWritePermissionsErr: Label 'Unable to set the default printer. You need the Write permission for the Printer Selection table.';
-        ReportRemovalMsg: Label 'We are removing this report in 2021 release wave 2. We recommend using the %1 %2 instead.', Comment = '%1 = Report ID, %2 = Name';
-        LearnMoreTok: Label 'Learn more';
-        TryNewReportTok: Label 'Try the replacement';
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reporting Triggers", 'GetPrinterName', '', false, false)]
     local procedure GetPrinterName(ReportID: Integer; var PrinterName: Text[250])
@@ -97,7 +91,7 @@ codeunit 44 ReportManagement
 
         IsHandled := false;
         OnMergeDocumentReport(ObjectType, ObjectID, ReportAction, XmlData, FileName, DocumentStream, IsHandled);
-        if (IsHandled) then
+        if IsHandled then
             exit;
 
         DocumentReportMgt.MergeWordLayout(ObjectID, ReportAction, XmlData, FileName, DocumentStream);
@@ -175,65 +169,6 @@ codeunit 44 ReportManagement
     [IntegrationEvent(false, false)]
     local procedure OnMergeDocumentReport(ObjectType: Option "Report","Page"; ObjectID: Integer; ReportAction: Option SaveAsPdf,SaveAsWord,SaveAsExcel,Preview,Print,SaveAsHtml; XmlData: InStream; FileName: Text; var printDocumentStream: OutStream; var IsHandled: Boolean)
     begin
-    end;
-
-    internal procedure SalesInvoiceReportReplacedNotify(NewReportID: Integer; NewReportName: Text; var SalesInvoiceHeader: Record "Sales Invoice Header")
-    begin
-        SalesInvoiceHeaderRec.Copy(SalesInvoiceHeader);
-        ReportReplacedByNotification(NewReportID, NewReportName);
-    end;
-
-    internal procedure SalesQuoteReportReplacedNotify(NewReportID: Integer; NewReportName: Text; var SalesHeader: Record "Sales Header")
-    begin
-        SalesHeaderRec.Copy(SalesHeader);
-        ReportReplacedByNotification(NewReportID, NewReportName);
-    end;
-
-    internal procedure OrderConfirmReportReplacedNotify(NewReportID: Integer; NewReportName: Text; var SalesHeader: Record "Sales Header")
-    begin
-        SalesHeaderRec.Copy(SalesHeader);
-        ReportReplacedByNotification(NewReportID, NewReportName);
-    end;
-
-    internal procedure SalesCrMemoReportReplacedNotify(NewReportID: Integer; NewReportName: Text; var SalesCrMemoHeader: Record "Sales Cr.Memo Header")
-    begin
-        SalesCrMemoHeaderRec.Copy(SalesCrMemoHeader);
-        ReportReplacedByNotification(NewReportID, NewReportName);
-    end;
-
-    local procedure ReportReplacedByNotification(NewReportID: Integer; NewReportName: Text)
-    var
-        ReportRemovalNotification: Notification;
-    begin
-        ReportRemovalNotification.Message(StrSubstNo(ReportRemovalMsg, NewReportID, NewReportName));
-        ReportRemovalNotification.SetData('NewReportID', Format(NewReportID));
-        ReportRemovalNotification.AddAction(LearnMoreTok, Codeunit::ReportManagement, 'LearnMoreNotificationAction');
-        ReportRemovalNotification.AddAction(TryNewReportTok, Codeunit::ReportManagement, 'TryNewReportAction');
-        ReportRemovalNotification.Send();
-    end;
-
-    internal procedure LearnMoreNotificationAction(var ReportRemovalNotification: Notification)
-    var
-        DeprecatedReportsUrlTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2165378';
-    begin
-        HyperLink(DeprecatedReportsUrlTxt);
-    end;
-
-    internal procedure TryNewReportAction(var ReportRemovalNotification: Notification)
-    var
-        NewReportID: Integer;
-    begin
-        if Evaluate(NewReportID, ReportRemovalNotification.GetData('NewReportID')) then
-            case NewReportID of
-                Report::"Standard Sales - Quote":
-                    Report.Run(NewReportID, true, false, SalesHeaderRec);
-                Report::"Standard Sales - Order Conf.":
-                    Report.Run(NewReportID, true, false, SalesHeaderRec);
-                Report::"Standard Sales - Invoice":
-                    Report.Run(NewReportID, true, false, SalesInvoiceHeaderRec);
-                Report::"Standard Sales - Credit Memo":
-                    Report.Run(NewReportID, true, false, SalesCrMemoHeaderRec);
-            end;
     end;
 }
 

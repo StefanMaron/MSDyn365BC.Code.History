@@ -1,6 +1,10 @@
+#if not CLEAN19
 codeunit 104015 "Upg Price Calc. Method Setup"
 {
     Subtype = Upgrade;
+    ObsoleteState = Pending;
+    ObsoleteTag = '19.0';
+    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
 
     trigger OnRun()
     begin
@@ -38,4 +42,4 @@ codeunit 104015 "Upg Price Calc. Method Setup"
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetPriceCalcMethodInSetupTag());
     end;
 }
-
+#endif

@@ -573,6 +573,7 @@ codeunit 135022 "Data Migration Facade Tests"
         UnbindSubscription(DataMigrationFacadeTests);
     end;
 
+#if not CLEAN19
     [Test]
     //[HandlerFunctions('ConfirmHandler,MessageHandler')]
     [Scope('OnPrem')]
@@ -804,8 +805,8 @@ codeunit 135022 "Data Migration Facade Tests"
         ItemDataMigrationFacade.SetGlobalItem('ITEM1');
 
         // [WHEN] The CreateBOMComponent function is called
-        ItemDataMigrationFacade.CreateBOMComponent('BOM1', 1, '', BOMComponent.Type::Item);
-        ItemDataMigrationFacade.CreateBOMComponent('BOM2', 2, '', BOMComponent.Type::Resource);
+        ItemDataMigrationFacade.CreateBOMComponent('BOM1', 1, '', BOMComponent.Type::Item.AsInteger());
+        ItemDataMigrationFacade.CreateBOMComponent('BOM2', 2, '', BOMComponent.Type::Resource.AsInteger());
 
         // [THEN] The BOMComponent Tables is populated
         BOMComponent.SetRange("Parent Item No.", 'ITEM1');
@@ -971,6 +972,7 @@ codeunit 135022 "Data Migration Facade Tests"
 
         UnbindSubscription(DataMigrationFacadeTests);
     end;
+#endif
 
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
@@ -1542,7 +1544,7 @@ codeunit 135022 "Data Migration Facade Tests"
         Assert.ExpectedError(InternalItemJnlLIneNotSetErr);
         asserterror ItemDataMigrationFacade.SetUnitPrice(10.0);
         Assert.ExpectedError(InternalItemNotSetErr);
-        asserterror ItemDataMigrationFacade.CreateBOMComponent('BOM1', 1, '', BOMComponent.Type::Item);
+        asserterror ItemDataMigrationFacade.CreateBOMComponent('BOM1', 1, '', BOMComponent.Type::Item.AsInteger());
         Assert.ExpectedError(InternalItemNotSetErr);
 
         UnbindSubscription(DataMigrationFacadeTests);

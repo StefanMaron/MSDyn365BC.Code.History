@@ -504,15 +504,8 @@ page 950 "Time Sheet"
                     ToolTip = 'Copy information from the previous time sheet, such as type and description, and then modify the lines. If a line is related to a job, the job number is copied.';
 
                     trigger OnAction()
-                    var
-                        QtyToBeCopied: Integer;
                     begin
-                        QtyToBeCopied := TimeSheetMgt.CalcPrevTimeSheetLines(TimeSheetHeader);
-                        if QtyToBeCopied = 0 then
-                            Message(Text004)
-                        else
-                            if Confirm(Text009, true, QtyToBeCopied) then
-                                TimeSheetMgt.CopyPrevTimeSheetLines(TimeSheetHeader);
+                        TimeSheetMgt.CheckCopyPrevTimeSheetLines(TimeSheetHeader);
                     end;
                 }
                 action(CreateLinesFromJobPlanning)
@@ -525,15 +518,8 @@ page 950 "Time Sheet"
                     ToolTip = 'Create time sheet lines that are based on job planning lines.';
 
                     trigger OnAction()
-                    var
-                        QtyToBeCreated: Integer;
                     begin
-                        QtyToBeCreated := TimeSheetMgt.CalcLinesFromJobPlanning(TimeSheetHeader);
-                        if QtyToBeCreated = 0 then
-                            Message(Text003)
-                        else
-                            if Confirm(Text010, true, QtyToBeCreated) then
-                                TimeSheetMgt.CreateLinesFromJobPlanning(TimeSheetHeader);
+                        TimeSheetMgt.CheckCreateLinesFromJobPlanning(TimeSheetHeader);
                     end;
                 }
             }
@@ -562,7 +548,6 @@ page 950 "Time Sheet"
     end;
 
     var
-        TimeSheetHeader: Record "Time Sheet Header";
         TimeSheetDetail: Record "Time Sheet Detail";
         ColumnRecords: array[32] of Record Date;
         TimeSheetMgt: Codeunit "Time Sheet Management";
@@ -573,12 +558,11 @@ page 950 "Time Sheet"
         CurrTimeSheetNo: Code[20];
         SetWanted: Option Previous,Next;
         Text001: Label 'The type of time sheet line cannot be empty.';
-        Text003: Label 'Could not find job planning lines.';
-        Text004: Label 'There are no time sheet lines to copy.';
-        Text009: Label 'Do you want to copy lines from the previous time sheet (%1)?';
-        Text010: Label 'Do you want to create lines from job planning (%1)?';
         AllowEdit: Boolean;
         DimensionCaptionTok: Label 'Dimensions';
+
+    protected var
+        TimeSheetHeader: Record "Time Sheet Header";
 
     procedure SetColumns()
     var

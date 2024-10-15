@@ -1,4 +1,4 @@
-page 22 "Customer List"
+﻿page 22 "Customer List"
 {
     ApplicationArea = Basic, Suite, Service;
     Caption = 'Customers';
@@ -10,6 +10,9 @@ page 22 "Customer List"
     RefreshOnActivate = true;
     SourceTable = Customer;
     UsageCategory = Lists;
+
+    AboutTitle = 'About customers';
+    AboutText = 'Here you overview all registered customers, their balances, and the sales statistics. With customer templates you can quickly create new customers having common details defined by the template.';
 
     layout
     {
@@ -245,6 +248,12 @@ page 22 "Customer List"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the sum of payments received from the customer.';
                 }
+                field("Coupled to CRM"; "Coupled to CRM")
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies that the customer is coupled to an account in Dataverse.';
+                    Visible = CRMIntegrationEnabled or CDSIntegrationEnabled;
+                }
             }
         }
         area(factboxes)
@@ -453,12 +462,15 @@ page 22 "Customer List"
                         ShowContact;
                     end;
                 }
-#if not CLEAN16
+#if not CLEAN19
                 action("Cross Re&ferences")
                 {
-                    ApplicationArea = Basic, Suite;
+                    ApplicationArea = Advanced;
                     Caption = 'Cross Re&ferences';
                     Image = Change;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Item Reference feature.';
+                    ObsoleteTag = '19.0';
                     Promoted = true;
                     PromotedCategory = Category7;
                     RunObject = Page "Cross References";
@@ -466,11 +478,12 @@ page 22 "Customer List"
                                   "Cross-Reference Type No." = FIELD("No.");
                     RunPageView = SORTING("Cross-Reference Type", "Cross-Reference Type No.");
                     ToolTip = 'Set up the customer''s own identification of items that you sell to the customer. Cross-references to the customer''s item number means that the item number is automatically shown on sales documents instead of the number that you use.';
+                    Visible = false;
                 }
 #endif
                 action("Item References")
                 {
-                    ApplicationArea = Basic, Suite;
+                    ApplicationArea = Suite, ItemReferences;
                     Caption = 'Item Refe&rences';
                     Visible = ItemReferenceVisible;
                     Image = Change;
@@ -514,15 +527,19 @@ page 22 "Customer List"
                         ApprovalsMgmt.OpenApprovalEntriesPage(RecordId);
                     end;
                 }
+#if not CLEAN19
                 action(SentEmails)
                 {
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Action SentEmails moved under history';
+                    ObsoleteTag = '19.0';
                     ApplicationArea = Basic, Suite;
                     Caption = 'Sent Emails';
                     Image = ShowList;
                     Promoted = true;
                     PromotedCategory = Category7;
                     ToolTip = 'View a list of emails that you have sent to this customer.';
-                    Visible = EmailImprovementFeatureEnabled;
+                    Visible = false;
 
                     trigger OnAction()
                     var
@@ -531,6 +548,7 @@ page 22 "Customer List"
                         Email.OpenSentEmails(Database::Customer, Rec.SystemId);
                     end;
                 }
+#endif
             }
             group(ActionGroupCRM)
             {
@@ -614,6 +632,25 @@ page 22 "Customer List"
                             CRMIntegrationManagement: Codeunit "CRM Integration Management";
                         begin
                             CRMIntegrationManagement.DefineCoupling(RecordId);
+                        end;
+                    }
+                    action(MatchBasedCoupling)
+                    {
+                        AccessByPermission = TableData "CRM Integration Record" = IM;
+                        ApplicationArea = Suite;
+                        Caption = 'Match-Based Coupling';
+                        Image = CoupledCustomer;
+                        ToolTip = 'Couple customers to accounts in Dataverse based on criteria.';
+
+                        trigger OnAction()
+                        var
+                            Customer: Record Customer;
+                            CRMIntegrationManagement: Codeunit "CRM Integration Management";
+                            RecRef: RecordRef;
+                        begin
+                            CurrPage.SetSelectionFilter(Customer);
+                            RecRef.GetTable(Customer);
+                            CRMIntegrationManagement.MatchBasedCoupling(RecRef);
                         end;
                     }
                     action(DeleteCRMCoupling)
@@ -771,6 +808,21 @@ page 22 "Customer List"
                         ItemTrackingDocMgt.ShowItemTrackingForEntity(1, "No.", '', '', '');
                     end;
                 }
+                action("Sent Emails")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Sent Emails';
+                    Image = ShowList;
+                    ToolTip = 'View a list of emails that you have sent to this customer.';
+                    Visible = EmailImprovementFeatureEnabled;
+
+                    trigger OnAction()
+                    var
+                        Email: Codeunit Email;
+                    begin
+                        Email.OpenSentEmails(Database::Customer, Rec.SystemId);
+                    end;
+                }
             }
             group(Action24)
             {
@@ -785,7 +837,7 @@ page 22 "Customer List"
                     RunPageLink = Code = FIELD("Invoice Disc. Code");
                     ToolTip = 'Set up different discounts that are applied to invoices for the customer. An invoice discount is automatically granted to the customer when the total on a sales invoice exceeds a certain amount.';
                 }
-#if not CLEAN18
+#if not CLEAN19
                 action(Sales_Prices)
                 {
                     ApplicationArea = Advanced;
@@ -1082,6 +1134,8 @@ page 22 "Customer List"
                 RunPageLink = "Customer No." = FIELD("No.");
                 RunPageMode = Create;
                 ToolTip = 'Create a new reminder for the customer.';
+                AboutTitle = 'Create a new document';
+                AboutText = 'Get started on a new reminder, order, or other document for the customer selected in the list.';
             }
             action(NewFinChargeMemo)
             {
@@ -1096,6 +1150,7 @@ page 22 "Customer List"
         }
         area(processing)
         {
+#if not CLEAN19
             group(Action104)
             {
                 Caption = 'History';
@@ -1111,8 +1166,13 @@ page 22 "Customer List"
                     Scope = Repeater;
                     ShortCutKey = 'Ctrl+F7';
                     ToolTip = 'View the history of transactions that have been posted for the selected record.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Duplicated action of CustomerLedgerEntries';
+                    ObsoleteTag = '19.0';
                 }
             }
+#endif            
             group(PricesAndDiscounts)
             {
                 Caption = 'Prices and Discounts';
@@ -1186,7 +1246,7 @@ page 22 "Customer List"
                         PriceUXManagement.ShowPriceListLines(PriceSource, "Price Amount Type"::Discount);
                     end;
                 }
-#if not CLEAN18
+#if not CLEAN19
                 action(PriceListsDiscounts)
                 {
                     ApplicationArea = Basic, Suite;
@@ -1206,8 +1266,6 @@ page 22 "Customer List"
                         PriceUXManagement.ShowPriceLists(Rec, AmountType::Discount);
                     end;
                 }
-#endif
-#if not CLEAN17
                 action(Prices_Prices)
                 {
                     ApplicationArea = Basic, Suite;
@@ -1344,14 +1402,8 @@ page 22 "Customer List"
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Apply Template';
-                Ellipsis = true;
                 Image = ApplyTemplate;
-                //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
-                //PromotedCategory = Process;
                 ToolTip = 'Apply a template to update one or more entities with your standard settings for a certain type of entity.';
-                ObsoleteState = Pending;
-                ObsoleteReason = 'This functionality will be replaced by other templates.';
-                ObsoleteTag = '16.0';
 
                 trigger OnAction()
                 var
@@ -1365,7 +1417,7 @@ page 22 "Customer List"
             action(WordTemplate)
             {
                 ApplicationArea = All;
-                Caption = 'Word Template';
+                Caption = 'Apply Word Template';
                 ToolTip = 'Apply a Word template on the selected records.';
                 Image = Word;
 
@@ -1385,13 +1437,18 @@ page 22 "Customer List"
                 Caption = 'Send Email';
                 Image = Email;
                 ToolTip = 'Send an email to this customer.';
+                Promoted = true;
+                PromotedCategory = Process;
+                Enabled = CanSendEmail;
 
                 trigger OnAction()
                 var
-                    EmailMgt: Codeunit "Mail Management";
+                    TempEmailItem: Record "Email Item" temporary;
+                    EmailScenario: Enum "Email Scenario";
                 begin
-                    EmailMgt.AddSource(Database::Customer, Rec.SystemId);
-                    EmailMgt.Run();
+                    TempEmailItem.AddSourceDocument(Database::Customer, Rec.SystemId);
+                    TempEmailitem."Send to" := Rec."E-Mail";
+                    TempEmailItem.Send(false, EmailScenario::Default);
                 end;
             }
             action(PaymentRegistration)
@@ -1654,6 +1711,7 @@ page 22 "Customer List"
 
     trigger OnAfterGetCurrRecord()
     var
+        Customer: Record Customer;
         CRMCouplingManagement: Codeunit "CRM Coupling Management";
         WorkflowWebhookManagement: Codeunit "Workflow Webhook Management";
     begin
@@ -1665,9 +1723,12 @@ page 22 "Customer List"
         CanCancelApprovalForRecord := ApprovalsMgmt.CanCancelApprovalForRecord(RecordId);
 
         WorkflowWebhookManagement.GetCanRequestAndCanCancel(RecordId, CanRequestApprovalForFlow, CanCancelApprovalForFlow);
-        
+
         // Contextual Power BI FactBox: send data to filter the report in the FactBox
         CurrPage."Power BI Report FactBox".PAGE.SetCurrentListSelection("No.", false, PowerBIVisible);
+
+        CurrPage.SetSelectionFilter(Customer);
+        CanSendEmail := Customer.Count() = 1;
     end;
 
     trigger OnInit()
@@ -1702,6 +1763,8 @@ page 22 "Customer List"
 
     var
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
+        [InDataSet]
+        CanSendEmail: Boolean;
         ExtendedPriceEnabled: Boolean;
         CRMIntegrationEnabled: Boolean;
         CDSIntegrationEnabled: Boolean;
@@ -1711,13 +1774,13 @@ page 22 "Customer List"
         CanCancelApprovalForRecord: Boolean;
         EnabledApprovalWorkflowsExist: Boolean;
         PowerBIVisible: Boolean;
-        EmailImprovementFeatureEnabled: Boolean;
         [InDataSet]
         ItemReferenceVisible: Boolean;
         CanRequestApprovalForFlow: Boolean;
         CanCancelApprovalForFlow: Boolean;
         EventFilter: Text;
         CaptionTxt: Text;
+        EmailImprovementFeatureEnabled: Boolean;
 
     procedure GetSelectionFilter(): Text
     var
@@ -1744,6 +1807,7 @@ page 22 "Customer List"
         EnabledApprovalWorkflowsExist := WorkflowManagement.EnabledWorkflowExist(DATABASE::Customer, EventFilter);
     end;
 
+#if not CLEAN19
     [Obsolete('Replaced by the new implementation (V16) of price calculation.', '17.0')]
     local procedure ShowLineDiscounts()
     var
@@ -1765,6 +1829,7 @@ page 22 "Customer List"
         SalesPrice.SetRange("Sales Code", "No.");
         Page.Run(Page::"Sales Prices", SalesPrice);
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     [Scope('OnPrem')]

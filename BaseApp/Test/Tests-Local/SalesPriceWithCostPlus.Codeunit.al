@@ -1,7 +1,9 @@
+#if not CLEAN19
 codeunit 141051 "Sales Price With Cost Plus"
 {
     Subtype = Test;
     TestPermissions = Disabled;
+    EventSubscriberInstance = Manual;
 
     trigger OnRun()
     begin
@@ -14,13 +16,15 @@ codeunit 141051 "Sales Price With Cost Plus"
         LibraryERM: Codeunit "Library - ERM";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryMarketing: Codeunit "Library - Marketing";
+        LibraryPurchase: Codeunit "Library - Purchase";
         LibrarySales: Codeunit "Library - Sales";
         LibraryRandom: Codeunit "Library - Random";
         UnitPriceMustBeSameMsg: Label 'Unit Price must be same.';
+        ModifiedLines: Dictionary of [Text, Integer];
 
     [Test]
     [Scope('OnPrem')]
-    procedure SingleCustomerSalesPriceCostPlusWithoutDate()
+    procedure SingleCustomerSalesPriceWithCostPlusWithoutDate()
     var
         SalesPrice: Record "Sales Price";
         CustomerNo: Code[20];
@@ -29,22 +33,22 @@ codeunit 141051 "Sales Price With Cost Plus"
 
         // Setup: Create Customer.
         CustomerNo := CreateCustomer;
-        CustomerSalesPriceCostPlusStartingdate(SalesPrice."Sales Type"::Customer, CustomerNo, CustomerNo, 0D);  // Starting Date - 0D.
+        CustomerSalesPriceWithCostPlusStartingdate(SalesPrice."Sales Type"::Customer, CustomerNo, CustomerNo, 0D);  // Starting Date - 0D.
     end;
 
     [Test]
     [Scope('OnPrem')]
-    procedure AllCustomerSalesPriceCostPlusWithDate()
+    procedure AllCustomerSalesPriceWithCostPlusWithDate()
     var
         SalesPrice: Record "Sales Price";
     begin
         // [SCENARIO] Calculate Sales Price based on Cost-plus for all customers if Posting Date specified on the sales Order is within the date range specified on the Sales Price.
 
         // Setup.
-        CustomerSalesPriceCostPlusStartingdate(SalesPrice."Sales Type"::"All Customers", '', CreateCustomer, WorkDate);  // Sales Code - blank and Starting Date - Workdate.
+        CustomerSalesPriceWithCostPlusStartingdate(SalesPrice."Sales Type"::"All Customers", '', CreateCustomer, WorkDate);  // Sales Code - blank and Starting Date - Workdate.
     end;
 
-    local procedure CustomerSalesPriceCostPlusStartingdate(SalesType: Enum "Sales Price Type"; SalesCode: Code[20]; CustomerNo: Code[20]; StartingDate: Date)
+    local procedure CustomerSalesPriceWithCostPlusStartingdate(SalesType: Enum "Sales Price Type"; SalesCode: Code[20]; CustomerNo: Code[20]; StartingDate: Date)
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
@@ -64,7 +68,7 @@ codeunit 141051 "Sales Price With Cost Plus"
 
     [Test]
     [Scope('OnPrem')]
-    procedure SingleCustomerSalesPriceCostPlusWithBelowMinQty()
+    procedure SingleCustomerSalesPriceWithCostPlusWithBelowMinQty()
     var
         SalesPrice: Record "Sales Price";
         CustomerNo: Code[20];
@@ -73,36 +77,36 @@ codeunit 141051 "Sales Price With Cost Plus"
 
         // Setup: Create Customer.
         CustomerNo := CreateCustomer;
-        CustomerSalesPriceCostPlusDateRange(SalesPrice."Sales Type"::Customer, CustomerNo, CustomerNo, 0D, LibraryRandom.RandInt(5));  // Starting Date - 0D and Random Quantity.
+        CustomerSalesPriceWithCostPlusDateRange(SalesPrice."Sales Type"::Customer, CustomerNo, CustomerNo, 0D, LibraryRandom.RandInt(5));  // Starting Date - 0D and Random Quantity.
     end;
 
     [Test]
     [Scope('OnPrem')]
-    procedure SingleCustomerSalesPriceCostPlusWithDateDiffCustomer()
+    procedure SingleCustomerSalesPriceWithCostPlusWithDateDiffCustomer()
     var
         SalesPrice: Record "Sales Price";
     begin
         // [SCENARIO] Calculate Sales Price based on Cost-plus for single customer when Starting Date and Ending Date field is not filled on the Sales Price and different customer on sales.
 
         // Setup.
-        CustomerSalesPriceCostPlusDateRange(SalesPrice."Sales Type"::Customer, CreateCustomer, CreateCustomer, 0D, 0);  // Starting Date - 0D and Quantity - 0.
+        CustomerSalesPriceWithCostPlusDateRange(SalesPrice."Sales Type"::Customer, CreateCustomer, CreateCustomer, 0D, 0);  // Starting Date - 0D and Quantity - 0.
     end;
 
     [Test]
     [Scope('OnPrem')]
-    procedure AllCustomerSalesPriceCostPlusWithOutsideDateRange()
+    procedure AllCustomerSalesPriceWithCostPlusWithOutsideDateRange()
     var
         SalesPrice: Record "Sales Price";
     begin
         // [SCENARIO] Calculate Sales Price based on Cost-plus for all customers if Posting Date specified on the sales order is not within the date range specified on the Sales Price.
 
         // Setup.
-        CustomerSalesPriceCostPlusDateRange(
+        CustomerSalesPriceWithCostPlusDateRange(
           SalesPrice."Sales Type"::"All Customers", '', CreateCustomer,
           CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate), 0);   // Sales Code - blank, Starting Date - less than Workdate and Quantity - 0.
     end;
 
-    local procedure CustomerSalesPriceCostPlusDateRange(SalesType: Enum "Sales Price Type"; SalesCode: Code[20]; CustomerNo: Code[20]; StartingDate: Date; Quantity: Decimal)
+    local procedure CustomerSalesPriceWithCostPlusDateRange(SalesType: Enum "Sales Price Type"; SalesCode: Code[20]; CustomerNo: Code[20]; StartingDate: Date; Quantity: Decimal)
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
@@ -122,7 +126,7 @@ codeunit 141051 "Sales Price With Cost Plus"
     [Test]
     [HandlerFunctions('ConfirmHandlerTrue,MessageHandler')]
     [Scope('OnPrem')]
-    procedure CampaignSalesPriceCostPlus()
+    procedure CampaignSalesPriceWithCostPlus()
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
@@ -151,7 +155,7 @@ codeunit 141051 "Sales Price With Cost Plus"
 
     [Test]
     [Scope('OnPrem')]
-    procedure SingleCustomerSalesPriceCostPlusMultipleLine()
+    procedure SingleCustomerSalesPriceWithCostPlusMultipleLine()
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
@@ -369,6 +373,156 @@ codeunit 141051 "Sales Price With Cost Plus"
         TempSalesPrice.TestField("Discount Amount", CostPlusPct * 10);
     end;
 
+    [Test]
+    procedure AutoAdjCostDoesNotModifyCostPlusPriceIfCostHasNotChanged()
+    var
+        Item: Record Item;
+        SalesPrice: Record "Sales Price";
+        SalesPrice2: Record "Sales Price";
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        SalesPriceWithCostPlus: Codeunit "Sales Price With Cost Plus";
+        UnitCost: Decimal;
+        UnitPrice: Decimal;
+    begin
+        // [SCENARIO 409350] Cost adjust does not call for 'Cost-Plus %' price line update if cost is not changed.
+
+        // [GIVEN] Enable automatic cost adjustment and automatic cost posting on Inventory Setup.
+        LibraryInventory.SetAutomaticCostAdjmtAlways();
+        LibraryInventory.SetAutomaticCostPosting(true);
+        // [GIVEN] Item 'I', where "Costing Method" is 'Average', "Unit Cost" is 100
+        CreateItemWithCostingMethod(Item, Item."Costing Method"::Average);
+        UnitCost := Item."Unit Cost";
+        // [GIVEN] 2 Sales Price List lines, where "Asset No." is 'I', "Cost-Plus %" is 50
+        CreateCostPlusSalesPriceLine(SalesPrice2, LibraryInventory.CreateItemNo());
+        CreateCostPlusSalesPriceLine(SalesPrice, Item."No.");
+        UnitPrice := SalesPrice."Unit Price";
+
+        // [GIVEN] Purchase Invoice, where "Direct Unit Cost" is 100
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", 1);
+        PurchaseLine.Validate("Direct Unit Cost", UnitCost);
+        PurchaseLine.Modify(true);
+
+        // [WHEN] Post Purchase Invoice
+        BindSubscription(SalesPriceWithCostPlus); // to count modify calls
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [THEN] Item 'I', where "Unit Cost" is 100 (not changed)
+        Item.Find();
+        Item.TestField("Unit Cost", UnitCost);
+        // [THEN] Price List Line for 'I', where "Unit Price" is 'X' (not changed)
+        SalesPrice.Find();
+        SalesPrice.Testfield("Unit Price", UnitPrice);
+        // [THEN] Price lines were not modified
+        Assert.AreEqual(0, SalesPriceWithCostPlus.GetModifiedLines(SalesPrice."Sales Code"), 'number of modified Price List Lines');
+        Assert.AreEqual(0, SalesPriceWithCostPlus.GetModifiedLines(SalesPrice2."Sales Code"), 'number of modified Price List Line #2');
+    end;
+
+    [Test]
+    procedure AutoAdjCostModifiesJustOneCostPlusPriceIfCostHasBeenChangedByLostDirectCost()
+    var
+        Item: Record Item;
+        SalesPrice: Record "Sales Price";
+        SalesPrice2: Record "Sales Price";
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        SalesPriceWithCostPlus: Codeunit "Sales Price With Cost Plus";
+        UnitCost: Decimal;
+        UnitPrice: Decimal;
+    begin
+        // [SCENARIO 409350] 'Cost-Plus %' price line updated by posting a document with the new "last direct cost"
+        // [GIVEN] Enable automatic cost adjustment and automatic cost posting on Inventory Setup.
+        LibraryInventory.SetAutomaticCostAdjmtAlways();
+        LibraryInventory.SetAutomaticCostPosting(true);
+        // [GIVEN] Item 'I', where "Costing Method" is 'Average', "Unit Cost" is 100
+        CreateItemWithCostingMethod(Item, Item."Costing Method"::Average);
+        UnitCost := Item."Unit Cost";
+        // [GIVEN] 2 Sales Price List lines, where "Asset No." is 'I', "Cost-Plus %" is 50
+        CreateCostPlusSalesPriceLine(SalesPrice2, LibraryInventory.CreateItemNo());
+        UnitPrice := CreateCostPlusSalesPriceLine(SalesPrice, Item."No.");
+
+        // [GIVEN] Purchase Invoice, where "Direct Unit Cost" is 101
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", 1);
+        PurchaseLine.Validate("Direct Unit Cost", UnitCost + 1);
+        PurchaseLine.Modify(true);
+
+        // [WHEN] Post Purchase Invoice
+        BindSubscription(SalesPriceWithCostPlus); // to count modify calls
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [THEN] Item 'I', where "Unit Cost" is 101 (changed)
+        Item.Find();
+        Item.TestField("Unit Cost", UnitCost + 1);
+        // [THEN] Price List Line for 'I', where "Unit Price" is proportionally changed
+        SalesPrice.Find();
+        Assert.AreNearlyEqual(UnitPrice * Item."Unit Cost" / UnitCost, SalesPrice."Unit Price", 0.01, 'Wromg new price');
+        // [THEN] Price line is modified once
+        Assert.AreEqual(1, SalesPriceWithCostPlus.GetModifiedLines(SalesPrice."Sales Code"), 'number of modified Price List Lines');
+        Assert.AreEqual(0, SalesPriceWithCostPlus.GetModifiedLines(SalesPrice2."Sales Code"), 'number of modified Price List Line #2');
+    end;
+
+    [Test]
+    procedure AutoAdjCostModifiesJustOneCostPlusPriceIfCostHasBeenChangedByAdjustment()
+    var
+        Item: Record Item;
+        SalesPrice: array[4] of Record "Sales Price";
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        SalesPriceWithCostPlus: Codeunit "Sales Price With Cost Plus";
+        UnitCost: Decimal;
+        UnitPrice: array[2] of Decimal;
+    begin
+        // [SCENARIO 409350] 'Cost-Plus %' price lines updated by automatic cost adjustment
+
+        // [GIVEN] Enable automatic cost adjustment and automatic cost posting on Inventory Setup.
+        LibraryInventory.SetAutomaticCostAdjmtAlways();
+        LibraryInventory.SetAutomaticCostPosting(true);
+        // [GIVEN] Item 'I', where "Costing Method" is 'Average', "Unit Cost" is 100
+        CreateItemWithCostingMethod(Item, Item."Costing Method"::Average);
+        UnitCost := Item."Unit Cost";
+        // [GIVEN] 2 Sales Price List lines, where "Asset No." is 'I', "Cost-Plus %" is 50
+        UnitPrice[1] := CreateCostPlusSalesPriceLine(SalesPrice[1], Item."No.");
+        UnitPrice[2] := CreateCostPlusSalesPriceLine(SalesPrice[2], Item."No.");
+        // [GIVEN] Price lines with Item 'I' and another Item, where "Cost-Plus %" is 0
+        CreateSalesPrice(
+            SalesPrice[3], "Sales Price Type"::Customer, LibrarySales.CreateCustomerNo(), 0D, 0, Item);
+        CreateSalesPrice(
+            SalesPrice[4], "Sales Price Type"::Customer, LibrarySales.CreateCustomerNo(), 0D, 0);
+
+        // [GIVEN] Purchase Invoice with 2 lines for 'I', where "Direct Unit Cost" is 101 and 103
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", 1);
+        PurchaseLine.Validate("Direct Unit Cost", UnitCost + 1);
+        PurchaseLine.Modify(true);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", 1);
+        PurchaseLine.Validate("Direct Unit Cost", UnitCost + 3);
+        PurchaseLine.Modify(true);
+
+        // [WHEN] Post Purchase Invoice
+        BindSubscription(SalesPriceWithCostPlus); // to count modify calls
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [THEN] Item 'I', where "Unit Cost" is 102 (changed)
+        Item.Find();
+        Item.TestField("Unit Cost", UnitCost + 2);
+        // [THEN] Price List Lines for 'I', where "Unit Price" are proportionally changed
+        SalesPrice[1].Find();
+        Assert.AreNearlyEqual(UnitPrice[1] * Item."Unit Cost" / UnitCost, SalesPrice[1]."Unit Price", 0.01, 'Wromg new price #1');
+        SalesPrice[2].Find();
+        Assert.AreNearlyEqual(UnitPrice[2] * Item."Unit Cost" / UnitCost, SalesPrice[2]."Unit Price", 0.01, 'Wromg new price #2');
+        // [THEN] Each Price line with 'I' and "Cost-Plus %" is modified twice
+        Assert.AreEqual(2, SalesPriceWithCostPlus.GetModifiedLines(SalesPrice[1]."Sales Code"), 'number of modified Price List Lines #1');
+        Assert.AreEqual(2, SalesPriceWithCostPlus.GetModifiedLines(SalesPrice[2]."Sales Code"), 'number of modified Price List Lines #2');
+        // [THEN] Other price lines are not modified
+        Assert.AreEqual(0, SalesPriceWithCostPlus.GetModifiedLines(SalesPrice[3]."Sales Code"), 'number of modified Price List Line #3');
+        Assert.AreEqual(0, SalesPriceWithCostPlus.GetModifiedLines(SalesPrice[4]."Sales Code"), 'number of modified Price List Line #4');
+    end;
+
     local procedure CreateAndActivateCampaign(ContactNo: Code[20]): Code[20]
     var
         Campaign: Record Campaign;
@@ -411,6 +565,23 @@ codeunit 141051 "Sales Price With Cost Plus"
         Item.Modify(true);
     end;
 
+    local procedure CreateItemWithCostingMethod(var Item: Record Item; CostingMethod: Enum "Costing Method")
+    begin
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Costing Method", CostingMethod);
+        Item.Validate("Unit Cost", LibraryRandom.RandDec(100, 2));
+        Item.Modify(true);
+    end;
+
+    local procedure CreateCostPlusSalesPriceLine(var SalesPrice: Record "Sales Price"; ItemNo: Code[20]): Decimal;
+    var
+        Item: Record Item;
+    begin
+        Item.Get(ItemNo);
+        CreateSalesPriceWithCostPlus(SalesPrice, "Sales Price Type"::Customer, LibrarySales.CreateCustomerNo(), 0D, 0, Item);
+        exit(Salesprice."Unit Price");
+    end;
+
     local procedure CreateSalesDocument(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20]; CampaignNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal)
     var
         SalesHeader: Record "Sales Header";
@@ -432,9 +603,23 @@ codeunit 141051 "Sales Price With Cost Plus"
         SalesPrice.Modify(true);
     end;
 
+    local procedure CreateSalesPrice(var SalesPrice: Record "Sales Price"; SalesType: Enum "Sales Price Type"; CustomerNo: Code[20]; StartingDate: Date; MinimumQuantity: Decimal; Item: Record Item)
+    begin
+        LibraryCosting.CreateSalesPrice(
+          SalesPrice, SalesType, CustomerNo, Item."No.", StartingDate, '', '', Item."Base Unit of Measure", MinimumQuantity);  // Currency Code and Variant Code as blank.
+        SalesPrice.Validate("Ending Date", SalesPrice."Starting Date");
+        SalesPrice.Modify(true);
+    end;
+
     local procedure CreateSalesPriceWithCostPlus(var SalesPrice: Record "Sales Price"; SalesType: Enum "Sales Price Type"; CustomerNo: Code[20]; StartingDate: Date; MinimumQuantity: Decimal)
     begin
         CreateSalesPrice(SalesPrice, SalesType, CustomerNo, StartingDate, MinimumQuantity);
+        UpdateCostPlusPctOnSalesPrice(SalesPrice);
+    end;
+
+    local procedure CreateSalesPriceWithCostPlus(var SalesPrice: Record "Sales Price"; SalesType: Enum "Sales Price Type"; CustomerNo: Code[20]; StartingDate: Date; MinimumQuantity: Decimal; Item: Record Item)
+    begin
+        CreateSalesPrice(SalesPrice, SalesType, CustomerNo, StartingDate, MinimumQuantity, Item);
         UpdateCostPlusPctOnSalesPrice(SalesPrice);
     end;
 
@@ -504,5 +689,20 @@ codeunit 141051 "Sales Price With Cost Plus"
     procedure MessageHandler(Message: Text[1024])
     begin
     end;
-}
 
+    procedure GetModifiedLines(SalesCode: Text): Integer;
+    begin
+        if ModifiedLines.ContainsKey(SalesCode) then
+            exit(ModifiedLines.Get(SalesCode));
+        exit(0);
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Sales Price", 'OnBeforeModifyEvent', '', false, false)]
+    local procedure OnBeforeModifyPriceLine(var Rec: Record "Sales Price");
+    begin
+        if not ModifiedLines.ContainsKey(Rec."Sales Code") then
+            ModifiedLines.Add(Rec."Sales Code", 0);
+        ModifiedLines.Set(Rec."Sales Code", ModifiedLines.Get(Rec."Sales Code") + 1);
+    end;
+}
+#endif

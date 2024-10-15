@@ -304,7 +304,8 @@ codeunit 135060 "Document Mailing Tests"
         Assert.RecordCount(JobQueueEntry, ArrayLen(SalesHeader));
         JobQueueEntry.FindSet();
         repeat
-            CODEUNIT.Run(Codeunit::"Job Queue Dispatcher", JobQueueEntry);
+            asserterror LibraryJobQueue.RunJobQueueDispatcher(JobQueueEntry);
+            LibraryJobQueue.RunJobQueueErrorHandler(JobQueueEntry);
             Assert.IsFalse(IsNullGuid(JobQueueEntry."Error Message Register Id"), 'Email error must be registered');
         until JobQueueEntry.Next() = 0;
 

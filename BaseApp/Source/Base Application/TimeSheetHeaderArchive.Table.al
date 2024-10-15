@@ -33,9 +33,21 @@ table 954 "Time Sheet Header Archive"
             DataClassification = EndUserIdentifiableInformation;
             TableRelation = "User Setup";
         }
+        field(10; Description; Text[100])
+        {
+            Caption = 'Description';
+            DataClassification = CustomerContent;
+        }
+        field(11; "Unit of Measure"; Code[10])
+        {
+            CalcFormula = Lookup(Resource."Base Unit of Measure" WHERE("No." = FIELD("Resource No.")));
+            Caption = 'Unit of Measure';
+            FieldClass = FlowField;
+            Editable = false;
+        }
         field(20; Quantity; Decimal)
         {
-            CalcFormula = Sum ("Time Sheet Detail Archive".Quantity WHERE("Time Sheet No." = FIELD("No."),
+            CalcFormula = Sum("Time Sheet Detail Archive".Quantity WHERE("Time Sheet No." = FIELD("No."),
                                                                           Status = FIELD("Status Filter"),
                                                                           "Job No." = FIELD("Job No. Filter"),
                                                                           "Job Task No." = FIELD("Job Task No. Filter"),
@@ -47,7 +59,7 @@ table 954 "Time Sheet Header Archive"
         }
         field(26; Comment; Boolean)
         {
-            CalcFormula = Exist ("Time Sheet Comment Line" WHERE("No." = FIELD("No."),
+            CalcFormula = Exist("Time Sheet Comment Line" WHERE("No." = FIELD("No."),
                                                                  "Time Sheet Line No." = CONST(0)));
             Caption = 'Comment';
             Editable = false;

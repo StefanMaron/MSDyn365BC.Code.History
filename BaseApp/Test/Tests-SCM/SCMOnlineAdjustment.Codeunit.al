@@ -432,7 +432,7 @@ codeunit 137001 "SCM Online Adjustment"
         SetupParameters(InventorySetup."Automatic Cost Adjustment"::Never, InventorySetup."Average Cost Calc. Type"::Item);
     end;
 
-    local procedure OnlineAdjMultipleTransfers(AvgCostCalcType: Option)
+    local procedure OnlineAdjMultipleTransfers(AvgCostCalcType: Enum "Average Cost Calculation Type")
     var
         Item: Record Item;
         PurchaseHeader: Record "Purchase Header";
@@ -549,7 +549,7 @@ codeunit 137001 "SCM Online Adjustment"
         // [WHEN] Adjust cost-item entries.
         // [THEN] Validate unit cost.
         // [THEN] Validate item ledger entries for item.
-        OnlineAdjMultipleTransfers(InventorySetup."Average Cost Calc. Type"::"Item & Location & Variant");
+        OnlineAdjMultipleTransfers("Average Cost Calculation Type"::"Item & Location & Variant");
     end;
 
     local procedure Initialize()
@@ -570,7 +570,7 @@ codeunit 137001 "SCM Online Adjustment"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Online Adjustment");
     end;
 
-    local procedure SetupParameters(AutCostAdjustment: Option; CalcType: Option)
+    local procedure SetupParameters(AutCostAdjustment: Option; CalcType: Enum "Average Cost Calculation Type")
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
         ManufacturingSetup: Record "Manufacturing Setup";

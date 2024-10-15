@@ -69,7 +69,9 @@ permissionset 7931 "D365 TEAM MEMBER"
                   tabledata "Profile Page Metadata" = M,
                   tabledata "Published Application" = Rm,
                   tabledata "Query Navigation" = RIMD,
+#if not CLEAN19
                   tabledata "Query Navigation Validation" = IMD,
+#endif
                   tabledata "Report Layout" = Rm,
                   tabledata "Report Metadata" = m,
                   tabledata "Scheduled Task" = m,
@@ -160,6 +162,7 @@ permissionset 7931 "D365 TEAM MEMBER"
                   tabledata "Balance Sheet Buffer" = RIMD,
                   tabledata "Bank Acc. Reconciliation" = RM,
                   tabledata "Bank Acc. Reconciliation Line" = RIMD,
+                  tabledata "Bank Acc. Rec. Match Buffer" = RIMD,
                   tabledata "Bank Account" = RM,
                   tabledata "Bank Account Balance Buffer" = RIMD,
                   tabledata "Bank Account Ledger Entry" = Rm,
@@ -250,7 +253,7 @@ permissionset 7931 "D365 TEAM MEMBER"
                   tabledata "Company Information" = RM,
                   tabledata Confidential = RM,
                   tabledata "Confidential Information" = RM,
-                  tabledata "Config. Field Mapping" = RM,
+                  tabledata "Config. Field Map" = RM,
                   tabledata "Config. Line" = RM,
                   tabledata "Config. Media Buffer" = RM,
                   tabledata "Config. Package Data" = RM,
@@ -340,7 +343,7 @@ permissionset 7931 "D365 TEAM MEMBER"
                   tabledata "CRM Option Mapping" = RM,
                   tabledata "CRM Organization" = RM,
                   tabledata "CRM Post" = RM,
-                  tabledata "CRM Post Buffer" = RM,
+                  tabledata "CRM Post Buffer" = RIMD,
                   tabledata "CRM Post Configuration" = RM,
                   tabledata "CRM Pricelevel" = RM,
                   tabledata "CRM Product" = RM,
@@ -383,7 +386,9 @@ permissionset 7931 "D365 TEAM MEMBER"
                   tabledata "Customer Price Group" = RM,
                   tabledata "Customer Sales Buffer" = RIMD,
                   tabledata "Customer Templ." = RIMD,
+#if not CLEAN18
                   tabledata "Customer Template" = RM,
+#endif
                   tabledata "Customized Calendar Change" = RM,
                   tabledata "Customized Calendar Entry" = RM,
                   tabledata "CV Ledger Entry Buffer" = RM,
@@ -708,7 +713,9 @@ permissionset 7931 "D365 TEAM MEMBER"
                   tabledata "Item Charge" = R,
                   tabledata "Item Charge Assignment (Purch)" = RIMD,
                   tabledata "Item Charge Assignment (Sales)" = RIMD,
+#if not CLEAN19
                   tabledata "Item Cross Reference" = RIMD,
+#endif
                   tabledata "Item Discount Group" = RM,
                   tabledata "Item Entry Relation" = R,
                   tabledata "Item Identifier" = RM,
@@ -723,7 +730,9 @@ permissionset 7931 "D365 TEAM MEMBER"
                   tabledata "Item Statistics Buffer" = RM,
                   tabledata "Item Substitution" = RIMD,
                   tabledata "Item Templ." = RIMD,
+#if not CLEAN18
                   tabledata "Item Template" = RIMD,
+#endif
                   tabledata "Item Tracing Buffer" = Rimd,
                   tabledata "Item Tracing History Buffer" = Rimd,
                   tabledata "Item Tracking Code" = R,
@@ -738,8 +747,10 @@ permissionset 7931 "D365 TEAM MEMBER"
                   tabledata "Job Cue" = RM,
                   tabledata "Job Difference Buffer" = Rm,
                   tabledata "Job Entry No." = RM,
+#if not CLEAN19
                   tabledata "Job G/L Account Price" = RM,
                   tabledata "Job Item Price" = RM,
+#endif
                   tabledata "Job Journal Batch" = RM,
                   tabledata "Job Journal Line" = RM,
                   tabledata "Job Journal Quantity" = RM,
@@ -755,7 +766,9 @@ permissionset 7931 "D365 TEAM MEMBER"
                   tabledata "Job Queue Entry Buffer" = RIMD,
                   tabledata "Job Queue Log Entry" = RIMD,
                   tabledata "Job Register" = Rm,
+#if not CLEAN19
                   tabledata "Job Resource Price" = RM,
+#endif
                   tabledata "Job Responsibility" = RM,
                   tabledata "Job Task" = RIMD,
                   tabledata "Job Task Dimension" = RIMD,
@@ -791,8 +804,10 @@ permissionset 7931 "D365 TEAM MEMBER"
                   tabledata "Marketing Setup" = RM,
                   tabledata "Media Repository" = RM,
                   tabledata "Memoized Result" = RM,
+#if not CLEAN18
                   tabledata "Mini Customer Template" = RM,
                   tabledata "Mini Vendor Template" = RM,
+#endif
                   tabledata "Misc. Article" = RM,
                   tabledata "Misc. Article Information" = RM,
                   tabledata "MS-QBD Setup" = R,
@@ -875,6 +890,7 @@ permissionset 7931 "D365 TEAM MEMBER"
                   tabledata "Order Promising Setup" = RM,
                   tabledata "Order Tracking Entry" = RIMD,
                   tabledata "Organizational Level" = RM,
+#if not CLEAN19
                   tabledata "Outlook Synch. Dependency" = RM,
                   tabledata "Outlook Synch. Entity" = RM,
                   tabledata "Outlook Synch. Entity Element" = RM,
@@ -885,6 +901,7 @@ permissionset 7931 "D365 TEAM MEMBER"
                   tabledata "Outlook Synch. Option Correl." = RM,
                   tabledata "Outlook Synch. Setup Detail" = RM,
                   tabledata "Outlook Synch. User Setup" = RM,
+#endif
                   tabledata "Outstanding Bank Transaction" = RM,
                   tabledata "Over-Receipt Code" = RIMD,
                   tabledata "Overdue Approval Entry" = Rm,
@@ -997,7 +1014,9 @@ permissionset 7931 "D365 TEAM MEMBER"
                   tabledata "Purch. Inv. Header" = RimD,
                   tabledata "Purch. Inv. Line" = Rimd,
                   tabledata "Purch. Inv. Line Aggregate" = RIMD,
+#if not CLEAN19
                   tabledata "Purch. Price Line Disc. Buff." = RM,
+#endif
                   tabledata "Purch. Rcpt. Header" = RIMD,
                   tabledata "Purch. Rcpt. Line" = Rimd,
                   tabledata "Purchase Cue" = RM,
@@ -1006,10 +1025,14 @@ permissionset 7931 "D365 TEAM MEMBER"
                   tabledata "Purchase Header Archive" = RIMD,
                   tabledata "Purchase Line" = RIMD,
                   tabledata "Purchase Line Archive" = RIMD,
+#if not CLEAN19
                   tabledata "Purchase Line Discount" = RM,
+#endif
                   tabledata "Purchase Order Entity Buffer" = RMID,
                   tabledata "Purchase Prepayment %" = RM,
+#if not CLEAN19
                   tabledata "Purchase Price" = RM,
+#endif
                   tabledata "Purchase Price Access" = RM,
                   tabledata "Purchases & Payables Setup" = RM,
                   tabledata Purchasing = RM,
@@ -1066,11 +1089,15 @@ permissionset 7931 "D365 TEAM MEMBER"
                   tabledata "Reservation Entry Buffer" = RIMD,
                   tabledata "Resolution Code" = RM,
                   tabledata Resource = RM,
+#if not CLEAN19
                   tabledata "Resource Cost" = R,
+#endif
                   tabledata "Resource Group" = RM,
                   tabledata "Resource Location" = RM,
+#if not CLEAN19
                   tabledata "Resource Price" = R,
                   tabledata "Resource Price Change" = RM,
+#endif
                   tabledata "Resource Register" = RM,
                   tabledata "Resource Service Zone" = RM,
                   tabledata "Resource Skill" = RM,
@@ -1110,14 +1137,20 @@ permissionset 7931 "D365 TEAM MEMBER"
                   tabledata "Sales Invoice Line Aggregate" = RIMD,
                   tabledata "Sales Line" = RIMD,
                   tabledata "Sales Line Archive" = RIMD,
+#if not CLEAN19
                   tabledata "Sales Line Discount" = RIMD,
+#endif
                   tabledata "Sales Order Entity Buffer" = RIMD,
                   tabledata "Sales Planning Line" = Rimd,
                   tabledata "Sales Prepayment %" = RM,
+#if not CLEAN19
                   tabledata "Sales Price" = RIMD,
+#endif
                   tabledata "Sales Price Access" = RIMD,
+#if not CLEAN19
                   tabledata "Sales Price and Line Disc Buff" = RM,
                   tabledata "Sales Price Worksheet" = RIMD,
+#endif
                   tabledata "Sales Quote Entity Buffer" = RIMD,
                   tabledata "Sales Shipment Buffer" = RM,
                   tabledata "Sales Shipment Header" = RimD,
@@ -1152,9 +1185,11 @@ permissionset 7931 "D365 TEAM MEMBER"
                   tabledata "Shipping Agent" = RM,
                   tabledata "Shipping Agent Services" = R,
                   tabledata "Skill Code" = RM,
+#if not CLEAN19
                   tabledata "SmartList Designer Setup" = RIMD,
                   tabledata "SmartList Export Results" = RM,
                   tabledata "SmartList Import Results" = RM,
+#endif
                   tabledata "SMTP Mail Setup" = RM,
                   tabledata "Social Listening Search Topic" = RM,
                   tabledata "Social Listening Setup" = Rm,
@@ -1253,7 +1288,6 @@ permissionset 7931 "D365 TEAM MEMBER"
                   tabledata "Unlinked Attachment" = RIMD,
                   tabledata "Unplanned Demand" = RM,
                   tabledata "Untracked Planning Element" = RM,
-                  tabledata "User Callouts" = RIMD,
                   tabledata "User Group" = R,
                   tabledata "User Group Access Control" = R,
                   tabledata "User Group Member" = Rimd,
@@ -1332,7 +1366,6 @@ permissionset 7931 "D365 TEAM MEMBER"
                   tabledata "Warranty Ledger Entry" = RM,
                   tabledata "Web Source" = RM,
                   tabledata "WF Event/Response Combination" = RM,
-                  tabledata "What's New Notified" = rimd,
                   tabledata "Where Used Base Calendar" = RM,
                   tabledata "Whse. Cross-Dock Opportunity" = RM,
                   tabledata "Whse. Internal Pick Header" = RM,

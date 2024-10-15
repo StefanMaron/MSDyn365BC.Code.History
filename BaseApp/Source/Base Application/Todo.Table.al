@@ -276,11 +276,9 @@ table 5080 "To-do"
                     GetEndDateTime;
             end;
         }
-        field(10; Status; Option)
+        field(10; Status; Enum "Task Status")
         {
             Caption = 'Status';
-            OptionCaption = 'Not Started,In Progress,Completed,Waiting,Postponed';
-            OptionMembers = "Not Started","In Progress",Completed,Waiting,Postponed;
 
             trigger OnValidate()
             begin
@@ -944,7 +942,7 @@ table 5080 "To-do"
 
         Task2 := Rec;
         with Task2 do begin
-            Status := 0;
+            Status := Status::"Not Started";
             Closed := false;
             Canceled := false;
             "Date Closed" := 0D;
@@ -2826,9 +2824,14 @@ table 5080 "To-do"
     begin
         Commit();
         User.SetRange("User Name", UserId);
+#if CLEAN19
+        if not User.FindFirst and not Initialize(ExchangeWebServicesServer, User."Authentication Email") then
+            Error('');
+#else
         if not User.FindFirst and not Initialize(ExchangeWebServicesServer, User."Authentication Email") then
             if not InitializeServiceWithCredentials(ExchangeWebServicesServer) then
                 Error('');
+#endif
     end;
 
     local procedure MakeAppointmentBody(Task: Record "To-do"; SalespersonsList: Text; SalespersonName: Text[50]): Text
@@ -2899,6 +2902,8 @@ table 5080 "To-do"
         end;
     end;
 
+#if not CLEAN19
+    [Obsolete('Removing legacy basic authentication. Exchange service should be intialized using Oauth token.', '19.0')]
     [TryFunction]
     local procedure InitializeServiceWithCredentials(var ExchangeWebServicesServer: Codeunit "Exchange Web Services Server")
     var
@@ -2918,6 +2923,7 @@ table 5080 "To-do"
         ExchangeWebServicesServer.Initialize(
           WebCredentialsLogin, ExchangeWebServicesServer.ProdEndpoint, WebCredentials, false);
     end;
+#endif
 
     [TryFunction]
     local procedure Initialize(var ExchangeWebServicesServer: Codeunit "Exchange Web Services Server"; AuthenticationEmail: Text[250])
@@ -3045,4 +3051,3 @@ table 5080 "To-do"
     begin
     end;
 }
-
