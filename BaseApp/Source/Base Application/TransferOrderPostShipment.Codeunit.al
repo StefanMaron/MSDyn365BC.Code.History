@@ -42,6 +42,8 @@ codeunit 5704 "TransferOrder-Post Shipment"
                 InvtPickPutaway := WhseReference <> 0;
                 CheckItemInInventoryAndWarehouse(TransLine, not (WhseShip or InvtPickPutaway));
 
+                CheckTransferLines(true);
+
                 GetLocation("Transfer-from Code");
                 if Location."Bin Mandatory" and not (WhseShip or InvtPickPutaway) then
                     WhsePosting := true;
