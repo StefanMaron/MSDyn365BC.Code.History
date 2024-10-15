@@ -279,6 +279,7 @@ page 7001 "Price List Lines"
         end;
         UpdateSourceType();
         Rec."Amount Type" := ViewAmountType;
+        Rec."Price Type" := PriceListHeader."Price Type";
     end;
 
     var

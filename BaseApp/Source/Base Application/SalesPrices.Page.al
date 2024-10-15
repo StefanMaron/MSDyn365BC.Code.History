@@ -376,9 +376,6 @@ page 7002 "Sales Prices"
         CustPriceGr: Record "Customer Price Group";
         Campaign: Record Campaign;
         ClientTypeManagement: Codeunit "Client Type Management";
-        SalesTypeFilter: Option Customer,"Customer Price Group","All Customers",Campaign,"None";
-        SalesCodeFilter: Text;
-        ItemNoFilter: Text;
         StartingDateFilter: Text[30];
         CurrencyCodeFilter: Text;
         PageCaption: Text;
@@ -392,6 +389,11 @@ page 7002 "Sales Prices"
         SalesCodeControlEditable: Boolean;
         MultipleCustomersSelectedErr: Label 'More than one customer uses these sales prices. To copy prices, the Sales Code Filter field must contain one customer only.';
         IncorrectSalesTypeToCopyPricesErr: Label 'To copy sales prices, The Sales Type Filter field must contain Customer.';
+
+    protected var
+        SalesTypeFilter: Option Customer,"Customer Price Group","All Customers",Campaign,"None";
+        SalesCodeFilter: Text;
+        ItemNoFilter: Text;
 
     local procedure GetRecFilters()
     begin

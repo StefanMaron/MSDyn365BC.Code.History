@@ -1552,7 +1552,7 @@
                               PurchHeader."Currency Factor"), Currency."Amount Rounding Precision"), CurrencyFactor),
                         AddCurrency."Amount Rounding Precision");
 
-		        MaxLineAmount := Round(Quantity * "Direct Unit Cost", Currency."Amount Rounding Precision");
+                MaxLineAmount := Round(Quantity * "Direct Unit Cost", Currency."Amount Rounding Precision");
                 if "Line Amount" < 0 then
                     if "Line Amount" < MaxLineAmount then
                         Error(LineAmountInvalidErr);
@@ -1675,8 +1675,8 @@
                     if PrepmtLineAmtExclFullGST > LineAmountExclFullGST then
                         FieldError("Prepmt. Line Amount", StrSubstNo(Text039, "Line Amount" - "Inv. Discount Amount"))
                     else
-                if "Prepmt. Line Amount" > "Line Amount" then
-                    FieldError("Prepmt. Line Amount", StrSubstNo(Text039, "Line Amount"));
+                        if "Prepmt. Line Amount" > "Line Amount" then
+                            FieldError("Prepmt. Line Amount", StrSubstNo(Text039, "Line Amount"));
                 Validate("Prepayment %", PrepmtLineAmtExclFullGST * 100 / LineAmountExclFullGST);
             end;
         }
@@ -2447,6 +2447,7 @@
                 UnitOfMeasureTranslation: Record "Unit of Measure Translation";
                 Resource: Record Resource;
                 IsHandled: Boolean;
+                ShouldUpdateItemReference: Boolean;
             begin
                 TestStatusOpen();
                 TestField("Quantity Received", 0);
@@ -2482,7 +2483,9 @@
                             "Unit of Measure" := UnitOfMeasureTranslation.Description;
                     end;
                 end;
-                if Type = Type::Item then
+                ShouldUpdateItemReference := Type = Type::Item;
+                OnValidateUnitOfMeasureCodeOnAfterCalcShouldUpdateItemReference(Rec, ShouldUpdateItemReference);
+                if ShouldUpdateItemReference then
                     UpdateItemReference();
                 if "Prod. Order No." = '' then
                     case Type of
@@ -3616,10 +3619,10 @@
             IsHandled := false;
             OnDeleteOnBeforeCheckQtyNotInvoiced(Rec, IsHandled);
             if not IsHandled then begin
-            if "Receipt No." = '' then
-                TestField("Qty. Rcd. Not Invoiced", 0);
-            if "Return Shipment No." = '' then
-                TestField("Return Qty. Shipped Not Invd.", 0);
+                if "Receipt No." = '' then
+                    TestField("Qty. Rcd. Not Invoiced", 0);
+                if "Return Shipment No." = '' then
+                    TestField("Return Qty. Shipped Not Invd.", 0);
             end;
 
             IsHandled := false;
@@ -6747,7 +6750,7 @@
         HandleDedicatedBin(true);
     end;
 
-    local procedure GetOverheadRateFCY() Result: Decimal
+    protected procedure GetOverheadRateFCY() Result: Decimal
     var
         Item: Record Item;
         QtyPerUOM: Decimal;
@@ -8031,6 +8034,8 @@
             "Inv. Discount Amount" := 0;
             "Inv. Disc. Amount to Invoice" := 0;
         end;
+        if ("Prepayment Amount" = 0) and ("Prepmt Amt to Deduct" = 0) then
+            "Prepmt. VAT Base Amt." := 0;
         UpdateAmounts();
         UpdateUnitCost();
     end;
@@ -8429,9 +8434,10 @@
             if not PrePaymentLineAmountEntered then
                 if not CalculateFullGST("Prepmt. Line Amount") then begin
                     "Prepmt. Line Amount" := Round("Line Amount" * "Prepayment %" / 100, Currency."Amount Rounding Precision");
-                    if abs("Inv. Discount Amount" + "Prepmt. Line Amount") > abs("Line Amount") THEN
+                    if abs("Inv. Discount Amount" + "Prepmt. Line Amount") > abs("Line Amount") then
                         "Prepmt. Line Amount" := "Line Amount" - "Inv. Discount Amount";
                 end;
+
             PrePaymentLineAmountEntered := false;
         end;
 
@@ -8696,7 +8702,7 @@
         exit(UOMMgt.CalcBaseQty(
             "No.", "Variant Code", "Unit of Measure Code", Qty, "Qty. per Unit of Measure", "Qty. Rounding Precision (Base)", FieldCaption("Qty. Rounding Precision"), FromFieldName, ToFieldName));
     end;
-    
+
     procedure UpdateACYAmounts(PurchHeaderToCalc: Record "Purchase Header")
     begin
         GetGLSetup;
@@ -8713,7 +8719,7 @@
         "Amount Including VAT (ACY)" :=
           Round("Amount (ACY)" + "VAT Base (ACY)" * "VAT %" / 100,
             AddCurrency."Amount Rounding Precision");
-    end;   
+    end;
 
     local procedure CalcCurrencyFactorACY(): Decimal
     begin
@@ -9799,6 +9805,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnValidateUnitOfMeasureCodeOnAfterCalcShouldUpdateItemReference(PurchaseLine: Record "Purchase Line"; var ShouldUpdateItemReference: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnValidateVariantCodeOnAfterValidationChecks(var PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line"; CallingFieldNo: Integer)
     begin
     end;
@@ -9993,7 +10004,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnUpdateDirectUnitCostByFieldOnBeforeUpdateItemReference(var PurchaseLine: Record "Purchase Line"; CalledByFieldNo: Integer)
+    local procedure OnUpdateDirectUnitCostByFieldOnBeforeUpdateItemReference(var PurchaseLine: Record "Purchase Line"; var CalledByFieldNo: Integer)
     begin
     end;
 

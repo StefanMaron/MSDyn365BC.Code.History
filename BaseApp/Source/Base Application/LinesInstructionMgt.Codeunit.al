@@ -12,7 +12,13 @@ codeunit 1320 "Lines Instruction Mgt."
     procedure SalesCheckAllLinesHaveQuantityAssigned(SalesHeader: Record "Sales Header")
     var
         SalesLine: Record "Sales Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSalesCheckAllLinesHaveQuantityAssigned(SalesHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetFilter(Type, '<>%1', SalesLine.Type::" ");
@@ -53,6 +59,11 @@ codeunit 1320 "Lines Instruction Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetPurchaseLineFilters(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSalesCheckAllLinesHaveQuantityAssigned(SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
 }
