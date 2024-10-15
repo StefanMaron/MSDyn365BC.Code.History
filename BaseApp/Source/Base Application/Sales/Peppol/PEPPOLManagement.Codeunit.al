@@ -324,7 +324,10 @@ codeunit 1605 "PEPPOL Management"
         CustPartyTaxSchemeCompanyID :=
           FormatVATRegistrationNo(
             SalesHeader.GetCustomerVATRegistrationNumber(), SalesHeader."Bill-to Country/Region Code", IsBISBilling, true);
-        CustPartyTaxSchemeCompIDSchID := GetVATSchemeByFormat(SalesHeader."Bill-to Country/Region Code", IsBISBilling);
+        if IsBISBilling then
+            CustPartyTaxSchemeCompIDSchID := ''
+        else
+            CustPartyTaxSchemeCompIDSchID := GetVATSchemeByFormat(SalesHeader."Bill-to Country/Region Code", false);
         CustTaxSchemeID := VATTxt;
     end;
 
@@ -1067,7 +1070,7 @@ codeunit 1605 "PEPPOL Management"
 
     local procedure GetVATSchemeByFormat(CountryRegionCode: Code[10]; IsBISBilling: Boolean): Text
     begin
-        if IsBISBilling then
+        if IsBISBilling and not UseVATSchemeID(CountryRegionCode) then
             exit('');
         exit(GetVATScheme(CountryRegionCode));
     end;
@@ -1120,7 +1123,7 @@ codeunit 1605 "PEPPOL Management"
         if IsBISBilling then begin
             VATRegistrationNo := DelChr(VATRegistrationNo);
 
-            if IsPartyTaxScheme then
+            if IsPartyTaxScheme or (UseVATSchemeID(CountryCode)) then
                 if CountryRegion.DetermineCountry(CountryCode) then
                     VATRegistrationNo := FormatEnterpriseNo(VATRegistrationNo, CountryCode)
                 else
@@ -1130,6 +1133,16 @@ codeunit 1605 "PEPPOL Management"
         end;
 
         exit(VATRegistrationNo);
+    end;
+    
+    local procedure UseVATSchemeID(CountryCode: Code[10]): Boolean
+    var
+        CountryRegion: Record "Country/Region";
+    begin
+        if not CountryRegion.Get(CountryCode) then
+            exit(false);
+        // Use ISO 3166 Country Codes
+        exit(CountryRegion."ISO Code" = 'DK');
     end;
 
     local procedure FormatEnterpriseNo(EnterpriseNo: Text; CountryCode: Code[10]): Text
