@@ -105,6 +105,7 @@ codeunit 10673 "Generate SAF-T File"
         ExportBankAccount(
             CompanyInformation."Country/Region Code", CompanyInformation."Bank Name", CompanyInformation."Bank Account No.", CompanyInformation.IBAN,
             CompanyInformation."Bank Branch No.", '');
+        ExportBankAccounts();
         SAFTXMLHelper.FinalizeXMLNode();
     end;
 
@@ -169,8 +170,6 @@ codeunit 10673 "Generate SAF-T File"
         SAFTMappingRange.Get(SAFTExportHeader."Mapping Range Code");
         SAFTGLAccountMapping.SetRange("Mapping Range Code", SAFTExportHeader."Mapping Range Code");
         SAFTGLAccountMapping.SetFilter("No.", '<>%1', '');
-        // It's up to date by VerifyMappingIsDone function called from SAFTExportCheck.Codeunit.al right before the actual export
-        SAFTGLAccountMapping.SetRange("G/L Entries Exists", true);
         if not SAFTGLAccountMapping.FindSet() then
             exit;
 
@@ -217,8 +216,6 @@ codeunit 10673 "Generate SAF-T File"
             ClosingDebitBalance := GLAccount."Net Change"
         else
             ClosingCreditBalance := -GLAccount."Net Change";
-        if (ClosingDebitBalance = 0) and (ClosingCreditBalance = 0) then
-            exit;
 
         SAFTXMLHelper.AddNewXMLNode('Account', '');
         SAFTXMLHelper.AppendXMLNode('AccountID', GLAccount."No.");
@@ -304,16 +301,14 @@ codeunit 10673 "Generate SAF-T File"
         if not Handled then
             GetFirstAndLastNameFromContactName(FirstName, LastName, Customer.Contact);
         ExportContact(FirstName, LastName, Customer."Phone No.", Customer."Fax No.", Customer."E-Mail", Customer."Home Page", '');
-        if Customer."Preferred Bank Account Code" = '' then begin
-            CustomerBankAccount.SetRange("Customer No.", Customer."No.");
-            if not CustomerBankAccount.FindFirst() then
-                clear(CustomerBankAccount);
-        end else
-            CustomerBankAccount.Get(Customer."No.", Customer."Preferred Bank Account Code");
-        ExportBankAccount(
-            Customer."Country/Region Code", CombineWithSpace(CustomerBankAccount.Name, CustomerBankAccount."Name 2"),
-            CustomerBankAccount."Bank Account No.", CustomerBankAccount.IBAN,
-            CustomerBankAccount."Bank Branch No.", CustomerBankAccount."Currency Code");
+        CustomerBankAccount.SetRange("Customer No.", Customer."No.");
+        if CustomerBankAccount.FindSet() then
+            repeat
+                ExportBankAccount(
+                    Customer."Country/Region Code", CombineWithSpace(CustomerBankAccount.Name, CustomerBankAccount."Name 2"),
+                    CustomerBankAccount."Bank Account No.", CustomerBankAccount.IBAN,
+                    CustomerBankAccount."Bank Branch No.", CustomerBankAccount."Currency Code");
+            until CustomerBankAccount.Next() = 0;
         SAFTXMLHelper.AppendXMLNode('CustomerID', Customer."No.");
         CustomerPostingGroup.get(customer."Customer Posting Group");
         SAFTXMLHelper.AppendXMLNode('AccountID', CustomerPostingGroup."Receivables Account");
@@ -388,18 +383,18 @@ codeunit 10673 "Generate SAF-T File"
         if not Handled then
             GetFirstAndLastNameFromContactName(FirstName, LastName, Vendor.Contact);
         ExportContact(FirstName, LastName, Vendor."Phone No.", Vendor."Fax No.", Vendor."E-Mail", Vendor."Home Page", '');
-        if Vendor."Preferred Bank Account Code" = '' then begin
-            VendorBankAccount.SetRange("Vendor No.", Vendor."No.");
-            if not VendorBankAccount.FindFirst() then
-                clear(VendorBankAccount);
-        end else
-            VendorBankAccount.Get(Vendor."No.", Vendor."Preferred Bank Account Code");
-        ExportBankAccount(
-            Vendor."Country/Region Code", CombineWithSpace(VendorBankAccount.Name, VendorBankAccount."Name 2"),
-            VendorBankAccount."Bank Account No.", VendorBankAccount.IBAN,
-            VendorBankAccount."Bank Branch No.", VendorBankAccount."Currency Code");
+        VendorBankAccount.SetRange("Vendor No.", Vendor."No.");
+        If VendorBankAccount.FindSet() then
+            repeat
+                ExportBankAccount(
+                    Vendor."Country/Region Code", CombineWithSpace(VendorBankAccount.Name, VendorBankAccount."Name 2"),
+                    VendorBankAccount."Bank Account No.", VendorBankAccount.IBAN,
+                    VendorBankAccount."Bank Branch No.", VendorBankAccount."Currency Code");
+            until VendorBankAccount.Next() = 0;
+        If Vendor."Recipient Bank Account No." <> '' then
+            ExportBankAccount(Vendor."Country/Region Code", '', Vendor."Recipient Bank Account No.", '', '', '');
         SAFTXMLHelper.AppendXMLNode('SupplierID', Vendor."No.");
-        VendorPostingGroup.get(Vendor."Vendor Posting Group");
+        VendorPostingGroup.Get(Vendor."Vendor Posting Group");
         SAFTXMLHelper.AppendXMLNode('AccountID', VendorPostingGroup."Payables Account");
         if OpeningDebitBalance = 0 then
             SAFTXMLHelper.AppendXMLNode('OpeningCreditBalance', FormatAmount(OpeningCreditBalance))
@@ -663,7 +658,7 @@ codeunit 10673 "Generate SAF-T File"
         SAFTXMLHelper.AppendXMLNode('TransactionDate', FormatDate(GLEntry."Document Date"));
         SAFTXMLHelper.AppendXMLNode('SourceID', GLEntry."User ID");
         SAFTXMLHelper.AppendXMLNode('Description', GLEntry.Description);
-        SAFTXMLHelper.AppendXMLNode('SystemEntryDate', FormatDate(GLEntry."Document Date"));
+        SAFTXMLHelper.AppendXMLNode('SystemEntryDate', FormatDate(DT2Date(GLEntry."Last Modified DateTime")));
         SAFTXMLHelper.AppendXMLNode('GLPostingDate', FormatDate(GLEntry."Posting Date"));
     end;
 
@@ -671,7 +666,7 @@ codeunit 10673 "Generate SAF-T File"
     var
         VATPostingSetup: Record "VAT Posting Setup";
     begin
-        if not (VATEntry.Type in [VATEntry.Type::Sale, VATEntry.Type::Sale]) then
+        if not (VATEntry.Type in [VATEntry.Type::Sale, VATEntry.Type::Purchase]) then
             exit;
 
         VATPostingSetup.get(VATEntry."VAT Bus. Posting Group", VATEntry."VAT Prod. Posting Group");
@@ -692,6 +687,21 @@ codeunit 10673 "Generate SAF-T File"
         SAFTXMLHelper.AddNewXMLNode(ParentNodeName, '');
         SAFTXMLHelper.AppendXMLNode('Amount', FormatAmount(Amount));
         SAFTXMLHelper.FinalizeXMLNode();
+    end;
+
+    local procedure ExportBankAccounts()
+    var
+        BankAccount: Record "Bank Account";
+    begin
+        if not BankAccount.FindSet() then
+            exit;
+
+        repeat
+            ExportBankAccount(
+                BankAccount."Country/Region Code", CombineWithSpace(BankAccount.Name, BankAccount."Name 2"),
+                BankAccount."Bank Account No.", BankAccount.IBAN,
+                BankAccount."Bank Branch No.", BankAccount."Currency Code");
+        until BankAccount.Next() = 0;
     end;
 
     local procedure ExportBankAccount(CountryCode: Code[10]; BankName: Text; BankNumber: Text; IBAN: Text; BranchNo: Text; CurrencyCode: Code[10])

@@ -226,20 +226,6 @@ codeunit 134590 "Mandatory Fields Tests"
         CompanyInformation.Close;
     end;
 
-    [Test]
-    [Scope('OnPrem')]
-    procedure MandatoryFieldsOnSalesSetup()
-    var
-        SalesReceivablesSetup: TestPage "Sales & Receivables Setup";
-    begin
-        SalesReceivablesSetup.OpenEdit;
-        Assert.IsTrue(SalesReceivablesSetup."E-Invoice Sales Invoice Path".ShowMandatory, UnexpectedShowMandatoryValueTxt);
-        Assert.IsTrue(SalesReceivablesSetup."E-Invoice Sales Cr. Memo Path".ShowMandatory, UnexpectedShowMandatoryValueTxt);
-        Assert.IsTrue(SalesReceivablesSetup."E-Invoice Reminder Path".ShowMandatory, UnexpectedShowMandatoryValueTxt);
-        Assert.IsTrue(SalesReceivablesSetup."E-Invoice Fin. Charge Path".ShowMandatory, UnexpectedShowMandatoryValueTxt);
-        SalesReceivablesSetup.Close;
-    end;
-
     local procedure VerifyMandatoryFieldsOnSalesInvoice(Customer: Record Customer; EInvoiceCustomer: Boolean)
     var
         SalesLine: Record "Sales Line";

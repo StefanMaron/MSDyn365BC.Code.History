@@ -27,7 +27,6 @@ codeunit 144111 "E-Invoice Service"
         ReducedRate: Decimal;
         HighRate: Decimal;
         StandardRate: Decimal;
-        MissingUnitOfMeasureCodeErr: Label 'You must specify a valid %1 for the %2 for';
         SuccessfullyCreatedMsg: Label 'Successfully created ';
         TestValueTxt: Label 'Test Value';
         IncorrectFieldValueEInvoiceErr: Label 'Incorrect bool value of field E-Invoice on the Service Header table';
@@ -277,19 +276,6 @@ codeunit 144111 "E-Invoice Service"
     end;
 
     [Test]
-    [Scope('OnPrem')]
-    procedure ExportServInvoiceNoUNECECode()
-    var
-        UnitOfMeasure: Record "Unit of Measure";
-    begin
-        // [FEATURE] [Invoice]
-        Initialize;
-        asserterror EInvoiceServiceHelper.CreateServiceInvNoUNECECode;
-        Assert.ExpectedError(
-          StrSubstNo(MissingUnitOfMeasureCodeErr, UnitOfMeasure.FieldCaption("International Standard Code"), UnitOfMeasure.TableCaption));
-    end;
-
-    [Test]
     [HandlerFunctions('SuccessMsgHandler')]
     [Scope('OnPrem')]
     procedure NoAccCostCodeAddedInServInv()
@@ -461,28 +447,6 @@ codeunit 144111 "E-Invoice Service"
         Initialize;
 
         ServiceInvWithNoOfVATGroups(2);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure ServiceInvoiceWithoutVATRegNo()
-    var
-        TempExpectedCustomerInfo: Record Customer temporary;
-        SalespersonPurchaser: Record "Salesperson/Purchaser";
-    begin
-        // [FEATURE] [Invoice]
-        // [SCENARIO 1.4.28] Customer without VAT Reg. No.
-        Initialize;
-
-        // [GIVEN] A customer with no VAT Reg. No.
-        EInvoiceHelper.InitExpectedCustomerInfo(TempExpectedCustomerInfo);
-        TempExpectedCustomerInfo."VAT Registration No." := '';
-        LibrarySales.CreateSalesperson(SalespersonPurchaser);
-
-        // [WHEN] User posts a service invoice for that customer
-        // [THEN] An error is thrown.
-        asserterror EInvoiceServiceHelper.CreateServiceInvoiceWithCustomerAndSalesPerson(
-            TempExpectedCustomerInfo, SalespersonPurchaser.Code);
     end;
 
     [Test]
@@ -714,19 +678,6 @@ codeunit 144111 "E-Invoice Service"
     end;
 
     [Test]
-    [Scope('OnPrem')]
-    procedure ExportServCrMemoNoUNECECode()
-    var
-        UnitOfMeasure: Record "Unit of Measure";
-    begin
-        // [FEATURE] [Credit Memo]
-        Initialize;
-        asserterror EInvoiceServiceHelper.CreateServiceCrMemoNoUNECECode;
-        Assert.ExpectedError(
-          StrSubstNo(MissingUnitOfMeasureCodeErr, UnitOfMeasure.FieldCaption("International Standard Code"), UnitOfMeasure.TableCaption));
-    end;
-
-    [Test]
     [HandlerFunctions('SuccessMsgHandler')]
     [Scope('OnPrem')]
     procedure NoAccCostCodeAddedInServCrMem()
@@ -869,28 +820,6 @@ codeunit 144111 "E-Invoice Service"
         Initialize;
 
         ServiceCrMemoWithNoOfVATGroups(2);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure ServiceCrMemoWithoutVATRegNo()
-    var
-        TempExpectedCustomerInfo: Record Customer temporary;
-        SalespersonPurchaser: Record "Salesperson/Purchaser";
-    begin
-        // [FEATURE] [Credit Memo]
-        // [SCENARIO 1.4.28] Customer without VAT Reg. No.
-        Initialize;
-
-        // [GIVEN] A customer with no VAT Reg. No.
-        EInvoiceHelper.InitExpectedCustomerInfo(TempExpectedCustomerInfo);
-        TempExpectedCustomerInfo."VAT Registration No." := '';
-        LibrarySales.CreateSalesperson(SalespersonPurchaser);
-
-        // [WHEN] User posts a service credit memo for that customer
-        // [THEN] An error is thrown.
-        asserterror EInvoiceServiceHelper.CreateServiceCrMemoWithCustomerAndSalesPerson(
-            TempExpectedCustomerInfo, SalespersonPurchaser.Code);
     end;
 
     [Test]

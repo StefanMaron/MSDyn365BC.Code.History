@@ -122,15 +122,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit E-Invoice Sales - NamedType SuccessfullyCreatedElectronicInvoiceMsg)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3655323664 - NamedType 3303674485" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[You must specify a valid %1 for the %2 for]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit E-Invoice Service - NamedType MissingUnitOfMeasureCodeErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 3655323664 - NamedType 13901620" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Successfully created ]]></Val>

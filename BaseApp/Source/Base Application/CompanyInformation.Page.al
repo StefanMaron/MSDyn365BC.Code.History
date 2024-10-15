@@ -79,6 +79,11 @@ Page 1 "Company Information"
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies your company in connection with electronic document exchange.';
                 }
+                field("Use GLN in Electronic Document"; "Use GLN in Electronic Document")
+                {
+                    ApplicationArea = BasicEU;
+                    ToolTip = 'Specifies whether the GLN is used in electronic documents as a party identification number.';
+                }
                 field("Industrial Classification"; "Industrial Classification")
                 {
                     ApplicationArea = Basic, Suite;

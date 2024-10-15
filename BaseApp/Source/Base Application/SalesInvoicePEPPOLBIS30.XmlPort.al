@@ -28,6 +28,17 @@ xmlport 1610 "Sales Invoice - PEPPOL BIS 3.0"
             {
                 NamespacePrefix = 'cbc';
             }
+            textelement(DueDate)
+            {
+                NamespacePrefix = 'cbc';
+
+                trigger OnBeforePassVariable()
+                begin
+                    DueDate := Format(SalesHeader."Due Date", 0, 9);
+                    if DueDate = '' then
+                        currXMLport.Skip();
+                end;
+            }
             textelement(InvoiceTypeCode)
             {
                 NamespacePrefix = 'cbc';
@@ -66,6 +77,17 @@ xmlport 1610 "Sales Invoice - PEPPOL BIS 3.0"
                         currXMLport.Skip;
                 end;
             }
+            textelement(BuyerReference)
+            {
+                NamespacePrefix = 'cbc';
+
+                trigger OnBeforePassVariable()
+                begin
+                    BuyerReference := SalesHeader."Your Reference";
+                    if BuyerReference = '' then
+                        currXMLport.Skip();
+                end;
+            }
             textelement(InvoicePeriod)
             {
                 NamespacePrefix = 'cac';
@@ -99,9 +121,12 @@ xmlport 1610 "Sales Invoice - PEPPOL BIS 3.0"
 
                 trigger OnBeforePassVariable()
                 begin
-                    PEPPOLMgt.GetOrderReferenceInfoBIS(
+                    PEPPOLMgt.GetOrderReferenceInfo(
                       SalesHeader,
                       OrderReferenceID);
+
+                    if OrderReferenceID = '' then
+                        currXMLport.Skip();
                 end;
             }
             textelement(ContractDocumentReference)
@@ -1064,13 +1089,9 @@ xmlport 1610 "Sales Invoice - PEPPOL BIS 3.0"
                       PrimaryAccountNumberID,
                       NetworkID);
 
-                    PEPPOLMgt.GetPaymentMeansPayeeFinancialAcc(
+                    PEPPOLMgt.GetPaymentMeansPayeeFinancialAccBIS(
                       PayeeFinancialAccountID,
-                      DummyVar,
-                      FinancialInstitutionBranchID,
-                      DummyVar,
-                      DummyVar,
-                      DummyVar);
+                      FinancialInstitutionBranchID);
                 end;
             }
             tableelement(pmttermsloop; Integer)
@@ -1929,27 +1950,20 @@ xmlport 1610 "Sales Invoice - PEPPOL BIS 3.0"
             }
 
             trigger OnAfterGetRecord()
-            var
-                TaxCurrencyCode: Text;
-                TaxCurrencyCodeListID: Text;
             begin
                 if not FindNextInvoiceRec(InvoiceHeaderLoop.Number) then
                     currXMLport.Break;
 
                 GetTotals;
 
-                PEPPOLMgt.GetGeneralInfo(
+                PEPPOLMgt.GetGeneralInfoBIS(
                   SalesHeader,
                   ID,
                   IssueDate,
                   InvoiceTypeCode,
-                  DummyVar,
                   Note,
                   TaxPointDate,
                   DocumentCurrencyCode,
-                  DummyVar,
-                  TaxCurrencyCode,
-                  TaxCurrencyCodeListID,
                   AccountingCost);
 
                 CustomizationID := GetCustomizationID;

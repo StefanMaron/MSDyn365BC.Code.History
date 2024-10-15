@@ -918,30 +918,147 @@ codeunit 134088 "ERM Pmt Disc for Cust/Vendor"
         ServHeader.TestField("Pmt. Discount Date", ExpectedPmtDiscDate);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesPmtDiscountDateWithGracePeriod()
+    var
+        PaymentTerms: Record "Payment Terms";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        GracePeriod: DateFormula;
+        ExpectedPmtDiscDate: Date;
+        DocumentDate: Date;
+        PostingDate: Date;
+        DocumentNo: Code[20];
+        ExpectedDiscountAmount: Decimal;
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 344532] Payment Discount Date should be calculated according to "Discount Date Calculation" of Payment Terms and "Payment Discount Grace Period" of general ledger setup
+        Initialize();
+
+        // [GIVEN] Payment Terms "X" with "Discount %" = 10, "Due Date Calculation" = 10 days, "Pmt. Discount Date Calculation" = 5 days
+        LibraryERM.CreatePaymentTermsDiscount(PaymentTerms, false);
+
+        // [GIVEN] "Payment Discount Grace Period" = 3D in General Ledger Setup
+        Evaluate(GracePeriod, '<' + Format(LibraryRandom.RandIntInRange(3, 10)) + 'D>');
+        LibraryPmtDiscSetup.SetPmtDiscGracePeriod(GracePeriod);
+
+        // [GIVEN] Sales Invoice with "Document Date" = January 1st and "Posting Date" = January 9th
+        // [GIVEN] Payment Terms "X" specified in invoice
+        // [GIVEN] "Pmt. Discount Date" = January 6th in invoice
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
+
+        ExpectedPmtDiscDate := CalcDate(PaymentTerms."Discount Date Calculation", SalesHeader."Posting Date");
+        SalesHeader.Validate("Payment Terms Code", PaymentTerms.Code);
+        SalesHeader.TestField("Pmt. Discount Date", ExpectedPmtDiscDate);
+
+        DocumentDate := WorkDate();
+        PostingDate := CalcDate(PaymentTerms."Discount Date Calculation", DocumentDate);
+        PostingDate := CalcDate(GracePeriod, PostingDate);
+        SalesHeader.Validate("Posting Date", PostingDate);
+        SalesHeader.Validate("Document Date", DocumentDate);
+        SalesHeader.Modify(true);
+
+        // [GIVEN] Amount = 1000 in invoice
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), 1);
+        SalesLine.Validate("Unit Price", LibraryRandom.RandIntInRange(100, 200));
+        SalesLine.Modify(true);
+
+        // [WHEN] Post invoice
+        DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [THEN] "Original Pmt. Disc. Possible" = 100 and "Remaining Pmt. Disc. Possible" = 100 in posted Customer Ledger Entry.
+        ExpectedDiscountAmount := Round(SalesLine."Amount Including VAT" * PaymentTerms."Discount %" / 100);
+
+        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, DocumentNo);
+        CustLedgerEntry.TestField("Original Pmt. Disc. Possible", ExpectedDiscountAmount);
+        CustLedgerEntry.TestField("Remaining Pmt. Disc. Possible", ExpectedDiscountAmount);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchPmtDiscountDateWithGracePeriod()
+    var
+        PaymentTerms: Record "Payment Terms";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        GracePeriod: DateFormula;
+        ExpectedPmtDiscDate: Date;
+        DocumentDate: Date;
+        PostingDate: Date;
+        DocumentNo: Code[20];
+        ExpectedDiscountAmount: Decimal;
+    begin
+        // [FEATURE] [Purchase]
+        // [SCENARIO 344532] Payment Discount Date should be calculated according to "Discount Date Calculation" of Payment Terms and "Payment Discount Grace Period" of general ledger setup
+        Initialize();
+
+        // [GIVEN] Payment Terms "X" with "Discount %" = 10, "Due Date Calculation" = 10 days, "Pmt. Discount Date Calculation" = 5 days
+        LibraryERM.CreatePaymentTermsDiscount(PaymentTerms, false);
+        // [GIVEN] "Payment Discount Grace Period" = 3D in General Ledger Setup
+        Evaluate(GracePeriod, '<' + Format(LibraryRandom.RandIntInRange(3, 10)) + 'D>');
+        LibraryPmtDiscSetup.SetPmtDiscGracePeriod(GracePeriod);
+
+        // [GIVEN] Sales Invoice with "Document Date" = January 1st and "Posting Date" = January 9th
+        // [GIVEN] Payment Terms "X" specified in invoice
+        // [GIVEN] "Pmt. Discount Date" = January 6th in invoice
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
+
+        ExpectedPmtDiscDate := CalcDate(PaymentTerms."Discount Date Calculation", PurchaseHeader."Posting Date");
+        PurchaseHeader.Validate("Payment Terms Code", PaymentTerms.Code);
+        PurchaseHeader.TestField("Pmt. Discount Date", ExpectedPmtDiscDate);
+
+        DocumentDate := WorkDate();
+        PostingDate := CalcDate(PaymentTerms."Discount Date Calculation", DocumentDate);
+        PostingDate := CalcDate(GracePeriod, PostingDate);
+        PurchaseHeader.Validate("Posting Date", PostingDate);
+        PurchaseHeader.Validate("Document Date", DocumentDate);
+        PurchaseHeader.Modify(true);
+
+        // [GIVEN] Amount = 1000 in invoice
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup(), 1);
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(100, 200));
+        PurchaseLine.Modify(true);
+
+        // [WHEN] Post invoice
+        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [THEN] "Original Pmt. Disc. Possible" = -100 and "Remaining Pmt. Disc. Possible" = -100 in posted Customer Ledger Entry.
+        ExpectedDiscountAmount := Round(PurchaseLine."Amount Including VAT" * PaymentTerms."Discount %" / 100);
+
+        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, DocumentNo);
+        VendorLedgerEntry.TestField("Original Pmt. Disc. Possible", -ExpectedDiscountAmount);
+        VendorLedgerEntry.TestField("Remaining Pmt. Disc. Possible", -ExpectedDiscountAmount);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryApplicationArea: Codeunit "Library - Application Area";
     begin
-        LibraryApplicationArea.EnableFoundationSetup;
-        LibraryVariableStorage.Clear;
-        LibrarySetupStorage.Restore;
+        LibraryApplicationArea.EnableFoundationSetup();
+        LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
         if isInitialized then
             exit;
 
         LibraryPurchase.SetInvoiceRounding(false);
         LibrarySales.SetInvoiceRounding(false);
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateAccountInVendorPostingGroups;
-        LibraryERMCountryData.UpdateAccountInCustomerPostingGroup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.RemoveBlankGenJournalTemplate;
-        LibraryERMCountryData.UpdateVATPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateAccountInVendorPostingGroups();
+        LibraryERMCountryData.UpdateAccountInCustomerPostingGroup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.RemoveBlankGenJournalTemplate();
+        LibraryERMCountryData.UpdateVATPostingSetup();
 
         FindUpdateVATPostingSetupVATPct(GetW1VATPct);
-        FindUpdateGeneralPostingSetupAccounts;
+        FindUpdateGeneralPostingSetupAccounts();
 
         isInitialized := true;
         Commit;
