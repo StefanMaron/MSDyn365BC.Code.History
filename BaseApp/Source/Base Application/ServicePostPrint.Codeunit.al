@@ -69,6 +69,7 @@ codeunit 5982 "Service-Post+Print"
     var
         EInvoiceExportServiceInvoice: Codeunit "E-Invoice Export Serv. Invoice";
         EInvoiceExportServiceCrMemo: Codeunit "E-Invoice Exp. Serv. Cr. Memo";
+        IsHandled: Boolean;
     begin
         with ServiceHeader do
             case "Document Type" of
@@ -77,7 +78,10 @@ codeunit 5982 "Service-Post+Print"
                         if Ship then begin
                             ServShptHeader."No." := "Last Shipping No.";
                             ServShptHeader.SetRecFilter;
-                            ServShptHeader.PrintRecords(false);
+                            IsHandled := false;
+                            OnBeforeServiceShipmentHeaderPrintRecords(ServShptHeader, IsHandled);
+                            if not IsHandled then
+                                ServShptHeader.PrintRecords(false);
                         end;
                         if Invoice then begin
                             ServInvHeader."No." := "Last Posting No.";
@@ -86,6 +90,10 @@ codeunit 5982 "Service-Post+Print"
                             if "E-Invoice" then
                                 if ServInvHeader.Find('=') then
                                     EInvoiceExportServiceInvoice.Run(ServInvHeader);
+                            IsHandled := false;
+                            OnBeforeServiceInvoiceHeaderPrintRecords(ServInvHeader, IsHandled);
+                            if not IsHandled then
+                                ServInvHeader.PrintRecords(false);
                         end;
                     end;
                 "Document Type"::Invoice:
@@ -99,6 +107,10 @@ codeunit 5982 "Service-Post+Print"
                         if "E-Invoice" then
                             if ServInvHeader.Find('=') then
                                 EInvoiceExportServiceInvoice.Run(ServInvHeader);
+                        IsHandled := false;
+                        OnBeforeServiceInvoiceHeaderPrintRecords(ServInvHeader, IsHandled);
+                        if not IsHandled then
+                            ServInvHeader.PrintRecords(false);
                     end;
                 "Document Type"::"Credit Memo":
                     begin
@@ -111,6 +123,10 @@ codeunit 5982 "Service-Post+Print"
                         if "E-Invoice" then
                             if ServCrMemoHeader.Find('=') then
                                 EInvoiceExportServiceCrMemo.Run(ServCrMemoHeader);
+                        IsHandled := false;
+                        OnBeforeServiceCrMemoHeaderPrintRecords(ServCrMemoHeader, IsHandled);
+                        if not IsHandled then
+                            ServCrMemoHeader.PrintRecords(false);
                     end;
             end;
     end;
@@ -127,6 +143,21 @@ codeunit 5982 "Service-Post+Print"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeConfirmPost(var ServiceHeader: Record "Service Header"; var HideDialog: Boolean; var Ship: Boolean; var Consume: Boolean; var Invoice: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeServiceCrMemoHeaderPrintRecords(var ServiceCrMemoHeader: Record "Service Cr.Memo Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeServiceInvoiceHeaderPrintRecords(var ServiceInvoiceHeader: Record "Service Invoice Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeServiceShipmentHeaderPrintRecords(var ServiceShipmentHeader: Record "Service Shipment Header"; var IsHandled: Boolean)
     begin
     end;
 }

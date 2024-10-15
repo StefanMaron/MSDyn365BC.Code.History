@@ -498,8 +498,13 @@ codeunit 1255 "Match Bank Payments"
         TextMapperMatched := false;
         if TextToAccMapping.FindSet then
             repeat
-                Nearness := RecordMatchMgt.CalculateStringNearness(RecordMatchMgt.Trim(TextToAccMapping."Mapping Text"),
-                    BankAccReconciliationLine."Transaction Text", StrLen(TextToAccMapping."Mapping Text"), GetNormalizingFactor);
+                Nearness := 0;
+                OnFindTextMappingsOnBeforeCalculateStringNearness(BankAccReconciliationLine, TextToAccMapping, Nearness);
+                if Nearness = 0 then
+                    Nearness :=
+                        RecordMatchMgt.CalculateStringNearness(
+                            RecordMatchMgt.Trim(TextToAccMapping."Mapping Text"),
+                            BankAccReconciliationLine."Transaction Text", StrLen(TextToAccMapping."Mapping Text"), GetNormalizingFactor);
 
                 case TextToAccMapping."Bal. Source Type" of
                     TextToAccMapping."Bal. Source Type"::"G/L Account":
@@ -1446,6 +1451,11 @@ codeunit 1255 "Match Bank Payments"
 
     [IntegrationEvent(false, false)]
     local procedure OnFindMatchingEntryOnBeforeDocumentMatching(var BankPmtApplRule: Record "Bank Pmt. Appl. Rule"; BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; TempLedgerEntryMatchingBuffer: Record "Ledger Entry Matching Buffer" temporary; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindTextMappingsOnBeforeCalculateStringNearness(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; var TextToAccountMapping: Record "Text-to-Account Mapping"; var Nearness: Integer);
     begin
     end;
 

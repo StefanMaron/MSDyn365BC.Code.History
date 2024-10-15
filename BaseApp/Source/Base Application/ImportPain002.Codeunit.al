@@ -191,7 +191,7 @@ codeunit 10636 "Import Pain002"
 
     local procedure GetStatusInfo(XmlNode: DotNet XmlNode; var CauseCode: Text; var CauseInfo: Text)
     begin
-        CauseCode := ImportSEPACommon.FindFirstNodeTxt(XmlNode, XmlNamespaceManagerPain002, './n:StsRsnInf/n:Rsn/n:Cd', true);
+        CauseCode := ImportSEPACommon.FindFirstNodeTxt(XmlNode, XmlNamespaceManagerPain002, './n:StsRsnInf/n:Rsn/n:Cd', false);
         CauseInfo := ImportSEPACommon.FindFirstNodeTxt(XmlNode, XmlNamespaceManagerPain002, './n:StsRsnInf/n:AddtlInf', false);
     end;
 

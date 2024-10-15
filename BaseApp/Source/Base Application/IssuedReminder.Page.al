@@ -279,11 +279,12 @@
                     ToolTip = 'Create one or more XML documents that you can send to the customer. You can run the batch job for multiple reminders or you can run it for an individual reminder. The document number is used as the file name. The files are stored at the location that has been specified in the Sales & Receivables Setup window.';
 
                     trigger OnAction()
+                    var
+                        ExportEHFReminder: Codeunit "Export EHF Reminder";
                     begin
                         IssuedReminderHeader := Rec;
-                        IssuedReminderHeader.SetRecFilter;
-
-                        REPORT.RunModal(REPORT::"Create Electronic Reminders", true, false, IssuedReminderHeader);
+                        CurrPage.SetSelectionFilter(IssuedReminderHeader);
+                        ExportEHFReminder.ExportEFHReminder30(IssuedReminderHeader, IssuedReminderHeader.GetView());
                     end;
                 }
             }
@@ -299,6 +300,8 @@
 
                 trigger OnAction()
                 begin
+                    IssuedReminderHeader := Rec;
+                    OnBeforePrintRecords(Rec, IssuedReminderHeader);
                     CurrPage.SetSelectionFilter(IssuedReminderHeader);
                     IssuedReminderHeader.PrintRecords(true, false, false);
                 end;
@@ -357,5 +360,10 @@
         IssuedReminderHeader: Record "Issued Reminder Header";
         CurrExchRate: Record "Currency Exchange Rate";
         ChangeExchangeRate: Page "Change Exchange Rate";
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePrintRecords(IssuedReminderHeaderRec: Record "Issued Reminder Header"; var IssuedReminderHeaderToPrint: Record "Issued Reminder Header")
+    begin
+    end;
 }
 

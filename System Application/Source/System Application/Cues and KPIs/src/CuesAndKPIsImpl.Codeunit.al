@@ -2,6 +2,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
+
 codeunit 9702 "Cues And KPIs Impl."
 {
     Permissions = TableData "Cue Setup" = r;
@@ -12,7 +13,6 @@ codeunit 9702 "Cues And KPIs Impl."
         CuesAndKPIs: Codeunit "Cues And KPIs";
         WrongThresholdsErr: Label '%1 must be greater than %2.', Comment = '%1 Upper threshold %2 Lower threshold';
 
-    [Scope('OnPrem')]
     procedure OpenCustomizePageForCurrentUser(TableId: Integer)
     var
         TempCueSetupRecord: Record "Cue Setup" temporary;
@@ -25,7 +25,6 @@ codeunit 9702 "Cues And KPIs Impl."
         PAGE.RunModal(PAGE::"Cue Setup End User", TempCueSetupRecord);
     end;
 
-    [Scope('OnPrem')]
     procedure PopulateTempCueSetupRecords(var TempCueSetupPageSourceRec: Record "Cue Setup" temporary)
     var
         CueSetup: Record "Cue Setup";
@@ -70,7 +69,6 @@ codeunit 9702 "Cues And KPIs Impl."
         end;
     end;
 
-    [Scope('OnPrem')]
     procedure CopyTempCueSetupRecordsToTable(var TempCueSetupPageSourceRec: Record "Cue Setup" temporary)
     var
         CueSetup: Record "Cue Setup";
@@ -81,11 +79,11 @@ codeunit 9702 "Cues And KPIs Impl."
                     CueSetup.TransferFields(TempCueSetupPageSourceRec);
                     if CueSetup.Find() then begin
                         CueSetup.TransferFields(TempCueSetupPageSourceRec);
-                        // Personalized field contains tempororaty property we never save it in the database.
+                        // Personalized field contains temporary property we never save it in the database.
                         CueSetup.Personalized := false;
                         CueSetup.Modify()
                     end else begin
-                        // Personalized field contains tempororaty property we never save it in the database.
+                        // Personalized field contains temporary property we never save it in the database.
                         CueSetup.Personalized := false;
                         CueSetup.Insert();
                     end;
@@ -98,7 +96,6 @@ codeunit 9702 "Cues And KPIs Impl."
         TempGlobalCueSetup.DeleteAll();
     end;
 
-    [Scope('OnPrem')]
     procedure ValidatePersonalizedField(var TempCueSetupPageSourceRec: Record "Cue Setup" temporary)
     var
         CueSetup: Record "Cue Setup";
@@ -154,7 +151,6 @@ codeunit 9702 "Cues And KPIs Impl."
         CueSetup := TempGlobalCueSetup;
     end;
 
-    [Scope('OnPrem')]
     procedure ConvertStyleToStyleText(Style: Enum "Cues And KPIs Style"): Text
     var
         Result: Text;
@@ -179,7 +175,6 @@ codeunit 9702 "Cues And KPIs Impl."
         end;
     end;
 
-    [Scope('OnPrem')]
     procedure ChangeUserForSetupEntry(var RecRef: RecordRef; Company: Text[30]; UserName: Text[50])
     var
         CueSetup: Record "Cue Setup";
@@ -189,7 +184,6 @@ codeunit 9702 "Cues And KPIs Impl."
         CueSetup.Rename(UserName, CueSetup."Table ID", CueSetup."Field No.");
     end;
 
-    [Scope('OnPrem')]
     procedure SetCueStyle(TableID: Integer; FieldID: Integer; Amount: Decimal; var FinalStyle: Enum "Cues And KPIs Style")
     var
         CueSetup: Record "Cue Setup";
@@ -257,7 +251,6 @@ codeunit 9702 "Cues And KPIs Impl."
         StyleText := ConvertStyleToStyleText(Style);
     end;
 
-    [Scope('OnPrem')]
     procedure ValidateThresholds(CueSetup: Record "Cue Setup")
     begin
         if CueSetup."Threshold 2" <= CueSetup."Threshold 1" then

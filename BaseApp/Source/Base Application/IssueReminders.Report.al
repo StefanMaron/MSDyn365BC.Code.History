@@ -14,7 +14,7 @@ report 190 "Issue Reminders"
             trigger OnAfterGetRecord()
             begin
                 if "E-Invoice" then
-                    CODEUNIT.Run(CODEUNIT::"E-Invoice Check Reminder", "Check Reminder Header");
+                    PEPPOLValidation.CheckReminder("No.");
             end;
         }
         dataitem("Reminder Header"; "Reminder Header")
@@ -158,6 +158,7 @@ report 190 "Issue Reminders"
         IssuedReminderHeader: Record "Issued Reminder Header";
         TempIssuedReminderHeader: Record "Issued Reminder Header" temporary;
         ReminderIssue: Codeunit "Reminder-Issue";
+        PEPPOLValidation: Codeunit "PEPPOL Validation";
         Window: Dialog;
         NoOfRecords: Integer;
         RecordNo: Integer;

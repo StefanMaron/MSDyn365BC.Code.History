@@ -392,6 +392,7 @@ codeunit 139155 "PEPPOL Management Tests"
         CompanyInfo: Record "Company Information";
         CountryRegion: Record "Country/Region";
         PEPPOLMgt: Codeunit "PEPPOL Management";
+        EInvoiceDocumentEncode: Codeunit "E-Invoice Document Encode";
         CompanyID: Text;
         CompanyIDSchemeID: Text;
         TaxSchemeID: Text;
@@ -411,7 +412,8 @@ codeunit 139155 "PEPPOL Management Tests"
         PEPPOLMgt.GetAccountingSupplierPartyTaxScheme(CompanyID, CompanyIDSchemeID, TaxSchemeID);
 
         // Verify
-        Assert.AreEqual(CompanyInfo."VAT Registration No.", CompanyID, '');
+        Assert.AreEqual(
+          CompanyInfo."Country/Region Code" + EInvoiceDocumentEncode.GetVATRegNo(CompanyInfo."VAT Registration No.",true), CompanyID, '');
         Assert.AreEqual(CountryRegion."VAT Scheme", CompanyIDSchemeID, '');
         Assert.AreEqual('VAT', TaxSchemeID, '');
     end;
@@ -925,6 +927,7 @@ codeunit 139155 "PEPPOL Management Tests"
     var
         DummySalesHeader: Record "Sales Header";
         PEPPOLMgt: Codeunit "PEPPOL Management";
+        DocumentTools: Codeunit DocumentTools;
         PaymentMeansCode: Text;
         PaymentMeansListID: Text;
         PaymentDueDate: Text;
@@ -948,7 +951,7 @@ codeunit 139155 "PEPPOL Management Tests"
         Assert.AreEqual('UNCL4461', PaymentMeansListID, '');
         Assert.AreEqual(Format(DummySalesHeader."Due Date", 0, 9), PaymentDueDate, '');
         Assert.AreEqual('', PaymentChannelCode, '');
-        Assert.AreEqual('', PaymentID, '');
+        Assert.AreEqual(DocumentTools.GetEInvoicePEPPOLPaymentID(DummySalesHeader), PaymentID, '');
         Assert.AreEqual('', PrimaryAccountNumberID, '');
         Assert.AreEqual('', NetworkID, '');
     end;
@@ -1100,6 +1103,7 @@ codeunit 139155 "PEPPOL Management Tests"
     var
         DummySalesHeader: Record "Sales Header";
         PEPPOLMgt: Codeunit "PEPPOL Management";
+        DocumentTools: Codeunit DocumentTools;
         PaymentMeansCode: Text;
         PaymentMeansListID: Text;
         PaymentDueDate: Text;
@@ -1123,7 +1127,7 @@ codeunit 139155 "PEPPOL Management Tests"
         Assert.AreEqual('UNCL4461', PaymentMeansListID, '');
         Assert.AreEqual(Format(DummySalesHeader."Due Date", 0, 9), PaymentDueDate, '');
         Assert.AreEqual('', PaymentChannelCode, '');
-        Assert.AreEqual('', PaymentID, '');
+        Assert.AreEqual(DocumentTools.GetEInvoicePEPPOLPaymentID(DummySalesHeader), PaymentID, '');
         Assert.AreEqual('', PrimaryAccountNumberID, '');
         Assert.AreEqual('', NetworkID, '');
     end;
@@ -1183,7 +1187,7 @@ codeunit 139155 "PEPPOL Management Tests"
 
         // Verify
         Assert.AreEqual('false', ChargeIndicator, '');
-        Assert.AreEqual('78', AllowanceChargeReasonCode, '');
+        Assert.AreEqual('104', AllowanceChargeReasonCode, '');
         Assert.AreEqual('UNCL4465', AllowanceChargeListID, '');
         Assert.AreEqual('Invoice Discount Amount', AllowanceChargeReason, '');
         Assert.AreEqual(Format(TempVATAmtLine."Invoice Discount Amount", 0, 9), Amount, '');
@@ -1423,6 +1427,46 @@ codeunit 139155 "PEPPOL Management Tests"
         Assert.RecordCount(TempVATAmountLine, 2);
         VerifyVATAmountLine(TempVATAmountLine, SalesLine, VATPostingSetup1);
         VerifyVATAmountLine(TempVATAmountLine, SalesLine, VATPostingSetup2);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure GetTotals_PositiveNegativeLines()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        Item: Record Item;
+        VATPostingSetup: Record "VAT Posting Setup";
+        TempVATAmountLine: Record "VAT Amount Line" temporary;
+        PEPPOLManagement: Codeunit "PEPPOL Management";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 340791] One TempVATAmountLines generated for the invoice with positive and negative lines of the same item
+        Initialize;
+
+        // [GIVEN] Item with Unit Price = 100 and VAT% = 25
+        CreateGenericItem(Item);
+        // [GIVEN] Sales Invoice with two lines of Quantity = 2 and Quantity = -1
+        // [GIVEN] Document Amount Incl VAT = 125, Amount = 100
+        CreateGenericSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandIntInRange(5, 10));
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", -LibraryRandom.RandIntInRange(1, 3));
+
+        // [WHEN] Invoke COD 1605 PEPPOLMgt.GetTotals for the Sales Invoice
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type"::Invoice);
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.FindFirst;
+        repeat
+            PEPPOLManagement.GetTotals(SalesLine, TempVATAmountLine);
+            TempVATAmountLine.TestField("VAT %", SalesLine."VAT %");
+            TempVATAmountLine.TestField("VAT Identifier", SalesLine."VAT Identifier");
+        until SalesLine.Next = 0;
+
+        // [THEN] One TempVATAmountLine generated for the Sales Invoice
+        // [THEN] TempVATAmountLine has VAT % = 25, Amount Incl. VAT = 125
+        VATPostingSetup.Get(SalesLine."VAT Bus. Posting Group", SalesLine."VAT Prod. Posting Group");
+        Assert.RecordCount(TempVATAmountLine, 1);
+        VerifyVATAmountLine(TempVATAmountLine, SalesLine, VATPostingSetup);
     end;
 
     [Test]
@@ -1707,7 +1751,7 @@ codeunit 139155 "PEPPOL Management Tests"
         Assert.AreEqual(SalesInvoiceLine."Description 2", Description, '');
         Assert.AreEqual(SalesInvoiceLine."No.", SellersItemIdentificationID, '');
         Assert.AreEqual(Item.GTIN, StandardItemIdentificationID, '');
-        Assert.AreEqual('GTIN', StdItemIdIDSchemeID, '');
+        Assert.AreEqual('0160', StdItemIdIDSchemeID, '');
         Assert.AreEqual('', OriginCountryIdCode, '');
         Assert.AreEqual('ISO3166-1:Alpha2', OriginCountryIdCodeListID, '');
     end;

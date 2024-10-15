@@ -432,11 +432,52 @@ codeunit 134378 "ERM Sales Order"
         VATPostingSetup: Record "VAT Posting Setup";
         BatchPostSalesOrders: Report "Batch Post Sales Orders";
         NoSeriesManagement: Codeunit NoSeriesManagement;
+        PostedSaleInvoiceNo: Code[20];
+    begin
+        // Setup: Create Sales Order.
+        Initialize;
+        LibrarySales.SetPostWithJobQueue(false);
+        LibrarySales.SetStockoutWarning(false);
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CreateCustomer);
+        LibrarySales.CreateSalesLine(
+          SalesLine, SalesHeader, SalesLine.Type::Item,
+          CreateItem(VATPostingSetup."VAT Prod. Posting Group"), LibraryRandom.RandInt(10));
+        PostedSaleInvoiceNo := NoSeriesManagement.GetNextNo(SalesHeader."Posting No. Series", WorkDate, false);
+        Commit;  // Must commit before running this particular batch job
+
+        // Exercise: Batch post sales order.
+        SalesHeader.SetRange("No.", SalesHeader."No.");
+        BatchPostSalesOrders.InitializeRequest(true, true, WorkDate, false, false, false);
+        BatchPostSalesOrders.SetTableView(SalesHeader);
+        BatchPostSalesOrders.UseRequestPage := false;
+        BatchPostSalesOrders.Run;
+
+        // Verify: Verify Posted Sales Invoice Header exists.
+        Assert.IsTrue(SalesInvoiceHeader.Get(PostedSaleInvoiceNo), 'Unable to find sales invoice header');
+
+        // Tear Down: Cleanup of Setup Done.
+        LibrarySales.SetStockoutWarning(true);
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    [Scope('OnPrem')]
+    procedure BatchPostSalesOrderBackground()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        VATPostingSetup: Record "VAT Posting Setup";
+        BatchPostSalesOrders: Report "Batch Post Sales Orders";
+        NoSeriesManagement: Codeunit NoSeriesManagement;
         LibraryJobQueue: Codeunit "Library - Job Queue";
         PostedSaleInvoiceNo: Code[20];
     begin
         // Setup: Create Sales Order.
         Initialize;
+        LibrarySales.SetPostWithJobQueue(true);
         BindSubscription(LibraryJobQueue);
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
         LibrarySales.SetStockoutWarning(false);

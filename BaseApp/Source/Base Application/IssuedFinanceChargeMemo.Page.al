@@ -268,10 +268,13 @@
                     ToolTip = 'Create one or more XML documents that you can send to the customer. You can run the batch job for multiple finance charge memos or you can run it for an individual finance charge memos. The document number is used as the file name. The files are stored at the location that has been specified in the Sales & Receivables Setup window.';
 
                     trigger OnAction()
+                    var
+                        IssuedFinChargeMemoHeader: Record "Issued Fin. Charge Memo Header";
+                        ExportEHFReminder: Codeunit "Export EHF Reminder";
                     begin
-                        IssuedFinChrgMemoHeader := Rec;
-                        IssuedFinChrgMemoHeader.SetRecFilter;
-                        REPORT.RunModal(REPORT::"Create Elec. Fin. Chrg. Memos", true, false, IssuedFinChrgMemoHeader);
+                        IssuedFinChargeMemoHeader := Rec;
+                        CurrPage.SetSelectionFilter(IssuedFinChargeMemoHeader);
+                        ExportEHFReminder.ExportEFHReminder30(IssuedFinChargeMemoHeader, IssuedFinChargeMemoHeader.GetView());
                     end;
                 }
             }

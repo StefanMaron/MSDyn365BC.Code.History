@@ -211,6 +211,34 @@ codeunit 1620 "PEPPOL Validation"
             until ServiceCrMemoLine.Next = 0;
     end;
 
+    procedure CheckReminder(ReminderNo: Code[20])
+    var
+        TempSalesHeader: Record "Sales Header" temporary;
+        TempSalesLine: Record "Sales Line" temporary;
+    begin
+        PEPPOLManagement.CopyReminder(TempSalesHeader, TempSalesLine, ReminderNo);
+        CheckReminderDocument(TempSalesHeader, TempSalesLine);
+    end;
+
+    procedure CheckFinChargeMemo(FinChargeMemoNo: Code[20])
+    var
+        TempSalesHeader: Record "Sales Header" temporary;
+        TempSalesLine: Record "Sales Line" temporary;
+    begin
+        PEPPOLManagement.CopyFinCharge(TempSalesHeader, TempSalesLine, FinChargeMemoNo);
+        CheckReminderDocument(TempSalesHeader, TempSalesLine);
+    end;
+
+    local procedure CheckReminderDocument(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
+    begin
+        CheckSalesDocument(SalesHeader);
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        if SalesLine.FindSet then
+            repeat
+                CheckSalesDocumentLine(SalesLine);
+            until SalesLine.Next = 0;
+    end;
+
     local procedure CheckCurrencyCode(CurrencyCode: Code[10])
     var
         GLSetup: Record "General Ledger Setup";

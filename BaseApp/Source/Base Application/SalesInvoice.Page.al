@@ -24,7 +24,7 @@
                     trigger OnAssistEdit()
                     begin
                         if AssistEdit(xRec) then
-                            CurrPage.Update;
+                            CurrPage.Update();
                     end;
                 }
                 field("Sell-to Customer No."; "Sell-to Customer No.")
@@ -34,12 +34,11 @@
                     Importance = Additional;
                     NotBlank = true;
                     ToolTip = 'Specifies the number of the customer who will receive the products and be billed by default.';
-                    Visible = NOT IsSaaS;
 
                     trigger OnValidate()
                     begin
                         SelltoCustomerNoOnAfterValidate(Rec, xRec);
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field("Sell-to Customer Name"; "Sell-to Customer Name")
@@ -60,7 +59,7 @@
                         if ApplicationAreaMgmtFacade.IsFoundationEnabled then
                             SalesCalcDiscountByType.ApplyDefaultInvoiceDiscount(0, Rec);
 
-                        CurrPage.Update;
+                        CurrPage.Update();
 
                         SellToCustomerUsesEInvoicing := CustomerUsesEInvoicing("Sell-to Customer No.");
                     end;
@@ -319,7 +318,7 @@
 
                     trigger OnValidate()
                     begin
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field("VAT Bus. Posting Group"; "VAT Bus. Posting Group")
@@ -334,7 +333,7 @@
                         if ApplicationAreaMgmtFacade.IsFoundationEnabled then
                             SalesCalcDiscountByType.ApplyDefaultInvoiceDiscount(0, Rec);
 
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field("Payment Terms Code"; "Payment Terms Code")
@@ -385,7 +384,7 @@
 
                     trigger OnValidate()
                     begin
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field("Shortcut Dimension 2 Code"; "Shortcut Dimension 2 Code")
@@ -395,7 +394,7 @@
 
                     trigger OnValidate()
                     begin
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field("Payment Discount %"; "Payment Discount %")
@@ -1493,13 +1492,11 @@
         ShowWorkflowStatus := CurrPage.WorkflowStatus.PAGE.SetFilterOnWorkflowRecord(RecordId);
 
         UpdatePaymentService;
+        SetControlAppearance;
     end;
 
     trigger OnAfterGetRecord()
     begin
-        ShowQuoteNo := "Quote No." <> '';
-
-        SetControlAppearance;
         WorkDescription := GetWorkDescription;
         UpdateShipToBillToGroupVisibility
     end;
@@ -1555,10 +1552,6 @@
         ActivateFields;
 
         SetDocNoVisible;
-        SetControlAppearance;
-
-        if "Quote No." <> '' then
-            ShowQuoteNo := true;
 
         if "No." = '' then
             if OfficeMgt.CheckForExistingInvoice("Sell-to Customer No.") then
@@ -1740,6 +1733,7 @@
         WorkflowWebhookMgt: Codeunit "Workflow Webhook Management";
     begin
         HasIncomingDocument := "Incoming Document Entry No." <> 0;
+        ShowQuoteNo := "Quote No." <> '';
         SetExtDocNoMandatoryCondition;
 
         OpenApprovalEntriesExistForCurrUser := ApprovalsMgmt.HasOpenApprovalEntriesForCurrentUser(RecordId);

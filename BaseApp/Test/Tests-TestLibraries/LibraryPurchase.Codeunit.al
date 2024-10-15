@@ -603,6 +603,20 @@ codeunit 130512 "Library - Purchase"
         PurchPostPrepayments.CreditMemo(PurchaseHeader);
     end;
 
+    procedure PostPurchasePrepaymentCreditMemo(var PurchaseHeader: Record "Purchase Header") DocumentNo: Code[20]
+    var
+        PurchPostPrepayments: Codeunit "Purchase-Post Prepayments";
+        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeriesCode: Code[20];
+    begin
+        NoSeriesCode := PurchaseHeader."Prepmt. Cr. Memo No. Series";
+        if PurchaseHeader."Prepmt. Cr. Memo No." = '' then
+            DocumentNo := NoSeriesMgt.GetNextNo(NoSeriesCode, LibraryUtility.GetNextNoSeriesPurchaseDate(NoSeriesCode), false)
+        else
+            DocumentNo := PurchaseHeader."Prepmt. Cr. Memo No.";
+        PurchPostPrepayments.CreditMemo(PurchaseHeader);
+    end;
+
     procedure PostPurchasePrepaymentInvoice(var PurchaseHeader: Record "Purchase Header") DocumentNo: Code[20]
     var
         PurchasePostPrepayments: Codeunit "Purchase-Post Prepayments";
@@ -770,6 +784,20 @@ codeunit 130512 "Library - Purchase"
         PurchasesPayablesSetup.Modify(true);
     end;
 
+    procedure SetDefaultPostingDateWorkDate()
+    begin
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup.Validate("Default Posting Date", PurchasesPayablesSetup."Default Posting Date"::"Work Date");
+        PurchasesPayablesSetup.Modify(true);
+    end;
+
+    procedure SetDefaultPostingDateNoDate()
+    begin
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup.Validate("Default Posting Date", PurchasesPayablesSetup."Default Posting Date"::"No Date");
+        PurchasesPayablesSetup.Modify(true);
+    end;
+
     procedure SetDiscountPosting(DiscountPosting: Option)
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
@@ -877,6 +905,15 @@ codeunit 130512 "Library - Purchase"
             Get;
             Validate("Return Order Nos.", LibraryERM.CreateNoSeriesCode);
             Validate("Posted Return Shpt. Nos.", LibraryERM.CreateNoSeriesCode);
+            Modify(true);
+        end;
+    end;
+
+    procedure SetCopyCommentsOrderToInvoiceInSetup(CopyCommentsOrderToInvoice: Boolean)
+    begin
+        with PurchasesPayablesSetup do begin
+            Get;
+            Validate("Copy Comments Order to Invoice", CopyCommentsOrderToInvoice);
             Modify(true);
         end;
     end;

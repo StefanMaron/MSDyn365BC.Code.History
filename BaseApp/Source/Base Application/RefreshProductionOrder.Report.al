@@ -62,41 +62,44 @@ report 99001025 "Refresh Production Order"
                 end else begin
                     ProdOrderLine.SetRange(Status, Status);
                     ProdOrderLine.SetRange("Prod. Order No.", "No.");
-                    if CalcRoutings or CalcComponents then begin
-                        if ProdOrderLine.Find('-') then
-                            repeat
-                                if CalcRoutings then begin
-                                    ProdOrderRtngLine.SetRange(Status, Status);
-                                    ProdOrderRtngLine.SetRange("Prod. Order No.", "No.");
-                                    ProdOrderRtngLine.SetRange("Routing Reference No.", ProdOrderLine."Routing Reference No.");
-                                    ProdOrderRtngLine.SetRange("Routing No.", ProdOrderLine."Routing No.");
-                                    if ProdOrderRtngLine.FindSet(true) then
-                                        repeat
-                                            ProdOrderRtngLine.SetSkipUpdateOfCompBinCodes(true);
-                                            ProdOrderRtngLine.Delete(true);
-                                        until ProdOrderRtngLine.Next = 0;
-                                end;
-                                if CalcComponents then begin
-                                    ProdOrderComp.SetRange(Status, Status);
-                                    ProdOrderComp.SetRange("Prod. Order No.", "No.");
-                                    ProdOrderComp.SetRange("Prod. Order Line No.", ProdOrderLine."Line No.");
-                                    ProdOrderComp.DeleteAll(true);
-                                end;
-                            until ProdOrderLine.Next = 0;
-                        if ProdOrderLine.Find('-') then
-                            repeat
-                                if CalcComponents then
-                                    CheckProductionBOMStatus(ProdOrderLine."Production BOM No.", ProdOrderLine."Production BOM Version Code");
-                                if CalcRoutings then
-                                    CheckRoutingStatus(ProdOrderLine."Routing No.", ProdOrderLine."Routing Version Code");
-                                ProdOrderLine."Due Date" := "Due Date";
-                                IsHandled := false;
-                                OnBeforeCalcProdOrderLine(ProdOrderLine, Direction, CalcLines, CalcRoutings, CalcComponents, IsHandled, ErrorOccured);
-                                if not IsHandled then
-                                    if not CalcProdOrder.Calculate(ProdOrderLine, Direction, CalcRoutings, CalcComponents, false, false) then
-                                        ErrorOccured := true;
-                            until ProdOrderLine.Next = 0;
-                    end;
+                    IsHandled := false;
+                    OnBeforeCalcRoutingsOrComponents("Production Order", ProdOrderLine, CalcComponents, CalcRoutings, IsHandled);
+                    if not IsHandled then
+                        if CalcRoutings or CalcComponents then begin
+                            if ProdOrderLine.Find('-') then
+                                repeat
+                                    if CalcRoutings then begin
+                                        ProdOrderRtngLine.SetRange(Status, Status);
+                                        ProdOrderRtngLine.SetRange("Prod. Order No.", "No.");
+                                        ProdOrderRtngLine.SetRange("Routing Reference No.", ProdOrderLine."Routing Reference No.");
+                                        ProdOrderRtngLine.SetRange("Routing No.", ProdOrderLine."Routing No.");
+                                        if ProdOrderRtngLine.FindSet(true) then
+                                            repeat
+                                                ProdOrderRtngLine.SetSkipUpdateOfCompBinCodes(true);
+                                                ProdOrderRtngLine.Delete(true);
+                                            until ProdOrderRtngLine.Next = 0;
+                                    end;
+                                    if CalcComponents then begin
+                                        ProdOrderComp.SetRange(Status, Status);
+                                        ProdOrderComp.SetRange("Prod. Order No.", "No.");
+                                        ProdOrderComp.SetRange("Prod. Order Line No.", ProdOrderLine."Line No.");
+                                        ProdOrderComp.DeleteAll(true);
+                                    end;
+                                until ProdOrderLine.Next = 0;
+                            if ProdOrderLine.Find('-') then
+                                repeat
+                                    if CalcComponents then
+                                        CheckProductionBOMStatus(ProdOrderLine."Production BOM No.", ProdOrderLine."Production BOM Version Code");
+                                    if CalcRoutings then
+                                        CheckRoutingStatus(ProdOrderLine."Routing No.", ProdOrderLine."Routing Version Code");
+                                    ProdOrderLine."Due Date" := "Due Date";
+                                    IsHandled := false;
+                                    OnBeforeCalcProdOrderLine(ProdOrderLine, Direction, CalcLines, CalcRoutings, CalcComponents, IsHandled, ErrorOccured);
+                                    if not IsHandled then
+                                        if not CalcProdOrder.Calculate(ProdOrderLine, Direction, CalcRoutings, CalcComponents, false, false) then
+                                            ErrorOccured := true;
+                                until ProdOrderLine.Next = 0;
+                        end;
                 end;
                 if (Direction = Direction::Backward) and
                    ("Source Type" = "Source Type"::Family)
@@ -374,6 +377,11 @@ report 99001025 "Refresh Production Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcProdOrderLines(var ProductionOrder: Record "Production Order"; Direction: Option Forward,Backward; CalcLines: Boolean; CalcRoutings: Boolean; CalcComponents: Boolean; var IsHandled: Boolean; var ErrorOccured: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcRoutingsOrComponents(var ProductionOrder: Record "Production Order"; var ProdOrderLine: Record "Prod. Order Line"; var CalcComponents: Boolean; var CalcRoutings: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

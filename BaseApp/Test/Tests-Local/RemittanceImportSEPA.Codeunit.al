@@ -27,6 +27,7 @@ codeunit 144136 "Remittance - Import SEPA"
         ConfirmImportQst: Label 'Return data for the file "%1" are imported correctly:\Approved: %2.\Rejected: %3.\Settled: %4.\\%4 settled payments are transferred to payment journal.', Comment = 'Parameter 1 - file name, 2, 3, 4 - integer numbers.';
         ConfirmImportExchRateQst: Label 'Return data in the file to be imported has a different currency exchange rate than one in a waiting journal. This may lead to gain/loss detailed ledger entries during application.\\do you want to continue?';
         ImportCancelledErr: Label 'Import is cancelled.';
+        TransactionRejectedMsg: Label 'The transaction was rejected.';
 
     [Test]
     [HandlerFunctions('SuggestRemittancePaymentsHandler,RemittanceMessageHandler')]
@@ -1071,18 +1072,176 @@ codeunit 144136 "Remittance - Import SEPA"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('SuggestRemittancePaymentsHandler,RemittanceMessageHandler,ImportRemittancePaymentOrderRequestPageHandler,ImportPaymentsConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure ImportRejectedPain002FileWithReasonAndAdditionalInfo()
+    var
+        TempNameValueBuffer: Record "Name/Value Buffer" temporary;
+        RemittanceAgreement: Record "Remittance Agreement";
+        RemittanceAccount: Record "Remittance Account";
+        Vendor: Record Vendor;
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        WaitingJournal: Record "Waiting Journal";
+        DocumentNo: Code[20];
+        FilePath: Text;
+        ReasonText: Text;
+        AdditionalInfo: Text;
+        Amount: Decimal;
+        BatchName: Code[10];
+        OldDate: Date;
+    begin
+        // [SCENARIO 341733] Stan can import the rejected pain.002 file with both status reason and additional information
+
+        Initialize;
+        OldDate := UpdateWorkdate(Today);
+        LibraryRemittance.SetupForeignRemittancePayment(
+          RemittanceAgreement."Payment System"::"Other bank",
+          RemittanceAgreement,
+          RemittanceAccount,
+          Vendor,
+          GenJournalLine, true);
+        UpdateSetupForBankAndExport(GenJournalLine, RemittanceAccount, DocumentNo, Vendor, BatchName, Amount);
+        GenJournalBatch.Get(GenJournalLine."Journal Template Name", BatchName);
+        ClearAllGenJournalLines(GenJournalBatch);
+
+        // [GIVEN] Rejected Pain.002 file with the reason code "X" and additional information text "Y"
+        ReasonText := LibraryUtility.GenerateGUID;
+        AdditionalInfo := LibraryUtility.GenerateGUID;
+        AddToNameValueBuffer(TempNameValueBuffer, '        <StsRsnInf>');
+        AddToNameValueBuffer(TempNameValueBuffer, '          <Rsn>');
+        AddToNameValueBuffer(TempNameValueBuffer, StrSubstNo('            <Cd>%1</Cd>', ReasonText));
+        AddToNameValueBuffer(TempNameValueBuffer, '          </Rsn>');
+        AddToNameValueBuffer(TempNameValueBuffer, StrSubstNo('          <AddtlInf>%1</AddtlInf>', AdditionalInfo));
+        AddToNameValueBuffer(TempNameValueBuffer, '        </StsRsnInf>');
+
+        FilePath := GeneratePain002FileWithCustomStatusInfo(TempNameValueBuffer);
+        LibraryRemittance.CreateReturnFileSetupEntry(RemittanceAgreement.Code, FilePath);
+
+        // [GIVEN] Import the rejected file from the bank
+        ImportRemittancePaymentOrderFile(BatchName, ConfirmToImportTheLines, FilePath, 0, 1, 0);
+
+        // [THEN] Return error log contains the following message text: Code: X Message: "Y"
+        GetWaitingJournal(WaitingJournal);
+        VerifyReturnError(WaitingJournal.Reference, StrSubstNo('Code: %1 Message: "%2".', ReasonText, AdditionalInfo));
+
+        Cleanup(FilePath, OldDate);
+    end;
+
+    [Test]
+    [HandlerFunctions('SuggestRemittancePaymentsHandler,RemittanceMessageHandler,ImportRemittancePaymentOrderRequestPageHandler,ImportPaymentsConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure ImportRejectedPain002FileWithoutStatusReason()
+    var
+        TempNameValueBuffer: Record "Name/Value Buffer" temporary;
+        RemittanceAgreement: Record "Remittance Agreement";
+        RemittanceAccount: Record "Remittance Account";
+        Vendor: Record Vendor;
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        WaitingJournal: Record "Waiting Journal";
+        DocumentNo: Code[20];
+        FilePath: Text;
+        AdditionalInfo: Text;
+        Amount: Decimal;
+        BatchName: Code[10];
+        OldDate: Date;
+    begin
+        // [SCENARIO 341733] Stan can import the rejected pain.002 file with no status reason in the element <StsRsnInf>\<Rsn>\<Cd>
+
+        Initialize;
+        OldDate := UpdateWorkdate(Today);
+        LibraryRemittance.SetupForeignRemittancePayment(
+          RemittanceAgreement."Payment System"::"Other bank",
+          RemittanceAgreement,
+          RemittanceAccount,
+          Vendor,
+          GenJournalLine, true);
+        UpdateSetupForBankAndExport(GenJournalLine, RemittanceAccount, DocumentNo, Vendor, BatchName, Amount);
+        GenJournalBatch.Get(GenJournalLine."Journal Template Name", BatchName);
+        ClearAllGenJournalLines(GenJournalBatch);
+
+        // [GIVEN] Rejected Pain.002 file with the additional information text "Y" and without the reason of failure
+        AdditionalInfo := LibraryUtility.GenerateGUID;
+        AddToNameValueBuffer(TempNameValueBuffer, '        <StsRsnInf>');
+        AddToNameValueBuffer(TempNameValueBuffer, StrSubstNo('          <AddtlInf>%1</AddtlInf>', AdditionalInfo));
+        AddToNameValueBuffer(TempNameValueBuffer, '        </StsRsnInf>');
+        FilePath := GeneratePain002FileWithCustomStatusInfo(TempNameValueBuffer);
+        LibraryRemittance.CreateReturnFileSetupEntry(RemittanceAgreement.Code, FilePath);
+
+        // [GIVEN] Import the rejected file from the bank
+        ImportRemittancePaymentOrderFile(BatchName, ConfirmToImportTheLines, FilePath, 0, 1, 0);
+
+        // [THEN] Return error log contains the following message text: Message: "Y"
+        GetWaitingJournal(WaitingJournal);
+        VerifyReturnError(WaitingJournal.Reference, StrSubstNo('Message: "%1".', AdditionalInfo));
+
+        Cleanup(FilePath, OldDate);
+    end;
+
+    [Test]
+    [HandlerFunctions('SuggestRemittancePaymentsHandler,RemittanceMessageHandler,ImportRemittancePaymentOrderRequestPageHandler,ImportPaymentsConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure ImportRejectedPain002FileWithoutStatusInfo()
+    var
+        TempNameValueBuffer: Record "Name/Value Buffer" temporary;
+        RemittanceAgreement: Record "Remittance Agreement";
+        RemittanceAccount: Record "Remittance Account";
+        Vendor: Record Vendor;
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        WaitingJournal: Record "Waiting Journal";
+        DocumentNo: Code[20];
+        FilePath: Text;
+        Amount: Decimal;
+        BatchName: Code[10];
+        OldDate: Date;
+    begin
+        // [SCENARIO 341733] Stan can import the rejected pain.002 file with no status information
+
+        Initialize;
+        OldDate := UpdateWorkdate(Today);
+        LibraryRemittance.SetupForeignRemittancePayment(
+          RemittanceAgreement."Payment System"::"Other bank",
+          RemittanceAgreement,
+          RemittanceAccount,
+          Vendor,
+          GenJournalLine, true);
+        UpdateSetupForBankAndExport(GenJournalLine, RemittanceAccount, DocumentNo, Vendor, BatchName, Amount);
+        GenJournalBatch.Get(GenJournalLine."Journal Template Name", BatchName);
+        ClearAllGenJournalLines(GenJournalBatch);
+
+        // [GIVEN] Rejected Pain.002 file with no status information in the nodes StsRsnInf
+        AddToNameValueBuffer(TempNameValueBuffer, '        <StsRsnInf>');
+        AddToNameValueBuffer(TempNameValueBuffer, '        </StsRsnInf>');
+        FilePath := GeneratePain002FileWithCustomStatusInfo(TempNameValueBuffer);
+        LibraryRemittance.CreateReturnFileSetupEntry(RemittanceAgreement.Code, FilePath);
+
+        // [GIVEN] Import the rejected file from the bank
+        ImportRemittancePaymentOrderFile(BatchName, ConfirmToImportTheLines, FilePath, 0, 1, 0);
+
+        // [THEN] Return error log contains the following message text: The transaction was rejected.
+        GetWaitingJournal(WaitingJournal);
+        VerifyReturnError(WaitingJournal.Reference, TransactionRejectedMsg);
+
+        Cleanup(FilePath, OldDate);
+    end;
+
     local procedure Initialize()
     var
         WaitingJournal: Record "Waiting Journal";
         ReturnFileSetup: Record "Return File Setup";
         VendorBankAccount: Record "Vendor Bank Account";
         Vendor: Record Vendor;
+        ReturnError: Record "Return Error";
     begin
         LibraryVariableStorage.Clear;
         WaitingJournal.DeleteAll();
         ReturnFileSetup.DeleteAll();
         VendorBankAccount.DeleteAll();
         Vendor.DeleteAll();
+        ReturnError.DeleteAll;
 
         LibraryERMCountryData.UpdateLocalData;
         LibrarySetupStorage.Restore();
@@ -1221,19 +1380,30 @@ codeunit 144136 "Remittance - Import SEPA"
 
     local procedure GeneratePain002File(StatusCode: Text[50]): Text
     var
+        ServerTemplateFileName: Text;
+    begin
+        ServerTemplateFileName := FileMgt.ServerTempFileName('xml');
+        WritePainFileToDisk(ServerTemplateFileName);
+        exit(ChangePaint002XMLContentAndSave(ServerTemplateFileName, StatusCode));
+    end;
+
+    local procedure GeneratePain002FileWithCustomStatusInfo(var TempNameValueBuffer: Record "Name/Value Buffer" temporary): Text
+    var
+        ServerTemplateFileName: Text;
+    begin
+        ServerTemplateFileName := FileMgt.ServerTempFileName('xml');
+        WritePainFileCustStatusInfoToDisk(TempNameValueBuffer, ServerTemplateFileName);
+        exit(ChangePaint002XMLContentAndSave(ServerTemplateFileName, 'RJCT'));
+    end;
+
+    local procedure ChangePaint002XMLContentAndSave(ServerTemplateFileName: Text; StatusCode: Text[50]): Text
+    var
         WaitingJournal: Record "Waiting Journal";
         XMLBuffer: Record "XML Buffer";
-        ServerTemplateFileName: Text;
         ServerFileName: Text;
         ClientFileName: Text;
     begin
         GetWaitingJournal(WaitingJournal);
-
-        ServerFileName := FileMgt.ServerTempFileName('xml');
-
-        ServerTemplateFileName := FileMgt.ServerTempFileName('xml');
-        WritePainFileToDisk(ServerTemplateFileName);
-
         XMLBuffer.Reset();
         XMLBuffer.DeleteAll();
         XMLBuffer.Load(ServerTemplateFileName);
@@ -1247,6 +1417,7 @@ codeunit 144136 "Remittance - Import SEPA"
 
         XMLBuffer.Reset();
         XMLBuffer.FindFirst();
+        ServerFileName := FileMgt.ServerTempFileName('xml');
         XMLBuffer.Save(ServerFileName);
 
         ClientFileName := FileMgt.ClientTempFileName('xml');
@@ -1463,6 +1634,14 @@ codeunit 144136 "Remittance - Import SEPA"
         ImportCAMT054.ImportAndHandleCAMT054File(GenJournalLine, COPYSTR(FileName, 1, 250), '');
     end;
 
+    local procedure AddToNameValueBuffer(var TempNameValueBuffer: Record "Name/Value Buffer" temporary; Name: Text)
+    begin
+        TempNameValueBuffer.Init;
+        TempNameValueBuffer.ID += 1;
+        TempNameValueBuffer.Name := CopyStr(Name, 1, MaxStrLen(TempNameValueBuffer.Name));
+        TempNameValueBuffer.Insert;
+    end;
+
     local procedure VerifyImportedLinesInternational(BatchName: Code[10]; TemplateName: Code[10]; ExtDocumentNo: Code[35]; PostingDate: Date; DocumentNo: Code[20]; VendorAccountNo: Code[20]; RemittanceAccount: Record "Remittance Account"; Amount: Decimal)
     var
         GenJournalLine: Record "Gen. Journal Line";
@@ -1664,6 +1843,61 @@ codeunit 144136 "Remittance - Import SEPA"
         WriteLine(OutStream, '  </CstmrPmtStsRpt>');
         WriteLine(OutStream, '</Document>');
         OutFile.Close();
+    end;
+
+    local procedure WritePainFileCustStatusInfoToDisk(var TempNameValueBuffer: Record "Name/Value Buffer" temporary; Destination: Text)
+    var
+        OutFile: File;
+        OutStream: OutStream;
+    begin
+        OutFile.TextMode(true);
+        OutFile.Create(Destination);
+        OutFile.CreateOutStream(OutStream);
+
+        WriteLine(OutStream, '<?xml version="1.0" encoding="UTF-8"?>');
+        WriteLine(OutStream, '<Document xmlns="urn:iso:std:iso:20022:tech:xsd:pain.002.001.03">');
+        WriteLine(OutStream, '  <CstmrPmtStsRpt>');
+        WriteLine(OutStream, '    <GrpHdr>');
+        WriteLine(OutStream, '      <MsgId>XML990920160222150337602</MsgId>');
+        WriteLine(OutStream, '      <CreDtTm>2019-01-22T14:03:37Z</CreDtTm>');
+        WriteLine(OutStream, '      <InitgPty>');
+        WriteLine(OutStream, '        <Id>');
+        WriteLine(OutStream, '          <OrgId>');
+        WriteLine(OutStream, '            <Othr>');
+        WriteLine(OutStream, '              <Id>NDEATEST</Id>');
+        WriteLine(OutStream, '              <SchmeNm>');
+        WriteLine(OutStream, '                <Cd>BANK</Cd>');
+        WriteLine(OutStream, '              </SchmeNm>');
+        WriteLine(OutStream, '            </Othr>');
+        WriteLine(OutStream, '            <Othr>');
+        WriteLine(OutStream, '              <Id>7771627073</Id>');
+        WriteLine(OutStream, '              <SchmeNm>');
+        WriteLine(OutStream, '                <Cd>CUST</Cd>');
+        WriteLine(OutStream, '              </SchmeNm>');
+        WriteLine(OutStream, '            </Othr>');
+        WriteLine(OutStream, '          </OrgId>');
+        WriteLine(OutStream, '        </Id>');
+        WriteLine(OutStream, '      </InitgPty>');
+        WriteLine(OutStream, '    </GrpHdr>');
+        WriteLine(OutStream, '    <OrgnlGrpInfAndSts>');
+        WriteLine(OutStream, '      <OrgnlMsgId>1037</OrgnlMsgId>');
+        WriteLine(OutStream, '      <OrgnlMsgNmId>pain.001.001.03</OrgnlMsgNmId>');
+        WriteLine(OutStream, '    </OrgnlGrpInfAndSts>');
+        WriteLine(OutStream, '    <OrgnlPmtInfAndSts>');
+        WriteLine(OutStream, '      <OrgnlPmtInfId>1037/1</OrgnlPmtInfId>');
+        WriteLine(OutStream, '      <TxInfAndSts>');
+        WriteLine(OutStream, '        <OrgnlInstrId>G04001</OrgnlInstrId>');
+        WriteLine(OutStream, '        <OrgnlEndToEndId>1037/1</OrgnlEndToEndId>');
+        WriteLine(OutStream, '        <TxSts>ACSC</TxSts>');
+        TempNameValueBuffer.FindSet;
+        repeat
+            WriteLine(OutStream, TempNameValueBuffer.Name);
+        until TempNameValueBuffer.Next = 0;
+        WriteLine(OutStream, '      </TxInfAndSts>        ');
+        WriteLine(OutStream, '    </OrgnlPmtInfAndSts>');
+        WriteLine(OutStream, '  </CstmrPmtStsRpt>');
+        WriteLine(OutStream, '</Document>');
+        OutFile.Close;
     end;
 
     local procedure WriteCamtFiletoDisk(WaitingJournal: Record "Waiting Journal"; Date: Date; Sts: Text): Text
@@ -1922,6 +2156,15 @@ codeunit 144136 "Remittance - Import SEPA"
     begin
         OutStream.WriteText(Text);
         OutStream.WriteText();
+    end;
+
+    local procedure VerifyReturnError(WaitingJournalReference: Integer; ExpectedMessageText: Text)
+    var
+        ReturnError: Record "Return Error";
+    begin
+        ReturnError.SetRange("Waiting Journal Reference", WaitingJournalReference);
+        ReturnError.FindFirst;
+        ReturnError.TestField("Message Text", ExpectedMessageText);
     end;
 
     [RequestPageHandler]

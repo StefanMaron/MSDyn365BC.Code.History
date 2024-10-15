@@ -1,4 +1,4 @@
-page 452 "Issued Fin. Charge Memo List"
+﻿page 452 "Issued Fin. Charge Memo List"
 {
     ApplicationArea = Suite;
     Caption = 'Issued Finance Charge Memos';
@@ -150,11 +150,11 @@ page 452 "Issued Fin. Charge Memo List"
                     trigger OnAction()
                     var
                         IssuedFinChargeMemoHeader: Record "Issued Fin. Charge Memo Header";
+                        ExportEHFReminder: Codeunit "Export EHF Reminder";
                     begin
                         IssuedFinChargeMemoHeader := Rec;
-                        IssuedFinChargeMemoHeader.SetRecFilter;
-
-                        REPORT.RunModal(REPORT::"Create Elec. Fin. Chrg. Memos", true, false, IssuedFinChargeMemoHeader);
+                        CurrPage.SetSelectionFilter(IssuedFinChargeMemoHeader);
+                        ExportEHFReminder.ExportEFHReminder30(IssuedFinChargeMemoHeader, IssuedFinChargeMemoHeader.GetView());
                     end;
                 }
             }

@@ -13,6 +13,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
     var
         LibraryERM: Codeunit "Library - ERM";
         LibrarySales: Codeunit "Library - Sales";
+        LibraryInventory: Codeunit "Library - Inventory";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryDimension: Codeunit "Library - Dimension";
@@ -1382,20 +1383,22 @@ codeunit 134076 "ERM Suggest Vendor Payment"
     end;
 
     [Test]
-    [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure CreatePaymentWhenBatchNotExists()
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalTemplate: Record "Gen. Journal Template";
+        TempGenJournalTemplate: Record "Gen. Journal Template" temporary;
         CreatePayment: TestPage "Create Payment";
     begin
         // [FEATURE] [UI] [Create Payment]
         // [SCENARIO 294543] When run page Create Payment for non-existent Batch, then no error and Batch Name is cleared on page
         Initialize;
-        GenJournalTemplate.DeleteAll;
 
-        // [GIVEN] Created Gen. Journal Batch with payment Template
+        // [GIVEN] Gen. Journal Template of type Payment has Gen. Journal Batch "B"
+        GenJournalTemplate.SetRange(Type, GenJournalTemplate.Type::Payments);
+        SaveGeneralTemplates(GenJournalTemplate, TempGenJournalTemplate);
+        GenJournalTemplate.DeleteAll;
         LibraryJournals.CreateGenJournalBatchWithType(GenJournalBatch, GenJournalBatch."Template Type"::Payments);
 
         // [GIVEN] Ran page Create Payment, set Batch Name and pushed OK
@@ -1411,31 +1414,40 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         CreatePayment.OpenEdit;
 
         // [THEN] Page Create Payment shows Batch Name = Blank
-        Assert.AreEqual('', Format(CreatePayment."Batch Name"), '');
+        GenJournalBatch.FindFirst;
+        Assert.AreEqual(GenJournalBatch.Name, Format(CreatePayment."Batch Name"), '');
+
         CreatePayment.Close;
+        RestoreGeneralTemplates(TempGenJournalTemplate, GenJournalTemplate);
     end;
 
     [Test]
-    [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure CreatePaymentWhenTemplateNotExists()
     var
+        GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalTemplate: Record "Gen. Journal Template";
+        TempGenJournalTemplate: Record "Gen. Journal Template" temporary;
         CreatePayment: TestPage "Create Payment";
     begin
         // [FEATURE] [UI] [Create Payment]
         // [SCENARIO 294543] When run page Create Payment and no Gen. Journal Templates exist, then no error and Batch Name is cleared on page
         Initialize;
 
-        // [GIVEN] Removed all Gen. Journal Templates
+        // [GIVEN] Gen. Journal Templates don't exist
+        GenJournalTemplate.SetRange(Type, GenJournalTemplate.Type::Payments);
+        SaveGeneralTemplates(GenJournalTemplate, TempGenJournalTemplate);
         GenJournalTemplate.DeleteAll;
 
         // [WHEN] Run page Create Payment
         CreatePayment.OpenEdit;
 
         // [THEN] Page Create Payment shows Batch Name = Blank
-        Assert.AreEqual('', Format(CreatePayment."Batch Name"), '');
+        GenJournalBatch.FindFirst;
+        Assert.AreEqual(GenJournalBatch.Name, Format(CreatePayment."Batch Name"), '');
+
         CreatePayment.Close;
+        RestoreGeneralTemplates(TempGenJournalTemplate, GenJournalTemplate);
     end;
 
     [Test]
@@ -1453,7 +1465,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         // [SCENARIO 297928] Choosing Batch name on Create Payment page leads to "Starting Document No." being equal to increment of last Gen. Journal Line's "Document No."
         Initialize;
 
-        // [GIVEN] Gen. Journal Batch "B" with No. Series
+        // [GIVEN] Gen. Journal Template of type Payment has Gen. Journal Batch "B" with No. Series
         LibraryUtility.CreateNoSeries(NoSeries, false, false, false);
         LibraryUtility.CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, '', '');
         CreateGeneralJournalBatch(GenJournalBatch, GenJournalTemplate.Type::Payments);
@@ -1466,6 +1478,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
 
         // [WHEN] On Create Payment page "Batch name" is set to "B"
         CreatePayment.OpenEdit;
+        CreatePayment."Template Name".SetValue(GenJournalBatch."Journal Template Name");
         CreatePayment."Batch Name".SetValue(GenJournalBatch.Name);
 
         // [THEN] "Starting Document No." is equal to 101
@@ -1570,6 +1583,271 @@ codeunit 134076 "ERM Suggest Vendor Payment"
 
         // [THEN] Second payment journal line exist with amount = A3
         VerifySuggestedLineWithAmount(GenJournalBatch."Journal Template Name",GenJournalBatch.Name,InvoiceAmount[3]);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CreatePaymentWithOneLineInGeneralTemplate()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalTemplate: Record "Gen. Journal Template";
+        TempGenJournalTemplate: Record "Gen. Journal Template" temporary;
+        CreatePayment: TestPage "Create Payment";
+    begin
+        // [FEATURE] [UI] [Create Payment]
+        // [SCENARIO 332052] Run page Create Payment for one General Template
+        Initialize;
+
+        // [GIVEN] Gen. Journal Template of type Payment has Gen. Journal Batch "B"
+        GenJournalTemplate.SetRange(Type, GenJournalTemplate.Type::Payments);
+        SaveGeneralTemplates(GenJournalTemplate, TempGenJournalTemplate);
+        GenJournalTemplate.DeleteAll;
+        LibraryJournals.CreateGenJournalBatchWithType(GenJournalBatch, GenJournalBatch."Template Type"::Payments);
+
+        // [WHEN] Run page Create Payment
+        CreatePayment.OpenEdit;
+
+        // [THEN] Page Create Payment shows "B" in field Batch Name
+        Assert.AreEqual(GenJournalBatch.Name, Format(CreatePayment."Batch Name"), '');
+
+        CreatePayment.Close;
+        RestoreGeneralTemplates(TempGenJournalTemplate, GenJournalTemplate);
+    end;
+
+    [Test]
+    [HandlerFunctions('GetFirstLineFromTemlateListHandler')]
+    [Scope('OnPrem')]
+    procedure CreatePaymentWithTwoLineInGeneralTemplateFirstLine()
+    var
+        GenJournalBatch: array[2] of Record "Gen. Journal Batch";
+        GenJournalTemplate: array[2] of Record "Gen. Journal Template";
+        TempGenJournalTemplate: Record "Gen. Journal Template" temporary;
+        CreatePayment: TestPage "Create Payment";
+    begin
+        // [FEATURE] [UI] [Create Payment]
+        // [SCENARIO 332052] Select first template on Create Payment page when two Gen. Journal Templates exist with  one batch for each.
+        Initialize;
+
+        // [GIVEN] Created Gen. Journal Batches "B1" and "B2" with different General Templates "T1" and "T2" with type Payments
+        GenJournalTemplate[1].SetRange(Type, GenJournalTemplate[1].Type::Payments);
+        SaveGeneralTemplates(GenJournalTemplate[1], TempGenJournalTemplate);
+        GenJournalTemplate[1].DeleteAll;
+        LibraryJournals.CreateGenJournalBatchWithType(GenJournalBatch[1], GenJournalBatch[1]."Template Type"::Payments);
+        LibraryJournals.CreateGenJournalBatchWithType(GenJournalBatch[2], GenJournalBatch[2]."Template Type"::Payments);
+        GenJournalTemplate[1].Get(GenJournalBatch[1]."Journal Template Name");
+        GenJournalTemplate[2].Get(GenJournalBatch[2]."Journal Template Name");
+
+        // [WHEN] Ran page Create Payment with "T1" Template selection
+        CreatePayment.OpenEdit;
+
+        // [THEN] Page Create Payment shows "T1" in field Template Name
+        Assert.AreEqual(GenJournalBatch[1]."Journal Template Name", Format(CreatePayment."Template Name"), '');
+
+        // [THEN] Page Create Payment shows "B1" in field Batch Name
+        Assert.AreEqual(GenJournalBatch[1].Name, Format(CreatePayment."Batch Name"), '');
+
+        CreatePayment.Close;
+        RestoreGeneralTemplates(TempGenJournalTemplate, GenJournalTemplate[1]);
+    end;
+
+    [Test]
+    [HandlerFunctions('GetLastLineFromTemlateListHandler')]
+    [Scope('OnPrem')]
+    procedure CreatePaymentWithTwoLineInGeneralTemplateSecondLine()
+    var
+        GenJournalBatch: array[2] of Record "Gen. Journal Batch";
+        GenJournalTemplate: array[2] of Record "Gen. Journal Template";
+        TempGenJournalTemplate: Record "Gen. Journal Template" temporary;
+        CreatePayment: TestPage "Create Payment";
+    begin
+        // [FEATURE] [UI] [Create Payment]
+        // [SCENARIO 332052] Select second template on Create Payment page when two Gen. Journal Templates exist with  one batch for each.
+        Initialize;
+
+        // [GIVEN] Created Gen. Journal Batches "B1" and "B2" with different General Templates "T1" and "T2" with type Payments
+        GenJournalTemplate[1].SetRange(Type, GenJournalTemplate[1].Type::Payments);
+        SaveGeneralTemplates(GenJournalTemplate[1], TempGenJournalTemplate);
+        GenJournalTemplate[1].DeleteAll;
+        LibraryJournals.CreateGenJournalBatchWithType(GenJournalBatch[1], GenJournalBatch[1]."Template Type"::Payments);
+        LibraryJournals.CreateGenJournalBatchWithType(GenJournalBatch[2], GenJournalBatch[2]."Template Type"::Payments);
+        GenJournalTemplate[1].Get(GenJournalBatch[1]."Journal Template Name");
+        GenJournalTemplate[2].Get(GenJournalBatch[2]."Journal Template Name");
+
+        // [GIVEN] Ran page Create Payment with "T2" Template selection
+        CreatePayment.OpenEdit;
+
+        // [THEN] Page Create Payment shows "T2" in field Template Name
+        Assert.AreEqual(GenJournalBatch[2]."Journal Template Name", Format(CreatePayment."Template Name"), '');
+
+        // [THEN] Page Create Payment shows "B2" in field Batch Name
+        Assert.AreEqual(GenJournalBatch[2].Name, Format(CreatePayment."Batch Name"), '');
+
+        CreatePayment.Close;
+        RestoreGeneralTemplates(TempGenJournalTemplate, GenJournalTemplate[1]);
+    end;
+
+    [Test]
+    [HandlerFunctions('CreatePaymentModalPageHandler,GetLastLineFromTemlateListHandler')]
+    [Scope('OnPrem')]
+    procedure CreatePaymentWithTwoLineInGeneralTemplateFirstLineCompleted()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJournalBatch: array[2] of Record "Gen. Journal Batch";
+        GenJournalTemplate: array[2] of Record "Gen. Journal Template";
+        TempGenJournalTemplate: Record "Gen. Journal Template" temporary;
+        VendorLedgerEntries: TestPage "Vendor Ledger Entries";
+        PaymentJournal: TestPage "Payment Journal";
+    begin
+        // [FEATURE] [UI] [Create Payment]
+        // [SCENARIO 332052] Run page Create Payment for second General Template
+        Initialize;
+
+        // [GIVEN] Created Gen. Journal Batches "B1" and "B2" with different General Templates "T1" and "T2" with type Payments
+        GenJournalTemplate[1].SetRange(Type, GenJournalTemplate[1].Type::Payments);
+        SaveGeneralTemplates(GenJournalTemplate[1], TempGenJournalTemplate);
+        GenJournalTemplate[1].DeleteAll;
+        LibraryJournals.CreateGenJournalBatchWithType(GenJournalBatch[1], GenJournalBatch[1]."Template Type"::Payments);
+        LibraryJournals.CreateGenJournalBatchWithType(GenJournalBatch[2], GenJournalBatch[2]."Template Type"::Payments);
+        GenJournalTemplate[1].Get(GenJournalBatch[1]."Journal Template Name");
+        GenJournalTemplate[2].Get(GenJournalBatch[2]."Journal Template Name");
+
+        // [GIVEN] Created and posted Vendor's invoice
+        LibraryJournals.CreateGenJournalLine(
+          GenJournalLine,
+          GenJournalBatch[2]."Journal Template Name",
+          GenJournalBatch[2].Name,
+          GenJournalLine."Document Type"::Invoice,
+          GenJournalLine."Account Type"::Vendor,
+          LibraryPurchase.CreateVendorNo,
+          GenJournalLine."Bal. Account Type"::"G/L Account",
+          LibraryERM.CreateGLAccountNo,
+          -LibraryRandom.RandDecInRange(10, 100, 2));
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        LibraryVariableStorage.Enqueue(GenJournalLine."Journal Template Name");
+        LibraryVariableStorage.Enqueue(GenJournalLine."Journal Batch Name");
+        LibraryVariableStorage.Enqueue(GenJournalLine."Document No.");
+
+        VendorLedgerEntries.OpenEdit;
+        VendorLedgerEntries.FILTER.SetFilter("Vendor No.", Format(GenJournalLine."Account No."));
+        VendorLedgerEntries.First;
+        PaymentJournal.Trap;
+
+        // [WHEN] Run page Create Payment for the posted invoice
+        VendorLedgerEntries."Create Payment".Invoke;
+        PaymentJournal.OK.Invoke;
+
+        // [THEN] Payment Gen Journal Line was created
+        GenJournalLine.SetRange("Journal Template Name", GenJournalBatch[2]."Journal Template Name");
+        GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch[2].Name);
+        GenJournalLine.FindFirst;
+        GenJournalLine.TestField("Document Type", GenJournalLine."Document Type"::Payment);
+
+        VendorLedgerEntries.Close;
+        RestoreGeneralTemplates(TempGenJournalTemplate, GenJournalTemplate[1]);
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('GetLastLineFromTemlateListHandler')]
+    [Scope('OnPrem')]
+    procedure CreatePaymentCheckSaveValue()
+    var
+        GenJournalBatch: array[2] of Record "Gen. Journal Batch";
+        GenJournalTemplate: array[2] of Record "Gen. Journal Template";
+        TempGenJournalTemplate: Record "Gen. Journal Template" temporary;
+        CreatePayment: TestPage "Create Payment";
+    begin
+        // [FEATURE] [UI] [Create Payment]
+        // [SCENARIO 332052] When run page Create Payment, value fill automatically
+        Initialize;
+
+        // [GIVEN] Created Gen. Journal Batches "B1" and "B2" with different General Templates "T1" and "T2" with type Payments
+        GenJournalTemplate[1].SetRange(Type, GenJournalTemplate[1].Type::Payments);
+        SaveGeneralTemplates(GenJournalTemplate[1], TempGenJournalTemplate);
+        GenJournalTemplate[1].DeleteAll;
+        LibraryJournals.CreateGenJournalBatchWithType(GenJournalBatch[1], GenJournalBatch[1]."Template Type"::Payments);
+        LibraryJournals.CreateGenJournalBatchWithType(GenJournalBatch[2], GenJournalBatch[2]."Template Type"::Payments);
+        GenJournalTemplate[1].Get(GenJournalBatch[1]."Journal Template Name");
+        GenJournalTemplate[2].Get(GenJournalBatch[2]."Journal Template Name");
+
+        // [GIVEN] Ran page Create Payment, set Batch Name and pushed OK
+        CreatePayment.OpenEdit;
+        CreatePayment."Template Name".SetValue(GenJournalBatch[2]."Journal Template Name");
+        CreatePayment."Batch Name".SetValue(GenJournalBatch[2].Name);
+        CreatePayment."Starting Document No.".SetValue(LibraryRandom.RandInt(100));
+        CreatePayment.OK.Invoke;
+
+        // [WHEN] Run page Create Payment
+        CreatePayment.OpenEdit;
+
+        // [THEN] Page Create Payment shows the previous value
+        CreatePayment."Batch Name".AssertEquals(GenJournalBatch[2].Name);
+
+        CreatePayment.Close;
+        RestoreGeneralTemplates(TempGenJournalTemplate, GenJournalTemplate[1]);
+    end;
+
+    [Test]
+    [HandlerFunctions('CreatePaymentOnlyDocNoModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure CheckCorrectCopyDimensionToVendorLedgerEntry()
+    var
+        Vendor: Record Vendor;
+        Dimension: Record Dimension;
+        DefaultDimension: Record "Default Dimension";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        DimensionValue: Record "Dimension Value";
+        DimensionSetEntry: Record "Dimension Set Entry";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        GenJournalLine: Record "Gen. Journal Line";
+        VendorLedgerEntries: TestPage "Vendor Ledger Entries";
+        CreatePayment: TestPage "Create Payment";
+        PaymentJournal: TestPage "Payment Journal";
+        DimSetID: Integer;
+        PostedDocNo: Code[20];
+        VendorNo: Code[20];
+    begin
+        // [FEATURE] [UI] [Create Payment]
+        // [SCENARIO 337935] When run page Create Payment for posted purchase invoice with Dimansions, Dimansions copy automatically
+        Initialize;
+
+        // [GIVEN] Dimension and Dimension Value was found
+        LibraryDimension.FindDimension(Dimension);
+        LibraryDimension.FindDimensionValue(DimensionValue, Dimension.Code);
+
+        // [GIVEN] Created Vendor "V" with Default Dimension
+        VendorNo := CreateVendorWithDimension(DefaultDimension, DefaultDimension."Value Posting"::"Code Mandatory", DimensionValue."Dimension Code");
+        DefaultDimension.Validate("Dimension Value Code", '');
+        DefaultDimension.Modify(true);
+
+        // [GIVEN] Created and Posted Purchase Invoice "PI" with Dimensions "D" for "V" 
+        LibraryPurchase.CreatePurchaseInvoiceForVendorNo(PurchaseHeader, VendorNo);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10));
+        DimSetID := LibraryDimension.CreateDimSet(DimSetID, DimensionValue."Dimension Code", DimensionValue.Code);
+        PurchaseHeader.Validate("Dimension Set ID", DimSetID);
+        PurchaseHeader.Modify(true);
+
+        PurchaseLine.Validate("Dimension Set ID", DimSetID);
+        PurchaseLine.Modify(true);
+
+        PostedDocNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, false);
+        LibraryVariableStorage.Enqueue(PostedDocNo);
+
+        // [WHEN] Run "Create Payment" for Vendor Ledger Entry, created for "PI"
+        VendorLedgerEntries.OpenEdit();
+        VendorLedgerEntries.filter.SetFilter("Vendor No.", VendorNo);
+        VendorLedgerEntries.filter.SetFilter("Document No.", PostedDocNo);
+        VendorLedgerEntries.First();
+        PaymentJournal.Trap();
+        VendorLedgerEntries."Create Payment".Invoke();
+        PaymentJournal.Close();
+
+        // [THEN] "D" successfully transfer to Gen. Journal Line
+        GenJournalLine.SetRange("Document No.", PostedDocNo);
+        GenJournalLine.FindFirst();
+        GenJournalLine.TestField("Dimension Set ID", DimSetID);
     end;
 
     local procedure Initialize()
@@ -1956,6 +2234,22 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, GenJournalLine."Document No.");
         VendorLedgerEntry.Validate("Message to Recipient", MsgToRecipient);
         VendorLedgerEntry.Modify(true);
+    end;
+
+    local procedure CreateVendorWithDimension(var DefaultDimension: Record "Default Dimension"; ValuePosting: Option; DimensionCode: Code[20]): Code[20]
+    var
+        Vendor: Record Vendor;
+        DimensionValue: Record "Dimension Value";
+    begin
+        LibraryPurchase.CreateVendor(Vendor);
+        if DimensionCode = '' then
+            exit(Vendor."No.");
+        LibraryDimension.FindDimensionValue(DimensionValue, DimensionCode);
+        LibraryDimension.CreateDefaultDimensionVendor(DefaultDimension, Vendor."No.", DimensionCode, DimensionValue.Code);
+        DefaultDimension.Validate("Value Posting", ValuePosting);
+        DefaultDimension.Modify(true);
+
+        exit(Vendor."No.");
     end;
 
     local procedure GetOnHold(): Code[3]
@@ -2506,6 +2800,26 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         VendorLedgerEntry.TestField("Remaining Amount", 0);
     end;
 
+    local procedure SaveGeneralTemplates(var GenJournalTemplate: Record "Gen. Journal Template"; var ToGenJournalTemplate: Record "Gen. Journal Template")
+    begin
+        GenJournalTemplate.FindSet;
+        repeat
+            ToGenJournalTemplate.Init;
+            ToGenJournalTemplate := GenJournalTemplate;
+            ToGenJournalTemplate.Insert
+        until GenJournalTemplate.Next = 0;
+    end;
+
+    local procedure RestoreGeneralTemplates(var FromGenJournalTemplate: Record "Gen. Journal Template"; var GenJournalTemplate: Record "Gen. Journal Template")
+    begin
+        FromGenJournalTemplate.FindSet;
+        repeat
+            GenJournalTemplate.Init;
+            GenJournalTemplate := FromGenJournalTemplate;
+            GenJournalTemplate.Insert;
+        until FromGenJournalTemplate.Next = 0;
+    end;
+
     [MessageHandler]
     [Scope('OnPrem')]
     procedure MessageHandler(Message: Text[1024])
@@ -2720,6 +3034,40 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         SuggestVendorPayments.StartingDocumentNo.SetValue(LibraryRandom.RandInt(10));
         SuggestVendorPayments.CheckOtherJournalBatches.SetValue(LibraryVariableStorage.DequeueBoolean);
         SuggestVendorPayments.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure GetLastLineFromTemlateListHandler(var GeneralJournalTemplateList: TestPage "General Journal Template List")
+    begin
+        GeneralJournalTemplateList.Last;
+        GeneralJournalTemplateList.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure GetFirstLineFromTemlateListHandler(var GeneralJournalTemplateList: TestPage "General Journal Template List")
+    begin
+        GeneralJournalTemplateList.First;
+        GeneralJournalTemplateList.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure CreatePaymentModalPageHandler(var CreatePayment: TestPage "Create Payment")
+    begin
+        CreatePayment."Template Name".SetValue(LibraryVariableStorage.DequeueText);
+        CreatePayment."Batch Name".SetValue(LibraryVariableStorage.DequeueText);
+        CreatePayment."Starting Document No.".SetValue(LibraryVariableStorage.DequeueText);
+        CreatePayment.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure CreatePaymentOnlyDocNoModalPageHandler(var CreatePayment: TestPage "Create Payment")
+    begin
+        CreatePayment."Starting Document No.".SetValue(LibraryVariableStorage.DequeueText);
+        CreatePayment.OK.Invoke;
     end;
 }
 

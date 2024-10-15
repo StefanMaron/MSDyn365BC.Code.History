@@ -21,7 +21,8 @@ codeunit 143015 "E-Invoice Fin. Ch. Memo Helper"
         exit(IssueFinanceChargeMemo(FinChMemoHeader."No."));
     end;
 
-    local procedure CreateFinChMemoDoc(var FinChMemoHeader: Record "Finance Charge Memo Header")
+    [Scope('OnPrem')]
+    procedure CreateFinChMemoDoc(var FinChMemoHeader: Record "Finance Charge Memo Header")
     var
         VATPostingSetup: Record "VAT Posting Setup";
         HowManyLinesToCreate: Integer;
@@ -36,7 +37,8 @@ codeunit 143015 "E-Invoice Fin. Ch. Memo Helper"
         CreateFinChMemoLines(FinChMemoHeader."No.", HowManyLinesToCreate, VATProdPostGroupCode, LineNo);
     end;
 
-    local procedure IssueFinanceChargeMemo(FinChMemoHeaderNo: Code[20]): Code[20]
+    [Scope('OnPrem')]
+    procedure IssueFinanceChargeMemo(FinChMemoHeaderNo: Code[20]): Code[20]
     var
         FinChMemoHeader: Record "Finance Charge Memo Header";
         IssuedFinChargeMemoHeader: Record "Issued Fin. Charge Memo Header";

@@ -59,6 +59,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Bank Account - NamedType BankAccDeleteErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 4098524687 - NamedType 3371257710" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The number %1 that you entered may not be a valid International Bank Account Number (IBAN). Do you want to continue?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Bank Account - NamedType IBANConfirmationMsg)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 4055676525 - NamedType 1074613222" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 must be %2.]]></Val>

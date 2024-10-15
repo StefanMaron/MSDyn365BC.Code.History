@@ -105,9 +105,6 @@ report 208 "Sales - Shipment"
                     column(ReferenceText; ReferenceText)
                     {
                     }
-                    column(OrderNo_SalesShptHeader; "Sales Shipment Header"."Order No.")
-                    {
-                    }
                     column(YourRef_SalesShptHeader; "Sales Shipment Header"."Your Reference")
                     {
                     }
@@ -159,16 +156,19 @@ report 208 "Sales - Shipment"
                     column(EmailCaption; EmailCaptionLbl)
                     {
                     }
-                    column(OrderNoCaption_SalesShptHeader; "Sales Shipment Header".FieldCaption("Order No."))
-                    {
-                    }
                     column(DocumentDateCaption; DocumentDateCaptionLbl)
                     {
                     }
                     column(SelltoCustNo_SalesShptHeaderCaption; "Sales Shipment Header".FieldCaption("Sell-to Customer No."))
                     {
                     }
-                    column(ExternalDocumentNoCaption_SalesShptHeader; 'Purchase Order No.')
+                    column(OrderNoCaption_SalesShptHeader; OurDocumentNoLbl)
+                    {
+                    }
+                    column(OrderNo_SalesShptHeader; "Sales Shipment Header"."Order No.")
+                    {
+                    }
+                    column(ExternalDocumentNoCaption_SalesShptHeader; PurchaseOrderNoLbl)
                     {
                     }
                     column(ExternalDocumentNo_SalesShptHeader; "Sales Shipment Header"."External Document No.")
@@ -752,8 +752,10 @@ report 208 "Sales - Shipment"
         DescriptionCaptionLbl: Label 'Description';
         NoCaptionLbl: Label 'No.';
         PageCaptionCap: Label 'Page %1 of %2';
+        OurDocumentNoLbl: Label 'Our Document No.';
+        PurchaseOrderNoLbl: Label 'Purchase Order No.';
         OrderNoText: Text;
-        OrderNoTextCaptionLbl: Label 'OrderNoText';		
+        OrderNoTextCaptionLbl: Label 'OrderNoText';
 
     procedure InitLogInteraction()
     begin

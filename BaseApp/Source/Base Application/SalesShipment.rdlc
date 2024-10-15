@@ -3527,6 +3527,8 @@ Cstr(Fields!HomePageCaption.Value) + Chr(177) +
 Cstr(Fields!EmailCaption.Value) + Chr(177) + 
 Cstr(Fields!DocumentDateCaption.Value) + Chr(177) +
 Cstr(Fields!PageCaption.Value) + Chr(177) +
+Cstr(Fields!ExternalDocumentNoCaption_SalesShptHeader.Value) + Chr(177) + 
+Cstr(Fields!ExternalDocumentNo_SalesShptHeader.Value) + Chr(177) + 
 Cstr(Fields!OrderNoCaption_SalesShptHeader.Value) + Chr(177) +
 Cstr(Fields!OrderNo_SalesShptHeader.Value) + Chr(177) +
 Cstr(Fields!EnterpriseRegister.Value)
@@ -4947,7 +4949,7 @@ Cstr(Fields!EnterpriseRegister.Value)
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value>=Fields!ExternalDocumentNoCaption_SalesShptHeader.Value</Value>
+                      <Value>=Code.GetData(45,1)</Value>
                       <Style>
                         <FontFamily>Segoe UI</FontFamily>
                         <FontSize>8pt</FontSize>
@@ -4976,7 +4978,7 @@ Cstr(Fields!EnterpriseRegister.Value)
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value>=Fields!OrderNoCaption_SalesShptHeader.Value</Value>
+                      <Value>=Code.GetData(47,1)</Value>
                       <Style>
                         <FontFamily>Segoe UI</FontFamily>
                         <FontSize>8pt</FontSize>
@@ -5005,7 +5007,7 @@ Cstr(Fields!EnterpriseRegister.Value)
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value>=Fields!ExternalDocumentNo_SalesShptHeader.Value</Value>
+                      <Value>=Code.GetData(46,1)</Value>
                       <Style>
                         <FontFamily>Segoe UI</FontFamily>
                         <FontSize>8pt</FontSize>
@@ -5034,7 +5036,7 @@ Cstr(Fields!EnterpriseRegister.Value)
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value>=Fields!OrderNo_SalesShptHeader.Value</Value>
+                      <Value>=Code.GetData(48,1)</Value>
                       <Style>
                         <FontFamily>Segoe UI</FontFamily>
                         <FontSize>8pt</FontSize>
@@ -5226,9 +5228,6 @@ End Function
         <Field Name="ReferenceText">
           <DataField>ReferenceText</DataField>
         </Field>
-        <Field Name="OrderNo_SalesShptHeader">
-          <DataField>OrderNo_SalesShptHeader</DataField>
-        </Field>
         <Field Name="YourRef_SalesShptHeader">
           <DataField>YourRef_SalesShptHeader</DataField>
         </Field>
@@ -5280,14 +5279,17 @@ End Function
         <Field Name="EmailCaption">
           <DataField>EmailCaption</DataField>
         </Field>
-        <Field Name="OrderNoCaption_SalesShptHeader">
-          <DataField>OrderNoCaption_SalesShptHeader</DataField>
-        </Field>
         <Field Name="DocumentDateCaption">
           <DataField>DocumentDateCaption</DataField>
         </Field>
         <Field Name="SelltoCustNo_SalesShptHeaderCaption">
           <DataField>SelltoCustNo_SalesShptHeaderCaption</DataField>
+        </Field>
+        <Field Name="OrderNoCaption_SalesShptHeader">
+          <DataField>OrderNoCaption_SalesShptHeader</DataField>
+        </Field>
+        <Field Name="OrderNo_SalesShptHeader">
+          <DataField>OrderNo_SalesShptHeader</DataField>
         </Field>
         <Field Name="ExternalDocumentNoCaption_SalesShptHeader">
           <DataField>ExternalDocumentNoCaption_SalesShptHeader</DataField>

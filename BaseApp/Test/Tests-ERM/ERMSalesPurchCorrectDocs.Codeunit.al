@@ -34,7 +34,7 @@ codeunit 134398 "ERM Sales/Purch. Correct. Docs"
     begin
         // [FEATURE] [Sales] [Invoice] [Credit Memo]
         // [SCENARIO 224605] Cassie can correct posted sales invoice with line pointing to customer's rounding G/L Account.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Invoice rounding is enabled in sales setup
         LibrarySales.SetInvoiceRounding(true);
@@ -72,7 +72,7 @@ codeunit 134398 "ERM Sales/Purch. Correct. Docs"
     begin
         // [FEATURE] [Purchase] [Invoice] [Credit Memo]
         // [SCENARIO 224605] Cassie can correct posted zero balanced purchase invoice
-        Initialize;
+        Initialize();
 
         // [GIVEN] Cassie can correct posted purchase invoice with line pointing to customer's rounding G/L Account.
         LibraryPurchase.SetInvoiceRounding(true);
@@ -112,7 +112,7 @@ codeunit 134398 "ERM Sales/Purch. Correct. Docs"
     begin
         // [FEATURE] [Sales] [Invoice] [Credit Memo]
         // [SCENARIO 299514] Cassie can correct posted sales invoice when "Sales Line Disc. Account" is not set and "Discount Posting" = "No Discounts" in setup
-        Initialize;
+        Initialize();
 
         LibrarySales.SetDiscountPosting(SalesReceivablesSetup."Discount Posting"::"No Discounts");
 
@@ -152,7 +152,7 @@ codeunit 134398 "ERM Sales/Purch. Correct. Docs"
     begin
         // [FEATURE] [Purchase] [Invoice] [Credit Memo]
         // [SCENARIO 299514] Cassie can correct posted purchase invoice when "Purch. Line Disc. Account" is not set and "Discount Posting" = "No Discounts" in setup
-        Initialize;
+        Initialize();
 
         LibraryPurchase.SetDiscountPosting(PurchasesPayablesSetup."Discount Posting"::"No Discounts");
 
@@ -190,7 +190,7 @@ codeunit 134398 "ERM Sales/Purch. Correct. Docs"
     begin
         // [FEATURE] [Sales] [Invoice] [UT]
         // [SCENARIO 322909] Cassie can cancel Posted Sales Invoice with Item of Type Service when COGS account is empty in General Posting Setup.
-        Initialize;
+        Initialize();
 
         CreateSalesHeaderWithItemWithType(SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, Item.Type::Service);
         CleanCOGSAccountOnGenPostingSetup(SalesLine, GeneralPostingSetup);
@@ -214,7 +214,7 @@ codeunit 134398 "ERM Sales/Purch. Correct. Docs"
     begin
         // [FEATURE] [Sales] [Invoice] [UT]
         // [SCENARIO 322909] Cassie can cancel Posted Sales Invoice with Item of Type Non-Inventory when COGS account is empty in General Posting Setup.
-        Initialize;
+        Initialize();
 
         CreateSalesHeaderWithItemWithType(SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, Item.Type::"Non-Inventory");
         CleanCOGSAccountOnGenPostingSetup(SalesLine, GeneralPostingSetup);
@@ -238,7 +238,7 @@ codeunit 134398 "ERM Sales/Purch. Correct. Docs"
     begin
         // [FEATURE] [Sales] [Invoice] [UT]
         // [SCENARIO 322909] Cassie can't cancel Posted Sales Invoice with Item of Type Inventory when COGS account is empty in General Posting Setup.
-        Initialize;
+        Initialize();
 
         CreateSalesHeaderWithItemWithType(SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, Item.Type::Inventory);
         SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
@@ -252,21 +252,127 @@ codeunit 134398 "ERM Sales/Purch. Correct. Docs"
         RestoreGenPostingSetup(GeneralPostingSetup);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure CorrectSalesInvoiceWithGLAccountWithoutSalesAccountInGenPostingSetup()
+    var
+        GeneralPostingSetup: Record "General Posting Setup";
+        SalesHeader: Record "Sales Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesLine: Record "Sales Line";
+        CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
+    begin
+        // [FEATURE] [Sales] [Invoice] [UT]
+        // [SCENARIO 337408] Cassie can cancel Posted Sales Invoice with G/L Account that does not have "Sales Account" in General Posting Setup.
+        Initialize();
+
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
+        LibrarySales.CreateSalesLine(
+            SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), 1);
+        CleanSalesAccountOnGenPostingSetup(SalesLine, GeneralPostingSetup);
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+
+        CorrectPostedSalesInvoice.TestCorrectInvoiceIsAllowed(SalesInvoiceHeader, true);
+
+        RestoreGenPostingSetup(GeneralPostingSetup);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CorrectSalesInvoiceWithGLAccountWithoutSalesCreditMemoAccountInGenPostingSetup()
+    var
+        GeneralPostingSetup: Record "General Posting Setup";
+        SalesHeader: Record "Sales Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesLine: Record "Sales Line";
+        CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
+    begin
+        // [FEATURE] [Sales] [Invoice] [UT]
+        // [SCENARIO 337408] Cassie can cancel Posted Sales Invoice with G/L Account that does not have "Sales Credit Memo Account" in General Posting Setup.
+        Initialize();
+
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
+        LibrarySales.CreateSalesLine(
+            SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), 1);
+        CleanSalesCreditMemoAccountOnGenPostingSetup(SalesLine, GeneralPostingSetup);
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+
+        CorrectPostedSalesInvoice.TestCorrectInvoiceIsAllowed(SalesInvoiceHeader, true);
+
+        RestoreGenPostingSetup(GeneralPostingSetup);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CorrectPurchaseInvoiceWithGLAccountWithoutSalesAccountInGenPostingSetup()
+    var
+        GeneralPostingSetup: Record "General Posting Setup";
+        PurchaseHeader: Record "Purchase Header";
+        PurchInvHeader: Record "Purch. Inv. Header";
+        PurchaseLine: Record "Purchase Line";
+        CorrectPostedPurchInvoice: Codeunit "Correct Posted Purch. Invoice";
+    begin
+        // [FEATURE] [Purchase] [Invoice] [UT]
+        // [SCENARIO 337408] Cassie can cancel Posted Purchase Invoice with G/L Account that does not have "Sales Account" in General Posting Setup.
+        Initialize();
+
+        LibraryPurchase.CreatePurchHeader(
+            PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup(), 1);
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(10, 20));
+        PurchaseLine.Modify(true);
+        CleanPurchAccountOnGenPostingSetup(PurchaseLine, GeneralPostingSetup);
+        PurchInvHeader.Get(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
+
+        CorrectPostedPurchInvoice.TestCorrectInvoiceIsAllowed(PurchInvHeader, true);
+
+        RestoreGenPostingSetup(GeneralPostingSetup);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CorrectPurchaseInvoiceWithGLAccountWithoutSalesCreditMemoAccountInGenPostingSetup()
+    var
+        GeneralPostingSetup: Record "General Posting Setup";
+        PurchaseHeader: Record "Purchase Header";
+        PurchInvHeader: Record "Purch. Inv. Header";
+        PurchaseLine: Record "Purchase Line";
+        CorrectPostedPurchInvoice: Codeunit "Correct Posted Purch. Invoice";
+    begin
+        // [FEATURE] [Purchase] [Invoice] [UT]
+        // [SCENARIO 337408] Cassie can cancel Posted Purchase Invoice with G/L Account that does not have "Sales Credit Memo Account" in General Posting Setup.
+        Initialize();
+
+        LibraryPurchase.CreatePurchHeader(
+            PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup(), 1);
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(10, 20));
+        PurchaseLine.Modify(true);
+        CleanPurchCreditMemoAccountOnGenPostingSetup(PurchaseLine, GeneralPostingSetup);
+        PurchInvHeader.Get(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
+
+        CorrectPostedPurchInvoice.TestCorrectInvoiceIsAllowed(PurchInvHeader, true);
+
+        RestoreGenPostingSetup(GeneralPostingSetup);
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Sales/Purch. Correct. Docs");
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
 
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Sales/Purch. Correct. Docs");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
-        LibraryERMCountryData.CreateGeneralPostingSetupData;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
+        LibraryERMCountryData.CreateGeneralPostingSetupData();
 
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
@@ -362,6 +468,50 @@ codeunit 134398 "ERM Sales/Purch. Correct. Docs"
         GeneralPostingSetup.Modify(true);
     end;
 
+    local procedure CleanSalesAccountOnGenPostingSetup(SalesLine: Record "Sales Line"; var OldGeneralPostingSetup: Record "General Posting Setup")
+    var
+        GeneralPostingSetup: Record "General Posting Setup";
+    begin
+        GeneralPostingSetup.Get(SalesLine."Gen. Bus. Posting Group", SalesLine."Gen. Prod. Posting Group");
+        OldGeneralPostingSetup.Copy(GeneralPostingSetup);
+        GeneralPostingSetup.Validate("Sales Account", '');
+        GeneralPostingSetup.Validate("Sales Credit Memo Account", LibraryERM.CreateGLAccountWithSalesSetup());
+        GeneralPostingSetup.Modify(true);
+    end;
+
+    local procedure CleanSalesCreditMemoAccountOnGenPostingSetup(SalesLine: Record "Sales Line"; var OldGeneralPostingSetup: Record "General Posting Setup")
+    var
+        GeneralPostingSetup: Record "General Posting Setup";
+    begin
+        GeneralPostingSetup.Get(SalesLine."Gen. Bus. Posting Group", SalesLine."Gen. Prod. Posting Group");
+        OldGeneralPostingSetup.Copy(GeneralPostingSetup);
+        GeneralPostingSetup.Validate("Sales Account", LibraryERM.CreateGLAccountWithSalesSetup());
+        GeneralPostingSetup.Validate("Sales Credit Memo Account", '');
+        GeneralPostingSetup.Modify(true);
+    end;
+
+    local procedure CleanPurchAccountOnGenPostingSetup(PurchaseLine: Record "Purchase Line"; var OldGeneralPostingSetup: Record "General Posting Setup")
+    var
+        GeneralPostingSetup: Record "General Posting Setup";
+    begin
+        GeneralPostingSetup.Get(PurchaseLine."Gen. Bus. Posting Group", PurchaseLine."Gen. Prod. Posting Group");
+        OldGeneralPostingSetup.Copy(GeneralPostingSetup);
+        GeneralPostingSetup.Validate("Purch. Account", '');
+        GeneralPostingSetup.Validate("Purch. Credit Memo Account", LibraryERM.CreateGLAccountWithPurchSetup());
+        GeneralPostingSetup.Modify(true);
+    end;
+
+    local procedure CleanPurchCreditMemoAccountOnGenPostingSetup(PurchaseLine: Record "Purchase Line"; var OldGeneralPostingSetup: Record "General Posting Setup")
+    var
+        GeneralPostingSetup: Record "General Posting Setup";
+    begin
+        GeneralPostingSetup.Get(PurchaseLine."Gen. Bus. Posting Group", PurchaseLine."Gen. Prod. Posting Group");
+        OldGeneralPostingSetup.Copy(GeneralPostingSetup);
+        GeneralPostingSetup.Validate("Purch. Account", LibraryERM.CreateGLAccountWithPurchSetup());
+        GeneralPostingSetup.Validate("Purch. Credit Memo Account", '');
+        GeneralPostingSetup.Modify(true);
+    end;
+
     local procedure RestoreGenPostingSetup(OldGeneralPostingSetup: Record "General Posting Setup")
     var
         GeneralPostingSetup: Record "General Posting Setup";
@@ -370,7 +520,9 @@ codeunit 134398 "ERM Sales/Purch. Correct. Docs"
         GeneralPostingSetup."Sales Line Disc. Account" := OldGeneralPostingSetup."Sales Inv. Disc. Account";
         GeneralPostingSetup."Purch. Line Disc. Account" := OldGeneralPostingSetup."Purch. Line Disc. Account";
         GeneralPostingSetup."COGS Account" := OldGeneralPostingSetup."COGS Account";
-        GeneralPostingSetup.Modify;
+        GeneralPostingSetup."Sales Credit Memo Account" := OldGeneralPostingSetup."Sales Credit Memo Account";
+        GeneralPostingSetup."Sales Account" := OldGeneralPostingSetup."Sales Account";
+        GeneralPostingSetup.Modify();
     end;
 }
 

@@ -14,7 +14,7 @@ report 193 "Issue Finance Charge Memos"
             trigger OnAfterGetRecord()
             begin
                 if "E-Invoice" then
-                    CODEUNIT.Run(CODEUNIT::"E-Invoice Check Fin. Chrg.Memo", "Check Fin Charge Memo Header");
+                    PEPPOLValidation.CheckFinChargeMemo("No.");
             end;
         }
         dataitem("Finance Charge Memo Header"; "Finance Charge Memo Header")
@@ -147,6 +147,7 @@ report 193 "Issue Finance Charge Memos"
         IssuedFinChrgMemoHeader: Record "Issued Fin. Charge Memo Header";
         TempIssuedFinChrgMemoHeader: Record "Issued Fin. Charge Memo Header" temporary;
         FinChrgMemoIssue: Codeunit "FinChrgMemo-Issue";
+        PEPPOLValidation: Codeunit "PEPPOL Validation";
         Window: Dialog;
         NoOfRecords: Integer;
         RecordNo: Integer;

@@ -79,11 +79,11 @@ codeunit 139146 "User Permissions Test"
         Any: Codeunit Any;
         UserId: Guid;
         IsUserSuper: Boolean;
-        RandomCompanyName: Text;
+        RandomCompanyName: Text[30];
     begin
         // [Given] a user who is SUPER for a specific company
         DeleteAllUsersAndPermissions();
-        RandomCompanyName := Any.AlphabeticText(10);
+        RandomCompanyName := CopyStr(Any.AlphabeticText(10), 1, MaxStrLen(RandomCompanyName));
         UserId := AddUser(Any.AlphabeticText(10), true, false);
         AddPermissions(UserId, SUPERTok, RandomCompanyName);
 
@@ -102,11 +102,11 @@ codeunit 139146 "User Permissions Test"
         Any: Codeunit Any;
         UserId: Guid;
         IsUserSuper: Boolean;
-        RandomCompanyName: Text;
+        RandomCompanyName: Text[30];
     begin
         // [Given] a user who is not SUPER for a specific company
         DeleteAllUsersAndPermissions();
-        RandomCompanyName := Any.AlphabeticText(10);
+        RandomCompanyName := CopyStr(Any.AlphabeticText(10), 1, MaxStrLen(RandomCompanyName));
         UserId := AddUser(Any.AlphabeticText(10), true, false);
         AddPermissions(UserId, NotSUPERTok, RandomCompanyName);
 
@@ -573,14 +573,14 @@ codeunit 139146 "User Permissions Test"
         User.DeleteAll();
     end;
 
-    local procedure AddUser(UserName: Code[50]; Enabled: Boolean; isExternalUser: Boolean): Guid
+    local procedure AddUser(UserName: Text; Enabled: Boolean; isExternalUser: Boolean): Guid
     var
         User: Record User;
     begin
         User.Init();
 
         User."User Security ID" := System.CreateGuid();
-        User."User Name" := UserName;
+        User."User Name" := CopyStr(UserName, 1, MaxStrLen(User."User Name"));
 
         if (Enabled) then
             User.State := User.State::Enabled
@@ -597,7 +597,7 @@ codeunit 139146 "User Permissions Test"
         exit(User."User Security ID");
     end;
 
-    local procedure AddPermissions(UserId: Guid; Role: Code[20]; CompanyName: Text)
+    local procedure AddPermissions(UserId: Guid; Role: Code[20]; CompanyName: Text[30])
     var
         AccessControl: Record "Access Control";
     begin

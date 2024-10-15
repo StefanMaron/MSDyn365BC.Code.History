@@ -21,7 +21,8 @@ codeunit 143017 "E-Invoice Reminder Helper"
         exit(IssueReminder(ReminderHeader."No."));
     end;
 
-    local procedure CreateReminderDoc(var ReminderHeader: Record "Reminder Header")
+    [Scope('OnPrem')]
+    procedure CreateReminderDoc(var ReminderHeader: Record "Reminder Header")
     var
         VATPostingSetup: Record "VAT Posting Setup";
         HowManyLinesToCreate: Integer;

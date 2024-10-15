@@ -192,6 +192,7 @@ codeunit 5510 "Production Journal Mgt"
             end;
 
             ItemJnlLine.Init;
+            OnInsertConsumptionJnlLineOnAfterItemJnlLineInit(ItemJnlLine);
             ItemJnlLine."Journal Template Name" := ToTemplateName;
             ItemJnlLine."Journal Batch Name" := ToBatchName;
             ItemJnlLine."Line No." := NextLineNo;
@@ -205,7 +206,7 @@ codeunit 5510 "Production Journal Mgt"
             ItemJnlLine.Description := Description;
             if NeededQty <> 0 then
                 if Item."Rounding Precision" > 0 then
-                    ItemJnlLine.Validate(Quantity, Round(NeededQty, Item."Rounding Precision", '>'))
+                    ItemJnlLine.Validate(Quantity, UOMMgt.RoundToItemRndPrecision(NeededQty, Item."Rounding Precision"))
                 else
                     ItemJnlLine.Validate(Quantity, Round(NeededQty, UOMMgt.QtyRndPrecision));
 
@@ -550,6 +551,11 @@ codeunit 5510 "Production Journal Mgt"
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertConsumptionJnlLineOnBeforeCheck(ProdOrderComponent: Record "Prod. Order Component"; ProdOrderLine: Record "Prod. Order Line"; Item: Record Item; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertConsumptionJnlLineOnAfterItemJnlLineInit(var ItemJournalLine: Record "Item Journal Line")
     begin
     end;
 }

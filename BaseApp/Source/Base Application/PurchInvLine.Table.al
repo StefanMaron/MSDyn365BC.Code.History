@@ -675,7 +675,7 @@ table 123 "Purch. Inv. Line"
         PurchDocLineComments.SetRange("No.", "Document No.");
         PurchDocLineComments.SetRange("Document Line No.", "Line No.");
         if not PurchDocLineComments.IsEmpty then
-            PurchDocLineComments.DeleteAll;
+            PurchDocLineComments.DeleteAll();
 
         PostedDeferralHeader.DeleteHeader(DeferralUtilities.GetPurchDeferralDocType, '', '',
           PurchDocLineComments."Document Type"::"Posted Invoice", "Document No.", "Line No.");
@@ -711,11 +711,11 @@ table 123 "Purch. Inv. Line"
 
     procedure CalcVATAmountLines(PurchInvHeader: Record "Purch. Inv. Header"; var TempVATAmountLine: Record "VAT Amount Line" temporary)
     begin
-        TempVATAmountLine.DeleteAll;
+        TempVATAmountLine.DeleteAll();
         SetRange("Document No.", PurchInvHeader."No.");
         if Find('-') then
             repeat
-                TempVATAmountLine.Init;
+                TempVATAmountLine.Init();
                 TempVATAmountLine.CopyFromPurchInvLine(Rec);
                 TempVATAmountLine.InsertLine;
             until Next = 0;
@@ -734,7 +734,7 @@ table 123 "Purch. Inv. Line"
         PurchInvHeader: Record "Purch. Inv. Header";
     begin
         if not PurchInvHeader.Get("Document No.") then
-            PurchInvHeader.Init;
+            PurchInvHeader.Init();
         if PurchInvHeader."Prices Including VAT" then
             exit('2,1,' + GetFieldCaption(FieldNumber));
 
@@ -755,8 +755,8 @@ table 123 "Purch. Inv. Line"
         ItemLedgEntry: Record "Item Ledger Entry";
         ValueEntry: Record "Value Entry";
     begin
-        TempPurchRcptLine.Reset;
-        TempPurchRcptLine.DeleteAll;
+        TempPurchRcptLine.Reset();
+        TempPurchRcptLine.DeleteAll();
 
         if Type <> Type::Item then
             exit;
@@ -768,9 +768,9 @@ table 123 "Purch. Inv. Line"
                 ItemLedgEntry.Get(ValueEntry."Item Ledger Entry No.");
                 if ItemLedgEntry."Document Type" = ItemLedgEntry."Document Type"::"Purchase Receipt" then
                     if PurchRcptLine.Get(ItemLedgEntry."Document No.", ItemLedgEntry."Document Line No.") then begin
-                        TempPurchRcptLine.Init;
+                        TempPurchRcptLine.Init();
                         TempPurchRcptLine := PurchRcptLine;
-                        if TempPurchRcptLine.Insert then;
+                        if TempPurchRcptLine.Insert() then;
                     end;
             until ValueEntry.Next = 0;
     end;
@@ -825,8 +825,8 @@ table 123 "Purch. Inv. Line"
         ValueEntry: Record "Value Entry";
     begin
         if SetQuantity then begin
-            TempItemLedgEntry.Reset;
-            TempItemLedgEntry.DeleteAll;
+            TempItemLedgEntry.Reset();
+            TempItemLedgEntry.DeleteAll();
 
             if Type <> Type::Item then
                 exit;
@@ -846,13 +846,13 @@ table 123 "Purch. Inv. Line"
                         TempItemLedgEntry."Remaining Quantity" := Abs(TempItemLedgEntry.Quantity);
                 end;
                 OnGetItemLedgEntriesOnBeforeTempItemLedgEntryInsert(TempItemLedgEntry, ValueEntry, SetQuantity);
-                if TempItemLedgEntry.Insert then;
+                if TempItemLedgEntry.Insert() then;
             until ValueEntry.Next = 0;
     end;
 
-    local procedure FilterPstdDocLineValueEntries(var ValueEntry: Record "Value Entry")
+    procedure FilterPstdDocLineValueEntries(var ValueEntry: Record "Value Entry")
     begin
-        ValueEntry.Reset;
+        ValueEntry.Reset();
         ValueEntry.SetCurrentKey("Document No.");
         ValueEntry.SetRange("Document No.", "Document No.");
         ValueEntry.SetRange("Document Type", ValueEntry."Document Type"::"Purchase Invoice");
@@ -885,7 +885,7 @@ table 123 "Purch. Inv. Line"
     begin
         Init;
         TransferFields(PurchLine);
-        if ("No." = '') and (Type in [Type::"G/L Account" .. Type::"Charge (Item)"]) then
+        if ("No." = '') and HasTypeToFillMandatoryFields() then
             Type := Type::" ";
         "Posting Date" := PurchInvHeader."Posting Date";
         "Document No." := PurchInvHeader."No.";

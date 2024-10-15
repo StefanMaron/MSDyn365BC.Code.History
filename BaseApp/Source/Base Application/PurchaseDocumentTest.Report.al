@@ -920,6 +920,7 @@ report 402 "Purchase Document - Test"
                                     No[2] := "Job No.";
                                     TableID[3] := DATABASE::"Work Center";
                                     No[3] := "Work Center No.";
+                                    OnBeforeCheckDimValuePostingLine("Purchase Line", TableID, No);
                                     if not DimMgt.CheckDimValuePosting(TableID, No, "Dimension Set ID") then
                                         AddError(DimMgt.GetDimValuePostingErr);
                                 end;
@@ -1554,7 +1555,7 @@ report 402 "Purchase Document - Test"
                 No[4] := "Campaign No.";
                 TableID[5] := DATABASE::"Responsibility Center";
                 No[5] := "Responsibility Center";
-
+                OnBeforeCheckDimValuePostingHeader("Purchase Header", TableID, No);
                 if not DimMgt.CheckDimValuePosting(TableID, No, "Dimension Set ID") then
                     AddError(DimMgt.GetDimValuePostingErr);
 
@@ -2265,6 +2266,16 @@ report 402 "Purchase Document - Test"
                               StrSubstNo(Text010, Format("Posting Date")))
                     end;
                 end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckDimValuePostingHeader(var PurchaseHeader: Record "Purchase Header"; TableID: array[10] of Integer; No: array[10] of Code[20]);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckDimValuePostingLine(var PurchaseLine: Record "Purchase Line"; TableID: array[10] of Integer; No: array[10] of Code[20]);
+    begin
     end;
 
     [IntegrationEvent(false, false)]

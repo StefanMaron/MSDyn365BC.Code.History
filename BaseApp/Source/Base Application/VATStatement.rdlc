@@ -706,9 +706,6 @@
               </TablixMembers>
             </TablixRowHierarchy>
             <DataSetName>DataSet_Result</DataSetName>
-            <PageBreak>
-              <BreakLocation>End</BreakLocation>
-            </PageBreak>
             <Height>0.97222in</Height>
             <Width>17.91361cm</Width>
             <Style>

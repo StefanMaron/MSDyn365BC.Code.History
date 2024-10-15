@@ -1,4 +1,4 @@
-page 440 "Issued Reminder List"
+﻿page 440 "Issued Reminder List"
 {
     ApplicationArea = Suite;
     Caption = 'Issued Reminders';
@@ -150,10 +150,11 @@ page 440 "Issued Reminder List"
                     trigger OnAction()
                     var
                         IssuedReminderHeader: Record "Issued Reminder Header";
+                        ExportEHFReminder: Codeunit "Export EHF Reminder";
                     begin
                         IssuedReminderHeader := Rec;
-                        IssuedReminderHeader.SetRecFilter;
-                        REPORT.RunModal(REPORT::"Create Electronic Reminders", true, false, IssuedReminderHeader);
+                        CurrPage.SetSelectionFilter(IssuedReminderHeader);
+                        ExportEHFReminder.ExportEFHReminder30(IssuedReminderHeader, IssuedReminderHeader.GetView());
                     end;
                 }
             }
@@ -174,6 +175,8 @@ page 440 "Issued Reminder List"
                 var
                     IssuedReminderHeader: Record "Issued Reminder Header";
                 begin
+                    IssuedReminderHeader := Rec;
+                    OnBeforePrintRecords(Rec, IssuedReminderHeader);
                     CurrPage.SetSelectionFilter(IssuedReminderHeader);
                     IssuedReminderHeader.PrintRecords(true, false, false);
                 end;
@@ -276,5 +279,10 @@ page 440 "Issued Reminder List"
             }
         }
     }
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePrintRecords(IssuedReminderHeaderRec: Record "Issued Reminder Header"; var IssuedReminderHeaderToPrint: Record "Issued Reminder Header")
+    begin
+    end;
 }
 

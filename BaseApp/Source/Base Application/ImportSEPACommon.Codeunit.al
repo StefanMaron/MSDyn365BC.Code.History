@@ -163,6 +163,7 @@ codeunit 10635 "Import SEPA Common"
     local procedure SaveErrorInfo(WaitingJournal: Record "Waiting Journal"; CauseCode: Text[20]; AdditionalInfo: Text[150]; RemittancePaymentOrder: Record "Remittance Payment Order")
     var
         ReturnError: Record "Return Error";
+        MessageText: Text;
     begin
         ReturnError.Validate("Transaction Name", 'SEPA');
         ReturnError.Validate(Date, Today);
@@ -170,14 +171,27 @@ codeunit 10635 "Import SEPA Common"
         ReturnError.Validate("Waiting Journal Reference", WaitingJournal.Reference);
         ReturnError.Validate("Payment Order ID", RemittancePaymentOrder.ID);
         ReturnError.Validate("Serial Number", 0); // Finally specified in 'OnInsert'
-        if CauseCode <> '' then
-            if AdditionalInfo <> '' then
-                ReturnError.Validate("Message Text", 'Code: ' + CauseCode + ' Message: "' + AdditionalInfo + '".')
-            else
-                ReturnError.Validate("Message Text", 'Code: ' + CauseCode + '.')
+        AddToMessageText(MessageText, 'Code', CauseCode);
+        if AdditionalInfo <> '' then
+            AddToMessageText(MessageText, 'Message', StrSubstNo('"%1"', AdditionalInfo));
+        if MessageText = '' then
+            AddToMessageText(MessageText, '', TransactionRejectedMsg)
         else
-            ReturnError.Validate("Message Text", TransactionRejectedMsg);
+            MessageText += '.';
+        ReturnError.Validate("Message Text", CopyStr(MessageText, 1, MaxStrLen(ReturnError."Message Text")));
         ReturnError.Insert(true);
+    end;
+
+    local procedure AddToMessageText(var MessageText: Text; Prefix: Text; TextToAdd: Text)
+    begin
+        if TextToAdd = '' then
+            exit;
+        if MessageText <> '' then
+            MessageText += ' ';
+        if Prefix = '' then
+            MessageText += TextToAdd
+        else
+            MessageText += StrSubstNo('%1: %2', Prefix, TextToAdd);
     end;
 
     [Scope('OnPrem')]

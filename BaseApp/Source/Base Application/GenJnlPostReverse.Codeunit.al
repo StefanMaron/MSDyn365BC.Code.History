@@ -125,7 +125,7 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
         if not TempBankAccLedgEntry.IsEmpty then
             Error(ReversalMismatchErr, BankAccLedgEntry.TableCaption);
 
-        OnReverseOnBeforeFinishPosting(ReversalEntry, ReversalEntry2, GenJnlPostLine);
+        OnReverseOnBeforeFinishPosting(ReversalEntry, ReversalEntry2, GenJnlPostLine, GLReg);
 
         GenJnlPostLine.FinishPosting(GenJnlLine);
 
@@ -864,7 +864,7 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnReverseOnBeforeFinishPosting(var ReversalEntry: Record "Reversal Entry"; var ReversalEntry2: Record "Reversal Entry"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
+    local procedure OnReverseOnBeforeFinishPosting(var ReversalEntry: Record "Reversal Entry"; var ReversalEntry2: Record "Reversal Entry"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; var GLRegister: Record "G/L Register")
     begin
     end;
 

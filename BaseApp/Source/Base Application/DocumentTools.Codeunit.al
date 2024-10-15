@@ -158,6 +158,17 @@ codeunit 10601 DocumentTools
         exit(GiroKID);
     end;
 
+    procedure GetEInvoicePEPPOLPaymentID(SalesHeader: Record "Sales Header"): Code[30]
+    var
+        GiroKID: Text[25];
+        KIDError: Boolean;
+    begin
+        GenerateGiroKID(1, SalesHeader."No.", SalesHeader."Bill-to Customer No.", GiroKID, KIDError);
+        if KIDError or (GiroKID = '') then
+            exit(SalesHeader."No.");
+        exit(GiroKID);
+    end;
+
     procedure GetKundeID(var KundeTxt: Text; var KundeID: Text[25]; DocumentType: Integer; DocumentNo: Code[20]; CustomerNo: Code[20]);
     var
         KIDError: Boolean;

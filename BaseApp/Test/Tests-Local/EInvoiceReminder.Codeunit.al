@@ -210,7 +210,7 @@ codeunit 144118 "E-Invoice Reminder"
     end;
 
     [Test]
-    [HandlerFunctions('SuccessMsgHandler,ConfirmHandler')]
+    [HandlerFunctions('SuccessMsgHandler')]
     [Scope('OnPrem')]
     procedure ReminderWithVATExemption()
     var
@@ -338,29 +338,6 @@ codeunit 144118 "E-Invoice Reminder"
         NOXMLReadHelper.VerifyNodeValue(
           '//cac:AccountingSupplierParty/cac:Party/cbc:EndpointID',
           EInvoiceDocumentEncode.GetVATRegNo(CompanyInformation."VAT Registration No.", false));
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure ReminderWithCompanyInfoGLN()
-    var
-        CompanyInformation: Record "Company Information";
-    begin
-        // [SCENARIO 303015] Cannot issue reminder when Company Information has blank VAT Registration No.
-        Initialize;
-
-        // [GIVEN] Company Information with GLN = '01234123456789' 'VAT Reg. No.' = blank
-        CompanyInformation.Get;
-        CompanyInformation.GLN := LibraryUtility.GenerateGUID;
-        CompanyInformation."VAT Registration No." := '';
-        CompanyInformation.Modify;
-
-        // [WHEN]  Issue Reminder
-        asserterror EInvoiceReminderHelper.CreateReminder;
-
-        // [THEN] Error that VAT Registration No. must have a value in Company Information
-        Assert.ExpectedErrorCode('TestField');
-        Assert.ExpectedError(StrSubstNo('%1 must have a value', CompanyInformation.FieldCaption("VAT Registration No.")));
     end;
 
     local procedure Initialize()
@@ -554,13 +531,6 @@ codeunit 144118 "E-Invoice Reminder"
     procedure SuccessMsgHandler(Text: Text[1024])
     begin
         Assert.ExpectedMessage(SuccessfullyCreatedMsg, Text);
-    end;
-
-    [ConfirmHandler]
-    [Scope('OnPrem')]
-    procedure ConfirmHandler(Question: Text[1024]; var Reply: Boolean)
-    begin
-        Reply := true;
     end;
 }
 

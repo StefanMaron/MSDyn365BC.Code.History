@@ -58,7 +58,7 @@ codeunit 1223 "SEPA CT-Check Line"
                 InsertPaymentFileError(MustBePositiveErr);
 
             IsNorgeExport := DocumentTools.IsNorgeSEPACT(GenJnlLine);
-            if not IsNorgeExport and ("Currency Code" <> GLSetup.GetCurrencyCode('EUR')) then begin
+            if (not IsNorgeExport) and ("Currency Code" <> GLSetup.GetCurrencyCode('EUR')) and (not GLSetup."SEPA Non-Euro Export") then begin
                 BankAccount.Get("Bal. Account No.");
                 InsertPaymentFileError(StrSubstNo(EuroCurrErr, "Bal. Account No.", BankAccount."Payment Export Format"));
             end;
