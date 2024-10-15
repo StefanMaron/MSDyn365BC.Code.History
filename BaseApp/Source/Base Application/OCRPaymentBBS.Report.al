@@ -25,7 +25,11 @@ report 15000064 "OCR Payment - BBS"
 
                         trigger OnAssistEdit()
                         begin
+#if not CLEAN17
                             FileName := FileMgt.OpenFileDialog(Text10613, FileName, Text10614);
+#else
+                            FileName := FileMgt.UploadFile(Text10613, FileName);
+#endif
                             if FileName <> '' then
                                 OCRPaymentFileName := FileMgt.GetFileName(FileName);
                         end;
@@ -73,19 +77,24 @@ report 15000064 "OCR Payment - BBS"
             Message(Text10619, MessageText, NumberOfWarnings)
         else
             Message(MessageText);
-
+#if not CLEAN17
         if OCRSetup."Delete Return File" then
             CreateFilename;
+#endif
     end;
 
     trigger OnPreReport()
     begin
         if FileName = '' then
             Error(Text10632);
+#if not CLEAN17
         if not FileMgt.IsLocalFileSystemAccessible then
             ServerTempFile := FileName
         else
             ServerTempFile := FileMgt.UploadFileSilent(FileName);
+#else
+        ServerTempFile := FileName;
+#endif
 
         if ((OCRSetup."Journal Template Name" <> '') or (OCRSetup."Journal Name" <> '')) and
            ((OCRSetup."Journal Template Name" <> JournalSelection."Journal Template Name") or
@@ -473,7 +482,9 @@ report 15000064 "OCR Payment - BBS"
         GenJnlLine.Validate("Warning text", Text);
     end;
 
+#if not CLEAN17
     [Scope('OnPrem')]
+    [Obsolete('ClientFileExists will always return false.', '17.4')]
     procedure CreateFilename()
     begin
         if FileMgt.ClientFileExists(FileName) then begin
@@ -491,6 +502,7 @@ report 15000064 "OCR Payment - BBS"
             FileMgt.MoveFile(FileName, file1);
         end;
     end;
+#endif
 
     local procedure ParseBbsDate(var BbsDate: Date; OCRDateString: Text[6])
     var

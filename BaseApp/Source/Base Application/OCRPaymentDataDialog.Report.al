@@ -25,7 +25,11 @@ report 15000065 "OCR Payment - Data Dialog"
 
                         trigger OnAssistEdit()
                         begin
+#if not CLEAN17
                             FileName := FileMgt.OpenFileDialog(Text10623, FileName, Text10624);
+#else
+                            FileName := FileMgt.UploadFile(Text10623, FileName);
+#endif
                             if FileName <> '' then
                                 OCRPaymentFileName := FileMgt.GetFileName(FileName);
                         end;
@@ -69,9 +73,10 @@ report 15000065 "OCR Payment - Data Dialog"
             Message(text160807, MessageText, NumberOfWarnings)
         else
             Message(MessageText);
-
+#if not CLEAN17
         if OCRSetup."Delete Return File" then
-            CreateFilename;
+            CreateFilename();
+#endif
     end;
 
     trigger OnPreReport()
@@ -79,10 +84,14 @@ report 15000065 "OCR Payment - Data Dialog"
         if FileName = '' then
             Error(Text160815);
 
+#if not CLEAN17
         if not FileMgt.IsLocalFileSystemAccessible then
             ServerTempFile := FileName
         else
             ServerTempFile := FileMgt.UploadFileSilent(FileName);
+#else
+        ServerTempFile := FileName;
+#endif
 
         if ((OCRSetup."Journal Template Name" <> '') or (OCRSetup."Journal Name" <> '')) and
            ((OCRSetup."Journal Template Name" <> JournalSelection."Journal Template Name") or
@@ -437,7 +446,9 @@ report 15000065 "OCR Payment - Data Dialog"
         GenJnlLine.Validate("Warning text", Text);
     end;
 
+#if not CLEAN17
     [Scope('OnPrem')]
+    [Obsolete('ClientFileExists will always return false.', '17.4')]
     procedure CreateFilename()
     begin
         if FileMgt.ClientFileExists(FileName) then begin
@@ -455,5 +466,6 @@ report 15000065 "OCR Payment - Data Dialog"
             FileMgt.MoveFile(FileName, file1);
         end;
     end;
+#endif
 }
 

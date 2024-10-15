@@ -61,7 +61,8 @@ codeunit 10671 "SAF-T XML Import"
         TempTenantMedia: Record "Tenant Media" temporary;
         TempXMLBuffer: Record "XML Buffer" temporary;
     begin
-        CopyTenantMediaToTempFromMappingSource(TempTenantMedia, SAFTMappingSource);
+        if not CopyTenantMediaToTempFromMappingSource(TempTenantMedia, SAFTMappingSource) then
+            exit;
         FillXMLBufferFromMediaResource(TempXMLBuffer, TempTenantMedia);
         Case SAFTMappingSource."Source Type" of
             SAFTMappingSource."Source Type"::"Two Digit Standard Account", SAFTMappingSource."Source Type"::"Four Digit Standard Account":
@@ -216,6 +217,7 @@ codeunit 10671 "SAF-T XML Import"
     var
         TenantMedia: Record "Tenant Media";
         SAFTMappingSource: Record "SAF-T Mapping Source";
+        TenantMediaExists: Boolean;
     begin
         SAFTMappingSource.SetRange("Source Type", SAFTMappingSourceType);
         if not SAFTMappingSource.FindSet() then begin
@@ -225,7 +227,12 @@ codeunit 10671 "SAF-T XML Import"
         end;
         repeat
             MappingSourceFileLoaded := false;
-            if GetTenantMediaFromMappingSourceNo(TenantMedia, SAFTMappingSource."Source No.") then begin
+            TenantMediaExists := false;
+            if GetTenantMediaFromMappingSourceNo(TenantMedia, SAFTMappingSource."Source No.") then
+                TenantMediaExists := true
+            else
+                TenantMediaExists := InitTenantMediaFromMediaResources(TenantMedia, SAFTMappingSource."Source No.");
+            if TenantMediaExists then begin
                 TenantMedia.CalcFields(Content);
                 if TenantMedia.Content.HasValue() then begin
                     TempTenantMedia.Init();
@@ -241,24 +248,43 @@ codeunit 10671 "SAF-T XML Import"
         exit(MappingSourceFileLoaded);
     end;
 
-    local procedure CopyTenantMediaToTempFromMappingSource(var TempTenantMedia: Record "Tenant Media" temporary; SAFTMappingSource: Record "SAF-T Mapping Source")
+    local procedure CopyTenantMediaToTempFromMappingSource(var TempTenantMedia: Record "Tenant Media" temporary; SAFTMappingSource: Record "SAF-T Mapping Source"): Boolean
     var
         TenantMedia: Record "Tenant Media";
     begin
         if not GetTenantMediaFromMappingSourceNo(TenantMedia, SAFTMappingSource."Source No.") then
-            error(MappingFileNotLoadedErr, SAFTMappingSource."Source No.");
+            if not InitTenantMediaFromMediaResources(TenantMedia, SAFTMappingSource."Source No.") then
+                exit(false);
         TenantMedia.CalcFields(content);
         TempTenantMedia.Init();
         TempTenantMedia := TenantMedia;
         if not TempTenantMedia.Find() then
             TempTenantMedia.Insert();
+        exit(true);
     end;
 
-    local procedure GetTenantMediaFromMappingSourceNo(var TenantMedia: Record "Tenant Media" temporary; SourceNo: Code[50]): Boolean
+    local procedure GetTenantMediaFromMappingSourceNo(var TenantMedia: Record "Tenant Media"; SourceNo: Code[50]): Boolean
     begin
         TenantMedia.SetRange("Company Name", CompanyName());
-        TenantMedia.SetRange("File Name", SourceNo);
+        TenantMedia.SetRange("File Name", UpperCase(SourceNo));
         exit(TenantMedia.FindFirst());
+    end;
+
+    local procedure InitTenantMediaFromMediaResources(var TenantMedia: Record "Tenant Media"; SourceNo: Code[50]): Boolean
+    var
+        MediaResources: Record "Media Resources";
+        TempBlob: Codeunit "Temp Blob";
+        ImportFileInStream: InStream;
+        ImportFileOutStream: OutStream;
+    begin
+        if not MediaResources.Get(SourceNo) then
+            exit(false);
+        TempBlob.CreateOutStream(ImportFileOutStream);
+        MediaResources.CalcFields(Blob);
+        MediaResources.Blob.CreateInStream(ImportFileInStream);
+        CopyStream(ImportFileOutStream, ImportFileInStream);
+        InsertTenantMediaRecWithTempBlob(TenantMedia, TempBlob, SourceNo);
+        exit(true);
     end;
 
     local procedure FillXMLBufferFromMediaResource(var TempXMLBuffer: Record "XML Buffer" temporary; var TempTenantMedia: Record "Tenant Media" temporary)
@@ -305,8 +331,6 @@ codeunit 10671 "SAF-T XML Import"
     var
         TempBlob: Codeunit "Temp Blob";
         FileManagement: Codeunit "File Management";
-        ImportFileInStream: InStream;
-        ImportFileOutStream: OutStream;
         ClientFileName: Text;
         FileName: Code[50];
     begin
@@ -317,10 +341,17 @@ codeunit 10671 "SAF-T XML Import"
         FileName := COPYSTR(FileManagement.GetFileName(ClientFileName), 1, MAXSTRLEN(FileName));
         If GetTenantMediaFromMappingSourceNo(TenantMedia, FileName) then
             TenantMedia.Delete();
+        InsertTenantMediaRecWithTempBlob(TenantMedia, TempBlob, FileName);
+    end;
 
+    local procedure InsertTenantMediaRecWithTempBlob(var TenantMedia: Record "Tenant Media"; var TempBlob: Codeunit "Temp Blob"; FileName: Code[50])
+    var
+        ImportFileInStream: InStream;
+        ImportFileOutStream: OutStream;
+    begin
         TenantMedia.Init();
         TenantMedia.Id := CreateGuid();
-        TenantMedia."File Name" := FileName;
+        TenantMedia."File Name" := UpperCase(FileName);
         TempBlob.CreateInStream(ImportFileInStream);
         TenantMedia.Content.CreateOutStream(ImportFileOutStream);
         CopyStream(ImportFileOutStream, ImportFileInStream);

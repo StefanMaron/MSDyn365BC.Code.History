@@ -46,7 +46,11 @@ report 15000000 "Rem. paym. order - man. export"
                         var
                             FileMgt: Codeunit "File Management";
                         begin
+#if not CLEAN17
                             CurrentFilename := FileMgt.OpenFileDialog(Text15000000, CurrentFilename, Text15000001);
+#else
+                            CurrentFilename := FileMgt.UploadFile(Text15000000, CurrentFilename);
+#endif
                             if CurrentFilename <> '' then
                                 Filename := FileMgt.GetFileName(CurrentFilename);
                         end;

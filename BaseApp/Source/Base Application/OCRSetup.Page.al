@@ -26,7 +26,11 @@ page 15000100 "OCR Setup"
 
                     trigger OnAssistEdit()
                     begin
+#if not CLEAN17
                         ComDlgFilename := FileMgt.OpenFileDialog(FieldCaption(FileName), FileName, '');
+#else
+                        ComDlgFilename := FileMgt.UploadFile(FieldCaption(FileName), FileName);
+#endif
                         if ComDlgFilename <> '' then begin
                             Validate(FileName, ComDlgFilename);
                             OCRSetupFileName := FileMgt.GetFileName(ComDlgFilename);

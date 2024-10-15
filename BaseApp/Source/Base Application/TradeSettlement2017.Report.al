@@ -577,6 +577,7 @@ report 10618 "Trade Settlement 2017"
                             Enabled = ExportXML;
                             ToolTip = 'Specifies XML file that information in the report is exported to.';
 
+#if not CLEAN17
                             trigger OnAssistEdit()
                             var
                                 FileManagement: Codeunit "File Management";
@@ -584,7 +585,14 @@ report 10618 "Trade Settlement 2017"
                                 ClientFileName :=
                                   FileManagement.SaveFileDialog(XMLOpenFileDialogCaptionLbl, ClientFileName, FileManagement.GetToFilterText('', '.XML'));
                             end;
+#else
+                            trigger OnAssistEdit()
+                            begin
+                                ClientFileName := '';
+                            end;
+#endif
                         }
+
                     }
                 }
             }
@@ -792,7 +800,11 @@ report 10618 "Trade Settlement 2017"
         TradeSettlement2017.SetDestination(OutStream);
         TradeSettlement2017.Export;
         ExportFile.Close;
+#if not CLEAN17
         FileManagement.DownloadToFile(ServerFileName, ClientFileName);
+#else
+        FileManagement.DownloadHandler(ServerFileName, '', '', '', ClientFileName);
+#endif
     end;
 
     local procedure CalculateVATBaseAndAmount(var Base: Decimal; var Amount: Decimal)

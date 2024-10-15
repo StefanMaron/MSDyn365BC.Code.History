@@ -1,4 +1,4 @@
-codeunit 1221 "SEPA CT-Fill Export Buffer"
+﻿codeunit 1221 "SEPA CT-Fill Export Buffer"
 {
     Permissions = TableData "Payment Export Data" = rimd;
     TableNo = "Payment Export Data";
@@ -127,26 +127,30 @@ codeunit 1221 "SEPA CT-Fill Export Buffer"
                 GetAppliesToDocEntryNumbers(TempGenJnlLine, TempInteger);
                 if TempInteger.FindSet then
                     repeat
-                        CreditTransferEntry.CreateNew(
-                          CreditTransferRegister."No.", 0,
-                          TempGenJnlLine."Account Type", TempGenJnlLine."Account No.",
-                          TempInteger.Number,
-                          "Transfer Date", "Currency Code", Amount, CopyStr("End-to-End ID", 1, MaxStrLen("End-to-End ID")),
-                          TempGenJnlLine."Recipient Bank Account", TempGenJnlLine."Message to Recipient");
-                    until TempInteger.Next = 0
+                        CreateNewCreditTransferEntry(
+                            PaymentExportData, CreditTransferEntry, CreditTransferRegister, TempGenJnlLine, 0, TempInteger.Number);
+                    until TempInteger.Next() = 0
                 else
-                    CreditTransferEntry.CreateNew(
-                      CreditTransferRegister."No.", "Entry No.",
-                      TempGenJnlLine."Account Type", TempGenJnlLine."Account No.",
-                      TempGenJnlLine.GetAppliesToDocEntryNo,
-                      "Transfer Date", "Currency Code", Amount, CopyStr("End-to-End ID", 1, MaxStrLen("End-to-End ID")),
-                      TempGenJnlLine."Recipient Bank Account", TempGenJnlLine."Message to Recipient");
+                    CreateNewCreditTransferEntry(
+                        PaymentExportData, CreditTransferEntry, CreditTransferRegister, TempGenJnlLine, "Entry No.", TempGenJnlLine.GetAppliesToDocEntryNo());
                 MoveToWaitingJournal(
                   TempGenJnlLine, CopyStr("Message ID", 1, 20), CopyStr("Payment Information ID", 1, 20), CopyStr("Document No.", 1, 20),
                   CopyStr("End-to-End ID", 1, 20));
                 RemittanceTools.MarkEntry(TempGenJnlLine, 'REM', RemittancePaymentOrder.ID);
             until TempGenJnlLine.Next = 0;
         end;
+    end;
+
+    local procedure CreateNewCreditTransferEntry(var PaymentExportData: Record "Payment Export Data"; var CreditTransferEntry: Record "Credit Transfer Entry"; CreditTransferRegister: Record "Credit Transfer Register"; var TempGenJnlLine: Record "Gen. Journal Line" temporary; EntryNo: Integer; LedgerEntryNo: Integer)
+    begin
+        with PaymentExportData do
+            CreditTransferEntry.CreateNew(
+                CreditTransferRegister."No.", EntryNo,
+                TempGenJnlLine."Account Type", TempGenJnlLine."Account No.", LedgerEntryNo,
+                "Transfer Date", "Currency Code", Amount, CopyStr("End-to-End ID", 1, MaxStrLen("End-to-End ID")),
+                TempGenJnlLine."Recipient Bank Account", TempGenJnlLine."Message to Recipient");
+
+        OnAfterCreateNewCreditTransferEntry(PaymentExportData, CreditTransferEntry, TempGenJnlLine);
     end;
 
     internal procedure GetAppliesToDocEntryNumbers(GenJournalLine: Record "Gen. Journal Line"; var TempInteger: Record "Integer" temporary)
@@ -379,6 +383,11 @@ codeunit 1221 "SEPA CT-Fill Export Buffer"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateGenJnlFields(var PaymentExportData: Record "Payment Export Data"; GenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateNewCreditTransferEntry(var PaymentExportData: Record "Payment Export Data"; var CreditTransferEntry: Record "Credit Transfer Entry"; var TempGenJnlLine: Record "Gen. Journal Line" temporary)
     begin
     end;
 

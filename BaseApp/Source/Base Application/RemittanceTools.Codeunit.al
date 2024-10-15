@@ -571,7 +571,9 @@ codeunit 15000002 "Remittance Tools"
     [Scope('OnPrem')]
     procedure NewFilename(FileName: Text[250]): Text[250]
     var
+#if not CLEAN17
         FileMgt: Codeunit "File Management";
+#endif
         File1: Text[250];
         File2: Text[250];
     begin
@@ -586,7 +588,7 @@ codeunit 15000002 "Remittance Tools"
         // If one of the two last chras. is  ~ , the new filename is NOT created.
         // This because the name already exists, as an older file
         // for ex. if the user imports an old file
-
+#if not CLEAN17
         if FileMgt.ClientFileExists(FileName) then begin
             if (CopyStr(FileName, StrLen(FileName) - 1, 1) = '~') or
                (CopyStr(FileName, StrLen(FileName) - 2, 1) = '~')
@@ -601,6 +603,7 @@ codeunit 15000002 "Remittance Tools"
                 FileMgt.MoveFile(File1, File2);
             FileMgt.MoveFile(FileName, File1);
         end;
+#endif
 
         exit(File1);
     end;

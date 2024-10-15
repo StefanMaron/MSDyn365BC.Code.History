@@ -249,7 +249,11 @@ report 15000060 "Remittance - export (BBS)"
 
                         trigger OnAssistEdit()
                         begin
+#if not CLEAN17
                             CurrentFilename := FileMgt.SaveFileDialog(Text014, CurrentFilename, Text015);
+#else
+                            CurrentFilename := '';
+#endif
                         end;
                     }
                 }

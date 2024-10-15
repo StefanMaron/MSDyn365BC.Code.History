@@ -29,6 +29,9 @@ codeunit 10636 "Import Pain002"
         Pain002NamespaceTxt: Label 'urn:iso:std:iso:20022:tech:xsd:pain.002.001.03';
         AccountCurrency: Code[3];
         LatestCurrencyCode: Code[3];
+#if CLEAN17
+        ChooseFileTitleMsg: Label 'Choose the file to upload.';
+#endif
 
     [Scope('OnPrem')]
     procedure ImportAndHandlePain002File(GenJournalLine: Record "Gen. Journal Line"; FileName: Text[250]; Note: Text[50])
@@ -181,8 +184,12 @@ codeunit 10636 "Import Pain002"
         FileManagement: Codeunit "File Management";
         ServerFile: Text;
     begin
+#if not CLEAN17
         ServerFile := FilePath;
         ServerFile := FileManagement.UploadFileToServer(FilePath);
+#else
+        ServerFile := FileManagement.UploadFile(ChooseFileTitleMsg, '');
+#endif
 
         XMLDOMManagement.LoadXMLDocumentFromFile(ServerFile, XmlDocumentPain002);
         XMLDOMManagement.AddNamespaces(XmlNamespaceManagerPain002, XmlDocumentPain002);

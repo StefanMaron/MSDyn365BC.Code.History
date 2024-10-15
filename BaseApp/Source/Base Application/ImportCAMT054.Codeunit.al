@@ -32,6 +32,9 @@ codeunit 10637 "Import CAMT054"
         AccountCurrency: Code[3];
         LatestCurrencyCode: Code[3];
         CustomExchRateIsConfirmed: Boolean;
+        #if CLEAN17
+        ChooseFileTitleMsg: Label 'Choose the file to upload.';
+        #endif
 
     [Scope('OnPrem')]
     procedure ImportAndHandleCAMT054File(GenJournalLine: Record "Gen. Journal Line"; FileName: Text[250]; Note: Text[50])
@@ -125,8 +128,12 @@ codeunit 10637 "Import CAMT054"
         FileManagement: Codeunit "File Management";
         ServerFile: Text;
     begin
+        #if not CLEAN17
         ServerFile := FilePath;
         ServerFile := FileManagement.UploadFileToServer(FilePath);
+        #else 
+        ServerFile := FileManagement.UploadFile(ChooseFileTitleMsg, '');
+        #endif
 
         XMLDOMManagement.LoadXMLDocumentFromFile(ServerFile, XmlDocumentCAMT054);
         XMLDOMManagement.AddNamespaces(XmlNamespaceManagerCAMT054, XmlDocumentCAMT054);

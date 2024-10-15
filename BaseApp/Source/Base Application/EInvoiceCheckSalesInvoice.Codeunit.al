@@ -11,8 +11,10 @@ codeunit 10615 "E-Invoice Check Sales Invoice"
         EInvoiceCheckCommon.CheckCurrencyCode("Currency Code", "No.", "Posting Date");
     end;
 
+#if not CLEAN17
     var
         InvalidPathErr: Label 'does not contain a valid path';
+#endif
 
     [Scope('OnPrem')]
     procedure CheckCompanyInfo()
@@ -35,13 +37,17 @@ codeunit 10615 "E-Invoice Check Sales Invoice"
     local procedure CheckSalesSetup()
     var
         SalesSetup: Record "Sales & Receivables Setup";
+#if not CLEAN17
         FileManagement: Codeunit "File Management";
+#endif
     begin
         // If it's RTC, is there a location for storing the file? If not, don't create the e-invoice
         SalesSetup.Get();
         SalesSetup.TestField("E-Invoice Sales Invoice Path");
+#if not CLEAN17
         if not FileManagement.DirectoryExistsOnDotNetClient(SalesSetup."E-Invoice Sales Invoice Path") then
             SalesSetup.FieldError("E-Invoice Sales Invoice Path", InvalidPathErr);
+#endif
     end;
 }
 

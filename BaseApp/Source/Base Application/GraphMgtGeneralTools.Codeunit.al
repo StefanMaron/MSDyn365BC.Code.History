@@ -15,6 +15,12 @@ codeunit 5465 "Graph Mgt - General Tools"
         MissingFieldValueErr: Label '%1 must be specified.', Comment = '%1 = Property name';
         AggregateErrorTxt: Label 'AL APIAggregate', Locked = true;
         AggregateIsMissingMainRecordTxt: Label 'Aggregate does not have main record.';
+        JobQueueIsRunningErr: Label 'The job queue entry is already running. Stop the existing job queue entry, and then schedule a new entry.';
+        JobQueueEntryUpdateRecordsDescTxt: Label 'Job to update API records';
+        JobQEntriesCreatedQst: Label 'A job queue entry for updating the records has been created.\\ The process may take several hours to complete. We recommend that you schedule the job for a time slot outside your organization''s working hours. \\Do you want to open the Job Queue Entries and configure the Job Queue?';
+        StartJobQueueNowQst: Label 'Would you like to run the job to update the records now?';
+        JobQueueHasBeenStartedMsg: Label 'The job queue entry will start executing shortly.';
+        JobQueueNotScheudledMsg: Label 'The job has been created and set to On Hold.';
 
     [Scope('OnPrem')]
     procedure GetMandatoryStringPropertyFromJObject(var JsonObject: DotNet JObject; PropertyName: Text; var PropertyValue: Text)
@@ -297,6 +303,48 @@ codeunit 5465 "Graph Mgt - General Tools"
         MainRecordRef.GetTable(MainRecordVariant);
         MainRecordRef.Delete();
         Session.LogMessage('00001QW', AggregateIsMissingMainRecordTxt, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', AggregateErrorTxt);
+    end;
+
+    procedure ScheduleUpdateAPIRecordsJob(CodeunitID: Integer)
+    var
+        JobQueueEntry: Record "Job Queue Entry";
+    begin
+        FindOrCreateJobQueue(JobQueueEntry, CodeunitID);
+        if Confirm(JobQEntriesCreatedQst) then begin
+            PAGE.Run(PAGE::"Job Queue Entry Card", JobQueueEntry);
+            exit;
+        end;
+
+        if Confirm(StartJobQueueNowQst) then begin
+            CODEUNIT.Run(CODEUNIT::"Job Queue - Enqueue", JobQueueEntry);
+            Message(JobQueueHasBeenStartedMsg);
+            exit;
+        end;
+
+        Message(JobQueueNotScheudledMsg);
+    end;
+
+    local procedure FindOrCreateJobQueue(var JobQueueEntry: Record "Job Queue Entry"; CodeunitID: Integer)
+    var
+        JobQueueExist: Boolean;
+    begin
+        JobQueueEntry.SetRange("Object Type to Run", JobQueueEntry."Object Type to Run"::Codeunit);
+        JobQueueEntry.SetRange("Object ID to Run", CodeunitID);
+        JobQueueExist := JobQueueEntry.FindFirst();
+        if JobQueueExist then
+            if JobQueueEntry.Status = JobQueueEntry.Status::"In Process" then
+                Error(JobQueueIsRunningErr);
+
+        JobQueueEntry."Object Type to Run" := JobQueueEntry."Object Type to Run"::Codeunit;
+        JobQueueEntry."Object ID to Run" := CodeunitID;
+        JobQueueEntry."Maximum No. of Attempts to Run" := 3;
+        JobQueueEntry."Recurring Job" := false;
+        JobQueueEntry.Status := JobQueueEntry.Status::"On Hold";
+        JobQueueEntry.Description := CopyStr(JobQueueEntryUpdateRecordsDescTxt, 1, MaxStrLen(JobQueueEntry.Description));
+        if not JobQueueExist then
+            JobQueueEntry.Insert(true)
+        else
+            JobQueueEntry.Modify(true);
     end;
 
     procedure StripBrackets(StringWithBrackets: Text): Text

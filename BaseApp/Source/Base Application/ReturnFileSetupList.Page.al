@@ -20,8 +20,14 @@ page 15000009 "Return File Setup List"
 
                     trigger OnAssistEdit()
                     begin
+#if not CLEAN17
                         ComDlgFilename :=
                           CopyStr(FileMgt.OpenFileDialog(CopyStr(FieldCaption("Return File Name"), 1, 50), "Return File Name", ''), 1, 250);
+#else
+                        ComDlgFilename :=
+                            CopyStr(FileMgt.UploadFile(CopyStr(FieldCaption("Return File Name"), 1, 50), "Return File Name"), 1, 250);
+#endif
+
                         if ComDlgFilename <> '' then begin
                             Validate("Return File Name", ComDlgFilename);
                             FileName := FileMgt.GetFileName(ComDlgFilename);

@@ -324,7 +324,11 @@ report 15000050 "Remittance - export (Bank)"
 
                         trigger OnAssistEdit()
                         begin
+#if not CLEAN17
                             CurrentFilename := FileMgt.SaveFileDialog(Text015, CurrentFilename, Text016);
+#else
+                            CurrentFilename := '';
+#endif
                         end;
                     }
                 }
@@ -371,7 +375,9 @@ report 15000050 "Remittance - export (Bank)"
         PurchSetup: Record "Purchases & Payables Setup";
         RemTools: Codeunit "Remittance Tools";
         ApplicationSystemConstants: Codeunit "Application System Constants";
+#if not CLEAN17
         FileMgt: Codeunit "File Management";
+#endif
         DateNow: Date;
         TimeNow: Time;
         ProductionDate: Text[4];

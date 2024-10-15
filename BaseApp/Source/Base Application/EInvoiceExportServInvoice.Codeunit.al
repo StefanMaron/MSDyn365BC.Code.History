@@ -15,8 +15,10 @@ codeunit 10626 "E-Invoice Export Serv. Invoice"
         ServiceMgtSetup.Get();
         ServiceMgtSetup."E-Invoice Service Invoice Path" := DelChr(ServiceMgtSetup."E-Invoice Service Invoice Path", '>', '\');
         ServiceMgtSetup.TestField("E-Invoice Service Invoice Path");
+#if not CLEAN17
         if not FileMgt.DirectoryExistsOnDotNetClient(ServiceMgtSetup."E-Invoice Service Invoice Path") then
             ServiceMgtSetup.FieldError("E-Invoice Service Invoice Path", InvalidPathErr);
+#endif
 
         // Set filters on the service invoice line
         ServiceInvoiceLine.SetRange("Document No.", "No.");
@@ -78,9 +80,11 @@ codeunit 10626 "E-Invoice Export Serv. Invoice"
     end;
 
     var
-        InvalidPathErr: Label 'does not contain a valid path';
         TempEInvoiceTransferFile: Record "E-Invoice Transfer File" temporary;
+#if not CLEAN17
         FileMgt: Codeunit "File Management";
+        InvalidPathErr: Label 'does not contain a valid path';
+#endif
 
     [Scope('OnPrem')]
     procedure GetExportedFileInfo(var EInvoiceTransferFile: Record "E-Invoice Transfer File")

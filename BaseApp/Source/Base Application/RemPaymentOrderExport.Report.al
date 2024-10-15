@@ -44,7 +44,11 @@ report 15000061 "Rem. Payment Order  - Export"
     begin
         OFile.Close;
         Clear(Ostr);
+#if not CLEAN17
         FileMgt.DownloadToFile(ServerFileName, CurrentFilename);
+#else
+        FileMgt.DownloadHandler(ServerFileName, '', '', '', CurrentFilename);
+#endif
     end;
 
     trigger OnPreReport()

@@ -80,6 +80,7 @@ codeunit 10628 "E-Invoice Export Common"
         ToFile: Text;
     begin
         TempEInvoiceTransferFile.FindSet;
+#if not CLEAN17
         if not FileManagement.IsLocalFileSystemAccessible then begin
             DataCompression.CreateZipArchive;
             repeat
@@ -99,6 +100,20 @@ codeunit 10628 "E-Invoice Export Common"
                   TempEInvoiceTransferFile."Server Temp File Name",
                   StrSubstNo('%1\%2', TempEInvoiceTransferFile."Local Path", TempEInvoiceTransferFile."Local File Name"));
             until TempEInvoiceTransferFile.Next = 0;
+#else
+        DataCompression.CreateZipArchive;
+        repeat
+            FileManagement.BLOBImportFromServerFile(TempBlob, TempEInvoiceTransferFile."Server Temp File Name");
+            TempBlob.CreateInStream(ServerTempFileInStream);
+            DataCompression.AddEntry(ServerTempFileInStream, TempEInvoiceTransferFile."Local File Name");
+        until TempEInvoiceTransferFile.Next = 0;
+        ZipTempBlob.CreateOutStream(ZipOutStream);
+        DataCompression.SaveZipArchive(ZipOutStream);
+        DataCompression.CloseZipArchive();
+        ZipTempBlob.CreateInStream(ZipInStream);
+        ToFile := StrSubstNo('%1.zip', EInvoiceDocumentsTxt);
+        DownloadFromStream(ZipInStream, '', '', '', ToFile);
+#endif
     end;
 
     [Scope('OnPrem')]

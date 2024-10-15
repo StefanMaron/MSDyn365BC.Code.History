@@ -11,7 +11,9 @@ codeunit 134077 "ERM Currency Factor"
 
     var
         LibrarySales: Codeunit "Library - Sales";
+        LibraryPurchase: Codeunit "Library - Purchase";
         LibraryInventory: Codeunit "Library - Inventory";
+        LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryERM: Codeunit "Library - ERM";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryRandom: Codeunit "Library - Random";
@@ -22,6 +24,7 @@ codeunit 134077 "ERM Currency Factor"
         CurrencyFactorError: Label 'Currency Factor must be %1.';
         OutOfBalanceError: Label '%1 %2 is out of balance by %3. Please check that %4, %5, %6 and %7 are correct for each line.';
         UnknownError: Label 'Unknown Error.';
+        CurrencyFactoMustHaveValueErr: Label 'Currency Factor must have a value in %1: Document Type=%2, No.=%3. It cannot be zero or empty.';
 
     [Test]
     [Scope('OnPrem')]
@@ -190,6 +193,72 @@ codeunit 134077 "ERM Currency Factor"
 
         // Verify: Validate 'Currency factor' and 'Amount(LCY)' on General Journal.
         VerifyCurrencyFactorAmountLCY(GenJournalLine, CurrencyFactor);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CreatePurchaseDocumentWithoutFCYExchangeRate()
+    var
+        Currency: Record Currency;
+        Vendor: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        Initialize();
+
+        LibraryERM.CreateCurrency(Currency);
+
+        LibraryPurchase.CreateVendor(Vendor);
+
+        Vendor.Validate("Currency Code", Currency.Code);
+        Vendor.Modify(true);
+
+        PurchaseHeader.Init();
+        PurchaseHeader.Validate("Document Type", PurchaseHeader."Document Type"::Invoice);
+        PurchaseHeader.Validate("Buy-from Vendor No.", Vendor."No.");
+        PurchaseHeader.Insert(true);
+        Commit();
+
+        asserterror LibraryPurchase.CreatePurchaseLine(
+            PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup(), 1);
+
+        Assert.ExpectedError(
+          StrSubstNo(CurrencyFactoMustHaveValueErr, PurchaseHeader.TableCaption, PurchaseHeader."Document Type", PurchaseHeader."No."));
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CreateSalesDocumentWithoutFCYExchangeRate()
+    var
+        Currency: Record Currency;
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        Initialize();
+
+        LibraryERM.CreateCurrency(Currency);
+
+        LibrarySales.CreateCustomer(Customer);
+
+        Customer.Validate("Currency Code", Currency.Code);
+        Customer.Modify(true);
+
+        SalesHeader.Init();
+        SalesHeader.Validate("Document Type", SalesHeader."Document Type"::Invoice);
+        SalesHeader.Validate("Sell-to Customer No.", Customer."No.");
+        SalesHeader.Insert(true);
+        Commit();
+
+        asserterror LibrarySales.CreateSalesLine(
+            SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), 1);
+
+        Assert.ExpectedError(
+          StrSubstNo(CurrencyFactoMustHaveValueErr, SalesHeader.TableCaption, SalesHeader."Document Type", SalesHeader."No."));
+
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     local procedure Initialize()

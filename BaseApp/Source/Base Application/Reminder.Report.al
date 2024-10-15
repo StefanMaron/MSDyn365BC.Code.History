@@ -624,6 +624,8 @@ report 117 Reminder
                         AmtDueTxt := '';
                         if Format("Issued Reminder Header"."Due Date") <> '' then
                             AmtDueTxt := StrSubstNo(AmtDueLbl, "Issued Reminder Header"."Due Date");
+
+                        OnLetterTextOnPreDataItemOnAfterSetAmtDueTxt("Issued Reminder Header", AmtDueTxt);
                     end;
                 }
             }
@@ -899,6 +901,11 @@ report 117 Reminder
         MailManagement: Codeunit "Mail Management";
     begin
         exit(CurrReport.Preview or MailManagement.IsHandlingGetEmailBody);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLetterTextOnPreDataItemOnAfterSetAmtDueTxt(var IssuedReminderHeader: Record "Issued Reminder Header"; var AmtDueTxt: Text)
+    begin
     end;
 }
 

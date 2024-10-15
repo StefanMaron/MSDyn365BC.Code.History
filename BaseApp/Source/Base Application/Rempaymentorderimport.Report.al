@@ -123,14 +123,19 @@ report 15000003 "Rem. payment order - Import"
         {
         }
 
+
         trigger OnOpenPage()
+#if not CLEAN17
         var
             FileManagement: Codeunit "File Management";
+#endif
         begin
             ReturnFile.Reset();
             ReturnFile.DeleteAll();
+#if not CLEAN17
             if not ReturnFileSetup.Find('-') and FileManagement.IsLocalFileSystemAccessible then
                 Error(Text003, RemAgreement.TableCaption);
+#endif
             repeat
                 FindFiles(ReturnFileSetup);
             until ReturnFileSetup.Next() = 0;
@@ -201,6 +206,9 @@ report 15000003 "Rem. payment order - Import"
         NumberApproved: Integer;
         MoreReturnJournals: Boolean;
         Filenames: Code[10];
+#if CLEAN17
+        ChooseFileTitleMsg: Label 'Choose the file to upload.';
+#endif
 
     local procedure FindFiles(ReturnFileSetup: Record "Return File Setup")
     var
@@ -233,6 +241,7 @@ report 15000003 "Rem. payment order - Import"
 
         FileCopy.DeleteAll();
 
+#if not CLEAN17
         if FileMgt.ClientDirectoryExists(FilePath) then begin
             FileMgt.GetClientDirectoryFilesList(TempNameValueBuffer, FilePath);
             if TempNameValueBuffer.FindSet then
@@ -243,6 +252,7 @@ report 15000003 "Rem. payment order - Import"
                     FileCopy.Insert();
                 until TempNameValueBuffer.Next = 0;
         end;
+#endif
 
         // From now on use copies of file names :
         FileCopy.SetFilter(Name, LowerCase(FileMgt.GetFileName(ReturnFileSetup."Return File Name")));
@@ -257,7 +267,11 @@ report 15000003 "Rem. payment order - Import"
                 ReturnFile.Size := FileCopy.Size;
                 ReturnFile.Import := true;
                 ReturnFile."Agreement Code" := ReturnFileSetup."Agreement Code";
+#if not CLEAN17
                 case FileFormat(CopyStr(FileMgt.UploadFileToServer(ReturnFile."File Name"), 1, 250)) of
+#else
+                case FileFormat(CopyStr(FileMgt.UploadFile(ChooseFileTitleMsg, ''), 1, 250)) of
+#endif
                     ReturnFile.Format::Telepay:
                         ReturnFile.Format := ReturnFile.Format::Telepay;
                     ReturnFile.Format::BBS:

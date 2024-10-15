@@ -140,35 +140,6 @@ codeunit 136201 "Marketing Contacts"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
-    [Scope('OnPrem')]
-    procedure BusinessRelationForPersonContact()
-    var
-        CompanyContact: Record Contact;
-        PersonContact: Record Contact;
-        ContactCard: TestPage "Contact Card";
-    begin
-        // [SCENARIO] Test business relations for person contacts who are customers and belong to a company who are also customers.
-        Initialize;
-
-        // [GIVEN] A company contact and a person contact in the same company
-        LibraryMarketing.CreateCompanyContact(CompanyContact);
-        LibraryMarketing.CreatePersonContact(PersonContact);
-        PersonContact.Validate("Company No.", CompanyContact."Company No.");
-        PersonContact.Modify(true);
-
-        // [WHEN] They are both a Customer
-        CompanyContact.CreateCustomer('');
-        PersonContact.CreateCustomer('');
-
-        // [THEN] The company contact has 1 business relation and the person contact has 2.
-        OpenContactCard(ContactCard, PersonContact);
-        ContactCard.Control31."No. of Business Relations".AssertEquals(2);
-        ContactCard.GotoRecord(CompanyContact);
-        ContactCard.Control31."No. of Business Relations".AssertEquals(1);
-    end;
-
-    [Test]
     [Scope('OnPrem')]
     procedure MailingGroupForContact()
     var
@@ -4628,6 +4599,112 @@ codeunit 136201 "Marketing Contacts"
         // [THEN] The "Last Modified Date Time" and "Last Date Modified" were changed
         Assert.AreNotEqual(Employee."Last Modified Date Time", LastModifiedDateTime, '');
         Assert.AreNotEqual(Employee."Last Date Modified", DT2Date(LastModifiedDateTime), '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CreateCustomerForPersonContactWithCompanyContactWithCustomer()
+    var
+        Contact: Record Contact;
+        ContBusRel: Record "Contact Business Relation";
+        Customer: Record Customer;
+        CustomerTemplate: Record "Customer Template";
+    begin
+        // [SCENARIO 383926] Contact function CreateCusomer throws error when trying to create Customer for Person Contact with Company having Customer.
+        Initialize();
+
+        // [GIVEN] Company Contact with No. = "Company" linked to Customer.
+        // [GIVEN] Person Contact with Company No. = "Company".
+        CreateCustomerWithContactPerson(Customer, Contact, ContBusRel);
+
+        // [WHEN] CreateCustomer is called for Person Contact.
+        LibrarySales.CreateCustomerTemplate(CustomerTemplate);
+        Contact.SetHideValidationDialog(true);
+        asserterror Contact.CreateCustomer(CustomerTemplate.Code);
+
+        // [THEN] Error about relation already existing between Company Contact and Customer.
+        Assert.ExpectedErrorCode('Dialog');
+        Assert.ExpectedError(
+            StrSubstNo(RelationAlreadyExistWithCustomerErr, ContBusRel."Contact No.", ContBusRel.TableCaption, Customer."No."));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CreateCustomerForPersonContactWithCompanyContactWithoutCustomer()
+    var
+        Contact: Record Contact;
+        ContBusRel: Record "Contact Business Relation";
+        Customer: Record Customer;
+        CustomerTemplate: Record "Customer Template";
+    begin
+        // [SCENARIO 383926] Contact function CreateCusomer creates Customer for Person's Company Contact.
+        Initialize();
+
+        // [GIVEN] Company Contact with No. = "Company" not linked to any Customer.
+        // [GIVEN] Person Contact with Company No. = "Company".
+        LibraryMarketing.CreatePersonContactWithCompanyNo(Contact);
+
+        // [WHEN] CreateCustomer is called for Person Contact.
+        LibrarySales.CreateCustomerTemplate(CustomerTemplate);
+        Contact.SetHideValidationDialog(true);
+        Contact.CreateCustomer(CustomerTemplate.Code);
+
+        // [THEN] Customer is created and linked to Company Contact.
+        ContBusRel.SetRange("Link to Table", ContBusRel."Link to Table"::Customer);
+        ContBusRel.SetRange("Contact No.", Contact."Company No.");
+        ContBusRel.FindFirst();
+        Customer.Get(ContBusRel."No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CreateVendorForPersonContactWithCompanyContactWithVendor()
+    var
+        Contact: Record Contact;
+        ContBusRel: Record "Contact Business Relation";
+        Vendor: Record Vendor;
+    begin
+        // [SCENARIO 383926] Contact function CreateVendor throws error when trying to create Customer for Person Contact with Company having Customer.
+        Initialize();
+
+        // [GIVEN] Company Contact with No. = "Company" linked to Customer.
+        // [GIVEN] Person Contact with Company No. = "Company".
+        CreateVendorWithContactPerson(Vendor, Contact, ContBusRel);
+
+        // [WHEN] CreateVendor is called for Person Contact.
+        Contact.SetHideValidationDialog(true);
+        asserterror Contact.CreateVendor();
+
+        // [THEN] Error about relation already existing between Company Contact and Vendor.
+        Assert.ExpectedErrorCode('Dialog');
+        Assert.ExpectedError(
+            StrSubstNo(RelationAlreadyExistWithVendorErr, ContBusRel."Contact No.", ContBusRel.TableCaption, Vendor."No."));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CreateVendorForPersonContactWithCompanyContactWithoutVendor()
+    var
+        Contact: Record Contact;
+        ContBusRel: Record "Contact Business Relation";
+        Vendor: Record Vendor;
+    begin
+        // [SCENARIO 383926] Contact function CreateVendor creates Vendor for Person's Company Contact.
+        Initialize();
+
+        // [GIVEN] Company Contact with No. = "Company" not linked to any Vendor.
+        // [GIVEN] Person Contact with Company No. = "Company".
+        LibraryMarketing.CreatePersonContactWithCompanyNo(Contact);
+
+        // [WHEN] CreateVendor is called for Person Contact.
+        Contact.SetHideValidationDialog(true);
+        Contact.CreateVendor();
+
+        // [THEN] Vendor is created and linked to Company Contact.
+        ContBusRel.SetRange("Link to Table", ContBusRel."Link to Table"::Vendor);
+        ContBusRel.SetRange("Contact No.", Contact."Company No.");
+        ContBusRel.FindFirst();
+        Vendor.Get(ContBusRel."No.");
     end;
 
     local procedure Initialize()
