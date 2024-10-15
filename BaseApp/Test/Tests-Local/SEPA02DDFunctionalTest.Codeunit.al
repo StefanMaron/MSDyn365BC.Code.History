@@ -518,6 +518,63 @@ codeunit 144077 "SEPA.02 DD Functional Test"
         end;
     end;
 
+    [Test]
+    [HandlerFunctions('PaymentClassHandler,ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure ExportSecondPmtHeaderWithoutError()
+    var
+        Customer: Record Customer;
+        PaymentHeader: array[2] of Record "Payment Header";
+        PaymentLine: array[2] of Record "Payment Line";
+        CustLedgerEntry: array[2] of Record "Cust. Ledger Entry";
+        SEPAFilePath: Text;
+    begin
+        // [SCENARIO 460340] FR local - not possible to re-create a payment file in Payment Slip 2 if an error exists in Payment Slip 1
+        // [GIVEN] Create customer with 2 Invoices
+        CreateCustomerWithTwoInvoice(Customer, CustLedgerEntry, SEPAPartnerType::Company);
+
+        // [GIVEN] Create Payment slip of first Invoice
+        CreatePaymentSlip(PaymentHeader[1], PaymentLine[1], Customer."No.", CustLedgerEntry[1]."Direct Debit Mandate ID", SEPAPartnerType::Company);
+
+        // [GIVEN] Update credit amount on Payment Line and set Applies-to ID on Cust. Ledger Entry on first CLE entry
+        PaymentLine[1].Validate("Applies-to ID", PaymentLine[1]."Document No.");
+        CustLedgerEntry[1].CalcFields("Remaining Amount");
+        PaymentLine[1].Validate("Credit Amount", CustLedgerEntry[1]."Remaining Amount");
+        PaymentLine[1].Modify();
+        CustLedgerEntry[1]."Applies-to ID" := PaymentLine[1]."Document No.";
+        CustLedgerEntry[1].Modify();
+
+        // [GIVEN] Update Posting date and Document date to get error during Generate XML file
+        PaymentHeader[1].Validate("Posting Date", CalcDate('<-1D>', WorkDate()));
+        PaymentHeader[1].Validate("Document Date", CalcDate('<-1D>', WorkDate()));
+        PaymentHeader[1].Modify();
+
+        // [VERIFY] Verify error will come on SEPA export file of first Cust Ledger Entry
+        asserterror ExportSEPAFile(PaymentHeader[1]);
+
+        // [GIVEN] Create Second Payment Slip and update Applies to id and Credit amount.
+        CreatePaymentSlip(PaymentHeader[2], PaymentLine[2], Customer."No.", CustLedgerEntry[2]."Direct Debit Mandate ID", SEPAPartnerType::Company);
+        PaymentLine[2].Validate("Applies-to ID", PaymentLine[2]."Document No.");
+        CustLedgerEntry[2].CalcFields("Remaining Amount");
+        PaymentLine[2].Validate("Credit Amount", CustLedgerEntry[2]."Remaining Amount");
+        PaymentLine[2].Modify();
+        CustLedgerEntry[2]."Applies-to ID" := PaymentLine[2]."Document No.";
+        CustLedgerEntry[2].Modify();
+
+        // [GIVEN] Export SEPA file of second payment slip
+        SEPAFilePath := ExportSEPAFile(PaymentHeader[2]);
+        Commit();
+        LibraryXMLRead.Initialize(SEPAFilePath);
+
+        // [VERIFY] Verify file exported successfully
+        VerifySEPADDXmlFile(PaymentHeader[2], PaymentLine[2], GetMessageToRecipient(CustLedgerEntry[2]));
+        VerifySEPAMandate(CustLedgerEntry[2]."Direct Debit Mandate ID", 1);
+
+        // [GIVEN] Clean data
+        PaymentHeader[1].Delete(true);
+        PaymentHeader[2].Delete(true);
+    end;
+
     local procedure CreatePaymentClass(): Code[20]
     var
         PaymentClass: Record "Payment Class";
@@ -836,6 +893,22 @@ codeunit 144077 "SEPA.02 DD Functional Test"
     begin
         SEPADirectDebitMandate.Get(SEPADirectDebitMandateID);
         SEPADirectDebitMandate.TestField("Debit Counter", ExpCounter);
+    end;
+
+    local procedure CreateCustomerWithTwoInvoice(var Customer: Record Customer; var CustLedgerEntry: array[2] of Record "Cust. Ledger Entry"; SEPAPartnerType: Option)
+    var
+        CustomerBankAccount: Record "Customer Bank Account";
+        SEPADirectDebitMandate: Record "SEPA Direct Debit Mandate";
+    begin
+        LibrarySales.CreateCustomer(Customer);
+        CreateCustomerAddress(Customer);
+        CreateCustomerBankAccount(CustomerBankAccount, Customer."No.");
+        CreateDirectDebitMandate(SEPADirectDebitMandate, Customer."No.", CustomerBankAccount.Code);
+        CreateCustomerLedgerEntry(CustLedgerEntry[1], Customer."No.", SEPADirectDebitMandate.ID);
+        CreateCustomerLedgerEntry(CustLedgerEntry[2], Customer."No.", SEPADirectDebitMandate.ID);
+        Customer.Validate("Preferred Bank Account Code", CustomerBankAccount.Code);
+        Customer.Validate("Partner Type", SEPAPartnerType);
+        Customer.Modify(true);
     end;
 
     [ModalPageHandler]

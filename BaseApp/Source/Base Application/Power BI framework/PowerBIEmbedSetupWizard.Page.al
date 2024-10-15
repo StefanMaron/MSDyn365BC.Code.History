@@ -414,6 +414,7 @@ page 6327 "Power BI Embed Setup Wizard"
             Error(NoTokenForOnPremErr);
     end;
 
+    [NonDebuggable]
     [TryFunction]
     local procedure TryAzureAdMgtGetAccessToken(ShowDialog: Boolean)
     var

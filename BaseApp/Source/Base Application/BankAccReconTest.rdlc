@@ -9016,7 +9016,11 @@
                             <DataElementName>Detail</DataElementName>
                           </Group>
                           <TablixMembers>
-                            <TablixMember></TablixMember>
+                            <TablixMember>
+                              <Visibility>
+                                <Hidden>= IIF(Fields!Bank_Acc__Reconciliation_Line_Statement_No.Value = "" AND Fields!Bank_Acc__Reconciliation_Line_Statement_Line_No.Value = 0,True,False)</Hidden>
+                              </Visibility>
+                            </TablixMember>
                             <TablixMember>
                               <Visibility>
                                 <Hidden>= IIF (Fields!ErrorText_Number__Control97.Value = "", True,False)</Hidden>
@@ -9693,6 +9697,12 @@ End Function
         </Field>
         <Field Name="Bank_Acc__Reconciliation_Line_Type">
           <DataField>Bank_Acc__Reconciliation_Line_Type</DataField>
+        </Field>
+        <Field Name="Bank_Acc__Reconciliation_Line_Statement_No">
+          <DataField>Bank_Acc__Reconciliation_Line_Statement_No</DataField>
+        </Field>
+        <Field Name="Bank_Acc__Reconciliation_Line_Statement_Line_No">
+          <DataField>Bank_Acc__Reconciliation_Line_Statement_Line_No</DataField>
         </Field>
         <Field Name="Bank_Acc__Reconciliation_Line_Difference">
           <DataField>Bank_Acc__Reconciliation_Line_Difference</DataField>

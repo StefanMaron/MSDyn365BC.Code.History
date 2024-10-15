@@ -83,6 +83,12 @@ End Function
         <Field Name="CompanyAddress6">
           <DataField>CompanyAddress6</DataField>
         </Field>
+        <Field Name="CompanyAddress7">
+          <DataField>CompanyAddress7</DataField>
+        </Field>
+        <Field Name="CompanyAddress8">
+          <DataField>CompanyAddress8</DataField>
+        </Field>
         <Field Name="CompanyHomePage_Lbl">
           <DataField>CompanyHomePage_Lbl</DataField>
         </Field>

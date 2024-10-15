@@ -122,7 +122,7 @@ page 10880 "Payment Lines Archive List"
                 field("RIB Key"; Rec."RIB Key")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the two digit RIB key associated with the Bank Branch No.';
+                    ToolTip = 'Specifies the two-digit RIB key associated with the Bank Account No. RIB key value in range from 01 to 09 is represented in the single-digit form, without leading zero digit.';
                     Visible = false;
                 }
                 field("Payment in Progress"; Rec."Payment in Progress")

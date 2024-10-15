@@ -262,6 +262,7 @@ codeunit 144074 "ERM Fiscal Year France"
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Invoice,
           GenJournalLine."Account Type"::Customer, Customer."No.", LibraryRandom.RandDec(100, 2));  // Random Amount.
         GenJournalLine.Validate("Posting Date", GetFirstAccountingPeriodDate(true));
+        GenJournalLine.Validate("VAT Reporting Date", GetFirstAccountingPeriodDate(false));
         GenJournalLine.Modify(true);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;

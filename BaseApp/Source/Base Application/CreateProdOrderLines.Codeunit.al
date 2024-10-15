@@ -80,6 +80,7 @@ codeunit 99000787 "Create Prod. Order Lines"
         Family.Get(ProdOrder."Source No.");
         FamilyLine.SetCurrentKey("Low-Level Code");
         FamilyLine.SetRange("Family No.", ProdOrder."Source No.");
+        OnCopyFromFamilyOnAfterFamilyLineSetFilters(FamilyLine, ProdOrder);
 
         if FamilyLine.FindSet() then
             repeat
@@ -699,6 +700,11 @@ codeunit 99000787 "Create Prod. Order Lines"
 
     [IntegrationEvent(false, false)]
     local procedure OnCopyFromFamilyOnAfterInsertProdOrderLine(var ProdOrderLine: Record "Prod. Order Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCopyFromFamilyOnAfterFamilyLineSetFilters(var FamilyLine: Record "Family Line"; ProductionOrder: Record "Production Order")
     begin
     end;
 

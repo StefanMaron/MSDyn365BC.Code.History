@@ -177,6 +177,12 @@ report 406 "Purchase - Invoice"
                     column(CompanyAddr6; CompanyAddr[6])
                     {
                     }
+                    column(CompanyAddr7; CompanyAddr[7])
+                    {
+                    }
+                    column(CompanyAddr8; CompanyAddr[8])
+                    {
+                    }
                     column(PostingDate_PurchInvHeader; Format("Purch. Inv. Header"."Posting Date"))
                     {
                     }

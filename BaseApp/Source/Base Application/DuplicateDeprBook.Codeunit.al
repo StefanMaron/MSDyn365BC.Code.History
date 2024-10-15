@@ -159,7 +159,14 @@
     end;
 
     local procedure CreateLine(GenJnlPosting: Boolean; var GenJnlLine: Record "Gen. Journal Line"; var FAJnlLine: Record "FA Journal Line")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCreateLine(GenJnlPosting, GenJnlLine, FAJnlLine, DuplicateInGenJnl, TemplateName, BatchName, FAGetJnl, DeprBook, IsHandled);
+        if IsHandled then
+            exit;
+
         if GenJnlPosting then begin
             DuplicateInGenJnl := true;
             TemplateName := GenJnlLine."Journal Template Name";
@@ -450,6 +457,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterMakeFAJnlLine(var FAJnlLine: Record "FA Journal Line"; var GenJnlLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateLine(GenJnlPosting: Boolean; var GenJournalLine: Record "Gen. Journal Line"; var FAJournalLine: Record "FA Journal Line"; var DuplicateInGenJnl: Boolean; var TemplateName: Code[10]; var BatchName: Code[10]; var FAGetJournal: Codeunit "FA Get Journal"; DepreciationBook: Record "Depreciation Book"; var IsHandled: Boolean)
     begin
     end;
 

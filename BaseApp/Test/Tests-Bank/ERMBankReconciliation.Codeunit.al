@@ -3030,6 +3030,316 @@ codeunit 134141 "ERM Bank Reconciliation"
         LibraryReportDataset.AssertElementWithValueExists('Outstanding_Check_Amount', -ClosedAfterwardsCheckAmount);
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerNo,MessageHandler')]
+    procedure RunningAutomatchWithoutOverwriteShouldKeepManualMatch()
+    var
+        BankAccount: Record "Bank Account";
+        BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
+        TempBankAccountLedgerEntry: Record "Bank Account Ledger Entry" temporary;
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
+        TempBankAccReconciliationLine: Record "Bank Acc. Reconciliation Line" temporary;
+        GenJournalLine: Record "Gen. Journal Line";
+        MatchBankRecLines: Codeunit "Match Bank Rec. Lines";
+        BankAccountNo: Code[20];
+    begin
+        // [SCENARIO] Two different Bank entries B_a, B_b, they correspond respectively to Bank Rec Lines R_a, R_b in description and amount (they would be matched by automatch).
+        //            the user however decides to match manually B_a with R_b (which wouldn't be done by automatch). The user decides to run automatch without overwriting.
+        Initialize();
+        // [GIVEN] A bank account
+        BankAccountNo := CreateBankAccount(BankAccount);
+        BankAccount."Disable Automatic Pmt Matching" := true; // to suggest unmatched lines
+        BankAccount.Modify();
+        // [GIVEN] 2 Bank ledger entries
+        CreateAndPostGenJournalLineWithAmount(GenJournalLine, BankAccountNo, LibraryRandom.RandDecInRange(1000, 2000, 2));
+        CreateAndPostGenJournalLineWithAmount(GenJournalLine, BankAccountNo, LibraryRandom.RandDecInRange(9000, 10000, 2));
+        // [GIVEN] A bank reconciliation with two unmatched suggested lines
+        LibraryERM.CreateBankAccReconciliation(BankAccReconciliation, BankAccountNo, BankAccReconciliation."Statement Type"::"Bank Reconciliation");
+        BankAccReconciliation."Statement Date" := WorkDate() + 5;
+        SuggestLines(BankAccReconciliation);
+        BankAccount."Disable Automatic Pmt Matching" := false;
+        BankAccount.Modify();
+        // [GIVEN] B_a is matched with R_b
+        BankAccountLedgerEntry.SetRange("Bank Account No.", BankAccountNo);
+        BankAccountLedgerEntry.SetAscending("Entry No.", true);
+        BankAccountLedgerEntry.FindFirst();
+        TempBankAccountLedgerEntry.Copy(BankAccountLedgerEntry);
+        TempBankAccountLedgerEntry.Insert();
+        BankAccReconciliationLine.SetRange("Bank Account No.", BankAccountNo);
+        BankAccReconciliationLine.SetRange("Statement No.", BankAccReconciliation."Statement No.");
+        BankAccReconciliationLine.SetAscending("Statement Line No.", true);
+        BankAccReconciliationLine.FindLast();
+        TempBankAccReconciliationLine.Copy(BankAccReconciliationLine);
+        TempBankAccReconciliationLine.Insert();
+        MatchBankRecLines.MatchManually(TempBankAccReconciliationLine, TempBankAccountLedgerEntry);
+        // [WHEN] Running Automatch without overwriting (message handler)
+        MatchBankRecLines.BankAccReconciliationAutoMatch(BankAccReconciliation, 0);
+        // [THEN] The manual entries should still be matched (B_a with R_b)
+        BankAccountLedgerEntry.Reset();
+        BankAccountLedgerEntry.SetRange("Bank Account No.", BankAccountNo);
+        BankAccountLedgerEntry.SetAscending("Entry No.", true);
+        BankAccountLedgerEntry.FindFirst();
+        BankAccReconciliationLine.FindFirst();
+        BankAccReconciliationLine.SetRange("Bank Account No.", BankAccountNo);
+        BankAccReconciliationLine.SetRange("Statement No.", BankAccReconciliation."Statement No.");
+        BankAccReconciliationLine.SetAscending("Statement Line No.", true);
+        BankAccReconciliationLine.FindLast();
+        Assert.AreEqual(BankAccReconciliationLine."Statement Line No.", BankAccountLedgerEntry."Statement Line No.", 'Manual match should be preserved');
+        Assert.AreEqual(BankAccountLedgerEntry."Statement Status"::"Bank Acc. Entry Applied", BankAccountLedgerEntry."Statement Status", 'Manual match should be preserved');
+        // [THEN] The unmatched entries were not matched by the automatch
+        BankAccountLedgerEntry.Reset();
+        BankAccountLedgerEntry.SetRange("Bank Account No.", BankAccountNo);
+        BankAccountLedgerEntry.SetRange("Statement Status", BankAccountLedgerEntry."Statement Status"::Open);
+        Assert.IsFalse(BankAccountLedgerEntry.IsEmpty(), 'There should be an open/unmatched bank ledger entry that was not captured by automatch');
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler,MessageHandler')]
+    procedure RunningAutomatchWithOverwriteShouldRemoveManualMatches()
+    var
+        BankAccount: Record "Bank Account";
+        BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
+        TempBankAccountLedgerEntry: Record "Bank Account Ledger Entry" temporary;
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
+        TempBankAccReconciliationLine: Record "Bank Acc. Reconciliation Line" temporary;
+        GenJournalLine: Record "Gen. Journal Line";
+        MatchBankRecLines: Codeunit "Match Bank Rec. Lines";
+        BankAccountNo: Code[20];
+    begin
+        // [SCENARIO] Two different Bank entries B_a, B_b, they correspond respectively to Bank Rec Lines R_a, R_b in description and amount (they would be matched by automatch).
+        //            the user however decides to match manually B_a with R_b (which wouldn't be done by automatch). The user decides to run automatch with overwriting.
+        Initialize();
+        // [GIVEN] A bank account
+        BankAccountNo := CreateBankAccount(BankAccount);
+        BankAccount."Disable Automatic Pmt Matching" := true; // to suggest unmatched lines
+        BankAccount.Modify();
+        // [GIVEN] 2 Bank ledger entries
+        CreateAndPostGenJournalLineWithAmount(GenJournalLine, BankAccountNo, LibraryRandom.RandDecInRange(1000, 2000, 2));
+        CreateAndPostGenJournalLineWithAmount(GenJournalLine, BankAccountNo, LibraryRandom.RandDecInRange(9000, 10000, 2));
+        // [GIVEN] A bank reconciliation with two unmatched suggested lines
+        LibraryERM.CreateBankAccReconciliation(BankAccReconciliation, BankAccountNo, BankAccReconciliation."Statement Type"::"Bank Reconciliation");
+        BankAccReconciliation."Statement Date" := WorkDate() + 5;
+        SuggestLines(BankAccReconciliation);
+        BankAccount."Disable Automatic Pmt Matching" := false;
+        BankAccount.Modify();
+        // [GIVEN] B_a is matched with R_b
+        BankAccountLedgerEntry.SetRange("Bank Account No.", BankAccountNo);
+        BankAccountLedgerEntry.SetAscending("Entry No.", true);
+        BankAccountLedgerEntry.FindFirst();
+        TempBankAccountLedgerEntry.Copy(BankAccountLedgerEntry);
+        TempBankAccountLedgerEntry.Insert();
+        BankAccReconciliationLine.SetRange("Bank Account No.", BankAccountNo);
+        BankAccReconciliationLine.SetRange("Statement No.", BankAccReconciliation."Statement No.");
+        BankAccReconciliationLine.SetAscending("Statement Line No.", true);
+        BankAccReconciliationLine.FindLast();
+        TempBankAccReconciliationLine.Copy(BankAccReconciliationLine);
+        TempBankAccReconciliationLine.Insert();
+        MatchBankRecLines.MatchManually(TempBankAccReconciliationLine, TempBankAccountLedgerEntry);
+        // [WHEN] Running Automatch with overwriting (message handler)
+        MatchBankRecLines.BankAccReconciliationAutoMatch(BankAccReconciliation, 0);
+        // [THEN] The right entries should instead be matched
+        BankAccountLedgerEntry.Reset();
+        BankAccountLedgerEntry.SetRange("Bank Account No.", BankAccountNo);
+        BankAccountLedgerEntry.SetAscending("Entry No.", true);
+        BankAccountLedgerEntry.FindFirst();
+        BankAccReconciliationLine.FindFirst();
+        BankAccReconciliationLine.SetRange("Bank Account No.", BankAccountNo);
+        BankAccReconciliationLine.SetRange("Statement No.", BankAccReconciliation."Statement No.");
+        BankAccReconciliationLine.SetAscending("Statement Line No.", true);
+        BankAccReconciliationLine.FindFirst();
+        Assert.AreEqual(BankAccReconciliationLine."Statement Line No.", BankAccountLedgerEntry."Statement Line No.", 'Manual match should not be preserved');
+        Assert.AreEqual(BankAccountLedgerEntry."Statement Status"::"Bank Acc. Entry Applied", BankAccountLedgerEntry."Statement Status", 'Manual match should not be preserved');
+        BankAccountLedgerEntry.Reset();
+        BankAccountLedgerEntry.SetRange("Bank Account No.", BankAccountNo);
+        BankAccountLedgerEntry.SetRange("Statement Status", BankAccountLedgerEntry."Statement Status"::Open);
+        Assert.IsTrue(BankAccountLedgerEntry.IsEmpty(), 'All entries should be matched');
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    procedure AutomatchShouldPreferLeastDifferenceInAmountForEntriesWithSameDescription()
+    var
+        BankAccount: Record "Bank Account";
+        BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
+        GenJournalLine: Record "Gen. Journal Line";
+        MatchBankRecLines: Codeunit "Match Bank Rec. Lines";
+        BankAccountNo: Code[20];
+        CloseAmountLineNo: Integer;
+    begin
+        // [SCENARIO] When running automatch on lines that have the same description, and the same description as a BLE Document No. Least difference with the amount should be suggested
+        Initialize();
+        // [GIVEN] A Bank Account
+        BankAccountNo := CreateBankAccount(BankAccount);
+        // [GIVEN] A bank ledger entry of value 600
+        CreateAndPostGenJournalLineWithAmount(GenJournalLine, BankAccountNo, -600);
+        // [GIVEN] A bank reconciliation
+        LibraryERM.CreateBankAccReconciliation(BankAccReconciliation, BankAccountNo, BankAccReconciliation."Statement Type"::"Bank Reconciliation");
+        BankAccReconciliation."Statement Date" := WorkDate();
+        BankAccReconciliation.Modify();
+        // [GIVEN] A bank reconciliation line with statement amount further to 600: 3550 and description as DocumentNo to produce an acceptable match
+        LibraryERM.CreateBankAccReconciliationLn(BankAccReconciliationLine, BankAccReconciliation);
+        BankAccReconciliationLine.Validate("Statement Amount", 3550);
+        BankAccReconciliationLine.Description := GenJournalLine."Document No.";
+        BankAccReconciliationLine.Modify();
+        // [GIVEN] A bank reconciliation line with statement amount close to 600: 550 and description as DocumentNo to produce an acceptable match
+        LibraryERM.CreateBankAccReconciliationLn(BankAccReconciliationLine, BankAccReconciliation);
+        BankAccReconciliationLine.Validate("Statement Amount", 550);
+        BankAccReconciliationLine.Description := GenJournalLine."Document No.";
+        BankAccReconciliationLine.Modify();
+        CloseAmountLineNo := BankAccReconciliationLine."Statement Line No.";
+        // [GIVEN] A bank reconciliation line with statement amount further to 600: 1550 and description as DocumentNo to produce an acceptable match
+        LibraryERM.CreateBankAccReconciliationLn(BankAccReconciliationLine, BankAccReconciliation);
+        BankAccReconciliationLine.Validate("Statement Amount", 1550);
+        BankAccReconciliationLine.Description := GenJournalLine."Document No.";
+        BankAccReconciliationLine.Modify();
+        // [WHEN] Running automatch for this statement
+        MatchBankRecLines.BankAccReconciliationAutoMatch(BankAccReconciliation, 0);
+        // [THEN] The line matched should be the one with 550
+        BankAccountLedgerEntry.SetRange("Bank Account No.", BankAccountNo);
+        BankAccountLedgerEntry.FindFirst();
+        Assert.AreEqual(BankAccountLedgerEntry."Statement Status"::"Bank Acc. Entry Applied", BankAccountLedgerEntry."Statement Status", 'Entry should have been matched');
+        Assert.AreEqual(CloseAmountLineNo, BankAccountLedgerEntry."Statement Line No.", 'Bank entry should be matched to the entry with amount closest to it''s own');
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    procedure AutomatchForCheckEntriesConsidersDocNo()
+    var
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
+        BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
+        Vendor: Record Vendor;
+        MatchBankRecLines: Codeunit "Match Bank Rec. Lines";
+        BankAccountNo: Code[20];
+        Amount: Decimal;
+        StatementLineNoC01: Integer;
+        StatementLineNoC02: Integer;
+        StatementLineNoC03: Integer;
+        StatementLineNoC04: Integer;
+    begin
+        Initialize();
+        // [SCENARIO] A bank with 4 check ledger entries with same amount and statement date. Automatch should consider Doc. No. to match these
+        // [GIVEN] A bank
+        BankAccountNo := CreateBankAccount();
+        LibraryPurchase.CreateVendor(Vendor);
+        Amount := LibraryRandom.RandDec(500, 2);
+        // [GIVEN] 4 checks for this bank, same date, vendor, amount. Different Doc. Nos
+        PostCheck(Vendor, BankAccountNo, Amount, 'C001');
+        PostCheck(Vendor, BankAccountNo, Amount, 'C002');
+        PostCheck(Vendor, BankAccountNo, Amount, 'C003');
+        PostCheck(Vendor, BankAccountNo, Amount, 'C004');
+        // [GIVEN] A bank reconciliation with 4 lines with this amount, and description with similar text as the document no.s (revert order to test it actually find them)
+        LibraryERM.CreateBankAccReconciliation(BankAccReconciliation, BankAccountNo, BankAccReconciliation."Statement Type"::"Bank Reconciliation");
+        LibraryERM.CreateBankAccReconciliationLn(BankAccReconciliationLine, BankAccReconciliation);
+        BankAccReconciliationLine.Validate("Statement Amount", -Amount);
+        BankAccReconciliationLine.Description := 'Check C004';
+        BankAccReconciliationLine.Modify();
+        StatementLineNoC04 := BankAccReconciliationLine."Statement Line No.";
+        LibraryERM.CreateBankAccReconciliationLn(BankAccReconciliationLine, BankAccReconciliation);
+        BankAccReconciliationLine.Validate("Statement Amount", -Amount);
+        BankAccReconciliationLine.Description := 'Check C003';
+        BankAccReconciliationLine.Modify();
+        StatementLineNoC03 := BankAccReconciliationLine."Statement Line No.";
+        LibraryERM.CreateBankAccReconciliationLn(BankAccReconciliationLine, BankAccReconciliation);
+        BankAccReconciliationLine.Validate("Statement Amount", -Amount);
+        BankAccReconciliationLine.Description := 'Check C002';
+        BankAccReconciliationLine.Modify();
+        StatementLineNoC02 := BankAccReconciliationLine."Statement Line No.";
+        LibraryERM.CreateBankAccReconciliationLn(BankAccReconciliationLine, BankAccReconciliation);
+        BankAccReconciliationLine.Validate("Statement Amount", -Amount);
+        BankAccReconciliationLine.Description := 'Check C001';
+        BankAccReconciliationLine.Modify();
+        StatementLineNoC01 := BankAccReconciliationLine."Statement Line No.";
+        // [WHEN] Running automatch
+        MatchBankRecLines.BankAccReconciliationAutoMatch(BankAccReconciliation, 0);
+        // [THEN] The entries should be matched based on the Doc. No
+        BankAccountLedgerEntry.SetRange("Bank Account No.", BankAccountNo);
+        BankAccountLedgerEntry.SetRange("Document No.", 'C001');
+        BankAccountLedgerEntry.FindFirst();
+        Assert.AreEqual(BankAccountLedgerEntry."Statement Status"::"Bank Acc. Entry Applied", BankAccountLedgerEntry."Statement Status", 'BLE should be applied');
+        Assert.AreEqual(BankAccountLedgerEntry."Statement No.", BankAccReconciliation."Statement No.", 'BLE should be applied in this statement no');
+        Assert.AreEqual(StatementLineNoC01, BankAccountLedgerEntry."Statement Line No.", 'Automatched to the wrong entry');
+        BankAccountLedgerEntry.SetRange("Document No.", 'C002');
+        BankAccountLedgerEntry.FindFirst();
+        Assert.AreEqual(BankAccountLedgerEntry."Statement Status"::"Bank Acc. Entry Applied", BankAccountLedgerEntry."Statement Status", 'BLE should be applied');
+        Assert.AreEqual(BankAccountLedgerEntry."Statement No.", BankAccReconciliation."Statement No.", 'BLE should be applied in this statement no');
+        Assert.AreEqual(StatementLineNoC02, BankAccountLedgerEntry."Statement Line No.", 'Automatched to the wrong entry');
+        BankAccountLedgerEntry.SetRange("Document No.", 'C003');
+        BankAccountLedgerEntry.FindFirst();
+        Assert.AreEqual(BankAccountLedgerEntry."Statement Status"::"Bank Acc. Entry Applied", BankAccountLedgerEntry."Statement Status", 'BLE should be applied');
+        Assert.AreEqual(BankAccountLedgerEntry."Statement No.", BankAccReconciliation."Statement No.", 'BLE should be applied in this statement no');
+        Assert.AreEqual(StatementLineNoC03, BankAccountLedgerEntry."Statement Line No.", 'Automatched to the wrong entry');
+        BankAccountLedgerEntry.SetRange("Document No.", 'C004');
+        BankAccountLedgerEntry.FindFirst();
+        Assert.AreEqual(BankAccountLedgerEntry."Statement Status"::"Bank Acc. Entry Applied", BankAccountLedgerEntry."Statement Status", 'BLE should be applied');
+        Assert.AreEqual(BankAccountLedgerEntry."Statement No.", BankAccReconciliation."Statement No.", 'BLE should be applied in this statement no');
+        Assert.AreEqual(StatementLineNoC04, BankAccountLedgerEntry."Statement Line No.", 'Automatched to the wrong entry');
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    procedure AutomatchWithTwoSimilarBankEntriesShouldPreferClosestAmount()
+    var
+        BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
+        GenJournalLine: Record "Gen. Journal Line";
+        MatchBankRecLines: Codeunit "Match Bank Rec. Lines";
+        BankAccountNo: Code[20];
+    begin
+        Initialize();
+        // [SCENARIO] Two bank ledger entries from the same bank, amounts close. Automatch is run for a similar line 
+        // [GIVEN] A bank with two payments
+        BankAccountNo := CreateBankAccount();
+        CreateGenJournalLineWithAmount(GenJournalLine, BankAccountNo, 710);
+        GenJournalLine."Document No." := 'BANKSN000000000532';
+        GenJournalLine.Modify();
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+        CreateGenJournalLineWithAmount(GenJournalLine, BankAccountNo, 720);
+        GenJournalLine."Document No." := 'BANKSN000000000533';
+        GenJournalLine.Modify();
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+        // [GIVEN] A bank reconciliation with a line with similar amount (slightly above 720)
+        LibraryERM.CreateBankAccReconciliation(BankAccReconciliation, BankAccountNo, BankAccReconciliation."Statement Type"::"Bank Reconciliation");
+        LibraryERM.CreateBankAccReconciliationLn(BankAccReconciliationLine, BankAccReconciliation);
+        BankAccReconciliationLine.Validate("Statement Amount", -730);
+        BankAccReconciliationLine.Description := 'BANKSN00000000053';
+        BankAccReconciliationLine.Modify();
+        // [WHEN] Running automatch
+        MatchBankRecLines.BankAccReconciliationAutoMatch(BankAccReconciliation, 0);
+        // [THEN] The line should be matched to the entry 
+        BankAccountLedgerEntry.SetRange(Amount, -720);
+        BankAccountLedgerEntry.SetRange("Bank Account No.", BankAccountNo);
+        BankAccountLedgerEntry.FindFirst();
+        Assert.AreEqual(BankAccountLedgerEntry."Statement Status"::"Bank Acc. Entry Applied", BankAccountLedgerEntry."Statement Status", 'BLE should be applied');
+        Assert.AreEqual(BankAccReconciliation."Statement No.", BankAccountLedgerEntry."Statement No.", 'Applied in the wrong statement');
+        Assert.AreEqual(BankAccReconciliationLine."Statement Line No.", BankAccountLedgerEntry."Statement Line No.", 'Applied to the wrong line no.');
+    end;
+
+    local procedure PostCheck(var Vendor: Record Vendor; BankAccountNo: Code[20]; Amount: Decimal; DocNo: Code[20])
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJournalBatch: Record "Gen. Journal Batch";
+    begin
+        LibraryPurchase.CreateVendor(Vendor);
+        LibraryJournals.CreateGenJournalBatch(GenJournalBatch);
+        GenJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode());
+        GenJournalBatch.Validate("Bal. Account Type", GenJournalBatch."Bal. Account Type"::"Bank Account");
+        GenJournalBatch.Validate("Bal. Account No.", BankAccountNo);
+        GenJournalBatch.Modify(true);
+        LibraryERM.CreateGeneralJnlLine(GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Payment,
+          GenJournalLine."Account Type"::Vendor, Vendor."No.", Amount);
+        GenJournalLine.Validate("Bank Payment Type", GenJournalLine."Bank Payment Type"::"Manual Check");
+        GenJournalLine.Validate("Document No.", DocNo);
+
+        GenJournalLine.Modify(true);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+    end;
+
     procedure VerifyRemainingAmountOnPaymentReco()
     var
         BankAccReconciliation: Record "Bank Acc. Reconciliation";
@@ -3395,6 +3705,11 @@ codeunit 134141 "ERM Bank Reconciliation"
     end;
 
     local procedure CreateAndPostGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; BankAccountNo: Code[20])
+    begin
+        CreateAndPostGenJournalLineWithAmount(GenJournalLine, BankAccountNo, -LibraryRandom.RandDec(5, 2));
+    end;
+
+    local procedure CreateGenJournalLineWithAmount(var GenJournalLine: Record "Gen. Journal Line"; BankAccountNo: Code[20]; Amount: Decimal)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
@@ -3402,11 +3717,15 @@ codeunit 134141 "ERM Bank Reconciliation"
         GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
         GenJournalLine.DeleteAll(true);
 
-        // Use Random because value is not important.
         LibraryERM.CreateGeneralJnlLineWithBalAcc(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Payment,
           GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo,
-          GenJournalLine."Bal. Account Type"::"Bank Account", BankAccountNo, -LibraryRandom.RandDec(5, 2));
+          GenJournalLine."Bal. Account Type"::"Bank Account", BankAccountNo, Amount);
+    end;
+
+    local procedure CreateAndPostGenJournalLineWithAmount(var GenJournalLine: Record "Gen. Journal Line"; BankAccountNo: Code[20]; Amount: Decimal)
+    begin
+        CreateGenJournalLineWithAmount(GenJournalLine, BankAccountNo, Amount);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
@@ -3556,6 +3875,11 @@ codeunit 134141 "ERM Bank Reconciliation"
     local procedure CreateBankAccount(): Code[20]
     var
         BankAccount: Record "Bank Account";
+    begin
+        exit(CreateBankAccount(BankAccount));
+    end;
+
+    local procedure CreateBankAccount(var BankAccount: Record "Bank Account"): Code[20]
     begin
         LibraryERM.CreateBankAccount(BankAccount);
         BankAccount.Validate("Last Statement No.", Format(LibraryRandom.RandInt(10)));  // Take Random Value.
@@ -4344,6 +4668,20 @@ codeunit 134141 "ERM Bank Reconciliation"
         GenJournalLine.Modify(true);
 
         exit(GenJournalLine."Document No.");
+    end;
+
+    local procedure SuggestLines(BankAccReconciliation: Record "Bank Acc. Reconciliation")
+    var
+        BankAccount: Record "Bank Account";
+        SuggestBankAccReconLines: Report "Suggest Bank Acc. Recon. Lines";
+    begin
+        Clear(SuggestBankAccReconLines);
+        BankAccount.SetRange("No.", BankAccReconciliation."Bank Account No.");
+        SuggestBankAccReconLines.SetTableView(BankAccount);
+        SuggestBankAccReconLines.InitializeRequest(WorkDate(), WorkDate(), false);
+        SuggestBankAccReconLines.UseRequestPage(false);
+        SuggestBankAccReconLines.SetStmt(BankAccReconciliation);
+        SuggestBankAccReconLines.Run();
     end;
 
     [ConfirmHandler]

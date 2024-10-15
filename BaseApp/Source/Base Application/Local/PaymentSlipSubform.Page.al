@@ -143,7 +143,7 @@ page 10869 "Payment Slip Subform"
                 {
                     ApplicationArea = All;
                     Editable = BankInfoEditable;
-                    ToolTip = 'Specifies the two digit RIB key associated with the Bank Account No.';
+                    ToolTip = 'Specifies the two-digit RIB key associated with the Bank Account No. RIB key value in range from 01 to 09 is represented in the single-digit form, without leading zero digit.';
                     Visible = RIBVisible;
                 }
                 field("RIB Checked"; Rec."RIB Checked")
