@@ -2404,6 +2404,194 @@ codeunit 136306 "Job Invoicing"
         GetSalesDocument(JobPlanningLine, SalesHeader."Document Type"::Invoice, SalesHeader);
     end;
 
+    [Test]
+    [HandlerFunctions('JobTransferToSalesInvoiceRequestPageHandler,MessageHandler')]
+    procedure JobLedgerEntryNoWhenPostSalesInvoiceForMultJobPlanLinesWithGLAccount()
+    var
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        JobPlanningLine: array[3] of Record "Job Planning Line";
+        JobPlanningLineToCheck: Record "Job Planning Line";
+        SalesHeader: Record "Sales Header";
+        JobPlanningLineInvoice: Record "Job Planning Line Invoice";
+        CustomerNo: Code[20];
+        PostedDocumentNo: Code[20];
+        i: Integer;
+    begin
+        // [SCENARIO 419117] Job Ledger Entry No. on Job Planning Line Invoice record when create one Sales Invoice for Job Planning Lines with G/L Account from multiple Jobs in random order.
+        Initialize();
+
+        // [GIVEN] Three Jobs "J1", "J2", "J3" for one Customer. Each Job has one Job Planning Line "P1" / "P2" / "P3" with G/L Account.
+        CustomerNo := LibrarySales.CreateCustomerNo();
+        for i := 1 to 3 do begin
+            LibraryJob.CreateJob(Job);
+            UpdateBillToCustomerNoOnJob(Job, CustomerNo);
+            LibraryJob.CreateJobTask(Job, JobTask);
+            LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeContract(), LibraryJob.GLAccountType(), JobTask, JobPlanningLine[i]);
+        end;
+        Commit();
+
+        // [GIVEN] Sales Invoice "I" created from Job Planning Line "P3".
+        CreateOrAppendToSalesDocument(JobPlanningLine[3], true, '', false);
+        GetSalesDocument(JobPlanningLine[3], SalesHeader."Document Type"::Invoice, SalesHeader);
+
+        // [GIVEN] Sales Lines are created from Job Planning Lines "P1" and "P2" and appended to Invoice "I".
+        CreateOrAppendToSalesDocument(JobPlanningLine[1], false, SalesHeader."No.", false);
+        CreateOrAppendToSalesDocument(JobPlanningLine[2], false, SalesHeader."No.", false);
+
+        // [WHEN] Post Sales Invoice "I".
+        PostedDocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [THEN] Three Job Ledger Entries with Entry No. 21, 22, 23 were created. Entry 21 has Job No. "J3", entry 22 - "J2", entry 23 - "J1".
+        // [THEN] Three Job Planning Line Invoice records were created. First has Job No. "J1" and Job Ledger Entry No. 23; second "J2" and 22; third "J3" and 21.
+        JobPlanningLineToCheck.SetRange("Job No.", JobPlanningLine[1]."Job No.", JobPlanningLine[3]."Job No.");
+        VerifyJobPlanningLineInvoiceCorrespondsToJobLedgerEntries(
+            JobPlanningLineToCheck, JobPlanningLineInvoice."Document Type"::"Posted Invoice", PostedDocumentNo);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('JobTransferToSalesCrMemoRequestPageHandler,MessageHandler')]
+    procedure JobLedgerEntryNoWhenPostSalesCrMemoForMultJobPlanLinesWithGLAccount()
+    var
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        JobPlanningLine: array[3] of Record "Job Planning Line";
+        JobPlanningLineToCheck: Record "Job Planning Line";
+        SalesHeader: Record "Sales Header";
+        JobPlanningLineInvoice: Record "Job Planning Line Invoice";
+        CustomerNo: Code[20];
+        PostedDocumentNo: Code[20];
+        i: Integer;
+    begin
+        // [SCENARIO 419117] Job Ledger Entry No. on Job Planning Line Invoice record when create one Sales Credit Memo for Job Planning Lines with G/L Account from multiple Jobs in random order.
+        Initialize();
+
+        // [GIVEN] Three Jobs "J1", "J2", "J3" for one Customer. Each Job has one Job Planning Line "P1" / "P2" / "P3" with G/L Account.
+        CustomerNo := LibrarySales.CreateCustomerNo();
+        for i := 1 to 3 do begin
+            LibraryJob.CreateJob(Job);
+            UpdateBillToCustomerNoOnJob(Job, CustomerNo);
+            LibraryJob.CreateJobTask(Job, JobTask);
+            LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeContract(), LibraryJob.GLAccountType(), JobTask, JobPlanningLine[i]);
+            JobPlanningLine[i].Validate(Quantity, -JobPlanningLine[i].Quantity);
+            JobPlanningLine[i].Modify(true);
+        end;
+        Commit();
+
+        // [GIVEN] Sales Credit Memo "I" created from Job Planning Line "P3".
+        CreateOrAppendToSalesDocument(JobPlanningLine[3], true, '', true);
+        GetSalesDocument(JobPlanningLine[3], SalesHeader."Document Type"::"Credit Memo", SalesHeader);
+
+        // [GIVEN] Sales Lines are created from Job Planning Lines "P1" and "P2" and appended to Invoice "I".
+        CreateOrAppendToSalesDocument(JobPlanningLine[1], false, SalesHeader."No.", true);
+        CreateOrAppendToSalesDocument(JobPlanningLine[2], false, SalesHeader."No.", true);
+
+        // [WHEN] Post Sales Credit Memo "I".
+        PostedDocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [THEN] Three Job Ledger Entries with Entry No. 21, 22, 23 were created. Entry 21 has Job No. "J3", entry 22 - "J2", entry 23 - "J1".
+        // [THEN] Three Job Planning Line Invoice records were created. First has Job No. "J1" and Job Ledger Entry No. 23; second "J2" and 22; third "J3" and 21.
+        JobPlanningLineToCheck.SetRange("Job No.", JobPlanningLine[1]."Job No.", JobPlanningLine[3]."Job No.");
+        VerifyJobPlanningLineInvoiceCorrespondsToJobLedgerEntries(
+            JobPlanningLineToCheck, JobPlanningLineInvoice."Document Type"::"Posted Credit Memo", PostedDocumentNo);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('JobTransferToSalesInvoiceRequestPageHandler,MessageHandler')]
+    procedure JobLedgerEntryNoWhenPostSalesInvoiceForMultJobPlanLinesWithResource()
+    var
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        JobPlanningLine: array[3] of Record "Job Planning Line";
+        JobPlanningLineToCheck: Record "Job Planning Line";
+        SalesHeader: Record "Sales Header";
+        JobPlanningLineInvoice: Record "Job Planning Line Invoice";
+        CustomerNo: Code[20];
+        PostedDocumentNo: Code[20];
+        i: Integer;
+    begin
+        // [SCENARIO 419117] Job Ledger Entry No. on Job Planning Line Invoice record when create one Sales Invoice for Job Planning Lines with Resource from multiple Jobs in random order.
+        Initialize();
+
+        // [GIVEN] Three Jobs "J1", "J2", "J3" for one Customer. Each Job has one Job Planning Line "P1" / "P2" / "P3" with Resource.
+        CustomerNo := LibrarySales.CreateCustomerNo();
+        for i := 1 to 3 do begin
+            LibraryJob.CreateJob(Job);
+            UpdateBillToCustomerNoOnJob(Job, CustomerNo);
+            LibraryJob.CreateJobTask(Job, JobTask);
+            LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeContract(), LibraryJob.ResourceType(), JobTask, JobPlanningLine[i]);
+        end;
+        Commit();
+
+        // [GIVEN] Sales Invoice "I" created from Job Planning Line "P3".
+        CreateOrAppendToSalesDocument(JobPlanningLine[3], true, '', false);
+        GetSalesDocument(JobPlanningLine[3], SalesHeader."Document Type"::Invoice, SalesHeader);
+
+        // [GIVEN] Sales Lines are created from Job Planning Lines "P1" and "P2" and appended to Invoice "I".
+        CreateOrAppendToSalesDocument(JobPlanningLine[1], false, SalesHeader."No.", false);
+        CreateOrAppendToSalesDocument(JobPlanningLine[2], false, SalesHeader."No.", false);
+
+        // [WHEN] Post Sales Invoice "I".
+        PostedDocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [THEN] Three Job Ledger Entries with Entry No. 21, 22, 23 were created. Entry 21 has Job No. "J3", entry 22 - "J2", entry 23 - "J1".
+        // [THEN] Three Job Planning Line Invoice records were created. First has Job No. "J1" and Job Ledger Entry No. 23; second "J2" and 22; third "J3" and 21.
+        JobPlanningLineToCheck.SetRange("Job No.", JobPlanningLine[1]."Job No.", JobPlanningLine[3]."Job No.");
+        VerifyJobPlanningLineInvoiceCorrespondsToJobLedgerEntries(
+            JobPlanningLineToCheck, JobPlanningLineInvoice."Document Type"::"Posted Invoice", PostedDocumentNo);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('JobTransferToSalesCrMemoRequestPageHandler,MessageHandler')]
+    procedure JobLedgerEntryNoWhenPostSalesCrMemoForMultJobPlanLinesWithResource()
+    var
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        JobPlanningLine: array[3] of Record "Job Planning Line";
+        JobPlanningLineToCheck: Record "Job Planning Line";
+        SalesHeader: Record "Sales Header";
+        JobPlanningLineInvoice: Record "Job Planning Line Invoice";
+        CustomerNo: Code[20];
+        PostedDocumentNo: Code[20];
+        i: Integer;
+    begin
+        // [SCENARIO 419117] Job Ledger Entry No. on Job Planning Line Invoice record when create one Sales Credit Memo for Job Planning Lines with Resource from multiple Jobs in random order.
+        Initialize();
+
+        // [GIVEN] Three Jobs "J1", "J2", "J3" for one Customer. Each Job has one Job Planning Line "P1" / "P2" / "P3" with Resource.
+        CustomerNo := LibrarySales.CreateCustomerNo();
+        for i := 1 to 3 do begin
+            LibraryJob.CreateJob(Job);
+            UpdateBillToCustomerNoOnJob(Job, CustomerNo);
+            LibraryJob.CreateJobTask(Job, JobTask);
+            LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeContract(), LibraryJob.ResourceType(), JobTask, JobPlanningLine[i]);
+            JobPlanningLine[i].Validate(Quantity, -JobPlanningLine[i].Quantity);
+            JobPlanningLine[i].Modify(true);
+        end;
+        Commit();
+
+        // [GIVEN] Sales Credit Memo "I" created from Job Planning Line "P3".
+        CreateOrAppendToSalesDocument(JobPlanningLine[3], true, '', true);
+        GetSalesDocument(JobPlanningLine[3], SalesHeader."Document Type"::"Credit Memo", SalesHeader);
+
+        // [GIVEN] Sales Lines are created from Job Planning Lines "P1" and "P2" and appended to Invoice "I".
+        CreateOrAppendToSalesDocument(JobPlanningLine[1], false, SalesHeader."No.", true);
+        CreateOrAppendToSalesDocument(JobPlanningLine[2], false, SalesHeader."No.", true);
+
+        // [WHEN] Post Sales Credit Memo "I".
+        PostedDocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [THEN] Three Job Ledger Entries with Entry No. 21, 22, 23 were created. Entry 21 has Job No. "J3", entry 22 - "J2", entry 23 - "J1".
+        // [THEN] Three Job Planning Line Invoice records were created. First has Job No. "J1" and Job Ledger Entry No. 23; second "J2" and 22; third "J3" and 21.
+        JobPlanningLineToCheck.SetRange("Job No.", JobPlanningLine[1]."Job No.", JobPlanningLine[3]."Job No.");
+        VerifyJobPlanningLineInvoiceCorrespondsToJobLedgerEntries(
+            JobPlanningLineToCheck, JobPlanningLineInvoice."Document Type"::"Posted Credit Memo", PostedDocumentNo);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -3023,6 +3211,16 @@ codeunit 136306 "Job Invoicing"
         PurchaseLine.Modify(true);
     end;
 
+    local procedure CreateOrAppendToSalesDocument(JobPlanningLine: Record "Job Planning Line"; CreateNewSalesDoc: Boolean; AppendToSalesDocNo: Code[20]; IsCreditMemo: Boolean)
+    var
+        JobCreateInvoice: Codeunit "Job Create-Invoice";
+    begin
+        LibraryVariableStorage.Enqueue(CreateNewSalesDoc);
+        LibraryVariableStorage.Enqueue(AppendToSalesDocNo);
+        JobPlanningLine.SetRecFilter();
+        JobCreateInvoice.CreateSalesInvoice(JobPlanningLine, IsCreditMemo);
+    end;
+
     local procedure PostPurchaseOrderWithJob(ToReceive: Boolean; ToInvoice: Boolean): Code[20]
     var
         PurchaseHeader: Record "Purchase Header";
@@ -3276,6 +3474,12 @@ codeunit 136306 "Job Invoicing"
         SalesLine.Validate(Description, LibraryUtility.GenerateGUID);
         SalesLine.Modify(true);
         exit(SalesLine.Description);
+    end;
+
+    local procedure UpdateBillToCustomerNoOnJob(var Job: Record Job; CustomerNo: Code[20])
+    begin
+        Job.Validate("Bill-to Customer No.", CustomerNo);
+        Job.Modify(true);
     end;
 
     local procedure VerifyLineTypeInJobLedgerEntry(DocumentNo: Code[20]; JobNo: Code[20])
@@ -3611,17 +3815,18 @@ codeunit 136306 "Job Invoicing"
         JobLedgerEntry: Record "Job Ledger Entry";
         JobPlanningLineInvoice: Record "Job Planning Line Invoice";
     begin
-        JobLedgerEntry.SetRange("Job No.", JobPlanningLine."Job No.");
-        JobLedgerEntry.FindSet;
         JobPlanningLineInvoice.SetRange("Document Type", DocType);
         JobPlanningLineInvoice.SetRange("Document No.", DocNo);
-        JobPlanningLineInvoice.SetRange("Job No.", JobPlanningLine."Job No.");
-        JobPlanningLine.FindSet;
+        JobPlanningLine.FindSet();
         repeat
+            JobLedgerEntry.SetRange("Job No.", JobPlanningLine."Job No.");
+            JobLedgerEntry.SetRange("No.", JobPlanningLine."No.");
+            JobLedgerEntry.FindFirst();
+
+            JobPlanningLineInvoice.SetRange("Job No.", JobPlanningLine."Job No.");
             JobPlanningLineInvoice.SetRange("Job Planning Line No.", JobPlanningLine."Line No.");
-            JobPlanningLineInvoice.FindFirst;
+            JobPlanningLineInvoice.FindFirst();
             JobPlanningLineInvoice.TestField("Job Ledger Entry No.", JobLedgerEntry."Entry No.");
-            JobLedgerEntry.Next;
         until JobPlanningLine.Next = 0;
     end;
 
@@ -3646,6 +3851,22 @@ codeunit 136306 "Job Invoicing"
     procedure TransferToCreditMemoHandler(var JobTransferToCreditMemo: TestRequestPage "Job Transfer to Credit Memo")
     begin
         JobTransferToCreditMemo.OK.Invoke
+    end;
+
+    [RequestPageHandler]
+    procedure JobTransferToSalesInvoiceRequestPageHandler(var JobTransferToSalesInvoice: TestRequestPage "Job Transfer to Sales Invoice")
+    begin
+        JobTransferToSalesInvoice.CreateNewInvoice.SetValue(LibraryVariableStorage.DequeueBoolean());
+        JobTransferToSalesInvoice.AppendToSalesInvoiceNo.SetValue(LibraryVariableStorage.DequeueText());
+        JobTransferToSalesInvoice.OK().Invoke();
+    end;
+
+    [RequestPageHandler]
+    procedure JobTransferToSalesCrMemoRequestPageHandler(var JobTransferToCreditMemo: TestRequestPage "Job Transfer to Credit Memo")
+    begin
+        JobTransferToCreditMemo.CreateNewCreditMemo.SetValue(LibraryVariableStorage.DequeueBoolean());
+        JobTransferToCreditMemo.AppendToCreditMemoNo.SetValue(LibraryVariableStorage.DequeueText());
+        JobTransferToCreditMemo.OK().Invoke();
     end;
 
     [MessageHandler]

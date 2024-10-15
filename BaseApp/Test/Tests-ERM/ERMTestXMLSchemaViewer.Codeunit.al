@@ -10,7 +10,9 @@ codeunit 134402 "ERM - Test XML Schema Viewer"
 
     var
         Assert: Codeunit Assert;
+        LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        LibraryReportDataset: Codeunit "Library - Report Dataset";
         XMLDateFormatTxt: Label 'YYYY-MM-DD', Locked = true;
         XMLDateTimeFormatTxt: Label 'YYYY-MM-DDThh:mm:ss', Locked = true;
         DefaultCultureTxt: Label 'en-US', Locked = true;
@@ -27,7 +29,7 @@ codeunit 134402 "ERM - Test XML Schema Viewer"
         OutStr: OutStream;
         ExportFileName: Text;
     begin
-        Initialize;
+        Initialize();
 
         CreateXMLSchemaRecord(XMLSchema, OutStr);
         CreateSchemaFile(OutStr);
@@ -53,7 +55,7 @@ codeunit 134402 "ERM - Test XML Schema Viewer"
         XMLSchemaElement: Record "XML Schema Element";
         OutStr: OutStream;
     begin
-        Initialize;
+        Initialize();
 
         CreateXMLSchemaRecord(XMLSchema, OutStr);
         CreateSchemaFile(OutStr);
@@ -61,14 +63,14 @@ codeunit 134402 "ERM - Test XML Schema Viewer"
         with XMLSchemaElement do begin
             SetRange("XML Schema Code", XMLSchema.Code);
             SetRange("Node Name", 'Test2');
-            FindFirst;
+            FindFirst();
             Assert.IsFalse(Selected, 'Test2 was expected to have Selected=No.');
             Assert.AreEqual(MinOccurs, 0, 'Test2 was expected to have MinOccures=0.');
             SetRange("Node Name");
             ModifyAll(Selected, false);
             Validate(Selected, true);
             TestField("Simple Data Type", 'string');
-            FindFirst;
+            FindFirst();
             Assert.IsTrue(Selected, 'Parent was expected to have Selected=Yes.');
         end;
     end;
@@ -83,7 +85,7 @@ codeunit 134402 "ERM - Test XML Schema Viewer"
         OutStr: OutStream;
         DefaultSelectedCount: Integer;
     begin
-        Initialize;
+        Initialize();
 
         CreateXMLSchemaRecord(XMLSchema, OutStr);
         CreateSchemaFile(OutStr);
@@ -95,7 +97,7 @@ codeunit 134402 "ERM - Test XML Schema Viewer"
             XSDParser.DeselectAll(XMLSchemaElement);
             Assert.AreEqual(Count, 0, 'Unexpected Selected elements.');
             SetRange(Selected);
-            FindLast;
+            FindLast();
             XSDParser.SelectMandatory(XMLSchemaElement);
             SetRange(Selected, true);
             Assert.AreEqual(DefaultSelectedCount, Count, 'Wrong number of selected elements.');
@@ -110,7 +112,7 @@ codeunit 134402 "ERM - Test XML Schema Viewer"
         XMLSchemaElement: Record "XML Schema Element";
         OutStr: OutStream;
     begin
-        Initialize;
+        Initialize();
 
         CreateXMLSchemaRecord(XMLSchema, OutStr);
         CreateSchemaFile(OutStr);
@@ -119,11 +121,11 @@ codeunit 134402 "ERM - Test XML Schema Viewer"
             SetRange("XML Schema Code", XMLSchema.Code);
             ModifyAll(Selected, false);
             SetRange("Node Name", 'GrpHdr');
-            FindFirst;
+            FindFirst();
             Validate(Selected, true);
             Modify;
             SetRange("Node Name", 'MsgId');
-            FindFirst;
+            FindFirst();
             Assert.IsTrue(Selected, 'Child was expected to have Selected=Yes.');
         end;
     end;
@@ -137,7 +139,7 @@ codeunit 134402 "ERM - Test XML Schema Viewer"
         XSDParser: Codeunit "XSD Parser";
         OutStr: OutStream;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         CreateXMLSchemaRecord(XMLSchema, OutStr);
@@ -147,7 +149,7 @@ codeunit 134402 "ERM - Test XML Schema Viewer"
             SetRange("XML Schema Code", XMLSchema.Code);
             ModifyAll(Selected, true);
             SetRange("Node Name", 'GrpHdr');
-            FindFirst;
+            FindFirst();
             Validate(Selected, false);
             Modify;
         end;
@@ -157,7 +159,7 @@ codeunit 134402 "ERM - Test XML Schema Viewer"
 
         // Verify.
         XMLSchemaElement.SetRange("Node Name", 'MsgId');
-        XMLSchemaElement.FindFirst;
+        XMLSchemaElement.FindFirst();
         Assert.IsTrue(XMLSchemaElement.Selected, 'Child was expected to have Selected=Yes.');
     end;
 
@@ -168,7 +170,7 @@ codeunit 134402 "ERM - Test XML Schema Viewer"
         XMLSchema: Record "XML Schema";
         OutStr: OutStream;
     begin
-        Initialize;
+        Initialize();
 
         CreateXMLSchemaRecord(XMLSchema, OutStr);
         CreateSchemaFile(OutStr);
@@ -185,7 +187,7 @@ codeunit 134402 "ERM - Test XML Schema Viewer"
         XSDParser: Codeunit "XSD Parser";
         OutStr: OutStream;
     begin
-        Initialize;
+        Initialize();
 
         CreateXMLSchemaRecord(XMLSchema, OutStr);
         CreateSchemaFile(OutStr);
@@ -210,7 +212,7 @@ codeunit 134402 "ERM - Test XML Schema Viewer"
         XMLSchemaRestriction: Record "XML Schema Restriction";
         OutStr: OutStream;
     begin
-        Initialize;
+        Initialize();
 
         CreateXMLSchemaRecord(XMLSchema, OutStr);
         CreateSchemaFile(OutStr);
@@ -234,7 +236,7 @@ codeunit 134402 "ERM - Test XML Schema Viewer"
         XMLSchemaElement: Record "XML Schema Element";
         OutStr: OutStream;
     begin
-        Initialize;
+        Initialize();
 
         CreateXMLSchemaRecord(XMLSchema, OutStr);
         CreateSchemaFileWithComplexTypeNestedFile(OutStr);
@@ -270,7 +272,7 @@ codeunit 134402 "ERM - Test XML Schema Viewer"
         XMLSchemaElement: Record "XML Schema Element";
         OutStr: OutStream;
     begin
-        Initialize;
+        Initialize();
 
         CreateXMLSchemaRecord(XMLSchema, OutStr);
         CreateSchemaFileWithGlobalComplexType(OutStr);
@@ -310,7 +312,7 @@ codeunit 134402 "ERM - Test XML Schema Viewer"
         XMLSchemaElement: Record "XML Schema Element";
         OutStr: OutStream;
     begin
-        Initialize;
+        Initialize();
 
         CreateXMLSchemaRecord(XMLSchema, OutStr);
         CreateSchemaFileWithReferences(OutStr);
@@ -363,7 +365,7 @@ codeunit 134402 "ERM - Test XML Schema Viewer"
         XMLSchemaElement: Record "XML Schema Element";
         OutStr: OutStream;
     begin
-        Initialize;
+        Initialize();
 
         CreateXMLSchemaRecord(XMLSchema, OutStr);
         CreateSchemaFileWithReferencesAlternativeNamespace(OutStr);
@@ -416,7 +418,7 @@ codeunit 134402 "ERM - Test XML Schema Viewer"
         XMLSchemaElement: Record "XML Schema Element";
         OutStr: OutStream;
     begin
-        Initialize;
+        Initialize();
 
         CreateXMLSchemaRecord(XMLSchema, OutStr);
         CreateSchemaFileWithExtensions(OutStr);
@@ -444,7 +446,7 @@ codeunit 134402 "ERM - Test XML Schema Viewer"
         XMLSchemaElement: Record "XML Schema Element";
         OutStr: OutStream;
     begin
-        Initialize;
+        Initialize();
 
         CreateXMLSchemaRecord(XMLSchema, OutStr);
         CreateSchemaFileWithInfiniteLoops(OutStr);
@@ -486,7 +488,7 @@ codeunit 134402 "ERM - Test XML Schema Viewer"
         XMLSchemaElement: Record "XML Schema Element";
         OutStr: OutStream;
     begin
-        Initialize;
+        Initialize();
 
         CreateXMLSchemaRecord(XMLSchema, OutStr);
         CreateSchemaFileWithInfiniteLoops(OutStr);
@@ -505,7 +507,7 @@ codeunit 134402 "ERM - Test XML Schema Viewer"
         XMLSchemaElement: Record "XML Schema Element";
         OutStr: OutStream;
     begin
-        Initialize;
+        Initialize();
 
         CreateXMLSchemaRecord(XMLSchema, OutStr);
         CreateSchemaFileWithInfiniteLoops(OutStr);
@@ -555,7 +557,7 @@ codeunit 134402 "ERM - Test XML Schema Viewer"
         XMLSchemaElement: Record "XML Schema Element";
         OutStr: OutStream;
     begin
-        Initialize;
+        Initialize();
 
         CreateXMLSchemaRecord(XMLSchema, OutStr);
         CreateSchemaFileWithInfiniteLoops(OutStr);
@@ -596,7 +598,7 @@ codeunit 134402 "ERM - Test XML Schema Viewer"
         OutStream: OutStream;
         InStream: InStream;
     begin
-        Initialize;
+        Initialize();
 
         // Create Files
         InfiniteLoopDefinitionFile.Create(FileManagement.ServerTempFileName('.xsd'));
@@ -683,7 +685,8 @@ codeunit 134402 "ERM - Test XML Schema Viewer"
         OutStream: OutStream;
         InStream: InStream;
     begin
-        Initialize;
+        // [SCENARIO 397836] XMLSchema record is updated on call XSDParser.LoadSchema() in case of "Indentation" > 0
+        Initialize();
 
         // Create Files
         InfiniteLoopDefinitionFile.Create(FileManagement.ServerTempFileName('.xsd'));
@@ -715,7 +718,7 @@ codeunit 134402 "ERM - Test XML Schema Viewer"
         AlternativeNamespaceDefinitionFile.CreateOutStream(AlternativeNamespaceSchemaOutStr);
         CreateSchemaFileWithReferencesAlternativeNamespace(AlternativeNamespaceSchemaOutStr);
         AlternativeNamespaceXMLSchema.SetRange(Path, AlternativeNamespaceDefinitionFile.Name);
-        AlternativeNamespaceXMLSchema.FindFirst;
+        AlternativeNamespaceXMLSchema.FindFirst();
 
         AlternativeNamespaceXMLSchema.XSD.CreateOutStream(OutStream);
         AlternativeNamespaceDefinitionFile.CreateInStream(InStream);
@@ -782,7 +785,7 @@ codeunit 134402 "ERM - Test XML Schema Viewer"
         InStream: InStream;
         MainSchemaCode: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Create Files
         InfiniteLoopDefinitionFile.Create(FileManagement.ServerTempFileName('.xsd'));
@@ -848,7 +851,7 @@ codeunit 134402 "ERM - Test XML Schema Viewer"
         InStream: InStream;
         MainSchemaCode: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Create Files
         InfiniteLoopDefinitionFile.Create(FileManagement.ServerTempFileName('.xsd'));
@@ -880,7 +883,7 @@ codeunit 134402 "ERM - Test XML Schema Viewer"
         MainSchemaCode := XMLSchema.Code;
 
         DefinitionXMLSchema.SetRange(Code, StrSubstNo('%1:1000', MainSchemaCode));
-        DefinitionXMLSchema.FindFirst;
+        DefinitionXMLSchema.FindFirst();
         DefinitionXMLSchema.Delete(true);
 
         XMLSchema.SetFilter(Code, StrSubstNo('%1*', MainSchemaCode));
@@ -917,7 +920,7 @@ codeunit 134402 "ERM - Test XML Schema Viewer"
         InStream: InStream;
         MainSchemaCode: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Create Files
         InfiniteLoopDefinitionFile.Create(FileManagement.ServerTempFileName('.xsd'));
@@ -948,7 +951,7 @@ codeunit 134402 "ERM - Test XML Schema Viewer"
         XSDParser.LoadSchema(XMLSchema);
         MainSchemaCode := XMLSchema.Code;
         ChildXMLSchema.SetRange(Indentation, 2);
-        ChildXMLSchema.FindLast;
+        ChildXMLSchema.FindLast();
         ChildXMLSchema.Delete(true);
 
         XMLSchema.SetFilter(Code, StrSubstNo('%1*', MainSchemaCode));
@@ -975,7 +978,7 @@ codeunit 134402 "ERM - Test XML Schema Viewer"
         XSDParser: Codeunit "XSD Parser";
         OutStr: OutStream;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         CreateXMLSchemaRecord(XMLSchema, OutStr);
@@ -983,7 +986,7 @@ codeunit 134402 "ERM - Test XML Schema Viewer"
         LoadSchemaFile(XMLSchema);
         XMLSchemaElement.SetRange("XML Schema Code", XMLSchema.Code);
         XMLSchemaElement.ModifyAll(Selected, true);
-        XMLSchemaElement.FindFirst;
+        XMLSchemaElement.FindFirst();
         XMLSchemaElement.Validate(Selected, false);
         XMLSchemaElement.Modify();
         if DataExchDef.Get(XMLSchema.Code) then
@@ -1003,7 +1006,7 @@ codeunit 134402 "ERM - Test XML Schema Viewer"
         XMLSchema: Record "XML Schema";
         OutStr: OutStream;
     begin
-        Initialize;
+        Initialize();
 
         CreateXMLSchemaRecord(XMLSchema, OutStr);
         CreateSchemaFile(OutStr);
@@ -1026,7 +1029,7 @@ codeunit 134402 "ERM - Test XML Schema Viewer"
         XMLSchema: Record "XML Schema";
         OutStr: OutStream;
     begin
-        Initialize;
+        Initialize();
 
         CreateXMLSchemaRecord(XMLSchema, OutStr);
         CreateSchemaFile(OutStr);
@@ -1050,7 +1053,7 @@ codeunit 134402 "ERM - Test XML Schema Viewer"
         XMLSchema: Record "XML Schema";
         OutStr: OutStream;
     begin
-        Initialize;
+        Initialize();
 
         CreateXMLSchemaRecord(XMLSchema, OutStr);
         CreateSchemaFile(OutStr);
@@ -1081,13 +1084,13 @@ codeunit 134402 "ERM - Test XML Schema Viewer"
         FileName: Text;
         TxtLine: Text[1024];
     begin
-        Initialize;
+        Initialize();
 
         CreateXMLSchemaRecord(XMLSchema, OutStr);
         CreateSchemaFile(OutStr);
         LoadSchemaFile(XMLSchema);
         XMLSchemaElement.SetRange("XML Schema Code", XMLSchema.Code);
-        XMLSchemaElement.FindFirst;
+        XMLSchemaElement.FindFirst();
         FileName := XSDParser.CreateXMLPortFile(XMLSchemaElement, 50000, 'XMLPort 50000', false, false);
         FileMgt.BLOBImport(TempBlob, FileName);
         TempBlob.CreateInStream(InStr);
@@ -1111,7 +1114,7 @@ codeunit 134402 "ERM - Test XML Schema Viewer"
         I: Integer;
     begin
         // [SCENARIO 220629] Attributes and Elements must be sorted after read XSD Schema and element with same name must have a Variable Name in the exported "XML Port"
-        Initialize;
+        Initialize();
 
         // [GIVEN] XSD Schema with 4 xml tags by next order: Root Element, Element, Attribute, Element
         // [GIVEN] Second and Fourth elements have same name = "Elem"
@@ -1125,7 +1128,7 @@ codeunit 134402 "ERM - Test XML Schema Viewer"
 
         // [GIVEN] 4 "XML Schema Element" by next order: Root Element, Attribute, Element, Element
         Assert.RecordCount(XMLSchemaElement, 4);
-        XMLSchemaElement.FindSet;
+        XMLSchemaElement.FindSet();
         XMLSchemaElement.TestField("Node Type", XMLSchemaElement."Node Type"::Element);
         XMLSchemaElement.Next;
         XMLSchemaElement.TestField("Node Type", XMLSchemaElement."Node Type"::Attribute);
@@ -1157,9 +1160,9 @@ codeunit 134402 "ERM - Test XML Schema Viewer"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 235022] You cannot create XML Schema with blank Code.
-        Initialize;
+        Initialize();
 
-        XMLSchemas.OpenNew;
+        XMLSchemas.OpenNew();
         asserterror XMLSchemas.Code.SetValue('');
 
         Assert.ExpectedErrorCode('TestValidation');
@@ -1167,17 +1170,22 @@ codeunit 134402 "ERM - Test XML Schema Viewer"
 
     [Test]
     [Scope('OnPrem')]
-    [HandlerFunctions('MessageHandler')]
+    [HandlerFunctions('MessageHandler,XBRLExportInstanceSpec2RequestPageHandler')]
     procedure ImportXBRLSchemaFileWithInfoAboutXBRLTaxonomyLine()
     var
         XBRLSchema: Record "XBRL Schema";
         XBRLTaxonomy: Record "XBRL Taxonomy";
         XBRLTaxonomyLine: Record "XBRL Taxonomy Line";
         FileManagement: Codeunit "File Management";
+        LibraryFileMgtHandler: Codeunit "Library - File Mgt Handler";
+        TempBlob: Codeunit "Temp Blob";
+        XMLDOMManagement: Codeunit "XML DOM Management";
+        XBRLExportInstanceSpec2: Report "XBRL Export Instance - Spec. 2";
         MainDefinitionFile: File;
         MainDefinitionOutStr: OutStream;
         OutStream: OutStream;
         InStream: InStream;
+        XmlDocumentDotNet: DotNet XmlDocument;
         LineName: Text;
         LineID: Text;
     begin
@@ -1196,6 +1204,8 @@ codeunit 134402 "ERM - Test XML Schema Viewer"
 
         // [GIVEN] Created XBRL Taxonomy and XBRL Schema
         LibraryXBRL.CreateXBRLTaxonomy(XBRLTaxonomy);
+        XBRLTaxonomy.schemaLocation := LibraryRandom.RandText(20);
+        XBRLTaxonomy.Modify();
         XBRLSchema."XBRL Taxonomy Name" := XBRLTaxonomy.Name;
         XBRLSchema.XSD.CreateOutStream(OutStream);
         MainDefinitionFile.CreateInStream(InStream);
@@ -1207,9 +1217,30 @@ codeunit 134402 "ERM - Test XML Schema Viewer"
 
         // [THEN] XBRL Taxonomy Line was created with LineNo LineID
         XBRLTaxonomyLine.SetRange("XBRL Taxonomy Name", XBRLTaxonomy.Name);
-        XBRLTaxonomyLine.FindFirst;
+        XBRLTaxonomyLine.FindFirst();
         XBRLTaxonomyLine.TestField("Element ID", LineID);
         XBRLTaxonomyLine.TestField(Name, LineName);
+
+        // Bug 422369
+        // [THEN] Stan can report "XBRLExportInstanceSpec2" with option "Create File" and get Xml output file.
+        Commit();
+        LibraryVariableStorage.Enqueue(XBRLTaxonomy.Name); // Taxonomy
+        LibraryVariableStorage.Enqueue('777777777'); // Schema Identifier
+        LibraryVariableStorage.Enqueue(WorkDate()); // Start Date
+        LibraryVariableStorage.Enqueue(true); // Create File
+
+        BindSubscription(LibraryFileMgtHandler);
+        LibraryFileMgtHandler.SetBeforeDownloadFromStreamHandlerActivated(true);
+
+        XBRLExportInstanceSpec2.RunModal();
+
+        LibraryFileMgtHandler.GetTempBlob(TempBlob);
+        Clear(InStream);
+        TempBlob.CreateInStream(InStream);
+        XMLDOMManagement.LoadXMLDocumentFromInStream(InStream, XmlDocumentDotNet);
+        Assert.AreEqual(11, XmlDocumentDotNet.DocumentElement.ChildNodes.Count, 'Invalid number of child nodes in Xml Document');
+
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     local procedure Initialize()
@@ -1220,6 +1251,7 @@ codeunit 134402 "ERM - Test XML Schema Viewer"
         XMLSchemaRestriction: Record "XML Schema Restriction";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM - Test XML Schema Viewer");
+        LibraryVariableStorage.Clear();
         XMLSchema.DeleteAll();
         XMLSchemaElement.DeleteAll();
         ReferencedXMLSchema.DeleteAll();
@@ -1650,14 +1682,14 @@ codeunit 134402 "ERM - Test XML Schema Viewer"
     begin
         DataExchDef.SetRange(Code, XMLSchema.Code);
         Assert.AreEqual(1, DataExchDef.Count, 'Unexpected Data Exch. def.');
-        DataExchDef.FindFirst;
+        DataExchDef.FindFirst();
         DataExchDef.TestField(Type, DataExchDef.Type::"Bank Statement Import");
         DataExchDef.TestField("File Type", DataExchDef."File Type"::Xml);
 
         DataExchLineDef.SetRange("Data Exch. Def Code", DataExchDef.Code);
         DataExchLineDef.SetRange(Code, DataExchDef.Code);
         Assert.AreEqual(1, DataExchLineDef.Count, 'Unexpected Data Exch. line def.');
-        DataExchLineDef.FindFirst;
+        DataExchLineDef.FindFirst();
         DataExchLineDef.TestField("Data Line Tag", '/Document/BkToCstmrStmt/Stmt/Ntry');
 
         VerifyDataExchColDef(XMLSchema);
@@ -1678,7 +1710,7 @@ codeunit 134402 "ERM - Test XML Schema Viewer"
         DataExchColDef.SetRange("Data Exch. Def Code", XMLSchema.Code);
         DataExchColDef.SetRange("Data Exch. Line Def Code", XMLSchema.Code);
 
-        XMLSchemaElement.FindSet;
+        XMLSchemaElement.FindSet();
         repeat
             FullPath := XMLSchemaElement.GetFullPath;
             DataExchColDef.SetRange(Path, FullPath);
@@ -1687,7 +1719,7 @@ codeunit 134402 "ERM - Test XML Schema Viewer"
             if XMLSchemaElement.IsLeaf then begin
                 Assert.AreEqual(1, DataExchColDef.Count, 'Unexpected column def.:' + DataExchColDef.GetFilters);
                 GetExpectedDataTypeAndFormat(XMLSchemaElement."Simple Data Type", DataType, DataFormat, DataFormattingCulture);
-                DataExchColDef.FindFirst;
+                DataExchColDef.FindFirst();
                 DataExchColDef.TestField(Name, DelStr(FullPath, StrPos(FullPath, '/Document/CstmrCdtTrfInitn'), 26));
                 DataExchColDef.TestField("Data Type", DataType);
                 DataExchColDef.TestField("Data Format", DataFormat);
@@ -1703,7 +1735,7 @@ codeunit 134402 "ERM - Test XML Schema Viewer"
     begin
         XMLSchemaElement.SetRange("XML Schema Code", XMLSchema.Code);
         XMLSchemaElement.SetRange("Node Name", NodeName);
-        XMLSchemaElement.FindFirst;
+        XMLSchemaElement.FindFirst();
 
         Assert.AreEqual(IsLeafStatus, XMLSchemaElement.IsLeaf, 'Wrong leaf status.');
     end;
@@ -1721,7 +1753,7 @@ codeunit 134402 "ERM - Test XML Schema Viewer"
     begin
         XMLSchemaElement.SetRange("XML Schema Code", XMLSchema.Code);
         XMLSchemaElement.SetRange("Node Name", NodeName);
-        XMLSchemaElement.FindFirst;
+        XMLSchemaElement.FindFirst();
         Assert.AreEqual(ExpSimpleDataType, XMLSchemaElement."Simple Data Type", 'Wrong data type.');
     end;
 
@@ -1762,6 +1794,18 @@ codeunit 134402 "ERM - Test XML Schema Viewer"
         OutStr.WriteText('<xsd:import namespace="http://www.xbrl.org/2003/instance"' +
           ' schemaLocation="http://www.xbrl.org/2003/xbrl-instance-2003-12-31.xsd"/>');
         OutStr.WriteText('</xsd:schema>');
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure XBRLExportInstanceSpec2RequestPageHandler(var XBRLExportInstanceSpec2: TestRequestPage "XBRL Export Instance - Spec. 2")
+    begin
+        XBRLExportInstanceSpec2.XBRLTaxonomyName.SetValue(LibraryVariableStorage.DequeueText());
+        XBRLExportInstanceSpec2.SchemeIdentifier.SetValue(LibraryVariableStorage.DequeueText());
+        XBRLExportInstanceSpec2.StartDate.SetValue(LibraryVariableStorage.DequeueDate());
+        XBRLExportInstanceSpec2.CreateFile.SetValue(LibraryVariableStorage.DequeueBoolean());
+
+        XBRLExportInstanceSpec2.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [ConfirmHandler]
