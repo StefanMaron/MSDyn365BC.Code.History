@@ -1,3 +1,4 @@
+#if not CLEAN21
 codeunit 138909 "O365 Customer Tests"
 {
     Subtype = Test;
@@ -47,7 +48,7 @@ codeunit 138909 "O365 Customer Tests"
 
         // Verify default customer type is person and is prices inclusing VAT
         O365SalesCustomerCard."Contact Type".AssertEquals(Customer."Contact Type"::Person);
-        O365SalesCustomerCard.Close;
+        O365SalesCustomerCard.Close();
         Customer.SetRange(Name, CustomerName);
         Customer.FindFirst();
         Customer.TestField("Prices Including VAT", true);
@@ -56,7 +57,7 @@ codeunit 138909 "O365 Customer Tests"
         O365SalesCustomerCard.OpenEdit;
         O365SalesCustomerCard.GotoRecord(Customer);
         O365SalesCustomerCard."Contact Type".SetValue(Customer."Contact Type"::Company);
-        O365SalesCustomerCard.Close;
+        O365SalesCustomerCard.Close();
 
         // Verify that the customer changed to prices excluding VAT
         Customer.Get(Customer."No.");
@@ -87,7 +88,7 @@ codeunit 138909 "O365 Customer Tests"
         CustomerName := CopyStr(LibraryUtility.GenerateRandomText(30), 1, MaxStrLen(Customer.Name));
         O365SalesCustomerCard.Name.SetValue(CustomerName);
         O365SalesCustomerCard.FullAddress.AssistEdit; // Calls trigger and sets Country/Region to NAVWAY
-        O365SalesCustomerCard.Close;
+        O365SalesCustomerCard.Close();
 
         // [THEN] The customer has been created with the correct Country/Region
         Customer.SetRange(Name, CustomerName);
@@ -122,14 +123,14 @@ codeunit 138909 "O365 Customer Tests"
         O365CountryRegionCard.OpenNew();
         O365CountryRegionCard.Code.SetValue('NAVWAY');
         O365CountryRegionCard.Name.SetValue(CopyStr(LibraryUtility.GenerateRandomText(30), 1, MaxStrLen(CountryRegion.Name)));
-        O365CountryRegionCard.Close;
+        O365CountryRegionCard.Close();
 
         // [THEN] A customer can be created with the Country/Region
         O365SalesCustomerCard.OpenNew();
         CustomerName := CopyStr(LibraryUtility.GenerateRandomText(30), 1, MaxStrLen(Customer.Name));
         O365SalesCustomerCard.Name.SetValue(CustomerName);
         O365SalesCustomerCard.FullAddress.AssistEdit; // Calls trigger and sets Country/Region to NAVWAY
-        O365SalesCustomerCard.Close;
+        O365SalesCustomerCard.Close();
 
         // [THEN] The Country/Region exists and the shadow table O365CountryRegion is still empty
         CountryRegion.Get('NAVWAY');
@@ -160,7 +161,7 @@ codeunit 138909 "O365 Customer Tests"
         CustomerName := CopyStr(LibraryUtility.GenerateRandomText(30), 1, MaxStrLen(Customer.Name));
         BCO365SalesCustomerCard.Name.SetValue(CustomerName);
         BCO365SalesCustomerCard.CountryRegionCode.SetValue('NAVWAY');
-        BCO365SalesCustomerCard.Close;
+        BCO365SalesCustomerCard.Close();
 
         // [THEN] The customer has been created with the correct Country/Region
         Customer.SetRange(Name, CustomerName);
@@ -199,7 +200,7 @@ codeunit 138909 "O365 Customer Tests"
         CustomerName := CopyStr(LibraryUtility.GenerateRandomText(30), 1, MaxStrLen(Customer.Name));
         BCO365SalesCustomerCard.Name.SetValue(CustomerName);
         BCO365SalesCustomerCard.CountryRegionCode.SetValue(PartialCountryName); // Calls trigger and sets Country/Region to NAVWAY
-        BCO365SalesCustomerCard.Close;
+        BCO365SalesCustomerCard.Close();
 
         // [THEN] The customer has been created with the correct Country/Region
         Customer.SetRange(Name, CustomerName);
@@ -243,7 +244,7 @@ codeunit 138909 "O365 Customer Tests"
         BCO365SalesCustomerCard.GotoRecord(Customer);
         EditedCustomerName := CopyStr(LibraryUtility.GenerateRandomText(30), 1, MaxStrLen(Customer.Name));
         BCO365SalesCustomerCard.Name.SetValue(EditedCustomerName);
-        BCO365SalesCustomerCard.Close;
+        BCO365SalesCustomerCard.Close();
 
         // [THEN] No error is thrown and the modification succeeded
         Customer.SetRange(Name, CustomerName);
@@ -287,4 +288,4 @@ codeunit 138909 "O365 Customer Tests"
         O365SalesEmailDialog.OK.Invoke;
     end;
 }
-
+#endif

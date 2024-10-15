@@ -14,7 +14,7 @@ report 1009 "Job Actual To Budget"
             column(TodayFormatted; Format(Today, 0, 4))
             {
             }
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(JobTableCaptionFilter; TableCaption + ': ' + JobFilter)
@@ -109,16 +109,16 @@ report 1009 "Job Actual To Budget"
                     column(Amt9; Amt[9])
                     {
                     }
-                    column(JobDiffBufferType1; JobDiffBuffer.Type)
+                    column(JobDiffBufferType1; TempJobDiffBuffer.Type)
                     {
                     }
-                    column(JobDiffBufferNo; JobDiffBuffer."No.")
+                    column(JobDiffBufferNo; TempJobDiffBuffer."No.")
                     {
                     }
-                    column(JobDiffBufferUOMcode; JobDiffBuffer."Unit of Measure code")
+                    column(JobDiffBufferUOMcode; TempJobDiffBuffer."Unit of Measure code")
                     {
                     }
-                    column(JobDiffBufferWorkTypeCode; JobDiffBuffer."Work Type Code")
+                    column(JobDiffBufferWorkTypeCode; TempJobDiffBuffer."Work Type Code")
                     {
                     }
                     column(ShowFirstBuffer; ShowFirstBuffer)
@@ -131,21 +131,21 @@ report 1009 "Job Actual To Budget"
 
                         Clear(Amt);
                         if Number = 1 then begin
-                            if not JobDiffBuffer.Find('-') then
+                            if not TempJobDiffBuffer.Find('-') then
                                 CurrReport.Break();
                         end else
-                            if JobDiffBuffer.Next() = 0 then
+                            if TempJobDiffBuffer.Next() = 0 then
                                 CurrReport.Break();
-                        Amt[1] := JobDiffBuffer.Quantity;
-                        Amt[4] := JobDiffBuffer."Total Cost";
-                        Amt[7] := JobDiffBuffer."Line Amount";
+                        Amt[1] := TempJobDiffBuffer.Quantity;
+                        Amt[4] := TempJobDiffBuffer."Total Cost";
+                        Amt[7] := TempJobDiffBuffer."Line Amount";
 
-                        JobDiffBuffer2 := JobDiffBuffer;
-                        if JobDiffBuffer2.Find then begin
-                            Amt[2] := JobDiffBuffer2.Quantity;
-                            Amt[5] := JobDiffBuffer2."Total Cost";
-                            Amt[8] := JobDiffBuffer2."Line Amount";
-                            JobDiffBuffer2.Delete();
+                        TempJobDiffBuffer2 := TempJobDiffBuffer;
+                        if TempJobDiffBuffer2.Find() then begin
+                            Amt[2] := TempJobDiffBuffer2.Quantity;
+                            Amt[5] := TempJobDiffBuffer2."Total Cost";
+                            Amt[8] := TempJobDiffBuffer2."Line Amount";
+                            TempJobDiffBuffer2.Delete();
                         end;
                         Amt[3] := Amt[1] - Amt[2];
                         Amt[6] := Amt[4] - Amt[5];
@@ -168,16 +168,16 @@ report 1009 "Job Actual To Budget"
                 dataitem(SecondBuffer; "Integer")
                 {
                     DataItemTableView = SORTING(Number) WHERE(Number = FILTER(1 ..));
-                    column(JobDiffBuffer2Type1; JobDiffBuffer2.Type)
+                    column(JobDiffBuffer2Type1; TempJobDiffBuffer2.Type)
                     {
                     }
-                    column(JobDiffBuffer2No; JobDiffBuffer2."No.")
+                    column(JobDiffBuffer2No; TempJobDiffBuffer2."No.")
                     {
                     }
-                    column(JobDiffBuffer2UOMcode; JobDiffBuffer2."Unit of Measure code")
+                    column(JobDiffBuffer2UOMcode; TempJobDiffBuffer2."Unit of Measure code")
                     {
                     }
-                    column(JobDiffBuffer2WorkTypeCode; JobDiffBuffer2."Work Type Code")
+                    column(JobDiffBuffer2WorkTypeCode; TempJobDiffBuffer2."Work Type Code")
                     {
                     }
                     column(Amt12; Amt[1])
@@ -220,14 +220,14 @@ report 1009 "Job Actual To Budget"
 
                         Clear(Amt);
                         if Number = 1 then begin
-                            if not JobDiffBuffer2.Find('-') then
+                            if not TempJobDiffBuffer2.Find('-') then
                                 CurrReport.Break();
                         end else
-                            if JobDiffBuffer2.Next() = 0 then
+                            if TempJobDiffBuffer2.Next() = 0 then
                                 CurrReport.Break();
-                        Amt[2] := JobDiffBuffer2.Quantity;
-                        Amt[5] := JobDiffBuffer2."Total Cost";
-                        Amt[8] := JobDiffBuffer2."Line Amount";
+                        Amt[2] := TempJobDiffBuffer2.Quantity;
+                        Amt[5] := TempJobDiffBuffer2."Total Cost";
+                        Amt[8] := TempJobDiffBuffer2."Line Amount";
                         Amt[3] := Amt[1] - Amt[2];
                         Amt[6] := Amt[4] - Amt[5];
                         Amt[9] := Amt[7] - Amt[8];
@@ -281,9 +281,9 @@ report 1009 "Job Actual To Budget"
                         CurrReport.Skip();
                     Clear(JobCalcBatches);
                     JobCalcBatches.CalculateActualToBudget(
-                      Job, "Job Task", JobDiffBuffer, JobDiffBuffer2, CurrencyField);
-                    if not JobDiffBuffer.Find('-') then
-                        if not JobDiffBuffer2.Find('-') then
+                      Job, "Job Task", TempJobDiffBuffer, TempJobDiffBuffer2, CurrencyField);
+                    if not TempJobDiffBuffer.Find('-') then
+                        if not TempJobDiffBuffer2.Find('-') then
                             CurrReport.Skip();
                     for I := 1 to 9 do
                         JTTotalAmt[I] := 0;
@@ -359,13 +359,13 @@ report 1009 "Job Actual To Budget"
 
     trigger OnPreReport()
     begin
-        JobFilter := Job.GetFilters;
-        JobTaskFilter := "Job Task".GetFilters;
+        JobFilter := Job.GetFilters();
+        JobTaskFilter := "Job Task".GetFilters();
     end;
 
     var
-        JobDiffBuffer: Record "Job Difference Buffer" temporary;
-        JobDiffBuffer2: Record "Job Difference Buffer" temporary;
+        TempJobDiffBuffer: Record "Job Difference Buffer" temporary;
+        TempJobDiffBuffer2: Record "Job Difference Buffer" temporary;
         JobCalcBatches: Codeunit "Job Calculate Batches";
         Amt: array[9] of Decimal;
         JTTotalAmt: array[9] of Decimal;

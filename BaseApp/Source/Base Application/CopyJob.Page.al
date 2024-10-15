@@ -20,7 +20,7 @@ page 1040 "Copy Job"
                     trigger OnValidate()
                     begin
                         if (SourceJobNo <> '') and not SourceJob.Get(SourceJobNo) then
-                            Error(Text003, SourceJob.TableCaption, SourceJobNo);
+                            Error(Text003, SourceJob.TableCaption(), SourceJobNo);
                         TargetJobDescription := SourceJob.Description;
                         TargetSellToCustomerNo := SourceJob."Sell-to Customer No.";
                         TargetBillToCustomerNo := SourceJob."Bill-to Customer No.";
@@ -52,7 +52,7 @@ page 1040 "Copy Job"
                         JobTask: Record "Job Task";
                     begin
                         if (FromJobTaskNo <> '') and not JobTask.Get(SourceJob."No.", FromJobTaskNo) then
-                            Error(Text003, JobTask.TableCaption, FromJobTaskNo);
+                            Error(Text003, JobTask.TableCaption(), FromJobTaskNo);
                     end;
                 }
                 field(ToJobTaskNo; ToJobTaskNo)
@@ -78,7 +78,7 @@ page 1040 "Copy Job"
                         JobTask: Record "Job Task";
                     begin
                         if (ToJobTaskNo <> '') and not JobTask.Get(SourceJobNo, ToJobTaskNo) then
-                            Error(Text003, JobTask.TableCaption, ToJobTaskNo);
+                            Error(Text003, JobTask.TableCaption(), ToJobTaskNo);
                     end;
                 }
                 field("From Source"; Source)
@@ -90,7 +90,7 @@ page 1040 "Copy Job"
 
                     trigger OnValidate()
                     begin
-                        ValidateSource;
+                        ValidateSource();
                     end;
                 }
                 field("Planning Line Type"; PlanningLineType)
@@ -185,7 +185,7 @@ page 1040 "Copy Job"
     begin
         PlanningLineType := PlanningLineType::"Budget+Billable";
         LedgerEntryType := LedgerEntryType::"Usage+Sale";
-        ValidateSource;
+        ValidateSource();
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -193,7 +193,7 @@ page 1040 "Copy Job"
         TargetJob: Record Job;
     begin
         if CloseAction in [ACTION::OK, ACTION::LookupOK] then begin
-            ValidateUserInput;
+            ValidateUserInput();
             CopyJob.SetCopyOptions(CopyJobPrices, CopyQuantity, CopyDimensions, Source, PlanningLineType, LedgerEntryType);
             CopyJob.SetJobTaskRange(FromJobTaskNo, ToJobTaskNo);
             CopyJob.SetJobTaskDateRange(FromDate, ToDate);
@@ -236,7 +236,7 @@ page 1040 "Copy Job"
         NoSeriesManagement: Codeunit NoSeriesManagement;
     begin
         if (SourceJobNo = '') or not SourceJob.Get(SourceJob."No.") then
-            Error(Text004, SourceJob.TableCaption);
+            Error(Text004, SourceJob.TableCaption());
 
         JobsSetup.Get();
         JobsSetup.TestField("Job Nos.");

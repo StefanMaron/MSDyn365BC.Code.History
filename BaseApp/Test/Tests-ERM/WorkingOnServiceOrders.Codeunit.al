@@ -65,16 +65,16 @@ codeunit 136112 "Working On Service Orders"
         ServiceCommentLine.SetRange("Table Name", ServiceCommentLine."Table Name"::"Service Shipment Header");
         ServiceCommentLine.SetRange("No.", ServiceShipmentHeader."No.");
         Assert.IsFalse(
-          ServiceCommentLine.FindFirst, StrSubstNo(ServiceCommentLineExistError, ServiceCommentLine.TableCaption,
-            ServiceShipmentHeader.TableCaption, ServiceShipmentHeader."No."));
+          ServiceCommentLine.FindFirst, StrSubstNo(ServiceCommentLineExistError, ServiceCommentLine.TableCaption(),
+            ServiceShipmentHeader.TableCaption(), ServiceShipmentHeader."No."));
 
         ServiceInvoiceHeader.SetRange("Order No.", ServiceHeader."No.");
         ServiceInvoiceHeader.FindFirst();
         ServiceCommentLine.SetRange("Table Name", ServiceCommentLine."Table Name"::"Service Invoice Header");
         ServiceCommentLine.SetRange("No.", ServiceInvoiceHeader."No.");
         Assert.IsFalse(
-          ServiceCommentLine.FindFirst, StrSubstNo(ServiceCommentLineExistError, ServiceCommentLine.TableCaption,
-            ServiceInvoiceHeader.TableCaption, ServiceInvoiceHeader."No."));
+          ServiceCommentLine.FindFirst, StrSubstNo(ServiceCommentLineExistError, ServiceCommentLine.TableCaption(),
+            ServiceInvoiceHeader.TableCaption(), ServiceInvoiceHeader."No."));
 
         // 4. Teardown: Rollback "Copy Comments Order to Invoice" and "Copy Comments Order to Shpt." fields as True on Service Management
         // Setup.
@@ -498,8 +498,8 @@ codeunit 136112 "Working On Service Orders"
         ServiceItemLine.FindFirst();
         asserterror UpdateStatusOnServiceHeader(ServiceHeader, ServiceHeader.Status::Finished);
         Assert.AreEqual(
-          StrSubstNo(StatusChangeError, ServiceHeader.FieldCaption(Status), ServiceHeader.TableCaption, ServiceHeader."No.",
-            ServiceItemLine.FieldCaption("Repair Status Code"), ServiceItemLine."Repair Status Code", ServiceItemLine.TableCaption,
+          StrSubstNo(StatusChangeError, ServiceHeader.FieldCaption(Status), ServiceHeader.TableCaption(), ServiceHeader."No.",
+            ServiceItemLine.FieldCaption("Repair Status Code"), ServiceItemLine."Repair Status Code", ServiceItemLine.TableCaption(),
             ServiceItemLine."Line No."), GetLastErrorText, UnknownError);
     end;
 
@@ -765,7 +765,7 @@ codeunit 136112 "Working On Service Orders"
           StrSubstNo(
             UnitPriceUpdationError, ServiceLine.FieldCaption("Unit Price"),
             ServiceHeader.FieldCaption("Max. Labor Unit Price"),
-            ServiceHeader.TableCaption), GetLastErrorText, UnknownError);
+            ServiceHeader.TableCaption()), GetLastErrorText, UnknownError);
     end;
 
     [Test]
@@ -952,7 +952,7 @@ codeunit 136112 "Working On Service Orders"
         FaultCode.Get(TempServiceItemLine."Fault Area Code", TempServiceItemLine."Symptom Code", TempServiceItemLine."Fault Code");
         UpdateFaultResolution(ServiceItemLine, FaultCode, TempServiceItemLine."Resolution Code");
 
-        FaultResolRelationCalculate.CopyResolutionRelationToTable(WorkDate, WorkDate, true, true);
+        FaultResolRelationCalculate.CopyResolutionRelationToTable(WorkDate(), WorkDate(), true, true);
 
         // 3. Verify: Verify Fault/Resolution Relationships Entry from Second Order.
         VerifyFaultResolutionRelation(TempServiceItemLine);
@@ -1052,13 +1052,13 @@ codeunit 136112 "Working On Service Orders"
         ServiceOrders.FILTER.SetFilter("No.", RangeText);
         ServiceOrders.PostBatch.Invoke;
         Assert.AreEqual(RangeText, LibraryVariableStorage.DequeueText, StrSubstNo(UnexpectedFilterErr, ServiceOrders.Caption));
-        ServiceOrders.Close;
+        ServiceOrders.Close();
 
         ServiceOrder.OpenEdit;
         ServiceOrder.FILTER.SetFilter("No.", RangeText);
         ServiceOrder.PostBatch.Invoke;
         Assert.AreEqual(RangeText, LibraryVariableStorage.DequeueText, StrSubstNo(UnexpectedFilterErr, ServiceOrder.Caption));
-        ServiceOrder.Close;
+        ServiceOrder.Close();
 
         LibraryVariableStorage.AssertEmpty;
     end;
@@ -1152,7 +1152,7 @@ codeunit 136112 "Working On Service Orders"
         ServOrderManagement.CopyCommentLinesWithSubType(
           ServiceCommentLine."Table Name"::"Service Header".AsInteger(),
           NewTableNameOption.AsInteger(), DocumentNo, NewDocumentNo,
-          ServiceCommentLine."Table Subtype"::"1");
+          ServiceCommentLine."Table Subtype"::"1".AsInteger());
 
         VerifyServiceCommentLineExists(NewTableNameOption, 0, NewDocumentNo, CommentTxt);
     end;
@@ -1184,7 +1184,7 @@ codeunit 136112 "Working On Service Orders"
         ServOrderManagement.CopyCommentLinesWithSubType(
           ServiceCommentLine."Table Name"::"Service Header".AsInteger(),
           NewTableNameOption.AsInteger(), DocumentNo, NewDocumentNo,
-          ServiceCommentLine."Table Subtype"::"2");
+          ServiceCommentLine."Table Subtype"::"2".AsInteger());
 
         VerifyServiceCommentLineExists(NewTableNameOption, 0, NewDocumentNo, CommentTxt);
     end;
@@ -1213,7 +1213,7 @@ codeunit 136112 "Working On Service Orders"
         LibraryService.PostServiceOrder(ServiceHeader, false, false, false);
         Assert.IsFalse(
           ServiceHeader.Get(ServiceHeader."Document Type"::"Credit Memo", ServiceHeader."No."),
-          StrSubstNo(ExistErr, ServiceHeader.TableCaption, ServiceHeader."No."));
+          StrSubstNo(ExistErr, ServiceHeader.TableCaption(), ServiceHeader."No."));
 
         ServiceCrMemoHeader.SetRange("Pre-Assigned No.", ServiceHeader."No.");
         ServiceCrMemoHeader.FindFirst();
@@ -1297,7 +1297,7 @@ codeunit 136112 "Working On Service Orders"
         UpdateQuantityOnServiceLine(ServiceLine, ServiceItemLine."Line No.");
         ServiceLine.Validate(Quantity, Quantity);
         ServiceLine.Modify(true);
-        ServiceItemLine.Next;
+        ServiceItemLine.Next();
         ServiceLine.Validate("No.", ServiceItemLine."Item No.");
 
         // 2. Exercise: Post Service Order as Ship.
@@ -1451,7 +1451,7 @@ codeunit 136112 "Working On Service Orders"
             LibraryService.CreateCommentLineForServHeader(
               ServiceCommentLine, ServiceItemLine, ServiceCommentLine.Type::"Service Item Loaner");
             LibraryService.CreateCommentLineForServHeader(ServiceCommentLine, ServiceItemLine, ServiceCommentLine.Type::General);
-        until ServiceItemLine.Next = 0;
+        until ServiceItemLine.Next() = 0;
     end;
 
     local procedure CreateFaultCode(var FaultCode: Record "Fault Code")
@@ -1604,7 +1604,7 @@ codeunit 136112 "Working On Service Orders"
             LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItem(Item));
             ServiceLine.Validate("Service Item Line No.", ServiceItemLine."Line No.");
             ServiceLine.Modify(true);
-        until ServiceItemLine.Next = 0;
+        until ServiceItemLine.Next() = 0;
     end;
 
     local procedure CreateServiceItemFromOrder(ServiceHeader: Record "Service Header")
@@ -1617,7 +1617,7 @@ codeunit 136112 "Working On Service Orders"
         ServiceItemLine.FindSet();
         repeat
             ServItemManagement.CreateServItemOnServItemLine(ServiceItemLine);
-        until ServiceItemLine.Next = 0;
+        until ServiceItemLine.Next() = 0;
     end;
 
     local procedure CreateServiceItemComponents(ServiceHeader: Record "Service Header")
@@ -1630,11 +1630,11 @@ codeunit 136112 "Working On Service Orders"
         ServiceItemLine.SetRange("Document No.", ServiceHeader."No.");
         ServiceItemLine.FindSet();
         ServiceItemNo := ServiceItemLine."Service Item No.";
-        ServiceItemLine.Next;
+        ServiceItemLine.Next();
         repeat
             LibraryService.CreateServiceItemComponent(
               ServiceItemComponent, ServiceItemNo, ServiceItemComponent.Type::"Service Item", ServiceItemLine."Service Item No.");
-        until ServiceItemLine.Next = 0;
+        until ServiceItemLine.Next() = 0;
     end;
 
     local procedure CreateCustomer(): Code[20]
@@ -1715,7 +1715,7 @@ codeunit 136112 "Working On Service Orders"
         repeat
             TempServiceCommentLine := ServiceCommentLine;
             TempServiceCommentLine.Insert();
-        until ServiceCommentLine.Next = 0;
+        until ServiceCommentLine.Next() = 0;
     end;
 
     local procedure UpdateFaultResolution(var ServiceItemLine: Record "Service Item Line"; FaultCode: Record "Fault Code"; ResolutionCode: Code[10])
@@ -1738,7 +1738,7 @@ codeunit 136112 "Working On Service Orders"
             ServiceLine.Validate(Quantity, LibraryRandom.RandInt(10));  // Use Random because value is not important.
             ServiceLine.Validate("Qty. to Ship", ServiceLine.Quantity * LibraryUtility.GenerateRandomFraction);
             ServiceLine.Modify(true);
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     local procedure UpdateQuantityOnServiceLine(var ServiceLine: Record "Service Line"; ServiceItemLineLineNo: Integer)
@@ -1786,7 +1786,7 @@ codeunit 136112 "Working On Service Orders"
         repeat
             ServiceItemLine.Validate("Repair Status Code", RepairStatus.Code);
             ServiceItemLine.Modify(true);
-        until ServiceItemLine.Next = 0;
+        until ServiceItemLine.Next() = 0;
     end;
 
     local procedure UpdateRepairStatusFinished(ServiceItemLine: Record "Service Item Line")
@@ -1805,7 +1805,7 @@ codeunit 136112 "Working On Service Orders"
         repeat
             ServiceItemLine.Validate("Repair Status Code", RepairStatus.Code);
             ServiceItemLine.Modify(true);
-        until ServiceItemLine.Next = 0;
+        until ServiceItemLine.Next() = 0;
     end;
 
     local procedure UpdateRepairStatusSparePart(ServiceItemLine: Record "Service Item Line")
@@ -1824,7 +1824,7 @@ codeunit 136112 "Working On Service Orders"
         repeat
             ServiceItemLine.Validate("Repair Status Code", RepairStatus.Code);
             ServiceItemLine.Modify(true);
-        until ServiceItemLine.Next = 0;
+        until ServiceItemLine.Next() = 0;
     end;
 
     local procedure UpdateRepairStatusBlank(ServiceItemLine: Record "Service Item Line")
@@ -1835,7 +1835,7 @@ codeunit 136112 "Working On Service Orders"
         repeat
             ServiceItemLine.Validate("Repair Status Code", '');
             ServiceItemLine.Modify(true);
-        until ServiceItemLine.Next = 0;
+        until ServiceItemLine.Next() = 0;
     end;
 
     local procedure UpdateRepairStatusInProcess(ServiceItemLine: Record "Service Item Line")
@@ -1854,7 +1854,7 @@ codeunit 136112 "Working On Service Orders"
         repeat
             ServiceItemLine.Validate("Repair Status Code", RepairStatus.Code);
             ServiceItemLine.Modify(true);
-        until ServiceItemLine.Next = 0;
+        until ServiceItemLine.Next() = 0;
     end;
 
     local procedure UpdateStatusOnServiceHeader(var ServiceHeader: Record "Service Header"; Status: Enum "Service Document Status")
@@ -1936,8 +1936,8 @@ codeunit 136112 "Working On Service Orders"
             ServiceCommentLine.TestField("Line No.", TempServiceCommentLine."Line No.");
             ServiceCommentLine.TestField(Type, TempServiceCommentLine.Type);
             ServiceCommentLine.TestField(Comment, TempServiceCommentLine.Comment);
-            TempServiceCommentLine.Next;
-        until ServiceCommentLine.Next = 0;
+            TempServiceCommentLine.Next();
+        until ServiceCommentLine.Next() = 0;
     end;
 
     local procedure VerifyCommentsOnPostedInvoice(var TempServiceCommentLine: Record "Service Comment Line" temporary)
@@ -1956,8 +1956,8 @@ codeunit 136112 "Working On Service Orders"
             ServiceCommentLine.TestField("Line No.", TempServiceCommentLine."Line No.");
             ServiceCommentLine.TestField(Type, TempServiceCommentLine.Type);
             ServiceCommentLine.TestField(Comment, TempServiceCommentLine.Comment);
-            TempServiceCommentLine.Next;
-        until ServiceCommentLine.Next = 0;
+            TempServiceCommentLine.Next();
+        until ServiceCommentLine.Next() = 0;
     end;
 
     local procedure VerifyFaultCodePostedShipment(var TempServiceItemLine: Record "Service Item Line" temporary)
@@ -2059,7 +2059,7 @@ codeunit 136112 "Working On Service Orders"
             ServiceLine2.TestField(Type, ServiceLine.Type);
             ServiceLine2.TestField("No.", ServiceLine."No.");
             ServiceLine2.TestField(Quantity, ServiceLine.Quantity / 2);  // Use 2 to Verify Split Line Quantity.
-        until ServiceLine2.Next = 0;
+        until ServiceLine2.Next() = 0;
     end;
 
     local procedure VerifySplitLineError(ServiceLine: Record "Service Line")
@@ -2072,7 +2072,7 @@ codeunit 136112 "Working On Service Orders"
             Assert.AreEqual(
               StrSubstNo(SplitResourceErrorServiceTier, ServiceLine."Document Type", ServiceLine."Document No.", ServiceLine."Line No.",
                 ServiceLine.Type), GetLastErrorText, UnknownError);
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     local procedure VerifyUnitPrice(ServiceHeader: Record "Service Header"; Quantity: Decimal; UnitPrice: Decimal)
@@ -2085,7 +2085,7 @@ codeunit 136112 "Working On Service Orders"
         repeat
             ServiceLine.TestField("Unit Price", UnitPrice);
             ServiceLine.TestField(Quantity, Quantity / 2);
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     local procedure SetBlueLocation(No1: Code[20]; No2: Code[20])
@@ -2101,7 +2101,7 @@ codeunit 136112 "Working On Service Orders"
             FindSet();
             repeat
                 Validate("Location Code", Location.Code);
-                Modify;
+                Modify();
             until Next = 0;
         end;
     end;

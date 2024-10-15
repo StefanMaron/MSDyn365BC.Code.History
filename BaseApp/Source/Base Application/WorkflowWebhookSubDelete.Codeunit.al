@@ -17,7 +17,7 @@ codeunit 1547 "Workflow Webhook Sub Delete"
         // disable workflow
         if Enabled then begin
             Validate(Enabled, false);
-            Modify;
+            Modify();
         end;
 
         // delete workflow

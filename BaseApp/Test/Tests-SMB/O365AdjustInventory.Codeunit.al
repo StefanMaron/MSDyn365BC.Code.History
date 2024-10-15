@@ -42,7 +42,7 @@ codeunit 138028 "O365 Adjust Inventory"
         LibraryVariableStorage.Enqueue(Item."No.");
 
         ItemList.AdjustInventory.Invoke;
-        ItemList.Close;
+        ItemList.Close();
     end;
 
     [Test]
@@ -63,7 +63,7 @@ codeunit 138028 "O365 Adjust Inventory"
         LibraryVariableStorage.Enqueue(Item."No.");
 
         ItemCard.AdjustInventory.Invoke;
-        ItemCard.Close;
+        ItemCard.Close();
     end;
 
     [Test]
@@ -629,7 +629,7 @@ codeunit 138028 "O365 Adjust Inventory"
             "Variant Code" := LibraryUtility.GenerateRandomCode(FieldNo("Variant Code"), DATABASE::"Item Ledger Entry");
             "Lot No." := LibraryUtility.GenerateRandomCode(FieldNo("Lot No."), DATABASE::"Item Ledger Entry");
             "Serial No." := LibraryUtility.GenerateRandomCode(FieldNo("Serial No."), DATABASE::"Item Ledger Entry");
-            Insert;
+            Insert();
         end;
     end;
 

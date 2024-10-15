@@ -1,3 +1,4 @@
+#if not CLEAN21
 page 2182 "O365 Excel Columns"
 {
     Caption = 'O365 Excel Columns';
@@ -5,6 +6,9 @@ page 2182 "O365 Excel Columns"
     PageType = List;
     SourceTable = "Name/Value Buffer";
     SourceTableTemporary = true;
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     layout
     {
@@ -14,13 +18,13 @@ page 2182 "O365 Excel Columns"
             {
                 field(ID; ID)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Column Number';
                     ToolTip = 'Specifies the Excel column number.';
                 }
                 field(Name; Name)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Cell Value';
                     ToolTip = 'Specifies the Excel cell value.';
                 }
@@ -34,9 +38,9 @@ page 2182 "O365 Excel Columns"
 
     procedure SetStartRowCellBuffer(var TempStarRowCellNameValueBuffer: Record "Name/Value Buffer" temporary)
     begin
-        Reset;
+        Reset();
         DeleteAll();
         Copy(TempStarRowCellNameValueBuffer, true);
     end;
 }
-
+#endif

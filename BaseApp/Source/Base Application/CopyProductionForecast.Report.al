@@ -142,12 +142,13 @@ report 99003803 "Copy Production Forecast"
     }
 
     var
-        Text000: Label 'Do you want to copy the demand forecast?';
         ToProdForecastEntry: Record "Production Forecast Entry";
         ProdForecastEntry2: Record "Production Forecast Entry";
         ChangeDateExpression: DateFormula;
         LastEntryNo: Integer;
         NextEntryNo: Integer;
+
+        Text000: Label 'Do you want to copy the demand forecast?';
 
     local procedure CheckDemandForecastEntry(): Boolean
     var

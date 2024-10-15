@@ -11,13 +11,13 @@ page 8633 "Config. Questions FactBox"
         {
             repeater(Group)
             {
-                field("Questionnaire Code"; "Questionnaire Code")
+                field("Questionnaire Code"; Rec."Questionnaire Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code for the questionnaire.';
                     Visible = false;
                 }
-                field("Question Area Code"; "Question Area Code")
+                field("Question Area Code"; Rec."Question Area Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code for the question area.';

@@ -5,7 +5,6 @@ page 8629 "Config. Wizard"
     InsertAllowed = false;
     LinksAllowed = false;
     PageType = Card;
-    PromotedActionCategories = 'New,Process,Report,Step 4,Step 5';
     ShowFilter = false;
     SourceTable = "Config. Setup";
 
@@ -30,12 +29,12 @@ page 8629 "Config. Wizard"
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies an address for the company that you are configuring.';
                     }
-                    field("Address 2"; "Address 2")
+                    field("Address 2"; Rec."Address 2")
                     {
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies additional address information.';
                     }
-                    field("Post Code"; "Post Code")
+                    field("Post Code"; Rec."Post Code")
                     {
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies the postal code.';
@@ -45,17 +44,17 @@ page 8629 "Config. Wizard"
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies the city where the company that you are configuring is located.';
                     }
-                    field("Country/Region Code"; "Country/Region Code")
+                    field("Country/Region Code"; Rec."Country/Region Code")
                     {
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies the country/region of the address.';
                     }
-                    field("VAT Registration No."; "VAT Registration No.")
+                    field("VAT Registration No."; Rec."VAT Registration No.")
                     {
                         ApplicationArea = VAT;
                         ToolTip = 'Specifies the customer''s VAT registration number.';
                     }
-                    field("Industrial Classification"; "Industrial Classification")
+                    field("Industrial Classification"; Rec."Industrial Classification")
                     {
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies the type of industry that the company that you are configuring is.';
@@ -70,23 +69,23 @@ page 8629 "Config. Wizard"
             group("Step 2. Enter communication details.")
             {
                 Caption = 'Step 2. Enter communication details.';
-                field("Phone No.2"; "Phone No.")
+                field("Phone No.2"; Rec."Phone No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the telephone number of the company that you are configuring.';
                 }
-                field("Fax No."; "Fax No.")
+                field("Fax No."; Rec."Fax No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies fax number of the company that you are configuring.';
                 }
-                field("E-Mail"; "E-Mail")
+                field("E-Mail"; Rec."E-Mail")
                 {
                     ApplicationArea = Basic, Suite;
                     ExtendedDatatype = EMail;
                     ToolTip = 'Specifies the email address of the company that you are configuring.';
                 }
-                field("Home Page"; "Home Page")
+                field("Home Page"; Rec."Home Page")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies your company''s web site.';
@@ -95,32 +94,32 @@ page 8629 "Config. Wizard"
             group("Step 3. Enter payment details.")
             {
                 Caption = 'Step 3. Enter payment details.';
-                field("Bank Name"; "Bank Name")
+                field("Bank Name"; Rec."Bank Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the bank the company uses.';
                 }
-                field("Bank Branch No."; "Bank Branch No.")
+                field("Bank Branch No."; Rec."Bank Branch No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the branch number of the bank that the company that you are configuring uses.';
                 }
-                field("Bank Account No."; "Bank Account No.")
+                field("Bank Account No."; Rec."Bank Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the bank account number of the company that you are configuring.';
                 }
-                field("Payment Routing No."; "Payment Routing No.")
+                field("Payment Routing No."; Rec."Payment Routing No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the payment routing number of the company that you are configuring.';
                 }
-                field("Giro No."; "Giro No.")
+                field("Giro No."; Rec."Giro No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the giro number of the company that you are configuring.';
                 }
-                field("SWIFT Code"; "SWIFT Code")
+                field("SWIFT Code"; Rec."SWIFT Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the SWIFT code (international bank identifier code) of the primary bank of the company that you are configuring.';
@@ -169,12 +168,12 @@ page 8629 "Config. Wizard"
                             CurrPage.Update();
                         end;
                     }
-                    field("Package Code"; "Package Code")
+                    field("Package Code"; Rec."Package Code")
                     {
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies the code of the configuration package.';
                     }
-                    field("Package Name"; "Package Name")
+                    field("Package Name"; Rec."Package Name")
                     {
                         ApplicationArea = Basic, Suite;
                         Editable = false;
@@ -260,14 +259,11 @@ page 8629 "Config. Wizard"
                     Caption = 'Apply Package';
                     Enabled = ApplyVisible;
                     Image = Apply;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
                     ToolTip = 'Import the configuration package and apply the package database data at the same time.';
 
                     trigger OnAction()
                     begin
-                        if CompleteWizard then
+                        if CompleteWizard() then
                             ConfigVisible := true
                         else
                             Error(Text003);
@@ -279,9 +275,6 @@ page 8629 "Config. Wizard"
                     Caption = 'Configuration Worksheet';
                     Enabled = ConfigVisible;
                     Image = SetupLines;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
                     RunObject = Page "Config. Worksheet";
                     ToolTip = 'Plan and configure how to initialize a new solution based on legacy data and the customers requirements.';
                 }
@@ -294,9 +287,6 @@ page 8629 "Config. Wizard"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Users';
                     Image = User;
-                    Promoted = true;
-                    PromotedCategory = Category5;
-                    PromotedIsBig = true;
                     RunObject = Page Users;
                     ToolTip = 'Open the list of users that are registered in the system.';
                 }
@@ -305,11 +295,37 @@ page 8629 "Config. Wizard"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Users Settings';
                     Image = UserSetup;
-                    Promoted = true;
-                    PromotedCategory = Category5;
-                    PromotedIsBig = true;
                     RunObject = Page "User Settings List";
                     ToolTip = 'Open the list of personalized UIs that are registered in the system.';
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Step 4', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref("Apply Package_Promoted"; "Apply Package")
+                {
+                }
+                actionref("Configuration Worksheet_Promoted"; "Configuration Worksheet")
+                {
+                }
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Step 5', Comment = 'Generated from the PromotedActionCategories property index 4.';
+
+                actionref(Users_Promoted; Users)
+                {
+                }
+                actionref("Users Personalization_Promoted"; "Users Personalization")
+                {
                 }
             }
         }
@@ -322,15 +338,15 @@ page 8629 "Config. Wizard"
 
     trigger OnOpenPage()
     begin
-        Reset;
-        if not Get then begin
-            Init;
-            Insert;
+        Reset();
+        if not Get() then begin
+            Init();
+            Insert();
         end else begin
             "Package File Name" := '';
             "Package Name" := '';
             "Package Code" := '';
-            Modify;
+            Modify();
         end;
         YourProfileCode := "Your Profile Code";
     end;

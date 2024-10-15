@@ -233,7 +233,7 @@ codeunit 138034 "O365 Correct Sales Dim."
             // Unblock the Dimension
             DefaultDim.Delete(true);
             Commit();
-        until TempDefaultDim.Next = 0;
+        until TempDefaultDim.Next() = 0;
     end;
 
     [Test]
@@ -389,11 +389,11 @@ codeunit 138034 "O365 Correct Sales Dim."
         DimCombination: Record "Dimension Combination";
     begin
         with DimCombination do begin
-            Init;
+            Init();
             Validate("Dimension 1 Code", DimCode1);
             Validate("Dimension 2 Code", DimCode2);
             Validate("Combination Restriction", "Combination Restriction"::Blocked);
-            Insert;
+            Insert();
         end;
         Commit();
     end;
@@ -435,7 +435,7 @@ codeunit 138034 "O365 Correct Sales Dim."
     var
         SalesHeader: Record "Sales Header";
     begin
-        Assert.IsTrue(LastGLEntry.Next = 0, 'No new G/L entries are created');
+        Assert.IsTrue(LastGLEntry.Next() = 0, 'No new G/L entries are created');
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::"Credit Memo");
         SalesHeader.SetRange("Bill-to Customer No.", CustNo);
         Assert.IsTrue(SalesHeader.IsEmpty, 'The Credit Memo should not have been created');

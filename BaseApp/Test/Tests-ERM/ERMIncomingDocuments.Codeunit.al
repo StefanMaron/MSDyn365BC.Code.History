@@ -37,7 +37,7 @@ codeunit 134400 "ERM Incoming Documents"
         LocalURL: Text;
     begin
         with IncomingDoc do begin
-            Init;
+            Init();
             Assert.AreEqual('', GetURL, 'Expected empty url.');
             LocalURL := 'abcdefghijklmnopqrstuvxyz1234.txt';
             SetURL(LocalURL);
@@ -108,7 +108,7 @@ codeunit 134400 "ERM Incoming Documents"
         IncomingDocument.SelectIncomingDocumentForPostedDocument('TEST', DMY2Date(1, 1, 2000), DummyRecordID); // Opens page 190
 
         // Validate
-        IncomingDocument.Find;
+        IncomingDocument.Find();
         Assert.IsTrue(IncomingDocument.Posted, '');
         Assert.AreEqual('TEST', IncomingDocument."Document No.", '');
         Assert.AreEqual(DMY2Date(1, 1, 2000), IncomingDocument."Posting Date", '');
@@ -167,7 +167,7 @@ codeunit 134400 "ERM Incoming Documents"
         Assert.IsTrue(GenJnlLine.HasLinks, 'Gen. Jnl. Line is missing a link.');
         Assert.AreEqual(GenJnlLine.GetIncomingDocumentURL, IncomingDocument.GetURL, 'Gen. Jnl. Line has a wrong URL.');
         GenJnlLine."Document No." := LibraryUtility.GenerateGUID();
-        GenJnlLine."Posting Date" := WorkDate;
+        GenJnlLine."Posting Date" := WorkDate();
         GenJnlLine.Validate("Account Type", GenJnlLine."Account Type"::"G/L Account");
         GenJnlLine.Validate("Account No.", GetIncomeStatementAcc);
         GenJnlLine.Validate("Bal. Account Type", GenJnlLine."Bal. Account Type"::"G/L Account");
@@ -254,14 +254,14 @@ codeunit 134400 "ERM Incoming Documents"
         Assert.IsTrue(PurchaseInvoice.SelectIncomingDoc.Enabled, '');
         Assert.IsFalse(PurchaseInvoice.IncomingDocAttachFile.Enabled, '');
 
-        PurchaseHeader.Find;
+        PurchaseHeader.Find();
         Assert.AreEqual(IncomingDocument."Entry No.", PurchaseHeader."Incoming Document Entry No.", '');
 
         PurchaseInvoice.RemoveIncomingDoc.Invoke;
-        PurchaseHeader.Find;
+        PurchaseHeader.Find();
         Assert.AreEqual(0, PurchaseHeader."Incoming Document Entry No.", '');
 
-        PurchaseInvoice.Close;
+        PurchaseInvoice.Close();
     end;
 
     [Test]
@@ -293,13 +293,13 @@ codeunit 134400 "ERM Incoming Documents"
         PurchaseInvoice.GotoRecord(PurchaseHeader);
 
         PurchaseInvoice.SelectIncomingDoc.Invoke; // Opens page 190
-        PurchaseInvoice.Close;
-        PurchaseHeader.Find;
+        PurchaseInvoice.Close();
+        PurchaseHeader.Find();
         Assert.AreEqual(IncomingDocument."Entry No.", PurchaseHeader."Incoming Document Entry No.", '');
         PurchaseHeader.Delete(true);
 
         // Verify
-        IncomingDocument.Find;
+        IncomingDocument.Find();
         Assert.AreEqual('', IncomingDocument."Document No.", '');
         Assert.AreEqual(IncomingDocument."Document Type"::" ", IncomingDocument."Document Type", '');
         Assert.AreEqual(IncomingDocument.Status::Released, IncomingDocument.Status, '');
@@ -404,14 +404,14 @@ codeunit 134400 "ERM Incoming Documents"
         Assert.IsTrue(SalesInvoice.SelectIncomingDoc.Enabled, '');
         Assert.IsFalse(SalesInvoice.IncomingDocAttachFile.Enabled, '');
 
-        SalesHeader.Find;
+        SalesHeader.Find();
         Assert.AreEqual(IncomingDocument."Entry No.", SalesHeader."Incoming Document Entry No.", '');
 
         SalesInvoice.RemoveIncomingDoc.Invoke;
-        SalesHeader.Find;
+        SalesHeader.Find();
         Assert.AreEqual(0, SalesHeader."Incoming Document Entry No.", '');
 
-        SalesInvoice.Close;
+        SalesInvoice.Close();
     end;
 
     [Test]
@@ -581,7 +581,7 @@ codeunit 134400 "ERM Incoming Documents"
         CreateNewIncomingDocument(IncomingDocument);
         IncomingDocument.UpdateIncomingDocumentFromPosting(IncomingDocument."Entry No.", DMY2Date(1, 1, 2015), 'TEST');
 
-        IncomingDocument.Find;
+        IncomingDocument.Find();
         IncomingDocument.SetPostedDocFieldsForcePosted(DMY2Date(1, 1, 2015), 'TEST', true);
 
         IncomingDocument.TestField(Posted, true);
@@ -601,7 +601,7 @@ codeunit 134400 "ERM Incoming Documents"
         CreateNewIncomingDocument(IncomingDocument);
         IncomingDocument.UpdateIncomingDocumentFromPosting(IncomingDocument."Entry No.", DMY2Date(1, 1, 2015), 'TEST');
 
-        IncomingDocument.Find;
+        IncomingDocument.Find();
         asserterror IncomingDocument.SetPostedDocFieldsForcePosted(DMY2Date(1, 1, 2015), 'TEST', false);
         Assert.ExpectedErrorCode(DialogTxt);
         Assert.ExpectedError(DocPostedErr);
@@ -798,10 +798,10 @@ codeunit 134400 "ERM Incoming Documents"
         IncomingDocumentAttachment: Record "Incoming Document Attachment";
     begin
         with IncomingDocumentAttachment do begin
-            // Init;
+            // Init();
             if Get(0, 0) then
-                Delete;
-            Init;
+                Delete();
+            Init();
 
             // Execute
             "Incoming Document Entry No." := 1;
@@ -851,7 +851,7 @@ codeunit 134400 "ERM Incoming Documents"
         IncomingDocumentAttachment.Init();
         FileName := IncomingDocumentAttachment.Export('', false);   // Returns as there is no content
 
-        if not IncomingDocumentAttachment.Find then
+        if not IncomingDocumentAttachment.Find() then
             IncomingDocumentAttachment.Insert(true);
         IncomingDocumentAttachment.Content.CreateOutStream(OutStr, TEXTENCODING::UTF8);
         OutStr.WriteText('<hello world/>');
@@ -868,7 +868,7 @@ codeunit 134400 "ERM Incoming Documents"
         // File.OPEN(FileName);
         // File.TEXTMODE(TRUE);
         // File.READ(Text);
-        // File.CLOSE;
+        // File.Close();
         // FileManagement.DeleteServerFile(FileName); Fails in snap
         // Assert.AreEqual('<hello world/>',Text,'');
     end;
@@ -942,7 +942,7 @@ codeunit 134400 "ERM Incoming Documents"
 
         // Verify
         Assert.IsTrue(IncomingDocumentAttachment."Incoming Document Entry No." > 0, '');
-        SalesHeader.Find;
+        SalesHeader.Find();
         Assert.AreEqual(IncomingDocumentAttachment."Incoming Document Entry No.", SalesHeader."Incoming Document Entry No.", '');
         IncomingDocument.Get(SalesHeader."Incoming Document Entry No.");
         IncomingDocument.TestField(Description);
@@ -987,7 +987,7 @@ codeunit 134400 "ERM Incoming Documents"
 
         // Verify
         Assert.IsTrue(IncomingDocumentAttachment."Incoming Document Entry No." > 0, '');
-        PurchaseHeader.Find;
+        PurchaseHeader.Find();
         Assert.AreEqual(IncomingDocumentAttachment."Incoming Document Entry No.", PurchaseHeader."Incoming Document Entry No.", '');
         IncomingDocument.Get(PurchaseHeader."Incoming Document Entry No.");
         IncomingDocument.TestField(Description);
@@ -1040,7 +1040,7 @@ codeunit 134400 "ERM Incoming Documents"
 
         // Verify
         Assert.IsTrue(IncomingDocumentAttachment."Incoming Document Entry No." > 0, '');
-        GenJournalLine.Find;
+        GenJournalLine.Find();
         Assert.AreEqual(IncomingDocumentAttachment."Incoming Document Entry No.", GenJournalLine."Incoming Document Entry No.", '');
         IncomingDocument.Get(GenJournalLine."Incoming Document Entry No.");
         IncomingDocument.TestField(Description);
@@ -1274,7 +1274,7 @@ codeunit 134400 "ERM Incoming Documents"
         PostedDocsWithNoIncDoc.SelectIncomingDoc.Invoke; // Opens page 190 - see pagehandler
 
         // [THEN] PAge 190 opens and the user can select an IC to attach to the posted document.
-        IncomingDocument.Find;
+        IncomingDocument.Find();
         Assert.IsTrue(IncomingDocument.Posted, '');
         Assert.AreEqual('2', IncomingDocument."Document No.", '');
     end;
@@ -1325,7 +1325,7 @@ codeunit 134400 "ERM Incoming Documents"
         // Verify;
         IncomingDocumentAttachment.FindSet();
         Assert.IsTrue(IncomingDocumentAttachment.Default, '');
-        while IncomingDocumentAttachment.Next <> 0 do
+        while IncomingDocumentAttachment.Next() <> 0 do
             Assert.IsFalse(IncomingDocumentAttachment.Default, '');
     end;
 
@@ -1580,7 +1580,7 @@ codeunit 134400 "ERM Incoming Documents"
         LibraryVariableStorage.AssertEmpty;
     end;
 
-    local procedure UnlinkNotPostedDocumentFromIncomingDocumentPurchaseHeader(Delete: Boolean)
+    local procedure UnlinkNotPostedDocumentFromIncomingDocumentPurchaseHeader(DoDelete: Boolean)
     var
         IncomingDocument: Record "Incoming Document";
         PurchaseHeader: Record "Purchase Header";
@@ -1603,7 +1603,7 @@ codeunit 134400 "ERM Incoming Documents"
         LibraryVariableStorage.Enqueue(true);
 
         LibraryVariableStorage.Enqueue(DeleteRecordQst);
-        LibraryVariableStorage.Enqueue(Delete);
+        LibraryVariableStorage.Enqueue(DoDelete);
         IncomingDocumentCard.RemoveReferencedRecord.Invoke;
 
         IncomingDocument.Get(IncomingDocument."Entry No.");
@@ -1611,7 +1611,7 @@ codeunit 134400 "ERM Incoming Documents"
         Assert.AreEqual(0D, IncomingDocument."Posting Date", 'Posting date is not set correctly');
         Assert.AreEqual(0DT, IncomingDocument."Posted Date-Time", 'Posting date time is not set correctly');
         Assert.AreEqual(IncomingDocument."Document Type"::" ", IncomingDocument."Document Type", 'Document Type should be removed');
-        if Delete then
+        if DoDelete then
             Assert.IsFalse(PurchaseHeader.FindFirst, 'Purchase document should not be deleted')
         else begin
             Clear(PurchaseHeader);
@@ -1852,10 +1852,10 @@ codeunit 134400 "ERM Incoming Documents"
 
         PostingDate := LibraryRandom.RandDate(10);
         DocumentNo := LibraryUtility.GenerateGUID();
-        IncomingDocument.Find;
+        IncomingDocument.Find();
         IncomingDocument.UpdateIncomingDocumentFromPosting(IncomingDocument."Entry No.", PostingDate, DocumentNo);
 
-        IncomingDocument.Find;
+        IncomingDocument.Find();
         Assert.AreEqual(DocumentNo, IncomingDocument."Document No.", IncomingDocument.FieldCaption("Document No."));
         Assert.AreEqual(PostingDate, IncomingDocument."Posting Date", IncomingDocument.FieldCaption("Posting Date"));
     end;
@@ -2028,7 +2028,7 @@ codeunit 134400 "ERM Incoming Documents"
         FileName := FileManagement.ServerTempFileName(Extension);
         File.Create(FileName);
         File.Write('<TEST>hello</TEST>');
-        File.Close;
+        File.Close();
         exit(FileManagement.DownloadTempFile(FileName));
     end;
 
@@ -2057,7 +2057,7 @@ codeunit 134400 "ERM Incoming Documents"
     begin
         GeneralJournal.Trap;
         IncomingDocument.CreateGenJnlLine;
-        GeneralJournal.Close;
+        GeneralJournal.Close();
         IncomingDocument.Modify();
     end;
 
@@ -2067,14 +2067,14 @@ codeunit 134400 "ERM Incoming Documents"
     begin
         CreateNewIncomingDocument(IncomingDocument);
         with SalesHeader do begin
-            Init;
+            Init();
             "Document Type" := "Document Type"::Invoice;
             Insert(true);
-            "Posting Date" := WorkDate;
+            "Posting Date" := WorkDate();
             "Document Date" := DocDate;
             "Due Date" := DueDate;
             "Incoming Document Entry No." := IncomingDocument."Entry No.";
-            Modify;
+            Modify();
         end;
     end;
 
@@ -2084,14 +2084,14 @@ codeunit 134400 "ERM Incoming Documents"
     begin
         CreateNewIncomingDocument(IncomingDocument);
         with PurchHeader do begin
-            Init;
+            Init();
             "Document Type" := "Document Type"::Invoice;
             Insert(true);
-            "Posting Date" := WorkDate;
+            "Posting Date" := WorkDate();
             "Document Date" := DocDate;
             "Due Date" := DueDate;
             "Incoming Document Entry No." := IncomingDocument."Entry No.";
-            Modify;
+            Modify();
         end;
     end;
 
@@ -2175,7 +2175,7 @@ codeunit 134400 "ERM Incoming Documents"
           IncomingDocumentAttachment.Name, '');
 
         // Clean-up + test delete
-        IncomingDocument.Find;
+        IncomingDocument.Find();
         IncomingDocument.Delete(true);
         Assert.AreEqual(0, IncomingDocumentAttachment.Count, '');
     end;

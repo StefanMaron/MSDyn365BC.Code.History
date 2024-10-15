@@ -67,7 +67,7 @@ codeunit 136620 "Table Field ObsoleteState"
         RecRef.GetTable(TableWithRemovedField);
         Assert.IsFalse(
           RecRef.FieldExist(2), 'FIELDEXIST Obsolete Field Removed');
-        RecRef.Close;
+        RecRef.Close();
     end;
 
     [Test]
@@ -81,7 +81,7 @@ codeunit 136620 "Table Field ObsoleteState"
         RecRef.GetTable(TableWithRemovedField);
         asserterror FieldRef := RecRef.Field(2);
         Assert.ExpectedError(FieldObsoleteErr);
-        RecRef.Close;
+        RecRef.Close();
     end;
 }
 

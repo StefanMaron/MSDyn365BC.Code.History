@@ -28,8 +28,6 @@ codeunit 132900 UserRoleTest
         LibraryPermissions: Codeunit "Library - Permissions";
         EnvironmentInfoTestLibrary: Codeunit "Environment Info Test Library";
         PermissionSetsPage: TestPage "Permission Sets";
-        PermissionsPage: TestPage Permissions;
-        TenantPermissionsPage: TestPage "Tenant Permissions";
         Filters: array[10, 2] of Variant;
         UserName: array[6] of Code[50];
         ValidationError: Text;
@@ -80,7 +78,7 @@ codeunit 132900 UserRoleTest
         UserCardPage.OpenNew();
         UserCardPage."User Name".SetValue('');
         Assert.AreEqual('', UserCardPage."User Name".Value, '');
-        UserCardPage.Close;
+        UserCardPage.Close();
     end;
 
     [Test]
@@ -203,10 +201,10 @@ codeunit 132900 UserRoleTest
         UserCardPage.OpenEdit;
         UserCardPage.FindFirstField("User Name", UserName[2]);
         UserCardPage."User Name".AssertEquals(UserName[2]);
-        UserCardPage.Close;
+        UserCardPage.Close();
         // GETACTION is not getting the DELETE ID from the MetadataEditor bug 273002
         // UserCardPage.GETACTION(2000000152).INVOKE;
-        // UserCardPage.Close;}
+        // UserCardPage.Close();}
         // Bug 273002 --Removed the UI handler until the bug is resolved."EventYesHandler"
         // Workaround deleting the user from the table
         DeleteUser(UserName[2]);
@@ -217,7 +215,7 @@ codeunit 132900 UserRoleTest
         if GetLastErrorText <> RowNotfound001Err then begin
             DeleteUser(UserName[2]);
             ValidationError := GetLastErrorText;
-            UserCardPage.Close;
+            UserCardPage.Close();
             Error(ErrorStringCom001Err, RowNotfound001Err, ValidationError);
         end;
     end;
@@ -266,15 +264,15 @@ codeunit 132900 UserRoleTest
         UserCardPage.OpenNew();
         UserCardPage."User Name".Value := SelectRandomADUser;
         UserCardPage.Permissions.PermissionSet.SetValue('SUPER');
-        UserCardPage.Permissions.Next;
+        UserCardPage.Permissions.Next();
         UserCardPage.Permissions.PermissionSet.SetValue('D365 BASIC');
         UserCardPage.Permissions.First;
         if 0 <> UserCardPage.Permissions.PermissionSet.ValidationErrorCount then begin
-            UserCardPage.Close;
+            UserCardPage.Close();
             Error(ErrorStringCom002Err, UserCardPage.Permissions.PermissionSet.ValidationErrorCount, 0);
         end;
 
-        UserCardPage.Close;
+        UserCardPage.Close();
     end;
 
     [Test]
@@ -330,14 +328,14 @@ codeunit 132900 UserRoleTest
         UserCardPage.Permissions.PermissionSet.Lookup;
 
         LibraryPermissions.CreateTenantPermissionSet(TenantPermissionSet, 'TESTSET2', LibrarySingleServer.GetTestLibraryAppIdGuid());
-        UserCardPage.Permissions.Next;
+        UserCardPage.Permissions.Next();
         UserCardPage.Permissions.PermissionSet.Lookup;
 
-        UserCardPage.Permissions.Next;
+        UserCardPage.Permissions.Next();
 
         // Verify that there are no validation errors
         if UserCardPage.Permissions.PermissionSet.ValidationErrorCount <> 0 then begin
-            UserCardPage.Close;
+            UserCardPage.Close();
             Error(ErrorStringCom002Err, UserCardPage.Permissions.PermissionSet.ValidationErrorCount, 0);
         end;
 
@@ -345,7 +343,7 @@ codeunit 132900 UserRoleTest
         AccessControl.SetRange("Role ID", 'TESTSET2');
         Assert.AreEqual(2, AccessControl.Count, StrSubstNo('Expected 2 access control entires, found %1', AccessControl.Count));
 
-        UserCardPage.Close;
+        UserCardPage.Close();
     end;
 
     [Test]
@@ -355,6 +353,7 @@ codeunit 132900 UserRoleTest
     procedure PermissionDetailsLookup()
     var
         UserCardPage: TestPage "User Card";
+        PermissionsPage: TestPage "Permission Set";
     begin
         Initialize();
         UserCardPage.OpenNew();
@@ -366,7 +365,7 @@ codeunit 132900 UserRoleTest
         UserCardPage.Permissions.Permissions.Invoke;
 
         PermissionsPage.Close();
-        UserCardPage.Close;
+        UserCardPage.Close();
     end;
 
     [Scope('OnPrem')]
@@ -379,18 +378,18 @@ codeunit 132900 UserRoleTest
         UserCardPage."User Name".Value := SelectRandomADUser;
         asserterror UserCardPage.Permissions.PermissionSet.SetValue('AdfLL');
         if 1 <> UserCardPage.Permissions.PermissionSet.ValidationErrorCount then begin
-            UserCardPage.Close;
+            UserCardPage.Close();
             Error(ErrorStringCom002Err, UserCardPage.Permissions.PermissionSet.ValidationErrorCount, 0);
         end;
 
         UserCardPage.Permissions.PermissionSet.SetValue('SUPER');
         UserCardPage.Permissions.First;
         if 0 <> UserCardPage.Permissions.PermissionSet.ValidationErrorCount then begin
-            UserCardPage.Close;
+            UserCardPage.Close();
             Error(ErrorStringCom002Err, UserCardPage.Permissions.PermissionSet.ValidationErrorCount, 0);
         end;
 
-        UserCardPage.Close;
+        UserCardPage.Close();
     end;
 
     [Test]
@@ -447,11 +446,11 @@ codeunit 132900 UserRoleTest
             Assert.AreEqual(OrgPermission."Execute Permission", NewTenantPermission."Execute Permission", 'Execute Permission differ');
             Assert.IsTrue(OrgPermission."Security Filter" = NewTenantPermission."Security Filter", 'Security Filter differ');
 
-            Steps := OrgPermission.Next;
+            Steps := OrgPermission.Next();
             Assert.AreEqual(Steps, NewTenantPermission.Next, 'Number of Permissions differ.');
         until Steps = 0;
 
-        PermissionSetsPage.Close;
+        PermissionSetsPage.Close();
         LibraryVariableStorage.AssertEmpty;
     end;
 
@@ -538,7 +537,7 @@ codeunit 132900 UserRoleTest
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
         UserCard.OpenEdit;
         UserCard.GotoRecord(User);
-        UserCard.ApplicationID.Value := CreateGuid;
+        UserCard.ApplicationID.Value := CreateGuid();
         UserCard."License Type".AssertEquals(User."License Type"::"External User");
 
         // Setting Application ID to empty, sets the License Type to Full User
@@ -578,7 +577,7 @@ codeunit 132900 UserRoleTest
     begin
         UserCardPage.OpenNew();
         UserCardPage."User Name".Value := NewUserName;
-        UserCardPage.Close;
+        UserCardPage.Close();
     end;
 
     local procedure AddUserWithLicenseTypeHelper(NewUserName: Code[50]; LicenseType: Text)
@@ -625,85 +624,8 @@ codeunit 132900 UserRoleTest
         User.FindFirst();
         AccessControl.SetRange("User Security ID", User."User Security ID");
         AccessControl.SetFilter("Company Name", '=%1', CompanyNameFilter);
-        exit(AccessControl.FindFirst);
+        exit(AccessControl.FindFirst())
     end;
-
-    local procedure PermissionsRIMDEHelper(ObjectType: Option "Table Data","Table","Report","Query",System; PermissionType: Option Read,Modify,Insert,Delete,Execute; PermissionValue: Option Yes,Ind)
-    var
-        PermissionValueText: Text;
-    begin
-        PermissionsPage."Object Type".Value := Format(ObjectType);
-
-        if PermissionValue = PermissionValue::Yes then
-            PermissionValueText := YesTxt
-        else
-            PermissionValueText := IndirectTxt;
-
-        case PermissionType of
-            PermissionType::Read:
-                PermissionsPage."Read Permission".Value := PermissionValueText;
-            PermissionType::Modify:
-                PermissionsPage."Modify Permission".Value := PermissionValueText;
-            PermissionType::Insert:
-                PermissionsPage."Insert Permission".Value := PermissionValueText;
-            PermissionType::Delete:
-                PermissionsPage."Delete Permission".Value := PermissionValueText;
-            PermissionType::Execute:
-                PermissionsPage."Execute Permission".Value := PermissionValueText;
-        end;
-
-        case PermissionType of
-            PermissionType::Read:
-                PermissionsPage."Read Permission".Value := ' ';
-            PermissionType::Modify:
-                PermissionsPage."Modify Permission".Value := ' ';
-            PermissionType::Insert:
-                PermissionsPage."Insert Permission".Value := ' ';
-            PermissionType::Delete:
-                PermissionsPage."Delete Permission".Value := ' ';
-            PermissionType::Execute:
-                PermissionsPage."Execute Permission".Value := ' ';
-        end;
-    end;
-
-    local procedure TenantPermissionsRIMDEHelper(ObjectType: Option "Table Data","Table","Report","Query",System; PermissionType: Option Read,Modify,Insert,Delete,Execute; PermissionValue: Option Yes,Ind)
-    var
-        PermissionValueText: Text;
-    begin
-        TenantPermissionsPage."Object Type".Value := Format(ObjectType);
-
-        if PermissionValue = PermissionValue::Yes then
-            PermissionValueText := YesTxt
-        else
-            PermissionValueText := IndirectTxt;
-
-        case PermissionType of
-            PermissionType::Read:
-                TenantPermissionsPage.Control8.Value := PermissionValueText;
-            PermissionType::Modify:
-                TenantPermissionsPage.Control6.Value := PermissionValueText;
-            PermissionType::Insert:
-                TenantPermissionsPage.Control7.Value := PermissionValueText;
-            PermissionType::Delete:
-                TenantPermissionsPage.Control5.Value := PermissionValueText;
-            PermissionType::Execute:
-                TenantPermissionsPage.Control4.Value := PermissionValueText;
-        end;
-
-        case PermissionType of
-            PermissionType::Read:
-                TenantPermissionsPage.Control8.Value := ' ';
-            PermissionType::Modify:
-                TenantPermissionsPage.Control6.Value := ' ';
-            PermissionType::Insert:
-                TenantPermissionsPage.Control7.Value := ' ';
-            PermissionType::Delete:
-                TenantPermissionsPage.Control5.Value := ' ';
-            PermissionType::Execute:
-                TenantPermissionsPage.Control4.Value := ' ';
-        end;
-    end;
-
 
     local procedure TestValidateUserHelper(ExpectedUserName: Text)
     var
@@ -725,6 +647,7 @@ codeunit 132900 UserRoleTest
             Error(LicenseTypeIsWrongErr, LicenseType, Format(WindowLoginTab."License Type"));
     end;
 
+#if not CLEAN21
     local procedure PermissionFilterWithAssistEditHelper(RoleNameSuffix: Text; ObjectID: Integer)
     var
         TenantPermissionSet: Record "Tenant Permission Set";
@@ -759,8 +682,8 @@ codeunit 132900 UserRoleTest
         LibraryVariableStorage.Enqueue(Stages::Validate);
         TenantPermissionsPage."Security Filter".AssistEdit;
 
-        TenantPermissionsPage.Close;
-        PermissionSetsPage.Close;
+        TenantPermissionsPage.Close();
+        PermissionSetsPage.Close();
     end;
 
     local procedure InvalidPermissionFilterWithAssistEditHelper(RoleNameSuffix: Text; ObjectID: Integer; InvalidValue: Text)
@@ -804,9 +727,10 @@ codeunit 132900 UserRoleTest
                 end;
         end;
 
-        TenantPermissionsPage.Close;
-        PermissionSetsPage.Close;
+        TenantPermissionsPage.Close();
+        PermissionSetsPage.Close();
     end;
+#endif
 
     [ModalPageHandler]
     [Scope('OnPrem')]
@@ -825,7 +749,7 @@ codeunit 132900 UserRoleTest
                     for i := 1 to NoOfFilters do begin
                         TableFilterPage."Field Number".SetValue(Filters[i] [1]);
                         TableFilterPage."Field Filter".SetValue(Filters[i] [2]);
-                        TableFilterPage.Next;
+                        TableFilterPage.Next();
                     end;
                     TableFilterPage.OK.Invoke;
                 end;
@@ -856,6 +780,7 @@ codeunit 132900 UserRoleTest
         end;
     end;
 
+#if not CLEAN21
     [Test]
     [HandlerFunctions('TableFilterModalHandler')]
     [TransactionModel(TransactionModel::AutoRollback)]
@@ -907,6 +832,7 @@ codeunit 132900 UserRoleTest
         NoOfFilters := 1;
         InvalidPermissionFilterWithAssistEditHelper('0007', 13, 'FilterValue');
     end;
+#endif
 
     [ConfirmHandler]
     [Scope('OnPrem')]
@@ -920,6 +846,7 @@ codeunit 132900 UserRoleTest
     procedure CopyPermissionSetHandler(var CopyPermissionSet: TestRequestPage "Copy Permission Set")
     begin
         CopyPermissionSet.NewPermissionSet.SetValue(NewRoleId);
+        CopyPermissionSet.CopyType.SetValue("Permission Set Copy Type"::Flat);
         CopyPermissionSet.OK.Invoke;
     end;
 
@@ -970,7 +897,7 @@ codeunit 132900 UserRoleTest
         if PermissionSetsPage.PermissionSet.Value = RoleId then
             exit;
 
-        while PermissionSetsPage.Next do
+        while PermissionSetsPage.Next() do
             if PermissionSetsPage.PermissionSet.Value = RoleId then
                 exit;
 

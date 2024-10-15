@@ -261,13 +261,13 @@ report 5198 "Add Contacts"
     trigger OnPostReport()
     begin
         if ExpandCompanies then
-            AddPeople;
+            AddPeople();
         if AllowCoRepdByContPerson then
-            AddCompanies;
+            AddCompanies();
 
         OnPostReportOnBeforeUpdateSegLines("Segment Header");
 
-        UpdateSegLines;
+        UpdateSegLines();
     end;
 
     trigger OnPreReport()
@@ -304,11 +304,9 @@ report 5198 "Add Contacts"
     end;
 
     var
-        Text000: Label 'Inserting contacts @1@@@@@@@@@@@@@';
         Cont: Record Contact;
         SegLine: Record "Segment Line";
         SegmentHistoryMgt: Codeunit SegHistoryManagement;
-        SegCriteriaManagement: Codeunit SegCriteriaManagement;
         Window: Dialog;
         NextLineNo: Integer;
         ItemFilters: Boolean;
@@ -324,9 +322,12 @@ report 5198 "Add Contacts"
         OldProgress: Integer;
         NewProgress: Integer;
 
+        Text000: Label 'Inserting contacts @1@@@@@@@@@@@@@';
+
     protected var
         TempCont: Record Contact temporary;
         TempCont2: Record Contact temporary;
+        SegCriteriaManagement: Codeunit SegCriteriaManagement;
         ContactOK: Boolean;
 
     procedure SetOptions(OptionAllowExistingContact: Boolean; OptionExpandCompanies: Boolean; OptionAllowCoRepdByContPerson: Boolean; OptionIgnoreExclusion: Boolean)

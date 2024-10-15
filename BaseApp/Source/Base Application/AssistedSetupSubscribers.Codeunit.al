@@ -18,6 +18,10 @@ codeunit 1814 "Assisted Setup Subscribers"
         ExcelAddinCentralizedDeploymentTitleTxt: Label 'Excel Add-in Centralized Deployment';
         ExcelAddinCentralizedDeploymentShortTitleTxt: Label 'Excel Add-in Centralized Deployment', MaxLength = 50;
         ExcelAddinCentralizedDeploymentDescriptionTxt: Label 'Deploy the Excel add-in for specific users, groups, or the entire organization.';
+        OneDriveSetupTitleTxt: Label 'Connect your files to the cloud';
+        OneDriveSetupShortTitleTxt: Label 'Co-author documents', MaxLength = 50;
+        OneDriveSetupDescriptionTxt: Label 'Configure which features can work with OneDrive for Business to open files in the browser, share with others, or co-author online.';
+        OneDriveSetupHelpTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2195963', Locked = true;
         DataMigrationTitleTxt: Label 'Migrate business data';
         DataMigrationShortTitleTxt: Label 'Migrate data', MaxLength = 50;
         DataMigrationDescriptionTxt: Label 'Import existing data to Business Central from your former system.';
@@ -257,6 +261,13 @@ codeunit 1814 "Assisted Setup Subscribers"
             GLOBALLANGUAGE(CurrentGlobalLanguage);
         end;
 
+        GuidedExperience.InsertAssistedSetup(OneDriveSetupTitleTxt, OneDriveSetupShortTitleTxt, OneDriveSetupDescriptionTxt, 5, ObjectType::Page,
+            Page::"Document Service Setup", AssistedSetupGroup::Connect, '', VideoCategory::Connect, OneDriveSetupHelpTxt);
+        GLOBALLANGUAGE(Language.GetDefaultApplicationLanguageId());
+        GuidedExperience.AddTranslationForSetupObjectTitle(GuidedExperienceType::"Assisted Setup", ObjectType::Page,
+            PAGE::"Document Service Setup", Language.GetDefaultApplicationLanguageId(), OneDriveSetupTitleTxt);
+        GLOBALLANGUAGE(CurrentGlobalLanguage);
+
         if EnvironmentInfo.IsSaaS() then begin
             GuidedExperience.InsertAssistedSetup(InviteExternalAccountantTitleTxt, InviteExternalAccountantShortTitleTxt, InviteExternalAccountantDescTxt, 5, ObjectType::Page,
                 Page::"Invite External Accountant", AssistedSetupGroup::ReadyForBusiness, '', VideoCategory::ReadyForBusiness, InviteExternalAccountantHelpTxt);
@@ -393,7 +404,7 @@ codeunit 1814 "Assisted Setup Subscribers"
         sender.Register(GetAppId(), AdditionalReourcesTxt, VideoUrlAdditionalReourcesTxt, VideoCategory::GettingStarted);
         sender.Register(GetAppId(), AccessAllFeaturesTxt, VideoAccessAllFeaturesTxt, VideoCategory::GettingStarted);
 
-        if EnvironmentInfo.IsSaaS then
+        if EnvironmentInfo.IsSaaS() then
             sender.Register(GetAppId(), CreateJobTxt, VideoUrlCreateJobTxt, VideoCategory::GettingStarted);
 
         // Warehouse Management
@@ -414,8 +425,8 @@ codeunit 1814 "Assisted Setup Subscribers"
 
     local procedure UpdateStatus()
     begin
-        UpdateSetUpEmail;
-        UpdateSetUpApprovalWorkflow;
+        UpdateSetUpEmail();
+        UpdateSetUpApprovalWorkflow();
     end;
 
     local procedure UpdateSetUpEmail()

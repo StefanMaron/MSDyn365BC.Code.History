@@ -45,7 +45,7 @@ codeunit 704 "MemoryStream Wrapper"
         MemoryStream.Position := 0;
         if IsNull(StreamReader) then
             StreamReader := StreamReader.StreamReader(MemoryStream);
-        exit(StreamReader.ReadToEnd);
+        exit(StreamReader.ReadToEnd());
     end;
 
     procedure AddText(Txt: Text)
@@ -53,7 +53,7 @@ codeunit 704 "MemoryStream Wrapper"
         if IsNull(StreamWriter) then
             StreamWriter := StreamWriter.StreamWriter(MemoryStream);
         StreamWriter.Write(Txt);
-        StreamWriter.Flush;
+        StreamWriter.Flush();
     end;
 
     procedure Length(): Integer

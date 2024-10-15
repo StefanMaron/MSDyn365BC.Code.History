@@ -43,11 +43,11 @@ codeunit 138048 "O365 Inv. Item Availability"
 
         ItemAvailabilityByPeriod.Trap;
         ItemCard.Period.Invoke;
-        SetDemandByPeriodFilters(ItemAvailabilityByPeriod, Item."No.", WorkDate);
+        SetDemandByPeriodFilters(ItemAvailabilityByPeriod, Item."No.", WorkDate());
 
         // VERIFY: The quantities in demand by period grid columns for the demand date
         AssertDemandByPeriodQuantities(ExistingQuantity - DemandQuantity, ItemAvailabilityByPeriod);
-        ItemAvailabilityByPeriod.Close;
+        ItemAvailabilityByPeriod.Close();
     end;
 
     [Test]
@@ -512,7 +512,7 @@ codeunit 138048 "O365 Inv. Item Availability"
 
     local procedure CreateSalesDemand(ItemNo: Code[20]; Quantity: Integer): Code[20]
     begin
-        exit(CreateSalesDemandBasis(ItemNo, Quantity, WorkDate));
+        exit(CreateSalesDemandBasis(ItemNo, Quantity, WorkDate()));
     end;
 
     local procedure CreateSalesLineWithUoM(SalesHeader: record "Sales Header"; ItemNo: Code[20]; UnitOfMeasureCode: Code[20]): Decimal
@@ -579,7 +579,7 @@ codeunit 138048 "O365 Inv. Item Availability"
     [Scope('OnPrem')]
     procedure ItemAvailByEventHandler(var ItemAvailabilityByEvent: TestPage "Item Availability by Event")
     begin
-        ItemAvailabilityByEvent.FILTER.SetFilter("Period Start", Format(WorkDate));
+        ItemAvailabilityByEvent.FILTER.SetFilter("Period Start", Format(WorkDate()));
         ItemAvailabilityByEvent.First;
         ItemAvailabilityByEvent."Projected Inventory".AssertEquals(LibraryVariableStorage.DequeueInteger);
 

@@ -8,7 +8,6 @@ codeunit 5701 "Item Subst."
     end;
 
     var
-        Text000: Label 'This substitute item has a different sale unit of measure.';
         Item: Record Item;
         ItemSubstitution: Record "Item Substitution";
         TempItemSubstitution: Record "Item Substitution" temporary;
@@ -32,6 +31,8 @@ codeunit 5701 "Item Subst."
         SaveVariantCode: Code[10];
         SaveLocation: Code[10];
         OldSalesUOM: Code[10];
+
+        Text000: Label 'This substitute item has a different sale unit of measure.';
         Text001: Label 'An Item Substitution with the specified variant does not exist for Item No. ''%1''.';
         Text002: Label 'An Item Substitution does not exist for Item No. ''%1''';
 
@@ -156,7 +157,7 @@ codeunit 5701 "Item Subst."
                 if ItemSubstitution."Substitute Type" = ItemSubstitution."Substitute Type"::Item then begin
                     Item.Get(ItemSubstitution."Substitute No.");
                     if not SetupDataIsPresent then
-                        GetSetupData;
+                        GetSetupData();
                     OnCalcCustPriceOnBeforeCalcQtyAvail(Item, TempSalesLine, TempItemSubstitution, ItemSubstitution);
                     TempItemSubstitution."Quantity Avail. on Shpt. Date" :=
                       AvailToPromise.CalcQtyAvailabletoPromise(
@@ -197,7 +198,7 @@ codeunit 5701 "Item Subst."
                 if ItemSubstitution."Substitute Type" = ItemSubstitution."Substitute Type"::Item then begin
                     Item.Get(ItemSubstitution."Substitute No.");
                     if not SetupDataIsPresent then
-                        GetSetupData;
+                        GetSetupData();
                     OnAssemblyCalcCustPriceOnBeforeCalcQtyAvail(Item, AssemblyLine, TempItemSubstitution);
                     TempItemSubstitution."Quantity Avail. on Shpt. Date" :=
                       AvailToPromise.CalcQtyAvailabletoPromise(
@@ -315,7 +316,7 @@ codeunit 5701 "Item Subst."
                 if TempItemSubstitution."Substitute Type" = TempItemSubstitution.Type::Item then begin
                     Item.Get(ItemSubstitution."Substitute No.");
                     if not SetupDataIsPresent then
-                        GetSetupData;
+                        GetSetupData();
                     OnInsertInSubstServiceListOnBeforeCalcQtyAvail(Item, ServInvLine, TempItemSubstitution);
                     TempItemSubstitution."Quantity Avail. on Shpt. Date" :=
                       AvailToPromise.CalcQtyAvailabletoPromise(
@@ -327,7 +328,7 @@ codeunit 5701 "Item Subst."
                     TempItemSubstitution.Inventory := Item.Inventory;
                 end;
 
-                if TempItemSubstitution.Insert and
+                if TempItemSubstitution.Insert() and
                    (ItemSubstitution."Substitute No." <> '')
                 then begin
                     ItemSubstitution2.SetRange(Type, ItemSubstitution.Type);
@@ -338,7 +339,7 @@ codeunit 5701 "Item Subst."
                     if ItemSubstitution2.FindFirst() then
                         InsertInSubstServiceList(OrgNo, ItemSubstitution2, (RelatLevel + 1));
                 end else begin
-                    TempItemSubstitution.Find;
+                    TempItemSubstitution.Find();
                     if RelatLevel < TempItemSubstitution."Relations Level" then begin
                         TempItemSubstitution."Relations Level" := RelatLevel;
                         TempItemSubstitution.Modify();
@@ -370,7 +371,7 @@ codeunit 5701 "Item Subst."
                         if ItemSubstitution2.FindFirst() then
                             InsertInSubstServiceList(OrgNo, ItemSubstitution2, (RelatLevel + 1));
                     end else begin
-                        TempItemSubstitution.Find;
+                        TempItemSubstitution.Find();
                         if RelatLevel < TempItemSubstitution."Relations Level" then begin
                             TempItemSubstitution."Relations Level" := RelatLevel;
                             TempItemSubstitution.Modify();
@@ -440,15 +441,14 @@ codeunit 5701 "Item Subst."
             "Original Item No." := ProdOrderComp."Item No.";
             "Original Variant Code" := ProdOrderComp."Variant Code";
 
-            if ProdOrderComp."Qty. per Unit of Measure" <> 1 then begin
+            if ProdOrderComp."Qty. per Unit of Measure" <> 1 then
                 if ItemUnitOfMeasure.Get(Item."No.", ProdOrderComp."Unit of Measure Code") and
                    (ItemUnitOfMeasure."Qty. per Unit of Measure" = ProdOrderComp."Qty. per Unit of Measure")
                 then
                     Validate("Unit of Measure Code", ProdOrderComp."Unit of Measure Code")
                 else
                     SaveQty :=
-                      Round(ProdOrderComp."Quantity per" * ProdOrderComp."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision);
-            end;
+                      Round(ProdOrderComp."Quantity per" * ProdOrderComp."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision());
             Validate("Quantity per", SaveQty);
         end;
 
@@ -482,8 +482,8 @@ codeunit 5701 "Item Subst."
     var
         ItemSubstitution: Record "Item Substitution";
         ItemSubstitution2: Record "Item Substitution";
-        RelationsLevel2: Integer;
         ODF: DateFormula;
+        RelationsLevel2: Integer;
     begin
         ItemSubstitution.Copy(ItemSubstitution3);
         RelationsLevel2 := RelationsLevel;
@@ -525,7 +525,7 @@ codeunit 5701 "Item Subst."
                         CreateSubstList(OrgNo, ItemSubstitution2, RelationsLevel2 + 1, DemandDate, CalcATP);
                 end else begin
                     TempItemSubstitution.Reset();
-                    if TempItemSubstitution.Find then
+                    if TempItemSubstitution.Find() then
                         if RelationsLevel2 < TempItemSubstitution."Relations Level" then begin
                             TempItemSubstitution."Relations Level" := RelationsLevel2;
                             TempItemSubstitution.Modify();
@@ -618,12 +618,12 @@ codeunit 5701 "Item Subst."
     begin
         if ItemSubstitution."Substitute No." <> '' then
             with ItemSubstitutionToCheck do begin
-                Reset;
+                Reset();
                 SetRange("Substitute Type", ItemSubstitution."Substitute Type");
                 SetRange("Substitute No.", ItemSubstitution."Substitute No.");
                 SetRange("Substitute Variant Code", ItemSubstitution."Substitute Variant Code");
                 if IsEmpty() then
-                    exit(Insert);
+                    exit(Insert());
             end;
         exit(false);
     end;

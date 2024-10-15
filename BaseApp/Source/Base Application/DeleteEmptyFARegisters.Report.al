@@ -21,7 +21,7 @@ report 5693 "Delete Empty FA Registers"
                     CurrReport.Skip();
                 Window.Update(1, "No.");
                 Window.Update(2, "Creation Date");
-                Delete;
+                Delete();
                 NoOfDeleted := NoOfDeleted + 1;
                 Window.Update(3, NoOfDeleted);
                 if NoOfDeleted >= NoOfDeleted2 + 10 then begin
@@ -64,17 +64,18 @@ report 5693 "Delete Empty FA Registers"
     }
 
     var
-        DeleteRegistersQst: Label 'Do you want to delete the registers?';
-        Text001: Label 'Deleting empty FA registers...\\';
-        Text002: Label 'No.                      #1######\';
-        Text003: Label 'Posted on                #2######\\';
-        Text004: Label 'No. of registers deleted #3######';
         FALedgEntry: Record "FA Ledger Entry";
         MaintenanceLedgEntry: Record "Maintenance Ledger Entry";
         Window: Dialog;
         NoOfDeleted: Integer;
         NoOfDeleted2: Integer;
         SkipConfirm: Boolean;
+
+        DeleteRegistersQst: Label 'Do you want to delete the registers?';
+        Text001: Label 'Deleting empty FA registers...\\';
+        Text002: Label 'No.                      #1######\';
+        Text003: Label 'Posted on                #2######\\';
+        Text004: Label 'No. of registers deleted #3######';
 
     procedure SetSkipConfirm()
     begin

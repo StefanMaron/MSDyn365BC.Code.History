@@ -664,7 +664,7 @@ codeunit 138019 "O365 Item Prices"
               "Line Type"::"Sales Price",
               Type::Item.AsInteger());
 
-            Init;
+            Init();
             "Loaded Item No." := 'LIN';
             "Line Type" := "Line Type"::"Sales Price";
             "Loaded Disc. Group" := 'LDG';
@@ -707,7 +707,7 @@ codeunit 138019 "O365 Item Prices"
               Type::Item,
               "Line Type"::"Sales Price");
 
-            Init;
+            Init();
             Validate(Type, Type::"Item Disc. Group");
             asserterror
               Validate("Line Type", "Line Type"::"Sales Price");
@@ -848,7 +848,7 @@ codeunit 138019 "O365 Item Prices"
         // Validation part
         ItemCard."Price Includes VAT".Value := Format(Item."Price Includes VAT");
 
-        ItemCard.Close;
+        ItemCard.Close();
     end;
 
     [Test]
@@ -873,7 +873,7 @@ codeunit 138019 "O365 Item Prices"
         // Validation part
         ItemCard."Price Includes VAT".Value := Format(not Item."Price Includes VAT");
 
-        ItemCard.Close;
+        ItemCard.Close();
     end;
 
     [Test]
@@ -898,7 +898,7 @@ codeunit 138019 "O365 Item Prices"
         // Validation part
         ItemCard."Price Includes VAT".Value := Format(not Item."Price Includes VAT");
 
-        ItemCard.Close;
+        ItemCard.Close();
     end;
 
     [Test]
@@ -920,7 +920,7 @@ codeunit 138019 "O365 Item Prices"
         ItemCard.OpenEdit;
         ItemCard.Filter.SetFilter("No.", Item."No.");
         ItemCard.PricesDiscountsOverview.Invoke();
-        ItemCard.Close;
+        ItemCard.Close();
 
         ItemType := LibraryVariableStorage.DequeueText();
         CodeFilter := LibraryVariableStorage.DequeueText();
@@ -948,7 +948,7 @@ codeunit 138019 "O365 Item Prices"
 
         LibraryVariableStorage.Enqueue(Item); // verify correct item in the handler
         ItemCard.PricesDiscountsOverview.Invoke;
-        ItemCard.Close;
+        ItemCard.Close();
     end;
 
     [Test]
@@ -971,7 +971,7 @@ codeunit 138019 "O365 Item Prices"
 
         LibraryVariableStorage.Enqueue(Item); // verify correct item in the handler
         ItemList.PricesDiscountsOverview.Invoke;
-        ItemList.Close;
+        ItemList.Close();
     end;
 
     [Test]
@@ -992,7 +992,7 @@ codeunit 138019 "O365 Item Prices"
 
         LibraryVariableStorage.Enqueue(Item); // verify correct item in the handler
         ItemCard.SpecialPricesAndDiscountsTxt.DrillDown;
-        ItemCard.Close;
+        ItemCard.Close();
     end;
 
     [Test]
@@ -1013,7 +1013,7 @@ codeunit 138019 "O365 Item Prices"
         LibraryVariableStorage.Enqueue(1); // choose to create a new special price
         LibraryVariableStorage.Enqueue(Item); // verify correct item in the handler
         ItemCard.SpecialPricesAndDiscountsTxt.DrillDown;
-        ItemCard.Close;
+        ItemCard.Close();
     end;
 
     [Test]
@@ -1034,7 +1034,7 @@ codeunit 138019 "O365 Item Prices"
         LibraryVariableStorage.Enqueue(2); // choose to create a new special discount
         LibraryVariableStorage.Enqueue(Item); // verify correct item in the handler
         ItemCard.SpecialPricesAndDiscountsTxt.DrillDown;
-        ItemCard.Close;
+        ItemCard.Close();
     end;
 
     [Test]
@@ -1342,7 +1342,7 @@ codeunit 138019 "O365 Item Prices"
     begin
         for i := 0 to 3 do
             with SalesLineDiscount do begin
-                Init;
+                Init();
                 "Sales Type" := i;
                 if i = "Sales Type"::"All Customers" then
                     "Sales Code" := ''
@@ -1362,7 +1362,7 @@ codeunit 138019 "O365 Item Prices"
                 "Unit of Measure Code" := 'UMC' + Format(LibraryRandom.RandInt(100));
                 "Variant Code" := 'VC' + Format(LibraryRandom.RandInt(100));
 
-                Insert;
+                Insert();
             end;
     end;
 
@@ -1374,7 +1374,7 @@ codeunit 138019 "O365 Item Prices"
         // what about the Price Groups?
         for i := 0 to 3 do
             with SalesPrice do begin
-                Init;
+                Init();
                 "Item No." := ItemNo;
                 "Sales Type" := "Sales Price Type".FromInteger(i);
                 if i = "Sales Type"::"All Customers".AsInteger() then
@@ -1398,7 +1398,7 @@ codeunit 138019 "O365 Item Prices"
                 "Variant Code" := 'VC' + Format(LibraryRandom.RandInt(100));
                 "Allow Line Disc." := true;
 
-                Insert;
+                Insert();
             end;
     end;
 
@@ -1441,7 +1441,7 @@ codeunit 138019 "O365 Item Prices"
     local procedure GetSLDiscounts(var SalesLineDiscount: Record "Sales Line Discount"; SalesLineDiscountType: Enum "Sales Line Discount Type"; SalesLineDiscountCode: Code[20])
     begin
         with SalesLineDiscount do begin
-            Reset;
+            Reset();
             SetRange(Type, SalesLineDiscountType);
             SetRange(Code, SalesLineDiscountCode);
             SetFilter(
@@ -1468,7 +1468,7 @@ codeunit 138019 "O365 Item Prices"
     local procedure GetSPrices(var SalesPrice: Record "Sales Price"; ItemNo: Code[20])
     begin
         with SalesPrice do begin
-            Reset;
+            Reset();
             SetRange("Item No.", ItemNo);
             SetFilter(
               "Sales Type", '%1|%2|%3',

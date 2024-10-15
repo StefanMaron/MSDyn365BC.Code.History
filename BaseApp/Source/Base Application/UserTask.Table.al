@@ -81,7 +81,7 @@ table 1170 "User Task"
                 if "Completed DateTime" <> 0DT then begin
                     "Percent Complete" := 100;
                     if IsNullGuid("Completed By") then
-                        "Completed By" := UserSecurityId;
+                        "Completed By" := UserSecurityId();
                     if "Start DateTime" = 0DT then
                         "Start DateTime" := CurrentDateTime;
                 end else begin
@@ -103,7 +103,7 @@ table 1170 "User Task"
             trigger OnValidate()
             begin
                 if "Percent Complete" = 100 then begin
-                    "Completed By" := UserSecurityId;
+                    "Completed By" := UserSecurityId();
                     "Completed DateTime" := CurrentDateTime;
                 end else begin
                     Clear("Completed By");
@@ -233,7 +233,7 @@ table 1170 "User Task"
         if "Parent ID" > 0 then
             if Confirm(ConfirmDeleteAllOccurrencesQst) then begin
                 DummyUserTask.CopyFilters(Rec);
-                Reset;
+                Reset();
                 SetRange("Parent ID", "Parent ID");
                 DeleteAll();
                 CopyFilters(DummyUserTask);
@@ -243,7 +243,7 @@ table 1170 "User Task"
     trigger OnInsert()
     begin
         Validate("Created DateTime", CurrentDateTime);
-        "Created By" := UserSecurityId
+        "Created By" := UserSecurityId();
     end;
 
     var
@@ -253,19 +253,20 @@ table 1170 "User Task"
     procedure CreateRecurrence(RecurringStartDate: Date; Recurrence: DateFormula; Occurrences: Integer)
     var
         UserTaskTemp: Record "User Task";
-        "Count": Integer;
+        Counter: Integer;
         TempDueDate: Date;
     begin
         Validate("Parent ID", ID);
         Validate("Due DateTime", CreateDateTime(RecurringStartDate, 000000T));
         Modify(true);
 
+        Counter := 0;
         TempDueDate := RecurringStartDate;
-        while Count < Occurrences - 1 do begin
+        while Counter < Occurrences - 1 do begin
             Clear(UserTaskTemp);
             UserTaskTemp.Validate(Title, Title);
-            UserTaskTemp.SetDescription(GetDescription);
-            UserTaskTemp."Created By" := UserSecurityId;
+            UserTaskTemp.SetDescription(GetDescription());
+            UserTaskTemp."Created By" := UserSecurityId();
             UserTaskTemp.Validate("Created DateTime", CurrentDateTime);
             UserTaskTemp.Validate("Assigned To", "Assigned To");
             UserTaskTemp.Validate("User Task Group Assigned To", "User Task Group Assigned To");
@@ -275,16 +276,16 @@ table 1170 "User Task"
             UserTaskTemp.Validate("Parent ID", ID);
             TempDueDate := CalcDate(Recurrence, TempDueDate);
             UserTaskTemp.Validate("Due DateTime", CreateDateTime(TempDueDate, 000000T));
-            OnCreateRecurrenceOnBeforeInsert(UserTaskTemp, Rec, Count, RecurringStartDate, Recurrence);
+            OnCreateRecurrenceOnBeforeInsert(UserTaskTemp, Rec, Counter, RecurringStartDate, Recurrence);
             UserTaskTemp.Insert(true);
-            Count := Count + 1;
+            Counter := Counter + 1;
         end
     end;
 
     procedure SetCompleted()
     begin
         "Percent Complete" := 100;
-        "Completed By" := UserSecurityId;
+        "Completed By" := UserSecurityId();
         "Completed DateTime" := CurrentDateTime;
 
         if "Start DateTime" = 0DT then
@@ -293,10 +294,9 @@ table 1170 "User Task"
 
     procedure SetStyle(): Text
     begin
-        if "Percent Complete" <> 100 then begin
+        if "Percent Complete" <> 100 then
             if ("Due DateTime" <> 0DT) and ("Due DateTime" <= CurrentDateTime) then
-                exit('Unfavorable')
-        end;
+                exit('Unfavorable');
         exit('');
     end;
 
@@ -308,7 +308,7 @@ table 1170 "User Task"
     begin
         TempBlob.FromRecord(Rec, FieldNo(Description));
         TempBlob.CreateInStream(InStream, TEXTENCODING::UTF8);
-        exit(TypeHelper.ReadAsTextWithSeparator(InStream, TypeHelper.LFSeparator));
+        exit(TypeHelper.ReadAsTextWithSeparator(InStream, TypeHelper.LFSeparator()));
     end;
 
     procedure SetDescription(StreamText: Text)

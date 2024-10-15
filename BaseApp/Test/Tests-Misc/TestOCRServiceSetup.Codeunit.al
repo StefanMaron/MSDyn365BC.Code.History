@@ -70,14 +70,14 @@ codeunit 134415 "Test OCR Service Setup"
         OCRServiceSetupCard: TestPage "OCR Service Setup";
     begin
         // Init
-        if OCRServiceSetup.Get then
+        if OCRServiceSetup.Get() then
             OCRServiceSetup.Delete(true);
 
         // Exectute
         OCRServiceSetupCard.OpenEdit;
         Assert.AreNotEqual('', OCRServiceSetupCard."Service URL".Value, '');
         OCRServiceSetupCard.SetURLsToDefault.Invoke;
-        OCRServiceSetupCard.Close;
+        OCRServiceSetupCard.Close();
 
         // Validate
         OCRServiceSetup.Get();
@@ -95,11 +95,11 @@ codeunit 134415 "Test OCR Service Setup"
         AuthTxt: Text;
     begin
         // Init
-        if OCRServiceSetup.Get then
+        if OCRServiceSetup.Get() then
             OCRServiceSetup.Delete(true);
         Assert.IsTrue(OCRServiceSetup.IsEmpty, '');
-        PasswordTxt := Format(CreateGuid);
-        AuthTxt := Format(CreateGuid);
+        PasswordTxt := Format(CreateGuid());
+        AuthTxt := Format(CreateGuid());
 
         // Execute
         OCRServiceSetupCard.OpenEdit;
@@ -107,7 +107,7 @@ codeunit 134415 "Test OCR Service Setup"
         OCRServiceSetupCard.Password.Value := PasswordTxt;
         OCRServiceSetupCard.AuthorizationKey.VALUE := PasswordTxt; // To provoke an update of the Isolated Storage
         OCRServiceSetupCard.AuthorizationKey.Value := AuthTxt;    // ..
-        OCRServiceSetupCard.Close;
+        OCRServiceSetupCard.Close();
 
         // Verify
         OCRServiceSetup.Get();
@@ -128,11 +128,11 @@ codeunit 134415 "Test OCR Service Setup"
         AuthTxt: Text;
     begin
         // Init
-        if OCRServiceSetup.Get then
+        if OCRServiceSetup.Get() then
             OCRServiceSetup.Delete(true);
         Assert.IsTrue(OCRServiceSetup.IsEmpty, '');
-        PasswordTxt := Format(CreateGuid);
-        AuthTxt := Format(CreateGuid);
+        PasswordTxt := Format(CreateGuid());
+        AuthTxt := Format(CreateGuid());
 
         // Execute
         OCRServiceSetupCard.OpenEdit;
@@ -141,7 +141,7 @@ codeunit 134415 "Test OCR Service Setup"
         OCRServiceSetupCard.Password.Value := '';
         OCRServiceSetupCard.AuthorizationKey.Value := AuthTxt;
         OCRServiceSetupCard.AuthorizationKey.Value := '';
-        OCRServiceSetupCard.Close;
+        OCRServiceSetupCard.Close();
 
         // Verify
         OCRServiceSetup.Get();
@@ -178,7 +178,7 @@ codeunit 134415 "Test OCR Service Setup"
         OCRServiceMgt: Codeunit "OCR Service Mgt.";
     begin
         // Init
-        if OCRServiceSetup.Get then
+        if OCRServiceSetup.Get() then
             OCRServiceSetup.Delete(true);
 
         // Execute

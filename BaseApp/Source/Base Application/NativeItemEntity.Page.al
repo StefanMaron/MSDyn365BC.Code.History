@@ -180,7 +180,7 @@ page 2802 "Native - Item Entity"
                             exit;
                         end;
 
-                        if GeneralLedgerSetup.UseVat then begin
+                        if GeneralLedgerSetup.UseVat() then begin
                             if not ValidateVATProdPostingGroup.GetBySystemId(TaxGroupId) then
                                 Error(VATGroupIdDoesNotMatchAVATGroupErr);
 
@@ -218,7 +218,7 @@ page 2802 "Native - Item Entity"
                         TaxGroup: Record "Tax Group";
                         NativeEDMTypes: Codeunit "Native - EDM Types";
                     begin
-                        if GeneralLedgerSetup.UseVat then
+                        if GeneralLedgerSetup.UseVat() then
                             exit;
 
                         if not NativeEDMTypes.GetTaxGroupFromTaxable(Taxable, TaxGroup) then
@@ -245,7 +245,7 @@ page 2802 "Native - Item Entity"
 
     trigger OnAfterGetRecord()
     begin
-        SetCalculatedFields;
+        SetCalculatedFields();
     end;
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
@@ -262,7 +262,7 @@ page 2802 "Native - Item Entity"
             BaseUnitOfMeasureJSONText := GraphCollectionMgtItem.ItemUnitOfMeasureToJSON(Rec, BaseUnitOfMeasureCode);
 
         GraphCollectionMgtItem.InsertItem(Rec, TempFieldSet, BaseUnitOfMeasureJSONText);
-        SetCalculatedFields;
+        SetCalculatedFields();
         exit(false);
     end;
 
@@ -283,20 +283,20 @@ page 2802 "Native - Item Entity"
             TransferFields(Item, true);
         end;
 
-        SetCalculatedFields;
+        SetCalculatedFields();
 
         exit(false);
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        ClearCalculatedFields;
+        ClearCalculatedFields();
     end;
 
     trigger OnOpenPage()
     begin
         BindSubscription(NativeAPILanguageHandler);
-        SelectLatestVersion;
+        SelectLatestVersion();
     end;
 
     var
@@ -323,8 +323,8 @@ page 2802 "Native - Item Entity"
 
     local procedure SetCalculatedFields()
     begin
-        SetCalculatedUnitsOfMeasureFields;
-        SetCalculatedTaxGroupFields;
+        SetCalculatedUnitsOfMeasureFields();
+        SetCalculatedTaxGroupFields();
         CalcFields(Inventory);
         InventoryValue := Inventory;
     end;
@@ -368,7 +368,7 @@ page 2802 "Native - Item Entity"
         VATProductPostingGroup: Record "VAT Product Posting Group";
         EmptyGuid: Guid;
     begin
-        if GeneralLedgerSetup.UseVat and VATProductPostingGroup.Get("VAT Prod. Posting Group") then begin
+        if GeneralLedgerSetup.UseVat() and VATProductPostingGroup.Get("VAT Prod. Posting Group") then begin
             TaxGroupCode := VATProductPostingGroup.Code;
             TaxGroupId := VATProductPostingGroup.SystemId;
             Taxable := true;
@@ -377,7 +377,7 @@ page 2802 "Native - Item Entity"
                 "Tax Group Id" := TaxGroup.SystemId;
                 TaxGroupId := "Tax Group Id";
                 TaxGroupCode := "Tax Group Code";
-                if TaxSetup.Get then
+                if TaxSetup.Get() then
                     Taxable := "Tax Group Code" <> TaxSetup."Non-Taxable Tax Group Code"
                 else
                     Taxable := false;

@@ -56,8 +56,8 @@ codeunit 5408 "Feature - Option Mapping" implements "Feature Data Update"
 
         TempIntegrationFieldMapping.SetFilter("Integration Table Mapping Name", 'CUSTOMER|VENDOR|PAYMENT TERMS|SHIPMENT METHOD|SHIPPING AGENT');
         TempIntegrationFieldMapping.SetFilter("Field No.", '15|75|80');
-        InsertDocumentEntry(Database::"CRM Option Mapping", TempIntegrationFieldMapping.TableCaption, TempIntegrationFieldMapping.CountApprox);
-        InsertDocumentEntry(Database::"CRM Option Mapping", CRMOptionMapping.TableCaption, CRMOptionMapping.Count());
+        InsertDocumentEntry(Database::"CRM Option Mapping", TempIntegrationFieldMapping.TableCaption(), TempIntegrationFieldMapping.CountApprox);
+        InsertDocumentEntry(Database::"CRM Option Mapping", CRMOptionMapping.TableCaption(), CRMOptionMapping.Count());
     end;
 
     local procedure AdjustCRMConnectionSetup()

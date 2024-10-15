@@ -96,10 +96,6 @@ page 1170 "User Task List"
                 ApplicationArea = Basic, Suite;
                 Caption = 'User Task Groups';
                 Image = Users;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 RunObject = Page "User Task Groups";
                 ToolTip = 'Add or modify groups of users that you can assign user tasks to in this company.';
             }
@@ -108,9 +104,6 @@ page 1170 "User Task List"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Mark as Completed';
                 Image = CheckList;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedOnly = true;
                 ToolTip = 'Indicate that the task is completed. The % Complete field is set to 100.';
 
                 trigger OnAction()
@@ -120,7 +113,7 @@ page 1170 "User Task List"
                     CurrPage.SetSelectionFilter(UserTask);
                     if UserTask.FindSet(true) then
                         repeat
-                            UserTask.SetCompleted;
+                            UserTask.SetCompleted();
                             UserTask.Modify();
                         until UserTask.Next() = 0;
                 end;
@@ -130,8 +123,6 @@ page 1170 "User Task List"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Go To Task Item';
                 Image = Navigate;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Open the page or report that is associated with this task.';
 
                 trigger OnAction()
@@ -149,6 +140,23 @@ page 1170 "User Task List"
                 Image = Delete;
                 RunObject = Report "User Task Utility";
                 ToolTip = 'Find and delete user tasks.';
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("User Task Groups_Promoted"; "User Task Groups")
+                {
+                }
+                actionref("Mark Complete_Promoted"; "Mark Complete")
+                {
+                }
+                actionref("Go To Task Item_Promoted"; "Go To Task Item")
+                {
+                }
             }
         }
     }
@@ -175,7 +183,7 @@ page 1170 "User Task List"
         ShouldOpenToViewPendingTasks: Boolean;
     begin
         if Evaluate(ShouldOpenToViewPendingTasks, GetFilter(ShouldShowPendingTasks)) and ShouldOpenToViewPendingTasks then
-            SetPageToShowMyPendingUserTasks;
+            SetPageToShowMyPendingUserTasks();
     end;
 
     var

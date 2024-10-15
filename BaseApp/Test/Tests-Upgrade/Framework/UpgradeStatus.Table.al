@@ -2,6 +2,7 @@ table 132800 "Upgrade Status"
 {
     DataClassification = SystemMetadata;
     DataPerCompany = false;
+    ReplicateData = false;
 
     fields
     {

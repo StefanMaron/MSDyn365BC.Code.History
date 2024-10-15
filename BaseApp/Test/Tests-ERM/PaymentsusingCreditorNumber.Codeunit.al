@@ -100,7 +100,7 @@ codeunit 134160 "Payments using Creditor Number"
         PaymentJournal.CurrentJnlBatchName.Value := PmtGenJnlLine."Journal Batch Name";
         PaymentJournal.GotoRecord(PmtGenJnlLine);
         PaymentJournal.ApplyEntries.Invoke;
-        PaymentJournal.Close;
+        PaymentJournal.Close();
 
         // Verify
         FindGenJnlLine(PmtGenJnlLine, PmtGenJnlBatch, PmtGenJnlLine."Account Type"::Vendor, Vendor."No.");
@@ -403,10 +403,10 @@ codeunit 134160 "Payments using Creditor Number"
         PurchaseOrder.OpenEdit;
         PurchaseOrder.GotoRecord(PurchaseHeader);
         PurchaseOrder."Creditor No.".SetValue(CreditorNo);
-        PurchaseOrder.Close;
+        PurchaseOrder.Close();
 
         // [THEN] "Creditor No." = 'ABC' for Purchase Header 'PO01'
-        PurchaseHeader.Find;
+        PurchaseHeader.Find();
         PurchaseHeader.TestField("Creditor No.", CreditorNo);
     end;
 
@@ -435,10 +435,10 @@ codeunit 134160 "Payments using Creditor Number"
         VendorLedgerEntries.OpenEdit;
         VendorLedgerEntries.GotoRecord(VendorLedgerEntry);
         VendorLedgerEntries."Creditor No.".SetValue(CreditorNo);
-        VendorLedgerEntries.Close;
+        VendorLedgerEntries.Close();
 
         // [THEN] "Creditor No." = 'ABC' for Vendor Ledger Entry 'X'
-        VendorLedgerEntry.Find;
+        VendorLedgerEntry.Find();
         VendorLedgerEntry.TestField("Creditor No.", CreditorNo);
     end;
 
@@ -470,7 +470,7 @@ codeunit 134160 "Payments using Creditor Number"
         PostedPurchaseInvoice.OK.Invoke;
 
         // [THEN] "Creditor No." = 'ABC' for Purchase Invoice Header 'PI01'
-        PurchInvHeader.Find;
+        PurchInvHeader.Find();
         PurchInvHeader.TestField("Creditor No.", CreditorNo);
     end;
 
@@ -502,10 +502,10 @@ codeunit 134160 "Payments using Creditor Number"
         PaymentJournal.CurrentJnlBatchName.SetValue(GenJournalLine."Journal Batch Name");
         PaymentJournal.GotoRecord(GenJournalLine);
         PaymentJournal."Creditor No.".SetValue(CreditorNo);
-        PaymentJournal.Close;
+        PaymentJournal.Close();
 
         // [THEN] "Creditor No." = 'ABC' for Gen. Journal Line 'JL01'
-        GenJournalLine.Find;
+        GenJournalLine.Find();
         GenJournalLine.TestField("Creditor No.", CreditorNo);
     end;
 
@@ -535,7 +535,7 @@ codeunit 134160 "Payments using Creditor Number"
         VendorCard.OK.Invoke;
 
         // [THEN] "Creditor No." = 'ABC' for Vendor 'X'
-        Vendor.Find;
+        Vendor.Find();
         Vendor.TestField("Creditor No.", CreditorNo);
     end;
 
@@ -692,7 +692,7 @@ codeunit 134160 "Payments using Creditor Number"
             SetGenJnlLine(GenJnlLine);
             SetTableView(Vendor);
             InitializeRequest(
-                WorkDate, false, 0, false, WorkDate, LibraryUtility.GenerateGUID, false, "Gen. Journal Account Type"::"G/L Account", '', "Bank Payment Type"::" ");
+                WorkDate, false, 0, false, WorkDate(), LibraryUtility.GenerateGUID, false, "Gen. Journal Account Type"::"G/L Account", '', "Bank Payment Type"::" ");
             UseRequestPage(false);
             RunModal;
         end;
@@ -706,7 +706,7 @@ codeunit 134160 "Payments using Creditor Number"
         PurchHeader.SetRange("Pay-to Vendor No.", VendorNo);
         PurchHeader.SetRange("Creditor No.", CreditorNo);
         PurchHeader.SetRange("Payment Reference", PaymentReference);
-        Assert.IsFalse(PurchHeader.IsEmpty, StrSubstNo(NotFoundErr, PurchHeader.TableCaption));
+        Assert.IsFalse(PurchHeader.IsEmpty, StrSubstNo(NotFoundErr, PurchHeader.TableCaption()));
     end;
 
     local procedure VerifyCreditorInfoOnPostedPurchInvoice(Vendor: Record Vendor; PaymentReference: Code[16]; PaymentMethodCode: Code[10])
@@ -717,7 +717,7 @@ codeunit 134160 "Payments using Creditor Number"
         PurchInvHeader.SetRange("Creditor No.", Vendor."Creditor No.");
         PurchInvHeader.SetRange("Payment Reference", PaymentReference);
         PurchInvHeader.SetRange("Payment Method Code", PaymentMethodCode);
-        Assert.IsFalse(PurchInvHeader.IsEmpty, StrSubstNo(NotFoundErr, PurchInvHeader.TableCaption));
+        Assert.IsFalse(PurchInvHeader.IsEmpty, StrSubstNo(NotFoundErr, PurchInvHeader.TableCaption()));
     end;
 
     local procedure VerifyCreditorInfoOnVendorLedgerEntry(Vendor: Record Vendor; PaymentReference: Code[50]; PaymentMethodCode: Code[10])
@@ -729,7 +729,7 @@ codeunit 134160 "Payments using Creditor Number"
         VendorLedgerEntry.SetRange("Creditor No.", Vendor."Creditor No.");
         VendorLedgerEntry.SetRange("Payment Reference", PaymentReference);
         VendorLedgerEntry.SetRange("Payment Method Code", PaymentMethodCode);
-        Assert.IsFalse(VendorLedgerEntry.IsEmpty, StrSubstNo(NotFoundErr, VendorLedgerEntry.TableCaption));
+        Assert.IsFalse(VendorLedgerEntry.IsEmpty, StrSubstNo(NotFoundErr, VendorLedgerEntry.TableCaption()));
     end;
 
     local procedure VerifyPaymentMethodOnPostedSalesInv(Customer: Record Customer; PaymentMethodCode: Code[10])
@@ -738,7 +738,7 @@ codeunit 134160 "Payments using Creditor Number"
     begin
         SalesInvHeader.SetRange("Bill-to Customer No.", Customer."No.");
         SalesInvHeader.SetRange("Payment Method Code", PaymentMethodCode);
-        Assert.IsFalse(SalesInvHeader.IsEmpty, StrSubstNo(NotFoundErr, SalesInvHeader.TableCaption));
+        Assert.IsFalse(SalesInvHeader.IsEmpty, StrSubstNo(NotFoundErr, SalesInvHeader.TableCaption()));
     end;
 
     local procedure VerifyPaymentMethodCodeonCustLedgerEntry(Customer: Record Customer; PaymentMethodCode: Code[10])
@@ -748,7 +748,7 @@ codeunit 134160 "Payments using Creditor Number"
         CustLedgerEntry.SetRange("Customer No.", Customer."No.");
         CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Invoice);
         CustLedgerEntry.SetRange("Payment Method Code", PaymentMethodCode);
-        Assert.IsFalse(CustLedgerEntry.IsEmpty, StrSubstNo(NotFoundErr, CustLedgerEntry.TableCaption));
+        Assert.IsFalse(CustLedgerEntry.IsEmpty, StrSubstNo(NotFoundErr, CustLedgerEntry.TableCaption()));
     end;
 }
 

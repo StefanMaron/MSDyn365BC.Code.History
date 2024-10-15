@@ -17,7 +17,7 @@ report 113 "Customer/Item Sales"
             column(STRSUBSTNO_Text000_PeriodText_; StrSubstNo(Text000, PeriodText))
             {
             }
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(PrintOnlyOnePerPage; PrintOnlyOnePerPage)
@@ -44,10 +44,10 @@ report 113 "Customer/Item Sales"
             column(Customer__Phone_No__; "Phone No.")
             {
             }
-            column(ValueEntryBuffer__Sales_Amount__Actual__; ValueEntryBuffer."Sales Amount (Actual)")
+            column(ValueEntryBuffer__Sales_Amount__Actual__; TempValueEntryBuffer."Sales Amount (Actual)")
             {
             }
-            column(ValueEntryBuffer__Discount_Amount_; -ValueEntryBuffer."Discount Amount")
+            column(ValueEntryBuffer__Discount_Amount_; -TempValueEntryBuffer."Discount Amount")
             {
             }
             column(Profit; Profit)
@@ -108,18 +108,18 @@ report 113 "Customer/Item Sales"
                     ValueEntry: Record "Value Entry";
                     EntryInBufferExists: Boolean;
                 begin
-                    ValueEntryBuffer.Init();
-                    ValueEntryBuffer.SetRange("Item No.", "Item No.");
-                    EntryInBufferExists := ValueEntryBuffer.FindFirst();
+                    TempValueEntryBuffer.Init();
+                    TempValueEntryBuffer.SetRange("Item No.", "Item No.");
+                    EntryInBufferExists := TempValueEntryBuffer.FindFirst();
 
                     if not EntryInBufferExists then
-                        ValueEntryBuffer."Entry No." := "Item Ledger Entry No.";
-                    ValueEntryBuffer."Item No." := "Item No.";
-                    ValueEntryBuffer."Invoiced Quantity" += "Invoiced Quantity";
-                    ValueEntryBuffer."Sales Amount (Actual)" += "Sales Amount (Actual)";
-                    ValueEntryBuffer."Cost Amount (Actual)" += "Cost Amount (Actual)";
-                    ValueEntryBuffer."Cost Amount (Non-Invtbl.)" += "Cost Amount (Non-Invtbl.)";
-                    ValueEntryBuffer."Discount Amount" += "Discount Amount";
+                        TempValueEntryBuffer."Entry No." := "Item Ledger Entry No.";
+                    TempValueEntryBuffer."Item No." := "Item No.";
+                    TempValueEntryBuffer."Invoiced Quantity" += "Invoiced Quantity";
+                    TempValueEntryBuffer."Sales Amount (Actual)" += "Sales Amount (Actual)";
+                    TempValueEntryBuffer."Cost Amount (Actual)" += "Cost Amount (Actual)";
+                    TempValueEntryBuffer."Cost Amount (Non-Invtbl.)" += "Cost Amount (Non-Invtbl.)";
+                    TempValueEntryBuffer."Discount Amount" += "Discount Amount";
 
                     TempItemLedgerEntry.SetRange("Entry No.", "Item Ledger Entry No.");
                     if TempItemLedgerEntry.IsEmpty() then begin
@@ -131,48 +131,48 @@ report 113 "Customer/Item Sales"
                         ValueEntry.SetFilter("Item Charge No.", '<>%1', '');
                         ValueEntry.CalcSums("Sales Amount (Actual)", "Cost Amount (Actual)", "Cost Amount (Non-Invtbl.)", "Discount Amount");
 
-                        ValueEntryBuffer."Sales Amount (Actual)" += ValueEntry."Sales Amount (Actual)";
-                        ValueEntryBuffer."Cost Amount (Actual)" += ValueEntry."Cost Amount (Actual)";
-                        ValueEntryBuffer."Cost Amount (Non-Invtbl.)" += ValueEntry."Cost Amount (Non-Invtbl.)";
-                        ValueEntryBuffer."Discount Amount" += ValueEntry."Discount Amount";
+                        TempValueEntryBuffer."Sales Amount (Actual)" += ValueEntry."Sales Amount (Actual)";
+                        TempValueEntryBuffer."Cost Amount (Actual)" += ValueEntry."Cost Amount (Actual)";
+                        TempValueEntryBuffer."Cost Amount (Non-Invtbl.)" += ValueEntry."Cost Amount (Non-Invtbl.)";
+                        TempValueEntryBuffer."Discount Amount" += ValueEntry."Discount Amount";
 
                         // Add cost adjustments regardless of their posting date
                         ValueEntry.SetRange("Item Charge No.", '');
                         ValueEntry.SetRange(Adjustment, true);
                         ValueEntry.CalcSums("Cost Amount (Actual)");
-                        ValueEntryBuffer."Cost Amount (Actual)" += ValueEntry."Cost Amount (Actual)";
+                        TempValueEntryBuffer."Cost Amount (Actual)" += ValueEntry."Cost Amount (Actual)";
                     end;
 
                     if EntryInBufferExists then
-                        ValueEntryBuffer.Modify
+                        TempValueEntryBuffer.Modify()
                     else
-                        ValueEntryBuffer.Insert();
+                        TempValueEntryBuffer.Insert();
                 end;
 
                 trigger OnPreDataItem()
                 begin
-                    ValueEntryBuffer.Reset();
-                    ValueEntryBuffer.DeleteAll();
+                    TempValueEntryBuffer.Reset();
+                    TempValueEntryBuffer.DeleteAll();
                 end;
             }
             dataitem("Integer"; "Integer")
             {
                 DataItemTableView = SORTING(Number);
-                column(ValueEntryBuffer__Item_No__; ValueEntryBuffer."Item No.")
+                column(ValueEntryBuffer__Item_No__; TempValueEntryBuffer."Item No.")
                 {
                 }
                 column(Item_Description; Item.Description)
                 {
                 }
-                column(ValueEntryBuffer__Invoiced_Quantity_; -ValueEntryBuffer."Invoiced Quantity")
+                column(ValueEntryBuffer__Invoiced_Quantity_; -TempValueEntryBuffer."Invoiced Quantity")
                 {
                     DecimalPlaces = 0 : 5;
                 }
-                column(ValueEntryBuffer__Sales_Amount__Actual___Control44; ValueEntryBuffer."Sales Amount (Actual)")
+                column(ValueEntryBuffer__Sales_Amount__Actual___Control44; TempValueEntryBuffer."Sales Amount (Actual)")
                 {
                     AutoFormatType = 1;
                 }
-                column(ValueEntryBuffer__Discount_Amount__Control45; -ValueEntryBuffer."Discount Amount")
+                column(ValueEntryBuffer__Discount_Amount__Control45; -TempValueEntryBuffer."Discount Amount")
                 {
                     AutoFormatType = 1;
                 }
@@ -191,22 +191,22 @@ report 113 "Customer/Item Sales"
                 trigger OnAfterGetRecord()
                 begin
                     if Number = 1 then
-                        ValueEntryBuffer.Find('-')
+                        TempValueEntryBuffer.Find('-')
                     else
-                        ValueEntryBuffer.Next;
+                        TempValueEntryBuffer.Next();
 
                     Profit :=
-                      ValueEntryBuffer."Sales Amount (Actual)" +
-                      ValueEntryBuffer."Cost Amount (Actual)" +
-                      ValueEntryBuffer."Cost Amount (Non-Invtbl.)";
+                      TempValueEntryBuffer."Sales Amount (Actual)" +
+                      TempValueEntryBuffer."Cost Amount (Actual)" +
+                      TempValueEntryBuffer."Cost Amount (Non-Invtbl.)";
 
-                    if Item.Get(ValueEntryBuffer."Item No.") then;
+                    if Item.Get(TempValueEntryBuffer."Item No.") then;
                 end;
 
                 trigger OnPreDataItem()
                 begin
-                    ValueEntryBuffer.Reset();
-                    SetRange(Number, 1, ValueEntryBuffer.Count);
+                    TempValueEntryBuffer.Reset();
+                    SetRange(Number, 1, TempValueEntryBuffer.Count);
                     Clear(Profit);
                 end;
             }
@@ -259,14 +259,13 @@ report 113 "Customer/Item Sales"
         FormatDocument: Codeunit "Format Document";
     begin
         CustFilter := FormatDocument.GetRecordFiltersWithCaptions(Customer);
-        ValueEntryFilter := "Value Entry".GetFilters;
+        ValueEntryFilter := "Value Entry".GetFilters();
         PeriodText := "Value Entry".GetFilter("Posting Date");
     end;
 
     var
-        Text000: Label 'Period: %1';
         Item: Record Item;
-        ValueEntryBuffer: Record "Value Entry" temporary;
+        TempValueEntryBuffer: Record "Value Entry" temporary;
         TempItemLedgerEntry: Record "Item Ledger Entry" temporary;
         CustFilter: Text;
         ValueEntryFilter: Text;
@@ -274,6 +273,8 @@ report 113 "Customer/Item Sales"
         PrintOnlyOnePerPage: Boolean;
         Profit: Decimal;
         ProfitPct: Decimal;
+
+        Text000: Label 'Period: %1';
         Customer_Item_SalesCaptionLbl: Label 'Customer/Item Sales';
         CurrReport_PAGENOCaptionLbl: Label 'Page';
         All_amounts_are_in_LCYCaptionLbl: Label 'All amounts are in LCY';

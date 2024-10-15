@@ -126,10 +126,10 @@ codeunit 138026 "O365 Simplify UI Purch.Cr.Memo"
 
         // Exercise
         PurchaseCreditMemo."Currency Code".AssistEdit;
-        PurchaseCreditMemo.Close;
+        PurchaseCreditMemo.Close();
 
         // Verify
-        PurchHeader.Find;
+        PurchHeader.Find();
         Assert.AreNotEqual(OldValue, PurchHeader."Currency Factor", '');
     end;
 
@@ -158,7 +158,7 @@ codeunit 138026 "O365 Simplify UI Purch.Cr.Memo"
 
         PurchaseCreditMemo.OpenNew();
         PurchaseCreditMemo."Buy-from Vendor Name".SetValue(Vend.Name);
-        PurchaseCreditMemo.Close;
+        PurchaseCreditMemo.Close();
 
         PurchHeader.SetRange("Buy-from Vendor No.", Vend."No.");
         PurchHeader.FindFirst();
@@ -212,7 +212,7 @@ codeunit 138026 "O365 Simplify UI Purch.Cr.Memo"
         PurchLine.TestField("No.", Item."No.");
 
         PurchLine.SetRange("Buy-from Vendor No.");
-        PurchLine.Next;
+        PurchLine.Next();
         PurchLine.TestField("No.", '');
         Assert.AreNotEqual(0, PurchLine."Attached to Line No.", '');
         PurchLine.TestField(Description, HelloWordTxt);
@@ -274,7 +274,7 @@ codeunit 138026 "O365 Simplify UI Purch.Cr.Memo"
         LibrarySmallBusiness.CreateVendorTemplate(ConfigTemplateHeader);
 
         // Exercise.
-        VendName := CopyStr(Format(CreateGuid), 1, 50);
+        VendName := CopyStr(Format(CreateGuid()), 1, 50);
 
         PurchaseCreditMemo.OpenNew();
         PurchaseCreditMemo.PurchLines.First;
@@ -603,7 +603,7 @@ codeunit 138026 "O365 Simplify UI Purch.Cr.Memo"
             Validate("Address 2", LibraryUtility.GenerateRandomCode(FieldNo("Address 2"), DATABASE::Vendor));
             Validate(City, LibraryUtility.GenerateRandomCode(FieldNo(City), DATABASE::Vendor));
             Validate("Post Code", LibraryUtility.GenerateRandomCode(FieldNo("Post Code"), DATABASE::Vendor));
-            Modify;
+            Modify();
         end;
     end;
 

@@ -16,8 +16,8 @@ codeunit 99000771 "BOM Matrix Management"
         ProdBOMHeader: Record "Production BOM Header";
         ProdBOMVersion: Record "Production BOM Version";
         ProdBOMVersion2: Record "Production BOM Version";
-        ComponentList: Record "Production Matrix BOM Line" temporary;
-        ComponentEntry: Record "Production Matrix  BOM Entry" temporary;
+        TempComponentList: Record "Production Matrix BOM Line" temporary;
+        TempComponentEntry: Record "Production Matrix  BOM Entry" temporary;
         ComponentEntry2: Record "Production Matrix  BOM Entry";
         UOMMgt: Codeunit "Unit of Measure Management";
         VersionMgt: Codeunit VersionManagement;
@@ -27,10 +27,10 @@ codeunit 99000771 "BOM Matrix Management"
 
     procedure FindRecord(Which: Text[30]; var ComponentList2: Record "Production Matrix BOM Line"): Boolean
     begin
-        ComponentList := ComponentList2;
-        if not ComponentList.Find(Which) then
+        TempComponentList := ComponentList2;
+        if not TempComponentList.Find(Which) then
             exit(false);
-        ComponentList2 := ComponentList;
+        ComponentList2 := TempComponentList;
         exit(true);
     end;
 
@@ -38,31 +38,31 @@ codeunit 99000771 "BOM Matrix Management"
     var
         CurrentSteps: Integer;
     begin
-        ComponentList := ComponentList2;
-        CurrentSteps := ComponentList.Next(Steps);
+        TempComponentList := ComponentList2;
+        CurrentSteps := TempComponentList.Next(Steps);
         if CurrentSteps <> 0 then
-            ComponentList2 := ComponentList;
+            ComponentList2 := TempComponentList;
         exit(CurrentSteps);
     end;
 
     procedure GetComponentNeed(No: Code[20]; VariantCode: Code[10]; ID: Code[20]): Decimal
     begin
-        ComponentEntry.SetRange("Item No.", No);
-        ComponentEntry.SetRange("Variant Code", VariantCode);
-        ComponentEntry.SetRange(ID, ID);
-        if not ComponentEntry.FindFirst() then
-            Clear(ComponentEntry);
+        TempComponentEntry.SetRange("Item No.", No);
+        TempComponentEntry.SetRange("Variant Code", VariantCode);
+        TempComponentEntry.SetRange(ID, ID);
+        if not TempComponentEntry.FindFirst() then
+            Clear(TempComponentEntry);
 
-        exit(ComponentEntry.Quantity);
+        exit(TempComponentEntry.Quantity);
     end;
 
     procedure CompareTwoItems(Item1: Record Item; Item2: Record Item; CalcDate: Date; NewMultiLevel: Boolean; var VersionCode1: Code[20]; var VersionCode2: Code[20]; var UnitOfMeasure1: Code[10]; var UnitOfMeasure2: Code[10])
     begin
         GlobalCalcDate := CalcDate;
 
-        ComponentList.DeleteAll();
-        ComponentEntry.Reset();
-        ComponentEntry.DeleteAll();
+        TempComponentList.DeleteAll();
+        TempComponentEntry.Reset();
+        TempComponentEntry.DeleteAll();
 
         MultiLevel := NewMultiLevel;
         MatrixType := MatrixType::Item;
@@ -104,9 +104,9 @@ codeunit 99000771 "BOM Matrix Management"
 
     procedure BOMMatrixFromBOM(ProdBOM: Record "Production BOM Header"; NewMultiLevel: Boolean)
     begin
-        ComponentList.DeleteAll();
-        ComponentEntry.Reset();
-        ComponentEntry.DeleteAll();
+        TempComponentList.DeleteAll();
+        TempComponentEntry.Reset();
+        TempComponentEntry.DeleteAll();
 
         MultiLevel := NewMultiLevel;
         MatrixType := MatrixType::Version;
@@ -153,13 +153,13 @@ codeunit 99000771 "BOM Matrix Management"
                                     Item, VersionMgt.GetBOMUnitOfMeasure(Item."Production BOM No.", VersionCode)) *
                                   ProdBOMComponent.Quantity);
                             end else begin
-                                ComponentList."Item No." := ProdBOMComponent."No.";
-                                ComponentList."Variant Code" := ProdBOMComponent."Variant Code";
-                                ComponentList.Description := ProdBOMComponent.Description;
-                                ComponentList."Unit of Measure Code" := Item."Base Unit of Measure";
-                                OnBuildMatrixForItemOnBeforeComponentListFind(ProdBOMComponent, ComponentList);
-                                if not ComponentList.Find then
-                                    ComponentList.Insert();
+                                TempComponentList."Item No." := ProdBOMComponent."No.";
+                                TempComponentList."Variant Code" := ProdBOMComponent."Variant Code";
+                                TempComponentList.Description := ProdBOMComponent.Description;
+                                TempComponentList."Unit of Measure Code" := Item."Base Unit of Measure";
+                                OnBuildMatrixForItemOnBeforeComponentListFind(ProdBOMComponent, TempComponentList);
+                                if not TempComponentList.Find() then
+                                    TempComponentList.Insert();
                                 ComponentEntry2.Init();
                                 ComponentEntry2."Item No." := ProdBOMComponent."No.";
                                 ComponentEntry2."Variant Code" := ProdBOMComponent."Variant Code";
@@ -174,27 +174,25 @@ codeunit 99000771 "BOM Matrix Management"
                                   UOMMgt.GetQtyPerUnitOfMeasure(Item, ProdBOMComponent."Unit of Measure Code") /
                                   UOMMgt.GetQtyPerUnitOfMeasure(Item, Item."Base Unit of Measure") *
                                   Quantity;
-                                ComponentEntry := ComponentEntry2;
-                                ComponentEntry.SetRange("Item No.", ComponentEntry2."Item No.");
-                                ComponentEntry.SetRange("Variant Code", ComponentEntry2."Variant Code");
-                                ComponentEntry.SetRange(ID, ComponentEntry2.ID);
-                                if ComponentEntry.FindFirst() then begin
-                                    ComponentEntry.Quantity :=
-                                      ComponentEntry.Quantity + ComponentEntry2.Quantity;
-                                    ComponentEntry.Modify();
+                                TempComponentEntry := ComponentEntry2;
+                                TempComponentEntry.SetRange("Item No.", ComponentEntry2."Item No.");
+                                TempComponentEntry.SetRange("Variant Code", ComponentEntry2."Variant Code");
+                                TempComponentEntry.SetRange(ID, ComponentEntry2.ID);
+                                if TempComponentEntry.FindFirst() then begin
+                                    TempComponentEntry.Quantity :=
+                                      TempComponentEntry.Quantity + ComponentEntry2.Quantity;
+                                    TempComponentEntry.Modify();
                                 end else
-                                    ComponentEntry.Insert();
+                                    TempComponentEntry.Insert();
                             end;
                         end;
                     ProdBOMComponent.Type::"Production BOM":
-                        begin
-                            if ProdBOMHeader.Get(ProdBOMComponent."No.") then
-                                BuildMatrix(
-                                  ProdBOMHeader."No.",
-                                  GetVersion(ProdBOMHeader."No."),
-                                  Level + 1,
-                                  Quantity * ProdBOMComponent.Quantity);
-                        end;
+                        if ProdBOMHeader.Get(ProdBOMComponent."No.") then
+                            BuildMatrix(
+                                ProdBOMHeader."No.",
+                                GetVersion(ProdBOMHeader."No."),
+                                Level + 1,
+                                Quantity * ProdBOMComponent.Quantity);
                 end;
             until ProdBOMComponent.Next() = 0;
     end;

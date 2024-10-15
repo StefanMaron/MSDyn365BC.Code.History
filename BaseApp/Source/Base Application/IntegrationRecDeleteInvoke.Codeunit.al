@@ -3,7 +3,7 @@ codeunit 5347 "Integration Rec. Delete Invoke"
 
     trigger OnRun()
     begin
-        CheckContext;
+        CheckContext();
         DeleteRecord(IntegrationTableMappingContext, DestinationRecordRefContext, SynchActionContext,
           JobIdContext);
     end;
@@ -28,7 +28,7 @@ codeunit 5347 "Integration Rec. Delete Invoke"
 
     procedure GetContext(var IntegrationTableMapping: Record "Integration Table Mapping"; var DestinationRecordRef: RecordRef; var SynchAction: Option)
     begin
-        CheckContext;
+        CheckContext();
         IntegrationTableMapping := IntegrationTableMappingContext;
         DestinationRecordRef := DestinationRecordRefContext;
         SynchAction := SynchActionContext;
@@ -50,7 +50,7 @@ codeunit 5347 "Integration Rec. Delete Invoke"
 
         OnBeforeDeleteRecord(IntegrationTableMapping, DestinationRecordRef);
 
-        if not DestinationRecordRef.Delete then
+        if not DestinationRecordRef.Delete() then
             LogSynchError(DestinationRecordRef, GetLastErrorText, JobId);
 
         OnAfterDeleteRecord(IntegrationTableMapping, DestinationRecordRef);
@@ -66,7 +66,7 @@ codeunit 5347 "Integration Rec. Delete Invoke"
         if DestinationRecordRef.Number <> 0 then begin
             IntegrationSynchJobErrors.LogSynchError(JobId, EmptyRecordID, DestinationRecordRef.RecordId, ErrorMessage);
             // Close destination - it is in error state and can no longer be used.
-            DestinationRecordRef.Close;
+            DestinationRecordRef.Close();
         end;
     end;
 

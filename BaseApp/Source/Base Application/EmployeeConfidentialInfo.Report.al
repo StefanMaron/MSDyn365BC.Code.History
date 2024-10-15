@@ -15,7 +15,7 @@ report 5203 "Employee - Confidential Info."
             column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
             {
             }
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(Confidential_Information__TABLECAPTION__________ConfidentialInformationFilter; TableCaption + ': ' + ConfidentialInformationFilter)
@@ -27,7 +27,7 @@ report 5203 "Employee - Confidential Info."
             column(Confidential_Information__Employee_No__; "Employee No.")
             {
             }
-            column(Employee_FullName; Employee.FullName)
+            column(Employee_FullName; Employee.FullName())
             {
             }
             column(Confidential_Information__Confidential_Code_; "Confidential Code")
@@ -74,7 +74,7 @@ report 5203 "Employee - Confidential Info."
 
     trigger OnPreReport()
     begin
-        ConfidentialInformationFilter := "Confidential Information".GetFilters;
+        ConfidentialInformationFilter := "Confidential Information".GetFilters();
     end;
 
     var

@@ -180,7 +180,7 @@ codeunit 137511 "SMB Cancel Sales/Purch. Inv."
     var
         PurchaseHeader: Record "Purchase Header";
     begin
-        Assert.IsTrue(LastGLEntry.Next = 0, 'No new G/L entries are created');
+        Assert.IsTrue(LastGLEntry.Next() = 0, 'No new G/L entries are created');
         PurchaseHeader.SetRange("Document Type", PurchaseHeader."Document Type"::"Credit Memo");
         PurchaseHeader.SetRange("Pay-to Vendor No.", Vendor."No.");
         Assert.IsTrue(PurchaseHeader.IsEmpty, 'The Credit Memo should not have been created');

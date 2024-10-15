@@ -3,6 +3,7 @@ table 136604 "Obsolete Removed Table"
     ObsoleteReason = 'Removed table';
     ObsoleteState = Removed;
     ObsoleteTag = '15.0';
+    ReplicateData = false;
 
     fields
     {

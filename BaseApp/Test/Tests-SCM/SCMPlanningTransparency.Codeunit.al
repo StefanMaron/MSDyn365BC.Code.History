@@ -82,12 +82,12 @@ codeunit 137058 "SCM Planning Transparency"
           PurchaseHeader, PurchaseHeader."Document Type"::Order, Item."No.", PurchaseQuantity, WorkDate + 1);  // Large Random Value required for Test, Receipt date includes safety lead time.
         // Value must be less than Purchase Order Qty. Random shipment date.
         CreateSalesOrder(
-          SalesHeader, Item."No.", '', PurchaseQuantity - 5, CalcDate('<' + '+' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate));
+          SalesHeader, Item."No.", '', PurchaseQuantity - 5, CalcDate('<' + '+' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()));
 
         if CalcPlanAndUpdateSales then begin
             // Planning Worksheet -> Calculate Regenerative plan & Carry Out Action Message.
             LibraryPlanning.CalcRegenPlanForPlanWksh(
-              Item, WorkDate, CalcDate('<' + '+' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate));
+              Item, WorkDate(), CalcDate('<' + '+' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate()));
             CarryOutActionMessage(Item."No.");
             ModifySalesOrderQuantity(SalesHeader, '', PurchaseQuantity - 10);  // New quantity less than previous sales quantity.
         end;
@@ -125,10 +125,10 @@ codeunit 137058 "SCM Planning Transparency"
           PurchaseHeader, PurchaseHeader."Document Type"::Order, Item."No.", PurchaseQuantity, WorkDate + 1);  // Large Random Value required for Test, Receipt date includes safety lead time.
         // Value must be less than Purchase Order Qty. Random shipment date.
         CreateSalesOrder(
-          SalesHeader, Item."No.", '', PurchaseQuantity - 5, CalcDate('<' + '+' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate));
+          SalesHeader, Item."No.", '', PurchaseQuantity - 5, CalcDate('<' + '+' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()));
 
         LibraryPlanning.CalcRegenPlanForPlanWksh(
-          Item, WorkDate, CalcDate('<' + '+' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate));
+          Item, WorkDate(), CalcDate('<' + '+' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate()));
         CarryOutActionMessage(Item."No.");
 
         // Select Sales and Purchase Lines for Expected quantities.
@@ -166,7 +166,7 @@ codeunit 137058 "SCM Planning Transparency"
           LibraryRandom.RandInt(5), WorkDate + 1);  // Small Random Value required for Test, Date includes safety lead time.
 
         LibraryPlanning.CalcRegenPlanForPlanWksh(
-          Item, WorkDate, CalcDate('<' + '+' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate));
+          Item, WorkDate(), CalcDate('<' + '+' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate()));
         CarryOutActionMessage(Item."No.");
 
         // Select Purchase Return Line and Purchase Order Line for Expected Quantities.
@@ -253,11 +253,11 @@ codeunit 137058 "SCM Planning Transparency"
           PurchaseReturnQuantity, WorkDate + 1);  // Purchase Line Quantity important for Test, Date include safety lead time.
         SelectPurchaseLine(PurchaseLine, PurchaseLine."Document Type"::"Return Order", PurchaseHeader."No.");
         LibraryPlanning.CalcRegenPlanForPlanWksh(
-          Item, WorkDate, CalcDate('<' + '+' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate));
+          Item, WorkDate(), CalcDate('<' + '+' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate()));
 
         // Select Requisition Line for Expected Quantities.
         SelectRequisitionLine(RequisitionLine, Item."No.", '');
-        RequisitionLine.Next;
+        RequisitionLine.Next();
 
         // Exercise & Verify: Open Order Tracking from Purchase Return Order page. Verify untracked Quantity is caused by Safety Stock Quantity, Minimum Order Quantity, Order Multiple in test page handler - OrderTrackingPageHandler.
         UntrackedQuantity := RequisitionLine.Quantity - PurchaseLine.Quantity + Item."Safety Stock Quantity";  // Assign Global variable for Page Handler OrderTrackingPageHandler.
@@ -280,7 +280,7 @@ codeunit 137058 "SCM Planning Transparency"
         Initialize();
         CreateFixedReorderQtyItem(Item, LibraryRandom.RandInt(5), LibraryRandom.RandInt(5));  // Reorder Point, Reorder Quantity.
         LibraryPlanning.CalcRegenPlanForPlanWksh(
-          Item, WorkDate, CalcDate('<' + '+' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate));
+          Item, WorkDate(), CalcDate('<' + '+' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate()));
         CarryOutActionMessage(Item."No.");
 
         // Select Purchase Line for Expected Quantities.
@@ -308,9 +308,9 @@ codeunit 137058 "SCM Planning Transparency"
         // Large Random Value required for Test. Random shipment date.
         CreateSalesOrder(
           SalesHeader, Item."No.", '', LibraryRandom.RandInt(10) + 10,
-          CalcDate('<' + '+' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate));
+          CalcDate('<' + '+' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()));
         LibraryPlanning.CalcRegenPlanForPlanWksh(
-          Item, WorkDate, CalcDate('<' + '+' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate));
+          Item, WorkDate(), CalcDate('<' + '+' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate()));
 
         // Select Sales Line and Requisition Line for Expected Quantities.
         SelectSalesLine(SalesLine, SalesHeader);
@@ -347,9 +347,9 @@ codeunit 137058 "SCM Planning Transparency"
         CreateFixedReorderQtyItem(Item, LibraryRandom.RandInt(5), LibraryRandom.RandInt(5));  // Reorder Point, Reorder Quantity.
         CreateSalesOrder(
           SalesHeader, Item."No.", '', LibraryRandom.RandInt(10) + 10,
-          CalcDate('<' + '+' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate));  // Large Random Value required for Test. Random shipment date.
+          CalcDate('<' + '+' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()));  // Large Random Value required for Test. Random shipment date.
         LibraryPlanning.CalcRegenPlanForPlanWksh(
-          Item, WorkDate, CalcDate('<' + '+' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate));
+          Item, WorkDate(), CalcDate('<' + '+' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate()));
         CarryOutActionMessage(Item."No.");
 
         // Select Sales Line for Expected Quantities.
@@ -396,12 +396,12 @@ codeunit 137058 "SCM Planning Transparency"
         // Random shipment date.
         CreateSalesOrder(
           SalesHeader, Item."No.", LocationBlue.Code, SalesLineQty,
-          CalcDate('<' + '+' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate));
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, WorkDate + LibraryRandom.RandInt(30));
+          CalcDate('<' + '+' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), WorkDate + LibraryRandom.RandInt(30));
 
         if UpdateSalesAndCalcPlan then begin  // Update Sales Order. Run Regenerative plan again & Select Requisition Line for Expected quantities.
             ModifySalesOrderQuantity(SalesHeader, LocationRed.Code, SalesLineQty - 1);  // New quantity less than previous sales quantity.
-            LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, WorkDate + LibraryRandom.RandInt(30));
+            LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), WorkDate + LibraryRandom.RandInt(30));
             SelectRequisitionLine(RequisitionLine, Item."No.", LocationRed.Code);
         end else
             SelectRequisitionLine(RequisitionLine, Item."No.", LocationBlue.Code);
@@ -430,9 +430,9 @@ codeunit 137058 "SCM Planning Transparency"
         // Large Random Value required for Test. Random shipment date.
         CreateBlanketSalesOrder(
           SalesHeader, Item."No.", LibraryRandom.RandInt(10) + 10,
-          CalcDate('<' + '+' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate));
+          CalcDate('<' + '+' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()));
         LibraryPlanning.CalcRegenPlanForPlanWksh(
-          Item, WorkDate, CalcDate('<' + '+' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate));
+          Item, WorkDate(), CalcDate('<' + '+' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate()));
 
         // Select Sales Line and Requisition Line for Expected Quantities.
         SelectSalesLine(SalesLine, SalesHeader);
@@ -463,7 +463,7 @@ codeunit 137058 "SCM Planning Transparency"
           LibraryRandom.RandInt(5) + 10);  // Values required.
         CreateAndRefreshReleasedProductionOrder(ProductionOrder, Item."No.", Item."Maximum Order Quantity");  // Large Random Value required for Test.
         LibraryPlanning.CalcRegenPlanForPlanWksh(
-          Item, WorkDate, CalcDate('<' + '+' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate));
+          Item, WorkDate(), CalcDate('<' + '+' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate()));
 
         // Select Requisition Line for Expected Quantities.
         SelectRequisitionLine(RequisitionLine, Item."No.", '');
@@ -473,7 +473,7 @@ codeunit 137058 "SCM Planning Transparency"
             UntrackedQuantity := RequisitionLine.Quantity;  // Assign Global variable for Page Handler OrderTrackingPageHandler.
             TotalQuantity := RequisitionLine.Quantity;  // Assign Global variable for Page Handler OrderTrackingPageHandler.
             OpenOrderTrackingForRequisition(RequisitionLine);
-        until RequisitionLine.Next = 0;
+        until RequisitionLine.Next() = 0;
 
         // Verify Untracked planning elements.
         SelectUntrackedPlanningSource(
@@ -581,7 +581,7 @@ codeunit 137058 "SCM Planning Transparency"
         // Create Sales Order.
         SalesOrderQty := Item."Reorder Point" + FirmPlannedProdQty + 1;
         // Shipment date greater than WORKDATE.
-        SalesShipmentDate := CalcDate('<' + '+' + Format(LibraryRandom.RandInt(2) + 1) + 'D>', WorkDate);
+        SalesShipmentDate := CalcDate('<' + '+' + Format(LibraryRandom.RandInt(2) + 1) + 'D>', WorkDate());
         CreateSalesOrder(SalesHeader, Item."No.", '', SalesOrderQty, SalesShipmentDate);
 
         // Calculate Order Tracking Expected quantities.
@@ -591,7 +591,7 @@ codeunit 137058 "SCM Planning Transparency"
         // Exercise: Planning Worksheet -> Calculate Regenerative plan & Carry Out Action Message.
         // Start Date and End Date to cover any shipments.
         LibraryPlanning.CalcRegenPlanForPlanWksh(
-          Item, WorkDate, CalcDate('<' + '+' + Format(LibraryRandom.RandInt(30)) + 'D>', WorkDate));
+          Item, WorkDate(), CalcDate('<' + '+' + Format(LibraryRandom.RandInt(30)) + 'D>', WorkDate()));
         if CarryOutActionMessageForProdOrder then
             CarryOutActionMessage(Item."No.");
 
@@ -827,7 +827,7 @@ codeunit 137058 "SCM Planning Transparency"
     local procedure SelectRequisitionLineQuantity(var RequisitionLine2: Record "Requisition Line") RequisitionLineQuantity: Decimal
     begin
         RequisitionLineQuantity := RequisitionLine2.Quantity;
-        RequisitionLine2.Next;
+        RequisitionLine2.Next();
         RequisitionLineQuantity += RequisitionLine2.Quantity;
     end;
 
@@ -877,7 +877,7 @@ codeunit 137058 "SCM Planning Transparency"
                 RequisitionLine2.Validate("Vendor No.", VendorNo);
             RequisitionLine2.Validate("Accept Action Message", true);
             RequisitionLine2.Modify(true);
-        until RequisitionLine2.Next = 0;
+        until RequisitionLine2.Next() = 0;
     end;
 
     local procedure CreateTransferRoute(var TransferRoute: Record "Transfer Route"; TransferFrom: Code[10]; TransferTo: Code[10])
@@ -927,7 +927,7 @@ codeunit 137058 "SCM Planning Transparency"
         // Using Random Value and Dates based on WORKDATE.
         LibraryManufacturing.CreateProductionForecastName(ProductionForecastName);
         UpdateForecastOnManufacturingSetup(ProductionForecastName.Name, true);
-        LibraryManufacturing.CreateProductionForecastEntry(ProductionForecastEntry, ProductionForecastName.Name, ItemNo, '', WorkDate, false);
+        LibraryManufacturing.CreateProductionForecastEntry(ProductionForecastEntry, ProductionForecastName.Name, ItemNo, '', WorkDate(), false);
         ProductionForecastEntry.Validate("Forecast Quantity (Base)", LibraryRandom.RandDec(5, 2) + 200);  // Large random value required.
         ProductionForecastEntry.Modify(true);
     end;
@@ -971,7 +971,7 @@ codeunit 137058 "SCM Planning Transparency"
         repeat
             Assert.IsTrue(StrPos(UntrackedPlanningElement.Source, Source2[Index]) > 0, ErrUntrackedPlanningElementMsg);
             Index += 1;
-        until UntrackedPlanningElement.Next = 0;
+        until UntrackedPlanningElement.Next() = 0;
     end;
 
     [ModalPageHandler]
@@ -1009,8 +1009,8 @@ codeunit 137058 "SCM Planning Transparency"
     begin
         // Calculate Regenerative Plan using page.
         CalculatePlanPlanWksh.Item.SetFilter("No.", GlobalItemNo);
-        CalculatePlanPlanWksh.StartingDate.SetValue(WorkDate);
-        CalculatePlanPlanWksh.EndingDate.SetValue(CalcDate('<' + '+' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate));
+        CalculatePlanPlanWksh.StartingDate.SetValue(WorkDate());
+        CalculatePlanPlanWksh.EndingDate.SetValue(CalcDate('<' + '+' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate()));
         CalculatePlanPlanWksh.OK.Invoke;
     end;
 }

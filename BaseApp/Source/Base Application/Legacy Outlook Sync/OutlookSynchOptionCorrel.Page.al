@@ -17,12 +17,12 @@ page 5307 "Outlook Synch. Option Correl."
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Outlook Value"; "Outlook Value")
+                field("Outlook Value"; Rec."Outlook Value")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the value of the Outlook property.';
                 }
-                field(GetFieldValue; GetFieldValue)
+                field(GetFieldValue; GetFieldValue())
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Field Value';
@@ -44,7 +44,7 @@ page 5307 "Outlook Synch. Option Correl."
                         if OptionID > 0 then
                             Validate("Option No.", OptionID - 1);
 
-                        LookupRecRef.Close;
+                        LookupRecRef.Close();
                     end;
                 }
             }

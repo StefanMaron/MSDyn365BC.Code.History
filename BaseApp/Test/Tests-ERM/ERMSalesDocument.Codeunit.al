@@ -94,7 +94,7 @@ codeunit 134385 "ERM Sales Document"
         Assert.AreNearlyEqual(
           SalesHeader.Amount * SalesLine."VAT %" / 100, VATAmountLine."VAT Amount", GeneralLedgerSetup."Amount Rounding Precision",
           StrSubstNo(VATAmountError, VATAmountLine.FieldCaption("VAT Amount"), SalesHeader.Amount * SalesLine."VAT %" / 100,
-            VATAmountLine.TableCaption));
+            VATAmountLine.TableCaption()));
     end;
 
     [Test]
@@ -173,7 +173,7 @@ codeunit 134385 "ERM Sales Document"
         GeneralLedgerSetup.Get();
         Assert.AreNearlyEqual(
           LineAmount, SalesLine."Line Amount", GeneralLedgerSetup."Amount Rounding Precision",
-          StrSubstNo(FieldError, SalesLine.FieldCaption("Line Amount"), LineAmount, SalesLine.TableCaption));
+          StrSubstNo(FieldError, SalesLine.FieldCaption("Line Amount"), LineAmount, SalesLine.TableCaption()));
     end;
 
     [Test]
@@ -364,7 +364,7 @@ codeunit 134385 "ERM Sales Document"
         VerifyValueEntries(SalesHeader."No.", SalesHeader.Amount);
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [Test]
     [Scope('OnPrem')]
     procedure LineDiscountOnCreditMemo()
@@ -538,7 +538,7 @@ codeunit 134385 "ERM Sales Document"
         GeneralLedgerSetup.Get();
         Assert.AreNearlyEqual(
           TotalAmount, GLEntry.Amount, GeneralLedgerSetup."Amount Rounding Precision",
-          StrSubstNo(FieldError, GLEntry.FieldCaption(Amount), TotalAmount, GLEntry.TableCaption));
+          StrSubstNo(FieldError, GLEntry.FieldCaption(Amount), TotalAmount, GLEntry.TableCaption()));
     end;
 
     [Test]
@@ -627,7 +627,7 @@ codeunit 134385 "ERM Sales Document"
 
         // Exercise: Create and Post Sales Invoice.
         CreateAndPostSalesDocument(SalesLine, VATPostingSetup, GeneralPostingSetup, SalesLine."Document Type"::Invoice, CurrencyCode);
-        InvoiceAmountLCY := LibraryERM.ConvertCurrency(SalesLine."Line Amount", CurrencyCode, '', WorkDate);
+        InvoiceAmountLCY := LibraryERM.ConvertCurrency(SalesLine."Line Amount", CurrencyCode, '', WorkDate());
 
         // Verify: Verify Amount on G/L Entry and Amount LCY on Customer Ledger Entry.
         PostedDocumentNo := FindSalesInvoiceHeaderNo(SalesLine."Document No.");
@@ -717,13 +717,13 @@ codeunit 134385 "ERM Sales Document"
         FindGLEntry(GLEntry, DocumentNo, PaymentMethod."Bal. Account No.");
         Assert.AreNearlyEqual(
           Amount, GLEntry.Amount, GeneralLedgerSetup."Amount Rounding Precision",
-          StrSubstNo(FieldError, GLEntry.FieldCaption(Amount), Amount, GLEntry.TableCaption));
+          StrSubstNo(FieldError, GLEntry.FieldCaption(Amount), Amount, GLEntry.TableCaption()));
 
         FindCustLedgerEntry(CustLedgerEntry, DocumentNo, CustLedgerEntry."Document Type"::Payment);
         Assert.AreEqual(
           SalesHeader."Salesperson Code", CustLedgerEntry."Salesperson Code",
           StrSubstNo(FieldError, SalesHeader.FieldCaption("Salesperson Code"),
-            SalesHeader."Salesperson Code", CustLedgerEntry.TableCaption));
+            SalesHeader."Salesperson Code", CustLedgerEntry.TableCaption()));
     end;
 
     [Test]
@@ -748,7 +748,7 @@ codeunit 134385 "ERM Sales Document"
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Invoice,
           GenJournalLine."Account Type"::Customer, Customer."No.", LibraryRandom.RandDec(100, 2));
-        GenJournalLine.Validate("Posting Date", CalcDate('<-1Y>', WorkDate));
+        GenJournalLine.Validate("Posting Date", CalcDate('<-1Y>', WorkDate()));
         GenJournalLine.Modify();
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         LibraryERM.SelectGenJnlBatch(GenJournalBatch);
@@ -973,7 +973,7 @@ codeunit 134385 "ERM Sales Document"
         SalesLine2.FindFirst();
         Assert.AreNearlyEqual(
           UnitPriceInclVAT, SalesLine2."Unit Price", LibraryERM.GetAmountRoundingPrecision,
-          StrSubstNo(FieldError, SalesLine.FieldCaption("Unit Price"), UnitPriceInclVAT, SalesLine.TableCaption));
+          StrSubstNo(FieldError, SalesLine.FieldCaption("Unit Price"), UnitPriceInclVAT, SalesLine.TableCaption()));
     end;
 
     [Test]
@@ -1507,7 +1507,7 @@ codeunit 134385 "ERM Sales Document"
 
         // [WHEN] Run Copy Document from Posted Sales Invoice to Sales Document with Include Header = TRUE
         CopyDocument(SalesHeader, "Sales Document Type From"::"Posted Invoice", PostedDocNo);
-        SalesHeader.Find;
+        SalesHeader.Find();
 
         // [THEN] Confirmation dialog appears with warning and Document not copied (user pressed cancel)
         Assert.AreEqual(InitialPostingDate, SalesHeader."Posting Date", DocumentShouldNotBeCopiedErr);
@@ -1517,7 +1517,7 @@ codeunit 134385 "ERM Sales Document"
         SalesShipmentHeader.FindFirst();
         LibraryVariableStorage.Enqueue(false);
         CopyDocument(SalesHeader, "Sales Document Type From"::"Posted Shipment", SalesShipmentHeader."No.");
-        SalesHeader.Find;
+        SalesHeader.Find();
 
         // [THEN] Confirmation dialog appears with warning and Document not copied (user pressed cancel)
         Assert.AreEqual(InitialPostingDate, SalesHeader."Posting Date", DocumentShouldNotBeCopiedErr);
@@ -1562,7 +1562,7 @@ codeunit 134385 "ERM Sales Document"
         CopyDocument(SalesHeader, "Sales Document Type From"::"Posted Credit Memo", PostedDocNo);
 
         // [THEN] Confirmation dialog appears with warning and Document not copied (user pressed cancel)
-        SalesHeader.Find;
+        SalesHeader.Find();
         Assert.AreEqual(InitialPostingDate, SalesHeader."Posting Date", DocumentShouldNotBeCopiedErr);
 
         // [WHEN] Run Copy Document from Posted Return Receipt to Sales Document with Include Header = TRUE
@@ -1570,7 +1570,7 @@ codeunit 134385 "ERM Sales Document"
         ReturnReceiptHeader.FindFirst();
         LibraryVariableStorage.Enqueue(false);
         CopyDocument(SalesHeader, "Sales Document Type From"::"Posted Return Receipt", ReturnReceiptHeader."No.");
-        SalesHeader.Find;
+        SalesHeader.Find();
 
         // [THEN] Confirmation dialog appears with warning and Document not copied (user pressed cancel)
         Assert.AreEqual(InitialPostingDate, SalesHeader."Posting Date", DocumentShouldBeCopiedErr);
@@ -1611,7 +1611,7 @@ codeunit 134385 "ERM Sales Document"
         CopyDocument(SalesHeaderDst, "Sales Document Type From"::Quote, SalesHeaderSrc."No.");
 
         // [THEN] Confirmation dialog appears with warning and Document not copied (user pressed cancel)
-        SalesHeaderDst.Find;
+        SalesHeaderDst.Find();
         Assert.AreEqual(CustomerNo, SalesHeaderDst."Sell-to Customer No.", DocumentShouldBeCopiedErr);
 
         SetNoSeriesDateOrder(OldDateOrder);
@@ -1650,7 +1650,7 @@ codeunit 134385 "ERM Sales Document"
         CreateSalesDocumentWithPostingNo(SalesHeader1, CustomerNoDst, LibraryRandom.RandInt(5), PostedDocNo);
         // [WHEN] Run Copy Document from Posted Sales Invoice to Sales Document with Include Header = TRUE
         CopyDocument(SalesHeader1, "Sales Document Type From"::"Posted Invoice", PostedDocNo);
-        SalesHeader1.Find;
+        SalesHeader1.Find();
 
         // [THEN] Confirmation dialog appears with warning and Document is copied after user confirmation
         Assert.AreEqual(CustomerNoSrc, SalesHeader1."Sell-to Customer No.", DocumentShouldBeCopiedErr);
@@ -1660,7 +1660,7 @@ codeunit 134385 "ERM Sales Document"
         SalesShipmentHeader.FindFirst();
         CreateSalesDocumentWithPostingNo(SalesHeader2, CustomerNoDst, LibraryRandom.RandInt(5), PostedDocNo);
         CopyDocument(SalesHeader2, "Sales Document Type From"::"Posted Shipment", SalesShipmentHeader."No.");
-        SalesHeader2.Find;
+        SalesHeader2.Find();
 
         // [THEN] Confirmation dialog appears with warning and Document is copied after user confirmation
         Assert.AreEqual(CustomerNoSrc, SalesHeader2."Sell-to Customer No.", DocumentShouldBeCopiedErr);
@@ -1703,7 +1703,7 @@ codeunit 134385 "ERM Sales Document"
         CopyDocument(SalesHeader1, "Sales Document Type From"::"Posted Credit Memo", PostedDocNo);
 
         // [THEN] Confirmation dialog appears with warning and Document is copied after user confirmation
-        SalesHeader1.Find;
+        SalesHeader1.Find();
         Assert.AreEqual(CustomerNo, SalesHeader1."Sell-to Customer No.", DocumentShouldBeCopiedErr);
 
         // [WHEN] Run Copy Document from Posted Return Receipt to Sales Document with Include Header = TRUE
@@ -1713,7 +1713,7 @@ codeunit 134385 "ERM Sales Document"
         ReturnReceiptHeader.SetRange("Sell-to Customer No.", CustomerNo);
         ReturnReceiptHeader.FindFirst();
         CopyDocument(SalesHeader2, "Sales Document Type From"::"Posted Return Receipt", ReturnReceiptHeader."No.");
-        SalesHeader2.Find;
+        SalesHeader2.Find();
 
         // [THEN] Confirmation dialog appears with warning and Document is copied after user confirmation
         Assert.AreEqual(CustomerNo, SalesHeader2."Sell-to Customer No.", DocumentShouldBeCopiedErr);
@@ -1750,7 +1750,7 @@ codeunit 134385 "ERM Sales Document"
         CopyDocument(SalesHeaderDst, "Sales Document Type From"::Quote, SalesHeaderSrc."No.");
 
         // [THEN] Confirmation dialog appears with warning and Document is copied after user confirmation
-        SalesHeaderDst.Find;
+        SalesHeaderDst.Find();
         Assert.AreEqual(SalesHeaderSrc."Sell-to Customer No.", SalesHeaderDst."Sell-to Customer No.", DocumentShouldBeCopiedErr);
 
         SetNoSeriesDateOrder(OldDateOrder);
@@ -1863,12 +1863,12 @@ codeunit 134385 "ERM Sales Document"
 
         with SalesHeader do begin
             // [WHEN] Create Sales Order with Customer.
-            Init;
+            Init();
             Validate("Sell-to Customer No.", Customer."No.");
             Insert(true);
 
             // [THEN] Sales Order contains "Outbound Whse. Handling Time" = "X"
-            Find;
+            Find();
             Assert.AreEqual(OneDay, Format("Outbound Whse. Handling Time"), HandlingTimeErr);
         end;
     end;
@@ -2092,7 +2092,7 @@ codeunit 134385 "ERM Sales Document"
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, Customer."No.");
-        SalesHeader."Due Date" := CalcDate('<1Y>', WorkDate);
+        SalesHeader."Due Date" := CalcDate('<1Y>', WorkDate());
         SalesHeader.Modify(true);
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
@@ -2188,7 +2188,7 @@ codeunit 134385 "ERM Sales Document"
         // [THEN] "Date Filter" is "..10.01.2018"
         Assert.AreEqual(Customer.GetFilter("Date Filter"), CustomerList.FILTER.GetFilter("Date Filter"), 'Incorrect default date filter');
 
-        CustomerList.Close;
+        CustomerList.Close();
     end;
 
     [Test]
@@ -2731,10 +2731,10 @@ codeunit 134385 "ERM Sales Document"
 
         // [WHEN] Select "Cust2" when lookup "Sell-to Customer Name"
         SalesInvoice."Sell-to Customer Name".Lookup;
-        SalesInvoice.Close;
+        SalesInvoice.Close();
 
         // [THEN] "Sell-to Customer No." is updated with "Cust2" on the Sales Invoice
-        SalesHeader.Find;
+        SalesHeader.Find();
         SalesHeader.TestField("Sell-to Customer No.", Customer2."No.");
         SalesHeader.TestField("Sell-to Customer Name", Customer2.Name);
 
@@ -2768,10 +2768,10 @@ codeunit 134385 "ERM Sales Document"
 
         // [WHEN] Select "Cust2" when lookup "Bill-to Customer Name"
         SalesInvoice."Bill-to Name".Lookup;
-        SalesInvoice.Close;
+        SalesInvoice.Close();
 
         // [THEN] "Bill-to Customer No." is updated with "Cust2" on the Sales Invoice
-        SalesHeader.Find;
+        SalesHeader.Find();
         SalesHeader.TestField("Bill-to Customer No.", Customer2."No.");
         SalesHeader.TestField("Bill-to Name", Customer2.Name);
 
@@ -2923,7 +2923,7 @@ codeunit 134385 "ERM Sales Document"
             Clear(SalesHeader);
             CreateSalesDocument(SalesHeader, SalesLine, DocType, '');
 
-            SalesHeader.TestField("Order Date", WorkDate);
+            SalesHeader.TestField("Order Date", WorkDate());
         end;
     end;
 
@@ -2943,7 +2943,7 @@ codeunit 134385 "ERM Sales Document"
         // [SCENARIO 332188]
         // [SCENARIO 391749] The Customer Lookup page must has Date Filter
         Initialize();
-        InstructionMgt.DisableMessageForCurrentUser(InstructionMgt.QueryPostOnCloseCode);
+        InstructionMgt.DisableMessageForCurrentUser(InstructionMgt.QueryPostOnCloseCode());
 
         CreateCustomersWithSameName(Customer1, Customer2);
 
@@ -2961,9 +2961,9 @@ codeunit 134385 "ERM Sales Document"
         SalesInvoice."Sell-to Customer Name".Lookup;
         SalesInvoice.SalesLines.Type.SetValue(SalesLine.Type::Item);
         SalesInvoice.SalesLines."No.".SetValue(LibraryInventory.CreateItemNo);
-        SalesInvoice.Close;
+        SalesInvoice.Close();
 
-        SalesHeader.Find;
+        SalesHeader.Find();
         SalesHeader.TestField("Sell-to Customer No.", Customer1."No.");
         SalesHeader.TestField("Sell-to Customer Name", Customer1.Name);
         LibrarySales.FindFirstSalesLine(SalesLine, SalesHeader);
@@ -2988,7 +2988,7 @@ codeunit 134385 "ERM Sales Document"
         // [FEATURE] [UI]
         // [SCENARIO 332188]
         Initialize();
-        InstructionMgt.DisableMessageForCurrentUser(InstructionMgt.QueryPostOnCloseCode);
+        InstructionMgt.DisableMessageForCurrentUser(InstructionMgt.QueryPostOnCloseCode());
 
         CreateCustomersWithSameName(Customer1, Customer2);
 
@@ -3008,9 +3008,9 @@ codeunit 134385 "ERM Sales Document"
         SalesInvoice."Bill-to Name".Lookup;
         SalesInvoice.SalesLines.Type.SetValue(SalesLine.Type::Item);
         SalesInvoice.SalesLines."No.".SetValue(LibraryInventory.CreateItemNo);
-        SalesInvoice.Close;
+        SalesInvoice.Close();
 
-        SalesHeader.Find;
+        SalesHeader.Find();
         SalesHeader.TestField("Sell-to Customer No.", Customer1."No.");
         SalesHeader.TestField("Sell-to Customer Name", Customer1.Name);
         SalesHeader.TestField("Bill-to Customer No.", Customer2."No.");
@@ -3036,7 +3036,7 @@ codeunit 134385 "ERM Sales Document"
         // [FEATURE] [UI]
         // [SCENARIO 332188]
         Initialize();
-        InstructionMgt.DisableMessageForCurrentUser(InstructionMgt.QueryPostOnCloseCode);
+        InstructionMgt.DisableMessageForCurrentUser(InstructionMgt.QueryPostOnCloseCode());
 
         CreateCustomersWithSameName(Customer1, Customer2);
 
@@ -3051,9 +3051,9 @@ codeunit 134385 "ERM Sales Document"
         SalesInvoice."Sell-to Customer Name".SetValue(Customer1."No.");
         SalesInvoice.SalesLines.Type.SetValue(SalesLine.Type::Item);
         SalesInvoice.SalesLines."No.".SetValue(LibraryInventory.CreateItemNo);
-        SalesInvoice.Close;
+        SalesInvoice.Close();
 
-        SalesHeader.Find;
+        SalesHeader.Find();
         SalesHeader.TestField("Sell-to Customer No.", Customer1."No.");
         SalesHeader.TestField("Sell-to Customer Name", Customer1.Name);
         SalesHeader.TestField("Bill-to Customer No.", Customer1."No.");
@@ -3080,7 +3080,7 @@ codeunit 134385 "ERM Sales Document"
         // [FEATURE] [UI]
         // [SCENARIO 332188]
         Initialize();
-        InstructionMgt.DisableMessageForCurrentUser(InstructionMgt.QueryPostOnCloseCode);
+        InstructionMgt.DisableMessageForCurrentUser(InstructionMgt.QueryPostOnCloseCode());
 
         CreateCustomersWithSameName(Customer1, Customer2);
         Customer2.Name := CopyStr(LibraryUtility.GenerateRandomAlphabeticText(100, 0), 1, MaxStrLen(Customer2.Name));
@@ -3100,9 +3100,9 @@ codeunit 134385 "ERM Sales Document"
         SalesInvoice."Bill-to Name".SetValue(Customer2."No.");
         SalesInvoice.SalesLines.Type.SetValue(SalesLine.Type::Item);
         SalesInvoice.SalesLines."No.".SetValue(LibraryInventory.CreateItemNo);
-        SalesInvoice.Close;
+        SalesInvoice.Close();
 
-        SalesHeader.Find;
+        SalesHeader.Find();
         SalesHeader.TestField("Sell-to Customer No.", Customer1."No.");
         SalesHeader.TestField("Sell-to Customer Name", Customer1.Name);
         SalesHeader.TestField("Bill-to Customer No.", Customer2."No.");
@@ -3391,7 +3391,7 @@ codeunit 134385 "ERM Sales Document"
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibraryERMCountryData.UpdateLocalData();
         LibraryERMCountryData.UpdatePrepaymentAccounts();
-        LibraryERM.SetJournalTemplateNameMandatory(false);
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
         isInitialized := true;
         Commit();
 
@@ -3447,9 +3447,9 @@ codeunit 134385 "ERM Sales Document"
     var
         AccountingPeriod: Record "Accounting Period";
     begin
-        if AccountingPeriod.GetFiscalYearStartDate(WorkDate) = 0D then begin
+        if AccountingPeriod.GetFiscalYearStartDate(WorkDate()) = 0D then begin
             AccountingPeriod.Init();
-            AccountingPeriod."Starting Date" := CalcDate('<-CY>', WorkDate);
+            AccountingPeriod."Starting Date" := CalcDate('<-CY>', WorkDate());
             AccountingPeriod."New Fiscal Year" := true;
             AccountingPeriod.Insert();
         end;
@@ -3803,16 +3803,16 @@ codeunit 134385 "ERM Sales Document"
     begin
         CustomerNo := CreateCustomer;
         with ValueEntry do begin
-            Init;
+            Init();
             RecRef.GetTable(ValueEntry);
             "Entry No." := LibraryUtility.GetNewLineNo(RecRef, FieldNo("Entry No."));
             "Item No." := ItemNo;
-            "Posting Date" := WorkDate;
+            "Posting Date" := WorkDate();
             "Item Ledger Entry Type" := "Item Ledger Entry Type"::Sale;
             "Source Type" := "Source Type"::Customer;
             "Source No." := CustomerNo;
             "Cost Amount (Expected)" := LibraryRandom.RandDecInRange(100000, 500000, 2);
-            Insert;
+            Insert();
             exit("Cost Amount (Expected)");
         end;
     end;
@@ -3986,7 +3986,7 @@ codeunit 134385 "ERM Sales Document"
         SalesLine.TestField(Type, SalesLine.Type::" ");
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     local procedure SalesLinesWithLineDiscount(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; SalesLineDiscount: Record "Sales Line Discount")
     var
         Counter: Integer;
@@ -4003,7 +4003,7 @@ codeunit 134385 "ERM Sales Document"
         SalesLine.FindSet();
         repeat
             LibrarySales.CreateSalesLine(SalesLine2, SalesHeader, SalesLine.Type::Item, SalesLine."No.", SalesLine.Quantity);
-        until SalesLine.Next = 0;
+        until SalesLine.Next() = 0;
     end;
 
     local procedure OpenAnalysisReportSales(AnalysisReportName: Code[10]; AnalysisLineTemplateName: Code[10]; AnalysisColumnTemplateName: Code[10])
@@ -4023,7 +4023,7 @@ codeunit 134385 "ERM Sales Document"
         SalesLine.FindSet();
         repeat
             LineDiscountAmount += SalesLine."Line Discount Amount";
-        until SalesLine.Next = 0;
+        until SalesLine.Next() = 0;
     end;
 
     local procedure SumInvoiceDiscountAmount(var SalesLine: Record "Sales Line"; DocumentNo: Code[20]) InvoiceDiscountAmount: Decimal
@@ -4032,7 +4032,7 @@ codeunit 134385 "ERM Sales Document"
         SalesLine.FindSet();
         repeat
             InvoiceDiscountAmount += SalesLine."Inv. Discount Amount";
-        until SalesLine.Next = 0;
+        until SalesLine.Next() = 0;
     end;
 
     local procedure SetupInvoiceDiscount(var CustInvoiceDisc: Record "Cust. Invoice Disc.")
@@ -4043,7 +4043,7 @@ codeunit 134385 "ERM Sales Document"
         CustInvoiceDisc.Modify(true);
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     local procedure SetupLineDiscount(var SalesLineDiscount: Record "Sales Line Discount")
     var
         Item: Record Item;
@@ -4054,7 +4054,7 @@ codeunit 134385 "ERM Sales Document"
         // Using random value for Minimum Quantity and Line Discount Pct fields because value is not important.
         Item.Get(CreateItem);
         LibraryERM.CreateLineDiscForCustomer(SalesLineDiscount, SalesLineDiscount.Type::Item, Item."No.",
-          SalesLineDiscount."Sales Type"::Customer, CreateCustomer, WorkDate, '', Item."Variant Filter",
+          SalesLineDiscount."Sales Type"::Customer, CreateCustomer, WorkDate(), '', Item."Variant Filter",
           Item."Base Unit of Measure", LibraryRandom.RandDec(10, 2));
         SalesLineDiscount.Validate("Line Discount %", LibraryRandom.RandDec(99, 2));
         SalesLineDiscount.Modify(true);
@@ -4089,7 +4089,7 @@ codeunit 134385 "ERM Sales Document"
         GLEntry.FindSet();
         repeat
             TotalAmount += GLEntry.Amount;
-        until GLEntry.Next = 0;
+        until GLEntry.Next() = 0;
     end;
 
     local procedure FindATOLink(var AssembleToOrderLink: Record "Assemble-to-Order Link"; SalesHeader: Record "Sales Header")
@@ -4113,7 +4113,7 @@ codeunit 134385 "ERM Sales Document"
             SalesLine.Init();
             SalesLine := SalesLine2;
             SalesLine.Insert();
-        until SalesLine2.Next = 0;
+        until SalesLine2.Next() = 0;
     end;
 
     local procedure FindCustLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type")
@@ -4496,7 +4496,7 @@ codeunit 134385 "ERM Sales Document"
               Amount2,
               Amount,
               LibraryERM.GetInvoiceRoundingPrecisionLCY,
-              StrSubstNo(ValidateError, FieldCaption(Amount), Amount2, TableCaption, FieldCaption("Entry No."), "Entry No."));
+              StrSubstNo(ValidateError, FieldCaption(Amount), Amount2, TableCaption(), FieldCaption("Entry No."), "Entry No."));
         end;
     end;
 
@@ -4506,7 +4506,7 @@ codeunit 134385 "ERM Sales Document"
     begin
         with GLEntry do begin
             FindGLEntry(GLEntry, DocumentNo, GLAccountNo);
-            Amount2 := LibraryERM.ConvertCurrency(Amount2, '', CurrencyCode, WorkDate);
+            Amount2 := LibraryERM.ConvertCurrency(Amount2, '', CurrencyCode, WorkDate());
             Assert.AreNearlyEqual(
               Amount2, "Additional-Currency Amount", LibraryERM.GetInvoiceRoundingPrecisionLCY,
               StrSubstNo(ValidateError, FieldCaption("Additional-Currency Amount"), Amount,
@@ -4526,7 +4526,7 @@ codeunit 134385 "ERM Sales Document"
               AmountLCY,
               "Amount (LCY)",
               LibraryERM.GetInvoiceRoundingPrecisionLCY,
-              StrSubstNo(ValidateError, FieldCaption("Amount (LCY)"), AmountLCY, TableCaption, FieldCaption("Entry No."), "Entry No."));
+              StrSubstNo(ValidateError, FieldCaption("Amount (LCY)"), AmountLCY, TableCaption(), FieldCaption("Entry No."), "Entry No."));
         end;
     end;
 
@@ -4553,7 +4553,7 @@ codeunit 134385 "ERM Sales Document"
               "Remaining Amount",
               LibraryERM.GetInvoiceRoundingPrecisionLCY,
               StrSubstNo(
-                ValidateError, FieldCaption("Remaining Amount"), RemainingAmount, TableCaption, FieldCaption("Entry No."), "Entry No."));
+                ValidateError, FieldCaption("Remaining Amount"), RemainingAmount, TableCaption(), FieldCaption("Entry No."), "Entry No."));
         end;
     end;
 
@@ -4567,7 +4567,7 @@ codeunit 134385 "ERM Sales Document"
         FindSalesCrMemoHeader(SalesCrMemoHeader, ReturnOrderNo);
         FindCustLedgerEntry(CustLedgerEntry, SalesCrMemoHeader."No.", CustLedgerEntry."Document Type"::"Credit Memo");
         Assert.AreNearlyEqual(Amount, CustLedgerEntry.Amount, GeneralLedgerSetup."Amount Rounding Precision",
-          StrSubstNo(FieldError, CustLedgerEntry.FieldCaption(Amount), Amount, CustLedgerEntry.TableCaption));
+          StrSubstNo(FieldError, CustLedgerEntry.FieldCaption(Amount), Amount, CustLedgerEntry.TableCaption()));
     end;
 
     local procedure VerifyGLEntry(ReturnOrderNo: Code[20]; Amount: Decimal; AccountNo: Code[20])
@@ -4580,7 +4580,7 @@ codeunit 134385 "ERM Sales Document"
         FindSalesCrMemoHeader(SalesCrMemoHeader, ReturnOrderNo);
         FindGLEntry(GLEntry, SalesCrMemoHeader."No.", AccountNo);
         Assert.AreNearlyEqual(Amount, GLEntry.Amount, GeneralLedgerSetup."Amount Rounding Precision",
-          StrSubstNo(FieldError, GLEntry.FieldCaption(Amount), Amount, GLEntry.TableCaption));
+          StrSubstNo(FieldError, GLEntry.FieldCaption(Amount), Amount, GLEntry.TableCaption()));
     end;
 
     local procedure VerifyInvoiceDiscountAmount(SalesLine: Record "Sales Line"; InvoiceDiscountAmount: Decimal; DocumentNo: Code[20])
@@ -4596,7 +4596,7 @@ codeunit 134385 "ERM Sales Document"
         GLEntry.FindFirst();
         Assert.AreNearlyEqual(
           InvoiceDiscountAmount, GLEntry.Amount, GeneralLedgerSetup."Amount Rounding Precision",
-          StrSubstNo(FieldError, GLEntry.FieldCaption(Amount), InvoiceDiscountAmount, GLEntry.TableCaption));
+          StrSubstNo(FieldError, GLEntry.FieldCaption(Amount), InvoiceDiscountAmount, GLEntry.TableCaption()));
     end;
 
     local procedure VerifyVATEntry(ReturnOrderNo: Code[20]; VATAmount: Decimal)
@@ -4609,7 +4609,7 @@ codeunit 134385 "ERM Sales Document"
         FindSalesCrMemoHeader(SalesCrMemoHeader, ReturnOrderNo);
         FindVATEntry(VATEntry, SalesCrMemoHeader."No.");
         Assert.AreNearlyEqual(VATAmount, -VATEntry.Amount, GeneralLedgerSetup."Amount Rounding Precision",
-          StrSubstNo(VATAmountError, VATEntry.FieldCaption(Amount), VATEntry.Amount, VATEntry.TableCaption));
+          StrSubstNo(VATAmountError, VATEntry.FieldCaption(Amount), VATEntry.Amount, VATEntry.TableCaption()));
     end;
 
     local procedure VerifyValueEntries(ReturnOrderNo: Code[20]; CostAmount: Decimal)
@@ -4624,9 +4624,9 @@ codeunit 134385 "ERM Sales Document"
         FindValueEntry(ValueEntry, ValueEntry."Document Type"::"Sales Credit Memo", SalesCrMemoHeader."No.");
         repeat
             TotalCostAmount += ValueEntry."Sales Amount (Actual)";
-        until ValueEntry.Next = 0;
+        until ValueEntry.Next() = 0;
         Assert.AreNearlyEqual(-CostAmount, TotalCostAmount, GeneralLedgerSetup."Amount Rounding Precision",
-          StrSubstNo(FieldError, ValueEntry.FieldCaption("Cost Amount (Actual)"), TotalCostAmount, ValueEntry.TableCaption));
+          StrSubstNo(FieldError, ValueEntry.FieldCaption("Cost Amount (Actual)"), TotalCostAmount, ValueEntry.TableCaption()));
     end;
 
     local procedure VerifyLocationOnCreditMemo(ReturnOrderNo: Code[20]; LocationCode: Code[20])
@@ -4640,7 +4640,7 @@ codeunit 134385 "ERM Sales Document"
         Assert.AreEqual(
           LocationCode, SalesCrMemoLine."Location Code",
           StrSubstNo(FieldError, SalesCrMemoLine.FieldCaption("Location Code"),
-            LocationCode, SalesCrMemoLine.TableCaption));
+            LocationCode, SalesCrMemoLine.TableCaption()));
     end;
 
     local procedure VerifyCurrencyOnPostedOrder(ReturnOrderNo: Code[20]; CurrencyCode: Code[10])
@@ -4654,7 +4654,7 @@ codeunit 134385 "ERM Sales Document"
           StrSubstNo(
             FieldError,
             SalesCrMemoHeader.FieldCaption("Currency Code"),
-            CurrencyCode, SalesCrMemoHeader.TableCaption));
+            CurrencyCode, SalesCrMemoHeader.TableCaption()));
     end;
 
     local procedure VerifyPartialSalesOrder(SalesLine: Record "Sales Line"; DocumentNo: Code[20]; QuantityShipped: Decimal)
@@ -4681,7 +4681,7 @@ codeunit 134385 "ERM Sales Document"
             SalesCrMemoLine.Get(SalesCrMemoHeader."No.", SalesLine."Line No.");
             SalesCrMemoLine.TestField(Quantity, SalesLine.Quantity);
             SalesCrMemoLine.TestField("Unit Price", SalesLine."Unit Price");
-        until SalesLine.Next = 0;
+        until SalesLine.Next() = 0;
     end;
 
     local procedure VerifySalesShipmentLine(SalesLine: Record "Sales Line"; DocumentNo: Code[20])
@@ -4715,8 +4715,8 @@ codeunit 134385 "ERM Sales Document"
             VATAmountSalesLine := SalesLine."Line Amount" * (1 + SalesLine."VAT %" / 100);
             Assert.AreNearlyEqual(
               VATAmountSalesLine, SalesLine."Amount Including VAT", GeneralLedgerSetup."Amount Rounding Precision",
-              StrSubstNo(FieldError, SalesLine.FieldCaption("Amount Including VAT"), VATAmountSalesLine, SalesLine.TableCaption));
-        until SalesLine.Next = 0;
+              StrSubstNo(FieldError, SalesLine.FieldCaption("Amount Including VAT"), VATAmountSalesLine, SalesLine.TableCaption()));
+        until SalesLine.Next() = 0;
     end;
 
     local procedure VerifyGLEntryForCreditMemo(DocumentNo: Code[20]; Amount: Decimal)
@@ -4729,7 +4729,7 @@ codeunit 134385 "ERM Sales Document"
         GLEntry.SetFilter(Amount, '>0');
         Assert.AreNearlyEqual(
           Amount, TotalAmountInGLEntry(GLEntry), GeneralLedgerSetup."Amount Rounding Precision",
-          StrSubstNo(FieldError, GLEntry.FieldCaption(Amount), Amount, GLEntry.TableCaption));
+          StrSubstNo(FieldError, GLEntry.FieldCaption(Amount), Amount, GLEntry.TableCaption()));
     end;
 
     local procedure VerifyGLEntriesDescription(var TempSalesLine: Record "Sales Line" temporary; InvoiceNo: code[20])
@@ -4741,7 +4741,7 @@ codeunit 134385 "ERM Sales Document"
         REPEAT
             GLEntry.SETRANGE(Description, TempSalesLine.Description);
             Assert.RecordIsNotEmpty(GLEntry);
-        UNTIL TempSalesLine.NEXT = 0;
+        UNTIL TempSalesLine.Next() = 0;
     end;
 
     local procedure VerifyVATEntryForCreditMemo(DocumentNo: Code[20]; Amount: Decimal)
@@ -4755,10 +4755,10 @@ codeunit 134385 "ERM Sales Document"
         VATEntry.FindSet();
         repeat
             TotalVATAmount += Abs(VATEntry.Base + VATEntry.Amount);
-        until VATEntry.Next = 0;
+        until VATEntry.Next() = 0;
         Assert.AreNearlyEqual(
           Amount, TotalVATAmount, GeneralLedgerSetup."Amount Rounding Precision",
-          StrSubstNo(FieldError, VATEntry.FieldCaption(Amount), Amount, VATEntry.TableCaption));
+          StrSubstNo(FieldError, VATEntry.FieldCaption(Amount), Amount, VATEntry.TableCaption()));
     end;
 
     local procedure VerifyLedgerEntry(DocumentNo: Code[20]; Amount: Decimal)
@@ -4772,7 +4772,7 @@ codeunit 134385 "ERM Sales Document"
         CustLedgerEntry.CalcFields("Amount (LCY)");
         Assert.AreNearlyEqual(
           Amount, -CustLedgerEntry."Amount (LCY)", GeneralLedgerSetup."Amount Rounding Precision",
-          StrSubstNo(FieldError, CustLedgerEntry.FieldCaption("Amount (LCY)"), Amount, CustLedgerEntry.TableCaption));
+          StrSubstNo(FieldError, CustLedgerEntry.FieldCaption("Amount (LCY)"), Amount, CustLedgerEntry.TableCaption()));
     end;
 
     local procedure VerifyLineDiscountOnCreditMemo(SalesLine: Record "Sales Line")
@@ -4786,8 +4786,8 @@ codeunit 134385 "ERM Sales Document"
             LineDiscountAmount := Round(SalesLine.Quantity * SalesLine."Unit Price" * SalesLine."Line Discount %" / 100);
             Assert.AreNearlyEqual(
               LineDiscountAmount, SalesLine."Line Discount Amount", GeneralLedgerSetup."Amount Rounding Precision",
-              StrSubstNo(FieldError, SalesLine.FieldCaption("Line Discount Amount"), LineDiscountAmount, SalesLine.TableCaption));
-        until SalesLine.Next = 0;
+              StrSubstNo(FieldError, SalesLine.FieldCaption("Line Discount Amount"), LineDiscountAmount, SalesLine.TableCaption()));
+        until SalesLine.Next() = 0;
     end;
 
     local procedure VerifyInvoiceDiscount(SalesLine: Record "Sales Line"; CustInvoiceDisc: Record "Cust. Invoice Disc.")
@@ -4801,8 +4801,8 @@ codeunit 134385 "ERM Sales Document"
             InvoiceDiscountAmount := Round(SalesLine."Line Amount" * CustInvoiceDisc."Discount %" / 100);
             Assert.AreNearlyEqual(
               InvoiceDiscountAmount, SalesLine."Inv. Discount Amount", GeneralLedgerSetup."Amount Rounding Precision",
-              StrSubstNo(FieldError, SalesLine.FieldCaption("Inv. Discount Amount"), InvoiceDiscountAmount, SalesLine.TableCaption));
-        until SalesLine.Next = 0;
+              StrSubstNo(FieldError, SalesLine.FieldCaption("Inv. Discount Amount"), InvoiceDiscountAmount, SalesLine.TableCaption()));
+        until SalesLine.Next() = 0;
     end;
 
     local procedure VerifyItemLedgerEntry(DocumentNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal)
@@ -4916,7 +4916,7 @@ codeunit 134385 "ERM Sales Document"
     [Scope('OnPrem')]
     procedure CombineShipmentRequestPageHandler(var CombineShipments: TestRequestPage "Combine Shipments")
     begin
-        CombineShipments.PostingDate.SetValue(CalcDate('<1M>', WorkDate));
+        CombineShipments.PostingDate.SetValue(CalcDate('<1M>', WorkDate()));
         CombineShipments.OK.Invoke;
     end;
 

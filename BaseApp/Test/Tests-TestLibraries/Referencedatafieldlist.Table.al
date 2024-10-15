@@ -1,5 +1,6 @@
 table 130060 "Reference data - field list"
 {
+    ReplicateData = false;
 
     fields
     {
@@ -13,7 +14,7 @@ table 130060 "Reference data - field list"
         }
         field(3; "Table name"; Text[30])
         {
-            CalcFormula = Lookup (AllObj."Object Name" WHERE("Object Type" = CONST(Table),
+            CalcFormula = Lookup(AllObj."Object Name" WHERE("Object Type" = CONST(Table),
                                                              "Object ID" = FIELD("Table ID")));
             Editable = false;
             FieldClass = FlowField;
@@ -24,7 +25,7 @@ table 130060 "Reference data - field list"
         }
         field(5; "Field name"; Text[30])
         {
-            CalcFormula = Lookup (Field.FieldName WHERE(TableNo = FIELD("Table ID"),
+            CalcFormula = Lookup(Field.FieldName WHERE(TableNo = FIELD("Table ID"),
                                                         "No." = FIELD("Field ID")));
             Editable = false;
             FieldClass = FlowField;

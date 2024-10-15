@@ -125,7 +125,7 @@ page 9625 "New Page"
                     TableID := 18;
                     PageID := NavDesigner.CreateNewPage(Format(SourceTable) + CardTxt, CardTxt, TableID);
                     PAGE.Run(PageID);
-                    CurrPage.Close;
+                    CurrPage.Close();
                 end;
             }
         }

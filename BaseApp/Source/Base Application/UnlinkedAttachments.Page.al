@@ -11,7 +11,7 @@ page 199 "Unlinked Attachments"
         {
             repeater(Group)
             {
-                field("File Name"; "File Name")
+                field("File Name"; Rec."File Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the record.';
@@ -21,7 +21,7 @@ page 199 "Unlinked Attachments"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the file type.';
                 }
-                field("Created Date-Time"; "Created Date-Time")
+                field("Created Date-Time"; Rec."Created Date-Time")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;

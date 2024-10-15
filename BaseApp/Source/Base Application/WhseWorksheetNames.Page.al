@@ -1,7 +1,7 @@
 page 7344 "Whse. Worksheet Names"
 {
     Caption = 'Whse. Worksheet Names';
-    DataCaptionExpression = DataCaption;
+    DataCaptionExpression = DataCaption();
     PageType = List;
     SourceTable = "Whse. Worksheet Name";
 
@@ -17,7 +17,7 @@ page 7344 "Whse. Worksheet Names"
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the name you enter for the worksheet.';
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the location code of the warehouse the worksheet should be used for.';
@@ -50,7 +50,7 @@ page 7344 "Whse. Worksheet Names"
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        SetupNewName;
+        SetupNewName();
     end;
 
     local procedure DataCaption(): Text[250]

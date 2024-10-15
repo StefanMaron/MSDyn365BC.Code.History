@@ -13,10 +13,10 @@ codeunit 1331 "Trial Balance Cache Mgt."
     var
         TrialBalanceCacheInfo: Record "Trial Balance Cache Info";
     begin
-        if not TrialBalanceCacheInfo.Get then
+        if not TrialBalanceCacheInfo.Get() then
             exit(true);
 
-        exit(CurrentDateTime - TrialBalanceCacheInfo."Last Modified Date/Time" >= GetCacheRefreshInterval);
+        exit(CurrentDateTime - TrialBalanceCacheInfo."Last Modified Date/Time" >= GetCacheRefreshInterval());
     end;
 
     [Scope('OnPrem')]
@@ -68,7 +68,7 @@ codeunit 1331 "Trial Balance Cache Mgt."
 
         CacheFound := TrialBalanceCache.FindSet();
 
-        if not IsCacheStale then
+        if not IsCacheStale() then
             exit;
 
         Index := 1;
@@ -100,7 +100,7 @@ codeunit 1331 "Trial Balance Cache Mgt."
                 TrialBalanceCache.Insert();
             end;
 
-        if TrialBalanceCacheInfo.Get then begin
+        if TrialBalanceCacheInfo.Get() then begin
             TrialBalanceCacheInfo."Last Modified Date/Time" := CurrentDateTime;
             TrialBalanceCacheInfo.Modify();
         end else begin

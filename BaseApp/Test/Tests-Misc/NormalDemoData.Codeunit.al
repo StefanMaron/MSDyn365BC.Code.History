@@ -10,8 +10,8 @@ codeunit 138200 "Normal DemoData"
 
     var
         Assert: Codeunit Assert;
+        DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
         LibrarySales: Codeunit "Library - Sales";
-        NothingToPostErr: Label 'There is nothing to post.';
         NoPurchHeaderErr: Label 'There is no Purchase Header within the filter.';
         EmptyBlobErr: Label 'BLOB field is empty.';
         XOUTGOINGTxt: Label 'OUTGOING';
@@ -71,7 +71,7 @@ codeunit 138200 "Normal DemoData"
             repeat
                 asserterror LibrarySales.PostSalesDocument(SalesHeader, true, true);
                 // [THEN] An error: 'There is nothing to post.'
-                Assert.ExpectedError(NothingToPostErr);
+                Assert.ExpectedError(DocumentErrorsMgt.GetNothingToPostErrorMsg());
             until Next() = 0;
         end;
     end;
@@ -319,7 +319,7 @@ codeunit 138200 "Normal DemoData"
         // [FEATURE] [VAT Return Period]
         // [SCENARIO 258181] TAB 743 "VAT Report Setup" default setup
         with VATReportSetup do begin
-            Get;
+            Get();
             TestField("VAT Return Period No. Series");
             TestField("Report Version", '');
             TestField("Period Reminder Calculation", DummyDateFormula);

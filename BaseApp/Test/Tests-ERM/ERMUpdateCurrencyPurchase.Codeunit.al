@@ -270,7 +270,7 @@ codeunit 134086 "ERM Update Currency - Purchase"
         // 3. Verify: Verify Purchase Header deleted.
         Assert.IsFalse(
           PurchaseHeader.Get(PurchaseHeader."Document Type", PurchaseHeader."No."),
-          StrSubstNo(PurchaseHeaderError, PurchaseHeader.TableCaption, PurchaseHeader."No."));
+          StrSubstNo(PurchaseHeaderError, PurchaseHeader.TableCaption(), PurchaseHeader."No."));
     end;
 
     [Test]
@@ -435,7 +435,7 @@ codeunit 134086 "ERM Update Currency - Purchase"
         PurchaseQuotePage.PurchLines.Quantity.Value(Format(LibraryRandom.RandInt(5)));
         PurchaseQuotePage."Currency Code".Value(Currency.Code);
         DocumentNo := PurchaseQuotePage."No.".Value;
-        PurchaseQuotePage.Close;
+        PurchaseQuotePage.Close();
 
         VerifyCurrencyInPurchaseLine(PurchaseLine."Document Type"::Quote, DocumentNo, GLAccount."No.", Currency.Code);
     end;
@@ -463,7 +463,7 @@ codeunit 134086 "ERM Update Currency - Purchase"
         PurchaseOrderPage.PurchLines.Quantity.Value(Format(LibraryRandom.RandInt(5)));
         PurchaseOrderPage."Currency Code".Value(Currency.Code);
         DocumentNo := PurchaseOrderPage."No.".Value;
-        PurchaseOrderPage.Close;
+        PurchaseOrderPage.Close();
 
         VerifyCurrencyInPurchaseLine(PurchaseLine."Document Type"::Order, DocumentNo, GLAccount."No.", Currency.Code);
     end;
@@ -491,7 +491,7 @@ codeunit 134086 "ERM Update Currency - Purchase"
         PurchaseInvoicePage.PurchLines.Quantity.Value(Format(LibraryRandom.RandInt(5)));
         PurchaseInvoicePage."Currency Code".Value(Currency.Code);
         DocumentNo := PurchaseInvoicePage."No.".Value;
-        PurchaseInvoicePage.Close;
+        PurchaseInvoicePage.Close();
 
         VerifyCurrencyInPurchaseLine(PurchaseLine."Document Type"::Invoice, DocumentNo, GLAccount."No.", Currency.Code);
     end;
@@ -519,7 +519,7 @@ codeunit 134086 "ERM Update Currency - Purchase"
         PurchaseCrMemoPage.PurchLines.Quantity.Value(Format(LibraryRandom.RandInt(5)));
         PurchaseCrMemoPage."Currency Code".Value(Currency.Code);
         DocumentNo := PurchaseCrMemoPage."No.".Value;
-        PurchaseCrMemoPage.Close;
+        PurchaseCrMemoPage.Close();
 
         VerifyCurrencyInPurchaseLine(PurchaseLine."Document Type"::"Credit Memo", DocumentNo, GLAccount."No.", Currency.Code);
     end;
@@ -547,7 +547,7 @@ codeunit 134086 "ERM Update Currency - Purchase"
         BlanketPurchOrderPage.PurchLines.Quantity.Value(Format(LibraryRandom.RandInt(5)));
         BlanketPurchOrderPage."Currency Code".Value(Currency.Code);
         DocumentNo := BlanketPurchOrderPage."No.".Value;
-        BlanketPurchOrderPage.Close;
+        BlanketPurchOrderPage.Close();
 
         VerifyCurrencyInPurchaseLine(PurchaseLine."Document Type"::"Blanket Order", DocumentNo, GLAccount."No.", Currency.Code);
     end;
@@ -575,7 +575,7 @@ codeunit 134086 "ERM Update Currency - Purchase"
         PurchReturnOrderPage.PurchLines.Quantity.Value(Format(LibraryRandom.RandInt(5)));
         PurchReturnOrderPage."Currency Code".Value(Currency.Code);
         DocumentNo := PurchReturnOrderPage."No.".Value;
-        PurchReturnOrderPage.Close;
+        PurchReturnOrderPage.Close();
 
         VerifyCurrencyInPurchaseLine(PurchaseLine."Document Type"::"Return Order", DocumentNo, GLAccount."No.", Currency.Code);
     end;
@@ -637,7 +637,7 @@ codeunit 134086 "ERM Update Currency - Purchase"
           StrSubstNo(
             ChangeCurrencyMsg,
             GenJournalLine.FieldCaption("Currency Code"),
-            GenJournalLine.TableCaption,
+            GenJournalLine.TableCaption(),
             GenJournalLine.GetShowCurrencyCode(Vendor."Currency Code"),
             GenJournalLine.GetShowCurrencyCode(PurchaseHeader."Currency Code"));
         GenJournalLine."Applies-to Doc. Type" := GenJournalLine."Applies-to Doc. Type"::Invoice;
@@ -665,7 +665,7 @@ codeunit 134086 "ERM Update Currency - Purchase"
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdatePurchasesPayablesSetup();
         LibraryERMCountryData.UpdateLocalData();
-        LibraryERM.SetJournalTemplateNameMandatory(false);
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
 
         isInitialized := true;
         Commit();
@@ -896,7 +896,7 @@ codeunit 134086 "ERM Update Currency - Purchase"
         SuggestVendorPayments.SetTableView(Vendor);
         // Required Random Value for "Document No." field value is not important.
         SuggestVendorPayments.InitializeRequest(
-          WorkDate, false, 0, false, WorkDate, VendorNo, true, "Gen. Journal Account Type"::"Bank Account", BankAccountNo, BankPmtType);
+          WorkDate, false, 0, false, WorkDate(), VendorNo, true, "Gen. Journal Account Type"::"Bank Account", BankAccountNo, BankPmtType);
         SuggestVendorPayments.UseRequestPage(false);
         Commit();
         SuggestVendorPayments.Run();
@@ -928,7 +928,7 @@ codeunit 134086 "ERM Update Currency - Purchase"
             PurchaseLine.Validate("No.", ItemNo);
             PurchaseLine.Validate("Line Discount %", 0);
             PurchaseLine.Modify(true);
-        until PurchaseLine.Next = 0;
+        until PurchaseLine.Next() = 0;
     end;
 
     [Normal]
@@ -965,8 +965,8 @@ codeunit 134086 "ERM Update Currency - Purchase"
         PurchOrder.OpenEdit;
         PurchOrder.GotoRecord(PurchHeader);
         PurchOrder."Buy-from Vendor Name".SetValue(CreateVendorUpdateCurrency(CurrencyExchangeRate));
-        PurchOrder.Close;
-        PurchHeader.Find;
+        PurchOrder.Close();
+        PurchHeader.Find();
     end;
 
     local procedure VerifyPurchaseDocumentValues(PurchaseHeader: Record "Purchase Header"; CurrencyFactor: Decimal)
@@ -983,7 +983,7 @@ codeunit 134086 "ERM Update Currency - Purchase"
     begin
         // Replace TESTFIELD with AssertNealyEqual to fix GDL Failures.
         Currency.Get(PurchaseHeader."Currency Code");
-        Currency.InitRoundingPrecision;
+        Currency.InitRoundingPrecision();
         FindPurchaseLines(PurchaseLine, PurchaseHeader."Document Type", PurchaseHeader."No.");
         repeat
             Item.Get(PurchaseLine."No.");
@@ -992,10 +992,10 @@ codeunit 134086 "ERM Update Currency - Purchase"
               Currency."Unit-Amount Rounding Precision",
               StrSubstNo(
                 AmountError, PurchaseLine.FieldCaption("Direct Unit Cost"),
-                Item."Last Direct Cost" * PurchaseHeader."Currency Factor", PurchaseLine.TableCaption));
+                Item."Last Direct Cost" * PurchaseHeader."Currency Factor", PurchaseLine.TableCaption()));
             PurchaseLine.TestField(
               "Line Amount", Round(PurchaseLine.Quantity * PurchaseLine."Direct Unit Cost", Currency."Amount Rounding Precision"));
-        until PurchaseLine.Next = 0;
+        until PurchaseLine.Next() = 0;
     end;
 
     local procedure VerifyLedgerPurchaseCreditMemo(PreAssignedNo: Code[20]; CurrencyCode: Code[10])
@@ -1032,7 +1032,7 @@ codeunit 134086 "ERM Update Currency - Purchase"
         Currency: Record Currency;
     begin
         Currency.Get(CurrencyExchangeRate."Currency Code");
-        Currency.InitRoundingPrecision;
+        Currency.InitRoundingPrecision();
         GLEntry.SetRange("Document No.", CurrencyExchangeRate."Currency Code");
         GLEntry.SetFilter(Amount, '<0');
         GLEntry.FindFirst();
@@ -1057,7 +1057,7 @@ codeunit 134086 "ERM Update Currency - Purchase"
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
     begin
         Currency.Get(CurrencyExchangeRate."Currency Code");
-        Currency.InitRoundingPrecision;
+        Currency.InitRoundingPrecision();
         DetailedVendorLedgEntry.SetRange("Document No.", CurrencyExchangeRate."Currency Code");
         DetailedVendorLedgEntry.FindFirst();
         DetailedVendorLedgEntry.TestField(

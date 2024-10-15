@@ -3,7 +3,6 @@ page 513 "Item Disc. Groups"
     ApplicationArea = Basic, Suite;
     Caption = 'Item Discount Groups';
     PageType = List;
-    PromotedActionCategories = 'New,Process,Report,Prices & Discounts';
     SourceTable = "Item Discount Group";
     UsageCategory = Administration;
 
@@ -48,15 +47,13 @@ page 513 "Item Disc. Groups"
             group("Item &Disc. Groups")
             {
                 Caption = 'Item &Disc. Groups';
-#if not CLEAN19
+#if not CLEAN21
                 action("Sales &Line Discounts")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Sales &Line Discounts';
                     Image = SalesLineDisc;
                     Visible = not ExtendedPriceEnabled;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     ToolTip = 'View the sales line discounts that are available. These discount agreements can be for individual customers, for a group of customers, for all customers or for a campaign.';
                     ObsoleteState = Pending;
                     ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
@@ -85,8 +82,6 @@ page 513 "Item Disc. Groups"
                     Caption = 'Sales Discounts';
                     Image = SalesLineDisc;
                     Visible = ExtendedPriceEnabled;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     ToolTip = 'Set up sales discounts for the item discount group.';
 
                     trigger OnAction()
@@ -96,6 +91,29 @@ page 513 "Item Disc. Groups"
                     begin
                         Rec.ShowPriceListLines(PriceType::Sale, AmountType::Discount);
                     end;
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Prices & Discounts', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+#if not CLEAN21
+                actionref("Sales &Line Discounts_Promoted"; "Sales &Line Discounts")
+                {
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                    ObsoleteTag = '17.0';
+                }
+#endif
+                actionref(SalesPriceListsDiscounts_Promoted; SalesPriceListsDiscounts)
+                {
                 }
             }
         }

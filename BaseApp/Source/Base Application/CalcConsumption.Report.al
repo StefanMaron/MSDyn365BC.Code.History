@@ -116,7 +116,7 @@ report 5405 "Calc. Consumption"
 
         trigger OnOpenPage()
         begin
-            InitializeRequest(WorkDate, CalcBasedOn::"Expected Output");
+            InitializeRequest(WorkDate(), CalcBasedOn::"Expected Output");
         end;
     }
 
@@ -125,10 +125,6 @@ report 5405 "Calc. Consumption"
     }
 
     var
-        Text000: Label 'Calculating consumption...\\';
-        Text001: Label 'Prod. Order No.   #1##########\';
-        Text002: Label 'Item No.          #2##########\';
-        Text003: Label 'Quantity          #3##########';
         Item: Record Item;
         ProdOrderLine: Record "Prod. Order Line";
         ItemJnlLine: Record "Item Journal Line";
@@ -137,10 +133,17 @@ report 5405 "Calc. Consumption"
         Window: Dialog;
         PostingDate: Date;
         CalcBasedOn: Option "Actual Output","Expected Output";
-        LocationCode: Code[10];
         ToTemplateName: Code[10];
         ToBatchName: Code[10];
         NextConsumpJnlLineNo: Integer;
+
+        Text000: Label 'Calculating consumption...\\';
+        Text001: Label 'Prod. Order No.   #1##########\';
+        Text002: Label 'Item No.          #2##########\';
+        Text003: Label 'Quantity          #3##########';
+
+    protected var
+        LocationCode: Code[10];
 
     procedure InitializeRequest(NewPostingDate: Date; NewCalcBasedOn: Option)
     begin
@@ -242,7 +245,7 @@ report 5405 "Calc. Consumption"
         MinQty: Decimal;
     begin
         if ItemJournalLine.Quantity >= 0 then
-            ItemTrackingMgt.CopyItemTracking(ProdOrderComponent.RowID1, ItemJournalLine.RowID1, false)
+            ItemTrackingMgt.CopyItemTracking(ProdOrderComponent.RowID1(), ItemJournalLine.RowID1(), false)
         else begin
             ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Consumption);
             ItemLedgerEntry.SetRange("Order Type", ItemLedgerEntry."Order Type"::Production);
@@ -253,6 +256,7 @@ report 5405 "Calc. Consumption"
             if ItemLedgerEntry.IsEmpty() then
                 exit;
 
+            Qty := 0;
             MinQty := ItemJournalLine."Quantity (Base)";
             ItemLedgerEntry.FindSet();
             repeat

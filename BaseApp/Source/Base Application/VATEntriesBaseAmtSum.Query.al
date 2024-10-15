@@ -11,6 +11,12 @@ query 19 "VAT Entries Base Amt. Sum"
             filter(Posting_Date; "Posting Date")
             {
             }
+            filter(VAT_Date; "VAT Reporting Date")
+            {
+            }
+            filter(Document_Date; "Document Date")
+            {
+            }
             column(VAT_Registration_No; "VAT Registration No.")
             {
             }

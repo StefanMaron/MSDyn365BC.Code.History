@@ -211,7 +211,7 @@ report 1320 "Notification Email"
         Clear(DetailsValue);
 
         DetailsLabel := DetailsLbl;
-        DetailsValue := "Notification Entry".FieldCaption("Created By") + ' ' + GetCreatedByText;
+        DetailsValue := "Notification Entry".FieldCaption("Created By") + ' ' + GetCreatedByText();
 
         if SourceRecRef.Number = DATABASE::"Approval Entry" then begin
             HasApprovalEntryAmount := true;
@@ -297,7 +297,7 @@ report 1320 "Notification Email"
                     SourceRecRef.SetTable(ApprovalEntry);
                     Field3Label := ApprovalEntry.FieldCaption("Due Date");
                     Field3Value := Format(ApprovalEntry."Due Date");
-                    RecordDetails := ApprovalEntry.GetChangeRecordDetails;
+                    RecordDetails := ApprovalEntry.GetChangeRecordDetails();
                     if RecordDetails <> '' then
                         DetailsValue += RecordDetails;
                 end;
@@ -385,7 +385,7 @@ report 1320 "Notification Email"
         OnGetSalesDocValuesOnBeforeGetSalesPurchDocAmountValue(RecRef, AmountFieldRef, CurrencyCode, CustomerNo);
         GetSalesPurchDocAmountValue(Field1Label, Field1Value, SourceRecRef, AmountFieldRef, CurrencyCode);
 
-        Field2Label := Customer.TableCaption;
+        Field2Label := Customer.TableCaption();
         if Customer.Get(CustomerNo) then
             Field2Value := Customer.Name + ' (#' + Format(Customer."No.") + ')';
     end;
@@ -426,7 +426,7 @@ report 1320 "Notification Email"
 
         GetSalesPurchDocAmountValue(Field1Label, Field1Value, SourceRecRef, AmountFieldRef, CurrencyCode);
 
-        Field2Label := Vendor.TableCaption;
+        Field2Label := Vendor.TableCaption();
         if Vendor.Get(VendorNo) then
             Field2Value := Vendor.Name + ' (#' + Format(Vendor."No.") + ')';
     end;
@@ -444,7 +444,7 @@ report 1320 "Notification Email"
             SourceRecRef.SetTable(ApprovalEntry);
             Field1Value += FormatAmount(ApprovalEntry.Amount);
         end else begin
-            AmountFieldRef.CalcField;
+            AmountFieldRef.CalcField();
             Amount := AmountFieldRef.Value;
             Field1Value += FormatAmount(Amount);
         end;
@@ -467,7 +467,7 @@ report 1320 "Notification Email"
         User: Record User;
     begin
         User.SetRange("User Name", NotificationUserID);
-        if User.FindFirst and (User."Full Name" <> '') then
+        if User.FindFirst() and (User."Full Name" <> '') then
             exit(User."Full Name");
         exit(NotificationUserID);
     end;

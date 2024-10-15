@@ -797,7 +797,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         CurrencyExchangeRate.Init();
         CurrencyExchangeRate.Validate("Currency Code", Currency.Code);
         Evaluate(DateForm, '<-12Y>');
-        CurrencyExchangeRate.Validate("Starting Date", CalcDate(DateForm, WorkDate));
+        CurrencyExchangeRate.Validate("Starting Date", CalcDate(DateForm, WorkDate()));
         CurrencyExchangeRate.Validate("Exchange Rate Amount", 100);
         CurrencyExchangeRate.Validate("Relational Exch. Rate Amount", 20);
         CurrencyExchangeRate.Insert(true);
@@ -1227,10 +1227,10 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
           SalesPrepayAcc);
 
         // Test cleanup
-        GenPostingSetup1.Find;
+        GenPostingSetup1.Find();
         GenPostingSetup1.Validate("Sales Inv. Disc. Account", SalesInvDiscAcc1);
         GenPostingSetup1.Modify(true);
-        GenPostingSetup2.Find;
+        GenPostingSetup2.Find();
         GenPostingSetup2.Validate("Sales Inv. Disc. Account", SalesInvDiscAcc2);
         GenPostingSetup2.Modify(true);
     end;
@@ -1357,10 +1357,10 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
           PurchPrepayAcc);
 
         // Test cleanup
-        GenPostingSetup1.Find;
+        GenPostingSetup1.Find();
         GenPostingSetup1.Validate("Purch. Inv. Disc. Account", PurchInvDiscAcc1);
         GenPostingSetup1.Modify(true);
-        GenPostingSetup2.Find;
+        GenPostingSetup2.Find();
         GenPostingSetup2.Validate("Purch. Inv. Disc. Account", PurchInvDiscAcc2);
         GenPostingSetup2.Modify(true);
     end;
@@ -1524,7 +1524,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
           -(TotalLineAmtExclDisc1 * VATPercent1 + TotalLineAmtExclDisc2 * VATPercent2) * PrePayment, 0);
 
         // Validate invoicing ledger entry and vat entry
-        GLRegister.Next;
+        GLRegister.Next();
         // Validate No of GL entries
         GLEntry.SetRange("Entry No.", GLRegister."From Entry No.", GLRegister."To Entry No.");
         Assert.IsTrue(GLEntry.Count = 11, StrSubstNo(TotalEntryNumberError, GLEntry.TableName, 11, GLEntry.Count));
@@ -2648,7 +2648,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         // Create a general journal Line
         LineAmt := 1000;
         CreateJournalLine(GenJournalLine,
-          JournalTemplate, JournalBatch, GenJournalLine."Account Type"::"G/L Account", PurchaseVATAcc, WorkDate,
+          JournalTemplate, JournalBatch, GenJournalLine."Account Type"::"G/L Account", PurchaseVATAcc, WorkDate(),
           GenJournalLine."Document Type"::Invoice, LineAmt, GenJournalLine."Bal. Account Type"::Vendor, Vendor."No.");
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
@@ -2750,7 +2750,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         GenJournalLine.Init();
         GenJournalLine.DeleteAll();
         CreateJournalLine(GenJournalLine,
-          JournalTemplate, JournalBatch, GenJournalLine."Account Type"::"G/L Account", PurchaseVATAcc, WorkDate,
+          JournalTemplate, JournalBatch, GenJournalLine."Account Type"::"G/L Account", PurchaseVATAcc, WorkDate(),
           GenJournalLine."Document Type"::Invoice, LineAmt, GenJournalLine."Bal. Account Type"::Vendor, Vendor."No.");
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
@@ -2779,7 +2779,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         // Step 2: Create a general journal line payment and apply to above invoice
         Commit();
         CreateJournalLine(GenJournalLine,
-          JournalTemplate, JournalBatch, GenJournalLine."Account Type"::Vendor, Vendor."No.", WorkDate,
+          JournalTemplate, JournalBatch, GenJournalLine."Account Type"::Vendor, Vendor."No.", WorkDate(),
           GenJournalLine."Document Type"::Payment, LineAmt, GenJournalLine."Bal. Account Type"::"Bank Account", BankAcc);
         VendLedgerEntry.SetRange("Vendor No.", Vendor."No.");
         VendLedgerEntry.FindLast();
@@ -3101,7 +3101,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
     begin
         // Create Service header, return document No
         LibraryService.CreateServiceHeader(ServiceHeader, DocType, Customer."No.");
-        ServiceHeader.Validate("Posting Date", WorkDate);
+        ServiceHeader.Validate("Posting Date", WorkDate());
         if InclVAT then
             ServiceHeader.Validate("Prices Including VAT", true);
         ServiceHeader.Modify(true);
@@ -3514,7 +3514,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         if GenBusPostingGroup.FindSet() then
             repeat
                 GenBusPostingGroupFilter := UpdateFilter(GenBusPostingGroupFilter, GenBusPostingGroup.Code);
-            until GenBusPostingGroup.Next = 0;
+            until GenBusPostingGroup.Next() = 0;
 
         // Build Filter for Gen. Product Posting Group.
         GenProdPostingGroup.SetFilter("Def. VAT Prod. Posting Group", '<>%1', '');
@@ -3522,7 +3522,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         if GenProdPostingGroup.FindSet() then
             repeat
                 GenProdPostingGroupFilter := UpdateFilter(GenProdPostingGroupFilter, GenProdPostingGroup.Code);
-            until GenProdPostingGroup.Next = 0;
+            until GenProdPostingGroup.Next() = 0;
 
         // Find General Posting Setup with VAT Posting Setup.
         SetupFound := false;
@@ -3536,8 +3536,8 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
                 if (VATPostingSetup."VAT Calculation Type" = VATCalculationType) and (VATPostingSetup."VAT %" > 0) then
                     SetupFound := true
                 else
-                    if GenPostingSetup.Next = 0 then
-                        Error(StrSubstNo(RecordNotFoundError, GenPostingSetup.TableCaption));
+                    if GenPostingSetup.Next() = 0 then
+                        Error(StrSubstNo(RecordNotFoundError, GenPostingSetup.TableCaption()));
             until SetupFound;
     end;
 
@@ -3553,7 +3553,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         if AccType = 'Customer' then begin
             if DocType = 'Refund' then begin
                 CreateJournalLine(GenJournalLine,
-                  JournalTemplate, JournalBatch, GenJournalLine."Account Type"::Customer, AccNo, WorkDate,
+                  JournalTemplate, JournalBatch, GenJournalLine."Account Type"::Customer, AccNo, WorkDate(),
                   GenJournalLine."Document Type"::Refund, 0, GenJournalLine."Bal. Account Type"::"Bank Account", BankAcc);
                 CustLedgerEntry.SetRange("Customer No.", AccNo);
                 CustLedgerEntry.FindLast();
@@ -3565,7 +3565,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
             end;
             if DocType = 'Payment' then begin
                 CreateJournalLine(GenJournalLine,
-                  JournalTemplate, JournalBatch, GenJournalLine."Account Type"::Customer, AccNo, WorkDate,
+                  JournalTemplate, JournalBatch, GenJournalLine."Account Type"::Customer, AccNo, WorkDate(),
                   GenJournalLine."Document Type"::Payment, 0, GenJournalLine."Bal. Account Type"::"Bank Account", BankAcc);
                 CustLedgerEntry.SetRange("Customer No.", AccNo);
                 CustLedgerEntry.FindLast();
@@ -3580,7 +3580,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         if AccType = 'Vendor' then begin
             if DocType = 'Refund' then begin
                 CreateJournalLine(GenJournalLine,
-                  JournalTemplate, JournalBatch, GenJournalLine."Account Type"::Vendor, AccNo, WorkDate,
+                  JournalTemplate, JournalBatch, GenJournalLine."Account Type"::Vendor, AccNo, WorkDate(),
                   GenJournalLine."Document Type"::Refund, 0, GenJournalLine."Bal. Account Type"::"Bank Account", BankAcc);
                 VendorLedgerentry.SetRange("Vendor No.", AccNo);
                 VendorLedgerentry.FindLast();
@@ -3592,7 +3592,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
             end;
             if DocType = 'Payment' then begin
                 CreateJournalLine(GenJournalLine,
-                  JournalTemplate, JournalBatch, GenJournalLine."Account Type"::Vendor, AccNo, WorkDate,
+                  JournalTemplate, JournalBatch, GenJournalLine."Account Type"::Vendor, AccNo, WorkDate(),
                   GenJournalLine."Document Type"::Payment, 0, GenJournalLine."Bal. Account Type"::"Bank Account", BankAcc);
                 VendorLedgerentry.SetRange("Vendor No.", AccNo);
                 VendorLedgerentry.FindLast();
@@ -3773,10 +3773,10 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
                             Base += VATEntry.Amount
                         else
                             Base += VATEntry.Base;
-                until GLVatLink2.Next = 0;
+                until GLVatLink2.Next() = 0;
                 GLEntry.Get(GLVATLink."G/L Entry No.");
                 GLAmount += GLEntry.Amount;
-            until GLVATLink.Next = 0;
+            until GLVATLink.Next() = 0;
             Assert.IsTrue(GLAmount = Base, StrSubstNo(VATLinkError, EntryNo));
         end else
             // TODO: Known issue TFS 53978

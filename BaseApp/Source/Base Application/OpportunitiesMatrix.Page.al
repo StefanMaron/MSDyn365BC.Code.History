@@ -16,7 +16,7 @@ page 9257 "Opportunities Matrix"
                 IndentationColumn = NameIndent;
                 IndentationControls = Name;
                 ShowCaption = false;
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Style = Strong;
@@ -58,7 +58,7 @@ page 9257 "Opportunities Matrix"
                 field(Field1; MATRIX_CellData[1])
                 {
                     ApplicationArea = RelationshipMgmt;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     CaptionClass = '3,' + MATRIX_CaptionSet[1];
                     DrillDown = true;
@@ -68,14 +68,14 @@ page 9257 "Opportunities Matrix"
 
                     trigger OnDrillDown()
                     begin
-                        SetFilters;
+                        SetFilters();
                         MATRIX_OnDrillDown(1);
                     end;
                 }
                 field(Field2; MATRIX_CellData[2])
                 {
                     ApplicationArea = RelationshipMgmt;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     CaptionClass = '3,' + MATRIX_CaptionSet[2];
                     DrillDown = true;
@@ -85,14 +85,14 @@ page 9257 "Opportunities Matrix"
 
                     trigger OnDrillDown()
                     begin
-                        SetFilters;
+                        SetFilters();
                         MATRIX_OnDrillDown(2);
                     end;
                 }
                 field(Field3; MATRIX_CellData[3])
                 {
                     ApplicationArea = RelationshipMgmt;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     CaptionClass = '3,' + MATRIX_CaptionSet[3];
                     DrillDown = true;
@@ -102,14 +102,14 @@ page 9257 "Opportunities Matrix"
 
                     trigger OnDrillDown()
                     begin
-                        SetFilters;
+                        SetFilters();
                         MATRIX_OnDrillDown(3);
                     end;
                 }
                 field(Field4; MATRIX_CellData[4])
                 {
                     ApplicationArea = RelationshipMgmt;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     CaptionClass = '3,' + MATRIX_CaptionSet[4];
                     DrillDown = true;
@@ -119,14 +119,14 @@ page 9257 "Opportunities Matrix"
 
                     trigger OnDrillDown()
                     begin
-                        SetFilters;
+                        SetFilters();
                         MATRIX_OnDrillDown(4);
                     end;
                 }
                 field(Field5; MATRIX_CellData[5])
                 {
                     ApplicationArea = RelationshipMgmt;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     CaptionClass = '3,' + MATRIX_CaptionSet[5];
                     DrillDown = true;
@@ -136,14 +136,14 @@ page 9257 "Opportunities Matrix"
 
                     trigger OnDrillDown()
                     begin
-                        SetFilters;
+                        SetFilters();
                         MATRIX_OnDrillDown(5);
                     end;
                 }
                 field(Field6; MATRIX_CellData[6])
                 {
                     ApplicationArea = RelationshipMgmt;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     CaptionClass = '3,' + MATRIX_CaptionSet[6];
                     DrillDown = true;
@@ -153,14 +153,14 @@ page 9257 "Opportunities Matrix"
 
                     trigger OnDrillDown()
                     begin
-                        SetFilters;
+                        SetFilters();
                         MATRIX_OnDrillDown(6);
                     end;
                 }
                 field(Field7; MATRIX_CellData[7])
                 {
                     ApplicationArea = RelationshipMgmt;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     CaptionClass = '3,' + MATRIX_CaptionSet[7];
                     DrillDown = true;
@@ -170,14 +170,14 @@ page 9257 "Opportunities Matrix"
 
                     trigger OnDrillDown()
                     begin
-                        SetFilters;
+                        SetFilters();
                         MATRIX_OnDrillDown(7);
                     end;
                 }
                 field(Field8; MATRIX_CellData[8])
                 {
                     ApplicationArea = RelationshipMgmt;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     CaptionClass = '3,' + MATRIX_CaptionSet[8];
                     DrillDown = true;
@@ -187,14 +187,14 @@ page 9257 "Opportunities Matrix"
 
                     trigger OnDrillDown()
                     begin
-                        SetFilters;
+                        SetFilters();
                         MATRIX_OnDrillDown(8);
                     end;
                 }
                 field(Field9; MATRIX_CellData[9])
                 {
                     ApplicationArea = RelationshipMgmt;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     CaptionClass = '3,' + MATRIX_CaptionSet[9];
                     DrillDown = true;
@@ -204,14 +204,14 @@ page 9257 "Opportunities Matrix"
 
                     trigger OnDrillDown()
                     begin
-                        SetFilters;
+                        SetFilters();
                         MATRIX_OnDrillDown(9);
                     end;
                 }
                 field(Field10; MATRIX_CellData[10])
                 {
                     ApplicationArea = RelationshipMgmt;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     CaptionClass = '3,' + MATRIX_CaptionSet[10];
                     DrillDown = true;
@@ -221,14 +221,14 @@ page 9257 "Opportunities Matrix"
 
                     trigger OnDrillDown()
                     begin
-                        SetFilters;
+                        SetFilters();
                         MATRIX_OnDrillDown(10);
                     end;
                 }
                 field(Field11; MATRIX_CellData[11])
                 {
                     ApplicationArea = RelationshipMgmt;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     CaptionClass = '3,' + MATRIX_CaptionSet[11];
                     DrillDown = true;
@@ -238,14 +238,14 @@ page 9257 "Opportunities Matrix"
 
                     trigger OnDrillDown()
                     begin
-                        SetFilters;
+                        SetFilters();
                         MATRIX_OnDrillDown(11);
                     end;
                 }
                 field(Field12; MATRIX_CellData[12])
                 {
                     ApplicationArea = RelationshipMgmt;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     CaptionClass = '3,' + MATRIX_CaptionSet[12];
                     DrillDown = true;
@@ -255,14 +255,14 @@ page 9257 "Opportunities Matrix"
 
                     trigger OnDrillDown()
                     begin
-                        SetFilters;
+                        SetFilters();
                         MATRIX_OnDrillDown(12);
                     end;
                 }
                 field(Field13; MATRIX_CellData[13])
                 {
                     ApplicationArea = RelationshipMgmt;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     CaptionClass = '3,' + MATRIX_CaptionSet[13];
                     DrillDown = true;
@@ -272,14 +272,14 @@ page 9257 "Opportunities Matrix"
 
                     trigger OnDrillDown()
                     begin
-                        SetFilters;
+                        SetFilters();
                         MATRIX_OnDrillDown(13);
                     end;
                 }
                 field(Field14; MATRIX_CellData[14])
                 {
                     ApplicationArea = RelationshipMgmt;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     CaptionClass = '3,' + MATRIX_CaptionSet[14];
                     DrillDown = true;
@@ -289,14 +289,14 @@ page 9257 "Opportunities Matrix"
 
                     trigger OnDrillDown()
                     begin
-                        SetFilters;
+                        SetFilters();
                         MATRIX_OnDrillDown(14);
                     end;
                 }
                 field(Field15; MATRIX_CellData[15])
                 {
                     ApplicationArea = RelationshipMgmt;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     CaptionClass = '3,' + MATRIX_CaptionSet[15];
                     DrillDown = true;
@@ -306,14 +306,14 @@ page 9257 "Opportunities Matrix"
 
                     trigger OnDrillDown()
                     begin
-                        SetFilters;
+                        SetFilters();
                         MATRIX_OnDrillDown(15);
                     end;
                 }
                 field(Field16; MATRIX_CellData[16])
                 {
                     ApplicationArea = RelationshipMgmt;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     CaptionClass = '3,' + MATRIX_CaptionSet[16];
                     DrillDown = true;
@@ -323,14 +323,14 @@ page 9257 "Opportunities Matrix"
 
                     trigger OnDrillDown()
                     begin
-                        SetFilters;
+                        SetFilters();
                         MATRIX_OnDrillDown(16);
                     end;
                 }
                 field(Field17; MATRIX_CellData[17])
                 {
                     ApplicationArea = RelationshipMgmt;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     CaptionClass = '3,' + MATRIX_CaptionSet[17];
                     DrillDown = true;
@@ -340,14 +340,14 @@ page 9257 "Opportunities Matrix"
 
                     trigger OnDrillDown()
                     begin
-                        SetFilters;
+                        SetFilters();
                         MATRIX_OnDrillDown(17);
                     end;
                 }
                 field(Field18; MATRIX_CellData[18])
                 {
                     ApplicationArea = RelationshipMgmt;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     CaptionClass = '3,' + MATRIX_CaptionSet[18];
                     DrillDown = true;
@@ -357,14 +357,14 @@ page 9257 "Opportunities Matrix"
 
                     trigger OnDrillDown()
                     begin
-                        SetFilters;
+                        SetFilters();
                         MATRIX_OnDrillDown(18);
                     end;
                 }
                 field(Field19; MATRIX_CellData[19])
                 {
                     ApplicationArea = RelationshipMgmt;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     CaptionClass = '3,' + MATRIX_CaptionSet[19];
                     DrillDown = true;
@@ -374,14 +374,14 @@ page 9257 "Opportunities Matrix"
 
                     trigger OnDrillDown()
                     begin
-                        SetFilters;
+                        SetFilters();
                         MATRIX_OnDrillDown(19);
                     end;
                 }
                 field(Field20; MATRIX_CellData[20])
                 {
                     ApplicationArea = RelationshipMgmt;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     CaptionClass = '3,' + MATRIX_CaptionSet[20];
                     DrillDown = true;
@@ -391,14 +391,14 @@ page 9257 "Opportunities Matrix"
 
                     trigger OnDrillDown()
                     begin
-                        SetFilters;
+                        SetFilters();
                         MATRIX_OnDrillDown(20);
                     end;
                 }
                 field(Field21; MATRIX_CellData[21])
                 {
                     ApplicationArea = RelationshipMgmt;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     CaptionClass = '3,' + MATRIX_CaptionSet[21];
                     DrillDown = true;
@@ -408,14 +408,14 @@ page 9257 "Opportunities Matrix"
 
                     trigger OnDrillDown()
                     begin
-                        SetFilters;
+                        SetFilters();
                         MATRIX_OnDrillDown(21);
                     end;
                 }
                 field(Field22; MATRIX_CellData[22])
                 {
                     ApplicationArea = RelationshipMgmt;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     CaptionClass = '3,' + MATRIX_CaptionSet[22];
                     DrillDown = true;
@@ -425,14 +425,14 @@ page 9257 "Opportunities Matrix"
 
                     trigger OnDrillDown()
                     begin
-                        SetFilters;
+                        SetFilters();
                         MATRIX_OnDrillDown(22);
                     end;
                 }
                 field(Field23; MATRIX_CellData[23])
                 {
                     ApplicationArea = RelationshipMgmt;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     CaptionClass = '3,' + MATRIX_CaptionSet[23];
                     DrillDown = true;
@@ -442,14 +442,14 @@ page 9257 "Opportunities Matrix"
 
                     trigger OnDrillDown()
                     begin
-                        SetFilters;
+                        SetFilters();
                         MATRIX_OnDrillDown(23);
                     end;
                 }
                 field(Field24; MATRIX_CellData[24])
                 {
                     ApplicationArea = RelationshipMgmt;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     CaptionClass = '3,' + MATRIX_CaptionSet[24];
                     DrillDown = true;
@@ -459,14 +459,14 @@ page 9257 "Opportunities Matrix"
 
                     trigger OnDrillDown()
                     begin
-                        SetFilters;
+                        SetFilters();
                         MATRIX_OnDrillDown(24);
                     end;
                 }
                 field(Field25; MATRIX_CellData[25])
                 {
                     ApplicationArea = RelationshipMgmt;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     CaptionClass = '3,' + MATRIX_CaptionSet[25];
                     DrillDown = true;
@@ -476,14 +476,14 @@ page 9257 "Opportunities Matrix"
 
                     trigger OnDrillDown()
                     begin
-                        SetFilters;
+                        SetFilters();
                         MATRIX_OnDrillDown(25);
                     end;
                 }
                 field(Field26; MATRIX_CellData[26])
                 {
                     ApplicationArea = RelationshipMgmt;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     CaptionClass = '3,' + MATRIX_CaptionSet[26];
                     DrillDown = true;
@@ -493,14 +493,14 @@ page 9257 "Opportunities Matrix"
 
                     trigger OnDrillDown()
                     begin
-                        SetFilters;
+                        SetFilters();
                         MATRIX_OnDrillDown(26);
                     end;
                 }
                 field(Field27; MATRIX_CellData[27])
                 {
                     ApplicationArea = RelationshipMgmt;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     CaptionClass = '3,' + MATRIX_CaptionSet[27];
                     DrillDown = true;
@@ -510,14 +510,14 @@ page 9257 "Opportunities Matrix"
 
                     trigger OnDrillDown()
                     begin
-                        SetFilters;
+                        SetFilters();
                         MATRIX_OnDrillDown(27);
                     end;
                 }
                 field(Field28; MATRIX_CellData[28])
                 {
                     ApplicationArea = RelationshipMgmt;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     CaptionClass = '3,' + MATRIX_CaptionSet[28];
                     DrillDown = true;
@@ -527,14 +527,14 @@ page 9257 "Opportunities Matrix"
 
                     trigger OnDrillDown()
                     begin
-                        SetFilters;
+                        SetFilters();
                         MATRIX_OnDrillDown(28);
                     end;
                 }
                 field(Field29; MATRIX_CellData[29])
                 {
                     ApplicationArea = RelationshipMgmt;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     CaptionClass = '3,' + MATRIX_CaptionSet[29];
                     DrillDown = true;
@@ -544,14 +544,14 @@ page 9257 "Opportunities Matrix"
 
                     trigger OnDrillDown()
                     begin
-                        SetFilters;
+                        SetFilters();
                         MATRIX_OnDrillDown(29);
                     end;
                 }
                 field(Field30; MATRIX_CellData[30])
                 {
                     ApplicationArea = RelationshipMgmt;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     CaptionClass = '3,' + MATRIX_CaptionSet[30];
                     DrillDown = true;
@@ -561,14 +561,14 @@ page 9257 "Opportunities Matrix"
 
                     trigger OnDrillDown()
                     begin
-                        SetFilters;
+                        SetFilters();
                         MATRIX_OnDrillDown(30);
                     end;
                 }
                 field(Field31; MATRIX_CellData[31])
                 {
                     ApplicationArea = RelationshipMgmt;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     CaptionClass = '3,' + MATRIX_CaptionSet[31];
                     DrillDown = true;
@@ -578,14 +578,14 @@ page 9257 "Opportunities Matrix"
 
                     trigger OnDrillDown()
                     begin
-                        SetFilters;
+                        SetFilters();
                         MATRIX_OnDrillDown(31);
                     end;
                 }
                 field(Field32; MATRIX_CellData[32])
                 {
                     ApplicationArea = RelationshipMgmt;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     CaptionClass = '3,' + MATRIX_CaptionSet[32];
                     DrillDown = true;
@@ -595,7 +595,7 @@ page 9257 "Opportunities Matrix"
 
                     trigger OnDrillDown()
                     begin
-                        SetFilters;
+                        SetFilters();
                         MATRIX_OnDrillDown(32);
                     end;
                 }
@@ -672,10 +672,10 @@ page 9257 "Opportunities Matrix"
 
     trigger OnOpenPage()
     begin
-        TestFilters;
-        ValidateStatus;
-        ValidateFilter;
-        SetColumnVisibility;
+        TestFilters();
+        ValidateStatus();
+        ValidateFilter();
+        SetColumnVisibility();
     end;
 
     var
@@ -901,7 +901,7 @@ page 9257 "Opportunities Matrix"
     local procedure CopySalespersonToBuf(var SalesPurchPerson: Record "Salesperson/Purchaser"; var RMMatrixMgt: Record "RM Matrix Management")
     begin
         with RMMatrixMgt do begin
-            Init;
+            Init();
             "Company Name" := SalesPurchPerson.Code;
             Type := Type::Person;
             Name := SalesPurchPerson.Name;
@@ -913,7 +913,7 @@ page 9257 "Opportunities Matrix"
     local procedure CopyCampaignToBuf(var Campaign: Record Campaign; var RMMatrixMgt: Record "RM Matrix Management")
     begin
         with RMMatrixMgt do begin
-            Init;
+            Init();
             "Company Name" := Campaign."No.";
             Type := Type::Person;
             Name := CopyStr(Campaign.Description, 1, MaxStrLen(Name));
@@ -925,7 +925,7 @@ page 9257 "Opportunities Matrix"
     local procedure CopyContactToBuf(var Cont: Record Contact; var RMMatrixMgt: Record "RM Matrix Management")
     begin
         with RMMatrixMgt do begin
-            Init;
+            Init();
             "Company Name" := CopyStr(Cont."Company Name", 1, MaxStrLen("Company Name"));
             Type := Cont.Type;
             Name := CopyStr(Cont.Name, 1, MaxStrLen(Name));
@@ -1156,7 +1156,7 @@ page 9257 "Opportunities Matrix"
     var
         TestAmount: Text[80];
     begin
-        SetFilters;
+        SetFilters();
         SetRange("Date Filter", MatrixRecords[MATRIX_ColumnOrdinal]."Period Start", MatrixRecords[MATRIX_ColumnOrdinal]."Period End");
 
         case OutPutOption of
@@ -1171,10 +1171,10 @@ page 9257 "Opportunities Matrix"
             OutPutOption::"Avg. Calc. Current Value (LCY)":
                 CalcFields("Avg.Calcd. Current Value (LCY)");
         end;
-        if ReturnOutput = 0 then
+        if ReturnOutput() = 0 then
             MATRIX_CellData[MATRIX_ColumnOrdinal] := ''
         else begin
-            TestAmount := Format(ReturnOutput, 0, 0);
+            TestAmount := Format(ReturnOutput(), 0, 0);
             FormatAmount(TestAmount);
             MATRIX_CellData[MATRIX_ColumnOrdinal] := TestAmount;
         end;

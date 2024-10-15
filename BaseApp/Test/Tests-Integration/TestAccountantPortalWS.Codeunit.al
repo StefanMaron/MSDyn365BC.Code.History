@@ -79,7 +79,7 @@ codeunit 134765 TestAccountantPortalWS
         VerifyFinanceCues(AccountantPortalFinanceCues,
           FinanceCue.FieldName("OCR Completed"), '                             2', MasterStyle::None);
 
-        AccountantPortalFinanceCues.Close;
+        AccountantPortalFinanceCues.Close();
     end;
 
     [Test]
@@ -138,7 +138,7 @@ codeunit 134765 TestAccountantPortalWS
         VerifyActivitiesCues(AccountantPortalActivityCues,
           ActivitiesCue.FieldName("Purchase Orders"), '                            21', MasterStyle::None);
 
-        AccountantPortalActivityCues.Close;
+        AccountantPortalActivityCues.Close();
     end;
 
     [Test]

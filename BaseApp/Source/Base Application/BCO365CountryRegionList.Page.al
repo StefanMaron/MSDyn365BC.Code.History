@@ -1,3 +1,4 @@
+#if not CLEAN21
 page 2352 "BC O365 Country/Region List"
 {
     Caption = 'Countries/Regions';
@@ -9,6 +10,9 @@ page 2352 "BC O365 Country/Region List"
     RefreshOnActivate = true;
     SourceTable = "O365 Country/Region";
     SourceTableTemporary = true;
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     layout
     {
@@ -18,7 +22,7 @@ page 2352 "BC O365 Country/Region List"
             {
                 field("Code"; Code)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies the ISO code of the country or region.';
 
                     trigger OnValidate()
@@ -29,12 +33,12 @@ page 2352 "BC O365 Country/Region List"
                 }
                 field(Name; Name)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies the name of the country or region.';
                 }
-                field("VAT Scheme"; "VAT Scheme")
+                field("VAT Scheme"; Rec."VAT Scheme")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Visible = false;
                 }
             }
@@ -63,7 +67,7 @@ page 2352 "BC O365 Country/Region List"
         if CountryRegion.FindSet() then
             repeat
                 Code := CountryRegion.Code;
-                Name := CountryRegion.GetNameInCurrentLanguage;
+                Name := CountryRegion.GetNameInCurrentLanguage();
                 if Insert() then;
             until CountryRegion.Next() = 0;
         SetCurrentKey(Name);
@@ -73,4 +77,4 @@ page 2352 "BC O365 Country/Region List"
         O365SalesManagement: Codeunit "O365 Sales Management";
         RenameCountryErr: Label 'You cannot change the country code.';
 }
-
+#endif

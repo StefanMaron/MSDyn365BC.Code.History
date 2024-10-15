@@ -91,7 +91,7 @@ codeunit 5365 "CDS Int. Option Couple"
         IntegrationFieldMapping.SetAscending("Match Priority", true);
         if IntegrationFieldMapping.FindSet() then
             repeat
-                TempMatchingIntegrationFieldMapping.Init();
+                    TempMatchingIntegrationFieldMapping.Init();
                 TempMatchingIntegrationFieldMapping.TransferFields(IntegrationFieldMapping);
                 TempMatchingIntegrationFieldMapping.Insert();
                 if not MatchPriorityList.Contains(TempMatchingIntegrationFieldMapping."Match Priority") then
@@ -118,10 +118,10 @@ codeunit 5365 "CDS Int. Option Couple"
                 CoupledToCRMFieldRef.SetRange(false);
             if LocalRecordRef.FindSet() then
                 repeat
-                    if GuiAllowed() then begin
-                        RecordNumber += 1;
-                        Dialog.Update(1, RecordNumber);
-                    end;
+                        if GuiAllowed() then begin
+                            RecordNumber += 1;
+                            Dialog.Update(1, RecordNumber);
+                        end;
                     LocalRecordSystemId := LocalRecordRef.Field(LocalRecordRef.SystemIdNo()).Value();
                     // re-check that the record is uncoupled as it could just be coupled by another job
                     CRMOptionMapping.SetRange("Record ID", LocalRecordRef.RecordId);
@@ -139,34 +139,34 @@ codeunit 5365 "CDS Int. Option Couple"
                                 TempMatchingIntegrationFieldMapping.Reset();
                                 TempMatchingIntegrationFieldMapping.SetRange("Match Priority", MatchPriority);
                                 TempMatchingIntegrationFieldMapping.FindSet();
-                                repeat
-                                    // initialize the fields that we should match on
-                                    MatchingIntegrationRecordFieldRef := IntegrationRecordRef.Field(2);
-                                    MatchingLocalFieldRef := LocalRecordRef.Field(TempMatchingIntegrationFieldMapping."Field No.");
+                                                                                          repeat
+                                                                                              // initialize the fields that we should match on
+                                                                                              MatchingIntegrationRecordFieldRef := IntegrationRecordRef.Field(2);
+                                                                                              MatchingLocalFieldRef := LocalRecordRef.Field(TempMatchingIntegrationFieldMapping."Field No.");
 
-                                    // raise an event so that custom filtering logic can be implemented (depending on which record and which fields are chosen as the matching field)
-                                    SetMatchingFieldFilterHandled := false;
-                                    OnBeforeSetMatchingFilter(IntegrationRecordRef, MatchingIntegrationRecordFieldRef, LocalRecordRef, MatchingLocalFieldRef, SetMatchingFieldFilterHandled);
+                                                                                              // raise an event so that custom filtering logic can be implemented (depending on which record and which fields are chosen as the matching field)
+                                                                                              SetMatchingFieldFilterHandled := false;
+                                                                                              OnBeforeSetMatchingFilter(IntegrationRecordRef, MatchingIntegrationRecordFieldRef, LocalRecordRef, MatchingLocalFieldRef, SetMatchingFieldFilterHandled);
 
-                                    // if nobody implemented custom filtering, apply default filtering logic
-                                    // and that is: set the filter on the integration table field with the value of the local field (case sensitive if specified by user)
-                                    if not SetMatchingFieldFilterHandled then
-                                        case MatchingLocalFieldRef.Type of
-                                            FieldType::Code,
-                                            FieldType::Text:
-                                                if Format(MatchingLocalFieldRef.Value()) <> '' then begin
-                                                    if not TempMatchingIntegrationFieldMapping."Case-Sensitive Matching" then
-                                                        MatchingIntegrationRecordFieldRef.SetFilter('''@' + Format(MatchingLocalFieldRef.Value()).Replace('''', '''''') + '''')
-                                                    else
-                                                        MatchingIntegrationRecordFieldRef.SetRange(MatchingLocalFieldRef.Value());
-                                                    MatchingFieldCount += 1;
-                                                end;
-                                            else begin
-                                                    MatchingIntegrationRecordFieldRef.SetRange(MatchingLocalFieldRef.Value());
-                                                    MatchingFieldCount += 1;
-                                                end;
-                                        end;
-                                until TempMatchingIntegrationFieldMapping.Next() = 0;
+                                                                                              // if nobody implemented custom filtering, apply default filtering logic
+                                                                                              // and that is: set the filter on the integration table field with the value of the local field (case sensitive if specified by user)
+                                                                                              if not SetMatchingFieldFilterHandled then
+                                                                                                  case MatchingLocalFieldRef.Type of
+                                                                                                      FieldType::Code,
+                                                                                                      FieldType::Text:
+                                                                                                          if Format(MatchingLocalFieldRef.Value()) <> '' then begin
+                                                                                                              if not TempMatchingIntegrationFieldMapping."Case-Sensitive Matching" then
+                                                                                                                  MatchingIntegrationRecordFieldRef.SetFilter('''@' + Format(MatchingLocalFieldRef.Value()).Replace('''', '''''') + '''')
+                                                                                                              else
+                                                                                                                  MatchingIntegrationRecordFieldRef.SetRange(MatchingLocalFieldRef.Value());
+                                                                                                              MatchingFieldCount += 1;
+                                                                                                          end;
+                                                                                                      else begin
+                                                                                                          MatchingIntegrationRecordFieldRef.SetRange(MatchingLocalFieldRef.Value());
+                                                                                                          MatchingFieldCount += 1;
+                                                                                                      end;
+                                                                                                  end;
+                                                                                          until TempMatchingIntegrationFieldMapping.Next() = 0;
 
                                 // if there is exactly one match, and it is not coupled, couple it. otherwise - log a synch error
                                 if MatchingFieldCount > 0 then
@@ -194,10 +194,10 @@ codeunit 5365 "CDS Int. Option Couple"
                                                 end;
                                         end;
                                     else begin
-                                            Session.LogMessage('0000GAG', GetMultipleMatchesFoundTelemetryErrorMessage(LocalRecordRef, TempMatchingIntegrationFieldMapping), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
-                                            if not UnmatchedLocalIds.Contains(LocalRecordSystemId) then
-                                                UnmatchedLocalIds.Add(LocalRecordSystemId);
-                                        end;
+                                        Session.LogMessage('0000GAG', GetMultipleMatchesFoundTelemetryErrorMessage(LocalRecordRef, TempMatchingIntegrationFieldMapping), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+                                        if not UnmatchedLocalIds.Contains(LocalRecordSystemId) then
+                                            UnmatchedLocalIds.Add(LocalRecordSystemId);
+                                    end;
                                 end;
                             end;
                     end;

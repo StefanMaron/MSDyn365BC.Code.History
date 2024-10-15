@@ -96,7 +96,7 @@ codeunit 134112 "Test Sales Header Work Descr."
 
         // execute
         SalesQuote.WorkDescription.SetValue('Hello World!');
-        SalesQuote.Close;
+        SalesQuote.Close();
         Commit();
         SalesQuote.OpenView;
         SalesQuote.Last;
@@ -128,7 +128,7 @@ codeunit 134112 "Test Sales Header Work Descr."
         ExpectedResult := LibraryUtility.GenerateGUID();
         SalesOrder.WorkDescription.SetValue(ExpectedResult);
         SalesOrderNo := SalesOrder."No.".Value;
-        SalesOrder.Close;
+        SalesOrder.Close();
         Commit();
         SalesOrder.OpenView;
         SalesOrder.GotoKey(SalesHeader."Document Type"::Order, SalesOrderNo);

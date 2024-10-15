@@ -56,7 +56,7 @@ table 130415 "Semi-Manual Test Wizard"
     var
         FailureCondition: Boolean;
     begin
-        Init;
+        Init();
         "Codeunit number" := CodeunitId;
         "Codeunit name" := CodeunitName;
         FailureCondition := not CODEUNIT.Run("Codeunit number", Rec);

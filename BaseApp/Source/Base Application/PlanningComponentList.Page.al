@@ -1,7 +1,7 @@
 page 99000861 "Planning Component List"
 {
     Caption = 'Planning Component List';
-    DataCaptionExpression = Caption;
+    DataCaptionExpression = Caption();
     Editable = false;
     PageType = List;
     SourceTable = "Planning Component";
@@ -13,19 +13,19 @@ page 99000861 "Planning Component List"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Item No."; "Item No.")
+                field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the item number of the component.';
                     Visible = false;
                 }
-                field("Variant Code"; "Variant Code")
+                field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the variant of the item on the line.';
                     Visible = false;
                 }
-                field("Due Date"; "Due Date")
+                field("Due Date"; Rec."Due Date")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the date when this planning component must be finished.';
@@ -35,13 +35,13 @@ page 99000861 "Planning Component List"
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the description of the component.';
                 }
-                field("Scrap %"; "Scrap %")
+                field("Scrap %"; Rec."Scrap %")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the percentage of the item that you expect to be scrapped in the production process.';
                     Visible = false;
                 }
-                field("Calculation Formula"; "Calculation Formula")
+                field("Calculation Formula"; Rec."Calculation Formula")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies how to calculate the Quantity field.';
@@ -66,57 +66,57 @@ page 99000861 "Planning Component List"
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the depth of one item unit when measured in the specified unit of measure.';
                 }
-                field("Quantity per"; "Quantity per")
+                field("Quantity per"; Rec."Quantity per")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies how many units of the component are required to produce the parent item.';
                 }
-                field("Unit of Measure Code"; "Unit of Measure Code")
+                field("Unit of Measure Code"; Rec."Unit of Measure Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
                     Visible = false;
                 }
-                field("Expected Quantity"; "Expected Quantity")
+                field("Expected Quantity"; Rec."Expected Quantity")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the expected quantity of this planning component line.';
                 }
-                field("Expected Quantity (Base)"; "Expected Quantity (Base)")
+                field("Expected Quantity (Base)"; Rec."Expected Quantity (Base)")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the contents of the Expected Quantity field on the line, in base units of measure.';
                 }
-                field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
+                field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                     Visible = false;
                 }
-                field("Shortcut Dimension 2 Code"; "Shortcut Dimension 2 Code")
+                field("Shortcut Dimension 2 Code"; Rec."Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                     Visible = false;
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the code for the inventory location, where the item on the planning component line will be registered.';
                     Visible = false;
                 }
-                field("Routing Link Code"; "Routing Link Code")
+                field("Routing Link Code"; Rec."Routing Link Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies a routing link code to link a planning component with a specific operation.';
                 }
-                field("Unit Cost"; "Unit Cost")
+                field("Unit Cost"; Rec."Unit Cost")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the cost of one unit of the item or resource on the line.';
                     Visible = false;
                 }
-                field("Cost Amount"; "Cost Amount")
+                field("Cost Amount"; Rec."Cost Amount")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the total cost for this planning component line.';
@@ -128,19 +128,19 @@ page 99000861 "Planning Component List"
                     ToolTip = 'Specifies the position of the component on the bill of material.';
                     Visible = false;
                 }
-                field("Position 2"; "Position 2")
+                field("Position 2"; Rec."Position 2")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the second reference number for the component position, such as the alternate position number of a component on a circuit board.';
                     Visible = false;
                 }
-                field("Position 3"; "Position 3")
+                field("Position 3"; Rec."Position 3")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the third reference number for the component position on a bill of material, such as the alternate position number of a component on a print card.';
                     Visible = false;
                 }
-                field("Lead-Time Offset"; "Lead-Time Offset")
+                field("Lead-Time Offset"; Rec."Lead-Time Offset")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the lead-time offset for the planning component.';

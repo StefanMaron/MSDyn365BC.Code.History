@@ -46,15 +46,15 @@ table 1309 "O365 Getting Started"
 
     procedure AlreadyShown(): Boolean
     begin
-        exit(Get(UserId, ClientTypeManagement.GetCurrentClientType));
+        exit(Get(UserId, ClientTypeManagement.GetCurrentClientType()));
     end;
 
     procedure MarkAsShown()
     begin
-        Init;
+        Init();
         "User ID" := UserId;
-        "Display Target" := Format(ClientTypeManagement.GetCurrentClientType);
-        Insert;
+        "Display Target" := Format(ClientTypeManagement.GetCurrentClientType());
+        Insert();
     end;
 
     [IntegrationEvent(false, false)]

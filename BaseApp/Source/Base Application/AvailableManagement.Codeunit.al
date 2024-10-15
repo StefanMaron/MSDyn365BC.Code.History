@@ -130,9 +130,9 @@ codeunit 5400 "Available Management"
         if (Item."Maximum Order Quantity" < OrderQty) and
            (Item."Maximum Order Quantity" <> 0)
         // AND  (SKU."Maximum Order Quantity" > MinQty)
-        then begin
-            DeltaQty := Item."Maximum Order Quantity" - OrderQty;
-        end else
+        then
+            DeltaQty := Item."Maximum Order Quantity" - OrderQty
+        else
             DeltaQty := 0;
         if Item."Minimum Order Quantity" > (OrderQty + DeltaQty) then
             DeltaQty := Item."Minimum Order Quantity" - OrderQty;
@@ -150,12 +150,10 @@ codeunit 5400 "Available Management"
         // excluding logging surplus, resiliency errors and comments
         case Item."Reordering Policy" of
             Item."Reordering Policy"::"Maximum Qty.":
-                begin
-                    if Item."Maximum Inventory" < Item."Reorder Point" then
-                        QtyToOrder := Item."Reorder Point" - ProjectedInventory
-                    else
-                        QtyToOrder := Item."Maximum Inventory" - ProjectedInventory;
-                end;
+                if Item."Maximum Inventory" < Item."Reorder Point" then
+                    QtyToOrder := Item."Reorder Point" - ProjectedInventory
+                else
+                    QtyToOrder := Item."Maximum Inventory" - ProjectedInventory;
             Item."Reordering Policy"::"Fixed Reorder Qty.":
                 begin
                     Item.TestField("Reorder Quantity"); // Assertion

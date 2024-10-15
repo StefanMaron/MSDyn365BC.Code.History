@@ -5,7 +5,7 @@ codeunit 5521 "Make Supply Orders (Yes/No)"
     trigger OnRun()
     begin
         ReqLine.Copy(Rec);
-        Code;
+        Code();
         Rec := ReqLine;
     end;
 

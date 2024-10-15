@@ -17,7 +17,7 @@ report 1008 "Job Analysis"
             column(TodayFormatted; Format(Today, 0, 4))
             {
             }
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(JobtableCaptJobFilter; TableCaption + ': ' + JobFilter)
@@ -302,8 +302,8 @@ report 1008 "Job Analysis"
 
     trigger OnPreReport()
     begin
-        JobFilter := Job.GetFilters;
-        JobTaskFilter := "Job Task".GetFilters;
+        JobFilter := Job.GetFilters();
+        JobTaskFilter := "Job Task".GetFilters();
     end;
 
     var

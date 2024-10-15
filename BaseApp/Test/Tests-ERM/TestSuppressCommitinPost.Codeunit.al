@@ -943,7 +943,7 @@
         ReqWkshMakeOrder: Codeunit "Req. Wksh.-Make Order";
     begin
         ReqWkshMakeOrder.SetSuppressCommit(false);
-        ReqWkshMakeOrder.Set(PurchaseHeader, WorkDate, false);
+        ReqWkshMakeOrder.Set(PurchaseHeader, WorkDate(), false);
         ReqWkshMakeOrder.CarryOutBatchAction(RequisitionLine);
     end;
 
@@ -953,7 +953,7 @@
         ReqWkshMakeOrder: Codeunit "Req. Wksh.-Make Order";
     begin
         ReqWkshMakeOrder.SetSuppressCommit(true);
-        ReqWkshMakeOrder.Set(PurchaseHeader, WorkDate, false);
+        ReqWkshMakeOrder.Set(PurchaseHeader, WorkDate(), false);
         ReqWkshMakeOrder.CarryOutBatchAction(RequisitionLine);
     end;
 

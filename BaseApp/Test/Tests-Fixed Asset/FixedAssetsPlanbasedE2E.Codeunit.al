@@ -18,7 +18,7 @@ codeunit 135401 "Fixed Assets Plan-based E2E"
         IsInitialized: Boolean;
         FAJournalTemplateNameTok: Label 'ASSETS', Locked = true;
         FATypeOfAcquisitionTok: Label 'Bank Account', Locked = true;
-        MissingPermissionsErr: Label 'You do not have the following permissions';
+        MissingPermissionsErr: Label 'Sorry, the current permissions prevented the action.';
 
     [Scope('OnPrem')]
     procedure Initialize()
@@ -312,11 +312,11 @@ codeunit 135401 "Fixed Assets Plan-based E2E"
         FixedAssetCard.OpenNew();
         FixedAssetCard.Description.SetValue(Description);
         FixedAssetCard."FA Subclass Code".SetValue(FASubclassCode);
-        FixedAssetCard.DepreciationStartingDate.SetValue(WorkDate);
+        FixedAssetCard.DepreciationStartingDate.SetValue(WorkDate());
         FixedAssetCard.NumberOfDepreciationYears.SetValue(LibraryRandom.RandIntInRange(1, 10));
         FixedAssetCard.DepreciationEndingDate.Activate;
         FANo := FixedAssetCard."No.".Value;
-        FixedAssetCard.Close;
+        FixedAssetCard.Close();
         FixedAsset.Get(FANo);
     end;
 
@@ -327,7 +327,7 @@ codeunit 135401 "Fixed Assets Plan-based E2E"
         FixedAssetCard.OpenEdit;
         FixedAssetCard.GotoRecord(FixedAsset);
         FixedAssetCard.Acquire.Invoke;
-        FixedAssetCard.Close;
+        FixedAssetCard.Close();
     end;
 
     local procedure ModifyFixedAsset(FixedAsset: Record "Fixed Asset")
@@ -339,7 +339,7 @@ codeunit 135401 "Fixed Assets Plan-based E2E"
         FixedAssetCard.OpenEdit;
         FixedAssetCard.GotoRecord(FixedAsset);
         FixedAssetCard.Description.SetValue(Description);
-        FixedAssetCard.Close;
+        FixedAssetCard.Close();
     end;
 
     local procedure DepreciateFixedAsset(FixedAsset: Record "Fixed Asset")
@@ -473,7 +473,7 @@ codeunit 135401 "Fixed Assets Plan-based E2E"
             FixedAssetAcquisitionWizard.ExternalDocNo.SetValue(LibraryUtility.GenerateGUID());
         FixedAssetAcquisitionWizard.NextPage.Invoke;
         FixedAssetAcquisitionWizard.AcquisitionCost.SetValue(LibraryRandom.RandInt(100));
-        FixedAssetAcquisitionWizard.AcquisitionDate.SetValue(WorkDate);
+        FixedAssetAcquisitionWizard.AcquisitionDate.SetValue(WorkDate());
         FixedAssetAcquisitionWizard.NextPage.Invoke;
         FixedAssetAcquisitionWizard.PreviousPage.Invoke;
         FixedAssetAcquisitionWizard.NextPage.Invoke;

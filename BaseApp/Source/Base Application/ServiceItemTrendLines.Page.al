@@ -15,19 +15,19 @@ page 5984 "Service Item Trend Lines"
             {
                 Editable = false;
                 ShowCaption = false;
-                field("Period Start"; "Period Start")
+                field("Period Start"; Rec."Period Start")
                 {
                     ApplicationArea = Service;
                     Caption = 'Period Start';
                     ToolTip = 'Specifies the start date of the period defined on the line for the service trend.';
                 }
-                field("Period Name"; "Period Name")
+                field("Period Name"; Rec."Period Name")
                 {
                     ApplicationArea = Service;
                     Caption = 'Period Name';
                     ToolTip = 'Specifies the name of the period shown in the line.';
                 }
-                field("ServItem.""Prepaid Amount"""; "Prepaid Income")
+                field("ServItem.""Prepaid Amount"""; Rec."Prepaid Income")
                 {
                     ApplicationArea = Prepayments;
                     Caption = 'Prepaid Income';
@@ -38,7 +38,7 @@ page 5984 "Service Item Trend Lines"
                         ShowServLedgEntries(false);
                     end;
                 }
-                field("ServItem.""Invoiced Amount"""; "Posted Income")
+                field("ServItem.""Invoiced Amount"""; Rec."Posted Income")
                 {
                     ApplicationArea = Service;
                     Caption = 'Posted Income';
@@ -50,7 +50,7 @@ page 5984 "Service Item Trend Lines"
                         ShowServLedgEntries(true);
                     end;
                 }
-                field("ServItem.""Parts Used"""; "Parts Used")
+                field("ServItem.""Parts Used"""; Rec."Parts Used")
                 {
                     ApplicationArea = Service;
                     Caption = 'Parts Used';
@@ -62,7 +62,7 @@ page 5984 "Service Item Trend Lines"
                         ShowServLedgEntriesByType(ServLedgEntry.Type::Item);
                     end;
                 }
-                field("ServItem.""Resources Used"""; "Resources Used")
+                field("ServItem.""Resources Used"""; Rec."Resources Used")
                 {
                     ApplicationArea = Service;
                     Caption = 'Resources Used';
@@ -74,7 +74,7 @@ page 5984 "Service Item Trend Lines"
                         ShowServLedgEntriesByType(ServLedgEntry.Type::Resource);
                     end;
                 }
-                field("ServItem.""Cost Used"""; "Cost Used")
+                field("ServItem.""Cost Used"""; Rec."Cost Used")
                 {
                     ApplicationArea = Service;
                     Caption = 'Cost Used';

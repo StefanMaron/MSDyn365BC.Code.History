@@ -210,7 +210,7 @@ table 485 "Business Chart Buffer"
 
     local procedure ConvertDateToDateTime(var Value: Variant)
     begin
-        if IsXAxisDateTime and Value.IsDate then
+        if IsXAxisDateTime() and Value.IsDate then
             Value := CreateDateTime(Value, 120000T);
     end;
 
@@ -282,7 +282,7 @@ table 485 "Business Chart Buffer"
 
     procedure NextColumn(var BusChartMap: Record "Business Chart Map") Result: Boolean
     begin
-        Result := TempBusChartMapToColumn.Next <> 0;
+        Result := TempBusChartMapToColumn.Next() <> 0;
         BusChartMap := TempBusChartMapToColumn;
     end;
 
@@ -293,19 +293,19 @@ table 485 "Business Chart Buffer"
 
     procedure GetXValue(XAxisIndex: Integer; var Value: Variant)
     begin
-        GetValue(GetXCaption, XAxisIndex, Value);
+        GetValue(GetXCaption(), XAxisIndex, Value);
     end;
 
     procedure GetXValueAsDate(XIndex: Integer): Date
     var
         Value: Variant;
     begin
-        if IsXAxisDateTime then begin
+        if IsXAxisDateTime() then begin
             GetXValue(XIndex, Value);
             exit(Variant2Date(Value));
         end;
         TempBusChartMapToColumn.Get(XIndex);
-        exit(TempBusChartMapToColumn.GetValueAsDate);
+        exit(TempBusChartMapToColumn.GetValueAsDate());
     end;
 
     procedure GetMeasureValueString(MeasureIndex: Integer): Text
@@ -387,7 +387,7 @@ table 485 "Business Chart Buffer"
                 begin
                     if CalcStartDate then
                         Modificator := '-';
-                    exit(CalcDate(StrSubstNo('<%1C%2>', Modificator, GetPeriodLength), Date));
+                    exit(CalcDate(StrSubstNo('<%1C%2>', Modificator, GetPeriodLength()), Date));
                 end;
         end;
     end;
@@ -504,7 +504,7 @@ table 485 "Business Chart Buffer"
     begin
         "Drill-Down Measure Index" := BusinessChart.GetMeasureNameToValueMap().Keys().IndexOf(MeasureName) - 1;
 
-        if IsXAxisDateTime then
+        if IsXAxisDateTime() then
             XValueString := GetDateString(XValueString);
 
         "Drill-Down X Index" := TempBusChartMapToColumn.GetIndex(XValueString);

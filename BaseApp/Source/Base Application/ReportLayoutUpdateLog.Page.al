@@ -12,19 +12,19 @@ page 9656 "Report Layout Update Log"
         {
             repeater(Group)
             {
-                field("Report ID"; "Report ID")
+                field("Report ID"; Rec."Report ID")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Report ID';
                     ToolTip = 'Specifies the ID of the report object that uses the custom report layout.';
                 }
-                field("Layout Description"; "Layout Description")
+                field("Layout Description"; Rec."Layout Description")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Layout Description';
                     ToolTip = 'Specifies a description of the report layout.';
                 }
-                field("Layout Type"; "Layout Type")
+                field("Layout Type"; Rec."Layout Type")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Layout Type';
@@ -36,7 +36,7 @@ page 9656 "Report Layout Update Log"
                     Caption = 'Status';
                     ToolTip = 'Specifies the status of the report layout update.';
                 }
-                field("Field Name"; "Field Name")
+                field("Field Name"; Rec."Field Name")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Field Name';
@@ -61,8 +61,6 @@ page 9656 "Report Layout Update Log"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Edit';
                 Image = Edit;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Edit a report layout.';
 
                 trigger OnAction()
@@ -74,6 +72,17 @@ page 9656 "Report Layout Update Log"
                     if CustomReportLayout.FindFirst() then
                         PAGE.Run(PAGE::"Custom Report Layouts", CustomReportLayout);
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(Edit_Promoted; Edit)
+                {
+                }
             }
         }
     }

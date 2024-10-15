@@ -5,16 +5,17 @@ codeunit 7318 "Bin Create"
     trigger OnRun()
     begin
         BinCreateLine.Copy(Rec);
-        Code;
+        Code();
         Rec := BinCreateLine;
     end;
 
     var
         BinCreateLine: Record "Bin Creation Worksheet Line";
         Bin: Record Bin;
+        Location: Record Location;
+
         Text000: Label 'Do you want to create the bin?';
         Text001: Label 'There is nothing to create.';
-        Location: Record Location;
 
     local procedure "Code"()
     begin
@@ -40,7 +41,7 @@ codeunit 7318 "Bin Create"
             exit;
 
         with BinCreationWorksheetLine do begin
-            if EmptyLine then
+            if EmptyLine() then
                 exit;
 
             Bin.Init();

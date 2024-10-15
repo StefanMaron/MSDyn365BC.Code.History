@@ -17,7 +17,7 @@ report 127 "Finance Charge Memo Nos."
             column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
             {
             }
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(STRSUBSTNO_Text004_FinChrgMemoHeaderFilter_; StrSubstNo(Text004, FinChrgMemoHeaderFilter))
@@ -165,15 +165,10 @@ report 127 "Finance Charge Memo Nos."
 
     trigger OnPreReport()
     begin
-        FinChrgMemoHeaderFilter := "Issued Fin. Charge Memo Header".GetFilters;
+        FinChrgMemoHeaderFilter := "Issued Fin. Charge Memo Header".GetFilters();
     end;
 
     var
-        Text000: Label 'No number series has been used for the following entries:';
-        Text001: Label 'The number series %1 %2 has been used for the following entries:';
-        Text002: Label 'There is a gap in the number series.';
-        Text003: Label 'The documents are not listed according to Posting Date because they were not entered in that order.';
-        Text004: Label 'Issued Finance Charge Memo: %1';
         NoSeries: Record "No. Series";
         SourceCode: Record "Source Code";
         FinChrgMemoHeaderFilter: Text;
@@ -184,6 +179,12 @@ report 127 "Finance Charge Memo Nos."
         NewPage: Boolean;
         ErrorText: array[10] of Text[250];
         ErrorCounter: Integer;
+
+        Text000: Label 'No number series has been used for the following entries:';
+        Text001: Label 'The number series %1 %2 has been used for the following entries:';
+        Text002: Label 'There is a gap in the number series.';
+        Text003: Label 'The documents are not listed according to Posting Date because they were not entered in that order.';
+        Text004: Label 'Issued Finance Charge Memo: %1';
         Finance_Charge_Memo_Nos_CaptionLbl: Label 'Finance Charge Memo Nos.';
         CurrReport_PAGENOCaptionLbl: Label 'Page';
         SourceCode_DescriptionCaptionLbl: Label 'Description';

@@ -31,13 +31,13 @@ codeunit 139126 "O365 Activites Tests"
         // Setup
         Initialize();
         CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Invoice);
-        CustLedgerEntry.SetFilter("Due Date", '<%1', WorkDate);
+        CustLedgerEntry.SetFilter("Due Date", '<%1', WorkDate());
         CustLedgerEntry.SetRange(Open, true);
         if CustLedgerEntry.FindSet() then
             repeat
                 CustLedgerEntry.CalcFields("Remaining Amt. (LCY)");
                 RemainingAmountSum += CustLedgerEntry."Remaining Amt. (LCY)";
-            until CustLedgerEntry.Next = 0;
+            until CustLedgerEntry.Next() = 0;
 
         // Execute & Verify
         Assert.AreEqual(RemainingAmountSum, ActivitiesMgt.CalcOverdueSalesInvoiceAmount(false), 'Unexpected Sum');
@@ -53,13 +53,13 @@ codeunit 139126 "O365 Activites Tests"
         // Setup
         Initialize();
         VendorLedgerEntry.SetRange("Document Type", VendorLedgerEntry."Document Type"::Invoice);
-        VendorLedgerEntry.SetFilter("Due Date", '<%1', WorkDate);
+        VendorLedgerEntry.SetFilter("Due Date", '<%1', WorkDate());
         VendorLedgerEntry.SetRange(Open, true);
         if VendorLedgerEntry.FindSet() then
             repeat
                 VendorLedgerEntry.CalcFields("Remaining Amt. (LCY)");
                 RemainingAmountSum += VendorLedgerEntry."Remaining Amt. (LCY)";
-            until VendorLedgerEntry.Next = 0;
+            until VendorLedgerEntry.Next() = 0;
 
         // Execute & Verify
         Assert.AreEqual(Abs(RemainingAmountSum), ActivitiesMgt.CalcOverduePurchaseInvoiceAmount(false), 'Unexpected Sum');
@@ -76,11 +76,11 @@ codeunit 139126 "O365 Activites Tests"
         Initialize();
         CustLedgerEntry.SetFilter("Document Type", '%1|%2',
           CustLedgerEntry."Document Type"::Invoice, CustLedgerEntry."Document Type"::"Credit Memo");
-        CustLedgerEntry.SetRange("Posting Date", CalcDate('<-CM>', WorkDate), WorkDate);
+        CustLedgerEntry.SetRange("Posting Date", CalcDate('<-CM>', WorkDate()), WorkDate());
         if CustLedgerEntry.FindSet() then
             repeat
                 AmountSum += CustLedgerEntry."Sales (LCY)";
-            until CustLedgerEntry.Next = 0;
+            until CustLedgerEntry.Next() = 0;
 
         // Execute & Verify
         Assert.AreEqual(AmountSum, ActivitiesMgt.CalcSalesThisMonthAmount(false), 'Unexpected Sum');
@@ -96,11 +96,11 @@ codeunit 139126 "O365 Activites Tests"
     begin
         // Setup
         Initialize();
-        CustLedgerEntry.SetRange("Posting Date", AccountingPeriod.GetFiscalYearStartDate(WorkDate), WorkDate);
+        CustLedgerEntry.SetRange("Posting Date", AccountingPeriod.GetFiscalYearStartDate(WorkDate()), WorkDate());
         if CustLedgerEntry.FindSet() then
             repeat
                 AmountSum := AmountSum + CustLedgerEntry."Sales (LCY)";
-            until CustLedgerEntry.Next = 0;
+            until CustLedgerEntry.Next() = 0;
 
         // Execute & Verify
         Assert.AreEqual(AmountSum, ActivitiesMgt.CalcSalesYTD, 'Unexpected Sum');
@@ -150,7 +150,7 @@ codeunit 139126 "O365 Activites Tests"
         ColumnIndex := 1;
         Customer.SetCurrentKey("Sales (LCY)");
         Customer.Ascending(false);
-        Customer.SetRange("Date Filter", AccountingPeriod.GetFiscalYearStartDate(WorkDate), WorkDate);
+        Customer.SetRange("Date Filter", AccountingPeriod.GetFiscalYearStartDate(WorkDate()), WorkDate());
         Customer.CalcFields("Sales (LCY)");
         if Customer.Find('-') then
             repeat
@@ -158,7 +158,7 @@ codeunit 139126 "O365 Activites Tests"
                     TopCustomerSales += Customer."Sales (LCY)";
                 TotalSales += Customer."Sales (LCY)";
                 ColumnIndex := ColumnIndex + 1;
-            until Customer.Next = 0;
+            until Customer.Next() = 0;
     end;
 
     [Test]
@@ -185,7 +185,7 @@ codeunit 139126 "O365 Activites Tests"
         // Setup
         Initialize();
         CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Invoice);
-        CustLedgerEntry.SetFilter("Due Date", '<%1', WorkDate);
+        CustLedgerEntry.SetFilter("Due Date", '<%1', WorkDate());
         CustLedgerEntry.SetRange(Open, true);
         CustLedgerEntry.FindSet();
         CustomerLedgerEntries.Trap;
@@ -196,7 +196,7 @@ codeunit 139126 "O365 Activites Tests"
         // Verify
         repeat
             Assert.IsTrue(CustomerLedgerEntries.GotoRecord(CustLedgerEntry), 'Expected Entry Not Found');
-        until CustLedgerEntry.Next = 0;
+        until CustLedgerEntry.Next() = 0;
     end;
 
     [Test]
@@ -209,7 +209,7 @@ codeunit 139126 "O365 Activites Tests"
         // Setup
         Initialize();
         VendorLedgerEntry.SetRange("Document Type", VendorLedgerEntry."Document Type"::Invoice);
-        VendorLedgerEntry.SetFilter("Due Date", '<%1', WorkDate);
+        VendorLedgerEntry.SetFilter("Due Date", '<%1', WorkDate());
         VendorLedgerEntry.SetFilter("Remaining Amt. (LCY)", '<>0');
         VendorLedgerEntry.FindSet();
         VendorLedgerEntries.Trap;
@@ -220,7 +220,7 @@ codeunit 139126 "O365 Activites Tests"
         // Verify
         repeat
             Assert.IsTrue(VendorLedgerEntries.GotoRecord(VendorLedgerEntry), 'Expected Entry Not Found');
-        until VendorLedgerEntry.Next = 0;
+        until VendorLedgerEntry.Next() = 0;
     end;
 
     [Test]
@@ -233,18 +233,18 @@ codeunit 139126 "O365 Activites Tests"
         // Setup
         Initialize();
         CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Invoice);
-        CustLedgerEntry.SetRange("Posting Date", CalcDate('<-CM>', WorkDate), WorkDate);
+        CustLedgerEntry.SetRange("Posting Date", CalcDate('<-CM>', WorkDate()), WorkDate());
         CustLedgerEntry.FindSet();
 
         CustomerLedgerEntries.Trap;
 
         // Execute
-        ActivitiesMgt.DrillDownSalesThisMonth;
+        ActivitiesMgt.DrillDownSalesThisMonth();
 
         // Verify
         repeat
             Assert.IsTrue(CustomerLedgerEntries.GotoRecord(CustLedgerEntry), 'Expected Entry Not Found');
-        until CustLedgerEntry.Next = 0;
+        until CustLedgerEntry.Next() = 0;
     end;
 
     [Test]
@@ -277,7 +277,7 @@ codeunit 139126 "O365 Activites Tests"
                 Assert.IsTrue(Abs(VendLedgerEntry."Remaining Amt. (LCY)") <= PreviousRemainingAmtLCY,
                   'Entries not sorted decreasingly by Remaining Amt. (LCY)');
             PreviousRemainingAmtLCY := Abs(VendLedgerEntry."Remaining Amt. (LCY)");
-        until not VendorLedgerEntries.Next;
+        until not VendorLedgerEntries.Next();
     end;
 
     [Test]
@@ -319,7 +319,7 @@ codeunit 139126 "O365 Activites Tests"
                 Assert.IsTrue(CustLedgerEntry."Remaining Amt. (LCY)" <= PreviousRemainingAmtLCY,
                   'Entries not sorted decreasingly by Remaining Amt. (LCY)');
             PreviousRemainingAmtLCY := CustLedgerEntry."Remaining Amt. (LCY)";
-        until not CustomerLedgerEntries.Next;
+        until not CustomerLedgerEntries.Next();
     end;
 
     [Test]
@@ -353,7 +353,7 @@ codeunit 139126 "O365 Activites Tests"
 
         // WHEN - O365 Activities page is opened
         O365Activities.OpenView;
-        O365Activities.Close;
+        O365Activities.Close();
 
         // THEN - Amounts are calculated
         ActivitiesCue.Get();
@@ -384,7 +384,7 @@ codeunit 139126 "O365 Activites Tests"
 
         // WHEN - O365 Activities page is opened
         O365Activities.OpenView;
-        O365Activities.Close;
+        O365Activities.Close();
 
         // THEN - Amounts are calculated
         ActivitiesCue.Get();
@@ -416,7 +416,7 @@ codeunit 139126 "O365 Activites Tests"
         // WHEN - O365 Activities page is opened
         O365Activities.OpenView;
         Sleep(1000); // Let the child session do the calculations
-        O365Activities.Close;
+        O365Activities.Close();
 
         // THEN - Amounts are calculated
         ActivitiesCue.Get();
@@ -444,7 +444,7 @@ codeunit 139126 "O365 Activites Tests"
         CreateTestPurchaseInvoices;
 
         // Insert Activities Cue if not found
-        if not ActivitiesCue.Get then begin
+        if not ActivitiesCue.Get() then begin
             ActivitiesCue.Init();
             ActivitiesCue.Insert();
         end;
@@ -473,7 +473,7 @@ codeunit 139126 "O365 Activites Tests"
             TestCustomer."Payment Method Code" := TestPaymentMethod.Code;
             TestCustomer.Modify(true);
             LibrarySmallBusiness.CreateSalesInvoiceHeader(TestSalesHeader, TestCustomer);
-            TestSalesHeader."Posting Date" := CalcDate('<-' + Format(2 * I) + 'D>', WorkDate);
+            TestSalesHeader."Posting Date" := CalcDate('<-' + Format(2 * I) + 'D>', WorkDate());
             TestSalesHeader."Due Date" := CalcDate('<7D>', TestSalesHeader."Posting Date");
             TestSalesHeader.Modify(true);
             LibrarySmallBusiness.CreateSalesLine(TestSalesLine, TestSalesHeader, TestItem, I);
@@ -502,7 +502,7 @@ codeunit 139126 "O365 Activites Tests"
         // post test purchase invoices with backdated posting date in order to create some item ledger entries to drill down to
         for I := 1 to 10 do
             PostPurchaseInvoice(TestPurchaseHeader, TestPurchaseLine, TestVendor, TestItem, I, Format(I),
-              CalcDate('<-' + Format(2 * I) + 'D>', WorkDate));
+              CalcDate('<-' + Format(2 * I) + 'D>', WorkDate()));
     end;
 
     local procedure PostPurchaseInvoice(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; Vendor: Record Vendor; Item: Record Item; Quantity: Integer; VendorInvoiceNo: Code[10]; PostingDate: Date)
@@ -547,7 +547,7 @@ codeunit 139126 "O365 Activites Tests"
         GLAccount.SetRange("Account Subcategory Entry No.", 0);
         GLAccount.FindFirst();
 
-        GenJournalLine.Validate("Document No.", NoSeriesManagement.GetNextNo(GenJournalBatch."No. Series", WorkDate, false));
+        GenJournalLine.Validate("Document No.", NoSeriesManagement.GetNextNo(GenJournalBatch."No. Series", WorkDate(), false));
         GenJournalLine.Validate("Posting Date", PostingDate);
         GenJournalLine.Validate("Document Type", GenJournalLine."Document Type"::Payment);
         GenJournalLine.Validate("Account Type", GenJournalLine."Account Type"::Customer);
@@ -584,7 +584,7 @@ codeunit 139126 "O365 Activites Tests"
                 ApplyPaymentToCustomerInvoice(GenJournalLine, CustLedgerEntry);
                 LibraryERM.PostGeneralJnlLine(GenJournalLine);
                 CountInvoices += 1;
-            until (CustLedgerEntry.Next = 0) or (CountInvoices = ExpectedCountClosedInvoices);
+            until (CustLedgerEntry.Next() = 0) or (CountInvoices = ExpectedCountClosedInvoices);
         end;
         PaymentsCreated := true;
     end;
@@ -596,13 +596,13 @@ codeunit 139126 "O365 Activites Tests"
     begin
         // Delete any invoices in the last 3 months
         CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Invoice);
-        CustLedgerEntry.SetRange("Posting Date", CalcDate('<CM-3M>', WorkDate), WorkDate);
+        CustLedgerEntry.SetRange("Posting Date", CalcDate('<CM-3M>', WorkDate()), WorkDate());
 
         if CustLedgerEntry.FindSet() then
             repeat
                 DetailedCustLedgEntry.SetRange("Cust. Ledger Entry No.", CustLedgerEntry."Entry No.");
                 DetailedCustLedgEntry.DeleteAll(true);
-            until CustLedgerEntry.Next = 0;
+            until CustLedgerEntry.Next() = 0;
         CustLedgerEntry.DeleteAll(true);
     end;
 

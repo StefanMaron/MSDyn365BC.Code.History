@@ -55,9 +55,9 @@ codeunit 134766 "Test Service Post Preview"
         GLPostingPreview.OK.Invoke;
 
         // Cleanup
-        ServiceHeader.Find;
+        ServiceHeader.Find();
         ServiceHeader.Delete();
-        ClearAll;
+        ClearAll();
     end;
 
     [Test]
@@ -87,9 +87,9 @@ codeunit 134766 "Test Service Post Preview"
         GLPostingPreview.OK.Invoke;
 
         // Cleanup
-        ServiceHeader.Find;
+        ServiceHeader.Find();
         ServiceHeader.Delete();
-        ClearAll;
+        ClearAll();
     end;
 
     [Test]
@@ -122,9 +122,9 @@ codeunit 134766 "Test Service Post Preview"
         GLPostingPreview.OK.Invoke;
 
         // Cleanup
-        ServiceHeader.Find;
+        ServiceHeader.Find();
         ServiceHeader.Delete();
-        ClearAll;
+        ClearAll();
     end;
 
     [Test]
@@ -146,9 +146,9 @@ codeunit 134766 "Test Service Post Preview"
         ServiceOrder.ServItemLines."Service Lines".Invoke;
 
         // Cleanup
-        ServiceHeader.Find;
+        ServiceHeader.Find();
         ServiceHeader.Delete();
-        ClearAll;
+        ClearAll();
     end;
 
     [Test]
@@ -177,9 +177,9 @@ codeunit 134766 "Test Service Post Preview"
         GLPostingPreview.OK.Invoke;
 
         // Cleanup
-        ServiceHeader.Find;
+        ServiceHeader.Find();
         ServiceHeader.Delete();
-        ClearAll;
+        ClearAll();
     end;
 
     [Test]
@@ -209,9 +209,9 @@ codeunit 134766 "Test Service Post Preview"
         GLPostingPreview.OK.Invoke;
 
         // Cleanup
-        ServiceHeader.Find;
+        ServiceHeader.Find();
         ServiceHeader.Delete();
-        ClearAll;
+        ClearAll();
     end;
 
     [Test]
@@ -244,9 +244,9 @@ codeunit 134766 "Test Service Post Preview"
         GLPostingPreview.OK.Invoke;
 
         // Cleanup
-        ServiceHeader.Find;
+        ServiceHeader.Find();
         ServiceHeader.Delete();
-        ClearAll;
+        ClearAll();
     end;
 
     local procedure CreateServiceLineWithItem(var ServiceLine: Record "Service Line"; ServiceHeader: Record "Service Header"; ServiceItemNo: Code[20])

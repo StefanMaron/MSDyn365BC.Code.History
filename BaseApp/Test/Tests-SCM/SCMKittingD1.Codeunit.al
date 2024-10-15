@@ -153,7 +153,7 @@ codeunit 137090 "SCM Kitting - D1"
           StrSubstNo(ErrorNoAssemblyList, Item."No.", Item.Description, 'Standard Cost'), GetLastErrorText, 'Wrong cost msg');
 
         // Tear down.
-        ClearLastError;
+        ClearLastError();
 
         // Exercise.
         asserterror CalculateStandardCost.CalcAssemblyItemPrice(Item."No.");
@@ -163,7 +163,7 @@ codeunit 137090 "SCM Kitting - D1"
           StrSubstNo(ErrorNoAssemblyList, Item."No.", Item.Description, 'Unit Price'), GetLastErrorText, 'Wrong price msg');
 
         // Tear down.
-        ClearLastError;
+        ClearLastError();
     end;
 
     [Test]
@@ -444,7 +444,7 @@ codeunit 137090 "SCM Kitting - D1"
         // Validate.
         Assert.AreEqual(
           StrSubstNo(ErrorNoAssemblyList, Item."No.", Item.Description, 'Standard Cost'), GetLastErrorText, GetLastErrorText);
-        ClearLastError;
+        ClearLastError();
     end;
 
     [Normal]
@@ -723,13 +723,13 @@ codeunit 137090 "SCM Kitting - D1"
         Assert.AreEqual(
           StrSubstNo(ErrorItemNotAssembled, Item."No.", Item.Description, 'Standard Cost'),
           GetLastErrorText, GetLastErrorText);
-        ClearLastError;
+        ClearLastError();
 
         asserterror CalculateStandardCost.CalcAssemblyItemPrice(Item."No.");
         Assert.AreEqual(
           StrSubstNo(ErrorItemNotAssembled, Item."No.", Item.Description, 'Unit Price'),
           GetLastErrorText, GetLastErrorText);
-        ClearLastError;
+        ClearLastError();
     end;
 
     [Test]
@@ -891,7 +891,7 @@ codeunit 137090 "SCM Kitting - D1"
             Assert.IsTrue(errorCode = 'DB:RecordNotFound', 'Record not found error message was expected. Actual error code:' + errorCode)
         else
             Assert.IsTrue(errorCode = 'TestField', ErrorWrongType + 'Actual error code:' + errorCode);
-        ClearLastError;
+        ClearLastError();
 
         Assert.AreNearlyEqual(LibraryAssembly.CalcExpectedStandardCost(MaterialCost, CapacityCost, CapOverhead, Item."No."),
           Item."Standard Cost", LibraryERM.GetAmountRoundingPrecision, 'Wrong std. cost for:' + Item."No.");
@@ -953,7 +953,7 @@ codeunit 137090 "SCM Kitting - D1"
             asserterror BOMComponent.Validate("Installed in Item No.", Item1."No.");
             // Validate.
             Assert.IsTrue(StrPos(GetLastErrorText, ErrorQtyPer) > 0, 'Actual:' + GetLastErrorText);
-            ClearLastError;
+            ClearLastError();
         end
         else
             BOMComponent.Validate("Installed in Item No.", Item1."No.");
@@ -1139,8 +1139,8 @@ codeunit 137090 "SCM Kitting - D1"
         BOMComponent.SetRange("Parent Item No.", SourceParentItem."No.");
         if BOMComponent.FindFirst() then
             BOMComponent.Rename(DestParentItem."No.", BOMComponent."Line No.");
-        SourceParentItem.Find;
-        DestParentItem.Find;
+        SourceParentItem.Find();
+        DestParentItem.Find();
     end;
 
     local procedure RemoveAllComponents(var ParentItem: Record Item)
@@ -1149,7 +1149,7 @@ codeunit 137090 "SCM Kitting - D1"
     begin
         BOMComponent.SetRange("Parent Item No.", ParentItem."No.");
         BOMComponent.DeleteAll(true);
-        ParentItem.Find;
+        ParentItem.Find();
     end;
 
     local procedure CreateAndAddComponentItemToItem(var ParentItem: Record Item; var ComponentItem: Record Item; QuantityPerParent: Decimal)
@@ -1160,7 +1160,7 @@ codeunit 137090 "SCM Kitting - D1"
           ComponentItem, ComponentItem."Costing Method"::Average, ComponentItem."Replenishment System"::Purchase, '', '');
         LibraryAssembly.CreateAssemblyListComponent(
           BOMComponent.Type::Item, ComponentItem."No.", ParentItem."No.", '', BOMComponent."Resource Usage Type", QuantityPerParent, true);
-        ParentItem.Find;
+        ParentItem.Find();
     end;
 }
 

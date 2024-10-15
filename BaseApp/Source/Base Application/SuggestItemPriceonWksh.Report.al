@@ -1,4 +1,4 @@
-#if not CLEAN19
+#if not CLEAN21
 report 7051 "Suggest Item Price on Wksh."
 {
     Caption = 'Suggest Item Price on Wksh.';
@@ -20,7 +20,7 @@ report 7051 "Suggest Item Price on Wksh."
             begin
                 Window.Update(1, "No.");
                 with SalesPriceWksh do begin
-                    Init;
+                    Init();
                     Validate("Item No.", Item."No.");
 
                     if not ("Unit of Measure Code" in [Item."Base Unit of Measure", '']) then
@@ -31,10 +31,10 @@ report 7051 "Suggest Item Price on Wksh."
                     CurrentUnitPrice :=
                       Round(
                         CurrExchRate.ExchangeAmtLCYToFCY(
-                          WorkDate, ToCurrency.Code,
+                          WorkDate(), ToCurrency.Code,
                           Item."Unit Price",
                           CurrExchRate.ExchangeRate(
-                            WorkDate, ToCurrency.Code)) *
+                            WorkDate(), ToCurrency.Code)) *
                         UOMMgt.GetQtyPerUnitOfMeasure(Item, "Unit of Measure Code"),
                         ToCurrency."Unit-Amount Rounding Precision");
 
@@ -68,9 +68,9 @@ report 7051 "Suggest Item Price on Wksh."
                     if PriceAlreadyExists or CreateNewPrices then begin
                         SalesPriceWksh2 := SalesPriceWksh;
                         if SalesPriceWksh2.Find('=') then
-                            Modify
+                            Modify()
                         else
-                            Insert;
+                            Insert();
                     end;
                 end;
             end;
@@ -132,7 +132,7 @@ report 7051 "Suggest Item Price on Wksh."
                                         begin
                                             CustList.LookupMode := true;
                                             CustList.SetRecord(ToCust);
-                                            if CustList.RunModal = ACTION::LookupOK then begin
+                                            if CustList.RunModal() = ACTION::LookupOK then begin
                                                 CustList.GetRecord(ToCust);
                                                 ToSalesCode := ToCust."No.";
                                             end;
@@ -141,7 +141,7 @@ report 7051 "Suggest Item Price on Wksh."
                                         begin
                                             CustPriceGrList.LookupMode := true;
                                             CustPriceGrList.SetRecord(ToCustPriceGr);
-                                            if CustPriceGrList.RunModal = ACTION::LookupOK then begin
+                                            if CustPriceGrList.RunModal() = ACTION::LookupOK then begin
                                                 CustPriceGrList.GetRecord(ToCustPriceGr);
                                                 ToSalesCode := ToCustPriceGr.Code;
                                             end;
@@ -150,7 +150,7 @@ report 7051 "Suggest Item Price on Wksh."
                                         begin
                                             CampaignList.LookupMode := true;
                                             CampaignList.SetRecord(ToCampaign);
-                                            if CampaignList.RunModal = ACTION::LookupOK then begin
+                                            if CampaignList.RunModal() = ACTION::LookupOK then begin
                                                 CampaignList.GetRecord(ToCampaign);
                                                 ToSalesCode := ToCampaign."No.";
                                                 ToStartDate := ToCampaign."Starting Date";
@@ -162,7 +162,7 @@ report 7051 "Suggest Item Price on Wksh."
 
                             trigger OnValidate()
                             begin
-                                ToSalesCodeOnAfterValidate;
+                                ToSalesCodeOnAfterValidate();
                             end;
                         }
                         field("ToUnitofMeasure.Code"; ToUnitofMeasure.Code)
@@ -259,10 +259,10 @@ report 7051 "Suggest Item Price on Wksh."
     trigger OnPreReport()
     begin
         RoundingMethod.SetRange(Code, RoundingMethod.Code);
-        if ToCurrency.Code = '' then begin
-            ToCurrency.InitRoundingPrecision;
-        end else begin
-            ToCurrency.Find;
+        if ToCurrency.Code = '' then
+            ToCurrency.InitRoundingPrecision()
+        else begin
+            ToCurrency.Find();
             ToCurrency.TestField("Unit-Amount Rounding Precision");
         end;
 
@@ -270,7 +270,7 @@ report 7051 "Suggest Item Price on Wksh."
             Error(Text002, SalesPrice.FieldCaption("Sales Code"));
 
         if ToUnitofMeasure.Code <> '' then
-            ToUnitofMeasure.Find;
+            ToUnitofMeasure.Find();
         with SalesPriceWksh do begin
             Validate("Sales Type", ToSalesType);
             Validate("Sales Code", ToSalesCode);
@@ -283,14 +283,14 @@ report 7051 "Suggest Item Price on Wksh."
                 ToSalesType::Customer:
                     begin
                         ToCust."No." := ToSalesCode;
-                        ToCust.Find;
+                        ToCust.Find();
                         "Price Includes VAT" := ToCust."Prices Including VAT";
                         "Allow Line Disc." := ToCust."Allow Line Disc.";
                     end;
                 ToSalesType::"Customer Price Group":
                     begin
                         ToCustPriceGr.Code := ToSalesCode;
-                        ToCustPriceGr.Find;
+                        ToCustPriceGr.Find();
                         "Price Includes VAT" := ToCustPriceGr."Price Includes VAT";
                         "Allow Line Disc." := ToCustPriceGr."Allow Line Disc.";
                         "Allow Invoice Disc." := ToCustPriceGr."Allow Invoice Disc.";
@@ -300,7 +300,6 @@ report 7051 "Suggest Item Price on Wksh."
     end;
 
     var
-        Text000: Label 'Processing items  #1##########';
         RoundingMethod: Record "Rounding Method";
         SalesPrice: Record "Sales Price";
         SalesPriceWksh2: Record "Sales Price Worksheet";
@@ -322,13 +321,15 @@ report 7051 "Suggest Item Price on Wksh."
         ToSalesCode: Code[20];
         ToStartDate: Date;
         ToEndDate: Date;
-        Text002: Label '%1 must be specified.';
         [InDataSet]
         SalesCodeCtrlEnable: Boolean;
         [InDataSet]
         ToStartDateCtrlEnable: Boolean;
         [InDataSet]
         ToEndDateCtrlEnable: Boolean;
+
+        Text000: Label 'Processing items  #1##########';
+        Text002: Label '%1 must be specified.';
 
     procedure InitializeRequest(NewToSalesType: Option; NewToSalesCode: Code[20]; NewToStartDateText: Date; NewToEndDateText: Date; NewToCurrCode: Code[10]; NewToUOMCode: Code[10])
     begin

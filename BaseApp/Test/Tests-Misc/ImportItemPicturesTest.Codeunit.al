@@ -188,7 +188,7 @@ codeunit 139320 "Import Item Pictures Test"
         ArchiveFileName := FileManagement.ServerTempFileName('zip');
         ArchiveFile.Create(ArchiveFileName);
         ArchiveFile.CreateOutStream(ArchiveFileOutStream);
-        DataCompression.CreateZipArchive;
+        DataCompression.CreateZipArchive();
         if ArchiveFileName = '' then
             Error(CannotCreateZIPErr);
 

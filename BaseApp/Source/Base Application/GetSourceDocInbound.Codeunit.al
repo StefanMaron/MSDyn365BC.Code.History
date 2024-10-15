@@ -1,4 +1,4 @@
-﻿codeunit 5751 "Get Source Doc. Inbound"
+codeunit 5751 "Get Source Doc. Inbound"
 {
 
     trigger OnRun()
@@ -44,7 +44,7 @@
         WhseGetSourceFilterRec: Record "Warehouse Source Filter";
         WhseSourceFilterSelection: Page "Filters to Get Source Docs.";
     begin
-        WhseReceiptHeader.Find;
+        WhseReceiptHeader.Find();
         WhseSourceFilterSelection.SetOneCreatedReceiptHeader(WhseReceiptHeader);
         WhseGetSourceFilterRec.FilterGroup(2);
         WhseGetSourceFilterRec.SetRange(Type, WhseGetSourceFilterRec.Type::Inbound);
@@ -67,7 +67,7 @@
             exit;
 
         Clear(GetSourceDocuments);
-        WhseReceiptHeader.Find;
+        WhseReceiptHeader.Find();
 
         SetWarehouseRequestFilters(WhseRqst, WhseReceiptHeader);
 
@@ -90,7 +90,7 @@
 
         SourceDocSelection.LookupMode(true);
         SourceDocSelection.SetTableView(WarehouseRequest);
-        if SourceDocSelection.RunModal <> ACTION::LookupOK then
+        if SourceDocSelection.RunModal() <> ACTION::LookupOK then
             exit;
         SourceDocSelection.GetResult(WarehouseRequest);
 
@@ -185,7 +185,7 @@
 
         WhsePutAwayDocSelection.LookupMode(true);
         WhsePutAwayDocSelection.SetTableView(WhsePutAwayRqst);
-        if WhsePutAwayDocSelection.RunModal <> ACTION::LookupOK then
+        if WhsePutAwayDocSelection.RunModal() <> ACTION::LookupOK then
             exit;
 
         WhsePutAwayDocSelection.GetResult(WhsePutAwayRqst);
@@ -285,9 +285,9 @@
     local procedure UpdateReceiptHeaderStatus(var WarehouseReceiptHeader: Record "Warehouse Receipt Header")
     begin
         with WarehouseReceiptHeader do begin
-            Find;
+            Find();
             "Document Status" := GetHeaderStatus(0);
-            Modify;
+            Modify();
         end;
     end;
 
@@ -300,9 +300,9 @@
         if IsHandled then
             exit;
 
-        GetSourceDocuments.ShowReceiptDialog;
+        GetSourceDocuments.ShowReceiptDialog();
         if WhseReceiptCreated then
-            OpenWarehouseReceiptPage;
+            OpenWarehouseReceiptPage();
     end;
 
     [IntegrationEvent(false, false)]

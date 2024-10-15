@@ -16,8 +16,8 @@ codeunit 6722 "Booking Manager Handler"
     var
         BookingMgrSetup: Record "Booking Mgr. Setup";
     begin
-        if BookingMgrSetup.Get then
-            exit(BookingSync.IsSetup and (BookingMgrSetup."Booking Mgr. Codeunit" = CODEUNIT::"Booking Manager Handler"));
+        if BookingMgrSetup.Get() then
+            exit(BookingSync.IsSetup() and (BookingMgrSetup."Booking Mgr. Codeunit" = CODEUNIT::"Booking Manager Handler"));
 
         exit(true);
     end;
@@ -25,7 +25,7 @@ codeunit 6722 "Booking Manager Handler"
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Booking Manager", 'OnGetBookingMailboxes', '', false, false)]
     local procedure OnGetBookingMailboxes(var TempBookingMailbox: Record "Booking Mailbox" temporary)
     begin
-        if not CanHandle then
+        if not CanHandle() then
             exit;
 
         O365SyncManagement.GetBookingMailboxes(BookingSync, TempBookingMailbox, '');
@@ -43,10 +43,10 @@ codeunit 6722 "Booking Manager Handler"
         ConnectionString: Text;
         Token: Text;
     begin
-        if not CanHandle then
+        if not CanHandle() then
             exit;
 
-        ConnectionName := BookingManager.GetAppointmentConnectionName;
+        ConnectionName := BookingManager.GetAppointmentConnectionName();
 
         if HasTableConnection(TABLECONNECTIONTYPE::MicrosoftGraph, ConnectionName) then begin
             if GetDefaultTableConnection(TABLECONNECTIONTYPE::MicrosoftGraph) <> ConnectionName then
@@ -70,7 +70,7 @@ codeunit 6722 "Booking Manager Handler"
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Booking Manager", 'OnSetBookingItemInvoiced', '', false, false)]
     local procedure OnSetBookingItemInvoiced(var InvoicedBookingItem: Record "Invoiced Booking Item")
     begin
-        if CanHandle then begin
+        if CanHandle() then begin
             if not IsNullGuid(TaskId) and TASKSCHEDULER.TaskExists(TaskId) and (DocumentNo = InvoicedBookingItem."Document No.") then
                 TASKSCHEDULER.CancelTask(TaskId);
 
@@ -88,7 +88,7 @@ codeunit 6722 "Booking Manager Handler"
         Item: Record Item;
         O365SyncManagement: Codeunit "O365 Sync. Management";
     begin
-        if not CanHandle then
+        if not CanHandle() then
             exit;
 
         BookingSync.Get();

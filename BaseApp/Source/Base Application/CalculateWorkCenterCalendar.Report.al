@@ -132,9 +132,9 @@ report 99001046 "Calculate Work Center Calendar"
         trigger OnInit()
         begin
             if StartingDate = 0D then
-                StartingDate := DMY2Date(1, 1, Date2DMY(WorkDate, 3));
+                StartingDate := DMY2Date(1, 1, Date2DMY(WorkDate(), 3));
             if EndingDate = 0D then
-                EndingDate := DMY2Date(31, 12, Date2DMY(WorkDate, 3));
+                EndingDate := DMY2Date(31, 12, Date2DMY(WorkDate(), 3));
         end;
     }
 
@@ -150,10 +150,6 @@ report 99001046 "Calculate Work Center Calendar"
     end;
 
     var
-        Text000: Label 'Calculating Work Centers...\\';
-        Text001: Label 'No.            #1##########';
-        Text004: Label 'You must fill in the starting date field.';
-        Text005: Label 'You must fill in the ending date field.';
         Calendar: Record "Calendar Entry";
         Calendar2: Record "Calendar Entry";
         TempCalendar: Record "Calendar Entry" temporary;
@@ -162,6 +158,11 @@ report 99001046 "Calculate Work Center Calendar"
         StartingDate: Date;
         EndingDate: Date;
         LastTime: Time;
+
+        Text000: Label 'Calculating Work Centers...\\';
+        Text001: Label 'No.            #1##########';
+        Text004: Label 'You must fill in the starting date field.';
+        Text005: Label 'You must fill in the ending date field.';
 
     procedure InitializeRequest(NewStartingDate: Date; NewEndingDate: Date)
     begin

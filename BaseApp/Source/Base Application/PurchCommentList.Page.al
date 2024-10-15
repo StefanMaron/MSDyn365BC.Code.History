@@ -14,7 +14,7 @@ page 68 "Purch. Comment List"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Comments;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';

@@ -488,10 +488,10 @@ codeunit 134801 "Exp. Pos. Pay Check Ledger UT"
         CheckLedgerEntry.Validate("Bank Account No.", BankAccount);
         CheckLedgerEntry."Posting Date" := Today;
         CheckLedgerEntry."Document Type" := CheckLedgerEntry."Document Type"::Payment;
-        CheckLedgerEntry."Document No." := CopyStr(Format(CreateGuid), 1, 20);
+        CheckLedgerEntry."Document No." := CopyStr(Format(CreateGuid()), 1, 20);
         CheckLedgerEntry.Amount := 10000.0;
         CheckLedgerEntry."Check Date" := Today;
-        CheckLedgerEntry."Check No." := CopyStr(Format(CreateGuid), 1, 20);
+        CheckLedgerEntry."Check No." := CopyStr(Format(CreateGuid()), 1, 20);
         CheckLedgerEntry."Bank Payment Type" := CheckLedgerEntry."Bank Payment Type"::"Computer Check";
         CheckLedgerEntry."Entry Status" := EntryStatus;
         CheckLedgerEntry."Bal. Account Type" := CheckLedgerEntry."Bal. Account Type"::Vendor;
@@ -607,7 +607,7 @@ codeunit 134801 "Exp. Pos. Pay Check Ledger UT"
         VoidTypeVariant: Variant;
     begin
         LibraryVariableStorage.Dequeue(VoidTypeVariant);
-        ConfirmFinancialVoid.InitializeRequest(WorkDate, VoidTypeVariant);
+        ConfirmFinancialVoid.InitializeRequest(WorkDate(), VoidTypeVariant);
         Response := ACTION::Yes
     end;
 }

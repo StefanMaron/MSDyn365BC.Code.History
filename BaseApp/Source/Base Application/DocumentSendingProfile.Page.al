@@ -35,7 +35,7 @@ page 360 "Document Sending Profile"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if and how the document is printed when you choose the Post and Send button. If you choose the Yes (Prompt for Settings) option, the document is printed according to settings that you must make on the printer setup dialog.';
                 }
-                field("E-Mail"; "E-Mail")
+                field("E-Mail"; Rec."E-Mail")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if and how the document is attached as a PDF file to an email to the involved customer when you choose the Post and Send button. If you choose the Yes (Prompt for Settings) option, the document is attached to an email according to settings that you must make in the Send Email window.';
@@ -44,21 +44,21 @@ page 360 "Document Sending Profile"
                 {
                     ShowCaption = false;
                     Visible = "E-Mail" <> "E-Mail"::No;
-                    field("E-Mail Attachment"; "E-Mail Attachment")
+                    field("E-Mail Attachment"; Rec."E-Mail Attachment")
                     {
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies the type of file to attach.';
 
                         trigger OnValidate()
                         begin
-                            "E-Mail Format" := GetFormat;
+                            "E-Mail Format" := GetFormat();
                         end;
                     }
                     group(Control16)
                     {
                         ShowCaption = false;
                         Visible = "E-Mail Attachment" <> "E-Mail Attachment"::PDF;
-                        field("E-Mail Format"; "E-Mail Format")
+                        field("E-Mail Format"; Rec."E-Mail Format")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Format';
@@ -89,14 +89,14 @@ page 360 "Document Sending Profile"
 
                     trigger OnValidate()
                     begin
-                        "Disk Format" := GetFormat;
+                        "Disk Format" := GetFormat();
                     end;
                 }
                 group(Control17)
                 {
                     ShowCaption = false;
                     Visible = (Disk <> Disk::No) AND (Disk <> Disk::PDF);
-                    field("Disk Format"; "Disk Format")
+                    field("Disk Format"; Rec."Disk Format")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Format';
@@ -113,7 +113,7 @@ page 360 "Document Sending Profile"
                         end;
                     }
                 }
-                field("Electronic Document"; "Electronic Document")
+                field("Electronic Document"; Rec."Electronic Document")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the document is sent as an electronic document that the customer can import into their system when you choose the Post and Send button. To use this option, you must also fill the Electronic Format field. Alternatively, the file can be saved to disk.';
@@ -121,14 +121,14 @@ page 360 "Document Sending Profile"
 
                     trigger OnValidate()
                     begin
-                        "Electronic Format" := GetFormat;
+                        "Electronic Format" := GetFormat();
                     end;
                 }
                 group(Control18)
                 {
                     ShowCaption = false;
                     Visible = "Electronic Document" <> "Electronic Document"::No;
-                    field("Electronic Format"; "Electronic Format")
+                    field("Electronic Format"; Rec."Electronic Format")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Format';
@@ -157,8 +157,8 @@ page 360 "Document Sending Profile"
     var
         ElectronicDocumentFormat: Record "Electronic Document Format";
     begin
-        ElectronicDocumentFormat.OnDiscoverElectronicFormat;
-        ElectronicDocumentsVisible := not ElectronicDocumentFormat.IsEmpty;
+        ElectronicDocumentFormat.OnDiscoverElectronicFormat();
+        ElectronicDocumentsVisible := not ElectronicDocumentFormat.IsEmpty();
     end;
 
     var
@@ -175,14 +175,14 @@ page 360 "Document Sending Profile"
         ElectronicDocumentFormats.SetTableView(ElectronicDocumentFormat);
         ElectronicDocumentFormats.LookupMode := true;
 
-        if ElectronicDocumentFormats.RunModal = ACTION::LookupOK then begin
+        if ElectronicDocumentFormats.RunModal() = ACTION::LookupOK then begin
             ElectronicDocumentFormats.GetRecord(ElectronicDocumentFormat);
             ElectronicFormat := ElectronicDocumentFormat.Code;
             LastFormat := ElectronicDocumentFormat.Code;
             exit;
         end;
 
-        ElectronicFormat := GetFormat;
+        ElectronicFormat := GetFormat();
     end;
 
     local procedure GetFormat(): Code[20]

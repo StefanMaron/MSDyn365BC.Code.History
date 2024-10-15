@@ -193,7 +193,7 @@ codeunit 134095 "Report Visibility Test"
                   PageSuggestLines or PageRelease or PageSubmit or PageMarkAsSubmitted or PageReopen,
                   'Disabled controls for Closed status are not correct');
         end;
-        ECSLReport.Close;
+        ECSLReport.Close();
     end;
 
     [Scope('OnPrem')]
@@ -239,7 +239,7 @@ codeunit 134095 "Report Visibility Test"
                   PageSuggestLines or PageRelease or PageSubmit or PageMarkAsSubmitted or PageReopen or PageCalcAndPost,
                   'Disabled controls for Closed status are not correct');
         end;
-        VATReport.Close;
+        VATReport.Close();
     end;
 
     [Scope('OnPrem')]

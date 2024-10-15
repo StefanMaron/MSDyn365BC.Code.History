@@ -12,30 +12,30 @@ page 778 "Analysis Report Chart SubPage"
         {
             repeater(Group)
             {
-                field("Analysis Line Template Name"; "Analysis Line Template Name")
+                field("Analysis Line Template Name"; Rec."Analysis Line Template Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name. This field is intended only for internal use.';
                     Visible = false;
                 }
-                field("Analysis Column Template Name"; "Analysis Column Template Name")
+                field("Analysis Column Template Name"; Rec."Analysis Column Template Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name. This field is intended only for internal use.';
                     Visible = false;
                 }
-                field("Original Measure Name"; "Original Measure Name")
+                field("Original Measure Name"; Rec."Original Measure Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the analysis report columns or lines that you select to insert in the Analysis Report Chart Setup window.';
                     Visible = false;
                 }
-                field("Measure Name"; "Measure Name")
+                field("Measure Name"; Rec."Measure Name")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the analysis report columns or lines that the measures on the y-axis in the specific chart are based on.';
                 }
-                field("Chart Type"; "Chart Type")
+                field("Chart Type"; Rec."Chart Type")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies how the analysis report values are represented graphically in the specific chart.';
@@ -125,7 +125,7 @@ page 778 "Analysis Report Chart SubPage"
     trigger OnFindRecord(Which: Text): Boolean
     begin
         SetFilters(Rec);
-        exit(FindSet);
+        exit(FindSet());
     end;
 
     var
@@ -140,7 +140,7 @@ page 778 "Analysis Report Chart SubPage"
     local procedure SetFilters(var AnalysisReportChartLine: Record "Analysis Report Chart Line")
     begin
         with AnalysisReportChartLine do begin
-            Reset;
+            Reset();
             if IsMeasure then
                 AnalysisReportChartSetup.SetLinkToMeasureLines(AnalysisReportChartLine)
             else

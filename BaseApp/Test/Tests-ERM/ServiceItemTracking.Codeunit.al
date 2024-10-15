@@ -448,7 +448,7 @@ codeunit 136146 "Service Item Tracking"
         LocationType: Option White,Yellow,Orange;
     begin
         // Verify Serial No. after posting the Service Order on a white location with expiration date set to FALSE
-        PostOrUndoServiceOrderWithItemTrackingOnLocation(false, true, false, WorkDate, false, LocationType::White);
+        PostOrUndoServiceOrderWithItemTrackingOnLocation(false, true, false, WorkDate(), false, LocationType::White);
     end;
 
     [Test]
@@ -459,7 +459,7 @@ codeunit 136146 "Service Item Tracking"
         LocationType: Option White,Yellow,Orange;
     begin
         // Verify Serial No. on whse entries after posting a service invoice to White location
-        PostServiceInvoiceWithItemTrackingOnLocation(false, true, false, WorkDate, false, LocationType::White);
+        PostServiceInvoiceWithItemTrackingOnLocation(false, true, false, WorkDate(), false, LocationType::White);
     end;
 
     [Test]
@@ -481,7 +481,7 @@ codeunit 136146 "Service Item Tracking"
         LocationType: Option White,Yellow,Orange;
     begin
         // Verify Serial No. after posting the Service Order on a white location with manual expiration date set to True.
-        PostOrUndoServiceOrderWithItemTrackingOnLocation(false, true, true, WorkDate, false, LocationType::White);
+        PostOrUndoServiceOrderWithItemTrackingOnLocation(false, true, true, WorkDate(), false, LocationType::White);
     end;
 
     [Test]
@@ -492,7 +492,7 @@ codeunit 136146 "Service Item Tracking"
         LocationType: Option White,Yellow,Orange;
     begin
         // Undo Service Order with item tracking entries, Serial No tracking and No manual expiration date entry
-        PostOrUndoServiceOrderWithItemTrackingOnLocation(false, true, false, WorkDate, true, LocationType::White);
+        PostOrUndoServiceOrderWithItemTrackingOnLocation(false, true, false, WorkDate(), true, LocationType::White);
     end;
 
     [Test]
@@ -503,7 +503,7 @@ codeunit 136146 "Service Item Tracking"
         LocationType: Option White,Yellow,Orange;
     begin
         // Verify Serial No. after posting the Service Order on a white location with expiration date set to FALSE
-        PostOrUndoServiceOrderWithItemTrackingOnLocation(false, true, false, WorkDate, false, LocationType::Yellow);
+        PostOrUndoServiceOrderWithItemTrackingOnLocation(false, true, false, WorkDate(), false, LocationType::Yellow);
     end;
 
     [Test]
@@ -514,7 +514,7 @@ codeunit 136146 "Service Item Tracking"
         LocationType: Option White,Yellow,Orange;
     begin
         // Undo Service Order with item tracking entries, Serial No tracking and No manual expiration date entry
-        PostOrUndoServiceOrderWithItemTrackingOnLocation(false, true, false, WorkDate, true, LocationType::Yellow);
+        PostOrUndoServiceOrderWithItemTrackingOnLocation(false, true, false, WorkDate(), true, LocationType::Yellow);
     end;
 
     [Test]
@@ -558,7 +558,7 @@ codeunit 136146 "Service Item Tracking"
         // 2. Exercise: Create and post Purchase Order with Item Tracking and Item with Expiration Calculation.
         AssignItemTrackingAndPostPurchaseOrder('', LibraryUtility.GetGlobalNoSeriesCode, false, true, ItemTrackingAction::AssignSerialNo);
         Item.Get(ItemNo);
-        ExpirationDate := CalcDate(Item."Expiration Calculation", WorkDate);
+        ExpirationDate := CalcDate(Item."Expiration Calculation", WorkDate());
 
         // 3. Verify: Verify Expiration Date on Item Ledger Entry.
         FindPurchaseItemLedgerEntry(ItemLedgerEntry);
@@ -1088,7 +1088,7 @@ codeunit 136146 "Service Item Tracking"
             if BinContent.Quantity > 0 then
                 StopLoop := true
             else
-                StopLoop := BinContent.Next = 0;
+                StopLoop := BinContent.Next() = 0;
         until StopLoop;
         Assert.IsTrue(BinContent.Quantity > 0, StrSubstNo(NoBinFoundWithItemErr, ItemNo));
         ServiceLine.Validate("Bin Code", BinContent."Bin Code");
@@ -1236,7 +1236,7 @@ codeunit 136146 "Service Item Tracking"
         // [THEN] Serial No. is shown on Posted Item Tracking Lines
         LibraryVariableStorage.Enqueue(FindSerialNoFromItemLedgerEntry);  // Enqueue Serial No.
         FindServiceInvoiceLine(ServiceInvoiceLine, ItemNo);
-        ServiceInvoiceLine.ShowItemTrackingLines; // Verify Serial No. in "PostedItemTrackingLinesHandler"
+        ServiceInvoiceLine.ShowItemTrackingLines(); // Verify Serial No. in "PostedItemTrackingLinesHandler"
     end;
 
     [Test]
@@ -1273,7 +1273,7 @@ codeunit 136146 "Service Item Tracking"
     begin
         // [FEATURE] [UT] [Invoice]
         // [SCENARIO 217459] TAB 5993 "Service Invoice Line".RowID1() returns string with "5993" table id value
-        Assert.ExpectedMessage(Format(DATABASE::"Service Invoice Line"), DummyServiceInvoiceLine.RowID1);
+        Assert.ExpectedMessage(Format(DATABASE::"Service Invoice Line"), DummyServiceInvoiceLine.RowID1());
     end;
 
     [Test]
@@ -1284,7 +1284,7 @@ codeunit 136146 "Service Item Tracking"
     begin
         // [FEATURE] [UT] [Credit Memo]
         // [SCENARIO 217459] TAB 5995 "Service Cr.Memo Line".RowID1() returns string with "5995" table id value
-        Assert.ExpectedMessage(Format(DATABASE::"Service Cr.Memo Line"), DummyServiceCrMemoLine.RowID1);
+        Assert.ExpectedMessage(Format(DATABASE::"Service Cr.Memo Line"), DummyServiceCrMemoLine.RowID1());
     end;
 
     [Test]
@@ -1340,7 +1340,7 @@ codeunit 136146 "Service Item Tracking"
 
         // [GIVEN] Warehouse shipment for the service order.
         // [GIVEN] Registered warehouse pick.
-        ServiceHeader.Find;
+        ServiceHeader.Find();
         LibraryService.ReleaseServiceDocument(ServiceHeader);
         CreateWarehouseShipmentFromServiceHeader(ServiceHeader);
         WarehouseShipmentHeader.Get(
@@ -1392,12 +1392,12 @@ codeunit 136146 "Service Item Tracking"
         ItemNo := CreateItemWithSerialAndLotNo(LibraryUtility.GetGlobalNoSeriesCode, '', true, false, true);
 
         with WarehouseShipmentLine do begin
-            Init;
+            Init();
             "No." := LibraryUtility.GenerateGUID();
             "Line No." := LibraryUtility.GetNewRecNo(WarehouseShipmentLine, FieldNo("Line No."));
             "Source Type" := DATABASE::"Service Line";
             "Source No." := LibraryUtility.GenerateGUID();
-            Insert;
+            Insert();
 
             Assert.IsTrue(
               ItemTrackingMgt.ItemTrkgIsManagedByWhse(
@@ -2071,8 +2071,8 @@ codeunit 136146 "Service Item Tracking"
         ReqWkshTemplate.SetRange(Recurring, false);
         ReqWkshTemplate.FindFirst();
         LibraryPlanning.CreateRequisitionWkshName(RequisitionWkshName, ReqWkshTemplate.Name);
-        StartDate := CalcDate('<-CM>', WorkDate);
-        EndDate := CalcDate('<CM>', WorkDate);
+        StartDate := CalcDate('<-CM>', WorkDate());
+        EndDate := CalcDate('<CM>', WorkDate());
         LibraryPlanning.CalculatePlanForReqWksh(Item, ReqWkshTemplate.Name, RequisitionWkshName.Name, StartDate, EndDate);
     end;
 
@@ -2115,10 +2115,10 @@ codeunit 136146 "Service Item Tracking"
                 if LotSpecific then
                     Assert.AreNotEqual('', ItemLedgerEntry."Lot No.", 'Verify that Lot number in ILE is not empty');
 
-            until ItemLedgerEntry.Next = 0;
+            until ItemLedgerEntry.Next() = 0;
             Assert.AreEqual(
               Sign * ServiceLine.Quantity, AggregatedQuantity, 'Verify the sum of ILE quantities matches the quantity shipped');
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     local procedure VerifyServiceItemLineDetailsFactBox(ServiceQuote: TestPage "Service Quote"; ServiceItemNo: Code[20]; NoOfComponents: Integer; NoOfTroubleShooting: Integer)
@@ -2169,7 +2169,7 @@ codeunit 136146 "Service Item Tracking"
             if LotSpecific then
                 Assert.AreNotEqual('', WarehouseEntry."Lot No.", 'Verify that Lot number in warehouse entry is not empty');
 
-        until WarehouseEntry.Next = 0;
+        until WarehouseEntry.Next() = 0;
         Assert.AreEqual(
           Sign * ServiceLine.Quantity, AggregatedQuantity, 'Verify the sum of Warehouse entry quantities matches the quantity shipped');
     end;
@@ -2194,7 +2194,7 @@ codeunit 136146 "Service Item Tracking"
         repeat
             PostedItemTrackingLines."Expiration Date".AssertEquals(ExpirationDate);
             LineCount += 1;
-        until not PostedItemTrackingLines.Next;
+        until not PostedItemTrackingLines.Next();
         Assert.AreEqual(OriginalQuantity, LineCount, NumberOfLineEqualError);  // Verify Number of line Tracking Line.
     end;
 

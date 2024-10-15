@@ -9,8 +9,8 @@ report 88 "VAT- VIES Declaration Disk"
     {
         dataitem("VAT Entry"; "VAT Entry")
         {
-            DataItemTableView = SORTING(Type, "Country/Region Code", "VAT Registration No.", "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Posting Date") WHERE(Type = CONST(Sale));
-            RequestFilterFields = "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Posting Date";
+            DataItemTableView = SORTING(Type, "Country/Region Code", "VAT Registration No.", "VAT Bus. Posting Group", "VAT Prod. Posting Group", "VAT Reporting Date") WHERE(Type = CONST(Sale));
+            RequestFilterFields = "VAT Bus. Posting Group", "VAT Prod. Posting Group", "VAT Reporting Date";
 
             trigger OnAfterGetRecord()
             var
@@ -38,7 +38,7 @@ report 88 "VAT- VIES Declaration Disk"
                 TotalValueofServiceSuppliesTot += TotalValueOfServiceSupplies;
 
                 VATEntry.Copy("VAT Entry");
-                if VATEntry.Next = 1 then begin
+                if VATEntry.Next() = 1 then begin
                     if (VATEntry."Country/Region Code" <> "Country/Region Code") or
                        (VATEntry."VAT Registration No." <> "VAT Registration No.")
                     then
@@ -47,8 +47,11 @@ report 88 "VAT- VIES Declaration Disk"
                     GroupTotal := true;
 
                 if GroupTotal then begin
-                    WriteGrTotalsToFile(TotalValueofServiceSuppliesTot, TotalValueofItemSuppliesTotal,
-                      EU3PartyServiceTradeAmt, EU3PartyItemTradeAmt, "Posting Date");
+                    case VATDateType of 
+                        VATDateType::"VAT Reporting Date": WriteGrTotalsToFile(TotalValueofServiceSuppliesTot, TotalValueofItemSuppliesTotal, EU3PartyServiceTradeAmt, EU3PartyItemTradeAmt, "VAT Reporting Date");
+                        VATDateType::"Posting Date": WriteGrTotalsToFile(TotalValueofServiceSuppliesTot, TotalValueofItemSuppliesTotal, EU3PartyServiceTradeAmt, EU3PartyItemTradeAmt, "Posting Date");
+                        VATDateType::"Document Date": WriteGrTotalsToFile(TotalValueofServiceSuppliesTot, TotalValueofItemSuppliesTotal, EU3PartyServiceTradeAmt, EU3PartyItemTradeAmt, "Document Date");
+                    end;
                     EU3PartyItemTradeTotalAmt += EU3PartyItemTradeAmt;
                     EU3PartyServiceTradeTotalAmt += EU3PartyServiceTradeAmt;
 
@@ -70,7 +73,7 @@ report 88 "VAT- VIES Declaration Disk"
                     DecimalNumeralZeroFormat(EU3PartyServiceTradeTotalAmt, 15) +
                     DecimalNumeralSign(-EU3PartyServiceTradeTotalAmt),
                     80));
-                VATFile.Close;
+                VATFile.Close();
             end;
 
             trigger OnPreDataItem()
@@ -87,7 +90,11 @@ report 88 "VAT- VIES Declaration Disk"
                 VATFile.Write(Format('0100001', 80));
 
                 NoOfGrTotal := 0;
-                Period := GetRangeMax("Posting Date");
+                case VATDateType of 
+                    VATDateType::"VAT Reporting Date": Period := GetRangeMax("VAT Reporting Date");
+                    VATDateType::"Posting Date": Period := GetRangeMax("Posting Date");
+                    VATDateType::"Document Date": Period := GetRangeMax("Document Date");
+                end;
                 InternalReferenceNo := Format(Period, 4, 2) + '000000';
             end;
         }
@@ -110,6 +117,12 @@ report 88 "VAT- VIES Declaration Disk"
                         Caption = 'Show Amounts in Add. Reporting Currency';
                         MultiLine = true;
                         ToolTip = 'Specifies if the reported amounts are shown in the additional reporting currency.';
+                    }
+                    field(VATDateTypeField; VATDateType)
+                    {
+                        ApplicationArea = VAT;
+                        Caption = 'Period Date Type';
+                        ToolTip = 'Specifies the type of date used for the report period.';
                     }
                 }
             }
@@ -145,10 +158,6 @@ report 88 "VAT- VIES Declaration Disk"
     end;
 
     var
-        Text001: Label 'WwWw';
-        Text002: Label 'LIST';
-        Text003: Label '%1 was not filled in for all VAT entries in which %2 = %3.';
-        Text004: Label 'It is not possible to display %1 in a field with a length of %2.';
         CompanyInfo: Record "Company Information";
         Country: Record "Country/Region";
         Cust: Record Customer;
@@ -169,6 +178,12 @@ report 88 "VAT- VIES Declaration Disk"
         UseAmtsInAddCurr: Boolean;
         ToFileNameTxt: Label 'Default.txt';
         HideFileDialog: Boolean;
+        VATDateType: Enum "VAT Date Type";
+
+        Text001: Label 'WwWw';
+        Text002: Label 'LIST';
+        Text003: Label '%1 was not filled in for all VAT entries in which %2 = %3.';
+        Text004: Label 'It is not possible to display %1 in a field with a length of %2.';
 
     local procedure DecimalNumeralSign(DecimalNumeral: Decimal): Text[1]
     begin
@@ -191,7 +206,7 @@ report 88 "VAT- VIES Declaration Disk"
         exit(PadStr('', Length - StrLen(Text), '0') + Text);
     end;
 
-    local procedure WriteGrTotalsToFile(TotalValueofServiceSupplies: Decimal; TotalValueofItemSupplies: Decimal; EU3PartyServiceTradeAmt: Decimal; EU3PartyItemTradeAmt: Decimal; PostingDate: Date)
+    local procedure WriteGrTotalsToFile(TotalValueofServiceSupplies: Decimal; TotalValueofItemSupplies: Decimal; EU3PartyServiceTradeAmt: Decimal; EU3PartyItemTradeAmt: Decimal; VATDate: Date)
     begin
         if (Round(Abs(TotalValueofItemSupplies), 1, '<') <> 0) or (Round(Abs(TotalValueofServiceSupplies), 1, '<') <> 0) or
            (Round(Abs(EU3PartyItemTradeAmt), 1, '<') <> 0) or (Round(Abs(EU3PartyServiceTradeAmt), 1, '<') <> 0)
@@ -213,7 +228,7 @@ report 88 "VAT- VIES Declaration Disk"
                 NoOfGrTotal := NoOfGrTotal + 1;
 
                 InternalReferenceNo := IncStr(InternalReferenceNo);
-                ModifyVATEntryInternalRefNo("Country/Region Code", "Bill-to/Pay-to No.", InternalReferenceNo, PostingDate);
+                ModifyVATEntryInternalRefNo("Country/Region Code", "Bill-to/Pay-to No.", InternalReferenceNo, VATDate);
 
                 VATFile.Write(
                   Format(
@@ -242,7 +257,7 @@ report 88 "VAT- VIES Declaration Disk"
         DetailedCustLedgEntry.SetRange("Document Type", VATEntry."Document Type");
         DetailedCustLedgEntry.SetRange("Document No.", VATEntry."Document No.");
         DetailedCustLedgEntry.SetRange("Posting Date", VATEntry."Posting Date");
-        DetailedCustLedgEntry.FindFirst();
+        DetailedCustLedgEntry.FindFirst(); 
         CustLedgerEntry.Get(DetailedCustLedgEntry."Cust. Ledger Entry No.");
         exit(CustLedgerEntry."Sell-to Customer No.");
     end;
@@ -255,15 +270,20 @@ report 88 "VAT- VIES Declaration Disk"
     procedure InitializeRequest(NewHideFileDialog: Boolean)
     begin
         HideFileDialog := NewHideFileDialog;
+        VATDateType := VATDateType::"Posting Date";
     end;
 
-    local procedure ModifyVATEntryInternalRefNo(CountryRegionCode: Code[10]; BillToPayToNo: Code[20]; InternalRefNo: Text[30]; PostingDate: Date)
+    local procedure ModifyVATEntryInternalRefNo(CountryRegionCode: Code[10]; BillToPayToNo: Code[20]; InternalRefNo: Text[30]; VATDate: Date)
     var
         VATEntry: Record "VAT Entry";
     begin
         VATEntry.SetRange("Country/Region Code", CountryRegionCode);
         VATEntry.SetRange("Bill-to/Pay-to No.", BillToPayToNo);
-        VATEntry.SetRange("Posting Date", PostingDate);
+        case VATDateType of 
+            VATDateType::"VAT Reporting Date": VATEntry.SetRange("VAT Reporting Date", VATDate);
+            VATDateType::"Posting Date": VATEntry.SetRange("Posting Date", VATDate);
+            VATDateType::"Document Date": VATEntry.SetRange("Document Date", VATDate);
+        end;
         VATEntry.ModifyAll("Internal Ref. No.", InternalRefNo);
     end;
 

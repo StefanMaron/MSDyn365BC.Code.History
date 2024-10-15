@@ -177,7 +177,7 @@ codeunit 7308 Replenishment
         TempWhseWkshLine."Qty. per Unit of Measure" := ToBinContent."Qty. per Unit of Measure";
         TempWhseWkshLine."Item No." := ToBinContent."Item No.";
         TempWhseWkshLine.Validate("Variant Code", ToBinContent."Variant Code");
-        TempWhseWkshLine.Validate(Quantity, Round(MovementQtyBase / ToBinContent."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision));
+        TempWhseWkshLine.Validate(Quantity, Round(MovementQtyBase / ToBinContent."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision()));
 
         TempWhseWkshLine."Qty. (Base)" := MovementQtyBase;
         TempWhseWkshLine."Qty. Outstanding (Base)" := MovementQtyBase;
@@ -247,7 +247,7 @@ codeunit 7308 Replenishment
     local procedure GetBinType(BinTypeCode: Code[10])
     begin
         if BinTypeCode = '' then
-            BinType.Init
+            BinType.Init()
         else
             if BinType.Code <> BinTypeCode then
                 BinType.Get(BinTypeCode);

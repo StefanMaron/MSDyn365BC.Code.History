@@ -1,4 +1,4 @@
-﻿codeunit 99000854 "Inventory Profile Offsetting"
+codeunit 99000854 "Inventory Profile Offsetting"
 {
     Permissions = TableData "Reservation Entry" = id,
                   TableData "Prod. Order Capacity Need" = rmd;
@@ -122,7 +122,7 @@
         OnAfterInitVariables(InventoryProfile);
     end;
 
-    local procedure CreateTempSKUForLocation(ItemNo: Code[20]; LocationCode: Code[10])
+    procedure CreateTempSKUForLocation(ItemNo: Code[20]; LocationCode: Code[10])
     var
         IsHandled: Boolean;
     begin
@@ -287,13 +287,13 @@
                 OnTransJobPlanningLineToProfileOnBeforeProcessLine(JobPlanningLine, ShouldProcess);
                 if ShouldProcess then begin
                     InventoryProfile.Init();
-                        InventoryProfile."Line No." := NextLineNo();
-                        InventoryProfile.TransferFromJobPlanningLine(JobPlanningLine, TempItemTrkgEntry);
-                        if InventoryProfile.IsSupply then
-                            InventoryProfile.ChangeSign();
-                        InventoryProfile.Insert();
-                    end;
-                until JobPlanningLine.Next() = 0;
+                    InventoryProfile."Line No." := NextLineNo();
+                    InventoryProfile.TransferFromJobPlanningLine(JobPlanningLine, TempItemTrkgEntry);
+                    if InventoryProfile.IsSupply then
+                        InventoryProfile.ChangeSign();
+                    InventoryProfile.Insert();
+                end;
+            until JobPlanningLine.Next() = 0;
     end;
 
     local procedure TransProdOrderCompToProfile(var InventoryProfile: Record "Inventory Profile"; var Item: Record Item)
@@ -3066,7 +3066,7 @@
         InventoryProfile.Copy(SupplyInvtProfile);
     end;
 
-    local procedure TransferReqLineToInvProfiles(var InventoryProfile: Record "Inventory Profile"; var TransferReqLine: Record "Requisition Line")
+    procedure TransferReqLineToInvProfiles(var InventoryProfile: Record "Inventory Profile"; var TransferReqLine: Record "Requisition Line")
     begin
         with InventoryProfile do begin
             TestField("Location Code", TransferReqLine."Transfer-from Code");
@@ -4287,8 +4287,8 @@
                                     if "Source Type" = DATABASE::"Planning Component" then begin
                                         // Primary Order references have already been set on Component Lines
                                         Binding := Binding::"Order-to-Order";
-                                end else begin
-                                    Binding := Binding::"Order-to-Order";
+                                    end else begin
+                                        Binding := Binding::"Order-to-Order";
                                         "Primary Order Type" := "Source Type";
                                         "Primary Order Status" := "Source Order Status";
                                         "Primary Order No." := "Source ID";

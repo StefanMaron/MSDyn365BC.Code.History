@@ -8,8 +8,11 @@ codeunit 9654 "Design-time Report Selection"
 
     var
         SelectedCustomLayoutCode: Code[20];
-        SelectedCustomLayout: Text[250];
+        SelectedPlatformLayoutName: Text[250];
+        SelectedPlatformLayoutAppID: Guid;
+        EmptyGuid: Guid;
 
+    // This method allows us to select layouts stored in the App Table "Custom Report Layout" table. 
     procedure SetSelectedCustomLayout(NewCustomLayoutCode: Code[20])
     begin
         SelectedCustomLayoutCode := NewCustomLayoutCode;
@@ -20,19 +23,38 @@ codeunit 9654 "Design-time Report Selection"
         exit(SelectedCustomLayoutCode);
     end;
 
-    // The following methods allow us to also select layouts stored in platform tables
-    // as well as App tables. SelectedCustomLayoutCode cannot select platform layouts
-    // because the code field has a small size of just 20 characters.
-    procedure SetSelectedLayout(NewLayoutName: Text[250])
+    // This method allow us to select layouts stored in "Tenant Report Layout" platform table
+    // by their "Name" and also allows selecting layouts from the "Custom Report Layout" table.
+    procedure SetSelectedLayout(LayoutName: Text[250])
     begin
-        SelectedCustomLayout := NewLayoutName;
+        SelectedPlatformLayoutName := LayoutName;
+    end;
+
+    // This method allows us to select layouts stored both in "Tenant Report Layout" and  "Report Layouts Definition"
+    // table (Or their aggregate table "Report Layouts List"). 
+    procedure SetSelectedLayout(LayoutName: Text[250]; AppID: Guid)
+    begin
+        SelectedPlatformLayoutName := LayoutName;
+        SelectedPlatformLayoutAppID := AppID;
     end;
 
     procedure GetSelectedLayout(): Text[250]
     begin
-        if SelectedCustomLayout = '' then
+        if SelectedPlatformLayoutName = '' then
             exit(SelectedCustomLayoutCode);
-        exit(SelectedCustomLayout);
+
+        exit(SelectedPlatformLayoutName);
+    end;
+
+    procedure GetSelectedAppID(): Guid
+    begin
+        exit(SelectedPlatformLayoutAppID);
+    end;
+
+    procedure ClearLayoutSelection()
+    begin
+        SelectedPlatformLayoutName := '';
+        SelectedCustomLayoutCode := '';
+        SelectedPlatformLayoutAppID := EmptyGuid;
     end;
 }
-

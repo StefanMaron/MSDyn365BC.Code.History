@@ -2,7 +2,6 @@ page 5116 "Salesperson/Purchaser Card"
 {
     Caption = 'Salesperson/Purchaser Card';
     PageType = Card;
-    PromotedActionCategories = 'New,Process,Report,Navigate,Salesperson';
     SourceTable = "Salesperson/Purchaser";
 
     layout
@@ -22,33 +21,33 @@ page 5116 "Salesperson/Purchaser Card"
                     ApplicationArea = All;
                     ToolTip = 'Specifies the name of the salesperson or purchaser.';
                 }
-                field("Job Title"; "Job Title")
+                field("Job Title"; Rec."Job Title")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the salesperson''s job title.';
                 }
-                field("Commission %"; "Commission %")
+                field("Commission %"; Rec."Commission %")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the percentage to use to calculate the salesperson''s commission.';
                 }
-                field("Phone No."; "Phone No.")
+                field("Phone No."; Rec."Phone No.")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the salesperson''s telephone number.';
                 }
-                field("E-Mail"; "E-Mail")
+                field("E-Mail"; Rec."E-Mail")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ExtendedDatatype = EMail;
                     ToolTip = 'Specifies the salesperson''s email address.';
                 }
-                field("Next Task Date"; "Next Task Date")
+                field("Next Task Date"; Rec."Next Task Date")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the date of the next task assigned to the salesperson.';
                 }
-                field("Privacy Blocked"; "Privacy Blocked")
+                field("Privacy Blocked"; Rec."Privacy Blocked")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Importance = Additional;
@@ -58,12 +57,12 @@ page 5116 "Salesperson/Purchaser Card"
             group(Invoicing)
             {
                 Caption = 'Invoicing';
-                field("Global Dimension 1 Code"; "Global Dimension 1 Code")
+                field("Global Dimension 1 Code"; Rec."Global Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for the global dimension that is linked to the record or entry for analysis purposes. Two global dimensions, typically for the company''s most important activities, are available on all cards, documents, reports, and lists.';
                 }
-                field("Global Dimension 2 Code"; "Global Dimension 2 Code")
+                field("Global Dimension 2 Code"; Rec."Global Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for the global dimension that is linked to the record or entry for analysis purposes. Two global dimensions, typically for the company''s most important activities, are available on all cards, documents, reports, and lists.';
@@ -103,8 +102,6 @@ page 5116 "Salesperson/Purchaser Card"
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Tea&ms';
                     Image = TeamSales;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     RunObject = Page "Salesperson Teams";
                     RunPageLink = "Salesperson Code" = FIELD(Code);
                     RunPageView = SORTING("Salesperson Code");
@@ -115,8 +112,6 @@ page 5116 "Salesperson/Purchaser Card"
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Con&tacts';
                     Image = CustomerContact;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     RunObject = Page "Contact List";
                     RunPageLink = "Salesperson Code" = FIELD(Code);
                     RunPageView = SORTING("Salesperson Code");
@@ -127,9 +122,6 @@ page 5116 "Salesperson/Purchaser Card"
                     ApplicationArea = Dimensions;
                     Caption = 'Dimensions';
                     Image = Dimensions;
-                    Promoted = true;
-                    PromotedCategory = Category5;
-                    PromotedIsBig = true;
                     RunObject = Page "Default Dimensions";
                     RunPageLink = "Table ID" = CONST(13),
                                   "No." = FIELD(Code);
@@ -141,9 +133,6 @@ page 5116 "Salesperson/Purchaser Card"
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Statistics';
                     Image = Statistics;
-                    Promoted = true;
-                    PromotedCategory = Category5;
-                    PromotedIsBig = true;
                     RunObject = Page "Salesperson Statistics";
                     RunPageLink = Code = FIELD(Code);
                     ShortCutKey = 'F7';
@@ -154,8 +143,6 @@ page 5116 "Salesperson/Purchaser Card"
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'C&ampaigns';
                     Image = Campaign;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     RunObject = Page "Campaign List";
                     RunPageLink = "Salesperson Code" = FIELD(Code);
                     RunPageView = SORTING("Salesperson Code");
@@ -166,8 +153,6 @@ page 5116 "Salesperson/Purchaser Card"
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'S&egments';
                     Image = Segment;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     RunObject = Page "Segment List";
                     RunPageLink = "Salesperson Code" = FIELD(Code);
                     RunPageView = SORTING("Salesperson Code");
@@ -333,13 +318,11 @@ page 5116 "Salesperson/Purchaser Card"
                 ApplicationArea = RelationshipMgmt;
                 Caption = 'Create &Interaction';
                 Image = CreateInteraction;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Create an interaction with a specified contact.';
 
                 trigger OnAction()
                 begin
-                    CreateInteraction;
+                    CreateInteraction();
                 end;
             }
             action(Email)
@@ -348,8 +331,6 @@ page 5116 "Salesperson/Purchaser Card"
                 Caption = 'Send Email';
                 Image = Email;
                 ToolTip = 'Send an email to this person.';
-                Promoted = true;
-                PromotedCategory = Process;
 
                 trigger OnAction()
                 var
@@ -360,6 +341,86 @@ page 5116 "Salesperson/Purchaser Card"
                     TempEmailitem."Send to" := Rec."E-Mail";
                     TempEmailItem.Send(false, EmailScenario::Default);
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref("Create &Interaction_Promoted"; "Create &Interaction")
+                {
+                }
+                actionref(Email_Promoted; Email)
+                {
+                }
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Salesperson', Comment = 'Generated from the PromotedActionCategories property index 4.';
+
+                actionref(Dimensions_Promoted; Dimensions)
+                {
+                }
+                actionref(Statistics_Promoted; Statistics)
+                {
+                }
+
+                separator(Navigate_Separator)
+                {
+                }
+
+                actionref("Sent Emails_Promoted"; "Sent Emails")
+                {
+                }
+                actionref("Tea&ms_Promoted"; "Tea&ms")
+                {
+                }
+                actionref("Con&tacts_Promoted"; "Con&tacts")
+                {
+                }
+                actionref("C&ampaigns_Promoted"; "C&ampaigns")
+                {
+                }
+                actionref("S&egments_Promoted"; "S&egments")
+                {
+                }
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Navigate', Comment = 'Generated from the PromotedActionCategories property index 3.';
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Synchronize)
+            {
+                Caption = 'Synchronize';
+                Visible = CRMIntegrationEnabled or CDSIntegrationEnabled;
+
+                group(Category_Coupling)
+                {
+                    Caption = 'Coupling';
+                    ShowAs = SplitButton;
+
+                    actionref(ManageCRMCoupling_Promoted; ManageCRMCoupling)
+                    {
+                    }
+                    actionref(DeleteCRMCoupling_Promoted; DeleteCRMCoupling)
+                    {
+                    }
+                }
+                actionref(CRMGotoSystemUser_Promoted; CRMGotoSystemUser)
+                {
+                }
+                actionref(CRMSynchronizeNow_Promoted; CRMSynchronizeNow)
+                {
+                }
+                actionref(ShowLog_Promoted; ShowLog)
+                {
+                }
             }
         }
     }
@@ -378,7 +439,7 @@ page 5116 "Salesperson/Purchaser Card"
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
     begin
         if xRec.Code = '' then
-            Reset;
+            Reset();
     end;
 
     trigger OnOpenPage()

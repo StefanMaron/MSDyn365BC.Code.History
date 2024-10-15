@@ -239,7 +239,7 @@ codeunit 138035 "O365 Correct Purchase Dim."
             // Unblock the Dimension
             DefaultDim.Delete(true);
             Commit();
-        until TempDefaultDim.Next = 0;
+        until TempDefaultDim.Next() = 0;
     end;
 
     [Test]
@@ -410,11 +410,11 @@ codeunit 138035 "O365 Correct Purchase Dim."
         DimCombination: Record "Dimension Combination";
     begin
         with DimCombination do begin
-            Init;
+            Init();
             Validate("Dimension 1 Code", DimCode1);
             Validate("Dimension 2 Code", DimCode2);
             Validate("Combination Restriction", "Combination Restriction"::Blocked);
-            Insert;
+            Insert();
         end;
         Commit();
     end;
@@ -439,7 +439,7 @@ codeunit 138035 "O365 Correct Purchase Dim."
     var
         PurchaseHeader: Record "Purchase Header";
     begin
-        Assert.IsTrue(LastGLEntry.Next = 0, 'No new G/L entries are created');
+        Assert.IsTrue(LastGLEntry.Next() = 0, 'No new G/L entries are created');
         PurchaseHeader.SetRange("Document Type", PurchaseHeader."Document Type"::"Credit Memo");
         PurchaseHeader.SetRange("Pay-to Vendor No.", VendorNo);
         Assert.IsTrue(PurchaseHeader.IsEmpty, 'The Credit Memo should not have been created');

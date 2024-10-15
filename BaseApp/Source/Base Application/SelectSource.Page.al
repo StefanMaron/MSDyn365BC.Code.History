@@ -41,7 +41,7 @@ page 1266 "Select Source"
 
     trigger OnAfterGetRecord()
     begin
-        SetStyle;
+        SetStyle();
     end;
 
     trigger OnOpenPage()
@@ -54,7 +54,7 @@ page 1266 "Select Source"
 
     local procedure SetStyle()
     begin
-        if HasChildNodes then
+        if HasChildNodes() then
             StyleText := 'Strong'
         else
             StyleText := '';

@@ -15,27 +15,27 @@ page 739 "VAT Report Log"
         {
             repeater(Group)
             {
-                field("VAT Report Type"; "VAT Report Type")
+                field("VAT Report Type"; Rec."VAT Report Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if you want to create a new VAT report, or if you want to change a previously submitted report.';
                 }
-                field("VAT Report No."; "VAT Report No.")
+                field("VAT Report No."; Rec."VAT Report No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the VAT Report.';
                 }
-                field("Submitted By"; "Submitted By")
+                field("Submitted By"; Rec."Submitted By")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the person who submitted the VAT Report.';
                 }
-                field("Submittion Date"; "Submittion Date")
+                field("Submittion Date"; Rec."Submittion Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date that the VAT Report was submitted.';
                 }
-                field("Response Received Date"; "Response Received Date")
+                field("Response Received Date"; Rec."Response Received Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date when the response was received.';
@@ -54,8 +54,6 @@ page 739 "VAT Report Log"
                 Caption = 'Download Submission Message';
                 Enabled = DownloadSubmissionControllerStatus;
                 Image = XMLFile;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Open the report again to make changes.';
                 Visible = false;
 
@@ -75,8 +73,6 @@ page 739 "VAT Report Log"
                 Caption = 'Download Response Message';
                 Enabled = DownloadResponseControllerStatus;
                 Image = XMLFile;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Open the report again to make changes.';
                 Visible = false;
 
@@ -89,6 +85,20 @@ page 739 "VAT Report Log"
                         VATReportArchive.DownloadResponseMessage(
                           VATReportArchive."VAT Report Type".AsInteger(), VATReportArchive."VAT Report No.");
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("Download Submission Message_Promoted"; "Download Submission Message")
+                {
+                }
+                actionref("Download Response Message_Promoted"; "Download Response Message")
+                {
+                }
             }
         }
     }

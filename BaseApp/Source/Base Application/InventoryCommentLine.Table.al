@@ -49,9 +49,9 @@ table 5748 "Inventory Comment Line"
     begin
         InvtCommentLine.SetRange("Document Type", "Document Type");
         InvtCommentLine.SetRange("No.", "No.");
-        InvtCommentLine.SetRange(Date, WorkDate);
+        InvtCommentLine.SetRange(Date, WorkDate());
         if not InvtCommentLine.FindFirst() then
-            Date := WorkDate;
+            Date := WorkDate();
 
         OnAfterSetUpNewLine(Rec, InvtCommentLine);
     end;

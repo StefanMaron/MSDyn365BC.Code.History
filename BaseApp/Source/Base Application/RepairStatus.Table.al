@@ -24,7 +24,7 @@ table 5927 "Repair Status"
                 if not ServStatusPrioritySetup.Get("Service Order Status") then
                     Error(
                       Text000,
-                      FieldCaption("Service Order Status"), "Service Order Status", ServStatusPrioritySetup.TableCaption);
+                      FieldCaption("Service Order Status"), "Service Order Status", ServStatusPrioritySetup.TableCaption());
 
                 Priority := ServStatusPrioritySetup.Priority;
             end;
@@ -48,7 +48,7 @@ table 5927 "Repair Status"
                     RepairStatus.SetFilter(Code, '<>%1', Code);
                     RepairStatus.SetRange(Initial, true);
                     if not RepairStatus.IsEmpty() then
-                        Error(Text001, TableCaption, FieldCaption(Initial));
+                        Error(Text001, TableCaption(), FieldCaption(Initial));
                 end;
             end;
         }
@@ -64,7 +64,7 @@ table 5927 "Repair Status"
                     RepairStatus.SetFilter(Code, '<>%1', Code);
                     RepairStatus.SetRange("Partly Serviced", true);
                     if not RepairStatus.IsEmpty() then
-                        Error(Text001, TableCaption, FieldCaption("Partly Serviced"));
+                        Error(Text001, TableCaption(), FieldCaption("Partly Serviced"));
                 end;
             end;
         }
@@ -80,7 +80,7 @@ table 5927 "Repair Status"
                     RepairStatus.SetFilter(Code, '<>%1', Code);
                     RepairStatus.SetRange("In Process", true);
                     if not RepairStatus.IsEmpty() then
-                        Error(Text001, TableCaption, FieldCaption("In Process"));
+                        Error(Text001, TableCaption(), FieldCaption("In Process"));
                 end;
             end;
         }
@@ -96,7 +96,7 @@ table 5927 "Repair Status"
                     RepairStatus.SetFilter(Code, '<>%1', Code);
                     RepairStatus.SetRange(Finished, true);
                     if not RepairStatus.IsEmpty() then
-                        Error(Text001, TableCaption, FieldCaption(Finished));
+                        Error(Text001, TableCaption(), FieldCaption(Finished));
                 end;
             end;
         }
@@ -112,7 +112,7 @@ table 5927 "Repair Status"
                     RepairStatus.SetFilter(Code, '<>%1', Code);
                     RepairStatus.SetRange(Referred, true);
                     if not RepairStatus.IsEmpty() then
-                        Error(Text001, TableCaption, FieldCaption(Referred));
+                        Error(Text001, TableCaption(), FieldCaption(Referred));
                 end;
             end;
         }
@@ -128,7 +128,7 @@ table 5927 "Repair Status"
                     RepairStatus.SetFilter(Code, '<>%1', Code);
                     RepairStatus.SetRange("Spare Part Ordered", true);
                     if not RepairStatus.IsEmpty() then
-                        Error(Text001, TableCaption, FieldCaption("Spare Part Ordered"));
+                        Error(Text001, TableCaption(), FieldCaption("Spare Part Ordered"));
                 end;
             end;
         }
@@ -144,7 +144,7 @@ table 5927 "Repair Status"
                     RepairStatus.SetFilter(Code, '<>%1', Code);
                     RepairStatus.SetRange("Spare Part Received", true);
                     if not RepairStatus.IsEmpty() then
-                        Error(Text001, TableCaption, FieldCaption("Spare Part Received"));
+                        Error(Text001, TableCaption(), FieldCaption("Spare Part Received"));
                 end;
             end;
         }
@@ -160,7 +160,7 @@ table 5927 "Repair Status"
                     RepairStatus.SetFilter(Code, '<>%1', Code);
                     RepairStatus.SetRange("Waiting for Customer", true);
                     if not RepairStatus.IsEmpty() then
-                        Error(Text001, TableCaption, FieldCaption("Waiting for Customer"));
+                        Error(Text001, TableCaption(), FieldCaption("Waiting for Customer"));
                 end;
             end;
         }
@@ -176,7 +176,7 @@ table 5927 "Repair Status"
                     RepairStatus.SetFilter(Code, '<>%1', Code);
                     RepairStatus.SetRange("Quote Finished", true);
                     if not RepairStatus.IsEmpty() then
-                        Error(Text001, TableCaption, FieldCaption("Quote Finished"));
+                        Error(Text001, TableCaption(), FieldCaption("Quote Finished"));
                 end;
             end;
         }
@@ -229,7 +229,7 @@ table 5927 "Repair Status"
     begin
         ServiceItemLine.SetRange("Repair Status Code", Code);
         if not ServiceItemLine.IsEmpty() then
-            Error(Text002, TableCaption, Code, ServiceItemLine.TableCaption);
+            Error(Text002, TableCaption(), Code, ServiceItemLine.TableCaption());
     end;
 
     trigger OnInsert()

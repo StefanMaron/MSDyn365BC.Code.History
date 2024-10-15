@@ -24,12 +24,12 @@ page 5616 "FA Subclasses"
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the name of the fixed asset subclass.';
                 }
-                field("FA Class Code"; "FA Class Code")
+                field("FA Class Code"; Rec."FA Class Code")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the class that the subclass belongs to.';
                 }
-                field("Default FA Posting Group"; "Default FA Posting Group")
+                field("Default FA Posting Group"; Rec."Default FA Posting Group")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the posting group that is used when posting fixed assets that belong to this subclass.';

@@ -106,7 +106,6 @@ table 330 "Currency Exchange Rate"
     }
 
     var
-        Text000: Label 'The currency code in the %1 field and the %2 field cannot be the same.';
         CurrencyExchRate2: array[2] of Record "Currency Exchange Rate";
         CurrencyExchRate3: array[3] of Record "Currency Exchange Rate";
         RelExchangeRateAmt: Decimal;
@@ -117,6 +116,8 @@ table 330 "Currency Exchange Rate"
         UseAdjmtAmounts: Boolean;
         CurrencyCode2: array[2] of Code[10];
         Date2: array[2] of Date;
+
+        Text000: Label 'The currency code in the %1 field and the %2 field cannot be the same.';
 
     procedure ExchangeAmtLCYToFCY(Date: Date; CurrencyCode: Code[10]; Amount: Decimal; Factor: Decimal): Decimal
     begin
@@ -317,7 +318,7 @@ table 330 "Currency Exchange Rate"
             Rec := CurrencyExchRate2[CacheNo]
         else begin
             if Date = 0D then
-                Date := WorkDate;
+                Date := WorkDate();
             CurrencyExchRate2[CacheNo].SetRange("Currency Code", CurrencyCode);
             CurrencyExchRate2[CacheNo].SetRange("Starting Date", 0D, Date);
             OnFindCurrencyOnAfterCurrencyExchRate2SetFilters(CurrencyExchRate2[CacheNo], CurrencyCode, Date);
@@ -415,7 +416,7 @@ table 330 "Currency Exchange Rate"
     local procedure FindCurrency2(Date: Date; CurrencyCode: Code[10]; Number: Integer)
     begin
         if Date = 0D then
-            Date := WorkDate;
+            Date := WorkDate();
         CurrencyExchRate3[Number].SetRange("Currency Code", CurrencyCode);
         CurrencyExchRate3[Number].SetRange("Starting Date", 0D, Date);
         CurrencyExchRate3[Number].FindLast();
@@ -584,10 +585,10 @@ table 330 "Currency Exchange Rate"
         "Relational Adjmt Exch Rate Amt" := "Relational Exch. Rate Amount";
         if RateForTodayExists then begin
             "Relational Currency Code" := '';
-            Modify;
+            Modify();
         end else begin
             "Starting Date" := Today;
-            Insert;
+            Insert();
         end;
     end;
 

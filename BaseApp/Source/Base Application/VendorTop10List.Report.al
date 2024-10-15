@@ -20,21 +20,21 @@ report 311 "Vendor - Top 10 List"
                 CalcFields("Purchases (LCY)", "Balance (LCY)");
                 if ("Purchases (LCY)" = 0) and ("Balance (LCY)" = 0) then
                     CurrReport.Skip();
-                VendAmount.Init();
-                VendAmount."Vendor No." := "No.";
+                TempVendorAmount.Init();
+                TempVendorAmount."Vendor No." := "No.";
                 if ShowType = ShowType::"Purchases (LCY)" then begin
-                    VendAmount."Amount (LCY)" := -"Purchases (LCY)";
-                    VendAmount."Amount 2 (LCY)" := -"Balance (LCY)";
+                    TempVendorAmount."Amount (LCY)" := -"Purchases (LCY)";
+                    TempVendorAmount."Amount 2 (LCY)" := -"Balance (LCY)";
                 end else begin
-                    VendAmount."Amount (LCY)" := -"Balance (LCY)";
-                    VendAmount."Amount 2 (LCY)" := -"Purchases (LCY)";
+                    TempVendorAmount."Amount (LCY)" := -"Balance (LCY)";
+                    TempVendorAmount."Amount 2 (LCY)" := -"Purchases (LCY)";
                 end;
-                VendAmount.Insert();
+                TempVendorAmount.Insert();
                 if (NoOfRecordsToPrint = 0) or (i < NoOfRecordsToPrint) then
                     i := i + 1
                 else begin
-                    VendAmount.Find('+');
-                    VendAmount.Delete();
+                    TempVendorAmount.Find('+');
+                    TempVendorAmount.Delete();
                 end;
 
                 TotalVenPurchases += "Purchases (LCY)";
@@ -44,7 +44,7 @@ report 311 "Vendor - Top 10 List"
             trigger OnPreDataItem()
             begin
                 Window.Open(Text000);
-                VendAmount.DeleteAll();
+                TempVendorAmount.DeleteAll();
                 i := 0;
             end;
         }
@@ -54,13 +54,13 @@ report 311 "Vendor - Top 10 List"
             column(STRSUBSTNO_Text001_VendDateFilter_; StrSubstNo(Text001, VendDateFilter))
             {
             }
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(STRSUBSTNO_Text002_SELECTSTR_ShowType_1_Text004__; StrSubstNo(Text002, SelectStr(ShowType + 1, Text004)))
             {
             }
-            column(STRSUBSTNO___1___2__Vendor_TABLECAPTION_VendFilter_; StrSubstNo('%1: %2', Vendor.TableCaption, VendFilter))
+            column(STRSUBSTNO___1___2__Vendor_TABLECAPTION_VendFilter_; StrSubstNo('%1: %2', Vendor.TableCaption(), VendFilter))
             {
             }
             column(VendFilter; VendFilter)
@@ -138,27 +138,27 @@ report 311 "Vendor - Top 10 List"
             trigger OnAfterGetRecord()
             begin
                 if Number = 1 then begin
-                    if not VendAmount.Find('-') then
+                    if not TempVendorAmount.Find('-') then
                         CurrReport.Break();
                 end else
-                    if VendAmount.Next() = 0 then
+                    if TempVendorAmount.Next() = 0 then
                         CurrReport.Break();
-                VendAmount."Amount (LCY)" := -VendAmount."Amount (LCY)";
-                Vendor.Get(VendAmount."Vendor No.");
+                TempVendorAmount."Amount (LCY)" := -TempVendorAmount."Amount (LCY)";
+                Vendor.Get(TempVendorAmount."Vendor No.");
                 Vendor.CalcFields("Purchases (LCY)", "Balance (LCY)");
                 if MaxAmount = 0 then
-                    MaxAmount := VendAmount."Amount (LCY)";
-                if (MaxAmount > 0) and (VendAmount."Amount (LCY)" > 0) then
-                    BarText := PadStr('', Round(VendAmount."Amount (LCY)" / MaxAmount * 45, 1), '*')
+                    MaxAmount := TempVendorAmount."Amount (LCY)";
+                if (MaxAmount > 0) and (TempVendorAmount."Amount (LCY)" > 0) then
+                    BarText := PadStr('', Round(TempVendorAmount."Amount (LCY)" / MaxAmount * 45, 1), '*')
                 else
                     BarText := '';
-                VendAmount."Amount (LCY)" := -VendAmount."Amount (LCY)";
+                TempVendorAmount."Amount (LCY)" := -TempVendorAmount."Amount (LCY)";
             end;
 
             trigger OnPreDataItem()
             begin
                 VendPurchLCY := Vendor."Purchases (LCY)";
-                Window.Close;
+                Window.Close();
             end;
         }
     }
@@ -215,11 +215,7 @@ report 311 "Vendor - Top 10 List"
     end;
 
     var
-        Text000: Label 'Sorting vendors       #1##########';
-        Text001: Label 'Period: %1';
-        Text002: Label 'Rank according to %1';
-        Text003: Label 'Portion of %1';
-        VendAmount: Record "Vendor Amount" temporary;
+        TempVendorAmount: Record "Vendor Amount" temporary;
         Window: Dialog;
         VendFilter: Text;
         VendDateFilter: Text;
@@ -230,7 +226,6 @@ report 311 "Vendor - Top 10 List"
         MaxAmount: Decimal;
         BarText: Text[50];
         i: Integer;
-        Text004: Label 'Purchases (LCY),Balance (LCY)';
         TotalVenPurchases: Decimal;
         TotalVenBalance: Decimal;
         Vendor___Top_10_ListCaptionLbl: Label 'Vendor - Top 10 List';
@@ -239,6 +234,12 @@ report 311 "Vendor - Top 10 List"
         Vendor__Purchases__LCY___Control23CaptionLbl: Label 'Total';
         VendPurchLCYCaptionLbl: Label 'Total Purchases';
         PurchPctCaptionLbl: Label '% of Total Purchases';
+
+        Text000: Label 'Sorting vendors       #1##########';
+        Text001: Label 'Period: %1';
+        Text002: Label 'Rank according to %1';
+        Text003: Label 'Portion of %1';
+        Text004: Label 'Purchases (LCY),Balance (LCY)';
 
     procedure InitializeRequest(NewShowType: Option; NewNoOfRecordsToPrint: Integer)
     begin

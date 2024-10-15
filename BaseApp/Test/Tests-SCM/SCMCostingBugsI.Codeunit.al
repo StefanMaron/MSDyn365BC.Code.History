@@ -57,14 +57,14 @@ codeunit 137620 "SCM Costing Bugs I"
         // 1st line
         LibraryInventory.CreateItemJournalBatchByType(ItemJournalBatch, ItemJournalBatch."Template Type"::Item);
         LibraryPatterns.MAKEItemJournalLine(
-          ItemJournalLine1, ItemJournalBatch, Item, '', '', WorkDate, ItemJournalLine1."Entry Type"::"Positive Adjmt.", 1,
+          ItemJournalLine1, ItemJournalBatch, Item, '', '', WorkDate(), ItemJournalLine1."Entry Type"::"Positive Adjmt.", 1,
           LibraryRandom.RandInt(100));
         LibraryItemTracking.CreateItemJournalLineItemTracking(
           ReservEntry1, ItemJournalLine1, '',
           LibraryUtility.GenerateRandomCode(ReservEntry.FieldNo("Lot No."), DATABASE::"Reservation Entry"), ItemJournalLine1.Quantity);
         // 2nd line - qty 1 for each lot
         LibraryPatterns.MAKEItemJournalLine(
-          ItemJournalLine2, ItemJournalBatch, Item, '', '', WorkDate, ItemJournalLine2."Entry Type"::"Positive Adjmt.",
+          ItemJournalLine2, ItemJournalBatch, Item, '', '', WorkDate(), ItemJournalLine2."Entry Type"::"Positive Adjmt.",
           LibraryRandom.RandInt(10), LibraryRandom.RandInt(100));
         while i < ItemJournalLine2.Quantity do begin
             i += 1;
@@ -79,7 +79,7 @@ codeunit 137620 "SCM Costing Bugs I"
 
         // Make sales order
         SalesUnitCost := LibraryRandom.RandInt(100);
-        LibraryPatterns.MAKESalesOrder(SalesHeader, SalesLine, Item, '', '', ItemJournalLine1.Quantity, WorkDate, SalesUnitCost);
+        LibraryPatterns.MAKESalesOrder(SalesHeader, SalesLine, Item, '', '', ItemJournalLine1.Quantity, WorkDate(), SalesUnitCost);
         LibraryItemTracking.CreateSalesOrderItemTracking(ReservEntry, SalesLine, '', ReservEntry1."Lot No.", ItemJournalLine1.Quantity);
         LibrarySales.PostSalesDocument(SalesHeader, true, false); // Ship
         SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No.");
@@ -93,7 +93,7 @@ codeunit 137620 "SCM Costing Bugs I"
 
         // Create sales return order
         LibraryPatterns.MAKESalesReturnOrder(
-          SalesHeader, SalesLine, Item, '', '', ItemJournalLine1.Quantity, WorkDate, LibraryRandom.RandDec(100, 2),
+          SalesHeader, SalesLine, Item, '', '', ItemJournalLine1.Quantity, WorkDate(), LibraryRandom.RandDec(100, 2),
           LibraryRandom.RandDec(100, 2));
         LibraryItemTracking.CreateSalesOrderItemTracking(ReservEntry, SalesLine, '', ReservEntry1."Lot No.", ItemJournalLine1.Quantity);
         ReservEntry.Validate("Appl.-from Item Entry", SalesILENo);
@@ -252,7 +252,7 @@ codeunit 137620 "SCM Costing Bugs I"
         // Make item
         LibraryPatterns.MAKEItem(Item, CostingMethod, 0, 0, 0, '');
 
-        Day1 := WorkDate;
+        Day1 := WorkDate();
         // Post purchase order
         PurchaseQty := LibraryRandom.RandInt(100);
         LibraryPatterns.POSTPurchaseOrder(PurchaseHeader, Item, '', '', PurchaseQty, Day1, 0, true, true);
@@ -277,7 +277,7 @@ codeunit 137620 "SCM Costing Bugs I"
         ValueEntry.FindSet();
         repeat
             ValueEntry.TestField("Valuation Date", Day1);
-        until ValueEntry.Next = 0;
+        until ValueEntry.Next() = 0;
         LibraryCosting.CheckAdjustment(Item);
         VerifyVariance := CostingMethod = Item."Costing Method"::Standard;
         LibraryCosting.CheckProductionOrderCost(ProductionOrder, VerifyVariance);
@@ -307,22 +307,22 @@ codeunit 137620 "SCM Costing Bugs I"
         LibraryPatterns.MAKEItem(ChildItem, ChildItem."Costing Method"::Standard, LibraryRandom.RandInt(10), 0, 0, '');
         LibraryPatterns.MAKEItem(ProducedItem, ProducedItem."Costing Method"::Standard, LibraryRandom.RandInt(10), 0, 0, '');
         LibraryPatterns.POSTItemJournalLine(
-          ItemJournalBatch."Template Type"::Item, ItemJournalLine."Entry Type"::"Positive Adjmt.", ChildItem, '', '', '', 1000, WorkDate,
+          ItemJournalBatch."Template Type"::Item, ItemJournalLine."Entry Type"::"Positive Adjmt.", ChildItem, '', '', '', 1000, WorkDate(),
           ChildItem."Standard Cost");
 
         // Make production order and post output and then consumption
         LibraryPatterns.MAKEProductionOrder(
-          ProductionOrder, ProductionOrder.Status::Released, ProducedItem, '', '', LibraryRandom.RandInt(10), WorkDate);
+          ProductionOrder, ProductionOrder.Status::Released, ProducedItem, '', '', LibraryRandom.RandInt(10), WorkDate());
         ProdOrderLine.SetRange(Status, ProductionOrder.Status);
         ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
         ProdOrderLine.FindFirst();
-        LibraryPatterns.POSTOutput(ProdOrderLine, ProdOrderLine.Quantity, WorkDate, ProdOrderLine."Unit Cost");
+        LibraryPatterns.POSTOutput(ProdOrderLine, ProdOrderLine.Quantity, WorkDate(), ProdOrderLine."Unit Cost");
         ItemLedgerEntry.FindLast(); // output line
         LibraryPatterns.POSTConsumption(
-          ProdOrderLine, ChildItem, '', '', LibraryRandom.RandInt(10), WorkDate, ChildItem."Standard Cost");
+          ProdOrderLine, ChildItem, '', '', LibraryRandom.RandInt(10), WorkDate(), ChildItem."Standard Cost");
 
         // Finish prod order
-        LibraryManufacturing.ChangeProdOrderStatus(ProductionOrder, ProductionOrder.Status::Finished, WorkDate, true);
+        LibraryManufacturing.ChangeProdOrderStatus(ProductionOrder, ProductionOrder.Status::Finished, WorkDate(), true);
 
         // Verify
         ValueEntry.SetRange("Item Ledger Entry No.", ItemLedgerEntry."Entry No.");
@@ -360,19 +360,19 @@ codeunit 137620 "SCM Costing Bugs I"
         // Post purchases
         PurchQty := LibraryRandom.RandInt(10);
         Purch1Cost := LibraryRandom.RandInt(10);
-        LibraryPatterns.POSTPurchaseOrder(PurchaseHeader, Item, '', '', PurchQty, WorkDate, Purch1Cost, true, true);
+        LibraryPatterns.POSTPurchaseOrder(PurchaseHeader, Item, '', '', PurchQty, WorkDate(), Purch1Cost, true, true);
         ItemLedgerEntry.FindLast(); // store the first purchase ILE
         Purch2Cost := LibraryRandom.RandIntInRange(Purch1Cost, 20); // higher than cost of 1st purchase
-        LibraryPatterns.POSTPurchaseOrder(PurchaseHeader, Item, '', '', PurchQty, WorkDate, Purch2Cost, true, true);
+        LibraryPatterns.POSTPurchaseOrder(PurchaseHeader, Item, '', '', PurchQty, WorkDate(), Purch2Cost, true, true);
 
         // Make sales
         SalesQty := LibraryRandom.RandIntInRange(PurchQty, 2 * PurchQty);
-        LibraryPatterns.MAKESalesOrder(SalesHeader, SalesLine, Item, '', '', SalesQty, WorkDate, LibraryRandom.RandInt(10));
+        LibraryPatterns.MAKESalesOrder(SalesHeader, SalesLine, Item, '', '', SalesQty, WorkDate(), LibraryRandom.RandInt(10));
 
         // Verify
         asserterror SalesLine.Validate("Appl.-to Item Entry", ItemLedgerEntry."Entry No.");
         Assert.IsTrue(StrPos(GetLastErrorText, ERR_REM_QTY_TOO_LOW) > 0, '');
-        ClearLastError;
+        ClearLastError();
     end;
 
     [Test]
@@ -399,13 +399,13 @@ codeunit 137620 "SCM Costing Bugs I"
         // Post purchase
         PurchQty := LibraryRandom.RandInt(10);
         Purch1Cost := LibraryRandom.RandInt(10);
-        LibraryPatterns.MAKEPurchaseOrder(PurchaseHeader, PurchaseLine, Item, '', '', PurchQty, WorkDate, Purch1Cost);
+        LibraryPatterns.MAKEPurchaseOrder(PurchaseHeader, PurchaseLine, Item, '', '', PurchQty, WorkDate(), Purch1Cost);
         VendorNo := PurchaseHeader."Buy-from Vendor No.";
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // Post sale
         SalesQty := LibraryRandom.RandIntInRange(PurchQty, PurchQty);
-        LibraryPatterns.MAKESalesOrder(SalesHeader, SalesLine, Item, '', '', SalesQty, WorkDate, LibraryRandom.RandInt(10));
+        LibraryPatterns.MAKESalesOrder(SalesHeader, SalesLine, Item, '', '', SalesQty, WorkDate(), LibraryRandom.RandInt(10));
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // Make purchase return
@@ -447,7 +447,7 @@ codeunit 137620 "SCM Costing Bugs I"
         // Post purchase using alternative UOM 1
         PurchQty := LibraryRandom.RandInt(10);
         Purch1Cost := LibraryRandom.RandInt(10);
-        LibraryPatterns.MAKEPurchaseOrder(PurchaseHeader, PurchaseLine, Item, '', '', PurchQty, WorkDate, Purch1Cost);
+        LibraryPatterns.MAKEPurchaseOrder(PurchaseHeader, PurchaseLine, Item, '', '', PurchQty, WorkDate(), Purch1Cost);
         PurchaseLine.Validate("Unit of Measure Code", NonBaseItemUOM1.Code);
         PurchaseLine.Modify(true);
         VendorNo := PurchaseHeader."Buy-from Vendor No.";
@@ -455,7 +455,7 @@ codeunit 137620 "SCM Costing Bugs I"
 
         // Post sale using alternative UOM 2
         SalesQty := LibraryRandom.RandIntInRange(PurchQty, PurchQty);
-        LibraryPatterns.MAKESalesOrder(SalesHeader, SalesLine, Item, '', '', SalesQty, WorkDate, LibraryRandom.RandInt(10));
+        LibraryPatterns.MAKESalesOrder(SalesHeader, SalesLine, Item, '', '', SalesQty, WorkDate(), LibraryRandom.RandInt(10));
         SalesLine.Validate("Unit of Measure Code", NonBaseItemUOM2.Code);
         SalesLine.Modify(true);
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -507,7 +507,7 @@ codeunit 137620 "SCM Costing Bugs I"
 
         Day2 := Day1 + 60;
         // Create prod order
-        LibraryPatterns.MAKEProductionOrder(ProductionOrder, ProductionOrder.Status::Released, Item, '', '', InventoryQty, WorkDate);
+        LibraryPatterns.MAKEProductionOrder(ProductionOrder, ProductionOrder.Status::Released, Item, '', '', InventoryQty, WorkDate());
         GetFirstProdOrderLine(ProdOrderLine, ProductionOrder);
         QtyProdOrder := LibraryRandom.RandDecInDecimalRange(1, InventoryQty - 1, 2);
         LibraryPatterns.POSTConsumption(ProdOrderLine, Item, '', '', QtyProdOrder, Day2, Item."Unit Cost"); // consume after 2 months
@@ -572,7 +572,7 @@ codeunit 137620 "SCM Costing Bugs I"
         Item."Costing Method" := Item."Costing Method"::Average;
         Item.Modify();
 
-        Day1 := WorkDate;
+        Day1 := WorkDate();
         Qty := 2388;
         UnitCost := 63.3152;
         PurchaseQty1 := Qty / 4;
@@ -705,8 +705,8 @@ codeunit 137620 "SCM Costing Bugs I"
         // Make item. Post adjustments.
         LibraryPatterns.MAKEItem(Item, Item."Costing Method"::Average, 0, 0, 0, '');
 
-        LibraryPatterns.POSTPositiveAdjustment(Item, '', '', '', 1, WorkDate, LibraryRandom.RandDec(100, 2));
-        LibraryPatterns.POSTNegativeAdjustment(Item, '', '', '', 1, WorkDate, 0);
+        LibraryPatterns.POSTPositiveAdjustment(Item, '', '', '', 1, WorkDate(), LibraryRandom.RandDec(100, 2));
+        LibraryPatterns.POSTNegativeAdjustment(Item, '', '', '', 1, WorkDate(), 0);
 
         // Exercise: Adjust.
         LibraryCosting.AdjustCostItemEntries(Item."No.", '');
@@ -762,8 +762,8 @@ codeunit 137620 "SCM Costing Bugs I"
         // [GIVEN] Post 3 output entries and 3 consumption entries
         GetFirstProdOrderLine(ProdOrderLine, ProductionOrder);
         for I := 1 to 3 do begin
-            LibraryPatterns.POSTOutput(ProdOrderLine, 1, WorkDate, ParentItem."Unit Cost");
-            LibraryPatterns.POSTConsumption(ProdOrderLine, ComponentItem, '', '', 1, WorkDate, ComponentItem."Unit Cost");
+            LibraryPatterns.POSTOutput(ProdOrderLine, 1, WorkDate(), ParentItem."Unit Cost");
+            LibraryPatterns.POSTConsumption(ProdOrderLine, ComponentItem, '', '', 1, WorkDate(), ComponentItem."Unit Cost");
         end;
 
         // [GIVEN] Finish production order
@@ -855,7 +855,7 @@ codeunit 137620 "SCM Costing Bugs I"
 
         // [GIVEN] Item "I". Post inventory adjustment on location "L2" on WORKDATE
         LibraryPatterns.MAKEItem(Item, Item."Costing Method"::Average, 0, 0, 0, '');
-        LibraryPatterns.POSTPositiveAdjustment(Item, Location[2].Code, '', '', 1, WorkDate, LibraryRandom.RandDec(100, 2));
+        LibraryPatterns.POSTPositiveAdjustment(Item, Location[2].Code, '', '', 1, WorkDate(), LibraryRandom.RandDec(100, 2));
         // [GIVEN] Transfer item "I" from location "L2" to "L1" on WORKDATE + 1 day
         LibraryPatterns.POSTTransferOrder(
           TransferHeader, Item, Location[2], Location[1], Location[3], '', 1, WorkDate + 1, WorkDate + 1, true, true);
@@ -960,11 +960,11 @@ codeunit 137620 "SCM Costing Bugs I"
     begin
         // Create prod order
         LibraryPatterns.MAKEProductionOrder(ProductionOrder, ProductionOrder.Status::Released, Item, '', '',
-          LibraryRandom.RandDec(100, 2), WorkDate);
+          LibraryRandom.RandDec(100, 2), WorkDate());
         GetFirstProdOrderLine(ProdOrderLine, ProductionOrder);
 
         // Explode routing
-        LibraryManufacturing.OutputJournalExplodeOrderLineRouting(ItemJournalBatch, ProdOrderLine, WorkDate);
+        LibraryManufacturing.OutputJournalExplodeOrderLineRouting(ItemJournalBatch, ProdOrderLine, WorkDate());
         GetFirstItemJournalLineInBatch(ItemJournalLine, ItemJournalBatch);
 
         // Change type and post
@@ -994,7 +994,7 @@ codeunit 137620 "SCM Costing Bugs I"
         PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
         PurchaseHeader.Modify(true);
 
-        PurchaseLine.Find;
+        PurchaseLine.Find();
         PurchaseLine.Validate("Direct Unit Cost", NewUnitCost);
         PurchaseLine.Modify(true);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -1017,7 +1017,7 @@ codeunit 137620 "SCM Costing Bugs I"
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
         with ItemLedgerEntry do begin
-            Init;
+            Init();
             SetRange("Item No.", ItemNo);
             SetRange("Applied Entry to Adjust", true);
             Assert.RecordIsEmpty(ItemLedgerEntry);

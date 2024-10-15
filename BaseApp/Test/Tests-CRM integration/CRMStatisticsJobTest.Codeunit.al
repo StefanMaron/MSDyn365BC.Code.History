@@ -38,7 +38,7 @@ codeunit 139179 "CRM Statistics Job Test"
         // [GIVEN] The Customer has some non-zero FlowField values in the statistics, which have not been calculated
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
         LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice,
-          Customer."No.", '', 2, '', WorkDate);
+          Customer."No.", '', 2, '', WorkDate());
 
         // Verify that the Outstanding Invoices value is zero because it has not been calculated
         Assert.AreEqual(0, Customer."Outstanding Invoices (LCY)",
@@ -75,7 +75,7 @@ codeunit 139179 "CRM Statistics Job Test"
         // [GIVEN] The Customer has some field values in the statistics, different from the ones in the Account Statistics
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
         LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice,
-          Customer."No.", '', 2, '', WorkDate);
+          Customer."No.", '', 2, '', WorkDate());
 
         // Create and verify
         CRMStatisticsJob.CreateOrUpdateCRMAccountStatistics(Customer, CRMAccount);
@@ -516,9 +516,9 @@ codeunit 139179 "CRM Statistics Job Test"
         CODEUNIT.Run(CODEUNIT::"Job Queue Dispatcher", JobQueueEntry);
 
         // [THEN] the Job Queue Entry, where Status is 'Error', "Error Message" is 'CRM connection is not enabled'
-        JobQueueEntry.Find;
+        JobQueueEntry.Find();
         JobQueueEntry.TestField(Status, JobQueueEntry.Status::Error);
-        Assert.ExpectedMessage(StrSubstNo(ConnectionNotEnabledErr, CRMProductName.FULL), JobQueueEntry."Error Message");
+        Assert.ExpectedMessage(StrSubstNo(ConnectionNotEnabledErr, CRMProductName.FULL()), JobQueueEntry."Error Message");
 
         // [WHEN] run action "Details" on page "Job Queue Log Entries"
         JobQueueLogEntriesPage.OpenView;
@@ -552,7 +552,7 @@ codeunit 139179 "CRM Statistics Job Test"
         JobQueueLogEntry.Insert();
 
         // [GIVEN] Integration Synch. Job, where "Job Queue Log Entry No." = 'X'
-        IntegrationSynchJob.ID := CreateGuid;
+        IntegrationSynchJob.ID := CreateGuid();
         IntegrationSynchJob."Job Queue Log Entry No." := JobQueueLogEntry."Entry No.";
         IntegrationSynchJob.Insert();
 
@@ -585,7 +585,7 @@ codeunit 139179 "CRM Statistics Job Test"
         // Executing the Sync Job
         SalesInvHeader.SetRange(SystemId, SalesInvHeader.SystemId);
         LibraryCRMIntegration.RunJobQueueEntry(
-          DATABASE::"Sales Invoice Header", SalesInvHeader.GetView, IntegrationTableMapping);
+          DATABASE::"Sales Invoice Header", SalesInvHeader.GetView(), IntegrationTableMapping);
 
         CRMIntegrationRecord.FindByRecordID(SalesInvHeader.RecordId);
         CRMInvoice.Get(CRMIntegrationRecord."CRM ID");
@@ -613,7 +613,7 @@ codeunit 139179 "CRM Statistics Job Test"
             FindRecordIDFromID("CRM ID", DATABASE::Customer, RecID);
             RecRef.Get(RecID);
             RecRef.SetTable(Customer);
-            RecRef.Close;
+            RecRef.Close();
             CRMAccount.Get("CRM ID");
         end;
     end;

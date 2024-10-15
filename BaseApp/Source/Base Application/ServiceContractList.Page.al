@@ -18,12 +18,12 @@ page 6051 "Service Contract List"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the status of the service contract or contract quote.';
                 }
-                field("Contract Type"; "Contract Type")
+                field("Contract Type"; Rec."Contract Type")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the type of the contract.';
                 }
-                field("Contract No."; "Contract No.")
+                field("Contract No."; Rec."Contract No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the service contract or service contract quote.';
@@ -33,7 +33,7 @@ page 6051 "Service Contract List"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies a description of the service contract.';
                 }
-                field("Customer No."; "Customer No.")
+                field("Customer No."; Rec."Customer No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the customer who owns the service items in the service contract/contract quote.';
@@ -44,23 +44,23 @@ page 6051 "Service Contract List"
                     ToolTip = 'Specifies the name of the customer in the service contract.';
                     Visible = false;
                 }
-                field("Ship-to Code"; "Ship-to Code")
+                field("Ship-to Code"; Rec."Ship-to Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies a code for an alternate shipment address if you want to ship to another address than the one that has been entered automatically. This field is also used in case of drop shipment.';
                 }
-                field("Ship-to Name"; "Ship-to Name")
+                field("Ship-to Name"; Rec."Ship-to Name")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the name of the customer at the address that the items are shipped to.';
                     Visible = false;
                 }
-                field("Starting Date"; "Starting Date")
+                field("Starting Date"; Rec."Starting Date")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the starting date of the service contract.';
                 }
-                field("Expiration Date"; "Expiration Date")
+                field("Expiration Date"; Rec."Expiration Date")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the date when the service contract expires.';
@@ -121,7 +121,6 @@ page 6051 "Service Contract List"
                     ApplicationArea = Service;
                     Caption = 'Service Items Out of Warranty';
                     Image = "Report";
-                    Promoted = false;
                     //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                     //PromotedCategory = "Report";
                     RunObject = Report "Service Items Out of Warranty";
@@ -137,7 +136,6 @@ page 6051 "Service Contract List"
                     ApplicationArea = Service;
                     Caption = 'Service Contract-Customer';
                     Image = "Report";
-                    Promoted = false;
                     //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                     //PromotedCategory = "Report";
                     RunObject = Report "Service Contract - Customer";
@@ -148,7 +146,6 @@ page 6051 "Service Contract List"
                     ApplicationArea = Service;
                     Caption = 'Service Contract-Salesperson';
                     Image = "Report";
-                    Promoted = false;
                     //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                     //PromotedCategory = "Report";
                     RunObject = Report "Serv. Contract - Salesperson";
@@ -159,7 +156,6 @@ page 6051 "Service Contract List"
                     ApplicationArea = Service;
                     Caption = 'Service Contract Details';
                     Image = "Report";
-                    Promoted = false;
                     //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                     //PromotedCategory = "Report";
                     RunObject = Report "Service Contract-Detail";
@@ -170,7 +166,6 @@ page 6051 "Service Contract List"
                     ApplicationArea = Service;
                     Caption = 'Service Contract Profit';
                     Image = "Report";
-                    Promoted = false;
                     //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                     //PromotedCategory = "Report";
                     RunObject = Report "Service Profit (Contracts)";
@@ -181,8 +176,6 @@ page 6051 "Service Contract List"
                     ApplicationArea = FixedAssets;
                     Caption = 'Maintenance Visit - Planning';
                     Image = "Report";
-                    Promoted = true;
-                    PromotedCategory = "Report";
                     RunObject = Report "Maintenance Visit - Planning";
                     ToolTip = 'View the service zone code, group code, contract number, customer number, service period, as well as the service date. You can select the schedule for one or more responsibility centers. The report shows the service dates of all the maintenance visits for the chosen responsibility centers. You can print all your schedules for maintenance visits.';
                 }
@@ -196,8 +189,6 @@ page 6051 "Service Contract List"
                     ApplicationArea = Service;
                     Caption = 'Contract, Service Order Test';
                     Image = "Report";
-                    Promoted = true;
-                    PromotedCategory = "Report";
                     RunObject = Report "Contr. Serv. Orders - Test";
                     ToolTip = 'View the numbers of contracts, the numbers and the names of customers, as well as some other information relating to the service orders that are created for the period that you have specified. You can test which service contracts include service items that are due for service within the specified period.';
                 }
@@ -206,7 +197,6 @@ page 6051 "Service Contract List"
                     ApplicationArea = Service;
                     Caption = 'Contract Invoice Test';
                     Image = "Report";
-                    Promoted = false;
                     //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                     //PromotedCategory = "Report";
                     RunObject = Report "Contract Invoicing";
@@ -217,11 +207,24 @@ page 6051 "Service Contract List"
                     ApplicationArea = Service;
                     Caption = 'Contract Price Update - Test';
                     Image = "Report";
-                    Promoted = false;
                     //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                     //PromotedCategory = "Report";
                     RunObject = Report "Contract Price Update - Test";
                     ToolTip = 'View the contracts numbers, customer numbers, contract amounts, price update percentages, and any errors that occur. You can test which service contracts need price updates up to the date that you have specified.';
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Report)
+            {
+                Caption = 'Reports';
+
+                actionref("Maintenance Visit - Planning_Promoted"; "Maintenance Visit - Planning")
+                {
+                }
+                actionref("Contract, Service Order Test_Promoted"; "Contract, Service Order Test")
+                {
                 }
             }
         }

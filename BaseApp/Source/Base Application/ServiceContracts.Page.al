@@ -16,7 +16,7 @@ page 9321 "Service Contracts"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Contract No."; "Contract No.")
+                field("Contract No."; Rec."Contract No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the service contract or service contract quote.';
@@ -31,7 +31,7 @@ page 9321 "Service Contracts"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies a description of the service contract.';
                 }
-                field("Customer No."; "Customer No.")
+                field("Customer No."; Rec."Customer No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the customer who owns the service items in the service contract/contract quote.';
@@ -42,70 +42,70 @@ page 9321 "Service Contracts"
                     ToolTip = 'Specifies the name of the customer in the service contract.';
                     Visible = false;
                 }
-                field("Ship-to Code"; "Ship-to Code")
+                field("Ship-to Code"; Rec."Ship-to Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies a code for an alternate shipment address if you want to ship to another address than the one that has been entered automatically. This field is also used in case of drop shipment.';
                 }
-                field("Ship-to Name"; "Ship-to Name")
+                field("Ship-to Name"; Rec."Ship-to Name")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the name of the customer at the address that the items are shipped to.';
                     Visible = false;
                 }
-                field("Starting Date"; "Starting Date")
+                field("Starting Date"; Rec."Starting Date")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the starting date of the service contract.';
                 }
-                field("Expiration Date"; "Expiration Date")
+                field("Expiration Date"; Rec."Expiration Date")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the date when the service contract expires.';
                 }
-                field("Change Status"; "Change Status")
+                field("Change Status"; Rec."Change Status")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies if a service contract or contract quote is locked or open for changes.';
                     Visible = false;
                 }
-                field("Payment Terms Code"; "Payment Terms Code")
+                field("Payment Terms Code"; Rec."Payment Terms Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies a formula that calculates the payment due date, payment discount date, and payment discount amount.';
                     Visible = false;
                 }
-                field("Currency Code"; "Currency Code")
+                field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the currency used to calculate the amounts in the documents related to this contract.';
                     Visible = false;
                 }
-                field("First Service Date"; "First Service Date")
+                field("First Service Date"; Rec."First Service Date")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the date of the first expected service for the service items in the contract.';
                     Visible = false;
                 }
-                field("Service Order Type"; "Service Order Type")
+                field("Service Order Type"; Rec."Service Order Type")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the service order type assigned to service orders linked to this contract.';
                     Visible = false;
                 }
-                field("Invoice Period"; "Invoice Period")
+                field("Invoice Period"; Rec."Invoice Period")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the invoice period for the service contract.';
                     Visible = false;
                 }
-                field("Next Price Update Date"; "Next Price Update Date")
+                field("Next Price Update Date"; Rec."Next Price Update Date")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the next date you want contract prices to be updated.';
                     Visible = false;
                 }
-                field("Last Price Update Date"; "Last Price Update Date")
+                field("Last Price Update Date"; Rec."Last Price Update Date")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the date you last updated the contract prices.';
@@ -161,8 +161,8 @@ page 9321 "Service Contracts"
 
                     trigger OnAction()
                     begin
-                        ShowDocDim;
-                        CurrPage.SaveRecord;
+                        ShowDocDim();
+                        CurrPage.SaveRecord();
                     end;
                 }
                 action("Service Ledger E&ntries")
@@ -227,8 +227,6 @@ page 9321 "Service Contracts"
                         ApplicationArea = Service;
                         Caption = 'Statistics';
                         Image = Statistics;
-                        Promoted = true;
-                        PromotedCategory = Process;
                         RunObject = Page "Contract Statistics";
                         RunPageLink = "Contract Type" = CONST(Contract),
                                       "Contract No." = FIELD("Contract No.");
@@ -371,8 +369,6 @@ page 9321 "Service Contracts"
                 Caption = '&Print';
                 Ellipsis = true;
                 Image = Print;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Prepare to print the document. A report request window for the document opens where you can specify what to include on the print-out.';
 
                 trigger OnAction()
@@ -390,8 +386,6 @@ page 9321 "Service Contracts"
                 ApplicationArea = Service;
                 Caption = 'Contract, Service Order Test';
                 Image = "Report";
-                Promoted = true;
-                PromotedCategory = "Report";
                 RunObject = Report "Contr. Serv. Orders - Test";
                 ToolTip = 'View the numbers of contracts, the numbers and the names of customers, as well as some other information relating to the service orders that are created for the period that you have specified. You can test which service contracts include service items that are due for service within the specified period.';
             }
@@ -400,8 +394,6 @@ page 9321 "Service Contracts"
                 ApplicationArea = Service;
                 Caption = 'Maintenance Visit - Planning';
                 Image = "Report";
-                Promoted = true;
-                PromotedCategory = "Report";
                 RunObject = Report "Maintenance Visit - Planning";
                 ToolTip = 'View the service zone code, group code, contract number, customer number, service period, as well as the service date. You can select the schedule for one or more responsibility centers. The report shows the service dates of all the maintenance visits for the chosen responsibility centers. You can print all your schedules for maintenance visits.';
             }
@@ -410,7 +402,6 @@ page 9321 "Service Contracts"
                 ApplicationArea = Service;
                 Caption = 'Service Contract Details';
                 Image = "Report";
-                Promoted = false;
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = "Report";
                 RunObject = Report "Service Contract-Detail";
@@ -421,8 +412,6 @@ page 9321 "Service Contracts"
                 ApplicationArea = Service;
                 Caption = 'Service Contract Profit';
                 Image = "Report";
-                Promoted = true;
-                PromotedCategory = "Report";
                 RunObject = Report "Service Profit (Contracts)";
                 ToolTip = 'View profit information for the service contract.';
             }
@@ -431,7 +420,6 @@ page 9321 "Service Contracts"
                 ApplicationArea = Service;
                 Caption = 'Contract Invoice Test';
                 Image = "Report";
-                Promoted = false;
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = "Report";
                 RunObject = Report "Contract Invoicing";
@@ -442,8 +430,6 @@ page 9321 "Service Contracts"
                 ApplicationArea = Service;
                 Caption = 'Service Contract-Customer';
                 Image = "Report";
-                Promoted = true;
-                PromotedCategory = "Report";
                 RunObject = Report "Service Contract - Customer";
                 ToolTip = 'View information about status, next invoice date, invoice period, amount per period, and annual amount. You can print a list of service contracts for each customer in a selected time period.';
             }
@@ -452,7 +438,6 @@ page 9321 "Service Contracts"
                 ApplicationArea = Service;
                 Caption = 'Service Contract-Salesperson';
                 Image = "Report";
-                Promoted = false;
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = "Report";
                 RunObject = Report "Serv. Contract - Salesperson";
@@ -463,7 +448,6 @@ page 9321 "Service Contracts"
                 ApplicationArea = Service;
                 Caption = 'Contract Price Update - Test';
                 Image = "Report";
-                Promoted = false;
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = "Report";
                 RunObject = Report "Contract Price Update - Test";
@@ -474,18 +458,48 @@ page 9321 "Service Contracts"
                 ApplicationArea = Service;
                 Caption = 'Service Items Out of Warranty';
                 Image = "Report";
-                Promoted = false;
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = "Report";
                 RunObject = Report "Service Items Out of Warranty";
                 ToolTip = 'View information about warranty end dates, serial numbers, number of active contracts, items description, and names of customers. You can print a list of service items that are out of warranty.';
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("&Print_Promoted"; "&Print")
+                {
+                }
+                actionref(Action1102601013_Promoted; Action1102601013)
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Reports';
+
+                actionref("Contract, Service Order Test_Promoted"; "Contract, Service Order Test")
+                {
+                }
+                actionref("Maintenance Visit - Planning_Promoted"; "Maintenance Visit - Planning")
+                {
+                }
+                actionref("Service Contract Profit_Promoted"; "Service Contract Profit")
+                {
+                }
+                actionref("Service Contract-Customer_Promoted"; "Service Contract-Customer")
+                {
+                }
+            }
+        }
     }
 
     trigger OnOpenPage()
     begin
-        SetSecurityFilterOnRespCenter;
+        SetSecurityFilterOnRespCenter();
     end;
 }
 

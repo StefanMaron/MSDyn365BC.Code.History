@@ -23,7 +23,7 @@ page 5063 "Mailing Groups"
                     ApplicationArea = All;
                     ToolTip = 'Specifies the description of the mailing group.';
                 }
-                field("No. of Contacts"; "No. of Contacts")
+                field("No. of Contacts"; Rec."No. of Contacts")
                 {
                     ApplicationArea = RelationshipMgmt;
                     DrillDownPageID = "Mailing Group Contacts";

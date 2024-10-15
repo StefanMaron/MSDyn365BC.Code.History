@@ -46,7 +46,7 @@ codeunit 134189 "WF Demo Ready for OCR Inc.Doc."
             CreateIncomingDocAttachment(IncomingDocument, IncomingDocumentAttachment, SelectStr(FileType + 1, FileTypes));
 
             // Verify
-            IncomingDocument.Find;
+            IncomingDocument.Find();
             IsOCRSupportedFileType :=
               IncomingDocumentAttachment.Type in
               [IncomingDocumentAttachment.Type::PDF,
@@ -89,7 +89,7 @@ codeunit 134189 "WF Demo Ready for OCR Inc.Doc."
         CreateIncomingDocAttachment(IncomingDocument, IncomingDocumentAttachment, 'pdf');
 
         // Verify
-        IncomingDocument.Find;
+        IncomingDocument.Find();
         Assert.AreEqual(IncomingDocument.Status::New, IncomingDocument.Status, '')
     end;
 
@@ -118,7 +118,7 @@ codeunit 134189 "WF Demo Ready for OCR Inc.Doc."
         CreateIncomingDocAttachment(IncomingDocument, IncomingDocumentAttachment, 'pdf');
 
         // Verify
-        IncomingDocument.Find;
+        IncomingDocument.Find();
         Assert.AreEqual(IncomingDocument.Status::New, IncomingDocument.Status, '')
     end;
 
@@ -131,7 +131,7 @@ codeunit 134189 "WF Demo Ready for OCR Inc.Doc."
         OCRServiceSetup.SetURLsToDefault;
         OCRServiceSetup."Default OCR Doc. Template" := 'TEST';
         OCRServiceSetup.Enabled := Enable;
-        if not OCRServiceSetup.Modify then
+        if not OCRServiceSetup.Modify() then
             OCRServiceSetup.Insert();
     end;
 
@@ -149,7 +149,7 @@ codeunit 134189 "WF Demo Ready for OCR Inc.Doc."
     begin
         with IncomingDocument do begin
             Clear(IncomingDocument);
-            Init;
+            Init();
             Validate(Status, Status::New);
             Insert(true);
         end;

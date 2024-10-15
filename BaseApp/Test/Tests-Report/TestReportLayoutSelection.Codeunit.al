@@ -88,7 +88,7 @@ codeunit 134605 "Test Report Layout Selection"
         Assert.AreEqual('Test Report - Default=Word', ReportInboxTestPage."Report Name".Value, '');
 
         ReportInboxTestPage."Report Name".DrillDown; // Save as Show
-        ReportInboxTestPage.Close;
+        ReportInboxTestPage.Close();
     end;
 
     [Test]
@@ -350,7 +350,7 @@ codeunit 134605 "Test Report Layout Selection"
         ServerPrinters: Page "Server Printers";
     begin
         ServerPrinters.SetSelectedPrinterName('X');
-        if ServerPrinters.RunModal = ACTION::OK then
+        if ServerPrinters.RunModal() = ACTION::OK then
             if ServerPrinters.GetSelectedPrinterName = '' then; // non-predictable in test environment
     end;
 
@@ -405,7 +405,7 @@ codeunit 134605 "Test Report Layout Selection"
     begin
         BindSubscription(LibraryJobQueue);
 
-        // Init;
+        // Init();
         JobQueueEntry.Init();
         JobQueueEntry.Status := JobQueueEntry.Status::"On Hold";
         JobQueueEntry.Validate("Expiration Date/Time", CreateDateTime(20121212D, 121200T));

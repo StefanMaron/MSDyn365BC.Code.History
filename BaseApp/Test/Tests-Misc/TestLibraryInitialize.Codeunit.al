@@ -102,7 +102,7 @@ codeunit 132529 "Test Library Initialize"
         NameValueBuffer: Record "Name/Value Buffer";
     begin
         NameValueBuffer.SetFilter(Name, EventName);
-        exit(NameValueBuffer.FindFirst);
+        exit(NameValueBuffer.FindFirst())
     end;
 
     local procedure InsertNameValue(EventName: Text[250])

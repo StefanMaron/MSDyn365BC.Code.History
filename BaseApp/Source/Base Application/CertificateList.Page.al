@@ -33,12 +33,12 @@ page 1262 "Certificate List"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the availability of the certificate. Company gives all users in this specific company access to the certificate. User gives access to a specific user in any company. Company and User gives access to a specific user in the specific company.';
                 }
-                field("Expiry Date"; "Expiry Date")
+                field("Expiry Date"; Rec."Expiry Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date on which the certificate will expire.';
                 }
-                field("Has Private Key"; "Has Private Key")
+                field("Has Private Key"; Rec."Has Private Key")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether the certificate has a private key.';
@@ -48,12 +48,12 @@ page 1262 "Certificate List"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the certificate thumbprint.';
                 }
-                field("Issued By"; "Issued By")
+                field("Issued By"; Rec."Issued By")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the certificate authority that issued the certificate.';
                 }
-                field("Issued To"; "Issued To")
+                field("Issued To"; Rec."Issued To")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the person, organization, or domain that the certificate was issued to.';
@@ -88,7 +88,7 @@ page 1262 "Certificate List"
         User: Record User;
     begin
         FilterGroup(2);
-        if User.Get(UserSecurityId) then;
+        if User.Get(UserSecurityId()) then;
         SetFilter("Company ID", '%1|%2', '', CompanyName);
         SetFilter("User ID", '%1|%2', '', User."User Name");
     end;

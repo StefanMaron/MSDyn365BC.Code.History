@@ -1184,7 +1184,7 @@ codeunit 137015 "SCM Pick Worksheet"
         BinType.FindSet();
         repeat
             BinTypeFilter += BinType.Code + '|';
-        until BinType.Next = 0;
+        until BinType.Next() = 0;
         BinTypeFilter := DelChr(BinTypeFilter, '>', '|');
         exit(BinTypeFilter);
     end;
@@ -1484,7 +1484,7 @@ codeunit 137015 "SCM Pick Worksheet"
                     WhseActivityLine."Bin Code" := PlaceBinCode;
 
             WhseActivityLine.Modify();
-        until WhseActivityLine.Next = 0;
+        until WhseActivityLine.Next() = 0;
 
         Clear(WhseActivityHeader);
         WhseActivityHeader.SetRange(Type, ActivityType);

@@ -17,7 +17,7 @@ table 5332 "Coupling Record Buffer"
 
             trigger OnLookup()
             begin
-                LookUpCRMName;
+                LookUpCRMName();
             end;
 
             trigger OnValidate()
@@ -35,7 +35,7 @@ table 5332 "Coupling Record Buffer"
                     if FindCRMRecordByName("CRM Name") then begin
                         if "Saved CRM ID" <> "CRM ID" then
                             CRMIntegrationRecord.AssertRecordIDCanBeCoupled("NAV Record ID", "CRM ID");
-                        CalcCRMName;
+                        CalcCRMName();
                     end else
                         Error(NoSuchCRMRecordErr, "CRM Name", CRMProductName.CDSServiceName());
             end;
@@ -81,7 +81,7 @@ table 5332 "Coupling Record Buffer"
 
             trigger OnValidate()
             begin
-                CalcCRMName;
+                CalcCRMName();
             end;
         }
         field(10; "Create New"; Boolean)
@@ -165,21 +165,22 @@ table 5332 "Coupling Record Buffer"
     }
 
     var
-        InitialSynchDisabledErr: Label 'No initial synchronization direction was specified because initial synchronization was disabled.';
-        NoSuchCRMRecordErr: Label 'A record with the name %1 does not exist in %2.', Comment = '%1 = The record name entered by the user, %2 = Dataverse service name';
         CRMSetupDefaults: Codeunit "CRM Setup Defaults";
         LookupCRMTables: Codeunit "Lookup CRM Tables";
         CRMProductName: Codeunit "CRM Product Name";
+
+        InitialSynchDisabledErr: Label 'No initial synchronization direction was specified because initial synchronization was disabled.';
+        NoSuchCRMRecordErr: Label 'A record with the name %1 does not exist in %2.', Comment = '%1 = The record name entered by the user, %2 = Dataverse service name';
 
     procedure Initialize(NAVRecordID: RecordID; IsOption: Boolean)
     var
         IntegrationTableMapping: Record "Integration Table Mapping";
         RecordRef: RecordRef;
     begin
-        RecordRef := NAVRecordID.GetRecord;
-        RecordRef.Find;
+        RecordRef := NAVRecordID.GetRecord();
+        RecordRef.Find();
 
-        Init;
+        Init();
         Validate("NAV Table ID", NAVRecordID.TableNo);
         "NAV Record ID" := NAVRecordID;
         "NAV Name" := NameValue(RecordRef);
@@ -191,8 +192,8 @@ table 5332 "Coupling Record Buffer"
             else
                 Validate("Sync Action", "Sync Action"::"To Integration Table");
 
-            if FindCRMId then
-                if CalcCRMName then begin
+            if FindCRMId() then
+                if CalcCRMName() then begin
                     Validate("Sync Action", "Sync Action"::"Do Not Synchronize");
                     "Saved CRM ID" := "CRM ID";
                 end;
@@ -256,7 +257,7 @@ table 5332 "Coupling Record Buffer"
             CRMName := NameValue(RecordRef);
             "CRM ID" := PrimaryKeyValue(RecordRef);
         end;
-        RecordRef.Close;
+        RecordRef.Close();
         exit(Found);
     end;
 
@@ -310,7 +311,7 @@ table 5332 "Coupling Record Buffer"
             if LookupCRMTables.Lookup("CRM Table ID", "NAV Table ID", "Saved CRM ID", "CRM ID") then begin
                 if "Saved CRM ID" <> "CRM ID" then
                     CRMIntegrationRecord.AssertRecordIDCanBeCoupled("NAV Record ID", "CRM ID");
-                CalcCRMName;
+                CalcCRMName();
             end;
     end;
 
@@ -328,7 +329,7 @@ table 5332 "Coupling Record Buffer"
                 "CRM Name" := NameValue(RecordRef)
             else
                 "CRM Name" := '';
-            RecordRef.Close;
+            RecordRef.Close();
         end else begin
             IntegrationTableMapping.SetRange("Table ID", "NAV Table ID");
             IntegrationTableMapping.SetRange("Delete After Synchronization", false);
@@ -386,7 +387,7 @@ table 5332 "Coupling Record Buffer"
         PrimaryKeyRef := RecordRef.KeyIndex(1);
         FieldRef := PrimaryKeyRef.FieldIndex(1);
         FieldRef.SetRange(CRMId);
-        exit(RecordRef.FindFirst);
+        exit(RecordRef.FindFirst());
     end;
 
     local procedure FindCRMRecRefByOptionId(var RecordRef: RecordRef; CRMOptionId: Integer): Boolean

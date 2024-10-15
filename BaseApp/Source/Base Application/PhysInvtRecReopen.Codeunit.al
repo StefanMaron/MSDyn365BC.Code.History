@@ -5,7 +5,7 @@ codeunit 5878 "Phys. Invt. Rec.-Reopen"
     trigger OnRun()
     begin
         PhysInvtRecordHeader.Copy(Rec);
-        Code;
+        Code();
         Rec := PhysInvtRecordHeader;
 
         OnAfterOnRun(Rec);
@@ -32,7 +32,7 @@ codeunit 5878 "Phys. Invt. Rec.-Reopen"
 
             Window.Open(
               '#1#################################\\' + ReopeningLinesMsg);
-            Window.Update(1, StrSubstNo('%1 %2', TableCaption, "Order No."));
+            Window.Update(1, StrSubstNo('%1 %2', TableCaption(), "Order No."));
 
             PhysInvtOrderHeader.Get("Order No.");
             PhysInvtOrderHeader.TestField(Status, PhysInvtOrderHeader.Status::Open);
@@ -60,7 +60,7 @@ codeunit 5878 "Phys. Invt. Rec.-Reopen"
                 until PhysInvtRecordLine.Next() = 0;
 
             Status := Status::Open;
-            Modify;
+            Modify();
         end;
     end;
 

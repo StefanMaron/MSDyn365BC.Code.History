@@ -5,15 +5,16 @@ codeunit 5915 "Customer-Notify by Email"
     trigger OnRun()
     begin
         ServHeader := Rec;
-        NotifyByEMailWhenServiceIsDone;
+        NotifyByEMailWhenServiceIsDone();
         Rec := ServHeader;
     end;
 
     var
+        ServHeader: Record "Service Header";
+
         Text000: Label 'We have finished carrying out service order %1.';
         Text001: Label 'You can collect your serviced items when it is convenient for you.';
         Text002: Label 'The customer will be notified as requested because service order %1 is now %2.';
-        ServHeader: Record "Service Header";
 
     local procedure NotifyByEMailWhenServiceIsDone()
     var
@@ -38,7 +39,7 @@ codeunit 5915 "Customer-Notify by Email"
         ServEmailQueue."Document No." := ServHeader."No.";
         ServEmailQueue.Status := ServEmailQueue.Status::" ";
         ServEmailQueue.Insert(true);
-        ServEmailQueue.ScheduleInJobQueue;
+        ServEmailQueue.ScheduleInJobQueue();
         Message(
           Text002,
           ServHeader."No.", ServHeader.Status);

@@ -12,7 +12,7 @@ codeunit 137 "OCR Inc. Doc. via Job Queue"
         TestField("Record ID to Process");
         RecRef.Get("Record ID to Process");
         RecRef.SetTable(IncomingDocument);
-        IncomingDocument.Find;
+        IncomingDocument.Find();
         SetJobQueueStatus(IncomingDocument, IncomingDocument."Job Queue Status"::Processing);
 
         case IncomingDocument."OCR Status" of
@@ -41,7 +41,7 @@ codeunit 137 "OCR Inc. Doc. via Job Queue"
     local procedure SetJobQueueStatus(var IncomingDocument: Record "Incoming Document"; NewStatus: Option)
     begin
         IncomingDocument.LockTable();
-        if IncomingDocument.Find then begin
+        if IncomingDocument.Find() then begin
             IncomingDocument."Job Queue Status" := NewStatus;
             IncomingDocument.Modify();
             Commit();
@@ -58,7 +58,7 @@ codeunit 137 "OCR Inc. Doc. via Job Queue"
 
             "Job Queue Status" := "Job Queue Status"::Scheduled;
             "Job Queue Entry ID" := EnqueueJobEntry(IncomingDocument);
-            Modify;
+            Modify();
             Message(IncomingDocumentScheduledMsg, "Entry No.");
         end;
     end;
@@ -95,7 +95,7 @@ codeunit 137 "OCR Inc. Doc. via Job Queue"
             if not JobQueueEntry.IsEmpty() then
                 JobQueueEntry.DeleteAll(true);
             "Job Queue Status" := "Job Queue Status"::" ";
-            Modify;
+            Modify();
         end;
     end;
 }

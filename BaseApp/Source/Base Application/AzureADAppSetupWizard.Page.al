@@ -142,7 +142,7 @@ page 6300 "Azure AD App Setup Wizard"
 
                 trigger OnAction()
                 begin
-                    CurrPage.AzureAdSetup.PAGE.SetReplyURLWithDefault;
+                    CurrPage.AzureAdSetup.PAGE.SetReplyURLWithDefault();
                 end;
             }
             action(ActionBack)
@@ -183,12 +183,12 @@ page 6300 "Azure AD App Setup Wizard"
                 var
                     GuidedExperience: Codeunit "Guided Experience";
                 begin
-                    CurrPage.AzureAdSetup.PAGE.Save;
+                    CurrPage.AzureAdSetup.PAGE.Save();
 
                     // notify Assisted Setup that this setup has been completed
                     GuidedExperience.CompleteAssistedSetup(ObjectType::Page, PAGE::"Azure AD App Setup Wizard");
                     CurrPage.Update(false);
-                    CurrPage.Close;
+                    CurrPage.Close();
                 end;
             }
         }
@@ -201,7 +201,7 @@ page 6300 "Azure AD App Setup Wizard"
         // Checks user permissions and closes the wizard with an error message if necessary.
         if not AzureADAppSetup.WritePermission then
             Error(PermissionsErr);
-        LoadTopBanners;
+        LoadTopBanners();
     end;
 
     trigger OnOpenPage()
@@ -234,7 +234,7 @@ page 6300 "Azure AD App Setup Wizard"
         if (NewStep < CurrentStep::Intro) or (NewStep > CurrentStep::Done) then
             Error(StepOutOfRangeErr);
 
-        ClearStepControls;
+        ClearStepControls();
         CurrentStep := NewStep;
 
         case NewStep of
@@ -301,13 +301,13 @@ page 6300 "Azure AD App Setup Wizard"
     local procedure ValidateStep(Step: Option)
     begin
         if Step = CurrentStep::AzureAD then
-            CurrPage.AzureAdSetup.PAGE.ValidateFields;
+            CurrPage.AzureAdSetup.PAGE.ValidateFields();
     end;
 
     local procedure LoadTopBanners()
     begin
-        if MediaRepositoryStandard.Get('AssistedSetup-NoText-400px.png', Format(ClientTypeManagement.GetCurrentClientType)) and
-           MediaRepositoryDone.Get('AssistedSetupDone-NoText-400px.png', Format(ClientTypeManagement.GetCurrentClientType))
+        if MediaRepositoryStandard.Get('AssistedSetup-NoText-400px.png', Format(ClientTypeManagement.GetCurrentClientType())) and
+           MediaRepositoryDone.Get('AssistedSetupDone-NoText-400px.png', Format(ClientTypeManagement.GetCurrentClientType()))
         then
             if MediaResourcesStandard.Get(MediaRepositoryStandard."Media Resources Ref") and
                MediaResourcesDone.Get(MediaRepositoryDone."Media Resources Ref")

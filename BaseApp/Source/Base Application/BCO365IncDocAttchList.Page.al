@@ -1,3 +1,4 @@
+#if not CLEAN21
 page 2322 "BC O365 Inc. Doc. Attch. List"
 {
     Caption = 'Incoming Document Files';
@@ -6,6 +7,9 @@ page 2322 "BC O365 Inc. Doc. Attch. List"
     PageType = ListPart;
     PromotedActionCategories = 'New,Process,Report,Manage';
     SourceTable = "Incoming Document Attachment";
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     layout
     {
@@ -15,7 +19,7 @@ page 2322 "BC O365 Inc. Doc. Attch. List"
             {
                 field(Name; Name)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies the name of the attached file.';
 
                     trigger OnDrillDown()
@@ -26,19 +30,19 @@ page 2322 "BC O365 Inc. Doc. Attch. List"
                 }
                 field(Type; Type)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the type of the attached file.';
                 }
-                field("File Extension"; "File Extension")
+                field("File Extension"; Rec."File Extension")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the file type of the attached file.';
                 }
-                field("Created Date-Time"; "Created Date-Time")
+                field("Created Date-Time"; Rec."Created Date-Time")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies when the incoming document line was created.';
                 }
@@ -52,7 +56,7 @@ page 2322 "BC O365 Inc. Doc. Attch. List"
         {
             action(View)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'View File';
                 Enabled = "Line No." <> 0;
                 Image = Picture;
@@ -70,7 +74,7 @@ page 2322 "BC O365 Inc. Doc. Attch. List"
             }
             action(Delete)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Delete';
                 Enabled = "Line No." <> 0;
                 Image = Delete;
@@ -81,7 +85,7 @@ page 2322 "BC O365 Inc. Doc. Attch. List"
 
                 trigger OnAction()
                 begin
-                    Delete;
+                    Delete();
                     CurrPage.Update();
                 end;
             }
@@ -144,4 +148,4 @@ page 2322 "BC O365 Inc. Doc. Attch. List"
         exit(Camera.IsAvailable());
     end;
 }
-
+#endif

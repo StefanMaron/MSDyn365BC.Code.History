@@ -2734,7 +2734,7 @@ codeunit 134301 "Workflow Notification Test"
             LibraryDocumentApprovals.CreateApprovalEntryBasic(
               ApprovalEntry, DATABASE::"Sales Header", SalesHeader."Document Type", SalesHeader."No.",
               ApprovalStatus, LimitType, SalesHeader.RecordId,
-              "Approval Type"::Approver, WorkDate, SalesHeader.Amount);
+              "Approval Type"::Approver, WorkDate(), SalesHeader.Amount);
         SetApprovalEntryData(ApprovalEntry);
     end;
 
@@ -2744,7 +2744,7 @@ codeunit 134301 "Workflow Notification Test"
             LibraryDocumentApprovals.CreateApprovalEntryBasic(
               ApprovalEntry, DATABASE::Item, "Document Type"::" ", "Document No.",
               StatusOption, "Limit Type"::"No Limits", Item.RecordId,
-              "Approval Type"::Approver, WorkDate, 0);
+              "Approval Type"::Approver, WorkDate(), 0);
         SetApprovalEntryData(ApprovalEntry);
     end;
 
@@ -2754,7 +2754,7 @@ codeunit 134301 "Workflow Notification Test"
             LibraryDocumentApprovals.CreateApprovalEntryBasic(
               ApprovalEntry, DATABASE::Customer, "Document Type"::" ", "Document No.",
               StatusOption, LimitType, Customer.RecordId,
-              "Approval Type"::Approver, WorkDate, 0);
+              "Approval Type"::Approver, WorkDate(), 0);
         SetApprovalEntryData(ApprovalEntry);
     end;
 
@@ -2764,7 +2764,7 @@ codeunit 134301 "Workflow Notification Test"
             LibraryDocumentApprovals.CreateApprovalEntryBasic(
               ApprovalEntry, DATABASE::"Gen. Journal Line", GenJournalLine."Document Type", GenJournalLine."Document No.",
               StatusOption, LimitType, GenJournalLine.RecordId,
-              "Approval Type"::Approver, WorkDate, GenJournalLine.Amount);
+              "Approval Type"::Approver, WorkDate(), GenJournalLine.Amount);
         SetApprovalEntryData(ApprovalEntry);
     end;
 
@@ -2774,7 +2774,7 @@ codeunit 134301 "Workflow Notification Test"
             LibraryDocumentApprovals.CreateApprovalEntryBasic(
               ApprovalEntry, DATABASE::"Gen. Journal Batch", "Document Type", "Document No.",
               StatusOption, LimitType, GenJournalBatch.RecordId,
-              "Approval Type"::Approver, WorkDate, 0);
+              "Approval Type"::Approver, WorkDate(), 0);
         SetApprovalEntryData(ApprovalEntry);
     end;
 

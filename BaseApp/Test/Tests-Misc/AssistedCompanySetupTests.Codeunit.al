@@ -247,7 +247,7 @@ codeunit 139301 "Assisted Company Setup Tests"
 
         // [WHEN] The Assisted Company Setup wizard is run to the end but not finished
         RunWizardToCompletionAndTestEvents(AssistedCompanySetupWizard);
-        AssistedCompanySetupWizard.Close;
+        AssistedCompanySetupWizard.Close();
 
         // [THEN] Status of assisted setup remains Not Completed
         Assert.IsFalse(GuidedExperience.IsAssistedSetupComplete(ObjectType::Page, Page::"Assisted Company Setup Wizard"), 'Set Up Company status should not be completed.');
@@ -268,7 +268,7 @@ codeunit 139301 "Assisted Company Setup Tests"
         // [WHEN] The Assisted Company Setup wizard is exited right away
         AssistedCompanySetupWizard.Trap;
         PAGE.Run(PAGE::"Assisted Company Setup Wizard");
-        AssistedCompanySetupWizard.Close;
+        AssistedCompanySetupWizard.Close();
 
         // [THEN] Status of assisted setup remains Not Completed
         Assert.IsFalse(GuidedExperience.IsAssistedSetupComplete(ObjectType::Page, Page::"Assisted Company Setup Wizard"), 'Set Up Company status should not be completed.');
@@ -378,7 +378,7 @@ codeunit 139301 "Assisted Company Setup Tests"
         // [WHEN] The Assisted Company Setup wizard is closed but closing is not confirmed
         AssistedCompanySetupWizard.Trap;
         PAGE.Run(PAGE::"Assisted Company Setup Wizard");
-        AssistedCompanySetupWizard.Close;
+        AssistedCompanySetupWizard.Close();
 
         // [THEN] Status of assisted setup remains Not Completed
         Assert.IsFalse(GuidedExperience.IsAssistedSetupComplete(ObjectType::Page, Page::"Assisted Company Setup Wizard"), 'Set Up Company status should not be completed.');
@@ -537,9 +537,9 @@ codeunit 139301 "Assisted Company Setup Tests"
         Assert.RecordIsNotEmpty(CompanyInformation);
 
         // [THEN] There is still one Bank Account
-        Assert.AreEqual(1, BankAccount.Count, BankAccount.TableCaption);
+        Assert.AreEqual(1, BankAccount.Count, BankAccount.TableCaption());
         // [THEN] Company Information data is copied to the Bank Account: "Bank Name", "Bank Branch No.", "Bank Account No.", "SWIFT Code", IBAN
-        BankAccount.Find;
+        BankAccount.Find();
         Assert.AreEqual(CompanyInformation."Bank Name", BankAccount.Name, BankAccount.FieldCaption(Name));
         Assert.AreEqual(CompanyInformation."Bank Branch No.", BankAccount."Bank Branch No.", BankAccount.FieldCaption("Bank Branch No."));
         Assert.AreEqual(
@@ -627,7 +627,7 @@ codeunit 139301 "Assisted Company Setup Tests"
         AssistedSetupPag.OpenView;
         AssistedSetupPag.FILTER.SetFilter("Object ID to Run", Format(PAGE::"Item List"));
         Assert.AreEqual(FirstTestPageNameTxt, AssistedSetupPag.Name.Value, 'Wrong page name');
-        AssistedSetupPag.Close;
+        AssistedSetupPag.Close();
     end;
 
     [Test]
@@ -650,7 +650,7 @@ codeunit 139301 "Assisted Company Setup Tests"
         AssistedSetupPag.FILTER.SetFilter("Object ID to Run", Format(PAGE::"Customer List"));
         Assert.AreEqual(SecondTestPageNameTxt, AssistedSetupPag.Name.Value, 'Wrong page name');
 
-        AssistedSetupPag.Close;
+        AssistedSetupPag.Close();
     end;
 
     [Test]
@@ -669,7 +669,7 @@ codeunit 139301 "Assisted Company Setup Tests"
         AssistedSetupPag.FILTER.SetFilter("Object ID to Run", Format(PAGE::"Item List"));
         // [THEN] Assisted Setup has records
         Assert.AreEqual(FirstTestPageNameTxt, AssistedSetupPag.Name.Value, 'Wrong page name');
-        AssistedSetupPag.Close;
+        AssistedSetupPag.Close();
 
         UnbindSubscription(AssistedSetupMockEvents);
         IsEventSubscriptionInitialized := false;
@@ -679,7 +679,7 @@ codeunit 139301 "Assisted Company Setup Tests"
         AssistedSetupPag.OpenView;
         AssistedSetupPag.FILTER.SetFilter("Object ID to Run", Format(PAGE::"Item List"));
         Assert.IsFalse(AssistedSetupPag.First, 'Unexpected Inactive page within the filter, inactive page should have been deleted.');
-        AssistedSetupPag.Close;
+        AssistedSetupPag.Close();
     end;
 
     [Test]
@@ -701,7 +701,7 @@ codeunit 139301 "Assisted Company Setup Tests"
         Assert.AreEqual(FirstTestPageNameTxt, AssistedSetupPag.Name.Value, 'Wrong page name');
         AssistedSetupPag."Start Setup".Invoke;
         Assert.IsTrue(GuidedExperience.IsAssistedSetupComplete(ObjectType::Page, Page::"Item List"), 'Incorrect wizard status');
-        AssistedSetupPag.Close;
+        AssistedSetupPag.Close();
     end;
 
     local procedure RunWizardToCompletionAndTestEvents(var AssistedCompanySetupWizard: TestPage "Assisted Company Setup Wizard")
@@ -769,7 +769,7 @@ codeunit 139301 "Assisted Company Setup Tests"
         AccountingPeriod.DeleteAll();
 
         // [WHEN] Call CreateAccountingPeriod with StartDate = 1/23/2020 in codeunit Assisted Company Setup
-        AssistedCompanySetup.CreateAccountingPeriod(LibraryRandom.RandDateFrom(WorkDate, 100));
+        AssistedCompanySetup.CreateAccountingPeriod(LibraryRandom.RandDateFrom(WorkDate(), 100));
 
         // [THEN] Table Accounting Period has 13 records
         Assert.RecordCount(AccountingPeriod, 13);
@@ -1063,7 +1063,7 @@ codeunit 139301 "Assisted Company Setup Tests"
 
     local procedure GetRandomCompanyName(): Text[30]
     begin
-        exit(CopyStr(Format(CreateGuid), 1, 30));
+        exit(CopyStr(Format(CreateGuid()), 1, 30));
     end;
 
     local procedure MockSetupStatusCompleted(CompanyName: Text[30])

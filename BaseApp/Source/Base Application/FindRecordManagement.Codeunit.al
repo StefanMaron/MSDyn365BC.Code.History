@@ -46,12 +46,11 @@ codeunit 703 "Find Record Management"
     begin
         FieldNos := IntFields;
         clear(IntFields);
-        foreach FieldNo in FieldNos do begin
+        foreach FieldNo in FieldNos do
             if IsFieldValid(RecRef, FieldNo, FieldType::Integer, FieldValue) then
                 IntFields.Add(FieldValue)
             else
                 IntFields.Add(0);
-        end;
     end;
 
     procedure GetLastEntryIntFieldValue(SourceRec: Variant; FieldNo: Integer): Integer;
@@ -127,7 +126,7 @@ codeunit 703 "Find Record Management"
         RecordView: Text;
     begin
         if UseDefaultTableRelationFilters and (Type = Type::"G/L Account") then
-            RecordView := GetGLAccountTableRelationView;
+            RecordView := GetGLAccountTableRelationView();
 
         if FindRecordByDescriptionAndView(ResultValue, Type, Description, RecordView) = 1 then
             exit(CopyStr(ResultValue, 1, MaxStrLen(GLAccount."No.")));
@@ -187,8 +186,8 @@ codeunit 703 "Find Record Management"
                 exit(1);
             end;
         end;
-        SearchFieldRef[1].SetRange;
-        ClearLastError;
+        SearchFieldRef[1].SetRange();
+        ClearLastError();
 
         RecWithoutQuote := ConvertStr(SearchText, '''()&|', '?????');
 
@@ -198,8 +197,8 @@ codeunit 703 "Find Record Management"
                 Result := SearchFieldRef[1].Value;
                 exit(1);
             end;
-        SearchFieldRef[1].SetRange;
-        ClearLastError;
+        SearchFieldRef[1].SetRange();
+        ClearLastError();
 
         // Two items with descrptions = "aaa" and "AAA";
         // Try FINDFIRST by exact "Description" = "AAA"
@@ -208,7 +207,7 @@ codeunit 703 "Find Record Management"
             Result := SearchFieldRef[1].Value;
             exit(1);
         end;
-        SearchFieldRef[2].SetRange;
+        SearchFieldRef[2].SetRange();
 
         // Example of SearchText = "Search string ''";
         // Try FINDFIRST "Description" by mask "@Search string ?"
@@ -217,7 +216,7 @@ codeunit 703 "Find Record Management"
             Result := SearchFieldRef[1].Value;
             exit(1);
         end;
-        SearchFieldRef[2].SetRange;
+        SearchFieldRef[2].SetRange();
 
         // Try FINDFIRST "No." OR "Description" by mask "@Search string ?*"
         RecRef.FilterGroup := -1;

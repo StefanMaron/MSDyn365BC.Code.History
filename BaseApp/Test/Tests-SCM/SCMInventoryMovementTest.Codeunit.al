@@ -143,7 +143,7 @@ codeunit 137200 "SCM Inventory Movement Test"
         asserterror PostOutput(ProductionOrder);
         if StrPos(GetLastErrorText, 'The Bin Content does not exist.') = 0 then
             Assert.Fail(StrSubstNo('%1', GetLastErrorText));
-        ClearLastError;
+        ClearLastError();
     end;
 
     [Test]
@@ -250,7 +250,7 @@ codeunit 137200 "SCM Inventory Movement Test"
         asserterror PostOutput(ProductionOrder);
         if StrPos(GetLastErrorText, 'The Bin Content does not exist.') = 0 then
             Assert.Fail(StrSubstNo('%1', GetLastErrorText));
-        ClearLastError;
+        ClearLastError();
     end;
 
     [Test]
@@ -620,7 +620,7 @@ codeunit 137200 "SCM Inventory Movement Test"
         WorkCenterRec.Validate(Efficiency, 100);
         WorkCenterRec.Modify(true);
 
-        LibraryManufacturing.CalculateWorkCenterCalendar(WorkCenterRec, CalcDate('<CY-3M>', WorkDate), CalcDate('<CM+1Y>', WorkDate));
+        LibraryManufacturing.CalculateWorkCenterCalendar(WorkCenterRec, CalcDate('<CY-3M>', WorkDate()), CalcDate('<CM+1Y>', WorkDate()));
     end;
 
     local procedure CreateRouting(var RoutingHeaderRec: Record "Routing Header"; WorkCenterRec1: Record "Work Center"; WorkCenterRec2: Record "Work Center")
@@ -723,7 +723,7 @@ codeunit 137200 "SCM Inventory Movement Test"
         PurchaseLineRec.Modify(true);
         AddSerialNumberToPurchase(PurchaseLineRec, 10);
 
-        BinRec.Next;
+        BinRec.Next();
         LibraryPurchase.CreatePurchaseLine(PurchaseLineRec, PurchaseHeaderRec, PurchaseLineRec.Type::Item, ItemRecComp1."No.", 3);
         PurchaseLineRec.Validate("Location Code", LocationRec.Code);
         PurchaseLineRec.Validate("Bin Code", BinRec.Code);
@@ -737,7 +737,7 @@ codeunit 137200 "SCM Inventory Movement Test"
         PurchaseLineRec.Validate("Direct Unit Cost", 13);
         PurchaseLineRec.Modify(true);
 
-        BinRec.Next;
+        BinRec.Next();
         LibraryPurchase.CreatePurchaseLine(PurchaseLineRec, PurchaseHeaderRec, PurchaseLineRec.Type::Item, ItemRecComp2."No.", 5);
         PurchaseLineRec.Validate("Location Code", LocationRec.Code);
         PurchaseLineRec.Validate("Bin Code", BinRec.Code);
@@ -799,7 +799,7 @@ codeunit 137200 "SCM Inventory Movement Test"
           ProductionOrder."Source Type"::Item, ItemRec."No.", 3);
 
         ProductionOrder.SetUpdateEndDate;
-        ProductionOrder.Validate("Due Date", CalcDate('<CM+1M>', WorkDate));
+        ProductionOrder.Validate("Due Date", CalcDate('<CM+1M>', WorkDate()));
         ProductionOrder.Validate("Location Code", LocationCode);
         ProductionOrder.Validate("Bin Code", BinCode);
         ProductionOrder.Modify(true);
@@ -819,7 +819,7 @@ codeunit 137200 "SCM Inventory Movement Test"
             repeat
                 ProdOrderComponent."Bin Code" := Bin.Code;
                 ProdOrderComponent.Modify(true);
-            until ProdOrderComponent.Next = 0;
+            until ProdOrderComponent.Next() = 0;
 
         // release Production Order
         ReleaseProductionOrder(ProductionOrder, LocationCode);
@@ -922,12 +922,12 @@ codeunit 137200 "SCM Inventory Movement Test"
                 if ItemLedgerEntry.Find('-') then
                     repeat
                         ConsumedQty += ItemLedgerEntry.Quantity;
-                    until ItemLedgerEntry.Next = 0;
+                    until ItemLedgerEntry.Next() = 0;
                 Assert.AreEqual(
                   -ProdOrderComponent."Expected Quantity",
                   ConsumedQty,
                   'Wrong consumed quantity for item ' + ItemLedgerEntry."Item No.");
-            until ProdOrderComponent.Next = 0;
+            until ProdOrderComponent.Next() = 0;
     end;
 
     local procedure SetBinsWithContent(ProductionOrder: Record "Production Order"; LocationCode: Code[10])

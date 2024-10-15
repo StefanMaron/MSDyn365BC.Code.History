@@ -1,8 +1,12 @@
+#if not CLEAN21
 page 2343 "BC O365 Payment Instr. Card"
 {
     Caption = 'Payment instructions';
     DataCaptionExpression = O365PaymentInstructions.Name;
     PageType = Card;
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     layout
     {
@@ -18,21 +22,21 @@ page 2343 "BC O365 Payment Instr. Card"
                 }
                 field(NameControl; NameText)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Short name';
                     ToolTip = 'Specifies a short description of the payment instructions.';
                 }
             }
             field(PaymentInstructionsControl; PaymentInstructionsText)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Payment instructions';
                 MultiLine = true;
                 ToolTip = 'Specifies the payment instructions that will appear in the bottom of your invoices.';
             }
             field(DefaultControl; DefaultTxt)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Editable = false;
                 Enabled = NOT IsDefault;
                 ShowCaption = false;
@@ -42,11 +46,11 @@ page 2343 "BC O365 Payment Instr. Card"
                     if NameText = '' then
                         Error(MustSpecifyNameErr);
 
-                    SaveRecord;
+                    SaveRecord();
                     O365PaymentInstructions.Validate(Default, true);
                     O365PaymentInstructions.Modify(true);
                     Session.LogMessage('00001SC', SetAsDefaultTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PaymentInstrCategoryLbl);
-                    UpdateDefaultLabel;
+                    UpdateDefaultLabel();
                 end;
             }
         }
@@ -58,10 +62,10 @@ page 2343 "BC O365 Payment Instr. Card"
 
     trigger OnOpenPage()
     begin
-        PaymentInstructionsText := O365PaymentInstructions.GetPaymentInstructionsInCurrentLanguage;
-        NameText := O365PaymentInstructions.GetNameInCurrentLanguage;
+        PaymentInstructionsText := O365PaymentInstructions.GetPaymentInstructionsInCurrentLanguage();
+        NameText := O365PaymentInstructions.GetNameInCurrentLanguage();
 
-        UpdateDefaultLabel;
+        UpdateDefaultLabel();
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -72,7 +76,7 @@ page 2343 "BC O365 Payment Instr. Card"
         if NameText = '' then
             Error(MustSpecifyNameErr);
 
-        SaveRecord;
+        SaveRecord();
     end;
 
     var
@@ -102,7 +106,7 @@ page 2343 "BC O365 Payment Instr. Card"
             end;
             Validate(Name, NameText);
             SetPaymentInstructions(PaymentInstructionsText);
-            DeleteTranslationsForRecord;
+            DeleteTranslationsForRecord();
             Modify(true);
         end;
     end;
@@ -121,4 +125,4 @@ page 2343 "BC O365 Payment Instr. Card"
         exit(IsDefault);
     end;
 }
-
+#endif

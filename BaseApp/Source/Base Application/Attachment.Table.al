@@ -105,6 +105,11 @@ table 5062 Attachment
     end;
 
     var
+        RMSetup: Record "Marketing Setup";
+        FileMgt: Codeunit "File Management";
+        AttachmentMgt: Codeunit AttachmentManagement;
+        ClientTypeManagement: Codeunit "Client Type Management";
+
         Text002: Label 'The attachment is empty.';
 #if not CLEAN19
         Text004: Label 'The attachment file must be saved to disk before you can import it.\\Do you want to save the file?';
@@ -121,10 +126,6 @@ table 5062 Attachment
         Text020: Label 'An Outlook dialog box is open. Close it and try again.';
         CouldNotActivateOutlookErr: Label 'Cannot connect to Microsoft Outlook. If Microsoft Outlook is already running, make sure that you are not running either %1 or Microsoft Outlook as administrator. Close all instances of Microsoft Outlook and try again.', Comment = '%1 - product name';
         UnspecifiedOutlookErr: Label ' Microsoft Outlook cannot display the message. Make sure that Microsoft Outlook is configured with access to the message that you are trying to open.';
-        RMSetup: Record "Marketing Setup";
-        FileMgt: Codeunit "File Management";
-        AttachmentMgt: Codeunit AttachmentManagement;
-        ClientTypeManagement: Codeunit "Client Type Management";
         AttachmentImportQst: Label 'Do you want to import attachment?';
         AttachmentExportQst: Label 'Do you want to export attachment to view or edit it externaly?';
 
@@ -133,21 +134,21 @@ table 5062 Attachment
     var
         SegmentLine: Record "Segment Line";
     begin
-        if IsHTML then begin
+        if IsHTML() then begin
             SegmentLine.Init();
             SegmentLine."Language Code" := LanguageCode;
-            SegmentLine.Date := WorkDate;
+            SegmentLine.Date := WorkDate();
             PreviewHTMLContent(SegmentLine);
             exit;
         end;
 
         if "Storage Type" = "Storage Type"::Embedded then begin
             CalcFields("Attachment File");
-            if not "Attachment File".HasValue then
+            if not "Attachment File".HasValue() then
                 Error(Text002);
         end;
 
-        if ClientTypeManagement.GetCurrentClientType in [CLIENTTYPE::Web, CLIENTTYPE::Tablet, CLIENTTYPE::Phone, CLIENTTYPE::Desktop] then
+        if ClientTypeManagement.GetCurrentClientType() in [CLIENTTYPE::Web, CLIENTTYPE::Tablet, CLIENTTYPE::Phone, CLIENTTYPE::Desktop] then
             ProcessWebAttachment(Caption + '.' + "File Extension")
     end;
 
@@ -211,7 +212,7 @@ table 5062 Attachment
         if IsHandled then
             exit;
 
-        if IsHTML then begin
+        if IsHTML() then begin
             PreviewHTMLContent(SegLine);
             exit;
         end;
@@ -220,10 +221,10 @@ table 5062 Attachment
             CalcFields("Attachment File");
 
         WordManagement.Activate(WordApplicationHandler, 5062);
-        if ClientTypeManagement.GetCurrentClientType in [CLIENTTYPE::Web, CLIENTTYPE::Tablet, CLIENTTYPE::Phone] then
+        if ClientTypeManagement.GetCurrentClientType() in [CLIENTTYPE::Web, CLIENTTYPE::Tablet, CLIENTTYPE::Phone] then
             ProcessWebAttachment(WordCaption + '.' + "File Extension")
         else
-            if not WordManagement.CanRunWordApp then
+            if not WordManagement.CanRunWordApp() then
                 ProcessWebAttachment(WordCaption + '.' + "File Extension")
             else
                 if not WordManagement.IsWordDocumentExtension("File Extension") then begin
@@ -265,7 +266,7 @@ table 5062 Attachment
         ServerFileName := FileMgt.ServerTempFileName("File Extension");
         ExportAttachmentToServerFile(ServerFileName);
 
-        Path := FileMgt.Magicpath;
+        Path := FileMgt.Magicpath();
         if ExportToFile = '' then
             Path := '';
 
@@ -282,7 +283,7 @@ table 5062 Attachment
         ServerFileName: Text;
         NewAttachmentNo: Integer;
     begin
-        ClearLastError;
+        ClearLastError();
         if IsTemporary then
             exit(ImportTemporaryAttachmentFromClientFile(ImportFromFile));
 
@@ -351,7 +352,7 @@ table 5062 Attachment
         case "Storage Type" of
             "Storage Type"::Embedded:
                 begin
-                    if "Attachment File".HasValue then begin
+                    if "Attachment File".HasValue() then begin
                         TempBlob.FromRecord(Rec, FieldNo("Attachment File"));
                         if ExportToFile = '' then
                             ExportToFile := FileMgt.ServerTempFileName("File Extension");
@@ -363,8 +364,8 @@ table 5062 Attachment
             "Storage Type"::"Disk File":
                 begin
                     if ExportToFile = '' then
-                        ExportToFile := TemporaryPath + FileMgt.GetFileName(ConstDiskFileName);
-                    FileMgt.CopyServerFile(GetServerFileName(ConstDiskFileName), ExportToFile, false); // Copy from server location to another location (UNC location also)
+                        ExportToFile := TemporaryPath + FileMgt.GetFileName(ConstDiskFileName());
+                    FileMgt.CopyServerFile(GetServerFileName(ConstDiskFileName()), ExportToFile, false); // Copy from server location to another location (UNC location also)
                     exit(true);
                 end;
         end;
@@ -416,7 +417,7 @@ table 5062 Attachment
                     FileExt := CopyStr(FileMgt.GetExtension(ImportFromFile), 1, 250);
                     if FileExt <> '' then
                         "File Extension" := FileExt;
-                    FileMgt.CopyServerFile(ImportFromFile, ConstDiskFileName, Overwrite); // Copy from UNC location to another UNC location
+                    FileMgt.CopyServerFile(ImportFromFile, ConstDiskFileName(), Overwrite); // Copy from UNC location to another UNC location
                     Modify(true);
                     exit(true);
                 end;
@@ -451,7 +452,7 @@ table 5062 Attachment
 
         if DeleteYesNo then begin
             if "Storage Type" = "Storage Type"::"Disk File" then
-                if not FileMgt.DeleteServerFile(ConstDiskFileName) then
+                if not FileMgt.DeleteServerFile(ConstDiskFileName()) then
                     Message(Text010);
             Delete(true);
             DeleteOK := true;
@@ -467,11 +468,11 @@ table 5062 Attachment
         FromAttachment.TestField("No.");
         case FromAttachment."Storage Type" of
             FromAttachment."Storage Type"::"Disk File":
-                ImportAttachmentFromServerFile(FromAttachment.ConstDiskFileName, true, false);
+                ImportAttachmentFromServerFile(FromAttachment.ConstDiskFileName(), true, false);
             FromAttachment."Storage Type"::Embedded:
                 begin
                     FromAttachment.CalcFields("Attachment File");
-                    if FromAttachment."Attachment File".HasValue then
+                    if FromAttachment."Attachment File".HasValue() then
                         "Attachment File" := FromAttachment."Attachment File";
                 end;
         end;
@@ -482,7 +483,7 @@ table 5062 Attachment
         Attachment2: Record Attachment;
     begin
         with RMSetup do begin
-            Get;
+            Get();
             if "Attachment Storage Type" = "Attachment Storage Type"::Embedded then begin
                 "Storage Pointer" := '';
                 exit;
@@ -551,10 +552,10 @@ table 5062 Attachment
         [RunOnClient]
         Status: DotNet OutlookStatusCode;
     begin
-        Status := OutlookHelper.DisplayMailFromPublicFolder(GetEntryID);
+        Status := OutlookHelper.DisplayMailFromPublicFolder(GetEntryID());
 
         if Status.Equals(Status.CouldNotActivateOutlook) then
-            Error(CouldNotActivateOutlookErr, PRODUCTNAME.Full);
+            Error(CouldNotActivateOutlookErr, PRODUCTNAME.Full());
 
         if Status.Equals(Status.ModalDialogOpened) then
             Error(Text020);
@@ -565,7 +566,7 @@ table 5062 Attachment
         // If the Exchange Entry Id requires patching to be used in Outlook
         // then we update the entry id.
         if Status.Equals(Status.OkAfterExchange2013Patch) then begin
-            SetMessageID(OutlookHelper.PatchExchange2013WebServicesPublicFolderItemEntryId(GetEntryID));
+            SetMessageID(OutlookHelper.PatchExchange2013WebServicesPublicFolderItemEntryId(GetEntryID()));
             Modify(true);
         end else
             if not Status.Equals(Status.Ok) then
@@ -647,7 +648,7 @@ table 5062 Attachment
     begin
         Result := '';
         CalcFields("Attachment File");
-        if not "Attachment File".HasValue then
+        if not "Attachment File".HasValue() then
             exit;
 
         "Attachment File".CreateInStream(DataStream, TEXTENCODING::UTF8);
@@ -666,7 +667,7 @@ table 5062 Attachment
     var
         DataText: Text;
     begin
-        DataText := Read;
+        DataText := Read();
         exit(ParseHTMLCustomLayoutAttachment(DataText, ContentBodyText, CustomLayoutCode));
     end;
 
@@ -674,10 +675,10 @@ table 5062 Attachment
     var
         DataText: Text;
     begin
-        DataText := PadStr('', GetCustomLayoutCodeLength - StrLen(CustomLayoutCode), '0') + CustomLayoutCode;
+        DataText := PadStr('', GetCustomLayoutCodeLength() - StrLen(CustomLayoutCode), '0') + CustomLayoutCode;
         DataText += ContentBodyText;
         Write(DataText);
-        Modify;
+        Modify();
     end;
 
     local procedure ParseHTMLCustomLayoutAttachment(DataText: Text; var ContentBodyText: Text; var CustomLayoutCode: Code[20]): Boolean
@@ -685,7 +686,7 @@ table 5062 Attachment
         TotalLength: Integer;
         LayoutIDLength: Integer;
     begin
-        LayoutIDLength := GetCustomLayoutCodeLength;
+        LayoutIDLength := GetCustomLayoutCodeLength();
         TotalLength := StrLen(DataText);
         if TotalLength < LayoutIDLength then
             exit(false);
@@ -717,12 +718,12 @@ table 5062 Attachment
         HTMLMask: Text;
         HTMLMaskLength: Integer;
     begin
-        if not IsHTML then
+        if not IsHTML() then
             exit(false);
 
         HTMLMask := '<html>';
         HTMLMaskLength := StrLen(HTMLMask);
-        DataText := Read;
+        DataText := Read();
         DataLength := StrLen(DataText);
 
         if DataLength < HTMLMaskLength then
@@ -738,11 +739,11 @@ table 5062 Attachment
         CustomLayoutIDLength: Integer;
         CustomLayoutCode: Code[20];
     begin
-        CustomLayoutIDLength := GetCustomLayoutCodeLength;
-        if not IsHTML then
+        CustomLayoutIDLength := GetCustomLayoutCodeLength();
+        if not IsHTML() then
             exit(false);
 
-        DataText := Read;
+        DataText := Read();
         DataLength := StrLen(DataText);
 
         if DataLength < CustomLayoutIDLength then

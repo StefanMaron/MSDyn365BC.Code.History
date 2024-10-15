@@ -15,7 +15,7 @@ report 5057 "Salesperson - Tasks"
             column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
             {
             }
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(Task__TABLECAPTION__________TaskFilter; TableCaption + ': ' + TaskFilter)
@@ -123,7 +123,7 @@ report 5057 "Salesperson - Tasks"
 
     trigger OnPreReport()
     begin
-        TaskFilter := "To-do".GetFilters;
+        TaskFilter := "To-do".GetFilters();
     end;
 
     var

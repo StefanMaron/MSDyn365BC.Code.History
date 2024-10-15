@@ -6,7 +6,6 @@ page 6702 "Booking Sync. Setup"
     InsertAllowed = false;
     LinksAllowed = false;
     PageType = Card;
-    PromotedActionCategories = 'New,Process,Report,Navigate,Filter';
     SourceTable = "Booking Sync";
 
     layout
@@ -16,7 +15,7 @@ page 6702 "Booking Sync. Setup"
             group(General)
             {
                 Caption = 'General';
-                field("Bookings Company"; "Booking Mailbox Name")
+                field("Bookings Company"; Rec."Booking Mailbox Name")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Bookings Company';
@@ -44,7 +43,7 @@ page 6702 "Booking Sync. Setup"
                         end else begin
                             BookingMailboxList.SetMailboxes(TempBookingMailbox);
                             BookingMailboxList.LookupMode(true);
-                            if BookingMailboxList.RunModal in [ACTION::LookupOK, ACTION::OK] then begin
+                            if BookingMailboxList.RunModal() in [ACTION::LookupOK, ACTION::OK] then begin
                                 BookingMailboxList.GetRecord(BookingMailbox);
                                 "Booking Mailbox Address" := BookingMailbox.SmtpAddress;
                                 "Booking Mailbox Name" := BookingMailbox."Display Name";
@@ -55,7 +54,7 @@ page 6702 "Booking Sync. Setup"
                         if "Booking Mailbox Name" <> xRec."Booking Mailbox Name" then begin
                             Clear("Last Customer Sync");
                             Clear("Last Service Sync");
-                            Modify;
+                            Modify();
                             CurrPage.Update();
                         end;
 
@@ -80,37 +79,25 @@ page 6702 "Booking Sync. Setup"
             group(Synchronize)
             {
                 Caption = 'Synchronize';
-                field("Sync Customers"; "Sync Customers")
+                field("Sync Customers"; Rec."Sync Customers")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether to synchronize Bookings customers.';
                     Visible = NOT GraphSyncEnabled;
                 }
-#if not CLEAN18
-                field("Customer Template Code"; "Customer Template Code")
-                {
-                    ApplicationArea = Advanced;
-                    Caption = 'Default Customer Template';
-                    ToolTip = 'Specifies the customer template to use when creating new Customers from the Bookings company.';
-                    Visible = false;
-                    ObsoleteReason = 'Will be removed with other functionality related to "old" templates. replaced by "Customer Templ. Code".';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '18.0';
-                }
-#endif
-                field("Customer Templ. Code"; "Customer Templ. Code")
+                field("Customer Templ. Code"; Rec."Customer Templ. Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Default Customer Template';
                     ToolTip = 'Specifies the customer template to use when creating new Customers from the Bookings company.';
                     Visible = NewCustTemplateCodeVisible;
                 }
-                field("Sync Services"; "Sync Services")
+                field("Sync Services"; Rec."Sync Services")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether to synchronize services.';
                 }
-                field("Item Template Code"; "Item Template Code")
+                field("Item Template Code"; Rec."Item Template Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Default Item Template';
@@ -133,8 +120,6 @@ page 6702 "Booking Sync. Setup"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Validate Exchange Connection';
                     Image = ValidateEmailLoggingSetup;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Test that the provided exchange server connection works.';
 
                     trigger OnAction()
@@ -148,8 +133,6 @@ page 6702 "Booking Sync. Setup"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Sync with Bookings';
                     Image = Refresh;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Synchronize changes made in Bookings since the last sync date and last modified date.';
 
                     trigger OnAction()
@@ -171,15 +154,13 @@ page 6702 "Booking Sync. Setup"
                     Caption = 'Set Sync. User';
                     Enabled = NOT IsSyncUser;
                     Image = User;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Set the synchronization user to be you.';
 
                     trigger OnAction()
                     begin
                         if Confirm(SetSyncUserQst) then begin
                             Validate("User ID", UserId);
-                            GetExchangeAccount;
+                            GetExchangeAccount();
                         end;
                     end;
                 }
@@ -188,9 +169,6 @@ page 6702 "Booking Sync. Setup"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Invoice Appointments';
                     Image = NewInvoice;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ToolTip = 'View Booking appointments and create invoices for your customers.';
                     Visible = IsSaaS;
 
@@ -198,7 +176,7 @@ page 6702 "Booking Sync. Setup"
                     var
                         BookingManager: Codeunit "Booking Manager";
                     begin
-                        BookingManager.InvoiceBookingItems;
+                        BookingManager.InvoiceBookingItems();
                     end;
                 }
             }
@@ -210,8 +188,6 @@ page 6702 "Booking Sync. Setup"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Set Customer Sync Filter';
                     Image = ContactFilter;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     ToolTip = 'Set a filter to use when syncing customers.';
 
                     trigger OnAction()
@@ -227,8 +203,6 @@ page 6702 "Booking Sync. Setup"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Set Service Sync Filter';
                     Image = "Filter";
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     ToolTip = 'Set a filter to use when syncing service items.';
 
                     trigger OnAction()
@@ -241,16 +215,55 @@ page 6702 "Booking Sync. Setup"
                 }
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref("Invoice Appointments_Promoted"; "Invoice Appointments")
+                {
+                }
+                actionref("Validate Exchange Connection_Promoted"; "Validate Exchange Connection")
+                {
+                }
+                actionref(SyncWithBookings_Promoted; SyncWithBookings)
+                {
+                }
+                actionref(SetSyncUser_Promoted; SetSyncUser)
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Navigate', Comment = 'Generated from the PromotedActionCategories property index 3.';
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Filter', Comment = 'Generated from the PromotedActionCategories property index 4.';
+
+                actionref(SetCustomerSyncFilter_Promoted; SetCustomerSyncFilter)
+                {
+                }
+                actionref(SetServiceSyncFilter_Promoted; SetServiceSyncFilter)
+                {
+                }
+            }
+        }
     }
 
     trigger OnOpenPage()
     var
         EnvironmentInfo: Codeunit "Environment Information";
     begin
-        CheckExistingSetup;
-        GetExchangeAccount;
+        CheckExistingSetup();
+        GetExchangeAccount();
         IsSyncUser := "User ID" = UserId;
-        IsSaaS := EnvironmentInfo.IsSaaS;
+        IsSaaS := EnvironmentInfo.IsSaaS();
         SetCustTemplateCodesVisibility();
     end;
 
@@ -275,8 +288,8 @@ page 6702 "Booking Sync. Setup"
         if not ExchangeSync.Get(UserId) or not O365SyncManagement.IsO365Setup(false) then
             Error(ExchangeSyncErr);
 
-        if not Get then begin
-            Init;
+        if not Get() then begin
+            Init();
             "User ID" := UserId;
             O365SyncManagement.GetBookingMailboxes(Rec, TempBookingMailbox, '');
 

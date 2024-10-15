@@ -16,13 +16,13 @@ report 712 "Inventory - Sales Statistics"
             column(PeriodTextCaption; StrSubstNo(Text000, PeriodText))
             {
             }
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(PrintAlsoWithoutSale; PrintAlsoWithoutSale)
             {
             }
-            column(ItemFilterCaption; StrSubstNo('%1: %2', TableCaption, ItemFilter))
+            column(ItemFilterCaption; StrSubstNo('%1: %2', TableCaption(), ItemFilter))
             {
             }
             column(ItemFilter; ItemFilter)
@@ -104,8 +104,8 @@ report 712 "Inventory - Sales Statistics"
             begin
                 CalcFields("Assembly BOM");
 
-                SetFilters;
-                Calculate;
+                SetFilters();
+                Calculate();
 
                 if (SalesAmount = 0) and not PrintAlsoWithoutSale then
                     CurrReport.Skip();
@@ -156,7 +156,7 @@ report 712 "Inventory - Sales Statistics"
     begin
         GLSetup.Get();
 
-        ItemFilter := Item.GetFilters;
+        ItemFilter := Item.GetFilters();
         PeriodText := Item.GetFilter("Date Filter");
 
         with ItemStatisticsBuf do begin
@@ -174,7 +174,6 @@ report 712 "Inventory - Sales Statistics"
     end;
 
     var
-        Text000: Label 'Period: %1';
         ItemStatisticsBuf: Record "Item Statistics Buffer";
         GLSetup: Record "General Ledger Setup";
         ItemFilter: Text;
@@ -187,6 +186,8 @@ report 712 "Inventory - Sales Statistics"
         UnitPrice: Decimal;
         UnitCost: Decimal;
         PrintAlsoWithoutSale: Boolean;
+
+        Text000: Label 'Period: %1';
         InvSalesStatisticsCaptLbl: Label 'Inventory - Sales Statistics';
         PageCaptionLbl: Label 'Page';
         IncludeNotSoldItemsCaptionLbl: Label 'This report also includes items that are not sold.';
@@ -201,9 +202,9 @@ report 712 "Inventory - Sales Statistics"
 
     local procedure Calculate()
     begin
-        SalesQty := -CalcInvoicedQty;
-        SalesAmount := CalcSalesAmount;
-        COGSAmount := CalcCostAmount + CalcCostAmountNonInvnt;
+        SalesQty := -CalcInvoicedQty();
+        SalesAmount := CalcSalesAmount();
+        COGSAmount := CalcCostAmount() + CalcCostAmountNonInvnt();
         ItemProfit := SalesAmount + COGSAmount;
 
         if SalesAmount <> 0 then

@@ -1921,7 +1921,7 @@ codeunit 134341 "UT Page Actions & Controls"
         Assert.AreEqual('Type', CreateTask.TypeOnPrem.Caption, '');
 
         CreateTask.TypeOnPrem.SetValue(ToDo.Type::Meeting);
-        ToDo.Find;
+        ToDo.Find();
         ToDo.TestField(Type, ToDo.Type::Meeting);
 
         ToDo.Delete(false)
@@ -2137,7 +2137,7 @@ codeunit 134341 "UT Page Actions & Controls"
         PurchaseOrderListTestPage."No.".AssertEquals(PurchaseHeader."No.");
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [Test]
     [Scope('OnPrem')]
     [HandlerFunctions('VerifyMinimumQuantityInSalesPriceAndLineDiscountsPageHandler')]
@@ -2184,7 +2184,7 @@ codeunit 134341 "UT Page Actions & Controls"
         AnalysisViewEntry."Analysis View Code" := AnalysisView.Code;
         AnalysisViewEntry."Account No." := LibraryUtility.GenerateGUID();
         AnalysisViewEntry.Insert();
-        AnalysisViewEntry.SetRecFilter;
+        AnalysisViewEntry.SetRecFilter();
         AnalysisViewEntries.Trap;
         PAGE.Run(0, AnalysisViewEntry);
         AnalysisViewEntries."Account No.".AssertEquals(AnalysisViewEntry."Account No.");
@@ -2203,7 +2203,7 @@ codeunit 134341 "UT Page Actions & Controls"
         AnalysisViewBudgetEntry."Budget Name" := LibraryUtility.GenerateGUID();
         AnalysisViewBudgetEntry."G/L Account No." := LibraryUtility.GenerateGUID();
         AnalysisViewBudgetEntry.Insert();
-        AnalysisViewBudgetEntry.SetRecFilter;
+        AnalysisViewBudgetEntry.SetRecFilter();
         AnalysisViewBudgetEntries.Trap;
         PAGE.Run(0, AnalysisViewBudgetEntry);
         AnalysisViewBudgetEntries."G/L Account No.".AssertEquals(AnalysisViewBudgetEntry."G/L Account No.");
@@ -2245,7 +2245,7 @@ codeunit 134341 "UT Page Actions & Controls"
         Assert.IsTrue(PaymentJournal."Posting Date".Visible, PaymentJournal."Posting Date".Caption);
         Assert.IsTrue(PaymentJournal."Document Type".Visible, PaymentJournal."Document Type".Caption);
         Assert.IsTrue(PaymentJournal."Document No.".Visible, PaymentJournal."Document No.".Caption);
-        PaymentJournal.Close;
+        PaymentJournal.Close();
     end;
 
     [Scope('OnPrem')]
@@ -2339,7 +2339,7 @@ codeunit 134341 "UT Page Actions & Controls"
           PurchasingCodes."Special Order".Visible,
           StrSubstNo(PageFieldVisibleErr, PurchasingCodes."Special Order".Caption));
 
-        PurchasingCodes.Close;
+        PurchasingCodes.Close();
         LibraryApplicationArea.DisableApplicationAreaSetup;
     end;
 
@@ -2368,7 +2368,7 @@ codeunit 134341 "UT Page Actions & Controls"
           PurchasingCodeList."Special Order".Visible,
           StrSubstNo(PageFieldVisibleErr, PurchasingCodeList."Special Order".Caption));
 
-        PurchasingCodeList.Close;
+        PurchasingCodeList.Close();
         LibraryApplicationArea.DisableApplicationAreaSetup;
     end;
 
@@ -2674,7 +2674,7 @@ codeunit 134341 "UT Page Actions & Controls"
 
         // [WHEN] run SelectActiveItems on "Item List" page
         LibraryVariableStorage.Enqueue(BlockedItem."No."); // for ItemListLookForItemMPH
-        ItemList.SelectActiveItems;
+        ItemList.SelectActiveItems();
 
         // [THEN] Item 'X' is not in the list
         Assert.IsFalse(LibraryVariableStorage.DequeueBoolean, 'Blocked Item should not be visible');
@@ -2894,7 +2894,7 @@ codeunit 134341 "UT Page Actions & Controls"
         InventoryPostingSetupPage.OpenEdit;
         InventoryPostingSetupPage.FILTER.SetFilter("Invt. Posting Group Code", InventoryPostingGroup.Code);
         InventoryPostingSetupPage."Inventory Account (Interim)".SetValue(GLAccount."No.");
-        InventoryPostingSetupPage.Close;
+        InventoryPostingSetupPage.Close();
 
         // [THEN] Correct field is filled out in the record
         VerifyInventoryPostingSetupInserted(GLAccount."No.");
@@ -2925,7 +2925,7 @@ codeunit 134341 "UT Page Actions & Controls"
         InventoryPostingSetupPage.OpenEdit;
         InventoryPostingSetupPage.FILTER.SetFilter("Invt. Posting Group Code", InventoryPostingGroup.Code);
         InventoryPostingSetupPage."Inventory Account (Interim)".Lookup;
-        InventoryPostingSetupPage.Close;
+        InventoryPostingSetupPage.Close();
 
         // [THEN] Correct field is filled out in the record
         VerifyInventoryPostingSetupInserted(GLAccount."No.");
@@ -3942,7 +3942,7 @@ codeunit 134341 "UT Page Actions & Controls"
         LibraryJournals.CreateGenJournalLineWithBatch(
           GenJnlLine, GenJnlLine."Document Type"::Payment, GenJnlLine."Account Type"::Customer,
           LibrarySales.CreateCustomerNo, LibraryRandom.RandDec(100, 2));
-        GenJnlLine.Validate("Posting Date", ClosingDate(WorkDate));
+        GenJnlLine.Validate("Posting Date", ClosingDate(WorkDate()));
         GenJnlLine.Modify(true);
 
         // [WHEN] Open General Journal for created record in Simple Mode
@@ -3970,7 +3970,7 @@ codeunit 134341 "UT Page Actions & Controls"
         LibraryJournals.CreateGenJournalLineWithBatch(
           GenJnlLine, GenJnlLine."Document Type"::Payment, GenJnlLine."Account Type"::Customer,
           LibrarySales.CreateCustomerNo, LibraryRandom.RandDec(100, 2));
-        GenJnlLine.Validate("Posting Date", WorkDate);
+        GenJnlLine.Validate("Posting Date", WorkDate());
         GenJnlLine.Modify(true);
 
         // [WHEN] Open General Journal for created record in Simple Mode
@@ -4060,8 +4060,8 @@ codeunit 134341 "UT Page Actions & Controls"
         TimeZone.Next(TimeZone.Count);
         LibraryVariableStorage.Enqueue(TimeZone.ID);
         PostCodes.TimeZone.Lookup;
-        PostCodes.Close;
-        PostCode.Find;
+        PostCodes.Close();
+        PostCode.Find();
         PostCode.TestField("Time Zone", TimeZone.ID);
     end;
 
@@ -4164,14 +4164,14 @@ codeunit 134341 "UT Page Actions & Controls"
 
         // [GIVEN] Set date filter to "Date" and Period Selection = "Within Period"
         VATStatementPreview.PeriodSelection.SetValue('Within Period');
-        VATStatementPreview.DateFilter.SetValue(WorkDate);
+        VATStatementPreview.DateFilter.SetValue(WorkDate());
         VATEntries.Trap();
 
         // [WHEN] DrillDown to ColumnValue
         VATStatementPreview.VATStatementLineSubForm.ColumnValue.Drilldown();
 
         // [THEN] Page "VAT Entries" was opened with filter to "Posting Date" = Date
-        Assert.AreEqual(VATEntries.FILTER.GetFilter("Posting Date"), Format(WorkDate), '');
+        Assert.AreEqual(VATEntries.FILTER.GetFilter("Posting Date"), Format(WorkDate()), '');
         VATEntries.Close();
         VATStatement.Close();
         VATStatementPreview.Close();
@@ -4357,7 +4357,7 @@ codeunit 134341 "UT Page Actions & Controls"
         MockThreeRecordsAndOpenSecondOnFilteredPage(ItemLedgerEntry, PAGE::"Item Ledger Entries");
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [Test]
     [HandlerFunctions('SetSpecialPricesEnabledSalesPriceAndLineDiscountsModalPageHandler')]
     procedure SetSpecialPricesIsEnabledWhenSalesLineDiscountLineIsSelected()
@@ -4643,16 +4643,16 @@ codeunit 134341 "UT Page Actions & Controls"
     local procedure MockTodo(var ToDo: Record "To-do")
     begin
         with ToDo do begin
-            Init;
+            Init();
             "No." := '';
             Date := LibraryRandom.RandDate(10);
             Duration := LibraryRandom.RandIntInRange(2, 10) * 1000 * 60 * 60 * 24;
             Type := Type::" ";
-            Insert;
+            Insert();
         end;
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     local procedure CreateItemWithSalesLineDiscount(var SalesLineDiscount: Record "Sales Line Discount")
     begin
         SalesLineDiscount.Init();
@@ -4692,7 +4692,7 @@ codeunit 134341 "UT Page Actions & Controls"
             "Account Type" := "Account Type"::Posting;
             "Account Category" := "Account Category"::Assets;
             "Account Subcategory Entry No." :=
-              GLAccountCategoryMgt.GetSubcategoryEntryNo("Account Category", GLAccountCategoryMgt.GetInventory);
+              GLAccountCategoryMgt.GetSubcategoryEntryNo("Account Category", GLAccountCategoryMgt.GetInventory());
             Modify(true);
         end;
     end;
@@ -4990,7 +4990,7 @@ codeunit 134341 "UT Page Actions & Controls"
     [Scope('OnPrem')]
     procedure ItemListMPH(var ItemList: TestPage "Item List")
     begin
-        ItemList.Next;
+        ItemList.Next();
         LibraryVariableStorage.Enqueue(ItemList."No.".Value);
         ItemList.OK.Invoke;
     end;
@@ -5017,7 +5017,7 @@ codeunit 134341 "UT Page Actions & Controls"
     [Scope('OnPrem')]
     procedure ItemListCancelMPH(var ItemList: TestPage "Item List")
     begin
-        ItemList.Next;
+        ItemList.Next();
         LibraryVariableStorage.Enqueue(ItemList."No.".Value);
         ItemList.Cancel.Invoke;
     end;
@@ -5125,7 +5125,7 @@ codeunit 134341 "UT Page Actions & Controls"
             1:
                 PostedSalesShipments."No.".AssertEquals(LibraryVariableStorage.DequeueText);
         end;
-        PostedSalesShipments.Close;
+        PostedSalesShipments.Close();
     end;
 
     [PageHandler]
@@ -5138,7 +5138,7 @@ codeunit 134341 "UT Page Actions & Controls"
             1:
                 PostedSalesInvoices."No.".AssertEquals(LibraryVariableStorage.DequeueText);
         end;
-        PostedSalesInvoices.Close;
+        PostedSalesInvoices.Close();
     end;
 
     [PageHandler]
@@ -5151,7 +5151,7 @@ codeunit 134341 "UT Page Actions & Controls"
             1:
                 PostedSalesCreditMemos."No.".AssertEquals(LibraryVariableStorage.DequeueText);
         end;
-        PostedSalesCreditMemos.Close;
+        PostedSalesCreditMemos.Close();
     end;
 
     [PageHandler]
@@ -5164,7 +5164,7 @@ codeunit 134341 "UT Page Actions & Controls"
             1:
                 PostedReturnReceipts."No.".AssertEquals(LibraryVariableStorage.DequeueText);
         end;
-        PostedReturnReceipts.Close;
+        PostedReturnReceipts.Close();
     end;
 
     [PageHandler]
@@ -5177,7 +5177,7 @@ codeunit 134341 "UT Page Actions & Controls"
             1:
                 PostedPurchaseReceipts."No.".AssertEquals(LibraryVariableStorage.DequeueText);
         end;
-        PostedPurchaseReceipts.Close;
+        PostedPurchaseReceipts.Close();
     end;
 
     [PageHandler]
@@ -5190,7 +5190,7 @@ codeunit 134341 "UT Page Actions & Controls"
             1:
                 PostedPurchaseInvoices."No.".AssertEquals(LibraryVariableStorage.DequeueText);
         end;
-        PostedPurchaseInvoices.Close;
+        PostedPurchaseInvoices.Close();
     end;
 
     [PageHandler]
@@ -5203,7 +5203,7 @@ codeunit 134341 "UT Page Actions & Controls"
             1:
                 PostedPurchaseCreditMemos."No.".AssertEquals(LibraryVariableStorage.DequeueText);
         end;
-        PostedPurchaseCreditMemos.Close;
+        PostedPurchaseCreditMemos.Close();
     end;
 
     [PageHandler]
@@ -5216,7 +5216,7 @@ codeunit 134341 "UT Page Actions & Controls"
             1:
                 GeneralLedgerEntries."Entry No.".AssertEquals(LibraryVariableStorage.DequeueText);
         end;
-        GeneralLedgerEntries.Close;
+        GeneralLedgerEntries.Close();
     end;
 
     [PageHandler]
@@ -5229,7 +5229,7 @@ codeunit 134341 "UT Page Actions & Controls"
             1:
                 ResourceLedgerEntries."Entry No.".AssertEquals(LibraryVariableStorage.DequeueText);
         end;
-        ResourceLedgerEntries.Close;
+        ResourceLedgerEntries.Close();
     end;
 
     [PageHandler]
@@ -5242,7 +5242,7 @@ codeunit 134341 "UT Page Actions & Controls"
             1:
                 CustomerLedgerEntries."Entry No.".AssertEquals(LibraryVariableStorage.DequeueText);
         end;
-        CustomerLedgerEntries.Close;
+        CustomerLedgerEntries.Close();
     end;
 
     [PageHandler]
@@ -5255,7 +5255,7 @@ codeunit 134341 "UT Page Actions & Controls"
             1:
                 VendorLedgerEntries."Entry No.".AssertEquals(LibraryVariableStorage.DequeueText);
         end;
-        VendorLedgerEntries.Close;
+        VendorLedgerEntries.Close();
     end;
 
     [PageHandler]
@@ -5268,7 +5268,7 @@ codeunit 134341 "UT Page Actions & Controls"
             1:
                 CheckLedgerEntries."Entry No.".AssertEquals(LibraryVariableStorage.DequeueText);
         end;
-        CheckLedgerEntries.Close;
+        CheckLedgerEntries.Close();
     end;
 
     [PageHandler]
@@ -5281,7 +5281,7 @@ codeunit 134341 "UT Page Actions & Controls"
             1:
                 ItemLedgerEntries."Entry No.".AssertEquals(LibraryVariableStorage.DequeueText);
         end;
-        ItemLedgerEntries.Close;
+        ItemLedgerEntries.Close();
     end;
 
     [ModalPageHandler]
@@ -5379,7 +5379,7 @@ codeunit 134341 "UT Page Actions & Controls"
         TimeZones.OK.Invoke;
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure VerifyMinimumQuantityInSalesPriceAndLineDiscountsPageHandler(var SalesPrLineDisc: TestPage "Sales Price and Line Discounts")

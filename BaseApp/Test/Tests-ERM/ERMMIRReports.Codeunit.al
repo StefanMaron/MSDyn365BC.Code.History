@@ -330,7 +330,7 @@ codeunit 134928 "ERM MIR Reports"
     local procedure CreateIssuedFinChargeMemoHeader(var IssuedFinChargeMemoHeader: Record "Issued Fin. Charge Memo Header"; Customer: Record Customer; VATBusPostingGroupCode: Code[20]): Code[20]
     begin
         with IssuedFinChargeMemoHeader do begin
-            Init;
+            Init();
             Validate("No.", LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::"Issued Fin. Charge Memo Header"));
             Validate("Customer No.", Customer."No.");
             Validate("Customer Posting Group", Customer."Customer Posting Group");
@@ -346,7 +346,7 @@ codeunit 134928 "ERM MIR Reports"
         RecRef: RecordRef;
     begin
         with IssuedFinChargeMemoLine do begin
-            Init;
+            Init();
             Validate("Finance Charge Memo No.", IssuedFinChargeMemoNo);
             RecRef.GetTable(IssuedFinChargeMemoLine);
             Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, FieldNo("Line No.")));
@@ -421,7 +421,7 @@ codeunit 134928 "ERM MIR Reports"
         VATPostingSetup: Record "VAT Posting Setup";
     begin
         with IssuedReminderHeader do begin
-            Init;
+            Init();
             Validate("No.", LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::"Issued Reminder Header"));
             Validate("Customer No.", Customer."No.");
             Validate("Customer Posting Group", Customer."Customer Posting Group");
@@ -439,7 +439,7 @@ codeunit 134928 "ERM MIR Reports"
         RecRef: RecordRef;
     begin
         with IssuedReminderLine do begin
-            Init;
+            Init();
             Validate("Reminder No.", ReminderNo);
             RecRef.GetTable(IssuedReminderLine);
             Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, FieldNo("Line No.")));
