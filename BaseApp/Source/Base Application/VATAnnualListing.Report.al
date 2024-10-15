@@ -288,6 +288,8 @@ report 11308 "VAT Annual Listing"
 
     requestpage
     {
+        SaveValues = true;
+
         layout
         {
             area(content)
@@ -356,8 +358,6 @@ report 11308 "VAT Annual Listing"
 
             if intYear = 0 then
                 intYear := Date2DMY(WorkDate, 3);
-
-            IncludeCountry := IncludeCountry::Specific;
         end;
     }
 
@@ -407,6 +407,11 @@ report 11308 "VAT Annual Listing"
         TotalCaptionLbl: Label 'Total';
         IsCreditMemoWithAppliedInvoice: Boolean;
         PreviousYear: Integer;
+
+    trigger OnInitReport()
+    begin
+        IncludeCountry := IncludeCountry::Specific;
+    end;
 
     local procedure IsCustBalanceGreaterThanMinimum(): Boolean
     begin

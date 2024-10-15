@@ -129,6 +129,7 @@ report 411 "Vendor - Payment Receipt"
                     DataItemLink = "Applied Vend. Ledger Entry No." = FIELD("Entry No.");
                     DataItemLinkReference = "Vendor Ledger Entry";
                     DataItemTableView = SORTING("Applied Vend. Ledger Entry No.", "Entry Type") WHERE(Unapplied = CONST(false));
+                    PrintOnlyIfDetail = true;                    
                     column(AppliedVLENo_DtldVendLedgEntry; "Applied Vend. Ledger Entry No.")
                     {
                     }

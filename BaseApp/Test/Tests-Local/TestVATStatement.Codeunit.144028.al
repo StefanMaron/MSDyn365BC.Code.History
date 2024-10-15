@@ -618,7 +618,7 @@ codeunit 144028 "Test VAT Statement"
         Assert.AreEqual(false, BooleanValue, 'Use Tax filter is not as expecetd');
 
         TextValue := VATEntriesPage.FILTER.GetFilter("Document Type");
-        Assert.AreEqual('<>Credit Memo', TextValue, 'Document Type filter is not as expected');
+        Assert.AreEqual('<>3', TextValue, 'Document Type filter is not as expected');
 
         TextValue := VATEntriesPage.FILTER.GetFilter(Closed);
         Evaluate(BooleanValue, TextValue);

@@ -88,7 +88,7 @@ xmlport 1000 "SEPA CT pain.001.001.03"
                                 textelement(initgptyothrinitgpty)
                                 {
                                     XmlName = 'Othr';
-                                    fieldelement(Id; CompanyInformation."VAT Registration No.")
+                                    fieldelement(Id; CompanyInformation."Enterprise No.")
                                     {
                                     }
                                 }

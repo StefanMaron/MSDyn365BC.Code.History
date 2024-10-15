@@ -641,6 +641,35 @@ codeunit 144005 "ERM Annual Listing"
         LibraryXPathXMLReader.VerifyNodeValue(CompanyVATNumberCapTxt, DelStr(Customer[1]."Enterprise No.", 1, 3));
     end;
 
+    [Test]
+    [HandlerFunctions('VATAnnualListingRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure ExportAnnualListingForAllCountries()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        IncludeCountry: Option All,Specific;
+    begin
+        // [SCENARIO 436957] Verify Report Annual Listing having data for All Countries/Regions
+        Initialize();
+
+        // [GIVEN] Create a Customer with "Enterprise No." without prefixes
+        LibraryBEHelper.CreateDomesticCustomer(Customer);
+        Customer.Validate("Enterprise No.", LibraryBEHelper.CreateMOD97CompliantCode());
+        Customer.Modify(true);
+
+        // [GIVEN] Posted Invoice for Customer.
+        CreateAndPostSalesDocumentInPeriod(Customer."No.", SalesHeader."Document Type"::Invoice, CalcDate('<+CY+2Y>', WorkDate()));
+
+        // [WHEN] Run report Annual Listing.
+        ExportAnnualListing(
+          true, Date2DMY(CalcDate('<+CY+2Y>', WorkDate()), 3), 100, IncludeCountry::All, '');
+
+        // [THEN] Verify report output having data with Entry No.
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists('BufferEntryNo', 1);
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Annual Listing");
