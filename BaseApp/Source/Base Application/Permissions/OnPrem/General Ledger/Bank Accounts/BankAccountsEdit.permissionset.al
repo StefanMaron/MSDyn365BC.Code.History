@@ -38,6 +38,8 @@ permissionset 7785 "Bank Accounts - Edit"
 #endif
                   tabledata Opportunity = R,
                   tabledata "Payment Method" = rm,
+                  tabledata "Payment Rec. Related Entry" = R,
+                  tabledata "Pmt. Rec. Applied-to Entry" = R,
                   tabledata "Post Code" = Ri,
                   tabledata "Purch. Cr. Memo Hdr." = r,
                   tabledata "Purch. Inv. Header" = rm,

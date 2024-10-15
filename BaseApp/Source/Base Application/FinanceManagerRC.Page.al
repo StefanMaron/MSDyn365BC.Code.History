@@ -25,7 +25,7 @@ page 8901 "Finance Manager Role Center"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Financial Reporting';
-                    RunObject = page "Account Schedule Names";
+                    RunObject = page "Financial Reports";
                 }
                 action("Analyses by Dimensions")
                 {

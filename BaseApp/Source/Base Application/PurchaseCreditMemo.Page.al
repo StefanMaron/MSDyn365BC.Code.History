@@ -217,7 +217,8 @@ page 52 "Purchase Credit Memo"
                 {
                     ApplicationArea = VAT;
                     Importance = Additional;
-                    Editable = true;
+                    Editable = VATDateEnabled;
+                    Visible = VATDateEnabled;
                     QuickEntry = false;
                     ToolTip = 'Specifies the date used to include entries on VAT reports in a VAT period. This is either the date that the document was created or posted, depending on your setting on the General Ledger Setup page.';
                 }
@@ -748,7 +749,7 @@ page 52 "Purchase Credit Memo"
             {
                 ApplicationArea = All;
                 Caption = 'Attachments';
-                SubPageLink = "Table ID" = CONST(38),
+                SubPageLink = "Table ID" = CONST(Database::"Purchase Header"),
                               "No." = FIELD("No."),
                               "Document Type" = FIELD("Document Type");
             }
@@ -1584,6 +1585,7 @@ page 52 "Purchase Credit Memo"
     var
         OfficeMgt: Codeunit "Office Management";
         EnvironmentInfo: Codeunit "Environment Information";
+        VATReportingDateMgt: Codeunit "VAT Reporting Date Mgt";
     begin
         SetDocNoVisible();
         IsOfficeAddin := OfficeMgt.IsAvailable();
@@ -1600,6 +1602,7 @@ page 52 "Purchase Credit Memo"
 
         SetPostingGroupEditable();
         CheckShowBackgrValidationNotification();
+        VATDateEnabled := VATReportingDateMgt.IsVATDateEnabled();
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -1655,6 +1658,8 @@ page 52 "Purchase Credit Memo"
         IsPostingGroupEditable: Boolean;
         [InDataSet]
         IsPurchaseLinesEditable: Boolean;
+        [InDataSet]
+        VATDateEnabled: Boolean;
 
     protected var
         ShipToOptions: Option "Default (Vendor Address)","Alternate Vendor Address","Custom Address";

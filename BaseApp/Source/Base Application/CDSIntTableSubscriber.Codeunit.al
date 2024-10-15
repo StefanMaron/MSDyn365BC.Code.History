@@ -264,7 +264,7 @@ codeunit 7205 "CDS Int. Table. Subscriber"
                 CDSConnectionSetup."Ownership Model"::Person:
                     begin
                         // in case of field mapping to OwnerId, if ownership model is Person, we should find the user mapped to the Salesperson/Purchaser
-                        NewValue := GetCoupledCDSUserId(SourceFieldRef.Record());
+                        NewValue := CRMSynchHelper.GetCoupledCDSUserId(SourceFieldRef.Record());
                         IsValueFound := true;
                         NeedsConversion := false;
                         exit;
@@ -1413,48 +1413,13 @@ codeunit 7205 "CDS Int. Table. Subscriber"
                 CDSIntegrationMgt.SetOwningTeam(DestinationRecordRef);
             CDSConnectionSetup."Ownership Model"::Person:
                 begin
-                    UserId := GetCoupledCDSUserId(SourceRecordRef);
+                    UserId := CRMSynchHelper.GetCoupledCDSUserId(SourceRecordRef);
                     if not IsNullGuid(UserId) then
                         CDSIntegrationMgt.SetOwningUser(DestinationRecordRef, UserId, true)
                     else
                         CDSIntegrationMgt.SetOwningTeam(DestinationRecordRef);
                 end;
         end;
-    end;
-
-    local procedure GetCoupledCDSUserId(SourceRecordRef: RecordRef): Guid
-    var
-        Customer: Record Customer;
-        Vendor: Record Vendor;
-        Contact: Record Contact;
-        CRMIntegrationRecord: Record "CRM Integration Record";
-        IntegrationTableMapping: Record "Integration Table Mapping";
-        SalesPersonPurchaser: Record "Salesperson/Purchaser";
-        SalesPersonPurchaserFieldRef: FieldRef;
-        SalesPersonPurchaserCode: Code[20];
-        CDSUserId: Guid;
-    begin
-        case SourceRecordRef.Number() of
-            Database::Customer:
-                SalesPersonPurchaserFieldRef := SourceRecordRef.Field(Customer.FieldNo(Customer."Salesperson Code"));
-            Database::Vendor:
-                SalesPersonPurchaserFieldRef := SourceRecordRef.Field(Vendor.FieldNo(Vendor."Purchaser Code"));
-            Database::Contact:
-                SalesPersonPurchaserFieldRef := SourceRecordRef.Field(Contact.FieldNo(Contact."Salesperson Code"));
-            else
-                exit(CDSUserId);
-        end;
-
-        Evaluate(SalesPersonPurchaserCode, Format(SalesPersonPurchaserFieldRef.Value()));
-        if not SalesPersonPurchaser.Get(SalesPersonPurchaserCode) then
-            exit(CDSUserId);
-
-        if not CRMIntegrationRecord.FindIDFromRecordID(SalesPersonPurchaser.RecordId(), CDSUserId) then
-            Error(
-              RecordMustBeCoupledExtErr, SalesPersonPurchaser.TableCaption(), SalesPersonPurchaserFieldRef.Value(),
-              IntegrationTableMapping.GetExtendedIntegrationTableCaption());
-
-        exit(CDSUserId);
     end;
 
     local procedure GetCoupledSalespersonPurchaserCode(SourceRecordRef: RecordRef): Code[20]
