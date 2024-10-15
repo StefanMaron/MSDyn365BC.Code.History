@@ -2022,6 +2022,93 @@ codeunit 137047 "SCM Warehouse I"
         LibraryVariableStorage.AssertEmpty;
     end;
 
+    [Test]
+    [HandlerFunctions('WhseItemTrackingLinesAssignLotPageHandler,GenericMessageHandler')]
+    [Scope('OnPrem')]
+    procedure ReallocationReservAccordingToItemTrackingDefinedInPick()
+    var
+        Location: Record Location;
+        Zone: Record Zone;
+        Bin: array[3] of Record Bin;
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        LotNos: array[3] of Code[20];
+    begin
+        // [FEATURE] [Late Binding] [Item Tracking] [Reservation] [Pick] [Cross-Dock] [Order Tracking]
+        // [SCENARIO 357411] Reservation is reallocated according to item tracking defined in pick for item with enabled Order Tracking.
+        Initialize();
+        LotNos[1] := LibraryUtility.GenerateGUID();
+        LotNos[2] := LibraryUtility.GenerateGUID();
+        LotNos[3] := LibraryUtility.GenerateGUID();
+
+        // [GIVEN] Location set up for directed put-away and pick.
+        CreateFullWMSLocation(Location, 2);
+
+        // [GIVEN] Lot-tracked item with enabled Order Tracking.
+        CreateItemWithLotWarehouseTracking(Item);
+        Item.Validate("Costing Method", Item."Costing Method"::FIFO);
+        Item.Validate("Order Tracking Policy", Item."Order Tracking Policy"::"Tracking Only");
+        Item.Modify(true);
+
+        // [GIVEN] Post 12 pcs of lot "L1" to bin "B1". Resulting item ledger entry "ILE1".
+        // [GIVEN] Post 28 pcs of lot "L2" to cross-dock bin "B2". Resulting item ledger entry "ILE2".
+        // [GIVEN] Post 10 pcs of lot "L3" to bin "B3". Resulting item ledger entry "ILE3".
+        LibraryWarehouse.FindZone(Zone, Location.Code, LibraryWarehouse.SelectBinType(false, false, true, true), false);
+        LibraryWarehouse.FindBin(Bin[1], Location.Code, Zone.Code, 1);
+        Bin[2].Get(Location.Code, Location."Cross-Dock Bin Code");
+        LibraryWarehouse.FindBin(Bin[3], Location.Code, Zone.Code, 2);
+        UpdateInventoryOnBinAtDirectedPutAwayPickLocationTrackedItem(Bin[1], Item."No.", 12, LotNos[1]);
+        UpdateInventoryOnBinAtDirectedPutAwayPickLocationTrackedItem(Bin[2], Item."No.", 28, LotNos[2]);
+        UpdateInventoryOnBinAtDirectedPutAwayPickLocationTrackedItem(Bin[3], Item."No.", 10, LotNos[3]);
+
+        // [GIVEN] Sales order with three lines.
+        // [GIVEN] Line 1: 10 pcs, reserved from item entry "ILE1".
+        // [GIVEN] Line 2: 10 pcs of which 2 pcs reserved from "ILE1", 8 pcs reserved from "ILE2".
+        // [GIVEN] Line 3: 28 pcs of which 20 pcs reserved from "ILE2", 8 pcs reserved from "ILE3".
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
+        SalesHeader.Validate("Location Code", Location.Code);
+        SalesHeader.Modify(true);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 10);
+        LibrarySales.AutoReserveSalesLine(SalesLine);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 10);
+        LibrarySales.AutoReserveSalesLine(SalesLine);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 28);
+        LibrarySales.AutoReserveSalesLine(SalesLine);
+
+        // [GIVEN] Create shipment and pick from the sales order.
+        CreateWhsePickFromSalesOrder(SalesHeader);
+
+        // [GIVEN] Since quantity in the cross-dock bin "B2" must be picked first, assign the item tracking as follows:
+        // [GIVEN] 28 pcs of lot "L2" (stored in the cross-dock bin) must be reserved for lines 1, 2 of the sales order and partially for line 3.
+        // [GIVEN] 10 pcs of lot "L1" must be reserved for line 3.
+        // [GIVEN] 10 pcs of lot "L3" must be reserved for line 3.
+        UpdateItemTrackingOnWarehouseActivityLines(Item."No.", Bin[1].Code, LotNos[1]);
+        UpdateItemTrackingOnWarehouseActivityLines(Item."No.", Bin[2].Code, LotNos[2]);
+        UpdateItemTrackingOnWarehouseActivityLines(Item."No.", Bin[3].Code, LotNos[3]);
+
+        // [GIVEN] Autofill qty. to handle in the pick.
+        LibraryWarehouse.FindWhseActivityBySourceDoc(
+          WarehouseActivityHeader, DATABASE::"Sales Line", SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
+        LibraryWarehouse.AutoFillQtyHandleWhseActivity(WarehouseActivityHeader);
+
+        // [WHEN] Register the warehouse pick.
+        LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
+
+        // [THEN] Lots "L2" and "L3" are fully reserved; lot "L1" is reserved for 10 pcs and tracked for 2 pcs (order tracking is on).
+        VerifyReservationEntryLotQty(DATABASE::"Item Ledger Entry", LotNos[1], 12);
+        VerifyReservationEntryLotQty(DATABASE::"Item Ledger Entry", LotNos[2], 28);
+        VerifyReservationEntryLotQty(DATABASE::"Item Ledger Entry", LotNos[3], 10);
+
+        // [THEN] All three sales lines are reserved.
+        VerifyReservationEntryLotQty(DATABASE::"Sales Line", LotNos[1], -10);
+        VerifyReservationEntryLotQty(DATABASE::"Sales Line", LotNos[2], -28);
+        VerifyReservationEntryLotQty(DATABASE::"Sales Line", LotNos[3], -10);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2716,6 +2803,36 @@ codeunit 137047 "SCM Warehouse I"
         LibraryWarehouse.UpdateInventoryOnLocationWithDirectedPutAwayAndPick(ItemNo, LocationCode, Qty, true);
     end;
 
+    local procedure UpdateInventoryOnBinAtDirectedPutAwayPickLocationTrackedItem(Bin: Record Bin; ItemNo: Code[20]; Qty: Decimal; ItemTrackingNo: Code[20])
+    begin
+        LibraryVariableStorage.Enqueue(ItemTrackingNo);
+        LibraryVariableStorage.Enqueue(Qty);
+        LibraryWarehouse.UpdateInventoryInBinUsingWhseJournal(Bin, ItemNo, Qty, true);
+    end;
+
+    local procedure UpdateItemTrackingOnWarehouseActivityLines(ItemNo: Code[20]; BinCode: Code[20]; LotNo: Code[20])
+    var
+        WarehouseActivityLineTake: Record "Warehouse Activity Line";
+        WarehouseActivityLinePlace: Record "Warehouse Activity Line";
+    begin
+        WarehouseActivityLineTake.SetRange("Item No.", ItemNo);
+        WarehouseActivityLineTake.SetRange("Bin Code", BinCode);
+        WarehouseActivityLineTake.FindSet();
+
+        repeat
+            WarehouseActivityLineTake.TestField("Action Type", WarehouseActivityLineTake."Action Type"::Take);
+            WarehouseActivityLineTake.Validate("Lot No.", LotNo);
+            WarehouseActivityLineTake.Modify(true);
+
+            WarehouseActivityLinePlace.Get(
+              WarehouseActivityLineTake."Activity Type", WarehouseActivityLineTake."No.", WarehouseActivityLineTake."Line No.");
+            WarehouseActivityLinePlace.Next();
+            WarehouseActivityLinePlace.TestField("Action Type", WarehouseActivityLinePlace."Action Type"::Place);
+            WarehouseActivityLinePlace.Validate("Lot No.", LotNo);
+            WarehouseActivityLinePlace.Modify(true);
+        until WarehouseActivityLineTake.Next() = 0;
+    end;
+
     local procedure VerifyItemInventory(ItemNo: Code[20]; LocationCode: Code[10]; GlobalDimension1Code: Code[20]; ExpectedQuantity: Decimal)
     var
         Item: Record Item;
@@ -2821,6 +2938,16 @@ codeunit 137047 "SCM Warehouse I"
             FindFirst;
             TestField("Lot No.", LotNo);
         end;
+    end;
+
+    local procedure VerifyReservationEntryLotQty(SourceType: Integer; LotNo: Code[20]; Qty: Decimal)
+    var
+        ReservationEntry: Record "Reservation Entry";
+    begin
+        ReservationEntry.SetRange("Source Type", SourceType);
+        ReservationEntry.SetRange("Lot No.", LotNo);
+        ReservationEntry.CalcSums(Quantity);
+        ReservationEntry.TestField(Quantity, Qty);
     end;
 
     local procedure VerifySalesReservationFromInventory(SalesLine: Record "Sales Line"; LotNo: Code[20])
@@ -2988,6 +3115,12 @@ codeunit 137047 "SCM Warehouse I"
     procedure SourceDocMessageHandler(Message: Text[1024])
     begin
         Assert.IsTrue(StrPos(Message, 'Number of source documents posted:') > 0, Message);
+    end;
+
+    [MessageHandler]
+    [Scope('OnPrem')]
+    procedure GenericMessageHandler(Message: Text[1024])
+    begin
     end;
 
     [ModalPageHandler]

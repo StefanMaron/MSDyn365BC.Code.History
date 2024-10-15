@@ -431,7 +431,8 @@ report 99001020 "Carry Out Action Msg. - Plan."
             if ReqLineFilters.GetFilters <> '' then
                 CopyFilters(ReqLineFilters);
             SetRange("Worksheet Template Name", CurrReqWkshTemp);
-            SetRange("Journal Batch Name", CurrReqWkshName);
+            if CurrReqWkshTemp <> '' then
+                SetRange("Journal Batch Name", CurrReqWkshName);
             SetRange(Type, Type::Item);
             SetFilter("Action Message", '<>%1', "Action Message"::" ");
         end;
