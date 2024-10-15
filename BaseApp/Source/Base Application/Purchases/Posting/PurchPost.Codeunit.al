@@ -3030,8 +3030,7 @@ codeunit 90 "Purch.-Post"
                 IsHandled := false;
                 OnFinalizePostingOnBeforeUpdateWhseDocuments(PurchHeader, WhseRcptHeader, TempWhseRcptHeader, WhseShptHeader, TempWhseShptHeader, WhseReceive, WhseShip, IsHandled);
                 if not IsHandled then
-                    if not PreviewMode then
-                        UpdateWhseDocuments();
+                    UpdateWhseDocuments();
                 WhsePurchRelease.Release(PurchHeader);
                 UpdateItemChargeAssgnt(PurchHeader);
                 OnFinalizePostingOnAfterUpdateItemChargeAssgnt(PurchHeader, TempDropShptPostBuffer, EverythingInvoiced, TempPurchLine, TempPurchLineGlobal, GenJnlPostLine);
@@ -3064,8 +3063,7 @@ codeunit 90 "Purch.-Post"
                 OnFinalizePostingOnBeforeUpdateAfterPosting(PurchHeader, TempDropShptPostBuffer, EverythingInvoiced, IsHandled, TempPurchLine);
                 if not IsHandled then begin
                     UpdateAfterPosting(PurchHeader);
-                    if not PreviewMode then
-                        UpdateWhseDocuments();
+                    UpdateWhseDocuments();
                     if not OrderArchived then
                         ArchiveManagement.AutoArchivePurchDocument(PurchHeader);
                     DeleteApprovalEntries(PurchHeader);
@@ -6144,6 +6142,7 @@ codeunit 90 "Purch.-Post"
             if not (ItemJournalLine.IsPurchaseReturn() or NonInventoriableItem) then begin
                 TempTrackingSpecification.SetRange("Serial No.", "Serial No.");
                 TempTrackingSpecification.SetRange("Lot No.", "Lot No.");
+                TempTrackingSpecification.SetRange("Package No.", "Package No.");
                 if TempTrackingSpecification.FindFirst() then
                     "Appl.-to Item Entry" := TempTrackingSpecification."Item Ledger Entry No.";
             end;

@@ -77,6 +77,11 @@ table 475 "Vendor Payment Buffer"
             Caption = 'Vendor Posting Group';
             DataClassification = SystemMetadata;
         }
+        field(20; "Ledg. Entry System Id"; Guid)
+        {
+            Caption = 'Ledg. Entry System Id';
+            DataClassification = SystemMetadata;
+        }
         field(170; "Creditor No."; Code[20])
         {
             Caption = 'Creditor No.';

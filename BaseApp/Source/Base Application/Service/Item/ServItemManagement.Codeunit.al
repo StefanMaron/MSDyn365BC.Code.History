@@ -46,6 +46,7 @@ codeunit 5920 ServItemManagement
         Text003: Label 'Posting cannot be completed successfully. %1 %2  belongs to the %3 that requires creating service items. Check if the %4 field contains a whole number.';
         Text004: Label 'Posting cannot be completed successfully. For the items that are used to replace or create service item components, the %1 field on the %2 must contain a whole number.';
         Text005: Label 'The service item that is linked to the order has been deleted.';
+        Text006Lbl: Label '<-%1>', Comment = '%1 = Warranty Date Formula';
 
     procedure AddOrReplaceSIComponent(var ServLine: Record "Service Line"; ServHeader: Record "Service Header"; ServShptDocNo: Code[20]; ServShptLineNo: Integer; var TempTrackingSpecification: Record "Tracking Specification" temporary)
     var
@@ -338,16 +339,21 @@ codeunit 5920 ServItemManagement
         ServItem."Warranty % (Parts)" := ServMgtSetup."Warranty Disc. % (Parts)";
         ServItem."Warranty % (Labor)" := ServMgtSetup."Warranty Disc. % (Labor)";
 
+        if not ItemTrackingCode.Get(Item."Item Tracking Code") then
+            ItemTrackingCode.Init();
+
         if TrackingLinesExist and (TempReservEntry."Warranty Date" <> 0D) then
-            WarrantyStartDate := TempReservEntry."Warranty Date"
+            if Format(ItemTrackingCode."Warranty Date Formula") <> '' then
+                WarrantyStartDate := CalcDate(StrSubstNo(Text006Lbl, ItemTrackingCode."Warranty Date Formula"), TempReservEntry."Warranty Date")
+            else
+                WarrantyStartDate := TempReservEntry."Warranty Date"
         else begin
             WarrantyStartDate := SalesHeader."Posting Date";
             if (WarrantyStartDate = 0D) and SalesLine."Drop Shipment" then
                 if PurchaseHeader.Get(PurchaseHeader."Document Type"::Order, SalesLine."Purchase Order No.") then
                     WarrantyStartDate := PurchaseHeader."Posting Date";
         end;
-        if not ItemTrackingCode.Get(Item."Item Tracking Code") then
-            ItemTrackingCode.Init();
+
         CalcServiceWarrantyDates(
             ServItem, WarrantyStartDate, ItemTrackingCode."Warranty Date Formula", ServMgtSetup."Default Warranty Duration");
 
