@@ -40,6 +40,13 @@
                         CurrPage.SaveRecord;
                     end;
                 }
+                field("Name 2"; "Name 2")
+                {
+                    ApplicationArea = All;
+                    Importance = Additional;
+                    ToolTip = 'Specifies an additional part of the name.';
+                    Visible = false;
+                }
                 field("Full Name"; "Full Name")
                 {
                     ApplicationArea = Basic, Suite;

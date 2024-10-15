@@ -23,9 +23,10 @@ codeunit 2 "Company-Initialize"
                   TableData "Nonstock Item Setup" = i,
                   TableData "Warehouse Setup" = i,
                   TableData "Service Mgt. Setup" = i,
-                  TableData "Config. Setup" = i,
                   TableData "Tax Register Setup" = i,
-                  TableData "Statutory Report Setup" = i;
+                  TableData "Statutory Report Setup" = i,
+                  tabledata "Trial Balance Setup" = i,
+                  TableData "Config. Setup" = i;
 
     trigger OnRun()
     var
@@ -240,6 +241,7 @@ codeunit 2 "Company-Initialize"
         IncomingDocumentsSetup: Record "Incoming Documents Setup";
         CompanyInfo: Record "Company Information";
         TaxRegSetup: Record "Tax Register Setup";
+        TrialBalanceSetup: Record "Trial Balance Setup";
         SocialListeningSetup: Record "Social Listening Setup";
     begin
         with GLSetup do
@@ -372,6 +374,12 @@ codeunit 2 "Company-Initialize"
         with IncomingDocumentsSetup do
             if not FindFirst then begin
                 Init;
+                Insert;
+            end;
+
+        with TrialBalanceSetup do
+            if not FindFirst then begin
+                init;
                 Insert;
             end;
 

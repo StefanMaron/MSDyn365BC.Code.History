@@ -49,6 +49,7 @@ report 1497 "Trans. Bank Rec. to Gen. Jnl."
 
                     GenJnlLine.Description := Description;
                     UpdateGenJnlLine(GenJnlLine, "Bank Acc. Reconciliation Line");
+                    OnBeforeGenJnlLineInsert(GenJnlLine, "Bank Acc. Reconciliation Line");
                     GenJnlLine.Insert;
                 end;
 
@@ -158,6 +159,11 @@ report 1497 "Trans. Bank Rec. to Gen. Jnl."
     begin
         GenJnlLine."Journal Template Name" := GenJnlTemplateName;
         GenJnlLine."Journal Batch Name" := GenJnlBatchName;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGenJnlLineInsert(var GenJournalLine: Record "Gen. Journal Line"; BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line")
+    begin
     end;
 }
 

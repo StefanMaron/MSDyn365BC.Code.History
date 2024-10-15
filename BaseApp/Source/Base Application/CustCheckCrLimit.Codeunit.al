@@ -1,4 +1,4 @@
-codeunit 312 "Cust-Check Cr. Limit"
+﻿codeunit 312 "Cust-Check Cr. Limit"
 {
     Permissions = TableData "My Notifications" = rimd;
 
@@ -41,7 +41,13 @@ codeunit 312 "Cust-Check Cr. Limit"
     procedure SalesHeaderCheck(var SalesHeader: Record "Sales Header") CreditLimitExceeded: Boolean
     var
         AdditionalContextId: Guid;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSalesHeaderCheck(SalesHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         if (SalesHeader."Prepmt. Diff. Appln. Entry No." <> 0) or SalesHeader."Prepmt. Diff." then
             exit;
 
@@ -238,6 +244,11 @@ codeunit 312 "Cust-Check Cr. Limit"
     procedure GetOverdueBalanceNotificationMsg(): Text
     begin
         exit(OverdueBalanceNotificationMsg);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSalesHeaderCheck(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean);
+    begin
     end;
 }
 

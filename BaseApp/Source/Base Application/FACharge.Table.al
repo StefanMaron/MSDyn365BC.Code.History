@@ -102,8 +102,10 @@ table 14907 "FA Charge"
     procedure ValidateShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
     begin
         DimMgt.ValidateDimValueCode(FieldNumber, ShortcutDimCode);
-        DimMgt.SaveDefaultDim(DATABASE::"FA Charge", "No.", FieldNumber, ShortcutDimCode);
-        Modify;
+        if not IsTemporary then begin
+            DimMgt.SaveDefaultDim(DATABASE::"FA Charge", "No.", FieldNumber, ShortcutDimCode);
+            Modify;
+        end;
     end;
 }
 

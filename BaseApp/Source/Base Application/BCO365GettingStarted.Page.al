@@ -148,10 +148,10 @@ page 2300 "BC O365 Getting Started"
         SettingsDescTxt: Label 'Set up key information about your business';
         CurrentPage: Boolean;
         CreateTestInvoiceVisible: Boolean;
-        GettingStartedCategoryLbl: Label 'AL Getting Started', Comment = '{LOCKED}';
-        IntroTelemetryTxt: Label 'Introduction video was played.', Comment = '{LOCKED}';
-        SendInvoicesTelemetryTxt: Label 'Send invoices video was played.', Comment = '{LOCKED}';
-        PaymentsTelemetryTxt: Label 'Payments video was played.', Comment = '{LOCKED}';
-        SetupTelemetryTxt: Label 'Setup was clicked from Getting Started.', Comment = '{LOCKED}';
+        GettingStartedCategoryLbl: Label 'AL Getting Started', Locked = true;
+        IntroTelemetryTxt: Label 'Introduction video was played.', Locked = true;
+        SendInvoicesTelemetryTxt: Label 'Send invoices video was played.', Locked = true;
+        PaymentsTelemetryTxt: Label 'Payments video was played.', Locked = true;
+        SetupTelemetryTxt: Label 'Setup was clicked from Getting Started.', Locked = true;
 }
 

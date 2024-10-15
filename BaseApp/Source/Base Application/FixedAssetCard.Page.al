@@ -444,7 +444,7 @@
                     PromotedCategory = Process;
                     RunObject = Page "Maintenance Registration";
                     RunPageLink = "FA No." = FIELD("No.");
-                    ToolTip = 'View or edit maintenance codes for the various types of maintenance, repairs, and services performed on your fixed assets. You can then enter the code in the Maintenance Code field on purchase documents or journals.';
+                    ToolTip = 'View or edit the date and description regarding the maintenance of the fixed asset.';
                 }
                 action("FA Posting Types Overview")
                 {
@@ -632,7 +632,7 @@
                 Caption = 'C&opy Fixed Asset';
                 Ellipsis = true;
                 Image = CopyFixedAssets;
-                ToolTip = 'Create one or more new fixed asset by copying from existing fixed assets that have similar information, such as chairs or cars.';
+                ToolTip = 'View or edit fixed asset components of the main fixed asset that is represented by the fixed asset card.';
 
                 trigger OnAction()
                 var
@@ -661,7 +661,7 @@
                 Caption = 'Book Value 01';
                 Image = "Report";
                 RunObject = Report "Fixed Asset - Book Value 01";
-                ToolTip = 'View detailed information about acquisition cost, depreciation and book value for both individual assets and groups of assets. For each of these three amount types, amounts are calculated at the beginning and at the end of a specified period as well as for the period itself.';
+                ToolTip = 'View detailed information about acquisition cost, depreciation and book value for both individual fixed assets and groups of fixed assets. For each of these three amount types, amounts are calculated at the beginning and at the end of a specified period as well as for the period itself.';
             }
             action("Book Value 02")
             {
@@ -669,7 +669,7 @@
                 Caption = 'Book Value 02';
                 Image = "Report";
                 RunObject = Report "Fixed Asset - Book Value 02";
-                ToolTip = 'View detailed information about acquisition cost, depreciation, appreciation, write-down and book value for both individual assets and groups of assets. For each of these categories, amounts are calculated at the beginning and at the end of a specified period, as well as for the period itself.';
+                ToolTip = 'View detailed information about acquisition cost, depreciation, appreciation, write-down and book value for both individual fixed assets and groups of fixed assets. For each of these categories, amounts are calculated at the beginning and at the end of a specified period, as well as for the period itself.';
             }
             action(Analysis)
             {
@@ -679,7 +679,7 @@
                 Promoted = true;
                 PromotedCategory = "Report";
                 RunObject = Report "Fixed Asset - Analysis";
-                ToolTip = 'View an analysis of your fixed assets with various types of data for both individual assets and groups of assets.';
+                ToolTip = 'View an analysis of your fixed assets with various types of data for both individual fixed assets and groups of fixed assets.';
             }
             action("Projected Value")
             {
@@ -697,7 +697,7 @@
                 Caption = 'G/L Analysis';
                 Image = "Report";
                 RunObject = Report "Fixed Asset - G/L Analysis";
-                ToolTip = 'View an analysis of your fixed assets (FA) with various types of data for individual assets and/or groups of assets. On the Fixed Assets FastTab, you can set filters if you want the report to include only certain fixed assets. On the Options FastTab, you can choose among a number of options to tailor the report to meet your specific needs.';
+                ToolTip = 'View an analysis of your fixed assets with various types of data for individual fixed assets and/or groups of fixed assets.';
             }
             action(Register)
             {
@@ -705,7 +705,7 @@
                 Caption = 'Register';
                 Image = Confirm;
                 RunObject = Report "Fixed Asset Register";
-                ToolTip = 'View registers containing all the fixed asset entries that are created. Every register shows the first and last entry number of its entries.';
+                ToolTip = 'View registers containing all the fixed asset entries that are created. Each register shows the first and last entry number of its entries.';
             }
             action("Report FA Inventory Card FA-6")
             {

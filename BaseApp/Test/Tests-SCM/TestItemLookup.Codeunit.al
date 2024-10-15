@@ -908,6 +908,57 @@ codeunit 134835 "Test Item Lookup"
         Assert.AreEqual(ItemA."No.", PurchaseLine."No.", '"No." not set correctly');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ValidateDescOnSalesLine_Items_aaa_AAA()
+    var
+        Item: array[2] of Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 334557] Validating 'AAA' as a description of new sales line having type "Item" inserts item with 'AAA' description, not 'aaa'
+        Initialize();
+
+        CreateItemWithDescription(Item[1], 'aaa');
+        CreateItemWithDescription(Item[2], 'AAA');
+
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
+        SalesLine.Validate("Document Type", SalesHeader."Document Type");
+        SalesLine.Validate("Document No.", SalesHeader."No.");
+        SalesLine.Validate(Type, SalesLine.Type::Item);
+
+        // Exercise and Verify Existing Item
+        SalesLine.Validate(Description, Item[2].Description);
+
+        SalesLine.TestField("No.", Item[2]."No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ValidateDescOnPurchaseLine_Items_aaa_AAA()
+    var
+        Item: array[2] of Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        // [FEATURE] [Purchase]
+        // [SCENARIO 334557] Validating 'AAA' as a description of new purchase line having type "Item" inserts item with 'AAA' description, not 'aaa'
+        Initialize();
+
+        CreateItemWithDescription(Item[1], 'aaa');
+        CreateItemWithDescription(Item[2], 'AAA');
+
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
+        PurchaseLine.Validate("Document Type", PurchaseHeader."Document Type");
+        PurchaseLine.Validate("Document No.", PurchaseHeader."No.");
+        PurchaseLine.Validate(Type, PurchaseLine.Type::Item);
+
+        PurchaseLine.Validate(Description, Item[2].Description);
+
+        PurchaseLine.TestField("No.", Item[2]."No.");
+    end;
+
     [Scope('OnPrem')]
     procedure Initialize()
     var
@@ -930,8 +981,14 @@ codeunit 134835 "Test Item Lookup"
 
     local procedure CreateItem(var Item: Record Item)
     begin
+        CreateItemWithDescription(
+          Item, CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Item.Description)), 1, MaxStrLen(Item.Description)));
+    end;
+
+    local procedure CreateItemWithDescription(var Item: Record Item; NewDescription: Text[100])
+    begin
         LibraryInventory.CreateItem(Item);
-        Item.Validate(Description, LibraryUtility.GenerateRandomText(MaxStrLen(Item.Description)));
+        Item.Validate(Description, NewDescription);
         Item.Modify(true);
     end;
 

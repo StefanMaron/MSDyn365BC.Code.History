@@ -43,6 +43,13 @@
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the full name of the customer.';
                 }
+                field("Name 2"; "Name 2")
+                {
+                    ApplicationArea = All;
+                    Importance = Additional;
+                    ToolTip = 'Specifies an additional part of the name.';
+                    Visible = false;
+                }
                 field("Search Name"; "Search Name")
                 {
                     ApplicationArea = All;

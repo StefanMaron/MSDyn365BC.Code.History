@@ -439,6 +439,8 @@ table 17 "G/L Entry"
         ValueEntry: Record "Value Entry";
         TempValueEntry: Record "Value Entry" temporary;
     begin
+        OnBeforeShowValueEntries(ValueEntry, GLItemLedgRelation);
+
         GLItemLedgRelation.SetRange("G/L Entry No.", "Entry No.");
         if GLItemLedgRelation.FindSet then
             repeat
@@ -528,6 +530,8 @@ table 17 "G/L Entry"
         "Tax Liable" := GLEntry."Tax Liable";
         "Tax Group Code" := GLEntry."Tax Group Code";
         "Use Tax" := GLEntry."Use Tax";
+
+        OnAfterCopyPostingGroupsFromGLEntry(rec, GLEntry);
     end;
 
     procedure CopyPostingGroupsFromVATEntry(VATEntry: Record "VAT Entry")
@@ -541,6 +545,8 @@ table 17 "G/L Entry"
         "Tax Liable" := VATEntry."Tax Liable";
         "Tax Group Code" := VATEntry."Tax Group Code";
         "Use Tax" := VATEntry."Use Tax";
+
+        OnAfterCopyPostingGroupsFromVATEntry(Rec, VATEntry);
     end;
 
     procedure CopyPostingGroupsFromGenJnlLine(GenJnlLine: Record "Gen. Journal Line")
@@ -554,6 +560,8 @@ table 17 "G/L Entry"
         "Tax Liable" := GenJnlLine."Tax Liable";
         "Tax Group Code" := GenJnlLine."Tax Group Code";
         "Use Tax" := GenJnlLine."Use Tax";
+
+        OnAfterCopyPostingGroupsFromGenJnlLine(Rec, GenJnlLine);
     end;
 
     procedure CopyPostingGroupsFromDtldCVBuf(DtldCVLedgEntryBuf: Record "Detailed CV Ledg. Entry Buffer"; GenPostingType: Option " ",Purchase,Sale,Settlement)
@@ -567,6 +575,8 @@ table 17 "G/L Entry"
         "Tax Liable" := DtldCVLedgEntryBuf."Tax Liable";
         "Tax Group Code" := DtldCVLedgEntryBuf."Tax Group Code";
         "Use Tax" := DtldCVLedgEntryBuf."Use Tax";
+
+        OnAfterCopyPostingGroupsFromDtldCVBuf(Rec, DtldCVLedgEntryBuf);
     end;
 
     [IntegrationEvent(false, false)]
@@ -621,6 +631,31 @@ table 17 "G/L Entry"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyFromDeferralPostBuffer(var GLEntry: Record "G/L Entry"; DeferralPostingBuffer: Record "Deferral Posting Buffer")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyPostingGroupsFromDtldCVBuf(var GLEntry: Record "G/L Entry"; DtldCVLedgEntryBuf: Record "Detailed CV Ledg. Entry Buffer")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyPostingGroupsFromGLEntry(var GLEntry: Record "G/L Entry"; FromGLEntry: Record "G/L Entry");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyPostingGroupsFromGenJnlLine(var GLEntry: Record "G/L Entry"; GenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyPostingGroupsFromVATEntry(var GLEntry: Record "G/L Entry"; VATEntry: Record "VAT Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowValueEntries(var ValueEntry: Record "Value Entry"; var GLItemLedgRelation: Record "G/L - Item Ledger Relation")
     begin
     end;
 }

@@ -400,8 +400,10 @@ table 17400 "Payroll Element"
     procedure ValidateShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
     begin
         DimMgt.ValidateDimValueCode(FieldNumber, ShortcutDimCode);
-        DimMgt.SaveDefaultDim(DATABASE::"Payroll Element", Code, FieldNumber, ShortcutDimCode);
-        Modify;
+	if not IsTemporary then begin
+            DimMgt.SaveDefaultDim(DATABASE::"Payroll Element", Code, FieldNumber, ShortcutDimCode);
+            Modify;
+	end;
     end;
 
     [Scope('OnPrem')]

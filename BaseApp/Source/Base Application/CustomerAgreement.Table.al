@@ -599,15 +599,18 @@ table 14902 "Customer Agreement"
     procedure ValidateShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
     begin
         DimMgt.ValidateDimValueCode(FieldNumber, ShortcutDimCode);
-        DimMgt.SaveDefaultDim(DATABASE::"Customer Agreement", "No.", FieldNumber, ShortcutDimCode);
-        Modify;
+        if not IsTemporary then begin
+            DimMgt.SaveDefaultDim(DATABASE::"Customer Agreement", "No.", FieldNumber, ShortcutDimCode);
+            Modify;
+        end;
     end;
 
     [Scope('OnPrem')]
     procedure LookupShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
     begin
         DimMgt.LookupDimValueCode(FieldNumber, ShortcutDimCode);
-        DimMgt.SaveDefaultDim(DATABASE::"Customer Agreement", "No.", FieldNumber, ShortcutDimCode);
+        if not IsTemporary then
+            DimMgt.SaveDefaultDim(DATABASE::"Customer Agreement", "No.", FieldNumber, ShortcutDimCode);
     end;
 
     [Scope('OnPrem')]

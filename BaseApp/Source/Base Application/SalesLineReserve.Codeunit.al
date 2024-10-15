@@ -237,6 +237,7 @@ codeunit 99000832 "Sales Line-Reserve"
         OldReservEntry: Record "Reservation Entry";
         OppositeReservEntry: Record "Reservation Entry";
         NotFullyReserved: Boolean;
+        IsHandled: Boolean;
     begin
         if not FindReservEntry(SalesLine, OldReservEntry) then
             exit(TransferQty);
@@ -254,7 +255,11 @@ codeunit 99000832 "Sales Line-Reserve"
                     exit(TransferQty);
             end;
 
-        ItemJnlLine.TestItemFields(SalesLine."No.", SalesLine."Variant Code", SalesLine."Location Code");
+
+        IsHandled := false;
+        OnTransferSalesLineToItemJnlLineOnBeforeItemJournalLineTest(SalesLine, IsHandled);
+        if not IsHandled then
+            ItemJnlLine.TestItemFields(SalesLine."No.", SalesLine."Variant Code", SalesLine."Location Code");
 
         if TransferQty = 0 then
             exit;
@@ -264,7 +269,10 @@ codeunit 99000832 "Sales Line-Reserve"
 
         if ReservEngineMgt.InitRecordSet(OldReservEntry) then begin
             repeat
-                OldReservEntry.TestItemFields(SalesLine."No.", SalesLine."Variant Code", SalesLine."Location Code");
+                IsHandled := false;
+                OnTransferSalesLineToItemJnlLineOnBeforeOldReservEntryTest(SalesLine, IsHandled);
+                if not IsHandled then
+                    OldReservEntry.TestItemFields(SalesLine."No.", SalesLine."Variant Code", SalesLine."Location Code");
 
                 if ApplySpecificItemTracking and (ItemJnlLine."Applies-to Entry" <> 0) then begin
                     CreateReservEntry.SetItemLedgEntryNo(ItemJnlLine."Applies-to Entry");
@@ -763,6 +771,16 @@ codeunit 99000832 "Sales Line-Reserve"
 
     [IntegrationEvent(false, false)]
     local procedure OnTestSalesLineModificationOnBeforeTestJobNo(SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransferSalesLineToItemJnlLineOnBeforeItemJournalLineTest(SalesLine: Record "Sales Line"; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransferSalesLineToItemJnlLineOnBeforeOldReservEntryTest(SalesLine: Record "Sales Line"; var IsHandled: Boolean);
     begin
     end;
 

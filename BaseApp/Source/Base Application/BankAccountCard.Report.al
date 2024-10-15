@@ -162,7 +162,7 @@ report 12448 "Bank Account Card"
                 column(Bank_Account__Name_Control70; "Bank Account".Name)
                 {
                 }
-                column(DataItem74; Text004 + ' ' + ApplicationLocalization.Date2Text(BeginingDateNonPosted) + '  ..  ' + ApplicationLocalization.Date2Text(EndingDateNonPosted))
+                column(Text004_____ApplicationLocalization_Date2Text_74; Text004 + ' ' + ApplicationLocalization.Date2Text(BeginingDateNonPosted) + '  ..  ' + ApplicationLocalization.Date2Text(EndingDateNonPosted))
                 {
                 }
                 column(Bank_Account___No___Control1470005; "Bank Account"."No.")

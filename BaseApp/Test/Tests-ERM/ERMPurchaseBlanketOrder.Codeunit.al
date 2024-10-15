@@ -1112,6 +1112,21 @@ codeunit 134326 "ERM Purchase Blanket Order"
         Assert.AreEqual(DirectUnitCost * QtytoReceive * Discount / 100, PurchaseLine."Inv. Discount Amount", '');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure GetFullDocTypeName()
+    var
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        // [SCENARIO] Get full document type and name
+        // [GIVEN] Purchase Header of type "Blanket Order"
+        PurchaseHeader."Document Type" := PurchaseHeader."Document Type"::"Blanket Order";
+
+        // [WHEN] GetFullDocTypeTxt is called
+        // [THEN] 'Purchase Blanket Order' is returned
+        Assert.AreEqual('Purchase Blanket Order', PurchaseHeader.GetFullDocTypeTxt(), 'The expected full document type is incorrect');
+    end;
+
     local procedure Initialize()
     var
         PurchaseHeader: Record "Purchase Header";

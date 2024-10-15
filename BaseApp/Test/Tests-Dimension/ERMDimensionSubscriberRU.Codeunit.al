@@ -95,5 +95,22 @@ codeunit 143017 "ERM Dimension Subscriber - RU"
           PayrollDocumentLine.FieldNo("Shortcut Dimension 1 Code"), PayrollDocumentLine.FieldNo("Shortcut Dimension 2 Code"),
           DimSetID, GlobalDim1ValueCode, GlobalDim2ValueCode);
     end;
+
+    [EventSubscriber(ObjectType::Codeunit, 131001, 'OnGetTableNosWithGlobalDimensionCode', '', false, false)]
+    local procedure AddingLocalTable(var TableBuffer: Record "Integer" temporary)
+    begin
+        AddTable(TableBuffer, DATABASE::"Vendor Agreement");
+        AddTable(TableBuffer, DATABASE::"Customer Agreement");
+        AddTable(TableBuffer, DATABASE::"FA Charge");
+        AddTable(TableBuffer, DATABASE::"Payroll Element");
+    end;
+
+    local procedure AddTable(var TableBuffer: Record "Integer" temporary; TableID: Integer)
+    begin
+        if not TableBuffer.Get(TableID) then begin
+            TableBuffer.Number := TableID;
+            TableBuffer.Insert;
+        end;
+    end;
 }
 

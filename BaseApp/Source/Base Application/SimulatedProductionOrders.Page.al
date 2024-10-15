@@ -61,26 +61,30 @@
                     ToolTip = 'Specifies the location code to which you want to post the finished product from this production order.';
                     Visible = false;
                 }
-                field("Starting Time"; "Starting Time")
+                field("Starting Time"; StartingTime)
                 {
                     ApplicationArea = Manufacturing;
+                    Caption = 'Starting Time';
                     ToolTip = 'Specifies the starting time of the production order.';
                     Visible = false;
                 }
-                field("Starting Date"; "Starting Date")
+                field("Starting Date"; StartingDate)
                 {
                     ApplicationArea = Manufacturing;
+                    Caption = 'Starting Date';
                     ToolTip = 'Specifies the starting date of the production order.';
                 }
-                field("Ending Time"; "Ending Time")
+                field("Ending Time"; EndingTime)
                 {
                     ApplicationArea = Manufacturing;
+                    Caption = 'Ending Time';
                     ToolTip = 'Specifies the ending time of the production order.';
                     Visible = false;
                 }
-                field("Ending Date"; "Ending Date")
+                field("Ending Date"; EndingDate)
                 {
                     ApplicationArea = Manufacturing;
+                    Caption = 'Ending Date';
                     ToolTip = 'Specifies the ending date of the production order.';
                 }
                 field("Due Date"; "Due Date")
@@ -277,5 +281,16 @@
             }
         }
     }
+
+    trigger OnAfterGetRecord()
+    begin
+        GetStartingEndingDateAndTime(StartingTime, StartingDate, EndingTime, EndingDate);
+    end;
+
+    var
+        StartingTime: Time;
+        EndingTime: Time;
+        StartingDate: Date;
+        EndingDate: Date;
 }
 

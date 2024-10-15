@@ -109,6 +109,7 @@ codeunit 6501 "Item Tracking Data Collection"
         end;
 
         ItemTrackingSummaryForm.SetCurrentBinAndItemTrkgCode(CurrBinCode, CurrItemTrackingCode);
+        OnAssistEditTrackingNoOnBeforeSetSources(TempTrackingSpecification, TempGlobalEntrySummary, MaxQuantity);
         ItemTrackingSummaryForm.SetSources(TempGlobalReservEntry, TempGlobalEntrySummary);
         ItemTrackingSummaryForm.LookupMode(SearchForSupply);
         ItemTrackingSummaryForm.SetSelectionMode(false);
@@ -611,7 +612,15 @@ codeunit 6501 "Item Tracking Data Collection"
     end;
 
     procedure TrackingAvailable(TempTrackingSpecification: Record "Tracking Specification" temporary; LookupMode: Option "Serial No.","Lot No.","CD No."): Boolean
+    var
+        IsHandled: Boolean;
+        Result: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeTrackingAvailable(TempTrackingSpecification, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         CurrItemTrackingCode.TestField(Code);
         case LookupMode of
             LookupMode::"Serial No.":
@@ -1255,6 +1264,11 @@ codeunit 6501 "Item Tracking Data Collection"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAssistEditTrackingNoOnBeforeSetSources(var TempTrackingSpecification: Record "Tracking Specification" temporary; var TempGlobalEntrySummary: Record "Entry Summary" temporary; var MaxQuantity: Decimal);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateEntrySummary2(var TempGlobalEntrySummary: Record "Entry Summary" temporary; var TempReservationEntry: Record "Reservation Entry" temporary; TrackingSpecification: Record "Tracking Specification")
     begin
     end;
@@ -1271,6 +1285,11 @@ codeunit 6501 "Item Tracking Data Collection"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTempGlobalChangedEntrySummaryInsert(var TempGlobalChangedEntrySummary: Record "Entry Summary" temporary; var TempTrackingSpecificationChanged: Record "Tracking Specification" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTrackingAvailable(var TempTrackingSpecification: Record "Tracking Specification"; var IsHandled: Boolean);
     begin
     end;
 

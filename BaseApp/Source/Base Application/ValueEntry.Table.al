@@ -664,6 +664,7 @@ table 5802 "Value Entry"
         GLItemLedgRelation.SetRange("Value Entry No.", "Entry No.");
         if GLItemLedgRelation.FindSet then
             repeat
+                OnShowGLOnBeforeCopyToTempGLEntry(GLEntry, GLItemLedgRelation);
                 GLEntry.Get(GLItemLedgRelation."G/L Entry No.");
                 TempGLEntry.Init;
                 TempGLEntry := GLEntry;
@@ -763,7 +764,6 @@ table 5802 "Value Entry"
         FindFirst;
     end;
 
-    [Scope('OnPrem')]
     procedure IsDebit() Debit: Boolean
     begin
         exit(Positive xor "Red Storno");
@@ -781,7 +781,6 @@ table 5802 "Value Entry"
         exit(false);
     end;
 
-    [Scope('OnPrem')]
     procedure ItemValueEntryExists(): Boolean
     var
         ValueEntry: Record "Value Entry";
@@ -794,6 +793,11 @@ table 5802 "Value Entry"
         ValueEntry.SetRange("Entry Type", "Entry Type"::"Direct Cost");
         ValueEntry.SetRange("Item Charge No.", '');
         exit(not ValueEntry.IsEmpty);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnShowGLOnBeforeCopyToTempGLEntry(var GLEntry: Record "G/L Entry"; var GLItemLedgRelation: Record "G/L - Item Ledger Relation");
+    begin
     end;
 }
 

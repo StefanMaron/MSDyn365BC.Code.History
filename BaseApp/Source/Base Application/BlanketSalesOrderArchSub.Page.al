@@ -225,6 +225,20 @@
                     ToolTip = 'Specifies the number of the related job.';
                     Visible = false;
                 }
+                field("Job Task No."; "Job Task No.")
+                {
+                    ApplicationArea = Jobs;
+                    Editable = false;
+                    ToolTip = 'Specifies the number of the related job task.';
+                    Visible = false;
+                }
+                field("Job Contract Entry No."; "Job Contract Entry No.")
+                {
+                    ApplicationArea = Jobs;
+                    Editable = false;
+                    ToolTip = 'Specifies the entry number of the job planning line that the sales line is linked to.';
+                    Visible = false;
+                }
                 field("Outbound Whse. Handling Time"; "Outbound Whse. Handling Time")
                 {
                     ApplicationArea = Warehouse;

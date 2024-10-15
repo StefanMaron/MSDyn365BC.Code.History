@@ -2,6 +2,7 @@ page 6508 "Lot No. Information List"
 {
     Caption = 'Lot No. Information List';
     CardPageID = "Lot No. Information Card";
+    ApplicationArea = ItemTracking;
     Editable = false;
     PageType = List;
     SourceTable = "Lot No. Information";

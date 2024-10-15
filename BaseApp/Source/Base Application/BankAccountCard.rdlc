@@ -531,7 +531,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=First(Fields!Text004_____ApplicationLocalization_Date2Text_BeginingDateNonPosted___________ApplicationLocalization_Date2Text_EndingDateNonPosted_.Value)</Value>
+                                  <Value>=First(Fields!Text004_____ApplicationLocalization_Date2Text_74.Value)</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                   </Style>
@@ -5370,8 +5370,8 @@ End Function</Code>
         <Field Name="Bank_Account__Name_Control70">
           <DataField>Bank_Account__Name_Control70</DataField>
         </Field>
-        <Field Name="DataItem74">
-          <DataField>DataItem74</DataField>
+        <Field Name="Text004_____ApplicationLocalization_Date2Text_74">
+          <DataField>Text004_____ApplicationLocalization_Date2Text_74</DataField>
         </Field>
         <Field Name="Bank_Account___No___Control1470005">
           <DataField>Bank_Account___No___Control1470005</DataField>

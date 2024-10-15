@@ -14,7 +14,6 @@ page 8909 "Warehouse Manager Role Center"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Vendors';
                     RunObject = page "Vendor List";
-
                 }
                 action("Orders")
                 {
@@ -81,6 +80,7 @@ page 8909 "Warehouse Manager Role Center"
                     }
                     action("Posted Credit Memos")
                     {
+                        ApplicationArea = Basic, Suite;
                         Caption = 'Posted Purchase Credit Memos';
                         RunObject = page "Posted Purchase Credit Memos";
                     }
@@ -92,6 +92,7 @@ page 8909 "Warehouse Manager Role Center"
                     }
                     action("Posted Credit Memos1")
                     {
+                        ApplicationArea = Basic, Suite;
                         Caption = 'Posted Sales Credit Memos';
                         RunObject = page "Posted Sales Credit Memos";
                     }
@@ -661,6 +662,7 @@ page 8909 "Warehouse Manager Role Center"
                     }
                     action("Item Journal Templates")
                     {
+                        ApplicationArea = Basic, Suite;
                         Caption = 'Item Journal Templates';
                         RunObject = page "Item Journal Templates";
                     }
@@ -684,6 +686,7 @@ page 8909 "Warehouse Manager Role Center"
                     }
                     action("Report Selections Inventory")
                     {
+                        ApplicationArea = Basic, Suite;
                         Caption = 'Report Selections Inventory';
                         RunObject = page "Report Selection - Inventory";
                     }

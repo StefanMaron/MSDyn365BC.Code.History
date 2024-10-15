@@ -1959,6 +1959,9 @@ table 1003 "Job Planning Line"
         SetFilter("Location Code", Item.GetFilter("Location Filter"));
         SetFilter("Planning Date", Item.GetFilter("Date Filter"));
         SetFilter("Remaining Qty. (Base)", '<>0');
+        SetFilter("Unit of Measure Code", Item.GetFilter("Unit of Measure Filter"));
+
+        OnAfterFilterLinesWithItemToPlan(Rec, Item);
     end;
 
     procedure FindLinesWithItemToPlan(var Item: Record Item): Boolean
@@ -2073,6 +2076,11 @@ table 1003 "Job Planning Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterDeleteAmounts(var JobPlanningLine: Record "Job Planning Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFilterLinesWithItemToPlan(var JobPlanningLine: Record "Job Planning Line"; var Item: Record Item);
     begin
     end;
 

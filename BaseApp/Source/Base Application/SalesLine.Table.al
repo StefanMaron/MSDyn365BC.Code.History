@@ -441,6 +441,11 @@ table 37 "Sales Line"
                 DefaultCreate: Boolean;
                 IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateDescription(Rec, xRec, CurrFieldNo, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if Type = Type::" " then
                     exit;
 
@@ -456,10 +461,19 @@ table 37 "Sales Line"
                                 DescriptionIsNo := false;
 
                             if not DescriptionIsNo then begin
-                                Item.SetFilter(Description, '''@' + ConvertStr(Description, '''', '?') + '''');
                                 Item.SetRange(Blocked, false);
                                 if not IsCreditDocType() then
                                     Item.SetRange("Sales Blocked", false);
+
+                                // looking for an item with exact description
+                                Item.SetRange(Description, Description);
+                                if Item.FindFirst() then begin
+                                    Validate("No.", Item."No.");
+                                    exit;
+                                end;
+
+                                // looking for an item with similar description
+                                Item.SetFilter(Description, '''@' + ConvertStr(Description, '''', '?') + '''');
                                 if Item.FindFirst then begin
                                     Validate("No.", Item."No.");
                                     exit;
@@ -529,6 +543,7 @@ table 37 "Sales Line"
             var
                 Item: Record Item;
                 ItemLedgEntry: Record "Item Ledger Entry";
+                IsHandled: Boolean;
             begin
                 TestJobPlanningLine;
                 TestStatusOpen;
@@ -572,7 +587,11 @@ table 37 "Sales Line"
                         FieldError(Quantity, StrSubstNo(Text003, FieldCaption("Qty. Assigned")));
                 end;
 
-                AddOnIntegrMgt.CheckReceiptOrderStatus(Rec);
+                IsHandled := false;
+                OnValidateQuantityOnBeforeCheckReceiptOrderStatus(Rec, StatusCheckSuspended, IsHandled);
+                if not IsHandled then
+                    AddOnIntegrMgt.CheckReceiptOrderStatus(Rec);
+
                 if (xRec.Quantity <> Quantity) or (xRec."Quantity (Base)" <> "Quantity (Base)") then begin
                     InitOutstanding;
                     if IsCreditDocType then
@@ -595,7 +614,11 @@ table 37 "Sales Line"
                         ReserveSalesLine.VerifyQuantity(Rec, xRec);
                         if not "Drop Shipment" then
                             UpdateWithWarehouseShip;
-                        WhseValidateSourceLine.SalesLineVerifyChange(Rec, xRec);
+
+                        IsHandled := false;
+                        OnValidateQuantityOnBeforeSalesLineVerifyChange(Rec, StatusCheckSuspended, IsHandled);
+                        if not IsHandled then
+                            WhseValidateSourceLine.SalesLineVerifyChange(Rec, xRec);
                         if ("Quantity (Base)" * xRec."Quantity (Base)" <= 0) and ("No." <> '') then begin
                             GetItem(Item);
                             OnValidateQuantityOnBeforeGetUnitCost(Rec, Item);
@@ -603,22 +626,28 @@ table 37 "Sales Line"
                                 GetUnitCost;
                         end;
                     end;
-                    Validate("Qty. to Assemble to Order");
+                    IsHandled := FALSE;
+                    OnValidateQuantityOnBeforeValidateQtyToAssembleToOrder(Rec, StatusCheckSuspended, IsHandled);
+                    if not IsHandled then
+                        Validate("Qty. to Assemble to Order");
                     if (Quantity = "Quantity Invoiced") and (CurrFieldNo <> 0) then
                         CheckItemChargeAssgnt;
                     CheckApplFromItemLedgEntry(ItemLedgEntry);
                 end else
                     Validate("Line Discount %");
 
-                if (xRec.Quantity <> Quantity) and (Quantity = 0) and
-                   ((Amount <> 0) or ("Amount Including VAT" <> 0) or ("VAT Base Amount" <> 0))
-                then begin
-                    Amount := 0;
-                    "Amount Including VAT" := 0;
-                    "VAT Base Amount" := 0;
-                    "Amount (LCY)" := 0;
-                    "Amount Including VAT (LCY)" := 0;
-                end;
+                IsHandled := false;
+                OnValidateQuantityOnBeforeResetAmounts(Rec, xRec, IsHandled);
+                if not IsHandled then
+                    if (xRec.Quantity <> Quantity) and (Quantity = 0) and
+                       ((Amount <> 0) or ("Amount Including VAT" <> 0) or ("VAT Base Amount" <> 0))
+                    then begin
+                        Amount := 0;
+                        "Amount Including VAT" := 0;
+                        "VAT Base Amount" := 0;
+                        "Amount (LCY)" := 0;
+                        "Amount Including VAT (LCY)" := 0;
+                    end;
 
                 UpdatePrePaymentAmounts;
 
@@ -896,6 +925,7 @@ table 37 "Sales Line"
                             "VAT Base Amount" := Amount;
                         end;
                 end;
+                OnValidateAmountIncludingVATOnAfterAssignAmounts(Rec, Currency);
 
                 InitOutstandingAmount;
             end;
@@ -1371,7 +1401,7 @@ table 37 "Sales Line"
                 if not IsHandled then
                     case "VAT Calculation Type" of
                         "VAT Calculation Type"::"Reverse Charge VAT",
-                      "VAT Calculation Type"::"Sales Tax":
+                        "VAT Calculation Type"::"Sales Tax":
                             "VAT %" := 0;
                         "VAT Calculation Type"::"Full VAT":
                             begin
@@ -1380,11 +1410,15 @@ table 37 "Sales Line"
                             end;
                     end;
 
-                if SalesHeader."Prices Including VAT" and (Type in [Type::Item, Type::Resource]) then
-                    "Unit Price" :=
-                      Round(
-                        "Unit Price" * (100 + "VAT %") / (100 + xRec."VAT %"),
-                        Currency."Unit-Amount Rounding Precision");
+                IsHandled := FALSE;
+                OnValidateVATProdPostingGroupOnBeforeUpdateUnitPrice(Rec, VATPostingSetup, IsHandled);
+                if not IsHandled then
+                    if SalesHeader."Prices Including VAT" and (Type in [Type::Item, Type::Resource]) then
+                        "Unit Price" :=
+                            Round(
+                                "Unit Price" * (100 + "VAT %") / (100 + xRec."VAT %"),
+                                Currency."Unit-Amount Rounding Precision");
+
                 UpdateAmounts;
             end;
         }
@@ -1650,12 +1684,21 @@ table 37 "Sales Line"
             MinValue = 0;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
                 TestStatusOpen;
+
+                IsHandled := false;
+                OnValidatePrepaymentPercentageOnBeforeUpdatePrepmtSetupFields(Rec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 UpdatePrepmtSetupFields;
 
                 if HasTypeToFillMandatoryFields then
                     UpdateAmounts;
+
                 UpdateBaseAmounts(Amount, "Amount Including VAT", "VAT Base Amount");
             end;
         }
@@ -2218,7 +2261,7 @@ table 37 "Sales Line"
                             "Unit Volume" := Item."Unit Volume" * "Qty. per Unit of Measure";
                             "Units per Parcel" :=
                               Round(Item."Units per Parcel" / "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision);
-                            OnAfterAssignItemUOM(Rec, Item);
+                            OnAfterAssignItemUOM(Rec, Item, CurrFieldNo);
                             if (xRec."Unit of Measure Code" <> "Unit of Measure Code") and (Quantity <> 0) then
                                 WhseValidateSourceLine.SalesLineVerifyChange(Rec, xRec);
                             if "Qty. per Unit of Measure" > xRec."Qty. per Unit of Measure" then
@@ -3622,7 +3665,7 @@ table 37 "Sales Line"
 
         "Unit of Measure Code" := Item."Sales Unit of Measure";
         Validate("Purchasing Code", Item."Purchasing Code");
-        OnAfterCopyFromItem(Rec, Item);
+        OnAfterCopyFromItem(Rec, Item, CurrFieldNo);
 
         InitDeferralCode;
         SetDefaultItemQuantity;
@@ -3765,6 +3808,7 @@ table 37 "Sales Line"
             ItemLedgEntry.SetRange(Positive, false);
             ItemLedgEntry.SetFilter("Shipped Qty. Not Returned", '<0');
         end;
+        OnSelectItemEntryOnAfterSetFilters(ItemLedgEntry, Rec, CurrFieldNo);
         if PAGE.RunModal(PAGE::"Item Ledger Entries", ItemLedgEntry) = ACTION::LookupOK then begin
             SalesLine3 := Rec;
             if CurrentFieldNo = FieldNo("Appl.-to Item Entry") then
@@ -4663,9 +4707,11 @@ table 37 "Sales Line"
         FAPostingGr: Record "FA Posting Group";
         FADeprBook: Record "FA Depreciation Book";
         GLSetup: Record "General Ledger Setup";
+        ShouldExit: Boolean;
     begin
         if (Type <> Type::"Fixed Asset") or ("No." = '') then
             exit;
+
         if "Depreciation Book Code" = '' then begin
             FASetup.Get;
             GLSetup.Get;
@@ -4675,9 +4721,13 @@ table 37 "Sales Line"
                 "Depreciation Book Code" := FASetup."Default Depr. Book";
             if not FADeprBook.Get("No.", "Depreciation Book Code") then
                 "Depreciation Book Code" := '';
-            if "Depreciation Book Code" = '' then
+
+            ShouldExit := "Depreciation Book Code" = '';
+            OnGetGetFAPostingGroupOnBeforeExit(Rec, ShouldExit);
+            if ShouldExit then
                 exit;
         end;
+
         FADeprBook.Get("No.", "Depreciation Book Code");
         FADeprBook.TestField("FA Posting Group");
         FAPostingGr.Get(FADeprBook."FA Posting Group");
@@ -4960,15 +5010,17 @@ table 37 "Sales Line"
         Totals: array[4] of Decimal;
         DeferralAmount: Decimal;
     begin
+        if IsUpdateVATOnLinesHandled(SalesHeader, SalesLine, VATAmountLine) then
+            exit;
+
         LineWasModified := false;
         if QtyType = QtyType::Shipping then
             exit;
+
         SalesSetup.Get;
         Clear(Totals);
-        if SalesHeader."Currency Code" = '' then
-            Currency.InitRoundingPrecision
-        else
-            Currency.Get(SalesHeader."Currency Code");
+
+        Currency.Initialize(SalesHeader."Currency Code");
 
         TempVATAmountLineRemainder.DeleteAll;
 
@@ -5125,6 +5177,13 @@ table 37 "Sales Line"
         OnAfterUpdateVATOnLines(SalesHeader, SalesLine, VATAmountLine, QtyType);
     end;
 
+    local procedure IsUpdateVATOnLinesHandled(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var VATAmountLine: Record "VAT Amount Line") IsHandled: Boolean
+    begin
+        IsHandled := FALSE;
+        OnBeforeUpdateVATOnLines(SalesHeader, SalesLine, VATAmountLine, IsHandled);
+        exit(IsHandled);
+    end;
+
     procedure CalcVATAmountLines(QtyType: Option General,Invoicing,Shipping; var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var VATAmountLine: Record "VAT Amount Line")
     var
         Currency: Record Currency;
@@ -5150,7 +5209,7 @@ table 37 "Sales Line"
                 repeat
                     if not ZeroAmountLine(QtyType) then begin
                         if (Type = Type::"G/L Account") and not "Prepayment Line" then
-                            RoundingLineInserted := ("No." = GetCPGInvRoundAcc(SalesHeader)) or RoundingLineInserted;
+                            RoundingLineInserted := (("No." = GetCPGInvRoundAcc(SalesHeader)) and "System-Created Entry") or RoundingLineInserted;
                         if "VAT Calculation Type" in
                            ["VAT Calculation Type"::"Reverse Charge VAT", "VAT Calculation Type"::"Sales Tax"]
                         then
@@ -6074,6 +6133,7 @@ table 37 "Sales Line"
         SetFilter("Shortcut Dimension 2 Code", Item.GetFilter("Global Dimension 2 Filter"));
         SetFilter("Shipment Date", Item.GetFilter("Date Filter"));
         SetFilter("Outstanding Qty. (Base)", '<>0');
+        SetFilter("Unit of Measure Code", Item.GetFilter("Unit of Measure Filter"));
 
         OnAfterFilterLinesWithItemToPlan(Rec, Item, DocumentType);
     end;
@@ -7078,8 +7138,15 @@ table 37 "Sales Line"
         exit(Format("Document Type"));
     end;
 
-    procedure FormatType(): Text[20]
+    procedure FormatType() FormattedType: Text[20]
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeFormatType(Rec, FormattedType, IsHandled);
+        if IsHandled then
+            EXIT(FormattedType);
+
         if Type = Type::" " then
             exit(CommentLbl);
 
@@ -7201,7 +7268,7 @@ table 37 "Sales Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterAssignItemUOM(var SalesLine: Record "Sales Line"; Item: Record Item)
+    local procedure OnAfterAssignItemUOM(var SalesLine: Record "Sales Line"; Item: Record Item; CurrentFieldNo: Integer)
     begin
     end;
 
@@ -7231,7 +7298,7 @@ table 37 "Sales Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCopyFromItem(var SalesLine: Record "Sales Line"; Item: Record Item)
+    local procedure OnAfterCopyFromItem(var SalesLine: Record "Sales Line"; Item: Record Item; CurrentFieldNo: Integer)
     begin
     end;
 
@@ -7306,7 +7373,7 @@ table 37 "Sales Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeAutoReserve(SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    local procedure OnBeforeAutoReserve(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -7352,6 +7419,11 @@ table 37 "Sales Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeFindNoByDescription(SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line"; var CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFormatType(SalesLine: Record "Sales Line"; var FormattedType: Text[20]; var IsHandled: Boolean)
     begin
     end;
 
@@ -7406,12 +7478,12 @@ table 37 "Sales Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeShowReservation(SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    local procedure OnBeforeShowReservation(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeShowReservationEntries(SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    local procedure OnBeforeShowReservationEntries(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -7457,6 +7529,11 @@ table 37 "Sales Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateVATAmounts(var SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateVATOnLines(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var VATAmountLine: Record "VAT Amount Line"; var IsHandled: Boolean);
     begin
     end;
 
@@ -7556,7 +7633,7 @@ table 37 "Sales Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterUpdateAmounts(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line"; CurrentFieldNo: Integer)
+    local procedure OnAfterUpdateAmounts(var SalesLine: Record "Sales Line"; var xSalesLine: Record "Sales Line"; CurrentFieldNo: Integer)
     begin
     end;
 
@@ -7596,7 +7673,7 @@ table 37 "Sales Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterValidateCrossReferenceNo(SalesLine: Record "Sales Line"; ItemCrossReference: Record "Item Cross Reference")
+    local procedure OnAfterValidateCrossReferenceNo(var SalesLine: Record "Sales Line"; ItemCrossReference: Record "Item Cross Reference")
     begin
     end;
 
@@ -7686,6 +7763,11 @@ table 37 "Sales Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnValidateQuantityOnBeforeResetAmounts(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnValidateQtyToShipAfterInitQty(var SalesLine: Record "Sales Line"; var xSalesLine: Record "Sales Line"; CallingFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
@@ -7712,6 +7794,11 @@ table 37 "Sales Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateVATProdPostingGroupOnBeforeCheckVATCalcType(var SalesLine: Record "Sales Line"; VATPostingSetup: Record "VAT Posting Setup"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateVATProdPostingGroupOnBeforeUpdateUnitPrice(var SalesLine: Record "Sales Line"; VATPostingSetup: Record "VAT Posting Setup"; var IsHandled: Boolean)
     begin
     end;
 
@@ -7776,6 +7863,11 @@ table 37 "Sales Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnGetGetFAPostingGroupOnBeforeExit(var SalesLine: Record "Sales Line"; var ShouldExit: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeOpenItemTrackingLines(SalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
@@ -7787,6 +7879,11 @@ table 37 "Sales Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateShortcutDimCode(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateDescription(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line"; CurrentFieldNo: Integer; var InHandled: Boolean);
     begin
     end;
 
@@ -7827,6 +7924,36 @@ table 37 "Sales Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnCrossReferenceNoLookupOnBeforeValidateUnitPrice(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSelectItemEntryOnAfterSetFilters(var ItemLedgEntry: Record "Item Ledger Entry"; SalesLine: Record "Sales Line"; CurrFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateAmountIncludingVATOnAfterAssignAmounts(var SalesLine: Record "Sales Line"; Currency: Record Currency);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidatePrepaymentPercentageOnBeforeUpdatePrepmtSetupFields(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateQuantityOnBeforeCheckReceiptOrderStatus(var SalesLine: Record "Sales Line"; StatusCheckSuspended: Boolean; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateQuantityOnBeforeSalesLineVerifyChange(var SalesLine: Record "Sales Line"; StatusCheckSuspended: Boolean; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateQuantityOnBeforeValidateQtyToAssembleToOrder(var SalesLine: Record "Sales Line"; StatusCheckSuspended: Boolean; var IsHandled: Boolean);
     begin
     end;
 

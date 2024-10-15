@@ -49,7 +49,7 @@ report 7315 "Calculate Whse. Adjustment"
                                     "Serial No." := SNLotNumbersByBin.Serial_No;
                                     "CD No." := SNLotNumbersByBin.CD_No;
                                     "Qty. to Handle (Base)" := SNLotNumbersByBin.Sum_Qty_Base;
-                                    OnBeforeAdjmtBinQuantityBufferInsert(AdjmtBinQuantityBuffer, WhseEntry);
+                                    OnBeforeAdjmtBinQuantityBufferInsert(AdjmtBinQuantityBuffer, WhseEntry, SNLotNumbersByBin);
                                     Insert;
                                 end;
                             until Location.Next = 0;
@@ -478,7 +478,7 @@ report 7315 "Calculate Whse. Adjustment"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeAdjmtBinQuantityBufferInsert(var BinContentBuffer: Record "Bin Content Buffer"; WarehouseEntry: Record "Warehouse Entry")
+    local procedure OnBeforeAdjmtBinQuantityBufferInsert(var BinContentBuffer: Record "Bin Content Buffer"; WarehouseEntry: Record "Warehouse Entry"; var SNLotNumbersByBin: Query "Lot Numbers by Bin")
     begin
     end;
 
