@@ -535,6 +535,7 @@ codeunit 5052 AttachmentManagement
             InteractLogEntry."Delivery Status" := InteractLogEntry."Delivery Status"::" "
         else
             InteractLogEntry."Delivery Status" := InteractLogEntry."Delivery Status"::Error;
+        OnSetDeliveryStateOnBeforeModifyInteractLogEntry(InteractLogEntry, IsSent);
         InteractLogEntry.Modify();
         Commit();
     end;
@@ -546,7 +547,13 @@ codeunit 5052 AttachmentManagement
         Window: Dialog;
         NoOfAttachments: Integer;
         I: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeProcessDeliverySorter(DeliverySorter, TempDeliverySorterHtml, TempDeliverySorterWord, TempDeliverySorterOther, IsHandled);
+        if IsHandled then
+            exit;
+
         Window.Open(
           Text000Msg +
           '#1############ @2@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\' +
@@ -715,6 +722,16 @@ codeunit 5052 AttachmentManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnConvertCorrespondenceTypeElse(CorrespondenceType: Option; var ReturnType: Enum "Correspondence Type"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetDeliveryStateOnBeforeModifyInteractLogEntry(var InteractionLogEntry: Record "Interaction Log Entry"; IsSent: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeProcessDeliverySorter(var DeliverySorter: Record "Delivery Sorter"; var TempDeliverySorterHtml: Record "Delivery Sorter" temporary; var TempDeliverySorterWord: Record "Delivery Sorter" temporary; var TempDeliverySorterOther: Record "Delivery Sorter" temporary; var IsHandled: Boolean);
     begin
     end;
 }

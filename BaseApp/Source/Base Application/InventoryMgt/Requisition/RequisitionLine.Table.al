@@ -3776,6 +3776,8 @@
     var
         RequisitionLine: Record "Requisition Line";
     begin
+        RequisitionLine.ReadIsolation := RequisitionLine.ReadIsolation::ReadUncommitted;
+        RequisitionLine.SetLoadFields("Journal Batch Name");
         RequisitionLine.SetRange("Worksheet Template Name", '');
         RequisitionLine.SetFilter("Journal Batch Name", '<>%1', '');
         RequisitionLine.SetRange("User ID", UserId());

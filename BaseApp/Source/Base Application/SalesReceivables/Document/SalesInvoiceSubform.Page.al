@@ -486,7 +486,7 @@
                 }
                 field("Work Type Code"; Rec."Work Type Code")
                 {
-                    ApplicationArea = Manufacturing;
+                    ApplicationArea = Jobs;
                     ToolTip = 'Specifies which work type the resource applies to when the sale is related to a job.';
                     Visible = false;
                 }
@@ -1210,7 +1210,14 @@
     trigger OnDeleteRecord(): Boolean
     var
         SalesLineReserve: Codeunit "Sales Line-Reserve";
+        IsHandled: Boolean;
+        Result: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOnDeleteRecord(Rec, DocumentTotals, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if (Quantity <> 0) and ItemExists("No.") then begin
             Commit();
             if not SalesLineReserve.DeleteLineConfirm(Rec) then
@@ -1621,6 +1628,11 @@
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeDeltaUpdateTotals(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line"; SuppressTotals: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeOnDeleteRecord(var SalesLine: Record "Sales Line"; var DocumentTotals: Codeunit "Document Totals"; var Result: Boolean; var IsHandled: Boolean);
     begin
     end;
 }

@@ -174,7 +174,7 @@ codeunit 32000002 "Bank Nos Check"
         if NoSeriesRefNo <> '' then
             ReferenceNumber := NoSeriesRefNo + ReferenceNumber;
         if SalesSetup."Customer No." then
-            ReferenceNumber := BillToCustomer + ReferenceNumber;
+            ReferenceNumber := DelChr(BillToCustomer, '=', DelChr(BillToCustomer, '=', '0123456789')) + ReferenceNumber;
         if SalesSetup.Date then
             ReferenceNumber := Format(WorkDate(), 0, '<day,2><Month,2><year,2>') + ReferenceNumber;
         if SalesSetup."Default Number" <> '' then

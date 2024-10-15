@@ -971,6 +971,7 @@ codeunit 6501 "Item Tracking Data Collection"
         if TempEntrySummary."Total Quantity" <> 0 then begin
             TrackingSpecification."Buffer Status2" := TrackingSpecification."Buffer Status2"::"ExpDate blocked";
             TrackingSpecification."Expiration Date" := TempEntrySummary."Expiration Date";
+            TrackingSpecification."Warranty Date" := TempEntrySummary."Warranty Date";
             if TrackingSpecification.IsReclass() then
                 TrackingSpecification."New Expiration Date" := TrackingSpecification."Expiration Date"
             else
@@ -979,6 +980,7 @@ codeunit 6501 "Item Tracking Data Collection"
             TrackingSpecification."Buffer Status2" := 0;
             TrackingSpecification."Expiration Date" := 0D;
             TrackingSpecification."New Expiration Date" := 0D;
+            TrackingSpecification."Warranty Date" := 0D;
         end;
 
         OnAfterTransferExpDateFromSummary(TrackingSpecification, TempEntrySummary);

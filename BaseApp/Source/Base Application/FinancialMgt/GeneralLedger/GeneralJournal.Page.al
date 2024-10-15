@@ -1896,6 +1896,7 @@ page 39 "General Journal"
             UpdateBalance();
         EnableApplyEntriesAction();
         SetControlAppearance();
+        SetApprovalControlForBatch();
         HasIncomingDocument := "Incoming Document Entry No." <> 0;
         CurrPage.IncomingDocAttachFactBox.PAGE.SetCurrentRecordID(RecordId);
         // PostedFromSimplePage is set to TRUE when 'POST' / 'POST+PRINT' action is executed in simple page mode.
@@ -2247,6 +2248,15 @@ page 39 "General Journal"
     end;
 
     local procedure SetControlAppearanceFromBatch()
+    begin
+        SetApprovalControlForBatch();
+        BackgroundErrorCheck := BackgroundErrorHandlingMgt.BackgroundValidationFeatureEnabled();
+        ShowAllLinesEnabled := true;
+        SwitchLinesWithErrorsFilter(ShowAllLinesEnabled);
+        JournalErrorsMgt.SetFullBatchCheck(true);
+    end;
+
+    local procedure SetApprovalControlForBatch()
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
@@ -2257,23 +2267,18 @@ page 39 "General Journal"
             exit;
 
         ShowWorkflowStatusOnBatch := CurrPage.WorkflowStatusBatch.PAGE.SetFilterOnWorkflowRecord(GenJournalBatch.RecordId);
-        OpenApprovalEntriesExistForCurrUser := ApprovalsMgmt.HasOpenApprovalEntriesForCurrentUser(GenJournalBatch.RecordId);
+        OpenApprovalEntriesExistForCurrUser := OpenApprovalEntriesExistForCurrUser or ApprovalsMgmt.HasOpenApprovalEntriesForCurrentUser(GenJournalBatch.RecordId);
         OpenApprovalEntriesOnJnlBatchExist := ApprovalsMgmt.HasOpenApprovalEntries(GenJournalBatch.RecordId);
 
         OpenApprovalEntriesOnBatchOrAnyJnlLineExist :=
           OpenApprovalEntriesOnJnlBatchExist or
           ApprovalsMgmt.HasAnyOpenJournalLineApprovalEntries("Journal Template Name", "Journal Batch Name");
 
-        CanCancelApprovalForJnlBatch := ApprovalsMgmt.CanCancelApprovalForRecord(GenJournalBatch.RecordId);
-
         WorkflowWebhookManagement.GetCanRequestAndCanCancelJournalBatch(
           GenJournalBatch, CanRequestFlowApprovalForBatch, CanCancelFlowApprovalForBatch, CanRequestFlowApprovalForAllLines);
-        CanRequestFlowApprovalForBatchAndAllLines := CanRequestFlowApprovalForBatch and CanRequestFlowApprovalForAllLines;
 
-        BackgroundErrorCheck := BackgroundErrorHandlingMgt.BackgroundValidationFeatureEnabled();
-        ShowAllLinesEnabled := true;
-        SwitchLinesWithErrorsFilter(ShowAllLinesEnabled);
-        JournalErrorsMgt.SetFullBatchCheck(true);
+        CanRequestFlowApprovalForBatchAndAllLines := CanRequestFlowApprovalForBatch and CanRequestFlowApprovalForAllLines;
+        CanCancelApprovalForJnlBatch := ApprovalsMgmt.CanCancelApprovalForRecord(GenJournalBatch.RecordId);
     end;
 
     local procedure SetControlVisibility()
