@@ -140,15 +140,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Reverse For Cust/Vendor - NamedType CustUnapplyErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 465635117 - NamedType 1700181249" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Errors must match.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Reverse For Cust/Vendor - NamedType ErrorsMustMatchTxt)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 465635117 - NamedType 2975884559" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[You cannot reverse G/L Register No. %1 because the register has already been involved in a reversal.]]></Val>
@@ -158,6 +149,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Reverse For Cust/Vendor - NamedType ReversalErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 465635117 - NamedType 2249529296" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The entries were successfully reversed.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Reverse For Cust/Vendor - NamedType ReversalSuccessfulTxt)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 465635117 - NamedType 51515202" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Reversed Sign must be TRUE.]]></Val>
@@ -165,15 +165,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Reverse For Cust/Vendor - NamedType ReverseSignErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 465635117 - NamedType 1598875479" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[You cannot reverse %1 No. %2 because the entry has an associated Unrealized VAT Entry.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Reverse For Cust/Vendor - NamedType UnrealizedVATReverseErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 465635117 - NamedType 2432065093" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

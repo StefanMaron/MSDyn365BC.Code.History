@@ -93,7 +93,6 @@ table 372 "Payment Buffer"
         {
             Caption = 'Payment Reference';
             DataClassification = SystemMetadata;
-            Numeric = true;
             TableRelation = "Vendor Ledger Entry"."Payment Reference" where("Entry No." = field("Vendor Ledg. Entry No."));
         }
         field(172; "Payment Method Code"; Code[10])
@@ -172,6 +171,7 @@ table 372 "Payment Buffer"
         "Payment Reference" := VendorLedgerEntry."Payment Reference";
         "Exported to Payment File" := VendorLedgerEntry."Exported to Payment File";
         "Applies-to Ext. Doc. No." := VendorLedgerEntry."External Document No.";
+        "Vendor Posting Group" := VendorLedgerEntry."Vendor Posting Group";
         "Remit-to Code" := VendorLedgerEntry."Remit-to Code";
 
         OnCopyFieldsFromVendorLedgerEntry(VendorLedgerEntry, Rec);
@@ -183,6 +183,7 @@ table 372 "Payment Buffer"
         GenJournalLine."Payment Reference" := "Payment Reference";
         GenJournalLine."Exported to Payment File" := "Exported to Payment File";
         GenJournalLine."Applies-to Ext. Doc. No." := "Applies-to Ext. Doc. No.";
+        GenJournalLine."Posting Group" := "Vendor Posting Group";
         GenJournalLine."Remit-to Code" := "Remit-to Code";
 
         OnCopyFieldsToGenJournalLine(Rec, GenJournalLine);

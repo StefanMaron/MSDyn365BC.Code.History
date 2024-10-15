@@ -1,4 +1,4 @@
-﻿﻿#if not CLEAN21
+#if not CLEAN21
 namespace Microsoft.Finance.GeneralLedger.Posting;
 
 using Microsoft.Bank.BankAccount;
@@ -25,7 +25,9 @@ using System.Utilities;
 
 codeunit 13 "Gen. Jnl.-Post Batch"
 {
-    Permissions = TableData "Gen. Journal Batch" = rimd;
+    Permissions =
+        TableData "Gen. Journal Batch" = rimd,
+        TableData "Gen. Journal Line" = rimd;
     TableNo = "Gen. Journal Line";
 
     trigger OnRun()

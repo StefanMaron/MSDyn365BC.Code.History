@@ -154,6 +154,7 @@ codeunit 5813 "Undo Purchase Receipt Line"
         with PurchRcptLine do begin
             SetFilter(Quantity, '<>0');
             SetRange(Correction, false);
+            OnCheckPurchRcptLinesAfterPurchRcptLineSetFilters(PurchRcptLine);
             if IsEmpty() then
                 Error(AllLinesCorrectedErr);
 
@@ -653,6 +654,11 @@ codeunit 5813 "Undo Purchase Receipt Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateOrderLineOnBeforeUpdatePurchLine(var PurchRcptLine: Record "Purch. Rcpt. Line"; var PurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckPurchRcptLinesAfterPurchRcptLineSetFilters(var PurchRcptLine: Record "Purch. Rcpt. Line")
     begin
     end;
 }

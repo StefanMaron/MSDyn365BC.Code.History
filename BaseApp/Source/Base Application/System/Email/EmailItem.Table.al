@@ -315,7 +315,7 @@ table 9500 "Email Item"
 
     procedure Send(HideMailDialog: Boolean; EmailScenario: Enum "Email Scenario"): Boolean
     begin
-        Send(HideMailDialog, EmailScenario, false);
+        exit(Send(HideMailDialog, EmailScenario, false));
     end;
 
     procedure Send(HideMailDialog: Boolean; EmailScenario: Enum "Email Scenario"; Enqueue: Boolean): Boolean

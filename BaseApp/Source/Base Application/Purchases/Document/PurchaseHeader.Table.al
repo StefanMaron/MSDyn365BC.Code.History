@@ -2086,7 +2086,6 @@ table 38 "Purchase Header"
         field(171; "Payment Reference"; Code[50])
         {
             Caption = 'Payment Reference';
-            Numeric = true;
         }
         field(175; "Invoice Received Date"; Date)
         {

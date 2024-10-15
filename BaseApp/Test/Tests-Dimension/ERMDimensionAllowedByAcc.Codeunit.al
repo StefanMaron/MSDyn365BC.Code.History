@@ -30,6 +30,7 @@ codeunit 134234 "ERM Dimension Allowed by Acc."
                                 Comment = '%1 = Table ID, %2= No., %3= Dimension Code, %4= Dimension Value Code';
         NoRecordExpected: Label 'No record expected.';
         DefDimensionIsNotAllowedMsg: Label 'Default Dimension is not allowed by default.';
+        FilterLbl: Label '..';
 
     [Test]
     [Scope('OnPrem')]
@@ -1219,6 +1220,50 @@ codeunit 134234 "ERM Dimension Allowed by Acc."
         VerifyNewDimensionValueIsAllowed(GLAccount, DimensionValue);
     end;
 
+    [Test]
+    [HandlerFunctions('DefaultDimensionsMultipleModalPageHandlerCreateNew2')]
+    [Scope('OnPrem')]
+    procedure AllowedValueFilterShouldUpdateDimAllowedValuesPerAccEvenWithoutAssitEdit()
+    var
+        Dimension: Record Dimension;
+        GLAccount: Record "G/L Account";
+        DimensionValue: array[3] of Record "Dimension Value";
+        ChartOfAccountsPage: TestPage "Chart of Accounts";
+    begin
+        // [SCENARIO 490153] Dimension-Multiple rules - set up not working.
+        Initialize();
+
+        // [GIVEN] Create a Dimension.
+        LibraryDimension.CreateDimension(Dimension);
+
+        // [GIVEN] Create three Dimension Values.
+        LibraryDimension.CreateDimensionValue(DimensionValue[1], Dimension.Code);
+        LibraryDimension.CreateDimensionValue(DimensionValue[2], Dimension.Code);
+        LibraryDimension.CreateDimensionValue(DimensionValue[3], Dimension.Code);
+
+        // [GIVEN] Create a GL Account.
+        LibraryERM.CreateGLAccount(GLAccount);
+
+        // [GIVEN] Open Chart Of Accounts Page.
+        ChartOfAccountsPage.OpenEdit();
+        ChartOfAccountsPage.GoToRecord(GLAccount);
+
+        // [WHEN] Run Dimensions Multiple action & Validate Allowed Values Filter field.
+        LibraryVariableStorage.Enqueue(Dimension.Code);
+        LibraryVariableStorage.Enqueue(Format(DimensionValue[2].Code) + FilterLbl + Format(DimensionValue[3].Code));
+        ChartOfAccountsPage."Dimensions-&Multiple".Invoke();
+        ChartOfAccountsPage.Close();
+
+        // [VERIFY] Verify Dimension Values set on Allowed Values Filter field
+        // are applied as Allowed in DimValuePerAccount for GL Account.
+        VerifyNewDimensionValueIsAllowed(GLAccount, DimensionValue[2]);
+        VerifyNewDimensionValueIsAllowed(GLAccount, DimensionValue[3]);
+
+        // [VERIFY] Verify Dimension Values not set on Allowed Values Filter field 
+        // are not applied as Allowed in DimValuePerAccount for GL Account.
+        asserterror VerifyNewDimensionValueIsAllowed(GLAccount, DimensionValue[1]);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1412,6 +1457,17 @@ codeunit 134234 "ERM Dimension Allowed by Acc."
             DimAllowedValuesPerAcc.OK().Invoke()
         else
             DimAllowedValuesPerAcc.Cancel().Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure DefaultDimensionsMultipleModalPageHandlerCreateNew2(var DefaultDimensionsMultiple: TestPage "Default Dimensions-Multiple")
+    begin
+        DefaultDimensionsMultiple.New();
+        DefaultDimensionsMultiple."Dimension Code".SetValue(LibraryVariableStorage.DequeueText());
+        DefaultDimensionsMultiple."Value Posting".SetValue("Default Dimension Value Posting Type"::"Code Mandatory");
+        DefaultDimensionsMultiple.AllowedValuesFilter.SetValue(LibraryVariableStorage.DequeueText());
+        DefaultDimensionsMultiple.OK().Invoke();
     end;
 
     [ConfirmHandler]

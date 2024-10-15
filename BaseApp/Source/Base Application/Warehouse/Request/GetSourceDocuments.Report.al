@@ -1206,7 +1206,7 @@ report 5753 "Get Source Documents"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePostReport(WhseRequest: Record "Warehouse Request"; RequestType: Option; OneHeaderCreated: Boolean; var WhseShptHeader: Record "Warehouse Shipment Header"; var WhseHeaderCreated: Boolean; var ErrorOccured: Boolean; var LineCreated: Boolean; var ActivitiesCreated: Integer; Location: record Location; var WhseShptLine: record "Warehouse Shipment Line"; var WhseReceiptHeader: Record "Warehouse Receipt Header"; var HideDialog: Boolean; var WarehouseReceiptLine: Record "Warehouse Receipt Line")
+    local procedure OnBeforePostReport(var WhseRequest: Record "Warehouse Request"; RequestType: Option; OneHeaderCreated: Boolean; var WhseShptHeader: Record "Warehouse Shipment Header"; var WhseHeaderCreated: Boolean; var ErrorOccured: Boolean; var LineCreated: Boolean; var ActivitiesCreated: Integer; Location: record Location; var WhseShptLine: record "Warehouse Shipment Line"; var WhseReceiptHeader: Record "Warehouse Receipt Header"; var HideDialog: Boolean; var WarehouseReceiptLine: Record "Warehouse Receipt Line")
     begin
     end;
 

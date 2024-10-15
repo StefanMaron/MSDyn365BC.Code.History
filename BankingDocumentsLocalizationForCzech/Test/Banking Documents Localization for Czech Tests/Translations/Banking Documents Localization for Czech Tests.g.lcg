@@ -16,7 +16,7 @@
   </Item>
   <Item ItemId=";Codeunit 2382095419 - Method 3506933504 - NamedType 91038322" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Payment Order Line wasn't created.]]></Val>
+      <Val><![CDATA[Payment Order Line was created.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -57,6 +57,24 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Banking Documents CZB - Method StrMenuHandler - NamedType IssueBankStatementQst)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2382095419 - Method 1030464678 - NamedType 91038322" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Payment Order Line wasn't created.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Banking Documents CZB - Method SuggestPaymentsWithPaymentPartialSuggestion - NamedType BlockingEntriesErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2382095419 - Method 1030464678 - NamedType 2734739914" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The "Amount Must Be Checked" field must be checked.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Banking Documents CZB - Method SuggestPaymentsWithPaymentPartialSuggestion - NamedType AmountMustBeCheckedErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1749183461 - NamedType 3099661276" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
