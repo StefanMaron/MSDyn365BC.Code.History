@@ -8,7 +8,6 @@ page 113 Budget
     ModifyAllowed = false;
     PageType = ListPlus;
     PromotedActionCategories = 'New,Process,Report,Period,Column,Budget';
-    SaveValues = true;
 
     layout
     {

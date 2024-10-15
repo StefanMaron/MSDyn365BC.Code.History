@@ -526,9 +526,9 @@ codeunit 1012 "Job Jnl.-Post Line"
     begin
         with JobJnlLineToUpdate do begin
             "Total Cost" := Round("Unit Cost" * Quantity, AmtRoundingPrecision);
-            "Total Cost (LCY)" := Round("Unit Cost (LCY)" * Quantity, AmtRoundingPrecision);
+            "Total Cost (LCY)" := Round("Unit Cost (LCY)" * Quantity, GLSetup."Amount Rounding Precision");
             "Total Price" := Round("Unit Price" * Quantity, AmtRoundingPrecision);
-            "Total Price (LCY)" := Round("Unit Price (LCY)" * Quantity, AmtRoundingPrecision);
+            "Total Price (LCY)" := Round("Unit Price (LCY)" * Quantity, GLSetup."Amount Rounding Precision");
         end;
     end;
 
