@@ -1,5 +1,6 @@
 codeunit 137408 "SCM Warehouse VI"
 {
+    EventSubscriberInstance = Manual;
     Subtype = Test;
     TestPermissions = Disabled;
 
@@ -35,6 +36,7 @@ codeunit 137408 "SCM Warehouse VI"
         QtyNotAvailableTxt: Label 'Quantity (Base) available must not be less than %1 in Bin Content', Comment = '%1: Field(Available Qty. to Take)';
         QuantityBaseAvailableMustNotBeLessThanErr: Label 'Quantity (Base) available must not be less than';
         AbsoluteValueEqualToQuantityErr: Label 'Absolute value of %1.%2 must be equal to the test quantity.', Comment = '%1 - tablename, %2 - fieldname.';
+        RegisteringPickInterruptedErr: Label 'Registering pick has been interrupted.';
 
     [Test]
     [HandlerFunctions('ItemTrackingLinesHandler,ItemTrackingSummaryHandler,MessageHandler,WhseItemTrackingLinesHandler,ConfirmHandlerTrue')]
@@ -2365,6 +2367,77 @@ codeunit 137408 "SCM Warehouse VI"
         VerifyRegisteredWarehouseActivityLine(SalesLine, WarehouseActivityLine."Action Type"::Take);
     end;
 
+    [Test]
+    [HandlerFunctions('WhseItemTrackingLinesModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure ErrorInRegisteringPickRollsBackWholeTransaction()
+    var
+        Location: Record Location;
+        Bin: Record Bin;
+        ItemTrackingCode: Record "Item Tracking Code";
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        RegisteredWhseActivityHdr: Record "Registered Whse. Activity Hdr.";
+        BinContent: Record "Bin Content";
+        SCMWarehouseVI: Codeunit "SCM Warehouse VI";
+        LotNo: Code[20];
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Warehouse Pick] [Item Tracking]
+        // [SCENARIO 339554] When an error occurs during registering pick, the whole register transaction is rolled back and no registered pick lines are created.
+        Initialize;
+        LotNo := LibraryUtility.GenerateGUID;
+        Qty := LibraryRandom.RandInt(10);
+
+        // [GIVEN] Location with directed put-away and pick.
+        CreateFullWarehouseSetup(Location);
+        FindBin(Bin, Location.Code);
+
+        // [GIVEN] Lot-tracked item.
+        CreateItemTrackingCode(ItemTrackingCode);
+        LibraryInventory.CreateTrackedItem(Item, '', '', ItemTrackingCode.Code);
+
+        // [GIVEN] Post 10 pcs to bin "B", assign lot no. = "L".
+        UpdateInventoryInBinUsingWhseJournalWithLotNo(Bin, Item."No.", Qty, LotNo);
+
+        // [GIVEN] Sales order for 10 pcs.
+        // [GIVEN] Release the sales order, create warehouse shipment and pick.
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", Qty, Location.Code, WorkDate);
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+        CreatePickFromSalesHeader(SalesHeader);
+
+        // [GIVEN] Set lot no. = "L" on the pick lines.
+        FindWarehouseActivityHeaderBySourceNo(WarehouseActivityHeader, Location.Code, SalesHeader."No.");
+        WarehouseActivityLine.SetRange("No.", WarehouseActivityHeader."No.");
+        WarehouseActivityLine.ModifyAll("Lot No.", LotNo, true);
+
+        // [GIVEN] Subscribe to an event in Whse.-Activity-Register codeunit in order to raise an error after the item tracking is synchronized between the pick lines and the sales line.
+        BindSubscription(SCMWarehouseVI);
+
+        // [WHEN] Register the warehouse pick.
+        asserterror LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
+
+        // [THEN] The expected error is thrown.
+        Assert.ExpectedError(RegisteringPickInterruptedErr);
+
+        // [THEN] No registered warehouse pick is created.
+        RegisteredWhseActivityHdr.SetRange("Location Code", Location.Code);
+        Assert.RecordIsEmpty(RegisteredWhseActivityHdr);
+
+        // [THEN] 10 pcs remain in bin "B".
+        FindBinContentWithBinCode(BinContent, Bin, Item."No.");
+        BinContent.CalcFields(Quantity);
+        BinContent.TestField(Quantity, Qty);
+
+        // Tear down.
+        UnbindSubscription(SCMWarehouseVI);
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2933,7 +3006,7 @@ codeunit 137408 "SCM Warehouse VI"
           ItemUnitOfMeasure2."Qty. per Unit of Measure" + LibraryRandom.RandInt(10));  // Use random Quantity per Unit of Measure and value is required for test.
     end;
 
-    local procedure UpdateInventoryInBinUsingWhseJournalWithLotNo(var Bin: Record Bin; ItemNo: Code[20]; Quantity: Decimal; LotNo: Code[20])
+    local procedure UpdateInventoryInBinUsingWhseJournalWithLotNo(Bin: Record Bin; ItemNo: Code[20]; Quantity: Decimal; LotNo: Code[20])
     begin
         LibraryVariableStorage.Enqueue(LotNo);
         LibraryVariableStorage.Enqueue(Quantity);
@@ -4240,6 +4313,12 @@ codeunit 137408 "SCM Warehouse VI"
         Assert.AreEqual(WarehouseEntry.Quantity, Quantity,
           StrSubstNo(AbsoluteValueEqualToQuantityErr, WarehouseEntry.TableName, WarehouseEntry.FieldName(Quantity)));
         WarehouseEntry.TestField("Lot No.", LotNo);
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, 7307, 'OnBeforeAutoReserveForSalesLine', '', false, false)]
+    local procedure InvokeErrorOnRegisteringWarehousePick(var TempWhseActivLineToReserve: Record "Warehouse Activity Line" temporary; var IsHandled: Boolean)
+    begin
+        Error(RegisteringPickInterruptedErr);
     end;
 
     [RequestPageHandler]

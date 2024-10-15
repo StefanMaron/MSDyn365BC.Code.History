@@ -151,7 +151,7 @@ report 699 "Calculate Plan - Req. Wksh."
             MfgSetup.Get;
             UseForecast := MfgSetup."Current Production Forecast";
 
-            OnAfterOnOpenPage;
+            OnAfterOnOpenPage(FromDate, ToDate);
         end;
     }
 
@@ -270,7 +270,7 @@ report 699 "Calculate Plan - Req. Wksh."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterOnOpenPage()
+    local procedure OnAfterOnOpenPage(var FromDate: Date; var ToDate: Date)
     begin
     end;
 

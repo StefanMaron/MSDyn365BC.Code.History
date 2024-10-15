@@ -635,7 +635,7 @@ table 125 "Purch. Cr. Memo Line"
         PurchDocLineComments.SetRange("No.", "Document No.");
         PurchDocLineComments.SetRange("Document Line No.", "Line No.");
         if not PurchDocLineComments.IsEmpty then
-            PurchDocLineComments.DeleteAll;
+            PurchDocLineComments.DeleteAll();
 
         PostedDeferralHeader.DeleteHeader(DeferralUtilities.GetPurchDeferralDocType, '', '',
           PurchDocLineComments."Document Type"::"Posted Credit Memo", "Document No.", "Line No.");
@@ -670,11 +670,11 @@ table 125 "Purch. Cr. Memo Line"
 
     procedure CalcVATAmountLines(PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr."; var TempVATAmountLine: Record "VAT Amount Line" temporary)
     begin
-        TempVATAmountLine.DeleteAll;
+        TempVATAmountLine.DeleteAll();
         SetRange("Document No.", PurchCrMemoHdr."No.");
         if Find('-') then
             repeat
-                TempVATAmountLine.Init;
+                TempVATAmountLine.Init();
                 TempVATAmountLine.CopyFromPurchCrMemoLine(Rec);
                 TempVATAmountLine.InsertLine;
             until Next = 0;
@@ -693,7 +693,7 @@ table 125 "Purch. Cr. Memo Line"
         PurchCrMemoHeader: Record "Purch. Cr. Memo Hdr.";
     begin
         if not PurchCrMemoHeader.Get("Document No.") then
-            PurchCrMemoHeader.Init;
+            PurchCrMemoHeader.Init();
         case FieldNumber of
             FieldNo("No."):
                 exit(StrSubstNo('3,%1', GetFieldCaption(FieldNumber)));
@@ -719,8 +719,8 @@ table 125 "Purch. Cr. Memo Line"
         ItemLedgEntry: Record "Item Ledger Entry";
         ValueEntry: Record "Value Entry";
     begin
-        TempReturnShptLine.Reset;
-        TempReturnShptLine.DeleteAll;
+        TempReturnShptLine.Reset();
+        TempReturnShptLine.DeleteAll();
 
         if Type <> Type::Item then
             exit;
@@ -732,9 +732,9 @@ table 125 "Purch. Cr. Memo Line"
                 ItemLedgEntry.Get(ValueEntry."Item Ledger Entry No.");
                 if ItemLedgEntry."Document Type" = ItemLedgEntry."Document Type"::"Purchase Return Shipment" then
                     if ReturnShptLine.Get(ItemLedgEntry."Document No.", ItemLedgEntry."Document Line No.") then begin
-                        TempReturnShptLine.Init;
+                        TempReturnShptLine.Init();
                         TempReturnShptLine := ReturnShptLine;
-                        if TempReturnShptLine.Insert then;
+                        if TempReturnShptLine.Insert() then;
                     end;
             until ValueEntry.Next = 0;
     end;
@@ -745,8 +745,8 @@ table 125 "Purch. Cr. Memo Line"
         ValueEntry: Record "Value Entry";
     begin
         if SetQuantity then begin
-            TempItemLedgEntry.Reset;
-            TempItemLedgEntry.DeleteAll;
+            TempItemLedgEntry.Reset();
+            TempItemLedgEntry.DeleteAll();
 
             if Type <> Type::Item then
                 exit;
@@ -764,13 +764,13 @@ table 125 "Purch. Cr. Memo Line"
                         TempItemLedgEntry."Remaining Quantity" := Abs(TempItemLedgEntry.Quantity);
                 end;
                 OnGetItemLedgEntriesOnBeforeTempItemLedgEntryInsert(TempItemLedgEntry, ValueEntry, SetQuantity);
-                if TempItemLedgEntry.Insert then;
+                if TempItemLedgEntry.Insert() then;
             until ValueEntry.Next = 0;
     end;
 
-    local procedure FilterPstdDocLineValueEntries(var ValueEntry: Record "Value Entry")
+    procedure FilterPstdDocLineValueEntries(var ValueEntry: Record "Value Entry")
     begin
-        ValueEntry.Reset;
+        ValueEntry.Reset();
         ValueEntry.SetCurrentKey("Document No.");
         ValueEntry.SetRange("Document No.", "Document No.");
         ValueEntry.SetRange("Document Type", ValueEntry."Document Type"::"Purchase Credit Memo");
@@ -803,7 +803,7 @@ table 125 "Purch. Cr. Memo Line"
     begin
         Init;
         TransferFields(PurchLine);
-        if ("No." = '') and (Type in [Type::"G/L Account" .. Type::"Charge (Item)"]) then
+        if ("No." = '') and HasTypeToFillMandatoryFields() then
             Type := Type::" ";
         "Posting Date" := PurchCrMemoHdr."Posting Date";
         "Document No." := PurchCrMemoHdr."No.";

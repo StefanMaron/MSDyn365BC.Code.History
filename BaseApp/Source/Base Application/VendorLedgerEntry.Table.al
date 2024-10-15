@@ -707,6 +707,7 @@ table 25 "Vendor Ledger Entry"
     procedure DrillDownOnEntries(var DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry")
     var
         VendLedgEntry: Record "Vendor Ledger Entry";
+        DrillDownPageID: Integer;
     begin
         VendLedgEntry.Reset;
         DtldVendLedgEntry.CopyFilter("Vendor No.", VendLedgEntry."Vendor No.");
@@ -716,13 +717,14 @@ table 25 "Vendor Ledger Entry"
         DtldVendLedgEntry.CopyFilter("Initial Entry Due Date", VendLedgEntry."Due Date");
         VendLedgEntry.SetCurrentKey("Vendor No.", "Posting Date");
         VendLedgEntry.SetRange(Open, true);
-        OnBeforeDrillDownEntries(VendLedgEntry, DtldVendLedgEntry);
-        PAGE.Run(0, VendLedgEntry);
+        OnBeforeDrillDownEntries(VendLedgEntry, DtldVendLedgEntry, DrillDownPageID);
+        PAGE.Run(DrillDownPageID, VendLedgEntry);
     end;
 
     procedure DrillDownOnOverdueEntries(var DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry")
     var
         VendLedgEntry: Record "Vendor Ledger Entry";
+        DrillDownPageID: Integer;
     begin
         VendLedgEntry.Reset;
         DtldVendLedgEntry.CopyFilter("Vendor No.", VendLedgEntry."Vendor No.");
@@ -733,8 +735,8 @@ table 25 "Vendor Ledger Entry"
         VendLedgEntry.SetFilter("Date Filter", '..%1', WorkDate);
         VendLedgEntry.SetFilter("Due Date", '<%1', WorkDate);
         VendLedgEntry.SetFilter("Remaining Amount", '<>%1', 0);
-        OnBeforeDrillDownOnOverdueEntries(VendLedgEntry, DtldVendLedgEntry);
-        PAGE.Run(0, VendLedgEntry);
+        OnBeforeDrillDownOnOverdueEntries(VendLedgEntry, DtldVendLedgEntry, DrillDownPageID);
+        PAGE.Run(DrillDownPageID, VendLedgEntry);
     end;
 
     procedure GetOriginalCurrencyFactor(): Decimal
@@ -926,12 +928,12 @@ table 25 "Vendor Ledger Entry"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeDrillDownEntries(var VendorLedgerEntry: Record "Vendor Ledger Entry"; var DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry")
+    local procedure OnBeforeDrillDownEntries(var VendorLedgerEntry: Record "Vendor Ledger Entry"; var DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry"; var DrillDownPageID: Integer)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeDrillDownOnOverdueEntries(var VendorLedgerEntry: Record "Vendor Ledger Entry"; var DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry")
+    local procedure OnBeforeDrillDownOnOverdueEntries(var VendorLedgerEntry: Record "Vendor Ledger Entry"; var DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry"; var DrillDownPageID: Integer)
     begin
     end;
 }

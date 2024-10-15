@@ -3,6 +3,9 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 
+/// <summary>
+/// Displays the satisfaction survey dialog box.
+/// </summary>
 page 1433 "Satisfaction Survey"
 {
     Extensible = false;

@@ -1981,6 +1981,71 @@ codeunit 137077 "SCM Supply Planning -IV"
         VerifyRequisitionLineStartingAndEndingTime(ChildItemNo);
     end;
 
+    [Test]
+    [HandlerFunctions('GenericMessageHandler')]
+    [Scope('OnPrem')]
+    procedure PlanningAssemblyWithExistingOrderToOrderPlannedComponent()
+    var
+        Item: array[3] of Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        RequisitionLine: Record "Requisition Line";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Assembly] [Assemble-to-Order] [Order-to-Order Binding] [Reservation]
+        // [SCENARIO 338018] Planning a supply for a new assembly does not interfere with already planned order-to-order sales order for the component.
+        Initialize;
+        Qty := LibraryRandom.RandInt(10);
+
+        // [GIVEN] Set up components at location = "BLUE" on Manufacturing Setup.
+        UpdateComponentsAtLocationInMfgSetup(LocationBlue.Code);
+
+        // [GIVEN] Create assembly structure: item "COMP" is a component of item "INTERMD", which is a component of item "FINAL".
+        // [GIVEN] All items are set up for "Order" reordering policy.
+        CreateAssemblyStructure(Item);
+
+        // [GIVEN] Sales order for item "INTERMD" on location "BLUE". Creating a sales order generates an assembly in the background.
+        // [GIVEN] Calculate regenerative plan for items "COMP" and "INTERMD" and carry out action message.
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item[2]."No.", Qty, LocationBlue.Code, WorkDate);
+        CalcRegenPlanForPlanWkshForMultipleItems(Item[1]."No.", Item[2]."No.");
+        AcceptActionMessage(RequisitionLine, Item[1]."No.");
+        LibraryPlanning.CarryOutActionMsgPlanWksh(RequisitionLine);
+
+        // [GIVEN] Purchase order to supply "COMP" is created.
+        // [GIVEN] Post the purchase order.
+        FindPurchLine(PurchaseLine, Item[1]."No.");
+        PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+
+        // [GIVEN] Sales order for item "COMP" on location "BLUE".
+        // [GIVEN] Calculate regenerative plan and carry out action message.
+        // [GIVEN] The sales order becomes order-to-order bound to a new purchase.
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item[1]."No.", Qty, LocationBlue.Code, WorkDate);
+        CalcRegenPlanForPlanWkshForMultipleItems(Item[1]."No.", Item[2]."No.");
+        AcceptActionMessage(RequisitionLine, Item[1]."No.");
+        LibraryPlanning.CarryOutActionMsgPlanWksh(RequisitionLine);
+
+        // [GIVEN] Sales order for item "FINAL" on location "BLUE".
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item[3]."No.", Qty, LocationBlue.Code, WorkDate);
+
+        // [WHEN] Calculate regenerative plan.
+        CalcRegenPlanForPlanWkshForMultipleItems(Item[1]."No.", Item[2]."No.");
+
+        // [THEN] Only one planning line for item "COMP" is created.
+        SelectRequisitionLine(RequisitionLine, Item[1]."No.");
+        Assert.RecordCount(RequisitionLine, 1);
+
+        // [THEN] The reserved quantity on the sales line for item "COMP" has not changed.
+        FindSalesLine(SalesLine, Item[1]."No.");
+        SalesLine.CalcFields("Reserved Quantity");
+        SalesLine.TestField("Reserved Quantity", SalesLine.Quantity);
+    end;
+
     local procedure Initialize()
     var
         RequisitionLine: Record "Requisition Line";
@@ -2252,6 +2317,27 @@ codeunit 137077 "SCM Supply Planning -IV"
         LibraryAssembly.CreateAssemblyListComponent(
           BOMComponent.Type::Item, CompItem."No.", Item."No.", '',
           BOMComponent."Resource Usage Type", QuantityPer, true); // Use Base Unit of Measure as True and Variant Code as blank.
+    end;
+
+    local procedure CreateAssemblyStructure(var Item: array[3] of Record Item)
+    var
+        BOMComponent: Record "BOM Component";
+        i: Integer;
+    begin
+        CreateAndUpdateItem(
+          Item[1], Item[1]."Replenishment System"::Purchase, Item[1]."Reordering Policy"::Order,
+          Item[1]."Manufacturing Policy", LibraryPurchase.CreateVendorNo);
+
+        for i := 2 to ArrayLen(Item) do begin
+            CreateAndUpdateItem(
+              Item[i], Item[i]."Replenishment System"::Assembly, Item[i]."Reordering Policy"::Order,
+              Item[i]."Manufacturing Policy", '');
+            Item[i].Validate("Assembly Policy", Item[i]."Assembly Policy"::"Assemble-to-Order");
+            Item[i].Modify(true);
+
+            LibraryAssembly.CreateAssemblyListComponent(
+              BOMComponent.Type::Item, Item[i - 1]."No.", Item[i]."No.", '', 0, 1, true);
+        end;
     end;
 
     local procedure CreateReservedStock(ItemNo: Code[20]; LocationCode: Code[10])
@@ -2860,6 +2946,15 @@ codeunit 137077 "SCM Supply Planning -IV"
         Item.Modify(true);
     end;
 
+    local procedure UpdateComponentsAtLocationInMfgSetup(LocationCode: Code[10])
+    var
+        MfgSetup: Record "Manufacturing Setup";
+    begin
+        MfgSetup.Get;
+        MfgSetup.Validate("Components at Location", LocationCode);
+        MfgSetup.Modify(true);
+    end;
+
     local procedure CreateLotForLotItemSetup(var ParentItem: Record Item): Code[20]
     var
         ChildItem: Record Item;
@@ -3294,6 +3389,12 @@ codeunit 137077 "SCM Supply Planning -IV"
     begin
         LibraryVariableStorage.Dequeue(ExpectedMsg);
         Assert.IsTrue(AreSameMessages(Message, ExpectedMsg), Message);
+    end;
+
+    [MessageHandler]
+    [Scope('OnPrem')]
+    procedure GenericMessageHandler(Message: Text[1024])
+    begin
     end;
 
     [ConfirmHandler]

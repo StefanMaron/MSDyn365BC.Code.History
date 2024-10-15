@@ -8386,7 +8386,7 @@ and(not Fields!VendorNo.Value=""),False,True)</Hidden>
             <DataSetName>DataSet_Result</DataSetName>
             <Filters>
               <Filter>
-                <FilterExpression>=Fields!VendLedgEntryEndDtDocNo.Value</FilterExpression>
+                <FilterExpression>=Fields!VendorNo.Value</FilterExpression>
                 <Operator>GreaterThanOrEqual</Operator>
                 <FilterValues>
                   <FilterValue>''</FilterValue>

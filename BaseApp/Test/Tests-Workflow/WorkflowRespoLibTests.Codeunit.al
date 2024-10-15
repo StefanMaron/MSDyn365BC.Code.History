@@ -3806,6 +3806,9 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
     begin
         LibraryWorkflow.CreateWorkflow(Workflow);
 
+        Workflow.Enabled := true;
+        Workflow.Modify();
+
         CreateResponseWorkflowStepInstance(FirstWorkflowStepInstance, Workflow.Code,
           CreateGuid, WorkflowResponseHandling.DoNothingCode, 1, 0, FirstWorkflowStepInstance.Status::Completed);
 

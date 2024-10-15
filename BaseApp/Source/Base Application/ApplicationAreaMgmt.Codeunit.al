@@ -563,7 +563,11 @@ codeunit 9178 "Application Area Mgmt."
     procedure IsValidExperienceTierSelected(SelectedExperienceTier: Text): Boolean
     var
         ExperienceTierSetup: Record "Experience Tier Setup";
+        EnvironmenInformation: Codeunit "Environment Information";
     begin
+        if EnvironmenInformation.IsOnPrem() then
+            exit(true);
+
         if (SelectedExperienceTier <> ExperienceTierSetup.FieldName(Premium)) or IsPremiumEnabled then
             exit(true);
 

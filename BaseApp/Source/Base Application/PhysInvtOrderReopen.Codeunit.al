@@ -49,13 +49,24 @@ codeunit 5882 "Phys. Invt. Order-Reopen"
                         PhysInvtOrderLine."Neg. Qty. (Base)" := 0;
                         PhysInvtOrderLine."Quantity (Base)" := 0;
                         PhysInvtOrderLine."Entry Type" := PhysInvtOrderLine."Entry Type"::" ";
-                        PhysInvtOrderLine.Modify;
+                        OnBeforePhysInvtOrderLineModify(PhysInvtOrderLine);
+                        PhysInvtOrderLine.Modify();
                     end;
                 until PhysInvtOrderLine.Next = 0;
 
             Status := Status::Open;
             Modify;
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterOnRun(var PhysInvtOrderHeader: Record "Phys. Invt. Order Header");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePhysInvtOrderLineModify(var PhysInvtOrderLine: Record "Phys. Invt. Order Line");
+    begin
     end;
 }
 

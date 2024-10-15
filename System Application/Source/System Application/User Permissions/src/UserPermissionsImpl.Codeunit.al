@@ -14,7 +14,6 @@ codeunit 153 "User Permissions Impl."
         SUPERTok: Label 'SUPER', Locked = true;
         SUPERPermissionErr: Label 'There should be at least one enabled ''SUPER'' user.';
 
-    [Scope('OnPrem')]
     procedure IsSuper(UserSecurityId: Guid): Boolean
     var
         AccessControl: Record "Access Control";
@@ -29,7 +28,6 @@ codeunit 153 "User Permissions Impl."
         exit(not AccessControl.IsEmpty());
     end;
 
-    [Scope('OnPrem')]
     procedure RemoveSuperPermissions(UserSecurityId: Guid)
     var
         AccessControl: Record "Access Control";
@@ -76,7 +74,7 @@ codeunit 153 "User Permissions Impl."
         if IsAnyoneElseSuper(Rec."User Security ID") then
             exit;
 
-        Error(SUPERPermissionErr)
+        Error(SUPERPermissionErr);
     end;
 
     [EventSubscriber(ObjectType::Table, Database::User, 'OnBeforeModifyEvent', '', true, true)]

@@ -3359,7 +3359,11 @@ Cstr(Fields!DocumentDateCaption.Value) + Chr(177) +
 Cstr(Fields!BusinessIdentityCodeCaption.Value) + Chr(177) +
 Cstr(Fields!RegisteredHomeCityCaption.Value) + Chr(177) +
 Cstr(Fields!CompanyInfoBusinessIdCode.Value) + Chr(177) +
-Cstr(Fields!CompanyInfoRegHomeCity.Value)
+Cstr(Fields!CompanyInfoRegHomeCity.Value) + Chr(177) + 
+Cstr(Fields!ExternalDocumentNoCaption_SalesShptHeader.Value) + Chr(177) + 
+Cstr(Fields!ExternalDocumentNo_SalesShptHeader.Value) + Chr(177) + 
+Cstr(Fields!OrderNoCaption_SalesShptHeader.Value) + Chr(177) + 
+Cstr(Fields!OrderNo_SalesShptHeader.Value)
 , 1)</Hidden>
                                             </Visibility>
                                             <Style>
@@ -4790,7 +4794,7 @@ Cstr(Fields!CompanyInfoRegHomeCity.Value)
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value>=Fields!ExternalDocumentNo_SalesShptHeader.Value</Value>
+                      <Value>=Code.GetData(49,1)</Value>
                       <Style>
                         <FontFamily>Segoe UI</FontFamily>
                         <FontSize>8pt</FontSize>
@@ -4819,7 +4823,7 @@ Cstr(Fields!CompanyInfoRegHomeCity.Value)
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value>=Fields!OrderNo_SalesShptHeader.Value</Value>
+                      <Value>=Code.GetData(51,1)</Value>
                       <Style>
                         <FontFamily>Segoe UI</FontFamily>
                         <FontSize>8pt</FontSize>
@@ -4848,7 +4852,7 @@ Cstr(Fields!CompanyInfoRegHomeCity.Value)
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value>=Fields!OrderNoCaption_SalesShptHeader.Value</Value>
+                      <Value>=Code.GetData(50,1)</Value>
                       <Style>
                         <FontFamily>Segoe UI</FontFamily>
                         <FontSize>8pt</FontSize>
@@ -4877,7 +4881,7 @@ Cstr(Fields!CompanyInfoRegHomeCity.Value)
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value>=Fields!ExternalDocumentNoCaption_SalesShptHeader.Value</Value>
+                      <Value>=Code.GetData(48,1)</Value>
                       <Style>
                         <FontFamily>Segoe UI</FontFamily>
                         <FontSize>8pt</FontSize>

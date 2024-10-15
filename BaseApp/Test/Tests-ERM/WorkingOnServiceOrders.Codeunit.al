@@ -1227,6 +1227,30 @@ codeunit 136112 "Working On Service Orders"
           ServiceCommentLine."Table Name"::"Service Header", ServiceHeader."Document Type"::Quote, ServiceHeader."No.", CommentText);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ItemForReplacementExistsErrorNotRaisedForBlankItem()
+    var
+        ServiceHeader: Record "Service Header";
+        ServiceItemLine: Record "Service Item Line";
+        ServiceLine: Record "Service Line";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 339134] Stan can create several service lines with blank "No." for a service item line with no item attached to it.
+        Initialize();
+
+        CreateServiceOrderWithOneLine(ServiceHeader, ServiceItemLine);
+
+        CreateServiceLineBlank(ServiceLine, ServiceHeader);
+        ServiceLine.Validate("Service Item Line No.", ServiceItemLine."Line No.");
+        ServiceLine.Modify(true);
+
+        CreateServiceLineBlank(ServiceLine, ServiceHeader);
+        ServiceLine.Validate("Service Item Line No.", ServiceItemLine."Line No.");
+
+        ServiceLine.TestField("No.", '');
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1540,6 +1564,19 @@ codeunit 136112 "Working On Service Orders"
             ServiceItemLine.Validate("Item No.", LibraryInventory.CreateItem(Item));
             ServiceItemLine.Validate(Description, Item."No.");
             ServiceItemLine.Modify(true);
+        end;
+    end;
+
+    local procedure CreateServiceLineBlank(var ServiceLine: Record "Service Line"; ServiceHeader: Record "Service Header")
+    begin
+        with ServiceLine do begin
+            Clear(ServiceLine);
+            Init();
+            Validate("Document Type", ServiceHeader."Document Type");
+            Validate("Document No.", ServiceHeader."No.");
+            Validate("Line No.", LibraryUtility.GetNewRecNo(ServiceLine, FieldNo("Line No.")));
+            Validate(Type, Type::Item);
+            Insert(true);
         end;
     end;
 
