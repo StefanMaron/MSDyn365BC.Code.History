@@ -172,6 +172,44 @@ table 6312 "Power BI Displayed Element"
         Evaluate(TileId, KeyParts.Get(2));
     end;
 
+    internal procedure GetTelemetryDimensions() CustomDimensions: Dictionary of [Text, Text]
+    var
+        ReportId: Guid;
+        ReportPageName: Text[200];
+        ReportVisualId: Text[200];
+        DashboardId: Guid;
+        DashboardTileId: Guid;
+    begin
+        CustomDimensions.Add(Rec.FieldName(Context), Rec.Context);
+        CustomDimensions.Add(Rec.FieldName(ElementType), Format(Rec.ElementType));
+
+        case Rec.ElementType of
+            "Power BI Element Type"::"Report":
+                begin
+                    Rec.ParseReportKey(ReportId);
+                    CustomDimensions.Add('ReportId', ReportId);
+                end;
+            "Power BI Element Type"::"Report Visual":
+                begin
+                    Rec.ParseReportVisualKey(ReportId, ReportPageName, ReportVisualId);
+                    CustomDimensions.Add('ReportId', ReportId);
+                    CustomDimensions.Add('ReportPageName', ReportPageName);
+                    CustomDimensions.Add('ReportVisualId', ReportVisualId);
+                end;
+            "Power BI Element Type"::Dashboard:
+                begin
+                    Rec.ParseDashboardKey(DashboardId);
+                    CustomDimensions.Add('DashboardId', DashboardId);
+                end;
+            "Power BI Element Type"::"Dashboard Tile":
+                begin
+                    Rec.ParseDashboardTileKey(DashboardId, DashboardTileId);
+                    CustomDimensions.Add('DashboardId', DashboardId);
+                    CustomDimensions.Add('DashboardTileId', DashboardTileId);
+                end;
+        end;
+    end;
+
 #if not CLEAN23
     trigger OnInsert()
     var

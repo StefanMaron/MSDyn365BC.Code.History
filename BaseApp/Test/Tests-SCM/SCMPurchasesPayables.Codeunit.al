@@ -29,18 +29,18 @@ codeunit 137061 "SCM Purchases & Payables"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         MessageCounter: Integer;
         Initialized: Boolean;
-        IncorrectMessageError: Label 'Incorrect error message : %1';
-        CostAmountExpectedError: Label 'Cost Amount (Expected) must be same.';
-        CostAmountActualError: Label 'Cost Amount (Actual) must be same.';
-        SalesAmountExpectedError: Label 'Sales Amount (Expected) must be same.';
-        SalesAmountActualError: Label 'Sales Amount (Actual) must be same.';
-        DropshipmentMessage: Label 'A drop shipment from a purchase order cannot be received and invoiced at the same time.';
-        AssociatedSalesOrderError: Label 'You cannot invoice this purchase order before the associated sales orders have been invoiced.';
-        ChangedOnSalesLine: Label 'Location Code gets changed on sales line.';
-        ChangedOnPurchaseLine: Label 'Location Code gets changed on purchase line.';
-        ChangedOnReservationEntry: Label 'Location Code gets changed on Reservation Entry for sales & purchases.';
-        OrdersDeletedError: Label 'Orders must be deleted.';
-        ReturnOrdersDeletedError: Label 'Return Orders must be deleted.';
+        IncorrectMessageErr: Label 'Incorrect error message : %1', Comment = '%1: Message text';
+        CostAmountExpectedErr: Label 'Cost Amount (Expected) must be same.';
+        CostAmountActualErr: Label 'Cost Amount (Actual) must be same.';
+        SalesAmountExpectedErr: Label 'Sales Amount (Expected) must be same.';
+        SalesAmountActualErr: Label 'Sales Amount (Actual) must be same.';
+        DropshipmentMsg: Label 'A drop shipment from a purchase order cannot be received and invoiced at the same time.';
+        AssociatedSalesOrderErr: Label 'You cannot invoice this purchase order before the associated sales orders have been invoiced.';
+        ChangedOnSalesLineErr: Label 'Location Code gets changed on sales line.';
+        ChangedOnPurchaseLineErr: Label 'Location Code gets changed on purchase line.';
+        ChangedOnReservationEntryErr: Label 'Location Code gets changed on Reservation Entry for sales & purchases.';
+        OrdersDeletedErr: Label 'Orders must be deleted.';
+        ReturnOrdersDeletedErr: Label 'Return Orders must be deleted.';
         SelltoCustomerBlankErr: Label 'The Sell-to Customer No. field must have a value.';
         PostDocConfirmQst: Label 'Do you want to post the %1?', Comment = '%1 = Document Type';
         ShipConfirmQst: Label 'Do you want to post the shipment?';
@@ -48,6 +48,7 @@ codeunit 137061 "SCM Purchases & Payables"
         ReceiveConfirmQst: Label 'Do you want to post the receipt?';
         ReceiveInvoiceConfirmQst: Label 'Do you want to post the receipt and invoice?';
         CannotPostInvoiceErr: Label 'You cannot post the invoice';
+        CalcRemainingInvValueErr: Label 'Calculation of the remaining inventory value must include only one value entry';
 
     [Test]
     [Scope('OnPrem')]
@@ -199,7 +200,7 @@ codeunit 137061 "SCM Purchases & Payables"
 
         // Verify: verify error msg.
         Assert.IsTrue(
-          StrPos(GetLastErrorText, AssociatedSalesOrderError) > 0, GetLastErrorText);
+          StrPos(GetLastErrorText, AssociatedSalesOrderErr) > 0, GetLastErrorText);
         ClearLastError();
 
         // Exercise: Post Sales Invoice and Purchase invoice.
@@ -238,7 +239,7 @@ codeunit 137061 "SCM Purchases & Payables"
 
         // Verify: verify error msg.
         Assert.IsTrue(
-          StrPos(GetLastErrorText, DropshipmentMessage) > 0, GetLastErrorText);
+          StrPos(GetLastErrorText, DropshipmentMsg) > 0, GetLastErrorText);
         ClearLastError();
     end;
 
@@ -259,8 +260,8 @@ codeunit 137061 "SCM Purchases & Payables"
         // Verify that the location code has changed on the Sales line.
         // Setup:
         Initialize(false);
-        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId);
-        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId);
+        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId());
+        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId());
 
         // Create item with Order Tracking.
         CreateItemWithTracking(Item);
@@ -283,14 +284,14 @@ codeunit 137061 "SCM Purchases & Payables"
 
         // Verify: verify that the location code has changed on the Sales line.
         SalesLine.Get(SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
-        Assert.AreEqual(Location2.Code, SalesLine."Location Code", ChangedOnSalesLine);
+        Assert.AreEqual(Location2.Code, SalesLine."Location Code", ChangedOnSalesLineErr);
 
         // Verify that the location code has also changed in the Reservation Entry for the tracking entries.
         ReservationEntry.SetRange("Item No.", Item."No.");
         ReservationEntry.FindSet();
         repeat
             Assert.AreEqual(
-              Location2.Code, ReservationEntry."Location Code", ChangedOnReservationEntry);
+              Location2.Code, ReservationEntry."Location Code", ChangedOnReservationEntryErr);
         until ReservationEntry.Next() = 0;
     end;
 
@@ -331,14 +332,14 @@ codeunit 137061 "SCM Purchases & Payables"
 
         // Verify: verify that the location code has changed on the Purchase line.
         PurchaseLine.Get(PurchaseLine."Document Type", PurchaseLine."Document No.", PurchaseLine."Line No.");
-        Assert.AreEqual(Location2.Code, PurchaseLine."Location Code", ChangedOnPurchaseLine);
+        Assert.AreEqual(Location2.Code, PurchaseLine."Location Code", ChangedOnPurchaseLineErr);
 
         // Verify that the location code has also changed in the Reservation Entry for the tracking entries.
         ReservationEntry.SetRange("Item No.", Item."No.");
         ReservationEntry.FindSet();
         repeat
             Assert.AreEqual(
-              Location2.Code, ReservationEntry."Location Code", ChangedOnReservationEntry);
+              Location2.Code, ReservationEntry."Location Code", ChangedOnReservationEntryErr);
         until ReservationEntry.Next() = 0;
     end;
 
@@ -450,7 +451,7 @@ codeunit 137061 "SCM Purchases & Payables"
         // 3. Verify: verify Old Purchase Orders have been deleted.
         PurchaseHeader.SetRange("Document Type", PurchaseHeader."Document Type"::Order);
         PurchaseHeader.SetRange("No.", Vendor."No.");
-        Assert.AreEqual(0, PurchaseHeader.Count, OrdersDeletedError);
+        Assert.AreEqual(0, PurchaseHeader.Count, OrdersDeletedErr);
     end;
 
     [Test]
@@ -483,7 +484,7 @@ codeunit 137061 "SCM Purchases & Payables"
         // 3. Verify: verify old Purchase Return orders have been deleted.
         PurchaseHeader.SetRange("Document Type", PurchaseHeader."Document Type"::"Return Order");
         PurchaseHeader.SetRange("No.", Vendor."No.");
-        Assert.AreEqual(0, PurchaseHeader.Count, ReturnOrdersDeletedError);
+        Assert.AreEqual(0, PurchaseHeader.Count, ReturnOrdersDeletedErr);
     end;
 
     [Test]
@@ -517,7 +518,7 @@ codeunit 137061 "SCM Purchases & Payables"
         // 3. Verify: verify that old Sales Orders have been deleted.
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Order);
         SalesHeader.SetRange("No.", Customer."No.");
-        Assert.AreEqual(0, SalesHeader.Count, OrdersDeletedError);
+        Assert.AreEqual(0, SalesHeader.Count, OrdersDeletedErr);
 
         // 4. Teardown: Rollback Stockout Warning to default value on Sales & Receivables Setup.
         LibrarySales.SetStockoutWarning(SalesReceivablesSetup."Stockout Warning");
@@ -557,7 +558,7 @@ codeunit 137061 "SCM Purchases & Payables"
         // 3. Verify: verify that old Sales Return Orders have been deleted.
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::"Return Order");
         SalesHeader.SetRange("No.", Customer."No.");
-        Assert.AreEqual(0, SalesHeader.Count, ReturnOrdersDeletedError);  // Value is important for Test.
+        Assert.AreEqual(0, SalesHeader.Count, ReturnOrdersDeletedErr);  // Value is important for Test.
 
         // 4. Teardown: Rollback Stockout Warning to default value on Sales & Receivables Setup.
         LibrarySales.SetStockoutWarning(SalesReceivablesSetup."Stockout Warning");
@@ -660,7 +661,7 @@ codeunit 137061 "SCM Purchases & Payables"
         // [GIVEN] Purchase Line with populated "Direct Unit Cost" = 10
         LibraryPurchase.CreatePurchaseDocumentWithItem(
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order,
-          LibraryPurchase.CreateVendorNo, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(100), '', WorkDate());
+          LibraryPurchase.CreateVendorNo(), LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(100), '', WorkDate());
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(20, 50));
 
         // [WHEN] In the "Unit Cost (LCY)" field, enter a value = 15 exceeding "Direct Unit Cost"
@@ -686,7 +687,7 @@ codeunit 137061 "SCM Purchases & Payables"
         // [GIVEN] Purchase Line PL with populated "Direct Unit Cost"
         LibraryPurchase.CreatePurchaseDocumentWithItem(
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order,
-          LibraryPurchase.CreateVendorNo, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(100), '', WorkDate());
+          LibraryPurchase.CreateVendorNo(), LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(100), '', WorkDate());
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(20, 50));
 
         // [WHEN] VALIDATE PL."Unit Cost (LCY)" with value less than "Direct Unit Cost"
@@ -719,7 +720,7 @@ codeunit 137061 "SCM Purchases & Payables"
         // [GIVEN] Purchase order for the "Q" pcs of the item. "Direct Unit Cost" on the purchase line = "Y", that is greater than "X".
         LibraryPurchase.CreatePurchaseDocumentWithItem(
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order,
-          LibraryPurchase.CreateVendorNo, Item."No.", LibraryRandom.RandInt(10), '', WorkDate());
+          LibraryPurchase.CreateVendorNo(), Item."No.", LibraryRandom.RandInt(10), '', WorkDate());
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(20, 40, 2));
         PurchaseLine.Modify(true);
 
@@ -766,7 +767,8 @@ codeunit 137061 "SCM Purchases & Payables"
         LibraryVariableStorage.Enqueue(ReceiveInvoiceConfirmQst);
         PostPurchaseDocument(PurchaseHeader);
 
-        Assert.IsFalse(PurchaseLine.Find(), '');
+        PurchaseLine.SetRecFilter();
+        Assert.RecordIsEmpty(PurchaseLine);
 
         LibraryVariableStorage.AssertEmpty();
     end;
@@ -800,7 +802,8 @@ codeunit 137061 "SCM Purchases & Payables"
         LibraryVariableStorage.Enqueue(ShipInvoiceConfirmQst);
         PostPurchaseDocument(PurchaseHeader);
 
-        Assert.IsFalse(PurchaseLine.Find(), '');
+        PurchaseLine.SetRecFilter();
+        Assert.RecordIsEmpty(PurchaseLine);
 
         LibraryVariableStorage.AssertEmpty();
     end;
@@ -884,9 +887,65 @@ codeunit 137061 "SCM Purchases & Payables"
         LibraryVariableStorage.Enqueue(StrSubstNo(PostDocConfirmQst, LowerCase(Format(PurchaseHeader."Document Type"))));
         PostPurchaseDocument(PurchaseHeader);
 
-        Assert.IsFalse(PurchaseLine.Find(), '');
+        PurchaseLine.SetRecFilter();
+        Assert.RecordIsEmpty(PurchaseLine);
 
         LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    procedure CalcRemInventoryValueNoValuationDate()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        ValueEntry: Record "Value Entry";
+        Item: Record Item;
+    begin
+        // [SCENARIO] CalculateRemInventoryValue with no valuation date must filter value on the posting date
+
+        Initialize(false);
+
+        // [GIVEN] Item I with unit cost X
+        CreateItem(Item);
+
+        // [GIVEN] Create a purchase order for the item I, quantity = Y, posting date = workdate
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", LibraryRandom.RandIntInRange(10, 20));
+
+        // [GIVEN] Post receipt without invoicing
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+
+        // [GIVEN] Change the posting date to workdate + 1 and set quantity to invoice in the purchase line to Y / 2
+        PurchaseHeader.Validate("Posting Date", WorkDate() + 1);
+        PurchaseHeader.Modify(true);
+
+        PurchaseLine.Find();
+        PurchaseLine.Validate("Qty. to Invoice", PurchaseLine.Quantity / 2);
+        PurchaseLine.Modify(true);
+
+        // [GIVEN] Post the partial invoicing. Posting date in the created value entry is Workdate + 1, valuation date is set to Workdate
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
+
+        // [GIVEN] Change the posting date to Workdate + 2 and invoice the remaining quantity
+        PurchaseHeader.Validate("Posting Date", WorkDate() + 2);
+        PurchaseHeader.Validate("Vendor Invoice No.", IncStr(PurchaseHeader."Vendor Invoice No."));
+        PurchaseHeader.Modify(true);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
+
+        ItemLedgerEntry.SetRange("Item No.", Item."No.");
+        ItemLedgerEntry.FindLast();
+
+        ValueEntry.SetRange("Item No.", Item."No.");
+        ValueEntry.SetRange("Expected Cost", false);
+        ValueEntry.FindFirst();
+
+        // [WHEN] Call CalculateRemInventoryValue for the purchase item ledger entry on Workdate + 1, including only actual cost
+        // [THEN] Inventory value is X * Y / 2
+        Assert.AreEqual(
+            ValueEntry."Cost Amount (Actual)",
+            ItemLedgerEntry.CalculateRemInventoryValue(ItemLedgerEntry."Entry No.", ItemLedgerEntry.Quantity, ItemLedgerEntry.Quantity, false, WorkDate() + 1),
+            CalcRemainingInvValueErr);
     end;
 
     local procedure Initialize(Enable: Boolean)
@@ -898,8 +957,8 @@ codeunit 137061 "SCM Purchases & Payables"
         LibraryItemReference.EnableFeature(Enable);
         LibraryVariableStorage.Clear();
         MessageCounter := 0;
-        PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyVendorAddressNotificationId);
-        PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyPayToVendorAddressNotificationId);
+        PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyVendorAddressNotificationId());
+        PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyPayToVendorAddressNotificationId());
         CreateUserSetupWithPostingPolicy("Invoice Posting Policy"::Allowed);
 
         if Initialized then
@@ -925,11 +984,11 @@ codeunit 137061 "SCM Purchases & Payables"
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
         SalesReceivablesSetup.Get();
-        SalesReceivablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        SalesReceivablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         SalesReceivablesSetup.Modify(true);
 
         PurchasesPayablesSetup.Get();
-        PurchasesPayablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        PurchasesPayablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         PurchasesPayablesSetup.Modify(true);
     end;
 
@@ -938,13 +997,13 @@ codeunit 137061 "SCM Purchases & Payables"
         Clear(ItemJournalTemplate);
         ItemJournalTemplate.Init();
         LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Item);
-        ItemJournalTemplate.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
+        ItemJournalTemplate.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode());
         ItemJournalTemplate.Modify(true);
 
         Clear(ItemJournalBatch);
         ItemJournalBatch.Init();
         LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type, ItemJournalTemplate.Name);
-        ItemJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
+        ItemJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode());
         ItemJournalBatch.Modify(true);
     end;
 
@@ -997,7 +1056,7 @@ codeunit 137061 "SCM Purchases & Payables"
         RequisitionLine.SetRange("Journal Batch Name", RequisitionWkshName.Name);
         RequisitionLine.SetRange("No.", Item."No.");
         RequisitionLine.FindFirst();
-        RequisitionLine.Validate("Vendor No.", LibraryPurchase.CreateVendorNo);
+        RequisitionLine.Validate("Vendor No.", LibraryPurchase.CreateVendorNo());
         RequisitionLine.Modify(true);
         LibraryPlanning.CarryOutAMSubcontractWksh(RequisitionLine);
 
@@ -1196,7 +1255,7 @@ codeunit 137061 "SCM Purchases & Payables"
         // Combine Sales Shipments and Post Invoice.
         SalesHeader2.SetRange("Sell-to Customer No.", Customer."No.");
         SalesShipmentHeader3.SetRange("Sell-to Customer No.", Customer."No.");
-        LibrarySales.CombineShipments(SalesHeader2, SalesShipmentHeader3, WorkDate(), WorkDate, false, true, false, false);
+        LibrarySales.CombineShipments(SalesHeader2, SalesShipmentHeader3, WorkDate(), WorkDate(), false, true, false, false);
     end;
 
     local procedure CombineForSalesMemoSetup(Customer: Record Customer; SalesShipmentNo: Code[20]; SalesShipmentNo2: Code[20])
@@ -1295,10 +1354,10 @@ codeunit 137061 "SCM Purchases & Payables"
         end;
         ItemLedgEntry.FindFirst();
         ItemLedgEntry.CalcFields("Sales Amount (Expected)", "Cost Amount (Expected)", "Sales Amount (Actual)", "Cost Amount (Actual)");
-        Assert.AreEqual(SalesExpectedAmount, ItemLedgEntry."Sales Amount (Expected)", SalesAmountExpectedError);
-        Assert.AreEqual(SalesActualAmount, ItemLedgEntry."Sales Amount (Actual)", SalesAmountActualError);
-        Assert.AreEqual(-1 * CostExpectedAmount, ItemLedgEntry."Cost Amount (Expected)", CostAmountExpectedError);
-        Assert.AreEqual(-1 * CostActualAmount, ItemLedgEntry."Cost Amount (Actual)", CostAmountActualError);
+        Assert.AreEqual(SalesExpectedAmount, ItemLedgEntry."Sales Amount (Expected)", SalesAmountExpectedErr);
+        Assert.AreEqual(SalesActualAmount, ItemLedgEntry."Sales Amount (Actual)", SalesAmountActualErr);
+        Assert.AreEqual(-1 * CostExpectedAmount, ItemLedgEntry."Cost Amount (Expected)", CostAmountExpectedErr);
+        Assert.AreEqual(-1 * CostActualAmount, ItemLedgEntry."Cost Amount (Actual)", CostAmountActualErr);
     end;
 
     local procedure VerifyPurchEntry(ItemNo: Code[20]; PurchOrderNo: Code[20]; VerifyLineType: Option Receipt,Invoice; CostExpectedAmount: Decimal; CostActualAmount: Decimal)
@@ -1325,8 +1384,8 @@ codeunit 137061 "SCM Purchases & Payables"
         end;
         ItemLedgEntry.FindFirst();
         ItemLedgEntry.CalcFields("Cost Amount (Expected)", "Cost Amount (Actual)");
-        Assert.AreEqual(CostExpectedAmount, ItemLedgEntry."Cost Amount (Expected)", CostAmountExpectedError);
-        Assert.AreEqual(CostActualAmount, ItemLedgEntry."Cost Amount (Actual)", CostAmountActualError);
+        Assert.AreEqual(CostExpectedAmount, ItemLedgEntry."Cost Amount (Expected)", CostAmountExpectedErr);
+        Assert.AreEqual(CostActualAmount, ItemLedgEntry."Cost Amount (Actual)", CostAmountActualErr);
     end;
 
     local procedure VerifyPurchLine(ItemNo: Code[20])
@@ -1353,9 +1412,9 @@ codeunit 137061 "SCM Purchases & Payables"
 
         ItemLedgerEntry.CalcFields("Cost Amount (Expected)", "Cost Amount (Actual)");
         Assert.AreNearlyEqual(
-          0, ItemLedgerEntry."Cost Amount (Expected)", GeneralLedgerSetup."Amount Rounding Precision", CostAmountExpectedError);
+          0, ItemLedgerEntry."Cost Amount (Expected)", GeneralLedgerSetup."Amount Rounding Precision", CostAmountExpectedErr);
         Assert.AreNearlyEqual(
-          CostAmountAct, ItemLedgerEntry."Cost Amount (Actual)", GeneralLedgerSetup."Amount Rounding Precision", CostAmountActualError);
+          CostAmountAct, ItemLedgerEntry."Cost Amount (Actual)", GeneralLedgerSetup."Amount Rounding Precision", CostAmountActualErr);
     end;
 
     local procedure VerifyQtyOnPurchaseOrderLine(PurchaseLine: Record "Purchase Line"; QtyReceived: Decimal; QtyInvoiced: Decimal)
@@ -1390,7 +1449,7 @@ codeunit 137061 "SCM Purchases & Payables"
     procedure MessageHandler(Message: Text[1024])
     begin
         Assert.IsTrue(
-          StrPos(Message, 'The change will not affect existing entries.') > 0, StrSubstNo(IncorrectMessageError, Message));
+          StrPos(Message, 'The change will not affect existing entries.') > 0, StrSubstNo(IncorrectMessageErr, Message));
     end;
 
     [MessageHandler]
@@ -1436,7 +1495,7 @@ codeunit 137061 "SCM Purchases & Payables"
         CombineReturnReceipts.PostingDateReq.SetValue(WorkDate());
         CombineReturnReceipts.DocDateReq.SetValue(WorkDate());
         CombineReturnReceipts.SalesOrderHeader.SetFilter("Sell-to Customer No.", DequeueVariable);
-        CombineReturnReceipts.OK.Invoke;
+        CombineReturnReceipts.OK().Invoke();
     end;
 }
 

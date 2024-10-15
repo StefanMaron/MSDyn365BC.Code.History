@@ -70,6 +70,7 @@ report 10883 "SEPA ISO20022"
         ToFile: Text;
     begin
         ToFile := Text009;
+        OnPostReportOnAfterSetToFile(ToFile);
 
         if ServerFileName <> '' then
             FileMgt.CopyServerFile(FileName, ServerFileName, true)
@@ -503,6 +504,11 @@ report 10883 "SEPA ISO20022"
     procedure SetFilePath(FilePath: Text)
     begin
         ServerFileName := FilePath;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostReportOnAfterSetToFile(var ToFile: Text)
+    begin
     end;
 }
 

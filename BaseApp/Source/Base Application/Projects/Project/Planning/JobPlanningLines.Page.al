@@ -1012,6 +1012,8 @@ page 1007 "Job Planning Lines"
         LineDiscountPctEditable := Edit;
         LineAmountEditable := Edit;
         UnitCostEditable := Edit;
+
+        OnAfterSetEditable(Edit, Rec);
     end;
 
     procedure SetJobTaskNoVisible(NewJobTaskNoVisible: Boolean)
@@ -1130,6 +1132,11 @@ page 1007 "Job Planning Lines"
 
     [IntegrationEvent(true, false)]
     local procedure OnCreateSalesInvoiceOnBeforeAction(var JobPlanningLine: Record "Job Planning Line"; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterSetEditable(Edit: Boolean; var JobPlanningLine: Record "Job Planning Line");
     begin
     end;
 }

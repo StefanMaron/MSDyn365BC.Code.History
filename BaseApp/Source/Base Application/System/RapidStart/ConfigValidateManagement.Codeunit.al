@@ -268,7 +268,7 @@ codeunit 8617 "Config. Validate Management"
     var
         "Field": Record "Field";
         RecordRef: RecordRef;
-        "Code": Code[1024];
+        "Code": Code[2048];
     begin
         Code := CopyStr(Value, 1, 1024);
         RecordRef := FieldRef.Record();
@@ -472,13 +472,13 @@ codeunit 8617 "Config. Validate Management"
         Field: Record Field;
         RecordID: RecordId;
     begin
-        IF NOT EVALUATE(RecordID, Value) AND NOT EVALUATE(RecordID, Value, XMLFormat()) THEN
-            EXIT(STRSUBSTNO(Text003Msg, Value, FORMAT(Field.Type::RecordID)));
+        if not Evaluate(RecordID, Value) and not Evaluate(RecordID, Value, XMLFormat()) then
+            exit(StrSubstNo(Text003Msg, Value, Format(Field.Type::RecordID)));
 
-        IF Validate THEN
-            FieldRef.VALIDATE(RecordID)
+        if Validate then
+            FieldRef.Validate(RecordID)
         else
-            FieldRef.VALUE := RecordID;
+            FieldRef.Value := RecordID;
     end;
 
     local procedure IsNormalField(FieldRef: FieldRef): Boolean
@@ -735,8 +735,8 @@ codeunit 8617 "Config. Validate Management"
 
     local procedure EvaluateTextToFieldRefCodeText(InputText: Text; var FieldRef: FieldRef; ToValidate: Boolean): Boolean
     var
-        TextVar: Text[1024];
-        TextVar1: Text[1024];
+        TextVar: Text[2048];
+        TextVar1: Text[2048];
     begin
         if StrLen(InputText) > FieldRef.Length then begin
             if ToValidate then begin
@@ -786,17 +786,17 @@ codeunit 8617 "Config. Validate Management"
         RecordIDVar: RecordId;
         RecordIDVar1: RecordId;
     begin
-        IF EVALUATE(RecordIDVar, InputText) THEN BEGIN
-            IF ToValidate THEN BEGIN
+        if EVALUATE(RecordIDVar, InputText) then begin
+            if ToValidate then begin
                 RecordIDVar1 := FieldRef.VALUE();
-                IF RecordIDVar1 <> RecordIDVar THEN
+                if RecordIDVar1 <> RecordIDVar then
                     FieldRef.VALIDATE(RecordIDVar);
-            END else
+            end else
                 FieldRef.VALUE := RecordIDVar;
-            EXIT(TRUE);
-        END;
+            exit(true);
+        end;
 
-        EXIT(FALSE);
+        exit(false);
     end;
 
     procedure CheckName(FieldName: Text): Text
@@ -888,21 +888,19 @@ codeunit 8617 "Config. Validate Management"
         FieldRef: FieldRef;
         DefaultValue: Text;
     begin
-        with ConfigTemplateLine do begin
-            SetRange("Data Template Code", DataTemplateCode);
-            SetRange("Table ID", RecRef.Number);
-            SetFilter("Field ID", '<>%1', 0);
-            if FindSet() then
-                repeat
-                    FieldRef := RecRef.Field("Field ID");
-                    if "Field ID" = CurFieldNo then
-                        DefaultValue := CurDefaultValue
-                    else
-                        DefaultValue := "Default Value";
-                    OnTransferRecordDefaultValuesOnBeforeValidateFieldValue(RecRef, CurFieldNo, CurDefaultValue);
-                    ValidateFieldValue(RecRef, FieldRef, DefaultValue, true, "Language ID");
-                until Next() = 0;
-        end;
+        ConfigTemplateLine.SetRange("Data Template Code", DataTemplateCode);
+        ConfigTemplateLine.SetRange("Table ID", RecRef.Number);
+        ConfigTemplateLine.SetFilter("Field ID", '<>%1', 0);
+        if ConfigTemplateLine.FindSet() then
+            repeat
+                FieldRef := RecRef.Field(ConfigTemplateLine."Field ID");
+                if ConfigTemplateLine."Field ID" = CurFieldNo then
+                    DefaultValue := CurDefaultValue
+                else
+                    DefaultValue := ConfigTemplateLine."Default Value";
+                OnTransferRecordDefaultValuesOnBeforeValidateFieldValue(RecRef, CurFieldNo, CurDefaultValue);
+                ValidateFieldValue(RecRef, FieldRef, DefaultValue, true, ConfigTemplateLine."Language ID");
+            until ConfigTemplateLine.Next() = 0;
     end;
 
     local procedure OADateToDateTime(DateTimeDecimal: Decimal): DateTime
