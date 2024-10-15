@@ -193,7 +193,7 @@ codeunit 7024 "Job Planning Line - Price" implements "Line With Price"
         end;
         PriceSourceList.AddJobAsSources(JobPlanningLine."Job No.", JobPlanningLine."Job Task No.");
 
-        OnAfterAddSources(JobPlanningLine, CurrPriceType, PriceSourceList)
+        OnAfterAddSources(JobPlanningLine, CurrPriceType, PriceSourceList, Job)
     end;
 
     procedure SetPrice(AmountType: enum "Price Amount Type"; PriceListLine: Record "Price List Line")
@@ -292,7 +292,7 @@ codeunit 7024 "Job Planning Line - Price" implements "Line With Price"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterAddSources(var JobPlanningLine: Record "Job Planning Line"; CurrPriceType: Enum "Price Type"; var PriceSourceList: Codeunit "Price Source List")
+    local procedure OnAfterAddSources(var JobPlanningLine: Record "Job Planning Line"; CurrPriceType: Enum "Price Type"; var PriceSourceList: Codeunit "Price Source List"; Job: Record Job)
     begin
     end;
 }

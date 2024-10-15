@@ -18,10 +18,17 @@ codeunit 1405 "Purch. Inv. Header - Edit"
         PurchInvHeader.TestField("No.", "No.");
         PurchInvHeader.Modify();
         Rec := PurchInvHeader;
+
+        OnRunOnAfterPurchInvHeaderEdit(Rec);
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePurchInvHeaderModify(var PurchInvHeader: Record "Purch. Inv. Header"; PurchInvHeaderRec: Record "Purch. Inv. Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnAfterPurchInvHeaderEdit(var PurchInvHeader: Record "Purch. Inv. Header")
     begin
     end;
 }

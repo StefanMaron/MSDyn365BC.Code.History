@@ -788,6 +788,66 @@
         VerifyGLEntryForDocument(AdjDocNo, Currency."Unrealized Gains Acc.", -GainsAmount);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure AdjustTwoSalesInvoiceWithDifferentDimensioSets()
+    var
+        Customer: Record Customer;
+        DimensionValue: Record "Dimension Value";
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        GenJournalLine: Record "Gen. Journal Line";
+        GLEntry: Record "G/L Entry";
+        StartingDate: Date;
+        StartingDate2: Date;
+        CurrencyCode: Code[10];
+        AdjDocNo: Code[20];
+        DimSetID: array[2] of Integer;
+        LastGLEntryNo: Integer;
+    begin
+        // [FEATURE] [Reverse] [Sales]
+        // [SCENARIO 201007] Reversed Sales LCY Payment that was applied to FCY invoice in different transaction should have zero balance
+        Initialize();
+
+        // [GIVEN] Create Currency, Customer, Apply Payment to Invoice
+        CurrencyCode := CreateCurrencyWithMultipleExchangeRate(StartingDate, StartingDate2);
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Currency Code", CurrencyCode);
+        Customer.Modify();
+
+        GeneralLedgerSetup.Get();
+        AdjDocNo := LibraryUtility.GenerateGUID();
+
+        // Create first invoice line and post it
+        CreateGeneralJournalLine(
+          GenJournalLine, "Gen. Journal Account Type"::Customer, Customer."No.", GenJournalLine."Document Type"::Invoice,
+          LibraryRandom.RandDec(100, 2));
+        DimensionValue.SetRange("Dimension Code", GeneralLedgerSetup."Global Dimension 1 Code");
+        DimensionValue.SetRange("Dimension Value Type", DimensionValue."Dimension Value Type"::Standard);
+        DimensionValue.FindFirst();
+        GenJournalLine.Validate("Shortcut Dimension 1 Code", DimensionValue.Code);
+        GenJournalLine.Modify();
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // Create second invoice line and post it
+        CreateGeneralJournalLine(
+          GenJournalLine, "Gen. Journal Account Type"::Customer, Customer."No.", GenJournalLine."Document Type"::Invoice,
+          LibraryRandom.RandDec(100, 2));
+        DimensionValue.SetRange("Dimension Code", GeneralLedgerSetup."Global Dimension 2 Code");
+        DimensionValue.SetRange("Dimension Value Type", DimensionValue."Dimension Value Type"::Standard);
+        DimensionValue.FindFirst();
+        GenJournalLine.Validate("Shortcut Dimension 2 Code", DimensionValue.Code);
+        GenJournalLine.Modify();
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // Run Exchange Rate Adjustment
+        AdjDocNo := LibraryUtility.GenerateGUID();
+        LastGLEntryNo := GLEntry.GetLastEntryNo();
+        LibraryERM.RunExchRateAdjustmentForDocNo(GenJournalLine."Currency Code", AdjDocNo);
+
+        // [THEN] Verify 2 G/L Entries posted for each of 2 Detailed Customer Ledger Entry, in total 4
+        Assert.AreEqual(4, GLEntry.GetLastEntryNo() - LastGLEntryNo, 'incorrect number of G/L entries.');
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
