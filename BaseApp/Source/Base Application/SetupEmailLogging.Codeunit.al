@@ -73,6 +73,7 @@ codeunit 1641 "Setup Email Logging"
         TenantIdExtractedTxt: Label 'Tenant ID has been extracted from token.', Locked = true;
         CannotExtractTenantIdTxt: Label 'Cannot extract tenant ID from token.', Locked = true;
         CannotExtractTenantIdErr: Label 'Cannot extract tenant ID from the access token.';
+        EmailLoggingUsingGraphApiFeatureIdTok: Label 'EmailLoggingUsingGraphApi', Locked = true;
 
     [TryFunction]
     [Obsolete('Will be removed', '17.0')]
@@ -634,6 +635,14 @@ codeunit 1641 "Setup Email Logging"
     end;
 
     [Scope('OnPrem')]
+    procedure IsEmailLoggingUsingGraphApiFeatureEnabled() FeatureEnabled: Boolean;
+    var
+        FeatureManagementFacade: Codeunit "Feature Management Facade";
+    begin
+        FeatureEnabled := FeatureManagementFacade.IsEnabled(EmailLoggingUsingGraphApiFeatureIdTok);
+    end;
+
+    [Scope('OnPrem')]
     procedure RegisterAssistedSetup()
     var
         GuidedExperience: Codeunit "Guided Experience";
@@ -644,6 +653,12 @@ codeunit 1641 "Setup Email Logging"
         GuidedExperienceType: Enum "Guided Experience Type";
         CurrentGlobalLanguage: Integer;
     begin
+        if IsEmailLoggingUsingGraphApiFeatureEnabled() then begin
+            if GuidedExperience.Exists(GuidedExperienceType::"Assisted Setup", ObjectType::Page, Page::"Setup Email Logging") then
+                GuidedExperience.Remove(GuidedExperienceType::"Assisted Setup", ObjectType::Page, Page::"Setup Email Logging");
+            exit;
+        end;
+
         if GuidedExperience.Exists(GuidedExperienceType::"Assisted Setup", ObjectType::Page, Page::"Setup Email Logging") then
             exit;
 
