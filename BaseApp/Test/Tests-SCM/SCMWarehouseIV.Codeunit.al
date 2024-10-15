@@ -1854,6 +1854,116 @@ codeunit 137407 "SCM Warehouse IV"
         LibraryVariableStorage.AssertEmpty;
     end;
 
+    [Test]
+    [HandlerFunctions('CreateStockkeepingUnitRequestPageHandler')]
+    procedure CreateStockkeepingUnitSaveReplacePreviousSKUSetup()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        CreateStockkeepingUnit: Report "Create Stockkeeping Unit";
+    begin
+        // [FEATURE] [Stockkeeping Unit]
+        // [SCENARIO 403380] Save previous "Replace Previous SKU" setting in "Create Stockkeeping Unit" report.
+        Initialize();
+
+        // [GIVEN] Item and location.
+        LibraryInventory.CreateItem(Item);
+        LibraryWarehouse.CreateLocation(Location);
+
+        Item.SetRecFilter();
+        Commit();
+
+        // [GIVEN] Set "Replace Previous SKU" = TRUE in "Create Stockkeeping Unit" report.
+        CreateStockkeepingUnit.InitializeRequest(0, false, true);
+
+        // [WHEN] Run "Create stockeeping unit" with request page.
+        CreateStockkeepingUnit.SetTableView(Item);
+        CreateStockkeepingUnit.UseRequestPage(true);
+        CreateStockkeepingUnit.Run();
+
+        // [THEN] The request page shows "Replace Previous SKU" = TRUE.
+        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean(), 'Replace Previous SKU setting was not saved');
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    procedure SortingAllPicksCreatedFromPickWorksheet()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        WarehouseEmployee: Record "Warehouse Employee";
+        Zone: Record Zone;
+        Bin: Record Bin;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        WhsePickRequest: Record "Whse. Pick Request";
+        WhseWorksheetTemplate: Record "Whse. Worksheet Template";
+        WhseWorksheetName: Record "Whse. Worksheet Name";
+        WhseWorksheetLine: Record "Whse. Worksheet Line";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        Qty: Decimal;
+        IsCrossDockZone: Boolean;
+        i: Integer;
+    begin
+        // [FEATURE] [Warehouse Pick] [Pick Worksheet] [Sorting]
+        // [SCENARIO 406575] Apply selected sorting method to all picks created by pick worksheet.
+        Initialize();
+        Qty := LibraryRandom.RandInt(10);
+
+        // [GIVEN] Item "I".
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Location set up for directed put-away and pick.
+        LibraryWarehouse.CreateFullWMSLocation(Location, 2);
+        WarehouseEmployee.DeleteAll(true);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, true);
+
+        // [GIVEN] Locate bins "B1" and "B2" in different pick zones.
+        // [GIVEN] Place 20 pcs of item "I" to each bin using warehouse journal.
+        for IsCrossDockZone := false to true do begin
+            LibraryWarehouse.FindZone(Zone, Location.Code, LibraryWarehouse.SelectBinType(false, false, true, true), IsCrossDockZone);
+            LibraryWarehouse.FindBin(Bin, Location.Code, Zone.Code, 1);
+            LibraryWarehouse.UpdateInventoryInBinUsingWhseJournal(Bin, Item."No.", 2 * Qty, false);
+        end;
+
+        LibraryWarehouse.SelectWhseWorksheetTemplate(WhseWorksheetTemplate, WhseWorksheetTemplate.Type::Pick);
+        LibraryWarehouse.CreateWhseWorksheetName(WhseWorksheetName, WhseWorksheetTemplate.Name, Location.Code);
+
+        // [GIVEN] Create two sales orders, each with two lines per 10 pcs.
+        // [GIVEN] Create and release warehouse shipment for each order.
+        // [GIVEN] Open pick worksheet and get warehouse shipments.
+        for i := 1 to 2 do begin
+            LibrarySales.CreateSalesDocumentWithItem(
+              SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", Qty, Location.Code, WorkDate);
+            CreateSalesLine(SalesLine, SalesHeader, Item."No.", Location.Code, '', Qty);
+            LibrarySales.ReleaseSalesDocument(SalesHeader);
+            LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
+            WarehouseShipmentHeader.Get(
+              LibraryWarehouse.FindWhseShipmentNoBySourceDoc(DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No."));
+            LibraryWarehouse.ReleaseWarehouseShipment(WarehouseShipmentHeader);
+            WhsePickRequest.Get(WhsePickRequest."Document Type"::Shipment, 0, WarehouseShipmentHeader."No.", Location.Code);
+            LibraryWarehouse.GetWhseDocsPickWorksheet(WhseWorksheetLine, WhsePickRequest, WhseWorksheetName.Name);
+        end;
+
+        // [WHEN] Create pick from pick worksheet, set sorting method = "Action Type".
+        LibraryWarehouse.CreatePickFromPickWorksheet(
+          WhseWorksheetLine, 0, WhseWorksheetTemplate.Name, WhseWorksheetName.Name, Location.Code, '', 0, 0,
+          "Whse. Activity Sorting Method"::"Action Type", false, false, true, false, false, false, false);
+
+        // [THEN] Two warehouse picks are created.
+        WarehouseActivityHeader.SetRange("Location Code", Location.Code);
+        Assert.RecordCount(WarehouseActivityHeader, 2);
+
+        // [THEN] Lines in each pick are sorted by "Action Type".
+        WarehouseActivityHeader.FindFirst();
+        VerifyWhseActivityLinesSortedByActionType(WarehouseActivityHeader);
+
+        WarehouseActivityHeader.FindLast();
+        VerifyWhseActivityLinesSortedByActionType(WarehouseActivityHeader);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2987,6 +3097,22 @@ codeunit 137407 "SCM Warehouse IV"
         until WarehouseActivityLine.Next = 0;
     end;
 
+    local procedure VerifyWhseActivityLinesSortedByActionType(WarehouseActivityHeader: Record "Warehouse Activity Header")
+    var
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        SortingSeqNo: Integer;
+    begin
+        WarehouseActivityLine.SetCurrentKey("Sorting Sequence No.");
+        WarehouseActivityLine.SetRange("Activity Type", WarehouseActivityHeader.Type);
+        WarehouseActivityLine.SetRange("No.", WarehouseActivityHeader."No.");
+        WarehouseActivityLine.SetRange("Action Type", WarehouseActivityLine."Action Type"::Take);
+        WarehouseActivityLine.FindLast();
+        SortingSeqNo := WarehouseActivityLine."Sorting Sequence No.";
+        WarehouseActivityLine.SetRange("Action Type", WarehouseActivityLine."Action Type"::Place);
+        WarehouseActivityLine.FindFirst();
+        Assert.IsTrue(WarehouseActivityLine."Sorting Sequence No." > SortingSeqNo, '');
+    end;
+
     local procedure VerifyWarehouseEntries(EntryType: Option; ItemNo: Code[20]; Quantity: Decimal)
     var
         WarehouseEntry: Record "Warehouse Entry";
@@ -3197,6 +3323,12 @@ codeunit 137407 "SCM Warehouse IV"
         SalesList.FILTER.SetFilter("Sell-to Customer No.", LibraryVariableStorage.DequeueText);
         SalesList.First;
         SalesList.OK.Invoke;
+    end;
+
+    [RequestPageHandler]
+    procedure CreateStockkeepingUnitRequestPageHandler(var CreateStockkeepingUnit: TestRequestPage "Create Stockkeeping Unit")
+    begin
+        LibraryVariableStorage.Enqueue(CreateStockkeepingUnit.ReplacePreviousSKUs.AsBoolean());
     end;
 
     [MessageHandler]

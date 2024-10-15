@@ -287,12 +287,14 @@ table 7200 "CDS Connection Setup"
         CDSIntegrationMgt.OnDisableIntegration();
     end;
 
+    [NonDebuggable]
     [Scope('OnPrem')]
     procedure HasPassword(): Boolean
     begin
         exit(GetPassword() <> '');
     end;
 
+    [NonDebuggable]
     [Scope('OnPrem')]
     procedure GetPassword(): Text
     var
@@ -309,6 +311,7 @@ table 7200 "CDS Connection Setup"
         exit('');
     end;
 
+    [NonDebuggable]
     [Scope('OnPrem')]
     procedure SetPassword(PasswordText: Text)
     var

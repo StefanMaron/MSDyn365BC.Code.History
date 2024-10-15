@@ -30,6 +30,7 @@ codeunit 137212 "SCM Copy Document Mgt."
         WrongDimensionsCopiedErr: Label 'Wrong dimensions in copied document';
         PurchDocType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Receipt","Posted Invoice","Posted Return Shipment","Posted Credit Memo";
         ItemTrackingMode: Option "Assign Lot No.","Select Entries","Assign Serial Nos.";
+        CopyOrderWithShipmentAndATOErr: Label 'The posted sales invoice %1 covers more than one shipment of linked assembly orders that potentially have different assembly components. Select Posted Shipment as document type, and then select a specific shipment of assembled items.';
 
     local procedure CopyDocument(SourceType: Option; SourceUnpostedType: Option; DestType: Option)
     var
@@ -1042,6 +1043,145 @@ codeunit 137212 "SCM Copy Document Mgt."
         AssemblyLine.TestField("Unit Cost", UnitCost * 2);
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    [Scope('OnPrem')]
+    procedure CorrectPostedSalesOrderLinkedWithTwoShipmentsAndAssemblyOrder()
+    var
+        Item: Record Item;
+        AssemblyItem: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        Vendor: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
+        DocumentNo: Code[20];
+    begin
+        // [SCENARIO 342934] Correct posted sales order that is linked to two shiments and assembly to order
+        Initialize;
+
+        LibraryAssembly.SetStockoutWarning(false);
+        LibraryPurchase.CreateVendor(Vendor);
+
+        // [GIVEN] Assemble-to-order item "I".
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Replenishment System", Item."Replenishment System"::Assembly);
+        Item.Validate("Assembly Policy", Item."Assembly Policy"::"Assemble-to-Order");
+        Item.Modify(true);
+
+        // [GIVEN] Create component "C" with "Standard" costing method and add it to the assembly BOM of item "I".
+        LibraryAssembly.CreateAssemblyList(AssemblyItem."Costing Method"::Standard, Item."No.", true, 1, 0, 0, LibraryRandom.RandInt(5), '', '');
+        AssemblyItem.Get(FindComponentItem(Item."No."));
+
+        // [GIVEN] Set the standard cost of item.
+        AssemblyItem.Validate("Standard Cost", LibraryRandom.RandDec(100, 2));
+        AssemblyItem.Modify(true);
+
+        // [Give] Make sure we have enough inventory
+        LibraryPurchase.CreatePurchaseDocumentWithItem(
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, Vendor."No.", Item."No.", 1000, '', 0D);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        LibraryPurchase.CreatePurchaseDocumentWithItem(
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, Vendor."No.", AssemblyItem."No.", 1000, '', 0D);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [GIVEN] Create sales order with linked assembly order.
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo,
+          Item."No.", 2, '', WorkDate);
+
+        SalesLine.Validate("Qty. to Assemble to Order", 2);
+        SalesLine.Validate("Qty. to Ship", 1);
+        SalesLine.Modify(true);
+
+        // [Then] Post sales document in 2 seperate shipments.
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+        DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [Then] Correct the posted sales invoice.
+        SalesInvoiceHeader.Get(DocumentNo);
+        Clear(SalesHeader);
+
+        CorrectPostedSalesInvoice.TestCorrectInvoiceIsAllowed(SalesInvoiceHeader, false);
+        CorrectPostedSalesInvoice.CancelPostedInvoiceStartNewInvoice(SalesInvoiceHeader, SalesHeader);
+
+        // [THEN] System succesfully created new invoice with the lines copied from posted invoice with 2 seperate shipments.
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        Assert.RecordCount(SalesLine, 1);
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    [Scope('OnPrem')]
+    procedure CopyPostedSalesOrderLinkedWithTwoShipmentsAndAssemblyOrder()
+    var
+        Item: Record Item;
+        AssemblyItem: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        Vendor: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        DocumentNo: Code[20];
+        CopyDocumentDocType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Shipment","Posted Invoice","Posted Return Receipt","Posted Credit Memo","Arch. Quote","Arch. Order","Arch. Blanket Order","Arch. Return Order";
+    begin
+        // [SCENARIO 342934] Copy posted sales order having list to shiments and ATO to another order
+        Initialize;
+
+        LibraryAssembly.SetStockoutWarning(false);
+        LibraryPurchase.CreateVendor(Vendor);
+
+        // [GIVEN] Assemble-to-order item "I".
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Replenishment System", Item."Replenishment System"::Assembly);
+        Item.Validate("Assembly Policy", Item."Assembly Policy"::"Assemble-to-Order");
+        Item.Modify(true);
+
+        // [GIVEN] Create component "C" with "Standard" costing method and add it to the assembly BOM of item "I".
+        LibraryAssembly.CreateAssemblyList(AssemblyItem."Costing Method"::Standard, Item."No.", true, 1, 0, 0, LibraryRandom.RandInt(5), '', '');
+        AssemblyItem.Get(FindComponentItem(Item."No."));
+
+        // [GIVEN] Set the standard cost of item.
+        AssemblyItem.Validate("Standard Cost", LibraryRandom.RandDec(100, 2));
+        AssemblyItem.Modify(true);
+
+        // [Give] Make sure we have enough inventory
+        LibraryPurchase.CreatePurchaseDocumentWithItem(
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, Vendor."No.", Item."No.", 1000, '', 0D);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        LibraryPurchase.CreatePurchaseDocumentWithItem(
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, Vendor."No.", AssemblyItem."No.", 1000, '', 0D);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [GIVEN] Create sales order with linked assembly order.
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo,
+          Item."No.", 2, '', WorkDate);
+
+        SalesLine.Validate("Qty. to Assemble to Order", 2);
+        SalesLine.Validate("Qty. to Ship", 1);
+        SalesLine.Modify(true);
+
+        // [Then] Post sales document in 2 seperate shipments.
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+        DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [Then] Correct the posted sales invoice.
+        SalesInvoiceHeader.Get(DocumentNo);
+        Clear(SalesHeader);
+
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, SalesInvoiceHeader."Sell-to Customer No.");
+        asserterror LibrarySales.CopySalesDocument(SalesHeader, CopyDocumentDocType::"Posted Invoice", DocumentNo, true, false);
+
+        Assert.ExpectedError(StrSubstNo(CopyOrderWithShipmentAndATOErr, DocumentNo));
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1058,6 +1198,7 @@ codeunit 137212 "SCM Copy Document Mgt."
 
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.CreateGeneralPostingSetupData;
+        LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.UpdateGeneralLedgerSetup;
         LibrarySales.SetCreditWarningsToNoWarnings;
 
