@@ -87,19 +87,8 @@ page 408 "G/L Balance by Dimension"
                     ToolTip = 'Specifies the dates that will be used to filter the amounts in the window.';
 
                     trigger OnValidate()
-                    var
-                        FilterTokens: Codeunit "Filter Tokens";
-                        Date1: Date;
                     begin
-                        FilterTokens.MakeDateFilter("Date Filter");
-                        if "Date Filter" <> '' then
-                            if Evaluate(Date1, "Date Filter") then
-                                if Date1 <> NormalDate(Date1) then
-                                    "Date Filter" := StrSubstNo('%1..%2', NormalDate(Date1), Date1);
-                        GLAcc.SetFilter("Date Filter", "Date Filter");
-                        "Date Filter" := GLAcc.GetFilter("Date Filter");
-                        InternalDateFilter := "Date Filter";
-                        DateFilterOnAfterValidate;
+                        SetDateFilter("Date Filter");
                     end;
                 }
                 field(GLAccFilter; "Account Filter")
@@ -412,6 +401,7 @@ page 408 "G/L Balance by Dimension"
         FindPeriod('');
 
         MATRIX_NoOfColumns := 32;
+        SetDateFilter("Date Filter");
         MATRIX_GenerateColumnCaptions(MATRIX_Step::Initial);
     end;
 
@@ -879,6 +869,22 @@ page 408 "G/L Balance by Dimension"
     begin
         if ColumnDimOption = ColumnDimOption::Period then
             MATRIX_GenerateColumnCaptions(MATRIX_Step::First);
+    end;
+
+    local procedure SetDateFilter(DateFilter: Text[250])
+    var
+        FilterTokens: Codeunit "Filter Tokens";
+        Date1: Date;
+    begin
+        FilterTokens.MakeDateFilter(DateFilter);
+        if DateFilter <> '' then
+            if Evaluate(Date1, DateFilter) then
+                if Date1 <> NormalDate(Date1) then
+                    DateFilter := StrSubstNo('%1..%2', NormalDate(Date1), Date1);
+        GLAcc.SetFilter("Date Filter", DateFilter);
+        DateFilter := GLAcc.GetFilter("Date Filter");
+        InternalDateFilter := DateFilter;
+        DateFilterOnAfterValidate;
     end;
 
     [IntegrationEvent(false, false)]

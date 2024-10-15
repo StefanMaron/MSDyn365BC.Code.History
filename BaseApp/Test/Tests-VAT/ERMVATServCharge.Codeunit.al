@@ -688,6 +688,8 @@ codeunit 134908 "ERM VAT Serv. Charge"
         CreateCustInvoiceDiscount(SalesHeader."Sell-to Customer No.", ServiceCharge, SalesLine.Amount);
         CustomerPostingGroup.Get(SalesHeader."Customer Posting Group");
         UpdateServiceChargeAccWithVAT(CustomerPostingGroup."Service Charge Acc.", SalesLine."No.");
+        LibraryERM.UpdateSalesPrepmtAccountVATGroup(
+            SalesLine."Gen. Bus. Posting Group", SalesLine."Gen. Prod. Posting Group", SalesLine."VAT Prod. Posting Group");
     end;
 
     local procedure CreatePurchaseOrderWithPrepaymentAndServiceCharge(var PurchaseHeader: Record "Purchase Header"; PrepaymentPct: Decimal; ServiceCharge: Decimal)
@@ -708,6 +710,8 @@ codeunit 134908 "ERM VAT Serv. Charge"
         CreateVendInvoiceDiscount(PurchaseHeader."Pay-to Vendor No.", ServiceCharge, PurchaseLine.Amount);
         VendorPostingGroup.Get(PurchaseHeader."Vendor Posting Group");
         UpdateServiceChargeAccWithVAT(VendorPostingGroup."Service Charge Acc.", PurchaseLine."No.");
+        LibraryERM.UpdatePurchPrepmtAccountVATGroup(
+            PurchaseLine."Gen. Bus. Posting Group", PurchaseLine."Gen. Prod. Posting Group", PurchaseLine."VAT Prod. Posting Group");
     end;
 
     local procedure FindSalesLine(var SalesLine: Record "Sales Line"; DocumentNo: Code[20]): Boolean

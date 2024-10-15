@@ -859,6 +859,7 @@ page 39 "General Journal"
 
                 trigger OnAction()
                 var
+                    [SecurityFiltering(SecurityFilter::Filtered)]
                     GenJournalLine: Record "Gen. Journal Line";
                     ApprovalsMgmt: Codeunit "Approvals Mgmt.";
                 begin
@@ -939,7 +940,9 @@ page 39 "General Journal"
 
                     trigger OnAction()
                     var
+                        [SecurityFiltering(SecurityFilter::Filtered)]
                         GenJnlBatch: Record "Gen. Journal Batch";
+                        [SecurityFiltering(SecurityFilter::Filtered)]
                         GeneralJnlLines: Record "Gen. Journal Line";
                         StdGenJnl: Record "Standard General Journal";
                         SaveAsStdGenJnl: Report "Save as Standard Gen. Journal";
@@ -1308,6 +1311,7 @@ page 39 "General Journal"
 
                         trigger OnAction()
                         var
+                            [SecurityFiltering(SecurityFilter::Filtered)]
                             GenJournalLine: Record "Gen. Journal Line";
                             ApprovalsMgmt: Codeunit "Approvals Mgmt.";
                         begin
@@ -1348,6 +1352,7 @@ page 39 "General Journal"
 
                         trigger OnAction()
                         var
+                            [SecurityFiltering(SecurityFilter::Filtered)]
                             GenJournalLine: Record "Gen. Journal Line";
                             ApprovalsMgmt: Codeunit "Approvals Mgmt.";
                         begin
@@ -1955,6 +1960,7 @@ page 39 "General Journal"
 
     local procedure IterateDocNumbers(FindTxt: Text; NextNum: Integer)
     var
+        [SecurityFiltering(SecurityFilter::Filtered)]
         GenJournalLine: Record "Gen. Journal Line";
         CurrentDocNoWasFound: Boolean;
         NoLines: Boolean;
@@ -1984,7 +1990,9 @@ page 39 "General Journal"
 
     procedure NewDocumentNo()
     var
+        [SecurityFiltering(SecurityFilter::Filtered)]
         GenJournalLine: Record "Gen. Journal Line";
+        [SecurityFiltering(SecurityFilter::Filtered)]
         GenJnlBatch: Record "Gen. Journal Batch";
         LastDocNo: Code[20];
     begin
@@ -2089,6 +2097,7 @@ page 39 "General Journal"
 
     local procedure GetTotalDebitAmt(): Decimal
     var
+        [SecurityFiltering(SecurityFilter::Filtered)]
         GenJournalLine: Record "Gen. Journal Line";
     begin
         if IsSimplePage then begin
@@ -2102,6 +2111,7 @@ page 39 "General Journal"
 
     local procedure GetTotalCreditAmt(): Decimal
     var
+        [SecurityFiltering(SecurityFilter::Filtered)]
         GenJournalLine: Record "Gen. Journal Line";
     begin
         if IsSimplePage then begin
@@ -2138,6 +2148,7 @@ page 39 "General Journal"
 
     local procedure SetDataForSimpleModeOnBatchChange()
     var
+        [SecurityFiltering(SecurityFilter::Filtered)]
         GenJournalLine: Record "Gen. Journal Line";
     begin
         GenJnlManagement.SetLastViewedJournalBatchName(PAGE::"General Journal", CurrentJnlBatchName);
@@ -2179,6 +2190,7 @@ page 39 "General Journal"
 
     local procedure SetDataForSimpleModeOnPropValidation(FieldNumber: Integer)
     var
+        [SecurityFiltering(SecurityFilter::Filtered)]
         GenJournalLine: Record "Gen. Journal Line";
     begin
         if IsSimplePage then begin

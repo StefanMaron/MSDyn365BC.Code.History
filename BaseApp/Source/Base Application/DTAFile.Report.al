@@ -134,7 +134,11 @@ report 3010541 "DTA File"
             FileBank.Modify();
             BackupFilename := FileBank."Backup Folder" + 'DTA' + FileBank."Last Backup No." + '.BAK';
             if FileBank."File Format" = FileBank."File Format"::"With CR/LF" then
+#if not CLEAN17
                 FileMgt.DownloadToFile(ServerTempFilename, BackupFilename)
+#else
+                FileMgt.DownloadHandler(ServerTempFilename, '', '', '', BackupFilename);
+#endif
         end;
 
         Message(Text006, NoOfGlLines, GlSetup."LCY Code",
@@ -1028,7 +1032,11 @@ report 3010541 "DTA File"
     [Scope('OnPrem')]
     procedure DownloadToFile()
     begin
+#if not CLEAN17
         FileMgt.DownloadToFile(ServerTempFilename, FileBank."DTA File Folder" + FileBank."DTA Filename");
+#else
+        FileMgt.DownloadHandler(ServerTempFilename, '', '', '', FileBank."DTA File Folder" + FileBank."DTA Filename");
+#endif
     end;
 }
 

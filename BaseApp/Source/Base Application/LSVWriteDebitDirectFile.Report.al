@@ -225,10 +225,14 @@ report 3010839 "LSV Write DebitDirect File"
         end else
             FileCurrency := _LsvJour."Currency Code";
 
+#if not CLEAN17
         if FileMgt.IsLocalFileSystemAccessible then
             FileMgt.DownloadToFile(ServerTempFilename, LsvSetup."LSV File Folder" + LsvSetup."LSV Filename")
         else
             FileMgt.DownloadHandler(ServerTempFilename, '', '', '', LsvSetup."LSV Filename");
+#else
+            FileMgt.DownloadHandler(ServerTempFilename, '', '', '', LsvSetup."LSV Filename");
+#endif
 
         Message(Text014, NoOfLines, NoOfRecs, TotalAmt, FileCurrency);
     end;

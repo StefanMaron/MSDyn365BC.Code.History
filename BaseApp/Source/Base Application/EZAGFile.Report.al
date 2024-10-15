@@ -135,14 +135,23 @@ report 3010542 "EZAG File"
 
         if DtaSetup."File Format" = DtaSetup."File Format"::"Without CR/LF" then
             GeneralMgt.RemoveCrLf(DtaSetup."EZAG File Folder" + DtaSetup."EZAG Filename", ServerTempFileName, false);
+#if not CLEAN17
         FileMgt.DownloadToFile(ServerTempFileName, DtaSetup."EZAG File Folder" + DtaSetup."EZAG Filename");
+#else
+        FileMgt.DownloadHandler(ServerTempFilename, '', '', '', DtaSetup."EZAG File Folder" + DtaSetup."EZAG Filename");
+#endif
+
         // Backup file
         if DtaSetup."Backup Copy" then begin
             DtaSetup.LockTable();
             DtaSetup."Last Backup No." := IncStr(DtaSetup."Last Backup No.");
             DtaSetup.Modify();
             BackupFilename := DtaSetup."Backup Folder" + 'EZA' + DtaSetup."Last Backup No." + '.BAK';
+#if not CLEAN17
             FileMgt.DownloadToFile(ServerTempFileName, BackupFilename)
+#else
+            FileMgt.DownloadHandler(ServerTempFilename, '', '', '', BackupFilename);
+#endif
         end;
 
         Message(Text006,

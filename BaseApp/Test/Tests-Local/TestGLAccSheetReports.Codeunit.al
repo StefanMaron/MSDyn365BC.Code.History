@@ -852,6 +852,181 @@ codeunit 144035 "Test G/L Acc Sheet Reports"
         VerifyVATInfoReportData(GLAccount);
     end;
 
+    [Test]
+    [HandlerFunctions('GLAccSheetBalanceInfoReqPageHandler,GenJournalBatchesPageHandler')]
+    [Scope('OnPrem')]
+    procedure GLSheetBalAccPrintDebitCreditCorrectlyForTemporaryPostings()
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GLAccount: Record "G/L Account";
+        GenJournalLine: array[3] of Record "Gen. Journal Line";
+    begin
+        // [FEATURE] [SR G/L Acc Sheet Bal Account]
+        // [SCENARIO 386256] Run report 11563 "SR G/L Acc Sheet Bal Account" gor G/L Account with TemporaryPostings with different sign of Amount
+        Initialize();
+
+        // [GIVEN] Setup. Posted and provisional balance.
+        SetupGLAccWithProvBalance(GLAccount, GenJournalTemplate, '', 0);
+
+        // [GIVEN] Created Gen. Journal Line "G1" with positive Amount
+        CreateGenJournalLine(GenJournalLine[1], GLAccount,
+          GenJournalLine[1]."Bal. Account Type"::"G/L Account", '', LibraryRandom.RandDecInRange(100, 200, 2), '');
+
+        // [GIVEN] Created Gen. Journal Line "G2" with negative Amount
+        CreateGenJournalLine(GenJournalLine[2], GLAccount,
+          GenJournalLine[2]."Bal. Account Type"::"G/L Account", '', -LibraryRandom.RandDecInRange(100, 200, 2), '');
+
+        // [GIVEN] Created Gen. Journal Line "G3" with positive Amount
+        CreateGenJournalLine(GenJournalLine[3], GLAccount,
+          GenJournalLine[3]."Bal. Account Type"::"G/L Account", '', LibraryRandom.RandDecInRange(100, 200, 2), '');
+
+        // [WHEN] Run report 11563 "SR G/L Acc Sheet Bal Account"
+        RunSRGLAccSheetBalAccountReport(GLAccount);
+
+        // [THEN] Verify Debit and Credit amounts for Temporary Postings
+        VerifyDebitCreditForTemporaryPostings(GenJournalLine, 'ProvDebit', 'ProvCredit');
+    end;
+
+    [Test]
+    [HandlerFunctions('GLAccSheetFCYReqPageHandler,GenJournalBatchesPageHandler')]
+    [Scope('OnPrem')]
+    procedure GLSheetForeignCurrPrintDebitCreditCorrectlyForTemporaryPostings()
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GLAccount: Record "G/L Account";
+        GenJournalLine: array[3] of Record "Gen. Journal Line";
+    begin
+        // [FEATURE] [SR G/L Acc Sheet Foreign Curr]
+        // [SCENARIO 386256] Run report 11564 "SR G/L Acc Sheet Foreign Curr" gor G/L Account with TemporaryPostings with different sign of Amount
+        Initialize();
+
+        // [GIVEN] Setup. Posted and provisional balance.
+        SetupGLAccWithProvBalance(GLAccount, GenJournalTemplate, '', 0);
+
+        // [GIVEN] Created Gen. Journal Line "G1" with positive Amount
+        CreateGenJournalLine(GenJournalLine[1], GLAccount,
+          GenJournalLine[1]."Bal. Account Type"::"G/L Account", '', LibraryRandom.RandDecInRange(100, 200, 2), '');
+
+        // [GIVEN] Created Gen. Journal Line "G2" with negative Amount
+        CreateGenJournalLine(GenJournalLine[2], GLAccount,
+          GenJournalLine[2]."Bal. Account Type"::"G/L Account", '', -LibraryRandom.RandDecInRange(100, 200, 2), '');
+
+        // [GIVEN] Created Gen. Journal Line "G3" with positive Amount
+        CreateGenJournalLine(GenJournalLine[3], GLAccount,
+          GenJournalLine[3]."Bal. Account Type"::"G/L Account", '', LibraryRandom.RandDecInRange(100, 200, 2), '');
+
+        // [WHEN] Run report 11564 "SR G/L Acc Sheet Foreign Curr"
+        RunSRGLAccSheetForeignCurrReport(GLAccount);
+
+        // [THEN] Verify Debit and Credit amounts for Temporary Postings
+        VerifyDebitCreditForTemporaryPostings(GenJournalLine, 'ProvDebit', 'ProvCredit');
+    end;
+
+    [Test]
+    [HandlerFunctions('GLAccSheetACYReqPageHandler,GenJournalBatchesPageHandler')]
+    [Scope('OnPrem')]
+    procedure GLSheetAdditionalCurrPrintDebitCreditCorrectlyForTemporaryPostings()
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GLAccount: Record "G/L Account";
+        GenJournalLine: array[3] of Record "Gen. Journal Line";
+    begin
+        // [FEATURE] [SR G/L Acc Sheet Reportig Cur]
+        // [SCENARIO 386256] Run report 11565 "SR G/L Acc Sheet Reportig Cur" gor G/L Account with TemporaryPostings with different sign of Amount
+        Initialize();
+
+        // [GIVEN] Setup. Posted and provisional balance.
+        SetupGLAccWithProvBalance(GLAccount, GenJournalTemplate, '', 0);
+
+        // [GIVEN] Created Gen. Journal Line "G1" with positive Amount
+        CreateGenJournalLine(GenJournalLine[1], GLAccount,
+          GenJournalLine[1]."Bal. Account Type"::"G/L Account", '', LibraryRandom.RandDecInRange(100, 200, 2), '');
+
+        // [GIVEN] Created Gen. Journal Line "G2" with negative Amount
+        CreateGenJournalLine(GenJournalLine[2], GLAccount,
+          GenJournalLine[2]."Bal. Account Type"::"G/L Account", '', -LibraryRandom.RandDecInRange(100, 200, 2), '');
+
+        // [GIVEN] Created Gen. Journal Line "G3" with positive Amount
+        CreateGenJournalLine(GenJournalLine[3], GLAccount,
+          GenJournalLine[3]."Bal. Account Type"::"G/L Account", '', LibraryRandom.RandDecInRange(100, 200, 2), '');
+
+        // [WHEN] Run report 11565 "SR G/L Acc Sheet Reportig Cur"
+        RunSRGLAccSheetReportigCurReport(GLAccount);
+
+        // [THEN] Verify Debit and Credit amounts for Temporary Postings
+        VerifyDebitCreditForTemporaryPostings(GenJournalLine, 'ProvDebit_GenJnlLine', 'ProvCredit_GenJnlLine');
+    end;
+
+    [Test]
+    [HandlerFunctions('GLAccSheetPostingInfoReqPageHandler,GenJournalBatchesPageHandler')]
+    [Scope('OnPrem')]
+    procedure GLSheetPostingInfoPrintDebitCreditCorrectlyForTemporaryPostings()
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GLAccount: Record "G/L Account";
+        GenJournalLine: array[3] of Record "Gen. Journal Line";
+    begin
+        // [FEATURE] [SR G/L Acc Sheet Bal Account]
+        // [SCENARIO 386256] Run report 11566 "SR G/L Acc Sheet Posting Info" gor G/L Account with TemporaryPostings with different sign of Amount
+        Initialize();
+
+        // [GIVEN] Setup. Posted and provisional balance.
+        SetupGLAccWithProvBalance(GLAccount, GenJournalTemplate, '', 0);
+
+        // [GIVEN] Created Gen. Journal Line "G1" with positive Amount
+        CreateGenJournalLine(GenJournalLine[1], GLAccount,
+          GenJournalLine[1]."Bal. Account Type"::"G/L Account", '', LibraryRandom.RandDecInRange(100, 200, 2), '');
+
+        // [GIVEN] Created Gen. Journal Line "G2" with negative Amount
+        CreateGenJournalLine(GenJournalLine[2], GLAccount,
+          GenJournalLine[2]."Bal. Account Type"::"G/L Account", '', -LibraryRandom.RandDecInRange(100, 200, 2), '');
+
+        // [GIVEN] Created Gen. Journal Line "G3" with positive Amount
+        CreateGenJournalLine(GenJournalLine[3], GLAccount,
+          GenJournalLine[3]."Bal. Account Type"::"G/L Account", '', LibraryRandom.RandDecInRange(100, 200, 2), '');
+
+        // [WHEN] Run report 11566 "SR G/L Acc Sheet Posting Info"
+        RunSRGLAccSheetPostingInfoReport(GLAccount);
+
+        // [THEN] Verify Debit and Credit amounts for Temporary Postings
+        VerifyDebitCreditForTemporaryPostings(GenJournalLine, 'ProvDebit', 'ProvCredit');
+    end;
+
+    [Test]
+    [HandlerFunctions('GLAccSheetVATInfoReqPageHandler,GenJournalBatchesPageHandler')]
+    [Scope('OnPrem')]
+    procedure GLSheetVATInfoPrintDebitCreditCorrectlyForTemporaryPostings()
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GLAccount: Record "G/L Account";
+        GenJournalLine: array[3] of Record "Gen. Journal Line";
+    begin
+        // [FEATURE] [SR G/L Acc Sheet Bal Account]
+        // [SCENARIO 386256] Run report 11567 "SR G/L Acc Sheet VAT Info" gor G/L Account with TemporaryPostings with different sign of Amount
+        Initialize();
+
+        // [GIVEN] Setup. Posted and provisional balance.
+        SetupGLAccWithProvBalance(GLAccount, GenJournalTemplate, '', 0);
+
+        // [GIVEN] Created Gen. Journal Line "G1" with positive Amount
+        CreateGenJournalLine(GenJournalLine[1], GLAccount,
+          GenJournalLine[1]."Bal. Account Type"::"G/L Account", '', LibraryRandom.RandDecInRange(100, 200, 2), '');
+
+        // [GIVEN] Created Gen. Journal Line "G2" with negative Amount
+        CreateGenJournalLine(GenJournalLine[2], GLAccount,
+          GenJournalLine[2]."Bal. Account Type"::"G/L Account", '', -LibraryRandom.RandDecInRange(100, 200, 2), '');
+
+        // [GIVEN] Created Gen. Journal Line "G3" with positive Amount
+        CreateGenJournalLine(GenJournalLine[3], GLAccount,
+          GenJournalLine[3]."Bal. Account Type"::"G/L Account", '', LibraryRandom.RandDecInRange(100, 200, 2), '');
+
+        // [WHEN] Run report 11567 "SR G/L Acc Sheet VAT Info"
+        RunSRGLAccSheetVATInfoReport(GLAccount);
+
+        // [THEN] Verify Debit and Credit amounts for Temporary Postings
+        VerifyDebitCreditForTemporaryPostings(GenJournalLine, 'ProvDebit', 'ProvCredit');
+    end;
+
     local procedure Initialize()
     var
         GenJnlTemplate: Record "Gen. Journal Template";
@@ -1340,6 +1515,25 @@ codeunit 144035 "Test G/L Acc Sheet Reports"
                       'VATProdPostingGroup_GenJournalLine', GenJournalLine."VAT Prod. Posting Group");
                 end;
         end;
+    end;
+
+    local procedure VerifyDebitCreditForTemporaryPostings(GenJournalLine: array[3] of Record "Gen. Journal Line"; DebitTag: Text; CreditTag: Text)
+    begin
+        // [THEN] Temporary posting for "G1" has "Credit Amount" = 0 and "Debit Amount" = "G1".Amount
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.MoveToRow(LibraryReportDataset.FindRow(DebitTag, GenJournalLine[1].Amount) + 1);
+        LibraryReportDataset.AssertCurrentRowValueEquals(CreditTag, 0);
+        LibraryReportDataset.AssertCurrentRowValueEquals(DebitTag, GenJournalLine[1].Amount);
+
+        // [THEN] Temporary posting for "G2" has "Credit Amount" = -"G2".Amount and "Debit Amount" = 0
+        LibraryReportDataset.MoveToRow(LibraryReportDataset.FindRow(CreditTag, -GenJournalLine[2].Amount) + 1);
+        LibraryReportDataset.AssertCurrentRowValueEquals(CreditTag, -GenJournalLine[2].Amount);
+        LibraryReportDataset.AssertCurrentRowValueEquals(DebitTag, 0);
+
+        // [THEN] Temporary posting for "G3" has "Credit Amount" = 0 and "Debit Amount" = "G3".Amount
+        LibraryReportDataset.MoveToRow(LibraryReportDataset.FindRow(DebitTag, GenJournalLine[3].Amount) + 1);
+        LibraryReportDataset.AssertCurrentRowValueEquals(CreditTag, 0);
+        LibraryReportDataset.AssertCurrentRowValueEquals(DebitTag, GenJournalLine[3].Amount);
     end;
 
     [RequestPageHandler]

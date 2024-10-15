@@ -284,6 +284,8 @@ report 11567 "SR G/L Acc Sheet VAT Info"
                 trigger OnAfterGetRecord()
                 begin
                     ProvEntry := false;
+                    ProvDebit := 0;
+                    ProvCredit := 0;
 
                     if ("Account Type" = "Account Type"::"G/L Account") and ("Account No." = "G/L Account"."No.") then begin
                         ProvEntry := true;
@@ -335,8 +337,6 @@ report 11567 "SR G/L Acc Sheet VAT Info"
                 begin
                     if not ProvEntryExist then
                         CurrReport.Break();
-                    Clear(ProvDebit);
-                    Clear(ProvCredit);
 
                     // Filter set in function SetGenJourLineFilter()
                     CopyFilters(GenJourLine2);

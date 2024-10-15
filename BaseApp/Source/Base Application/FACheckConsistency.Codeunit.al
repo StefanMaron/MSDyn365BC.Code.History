@@ -263,7 +263,14 @@ codeunit 5606 "FA Check Consistency"
     end;
 
     local procedure CheckForError()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckForError(FALedgEntry2, FAJnlLine, FAPostingTypeSetup, NewAmount, BookValue, SalvageValue, DeprBasis, IsHandled);
+        if IsHandled then
+            exit;
+
         with FALedgEntry2 do begin
             case "FA Posting Type" of
                 "FA Posting Type"::"Acquisition Cost":
@@ -365,6 +372,11 @@ codeunit 5606 "FA Check Consistency"
         DepreciationCalculation: Codeunit "Depreciation Calculation";
     begin
         exit(DepreciationCalculation.FADeprBookName(DeprBookCode));
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckForError(FALedgEntry2: Record "FA Ledger Entry"; var FAJnlLine: Record "FA Journal Line"; FAPostingTypeSetup: Record "FA Posting Type Setup"; NewAmount: Decimal; BookValue: Decimal; SalvageValue: Decimal; DeprBasis: Decimal; var IsHandled: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

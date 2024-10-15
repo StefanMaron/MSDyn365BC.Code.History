@@ -290,6 +290,8 @@ report 11565 "SR G/L Acc Sheet Reportig Cur"
                 trigger OnAfterGetRecord()
                 begin
                     ProvEntry := false;
+                    ProvDebit := 0;
+                    ProvCredit := 0;
 
                     if ("Account Type" = "Account Type"::"G/L Account") and ("Account No." = "G/L Account"."No.") then begin
                         ProvEntry := true;
@@ -345,8 +347,6 @@ report 11565 "SR G/L Acc Sheet Reportig Cur"
                 begin
                     if not ProvEntryExist then
                         CurrReport.Break();
-                    Clear(ProvDebit);
-                    Clear(ProvCredit);
 
                     // Filter set in function SetGenJourLineFilter()
                     CopyFilters(GenJourLine2);

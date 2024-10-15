@@ -43,6 +43,9 @@ codeunit 3010831 LSVMgt
         SuccessMsg: Label '%1 payments for %3 %2 was successfully imported.', Comment = 'Parameter 1 - integer, 2 - decimal, 3 - currency code.';
         GenJournalNotEmptyErr: Label 'Journal "%1" contains entries. Please process these first.';
         TransactionNoErr: Label 'Could not find Transaction No. %1 in Debit Direct Order No. %2.';
+#if CLEAN17
+        ChooseFileTitleMsg: Label 'Choose the file to upload.';
+#endif
 
     [Scope('OnPrem')]
     procedure ReleaseCustLedgEntries(GenJnlLine: Record "Gen. Journal Line")
@@ -150,6 +153,7 @@ codeunit 3010831 LSVMgt
                 GLSetup.Get();
                 if GLSetup."LCY Code" <> LsvLine."Currency Code" then
                     GenJournalLine.Validate("Currency Code", LsvLine."Currency Code");
+                OnLSVJournalToGLJournalOnBeforeGenJournalLineInsert(GenJournalLine, LsvLine);
                 GenJournalLine.Insert();
                 LsvLine."LSV Status" := LsvLine."LSV Status"::"Transferred to Pmt. Journal";
                 LsvLine.Modify();
@@ -367,8 +371,10 @@ codeunit 3010831 LSVMgt
         LSVSetup."Last Backup No." := IncStr(LSVSetup."Last Backup No.");
         LSVSetup.Modify();
         BackupFilename := LSVSetup."Backup Folder" + 'DD' + LSVSetup."Last Backup No." + '.BAK';
+#if not CLEAN17
         if Exists(LSVSetup."DebitDirect Import Filename") and (not Exists(BackupFilename)) then
             FileMgt.CopyClientFile(LSVSetup."DebitDirect Import Filename", BackupFilename, true);
+#endif
         if not Exists(BackupFilename) then
             Message(CannotBackupMsg);
     end;
@@ -493,7 +499,11 @@ codeunit 3010831 LSVMgt
     local procedure OpenDDFile(var f: File; LSVSetup: Record "LSV Setup") Result: Text[1024]
     begin
         f.TextMode(true);
+#if not CLEAN17
         Evaluate(Result, FileMgt.UploadFileToServer(LSVSetup."DebitDirect Import Filename"));
+#else
+        Evaluate(Result, FileMgt.UploadFile(ChooseFileTitleMsg, ''));
+#endif
         f.Open(Result);
     end;
 
@@ -645,6 +655,11 @@ codeunit 3010831 LSVMgt
             if FindFirst then
                 Error(GenJournalNotEmptyErr, "Journal Batch Name");
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLSVJournalToGLJournalOnBeforeGenJournalLineInsert(var GenJournalLine: Record "Gen. Journal Line"; LsvLine: Record "LSV Journal Line")
+    begin
     end;
 }
 

@@ -664,7 +664,7 @@ report 11015 "Export Business Data"
         ZipFileName := DataExportRecordDefinition."Data Exp. Rec. Type Code" + '.zip';
         if ClientFileName <> '' then begin
             ZipFileNameOnServer := FileMgt.InstreamExportToServerFile(ZipReadStream, '.zip');
-            FileMgt.DownloadToFile(ZipFileNameOnServer, ClientFileName);
+            FileMgt.DownloadHandler(ZipFileNameOnServer, '', '', '', ClientFileName);
         end else
             DownloadFromStream(ZipReadStream, '', '', '', ZipFileName);
     end;

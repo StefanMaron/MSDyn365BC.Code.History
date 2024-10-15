@@ -1528,6 +1528,33 @@ codeunit 134932 "ERM Gen. Jnl. Error Handling"
         until TempGenJnlLine.Next() = 0;
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure SetRecXRecOnModifyRunTwice()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        xGenJournalLine: Record "Gen. Journal Line";
+        JournalErrorsMgt: Codeunit "Journal Errors Mgt.";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 385781] No error in case of subsequent call of SetRecXRecOnModify for same general journal record
+        Initialize();
+
+        // [GIVEN] Prepare Rec and xRec parameters for SetRecXRecOnModify
+        CreateGenJournalLine(xGenJournalLine);
+        GenJournalLine := xGenJournalLine;
+        GenJournalLine.Description := OnBeforeRunCheckTxt;
+        GenJournalLine.Modify();
+
+        // [GIVEN] Run SetRecXRecOnModify
+        JournalErrorsMgt.SetRecXRecOnModify(GenJournalLine, xGenJournalLine);
+        // [WHEN] Run SetRecXRecOnModify with same parameters second time
+        JournalErrorsMgt.SetRecXRecOnModify(GenJournalLine, xGenJournalLine);
+
+        // [THEN] No error "Gen. Journal Line already exists"
+        Assert.IsTrue(JournalErrorsMgt.GetRecXRecOnModify(GenJournalLine, xGenJournalLine), 'GetRecXRecOnModify failed');
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore();

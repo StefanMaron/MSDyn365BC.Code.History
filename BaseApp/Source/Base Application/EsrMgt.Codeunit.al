@@ -57,6 +57,9 @@ codeunit 3010531 EsrMgt
         TotalRecord: Boolean;
         Text041: Label 'The ESR Account No. %1 defined in the ESR Setup table cannot be detected at the expected position in the file. %2 is not able to determine the ESR record length.', Comment = '%2 - product name';
         Text042: Label 'More than one open invoice were found for the Reference No. %1.';
+#if CLEAN17
+        ChooseFileTitleMsg: Label 'Choose the file to upload.';
+#endif
 
     [Scope('OnPrem')]
     procedure CheckSetup(ActESRSetup: Record "ESR Setup")
@@ -119,7 +122,11 @@ codeunit 3010531 EsrMgt
         NextDocNo := NoSeriesMgt.GetNextNo(GlBatchName."No. Series", PostDate, false);
 
         CRLFTerminated := false;
+#if not CLEAN17
         TempFileName := CopyStr(FileMgt.UploadFileToServer(ESRSetup."ESR Filename"), 1, 1024);
+#else
+        TempFileName := Copystr(FileMgt.UploadFile(ChooseFileTitleMsg, ''), 1, 1024);
+#endif
         f.Open(TempFileName);
         f.Seek(98);
         while (f.Pos < 202) and (f.Read(CR) <> 0) and (not CRLFTerminated) do
@@ -511,20 +518,24 @@ codeunit 3010531 EsrMgt
     end;
 
     local procedure SaveSourceFile()
+#if not CLEAN17
     var
         BackupFilename: Code[130];
+#endif
     begin
         if ESRSetup."Backup Copy" then begin
             ESRSetup.LockTable();
             ESRSetup."Last Backup No." := IncStr(ESRSetup."Last Backup No.");
             ESRSetup.Modify();
             BackupFilename := ESRSetup."Backup Folder" + 'ESR' + ESRSetup."Last Backup No." + '.BAK';
+#if not CLEAN17
             if FileMgt.ClientFileExists(ESRSetup."ESR Filename") and (not FileMgt.ClientFileExists(BackupFilename)) then begin
                 FileMgt.CopyClientFile(ESRSetup."ESR Filename", BackupFilename, true);
                 if not FileMgt.ClientFileExists(BackupFilename) then
                     Message(Text014);
             end else
                 Message(Text014);
+#endif
         end;
     end;
 }

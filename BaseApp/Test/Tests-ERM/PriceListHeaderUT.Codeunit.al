@@ -32,7 +32,11 @@ codeunit 134118 "Price List Header UT"
         LinesExistErr: Label 'You cannot change %1 because one or more lines exist.', Comment = '%1 - Field caption';
         StatusUpdateQst: Label 'Do you want to update status to %1?', Comment = '%1 - status value: Draft, Active, or Inactive';
         CannotDeleteActivePriceListErr: Label 'You cannot delete the active price list %1.', Comment = '%1 - the price list code.';
-        SourceNoMustBeFilledErr: Label 'Source No. must be filled';
+        ParentSourceNoMustBeFilledErr: Label 'Applies-to Parent No. must have a value';
+        ParentSourceNoMustBeBlankErr: Label 'Applies-to Parent No. must be equal to ''''';
+        ProductNoMustBeFilledErr: Label 'Product No. must have a value';
+        SourceNoMustBeFilledErr: Label 'Applies-to No. must have a value';
+        SourceNoMustBeBlankErr: Label 'Applies-to No. must be equal to ''''';
         IsInitialized: Boolean;
 
     [Test]
@@ -176,10 +180,10 @@ codeunit 134118 "Price List Header UT"
         PriceListLine: Record "Price List Line";
     begin
         Initialize();
-        // [GIVEN] Price List Header, where "Source Type" = 'Customer'
+        // [GIVEN] Price List Header, where "Source Type" = 'All Customers'
         CreatePriceList(PriceListHeader, PriceListLine);
-        // [WHEN] Change "Source Type" to 'All Customers' 
-        asserterror PriceListHeader.Validate("Source Type", PriceListHeader."Source Type"::"All Customers");
+        // [WHEN] Change "Source Type" to 'Customer' 
+        asserterror PriceListHeader.Validate("Source Type", PriceListHeader."Source Type"::Customer);
         // [THEN] Error message: 'You cannot update Source Type because lines exist.'
         Assert.ExpectedError(StrSubstNo(LinesExistErr, PriceListHeader.FieldCaption("Source Type")));
     end;
@@ -740,6 +744,97 @@ codeunit 134118 "Price List Header UT"
     end;
 
     [Test]
+    procedure T055_UpdateStatusOnHeaderSourceAllCustomersSourceFilled()
+    var
+        PriceListHeader: Record "Price List Header";
+    begin
+        // [SCENARIO] Update of Status in the header fails on inconsistent source: Applies-to No. is filled.
+        Initialize();
+        // [GIVEN] New price list, where "Status" is 'Draft', "Source Type"::"All Customers", "Source No." is 'X'
+        LibraryPriceCalculation.CreatePriceHeader(
+            PriceListHeader, PriceListHeader."Price Type"::Sale,
+            PriceListHeader."Source Type"::"All Customers", '');
+        PriceListHeader."Source No." := 'x';
+        PriceListHeader.Modify();
+
+        // [WHEN] Set "Status" as 'Active' and answer 'Yes'
+        asserterror PriceListHeader.Validate(Status, PriceListHeader.Status::Active);
+
+        // [THEN] Error: "Applies-to No. must be equal to ''''"
+        Assert.ExpectedError(SourceNoMustBeBlankErr);
+    end;
+
+    [Test]
+    procedure T056_UpdateStatusOnHeaderSourceCustomersSourceBlank()
+    var
+        PriceListHeader: Record "Price List Header";
+    begin
+        // [SCENARIO] Update of Status in the header fails on inconsistent source: Applies-to No. is blank.
+        Initialize();
+        // [GIVEN] New price list, where "Status" is 'Draft', "Source Type"::"Customer", "Source No." is <blank>
+        LibraryPriceCalculation.CreatePriceHeader(
+            PriceListHeader, PriceListHeader."Price Type"::Sale,
+            PriceListHeader."Source Type"::Customer, '');
+        PriceListHeader.Modify();
+
+        // [WHEN] Set "Status" as 'Active'
+        asserterror PriceListHeader.Validate(Status, PriceListHeader.Status::Active);
+
+        // [THEN] Error: "Applies-to No. must have a value"
+        Assert.ExpectedError(SourceNoMustBeFilledErr);
+    end;
+
+    [Test]
+    procedure T057_UpdateStatusOnHeaderSourceAllJobTaskParentSourceBlank()
+    var
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        PriceListHeader: Record "Price List Header";
+    begin
+        // [SCENARIO] Update of Status in the header fails on inconsistent source: Applies-to Parent No. is blank.
+        Initialize();
+        // [GIVEN] New price list, where "Status" is 'Draft', "Source Type"::"Job Task", "Source No." is 'JT', 
+        LibraryJob.CreateJob(Job);
+        LibraryJob.CreateJobTask(Job, JobTask);
+        LibraryPriceCalculation.CreatePriceHeader(
+            PriceListHeader, PriceListHeader."Price Type"::Sale,
+            PriceListHeader."Source Type"::"Job Task", JobTask."Job Task No.");
+        // [GIVEN] "Parent Source No." is <blank>
+        PriceListHeader."Parent Source No." := '';
+        PriceListHeader.Modify();
+
+        // [WHEN] Set "Status" as 'Active'
+        asserterror PriceListHeader.Validate(Status, PriceListHeader.Status::Active);
+
+        // [THEN] Error: "Parent Applies-to No. must have a value"
+        Assert.ExpectedError(ParentSourceNoMustBeFilledErr);
+    end;
+
+    [Test]
+    procedure T058_UpdateStatusOnHeaderSourceAllJobParentSourceFilled()
+    var
+        Job: Record Job;
+        PriceListHeader: Record "Price List Header";
+    begin
+        // [SCENARIO] Update of Status in the header fails on inconsistent source: Applies-to Parent No. is filled.
+        Initialize();
+        // [GIVEN] New price list, where "Status" is 'Draft', "Source Type"::"Job", "Source No." is 'J',
+        LibraryJob.CreateJob(Job);
+        LibraryPriceCalculation.CreatePriceHeader(
+            PriceListHeader, PriceListHeader."Price Type"::Sale,
+            PriceListHeader."Source Type"::Job, Job."No.");
+        // [GIVEN] "Parent Source No." is 'J'
+        PriceListHeader."Parent Source No." := Job."No.";
+        PriceListHeader.Modify();
+
+        // [WHEN] Set "Status" as 'Active' and answer 'Yes'
+        asserterror PriceListHeader.Validate(Status, PriceListHeader.Status::Active);
+
+        // [THEN] Error: "Applies-to Parent No. must be equal to ''''"
+        Assert.ExpectedError(ParentSourceNoMustBeBlankErr);
+    end;
+
+    [Test]
     [HandlerFunctions('ConfirmYesHandler')]
     procedure T060_UpdateStatusOnHeaderAsDefault()
     var
@@ -781,24 +876,78 @@ codeunit 134118 "Price List Header UT"
         PriceListHeader: Record "Price List Header";
         PriceListLine: array[2] of Record "Price List Line";
     begin
-        // [SCENARIO] Update of Status in the header with lines updates lines with confirmation.
+        // [SCENARIO] Update of Status in the header with lines updates lines missing Applies-to No.
         Initialize();
-        // [GIVEN] New price list, where "Status" is 'Draft', "Allow Updating Defaults" is 'Yes'
+        // [GIVEN] New price list, where "Source Type" is 'All Customers', "Status" is 'Draft', "Allow Updating Defaults" is 'Yes'
         CreatePriceList(PriceListHeader, PriceListLine[1]);
         PriceListHeader."Allow Updating Defaults" := true;
         PriceListHeader.Modify();
         PriceListHeader.TestField(Status, PriceListHeader.Status::Draft);
-        // [GIVEN] Two lines, where Item is the same, but "Source No." is <blank> in the 2nd line
+        // [GIVEN] Two lines, where Item is the same, but "Source Type" is 'Customer', "Source No." is <blank> in the 2nd line
         LibraryPriceCalculation.CreateSalesPriceLine(
             PriceListLine[2], PriceListHeader.Code, "Price Source Type"::Customer, '',
             PriceListLine[1]."Asset Type", PriceListLine[1]."Asset No.");
 
-        // [WHEN] Set "Status" as 'Active' and answer 'Yes'
+        // [WHEN] Set "Status" as 'Active'
         asserterror PriceListHeader.Validate(Status, PriceListHeader.Status::Active);
 
-        // [THEN] Error message: "Source No. must be filled in line"
-        asserterror Assert.ExpectedError(SourceNoMustBeFilledErr);
-        Assert.KnownFailure('Unhandled UI: Confirm', 377478);
+        // [THEN] Error message: "Applies-to No. must have a value"
+        Assert.ExpectedError(SourceNoMustBeFilledErr);
+    end;
+
+    [Test]
+    procedure T062_UpdateStatusOnHeaderAsDefaultWithBlankParentSourceNo()
+    var
+        Item: Record Item;
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: array[2] of Record "Price List Line";
+    begin
+        // [SCENARIO] Update of Status in the header with lines updates lines missing Applies-to Parent No.
+        Initialize();
+        // [GIVEN] New price list, where "Source Type" is 'All Customers', "Status" is 'Draft', "Allow Updating Defaults" is 'Yes'
+        CreatePriceList(PriceListHeader, PriceListLine[1]);
+        PriceListHeader."Allow Updating Defaults" := true;
+        PriceListHeader.Modify();
+        PriceListHeader.TestField(Status, PriceListHeader.Status::Draft);
+        // [GIVEN] Two lines, where Item is the same, but "Source Type" is 'Job Task', "Source No." is <blank> in the 2nd line
+        LibraryPriceCalculation.CreateSalesPriceLine(
+            PriceListLine[2], PriceListHeader.Code, "Price Source Type"::"Job Task", '',
+            PriceListLine[1]."Asset Type", PriceListLine[1]."Asset No.");
+
+        // [WHEN] Set "Status" as 'Active'
+        asserterror PriceListHeader.Validate(Status, PriceListHeader.Status::Active);
+
+        // [THEN] Error message: "Applies-to Parent No. must have a value"
+        Assert.ExpectedError(ParentSourceNoMustBeFilledErr);
+    end;
+
+    [Test]
+    procedure T063_UpdateStatusOnHeaderAsDefaultWithBlankProductNo()
+    var
+        Item: Record Item;
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: array[2] of Record "Price List Line";
+    begin
+        // [SCENARIO] Update of Status in the header with lines updates lines missing Product No.
+        Initialize();
+        // [GIVEN] New price list, where "Source Type" is 'All Customers', "Status" is 'Draft', "Allow Updating Defaults" is 'Yes'
+        CreatePriceList(PriceListHeader, PriceListLine[1]);
+        PriceListHeader."Allow Updating Defaults" := true;
+        PriceListHeader.Modify();
+        PriceListHeader.TestField(Status, PriceListHeader.Status::Draft);
+        // [GIVEN] Two lines, where Item is the same, but "Source Type" is 'All Customers', "Source No." is <blank> in the 2nd line
+        LibraryPriceCalculation.CreateSalesPriceLine(
+            PriceListLine[2], PriceListHeader.Code, "Price Source Type"::"All Customers", '',
+            PriceListLine[1]."Asset Type", PriceListLine[1]."Asset No.");
+        // [GIVEN] "Asset No." is <blank>
+        PriceListLine[2]."Asset No." := '';
+        PriceListLine[2].Modify();
+
+        // [WHEN] Set "Status" as 'Active'
+        asserterror PriceListHeader.Validate(Status, PriceListHeader.Status::Active);
+
+        // [THEN] Error message: "Product No. must have a value"
+        Assert.ExpectedError(ProductNoMustBeFilledErr);
     end;
 
     [Test]
@@ -1231,7 +1380,7 @@ codeunit 134118 "Price List Header UT"
     begin
         LibraryPriceCalculation.CreatePriceHeader(
             PriceListHeader, PriceListHeader."Price Type"::Sale,
-            PriceListHeader."Source Type"::"Customer", '');
+            PriceListHeader."Source Type"::"All Customers", '');
         FillPriceListHeader(PriceListHeader);
         LibraryPriceCalculation.CreatePriceListLine(
             PriceListLine, PriceListHeader, "Price Amount Type"::Price, "Price Asset Type"::"G/L Account", LibraryERM.CreateGLAccountNo());

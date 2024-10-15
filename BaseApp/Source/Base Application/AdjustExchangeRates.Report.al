@@ -1870,6 +1870,7 @@ report 595 "Adjust Exchange Rates"
         GenJnlLine."Shortcut Dimension 1 Code" := GetGlobalDimVal(GLSetup."Global Dimension 1 Code", DimSetEntry);
         GenJnlLine."Shortcut Dimension 2 Code" := GetGlobalDimVal(GLSetup."Global Dimension 2 Code", DimSetEntry);
         GenJnlLine."Dimension Set ID" := DimMgt.GetDimensionSetID(TempDimSetEntry);
+        OnPostGenJnlLineOnBeforeGenJnlPostLineRun(GenJnlLine);
         GenJnlPostLine.Run(GenJnlLine);
         exit(GenJnlPostLine.GetNextTransactionNo);
     end;
@@ -2810,6 +2811,11 @@ report 595 "Adjust Exchange Rates"
 
     [IntegrationEvent(false, false)]
     local procedure OnVendorAfterGetRecordOnAfterFindVendLedgerEntriesToAdjust(var TempVendorLedgerEntry: Record "Vendor Ledger Entry" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostGenJnlLineOnBeforeGenJnlPostLineRun(var GenJnlLine: Record "Gen. Journal Line")
     begin
     end;
 }

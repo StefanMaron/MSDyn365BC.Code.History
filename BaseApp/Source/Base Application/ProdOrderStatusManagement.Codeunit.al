@@ -476,7 +476,6 @@
         ProdOrderLine: Record "Prod. Order Line";
         ProdOrderRtngLine: Record "Prod. Order Routing Line";
         ProdOrderComp: Record "Prod. Order Component";
-        ItemJnlPostLine: Codeunit "Item Jnl.-Post Line";
         ItemTrackingMgt: Codeunit "Item Tracking Management";
         Window: Dialog;
         QtyToPost: Decimal;
@@ -555,8 +554,7 @@
                         ItemJnlLine."Gen. Prod. Posting Group" := Item."Gen. Prod. Posting Group";
                         if Item."Item Tracking Code" <> '' then
                             ItemTrackingMgt.CopyItemTracking(RowID1, ItemJnlLine.RowID1, false);
-                        OnBeforePostFlushItemJnlLine(ItemJnlLine);
-                        ItemJnlPostLine.Run(ItemJnlLine);
+                        PostFlushItemJnlLine(ItemJnlLine);
                     end;
                 until Next = 0;
                 Window.Close;
@@ -580,7 +578,6 @@
     var
         ItemJnlLine: Record "Item Journal Line";
         CostCalcMgt: Codeunit "Cost Calculation Management";
-        ItemJnlPostLine: Codeunit "Item Jnl.-Post Line";
         IsLastOperation: Boolean;
         ActualOutputAndScrapQty: Decimal;
         ActualOutputAndScrapQtyBase: Decimal;
@@ -632,8 +629,7 @@
                     OnAfterUpdateGlobalDim(ItemJnlLine, ProdOrderRtngLine, ProdOrderLine);
                     if IsLastOperation then
                         ReserveProdOrderLine.TransferPOLineToItemJnlLine(ProdOrderLine, ItemJnlLine, ItemJnlLine."Output Quantity (Base)");
-                    OnBeforePostFlushItemJnlLine(ItemJnlLine);
-                    ItemJnlPostLine.RunWithCheck(ItemJnlLine);
+                    PostFlushItemJnlLine(ItemJnlLine);
                 end;
 
                 if (ProdOrderRtngLine."Flushing Method" = ProdOrderRtngLine."Flushing Method"::Backward) and IsLastOperation then begin
@@ -643,6 +639,19 @@
                 end;
             until ProdOrderRtngLine.Next() = 0;
         end;
+    end;
+
+    local procedure PostFlushItemJnlLine(var ItemJnlLine: Record "Item Journal Line")
+    var
+        ItemJnlPostLine: Codeunit "Item Jnl.-Post Line";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforePostFlushItemJnlLine(ItemJnlLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        ItemJnlPostLine.RunWithCheck(ItemJnlLine);
     end;
 
     local procedure InitItemJnlLineFromProdOrderLine(var ItemJnlLine: Record "Item Journal Line"; ProdOrder: Record "Production Order"; ProdOrderLine: Record "Prod. Order Line"; ProdOrderRoutingLine: Record "Prod. Order Routing Line"; PostingDate: Date)
@@ -1060,7 +1069,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePostFlushItemJnlLine(var ItemJournalLine: Record "Item Journal Line")
+    local procedure OnBeforePostFlushItemJnlLine(var ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
     begin
     end;
 

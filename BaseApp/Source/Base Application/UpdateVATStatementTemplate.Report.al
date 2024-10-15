@@ -76,6 +76,7 @@ report 11112 "Update VAT Statement Template"
                         ApplicationArea = Basic, Suite;
                         Caption = 'VAT Product Posting Groups for fixed rate agricultural and forestry businesses';
                         Editable = false;
+                        Visible = false;
 
                         trigger OnAssistEdit()
                         var
