@@ -1358,10 +1358,9 @@ report 10710 "Make 349 Declaration"
                                     if SalesInvHeader."Location Code" <> '' then begin
                                         if Location.Get(SalesInvHeader."Location Code") then begin
                                             EUCountryHeaderLocationCode := FindEUCountryRegionCode(Location."Country/Region Code");
-                                            if EUCountryHeaderLocationCode and
-                                               (GetCountryfromLocation(SalesInvHeader."Location Code") <> CountryCode)
-                                            then
-                                                LocationDifferentCountryCode := true;
+                                            LocationDifferentCountryCode :=
+                                              IsSalesLocationDifferentCountryCode(
+                                                EUCountryHeaderLocationCode, SalesInvHeader."Sell-to Customer No.", SalesInvHeader."Location Code");
                                         end;
                                     end else begin
                                         TempSalesInvLines.SetRange("Document No.", DocNo);
@@ -1380,8 +1379,9 @@ report 10710 "Make 349 Declaration"
                                                             AmountToIncludeIn349 +=
                                                               GetExportedAmountIn349(SalesInvHeader."Currency Code",
                                                                 SalesInvHeader."Currency Factor", SalesInvLines.Amount);
-                                                            if GetCountryfromLocation(SalesInvLines."Location Code") <> CountryCode then
-                                                                LocationDifferentCountryCode := true;
+                                                            LocationDifferentCountryCode :=
+                                                              IsSalesLocationDifferentCountryCode(
+                                                                true, SalesInvLines."Sell-to Customer No.", SalesInvLines."Location Code");
                                                             TempSalesInvLines := SalesInvLines;
                                                             TempSalesInvLines.Insert();
                                                         end;
@@ -1403,10 +1403,9 @@ report 10710 "Make 349 Declaration"
                                     if ServiceInvHeader."Location Code" <> '' then begin
                                         if Location.Get(ServiceInvHeader."Location Code") then begin
                                             EUCountryHeaderLocationCode := FindEUCountryRegionCode(Location."Country/Region Code");
-                                            if EUCountryHeaderLocationCode and
-                                               (GetCountryfromLocation(ServiceInvHeader."Location Code") <> CountryCode)
-                                            then
-                                                LocationDifferentCountryCode := true;
+                                            LocationDifferentCountryCode :=
+                                              IsSalesLocationDifferentCountryCode(
+                                                EUCountryHeaderLocationCode, ServiceInvHeader."Customer No.", ServiceInvHeader."Location Code");
                                         end;
                                     end else begin
                                         TempServiceInvLines.SetRange("Document No.", DocNo);
@@ -1423,8 +1422,9 @@ report 10710 "Make 349 Declaration"
                                                             EUCountryLinesLocationCode := FindEUCountryRegionCode(Location."Country/Region Code");
                                                         if EUCountryLinesLocationCode then begin
                                                             AmountToIncludeIn349 := AmountToIncludeIn349 + ServiceInvLines.Amount;
-                                                            if GetCountryfromLocation(ServiceInvLines."Location Code") <> CountryCode then
-                                                                LocationDifferentCountryCode := true;
+                                                            LocationDifferentCountryCode :=
+                                                              IsSalesLocationDifferentCountryCode(
+                                                                true, ServiceInvLines."Customer No.", ServiceInvLines."Location Code");
                                                             TempServiceInvLines := ServiceInvLines;
                                                             TempServiceInvLines.Insert();
                                                         end;
@@ -1453,10 +1453,9 @@ report 10710 "Make 349 Declaration"
                                     if SalesCrMemoHeader."Location Code" <> '' then begin
                                         if Location.Get(SalesCrMemoHeader."Location Code") then begin
                                             EUCountryHeaderLocationCode := FindEUCountryRegionCode(Location."Country/Region Code");
-                                            if EUCountryHeaderLocationCode and
-                                               (GetCountryfromLocation(SalesCrMemoHeader."Location Code") <> CountryCode)
-                                            then
-                                                LocationDifferentCountryCode := true;
+                                            LocationDifferentCountryCode :=
+                                              IsSalesLocationDifferentCountryCode(
+                                                EUCountryHeaderLocationCode, SalesCrMemoHeader."Sell-to Customer No.", SalesCrMemoHeader."Location Code");
                                         end;
                                     end else begin
                                         SalesCrMemoLine.SetRange("Document No.", DocNo);
@@ -1467,10 +1466,9 @@ report 10710 "Make 349 Declaration"
                                                 if SalesCrMemoLine."Location Code" <> '' then begin
                                                     if Location.Get(SalesCrMemoLine."Location Code") then begin
                                                         EUCountryLinesLocationCode := FindEUCountryRegionCode(Location."Country/Region Code");
-                                                        if EUCountryLinesLocationCode and
-                                                           (GetCountryfromLocation(SalesCrMemoLine."Location Code") <> CountryCode)
-                                                        then
-                                                            LocationDifferentCountryCode := true;
+                                                        LocationDifferentCountryCode :=
+                                                          IsSalesLocationDifferentCountryCode(
+                                                            EUCountryHeaderLocationCode, SalesCrMemoLine."Sell-to Customer No.", SalesCrMemoLine."Location Code");
                                                     end;
                                                 end else
                                                     if CompInforShipToCountryCode then
@@ -1483,10 +1481,8 @@ report 10710 "Make 349 Declaration"
                                     if ServiceCrMemoHeader."Location Code" <> '' then begin
                                         if Location.Get(ServiceCrMemoHeader."Location Code") then begin
                                             EUCountryHeaderLocationCode := FindEUCountryRegionCode(Location."Country/Region Code");
-                                            if EUCountryHeaderLocationCode and
-                                               (GetCountryfromLocation(ServiceCrMemoHeader."Location Code") <> CountryCode)
-                                            then
-                                                LocationDifferentCountryCode := true;
+                                            IsSalesLocationDifferentCountryCode(
+                                              EUCountryHeaderLocationCode, ServiceCrMemoHeader."Customer No.", ServiceCrMemoHeader."Location Code");
                                         end;
                                     end else begin
                                         ServiceCrMemoLine.SetRange("Document No.", DocNo);
@@ -1497,10 +1493,8 @@ report 10710 "Make 349 Declaration"
                                                 if ServiceCrMemoLine."Location Code" <> '' then begin
                                                     if Location.Get(ServiceCrMemoLine."Location Code") then begin
                                                         EUCountryLinesLocationCode := FindEUCountryRegionCode(Location."Country/Region Code");
-                                                        if EUCountryLinesLocationCode and
-                                                           (GetCountryfromLocation(ServiceCrMemoLine."Location Code") <> CountryCode)
-                                                        then
-                                                            LocationDifferentCountryCode := true;
+                                                        IsSalesLocationDifferentCountryCode(
+                                                          EUCountryHeaderLocationCode, ServiceCrMemoLine."Customer No.", ServiceCrMemoLine."Location Code");
                                                     end;
                                                 end else
                                                     if CompInforShipToCountryCode then
@@ -1524,10 +1518,9 @@ report 10710 "Make 349 Declaration"
                                 if PurchInvHeader."Location Code" <> '' then begin
                                     if Location.Get(PurchInvHeader."Location Code") then begin
                                         EUCountryHeaderLocationCode := FindEUCountryRegionCode(Location."Country/Region Code");
-                                        if EUCountryHeaderLocationCode and
-                                           (GetCountryfromLocation(PurchInvHeader."Location Code") <> CountryCode)
-                                        then
-                                            LocationDifferentCountryCode := true;
+                                        LocationDifferentCountryCode :=
+                                          IsPurchsLocationDifferentCountryCode(
+                                            EUCountryHeaderLocationCode, PurchInvHeader."Pay-to Vendor No.", PurchInvHeader."Location Code");
                                     end;
                                 end else begin
                                     TempPurchInvLines.SetRange("Document No.", DocNo);
@@ -1546,8 +1539,9 @@ report 10710 "Make 349 Declaration"
                                                         AmountToIncludeIn349 +=
                                                           GetExportedAmountIn349(PurchInvHeader."Currency Code",
                                                             PurchInvHeader."Currency Factor", PurchInvLines.Amount);
-                                                        if GetCountryfromLocation(PurchInvLines."Location Code") <> CountryCode then
-                                                            LocationDifferentCountryCode := true;
+                                                        LocationDifferentCountryCode :=
+                                                          IsPurchsLocationDifferentCountryCode(
+                                                            true, PurchInvLines."Pay-to Vendor No.", PurchInvLines."Location Code");
                                                         TempPurchInvLines := PurchInvLines;
                                                         TempPurchInvLines.Insert();
                                                     end;
@@ -1574,10 +1568,9 @@ report 10710 "Make 349 Declaration"
                                 if PurchCrMemoHdr."Location Code" <> '' then begin
                                     if Location.Get(PurchCrMemoHdr."Location Code") then begin
                                         EUCountryHeaderLocationCode := FindEUCountryRegionCode(Location."Country/Region Code");
-                                        if EUCountryHeaderLocationCode and
-                                           (GetCountryfromLocation(PurchCrMemoHdr."Location Code") <> CountryCode)
-                                        then
-                                            LocationDifferentCountryCode := true;
+                                        LocationDifferentCountryCode :=
+                                          IsPurchsLocationDifferentCountryCode(
+                                            EUCountryHeaderLocationCode, PurchCrMemoHdr."Pay-to Vendor No.", PurchCrMemoHdr."Location Code");
                                     end;
                                 end else begin
                                     PurchCrMemoLine.SetRange("Document No.", DocNo);
@@ -1588,10 +1581,9 @@ report 10710 "Make 349 Declaration"
                                             if PurchCrMemoLine."Location Code" <> '' then begin
                                                 if Location.Get(PurchCrMemoLine."Location Code") then begin
                                                     EUCountryLinesLocationCode := FindEUCountryRegionCode(Location."Country/Region Code");
-                                                    if EUCountryLinesLocationCode and
-                                                       (GetCountryfromLocation(PurchCrMemoLine."Location Code") <> CountryCode)
-                                                    then
-                                                        LocationDifferentCountryCode := true;
+                                                    LocationDifferentCountryCode :=
+                                                      IsPurchsLocationDifferentCountryCode(
+                                                        EUCountryHeaderLocationCode, PurchCrMemoLine."Pay-to Vendor No.", PurchCrMemoLine."Location Code");
                                                 end;
                                             end else
                                                 if CompInforShipToCountryCode then
@@ -1875,6 +1867,34 @@ report 10710 "Make 349 Declaration"
             SetRange(Exported, IsExported);
             SetRange("EU Service", EUService);
         end;
+    end;
+
+    local procedure IsSalesLocationDifferentCountryCode(EUCountryHeaderLocationCode: Boolean; CustomerNo: Code[20]; LocationCode: Code[10]): Boolean
+    var
+        Customer: Record Customer;
+    begin
+        Customer.Get(CustomerNo);
+        exit(IsLocationDifferentCountryCode(EUCountryHeaderLocationCode, Customer."Country/Region Code", LocationCode));
+    end;
+
+    local procedure IsPurchsLocationDifferentCountryCode(EUCountryHeaderLocationCode: Boolean; VendorNo: Code[20]; LocationCode: Code[10]): Boolean
+    var
+        Vendor: Record Vendor;
+    begin
+        Vendor.Get(VendorNo);
+        exit(IsLocationDifferentCountryCode(EUCountryHeaderLocationCode, Vendor."Country/Region Code", LocationCode));
+    end;
+
+    local procedure IsLocationDifferentCountryCode(EUCountryHeaderLocationCode: Boolean; CustVendCountryRegionCode: Code[10]; LocationCode: Code[10]): Boolean
+    var
+        LocationCountryCode: Code[10];
+    begin
+        if not EUCountryHeaderLocationCode then
+            exit;
+        LocationCountryCode := GetCountryfromLocation(LocationCode);
+        exit(
+          (LocationCountryCode <> CountryCode) xor
+          (CustVendCountryRegionCode <> CountryCode));
     end;
 
     local procedure CombineEUCountryAndVATRegNo(CountryRegion: Record "Country/Region"; VATRegistrationNo: Code[20]) CombinedVATRegNo: Text[17]

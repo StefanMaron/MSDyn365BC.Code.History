@@ -64,7 +64,7 @@ codeunit 10752 "SII Doc. Upload Management"
                 WebServiceUrl := SIISetup.CollectionInCashEndpointUrl;
         end;
 
-        OnInvokeBatchSoapRequestOnBeforeStoreRequestXML(RequestText);
+        OnInvokeBatchSoapRequestOnBeforeStoreRequestXML(RequestText, RequestType, WebServiceUrl);
 
         SIISession.StoreRequestXml(RequestText);
 
@@ -729,7 +729,7 @@ codeunit 10752 "SII Doc. Upload Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnInvokeBatchSoapRequestOnBeforeStoreRequestXML(var RequestText: Text);
+    local procedure OnInvokeBatchSoapRequestOnBeforeStoreRequestXML(var RequestText: Text; RequestType: Option InvoiceIssuedRegistration,InvoiceReceivedRegistration,PaymentSentRegistration,PaymentReceivedRegistration,CollectionInCashRegistration; var WebServiceUrl: Text);
     begin
     end;
 }

@@ -189,37 +189,40 @@ report 7000082 "Settle Docs. in Posted PO"
 
                     Error(Text1100003 + Text1100005);
                 end;
-                OnBeforePostedDocOnPostDataItem(PostedDoc, PostedPmtOrd, BankAccPostBuffer);
-                if BankAccPostBuffer.Find('-') then
-                    repeat
-                        VendLedgEntry2.Get(BankAccPostBuffer."Entry No.");
-                        PostedDoc2.Get(1, VendLedgEntry2."Entry No.");
-                        PostedPmtOrd.Get(PostedDoc2."Bill Gr./Pmt. Order No.");
-                        BankAcc.Get(PostedPmtOrd."Bank Account No.");
-                        GenJnlLineNextNo := GenJnlLineNextNo + 10000;
-                        with GenJnlLine do begin
-                            Clear(GenJnlLine);
-                            Init;
-                            "Line No." := GenJnlLineNextNo;
-                            "Posting Date" := PostingDate;
-                            "Document Type" := "Document Type"::Payment;
-                            "Document No." := PostedPmtOrd."No.";
-                            "Reason Code" := PostedPmtOrd."Reason Code";
-                            Validate("Account Type", "Account Type"::"Bank Account");
-                            Validate("Account No.", BankAcc."No.");
-                            Description := CopyStr(StrSubstNo(Text1100006, PostedPmtOrd."No."), 1, MaxStrLen(Description));
-                            Validate("Currency Code", PostedPmtOrd."Currency Code");
-                            Validate(Amount, -BankAccPostBuffer.Amount);
-                            "Source Code" := SourceCode;
-                            "Dimension Set ID" :=
-                              CarteraManagement.GetCombinedDimSetID(GenJnlLine, BankAccPostBuffer."Dimension Set ID");
-                            "System-Created Entry" := true;
-                            OnBeforeGenJournalLineInsert(PostedDoc, GenJnlLine, VATPostingSetup, VendLedgEntry, PostedPmtOrd, BankAcc);
-                            Insert;
 
-                            SumLCYAmt := SumLCYAmt + "Amount (LCY)";
-                        end;
-                    until BankAccPostBuffer.Next() = 0;
+                IsHandled := false;
+                OnBeforePostedDocOnPostDataItem(PostedDoc, PostedPmtOrd, BankAccPostBuffer, IsHandled);
+                if not IsHandled then
+                    if BankAccPostBuffer.Find('-') then
+                        repeat
+                            VendLedgEntry2.Get(BankAccPostBuffer."Entry No.");
+                            PostedDoc2.Get(1, VendLedgEntry2."Entry No.");
+                            PostedPmtOrd.Get(PostedDoc2."Bill Gr./Pmt. Order No.");
+                            BankAcc.Get(PostedPmtOrd."Bank Account No.");
+                            GenJnlLineNextNo := GenJnlLineNextNo + 10000;
+                            with GenJnlLine do begin
+                                Clear(GenJnlLine);
+                                Init;
+                                "Line No." := GenJnlLineNextNo;
+                                "Posting Date" := PostingDate;
+                                "Document Type" := "Document Type"::Payment;
+                                "Document No." := PostedPmtOrd."No.";
+                                "Reason Code" := PostedPmtOrd."Reason Code";
+                                Validate("Account Type", "Account Type"::"Bank Account");
+                                Validate("Account No.", BankAcc."No.");
+                                Description := CopyStr(StrSubstNo(Text1100006, PostedPmtOrd."No."), 1, MaxStrLen(Description));
+                                Validate("Currency Code", PostedPmtOrd."Currency Code");
+                                Validate(Amount, -BankAccPostBuffer.Amount);
+                                "Source Code" := SourceCode;
+                                "Dimension Set ID" :=
+                                CarteraManagement.GetCombinedDimSetID(GenJnlLine, BankAccPostBuffer."Dimension Set ID");
+                                "System-Created Entry" := true;
+                                OnBeforeGenJournalLineInsert(PostedDoc, GenJnlLine, VATPostingSetup, VendLedgEntry, PostedPmtOrd, BankAcc);
+                                Insert;
+
+                                SumLCYAmt := SumLCYAmt + "Amount (LCY)";
+                            end;
+                        until BankAccPostBuffer.Next() = 0;
 
                 if PostedPmtOrd."Currency Code" <> '' then begin
                     if SumLCYAmt <> 0 then begin
@@ -507,7 +510,7 @@ report 7000082 "Settle Docs. in Posted PO"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePostedDocOnPostDataItem(var PostedCarteraDoc: Record "Posted Cartera Doc."; var PostedPaymentOrder: Record "Posted Payment Order"; var BgPoPostBuffer: Record "BG/PO Post. Buffer")
+    local procedure OnBeforePostedDocOnPostDataItem(var PostedCarteraDoc: Record "Posted Cartera Doc."; var PostedPaymentOrder: Record "Posted Payment Order"; var BgPoPostBuffer: Record "BG/PO Post. Buffer"; var IsHandled: Boolean)
     begin
     end;
 

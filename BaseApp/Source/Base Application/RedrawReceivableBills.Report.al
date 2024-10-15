@@ -5,7 +5,8 @@ report 7000096 "Redraw Receivable Bills"
                   TableData "Vendor Ledger Entry" = imd,
                   TableData "Cartera Doc." = imd,
                   TableData "Posted Cartera Doc." = imd,
-                  TableData "Closed Cartera Doc." = imd;
+                  TableData "Closed Cartera Doc." = imd,
+                  TableData "Detailed Cust. Ledg. Entry" = rimd;
     ProcessingOnly = true;
 
     dataset

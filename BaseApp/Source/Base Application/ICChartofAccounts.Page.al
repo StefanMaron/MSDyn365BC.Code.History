@@ -217,6 +217,7 @@ page 605 "IC Chart of Accounts"
                     ICGLAcc."Account Type" := GLAcc."Account Type";
                     ICGLAcc."Income/Balance" := GLAcc."Income/Balance";
                     ICGLAcc.Validate(Indentation, PrevIndentation);
+                    OnCopyFromChartOfAccountsOnBeforeICGLAccInsert(ICGLAcc, GLAcc);
                     ICGLAcc.Insert();
                 end;
                 PrevIndentation := GLAcc.Indentation;
@@ -288,6 +289,11 @@ page 605 "IC Chart of Accounts"
     begin
         NameIndent := Indentation;
         Emphasize := "Account Type" <> "Account Type"::Posting;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCopyFromChartOfAccountsOnBeforeICGLAccInsert(var ICGLAccount: Record "IC G/L Account"; GLAccount: Record "G/L Account")
+    begin
     end;
 }
 

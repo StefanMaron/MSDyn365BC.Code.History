@@ -18,6 +18,7 @@ codeunit 147531 "Cartera Recv. Installments"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryRandom: Codeunit "Library - Random";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryJournals: Codeunit "Library - Journals";
         CountMismatchErr: Label 'Number of %1 does not match %2.', Comment = '%1=TableCaption;%2=FieldCaption';
         LocalCurrencyCode: Code[10];
 
@@ -511,6 +512,52 @@ codeunit 147531 "Cartera Recv. Installments"
         ValidateInstallmentCarteraDocuments(Customer."No.", DocumentNo, TotalAmount, 1);
     end;
 
+    [Test]
+    procedure VATIsFullyRealizedAfterSevPmtToBillApplicationsForSevInstallments()
+    var
+        Customer: Record Customer;
+        PaymentTerms: Record "Payment Terms";
+        SalesHeader: Record "Sales Header";
+        VATEntry: Record "VAT Entry";
+        DocumentNo: Code[20];
+        SalesUnrVATAccount: Code[20];
+        PurchUnrVATAccount: Code[20];
+    begin
+        // [FEATURE] [Unrealized VAT]
+        // [SCENARIO 403927] Sales invoice unrealized VAT is fully realized after several payment to Bill applications
+        // [SCENARIO 403927] in case of several installments
+        Initialize;
+
+        // [GIVEN] Unrealized VAT setup, payment term with 2 installments
+        LibraryCarteraCommon.SetupUnrealizedVAT(SalesUnrVATAccount, PurchUnrVATAccount);
+        LibraryCarteraReceivables.CreateCarteraCustomer(Customer, '');
+        LibraryCarteraReceivables.SetPaymentTermsVatDistribution(
+          Customer."Payment Terms Code", PaymentTerms."VAT distribution"::Proportional);
+        LibraryCarteraReceivables.CreateMultipleInstallments(Customer."Payment Terms Code", 2);
+
+        // [GIVEN] Posted sales invoice with 2 opened Bills
+        LibraryCarteraReceivables.CreateSalesInvoice(SalesHeader, Customer."No.");
+        DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+        VATEntry.SetRange("Document Type", VATEntry."Document Type"::Invoice);
+        VATEntry.SetRange("Document No.", DocumentNo);
+        VATEntry.FindFirst();
+        VATEntry.TestField("Unrealized Base");
+        VATEntry.TestField("Unrealized Amount");
+        VATEntry.TestField("Remaining Unrealized Base", VATEntry."Unrealized Base");
+        VATEntry.TestField("Remaining Unrealized Amount", VATEntry."Unrealized Amount");
+
+        // [GIVEN] Apply and post the first Bill
+        ApplyPostFirstOpenBill(Customer."No.", DocumentNo);
+
+        // [WHEN] Apply and post the second Bill
+        ApplyPostFirstOpenBill(Customer."No.", DocumentNo);
+
+        // [THEN] Original document unrealized VAT is fully realized
+        VATEntry.Find();
+        VATEntry.TestField("Remaining Unrealized Base", 0);
+        VATEntry.TestField("Remaining Unrealized Amount", 0);
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear;
@@ -538,6 +585,28 @@ codeunit 147531 "Cartera Recv. Installments"
         CustomerLedgerEntries.OpenEdit;
         CustomerLedgerEntries.GotoKey(EntryNo);
         CustomerLedgerEntries."Apply Entries".Invoke;
+    end;
+
+    local procedure ApplyPostFirstOpenBill(CustomerNo: Code[20]; DocumentNo: Code[20])
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        CustLedgerEntry.SetRange("Customer No.", CustomerNo);
+        CustLedgerEntry.SetRange(Open, true);
+        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Bill, DocumentNo);
+        CustLedgerEntry.CalcFields(Amount);
+        CustLedgerEntry.Validate("Applies-to ID", LibraryUtility.GenerateGUID);
+        CustLedgerEntry.Validate("Amount to Apply", CustLedgerEntry.Amount);
+        CustLedgerEntry.Modify(true);
+
+        LibraryJournals.CreateGenJournalLineWithBatch(
+          GenJournalLine, GenJournalLine."Document Type"::Payment,
+          GenJournalLine."Account Type"::Customer, CustomerNo, -CustLedgerEntry.Amount);
+        GenJournalLine.Validate("Applies-to ID", CustLedgerEntry."Applies-to ID");
+        GenJournalLine.Modify(true);
+
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
     [ModalPageHandler]

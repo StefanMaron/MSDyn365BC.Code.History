@@ -31,7 +31,7 @@ report 6653 "Combine Return Receipts"
                             if "Bill-to Customer No." <> Cust."No." then
                                 Cust.Get("Bill-to Customer No.");
                             if Cust.Blocked <> Cust.Blocked::All then begin
-                                if ShouldFinalizeSalesInvHeader(SalesOrderHeader, SalesHeader) then begin
+                                if ShouldFinalizeSalesInvHeader(SalesOrderHeader, SalesHeader, "Return Receipt Line") then begin
                                     if SalesHeader."No." <> '' then
                                         FinalizeSalesInvHeader;
                                     InsertSalesInvHeader;
@@ -242,14 +242,14 @@ report 6653 "Combine Return Receipts"
         PostInv := NewPostCreditMemo;
     end;
 
-    local procedure ShouldFinalizeSalesInvHeader(SalesOrderHeader: Record "Sales Header"; SalesHeader: Record "Sales Header") Finalize: Boolean
+    local procedure ShouldFinalizeSalesInvHeader(SalesOrderHeader: Record "Sales Header"; SalesHeader: Record "Sales Header"; ReturnReceiptLine: Record "Return Receipt Line") Finalize: Boolean
     begin
         Finalize :=
           (SalesOrderHeader."Bill-to Customer No." <> SalesHeader."Bill-to Customer No.") or
           (SalesOrderHeader."Currency Code" <> SalesHeader."Currency Code") or
           (SalesOrderHeader."Dimension Set ID" <> SalesHeader."Dimension Set ID");
 
-        OnAfterShouldFinalizeSalesInvHeader(SalesOrderHeader, SalesHeader, Finalize);
+        OnAfterShouldFinalizeSalesInvHeader(SalesOrderHeader, SalesHeader, Finalize, ReturnReceiptLine);
         exit(Finalize);
     end;
 
@@ -259,7 +259,7 @@ report 6653 "Combine Return Receipts"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterShouldFinalizeSalesInvHeader(var SalesOrderHeader: Record "Sales Header"; SalesHeader: Record "Sales Header"; var Finalize: Boolean)
+    local procedure OnAfterShouldFinalizeSalesInvHeader(var SalesOrderHeader: Record "Sales Header"; SalesHeader: Record "Sales Header"; var Finalize: Boolean; ReturnReceiptLine: Record "Return Receipt Line")
     begin
     end;
 

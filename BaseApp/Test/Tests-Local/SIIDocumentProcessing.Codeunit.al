@@ -97,6 +97,10 @@ codeunit 147522 "SII Document Processing"
 
         // [THEN] Version of SII Doc. Upload State is 1.1bis
         SIIDocUploadState.TestField("Version No.", SIIDocUploadState."Version No."::"2.1");
+
+        // [THEN] The SII job queue entry has been created
+        // TFS ID 402592: Job Queue Entry triggers on general journal line posting with "Document Type" = Invoice
+        VerifySIIJobQueueEntryCount(1);
     end;
 
     [Test]
@@ -170,6 +174,10 @@ codeunit 147522 "SII Document Processing"
 
         // [THEN] Version of SII Doc. Upload State is 1.1bis
         SIIDocUploadState.TestField("Version No.", SIIDocUploadState."Version No."::"2.1");
+
+        // [THEN] The SII job queue entry has been created
+        // TFS ID 402592: Job Queue Entry triggers on general journal line posting with "Document Type" = Invoice
+        VerifySIIJobQueueEntryCount(1);
     end;
 
     [Test]
@@ -197,6 +205,10 @@ codeunit 147522 "SII Document Processing"
               SIIDocUploadState, "Document Source"::"Customer Ledger", "Document Type"::"Credit Memo", GenJournalLine."Document No.");
             TestField(Status, Status::Pending);
         end;
+
+        // [THEN] The SII job queue entry has been created
+        // TFS ID 402592: Job Queue Entry triggers on general journal line posting with "Document Type" = Invoice
+        VerifySIIJobQueueEntryCount(1);
     end;
 
     [Test]
@@ -224,6 +236,10 @@ codeunit 147522 "SII Document Processing"
               SIIDocUploadState, "Document Source"::"Vendor Ledger", "Document Type"::"Credit Memo", GenJournalLine."Document No.");
             TestField(Status, Status::Pending);
         end;
+
+        // [THEN] The SII job queue entry has been created
+        // TFS ID 402592: Job Queue Entry triggers on general journal line posting with "Document Type" = Invoice
+        VerifySIIJobQueueEntryCount(1);
     end;
 
     [Test]

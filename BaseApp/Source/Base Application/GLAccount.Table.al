@@ -16,7 +16,13 @@ table 15 "G/L Account"
             trigger OnValidate()
             var
                 TestNo: Integer;
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateNo(Rec, xRec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if (xRec."No." <> '') then
                     if (StrLen("No.") > 5) <> (StrLen(xRec."No.") > 5) then
                         Error(Text1100001,
@@ -97,7 +103,8 @@ table 15 "G/L Account"
         {
             CaptionClass = '1,1,1';
             Caption = 'Global Dimension 1 Code';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1));
+            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1),
+                                                          Blocked = CONST(false));
 
             trigger OnValidate()
             begin
@@ -108,7 +115,8 @@ table 15 "G/L Account"
         {
             CaptionClass = '1,1,2';
             Caption = 'Global Dimension 2 Code';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2));
+            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2),
+                                                          Blocked = CONST(false));
 
             trigger OnValidate()
             begin
@@ -1018,6 +1026,11 @@ table 15 "G/L Account"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateShortcutDimCode(var GLAccount: Record "G/L Account"; var xGLAccount: Record "G/L Account"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateNo(var GLAccount: Record "G/L Account"; var xGLAccount: Record "G/L Account"; var IsHandled: Boolean)
     begin
     end;
 

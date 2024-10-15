@@ -201,6 +201,11 @@ page 17 "G/L Account Card"
                     Caption = 'Default Deferral Template';
                     ToolTip = 'Specifies the default deferral template that governs how to defer revenues and expenses to the periods when they occurred.';
                 }
+                field(IgnoreIn347Report; "Ignore in 347 Report")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies that when this field is checked, the entries in this account will not be included in the 347 report.';
+                }
             }
             group(Consolidation)
             {
@@ -243,11 +248,17 @@ page 17 "G/L Account Card"
                     Importance = Promoted;
                     ToolTip = 'Specifies a cost type number to establish which cost type a general ledger account belongs to.';
                 }
+#if not CLEAN19                
                 field("Ignore in 347 Report"; "Ignore in 347 Report")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies that when this field is checked, the entries in this account will not be included in the 347 report.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Posting tab';
+                    ObsoleteTag = '19.0';
                 }
+#endif
             }
         }
         area(factboxes)

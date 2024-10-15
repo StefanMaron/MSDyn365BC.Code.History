@@ -14,6 +14,7 @@ codeunit 147542 "Cartera Recv. Unit Tests"
         LibraryCarteraReceivables: Codeunit "Library - Cartera Receivables";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
         LibraryERM: Codeunit "Library - ERM";
         LocalTxt: Label 'LOCAL', Locked = true;
 
@@ -341,6 +342,36 @@ codeunit 147542 "Cartera Recv. Unit Tests"
         // TODO: Uncomment LibraryLowerPermissions.SetOutsideO365Scope;
         CarteraDoc.Find;
         CarteraDoc.TestField("Payment Method Code", PaymentMethod.Code);
+    end;
+
+    [Test]
+    [TestPermissions(TestPermissions::Restrictive)]
+    procedure OpenBillGroupCanBeDeletedDirectlyUnderLocalPermissions()
+    var
+        BillGroup: Record "Bill Group";
+    begin
+        // [FEATURE] [Permissions]
+        // [SCENARIO 404664] Open Bill Group can be directly deleted
+        BillGroup.Init();
+        BillGroup.Insert(true);
+
+        LibraryLowerPermissions.SetLocal();
+        BillGroup.Delete(true);
+    end;
+
+    [Test]
+    [TestPermissions(TestPermissions::Restrictive)]
+    procedure OpenPaymentOrderCanBeDeletedDirectlyUnderLocalPermissions()
+    var
+        PaymentOrder: Record "Payment Order";
+    begin
+        // [FEATURE] [Permissions]
+        // [SCENARIO 404664] Open Payment Order can be directly deleted
+        PaymentOrder.Init();
+        PaymentOrder.Insert(true);
+
+        LibraryLowerPermissions.SetLocal();
+        PaymentOrder.Delete(true);
     end;
 
     local procedure Initialize()

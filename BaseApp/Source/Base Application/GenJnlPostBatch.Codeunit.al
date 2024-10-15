@@ -113,7 +113,9 @@
         TempMarkedGenJnlLine: Record "Gen. Journal Line" temporary;
         IntegrationService: Codeunit "Integration Service";
         IntegrationManagement: Codeunit "Integration Management";
+        SIIJobUploadPendingDocs: Codeunit "SII Job Upload Pending Docs.";
         RaiseError: Boolean;
+        HandleSIIAfterPosting: Boolean;
     begin
         OnBeforeCode(GenJnlLine, PreviewMode, SuppressCommit);
 
@@ -125,6 +127,7 @@
         with GenJnlLine do begin
             SetRange("Journal Template Name", "Journal Template Name");
             SetRange("Journal Batch Name", "Journal Batch Name");
+            HandleSIIAfterPosting := SIIJobUploadPendingDocs.GenJnlLineHasSIIDocType(GenJnlLine);
 
             LockTable();
             GenJnlAlloc.LockTable();
@@ -147,6 +150,9 @@
                 Copy(TempMarkedGenJnlLine);
             end else
                 ProcessLines(GenJnlLine);
+
+            if HandleSIIAfterPosting then
+                SIIJobUploadPendingDocs.HandlePendingEntries();
         end;
 
         OnAfterCode(GenJnlLine, PreviewMode);

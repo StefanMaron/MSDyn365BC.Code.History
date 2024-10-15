@@ -69,6 +69,8 @@ table 5876 "Phys. Invt. Order Line"
                 "Use Item Tracking" := PhysInvtTrackingMgt.SuggestUseTrackingLines(Item);
 
                 GetShelfNo();
+
+                OnAfterValidateItemNo(Rec, PhysInvtOrderHeader, Item);
             end;
         }
         field(21; "Variant Code"; Code[10])
@@ -259,7 +261,8 @@ table 5876 "Phys. Invt. Order Line"
         {
             CaptionClass = '1,2,1';
             Caption = 'Shortcut Dimension 1 Code';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1));
+            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1),
+                                                          Blocked = CONST(false));
 
             trigger OnValidate()
             begin
@@ -271,7 +274,8 @@ table 5876 "Phys. Invt. Order Line"
         {
             CaptionClass = '1,2,2';
             Caption = 'Shortcut Dimension 2 Code';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2));
+            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2),
+                                                          Blocked = CONST(false));
 
             trigger OnValidate()
             begin
@@ -478,6 +482,7 @@ table 5876 "Phys. Invt. Order Line"
                             OnCalcQtyAndTrackLinesExpectedOnBeforeModifyFromItemLedgEntry(ExpPhysInvtTracking, ItemLedgEntry);
                             ExpPhysInvtTracking.Modify();
                         end;
+                        OnCalcQtyAndTrackLinesExpectedOnAfterHandleItemLedgerEntryTracking(ExpPhysInvtTracking, ItemLedgEntry);
                     until ItemLedgEntry.Next() = 0;
                 ExpPhysInvtTracking.DeleteLine("Document No.", "Line No.", false);
                 TestQtyExpected();
@@ -505,6 +510,7 @@ table 5876 "Phys. Invt. Order Line"
                                 OnCalcQtyAndTrackLinesExpectedOnBeforeInsertFromWhseEntry(ExpPhysInvtTracking, WhseEntry);
                                 ExpPhysInvtTracking.Modify();
                             end;
+                            OnCalcQtyAndTrackLinesExpectedOnAfterHandleWarehouseEntryTracking(ExpPhysInvtTracking, WhseEntry);
                         until WhseEntry.Next() = 0;
                     ExpPhysInvtTracking.DeleteLine("Document No.", "Line No.", false);
                     TestQtyExpected();
@@ -901,6 +907,11 @@ table 5876 "Phys. Invt. Order Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterValidateItemNo(var PhysInvtRecordLine: Record "Phys. Invt. Order Line"; PhysInvtRecordHeader: Record "Phys. Invt. Order Header"; Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateShortcutDimCode(var PhysInvtOrderLine: Record "Phys. Invt. Order Line"; var xPhysInvtOrderLine: Record "Phys. Invt. Order Line"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
     begin
     end;
@@ -957,6 +968,16 @@ table 5876 "Phys. Invt. Order Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcQtyAndTrackLinesExpectedOnAfterSetWhseEntryFilters(var WarehouseEntry: Record "Warehouse Entry"; PhysInvtOrderLine: Record "Phys. Invt. Order Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcQtyAndTrackLinesExpectedOnAfterHandleItemLedgerEntryTracking(var ExpPhysInvtTracking: Record "Exp. Phys. Invt. Tracking"; ItemLedgerEntry: Record "Item Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcQtyAndTrackLinesExpectedOnAfterHandleWarehouseEntryTracking(var ExpPhysInvtTracking: Record "Exp. Phys. Invt. Tracking"; WarehouseEntry: Record "Warehouse Entry")
     begin
     end;
 

@@ -151,7 +151,7 @@ codeunit 139006 "Test My Settings"
         MySettings.MyNotificationsLbl.DrillDown();
 
         // [WHEN] Create sales invoice for the customer
-        LibraryLowerPermissions.SetSalesDocsCreate();
+        LibraryLowerPermissions.SetSalesDocsPost();
         CrCheckEnabled := CustCheckCrLimit.IsCreditLimitNotificationEnabled(Customer);
 
         // [THEN] The credit check should be enabled for this customer

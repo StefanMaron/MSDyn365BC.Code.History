@@ -67,8 +67,7 @@ page 52 "Purchase Credit Memo"
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        if LookupBuyfromVendorName() then
-                            CurrPage.Update();
+                        exit(Rec.LookupBuyFromVendorName(Text));
                     end;
                 }
                 field("Posting Description"; "Posting Description")
@@ -1697,6 +1696,7 @@ page 52 "Purchase Credit Memo"
 
     local procedure PricesIncludingVATOnAfterValid()
     begin
+        CurrPage.PurchLines.Page.ForceTotalsCalculation();
         CurrPage.Update();
     end;
 

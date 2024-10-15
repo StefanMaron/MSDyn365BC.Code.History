@@ -63,8 +63,7 @@ page 44 "Sales Credit Memo"
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        if LookupSellToCustomerName() then
-                            CurrPage.Update();
+                        exit(Rec.LookupSellToCustomerName(Text));
                     end;
                 }
                 field("Posting Description"; "Posting Description")
@@ -1402,7 +1401,7 @@ page 44 "Sales Credit Memo"
         WorkDescription := GetWorkDescription;
         if SellToContact.Get("Sell-to Contact No.") then;
         if BillToContact.Get("Bill-to Contact No.") then;
-        UpdateDocHasRegimeCode();	
+        UpdateDocHasRegimeCode();
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -1594,6 +1593,7 @@ page 44 "Sales Credit Memo"
 
     local procedure PricesIncludingVATOnAfterValid()
     begin
+        CurrPage.SalesLines.Page.ForceTotalsCalculation();
         CurrPage.Update();
     end;
 

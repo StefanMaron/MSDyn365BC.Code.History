@@ -26,7 +26,7 @@ report 393 "Suggest Vendor Payments"
                 if StopPayments then
                     CurrReport.Break();
                 Window.Update(1, "No.");
-                if VendorBalance > 0 then begin
+                if IncludeVendor(Vendor, VendorBalance) then begin
                     GetVendLedgEntries(true, false);
                     GetVendLedgEntries(false, false);
                     CheckAmounts(false);
@@ -46,7 +46,7 @@ report 393 "Suggest Vendor Payments"
                             Clear(VendorBalance);
                             CalcFields("Balance (LCY)");
                             VendorBalance := "Balance (LCY)";
-                            if VendorBalance > 0 then begin
+                            if IncludeVendor(Vendor, VendorBalance) then begin
                                 Window.Update(1, "No.");
                                 GetVendLedgEntries(true, false);
                                 GetVendLedgEntries(false, false);
@@ -67,7 +67,7 @@ report 393 "Suggest Vendor Payments"
                             VendorBalance := "Balance (LCY)";
                             Window2.Update(1, "No.");
                             PayableVendLedgEntry.SetRange("Vendor No.", "No.");
-                            if VendorBalance > 0 then begin
+                            if IncludeVendor(Vendor, VendorBalance) then begin
                                 GetVendLedgEntries(true, true);
                                 GetVendLedgEntries(false, true);
                                 CheckAmounts(true);
@@ -630,6 +630,13 @@ report 393 "Suggest Vendor Payments"
                     end;
                 end;
             until VendLedgEntry.Next() = 0;
+    end;
+
+    local procedure IncludeVendor(Vendor: Record Vendor; VendorBalance: Decimal) Result: Boolean
+    begin
+        Result := VendorBalance > 0;
+
+        OnAfterIncludeVendor(Vendor, VendorBalance, Result);
     end;
 
     local procedure SaveAmount()
@@ -1213,6 +1220,11 @@ report 393 "Suggest Vendor Payments"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterPostDataItem(var GenJournalBatch: Record "Gen. Journal Batch"; GenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterIncludeVendor(Vendor: Record Vendor; VendorBalance: Decimal; var Result: Boolean)
     begin
     end;
 

@@ -2868,6 +2868,34 @@ codeunit 137163 "SCM Orders VI"
         SalesLine.TestField("Qty. Invoiced (Base)", SalesLine."Quantity (Base)");
     end;
 
+    [Test]
+    procedure CannotCarryOutPlanningForDropShipWithLocationMandatory()
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        // [FEATURE] [Drop Shipment] [Location Mandatory]
+        // [SCENARIO 397813] Purchase order for drop shipment at blank location cannot be created via requisition worksheet when "Location Mandatory" is on.
+        Initialize(false);
+
+        // [GIVEN] "Location Mandatory" is set to TRUE.
+        LibraryInventory.SetLocationMandatory(true);
+
+        // [GIVEN] Sales Order with drop shipment and blank Location Code.
+        CreateItemWithVendorNo(Item);
+        CreateSalesOrder(SalesHeader, SalesLine, SalesLine.Type::Item, '', Item."No.", LibraryRandom.RandInt(10), '');
+        SalesLine.Validate("Drop Shipment", true);
+        SalesLine.Modify(true);
+
+        // [GIVEN] Open requisition worksheet, get sales orders for drop shipment.
+        // [WHEN] Try to carry out action message.
+        asserterror GetSalesOrderForDropShipmentOnRequisitionWkshtAndCarryOutActionMsg(SalesLine);
+
+        // [THEN] Error is thrown indicating the Location Code is missing on the Requisition Line.
+        Assert.ExpectedError(MissingMandatoryLocationTxt);
+    end;
+
     local procedure Initialize(Enable: Boolean)
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Orders VI");

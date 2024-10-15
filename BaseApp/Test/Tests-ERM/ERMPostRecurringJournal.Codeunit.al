@@ -26,6 +26,7 @@ codeunit 134227 "ERM PostRecurringJournal"
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibrarySales: Codeunit "Library - Sales";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         OneDocSameNoErr: Label 'There must be one   invoice, credit memo, or finance charge memo with the same Document No.';
 
     [Test]
@@ -636,6 +637,7 @@ codeunit 134227 "ERM PostRecurringJournal"
     begin
         // [FEATURE] [Posting Date] [Allowed Posting Period]
         // [SCENARIO 221154] Lines with posting date outside User Setup allowed posting period are not posted in Recurring Journal
+        Initialize();
 
         // [GIVEN] General Journal Batch.
         CreateRecurringGenJournalBatch(GenJournalBatch);
@@ -1079,6 +1081,11 @@ codeunit 134227 "ERM PostRecurringJournal"
         Assert.ExpectedError(StrSubstNo('Document No. %1 is out of balance', DocumentNo[1]));
         Assert.ExpectedErrorCode('Dialog');
         VerifyGLEntryNotExists(GenJournalBatch.Name);
+    end;
+
+    local procedure Initialize()
+    begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"ERM PostRecurringJournal");
     end;
 
     local procedure CreateGLAccountWithBalanceAtDate(PostingDate: Date; Balance: Decimal): Code[20]

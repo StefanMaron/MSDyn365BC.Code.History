@@ -232,7 +232,7 @@ page 400 "Purchase Invoice Statistics"
 
                 OnCalculateTotalsOnAfterAddLineTotals(
                     PurchInvLine, VendAmount, AmountInclVAT, InvDiscAmount,
-                    LineQty, TotalNetWeight, TotalGrossWeight, TotalVolume, TotalParcels, VATPercentage)
+                    LineQty, TotalNetWeight, TotalGrossWeight, TotalVolume, TotalParcels, VATPercentage, Rec)
             until PurchInvLine.Next() = 0;
 
         OnAfterCalculateTotals(
@@ -246,7 +246,7 @@ page 400 "Purchase Invoice Statistics"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCalculateTotalsOnAfterAddLineTotals(var PurchInvLine: Record "Purch. Inv. Line"; var VendAmount: Decimal; var AmountInclVAT: Decimal; var InvDiscAmount: Decimal; var LineQty: Decimal; var TotalNetWeight: Decimal; var TotalGrossWeight: Decimal; var TotalVolume: Decimal; var TotalParcels: Decimal; var VATPercentage: Decimal)
+    local procedure OnCalculateTotalsOnAfterAddLineTotals(var PurchInvLine: Record "Purch. Inv. Line"; var VendAmount: Decimal; var AmountInclVAT: Decimal; var InvDiscAmount: Decimal; var LineQty: Decimal; var TotalNetWeight: Decimal; var TotalGrossWeight: Decimal; var TotalVolume: Decimal; var TotalParcels: Decimal; var VATPercentage: Decimal; PurchInvHeader: Record "Purch. Inv. Header")
     begin
     end;
 

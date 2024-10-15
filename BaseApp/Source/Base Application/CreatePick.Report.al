@@ -58,6 +58,8 @@ report 5754 "Create Pick"
                 CreatePick.SetValues(
                   AssignedID, 0, SortPick, 1, MaxNoOfSourceDoc, MaxNoOfLines, PerZone,
                   DoNotFillQtytoHandle, BreakbulkFilter, PerBin);
+
+                OnAfterIntegerOnPreDataItem();
             end;
         }
     }
@@ -503,6 +505,11 @@ report 5754 "Create Pick"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetPickFilters(var PickWhseWkshLine: Record "Whse. Worksheet Line"; var PickWhseWkshLineFilter: Record "Whse. Worksheet Line");
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterIntegerOnPreDataItem()
     begin
     end;
 

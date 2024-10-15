@@ -224,6 +224,7 @@ codeunit 8905 "Email Message Impl."
 
         MediaID := EmailAttachment.Data.ImportStream(AttachmentInStream, '', EmailAttachment."Content Type");
         TenantMedia.Get(MediaID);
+        TenantMedia.CalcFields(Content);
         EmailAttachment.Length := TenantMedia.Content.Length;
 
         EmailAttachment.Insert();

@@ -1323,6 +1323,8 @@
             DeferralPosting("Deferral Code", "Source Code", BankAccPostingGr."G/L Account No.", GenJnlLine, Balancing);
         end;
         OnMoveGenJournalLine(GenJnlLine, BankAccLedgEntry.RecordId);
+
+        OnAfterPostBankAcc(GenJnlLine, Balancing, TempGLEntryBuf, NextEntryNo, NextTransactionNo);
     end;
 
     local procedure PostFixedAsset(GenJnlLine: Record "Gen. Journal Line")
@@ -3584,18 +3586,9 @@
                         VATBase := VATEntry2."Remaining Unrealized Base";
                         VATAmountAddCurr := VATEntry2."Add.-Curr. Rem. Unreal. Amount";
                         VATBaseAddCurr := VATEntry2."Add.-Curr. Rem. Unreal. Base";
-                    end else begin
-                        VATAmount := Round(VATEntry2."Remaining Unrealized Amount" * VATPart, GLSetup."Amount Rounding Precision");
-                        VATBase := Round(VATEntry2."Remaining Unrealized Base" * VATPart, GLSetup."Amount Rounding Precision");
-                        VATAmountAddCurr :=
-                          Round(
-                            VATEntry2."Add.-Curr. Rem. Unreal. Amount" * VATPart,
-                            AddCurrency."Amount Rounding Precision");
-                        VATBaseAddCurr :=
-                          Round(
-                            VATEntry2."Add.-Curr. Rem. Unreal. Base" * VATPart,
-                            AddCurrency."Amount Rounding Precision");
-                    end;
+                    end else
+                        CalcRealizedVATAmt(
+                            VATBase, VATAmount, VATBaseAddCurr, VATAmountAddCurr, VATEntry2, IsCustBillDoc(CustLedgEntry4), VATPart);
 
                     IsHandled := false;
                     OnCustUnrealizedVATOnBeforeInitGLEntryVAT(
@@ -5682,6 +5675,7 @@
             Closed := false;
             CopyAmountsFromVATEntry(VATEntry, true);
             "Posting Date" := GenJnlLine."Posting Date";
+            "Document Date" := GenJnlLine."Document Date";
             "Document No." := GenJnlLine."Document No.";
             "User ID" := UserId;
             "Transaction No." := NextTransactionNo;
@@ -7915,6 +7909,11 @@
     end;
 
     [IntegrationEvent(true, false)]
+    local procedure OnAfterPostBankAcc(var GenJnlLine: Record "Gen. Journal Line"; Balancing: Boolean; var TempGLEntryBuf: Record "G/L Entry" temporary; var NextEntryNo: Integer; var NextTransactionNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
     local procedure OnAfterRunWithCheck(var GenJnlLine: Record "Gen. Journal Line")
     begin
     end;
@@ -8189,7 +8188,7 @@
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterPostVAT(GenJnlLine: Record "Gen. Journal Line"; var GLEntry: Record "G/L Entry"; VATPostingSetup: Record "VAT Posting Setup"; TaxDetail: Record "Tax Detail"; var NextConnectionNo: Integer; var AddCurrGLEntryVATAmt: Decimal; AddCurrencyCode: Code[10]; UseCurrFactorOnly: Boolean)
     begin
     end;
@@ -8686,7 +8685,7 @@
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnPostBankAccOnAfterBankAccLedgEntryInsert(var BankAccountLedgerEntry: Record "Bank Account Ledger Entry"; var GenJournalLine: Record "Gen. Journal Line"; BankAccount: Record "Bank Account")
     begin
     end;
@@ -8777,7 +8776,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPostDtldCustLedgEntriesOnBeforeCreateGLEntriesForTotalAmounts(var CustPostingGr: Record "Customer Posting Group"; DtldCVLedgEntryBuf: Record "Detailed CV Ledg. Entry Buffer")
+    local procedure OnPostDtldCustLedgEntriesOnBeforeCreateGLEntriesForTotalAmounts(var CustPostingGr: Record "Customer Posting Group"; var DtldCVLedgEntryBuf: Record "Detailed CV Ledg. Entry Buffer")
     begin
     end;
 
@@ -8787,7 +8786,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPostDtldVendLedgEntriesOnBeforeCreateGLEntriesForTotalAmounts(var VendPostingGr: Record "Vendor Posting Group"; DtldCVLedgEntryBuf: Record "Detailed CV Ledg. Entry Buffer")
+    local procedure OnPostDtldVendLedgEntriesOnBeforeCreateGLEntriesForTotalAmounts(var VendPostingGr: Record "Vendor Posting Group"; var DtldCVLedgEntryBuf: Record "Detailed CV Ledg. Entry Buffer")
     begin
     end;
 

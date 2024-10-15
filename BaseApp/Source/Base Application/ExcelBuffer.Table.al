@@ -525,7 +525,7 @@ table 370 "Excel Buffer"
             GetCellDecorator(Bold, Italic, Underline, "Double Underline", Decorator);
 
             CellTextValue := "Cell Value as Text";
-            CALCFIELDS("Cell Value as Blob");
+            
             if "Cell Value as Blob".HasValue then begin
                 "Cell Value as Blob".CreateInStream(InStream, TextEncoding::Windows);
                 InStream.Read(CellTextValue);

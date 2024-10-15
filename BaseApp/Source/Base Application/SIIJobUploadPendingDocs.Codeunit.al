@@ -12,6 +12,30 @@ codeunit 10753 "SII Job Upload Pending Docs."
         SIIJobManagement: Codeunit "SII Job Management";
         JobType: Option HandlePending,HandleCommError,InitialUpload;
 
+    [Scope('OnPrem')]
+    procedure GenJnlLineHasSIIDocType(var GenJnlLine: Record "Gen. Journal Line"): Boolean
+    var
+        GenJnlLine2: Record "Gen. Journal Line";
+        SIISetup: Record "SII Setup";
+    begin
+        if not SIISetup.IsEnabled() then
+            exit(false);
+
+        if GenJnlLine.IsTemporary() then
+            exit(false);
+
+        GenJnlLine2.Copy(GenJnlLine);
+        GenJnlLine2.SetFilter(
+          "Document Type", '%1|%2', GenJnlLine2."Document Type"::Invoice, GenJnlLine2."Document Type"::"Credit Memo");
+        exit(not GenJnlLine2.IsEmpty());
+    end;
+
+    [Scope('OnPrem')]
+    procedure HandlePendingEntries()
+    begin
+        SIIJobManagement.RenewJobQueueEntry(JobType::HandlePending);
+    end;
+
     local procedure UploadPendingDocuments()
     var
         SIIDocUploadManagement: Codeunit "SII Doc. Upload Management";

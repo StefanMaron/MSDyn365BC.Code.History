@@ -71,7 +71,7 @@
                             "Allow Line Disc." := TempSalesPrice."Allow Line Disc.";
                             "Allow Invoice Disc." := TempSalesPrice."Allow Invoice Disc.";
                             "Unit Price" := TempSalesPrice."Unit Price";
-                            OnFindSalesLinePriceOnItemTypeOnAfterSetUnitPrice(SalesHeader, SalesLine, TempSalesPrice);
+                            OnFindSalesLinePriceOnItemTypeOnAfterSetUnitPrice(SalesHeader, SalesLine, TempSalesPrice, CalledByFieldNo, FoundSalesPrice);
                         end;
                         if not "Allow Line Disc." then
                             "Line Discount %" := 0;
@@ -378,7 +378,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCalcBestUnitPriceConvertPrice(SalesPrice, IsHandled);
+        OnBeforeCalcBestUnitPriceConvertPrice(SalesPrice, IsHandled, Item);
         if IsHandled then
             exit;
 
@@ -2051,12 +2051,12 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnFindSalesLinePriceOnItemTypeOnAfterSetUnitPrice(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var TempSalesPrice: Record "Sales Price" temporary)
+    local procedure OnFindSalesLinePriceOnItemTypeOnAfterSetUnitPrice(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var TempSalesPrice: Record "Sales Price" temporary; CalledByFieldNo: Integer; FoundSalesPrice: Boolean)
     begin
     end;
 
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeCalcBestUnitPriceConvertPrice(var SalesPrice: Record "Sales Price"; var IsHandled: Boolean)
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeCalcBestUnitPriceConvertPrice(var SalesPrice: Record "Sales Price"; var IsHandled: Boolean; Item: Record "Item")
     begin
     end;
 }
