@@ -1,5 +1,7 @@
 codeunit 11518 "Swiss QR-Bill Mgt."
 {
+    Permissions = tabledata "Tenant Media" = rd;
+
     var
         PaymentMethodsTxt: Label '%1 of %2 Payment Methods enabled with QR-Bill Layout', Comment = '%1, %2 - number of records';
         DocumentTypesTxt: Label '%1 of %2 Document Types enabled for QR-Bills', Comment = '%1, %2 - number of records';
@@ -549,6 +551,14 @@ codeunit 11518 "Swiss QR-Bill Mgt."
         Language: Codeunit Language;
     begin
         exit(Language.GetLanguageCode(GetLanguageIdENU()));
+    end;
+
+    internal procedure DeleteTenantMedia(MediaId: Guid)
+    var
+        TenantMedia: Record "Tenant Media";
+    begin
+        if TenantMedia.Get(MediaId) then
+            TenantMedia.Delete();       // Tenant Media Thumbnails are also removed
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"SEPA DD-Fill Export Buffer", 'OnBeforeInsertPaymentExportData', '', false, false)]

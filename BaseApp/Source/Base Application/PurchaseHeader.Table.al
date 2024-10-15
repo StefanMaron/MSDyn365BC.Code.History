@@ -1904,7 +1904,6 @@
         field(171; "Payment Reference"; Code[50])
         {
             Caption = 'Payment Reference';
-            Numeric = true;
         }
         field(300; "A. Rcd. Not Inv. Ex. VAT (LCY)"; Decimal)
         {
