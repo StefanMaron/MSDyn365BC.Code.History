@@ -263,8 +263,13 @@ Codeunit 13650 FIKManagement
 
     //cod1210
     PROCEDURE CheckBankTransferCountryRegion(BankAccCountryRegionCode: Code[10]; RecipientBankAccCountryRegionCode: Code[10]; PaymentMethod: Record "Payment Method");
+    var
+        CompanyInformation: Record "Company Information";
     BEGIN
-        IF (RecipientBankAccCountryRegionCode <> BankAccCountryRegionCode) THEN
+        CompanyInformation.GET();
+
+        IF (CompanyInformation.GetCountryRegionCode(RecipientBankAccCountryRegionCode) <>
+           CompanyInformation.GetCountryRegionCode(BankAccCountryRegionCode)) THEN
             PaymentMethod.TESTFIELD(PaymentTypeValidation, PaymentMethod.PaymentTypeValidation::International)
         ELSE
             IF PaymentMethod.PaymentTypeValidation = PaymentMethod.PaymentTypeValidation::International THEN

@@ -27,23 +27,6 @@ codeunit 134762 "Test Purchase Preview"
         RecordRestrictedTxt: Label 'You cannot use %1 for this action.', Comment = 'You cannot use Customer 10000 for this action.';
         IsInitialized: Boolean;
 
-    local procedure Initialize()
-    var
-        LibraryERMCountryData: Codeunit "Library - ERM Country Data";
-    begin
-        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Test Purchase Preview");
-        if IsInitialized then
-            exit;
-        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Test Purchase Preview");
-
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdatePrepaymentAccounts;
-
-        IsInitialized := true;
-        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Test Purchase Preview");
-    end;
-
     [Test]
     [Scope('OnPrem')]
     procedure PurchInvoiceOpensPreview()
@@ -703,6 +686,61 @@ codeunit 134762 "Test Purchase Preview"
         Assert.AreEqual(3, LibraryVariableStorage.DequeueInteger, '');
 
         LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VendLedgerEntryIsClosedInPostingPreview()
+    var
+        PaymentMethod: Record "Payment Method";
+        PurchaseHeader: Record "Purchase Header";
+        PurchPostYesNo: Codeunit "Purch.-Post (Yes/No)";
+        GLPostingPreview: TestPage "G/L Posting Preview";
+        VendLedgEntriesPreview: TestPage "Vend. Ledg. Entries Preview";
+    begin
+        // [FEATURE] [Invoice]
+        // [SCENARIO 328755] Invoice Vendor Ledger Entry is Closed in Posting Preview when Purchase Invoice has "Payment Method Code" with Bal. Account No. filled.
+        Initialize;
+
+        // [GIVEN] Purchase Invoice has "Payment Method Code" with Bal. Account No. filled.
+        LibraryInventory.CreatePaymentMethod(PaymentMethod);
+        PaymentMethod.Validate("Bal. Account Type", PaymentMethod."Bal. Account Type"::"G/L Account");
+        PaymentMethod.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo);
+        PaymentMethod.Modify(true);
+        LibraryPurchase.CreatePurchaseInvoice(PurchaseHeader);
+        PurchaseHeader.Validate("Payment Method Code", PaymentMethod.Code);
+        PurchaseHeader.Modify(true);
+        Commit;
+
+        // [WHEN] Vendor Ledger Entries Preview is opened from Posting Preview of Purchase Invoice.
+        GLPostingPreview.Trap;
+        asserterror PurchPostYesNo.Preview(PurchaseHeader);
+        VendLedgEntriesPreview.Trap;
+        GLPostingPreview.FILTER.SetFilter("Table ID", Format(DATABASE::"Vendor Ledger Entry"));
+        GLPostingPreview.Show.Invoke;
+
+        // [THEN] Vendor Ledger Entry with "Document Type" = Invoice has Open = False.
+        VendLedgEntriesPreview.FILTER.SetFilter("Document Type", Format(PurchaseHeader."Document Type"::Invoice));
+        VendLedgEntriesPreview.Open.AssertEquals(false);
+        VendLedgEntriesPreview.OK.Invoke;
+        GLPostingPreview.OK.Invoke;
+    end;
+
+    local procedure Initialize()
+    var
+        LibraryERMCountryData: Codeunit "Library - ERM Country Data";
+    begin
+        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Test Purchase Preview");
+        if IsInitialized then
+            exit;
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Test Purchase Preview");
+
+        LibraryERMCountryData.UpdateGeneralLedgerSetup;
+        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.UpdatePrepaymentAccounts;
+
+        IsInitialized := true;
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Test Purchase Preview");
     end;
 
     local procedure DeletePaymentRegistrationSetup()

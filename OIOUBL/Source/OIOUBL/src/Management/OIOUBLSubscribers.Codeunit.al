@@ -14,6 +14,8 @@ codeunit 13622 "OIOUBL-Subscribers"
         OIOUBLManagement: Codeunit "OIOUBL-Management";
         DataTypeManagement: Codeunit "Data Type Management";
         RecRef: RecordRef;
+        ExportCodeunitID: Integer;
+        IsStandardExportCodeunit: Boolean;
     begin
         if Sender.Disk <> Sender.Disk::"Electronic Document" then
             exit;
@@ -24,40 +26,55 @@ codeunit 13622 "OIOUBL-Subscribers"
         if not DataTypeManagement.GetRecordRef(RecordVariant, RecRef) then
             exit;
 
+        if not OIOUBLManagement.IsAllowedDocumentType(RecRef) then
+            exit;
+
+        if RecRef.IsEmpty() then
+            exit;
+
+        ExportCodeunitID := OIOUBLManagement.GetExportCodeunitID(RecordVariant);
+        IsStandardExportCodeunit := OIOUBLManagement.IsStandardExportCodeunitID(ExportCodeunitID);
+
+        if not IsStandardExportCodeunit then begin
+            Codeunit.Run(ExportCodeunitID, RecordVariant);
+            IsHandled := true;
+            exit;
+        end;
+
         case RecRef.Number() of
             Database::"Sales Invoice Header":
                 begin
                     RecRef.SetTable(SalesInvoiceHeader);
-                    if SalesInvoiceHeader.FindSet() then
-                        repeat
-                            OIOUBLExportSalesInvoice.ExportXML(SalesInvoiceHeader);
-                            OIOUBLManagement.WriteLogSalesInvoice(SalesInvoiceHeader);
-                        until SalesInvoiceHeader.Next() = 0;
+                    SalesInvoiceHeader.FindSet();
+                    repeat
+                        OIOUBLExportSalesInvoice.ExportXML(SalesInvoiceHeader);
+                        OIOUBLManagement.WriteLogSalesInvoice(SalesInvoiceHeader);
+                    until SalesInvoiceHeader.Next() = 0;
                 end;
             Database::"Sales Cr.Memo Header":
                 begin
                     RecRef.SetTable(SalesCrMemoHeader);
-                    if SalesCrMemoHeader.FindSet() then
-                        repeat
-                            OIOUBLExportSalesCrMemo.ExportXML(SalesCrMemoHeader);
-                            OIOUBLManagement.WriteLogSalesCrMemo(SalesCrMemoHeader);
-                        until SalesCrMemoHeader.Next() = 0;
+                    SalesCrMemoHeader.FindSet();
+                    repeat
+                        OIOUBLExportSalesCrMemo.ExportXML(SalesCrMemoHeader);
+                        OIOUBLManagement.WriteLogSalesCrMemo(SalesCrMemoHeader);
+                    until SalesCrMemoHeader.Next() = 0;
                 end;
             Database::"Service Invoice Header":
                 begin
                     RecRef.SetTable(ServiceInvoiceHeader);
-                    if ServiceInvoiceHeader.FindSet() then
-                        repeat
-                            OIOUBLExportServiceInvoice.ExportXML(ServiceInvoiceHeader);
-                        until ServiceInvoiceHeader.Next() = 0;
+                    ServiceInvoiceHeader.FindSet();
+                    repeat
+                        OIOUBLExportServiceInvoice.ExportXML(ServiceInvoiceHeader);
+                    until ServiceInvoiceHeader.Next() = 0;
                 end;
             Database::"Service Cr.Memo Header":
                 begin
                     RecRef.SetTable(ServiceCrMemoHeader);
-                    if ServiceCrMemoHeader.FindSet() then
-                        repeat
-                            OIOUBLExportServiceCrMemo.ExportXML(ServiceCrMemoHeader);
-                        until ServiceCrMemoHeader.Next() = 0;
+                    ServiceCrMemoHeader.FindSet();
+                    repeat
+                        OIOUBLExportServiceCrMemo.ExportXML(ServiceCrMemoHeader);
+                    until ServiceCrMemoHeader.Next() = 0;
                 end;
             else
                 exit;

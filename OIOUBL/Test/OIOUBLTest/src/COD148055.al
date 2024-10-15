@@ -32,6 +32,10 @@ codeunit 148055 "OIOUBL-Elec. Service Document"
         OIOUBLFormatNameTxt: Label 'OIOUBL';
         PEPPOLFormatNameTxt: Label 'PEPPOL';
         DefaultCodeTxt: Label 'DEFAULT';
+        CodeunitNotFoundErr: Label 'Object of type CodeUnit with ID %1 could not be found.';
+        MetadataObjNotFoundErr: Label 'MetadataObjectNotFound';
+        NonExistingDocumentFormatErr: Label 'The electronic document format OIOUBL does not exist for the document type %1.';
+        isInitialized: Boolean;
 
     [Test]
     [HandlerFunctions('MessageHandler')]
@@ -686,9 +690,12 @@ codeunit 148055 "OIOUBL-Elec. Service Document"
         ServiceLine: Record "Service Line";
         ServiceInvoiceHeader: Record "Service Invoice Header";
         DocumentSendingProfile: Record "Document Sending Profile";
+        ElectronicDocumentFormat: Record "Electronic Document Format";
     begin
         // [SCENARIO 299031] Post and Send Service Invoice in case OIOUBL profile is selected.
         Initialize();
+        CreateElectronicDocumentFormat(
+          OIOUBLFormatNameTxt, ElectronicDocumentFormat.Usage::"Service Invoice", Codeunit::"OIOUBL-Export Service Invoice");
 
         // [GIVEN] Service Invoice.
         CreateServiceDocument(
@@ -715,10 +722,13 @@ codeunit 148055 "OIOUBL-Elec. Service Document"
     var
         ServiceInvoiceHeader: Record "Service Invoice Header";
         DocumentSendingProfile: Record "Document Sending Profile";
+        ElectronicDocumentFormat: Record "Electronic Document Format";
         PostedDocNo: Code[20];
     begin
         // [SCENARIO 299031] Send Posted Service Invoice in case OIOUBL profile is selected.
         Initialize();
+        CreateElectronicDocumentFormat(
+          OIOUBLFormatNameTxt, ElectronicDocumentFormat.Usage::"Service Invoice", Codeunit::"OIOUBL-Export Service Invoice");
 
         // [GIVEN] Posted Service Invoice.
         PostedDocNo := CreateAndPostServiceInvoice();
@@ -841,6 +851,42 @@ codeunit 148055 "OIOUBL-Elec. Service Document"
     end;
 
     [Test]
+    [HandlerFunctions('SelectSendingOptionsSetFormatModalPageHandler')]
+    procedure SendPostedServiceInvoiceOIOUBLWithNonStandardCodeunit()
+    var
+        ServiceInvoiceHeader: Record "Service Invoice Header";
+        DocumentSendingProfile: Record "Document Sending Profile";
+        ElectronicDocumentFormat: Record "Electronic Document Format";
+        PostedDocNo: Code[20];
+        NonExistingCodeunitID: Integer;
+    begin
+        // [SCENARIO 327540] Send Posted Service Invoice to OIOUBL in case Electronic Document Format has non-standard "Codeunit ID".
+        Initialize();
+
+        // [GIVEN] Electronic Document Format OIOUBL for Service Invoice with nonexisting "Codeunit ID" = "C".
+        NonExistingCodeunitID := GetNonExistingCodeunitID();
+        CreateElectronicDocumentFormat(
+          OIOUBLFormatNameTxt, ElectronicDocumentFormat.Usage::"Service Invoice", NonExistingCodeunitID);
+
+        // [GIVEN] Posted Service Invoice.
+        PostedDocNo := CreateAndPostServiceInvoice();
+
+        // [WHEN] Run "Send" for Posted Service Invoice, select Format = OIOUBL.
+        LibraryVariableStorage.Enqueue(DocumentSendingProfile.Disk::"Electronic Document");
+        LibraryVariableStorage.Enqueue(FindElectronicDocumentFormatCode(OIOUBLFormatNameTxt));
+        ServiceInvoiceHeader.SetRange("No.", PostedDocNo);
+        asserterror ServiceInvoiceHeader.SendRecords();
+
+        // [THEN] Electronic Document is not created. Codeunit "C" is run via Codeunit.Run.
+        ServiceInvoiceHeader.Get(PostedDocNo);
+        ServiceInvoiceHeader.TestField("OIOUBL-Electronic Invoice Created", false);
+        Assert.ExpectedError(StrSubstNo(CodeunitNotFoundErr, NonExistingCodeunitID));
+        Assert.ExpectedErrorCode(MetadataObjNotFoundErr);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
     [HandlerFunctions('PostAndSendConfirmationModalPageHandler,SelectSendingOptionsSetFormatModalPageHandler')]
     procedure PostAndSendServiceCrMemoOIOUBL()
     var
@@ -848,9 +894,12 @@ codeunit 148055 "OIOUBL-Elec. Service Document"
         ServiceLine: Record "Service Line";
         ServiceCrMemoHeader: Record "Service Cr.Memo Header";
         DocumentSendingProfile: Record "Document Sending Profile";
+        ElectronicDocumentFormat: Record "Electronic Document Format";
     begin
         // [SCENARIO 299031] Post and Send Service Credit Memo in case OIOUBL profile is selected.
         Initialize();
+        CreateElectronicDocumentFormat(
+          OIOUBLFormatNameTxt, ElectronicDocumentFormat.Usage::"Service Credit Memo", Codeunit::"OIOUBL-Export Service Cr.Memo");
 
         // [GIVEN] Service Credit Memo.
         CreateServiceDocument(
@@ -877,10 +926,13 @@ codeunit 148055 "OIOUBL-Elec. Service Document"
     var
         ServiceCrMemoHeader: Record "Service Cr.Memo Header";
         DocumentSendingProfile: Record "Document Sending Profile";
+        ElectronicDocumentFormat: Record "Electronic Document Format";
         PostedDocNo: Code[20];
     begin
         // [SCENARIO 299031] Send Posted Service Credit Memo in case OIOUBL profile is selected.
         Initialize();
+        CreateElectronicDocumentFormat(
+          OIOUBLFormatNameTxt, ElectronicDocumentFormat.Usage::"Service Credit Memo", Codeunit::"OIOUBL-Export Service Cr.Memo");
 
         // [GIVEN] Posted Service Credit Memo.
         PostedDocNo := CreateAndPostServiceCrMemo();
@@ -1002,12 +1054,81 @@ codeunit 148055 "OIOUBL-Elec. Service Document"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('SelectSendingOptionsSetFormatModalPageHandler')]
+    procedure SendPostedServiceCrMemoOIOUBLWithNonStandardCodeunit()
+    var
+        ServiceCrMemoHeader: Record "Service Cr.Memo Header";
+        DocumentSendingProfile: Record "Document Sending Profile";
+        ElectronicDocumentFormat: Record "Electronic Document Format";
+        PostedDocNo: Code[20];
+        NonExistingCodeunitID: Integer;
+    begin
+        // [SCENARIO 327540] Send Posted Service Credit Memo to OIOUBL in case Electronic Document Format has non-standard "Codeunit ID".
+        Initialize();
+
+        // [GIVEN] Electronic Document Format OIOUBL for Service Credit Memo with nonexisting "Codeunit ID" = "C".
+        NonExistingCodeunitID := GetNonExistingCodeunitID();
+        CreateElectronicDocumentFormat(
+          OIOUBLFormatNameTxt, ElectronicDocumentFormat.Usage::"Service Credit Memo", NonExistingCodeunitID);
+
+        // [GIVEN] Posted Service Credit Memo.
+        PostedDocNo := CreateAndPostServiceCrMemo();
+
+        // [WHEN] Run "Send" for Posted Service Credit Memo, select Format = OIOUBL.
+        LibraryVariableStorage.Enqueue(DocumentSendingProfile.Disk::"Electronic Document");
+        LibraryVariableStorage.Enqueue(FindElectronicDocumentFormatCode(OIOUBLFormatNameTxt));
+        ServiceCrMemoHeader.SetRange("No.", PostedDocNo);
+        asserterror ServiceCrMemoHeader.SendRecords();
+
+        // [THEN] OIOUBL Electronic Document is not created. Codeunit "C" is run via Codeunit.Run.
+        ServiceCrMemoHeader.Get(PostedDocNo);
+        ServiceCrMemoHeader.TestField("OIOUBL-Electronic Credit Memo Created", false);
+        Assert.ExpectedError(StrSubstNo(CodeunitNotFoundErr, NonExistingCodeunitID));
+        Assert.ExpectedErrorCode(MetadataObjNotFoundErr);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('SelectSendingOptionsSetFormatModalPageHandler')]
+    procedure SendPostedServiceDocumentOIOUBLWithoutElectronicDocFormat()
+    var
+        ServiceInvoiceHeader: Record "Service Invoice Header";
+        DocumentSendingProfile: Record "Document Sending Profile";
+        ElectronicDocumentFormat: Record "Electronic Document Format";
+        PostedDocNo: Code[20];
+    begin
+        // [SCENARIO 327540] Send Posted Service Invoice to OIOUBL in case Electronic Document Format does not exist.
+        Initialize();
+
+        // [GIVEN] Electronic Document Format OIOUBL for Service Invoice does not exist.
+        ElectronicDocumentFormat.SetFilter(Code, OIOUBLFormatNameTxt);
+        ElectronicDocumentFormat.SetRange(Usage, ElectronicDocumentFormat.Usage::"Service Invoice");
+        ElectronicDocumentFormat.DeleteAll();
+
+        // [GIVEN] Posted Service Invoice.
+        PostedDocNo := CreateAndPostServiceInvoice();
+
+        // [WHEN] Run "Send" for Posted Service Invoice, select Format = OIOUBL.
+        LibraryVariableStorage.Enqueue(DocumentSendingProfile.Disk::"Electronic Document");
+        LibraryVariableStorage.Enqueue(FindElectronicDocumentFormatCode(OIOUBLFormatNameTxt));
+        ServiceInvoiceHeader.SetRange("No.", PostedDocNo);
+        asserterror ServiceInvoiceHeader.SendRecords();
+
+        // [THEN] Electronic Document is not created. An error "The electronic document format OIOUBL does not exist" is thrown.
+        ServiceInvoiceHeader.Get(PostedDocNo);
+        ServiceInvoiceHeader.TestField("OIOUBL-Electronic Invoice Created", false);
+        Assert.ExpectedError(StrSubstNo(NonExistingDocumentFormatErr, Format(ElectronicDocumentFormat.Usage::"Service Invoice")));
+        Assert.ExpectedErrorCode('Dialog');
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize();
     var
         DocumentSendingProfile: Record "Document Sending Profile";
     begin
-        UpdateServiceSetup();
-        UpdateOIOUBLCountryRegionCode();
         LibraryVariableStorage.Clear();
 
         DocumentSendingProfile.DeleteAll();
@@ -1016,7 +1137,14 @@ codeunit 148055 "OIOUBL-Elec. Service Document"
         DocumentSendingProfile."Electronic Format" := OIOUBLFormatNameTxt;
         DocumentSendingProfile.Insert();
 
+        if isInitialized then
+            exit;
+
+        UpdateServiceSetup();
+        UpdateOIOUBLCountryRegionCode();
+
         OIOUBLNewFileMock.Setup(OIOUBLNewFileMock);
+        isInitialized := true;
     end;
 
     local procedure CreateServiceDocumentWithGLAccount(var ServiceHeader: Record "Service Header"; DocumentType: Option);
@@ -1184,17 +1312,29 @@ codeunit 148055 "OIOUBL-Elec. Service Document"
         exit(PostServiceCrMemo(ServiceLine."Document No."));
     end;
 
-    local procedure CreateElectronicDocumentFormat(Code: Code[20]; Usage: Option; CodeunitID: Integer);
+    local procedure CreateElectronicDocumentFormat(DocFormatCode: Code[20]; DocFormatUsage: Option; CodeunitID: Integer);
     var
         ElectronicDocumentFormat: Record "Electronic Document Format";
     begin
         with ElectronicDocumentFormat do begin
-            SetRange(Code, Code);
+            SetFilter(Code, DocFormatCode);
+            SetRange(Usage, DocFormatUsage);
             DeleteAll();
-            Validate(Code, Code);
-            Validate(Usage, Usage);
-            Validate("Codeunit ID", CodeunitID);
-            Insert(true);
+            InsertElectronicFormat(DocFormatCode, '', CodeunitID, 0, DocFormatUsage);
+        end;
+    end;
+
+    local procedure CreateOIOUBLProfile(): Code[10];
+    var
+        OIOUBLProfile: Record "OIOUBL-Profile";
+        LibraryUtility: Codeunit "Library - Utility";
+    begin
+        with OIOUBLProfile do begin
+            VALIDATE("OIOUBL-Code", LibraryUtility.GenerateRandomCode(FIELDNO("OIOUBL-Code"), DATABASE::"OIOUBL-Profile"));
+            VALIDATE("OIOUBL-Profile ID", DefaultProfileIDTxt);
+
+            INSERT(true);
+            exit("OIOUBL-Code");
         end;
     end;
 
@@ -1268,6 +1408,15 @@ codeunit 148055 "OIOUBL-Elec. Service Document"
         exit(CopyStr(OIOUBLDocumentEncode.GetUoMCode(UnitOfMeasureCode), 1, MaxStrLen(UnitOfMeasureCode)));
     end;
 
+    local procedure GetNonExistingCodeunitID(): Integer;
+    var
+        AllObj: Record AllObj;
+    begin
+        AllObj.SetRange("Object Type", AllObj."Object Type"::Codeunit);
+        AllObj.FindLast();
+        exit(AllObj."Object ID" + 1);
+    end;
+
     local procedure PostServiceCrMemo(DocumentNo: Code[20]) PostedDocumentNo: Code[20];
     var
         ServiceHeader: Record "Service Header";
@@ -1328,20 +1477,6 @@ codeunit 148055 "OIOUBL-Elec. Service Document"
             "Disk Format" := DiskFormatCode;
             Default := true;
             Insert();
-        end;
-    end;
-
-    local procedure CreateOIOUBLProfile(): Code[10];
-    var
-        OIOUBLProfile: Record "OIOUBL-Profile";
-        LibraryUtility: Codeunit "Library - Utility";
-    begin
-        with OIOUBLProfile do begin
-            VALIDATE("OIOUBL-Code", LibraryUtility.GenerateRandomCode(FIELDNO("OIOUBL-Code"), DATABASE::"OIOUBL-Profile"));
-            VALIDATE("OIOUBL-Profile ID", DefaultProfileIDTxt);
-
-            INSERT(true);
-            exit("OIOUBL-Code");
         end;
     end;
 

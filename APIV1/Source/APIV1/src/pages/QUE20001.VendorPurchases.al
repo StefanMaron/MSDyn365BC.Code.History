@@ -10,9 +10,9 @@ query 20001 "APIV1 - Vendor Purchases"
     {
         dataitem(QueryElement1; Vendor)
         {
-            column(vendorId; Id)
+            column(vendorId; SystemId)
             {
-                Caption = 'Id', Locked = true;
+                Caption = 'SystemId', Locked = true;
             }
             column(vendorNumber; "No.")
             {

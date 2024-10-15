@@ -571,6 +571,28 @@ codeunit 134824 "UT Vendor Table"
         Assert.ExpectedErrorCode('NCLCSRTS:TableErrorStr');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestGetVendorNoGetVendorByName_CaseSensitive_Blocked()
+    var
+        Vendor: array[4] of Record Vendor;
+        RandomText1: Text[100];
+        RandomText2: Text[100];
+    begin
+        Initialize;
+
+        RandomText1 := 'aaa';
+        RandomText2 := 'AAA';
+
+        CreateVendorFromNameAndBlocked(Vendor[1], RandomText1, Vendor[1].Blocked::All);
+        CreateVendorFromNameAndBlocked(Vendor[2], RandomText1, Vendor[2].Blocked::" ");
+        CreateVendorFromNameAndBlocked(Vendor[3], RandomText2, Vendor[3].Blocked::All);
+        CreateVendorFromNameAndBlocked(Vendor[4], RandomText2, Vendor[4].Blocked::" ");
+
+        Assert.AreEqual(Vendor[2]."No.", Vendor[1].GetVendorNo(RandomText1), '');
+        Assert.AreEqual(Vendor[4]."No.", Vendor[1].GetVendorNo(RandomText2), '');
+    end;
+
     local procedure Initialize()
     var
         Vendor: Record Vendor;
@@ -621,6 +643,14 @@ codeunit 134824 "UT Vendor Table"
     begin
         LibraryPurchase.CreateVendor(Vendor);
         Vendor.Validate(Name, CopyStr(Name, 1, MaxStrLen(Vendor.Name)));
+        Vendor.Modify(true);
+    end;
+
+    local procedure CreateVendorFromNameAndBlocked(var Vendor: Record Vendor; Name: Text; VendorBlocked: Option)
+    begin
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Validate(Name, CopyStr(Name, 1, MaxStrLen(Vendor.Name)));
+        Vendor.Validate(Blocked, VendorBlocked);
         Vendor.Modify(true);
     end;
 

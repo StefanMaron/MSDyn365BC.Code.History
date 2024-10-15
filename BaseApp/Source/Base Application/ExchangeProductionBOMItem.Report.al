@@ -77,6 +77,9 @@ report 99001043 "Exchange Production BOM Item"
                                         ProdBOMVersionList.Insert(true);
                                     end else
                                         ProdBOMVersionList.Insert;
+
+                                    OnAfterProdBOMVersionListInsert(ProdBOMVersionList, ProdBOMHeader2);
+
                                     ProdBOMVersionList.Mark(true);
                                     ProdBOMLine3.Reset;
                                     ProdBOMLine3.SetRange("Production BOM No.", ProdBOMLine."Production BOM No.");
@@ -113,7 +116,7 @@ report 99001043 "Exchange Production BOM Item"
                                                 ProdBOMLine2.Validate("Routing Link Code", ProdBOMLine3."Routing Link Code");
                                             CopyPositionFields(ProdBOMLine2, ProdBOMLine3);
                                             ProdBOMLine2."Ending Date" := 0D;
-                                            OnBeforeInsertNewProdBOMLine(ProdBOMLine2, ProdBOMLine3);
+                                            OnBeforeInsertNewProdBOMLine(ProdBOMLine2, ProdBOMLine3, QtyMultiply);
                                             ProdBOMLine2.Insert;
                                         until ProdBOMLine3.Next = 0;
                                 end else begin
@@ -134,7 +137,7 @@ report 99001043 "Exchange Production BOM Item"
                                         ProdBOMLine2."Starting Date" := StartingDate;
                                     CopyPositionFields(ProdBOMLine2, ProdBOMLine3);
                                     ProdBOMLine2."Ending Date" := 0D;
-                                    OnBeforeInsertNewProdBOMLine(ProdBOMLine2, ProdBOMLine3);
+                                    OnBeforeInsertNewProdBOMLine(ProdBOMLine2, ProdBOMLine3, QtyMultiply);
                                     ProdBOMLine2.Insert;
                                     if DeleteExcComp then
                                         ProdBOMLine.Delete(true)
@@ -453,7 +456,7 @@ report 99001043 "Exchange Production BOM Item"
         end;
     end;
 
-    local procedure CopyPositionFields(var ProdBOMLineCopyTo: Record "Production BOM Line";ProdBOMLineCopyFrom: Record "Production BOM Line")
+    local procedure CopyPositionFields(var ProdBOMLineCopyTo: Record "Production BOM Line"; ProdBOMLineCopyFrom: Record "Production BOM Line")
     begin
         if (ProdBOMLineCopyTo.Type <> ProdBOMLineCopyTo.Type::Item) or (ProdBOMLineCopyFrom.Type <> ProdBOMLineCopyFrom.Type::Item) then
             exit;
@@ -463,7 +466,12 @@ report 99001043 "Exchange Production BOM Item"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInsertNewProdBOMLine(var ProductionBOMLine: Record "Production BOM Line"; FromProductionBOMLine: Record "Production BOM Line")
+    local procedure OnAfterProdBOMVersionListInsert(var ProductionBOMVersion: Record "Production BOM Version"; ProductionBOMHeader: Record "Production BOM Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertNewProdBOMLine(var ProductionBOMLine: Record "Production BOM Line"; FromProductionBOMLine: Record "Production BOM Line"; QtyMultiply: Decimal)
     begin
     end;
 }

@@ -20,9 +20,9 @@ codeunit 134835 "Test Item Lookup"
         NotEditableErr: Label '%1 should NOT be editable';
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryWarehouse: Codeunit "Library - Warehouse";
-        LibraryVariableStorage: Codeunit "Library - Variable Storage";
         IsInitialized: Boolean;
 
+    [Test]
     [Scope('OnPrem')]
     procedure TestValidateDescOnSalesLine()
     var
@@ -47,11 +47,10 @@ codeunit 134835 "Test Item Lookup"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandler')]
     [Scope('OnPrem')]
-    procedure TestValidateDescOnNotEmptySalesLineConfirmYes()
+    procedure TestValidateDescOnNotEmptySalesLine()
     var
-        Item: array [2] of Record Item;
+        Item: array[2] of Record Item;
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
     begin
@@ -64,50 +63,153 @@ codeunit 134835 "Test Item Lookup"
         // [GIVEN] Item 'B' with Description 'BDescr'
         CreateItem(Item[2]);
         // [GIVEN] Sales Line with "No." = 'A'
-        LibrarySales.CreateSalesHeader(SalesHeader,SalesHeader."Document Type"::Invoice,LibrarySales.CreateCustomerNo);
-        LibrarySales.CreateSalesLine(SalesLine,SalesHeader,SalesLine.Type::Item,Item[1]."No.",0);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item[1]."No.", 0);
 
-        SalesLine.TestField("No.",Item[1]."No.");
+        SalesLine.TestField("No.", Item[1]."No.");
 
         // [WHEN] Validate description with 'BDescr'; Confirm = True
-        LibraryVariableStorage.Enqueue(true);
-        SalesLine.Validate(Description,Item[2].Description);
+        SalesLine.Validate(Description, Item[2].Description);
 
         // [THEN] Sales Line "No." = 'B'
-        SalesLine.TestField("No.",Item[2]."No.");
-        LibraryVariableStorage.AssertEmpty;
+        SalesLine.TestField("No.", Item[1]."No.");
+        SalesLine.TestField(Description, Item[2].Description);
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandler')]
     [Scope('OnPrem')]
-    procedure TestValidateDescOnNotEmptySalesLineConfirmNo()
+    procedure TestValidateDescOnSalesItemWithAnotherBlockedItem()
     var
-        Item: array [2] of Record Item;
+        ItemA: Record Item;
+        ItemB: Record Item;
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
     begin
         // [FEATURE] [UT] [Sales]
-        // [SCENARIO 308574] Validate Description in Sales Line when "No." <> '' not confirmed
+        // [SCENARIO] Validate Description in Sales Line when there is blocked Item with same description
         Initialize;
 
-        // [GIVEN] Item 'A' with Description 'ADescr'
-        CreateItem(Item[1]);
-        // [GIVEN] Item 'B' with Description 'BDescr'
-        CreateItem(Item[2]);
-        // [GIVEN] Sales Line with "No." = 'A'
-        LibrarySales.CreateSalesHeader(SalesHeader,SalesHeader."Document Type"::Invoice,LibrarySales.CreateCustomerNo);
-        LibrarySales.CreateSalesLine(SalesLine,SalesHeader,SalesLine.Type::Item,Item[1]."No.",0);
+        // [GIVEN] Item 'A' with Description 'Descr'
+        CreateItem(ItemA);
 
-        SalesLine.TestField("No.",Item[1]."No.");
+        // [GIVEN] Item 'B' with same Description 'Descr' and Blocked is 'Yes';
+        CreateItem(ItemB);
+        ItemB.Description := ItemA.Description;
+        ItemB.Blocked := true;
+        ItemB.Modify;
 
-        // [WHEN] Validate description with 'BDescr'; Confirm = True
-        LibraryVariableStorage.Enqueue(false);
-        SalesLine.Validate(Description,Item[2].Description);
+        // [GIVEN] Sales Line with Type = Item and "No." = ''
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesLineSimple(SalesLine, SalesHeader);
+        SalesLine.Validate(Type, SalesLine.Type::Item);
+
+        // [WHEN] Validate sales line description with 'Descr'
+        SalesLine.Validate(Description, ItemB.Description);
 
         // [THEN] Sales Line "No." = 'A'
-        SalesLine.TestField("No.",Item[1]."No.");
-        LibraryVariableStorage.AssertEmpty;
+        SalesLine.TestField("No.", ItemA."No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestValidateDescOnSalesItemWithAnotherSalesBlockedItem()
+    var
+        ItemA: Record Item;
+        ItemB: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        // [FEATURE] [UT] [Sales]
+        // [SCENARIO] Validate Description in Sales Line when there is sales blocked Item with same description
+        Initialize;
+
+        // [GIVEN] Item 'A' with Description 'Descr'
+        CreateItem(ItemA);
+
+        // [GIVEN] Item 'B' with same Description 'Descr' and Sales Blocked is 'Yes';
+        CreateItem(ItemB);
+        ItemB.Description := ItemA.Description;
+        ItemB."Sales Blocked" := true;
+        ItemB.Modify;
+
+        // [GIVEN] Sales Line with Type = Item and "No." = ''
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesLineSimple(SalesLine, SalesHeader);
+        SalesLine.Validate(Type, SalesLine.Type::Item);
+
+        // [WHEN] Validate sales line description with 'Descr'
+        SalesLine.Validate(Description, ItemB.Description);
+
+        // [THEN] Sales Line "No." = 'A'
+        SalesLine.TestField("No.", ItemA."No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestValidateDescOnPurchItemWithAnotherBlockedItem()
+    var
+        ItemA: Record Item;
+        ItemB: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        // [FEATURE] [UT] [Sales]
+        // [SCENARIO] Validate Description in Purchase Line when there is blocked Item with same description
+        Initialize;
+
+        // [GIVEN] Item 'A' with Description 'Descr'
+        CreateItem(ItemA);
+
+        // [GIVEN] Item 'B' with same Description 'Descr' and Blocked is 'Yes';
+        CreateItem(ItemB);
+        ItemB.Description := ItemA.Description;
+        ItemB.Blocked := true;
+        ItemB.Modify;
+
+        // [GIVEN] Purchase Line with Type = Item and "No." = ''
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, '');
+        LibraryPurchase.CreatePurchaseLineSimple(PurchaseLine, PurchaseHeader);
+        PurchaseLine.Validate(Type, PurchaseLine.Type::Item);
+
+        // [WHEN] Validate purchase line description with 'Descr'
+        PurchaseLine.Validate(Description, ItemB.Description);
+
+        // [THEN] Purchase Line "No." = 'A'
+        PurchaseLine.TestField("No.", ItemA."No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestValidateDescOnPurchItemWithAnotherPurchasingBlockedItem()
+    var
+        ItemA: Record Item;
+        ItemB: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        // [FEATURE] [UT] [Sales]
+        // [SCENARIO] Validate Description in Purchase Line when there is blocked Item with same description
+        Initialize;
+
+        // [GIVEN] Item 'A' with Description 'Descr'
+        CreateItem(ItemA);
+
+        // [GIVEN] Item 'B' with same Description 'Descr'
+        CreateItem(ItemB);
+        ItemB.Description := ItemA.Description;
+        ItemB."Purchasing Blocked" := true;
+        ItemB.Modify;
+
+        // [GIVEN] Purchase Line with Type = Item and "No." = ''
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, '');
+        LibraryPurchase.CreatePurchaseLineSimple(PurchaseLine, PurchaseHeader);
+        PurchaseLine.Validate(Type, PurchaseLine.Type::Item);
+
+        // [WHEN] Validate purchase line description with 'Descr'
+        PurchaseLine.Validate(Description, ItemB.Description);
+
+        // [THEN] Purchase Line "No." = 'A'
+        PurchaseLine.TestField("No.", ItemA."No.");
     end;
 
     [Test]
@@ -169,7 +271,7 @@ codeunit 134835 "Test Item Lookup"
         SalesLine.Validate(Description, Item."No.");
 
         // Verify
-        Assert.AreEqual(Item.Description, SalesLine.Description, 'Description not set correctly');
+        Assert.AreEqual(Item."No.", SalesLine.Description, 'Description not set correctly');
         Assert.AreEqual(Item."No.", SalesLine."No.", 'No. was changed');
     end;
 
@@ -506,11 +608,10 @@ codeunit 134835 "Test Item Lookup"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandler')]
     [Scope('OnPrem')]
-    procedure TestValidateDescOnNotEmptyPurchaseLineConfirmYes()
+    procedure TestValidateDescOnNotEmptyPurchaseLine()
     var
-        Item: array [2] of Record Item;
+        Item: array[2] of Record Item;
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
     begin
@@ -523,48 +624,14 @@ codeunit 134835 "Test Item Lookup"
         // [GIVEN] Item 'B' with Description 'BDescr'
         CreateItem(Item[2]);
         // [GIVEN] Purchase Line with "No." = 'A'
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader,PurchaseHeader."Document Type"::Invoice,LibraryPurchase.CreateVendorNo);
-        LibraryPurchase.CreatePurchaseLine(PurchaseLine,PurchaseHeader,PurchaseLine.Type::Item,Item[1]."No.",0);
-        PurchaseLine.TestField("No.",Item[1]."No.");
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchaseLineSimple(PurchaseLine, PurchaseHeader);
 
         // [WHEN] Validate description with 'BDescr'; Confirm = True
-        LibraryVariableStorage.Enqueue(true);
-        PurchaseLine.Validate(Description,Item[2].Description);
+        PurchaseLine.Validate(Description, Item[2].Description);
 
         // [THEN] Purchase Line "No." = 'B'
-        PurchaseLine.TestField("No.",Item[2]."No.");
-        LibraryVariableStorage.AssertEmpty;
-    end;
-
-    [Test]
-    [HandlerFunctions('ConfirmHandler')]
-    [Scope('OnPrem')]
-    procedure TestValidateDescOnNotEmptyPurchaseLineConfirmNo()
-    var
-        Item: array [2] of Record Item;
-        PurchaseHeader: Record "Purchase Header";
-        PurchaseLine: Record "Purchase Line";
-    begin
-        // [FEATURE] [UT] [Purchase]
-        // [SCENARIO 308574] Validate Description in Purchase Line when "No." <> '' not confirmed
-        Initialize;
-
-        // [GIVEN] Item 'A' with Description 'ADescr'
-        CreateItem(Item[1]);
-        // [GIVEN] Item 'B' with Description 'BDescr'
-        CreateItem(Item[2]);
-        // [GIVEN] Purchase Line with "No." = 'A'
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader,PurchaseHeader."Document Type"::Invoice,LibraryPurchase.CreateVendorNo);
-        LibraryPurchase.CreatePurchaseLine(PurchaseLine,PurchaseHeader,PurchaseLine.Type::Item,Item[1]."No.",0);
-        PurchaseLine.TestField("No.",Item[1]."No.");
-
-        // [WHEN] Validate description with 'BDescr'; Confirm = True
-        LibraryVariableStorage.Enqueue(false);
-        PurchaseLine.Validate(Description,Item[2].Description);
-
-        // [THEN] Purchase Line "No." = 'A'
-        PurchaseLine.TestField("No.",Item[1]."No.");
-        LibraryVariableStorage.AssertEmpty;
+        PurchaseLine.TestField(Description, Item[2].Description);
     end;
 
     [Test]
@@ -580,7 +647,7 @@ codeunit 134835 "Test Item Lookup"
         // [GIVEN] Item No. = "X", Description = "Test"
         CreateItem(Item);
 
-        // [GIVEN] Purchser Invoice
+        // [GIVEN] Purchase Invoice
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
         PurchaseLine.Validate("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.Validate("Document No.", PurchaseHeader."No.");
@@ -593,7 +660,7 @@ codeunit 134835 "Test Item Lookup"
 
         // [THEN] No. in Purchase Line = "X"
         // [THEN] Description in Purchase Line = "Test"
-        Assert.AreEqual(Item.Description, PurchaseLine.Description, 'Description not set correctly');
+        Assert.AreEqual(Item."No.", PurchaseLine.Description, 'Description not set correctly');
         Assert.AreEqual(Item."No.", PurchaseLine."No.", '"No." not set correctly');
     end;
 
@@ -815,7 +882,8 @@ codeunit 134835 "Test Item Lookup"
     [Scope('OnPrem')]
     procedure ValidatePurchLineDescriptionWithItemNo()
     var
-        Item: Record Item;
+        ItemA: Record Item;
+        ItemB: Record Item;
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
     begin
@@ -824,22 +892,20 @@ codeunit 134835 "Test Item Lookup"
         Initialize;
 
         // [GIVEN] Item "A"
-        CreateItem(Item);
+        CreateItem(ItemA);
 
         // [GIVEN] Purchase Invoice with item "A"
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
-        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", 0);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemA."No.", 0);
 
         // [GIVEN] Item "B" with Description = 'B123'
-        CreateItem(Item);
+        CreateItem(ItemB);
 
         // [WHEN] Validate Description in Purchase Line with Item "No." = "B"
-        PurchaseLine.Validate(Description, Item."No.");
+        PurchaseLine.Validate(Description, ItemB."No.");
 
-        // [THEN] Description in Purchase Line = 'B123'
-        // [THEN] "No." in Purchase Line = "B"
-        Assert.AreEqual(Item.Description, PurchaseLine.Description, 'Description not set correctly');
-        Assert.AreEqual(Item."No.", PurchaseLine."No.", '"No." not set correctly');
+        Assert.AreEqual(ItemB."No.", PurchaseLine.Description, 'Description not set correctly');
+        Assert.AreEqual(ItemA."No.", PurchaseLine."No.", '"No." not set correctly');
     end;
 
     [Scope('OnPrem')]
@@ -891,13 +957,6 @@ codeunit 134835 "Test Item Lookup"
     begin
         ItemCard.Type.SetValue(Item.Type::Service);
         ItemCard.OK.Invoke;
-    end;
-
-    [ConfirmHandler]
-    [Scope('OnPrem')]
-    procedure ConfirmHandler(Question: Text[1024];var Reply: Boolean)
-    begin
-        Reply := LibraryVariableStorage.DequeueBoolean;
     end;
 }
 

@@ -50,6 +50,16 @@ page 20042 "APIV1 - Purchase Invoices"
                         WORKDATE("Document Date"); // TODO: replicate page logic and set other dates appropriately
                     end;
                 }
+                field(postingDate; "Posting Date")
+                {
+                    ApplicationArea = All;
+                    Caption = 'postingDate', Locked = true;
+
+                    trigger OnValidate()
+                    begin
+                        RegisterFieldSet(FIELDNO("Posting Date"));
+                    end;
+                }
                 field(dueDate; "Due Date")
                 {
                     ApplicationArea = All;
@@ -77,8 +87,7 @@ page 20042 "APIV1 - Purchase Invoices"
 
                     trigger OnValidate()
                     begin
-                        BuyFromVendor.SETRANGE(Id, "Vendor Id");
-                        IF NOT BuyFromVendor.FINDFIRST() THEN
+                        IF NOT BuyFromVendor.GetBySystemId("Vendor Id") THEN
                             ERROR(CouldNotFindBuyFromVendorErr);
 
                         "Buy-from Vendor No." := BuyFromVendor."No.";
@@ -99,7 +108,7 @@ page 20042 "APIV1 - Purchase Invoices"
                         IF NOT BuyFromVendor.GET("Buy-from Vendor No.") THEN
                             ERROR(CouldNotFindBuyFromVendorErr);
 
-                        "Vendor Id" := BuyFromVendor.Id;
+                        "Vendor Id" := BuyFromVendor.SystemId;
                         RegisterFieldSet(FIELDNO("Vendor Id"));
                         RegisterFieldSet(FIELDNO("Buy-from Vendor No."));
                     end;
@@ -135,8 +144,7 @@ page 20042 "APIV1 - Purchase Invoices"
 
                     trigger OnValidate()
                     begin
-                        PayToVendor.SETRANGE(Id, "Pay-to Vendor Id");
-                        IF NOT PayToVendor.FINDFIRST() THEN
+                        IF NOT PayToVendor.GetBySystemId("Pay-to Vendor Id") THEN
                             ERROR(CouldNotFindPayToVendorErr);
 
                         "Pay-to Vendor No." := PayToVendor."No.";
@@ -157,7 +165,7 @@ page 20042 "APIV1 - Purchase Invoices"
                         IF NOT PayToVendor.GET("Pay-to Vendor No.") THEN
                             ERROR(CouldNotFindPayToVendorErr);
 
-                        "Pay-to Vendor Id" := PayToVendor.Id;
+                        "Pay-to Vendor Id" := PayToVendor.SystemId;
                         RegisterFieldSet(FIELDNO("Pay-to Vendor Id"));
                         RegisterFieldSet(FIELDNO("Pay-to Vendor No."));
                     end;
@@ -237,8 +245,7 @@ page 20042 "APIV1 - Purchase Invoices"
                         IF "Currency Id" = BlankGUID THEN
                             "Currency Code" := ''
                         ELSE BEGIN
-                            Currency.SETRANGE(Id, "Currency Id");
-                            IF NOT Currency.FINDFIRST() THEN
+                            IF NOT Currency.GetBySystemId("Currency Id") THEN
                                 ERROR(CurrencyIdDoesNotMatchACurrencyErr);
 
                             "Currency Code" := Currency.Code;
@@ -271,7 +278,7 @@ page 20042 "APIV1 - Purchase Invoices"
                             IF NOT Currency.GET("Currency Code") THEN
                                 ERROR(CurrencyCodeDoesNotMatchACurrencyErr);
 
-                            "Currency Id" := Currency.Id;
+                            "Currency Id" := Currency.SystemId;
                         END;
 
                         RegisterFieldSet(FIELDNO("Currency Id"));
@@ -649,8 +656,7 @@ page 20042 "APIV1 - Purchase Invoices"
         IF Posted THEN
             ERROR(DraftInvoiceActionErr);
 
-        PurchaseHeader.SETRANGE(Id, Id);
-        IF NOT PurchaseHeader.FINDFIRST() THEN
+        IF NOT PurchaseHeader.GetBySystemId(Id) THEN
             ERROR(CannotFindInvoiceErr);
     end;
 

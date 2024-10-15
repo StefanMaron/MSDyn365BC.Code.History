@@ -194,6 +194,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit OIOUBL-Management - NamedType ZipArchiveSaveDialogTxt)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 87117224 - NamedType 2912267127" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The electronic document format %1 does not exist for the document type %2.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit OIOUBL-Management - NamedType NonExistingDocumentFormatErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2657778153 - NamedType 3502196155" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[does not contain a valid, 13-digit GLN]]></Val>

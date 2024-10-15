@@ -5,7 +5,7 @@ page 20025 "APIV1 - Item Categories"
     DelayedInsert = true;
     EntityName = 'itemCategory';
     EntitySetName = 'itemCategories';
-    ODataKeyFields = Id;
+    ODataKeyFields = SystemId;
     PageType = API;
     SourceTable = 5722;
     Extensible = false;
@@ -16,7 +16,7 @@ page 20025 "APIV1 - Item Categories"
         {
             repeater(Group)
             {
-                field(id; Id)
+                field(id; SystemId)
                 {
                     ApplicationArea = All;
                     Caption = 'id', Locked = true;
@@ -79,12 +79,8 @@ page 20025 "APIV1 - Item Categories"
     trigger OnModifyRecord(): Boolean
     var
         ItemCategory: Record "Item Category";
-        GraphMgtGeneralTools: Codeunit "Graph Mgt - General Tools";
     begin
-        IF xRec.Id <> Id THEN
-            GraphMgtGeneralTools.ErrorIdImmutable();
-        ItemCategory.SETRANGE(Id, Id);
-        ItemCategory.FINDFIRST();
+        ItemCategory.GetBySystemId(SystemId);
 
         IF Code = ItemCategory.Code THEN
             MODIFY(TRUE)

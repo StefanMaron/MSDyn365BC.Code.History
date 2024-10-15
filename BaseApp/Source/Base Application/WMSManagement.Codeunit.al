@@ -38,7 +38,14 @@ codeunit 7302 "WMS Management"
         DefaultLocationNotDirectedPutawayPickErr: Label 'You must set up a location with the Directed Put-away and Pick setting and assign it to user %1.', Comment = '%1: USERID';
 
     procedure CreateWhseJnlLine(ItemJnlLine: Record "Item Journal Line"; ItemJnlTemplateType: Option; var WhseJnlLine: Record "Warehouse Journal Line"; ToTransfer: Boolean): Boolean
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCreateWhseJnlLine(ItemJnlLine, ItemJnlTemplateType, WhseJnlLine, ToTransfer, IsHandled);
+        if IsHandled then
+            exit;
+
         with ItemJnlLine do begin
             if ((not "Phys. Inventory") and (Quantity = 0) and ("Invoiced Quantity" = 0)) or
                ("Value Entry Type" in ["Value Entry Type"::Rounding, "Value Entry Type"::Revaluation]) or
@@ -828,6 +835,56 @@ codeunit 7302 "WMS Management"
         NextLineNo := NextLineNo + 1;
     end;
 
+    procedure GetWarehouseEmployeeLocationFilter(UserName: code[50]): Text
+    var
+        WarehouseEmployee: Record "Warehouse Employee";
+        Location: Record Location;
+        AssignedLocations: List of [code[20]];
+        WhseEmplLocationBuffer: Codeunit WhseEmplLocationBuffer;
+        Filterstring: Text;
+        LocationAllowed: Boolean;
+        FilterTooLong: Boolean;
+        HasLocationSubscribers: Boolean;
+    begin
+        // buffered?
+        Filterstring := WhseEmplLocationBuffer.GetWarehouseEmployeeLocationFilter();
+        if Filterstring <> '' then
+            exit(Filterstring);
+        Filterstring := StrSubstNo('%1', ''''''); // All users can see the blank location
+        if UserName = '' then
+            exit(Filterstring);
+        WarehouseEmployee.SetRange("User ID", UserName);
+        WarehouseEmployee.SetFilter("Location Code", '<>%1', '');
+        IF WarehouseEmployee.Count > 1000 then  // if more, later filter length will exceed allowed length and it will use all values anyway
+            exit(''); // can't filter to that many locations. Then remove filter
+        IF WarehouseEmployee.FINDSET THEN
+            REPEAT
+                AssignedLocations.Add(WarehouseEmployee."Location Code");
+                LocationAllowed := true;
+                OnBeforeLocationIsAllowed(WarehouseEmployee."Location Code", LocationAllowed);
+                if LocationAllowed then
+                    Filterstring += '|' + StrSubstNo('''%1''', ConvertStr(WarehouseEmployee."Location Code", '''', '*'));
+            UNTIL WarehouseEmployee.Next = 0;
+        if WhseEmplLocationBuffer.NeedToCheckLocationSubscribers() then
+            if Location.FindSet() then
+                repeat
+                    if not AssignedLocations.Contains(Location.Code) then begin
+                        LocationAllowed := false;
+                        OnBeforeLocationIsAllowed(Location.Code, LocationAllowed);
+                        if LocationAllowed then begin
+                            Filterstring += '|' + StrSubstNo('''%1''', ConvertStr(Location.Code, '''', '*'));
+                            FilterTooLong := StrLen(Filterstring) > 2000; // platform limitation on length
+                            HasLocationSubscribers := true;
+                        end;
+                    end;
+                until (location.next = 0) or FilterTooLong;
+        WhseEmplLocationBuffer.SetHasLocationSubscribers(HasLocationSubscribers);
+        if FilterTooLong then
+            Filterstring := '*';
+        WhseEmplLocationBuffer.SetWarehouseEmployeeLocationFilter(Filterstring);
+        exit(Filterstring);
+    end;
+
     procedure GetAllowedLocation(LocationCode: Code[10]): Code[10]
     var
         WhseEmployee: Record "Warehouse Employee";
@@ -988,6 +1045,8 @@ codeunit 7302 "WMS Management"
                     AssemblyLine.SetRange("Line No.", WhseDocLineNo);
                     PAGE.RunModal(PAGE::"Assembly Lines", AssemblyLine);
                 end;
+            else
+                OnShowWhseDocLine(WhseDocType, WhseDocNo, WhseDocLineNo);
         end;
     end;
 
@@ -1112,6 +1171,8 @@ codeunit 7302 "WMS Management"
                     TransReceiptHeader.SetRange("No.", PostedSourceNo);
                     PAGE.RunModal(PAGE::"Posted Transfer Receipt", TransReceiptHeader);
                 end;
+            else
+                OnShowPostedSourceDoc(PostedSourceDoc, PostedSourceNo);
         end;
     end;
 
@@ -1159,6 +1220,8 @@ codeunit 7302 "WMS Management"
                     if AssemblyHeader.Get(SourceSubType, SourceNo) then
                         PAGE.RunModal(PAGE::"Assembly Order", AssemblyHeader);
                 end;
+            else
+                OnShowSourceDocCard(SourceType, SourceSubType, SourceNo);
         end;
     end;
 
@@ -1844,6 +1907,11 @@ codeunit 7302 "WMS Management"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateWhseJnlLine(var ItemJnlLine: Record "Item Journal Line"; ItemJnlTemplateType: Option; var WhseJnlLine: Record "Warehouse Journal Line"; ToTransfer: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeGetAllowedLocation(var LocationCode: Code[10]; var IsHandled: Boolean)
     begin
     end;
@@ -1869,7 +1937,22 @@ codeunit 7302 "WMS Management"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnShowPostedSourceDoc(PostedSourceDoc: Option; PostedSourceNo: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnShowSourceDocCard(SourceType: Integer; SourceSubType: Option; SourceNo: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnShowSourceDocLine(SourceType: Integer; SourceSubType: Option; SourceNo: Code[20]; SourceLineNo: Integer; SourceSubLineNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnShowWhseDocLine(WhseDocType: Option Receipt,"Posted Receipt",Shipment,"Internal Put-away","Internal Pick",Production,,Assembly; WhseDocNo: Code[20]; WhseDocLineNo: Integer)
     begin
     end;
 }

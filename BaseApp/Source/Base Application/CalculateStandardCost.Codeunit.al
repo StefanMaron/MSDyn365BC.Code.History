@@ -689,6 +689,8 @@ codeunit 5812 "Calculate Standard Cost"
                       CostCalcMgt.CalcDirUnitCost(
                         StdCostWksh."New Standard Cost", StdCostWksh."New Overhead Rate", StdCostWksh."New Indirect Cost %");
                 end;
+
+            OnGetWorkCenterOnBeforeAssignWorkCenterToTemp(WorkCenter, TempItem);
             TempWorkCenter := WorkCenter;
             TempWorkCenter.Insert;
         end;
@@ -951,6 +953,11 @@ codeunit 5812 "Calculate Standard Cost"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcProdBOMCostOnAfterCalcCompItemQtyBase(CalculationDate: Date; MfgItem: Record Item; MfgItemQtyBase: Decimal; IsTypeItem: Boolean; var ProdBOMLine: Record "Production BOM Line"; var CompItemQtyBase: Decimal; RtngNo: Code[20]; UOMFactor: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetWorkCenterOnBeforeAssignWorkCenterToTemp(var WorkCenter: Record "Work Center"; var TempItem: Record Item temporary)
     begin
     end;
 }

@@ -1539,7 +1539,7 @@ codeunit 134976 "ERM Sales Report"
         // [THEN] Amount Excluding VAT = 1000
         // [THEN] VAT Amount = 200
         // [THEN] Amount Including VAT = 1200
-        VerifySalesInvoiceTotalsWithDiscount(SalesLine, 'AJ', 91);
+        VerifySalesInvoiceTotalsWithDiscount(SalesLine, 'AK', 91);
     end;
 
     [Test]
@@ -1576,7 +1576,7 @@ codeunit 134976 "ERM Sales Report"
         // [THEN] Amount Excluding VAT = 1000
         // [THEN] VAT Amount = 200
         // [THEN] Amount Including VAT = 1200
-        VerifySalesInvoiceTotalsWithDiscount(SalesLine, 'AJ', 92);
+        VerifySalesInvoiceTotalsWithDiscount(SalesLine, 'AK', 92);
     end;
 
     [Test]
@@ -1615,7 +1615,7 @@ codeunit 134976 "ERM Sales Report"
         // [THEN] Amount Excluding VAT = 1000
         // [THEN] VAT Amount = 200
         // [THEN] Amount Including VAT = 1200
-        VerifySalesInvoiceTotalsWithDiscount(SalesLine, 'AJ', 91);
+        VerifySalesInvoiceTotalsWithDiscount(SalesLine, 'AK', 91);
     end;
 
     [Test]
@@ -1655,7 +1655,7 @@ codeunit 134976 "ERM Sales Report"
         // [THEN] Amount Excluding VAT = 1000
         // [THEN] VAT Amount = 200
         // [THEN] Amount Including VAT = 1200
-        VerifySalesInvoiceTotalsWithDiscount(SalesLine, 'AJ', 92);
+        VerifySalesInvoiceTotalsWithDiscount(SalesLine, 'AK', 92);
     end;
 
     [Test]
@@ -4139,10 +4139,10 @@ codeunit 134976 "ERM Sales Report"
     local procedure VerifyAmountsSalesInvoiceReport(ExpectedAmount: Decimal; ExpectedAmountInclVAT: Decimal)
     begin
         LibraryReportValidation.OpenExcelFile;
-        LibraryReportValidation.VerifyCellValue(93, 36, LibraryReportValidation.FormatDecimalValue(ExpectedAmount)); // Total Amount
+        LibraryReportValidation.VerifyCellValue(93, 37, LibraryReportValidation.FormatDecimalValue(ExpectedAmount)); // Total Amount
         LibraryReportValidation.VerifyCellValue(
-          94, 36, LibraryReportValidation.FormatDecimalValue(ExpectedAmountInclVAT - ExpectedAmount)); // Total VAT
-        LibraryReportValidation.VerifyCellValue(96, 36, LibraryReportValidation.FormatDecimalValue(ExpectedAmountInclVAT)); // Total Amount Incl. VAT
+          94, 37, LibraryReportValidation.FormatDecimalValue(ExpectedAmountInclVAT - ExpectedAmount)); // Total VAT
+        LibraryReportValidation.VerifyCellValue(96, 37, LibraryReportValidation.FormatDecimalValue(ExpectedAmountInclVAT)); // Total Amount Incl. VAT
     end;
 
     local procedure VerifyCustomerOrderSummarySalesAmount(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")

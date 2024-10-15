@@ -485,6 +485,7 @@ codeunit 1303 "Correct Posted Sales Invoice"
     local procedure TestGenPostingSetup(SalesInvoiceLine: Record "Sales Invoice Line")
     var
         GenPostingSetup: Record "General Posting Setup";
+        Item: Record Item;
     begin
         SalesReceivablesSetup.GetRecordOnce;
 
@@ -499,8 +500,9 @@ codeunit 1303 "Correct Posted Sales Invoice"
                 TestGLAccount("Sales Line Disc. Account", SalesInvoiceLine);
             end;
             if SalesInvoiceLine.Type = SalesInvoiceLine.Type::Item then begin
-                TestField("COGS Account");
-                TestGLAccount("COGS Account", SalesInvoiceLine);
+                Item.Get(SalesInvoiceLine."No.");
+                if Item.IsInventoriableType then
+                    TestGLAccount(GetCOGSAccount, SalesInvoiceLine);
             end;
         end;
     end;
@@ -786,10 +788,10 @@ codeunit 1303 "Correct Posted Sales Invoice"
     begin
     end;
 
+	[Obsolete]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSelesHeaderInsert(var SalesHeader: Record "Sales Header"; var SalesInvoiceHeader: Record "Sales Invoice Header"; CancellingOnly: Boolean)
     begin
-        // obsolete
     end;
 }
 

@@ -191,6 +191,32 @@ codeunit 134910 "ERM Suggest Reminder"
         // [THEN] No error is shown.
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure SuggestReminderLinesForMultipleReminders()
+    var
+        ReminderHeader: array[2] of Record "Reminder Header";
+        SalesHeader: Record "Sales Header";
+    begin
+        // [SCENARIO 329294] Report "Suggest Reminder Lines" creates Reminder Lines for multiple Reminders.
+        Initialize;
+
+        // [GIVEN] Two Reminders.
+        CreateAndPostSalesInvoice(SalesHeader, CreateCustomer);
+        CreateReminderForCustomer(ReminderHeader[1], SalesHeader."Sell-to Customer No.", SalesHeader."Due Date");
+        CreateAndPostSalesInvoice(SalesHeader, CreateCustomer);
+        CreateReminderForCustomer(ReminderHeader[2], SalesHeader."Sell-to Customer No.", SalesHeader."Due Date");
+
+        // [WHEN] Report "Suggest Reminder Lines" is run for two Reminders.
+        ReminderHeader[1].SetFilter("No.", '%1|%2', ReminderHeader[1]."No.", ReminderHeader[2]."No.");
+        Commit;
+        REPORT.Run(REPORT::"Suggest Reminder Lines", false, true, ReminderHeader[1]);
+
+        // [THEN] Lines are created for both Remiders.
+        VerifyReminderLine(ReminderHeader[1]."No.");
+        VerifyReminderLine(ReminderHeader[2]."No.");
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -277,6 +303,19 @@ codeunit 134910 "ERM Suggest Reminder"
         LibrarySales.CreateCustomerPostingGroup(CustomerPostingGroup);
         Customer.Validate("Customer Posting Group", CustomerPostingGroup.Code);
         Customer.Modify(true);
+    end;
+
+    local procedure CreateReminderForCustomer(var ReminderHeader: Record "Reminder Header"; CustomerNo: Code[20]; DueDate: Date)
+    var
+        DocumentDate: Date;
+        GracePeriod: DateFormula;
+    begin
+        GetReminderLevel(GracePeriod, CustomerNo);
+        DocumentDate := CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', CalcDate(GracePeriod, DueDate));
+        LibraryERM.CreateReminderHeader(ReminderHeader);
+        ReminderHeader.Validate("Customer No.", CustomerNo);
+        ReminderHeader.Validate("Document Date", DocumentDate);
+        ReminderHeader.Modify(true);
     end;
 
     local procedure CreateReminderLevel(ReminderTermsCode: Code[10]; CalculateInterest: Boolean)

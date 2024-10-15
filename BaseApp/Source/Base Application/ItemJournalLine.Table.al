@@ -340,14 +340,18 @@ table 83 "Item Journal Line"
                 if CurrFieldNo <> 0 then
                     WMSManagement.CheckItemJnlLineFieldChange(Rec, xRec, FieldCaption(Quantity));
 
-                "Quantity (Base)" := UOMMgt.CalcBaseQty(Quantity, "Qty. per Unit of Measure");
+                "Quantity (Base)" :=
+                  UOMMgt.CalcBaseQty(
+                    "Item No.", "Variant Code", "Unit of Measure Code", Quantity, "Qty. per Unit of Measure");
                 if ("Entry Type" = "Entry Type"::Output) and
                    ("Value Entry Type" <> "Value Entry Type"::Revaluation)
                 then
                     "Invoiced Quantity" := 0
                 else
                     "Invoiced Quantity" := Quantity;
-                "Invoiced Qty. (Base)" := UOMMgt.CalcBaseQty("Invoiced Quantity", "Qty. per Unit of Measure");
+                "Invoiced Qty. (Base)" :=
+                  UOMMgt.CalcBaseQty(
+                    "Item No.", "Variant Code", "Unit of Measure Code", "Invoiced Quantity", "Qty. per Unit of Measure");
 
                 OnValidateQuantityOnBeforeGetUnitAmount(Rec, xRec, CurrFieldNo);
 
@@ -1700,7 +1704,9 @@ table 83 "Item Journal Line"
                 if LastOutputOperation(Rec) then
                     WhseValidateSourceLine.ItemLineVerifyChange(Rec, xRec);
 
-                "Output Quantity (Base)" := UOMMgt.CalcBaseQty("Output Quantity", "Qty. per Unit of Measure");
+                "Output Quantity (Base)" :=
+                  UOMMgt.CalcBaseQty(
+                    "Item No.", "Variant Code", "Unit of Measure Code", "Output Quantity", "Qty. per Unit of Measure");
 
                 Validate(Quantity, "Output Quantity");
             end;
@@ -1714,7 +1720,9 @@ table 83 "Item Journal Line"
             trigger OnValidate()
             begin
                 TestField("Entry Type", "Entry Type"::Output);
-                "Scrap Quantity (Base)" := UOMMgt.CalcBaseQty("Scrap Quantity", "Qty. per Unit of Measure");
+                "Scrap Quantity (Base)" :=
+                  UOMMgt.CalcBaseQty(
+                    "Item No.", "Variant Code", "Unit of Measure Code", "Scrap Quantity", "Qty. per Unit of Measure");
             end;
         }
         field(5849; "Concurrent Capacity"; Decimal)
@@ -3435,7 +3443,14 @@ table 83 "Item Journal Line"
     end;
 
     procedure DisplayErrorIfItemIsBlocked(Item: Record Item)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeDisplayErrorIfItemIsBlocked(Item, Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if Item.Blocked then
             Error(BlockedErr);
 
@@ -3648,6 +3663,11 @@ table 83 "Item Journal Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckItemAvailable(ItemJournalLine: Record "Item Journal Line"; CalledByFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDisplayErrorIfItemIsBlocked(var Item: Record Item; var ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
     begin
     end;
 

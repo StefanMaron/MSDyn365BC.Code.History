@@ -140,7 +140,7 @@ table 5989 "Service Shipment Item Line"
             Caption = 'Vendor No.';
             TableRelation = Vendor;
         }
-        field(30; "Vendor Item No."; Text[20])
+        field(30; "Vendor Item No."; Text[50])
         {
             Caption = 'Vendor Item No.';
         }
