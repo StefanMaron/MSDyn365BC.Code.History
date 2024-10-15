@@ -1,6 +1,7 @@
 page 5555 "Permission Conflicts Overview"
 {
     PageType = List;
+    Caption = 'Permission Conflicts Overview';
     ShowFilter = false;
     SourceTable = "Permission Conflicts Overview";
     SourceTableTemporary = true;

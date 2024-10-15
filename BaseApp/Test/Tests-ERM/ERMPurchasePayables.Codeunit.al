@@ -2294,6 +2294,45 @@
         // [THEN] The saved request page values are overridden.
     end;
 
+    [Test]
+    procedure ValidateSalesPrepayAccountGLWhenPurchasePrepayPosted()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        GLAccount: Record "G/L Account";
+        GeneralPostingSetup: Record "General Posting Setup";
+        VATPostingSetup: Record "VAT Posting Setup";
+    begin
+        // [SCENARIO 474502] It is not possible to change settings on a Sales Prepayment G/L Account if Purchase Prepayment invoices have been registered
+        Initialize();
+
+        // [GIVEN] Create Purchase Order
+        CreatePurchaseDoc(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+
+        // [GIVEN] Update Prepayment % on Purchase Header.
+        PurchaseHeader.Validate("Prepayment %", LibraryRandom.RandDecInRange(10, 20, 2));
+        PurchaseHeader.Modify(true);
+
+        // [WHEN] Post Prepayment Invoice
+        LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader);
+
+        // [GIVEN] Create VAT posting Setup.
+        LibraryERM.CreateVATPostingSetupWithAccounts(
+            VATPostingSetup,
+            VATPostingSetup."VAT Calculation Type"::"Normal VAT",
+            LibraryRandom.RandDecInRange(10, 20, 2));
+
+        // [GIVEN] Update "Sales Prepayments Account" with new GL Account.
+        GeneralPostingSetup.Get(PurchaseLine."Gen. Bus. Posting Group", PurchaseLine."Gen. Prod. Posting Group");
+        GeneralPostingSetup.Validate("Sales Prepayments Account", LibraryERM.CreateGLAccountNo());
+        GeneralPostingSetup.Modify();
+
+        // [VERIFY] "VAT Prod. Posting Group does not give any error
+        GLAccount.Get(GeneralPostingSetup."Sales Prepayments Account");
+        GLAccount.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        asserterror Error('');
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

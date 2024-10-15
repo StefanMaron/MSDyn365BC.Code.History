@@ -687,6 +687,8 @@ page 233 "Apply Vendor Entries"
                       EarlierPostingDateErr, TempApplyingVendLedgEntry."Document Type", TempApplyingVendLedgEntry."Document No.",
                       Rec."Document Type", Rec."Document No.");
                 end;
+
+                OnQueryClosePageOnAfterEarlierPostingDateTest(TempApplyingVendLedgEntry, Rec, CalcType, OK);
             end;
             if OK then begin
                 if Rec."Amount to Apply" = 0 then
@@ -965,6 +967,8 @@ page 233 "Apply Vendor Entries"
                         Error(
                             EarlierPostingDateErr, TempApplyingVendLedgEntry."Document Type", TempApplyingVendLedgEntry."Document No.",
                             VendorLedgerEntry."Document Type", VendorLedgerEntry."Document No.");
+
+                    OnCheckVendLedgEntryOnAfterEarlierPostingDateTest(TempApplyingVendLedgEntry, VendorLedgerEntry, CalcType, OK);
                 end;
 
                 if TempApplyingVendLedgEntry."Entry No." <> 0 then begin
@@ -1621,6 +1625,16 @@ page 233 "Apply Vendor Entries"
 
     [IntegrationEvent(false, false)]
     local procedure OnCheckVendLedgEntryOnBeforeCheckAgainstApplnCurrency(var GenJournalLine: Record "Gen. Journal Line"; VendorLedgerEntry: Record "Vendor Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckVendLedgEntryOnAfterEarlierPostingDateTest(ApplyingVendorLedgerEntry: Record "Vendor Ledger Entry"; VendorLedgerEntry: Record "Vendor Ledger Entry"; CalcType: Enum "Vendor Apply Calculation Type"; var OK: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnQueryClosePageOnAfterEarlierPostingDateTest(ApplyingVendorLedgerEntry: Record "Vendor Ledger Entry"; VendorLedgerEntry: Record "Vendor Ledger Entry"; CalcType: Enum "Vendor Apply Calculation Type"; var OK: Boolean)
     begin
     end;
 }

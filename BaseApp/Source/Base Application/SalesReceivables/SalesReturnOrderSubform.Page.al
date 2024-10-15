@@ -1186,6 +1186,8 @@
     var
         SalesLineReserve: Codeunit "Sales Line-Reserve";
     begin
+        OnBeforeOnDeleteRecord(Rec);
+
         if (Quantity <> 0) and ItemExists("No.") then begin
             Commit();
             if not SalesLineReserve.DeleteLineConfirm(Rec) then
@@ -1238,7 +1240,7 @@
 
         SetDimensionsVisibility();
         BackgroundErrorCheck := DocumentErrorsMgt.BackgroundValidationEnabled();
-        SetItemReferenceVisibility();        
+        SetItemReferenceVisibility();
     end;
 
     var
@@ -1625,6 +1627,11 @@
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeDeltaUpdateTotals(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnDeleteRecord(SalesLine: Record "Sales Line")
     begin
     end;
 }
