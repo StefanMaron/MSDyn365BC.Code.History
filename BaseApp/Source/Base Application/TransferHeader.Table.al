@@ -700,9 +700,11 @@
         NoSeriesMgt: Codeunit NoSeriesManagement;
         WhseSourceHeader: Codeunit "Whse. Validate Source Header";
         PostCodeMgt: Codeunit "Post Code Management";
+        ErrorMessageMgt: Codeunit "Error Message Management";
         HasInventorySetup: Boolean;
         CalledFromWhse: Boolean;
         Text007: Label 'You may have changed a dimension.\\Do you want to update the lines?';
+        CheckTransferLineMsg: Label 'Check transfer document line.';
 
     protected var
         HideValidationDialog: Boolean;
@@ -1348,6 +1350,45 @@
 
         OnInitInsertOnBeforeInitRecord(xRec);
         InitRecord();
+    end;
+
+    procedure CheckTransferLines(Ship: Boolean)
+    var
+        TransferLine: Record "Transfer Line";
+        ErrorContextElement: Codeunit "Error Context Element";
+    begin
+        TransferLine.SetRange("Document No.", Rec."No.");
+        TransferLine.SetRange("Derived From Line No.", 0);
+        if TransferLine.FindSet() then
+            repeat
+                ErrorMessageMgt.PushContext(ErrorContextElement, TransferLine.RecordId(), 0, CheckTransferLineMsg);
+                TestTransferLine(TransferLine, Ship);
+            until TransferLine.Next() = 0;
+        ErrorMessageMgt.PopContext(ErrorContextElement);
+    end;
+
+    procedure TestTransferLine(TransferLine: Record "Transfer Line"; Ship: Boolean)
+    var
+        DummyTrackingSpecification: Record "Tracking Specification";
+    begin
+        if Ship then
+            DummyTrackingSpecification.CheckItemTrackingQuantity(Database::"Transfer Line", 0, "No.", TransferLine."Line No.",
+                TransferLine."Qty. to Ship (Base)", TransferLine."Qty. to Ship (Base)", true, false)
+        else
+            DummyTrackingSpecification.CheckItemTrackingQuantity(Database::"Transfer Line", 1, "No.", GetSourceRefNo(TransferLine),
+                TransferLine."Qty. to Receive (Base)", TransferLine."Qty. to Receive (Base)", true, false);
+    end;
+
+    local procedure GetSourceRefNo(TransferLine: Record "Transfer Line"): Integer
+    var
+        ReservationEntry: Record "Reservation Entry";
+    begin
+        ReservationEntry.SetLoadFields("Source Ref. No.");
+        ReservationEntry.SetSourceFilter(Database::"Transfer Line", 1, TransferLine."Document No.", 0, true);
+        ReservationEntry.SetRange("Item No.", TransferLine."Item No.");
+        ReservationEntry.SetRange("Source Prod. Order Line", TransferLine."Line No.");
+        if ReservationEntry.FindFirst() then
+            exit(ReservationEntry."Source Ref. No.");
     end;
 
     [IntegrationEvent(false, false)]
