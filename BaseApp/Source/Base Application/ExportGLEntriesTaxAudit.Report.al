@@ -144,6 +144,13 @@ report 10885 "Export G/L Entries - Tax Audit"
                         Caption = 'Include Opening Balances';
                         ToolTip = 'Specifies if you want to include opening balances in the audit report file. The balances are calculated as of the date before the first date of the period covered by the report.';
                     }
+                    field(DefaultSourceCodeControl; DefaultSourceCode)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Default Source Code';
+                        TableRelation = "Source Code";
+                        ToolTip = 'Specifies the source code to be used if there is no code specified in the G/L entry.';
+                    }
                 }
             }
         }
@@ -221,8 +228,11 @@ report 10885 "Export G/L Entries - Tax Audit"
         PayRecAccount: Code[20];
         OpeningBalance: Decimal;
         DetailedBalance: Decimal;
+        DefaultSourceCode: Code[10];
 
+#if not CLEAN19
     [Scope('OnPrem')]
+    [Obsolete('Replaced by the Init procedure with the NewDefaultSourceCode parameter.', '19.0')]
     procedure Init(StartingDateValue: Date; EndingDateValue: Date; IncludeOpeningBalancesValue: Boolean; AccNoFilter: Code[250]; ReportFileNameValue: Text[250])
     begin
         StartingDate := StartingDateValue;
@@ -230,6 +240,18 @@ report 10885 "Export G/L Entries - Tax Audit"
         IncludeOpeningBalances := IncludeOpeningBalancesValue;
         GLAccNoFilter := AccNoFilter;
         ToFileFullName := ReportFileNameValue;
+    end;
+#endif
+
+    [Scope('OnPrem')]
+    procedure Init(StartingDateValue: Date; EndingDateValue: Date; IncludeOpeningBalancesValue: Boolean; AccNoFilter: Code[250]; ReportFileNameValue: Text[250]; NewDefaultSourceCode: Code[10])
+    begin
+        StartingDate := StartingDateValue;
+        EndingDate := EndingDateValue;
+        IncludeOpeningBalances := IncludeOpeningBalancesValue;
+        GLAccNoFilter := AccNoFilter;
+        ToFileFullName := ReportFileNameValue;
+        DefaultSourceCode := NewDefaultSourceCode;
     end;
 
     local procedure CreateServerFile()
@@ -629,6 +651,13 @@ report 10885 "Export G/L Entries - Tax Audit"
         end;
     end;
 
+    local procedure GetSourceCode(): Code[10]
+    begin
+        if GLEntry."Source Code" = '' then
+            exit(DefaultSourceCode);
+        exit(GLEntry."Source Code");
+    end;
+
     local procedure ProcessGLEntry()
     var
         BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
@@ -739,8 +768,8 @@ report 10885 "Export G/L Entries - Tax Audit"
         with GLEntry do begin
             CalcFields("G/L Account Name");
             Writer.WriteLine(
-              "Source Code" + '|' +
-              GetSourceCodeDesc("Source Code") + '|' +
+              GetSourceCode() + '|' +
+              GetSourceCodeDesc(GetSourceCode()) + '|' +
               Format(GLRegisterNo) + '|' +
               GetFormattedDate("Posting Date") + '|' +
               "G/L Account No." + '|' +

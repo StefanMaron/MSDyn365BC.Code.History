@@ -24,9 +24,11 @@ codeunit 450 "Job Queue Error Handler"
                 SetErrorCallStack(GetLastErrorCallstack);
                 Status := Status::Error;
                 Modify;
+                OnLogErrorOnAfterJobQueueLogEntryModify(JobQueueEntry);
             end else begin
                 JobQueueEntry.InsertLogEntry(JobQueueLogEntry);
                 JobQueueEntry.FinalizeLogEntry(JobQueueLogEntry);
+                OnLogErrorOnAfterJobQueueLogEntryFinalizeLogEntry(JobQueueEntry);
             end;
         end;
         OnAfterLogError(JobQueueEntry);
@@ -39,6 +41,16 @@ codeunit 450 "Job Queue Error Handler"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeLogError(var JobQueueLogEntry: Record "Job Queue Log Entry"; var JobQueueEntry: Record "Job Queue Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLogErrorOnAfterJobQueueLogEntryModify(var JobQueueEntry: Record "Job Queue Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLogErrorOnAfterJobQueueLogEntryFinalizeLogEntry(var JobQueueEntry: Record "Job Queue Entry")
     begin
     end;
 }

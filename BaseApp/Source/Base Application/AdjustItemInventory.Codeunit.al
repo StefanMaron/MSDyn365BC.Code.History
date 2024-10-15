@@ -41,11 +41,13 @@ codeunit 1327 "Adjust Item Inventory"
         repeat
             Item.Get(TempItemJournalLine."Item No.");
             Item.SetFilter("Location Filter", '%1', TempItemJournalLine."Location Code");
+            OnPostMultipleAdjustmentsToItemLedgerOnAfterItemSetFilters(TempItemJournalLine, Item);
             Item.CalcFields(Inventory);
             if Item.Inventory <> TempItemJournalLine.Quantity then begin
                 CreateItemJnlLine(ItemJnlLine, Item, ItemTemplate, ItemBatch, TempItemJournalLine.Quantity);
                 ItemJnlLine.Validate("Line No.", TempItemJournalLine."Line No.");
                 ItemJnlLine.Validate("Location Code", TempItemJournalLine."Location Code");
+                OnPostMultipleAdjustmentsToItemLedgerOnBeforeInsertItemJnlLine(TempItemJournalLine, ItemJnlLine);
                 ItemJnlLine.Insert(true);
             end;
         until TempItemJournalLine.Next() = 0;
@@ -152,6 +154,16 @@ codeunit 1327 "Adjust Item Inventory"
     begin
         BatchName := Format(CreateGuid);
         exit(CopyStr(BatchName, 2, 10));
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostMultipleAdjustmentsToItemLedgerOnAfterItemSetFilters(var TempItemJournalLine: Record "Item Journal Line" temporary; var Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostMultipleAdjustmentsToItemLedgerOnBeforeInsertItemJnlLine(var TempItemJournalLine: Record "Item Journal Line" temporary; var ItemJournalLine: Record "Item Journal Line")
+    begin
     end;
 }
 

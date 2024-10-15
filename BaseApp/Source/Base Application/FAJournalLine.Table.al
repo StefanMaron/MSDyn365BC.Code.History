@@ -110,9 +110,9 @@ table 5621 "FA Journal Line"
             var
                 Currency: Record Currency;
             begin
-                CLEAR(Currency);
+                Clear(Currency);
                 Currency.InitRoundingPrecision();
-                Amount := ROUND(Amount, Currency."Amount Rounding Precision");
+                Amount := Round(Amount, Currency."Amount Rounding Precision");
                 if ((Amount > 0) and (not Correction)) or
                    ((Amount < 0) and Correction)
                 then begin
@@ -414,6 +414,7 @@ table 5621 "FA Journal Line"
         "Source Code" := FAJnlTemplate."Source Code";
         "Reason Code" := FAJnlBatch."Reason Code";
         "Posting No. Series" := FAJnlBatch."Posting No. Series";
+        OnAfterSetUpNewLine(Rec, FAJnlTemplate, FAJnlBatch, LastFAJnlLine);
     end;
 
     procedure CreateDim(Type1: Integer; No1: Code[20])
@@ -430,6 +431,7 @@ table 5621 "FA Journal Line"
         "Dimension Set ID" :=
           DimMgt.GetRecDefaultDimID(
             Rec, CurrFieldNo, TableID, No, "Source Code", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
+        OnAfterCreateDim(Rec, CurrFieldNo);
     end;
 
     procedure ValidateShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
@@ -479,7 +481,17 @@ table 5621 "FA Journal Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateDim(var FAJournalLine: Record "FA Journal Line"; CurrFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterCreateDimTableIDs(var FAJournalLine: Record "FA Journal Line"; CallingFieldNo: Integer; var TableID: array[10] of Integer; var No: array[10] of Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetUpNewLine(var FAJournalLine: Record "FA Journal Line"; FAJnlTemplate: Record "FA Journal Template"; FAJnlBatch: Record "FA Journal Batch"; LastFAJnlLine: Record "FA Journal Line")
     begin
     end;
 

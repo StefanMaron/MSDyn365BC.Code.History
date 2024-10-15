@@ -147,6 +147,7 @@ table 7302 "Bin Content"
                                                                                   "Action Type" = CONST(Take),
                                                                                   "Lot No." = FIELD("Lot No. Filter"),
                                                                                   "Serial No." = FIELD("Serial No. Filter"),
+                                                                                  "Package No." = FIELD("Package No. Filter"),
                                                                                   "Assemble to Order" = CONST(false)));
             Caption = 'Pick Qty.';
             DecimalPlaces = 0 : 5;
@@ -177,7 +178,8 @@ table 7302 "Bin Content"
                                                                                   "Unit of Measure Code" = FIELD("Unit of Measure Code"),
                                                                                   "Action Type" = CONST(Place),
                                                                                   "Lot No." = FIELD("Lot No. Filter"),
-                                                                                  "Serial No." = FIELD("Serial No. Filter")));
+                                                                                  "Serial No." = FIELD("Serial No. Filter"),
+                                                                                  "Package No." = FIELD("Package No. Filter")));
             Caption = 'Put-away Qty.';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -244,6 +246,7 @@ table 7302 "Bin Content"
                                                                                          "Action Type" = CONST(Take),
                                                                                          "Lot No." = FIELD("Lot No. Filter"),
                                                                                          "Serial No." = FIELD("Serial No. Filter"),
+                                                                                         "Package No." = FIELD("Package No. Filter"),
                                                                                          "Assemble to Order" = CONST(false)));
             Caption = 'Pick Quantity (Base)';
             DecimalPlaces = 0 : 5;
@@ -274,7 +277,8 @@ table 7302 "Bin Content"
                                                                                          "Unit of Measure Code" = FIELD("Unit of Measure Code"),
                                                                                          "Action Type" = CONST(Place),
                                                                                          "Lot No." = FIELD("Lot No. Filter"),
-                                                                                         "Serial No." = FIELD("Serial No. Filter")));
+                                                                                         "Serial No." = FIELD("Serial No. Filter"),
+                                                                                         "Package No." = FIELD("Package No. Filter")));
             Caption = 'Put-away Quantity (Base)';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -305,6 +309,7 @@ table 7302 "Bin Content"
                                                                                   "Action Type" = CONST(Take),
                                                                                   "Lot No." = FIELD("Lot No. Filter"),
                                                                                   "Serial No." = FIELD("Serial No. Filter"),
+                                                                                  "Package No." = FIELD("Package No. Filter"),
                                                                                   "Assemble to Order" = CONST(true),
                                                                                   "ATO Component" = CONST(true)));
             Caption = 'ATO Components Pick Qty.';
@@ -322,6 +327,7 @@ table 7302 "Bin Content"
                                                                                          "Action Type" = CONST(Take),
                                                                                          "Lot No." = FIELD("Lot No. Filter"),
                                                                                          "Serial No." = FIELD("Serial No. Filter"),
+                                                                                         "Package No." = FIELD("Package No. Filter"),
                                                                                          "Assemble to Order" = CONST(true),
                                                                                          "ATO Component" = CONST(true)));
             Caption = 'ATO Components Pick Qty (Base)';
@@ -571,7 +577,7 @@ table 7302 "Bin Content"
         TotalATOComponentsPickQtyBase := CalcTotalATOComponentsPickQtyBase;
         SetFilterOnUnitOfMeasure;
         CalcFields("Pick Quantity (Base)");
-        OnCalcTotalQtyAvailToTakeOnAfterCalcPickQuantityBase(Rec, ExcludeQtyBase);
+        OnCalcTotalQtyAvailToTakeOnAfterCalcPickQuantityBase(Rec, ExcludeQtyBase, TotalNegativeAdjmtQtyBase);
         exit(
           TotalQtyBase -
           ("Pick Quantity (Base)" + TotalATOComponentsPickQtyBase - ExcludeQtyBase + TotalNegativeAdjmtQtyBase));
@@ -1154,6 +1160,8 @@ table 7302 "Bin Content"
                     TotalNegativeAdjmtQtyBase += WhseItemTrackingLine."Quantity (Base)";
                 until WarehouseJournalLine.Next() = 0;
         end;
+
+        OnAfterCalcTotalNegativeAdjmtQtyBase(Rec, WarehouseJournalLine, TotalNegativeAdjmtQtyBase);
     end;
 
     local procedure CalcTotalATOComponentsPickQtyBase(): Decimal
@@ -1438,7 +1446,7 @@ table 7302 "Bin Content"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCalcTotalQtyAvailToTakeOnAfterCalcPickQuantityBase(BinContent: Record "Bin Content"; var ExcludeQtyBase: Decimal)
+    local procedure OnCalcTotalQtyAvailToTakeOnAfterCalcPickQuantityBase(BinContent: Record "Bin Content"; var ExcludeQtyBase: Decimal; var TotalNegativeAdjmtQtyBase: Decimal)
     begin
     end;
 
@@ -1469,6 +1477,11 @@ table 7302 "Bin Content"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcQtyAvailToPick(BinContent: Record "Bin Content"; var Result: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcTotalNegativeAdjmtQtyBase(var BinContent: Record "Bin Content"; var WarehouseJournalLine: Record "Warehouse Journal Line"; var TotalNegativeAdjmtQtyBase: Decimal)
     begin
     end;
 }

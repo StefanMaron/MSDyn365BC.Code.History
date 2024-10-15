@@ -2293,6 +2293,42 @@ codeunit 137077 "SCM Supply Planning -IV"
         RequisitionLine.TestField("Due Date", StartingDate);
     end;
 
+    [Test]
+    procedure CurrencyCodeOnPlanningLineForCancelPurchase()
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        RequisitionLine: Record "Requisition Line";
+        CurrencyCode: Code[10];
+    begin
+        // [FEATURE] [Currency Code] [Purchase]
+        // [SCENARIO 393765] Currency Code on planning line for cancel purchase is inherited from the purchase line.
+        Initialize();
+
+        // [GIVEN] Item with vendor, set up Currency Code = "FCY" for the vendor.
+        CreateOrderItem(Item);
+        CurrencyCode := UpdateItemWithVendor(Item);
+
+        // [GIVEN] Create sales order.
+        CreateSalesOrder(Item."No.", '');
+
+        // [GIVEN] Calculate plan and carry out action message to create a purchase order.
+        CalcRegenPlanAndCarryOut(Item, WorkDate(), WorkDate());
+
+        // [GIVEN] Delete the sales order.
+        FindSalesOrderHeader(SalesHeader, Item."No.");
+        SalesHeader.Delete(true);
+
+        // [WHEN] Calculate plan again.
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), WorkDate());
+
+        // [THEN] A planning line for cancel has been created.
+        // [THEN] Currency Code on the planning line = "FCY".
+        SelectRequisitionLine(RequisitionLine, Item."No.");
+        RequisitionLine.TestField("Action Message", RequisitionLine."Action Message"::Cancel);
+        RequisitionLine.TestField("Currency Code", CurrencyCode);
+    end;
+
     local procedure Initialize()
     var
         RequisitionLine: Record "Requisition Line";

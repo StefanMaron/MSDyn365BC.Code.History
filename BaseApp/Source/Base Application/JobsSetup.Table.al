@@ -61,6 +61,36 @@ table 315 "Jobs Setup"
             TableRelation = "No. Series";
             DataClassification = CustomerContent;
         }
+        field(7003; "Default Sales Price List Code"; Code[20])
+        {
+            Caption = 'Default Sales Price List Code';
+            TableRelation = "Price List Header" where("Price Type" = Const(Sale), "Source Group" = Const(Job), "Allow Updating Defaults" = const(true));
+            DataClassification = CustomerContent;
+            trigger OnLookup()
+            var
+                PriceListHeader: Record "Price List Header";
+            begin
+                if Page.RunModal(Page::"Sales Job Price Lists", PriceListHeader) = Action::LookupOK then begin
+                    PriceListHeader.TestField("Allow Updating Defaults");
+                    Validate("Default Sales Price List Code", PriceListHeader.Code);
+                end;
+            end;
+        }
+        field(7004; "Default Purch Price List Code"; Code[20])
+        {
+            Caption = 'Default Purchase Price List Code';
+            TableRelation = "Price List Header" where("Price Type" = Const(Purchase), "Source Group" = Const(Job), "Allow Updating Defaults" = const(true));
+            DataClassification = CustomerContent;
+            trigger OnLookup()
+            var
+                PriceListHeader: Record "Price List Header";
+            begin
+                if Page.RunModal(Page::"Purchase Job Price Lists", PriceListHeader) = Action::LookupOK then begin
+                    PriceListHeader.TestField("Allow Updating Defaults");
+                    Validate("Default Purch Price List Code", PriceListHeader.Code);
+                end;
+            end;
+        }
     }
 
     keys

@@ -6026,7 +6026,7 @@ Cstr(Fields!VATNoText.Value)
                                                     <Style>
                                                       <FontFamily>Segoe UI</FontFamily>
                                                       <FontSize>8pt</FontSize>
-                                                      <Format>=Fields!AmtIncludingVATAmt_SalesInvLineFormat.Value</Format>
+                                                      <Format>=Fields!AmtInclVAT_SalesInvLineFormat.Value</Format>
                                                     </Style>
                                                   </TextRun>
                                                 </TextRuns>

@@ -38,6 +38,8 @@ codeunit 137305 "SCM Warehouse Reports"
         CombineShipmentErr: Label 'Incorrect Sales Invoice Line Type';
         RequestPageMissingErr: Label 'RequestPage %1', Comment = '%1 - Report ID';
         TransferOrderCaptionLbl: Label 'Transfer Order No.';
+        ConfirmChangeQst: Label 'Do you want to change';
+        RecreateSalesLinesMsg: Label 'If you change';
 
     [Test]
     [HandlerFunctions('PickingListRequestPageHandler')]
@@ -2159,6 +2161,36 @@ codeunit 137305 "SCM Warehouse Reports"
         Assert.ExpectedError(StrSubstNo(RequestPageMissingErr, ReportSelectionWarehouse."Report ID"));
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandler,MessageHandler')]
+    procedure CombineShipmentsDifferentSelltoBilltoOnOrder()
+    var
+        Customer: array[2] of Record Customer;
+        Item: Record Item;
+        "Count": Integer;
+    begin
+        // [FEATURE] [Combine Shipments]
+        // [SCENARIO 391232] Combine Shipments creates invoice with correct "Sell-To Customer No." and "Bill-to Customer No." when they are not equal on the initial Sales Order
+        Initialize();
+
+        // [GIVEN] Customers "CU01", "CU02"
+        CreateCustomer(Customer[1]);
+        CreateCustomer(Customer[2]);
+
+        // [GIVEN] Sales Orders Created for "CU01" with "Bill-to Customer" = "CU02"
+        Count := LibraryRandom.RandIntInRange(2, 5);
+        CreateAndPostSalesOrderWithDiffBillToCustomer(Customer[1]."No.", Customer[2]."No.", Item."No.", Count, LibraryRandom.RandDec(10, 2));
+
+        // [WHEN] Run Combine Shipments for "Sell-to Customer No." = "CU01" without posting
+        LibraryVariableStorage.Enqueue(ConfirmChangeQst);
+        RunCombineShipments(Customer[1]."No.", false, false, false, false);
+
+        // [THEN] Confirmation dialog is shown "Do you want to change Bill-to Customer?"
+        // [THEN] Invoice created for "CU01" with "Bill-to Customer No." = "CU02"
+        VerifySalesInvoice(Customer[1]."No.", Customer[2]."No.", Count);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2435,6 +2467,22 @@ codeunit 137305 "SCM Warehouse Reports"
         for I := 1 to Count do begin
             Clear(SalesHeader);
             CreateSalesOrder(SalesHeader, '', ItemNo, CustomerNo, Quantity);
+            LibrarySales.PostSalesDocument(SalesHeader, true, false);
+        end;
+    end;
+
+    local procedure CreateAndPostSalesOrderWithDiffBillToCustomer(SellToCustomerNo: Code[20]; BillToCustomerNo: Code[20]; ItemNo: Code[20]; "Count": Integer; Quantity: Decimal)
+    var
+        SalesHeader: Record "Sales Header";
+        I: Integer;
+    begin
+        for I := 1 to Count do begin
+            Clear(SalesHeader);
+            CreateSalesOrder(SalesHeader, '', ItemNo, SellToCustomerNo, Quantity);
+            LibraryVariableStorage.Enqueue(ConfirmChangeQst);
+            LibraryVariableStorage.Enqueue(RecreateSalesLinesMsg);
+            SalesHeader.Validate("Bill-to Customer No.", BillToCustomerNo);
+            SalesHeader.Modify(true);
             LibrarySales.PostSalesDocument(SalesHeader, true, false);
         end;
     end;

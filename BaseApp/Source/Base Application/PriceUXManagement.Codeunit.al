@@ -1,4 +1,4 @@
-codeunit 7018 "Price UX Management"
+﻿codeunit 7018 "Price UX Management"
 {
     var
         MissingAlternateImplementationErr: Label 'You cannot setup exceptions because there is no alternate implementation.';
@@ -171,18 +171,21 @@ codeunit 7018 "Price UX Management"
                 begin
                     SalesPriceLists.LookupMode(true);
                     SalesPriceLists.SetRecordFilter(PriceListHeader);
-                    if SalesPriceLists.RunModal() = Action::LookupOK then
+                    if SalesPriceLists.RunModal() = Action::LookupOK then begin
                         SalesPriceLists.GetRecord(PriceListHeader);
+                        PriceListCode := PriceListHeader.Code;
+                    end;
                 end;
             "Price Type"::Purchase:
                 begin
                     PurchasePriceLists.LookupMode(true);
                     PurchasePriceLists.SetRecordFilter(PriceListHeader);
-                    if PurchasePriceLists.RunModal() = Action::LookupOK then
+                    if PurchasePriceLists.RunModal() = Action::LookupOK then begin
                         PurchasePriceLists.GetRecord(PriceListHeader);
+                        PriceListCode := PriceListHeader.Code;
+                    end;
                 end;
         end;
-        PriceListCode := PriceListHeader.Code;
         IsPicked := PriceListCode <> '';
     end;
 
@@ -193,6 +196,7 @@ codeunit 7018 "Price UX Management"
         if PriceListCode <> '' then begin
             PriceListHeader.Get(PriceListCode);
             PriceListHeader.SetFilter(Code, '<>%1', PriceListCode);
+            PriceListCode := '';
         end else begin
             PriceListHeader."Source Group" := SourceGroup;
             PriceListHeader."Price Type" := PriceType;
@@ -203,6 +207,24 @@ codeunit 7018 "Price UX Management"
             SourceGroup::Customer,
             SourceGroup::Vendor:
                 exit(LookupPriceLists(PriceListHeader, PriceListCode));
+        end;
+    end;
+
+    procedure EditPriceList(PriceListCode: Code[20])
+    var
+        PriceListHeader: Record "Price List Header";
+    begin
+        if PriceListCode = '' then
+            exit;
+
+        PriceListHeader.Get(PriceListCode);
+        SetPriceListsFilters(PriceListHeader, PriceListHeader."Price Type", PriceListHeader."Amount Type");
+
+        case PriceListHeader."Price Type" of
+            PriceListHeader."Price Type"::Sale:
+                Page.RunModal(Page::"Sales Price List", PriceListHeader);
+            PriceListHeader."Price Type"::Purchase:
+                Page.RunModal(Page::"Purchase Price List", PriceListHeader);
         end;
     end;
 
@@ -392,59 +414,87 @@ codeunit 7018 "Price UX Management"
     var
         PriceSourceType: Enum "Price Source Type";
     begin
+        OnBeforeGetPriceSource(Campaign, PriceType, PriceSourceList);
+
         PriceSourceList.Add(PriceSourceType::Campaign, Campaign."No.");
         PriceSourceList.SetPriceType(PriceType);
+
+        OnAfterGetPriceSource(Campaign, PriceSourceList);
     end;
 
     local procedure GetPriceSource(Contact: Record Contact; PriceType: Enum "Price Type"; var PriceSourceList: Codeunit "Price Source List")
     var
         PriceSourceType: Enum "Price Source Type";
     begin
+        OnBeforeGetPriceSource(Contact, PriceType, PriceSourceList);
+
         PriceSourceList.Add(PriceSourceType::Contact, Contact."No.");
         PriceSourceList.SetPriceType(PriceType);
+
+        OnAfterGetPriceSource(Contact, PriceSourceList);
     end;
 
     local procedure GetPriceSource(Customer: Record Customer; var PriceSourceList: Codeunit "Price Source List")
     var
         PriceSourceType: Enum "Price Source Type";
     begin
+        OnBeforeGetPriceSource(Customer, "Price Type"::Sale, PriceSourceList);
+
         PriceSourceList.Add(PriceSourceType::Customer, Customer."No.");
         PriceSourceList.Add(PriceSourceType::"All Customers");
         if Customer."Customer Price Group" <> '' then
             PriceSourceList.Add(PriceSourceType::"Customer Price Group", Customer."Customer Price Group");
         if Customer."Customer Disc. Group" <> '' then
             PriceSourceList.Add(PriceSourceType::"Customer Disc. Group", Customer."Customer Disc. Group");
+
+        OnAfterGetPriceSource(Customer, PriceSourceList);
     end;
 
     local procedure GetPriceSource(CustomerPriceGroup: Record "Customer Price Group"; var PriceSourceList: Codeunit "Price Source List")
     var
         PriceSourceType: Enum "Price Source Type";
     begin
+        OnBeforeGetPriceSource(CustomerPriceGroup, "Price Type"::Sale, PriceSourceList);
+
         PriceSourceList.Add(PriceSourceType::"Customer Price Group", CustomerPriceGroup.Code);
+
+        OnAfterGetPriceSource(CustomerPriceGroup, PriceSourceList);
     end;
 
     local procedure GetPriceSource(CustomerDiscountGroup: Record "Customer Discount Group"; var PriceSourceList: Codeunit "Price Source List")
     var
         PriceSourceType: Enum "Price Source Type";
     begin
+        OnBeforeGetPriceSource(CustomerDiscountGroup, "Price Type"::Sale, PriceSourceList);
+
         PriceSourceList.Add(PriceSourceType::"Customer Disc. Group", CustomerDiscountGroup.Code);
+
+        OnAfterGetPriceSource(CustomerDiscountGroup, PriceSourceList);
     end;
 
     local procedure GetPriceSource(Vendor: Record Vendor; var PriceSourceList: Codeunit "Price Source List")
     var
         PriceSourceType: Enum "Price Source Type";
     begin
+        OnBeforeGetPriceSource(Vendor, "Price Type"::Purchase, PriceSourceList);
+
         PriceSourceList.Add(PriceSourceType::Vendor, Vendor."No.");
         PriceSourceList.Add(PriceSourceType::"All Vendors");
+
+        OnAfterGetPriceSource(Vendor, PriceSourceList);
     end;
 
     local procedure GetPriceSource(Job: Record Job; PriceType: Enum "Price Type"; var PriceSourceList: Codeunit "Price Source List")
     var
         PriceSourceType: Enum "Price Source Type";
     begin
+        OnBeforeGetPriceSource(Job, PriceType, PriceSourceList);
+
         PriceSourceList.Add(PriceSourceType::Job, Job."No.");
         PriceSourceList.Add(PriceSourceType::"All Jobs");
         PriceSourceList.SetPriceType(PriceType);
+
+        OnAfterGetPriceSource(Job, PriceSourceList);
     end;
 
     procedure SetPriceListsFilters(var PriceListHeader: Record "Price List Header"; PriceType: Enum "Price Type"; AmountType: Enum "Price Amount Type")
@@ -518,6 +568,17 @@ codeunit 7018 "Price UX Management"
             Error(MissingAlternateImplementationErr);
     end;
 
+    /// <summary>
+    /// This is a workaround to avoid the runtime error on running the modal customer list page.
+    /// </summary>
+    procedure InitSmartListDesigner()
+    var
+        SmartListDesignerTriggers: codeunit "SmartList Designer Triggers";
+        Enabled: Boolean;
+    begin
+        SmartListDesignerTriggers.GetEnabled(Enabled);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeShowPriceLists(FromRecord: Variant; PriceType: Enum "Price Type"; AmountType: Enum "Price Amount Type"; var Handled: Boolean)
     begin
@@ -525,6 +586,16 @@ codeunit 7018 "Price UX Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeShowPriceListLines(PriceSource: Record "Price Source"; PriceAsset: Record "Price Asset"; PriceType: Enum "Price Type"; AmountType: Enum "Price Amount Type"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetPriceSource(FromRecord: Variant; PriceType: Enum "Price Type"; var PriceSourceList: Codeunit "Price Source List")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetPriceSource(FromRecord: Variant; var PriceSourceList: Codeunit "Price Source List")
     begin
     end;
 }
