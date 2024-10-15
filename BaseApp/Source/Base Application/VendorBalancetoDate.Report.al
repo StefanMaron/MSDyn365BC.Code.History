@@ -126,7 +126,7 @@ report 321 "Vendor - Balance to Date"
                     begin
                         if not PrintUnappliedEntries then
                             if Unapplied then
-                                CurrReport.Skip;
+                                CurrReport.Skip();
                         if PrintAmountInLCY then begin
                             Amt := "Amount (LCY)";
                             CurrencyCode := '';
@@ -135,7 +135,7 @@ report 321 "Vendor - Balance to Date"
                             CurrencyCode := "Currency Code";
                         end;
                         if Amt = 0 then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
 
                         if UseExternalDocNo then
                             DtldVendLedgDocumentNo := GetAppliedEntryExternalDocNo("Applied Vend. Ledger Entry No.")
@@ -221,7 +221,7 @@ report 321 "Vendor - Balance to Date"
                     else
                         OK := CurrencyTotalBuffer.Next <> 0;
                     if not OK then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     CurrencyTotalBuffer2.UpdateTotal(
                       CurrencyTotalBuffer."Currency Code",
@@ -232,7 +232,7 @@ report 321 "Vendor - Balance to Date"
 
                 trigger OnPostDataItem()
                 begin
-                    CurrencyTotalBuffer.DeleteAll;
+                    CurrencyTotalBuffer.DeleteAll();
                 end;
 
                 trigger OnPreDataItem()
@@ -252,7 +252,7 @@ report 321 "Vendor - Balance to Date"
                    ("Net Change" = 0) and
                    (not ShowEntriesWithZeroBalance)
                 then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
             end;
         }
         dataitem(Integer3; "Integer")
@@ -277,12 +277,12 @@ report 321 "Vendor - Balance to Date"
                 else
                     OK := CurrencyTotalBuffer2.Next <> 0;
                 if not OK then
-                    CurrReport.Break;
+                    CurrReport.Break();
             end;
 
             trigger OnPostDataItem()
             begin
-                CurrencyTotalBuffer2.DeleteAll;
+                CurrencyTotalBuffer2.DeleteAll();
             end;
 
             trigger OnPreDataItem()

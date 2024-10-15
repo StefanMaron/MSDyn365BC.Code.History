@@ -46,15 +46,5 @@ table 10533 "MTD-Liability"
     fieldgroups
     {
     }
-
-    [Scope('OnPrem')]
-    procedure DiffersFromLiability(MTDLiability: Record "MTD-Liability"): Boolean
-    begin
-        exit(
-          (Type <> MTDLiability.Type) or
-          ("Original Amount" <> MTDLiability."Original Amount") or
-          ("Outstanding Amount" <> MTDLiability."Outstanding Amount") or
-          ("Due Date" <> MTDLiability."Due Date"));
-    end;
 }
 

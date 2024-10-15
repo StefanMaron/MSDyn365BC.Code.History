@@ -44,7 +44,7 @@ codeunit 10520 GovTalkMessageManagement
             exit(false);
 
         GovTalkSetup.FindFirst;
-        CompanyInformation.Get;
+        CompanyInformation.Get();
 
         XmlDoc := XmlDoc.XmlDocument;
 
@@ -234,7 +234,7 @@ codeunit 10520 GovTalkMessageManagement
     var
         ErrorMessageLog: Record "Error Message";
     begin
-        ErrorMessageLog.LockTable;
+        ErrorMessageLog.LockTable();
         ErrorMessageLog.SetContext(VATReportHeader);
         ErrorMessageLog.LogMessage(VATReportHeader, VATReportHeader.FieldNo("No."), ErrorMessageLog."Message Type"::Error, ErrorText);
     end;
@@ -243,7 +243,7 @@ codeunit 10520 GovTalkMessageManagement
     var
         ErrorMessageLog: Record "Error Message";
     begin
-        ErrorMessageLog.LockTable;
+        ErrorMessageLog.LockTable();
         ErrorMessageLog.SetContext(VATReportHeader);
         ErrorMessageLog.LogMessage(VATReportHeader,
           VATReportHeader.FieldNo("No."), ErrorMessageLog."Message Type"::Information, NotificationText);
@@ -351,13 +351,13 @@ codeunit 10520 GovTalkMessageManagement
         GovTalkMessage.Get(VATReportHeader."VAT Report Config. Code", VATReportHeader."No.");
         if GovTalkMessage."Polling Count" = 0 then begin
             VATReportHeader.Status := VATReportHeader.Status::Rejected;
-            VATReportHeader.Modify;
+            VATReportHeader.Modify();
             exit;
         end;
         GovTalkMessage."Polling Count" -= 1;
-        GovTalkMessage.Modify;
+        GovTalkMessage.Modify();
 
-        JobQueueEntry.Init;
+        JobQueueEntry.Init();
         JobQueueEntry."Object Type to Run" := JobQueueEntry."Object Type to Run"::Codeunit;
         JobQueueEntry."Object ID to Run" := CODEUNIT::"HMRC GovTalk Message Scheduler";
         JobQueueEntry."Record ID to Process" := VATReportHeader.RecordId;
@@ -441,7 +441,7 @@ codeunit 10520 GovTalkMessageManagement
                 if GovTalkMessage.Get(VATReportHeader."VAT Report Config. Code", VATReportHeader."No.") then begin
                     GovTalkMessage.Validate(ResponseEndPoint, ResponseEndPointXMLNode.InnerText);
                     GovTalkMessage.Validate(PollInterval, PollInterval);
-                    GovTalkMessage.Modify;
+                    GovTalkMessage.Modify();
                 end;
             end;
             if XMLDOMManagement.FindNodeWithNamespace(
@@ -491,7 +491,7 @@ codeunit 10520 GovTalkMessageManagement
             GovTalkMessage."Message Class" := VATDeclarationMessageClassTxt
         else
             GovTalkMessage."Message Class" := ECSLDeclarationMessageClassTxt;
-        GovTalkMessage.Insert;
+        GovTalkMessage.Insert();
     end;
 
     local procedure GetPeriodID(PeriodEnd: Date): Code[10]
@@ -521,7 +521,7 @@ codeunit 10520 GovTalkMessageManagement
     begin
         if VATReportHeader."VAT Report Config. Code" = VATReportHeader."VAT Report Config. Code"::"VAT Return" then begin
             VATReportHeader."Message Id" := CorrelationID;
-            VATReportHeader.Modify;
+            VATReportHeader.Modify();
             exit;
         end;
 
@@ -532,7 +532,7 @@ codeunit 10520 GovTalkMessageManagement
         GovTalkMessageParts.TestField("VAT Report Config. Code", VATReportHeader."VAT Report Config. Code"::"EC Sales List");
 
         GovTalkMessageParts."Correlation Id" := CorrelationID;
-        GovTalkMessageParts.Modify;
+        GovTalkMessageParts.Modify();
     end;
 
     local procedure SetPartStatus(CorrelationId: Text; NewStatus: Option)
@@ -553,7 +553,7 @@ codeunit 10520 GovTalkMessageManagement
     begin
         GovTalkMessageParts.SetRange("VAT Report Config. Code", VATReportHeader."VAT Report Config. Code");
         GovTalkMessageParts.SetRange("Report No.", VATReportHeader."No.");
-        PartsCount := GovTalkMessageParts.Count;
+        PartsCount := GovTalkMessageParts.Count();
 
         GovTalkMessageParts.SetFilter(Status, '<>%1', GovTalkMessageParts.Status::Released);
         if not (GovTalkMessageParts.Count = PartsCount) then

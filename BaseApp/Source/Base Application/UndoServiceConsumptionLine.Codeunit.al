@@ -26,7 +26,7 @@ codeunit 5819 "Undo Service Consumption Line"
             if not ConfirmManagement.GetResponseOrDefault(Text000, true) then
                 exit;
 
-        LockTable;
+        LockTable();
         ServShptLine.Copy(Rec);
         Code;
         Rec := ServShptLine;
@@ -86,12 +86,12 @@ codeunit 5819 "Undo Service Consumption Line"
             Find('-');
             repeat
                 if Quantity <> "Qty. Shipped Not Invoiced" then begin
-                    TempGlobalItemLedgEntry.Reset;
+                    TempGlobalItemLedgEntry.Reset();
                     if not TempGlobalItemLedgEntry.IsEmpty then
-                        TempGlobalItemLedgEntry.DeleteAll;
-                    TempGlobalItemEntryRelation.Reset;
+                        TempGlobalItemLedgEntry.DeleteAll();
+                    TempGlobalItemEntryRelation.Reset();
                     if not TempGlobalItemEntryRelation.IsEmpty then
-                        TempGlobalItemEntryRelation.DeleteAll;
+                        TempGlobalItemEntryRelation.DeleteAll();
 
                     if not HideDialog then
                         Window.Open(Text001);
@@ -117,7 +117,7 @@ codeunit 5819 "Undo Service Consumption Line"
             until Next = 0;
             ServLedgEntriesPost.FinishServiceRegister(ServLedgEntryNo, WarrantyLedgEntryNo);
 
-            InvtSetup.Get;
+            InvtSetup.Get();
             if InvtSetup."Automatic Cost Adjustment" <>
                InvtSetup."Automatic Cost Adjustment"::Never
             then begin
@@ -149,7 +149,7 @@ codeunit 5819 "Undo Service Consumption Line"
             TestField("Qty. Shipped Not Invoiced", Quantity - "Quantity Consumed");
 
             // Check if there was consumption posted to jobs
-            ServiceLedgerEntry.Reset;
+            ServiceLedgerEntry.Reset();
             ServiceLedgerEntry.SetRange("Document No.", "Document No.");
             ServiceLedgerEntry.SetRange("Posting Date", "Posting Date");
             ServiceLedgerEntry.SetRange("Document Line No.", "Line No.");
@@ -187,7 +187,7 @@ codeunit 5819 "Undo Service Consumption Line"
         ServiceLine: Record "Service Line";
         SignFactor: Integer;
     begin
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
         ServShptHeader.Get(ServShptLine."Document No.");
 
         with ItemJnlLine do begin
@@ -220,15 +220,15 @@ codeunit 5819 "Undo Service Consumption Line"
                 exit("Item Shpt. Entry No.");
             end;
 
-            TempTrkgItemLedgEntry.Reset;
+            TempTrkgItemLedgEntry.Reset();
             if QtyToConsume <> 0 then begin
                 SignFactor := 1;
-                TempTrkgItemLedgEntry2.DeleteAll;
-                TempTrkgItemLedgEntry.Reset;
+                TempTrkgItemLedgEntry2.DeleteAll();
+                TempTrkgItemLedgEntry.Reset();
                 if TempTrkgItemLedgEntry.FindFirst then
                     repeat
                         TempTrkgItemLedgEntry2 := TempTrkgItemLedgEntry;
-                        TempTrkgItemLedgEntry2.Insert;
+                        TempTrkgItemLedgEntry2.Insert();
                     until TempTrkgItemLedgEntry.Next = 0;
                 InsertNewReservationEntries(ServShptLine, EntryType, SignFactor);
                 PostItemJnlLineWithIT(ServShptLine, QtyToShip, QtyToShipBase, QtyToConsume, QtyToConsumeBase, SignFactor, EntryType);
@@ -242,7 +242,7 @@ codeunit 5819 "Undo Service Consumption Line"
         ResJnlLine: Record "Res. Journal Line";
         ResJnlPostLine: Codeunit "Res. Jnl.-Post Line";
     begin
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
         ServShptHeader.Get(ServiceShptLine."Document No.");
 
         with ResJnlLine do begin
@@ -322,12 +322,11 @@ codeunit 5819 "Undo Service Consumption Line"
             SignFactor := -SignFactor;
             if FindSet then
                 repeat
-                    ReservEntry.Init;
+                    ReservEntry.Init();
                     ReservEntry."Item No." := "Item No.";
                     ReservEntry."Location Code" := "Location Code";
-                    ReservEntry."Serial No." := "Serial No.";
                     ReservEntry."Qty. per Unit of Measure" := "Qty. per Unit of Measure";
-                    ReservEntry."Lot No." := "Lot No.";
+                    ReservEntry.CopyTrackingFromItemLedgEntry(TempTrkgItemLedgEntry2);
                     ReservEntry."Variant Code" := "Variant Code";
                     ReservEntry."Source ID" := '';
                     ReservEntry."Source Type" := DATABASE::"Item Journal Line";
@@ -354,9 +353,9 @@ codeunit 5819 "Undo Service Consumption Line"
                     ReservEntry.UpdateItemTracking;
                     ReservEntry."Appl.-to Item Entry" := "Entry No.";
                     OnBeforeReservEntryInsert(ReservEntry, TempTrkgItemLedgEntry2);
-                    ReservEntry.Insert;
+                    ReservEntry.Insert();
                     TempReservEntry := ReservEntry;
-                    TempReservEntry.Insert;
+                    TempReservEntry.Insert();
                 until Next = 0;
             ReserveEngineMgt.UpdateOrderTracking(TempReservEntry);
         end;
@@ -367,10 +366,10 @@ codeunit 5819 "Undo Service Consumption Line"
         TempSSLItemLedgEntry: Record "Item Ledger Entry" temporary;
     begin
         // replace in tracking specification old item entry relation for a new one, and adjust qtys
-        TempTrkgItemLedgEntry.Reset;
+        TempTrkgItemLedgEntry.Reset();
         if TempTrkgItemLedgEntry.FindFirst then begin
-            TempSSLItemLedgEntry.Reset;
-            TempSSLItemLedgEntry.DeleteAll;
+            TempSSLItemLedgEntry.Reset();
+            TempSSLItemLedgEntry.DeleteAll();
             CollectItemLedgerEntries(CurrentServShptLine, TempSSLItemLedgEntry);
             if TempSSLItemLedgEntry.FindFirst then
                 repeat
@@ -378,10 +377,9 @@ codeunit 5819 "Undo Service Consumption Line"
 
                     // collect/add another value entry relation, for the future new line
                     TempGlobalItemEntryRelation."Item Entry No." := TempSSLItemLedgEntry."Entry No.";
-                    TempGlobalItemEntryRelation."Serial No." := TempSSLItemLedgEntry."Serial No.";
-                    TempGlobalItemEntryRelation."Lot No." := TempSSLItemLedgEntry."Lot No.";
+                    TempGlobalItemEntryRelation.CopyTrackingFromItemledgEntry(TempSSLItemLedgEntry);
                     OnBeforeTempGlobalItemEntryRelationInsert(TempGlobalItemEntryRelation, TempSSLItemLedgEntry);
-                    if TempGlobalItemEntryRelation.Insert then;
+                    if TempGlobalItemEntryRelation.Insert() then;
 
                     TempSSLItemLedgEntry.Next;
                 until TempTrkgItemLedgEntry.Next = 0;
@@ -398,13 +396,13 @@ codeunit 5819 "Undo Service Consumption Line"
             Reset;
             SetRange("Item Ledger Entry No.", OldItemShptEntryNo);
             if FindFirst then begin
-                NewTrackingSpecification.LockTable;
-                NewTrackingSpecification.Reset;
+                NewTrackingSpecification.LockTable();
+                NewTrackingSpecification.Reset();
                 if NewTrackingSpecification.FindLast then
                     NewEntryNo := NewTrackingSpecification."Entry No." + 1
                 else
                     NewEntryNo := 1;
-                NewTrackingSpecification.Init;
+                NewTrackingSpecification.Init();
                 NewTrackingSpecification := TrackingSpecification;
                 NewTrackingSpecification."Entry No." := NewEntryNo;
                 NewTrackingSpecification."Item Ledger Entry No." := NewItemShptEntryNo;
@@ -418,7 +416,7 @@ codeunit 5819 "Undo Service Consumption Line"
                     NewTrackingSpecification."Quantity Invoiced (Base)" := 0;
                 end;
                 NewTrackingSpecification.Validate("Quantity (Base)");
-                NewTrackingSpecification.Insert;
+                NewTrackingSpecification.Insert();
             end;
         end;
     end;
@@ -447,8 +445,8 @@ codeunit 5819 "Undo Service Consumption Line"
     begin
         with OldServShptLine do begin
             LineSpacing := GetCorrectiveShptLineNoStep("Document No.", "Line No.");
-            NewServShptLine.Reset;
-            NewServShptLine.Init;
+            NewServShptLine.Reset();
+            NewServShptLine.Init();
             NewServShptLine.Copy(OldServShptLine);
             NewServShptLine."Line No." := "Line No." + LineSpacing;
             NewServShptLine."Item Shpt. Entry No." := ItemShptEntryNo;
@@ -460,7 +458,7 @@ codeunit 5819 "Undo Service Consumption Line"
             NewServShptLine."Quantity Consumed" := NewServShptLine.Quantity;
             NewServShptLine."Qty. Consumed (Base)" := NewServShptLine."Quantity (Base)";
             NewServShptLine.Correction := true;
-            NewServShptLine.Insert;
+            NewServShptLine.Insert();
 
             UpdateItemJnlLine(NewServShptLine, ItemShptEntryNo);
             if Type = Type::Item then begin
@@ -501,9 +499,9 @@ codeunit 5819 "Undo Service Consumption Line"
             repeat
                 ItemEntryRelation := TempItemEntryRelation;
                 ItemEntryRelation.TransferFieldsServShptLine(NewServShptLine);
-                ItemEntryRelation.Insert;
+                ItemEntryRelation.Insert();
             until TempItemEntryRelation.Next = 0;
-        TempItemEntryRelation.DeleteAll;
+        TempItemEntryRelation.DeleteAll();
     end;
 
     local procedure UpdateItemJnlLine(NewServShptLine: Record "Service Shipment Line"; ItemShptEntryNo: Integer)
@@ -512,7 +510,7 @@ codeunit 5819 "Undo Service Consumption Line"
     begin
         if ItemLedgEntry.Get(ItemShptEntryNo) then begin
             ItemLedgEntry."Document Line No." := NewServShptLine."Line No.";
-            ItemLedgEntry.Modify;
+            ItemLedgEntry.Modify();
         end;
     end;
 

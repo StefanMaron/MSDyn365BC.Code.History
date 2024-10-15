@@ -9,7 +9,7 @@ codeunit 131336 "ERM PE Source Test Mock"
         RecordRef: RecordRef;
         Current: Integer;
     begin
-        Current := TempBlobList.Count;
+        Current := TempBlobList.Count();
         "File Name" := StrSubstNo('ERM PE Source test moq (Key = %1)', Current);
         TempBlobList.Get(Current, TempBlob);
         RecordRef.GetTable(Rec);

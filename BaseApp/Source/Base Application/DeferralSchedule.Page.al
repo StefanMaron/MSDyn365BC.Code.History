@@ -138,7 +138,7 @@ page 1702 "Deferral Schedule"
         DeferralLine.SetRange("Document No.", "Document No.");
         DeferralLine.SetRange("Line No.", "Line No.");
 
-        RecCount := DeferralLine.Count;
+        RecCount := DeferralLine.Count();
         ExpectedCount := DeferralUtilities.CalcDeferralNoOfPeriods("Calc. Method", "No. of Periods", "Start Date");
         if ExpectedCount <> RecCount then
             FieldError("No. of Periods");

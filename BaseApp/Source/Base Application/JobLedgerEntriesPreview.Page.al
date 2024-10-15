@@ -1,4 +1,4 @@
-﻿page 93 "Job Ledger Entries Preview"
+page 93 "Job Ledger Entries Preview"
 {
     Caption = 'Job Ledger Entries Preview';
     DataCaptionFields = "Job No.";

@@ -95,7 +95,7 @@ codeunit 134303 "Workflow Event Response Tests"
 
         CODEUNIT.Run(CODEUNIT::"Purchase Post via Job Queue", JobQueueEntry);
 
-        PurchInvHeader.Init;
+        PurchInvHeader.Init();
         PurchInvHeader.SetRange("Pre-Assigned No.", PurchaseHeader."No.");
         PurchInvHeader.FindFirst;
 
@@ -145,7 +145,7 @@ codeunit 134303 "Workflow Event Response Tests"
 
         CODEUNIT.Run(CODEUNIT::"Purchase Post via Job Queue", JobQueueEntry);
 
-        PurchInvHeader.Init;
+        PurchInvHeader.Init();
         PurchInvHeader.SetRange("Pre-Assigned No.", PurchaseHeader."No.");
         PurchInvHeader.FindFirst;
 
@@ -161,7 +161,7 @@ codeunit 134303 "Workflow Event Response Tests"
         GenJournalLine.FindFirst;
 
         RecRef.GetTable(GenJournalLine);
-        RecRef.Reset;
+        RecRef.Reset();
         VerifyNotificationEntry(RecRef);
     end;
 
@@ -219,7 +219,7 @@ codeunit 134303 "Workflow Event Response Tests"
         CODEUNIT.Run(CODEUNIT::"Purchase Post via Job Queue", JobQueueEntry);
 
         // Verify.
-        PurchInvHeader.Init;
+        PurchInvHeader.Init();
         PurchInvHeader.SetRange("Pre-Assigned No.", PurchaseHeader."No.");
         PurchInvHeader.FindFirst;
 
@@ -228,7 +228,7 @@ codeunit 134303 "Workflow Event Response Tests"
 
         // Exercise
         GenJournalLine.Validate("Document Type", GenJournalLine."Document Type"::Payment);
-        GenJournalLine.Insert;
+        GenJournalLine.Insert();
 
         // Verify.
         Assert.IsTrue(NotificationEntry.IsEmpty, 'No notification should be created.');
@@ -343,7 +343,7 @@ codeunit 134303 "Workflow Event Response Tests"
 
         // Setup
         Workflow.ModifyAll(Enabled, false);
-        WorkflowEvent.DeleteAll;
+        WorkflowEvent.DeleteAll();
 
         LibraryPurchase.CreatePurchaseDocumentWithItem(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Invoice,
           LibraryPurchase.CreateVendorNo, LibraryInventory.CreateItemNo, LibraryRandom.RandDec(100, 2), '', 0D);
@@ -361,9 +361,9 @@ codeunit 134303 "Workflow Event Response Tests"
         PurchInvHeader: Record "Purch. Inv. Header";
         JobQueueEntry: Record "Job Queue Entry";
     begin
-        PurchaseHeader.DeleteAll;
-        PurchInvHeader.DeleteAll;
-        JobQueueEntry.DeleteAll;
+        PurchaseHeader.DeleteAll();
+        PurchInvHeader.DeleteAll();
+        JobQueueEntry.DeleteAll();
 
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
@@ -498,7 +498,7 @@ codeunit 134303 "Workflow Event Response Tests"
         end else
             if UserSetup."E-Mail" = '' then begin
                 UserSetup."E-Mail" := UserEmailAddressTxt;
-                UserSetup.Modify;
+                UserSetup.Modify();
             end;
     end;
 

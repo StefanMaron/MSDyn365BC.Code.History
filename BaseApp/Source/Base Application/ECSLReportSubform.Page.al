@@ -84,7 +84,7 @@ page 322 "ECSL Report Subform"
                         repeat
                             if VATEntry.Get(ECSLVATReportLineRelation."VAT Entry No.") then begin
                                 TempVATEntry.TransferFields(VATEntry, true);
-                                TempVATEntry.Insert;
+                                TempVATEntry.Insert();
                             end;
                         until ECSLVATReportLineRelation.Next = 0;
 

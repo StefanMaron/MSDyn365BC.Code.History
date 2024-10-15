@@ -77,21 +77,22 @@ report 1498 "Date Compress Bank Acc. Ledger"
             trigger OnPreDataItem()
             var
                 GLSetup: Record "General Ledger Setup";
+                LastTransactionNo: Integer;
             begin
                 if not Confirm(Text000, false) then
-                    CurrReport.Break;
+                    CurrReport.Break();
 
                 if EntrdDateComprReg."Ending Date" = 0D then
                     Error(Text003, EntrdDateComprReg.FieldCaption("Ending Date"));
 
                 Window.Open(Text004);
 
-                SourceCodeSetup.Get;
+                SourceCodeSetup.Get();
                 SourceCodeSetup.TestField("Compress Bank Acc. Ledger");
 
                 SelectedDim.GetSelectedDim(
                   UserId, 3, REPORT::"Date Compress Bank Acc. Ledger", '', TempSelectedDim);
-                GLSetup.Get;
+                GLSetup.Get();
                 Retain[3] :=
                   TempSelectedDim.Get(
                     UserId, 3, REPORT::"Date Compress Bank Acc. Ledger", '', GLSetup."Global Dimension 1 Code");
@@ -99,14 +100,13 @@ report 1498 "Date Compress Bank Acc. Ledger"
                   TempSelectedDim.Get(
                     UserId, 3, REPORT::"Date Compress Bank Acc. Ledger", '', GLSetup."Global Dimension 2 Code");
 
-                GLEntry.LockTable;
-                NewBankAccLedgEntry.LockTable;
-                GLReg.LockTable;
-                DateComprReg.LockTable;
+                GLEntry.LockTable();
+                NewBankAccLedgEntry.LockTable();
+                GLReg.LockTable();
+                DateComprReg.LockTable();
 
-                if GLEntry.FindLast then;
-                LastEntryNo := GLEntry."Entry No.";
-                NextTransactionNo := GLEntry."Transaction No." + 1;
+                GLEntry.GetLastEntry(LastEntryNo, LastTransactionNo);
+                NextTransactionNo := LastTransactionNo + 1;
                 SetRange("Entry No.", 0, LastEntryNo);
                 SetRange("Posting Date", EntrdDateComprReg."Starting Date", EntrdDateComprReg."Ending Date");
 
@@ -244,7 +244,7 @@ report 1498 "Date Compress Bank Acc. Ledger"
         NextRegNo: Integer;
     begin
         if GLReg.Find('+') then;
-        GLReg.Init;
+        GLReg.Init();
         GLReg."No." := GLReg."No." + 1;
         GLReg."Creation Date" := Today;
         GLReg."Creation Time" := Time;
@@ -252,8 +252,7 @@ report 1498 "Date Compress Bank Acc. Ledger"
         GLReg."User ID" := UserId;
         GLReg."From Entry No." := LastEntryNo + 1;
 
-        if DateComprReg.FindLast then
-            NextRegNo := DateComprReg."No." + 1;
+        NextRegNo := DateComprReg.GetLastEntryNo() + 1;
 
         DateComprReg.InitRegister(
           DATABASE::"Bank Account Ledger Entry", NextRegNo,
@@ -273,8 +272,11 @@ report 1498 "Date Compress Bank Acc. Ledger"
     end;
 
     local procedure InsertRegisters(var GLReg: Record "G/L Register"; var DateComprReg: Record "Date Compr. Register")
+    var
+        FoundLastEntryNo: Integer;
+        LastTransactionNo: Integer;
     begin
-        GLEntry.Init;
+        GLEntry.Init();
         LastEntryNo := LastEntryNo + 1;
         GLEntry."Entry No." := LastEntryNo;
         GLEntry."Posting Date" := Today;
@@ -283,32 +285,32 @@ report 1498 "Date Compress Bank Acc. Ledger"
         GLEntry."System-Created Entry" := true;
         GLEntry."User ID" := UserId;
         GLEntry."Transaction No." := NextTransactionNo;
-        GLEntry.Insert;
+        GLEntry.Insert();
         GLEntry.Consistent(GLEntry.Amount = 0);
         GLReg."To Entry No." := GLEntry."Entry No.";
 
         if GLRegExists then begin
-            GLReg.Modify;
-            DateComprReg.Modify;
+            GLReg.Modify();
+            DateComprReg.Modify();
         end else begin
-            GLReg.Insert;
-            DateComprReg.Insert;
+            GLReg.Insert();
+            DateComprReg.Insert();
             GLRegExists := true;
         end;
-        Commit;
+        Commit();
 
-        GLEntry.LockTable;
-        NewBankAccLedgEntry.LockTable;
-        GLReg.LockTable;
-        DateComprReg.LockTable;
+        GLEntry.LockTable();
+        NewBankAccLedgEntry.LockTable();
+        GLReg.LockTable();
+        DateComprReg.LockTable();
 
-        if GLEntry.FindLast then;
+        GLEntry.GetLastEntry(FoundLastEntryNo, LastTransactionNo);
         if NewBankAccLedgEntry.Find('+') then;
-        if (LastEntryNo <> GLEntry."Entry No.") or
+        if (LastEntryNo <> FoundLastEntryNo) or
            (LastEntryNo <> NewBankAccLedgEntry."Entry No." + 1)
         then begin
-            LastEntryNo := GLEntry."Entry No.";
-            NextTransactionNo := GLEntry."Transaction No." + 1;
+            LastEntryNo := FoundLastEntryNo;
+            NextTransactionNo := LastTransactionNo + 1;
             InitRegisters;
         end;
     end;
@@ -381,7 +383,7 @@ report 1498 "Date Compress Bank Acc. Ledger"
         LastEntryNo := LastEntryNo + 1;
 
         with BankAccLedgEntry2 do begin
-            NewBankAccLedgEntry.Init;
+            NewBankAccLedgEntry.Init();
             NewBankAccLedgEntry."Entry No." := LastEntryNo;
             NewBankAccLedgEntry."Bank Account No." := "Bank Account No.";
             NewBankAccLedgEntry."Posting Date" := GetRangeMin("Posting Date");
@@ -414,12 +416,12 @@ report 1498 "Date Compress Bank Acc. Ledger"
         TempDimBuf: Record "Dimension Buffer" temporary;
         TempDimSetEntry: Record "Dimension Set Entry" temporary;
     begin
-        TempDimBuf.DeleteAll;
+        TempDimBuf.DeleteAll();
         DimBufMgt.GetDimensions(DimEntryNo, TempDimBuf);
         DimMgt.CopyDimBufToDimSetEntry(TempDimBuf, TempDimSetEntry);
         NewBankAccLedgEntry."Dimension Set ID" := DimMgt.GetDimensionSetID(TempDimSetEntry);
         OnInsertNewEntryOnBeforeInsert(NewBankAccLedgEntry, DimEntryNo);
-        NewBankAccLedgEntry.Insert;
+        NewBankAccLedgEntry.Insert();
     end;
 
     local procedure InitializeParameter()

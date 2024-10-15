@@ -32,7 +32,7 @@ codeunit 132533 "Backup Management Test"
     var
         i: Integer;
     begin
-        BackupMgt.DeleteAll;
+        BackupMgt.DeleteAll();
         if Initialized then
             exit;
 
@@ -45,7 +45,7 @@ codeunit 132533 "Backup Management Test"
             CreateCustomer
         end;
 
-        Commit;
+        Commit();
         Initialized := true
     end;
 
@@ -82,14 +82,14 @@ codeunit 132533 "Backup Management Test"
 
         // Setup
         Initialize;
-        ItemCount := Item.Count;
+        ItemCount := Item.Count();
         Assert.AreNotEqual(0, ItemCount, StrSubstNo(TableEmptyError, 'Item'));
 
         // Exercise
         BackupMgt.BackupDatabase(BackupName);
-        Item.DeleteAll;
+        Item.DeleteAll();
         // Delete only the in-memory backups
-        BackupMgt.DeleteAll;
+        BackupMgt.DeleteAll();
 
         // Exercise, verify
         asserterror BackupMgt.RestoreDatabase(BackupName);
@@ -117,7 +117,7 @@ codeunit 132533 "Backup Management Test"
         // Exercise
         BackupMgt.BackupDatabase(BackupName);
         Item.Description := SelfDescribingValue;
-        Item.Modify;
+        Item.Modify();
         Item.Get(Item."No.");
         BackupMgt.RestoreDatabase(BackupName);
 
@@ -141,11 +141,11 @@ codeunit 132533 "Backup Management Test"
         Item.Next(LibraryRandom.RandInt(Item.Count));
         ItemNo := Item."No.";
         Item.Description := SelfDescribingValue;
-        Item.Modify;
+        Item.Modify();
 
         // Exercise
         BackupMgt.BackupDatabase(BackupName);
-        Item.Delete;
+        Item.Delete();
         BackupMgt.RestoreDatabase(BackupName);
 
         // Verify
@@ -164,12 +164,12 @@ codeunit 132533 "Backup Management Test"
 
         // Setup
         Initialize;
-        ItemCount := Item.Count;
+        ItemCount := Item.Count();
         Assert.AreNotEqual(0, ItemCount, StrSubstNo(TableEmptyError, 'Item'));
 
         // Exercise
         BackupMgt.BackupDatabase(BackupName);
-        Item.DeleteAll;
+        Item.DeleteAll();
         BackupMgt.RestoreDatabase(BackupName);
 
         // Verify
@@ -187,13 +187,13 @@ codeunit 132533 "Backup Management Test"
         // Setup
         Initialize;
         if Item.Get('TEST') then
-            Item.Delete;
+            Item.Delete();
 
         // Exercise
         BackupMgt.BackupDatabase(BackupName);
-        Item.Init;
+        Item.Init();
         Item."No." := 'TEST';
-        Item.Insert;
+        Item.Insert();
         BackupMgt.RestoreDatabase(BackupName);
 
         // Verify
@@ -253,7 +253,7 @@ codeunit 132533 "Backup Management Test"
         // Exercise
         BackupMgt.BackupTable(BackupName, DATABASE::Item);
         Item.Description := SelfDescribingValue;
-        Item.Modify;
+        Item.Modify();
         Item.Get(Item."No.");
         BackupMgt.RestoreTable(BackupName, DATABASE::Item);
 
@@ -277,11 +277,11 @@ codeunit 132533 "Backup Management Test"
         Item.Next(LibraryRandom.RandInt(Item.Count));
         ItemNo := Item."No.";
         Item.Description := SelfDescribingValue;
-        Item.Modify;
+        Item.Modify();
 
         // Exercise
         BackupMgt.BackupTable(BackupName, DATABASE::Item);
-        Item.Delete;
+        Item.Delete();
         BackupMgt.RestoreTable(BackupName, DATABASE::Item);
 
         // Verify
@@ -300,12 +300,12 @@ codeunit 132533 "Backup Management Test"
 
         // Setup
         Initialize;
-        ItemCount := Item.Count;
+        ItemCount := Item.Count();
         Assert.AreNotEqual(0, ItemCount, StrSubstNo(TableEmptyError, 'Item'));
 
         // Exercise
         BackupMgt.BackupTable(BackupName, DATABASE::Item);
-        Item.DeleteAll;
+        Item.DeleteAll();
         BackupMgt.RestoreTable(BackupName, DATABASE::Item);
 
         // Verify
@@ -323,13 +323,13 @@ codeunit 132533 "Backup Management Test"
         // Setup
         Initialize;
         if Item.Get('Test') then
-            Item.Delete;
+            Item.Delete();
 
         // Exercise
         BackupMgt.BackupTable(BackupName, DATABASE::Item);
-        Item.Init;
+        Item.Init();
         Item."No." := 'TEST';
-        Item.Insert;
+        Item.Insert();
         BackupMgt.RestoreTable(BackupName, DATABASE::Item);
 
         // Verify
@@ -347,12 +347,12 @@ codeunit 132533 "Backup Management Test"
 
         // Setup
         Initialize;
-        ItemCount := Item.Count;
+        ItemCount := Item.Count();
         Assert.IsFalse(Item.IsEmpty, StrSubstNo(TableEmptyError, 'Item'));
 
         // Exercise
         BackupMgt.BackupDatabase(BackupName);
-        Item.DeleteAll;
+        Item.DeleteAll();
         BackupMgt.RestoreTable(BackupName, DATABASE::Item);
 
         // Verify
@@ -372,16 +372,16 @@ codeunit 132533 "Backup Management Test"
 
         // Setup
         Initialize;
-        ItemCount := Item.Count;
-        CustomerCount := Customer.Count;
+        ItemCount := Item.Count();
+        CustomerCount := Customer.Count();
         Assert.AreNotEqual(0, CustomerCount, StrSubstNo(TableEmptyError, 'Customer'));
         Assert.AreNotEqual(0, ItemCount, StrSubstNo(TableEmptyError, 'Item'));
 
         // Exercise
         BackupMgt.BackupTable(BackupName, DATABASE::Item);
         BackupMgt.BackupTable(BackupName, DATABASE::Customer);
-        Item.DeleteAll;
-        Customer.DeleteAll;
+        Item.DeleteAll();
+        Customer.DeleteAll();
         Assert.IsTrue(Customer.IsEmpty, 'Customer should be empty.');
         Assert.IsTrue(Item.IsEmpty, 'Item should be empty.');
         BackupMgt.RestoreTable(BackupName, DATABASE::Item);
@@ -404,16 +404,16 @@ codeunit 132533 "Backup Management Test"
         // Setup
         Initialize;
         if Item.Get('TEST') then
-            Item.Delete;
-        ItemCount := Item.Count;
+            Item.Delete();
+        ItemCount := Item.Count();
         Assert.AreNotEqual(0, ItemCount, StrSubstNo(TableEmptyError, 'Item'));
 
         // Exercise
         BackupMgt.BackupTable(BackupName, DATABASE::Item);
-        Item.Init;
+        Item.Init();
         Item."No." := 'TEST';
         Item.Description := SelfDescribingValue;
-        Item.Insert;
+        Item.Insert();
         BackupMgt.BackupTable(BackupName, DATABASE::Item);
         BackupMgt.RestoreTable(BackupName, DATABASE::Item);
 
@@ -433,8 +433,8 @@ codeunit 132533 "Backup Management Test"
         // Setup
         Initialize;
         if Item.Get('TEST') then
-            Item.Delete;
-        ItemCount := Item.Count;
+            Item.Delete();
+        ItemCount := Item.Count();
         Assert.AreNotEqual(0, ItemCount, StrSubstNo(TableEmptyError, 'Item'));
 
         // Exercise
@@ -442,12 +442,12 @@ codeunit 132533 "Backup Management Test"
         BackupMgt.BackupTable(BackupName, DATABASE::Item);
         BackupMgt.DeleteTable(BackupName, DATABASE::Item);
         BackupMgt.RestoreTable(BackupName, DATABASE::Item);
-        Item.Init;
+        Item.Init();
         Item."No." := 'TEST';
         Item.Description := SelfDescribingValue;
-        Item.Insert;
+        Item.Insert();
         BackupMgt.BackupTable(BackupName, DATABASE::Item);
-        Item.DeleteAll;
+        Item.DeleteAll();
         BackupMgt.RestoreTable(BackupName, DATABASE::Item);
 
         // Verify
@@ -511,7 +511,7 @@ codeunit 132533 "Backup Management Test"
         // Exercise
         BackupMgt.BackupTable(BackupName, DATABASE::Item);
         BackupMgt.BackupTable(BackupName + '2', DATABASE::Item);
-        BackupMgt.DeleteAll;
+        BackupMgt.DeleteAll();
 
         // Verify
         Assert.IsFalse(BackupMgt.BackupExists(BackupName), StrSubstNo(BackupDeletionError, BackupName));

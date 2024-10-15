@@ -38,8 +38,8 @@ codeunit 6080 "Service Price Management"
             SetRange("Document No.", ServItemLine."Document No.");
             SetRange("Service Item Line No.", ServItemLine."Line No.");
             if FindFirst then
-                DeleteAll;
-            ServLine.Reset;
+                DeleteAll();
+            ServLine.Reset();
             ServLine.SetCurrentKey("Document Type", "Document No.", "Service Item Line No.");
             ServLine.SetRange("Document Type", ServItemLine."Document Type");
             ServLine.SetRange("Document No.", ServItemLine."Document No.");
@@ -94,7 +94,7 @@ codeunit 6080 "Service Price Management"
         end;
 
         if ServLinePriceAdjmt.FindFirst then begin
-            Commit;
+            Commit();
             Clear(ServPriceAdjmtForm);
             ServPriceAdjmtForm.SetVars(ServPriceGrSetup.Amount, ServPriceGrSetup."Include VAT");
             ServPriceAdjmtForm.SetTableView(ServLinePriceAdjmt);
@@ -107,7 +107,7 @@ codeunit 6080 "Service Price Management"
                 SetRange("Document No.", ServItemLine."Document No.");
                 SetRange("Service Item Line No.", ServItemLine."Line No.");
                 if FindFirst then
-                    DeleteAll;
+                    DeleteAll();
             end;
         end else
             Error(Text001);
@@ -281,7 +281,7 @@ codeunit 6080 "Service Price Management"
                         ServLine."VAT %" := OldVatPct;
                         OldVatPct := 0;
                     end;
-                    ServLine.Modify;
+                    ServLine.Modify();
                 until Next = 0;
         end;
     end;
@@ -335,7 +335,7 @@ codeunit 6080 "Service Price Management"
     begin
         ServLine2 := ServLine;
         with ServLine2 do begin
-            ServLine.Reset;
+            ServLine.Reset();
             ServLine.SetCurrentKey("Document Type", "Document No.", "Service Item Line No.");
             ServLine.SetRange("Document Type", "Document Type");
             ServLine.SetRange("Document No.", "Document No.");

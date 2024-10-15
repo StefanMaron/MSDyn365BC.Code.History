@@ -24,7 +24,7 @@ codeunit 135533 "Tax Area Entity E2E Test"
             exit;
 
         IsInitialized := true;
-        Commit;
+        Commit();
     end;
 
     [Test]
@@ -42,7 +42,7 @@ codeunit 135533 "Tax Area Entity E2E Test"
         // [GIVEN] a new Tax Area
         Initialize;
         CreateTaxArea(TaxAreaCode, TaxAreaGUID);
-        Commit;
+        Commit();
 
         // [THEN] the Tax Area should have an integration id and last date time modified
         Assert.IsTrue(IntegrationRecord.Get(TaxAreaGUID), 'Could not find the integration record with Code ' + TaxAreaCode);
@@ -68,7 +68,7 @@ codeunit 135533 "Tax Area Entity E2E Test"
         Initialize;
         CreateTaxArea(TaxAreaCode[1], TaxAreaId);
         CreateTaxArea(TaxAreaCode[2], TaxAreaId);
-        Commit;
+        Commit();
 
         // [WHEN] we GET all the Tax Areas from the web service
         TargetURL := LibraryGraphMgt.CreateTargetURL('', PAGE::"Tax Area Entity", ServiceNameTxt);
@@ -92,7 +92,7 @@ codeunit 135533 "Tax Area Entity E2E Test"
 
         // [GIVEN] A tax area exists in the Tax Area Table
         CreateTaxArea(TaxAreaCode, TaxAreaId);
-        Commit;
+        Commit();
 
         // [WHEN] A GET request is made to the Tax Area API.
         TargetURL := LibraryGraphMgt.CreateTargetURL(TaxAreaId, PAGE::"Tax Area Entity", ServiceNameTxt);
@@ -116,11 +116,11 @@ codeunit 135533 "Tax Area Entity E2E Test"
         Initialize;
 
         // [GIVEN] The user has constructed a tax area JSON object to send to the service.
-        TaxAreaBuffer.Init;
+        TaxAreaBuffer.Init();
         TaxAreaBuffer.Code := LibraryUtility.GenerateRandomCode(TaxAreaBuffer.FieldNo(Code), DATABASE::"Tax Area Buffer");
         TaxAreaBuffer.Description := Format(CreateGuid);
         TaxAreaJSON := GetTaxAreaJSON(TaxAreaBuffer);
-        Commit;
+        Commit();
 
         // [WHEN] The user posts the JSON to the service.
         TargetURL := LibraryGraphMgt.CreateTargetURL('', PAGE::"Tax Area Entity", ServiceNameTxt);
@@ -151,7 +151,7 @@ codeunit 135533 "Tax Area Entity E2E Test"
         TaxAreaBuffer.Id := TaxAreaId;
         TaxAreaBuffer.Description := Format(CreateGuid);
         TaxAreaJSON := GetTaxAreaJSON(TaxAreaBuffer);
-        Commit;
+        Commit();
 
         // [WHEN] The user makes a patch request to the service.
         TargetURL := LibraryGraphMgt.CreateTargetURL(TaxAreaId, PAGE::"Tax Area Entity", ServiceNameTxt);
@@ -178,7 +178,7 @@ codeunit 135533 "Tax Area Entity E2E Test"
 
         // [GIVEN] A tax area exists.
         CreateTaxArea(TaxAreaCode, TaxAreaId);
-        Commit;
+        Commit();
 
         // [WHEN] The user makes a DELETE request to the endpoint for the Tax Area.
         TargetURL := LibraryGraphMgt.CreateTargetURL(TaxAreaId, PAGE::"Tax Area Entity", ServiceNameTxt);

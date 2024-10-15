@@ -16,7 +16,6 @@ codeunit 134658 "Edit Posted Documents"
         LibraryERM: Codeunit "Library - ERM";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         Assert: Codeunit Assert;
-        LibraryRandom: Codeunit "Library - Random";
         isInitialized: Boolean;
 
     [Test]
@@ -71,10 +70,6 @@ codeunit 134658 "Edit Posted Documents"
         Assert.AreNotEqual(SalesShptHeader."Shipping Agent Code", PostedSalesShipment."Shipping Agent Code".Value, '');
         Assert.AreNotEqual(SalesShptHeader."Shipping Agent Service Code", PostedSalesShipment."Shipping Agent Service Code".Value, '');
         Assert.AreNotEqual(SalesShptHeader."Package Tracking No.", PostedSalesShipment."Package Tracking No.".Value, '');
-        Assert.AreNotEqual(SalesShptHeader."Promised Delivery Date", PostedSalesShipment."Promised Delivery Date".AsDate, '');
-        Assert.AreNotEqual(
-          Format(SalesShptHeader."Outbound Whse. Handling Time"), PostedSalesShipment."Outbound Whse. Handling Time".Value, '');
-        Assert.AreNotEqual(Format(SalesShptHeader."Shipping Time"), PostedSalesShipment."Shipping Time".Value, '');
 
         LibraryVariableStorage.AssertEmpty;
     end;
@@ -104,10 +99,6 @@ codeunit 134658 "Edit Posted Documents"
         Assert.AreEqual(SalesShptHeader."Shipping Agent Code", PostedSalesShipment."Shipping Agent Code".Value, '');
         Assert.AreEqual(SalesShptHeader."Shipping Agent Service Code", PostedSalesShipment."Shipping Agent Service Code".Value, '');
         Assert.AreEqual(SalesShptHeader."Package Tracking No.", PostedSalesShipment."Package Tracking No.".Value, '');
-        Assert.AreEqual(SalesShptHeader."Promised Delivery Date", PostedSalesShipment."Promised Delivery Date".AsDate, '');
-        Assert.AreEqual(
-          Format(SalesShptHeader."Outbound Whse. Handling Time"), PostedSalesShipment."Outbound Whse. Handling Time".Value, '');
-        Assert.AreEqual(Format(SalesShptHeader."Shipping Time"), PostedSalesShipment."Shipping Time".Value, '');
 
         LibraryVariableStorage.AssertEmpty;
     end;
@@ -402,9 +393,6 @@ codeunit 134658 "Edit Posted Documents"
         LibraryVariableStorage.Enqueue(SalesShptHeader."Shipping Agent Code");
         LibraryVariableStorage.Enqueue(SalesShptHeader."Shipping Agent Service Code");
         LibraryVariableStorage.Enqueue(SalesShptHeader."Package Tracking No.");
-        LibraryVariableStorage.Enqueue(SalesShptHeader."Promised Delivery Date");
-        LibraryVariableStorage.Enqueue(SalesShptHeader."Outbound Whse. Handling Time");
-        LibraryVariableStorage.Enqueue(SalesShptHeader."Shipping Time");
     end;
 
     local procedure EnqueValuesForEditableFieldsPostedPurchaseInvoice(PurchInvHeader: Record "Purch. Inv. Header")
@@ -433,21 +421,14 @@ codeunit 134658 "Edit Posted Documents"
         ShippingAgent: Record "Shipping Agent";
         ShippingAgentServices: Record "Shipping Agent Services";
         DateFormula: DateFormula;
-        OutboundWhseTime: DateFormula;
-        ShippingTime: DateFormula;
     begin
         LibraryInventory.CreateShippingAgent(ShippingAgent);
         LibraryInventory.CreateShippingAgentService(ShippingAgentServices, ShippingAgent.Code, DateFormula);
-        Evaluate(OutboundWhseTime, StrSubstNo('<%1D>', LibraryRandom.RandIntInRange(100, 200)));
-        Evaluate(ShippingTime, StrSubstNo('<%1D>', LibraryRandom.RandIntInRange(100, 200)));
 
-        SalesShptHeader.Init;
+        SalesShptHeader.Init();
         SalesShptHeader."Shipping Agent Code" := ShippingAgent.Code;
         SalesShptHeader."Shipping Agent Service Code" := ShippingAgentServices.Code;
         SalesShptHeader."Package Tracking No." := LibraryUtility.GenerateGUID;
-        SalesShptHeader."Promised Delivery Date" := LibraryRandom.RandDate(1000);
-        SalesShptHeader."Outbound Whse. Handling Time" := OutboundWhseTime;
-        SalesShptHeader."Shipping Time" := ShippingTime;
     end;
 
     local procedure PrepareValuesForEditableFieldsPostedPurchaseInvoice(var PurchInvHeader: Record "Purch. Inv. Header")
@@ -478,7 +459,7 @@ codeunit 134658 "Edit Posted Documents"
     begin
         LibraryERM.CreateCountryRegion(CountryRegion);
 
-        ReturnShptHeader.Init;
+        ReturnShptHeader.Init();
         ReturnShptHeader."Ship-to County" := LibraryUtility.GenerateGUID;
         ReturnShptHeader."Ship-to Country/Region Code" := CountryRegion.Code;
     end;
@@ -491,7 +472,7 @@ codeunit 134658 "Edit Posted Documents"
         LibraryERM.CreateCountryRegion(CountryRegion);
         LibraryInventory.CreateShippingAgent(ShippingAgent);
 
-        ReturnRcptHeader.Init;
+        ReturnRcptHeader.Init();
         ReturnRcptHeader."Bill-to County" := LibraryUtility.GenerateGUID;
         ReturnRcptHeader."Bill-to Country/Region Code" := CountryRegion.Code;
         ReturnRcptHeader."Shipping Agent Code" := ShippingAgent.Code;
@@ -505,9 +486,6 @@ codeunit 134658 "Edit Posted Documents"
         PostedSalesShipmentUpdate."Shipping Agent Code".SetValue(LibraryVariableStorage.DequeueText);
         PostedSalesShipmentUpdate."Shipping Agent Service Code".SetValue(LibraryVariableStorage.DequeueText);
         PostedSalesShipmentUpdate."Package Tracking No.".SetValue(LibraryVariableStorage.DequeueText);
-        PostedSalesShipmentUpdate."Promised Delivery Date".SetValue(LibraryVariableStorage.DequeueDate);
-        PostedSalesShipmentUpdate."Outbound Whse. Handling Time".SetValue(LibraryVariableStorage.DequeueText);
-        PostedSalesShipmentUpdate."Shipping Time".SetValue(LibraryVariableStorage.DequeueText);
         PostedSalesShipmentUpdate.OK.Invoke;
     end;
 
@@ -518,9 +496,6 @@ codeunit 134658 "Edit Posted Documents"
         PostedSalesShipmentUpdate."Shipping Agent Code".SetValue(LibraryVariableStorage.DequeueText);
         PostedSalesShipmentUpdate."Shipping Agent Service Code".SetValue(LibraryVariableStorage.DequeueText);
         PostedSalesShipmentUpdate."Package Tracking No.".SetValue(LibraryVariableStorage.DequeueText);
-        PostedSalesShipmentUpdate."Promised Delivery Date".SetValue(LibraryVariableStorage.DequeueDate);
-        PostedSalesShipmentUpdate."Outbound Whse. Handling Time".SetValue(LibraryVariableStorage.DequeueText);
-        PostedSalesShipmentUpdate."Shipping Time".SetValue(LibraryVariableStorage.DequeueText);
         PostedSalesShipmentUpdate.Cancel.Invoke;
     end;
 

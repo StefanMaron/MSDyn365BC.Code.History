@@ -23,7 +23,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
                     TestField(Quantity);
 
                 IntrastatJnlLineTemp := "Intrastat Jnl. Line";
-                IntrastatJnlLineTemp.Insert;
+                IntrastatJnlLineTemp.Insert();
             end;
 
             trigger OnPostDataItem()
@@ -73,7 +73,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
                 if not (GetRangeMin(Type) = GetRangeMax(Type)) then
                     FieldError(Type, Text1040013);
 
-                LockTable;
+                LockTable();
                 IntrastatJnlBatch.Get(
                   GetFilter("Journal Template Name"),
                   GetFilter("Journal Batch Name"));
@@ -86,9 +86,9 @@ report 593 "Intrastat - Make Disk Tax Auth"
                     IntrastatJnlBatch.TestField("Dispatches Reported", false);
                     IntrastatJnlBatch.Validate("Dispatches Reported", true);
                 end;
-                IntrastatJnlBatch.Modify;
+                IntrastatJnlBatch.Modify();
 
-                CompanyInfo.Get;
+                CompanyInfo.Get();
                 if FileName = '' then
                     Error(Text1040014);
                 Clear(CurrFile);
@@ -169,7 +169,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
         Text1040016: Label 'Writing lines to file #3###### @4@@@@@@@@@@@@@';
         Text1040017: Label 'Creating file ';
         Text1040018: Label 'There were no records for %1 %2.';
-        Text1040021: Label '<Day,2><Month,2><Year,2>';
+        Text1040021: Label '<Day,2><Month,2><Year,2>', Locked = true;
 
     [Scope('OnPrem')]
     procedure WriteFile()

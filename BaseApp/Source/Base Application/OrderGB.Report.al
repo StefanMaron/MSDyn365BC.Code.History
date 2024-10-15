@@ -200,10 +200,10 @@ report 10576 "Order GB"
                         begin
                             if Number = 1 then begin
                                 if not DimSetEntry1.Find('-') then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
                             end else
                                 if not Continue then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
 
                             Clear(DimText);
                             Continue := false;
@@ -228,7 +228,7 @@ report 10576 "Order GB"
                         trigger OnPreDataItem()
                         begin
                             if not ShowInternalInfo then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
                     dataitem("Purchase Line"; "Purchase Line")
@@ -239,7 +239,7 @@ report 10576 "Order GB"
 
                         trigger OnPreDataItem()
                         begin
-                            CurrReport.Break;
+                            CurrReport.Break();
                         end;
                     }
                     dataitem(RoundLoop; "Integer")
@@ -390,10 +390,10 @@ report 10576 "Order GB"
                             begin
                                 if Number = 1 then begin
                                     if not DimSetEntry2.Find('-') then
-                                        CurrReport.Break;
+                                        CurrReport.Break();
                                 end else
                                     if not Continue then
-                                        CurrReport.Break;
+                                        CurrReport.Break();
 
                                 Clear(DimText);
                                 Continue := false;
@@ -418,7 +418,7 @@ report 10576 "Order GB"
                             trigger OnPreDataItem()
                             begin
                                 if not ShowInternalInfo then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
 
                                 DimSetEntry2.SetRange("Dimension Set ID", "Purchase Line"."Dimension Set ID");
                             end;
@@ -446,7 +446,7 @@ report 10576 "Order GB"
 
                         trigger OnPostDataItem()
                         begin
-                            PurchLine.DeleteAll;
+                            PurchLine.DeleteAll();
                         end;
 
                         trigger OnPreDataItem()
@@ -458,7 +458,7 @@ report 10576 "Order GB"
                             do
                                 MoreLines := PurchLine.Next(-1) <> 0;
                             if not MoreLines then
-                                CurrReport.Break;
+                                CurrReport.Break();
                             PurchLine.SetRange("Line No.", 0, PurchLine."Line No.");
                             SetRange(Number, 1, PurchLine.Count);
                             TotalInvoiceDiscAmount := 0;
@@ -545,7 +545,7 @@ report 10576 "Order GB"
                         trigger OnPreDataItem()
                         begin
                             if VATAmountLine.Count <= 1 then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
                     dataitem(Total; "Integer")
@@ -592,7 +592,7 @@ report 10576 "Order GB"
                         trigger OnPreDataItem()
                         begin
                             if "Purchase Header"."Buy-from Vendor No." = "Purchase Header"."Pay-to Vendor No." then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
                     dataitem(Integer2; "Integer")
@@ -639,7 +639,7 @@ report 10576 "Order GB"
                         trigger OnPreDataItem()
                         begin
                             if ("Purchase Header"."Sell-to Customer No." = '') and (ShipToAddr[1] = '') then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
                 }
@@ -648,8 +648,8 @@ report 10576 "Order GB"
                 begin
                     Clear(PurchLine);
                     Clear(PurchPost);
-                    PurchLine.DeleteAll;
-                    VATAmountLine.DeleteAll;
+                    PurchLine.DeleteAll();
+                    VATAmountLine.DeleteAll();
                     PurchPost.GetPurchLines("Purchase Header", PurchLine, 0);
                     PurchLine.CalcVATAmountLines(0, "Purchase Header", PurchLine, VATAmountLine);
                     PurchLine.UpdateVATOnLines(0, "Purchase Header", PurchLine, VATAmountLine);
@@ -663,8 +663,6 @@ report 10576 "Order GB"
                         CopyText := Text003;
                         OutputNo += 1;
                     end;
-
-                    CurrReport.PageNo := 1;
                 end;
 
                 trigger OnPostDataItem()
@@ -686,7 +684,7 @@ report 10576 "Order GB"
             begin
                 CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
 
-                CompanyInfo.Get;
+                CompanyInfo.Get();
 
                 if RespCenter.Get("Responsibility Center") then begin
                     FormatAddr.RespCenter(CompanyAddr, RespCenter);
@@ -698,7 +696,7 @@ report 10576 "Order GB"
                 DimSetEntry1.SetRange("Dimension Set ID", "Purchase Header"."Dimension Set ID");
 
                 if "Purchaser Code" = '' then begin
-                    SalesPurchPerson.Init;
+                    SalesPurchPerson.Init();
                     PurchaserText := '';
                 end else begin
                     SalesPurchPerson.Get("Purchaser Code");
@@ -831,8 +829,8 @@ report 10576 "Order GB"
 
     trigger OnInitReport()
     begin
-        GLSetup.Get;
-        PurchSetup.Get;
+        GLSetup.Get();
+        PurchSetup.Get();
     end;
 
     var

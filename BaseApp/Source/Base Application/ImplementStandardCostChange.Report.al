@@ -49,8 +49,8 @@ report 5855 "Implement Standard Cost Change"
                   Text007 +
                   Text008);
 
-                ItemJnlLine.LockTable;
-                LockTable;
+                ItemJnlLine.LockTable();
+                LockTable();
 
                 RevalJnlCreated := false;
             end;
@@ -297,7 +297,7 @@ report 5855 "Implement Standard Cost Change"
         CalcInvtValue.Run;
         HideDuplWarning := true;
 
-        GLSetup.Get;
+        GLSetup.Get();
         if ItemJnlLine2.Next <> 0 then
             repeat
                 ItemJnlLine2.Validate(

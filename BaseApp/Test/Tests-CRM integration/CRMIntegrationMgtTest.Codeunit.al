@@ -20,6 +20,7 @@ codeunit 139162 "CRM Integration Mgt Test"
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
         CRMIntegrationTableSynch: Codeunit "CRM Integration Table Synch.";
         IdentityManagement: Codeunit "Identity Management";
+        CDSIntegrationMgt: Codeunit "CDS Integration Mgt.";
         ConfirmStartCouplingReply: Boolean;
         CRMCouplingPageDoCancel: Boolean;
         IsInitialized: Boolean;
@@ -161,9 +162,9 @@ codeunit 139162 "CRM Integration Mgt Test"
         LibraryCRMIntegration.CreateCoupledSalespersonAndSystemUser(SalespersonPurchaser, CRMSystemuser);
         LibrarySales.CreateCustomer(Customer);
         Customer."Salesperson Code" := SalespersonPurchaser.Code;
-        Customer.Modify;
-        NumIntegrationRecordsBefore := CRMIntegrationRecord.Count;
-        NumAccountsBefore := CRMAccount.Count;
+        Customer.Modify();
+        NumIntegrationRecordsBefore := CRMIntegrationRecord.Count();
+        NumAccountsBefore := CRMAccount.Count();
 
         LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask;
         LibraryVariableStorage.Enqueue(SyncNowScheduledMsg);
@@ -180,8 +181,8 @@ codeunit 139162 "CRM Integration Mgt Test"
           'When creating a CRM Account from an uncoupled Customer, a new CRM Account should be created');
 
         // [WHEN] The coupled Customer is used to create another new Account in CRM
-        NumIntegrationRecordsBefore := CRMIntegrationRecord.Count;
-        NumAccountsBefore := CRMAccount.Count;
+        NumIntegrationRecordsBefore := CRMIntegrationRecord.Count();
+        NumAccountsBefore := CRMAccount.Count();
         CRMIntegrationRecord.FindIDFromRecordID(Customer.RecordId, CoupledCRMIDBefore);
         LibraryVariableStorage.Enqueue(SyncNowSkippedMsg);
         CRMIntegrationManagement.CreateNewRecordsInCRM(Customer.RecordId);
@@ -296,6 +297,8 @@ codeunit 139162 "CRM Integration Mgt Test"
     procedure DefaultTableMappingCustomer()
     var
         IntegrationTableMapping: Record "Integration Table Mapping";
+        CDSCompany: Record "CDS Company";
+        ExpectedIntTableFilter: Text;
     begin
         // [FEATURE] [Table Mapping] [Customer] [Direction]
         Initialize;
@@ -303,9 +306,11 @@ codeunit 139162 "CRM Integration Mgt Test"
         // [WHEN] Find Integration Table Mapping for "Customer"
         // [THEN] Mapped to "CRM Account", Direction is "Bidirectional",
         // [THEN] "Table Filter" is 'Blocked' is ' ', "Integration Table Filter" is 'Active Customer', "Synch. Only Coupled Records" is Yes
+        CDSIntegrationMgt.GetCDSCompany(CDSCompany);
+        ExpectedIntTableFilter := StrSubstNo('VERSION(1) SORTING(Field1) WHERE(Field6=1(3),Field54=1(0),Field202=1(%1|{00000000-0000-0000-0000-000000000000}))', Format(CDSCompany.CompanyId));
         VerifyTableMapping(
           DATABASE::Customer, DATABASE::"CRM Account", IntegrationTableMapping.Direction::Bidirectional,
-          'VERSION(1) SORTING(Field1) WHERE(Field39=1(0))', 'VERSION(1) SORTING(Field1) WHERE(Field6=1(3),Field54=1(0))', true);
+          'VERSION(1) SORTING(Field1) WHERE(Field39=1(0))', ExpectedIntTableFilter, true);
     end;
 
     [Test]
@@ -313,6 +318,8 @@ codeunit 139162 "CRM Integration Mgt Test"
     procedure DefaultTableMappingContact()
     var
         IntegrationTableMapping: Record "Integration Table Mapping";
+        CDSCompany: Record "CDS Company";
+        ExpectedIntTableFilter: Text;
     begin
         // [FEATURE] [Table Mapping] [Contact] [Direction]
         Initialize;
@@ -320,9 +327,32 @@ codeunit 139162 "CRM Integration Mgt Test"
         // [WHEN] Find Integration Table Mapping for "Contact"
         // [THEN] Mapped to "CRM Contact", Direction is "Bidirectional",
         // [THEN] "Table Filter" is 'Type' is 'Person', "Integration Table Filter" is 'Active Contact', "Synch. Only Coupled Records" is Yes
+        CDSIntegrationMgt.GetCDSCompany(CDSCompany);
+        ExpectedIntTableFilter := StrSubstNo('VERSION(1) SORTING(Field1) WHERE(Field134=1(<>{00000000-0000-0000-0000-000000000000}),Field140=1(1),Field192=1(%1|{00000000-0000-0000-0000-000000000000}))', Format(CDSCompany.CompanyId));
         VerifyTableMapping(
           DATABASE::Contact, DATABASE::"CRM Contact", IntegrationTableMapping.Direction::Bidirectional,
-          'VERSION(1) SORTING(Field1) WHERE(Field5050=1(1),Field5051=1(<>''''))', 'VERSION(1) SORTING(Field1) WHERE(Field134=1(<>{00000000-0000-0000-0000-000000000000}),Field140=1(1))', true);
+          'VERSION(1) SORTING(Field1) WHERE(Field5050=1(1),Field5051=1(<>''''))', ExpectedIntTableFilter, true);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure DefaultTableMappingVendor()
+    var
+        IntegrationTableMapping: Record "Integration Table Mapping";
+        CDSCompany: Record "CDS Company";
+        ExpectedIntTableFilter: Text;
+    begin
+        // [FEATURE] [Table Mapping] [Customer] [Direction]
+        Initialize;
+        ResetDefaultCRMSetupConfiguration;
+        // [WHEN] Find Integration Table Mapping for "Vendor"
+        // [THEN] Mapped to "CRM Account", Direction is "Bidirectional",
+        // [THEN] "Table Filter" is 'Blocked' is ' ', "Integration Table Filter" is 'Active Vendor', "Synch. Only Coupled Records" is Yes
+        CDSIntegrationMgt.GetCDSCompany(CDSCompany);
+        ExpectedIntTableFilter := StrSubstNo('VERSION(1) SORTING(Field1) WHERE(Field6=1(11),Field54=1(0),Field202=1(%1|{00000000-0000-0000-0000-000000000000}))', Format(CDSCompany.CompanyId));
+        VerifyTableMapping(
+          DATABASE::Vendor, DATABASE::"CRM Account", IntegrationTableMapping.Direction::Bidirectional,
+          'VERSION(1) SORTING(Field1) WHERE(Field39=1(0))', ExpectedIntTableFilter, true);
     end;
 
     [Test]
@@ -330,6 +360,8 @@ codeunit 139162 "CRM Integration Mgt Test"
     procedure DefaultTableMappingItem()
     var
         IntegrationTableMapping: Record "Integration Table Mapping";
+        CDSCompany: Record "CDS Company";
+        ExpectedIntTableFilter: Text;
     begin
         // [FEATURE] [Table Mapping] [Customer] [Direction]
         Initialize;
@@ -337,9 +369,11 @@ codeunit 139162 "CRM Integration Mgt Test"
         // [WHEN] Find Integration Table Mapping for "Item"
         // [THEN] Mapped to "CRM Account", Direction is "Bidirectional",
         // [THEN] "Synch. Only Coupled Records" is Yes
+        CDSIntegrationMgt.GetCDSCompany(CDSCompany);
+        ExpectedIntTableFilter := StrSubstNo('VERSION(1) SORTING(Field1) WHERE(Field8=1(0),Field62=1(%1|{00000000-0000-0000-0000-000000000000}))', Format(CDSCompany.CompanyId));
         VerifyTableMapping(
           DATABASE::Item, DATABASE::"CRM Product", IntegrationTableMapping.Direction::Bidirectional,
-          '', 'VERSION(1) SORTING(Field1) WHERE(Field8=1(0))', true);
+          '', ExpectedIntTableFilter, true);
     end;
 
     [Test]
@@ -347,6 +381,8 @@ codeunit 139162 "CRM Integration Mgt Test"
     procedure DefaultTableMappingResource()
     var
         IntegrationTableMapping: Record "Integration Table Mapping";
+        CDSCompany: Record "CDS Company";
+        ExpectedIntTableFilter: Text;
     begin
         // [FEATURE] [Table Mapping] [Customer] [Direction]
         Initialize;
@@ -354,9 +390,11 @@ codeunit 139162 "CRM Integration Mgt Test"
         // [WHEN] Find Integration Table Mapping for "Item"
         // [THEN] Mapped to "CRM Account", Direction is "Bidirectional",
         // [THEN] "Synch. Only Coupled Records" is Yes
+        CDSIntegrationMgt.GetCDSCompany(CDSCompany);
+        ExpectedIntTableFilter := StrSubstNo('VERSION(1) SORTING(Field1) WHERE(Field8=1(2),Field62=1(%1|{00000000-0000-0000-0000-000000000000}))', Format(CDSCompany.CompanyId));
         VerifyTableMapping(
           DATABASE::Resource, DATABASE::"CRM Product", IntegrationTableMapping.Direction::Bidirectional,
-          '', 'VERSION(1) SORTING(Field1) WHERE(Field8=1(2))', true);
+          '', ExpectedIntTableFilter, true);
     end;
 
     [Test]
@@ -364,6 +402,8 @@ codeunit 139162 "CRM Integration Mgt Test"
     procedure DefaultTableMappingCustPriceGroup()
     var
         IntegrationTableMapping: Record "Integration Table Mapping";
+        CDSCompany: Record "CDS Company";
+        ExpectedIntTableFilter: Text;
     begin
         // [FEATURE] [Table Mapping] [Price List] [Direction]
         Initialize;
@@ -371,9 +411,11 @@ codeunit 139162 "CRM Integration Mgt Test"
         // [WHEN] Find Integration Table Mapping for "Customer Price Group"
         // [THEN] Mapped to "CRM Pricelevel", Direction is "To Integration Table",
         // [THEN] no "Table Filter", no "Integration Table Filter", "Synch. Only Coupled Records" is Yes
+        CDSIntegrationMgt.GetCDSCompany(CDSCompany);
+        ExpectedIntTableFilter := StrSubstNo('VERSION(1) SORTING(Field1) WHERE(Field31=1(%1|{00000000-0000-0000-0000-000000000000}))', Format(CDSCompany.CompanyId));
         VerifyTableMapping(
           DATABASE::"Customer Price Group", DATABASE::"CRM Pricelevel", IntegrationTableMapping.Direction::ToIntegrationTable,
-          '', '', true);
+          '', ExpectedIntTableFilter, true);
     end;
 
     [Test]
@@ -399,6 +441,8 @@ codeunit 139162 "CRM Integration Mgt Test"
     procedure DefaultTableMappingSalesInvoice()
     var
         IntegrationTableMapping: Record "Integration Table Mapping";
+        CDSCompany: Record "CDS Company";
+        ExpectedIntTableFilter: Text;
     begin
         // [FEATURE] [Table Mapping] [Invoice] [Direction]
         Initialize;
@@ -406,9 +450,11 @@ codeunit 139162 "CRM Integration Mgt Test"
         // [WHEN] Find Integration Table Mapping for "Sales Invoice Header"
         // [THEN] Mapped to "CRM Invoice", Direction is "To Integration Table",
         // [THEN] no "Table Filter", no "Integration Table Filter", "Synch. Only Coupled Records" is Yes
+        CDSIntegrationMgt.GetCDSCompany(CDSCompany);
+        ExpectedIntTableFilter := StrSubstNo('VERSION(1) SORTING(Field1) WHERE(Field95=1(%1|{00000000-0000-0000-0000-000000000000}))', Format(CDSCompany.CompanyId));
         VerifyTableMapping(
           DATABASE::"Sales Invoice Header", DATABASE::"CRM Invoice", IntegrationTableMapping.Direction::ToIntegrationTable,
-          '', '', true);
+          '', ExpectedIntTableFilter, true);
     end;
 
     [Test]
@@ -467,6 +513,8 @@ codeunit 139162 "CRM Integration Mgt Test"
     procedure DefaultTableMappingOpportunity()
     var
         IntegrationTableMapping: Record "Integration Table Mapping";
+        CDSCompany: Record "CDS Company";
+        ExpectedIntTableFilter: Text;
     begin
         // [FEATURE] [Table Mapping] [Opportunity] [Direction]
         Initialize;
@@ -474,9 +522,11 @@ codeunit 139162 "CRM Integration Mgt Test"
         // [WHEN] Find Integration Table Mapping for "Opportunity"
         // [THEN] Mapped to "CRM Opportunity", Direction is "Bidirectional",
         // [THEN] no "Table Filter", no "Integration Table Filter", "Synch. Only Coupled Records" is No
+        CDSIntegrationMgt.GetCDSCompany(CDSCompany);
+        ExpectedIntTableFilter := StrSubstNo('VERSION(1) SORTING(Field1) WHERE(Field111=1(%1|{00000000-0000-0000-0000-000000000000}))', Format(CDSCompany.CompanyId));
         VerifyTableMapping(
           DATABASE::Opportunity, DATABASE::"CRM Opportunity", IntegrationTableMapping.Direction::Bidirectional,
-          '', '', false);
+          '', ExpectedIntTableFilter, false);
     end;
 
     [Test]
@@ -528,8 +578,8 @@ codeunit 139162 "CRM Integration Mgt Test"
     begin
         // [FEATURE] [CRM Integration Management] [Contact]
         // [SCENARIO] IsRecordCoupledToCRM() returns TRUE if Contacts are coupled
-        Contact.Init;
-        Contact.Insert;
+        Contact.Init();
+        Contact.Insert();
         LibraryCRMIntegration.CreateIntegrationRecord(CreateGuid, DATABASE::Contact, Contact.RecordId);
         RunHyperlinkTest(Contact.RecordId, DATABASE::Contact);
     end;
@@ -788,7 +838,7 @@ codeunit 139162 "CRM Integration Mgt Test"
         LibraryCRMIntegration.CreateCRMSalesOrderWithCustomerFCY(
           CRMSalesorder, CRMAccount.AccountId, CRMTransactioncurrency.TransactionCurrencyId);
         CRMSalesorder.OrderNumber := SalesInvHeader."Your Reference";
-        CRMSalesorder.Modify;
+        CRMSalesorder.Modify();
 
         // [WHEN] Couple Posted Sales Invoice to CRM
         LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask;
@@ -1392,7 +1442,7 @@ codeunit 139162 "CRM Integration Mgt Test"
         until SalesInvHeader.Next = 0;
 
         // [THEN] 2nd and 3rd Posted Sales invoices are coupled, the 1st one is not.
-        SalesInvHeader.Reset;
+        SalesInvHeader.Reset();
         SalesInvHeader.SetRange("Sell-to Customer No.", Customer."No.");
         SalesInvHeader.FindFirst;
         SalesInvHeader.TestField("Coupled to CRM", false);
@@ -1541,17 +1591,19 @@ codeunit 139162 "CRM Integration Mgt Test"
 
         // [THEN] Job queue entries with respective No. of Minutes between Runs & Inactivity Timeout Period
         VerifyJobQueueEntriesInactivityTimeoutPeriod(30, 720,
-          ' CUSTOMER - Dynamics 365 Sales synchronization job.');
+          ' CUSTOMER - Common Data Service synchronization job.');
         VerifyJobQueueEntriesInactivityTimeoutPeriod(30, 720,
-          ' CONTACT - Dynamics 365 Sales synchronization job.');
+          ' VENDOR - Common Data Service synchronization job.');
         VerifyJobQueueEntriesInactivityTimeoutPeriod(30, 720,
-          ' CURRENCY - Dynamics 365 Sales synchronization job.');
+          ' CONTACT - Common Data Service synchronization job.');
+        VerifyJobQueueEntriesInactivityTimeoutPeriod(30, 720,
+          ' CURRENCY - Common Data Service synchronization job.');
         VerifyJobQueueEntriesInactivityTimeoutPeriod(30, 720,
           ' RESOURCE-PRODUCT - Dynamics 365 Sales synchronization job.');
         VerifyJobQueueEntriesInactivityTimeoutPeriod(30, 720,
           ' UNIT OF MEASURE - Dynamics 365 Sales synchronization job.');
         VerifyJobQueueEntriesInactivityTimeoutPeriod(30, 1440,
-          ' SALESPEOPLE - Dynamics 365 Sales synchronization job.');
+          ' SALESPEOPLE - Common Data Service synchronization job.');
         VerifyJobQueueEntriesInactivityTimeoutPeriod(30, 1440,
           ' ITEM-PRODUCT - Dynamics 365 Sales synchronization job.');
         VerifyJobQueueEntriesInactivityTimeoutPeriod(30, 1440,
@@ -1741,7 +1793,7 @@ codeunit 139162 "CRM Integration Mgt Test"
         Customer: Record Customer;
         CRMAccount: Record "CRM Account";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         LibraryCRMIntegration.CreateCRMTransactionCurrency(
           CRMTransactioncurrency, CopyStr(GeneralLedgerSetup."LCY Code", 1, MaxStrLen(CRMTransactioncurrency.ISOCurrencyCode)));
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
@@ -1770,9 +1822,17 @@ codeunit 139162 "CRM Integration Mgt Test"
     local procedure ResetDefaultCRMSetupConfiguration()
     var
         CRMConnectionSetup: Record "CRM Connection Setup";
+        CDSConnectionSetup: Record "CDS Connection Setup";
+        CDSCompany: Record "CDS Company";
         CRMSetupDefaults: Codeunit "CRM Setup Defaults";
+        CDSSetupDefaults: Codeunit "CDS Setup Defaults";
     begin
-        CRMConnectionSetup.Get;
+        CRMConnectionSetup.Get();
+        CDSConnectionSetup.LoadConnectionStringElementsFromCRMConnectionSetup();
+        CDSConnectionSetup."Ownership Model" := CDSConnectionSetup."Ownership Model"::Person;
+        CDSConnectionSetup.Modify();
+        LibraryCRMIntegration.EnsureCDSCompany(CDSCompany);
+        CDSSetupDefaults.ResetConfiguration(CDSConnectionSetup);
         CRMSetupDefaults.ResetConfiguration(CRMConnectionSetup);
     end;
 

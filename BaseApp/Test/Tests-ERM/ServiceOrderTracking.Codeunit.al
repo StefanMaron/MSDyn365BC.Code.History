@@ -57,7 +57,7 @@ codeunit 136129 "Service Order Tracking"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
 
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Service Order Tracking");
     end;
 
@@ -543,7 +543,7 @@ codeunit 136129 "Service Order Tracking"
         CreateItemWithTrackingPolicy(Item, TrackingPolicy);
         CreatePurchaseLine(PurchaseLine, FindVendor, Item."No.");
         CreateServiceOrder(ServiceLine, PurchaseLine, ServiceLocation);
-        Commit;
+        Commit();
     end;
 
     local procedure AssignSerialNumberInItemJournal(ItemJournalLineBatchName: Code[10])
@@ -551,7 +551,7 @@ codeunit 136129 "Service Order Tracking"
         ItemJournal: TestPage "Item Journal";
         AssignSerialNoInItemJournal: Option "None",AssignSerialNo,AssignLotNo,SelectEntries,EnterValues,VerifyValues;
     begin
-        Commit;  // Commit is used to avoid Test failure.
+        Commit();  // Commit is used to avoid Test failure.
         ItemJournal.OpenEdit;
         ItemJournal.CurrentJnlBatchName.SetValue(ItemJournalLineBatchName);
         LibraryVariableStorage.Enqueue(AssignSerialNoInItemJournal::AssignSerialNo);
@@ -684,7 +684,7 @@ codeunit 136129 "Service Order Tracking"
     var
         ServiceMgtSetup: Record "Service Mgt. Setup";
     begin
-        ServiceMgtSetup.Get;
+        ServiceMgtSetup.Get();
         NoSeriesLine.SetRange("Series Code", ServiceMgtSetup."Posted Service Invoice Nos.");
         NoSeriesLine.FindFirst;
     end;
@@ -776,7 +776,7 @@ codeunit 136129 "Service Order Tracking"
     [Scope('OnPrem')]
     procedure ItemTrackingPageHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
     begin
-        Commit;
+        Commit();
         case TrackingAction of
             TrackingAction::AssignSerialNo:
                 ItemTrackingLines."Assign Serial No.".Invoke;

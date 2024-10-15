@@ -5,11 +5,11 @@ codeunit 10524 "Create VAT Declaration Request"
     trigger OnRun()
     begin
         RootXMLBuffer.Validate(Name, VATDeclarationRequestTxt);
-        RootXMLBuffer.Insert;
+        RootXMLBuffer.Insert();
         if not GovTalkMessage.Get("VAT Report Config. Code", "No.") then begin
             GovTalkMessageManagement.InitGovTalkMessage(GovTalkMessage, Rec);
             GovTalkMessage.RootXMLBuffer := RootXMLBuffer."Entry No.";
-            GovTalkMessage.Modify;
+            GovTalkMessage.Modify();
         end;
         PopulateVATDeclarationRequest(Rec);
     end;

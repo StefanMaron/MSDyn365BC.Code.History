@@ -105,13 +105,13 @@ codeunit 138903 "O365 Test Acc. Period Init"
     var
         AccountingPeriod: Record "Accounting Period";
     begin
-        AccountingPeriod.DeleteAll;
+        AccountingPeriod.DeleteAll();
         if StartDate = 0D then
             exit;
-        AccountingPeriod.Init;
+        AccountingPeriod.Init();
         AccountingPeriod."Starting Date" := StartDate;
         AccountingPeriod."New Fiscal Year" := true;
-        AccountingPeriod.Insert;
+        AccountingPeriod.Insert();
     end;
 
     local procedure OpenCompany()

@@ -88,7 +88,7 @@ table 10560 "Accounting Period GB"
     begin
         CheckExist;
         if "Period Type" = "Period Type"::Year then begin
-            InvtSetup.Get;
+            InvtSetup.Get();
             "Average Cost Calc. Type" := InvtSetup."Average Cost Calc. Type";
             "Average Cost Period" := InvtSetup."Average Cost Period";
         end;
@@ -168,7 +168,7 @@ table 10560 "Accounting Period GB"
     [Scope('OnPrem')]
     procedure GetAccountingPeriodDate(var StartDate: Date; var EndDate: Date; ReferenceDate: Date)
     begin
-        AccountingPeriod2.Reset;
+        AccountingPeriod2.Reset();
         AccountingPeriod2.SetRange("Period Start", 0D, ReferenceDate);
         if AccountingPeriod2.FindLast then begin
             StartDate := AccountingPeriod2."Period Start";

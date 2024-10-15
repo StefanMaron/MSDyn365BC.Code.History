@@ -27,7 +27,7 @@ codeunit 138946 "BC Test Invoice"
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [WHEN] The users have no documents
-        SalesHeader.DeleteAll;
+        SalesHeader.DeleteAll();
 
         // [THEN] Users see the test invoice button
         Assert.IsTrue(O365SetupMgmt.ShowCreateTestInvoice, 'Test invoice button is visible from Getting Started window.');

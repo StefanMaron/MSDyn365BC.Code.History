@@ -88,7 +88,7 @@ page 10501 "Postcode Configuration Page"
             SaveServiceKey(ServiceKeyText);
         end;
 
-        Commit;
+        Commit();
     end;
 
     var

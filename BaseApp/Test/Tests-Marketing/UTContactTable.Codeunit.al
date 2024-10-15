@@ -28,7 +28,7 @@ codeunit 134826 "UT Contact Table"
         BindSubscription(TestClientTypeSubscriber);
         TestClientTypeSubscriber.SetClientType(CLIENTTYPE::Phone);
         // [GIVEN] Contact, where "Phone No." = 'X', "Mobile Phone No." = 'Y'
-        Contact.Init;
+        Contact.Init();
         Contact."Phone No." := '111111';
         Contact."Mobile Phone No." := '222222';
 
@@ -45,7 +45,7 @@ codeunit 134826 "UT Contact Table"
     begin
         LibraryLowerPermissions.SetO365Basic;
         // [GIVEN] Contact, where "Phone No." = <blank>, "Mobile Phone No." = 'Y'
-        Contact.Init;
+        Contact.Init();
         Contact."Mobile Phone No." := '222222';
 
         // [WHEN] call GetDefaultPhoneNo()
@@ -61,7 +61,7 @@ codeunit 134826 "UT Contact Table"
     begin
         LibraryLowerPermissions.SetO365Basic;
         // [GIVEN] Contact, where "Phone No." = 'X', "Mobile Phone No." = 'Y'
-        Contact.Init;
+        Contact.Init();
         Contact."Phone No." := '111111';
         Contact."Mobile Phone No." := '222222';
 
@@ -83,7 +83,7 @@ codeunit 134826 "UT Contact Table"
         BindSubscription(TestClientTypeSubscriber);
         TestClientTypeSubscriber.SetClientType(CLIENTTYPE::Phone);
         // [GIVEN] Contact, where "Phone No." = 'X', "Mobile Phone No." = <blank>
-        Contact.Init;
+        Contact.Init();
         Contact."Phone No." := '111111';
 
         // [WHEN] call GetDefaultPhoneNo()
@@ -99,7 +99,7 @@ codeunit 134826 "UT Contact Table"
     begin
         LibraryLowerPermissions.SetO365Basic;
         // [GIVEN] Contact, where both "Phone No." and "Mobile Phone No." are <blank>
-        Contact.Init;
+        Contact.Init();
         // [WHEN] call GetDefaultPhoneNo()
         Assert.AreEqual('', Contact.GetDefaultPhoneNo, 'GetDefaultPhoneNo()');
         // [THEN] GetDefaultPhoneNo() returns ''
@@ -116,12 +116,12 @@ codeunit 134826 "UT Contact Table"
         LibraryLowerPermissions.SetO365Basic;
         LibraryLowerPermissions.AddRMContEdit;
 
-        CompanyContact.Init;
+        CompanyContact.Init();
         CompanyContact.Insert(true);
         CompanyContact.Validate(Type, Contact.Type::Company);
         CompanyContact.Modify(true);
 
-        Contact.Init;
+        Contact.Init();
         Contact.Insert(true);
         Contact.Validate(Type, Contact.Type::Person);
         Contact.Validate("Company No.", CompanyContact."No.");
@@ -201,7 +201,7 @@ codeunit 134826 "UT Contact Table"
         // [SCENARIO 275658] Contact automatically created from Customer gets synced on Customer modification, if Contact "Name" is blank.
 
         // [GIVEN] Customer record created with blank fields
-        Customer.Init;
+        Customer.Init();
         Customer.Insert(true);
 
         // [GIVEN] Contact with blank Name created for Customer automatically
@@ -230,7 +230,7 @@ codeunit 134826 "UT Contact Table"
         // [SCENARIO 275658] Contact automatically created from Customer gets no update on Customer modification, if Contact "Name" is filled.
 
         // [GIVEN] Customer record with name 'AAA' created
-        Customer.Init;
+        Customer.Init();
         Customer.Name := LibraryUtility.GenerateGUID;
         Customer.Insert(true);
 
@@ -265,7 +265,7 @@ codeunit 134826 "UT Contact Table"
         // [SCENARIO 275658] Contact automatically created from Vendor gets synced on Customer modification, if Contact "Name" is blank.
 
         // [GIVEN] Vendor record created with blank fields
-        Vendor.Init;
+        Vendor.Init();
         Vendor.Insert(true);
 
         // [GIVEN] Contact with blank Name created for Vendor automatically
@@ -294,7 +294,7 @@ codeunit 134826 "UT Contact Table"
         // [SCENARIO 275658] Contact automatically created from Vendor gets no update on Customer modification, if Contact "Name" is filled.
 
         // [GIVEN] Vendor record with name 'AAA' created
-        Vendor.Init;
+        Vendor.Init();
         Vendor.Name := LibraryUtility.GenerateGUID;
         Vendor.Insert(true);
 
@@ -329,7 +329,7 @@ codeunit 134826 "UT Contact Table"
         // [SCENARIO 275658] Contact automatically created from Vendor gets synced on Customer modification, if Contact "Name" is blank.
 
         // [GIVEN] Bank Account record created with blank fields
-        BankAccount.Init;
+        BankAccount.Init();
         BankAccount.IBAN := LibraryUtility.GenerateGUID;
         BankAccount.Insert(true);
 
@@ -359,7 +359,7 @@ codeunit 134826 "UT Contact Table"
         // [SCENARIO 275658] Contact automatically created from Bank Account gets no update on Customer modification, if Contact "Name" is filled.
 
         // [GIVEN] Bank Account record with name 'AAA' created
-        BankAccount.Init;
+        BankAccount.Init();
         BankAccount.IBAN := LibraryUtility.GenerateGUID;
         BankAccount.Name := LibraryUtility.GenerateGUID;
         BankAccount.Insert(true);
@@ -467,11 +467,11 @@ codeunit 134826 "UT Contact Table"
         LocalTimeZoneOffset : Duration;
     begin
         // [FEATURE] [Time Zone] [UI]
-        Contact.Init;
+        Contact.Init();
         Contact."No." := LibraryUtility.GenerateGUID;
         Contact."Last Date Modified" := DT2Date(CurrentDateTime);
         Contact."Last Time Modified" := 000000T;
-        Contact.Insert;
+        Contact.Insert();
   
         LocalTimeZoneOffset := DotNet_DateTimeOffset.GetOffset;
         ExpectedDateTime := CreateDateTime(Contact."Last Date Modified",Contact."Last Time Modified") + LocalTimeZoneOffset;
@@ -617,50 +617,50 @@ codeunit 134826 "UT Contact Table"
         ContactAltAddrDateRange: Record "Contact Alt. Addr. Date Range";
         ContactBusinessRelation: Record "Contact Business Relation";
     begin
-        Contact.Init;
+        Contact.Init();
         Contact.Insert(true);
         Contact.Validate(Type, ContactType);
         Contact.Validate(
           Name, CopyStr(LibraryUtility.GenerateRandomText(20), 1, MaxStrLen(Contact.Name)));
         Contact.Modify(true);
 
-        ContactMailingGroup.Init;
+        ContactMailingGroup.Init();
         ContactMailingGroup."Contact No." := Contact."No.";
         ContactMailingGroup.Insert(true);
 
-        RlshpMgtCommentLine.Init;
+        RlshpMgtCommentLine.Init();
         RlshpMgtCommentLine."Table Name" := RlshpMgtCommentLine."Table Name"::Contact;
         RlshpMgtCommentLine."No." := Contact."No.";
         RlshpMgtCommentLine.Insert(true);
 
-        ContactAltAddress.Init;
+        ContactAltAddress.Init();
         ContactAltAddress."Contact No." := Contact."No.";
         ContactAltAddress.Insert(true);
 
-        ContactAltAddrDateRange.Init;
+        ContactAltAddrDateRange.Init();
         ContactAltAddrDateRange."Contact No." := Contact."No.";
         ContactAltAddrDateRange.Insert(true);
 
-        ContactBusinessRelation.Init;
+        ContactBusinessRelation.Init();
         ContactBusinessRelation."Contact No." := Contact."No.";
         ContactBusinessRelation.Insert(true);
     end;
 
     local procedure MockContactWithName(var Contact: Record Contact; ContactName: Text[100])
     begin
-        Contact.Init;
+        Contact.Init();
         Contact.Name := ContactName;
         Contact.Insert(true);
     end;
 
     local procedure MockSalesQuoteWithSellBillToContactNo(var SalesHeader: Record "Sales Header"; ContactNo: Code[20])
     begin
-        SalesHeader.Init;
+        SalesHeader.Init();
         SalesHeader."No." := LibraryUtility.GenerateGUID;
         SalesHeader."Document Type" := SalesHeader."Document Type"::Quote;
         SalesHeader."Sell-to Contact No." := ContactNo;
         SalesHeader."Bill-to Contact No." := ContactNo;
-        SalesHeader.Insert;
+        SalesHeader.Insert();
     end;
 
     local procedure VerifyContactRelatedRecordsDeleted(ContactNo: Code[20])

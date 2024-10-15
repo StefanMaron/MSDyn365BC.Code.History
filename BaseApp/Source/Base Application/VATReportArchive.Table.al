@@ -74,7 +74,7 @@ table 747 "VAT Report Archive"
         if VATReportArchive.Get(VATReportTypeValue, VATReportNoValue, XMLPartID) then
             exit(false);
 
-        VATReportArchive.Init;
+        VATReportArchive.Init();
         VATReportArchive."VAT Report No." := VATReportNoValue;
         VATReportArchive."VAT Report Type" := VATReportTypeValue;
         VATReportArchive."Xml Part ID" := XMLPartID;

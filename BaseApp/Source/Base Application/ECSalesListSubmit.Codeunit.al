@@ -60,7 +60,7 @@ codeunit 142 "EC Sales List Submit"
             Counter += 1;
         until ECSLVATReportLine.Next = 0;
 
-        ModifyECSLVATReportLine.Reset;
+        ModifyECSLVATReportLine.Reset();
         ModifyECSLVATReportLine.SetRange("XML Part Id", GovTalkMessageParts."Part Id");
         if ModifyECSLVATReportLine.IsEmpty then
             GovTalkMessageParts.Delete(true);
@@ -69,7 +69,7 @@ codeunit 142 "EC Sales List Submit"
     local procedure GetGovTalkMessagePart(var GovTalkMessageParts: Record "GovTalk Message Parts")
     begin
         GovTalkMessageParts."Part Id" := CreateGuid;
-        GovTalkMessageParts.Insert;
+        GovTalkMessageParts.Insert();
     end;
 
     local procedure GetMaxLineNo(VATReportHeader: Record "VAT Report Header"): Integer

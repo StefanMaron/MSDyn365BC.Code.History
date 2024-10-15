@@ -23,7 +23,7 @@ table 5405 "Production Order"
             trigger OnValidate()
             begin
                 if "No." <> xRec."No." then begin
-                    MfgSetup.Get;
+                    MfgSetup.Get();
                     NoSeriesMgt.TestManual(GetNoSeriesCode);
                     "No. Series" := '';
                 end;
@@ -56,11 +56,9 @@ table 5405 "Production Order"
             Caption = 'Last Date Modified';
             Editable = false;
         }
-        field(9; "Source Type"; Option)
+        field(9; "Source Type"; Enum "Prod. Order Source Type")
         {
             Caption = 'Source Type';
-            OptionCaption = 'Item,Family,Sales Header';
-            OptionMembers = Item,Family,"Sales Header";
 
             trigger OnValidate()
             begin
@@ -125,6 +123,8 @@ table 5405 "Production Order"
                             "Shortcut Dimension 2 Code" := SalesHeader."Shortcut Dimension 2 Code";
                             OnBeforeAssignSalesHeader(Rec, xRec, SalesHeader, CurrFieldNo);
                         end;
+                    else
+                        OnValidateSourceNoOnSourceTypeEnumExtension(Rec);
                 end;
                 Validate(Description);
                 InitRecord;
@@ -222,7 +222,7 @@ table 5405 "Production Order"
                         end else begin
                             if ProdOrderLine.Find('-') then
                                 "Ending Date" :=
-                                  LeadTimeMgt.PlannedEndingDate(ProdOrderLine."Item No.", "Location Code", '', "Due Date", '', 2)
+                                    LeadTimeMgt.PlannedEndingDate(ProdOrderLine."Item No.", "Location Code", '', "Due Date", '', 2)
                             else
                                 "Ending Date" := "Due Date";
                             "Ending Date-Time" := CreateDateTime("Ending Date", "Ending Time");
@@ -236,13 +236,7 @@ table 5405 "Production Order"
                         else begin
                             if "Source Type" = "Source Type"::Item then
                                 "Ending Date" :=
-                                  LeadTimeMgt.PlannedEndingDate(
-                                    "Source No.",
-                                    "Location Code",
-                                    '',
-                                    "Due Date",
-                                    '',
-                                    2)
+                                    LeadTimeMgt.PlannedEndingDate("Source No.", "Location Code", '', "Due Date", '', 2)
                             else
                                 "Ending Date" := "Due Date";
                             "Starting Date" := "Ending Date";
@@ -364,12 +358,10 @@ table 5405 "Production Order"
             FieldClass = FlowFilter;
             TableRelation = "Work Center";
         }
-        field(48; "Capacity Type Filter"; Option)
+        field(48; "Capacity Type Filter"; Enum "Capacity Type")
         {
             Caption = 'Capacity Type Filter';
             FieldClass = FlowFilter;
-            OptionCaption = 'Work Center,Machine Center';
-            OptionMembers = "Work Center","Machine Center";
         }
         field(49; "Capacity No. Filter"; Code[20])
         {
@@ -618,7 +610,7 @@ table 5405 "Production Order"
     var
         InvtAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)";
     begin
-        MfgSetup.Get;
+        MfgSetup.Get();
         if "No." = '' then begin
             TestNoSeries;
             NoSeriesMgt.InitSeries(GetNoSeriesCode, xRec."No. Series", "Due Date", "No.", "No. Series");
@@ -682,12 +674,7 @@ table 5405 "Production Order"
         if ("Source Type" = "Source Type"::Item) and ("Source No." <> '') then
             "Ending Date" :=
               LeadTimeMgt.PlannedEndingDate(
-                "Source No.",
-                "Location Code",
-                '',
-                "Due Date",
-                '',
-                2)
+                "Source No.", "Location Code", '', "Due Date", '', 2)
         else
             "Ending Date" := "Due Date";
         "Starting Date" := "Ending Date";
@@ -697,7 +684,7 @@ table 5405 "Production Order"
 
     procedure TestNoSeries()
     begin
-        MfgSetup.Get;
+        MfgSetup.Get();
 
         case Status of
             Status::Simulated:
@@ -715,7 +702,7 @@ table 5405 "Production Order"
     begin
         with ProdOrder do begin
             ProdOrder := Rec;
-            MfgSetup.Get;
+            MfgSetup.Get();
             TestNoSeries;
             if NoSeriesMgt.SelectSeries(GetNoSeriesCode, OldProdOrder."No. Series", "No. Series") then begin
                 NoSeriesMgt.SetSeries("No.");
@@ -727,7 +714,7 @@ table 5405 "Production Order"
 
     procedure GetNoSeriesCode(): Code[20]
     begin
-        MfgSetup.Get;
+        MfgSetup.Get();
 
         case Status of
             Status::Simulated:
@@ -774,11 +761,11 @@ table 5405 "Production Order"
 
         ProdOrderComment.SetRange(Status, Status);
         ProdOrderComment.SetRange("Prod. Order No.", "No.");
-        ProdOrderComment.DeleteAll;
+        ProdOrderComment.DeleteAll();
 
         ReservMgt.DeleteDocumentReservation(DATABASE::"Prod. Order Line", Status, "No.", HideValidationDialog);
 
-        ProdOrderLine.LockTable;
+        ProdOrderLine.LockTable();
         ProdOrderLine.SetRange(Status, Status);
         ProdOrderLine.SetRange("Prod. Order No.", "No.");
         ProdOrderLine.DeleteAll(true);
@@ -808,39 +795,39 @@ table 5405 "Production Order"
 
         FnshdProdOrderRtngLine.SetRange(Status, Status);
         FnshdProdOrderRtngLine.SetRange("Prod. Order No.", "No.");
-        FnshdProdOrderRtngLine.DeleteAll;
+        FnshdProdOrderRtngLine.DeleteAll();
 
         FnshdProdOrderLine.SetRange(Status, Status);
         FnshdProdOrderLine.SetRange("Prod. Order No.", "No.");
-        FnshdProdOrderLine.DeleteAll;
+        FnshdProdOrderLine.DeleteAll();
 
         FnshdProdOrderComp.SetRange(Status, Status);
         FnshdProdOrderComp.SetRange("Prod. Order No.", "No.");
-        FnshdProdOrderComp.DeleteAll;
+        FnshdProdOrderComp.DeleteAll();
 
         FnshdProdOrderRtngTool.SetRange(Status, Status);
         FnshdProdOrderRtngTool.SetRange("Prod. Order No.", "No.");
-        FnshdProdOrderRtngTool.DeleteAll;
+        FnshdProdOrderRtngTool.DeleteAll();
 
         FnshdProdOrderRtngPers.SetRange(Status, Status);
         FnshdProdOrderRtngPers.SetRange("Prod. Order No.", "No.");
-        FnshdProdOrderRtngPers.DeleteAll;
+        FnshdProdOrderRtngPers.DeleteAll();
 
         FnshdProdOrderRtngQltyMeas.SetRange(Status, Status);
         FnshdProdOrderRtngQltyMeas.SetRange("Prod. Order No.", "No.");
-        FnshdProdOrderRtngQltyMeas.DeleteAll;
+        FnshdProdOrderRtngQltyMeas.DeleteAll();
 
         FnshdProdOrderComment.SetRange(Status, Status);
         FnshdProdOrderComment.SetRange("Prod. Order No.", "No.");
-        FnshdProdOrderComment.DeleteAll;
+        FnshdProdOrderComment.DeleteAll();
 
         FnshdProdOrderRtngCmt.SetRange(Status, Status);
         FnshdProdOrderRtngCmt.SetRange("Prod. Order No.", "No.");
-        FnshdProdOrderRtngCmt.DeleteAll;
+        FnshdProdOrderRtngCmt.DeleteAll();
 
         FnshdProdOrderBOMComment.SetRange(Status, Status);
         FnshdProdOrderBOMComment.SetRange("Prod. Order No.", "No.");
-        FnshdProdOrderBOMComment.DeleteAll;
+        FnshdProdOrderBOMComment.DeleteAll();
     end;
 
     procedure AdjustStartEndingDate()
@@ -939,10 +926,11 @@ table 5405 "Production Order"
 
     procedure Navigate()
     var
-        NavigateForm: Page Navigate;
+        NavigatePage: Page Navigate;
     begin
-        NavigateForm.SetDoc("Due Date", "No.");
-        NavigateForm.Run;
+        NavigatePage.SetDoc("Due Date", "No.");
+        NavigatePage.SetRec(Rec);
+        NavigatePage.Run;
     end;
 
     procedure CreatePick(AssignedUserID: Code[50]; SortingMethod: Option; SetBreakBulkFilter: Boolean; DoNotFillQtyToHandle: Boolean; PrintDocument: Boolean)
@@ -952,7 +940,7 @@ table 5405 "Production Order"
         CreatePickFromWhseSource: Report "Whse.-Source - Create Document";
         ItemTrackingMgt: Codeunit "Item Tracking Management";
     begin
-        ProdOrderCompLine.Reset;
+        ProdOrderCompLine.Reset();
         ProdOrderCompLine.SetRange(Status, Status);
         ProdOrderCompLine.SetRange("Prod. Order No.", "No.");
         if ProdOrderCompLine.Find('-') then
@@ -963,14 +951,14 @@ table 5405 "Production Order"
                   ProdOrderCompLine.Status, ProdOrderCompLine."Prod. Order No.",
                   ProdOrderCompLine."Prod. Order Line No.", ProdOrderCompLine."Line No.");
             until ProdOrderCompLine.Next = 0;
-        Commit;
+        Commit();
 
         TestField(Status, Status::Released);
         CalcFields("Completely Picked");
         if "Completely Picked" then
             Error(Text008);
 
-        ProdOrderCompLine.Reset;
+        ProdOrderCompLine.Reset();
         ProdOrderCompLine.SetRange(Status, Status);
         ProdOrderCompLine.SetRange("Prod. Order No.", "No.");
         ProdOrderCompLine.SetFilter(
@@ -1005,7 +993,7 @@ table 5405 "Production Order"
     begin
         TestField(Status, Status::Released);
 
-        WhseRequest.Reset;
+        WhseRequest.Reset();
         WhseRequest.SetCurrentKey("Source Document", "Source No.");
         WhseRequest.SetFilter(
           "Source Document", '%1|%2',
@@ -1081,7 +1069,7 @@ table 5405 "Production Order"
                             ProdOrderLine."Ending Date" := "Ending Date";
                         end;
                 end;
-                ProdOrderLine.Modify;
+                ProdOrderLine.Modify();
                 CalcProdOrder.SetParameter(true);
                 case Direction of
                     Direction::Forward:
@@ -1140,7 +1128,7 @@ table 5405 "Production Order"
         if ProdOrderLine.FindSet(true) then
             repeat
                 ProdOrderLine."Due Date" := "Due Date";
-                ProdOrderLine.Modify;
+                ProdOrderLine.Modify();
                 CalcProdOrder.SetParameter(true);
                 ProdOrderLine."Ending Date" :=
                   LeadTimeMgt.PlannedEndingDate(
@@ -1179,7 +1167,7 @@ table 5405 "Production Order"
 
     local procedure SalesLinesExist(): Boolean
     begin
-        ProdOrderLine.Reset;
+        ProdOrderLine.Reset();
         ProdOrderLine.SetRange("Prod. Order No.", "No.");
         ProdOrderLine.SetRange(Status, Status);
         exit(ProdOrderLine.FindFirst);
@@ -1197,10 +1185,10 @@ table 5405 "Production Order"
         if not Confirm(Text010) then
             exit;
 
-        ProdOrderLine.Reset;
+        ProdOrderLine.Reset();
         ProdOrderLine.SetRange("Prod. Order No.", "No.");
         ProdOrderLine.SetRange(Status, Status);
-        ProdOrderLine.LockTable;
+        ProdOrderLine.LockTable();
         if ProdOrderLine.Find('-') then
             repeat
                 OldDimSetID := ProdOrderLine."Dimension Set ID";
@@ -1209,7 +1197,7 @@ table 5405 "Production Order"
                     ProdOrderLine."Dimension Set ID" := NewDimSetID;
                     DimMgt.UpdateGlobalDimFromDimSetID(
                       ProdOrderLine."Dimension Set ID", ProdOrderLine."Shortcut Dimension 1 Code", ProdOrderLine."Shortcut Dimension 2 Code");
-                    ProdOrderLine.Modify;
+                    ProdOrderLine.Modify();
                     ProdOrderLine.UpdateProdOrderCompDim(NewDimSetID, OldDimSetID);
                 end;
             until ProdOrderLine.Next = 0;
@@ -1302,6 +1290,11 @@ table 5405 "Production Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateShortcutDimCode(var ProductionOrder: Record "Production Order"; var xProductionOrder: Record "Production Order"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateSourceNoOnSourceTypeEnumExtension(var ProductionOrder: Record "Production Order")
     begin
     end;
 }

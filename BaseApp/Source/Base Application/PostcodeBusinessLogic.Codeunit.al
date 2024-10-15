@@ -146,14 +146,14 @@ codeunit 10500 "Postcode Business Logic"
             exit;
 
         // Otherwise create one
-        PostCode.Init;
+        PostCode.Init();
         PostCode.Code := TempAutocompleteAddress.Postcode;
         PostCode.City := TempAutocompleteAddress.City;
         PostCode."Search City" := UpperCase(TempAutocompleteAddress.City);
         PostCode."Country/Region Code" := TempAutocompleteAddress."Country / Region";
         PostCode.County := TempAutocompleteAddress.County;
-        PostCode.Insert;
-        Commit;
+        PostCode.Insert();
+        Commit();
     end;
 
     local procedure DisableNotificationForUser()
@@ -163,9 +163,9 @@ codeunit 10500 "Postcode Business Logic"
         if PostcodeNotificationMemory.Get(UserId) then
             exit;
 
-        PostcodeNotificationMemory.Init;
+        PostcodeNotificationMemory.Init();
         PostcodeNotificationMemory.UserId := UserId;
-        PostcodeNotificationMemory.Insert;
+        PostcodeNotificationMemory.Insert();
     end;
 
     local procedure ShowPostcodeInputFields(var Postcode: Text[20]; var DeliveryPoint: Text[100]): Boolean
@@ -214,8 +214,8 @@ codeunit 10500 "Postcode Business Logic"
             ServiceConnection.Status := ServiceConnection.Status::Disabled;
 
         if not PostcodeServiceConfig.FindFirst then begin
-            PostcodeServiceConfig.Init;
-            PostcodeServiceConfig.Insert;
+            PostcodeServiceConfig.Init();
+            PostcodeServiceConfig.Insert();
             PostcodeServiceConfig.SaveServiceKey('Disabled');
         end;
 

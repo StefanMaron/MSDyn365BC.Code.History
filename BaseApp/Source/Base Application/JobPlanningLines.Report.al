@@ -245,7 +245,7 @@ report 1006 "Job - Planning Lines"
                 JobPlanningLine.SetRange("Job No.", "No.");
                 JobPlanningLine.SetFilter("Planning Date", JobPlanningDateFilter);
                 if not JobPlanningLine.FindFirst then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 FooterTotalCost1 := 0;
                 FooterTotalCost2 := 0;

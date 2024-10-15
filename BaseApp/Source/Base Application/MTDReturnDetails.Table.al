@@ -72,21 +72,5 @@ table 10535 "MTD-Return Details"
     fieldgroups
     {
     }
-
-    [Scope('OnPrem')]
-    procedure DiffersFromReturn(MTDReturnDetails: Record "MTD-Return Details"): Boolean
-    begin
-        exit(
-          ("VAT Due Sales" <> MTDReturnDetails."VAT Due Sales") or
-          ("VAT Due Acquisitions" <> MTDReturnDetails."VAT Due Acquisitions") or
-          ("Total VAT Due" <> MTDReturnDetails."Total VAT Due") or
-          ("VAT Reclaimed Curr Period" <> MTDReturnDetails."VAT Reclaimed Curr Period") or
-          ("Net VAT Due" <> MTDReturnDetails."Net VAT Due") or
-          ("Total Value Sales Excl. VAT" <> MTDReturnDetails."Total Value Sales Excl. VAT") or
-          ("Total Value Purchases Excl.VAT" <> MTDReturnDetails."Total Value Purchases Excl.VAT") or
-          ("Total Value Goods Suppl. ExVAT" <> MTDReturnDetails."Total Value Goods Suppl. ExVAT") or
-          ("Total Acquisitions Excl. VAT" <> MTDReturnDetails."Total Acquisitions Excl. VAT") or
-          (Finalised <> MTDReturnDetails.Finalised));
-    end;
 }
 

@@ -1,4 +1,4 @@
-﻿page 31 "Item List"
+page 31 "Item List"
 {
     AdditionalSearchTerms = 'product,finished good,component,raw material,assembly item';
     ApplicationArea = Basic, Suite, Assembly, Service;
@@ -434,8 +434,8 @@
                             ClearAttributesFilter;
                             exit;
                         end;
-                        TempItemFilteredFromAttributes.Reset;
-                        TempItemFilteredFromAttributes.DeleteAll;
+                        TempItemFilteredFromAttributes.Reset();
+                        TempItemFilteredFromAttributes.DeleteAll();
                         ItemAttributeManagement.FindItemsByAttributes(TempFilterItemAttributesBuffer, TempItemFilteredFromAttributes);
                         FilterText := ItemAttributeManagement.GetItemNoFilterText(TempItemFilteredFromAttributes, ParameterCount);
 
@@ -464,8 +464,8 @@
                     trigger OnAction()
                     begin
                         ClearAttributesFilter;
-                        TempItemFilteredFromAttributes.Reset;
-                        TempItemFilteredFromAttributes.DeleteAll;
+                        TempItemFilteredFromAttributes.Reset();
+                        TempItemFilteredFromAttributes.DeleteAll();
                         RunOnTempRec := false;
 
                         RestoreTempItemFilteredFromAttributes;
@@ -558,7 +558,7 @@
                         var
                             AdjustInventory: Page "Adjust Inventory";
                         begin
-                            Commit;
+                            Commit();
                             AdjustInventory.SetItem("No.");
                             AdjustInventory.RunModal;
                         end;
@@ -963,6 +963,9 @@
                 Ellipsis = true;
                 Image = ApplyTemplate;
                 ToolTip = 'Apply a template to update one or more entities with your standard settings for a certain type of entity.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'This functionality will be replaced by other templates.';
+                ObsoleteTag = '16.0';
 
                 trigger OnAction()
                 var
@@ -2150,7 +2153,7 @@
         exit(SelectInItemList(Item));
     end;
 
-    local procedure SelectInItemList(var Item: Record Item): Text
+    procedure SelectInItemList(var Item: Record Item): Text
     var
         ItemListPage: Page "Item List";
     begin
@@ -2196,19 +2199,19 @@
     begin
         ClearMarks;
         MarkedOnly(false);
-        TempFilterItemAttributesBuffer.Reset;
-        TempFilterItemAttributesBuffer.DeleteAll;
+        TempFilterItemAttributesBuffer.Reset();
+        TempFilterItemAttributesBuffer.DeleteAll();
         FilterGroup(0);
         SetRange("No.");
     end;
 
     procedure SetTempFilteredItemRec(var Item: Record Item)
     begin
-        TempItemFilteredFromAttributes.Reset;
-        TempItemFilteredFromAttributes.DeleteAll;
+        TempItemFilteredFromAttributes.Reset();
+        TempItemFilteredFromAttributes.DeleteAll();
 
-        TempItemFilteredFromPickItem.Reset;
-        TempItemFilteredFromPickItem.DeleteAll;
+        TempItemFilteredFromPickItem.Reset();
+        TempItemFilteredFromPickItem.DeleteAll();
 
         RunOnTempRec := true;
         RunOnPickItem := true;
@@ -2216,9 +2219,9 @@
         if Item.FindSet then
             repeat
                 TempItemFilteredFromAttributes := Item;
-                TempItemFilteredFromAttributes.Insert;
+                TempItemFilteredFromAttributes.Insert();
                 TempItemFilteredFromPickItem := Item;
-                TempItemFilteredFromPickItem.Insert;
+                TempItemFilteredFromPickItem.Insert();
             until Item.Next = 0;
     end;
 
@@ -2227,14 +2230,14 @@
         if not RunOnPickItem then
             exit;
 
-        TempItemFilteredFromAttributes.Reset;
-        TempItemFilteredFromAttributes.DeleteAll;
+        TempItemFilteredFromAttributes.Reset();
+        TempItemFilteredFromAttributes.DeleteAll();
         RunOnTempRec := true;
 
         if TempItemFilteredFromPickItem.FindSet then
             repeat
                 TempItemFilteredFromAttributes := TempItemFilteredFromPickItem;
-                TempItemFilteredFromAttributes.Insert;
+                TempItemFilteredFromAttributes.Insert();
             until TempItemFilteredFromPickItem.Next = 0;
     end;
 }

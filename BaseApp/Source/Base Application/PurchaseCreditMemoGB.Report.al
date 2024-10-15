@@ -194,10 +194,10 @@ report 10578 "Purchase - Credit Memo GB"
                         begin
                             if Number = 1 then begin
                                 if not DimSetEntry1.Find('-') then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
                             end else
                                 if not Continue then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
 
                             Clear(DimText);
                             Continue := false;
@@ -222,7 +222,7 @@ report 10578 "Purchase - Credit Memo GB"
                         trigger OnPreDataItem()
                         begin
                             if not ShowInternalInfo then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
                     dataitem("Purch. Cr. Memo Line"; "Purch. Cr. Memo Line")
@@ -411,10 +411,10 @@ report 10578 "Purchase - Credit Memo GB"
                             begin
                                 if Number = 1 then begin
                                     if not DimSetEntry2.Find('-') then
-                                        CurrReport.Break;
+                                        CurrReport.Break();
                                 end else
                                     if not Continue then
-                                        CurrReport.Break;
+                                        CurrReport.Break();
 
                                 Clear(DimText);
                                 Continue := false;
@@ -439,7 +439,7 @@ report 10578 "Purchase - Credit Memo GB"
                             trigger OnPreDataItem()
                             begin
                                 if not ShowInternalInfo then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
 
                                 DimSetEntry2.SetRange("Dimension Set ID", "Purch. Cr. Memo Line"."Dimension Set ID");
                             end;
@@ -451,7 +451,7 @@ report 10578 "Purchase - Credit Memo GB"
                                 "No." := '';
                             TypeofPCML := Type;
 
-                            VATAmountLine.Init;
+                            VATAmountLine.Init();
                             VATAmountLine."VAT Identifier" := "Purch. Cr. Memo Line"."VAT Identifier";
                             VATAmountLine."VAT Calculation Type" := "VAT Calculation Type";
                             VATAmountLine."Tax Group Code" := "Tax Group Code";
@@ -473,12 +473,12 @@ report 10578 "Purchase - Credit Memo GB"
 
                         trigger OnPreDataItem()
                         begin
-                            VATAmountLine.DeleteAll;
+                            VATAmountLine.DeleteAll();
                             MoreLines := Find('+');
                             while MoreLines and (Description = '') and ("No." = '') and (Quantity = 0) and (Amount = 0) do
                                 MoreLines := Next(-1) <> 0;
                             if not MoreLines then
-                                CurrReport.Break;
+                                CurrReport.Break();
                             SetRange("Line No.", 0, "Line No.");
                             TotalAmount := 0;
                             TotalLineAmount := 0;
@@ -567,7 +567,7 @@ report 10578 "Purchase - Credit Memo GB"
                         trigger OnPreDataItem()
                         begin
                             if VATAmountLine.Count <= 1 then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
                     dataitem(Total; "Integer")
@@ -583,7 +583,7 @@ report 10578 "Purchase - Credit Memo GB"
                         trigger OnPreDataItem()
                         begin
                             if "Purch. Cr. Memo Hdr."."Buy-from Vendor No." = "Purch. Cr. Memo Hdr."."Pay-to Vendor No." then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
                     dataitem(Total3; "Integer")
@@ -628,7 +628,7 @@ report 10578 "Purchase - Credit Memo GB"
                         trigger OnPreDataItem()
                         begin
                             if ShipToAddr[1] = '' then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
                 }
@@ -639,8 +639,6 @@ report 10578 "Purchase - Credit Memo GB"
                         CopyText := Text004;
                         OutputNo += 1;
                     end;
-
-                    CurrReport.PageNo := 1;
                 end;
 
                 trigger OnPostDataItem()
@@ -662,7 +660,7 @@ report 10578 "Purchase - Credit Memo GB"
             begin
                 CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
 
-                CompanyInfo.Get;
+                CompanyInfo.Get();
 
                 if RespCenter.Get("Responsibility Center") then begin
                     FormatAddr.RespCenter(CompanyAddr, RespCenter);
@@ -678,7 +676,7 @@ report 10578 "Purchase - Credit Memo GB"
                 else
                     ReturnOrderNoText := FieldCaption("Return Order No.");
                 if "Purchaser Code" = '' then begin
-                    SalesPurchPerson.Init;
+                    SalesPurchPerson.Init();
                     PurchaserText := '';
                 end else begin
                     SalesPurchPerson.Get("Purchaser Code");
@@ -800,7 +798,7 @@ report 10578 "Purchase - Credit Memo GB"
 
     trigger OnInitReport()
     begin
-        GLSetup.Get;
+        GLSetup.Get();
     end;
 
     trigger OnPreReport()

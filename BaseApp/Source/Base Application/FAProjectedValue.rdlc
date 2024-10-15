@@ -4875,9 +4875,6 @@ End Function</Code>
         <Field Name="USERID">
           <DataField>USERID</DataField>
         </Field>
-        <Field Name="CurrReport_PAGENO">
-          <DataField>CurrReport_PAGENO</DataField>
-        </Field>
         <Field Name="DeprBookText">
           <DataField>DeprBookText</DataField>
         </Field>
@@ -5219,9 +5216,6 @@ End Function</Code>
         </Field>
         <Field Name="FORMAT_TODAY_0_4__Control68">
           <DataField>FORMAT_TODAY_0_4__Control68</DataField>
-        </Field>
-        <Field Name="CurrReport_PAGENO_Control73">
-          <DataField>CurrReport_PAGENO_Control73</DataField>
         </Field>
         <Field Name="USERID_Control72">
           <DataField>USERID_Control72</DataField>

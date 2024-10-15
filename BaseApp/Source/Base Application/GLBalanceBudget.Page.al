@@ -1,4 +1,4 @@
-﻿page 422 "G/L Balance/Budget"
+page 422 "G/L Balance/Budget"
 {
     Caption = 'G/L Balance/Budget';
     PageType = Worksheet;
@@ -444,7 +444,7 @@
 
     trigger OnOpenPage()
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         InitDefaultFilters;
         CODEUNIT.Run(CODEUNIT::"GLBudget-Open", Rec);
         FindPeriod('');

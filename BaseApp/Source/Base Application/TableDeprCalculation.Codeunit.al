@@ -145,7 +145,7 @@ codeunit 5618 "Table Depr. Calculation"
 
         while TotalNoOfDays < EndingLimit do begin
             DeprTableBufferTmp."Entry No." := DeprTableBufferTmp."Entry No." + 1;
-            DeprTableBufferTmp.Insert;
+            DeprTableBufferTmp.Insert();
             TotalNoOfDays := TotalNoOfDays + DaysInPeriod;
         end;
     end;
@@ -160,7 +160,7 @@ codeunit 5618 "Table Depr. Calculation"
               DeprTableLine."No. of Units in Period" * 100 / DeprTableHeader."Total No. of Units"
         else
             DeprTableBufferTmp."Period Depreciation %" := DeprTableLine."Period Depreciation %";
-        DeprTableBufferTmp.Insert;
+        DeprTableBufferTmp.Insert();
     end;
 }
 

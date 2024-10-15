@@ -196,10 +196,10 @@ codeunit 133782 "Booking Service Sync Test"
         LibraryO365Sync.SetupBookingTableConnection(BookingSync, ConnectionID);
         BookingSync."Last Service Sync" := CreateDateTime(Today - 1, Time);
         BookingSync."Item Template Code" := '';
-        BookingSync.Modify;
-        Item.DeleteAll;
-        BookingServiceMapping.DeleteAll;
-        BookingService.DeleteAll;
+        BookingSync.Modify();
+        Item.DeleteAll();
+        BookingServiceMapping.DeleteAll();
+        BookingService.DeleteAll();
     end;
 
     local procedure SetValues(var Description: Text[50]; var Price: Decimal)
@@ -210,7 +210,7 @@ codeunit 133782 "Booking Service Sync Test"
 
     local procedure CreateItem(var Item: Record Item; Description: Text[50]; Price: Decimal; New: Boolean)
     begin
-        Item.Init;
+        Item.Init();
         Item.Validate(Description, Description);
         Item.Validate(Type, Item.Type::Service);
         Item.Validate("Unit Price", Price);
@@ -218,7 +218,7 @@ codeunit 133782 "Booking Service Sync Test"
 
         if not New then begin
             Item."Last Date Modified" := Today - 10;
-            Item.Modify;
+            Item.Modify();
         end;
     end;
 
@@ -227,10 +227,10 @@ codeunit 133782 "Booking Service Sync Test"
         BookingServiceMapping: Record "Booking Service Mapping";
     begin
         Clear(BookingService);
-        BookingService.Init;
+        BookingService.Init();
         BookingService.Validate("Display Name", Description);
         BookingService.Validate(Price, Price);
-        BookingService.Insert;
+        BookingService.Insert();
 
         if ItemNo <> '' then begin
             BookingService.Get(Description);

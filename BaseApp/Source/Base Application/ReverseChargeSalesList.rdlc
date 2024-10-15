@@ -2489,9 +2489,6 @@ End Function</Code>
         <Field Name="CompanyInfo__Fax_No__">
           <DataField>CompanyInfo__Fax_No__</DataField>
         </Field>
-        <Field Name="STRSUBSTNO_Text001_CurrReport_PAGENO_">
-          <DataField>STRSUBSTNO_Text001_CurrReport_PAGENO_</DataField>
-        </Field>
         <Field Name="CompanyInfo__VAT_Registration_No__">
           <DataField>CompanyInfo__VAT_Registration_No__</DataField>
         </Field>

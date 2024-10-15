@@ -33,9 +33,6 @@ report 10529 "Reverse Charge Sales List"
             column(CompanyInfo__Fax_No__; CompanyInfo."Fax No.")
             {
             }
-            column(STRSUBSTNO_Text001_CurrReport_PAGENO_; StrSubstNo(Text001, CurrReport.PageNo))
-            {
-            }
             column(CompanyInfo__VAT_Registration_No__; CompanyInfo."VAT Registration No.")
             {
             }
@@ -274,14 +271,14 @@ report 10529 "Reverse Charge Sales List"
 
                 trigger OnPreDataItem()
                 begin
-                    SalesSetup.Get;
+                    SalesSetup.Get();
                     "VAT Entry".SetRange("VAT Bus. Posting Group", SalesSetup."Reverse Charge VAT Posting Gr.");
                 end;
             }
 
             trigger OnPreDataItem()
             begin
-                CompanyInfo.Get;
+                CompanyInfo.Get();
                 FormatAddr.Company(CompanyAddr, CompanyInfo);
                 Clear(VATBase);
             end;
@@ -332,7 +329,7 @@ report 10529 "Reverse Charge Sales List"
 
     trigger OnPreReport()
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         FormatAddr.Company(CompanyAddr, CompanyInfo);
 
         VATEntryFilter := "VAT Entry".GetFilters;
@@ -344,7 +341,7 @@ report 10529 "Reverse Charge Sales List"
             Header[1, 1] := Format(StartDate[1]);
             Header[1, 2] := Format(EndDate[1]);
             AccountingPeriod.SetRange("Starting Date", PeriodStart, "VAT Entry".GetRangeMax("Posting Date"));
-            MaxCount := AccountingPeriod.Count;
+            MaxCount := AccountingPeriod.Count();
             if MaxCount > 12 then
                 MaxCount := 12;
             AccountingPeriod.FindSet;
@@ -362,7 +359,7 @@ report 10529 "Reverse Charge Sales List"
             Header[1, 2] := Format(EndDate[1]);
             Calendar.SetRange("Period Type", Calendar."Period Type"::Month);
             Calendar.SetRange("Period Start", PeriodStart, "VAT Entry".GetRangeMax("Posting Date"));
-            MaxCount := Calendar.Count;
+            MaxCount := Calendar.Count();
             if MaxCount > 12 then
                 MaxCount := 12;
             Calendar.FindSet;
@@ -374,7 +371,7 @@ report 10529 "Reverse Charge Sales List"
                 Header[i, 2] := Format(EndDate[i]);
             end;
         end;
-        GLSetup.Get;
+        GLSetup.Get();
 
         if ExportSubmissionFile then
             CreateSubmissionFile;
@@ -441,10 +438,6 @@ report 10529 "Reverse Charge Sales List"
     [Scope('OnPrem')]
     procedure IncrLineCount()
     begin
-        if CurrReport.PageNo > CurrentPageNo then begin
-            LineCountCurrentPage := 0;
-            CurrentPageNo := CurrReport.PageNo;
-        end;
         LineCountCurrentPage := LineCountCurrentPage + 1;
         LineCountAllPages := LineCountAllPages + 1;
     end;

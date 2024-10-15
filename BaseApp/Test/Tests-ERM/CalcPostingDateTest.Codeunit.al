@@ -467,7 +467,7 @@ codeunit 134254 "Calc. Posting Date Test"
         SuggestVendorPayments: Report "Suggest Vendor Payments";
         DueDateOffsetDateFormula: DateFormula;
     begin
-        GenJnlLine.Init;
+        GenJnlLine.Init();
         GenJnlLine.Validate("Journal Template Name", GenJnlBatch."Journal Template Name");
         GenJnlLine.Validate("Journal Batch Name", GenJnlBatch.Name);
         SuggestVendorPayments.SetGenJnlLine(GenJnlLine);
@@ -479,7 +479,7 @@ codeunit 134254 "Calc. Posting Date Test"
         Evaluate(DueDateOffsetDateFormula, DueDateOffset);
         LibraryVariableStorage.Enqueue(DueDateOffsetDateFormula);
         LibraryVariableStorage.Enqueue(VendorNo);
-        Commit;
+        Commit();
         SuggestVendorPayments.RunModal;
     end;
 

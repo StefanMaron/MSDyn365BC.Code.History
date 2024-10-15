@@ -194,7 +194,7 @@ report 130 "EC Sales List"
                                 if (VATEntry."EU Service" = "EU Service") and (VATEntry."EU 3-Party Trade" = "EU 3-Party Trade") then
                                     CurrReport.Skip
                             end else
-                                CurrReport.Skip;
+                                CurrReport.Skip();
                         ResetVATEntry := true;
                         NewGroupStarted := true;
                         PrevVATRegNo := "VAT Registration No.";
@@ -233,7 +233,7 @@ report 130 "EC Sales List"
 
             trigger OnPreDataItem()
             begin
-                CompanyInfo.Get;
+                CompanyInfo.Get();
                 FormatAddr.Company(CompanyAddr, CompanyInfo);
                 ThirdPartyTrade := (ReportLayout = ReportLayout::"Separate &Lines");
             end;
@@ -302,21 +302,21 @@ report 130 "EC Sales List"
     var
         PeriodEnd: Date;
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         FormatAddr.Company(CompanyAddr, CompanyInfo);
 
         VATEntryFilter := "VAT Entry".GetFilters;
         PeriodStart := "VAT Entry".GetRangeMin("Posting Date");
         PeriodEnd := "VAT Entry".GetRangeMax("Posting Date");
 
-        Calendar.Reset;
+        Calendar.Reset();
         Calendar.SetFilter("Period Type", '%1|%2', Calendar."Period Type"::Month, Calendar."Period Type"::Quarter);
         Calendar.SetRange("Period Start", PeriodStart);
         Calendar.SetRange("Period End", ClosingDate(PeriodEnd));
         if not Calendar.FindFirst then
             Error(Text10500, "VAT Entry".FieldCaption("Posting Date"), "VAT Entry".GetFilter("Posting Date"));
 
-        GLSetup.Get;
+        GLSetup.Get();
 
         if "Create XML File" then
             CreateXMLDocument;

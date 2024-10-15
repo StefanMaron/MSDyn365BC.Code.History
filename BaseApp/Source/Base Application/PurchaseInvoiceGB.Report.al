@@ -215,10 +215,10 @@ report 10577 "Purchase - Invoice GB"
                         begin
                             if Number = 1 then begin
                                 if not DimSetEntry1.Find('-') then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
                             end else
                                 if not Continue then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
 
                             Clear(DimText);
                             Continue := false;
@@ -243,7 +243,7 @@ report 10577 "Purchase - Invoice GB"
                         trigger OnPreDataItem()
                         begin
                             if not ShowInternalInfo then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
                     dataitem("Purch. Inv. Line"; "Purch. Inv. Line")
@@ -426,10 +426,10 @@ report 10577 "Purchase - Invoice GB"
                             begin
                                 if Number = 1 then begin
                                     if not DimSetEntry2.Find('-') then
-                                        CurrReport.Break;
+                                        CurrReport.Break();
                                 end else
                                     if not Continue then
-                                        CurrReport.Break;
+                                        CurrReport.Break();
 
                                 Clear(DimText);
                                 Continue := false;
@@ -454,7 +454,7 @@ report 10577 "Purchase - Invoice GB"
                             trigger OnPreDataItem()
                             begin
                                 if not ShowInternalInfo then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
 
                                 DimSetEntry2.SetRange("Dimension Set ID", "Purch. Inv. Line"."Dimension Set ID");
                             end;
@@ -465,7 +465,7 @@ report 10577 "Purchase - Invoice GB"
                             if (Type = Type::"G/L Account") and (not ShowInternalInfo) then
                                 "No." := '';
 
-                            VATAmountLine.Init;
+                            VATAmountLine.Init();
                             VATAmountLine."VAT Identifier" := "Purch. Inv. Line"."VAT Identifier";
                             VATAmountLine."VAT Calculation Type" := "VAT Calculation Type";
                             VATAmountLine."Tax Group Code" := "Tax Group Code";
@@ -487,12 +487,12 @@ report 10577 "Purchase - Invoice GB"
 
                         trigger OnPreDataItem()
                         begin
-                            VATAmountLine.DeleteAll;
+                            VATAmountLine.DeleteAll();
                             MoreLines := Find('+');
                             while MoreLines and (Description = '') and ("No." = '') and (Quantity = 0) and (Amount = 0) do
                                 MoreLines := Next(-1) <> 0;
                             if not MoreLines then
-                                CurrReport.Break;
+                                CurrReport.Break();
                             SetRange("Line No.", 0, "Line No.");
                             TotalAmount := 0;
                             TotalLineAmount := 0;
@@ -580,7 +580,7 @@ report 10577 "Purchase - Invoice GB"
                         trigger OnPreDataItem()
                         begin
                             if VATAmountLine.Count <= 1 then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
                     dataitem(Total; "Integer")
@@ -594,7 +594,7 @@ report 10577 "Purchase - Invoice GB"
                         trigger OnPreDataItem()
                         begin
                             if "Purch. Inv. Header"."Buy-from Vendor No." = "Purch. Inv. Header"."Pay-to Vendor No." then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
                     dataitem(Integer2; "Integer")
@@ -635,7 +635,7 @@ report 10577 "Purchase - Invoice GB"
                         trigger OnPreDataItem()
                         begin
                             if ShipToAddr[1] = '' then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
                 }
@@ -646,8 +646,6 @@ report 10577 "Purchase - Invoice GB"
                         CopyText := Text003;
                         OutputNo += 1;
                     end;
-
-                    CurrReport.PageNo := 1;
                 end;
 
                 trigger OnPostDataItem()
@@ -669,7 +667,7 @@ report 10577 "Purchase - Invoice GB"
             begin
                 CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
 
-                CompanyInfo.Get;
+                CompanyInfo.Get();
 
                 if RespCenter.Get("Responsibility Center") then begin
                     FormatAddr.RespCenter(CompanyAddr, RespCenter);
@@ -812,7 +810,7 @@ report 10577 "Purchase - Invoice GB"
 
     trigger OnInitReport()
     begin
-        GLSetup.Get;
+        GLSetup.Get();
     end;
 
     var

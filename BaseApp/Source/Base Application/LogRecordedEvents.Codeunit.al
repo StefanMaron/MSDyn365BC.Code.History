@@ -16,7 +16,7 @@ codeunit 9804 "Log Recorded Events"
     procedure Start()
     begin
         CallOrder := 0;
-        TempRecordedEventBuffer.DeleteAll;
+        TempRecordedEventBuffer.DeleteAll();
 
         if IsNull(EventReceiver) then
             EventReceiver := EventReceiver.NavEventEventReceiver;
@@ -63,7 +63,7 @@ codeunit 9804 "Log Recorded Events"
 
         if not IsEventLogged then begin
             CallOrder := CallOrder + 1;
-            TempRecordedEventBuffer.Init;
+            TempRecordedEventBuffer.Init();
             TempRecordedEventBuffer."Session ID" := e.SessionId;
             TempRecordedEventBuffer."Object Type" := e.ObjectType;
             TempRecordedEventBuffer."Object ID" := e.ObjectId;
@@ -75,12 +75,12 @@ codeunit 9804 "Log Recorded Events"
             TempRecordedEventBuffer."Calling Object ID" := e.CallingObjectId;
             TempRecordedEventBuffer."Calling Method" := e.CallingMethodName;
             TempRecordedEventBuffer."Hit Count" := 0;
-            TempRecordedEventBuffer.Insert;
+            TempRecordedEventBuffer.Insert();
         end;
 
         // Update the hit count of the event.
         TempRecordedEventBuffer."Hit Count" += 1;
-        TempRecordedEventBuffer.Modify;
+        TempRecordedEventBuffer.Modify();
     end;
 
     trigger EventReceiver::OnRecordingErrorOccurred(sender: Variant; e: DotNet EventArgs)

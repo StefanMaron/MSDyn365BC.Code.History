@@ -167,6 +167,7 @@ page 9072 "IT Operations Activities"
         CRMConnectionSetup: Record "CRM Connection Setup";
         IntegrationSynchJobErrors: Record "Integration Synch. Job Errors";
         DataClassNotificationMgt: Codeunit "Data Class. Notification Mgt.";
+        CDSIntegrationMgt: Codeunit "CDS Integration Mgt.";
     begin
         Reset;
         if not Get then begin
@@ -178,7 +179,7 @@ page 9072 "IT Operations Activities"
 
         DataSensitivity.SetRange("Company Name", CompanyName);
         DataSensitivity.SetRange("Data Sensitivity", DataSensitivity."Data Sensitivity"::Unclassified);
-        UnclassifiedFields := DataSensitivity.Count;
+        UnclassifiedFields := DataSensitivity.Count();
 
         SetFilter("Date Filter2", '<=%1', CreateDateTime(Today, 0T));
         SetFilter("Date Filter3", '>%1', CreateDateTime(Today, 0T));
@@ -186,7 +187,7 @@ page 9072 "IT Operations Activities"
 
         ShowIntelligentCloud := not EnvironmentInfo.IsSaaS;
         IntegrationSynchJobErrors.SetDataIntegrationUIElementsVisible(ShowDataIntegrationCues);
-        ShowD365SIntegrationCues := CRMConnectionSetup.IsEnabled;
+        ShowD365SIntegrationCues := CRMConnectionSetup.IsEnabled() or CDSIntegrationMgt.IsIntegrationEnabled();
     end;
 
     var

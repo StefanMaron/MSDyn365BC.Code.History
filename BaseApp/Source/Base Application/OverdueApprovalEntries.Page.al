@@ -152,7 +152,7 @@ page 666 "Overdue Approval Entries"
                         Error(MustBeAdminErr);
                     CurrPage.SetSelectionFilter(OverdueEntry);
                     if OverdueEntry.FindFirst then
-                        OverdueEntry.DeleteAll;
+                        OverdueEntry.DeleteAll();
                 end;
             }
         }

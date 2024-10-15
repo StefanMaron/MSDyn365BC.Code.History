@@ -16,9 +16,6 @@ report 10511 "VAT Entry Exception Report"
             column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
             {
             }
-            column(CurrReport_PAGENO; CurrReport.PageNo)
-            {
-            }
             column(USERID; UserId)
             {
             }
@@ -135,7 +132,7 @@ report 10511 "VAT Entry Exception Report"
             trigger OnAfterGetRecord()
             begin
                 if "VAT Entry".Type = "VAT Entry".Type::Settlement then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 PrintErrorLine := false;
                 ErrorText := '';
@@ -197,7 +194,7 @@ report 10511 "VAT Entry Exception Report"
                 end;
 
                 if not PrintErrorLine then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
             end;
         }
     }
@@ -283,7 +280,7 @@ report 10511 "VAT Entry Exception Report"
 
     trigger OnInitReport()
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         MaxVATBaseDiscount := GLSetup."VAT Tolerance %";
         MaxManualVATDifference := GLSetup."Max. VAT Difference Allowed";
         if MaxVATRateDifference = 0 then
@@ -305,7 +302,7 @@ report 10511 "VAT Entry Exception Report"
         if VATPostingSetup.Find('-') then
             repeat
                 TempVATPostingSetup := VATPostingSetup;
-                TempVATPostingSetup.Insert;
+                TempVATPostingSetup.Insert();
             until VATPostingSetup.Next = 0;
     end;
 

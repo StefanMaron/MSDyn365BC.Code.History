@@ -24,7 +24,7 @@ codeunit 99000792 "Create Prod. Order from Sale"
         ProdOrderRowID: Text[250];
         IsHandled: Boolean;
     begin
-        ProdOrder.Init;
+        ProdOrder.Init();
         ProdOrder.Status := ProdOrderStatus;
         ProdOrder."No." := '';
         ProdOrder.Insert(true);
@@ -50,7 +50,7 @@ codeunit 99000792 "Create Prod. Order from Sale"
             ProdOrder.Quantity := SalesLine."Outstanding Qty. (Base)" - SalesLine."Reserved Qty. (Base)";
         end;
         OnAfterCreateProdOrderFromSalesLine(ProdOrder, SalesLine);
-        ProdOrder.Modify;
+        ProdOrder.Modify();
         ProdOrder.SetRange("No.", ProdOrder."No.");
 
         IsHandled := false;
@@ -83,9 +83,9 @@ codeunit 99000792 "Create Prod. Order from Sale"
                 SalesLineReserve.BindToProdOrder(SalesLine, ProdOrderLine, ReservQty, ReservQtyBase);
                 if SalesLine.Reserve = SalesLine.Reserve::Never then begin
                     SalesLine.Reserve := SalesLine.Reserve::Optional;
-                    SalesLine.Modify;
+                    SalesLine.Modify();
                 end;
-                ProdOrderLine.Modify;
+                ProdOrderLine.Modify();
             end;
         end;
 

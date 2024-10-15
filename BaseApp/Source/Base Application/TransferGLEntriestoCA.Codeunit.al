@@ -72,18 +72,18 @@ codeunit 1105 "Transfer GL Entries to CA"
         CombinedEntryText: Text[50];
     begin
         GetCostAccSetup;
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
         SourceCodeSetup.TestField("G/L Entry to CA");
 
         if not BatchRun then begin
             if not CostAccSetup."Auto Transfer from G/L" then
                 exit;
-            TempCostJnlLine.DeleteAll;
+            TempCostJnlLine.DeleteAll();
             ClearAll;
             GetCostAccSetup;
         end;
 
-        CostRegister.LockTable;
+        CostRegister.LockTable();
         CostRegister.SetCurrentKey(Source);
         CostRegister.SetRange(Source, CostRegister.Source::"Transfer from G/L");
         if CostRegister.FindLast then
@@ -125,7 +125,7 @@ codeunit 1105 "Transfer GL Entries to CA"
                                 end;
 
                                 if CostType."Combine Entries" <> CostType."Combine Entries"::None then begin
-                                    TempCostJnlLine.Reset;
+                                    TempCostJnlLine.Reset();
                                     TempCostJnlLine.SetRange("Cost Type No.", CostType."No.");
                                     if CostCenterCode <> '' then
                                         TempCostJnlLine.SetRange("Cost Center Code", CostCenterCode)
@@ -165,8 +165,8 @@ codeunit 1105 "Transfer GL Entries to CA"
     var
         SourceCodeSetup: Record "Source Code Setup";
     begin
-        SourceCodeSetup.Get;
-        TempCostJnlLine.Init;
+        SourceCodeSetup.Get();
+        TempCostJnlLine.Init();
         LastLineNo += 1;
         TempCostJnlLine."Line No." := LastLineNo;
         TempCostJnlLine."Cost Type No." := CostType."No.";
@@ -185,7 +185,7 @@ codeunit 1105 "Transfer GL Entries to CA"
         TempCostJnlLine."G/L Entry No." := GLEntry."Entry No.";
         TempCostJnlLine."System-Created Entry" := true;
         OnBeforeInsertCostJournalLine(TempCostJnlLine, GLEntry);
-        TempCostJnlLine.Insert;
+        TempCostJnlLine.Insert();
         OnAfterInsertCostJournalLine(TempCostJnlLine);
 
         NoOfJnlLines := NoOfJnlLines + 1;
@@ -204,7 +204,7 @@ codeunit 1105 "Transfer GL Entries to CA"
           TempCostJnlLine."Add.-Currency Credit Amount" + GLEntry."Add.-Currency Credit Amount";
         TempCostJnlLine."Document No." := GLEntry."Document No.";
         TempCostJnlLine."G/L Entry No." := GLEntry."Entry No.";
-        TempCostJnlLine.Modify;
+        TempCostJnlLine.Modify();
         NoOfCombinedEntries := NoOfCombinedEntries + 1;
         MaintainTotals(GLEntry.Amount);
     end;
@@ -215,7 +215,7 @@ codeunit 1105 "Transfer GL Entries to CA"
         CAJnlPostLine: Codeunit "CA Jnl.-Post Line";
         Window2: Dialog;
     begin
-        TempCostJnlLine.Reset;
+        TempCostJnlLine.Reset();
         Window2.Open(Text006);
         TempCostJnlLine.SetCurrentKey("G/L Entry No.");
         if TempCostJnlLine.FindSet then
@@ -230,7 +230,7 @@ codeunit 1105 "Transfer GL Entries to CA"
     local procedure GetCostAccSetup()
     begin
         if not GotCostAccSetup then begin
-            CostAccSetup.Get;
+            CostAccSetup.Get();
             GotCostAccSetup := true;
         end;
     end;

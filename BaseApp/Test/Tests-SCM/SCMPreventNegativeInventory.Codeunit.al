@@ -31,7 +31,7 @@ codeunit 137412 "SCM Prevent Negative Inventory"
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Prevent Negative Inventory");
-        InventorySetup.Get;
+        InventorySetup.Get();
         PreventNegativeInventory := InventorySetup."Prevent Negative Inventory";
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
@@ -175,7 +175,7 @@ codeunit 137412 "SCM Prevent Negative Inventory"
         LibrarySales.SetPreventNegativeInventory(SetupPreventNegativeInventory);
         LibraryInventory.CreateItem(Item);
         Item."Prevent Negative Inventory" := ItemPreventNegativeInventory;
-        Item.Modify;
+        Item.Modify();
         ItemInventoryQty := LibraryRandom.RandInt(100);
         LibraryPatterns.POSTPositiveAdjustment(Item, '', '', '', ItemInventoryQty, WorkDate, Item."Unit Cost");
         LibrarySales.CreateCustomer(Customer);
@@ -218,7 +218,7 @@ codeunit 137412 "SCM Prevent Negative Inventory"
           ItemJournalLine, ItemJnlTemplate.Name, ItemJnlBatch.Name, ItemJournalLine."Entry Type"::"Negative Adjmt.",
           Item."No.", LibraryRandom.RandInt(10));
         ItemJournalLine."Source Type" := SourceType;
-        ItemJournalLine.Modify;
+        ItemJournalLine.Modify();
 
         asserterror CODEUNIT.Run(CODEUNIT::"Item Jnl.-Post Line", ItemJournalLine);
         Assert.ExpectedError(StrSubstNo(ExpectedErrorErr, Item."No."));

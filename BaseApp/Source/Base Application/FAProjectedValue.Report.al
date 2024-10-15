@@ -19,9 +19,6 @@ report 10560 "FA - Projected Value"
             column(USERID; UserId)
             {
             }
-            column(CurrReport_PAGENO; CurrReport.PageNo)
-            {
-            }
             column(DeprBookText; DeprBookText)
             {
             }
@@ -179,7 +176,7 @@ report 10560 "FA - Projected Value"
                     if "Part of Book Value" then
                         BookValue := BookValue + Amount;
                     if "FA Posting Date" < IncludePostedFrom then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                     EntryPrinted := true;
                 end;
 
@@ -189,7 +186,7 @@ report 10560 "FA - Projected Value"
                     SetRange("Depreciation Book Code", DeprBookCode);
                     BookValue := 0;
                     if (IncludePostedFrom = 0D) or not PrintDetails then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
             }
             dataitem(ProjectedDepreciation; "Integer")
@@ -304,7 +301,7 @@ report 10560 "FA - Projected Value"
                     if Done then
                         UpdateTotals
                     else
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     if DoProjectedDisposal then
                         CalculateGainLoss;
@@ -314,9 +311,9 @@ report 10560 "FA - Projected Value"
             trigger OnAfterGetRecord()
             begin
                 if not FADeprBook.Get("No.", DeprBookCode) then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 if SkipRecord then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 if GroupTotals = GroupTotals::"FA Posting Group" then
                     if "FA Posting Group" <> FADeprBook."FA Posting Group" then
@@ -423,9 +420,6 @@ report 10560 "FA - Projected Value"
             column(FORMAT_TODAY_0_4__Control68; Format(Today, 0, 4))
             {
             }
-            column(CurrReport_PAGENO_Control73; CurrReport.PageNo)
-            {
-            }
             column(USERID_Control72; UserId)
             {
             }
@@ -476,17 +470,17 @@ report 10560 "FA - Projected Value"
             begin
                 if Number = 1 then begin
                     if not FABufferProjection.Find('-') then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end else
                     if FABufferProjection.Next = 0 then
-                        CurrReport.Break;
+                        CurrReport.Break();
             end;
 
             trigger OnPreDataItem()
             begin
                 if not PrintAmountsPerDate then
-                    CurrReport.Break;
-                FABufferProjection.Reset;
+                    CurrReport.Break();
+                FABufferProjection.Reset();
             end;
         }
     }
@@ -630,7 +624,7 @@ report 10560 "FA - Projected Value"
         trigger OnOpenPage()
         begin
             if DeprBookCode = '' then begin
-                FASetup.Get;
+                FASetup.Get();
                 DeprBookCode := FASetup."Default Depr. Book";
             end;
 

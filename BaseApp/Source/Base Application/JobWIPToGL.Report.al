@@ -126,10 +126,10 @@ report 1010 "Job WIP To G/L"
             begin
                 if Number = 1 then begin
                     if not JobBuffer.Find('-') then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end else
                     if JobBuffer.Next = 0 then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 GLAcc.Name := '';
                 GLAcc."No." := '';
 

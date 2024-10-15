@@ -19,7 +19,7 @@ codeunit 132219 "Localized Permissions Test"
         // Specifies if build contains O365 Company
         // O365 Company has significantly less demo data and different scope
         // causing different test execution path
-        exit(true);
+        exit(false);
     end;
 }
 

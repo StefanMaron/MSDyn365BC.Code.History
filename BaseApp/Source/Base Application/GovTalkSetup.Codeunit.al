@@ -18,9 +18,9 @@ codeunit 10523 "GovTalk Setup"
         GovTalkSetup: Record "GovTalk Setup";
     begin
         if not GovTalkSetup.FindFirst then begin
-            GovTalkSetup.Init;
+            GovTalkSetup.Init();
             GovTalkSetup.Endpoint := EndpointURL;
-            GovTalkSetup.Insert;
+            GovTalkSetup.Insert();
             GovTalkSetup.SaveVendorID(GovTalkVendorIdTok);
         end;
 

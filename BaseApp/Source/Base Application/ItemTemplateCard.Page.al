@@ -1,4 +1,4 @@
-﻿page 1342 "Item Template Card"
+page 1342 "Item Template Card"
 {
     Caption = 'Item Template';
     CardPageID = "Item Template Card";
@@ -7,6 +7,9 @@
     PromotedActionCategories = 'New,Process,Reports,Master Data';
     SourceTable = "Item Template";
     SourceTableTemporary = true;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'This functionality will be replaced by other templates.';
+    ObsoleteTag = '16.0';
 
     layout
     {

@@ -58,11 +58,9 @@ table 10550 "BACS Ledger Entry"
             OptionCaption = ' ,Exported,Voided,Posted,Financially Voided';
             OptionMembers = " ",Exported,Voided,Posted,"Financially Voided";
         }
-        field(15; "Bal. Account Type"; Option)
+        field(15; "Bal. Account Type"; enum "Gen. Journal Account Type")
         {
             Caption = 'Bal. Account Type';
-            OptionCaption = 'G/L Account,Customer,Vendor,Bank Account,Fixed Asset';
-            OptionMembers = "G/L Account",Customer,Vendor,"Bank Account","Fixed Asset";
         }
         field(16; "Bal. Account No."; Code[20])
         {
@@ -111,11 +109,9 @@ table 10550 "BACS Ledger Entry"
         {
             Caption = 'External Document No.';
         }
-        field(23; "Account Type"; Option)
+        field(23; "Account Type"; enum "Gen. Journal Account Type")
         {
             Caption = 'Account Type';
-            OptionCaption = 'G/L Account,Customer,Vendor,Bank Account,Fixed Asset';
-            OptionMembers = "G/L Account",Customer,Vendor,"Bank Account","Fixed Asset";
         }
         field(24; "Account No."; Code[20])
         {

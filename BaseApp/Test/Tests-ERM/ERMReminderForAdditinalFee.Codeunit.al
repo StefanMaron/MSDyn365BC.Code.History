@@ -36,7 +36,7 @@ codeunit 134904 "ERM Reminder For Additinal Fee"
         LibraryERMCountryData.CreateGeneralPostingSetupData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Reminder For Additinal Fee");
     end;
 
@@ -175,7 +175,7 @@ codeunit 134904 "ERM Reminder For Additinal Fee"
         CreateIssuedReminderWithInterestAmount(IssuedReminderHeader);
 
         // [WHEN] Print issued "RM"
-        Commit;
+        Commit();
         LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
         IssuedReminderHeader.SetRecFilter;
         Reminder.SetTableView(IssuedReminderHeader);
@@ -471,7 +471,7 @@ codeunit 134904 "ERM Reminder For Additinal Fee"
         GeneralLedgerSetup: Record "General Ledger Setup";
         Assert: Codeunit Assert;
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         ReminderLine.SetRange("Reminder No.", ReminderNo);
         ReminderLine.SetRange(Type, ReminderLine.Type::"G/L Account");
         ReminderLine.SetRange("Line Type", ReminderLine."Line Type"::"Additional Fee");

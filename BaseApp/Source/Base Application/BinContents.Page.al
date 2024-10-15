@@ -24,7 +24,7 @@ page 7374 "Bin Contents"
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        Location.Reset;
+                        Location.Reset();
                         Location.SetRange("Bin Mandatory", true);
                         if LocationCode <> '' then
                             Location.Code := LocationCode;
@@ -58,7 +58,7 @@ page 7374 "Bin Contents"
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        Zone.Reset;
+                        Zone.Reset();
                         if ZoneCode <> '' then
                             Zone.Code := ZoneCode;
                         if LocationCode <> '' then

@@ -554,7 +554,7 @@ codeunit 136143 "Service Reservation II"
         LibraryERMCountryData.UpdateSalesReceivablesSetup;
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Service Reservation II");
     end;
 

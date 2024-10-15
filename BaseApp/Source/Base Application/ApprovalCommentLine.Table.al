@@ -82,18 +82,14 @@ table 455 "Approval Comment Line"
         "User ID" := UserId;
         "Date and Time" := CreateDateTime(Today, Time);
         if "Entry No." = 0 then
-            "Entry No." := GetNextEntryNo;
+            "Entry No." := GetLastEntryNo() + 1;
     end;
 
-    local procedure GetNextEntryNo(): Integer
+    procedure GetLastEntryNo(): Integer;
     var
-        ApprovalCommentLine: Record "Approval Comment Line";
+        FindRecordManagement: Codeunit "Find Record Management";
     begin
-        ApprovalCommentLine.SetCurrentKey("Entry No.");
-        if ApprovalCommentLine.FindLast then
-            exit(ApprovalCommentLine."Entry No." + 1);
-
-        exit(1);
+        exit(FindRecordManagement.GetLastEntryIntFieldValue(Rec, FieldNo("Entry No.")))
     end;
 }
 

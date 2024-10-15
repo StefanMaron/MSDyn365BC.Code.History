@@ -56,14 +56,14 @@ codeunit 138948 "O365 Address Tests"
         Initialize;
         LibraryLowerPermissions.SetInvoiceApp;
 
-        CountryRegion1.Init;
+        CountryRegion1.Init();
         CountryRegion1.Validate(Code,
           CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(CountryRegion1.Code)), 1, MaxStrLen(CountryRegion1.Code)));
         CountryRegion1.Validate(Name,
           CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(CountryRegion1.Name)), 1, MaxStrLen(CountryRegion1.Name)));
         CountryRegion1.Insert(true);
 
-        CountryRegion2.Init;
+        CountryRegion2.Init();
         CountryRegion2.Validate(Code,
           CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(CountryRegion2.Code)), 1, MaxStrLen(CountryRegion2.Code)));
         CountryRegion2.Validate(Name,
@@ -81,7 +81,7 @@ codeunit 138948 "O365 Address Tests"
         BCO365MySettings.Close;
 
         // [THEN] The changes are reflected in company information
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         Assert.AreEqual(CompanyInformation."Country/Region Code", CountryRegion1.Code,
           'Country/region not correctly updated in company information by code');
 
@@ -96,7 +96,7 @@ codeunit 138948 "O365 Address Tests"
 
         // [THEN] The changes are reflected in company information
         BCO365MySettings.Close;
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         Assert.AreEqual(CompanyInformation."Country/Region Code", CountryRegion2.Code,
           'Country/region not correctly updated in company information by name');
     end;
@@ -415,7 +415,7 @@ codeunit 138948 "O365 Address Tests"
         // [GIVEN] An user in invoicing
         LibraryLowerPermissions.SetInvoiceApp;
         Initialize;
-        O365SalesInitialSetup.Get;
+        O365SalesInitialSetup.Get();
         Assert.IsTrue(O365SalesInitialSetup."Is initialized", 'Not an Invoicing company');
 
         // [GIVEN] The user has set a company address
@@ -439,7 +439,7 @@ codeunit 138948 "O365 Address Tests"
         BCO365MySettings.Close;
 
         // [THEN] The post code is not affected
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         Assert.AreEqual(CompanyInformation."Post Code", PreviousPostCode, 'Post Code was changed.');
         Assert.AreEqual(CompanyInformation.City, TempStandardAddress.City, 'City was not changed.');
 
@@ -451,7 +451,7 @@ codeunit 138948 "O365 Address Tests"
         BCO365MySettings.Close;
 
         // [THEN] The city is not affected
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         Assert.AreEqual(CompanyInformation.City, PreviousCity, 'City was changed.');
         Assert.AreEqual(CompanyInformation."Post Code", TempStandardAddress."Post Code", 'Post code was not changed.');
 
@@ -646,8 +646,8 @@ codeunit 138948 "O365 Address Tests"
         SalesHeader: Record "Sales Header";
     begin
         SalesHeader.DeleteAll(true);
-        Customer.DeleteAll;
-        Contact.DeleteAll;
+        Customer.DeleteAll();
+        Contact.DeleteAll();
     end;
 
     [ModalPageHandler]
@@ -656,7 +656,7 @@ codeunit 138948 "O365 Address Tests"
     var
         CompanyInformation: Record "Company Information";
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
 
         Assert.AreEqual(O365Address.Address.Value, CompanyInformation.Address, 'Unexpected address');
         Assert.AreEqual(O365Address."Address 2".Value, CompanyInformation."Address 2", 'Unexpected address 2');

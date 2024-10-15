@@ -26,9 +26,6 @@ report 852 "Cash Flow Dimensions - Detail"
             column(USERID; UserId)
             {
             }
-            column(CurrReport_PAGENO; CurrReport.PageNo)
-            {
-            }
             column(CompanyName; COMPANYPROPERTY.DisplayName)
             {
             }
@@ -222,13 +219,13 @@ report 852 "Cash Flow Dimensions - Detail"
                                 trigger OnAfterGetRecord()
                                 begin
                                     if not PrintDetail(5) then
-                                        CurrReport.Break;
+                                        CurrReport.Break();
                                 end;
 
                                 trigger OnPreDataItem()
                                 begin
                                     if DimCode[4] = '' then
-                                        CurrReport.Break;
+                                        CurrReport.Break();
                                     FindFirstCFLedgEntry[5] := true;
                                 end;
                             }
@@ -262,16 +259,16 @@ report 852 "Cash Flow Dimensions - Detail"
                             begin
                                 if DimCode[4] <> '' then begin
                                     if not CalcLine(4) and not PrintEmptyLines then
-                                        CurrReport.Skip;
+                                        CurrReport.Skip();
                                 end else
                                     if not PrintDetail(4) then
-                                        CurrReport.Break;
+                                        CurrReport.Break();
                             end;
 
                             trigger OnPreDataItem()
                             begin
                                 if DimCode[3] = '' then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
                                 FindFirstDim[4] := true;
                                 FindFirstCFLedgEntry[4] := true;
                             end;
@@ -306,16 +303,16 @@ report 852 "Cash Flow Dimensions - Detail"
                         begin
                             if DimCode[3] <> '' then begin
                                 if not CalcLine(3) and not PrintEmptyLines then
-                                    CurrReport.Skip;
+                                    CurrReport.Skip();
                             end else
                                 if not PrintDetail(3) then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
                         end;
 
                         trigger OnPreDataItem()
                         begin
                             if DimCode[2] = '' then
-                                CurrReport.Break;
+                                CurrReport.Break();
                             FindFirstDim[3] := true;
                             FindFirstCFLedgEntry[3] := true;
                         end;
@@ -350,16 +347,16 @@ report 852 "Cash Flow Dimensions - Detail"
                     begin
                         if DimCode[2] <> '' then begin
                             if not CalcLine(2) and not PrintEmptyLines then
-                                CurrReport.Skip;
+                                CurrReport.Skip();
                         end else
                             if not PrintDetail(2) then
-                                CurrReport.Break;
+                                CurrReport.Break();
                     end;
 
                     trigger OnPreDataItem()
                     begin
                         if DimCode[1] = '' then
-                            CurrReport.Break;
+                            CurrReport.Break();
                         FindFirstDim[2] := true;
                         FindFirstCFLedgEntry[2] := true;
                     end;
@@ -393,13 +390,13 @@ report 852 "Cash Flow Dimensions - Detail"
                 trigger OnAfterGetRecord()
                 begin
                     if not CalcLine(1) and not PrintEmptyLines then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                 end;
 
                 trigger OnPreDataItem()
                 begin
                     if DimCode[1] = '' then
-                        CurrReport.Break;
+                        CurrReport.Break();
                     FindFirstDim[1] := true;
                     FindFirstCFLedgEntry[1] := true;
                 end;
@@ -418,7 +415,7 @@ report 852 "Cash Flow Dimensions - Detail"
                 else
                     ViewLastUpdatedText := Text004;
 
-                AnalysisViewEntry.Reset;
+                AnalysisViewEntry.Reset();
                 AnalysisViewEntry.SetRange("Analysis View Code", Code);
                 AnalysisViewEntry.SetFilter("Cash Flow Forecast No.", CFFilter);
                 AnalysisViewEntry.SetFilter("Posting Date", DateFilter);
@@ -449,7 +446,7 @@ report 852 "Cash Flow Dimensions - Detail"
                 AnalysisViewEntry.SetRange("Posting Date", StartDate, EndDate);
 
                 AnalysisViewEntry.FilterGroup(2);
-                TempSelectedDim.Reset;
+                TempSelectedDim.Reset();
                 TempSelectedDim.SetCurrentKey("User ID", "Object Type", "Object ID", "Analysis View Code", Level);
                 TempSelectedDim.SetFilter("Dimension Value Filter", '<>%1', '');
                 DimFilterText := '';
@@ -465,7 +462,7 @@ report 852 "Cash Flow Dimensions - Detail"
 
                 AnalysisViewEntry.FilterGroup(0);
 
-                TempSelectedDim.Reset;
+                TempSelectedDim.Reset();
                 TempSelectedDim.SetCurrentKey("User ID", "Object Type", "Object ID", "Analysis View Code", Level);
                 TempSelectedDim.SetFilter(Level, '<>%1', TempSelectedDim.Level::" ");
                 i := 1;
@@ -586,7 +583,7 @@ report 852 "Cash Flow Dimensions - Detail"
 
         trigger OnOpenPage()
         begin
-            GLSetup.Get;
+            GLSetup.Get();
             UpdateColumnDim;
         end;
     }
@@ -608,7 +605,7 @@ report 852 "Cash Flow Dimensions - Detail"
         DimSelectionBuf.CompareDimText(
           3, REPORT::"Cash Flow Dimensions - Detail", AnalysisViewCode, ColumnDim, Text002);
 
-        TempSelectedDim.Reset;
+        TempSelectedDim.Reset();
         TempSelectedDim.SetFilter("Dimension Value Filter", '<>%1', '');
         TempSelectedDim.SetFilter("Dimension Code", TempCFAccount.TableCaption);
         if TempSelectedDim.Find('-') then
@@ -616,35 +613,35 @@ report 852 "Cash Flow Dimensions - Detail"
         CFAccount.SetRange("Account Type", CFAccount."Account Type"::Entry);
         if CFAccount.Find('-') then
             repeat
-                TempCFAccount.Init;
+                TempCFAccount.Init();
                 TempCFAccount := CFAccount;
-                TempCFAccount.Insert;
+                TempCFAccount.Insert();
             until CFAccount.Next = 0;
 
-        TempCashFlowForecast.Init;
-        TempCashFlowForecast.Insert;
+        TempCashFlowForecast.Init();
+        TempCashFlowForecast.Insert();
         TempSelectedDim.SetFilter("Dimension Code", CashFlowForecast.TableCaption);
         if TempSelectedDim.Find('-') then
             CashFlowForecast.SetFilter("No.", TempSelectedDim."Dimension Value Filter");
         if CashFlowForecast.Find('-') then
             repeat
-                TempCashFlowForecast.Init;
+                TempCashFlowForecast.Init();
                 TempCashFlowForecast := CashFlowForecast;
-                TempCashFlowForecast.Insert;
+                TempCashFlowForecast.Insert();
             until CashFlowForecast.Next = 0;
 
         SelectedDim.GetSelectedDim(UserId, 3, REPORT::"Cash Flow Dimensions - Detail", AnalysisViewCode, TempSelectedDim);
-        TempSelectedDim.Reset;
+        TempSelectedDim.Reset();
         TempSelectedDim.SetCurrentKey("User ID", "Object Type", "Object ID", "Analysis View Code", Level);
         TempSelectedDim.SetFilter(Level, '<>%1', TempSelectedDim.Level::" ");
         DimVal.SetRange("Dimension Value Type", DimVal."Dimension Value Type"::Standard);
         if TempSelectedDim.Find('-') then
             repeat
-                TempDimVal.Init;
+                TempDimVal.Init();
                 TempDimVal.Code := '';
                 TempDimVal."Dimension Code" := CopyStr(TempSelectedDim."Dimension Code", 1, 20);
                 TempDimVal.Name := Text003;
-                TempDimVal.Insert;
+                TempDimVal.Insert();
                 DimVal.SetRange("Dimension Code", TempSelectedDim."Dimension Code");
                 if TempSelectedDim."Dimension Value Filter" <> '' then
                     DimVal.SetFilter(Code, TempSelectedDim."Dimension Value Filter")
@@ -652,9 +649,9 @@ report 852 "Cash Flow Dimensions - Detail"
                     DimVal.SetRange(Code);
                 if DimVal.Find('-') then
                     repeat
-                        TempDimVal.Init;
+                        TempDimVal.Init();
                         TempDimVal := DimVal;
-                        TempDimVal.Insert;
+                        TempDimVal.Insert();
                     until DimVal.Next = 0;
             until TempSelectedDim.Next = 0;
     end;
@@ -721,7 +718,7 @@ report 852 "Cash Flow Dimensions - Detail"
             SetAnaViewEntryFilter(DimCode[Level], DimValCode[Level]);
             HasEntries := AnalysisViewEntry.Find('-');
         end else
-            CurrReport.Break;
+            CurrReport.Break();
         exit(HasEntries);
     end;
 
@@ -731,8 +728,8 @@ report 852 "Cash Flow Dimensions - Detail"
     begin
         if FindFirstCFLedgEntry[Level] then begin
             FindFirstCFLedgEntry[Level] := false;
-            TempCFForecastEntry.Reset;
-            TempCFForecastEntry.DeleteAll;
+            TempCFForecastEntry.Reset();
+            TempCFForecastEntry.DeleteAll();
             if AnalysisViewEntry.Find('-') then begin
                 repeat
                     AnalysisViewEntryToGLEntries.GetCFLedgEntries(AnalysisViewEntry, TempCFForecastEntry);
@@ -772,12 +769,12 @@ report 852 "Cash Flow Dimensions - Detail"
         SelectedDim.SetRange("Analysis View Code", AnalysisViewCode);
         if SelectedDim.Find('-') then begin
             repeat
-                TempDimSelectionBuf.Init;
+                TempDimSelectionBuf.Init();
                 TempDimSelectionBuf.Code := SelectedDim."Dimension Code";
                 TempDimSelectionBuf.Selected := true;
                 TempDimSelectionBuf."Dimension Value Filter" := SelectedDim."Dimension Value Filter";
                 TempDimSelectionBuf.Level := SelectedDim.Level;
-                TempDimSelectionBuf.Insert;
+                TempDimSelectionBuf.Insert();
             until SelectedDim.Next = 0;
             TempDimSelectionBuf.SetDimSelection(
               3, REPORT::"Cash Flow Dimensions - Detail", AnalysisViewCode, ColumnDim, TempDimSelectionBuf);
@@ -791,7 +788,7 @@ report 852 "Cash Flow Dimensions - Detail"
         case IterationDimCode of
             TempCFAccount.TableCaption:
                 begin
-                    TempCFAccount.Reset;
+                    TempCFAccount.Reset();
                     TempCFAccount.SetFilter("No.", IterationFilter);
                     if FindFirst then
                         SearchResult := TempCFAccount.Find('-')
@@ -805,7 +802,7 @@ report 852 "Cash Flow Dimensions - Detail"
                 end;
             TempCashFlowForecast.TableCaption:
                 begin
-                    TempCashFlowForecast.Reset;
+                    TempCashFlowForecast.Reset();
                     TempCashFlowForecast.SetFilter("No.", IterationFilter);
                     if FindFirst then
                         SearchResult := TempCashFlowForecast.Find('-')
@@ -821,7 +818,7 @@ report 852 "Cash Flow Dimensions - Detail"
                     end;
                 end;
             else begin
-                    TempDimVal.Reset;
+                    TempDimVal.Reset();
                     TempDimVal.SetRange("Dimension Code", IterationDimCode);
                     TempDimVal.SetFilter(Code, IterationFilter);
                     if FindFirst then

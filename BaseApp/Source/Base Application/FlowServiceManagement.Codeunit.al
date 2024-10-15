@@ -19,7 +19,7 @@ codeunit 6400 "Flow Service Management"
         FlowEnvironmentsTip2ApiTxt: Label 'https://tip2.api.powerapps.com/providers/Microsoft.PowerApps/environments?api-version=2016-11-01', Locked = true;
         GenericErr: Label 'An error occured while trying to access the Flow service. Please try again or contact your system administrator if the error persists.';
         FlowResourceNameTxt: Label 'Flow Services';
-        FlowTemplatePageSizeTxt: Label '4', Locked = true;
+        FlowTemplatePageSizeTxt: Label '20', Locked = true;
         FlowTemplateDestinationNewTxt: Label 'new', Locked = true;
         FlowTemplateDestinationDetailsTxt: Label 'details', Locked = true;
         AzureAdMgt: Codeunit "Azure AD Mgt.";
@@ -118,16 +118,28 @@ codeunit 6400 "Flow Service Management"
 
     procedure GetFlowTemplatePageSize(): Text
     begin
+        // Notice: the behaviour of the pagesize parameter for templates depends on the destination parameter:
+        //  - If destination=new and pagesize=x, then the list loads x templates in the initial view, but a button is present to "load more templates"
+        //  - If destination=details and pagesize=x, then the list loads x templates in the view, but since no button is present to "load more templates",
+        //    the user is stuck in a view with only x templates
+
         exit(FlowTemplatePageSizeTxt);
     end;
 
     procedure GetFlowTemplateDestinationNew(): Text
     begin
+        // This value asks flow to embed the full flow creation experience from template into the iframe, see:
+        //   https://docs.microsoft.com/en-us/power-automate/developer/embed-flow-dev
+        // Currently, this is broken from Flow (see BUG 34364), so we load the Details experience instead
+
         exit(FlowTemplateDestinationNewTxt);
     end;
 
     procedure GetFlowTemplateDestinationDetails(): Text
     begin
+        // This value asks flow to embed only the template list in the iframe, and on template click open the experience in a new tab, see:
+        //   https://docs.microsoft.com/en-us/power-automate/developer/embed-flow-dev
+
         exit(FlowTemplateDestinationDetailsTxt);
     end;
 
@@ -208,7 +220,7 @@ codeunit 6400 "Flow Service Management"
         ResponseText: Text;
     begin
         // Gets a list of Flow user environments from the Flow API.
-        if not WebRequestHelper.GetResponseText(
+        if not WebRequestHelper.GetResponseTextUsingCharset(
              'GET', GetFlowEnvironmentsApi, AzureAdMgt.GetAccessToken(FlowARMResourceUrlTxt, FlowResourceNameTxt, false), ResponseText)
         then
             Error(GenericErr);
@@ -250,12 +262,12 @@ codeunit 6400 "Flow Service Management"
                             JToken := JObj.SelectToken('name');
                             JProperty := JObjProp.Property('displayName');
 
-                            TempFlowUserEnvironmentBuffer.Init;
+                            TempFlowUserEnvironmentBuffer.Init();
                             TempFlowUserEnvironmentBuffer."Environment ID" := JToken.ToString;
                             TempFlowUserEnvironmentBuffer."Environment Display Name" := Format(JProperty.Value);
 
                             // mark current environment as enabled/selected if it is currently the user selected environment
-                            FlowUserEnvironmentConfig.Reset;
+                            FlowUserEnvironmentConfig.Reset();
                             FlowUserEnvironmentConfig.SetRange("Environment ID", JToken.ToString);
                             FlowUserEnvironmentConfig.SetRange("User Security ID", UserSecurityId);
                             TempFlowUserEnvironmentBuffer.Enabled := FlowUserEnvironmentConfig.FindFirst;
@@ -265,7 +277,7 @@ codeunit 6400 "Flow Service Management"
                             if LowerCase(Format(JProperty.Value)) = 'true' then
                                 TempFlowUserEnvironmentBuffer.Default := true;
 
-                            TempFlowUserEnvironmentBuffer.Insert;
+                            TempFlowUserEnvironmentBuffer.Insert();
                         end;
                     end;
                 end;
@@ -281,17 +293,17 @@ codeunit 6400 "Flow Service Management"
         if FlowUserEnvironmentConfig.Get(UserSecurityId) then begin
             FlowUserEnvironmentConfig."Environment ID" := TempFlowUserEnvironmentBuffer."Environment ID";
             FlowUserEnvironmentConfig."Environment Display Name" := TempFlowUserEnvironmentBuffer."Environment Display Name";
-            FlowUserEnvironmentConfig.Modify;
+            FlowUserEnvironmentConfig.Modify();
 
             exit;
         end;
 
         // User has no previous selection so add new one
-        FlowUserEnvironmentConfig.Init;
+        FlowUserEnvironmentConfig.Init();
         FlowUserEnvironmentConfig."User Security ID" := UserSecurityId;
         FlowUserEnvironmentConfig."Environment ID" := TempFlowUserEnvironmentBuffer."Environment ID";
         FlowUserEnvironmentConfig."Environment Display Name" := TempFlowUserEnvironmentBuffer."Environment Display Name";
-        FlowUserEnvironmentConfig.Insert;
+        FlowUserEnvironmentConfig.Insert();
     end;
 
     [Scope('OnPrem')]

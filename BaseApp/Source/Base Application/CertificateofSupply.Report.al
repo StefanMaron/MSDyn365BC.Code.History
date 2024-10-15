@@ -168,7 +168,7 @@ report 780 "Certificate of Supply"
                                 CurrReport.Break
                         end else
                             if TempServiceShipmentLine.Next = 0 then
-                                CurrReport.Break;
+                                CurrReport.Break();
                     end;
 
                     trigger OnPreDataItem()
@@ -189,8 +189,8 @@ report 780 "Certificate of Supply"
                 Language: Codeunit Language;
             begin
                 Clear(TempServiceShipmentHeader);
-                TempServiceShipmentLine.Reset;
-                TempServiceShipmentLine.DeleteAll;
+                TempServiceShipmentLine.Reset();
+                TempServiceShipmentLine.DeleteAll();
                 CurrReport.Language := Language.GetLanguageIdOrDefault(GetLanguageCode(CertificateOfSupply));
                 SetSource(CertificateOfSupply);
                 if PrintLineDetails then
@@ -276,7 +276,7 @@ report 780 "Certificate of Supply"
 
     trigger OnInitReport()
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         PrintLineDetails := true;
         CreateCertificatesofSupply := false;
     end;
@@ -429,7 +429,7 @@ report 780 "Certificate of Supply"
                 TempServiceShipmentLine.Quantity := SalesShipmentLine.Quantity;
                 TempServiceShipmentLine."Unit of Measure Code" := SalesShipmentLine."Unit of Measure Code";
                 TempServiceShipmentLine."Unit of Measure" := SalesShipmentLine."Unit of Measure";
-                TempServiceShipmentLine.Insert;
+                TempServiceShipmentLine.Insert();
             until SalesShipmentLine.Next = 0;
     end;
 
@@ -441,7 +441,7 @@ report 780 "Certificate of Supply"
         if ServiceShipmentLine.FindSet then
             repeat
                 TempServiceShipmentLine := ServiceShipmentLine;
-                TempServiceShipmentLine.Insert;
+                TempServiceShipmentLine.Insert();
             until ServiceShipmentLine.Next = 0;
     end;
 
@@ -458,7 +458,7 @@ report 780 "Certificate of Supply"
                 TempServiceShipmentLine.Quantity := ReturnShipmentLine.Quantity;
                 TempServiceShipmentLine."Unit of Measure Code" := ReturnShipmentLine."Unit of Measure Code";
                 TempServiceShipmentLine."Unit of Measure" := ReturnShipmentLine."Unit of Measure";
-                TempServiceShipmentLine.Insert;
+                TempServiceShipmentLine.Insert();
             until ReturnShipmentLine.Next = 0;
     end;
 

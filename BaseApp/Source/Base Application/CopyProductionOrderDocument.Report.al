@@ -159,7 +159,7 @@ report 99003802 "Copy Production Order Document"
             ToProdOrder."Date Filter" := FromProdOrder."Date Filter";
             ToProdOrder.Comment := FromProdOrder.Comment;
             OnBeforeToProdOrderModify(ToProdOrder, FromProdOrder);
-            ToProdOrder.Modify;
+            ToProdOrder.Modify();
         end;
     end;
 
@@ -222,7 +222,7 @@ report 99003802 "Copy Production Order Document"
                 ToProdOrderLine."Scrap %" := FromProdOrderLine."Scrap %";
                 ToProdOrderLine."Date Filter" := FromProdOrderLine."Date Filter";
                 OnBeforeToProdOrderLineInsert(ToProdOrderLine, FromProdOrderLine);
-                ToProdOrderLine.Insert;
+                ToProdOrderLine.Insert();
                 LineNo := LineNo + 10000;
             until FromProdOrderLine.Next = 0;
 

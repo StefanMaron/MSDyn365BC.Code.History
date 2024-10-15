@@ -66,7 +66,7 @@ page 5990 Troubleshooting
 
                     trigger OnAction()
                     begin
-                        TblshtgSetup.Reset;
+                        TblshtgSetup.Reset();
                         TblshtgSetup.SetCurrentKey("Troubleshooting No.");
                         TblshtgSetup.SetRange("Troubleshooting No.", "No.");
                         PAGE.RunModal(PAGE::"Troubleshooting Setup", TblshtgSetup)

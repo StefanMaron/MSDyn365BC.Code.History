@@ -23,7 +23,7 @@ table 5928 "Service Status Priority Setup"
                 ConfirmManagement: Codeunit "Confirm Management";
             begin
                 if Priority <> xRec.Priority then begin
-                    ServStatusPrioritySetup.Reset;
+                    ServStatusPrioritySetup.Reset();
                     ServStatusPrioritySetup.SetRange(Priority, Priority);
                     if ServStatusPrioritySetup.FindFirst then
                         if not ConfirmManagement.GetResponseOrDefault(
@@ -33,7 +33,7 @@ table 5928 "Service Status Priority Setup"
                         then
                             Priority := xRec.Priority;
 
-                    RepairStatus.Reset;
+                    RepairStatus.Reset();
                     RepairStatus.SetRange("Service Order Status", "Service Order Status");
                     RepairStatus.ModifyAll(Priority, Priority);
                 end;

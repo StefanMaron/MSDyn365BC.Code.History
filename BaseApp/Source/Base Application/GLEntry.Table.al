@@ -25,11 +25,9 @@ table 17 "G/L Entry"
             Caption = 'Posting Date';
             ClosingDates = true;
         }
-        field(5; "Document Type"; Option)
+        field(5; "Document Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Document Type';
-            OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund';
-            OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund;
         }
         field(6; "Document No."; Code[20])
         {
@@ -147,11 +145,9 @@ table 17 "G/L Entry"
             Caption = 'Gen. Prod. Posting Group';
             TableRelation = "Gen. Product Posting Group";
         }
-        field(51; "Bal. Account Type"; Option)
+        field(51; "Bal. Account Type"; Enum "Gen. Journal Account Type")
         {
             Caption = 'Bal. Account Type';
-            OptionCaption = 'G/L Account,Customer,Vendor,Bank Account,Fixed Asset,IC Partner,Employee';
-            OptionMembers = "G/L Account",Customer,Vendor,"Bank Account","Fixed Asset","IC Partner",Employee;
         }
         field(52; "Transaction No."; Integer)
         {
@@ -178,11 +174,9 @@ table 17 "G/L Entry"
         {
             Caption = 'External Document No.';
         }
-        field(57; "Source Type"; Option)
+        field(57; "Source Type"; Enum "Gen. Journal Source Type")
         {
             Caption = 'Source Type';
-            OptionCaption = ' ,Customer,Vendor,Bank Account,Fixed Asset,Employee';
-            OptionMembers = " ",Customer,Vendor,"Bank Account","Fixed Asset",Employee;
         }
         field(58; "Source No."; Code[20])
         {
@@ -406,10 +400,29 @@ table 17 "G/L Entry"
         GLSetup: Record "General Ledger Setup";
         GLSetupRead: Boolean;
 
+    procedure GetLastEntryNo(): Integer;
+    var
+        FindRecordManagement: Codeunit "Find Record Management";
+    begin
+        exit(FindRecordManagement.GetLastEntryIntFieldValue(Rec, FieldNo("Entry No.")))
+    end;
+
+    procedure GetLastEntry(var LastEntryNo: Integer; var LastTransactionNo: Integer)
+    var
+        FindRecordManagement: Codeunit "Find Record Management";
+        FieldNoValues: List of [Integer];
+    begin
+        FieldNoValues.Add(FieldNo("Entry No."));
+        FieldNoValues.Add(FieldNo("Transaction No."));
+        FindRecordManagement.GetLastEntryIntFieldValues(Rec, FieldNoValues);
+        LastEntryNo := FieldNoValues.Get(1);
+        LastTransactionNo := FieldNoValues.Get(2);
+    end;
+
     procedure GetCurrencyCode(): Code[10]
     begin
         if not GLSetupRead then begin
-            GLSetup.Get;
+            GLSetup.Get();
             GLSetupRead := true;
         end;
         exit(GLSetup."Additional Reporting Currency");
@@ -427,9 +440,9 @@ table 17 "G/L Entry"
         if GLItemLedgRelation.FindSet then
             repeat
                 ValueEntry.Get(GLItemLedgRelation."Value Entry No.");
-                TempValueEntry.Init;
+                TempValueEntry.Init();
                 TempValueEntry := ValueEntry;
-                TempValueEntry.Insert;
+                TempValueEntry.Insert();
             until GLItemLedgRelation.Next = 0;
 
         PAGE.RunModal(0, TempValueEntry);
@@ -488,7 +501,7 @@ table 17 "G/L Entry"
             if GenJnlLine."Account Type" = GenJnlLine."Account Type"::Employee then
                 "Source Type" := "Source Type"::Employee
             else
-                "Source Type" := GenJnlLine."Account Type";
+                "Source Type" := GenJnlLine."Account Type".AsInteger();
             "Source No." := GenJnlLine."Account No.";
         end;
         if (GenJnlLine."Account Type" = GenJnlLine."Account Type"::"IC Partner") or

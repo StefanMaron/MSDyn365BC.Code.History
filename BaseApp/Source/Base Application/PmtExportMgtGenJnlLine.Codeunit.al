@@ -38,7 +38,7 @@ codeunit 1206 "Pmt Export Mgt Gen. Jnl Line"
         BankAccount.Get(GenJnlLine."Bal. Account No.");
         BankAccount.GetDataExchDefPaymentExport(DataExchDef);
         CreditTransferRegister.CreateNew(DataExchDef.Code, GenJnlLine."Bal. Account No.");
-        Commit;
+        Commit();
 
         CheckGenJnlLine(GenJnlLine);
         ExportGenJnlLine(GenJnlLine, CreditTransferRegister);
@@ -57,7 +57,7 @@ codeunit 1206 "Pmt Export Mgt Gen. Jnl Line"
             until GenJnlLine2.Next = 0;
 
         if GenJnlLine2.HasPaymentFileErrorsInBatch then begin
-            Commit;
+            Commit();
             Error(HasErrorsErr);
         end;
     end;
@@ -126,7 +126,7 @@ codeunit 1206 "Pmt Export Mgt Gen. Jnl Line"
         BankExportImportSetup: Record "Bank Export/Import Setup";
         IsEmployee: Boolean;
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         if GenJnlLine."Account Type" = GenJnlLine."Account Type"::Employee then begin
             Employee.Get(GenJnlLine."Account No.");
             IsEmployee := true;
@@ -150,14 +150,8 @@ codeunit 1206 "Pmt Export Mgt Gen. Jnl Line"
                 FillPaymentExportDataFromEmployee(TempPaymentExportData, Employee);
             end else begin
                 if VendorBankAccount.Get(GenJnlLine."Account No.", GenJnlLine."Recipient Bank Account") then begin
-                    if BankAccount."Country/Region Code" = VendorBankAccount."Country/Region Code" then begin
-                        Amount := GenJnlLine."Amount (LCY)";
-                        "Currency Code" := GeneralLedgerSetup."LCY Code";
-                    end else begin
-                        Amount := GenJnlLine.Amount;
-                        "Currency Code" := GeneralLedgerSetup.GetCurrencyCode(GenJnlLine."Currency Code");
-                    end;
-
+                    Amount := GenJnlLine.Amount;
+                    "Currency Code" := GeneralLedgerSetup.GetCurrencyCode(GenJnlLine."Currency Code");
                     "Recipient Bank Acc. No." :=
                       CopyStr(VendorBankAccount.GetBankAccountNo, 1, MaxStrLen("Recipient Bank Acc. No."));
                     "Recipient Reg. No." := VendorBankAccount."Bank Branch No.";
@@ -177,6 +171,7 @@ codeunit 1206 "Pmt Export Mgt Gen. Jnl Line"
                 "Recipient Address" := CopyStr(Vendor.Address, 1, 35);
                 "Recipient City" := CopyStr(Vendor."Post Code" + ' ' + Vendor.City, 1, 35);
             end;
+
             "Transfer Date" := GenJnlLine."Posting Date";
             "Message to Recipient 1" := CopyStr(GenJnlLine."Message to Recipient", 1, 35);
             "Message to Recipient 2" := CopyStr(GenJnlLine."Message to Recipient", 36, 70);

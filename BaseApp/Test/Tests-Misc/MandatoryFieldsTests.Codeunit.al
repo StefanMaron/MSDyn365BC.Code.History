@@ -200,7 +200,6 @@ codeunit 134590 "Mandatory Fields Tests"
         Assert.IsTrue(CompanyInformation."Post Code".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         Assert.IsTrue(CompanyInformation.City.ShowMandatory, UnexpectedShowMandatoryValueTxt);
         Assert.IsTrue(CompanyInformation."Country/Region Code".ShowMandatory, UnexpectedShowMandatoryValueTxt);
-        Assert.IsFalse(CompanyInformation.County.ShowMandatory, UnexpectedShowMandatoryValueTxt);
         Assert.IsTrue(CompanyInformation."Bank Name".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         Assert.IsTrue(CompanyInformation."Bank Branch No.".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         Assert.IsTrue(CompanyInformation."Bank Account No.".ShowMandatory, UnexpectedShowMandatoryValueTxt);
@@ -449,7 +448,7 @@ codeunit 134590 "Mandatory Fields Tests"
     begin
         PurchasesPayablesSetup.FindFirst;
         PurchasesPayablesSetup."Ext. Doc. No. Mandatory" := VendorInvoiceNoMandatory;
-        PurchasesPayablesSetup.Modify;
+        PurchasesPayablesSetup.Modify();
     end;
 
     local procedure SetExternalDocNoMandatory(ExternalDocNoMandatory: Boolean)
@@ -458,7 +457,7 @@ codeunit 134590 "Mandatory Fields Tests"
     begin
         SalesReceivablesSetup.FindFirst;
         SalesReceivablesSetup."Ext. Doc. No. Mandatory" := ExternalDocNoMandatory;
-        SalesReceivablesSetup.Modify;
+        SalesReceivablesSetup.Modify();
     end;
 
     local procedure DeleteAllTemplates()

@@ -140,11 +140,11 @@ table 175 "Standard Vendor Purchase Code"
             Factor := 0;
 
         OnApplyStdCodesToPurchaseLinesOnBeforeStdPurchLineFind(Rec, StdPurchLine, PurchLine, PurchHeader, StdPurchCode);
-        PurchLine.LockTable;
-        StdPurchLine.LockTable;
+        PurchLine.LockTable();
+        StdPurchLine.LockTable();
         if StdPurchLine.Find('-') then
             repeat
-                PurchLine.Init;
+                PurchLine.Init();
                 PurchLine."Line No." := 0;
                 PurchLine.Validate(Type, StdPurchLine.Type);
                 if StdPurchLine.Type = StdPurchLine.Type::" " then begin
@@ -216,6 +216,8 @@ table 175 "Standard Vendor Purchase Code"
 
     procedure SetFilterByAutomaticAndAlwaysAskCodes(PurchaseHeader: Record "Purchase Header")
     begin
+        SetRange("Vendor No.", PurchaseHeader."Buy-from Vendor No.");
+        SetRange("Currency Code", PurchaseHeader."Currency Code");
         case PurchaseHeader."Document Type" of
             PurchaseHeader."Document Type"::Quote:
                 SetFilter("Insert Rec. Lines On Quotes", '<>%1', "Insert Rec. Lines On Quotes"::Manual);

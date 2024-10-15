@@ -30,7 +30,7 @@ codeunit 5632 "FA Jnl.-Post Line"
         FANo: Code[20];
         BudgetNo: Code[20];
         DeprBookCode: Code[10];
-        FAPostingType: Option "Acquisition Cost",Depreciation,"Write-Down",Appreciation,"Custom 1","Custom 2",Disposal,Maintenance,"Salvage Value";
+        FAPostingType: Enum "FA Journal Line FA Posting Type";
         FAPostingDate: Date;
         Amount2: Decimal;
         SalvageValue: Decimal;
@@ -122,7 +122,7 @@ codeunit 5632 "FA Jnl.-Post Line"
 
     local procedure PostFixedAsset()
     begin
-        FA.LockTable;
+        FA.LockTable();
         DeprBook.Get(DeprBookCode);
         FA.Get(FANo);
         FA.TestField(Blocked, false);
@@ -157,7 +157,7 @@ codeunit 5632 "FA Jnl.-Post Line"
 
     local procedure PostMaintenance()
     begin
-        FA.LockTable;
+        FA.LockTable();
         DeprBook.Get(DeprBookCode);
         FA.Get(FANo);
         FADeprBook.Get(FANo, DeprBookCode);
@@ -534,7 +534,7 @@ codeunit 5632 "FA Jnl.-Post Line"
     begin
         if FAReg.FindLast then begin
             FAReg."G/L Register No." := GLRegNo;
-            FAReg.Modify;
+            FAReg.Modify();
         end;
     end;
 

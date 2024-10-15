@@ -33,7 +33,7 @@ page 10500 "Postcode Search"
     var
         TempFullAutocompleteAddress: Record "Autocomplete Address" temporary;
     begin
-        TempFullAutocompleteAddress.Init;
+        TempFullAutocompleteAddress.Init();
         Rec := TempFullAutocompleteAddress;
         Postcode := AutocompletePostcode;
         Address := AutcompleteDeliveryPoint;

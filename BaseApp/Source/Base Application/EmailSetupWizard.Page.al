@@ -272,12 +272,10 @@ page 1805 "Email Setup Wizard"
         AssistedSetup: Codeunit "Assisted Setup";
         Info: ModuleInfo;
     begin
-        if CloseAction = ACTION::OK then begin
-            NavApp.GetCurrentModuleInfo(Info);
-            if AssistedSetup.ExistsAndIsNotComplete(Info.Id(), PAGE::"Email Setup Wizard") then
+        if CloseAction = ACTION::OK then 
+            if AssistedSetup.ExistsAndIsNotComplete(PAGE::"Email Setup Wizard") then
                 if not Confirm(NAVNotSetUpQst, false) then
                     Error('');
-        end;
     end;
 
     var
@@ -325,15 +323,15 @@ page 1805 "Email Setup Wizard"
         SMTPMailSetup: Record "SMTP Mail Setup";
     begin
         if not SMTPMailSetup.Get then begin
-            SMTPMailSetup.Init;
-            SMTPMailSetup.Insert;
+            SMTPMailSetup.Init();
+            SMTPMailSetup.Insert();
         end;
 
         SMTPMailSetup.TransferFields(Rec, false);
         if Password <> DummyPasswordTxt then
             SMTPMailSetup.SetPassword(Password);
         SMTPMailSetup.Modify(true);
-        Commit;
+        Commit();
     end;
 
     local procedure SendTestEmailAction()
@@ -345,11 +343,9 @@ page 1805 "Email Setup Wizard"
     local procedure FinishAction()
     var
         AssistedSetup: Codeunit "Assisted Setup";
-        Info: ModuleInfo;
     begin
         StoreSMTPSetup;
-        NavApp.GetCurrentModuleInfo(Info);
-        AssistedSetup.Complete(Info.Id(), PAGE::"Email Setup Wizard");
+        AssistedSetup.Complete(PAGE::"Email Setup Wizard");
         CurrPage.Close;
     end;
 

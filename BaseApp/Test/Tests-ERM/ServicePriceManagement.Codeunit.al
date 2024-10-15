@@ -40,7 +40,7 @@ codeunit 136105 "Service - Price Management"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.UpdateGeneralLedgerSetup;
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Service - Price Management");
     end;
 
@@ -580,7 +580,7 @@ codeunit 136105 "Service - Price Management"
     [Normal]
     local procedure CreateServicePriceAdjustDetail(ServPriceAdjustmentDetail: Record "Serv. Price Adjustment Detail"; ServicePriceAdjustGroupCode: Code[10]; Type: Option; No: Code[20])
     begin
-        ServPriceAdjustmentDetail.Init;
+        ServPriceAdjustmentDetail.Init();
         ServPriceAdjustmentDetail.Validate("Serv. Price Adjmt. Gr. Code", ServicePriceAdjustGroupCode);
         ServPriceAdjustmentDetail.Validate(Type, Type);
         ServPriceAdjustmentDetail.Validate("No.", No);
@@ -592,7 +592,7 @@ codeunit 136105 "Service - Price Management"
     var
         ServPriceGroupSetup: Record "Serv. Price Group Setup";
     begin
-        ServPriceGroupSetup.Init;
+        ServPriceGroupSetup.Init();
         ServPriceGroupSetup.SetRange("Service Price Group Code", ServiceItemLine2."Service Price Group Code");
         ServPriceGroupSetup.SetRange("Serv. Price Adjmt. Gr. Code", ServiceItemLine2."Serv. Price Adjmt. Gr. Code");
         ServPriceGroupSetup.FindFirst;
@@ -643,7 +643,7 @@ codeunit 136105 "Service - Price Management"
         ServiceLine.FindSet;
         repeat
             TempServiceLine := ServiceLine;
-            TempServiceLine.Insert;
+            TempServiceLine.Insert();
         until ServiceLine.Next = 0;
     end;
 
@@ -715,7 +715,7 @@ codeunit 136105 "Service - Price Management"
         ServiceLine: Record "Service Line";
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         ServiceLine.Get(ServiceItemLine2."Document Type", ServiceItemLine2."Document No.", ServiceItemLine2."Line No.");
         ServiceLine.TestField(
           "Unit Price",
@@ -731,7 +731,7 @@ codeunit 136105 "Service - Price Management"
         TotalAmount: Decimal;
         NewAmount: Decimal;
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         TotalAmount := CalculateTotalAmount(TempServiceLine, false);
         FindServiceLine(ServiceLine, ServiceItemLine2);
         repeat
@@ -771,7 +771,7 @@ codeunit 136105 "Service - Price Management"
         NewAmount: Decimal;
         UnitPrice: Decimal;
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         TotalAmount := CalculateTotalAmount(TempServiceLine, true);
         FindServiceLine(ServiceLine, ServiceItemLine2);
         repeat
@@ -796,7 +796,7 @@ codeunit 136105 "Service - Price Management"
         TotalAmount: Decimal;
         NewAmount: Decimal;
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         TotalAmount := CalculateTotalAmount(TempServiceLine, false);
         FindServiceLine(ServiceLine, ServiceItemLine2);
         repeat
@@ -820,7 +820,7 @@ codeunit 136105 "Service - Price Management"
         TotalAmount: Decimal;
         NewAmount: Decimal;
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         TotalAmount := CalculateTotalAmount(TempServiceLine, false);
         FindServiceLine(ServiceLine, ServiceItemLine2);
         repeat
@@ -845,7 +845,7 @@ codeunit 136105 "Service - Price Management"
         NewAmount: Decimal;
         UnitPrice: Decimal;
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         TotalAmount := CalculateTotalAmount(TempServiceLine, true);
         FindServiceLine(ServiceLine, ServiceItemLine2);
         repeat
@@ -886,7 +886,7 @@ codeunit 136105 "Service - Price Management"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         ServiceLine.TestField("Amount Including VAT", TempServiceLine."Amount Including VAT");
         ServiceLine.TestField(Amount, TempServiceLine.Amount);
         ServiceLine.TestField("Unit Price", TempServiceLine."Unit Price");
@@ -919,7 +919,7 @@ codeunit 136105 "Service - Price Management"
         NewAmount: Decimal;
         UnitPrice: Decimal;
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         TotalAmount := CalculateTotalAmount(TempServiceLine, true);
         FindServiceLine(ServiceLine, ServiceItemLine2);
         repeat
@@ -956,7 +956,7 @@ codeunit 136105 "Service - Price Management"
         ServiceHeader.Get(ServiceItemLine."Document Type", ServiceItemLine."Document No.");
         ServicePriceManagement.GetServPriceGrSetup(ServPriceGroupSetup, ServiceHeader, ServiceItemLine);
         ServicePriceManagement.AdjustLines(ServiceLinePriceAdjmt, ServPriceGroupSetup);
-        Commit;
+        Commit();
         ServiceLinePriceAdjmtForm.UpdateAmounts;
         Response := ACTION::OK;
     end;

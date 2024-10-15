@@ -254,13 +254,13 @@ page 1872 "Item Availability Check"
 
             "Vendor No." := Vendor."No."
         end;
-        PurchaseHeader.Init;
+        PurchaseHeader.Init();
         PurchaseHeader.Validate("Document Type", DocumentType);
         PurchaseHeader.Insert(true);
         PurchaseHeader.Validate("Buy-from Vendor No.", "Vendor No.");
         PurchaseHeader.Modify(true);
 
-        PurchaseLine.Init;
+        PurchaseLine.Init();
         PurchaseLine.Validate("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.Validate("Document No.", PurchaseHeader."No.");
         PurchaseLine.Validate("Line No.", 10000);

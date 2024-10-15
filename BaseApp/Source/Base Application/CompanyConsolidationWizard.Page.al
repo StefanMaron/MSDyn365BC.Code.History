@@ -208,14 +208,14 @@ page 1826 "Company Consolidation Wizard"
                         var
                             BusinessUnit: Record "Business Unit";
                         begin
-                            BusinessUnitInformation.Reset;
+                            BusinessUnitInformation.Reset();
                             BusinessUnitInformation.SetRange(Code, BusinessUnitCode);
                             if BusinessUnitInformation.FindFirst then
                                 Error(RecordExistsErr);
 
                             if not NewCompany then begin
                                 BusinessUnit.ChangeCompany(ConsolidatedCompany);
-                                BusinessUnit.Reset;
+                                BusinessUnit.Reset();
                                 BusinessUnit.SetRange(Code, BusinessUnitCode);
                                 if BusinessUnit.FindFirst then
                                     Error(RecordExistsErr);
@@ -397,11 +397,9 @@ page 1826 "Company Consolidation Wizard"
                 trigger OnAction()
                 var
                     AssistedSetup: Codeunit "Assisted Setup";
-                    Info: ModuleInfo;
                 begin
                     CreateAction;
-                    NavApp.GetCurrentModuleInfo(Info);
-                    AssistedSetup.Complete(Info.Id(), PAGE::"Company Consolidation Wizard");
+                    AssistedSetup.Complete(PAGE::"Company Consolidation Wizard");
                     if SelectCompanyOption = SelectCompanyOption::"Create a new company" then
                         Message(AfterCreateCompanyMsg);
                     CurrPage.Close;
@@ -593,9 +591,9 @@ page 1826 "Company Consolidation Wizard"
 
                 if not Company.Get(NewCompanyName) then begin
                     FakeCompanyCreated := true;
-                    Company.Init;
+                    Company.Init();
                     Company.Name := NewCompanyName;
-                    Company.Insert;
+                    Company.Insert();
                 end;
 
                 if not GeneralLedgerSetup.ChangeCompany(NewCompanyName) then begin
@@ -608,7 +606,7 @@ page 1826 "Company Consolidation Wizard"
                 end;
 
                 if FakeCompanyCreated then
-                    Commit;
+                    Commit();
                 RemoveCompanyRecord(Company, FakeCompanyName, FakeCompanyCreated, FakeCompanySet);
                 Step := Step + 1;
             end;
@@ -629,7 +627,7 @@ page 1826 "Company Consolidation Wizard"
                 BackActionBusUnit2 := true;
 
         if Step = Step::"Business Units Setup" then begin
-            BusinessUnitSetup2.Reset;
+            BusinessUnitSetup2.Reset();
             BusinessUnitSetup2.SetFilter(Include, '=TRUE');
             if BusinessUnitSetup2.Count = 0 then
                 Error(NoBusinessUnitsSelectedErr);
@@ -702,9 +700,9 @@ page 1826 "Company Consolidation Wizard"
         if not BackActionBusUnit2 then begin
             StepIndex := StepIndex + 1;
             ClearBusinessUnitInformation;
-            BusinessUnitSetup.Reset;
+            BusinessUnitSetup.Reset();
             BusinessUnitSetup.SetFilter(Include, '=TRUE');
-            MaxNumberOfSteps := BusinessUnitSetup.Count;
+            MaxNumberOfSteps := BusinessUnitSetup.Count();
             BusinessUnitSetup.SetFilter(Completed, '=FALSE');
             CurrPage.Caption := StrSubstNo(StepCaptionTxt, StepIndex, MaxNumberOfSteps);
             if BusinessUnitSetup.FindFirst then begin
@@ -760,7 +758,7 @@ page 1826 "Company Consolidation Wizard"
 
     local procedure SaveBusinessUnitInformation()
     begin
-        BusinessUnitInformation.Reset;
+        BusinessUnitInformation.Reset();
         BusinessUnitInformation.Validate(Code, BusinessUnitCode);
         BusinessUnitInformation.Validate(Name, BusinessUnitName);
         BusinessUnitInformation.Validate("Company Name", BusinessUnitCompanyName);
@@ -777,7 +775,7 @@ page 1826 "Company Consolidation Wizard"
         BusinessUnitInformation.Validate("Residual Account", BusinessUnitResidualAccount);
         BusinessUnitInformation.Validate("Minority Exch. Rate Gains Acc.", BusinessUnitMinorityExchRateGains);
         BusinessUnitInformation.Validate("Minority Exch. Rate Losses Acc", BusinessUnitMinorityExchRateLosses);
-        BusinessUnitInformation.Insert;
+        BusinessUnitInformation.Insert();
     end;
 
     local procedure ClearBusinessUnitInformation()
@@ -804,19 +802,19 @@ page 1826 "Company Consolidation Wizard"
     begin
         BusinessUnitSetup.Get(CompanyName);
         BusinessUnitSetup.Completed := CompletedStatus;
-        BusinessUnitSetup.Modify;
+        BusinessUnitSetup.Modify();
     end;
 
     local procedure DeleteTempRecords()
     var
         ConsolidationAccount: Record "Consolidation Account";
     begin
-        BusinessUnitSetup.Reset;
-        BusinessUnitSetup.DeleteAll;
-        BusinessUnitInformation.Reset;
-        BusinessUnitInformation.DeleteAll;
-        ConsolidationAccount.Reset;
-        ConsolidationAccount.DeleteAll;
+        BusinessUnitSetup.Reset();
+        BusinessUnitSetup.DeleteAll();
+        BusinessUnitInformation.Reset();
+        BusinessUnitInformation.DeleteAll();
+        ConsolidationAccount.Reset();
+        ConsolidationAccount.DeleteAll();
     end;
 
     local procedure CreateBusinessUnits()
@@ -831,7 +829,7 @@ page 1826 "Company Consolidation Wizard"
             Reset;
             if Find('-') then begin
                 repeat
-                    BusinessUnit.Init;
+                    BusinessUnit.Init();
                     BusinessUnit.Code := Code;
                     BusinessUnit.Name := Name;
                     BusinessUnit."Company Name" := "Company Name";
@@ -849,12 +847,12 @@ page 1826 "Company Consolidation Wizard"
                     BusinessUnit."Minority Exch. Rate Gains Acc." := "Minority Exch. Rate Gains Acc.";
                     BusinessUnit."Minority Exch. Rate Losses Acc" := "Minority Exch. Rate Losses Acc";
 
-                    BusinessUnit.Insert;
+                    BusinessUnit.Insert();
                 until Next = 0;
             end;
         end;
 
-        Commit;
+        Commit();
 
         Window.Close;
     end;
@@ -890,7 +888,7 @@ page 1826 "Company Consolidation Wizard"
     begin
         if FakeCompanyCreated then begin
             Company.SetRange(Name, FakeCompanyName);
-            Company.Delete;
+            Company.Delete();
         end;
 
         if FakeCompanySet then

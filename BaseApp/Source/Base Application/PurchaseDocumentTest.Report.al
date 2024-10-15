@@ -442,10 +442,10 @@ report 402 "Purchase Document - Test"
                     begin
                         if Number = 1 then begin
                             if not DimSetEntry1.FindSet then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end else
                             if not Continue then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         DimText := '';
                         Continue := false;
                         repeat
@@ -467,7 +467,7 @@ report 402 "Purchase Document - Test"
                     trigger OnPreDataItem()
                     begin
                         if not ShowDim then
-                            CurrReport.Break;
+                            CurrReport.Break();
                     end;
                 }
                 dataitem(HeaderErrorCounter; "Integer")
@@ -516,7 +516,7 @@ report 402 "Purchase Document - Test"
                         begin
                             if Find('+') then
                                 OrigMaxLineNo := "Line No.";
-                            CurrReport.Break;
+                            CurrReport.Break();
                         end;
                     }
                     dataitem(RoundLoop; "Integer")
@@ -719,10 +719,10 @@ report 402 "Purchase Document - Test"
                             begin
                                 if Number = 1 then begin
                                     if not DimSetEntry2.FindSet then
-                                        CurrReport.Break;
+                                        CurrReport.Break();
                                 end else
                                     if not Continue then
-                                        CurrReport.Break;
+                                        CurrReport.Break();
                                 DimText := '';
                                 Continue := false;
                                 repeat
@@ -750,7 +750,7 @@ report 402 "Purchase Document - Test"
                             trigger OnPreDataItem()
                             begin
                                 if not ShowDim then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
                             end;
                         }
                         dataitem(LineErrorCounter; "Integer")
@@ -855,7 +855,7 @@ report 402 "Purchase Document - Test"
 
                                 if "Gen. Prod. Posting Group" <> '' then begin
                                     Clear(GenPostingSetup);
-                                    GenPostingSetup.Reset;
+                                    GenPostingSetup.Reset();
                                     GenPostingSetup.SetRange("Gen. Bus. Posting Group", "Gen. Bus. Posting Group");
                                     GenPostingSetup.SetRange("Gen. Prod. Posting Group", "Gen. Prod. Posting Group");
                                     if not GenPostingSetup.FindLast then
@@ -966,7 +966,7 @@ report 402 "Purchase Document - Test"
                             do
                                 MoreLines := TempPurchLine.Next(-1) <> 0;
                             if not MoreLines then
-                                CurrReport.Break;
+                                CurrReport.Break();
                             TempPurchLine.SetRange("Line No.", 0, TempPurchLine."Line No.");
                             SetRange(Number, 1, TempPurchLine.Count);
 
@@ -1222,7 +1222,7 @@ report 402 "Purchase Document - Test"
                             if (not GLSetup."Print VAT specification in LCY") or
                                ("Purchase Header"."Currency Code" = '')
                             then
-                                CurrReport.Break;
+                                CurrReport.Break();
 
                             SetRange(Number, 1, VATAmountLine.Count);
                             Clear(VALVATBaseLCY);
@@ -1336,7 +1336,7 @@ report 402 "Purchase Document - Test"
                         trigger OnPreDataItem()
                         begin
                             if not ShowItemChargeAssgnt then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
 
@@ -1346,8 +1346,8 @@ report 402 "Purchase Document - Test"
                     begin
                         Clear(TempPurchLine);
                         Clear(PurchPost);
-                        TempPurchLine.DeleteAll;
-                        VATAmountLine.DeleteAll;
+                        TempPurchLine.DeleteAll();
+                        VATAmountLine.DeleteAll();
                         PurchPost.GetPurchLines("Purchase Header", TempPurchLine, 1);
                         TempPurchLine.CalcVATAmountLines(0, "Purchase Header", TempPurchLine, VATAmountLine);
                         TempPurchLine.UpdateVATOnLines(0, "Purchase Header", TempPurchLine, VATAmountLine);
@@ -1388,7 +1388,7 @@ report 402 "Purchase Document - Test"
                 VerifyBuyFromVend("Purchase Header");
                 VerifyPayToVend("Purchase Header");
 
-                PurchSetup.Get;
+                PurchSetup.Get();
 
                 VerifyPostingDate("Purchase Header");
 
@@ -1428,7 +1428,7 @@ report 402 "Purchase Document - Test"
                         FieldCaption(Receive), FieldCaption(Invoice), FieldCaption(Ship)));
 
                 if Invoice then begin
-                    PurchLine.Reset;
+                    PurchLine.Reset();
                     PurchLine.SetRange("Document Type", "Document Type");
                     PurchLine.SetRange("Document No.", "No.");
                     PurchLine.SetFilter(Quantity, '<>0');
@@ -1450,7 +1450,7 @@ report 402 "Purchase Document - Test"
                 end;
 
                 if Receive then begin
-                    PurchLine.Reset;
+                    PurchLine.Reset();
                     PurchLine.SetRange("Document Type", "Document Type");
                     PurchLine.SetRange("Document No.", "No.");
                     PurchLine.SetFilter(Quantity, '<>0');
@@ -1460,7 +1460,7 @@ report 402 "Purchase Document - Test"
                     Receive := PurchLine.Find('-');
                 end;
                 if Ship then begin
-                    PurchLine.Reset;
+                    PurchLine.Reset();
                     PurchLine.SetRange("Document Type", "Document Type");
                     PurchLine.SetRange("Document No.", "No.");
                     PurchLine.SetFilter(Quantity, '<>0');
@@ -1474,7 +1474,7 @@ report 402 "Purchase Document - Test"
                     AddError(Text012);
 
                 if Invoice then begin
-                    PurchLine.Reset;
+                    PurchLine.Reset();
                     PurchLine.SetRange("Document Type", "Document Type");
                     PurchLine.SetRange("Document No.", "No.");
                     PurchLine.SetFilter("Sales Order Line No.", '<>0');
@@ -1534,7 +1534,7 @@ report 402 "Purchase Document - Test"
                                 Text015,
                                 FieldCaption("Posting No. Series")));
 
-                PurchLine.Reset;
+                PurchLine.Reset();
                 PurchLine.SetRange("Document Type", "Document Type");
                 PurchLine.SetRange("Document No.", "No.");
                 PurchLine.SetFilter("Sales Order Line No.", '<>0');
@@ -1702,7 +1702,7 @@ report 402 "Purchase Document - Test"
 
     trigger OnInitReport()
     begin
-        GLSetup.Get;
+        GLSetup.Get();
     end;
 
     trigger OnPreReport()
@@ -1883,6 +1883,7 @@ report 402 "Purchase Document - Test"
 
     local procedure CheckPurchLine(PurchaseLine: Record "Purchase Line")
     var
+        Resource: Record Resource;
         ErrorText: Text[250];
     begin
         with PurchaseLine do
@@ -1980,6 +1981,19 @@ report 402 "Purchase Document - Test"
                                     Text008,
                                     FA.TableCaption, "No."));
                     end;
+                Type::Resource:
+                    begin
+                        if ("No." = '') and (Quantity = 0) then
+                            exit;
+
+                        if Resource.Get("No.") then begin
+                            if Resource."Privacy Blocked" then
+                                AddError(StrSubstNo(MustBeForErr, Resource.FieldCaption("Privacy Blocked"), false, Resource.TableCaption, "No."));
+                            if Resource.Blocked then
+                                AddError(StrSubstNo(MustBeForErr, Resource.FieldCaption(Blocked), false, Resource.TableCaption, "No."));
+                        end else
+                            AddError(StrSubstNo(Text008, Resource.TableCaption, "No."));
+                    end
                 else begin
                         OnCheckPurchLineCaseTypeElse(Type, "No.", ErrorText);
                         if ErrorText <> '' then
@@ -1994,7 +2008,7 @@ report 402 "Purchase Document - Test"
     begin
         with PurchLine2 do begin
             if Abs(RemQtyToBeInvoiced) > Abs("Qty. to Receive") then begin
-                PurchRcptLine.Reset;
+                PurchRcptLine.Reset();
                 case "Document Type" of
                     "Document Type"::Order:
                         begin
@@ -2085,7 +2099,7 @@ report 402 "Purchase Document - Test"
     begin
         with PurchLine2 do begin
             if Abs(RemQtyToBeInvoiced) > Abs("Return Qty. to Ship") then begin
-                ReturnShptLine.Reset;
+                ReturnShptLine.Reset();
                 case "Document Type" of
                     "Document Type"::"Return Order":
                         begin
@@ -2234,7 +2248,7 @@ report 402 "Purchase Document - Test"
         TableID: array[10] of Integer;
         No: array[10] of Code[20];
     begin
-        SourceCodesetup.Get;
+        SourceCodesetup.Get();
 
         with PurchLine do begin
             TableID[1] := DimMgt.TypeToTableID3(Type);

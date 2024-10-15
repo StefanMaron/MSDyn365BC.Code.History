@@ -36,7 +36,7 @@ report 10512 "VAT Audit"
             trigger OnPreDataItem()
             begin
                 if not CustomerExport then
-                    CurrReport.Break;
+                    CurrReport.Break();
                 CustomerFile.TextMode := true;
                 CustomerFile.WriteMode := true;
                 ToFile := CustomerFileName;
@@ -88,7 +88,7 @@ report 10512 "VAT Audit"
             trigger OnPreDataItem()
             begin
                 if not OpenPaymentExport then
-                    CurrReport.Break;
+                    CurrReport.Break();
                 OpenPaymentFile.TextMode := true;
                 OpenPaymentFile.WriteMode := true;
                 ToFile := OpenPaymentFileName;
@@ -122,7 +122,7 @@ report 10512 "VAT Audit"
             begin
                 LateInvoice := false;
                 InvPostingDates := '';
-                CustLedgEntry.Reset;
+                CustLedgEntry.Reset();
                 CustLedgEntry.SetCurrentKey("Entry No.");
                 CustLedgEntry.SetRange("Entry No.", "Closed by Entry No.");
                 if CustLedgEntry.Find('-') then
@@ -135,7 +135,7 @@ report 10512 "VAT Audit"
                                 InvPostingDates := InvPostingDates + Format(CustLedgEntry."Posting Date");
                         end;
                     until CustLedgEntry.Next = 0;
-                CustLedgEntry.Reset;
+                CustLedgEntry.Reset();
                 CustLedgEntry.SetCurrentKey("Closed by Entry No.");
                 CustLedgEntry.SetRange("Closed by Entry No.", "Entry No.");
                 if CustLedgEntry.Find('-') then
@@ -150,7 +150,7 @@ report 10512 "VAT Audit"
                     until CustLedgEntry.Next = 0;
 
                 if not LateInvoice then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 LateInvoicingFile.Write(
                   StrSubstNo(
@@ -178,7 +178,7 @@ report 10512 "VAT Audit"
             trigger OnPreDataItem()
             begin
                 if not LateInvoicingExport then
-                    CurrReport.Break;
+                    CurrReport.Break();
                 LateInvoicingFile.TextMode := true;
                 LateInvoicingFile.WriteMode := true;
                 ToFile := LateInvoicingFileName;
@@ -231,7 +231,7 @@ report 10512 "VAT Audit"
             trigger OnPreDataItem()
             begin
                 if not VendorExport then
-                    CurrReport.Break;
+                    CurrReport.Break();
                 VendorFile.TextMode := true;
                 VendorFile.WriteMode := true;
                 ToFile := VendorFileName;
@@ -287,7 +287,7 @@ report 10512 "VAT Audit"
             trigger OnPreDataItem()
             begin
                 if not VATEntryExport then
-                    CurrReport.Break;
+                    CurrReport.Break();
                 VATEntryFile.TextMode := true;
                 VATEntryFile.WriteMode := true;
 

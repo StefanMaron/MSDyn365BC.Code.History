@@ -62,9 +62,9 @@ page 2145 "O365 VAT Posting Setup Card"
 
         // VAT Regulation Reference = Vat clause
         if not VATClause.Get(VATPostingSetup."VAT Clause Code") then begin
-            VATClause.Init;
+            VATClause.Init();
             VATClause.Code := Code;
-            VATClause.Insert;
+            VATClause.Insert();
             VATPostingSetup.Validate("VAT Clause Code", Code);
             VATPostingSetup.Modify(true);
         end;

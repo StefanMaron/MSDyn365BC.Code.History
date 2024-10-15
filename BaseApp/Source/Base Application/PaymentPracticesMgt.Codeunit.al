@@ -39,8 +39,8 @@ codeunit 10525 "Payment Practices Mgt."
         TempVendorLedgerEntry: Record "Vendor Ledger Entry" temporary;
         LastVendNo: Code[20];
     begin
-        TempPaymentApplicationBuffer.Reset;
-        TempPaymentApplicationBuffer.DeleteAll;
+        TempPaymentApplicationBuffer.Reset();
+        TempPaymentApplicationBuffer.DeleteAll();
         VendorLedgerEntry.SetCurrentKey("Vendor No.", "Posting Date", "Currency Code");
         VendorLedgerEntry.SetRange("Document Type", VendorLedgerEntry."Document Type"::Invoice);
         VendorLedgerEntry.SetRange("Posting Date", StartingDate, EndingDate);
@@ -59,20 +59,20 @@ codeunit 10525 "Payment Practices Mgt."
                     if HasAppliedPmtVendLedgEntries(TempVendorLedgerEntry, VendorLedgerEntry) then begin
                         TempVendorLedgerEntry.FindSet;
                         repeat
-                            TempPaymentApplicationBuffer.Init;
+                            TempPaymentApplicationBuffer.Init();
                             TempPaymentApplicationBuffer.CopyFromInvoiceVendLedgEntry(VendorLedgerEntry);
                             TempPaymentApplicationBuffer."Pmt. Entry No." := TempVendorLedgerEntry."Entry No.";
                             TempPaymentApplicationBuffer."Pmt. Posting Date" := TempVendorLedgerEntry."Posting Date";
-                            TempPaymentApplicationBuffer.Insert;
-                            TempVendorLedgerEntry.Delete;
+                            TempPaymentApplicationBuffer.Insert();
+                            TempVendorLedgerEntry.Delete();
                         until TempVendorLedgerEntry.Next = 0;
                     end;
                     // If invoice not fully closed it should be considered for overdue calculation
                     if VendorLedgerEntry.Open then begin
-                        TempPaymentApplicationBuffer.Init;
+                        TempPaymentApplicationBuffer.Init();
                         TempPaymentApplicationBuffer."Pmt. Entry No." := 0;
                         TempPaymentApplicationBuffer.CopyFromInvoiceVendLedgEntry(VendorLedgerEntry);
-                        TempPaymentApplicationBuffer.Insert;
+                        TempPaymentApplicationBuffer.Insert();
                     end;
                 end;
             until VendorLedgerEntry.Next = 0;
@@ -105,7 +105,7 @@ codeunit 10525 "Payment Practices Mgt."
                                    (PmtVendorLedgerEntry."Document Type" = PmtVendorLedgerEntry."Document Type"::Payment)
                                 then begin
                                     TempVendorLedgerEntry := PmtVendorLedgerEntry;
-                                    if TempVendorLedgerEntry.Insert then;
+                                    if TempVendorLedgerEntry.Insert() then;
                                     Paid := true;
                                 end;
                         until PmtDtldVendLedgEntry.Next = 0;
@@ -114,7 +114,7 @@ codeunit 10525 "Payment Practices Mgt."
                        (PmtVendorLedgerEntry."Document Type" = PmtVendorLedgerEntry."Document Type"::Payment)
                     then begin
                         TempVendorLedgerEntry := PmtVendorLedgerEntry;
-                        if TempVendorLedgerEntry.Insert then;
+                        if TempVendorLedgerEntry.Insert() then;
                         Paid := true;
                     end;
             until InvDtldVendLedgEntry.Next = 0;
@@ -127,7 +127,7 @@ codeunit 10525 "Payment Practices Mgt."
         TotalDaysBetweenInvRcptDateAndPmtDate: Integer;
         TotalCount: Integer;
     begin
-        TempPaymentApplicationBuffer.Reset;
+        TempPaymentApplicationBuffer.Reset();
         TempPaymentApplicationBuffer.SetFilter("Pmt. Entry No.", '<>%1', 0);
         TempPaymentApplicationBuffer.SetFilter("Pmt. Posting Date", '<>%1', 0D); // Consider only paid invoices
         if not TempPaymentApplicationBuffer.FindSet then
@@ -159,7 +159,7 @@ codeunit 10525 "Payment Practices Mgt."
         if (DaysFrom = 0) and (DaysTo = 0) then
             Error(DaysFromAndDaysToNotSpecifiedErr);
 
-        TempPaymentApplicationBuffer.Reset;
+        TempPaymentApplicationBuffer.Reset();
         TempPaymentApplicationBuffer.SetFilter("Pmt. Entry No.", '<>%1', 0);
         if not TempPaymentApplicationBuffer.FindSet then
             exit(0);
@@ -184,7 +184,7 @@ codeunit 10525 "Payment Practices Mgt."
         Total: Integer;
         OverduePmts: Integer;
     begin
-        TempPaymentApplicationBuffer.Reset;
+        TempPaymentApplicationBuffer.Reset();
         if not TempPaymentApplicationBuffer.FindSet then
             exit(0);
 

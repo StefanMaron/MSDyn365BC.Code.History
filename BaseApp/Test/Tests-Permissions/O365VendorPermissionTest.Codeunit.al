@@ -64,87 +64,87 @@ codeunit 139452 "O365 Vendor Permission Test"
     end;
 
     [Test]
-    [HandlerFunctions('PostedPurchaseInvoiceEditOKModalPageHandler')]
+    [HandlerFunctions('PostedPurchInvoiceUpdateOKModalPageHandler')]
     [Scope('OnPrem')]
-    procedure RunPostedPurchaseInvoiceEditFromCard()
+    procedure RunPostedPurchInvoiceUpdateFromCard()
     var
         PostedPurchaseInvoice: TestPage "Posted Purchase Invoice";
     begin
         // [FEATURE] [Purchase Invoice]
-        // [SCENARIO 308913] Open "Posted Purchase Invoice - Edit" from "Posted Purchase Invoice" card with "D365 Purch Doc, Edit".
+        // [SCENARIO 308913] Open "Posted Purch. Invoice - Update" from "Posted Purchase Invoice" card with "D365 Purch Doc, Edit".
         Initialize;
 
         // [GIVEN] A user with "D365 Purch Doc, Edit" permission set.
         LibraryLowerPermissions.SetPurchDocsCreate;
 
-        // [WHEN] Open "Posted Purchase Invoice - Edit" page from "Posted Purchase Invoice" card.
+        // [WHEN] Open "Posted Purch. Invoice - Update" page from "Posted Purchase Invoice" card.
         PostedPurchaseInvoice.OpenView;
         PostedPurchaseInvoice."Update Document".Invoke;
 
-        // [THEN] "Posted Purchase Invoice - Edit" opens.
+        // [THEN] "Posted Purch. Invoice - Update" opens.
     end;
 
     [Test]
-    [HandlerFunctions('PostedPurchaseInvoiceEditOKModalPageHandler')]
+    [HandlerFunctions('PostedPurchInvoiceUpdateOKModalPageHandler')]
     [Scope('OnPrem')]
-    procedure RunPostedPurchaseInvoiceEditFromList()
+    procedure RunPostedPurchInvoiceUpdateFromList()
     var
         PostedPurchaseInvoices: TestPage "Posted Purchase Invoices";
     begin
         // [FEATURE] [Purchase Invoice]
-        // [SCENARIO 308913] Open "Posted Purchase Invoice - Edit" from "Posted Purchase Invoices" list with "D365 Purch Doc, Edit".
+        // [SCENARIO 308913] Open "Posted Purch. Invoice - Update" from "Posted Purchase Invoices" list with "D365 Purch Doc, Edit".
         Initialize;
 
         // [GIVEN] A user with "D365 Purch Doc, Edit" permission set.
         LibraryLowerPermissions.SetPurchDocsCreate;
 
-        // [WHEN] Open "Posted Purchase Invoice - Edit" page from "Posted Purchase Invoices" list.
+        // [WHEN] Open "Posted Purch. Invoice - Update" page from "Posted Purchase Invoices" list.
         PostedPurchaseInvoices.OpenView;
         PostedPurchaseInvoices."Update Document".Invoke;
 
-        // [THEN] "Posted Purchase Invoice - Edit" opens.
+        // [THEN] "Posted Purch. Invoice - Update" opens.
     end;
 
     [Test]
-    [HandlerFunctions('PostedReturnShipmentEditOKModalPageHandler')]
+    [HandlerFunctions('PostedReturnShptUpdateOKModalPageHandler')]
     [Scope('OnPrem')]
-    procedure RunPostedReturnShipmentEditFromCard()
+    procedure RunPostedReturnShptUpdateFromCard()
     var
         PostedReturnShipment: TestPage "Posted Return Shipment";
     begin
         // [FEATURE] [Return Shipment]
-        // [SCENARIO 308913] Open "Posted Return Shipment - Edit" from "Posted Return Shipment" card with "D365 Purch Doc, Edit".
+        // [SCENARIO 308913] Open "Posted Return Shpt. - Update" from "Posted Return Shipment" card with "D365 Purch Doc, Edit".
         Initialize;
 
         // [GIVEN] A user with "D365 Purch Doc, Edit" permission set.
         LibraryLowerPermissions.SetPurchDocsCreate;
 
-        // [WHEN] Open "Posted Return Shipment - Edit" page from "Posted Return Shipment" card.
+        // [WHEN] Open "Posted Return Shpt. - Update" page from "Posted Return Shipment" card.
         PostedReturnShipment.OpenView;
         PostedReturnShipment."Update Document".Invoke;
 
-        // [THEN] "Posted Return Shipment - Edit" opens.
+        // [THEN] "Posted Return Shpt. - Update" opens.
     end;
 
     [Test]
-    [HandlerFunctions('PostedReturnShipmentEditOKModalPageHandler')]
+    [HandlerFunctions('PostedReturnShptUpdateOKModalPageHandler')]
     [Scope('OnPrem')]
-    procedure RunPostedReturnShipmentEditFromList()
+    procedure RunPostedReturnShptUpdateFromList()
     var
         PostedReturnShipments: TestPage "Posted Return Shipments";
     begin
         // [FEATURE] [Return Shipment]
-        // [SCENARIO 308913] Open "Posted Return Shipment - Edit" from "Posted Return Shipments" list with "D365 Purch Doc, Edit".
+        // [SCENARIO 308913] Open "Posted Return Shpt. - Update" from "Posted Return Shipments" list with "D365 Purch Doc, Edit".
         Initialize;
 
         // [GIVEN] A user with "D365 Purch Doc, Edit" permission set.
         LibraryLowerPermissions.SetPurchDocsCreate;
 
-        // [WHEN] Open "Posted Return Shipment - Edit" page from "Posted Return Shipments" list.
+        // [WHEN] Open "Posted Return Shpt. - Update" page from "Posted Return Shipments" list.
         PostedReturnShipments.OpenView;
         PostedReturnShipments."Update Document".Invoke;
 
-        // [THEN] "Posted Return Shipment - Edit" opens.
+        // [THEN] "Posted Return Shpt. - Update" opens.
     end;
 
     local procedure Initialize()
@@ -158,11 +158,11 @@ codeunit 139452 "O365 Vendor Permission Test"
         LibraryUtility.CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, '', '');
 
         // mandatory fields for Vendor creation
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup."Vendor Nos." := NoSeries.Code;
         PurchasesPayablesSetup.Modify(true);
 
-        MarketingSetup.Get;
+        MarketingSetup.Get();
         MarketingSetup."Contact Nos." := NoSeries.Code;
         MarketingSetup.Modify(true);
     end;
@@ -172,7 +172,6 @@ codeunit 139452 "O365 Vendor Permission Test"
     begin
         // list of tables important for Vendor view scenario, but tables are not in O365 permissionsets
         ExcludedTables.Add(DATABASE::"IC Partner");
-        ExcludedTables.Add(DATABASE::"Type of Supply");
     end;
 
     [Scope('OnPrem')]
@@ -180,21 +179,20 @@ codeunit 139452 "O365 Vendor Permission Test"
     begin
         // list of tables important for Vendor creation, but tables are not in O365 permissionsets
         ExcludedTables.Add(DATABASE::"IC Partner");
-        ExcludedTables.Add(DATABASE::"Type of Supply");
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure PostedPurchaseInvoiceEditOKModalPageHandler(var PostedPurchaseInvoiceEdit: TestPage "Posted Purch. Invoice - Update")
+    procedure PostedPurchInvoiceUpdateOKModalPageHandler(var PostedPurchInvoiceUpdate: TestPage "Posted Purch. Invoice - Update")
     begin
-        PostedPurchaseInvoiceEdit.OK.Invoke;
+        PostedPurchInvoiceUpdate.OK.Invoke;
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure PostedReturnShipmentEditOKModalPageHandler(var PostedReturnShipmentEdit: TestPage "Posted Return Shpt. - Update")
+    procedure PostedReturnShptUpdateOKModalPageHandler(var PostedReturnShptUpdate: TestPage "Posted Return Shpt. - Update")
     begin
-        PostedReturnShipmentEdit.OK.Invoke;
+        PostedReturnShptUpdate.OK.Invoke;
     end;
 }
 

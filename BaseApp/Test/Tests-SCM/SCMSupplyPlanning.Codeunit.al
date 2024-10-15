@@ -374,7 +374,7 @@ codeunit 137054 "SCM Supply Planning"
         SafetyLeadTime: DateFormula;
     begin
         // Create Item with planning parameters.
-        ManufacturingSetup.Get;
+        ManufacturingSetup.Get();
         Evaluate(SafetyLeadTime, '<0D>');
         UpdateDefaultSafetyLeadTimeOnManufacturingSetup(SafetyLeadTime);
 
@@ -2105,7 +2105,7 @@ codeunit 137054 "SCM Supply Planning"
         SupplyType: array[5] of Option "None",Released,FirmPlanned,Purchase;
     begin
         // Create Item with Planning parameters.
-        ManufacturingSetup.Get;
+        ManufacturingSetup.Get();
         if DampenerPeriod then begin
             Evaluate(DefaultDampenerPeriod, '<2W>');
             UpdateManufacturingSetup(DefaultDampenerPeriod);
@@ -2426,7 +2426,7 @@ codeunit 137054 "SCM Supply Planning"
         SupplyType: array[5] of Option "None",Released,FirmPlanned,Purchase;
     begin
         // Create Item with Planning parameters.
-        ManufacturingSetup.Get;
+        ManufacturingSetup.Get();
         CreateLFLItem(Item, Item."Replenishment System"::"Prod. Order", '<1W>', '<1W>', true, 0, 0);  // Rescheduling Period, Lot Accumulation Period, Include Inventory, Safety Stock, Dampener Qty.
         GlobalItemNo := Item."No.";  // Assign Global Variable for Page Handler.
         CreateProductionForecastSetup(ProductionForecastEntry, Item."No.", true);
@@ -2515,7 +2515,7 @@ codeunit 137054 "SCM Supply Planning"
         SupplyType: array[5] of Option "None",Released,FirmPlanned,Purchase;
     begin
         // Create Item with Planning parameters.
-        ManufacturingSetup.Get;
+        ManufacturingSetup.Get();
         CreateLFLItem(Item, Item."Replenishment System"::"Prod. Order", '<1W>', '<1W>', true, 0, 0);  // Rescheduling Period, Lot Accumulation Period, Include Inventory, Safety Stock, Dampener Qty.
         GlobalItemNo := Item."No.";  // Assign Global Variable for Page Handler.
         CreateProductionForecastSetup(ProductionForecastEntry, Item."No.", true);
@@ -4000,7 +4000,7 @@ codeunit 137054 "SCM Supply Planning"
         // Setup: Create Vendor, Item and add Base Calendar Code to Company Information.
         CreateItemWithVendorNoReorderingPolicy(Item);
 
-        ServiceMgtSetup.Get;
+        ServiceMgtSetup.Get();
         OldBaseCalendarCode := UpdateCompanyInformationBaseCalendarCode(ServiceMgtSetup."Base Calendar Code");
 
         // Exercise: Calculate Regenerative Plan.
@@ -4048,7 +4048,7 @@ codeunit 137054 "SCM Supply Planning"
         // and add Base Calendar Code to Company Information.
         VendorNo := CreateItemWithVendorNoReorderingPolicy(Item);
 
-        ServiceMgtSetup.Get;
+        ServiceMgtSetup.Get();
         OldBaseCalendarCode := UpdateCompanyInformationBaseCalendarCode(ServiceMgtSetup."Base Calendar Code");
         UpdateVendorBaseCalendarCode(VendorNo, ServiceMgtSetup."Base Calendar Code");
 
@@ -4087,7 +4087,7 @@ codeunit 137054 "SCM Supply Planning"
         if ReqWkshTemplate.Type <> ReqWkshTemplate.Type::Planning then begin
             OldReqTemplateType := ReqWkshTemplate.Type;
             ReqWkshTemplate.Type := ReqWkshTemplate.Type::Planning;
-            ReqWkshTemplate.Modify;
+            ReqWkshTemplate.Modify();
         end;
 
         // Setup: Create Base Calendar, set Sunday as working day, other days as non-working day, create Vendor, bind the calendar
@@ -4107,7 +4107,7 @@ codeunit 137054 "SCM Supply Planning"
         UpdateDefaultSafetyLeadTimeOnManufacturingSetup(ManufacturingSetup."Default Safety Lead Time");
         if ReqWkshTemplate.Type <> OldReqTemplateType then begin
             ReqWkshTemplate.Type := OldReqTemplateType;
-            ReqWkshTemplate.Modify;
+            ReqWkshTemplate.Modify();
         end;
     end;
 
@@ -4178,7 +4178,7 @@ codeunit 137054 "SCM Supply Planning"
         CreatePurchOrdWithFRQItemAndCalculatePlan(Item, OrderDate, true); // TRUE indicates filling location code on Purchase Line
 
         // Verify: 1 Requisition Line for blank Location with New Action Message is calculated.
-        ManufacturingSetup.Get;
+        ManufacturingSetup.Get();
         SelectRequisitionLineForActionMessage(
           RequisitionLine, Item."No.", RequisitionLine."Action Message"::New,
           CalcDate(ManufacturingSetup."Default Safety Lead Time", CalcDate(Item."Lead Time Calculation", OrderDate)));
@@ -4432,7 +4432,7 @@ codeunit 137054 "SCM Supply Planning"
         CreateMQItemAssembly(Item);
         CreateAssemblyOrderFromPlanningWorksheet(AssemblyHeader, Item);
 
-        NameValueBuffer.DeleteAll;
+        NameValueBuffer.DeleteAll();
         BindSubscription(SCMSupplyPlanning);
 
         // [WHEN] Increase "Starting date" in assembly order
@@ -4464,7 +4464,7 @@ codeunit 137054 "SCM Supply Planning"
         CreateMQItemAssembly(Item);
         CreateAssemblyOrderFromPlanningWorksheet(AssemblyHeader, Item);
 
-        NameValueBuffer.DeleteAll;
+        NameValueBuffer.DeleteAll();
         BindSubscription(SCMSupplyPlanning);
 
         // [WHEN] Increase "Ending date" in assembly order
@@ -4496,7 +4496,7 @@ codeunit 137054 "SCM Supply Planning"
         CreateMQItemAssembly(Item);
         CreateAssemblyOrderFromPlanningWorksheet(AssemblyHeader, Item);
 
-        NameValueBuffer.DeleteAll;
+        NameValueBuffer.DeleteAll();
         BindSubscription(SCMSupplyPlanning);
 
         // [WHEN] Increase "Due date" in assembly order
@@ -4815,7 +4815,7 @@ codeunit 137054 "SCM Supply Planning"
         ItemJournalSetup();
         OutputJournalSetup();
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Supply Planning");
     end;
 
@@ -4824,10 +4824,10 @@ codeunit 137054 "SCM Supply Planning"
         ReservationEntry: Record "Reservation Entry";
         UntrackedPlanningElement: Record "Untracked Planning Element";
     begin
-        ReservationEntry.DeleteAll;
-        UntrackedPlanningElement.DeleteAll;
-        RequisitionLine.Reset;
-        RequisitionLine.DeleteAll;
+        ReservationEntry.DeleteAll();
+        UntrackedPlanningElement.DeleteAll();
+        RequisitionLine.Reset();
+        RequisitionLine.DeleteAll();
 
         Clear(GlobalSalesHeader);
         Clear(GlobalPurchaseHeader);
@@ -4840,12 +4840,12 @@ codeunit 137054 "SCM Supply Planning"
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         PurchasesPayablesSetup.Validate("Posted Receipt Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         PurchasesPayablesSetup.Modify(true);
 
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Customer Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         SalesReceivablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         SalesReceivablesSetup.Validate("Posted Shipment Nos.", LibraryUtility.GetGlobalNoSeriesCode);
@@ -4932,7 +4932,7 @@ codeunit 137054 "SCM Supply Planning"
         // Exercise: Re-calc Plan for Planning Worksheet, then delete the Requisition Line.
         LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, SalesLine."Shipment Date");
         FindRequisitionLine(RequisitionLine, Item."No.");
-        RequisitionLine.Delete;
+        RequisitionLine.Delete();
 
         // Verify: Verify the Excepted Receipt Date in Reservation Entry.
         VerifyExpectedReceiptDateOnReservationEntry(Item."No.", WorkDate);
@@ -5367,7 +5367,7 @@ codeunit 137054 "SCM Supply Planning"
             UpdateDueDateOnReleasedProdOrder(ProductionOrder."No.", DueDate)
         else
             UpdateDueDateOnFirmPlannedProdOrder(ProductionOrder."No.", DueDate);
-        Commit;  // Need to COMMIT the changes in page before fetching Production Order again in the next step.
+        Commit();  // Need to COMMIT the changes in page before fetching Production Order again in the next step.
 
         // Retrieve the updated instance of Production Order and Refresh.
         ProductionOrder.Get(Status, ProductionOrder."No.");
@@ -5601,7 +5601,7 @@ codeunit 137054 "SCM Supply Planning"
     var
         PurchaseHeader: Record "Purchase Header";
     begin
-        ManufacturingSetup.Get;
+        ManufacturingSetup.Get();
         CreateLFLItemWithSettingPlanningTab(Item); // Create Lot For Lot Item with planning parameters.
         GlobalItemNo := Item."No."; // Assign Global Variable for CalculatePlanPlanWkshRequestPageHandler.
         CreateProductionForecastSetup(ProductionForecastEntry, Item."No.", true); // Create Demand on Production Forecast
@@ -5620,7 +5620,7 @@ codeunit 137054 "SCM Supply Planning"
         VendorNo: Code[20];
     begin
         FilterRequisitionLine(RequisitionLine, ItemNo);
-        PlanningLinesCountBeforeCarryOut := RequisitionLine.Count;
+        PlanningLinesCountBeforeCarryOut := RequisitionLine.Count();
         VendorNo := LibraryPurchase.CreateVendorNo;
         RequisitionLine.FindSet;
         repeat
@@ -5861,7 +5861,7 @@ codeunit 137054 "SCM Supply Planning"
           LibraryRandom.RandDec(10, 2), 0); // Safety Stock must be 0 to repro bug in TFS346168
         Evaluate(Item."Lead Time Calculation", '<' + Format(LibraryRandom.RandInt(5)) + 'M>');
         Item.Modify(true);
-        ManufacturingSetup.Get;
+        ManufacturingSetup.Get();
         CreatePurchaseOrderWithNewVendor(
           PurchaseHeader, Item."No.", LibraryRandom.RandDecInRange(11, 20, 2),
           CalcDate(ManufacturingSetup."Default Safety Lead Time", CalcDate(Item."Lead Time Calculation", WorkDate)));
@@ -5930,7 +5930,7 @@ codeunit 137054 "SCM Supply Planning"
     var
         ManufacturingSetup: Record "Manufacturing Setup";
     begin
-        ManufacturingSetup.Get;
+        ManufacturingSetup.Get();
         ManufacturingSetup.Validate("Default Dampener Period", DefaultDampenerPeriod);
         ManufacturingSetup.Modify(true);
     end;
@@ -5939,7 +5939,7 @@ codeunit 137054 "SCM Supply Planning"
     var
         CompanyInformation: Record "Company Information";
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         OldBaseCalendarCode := CompanyInformation."Base Calendar Code";
         CompanyInformation.Validate("Base Calendar Code", BaseCalendarCode);
         CompanyInformation.Modify(true);
@@ -5966,7 +5966,7 @@ codeunit 137054 "SCM Supply Planning"
 
     local procedure CalcRegenPlanForPlanWkshPage(var PlanningWorksheet: TestPage "Planning Worksheet"; Name: Code[10])
     begin
-        Commit;
+        Commit();
         OpenPlanningWorksheetPage(PlanningWorksheet, Name);
         PlanningWorksheet.CalculateRegenerativePlan.Invoke;  // Open report on Handler CalculatePlanPlanWkshRequestPageHandler.
         PlanningWorksheet.OK.Invoke;
@@ -5999,7 +5999,7 @@ codeunit 137054 "SCM Supply Planning"
     var
         ManufacturingSetup: Record "Manufacturing Setup";
     begin
-        ManufacturingSetup.Get;
+        ManufacturingSetup.Get();
         ManufacturingSetup.Validate("Current Production Forecast", CurrentProductionForecast);
         ManufacturingSetup.Validate("Use Forecast on Locations", UseForecastOnLocations);
         ManufacturingSetup.Modify(true);
@@ -6109,7 +6109,7 @@ codeunit 137054 "SCM Supply Planning"
     var
         ManufacturingSetup: Record "Manufacturing Setup";
     begin
-        ManufacturingSetup.Get;
+        ManufacturingSetup.Get();
         ManufacturingSetup.Validate("Default Safety Lead Time", DefaultSafetyLeadTime);
         ManufacturingSetup.Modify(true);
     end;
@@ -6130,7 +6130,7 @@ codeunit 137054 "SCM Supply Planning"
         ManufacturingSetup: Record "Manufacturing Setup";
     begin
         // Add Safety lead time to the required date and return the Date value.
-        ManufacturingSetup.Get;
+        ManufacturingSetup.Get();
         if SignFactor < 0 then
             exit(CalcDate('<' + '-' + Format(ManufacturingSetup."Default Safety Lead Time") + '>', DateValue));
         exit(CalcDate('<' + Format(ManufacturingSetup."Default Safety Lead Time") + '>', DateValue));
@@ -6670,9 +6670,9 @@ codeunit 137054 "SCM Supply Planning"
     var
         NameValueBuffer: Record "Name/Value Buffer";
     begin
-        NameValueBuffer.Init;
+        NameValueBuffer.Init();
         NameValueBuffer.Name := NewName;
-        NameValueBuffer.Insert;
+        NameValueBuffer.Insert();
     end;
 
     [ConfirmHandler]

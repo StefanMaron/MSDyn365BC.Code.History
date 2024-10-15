@@ -37,7 +37,7 @@ codeunit 1485 "Rolecenter Selector Mgt."
     procedure BuildJsonFromPageMetadata(RolecenterId: Integer): Text
     var
         AllObj: Record AllObj;
-        NAVAppObjectMetadata: Record "NAV App Object Metadata";
+        AppObjectMetadata: Record "Application Object Metadata";
         JSONManagement: Codeunit "JSON Management";
         XMLDOMManagement: Codeunit "XML DOM Management";
         ReturnXmlDocument: DotNet XmlDocument;
@@ -57,9 +57,9 @@ codeunit 1485 "Rolecenter Selector Mgt."
         JSONManagement.GetJsonArray(FeatureBucketsJArray);
 
         AllObj.Get(AllObj."Object Type"::Page, RolecenterId);
-        NAVAppObjectMetadata.Get(AllObj."App Package ID", NAVAppObjectMetadata."Object Type"::Page, RolecenterId);
-        NAVAppObjectMetadata.CalcFields(Metadata);
-        NAVAppObjectMetadata.Metadata.CreateInStream(Instream);
+        AppObjectMetadata.Get(AllObj."App Runtime Package ID", AppObjectMetadata."Object Type"::Page, RolecenterId);
+        AppObjectMetadata.CalcFields(Metadata);
+        AppObjectMetadata.Metadata.CreateInStream(Instream);
 
         XMLDOMManagement.LoadXMLDocumentFromInStream(Instream, ReturnXmlDocument);
         ReturnedXMLNodeList := ReturnXmlDocument.GetElementsByTagName(ActionContainerXmlElementLbl);
@@ -168,7 +168,7 @@ codeunit 1485 "Rolecenter Selector Mgt."
         JSONManagement.InitializeEmptyCollection;
         JSONManagement.GetJsonArray(ProfileJArray);
 
-        AllProfile.SetRange(Enabled,true);
+        AllProfile.SetRange(Enabled, true);
         if AllProfile.FindSet() then
             repeat
                 JSONManagement.InitializeEmptyObject;
@@ -298,22 +298,22 @@ codeunit 1485 "Rolecenter Selector Mgt."
     begin
         if UserPreference.Get(UserName, GetUserPreferenceCode) then begin
             UserPreference.SetUserSelection(State);
-            UserPreference.Modify;
+            UserPreference.Modify();
             exit;
         end;
 
-        UserPreference.Init;
+        UserPreference.Init();
         UserPreference."User ID" := UserName;
         UserPreference."Instruction Code" := GetUserPreferenceCode;
         UserPreference.SetUserSelection(State);
-        UserPreference.Insert;
+        UserPreference.Insert();
     end;
 
     procedure GetUserPreferenceCode(): Code[50]
     begin
         exit(UpperCase('RoleCenterOverviewShowState'));
     end;
-    
+
 
     [EventSubscriber(ObjectType::Codeunit, 9026, 'OnAfterCreateorUpdateLoginInfo', '', true, true)]
     local procedure AddRoleCenterOverviewSetupOnUserLoginInsert(UserSecurityId: Guid)

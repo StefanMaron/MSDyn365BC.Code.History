@@ -227,10 +227,10 @@ report 10570 "Sales - Quote GB"
                         begin
                             if Number = 1 then begin
                                 if not DimSetEntry1.Find('-') then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
                             end else
                                 if not Continue then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
 
                             Clear(DimText);
                             Continue := false;
@@ -255,7 +255,7 @@ report 10570 "Sales - Quote GB"
                         trigger OnPreDataItem()
                         begin
                             if not ShowInternalInfo then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
                     dataitem("Sales Line"; "Sales Line")
@@ -266,7 +266,7 @@ report 10570 "Sales - Quote GB"
 
                         trigger OnPreDataItem()
                         begin
-                            CurrReport.Break;
+                            CurrReport.Break();
                         end;
                     }
                     dataitem(RoundLoop; "Integer")
@@ -405,10 +405,10 @@ report 10570 "Sales - Quote GB"
                             begin
                                 if Number = 1 then begin
                                     if not DimSetEntry2.Find('-') then
-                                        CurrReport.Break;
+                                        CurrReport.Break();
                                 end else
                                     if not Continue then
-                                        CurrReport.Break;
+                                        CurrReport.Break();
 
                                 Clear(DimText);
                                 Continue := false;
@@ -433,7 +433,7 @@ report 10570 "Sales - Quote GB"
                             trigger OnPreDataItem()
                             begin
                                 if not ShowInternalInfo then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
 
                                 DimSetEntry2.SetRange("Dimension Set ID", "Sales Line"."Dimension Set ID");
                             end;
@@ -461,7 +461,7 @@ report 10570 "Sales - Quote GB"
 
                         trigger OnPostDataItem()
                         begin
-                            SalesLine.DeleteAll;
+                            SalesLine.DeleteAll();
                         end;
 
                         trigger OnPreDataItem()
@@ -473,7 +473,7 @@ report 10570 "Sales - Quote GB"
                             do
                                 MoreLines := SalesLine.Next(-1) <> 0;
                             if not MoreLines then
-                                CurrReport.Break;
+                                CurrReport.Break();
                             SalesLine.SetRange("Line No.", 0, SalesLine."Line No.");
                             SetRange(Number, 1, SalesLine.Count);
                             TotalInvoiceDiscAmount := 0;
@@ -557,7 +557,7 @@ report 10570 "Sales - Quote GB"
                         trigger OnPreDataItem()
                         begin
                             if VATAmountLine.Count <= 1 then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
                     dataitem(Total; "Integer")
@@ -607,14 +607,14 @@ report 10570 "Sales - Quote GB"
                             trigger OnPreDataItem()
                             begin
                                 if not ShowShippingAddr then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
                             end;
                         }
 
                         trigger OnPreDataItem()
                         begin
                             if not ShowShippingAddr then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
                 }
@@ -625,8 +625,8 @@ report 10570 "Sales - Quote GB"
                 begin
                     Clear(SalesLine);
                     Clear(SalesPost);
-                    SalesLine.DeleteAll;
-                    VATAmountLine.DeleteAll;
+                    SalesLine.DeleteAll();
+                    VATAmountLine.DeleteAll();
                     SalesPost.GetSalesLines("Sales Header", SalesLine, 0);
                     SalesLine.CalcVATAmountLines(0, "Sales Header", SalesLine, VATAmountLine);
                     SalesLine.UpdateVATOnLines(0, "Sales Header", SalesLine, VATAmountLine);
@@ -638,7 +638,6 @@ report 10570 "Sales - Quote GB"
 
                     if Number > 1 then
                         CopyText := Text003;
-                    CurrReport.PageNo := 1;
                 end;
 
                 trigger OnPostDataItem()
@@ -669,7 +668,7 @@ report 10570 "Sales - Quote GB"
                 DimSetEntry1.SetRange("Dimension Set ID", "Sales Header"."Dimension Set ID");
 
                 if "Salesperson Code" = '' then begin
-                    SalesPurchPerson.Init;
+                    SalesPurchPerson.Init();
                     SalesPersonText := '';
                 end else begin
                     SalesPurchPerson.Get("Salesperson Code");
@@ -740,7 +739,7 @@ report 10570 "Sales - Quote GB"
                 Task: Record "To-do";
             begin
                 MarkedOnly := true;
-                Commit;
+                Commit();
                 if Find('-') and Task.WritePermission then
                     if not CurrReport.Preview and (NoOfRecords = 1) then
                         if Confirm(Text007) then
@@ -835,26 +834,26 @@ report 10570 "Sales - Quote GB"
 
     trigger OnInitReport()
     begin
-        GLSetup.Get;
-        CompanyInfo.Get;
-        SalesSetup.Get;
+        GLSetup.Get();
+        CompanyInfo.Get();
+        SalesSetup.Get();
 
         case SalesSetup."Logo Position on Documents" of
             SalesSetup."Logo Position on Documents"::"No Logo":
                 ;
             SalesSetup."Logo Position on Documents"::Left:
                 begin
-                    CompanyInfo3.Get;
+                    CompanyInfo3.Get();
                     CompanyInfo3.CalcFields(Picture);
                 end;
             SalesSetup."Logo Position on Documents"::Center:
                 begin
-                    CompanyInfo1.Get;
+                    CompanyInfo1.Get();
                     CompanyInfo1.CalcFields(Picture);
                 end;
             SalesSetup."Logo Position on Documents"::Right:
                 begin
-                    CompanyInfo2.Get;
+                    CompanyInfo2.Get();
                     CompanyInfo2.CalcFields(Picture);
                 end;
         end;

@@ -129,7 +129,7 @@ page 130415 "Semi-Manual Test Wizard"
 
                 trigger OnAction()
                 begin
-                    SemiManualExecutionLog.DeleteAll;
+                    SemiManualExecutionLog.DeleteAll();
                 end;
             }
             action(Load)

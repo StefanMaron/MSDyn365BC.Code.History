@@ -342,7 +342,7 @@ codeunit 134317 "Workflow Additional Scenarios"
         SalesDocApprovalEntry.FindFirst;
 
         SalesDocApprovalEntry."Approver ID" := UserId;
-        SalesDocApprovalEntry.Modify;
+        SalesDocApprovalEntry.Modify();
 
         RequeststoApprove.OpenView;
         RequeststoApprove.GotoRecord(SalesDocApprovalEntry);
@@ -375,7 +375,7 @@ codeunit 134317 "Workflow Additional Scenarios"
         LibraryWorkflow.CopyWorkflowTemplate(Workflow1, WorkflowSetup.GeneralJournalBatchApprovalWorkflowCode);
         LibraryWorkflow.CopyWorkflowTemplate(Workflow2, WorkflowSetup.GeneralJournalBatchApprovalWorkflowCode);
         Workflow1.Validate(Enabled, true);
-        Workflow1.Modify;
+        Workflow1.Modify();
 
         WorkflowStep.SetRange("Entry Point", true);
         WorkflowStep.SetRange("Workflow Code", Workflow1.Code);

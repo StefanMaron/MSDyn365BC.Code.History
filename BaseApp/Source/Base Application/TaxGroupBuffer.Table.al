@@ -76,7 +76,7 @@ table 5480 "Tax Group Buffer"
             Error(RecordMustBeTemporaryErr);
 
         if GeneralLedgerSetup.UseVat then begin
-            if Insert then begin
+            if Insert() then begin
                 VATProductPostingGroup.TransferFields(Rec, true);
                 VATProductPostingGroup.Insert(true)
             end else begin
@@ -91,7 +91,7 @@ table 5480 "Tax Group Buffer"
 
             UpdateFromVATProductPostingGroup(VATProductPostingGroup);
         end else begin
-            if Insert then begin
+            if Insert() then begin
                 TaxGroup.TransferFields(Rec, true);
                 TaxGroup.Insert(true)
             end else begin

@@ -42,10 +42,10 @@ report 742 "VAT Report Request Page"
 
                 VATStatementReportLine.SetRange("VAT Report No.", "No.");
                 VATStatementReportLine.SetRange("VAT Report Config. Code", "VAT Report Config. Code");
-                VATStatementReportLine.DeleteAll;
+                VATStatementReportLine.DeleteAll();
 
                 repeat
-                    VATStatementReportLine.Init;
+                    VATStatementReportLine.Init();
                     VATStatementReportLine.Validate("Box No.", VATStatementLine."Box No.");
                     if not CheckBoxNo(VATStatementReportLine) then
                         Error(StrSubstNo(WrongVATSatementSetupErr, "Statement Template Name", "Statement Name"));
@@ -58,7 +58,7 @@ report 742 "VAT Report Request Page"
                     VATStatementReportLine.Validate("Row No.", VATStatementLine."Row No.");
                     VATStatementReportLine.Validate(Description, VATStatementLine.Description);
                     VATStatementReportLine.Validate(Amount, ColumnValue);
-                    VATStatementReportLine.Insert;
+                    VATStatementReportLine.Insert();
                 until VATStatementLine.Next = 0;
             end;
         }

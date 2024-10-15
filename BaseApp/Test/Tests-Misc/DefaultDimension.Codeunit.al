@@ -30,7 +30,7 @@ codeunit 134487 "Default Dimension"
         // [FEATURE] [UI] [UT]
         // [GIVEN] Master table record 'A', where are Global Dimension fields.
         TableWithDefaultDim."No." := LibraryUtility.GenerateGUID;
-        TableWithDefaultDim.Insert;
+        TableWithDefaultDim.Insert();
         // [GIVEN] Run 'Dimension - Single' action on the card page
         MockMasterWithDimsCard.OpenView;
         MockMasterWithDimsCard.Dimensions.Invoke;
@@ -58,7 +58,7 @@ codeunit 134487 "Default Dimension"
         // [FEATURE] [UI] [UT]
         // [GIVEN] Master table record 'A', where are no Global Dimension fields.
         MockMasterTable."No." := LibraryUtility.GenerateGUID;
-        MockMasterTable.Insert;
+        MockMasterTable.Insert();
         // [GIVEN] Subscribed to COD408.OnAfterSetupObjectNoList to add table to the allowed table ID list
         BindSubscription(DefaultDimensionCodeunit);
         // [GIVEN] Run 'Dimension - Single' action on the card page
@@ -136,7 +136,7 @@ codeunit 134487 "Default Dimension"
             ConfigTemplateHeader.Modify(true);
 
             // [GIVEN] Dimension value for Global Dimension 1 Code was extracted.
-            GeneralLedgerSetup.Get;
+            GeneralLedgerSetup.Get();
             DimensionValue.SetRange("Dimension Code", GeneralLedgerSetup."Global Dimension 1 Code");
             DimensionValue.FindFirst;
 
@@ -264,7 +264,7 @@ codeunit 134487 "Default Dimension"
     var
         "Field": Record "Field";
     begin
-        Field.Reset;
+        Field.Reset();
         Field.SetRange(TableNo, TableNo);
         Field.SetRange(FieldName, 'Global Dimension 1 Code');
         Field.FindFirst;

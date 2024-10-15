@@ -8,10 +8,9 @@ codeunit 132442 "Test VAT Content"
         LibraryUtility: Codeunit "Library - Utility";
         TempBlob: Codeunit "Temp Blob";
         ContentOutStream: OutStream;
-        DummyGuid: Guid;
     begin
         TempBlob.CreateOutStream(ContentOutStream);
         ContentOutStream.WriteText(LibraryUtility.GenerateGUID());
-        VATReportArchive.ArchiveSubmissionMessage("VAT Report Config. Code", "No.", TempBlob, DummyGuid);
+        VATReportArchive.ArchiveSubmissionMessage("VAT Report Config. Code", "No.", TempBlob);
     end;
 }

@@ -109,13 +109,13 @@ report 10580 "Payment Practices"
             begin
                 if Number <> 1 then
                     if TempAvgPmtApplicationBuffer.Next = 0 then
-                        CurrReport.Break;
+                        CurrReport.Break();
             end;
 
             trigger OnPreDataItem()
             begin
                 if not TempAvgPmtApplicationBuffer.FindSet then
-                    CurrReport.Break;
+                    CurrReport.Break();
             end;
         }
         dataitem(OverdueInvoices; "Integer")
@@ -144,13 +144,13 @@ report 10580 "Payment Practices"
             begin
                 if Number <> 1 then
                     if TempOverduePmtApplicationBuffer.Next = 0 then
-                        CurrReport.Break;
+                        CurrReport.Break();
             end;
 
             trigger OnPreDataItem()
             begin
                 if not TempOverduePmtApplicationBuffer.FindSet then
-                    CurrReport.Break;
+                    CurrReport.Break();
             end;
         }
         dataitem("Payment Period Setup"; "Payment Period Setup")
@@ -265,7 +265,7 @@ report 10580 "Payment Practices"
         if TempPaymentApplicationBuffer.FindSet then
             repeat
                 TempAvgPmtApplicationBuffer := TempPaymentApplicationBuffer;
-                TempAvgPmtApplicationBuffer.Insert;
+                TempAvgPmtApplicationBuffer.Insert();
                 Exists := true;
             until TempPaymentApplicationBuffer.Next = 0;
         TempPaymentApplicationBuffer.MarkedOnly(false);

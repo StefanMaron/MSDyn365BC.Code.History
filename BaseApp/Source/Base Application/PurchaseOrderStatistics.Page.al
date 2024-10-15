@@ -497,7 +497,7 @@ page 403 "Purchase Order Statistics"
 
     trigger OnOpenPage()
     begin
-        PurchSetup.Get;
+        PurchSetup.Get();
         AllowInvDisc :=
           not (PurchSetup."Calc. Inv. Discount" and VendInvDiscRecExists("Invoice Disc. Code"));
         AllowVATDifference :=
@@ -579,7 +579,7 @@ page 403 "Purchase Order Statistics"
         Clear(TotalPurchLineLCY);
 
         for i := 1 to 3 do begin
-            TempPurchLine.DeleteAll;
+            TempPurchLine.DeleteAll();
             Clear(TempPurchLine);
             Clear(PurchPost);
             PurchPost.GetPurchLines(Rec, TempPurchLine, i - 1);
@@ -605,7 +605,7 @@ page 403 "Purchase Order Statistics"
                 TotalAmount2[i] := TotalPurchLine[i]."Amount Including VAT";
             end;
         end;
-        TempPurchLine.DeleteAll;
+        TempPurchLine.DeleteAll();
         Clear(TempPurchLine);
         PurchPostPrepayments.GetPurchLines(Rec, 0, TempPurchLine);
         PurchPostPrepayments.SumPrepmt(

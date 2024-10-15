@@ -40,13 +40,5 @@ table 10534 "MTD-Payment"
     fieldgroups
     {
     }
-
-    [Scope('OnPrem')]
-    procedure DiffersFromPayment(MTDPayment: Record "MTD-Payment"): Boolean
-    begin
-        exit(
-          ("Received Date" <> MTDPayment."Received Date") or
-          (Amount <> MTDPayment.Amount));
-    end;
 }
 

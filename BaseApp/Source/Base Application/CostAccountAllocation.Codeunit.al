@@ -44,7 +44,7 @@ codeunit 1104 "Cost Account Allocation"
             repeat
                 Window.Update(2, CostAllocationSource.ID);
 
-                CostAllocationTarget.Reset;
+                CostAllocationTarget.Reset();
                 CostAllocationTarget.SetRange(ID, CostAllocationSource.ID);
                 CostAllocationTarget.SetFilter(Base, '<>%1', CostAllocationTarget.Base::Static);
                 if CostAllocationTarget.FindSet then
@@ -64,7 +64,7 @@ codeunit 1104 "Cost Account Allocation"
     var
         CostAllocationTarget: Record "Cost Allocation Target";
     begin
-        CostAllocationTarget.Reset;
+        CostAllocationTarget.Reset();
         CostAllocationTarget.SetRange(ID, CostAllocationSource.ID);
         CostAllocationTarget.SetFilter(Base, '<>%1', CostAllocationTarget.Base::Static);
         if CostAllocationTarget.FindSet then
@@ -184,7 +184,7 @@ codeunit 1104 "Cost Account Allocation"
         Employee.SetRange(Status, Employee.Status::Active);
         Employee.SetFilter("Cost Center Code", CostAllocationTarget."Cost Center Filter");
         Employee.SetFilter("Cost Object Code", CostAllocationTarget."Cost Object Filter");
-        TotalShare := Employee.Count;
+        TotalShare := Employee.Count();
     end;
 
     local procedure CalcItemSoldQtyShare(CostAllocationTarget: Record "Cost Allocation Target")
@@ -270,7 +270,7 @@ codeunit 1104 "Cost Account Allocation"
         if IsHandled then
             exit;
 
-        AccPeriod.Reset;
+        AccPeriod.Reset();
         StartDate := 0D;
         EndDate := DMY2Date(31, 12, 9999);
 
@@ -391,7 +391,7 @@ codeunit 1104 "Cost Account Allocation"
     var
         CostAccSetup: Record "Cost Accounting Setup";
     begin
-        CostAccSetup.Get;
+        CostAccSetup.Get();
         DimensionManagement.ClearDimSetFilter;
         FilterSet :=
           SetDimFilter(CostAccSetup."Cost Center Dimension", CostAllocationTarget."Cost Center Filter") or

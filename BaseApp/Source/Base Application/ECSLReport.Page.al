@@ -379,7 +379,7 @@ page 321 "ECSL Report"
         ErrorMessage.SetRange("Context Record ID", Context);
         if ErrorMessage.FindFirst then
             ErrorMessage.DeleteAll(true);
-        Commit;
+        Commit();
     end;
 }
 

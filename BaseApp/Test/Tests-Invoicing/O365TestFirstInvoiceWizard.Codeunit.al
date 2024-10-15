@@ -25,8 +25,8 @@ codeunit 138902 "O365 Test First Invoice Wizard"
         O365SalesActivities: TestPage "O365 Sales Activities";
     begin
         // [HAVING] There are no customers and no items, and only one template per table.
-        Customer.DeleteAll;
-        Item.DeleteAll;
+        Customer.DeleteAll();
+        Item.DeleteAll();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [WHEN] The user opens the O365 Sales rolecenter
@@ -52,19 +52,19 @@ codeunit 138902 "O365 Test First Invoice Wizard"
         // [GIVEN] Tax Type is Sales Tax (US,CA)
         SetTaxType(O365SalesInitialSetup."Tax Type"::"Sales Tax");
 
-        Customer.DeleteAll;
-        Item.DeleteAll;
+        Customer.DeleteAll();
+        Item.DeleteAll();
         DisableJobQueue;
         ConfigTemplateHeader.SetRange("Table ID", DATABASE::Customer);
         if ConfigTemplateHeader.FindFirst then begin
             ConfigTemplateHeader.SetFilter(Code, '>%1', ConfigTemplateHeader.Code);
-            ConfigTemplateHeader.DeleteAll;
+            ConfigTemplateHeader.DeleteAll();
         end;
-        ConfigTemplateHeader.Reset;
+        ConfigTemplateHeader.Reset();
         ConfigTemplateHeader.SetRange("Table ID", DATABASE::Item);
         if ConfigTemplateHeader.FindFirst then begin
             ConfigTemplateHeader.SetFilter(Code, '>%1', ConfigTemplateHeader.Code);
-            ConfigTemplateHeader.DeleteAll;
+            ConfigTemplateHeader.DeleteAll();
         end;
 
         LibraryLowerPermissions.SetInvoiceApp;
@@ -105,8 +105,8 @@ codeunit 138902 "O365 Test First Invoice Wizard"
     begin
         // [GIVEN] There are no customers and no items
         // [GIVEN] Tax Type is VAT
-        Customer.DeleteAll;
-        Item.DeleteAll;
+        Customer.DeleteAll();
+        Item.DeleteAll();
         DisableJobQueue;
 
         SetTaxType(O365SalesInitialSetup."Tax Type"::VAT);
@@ -114,13 +114,13 @@ codeunit 138902 "O365 Test First Invoice Wizard"
         ConfigTemplateHeader.SetRange("Table ID", DATABASE::Customer);
         if ConfigTemplateHeader.FindFirst then begin
             ConfigTemplateHeader.SetFilter(Code, '>%1', ConfigTemplateHeader.Code);
-            ConfigTemplateHeader.DeleteAll;
+            ConfigTemplateHeader.DeleteAll();
         end;
-        ConfigTemplateHeader.Reset;
+        ConfigTemplateHeader.Reset();
         ConfigTemplateHeader.SetRange("Table ID", DATABASE::Item);
         if ConfigTemplateHeader.FindFirst then begin
             ConfigTemplateHeader.SetFilter(Code, '>%1', ConfigTemplateHeader.Code);
-            ConfigTemplateHeader.DeleteAll;
+            ConfigTemplateHeader.DeleteAll();
         end;
 
         // create VAT Posting Setup
@@ -129,7 +129,7 @@ codeunit 138902 "O365 Test First Invoice Wizard"
         LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusinessPostingGroup.Code, VATProductPostingGroup.Code);
         VATPostingSetup.Validate("VAT %", LibraryRandom.RandDec(99, 2));
         VATPostingSetup.Modify(true);
-        Commit;
+        Commit();
 
         LibraryLowerPermissions.SetInvoiceApp;
 
@@ -146,7 +146,7 @@ codeunit 138902 "O365 Test First Invoice Wizard"
 
         LibraryVariableStorage.Enqueue(VATProductPostingGroup.Code);
         O365FirstInvoiceWizard."VAT Group".Lookup;
-        Commit;
+        Commit();
         O365FirstInvoiceWizard.ActionNext.Invoke;
 
         // [THEN] a customer and an item and an invoice are created
@@ -159,9 +159,9 @@ codeunit 138902 "O365 Test First Invoice Wizard"
         O365SalesInitialSetup: Record "O365 Sales Initial Setup";
     begin
         if not O365SalesInitialSetup.Get then
-            O365SalesInitialSetup.Insert;
+            O365SalesInitialSetup.Insert();
         O365SalesInitialSetup.Validate("Tax Type", TaxType);
-        O365SalesInitialSetup.Modify;
+        O365SalesInitialSetup.Modify();
     end;
 
     [ModalPageHandler]
@@ -186,7 +186,7 @@ codeunit 138902 "O365 Test First Invoice Wizard"
             O365C2GraphEventSettings.Insert(true);
 
         O365C2GraphEventSettings.SetEventsEnabled(false);
-        O365C2GraphEventSettings.Modify;
+        O365C2GraphEventSettings.Modify();
     end;
 
     [SendNotificationHandler(true)]

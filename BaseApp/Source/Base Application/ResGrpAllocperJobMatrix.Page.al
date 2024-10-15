@@ -558,7 +558,7 @@ page 9213 "ResGrp. Alloc. per Job Matrix"
     var
         I: Integer;
     begin
-        MatrixRec.Reset;
+        MatrixRec.Reset();
         MatrixRec.SetRange(Type, MatrixRec.Type::Resource);
         MatrixRec.SetRange("Job No.", "No.");
         MatrixRec.SetRange("Schedule Line", true);

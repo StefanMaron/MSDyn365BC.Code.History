@@ -21,11 +21,9 @@ table 125 "Purch. Cr. Memo Line"
         {
             Caption = 'Line No.';
         }
-        field(5; Type; Option)
+        field(5; Type; Enum "Purchase Line Type")
         {
             Caption = 'Type';
-            OptionCaption = ' ,G/L Account,Item,,Fixed Asset,Charge (Item)';
-            OptionMembers = " ","G/L Account",Item,,"Fixed Asset","Charge (Item)";
         }
         field(6; "No."; Code[20])
         {
@@ -37,7 +35,9 @@ table 125 "Purch. Cr. Memo Line"
             ELSE
             IF (Type = CONST("Fixed Asset")) "Fixed Asset"
             ELSE
-            IF (Type = CONST("Charge (Item)")) "Item Charge";
+            IF (Type = CONST("Charge (Item)")) "Item Charge"
+            else
+            if (Type = const(Resource)) Resource;
         }
         field(7; "Location Code"; Code[10])
         {
@@ -208,11 +208,9 @@ table 125 "Purch. Cr. Memo Line"
             Caption = 'Gen. Prod. Posting Group';
             TableRelation = "Gen. Product Posting Group";
         }
-        field(77; "VAT Calculation Type"; Option)
+        field(77; "VAT Calculation Type"; Enum "Tax Calculation Type")
         {
             Caption = 'VAT Calculation Type';
-            OptionCaption = 'Normal VAT,Reverse Charge VAT,Full VAT,Sales Tax';
-            OptionMembers = "Normal VAT","Reverse Charge VAT","Full VAT","Sales Tax";
         }
         field(78; "Transaction Type"; Code[10])
         {
@@ -324,11 +322,9 @@ table 125 "Purch. Cr. Memo Line"
             Caption = 'VAT Identifier';
             Editable = false;
         }
-        field(107; "IC Partner Ref. Type"; Option)
+        field(107; "IC Partner Ref. Type"; Enum "IC Partner Reference Type")
         {
             Caption = 'IC Partner Ref. Type';
-            OptionCaption = ' ,G/L Account,Item,,,Charge (Item),Cross reference,Common Item No.';
-            OptionMembers = " ","G/L Account",Item,,,"Charge (Item)","Cross reference","Common Item No.";
         }
         field(108; "IC Partner Reference"; Code[20])
         {

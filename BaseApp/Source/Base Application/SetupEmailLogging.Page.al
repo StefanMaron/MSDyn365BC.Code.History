@@ -250,7 +250,6 @@ page 1811 "Setup Email Logging"
                 var
                     MarketingSetup: Record "Marketing Setup";
                     AssistedSetup: Codeunit "Assisted Setup";
-                    Info: ModuleInfo;
                 begin
                     Window.Open(SetupEmailLogDialogMsg);
                     if not SkipDeployment then begin
@@ -270,8 +269,7 @@ page 1811 "Setup Email Logging"
                         end;
                         SetupEmailLogging.SetupEmailLoggingFolderMarketingSetup(RootQueueStorageFolder, QueueFolderName, StorageFolderName);
                     end;
-                    NavApp.GetCurrentModuleInfo(Info);
-                    AssistedSetup.Complete(Info.Id(), PAGE::"Setup Email Logging");
+                    AssistedSetup.Complete(PAGE::"Setup Email Logging");
                     OnAfterAssistedSetupEmailLoggingCompleted;
                     Window.Close;
                     CurrPage.Close;
@@ -302,15 +300,12 @@ page 1811 "Setup Email Logging"
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     var
         AssistedSetup: Codeunit "Assisted Setup";
-        Info: ModuleInfo;
     begin
         SetupEmailLogging.ClosePSConnection;
-        if CloseAction = ACTION::OK then begin
-            NavApp.GetCurrentModuleInfo(Info);
-            if AssistedSetup.ExistsAndIsNotComplete(Info.Id(), PAGE::"Setup Email Logging") then
+        if CloseAction = ACTION::OK then 
+            if AssistedSetup.ExistsAndIsNotComplete(PAGE::"Setup Email Logging") then
                 if not Confirm(NAVNotSetUpQst, false) then
                     Error('');
-        end;
     end;
 
     var
@@ -485,7 +480,7 @@ page 1811 "Setup Email Logging"
         MarketingSetup.Validate("Email Batch Size", 10);
         MarketingSetup.Validate("Exchange Account User Name", Email);
         MarketingSetup.SetExchangeAccountPassword(Password);
-        MarketingSetup.Modify;
+        MarketingSetup.Modify();
     end;
 
     local procedure UpdateWindow(StepText: Text; Progress: Integer)

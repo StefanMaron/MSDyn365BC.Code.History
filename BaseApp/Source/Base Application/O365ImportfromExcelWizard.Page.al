@@ -336,8 +336,8 @@ page 2180 "O365 Import from Excel Wizard"
 
     local procedure ClearTempExcelBuffer()
     begin
-        TempExcelBuffer.Reset;
-        TempExcelBuffer.DeleteAll;
+        TempExcelBuffer.Reset();
+        TempExcelBuffer.DeleteAll();
     end;
 
     local procedure SelectAndReadSheet()
@@ -376,13 +376,13 @@ page 2180 "O365 Import from Excel Wizard"
     var
         i: Integer;
     begin
-        TempStartRowCellNameValueBuffer.Reset;
-        TempStartRowCellNameValueBuffer.DeleteAll;
+        TempStartRowCellNameValueBuffer.Reset();
+        TempStartRowCellNameValueBuffer.DeleteAll();
 
         if StartRowNo = 0 then
             exit;
 
-        TempExcelBuffer.Reset;
+        TempExcelBuffer.Reset();
         TempExcelBuffer.SetRange("Row No.", StartRowNo);
         if TempExcelBuffer.FindSet then
             repeat
@@ -390,7 +390,7 @@ page 2180 "O365 Import from Excel Wizard"
                 TempStartRowCellNameValueBuffer.ID := i;
                 TempStartRowCellNameValueBuffer.Name :=
                   CopyStr(TempExcelBuffer."Cell Value as Text", 1, MaxStrLen(TempStartRowCellNameValueBuffer.Name));
-                TempStartRowCellNameValueBuffer.Insert;
+                TempStartRowCellNameValueBuffer.Insert();
             until TempExcelBuffer.Next = 0;
     end;
 
@@ -455,12 +455,12 @@ page 2180 "O365 Import from Excel Wizard"
     [Scope('OnPrem')]
     procedure SetParameters(var NewExcelBuffer: Record "Excel Buffer"; NewExcelSheetName: Text[250])
     begin
-        TempExcelBuffer.Reset;
-        TempExcelBuffer.DeleteAll;
+        TempExcelBuffer.Reset();
+        TempExcelBuffer.DeleteAll();
         if NewExcelBuffer.FindSet then
             repeat
                 TempExcelBuffer := NewExcelBuffer;
-                TempExcelBuffer.Insert;
+                TempExcelBuffer.Insert();
             until NewExcelBuffer.Next = 0;
 
         SheetName := NewExcelSheetName;
@@ -504,14 +504,14 @@ page 2180 "O365 Import from Excel Wizard"
 
     local procedure GetMaxExcelRowNo(): Integer
     begin
-        TempExcelBuffer.Reset;
+        TempExcelBuffer.Reset();
         if TempExcelBuffer.FindLast then;
         exit(TempExcelBuffer."Row No.");
     end;
 
     local procedure GetMaxExcelExcelColumnNo(): Integer
     begin
-        TempExcelBuffer.Reset;
+        TempExcelBuffer.Reset();
         if TempExcelBuffer.FindLast then;
         exit(TempExcelBuffer."Column No.");
     end;

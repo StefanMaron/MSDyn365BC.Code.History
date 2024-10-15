@@ -101,7 +101,7 @@ report 33 "Reconcile Cust. and Vend. Accs"
                             Found := Next <> 0;
 
                         if not Found then
-                            CurrReport.Break;
+                            CurrReport.Break();
 
                         case true of
                             ("Table ID" = DATABASE::"Customer Posting Group") and
@@ -295,39 +295,39 @@ report 33 "Reconcile Cust. and Vend. Accs"
 
                         ReconCustVendBuffer."Field No." := CustPostingGr.FieldNo("Receivables Account");
                         ReconCustVendBuffer."G/L Account No." := CustPostingGr."Receivables Account";
-                        ReconCustVendBuffer.Insert;
+                        ReconCustVendBuffer.Insert();
 
                         ReconCustVendBuffer."Field No." := CustPostingGr.FieldNo("Payment Disc. Debit Acc.");
                         ReconCustVendBuffer."G/L Account No." := CustPostingGr."Payment Disc. Debit Acc.";
-                        ReconCustVendBuffer.Insert;
+                        ReconCustVendBuffer.Insert();
 
                         ReconCustVendBuffer."Field No." := CustPostingGr.FieldNo("Payment Disc. Credit Acc.");
                         ReconCustVendBuffer."G/L Account No." := CustPostingGr."Payment Disc. Credit Acc.";
-                        ReconCustVendBuffer.Insert;
+                        ReconCustVendBuffer.Insert();
 
                         ReconCustVendBuffer."Field No." := CustPostingGr.FieldNo("Payment Tolerance Debit Acc.");
                         ReconCustVendBuffer."G/L Account No." := CustPostingGr."Payment Tolerance Debit Acc.";
-                        ReconCustVendBuffer.Insert;
+                        ReconCustVendBuffer.Insert();
 
                         ReconCustVendBuffer."Field No." := CustPostingGr.FieldNo("Payment Tolerance Credit Acc.");
                         ReconCustVendBuffer."G/L Account No." := CustPostingGr."Payment Tolerance Credit Acc.";
-                        ReconCustVendBuffer.Insert;
+                        ReconCustVendBuffer.Insert();
 
                         ReconCustVendBuffer."Field No." := CustPostingGr.FieldNo("Debit Curr. Appln. Rndg. Acc.");
                         ReconCustVendBuffer."G/L Account No." := CustPostingGr."Debit Curr. Appln. Rndg. Acc.";
-                        ReconCustVendBuffer.Insert;
+                        ReconCustVendBuffer.Insert();
 
                         ReconCustVendBuffer."Field No." := CustPostingGr.FieldNo("Credit Curr. Appln. Rndg. Acc.");
                         ReconCustVendBuffer."G/L Account No." := CustPostingGr."Credit Curr. Appln. Rndg. Acc.";
-                        ReconCustVendBuffer.Insert;
+                        ReconCustVendBuffer.Insert();
 
                         ReconCustVendBuffer."Field No." := CustPostingGr.FieldNo("Debit Rounding Account");
                         ReconCustVendBuffer."G/L Account No." := CustPostingGr."Debit Rounding Account";
-                        ReconCustVendBuffer.Insert;
+                        ReconCustVendBuffer.Insert();
 
                         ReconCustVendBuffer."Field No." := CustPostingGr.FieldNo("Credit Rounding Account");
                         ReconCustVendBuffer."G/L Account No." := CustPostingGr."Credit Rounding Account";
-                        ReconCustVendBuffer.Insert;
+                        ReconCustVendBuffer.Insert();
 
                     until CustPostingGr.Next = 0;
                 end;
@@ -340,39 +340,39 @@ report 33 "Reconcile Cust. and Vend. Accs"
 
                         ReconCustVendBuffer."Field No." := VendPostingGr.FieldNo("Payables Account");
                         ReconCustVendBuffer."G/L Account No." := VendPostingGr."Payables Account";
-                        ReconCustVendBuffer.Insert;
+                        ReconCustVendBuffer.Insert();
 
                         ReconCustVendBuffer."Field No." := VendPostingGr.FieldNo("Payment Disc. Debit Acc.");
                         ReconCustVendBuffer."G/L Account No." := VendPostingGr."Payment Disc. Debit Acc.";
-                        ReconCustVendBuffer.Insert;
+                        ReconCustVendBuffer.Insert();
 
                         ReconCustVendBuffer."Field No." := VendPostingGr.FieldNo("Payment Disc. Credit Acc.");
                         ReconCustVendBuffer."G/L Account No." := VendPostingGr."Payment Disc. Credit Acc.";
-                        ReconCustVendBuffer.Insert;
+                        ReconCustVendBuffer.Insert();
 
                         ReconCustVendBuffer."Field No." := VendPostingGr.FieldNo("Payment Tolerance Debit Acc.");
                         ReconCustVendBuffer."G/L Account No." := VendPostingGr."Payment Tolerance Debit Acc.";
-                        ReconCustVendBuffer.Insert;
+                        ReconCustVendBuffer.Insert();
 
                         ReconCustVendBuffer."Field No." := VendPostingGr.FieldNo("Payment Tolerance Credit Acc.");
                         ReconCustVendBuffer."G/L Account No." := VendPostingGr."Payment Tolerance Credit Acc.";
-                        ReconCustVendBuffer.Insert;
+                        ReconCustVendBuffer.Insert();
 
                         ReconCustVendBuffer."Field No." := VendPostingGr.FieldNo("Debit Curr. Appln. Rndg. Acc.");
                         ReconCustVendBuffer."G/L Account No." := VendPostingGr."Debit Curr. Appln. Rndg. Acc.";
-                        ReconCustVendBuffer.Insert;
+                        ReconCustVendBuffer.Insert();
 
                         ReconCustVendBuffer."Field No." := VendPostingGr.FieldNo("Credit Curr. Appln. Rndg. Acc.");
                         ReconCustVendBuffer."G/L Account No." := VendPostingGr."Credit Curr. Appln. Rndg. Acc.";
-                        ReconCustVendBuffer.Insert;
+                        ReconCustVendBuffer.Insert();
 
                         ReconCustVendBuffer."Field No." := VendPostingGr.FieldNo("Debit Rounding Account");
                         ReconCustVendBuffer."G/L Account No." := VendPostingGr."Debit Rounding Account";
-                        ReconCustVendBuffer.Insert;
+                        ReconCustVendBuffer.Insert();
 
                         ReconCustVendBuffer."Field No." := VendPostingGr.FieldNo("Credit Rounding Account");
                         ReconCustVendBuffer."G/L Account No." := VendPostingGr."Credit Rounding Account";
-                        ReconCustVendBuffer.Insert;
+                        ReconCustVendBuffer.Insert();
 
                     until VendPostingGr.Next = 0;
                 end;
@@ -385,19 +385,19 @@ report 33 "Reconcile Cust. and Vend. Accs"
 
                         ReconCustVendBuffer."Field No." := Currency.FieldNo("Unrealized Gains Acc.");
                         ReconCustVendBuffer."G/L Account No." := Currency."Unrealized Gains Acc.";
-                        ReconCustVendBuffer.Insert;
+                        ReconCustVendBuffer.Insert();
 
                         ReconCustVendBuffer."Field No." := Currency.FieldNo("Realized Gains Acc.");
                         ReconCustVendBuffer."G/L Account No." := Currency."Realized Gains Acc.";
-                        ReconCustVendBuffer.Insert;
+                        ReconCustVendBuffer.Insert();
 
                         ReconCustVendBuffer."Field No." := Currency.FieldNo("Unrealized Losses Acc.");
                         ReconCustVendBuffer."G/L Account No." := Currency."Unrealized Losses Acc.";
-                        ReconCustVendBuffer.Insert;
+                        ReconCustVendBuffer.Insert();
 
                         ReconCustVendBuffer."Field No." := Currency.FieldNo("Realized Losses Acc.");
                         ReconCustVendBuffer."G/L Account No." := Currency."Realized Losses Acc.";
-                        ReconCustVendBuffer.Insert;
+                        ReconCustVendBuffer.Insert();
 
                     until Currency.Next = 0;
                 end;
@@ -409,7 +409,7 @@ report 33 "Reconcile Cust. and Vend. Accs"
                     until ReconCustVendBuffer.Next = 0;
                     MarkedOnly(true);
                 end else
-                    CurrReport.Break;
+                    CurrReport.Break();
             end;
         }
     }

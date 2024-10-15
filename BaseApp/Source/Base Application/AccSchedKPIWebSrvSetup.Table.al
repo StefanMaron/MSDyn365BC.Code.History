@@ -104,7 +104,7 @@ table 135 "Acc. Sched. KPI Web Srv. Setup"
     var
         AccSchedKPIWebSrvLine: Record "Acc. Sched. KPI Web Srv. Line";
     begin
-        AccSchedKPIWebSrvLine.DeleteAll;
+        AccSchedKPIWebSrvLine.DeleteAll();
     end;
 
     trigger OnInsert()
@@ -188,9 +188,9 @@ table 135 "Acc. Sched. KPI Web Srv. Setup"
         case "View By" of
             "View By"::Period:
                 begin
-                    AccountingPeriod.Reset;
+                    AccountingPeriod.Reset();
                     AccountingPeriod.SetRange("Starting Date", StartDate, EndDate);
-                    NoOfLines := AccountingPeriod.Count;
+                    NoOfLines := AccountingPeriod.Count();
                 end;
             "View By"::Year:
                 NoOfLines := CalcNoOfLines(365, TotalNoOfDays);
@@ -266,7 +266,7 @@ table 135 "Acc. Sched. KPI Web Srv. Setup"
     var
         GLSetup: Record "General Ledger Setup";
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         if GLSetup."Allow Posting From" <> 0D then
             exit(GLSetup."Allow Posting From" - 1);
         exit(WorkDate);
@@ -331,7 +331,7 @@ table 135 "Acc. Sched. KPI Web Srv. Setup"
             MarkAndResetTenantWebService(TenantWebService);
 
             TenantWebService.MarkedOnly(true);
-            TenantWebService.DeleteAll;
+            TenantWebService.DeleteAll();
         end else begin
             WebService.SetRange("Object Type", WebService."Object Type"::Page);
             WebService.SetRange("Object ID", PAGE::"Acc. Sched. KPI Web Service");
@@ -349,7 +349,7 @@ table 135 "Acc. Sched. KPI Web Srv. Setup"
             MarkAndReset(WebService);
 
             WebService.MarkedOnly(true);
-            WebService.DeleteAll;
+            WebService.DeleteAll();
         end;
     end;
 

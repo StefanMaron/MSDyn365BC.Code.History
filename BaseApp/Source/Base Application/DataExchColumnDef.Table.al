@@ -107,7 +107,7 @@ table 1223 "Data Exch. Column Def"
         if not DataExchFieldMapping.IsEmpty and GuiAllowed then
             if not Confirm(StrSubstNo(DeleteFieldMappingQst, DataExchColumnDef.TableCaption, DataExchFieldMapping.TableCaption)) then
                 Error('');
-        DataExchFieldMapping.DeleteAll;
+        DataExchFieldMapping.DeleteAll();
     end;
 
     trigger OnInsert()

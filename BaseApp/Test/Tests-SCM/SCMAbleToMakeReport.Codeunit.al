@@ -41,9 +41,9 @@ codeunit 137392 "SCM - Able To Make Report"
         isInitialized := true;
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
-        MfgSetup.Get;
+        MfgSetup.Get();
         UpdateMfgSetup('<1D>');
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM - Able To Make Report");
     end;
 
@@ -93,7 +93,7 @@ codeunit 137392 "SCM - Able To Make Report"
         BOMBuffer.Get(BOMBuffer."Entry No.");
         BOMBuffer."Location Code" := Location.Code;
         BOMBuffer."Variant Code" := ItemVariant.Code;
-        BOMBuffer.Modify;
+        BOMBuffer.Modify();
     end;
 
     [Test]
@@ -542,7 +542,7 @@ codeunit 137392 "SCM - Able To Make Report"
                 ItemAbleToMakeTimeline.InitProdOrder(ProdOrderLine);
         end;
 
-        Commit;
+        Commit();
         LibraryVariableStorage.Enqueue(StartingDate);
         LibraryVariableStorage.Enqueue(DateInterval);
         LibraryVariableStorage.Enqueue(7);
@@ -669,7 +669,7 @@ codeunit 137392 "SCM - Able To Make Report"
           Qty, ItemAvailByBOMLevel."Able to Make Parent".AsDEcimal,
           'Wrong able to make parent on page for item ' + Format(ItemAvailByBOMLevel."No."));
 
-        Commit; // To allow running the action from the page.
+        Commit(); // To allow running the action from the page.
         ItemAvailByBOMLevel."Item - Able to Make (Timeline)".Invoke; // Run Show Warnings for code coverage purposes.
         ItemAvailByBOMLevel."Show Warnings".Invoke; // Run Item Avail by BOM Level report for code coverage purposes.
     end;

@@ -357,7 +357,7 @@ page 9219 "Purch. Budget Overview Matrix"
           CurrentAnalysisArea, CurrentBudgetName, ItemBudgetName, ItemStatisticsBuffer,
           BudgetDim1Filter, BudgetDim2Filter, BudgetDim3Filter);
 
-        GLSetup.Get;
+        GLSetup.Get();
         SourceTypeFilter := SourceTypeFilter::Vendor;
     end;
 

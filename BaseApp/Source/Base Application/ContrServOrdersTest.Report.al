@@ -104,16 +104,16 @@ report 5988 "Contr. Serv. Orders - Test"
                 begin
                     if "Contract Expiration Date" <> 0D then begin
                         if "Contract Expiration Date" <= "Next Planned Service Date" then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
                     end else
                         if ("Service Contract Header"."Expiration Date" <> 0D) and
                            ("Service Contract Header"."Expiration Date" <= "Next Planned Service Date")
                         then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
 
                     Cust.Get("Service Contract Header"."Bill-to Customer No.");
                     if Cust.Blocked = Cust.Blocked::All then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                     ServHeader.SetCurrentKey("Contract No.", Status, "Posting Date");
                     ServHeader.SetRange("Contract No.", "Contract No.");
@@ -128,7 +128,7 @@ report 5988 "Contr. Serv. Orders - Test"
                         OnBeforeFindServiceItemLine(
                           ServItemLine, "Service Contract Header", "Service Contract Line", ServHeader);
                         if ServItemLine.FindFirst then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
                     end;
 
                     if LastContractNo <> "Contract No." then begin
@@ -203,7 +203,7 @@ report 5988 "Contr. Serv. Orders - Test"
 
     trigger OnInitReport()
     begin
-        ServMgtSetup.Get;
+        ServMgtSetup.Get();
         if StartDate = 0D then
             if ServMgtSetup."Last Contract Service Date" <> 0D then
                 StartDate := ServMgtSetup."Last Contract Service Date" + 1;

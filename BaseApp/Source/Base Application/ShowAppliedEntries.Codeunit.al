@@ -6,7 +6,7 @@ codeunit 5801 "Show Applied Entries"
 
     trigger OnRun()
     begin
-        TempItemEntry.DeleteAll;
+        TempItemEntry.DeleteAll();
         FindAppliedEntry(Rec);
         PAGE.RunModal(PAGE::"Applied Item Entries", TempItemEntry);
     end;
@@ -20,7 +20,7 @@ codeunit 5801 "Show Applied Entries"
     begin
         with ItemLedgEntry do
             if Positive then begin
-                ItemApplnEntry.Reset;
+                ItemApplnEntry.Reset();
                 ItemApplnEntry.SetCurrentKey("Inbound Item Entry No.", "Outbound Item Entry No.", "Cost Application");
                 ItemApplnEntry.SetRange("Inbound Item Entry No.", "Entry No.");
                 ItemApplnEntry.SetFilter("Outbound Item Entry No.", '<>%1', 0);
@@ -31,7 +31,7 @@ codeunit 5801 "Show Applied Entries"
                         InsertTempEntry(ItemApplnEntry."Outbound Item Entry No.", ItemApplnEntry.Quantity);
                     until ItemApplnEntry.Next = 0;
             end else begin
-                ItemApplnEntry.Reset;
+                ItemApplnEntry.Reset();
                 ItemApplnEntry.SetCurrentKey("Outbound Item Entry No.", "Item Ledger Entry No.", "Cost Application");
                 ItemApplnEntry.SetRange("Outbound Item Entry No.", "Entry No.");
                 ItemApplnEntry.SetRange("Item Ledger Entry No.", "Entry No.");
@@ -60,13 +60,13 @@ codeunit 5801 "Show Applied Entries"
             exit;
 
         if not TempItemEntry.Get(EntryNo) then begin
-            TempItemEntry.Init;
+            TempItemEntry.Init();
             TempItemEntry := ItemLedgEntry;
             TempItemEntry.Quantity := AppliedQty;
-            TempItemEntry.Insert;
+            TempItemEntry.Insert();
         end else begin
             TempItemEntry.Quantity := TempItemEntry.Quantity + AppliedQty;
-            TempItemEntry.Modify;
+            TempItemEntry.Modify();
         end;
     end;
 

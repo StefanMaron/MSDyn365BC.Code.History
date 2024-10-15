@@ -15,9 +15,6 @@ codeunit 131922 "Library - O365"
         DomesticTxt: Label 'DOMESTIC';
         LibraryERM: Codeunit "Library - ERM";
         LibraryUtility: Codeunit "Library - Utility";
-        StandardTxt: Label 'STANDARD', Comment = 'Standard';
-        ReducedTxt: Label 'Reduced';
-        ZeroTxt: Label 'Zero';
 
     procedure PopulateO365Setup()
     var
@@ -38,9 +35,6 @@ codeunit 131922 "Library - O365"
             Validate("Default Payment Terms Code", X14DAYSTxt);
             Validate("Tax Type", "Tax Type"::VAT);
             Validate("Default VAT Bus. Posting Group", DomesticTxt);
-            Validate("Normal VAT Prod. Posting Gr.", StandardTxt);
-            Validate("Reduced VAT Prod. Posting Gr.", ReducedTxt);
-            Validate("Zero VAT Prod. Posting Gr.", ZeroTxt);
 
             if VATProductPostingGroup.FindSet then
                 Validate("Normal VAT Prod. Posting Gr.", VATProductPostingGroup.Code);
@@ -68,7 +62,7 @@ codeunit 131922 "Library - O365"
           LibraryUtility.GenerateRandomCode(ConfigTemplateHeader.FieldNo(Code), DATABASE::"Config. Template Header");
         ConfigTemplateHeader.Validate(Description, TemplateDescription);
         ConfigTemplateHeader.Validate("Table ID", DATABASE::Customer);
-        ConfigTemplateHeader.Insert;
+        ConfigTemplateHeader.Insert();
     end;
 }
 

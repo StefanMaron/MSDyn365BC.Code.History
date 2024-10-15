@@ -28,7 +28,7 @@ codeunit 904 "Whse.-Assembly Release"
                 until AssemblyLine.Next = 0;
             end;
 
-            WhseRqst.Reset;
+            WhseRqst.Reset();
             WhseRqst.SetCurrentKey("Source Type", "Source Subtype", "Source No.");
             WhseRqst.SetRange(Type, WhseRqst.Type);
             WhseRqst.SetRange("Source Type", DATABASE::"Assembly Line");
@@ -45,14 +45,14 @@ codeunit 904 "Whse.-Assembly Release"
             if "Document Type" = "Document Type"::Order then
                 WhseRqst.Type := WhseRqst.Type::Outbound;
 
-            WhseRqst.Reset;
+            WhseRqst.Reset();
             WhseRqst.SetCurrentKey("Source Type", "Source Subtype", "Source No.");
             WhseRqst.SetRange(Type, WhseRqst.Type);
             WhseRqst.SetRange("Source Type", DATABASE::"Assembly Line");
             WhseRqst.SetRange("Source Subtype", "Document Type");
             WhseRqst.SetRange("Source No.", "No.");
             WhseRqst.SetRange("Document Status", Status::Released);
-            WhseRqst.LockTable;
+            WhseRqst.LockTable();
             if not WhseRqst.IsEmpty then
                 WhseRqst.ModifyAll("Document Status", WhseRqst."Document Status"::Open);
 
@@ -81,7 +81,7 @@ codeunit 904 "Whse.-Assembly Release"
             AssemblyLine2.TestField("Unit of Measure Code");
 
         if Location."Require Shipment" then begin
-            WhsePickRqst.Init;
+            WhsePickRqst.Init();
             WhsePickRqst."Document Type" := WhsePickRqst."Document Type"::Assembly;
             WhsePickRqst."Document Subtype" := AssemblyLine."Document Type";
             WhsePickRqst."Document No." := AssemblyLine."Document No.";
@@ -90,10 +90,10 @@ codeunit 904 "Whse.-Assembly Release"
             WhsePickRqst."Completely Picked" := AssemblyHeader.CompletelyPicked;
             if WhsePickRqst."Completely Picked" and (not AssemblyLine.CompletelyPicked) then
                 WhsePickRqst."Completely Picked" := false;
-            if not WhsePickRqst.Insert then
-                WhsePickRqst.Modify;
+            if not WhsePickRqst.Insert() then
+                WhsePickRqst.Modify();
         end else begin
-            WhseRqst.Init;
+            WhseRqst.Init();
             case AssemblyHeader."Document Type" of
                 AssemblyHeader."Document Type"::Order:
                     WhseRqst.Type := WhseRqst.Type::Outbound;
@@ -108,8 +108,8 @@ codeunit 904 "Whse.-Assembly Release"
             WhseRqst."Destination No." := AssemblyHeader."Item No.";
             WhseRqst."Completely Handled" := AssemblyCompletelyHandled(AssemblyHeader, AssemblyLine."Location Code");
             OnBeforeWhseRequestInsert(WhseRqst, AssemblyLine, AssemblyHeader);
-            if not WhseRqst.Insert then
-                WhseRqst.Modify;
+            if not WhseRqst.Insert() then
+                WhseRqst.Modify();
         end;
     end;
 

@@ -268,10 +268,10 @@ report 10574 "Blanket Sales Order GB"
                         begin
                             if Number = 1 then begin
                                 if not DimSetEntry1.Find('-') then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
                             end else
                                 if not Continue then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
 
                             Clear(DimText);
                             Continue := false;
@@ -296,7 +296,7 @@ report 10574 "Blanket Sales Order GB"
                         trigger OnPreDataItem()
                         begin
                             if not ShowInternalInfo then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
                     dataitem("Sales Line"; "Sales Line")
@@ -307,7 +307,7 @@ report 10574 "Blanket Sales Order GB"
 
                         trigger OnPreDataItem()
                         begin
-                            CurrReport.Break;
+                            CurrReport.Break();
                         end;
                     }
                     dataitem(RoundLoop; "Integer")
@@ -401,10 +401,10 @@ report 10574 "Blanket Sales Order GB"
                             begin
                                 if Number = 1 then begin
                                     if not DimSetEntry2.Find('-') then
-                                        CurrReport.Break;
+                                        CurrReport.Break();
                                 end else
                                     if not Continue then
-                                        CurrReport.Break;
+                                        CurrReport.Break();
 
                                 Clear(DimText);
                                 Continue := false;
@@ -429,7 +429,7 @@ report 10574 "Blanket Sales Order GB"
                             trigger OnPreDataItem()
                             begin
                                 if not ShowInternalInfo then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
 
                                 DimSetEntry2.SetRange("Dimension Set ID", "Sales Line"."Dimension Set ID");
                             end;
@@ -457,7 +457,7 @@ report 10574 "Blanket Sales Order GB"
 
                         trigger OnPostDataItem()
                         begin
-                            SalesLine.DeleteAll;
+                            SalesLine.DeleteAll();
                         end;
 
                         trigger OnPreDataItem()
@@ -469,7 +469,7 @@ report 10574 "Blanket Sales Order GB"
                             do
                                 MoreLines := SalesLine.Next(-1) <> 0;
                             if not MoreLines then
-                                CurrReport.Break;
+                                CurrReport.Break();
                             SalesLine.SetRange("Line No.", 0, SalesLine."Line No.");
                             SetRange(Number, 1, SalesLine.Count);
                             TotalInvoiceDiscAmount := 0;
@@ -550,7 +550,7 @@ report 10574 "Blanket Sales Order GB"
                         trigger OnPreDataItem()
                         begin
                             if VATAmountLine.Count <= 1 then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
                     dataitem(Total; "Integer")
@@ -601,7 +601,7 @@ report 10574 "Blanket Sales Order GB"
                         trigger OnPreDataItem()
                         begin
                             if not ShowShippingAddr then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
                 }
@@ -612,8 +612,8 @@ report 10574 "Blanket Sales Order GB"
                 begin
                     Clear(SalesLine);
                     Clear(SalesPost);
-                    SalesLine.DeleteAll;
-                    VATAmountLine.DeleteAll;
+                    SalesLine.DeleteAll();
+                    VATAmountLine.DeleteAll();
                     SalesPost.GetSalesLines("Sales Header", SalesLine, 0);
                     SalesLine.CalcVATAmountLines(0, "Sales Header", SalesLine, VATAmountLine);
                     SalesLine.UpdateVATOnLines(0, "Sales Header", SalesLine, VATAmountLine);
@@ -625,7 +625,6 @@ report 10574 "Blanket Sales Order GB"
 
                     if Number > 1 then
                         CopyText := Text003;
-                    CurrReport.PageNo := 1;
                 end;
 
                 trigger OnPostDataItem()
@@ -646,7 +645,7 @@ report 10574 "Blanket Sales Order GB"
             begin
                 CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
 
-                CompanyInfo.Get;
+                CompanyInfo.Get();
 
                 if RespCenter.Get("Responsibility Center") then begin
                     FormatAddr.RespCenter(CompanyAddr, RespCenter);
@@ -658,7 +657,7 @@ report 10574 "Blanket Sales Order GB"
                 DimSetEntry1.SetRange("Dimension Set ID", "Sales Header"."Dimension Set ID");
 
                 if "Salesperson Code" = '' then begin
-                    SalesPurchPerson.Init;
+                    SalesPurchPerson.Init();
                     SalesPersonText := '';
                 end else begin
                     SalesPurchPerson.Get("Salesperson Code");
@@ -774,24 +773,24 @@ report 10574 "Blanket Sales Order GB"
 
     trigger OnInitReport()
     begin
-        GLSetup.Get;
-        Salessetup.Get;
+        GLSetup.Get();
+        Salessetup.Get();
         case Salessetup."Logo Position on Documents" of
             Salessetup."Logo Position on Documents"::"No Logo":
                 ;
             Salessetup."Logo Position on Documents"::Left:
                 begin
-                    CompanyInfo1.Get;
+                    CompanyInfo1.Get();
                     CompanyInfo1.CalcFields(Picture);
                 end;
             Salessetup."Logo Position on Documents"::Center:
                 begin
-                    CompanyInfo2.Get;
+                    CompanyInfo2.Get();
                     CompanyInfo2.CalcFields(Picture);
                 end;
             Salessetup."Logo Position on Documents"::Right:
                 begin
-                    CompanyInfo3.Get;
+                    CompanyInfo3.Get();
                     CompanyInfo3.CalcFields(Picture);
                 end;
         end;

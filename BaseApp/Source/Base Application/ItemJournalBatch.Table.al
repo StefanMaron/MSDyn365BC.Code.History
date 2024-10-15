@@ -69,14 +69,12 @@ table 233 "Item Journal Batch"
                 Modify;
             end;
         }
-        field(21; "Template Type"; Option)
+        field(21; "Template Type"; Enum "Item Journal Template Type")
         {
             CalcFormula = Lookup ("Item Journal Template".Type WHERE(Name = FIELD("Journal Template Name")));
             Caption = 'Template Type';
             Editable = false;
             FieldClass = FlowField;
-            OptionCaption = 'Item,Transfer,Phys. Inventory,Revaluation,Consumption,Output,Capacity,Prod. Order';
-            OptionMembers = Item,Transfer,"Phys. Inventory",Revaluation,Consumption,Output,Capacity,"Prod. Order";
         }
         field(22; Recurring; Boolean)
         {
@@ -108,7 +106,7 @@ table 233 "Item Journal Batch"
 
     trigger OnInsert()
     begin
-        LockTable;
+        LockTable();
         ItemJnlTemplate.Get("Journal Template Name");
     end;
 

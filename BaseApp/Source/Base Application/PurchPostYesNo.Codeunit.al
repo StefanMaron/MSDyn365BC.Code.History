@@ -42,7 +42,7 @@ codeunit 91 "Purch.-Post (Yes/No)"
 
         OnAfterConfirmPost(PurchaseHeader);
 
-        PurchSetup.Get;
+        PurchSetup.Get();
         if PurchSetup."Post with Job Queue" then
             PurchPostViaJobQueue.EnqueuePurchDoc(PurchaseHeader)
         else begin

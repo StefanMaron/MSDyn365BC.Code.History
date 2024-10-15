@@ -68,7 +68,7 @@ page 130400 "CAL Test Suites"
                                 if CALTestLine.FindFirst then
                                     CODEUNIT.Run(CODEUNIT::"CAL Test Runner", CALTestLine);
                             until CALTestSuite.Next = 0;
-                        Commit;
+                        Commit();
                     end;
                 }
                 group(Setup)

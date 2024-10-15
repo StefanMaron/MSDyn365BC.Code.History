@@ -85,7 +85,7 @@ page 10523 "GovTalk Setup"
         if CloseAction = ACTION::Cancel then
             exit;
 
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         if CompanyInformation."VAT Registration No." = '' then
             Message(NoCompanyVatNoSetupMsg);
 

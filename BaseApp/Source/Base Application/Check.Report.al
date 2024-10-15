@@ -26,10 +26,10 @@ report 1401 Check
                     Error(Text001);
 
                 if TestPrint then
-                    CurrReport.Break;
+                    CurrReport.Break();
 
                 if not ReprintChecks then
-                    CurrReport.Break;
+                    CurrReport.Break();
 
                 if (GetFilter("Line No.") <> '') or (GetFilter("Document No.") <> '') then
                     Error(
@@ -147,7 +147,7 @@ report 1401 Check
                                     LineDiscount := 0;
                                     RemainingAmount := 0;
                                 end else
-                                    CurrReport.Break;
+                                    CurrReport.Break();
                             end else
                                 case ApplyMethod of
                                     ApplyMethod::OneLineOneEntry:
@@ -220,7 +220,7 @@ report 1401 Check
                                                         end;
                                                     BalancingType::Customer:
                                                         begin
-                                                            CustLedgEntry.Reset;
+                                                            CustLedgEntry.Reset();
                                                             CustLedgEntry.SetCurrentKey("Document No.");
                                                             CustLedgEntry.SetRange("Document Type", GenJnlLine2."Applies-to Doc. Type");
                                                             CustLedgEntry.SetRange("Document No.", GenJnlLine2."Applies-to Doc. No.");
@@ -231,7 +231,7 @@ report 1401 Check
                                                         end;
                                                     BalancingType::Vendor:
                                                         begin
-                                                            VendLedgEntry.Reset;
+                                                            VendLedgEntry.Reset();
                                                             if GenJnlLine2."Source Line No." <> 0 then
                                                                 VendLedgEntry.SetRange("Entry No.", GenJnlLine2."Source Line No.")
                                                             else begin
@@ -253,7 +253,7 @@ report 1401 Check
                                                         end;
                                                     BalancingType::Employee:
                                                         begin
-                                                            EmployeeLedgerEntry.Reset;
+                                                            EmployeeLedgerEntry.Reset();
                                                             if GenJnlLine2."Source Line No." <> 0 then
                                                                 EmployeeLedgerEntry.SetRange("Entry No.", GenJnlLine2."Source Line No.")
                                                             else begin
@@ -275,7 +275,7 @@ report 1401 Check
                             TotalLineDiscount := TotalLineDiscount + LineDiscount;
                         end else begin
                             if FoundLast then
-                                CurrReport.Break;
+                                CurrReport.Break();
                             FoundLast := true;
                             DocNo := Text010;
                             ExtDocNo := Text010;
@@ -296,7 +296,7 @@ report 1401 Check
                                         case BalancingType of
                                             BalancingType::Customer:
                                                 begin
-                                                    CustLedgEntry.Reset;
+                                                    CustLedgEntry.Reset();
                                                     CustLedgEntry.SetCurrentKey("Customer No.", Open, Positive);
                                                     CustLedgEntry.SetRange("Customer No.", BalancingNo);
                                                     CustLedgEntry.SetRange(Open, true);
@@ -312,7 +312,7 @@ report 1401 Check
                                                 end;
                                             BalancingType::Vendor:
                                                 begin
-                                                    VendLedgEntry.Reset;
+                                                    VendLedgEntry.Reset();
                                                     VendLedgEntry.SetCurrentKey("Vendor No.", Open, Positive);
                                                     VendLedgEntry.SetRange("Vendor No.", BalancingNo);
                                                     VendLedgEntry.SetRange(Open, true);
@@ -345,7 +345,7 @@ report 1401 Check
                         if GenJnlLine."Currency Code" <> '' then
                             NetAmount := StrSubstNo(Text063, GenJnlLine."Currency Code")
                         else begin
-                            GLSetup.Get;
+                            GLSetup.Get();
                             NetAmount := StrSubstNo(Text063, GLSetup."LCY Code");
                         end;
                     end;
@@ -387,7 +387,7 @@ report 1401 Check
                     begin
                         if not TestPrint then
                             with GenJnlLine do begin
-                                CheckLedgEntry.Init;
+                                CheckLedgEntry.Init();
                                 CheckLedgEntry."Bank Account No." := BankAcc2."No.";
                                 CheckLedgEntry."Posting Date" := "Posting Date";
                                 CheckLedgEntry."Document Type" := "Document Type";
@@ -428,7 +428,7 @@ report 1401 Check
                             end
                         else
                             with GenJnlLine do begin
-                                CheckLedgEntry.Init;
+                                CheckLedgEntry.Init();
                                 CheckLedgEntry."Bank Account No." := BankAcc2."No.";
                                 CheckLedgEntry."Posting Date" := "Posting Date";
                                 CheckLedgEntry."Document No." := UseCheckNo;
@@ -453,7 +453,7 @@ report 1401 Check
                 trigger OnAfterGetRecord()
                 begin
                     if FoundLast and AddedRemainingAmount then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     UseCheckNo := IncStr(UseCheckNo);
                     if not TestPrint then
@@ -468,7 +468,7 @@ report 1401 Check
                 begin
                     if not TestPrint then begin
                         if UseCheckNo <> GenJnlLine."Document No." then begin
-                            GenJnlLine3.Reset;
+                            GenJnlLine3.Reset();
                             GenJnlLine3.SetCurrentKey("Journal Template Name", "Journal Batch Name", "Posting Date", "Document No.");
                             GenJnlLine3.SetRange("Journal Template Name", GenJnlLine."Journal Template Name");
                             GenJnlLine3.SetRange("Journal Batch Name", GenJnlLine."Journal Batch Name");
@@ -483,7 +483,7 @@ report 1401 Check
                             GenJnlLine3.TestField("Posting No. Series", '');
                             GenJnlLine3."Document No." := UseCheckNo;
                             GenJnlLine3."Check Printed" := true;
-                            GenJnlLine3.Modify;
+                            GenJnlLine3.Modify();
                         end else begin
                             if GenJnlLine2.Find('-') then begin
                                 HighestLineNo := GenJnlLine2."Line No.";
@@ -498,11 +498,11 @@ report 1401 Check
                                     GenJnlLine3."Document No." := UseCheckNo;
                                     GenJnlLine3."Check Printed" := true;
                                     GenJnlLine3.Validate(Amount);
-                                    GenJnlLine3.Modify;
+                                    GenJnlLine3.Modify();
                                 until GenJnlLine2.Next = 0;
                             end;
 
-                            GenJnlLine3.Reset;
+                            GenJnlLine3.Reset();
                             GenJnlLine3 := GenJnlLine;
                             GenJnlLine3.SetRange("Journal Template Name", GenJnlLine."Journal Template Name");
                             GenJnlLine3.SetRange("Journal Batch Name", GenJnlLine."Journal Batch Name");
@@ -517,7 +517,7 @@ report 1401 Check
                                 end;
                                 GenJnlLine3."Line No." := (GenJnlLine3."Line No." + HighestLineNo) div 2;
                             end;
-                            GenJnlLine3.Init;
+                            GenJnlLine3.Init();
                             GenJnlLine3.Validate("Posting Date", GenJnlLine."Posting Date");
                             GenJnlLine3."Document Type" := GenJnlLine."Document Type";
                             GenJnlLine3."Document No." := UseCheckNo;
@@ -531,7 +531,7 @@ report 1401 Check
                             GenJnlLine3."Source Code" := GenJnlLine."Source Code";
                             GenJnlLine3."Reason Code" := GenJnlLine."Reason Code";
                             GenJnlLine3."Allow Zero-Amount Posting" := true;
-                            GenJnlLine3.Insert;
+                            GenJnlLine3.Insert();
                             if CheckGenJournalBatchAndLineIsApproved(GenJnlLine) then
                                 RecordRestrictionMgt.AllowRecordUsage(GenJnlLine3);
                         end;
@@ -539,7 +539,7 @@ report 1401 Check
 
                     if not TestPrint then begin
                         BankAcc2."Last Check No." := UseCheckNo;
-                        BankAcc2.Modify;
+                        BankAcc2.Modify();
                     end;
 
                     Clear(CheckManagement);
@@ -572,11 +572,11 @@ report 1401 Check
 
                 if not TestPrint then begin
                     if Amount = 0 then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                     TestField("Bal. Account Type", "Bal. Account Type"::"Bank Account");
                     if "Bal. Account No." <> BankAcc2."No." then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                     if ("Account No." <> '') and ("Bal. Account No." <> '') then begin
                         BalancingType := "Account Type";
@@ -584,7 +584,7 @@ report 1401 Check
                         RemainingAmount := Amount;
                         if OneCheckPrVendor then begin
                             ApplyMethod := ApplyMethod::MoreLinesOneEntry;
-                            GenJnlLine2.Reset;
+                            GenJnlLine2.Reset();
                             GenJnlLine2.SetCurrentKey("Journal Template Name", "Journal Batch Name", "Posting Date", "Document No.");
                             GenJnlLine2.SetRange("Journal Template Name", "Journal Template Name");
                             GenJnlLine2.SetRange("Journal Batch Name", "Journal Batch Name");
@@ -669,7 +669,7 @@ report 1401 Check
                     CheckDateText := UpperCase(CheckDateText);
                 end else begin
                     if ChecksPrinted > 0 then
-                        CurrReport.Break;
+                        CurrReport.Break();
                     BalancingType := BalancingType::Vendor;
                     BalancingNo := Text010;
                     Clear(CheckToAddr);
@@ -684,7 +684,7 @@ report 1401 Check
             trigger OnPreDataItem()
             begin
                 Copy(VoidGenJnlLine);
-                CompanyInfo.Get;
+                CompanyInfo.Get();
                 if not TestPrint then begin
                     FormatAddr.Company(CompanyAddr, CompanyInfo);
                     BankAcc2.Get(BankAcc2."No.");
@@ -907,8 +907,8 @@ report 1401 Check
         Text063: Label 'Net Amount %1';
         Text064: Label '%1 must not be %2 for %3 %4.';
         Text065: Label 'Subtotal';
-        Text1041000: Label '<Day,2><Month Text,3><Year4>';
-        Text1041001: Label '**<Sign><Integer>-<Decimals,3>**';
+        Text1041000: Label '<Day,2><Month Text,3><Year4>', Locked = true;
+        Text1041001: Label '**<Sign><Integer>-<Decimals,3>**', Locked = true;
         CheckNoTextCaptionLbl: Label 'Check No.';
         LineAmountCaptionLbl: Label 'Net Amount';
         LineDiscountCaptionLbl: Label 'Discount';
@@ -969,6 +969,8 @@ report 1401 Check
             AddToNoText(NoText, NoTextIndex, PrintExponent, 'ONLY**');
         if CurrencyCode <> '' then
             AddToNoText(NoText, NoTextIndex, PrintExponent, CurrencyCode);
+
+        OnAfterFormatNoText(NoText, No, CurrencyCode);
     end;
 
     local procedure AddToNoText(var NoText: array[2] of Text[80]; var NoTextIndex: Integer; var PrintExponent: Boolean; AddText: Text[30])
@@ -991,7 +993,7 @@ report 1401 Check
         if (ApplyMethod = ApplyMethod::OneLineOneEntry) or
            (ApplyMethod = ApplyMethod::MoreLinesOneEntry)
         then begin
-            GenJnlLine3.Reset;
+            GenJnlLine3.Reset();
             GenJnlLine3.SetCurrentKey("Account Type", "Account No.", "Applies-to Doc. Type", "Applies-to Doc. No.");
             CheckGLEntriesForCustomers(CustLedgEntry2);
         end;
@@ -1040,7 +1042,7 @@ report 1401 Check
         if (ApplyMethod = ApplyMethod::OneLineOneEntry) or
            (ApplyMethod = ApplyMethod::MoreLinesOneEntry)
         then begin
-            GenJnlLine3.Reset;
+            GenJnlLine3.Reset();
             GenJnlLine3.SetCurrentKey("Account Type", "Account No.", "Applies-to Doc. Type", "Applies-to Doc. No.");
             CheckGLEntiresForVendors(VendLedgEntry2);
         end;
@@ -1094,7 +1096,7 @@ report 1401 Check
         if (ApplyMethod = ApplyMethod::OneLineOneEntry) or
            (ApplyMethod = ApplyMethod::MoreLinesOneEntry)
         then begin
-            GenJnlLine3.Reset;
+            GenJnlLine3.Reset();
             GenJnlLine3.SetCurrentKey("Account Type", "Account No.", "Applies-to Doc. Type", "Applies-to Doc. No.");
             CheckGLEntriesForEmployee(EmployeeLedgerEntry2);
         end;
@@ -1232,7 +1234,7 @@ report 1401 Check
 
     local procedure PrintOneLineOneEntryOnAfterGetRecordForCustomer(CustLedgEntry1: Record "Cust. Ledger Entry")
     begin
-        CustLedgEntry1.Reset;
+        CustLedgEntry1.Reset();
         CustLedgEntry1.SetCurrentKey("Document No.");
         CustLedgEntry1.SetRange("Document Type", GenJnlLine."Applies-to Doc. Type");
         CustLedgEntry1.SetRange("Document No.", GenJnlLine."Applies-to Doc. No.");
@@ -1243,7 +1245,7 @@ report 1401 Check
 
     local procedure PrintOneLineOneEntryOnAfterGetRecordForVendor(VendLedgEntry1: Record "Vendor Ledger Entry")
     begin
-        VendLedgEntry1.Reset;
+        VendLedgEntry1.Reset();
         VendLedgEntry1.SetCurrentKey("Document No.");
         VendLedgEntry1.SetRange("Document Type", GenJnlLine."Applies-to Doc. Type");
         VendLedgEntry1.SetRange("Document No.", GenJnlLine."Applies-to Doc. No.");
@@ -1254,7 +1256,7 @@ report 1401 Check
 
     local procedure PrintOneLineOneEntryOnAfterGetRecordForEmployee(EmployeeLedgerEntry1: Record "Employee Ledger Entry")
     begin
-        EmployeeLedgerEntry1.Reset;
+        EmployeeLedgerEntry1.Reset();
         EmployeeLedgerEntry1.SetCurrentKey("Document No.");
         EmployeeLedgerEntry1.SetRange("Document Type", GenJnlLine."Applies-to Doc. Type");
         EmployeeLedgerEntry1.SetRange("Document No.", GenJnlLine."Applies-to Doc. No.");
@@ -1320,6 +1322,11 @@ report 1401 Check
                     Text031,
                     VendLedgEntry3."Document Type", VendLedgEntry3."Document No.",
                     VendLedgEntry3."Vendor No."));
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFormatNoText(var NoText: array[2] of Text[80]; No: Decimal; CurrencyCode: Code[10])
+    begin
     end;
 
     local procedure ApplyBalancingTypeOfEmployee()

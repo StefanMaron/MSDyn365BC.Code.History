@@ -140,7 +140,7 @@ page 543 "Default Dimension Priorities"
     var
         SourceCode: Record "Source Code";
     begin
-        Commit;
+        Commit();
         SourceCode.Code := DefaultDimPriority.GetRangeMax("Source Code");
         if PAGE.RunModal(0, SourceCode) = ACTION::LookupOK then begin
             CurrentSourceCode := SourceCode.Code;
