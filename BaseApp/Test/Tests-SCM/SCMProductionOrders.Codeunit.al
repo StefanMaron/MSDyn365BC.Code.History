@@ -4434,6 +4434,49 @@ codeunit 137069 "SCM Production Orders"
         VerifyCapacityAmountOnValueEntries(ProductionOrder."No.", CapacityLedgerEntry.Quantity * WorkCenter."Unit Cost");
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyProdOrderComponentWithVariantUpdatedCorrectly()
+    var
+        ProdItem: Record Item;
+        CompItem: Record Item;
+        ProductionOrder: Record "Production Order";
+        ProdOrderComponent: Record "Prod. Order Component";
+        ItemVariant: Record "Item Variant";
+        ItemVariant2: Record "Item Variant";
+        ProdOrderLine: Record "Prod. Order Line";
+        Qty: Decimal;
+        ExpectedQty: Decimal;
+    begin
+        // [SCENARIO 478475] Released production Order, component with variant updated wrong.
+        Initialize();
+
+        // [GIVEN] Create Production and Component Item, and 2 different Variants for Component Item
+        CompItem.Get(CreateProductionItemSetup(ProdItem));
+        LibraryInventory.CreateItemVariant(ItemVariant, CompItem."No.");
+        LibraryInventory.CreateItemVariant(ItemVariant2, CompItem."No.");
+        Qty := LibraryRandom.RandInt(10);
+
+        // [GIVEN] Create and refresh Released production order for parent item
+        CreateAndRefreshReleasedProductionOrder(ProductionOrder, ProdItem."No.", LibraryRandom.RandInt(10));
+
+        // [GIVEN] Update Variant Code of automatically created Prod. Order Component
+        FindProdOrderComponent(ProdOrderComponent, ProductionOrder.Status, ProductionOrder."No.", CompItem."No.");
+        UpdateVariantCodeOnProdOrderComponent(ProdOrderComponent, ItemVariant.Code);
+        ExpectedQty := ProdOrderComponent."Remaining Quantity" + Qty;
+
+        // [THEN] Create new Prod. Order Component for same Item with first Variant 
+        CreateProdOrderComponentWithDifferentVariant(ProdOrderComponent, ItemVariant.Code);
+
+        // [WHEN] Post component consumption with Variant
+        FindProdOrderLine(ProdOrderLine, ProductionOrder.Status, ProductionOrder."No.");
+        PostConsumption(ProductionOrder."No.", ProdOrderLine."Line No.", WorkDate() + 1, CompItem."No.", ItemVariant.Code, -Qty);
+
+        // [VERIFY] Verify: Remaining Quantity for which Consumption has been posted
+        FindProdOrderComponentWithVariantCode(ProdOrderComponent, ProductionOrder.Status, ProductionOrder."No.", CompItem."No.", ItemVariant.Code);
+        Assert.AreEqual(ExpectedQty, ProdOrderComponent."Remaining Quantity", '');
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -6227,6 +6270,58 @@ codeunit 137069 "SCM Production Orders"
             CalcSums("Cost Amount (Actual)");
             Assert.AreNearlyEqual(CostAmount, "Cost Amount (Actual)", LibraryERM.GetAmountRoundingPrecision, '');
         end;
+    end;
+
+    local procedure UpdateVariantCodeOnProdOrderComponent(var ProdOrderComponent: Record "Prod. Order Component"; ItemVariantCode: Code[10])
+    begin
+        ProdOrderComponent.Validate("Variant Code", ItemVariantCode);
+        ProdOrderComponent.Modify(true);
+    end;
+
+    local procedure CreateProdOrderComponentWithDifferentVariant(ProdOrderComponent: Record "Prod. Order Component"; ItemVariantCode: Code[10])
+    var
+        ProdOrderComponent2: Record "Prod. Order Component";
+    begin
+        ProdOrderComponent2.Init();
+        ProdOrderComponent2.TransferFields(ProdOrderComponent);
+        ProdOrderComponent2."Line No." := ProdOrderComponent."Line No." + 10000;
+        ProdOrderComponent2.Validate("Variant Code", ItemVariantCode);
+        ProdOrderComponent2.Insert(true);
+    end;
+
+    local procedure FindProdOrderComponentWithVariantCode(var ProdOrderComponent: Record "Prod. Order Component"; Status: Enum "Production Order Status"; ProdOrderNo: Code[20]; ItemNo: Code[20]; ItemVariantCode: Code[10])
+    begin
+        FilterOnProdOrderComponent(ProdOrderComponent, Status, ProdOrderNo, ItemNo);
+        ProdOrderComponent.SetRange("Variant Code", ItemVariantCode);
+        ProdOrderComponent.FindFirst();
+    end;
+
+    local procedure FindProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; ProdOrderStatus: Enum "Production Order Status"; ProdOrderNo: Code[20])
+    begin
+        ProdOrderLine.SetRange(Status, ProdOrderStatus);
+        ProdOrderLine.SetRange("Prod. Order No.", ProdOrderNo);
+        ProdOrderLine.FindFirst();
+    end;
+
+    local procedure PostConsumption(ProdOrderNo: Code[20]; ProdOrderLineNo: Integer; PostingDate: Date; ItemNo: Code[20]; ItemVariantCode: Code[10]; Qty: Decimal)
+    var
+        ItemJnlTemplate: Record "Item Journal Template";
+        ItemJnlBatch: Record "Item Journal Batch";
+        ItemJnlLine: Record "Item Journal Line";
+    begin
+        LibraryInventory.SelectItemJournalTemplateName(ItemJnlTemplate, ItemJnlTemplate.Type::Consumption);
+        LibraryInventory.SelectItemJournalBatchName(ItemJnlBatch, ItemJnlTemplate.Type, ItemJnlTemplate.Name);
+
+        LibraryInventory.CreateItemJournalLine(
+          ItemJnlLine, ItemJnlTemplate.Name, ItemJnlBatch.Name, ItemJnlLine."Entry Type"::Consumption, ItemNo, Qty);
+        ItemJnlLine.Validate("Variant Code", ItemVariantCode);
+        ItemJnlLine.Validate("Order Type", ItemJnlLine."Order Type"::Production);
+        ItemJnlLine.Validate("Order No.", ProdOrderNo);
+        ItemJnlLine.Validate("Order Line No.", ProdOrderLineNo);
+        ItemJnlLine.Validate("Posting Date", PostingDate);
+        ItemJnlLine.Modify(true);
+
+        LibraryInventory.PostItemJournalLine(ItemJnlLine."Journal Template Name", ItemJnlLine."Journal Batch Name");
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Tracking Data Collection", 'OnBeforeAssistEditTrackingNo', '', false, false)]
