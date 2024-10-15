@@ -994,6 +994,56 @@ codeunit 144006 "UT REP Job"
         Assert.AreEqual(CopyStr(GLAccount.Name, 1, 50), GLAccountName, 'Names must be equal.');
     end;
 
+    [Test]
+    [HandlerFunctions('CustomerJobsCostRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure VerifyPercentagesCompletedOnCustomerJobsCostReport()
+    var
+        JobTask: Record "Job Task";
+        JobTask2: Record "Job Task";
+        Job: Record Job;
+        JobPlanningLine: Record "Job Planning Line";
+        JobPlanningLine2: Record "Job Planning Line";
+        Customer: Record Customer;
+        Vendor: Record Vendor;
+        Item: Record Item;
+        LibrarySales: Codeunit "Library - Sales";
+        LibraryPurchase: Codeunit "Library - Purchase";
+        UsageCost: Decimal;
+        ScheduledCost: Decimal;
+        VATProdPostingGroupCode: Code[20];
+    begin
+        // [SCENARIO 454702] Validate percentages on Report 10213 - Customer Jobs (Cost).
+
+        // [GIVEN] Create Customer, Vendor, Item, 2 Jobs, Job Task, Job Planning Line
+        Initialize();
+        LibrarySales.CreateCustomer(Customer);
+        CreateVendor(Vendor, VATProdPostingGroupCode);
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Unit Cost", LibraryRandom.RandDec(10, 2));
+        Item.Validate("VAT Prod. Posting Group", VATProdPostingGroupCode);
+        Item.Modify(true);
+        CreateJobAndJobTask(JobTask, Customer."No.");
+        CreateJobPlanningLine(JobPlanningLine, Item, JobTask);
+        CreateJobAndJobTask(JobTask2, Customer."No.");
+        CreateJobPlanningLine(JobPlanningLine2, Item, JobTask2);
+
+        // [GIVEN] Post purchase invoices for both jobs
+        CreateAndPostPurchOrder(Vendor, Item, JobTask."Job No.", JobTask."Job Task No.", JobPlanningLine."Line No.", VATProdPostingGroupCode);
+        CreateAndPostPurchOrder(Vendor, Item, JobTask2."Job No.", JobTask2."Job Task No.", JobPlanningLine2."Line No.", VATProdPostingGroupCode);
+
+        // [GIVEN] Run Customer Job (Cost) report
+        LibraryVariableStorage.Enqueue(JobTask."Job No." + '|' + JobTask2."Job No.");
+        Report.Run(Report::"Customer Jobs (Cost)"); // Opens handler - CustomerJobsCostRequestPageHandler.
+
+        // [VERIFY]: Verify Job No, Scheduled Cost and Usage Cost on Report Customer Jobs (Cost).
+        LibraryReportDataset.LoadDataSetFile();
+        ScheduledAndUsageCosts(JobTask, ScheduledCost, UsageCost);
+        LibraryReportDataset.AssertElementWithValueExists('Percent_Completion__Control22', (UsageCost / ScheduledCost) * 100);
+        ScheduledAndUsageCosts(JobTask2, ScheduledCost, UsageCost);
+        LibraryReportDataset.AssertElementWithValueExists('Percent_Completion__Control22', (UsageCost / ScheduledCost) * 100);
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear();
@@ -1223,6 +1273,95 @@ codeunit 144006 "UT REP Job"
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.AssertElementWithValueExists(UsageCostCap, TotalCostLCY);
         LibraryReportDataset.AssertElementWithValueExists(ContractPriceCap, TotalPriceLCY);
+    end;
+
+    local procedure CreateVendor(var Vendor: Record Vendor; var VATProdPostingGroupCode: Code[20])
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        LibraryPurchase: Codeunit "Library - Purchase";
+    begin
+        CreateVATPostingSetupForSalesTax(VATPostingSetup, VATProdPostingGroupCode);
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        Vendor.Modify(true);
+    end;
+
+    local procedure CreateVATPostingSetupForSalesTax(var VATPostingSetup: Record "VAT Posting Setup"; var VATProdPostingGroupCode: Code[20])
+    var
+        VATBusPostingGroup: Record "VAT Business Posting Group";
+        VATProdPostingGroup: Record "VAT Product Posting Group";
+        LibraryERM: Codeunit "Library - ERM";
+    begin
+        LibraryERM.CreateVATBusinessPostingGroup(VATBusPostingGroup);
+        LibraryERM.CreateVATProductPostingGroup(VATProdPostingGroup);
+        LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusPostingGroup.Code, VATProdPostingGroup.Code);
+        VATPostingSetup.Validate("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Sales Tax");
+        VATPostingSetup.Modify(true);
+        VATProdPostingGroupCode := VATProdPostingGroup.Code;
+    end;
+
+    local procedure ScheduledAndUsageCosts(JobTask: Record "Job Task"; var ScheduledCost: Decimal; var UsageCost: Decimal)
+    var
+        JobPlanningLine: Record "Job Planning Line";
+        JobLedgerEntry: Record "Job Ledger Entry";
+    begin
+        ScheduledCost := 0;
+        UsageCost := 0;
+
+        JobPlanningLine.Reset();
+        JobPlanningLine.SetCurrentKey("Job No.", "Job Task No.", "Schedule Line", "Planning Date");
+        JobPlanningLine.SetRange("Job No.", JobTask."Job No.");
+        JobTask.CopyFilter("Planning Date Filter", JobPlanningLine."Planning Date");
+        JobPlanningLine.SetRange("Schedule Line", true);
+        JobPlanningLine.CalcSums("Total Cost (LCY)");
+        ScheduledCost := JobPlanningLine."Total Cost (LCY)";
+
+        JobLedgerEntry.Reset();
+        JobLedgerEntry.SetCurrentKey("Job No.", "Job Task No.", "Entry Type", "Posting Date");
+        JobLedgerEntry.SetRange("Job No.", JobTask."Job No.");
+        JobTask.CopyFilter("Posting Date Filter", JobLedgerEntry."Posting Date");
+        JobLedgerEntry.SetRange("Entry Type", JobLedgerEntry."Entry Type"::Usage);
+        JobLedgerEntry.CalcSums("Total Cost (LCY)");
+        UsageCost := JobLedgerEntry."Total Cost (LCY)";
+    end;
+
+    local procedure CreateJobAndJobTask(var JobTask: Record "Job Task"; CustomerNo: Code[20])
+    var
+        Job: Record Job;
+        LibraryJob: Codeunit "Library - Job";
+    begin
+        LibraryJob.CreateJob(Job, CustomerNo);
+        LibraryJob.CreateJobTask(Job, JobTask);
+    end;
+
+    local procedure CreateJobPlanningLine(var JobPlanningLine: Record "Job Planning Line"; Item: Record Item; JobTask: Record "Job Task")
+    var
+        LibraryJob: Codeunit "Library - Job";
+        LibraryResource: Codeunit "Library - Resource";
+    begin
+        LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeBoth, LibraryJob.ItemType(), JobTask, JobPlanningLine);
+        JobPlanningLine.Validate("No.", Item."No.");
+        JobPlanningLine.Validate(Quantity, LibraryRandom.RandDec(10, 2));  // Using Random value for Quantity because value is not important.
+        JobPlanningLine.Validate("Unit Cost", Item."Unit Cost");
+        JobPlanningLine.Modify(true);
+    end;
+
+    local procedure CreateAndPostPurchOrder(Vendor: Record Vendor; Item: Record Item; JobNo: Code[20]; JobTaskNo: Code[20]; JobPlanningLineNo: Integer; VATProdPostingGroupCode: Code[20]): Code[20]
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        LibrarySales: Codeunit "Library - Sales";
+        LibraryPurchase: Codeunit "Library - Purchase";
+    begin
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", LibraryRandom.RandInt(3));
+        PurchaseLine.Validate("Direct Unit Cost", Item."Unit Cost");
+        PurchaseLine.Validate("Job No.", JobNo);
+        PurchaseLine.Validate("Job Task No.", JobTaskNo);
+        PurchaseLine.Validate("Job Line Type", PurchaseLine."Job Line Type"::Budget);
+        PurchaseLine.Validate("Job Planning Line No.", JobPlanningLineNo);
+        PurchaseLine.Modify(true);
+        exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
     end;
 
     [RequestPageHandler]

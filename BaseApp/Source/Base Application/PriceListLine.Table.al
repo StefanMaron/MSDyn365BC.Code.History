@@ -812,7 +812,6 @@ table 7001 "Price List Line"
         PriceAsset."Asset ID" := "Asset ID";
         PriceAsset."Unit of Measure Code" := "Unit of Measure Code";
         PriceAsset."Variant Code" := "Variant Code";
-        PriceAsset."Work Type Code" := "Work Type Code";
 
         PriceAsset."Allow Invoice Disc." := "Allow Invoice Disc.";
         PriceAsset."Price Includes VAT" := "Price Includes VAT";

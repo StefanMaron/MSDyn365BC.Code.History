@@ -249,7 +249,7 @@ page 9308 "Purchase Invoices"
             {
                 ApplicationArea = All;
                 Caption = 'Attachments';
-                SubPageLink = "Table ID" = const(38),
+                SubPageLink = "Table ID" = const(Database::"Purchase Header"),
                               "No." = field("No."),
                               "Document Type" = field("Document Type");
             }

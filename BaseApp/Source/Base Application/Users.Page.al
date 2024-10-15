@@ -529,11 +529,15 @@ page 9800 Users
         MyNotification: Record "My Notifications";
         UserSelection: Codeunit "User Selection";
         UserManagement: Codeunit "User Management";
+        EnvironmentInfo: Codeunit "Environment Information";
+        NavTenantSettingsHelper: DotNet NavTenantSettingsHelper;
     begin
         NoUserExists := IsEmpty;
         UserSelection.HideExternalUsers(Rec);
         if UserWithWebServiceKeyExist() then begin
             Usermanagement.BasicAuthDepricationNotificationDefault(true);
+            if (not NavTenantSettingsHelper.IsWSKeyAllowed()) and EnvironmentInfo.IsSaaS() then
+                MyNotification.SetStatus(UserManagement.BasicAuthDepricationNotificationId(), false);
             if MyNotification.IsEnabled(UserManagement.BasicAuthDepricationNotificationId()) then
                 UserManagement.BasicAuthUsedNotificationShow(BasicAuthUsedNotification);
         end;

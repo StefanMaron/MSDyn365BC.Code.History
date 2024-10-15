@@ -112,6 +112,8 @@ page 5740 "Transfer Order"
             part(TransferLines; "Transfer Order Subform")
             {
                 ApplicationArea = Location;
+                Editable = IsTransferLinesEditable;
+                Enabled = IsTransferLinesEditable;
                 SubPageLink = "Document No." = FIELD("No."),
                               "Derived From Line No." = CONST(0);
                 UpdatePropagation = Both;

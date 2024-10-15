@@ -52,6 +52,15 @@
         {
             Caption = 'Default VAT Date';
         }
+        field(8; "VAT Reporting Date Usage"; Enum "VAT Reporting Date Usage")
+        {
+            Caption = 'VAT Date Usage';
+
+            trigger OnValidate()
+            begin
+                FeatureTelemetry.LogUsage('0000J2U', VATDateFeatureTok, StrSubstNo(VATDateFeatureUsageMsg, Format("VAT Reporting Date Usage")));
+            end;
+        }
         field(28; "Pmt. Disc. Excl. VAT"; Boolean)
         {
             Caption = 'Pmt. Disc. Excl. VAT';
@@ -950,6 +959,7 @@
         AnalysisViewBudgetEntry: Record "Analysis View Budget Entry";
         AdjAddReportingCurr: Report "Adjust Add. Reporting Currency";
         UserSetupManagement: Codeunit "User Setup Management";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
         ErrorMessage: Boolean;
         RecordHasBeenRead: Boolean;
 
@@ -969,6 +979,8 @@
         TooManyReportsAreSelectedTxt: Label 'One or more reports selected for bank reconciliation may not be compatible with the current setup of %1. Make sure the report %2 is selected for %3.', Comment = '%1=FieldCaption,%2=ReportNumber,%3=OptionValue';
         ObsoleteErr: Label 'This field is obsolete, it has been replaced by Table 248 VAT Reg. No. Srv Config.';
         AccSchedObsoleteErr: Label 'This field is obsolete and it has been replaced by Table 88 Financial Report';
+        VATDateFeatureTok: Label 'VAT Date', Locked = true;
+        VATDateFeatureUsageMsg: Label 'VAT Reporting Date Usage set to %1', Locked = true;
 
     procedure CheckDecimalPlacesFormat(var DecimalPlaces: Text[5])
     var

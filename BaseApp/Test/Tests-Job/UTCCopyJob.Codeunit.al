@@ -23,6 +23,7 @@ codeunit 136361 "UT C Copy Job"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         IsInitialized: Boolean;
         JobWithManualNoNotCreatedErr: Label 'Job with manual number is not created.';
+        TestFieldValueErr: Label '%1 must be equal to %2.', Comment = '%1 - field caption, %2 - field value';
 
     [Test]
     [Scope('OnPrem')]
@@ -618,6 +619,57 @@ codeunit 136361 "UT C Copy Job"
         Assert.RecordCount(PriceListLine[5], 1);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure JobSalesPriceWorkTypeCodeToNewLine()
+    var
+        ResourceGroup: Record "Resource Group";
+        SourceJob: Record Job;
+        SourceJobTask: Record "Job Task";
+        SourceJobPlanningLine: Record "Job Planning Line";
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: array[2] of Record "Price List Line";
+        WorkType: Record "Work Type";
+        PriceAsset: Record "Price Asset";
+        Item: Record Item;
+        LibraryInventory: Codeunit "Library - Inventory";
+    begin
+        // [SCENARIO 458132] Incorrect values appear on Work type code for other than resource/resource group and the value cannot be removed
+        Initialize();
+
+        // [GIVEN] Enable Extended Price Calculation Feature 
+        LibraryPriceCalculation.EnableExtendedPriceCalculation();
+
+        // [GIVEN] Create Resource Group, Work Type, Job, Job Task
+        LibraryResource.CreateResourceGroup(ResourceGroup);
+        LibraryResource.CreateWorkType(WorkType);
+        LibraryJob.CreateJob(SourceJob);
+        LibraryJob.CreateJobTask(SourceJob, SourceJobTask);
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
+        Item.Validate("Unit Cost", LibraryRandom.RandDec(100, 2));
+        Item.Modify(true);
+
+        // [GIVEN] Price list for Job Task with 2 lines for Resource Group, and Item
+        LibraryPriceCalculation.CreatePriceHeader(
+            PriceListHeader, "Price Type"::Sale, "Price Source Type"::"Job Task", SourceJob."No.", SourceJobTask."Job Task No.");
+        PriceListHeader.Status := PriceListHeader.Status::Active;
+        PriceListHeader."Allow Updating Defaults" := true;
+        PriceListHeader.Modify();
+        LibraryPriceCalculation.CreatePriceListLine(
+            PriceListLine[1], PriceListHeader, "Price Amount Type"::Price, "Price Asset Type"::"Resource Group", ResourceGroup."No.");
+        PriceListLine[1].Validate("Work Type Code", WorkType.Code);
+        PriceListLine[1].Modify();
+        PriceListLine[1].CopyTo(PriceAsset);
+
+        LibraryPriceCalculation.CreatePriceListLine(
+            PriceListLine[2], PriceListHeader, "Price Amount Type"::Price, "Price Asset Type"::Item, Item."No.");
+        PriceListLine[2]."Work Type Code" := PriceAsset."Work Type Code";
+        PriceListLine[2].Modify();
+
+        // [VERIFY] Verify: Price Line List Work Type Code should equal Price Asset Work Type Code
+        Assert.AreEqual(PriceAsset."Work Type Code", PriceListLine[2]."Work Type Code", StrSubstNo(TestFieldValueErr, PriceListLine[2].FieldCaption("Work Type Code"), Format(PriceListLine[2]."Work Type Code")));
+    end;
 
     local procedure Initialize()
     var

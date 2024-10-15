@@ -3656,5 +3656,4 @@ codeunit 134922 "ERM Budget"
     begin
         DimensionValueList.OK.Invoke;
     end;
-    
 }

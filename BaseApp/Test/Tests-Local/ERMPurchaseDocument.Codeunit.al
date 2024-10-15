@@ -16,6 +16,8 @@ codeunit 140611 "ERM - Purchase Document"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryRandom: Codeunit "Library - Random";
         LibraryPlanning: Codeunit "Library - Planning";
+        LibraryERM: Codeunit "Library - ERM";
+        LibraryUtility: Codeunit "Library - Utility";
         isInitialized: Boolean;
 
     [Test]
@@ -45,6 +47,42 @@ codeunit 140611 "ERM - Purchase Document"
 
         // Verify: Verify IRS 1099 Liable True.
         VerifyIRS1099Liable(Vendor."No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure IRS1099AmountInSecondVendLedgEntryAfterPartialPostingOfPurchOrderTwice()
+    var
+        PurchHeader: Record "Purchase Header";
+        PurchLine: Record "Purchase Line";
+        VendLedgEntry: Record "Vendor Ledger Entry";
+    begin
+        // [SCENARIO 434149] "IRS 1099 Amount" is correct in the second Vendor Ledger Entriy after posting purchase partially twice
+
+        Initialize();
+        // [GIVEN] Purchase order with "IRS 1099 Code" = "MISC-01"
+        LibraryPurchase.CreatePurchHeader(PurchHeader, PurchHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
+        PurchHeader.Validate("IRS 1099 Code", FindIrs1099Code);
+        PurchHeader.Modify(true);
+        // [GIVEN] Purchase line has Quantity = 20, "Unit Cost" = 100
+        LibraryPurchase.CreatePurchaseLineWithUnitCost(
+            PurchLine, PurchHeader, LibraryInventory.CreateItemNo(), LibraryRandom.RandDec(100, 2), LibraryRandom.RandIntInRange(20, 30));
+        // [GIVEN] "Qty. To Receive" in purchase line is set to 10
+        PurchLine.Validate("Qty. to Receive", Round(PurchLine.Quantity / 3, 1));
+        PurchLine.Modify(true);
+        // [GIVEN] Purchase order is posted partially
+        LibraryPurchase.PostPurchaseDocument(PurchHeader, true, true);
+        PurchHeader.Find();
+        PurchHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
+        PurchLine.Find();
+        // [GIVEN] "Qty. To Receive" in purchase line is set to 10
+        PurchLine.Validate("Qty. to Receive", Round(PurchLine.Quantity / 3, 1));
+        PurchLine.Modify(true);
+        // [WHEN] Post purchase order partially again
+        LibraryERM.FindVendorLedgerEntry(VendLedgEntry, VendLedgEntry."Document Type"::Invoice, LibraryPurchase.PostPurchaseDocument(PurchHeader, true, true));
+        // [THEN] Vendor Ledger Entry has "IRS 1099 Amount" = 1000
+        VendLedgEntry.CalcFields(Amount);
+        VendLedgEntry.TestField("IRS 1099 Amount", VendLedgEntry.Amount);
     end;
 
     local procedure Initialize()

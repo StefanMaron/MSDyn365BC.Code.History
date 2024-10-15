@@ -2028,6 +2028,50 @@ codeunit 137404 "SCM Manufacturing"
 
     [Test]
     [Scope('OnPrem')]
+    procedure CheckProdOrderLineBinCodeFromWorkCenterAfterRoutingChange()
+    var
+        ProdOrderLine: Record "Prod. Order Line";
+        WorkCenter: Record "Work Center";
+        WorkCenter2: Record "Work Center";
+        RoutingHeader: Record "Routing Header";
+        RoutingLine: Record "Routing Line";
+        Bin: Record Bin;
+        CalculateProdOrder: Codeunit "Calculate Prod. Order";
+        RoutingRefNo: Integer;
+    begin
+        // [FEATURE] [Production Order] [Routing] [Warehouse] [Bin]
+        // [SCENARIO 360750.3] ProdOrderLine gets BinCode after change of Routing No. from Work Center with different Bin Code
+        Initialize();
+
+        // [GIVEN] Create ProdOrderLine for White Location, Work Centers/Routings with From-Production Bin Code
+        CreateProdOrderLineWithWhiteLocationAndUpdateWorkCenterBinCode(ProdOrderLine, WorkCenter, RoutingRefNo);
+
+        // [GIVEN] Create Work Centers/Routings with different From-Production Bin Code
+        LibraryManufacturing.CreateWorkCenter(WorkCenter2);
+        WorkCenter2.Validate("Location Code", WorkCenter."Location Code");
+        LibraryWarehouse.CreateBin(
+          Bin, WorkCenter."Location Code", LibraryUtility.GenerateRandomCode(Bin.FieldNo(Code), DATABASE::Bin), '', '');
+        WorkCenter2.Validate("From-Production Bin Code", Bin.Code);
+        WorkCenter2.Modify();
+        LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
+        LibraryManufacturing.CreateRoutingLineSetup(RoutingLine, RoutingHeader, WorkCenter2."No.", '001', 1, 1);
+        RoutingHeader.Validate(Status, "Routing Status"::Certified);
+        RoutingHeader.Modify();
+
+        // [WHEN] Find and set ProdOrderLine Bin Code from Work Center through Routing Line
+        CalculateProdOrder.FindAndSetProdOrderLineBinCodeFromProdRoutingLines(
+          ProdOrderLine.Status, ProdOrderLine."Prod. Order No.", RoutingRefNo);
+
+        // [WHEN] Change Routing in Prod. Order Line, therefore change Work Center and update Bin Code
+        ProdOrderLine.Validate("Routing No.", RoutingHeader."No.");
+        ProdOrderLine.Modify();
+
+        // [THEN] Verify "Bin Code" in ProdOrderLine is same as another Work Center's Bin Code
+        ProdOrderLine.TestField("Bin Code", WorkCenter2."From-Production Bin Code");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure VariantFilterIsUsedToCalculateProdForecastQtyOnItem()
     var
         ProductionForecastName: Record "Production Forecast Name";

@@ -114,7 +114,7 @@ page 89 "Job List"
             {
                 ApplicationArea = All;
                 Caption = 'Attachments';
-                SubPageLink = "Table ID" = CONST(167),
+                SubPageLink = "Table ID" = CONST(Database::Job),
                               "No." = FIELD("No.");
             }
             systempart(Control1900383207; Links)

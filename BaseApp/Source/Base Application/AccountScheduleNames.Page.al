@@ -1,9 +1,10 @@
 page 103 "Account Schedule Names"
 {
     ApplicationArea = Basic, Suite;
-    Caption = 'Rows';
+    Caption = 'Row Definitions';
     PageType = List;
     SourceTable = "Acc. Schedule Name";
+    AdditionalSearchTerms = 'Account Schedules';
     UsageCategory = Lists;
 
     layout

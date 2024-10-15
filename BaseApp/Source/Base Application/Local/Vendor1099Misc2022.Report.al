@@ -1,7 +1,7 @@
 report 10180 "Vendor 1099 Misc 2022"
 {
     DefaultLayout = RDLC;
-    RDLCLayout = './Vendor1099Misc2022.rdlc';
+    RDLCLayout = './Local/Vendor1099Misc2022.rdlc';
     ApplicationArea = Basic, Suite;
     Caption = 'Vendor 1099 Misc 2022';
     UsageCategory = ReportsAndAnalysis;

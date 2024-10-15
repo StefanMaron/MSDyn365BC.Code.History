@@ -24,27 +24,13 @@ codeunit 1514 "Bank Deposit Feature Mgt."
     end;
 
     procedure EnableDepositActions()
-    var
-        GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        if not GeneralLedgerSetup.Get() then begin
-            GeneralLedgerSetup.Init();
-            GeneralLedgerSetup.Insert();
-        end;
-        GeneralLedgerSetup.Validate("Bank Recon. with Auto. Match", true);
-        GeneralLedgerSetup.Modify();
+        SetBankReconwithAutoMatchInAllCompanies(true);
     end;
 
     procedure DisableDepositActions()
-    var
-        GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        if not GeneralLedgerSetup.Get() then begin
-            GeneralLedgerSetup.Init();
-            GeneralLedgerSetup.Insert();
-        end;
-        GeneralLedgerSetup.Validate("Bank Recon. with Auto. Match", false);
-        GeneralLedgerSetup.Modify();
+        SetBankReconwithAutoMatchInAllCompanies(false);
         DepositsPageMgt.SetSetupKey(Enum::"Deposits Page Setup Key"::DepositsPage, Page::"Deposits");
         DepositsPageMgt.SetSetupKey(Enum::"Deposits Page Setup Key"::DepositPage, Page::"Deposit");
         DepositsPageMgt.SetSetupKey(Enum::"Deposits Page Setup Key"::DepositListPage, Page::"Deposit List");
@@ -56,6 +42,66 @@ codeunit 1514 "Bank Deposit Feature Mgt."
     procedure DefaultDepositSetup()
     begin
         DisableDepositActions();
+    end;
+
+    local procedure SetBankReconwithAutoMatchInAllCompanies(NewValue: Boolean)
+    var
+        Company: Record Company;
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        if Company.FindSet() then
+            repeat
+                GeneralLedgerSetup.ChangeCompany(Company.Name);
+                if not GeneralLedgerSetup.Get() then begin
+                    GeneralLedgerSetup.Init();
+                    GeneralLedgerSetup.Insert();
+                end;
+                GeneralLedgerSetup.Validate("Bank Recon. with Auto. Match", NewValue);
+                // Since the OnValidate trigger doesn't work correctly with ChangeCompany, we need to run this code from "Bank Recon. with Auto. Match" OnValidate manually
+                SelectReportLayoutsForRecon(Company.Name, NewValue);
+                GeneralLedgerSetup.Modify();
+            until Company.Next() = 0;
+    end;
+
+    local procedure SelectReportLayoutsForRecon(CompanyName: Text[30]; BankReconwithAutoMatch: Boolean)
+    begin
+        if BankReconwithAutoMatch then
+            CheckSelectedReports(Report::"Bank Account Statement", Report::"Bank Acc. Recon. - Test", CompanyName)
+        else
+            CheckSelectedReports(Report::"Bank Reconciliation", Report::"Bank Rec. Test Report", CompanyName);
+    end;
+
+    local procedure CheckSelectedReports(PrintingReportID: Integer; TestingReportID: Integer; CompanyName: Text[30])
+    var
+        ReportSelections: Record "Report Selections";
+    begin
+        SelectReport(ReportSelections.Usage::"B.Stmt", PrintingReportID, CompanyName);
+        SelectReport(ReportSelections.Usage::"B.Recon.Test", TestingReportID, CompanyName);
+    end;
+
+    local procedure SelectReport(UsageValue: Enum "Report Selection Usage"; ReportID: Integer; CompanyName: Text[30])
+    var
+        ReportSelections: Record "Report Selections";
+    begin
+        if CompanyName <> '' then
+            ReportSelections.ChangeCompany(CompanyName);
+        ReportSelections.SetRange(Usage, UsageValue);
+
+        case true of
+            ReportSelections.IsEmpty():
+                begin
+                    ReportSelections.Reset();
+                    ReportSelections.InsertRecord(UsageValue, '1', ReportID);
+                end;
+            ReportSelections.Count() = 1:
+                begin
+                    ReportSelections.FindFirst();
+                    if ReportSelections."Report ID" <> ReportID then begin
+                        ReportSelections.Validate("Report ID", ReportID);
+                        ReportSelections.Modify();
+                    end;
+                end;
+        end;
     end;
 
     internal procedure PreviousNADepositStateDetected()

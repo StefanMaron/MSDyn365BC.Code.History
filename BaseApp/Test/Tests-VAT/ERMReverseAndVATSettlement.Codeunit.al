@@ -836,7 +836,7 @@ codeunit 134130 "ERM Reverse And VAT Settlement"
     var
         CalcandPostVATSettlement: Report "Calc. and Post VAT Settlement";
     begin
-        CalcandPostVATSettlement.InitializeRequest(WorkDate(), WorkDate(), Enum::"VAT Date Type"::"Posting Date", WorkDate, DocumentNo, AccountNo, false, true);
+        CalcandPostVATSettlement.InitializeRequest(WorkDate(), WorkDate(), WorkDate, DocumentNo, AccountNo, false, true);
         CalcandPostVATSettlement.SetInitialized(false);
         CalcandPostVATSettlement.SaveAsExcel(DocumentNo);
     end;
@@ -846,7 +846,7 @@ codeunit 134130 "ERM Reverse And VAT Settlement"
         FilterVATPostingSetup: Record "VAT Posting Setup";
         CalcandPostVATSettlement: Report "Calc. and Post VAT Settlement";
     begin
-        CalcandPostVATSettlement.InitializeRequest(WorkDate(), WorkDate(), Enum::"VAT Date Type"::"Posting Date", WorkDate(), DocumentNo, LibraryERM.CreateGLAccountNo, true, PostSettlement);
+        CalcandPostVATSettlement.InitializeRequest(WorkDate(), WorkDate(), WorkDate(), DocumentNo, LibraryERM.CreateGLAccountNo, true, PostSettlement);
         FilterVATPostingSetup.SetFilter("VAT Bus. Posting Group", '%1|%2|%3', VATPostingSetup[1]."VAT Bus. Posting Group", VATPostingSetup[2]."VAT Bus. Posting Group", VATPostingSetup[3]."VAT Bus. Posting Group");
         CalcandPostVATSettlement.SetTableView(FilterVATPostingSetup);
         Commit();
@@ -858,7 +858,7 @@ codeunit 134130 "ERM Reverse And VAT Settlement"
         FilterVATPostingSetup: Record "VAT Posting Setup";
         CalcandPostVATSettlement: Report "Calc. and Post VAT Settlement";
     begin
-        CalcandPostVATSettlement.InitializeRequest(WorkDate(), WorkDate(), Enum::"VAT Date Type"::"Posting Date", WorkDate(), DocumentNo, LibraryERM.CreateGLAccountNo, true, PostSettlement);
+        CalcandPostVATSettlement.InitializeRequest(WorkDate(), WorkDate(), WorkDate(), DocumentNo, LibraryERM.CreateGLAccountNo, true, PostSettlement);
         FilterVATPostingSetup.SetFilter("VAT Bus. Posting Group", '%1|%2|%3', VATPostingSetup[1]."VAT Bus. Posting Group", VATPostingSetup[2]."VAT Bus. Posting Group", VATPostingSetup[3]."VAT Bus. Posting Group");
         CalcandPostVATSettlement.SetTableView(FilterVATPostingSetup);
         CalcandPostVATSettlement.UseRequestPage(false);

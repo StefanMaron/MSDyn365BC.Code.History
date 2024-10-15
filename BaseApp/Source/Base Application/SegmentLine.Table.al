@@ -1165,6 +1165,7 @@
         HTMLContentBodyText: Text;
         CustomLayoutCode: Code[20];
         ShouldAssignStep: Boolean;
+        IsHandled: Boolean;
     begin
         OnBeforeFinishSegLineWizard(Rec, IsFinish);
 
@@ -1192,7 +1193,10 @@
                 TempAttachment.ReadHTMLCustomLayoutAttachment(HTMLContentBodyText, CustomLayoutCode);
                 AttachmentManagement.GenerateHTMLContent(TempAttachment, Rec);
             end;
-            SegManagement.LogInteraction(Rec, TempAttachment, TempInterLogEntryCommentLine, send, not IsFinish);
+            IsHandled := false;
+            OnFinishSegLineWizardBeforeLogInteraction(Rec, IsHandled);
+            if not IsHandled then
+                SegManagement.LogInteraction(Rec, TempAttachment, TempInterLogEntryCommentLine, send, not IsFinish);
             InteractionLogEntry.FindLast();
             if Send and (InteractionLogEntry."Delivery Status" = InteractionLogEntry."Delivery Status"::Error) then begin
                 if HTMLAttachment then begin
@@ -1719,6 +1723,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnFinishSegLineWizardOnBeforeAssignEmptyOpportunityStep(var SegmentLine: Record "Segment Line"; var ShouldAssignStep: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFinishSegLineWizardBeforeLogInteraction(var SegmentLine: Record "Segment Line"; var IsHandled: Boolean)
     begin
     end;
 }

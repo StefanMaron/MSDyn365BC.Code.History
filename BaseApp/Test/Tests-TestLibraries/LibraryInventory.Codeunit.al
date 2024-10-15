@@ -621,6 +621,13 @@ codeunit 132201 "Library - Inventory"
         ItemJnlLine.Modify();
     end;
 
+    procedure CreateItemJnlLine(var ItemJnlLine: Record "Item Journal Line"; EntryType: Enum "Item Ledger Entry Type"; PostingDate: Date; ItemNo: Code[20]; Qty: Decimal; LocationCode: Code[10]; NewDocNo: Code[20])
+    begin
+        CreateItemJnlLine(ItemJnlLine, EntryType, PostingDate, ItemNo, Qty, LocationCode);
+        ItemJnlLine."Document No." := NewDocNo;
+        ItemJnlLine.Modify();
+    end;
+
     procedure CreateItemJnlLineWithNoItem(var ItemJournalLine: Record "Item Journal Line"; ItemJournalBatch: Record "Item Journal Batch"; JournalTemplateName: Code[10]; JournalBatchName: Code[10]; EntryType: Enum "Item Ledger Entry Type")
     var
         NoSeries: Record "No. Series";

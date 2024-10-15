@@ -234,7 +234,7 @@ page 9302 "Sales Credit Memos"
             {
                 ApplicationArea = All;
                 Caption = 'Attachments';
-                SubPageLink = "Table ID" = const(36),
+                SubPageLink = "Table ID" = const(Database::"Sales Header"),
                               "No." = field("No."),
                               "Document Type" = field("Document Type");
             }
