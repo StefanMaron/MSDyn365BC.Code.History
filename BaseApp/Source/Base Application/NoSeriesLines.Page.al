@@ -45,6 +45,11 @@ page 457 "No. Series Lines"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the last number that was used from the number series.';
+
+                    trigger OnValidate()
+                    begin
+                        CurrPage.Update(true);
+                    end;
                 }
                 field("Warning No."; "Warning No.")
                 {

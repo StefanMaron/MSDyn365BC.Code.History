@@ -3504,6 +3504,67 @@ codeunit 137072 "SCM Production Orders II"
         ItemJournalLine.TestField("Gen. Prod. Posting Group", SavedGenProdPostingGroup);
     end;
 
+    [Test]
+    procedure PostingRemainingQtyWhenRoundedCalculatedAndRemQtyToConsumeAreNearlyEqual()
+    var
+        Item: Record Item;
+        ChildItem: Record Item;
+        ProductionOrder: Record "Production Order";
+        ProdOrderComponent: Record "Prod. Order Component";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        UOMMgt: Codeunit "Unit of Measure Management";
+        RoutingLinkCode: Code[10];
+        Qty: Decimal;
+        ScrapPerc: Decimal;
+    begin
+        // [FEATURE] [Rounding] [Consumption] [Flushing]
+        // [SCENARIO 423937] Posting remaining quantity of prod. order component when rounded calculated quantity to consume is nearly equal to the remaining quantity.
+        Initialize();
+        Qty := 3;
+        ScrapPerc := 22.5;
+
+        // [GIVEN] Production item "P", component item "C", quantity per = 1.
+        // [GIVEN] Set "Rounding Precision" = 0.01 for the component.
+        CreateItemsSetup(Item, ChildItem);
+        ChildItem.Validate("Rounding Precision", 0.01);
+        ChildItem.Modify(true);
+
+        // [GIVEN] Create routing with routing link.
+        RoutingLinkCode := CreateRoutingAndUpdateItem(Item);
+        UpdateRoutingLinkOnProductionBOMLine(Item."No.", ChildItem."No.", RoutingLinkCode);
+
+        // [GIVEN] Post 3.68 pcs of item "C" to inventory.
+        CreateAndPostItemJournalLine(
+          ChildItem."No.",
+          UOMMgt.RoundToItemRndPrecision(Qty * (1 + ScrapPerc / 100), ChildItem."Rounding Precision"), '', '', false);
+
+        // [GIVEN] Create and refresh production order for 3 pcs of "P".
+        CreateAndRefreshProductionOrder(ProductionOrder, ProductionOrder.Status::Released, Item."No.", Qty, '', '');
+
+        // [GIVEN] Set up the prod. order component "C" for backward flushing and update "Scrap %" = 22.5.
+        FindProductionOrderComponent(ProdOrderComponent, ProductionOrder."No.");
+        ProdOrderComponent.Validate("Flushing Method", ProdOrderComponent."Flushing Method"::Backward);
+        ProdOrderComponent.Validate("Scrap %", ScrapPerc);
+        ProdOrderComponent.Modify(true);
+
+        // [GIVEN] Post output for 1 pc of item "P" twice.
+        // [GIVEN] The system posts automatic consumption of 1.23 pcs of the component "C".
+        // [GIVEN] The precise quantity is 1.225 but it is rounded up to 1.23 according to the rounding precision of 0.01.
+        CreateAndPostOutputJournal(ProductionOrder."No.", 1);
+        CreateAndPostOutputJournal(ProductionOrder."No.", 1);
+
+        // [WHEN] Post 1 pcs of "P" for the third time.
+        CreateAndPostOutputJournal(ProductionOrder."No.", 1);
+
+        // [THEN] The last consumption is posted for 1.22 so that the remaining quantity on the prod. order component = 0.
+        ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Consumption);
+        ItemLedgerEntry.SetRange("Item No.", ChildItem."No.");
+        ItemLedgerEntry.FindLast();
+        ItemLedgerEntry.TestField(Quantity, -1.22);
+        ProdOrderComponent.Find();
+        ProdOrderComponent.TestField("Remaining Quantity", 0);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -3937,6 +3998,16 @@ codeunit 137072 "SCM Production Orders II"
         ItemJournalLine.Validate(Quantity, Quantity);
         ItemJournalLine.Modify(true);
         LibraryInventory.PostItemJournalLine(OutputItemJournalBatch."Journal Template Name", OutputItemJournalBatch.Name);
+    end;
+
+    local procedure CreateAndPostOutputJournal(ProductionOrderNo: Code[20]; OutputQty: Decimal)
+    var
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        CreateOutputJournalWithExlpodeRouting(ItemJournalLine, ProductionOrderNo);
+        ItemJournalLine.Validate("Output Quantity", OutputQty);
+        ItemJournalLine.Modify(true);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
     end;
 
     local procedure CreateAndPostConsumptionJournalWithItemTracking(ProductionOrderNo: Code[20]; Tracking: Boolean)

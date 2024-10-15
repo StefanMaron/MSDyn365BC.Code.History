@@ -127,7 +127,6 @@ report 99001043 "Exchange Production BOM Item"
                                     ProdBOMLine3."Line No." := ProdBOMLine3."Line No." + 10000;
                                     ProdBOMLine2 := ProdBOMLine;
                                     ProdBOMLine2."Version Code" := ProdBOMVersionList."Version Code";
-                                    ProdBOMLine2."Line No." := ProdBOMLine3."Line No.";
                                     ProdBOMLine2.Validate(Type, ToBOMType);
                                     ProdBOMLine2.Validate("No.", ToBOMNo);
                                     ProdBOMLine2.Validate("Quantity per", ProdBOMLine."Quantity per" * QtyMultiply);
@@ -135,16 +134,19 @@ report 99001043 "Exchange Production BOM Item"
                                         ProdBOMLine2.Validate("Routing Link Code", ProdBOMLine."Routing Link Code");
                                     if not CreateNewVersion then
                                         ProdBOMLine2."Starting Date" := StartingDate;
-                                    CopyPositionFields(ProdBOMLine2, ProdBOMLine3);
                                     ProdBOMLine2."Ending Date" := 0D;
-                                    OnBeforeInsertNewProdBOMLine(ProdBOMLine2, ProdBOMLine3, QtyMultiply);
-                                    ProdBOMLine2.Insert();
-                                    if DeleteExcComp then
-                                        ProdBOMLine.Delete(true)
-                                    else begin
+                                    if DeleteExcComp then begin
+                                        ProdBOMLine2."Line No." := ProdBOMLine."Line No.";
+                                        CopyPositionFields(ProdBOMLine2, ProdBOMLine);
+                                        ProdBOMLine.Delete(true);
+                                    end else begin
+                                        ProdBOMLine2."Line No." := ProdBOMLine3."Line No.";
+                                        CopyPositionFields(ProdBOMLine2, ProdBOMLine3);
                                         ProdBOMLine."Ending Date" := StartingDate - 1;
                                         ProdBOMLine.Modify();
                                     end;
+                                    OnBeforeInsertNewProdBOMLine(ProdBOMLine2, ProdBOMLine3, QtyMultiply);
+                                    ProdBOMLine2.Insert();
                                 end;
                         end;
                     until ProdBOMLine.Next(-1) = 0;
