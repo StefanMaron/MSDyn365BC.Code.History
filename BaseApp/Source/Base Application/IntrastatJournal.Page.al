@@ -64,6 +64,7 @@
                     ApplicationArea = BasicEU;
                     StyleExpr = LineStyleExpression;
                     ToolTip = 'Specifies the name of the item.';
+                    Caption = 'Item Name';
                 }
                 field("Tariff No."; "Tariff No.")
                 {
@@ -73,12 +74,31 @@
                 field("Item Description"; "Item Description")
                 {
                     ApplicationArea = BasicEU;
-                    ToolTip = 'Specifies a description of the item.';
+                    ToolTip = 'Specifies the name of the tariff no. that is associated with the item.';
+                    Caption = 'Tariff No. Description';
                 }
                 field("Country/Region Code"; "Country/Region Code")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the country/region code for the item entry.';
+                }
+                field("Partner VAT ID"; "Partner VAT ID")
+                {
+                    ApplicationArea = BasicEU;
+                    ToolTip = 'Specifies the counter party''s VAT number.';
+                    Visible = false;
+                }
+                field("Country/Region of Origin Code"; "Country/Region of Origin Code")
+                {
+                    ApplicationArea = BasicEU;
+                    ToolTip = 'Specifies a code for the country/region where the item was produced or processed.';
+                    Visible = false;
+                }
+                field("Area"; Area)
+                {
+                    ApplicationArea = BasicEU;
+                    ToolTip = 'Specifies the code for the area of the customer or vendor with which you traded the items on this journal line.';
+                    Visible = false;
                 }
                 field("Transaction Type"; "Transaction Type")
                 {
@@ -105,12 +125,6 @@
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the code of either the port of entry where the items passed into your country/region or the port of exit.';
-                    Visible = false;
-                }
-                field("Area"; Area)
-                {
-                    ApplicationArea = BasicEU;
-                    ToolTip = 'Specifies the code for the area of the customer or vendor with which you traded the items on this journal line.';
                     Visible = false;
                 }
                 field("Supplementary Units"; "Supplementary Units")
@@ -169,18 +183,6 @@
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies a reference number used by the customs and tax authorities.';
-                }
-                field("Country/Region of Origin Code"; "Country/Region of Origin Code")
-                {
-                    ApplicationArea = BasicEU;
-                    ToolTip = 'Specifies a code for the country/region where the item was produced or processed.';
-                    Visible = false;
-                }
-                field("Partner VAT ID"; "Partner VAT ID")
-                {
-                    ApplicationArea = BasicEU;
-                    ToolTip = 'Specifies the counter party''s VAT number.';
-                    Visible = false;
                 }
                 field("Location Code"; "Location Code")
                 {
