@@ -100,6 +100,7 @@ table 11401 "CBG Statement Line"
                 Vend: Record Vendor;
                 Employee: Record Employee;
                 BankAccount: Record "Bank Account";
+                DocType: Enum "Gen. Journal Document Type";
                 IsHandled: Boolean;
             begin
                 IsHandled := false;
@@ -184,10 +185,7 @@ table 11401 "CBG Statement Line"
                     "Account Type"::Customer:
                         begin
                             Cust.Get("Account No.");
-                            if Cust."Privacy Blocked" then
-                                Cust.CustPrivacyBlockedErrorMessage(Cust, false);
-                            if Cust.Blocked in [Cust.Blocked::All] then
-                                Cust.CustBlockedErrorMessage(Cust, false);
+                            Cust.CheckBlockedCustOnJnls(Cust, DocType::Payment, false);
                             if OriginalDescription or (Description = '') then
                                 Description := Cust.Name;
                             "Salespers./Purch. Code" := Cust."Salesperson Code";
@@ -195,10 +193,7 @@ table 11401 "CBG Statement Line"
                     "Account Type"::Vendor:
                         begin
                             Vend.Get("Account No.");
-                            if Vend."Privacy Blocked" then
-                                Vend.VendPrivacyBlockedErrorMessage(Vend, false);
-                            if Vend.Blocked in [Vend.Blocked::All] then
-                                Vend.VendBlockedErrorMessage(Vend, false);
+                            Vend.CheckBlockedVendOnJnls(Vend, DocType::Payment, false);
                             if OriginalDescription or (Description = '') then
                                 Description := Vend.Name;
                             "Salespers./Purch. Code" := Vend."Purchaser Code";
@@ -206,6 +201,7 @@ table 11401 "CBG Statement Line"
                     "Account Type"::Employee:
                         begin
                             Employee.Get("Account No.");
+                            Employee.CheckBlockedEmployeeOnJnls(false);
                             if OriginalDescription or (Description = '') then
                                 Description := CopyStr(Employee.FullName, 1, MaxStrLen(Description));
                             "Salespers./Purch. Code" := Employee."Salespers./Purch. Code";

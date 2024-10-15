@@ -37,6 +37,11 @@ codeunit 144012 "UT TAB Cash Bank Giro"
         LibraryRandom: Codeunit "Library - Random";
         OpeningBalanceQst: Label 'The opening balance';
         PostingQst: Label 'Do you want to';
+        CannotCreateDocWhenCustBlockedErr: Label 'You cannot create this type of document when Customer %1 is blocked with type %2';
+        CannotCreateDocWhenVendBlockedErr: Label 'You cannot create this type of document when Vendor %1 is blocked with type %2';
+        PrivacyBlockedCustErr: Label 'You cannot create this type of document when Customer %1 is blocked for privacy.';
+        PrivacyBlockedVendErr: Label 'You cannot create this type of document when Vendor %1 is blocked for privacy.';
+        BlockedEmplForJnrlErr: Label 'You cannot create this document because employee %1 is blocked due to privacy.';
 
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
@@ -145,10 +150,38 @@ codeunit 144012 "UT TAB Cash Bank Giro"
     [Scope('OnPrem')]
     procedure OnValidateAccountNoWithBlockedCustCBGStmtLineErr()
     var
+        CBGStatement: Record "CBG Statement";
         CBGStatementLine: Record "CBG Statement Line";
+        Customer: Record Customer;
     begin
-        // Purpose of this test to validate Account No with Blocked Customer in CBG Statement Line table.
-        CBGStatmentWithBlockedCustomerAndVendor(CBGStatementLine."Account Type"::Customer, CreateBlockedCustomer);
+        // [SCENARIO 474117] Validate Account No with Blocked:All Customer in CBG Statement Line table.
+        Initialize();
+        CreateCBGStatement(CBGStatement, CBGStatementLine, CBGStatement.Type::"Bank/Giro", CBGStatementLine."Account Type"::Customer, '', '');
+        CreateBlockedCustomer(Customer, Customer.Blocked::All, false);
+        asserterror CBGStatementLine.Validate("Account No.", Customer."No.");
+
+        // [THEN] "You cannot create this type of document when Customer is blocked with type All".
+        Assert.ExpectedErrorCode('Dialog');
+        Assert.ExpectedError(StrSubstNo(CannotCreateDocWhenCustBlockedErr, Customer."No.", Customer.Blocked::All));
+    end;
+
+    [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure OnValidateAccountNoWithBlockedInvoiceCustCBGStmtLineErr()
+    var
+        CBGStatement: Record "CBG Statement";
+        CBGStatementLine: Record "CBG Statement Line";
+        Customer: Record Customer;
+    begin
+        // [SCENARIO 474117] Validate Account No with Blocked:Invoice Customer in CBG Statement Line table.
+        Initialize();
+        CreateCBGStatement(CBGStatement, CBGStatementLine, CBGStatement.Type::"Bank/Giro", CBGStatementLine."Account Type"::Customer, '', '');
+        CreateBlockedCustomer(Customer, Customer.Blocked::Invoice, false);
+        CBGStatementLine.Validate("Account No.", Customer."No.");
+
+        // [THEN] Allowed to use Customer in the line.
+        CBGStatementLine.TestField("Account No.", Customer."No.");
     end;
 
     [Test]
@@ -156,26 +189,99 @@ codeunit 144012 "UT TAB Cash Bank Giro"
     [Scope('OnPrem')]
     procedure OnValidateAccountNoWithBlockedVendCBGStmtLineErr()
     var
+        CBGStatement: Record "CBG Statement";
         CBGStatementLine: Record "CBG Statement Line";
+        Vendor: Record Vendor;
     begin
-        // Purpose of this test to validate Account No with Blocked Vendor in CBG Statement Line table.
-        CBGStatmentWithBlockedCustomerAndVendor(CBGStatementLine."Account Type"::Vendor, CreateBlockedVendor);
+        // [SCENARIO 474117] Validate Account No with Blocked:All Vendor in CBG Statement Line table.
+        Initialize();
+        CreateCBGStatement(CBGStatement, CBGStatementLine, CBGStatement.Type::"Bank/Giro", CBGStatementLine."Account Type"::Vendor, '', '');
+        CreateBlockedVendor(Vendor, Vendor.Blocked::All, false);
+        asserterror CBGStatementLine.Validate("Account No.", Vendor."No.");
+        // [THEN] "You cannot create this type of document when Vendor is blocked with type All".
+        Assert.ExpectedErrorCode('Dialog');
+        Assert.ExpectedError(StrSubstNo(CannotCreateDocWhenVendBlockedErr, Vendor."No.", Vendor.Blocked::All));
     end;
 
-    local procedure CBGStatmentWithBlockedCustomerAndVendor(AccountType: Option; AccountNo: Code[20])
+    [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure OnValidateAccountNoWithBlockedPaymentVendCBGStmtLineErr()
     var
         CBGStatement: Record "CBG Statement";
         CBGStatementLine: Record "CBG Statement Line";
+        Vendor: Record Vendor;
     begin
-        // Create CBG Statement.
+        // [SCENARIO 474117] Validate Account No with Blocked:Payment Vendor in CBG Statement Line table.
         Initialize();
-        CreateCBGStatement(CBGStatement, CBGStatementLine, CBGStatement.Type::"Bank/Giro", AccountType, '', '');
-
-        // Exercise.
-        asserterror CBGStatementLine.Validate("Account No.", AccountNo);
-
-        // Verify: Verify error code, actual error is " You cannot create this type of document when Vendor is blocked with type All", on Check Balance of CBG Statement Line table.
+        CreateCBGStatement(CBGStatement, CBGStatementLine, CBGStatement.Type::"Bank/Giro", CBGStatementLine."Account Type"::Vendor, '', '');
+        CreateBlockedVendor(Vendor, Vendor.Blocked::Payment, false);
+        asserterror CBGStatementLine.Validate("Account No.", Vendor."No.");
+        // [THEN] "You cannot create this type of document when Vendor is blocked with type Payment".
         Assert.ExpectedErrorCode('Dialog');
+        Assert.ExpectedError(StrSubstNo(CannotCreateDocWhenVendBlockedErr, Vendor."No.", Vendor.Blocked::Payment));
+    end;
+
+    [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure OnValidateAccountNoWithPrivacyBlockedCustCBGStmtLineErr()
+    var
+        CBGStatement: Record "CBG Statement";
+        CBGStatementLine: Record "CBG Statement Line";
+        Customer: Record Customer;
+    begin
+        // [SCENARIO 474117] Validate Account No with Privacy Blocked Customer in CBG Statement Line table.
+        Initialize();
+        CreateCBGStatement(CBGStatement, CBGStatementLine, CBGStatement.Type::"Bank/Giro", CBGStatementLine."Account Type"::Customer, '', '');
+        CreateBlockedCustomer(Customer, Customer.Blocked::" ", true);
+        asserterror CBGStatementLine.Validate("Account No.", Customer."No.");
+
+        // [THEN] "You cannot create this type of document when Customer has privacy blocked true.
+        Assert.ExpectedErrorCode('Dialog');
+        Assert.ExpectedError(StrSubstNo(PrivacyBlockedCustErr, Customer."No."));
+    end;
+
+    [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure OnValidateAccountNoWithPrivacyBlockedVendCBGStmtLineErr()
+    var
+        CBGStatement: Record "CBG Statement";
+        CBGStatementLine: Record "CBG Statement Line";
+        Vendor: Record Vendor;
+    begin
+        // [SCENARIO 474117] Validate Account No with Privacy Blocked Vendor in CBG Statement Line table.
+        Initialize();
+        CreateCBGStatement(CBGStatement, CBGStatementLine, CBGStatement.Type::"Bank/Giro", CBGStatementLine."Account Type"::Vendor, '', '');
+        CreateBlockedVendor(Vendor, Vendor.Blocked::" ", true);
+        asserterror CBGStatementLine.Validate("Account No.", Vendor."No.");
+
+        // [THEN] "You cannot create this type of document when Vendor has privacy blocked true.
+        Assert.ExpectedErrorCode('Dialog');
+        Assert.ExpectedError(StrSubstNo(PrivacyBlockedVendErr, Vendor."No."));
+    end;
+
+    [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure OnValidateAccountNoWithPrivacyBlockedEmployeeCBGStmtLineErr()
+    var
+        CBGStatement: Record "CBG Statement";
+        CBGStatementLine: Record "CBG Statement Line";
+        Employee: Record Employee;
+    begin
+        // [SCENARIO 474117] Validate Account No with Privacy Blocked Employee in CBG Statement Line table.
+        Initialize();
+        CreateCBGStatement(CBGStatement, CBGStatementLine, CBGStatement.Type::"Bank/Giro", CBGStatementLine."Account Type"::Employee, '', '');
+        Employee."No." := LibraryUTUtility.GetNewCode();
+        Employee."Privacy Blocked" := true;
+        Employee.Insert();
+        asserterror CBGStatementLine.Validate("Account No.", Employee."No.");
+
+        // [THEN] "You cannot create this type of document when Employee has privacy blocked true.
+        Assert.ExpectedErrorCode('Dialog');
+        Assert.ExpectedError(StrSubstNo(BlockedEmplForJnrlErr, Employee."No."));
     end;
 
     [Test]
@@ -389,24 +495,20 @@ codeunit 144012 "UT TAB Cash Bank Giro"
         exit(BankAccount."No.");
     end;
 
-    local procedure CreateBlockedCustomer(): Code[20]
-    var
-        Customer: Record Customer;
+    local procedure CreateBlockedCustomer(var Customer: Record Customer; Blocked: Enum "Customer Blocked"; PrivacyBlocked: Boolean)
     begin
         Customer."No." := LibraryUTUtility.GetNewCode;
-        Customer.Blocked := Customer.Blocked::All;
+        Customer.Blocked := Blocked;
+        Customer."Privacy Blocked" := PrivacyBlocked;
         Customer.Insert();
-        exit(Customer."No.");
     end;
 
-    local procedure CreateBlockedVendor(): Code[20]
-    var
-        Vendor: Record Vendor;
+    local procedure CreateBlockedVendor(var Vendor: Record Vendor; Blocked: Enum "Vendor Blocked"; PrivacyBlocked: Boolean)
     begin
         Vendor."No." := LibraryUTUtility.GetNewCode;
-        Vendor.Blocked := Vendor.Blocked::All;
+        Vendor.Blocked := Blocked;
+        Vendor."Privacy Blocked" := PrivacyBlocked;
         Vendor.Insert();
-        exit(Vendor."No.");
     end;
 
     local procedure CreateCBGStatement(var CBGStatement: Record "CBG Statement"; var CBGStatementLine: Record "CBG Statement Line"; Type: Option; AccountType: Option; AccountNo: Code[20]; Currency: Code[10])
