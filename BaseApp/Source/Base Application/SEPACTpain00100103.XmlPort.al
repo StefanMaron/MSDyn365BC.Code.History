@@ -627,6 +627,8 @@ xmlport 1000 "SEPA CT pain.001.001.03"
                             }
 
                             trigger OnBeforePassVariable()
+                            var
+                                SeparatorText: Text;
                             begin
                                 RemittanceText1 := '';
                                 RemittanceText2 := '';
@@ -638,9 +640,13 @@ xmlport 1000 "SEPA CT pain.001.001.03"
                                 RemittanceText1 := TempPaymentExportRemittanceText.Text;
                                 if TempPaymentExportRemittanceText.Next <> 0 then
                                     RemittanceText2 := TempPaymentExportRemittanceText.Text;
-                                if not SwissExport then
+                                if not SwissExport then begin
+                                    SeparatorText := '; ';
+                                    OnSpecifyRemittanceTextSeparatorText(SeparatorText);
+
                                     RemittanceText1 := CopyStr(
-                                        StrSubstNo('%1; %2', RemittanceText1, RemittanceText2), 1, 140);
+                                        StrSubstNo('%1%2%3', RemittanceText1, SeparatorText, RemittanceText2), 1, 140);
+                                end;
                                 UpdateRemittanceInfo(PaymentExportData);
 
                                 if (RemittanceText1 = '') and (RemittanceText2 = '') and (RmtStrdRef = '') then
@@ -775,6 +781,11 @@ xmlport 1000 "SEPA CT pain.001.001.03"
                         CdtrRefInf_CdOrPrtry_Cd := 'SCOR';
                 end;
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSpecifyRemittanceTextSeparatorText(var SeparatorText: Text)
+    begin
     end;
 }
 
