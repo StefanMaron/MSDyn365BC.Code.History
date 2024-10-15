@@ -18,6 +18,8 @@ codeunit 134826 "UT Contact Table"
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryERM: Codeunit "Library - ERM";
         DateFilterErr: Label 'Date Filter does not match expected value';
+        PhoneNoCannotContainLettersErr: Label '%1 must not contain letters in Contact No.=''%2''', Comment = '%1 - Field Caption, like Phone No.; %2 - Contact No.';
+        PhoneNoContactCardValidationErr: Label 'Validation error for Field: %1', Comment = '%1 - Field Caption, like Phone No.';
 
     [Test]
     [Scope('OnPrem')]
@@ -798,6 +800,168 @@ codeunit 134826 "UT Contact Table"
         // [THEN] Bank Account Card has Date Filter which is equal to "before today"
         DateFilter := StrSubstNo('''''..%1', WorkDate);
         Assert.AreEqual(DateFilter, BankAccountCard.FILTER.GetFilter("Date Filter"), DateFilterErr);
+    end;
+
+    [Test]
+    procedure PhoneNoValidateDigitsOnly()
+    var
+        Contact: Record Contact;
+        PhoneNo: Text[30];
+    begin
+        // [SCENARIO 423817] Validate Contact's Phone No. with digits only.
+
+        // [GIVEN] Contact.
+        LibraryMarketing.CreatePersonContact(Contact);
+
+        // [WHEN] Validate Phone No. with "0814655", i.e. try to write digits to Phone No.
+        PhoneNo := '0814655';
+        Contact.Validate("Phone No.", PhoneNo);
+
+        // [THEN] Phone No. was set to "0814655".
+        Contact.TestField("Phone No.", PhoneNo);
+    end;
+
+    [Test]
+    procedure PhoneNoValidateDigitsAndNonLetterChars()
+    var
+        Contact: Record Contact;
+        PhoneNo: Text[30];
+    begin
+        // [SCENARIO 423817] Validate Contact's Phone No. with digits and non-letter chars.
+
+        // [GIVEN] Contact.
+        LibraryMarketing.CreatePersonContact(Contact);
+
+        // [WHEN] Validate Phone No. with "+-0814 655=&?", i.e. try to write non-letter chars to Phone No.
+        PhoneNo := '+-0814 655=&?';
+        Contact.Validate("Phone No.", PhoneNo);
+
+        // [THEN] Phone No. was set to "+-0814 655=&?".
+        Contact.TestField("Phone No.", PhoneNo);
+    end;
+
+    [Test]
+    procedure PhoneNoValidateDigitsAndLetterChars()
+    var
+        Contact: Record Contact;
+    begin
+        // [SCENARIO 423817] Validate Contact's Phone No. with digits and letter chars.
+
+        // [GIVEN] Contact.
+        LibraryMarketing.CreatePersonContact(Contact);
+
+        // [WHEN] Validate Phone No. with "A1234b", i.e. try to write letters to Phone No.
+        asserterror Contact.Validate("Phone No.", 'A1234b');
+
+        // [THEN] Phone No. was not set, error is thrown.
+        Contact.TestField("Phone No.", '');
+        Assert.ExpectedError(StrSubstNo(PhoneNoCannotContainLettersErr, Contact.FieldCaption("Phone No."), Contact."No."));
+        Assert.ExpectedErrorCode('TableErrorStr');
+    end;
+
+    [Test]
+    procedure PhoneNoSetLetterOnContactCard()
+    var
+        Contact: Record Contact;
+        ContactCard: TestPage "Contact Card";
+    begin
+        // [SCENARIO 423817] Set letter to Phone No. on Contact Card.
+
+        // [GIVEN] Contact.
+        LibraryMarketing.CreatePersonContact(Contact);
+
+        // [GIVEN] Opened Contact Card.
+        ContactCard.OpenEdit();
+        ContactCard.Filter.SetFilter("No.", Contact."No.");
+
+        // [WHEN] Set 'a' as Phone No. on Contact Card.
+        asserterror ContactCard."Phone No.".SetValue('a');
+
+        // [THEN] Phone No. was not set, error is thrown.
+        Contact.TestField("Phone No.", '');
+        Assert.ExpectedError(StrSubstNo(PhoneNoContactCardValidationErr, Contact.FieldCaption("Phone No.")));
+        Assert.ExpectedErrorCode('TestValidation');
+    end;
+
+    [Test]
+    procedure MobilePhoneNoValidateDigitsOnly()
+    var
+        Contact: Record Contact;
+        MobilePhoneNo: Text[30];
+    begin
+        // [SCENARIO 423817] Validate Contact's Mobile Phone No. with digits only.
+
+        // [GIVEN] Contact.
+        LibraryMarketing.CreatePersonContact(Contact);
+
+        // [WHEN] Validate Mobile Phone No. with "0814655", i.e. try to write digits to Mobile Phone No.
+        MobilePhoneNo := '0814655';
+        Contact.Validate("Mobile Phone No.", MobilePhoneNo);
+
+        // [THEN] Mobile Phone No. was set to "0814655".
+        Contact.TestField("Mobile Phone No.", MobilePhoneNo);
+    end;
+
+    [Test]
+    procedure MobilePhoneNoValidateDigitsAndNonLetterChars()
+    var
+        Contact: Record Contact;
+        MobilePhoneNo: Text[30];
+    begin
+        // [SCENARIO 423817] Validate Contact's Mobile Phone No. with digits and non-letter chars.
+
+        // [GIVEN] Contact.
+        LibraryMarketing.CreatePersonContact(Contact);
+
+        // [WHEN] Validate Mobile Phone No. with "+-0814 655=&?", i.e. try to write non-letter chars to Mobile Phone No.
+        MobilePhoneNo := '+-0814 655=&?';
+        Contact.Validate("Mobile Phone No.", MobilePhoneNo);
+
+        // [THEN] Mobile Phone No. was set to "+-0814 655=&?".
+        Contact.TestField("Mobile Phone No.", MobilePhoneNo);
+    end;
+
+    [Test]
+    procedure MobilePhoneNoValidateDigitsAndLetterChars()
+    var
+        Contact: Record Contact;
+    begin
+        // [SCENARIO 423817] Validate Contact's Mobile Phone No. with digits and letter chars.
+
+        // [GIVEN] Contact.
+        LibraryMarketing.CreatePersonContact(Contact);
+
+        // [WHEN] Validate Mobile Phone No. with "A1234b", i.e. try to write letters to Mobile Phone No.
+        asserterror Contact.Validate("Mobile Phone No.", 'A1234b');
+
+        // [THEN] Mobile Phone No. was not set, error is thrown.
+        Contact.TestField("Mobile Phone No.", '');
+        Assert.ExpectedError(StrSubstNo(PhoneNoCannotContainLettersErr, Contact.FieldCaption("Mobile Phone No."), Contact."No."));
+        Assert.ExpectedErrorCode('TableErrorStr');
+    end;
+
+    [Test]
+    procedure MobilePhoneNoSetLetterOnContactCard()
+    var
+        Contact: Record Contact;
+        ContactCard: TestPage "Contact Card";
+    begin
+        // [SCENARIO 423817] Set letter to Mobile Phone No. on Contact Card.
+
+        // [GIVEN] Contact.
+        LibraryMarketing.CreatePersonContact(Contact);
+
+        // [GIVEN] Opened Contact Card.
+        ContactCard.OpenEdit();
+        ContactCard.Filter.SetFilter("No.", Contact."No.");
+
+        // [WHEN] Set 'a' as Mobile Phone No. on Contact Card.
+        asserterror ContactCard."Mobile Phone No.".SetValue('a');
+
+        // [THEN] Mobile Phone No. was not set, error is thrown.
+        Contact.TestField("Mobile Phone No.", '');
+        Assert.ExpectedError(StrSubstNo(PhoneNoContactCardValidationErr, Contact.FieldCaption("Mobile Phone No.")));
+        Assert.ExpectedErrorCode('TestValidation');
     end;
 
     local procedure GetContactNoFromContBusRelations(LinkOption: Enum "Contact Business Relation Link To Table"; CodeNo: Code[20]): Code[20]

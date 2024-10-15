@@ -485,8 +485,8 @@ codeunit 136213 "Marketing Segment"
         // [GIVEN] "Mobile Phone No." = "888-888-88-88"
         // [GIVEN] "E-Mail" = "user@contoso.com"
         LibraryMarketing.CreatePersonContact(Contact);
-        Contact.Validate("Phone No.", LibraryUtility.GenerateGUID());
-        Contact.Validate("Mobile Phone No.", LibraryUtility.GenerateGUID());
+        Contact.Validate("Phone No.", LibraryUtility.GenerateRandomPhoneNo());
+        Contact.Validate("Mobile Phone No.", LibraryUtility.GenerateRandomPhoneNo());
         Contact.Validate("E-Mail", StrSubstNo('%1@%1', LibraryUtility.GenerateGUID()));
         Contact.Modify(true);
 
@@ -525,8 +525,8 @@ codeunit 136213 "Marketing Segment"
         // [GIVEN] "Mobile Phone No." = "888-888-88-88"
         // [GIVEN] "E-Mail" = "user@contoso.com"
         LibraryMarketing.CreateCompanyContact(Contact);
-        Contact.Validate("Phone No.", LibraryUtility.GenerateGUID());
-        Contact.Validate("Mobile Phone No.", LibraryUtility.GenerateGUID());
+        Contact.Validate("Phone No.", LibraryUtility.GenerateRandomPhoneNo());
+        Contact.Validate("Mobile Phone No.", LibraryUtility.GenerateRandomPhoneNo());
         Contact.Validate("E-Mail", StrSubstNo('%1@%1', LibraryUtility.GenerateGUID()));
         Contact.Modify(true);
 

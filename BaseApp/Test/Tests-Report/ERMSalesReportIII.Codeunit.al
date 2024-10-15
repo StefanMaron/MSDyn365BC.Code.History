@@ -2636,6 +2636,43 @@ codeunit 134984 "ERM Sales Report III"
         LibraryReportDataset.AssertCurrentRowValueEquals('TrackingSpecBufferLotNo', FindAssignedLotNo(Item."No."));
     end;
 
+    [Test]
+    [HandlerFunctions('StandardStatementNoLogInteractionRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure StandardStatementNoILEWhenILEDisabled()
+    var
+        InteractionLogEntry: Record "Interaction Log Entry";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        Customer: Record Customer;
+        RequestPageXML: Text;
+        InteractionLogEntryCount: Integer;
+    begin
+        // [FEATURE] [Standard Statement]
+        // [SCENARIO 426814] REP 1316 "Standard Statement" should not log interaction log entry if user disabled it
+        Initialize();
+
+        // [GIVEN] Interaction Log Entry count = "X"
+        InteractionLogEntry.Reset();
+        InteractionLogEntryCount := InteractionLogEntry.Count();
+
+        // [GIVEN] Customer "C" with Customer Ledger Entry
+        LibrarySales.CreateCustomer(Customer);
+        LibraryVariableStorage.Enqueue(Customer."No.");
+        MockCustLedgerEntry(CustLedgerEntry, Customer."No.", -LibraryRandom.RandInt(100), WorkDate);
+        Customer.SetRecFilter();
+        Commit();
+
+        // [WHEN] When run "Standard Statement" report for the customer "C" and Log Interaction = false 
+        LibraryVariableStorage.Enqueue(False);
+        RequestPageXML := REPORT.RunRequestPage(REPORT::"Standard Statement");
+        LibraryReportDataset.RunReportAndLoad(REPORT::"Standard Statement", Customer, RequestPageXML);
+
+        // [THEN] No Interaction Log Entries created, record count = "X"
+        InteractionLogEntry.Reset();
+        Assert.RecordCount(InteractionLogEntry, InteractionLogEntryCount);
+        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean(), 'Log Interaction control is not visible');
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -4548,6 +4585,18 @@ codeunit 134984 "ERM Sales Report III"
     procedure SalesCreditMemoRequestPageHandler(var SalesCreditMemo: TestRequestPage "Sales - Credit Memo")
     begin
         SalesCreditMemo.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+    
+    [RequestPageHandler]
+    procedure StandardStatementNoLogInteractionRequestPageHandler(var StandardStatement: TestRequestPage "Standard Statement")
+    begin
+        LibraryVariableStorage.Enqueue(StandardStatement.LogInteraction.Enabled);
+        StandardStatement."Start Date".SetValue(WorkDate);
+        StandardStatement."End Date".SetValue(WorkDate);
+        StandardStatement.Customer.SetFilter("No.", LibraryVariableStorage.DequeueText);
+        StandardStatement.LogInteraction.SetValue(LibraryVariableStorage.DequeueBoolean());
+        StandardStatement.ReportOutput.SetValue('Preview');
+        StandardStatement.OK().Invoke();
     end;
 
     [RequestPageHandler]
